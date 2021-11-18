@@ -2,10 +2,8 @@
 # output: github_document
 title: Error detection in science
 output:
-  rmarkdown::md_document:
-    # fig_width: 3
-    # fig_height: 3
-    
+  rmarkdown::github_document:
+
 vignette: >
   %\VignetteIndexEntry{Error detection in science}
 
@@ -29,21 +27,13 @@ knitr::opts_chunk$set(
 devtools::load_all(".")
 
 # Determine ggplot2 theme for the session:
-ggplot2::theme_minimal(base_size = 12) %>% 
+ggplot2::theme_minimal() %>% 
   ggplot2::theme_set()
 ```
 
 <!-- badges: start -->
 
 <!-- badges: end -->
-
-```{r, echo=FALSE}
-# Determine ggplot2 theme for the entire document:
-ggplot2::theme_minimal(base_size = 12) %>% 
-  ggplot2::theme_set()
-```
-
-# Error detection in science
 
 The goal of scrutiny is to test published summary statistics for consistency and reconstruct some of the processes which created them. The package makes these methods easy to use in a tidyverse-friendly way. It hopes to help the new field of error detection go mainstream.
 
@@ -61,7 +51,7 @@ Besides consistency tests, scrutiny features infrastructure for implementing err
 
 <!-- ## Example -->
 
-Here is how to GRIM-test all values in a data frame. `consistency` tells you if the means (`x`) and sample sizes (`n`) are mutually consistent.
+Here is how to GRIM-test all values in a data frame. When using `grim_map()`, the `consistency` column tells you if the means (`x`) and sample sizes (`n`) are mutually consistent.
 
 ```{r example}
 library(scrutiny)
@@ -83,7 +73,7 @@ grim_map(pigs2, percent = TRUE)
 
 Visualize GRIM results while also selecting a rounding procedure:
 
-```{r fig.width=3, fig.height=3}
+```{r fig.width=4, fig.height=4}
 pigs1 %>% 
   grim_map(rounding = "up") %>% 
   grim_plot()
@@ -91,7 +81,7 @@ pigs1 %>%
 
 Similarly, test means and standard deviations of binary data with DEBIT:
 
-```{r fig.width=3.5, fig.height=3}
+```{r fig.width=4.5, fig.height=4}
 pigs3
 
 pigs3 %>% 

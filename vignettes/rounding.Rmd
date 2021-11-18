@@ -168,11 +168,7 @@ The reason for the above behavior is that most decimal fractions can't, in fact,
 
 This seems better than going with mathematical intuitions that sometimes may have little relation to the way computers actually deal with these issues. R has been using the present solution since version 4.0.0.
 
-In effect, `base::round()` is a black box, but it is still much less biased than the alternatives, rounding up and down from 5, which come with a thick and constant inbuilt bias. `round()` can be biased in particular distributions, but it seems to be unbiased in the long run. I recommend using `round()` for original work --- even though it is quite different from other rounding procedures, and therefore unsuitable to reconstructing them. Instead, we need something like scrutiny's `round_*` functions.
-
-Doing such reconstructive work is actually the whole purpose of functions like `round_up()` and `round_down()`. As seen above, their clarity and simplicity comes with a twist. Do not use them in place of `base::round()` unless you have to.
-
-[MORE HERE]
+In effect, `base::round()` is a black box, but it seems to be unbiased in the long run. I recommend using `round()` for original work --- even though it is quite different from other rounding procedures, and therefore unsuitable to reconstructing them. Instead, we need something like scrutiny's `round_*` functions.
 
 ## Reconstruct rounding bounds with `unround()`
 
