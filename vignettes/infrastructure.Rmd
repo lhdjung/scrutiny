@@ -1,0 +1,235 @@
+---
+title: "Infrastructure beyond rounding"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Infrastructure beyond rounding}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteDepends{devtools}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r include=FALSE}
+# Dev only: load scrutiny from within scrutiny
+devtools::load_all(".")
+```
+
+```{r setup, message=FALSE}
+library(scrutiny)
+```
+
+The implementation of error detection techniques in scrutiny rests on a foundation of specialized helper functions. Some of these are exported because they might be helpful in error detection more broadly, or perhaps even in other contexts.
+
+This vignette provides an overview of scrutiny's miscellaneous infrastructure for implementing error detection techniques. It does not discuss infrastructure for rounding, a topic so important to the package that it has its own article: `vignette("rounding")`.
+
+## Count decimal places
+
+Large parts of the package ultimately rest on either of two functions that simply count decimal places. These are characters after a number's decimal point or some other separator. Both functions also take strings.
+
+`decimal_places()` is vectorized:
+
+```{r}
+decimal_places("2.80")
+
+decimal_places(c(55.1, 6.493, 8))
+
+vec1 <- iris %>% 
+  dplyr::slice(1:10) %>% 
+  dplyr::pull(Sepal.Length)
+
+vec1
+
+vec1 %>% 
+  decimal_places()
+```
+
+Using strings that are coercible to numeric is recommended in an error detection context because trailing zeros can be crucial here. Numeric values drop trailing zeros, whereas strings preserve them:
+
+```{r}
+decimal_places(7.200)
+
+decimal_places("7.200")
+```
+
+`decimal_places_scalar()` is considerably faster than `decimal_places()` but only takes a single number or string into account. This makes it suitable as a helper within other single-case functions.
+
+## Restore trailing zeros
+
+When dealing with numbers that used to have trailing zeros but lost them from being registered as numeric, call `restore_zeros()` to format them correctly. This can be relevant within functions that create vectors where trailing zeros matter, such as the `seq_*()` functions presented in the next section.
+
+Suppose all of the following numbers originally had one decimal place, but some no longer do:
+
+```{r}
+vec <- c(4, 6.9, 5, 4.2, 4.8, 7, 4)
+
+vec %>% 
+  decimal_places()
+```
+
+Now, get them back with `restore_zeros()`:
+
+```{r}
+vec %>% 
+  restore_zeros()
+
+vec %>% 
+  restore_zeros() %>% 
+  decimal_places()
+```
+
+This uses the default of going by the longest mantissa and padding the other strings with decimal zeros until they have that many decimal places. However, this is just a heuristic: The longest mantissa might itself have lost decimal places. Specify the `width` argument to explicitly state the desired mantissa length:
+
+```{r}
+vec %>% 
+  restore_zeros(width = 2)
+
+vec %>% 
+  restore_zeros(width = 2) %>% 
+  decimal_places()
+```
+
+## Sequence generation
+
+### The limits of `seq()`
+
+`base::seq()` is an elegant way to generate regular sequences, but it is almost too elegant: The way to determine the step size entirely depends on which arguments are added with non-standard evaluation (i.e., via the dots, `…`).
+
+By default, the step size is assumed to be 1, which can be overridden using the `by` parameter. However, `by` clashes with the only way to state the desired output length, which is the `length.out` parameter. This makes the step size dependent on `from`, `to`, and `by`, and therefore highly variable in the face of different specifications of these parameters. For example:
+
+```{r}
+seq(from = 4, to = 7, length.out = 5)
+
+seq(from = 4, to = 20, length.out = 5)
+```
+
+It is worth emphasizing that `seq()` encapsulates two mutually exclusive ways of generating sequences: (1) by a manually specified step size without controlling output length; and (2) by a manually specified output length without controlling step size. These two approaches overdetermine each other, and are therefore irreconcilable. Here's what you get if you try it both ways within a single call:
+
+```{r error=TRUE}
+seq(from = 4, to = 7, by = 0.1, length.out = 5)
+```
+
+Another issue is that `seq()` doesn't automatically take the input numbers' decimal depth into account (i.e., unless `by` was specified in such a way), which would be desirable in an error detection context.
+
+With regards to decimal sequences, therefore, `seq()` does both too much and too little. It has two distinct functional rationales that uneasily sit together in a single function. One might wish to disentangle them: to generate sequences that either run from A to B at the appropriate decimal level, or that have some given length without jeopardizing the step size. It might even be worth spelling out the two rationales in distinct functions.
+
+As it happens, scrutiny features two wrappers around `seq()` that separately capture both of its modi operandi, all while guided by the input numbers' decimal depth: `seq_endpoint()` and `seq_distance()`. Both functions forsake the `by` argument, but that's actually good because they infer the step size automatically from the number of decimal places in their input values.
+
+The package also has two functions that build up on these basic ones by quickly and flexibly constructing data frames with the respective kind of sequence, `seq_endpoint_df()` and `seq_distance_df()`. These latter two accept new columns entered as in `tibble::tibble()` or `dplyr::mutate()`.
+
+Here, I will first present the two basic `seq()` wrappers. Next, I will briefly discuss the higher-level `*_df` functions.
+
+### Two `seq()` wrappers
+
+#### Sequence between two fix points
+
+Consider this call to `seq()`:
+
+```{r}
+seq(from = 4.1, to = 7)
+```
+
+The intended output of such a call is likely a sequence that progresses in steps of 0.1, and that actually arrives at 7. `base::seq()` won't understand this, but `scrutiny::seq_endpoint()` will:
+
+```{r}
+seq_endpoint(from = 4.1, to = 7)
+```
+
+Unlike `seq()`, therefore, `seq_endpoint()` always reaches its target. The last value in a vector returned by `seq_endpoint()` will be numerically equal to the value of its `to` argument, no matter how the arguments were specified.
+
+(The output is string by default, but it doesn't need to be:)
+
+```{r}
+seq_endpoint(from = 4.1, to = 7, string_output = FALSE)
+```
+
+For step size ($S$), the function counts decimal places in `from` and `to`, and then looks for the greater number of decimal places ($D_{max}$). It proceeds by one unit of the longer mantissa's last decimal digit:
+
+$$
+S = \frac{1}{10^{D_{max}}}
+$$
+
+So if the endpoint has more decimal places than the starting point, it works like this:
+
+```{r}
+seq_endpoint(from = 4.5, to = 4.62)
+```
+
+Because the step size in `seq_endpoint()` is determined by the greater decimal depth from among its main arguments, it's possible to set off the starting point and/or the endpoint of the sequence at that very level:
+
+```{r}
+seq_endpoint(from = 0, to = 0.5)                    # no offset
+
+seq_endpoint(from = 0, to = 0.5, offset_from = 3)   # start at 0.3 instead of 0
+
+seq_endpoint(from = 0, to = 0.5, offset_to = 3)     # end at 0.8 instead of 0.5
+```
+
+It also works with negative offset values:
+
+```{r}
+seq_endpoint(from = 0, to = 0.5, offset_from = -3)   # start at -0.3 instead of 0
+
+seq_endpoint(from = 0, to = 0.5, offset_to = -3)     # end at 0.2 instead of 0.5
+```
+
+#### Sequence of stated length
+
+`seq_distance()` doesn't take a `to` argument --- it only takes a starting point and generates a sequence from there. The length can be chosen at will, and the sequence always proceeds by one unit of `from`'s last decimal digit:
+
+```{r}
+seq_distance(from = 8, length_out = 5)
+
+seq_distance(from = 3.2, length_out = 5)
+```
+
+The default length is 10:
+
+```{r}
+seq_distance(29.97)
+```
+
+Reverse the direction with `dir = -1`:
+
+```{r}
+seq_distance(from = 2.7, dir = -1)
+```
+
+Offsetting the starting point works as in `seq_endpoint()`, although there is no `offset_to` argument:
+
+```{r}
+seq_distance(from = 2.7, offset_from = 4)
+
+seq_distance(from = 2.7, offset_from = -4)
+```
+
+### Data frames with sequence columns
+
+Both `seq_*` functions from above have a `seq_*_df()` variant. These are meant for interactive analysis, e.g., GRIM-testing the neighbors of an inconsistent value. New columns can be created within the call as in `tibble::tibble()` or `dplyr::mutate()`. All arguments from the basic functions are available, but with a dot before each.
+
+Output of these functions has the correct format for scrutiny's data frame testing functions like `grim_map()`. See `vignette("grim")`, section *Testing numeric sequences*.
+
+Here is the endpoint data frame variant, with an extra column added:
+
+```{r}
+seq_endpoint_df(.from = "4.50", .to = 4.57, n = 30)
+```
+
+And here is the distance data frame variant:
+
+```{r}
+seq_distance_df(.from = "4.50", .length_out = 5, n = 30)
+```
+
+## Test for subsets, supersets, and equal sets
+
+Starting with `is_subset_of()`, scrutiny features a distinctive family of predicate functions that test whether one vector `x` is a subset of another vector `y`, whether `x` is a superset of `y` (i.e. the reverse of a subset), or whether `x` and `y` are equal sets.
+
+As a teaser: These functions are divided into three subgroups based on the way the second vector, `y`, is constituted. For example, you might test if `x` is a subset of multiple other vectors taken together, or a superset of a vector `y` that consists of multiple values entered along with `x`.
+
+Functions from this family are not currently used as helpers inside other scrutiny functions, but that may well change. Use elsewhere is also conceivable.

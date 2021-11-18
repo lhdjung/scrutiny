@@ -1,0 +1,377 @@
+---
+title: "Rounding"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Rounding}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r include=FALSE}
+# Dev only: load scrutiny from within scrutiny
+devtools::load_all(".")
+```
+
+```{r setup, message=FALSE}
+library(scrutiny)
+```
+
+Large parts of scrutiny are about rounding. This topic is more diverse and variegated than one might think. "Rounding" is often taken to simply mean rounding up from 5, and although that's wrong, it doesn't make much of a difference most of the time. Where it does matter is in *reconstructing* the rounding procedures that others used, claim to have used, or are alleged to have used. In short, rounding and all its details matter for error detection.
+
+This vignette covers scrutiny's infrastructure for reconstructing rounding procedures and results from summary statistics. Doing so is essential for the package: It is a precondition for translating assumptions about the processes behind published summary data into a few simple, higher-level function calls. Some of the functions presented here might be useful beyond the package, as well.
+
+## Overview
+
+Base R's `round()` function is surprisingly sophisticated, which distinguishes it from the very simple ways in which decimal numbers are normally rounded --- most of the time, rounding up from 5. For this very reason, however, it can't be used to reconstruct the rounding procedures of other software programs. This is the job of scrutiny's rounding functions.
+
+First, I will present `reround()`, a general interface to reconstructing rounded numbers, before going through the individual rounding functions. In doing so, I will comment on each to some degree. That is largely to dissuade readers from using `round_up()` or `round_down()` as alternatives to `base::round()`, and to encourage them to stick with the latter in their original work.
+
+If that sounds paradoxical, keep in mind that the goal in error detection is not to find the best approach to rounding. It is to reconstruct what other people computed with different software. This includes consistency tests, the purpose of which is to flag cases where no such reconstruction is possible.
+
+I will also discuss `unround()`, which works the reverse way: It takes a rounded number and reconstructs the bounds of the original number, taking details about the assumed rounding procedure into account.
+
+Finally, I will take a closer look at bias from rounding raw numbers. That is partly because of my claims about such bias in the discussion of rounding up and to even, but also because the `rounding_bias()` function enables users to assess the extent of this problem themselves.
+
+## Reconstruct rounded numbers with `reround()`
+
+None of the error detection techniques in scrutiny calls the individual rounding functions directly. Instead, all of them call `reround()`, which mediates between these two levels. `reround()` takes the vector of "raw" reconstructed numbers that were not yet rounded in the way that's assumed to have been the original rounding procedure. Its next argument is `decimals`, the number of decimal places to round to.
+
+The remaining three arguments are about the rounding procedure. Most of the time, only `rounding` will be of any interest. It takes a string with the name of one of the rounding procedures discussed below.
+
+Here is an example for a `reround()` call:
+
+```{r}
+reround(rec = c(5.812, 7.249), decimals = 2, rounding = "up")
+```
+
+The two remaining arguments are mostly forgettable: They only concern obscure cases of rounding with a threshold other than 5 (`threshold`) and rounding such that the absolute values of positive and negative numbers are the same (`symmetric`). Ignore them otherwise.
+
+## Rounding procedures in detail
+
+### Up and down
+
+`round_up()` does what most people think of as rounding. If the decimal portion to be cut off by rounding is 5 or greater, it rounds up. Otherwise, it rounds down. SAS, SPSS, Stata, Matlab, and Excel use this procedure.
+
+```{r}
+round_up(x = 1.24, digits = 1)
+
+round_up(x = 1.25, digits = 1)
+
+round_up(x = 1.25)  # default for `digits` is 0
+```
+
+Rounding up from 5 is actually a special case of `round_up_from()`, which can take any numeric threshold, not just 5:
+
+```{r}
+round_up_from(x = 4.28, digits = 1, threshold = 9)
+
+round_up_from(x = 4.28, digits = 1, threshold = 1)
+```
+
+These two functions have their mirror images in `round_down()` and `round_down_from()`. Like `round_down()`, Python rounds down from 5. The arguments are the same as in `round_up()`:
+
+```{r}
+round_down(x = 1.24, digits = 1)
+
+round_down(x = 1.25, digits = 1)
+
+round_down(x = 1.25)  # default for `digits` is 0
+```
+
+`round_down_from()`, then, is just the reverse of `round_up_from()`:
+
+```{r}
+round_down_from(x = 4.28, digits = 1, threshold = 9)
+
+round_down_from(x = 4.28, digits = 1, threshold = 1)
+```
+
+### To even (base R)
+
+Base R's own rounding function is an outlier in statistical computing. `base::round()` doesn't round up or down, or use any other procedure based solely on the removed part of the number. Instead, `round()` strives to round to the next even number. (This is also called "banker's rounding".)
+
+Realizing that `round()` works in a highly unintuitive way sometimes leads to consternation. Why can't we just round like we learned in school, that is, up from 5? The reason seems to be bias. Because 5 is right in between two whole numbers, any procedure that rounds 5 in some predetermined direction introduces a bias toward that direction. Rounding up from 5 is therefore biased upward, and rounding down from 5 is biased downward.
+
+As shown in the *Rounding bias* section below, this is unlikely to be a major issue when rounding raw numbers that originally have many decimal places. It might be more serious, however, if the initial number of decimal places is low (for whatever reason) and the need for precision is high.
+
+At least in theory, "rounding to even" is not biased in either direction, such that the mean of the rounded distribution is equal to the mean of the original distribution. That is how `round()` aims to operate. Here is a case in which it works out, whereas the bias of rounding up or down is fully apparent:
+
+```{r}
+vec1 <- seq(from = 0.5, to = 9.5)
+up1 <- round_up(vec1)
+down1 <- round_down(vec1)
+even1 <- round(vec1)
+
+vec1
+up1
+down1
+even1
+
+# Original mean
+mean(vec1)
+
+# Means when rounding up or down: bias!
+mean(up1)
+mean(down1)
+
+# Mean when rounding to even: no bias
+mean(even1)
+```
+
+A more formal take on this issue can be found below under *Rounding bias*.
+
+However, this noble goal of unbiased rounding runs up against the reality of floating point computations. You might therefore get results from `round()` that first seem bizarre, or at least unpredictable. Consider:
+
+```{r}
+vec2 <- seq(from = 4.5, to = 10.5)
+
+up2 <- round_up(vec2)
+down2 <- round_down(vec2)
+even2 <- round(vec2)
+
+vec1
+up2
+down2
+even2  # No symmetry here...
+
+mean(vec2)
+mean(up2)
+mean(down2)
+mean(even2)  # ... and the mean is biased downward!
+
+
+vec3 <- c(
+  1.05, 1.15, 1.25, 1.35, 1.45,
+  1.55, 1.65, 1.75, 1.85, 1.95
+)
+
+# This seems fine...
+vec3 %>% 
+  round(1)
+
+# ...but this doesn't:
+vec3 %>% 
+  `+`(1) %>% 
+  round(1)
+```
+
+Sometimes `round()` behaves just as it should, but at other times, results can be hard to explain. Martin Mächler, who wrote the present version of `round()`, describes the issue about as follows (<https://cran.r-project.org/web/packages/round/vignettes/Rounding.html>):
+
+The reason for the above behavior is that most decimal fractions can't, in fact, be represented as double precision numbers. Even seemingly clean numbers with only a few decimal places come with an invisible mantissa, and are therefore closer to one side or the other. Rounding to even in R, while ostensibly about breaking the tie that occurs at 5, is actually much more about measuring which of the two sides is closer to the number to be rounded.
+
+This seems better than going with mathematical intuitions that sometimes may have little relation to the way computers actually deal with these issues. R has been using the present solution since version 4.0.0.
+
+In effect, `base::round()` is a black box, but it is still much less biased than the alternatives, rounding up and down from 5, which come with a thick and constant inbuilt bias. `round()` can be biased in particular distributions, but it seems to be unbiased in the long run. I recommend using `round()` for original work --- even though it is quite different from other rounding procedures, and therefore unsuitable to reconstructing them. Instead, we need something like scrutiny's `round_*` functions.
+
+Doing such reconstructive work is actually the whole purpose of functions like `round_up()` and `round_down()`. As seen above, their clarity and simplicity comes with a twist. Do not use them in place of `base::round()` unless you have to.
+
+[MORE HERE]
+
+## Reconstruct rounding bounds with `unround()`
+
+Rounding deletes information. The mantissa is cut off in part or in full, and the resulting number is underdetermined with respect to the original number: The latter can't be inferred from the former. It might be of interest, however, to compute the range of the original number given the rounded number (especially the number of decimal places to which it was rounded) and the presumed rounding method.
+
+While it's often easy to infer such a range, it might also be also useful to have a general function to use as a helper in another function for analyzing reported numbers. That function is `unround()`. It returns the lower and upper bounds, and it says whether these bounds are inclusive or not --- something that varies greatly by rounding procedure. Currently, `unround()` is used as a helper within scrutiny's DEBIT implementation; see `vignette("debit")`.
+
+The default rounding procedure for `unround()` is `"up_or_down"`:
+
+```{r}
+unround(x = "8.0")
+```
+
+For a complete list of featured rounding procedures, see documentation for `unround()`, section *Rounding*.
+
+On the left, the `range` column displays a pithy graphical overview of the other columns (except for `rounding`) in the same order:
+
+1.  `lower` is the lower bound for the original number.
+2.  `incl_lower` is `TRUE` if the lower bound is inclusive and `FALSE` otherwise.
+3.  `x` is the input value.
+4.  `incl_upper` is `TRUE` if the upper bound is inclusive and `FALSE` otherwise.
+5.  `upper` is the upper bound for the original number.
+
+By default, decimal places are counted internally so that the function always operates on the appropriate decimal level. This creates a need to take trailing zeros into account, which is why `x` needs to be a string:
+
+```{r}
+unround(x = "3.50", rounding = "up")
+```
+
+Alternatively, a function that uses `unround()` as a helper might count decimal places by itself (i.e., by internally calling `decimal_places()`). It should then pass these numbers to `unround()` via the `decimals` argument instead of letting it redundantly count decimal places a second time.
+
+In this case, `x` can be numeric because trailing zeros are no longer needed. (That, in turn, is because the responsibility to count decimal places in number-strings rather than numeric values shifts from `unround()` to the higher-level function.)
+
+The following call returns the exact same tibble as above:
+
+```{r}
+unround(x = 3.5, decimals = 2, rounding = "up")
+```
+
+Since `x` is vectorized, you might test several reported numbers at once:
+
+```{r}
+vec2 <- c(2, 3.1, 3.5) %>% 
+  restore_zeros()
+
+vec2   # `restore_zeros()` returns "2.0" for 2
+
+vec2 %>% 
+  unround(rounding = "even")
+```
+
+## Rounding bias
+
+I wrote above that rounding up or down from 5 is biased. However, this points to a wider problem: It is true of any rounding procedure that doesn't take active precautions against such bias. `base::round()` does, and that is why I recommend it for original work (as opposed to reconstruction).
+
+It might be useful to have a general and flexible way to quantify how far rounding biases a distribution, as compared to how it looked like before rounding. The function `rounding_bias()` fulfills this role. It is a wrapper around `reround()`, so it can access any rounding procedure that `reround()` can, and takes all of the same arguments. However, the default for `rounding` is `"up"` instead of `"up_or_down"` because `rounding_bias()` only makes sense with single rounding procedures.
+
+In general, bias due to rounding is computed by subtracting the original distribution from the rounded one:
+
+$$
+bias = x_{rounded} - x
+$$
+
+By default, the mean is computed to reduce the bias to a single data point:
+
+```{r}
+vec3 <- seq(from = 0.6, to = 0.7, by = 0.01)
+
+vec3
+
+# The mean before rounding...
+mean(vec3)
+
+# ...is not the same as afterwards...
+mean(round_up(vec3))
+
+# ...and the difference is bias:
+rounding_bias(x = vec3, decimals = 0, rounding = "up")
+```
+
+Set `mean` to `FALSE` to return the whole vector of individual biases instead:
+
+```{r}
+rounding_bias(x = vec3, decimals = 0, rounding = "up", mean = FALSE)
+```
+
+Admittedly, this example is somewhat overdramatic. Here is a rather harmless one:
+
+```{r}
+vec4 <- rnorm(5000, 100, 15)
+
+rounding_bias(vec4, decimals = 2)
+```
+
+What is responsible for such a difference? It seems to be (1) the sample size and (2) the number of decimal places to which the vector is rounded. Here, decimal places are rounded twice, once explicitly and once within `rounding_bias()`, to gauge that effect:
+
+```{r}
+up_1   <- rounding_bias(vec4, decimals = 1, rounding = "up")
+up_2   <- rounding_bias(vec4, decimals = 2, rounding = "up")
+up_3   <- rounding_bias(vec4, decimals = 3, rounding = "up")
+up_4   <- rounding_bias(vec4, decimals = 4, rounding = "up")
+up_5   <- rounding_bias(vec4, decimals = 5, rounding = "up")
+
+even_1 <- rounding_bias(vec4, decimals = 1, rounding = "even")
+even_2 <- rounding_bias(vec4, decimals = 2, rounding = "even")
+even_3 <- rounding_bias(vec4, decimals = 3, rounding = "even")
+even_4 <- rounding_bias(vec4, decimals = 4, rounding = "even")
+even_5 <- rounding_bias(vec4, decimals = 5, rounding = "even")
+
+
+bias <- abs(c(
+  up_1, up_2, up_3, up_4, up_5,
+  even_1, even_2, even_3, even_4, even_5
+))
+
+dp <- rep(1:5, 2)
+rounding <- c(rep("(up)", 5), rep("(even)", 5))
+
+dp <- paste(dp, rounding)
+
+df <- tibble::tibble(bias, dp, rounding)
+
+df
+
+`%+replace%` <- ggplot2::`%+replace%`
+
+# Set ggplot2 theme for the remaining session:
+ggplot2::theme_minimal(base_size = 12) %+replace%
+    ggplot2::theme(
+    panel.grid.major.x = ggplot2::element_blank(),
+    panel.grid.minor.x = ggplot2::element_blank(),
+    legend.position = "none"
+  ) %>% 
+  ggplot2::theme_set()
+
+# Visualize:
+ggplot2::ggplot(df, ggplot2::aes(x = dp, y = bias,
+                                 fill = rounding)) +
+  ggplot2::geom_col(ggplot2::aes(fill = rounding)) +
+  ggplot2::scale_y_continuous(expand = ggplot2::expansion(add = c(0, 0))
+                              # labels = scales::comma
+                              ) +
+  ggplot2::scale_fill_discrete(name = "Rounding") +
+  ggplot2::labs(
+    x = "Decimal places (rounding)",
+    y = "Mean absolute bias"
+  )
+
+```
+
+However, if the raw values are preliminarily rounded to 2 decimal places before rounding occurs as above, the picture is different. I will spare you the code this time:
+
+```{r echo=FALSE}
+vec5 <- round(vec4, 2)
+
+up_1   <- rounding_bias(vec5, decimals = 1, rounding = "up")
+up_2   <- rounding_bias(vec5, decimals = 2, rounding = "up")
+up_3   <- rounding_bias(vec5, decimals = 3, rounding = "up")
+up_4   <- rounding_bias(vec5, decimals = 4, rounding = "up")
+up_5   <- rounding_bias(vec5, decimals = 5, rounding = "up")
+
+even_1 <- rounding_bias(vec5, decimals = 1, rounding = "even")
+even_2 <- rounding_bias(vec5, decimals = 2, rounding = "even")
+even_3 <- rounding_bias(vec5, decimals = 3, rounding = "even")
+even_4 <- rounding_bias(vec5, decimals = 4, rounding = "even")
+even_5 <- rounding_bias(vec5, decimals = 5, rounding = "even")
+
+bias <- abs(c(
+  up_1, up_2, up_3, up_4, up_5,
+  even_1, even_2, even_3, even_4, even_5
+))
+
+dp <- rep(1:5, 2)
+rounding <- c(rep("(up)", 5), rep("(even)", 5))
+
+dp <- paste(dp, rounding)
+
+df_new <- tibble::tibble(bias, dp, rounding)
+
+df_new
+
+# Visualize:
+ggplot2::ggplot(df_new, ggplot2::aes(x = dp, y = bias,
+                                     fill = rounding)) +
+  ggplot2::geom_col(ggplot2::aes(fill = rounding)) +
+  ggplot2::scale_y_continuous(expand = ggplot2::expansion(add = c(0, 0))) +
+  ggplot2::scale_fill_discrete(name = "Rounding") +
+  # ggplot2::theme_minimal() +
+  # ggplot2::theme(
+  #   panel.grid.major.x = ggplot2::element_blank(),
+  #   panel.grid.minor.x = ggplot2::element_blank(),
+  #   legend.position = "none"
+  # ) +
+  ggplot2::labs(
+    x = "Decimal places (rounding)",
+    y = "Mean absolute bias"
+  )
+
+```
+
+In sum, the function allows users to quantify the degree to which rounding biases a distribution, so that they can assess the relative merits of different rounding procedures. This is partly to sensitize readers to the potential issues with rounding up, but also to enable them to make informed rounding decisions on their own.
+

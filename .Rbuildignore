@@ -1,0 +1,10 @@
+^scrutiny\.Rproj$
+^\.Rproj\.user$
+^LICENSE\.md$
+^data-raw$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^\.github$
+^CODE_OF_CONDUCT\.md$
+^README\.Rmd$

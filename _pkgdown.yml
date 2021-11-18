@@ -1,0 +1,149 @@
+
+
+home:
+  title: Error detection in science
+  description: >
+         Test published summary statistics for consistency and
+         reconstruct some of the processes which created them. The package
+         aims to make these methods easy to use in a tidyverse-friendly way,
+         helping the new field of error detection go mainstream.
+
+template:
+  params:
+    bootstrap: 4
+    bootswatch: flatly
+
+pkgdown:
+  as_is: true
+
+
+articles:
+- title: Consistency tests
+  navbar: Consistency tests
+  contents:
+  - grim
+  - debit
+
+- title: Infrastructure
+  navbar: Infrastructure
+  contents:
+  - rounding
+  - infrastructure
+
+- title: Other
+  navbar: Other
+  contents:
+  - wrangling
+
+# home:
+  # template:
+  #   bootstrap: 4
+  #   bootswatch: flatly
+    # ganalytics: UA-000000-01
+# template:
+#   bootstrap: 4
+#   bootswatch: flatly
+#   title: scrutiny
+#   description: Error detection in science
+  # url: [PUT URL HERE!]
+
+
+reference:
+
+- title: Consistency tests
+  desc: Check the numerical consistency of summary statistics; two tests
+        currently implemented ---
+
+- subtitle: GRIM
+  desc: Test reported means or percentages for numerical consistency
+        with reported sample sizes
+- contents:
+  - grim
+  - grim_map
+  - grim_plot
+  - grim_ratio
+  - grim_total
+  - grim_granularity
+  - grim_items
+
+- subtitle: DEBIT
+  desc: Test reported means and standard deviations of binary data for
+        numerical consistency with reported sample sizes
+- contents:
+  - debit
+  - debit_map
+  - debit_plot
+  - sd_binary_0_n
+
+
+- title: Duplicate detection
+  desc: Blunt functions to tentatively discover and count duplicate numeric
+        values; interpret results with care
+- contents:
+  - duplicate_detect
+  - duplicate_count
+
+- title: Summarize scrutiny tests
+  desc: Generic function to follow up on scrutiny's testing functions
+- contents:
+  - audit
+
+
+- title: Infrastructure
+  desc: Helpers for implementing error detection techniques; divided into
+        four subcategories ---
+
+- subtitle: Rounding
+  desc: Various functions to reconstruct rounding procedures
+- contents:
+  - round_up
+  - round_down
+  - round_up_from
+  - round_down_from
+  - round_ceiling
+  - round_floor
+  - reround
+  - unround
+  - rounding_bias
+
+- subtitle: Counting decimal places
+  desc: The indispensable foundation of many other scrutiny functions
+- contents:
+  - decimal_places
+
+- subtitle: Sequence generation
+  desc: Create sequences at the correct decimal level
+- contents:
+  - seq_endpoint
+  - seq_distance
+  - seq_endpoint_df
+  - seq_distance_df
+  - seq_test_ranking
+
+- subtitle: Testing for subsets / supersets
+  desc: Predicate functions for logical relations between vectors; supports
+        flexible data entry and tidy evaluation
+- contents:
+  - is_subset_of
+
+
+- title: Data wrangling
+  desc: Convenience functions to automate formatting tasks with a special
+        relevance to error detection
+- contents:
+  - restore_zeros
+  - split_by_parens
+  - before_parens
+  - inside_parens
+  - row_to_colnames
+
+
+- title: Datasets
+  desc: Small example datasets to demonstrate how `grim_map()` and
+        `debit_map()` work
+- contents:
+  - pigs1
+  - pigs2
+  - pigs3
+  - pigs4
+

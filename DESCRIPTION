@@ -1,0 +1,90 @@
+Package: scrutiny
+Title: Error Detection in Science
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Lukas",
+           family = "Jung",
+           role = c("aut", "cre"),
+           email = "jung-lukas@gmx.net")
+Description: Test published summary statistics for consistency
+    and reconstruct some of the processes which created them.
+    The package aims to make these methods easy to use in a
+    tidyverse-friendly way, helping the new field of error
+    detection go mainstream.
+License: GPL (>= 3)
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.2
+Imports: 
+    cli,
+    devtools,
+    dplyr,
+    glue,
+    magrittr,
+    purrr,
+    rlang (>= 0.4.11),
+    stringr,
+    tibble
+Collate: 
+    'audit.R'
+    'before-inside-parens.R'
+    'combine-elements.R'
+    'import-reexport.R'
+    'utils.R'
+    'duplicate-detect.R'
+    'round-ceil-floor.R'
+    'round.R'
+    'reround.R'
+    'subset-superset.R'
+    'unround.R'
+    'sd-binary.R'
+    'decimal-places.R'
+    'debit-table.R'
+    'debit.R'
+    'debit-map.R'
+    'restore-zeros.R'
+    'seq-decimal.R'
+    'grim.R'
+    'data-gen.R'
+    'debit-plot.R'
+    'duplicate-count.R'
+    'grim-base.R'
+    'grim-granularity.R'
+    'split-transform.R'
+    'manage-extra-cols.R'
+    'grim-map.R'
+    'grim-neighbors.R'
+    'grim-plot-new.R'
+    'grim-plot.R'
+    'grimmer.R'
+    'method-debit-map.R'
+    'method-detect.R'
+    'method-dup-count.R'
+    'method-grim-map.R'
+    'method-grim-sequence.R'
+    'rivets-orig-total.R'
+    'rivets-t-test.R'
+    'rivets_new.R'
+    'round-fraction.R'
+    'rounding-bias.R'
+    'row-to-colnames.R'
+    'split-by-parens.R'
+    'utils-pipe.R'
+    'utils-tidy-eval.R'
+Suggests: 
+    roxygen2,
+    ggforce,
+    ggplot2,
+    ggrepel,
+    janitor,
+    knitr,
+    rmarkdown,
+    stats,
+    testthat (>= 3.0.0),
+    tidyr,
+    tidyselect
+Config/testthat/edition: 3
+Depends: 
+    R (>= 2.10)
+VignetteBuilder: knitr

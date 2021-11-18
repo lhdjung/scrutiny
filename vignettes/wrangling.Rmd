@@ -1,0 +1,206 @@
+---
+title: "Data wrangling"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Data wrangling}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteDepends{devtools}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r include=FALSE}
+# Dev only: load scrutiny from within scrutiny
+devtools::load_all(".")
+```
+
+```{r setup, message=FALSE}
+library(scrutiny)
+```
+
+In general, scrutiny's techniques for error detection are designed for a focus on the essential points, cutting out time-consuming repetition. There are some bottlenecks, however, such as entering decimal numbers as strings, or splitting strings that look like `"7.64 (1.5)"`.
+
+This vignette shows how to save your time preparing data for error detection. It gives some general tips for these tasks, and then presents scrutiny's own specialized wrangling functions.
+
+## Trailing zeros
+
+### Motivation
+
+One particular challenge when looking for numeric irregularities in R is that numbers often have to be treated as strings. The reason is that R drops any trailing zeros in a number once it registers that object as a numeric value. This is a major problem because trailing zeros are as important to, e.g., GRIM or DEBIT as any other trailing digits would be.
+
+The only solution I know of is to work with strings --- namely, strings that can be converted to non-`NA` numeric values. I will present two ways to work with them: (1) directly entering or importing numbers as strings, and (2) restoring trailing zeros.
+
+### Enter numbers as strings
+
+#### With tabulizer
+
+The [tabulizer](https://cran.r-project.org/web/packages/tabulizer/vignettes/tabulizer.html) package is a way to automatically extract tables from PDF. Using tabulizer requires [Java](https://www.java.com) to be installed. When it works well, tabulizer is a great tool for importing tables quickly and efficiently. It automatically captures values as strings, so trailing zeros are treated just like other digits. (See below, *Replace column names by row values*, for a solution to an issue than can occur with tabulizer.)
+
+However, tabulizer does not currently seem reliable enough to be the focus of importing tables. That is most likely the fault of the PDF format itself because it has no inbuilt support for tables, so any effort to extract them faces serious ambiguities. If there are many tables in multiple files formatted in the same way, it can be useful to check if tabulizer reliably and accurately captures them. If it doesn't, you might have to use copy and paste.
+
+#### With copy and paste
+
+Perhaps not all R users know that RStudio features an option for multiple cursors. These are especially useful in conjunction with `tibble::tribble()`, which is available via scrutiny. Here's how to use multiple cursors in the present context:
+
+1.  Copy a column of numbers from PDF, pressing and holding `Alt` on Windows or `option` on Mac. (This works at least in Adobe Acrobat.)
+2.  Paste it into a `tribble()` call as below.
+3.  Pressing and holding `Alt`/`option`, select all the copied numbers.
+4.  Enter quotation marks and, for `tribble()`'s syntax, a comma.
+
+You should then get something like this:
+
+```{r}
+flights1 <- tribble(
+  ~x,
+"8.97",
+"2.61",
+"7.26",
+"3.64",
+"9.26",
+"10.46",
+"7.39",
+)
+```
+
+All that's missing is the sample size. Add it either via another `tribble()` column as above or via `dplyr::mutate()`, which also comes with scrutiny:
+
+```{r}
+flights1 <- flights1 %>% 
+  mutate(n = 28)
+
+flights1
+```
+
+### Restore trailing zeros
+
+When dealing with numbers that used to have trailing zeros but lost them from being registered as numeric, call `restore_zeros()` to format them correctly. Suppose all of the following numbers originally had one decimal place, but some no longer do:
+
+```{r}
+vec <- c(4, 6.9, 5, 4.2, 4.8, 7, 4)
+
+vec %>% 
+  decimal_places()
+```
+
+Now, get them back with `restore_zeros()`:
+
+```{r}
+vec %>% 
+  restore_zeros()
+
+vec %>% 
+  restore_zeros() %>% 
+  decimal_places()
+```
+
+This uses the default of going by the longest mantissa and padding the other strings with decimal zeros until they have that many decimal places. However, this is just a heuristic: The longest mantissa might itself have lost decimal places. Specify the `width` argument to explicitly state the desired mantissa length:
+
+```{r}
+vec %>% 
+  restore_zeros(width = 2)
+
+vec %>% 
+  restore_zeros(width = 2) %>% 
+  decimal_places()
+```
+
+## Split strings by parentheses
+
+### Basic usage
+
+With summary data copied or extracted from PDF (see above), you might encounter values presented like `5.22 (0.73)`. Instead of manually teasing them apart, call `split_by_parens()`:
+
+```{r}
+flights2 <- tribble(
+  ~drone,           ~selfpilot,
+  "0.09 (0.21)",    "0.19 (0.13)",
+  "0.19 (0.28)",    "0.53 (0.10)",
+  "0.62 (0.16)",    "0.50 (0.11)",
+  "0.15 (0.35)",    "0.57 (0.16)",
+)
+
+flights2 %>% 
+  split_by_parens()
+```
+
+Optionally, transform these values into a more useful format:
+
+```{r}
+flights2 %>% 
+  split_by_parens(.transform = TRUE)
+```
+
+From here, you can call `debit_map()` right away (supposing you deal with binary distributions' means and standard deviations):
+
+```{r}
+flights2 %>% 
+  split_by_parens(.transform = TRUE) %>% 
+  debit_map(n = 80)
+```
+
+### Column name suffixes
+
+The defaults for column name suffixes are (1) `"x"` for the part before the parentheses and (2) `"sd"` for the part inside of them. However, this won't fit for all data presented like `5.22 (0.73)`. Override the defaults by specifying `.col1` and/or `.col2`:
+
+```{r}
+flights2 %>% 
+  split_by_parens(.col1 = "beta", .col2 = "se")
+```
+
+These suffixes become column names if `.transform` is set to `TRUE`:
+
+```{r}
+flights2 %>% 
+  split_by_parens(.col1 = "beta", .col2 = "se", .transform = TRUE)
+
+```
+
+### Extract substrings from `before_parens()` and `inside_parens()`
+
+There also are specific functions for extracting the parts of the individual string vectors before or inside the parentheses:
+
+```{r}
+flights3 <- flights2 %>% 
+  dplyr::pull(selfpilot)
+
+flights3
+
+flights3 %>% 
+  before_parens()
+
+flights3 %>% 
+  inside_parens()
+```
+
+## Replace column names by row values
+
+When extracting tables from PDF with tabulizer, you might get data frames (converted from matrices) that have wrong, nondescript column names, while the correct column names are stored in one or more rows within the data frame itself. If this issue occurs across many similar tables that are correctly imported otherwise, it becomes a significant obstacle.
+
+I will first simulate the problem. `x` and `n` should be column names, but instead they are values in the first row:
+
+```{r}
+flights1_with_issues <- flights1 %>% 
+    mutate(n = as.character(n)) %>% 
+    tibble::add_row(x = "x", n = "n", .before = 1)
+
+colnames(flights1_with_issues) <- c("Var1", "Var2")
+
+flights1_with_issues
+```
+
+To remedy the issue, call `row_to_colnames()` on the data frame. It will replace the column names by the values of one or more rows. The latter are specified by their position numbers as in `dplyr::slice()`. For these numbers, the default is `1` because the column names will often be stored in the first row, if at all. The specified row or rows are then dropped because they shouldn't have been rows in the first place.
+
+With the above example:
+
+```{r}
+flights1_with_issues %>% 
+  row_to_colnames()
+```
+
+Note that `n` is still a string vector, but this is true for all columns in tables extracted with tabulizer.

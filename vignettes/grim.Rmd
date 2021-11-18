@@ -1,0 +1,425 @@
+---
+title: "GRIM"
+output:
+  rmarkdown::html_vignette
+    # fig_width: 6
+    # fig_height: 5.5
+    
+vignette: >
+  %\VignetteIndexEntry{GRIM}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteDepends{devtools}
+bibliography: references.bib
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r include=FALSE}
+# Dev only: load scrutiny from within scrutiny
+devtools::load_all(".")
+```
+
+```{r setup, message=FALSE}
+library(scrutiny)
+```
+
+Granularity-related inconsistency of means, or GRIM, is a test for the mathematical consistency of reported means or proportions with the corresponding sample size [@brown2016]. It can be applied to summary statistics of discrete numerical distributions. GRIM answers a simple question: Is it possible that a granular distribution has both the reported mean or percentage and the reported sample size?
+
+This vignette covers scrutiny's implementation of the GRIM test. It has the following sections --- to get started, though, you only need the first one:
+
+1.  The basic `grim()` function and a specialized mapping function, `grim_map()`.
+
+2.  Testing sequences of means or proportions.
+
+3.  The `audit()` method for summarizing `grim_map()`'s results.
+
+4.  The visualization function `grim_plot()`.
+
+5.  Statistical benchmarks, such as granularity and the GRIM ratio.
+
+## GRIM testing
+
+### Few cases: `grim()`
+
+To test if a reported mean of 5.27 on a granular scale is GRIM-consistent with a sample size of 43, run this:
+
+```{r}
+grim(x = "5.27", n = 43)
+```
+
+Note that `x`, the reported mean, needs to be a string. The reason is that strings preserve trailing zeros, which can be crucial for GRIM-testing. Numeric values don't, and even converting them to strings won't help. A workaround for larger numbers of such values, `restore_zeros()`, is discussed in `vignette("wrangling")`.
+
+`grim()` has some further parameters, but all of them can be used from within `grim_map()`. The other parameters will be discussed in that context because `grim_map()` is often the more useful function in practice. Furthermore, although `grim()` is vectorized, `grim_map()` is more safe and convenient for testing multiple combinations of means/proportions and sample sizes.
+
+### Many cases: `grim_map()`
+
+If you want to GRIM-test more than a handful of cases, the recommended way is to enter them into a data frame and to run `grim_map()` on the data frame. Two different ways to do that are discussed in `vignette("wrangling")`, but here, I will only describe an easily accessible solution for a single table.
+
+Copy summary data from a PDF file and paste them into `tibble::tribble()`, which is available via scrutiny:
+
+```{r}
+flying_pigs1 <- tribble(
+  ~x,
+"8.97",
+"2.61",
+"7.26",
+"3.64",
+"9.26",
+"10.46",
+"7.39"
+) %>% 
+  mutate(n = 28)
+```
+
+Use RStudio's multiple cursors to draw quotation marks around all the `x` values, and to set commas at the end. See `vignette("wrangling")`, section *With copy and paste*, if you are not sure how to do that.
+
+Now, simply run `grim_map()` on that data frame:
+
+```{r, error=TRUE}
+grim_map(flying_pigs1)
+```
+
+The `x` and `n` columns are the same as in the input. By default, the number of `items` composing the mean is assumed to be 1. The main result, `consistency`, is the GRIM consistency of the former three columns. On the `ratio` column, see section *The GRIM ratio*.
+
+### Scale items
+
+If the mean is composed of multiple items, set the `items` parameter to that number. Below are hypothetical means of a three-items scale. With the single-item default, half of these are wrongly flagged as inconsistent:
+
+```{r, error=TRUE}
+jpap1 <- tribble(
+   ~x,
+  "5.90",
+  "5.71",
+  "3.50",
+  "3.82",
+  "4.61",
+  "5.24",
+) %>% 
+  mutate(n = 40)
+
+jpap1 %>% 
+  grim_map()  # default is wrong here!
+```
+
+Yet, all of them are consistent if the correct number of items is stated:
+
+```{r, error=TRUE}
+jpap1 %>% 
+  grim_map(items = 3)
+```
+
+It is also possible to include an `items` column in the data frame instead:
+
+```{r, error=TRUE}
+jpap2 <- tribble(
+   ~x,    ~items,
+  "6.92",  1,
+  "3.48",  1,
+  "1.59",  2,
+  "2.61",  2,
+  "4.04",  3,
+  "4.50",  3,
+) %>% 
+  mutate(n = 30)
+
+jpap2 %>% 
+  grim_map()
+```
+
+### Percentage conversion
+
+An underappreciated strength of GRIM is testing percentages. Since these are actually decimal numbers inflated by a factor of 100, percentages come with two "free" decimal places. However, percentages are often reported with decimal places beyond those two, which increases the probability of GRIM-inconsistencies unless true values were correctly reported.
+
+Both `grim()` and `grim_map()` have a `percent` parameter which, if set to `TRUE`, divides the `x` values by 100 and increases the decimal count by two, so that percentages can be tested just like means:
+
+```{r, error=TRUE}
+jpap3 <- tribble(
+  ~x,     ~n,
+  "32.5",  438,
+  "35.6",  455,
+  "21.7",  501,
+  "39.3",  516,
+)
+
+jpap3 %>% 
+  grim_map(percent = TRUE)
+```
+
+### Intermediary values
+
+Set `show_intermed` to `TRUE` if you want the intermediate reconstructed values from GRIM-testing to be displayed in the output. They will be columns prefixed with `rec_`:
+
+```{r}
+pigs1 %>% 
+  grim_map(show_intermed = TRUE)
+```
+
+The additional columns are ---
+
+-   `rec_sum`: the sum total from which the mean or proportion was ostensibly derived.
+
+-   `rec_x_upper`: the ceiled reconstructed `x` value.
+
+-   `rec_x_lower`: the floored reconstructed `x` value.
+
+-   `rec_x_upper_rounded`: the rounded `rec_upper` value.
+
+-   `rec_x_lower_rounded`: the rounded `rec_lower` value.
+
+Internally, GRIM-consistency is determined by whether or not a stated `x` value is near-identical to either `rec_x_upper_rounded` or `rec_x_lower_rounded`. This algorithm follows the charitable and conservative protocol outlined by Brown and Heathers (2016).
+
+### Rounding
+
+The scrutiny package provides infrastructure for reconstructing rounded numbers. All of that can be commanded from within `grim()` and `grim_map()`. Several parameters allow for stating the precise way in which the original numbers have supposedly been rounded.
+
+First and foremost is `rounding`. It takes a string with the rounding procedure's name, which leads to the number being rounded in either of these ways:
+
+1.  Rounded `"up"` or `"down"` from 5. Note that SAS, SPSS, Stata, Matlab, and Excel round `"up"` from 5, whereas Python rounds `"down"` from 5.
+2.  Rounded to `"even"` using base R's own `round()`.
+3.  Rounded `"up_from"` or `"down_from"` some number, which then needs to be specified via the `threshold` parameter.
+4.  Given a `"ceiling"` or `"floor"` at the respective decimal place.
+5.  Rounded towards zero with `"trunc"` or away from zero with `"anti_trunc"`.
+
+The default, `"up_or_down"`, allows for numbers rounded either `"up"` or `"down"` from 5 when GRIM-testing; and likewise for `"up_from_or_down_from"` and `"ceiling_or_floor"`. For more about these procedures, see documentation for `round()`, `round_up()`, and `round_ceiling()`. These include all of the above ways of rounding.
+
+Points 3 to 5 above list some quite obscure options that were only included to cover a wide spectrum of possible rounding procedures. The same is true for the `threshold` and `symmetric` parameters, so these aren't discussed here any further. Learn more about scrutiny's infrastructure for rounding at `vignette("rounding")`.
+
+By default, `grim()` and `grim_map()` accept values rounded either up or down from 5. If you have reason to impose stricter assumptions on the way `x` was rounded, specify `rounding` accordingly:
+
+```{r, error=TRUE}
+flying_pigs1 %>% 
+  grim_map(rounding = "up")
+
+flying_pigs1 %>% 
+  grim_map(rounding = "even")
+```
+
+Although changing the rounding procedure didn't make any difference in this case, it is important to account for the different ways in which numbers might be rounded, if only to demonstrate that some given results are robust to those variable decisions. To err on the side of caution, the default for `rounding` is the permissive `"up_or_down"`.
+
+## Testing numeric sequences
+
+Analysts might be interested in a mean or percentage value's numeric neighborhood. Suppose you found a reported mean of 5.30 to be GRIM-inconsistent with a sample size of 32. You might hypothesize that it was swapped with the nearby correct value.
+
+There are two ways to approach this: (1) testing sequence vectors with `seq_distance()` and `grim()`, or (2) testing sequence data frames with `seq_distance_df()` and `grim_map()`. I think the second way is more useful, but see for yourself.
+
+### With `seq_distance()` and `grim()`
+
+Create a sequence starting from 5.30 with `seq_distance()` and pipe the result into `grim()`, where you specify `n` as 32. Although the starting point is allowed to be numeric, we need to enter 5.30 as a string to preserve the trailing zero:
+
+```{r}
+seq_distance(from = "5.30") %>% 
+  grim(n = 32)
+```
+
+### With `seq_distance_df()` and `grim_map()`
+
+First, use `seq_distance_df()` to create a data frame with a sequence column starting from 5.30, adding an `n` column that's constant at 32:
+
+```{r}
+seq_distance_df(.from = "5.30", n = 32)
+```
+
+This data frame can readily be piped into `grim_map()`, so we get a neat output table without much preparation:
+
+```{r, error=TRUE}
+seq_distance_df(.from = "5.30", n = 32) %>% 
+  grim_map()
+```
+
+These results, in turn, can be analyzed with `seq_test_ranking()`:
+
+```{r}
+seq_distance_df(.from = "5.30", n = 32) %>% 
+  grim_map() %>% 
+  seq_test_ranking()
+```
+
+Read more about scrutiny's four `seq_*` functions at `vignette("infrastructure")`; two were left out here.
+
+## Summarizing results with `audit()`
+
+Following up on a call to `grim_map()`, the generic function `audit()` summarizes GRIM test results:
+
+```{r}
+flying_pigs1 %>% 
+  grim_map() %>% 
+  audit()
+```
+
+These columns are ---
+
+1.  `incons_cases`: number of GRIM-inconsistent value sets.
+
+2.  `all_cases`: total number of value sets.
+
+3.  `incons_rate`: proportion of GRIM-inconsistent value sets.
+
+4.  `mean_ratio`: average of GRIM ratios.
+
+5.  `incons_base_ratio`: ratio of `incons_rate` to `mean_ratio`.
+
+6.  `testable_cases`: number of GRIM-testable value sets (i.e., those with a positive ratio).
+
+7.  `testable_rate`: proportion of GRIM-testable value sets.
+
+## Visualizing results with `grim_plot()`
+
+There is a specialized visualization function for GRIM test results, `grim_plot()`:
+
+```{r, error=TRUE, fig.width=6, fig.height=5.5}
+jpap4 <- tribble(
+  ~x,        ~n,
+  "7.19",    28,
+  "4.56",    34,
+  "0.42",    27,
+  "1.31",    25,
+  "3.48",    34,
+  "4.27",    29,
+  "6.21",    30,
+  "3.11",    18,
+  "5.39",    36,
+  "5.66",    18,
+)
+
+
+jpap4 %>% 
+  grim_map() %>% 
+  grim_plot()
+```
+
+`grim_plot()` can only be called on `grim_map()`'s output. It will fail otherwise:
+
+```{r, error=TRUE}
+mtcars %>% 
+  grim_plot()
+```
+
+The sheer optics of this plot will probably not fit everyone's taste. However, it is strictly based on the laws governing GRIM. The background raster shows all consistent (light) and inconsistent (dark) value pairs for two decimal places.
+
+Empirical values are shown in blue if consistent and red if inconsistent. Color settings and other ggplot2-typical options are available via arguments. Read about them at `grim_plot()`'s documentation.
+
+You might notice the light vertical lines at $N = 40$ and $N = 80$: Few values are flagged as inconsistent here. This reflects `grim_map()`'s charitable default of accepting values rounded either up *or* down from 5. If a different `rounding` specification is chosen in the `grim_map()` call, the plot raster will adjust automatically:
+
+```{r, fig.width=6, fig.height=5.5}
+jpap4 %>% 
+  grim_map(rounding = "up") %>% 
+  grim_plot()
+```
+
+All `rounding` values other than `up_from`, `down_from`, and `up_from_or_down_from` are supported.
+
+Speed is not much of a concern here because all the rasters are based on data already stored within the package (in R/sysdata.rda), so they don't need to be generated on the spot every time the function is called. See R/data-gen.R for the way they were generated.
+
+## GRIM statistics
+
+### The GRIM ratio
+
+#### Formula
+
+The `ratio` column in a tibble returned by `grim_map()` is the "GRIM ratio", i.e.:
+
+$$
+\frac{10^D - NL}{10^D}
+$$
+
+where $D$ is the number of decimal places in `x` (the mean or proportion), $N$ is the sample size, and $L$ is the number of scale items. Because $N, L \geq 1$, the GRIM ratio ranges from $-\infty$ to $1 - \frac{1}{10^D}$, asymptotically approaching 1. Its upper bound will be 0.9 if $D = 1$ and 0.99 if $D = 2$, etc.
+
+#### Functions
+
+`grim_ratio()` takes the arguments `x`, `n`, `items`, and `percent` as in `grim()` and `grim_map()`:
+
+```{r}
+grim_ratio(x = 1.42, n = 72)
+
+grim_ratio(x = 5.93, n = 80, items = 3)
+
+grim_ratio(x = "84.20", n = 40, percent = TRUE)  # Enter `x` as string to preserve trailing zero
+```
+
+In addition, `grim_total()` takes the same arguments but returns only the numerator of the above formula:
+
+```{r}
+grim_total(x = 1.42, n = 72)
+
+grim_total(x = 5.93, n = 80, items = 3)
+
+grim_total(x = "84.20", n = 40, percent = TRUE)  # Enter `x` as string to preserve trailing zero
+```
+
+If `grim_map()`'s `prob` argument is set to `TRUE`, it adds a `prob` column that shows the probability of GRIM inconsistency. `prob` is derived from left-censoring the `ratio` column at 0, so it is equal to `ratio` if and only if $0 \leq ratio$. If $ratio < 0$, then $prob = 0$. (The GRIM ratio cannot be 1 or greater.)
+
+#### Interpretation
+
+If the GRIM ratio is non-negative, it can be interpreted as the proportion of inconsistent value sets corresponding to a given set of parameters. This is also the probability that a randomly chosen mean is GRIM-inconsistent. If the ratio is negative, the probability is 0.
+
+Similarly, if the `grim_total()` value is non-negative, it can be interpreted as the total number of GRIM inconsistencies corresponding to a given set of parameters. If it is negative, that total is 0.
+
+#### Origins
+
+Although the term "GRIM ratio" is new, the formula is arguably implicit in Brown and Heathers' (2016) paper on GRIM. The numerator is a transformation of the formula presented on p. 364, and the authors discuss a common special case of the ratio (interpreted as a proportion) on p. 367:
+
+> With reporting to two decimal places, for a sample size $N < 100$ [and a single item], a random mean value will be consistent in approximately $N$% of cases.
+
+Assuming $N = 70$ and inserting all of these values into the above formula returns
+
+$$
+\frac{10^2-70×1}{10^2} = 0.3
+$$
+
+so that a random mean will be inconsistent in about 30% of cases and, conversely, consistent in about 70%.
+
+Here is the same in code (assuming an arbitrary mean with two decimal places):
+
+```{r}
+grim_ratio(x = 0.99, n = 70)
+```
+
+Thus, all I did regarding the GRIM ratio was to make the general formula explicit and give it a name. Researchers may judge for themselves how useful it is for further analyses.
+
+### Granularity and scale items
+
+A distribution's granularity is the minimal amount by which two means or proportions of a non-continuous distribution can differ. It is derived from the sample size and the number of scale items. Conversely, the number of items naturally follows from the distribution's sample size and granularity.
+
+#### Formulas
+
+The granularity ($G$) formula is
+
+$$
+G = \frac{1}{NL}
+$$
+
+where $N$ is the sample size and $L$ is the number of items.
+
+The scale items formula is the converse:
+
+$$
+L = \frac{1}{NG}
+$$
+
+#### Functions
+
+Suppose you have an ordinal distribution with 80 observations and five items. To get its granularity, run this:
+
+```{r}
+grim_granularity(n = 80, items = 4)
+```
+
+Now, imagine a distribution with 50 observations and a granularity of 0.01. To get the number of its items (actual or effective), use this code:
+
+```{r}
+grim_items(n = 50, gran = 0.01)
+```
+
+As the number of items itself has a granularity of 1, a call to `grim_items()` that doesn't return whole numbers indicates a problem in earlier computations. A warning to that effect will be displayed:
+
+```{r}
+grim_items(n = c(50, 65, 93), gran = 0.02)
+```
+
+# References
