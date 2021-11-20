@@ -24,9 +24,9 @@ data$x_upper       %>% is.double() %>% expect_true()
 
 
 
-test_that("`show_intermed` controls the number of columns", {
-  expect_equal(ncol(debit_map(pigs3, show_intermed = TRUE)), 11)
-  expect_equal(ncol(debit_map(pigs3, show_intermed = FALSE)), 4)
+test_that("`show_rec` controls the number of columns", {
+  expect_equal(ncol(debit_map(pigs3, show_rec = TRUE)), 11)
+  expect_equal(ncol(debit_map(pigs3, show_rec = FALSE)), 4)
 })
 
 

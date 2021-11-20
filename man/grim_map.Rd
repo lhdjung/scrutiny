@@ -10,8 +10,8 @@ grim_map(
   percent = FALSE,
   x = NULL,
   n = NULL,
+  show_rec = FALSE,
   show_prob = FALSE,
-  show_intermed = FALSE,
   rounding = "up_or_down",
   threshold = NULL,
   symmetric = FALSE,
@@ -38,13 +38,13 @@ Default is \code{FALSE}.}
 (\code{x}) and/or sample sizes (\code{n}). If not specified here, \code{data} itself needs
 to contain columns by those names. Default is \code{NULL}.}
 
+\item{show_rec}{Boolean. If set to \code{TRUE}, the reconstructed numbers from
+GRIM-testing are shown as columns. See section \emph{Reconstructed numbers}
+below. Default is \code{FALSE}.}
+
 \item{show_prob}{Boolean. If set to \code{TRUE}, adds a \code{prob} column that
 contains the probability of GRIM inconsistency. This is simply the \code{ratio}
 column censored to range between 0 and 1. Default is \code{FALSE}.}
-
-\item{show_intermed}{Boolean. If set to \code{TRUE}, the intermediary numbers from
-GRIM-testing are shown as columns. See section \emph{Intermediary numbers}
-below. Default is \code{FALSE}.}
 
 \item{rounding, threshold, symmetric, tolerance}{Further parameters of
 GRIM-testing; see documentation for \code{grim()}.}
@@ -79,13 +79,13 @@ Set \code{percent} to \code{TRUE} if the \code{x} values are percentages. This w
 convert \code{x} values to decimals and adjust the decimal count accordingly.
 
 Display intermediary numbers from GRIM-testing in columns by setting
-\code{show_intermed} to \code{TRUE}.
+\code{show_rec} to \code{TRUE}.
 
 For summary statistics, call \code{audit()} on the results.
 }
-\section{Intermediary numbers}{
- If \code{show_intermed} is set to \code{TRUE}, the
-output includes the following additional columns:
+\section{Reconstructed numbers}{
+ If \code{show_rec} is set to \code{TRUE}, the output
+includes the following additional columns:
 \itemize{
 \item \code{rec_sum}: the sum total from which the mean or proportion was ostensibly
 derived.
@@ -99,7 +99,8 @@ derived.
 \section{Summaries with \code{audit()}}{
  There is an S3 method for \code{audit()}, so
 you can call \code{audit()} following \code{grim_map()} to get a summary of
-\code{grim_map()}'s results. It is a tibble with a single row and these columns --
+\code{grim_map()}'s results. It is a tibble with a single row and these
+columns --
 \enumerate{
 \item \code{incons_cases}: number of GRIM-inconsistent value sets.
 \item \code{all_cases}: total number of value sets.
@@ -123,9 +124,9 @@ pigs1 \%>\%
   grim_map()
 
 # Display intermediary numbers from
-# GRIM-testing with `show_intermed = TRUE`:
+# GRIM-testing with `show_rec = TRUE`:
 pigs1 \%>\%
-  grim_map(show_intermed = TRUE)
+  grim_map(show_rec = TRUE)
 
 # Get summaries with `audit()`:
 pigs1 \%>\%

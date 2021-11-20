@@ -12,7 +12,7 @@ debit_map(
   rounding = "up_or_down",
   threshold = NULL,
   symmetric = FALSE,
-  show_intermed = TRUE,
+  show_rec = TRUE,
   extra = Inf
 )
 }
@@ -27,7 +27,7 @@ Default is \code{NULL}.}
 \item{rounding, threshold, symmetric}{Arguments passed on to \code{debit()}, with
 the same defaults.}
 
-\item{show_intermed}{If set to \code{FALSE}, the resulting tibble only includes
+\item{show_rec}{If set to \code{FALSE}, the resulting tibble only includes
 the columns \code{x}, \code{sd}, \code{n}, and \code{consistency}. Default is \code{TRUE}.}
 
 \item{extra}{Not currently used.}

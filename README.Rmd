@@ -2,10 +2,13 @@
 # output: github_document
 title: Error detection in science
 output:
-  rmarkdown::github_document:
+  rmarkdown::md_document:
 
 vignette: >
   %\VignetteIndexEntry{Error detection in science}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteDepends{devtools}
 
 # bibliography: references.bib
 link-citations: TRUE

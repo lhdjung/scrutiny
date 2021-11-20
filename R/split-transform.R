@@ -1,7 +1,7 @@
 
 
-# Use the function by inserting code such as this into the definition of
-# functions such as `grim_map()`:
+# This function used to be inserted into the definition of functions such as
+# `grim_map()` using code like below:
 
 #if (inherits(data, "scr_split_by_parens")) {
 #  data <- transform_split_parens_object(data, "x", "n")
@@ -25,7 +25,7 @@ transform_split_parens_object <- function(data) {
   cols_1 <- data %>%
     dplyr::select(contains(uscore_end1)) %>%
     tidyr::pivot_longer(cols = everything(),
-                        names_to = "origin",
+                        names_to = ".origin",
                         values_to = end1)
 
   cols_1 <- cols_1 %>%
@@ -34,7 +34,7 @@ transform_split_parens_object <- function(data) {
   cols_2 <- data %>%
     dplyr::select(contains(uscore_end2)) %>%
     tidyr::pivot_longer(cols = everything(),
-                        names_to = "origin_2",
+                        names_to = ".origin_2",
                         values_to = end2)
 
   cols_2 <- cols_2 %>%
@@ -42,9 +42,9 @@ transform_split_parens_object <- function(data) {
 
 
   dplyr::left_join(cols_1, cols_2, by = "key") %>%
-    dplyr::select(-.data$key, -.data$origin_2) %>%
-    dplyr::mutate(origin = stringr::str_remove(.data$origin, uscore_end1)) %>%
-    dplyr::arrange(.data$origin)
+    dplyr::select(-.data$key, -.data$.origin_2) %>%
+    dplyr::mutate(.origin = stringr::str_remove(.data$.origin, uscore_end1)) %>%
+    dplyr::arrange(.data$.origin)
 }
 
 

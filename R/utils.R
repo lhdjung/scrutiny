@@ -42,7 +42,7 @@ reconstruct_sd_scalar <- function(formula, x, n, group_0, group_1) {
 }
 
 
-reconstruct_sd <- Vectorize(reconstruct_sd_scalar)
+reconstruct_sd <- Vectorize(reconstruct_sd_scalar, USE.NAMES = FALSE)
 
 
 

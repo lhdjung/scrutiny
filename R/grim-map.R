@@ -10,7 +10,7 @@
 #'   convert `x` values to decimals and adjust the decimal count accordingly.
 #'
 #'   Display intermediary numbers from GRIM-testing in columns by setting
-#'   `show_intermed` to `TRUE`.
+#'   `show_rec` to `TRUE`.
 #'
 #'   For summary statistics, call `audit()` on the results.
 #'
@@ -27,12 +27,12 @@
 #' @param x,n Optionally specify which columns from `data` contain the means
 #'   (`x`) and/or sample sizes (`n`). If not specified here, `data` itself needs
 #'   to contain columns by those names. Default is `NULL`.
+#' @param show_rec Boolean. If set to `TRUE`, the reconstructed numbers from
+#'   GRIM-testing are shown as columns. See section *Reconstructed numbers*
+#'   below. Default is `FALSE`.
 #' @param show_prob Boolean. If set to `TRUE`, adds a `prob` column that
 #'   contains the probability of GRIM inconsistency. This is simply the `ratio`
 #'   column censored to range between 0 and 1. Default is `FALSE`.
-#' @param show_intermed Boolean. If set to `TRUE`, the intermediary numbers from
-#'   GRIM-testing are shown as columns. See section *Intermediary numbers*
-#'   below. Default is `FALSE`.
 #' @param rounding,threshold,symmetric,tolerance Further parameters of
 #'   GRIM-testing; see documentation for `grim()`.
 #' @param testables_only Boolean. If `testables_only` is set to `TRUE`, only
@@ -52,8 +52,9 @@
 #' The tibble has the `scr_grim_map` class, which is recognized by the `audit()`
 #' generic.
 
-#' @section Intermediary numbers: If `show_intermed` is set to `TRUE`, the
-#'   output includes the following additional columns:
+#' @section Reconstructed numbers: If `show_rec` is set to `TRUE`, the output
+#'   includes the following additional columns:
+#'
 #' - `rec_sum`: the sum total from which the mean or proportion was ostensibly
 #'   derived.
 #' - `rec_x_upper`: the ceiled reconstructed `x` value.
@@ -63,7 +64,9 @@
 
 #' @section Summaries with `audit()`: There is an S3 method for `audit()`, so
 #'   you can call `audit()` following `grim_map()` to get a summary of
-#'   `grim_map()`'s results. It is a tibble with a single row and these columns --
+#'   `grim_map()`'s results. It is a tibble with a single row and these
+#'   columns --
+#'
 #' 1. `incons_cases`: number of GRIM-inconsistent value sets.
 #' 2. `all_cases`: total number of value sets.
 #' 3. `incons_rate`: proportion of GRIM-inconsistent value sets.
@@ -88,9 +91,9 @@
 #'   grim_map()
 #'
 #' # Display intermediary numbers from
-#' # GRIM-testing with `show_intermed = TRUE`:
+#' # GRIM-testing with `show_rec = TRUE`:
 #' pigs1 %>%
-#'   grim_map(show_intermed = TRUE)
+#'   grim_map(show_rec = TRUE)
 #'
 #' # Get summaries with `audit()`:
 #' pigs1 %>%
@@ -104,7 +107,7 @@
 # via `...` so that starting to type them will trigger RStudio's autocomplete.
 
 grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
-                     show_prob = FALSE, show_intermed = FALSE,
+                     show_rec = FALSE, show_prob = FALSE,
                      rounding = "up_or_down", threshold = NULL,
                      symmetric = FALSE, tolerance = .Machine$double.eps^0.5,
                      testables_only = FALSE, extra = Inf) {
@@ -188,18 +191,18 @@ grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
   # `purrr::pmap_lgl()` or `purrr::pmap()`, depends on whether intermediary
   # numbers were chosen to be shown in the resulting tibble because the former
   # only returns a logical value whereas the latter returns a list:
-  if (show_intermed == FALSE) {
+  if (show_rec == FALSE) {
     consistency <- data %>%
       dplyr::select(x, n, items) %>%
       purrr::pmap_lgl(grim_scalar, percent = percent,
-                      show_intermed = show_intermed, rounding = rounding,
+                      show_rec = show_rec, rounding = rounding,
                       threshold = threshold, symmetric = symmetric,
                       tolerance = tolerance)
   } else {
     consistency <- data %>%
       dplyr::select(x, n, items) %>%
       purrr::pmap(grim_scalar, percent = percent,
-                  show_intermed = show_intermed, rounding = rounding,
+                  show_rec = show_rec, rounding = rounding,
                   threshold = threshold, symmetric = symmetric,
                   tolerance = tolerance)
 
@@ -214,24 +217,6 @@ grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
   # 6.-?: Any number of other columns from `data` (via the `other_cols` object).
 
 
-  # # Optionally, make the `x` column in the output data frame reflect any changes
-  # # that `x` might have undergone from percentage conversion or multiplication
-  # # with the number of items inside `grim_scalar()`:
-  # if (!adjust_x == 0) {
-  #   x <- as.numeric(x) * items
-  #   if (percent) {
-  #     x <- as.numeric(x) / 100
-  #   }
-  #   if (adjust_x == 2) {
-  #     x <- restore_zeros(x, width = decimal_places(data$x))
-  #   } else if (!adjust_x == 1) {
-  #     cli::cli_abort(c(
-  #       "Invalid `adjust_x`",
-  #       "i" = "`adjust_x` needs to be `0`, `1`, or `2`."
-  #     ))
-  #   }
-  # }
-
   # Create a tibble with results that also includes extra columns from the input
   # data frame (`other_cols`) unless the `extra` argument has been set to 0 --
   if (is.null(extra)) {
@@ -242,11 +227,12 @@ grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
     results <- tibble::tibble(x, n, items, consistency, ratio, other_cols)
   }
 
-  # In case the user chose to display intermediate steps from `grim_scalar()`'s
-  # internal computations, they were stored in `consistency` before, which is a
-  # list-column of 6. These intermediary numbers are now unnested (i.e.,
-  # transformed into proper columns) and given their respective names:
-  if (show_intermed) {
+  # In case the user set `show_rec` to `TRUE` for displaying the reconstructed
+  # values from `grim_scalar()`'s internal computations, these were already
+  # stored in `consistency` before. The `consistency` column, then, is a
+  # list-column of 6. These numbers are now unnested (i.e., transformed into
+  # their own columns) and given their respective proper names:
+  if (show_rec) {
     results <- results %>%
       tidyr::unnest_wider(col = consistency) %>%
       suppressMessages() %>%
@@ -261,10 +247,9 @@ grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
   }
 
   # If demanded via the `show_prob` argument, add a column that displays the
-  # probability of GRIM inconsistency, which is simply the GRIM ratio censored
-  # to be non-negative:
+  # probability of GRIM inconsistency. This is simply the GRIM ratio
+  # left-censored at zero, i.e., with negative values set to zero:
   if (show_prob) {
-    ratio <- results$ratio
     results <- results %>%
       tibble::add_column(
         prob = dplyr::if_else(ratio < 0, 0, ratio), .after = "ratio"
@@ -307,6 +292,11 @@ grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
 
 
 
+
+
+# Formerly ----------------------------------------------------------------
+
+
 # Former parameter:
 
 # @param adjust_x Integer (`0`, `1`, or `2`). If `1` or `2`, the `x` column in
@@ -316,4 +306,23 @@ grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
 #   string with trailing zeros restored. Default is `0`, which does nothing,
 #   although `x` can still be transformed by `percent` and/or `items`
 #   internally.
+
+
+# # Optionally, make the `x` column in the output data frame reflect any changes
+# # that `x` might have undergone from percentage conversion or multiplication
+# # with the number of items inside `grim_scalar()`:
+# if (!adjust_x == 0) {
+#   x <- as.numeric(x) * items
+#   if (percent) {
+#     x <- as.numeric(x) / 100
+#   }
+#   if (adjust_x == 2) {
+#     x <- restore_zeros(x, width = decimal_places(data$x))
+#   } else if (!adjust_x == 1) {
+#     cli::cli_abort(c(
+#       "Invalid `adjust_x`",
+#       "i" = "`adjust_x` needs to be `0`, `1`, or `2`."
+#     ))
+#   }
+# }
 

@@ -1,9 +1,7 @@
 
 # Single-case function; not exported but used as a basis for the vectorized
 # `grim()` as well as within `grim_map()`:
-grim_scalar <- function(x, n, items = 1,
-                        percent = FALSE,
-                        show_intermed = FALSE,
+grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
                         rounding = "up_or_down", threshold = NULL,
                         symmetric = FALSE,
                         tolerance = .Machine$double.eps^0.5) {
@@ -63,7 +61,7 @@ grim_scalar <- function(x, n, items = 1,
   # `dplyr::near()` itself, i.e., circa 0.000000015:
   grain_is_x <- dplyr::near(grains_rounded, x_num, tol = tolerance)
 
-  if (show_intermed == FALSE) {
+  if (show_rec == FALSE) {
     # Check if any of these two comparisons returned `TRUE`:
     any(grain_is_x)
   } else {
@@ -144,9 +142,9 @@ grim_scalar <- function(x, n, items = 1,
 #' @param percent Boolean. Set `percent` to `TRUE` if `x` is a percentage. This
 #'   will convert it to a decimal number and adjust the decimal count (i.e.,
 #'   increase it by 2). Default is `FALSE`.
-#' @param show_intermed Boolean. If set to `TRUE`, the output is a matrix that
+#' @param show_rec Boolean. If set to `TRUE`, the output is a matrix that
 #'   also contains intermediary values from GRIM-testing. This is not
-#'   recommended; instead, use `show_intermed` in `grim_map()`. Default is
+#'   recommended; instead, use `show_rec` in `grim_map()`. Default is
 #'   `FALSE`.
 #' @param rounding String. Rounding method or methods to be used for
 #'   reconstructing the values to which `x` will be compared. Default is
@@ -193,114 +191,4 @@ grim_scalar <- function(x, n, items = 1,
 # Vectorized version:
 grim <- Vectorize(grim_scalar)
 
-
-
-# Testing -----------------------------------------------------------------
-
-# Test `grim()`:
-
-grim("5.19", 28) # Should be FALSE
-grim("5.20", 28) # Should be FALSE
-grim("5.21", 28) # Should be TRUE
-grim("5.22", 28) # Should be FALSE
-grim("5.23", 28) # Should be FALSE
-grim("5.24", 28) # Should be FALSE
-grim("5.25", 28) # Should be TRUE
-grim("5.26", 28) # Should be FALSE
-grim("5.27", 28) # Should be FALSE
-grim("5.28", 28) # Should be FALSE
-grim("5.29", 28) # Should be TRUE
-grim("5.30", 28) # Should be FALSE
-
-
-# Test the `items` argument, specifically:
-
-grim("0.150", 120, items = 3) # Should be TRUE
-grim("0.151", 120, items = 3) # Should be FALSE
-grim("0.152", 120, items = 3) # Should be FALSE
-grim("0.153", 120, items = 3) # Should be TRUE
-grim("0.154", 120, items = 3) # Should be FALSE
-grim("0.155", 120, items = 3) # Should be FALSE
-grim("0.156", 120, items = 3) # Should be TRUE
-grim("0.157", 120, items = 3) # Should be FALSE
-grim("0.158", 120, items = 3) # Should be TRUE
-grim("0.159", 120, items = 3) # Should be FALSE
-
-
-# Test `items` even more:
-
-grim("2.50", 30, items = 2) # Should be TRUE
-grim("2.51", 30, items = 2) # Should be FALSE
-grim("2.52", 30, items = 2) # Should be TRUE
-grim("2.53", 30, items = 2) # Should be TRUE
-grim("2.54", 30, items = 2) # Should be FALSE
-grim("2.55", 30, items = 2) # Should be TRUE
-grim("2.56", 30, items = 2) # Should be FALSE
-grim("2.57", 30, items = 2) # Should be TRUE
-grim("2.58", 30, items = 2) # Should be TRUE
-grim("2.59", 30, items = 2) # Should be FALSE
-
-
-# And more:
-
-grim("0.70", 28, 2) # Should be TRUE
-grim("0.71", 28, 2) # Should be TRUE
-grim("0.72", 28, 2) # Should be FALSE
-grim("0.73", 28, 2) # Should be TRUE
-grim("0.74", 28, 2) # Should be FALSE
-grim("0.75", 28, 2) # Should be TRUE
-grim("0.76", 28, 2) # Should be FALSE
-grim("0.77", 28, 2) # Should be TRUE
-grim("0.78", 28, 2) # Should be FALSE
-grim("0.79", 28, 2) # Should be TRUE
-
-grim("0.80", 28, 2) # Should be TRUE
-grim("0.81", 28, 2) # Should be FALSE
-grim("0.82", 28, 2) # Should be TRUE
-grim("0.83", 28, 2) # Should be FALSE
-grim("0.84", 28, 2) # Should be TRUE
-grim("0.85", 28, 2) # Should be FALSE
-grim("0.86", 28, 2) # Should be TRUE
-grim("0.87", 28, 2) # Should be TRUE
-grim("0.88", 28, 2) # Should be TRUE
-grim("0.89", 28, 2) # Should be TRUE
-
-grim("0.90", 28, 2) # Should be FALSE
-grim("0.91", 28, 2) # Should be TRUE
-grim("0.92", 28, 2) # Should be FALSE
-grim("0.93", 28, 2) # Should be TRUE
-grim("0.94", 28, 2) # Should be FALSE
-grim("0.95", 28, 2) # Should be TRUE
-grim("0.96", 28, 2) # Should be TRUE
-grim("0.97", 28, 2) # Should be FALSE
-grim("0.98", 28, 2) # Should be TRUE
-grim("0.99", 28, 2) # Should be FALSE
-
-
-# Test the `percent` argument:
-
-grim("519", 28, percent = TRUE) # Should be FALSE
-grim("520", 28, percent = TRUE) # Should be FALSE
-grim("521", 28, percent = TRUE) # Should be TRUE
-grim("522", 28, percent = TRUE) # Should be FALSE
-grim("523", 28, percent = TRUE) # Should be FALSE
-grim("524", 28, percent = TRUE) # Should be FALSE
-grim("525", 28, percent = TRUE) # Should be TRUE
-grim("526", 28, percent = TRUE) # Should be FALSE
-grim("527", 28, percent = TRUE) # Should be FALSE
-grim("528", 28, percent = TRUE) # Should be FALSE
-grim("529", 28, percent = TRUE) # Should be TRUE
-grim("530", 28, percent = TRUE) # Should be FALSE
-
-grim("6",  50, percent = TRUE) # Should be TRUE
-grim("7",  50, percent = TRUE) # Should be FALSE
-grim("8",  50, percent = TRUE) # Should be TRUE
-grim("9",  50, percent = TRUE) # Should be FALSE
-grim("10", 50, percent = TRUE) # Should be TRUE
-grim("11", 50, percent = TRUE) # Should be FALSE
-grim("12", 50, percent = TRUE) # Should be TRUE
-grim("13", 50, percent = TRUE) # Should be FALSE
-grim("14", 50, percent = TRUE) # Should be TRUE
-grim("15", 50, percent = TRUE) # Should be FALSE
-grim("16", 50, percent = TRUE) # Should be TRUE
 

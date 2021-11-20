@@ -9,7 +9,7 @@ grim(
   n,
   items = 1,
   percent = FALSE,
-  show_intermed = FALSE,
+  show_rec = FALSE,
   rounding = "up_or_down",
   threshold = NULL,
   symmetric = FALSE,
@@ -28,9 +28,9 @@ most common case.}
 will convert it to a decimal number and adjust the decimal count (i.e.,
 increase it by 2). Default is \code{FALSE}.}
 
-\item{show_intermed}{Boolean. If set to \code{TRUE}, the output is a matrix that
+\item{show_rec}{Boolean. If set to \code{TRUE}, the output is a matrix that
 also contains intermediary values from GRIM-testing. This is not
-recommended; instead, use \code{show_intermed} in \code{grim_map()}. Default is
+recommended; instead, use \code{show_rec} in \code{grim_map()}. Default is
 \code{FALSE}.}
 
 \item{rounding}{String. Rounding method or methods to be used for

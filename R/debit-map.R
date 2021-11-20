@@ -15,7 +15,7 @@
 #'   Default is `NULL`.
 #' @param rounding,threshold,symmetric Arguments passed on to `debit()`, with
 #'   the same defaults.
-#' @param show_intermed If set to `FALSE`, the resulting tibble only includes
+#' @param show_rec If set to `FALSE`, the resulting tibble only includes
 #'   the columns `x`, `sd`, `n`, and `consistency`. Default is `TRUE`.
 #' @param extra Not currently used.
 #'
@@ -64,7 +64,7 @@
 debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
                       # group_0 = NULL, group_1 = NULL,
                       rounding = "up_or_down", threshold = NULL,
-                      symmetric = FALSE, show_intermed = TRUE, extra = Inf) {
+                      symmetric = FALSE, show_rec = TRUE, extra = Inf) {
 
   # Throw error if `extra` argument it misspecified:
   if (!extra %in% colnames(data) && is.character(extra)) {
@@ -156,7 +156,7 @@ debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
   # Finally, return the results, with or without the intermediary values
   # (rounding method, boundary values, and Boolean information about the
   # boundary values being inclusive or not):
-  if (show_intermed) {
+  if (show_rec) {
     results %>%
       dplyr::mutate(x = x, n = n, consistency = .data$consistency) %>%
       dplyr::select(x, sd, n, .data$consistency, rounding,

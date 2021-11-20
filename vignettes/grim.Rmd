@@ -153,11 +153,11 @@ jpap3 %>%
 
 ### Intermediary values
 
-Set `show_intermed` to `TRUE` if you want the intermediate reconstructed values from GRIM-testing to be displayed in the output. They will be columns prefixed with `rec_`:
+Set `show_rec` to `TRUE` if you want the intermediate reconstructed values from GRIM-testing to be displayed in the output. They will be columns prefixed with `rec_`:
 
 ```{r}
 pigs1 %>% 
-  grim_map(show_intermed = TRUE)
+  grim_map(show_rec = TRUE)
 ```
 
 The additional columns are ---

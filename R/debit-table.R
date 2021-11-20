@@ -2,49 +2,40 @@
 
 # Helper to check input ranges (not exported) -----------------------------
 
-check_debit_inputs <- function(x, sd) {
-   x_in_range <- dplyr::between(as.numeric(x),  0, 1)
-  sd_in_range <- dplyr::between(as.numeric(sd), 0, 1)
 
-  if (!all(x_in_range)) {
-    offenders <- x[!x_in_range]
+proto_debit_inputs <- function(input, type, symbol) {
+
+  input_in_range <- dplyr::between(as.numeric(input),  0, 1)
+
+  if (!all(input_in_range)) {
+    offenders <- input[!input_in_range]
     values_is_are <- dplyr::if_else(
       length(offenders) == 1, "value is", "values are"
     )
-    if (length(offenders) > 5) {
-      offenders <- offenders[1:5]
+    if (length(offenders) > 3) {
+      offenders <- offenders[1:3]
       starting_with_msg <- ", starting with"
     } else {
       starting_with_msg <- ":"
     }
     cli::cli_abort(c(
-      "DEBIT is only for binary summary data",
-      "i" = "Binary mean (`x`) values must range from 0 to 1.",
-      "x" = "{length(x[!x_in_range])} out of {length(x)} `x` {values_is_are} \\
-      not in that range{starting_with_msg} {offenders}."
-    ))
-  }
-
-  if (!all(sd_in_range)) {
-    offenders <- sd[!sd_in_range]
-    values_is_are <- dplyr::if_else(
-      length(offenders) == 1, "value is", "values are"
-    )
-    if (length(offenders) > 5) {
-      offenders <- offenders[1:5]
-      starting_with_msg <- ", starting with"
-    } else {
-      starting_with_msg <- ":"
-    }
-    cli::cli_abort(c(
-      "DEBIT is only for binary summary data",
-      "i" = "Binary standard deviation (`sd`) values must range from 0 to 1.",
-      "x" = "{length(sd[!sd_in_range])} out of {length(x)} `sd` \\
-      {values_is_are} not in that range{starting_with_msg} {offenders}."
+      "DEBIT only works with binary summary data",
+      "!" = "Binary {type} (`{symbol}`) values must range from 0 to 1.",
+      "x" = "{length(input[!input_in_range])} out of {length({input})} \\
+      `{symbol}` {values_is_are} not in that range{starting_with_msg} \\
+      {offenders}."
     ))
   }
 
 }
+
+
+
+check_debit_inputs <- function(x, sd) {
+  proto_debit_inputs(input = x, type = "mean", symbol = "x")
+  proto_debit_inputs(input = sd, type = "standard deviation", symbol = "sd")
+}
+
 
 
 
@@ -54,7 +45,7 @@ check_debit_inputs <- function(x, sd) {
 
 debit_table <- function(x, sd, n, group_0 = NA, group_1 = NA,
                         formula = "mean_n", rounding = "up_or_down",
-                        threshold = NULL, symmetric = FALSE, intermed = TRUE) {
+                        threshold = NULL, symmetric = FALSE, show_rec = TRUE) {
 
   # Checks ---
 
@@ -160,10 +151,10 @@ debit_table <- function(x, sd, n, group_0 = NA, group_1 = NA,
   n <- as.integer(n)
 
 
-  # Finally, return the results, with or without the `intermed` of the rounding
-  # method, boundary values, and Boolean information about the boundary values
-  # being inclusive or not:
-  if (intermed) {
+  # Finally, return the results, with or without the reconstructed numbers
+  # (rounding method, boundary values, and Boolean information about the
+  # boundary values being inclusive or not):
+  if (show_rec) {
     tibble::tibble(sd = sd_chr, x = x_chr, n, consistency, rounding,
                    sd_lower, sd_incl_lower, sd_incl_upper, sd_upper,
                    x_lower, x_incl_lower, x_upper, x_incl_upper)
