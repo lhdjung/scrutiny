@@ -25,19 +25,17 @@ library(scrutiny)
 
 Large parts of scrutiny are about rounding. This topic is more diverse and variegated than one might think. "Rounding" is often taken to simply mean rounding up from 5, and although that's wrong, it doesn't make much of a difference most of the time. Where it does matter is in *reconstructing* the rounding procedures that others used, claim to have used, or are alleged to have used. In short, rounding and all its details matter for error detection.
 
-This vignette covers scrutiny's infrastructure for reconstructing rounding procedures and results from summary statistics. Doing so is essential for the package: It is a precondition for translating assumptions about the processes behind published summary data into a few simple, higher-level function calls. Some of the functions presented here might be useful beyond the package, as well.
+This vignette covers scrutiny's infrastructure for reconstructing rounding procedures and results from summary statistics. Doing so is essential for the package: It is a precondition for translating assumptions about the processes behind published summary data into a few simple, higher-level function calls. Some of the functions presented here might be useful beyond the package, as well. Feel free to skip the more theoretical parts if your focus is on the code.
 
 ## Overview
 
 Base R's `round()` function is surprisingly sophisticated, which distinguishes it from the very simple ways in which decimal numbers are normally rounded --- most of the time, rounding up from 5. For this very reason, however, it can't be used to reconstruct the rounding procedures of other software programs. This is the job of scrutiny's rounding functions.
 
-First, I will present `reround()`, a general interface to reconstructing rounded numbers, before going through the individual rounding functions. In doing so, I will comment on each to some degree. That is largely to dissuade readers from using `round_up()` or `round_down()` as alternatives to `base::round()`, and to encourage them to stick with the latter in their original work.
-
-If that sounds paradoxical, keep in mind that the goal in error detection is not to find the best approach to rounding. It is to reconstruct what other people computed with different software. This includes consistency tests, the purpose of which is to flag cases where no such reconstruction is possible.
+First, I will present `reround()`, a general interface to reconstructing rounded numbers, before going through the individual rounding functions. I will add some comments on these.
 
 I will also discuss `unround()`, which works the reverse way: It takes a rounded number and reconstructs the bounds of the original number, taking details about the assumed rounding procedure into account.
 
-Finally, I will take a closer look at bias from rounding raw numbers. That is partly because of my claims about such bias in the discussion of rounding up and to even, but also because the `rounding_bias()` function enables users to assess the extent of this problem themselves.
+Finally, I will take a closer look at bias from rounding raw numbers.
 
 ## Reconstruct rounded numbers with `reround()`
 
@@ -258,12 +256,12 @@ rounding_bias(x = vec3, decimals = 0, rounding = "up", mean = FALSE)
 Admittedly, this example is somewhat overdramatic. Here is a rather harmless one:
 
 ```{r}
-vec4 <- rnorm(5000, 100, 15)
+vec4 <- rnorm(50000, 100, 15)
 
 rounding_bias(vec4, decimals = 2)
 ```
 
-What is responsible for such a difference? It seems to be (1) the sample size and (2) the number of decimal places to which the vector is rounded. Here, decimal places are rounded twice, once explicitly and once within `rounding_bias()`, to gauge that effect:
+What is responsible for such a difference? It seems to be (1) the sample size and (2) the number of decimal places to which the vector is rounded. The rounding method doesn't appear to matter if numbers with many decimal places are rounded:
 
 ```{r}
 up_1   <- rounding_bias(vec4, decimals = 1, rounding = "up")
@@ -291,11 +289,12 @@ dp <- paste(dp, rounding)
 
 df <- tibble::tibble(bias, dp, rounding)
 
+# Display simulated data:
 df
 
 `%+replace%` <- ggplot2::`%+replace%`
 
-# Set ggplot2 theme for the remaining session:
+# Set ggplot2 theme for the remaining part of the session:
 ggplot2::theme_minimal(base_size = 12) %+replace%
     ggplot2::theme(
     panel.grid.major.x = ggplot2::element_blank(),
@@ -313,13 +312,17 @@ ggplot2::ggplot(df, ggplot2::aes(x = dp, y = bias,
                               ) +
   ggplot2::scale_fill_discrete(name = "Rounding") +
   ggplot2::labs(
-    x = "Decimal places (rounding)",
-    y = "Mean absolute bias"
+    x = "Decimal places (rounding procedure)",
+    y = "Mean absolute bias",
+    title = "Directly from random numbers",
+    subtitle = "Raw \"data\" mostly have 12 or 13 decimal places "
   )
 
 ```
 
-However, if the raw values are preliminarily rounded to 2 decimal places before rounding occurs as above, the picture is different. This might be relevant for RIVETS, an error detection technique yet to be formalized. I will spare you the code this time:
+However, if the raw values are preliminarily rounded to 2 decimal places before rounding proceeds as above, the picture is different. This might be relevant for [RIVETS](https://psyarxiv.com/ctu9z/), an error detection technique yet to be formalized, although RIVETS is not made for situations in which rounding bias can be assessed directly.
+
+I will spare you the code this time:
 
 ```{r echo=FALSE}
 vec5 <- round(vec4, 2)
@@ -351,8 +354,7 @@ df_new <- tibble::tibble(bias, dp, rounding)
 df_new
 
 # Visualize:
-ggplot2::ggplot(df_new, ggplot2::aes(x = dp, y = bias,
-                                     fill = rounding)) +
+ggplot2::ggplot(df_new, ggplot2::aes(x = dp, y = bias, fill = rounding)) +
   ggplot2::geom_col(ggplot2::aes(fill = rounding)) +
   ggplot2::scale_y_continuous(expand = ggplot2::expansion(add = c(0, 0))) +
   ggplot2::scale_fill_discrete(name = "Rounding") +
@@ -363,11 +365,11 @@ ggplot2::ggplot(df_new, ggplot2::aes(x = dp, y = bias,
   #   legend.position = "none"
   # ) +
   ggplot2::labs(
-    x = "Decimal places (rounding)",
-    y = "Mean absolute bias"
+    x = "Decimal places (rounding procedure)",
+    y = "Mean absolute bias",
+    title = "After previous rounding to 2 decimal places"
   )
 
 ```
 
-In sum, the function allows users to quantify the degree to which rounding biases a distribution, so that they can assess the relative merits of different rounding procedures. This is partly to sensitize readers to the potential issues with rounding up, but also to enable them to make informed rounding decisions on their own.
-
+In sum, the function allows users to quantify the degree to which rounding biases a distribution, so that they can assess the relative merits of different rounding procedures. This is partly to sensitize readers to potential bias in edge cases, but also to enable them to make informed rounding decisions on their own.

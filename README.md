@@ -2,6 +2,8 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
+# Error detection in science
+
 The goal of scrutiny is to test published summary statistics for
 consistency and reconstruct some of the processes which created them.
 The package makes these methods easy to use in a tidyverse-friendly way.
@@ -19,13 +21,15 @@ wrangling functions. See the *Articles* tab for vignettes.
 <!-- ## Example -->
 
 Here is how to GRIM-test all values in a data frame. When using
-`grim_map()`, the `consistency` column tells you if the means (`x`) and
-sample sizes (`n`) are mutually consistent.
+`grim_map()`, the `consistency` column tells you if the means (`x`),
+sample sizes (`n`), and numbers of scale items are mutually consistent.
+Scale item numbers are 1 by default.
 
     library(scrutiny)
 
     # Example data:
     pigs1
+
     #> # A tibble: 12 × 2
     #>    x         n
     #>    <chr> <dbl>
@@ -44,6 +48,7 @@ sample sizes (`n`) are mutually consistent.
 
     # GRIM-testing for data frames:
     grim_map(pigs1)
+
     #> # A tibble: 12 × 5
     #>    x         n items consistency ratio
     #>    <chr> <int> <int> <lgl>       <dbl>
@@ -63,6 +68,7 @@ sample sizes (`n`) are mutually consistent.
 Test percentages instead of means:
 
     pigs2
+
     #> # A tibble: 6 × 2
     #>   x         n
     #>   <chr> <dbl>
@@ -74,6 +80,7 @@ Test percentages instead of means:
     #> 6 55.4    150
 
     grim_map(pigs2, percent = TRUE)
+
     #> # A tibble: 6 × 5
     #>   x         n items consistency ratio
     #>   <chr> <int> <int> <lgl>       <dbl>
@@ -90,11 +97,12 @@ Visualize GRIM results while also selecting a rounding procedure:
       grim_map(rounding = "up") %>% 
       grim_plot()
 
-<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-3-1.png" width="75%" />
 
 Similarly, test means and standard deviations of binary data with DEBIT:
 
     pigs3
+
     #> # A tibble: 7 × 3
     #>   x     sd        n
     #>   <chr> <chr> <dbl>
@@ -108,6 +116,7 @@ Similarly, test means and standard deviations of binary data with DEBIT:
 
     pigs3 %>% 
       debit_map()
+
     #> # A tibble: 7 × 11
     #>   x     sd        n consistency rounding   sd_lower sd_incl_lower sd_upper
     #>   <chr> <chr> <int> <lgl>       <chr>         <dbl> <lgl>            <dbl>
@@ -124,7 +133,7 @@ Similarly, test means and standard deviations of binary data with DEBIT:
       debit_map() %>% 
       debit_plot()
 
-<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-4-1.png" width="75%" />
 
 # Guiding ideas
 
