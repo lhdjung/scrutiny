@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rounding • scrutiny</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/flatly/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
@@ -53,18 +53,24 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
-<li>
-      <a href="../articles/debit.html">DEBIT</a>
-    </li>
+<li class="divider">
+    <li class="dropdown-header">Consistency tests</li>
     <li>
       <a href="../articles/grim.html">GRIM</a>
     </li>
     <li>
-      <a href="../articles/infrastructure.html">Infrastructure beyond rounding</a>
+      <a href="../articles/debit.html">DEBIT</a>
     </li>
+    <li class="divider">
+    <li class="dropdown-header">Infrastructure</li>
     <li>
       <a href="../articles/rounding.html">Rounding</a>
     </li>
+    <li>
+      <a href="../articles/infrastructure.html">Infrastructure beyond rounding</a>
+    </li>
+    <li class="divider">
+    <li class="dropdown-header">Other</li>
     <li>
       <a href="../articles/wrangling.html">Data wrangling</a>
     </li>
@@ -350,7 +356,7 @@ bias = x_{rounded} - x
 <code class="sourceCode R"><span class="va">vec4</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="fl">50000</span>, <span class="fl">100</span>, <span class="fl">15</span><span class="op">)</span>
 
 <span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span><span class="va">vec4</span>, decimals <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>
-<span class="co">#&gt; [1] 5.774364e-06</span></code></pre></div>
+<span class="co">#&gt; [1] -1.1402e-05</span></code></pre></div>
 <p>What is responsible for such a difference? It seems to be (1) the sample size and (2) the number of decimal places to which the vector is rounded. The rounding method doesn’t appear to matter if numbers with many decimal places are rounded:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">up_1</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span><span class="va">vec4</span>, decimals <span class="op">=</span> <span class="fl">1</span>, rounding <span class="op">=</span> <span class="st">"up"</span><span class="op">)</span>
@@ -381,18 +387,18 @@ bias = x_{rounded} - x
 <span class="co"># Display simulated data:</span>
 <span class="va">df</span>
 <span class="co">#&gt; # A tibble: 10 × 3</span>
-<span class="co">#&gt;             bias dp       rounding</span>
-<span class="co">#&gt;            &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;   </span>
-<span class="co">#&gt;  1 0.000284      1 (up)   (up)    </span>
-<span class="co">#&gt;  2 0.00000577    2 (up)   (up)    </span>
-<span class="co">#&gt;  3 0.000000926   3 (up)   (up)    </span>
-<span class="co">#&gt;  4 0.0000000156  4 (up)   (up)    </span>
-<span class="co">#&gt;  5 0.00000000136 5 (up)   (up)    </span>
-<span class="co">#&gt;  6 0.000284      1 (even) (even)  </span>
-<span class="co">#&gt;  7 0.00000577    2 (even) (even)  </span>
-<span class="co">#&gt;  8 0.000000926   3 (even) (even)  </span>
-<span class="co">#&gt;  9 0.0000000156  4 (even) (even)  </span>
-<span class="co">#&gt; 10 0.00000000136 5 (even) (even)</span>
+<span class="co">#&gt;            bias dp       rounding</span>
+<span class="co">#&gt;           &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;   </span>
+<span class="co">#&gt;  1 0.000128     1 (up)   (up)    </span>
+<span class="co">#&gt;  2 0.0000114    2 (up)   (up)    </span>
+<span class="co">#&gt;  3 0.000000318  3 (up)   (up)    </span>
+<span class="co">#&gt;  4 0.0000000200 4 (up)   (up)    </span>
+<span class="co">#&gt;  5 0.0000000196 5 (up)   (up)    </span>
+<span class="co">#&gt;  6 0.000128     1 (even) (even)  </span>
+<span class="co">#&gt;  7 0.0000114    2 (even) (even)  </span>
+<span class="co">#&gt;  8 0.000000318  3 (even) (even)  </span>
+<span class="co">#&gt;  9 0.0000000200 4 (even) (even)  </span>
+<span class="co">#&gt; 10 0.0000000196 5 (even) (even)</span>
 
 <span class="va">`%+replace%`</span> <span class="op">&lt;-</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="va">`%+replace%`</span>
 
@@ -429,7 +435,7 @@ bias = x_{rounded} - x
 #&gt;  3 0         3 (up)   (up)    
 #&gt;  4 0         4 (up)   (up)    
 #&gt;  5 0         5 (up)   (up)    
-#&gt;  6 0.0000858 1 (even) (even)  
+#&gt;  6 0.0000970 1 (even) (even)  
 #&gt;  7 0         2 (even) (even)  
 #&gt;  8 0         3 (even) (even)  
 #&gt;  9 0         4 (even) (even)  
