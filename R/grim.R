@@ -10,8 +10,8 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
   if (is.data.frame(x)) {
     cli::cli_abort(c(
       "`x` is a data frame",
-      "x" = "For `grim()` itself, please provide a single set of values, not \\
-      a data frame (see documentation). If you want to GRIM-test multiple \\
+      "x" = "For `grim()`, please provide a single set of values, not a \\
+      data frame (see documentation). If you want to GRIM-test multiple \\
       value sets at once, call `grim_map()` instead."
     ))
   }

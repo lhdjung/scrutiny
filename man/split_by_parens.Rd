@@ -27,7 +27,7 @@ also appear in the output. Default is \code{FALSE}.}
 \item{.transform}{Boolean. If set to \code{TRUE}, the output will be transformed
 to be better accessible for typical follow-up tasks. Default is \code{FALSE}.}
 
-\item{.sep, sep}{String. What to split by. Either \code{"parens"}, \code{"brackets"}, or
+\item{.sep}{String. What to split by. Either \code{"parens"}, \code{"brackets"}, or
 \code{"braces"}. Default is \code{"parens"}.}
 
 \item{.col1, .col2}{Strings. Endings of the two column names that result from
@@ -42,9 +42,6 @@ When working with tables from PDF, it can be tedious to separate values
 before and inside parentheses. \code{split_by_parens()} does that automatically.
 By default, it operates on all columns. Output can optionally be
 transformed into a longer format by setting \code{.transform} to \code{TRUE}.
-
-Also, \code{before_parens()} and \code{inside_parens()} take an atomic vector and
-extract values from the respective position.
 }
 \examples{
 # Call `split_by_parens()` on data like these:
@@ -79,4 +76,9 @@ pigs \%>\%
 pigs \%>\%
   split_by_parens(.transform = TRUE,
   .col1 = "beta", .col2 = "se")
+}
+\seealso{
+\code{before_parens()} and \code{inside_parens()} take a string vector and
+extract values from the respective position. These two functions are mapped
+within \verb{split_by_parens().}
 }

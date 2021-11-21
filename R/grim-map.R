@@ -57,8 +57,8 @@
 #'
 #' - `rec_sum`: the sum total from which the mean or proportion was ostensibly
 #'   derived.
-#' - `rec_x_upper`: the ceiled reconstructed `x` value.
-#' - `rec_x_lower`: the floored reconstructed `x` value.
+#' - `rec_x_upper`: the upper reconstructed `x` value.
+#' - `rec_x_lower`: the lower reconstructed `x` value.
 #' - `rec_x_upper_rounded`: the rounded `rec_upper` value.
 #' - `rec_x_lower_rounded`: the rounded `rec_lower` value.
 
@@ -95,10 +95,21 @@
 #' pigs1 %>%
 #'   grim_map(show_rec = TRUE)
 #'
+#' # Specifically, values are consistent
+#' # if and only if `x` is near-identical
+#' # to either of `rec_x_upper_rounded`
+#' # and `rec_x_lower_rounded`:
+#' pigs1 %>%
+#'   grim_map(show_rec = TRUE) %>%
+#'   dplyr::select(x, consistency,
+#'                 rec_x_upper_rounded,
+#'                 rec_x_lower_rounded)
+#'
 #' # Get summaries with `audit()`:
 #' pigs1 %>%
 #'   grim_map() %>%
 #'   audit()
+
 
 
 # Note: All the arguments passed on to the internal testing function
@@ -227,6 +238,9 @@ grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
     results <- tibble::tibble(x, n, items, consistency, ratio, other_cols)
   }
 
+  # results <- results %>%
+  #   dplyr::mutate(x = )
+
   # In case the user set `show_rec` to `TRUE` for displaying the reconstructed
   # values from `grim_scalar()`'s internal computations, these were already
   # stored in `consistency` before. The `consistency` column, then, is a
@@ -268,16 +282,18 @@ grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
       add_class("seq_test")
   }
 
-  # if (adjust_x == 1) {
-  #   # class(results) <- c("scr_adjust_x_1", class(results))
-  #   results <- results %>%
-  #     add_class("scr_adjust_x_1")
-  # }
-
+  # If `x` is a percentage, divide it by 100 to adjust its value. The resulting
+  # decimal numbers will then be the values actually used in GRIM-testing; i.e.,
+  # within `grim_scalar()`. Also, issue an alert to the user about the
+  # percentage conversion:
   if (percent) {
-    # class(results) <- c("scr_percent_true", class(results))
+    results$x <- restore_zeros(as.numeric(results$x) / 100)
     results <- results %>%
       add_class("scr_percent_true")
+
+    cli::cli_alert_info(
+      "`x` converted from percentage"
+    )
   }
 
   # Finally, return either all of the results or only the GRIM-testable ones:

@@ -89,8 +89,8 @@ includes the following additional columns:
 \itemize{
 \item \code{rec_sum}: the sum total from which the mean or proportion was ostensibly
 derived.
-\item \code{rec_x_upper}: the ceiled reconstructed \code{x} value.
-\item \code{rec_x_lower}: the floored reconstructed \code{x} value.
+\item \code{rec_x_upper}: the upper reconstructed \code{x} value.
+\item \code{rec_x_lower}: the lower reconstructed \code{x} value.
 \item \code{rec_x_upper_rounded}: the rounded \code{rec_upper} value.
 \item \code{rec_x_lower_rounded}: the rounded \code{rec_lower} value.
 }
@@ -127,6 +127,16 @@ pigs1 \%>\%
 # GRIM-testing with `show_rec = TRUE`:
 pigs1 \%>\%
   grim_map(show_rec = TRUE)
+
+# Specifically, values are consistent
+# if and only if `x` is near-identical
+# to either of `rec_x_upper_rounded`
+# and `rec_x_lower_rounded`:
+pigs1 \%>\%
+  grim_map(show_rec = TRUE) \%>\%
+  dplyr::select(x, consistency,
+                rec_x_upper_rounded,
+                rec_x_lower_rounded)
 
 # Get summaries with `audit()`:
 pigs1 \%>\%
