@@ -7,9 +7,6 @@
 #'   By default, it operates on all columns. Output can optionally be
 #'   transformed into a longer format by setting `.transform` to `TRUE`.
 #'
-#'   Also, `before_parens()` and `inside_parens()` take an atomic vector and
-#'   extract values from the respective position.
-#'
 #' @param .data Data frame. Only in `split_by_parens()`.
 #' @param ... Optionally, name columns from `.data`. Splitting will then be
 #'   restricted to these columns. This is useful if not all values contain
@@ -18,7 +15,7 @@
 #'   also appear in the output. Default is `FALSE`.
 #' @param .transform Boolean. If set to `TRUE`, the output will be transformed
 #'   to be better accessible for typical follow-up tasks. Default is `FALSE`.
-#' @param .sep,sep String. What to split by. Either `"parens"`, `"brackets"`, or
+#' @param .sep String. What to split by. Either `"parens"`, `"brackets"`, or
 #'   `"braces"`. Default is `"parens"`.
 #' @param .col1,.col2 Strings. Endings of the two column names that result from
 #'   splitting a column. Default is `"x"` for `.col1` and `"sd"` for `.col2`.
@@ -26,6 +23,11 @@
 #' @include before-inside-parens.R split-transform.R
 #'
 #' @return A tibble with string columns.
+#'
+#' @seealso `before_parens()` and `inside_parens()` take a string vector and
+#'   extract values from the respective position. These two functions are mapped
+#'   within `split_by_parens().`
+#'
 #' @export
 #'
 #' @examples

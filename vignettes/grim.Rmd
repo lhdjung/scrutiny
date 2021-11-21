@@ -151,9 +151,9 @@ jpap3 %>%
   grim_map(percent = TRUE)
 ```
 
-### Intermediary values
+### Reconstructed values
 
-Set `show_rec` to `TRUE` if you want the intermediate reconstructed values from GRIM-testing to be displayed in the output. They will be columns prefixed with `rec_`:
+Set `show_rec` to `TRUE` if you want the values that were reconstructed during GRIM-testing to be displayed in the output. They will be columns prefixed with `rec_`:
 
 ```{r}
 pigs1 %>% 
@@ -164,9 +164,9 @@ The additional columns are ---
 
 -   `rec_sum`: the sum total from which the mean or proportion was ostensibly derived.
 
--   `rec_x_upper`: the ceiled reconstructed `x` value.
+-   `rec_x_upper`: the upper reconstructed `x` value.
 
--   `rec_x_lower`: the floored reconstructed `x` value.
+-   `rec_x_lower`: the lower reconstructed `x` value.
 
 -   `rec_x_upper_rounded`: the rounded `rec_upper` value.
 
@@ -384,7 +384,7 @@ Thus, all I did regarding the GRIM ratio was to make the general formula explici
 
 ### Granularity and scale items
 
-A distribution's granularity is the minimal amount by which two means or proportions of a non-continuous distribution can differ. It is derived from the sample size and the number of scale items. Conversely, the number of items naturally follows from the distribution's sample size and granularity.
+A distribution's granularity is the minimal amount by which two means or proportions of a non-continuous distribution can differ. It is derived from the sample size and the number of scale items. The number of items, in turn, naturally follows from the distribution's sample size and granularity.
 
 #### Formulas
 
