@@ -19,12 +19,10 @@ wrangling functions. See the *Articles* tab for vignettes.
 scrutiny is a work in progress. You are welcome to contribute with pull
 requests. However, please open an issue first.
 
-<!-- ## Installation -->
-<!-- You can install the development version of scrutiny like so: -->
-<!-- ``` r -->
-<!-- # FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE? -->
-<!-- ``` -->
-<!-- ## Example -->
+The package is not on CRAN yet. You can install in from GitHub like
+this:
+
+    remotes::install_github("lhdjung/scrutiny")
 
 ## Get started
 
@@ -107,7 +105,7 @@ Visualize GRIM results while also selecting a rounding procedure:
       grim_map(rounding = "up") %>% 
       grim_plot()
 
-<img src="man/figures/README-unnamed-chunk-3-1.png" width="75%" />
+<img src="man/figures/README-unnamed-chunk-4-1.png" width="75%" />
 
 Similarly, use DEBIT to test means and standard deviations of binary
 data:
@@ -144,7 +142,7 @@ data:
       debit_map() %>% 
       debit_plot()
 
-<img src="man/figures/README-unnamed-chunk-4-1.png" width="75%" />
+<img src="man/figures/README-unnamed-chunk-5-1.png" width="75%" />
 
 ## Guiding ideas
 

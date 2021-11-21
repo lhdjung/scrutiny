@@ -46,17 +46,11 @@ Besides consistency tests, scrutiny features infrastructure for implementing err
 
 scrutiny is a work in progress. You are welcome to contribute with pull requests. However, please open an issue first.
 
-<!-- ## Installation -->
+The package is not on CRAN yet. You can install in from GitHub like this:
 
-<!-- You can install the development version of scrutiny like so: -->
-
-<!-- ``` r -->
-
-<!-- # FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE? -->
-
-<!-- ``` -->
-
-<!-- ## Example -->
+```{r, warning=FALSE, message=FALSE, eval=FALSE}
+remotes::install_github("lhdjung/scrutiny")
+```
 
 ## Get started
 

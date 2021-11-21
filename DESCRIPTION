@@ -88,5 +88,6 @@ Config/testthat/edition: 3
 Depends: 
     R (>= 2.10)
 VignetteBuilder: knitr
-URL: https://github.com/lhdjung/scrutiny
+URL: https://github.com/lhdjung/scrutiny,
+    https://lhdjung.github.io/scrutiny
 BugReports: https://github.com/lhdjung/scrutiny/issues
