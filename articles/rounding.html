@@ -356,7 +356,7 @@ bias = x_{rounded} - x
 <code class="sourceCode R"><span class="va">vec4</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="fl">50000</span>, <span class="fl">100</span>, <span class="fl">15</span><span class="op">)</span>
 
 <span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span><span class="va">vec4</span>, decimals <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>
-<span class="co">#&gt; [1] 3.906274e-06</span></code></pre></div>
+<span class="co">#&gt; [1] 1.466348e-05</span></code></pre></div>
 <p>What is responsible for such a difference? It seems to be (1) the sample size and (2) the number of decimal places to which the vector is rounded. The rounding method doesn’t appear to matter if numbers with many decimal places are rounded:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">up_1</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span><span class="va">vec4</span>, decimals <span class="op">=</span> <span class="fl">1</span>, rounding <span class="op">=</span> <span class="st">"up"</span><span class="op">)</span>
@@ -387,18 +387,18 @@ bias = x_{rounded} - x
 <span class="co"># Display simulated data:</span>
 <span class="va">df</span>
 <span class="co">#&gt; # A tibble: 10 × 3</span>
-<span class="co">#&gt;             bias dp       rounding</span>
-<span class="co">#&gt;            &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;   </span>
-<span class="co">#&gt;  1 0.000169      1 (up)   (up)    </span>
-<span class="co">#&gt;  2 0.00000391    2 (up)   (up)    </span>
-<span class="co">#&gt;  3 0.00000121    3 (up)   (up)    </span>
-<span class="co">#&gt;  4 0.0000000557  4 (up)   (up)    </span>
-<span class="co">#&gt;  5 0.00000000873 5 (up)   (up)    </span>
-<span class="co">#&gt;  6 0.000169      1 (even) (even)  </span>
-<span class="co">#&gt;  7 0.00000391    2 (even) (even)  </span>
-<span class="co">#&gt;  8 0.00000121    3 (even) (even)  </span>
-<span class="co">#&gt;  9 0.0000000557  4 (even) (even)  </span>
-<span class="co">#&gt; 10 0.00000000873 5 (even) (even)</span>
+<span class="co">#&gt;            bias dp       rounding</span>
+<span class="co">#&gt;           &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;   </span>
+<span class="co">#&gt;  1 0.000101     1 (up)   (up)    </span>
+<span class="co">#&gt;  2 0.0000147    2 (up)   (up)    </span>
+<span class="co">#&gt;  3 0.0000000965 3 (up)   (up)    </span>
+<span class="co">#&gt;  4 0.000000123  4 (up)   (up)    </span>
+<span class="co">#&gt;  5 0.0000000125 5 (up)   (up)    </span>
+<span class="co">#&gt;  6 0.000101     1 (even) (even)  </span>
+<span class="co">#&gt;  7 0.0000147    2 (even) (even)  </span>
+<span class="co">#&gt;  8 0.0000000965 3 (even) (even)  </span>
+<span class="co">#&gt;  9 0.000000123  4 (even) (even)  </span>
+<span class="co">#&gt; 10 0.0000000125 5 (even) (even)</span>
 
 <span class="va">`%+replace%`</span> <span class="op">&lt;-</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="va">`%+replace%`</span>
 
@@ -430,12 +430,12 @@ bias = x_{rounded} - x
 <pre><code>#&gt; # A tibble: 10 × 3
 #&gt;        bias dp       rounding
 #&gt;       &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;   
-#&gt;  1 0.00481  1 (up)   (up)    
+#&gt;  1 0.00490  1 (up)   (up)    
 #&gt;  2 0        2 (up)   (up)    
 #&gt;  3 0        3 (up)   (up)    
 #&gt;  4 0        4 (up)   (up)    
 #&gt;  5 0        5 (up)   (up)    
-#&gt;  6 0.000247 1 (even) (even)  
+#&gt;  6 0.000106 1 (even) (even)  
 #&gt;  7 0        2 (even) (even)  
 #&gt;  8 0        3 (even) (even)  
 #&gt;  9 0        4 (even) (even)  
