@@ -17,7 +17,8 @@ implementing error detection techniques, as well as specialized data
 wrangling functions. See the *Articles* tab for vignettes.
 
 scrutiny is a work in progress. You are welcome to contribute with pull
-requests. However, please open an issue first.
+requests. However, please [open an
+issue](https://github.com/lhdjung/scrutiny/issues) first.
 
 The package is not on CRAN yet. You can install in from GitHub like
 this:
