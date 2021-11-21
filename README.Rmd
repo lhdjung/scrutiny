@@ -34,6 +34,8 @@ ggplot2::theme_minimal() %>%
 
 <!-- badges: start -->
 
+[![R-CMD-check](https://github.com/lhdjung/scrutiny/workflows/R-CMD-check/badge.svg)](https://github.com/lhdjung/scrutiny/actions)
+
 <!-- badges: end -->
 
 # Error detection in science

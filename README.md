@@ -1,5 +1,8 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 <!-- badges: start -->
+
+[![R-CMD-check](https://github.com/lhdjung/scrutiny/workflows/R-CMD-check/badge.svg)](https://github.com/lhdjung/scrutiny/actions)
+
 <!-- badges: end -->
 
 # Error detection in science
