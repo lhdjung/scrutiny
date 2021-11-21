@@ -86,7 +86,7 @@ pigs1 %>%
   grim_plot()
 ```
 
-Similarly, test means and standard deviations of binary data with DEBIT:
+Similarly, use DEBIT to test means and standard deviations of binary data:
 
 ```{r}
 pigs3

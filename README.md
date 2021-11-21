@@ -86,6 +86,8 @@ Test percentages instead of means:
 
     grim_map(pigs2, percent = TRUE)
 
+    #> ℹ `x` converted from percentage
+
     #> # A tibble: 6 × 5
     #>   x         n items consistency ratio
     #>   <chr> <int> <int> <lgl>       <dbl>
@@ -104,7 +106,8 @@ Visualize GRIM results while also selecting a rounding procedure:
 
 <img src="man/figures/README-unnamed-chunk-3-1.png" width="75%" />
 
-Similarly, test means and standard deviations of binary data with DEBIT:
+Similarly, use DEBIT to test means and standard deviations of binary
+data:
 
     pigs3
 
