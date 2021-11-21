@@ -1,0 +1,11 @@
+pandoc: 2.7.3
+pkgdown: 1.6.1
+pkgdown_sha: ~
+articles:
+  debit: debit.html
+  grim: grim.html
+  infrastructure: infrastructure.html
+  rounding: rounding.html
+  wrangling: wrangling.html
+last_built: 2021-11-21T20:06Z
+
