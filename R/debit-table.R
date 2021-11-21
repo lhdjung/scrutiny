@@ -3,8 +3,7 @@
 # Helper to check input ranges (not exported) -----------------------------
 
 
-proto_debit_inputs <- function(input, type, symbol) {
-
+proto_check_debit_inputs <- function(input, type, symbol) {
   input_in_range <- dplyr::between(as.numeric(input),  0, 1)
 
   if (!all(input_in_range)) {
@@ -32,8 +31,8 @@ proto_debit_inputs <- function(input, type, symbol) {
 
 
 check_debit_inputs <- function(x, sd) {
-  proto_debit_inputs(input = x, type = "mean", symbol = "x")
-  proto_debit_inputs(input = sd, type = "standard deviation", symbol = "sd")
+  proto_check_debit_inputs(input = x, type = "mean", symbol = "x")
+  proto_check_debit_inputs(input = sd, type = "standard deviation", symbol = "sd")
 }
 
 
