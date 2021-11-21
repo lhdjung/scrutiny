@@ -6,6 +6,7 @@ audit_pigs1 <- pigs1 %>%
 
 audit_pigs2 <- pigs2 %>%
   grim_map(percent = TRUE) %>%
+  suppressMessages() %>%
   audit()
 
 

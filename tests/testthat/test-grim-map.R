@@ -71,12 +71,29 @@ n <- rnorm(500, 50, 20) %>%
   round()
 
 df3 <- tibble::tibble(x, n)
-df3_percent_true <- grim_map(df3, percent = TRUE)
-df3_percent_false <- grim_map(df3)
+df3_percent_true <- grim_map(df3, percent = TRUE, show_rec = TRUE) %>%
+  suppressMessages()
+df3_percent_false <- grim_map(df3, show_rec = TRUE)
 
 test_that(glue::glue("The GRIM ratio is always greater with `percent = TRUE` \\
           than without it"), {
   expect_true(all(df3_percent_true$ratio > df3_percent_false$ratio))
+})
+
+
+df3_true_accord <- df3_percent_true %>%
+  dplyr::select(x, consistency, rec_x_upper_rounded, rec_x_lower_rounded) %>%
+  dplyr::mutate(accord = dplyr::if_else(
+      consistency,
+      any(dplyr::near(as.numeric(x), rec_x_upper_rounded, rec_x_lower_rounded)),
+      FALSE
+    ))
+
+
+test_that(
+  glue::glue("The stated consistency accords with what can be reconstructed \\
+             from the numbers presented"), {
+  expect_true(all(df3_true_accord$consistency == df3_true_accord$accord))
 })
 
 
