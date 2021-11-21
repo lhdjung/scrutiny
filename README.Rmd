@@ -42,6 +42,8 @@ The goal of scrutiny is to test published summary statistics for consistency and
 
 Besides consistency tests, scrutiny features infrastructure for implementing error detection techniques, as well as specialized data wrangling functions. See the *Articles* tab for vignettes.
 
+scrutiny is a work in progress. You are welcome to contribute with pull requests. However, please open an issue first.
+
 <!-- ## Installation -->
 
 <!-- You can install the development version of scrutiny like so: -->
@@ -53,6 +55,8 @@ Besides consistency tests, scrutiny features infrastructure for implementing err
 <!-- ``` -->
 
 <!-- ## Example -->
+
+## Get started
 
 Here is how to GRIM-test all values in a data frame. When using `grim_map()`, the `consistency` column tells you if the means (`x`), sample sizes (`n`), and numbers of scale items are mutually consistent. Scale item numbers are 1 by default.
 
@@ -95,7 +99,7 @@ pigs3 %>%
   debit_plot()
 ```
 
-# Guiding ideas
+## Guiding ideas
 
 > (...) a critical inspection of the published literature should not be mischaracterized as a hobby for the overly cynical, nor as so-called "methodological terrorism". On the contrary, carefully evaluating presented data is a cornerstone of scientific investigation, and it is only logical to apply this also to the published literature. If we are not willing to critically assess published studies, we also cannot guarantee their veracity.
 

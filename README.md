@@ -13,12 +13,17 @@ Besides consistency tests, scrutiny features infrastructure for
 implementing error detection techniques, as well as specialized data
 wrangling functions. See the *Articles* tab for vignettes.
 
+scrutiny is a work in progress. You are welcome to contribute with pull
+requests. However, please open an issue first.
+
 <!-- ## Installation -->
 <!-- You can install the development version of scrutiny like so: -->
 <!-- ``` r -->
 <!-- # FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE? -->
 <!-- ``` -->
 <!-- ## Example -->
+
+## Get started
 
 Here is how to GRIM-test all values in a data frame. When using
 `grim_map()`, the `consistency` column tells you if the means (`x`),
@@ -84,12 +89,12 @@ Test percentages instead of means:
     #> # A tibble: 6 × 5
     #>   x         n items consistency ratio
     #>   <chr> <int> <int> <lgl>       <dbl>
-    #> 1 67.4    150     1 FALSE        0.85
-    #> 2 54.2    150     1 FALSE        0.85
-    #> 3 54.0    150     1 TRUE         0.85
-    #> 4 69.8    150     1 FALSE        0.85
-    #> 5 68.1    150     1 FALSE        0.85
-    #> 6 55.4    150     1 FALSE        0.85
+    #> 1 0.674   150     1 FALSE        0.85
+    #> 2 0.542   150     1 FALSE        0.85
+    #> 3 0.540   150     1 TRUE         0.85
+    #> 4 0.698   150     1 FALSE        0.85
+    #> 5 0.681   150     1 FALSE        0.85
+    #> 6 0.554   150     1 FALSE        0.85
 
 Visualize GRIM results while also selecting a rounding procedure:
 
@@ -135,7 +140,7 @@ Similarly, test means and standard deviations of binary data with DEBIT:
 
 <img src="man/figures/README-unnamed-chunk-4-1.png" width="75%" />
 
-# Guiding ideas
+## Guiding ideas
 
 > (…) a critical inspection of the published literature should not be
 > mischaracterized as a hobby for the overly cynical, nor as so-called
