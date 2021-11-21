@@ -320,9 +320,11 @@ ggplot2::ggplot(df, ggplot2::aes(x = dp, y = bias,
 
 ```
 
-However, if the raw values are preliminarily rounded to 2 decimal places before rounding proceeds as above, the picture is different. This might be relevant for [RIVETS](https://psyarxiv.com/ctu9z/), an error detection technique yet to be formalized, although RIVETS is not made for situations in which rounding bias can be assessed directly.
+However, if the raw values are preliminarily rounded to 2 decimal places before rounding proceeds as above, the picture is different.[^1] I will spare you the code this time:
 
-I will spare you the code this time:
+[^1]: I would be amiss here not to mention [RIVETS](https://psyarxiv.com/ctu9z/), an error detection technique that calculates the probability that a given set of rounded summaries of statistical tests was derived from standard computing procedures. In particular, RIVETS allows probabilistic assessments of the hypothesis that the numbers were directly generated from raw data rather than from values already rounded before the test.
+
+    Rounding bias might conceivably show some relevance to RIVETS. However, this technique is designed for situations in which no raw data are available, and a role for considerations of bias does not seem obvious at present.
 
 ```{r echo=FALSE}
 vec5 <- round(vec4, 2)
