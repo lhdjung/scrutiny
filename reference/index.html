@@ -12,8 +12,8 @@
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/flatly/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous" />
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
 
@@ -93,24 +93,18 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
-    <li class="divider"></li>
-    <li class="dropdown-header">Consistency tests</li>
+    <li>
+      <a href="../articles/debit.html">DEBIT</a>
+    </li>
     <li>
       <a href="../articles/grim.html">GRIM</a>
     </li>
     <li>
-      <a href="../articles/debit.html">DEBIT</a>
+      <a href="../articles/infrastructure.html">Infrastructure beyond rounding</a>
     </li>
-    <li class="divider"></li>
-    <li class="dropdown-header">Infrastructure</li>
     <li>
       <a href="../articles/rounding.html">Rounding</a>
     </li>
-    <li>
-      <a href="../articles/infrastructure.html">Infrastructure beyond rounding</a>
-    </li>
-    <li class="divider"></li>
-    <li class="dropdown-header">Other</li>
     <li>
       <a href="../articles/wrangling.html">Data wrangling</a>
     </li>
@@ -154,20 +148,11 @@
     <tbody>
       <tr>
         <th colspan="2">
-          <h2 id="section-consistency-tests" class="hasAnchor"><a href="#section-consistency-tests" class="anchor"></a>Consistency tests</h2>
-          <p class="section-desc"><p>Check the numerical consistency of summary statistics; two tests currently implemented —</p></p>
+          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
+          <p class="section-desc"></p>
         </th>
       </tr>
       
-      
-    </tbody><tbody>
-      
-      <tr>
-        <th colspan="2">
-          <h3 id="section-grim" class="hasAnchor"><a href="#section-grim" class="anchor"></a>GRIM</h3>
-          <p class="section-desc"><p>Test reported means or percentages for numerical consistency with reported sample sizes</p></p>
-        </th>
-      </tr>
       
     </tbody><tbody>
       
@@ -175,9 +160,63 @@
       <tr>
         
         <td>
+          <p><code><a href="audit.html">audit()</a></code> </p>
+        </td>
+        <td><p>Summaries of scrutiny objects</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="before_parens.html">before_parens()</a></code> <code><a href="before_parens.html">inside_parens()</a></code> </p>
+        </td>
+        <td><p>Extract substrings from before and inside parentheses</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="debit.html">debit()</a></code> </p>
+        </td>
+        <td><p>The DEBIT (descriptive binary) test</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="debit_map.html">debit_map()</a></code> </p>
+        </td>
+        <td><p>Apply DEBIT to many cases</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="debit_plot.html">debit_plot()</a></code> </p>
+        </td>
+        <td><p>Visualize DEBIT results</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="decimal_places.html">decimal_places()</a></code> <code><a href="decimal_places.html">decimal_places_scalar()</a></code> </p>
+        </td>
+        <td><p>Count decimal places</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="duplicate_count.html">duplicate_count()</a></code> </p>
+        </td>
+        <td><p>Count duplicate values</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="duplicate_detect.html">duplicate_detect()</a></code> </p>
+        </td>
+        <td><p>Detect duplicate values</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="grim.html">grim()</a></code> </p>
         </td>
         <td><p>The GRIM test (granularity-related inconsistency of means)</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="grim_granularity.html">grim_granularity()</a></code> <code><a href="grim_granularity.html">grim_items()</a></code> </p>
+        </td>
+        <td><p>Granularity of non-continuous scales</p></td>
       </tr><tr>
         
         <td>
@@ -199,256 +238,10 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="grim_granularity.html">grim_granularity()</a></code> <code><a href="grim_granularity.html">grim_items()</a></code> </p>
-        </td>
-        <td><p>Granularity of non-continuous scales</p></td>
-      </tr>
-    </tbody><tbody>
-      
-      <tr>
-        <th colspan="2">
-          <h3 id="section-debit" class="hasAnchor"><a href="#section-debit" class="anchor"></a>DEBIT</h3>
-          <p class="section-desc"><p>Test reported means and standard deviations of binary data for numerical consistency with reported sample sizes</p></p>
-        </th>
-      </tr>
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="debit.html">debit()</a></code> </p>
-        </td>
-        <td><p>The DEBIT (descriptive binary) test</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="debit_map.html">debit_map()</a></code> </p>
-        </td>
-        <td><p>Apply DEBIT to many cases</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="debit_plot.html">debit_plot()</a></code> </p>
-        </td>
-        <td><p>Visualize DEBIT results</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="sd_binary_groups.html">sd_binary_groups()</a></code> <code><a href="sd_binary_groups.html">sd_binary_0_n()</a></code> <code><a href="sd_binary_groups.html">sd_binary_1_n()</a></code> <code><a href="sd_binary_groups.html">sd_binary_mean_n()</a></code> </p>
-        </td>
-        <td><p>Standard deviation of binary data</p></td>
-      </tr>
-    </tbody><tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-duplicate-detection" class="hasAnchor"><a href="#section-duplicate-detection" class="anchor"></a>Duplicate detection</h2>
-          <p class="section-desc"><p>Blunt functions to tentatively discover and count duplicate numeric values; interpret results with care</p></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="duplicate_detect.html">duplicate_detect()</a></code> </p>
-        </td>
-        <td><p>Detect duplicate values</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="duplicate_count.html">duplicate_count()</a></code> </p>
-        </td>
-        <td><p>Count duplicate values</p></td>
-      </tr>
-    </tbody><tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-summarize-scrutiny-tests" class="hasAnchor"><a href="#section-summarize-scrutiny-tests" class="anchor"></a>Summarize scrutiny tests</h2>
-          <p class="section-desc"><p>Generic function to follow up on scrutiny’s testing functions</p></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="audit.html">audit()</a></code> </p>
-        </td>
-        <td><p>Summaries of scrutiny objects</p></td>
-      </tr>
-    </tbody><tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-infrastructure" class="hasAnchor"><a href="#section-infrastructure" class="anchor"></a>Infrastructure</h2>
-          <p class="section-desc"><p>Helpers for implementing error detection techniques; divided into four subcategories —</p></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      <tr>
-        <th colspan="2">
-          <h3 id="section-rounding" class="hasAnchor"><a href="#section-rounding" class="anchor"></a>Rounding</h3>
-          <p class="section-desc"><p>Various functions to reconstruct rounding procedures</p></p>
-        </th>
-      </tr>
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="round_up_from.html">round_up_from()</a></code> <code><a href="round_up_from.html">round_down_from()</a></code> <code><a href="round_up_from.html">round_up()</a></code> <code><a href="round_up_from.html">round_down()</a></code> </p>
-        </td>
-        <td><p>Likely rounding procedures</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="round_ceiling.html">round_ceiling()</a></code> <code><a href="round_ceiling.html">round_floor()</a></code> <code><a href="round_ceiling.html">round_trunc()</a></code> <code><a href="round_ceiling.html">anti_trunc()</a></code> <code><a href="round_ceiling.html">round_anti_trunc()</a></code> </p>
-        </td>
-        <td><p>Always round up, down, toward zero, or away from it</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="reround.html">reround()</a></code> </p>
-        </td>
-        <td><p>General interface to reconstructing rounded numbers</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="unround.html">unround()</a></code> </p>
-        </td>
-        <td><p>Reconstruct rounding bounds</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="rounding_bias.html">rounding_bias()</a></code> </p>
-        </td>
-        <td><p>Compute rounding bias</p></td>
-      </tr>
-    </tbody><tbody>
-      
-      <tr>
-        <th colspan="2">
-          <h3 id="section-counting-decimal-places" class="hasAnchor"><a href="#section-counting-decimal-places" class="anchor"></a>Counting decimal places</h3>
-          <p class="section-desc"><p>The indispensable foundation of many other scrutiny functions</p></p>
-        </th>
-      </tr>
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="decimal_places.html">decimal_places()</a></code> <code><a href="decimal_places.html">decimal_places_scalar()</a></code> </p>
-        </td>
-        <td><p>Count decimal places</p></td>
-      </tr>
-    </tbody><tbody>
-      
-      <tr>
-        <th colspan="2">
-          <h3 id="section-sequence-generation" class="hasAnchor"><a href="#section-sequence-generation" class="anchor"></a>Sequence generation</h3>
-          <p class="section-desc"><p>Create sequences at the correct decimal level</p></p>
-        </th>
-      </tr>
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="seq_endpoint.html">seq_endpoint()</a></code> <code><a href="seq_endpoint.html">seq_distance()</a></code> <code><a href="seq_endpoint.html">seq_endpoint_df()</a></code> <code><a href="seq_endpoint.html">seq_distance_df()</a></code> </p>
-        </td>
-        <td><p>Sequence generation at decimal level</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="seq_test_ranking.html">seq_test_ranking()</a></code> </p>
-        </td>
-        <td><p>Rank sequence test results</p></td>
-      </tr>
-    </tbody><tbody>
-      
-      <tr>
-        <th colspan="2">
-          <h3 id="section-testing-for-subsets-supersets" class="hasAnchor"><a href="#section-testing-for-subsets-supersets" class="anchor"></a>Testing for subsets / supersets</h3>
-          <p class="section-desc"><p>Predicate functions for logical relations between vectors; supports flexible data entry and tidy evaluation</p></p>
-        </th>
-      </tr>
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
           <p><code><a href="is_subset_of.html">is_subset_of()</a></code> <code><a href="is_subset_of.html">is_superset_of()</a></code> <code><a href="is_subset_of.html">is_equal_set()</a></code> <code><a href="is_subset_of.html">is_subset_of_vals()</a></code> <code><a href="is_subset_of.html">is_superset_of_vals()</a></code> <code><a href="is_subset_of.html">is_equal_set_vals()</a></code> <code><a href="is_subset_of.html">is_subset_of_vecs()</a></code> <code><a href="is_subset_of.html">is_superset_of_vecs()</a></code> <code><a href="is_subset_of.html">is_equal_set_vecs()</a></code> </p>
         </td>
         <td><p>Test for subsets, supersets, and equal sets</p></td>
-      </tr>
-    </tbody><tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-data-wrangling" class="hasAnchor"><a href="#section-data-wrangling" class="anchor"></a>Data wrangling</h2>
-          <p class="section-desc"><p>Convenience functions to automate formatting tasks with a special relevance to error detection</p></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="restore_zeros.html">restore_zeros()</a></code> </p>
-        </td>
-        <td><p>Restore trailing zeros</p></td>
       </tr><tr>
-        
-        <td>
-          <p><code><a href="split_by_parens.html">split_by_parens()</a></code> </p>
-        </td>
-        <td><p>Split columns by parentheses</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="before_parens.html">before_parens()</a></code> <code><a href="before_parens.html">inside_parens()</a></code> </p>
-        </td>
-        <td><p>Extract substrings from before and inside parentheses</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="row_to_colnames.html">row_to_colnames()</a></code> </p>
-        </td>
-        <td><p>Turn row values into column names</p></td>
-      </tr>
-    </tbody><tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-datasets" class="hasAnchor"><a href="#section-datasets" class="anchor"></a>Datasets</h2>
-          <p class="section-desc"><p>Small example datasets to demonstrate how <code><a href="../reference/grim_map.html">grim_map()</a></code> and <code><a href="../reference/debit_map.html">debit_map()</a></code> work</p></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
         
         <td>
           <p><code><a href="pigs1.html">pigs1</a></code> </p>
@@ -472,6 +265,72 @@
           <p><code><a href="pigs4.html">pigs4</a></code> </p>
         </td>
         <td><p>Data with duplications</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="reround.html">reround()</a></code> </p>
+        </td>
+        <td><p>General interface to reconstructing rounded numbers</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="restore_zeros.html">restore_zeros()</a></code> </p>
+        </td>
+        <td><p>Restore trailing zeros</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="round_ceiling.html">round_ceiling()</a></code> <code><a href="round_ceiling.html">round_floor()</a></code> <code><a href="round_ceiling.html">round_trunc()</a></code> <code><a href="round_ceiling.html">anti_trunc()</a></code> <code><a href="round_ceiling.html">round_anti_trunc()</a></code> </p>
+        </td>
+        <td><p>Always round up, down, toward zero, or away from it</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="round_up_from.html">round_up_from()</a></code> <code><a href="round_up_from.html">round_down_from()</a></code> <code><a href="round_up_from.html">round_up()</a></code> <code><a href="round_up_from.html">round_down()</a></code> </p>
+        </td>
+        <td><p>Likely rounding procedures</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="rounding_bias.html">rounding_bias()</a></code> </p>
+        </td>
+        <td><p>Compute rounding bias</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="row_to_colnames.html">row_to_colnames()</a></code> </p>
+        </td>
+        <td><p>Turn row values into column names</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="sd_binary_groups.html">sd_binary_groups()</a></code> <code><a href="sd_binary_groups.html">sd_binary_0_n()</a></code> <code><a href="sd_binary_groups.html">sd_binary_1_n()</a></code> <code><a href="sd_binary_groups.html">sd_binary_mean_n()</a></code> </p>
+        </td>
+        <td><p>Standard deviation of binary data</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="seq_endpoint.html">seq_endpoint()</a></code> <code><a href="seq_endpoint.html">seq_distance()</a></code> <code><a href="seq_endpoint.html">seq_endpoint_df()</a></code> <code><a href="seq_endpoint.html">seq_distance_df()</a></code> </p>
+        </td>
+        <td><p>Sequence generation at decimal level</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="seq_test_ranking.html">seq_test_ranking()</a></code> </p>
+        </td>
+        <td><p>Rank sequence test results</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="split_by_parens.html">split_by_parens()</a></code> </p>
+        </td>
+        <td><p>Split columns by parentheses</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="unround.html">unround()</a></code> </p>
+        </td>
+        <td><p>Reconstruct rounding bounds</p></td>
       </tr>
     </tbody>
     </table>
