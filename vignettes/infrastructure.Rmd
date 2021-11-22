@@ -30,7 +30,7 @@ This vignette provides an overview of scrutiny's miscellaneous infrastructure fo
 
 ## Count decimal places
 
-Large parts of the package ultimately rest on either of two functions that simply count decimal places. These are characters after a number's decimal point or some other separator. Both functions also take strings.
+Large parts of the package ultimately rest on either of two functions that simply count decimal places. These are digits after a number's decimal point or some other separator. Both functions also take strings.
 
 `decimal_places()` is vectorized:
 
