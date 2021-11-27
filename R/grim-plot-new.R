@@ -223,7 +223,7 @@ grim_plot <- function(data = NULL,
     "mean"
   )
 
-  # Automatically color the boxes the value pairs by whether they are
+  # Automatically color the boxes of value pairs by whether they are
   # GRIM-consistent or not:
   color_by_consistency <- dplyr::if_else(
     data$consistency,
