@@ -187,6 +187,10 @@ grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
   other_cols <- dplyr::select(data, -x, -n, -items) %>%
     manage_extra_cols(data, extra, .)
 
+  # Prepare a data frame to use for the GRIM computations below (steps 4 and 5):
+  data_x_n_items <- dplyr::select(data, x, n, items)
+
+
   # Create the columns of the resulting tibble --
 
   # 1.-3.: Define `x`, `n`, and `items` as the respective columns from `data`
@@ -203,27 +207,24 @@ grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
   # numbers were chosen to be shown in the resulting tibble because the former
   # only returns a logical value whereas the latter returns a list:
   if (show_rec == FALSE) {
-    consistency <- data %>%
-      dplyr::select(x, n, items) %>%
-      purrr::pmap_lgl(grim_scalar, percent = percent,
-                      show_rec = show_rec, rounding = rounding,
-                      threshold = threshold, symmetric = symmetric,
-                      tolerance = tolerance)
+    consistency <- purrr::pmap_lgl(
+      data_x_n_items, grim_scalar, percent = percent,
+      show_rec = show_rec, rounding = rounding,
+      threshold = threshold, symmetric = symmetric,
+      tolerance = tolerance
+    )
   } else {
-    consistency <- data %>%
-      dplyr::select(x, n, items) %>%
-      purrr::pmap(grim_scalar, percent = percent,
-                  show_rec = show_rec, rounding = rounding,
-                  threshold = threshold, symmetric = symmetric,
-                  tolerance = tolerance)
-
+    consistency <- purrr::pmap(
+        data_x_n_items, grim_scalar, percent = percent,
+        show_rec = show_rec, rounding = rounding,
+        threshold = threshold, symmetric = symmetric,
+        tolerance = tolerance
+      )
   }
 
   # 5.: Compute the GRIM ratios for all of the same value sets via
   # `grim_ratio()`, which also gets the `percent` argument passed on to:
-  ratio <- data %>%
-    dplyr::select(x, n, items) %>%
-    purrr::pmap_dbl(grim_ratio, percent = percent)
+  ratio <- purrr::pmap_dbl(data_x_n_items, grim_ratio, percent = percent)
 
   # 6.-?: Any number of other columns from `data` (via the `other_cols` object).
 
@@ -238,14 +239,11 @@ grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
     results <- tibble::tibble(x, n, items, consistency, ratio, other_cols)
   }
 
-  # results <- results %>%
-  #   dplyr::mutate(x = )
-
-  # In case the user set `show_rec` to `TRUE` for displaying the reconstructed
-  # values from `grim_scalar()`'s internal computations, these were already
-  # stored in `consistency` before. The `consistency` column, then, is a
-  # list-column of 6. These numbers are now unnested (i.e., transformed into
-  # their own columns) and given their respective proper names:
+  # In case the user had set `show_rec` to `TRUE` for displaying the
+  # reconstructed values from `grim_scalar()`'s internal computations, these
+  # were stored in `consistency` until now. The `consistency` column, then, is a
+  # list-column of 6 values per cell. These numbers are now unnested (i.e.,
+  # transformed into their own columns) and given their respective proper names:
   if (show_rec) {
     results <- results %>%
       tidyr::unnest_wider(col = consistency) %>%
@@ -277,7 +275,6 @@ grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
   # Mediate between `seq_endpoint_df()` or `seq_distance_df()`, on the one hand,
   # and `seq_test_ranking()`, on the other:
   if (inherits(data, "seq_df")) {
-    # class(results) <- c("seq_test", class(results))
     results <- results %>%
       add_class("seq_test")
   }
@@ -287,7 +284,8 @@ grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
   # within `grim_scalar()`. Also, issue an alert to the user about the
   # percentage conversion:
   if (percent) {
-    results$x <- restore_zeros(as.numeric(results$x) / 100)
+    results$x <- restore_zeros(as.numeric(results$x) / 100) %>%
+      suppressWarnings()
     results <- results %>%
       add_class("scr_percent_true")
 
