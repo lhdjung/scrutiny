@@ -66,6 +66,27 @@
 #'   `"gray50"`.
 #'
 #' @include utils.R seq-decimal.R
+#'
+#' @export
+#'
+#' @examples
+#' # Call `grim_plot()` following `grim_map()`:
+#' pigs1 %>%
+#'   grim_map() %>%
+#'   grim_plot()
+#'
+#' # If you change the rounding method
+#' # in `grim_map()`, the plot will
+#' # follow automatically:
+#' pigs1 %>%
+#'   grim_map(rounding = "up") %>%
+#'   grim_plot()
+#'
+#' # For percentages, the y-axis
+#' # label also changes automatically:
+#' pigs2 %>%
+#'   grim_map(percent = TRUE) %>%
+#'   grim_plot()
 
 
 
