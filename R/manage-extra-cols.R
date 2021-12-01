@@ -1,6 +1,6 @@
 
 
-manage_extra_cols <- function(data, extra, other_cols) {
+check_extra_cols <- function(data, extra, other_cols) {
 
   # Throw error if `extra` is a wrong string; i.e., if there is no extra column
   # by that name in `data`:
@@ -16,7 +16,7 @@ manage_extra_cols <- function(data, extra, other_cols) {
     )
   }
 
-  # Throw error if the `extra` is a wrong number; i.e., if that given number is
+  # Throw error if `extra` is a wrong number; i.e., if that given number is
   # larger than the actual number of extra columns:
   if (!is.infinite(extra) && is.numeric(extra) &&
       any(c(extra, length(extra)) > length(other_cols))) {
