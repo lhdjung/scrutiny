@@ -336,7 +336,7 @@ grim_plot <- function(data = NULL,
 
   } else {
 
-    # Without a raster:
+    # Alternatively, return the plot without a raster:
     p
   }
 
