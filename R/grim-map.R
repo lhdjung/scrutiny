@@ -185,9 +185,9 @@ grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
   # those which play no role in the GRIM test), and run it through a specified
   # helper function:
   other_cols <- dplyr::select(data, -x, -n, -items) %>%
-    manage_extra_cols(data, extra, .)
+    check_extra_cols(data, extra, .)
 
-  # Prepare a data frame to use for the GRIM computations below (steps 4 and 5):
+  # Prepare a data frame for the GRIM computations below (steps 4 and 5):
   data_x_n_items <- dplyr::select(data, x, n, items)
 
 
