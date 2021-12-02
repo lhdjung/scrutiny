@@ -218,7 +218,7 @@ seq_endpoint_df <- function(.from, .to, ..., .offset_from = 0, .offset_to = 0,
   # only to pass messages between (1) here, (2) the testing function, and (3)
   # `seq_test_ranking()`. Finally, return the resulting tibble:
   tibble::tibble(x, !!!further_cols) %>%
-    add_class("seq_df")
+    add_class("scr_seq_df")
 }
 
 
@@ -245,7 +245,7 @@ seq_distance_df <- function(.from, ..., .length_out = 10, .dir = 1,
   # only to pass messages between (1) here, (2) the testing function, and (3)
   # `seq_test_ranking()`. Finally, return the resulting tibble:
   tibble::tibble(x, !!!further_cols) %>%
-    add_class("seq_df")
+    add_class("scr_seq_df")
 }
 
 

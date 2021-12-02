@@ -274,9 +274,9 @@ grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
 
   # Mediate between `seq_endpoint_df()` or `seq_distance_df()`, on the one hand,
   # and `seq_test_ranking()`, on the other:
-  if (inherits(data, "seq_df")) {
+  if (inherits(data, "scr_seq_df")) {
     results <- results %>%
-      add_class("seq_test")
+      add_class("scr_seq_test")
   }
 
   # If `x` is a percentage, divide it by 100 to adjust its value. The resulting

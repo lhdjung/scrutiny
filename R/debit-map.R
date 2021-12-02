@@ -147,10 +147,10 @@ debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
 
   # Mediate between `seq_endpoint_df()` or `seq_distance_df()`, on the one hand,
   # and `seq_test_ranking()`, on the other:
-  if (inherits(data, "seq_df")) {
-    # class(results) <- c("seq_test", class(results))
+  if (inherits(data, "scr_seq_df")) {
+    # class(results) <- c("scr_seq_test", class(results))
     results <- results %>%
-      add_class("seq_test")
+      add_class("scr_seq_test")
   }
 
   # Finally, return the results, with or without the intermediary values

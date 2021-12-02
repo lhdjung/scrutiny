@@ -150,7 +150,7 @@ seq_test_ranking <- function(x, explain = TRUE) {
   scr_func_info <- stringr::str_remove(scr_func_info, "scr_")
   scr_func_info <- paste0("`", scr_func_info, "()`")
 
-  if (inherits(x, "seq_test")) {
+  if (inherits(x, "scr_seq_test")) {
     if (explain) {
       explain_seq_test_ranking(out, scr_func_info)
     }
