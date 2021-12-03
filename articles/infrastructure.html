@@ -19,6 +19,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -31,18 +33,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">scrutiny</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.0.9000</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
@@ -54,7 +50,8 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li class="divider">
-    <li class="dropdown-header">Consistency tests</li>
+    </li>
+<li class="dropdown-header">Consistency tests</li>
     <li>
       <a href="../articles/grim.html">GRIM</a>
     </li>
@@ -62,7 +59,8 @@
       <a href="../articles/debit.html">DEBIT</a>
     </li>
     <li class="divider">
-    <li class="dropdown-header">Infrastructure</li>
+    </li>
+<li class="dropdown-header">Infrastructure</li>
     <li>
       <a href="../articles/rounding.html">Rounding</a>
     </li>
@@ -70,9 +68,13 @@
       <a href="../articles/infrastructure.html">Infrastructure beyond rounding</a>
     </li>
     <li class="divider">
-    <li class="dropdown-header">Other</li>
+    </li>
+<li class="dropdown-header">Other</li>
     <li>
       <a href="../articles/wrangling.html">Data wrangling</a>
+    </li>
+    <li>
+      <a href="../articles/related.html">Related software</a>
     </li>
   </ul>
 </li>
@@ -82,7 +84,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/lhdjung/scrutiny/">
+  <a href="https://github.com/lhdjung/scrutiny/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -103,7 +105,7 @@
       <h1 data-toc-skip>Infrastructure beyond rounding</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/lhdjung/scrutiny/blob/master/vignettes/infrastructure.Rmd"><code>vignettes/infrastructure.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/lhdjung/scrutiny/blob/HEAD/vignettes/infrastructure.Rmd" class="external-link"><code>vignettes/infrastructure.Rmd</code></a></small>
       <div class="hidden name"><code>infrastructure.Rmd</code></div>
 
     </div>
@@ -111,29 +113,29 @@
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/lhdjung/scrutiny">scrutiny</a></span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/lhdjung/scrutiny" class="external-link">scrutiny</a></span><span class="op">)</span></code></pre></div>
 <p>The implementation of error detection techniques in scrutiny rests on a foundation of specialized helper functions. Some of these are exported because they might be helpful in error detection more broadly, or perhaps even in other contexts.</p>
 <p>This vignette provides an overview of scrutiny’s miscellaneous infrastructure for implementing error detection techniques. It does not discuss infrastructure for rounding, a topic so important to the package that it has its own article: <code><a href="../articles/rounding.html">vignette("rounding")</a></code>.</p>
-<div id="count-decimal-places" class="section level2">
-<h2 class="hasAnchor">
-<a href="#count-decimal-places" class="anchor"></a>Count decimal places</h2>
-<p>Large parts of the package ultimately rest on either of two functions that simply count decimal places. These are characters after a number’s decimal point or some other separator. Both functions also take strings.</p>
+<div class="section level2">
+<h2 id="count-decimal-places">Count decimal places<a class="anchor" aria-label="anchor" href="#count-decimal-places"></a>
+</h2>
+<p>Large parts of the package ultimately rest on either of two functions that simply count decimal places. These are digits after a number’s decimal point or some other separator. Both functions also take strings.</p>
 <p><code><a href="../reference/decimal_places.html">decimal_places()</a></code> is vectorized:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/decimal_places.html">decimal_places</a></span><span class="op">(</span><span class="st">"2.80"</span><span class="op">)</span>
 <span class="co">#&gt; [1] 2</span>
 
-<span class="fu"><a href="../reference/decimal_places.html">decimal_places</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">55.1</span>, <span class="fl">6.493</span>, <span class="fl">8</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="../reference/decimal_places.html">decimal_places</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">55.1</span>, <span class="fl">6.493</span>, <span class="fl">8</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#&gt; [1] 1 3 0</span>
 
-<span class="va">vec1</span> <span class="op">&lt;-</span> <span class="va">iris</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span> 
-  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html">slice</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span> 
-  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html">pull</a></span><span class="op">(</span><span class="va">Sepal.Length</span><span class="op">)</span>
+<span class="va">vec1</span> <span class="op">&lt;-</span> <span class="va">iris</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
+  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
+  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">Sepal.Length</span><span class="op">)</span>
 
 <span class="va">vec1</span>
 <span class="co">#&gt;  [1] 5.1 4.9 4.7 4.6 5.0 5.4 4.6 5.0 4.4 4.9</span>
 
-<span class="va">vec1</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span> 
+<span class="va">vec1</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
   <span class="fu"><a href="../reference/decimal_places.html">decimal_places</a></span><span class="op">(</span><span class="op">)</span>
 <span class="co">#&gt;  [1] 1 1 1 1 0 1 1 0 1 1</span></code></pre></div>
 <p>Using strings that are coercible to numeric is recommended in an error detection context because trailing zeros can be crucial here. Numeric values drop trailing zeros, whereas strings preserve them:</p>
@@ -145,80 +147,79 @@
 <span class="co">#&gt; [1] 3</span></code></pre></div>
 <p><code><a href="../reference/decimal_places.html">decimal_places_scalar()</a></code> is considerably faster than <code><a href="../reference/decimal_places.html">decimal_places()</a></code> but only takes a single number or string into account. This makes it suitable as a helper within other single-case functions.</p>
 </div>
-<div id="restore-trailing-zeros" class="section level2">
-<h2 class="hasAnchor">
-<a href="#restore-trailing-zeros" class="anchor"></a>Restore trailing zeros</h2>
+<div class="section level2">
+<h2 id="restore-trailing-zeros">Restore trailing zeros<a class="anchor" aria-label="anchor" href="#restore-trailing-zeros"></a>
+</h2>
 <p>When dealing with numbers that used to have trailing zeros but lost them from being registered as numeric, call <code><a href="../reference/restore_zeros.html">restore_zeros()</a></code> to format them correctly. This can be relevant within functions that create vectors where trailing zeros matter, such as the <code>seq_*()</code> functions presented in the next section.</p>
 <p>Suppose all of the following numbers originally had one decimal place, but some no longer do:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">vec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">6.9</span>, <span class="fl">5</span>, <span class="fl">4.2</span>, <span class="fl">4.8</span>, <span class="fl">7</span>, <span class="fl">4</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">vec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">6.9</span>, <span class="fl">5</span>, <span class="fl">4.2</span>, <span class="fl">4.8</span>, <span class="fl">7</span>, <span class="fl">4</span><span class="op">)</span>
 
-<span class="va">vec</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span> 
+<span class="va">vec</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
   <span class="fu"><a href="../reference/decimal_places.html">decimal_places</a></span><span class="op">(</span><span class="op">)</span>
 <span class="co">#&gt; [1] 0 1 0 1 1 0 0</span></code></pre></div>
 <p>Now, get them back with <code><a href="../reference/restore_zeros.html">restore_zeros()</a></code>:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">vec</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span> 
+<code class="sourceCode R"><span class="va">vec</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
   <span class="fu"><a href="../reference/restore_zeros.html">restore_zeros</a></span><span class="op">(</span><span class="op">)</span>
 <span class="co">#&gt; [1] "4.0" "6.9" "5.0" "4.2" "4.8" "7.0" "4.0"</span>
 
-<span class="va">vec</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span> 
-  <span class="fu"><a href="../reference/restore_zeros.html">restore_zeros</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span> 
+<span class="va">vec</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
+  <span class="fu"><a href="../reference/restore_zeros.html">restore_zeros</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
   <span class="fu"><a href="../reference/decimal_places.html">decimal_places</a></span><span class="op">(</span><span class="op">)</span>
 <span class="co">#&gt; [1] 1 1 1 1 1 1 1</span></code></pre></div>
 <p>This uses the default of going by the longest mantissa and padding the other strings with decimal zeros until they have that many decimal places. However, this is just a heuristic: The longest mantissa might itself have lost decimal places. Specify the <code>width</code> argument to explicitly state the desired mantissa length:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">vec</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span> 
+<code class="sourceCode R"><span class="va">vec</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
   <span class="fu"><a href="../reference/restore_zeros.html">restore_zeros</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>
 <span class="co">#&gt; [1] "4.00" "6.90" "5.00" "4.20" "4.80" "7.00" "4.00"</span>
 
-<span class="va">vec</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span> 
-  <span class="fu"><a href="../reference/restore_zeros.html">restore_zeros</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span> 
+<span class="va">vec</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
+  <span class="fu"><a href="../reference/restore_zeros.html">restore_zeros</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
   <span class="fu"><a href="../reference/decimal_places.html">decimal_places</a></span><span class="op">(</span><span class="op">)</span>
 <span class="co">#&gt; [1] 2 2 2 2 2 2 2</span></code></pre></div>
 </div>
-<div id="sequence-generation" class="section level2">
-<h2 class="hasAnchor">
-<a href="#sequence-generation" class="anchor"></a>Sequence generation</h2>
-<div id="the-limits-of-seq" class="section level3">
-<h3 class="hasAnchor">
-<a href="#the-limits-of-seq" class="anchor"></a>The limits of <code>seq()</code>
+<div class="section level2">
+<h2 id="sequence-generation">Sequence generation<a class="anchor" aria-label="anchor" href="#sequence-generation"></a>
+</h2>
+<div class="section level3">
+<h3 id="the-limits-of-seq">The limits of <code>seq()</code><a class="anchor" aria-label="anchor" href="#the-limits-of-seq"></a>
 </h3>
-<p><code><a href="https://rdrr.io/r/base/seq.html">base::seq()</a></code> is an elegant way to generate regular sequences, but it is almost too elegant: The way to determine the step size entirely depends on which arguments are added with non-standard evaluation (i.e., via the dots, <code>…</code>).</p>
+<p><code><a href="https://rdrr.io/r/base/seq.html" class="external-link">base::seq()</a></code> is an elegant way to generate regular sequences, but it is almost too elegant: The way to determine the step size entirely depends on which arguments are added with non-standard evaluation (i.e., via the dots, <code>…</code>).</p>
 <p>By default, the step size is assumed to be 1, which can be overridden using the <code>by</code> parameter. However, <code>by</code> clashes with the only way to state the desired output length, which is the <code>length.out</code> parameter. This makes the step size dependent on <code>from</code>, <code>to</code>, and <code>by</code>, and therefore highly variable in the face of different specifications of these parameters. For example:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">4</span>, to <span class="op">=</span> <span class="fl">7</span>, length.out <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">4</span>, to <span class="op">=</span> <span class="fl">7</span>, length.out <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>
 <span class="co">#&gt; [1] 4.00 4.75 5.50 6.25 7.00</span>
 
-<span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">4</span>, to <span class="op">=</span> <span class="fl">20</span>, length.out <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">4</span>, to <span class="op">=</span> <span class="fl">20</span>, length.out <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>
 <span class="co">#&gt; [1]  4  8 12 16 20</span></code></pre></div>
-<p>It is worth emphasizing that <code><a href="https://rdrr.io/r/base/seq.html">seq()</a></code> encapsulates two mutually exclusive ways of generating sequences: (1) by a manually specified step size without controlling output length; and (2) by a manually specified output length without controlling step size. These two approaches overdetermine each other, and are therefore irreconcilable. Here’s what you get if you try it both ways within a single call:</p>
+<p>It is worth emphasizing that <code><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq()</a></code> encapsulates two mutually exclusive ways of generating sequences: (1) by a manually specified step size without controlling output length; and (2) by a manually specified output length without controlling step size. These two approaches overdetermine each other, and are therefore irreconcilable. Here’s what you get if you try it both ways within a single call:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">4</span>, to <span class="op">=</span> <span class="fl">7</span>, by <span class="op">=</span> <span class="fl">0.1</span>, length.out <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">4</span>, to <span class="op">=</span> <span class="fl">7</span>, by <span class="op">=</span> <span class="fl">0.1</span>, length.out <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>
 <span class="co">#&gt; Error in seq.default(from = 4, to = 7, by = 0.1, length.out = 5): too many arguments</span></code></pre></div>
-<p>Another issue is that <code><a href="https://rdrr.io/r/base/seq.html">seq()</a></code> doesn’t automatically take the input numbers’ decimal depth into account (i.e., unless <code>by</code> was specified in such a way), which would be desirable in an error detection context.</p>
-<p>With regards to decimal sequences, therefore, <code><a href="https://rdrr.io/r/base/seq.html">seq()</a></code> does both too much and too little. It has two distinct functional rationales that uneasily sit together in a single function. One might wish to disentangle them: to generate sequences that either run from A to B at the appropriate decimal level, or that have some given length without jeopardizing the step size. It might even be worth spelling out the two rationales in distinct functions.</p>
-<p>As it happens, scrutiny features two wrappers around <code><a href="https://rdrr.io/r/base/seq.html">seq()</a></code> that separately capture both of its modi operandi, all while guided by the input numbers’ decimal depth: <code><a href="../reference/seq_endpoint.html">seq_endpoint()</a></code> and <code><a href="../reference/seq_endpoint.html">seq_distance()</a></code>. Both functions forsake the <code>by</code> argument, but that’s actually good because they infer the step size automatically from the number of decimal places in their input values.</p>
-<p>The package also has two functions that build up on these basic ones by quickly and flexibly constructing data frames with the respective kind of sequence, <code><a href="../reference/seq_endpoint.html">seq_endpoint_df()</a></code> and <code><a href="../reference/seq_endpoint.html">seq_distance_df()</a></code>. These latter two accept new columns entered as in <code><a href="https://tibble.tidyverse.org/reference/tibble.html">tibble::tibble()</a></code> or <code><a href="https://dplyr.tidyverse.org/reference/mutate.html">dplyr::mutate()</a></code>.</p>
-<p>Here, I will first present the two basic <code><a href="https://rdrr.io/r/base/seq.html">seq()</a></code> wrappers. Next, I will briefly discuss the higher-level <code>*_df</code> functions.</p>
+<p>Another issue is that <code><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq()</a></code> doesn’t automatically take the input numbers’ decimal depth into account (i.e., unless <code>by</code> was specified in such a way), which would be desirable in an error detection context.</p>
+<p>With regards to decimal sequences, therefore, <code><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq()</a></code> does both too much and too little. It has two distinct functional rationales that uneasily sit together in a single function. One might wish to disentangle them: to generate sequences that either run from A to B at the appropriate decimal level, or that have some given length without jeopardizing the step size. It might even be worth spelling out the two rationales in distinct functions.</p>
+<p>As it happens, scrutiny features two wrappers around <code><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq()</a></code> that separately capture both of its modi operandi, all while guided by the input numbers’ decimal depth: <code><a href="../reference/seq_endpoint.html">seq_endpoint()</a></code> and <code><a href="../reference/seq_endpoint.html">seq_distance()</a></code>. Both functions forsake the <code>by</code> argument, but that’s actually good because they infer the step size automatically from the number of decimal places in their input values.</p>
+<p>The package also has two functions that build up on these basic ones by quickly and flexibly constructing data frames with the respective kind of sequence, <code><a href="../reference/seq_endpoint.html">seq_endpoint_df()</a></code> and <code><a href="../reference/seq_endpoint.html">seq_distance_df()</a></code>. These latter two accept new columns entered as in <code><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble::tibble()</a></code> or <code><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">dplyr::mutate()</a></code>.</p>
+<p>Here, I will first present the two basic <code><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq()</a></code> wrappers. Next, I will briefly discuss the higher-level <code>*_df</code> functions.</p>
 </div>
-<div id="two-seq-wrappers" class="section level3">
-<h3 class="hasAnchor">
-<a href="#two-seq-wrappers" class="anchor"></a>Two <code>seq()</code> wrappers</h3>
-<div id="sequence-between-two-fix-points" class="section level4">
-<h4 class="hasAnchor">
-<a href="#sequence-between-two-fix-points" class="anchor"></a>Sequence between two fix points</h4>
-<p>Consider this call to <code><a href="https://rdrr.io/r/base/seq.html">seq()</a></code>:</p>
+<div class="section level3">
+<h3 id="two-seq-wrappers">Two <code>seq()</code> wrappers<a class="anchor" aria-label="anchor" href="#two-seq-wrappers"></a>
+</h3>
+<div class="section level4">
+<h4 id="sequence-between-two-fix-points">Sequence between two fix points<a class="anchor" aria-label="anchor" href="#sequence-between-two-fix-points"></a>
+</h4>
+<p>Consider this call to <code><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq()</a></code>:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">4.1</span>, to <span class="op">=</span> <span class="fl">7</span><span class="op">)</span>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">4.1</span>, to <span class="op">=</span> <span class="fl">7</span><span class="op">)</span>
 <span class="co">#&gt; [1] 4.1 5.1 6.1</span></code></pre></div>
-<p>The intended output of such a call is likely a sequence that progresses in steps of 0.1, and that actually arrives at 7. <code><a href="https://rdrr.io/r/base/seq.html">base::seq()</a></code> won’t understand this, but <code><a href="../reference/seq_endpoint.html">scrutiny::seq_endpoint()</a></code> will:</p>
+<p>The intended output of such a call is likely a sequence that progresses in steps of 0.1, and that actually arrives at 7. <code><a href="https://rdrr.io/r/base/seq.html" class="external-link">base::seq()</a></code> won’t understand this, but <code><a href="../reference/seq_endpoint.html">scrutiny::seq_endpoint()</a></code> will:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/seq_endpoint.html">seq_endpoint</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">4.1</span>, to <span class="op">=</span> <span class="fl">7</span><span class="op">)</span>
 <span class="co">#&gt;  [1] "4.1" "4.2" "4.3" "4.4" "4.5" "4.6" "4.7" "4.8" "4.9" "5.0" "5.1" "5.2"</span>
 <span class="co">#&gt; [13] "5.3" "5.4" "5.5" "5.6" "5.7" "5.8" "5.9" "6.0" "6.1" "6.2" "6.3" "6.4"</span>
 <span class="co">#&gt; [25] "6.5" "6.6" "6.7" "6.8" "6.9" "7.0"</span></code></pre></div>
-<p>Unlike <code><a href="https://rdrr.io/r/base/seq.html">seq()</a></code>, therefore, <code><a href="../reference/seq_endpoint.html">seq_endpoint()</a></code> always reaches its target. The last value in a vector returned by <code><a href="../reference/seq_endpoint.html">seq_endpoint()</a></code> will be numerically equal to the value of its <code>to</code> argument, no matter how the arguments were specified.</p>
+<p>Unlike <code><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq()</a></code>, therefore, <code><a href="../reference/seq_endpoint.html">seq_endpoint()</a></code> always reaches its target. The last value in a vector returned by <code><a href="../reference/seq_endpoint.html">seq_endpoint()</a></code> will be numerically equal to the value of its <code>to</code> argument, no matter how the arguments were specified.</p>
 <p>(The output is string by default, but it doesn’t need to be:)</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/seq_endpoint.html">seq_endpoint</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">4.1</span>, to <span class="op">=</span> <span class="fl">7</span>, string_output <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
@@ -251,9 +252,9 @@ S = \frac{1}{10^{D_{max}}}
 <span class="fu"><a href="../reference/seq_endpoint.html">seq_endpoint</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">0</span>, to <span class="op">=</span> <span class="fl">0.5</span>, offset_to <span class="op">=</span> <span class="op">-</span><span class="fl">3</span><span class="op">)</span>     <span class="co"># end at 0.2 instead of 0.5</span>
 <span class="co">#&gt; [1] "0.0" "0.1" "0.2"</span></code></pre></div>
 </div>
-<div id="sequence-of-stated-length" class="section level4">
-<h4 class="hasAnchor">
-<a href="#sequence-of-stated-length" class="anchor"></a>Sequence of stated length</h4>
+<div class="section level4">
+<h4 id="sequence-of-stated-length">Sequence of stated length<a class="anchor" aria-label="anchor" href="#sequence-of-stated-length"></a>
+</h4>
 <p><code><a href="../reference/seq_endpoint.html">seq_distance()</a></code> doesn’t take a <code>to</code> argument — it only takes a starting point and generates a sequence from there. The length can be chosen at will, and the sequence always proceeds by one unit of <code>from</code>’s last decimal digit:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/seq_endpoint.html">seq_distance</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">8</span>, length_out <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>
@@ -279,41 +280,41 @@ S = \frac{1}{10^{D_{max}}}
 <span class="co">#&gt;  [1] "2.3" "2.4" "2.5" "2.6" "2.7" "2.8" "2.9" "3.0" "3.1" "3.2"</span></code></pre></div>
 </div>
 </div>
-<div id="data-frames-with-sequence-columns" class="section level3">
-<h3 class="hasAnchor">
-<a href="#data-frames-with-sequence-columns" class="anchor"></a>Data frames with sequence columns</h3>
-<p>Both <code>seq_*</code> functions from above have a <code>seq_*_df()</code> variant. These are meant for interactive analysis, e.g., GRIM-testing the neighbors of an inconsistent value. New columns can be created within the call as in <code><a href="https://tibble.tidyverse.org/reference/tibble.html">tibble::tibble()</a></code> or <code><a href="https://dplyr.tidyverse.org/reference/mutate.html">dplyr::mutate()</a></code>. All arguments from the basic functions are available, but with a dot before each.</p>
+<div class="section level3">
+<h3 id="data-frames-with-sequence-columns">Data frames with sequence columns<a class="anchor" aria-label="anchor" href="#data-frames-with-sequence-columns"></a>
+</h3>
+<p>Both <code>seq_*</code> functions from above have a <code>seq_*_df()</code> variant. These are meant for interactive analysis, e.g., GRIM-testing the neighbors of an inconsistent value. New columns can be created within the call as in <code><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble::tibble()</a></code> or <code><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">dplyr::mutate()</a></code>. All arguments from the basic functions are available, but with a dot before each.</p>
 <p>Output of these functions has the correct format for scrutiny’s data frame testing functions like <code><a href="../reference/grim_map.html">grim_map()</a></code>. See <code><a href="../articles/grim.html">vignette("grim")</a></code>, section <em>Testing numeric sequences</em>.</p>
 <p>Here is the endpoint data frame variant, with an extra column added:</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/seq_endpoint.html">seq_endpoint_df</a></span><span class="op">(</span>.from <span class="op">=</span> <span class="st">"4.50"</span>, .to <span class="op">=</span> <span class="fl">4.57</span>, n <span class="op">=</span> <span class="fl">30</span><span class="op">)</span>
-<span class="co">#&gt; # A tibble: 8 × 2</span>
+<span class="co">#&gt; <span style="color: #949494;"># A tibble: 8 × 2</span></span>
 <span class="co">#&gt;   x         n</span>
-<span class="co">#&gt;   &lt;chr&gt; &lt;dbl&gt;</span>
-<span class="co">#&gt; 1 4.50     30</span>
-<span class="co">#&gt; 2 4.51     30</span>
-<span class="co">#&gt; 3 4.52     30</span>
-<span class="co">#&gt; 4 4.53     30</span>
-<span class="co">#&gt; 5 4.54     30</span>
-<span class="co">#&gt; 6 4.55     30</span>
-<span class="co">#&gt; 7 4.56     30</span>
-<span class="co">#&gt; 8 4.57     30</span></code></pre></div>
+<span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 4.50     30</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 4.51     30</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 4.52     30</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 4.53     30</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 4.54     30</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 4.55     30</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 4.56     30</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">8</span> 4.57     30</span></code></pre></div>
 <p>And here is the distance data frame variant:</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/seq_endpoint.html">seq_distance_df</a></span><span class="op">(</span>.from <span class="op">=</span> <span class="st">"4.50"</span>, .length_out <span class="op">=</span> <span class="fl">5</span>, n <span class="op">=</span> <span class="fl">30</span><span class="op">)</span>
-<span class="co">#&gt; # A tibble: 5 × 2</span>
+<span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 2</span></span>
 <span class="co">#&gt;   x         n</span>
-<span class="co">#&gt;   &lt;chr&gt; &lt;dbl&gt;</span>
-<span class="co">#&gt; 1 4.50     30</span>
-<span class="co">#&gt; 2 4.51     30</span>
-<span class="co">#&gt; 3 4.52     30</span>
-<span class="co">#&gt; 4 4.53     30</span>
-<span class="co">#&gt; 5 4.54     30</span></code></pre></div>
+<span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 4.50     30</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 4.51     30</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 4.52     30</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 4.53     30</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 4.54     30</span></code></pre></div>
 </div>
 </div>
-<div id="test-for-subsets-supersets-and-equal-sets" class="section level2">
-<h2 class="hasAnchor">
-<a href="#test-for-subsets-supersets-and-equal-sets" class="anchor"></a>Test for subsets, supersets, and equal sets</h2>
+<div class="section level2">
+<h2 id="test-for-subsets-supersets-and-equal-sets">Test for subsets, supersets, and equal sets<a class="anchor" aria-label="anchor" href="#test-for-subsets-supersets-and-equal-sets"></a>
+</h2>
 <p>Starting with <code><a href="../reference/is_subset_of.html">is_subset_of()</a></code>, scrutiny features a distinctive family of predicate functions that test whether one vector <code>x</code> is a subset of another vector <code>y</code>, whether <code>x</code> is a superset of <code>y</code> (i.e. the reverse of a subset), or whether <code>x</code> and <code>y</code> are equal sets.</p>
 <p>As a teaser: These functions are divided into three subgroups based on the way the second vector, <code>y</code>, is constituted. For example, you might test if <code>x</code> is a subset of multiple other vectors taken together, or a superset of a vector <code>y</code> that consists of multiple values entered along with <code>x</code>.</p>
 <p>Functions from this family are not currently used as helpers inside other scrutiny functions, but that may well change. Use elsewhere is also conceivable.</p>
@@ -331,11 +332,13 @@ S = \frac{1}{10^{D_{max}}}
 
 
       <footer><div class="copyright">
-  <p>Developed by Lukas Jung.</p>
+  <p></p>
+<p>Developed by Lukas Jung.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
 </div>
 
       </footer>
@@ -343,6 +346,8 @@ S = \frac{1}{10^{D_{max}}}
 
   
 
+
+  
 
   </body>
 </html>

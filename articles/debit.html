@@ -19,6 +19,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -31,18 +33,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">scrutiny</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.0.9000</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
@@ -54,7 +50,8 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li class="divider">
-    <li class="dropdown-header">Consistency tests</li>
+    </li>
+<li class="dropdown-header">Consistency tests</li>
     <li>
       <a href="../articles/grim.html">GRIM</a>
     </li>
@@ -62,7 +59,8 @@
       <a href="../articles/debit.html">DEBIT</a>
     </li>
     <li class="divider">
-    <li class="dropdown-header">Infrastructure</li>
+    </li>
+<li class="dropdown-header">Infrastructure</li>
     <li>
       <a href="../articles/rounding.html">Rounding</a>
     </li>
@@ -70,9 +68,13 @@
       <a href="../articles/infrastructure.html">Infrastructure beyond rounding</a>
     </li>
     <li class="divider">
-    <li class="dropdown-header">Other</li>
+    </li>
+<li class="dropdown-header">Other</li>
     <li>
       <a href="../articles/wrangling.html">Data wrangling</a>
+    </li>
+    <li>
+      <a href="../articles/related.html">Related software</a>
     </li>
   </ul>
 </li>
@@ -82,7 +84,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/lhdjung/scrutiny/">
+  <a href="https://github.com/lhdjung/scrutiny/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -103,7 +105,7 @@
       <h1 data-toc-skip>DEBIT</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/lhdjung/scrutiny/blob/master/vignettes/debit.Rmd"><code>vignettes/debit.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/lhdjung/scrutiny/blob/HEAD/vignettes/debit.Rmd" class="external-link"><code>vignettes/debit.Rmd</code></a></small>
       <div class="hidden name"><code>debit.Rmd</code></div>
 
     </div>
@@ -111,7 +113,7 @@
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/lhdjung/scrutiny">scrutiny</a></span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/lhdjung/scrutiny" class="external-link">scrutiny</a></span><span class="op">)</span></code></pre></div>
 <p>The descriptive binary test, or DEBIT, checks whether the reported mean, standard deviation (SD), and sample size of binary data are mutually consistent (Heathers and Brown 2019). Like GRIM, it tests if a given set of summary data can describe the same distribution.</p>
 <p>This vignette covers scrutiny’s implementation of DEBIT:</p>
 <ol style="list-style-type: decimal">
@@ -120,9 +122,9 @@
 <li>The <code><a href="../reference/audit.html">audit()</a></code> method for summarizing <code><a href="../reference/debit_map.html">debit_map()</a></code>’s results.</li>
 <li>Finally, the visualization function <code><a href="../reference/debit_plot.html">debit_plot()</a></code>.</li>
 </ol>
-<div id="debit-basics" class="section level2">
-<h2 class="hasAnchor">
-<a href="#debit-basics" class="anchor"></a>DEBIT basics</h2>
+<div class="section level2">
+<h2 id="debit-basics">DEBIT basics<a class="anchor" aria-label="anchor" href="#debit-basics"></a>
+</h2>
 <p>Consider these summary data for a binary distribution: a mean of 0.35, an SD of 0.18, and a sample size of 20. To test their consistency, run this:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/debit.html">debit</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"0.35"</span>, sd <span class="op">=</span> <span class="st">"0.18"</span>, n <span class="op">=</span> <span class="fl">20</span><span class="op">)</span>
@@ -130,16 +132,15 @@
 <p>As in <code><a href="../reference/grim.html">grim()</a></code>, the mean needs to be a string. (The same is true for the SD.) That is because strings preserve trailing zeros, which can be crucial for DEBIT. Numeric values don’t, and even converting them to strings won’t help. A workaround for larger numbers of such values, <code><a href="../reference/restore_zeros.html">restore_zeros()</a></code>, is discussed in the <em>Data wrangling</em> vignette.</p>
 <p><code><a href="../reference/debit.html">debit()</a></code> has some further arguments, but all of them can be used from within <code><a href="../reference/debit_map.html">debit_map()</a></code>. Since <code><a href="../reference/debit_map.html">debit_map()</a></code> is the more useful function in practice, the other arguments will be discussed in that context.</p>
 </div>
-<div id="testing-multiple-cases" class="section level2">
-<h2 class="hasAnchor">
-<a href="#testing-multiple-cases" class="anchor"></a>Testing multiple cases</h2>
-<div id="working-with-debit_map" class="section level3">
-<h3 class="hasAnchor">
-<a href="#working-with-debit_map" class="anchor"></a>Working with <code>debit_map()</code>
+<div class="section level2">
+<h2 id="testing-multiple-cases">Testing multiple cases<a class="anchor" aria-label="anchor" href="#testing-multiple-cases"></a>
+</h2>
+<div class="section level3">
+<h3 id="working-with-debit_map">Working with <code>debit_map()</code><a class="anchor" aria-label="anchor" href="#working-with-debit_map"></a>
 </h3>
-<p>If you want to test more than a handful of cases, the recommended way is to enter them into a data frame and to run <code><a href="../reference/debit_map.html">debit_map()</a></code> on the data frame. Below are the example data from Heathers and Brown’s (2019) Table 1. A useful way to enter such data is to copy them from a PDF file and paste them into <code><a href="https://tibble.tidyverse.org/reference/tribble.html">tibble::tribble()</a></code>, which is available via scrutiny:</p>
+<p>If you want to test more than a handful of cases, the recommended way is to enter them into a data frame and to run <code><a href="../reference/debit_map.html">debit_map()</a></code> on the data frame. Below are the example data from Heathers and Brown’s (2019) Table 1. A useful way to enter such data is to copy them from a PDF file and paste them into <code><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tibble::tribble()</a></code>, which is available via scrutiny:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">flying_pigs</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html">tribble</a></span><span class="op">(</span>
+<code class="sourceCode R"><span class="va">flying_pigs</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span>
   <span class="op">~</span><span class="va">x</span>,         <span class="op">~</span><span class="va">sd</span>,
   <span class="st">"0.53"</span>,     <span class="st">"0.50"</span>,
   <span class="st">"0.44"</span>,     <span class="st">"0.50"</span>,
@@ -148,150 +149,149 @@
   <span class="st">"0.34"</span>,     <span class="st">"0.47"</span>,
   <span class="st">"0.93"</span>,     <span class="st">"0.25"</span>,
   <span class="st">"0.12"</span>,     <span class="st">"0.33"</span>,
-<span class="op">)</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span> 
+<span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
   <span class="fu">mutate</span><span class="op">(</span>n <span class="op">=</span> <span class="fl">1683</span><span class="op">)</span>
 
 
 <span class="va">flying_pigs</span>
-<span class="co">#&gt; # A tibble: 7 × 3</span>
+<span class="co">#&gt; <span style="color: #949494;"># A tibble: 7 × 3</span></span>
 <span class="co">#&gt;   x     sd        n</span>
-<span class="co">#&gt;   &lt;chr&gt; &lt;chr&gt; &lt;dbl&gt;</span>
-<span class="co">#&gt; 1 0.53  0.50   1683</span>
-<span class="co">#&gt; 2 0.44  0.50   1683</span>
-<span class="co">#&gt; 3 0.77  0.42   1683</span>
-<span class="co">#&gt; 4 0.19  0.35   1683</span>
-<span class="co">#&gt; 5 0.34  0.47   1683</span>
-<span class="co">#&gt; 6 0.93  0.25   1683</span>
-<span class="co">#&gt; 7 0.12  0.33   1683</span></code></pre></div>
+<span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0.53  0.50   <span style="text-decoration: underline;">1</span>683</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0.44  0.50   <span style="text-decoration: underline;">1</span>683</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 0.77  0.42   <span style="text-decoration: underline;">1</span>683</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 0.19  0.35   <span style="text-decoration: underline;">1</span>683</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 0.34  0.47   <span style="text-decoration: underline;">1</span>683</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 0.93  0.25   <span style="text-decoration: underline;">1</span>683</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 0.12  0.33   <span style="text-decoration: underline;">1</span>683</span></code></pre></div>
 <p>Now, simply run <code><a href="../reference/debit_map.html">debit_map()</a></code> on that data frame:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">flying_pigs</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span> 
+<code class="sourceCode R"><span class="va">flying_pigs</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
   <span class="fu"><a href="../reference/debit_map.html">debit_map</a></span><span class="op">(</span><span class="op">)</span>
-<span class="co">#&gt; # A tibble: 7 × 11</span>
+<span class="co">#&gt; <span style="color: #949494;"># A tibble: 7 × 11</span></span>
 <span class="co">#&gt;   x     sd        n consistency rounding   sd_lower sd_incl_lower sd_upper</span>
-<span class="co">#&gt;   &lt;chr&gt; &lt;chr&gt; &lt;int&gt; &lt;lgl&gt;       &lt;chr&gt;         &lt;dbl&gt; &lt;lgl&gt;            &lt;dbl&gt;</span>
-<span class="co">#&gt; 1 0.53  0.50   1683 TRUE        up_or_down    0.495 TRUE             0.505</span>
-<span class="co">#&gt; 2 0.44  0.50   1683 TRUE        up_or_down    0.495 TRUE             0.505</span>
-<span class="co">#&gt; 3 0.77  0.42   1683 TRUE        up_or_down    0.415 TRUE             0.425</span>
-<span class="co">#&gt; 4 0.19  0.35   1683 FALSE       up_or_down    0.345 TRUE             0.355</span>
-<span class="co">#&gt; 5 0.34  0.47   1683 TRUE        up_or_down    0.465 TRUE             0.475</span>
-<span class="co">#&gt; 6 0.93  0.25   1683 TRUE        up_or_down    0.245 TRUE             0.255</span>
-<span class="co">#&gt; 7 0.12  0.33   1683 TRUE        up_or_down    0.325 TRUE             0.335</span>
-<span class="co">#&gt; # … with 3 more variables: sd_incl_upper &lt;lgl&gt;, x_lower &lt;dbl&gt;, x_upper &lt;dbl&gt;</span></code></pre></div>
+<span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0.53  0.50   <span style="text-decoration: underline;">1</span>683 TRUE        up_or_down    0.495 TRUE             0.505</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0.44  0.50   <span style="text-decoration: underline;">1</span>683 TRUE        up_or_down    0.495 TRUE             0.505</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 0.77  0.42   <span style="text-decoration: underline;">1</span>683 TRUE        up_or_down    0.415 TRUE             0.425</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 0.19  0.35   <span style="text-decoration: underline;">1</span>683 FALSE       up_or_down    0.345 TRUE             0.355</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 0.34  0.47   <span style="text-decoration: underline;">1</span>683 TRUE        up_or_down    0.465 TRUE             0.475</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 0.93  0.25   <span style="text-decoration: underline;">1</span>683 TRUE        up_or_down    0.245 TRUE             0.255</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 0.12  0.33   <span style="text-decoration: underline;">1</span>683 TRUE        up_or_down    0.325 TRUE             0.335</span>
+<span class="co">#&gt; <span style="color: #949494;"># … with 3 more variables: sd_incl_upper &lt;lgl&gt;, x_lower &lt;dbl&gt;, x_upper &lt;dbl&gt;</span></span></code></pre></div>
 <p>The <code>x</code>, <code>sd</code>, and <code>n</code> columns are the same as in the input. The main result, <code>consistency</code>, is the DEBIT consistency of the former three columns.</p>
 <p>The function checks if the summary data really can describe a binary distribution:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">pigs3</span>  <span class="co"># data saved within the package</span>
-<span class="co">#&gt; # A tibble: 7 × 3</span>
+<span class="co">#&gt; <span style="color: #949494;"># A tibble: 7 × 3</span></span>
 <span class="co">#&gt;   x     sd        n</span>
-<span class="co">#&gt;   &lt;chr&gt; &lt;chr&gt; &lt;dbl&gt;</span>
-<span class="co">#&gt; 1 0.53  0.50   1683</span>
-<span class="co">#&gt; 2 0.44  0.50   1683</span>
-<span class="co">#&gt; 3 0.77  0.42   1683</span>
-<span class="co">#&gt; 4 0.19  0.35   1683</span>
-<span class="co">#&gt; 5 0.34  0.47   1683</span>
-<span class="co">#&gt; 6 0.93  0.25   1683</span>
-<span class="co">#&gt; 7 0.12  0.33   1683</span>
+<span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0.53  0.50   <span style="text-decoration: underline;">1</span>683</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0.44  0.50   <span style="text-decoration: underline;">1</span>683</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 0.77  0.42   <span style="text-decoration: underline;">1</span>683</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 0.19  0.35   <span style="text-decoration: underline;">1</span>683</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 0.34  0.47   <span style="text-decoration: underline;">1</span>683</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 0.93  0.25   <span style="text-decoration: underline;">1</span>683</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 0.12  0.33   <span style="text-decoration: underline;">1</span>683</span>
 
-<span class="va">pigs3</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span> 
+<span class="va">pigs3</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
   <span class="fu"><a href="../reference/debit_map.html">debit_map</a></span><span class="op">(</span><span class="op">)</span>
-<span class="co">#&gt; # A tibble: 7 × 11</span>
+<span class="co">#&gt; <span style="color: #949494;"># A tibble: 7 × 11</span></span>
 <span class="co">#&gt;   x     sd        n consistency rounding   sd_lower sd_incl_lower sd_upper</span>
-<span class="co">#&gt;   &lt;chr&gt; &lt;chr&gt; &lt;int&gt; &lt;lgl&gt;       &lt;chr&gt;         &lt;dbl&gt; &lt;lgl&gt;            &lt;dbl&gt;</span>
-<span class="co">#&gt; 1 0.53  0.50   1683 TRUE        up_or_down    0.495 TRUE             0.505</span>
-<span class="co">#&gt; 2 0.44  0.50   1683 TRUE        up_or_down    0.495 TRUE             0.505</span>
-<span class="co">#&gt; 3 0.77  0.42   1683 TRUE        up_or_down    0.415 TRUE             0.425</span>
-<span class="co">#&gt; 4 0.19  0.35   1683 FALSE       up_or_down    0.345 TRUE             0.355</span>
-<span class="co">#&gt; 5 0.34  0.47   1683 TRUE        up_or_down    0.465 TRUE             0.475</span>
-<span class="co">#&gt; 6 0.93  0.25   1683 TRUE        up_or_down    0.245 TRUE             0.255</span>
-<span class="co">#&gt; 7 0.12  0.33   1683 TRUE        up_or_down    0.325 TRUE             0.335</span>
-<span class="co">#&gt; # … with 3 more variables: sd_incl_upper &lt;lgl&gt;, x_lower &lt;dbl&gt;, x_upper &lt;dbl&gt;</span></code></pre></div>
+<span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0.53  0.50   <span style="text-decoration: underline;">1</span>683 TRUE        up_or_down    0.495 TRUE             0.505</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0.44  0.50   <span style="text-decoration: underline;">1</span>683 TRUE        up_or_down    0.495 TRUE             0.505</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 0.77  0.42   <span style="text-decoration: underline;">1</span>683 TRUE        up_or_down    0.415 TRUE             0.425</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 0.19  0.35   <span style="text-decoration: underline;">1</span>683 FALSE       up_or_down    0.345 TRUE             0.355</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 0.34  0.47   <span style="text-decoration: underline;">1</span>683 TRUE        up_or_down    0.465 TRUE             0.475</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 0.93  0.25   <span style="text-decoration: underline;">1</span>683 TRUE        up_or_down    0.245 TRUE             0.255</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 0.12  0.33   <span style="text-decoration: underline;">1</span>683 TRUE        up_or_down    0.325 TRUE             0.335</span>
+<span class="co">#&gt; <span style="color: #949494;"># … with 3 more variables: sd_incl_upper &lt;lgl&gt;, x_lower &lt;dbl&gt;, x_upper &lt;dbl&gt;</span></span></code></pre></div>
 <p>DEBIT only makes sense with binary means and SDs. Both <code><a href="../reference/debit.html">debit()</a></code> and <code><a href="../reference/debit_map.html">debit_map()</a></code> check if the inputs are such data, and fail if they are not:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">pigs1</span>  <span class="co"># no binary summary data!</span>
-<span class="co">#&gt; # A tibble: 12 × 2</span>
+<span class="co">#&gt; <span style="color: #949494;"># A tibble: 12 × 2</span></span>
 <span class="co">#&gt;    x         n</span>
-<span class="co">#&gt;    &lt;chr&gt; &lt;dbl&gt;</span>
-<span class="co">#&gt;  1 7.22     32</span>
-<span class="co">#&gt;  2 4.74     25</span>
-<span class="co">#&gt;  3 5.23     29</span>
-<span class="co">#&gt;  4 2.57     24</span>
-<span class="co">#&gt;  5 6.77     27</span>
-<span class="co">#&gt;  6 2.68     28</span>
-<span class="co">#&gt;  7 7.01     29</span>
-<span class="co">#&gt;  8 7.38     26</span>
-<span class="co">#&gt;  9 3.14     27</span>
-<span class="co">#&gt; 10 6.89     31</span>
-<span class="co">#&gt; 11 5.00     25</span>
-<span class="co">#&gt; 12 0.24     28</span>
+<span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 7.22     32</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 4.74     25</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 5.23     29</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 2.57     24</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 6.77     27</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 2.68     28</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 7.01     29</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 7.38     26</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 3.14     27</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 6.89     31</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">11</span> 5.00     25</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">12</span> 0.24     28</span>
 
-<span class="va">pigs1</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span> 
+<span class="va">pigs1</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
   <span class="fu"><a href="../reference/debit_map.html">debit_map</a></span><span class="op">(</span><span class="op">)</span>
-<span class="co">#&gt; Error: DEBIT only works with binary summary data</span>
-<span class="co">#&gt; ! Binary mean (`x`) values must range from 0 to 1.</span>
-<span class="co">#&gt; ✖ 11 out of 12 `x` values are not in that range, starting with 7.22, 4.74, and</span>
+<span class="co">#&gt; Error: </span>DEBIT only works with binary summary data
+<span class="co">#&gt; <span style="color: #BBBB00;">!</span> Binary mean (`x`) values must range from 0 to 1.</span>
+<span class="co">#&gt; <span style="color: #BB0000;">✖</span> 11 out of 12 `x` values are not in that range, starting with 7.22, 4.74, and</span>
 <span class="co">#&gt;   5.23.</span></code></pre></div>
 <p>Compared to <code><a href="../reference/grim_map.html">grim_map()</a></code>, <code><a href="../reference/debit_map.html">debit_map()</a></code> is more straightforward. There is no percentage conversion or accounting for multiple scale items. The same is true when comparing the basic <code><a href="../reference/grim.html">grim()</a></code> and <code><a href="../reference/debit.html">debit()</a></code> functions. However, both implementations tap scrutiny’s arsenal of rounding procedures, so that is discussed next.</p>
 </div>
-<div id="rounding" class="section level3">
-<h3 class="hasAnchor">
-<a href="#rounding" class="anchor"></a>Rounding</h3>
+<div class="section level3">
+<h3 id="rounding">Rounding<a class="anchor" aria-label="anchor" href="#rounding"></a>
+</h3>
 <p>The scrutiny package provides infrastructure for reconstructing rounded numbers. All of that can be commanded from within <code><a href="../reference/debit.html">debit()</a></code> and <code><a href="../reference/debit_map.html">debit_map()</a></code>. Several arguments allow for stating the precise way in which the original numbers have supposedly been rounded.</p>
 <p>First and foremost is the <code>rounding</code> argument. It takes a string with the rounding procedure’s name, which leads to the number being rounded in either of these ways:</p>
 <ol style="list-style-type: decimal">
 <li>Rounded <code>"up"</code> or <code>"down"</code> from 5. Note that SAS, SPSS, Stata, Matlab, and Excel round <code>"up"</code> from 5, whereas Python rounds <code>"down"</code> from 5.</li>
-<li>Rounded to <code>"even"</code> using base R’s own <code><a href="https://rdrr.io/r/base/Round.html">round()</a></code>.</li>
+<li>Rounded to <code>"even"</code> using base R’s own <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">round()</a></code>.</li>
 <li>Rounded <code>"up_from"</code> or <code>"down_from"</code> some number, which then needs to be specified via the <code>threshold</code> argument.</li>
 <li>Given a <code>"ceiling"</code> or <code>"floor"</code> at the respective decimal place.</li>
 <li>Rounded towards zero with <code>"trunc"</code> or away from zero with <code>"anti_trunc"</code>.</li>
 </ol>
-<p>The default, <code>"up_or_down"</code>, allows for numbers rounded either <code>"up"</code> or <code>"down"</code> from 5 when using DEBIT; and likewise for <code>"up_from_or_down_from"</code> and <code>"ceiling_or_floor"</code>. For more about these procedures, see documentation for <code><a href="https://rdrr.io/r/base/Round.html">round()</a></code>, <code><a href="../reference/round_up_from.html">round_up()</a></code>, and <code><a href="../reference/round_ceiling.html">round_ceiling()</a></code>. These include all of the above ways of rounding.</p>
+<p>The default, <code>"up_or_down"</code>, allows for numbers rounded either <code>"up"</code> or <code>"down"</code> from 5 when using DEBIT; and likewise for <code>"up_from_or_down_from"</code> and <code>"ceiling_or_floor"</code>. For more about these procedures, see documentation for <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">round()</a></code>, <code><a href="../reference/round_up_from.html">round_up()</a></code>, and <code><a href="../reference/round_ceiling.html">round_ceiling()</a></code>. These include all of the above ways of rounding.</p>
 <p>Points 3 to 5 above list some quite obscure options that were only included to cover a wide spectrum of possible rounding procedures. The same is true for the <code>threshold</code> and <code>symmetric</code> arguments, so these aren’t discussed here any further.</p>
 <p>By default, <code><a href="../reference/debit.html">debit()</a></code> and <code><a href="../reference/debit_map.html">debit_map()</a></code> accept values rounded either up or down from 5. If you have reason to impose stricter assumptions on the way <code>x</code> was rounded, specify <code>rounding</code> accordingly:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">flying_pigs</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span> 
+<code class="sourceCode R"><span class="va">flying_pigs</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
   <span class="fu"><a href="../reference/debit_map.html">debit_map</a></span><span class="op">(</span>rounding <span class="op">=</span> <span class="st">"up"</span><span class="op">)</span>
-<span class="co">#&gt; # A tibble: 7 × 11</span>
+<span class="co">#&gt; <span style="color: #949494;"># A tibble: 7 × 11</span></span>
 <span class="co">#&gt;   x     sd        n consistency rounding sd_lower sd_incl_lower sd_upper</span>
-<span class="co">#&gt;   &lt;chr&gt; &lt;chr&gt; &lt;int&gt; &lt;lgl&gt;       &lt;chr&gt;       &lt;dbl&gt; &lt;lgl&gt;            &lt;dbl&gt;</span>
-<span class="co">#&gt; 1 0.53  0.50   1683 TRUE        up          0.495 TRUE             0.505</span>
-<span class="co">#&gt; 2 0.44  0.50   1683 TRUE        up          0.495 TRUE             0.505</span>
-<span class="co">#&gt; 3 0.77  0.42   1683 TRUE        up          0.415 TRUE             0.425</span>
-<span class="co">#&gt; 4 0.19  0.35   1683 FALSE       up          0.345 TRUE             0.355</span>
-<span class="co">#&gt; 5 0.34  0.47   1683 TRUE        up          0.465 TRUE             0.475</span>
-<span class="co">#&gt; 6 0.93  0.25   1683 TRUE        up          0.245 TRUE             0.255</span>
-<span class="co">#&gt; 7 0.12  0.33   1683 TRUE        up          0.325 TRUE             0.335</span>
-<span class="co">#&gt; # … with 3 more variables: sd_incl_upper &lt;lgl&gt;, x_lower &lt;dbl&gt;, x_upper &lt;dbl&gt;</span>
+<span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0.53  0.50   <span style="text-decoration: underline;">1</span>683 TRUE        up          0.495 TRUE             0.505</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0.44  0.50   <span style="text-decoration: underline;">1</span>683 TRUE        up          0.495 TRUE             0.505</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 0.77  0.42   <span style="text-decoration: underline;">1</span>683 TRUE        up          0.415 TRUE             0.425</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 0.19  0.35   <span style="text-decoration: underline;">1</span>683 FALSE       up          0.345 TRUE             0.355</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 0.34  0.47   <span style="text-decoration: underline;">1</span>683 TRUE        up          0.465 TRUE             0.475</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 0.93  0.25   <span style="text-decoration: underline;">1</span>683 TRUE        up          0.245 TRUE             0.255</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 0.12  0.33   <span style="text-decoration: underline;">1</span>683 TRUE        up          0.325 TRUE             0.335</span>
+<span class="co">#&gt; <span style="color: #949494;"># … with 3 more variables: sd_incl_upper &lt;lgl&gt;, x_lower &lt;dbl&gt;, x_upper &lt;dbl&gt;</span></span>
 
-<span class="va">flying_pigs</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span> 
+<span class="va">flying_pigs</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
   <span class="fu"><a href="../reference/debit_map.html">debit_map</a></span><span class="op">(</span>rounding <span class="op">=</span> <span class="st">"even"</span><span class="op">)</span>
-<span class="co">#&gt; # A tibble: 7 × 11</span>
+<span class="co">#&gt; <span style="color: #949494;"># A tibble: 7 × 11</span></span>
 <span class="co">#&gt;   x     sd        n consistency rounding sd_lower sd_incl_lower sd_upper</span>
-<span class="co">#&gt;   &lt;chr&gt; &lt;chr&gt; &lt;int&gt; &lt;lgl&gt;       &lt;chr&gt;       &lt;dbl&gt; &lt;lgl&gt;            &lt;dbl&gt;</span>
-<span class="co">#&gt; 1 0.53  0.50   1683 TRUE        even        0.495 FALSE            0.505</span>
-<span class="co">#&gt; 2 0.44  0.50   1683 TRUE        even        0.495 FALSE            0.505</span>
-<span class="co">#&gt; 3 0.77  0.42   1683 TRUE        even        0.415 FALSE            0.425</span>
-<span class="co">#&gt; 4 0.19  0.35   1683 FALSE       even        0.345 FALSE            0.355</span>
-<span class="co">#&gt; 5 0.34  0.47   1683 TRUE        even        0.465 FALSE            0.475</span>
-<span class="co">#&gt; 6 0.93  0.25   1683 TRUE        even        0.245 FALSE            0.255</span>
-<span class="co">#&gt; 7 0.12  0.33   1683 TRUE        even        0.325 FALSE            0.335</span>
-<span class="co">#&gt; # … with 3 more variables: sd_incl_upper &lt;lgl&gt;, x_lower &lt;dbl&gt;, x_upper &lt;dbl&gt;</span></code></pre></div>
+<span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0.53  0.50   <span style="text-decoration: underline;">1</span>683 TRUE        even        0.495 FALSE            0.505</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0.44  0.50   <span style="text-decoration: underline;">1</span>683 TRUE        even        0.495 FALSE            0.505</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 0.77  0.42   <span style="text-decoration: underline;">1</span>683 TRUE        even        0.415 FALSE            0.425</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 0.19  0.35   <span style="text-decoration: underline;">1</span>683 FALSE       even        0.345 FALSE            0.355</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 0.34  0.47   <span style="text-decoration: underline;">1</span>683 TRUE        even        0.465 FALSE            0.475</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 0.93  0.25   <span style="text-decoration: underline;">1</span>683 TRUE        even        0.245 FALSE            0.255</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 0.12  0.33   <span style="text-decoration: underline;">1</span>683 TRUE        even        0.325 FALSE            0.335</span>
+<span class="co">#&gt; <span style="color: #949494;"># … with 3 more variables: sd_incl_upper &lt;lgl&gt;, x_lower &lt;dbl&gt;, x_upper &lt;dbl&gt;</span></span></code></pre></div>
 <p>Although changing the rounding procedure didn’t make any difference for the DEBIT consistency here, it is important to account for the different ways in which numbers might be rounded, if only to demonstrate that some given results are robust to those variable decisions. To err on the side of caution, the default for <code>rounding</code> is the permissive <code>"up_or_down"</code>.</p>
 </div>
 </div>
-<div id="summarize-results-with-audit" class="section level2">
-<h2 class="hasAnchor">
-<a href="#summarize-results-with-audit" class="anchor"></a>Summarize results with <code>audit()</code>
+<div class="section level2">
+<h2 id="summarize-results-with-audit">Summarize results with <code>audit()</code><a class="anchor" aria-label="anchor" href="#summarize-results-with-audit"></a>
 </h2>
 <p>Following up on a call to <code><a href="../reference/debit_map.html">debit_map()</a></code>, the generic function <code><a href="../reference/audit.html">audit()</a></code> summarizes test results:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">flying_pigs</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span> 
-  <span class="fu"><a href="../reference/debit_map.html">debit_map</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span> 
+<code class="sourceCode R"><span class="va">flying_pigs</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
+  <span class="fu"><a href="../reference/debit_map.html">debit_map</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
   <span class="fu"><a href="../reference/audit.html">audit</a></span><span class="op">(</span><span class="op">)</span>
-<span class="co">#&gt; # A tibble: 1 × 6</span>
+<span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 6</span></span>
 <span class="co">#&gt;   incons_cases all_cases incons_rate mean_x mean_sd distinct_n</span>
-<span class="co">#&gt;          &lt;int&gt;     &lt;int&gt;       &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;      &lt;int&gt;</span>
-<span class="co">#&gt; 1            1         7       0.143  0.474   0.403          1</span></code></pre></div>
+<span class="co">#&gt;          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">1</span>            1         7       0.143  0.474   0.403          1</span></code></pre></div>
 <p>These columns are —</p>
 <ol style="list-style-type: decimal">
 <li>
@@ -308,34 +308,33 @@
 <code>distinct_n</code>: number of different sample sizes.</li>
 </ol>
 </div>
-<div id="visualize-results-with-debit_plot" class="section level2">
-<h2 class="hasAnchor">
-<a href="#visualize-results-with-debit_plot" class="anchor"></a>Visualize results with <code>debit_plot()</code>
+<div class="section level2">
+<h2 id="visualize-results-with-debit_plot">Visualize results with <code>debit_plot()</code><a class="anchor" aria-label="anchor" href="#visualize-results-with-debit_plot"></a>
 </h2>
 <p>There is a specialized visualization function for DEBIT results, <code><a href="../reference/debit_plot.html">debit_plot()</a></code>. Only run it on <code><a href="../reference/debit_map.html">debit_map()</a></code>’s output. It will fail otherwise.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Determine plot theme for the remaining session:</span>
-<span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span> 
-  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html">theme_set</a></span><span class="op">(</span><span class="op">)</span>
+<span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
+  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html" class="external-link">theme_set</a></span><span class="op">(</span><span class="op">)</span>
 
-<span class="va">flying_pigs</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span> 
-  <span class="fu"><a href="../reference/debit_map.html">debit_map</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span> 
+<span class="va">flying_pigs</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
+  <span class="fu"><a href="../reference/debit_map.html">debit_map</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
   <span class="fu"><a href="../reference/debit_plot.html">debit_plot</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <p><img src="debit_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
 <p>DEBIT-consistent value pairs are blue, inconsistent ones red. The black arc is the DEBIT line: Given the sample size, the pairs of mean and SD values are DEBIT-consistent if and only if they cross this line. More precisely, the inner boxes must cross the line — the outer boxes are just pointers to the inner ones, in case these are poorly visible. They have no inherent meaning.</p>
 <p>Except for the colors, inner boxes must look exactly like they do here: Their sizes and shapes are completely determined by the mean and SD values. Since inner boxes cannot be enlarged at will, outer boxes might be helpful to spot them at first glance.</p>
 <p>However, if outer boxes are not desired, they can be turned off like this:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">flying_pigs</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span> 
-  <span class="fu"><a href="../reference/debit_map.html">debit_map</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span> 
+<code class="sourceCode R"><span class="va">flying_pigs</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
+  <span class="fu"><a href="../reference/debit_map.html">debit_map</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
   <span class="fu"><a href="../reference/debit_plot.html">debit_plot</a></span><span class="op">(</span>show_outer_boxes <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
 <p><img src="debit_files/figure-html/unnamed-chunk-11-1.png" width="700"></p>
-<p>Color settings and other ggplot2-typical options are available via arguments, as are settings handed down to <code><a href="https://rdrr.io/pkg/ggrepel/man/geom_text_repel.html">ggrepel::geom_text_repel()</a></code>, which creates the labels. For more, see <code><a href="../reference/debit_plot.html">debit_plot()</a></code>’s documentation.</p>
+<p>Color settings and other ggplot2-typical options are available via arguments, as are settings handed down to <code><a href="https://rdrr.io/pkg/ggrepel/man/geom_text_repel.html" class="external-link">ggrepel::geom_text_repel()</a></code>, which creates the labels. For more, see <code><a href="../reference/debit_plot.html">debit_plot()</a></code>’s documentation.</p>
 </div>
-<div id="references" class="section level1">
-<h1 class="hasAnchor">
-<a href="#references" class="anchor"></a>References</h1>
-<p>Heathers, James A. J., und Nicholas J. L. Brown. 2019. „DEBIT: A Simple Consistency Test For Binary Data". <a href="https://osf.io/5vb3u/" class="uri">https://osf.io/5vb3u/</a>.</p>
+<div class="section level1">
+<h1 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h1>
+<p>Heathers, James A. J., und Nicholas J. L. Brown. 2019. „DEBIT: A Simple Consistency Test For Binary Data". <a href="https://osf.io/5vb3u/" class="external-link uri">https://osf.io/5vb3u/</a>.</p>
 </div>
   </div>
 
@@ -350,11 +349,13 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Lukas Jung.</p>
+  <p></p>
+<p>Developed by Lukas Jung.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
 </div>
 
       </footer>
@@ -362,6 +363,8 @@
 
   
 
+
+  
 
   </body>
 </html>

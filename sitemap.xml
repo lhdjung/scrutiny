@@ -1,7 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://lhdjung.github.io/scrutiny/404.html</loc>
+  </url>
+  <url>
+    <loc>https://lhdjung.github.io/scrutiny/CODE_OF_CONDUCT.html</loc>
+  </url>
+  <url>
+    <loc>https://lhdjung.github.io/scrutiny/LICENSE.html</loc>
+  </url>
+  <url>
+    <loc>https://lhdjung.github.io/scrutiny/articles/debit.html</loc>
+  </url>
+  <url>
+    <loc>https://lhdjung.github.io/scrutiny/articles/grim.html</loc>
+  </url>
+  <url>
+    <loc>https://lhdjung.github.io/scrutiny/articles/index.html</loc>
+  </url>
+  <url>
+    <loc>https://lhdjung.github.io/scrutiny/articles/infrastructure.html</loc>
+  </url>
+  <url>
+    <loc>https://lhdjung.github.io/scrutiny/articles/related.html</loc>
+  </url>
+  <url>
+    <loc>https://lhdjung.github.io/scrutiny/articles/rounding.html</loc>
+  </url>
+  <url>
+    <loc>https://lhdjung.github.io/scrutiny/articles/wrangling.html</loc>
+  </url>
+  <url>
+    <loc>https://lhdjung.github.io/scrutiny/authors.html</loc>
+  </url>
+  <url>
     <loc>https://lhdjung.github.io/scrutiny/index.html</loc>
+  </url>
+  <url>
+    <loc>https://lhdjung.github.io/scrutiny/news/index.html</loc>
   </url>
   <url>
     <loc>https://lhdjung.github.io/scrutiny/reference/audit.html</loc>
@@ -41,6 +77,9 @@
   </url>
   <url>
     <loc>https://lhdjung.github.io/scrutiny/reference/grim_total.html</loc>
+  </url>
+  <url>
+    <loc>https://lhdjung.github.io/scrutiny/reference/index.html</loc>
   </url>
   <url>
     <loc>https://lhdjung.github.io/scrutiny/reference/is_subset_of.html</loc>
@@ -95,20 +134,5 @@
   </url>
   <url>
     <loc>https://lhdjung.github.io/scrutiny/reference/unround.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/articles/debit.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/articles/grim.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/articles/infrastructure.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/articles/rounding.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/articles/wrangling.html</loc>
   </url>
 </urlset>

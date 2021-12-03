@@ -20,6 +20,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-home">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -32,18 +34,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">scrutiny</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.0.9000</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="reference/index.html">Reference</a>
 </li>
@@ -55,7 +51,8 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li class="divider">
-    <li class="dropdown-header">Consistency tests</li>
+    </li>
+<li class="dropdown-header">Consistency tests</li>
     <li>
       <a href="articles/grim.html">GRIM</a>
     </li>
@@ -63,7 +60,8 @@
       <a href="articles/debit.html">DEBIT</a>
     </li>
     <li class="divider">
-    <li class="dropdown-header">Infrastructure</li>
+    </li>
+<li class="dropdown-header">Infrastructure</li>
     <li>
       <a href="articles/rounding.html">Rounding</a>
     </li>
@@ -71,9 +69,13 @@
       <a href="articles/infrastructure.html">Infrastructure beyond rounding</a>
     </li>
     <li class="divider">
-    <li class="dropdown-header">Other</li>
+    </li>
+<li class="dropdown-header">Other</li>
     <li>
       <a href="articles/wrangling.html">Data wrangling</a>
+    </li>
+    <li>
+      <a href="articles/related.html">Related software</a>
     </li>
   </ul>
 </li>
@@ -83,7 +85,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/lhdjung/scrutiny/">
+  <a href="https://github.com/lhdjung/scrutiny/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -103,17 +105,17 @@
 
 
 <!-- badges: end -->
-<div id="error-detection-in-science" class="section level1">
-<div class="page-header"><h1 class="hasAnchor">
-<a href="#error-detection-in-science" class="anchor"></a>Error detection in science</h1></div>
+<div class="section level1">
+<div class="page-header"><h1 id="error-detection-in-science">Error detection in science<a class="anchor" aria-label="anchor" href="#error-detection-in-science"></a>
+</h1></div>
 <p>The goal of scrutiny is to test published summary statistics for consistency and reconstruct some of the processes which created them. The package makes these methods easy to use in a tidyverse-friendly way. It hopes to help the new field of error detection go mainstream.</p>
 <p>Besides consistency tests, scrutiny features infrastructure for implementing error detection techniques, as well as specialized data wrangling functions. See the <em>Articles</em> tab for vignettes.</p>
-<p>scrutiny is a work in progress. You are welcome to contribute with pull requests. However, please <a href="https://github.com/lhdjung/scrutiny/issues">open an issue</a> first.</p>
+<p>scrutiny is a work in progress. You are welcome to contribute with pull requests. However, please <a href="https://github.com/lhdjung/scrutiny/issues" class="external-link">open an issue</a> first.</p>
 <p>The package is not on CRAN yet. You can install in from GitHub like this:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>remotes<span class="op">::</span><span class="kw">install_github</span>(<span class="st">"lhdjung/scrutiny"</span>)</span></code></pre></div>
-<div id="get-started" class="section level2">
-<h2 class="hasAnchor">
-<a href="#get-started" class="anchor"></a>Get started</h2>
+<div class="section level2">
+<h2 id="get-started">Get started<a class="anchor" aria-label="anchor" href="#get-started"></a>
+</h2>
 <p>Here is how to GRIM-test all values in a data frame. When using <code><a href="reference/grim_map.html">grim_map()</a></code>, the <code>consistency</code> column tells you if the means (<code>x</code>), sample sizes (<code>n</code>), and numbers of scale items are mutually consistent. Scale item numbers are 1 by default.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">library</span>(scrutiny)</span>
 <span id="cb2-2"><a href="#cb2-2"></a></span>
@@ -219,9 +221,9 @@
 <span id="cb5-31"><a href="#cb5-31"></a><span class="st">  </span><span class="kw">debit_plot</span>()</span></code></pre></div>
 <p><img src="reference/figures/README-unnamed-chunk-5-1.png" width="75%"></p>
 </div>
-<div id="guiding-ideas" class="section level2">
-<h2 class="hasAnchor">
-<a href="#guiding-ideas" class="anchor"></a>Guiding ideas</h2>
+<div class="section level2">
+<h2 id="guiding-ideas">Guiding ideas<a class="anchor" aria-label="anchor" href="#guiding-ideas"></a>
+</h2>
 <blockquote>
 <p>(…) a critical inspection of the published literature should not be mischaracterized as a hobby for the overly cynical, nor as so-called “methodological terrorism”. On the contrary, carefully evaluating presented data is a cornerstone of scientific investigation, and it is only logical to apply this also to the published literature. If we are not willing to critically assess published studies, we also cannot guarantee their veracity.</p>
 </blockquote>
@@ -232,61 +234,72 @@
 <p>— Eric A. Stewart (six retractions; quoted in Pickett 2020, p. 178)</p>
 </div>
 </div>
-<div id="references" class="section level1">
-<h1 class="hasAnchor">
-<a href="#references" class="anchor"></a>References</h1>
-<p>Pickett, Justin T. „The Stewart Retractions: A Quantitative and Qualitative Analysis". <em>Econ Journal Watch</em> 17, Nr. 1 (March 2020): 152–90. URL: <a href="https://econjwatch.org/articles/the-stewart-retractions-a-quantitative-and-qualitative-analysis" class="uri">https://econjwatch.org/articles/the-stewart-retractions-a-quantitative-and-qualitative-analysis</a>.</p>
-<p>van der Zee, Tim, Jordan Anaya, und Nicholas J. L. Brown. „Statistical Heartburn: An Attempt to Digest Four Pizza Publications from the Cornell Food and Brand Lab". <em>BMC Nutrition</em> 3, Nr. 1 (Dezember 2017): 54. <a href="https://doi.org/10.1186/s40795-017-0167-x" class="uri">https://doi.org/10.1186/s40795-017-0167-x</a>.</p>
+<div class="section level1">
+<h1 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h1>
+<p>Pickett, Justin T. „The Stewart Retractions: A Quantitative and Qualitative Analysis". <em>Econ Journal Watch</em> 17, Nr. 1 (March 2020): 152–90. URL: <a href="https://econjwatch.org/articles/the-stewart-retractions-a-quantitative-and-qualitative-analysis" class="external-link uri">https://econjwatch.org/articles/the-stewart-retractions-a-quantitative-and-qualitative-analysis</a>.</p>
+<p>van der Zee, Tim, Jordan Anaya, und Nicholas J. L. Brown. „Statistical Heartburn: An Attempt to Digest Four Pizza Publications from the Cornell Food and Brand Lab". <em>BMC Nutrition</em> 3, Nr. 1 (Dezember 2017): 54. <a href="https://doi.org/10.1186/s40795-017-0167-x" class="external-link uri">https://doi.org/10.1186/s40795-017-0167-x</a>.</p>
 </div>
 
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <div class="links">
-<h2>Links</h2>
+<h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li>Browse source code at <br><a href="https://github.com/lhdjung/scrutiny/">https://​github.com/​lhdjung/​scrutiny/​</a>
-</li>
-<li>Report a bug at <br><a href="https://github.com/lhdjung/scrutiny/issues">https://​github.com/​lhdjung/​scrutiny/​issues</a>
-</li>
+<li><a href="https://github.com/lhdjung/scrutiny/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/lhdjung/scrutiny/issues" class="external-link">Report a bug</a></li>
 </ul>
 </div>
+
 <div class="license">
-<h2>License</h2>
+<h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li><a href="LICENSE.html">Full license</a></li>
 <li><small>GPL (&gt;= 3)</small></li>
 </ul>
 </div>
+
 <div class="community">
-<h2>Community</h2>
+<h2 data-toc-skip>Community</h2>
 <ul class="list-unstyled">
 <li><a href="CODE_OF_CONDUCT.html">Code of conduct</a></li>
 </ul>
 </div>
+
+<div class="citation">
+<h2 data-toc-skip>Citation</h2>
+<ul class="list-unstyled">
+<li><a href="authors.html#citation">Citing scrutiny</a></li>
+</ul>
+</div>
+
 <div class="developers">
-<h2>Developers</h2>
+<h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
 <li>Lukas Jung <br><small class="roles"> Author, maintainer </small>  </li>
 </ul>
 </div>
 
-  <div class="dev-status">
-<h2>Dev status</h2>
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="https://github.com/lhdjung/scrutiny/actions"><img src="https://github.com/lhdjung/scrutiny/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
+<li><a href="https://github.com/lhdjung/scrutiny/actions" class="external-link"><img src="https://github.com/lhdjung/scrutiny/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
 </ul>
 </div>
-</div>
+
+  </div>
 </div>
 
 
       <footer><div class="copyright">
-  <p>Developed by Lukas Jung.</p>
+  <p></p>
+<p>Developed by Lukas Jung.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
 </div>
 
       </footer>
@@ -294,6 +307,8 @@
 
   
 
+
+  
 
   </body>
 </html>
