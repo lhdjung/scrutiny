@@ -9,3 +9,5 @@
 ^CODE_OF_CONDUCT\.md$
 ^README\.Rmd$
 ^CITATION\.cff$
+^doc$
+^Meta$
