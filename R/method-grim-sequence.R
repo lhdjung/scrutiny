@@ -99,8 +99,6 @@ explain_seq_test_ranking <- function(x, scr_func_info) {
 #' @param explain If `TRUE` (the default), results come with an explanation.
 #'
 #' @export
-#'
-#' @include grim-neighbors.R
 
 
 seq_test_ranking <- function(x, explain = TRUE) {
