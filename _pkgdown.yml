@@ -10,8 +10,10 @@ home:
 
 template:
   params:
-    bootstrap: 4
+    bootstrap: 5
     bootswatch: flatly
+    bslib:
+      secondary: "#cc3333"
 
 pkgdown:
   as_is: true
