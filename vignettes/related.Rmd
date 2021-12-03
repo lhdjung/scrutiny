@@ -22,7 +22,7 @@ Please contact me if you know about relevant software that isn't listed here (em
 
 -   James Heathers' [SPRITE](https://peerj.com/preprints/26968v1/) algorithm reconstructs possible distributions of raw data from summary statistics. James also wrote a [light introduction](https://medium.com/hackernoon/introducing-sprite-and-the-case-of-the-carthorse-child-58683c2bfeb) to SPRITE. For R users, it was implemented in [rsprite2](https://lukaswallrich.github.io/rsprite2/) by Lukas Wallrich, building up on code by Nick Brown. Nick also developed an interactive [Shiny app](https://shiny.ieis.tue.nl/sprite/) for SPRITE based on R. Jordan Anaya developed a [Python-based app](http://www.prepubmed.org/sprite/).
 
--   Several R packages leverage the Benford distribution of naturally occurring numbers to assess whether reported numbers are, in fact, natural. The packages include:
+-   Several R packages leverage the Benford distribution of naturally occurring numbers to assess whether reported numbers are, in fact, natural. These packages include:
 
     -   [benford.analysis](https://github.com/carloscinelli/benford.analysis) by Carlos Cinelli contains various sophisticated tools for inspecting data using the Benford distribution.
 
