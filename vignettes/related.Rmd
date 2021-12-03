@@ -28,6 +28,6 @@ Please contact me if you know about relevant software that isn't listed here (em
 
     -   [digitTests](https://koenderks.github.io/digitTests/index.html) by Koen Derks not only conducts Benford testing but also checks if values are repeated more often than expected.
 
--   Emerging from the Pruitt investigations, the R package [twopointzerothree](https://github.com/Sorbus-torminalis/twopointzerothree/) (by an anonymous developer) checks data for sequences of perfectly correlated numbers, pointing out cases where each number is identical to its predecessor plus some constant amount.
+-   Emerging from the Pruitt investigations, the R package [twopointzerothree](https://github.com/Sorbus-torminalis/twopointzerothree/) (by an anonymous developer) checks data for sequences of perfectly correlated numbers. These numbers are either duplicates of each other or they are duplicates offset by some constant amount; hence the name.
 
 -   The delta-F test for linearity, a.k.a. the "Förster test", was implemented in Dale J. Barr's R package [forsterUVA](https://github.com/dalejbarr/forsterUVA).
