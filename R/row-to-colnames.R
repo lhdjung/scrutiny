@@ -18,6 +18,10 @@
 #' @param data Data frame or matrix.
 #' @param row Integer. Position of the rows (one or more) that jointly contain
 #'   the correct column names. Default is `1`.
+#' @param collapse String. If the length of `row` is greater than 1, each new
+#'   column name will be that many row values pasted together. `collapse`, then,
+#'   is the substring between two former row values in the final column names.
+#'   Default is `" "` (a space).
 #' @param drop Boolean. If `TRUE` (the default), the rows specified with `row`
 #'   are removed.
 #'
@@ -34,9 +38,9 @@
 # @examples
 
 
-row_to_colnames <- function(data, row = 1, drop = TRUE) {
+row_to_colnames <- function(data, row = 1, collapse = " ", drop = TRUE) {
 
-  # Checks ---
+  # Initial checks ---
 
   if (!is.data.frame(data)) {
     if (is.matrix(data)) {
@@ -64,7 +68,7 @@ row_to_colnames <- function(data, row = 1, drop = TRUE) {
   }
 
 
-  # Main part ---
+  # Get correct column names ---
 
   # Restore the vector of correct column names by the values stored in the one
   # or more rows that were specified by the `row` argument:
@@ -72,31 +76,24 @@ row_to_colnames <- function(data, row = 1, drop = TRUE) {
     rbind(colnames(data), .) %>%
     purrr::map(remove_na)
 
+  correct <- purrr::map(correct, utils::tail, (length(correct[[1]]) - 1))
+
   # If multiple rows were specified that way, the resulting vector needs to be
-  # formatted to restore the correct column names:
-  if (length(row) == 1) {
-    correct <- correct %>%
-      purrr::map(utils::tail, 1) %>%
-      as.character()
-  } else {
-    correct <- correct %>%
-      stringr::str_c() %>%
-      stringr::str_squish() %>%
-      stringr::str_remove_all("\"") %>%
-      stringr::str_remove_all("c\\(") %>%
-      stringr::str_remove_all("\\)$") %>%
-      stringr::str_replace_all(", ", " ") %>%
-      stringr::str_replace_all("- ", "-") %>%
-      suppressWarnings()
+  # pasted to one single string per column to restore the correct column names:
+  if (length(row) > 1) {
+    correct <- purrr::map(correct, paste0, collapse = collapse)
   }
 
+
+  # Subsequent checks ---
+
   # Check for empty strings in the "correct" column names:
-  correct_empty <- stringr::str_length(correct) == 0
+  correct_is_empty <- stringr::str_length(correct) == 0
 
   # If any of those strings really are empty, they are unsuitable as column
   # names. An error is then thrown:
-  if (any(correct_empty)) {
-    n_empty <- length(correct_empty[correct_empty])
+  if (any(correct_is_empty)) {
+    n_empty <- length(correct_is_empty[correct_is_empty])
     name_names <- dplyr::if_else(n_empty == 1, "name", "names")
     cli::cli_abort(c(
       "{n_empty} empty column {name_names}",
@@ -104,6 +101,9 @@ row_to_colnames <- function(data, row = 1, drop = TRUE) {
       ">" = "Make sure to specify `row` in `row_to_colnames()` accordingly."
     ))
   }
+
+
+  # Final correction and return ---
 
   # Reinstate the correct column names:
   colnames(data) <- correct

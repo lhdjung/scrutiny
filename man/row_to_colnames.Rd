@@ -4,13 +4,18 @@
 \alias{row_to_colnames}
 \title{Turn row values into column names}
 \usage{
-row_to_colnames(data, row = 1, drop = TRUE)
+row_to_colnames(data, row = 1, collapse = " ", drop = TRUE)
 }
 \arguments{
 \item{data}{Data frame or matrix.}
 
 \item{row}{Integer. Position of the rows (one or more) that jointly contain
 the correct column names. Default is \code{1}.}
+
+\item{collapse}{String. If the length of \code{row} is greater than 1, each new
+column name will be that many row values pasted together. \code{collapse}, then,
+is the substring between two former row values in the final column names.
+Default is \code{" "} (a space).}
 
 \item{drop}{Boolean. If \code{TRUE} (the default), the rows specified with \code{row}
 are removed.}
