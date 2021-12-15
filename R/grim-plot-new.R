@@ -11,9 +11,9 @@
 #'   inconsistent ones are red. These and other parameters of the underlying
 #'   geoms can be controlled via arguments.
 #'
-#'   If none of the plotted mean or proportion values has more than 2 decimal
-#'   places, the background raster follows the `rounding` argument from the
-#'   `grim_map()` call.
+#'   The background raster follows the `rounding` argument from the `grim_map()`
+#'   call unless any of the plotted mean or proportion values has more than 2
+#'   decimal places.
 #'
 #' @section Background raster: The background raster shows the probability of
 #'   GRIM-inconsistency for random means or proportions, from 0 (all
@@ -218,15 +218,12 @@ grim_plot <- function(data = NULL,
 
     } else {
 
-      # # Adjust the raster (and the x-axis labels) for numbers of decimal places
-      # # greater than 2:
-      # power_diff <- 10 ^ (decimals - 2)
-      # raster_n <- as.numeric(raster_n) * power_diff
-      # # FIX THE ABOVE: NO `raster_n` OBJECT PRESENT!
-
-      # These are just pro forma:
-      raster_n    <- 0  # grim_raster_1_ceiling_or_floor_n
-      raster_frac <- 0  # grim_raster_1_ceiling_or_floor_frac
+      # For a number of decimal places greater than 2, these two objects are
+      # assigned the value zero. This is just pro forma. We can't simply forgo
+      # `raster_n` and `raster_frac` because they are referenced several times
+      # further down to build the plot:
+      raster_n    <- 0
+      raster_frac <- 0
 
     }
 
@@ -303,15 +300,6 @@ grim_plot <- function(data = NULL,
           height = grid::unit(1, "npc")
         ))
 
-      # x_min <- min(data_emp$n) - 1
-      # x_max <- max(data_emp$n) + 1
-      #
-      # # x_distance <- x_max / x_min
-      # # x_min <- x_min - x_distance
-      # # x_max <- x_max + x_distance
-      #
-      # p +
-      #   ggforce::facet_zoom(xlim = c(x_min, x_max))
     }
 
   }

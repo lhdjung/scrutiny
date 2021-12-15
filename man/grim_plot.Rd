@@ -60,9 +60,9 @@ in distinctive colors. By default, consistent value pairs are blue and
 inconsistent ones are red. These and other parameters of the underlying
 geoms can be controlled via arguments.
 
-If none of the plotted mean or proportion values has more than 2 decimal
-places, the background raster follows the \code{rounding} argument from the
-\code{grim_map()} call.
+The background raster follows the \code{rounding} argument from the \code{grim_map()}
+call unless any of the plotted mean or proportion values has more than 2
+decimal places.
 }
 \section{Background raster}{
  The background raster shows the probability of
