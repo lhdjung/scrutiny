@@ -68,8 +68,11 @@
 split_by_parens <- function(.data, ..., .keep = FALSE, .transform = FALSE,
                             .sep = "parens", .col1 = "x", .col2 = "sd") {
 
+  # Columns specified via the dots should not have the form of named arguments:
+  ellipsis::check_dots_unnamed()
+
   # Capture the names of any columns from `.data` that might have been specified
-  # by the user via tidy evaluation:
+  # by the user through tidy evaluation:
   cols <- rlang::enexprs(...)
 
   # In case no columns were specified as per the above, prepare and defuse a
@@ -101,8 +104,8 @@ split_by_parens <- function(.data, ..., .keep = FALSE, .transform = FALSE,
 
   # Write new classes to inform the helper `transform_split_parens_object()`
   # about the specified column name endings:
-  class_end1 <- glue::glue("scr_end1_{.col1}")
-  class_end2 <- glue::glue("scr_end2_{.col2}")
+  class_end1 <- paste0("scr_end1_", .col1)
+  class_end2 <- paste0("scr_end2_", .col2)
 
   # Add these classes and a more general one to the output tibble:
   out <- add_class(out, c("scr_split_by_parens", class_end1, class_end2))
