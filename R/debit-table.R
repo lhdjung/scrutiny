@@ -3,38 +3,45 @@
 # Helper to check input ranges (not exported) -----------------------------
 
 
-proto_check_debit_inputs <- function(input, type, symbol) {
-  input_in_range <- dplyr::between(as.numeric(input),  0, 1)
+proto_debit_inputs <- function(input, type, symbol) {
 
+  # For all input values, check if they are between 0 and 1:
+  input_in_range <- input %>%
+    as.numeric() %>%
+    dplyr::between(0, 1)
+
+  # If at least one of the values is outside of that range, this will lead to an
+  # error. First, the error message is prepared...
   if (!all(input_in_range)) {
+
     offenders <- input[!input_in_range]
-    values_is_are <- dplyr::if_else(
-      length(offenders) == 1, "value is", "values are"
-    )
+    is_are <- dplyr::if_else(length(offenders) == 1, "is", "are")
+
     if (length(offenders) > 3) {
       offenders <- offenders[1:3]
-      starting_with_msg <- ", starting with"
+      msg_offenders <- ", starting with"
     } else {
-      starting_with_msg <- ":"
+      msg_offenders <- ":"
     }
+
+    # ...and second, the actual error is thrown:
     cli::cli_abort(c(
       "DEBIT only works with binary summary data",
       "!" = "Binary {type} (`{symbol}`) values must range from 0 to 1.",
-      "x" = "{length(input[!input_in_range])} out of {length({input})} \\
-      `{symbol}` {values_is_are} not in that range{starting_with_msg} \\
-      {offenders}."
+      "x" = "{length(input[!input_in_range])} out of {length(input)} \\
+      `{symbol}` values {is_are} not in that range{msg_offenders} {offenders}."
     ))
   }
 
 }
 
 
-
+# Building up on the above, the following function is used within `debit()` and
+# `debit_map()` to check their `x` and `sd` inputs:
 check_debit_inputs <- function(x, sd) {
-  proto_check_debit_inputs(input = x, type = "mean", symbol = "x")
-  proto_check_debit_inputs(input = sd, type = "standard deviation", symbol = "sd")
+  proto_debit_inputs(input = x, type = "mean", symbol = "x")
+  proto_debit_inputs(input = sd, type = "standard deviation", symbol = "sd")
 }
-
 
 
 
@@ -64,6 +71,8 @@ debit_table <- function(x, sd, n, group_0 = NA, group_1 = NA,
     ))
   }
 
+
+  # Main part ---
 
   # Count decimal places of the standard deviation (SD) and the distribution
   # mean, both as reported:
