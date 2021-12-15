@@ -24,9 +24,6 @@
 #'   should mirror that of positive numbers so that their absolute values are
 #'   always equal. Default is `FALSE`.
 
-# @param `...` Only in `debit()`, which gets all of the above arguments passed
-#   on to.
-#'
 #' @include debit-table.R
 #'
 #' @export
