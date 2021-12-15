@@ -7,16 +7,16 @@
 grim_plot(
   data = NULL,
   show_raster = TRUE,
-  show_zoom = TRUE,
+  show_gradient = TRUE,
   show_full_range = TRUE,
   n = NULL,
-  decimals = 2,
+  decimals = NULL,
   color_cons = "royalblue1",
   color_incons = "red",
   tile_alpha = 1,
   tile_size = 1.5,
   raster_alpha = 0.5,
-  raster_color = "gray50"
+  raster_color = "grey50"
 )
 }
 \arguments{
@@ -25,8 +25,9 @@ grim_plot(
 \item{show_raster}{Boolean. If \code{TRUE} (the default), the plot has a
 background raster.}
 
-\item{show_zoom}{Boolean. Should zoom be added if the number of decimal
-places is 3 or greater? Default is \code{TRUE}.}
+\item{show_gradient}{Boolean. If the number of decimal places is 3 or
+greater, should a gradient be shown to signal the overall probability of
+GRIM inconsistency? Default is \code{TRUE}.}
 
 \item{show_full_range}{Boolean. Should the full range of the plot always be
 shown, regardless of the empirical values? Default is \code{TRUE}.}
@@ -35,8 +36,8 @@ shown, regardless of the empirical values? Default is \code{TRUE}.}
 case \code{n} becomes \code{10 ^ decimals} (e.g., \code{100} if \code{decimals} is \code{2}).}
 
 \item{decimals}{Integer. Number of decimal places for which the background
-raster will be generated. Only \code{1} and \code{2} are currently supported. Default
-is \code{2}.}
+raster will be generated. Default is \code{NULL}, in which case the greatest
+number of decimal places from the means or proportions is used.}
 
 \item{color_cons, color_incons}{Strings. Fill colors of the consistent and
 inconsistent scatter points. Defaults are \code{"royalblue1"} (consistent) and
@@ -47,37 +48,43 @@ points: opacity and, indirectly, size. Defaults are \code{1} and \code{1.5}.}
 
 \item{raster_alpha, raster_color}{Numeric and string, respectively. Parameters
 of the background raster: opacity and fill color. Defaults are \code{0.5} and
-\code{"gray50"}.}
+\code{"grey50"}.}
 }
 \description{
 \code{grim_plot()} visualizes summary data and their mutual GRIM
 consistency. Call this function only on a data frame that resulted from a
-call to \code{grim_map()} in which \code{adjust_x} was set to \code{1}.
+call to \code{grim_map()}.
 
 Consistent and inconsistent value pairs from the input data frame are shown
 in distinctive colors. By default, consistent value pairs are blue and
 inconsistent ones are red. These and other parameters of the underlying
 geoms can be controlled via arguments.
 
-The background raster flags every inconsistent value pair in the space
-defined by the \code{decimals} argument. That is only informative for value
-pairs where the mean/percentage has exactly that many decimal places. The
-raster is independent of the data, but it follows the \code{rounding}
-specification in the \code{grim_map()} call.
+If none of the plotted mean or proportion values has more than 2 decimal
+places, the background raster follows the \code{rounding} argument from the
+\code{grim_map()} call.
 }
 \section{Background raster}{
- The background raster flags inconsistent value
-sets with dark boxes. All other places in the plot denote consistent value
-sets.
+ The background raster shows the probability of
+GRIM-inconsistency for random means or proportions, from 0 (all
+inconsistent) to the greatest number on the x-axis (all inconsistent). By
+default, that number is determined by the greatest number of decimal places
+among the tested means or proportions, such that 1 decimal place leads to
+10, two lead to 100, etc. You can also manually specify the number of
+decimal places via the \code{decimals} argument.
 
-As the raster varies by rounding procedure, it will automatically
+For 1 or 2 decimal places, the raster will be specific to the rounding
+method. As the raster varies by rounding procedure, it will automatically
 correspond to the \code{rounding} argument specified in the preceding
 \code{grim_map()} call. This works fast because the raster is based on data
 saved in the package itself, so these data don't need to be generated anew
-every time the function is called.
+every time the function is called. Inconsistent value sets are marked with
+dark boxes. All other places in the raster denote consistent value sets.
+The raster is independent of the data, but it follows the \code{rounding}
+specification in the \code{grim_map()} call.
 
 With the default, \code{"up_or_down"}, strikingly few values are flagged as
-inconsistent for sample sizes 40 and 80 (or 400 and 800, etc.). This effect
+inconsistent for sample sizes 40 and 80 (or 4 and 8). This effect
 disappears if \code{rounding} is set to any other value. For a list of values
 that \code{rounding} can take, see documentation for \code{grim()}, section
 \code{Rounding}.
@@ -86,12 +93,6 @@ The 4/8 leniency effect arises because accepting values rounded either up
 or down is more careful and conservative than any other rounding procedure.
 In any case, \code{grim_plot()} doesn't cause this effect --- it only reveals
 it.
-
-The number of tiles in the plot, including both the raster and the points
-spared by it, is \eqn{(10 ^ {decimals}) ^ 2}. So it's 10.000 with the
-default \code{decimals = 2}, and one million with \code{decimals = 3}. For each
-greater \code{decimals} value (with \code{decimals >= 2}), the number of tiles is 100
-times the former value!
 }
 
 \examples{
