@@ -9,11 +9,10 @@ home:
          helping the new field of error detection go mainstream.
 
 template:
-  params:
-    bootstrap: 5
-    bootswatch: flatly
-    bslib:
-      secondary: "#cc3333"
+  bootstrap: 5
+  bootswatch: flatly
+  # bslib:
+  #   primary: "#cc3333"
 
 pkgdown:
   as_is: true
