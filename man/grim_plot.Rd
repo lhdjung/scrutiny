@@ -6,6 +6,7 @@
 \usage{
 grim_plot(
   data = NULL,
+  show_data = TRUE,
   show_raster = TRUE,
   show_gradient = TRUE,
   show_full_range = TRUE,
@@ -21,6 +22,10 @@ grim_plot(
 }
 \arguments{
 \item{data}{Data frame. Result of a call to \code{grim_map()}.}
+
+\item{show_data}{Boolean. If set to \code{FALSE}, test results from the data are
+not displayed. Choose this if you only want to display the background
+raster. Default is \code{TRUE}.}
 
 \item{show_raster}{Boolean. If \code{TRUE} (the default), the plot has a
 background raster.}

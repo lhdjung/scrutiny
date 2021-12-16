@@ -45,6 +45,10 @@
 #'   it.
 #'
 #' @param data Data frame. Result of a call to `grim_map()`.
+#' @param show_data Boolean. If set to `FALSE`, test results from the data are
+#'   not displayed. Choose this if you only want to show the background raster.
+#'   You can then control plot parameters directly via the `n`, `decimals`, and
+#'   `rounding` arguments. Default is `TRUE`.
 #' @param show_gradient Boolean. If the number of decimal places is 3 or
 #'   greater, should a gradient be shown to signal the overall probability of
 #'   GRIM inconsistency? Default is `TRUE`.
@@ -55,6 +59,10 @@
 #'   number of decimal places from the means or proportions is used.
 #' @param n Integer. Maximal value on the x-axis. Default is `NULL`, in which
 #'   case `n` becomes `10 ^ decimals` (e.g., `100` if `decimals` is `2`).
+#' @param decimals Integer. Only relevant if `show_data` is set to `FALSE`.
+#'   Default is `2`.
+#' @param rounding. String. Only relevant if `show_data` is set to `FALSE`.
+#'   Default is `"up_or_down"`.
 #' @param show_raster Boolean. If `TRUE` (the default), the plot has a
 #'   background raster.
 #' @param color_cons,color_incons Strings. Fill colors of the consistent and
@@ -92,11 +100,13 @@
 
 
 grim_plot <- function(data = NULL,
+                      show_data = TRUE,
                       show_raster = TRUE,
                       show_gradient = TRUE,
                       show_full_range = TRUE,
                       n = NULL,
                       decimals = NULL,
+                      rounding = "up_or_down",
                       color_cons = "royalblue1",
                       color_incons = "red",
                       tile_alpha = 1,
@@ -108,18 +118,13 @@ grim_plot <- function(data = NULL,
   # Checks ----
 
   if (!inherits(data, "scr_grim_map")) {
-    cli::cli_abort(c(
-      "`data` is not `grim_map()` output",
-      "x" = "`grim_plot()` only works with GRIM test results."
-    ))
+    if (show_data) {
+      cli::cli_abort(c(
+        "`data` is not `grim_map()` output",
+        "x" = "`grim_plot()` only works with GRIM test results."
+      ))
+    }
   }
-
-  # if (!inherits(data, "scr_adjust_x_1")) {
-  #   cli::cli_abort(c(
-  #     "`grim_plot()` needs `grim_map(adjust_x = 1)`.",
-  #     ">" = "Set `adjust_x` to `1` in your `grim_map()` call."
-  #   ))
-  # }
 
   if (!is.null(decimals)) {
     if (!length(decimals) == 1) {
@@ -135,15 +140,18 @@ grim_plot <- function(data = NULL,
     }
   }
 
-  # if (decimals > 2) {
-  #   cli::cli_abort(c(
-  #     "`decimals` was given as `{decimals}`",
-  #     "x" = "Currently, `decimals` can only be `1` or `2`."
-  #   ))
-  # }
-
 
   # Transformations ----
+
+  # In case the user set `show_data` to `FALSE`, a plot without empirical test
+  # results (blue and/or red dots) will be shown. To this end, the function
+  # needs to completely bypass the `data` argument. It does so via creating a
+  # dummy object by that name:
+  if (!show_data) {
+    data <- tibble::tibble(x = "0.00", n = 1, items = 1, consistency = TRUE) %>%
+      add_class(paste0("scr_rounding_", rounding))
+  }
+
 
   if (is.null(decimals)) {
     decimals <- max(decimal_places(data$x))
@@ -151,11 +159,6 @@ grim_plot <- function(data = NULL,
 
   data <- data %>%
     dplyr::mutate(x = (as.numeric(x) * items))
-
-  # if (inherits(data, "scr_percent_true")) {
-  #   data <- data %>%
-  #     dplyr::mutate(x = (x / 100))
-  # }
 
 
   # Preparations ----
@@ -170,6 +173,7 @@ grim_plot <- function(data = NULL,
 
   frac_sequence <- seq_endpoint(from = frac_unit, to = (1 - frac_unit))
   n_sequence <- 1:n
+
 
   # By default, a background raster is displayed in the plot:
   if (show_raster) {
@@ -186,22 +190,23 @@ grim_plot <- function(data = NULL,
 
       # Throw error if the specified rounding option is one of the few for which
       # no raster is available:
-      if (any(
+      rounding_is_bad <- any(
         rounding_id == c("up_from", "down_from", "up_from_or_down_from")
-      )) {
+      )
+      if (rounding_is_bad) {
         cli::cli_abort(c(
           "No background raster available for `rounding = {rounding_id}`",
-          ">" = "Please use a different `rounding` specification within the \\
-        `grim_map()` call or set `show_raster` to `FALSE` within the \\
-        `grim_plot()` call."
+          "!" = "Please use a different `rounding` specification within the \\
+          `grim_map()` call or set `show_raster` to `FALSE` within the \\
+          `grim_plot()` call."
         ))
       }
 
       # Assemble the names of the appropriate raster components for sample size
-      # (x-axis) and the fractional portion of the mean or proportion (y-axis)
-      # from the information provided by the number of decimal places and the
-      # previously specified rounding procedure. First, create two strings by
-      # those names...
+      # (`raster_n`; x-axis) and the fractional portion of the mean or
+      # proportion (`raster_frac`, y-axis) from the information provided by the
+      # number of decimal places and the previously specified rounding
+      # procedure. First, create two strings by those names...
       raster_n    <- glue::glue("grim_raster_{decimals}_{rounding_id}_n")
       raster_frac <- glue::glue("grim_raster_{decimals}_{rounding_id}_frac")
 
@@ -211,15 +216,10 @@ grim_plot <- function(data = NULL,
       raster_n    <- eval(rlang::parse_expr(raster_n))
       raster_frac <- eval(rlang::parse_expr(raster_frac))
 
-      # # In the raster vector, the fractional and sample size values alternate, so
-      # # we tease them apart here:
-      # raster_frac <- raster[seq(from = 1, to = length(raster), by = 2)]
-      # raster_n    <- raster[seq(from = 2, to = length(raster), by = 2)]
-
     } else {
 
-      # For a number of decimal places greater than 2, these two objects are
-      # assigned the value zero. This is just pro forma. We can't simply forgo
+      # For any number of decimal places greater than 2, these two objects are
+      # assigned the value of zero. This is only pro forma. We still need
       # `raster_n` and `raster_frac` because they are referenced several times
       # further down to build the plot:
       raster_n    <- 0
@@ -240,13 +240,14 @@ grim_plot <- function(data = NULL,
     dplyr::mutate(x = x - trunc(x)) %>%
     dplyr::rename(frac = x)
 
-  if (is.null(n)) {
-    n <- max(data$n) + 10
+  if (!show_data) {
+    data_emp <- data_emp %>%
+      dplyr::mutate(across(everything(), set_to_0))
   }
 
   # If `percent = TRUE` in the underlying `grim_map()` call, the y-axis label is
   # automatically adjusted to reflect the fact that the fractional values are
-  # percentages, not means:
+  # percentages (converted to decimal numbers), not means:
   mean_percent_label <- dplyr::if_else(
     inherits(data, "scr_percent_true"),
     "% (as decimal)",
