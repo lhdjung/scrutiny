@@ -109,12 +109,27 @@ parcel_nth_elements <- function(x, n, from = 1) {
 
 # This one is for GRIMMER. It differs from `dplyr::distinct()` mainly insofar as
 # it doesn't take the order of values within a row into account. Thus, it only
-# checks which values are present in a row how many times; hence "equivalent":
+# checks which values are present in a row how many times; hence "equivalent"
+# (see example below the function):
 remove_equivalent_rows <- function(data) {
   data_array <- apply(data, 1, sort)
 
   data[!duplicated(data_array, MARGIN = 2), ]
 }
+
+# For example, consider this data frame:
+
+# df <- tibble::tribble(
+#   ~a, ~b, ~c,
+#   1, 2, 2,
+#   2, 1, 2,
+#   1, 2, 3
+# )
+
+# No two rows are identical here, so `dplyr::distinct()` preserves all of them.
+# However, `remove_equivalent_rows()` cuts the second row. That is because the
+# first two rows contain all the same values. They only differ in terms of the
+# order of values, which the function ignores.
 
 
 # Also for GRIMMER:
