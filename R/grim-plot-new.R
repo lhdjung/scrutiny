@@ -12,31 +12,41 @@
 #'   geoms can be controlled via arguments.
 #'
 #'   The background raster follows the `rounding` argument from the `grim_map()`
-#'   call unless any of the plotted mean or proportion values has more than 2
-#'   decimal places.
+#'   call (unless any of the plotted mean or proportion values has more than 2
+#'   decimal places, in which case a gradient is shown, not a raster).
 #'
 #' @section Background raster: The background raster shows the probability of
 #'   GRIM-inconsistency for random means or proportions, from 0 (all
-#'   inconsistent) to the greatest number on the x-axis (all inconsistent). By
-#'   default, that number is determined by the greatest number of decimal places
-#'   among the tested means or proportions, such that 1 decimal place leads to
-#'   10, two lead to 100, etc. You can also manually specify the number of
-#'   decimal places via the `decimals` argument.
+#'   inconsistent) to the greatest number on the x-axis (all consistent). If the
+#'   number of decimal places in the inputs -- means or percentages -- is 3 or
+#'   greater, individual points would be too small to display. In these cases,
+#'   there will not be a raster but a gradient, showing the overall trend.
+#'
+#'   As any raster only makes sense with respect to one specific number of
+#'   decimal places, the function will throw an error if these numbers differ
+#'   among input `x` values (and `show_raster` is `TRUE`). You can avoid the
+#'   error and force plotting by specifying `decimals` as the number of decimal
+#'   places for which the raster or gradient should be displayed.
 #'
 #'   For 1 or 2 decimal places, the raster will be specific to the rounding
-#'   method. As the raster varies by rounding procedure, it will automatically
-#'   correspond to the `rounding` argument specified in the preceding
-#'   `grim_map()` call. This works fast because the raster is based on data
-#'   saved in the package itself, so these data don't need to be generated anew
-#'   every time the function is called. Inconsistent value sets are marked with
-#'   dark boxes. All other places in the raster denote consistent value sets.
-#'   The raster is independent of the data, but it follows the `rounding`
-#'   specification in the `grim_map()` call.
+#'   procedure. As the raster varies by rounding procedure, it will
+#'   automatically correspond to the `rounding` argument specified in the
+#'   preceding `grim_map()` call. This works fast because the raster is based on
+#'   data saved in the package itself, so these data don't need to be generated
+#'   anew every time the function is called. Inconsistent value sets are marked
+#'   with dark boxes. All other places in the raster denote consistent value
+#'   sets. The raster is independent of the data -- it only follows the
+#'   `rounding` specification in the `grim_map()` call and the `decimals`
+#'   argument in `grim_plot()`.
 #'
-#'   With the default, `"up_or_down"`, strikingly few values are flagged as
-#'   inconsistent for sample sizes 40 and 80 (or 4 and 8). This effect
-#'   disappears if `rounding` is set to any other value. For a list of values
-#'   that `rounding` can take, see documentation for `grim()`, section
+#'   Display an "empty" plot, one without empirical test results, by setting
+#'   `show_data` to `FALSE`. Control key parameters of the plot with `decimals`
+#'   and `rounding`.
+#'
+#'   With `grim_map()`'s default for `rounding`, `"up_or_down"`, strikingly few
+#'   values are flagged as inconsistent for sample sizes 40 and 80 (or 4 and 8).
+#'   This effect disappears if `rounding` is set to any other value. For a list
+#'   of values that `rounding` can take, see documentation for `grim()`, section
 #'   `Rounding`.
 #'
 #'   The 4/8 leniency effect arises because accepting values rounded either up
@@ -61,7 +71,7 @@
 #'   case `n` becomes `10 ^ decimals` (e.g., `100` if `decimals` is `2`).
 #' @param decimals Integer. Only relevant if `show_data` is set to `FALSE`.
 #'   Default is `2`.
-#' @param rounding. String. Only relevant if `show_data` is set to `FALSE`.
+#' @param rounding String. Only relevant if `show_data` is set to `FALSE`.
 #'   Default is `"up_or_down"`.
 #' @param show_raster Boolean. If `TRUE` (the default), the plot has a
 #'   background raster.
@@ -71,8 +81,8 @@
 #' @param tile_alpha,tile_size Numeric. Further parameters of the scatter
 #'   points: opacity and, indirectly, size. Defaults are `1` and `1.5`.
 #' @param raster_alpha,raster_color Numeric and string, respectively. Parameters
-#'   of the background raster: opacity and fill color. Defaults are `0.5` and
-#'   `"grey50"`.
+#'   of the background raster: opacity and fill color. Defaults are `1` and
+#'   `"grey75"`.
 #'
 #' @include utils.R seq-decimal.R
 #'
@@ -97,6 +107,12 @@
 #'   grim_map(percent = TRUE) %>%
 #'   grim_plot()
 
+# # Change `decimals` to
+# pigs1 %>%
+#   grim_map() %>%
+#   grim_plot(decimals = 3)
+
+
 
 
 grim_plot <- function(data = NULL,
@@ -111,8 +127,8 @@ grim_plot <- function(data = NULL,
                       color_incons = "red",
                       tile_alpha = 1,
                       tile_size = 1.5,
-                      raster_alpha = 0.5,
-                      raster_color = "grey50") {
+                      raster_alpha = 1,
+                      raster_color = "grey75") {
 
 
   # Checks ----
@@ -154,7 +170,46 @@ grim_plot <- function(data = NULL,
 
 
   if (is.null(decimals)) {
-    decimals <- max(decimal_places(data$x))
+    decimals_x <- decimal_places(data$x)    # used to be wrapped in `max()`
+
+    if (show_raster) {
+      if (!all(decimals_x[1] == decimals_x)) {
+        means_percentages <- dplyr::if_else(
+          inherits(data, "scr_percent_true"),
+          "Percentages",
+          "Means"
+        )
+        dp_unique <- unique(decimals_x)
+        if (length(dp_unique) <= 3) {
+          dp_unique_presented <- sort(dp_unique)
+          msg_starting_with <- ":"
+        } else {
+          dp_unique_presented <- sort(dp_unique)[1:3]
+          msg_starting_with <- ", starting with"
+        }
+
+        cli::cli_abort(c(
+          "{means_percentages} have different numbers of decimal places",
+          "x" = "There are {length(dp_unique)} unique numbers of decimal \\
+          places in `x`{msg_starting_with} {dp_unique_presented}.",
+          "!" = "The background raster is only informative if the number of \\
+          decimal places is consistent across the \\
+          {tolower(means_percentages)}.",
+          ">" = "Avoid this error by plotting {tolower(means_percentages)} \\
+          separately for each number of decimal places. (Alternatively, you \\
+          can specify `decimals` as the number of decimal places for which \\
+          the plot should be shown. Be aware that this will not be sensible \\
+          with regard to all {tolower(means_percentages)}.)"
+        ))
+      }
+    }
+
+    # The call will only pass the above test if all `x` values have the same
+    # number of decimal places. Therefore, `decimals` can now be determined
+    # simply by taking the first element; or indeed any other element there
+    # might be:
+    decimals <- decimals_x[1]
+
   }
 
   data <- data %>%
@@ -242,7 +297,7 @@ grim_plot <- function(data = NULL,
 
   if (!show_data) {
     data_emp <- data_emp %>%
-      dplyr::mutate(across(everything(), set_to_0))
+      dplyr::mutate(dplyr::across(everything(), set_to_0))
   }
 
   # If `percent = TRUE` in the underlying `grim_map()` call, the y-axis label is
