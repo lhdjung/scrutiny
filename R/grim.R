@@ -30,7 +30,7 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
 
   # The `percent` argument allows for easy conversion of percentages to decimal
   # numbers:
-  if (percent == TRUE) {
+  if (percent) {
     x_num <- x_num / 100
     decimals <- decimals + 2
   }
