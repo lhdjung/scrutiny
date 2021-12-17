@@ -167,10 +167,6 @@ grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
     ))
   }
 
-  # if (threshold == "none") {
-  #   threshold <- NULL
-  # }
-
   # Convert `n` to integer (mainly because of the `split_by_parens()` issue,
   # which would leave `n` as a string vector):
   data$n <- as.integer(data$n)
@@ -302,41 +298,4 @@ grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
   }
 
 }
-
-
-
-
-
-
-# Formerly ----------------------------------------------------------------
-
-
-# Former parameter:
-
-# @param adjust_x Integer (`0`, `1`, or `2`). If `1` or `2`, the `x` column in
-#   the output tibble is transformed by percentage conversion (if `percent` is
-#   `TRUE`) or multiplication with the number of items. If `1`, which is
-#   necessary for `grim_plot()`, the `x` column is numeric; if `2`, it is
-#   string with trailing zeros restored. Default is `0`, which does nothing,
-#   although `x` can still be transformed by `percent` and/or `items`
-#   internally.
-
-
-# # Optionally, make the `x` column in the output data frame reflect any changes
-# # that `x` might have undergone from percentage conversion or multiplication
-# # with the number of items inside `grim_scalar()`:
-# if (!adjust_x == 0) {
-#   x <- as.numeric(x) * items
-#   if (percent) {
-#     x <- as.numeric(x) / 100
-#   }
-#   if (adjust_x == 2) {
-#     x <- restore_zeros(x, width = decimal_places(data$x))
-#   } else if (!adjust_x == 1) {
-#     cli::cli_abort(c(
-#       "Invalid `adjust_x`",
-#       "i" = "`adjust_x` needs to be `0`, `1`, or `2`."
-#     ))
-#   }
-# }
 
