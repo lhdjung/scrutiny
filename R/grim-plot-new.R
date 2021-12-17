@@ -62,8 +62,6 @@
 #' @param show_gradient Boolean. If the number of decimal places is 3 or
 #'   greater, should a gradient be shown to signal the overall probability of
 #'   GRIM inconsistency? Default is `TRUE`.
-#' @param show_full_range Boolean. Should the full range of the plot always be
-#'   shown, regardless of the empirical values? Default is `TRUE`.
 #' @param decimals Integer. Number of decimal places for which the background
 #'   raster will be generated. Default is `NULL`, in which case the greatest
 #'   number of decimal places from the means or proportions is used.
@@ -119,7 +117,6 @@ grim_plot <- function(data = NULL,
                       show_data = TRUE,
                       show_raster = TRUE,
                       show_gradient = TRUE,
-                      show_full_range = TRUE,
                       n = NULL,
                       decimals = NULL,
                       rounding = "up_or_down",
@@ -383,35 +380,26 @@ grim_plot <- function(data = NULL,
     )
 
 
-  # Further specifications:
-  p <- p +
-    ggplot2::theme(
-      panel.grid = ggplot2::element_blank()
-    ) +
-    ggplot2::scale_y_continuous(
-      breaks = seq(from = 0, to = 1, by = max(0.2, frac_unit)),
-      expand = ggplot2::expansion(mult = c(0.01, 0.01))
-    )
+  if (!(decimals > 2)) {
 
-  # Show the entire range up to `n`...
-  if (show_full_range) {
-
+    # Further specifications:
     p <- p +
-      ggplot2::scale_x_continuous(
-        breaks = seq(from = 0, to = n, by = (n / 5)),
-        expand = ggplot2::expansion(mult = c(0, 0.01)),
-        limits = c(0, (n + (n / 100)))
-      )
-
-  } else {
-
-    # ...or don't:
-    p <- p +
-      ggplot2::scale_x_continuous(
-        # breaks = seq(0, n, (n / 10)),
+      ggplot2::theme(
+        panel.grid = ggplot2::element_blank()
+      ) +
+      ggplot2::scale_y_continuous(
+        breaks = seq(from = 0, to = 1, by = max(0.2, frac_unit)),
         expand = ggplot2::expansion(mult = c(0, 0.01))
       )
+
   }
+
+  p <- p +
+    ggplot2::scale_x_continuous(
+      breaks = seq(from = 0, to = n, by = (n / 5)),
+      expand = ggplot2::expansion(mult = c(0, 0.01)),
+      limits = c(0, n)
+    )
 
 
   # Finally, return the plot:
