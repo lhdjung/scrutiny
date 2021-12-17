@@ -1,13 +1,13 @@
 
 
-# NOTE: This file contains some example datasets that are exported, as well as
-# the code from which certain internal data are generated (plus documentation
-# for the exported datasets). For now, these internal data only include the
-# background raster vectors for `grim_plot()`.
+# NOTE: This file contains some example datasets that are exported as well as
+# documentation for them. It also contains the code from which certain internal
+# data are generated. For now, these internal data only include the background
+# raster vectors for `grim_plot()`.
 
 # Much of the file is normally outcommented. It is brought to life in order to
 # generate the data, then outcommented again. I do so because that code is not
-# needed otherwise, and some of it would take very long to load.
+# needed otherwise, and some of it would take overly long to load.
 
 
 
@@ -230,7 +230,7 @@
 #   # apart here with an internal helper that goes in steps of 2 in both calls,
 #   # but starts at different points. In this way, `n` captures all values with
 #   # even index numbers, while `frac` captures those with odd index numbers. The
-#   # two calls parcel out the two underlying vectors separately:
+#   # two calls separately parcel out the two underlying vectors:
 #   n    <- parcel_nth_elements(raster, n = 2, from = 2)
 #   frac <- parcel_nth_elements(raster, n = 2, from = 1)
 #
