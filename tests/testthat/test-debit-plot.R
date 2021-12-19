@@ -1,11 +1,9 @@
 
 
-plot <- debit_plot(debit_map(pigs3))
+plot <- pigs3 %>%
+  debit_map() %>%
+  debit_plot()
 
 test_that("`debit_plot()` returns a ggplot object", {
-  expect_true(ggplot2::is.ggplot(plot))
+  plot %>% ggplot2::is.ggplot() %>% expect_true()
 })
-
-# test_that("The plot list has a structure with value `NULL`", {
-#   expect_true(is.null(str(plot)$data))
-# })
