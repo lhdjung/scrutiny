@@ -211,7 +211,7 @@ seq_endpoint_df <- function(.from, .to, ..., .offset_from = 0, .offset_to = 0,
   )
 
   # Capture additional columns via tidy evaluation:
-  further_cols <- rlang::enquos(...)
+  further_cols <- rlang::enexprs(...)
 
   # Create the resulting tibble (data frame), unquoting and splicing the
   # additional columns into it. Then, add a special class to the tibble, but
@@ -238,7 +238,7 @@ seq_distance_df <- function(.from, ..., .length_out = 10, .dir = 1,
   )
 
   # Capture additional arguments via tidy evaluation:
-  further_cols <- rlang::enquos(...)
+  further_cols <- rlang::enexprs(...)
 
   # Create the resulting tibble (data frame), unquoting and splicing the
   # additional columns into it. Then, add a special class to the tibble, but
