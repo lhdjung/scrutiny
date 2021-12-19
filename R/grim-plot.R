@@ -1,298 +1,454 @@
 
 
-# Visualize GRIM test results
-#
-# @description Plot a distribution of summary data and their mutual GRIM
-#   consistency. Call this function only on a data frame that resulted from a
-#   call to `grim_map()`.
-#
-#   The background raster flags every inconsistent value pair in the space
-#   defined by the `decimals` argument, independently of the data. The raster
-#   is only informative for value pairs where the mean/percentage has exactly
-#   that many decimal places.
-#
-#   Consistent and inconsistent value pairs from the input data frame are shown
-#   in distinctive colors. Parameters of the underlying geoms can be controlled
-#   via arguments.
-#
-#   Running this function might take some time.
-#
-# @details The number of tiles in the plot, including both the raster and the
-#   points spared by it, is \eqn{(10 ^ decimals) ^ 2}. So it's 10.000 with the
-#   default `decimals = 2`, and one million with `decimals = 3`. For each
-#   greater `decimals` value (with \eqn{decimals >= 2}), the number of tiles is
-#   100 times the former value!
-#
-#   At sample sizes 40 and 80 and with \eqn{decimals = 2}, the plot displays
-#   bright vertical lines. This pattern generalizes to \eqn{4 * (10 ^ (decimals
-#   - 1))} and \eqn{8 * (10 ^ (decimals - 1))}. The reasons are currently
-#   unknown.
-#
-# @param data Data frame. Result of a call to `grim_map()`.
-# @param decimals Integer. Number of decimal places for which the background
-#   raster will be generated. Default is `2`. *Warning*: Setting `decimals`
-#   even just to `3` will greatly increase processing time.
-# @param n Integer. Maximal value on the x-axis. Default is `NULL`, in which
-#   case `n` becomes `10 ^ decimals` (e.g., `100` if `decimals` is `2`).
-# @param show_raster Boolean. If `TRUE` (the default), the plot has a
-#   background raster.
-# @param color_cons,color_incons Strings. Fill colors of the consistent and
-#   inconsistent scatter points. Defaults are `"royalblue1"` (consistent) and
-#   `"red"` (inconsistent).
-# @param tile_alpha,tile_size Numeric. Further parameters of the scatter
-#   points: opacity and, indirectly, size. Defaults are `1` and `1.5`.
-# @param raster_alpha,raster_color Numeric and string, respectively. Parameters
-#   of the background raster: opacity and fill color. Defaults are `0.5` and
-#   `"gray50"`.
-#
-# @include seq-decimal.R
+#' Visualize GRIM test results
+#'
+#' @description `grim_plot()` visualizes summary data and their mutual GRIM
+#'   consistency. Call this function only on a data frame that resulted from a
+#'   call to `grim_map()`.
+#'
+#'   Consistent and inconsistent value pairs from the input data frame are shown
+#'   in distinctive colors. By default, consistent value pairs are blue and
+#'   inconsistent ones are red. These and other parameters of the underlying
+#'   geoms can be controlled via arguments.
+#'
+#'   The background raster follows the `rounding` argument from the `grim_map()`
+#'   call (unless any of the plotted mean or proportion values has more than 2
+#'   decimal places, in which case a gradient is shown, not a raster).
+#'
+#' @section Background raster: The background raster shows the probability of
+#'   GRIM-inconsistency for random means or proportions, from 0 (all
+#'   inconsistent) to the greatest number on the x-axis (all consistent). If the
+#'   number of decimal places in the inputs -- means or percentages -- is 3 or
+#'   greater, individual points would be too small to display. In these cases,
+#'   there will not be a raster but a gradient, showing the overall trend.
+#'
+#'   As any raster only makes sense with respect to one specific number of
+#'   decimal places, the function will throw an error if these numbers differ
+#'   among input `x` values (and `show_raster` is `TRUE`). You can avoid the
+#'   error and force plotting by specifying `decimals` as the number of decimal
+#'   places for which the raster or gradient should be displayed.
+#'
+#'   For 1 or 2 decimal places, the raster will be specific to the rounding
+#'   procedure. As the raster varies by rounding procedure, it will
+#'   automatically correspond to the `rounding` argument specified in the
+#'   preceding `grim_map()` call. This works fast because the raster is based on
+#'   data saved in the package itself, so these data don't need to be generated
+#'   anew every time the function is called. Inconsistent value sets are marked
+#'   with dark boxes. All other places in the raster denote consistent value
+#'   sets. The raster is independent of the data -- it only follows the
+#'   `rounding` specification in the `grim_map()` call and the `decimals`
+#'   argument in `grim_plot()`.
+#'
+#'   Display an "empty" plot, one without empirical test results, by setting
+#'   `show_data` to `FALSE`. You can then control key parameters of the plot
+#'   with `decimals` and `rounding`.
+#'
+#'   With `grim_map()`'s default for `rounding`, `"up_or_down"`, strikingly few
+#'   values are flagged as inconsistent for sample sizes 40 and 80 (or 4 and 8).
+#'   This effect disappears if `rounding` is set to any other value. For a list
+#'   of values that `rounding` can take, see documentation for `grim()`, section
+#'   `Rounding`.
+#'
+#'   The 4/8 leniency effect arises because accepting values rounded either up
+#'   or down is more careful and conservative than any other rounding procedure.
+#'   In any case, `grim_plot()` doesn't cause this effect --- it only reveals
+#'   it.
+#'
+#' @param data Data frame. Result of a call to `grim_map()`.
+#' @param show_data Boolean. If set to `FALSE`, test results from the data are
+#'   not displayed. Choose this if you only want to show the background raster.
+#'   You can then control plot parameters directly via the `n`, `decimals`, and
+#'   `rounding` arguments. Default is `TRUE`.
+#' @param show_gradient Boolean. If the number of decimal places is 3 or
+#'   greater, should a gradient be shown to signal the overall probability of
+#'   GRIM inconsistency? Default is `TRUE`.
+#' @param decimals Integer. Number of decimal places for which the background
+#'   raster will be generated. Default is `NULL`, in which case the greatest
+#'   number of decimal places from the means or proportions is used.
+#' @param n Integer. Maximal value on the x-axis. Default is `NULL`, in which
+#'   case `n` becomes `10 ^ decimals` (e.g., `100` if `decimals` is `2`).
+#' @param decimals Integer. Only relevant if `show_data` is set to `FALSE`.
+#'   Default is `2`.
+#' @param rounding String. Only relevant if `show_data` is set to `FALSE`.
+#'   Default is `"up_or_down"`.
+#' @param show_raster Boolean. If `TRUE` (the default), the plot has a
+#'   background raster.
+#' @param color_cons,color_incons Strings. Fill colors of the consistent and
+#'   inconsistent scatter points. Defaults are `"royalblue1"` (consistent) and
+#'   `"red"` (inconsistent).
+#' @param tile_alpha,tile_size Numeric. Further parameters of the scatter
+#'   points: opacity and, indirectly, size. Defaults are `1` and `1.5`.
+#' @param raster_alpha,raster_color Numeric and string, respectively. Parameters
+#'   of the background raster: opacity and fill color. Defaults are `1` and
+#'   `"grey75"`.
+#'
+#' @include utils.R seq-decimal.R
+#'
+#' @export
+#'
+#' @examples
+#' # Call `grim_plot()` following `grim_map()`:
+#' pigs1 %>%
+#'   grim_map() %>%
+#'   grim_plot()
+#'
+#' # If you change the rounding procedure
+#' # in `grim_map()`, the plot will
+#' # follow automatically:
+#' pigs1 %>%
+#'   grim_map(rounding = "up") %>%
+#'   grim_plot()
+#'
+#' # For percentages, the y-axis
+#' # label also changes automatically:
+#' pigs2 %>%
+#'   grim_map(percent = TRUE) %>%
+#'   grim_plot()
 
-
-
-#grim_plot <- function(data,
-#                      show_raster = TRUE,
-#                      show_full_range = FALSE,
-#                      n = NULL,
-#                      decimals = 2,
-#                      color_cons = "royalblue1",
-#                      color_incons = "red",
-#                      tile_alpha = 1,
-#                      tile_size = 1.5,
-#                      raster_alpha = 0.5,
-#                      raster_color = "gray50",
-#                      raster_blur = 5) {
-#
-#
-#  # Checks ---
-#
-#  if (!inherits(data, "scr_grim_map")) {
-#    cli::cli_abort(c(
-#      "`data` is not `grim_map()` output",
-#      "x" = "´grim_plot()` only works with GRIM test results."
-#    ))
-#  }
-#
-#  if (!inherits(data, "scr_adjust_x_out_1")) {
-#    cli::cli_abort(c(
-#      "`grim_plot()` needs `grim_map(adjust_x_out = 1)`.",
-#      ">" = "Set `adjust_x_out` to `1` in your `grim_map()` call."
-#    ))
-#  }
-#
-#
-#  # Preparations ---
-#
-#  p10 <- 10 ^ decimals
-#
-#  if (is.null(n)) {
-#    n <- p10
-#  }
-#
-#  frac_unit <- 1 / p10
-#
-#  frac_sequence <- seq_endpoint(from = frac_unit, to = (1 - frac_unit))
-#  n_sequence <- 1:n
-#
-#  raster_df <- tibble::tibble(x = max(n_sequence), y = max(frac_sequence))
-#
-#
-#  # By default, a background raster is displayed in the plot:
-#  if (show_raster == TRUE) {
-#
-#    # How the raster vector for two decimal places was originally created...
-#    # r <- purrr::cross2(frac_sequence, n_sequence, .filter = grim)
-#    # r <- unlist(r)
-#
-#    # ... and how it's used now that it has been stored in scrutiny's
-#    # sysdata.rda file (via `usethis::use_data()` with `internal = TRUE`), and
-#    # therefore been made available (only) within the package:
-#    r <- grim_plot_raster_data_2
-#
-#    # In the raster vector, the fractional and sample size values alternate, so
-#    # we tease them apart here:
-#    raster_frac <- r[seq(from = 1, to = length(r), by = 2)]
-#    raster_n    <- r[seq(from = 2, to = length(r), by = 2)]
-#
-#    # This data frame will be used for the raster when building the plot:
-#    df_plot <- tibble::tibble(
-#      raster_n = as.numeric(raster_n),
-#      raster_frac = as.numeric(raster_frac)
-#    )
-#
-#  }
-#
-#
-#  data$x <- as.numeric(data$x)
-#
-#  data_emp <- data %>%
-#    dplyr::mutate(x = x - trunc(x)) %>%
-#    dplyr::rename(frac = x)
-#
-#  if (is.null(n)) {
-#    n <- max(data$n) + 10
-#  }
-#
-#  mean_percent_label <- dplyr::if_else(
-#    inherits(data, "scr_percent_true"),
-#    "percentage",
-#    "mean"
-#  )
-#
-#  color_by_consistency <- dplyr::if_else(
-#    data$consistency == TRUE,
-#    color_cons,
-#    color_incons
-#  )
-#
-#
-#  # The plot itself ---
-#
-#  # Empirical data:
-#  p <- ggplot2::ggplot(data = data_emp, ggplot2::aes(
-#    x = n,
-#    y = frac
-#  )) +
-#    ggplot2::geom_tile(
-#      alpha = tile_alpha,
-#      size = 1,
-#      color = color_by_consistency,
-#      fill = color_by_consistency,
-#      width = tile_size / 2,
-#      height = (frac_unit * tile_size) / 2
-#    )
-#
-#
-#  # Background raster (optional, default is `TRUE`):
-#    if (show_raster == TRUE) {
-#
-#      # With 1 or 2 decimals, the function has a raster at the ready...
-#      if (decimals < 3) {
-#        p <- p +
-#          ggplot2::geom_tile(data = df_plot, ggplot2::aes(
-#            x = raster_n,
-#            y = raster_frac
-#          ), alpha = raster_alpha, fill = raster_color)
-#      } else {
-#
-#        # x_ratio <- raster_n / as.numeric(data_emp$n)
-#        #
-#        # df_plot <- dplyr::mutate(df_plot,
-#        #   raster_n = raster_n * x_ratio,
-#        #   raster_frac = raster_frac * x_ratio
-#        # )
-#
-#        # ...but with 3 or more decimals, it needs to blur the 2-decimals raster
-#        # to give some idea of the probability of inconsistency:
-#        p <- p +
-#          ggfx::with_blur(
-#            ggplot2::geom_tile(data = df_plot, ggplot2::aes(
-#              x = raster_n,
-#              y = raster_frac
-#            ), alpha = raster_alpha, fill = raster_color),
-#            sigma = raster_blur, stack = FALSE)
-#      }
-#
-#      # Further specifications that only make sense with a raster:
-#      p <- p +
-#        ggplot2::theme(
-#          panel.grid = ggplot2::element_blank()
-#        ) +
-#        ggplot2::scale_y_continuous(
-#          breaks = seq(0, 1, max(0.1, frac_unit)),
-#          expand = ggplot2::expansion(mult = c(0.01, 0.01))
-#        )
-#
-#      if (show_full_range == FALSE) {
-#        p <- p +
-#          ggplot2::scale_x_continuous(
-#            breaks = seq(0, n, (n / 10)),
-#            expand = ggplot2::expansion(mult = c(0, 0.01)),
-#            limits = c(0, n)
-#        )
-#      } else {
-#        p <- p +
-#          ggplot2::scale_x_continuous(
-#            breaks = seq(0, n, (n / 10)),
-#            expand = ggplot2::expansion(mult = c(0, 0.01))
-#        )
-#      }
-#    }
-#
-##  p <- p +
-##    ggplot2::geom_rect(data = raster_df, ggplot2::aes(
-##      xmin = 0, xmax = x,
-##      ymin = 0, ymax = as.numeric(y)
-##      # fill = "red",   # Try to change this into a continuum
-##    ), fill = "blue", inherit.aes = FALSE)
-#
-#  # Final touches, then return plot:
-#  p +
-#    ggplot2::labs(
-#      x = "Sample size",
-#      y = glue::glue("Fractional portion of {mean_percent_label}")
-#    )
-#
-#}
-#
-#
-#
-#
-## New, for the raster if `decimals` is >= 3 -------------------------------
-#
-## From:
-## https://stackoverflow.com/questions/53397131/gradient-fill-in-ggplot2/53397832
-#
-#
-#n <- 1000
-#val <- seq(0, 0.5, length.out = n)
-#df22 <- tibble::tibble(val, n)
-#
-#
-#  # p +
-#    ggplot2::ggplot(data = df22, ggplot2::aes(x = n, y = val)) +
-#    ggplot2::geom_ribbon(data = df22, ggplot2::aes(
-#      x = n,
-#      y = val,
-#      ymax = val, ymin = 0,
-#      xmax = n, xmin = 0
-#    )) +
-#    ggplot2::geom_col(data = df22, ggplot2::aes(x = n, y = val, fill = val),
-#                      inherit.aes = FALSE) +
-#    ggplot2::scale_fill_gradient(low = "black", high = "white") +
-#    ggplot2::coord_flip() +
-#    ggplot2::theme(legend.position = "none")
+# # Change `decimals` to
+# pigs1 %>%
+#   grim_map() %>%
+#   grim_plot(decimals = 3)
 
 
 
 
+grim_plot <- function(data = NULL,
+                      show_data = TRUE,
+                      show_raster = TRUE,
+                      show_gradient = TRUE,
+                      n = NULL,
+                      decimals = NULL,
+                      rounding = "up_or_down",
+                      color_cons = "royalblue1",
+                      color_incons = "red",
+                      tile_alpha = 1,
+                      tile_size = 1.5,
+                      raster_alpha = 1,
+                      raster_color = "grey75") {
 
 
-# Formerly ----------------------------------------------------------------
+  # Checks ----
 
-# This is unreasonable:
+  if (!inherits(data, "scr_grim_map")) {
+    if (show_data) {
+      cli::cli_abort(c(
+        "`data` is not `grim_map()` output",
+        "x" = "`grim_plot()` needs GRIM test results.",
+        "i" = "The only exception is an \"empty\" plot that shows the \\
+        background raster but no empirical test results. Create such a plot \\
+        by setting `show_data` to `FALSE`."
+      ))
+    }
+  }
 
-# ggplot2::ggsave("grim_plot_wansink_n1000_decimals3.png",
-#                 width = 13 * 100, height = 9 * 100, units = "mm",
-#                 limitsize = FALSE)
+  if (!is.null(decimals)) {
+    if (!length(decimals) == 1) {
+      cli::cli_abort(c(
+        "`decimals` has length {length(decimals)}",
+        "x" = "It needs to have length 1."
+      ))
+    }
+    if (!is_whole_number(decimals)) {
+      cli::cli_abort(
+        "`decimals` must be a whole number."
+      )
+    }
+  }
+
+
+  # Transformations ----
+
+  # In case the user set `show_data` to `FALSE`, a plot without empirical test
+  # results (blue and/or red dots) will be shown. To this end, the function
+  # needs to completely bypass the `data` argument. It does so via creating a
+  # dummy object by that name:
+  if (!show_data) {
+    data <- tibble::tibble(x = "0.00", n = 1, items = 1, consistency = TRUE) %>%
+      add_class(paste0("scr_rounding_", rounding))
+  }
+
+
+  if (is.null(decimals)) {
+    decimals_x <- decimal_places(data$x)    # used to be wrapped in `max()`
+
+    if (show_raster) {
+      if (!all(decimals_x[1] == decimals_x)) {
+        means_percentages <- dplyr::if_else(
+          inherits(data, "scr_percent_true"),
+          "Percentages",
+          "Means"
+        )
+        dp_unique <- unique(decimals_x)
+        if (length(dp_unique) <= 3) {
+          dp_unique_presented <- sort(dp_unique)
+          msg_starting_with <- ":"
+        } else {
+          dp_unique_presented <- sort(dp_unique)[1:3]
+          msg_starting_with <- ", starting with"
+        }
+
+        cli::cli_abort(c(
+          "{means_percentages} have different numbers of decimal places",
+          "x" = "There are {length(dp_unique)} unique numbers of decimal \\
+          places in `x`{msg_starting_with} {dp_unique_presented}.",
+          "!" = "The background raster is only informative if the number of \\
+          decimal places is consistent across the \\
+          {tolower(means_percentages)}.",
+          ">" = "Avoid this error by plotting {tolower(means_percentages)} \\
+          separately for each number of decimal places. (Alternatively, you \\
+          can specify `decimals` as the number of decimal places for which \\
+          the plot should be shown. Be aware that this will not be sensible \\
+          with regard to all {tolower(means_percentages)}.)"
+        ))
+      }
+    }
+
+    # The call will only pass the above test if all `x` values have the same
+    # number of decimal places. Therefore, `decimals` can now be determined
+    # simply by taking the first element; or indeed any other element there
+    # might be:
+    decimals <- decimals_x[1]
+
+  }
+
+  data <- data %>%
+    dplyr::mutate(x = (as.numeric(x) * items))
+
+
+  # Preparations ----
+
+  p10 <- 10 ^ decimals
+
+  if (is.null(n)) {
+    n <- p10
+  }
+
+  frac_unit <- 1 / p10
+
+  frac_sequence <- seq_endpoint(from = frac_unit, to = (1 - frac_unit))
+  n_sequence <- 1:n
+
+
+  # By default, a background raster is displayed in the plot:
+  if (show_raster) {
+
+    # For 1 or 2 decimal places, the function selects the appropriate raster
+    # from among those saved within the package itself:
+    if (!(decimals > 2)) {
+
+      # Check the way `x` values were rounded in the preceding `grim_map()` call
+      # to prepare selecting the plot background raster:
+      dc <- class(data)
+      rounding_id <- dc[stringr::str_detect(dc, "scr_rounding_")]
+      rounding_id <- stringr::str_remove(rounding_id, "scr_rounding_")
+
+      # Throw error if the specified rounding option is one of the few for which
+      # no raster is available:
+      rounding_is_bad <- any(
+        rounding_id == c("up_from", "down_from", "up_from_or_down_from")
+      )
+      if (rounding_is_bad) {
+        cli::cli_abort(c(
+          "No background raster available for `rounding = {rounding_id}`",
+          "!" = "Please use a different `rounding` specification within the \\
+          `grim_map()` call or set `show_raster` to `FALSE` within the \\
+          `grim_plot()` call."
+        ))
+      }
+
+      # Assemble the names of the appropriate raster components for sample size
+      # (`raster_n`; x-axis) and the fractional portion of the mean or
+      # proportion (`raster_frac`, y-axis) from the information provided by the
+      # number of decimal places and the previously specified rounding
+      # procedure. First, create two strings by those names...
+      raster_n    <- glue::glue("grim_raster_{decimals}_{rounding_id}_n")
+      raster_frac <- glue::glue("grim_raster_{decimals}_{rounding_id}_frac")
+
+      # ...and second, parse and evaluate these strings, so that R will identify
+      # the raster component object by the respective name from among the files
+      # saved within R/sysdata.R:
+      raster_n    <- eval(rlang::parse_expr(raster_n))
+      raster_frac <- eval(rlang::parse_expr(raster_frac))
+
+    } else {
+
+      # For any number of decimal places greater than 2, these two objects are
+      # assigned the value of zero. This is only pro forma. We still need
+      # `raster_n` and `raster_frac` because they are referenced several times
+      # further down to build the plot:
+      raster_n    <- 0
+      raster_frac <- 0
+
+    }
+
+    # This data frame will be used for the raster when building the plot:
+    df_plot <- tibble::tibble(
+      raster_n = as.numeric(raster_n),
+      raster_frac = as.numeric(raster_frac)
+    )
+
+  }
+
+  # Reduce `x` to its fractional portion:
+  data_emp <- data %>%
+    dplyr::mutate(x = x - trunc(x)) %>%
+    dplyr::rename(frac = x)
+
+  if (!show_data) {
+    data_emp <- data_emp %>%
+      dplyr::mutate(dplyr::across(everything(), set_to_0))
+  }
+
+  # If `percent = TRUE` in the underlying `grim_map()` call, the y-axis label is
+  # automatically adjusted to reflect the fact that the fractional values are
+  # percentages (converted to decimal numbers), not means:
+  mean_percent_label <- dplyr::if_else(
+    inherits(data, "scr_percent_true"),
+    "% (as decimal)",
+    "mean"
+  )
+
+  # Automatically color the boxes of value pairs by whether they are
+  # GRIM-consistent or not:
+  color_by_consistency <- dplyr::if_else(
+    data$consistency,
+    color_cons,
+    color_incons
+  )
+
+
+  # The plot itself ----
+
+    # p <- ggplot2::ggplot(data = data_emp, ggplot2::aes(
+    #     x = n,
+    #     y = frac
+    #   ))
+
+
+  # Background raster / gradient:
+  if (show_raster) {
+
+    # With 1 or 2 decimals, the function provides a background raster...
+    # if (!(decimals > 2)) {
+
+      p <- ggplot2::ggplot(data = df_plot) +
+        ggplot2::geom_tile(mapping = ggplot2::aes(
+          x = raster_n,
+          y = raster_frac
+        ), alpha = raster_alpha, fill = raster_color) +
+        ggplot2::theme(
+          panel.border = ggplot2::element_rect(fill = NA, colour = "grey50"),
+          panel.background = ggplot2::element_rect(fill = "white", colour = NA),
+          panel.grid = ggplot2::element_blank()
+        )
+
+
+      # ... but with more decimal places, individual boxes would be too small to
+      # display, so we need a gradient instead to simply show the overall trend.
+      # Boxes are still added pro forma; the call to `geom_tile()` is the same
+      # as above (except for the `alpha` and `fill` specifications) because it
+      # will simply take th
+
+      if (decimals > 2) {
+
+        if (show_gradient) {
+
+          gradient <-
+            grDevices::colorRampPalette(c(raster_color, "white"))(10000)
+
+          p <- p +
+            ggplot2::geom_tile(data = df_plot, mapping = ggplot2::aes(
+              x = raster_n,
+              y = raster_frac
+            )) +
+            ggplot2::annotation_custom(grid::rasterGrob(
+              t(gradient),
+              width  = grid::unit(1, "npc"),
+              height = grid::unit(1, "npc")
+            ))
+
+        }
+
+        # Keep the y-axis ranging from 0 to 1, even with the gradient in place:
+        p <- p +
+          ggplot2::scale_y_continuous(
+            expand = ggplot2::expansion(add = c(0, 0.01)),
+            limits = c(0, 1)
+          )
+
+      }
+
+  }
+
+
+  if (show_data) {
+
+    # Empirical data:
+    p <- p +
+      ggplot2::geom_tile(
+        data = data_emp,
+        mapping = ggplot2::aes(
+          x = n,
+          y = frac
+        ),
+        alpha = tile_alpha,
+        size = 1,
+        color = color_by_consistency,
+        fill = color_by_consistency,
+        width = tile_size / 2,
+        height = (frac_unit * tile_size) / 2
+      )
+
+  }
+
+
+  if (!(decimals > 2)) {
+
+    # Further specifications:
+    p <- p +
+      ggplot2::theme(
+        panel.grid = ggplot2::element_blank()
+      ) +
+      ggplot2::scale_y_continuous(
+        breaks = seq(from = 0, to = 1, by = max(0.2, frac_unit)),
+        expand = ggplot2::expansion(add = c(0.01, 0)),
+        limits = c(0, 1)
+      )
+
+    # Make the exact x-axis scale specification dependent on whether the plot
+    # will (by default) show a raster...
+    p <- p +
+      ggplot2::scale_x_continuous(
+        breaks = seq(from = 0, to = n, by = (n / 5)),
+        expand = ggplot2::expansion(mult = c(0, 0.01))
+      )
+
+
+  } else {
+
+    # ...or a gradient, in which case we need the x-axis needs to be forced to
+    # run from 0 to 1 using `limits = c(0, n)`, which is omitted above to remove
+    # the space between the raster and the y-axis:
+    p <- p +
+      ggplot2::scale_x_continuous(
+        breaks = seq(from = 0, to = n, by = (n / 5)),
+        expand = ggplot2::expansion(mult = c(0, 0.01)),
+        limits = c(0, n)
+      )
+
+  }
 
 
 
+  # Finally, return the plot with axis labels:
+  p +
+    ggplot2::labs(
+    x = "Sample size",
+    y = glue::glue("Fractional portion of {mean_percent_label}")
+  )
 
-# For teasing out the two white lines:
 
-# ggplot2::geom_hline(yintercept = seq(0.005, 1, 0.02), color = "royalblue1") +
-# ggplot2::geom_vline(xintercept = c(40, 80), color = "red") +
+}
 
-# t30 <- seq_distance_df(0.01, n = 30, .length_out = 100) %>%
-#   grim_map()
-#
-# t40 <- seq_distance_df(0.01, n = 40, .length_out = 100) %>%
-#   grim_map()
-#
-# t50 <- seq_distance_df(0.01, n = 50, .length_out = 100) %>%
-#   grim_map()
-#
-# tdf <- tibble::tibble(t30 = t30$consistency,
-#                       t40 = t40$consistency,
-#                       t50 = t50$consistency)
 
