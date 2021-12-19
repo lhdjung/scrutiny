@@ -11,33 +11,33 @@ audit.scr_grim_map <- function(data) {
   incons_cases <- data %>%
     dplyr::filter(.data$consistency == FALSE) %>%
     dplyr::count() %>%
-    purrr::as_vector()
+    as.numeric()
 
   # 2. the total number of cases:
   all_cases <- data %>%
     dplyr::count() %>%
-    purrr::as_vector()
+    as.numeric()
 
   # 3. the proportion of GRIM-inconsistent cases:
-  incons_rate <- incons_cases / all_cases
+  incons_rate <- as.numeric(incons_cases / all_cases)
 
   # 4. the average of GRIM ratios:
   mean_grim_ratio <- data %>%
     dplyr::summarise(mean_grim_ratio = mean(.data$ratio)) %>%
-    purrr::as_vector()
+    as.numeric()
 
   # 5. the ratio of the proportion of GRIM-inconsistent cases to the average of
   # GRIM ratios:
-  incons_to_ratio <- incons_rate / mean_grim_ratio
+  incons_to_ratio <- as.numeric(incons_rate / mean_grim_ratio)
 
   # 6. the number of GRIM-testable cases:
   testable_cases <- data %>%
     dplyr::filter(.data$ratio > 0) %>%
     dplyr::count() %>%
-    purrr::as_vector()
+    as.numeric()
 
   # 7. the proportion of GRIM-testable cases:
-  testable_rate <- testable_cases / all_cases
+  testable_rate <- as.numeric(testable_cases / all_cases)
 
 
   # Finally, collect all of these values in a resulting tibble --
@@ -48,6 +48,7 @@ audit.scr_grim_map <- function(data) {
                  incons_to_ratio, testable_cases, testable_rate)
 
 }
+
 
 
 # Alternative output tibble:
