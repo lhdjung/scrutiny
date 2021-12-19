@@ -1,6 +1,5 @@
 
-# Helper function used in the main function `reround()` via a vectorized version
-# right below:
+# Helper function used in the main function `reround()`:
 reconstruct_rounded_numbers <- function(rec, rounding, decimals,
                                                threshold, symmetric) {
 
@@ -48,9 +47,6 @@ reconstruct_rounded_numbers <- function(rec, rounding, decimals,
     ))
   }
 }
-
-# The vectorized version:
-# reconstruct_rounded_numbers <- Vectorize(reconstruct_rounded_numbers_scalar)
 
 
 
