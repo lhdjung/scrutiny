@@ -46,7 +46,7 @@ Collate:
     'restore-zeros.R'
     'seq-decimal.R'
     'grim.R'
-    'data-gen.R'
+    'data-doc.R'
     'debit-plot.R'
     'duplicate-count.R'
     'grim-base.R'
@@ -54,6 +54,7 @@ Collate:
     'split-transform.R'
     'manage-extra-cols.R'
     'grim-map.R'
+    'grim-plot-new.R'
     'grim-plot.R'
     'grimmer.R'
     'method-debit-map.R'
@@ -73,7 +74,6 @@ Collate:
 Suggests: 
     ellipsis,
     roxygen2,
-    ggforce,
     ggplot2,
     ggrepel,
     janitor,
