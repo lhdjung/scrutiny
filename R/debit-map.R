@@ -103,12 +103,6 @@ debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
   # standard deviations range from 0 to 1:
   check_debit_inputs(data$x, data$sd)
 
-  # In case the input data frame resulted from splitting strings by parentheses
-  # using `split_by_parens()`, put it into proper shape:
-  if (inherits(data, "scr_split_by_parens")) {
-    data <- transform_split_parens_object(data)
-  }
-
   # Create `other_cols`, which contains any and all extra columns from `data`
   # (i.e., those which play no role in DEBIT):
   if (ncol(data) > 3) {

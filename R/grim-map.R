@@ -132,12 +132,6 @@ grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
     ))
   }
 
-  # In case the input data frame resulted from splitting strings by parentheses
-  # using `split_by_parens()`, put it into proper shape:
-  if (inherits(data, "scr_split_by_parens")) {
-    data <- transform_split_parens_object(data)
-  }
-
   # Defuse the argument specifications that can be used to assign the roles of
   # `x` and `n` to specific columns in case these columns don't already have
   # those names:
