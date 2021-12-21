@@ -48,18 +48,12 @@ reconstruct_sd <- Vectorize(reconstruct_sd_scalar, USE.NAMES = FALSE)
 
 # Used in unit testing:
 integer_places <- function(x) {
-  x <- stringr::str_split_fixed(stringr::str_trim(x), "\\.", n = 2)[, 1]
-  stringr::str_length(x)
+  x %>%
+    stringr::str_trim() %>%
+    stringr::str_split_fixed("\\.", n = 2) %>%
+    .[, 1] %>%
+    stringr::str_length()
 }
-
-
-
-# # Unclear if this one is ever needed:
-# mantissa_only_has_digits <- function(x, sep = "\\.") {
-#   x <- stringr::str_remove(x[!is.na(x)], sep)
-#
-#   !stringr::str_detect(x, "[^[:digit:]]")
-# }
 
 
 
