@@ -23,25 +23,26 @@ test_that("A tibble is returned", {
 
 
 
-test_that("It has the correct rounding class", {
+test_that("It has the correct function-general class", {
   expect_true(inherits(df1_grim, "scr_grim_map"))
+})
 
-  expect_true(inherits(df1_grim_up_or_down,       "scr_rounding_up_or_down"))
-  expect_true(inherits(df1_grim_up,               "scr_rounding_up"))
-  expect_true(inherits(df1_grim_down,             "scr_rounding_down"))
-  expect_true(inherits(df1_grim_ceiling_or_floor, "scr_rounding_ceiling_or_floor"))
-  expect_true(inherits(df1_grim_ceiling,          "scr_rounding_ceiling"))
-  expect_true(inherits(df1_grim_floor,            "scr_rounding_floor"))
-  expect_true(inherits(df1_grim_trunc,            "scr_rounding_trunc"))
-  expect_true(inherits(df1_grim_anti_trunc,       "scr_rounding_anti_trunc"))
+test_that("It has the correct rounding-specific class", {
+  expect_true( inherits( df1_grim_up_or_down,       "scr_rounding_up_or_down"))
+  expect_true( inherits( df1_grim_up,               "scr_rounding_up"))
+  expect_true( inherits( df1_grim_down,             "scr_rounding_down"))
+  expect_true( inherits( df1_grim_ceiling_or_floor, "scr_rounding_ceiling_or_floor"))
+  expect_true( inherits( df1_grim_ceiling,          "scr_rounding_ceiling"))
+  expect_true( inherits( df1_grim_floor,            "scr_rounding_floor"))
+  expect_true( inherits( df1_grim_trunc,            "scr_rounding_trunc"))
+  expect_true( inherits( df1_grim_anti_trunc,       "scr_rounding_anti_trunc"))
 })
 
 
-consistency_expected <- c(TRUE, FALSE, FALSE, FALSE, FALSE, TRUE,
-                          FALSE, TRUE, FALSE, FALSE, TRUE, FALSE)
+consistency_expected <- c(T, F, F, F, F, T, F, T, F, F, T, F)
 
 test_that("`consistency` has the correct values", {
-  expect_true(all(df1_grim$consistency == consistency_expected))
+  df1_grim$consistency %>% expect_equal(consistency_expected)
 })
 
 
@@ -52,11 +53,11 @@ df2 <- df1 %>%
 df2_grim <- grim_map(df2, show_prob = TRUE)
 
 test_that("`prob` is zero if `ratio` is negative", {
-  expect_true(all(df2_grim$prob == 0))
+  (df2_grim$prob == 0) %>% all() %>% expect_true()
 })
 
 test_that("`prob` is greater than `ratio` if `ratio` is negative", {
-  expect_true(all(df2_grim$prob > df2_grim$ratio))
+  (df2_grim$prob > df2_grim$ratio) %>% all() %>% expect_true()
 })
 
 
@@ -75,9 +76,13 @@ df3_percent_true <- grim_map(df3, percent = TRUE, show_rec = TRUE) %>%
   suppressMessages()
 df3_percent_false <- grim_map(df3, show_rec = TRUE)
 
-test_that(glue::glue("The GRIM ratio is always greater with `percent = TRUE` \\
-          than without it"), {
-  expect_true(all(df3_percent_true$ratio > df3_percent_false$ratio))
+all_percent_ratios_greater <-
+  (df3_percent_true$ratio > df3_percent_false$ratio) %>%
+  all()
+
+test_that(
+  "The GRIM ratio is always greater with `percent = TRUE` than without it", {
+    all_percent_ratios_greater %>% expect_true()
 })
 
 
@@ -89,11 +94,15 @@ df3_true_accord <- df3_percent_true %>%
       FALSE
     ))
 
+accord <- (df3_true_accord$consistency == df3_true_accord$accord) %>%
+  all()
 
-test_that(
-  glue::glue("The stated consistency accords with what can be reconstructed \\
-             from the numbers presented"), {
-  expect_true(all(df3_true_accord$consistency == df3_true_accord$accord))
+
+test_that(glue::glue(
+  "The stated consistency accords with what can be reconstructed \\
+  from the numbers presented"
+), {
+  accord %>% expect_true()
 })
 
 

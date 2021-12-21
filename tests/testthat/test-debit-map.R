@@ -7,7 +7,6 @@ test_that("`debit_map()` tests data frames for DEBIT consistency", {
 })
 
 
-
 test_that("Types are what they should be", {
 data$x             %>% is.character() %>% expect_true()
 data$sd            %>% is.character() %>% expect_true()
@@ -23,10 +22,9 @@ data$x_upper       %>% is.double() %>% expect_true()
 })
 
 
-
 test_that("`show_rec` controls the number of columns", {
-  expect_equal(ncol(debit_map(pigs3, show_rec = TRUE)), 11)
-  expect_equal(ncol(debit_map(pigs3, show_rec = FALSE)), 4)
+  debit_map(pigs3, show_rec = TRUE ) %>% ncol() %>% expect_equal(11)
+  debit_map(pigs3, show_rec = FALSE) %>% ncol() %>% expect_equal(4)
 })
 
 

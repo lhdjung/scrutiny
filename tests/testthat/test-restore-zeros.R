@@ -10,9 +10,10 @@ numbers <- rnorm(50, 100, 30) %>%
 
 
 test_that("The number of decimal places checks out", {
-  expect_true(all(decimal_places(numbers) == 4))
+  (decimal_places(numbers) == 4) %>% all() %>% expect_true()
 })
 
+
 test_that("The total number of characters checks out", {
-  expect_true(all(stringr::str_length(numbers) - 5 == integer_places(numbers)))
+  (stringr::str_length(numbers) - 5) %>% expect_equal(integer_places(numbers))
 })

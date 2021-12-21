@@ -19,9 +19,9 @@ test_that("Substrings are extracted from the expected positions", {
 
 
 test_that("Parentheses are removed", {
-   expect_false(any(stringr::str_detect(before_parens(x), "\\(")))
-   expect_false(any(stringr::str_detect(inside_parens(x), "\\(")))
-   expect_false(any(stringr::str_detect(before_parens(x), "\\)")))
-   expect_false(any(stringr::str_detect(inside_parens(x), "\\)")))
+   before_parens(x) %>% stringr::str_detect("\\(") %>% any() %>% expect_false()
+   inside_parens(x) %>% stringr::str_detect("\\(") %>% any() %>% expect_false()
+   before_parens(x) %>% stringr::str_detect("\\)") %>% any() %>% expect_false()
+   inside_parens(x) %>% stringr::str_detect("\\)") %>% any() %>% expect_false()
 })
 
