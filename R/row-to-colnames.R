@@ -28,12 +28,11 @@
 #' @include utils.R
 #'
 #' @seealso `dplyr::slice()`, which the function wraps; and
-#'   `unheadr::mash_colnames()`, a more sophisticated solution to the same
-#'   problem.
+#'   \href{https://unheadr.liomys.mx/reference/mash_colnames.html}{`unheadr::mash_colnames()`},
+#'   a more sophisticated solution to the same problem.
 #'
 #' @return A data frame.
 #' @export
-#'
 
 # @examples
 
