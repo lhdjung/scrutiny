@@ -110,7 +110,8 @@ reround <- function(rec = NULL, decimals = NULL, rounding = "up_or_down",
   # Checks --
 
   # Throw an error if the lengths of the first two arguments are inconsistent:
-  if (length(rec) > 1 && length(rounding) > 1 &&
+  if (length(rec) > 1 &&
+      length(rounding) > 1 &&
       length(rec) != length(rounding)) {
     cli::cli_abort(c(
       "Lengths of `rec` and `rounding` not congruent",
