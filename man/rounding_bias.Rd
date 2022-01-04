@@ -6,7 +6,7 @@
 \usage{
 rounding_bias(
   x,
-  decimals,
+  digits,
   rounding = "up",
   threshold = 5,
   symmetric = FALSE,
@@ -16,9 +16,6 @@ rounding_bias(
 \arguments{
 \item{x}{Numeric or string coercible to numeric.}
 
-\item{decimals}{Integer. Number of decimal digits to which \code{x} will be
-rounded.}
-
 \item{rounding}{String. Rounding procedure that will be applied to \code{x}. See
 documentation for \code{grim()}, section \code{Rounding}. Default is \code{"up"}.}
 
@@ -27,6 +24,9 @@ documentation for \code{grim()}, section \code{Rounding}. Default is \code{"up"}
 \item{mean}{Boolean. If \code{TRUE} (the default), the mean total of bias will be
 returned. Set \code{mean} to \code{FALSE} to get a vector of individual biases the
 length of \code{x}.}
+
+\item{decimals}{Integer. Number of decimal digits to which \code{x} will be
+rounded.}
 }
 \value{
 Numeric. By default of \code{mean}, the length is 1; otherwise, it is the

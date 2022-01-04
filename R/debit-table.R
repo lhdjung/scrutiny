@@ -76,14 +76,14 @@ debit_table <- function(x, sd, n, group_0 = NA, group_1 = NA,
 
   # Count decimal places of the standard deviation (SD) and the distribution
   # mean, both as reported:
-  decimals_x  <- decimal_places(x)
-  decimals_sd <- decimal_places(sd)
+  digits_x  <- decimal_places(x)
+  digits_sd <- decimal_places(sd)
 
-  #  if (n < 10 ^ (decimals_sd + 1)) {
+  #  if (n < 10 ^ (digits_sd + 1)) {
   #    rlang::abort("The reported sample size is too small for an SD with so many decimal places.")
   #  }
   #
-  #  if (n < 10 ^ (decimals_x + 1)) {
+  #  if (n < 10 ^ (digits_x + 1)) {
   #    rlang::abort("The reported sample size is too small for a mean with so many decimal places.")
   #  }
 
@@ -98,9 +98,9 @@ debit_table <- function(x, sd, n, group_0 = NA, group_1 = NA,
   # Recover lower and upper bounds for the original SD and mean values, going by
   # the reported value each...
   sd_unrounded <- suppressMessages(unround(sd_chr, rounding = rounding,
-                                           decimals = decimals_sd))
+                                           decimals = digits_sd))
   x_unrounded  <- suppressMessages(unround(x_chr, rounding = rounding,
-                                           decimals = decimals_x))
+                                           decimals = digits_x))
 
   # ...and define values out of the tibble resulting from that call:
   sd_upper <- sd_unrounded$upper
@@ -125,16 +125,16 @@ debit_table <- function(x, sd, n, group_0 = NA, group_1 = NA,
   # `rounding` is to allow both up and down from 5, in which case `threshold` is
   # irrelevant; default for `symmetric` is FALSE):
   sd_rec_lower <- reround(
-    rec = sd_rec_lower,
-    decimals = decimals_sd,
+    x = sd_rec_lower,
+    digits = digits_sd,
     rounding = rounding,
     threshold = threshold,
     symmetric = symmetric
   )
 
   sd_rec_upper <- reround(
-    rec = sd_rec_upper,
-    decimals = decimals_sd,
+    x = sd_rec_upper,
+    digits = digits_sd,
     rounding = rounding,
     threshold = threshold,
     symmetric = symmetric

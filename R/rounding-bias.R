@@ -46,7 +46,7 @@
 #' rounding_bias(x = vec, decimals = 1, rounding = "even")
 
 
-rounding_bias <- function(x, decimals, rounding = "up", threshold = 5,
+rounding_bias <- function(x, digits, rounding = "up", threshold = 5,
                           symmetric = FALSE, mean = TRUE) {
 
   # Checks ---
@@ -62,7 +62,7 @@ rounding_bias <- function(x, decimals, rounding = "up", threshold = 5,
 
   # Main part ---
 
-  bias <- reround(x, decimals, rounding, threshold, symmetric) - x
+  bias <- reround(x, digits, rounding, threshold, symmetric) - x
 
   if (mean) {
     mean(bias)
@@ -85,7 +85,7 @@ rounding_bias <- function(x, decimals, rounding = "up", threshold = 5,
 # # These are all `TRUE`, so `x` can be reconstructed from first rounding it in
 # # the specified way, then subtracting the bias:
 # dplyr::near(
-#   (reround(x, decimals, rounding, threshold) - rounding_bias(x, 1)), x
+#   (reround(x, digits, rounding, threshold) - rounding_bias(x, 1)), x
 # )
 
 

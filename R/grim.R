@@ -26,13 +26,13 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
 
   # Define key values from arguments:
   x_num <- as.numeric(x)
-  decimals <- decimal_places_scalar(x)
+  digits <- decimal_places_scalar(x)
 
   # The `percent` argument allows for easy conversion of percentages to decimal
   # numbers:
   if (percent) {
     x_num <- x_num / 100
-    decimals <- decimals + 2
+    digits <- digits + 2
   }
 
   # Prepare further objects for reconstructing the original values:
@@ -47,8 +47,8 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
   # number of decimal places as well as the `rounding`, `threshold`, and
   # `symmetric` arguments passed down to:
   grains_rounded <- reround(
-    rec       = c(rec_x_upper, rec_x_lower),
-    decimals  = decimals,
+    x         = c(rec_x_upper, rec_x_lower),
+    digits    = digits,
     rounding  = rounding,
     threshold = threshold,
     symmetric = symmetric

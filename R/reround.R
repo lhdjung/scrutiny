@@ -1,41 +1,41 @@
 
 # Helper function used in the main function `reround()`:
-reconstruct_rounded_numbers <- function(rec, rounding, decimals,
-                                               threshold, symmetric) {
+reconstruct_rounded_numbers <- function(x, rounding, digits,
+                                        threshold, symmetric) {
 
   if (rounding == "even") {
-    round(rec, decimals)
+    round(x, digits)
   } else if (rounding == "up_or_down") {
     c(
-      round_up(rec, decimals, symmetric),
-      round_down(rec, decimals, symmetric)
+      round_up(x, digits, symmetric),
+      round_down(x, digits, symmetric)
     )
   } else if (rounding == "up_from_or_down_from") {
     c(
-      round_up_from(rec, decimals, threshold, symmetric),
-      round_down_from(rec, decimals, threshold, symmetric)
+      round_up_from(x, digits, threshold, symmetric),
+      round_down_from(x, digits, threshold, symmetric)
     )
   } else if (rounding == "ceiling_or_floor") {
     c(
-      round_ceiling(rec, decimals),
-      round_floor(rec, decimals)
+      round_ceiling(x, digits),
+      round_floor(x, digits)
     )
   } else if (rounding == "up") {
-    round_up(rec, decimals, symmetric)
+    round_up(x, digits, symmetric)
   } else if (rounding == "down") {
-    round_down(rec, decimals, symmetric)
+    round_down(x, digits, symmetric)
   } else if (rounding == "up_from") {
-    round_up_from(rec, decimals, threshold, symmetric)
+    round_up_from(x, digits, threshold, symmetric)
   } else if (rounding == "down_from") {
-    round_down_from(rec, decimals, threshold, symmetric)
+    round_down_from(x, digits, threshold, symmetric)
   } else if (rounding == "ceiling") {
-    round_ceiling(rec, decimals)
+    round_ceiling(x, digits)
   } else if (rounding == "floor") {
-    round_floor(rec, decimals)
+    round_floor(x, digits)
   } else if (rounding == "trunc") {
-    round_trunc(rec, decimals)
+    round_trunc(x, digits)
   } else if (rounding == "anti_trunc") {
-    round_anti_trunc(rec, decimals)
+    round_anti_trunc(x, digits)
   } else {
     # Finally, if the `rounding` argument was not specified as any of the
     # designated rounding options, throw an error:
@@ -78,8 +78,8 @@ reconstruct_rounded_numbers <- function(rec, rounding, decimals,
 #'   For the nine rounding functions themselves, see documentation at
 #'   `round_up()`, `round_ceiling()`, and `base::round()`.
 #'
-#' @param rec Numeric. Vector of possibly original values.
-#' @param decimals Integer. Number of decimal places in the reported key values
+#' @param x Numeric. Vector of possibly original values.
+#' @param digits Integer. Number of decimal places in the reported key values
 #'   (i.e., mean or percentage within `grim()`, or standard deviation within
 #'   `debit()`).
 #' @param rounding String. The rounding method that is supposed to have been
@@ -104,17 +104,17 @@ reconstruct_rounded_numbers <- function(rec, rounding, decimals,
 #'   which case it has length 2.)
 
 
-reround <- function(rec = NULL, decimals = NULL, rounding = "up_or_down",
+reround <- function(x = NULL, digits = NULL, rounding = "up_or_down",
                     threshold = NULL, symmetric = FALSE) {
 
   # Checks --
 
   # Throw an error if the lengths of the first two arguments are inconsistent:
-  if (length(rec) > 1 &&
+  if (length(x) > 1 &&
       length(rounding) > 1 &&
-      length(rec) != length(rounding)) {
+      length(x) != length(rounding)) {
     cli::cli_abort(c(
-      "Lengths of `rec` and `rounding` not congruent",
+      "Lengths of `x` and `rounding` not congruent",
       "x" = "Both must have the same length unless either has length 1."
     ))
   }
@@ -166,6 +166,6 @@ reround <- function(rec = NULL, decimals = NULL, rounding = "up_or_down",
   # `rounding`) has been found, proceed as described in the `Details` section of
   # the documentation. To vectorize the arguments, this is done via the helper
   # function at the top of the present file:
-  reconstruct_rounded_numbers(rec, rounding, decimals, threshold, symmetric)
+  reconstruct_rounded_numbers(x, rounding, digits, threshold, symmetric)
 }
 

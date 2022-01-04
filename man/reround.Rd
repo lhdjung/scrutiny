@@ -5,17 +5,17 @@
 \title{General interface to reconstructing rounded numbers}
 \usage{
 reround(
-  rec = NULL,
-  decimals = NULL,
+  x = NULL,
+  digits = NULL,
   rounding = "up_or_down",
   threshold = NULL,
   symmetric = FALSE
 )
 }
 \arguments{
-\item{rec}{Numeric. Vector of possibly original values.}
+\item{x}{Numeric. Vector of possibly original values.}
 
-\item{decimals}{Integer. Number of decimal places in the reported key values
+\item{digits}{Integer. Number of decimal places in the reported key values
 (i.e., mean or percentage within \code{grim()}, or standard deviation within
 \code{debit()}).}
 
