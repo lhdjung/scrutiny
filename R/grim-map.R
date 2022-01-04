@@ -192,7 +192,7 @@ grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
   # 4.: GRIM-test all sets of `x`, `n`, and `items` by mapping `grim_scalar()`.
   # Instead of using the dots, `...`, the function manually passes the remaining
   # arguments down to `grim_scalar()` so that starting to type these arguments
-  # will trigger RStudio's autocomplete. The mapping function,
+  # will trigger RStudio's autocomplete. The particular mapping function,
   # `purrr::pmap_lgl()` or `purrr::pmap()`, depends on whether intermediary
   # numbers were chosen to be shown in the resulting tibble because the former
   # only returns a logical value whereas the latter returns a list:
