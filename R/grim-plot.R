@@ -67,10 +67,12 @@
 #'   number of decimal places from the means or proportions is used.
 #' @param n Integer. Maximal value on the x-axis. Default is `NULL`, in which
 #'   case `n` becomes `10 ^ decimals` (e.g., `100` if `decimals` is `2`).
-#' @param decimals Integer. Only relevant if `show_data` is set to `FALSE`.
-#'   Default is `2`.
-#' @param rounding String. Only relevant if `show_data` is set to `FALSE`.
-#'   Default is `"up_or_down"`.
+#' @param decimals Integer. Only relevant if `show_data` is set to `FALSE`. The
+#'   plot will then be constructed as it would be for data where all `x` values
+#'   have this many decimal places. Default is `2`.
+#' @param rounding String. Only relevant if `show_data` is set to `FALSE`. The
+#'   plot will then be constructed as it would be for data rounded in this
+#'   particular way. Default is `"up_or_down"`.
 #' @param show_raster Boolean. If `TRUE` (the default), the plot has a
 #'   background raster.
 #' @param color_cons,color_incons Strings. Fill colors of the consistent and
@@ -105,13 +107,6 @@
 #'   grim_map(percent = TRUE) %>%
 #'   grim_plot()
 
-# # Change `decimals` to
-# pigs1 %>%
-#   grim_map() %>%
-#   grim_plot(decimals = 3)
-
-
-
 
 grim_plot <- function(data = NULL,
                       show_data = TRUE,
@@ -140,19 +135,28 @@ grim_plot <- function(data = NULL,
         by setting `show_data` to `FALSE`."
       ))
     }
+  } else if (!show_data) {
+    cli::cli_warn(c(
+      "Test results are not visualized",
+      "!" = "You set `show_data` to `FALSE`, but still gave GRIM test \\
+        results to `grim_plot()`.",
+      ">" = "Only the background raster or gradient will be shown, not the \\
+        tested data."
+    ))
   }
 
   if (!is.null(decimals)) {
     if (!length(decimals) == 1) {
       cli::cli_abort(c(
         "`decimals` has length {length(decimals)}",
-        "x" = "It needs to have length 1."
+        "x" = "It needs to have length 1 (a single number)."
       ))
     }
     if (!is_whole_number(decimals)) {
-      cli::cli_abort(
-        "`decimals` must be a whole number."
-      )
+      cli::cli_abort(c(
+        "`decimals` is {decimals}",
+        "x" = "It needs to be a whole number."
+      ))
     }
   }
 
@@ -347,8 +351,7 @@ grim_plot <- function(data = NULL,
       # ... but with more decimal places, individual boxes would be too small to
       # display, so we need a gradient instead to simply show the overall trend.
       # Boxes are still added pro forma; the call to `geom_tile()` is the same
-      # as above (except for the `alpha` and `fill` specifications) because it
-      # will simply take th
+      # as above (except for the `alpha` and `fill` specifications):
 
       if (decimals > 2) {
 
