@@ -41,6 +41,6 @@ issue described above.
 }
 \seealso{
 \code{dplyr::slice()}, which the function wraps; and
-\code{unheadr::mash_colnames()}, a more sophisticated solution to the same
-problem.
+\href{https://unheadr.liomys.mx/reference/mash_colnames.html}{\code{unheadr::mash_colnames()}},
+a more sophisticated solution to the same problem.
 }
