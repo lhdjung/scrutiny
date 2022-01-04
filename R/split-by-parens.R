@@ -68,15 +68,16 @@
 split_by_parens <- function(.data, ..., .keep = FALSE, .transform = FALSE,
                             .sep = "parens", .col1 = "x", .col2 = "sd") {
 
-  # Columns specified via the dots should not have the form of named arguments:
+  # Arguments specified via tidy evaluation (i.e., the dots) can only be column
+  # names, so they should not have the form of named arguments:
   ellipsis::check_dots_unnamed()
 
   # Capture the names of any columns from `.data` that might have been specified
   # by the user through tidy evaluation:
   cols <- rlang::enexprs(...)
 
-  # In case no columns were specified as per the above, prepare and defuse a
-  # call that will select all columns from `.data`:
+  # In case no columns were specified that way, prepare and defuse a call that
+  # will select all columns from `.data`:
   if (length(cols) == 0) {
     cols <- rlang::exprs(dplyr::everything())
   }
