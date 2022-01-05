@@ -13,7 +13,7 @@
 #'   (`x`), standard deviations (`sd`), and/or sample sizes (`n`). If not
 #'   specified here, `data` itself needs to contain columns by those names.
 #'   Default is `NULL`.
-#' @param rounding,threshold,symmetric [[`threshold` currently defunct!]]
+#' @param rounding,threshold,symmetric (`threshold` currently defunct!)
 #'   Arguments passed on to `debit()`, with the same defaults.
 #' @param show_rec If set to `FALSE`, the resulting tibble only includes the
 #'   columns `x`, `sd`, `n`, and `consistency`. Default is `TRUE`.

@@ -148,7 +148,7 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
 #' @param rounding String. Rounding method or methods to be used for
 #'   reconstructing the values to which `x` will be compared. Default is
 #'   `"up_or_down"` (from 5). For more options, see Details.
-#' @param threshold [[Currently defunct!]] Numeric. If `rounding` is set to
+#' @param threshold (Currently defunct!) Numeric. If `rounding` is set to
 #'   `"up_from"`, `"down_from"`, or `"up_from_or_down_from"`, set `threshold` to
 #'   the number from which the reconstructed values should then be rounded up or
 #'   down. Otherwise, this argument plays no role. Default is `NULL`.

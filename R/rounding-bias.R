@@ -18,7 +18,7 @@
 #'   rounded.
 #' @param rounding String. Rounding procedure that will be applied to `x`. See
 #'   documentation for `grim()`, section `Rounding`. Default is `"up"`.
-#' @param threshold,symmetric [[`threshold` currently defunct!]] Further
+#' @param threshold,symmetric (`threshold` currently defunct!) Further
 #'   arguments passed down to `reround()`.
 #' @param mean Boolean. If `TRUE` (the default), the mean total of bias will be
 #'   returned. Set `mean` to `FALSE` to get a vector of individual biases the
