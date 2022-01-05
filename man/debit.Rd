@@ -29,7 +29,7 @@ reconstructing the SD values to which \code{sd} will be compared. Default is
 \code{"up_or_down"} (from 5). For more options, see documentation for \code{grim()},
 section Details.}
 
-\item{threshold}{[\link{Currently defunct!}] Integer. If \code{rounding} is set to
+\item{threshold}{(Currently defunct!) Integer. If \code{rounding} is set to
 \code{"up_from"}, \code{"down_from"}, or \code{"up_from_or_down_from"}, set \code{threshold} to
 the number from which the reconstructed values should then be rounded up or
 down. Otherwise irrelevant. Default is \code{NULL}.}

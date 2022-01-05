@@ -24,7 +24,7 @@ debit_map(
 specified here, \code{data} itself needs to contain columns by those names.
 Default is \code{NULL}.}
 
-\item{rounding, threshold, symmetric}{[\link[=`threshold` currently defunct!]{\code{threshold} currently defunct!}]
+\item{rounding, threshold, symmetric}{(\code{threshold} currently defunct!)
 Arguments passed on to \code{debit()}, with the same defaults.}
 
 \item{show_rec}{If set to \code{FALSE}, the resulting tibble only includes the
