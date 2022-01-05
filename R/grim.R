@@ -142,17 +142,16 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
 #' @param percent Boolean. Set `percent` to `TRUE` if `x` is a percentage. This
 #'   will convert it to a decimal number and adjust the decimal count (i.e.,
 #'   increase it by 2). Default is `FALSE`.
-#' @param show_rec Boolean. If set to `TRUE`, the output is a matrix that
-#'   also contains intermediary values from GRIM-testing. This is not
-#'   recommended; instead, use `show_rec` in `grim_map()`. Default is
-#'   `FALSE`.
+#' @param show_rec Boolean. If set to `TRUE`, the output is a matrix that also
+#'   contains intermediary values from GRIM-testing. This is not recommended;
+#'   instead, use `show_rec` in `grim_map()`. Default is `FALSE`.
 #' @param rounding String. Rounding method or methods to be used for
 #'   reconstructing the values to which `x` will be compared. Default is
 #'   `"up_or_down"` (from 5). For more options, see Details.
-#' @param threshold Numeric. If `rounding` is set to `"up_from"`, `"down_from"`,
-#'   or `"up_from_or_down_from"`, set `threshold` to the number from which the
-#'   reconstructed values should then be rounded up or down. Otherwise, this
-#'   argument plays no role. Default is `NULL`.
+#' @param threshold [[Currently defunct!]] Numeric. If `rounding` is set to
+#'   `"up_from"`, `"down_from"`, or `"up_from_or_down_from"`, set `threshold` to
+#'   the number from which the reconstructed values should then be rounded up or
+#'   down. Otherwise, this argument plays no role. Default is `NULL`.
 #' @param symmetric Boolean. Set `symmetric` to `TRUE` if the rounding of
 #'   negative numbers with `"up"`, `"down"`, `"up_from"`, or `"down_from"`
 #'   should mirror that of positive numbers so that their absolute values are

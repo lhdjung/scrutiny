@@ -5,8 +5,8 @@
 \title{General interface to reconstructing rounded numbers}
 \usage{
 reround(
-  x = NULL,
-  digits = NULL,
+  x,
+  digits = 0,
   rounding = "up_or_down",
   threshold = NULL,
   symmetric = FALSE
@@ -21,12 +21,13 @@ reround(
 
 \item{rounding}{String. The rounding method that is supposed to have been
 used originally. See documentation for \code{grim()}, section \code{Rounding}.
-Default is \code{"up_or_down"}.}
+Default is \code{"up_or_down"}, which returns two values: \code{x} rounded up \emph{and}
+down.}
 
-\item{threshold}{Integer. If \code{rounding} is set to \code{"up_from"}, \code{"down_from"},
-or \code{"up_from_or_down_from"}, \code{threshold} needs to be set to the number from
-which the reconstructed values should then be rounded up or down. Otherwise
-irrelevant. Default is \code{NULL}.}
+\item{threshold}{[\link{Currently defunct!}] Integer. If \code{rounding} is set to
+\code{"up_from"}, \code{"down_from"}, or \code{"up_from_or_down_from"}, \code{threshold} needs
+to be set to the number from which the reconstructed values should then be
+rounded up or down. Otherwise irrelevant. Default is \code{NULL}.}
 
 \item{symmetric}{Boolean. Set \code{symmetric} to \code{TRUE} if the rounding of
 negative numbers with \code{"up_or_down"}, \code{"up"}, \code{"down"},

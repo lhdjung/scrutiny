@@ -1,6 +1,6 @@
 
 # Helper function used in the main function `reround()`:
-reconstruct_rounded_numbers <- function(x, rounding, digits,
+reconstruct_rounded_numbers_scalar <- function(x, rounding, digits,
                                         threshold, symmetric) {
 
   if (rounding == "even") {
@@ -49,6 +49,9 @@ reconstruct_rounded_numbers <- function(x, rounding, digits,
 }
 
 
+reconstruct_rounded_numbers <- Vectorize(reconstruct_rounded_numbers_scalar,
+                                         USE.NAMES = FALSE)
+
 
 #' General interface to reconstructing rounded numbers
 #'
@@ -84,11 +87,12 @@ reconstruct_rounded_numbers <- function(x, rounding, digits,
 #'   `debit()`).
 #' @param rounding String. The rounding method that is supposed to have been
 #'   used originally. See documentation for `grim()`, section `Rounding`.
-#'   Default is `"up_or_down"`.
-#' @param threshold Integer. If `rounding` is set to `"up_from"`, `"down_from"`,
-#'   or `"up_from_or_down_from"`, `threshold` needs to be set to the number from
-#'   which the reconstructed values should then be rounded up or down. Otherwise
-#'   irrelevant. Default is `NULL`.
+#'   Default is `"up_or_down"`, which returns two values: `x` rounded up *and*
+#'   down.
+#' @param threshold [[Currently defunct!]] Integer. If `rounding` is set to
+#'   `"up_from"`, `"down_from"`, or `"up_from_or_down_from"`, `threshold` needs
+#'   to be set to the number from which the reconstructed values should then be
+#'   rounded up or down. Otherwise irrelevant. Default is `NULL`.
 #' @param symmetric Boolean. Set `symmetric` to `TRUE` if the rounding of
 #'   negative numbers with `"up_or_down"`, `"up"`, `"down"`,
 #'   `"up_from_or_down_from"`, `"up_from"`, or `"down_from"` should mirror that
@@ -104,7 +108,7 @@ reconstruct_rounded_numbers <- function(x, rounding, digits,
 #'   which case it has length 2.)
 
 
-reround <- function(x = NULL, digits = NULL, rounding = "up_or_down",
+reround <- function(x, digits = 0, rounding = "up_or_down",
                     threshold = NULL, symmetric = FALSE) {
 
   # Checks --
@@ -166,6 +170,8 @@ reround <- function(x = NULL, digits = NULL, rounding = "up_or_down",
   # `rounding`) has been found, proceed as described in the `Details` section of
   # the documentation. To vectorize the arguments, this is done via the helper
   # function at the top of the present file:
-  reconstruct_rounded_numbers(x, rounding, digits, threshold, symmetric)
+  as.vector(reconstruct_rounded_numbers(
+    x, rounding, digits, threshold, symmetric
+  ))
 }
 

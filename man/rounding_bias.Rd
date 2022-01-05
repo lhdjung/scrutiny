@@ -19,7 +19,8 @@ rounding_bias(
 \item{rounding}{String. Rounding procedure that will be applied to \code{x}. See
 documentation for \code{grim()}, section \code{Rounding}. Default is \code{"up"}.}
 
-\item{threshold, symmetric}{Further arguments passed down to \code{reround()}.}
+\item{threshold, symmetric}{[\link[=`threshold` currently defunct!]{\code{threshold} currently defunct!}] Further
+arguments passed down to \code{reround()}.}
 
 \item{mean}{Boolean. If \code{TRUE} (the default), the mean total of bias will be
 returned. Set \code{mean} to \code{FALSE} to get a vector of individual biases the
