@@ -98,9 +98,9 @@ debit_table <- function(x, sd, n, group_0 = NA, group_1 = NA,
   # Recover lower and upper bounds for the original SD and mean values, going by
   # the reported value each...
   sd_unrounded <- suppressMessages(unround(sd_chr, rounding = rounding,
-                                           decimals = digits_sd))
+                                           digits = digits_sd))
   x_unrounded  <- suppressMessages(unround(x_chr, rounding = rounding,
-                                           decimals = digits_x))
+                                           digits = digits_x))
 
   # ...and define values out of the tibble resulting from that call:
   sd_upper <- sd_unrounded$upper

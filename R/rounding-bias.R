@@ -37,14 +37,14 @@
 #' vec
 #'
 #' # The default rounds `x` up from 5:
-#' rounding_bias(x = vec, decimals = 1)
+#' rounding_bias(x = vec, digits = 1)
 #'
 #' # Other rounding procedures are supported,
 #' # such as rounding down from 5...
-#' rounding_bias(x = vec, decimals = 1, rounding = "down")
+#' rounding_bias(x = vec, digits = 1, rounding = "down")
 #'
 #' # ...or rounding to even with `base::round()`:
-#' rounding_bias(x = vec, decimals = 1, rounding = "even")
+#' rounding_bias(x = vec, digits = 1, rounding = "even")
 
 
 rounding_bias <- function(x, digits, rounding = "up", threshold = 5,
@@ -52,14 +52,8 @@ rounding_bias <- function(x, digits, rounding = "up", threshold = 5,
 
   # Checks ---
 
-  if (any(rounding == c("up_or_down", "up_from_or_down_from",
-                        "ceiling_or_floor"))) {
-    cli::cli_abort(c(
-      "`rounding` was set to \"{rounding}\".",
-      "x" = "Bias can only be computed for singular rounding procedures, \\
-      such as \"up\", \"down\", or \"even\"."
-    ))
-  }
+  check_rounding_singular(rounding)
+
 
   # Main part ---
 

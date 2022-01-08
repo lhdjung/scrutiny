@@ -45,7 +45,7 @@ compute_rounding_bounds <- Vectorize(compute_rounding_bounds_scalar)
 #'   confusing. It is recommended that at least one of these input vectors has
 #'   length 1.
 #'
-#'   Why does `x` need to be a string if `decimals` is not specified? In that
+#'   Why does `x` need to be a string if `digits` is not specified? In that
 #'   case, `unround()` needs to count decimal places by itself. If `x` then was
 #'   numeric, it wouldn't have any trailing zeros because these get dropped from
 #'   numerics.
@@ -84,13 +84,13 @@ compute_rounding_bounds <- Vectorize(compute_rounding_bounds_scalar)
 #' `unround()` checks if they are, and informs you about it.
 
 #' @param x String or numeric. Rounded number. `x` needs to be a string unless
-#'   `decimals` is specified (most likely by a function that uses `unround()` as
-#'   a helper).
+#'   `digits` is specified (most likely by a function that uses `unround()` as a
+#'   helper).
 #' @param rounding String. Rounding method presumably used to create `x`.
 #'   Default is `"up_or_down"`. For more, see section `Rounding`.
 #' @param threshold Integer. Number from which to round up or down. Other
 #'   rounding methods are not affected. Default is `5`.
-#' @param decimals Integer. This argument is meant to make `unround()` more
+#' @param digits Integer. This argument is meant to make `unround()` more
 #'   efficient to use as a helper function so that it doesn't need to
 #'   redundantly count decimal places. Don't specify it otherwise. Default is
 #'   `NULL`, in which case decimal places really are counted internally and `x`
@@ -136,34 +136,29 @@ compute_rounding_bounds <- Vectorize(compute_rounding_bounds_scalar)
 
 
 
-unround <- function(x, rounding = "up_or_down", threshold = 5, decimals = NULL) {
+unround <- function(x, rounding = "up_or_down", threshold = 5, digits = NULL) {
 
-  # Throw an error if the lengths of the first two arguments are inconsistent:
-  if (length(x) > 1 && length(rounding) > 1 && length(x) != length(rounding)) {
-    cli::cli_abort(c(
-      "Lengths of `x` and `rounding` are not congruent",
-      "x" = "Both must have the same length unless either has length 1."
-    ))
-  }
+  # (From the utils.R file:)
+  check_lengths_congruent(list(x, rounding, digits))
 
   # The number of decimal places might be given from within another function via
-  # the `decimals` argument. Otherwise -- if `decimals` is not specified, and
+  # the `digits` argument. Otherwise -- if `digits` is not specified, and
   # therefore `NULL` -- the `x` argument needs to be a string so that decimal
   # places can be counted accurately (cf. trailing zeros), which is then done:
-  if (is.null(decimals)) {
+  if (is.null(digits)) {
     if (!is.character(x)) {
       cli::cli_abort(c(
         "`x` is {an_a_type(x)}",
-        "i" = "If `decimals` is not specified, `x` needs to be a string."
+        "i" = "If `digits` is not specified, `x` needs to be a string."
       ))
     }
-    decimals <- decimal_places(x)
+    digits <- decimal_places(x)
   }
 
   # Determine the difference between the rounded number and the boundary values.
   # That difference is variable when rounding up or down, because in that case,
   # it depends on the value of `threshold`:
-  p10 <- 10 ^ (decimals + 1)
+  p10 <- 10 ^ (digits + 1)
   d <- 5 / p10
   d_var <- threshold / p10
 
@@ -215,27 +210,6 @@ unround <- function(x, rounding = "up_or_down", threshold = 5, decimals = NULL) 
   range <- as.character(glue::glue(
     "{lower} {sign_lower} x({x}) {sign_upper} {upper}"
   ))
-
-  # Provide information to the user if arguments have lengths greater than 1:
-  if (length(x) > 1) {
-    if (length(x) == length(rounding)) {
-      cli::cli_warn(c(
-        "`x` values get paired with `rounding` methods",
-        "!" = "Are you sure each `x` value should get unrounded in a \\
-        different way?",
-        ">" = "It might be better if at least one of `x` and `rounding` has \\
-        length 1."
-      ))
-    } else {
-      cli::cli_alert_info(
-        glue::glue("{length(x)} values unrounded:")
-      )
-    }
-  } else if (length(rounding) > 1) {
-    cli::cli_alert_info(
-      glue::glue("Value {x} unrounded in {length(rounding)} ways:")
-    )
-  }
 
   # Finally, return the resulting tibble:
   tibble::tibble(range, rounding, lower, incl_lower, x, incl_upper, upper)
