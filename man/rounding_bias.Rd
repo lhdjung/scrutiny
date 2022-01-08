@@ -52,12 +52,12 @@ vec <- seq_distance(0.01, string_output = FALSE)
 vec
 
 # The default rounds `x` up from 5:
-rounding_bias(x = vec, digits = 1)
+rounding_bias(x = vec, decimals = 1)
 
 # Other rounding procedures are supported,
 # such as rounding down from 5...
-rounding_bias(x = vec, digits = 1, rounding = "down")
+rounding_bias(x = vec, decimals = 1, rounding = "down")
 
 # ...or rounding to even with `base::round()`:
-rounding_bias(x = vec, digits = 1, rounding = "even")
+rounding_bias(x = vec, decimals = 1, rounding = "even")
 }

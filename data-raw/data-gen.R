@@ -30,11 +30,11 @@ grim_anti_trunc       <- function(...) grim_scalar(..., rounding = "up")
 # `frac`. Together, these two vectors form the background raster in
 # `grim_plot()`, with `n` on the x-axis and `frac` on the y-axis.
 
-generate_grim_raster <- function(digits, rounding, n = NULL) {
+generate_grim_raster <- function(decimals, rounding, n = NULL) {
 
-  # The `digits` argument is processed in GRIM-typical fashion, such that, e.g.,
-  # `digits = 2` leads to a fractional unit (`frac_unit`) of 0.01:
-  p10 <- 10 ^ digits
+  # The `decimals` argument is processed in GRIM-typical fashion, such that,
+  # e.g., `decimals = 2` leads to a fractional unit (`frac_unit`) of 0.01:
+  p10 <- 10 ^ decimals
   frac_unit <- 1 / p10
 
   # The sample size, `n`, should be equal to `p10` because this is the

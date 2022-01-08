@@ -172,3 +172,86 @@ remove_na <- function(x) {
 
 
 
+proto_rounding_singular <- function(x, bad, good_1, good_2) {
+  if (bad %in% x) {
+    cli::cli_abort(c(
+      "`rounding` given as \"{bad}\"",
+      "x" = "If `rounding` has length > 1, only single rounding procedures \\
+      are supported, such as \"{good_1}\" and \"{good_2}\".",
+      "i" = "You can still concatenate multiple of them; just leave out \\
+      those with \"_or_\"."
+    ))
+  }
+}
+
+check_rounding_singular <- function(x) {
+  if (length(x) > 1) {
+    proto_rounding_singular(x, "up_or_down", "up", "down")
+    proto_rounding_singular(x, "up_from_or_down_from", "up_from", "down_from")
+    proto_rounding_singular(x, "ceiling_or_floor", "ceiling", "floor")
+  }
+}
+
+
+# reround_to_fraction(
+#   x = c(4.23, 6.29, 2.74),
+#   denominator = c(20, 60),
+#   digits = 1:20,
+#   rounding = c("down", "even", "ceiling")
+# )
+
+
+proto_lengths_congruent <- function(x, y, residues,
+                                    x_name, y_name, residues_names) {
+
+  if (length(x) > 1 && length(y) > 1) {
+    if (length(x) != length(y)) {
+      msg_need <-
+        "Both need to have the same length unless either has length 1."
+      if (length(residues) > 0) {
+        msg_need <- paste(
+          msg_need,
+          "This also applies to `{residues_names}`."
+        )
+      }
+      cli::cli_abort(c(
+        "Lengths of `{x_name}` and `{y_name}` are not congruent",
+        "x" = "`{x_name}` has length {length(x)}.",
+        "x" = "`{y_name}` has length {length(y)}.",
+        "!" = msg_need
+      ))
+    } else {
+      cli::cli_warn(c(
+        "`{x_name} ` and `{y_name}` values get paired",
+        "!" = "Are you sure each `{x_name}` value should correspond to a \\
+        different `{y_name}`?",
+        ">" = "It might be better if at least one of `{x_name}` and \\
+        `{y_name}` has length 1."
+      ))
+    }
+  }
+
+}
+
+
+check_lengths_congruent <- function(var_list) {
+  var_names <- as.character(rlang::enexprs(var_list)[[1]][-1])
+  var_lengths <- purrr::map_int(var_list, length)
+  var_list <- var_list[var_lengths > 1]
+
+  if (length(var_list) > 1) {
+    var_names <- var_names[var_lengths > 1]
+    residues_list <- var_list[-(1:2)]
+    residues_names <- var_names[-(1:2)]
+
+    proto_lengths_congruent(
+      var_list[[1]], var_list[[2]], residues_list,
+      var_names[[1]], var_names[[2]], residues_names
+    )
+  }
+
+}
+
+
+
+
