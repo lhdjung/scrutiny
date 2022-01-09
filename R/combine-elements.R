@@ -26,7 +26,7 @@
 #' @param n Integer of length 1. Number of elements in each combination, and
 #'   thus, number of columns in the resulting data frame.
 #' @param prefix String. Start of every column in the output tibble, before the
-#'   column number. Default is `"Var"`.
+#'   column number. Default is `"V"`.
 #'
 #' @return A tibble (data frame).
 #'
@@ -34,19 +34,20 @@
 #'   \href{https://purrr.tidyverse.org/reference/cross.html}{`cross` family of
 #'   functions} from purrr and, for functional programming with combinations,
 #'   the \href{https://crossmap.rossellhayes.com/index.html}{crossmap} package.
-#'
-#' @examples
-#' # Define example vector:
-#' abc <- c("a", "b", "c")
-#'
-#' # Get combinations of vector `x` with length `n`,
-#' # with one combination per row:
-#' combine_elements(x = abc, n = 2)
-#'
-#' # `n` is the length of each combination, and
-#' # therefore the number of columns. Indirectly,
-#' # it determines the number of combination-rows:
-#' combine_elements(x = abc, n = 3)
+
+
+# @examples
+# # Define example vector:
+# abc <- c("a", "b", "c")
+#
+# # Get combinations of vector `x` with length `n`,
+# # with one combination per row:
+# combine_elements(x = abc, n = 2)
+#
+# # `n` is the length of each combination, and
+# # therefore the number of columns. Indirectly,
+# # it determines the number of combination-rows:
+# combine_elements(x = abc, n = 3)
 
 
 
@@ -54,7 +55,7 @@
 # `reverse_column_order()` can be found in the utils.R file.
 
 
-combine_elements <- function(x, n, prefix = "Var") {
+combine_elements <- function(x, n, prefix = "V") {
 
   # As `n` determines the length of combinations through its (single) value
   # rather than through its own length, the length needs to be 1:
