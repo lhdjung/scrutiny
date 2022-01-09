@@ -14,12 +14,11 @@
 #'   set to `"up_or_down"`, `"up_from_or_down_from"`, or`"ceiling_or_floor"`.
 #'
 #' @param x Numeric or string coercible to numeric.
-#' @param decimals Integer. Number of decimal digits to which `x` will be
-#'   rounded.
+#' @param digits Integer. Number of decimal digits to which `x` will be rounded.
 #' @param rounding String. Rounding procedure that will be applied to `x`. See
 #'   documentation for `grim()`, section `Rounding`. Default is `"up"`.
-#' @param threshold,symmetric (`threshold` currently defunct!) Further
-#'   arguments passed down to `reround()`.
+#' @param threshold,symmetric (`threshold` currently defunct!) Further arguments
+#'   passed down to `reround()`.
 #' @param mean Boolean. If `TRUE` (the default), the mean total of bias will be
 #'   returned. Set `mean` to `FALSE` to get a vector of individual biases the
 #'   length of `x`.
@@ -37,14 +36,14 @@
 #' vec
 #'
 #' # The default rounds `x` up from 5:
-#' rounding_bias(x = vec, decimals = 1)
+#' rounding_bias(x = vec, digits = 1)
 #'
 #' # Other rounding procedures are supported,
 #' # such as rounding down from 5...
-#' rounding_bias(x = vec, decimals = 1, rounding = "down")
+#' rounding_bias(x = vec, digits = 1, rounding = "down")
 #'
 #' # ...or rounding to even with `base::round()`:
-#' rounding_bias(x = vec, decimals = 1, rounding = "even")
+#' rounding_bias(x = vec, digits = 1, rounding = "even")
 
 
 rounding_bias <- function(x, digits, rounding = "up", threshold = 5,
@@ -52,14 +51,12 @@ rounding_bias <- function(x, digits, rounding = "up", threshold = 5,
 
   # Checks ---
 
-  if (any(rounding == c("up_or_down", "up_from_or_down_from",
-                        "ceiling_or_floor"))) {
-    cli::cli_abort(c(
-      "`rounding` was set to \"{rounding}\".",
-      "x" = "Bias can only be computed for singular rounding procedures, \\
-      such as \"up\", \"down\", or \"even\"."
-    ))
-  }
+  check_rounding_singular(rounding)
+
+  check_lengths_congruent(list(
+    x, digits, rounding, threshold, symmetric
+))
+
 
   # Main part ---
 
