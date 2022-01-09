@@ -39,17 +39,42 @@ Finally, I will take a closer look at bias from rounding raw numbers.
 
 ## Reconstruct rounded numbers with `reround()`
 
-None of the error detection techniques in scrutiny calls the individual rounding functions directly. Instead, all of them call `reround()`, which mediates between these two levels. `reround()` takes the vector of "raw" reconstructed numbers that were not yet rounded in the way that's assumed to have been the original rounding procedure. Its next argument is `decimals`, the number of decimal places to round to.
+### Overview
+
+None of the error detection techniques in scrutiny calls the individual rounding functions directly. Instead, all of them call `reround()`, which mediates between these two levels. `reround()` takes the vector of "raw" reconstructed numbers that were not yet rounded in the way that's assumed to have been the original rounding procedure. Its next argument is `digits`, the number of decimal places to round to.
 
 The remaining three arguments are about the rounding procedure. Most of the time, only `rounding` will be of any interest. It takes a string with the name of one of the rounding procedures discussed below.
 
 Here is an example for a `reround()` call:
 
 ```{r}
-reround(rec = c(5.812, 7.249), decimals = 2, rounding = "up")
+reround(x = c(5.812, 7.249), digits = 2, rounding = "up")
 ```
 
 The two remaining arguments are mostly forgettable: They only concern obscure cases of rounding with a threshold other than 5 (`threshold`) and rounding such that the absolute values of positive and negative numbers are the same (`symmetric`). Ignore them otherwise.
+
+### Fractional rounding
+
+What if you want to round to a fraction instead of an integer? Check out `reround_to_fraction()` and `reround_to_fraction_level()`:
+
+```{r}
+reround_to_fraction(x = 0.4, denominator = 2, rounding = "up")
+```
+
+This function rounds `0.4` to `0.5` because that's the closest fraction of `2`. It is inspired by `janitor::round_to_fraction()`, and credit for the core implementation goes there. `reround_to_fraction()` blends fractional rounding with the flexibility and precision that `reround()` provides.
+
+What's more, `reround_to_fraction_level()` rounds to the nearest fraction at the decimal level specified via its `digits` argument:
+
+```{r}
+reround_to_fraction_level(x = 0.777, denominator = 5, digits = 0,
+                          rounding = "down")
+reround_to_fraction_level(x = 0.777, denominator = 5, digits = 1,
+                          rounding = "down")
+reround_to_fraction_level(x = 0.777, denominator = 5, digits = 2,
+                          rounding = "down")
+```
+
+These two functions are not currently part of any error detection workflow.
 
 ## Rounding procedures in detail
 
@@ -203,7 +228,7 @@ In this case, `x` can be numeric because trailing zeros are no longer needed. (T
 The following call returns the exact same tibble as above:
 
 ```{r}
-unround(x = 3.5, decimals = 2, rounding = "up")
+unround(x = 3.5, digits = 2, rounding = "up")
 ```
 
 Since `x` is vectorized, you might test several reported numbers at once:
@@ -244,13 +269,13 @@ mean(vec3)
 mean(round_up(vec3))
 
 # ...and the difference is bias:
-rounding_bias(x = vec3, decimals = 0, rounding = "up")
+rounding_bias(x = vec3, digits = 0, rounding = "up")
 ```
 
 Set `mean` to `FALSE` to return the whole vector of individual biases instead:
 
 ```{r}
-rounding_bias(x = vec3, decimals = 0, rounding = "up", mean = FALSE)
+rounding_bias(x = vec3, digits = 0, rounding = "up", mean = FALSE)
 ```
 
 Admittedly, this example is somewhat overdramatic. Here is a rather harmless one:
@@ -258,23 +283,23 @@ Admittedly, this example is somewhat overdramatic. Here is a rather harmless one
 ```{r}
 vec4 <- rnorm(50000, 100, 15)
 
-rounding_bias(vec4, decimals = 2)
+rounding_bias(vec4, digits = 2)
 ```
 
 What is responsible for such a difference? It seems to be (1) the sample size and (2) the number of decimal places to which the vector is rounded. The rounding method doesn't appear to matter if numbers with many decimal places are rounded:
 
 ```{r}
-up_1   <- rounding_bias(vec4, decimals = 1, rounding = "up")
-up_2   <- rounding_bias(vec4, decimals = 2, rounding = "up")
-up_3   <- rounding_bias(vec4, decimals = 3, rounding = "up")
-up_4   <- rounding_bias(vec4, decimals = 4, rounding = "up")
-up_5   <- rounding_bias(vec4, decimals = 5, rounding = "up")
+up_1   <- rounding_bias(vec4, digits = 1, rounding = "up")
+up_2   <- rounding_bias(vec4, digits = 2, rounding = "up")
+up_3   <- rounding_bias(vec4, digits = 3, rounding = "up")
+up_4   <- rounding_bias(vec4, digits = 4, rounding = "up")
+up_5   <- rounding_bias(vec4, digits = 5, rounding = "up")
 
-even_1 <- rounding_bias(vec4, decimals = 1, rounding = "even")
-even_2 <- rounding_bias(vec4, decimals = 2, rounding = "even")
-even_3 <- rounding_bias(vec4, decimals = 3, rounding = "even")
-even_4 <- rounding_bias(vec4, decimals = 4, rounding = "even")
-even_5 <- rounding_bias(vec4, decimals = 5, rounding = "even")
+even_1 <- rounding_bias(vec4, digits = 1, rounding = "even")
+even_2 <- rounding_bias(vec4, digits = 2, rounding = "even")
+even_3 <- rounding_bias(vec4, digits = 3, rounding = "even")
+even_4 <- rounding_bias(vec4, digits = 4, rounding = "even")
+even_5 <- rounding_bias(vec4, digits = 5, rounding = "even")
 
 
 bias <- abs(c(
@@ -325,17 +350,17 @@ However, if the raw values are preliminarily rounded to 2 decimal places before 
 ```{r echo=FALSE}
 vec5 <- round(vec4, 2)
 
-up_1   <- rounding_bias(vec5, decimals = 1, rounding = "up")
-up_2   <- rounding_bias(vec5, decimals = 2, rounding = "up")
-up_3   <- rounding_bias(vec5, decimals = 3, rounding = "up")
-up_4   <- rounding_bias(vec5, decimals = 4, rounding = "up")
-up_5   <- rounding_bias(vec5, decimals = 5, rounding = "up")
+up_1   <- rounding_bias(vec5, digits = 1, rounding = "up")
+up_2   <- rounding_bias(vec5, digits = 2, rounding = "up")
+up_3   <- rounding_bias(vec5, digits = 3, rounding = "up")
+up_4   <- rounding_bias(vec5, digits = 4, rounding = "up")
+up_5   <- rounding_bias(vec5, digits = 5, rounding = "up")
 
-even_1 <- rounding_bias(vec5, decimals = 1, rounding = "even")
-even_2 <- rounding_bias(vec5, decimals = 2, rounding = "even")
-even_3 <- rounding_bias(vec5, decimals = 3, rounding = "even")
-even_4 <- rounding_bias(vec5, decimals = 4, rounding = "even")
-even_5 <- rounding_bias(vec5, decimals = 5, rounding = "even")
+even_1 <- rounding_bias(vec5, digits = 1, rounding = "even")
+even_2 <- rounding_bias(vec5, digits = 2, rounding = "even")
+even_3 <- rounding_bias(vec5, digits = 3, rounding = "even")
+even_4 <- rounding_bias(vec5, digits = 4, rounding = "even")
+even_5 <- rounding_bias(vec5, digits = 5, rounding = "even")
 
 bias <- abs(c(
   up_1, up_2, up_3, up_4, up_5,
