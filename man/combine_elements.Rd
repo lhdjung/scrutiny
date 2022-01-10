@@ -4,7 +4,7 @@
 \alias{combine_elements}
 \title{Combine vector elements to given length}
 \usage{
-combine_elements(x, n, prefix = "Var")
+combine_elements(x, n, prefix = "V")
 }
 \arguments{
 \item{x}{A vector with elements to combine.}
@@ -13,7 +13,7 @@ combine_elements(x, n, prefix = "Var")
 thus, number of columns in the resulting data frame.}
 
 \item{prefix}{String. Start of every column in the output tibble, before the
-column number. Default is \code{"Var"}.}
+column number. Default is \code{"V"}.}
 }
 \value{
 A tibble (data frame).
@@ -40,19 +40,6 @@ closely mimics the behavior of the Python function
 The most important difference is that \code{combine_elements()} organizes
 results in a data frame, with rows corresponding to Python's tuples. The
 row order might differ from the order of tuples in the original.
-}
-\examples{
-# Define example vector:
-abc <- c("a", "b", "c")
-
-# Get combinations of vector `x` with length `n`,
-# with one combination per row:
-combine_elements(x = abc, n = 2)
-
-# `n` is the length of each combination, and
-# therefore the number of columns. Indirectly,
-# it determines the number of combination-rows:
-combine_elements(x = abc, n = 3)
 }
 \seealso{
 \code{expand.grid()}, which the function wraps, the
