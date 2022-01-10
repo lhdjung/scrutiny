@@ -142,6 +142,18 @@ reround <- function(x, digits = 0, rounding = "up_or_down",
     ))
   }
 
+  if (length(rounding) > 1) {
+    length_2ers <- c("up_or_down", "up_from_or_down_from", "ceiling_or_floor")
+    if (any(length_2ers %in% rounding)) {
+      offender <- length_2ers[length_2ers %in% rounding][1]
+      cli::cli_abort(c(
+        "\"{offender}\" in `rounding`, which has length {length(rounding)}",
+        "x" = "If `rounding` is \"{offender}\", there can be no other \\
+        `rounding` values."
+      ))
+    }
+  }
+
   # # Throw error if the reverse of the above case is true -- `threshold` was
   # # specified, but `rounding` was not specified in any one of the ways which
   # # require that argument:
