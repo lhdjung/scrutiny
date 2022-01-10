@@ -8,7 +8,7 @@ reround(
   x,
   digits = 0,
   rounding = "up_or_down",
-  threshold = NULL,
+  threshold = 5,
   symmetric = FALSE
 )
 }

@@ -13,7 +13,7 @@ grim_map(
   show_rec = FALSE,
   show_prob = FALSE,
   rounding = "up_or_down",
-  threshold = NULL,
+  threshold = 5,
   symmetric = FALSE,
   tolerance = .Machine$double.eps^0.5,
   testables_only = FALSE,

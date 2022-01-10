@@ -10,7 +10,7 @@ debit_map(
   sd = NULL,
   n = NULL,
   rounding = "up_or_down",
-  threshold = NULL,
+  threshold = 5,
   symmetric = FALSE,
   show_rec = TRUE,
   extra = Inf

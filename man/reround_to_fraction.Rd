@@ -10,7 +10,7 @@ reround_to_fraction(
   denominator = 1,
   digits = Inf,
   rounding = "up_or_down",
-  threshold = NULL,
+  threshold = 5,
   symmetric = FALSE
 )
 
@@ -19,7 +19,7 @@ reround_to_fraction_level(
   denominator = 1,
   digits = 0,
   rounding = "up_or_down",
-  threshold = NULL,
+  threshold = 5,
   symmetric = FALSE
 )
 }

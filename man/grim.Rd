@@ -11,7 +11,7 @@ grim(
   percent = FALSE,
   show_rec = FALSE,
   rounding = "up_or_down",
-  threshold = NULL,
+  threshold = 5,
   symmetric = FALSE,
   tolerance = .Machine$double.eps^0.5
 )
