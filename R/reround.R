@@ -3,9 +3,8 @@
 reconstruct_rounded_numbers_scalar <- function(x, digits, rounding,
                                                threshold, symmetric) {
 
-  if (rounding == "even") {
-    round(x, digits)
-  } else if (rounding == "up_or_down") {
+  # Length-2 outputs:
+  if (rounding == "up_or_down") {
     c(
       round_up(x, digits, symmetric),
       round_down(x, digits, symmetric)
@@ -20,6 +19,10 @@ reconstruct_rounded_numbers_scalar <- function(x, digits, rounding,
       round_ceiling(x, digits),
       round_floor(x, digits)
     )
+
+  # Length-1 outputs:
+  } else if (rounding == "even") {
+    round(x, digits)
   } else if (rounding == "up") {
     round_up(x, digits, symmetric)
   } else if (rounding == "down") {
@@ -37,6 +40,7 @@ reconstruct_rounded_numbers_scalar <- function(x, digits, rounding,
   } else if (rounding == "anti_trunc") {
     round_anti_trunc(x, digits)
   } else {
+
     # Finally, if the `rounding` argument was not specified as any of the
     # designated rounding options, throw an error:
     cli::cli_abort(c(
@@ -162,27 +166,6 @@ reround <- function(x, digits = 0, rounding = "up_or_down",
     }
   }
 
-  # # Throw error if the reverse of the above case is true -- `threshold` was
-  # # specified, but `rounding` was not specified in any one of the ways which
-  # # require that argument:
-  # if (!is.null(threshold)) {
-  #   if (!rounding_needs_threshold) {
-  #     cli::cli_warn(c(
-  #       "`threshold` unnecessarily specified",
-  #       "!" = "The `threshold` argument only needs to be specified if \\
-  #     `rounding` is either \"up_from\", \"down_from\", or \\
-  #     \"up_from_or_down_from\". Did you mean to use one of these options?"
-  #     ))
-  #   }
-  # } else {
-  #   # If `threshold` is `NULL` and thus not needed, it gets assigned a different
-  #   # value because its being `NULL` would prevent vectorization of the helper
-  #   # function:
-  #   threshold <- 0
-  # }
-
-  # # Provisorically, at least while the above is outcommented:
-  # threshold <- 0
 
   # Main part ---
 
@@ -239,5 +222,4 @@ reround <- function(x, digits = 0, rounding = "up_or_down",
 #   ))
 #
 # )
-
 
