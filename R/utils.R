@@ -175,7 +175,7 @@ remove_na <- function(x) {
 proto_rounding_singular <- function(x, bad, good_1, good_2) {
   if (bad %in% x) {
     cli::cli_abort(c(
-      "`rounding` given as \"{bad}\"",
+      "`rounding` given as \"{bad}\" plus others",
       "x" = "If `rounding` has length > 1, only single rounding procedures \\
       are supported, such as \"{good_1}\" and \"{good_2}\".",
       "i" = "You can still concatenate multiple of them; just leave out \\
@@ -209,9 +209,10 @@ proto_lengths_congruent <- function(x, y, residues,
       msg_need <-
         "Both need to have the same length unless either has length 1."
       if (length(residues) > 0) {
+        residues_names <- paste0("`", residues_names, "`")
         msg_need <- paste(
           msg_need,
-          "This also applies to `{residues_names}`."
+          "This also applies to {residues_names}."
         )
       }
       cli::cli_abort(c(
@@ -251,7 +252,5 @@ check_lengths_congruent <- function(var_list) {
   }
 
 }
-
-
 
 
