@@ -13,7 +13,7 @@
 #'   decision about rounding 5 up or down is not based on the integer portion of
 #'   `x` (i.e., no "rounding to even"). Instead, in `round_up_from()`, that
 #'   decision is determined by the `threshold` argument for rounding up, and
-#'   likewise with `round_down_from()`. The threshold is constant at 5 for
+#'   likewise with `round_down_from()`. The threshold is constant at `5` for
 #'   `round_up()` and `round_down()`.
 #'
 #'   As a result, these functions are more predictable and less prone to
@@ -35,10 +35,10 @@
 #'
 #' @param x Numeric. The decimal number to round.
 #' @param digits Integer. Number of digits to round `x` to. Default is `0`.
-#' @param threshold Integer (single digit). Only in `round_up_from()` and
-#'   `round_down_from()`. Threshold for rounding up or down, respectively. Value
-#'   is 5 in `round_up()`'s internal call to `round_up_from()` and in
-#'   `round_down()`'s internal call to `round_down_from()`.
+#' @param threshold Integer. Only in `round_up_from()` and `round_down_from()`.
+#'   Threshold for rounding up or down, respectively. Value is `5` in
+#'   `round_up()`'s internal call to `round_up_from()` and in `round_down()`'s
+#'   internal call to `round_down_from()`.
 #' @param symmetric Boolean. Set `symmetric` to `TRUE` if the rounding of
 #'   negative numbers should mirror that of positive numbers so that their
 #'   absolute values are equal. Default is `FALSE`.

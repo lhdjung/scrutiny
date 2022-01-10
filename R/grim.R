@@ -151,7 +151,7 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
 #' @param threshold Numeric. If `rounding` is set to `"up_from"`, `"down_from"`,
 #'   or `"up_from_or_down_from"`, set `threshold` to the number from which the
 #'   reconstructed values should then be rounded up or down. Otherwise, this
-#'   argument plays no role. Default is `NULL`.
+#'   argument plays no role. Default is `5`.
 #' @param symmetric Boolean. Set `symmetric` to `TRUE` if the rounding of
 #'   negative numbers with `"up"`, `"down"`, `"up_from"`, or `"down_from"`
 #'   should mirror that of positive numbers so that their absolute values are

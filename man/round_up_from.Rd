@@ -20,10 +20,10 @@ round_down(x, digits = 0, symmetric = FALSE)
 
 \item{digits}{Integer. Number of digits to round \code{x} to. Default is \code{0}.}
 
-\item{threshold}{Integer (single digit). Only in \code{round_up_from()} and
-\code{round_down_from()}. Threshold for rounding up or down, respectively. Value
-is 5 in \code{round_up()}'s internal call to \code{round_up_from()} and in
-\code{round_down()}'s internal call to \code{round_down_from()}.}
+\item{threshold}{Integer. Only in \code{round_up_from()} and \code{round_down_from()}.
+Threshold for rounding up or down, respectively. Value is \code{5} in
+\code{round_up()}'s internal call to \code{round_up_from()} and in \code{round_down()}'s
+internal call to \code{round_down_from()}.}
 
 \item{symmetric}{Boolean. Set \code{symmetric} to \code{TRUE} if the rounding of
 negative numbers should mirror that of positive numbers so that their
@@ -45,7 +45,7 @@ These functions differ from \code{base::round()} mainly insofar as the
 decision about rounding 5 up or down is not based on the integer portion of
 \code{x} (i.e., no "rounding to even"). Instead, in \code{round_up_from()}, that
 decision is determined by the \code{threshold} argument for rounding up, and
-likewise with \code{round_down_from()}. The threshold is constant at 5 for
+likewise with \code{round_down_from()}. The threshold is constant at \code{5} for
 \code{round_up()} and \code{round_down()}.
 
 As a result, these functions are more predictable and less prone to

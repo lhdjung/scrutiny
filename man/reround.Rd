@@ -27,7 +27,7 @@ down.}
 \item{threshold}{Integer. If \code{rounding} is set to \code{"up_from"}, \code{"down_from"},
 or \code{"up_from_or_down_from"}, \code{threshold} needs to be set to the number from
 which the reconstructed values should then be rounded up or down. Otherwise
-irrelevant. Default is \code{NULL}.}
+irrelevant. Default is \code{5}.}
 
 \item{symmetric}{Boolean. Set \code{symmetric} to \code{TRUE} if the rounding of
 negative numbers with \code{"up_or_down"}, \code{"up"}, \code{"down"},
