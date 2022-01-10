@@ -11,8 +11,6 @@ home:
 template:
   bootstrap: 5
   bootswatch: flatly
-  # bslib:
-  #   primary: "#cc3333"
 
 pkgdown:
   as_is: true
@@ -105,6 +103,7 @@ reference:
   - round_ceiling
   - round_floor
   - reround
+  - reround_to_fraction
   - unround
   - rounding_bias
 
