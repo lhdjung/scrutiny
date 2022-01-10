@@ -71,14 +71,6 @@ reconstruct_rounded_numbers <- Vectorize(reconstruct_rounded_numbers_scalar,
 #'   reconstruction of statistical analyses.
 #'
 
-#   `reround()` takes one or more intermediate reconstructed values and rounds
-#   them to the same number of decimal places as in the respective reported
-#   value. Rounding (e.g., rounding up or down from 5) proceeds in the way
-#   that's presumed to have been used in the generation of the reported value.
-#   The latter doesn't come into play here, but consistency testing functions
-#   go on to compare it to the output of the present function.
-
-#'
 #' @details `reround()` internally calls the appropriate rounding function(s)
 #'   determined by the `rounding` argument. See documentation for `grim()`,
 #'   section `Rounding`, for a complete list of values that `rounding` can take.
