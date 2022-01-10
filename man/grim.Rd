@@ -36,10 +36,10 @@ instead, use \code{show_rec} in \code{grim_map()}. Default is \code{FALSE}.}
 reconstructing the values to which \code{x} will be compared. Default is
 \code{"up_or_down"} (from 5). For more options, see Details.}
 
-\item{threshold}{(Currently defunct!) Numeric. If \code{rounding} is set to
-\code{"up_from"}, \code{"down_from"}, or \code{"up_from_or_down_from"}, set \code{threshold} to
-the number from which the reconstructed values should then be rounded up or
-down. Otherwise, this argument plays no role. Default is \code{NULL}.}
+\item{threshold}{Numeric. If \code{rounding} is set to \code{"up_from"}, \code{"down_from"},
+or \code{"up_from_or_down_from"}, set \code{threshold} to the number from which the
+reconstructed values should then be rounded up or down. Otherwise, this
+argument plays no role. Default is \code{NULL}.}
 
 \item{symmetric}{Boolean. Set \code{symmetric} to \code{TRUE} if the rounding of
 negative numbers with \code{"up"}, \code{"down"}, \code{"up_from"}, or \code{"down_from"}

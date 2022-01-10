@@ -46,8 +46,8 @@ below. Default is \code{FALSE}.}
 contains the probability of GRIM inconsistency. This is simply the \code{ratio}
 column censored to range between 0 and 1. Default is \code{FALSE}.}
 
-\item{rounding, threshold, symmetric, tolerance}{(\code{threshold} currently defunct!)
-Further parameters of GRIM-testing; see documentation for \code{grim()}.}
+\item{rounding, threshold, symmetric, tolerance}{Further parameters of
+GRIM-testing; see documentation for \code{grim()}.}
 
 \item{testables_only}{Boolean. If \code{testables_only} is set to \code{TRUE}, only
 GRIM-testable cases (i.e., those with a positive GRIM ratio) are included.

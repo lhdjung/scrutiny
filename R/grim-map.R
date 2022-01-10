@@ -33,8 +33,8 @@
 #' @param show_prob Boolean. If set to `TRUE`, adds a `prob` column that
 #'   contains the probability of GRIM inconsistency. This is simply the `ratio`
 #'   column censored to range between 0 and 1. Default is `FALSE`.
-#' @param rounding,threshold,symmetric,tolerance (`threshold` currently defunct!)
-#'   Further parameters of GRIM-testing; see documentation for `grim()`.
+#' @param rounding,threshold,symmetric,tolerance Further parameters of
+#'   GRIM-testing; see documentation for `grim()`.
 #' @param testables_only Boolean. If `testables_only` is set to `TRUE`, only
 #'   GRIM-testable cases (i.e., those with a positive GRIM ratio) are included.
 #'   Default is `FALSE`.
