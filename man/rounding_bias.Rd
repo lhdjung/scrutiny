@@ -16,17 +16,18 @@ rounding_bias(
 \arguments{
 \item{x}{Numeric or string coercible to numeric.}
 
-\item{digits}{Integer. Number of decimal digits to which \code{x} will be rounded.}
-
 \item{rounding}{String. Rounding procedure that will be applied to \code{x}. See
 documentation for \code{grim()}, section \code{Rounding}. Default is \code{"up"}.}
 
-\item{threshold, symmetric}{(\code{threshold} currently defunct!) Further arguments
-passed down to \code{reround()}.}
+\item{threshold, symmetric}{(\code{threshold} currently defunct!) Further
+arguments passed down to \code{reround()}.}
 
 \item{mean}{Boolean. If \code{TRUE} (the default), the mean total of bias will be
 returned. Set \code{mean} to \code{FALSE} to get a vector of individual biases the
 length of \code{x}.}
+
+\item{decimals}{Integer. Number of decimal digits to which \code{x} will be
+rounded.}
 }
 \value{
 Numeric. By default of \code{mean}, the length is 1; otherwise, it is the
@@ -51,12 +52,12 @@ vec <- seq_distance(0.01, string_output = FALSE)
 vec
 
 # The default rounds `x` up from 5:
-rounding_bias(x = vec, digits = 1)
+rounding_bias(x = vec, decimals = 1)
 
 # Other rounding procedures are supported,
 # such as rounding down from 5...
-rounding_bias(x = vec, digits = 1, rounding = "down")
+rounding_bias(x = vec, decimals = 1, rounding = "down")
 
 # ...or rounding to even with `base::round()`:
-rounding_bias(x = vec, digits = 1, rounding = "even")
+rounding_bias(x = vec, decimals = 1, rounding = "even")
 }

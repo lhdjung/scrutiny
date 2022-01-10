@@ -10,7 +10,7 @@ grim_plot(
   show_raster = TRUE,
   show_gradient = TRUE,
   n = NULL,
-  digits = NULL,
+  decimals = NULL,
   rounding = "up_or_down",
   color_cons = "royalblue1",
   color_incons = "red",
@@ -25,7 +25,7 @@ grim_plot(
 
 \item{show_data}{Boolean. If set to \code{FALSE}, test results from the data are
 not displayed. Choose this if you only want to show the background raster.
-You can then control plot parameters directly via the \code{n}, \code{digits}, and
+You can then control plot parameters directly via the \code{n}, \code{decimals}, and
 \code{rounding} arguments. Default is \code{TRUE}.}
 
 \item{show_raster}{Boolean. If \code{TRUE} (the default), the plot has a
@@ -36,9 +36,9 @@ greater, should a gradient be shown to signal the overall probability of
 GRIM inconsistency? Default is \code{TRUE}.}
 
 \item{n}{Integer. Maximal value on the x-axis. Default is \code{NULL}, in which
-case \code{n} becomes \code{10 ^ digits} (e.g., \code{100} if \code{digits} is \code{2}).}
+case \code{n} becomes \code{10 ^ decimals} (e.g., \code{100} if \code{decimals} is \code{2}).}
 
-\item{digits}{Integer. Only relevant if \code{show_data} is set to \code{FALSE}. The
+\item{decimals}{Integer. Only relevant if \code{show_data} is set to \code{FALSE}. The
 plot will then be constructed as it would be for data where all \code{x} values
 have this many decimal places. Default is \code{2}.}
 
@@ -82,7 +82,7 @@ there will not be a raster but a gradient, showing the overall trend.
 As any raster only makes sense with respect to one specific number of
 decimal places, the function will throw an error if these numbers differ
 among input \code{x} values (and \code{show_raster} is \code{TRUE}). You can avoid the
-error and force plotting by specifying \code{digits} as the number of decimal
+error and force plotting by specifying \code{decimals} as the number of decimal
 places for which the raster or gradient should be displayed.
 
 For 1 or 2 decimal places, the raster will be specific to the rounding
@@ -93,12 +93,12 @@ data saved in the package itself, so these data don't need to be generated
 anew every time the function is called. Inconsistent value sets are marked
 with dark boxes. All other places in the raster denote consistent value
 sets. The raster is independent of the data -- it only follows the
-\code{rounding} specification in the \code{grim_map()} call and the \code{digits}
+\code{rounding} specification in the \code{grim_map()} call and the \code{decimals}
 argument in \code{grim_plot()}.
 
 Display an "empty" plot, one without empirical test results, by setting
 \code{show_data} to \code{FALSE}. You can then control key parameters of the plot
-with \code{digits} and \code{rounding}.
+with \code{decimals} and \code{rounding}.
 
 With \code{grim_map()}'s default for \code{rounding}, \code{"up_or_down"}, strikingly few
 values are flagged as inconsistent for sample sizes 40 and 80 (or 4 and 8).

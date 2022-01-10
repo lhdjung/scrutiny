@@ -4,12 +4,12 @@
 \alias{unround}
 \title{Reconstruct rounding bounds}
 \usage{
-unround(x, rounding = "up_or_down", threshold = 5, digits = NULL)
+unround(x, rounding = "up_or_down", threshold = 5, decimals = NULL)
 }
 \arguments{
 \item{x}{String or numeric. Rounded number. \code{x} needs to be a string unless
-\code{digits} is specified (most likely by a function that uses \code{unround()} as a
-helper).}
+\code{decimals} is specified (most likely by a function that uses \code{unround()} as
+a helper).}
 
 \item{rounding}{String. Rounding method presumably used to create \code{x}.
 Default is \code{"up_or_down"}. For more, see section \code{Rounding}.}
@@ -17,7 +17,7 @@ Default is \code{"up_or_down"}. For more, see section \code{Rounding}.}
 \item{threshold}{Integer. Number from which to round up or down. Other
 rounding methods are not affected. Default is \code{5}.}
 
-\item{digits}{Integer. This argument is meant to make \code{unround()} more
+\item{decimals}{Integer. This argument is meant to make \code{unround()} more
 efficient to use as a helper function so that it doesn't need to
 redundantly count decimal places. Don't specify it otherwise. Default is
 \code{NULL}, in which case decimal places really are counted internally and \code{x}
@@ -48,7 +48,7 @@ length. However, this will pair numbers with rounding methods, which can be
 confusing. It is recommended that at least one of these input vectors has
 length 1.
 
-Why does \code{x} need to be a string if \code{digits} is not specified? In that
+Why does \code{x} need to be a string if \code{decimals} is not specified? In that
 case, \code{unround()} needs to count decimal places by itself. If \code{x} then was
 numeric, it wouldn't have any trailing zeros because these get dropped from
 numerics.

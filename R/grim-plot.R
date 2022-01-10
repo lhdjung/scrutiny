@@ -25,7 +25,7 @@
 #'   As any raster only makes sense with respect to one specific number of
 #'   decimal places, the function will throw an error if these numbers differ
 #'   among input `x` values (and `show_raster` is `TRUE`). You can avoid the
-#'   error and force plotting by specifying `digits` as the number of decimal
+#'   error and force plotting by specifying `decimals` as the number of decimal
 #'   places for which the raster or gradient should be displayed.
 #'
 #'   For 1 or 2 decimal places, the raster will be specific to the rounding
@@ -36,12 +36,12 @@
 #'   anew every time the function is called. Inconsistent value sets are marked
 #'   with dark boxes. All other places in the raster denote consistent value
 #'   sets. The raster is independent of the data -- it only follows the
-#'   `rounding` specification in the `grim_map()` call and the `digits`
+#'   `rounding` specification in the `grim_map()` call and the `decimals`
 #'   argument in `grim_plot()`.
 #'
 #'   Display an "empty" plot, one without empirical test results, by setting
 #'   `show_data` to `FALSE`. You can then control key parameters of the plot
-#'   with `digits` and `rounding`.
+#'   with `decimals` and `rounding`.
 #'
 #'   With `grim_map()`'s default for `rounding`, `"up_or_down"`, strikingly few
 #'   values are flagged as inconsistent for sample sizes 40 and 80 (or 4 and 8).
@@ -57,17 +57,17 @@
 #' @param data Data frame. Result of a call to `grim_map()`.
 #' @param show_data Boolean. If set to `FALSE`, test results from the data are
 #'   not displayed. Choose this if you only want to show the background raster.
-#'   You can then control plot parameters directly via the `n`, `digits`, and
+#'   You can then control plot parameters directly via the `n`, `decimals`, and
 #'   `rounding` arguments. Default is `TRUE`.
 #' @param show_gradient Boolean. If the number of decimal places is 3 or
 #'   greater, should a gradient be shown to signal the overall probability of
 #'   GRIM inconsistency? Default is `TRUE`.
-#' @param digits Integer. Number of decimal places for which the background
+#' @param decimals Integer. Number of decimal places for which the background
 #'   raster will be generated. Default is `NULL`, in which case the greatest
 #'   number of decimal places from the means or proportions is used.
 #' @param n Integer. Maximal value on the x-axis. Default is `NULL`, in which
-#'   case `n` becomes `10 ^ digits` (e.g., `100` if `digits` is `2`).
-#' @param digits Integer. Only relevant if `show_data` is set to `FALSE`. The
+#'   case `n` becomes `10 ^ decimals` (e.g., `100` if `decimals` is `2`).
+#' @param decimals Integer. Only relevant if `show_data` is set to `FALSE`. The
 #'   plot will then be constructed as it would be for data where all `x` values
 #'   have this many decimal places. Default is `2`.
 #' @param rounding String. Only relevant if `show_data` is set to `FALSE`. The
@@ -113,7 +113,7 @@ grim_plot <- function(data = NULL,
                       show_raster = TRUE,
                       show_gradient = TRUE,
                       n = NULL,
-                      digits = NULL,
+                      decimals = NULL,
                       rounding = "up_or_down",
                       color_cons = "royalblue1",
                       color_incons = "red",
@@ -145,16 +145,16 @@ grim_plot <- function(data = NULL,
     ))
   }
 
-  if (!is.null(digits)) {
-    if (!length(digits) == 1) {
+  if (!is.null(decimals)) {
+    if (!length(decimals) == 1) {
       cli::cli_abort(c(
-        "`digits` has length {length(digits)}",
+        "`decimals` has length {length(decimals)}",
         "x" = "It needs to have length 1 (a single number)."
       ))
     }
-    if (!is_whole_number(digits)) {
+    if (!is_whole_number(decimals)) {
       cli::cli_abort(c(
-        "`digits` is {digits}",
+        "`decimals` is {decimals}",
         "x" = "It needs to be a whole number."
       ))
     }
@@ -173,17 +173,17 @@ grim_plot <- function(data = NULL,
   }
 
 
-  if (is.null(digits)) {
-    digits_x <- decimal_places(data$x)    # used to be wrapped in `max()`
+  if (is.null(decimals)) {
+    decimals_x <- decimal_places(data$x)    # used to be wrapped in `max()`
 
     if (show_raster) {
-      if (!all(digits_x[1] == digits_x)) {
+      if (!all(decimals_x[1] == decimals_x)) {
         means_percentages <- dplyr::if_else(
           inherits(data, "scr_percent_true"),
           "Percentages",
           "Means"
         )
-        dp_unique <- unique(digits_x)
+        dp_unique <- unique(decimals_x)
         if (length(dp_unique) <= 3) {
           dp_unique_presented <- sort(dp_unique)
           msg_starting_with <- ":"
@@ -201,7 +201,7 @@ grim_plot <- function(data = NULL,
           {tolower(means_percentages)}.",
           ">" = "Avoid this error by plotting {tolower(means_percentages)} \\
           separately for each number of decimal places. (Alternatively, you \\
-          can specify `digits` as the number of decimal places for which \\
+          can specify `decimals` as the number of decimal places for which \\
           the plot should be shown. Be aware that this will not be sensible \\
           with regard to all {tolower(means_percentages)}.)"
         ))
@@ -209,10 +209,10 @@ grim_plot <- function(data = NULL,
     }
 
     # The call will only pass the above test if all `x` values have the same
-    # number of decimal places. Therefore, `digits` can now be determined
+    # number of decimal places. Therefore, `decimals` can now be determined
     # simply by taking the first element; or indeed any other element there
     # might be:
-    digits <- digits_x[1]
+    decimals <- decimals_x[1]
 
   }
 
@@ -222,7 +222,7 @@ grim_plot <- function(data = NULL,
 
   # Preparations ----
 
-  p10 <- 10 ^ digits
+  p10 <- 10 ^ decimals
 
   if (is.null(n)) {
     n <- p10
@@ -239,7 +239,7 @@ grim_plot <- function(data = NULL,
 
     # For 1 or 2 decimal places, the function selects the appropriate raster
     # from among those saved within the package itself:
-    if (!(digits > 2)) {
+    if (!(decimals > 2)) {
 
       # Check the way `x` values were rounded in the preceding `grim_map()` call
       # to prepare selecting the plot background raster:
@@ -266,8 +266,8 @@ grim_plot <- function(data = NULL,
       # proportion (`raster_frac`, y-axis) from the information provided by the
       # number of decimal places and the previously specified rounding
       # procedure. First, create two strings by those names...
-      raster_n    <- glue::glue("grim_raster_{digits}_{rounding_id}_n")
-      raster_frac <- glue::glue("grim_raster_{digits}_{rounding_id}_frac")
+      raster_n    <- glue::glue("grim_raster_{decimals}_{rounding_id}_n")
+      raster_frac <- glue::glue("grim_raster_{decimals}_{rounding_id}_frac")
 
       # ...and second, parse and evaluate these strings, so that R will identify
       # the raster component object by the respective name from among the files
@@ -333,8 +333,8 @@ grim_plot <- function(data = NULL,
   # Background raster / gradient:
   if (show_raster) {
 
-    # With 1 or 2 digits, the function provides a background raster...
-    # if (!(digits > 2)) {
+    # With 1 or 2 decimals, the function provides a background raster...
+    # if (!(decimals > 2)) {
 
       p <- ggplot2::ggplot(data = df_plot) +
         ggplot2::geom_tile(mapping = ggplot2::aes(
@@ -353,7 +353,7 @@ grim_plot <- function(data = NULL,
       # Boxes are still added pro forma; the call to `geom_tile()` is the same
       # as above (except for the `alpha` and `fill` specifications):
 
-      if (digits > 2) {
+      if (decimals > 2) {
 
         if (show_gradient) {
 
@@ -406,7 +406,7 @@ grim_plot <- function(data = NULL,
   }
 
 
-  if (!(digits > 2)) {
+  if (!(decimals > 2)) {
 
     # Further specifications:
     p <- p +

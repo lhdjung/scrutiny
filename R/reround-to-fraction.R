@@ -3,7 +3,7 @@
 #'
 #' @description Two functions that round numbers to specific fractions, not just
 #'   to the next higher decimal level. They are inspired by
-#'   `janitor::round_to_fraction()` but feature all the options of `reround()`.
+#'   `janitor::round_to_fraction()` but feature all the options of `reround()`:
 #'
 #'   - `reround_to_fraction()` closely follows `janitor::round_to_fraction()`
 #'   by first rounding to fractions of a whole number, then optionally rounding
