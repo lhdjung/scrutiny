@@ -1,7 +1,7 @@
 
 # Helper function used in the main function `reround()`:
-reconstruct_rounded_numbers_scalar <- function(x, rounding, digits,
-                                        threshold, symmetric) {
+reconstruct_rounded_numbers_scalar <- function(x, digits, rounding,
+                                               threshold, symmetric) {
 
   if (rounding == "even") {
     round(x, digits)
@@ -53,6 +53,7 @@ reconstruct_rounded_numbers <- Vectorize(reconstruct_rounded_numbers_scalar,
                                          USE.NAMES = FALSE)
 
 
+
 #' General interface to reconstructing rounded numbers
 #'
 #' @description `reround()` takes one or more intermediate reconstructed values
@@ -99,7 +100,7 @@ reconstruct_rounded_numbers <- Vectorize(reconstruct_rounded_numbers_scalar,
 #'   of positive numbers so that their absolute values are always equal.
 #'   Otherwise irrelevant. Default is `FALSE`.
 #'
-#' @include round.R round-ceil-floor.R
+#' @include utils.R round.R round-ceil-floor.R
 #'
 #' @export
 #'
@@ -109,7 +110,7 @@ reconstruct_rounded_numbers <- Vectorize(reconstruct_rounded_numbers_scalar,
 
 
 reround <- function(x, digits = 0, rounding = "up_or_down",
-                    threshold = NULL, symmetric = FALSE) {
+                    threshold = 5, symmetric = FALSE) {
 
   # Checks --
 
@@ -145,11 +146,18 @@ reround <- function(x, digits = 0, rounding = "up_or_down",
   if (length(rounding) > 1) {
     length_2ers <- c("up_or_down", "up_from_or_down_from", "ceiling_or_floor")
     if (any(length_2ers %in% rounding)) {
-      offender <- length_2ers[length_2ers %in% rounding][1]
+      offenders <- length_2ers[length_2ers %in% rounding]
+      msg_no_other <- glue::glue("If `rounding` is \"{offenders[1]}\", \\
+      there can be no other `rounding` values.")
+      if (length(offenders) > 1) {
+        offenders[-1] <- paste0("\"", offenders[-1], "\"")
+        msg_no_other <- paste(
+          msg_no_other, "This also applies to {offenders[-1]}."
+        )
+      }
       cli::cli_abort(c(
-        "\"{offender}\" in `rounding`, which has length {length(rounding)}",
-        "x" = "If `rounding` is \"{offender}\", there can be no other \\
-        `rounding` values."
+        "\"{offenders[1]}\" in `rounding`, which has length {length(rounding)}",
+        "x" = msg_no_other
       ))
     }
   }
@@ -173,17 +181,63 @@ reround <- function(x, digits = 0, rounding = "up_or_down",
   #   threshold <- 0
   # }
 
-  # Provisorically, at least while the above is outcommented:
-  threshold <- 0
+  # # Provisorically, at least while the above is outcommented:
+  # threshold <- 0
 
-  # Reconstruction --
+  # Main part ---
 
   # Go through the rounding options and, once the correct option (as per
   # `rounding`) has been found, proceed as described in the `Details` section of
   # the documentation. To vectorize the arguments, this is done via the helper
   # function at the top of the present file:
   as.vector(reconstruct_rounded_numbers(
-    x, rounding, digits, threshold, symmetric
+    x, digits, rounding, threshold, symmetric
   ))
+
 }
+
+
+
+
+
+# Possible alternative to the helper `reconstruct_rounded_numbers()` -- but it
+# doesn't currently work:
+
+
+# dplyr::case_when(
+#
+#   rounding == "up_or_down"  ~ c(
+#     round_up(x, digits, symmetric),
+#     round_down(x, digits, symmetric)
+#   ),
+#
+#   rounding == "up_from_or_down_from"  ~ c(
+#     round_up_from(x, digits, threshold, symmetric),
+#     round_down_from(x, digits, threshold, symmetric)
+#   ),
+#
+#   rounding == "ceiling_or_floor"  ~ c(
+#     round_ceiling(x, digits),
+#     round_floor(x, digits)
+#   ),
+#
+#   rounding == "even"  ~ round(x, digits),
+#   rounding == "up"  ~ round_up(x, digits, symmetric),
+#   rounding == "down"  ~ round_down(x, digits, symmetric),
+#   rounding == "up_from"  ~ round_up_from(x, digits, threshold, symmetric),
+#   rounding == "down_from"  ~ round_down_from(x, digits, threshold, symmetric),
+#   rounding == "ceiling"  ~ round_ceiling(x, digits),
+#   rounding == "floor"  ~ round_floor(x, digits),
+#   rounding == "trunc"  ~ round_trunc(x, digits),
+#   rounding == "anti_trunc"  ~ round_anti_trunc(x, digits),
+#
+#   TRUE  ~ cli::cli_abort(c(
+#     "`rounding` misspecified",
+#     "x" = "`rounding` was given as {wrong_spec_string(rounding)}.",
+#     ">" = "Please use one of the designated string values instead. See \\
+#       documentation for `grim()`, section `Rounding`."
+#   ))
+#
+# )
+
 
