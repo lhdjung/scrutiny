@@ -66,6 +66,8 @@ debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
                       rounding = "up_or_down", threshold = NULL,
                       symmetric = FALSE, show_rec = TRUE, extra = Inf) {
 
+  check_lengths_congruent(list(rounding, threshold, symmetric))
+
   # Throw error if `extra` argument it misspecified:
   if (!extra %in% colnames(data) && is.character(extra)) {
     cli::cli_abort(

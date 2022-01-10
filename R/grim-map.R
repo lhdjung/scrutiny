@@ -123,6 +123,8 @@ grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
                      symmetric = FALSE, tolerance = .Machine$double.eps^0.5,
                      testables_only = FALSE, extra = Inf) {
 
+  check_lengths_congruent(list(items, rounding, threshold, symmetric))
+
   # Throw error if `items` is specified in a way that contradicts `data`:
   if ("items" %in% colnames(data) && !items == 1) {
     cli::cli_abort(c(
