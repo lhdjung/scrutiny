@@ -34,7 +34,7 @@
 #
 # rivets_possible_values <- function(x, n, items, length_test = 10,
 #                                    rounding = "up_or_down", threshold = 5,
-#                                    decimals = NULL) {
+#                                    digits = NULL) {
 #
 #   if (!is.character(x)) {
 #     cli::cli_abort(c(
@@ -50,7 +50,7 @@
 #   x_max <- x + granularity
 #
 #   x_unrounded <- unround(x = x, rounding = rounding, threshold = threshold,
-#                          decimals = decimals)
+#                          digits = digits)
 #
 #   x_lower <- x_unrounded$lower
 #   x_upper <- x_unrounded$upper
@@ -81,3 +81,19 @@
 # lower <- unround("5.30")$lower
 # upper <- unround("5.30")$upper
 #
+
+
+# # For a later function that will convert formula inputs
+# # to argument vectors [BETTER NOT]:
+# string <- "(((sd1 ^ 2) * (n1 - 1)) + ((sd2 ^ 2) * (n2 - 1))) / (n1 + n2 - 2)"
+#
+# arguments <- string %>%
+#   stringr::str_replace_all("[:punct:]|[:symbol:]", " ") %>%
+#   stringr::str_remove_all(" [:digit:]") %>%
+#   stringr::str_remove_all("^[:digit:]|$[:digit:]") %>%
+#   stringr::str_squish() %>%
+#   stringr::str_split(" ") %>%
+#   unlist()
+
+
+
