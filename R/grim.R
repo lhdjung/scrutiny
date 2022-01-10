@@ -2,7 +2,7 @@
 # Single-case function; not exported but used as a basis for the vectorized
 # `grim()` as well as within `grim_map()`:
 grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
-                        rounding = "up_or_down", threshold = NULL,
+                        rounding = "up_or_down", threshold = 5,
                         symmetric = FALSE,
                         tolerance = .Machine$double.eps^0.5) {
 

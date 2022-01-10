@@ -73,7 +73,7 @@
 
 
 reround_to_fraction <- function(x = NULL, denominator = 1, digits = Inf,
-                                rounding = "up_or_down", threshold = NULL,
+                                rounding = "up_or_down", threshold = 5,
                                 symmetric = FALSE) {
 
   # Checks ---
@@ -161,7 +161,7 @@ reround_to_fraction <- function(x = NULL, denominator = 1, digits = Inf,
 #' @export
 
 reround_to_fraction_level <- function(x = NULL, denominator = 1, digits = 0,
-                                      rounding = "up_or_down", threshold = NULL,
+                                      rounding = "up_or_down", threshold = 5,
                                       symmetric = FALSE) {
 
   # Checks ---

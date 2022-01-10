@@ -10,7 +10,7 @@ debit(
   n,
   formula = "mean_n",
   rounding = "up_or_down",
-  threshold = NULL,
+  threshold = 5,
   symmetric = FALSE
 )
 }

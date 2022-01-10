@@ -63,7 +63,7 @@
 
 debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
                       # group_0 = NULL, group_1 = NULL,
-                      rounding = "up_or_down", threshold = NULL,
+                      rounding = "up_or_down", threshold = 5,
                       symmetric = FALSE, show_rec = TRUE, extra = Inf) {
 
   check_lengths_congruent(list(rounding, threshold, symmetric))

@@ -38,7 +38,7 @@
 
 debit <- function(x, sd, n,
                   formula = "mean_n", rounding = "up_or_down",
-                  threshold = NULL, symmetric = FALSE) {
+                  threshold = 5, symmetric = FALSE) {
 
   check_debit_inputs(x, sd)
 

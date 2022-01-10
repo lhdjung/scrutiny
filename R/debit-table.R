@@ -51,7 +51,7 @@ check_debit_inputs <- function(x, sd) {
 
 debit_table <- function(x, sd, n, group_0 = NA, group_1 = NA,
                         formula = "mean_n", rounding = "up_or_down",
-                        threshold = NULL, symmetric = FALSE, show_rec = TRUE) {
+                        threshold = 5, symmetric = FALSE, show_rec = TRUE) {
 
   # Checks ---
 

@@ -119,7 +119,7 @@
 
 grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
                      show_rec = FALSE, show_prob = FALSE,
-                     rounding = "up_or_down", threshold = NULL,
+                     rounding = "up_or_down", threshold = 5,
                      symmetric = FALSE, tolerance = .Machine$double.eps^0.5,
                      testables_only = FALSE, extra = Inf) {
 
