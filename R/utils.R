@@ -203,33 +203,30 @@ check_rounding_singular <- function(x) {
 
 proto_lengths_congruent <- function(x, y, residues,
                                     x_name, y_name, residues_names) {
-
-  if (length(x) > 1 && length(y) > 1) {
-    if (length(x) != length(y)) {
-      msg_need <-
-        "Both need to have the same length unless either has length 1."
-      if (length(residues) > 0) {
-        residues_names <- paste0("`", residues_names, "`")
-        msg_need <- paste(
-          msg_need,
-          "This also applies to {residues_names}."
-        )
-      }
-      cli::cli_abort(c(
-        "Lengths of `{x_name}` and `{y_name}` are not congruent",
-        "x" = "`{x_name}` has length {length(x)}.",
-        "x" = "`{y_name}` has length {length(y)}.",
-        "!" = msg_need
-      ))
-    } else {
-      cli::cli_warn(c(
-        "`{x_name} ` and `{y_name}` values get paired",
-        "!" = "Are you sure each `{x_name}` value should correspond to a \\
-        different `{y_name}`?",
-        ">" = "It might be better if at least one of `{x_name}` and \\
-        `{y_name}` has length 1."
-      ))
+  if (length(x) != length(y)) {
+    msg_need <-
+      "Both need to have the same length unless either has length 1."
+    if (length(residues) > 0) {
+      residues_names <- paste0("`", residues_names, "`")
+      msg_need <- paste(
+        msg_need,
+        "This also applies to {residues_names}."
+      )
     }
+    cli::cli_abort(c(
+      "Lengths of `{x_name}` and `{y_name}` are not congruent",
+      "x" = "`{x_name}` has length {length(x)}.",
+      "x" = "`{y_name}` has length {length(y)}.",
+      "!" = msg_need
+    ))
+  } else {
+    cli::cli_warn(c(
+      "`{x_name} ` and `{y_name}` values get paired",
+      "!" = "Are you sure each `{x_name}` value should correspond to a \\
+        different `{y_name}`?",
+      ">" = "It might be better if at least one of `{x_name}` and \\
+        `{y_name}` has length 1."
+    ))
   }
 
 }
