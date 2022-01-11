@@ -106,13 +106,12 @@ restore_zeros <- function(x, width = NULL, sep = "\\.") {
   # exactly one `sep` substring (default is a decimal point) in each resulting
   # string value...
   out <- stringr::str_pad(x, width = integer_length + 1 + target_width,
-                          side = "right", pad = "i")
-
-  out <- stringr::str_replace(    out, "i", sep)
-  out <- stringr::str_replace_all(out, "i", "0")
-  out <- stringr::str_replace(    out, sep, "d")
-  out <- stringr::str_replace_all(out, sep, "0")
-  out <- stringr::str_replace(    out, "d", sep)
+                          side = "right", pad = "i") %>%
+    stringr::str_replace(    "i", sep) %>%
+    stringr::str_replace_all("i", "0") %>%
+    stringr::str_replace(    sep, "d") %>%
+    stringr::str_replace_all(sep, "0") %>%
+    stringr::str_replace(    "d", sep)
 
   # ...unless a string has no decimal places, in which case the `sep` substring
   # at the end of the value would be superfluous. It is removed before the
@@ -124,4 +123,5 @@ restore_zeros <- function(x, width = NULL, sep = "\\.") {
   )
 
 }
+
 
