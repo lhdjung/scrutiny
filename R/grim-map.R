@@ -123,7 +123,12 @@ grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
                      symmetric = FALSE, tolerance = .Machine$double.eps^0.5,
                      testables_only = FALSE, extra = Inf) {
 
-  check_lengths_congruent(list(items, rounding, threshold, symmetric))
+  # Throw error if any two inputs listed below have length > 1 but both have
+  # different lengths among each other; and even if they have the same length,
+  # warn the user that values get paired:
+  check_lengths_congruent(list(
+    items, percent, rounding, threshold, symmetric, tolerance
+  ))
 
   # Throw error if `items` is specified in a way that contradicts `data`:
   if ("items" %in% colnames(data) && !items == 1) {
@@ -234,20 +239,46 @@ grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
   # In case the user had set `show_rec` to `TRUE` for displaying the
   # reconstructed values from `grim_scalar()`'s internal computations, these
   # were stored in `consistency` until now. The `consistency` column, then, is a
-  # list-column of 6 values per cell. These numbers are now unnested (i.e.,
+  # list-column of 6 or 8 values per cell. These numbers are now unnested (i.e.,
   # transformed into their own columns) and given their respective proper names:
   if (show_rec) {
-    results <- results %>%
-      tidyr::unnest_wider(col = consistency) %>%
-      suppressMessages() %>%
-      dplyr::rename(
-        consistency          = .data$`...1`,
-        rec_sum              = .data$`...2`,
-        rec_x_upper          = .data$`...3`,
-        rec_x_lower          = .data$`...4`,
-        rec_x_upper_rounded  = .data$`...5`,
-        rec_x_lower_rounded  = .data$`...6`
-      )
+    length_2ers <- c("up_or_down", "up_from_or_down_from", "ceiling_or_floor")
+    if (any(rounding == length_2ers)) {
+
+      rounding_split <- rounding %>%
+        stringr::str_split("_or_") %>%
+        unlist()
+
+      results <- results %>%
+        tidyr::unnest_wider(col = consistency) %>%
+        suppressMessages() %>%
+        dplyr::rename(
+          consistency  = .data$`...1`,
+          rec_sum      = .data$`...2`,
+          rec_x_upper  = .data$`...3`,
+          rec_x_lower  = .data$`...4`,
+          "rec_x_upper_rounded_{rounding_split[1]}" := .data$`...5`,
+          "rec_x_upper_rounded_{rounding_split[2]}" := .data$`...6`,
+          "rec_x_lower_rounded_{rounding_split[1]}" := .data$`...7`,
+          "rec_x_lower_rounded_{rounding_split[2]}" := .data$`...8`,
+        )
+
+    } else {
+
+      results <- results %>%
+        tidyr::unnest_wider(col = consistency) %>%
+        suppressMessages() %>%
+        dplyr::rename(
+          consistency          = .data$`...1`,
+          rec_sum              = .data$`...2`,
+          rec_x_upper          = .data$`...3`,
+          rec_x_lower          = .data$`...4`,
+          rec_x_upper_rounded  = .data$`...5`,
+          rec_x_lower_rounded  = .data$`...6`
+        )
+
+    }
+
   }
 
   # If demanded via the `show_prob` argument, add a column that displays the

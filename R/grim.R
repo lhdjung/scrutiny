@@ -6,6 +6,8 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
                         symmetric = FALSE,
                         tolerance = .Machine$double.eps^0.5) {
 
+  check_rounding_singular(rounding)
+
   # Provide some guidance in case users confuse `grim()` with `grim_map()`:
   if (is.data.frame(x)) {
     cli::cli_abort(c(
@@ -61,19 +63,25 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
   # `dplyr::near()` itself, i.e., circa 0.000000015:
   grain_is_x <- dplyr::near(grains_rounded, x_num, tol = tolerance)
 
-  if (show_rec == FALSE) {
+  if (!show_rec) {
     # Check if any of these two comparisons returned `TRUE`:
     any(grain_is_x)
   } else {
     consistency <- any(grain_is_x)
-    # rec_sum <- x_n_items
-    # rec_x_upper <- grain_upper
-    # rec_x_lower <- grain_lower
-    rec_x_upper_rounded <- grains_rounded[1]
-    rec_x_lower_rounded <- grains_rounded[2]
+    length_2ers <- c("up_or_down", "up_from_or_down_from", "ceiling_or_floor")
 
-    list(consistency, rec_sum, rec_x_upper, rec_x_lower,
-         rec_x_upper_rounded, rec_x_lower_rounded)
+    if (any(rounding == length_2ers)) {
+
+      list(consistency, rec_sum, rec_x_upper, rec_x_lower,
+           grains_rounded[1], grains_rounded[2],
+           grains_rounded[3], grains_rounded[4])
+
+    } else {
+
+      list(consistency, rec_sum, rec_x_upper, rec_x_lower,
+           grains_rounded[1], grains_rounded[2])
+    }
+
   }
 
 }
