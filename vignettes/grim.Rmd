@@ -92,7 +92,7 @@ The `x` and `n` columns are the same as in the input. By default, the number of 
 If the mean is composed of multiple items, set the `items` parameter to that number. Below are hypothetical means of a three-items scale. With the single-item default, half of these are wrongly flagged as inconsistent:
 
 ```{r, error=TRUE}
-jpap1 <- tribble(
+jpap_1 <- tribble(
    ~x,
   "5.90",
   "5.71",
@@ -103,21 +103,21 @@ jpap1 <- tribble(
 ) %>% 
   mutate(n = 40)
 
-jpap1 %>% 
+jpap_1 %>% 
   grim_map()  # default is wrong here!
 ```
 
 Yet, all of them are consistent if the correct number of items is stated:
 
 ```{r, error=TRUE}
-jpap1 %>% 
+jpap_1 %>% 
   grim_map(items = 3)
 ```
 
 It is also possible to include an `items` column in the data frame instead:
 
 ```{r, error=TRUE}
-jpap2 <- tribble(
+jpap_2 <- tribble(
    ~x,    ~items,
   "6.92",  1,
   "3.48",  1,
@@ -128,7 +128,7 @@ jpap2 <- tribble(
 ) %>% 
   mutate(n = 30)
 
-jpap2 %>% 
+jpap_2 %>% 
   grim_map()
 ```
 
@@ -139,7 +139,7 @@ An underappreciated strength of GRIM is testing percentages. Since these are act
 Both `grim()` and `grim_map()` have a `percent` parameter which, if set to `TRUE`, divides the `x` values by 100 and increases the decimal count by two, so that percentages can be tested just like means:
 
 ```{r, error=TRUE}
-jpap3 <- tribble(
+jpap_3 <- tribble(
   ~x,     ~n,
   "32.5",  438,
   "35.6",  455,
@@ -147,7 +147,7 @@ jpap3 <- tribble(
   "39.3",  516,
 )
 
-jpap3 %>% 
+jpap_3 %>% 
   grim_map(percent = TRUE)
 ```
 
@@ -176,7 +176,7 @@ The additional columns are ---
 
 -   `rec_x_lower_rounded_down`: the `rec_x_lower` value rounded down.
 
-The last four columns depend on `rounding`. Here, they follow the default `"up_or_down"`, leading to two columns for each of `rec_x_upper` and `rec_x_lower`. With a singular `rounding` procedure, such as `"up"`, there would only be one column each, and thus, two in total.
+The last four columns depend on `rounding`. Here, they follow the default `"up_or_down"`, leading to two columns for each of `rec_x_upper` and `rec_x_lower`. With a singular `rounding` procedure, such as `"up"`, there would only be one column each, and thus, two in total. The difference between these numbers is not greatly important, however, because rounding up and down mostly delivers the same results.
 
 Internally, GRIM-consistency is determined by whether or not a stated `x` value is near-identical to either `rec_x_upper_rounded` or `rec_x_lower_rounded`. This algorithm follows the charitable and conservative protocol outlined by Brown and Heathers (2016).
 
@@ -199,14 +199,24 @@ Points 3 to 5 above list some quite obscure options that were only included to c
 By default, `grim()` and `grim_map()` accept values rounded either up or down from 5. If you have reason to impose stricter assumptions on the way `x` was rounded, specify `rounding` accordingly:
 
 ```{r, error=TRUE}
-flying_pigs1 %>% 
+jpap_4 <- tibble::tribble(
+    ~x,     ~n,
+    "2.02",  80,
+    "2.03",  80,
+    "2.04",  80,
+    "2.05",  80,
+)
+
+jpap_4 %>% 
   grim_map(rounding = "up")
 
-flying_pigs1 %>% 
-  grim_map(rounding = "even")
+jpap_4 %>% 
+  grim_map(rounding = "down")
 ```
 
-Although changing the rounding procedure didn't make any difference in this case, it is important to account for the different ways in which numbers might be rounded, if only to demonstrate that some given results are robust to those variable decisions. To err on the side of caution, the default for `rounding` is the permissive `"up_or_down"`.
+Rounding up and down leads to precisely opposite results for the first two cases, although it agrees on the latter two. Even this example is cherry-picked: Sample sizes of 80 are highly unusual because, for most other `n` values, those two rounding procedures agree in the overwhelming majority of cases. See section *Visualizing results with `grim_plot()`* on this issue.
+
+It might still be important to account for the different ways in which numbers can be rounded, if only to demonstrate that some given results are robust to those variable decisions. To err on the side of caution, the default for `rounding` is the permissive `"up_or_down"`.
 
 ## Testing numeric sequences
 
@@ -279,7 +289,7 @@ These columns are ---
 There is a specialized visualization function for GRIM test results, `grim_plot()`:
 
 ```{r, error=TRUE, fig.width=6, fig.height=5.5}
-jpap4 <- tribble(
+jpap_5 <- tribble(
   ~x,        ~n,
   "7.19",    28,
   "4.56",    34,
@@ -294,7 +304,7 @@ jpap4 <- tribble(
 )
 
 
-jpap4 %>% 
+jpap_5 %>% 
   grim_map() %>% 
   grim_plot()
 ```
@@ -313,7 +323,7 @@ Empirical values are shown in blue if consistent and red if inconsistent. Color 
 You might notice the light vertical lines at $N = 40$ and $N = 80$: Few values are flagged as inconsistent here. This reflects `grim_map()`'s charitable default of accepting values rounded either up *or* down from 5. If a different `rounding` specification is chosen in the `grim_map()` call, the plot raster will adjust automatically:
 
 ```{r, fig.width=6, fig.height=5.5}
-jpap4 %>% 
+jpap_5 %>% 
   grim_map(rounding = "up") %>% 
   grim_plot()
 ```
