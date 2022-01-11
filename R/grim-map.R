@@ -234,8 +234,9 @@ that column."
   # In case the user had set `show_rec` to `TRUE` for displaying the
   # reconstructed values from `grim_scalar()`'s internal computations, these
   # were stored in `consistency` until now. The `consistency` column, then, is a
-  # list-column of 6 or 8 values per cell. These numbers are now unnested (i.e.,
-  # transformed into their own columns) and given their respective proper names:
+  # list-column of 6 or 8 values per cell, depending on `rounding`. These
+  # numbers are now unnested (i.e., turned into their own columns) and
+  # given their respective proper names:
   if (show_rec) {
     length_2ers <- c("up_or_down", "up_from_or_down_from", "ceiling_or_floor")
     if (any(rounding == length_2ers)) {
