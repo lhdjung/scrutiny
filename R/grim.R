@@ -70,7 +70,7 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
     consistency <- any(grain_is_x)
     length_2ers <- c("up_or_down", "up_from_or_down_from", "ceiling_or_floor")
 
-    if (any(rounding == length_2ers)) {
+    if (any(length_2ers == rounding)) {
 
       list(consistency, rec_sum, rec_x_upper, rec_x_lower,
            grains_rounded[1], grains_rounded[2],
