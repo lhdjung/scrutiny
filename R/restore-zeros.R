@@ -70,12 +70,12 @@ restore_zeros <- function(x, width = NULL, sep = "\\.") {
 
   # Count characters of the integer and mantissa parts via internal helper
   # functions:
-  # integer_length <- integer_length(x)
-  # mantissa_length <- mantissa_length(x)
+  # width_integer <- width_integer(x)
+  # width_mantissa <- width_mantissa(x)
 
   parts <- stringr::str_split_fixed(x, sep, n = 2)
-  integer_length <- stringr::str_length(parts[, 1])
-  mantissa_length <- stringr::str_length(parts[, 2])
+  width_integer <- stringr::str_length(parts[, 1])
+  width_mantissa <- stringr::str_length(parts[, 2])
 
   # Determine the maximal width to which the mantissas should be padded in
   # accordance with the `width` argument, the default of which, `NULL`, makes
@@ -86,15 +86,15 @@ restore_zeros <- function(x, width = NULL, sep = "\\.") {
         "If `x` has length 1, trailing zeros can't be restored without \\
         specifying `width`."
       ))
-    } else if (purrr::every(mantissa_length, `==`, 0)) {
+    } else if (purrr::every(width_mantissa, `==`, 0)) {
       rlang::warn(glue::glue(
         "None of the {length(x)} `x` values has any decimal places, so no \\
         zeros can be restored without specifying `width`."
       ))
     }
-    target_width <- max(mantissa_length, na.rm = TRUE)
+    width_target <- max(width_mantissa, na.rm = TRUE)
   } else {
-    target_width <- width
+    width_target <- width
   }
 
   # The number of trailing zeros to be added takes the respective lengths of
@@ -105,7 +105,7 @@ restore_zeros <- function(x, width = NULL, sep = "\\.") {
   # that `"i"` and `"d"` are just placeholders here, used to make sure there is
   # exactly one `sep` substring (default is a decimal point) in each resulting
   # string value...
-  out <- stringr::str_pad(x, width = integer_length + 1 + target_width,
+  out <- stringr::str_pad(x, width = width_integer + 1 + width_target,
                           side = "right", pad = "i") %>%
     stringr::str_replace(    "i", sep) %>%
     stringr::str_replace_all("i", "0") %>%
