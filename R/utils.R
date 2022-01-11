@@ -242,6 +242,9 @@ check_lengths_congruent <- function(var_list) {
 
   if (length(var_list) > 1) {
     var_names <- var_names[var_lengths > 1]
+    length_dup <- duplicated(var_lengths)
+    var_list <- var_list[!length_dup]
+    var_names <- var_names[!length_dup]
     residues_list <- var_list[-(1:2)]
     residues_names <- var_names[-(1:2)]
 
