@@ -139,7 +139,7 @@ compute_rounding_bounds <- Vectorize(compute_rounding_bounds_scalar)
 unround <- function(x, rounding = "up_or_down", threshold = 5, digits = NULL) {
 
   # (From the utils.R file:)
-  check_lengths_congruent(list(x, rounding, digits))
+  check_lengths_congruent(list(x, rounding))
 
   # The number of decimal places might be given from within another function via
   # the `digits` argument. Otherwise -- if `digits` is not specified, and
