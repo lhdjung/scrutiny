@@ -112,9 +112,6 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
 #'   Browse the source code in the grim.R file. `grim()` is a vectorized version
 #'   of the internal `grim_scalar()` function found there.
 #'
-#'   The GRIM test (granularity-related inconsistency of means) was devised by
-#'   ---REFERENCE TO BROWN AND HEATHERS 2017---.
-#'
 #' @section Rounding: Here are the options for the `rounding` argument.
 #'   Reconstructed mean or percentage values can be rounded in either of these
 #'   ways:
@@ -176,6 +173,11 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
 #' @include utils.R decimal-places.R reround.R
 #'
 #' @importFrom magrittr %>%
+#'
+#' @references Brown, Nicholas J. L., and James A. J. Heathers. 2017. The GRIM
+#'   Test: A Simple Technique Detects Numerous Anomalies in the Reporting of
+#'   Results in Psychology. *Social Psychological and Personality Science* 8
+#'   (4): 363–69. https://doi.org/10.1177/1948550616673876.
 #'
 #' @examples
 #' # A mean of 5.19 is not consistent with a sample size of 28:

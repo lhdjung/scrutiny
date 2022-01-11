@@ -76,9 +76,6 @@ had. See documentation there.
 
 Browse the source code in the grim.R file. \code{grim()} is a vectorized version
 of the internal \code{grim_scalar()} function found there.
-
-The GRIM test (granularity-related inconsistency of means) was devised by
----REFERENCE TO BROWN AND HEATHERS 2017---.
 }
 \section{Rounding}{
  Here are the options for the \code{rounding} argument.
@@ -123,6 +120,12 @@ grim(x = "2.84", n = 16, items = 2)
 # With percentages instead of means -- here, 71\%:
 grim(x = "71", n = 43, percent = TRUE)
 
+}
+\references{
+Brown, Nicholas J. L., and James A. J. Heathers. 2017. The GRIM
+Test: A Simple Technique Detects Numerous Anomalies in the Reporting of
+Results in Psychology. \emph{Social Psychological and Personality Science} 8
+(4): 363–69. https://doi.org/10.1177/1948550616673876.
 }
 \seealso{
 \code{grim_map()} applies \code{grim()} to any number of cases at once.
