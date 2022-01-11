@@ -48,6 +48,15 @@ Boolean. \code{TRUE} if \code{x}, \code{sd}, and \code{n} are mutually consisten
 standard deviation of binary data are given, are they consistent with the
 reported sample size?
 }
+\examples{
+# Check single cases of binary
+# summary data:
+debit(x = "0.36", sd = "0.11", n = 20)
+}
+\references{
+Heathers, James A. J., und Nicholas J. L. Brown. 2019. DEBIT: A
+Simple Consistency Test For Binary Data. https://osf.io/5vb3u/.
+}
 \seealso{
 \code{debit_map()} applies \code{debit()} to any number of cases at once.
 }

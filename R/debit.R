@@ -32,8 +32,14 @@
 #'   `FALSE` if not.
 #'
 #' @seealso `debit_map()` applies `debit()` to any number of cases at once.
-
-# ADD @examples WHEN FUNCTION DONE
+#'
+#' @references Heathers, James A. J., und Nicholas J. L. Brown. 2019. DEBIT: A
+#'   Simple Consistency Test For Binary Data. https://osf.io/5vb3u/.
+#'
+#' @examples
+#' # Check single cases of binary
+#' # summary data:
+#' debit(x = "0.36", sd = "0.11", n = 20)
 
 
 debit <- function(x, sd, n,
