@@ -91,9 +91,13 @@ includes the following additional columns:
 derived.
 \item \code{rec_x_upper}: the upper reconstructed \code{x} value.
 \item \code{rec_x_lower}: the lower reconstructed \code{x} value.
-\item \code{rec_x_upper_rounded}: the rounded \code{rec_upper} value.
-\item \code{rec_x_lower_rounded}: the rounded \code{rec_lower} value.
+\item \code{rec_x_upper_rounded}: the rounded \code{rec_x_upper} value.
+\item \code{rec_x_lower_rounded}: the rounded \code{rec_x_lower} value.
 }
+
+With the default for \code{rounding}, \code{"up_or_down"}, each of the last two columns
+is replaced by two columns that specify the rounding procedures (i.e.,
+\code{"_up"} and \code{"_down"}).
 }
 
 \section{Summaries with \code{audit()}}{
@@ -127,16 +131,6 @@ pigs1 \%>\%
 # GRIM-testing with `show_rec = TRUE`:
 pigs1 \%>\%
   grim_map(show_rec = TRUE)
-
-# Specifically, values are consistent
-# if and only if `x` is near-identical
-# to either of `rec_x_upper_rounded`
-# and `rec_x_lower_rounded`:
-pigs1 \%>\%
-  grim_map(show_rec = TRUE) \%>\%
-  dplyr::select(x, consistency,
-                rec_x_upper_rounded,
-                rec_x_lower_rounded)
 
 # Get summaries with `audit()`:
 pigs1 \%>\%

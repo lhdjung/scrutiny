@@ -168,9 +168,15 @@ The additional columns are ---
 
 -   `rec_x_lower`: the lower reconstructed `x` value.
 
--   `rec_x_upper_rounded`: the rounded `rec_upper` value.
+-   `rec_x_upper_rounded_up`: the `rec_x_upper` value rounded up.
 
--   `rec_x_lower_rounded`: the rounded `rec_lower` value.
+-   `rec_x_upper_rounded_down`: the `rec_x_upper` value rounded down.
+
+-   `rec_x_lower_rounded_up`: the `rec_x_lower` value rounded up.
+
+-   `rec_x_lower_rounded_down`: the `rec_x_lower` value rounded down.
+
+The last four columns depend on `rounding`. Here, they follow the default `"up_or_down"`, leading to two columns for each of `rec_x_upper` and `rec_x_lower`. With a singular `rounding` procedure, such as `"up"`, there would only be one column each, and thus, two in total.
 
 Internally, GRIM-consistency is determined by whether or not a stated `x` value is near-identical to either `rec_x_upper_rounded` or `rec_x_lower_rounded`. This algorithm follows the charitable and conservative protocol outlined by Brown and Heathers (2016).
 

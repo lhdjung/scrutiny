@@ -59,8 +59,12 @@
 #'   derived.
 #' - `rec_x_upper`: the upper reconstructed `x` value.
 #' - `rec_x_lower`: the lower reconstructed `x` value.
-#' - `rec_x_upper_rounded`: the rounded `rec_upper` value.
-#' - `rec_x_lower_rounded`: the rounded `rec_lower` value.
+#' - `rec_x_upper_rounded`: the rounded `rec_x_upper` value.
+#' - `rec_x_lower_rounded`: the rounded `rec_x_lower` value.
+#'
+#' With the default for `rounding`, `"up_or_down"`, each of the last two columns
+#' is replaced by two columns that specify the rounding procedures (i.e.,
+#' `"_up"` and `"_down"`).
 
 #' @section Summaries with `audit()`: There is an S3 method for `audit()`, so
 #'   you can call `audit()` following `grim_map()` to get a summary of
@@ -76,7 +80,7 @@
 #' positive ratio).
 #' 7. `testable_rate`: proportion of GRIM-testable value sets.
 #'
-#' @include audit.R grim.R manage-extra-cols.R restore-zeros.R split-transform.R
+#' @include audit.R grim.R manage-extra-cols.R restore-zeros.R
 #'
 #' @export
 #'
@@ -94,16 +98,6 @@
 #' # GRIM-testing with `show_rec = TRUE`:
 #' pigs1 %>%
 #'   grim_map(show_rec = TRUE)
-#'
-#' # Specifically, values are consistent
-#' # if and only if `x` is near-identical
-#' # to either of `rec_x_upper_rounded`
-#' # and `rec_x_lower_rounded`:
-#' pigs1 %>%
-#'   grim_map(show_rec = TRUE) %>%
-#'   dplyr::select(x, consistency,
-#'                 rec_x_upper_rounded,
-#'                 rec_x_lower_rounded)
 #'
 #' # Get summaries with `audit()`:
 #' pigs1 %>%
@@ -164,7 +158,8 @@ grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
     cli::cli_abort(c(
       "`n` column missing",
       ">" = "The sample size column in `data` needs to be named `n`, \\
-      or else specify the `n` argument as the name of that column."
+      or else specify the `n` argument in `grim_map()` as the name of \\
+that column."
     ))
   }
 
@@ -260,7 +255,7 @@ grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
           "rec_x_upper_rounded_{rounding_split[1]}" := .data$`...5`,
           "rec_x_upper_rounded_{rounding_split[2]}" := .data$`...6`,
           "rec_x_lower_rounded_{rounding_split[1]}" := .data$`...7`,
-          "rec_x_lower_rounded_{rounding_split[2]}" := .data$`...8`,
+          "rec_x_lower_rounded_{rounding_split[2]}" := .data$`...8`
         )
 
     } else {
@@ -307,8 +302,12 @@ grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
   # within `grim_scalar()`. Also, issue an alert to the user about the
   # percentage conversion:
   if (percent) {
-    results$x <- restore_zeros(as.numeric(results$x) / 100) %>%
+    results$x <- results$x %>%
+      as.numeric() %>%
+      `/`(100) %>%
+      restore_zeros() %>%
       suppressWarnings()
+
     results <- results %>%
       add_class("scr_percent_true")
 
