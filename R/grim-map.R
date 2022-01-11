@@ -239,7 +239,7 @@ that column."
   # given their respective proper names:
   if (show_rec) {
     length_2ers <- c("up_or_down", "up_from_or_down_from", "ceiling_or_floor")
-    if (any(rounding == length_2ers)) {
+    if (any(rounding %in% length_2ers)) {
 
       rounding_split <- rounding %>%
         stringr::str_split("_or_") %>%
