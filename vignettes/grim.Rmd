@@ -178,7 +178,7 @@ The additional columns are ---
 
 The last four columns depend on `rounding`. Here, they follow the default `"up_or_down"`, leading to two columns for each of `rec_x_upper` and `rec_x_lower`. With a singular `rounding` procedure, such as `"up"`, there would only be one column each, and thus, two in total. The difference between these numbers is not greatly important, however, because rounding up and down mostly delivers the same results.
 
-Internally, GRIM-consistency is determined by whether or not a stated `x` value is near-identical to either `rec_x_upper_rounded` or `rec_x_lower_rounded`. This algorithm follows the charitable and conservative protocol outlined by Brown and Heathers (2016).
+Internally, GRIM-consistency is determined by whether or not a stated `x` value is near-identical to either `rec_x_upper_rounded` or `rec_x_lower_rounded`. This algorithm follows the charitable and conservative protocol outlined by Brown and Heathers (2017).
 
 ### Rounding
 
@@ -378,7 +378,7 @@ Similarly, if the `grim_total()` value is non-negative, it can be interpreted as
 
 #### Origins
 
-Although the term "GRIM ratio" is new, the formula is arguably implicit in Brown and Heathers' (2016) paper on GRIM. The numerator is a transformation of the formula presented on p. 364, and the authors discuss a common special case of the ratio (interpreted as a proportion) on p. 367:
+Although the term "GRIM ratio" is new, the formula is arguably implicit in Brown and Heathers' (2017) paper on GRIM. The numerator is a transformation of the formula presented on p. 364, and the authors discuss a common special case of the ratio (interpreted as a proportion) on p. 367:
 
 > With reporting to two decimal places, for a sample size $N < 100$ [and a single item], a random mean value will be consistent in approximately $N$% of cases.
 
