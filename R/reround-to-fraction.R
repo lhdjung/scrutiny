@@ -112,13 +112,9 @@ reround_to_fraction <- function(x = NULL, denominator = 1, digits = Inf,
 
   if (any(rounding == "up_or_down")) {
     rounding <- c("up", "down")
-  }
-
-  if (any(rounding == "up_from_or_down_from")) {
+  } else if (any(rounding == "up_from_or_down_from")) {
     rounding <- c("up_from", "down_from")
-  }
-
-  if (any(rounding == "ceiling_or_floor")) {
+  } else if (any(rounding == "ceiling_or_floor")) {
     rounding <- c("ceiling", "floor")
   }
 
@@ -202,6 +198,14 @@ reround_to_fraction_level <- function(x = NULL, denominator = 1, digits = 0,
         "x" = "Each `digit` value needs to be a whole number."
       ))
     }
+  }
+
+  if (any(rounding == "up_or_down")) {
+    rounding <- c("up", "down")
+  } else if (any(rounding == "up_from_or_down_from")) {
+    rounding <- c("up_from", "down_from")
+  } else if (any(rounding == "ceiling_or_floor")) {
+    rounding <- c("ceiling", "floor")
   }
 
 
