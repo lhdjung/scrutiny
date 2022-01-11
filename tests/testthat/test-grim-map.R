@@ -87,10 +87,18 @@ test_that(
 
 
 df3_true_accord <- df3_percent_true %>%
-  dplyr::select(x, consistency, rec_x_upper_rounded, rec_x_lower_rounded) %>%
+  dplyr::select(
+    x, consistency,
+    rec_x_upper_rounded_up, rec_x_upper_rounded_down,
+    rec_x_lower_rounded_up, rec_x_lower_rounded_down
+  ) %>%
   dplyr::mutate(accord = dplyr::if_else(
       consistency,
-      any(dplyr::near(as.numeric(x), rec_x_upper_rounded, rec_x_lower_rounded)),
+      any(dplyr::near(
+        as.numeric(x), c(
+        rec_x_upper_rounded_up, rec_x_upper_rounded_down,
+        rec_x_lower_rounded_up, rec_x_lower_rounded_down
+      ))),
       FALSE
     ))
 
