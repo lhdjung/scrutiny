@@ -20,8 +20,8 @@
 #'
 #'   It would be wrong to determine a scale's granularity from the minimal
 #'   distance between two values in a given distribution. This would only
-#'   signify how those values actually do differ, not how they *can* differ a
-#'   priori based on scale design. Also, keep in mind that continuous scales
+#'   signify how those values actually do differ, not how they *can* differ
+#'   *a priori* based on scale design. Also, keep in mind that continuous scales
 #'   have no granularity at all.
 #'
 #' @param n Numeric. Sample size.
