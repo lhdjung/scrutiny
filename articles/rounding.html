@@ -4,110 +4,84 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="description" content="scrutiny">
 <title>Rounding • scrutiny</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/flatly/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
-<script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="../deps/bootstrap-5.1.0/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.1.0/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Rounding">
+<!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Rounding">
 <meta property="og:description" content="scrutiny">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 </head>
-<body data-spy="scroll" data-target="#toc">
+<body>
+    <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
     
 
-    <div class="container template-article">
-      <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
-  <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">scrutiny</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.0.9000</span>
-      </span>
-    </div>
+    <nav class="navbar fixed-top navbar-dark navbar-expand-lg bg-primary"><div class="container">
+    
+    <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav">
-<li>
-  <a href="../reference/index.html">Reference</a>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+
+    
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar" class="collapse navbar-collapse ms-2">
+      <ul class="navbar-nav me-auto">
+<li class="nav-item">
+  <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-<li class="divider">
-    </li>
-<li class="dropdown-header">Consistency tests</li>
-    <li>
-      <a href="../articles/grim.html">GRIM</a>
-    </li>
-    <li>
-      <a href="../articles/debit.html">DEBIT</a>
-    </li>
-    <li class="divider">
-    </li>
-<li class="dropdown-header">Infrastructure</li>
-    <li>
-      <a href="../articles/rounding.html">Rounding</a>
-    </li>
-    <li>
-      <a href="../articles/infrastructure.html">Infrastructure beyond rounding</a>
-    </li>
-    <li class="divider">
-    </li>
-<li class="dropdown-header">Other</li>
-    <li>
-      <a href="../articles/wrangling.html">Data wrangling</a>
-    </li>
-    <li>
-      <a href="../articles/related.html">Related software</a>
-    </li>
-  </ul>
-</li>
-<li>
-  <a href="../news/index.html">Changelog</a>
-</li>
-      </ul>
-<ul class="nav navbar-nav navbar-right">
-<li>
-  <a href="https://github.com/lhdjung/scrutiny/" class="external-link">
-    <span class="fab fa-github fa-lg"></span>
-     
-  </a>
-</li>
-      </ul>
-</div>
-<!--/.nav-collapse -->
+<li class="active nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <h6 class="dropdown-header" data-toc-skip>Consistency tests</h6>
+    <a class="dropdown-item" href="../articles/grim.html">GRIM</a>
+    <a class="dropdown-item" href="../articles/debit.html">DEBIT</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Infrastructure</h6>
+    <a class="dropdown-item" href="../articles/rounding.html">Rounding</a>
+    <a class="dropdown-item" href="../articles/infrastructure.html">Infrastructure beyond rounding</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Other</h6>
+    <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
+    <a class="dropdown-item" href="../articles/related.html">Related software</a>
   </div>
-<!--/.container -->
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="../news/index.html">Changelog</a>
+</li>
+      </ul>
+<form class="form-inline my-2 my-lg-0" role="search">
+        <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off">
+</form>
+
+      <ul class="navbar-nav">
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://github.com/lhdjung/scrutiny/" aria-label="github">
+    <span class="fab fa fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
-<!--/.navbar -->
 
-      
-
-      </header><script src="rounding_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
-  <div class="col-md-9 contents">
-    <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Rounding</h1>
+    
+  </div>
+</nav><div class="container template-article">
+<script src="rounding_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+  <main id="main"><div class="page-header">
+      <img src="" class="logo" alt=""><h1>Rounding</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/lhdjung/scrutiny/blob/HEAD/vignettes/rounding.Rmd" class="external-link"><code>vignettes/rounding.Rmd</code></a></small>
-      <div class="hidden name"><code>rounding.Rmd</code></div>
-
+      <div class="d-none name"><code>rounding.Rmd</code></div>
     </div>
 
     
@@ -127,11 +101,11 @@
 <div class="section level2">
 <h2 id="reconstruct-rounded-numbers-with-reround">Reconstruct rounded numbers with <code>reround()</code><a class="anchor" aria-label="anchor" href="#reconstruct-rounded-numbers-with-reround"></a>
 </h2>
-<p>None of the error detection techniques in scrutiny calls the individual rounding functions directly. Instead, all of them call <code><a href="../reference/reround.html">reround()</a></code>, which mediates between these two levels. <code><a href="../reference/reround.html">reround()</a></code> takes the vector of “raw” reconstructed numbers that were not yet rounded in the way that’s assumed to have been the original rounding procedure. Its next argument is <code>decimals</code>, the number of decimal places to round to.</p>
+<p>None of the error detection techniques in scrutiny calls the individual rounding functions directly. Instead, all of them call <code><a href="../reference/reround.html">reround()</a></code>, which mediates between these two levels. <code><a href="../reference/reround.html">reround()</a></code> takes the vector of “raw” reconstructed numbers that were not yet rounded in the way that’s assumed to have been the original rounding procedure. Its next argument is <code>digits</code>, the number of decimal places to round to.</p>
 <p>The remaining three arguments are about the rounding procedure. Most of the time, only <code>rounding</code> will be of any interest. It takes a string with the name of one of the rounding procedures discussed below.</p>
 <p>Here is an example for a <code><a href="../reference/reround.html">reround()</a></code> call:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/reround.html">reround</a></span><span class="op">(</span>rec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5.812</span>, <span class="fl">7.249</span><span class="op">)</span>, decimals <span class="op">=</span> <span class="fl">2</span>, rounding <span class="op">=</span> <span class="st">"up"</span><span class="op">)</span>
+<code class="sourceCode R"><span class="fu"><a href="../reference/reround.html">reround</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5.812</span>, <span class="fl">7.249</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">2</span>, rounding <span class="op">=</span> <span class="st">"up"</span><span class="op">)</span>
 <span class="co">#&gt; [1] 5.81 7.25</span></code></pre></div>
 <p>The two remaining arguments are mostly forgettable: They only concern obscure cases of rounding with a threshold other than 5 (<code>threshold</code>) and rounding such that the absolute values of positive and negative numbers are the same (<code>symmetric</code>). Ignore them otherwise.</p>
 </div>
@@ -297,7 +271,7 @@
 <p>In this case, <code>x</code> can be numeric because trailing zeros are no longer needed. (That, in turn, is because the responsibility to count decimal places in number-strings rather than numeric values shifts from <code><a href="../reference/unround.html">unround()</a></code> to the higher-level function.)</p>
 <p>The following call returns the exact same tibble as above:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/unround.html">unround</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">3.5</span>, decimals <span class="op">=</span> <span class="fl">2</span>, rounding <span class="op">=</span> <span class="st">"up"</span><span class="op">)</span>
+<code class="sourceCode R"><span class="fu"><a href="../reference/unround.html">unround</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">3.5</span>, digits <span class="op">=</span> <span class="fl">2</span>, rounding <span class="op">=</span> <span class="st">"up"</span><span class="op">)</span>
 <span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 7</span></span>
 <span class="co">#&gt;   range                   rounding lower incl_lower     x incl_upper upper</span>
 <span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
@@ -312,13 +286,36 @@
 
 <span class="va">vec2</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
   <span class="fu"><a href="../reference/unround.html">unround</a></span><span class="op">(</span>rounding <span class="op">=</span> <span class="st">"even"</span><span class="op">)</span>
-<span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> 3 values unrounded:</span>
 <span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 7</span></span>
 <span class="co">#&gt;   range                rounding lower incl_lower x     incl_upper upper</span>
 <span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
 <span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 1.95 &lt; x(2.0) &lt; 2.05 even      1.95 FALSE      2.0   FALSE       2.05</span>
 <span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 3.05 &lt; x(3.1) &lt; 3.15 even      3.05 FALSE      3.1   FALSE       3.15</span>
 <span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 3.45 &lt; x(3.5) &lt; 3.55 even      3.45 FALSE      3.5   FALSE       3.55</span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="fractional-rounding">Fractional rounding<a class="anchor" aria-label="anchor" href="#fractional-rounding"></a>
+</h2>
+<p>What if you want to round numbers to a fraction instead of an integer? Check out <code><a href="../reference/reround_to_fraction.html">reround_to_fraction()</a></code> and <code><a href="../reference/reround_to_fraction.html">reround_to_fraction_level()</a></code>:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/reround_to_fraction.html">reround_to_fraction</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">0.4</span>, denominator <span class="op">=</span> <span class="fl">2</span>, rounding <span class="op">=</span> <span class="st">"up"</span><span class="op">)</span>
+<span class="co">#&gt; [1] 0.5</span></code></pre></div>
+<p>This function rounds <code>0.4</code> to <code>0.5</code> because that’s the closest fraction of <code>2</code>. It is inspired by <code><a href="https://rdrr.io/pkg/janitor/man/round_to_fraction.html" class="external-link">janitor::round_to_fraction()</a></code>, and credit for the core implementation goes there. <code><a href="../reference/reround_to_fraction.html">reround_to_fraction()</a></code> blends fractional rounding with the flexibility and precision that <code><a href="../reference/reround.html">reround()</a></code> provides.</p>
+<p>What’s more, <code><a href="../reference/reround_to_fraction.html">reround_to_fraction_level()</a></code> rounds to the nearest fraction at the decimal level specified via its <code>digits</code> argument:</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/reround_to_fraction.html">reround_to_fraction_level</a></span><span class="op">(</span>
+  x <span class="op">=</span> <span class="fl">0.777</span>, denominator <span class="op">=</span> <span class="fl">5</span>, digits <span class="op">=</span> <span class="fl">0</span>, rounding <span class="op">=</span> <span class="st">"down"</span>
+<span class="op">)</span>
+<span class="co">#&gt; [1] 0.8</span>
+<span class="fu"><a href="../reference/reround_to_fraction.html">reround_to_fraction_level</a></span><span class="op">(</span>
+  x <span class="op">=</span> <span class="fl">0.777</span>, denominator <span class="op">=</span> <span class="fl">5</span>, digits <span class="op">=</span> <span class="fl">1</span>, rounding <span class="op">=</span> <span class="st">"down"</span>
+<span class="op">)</span>
+<span class="co">#&gt; [1] 0.78</span>
+<span class="fu"><a href="../reference/reround_to_fraction.html">reround_to_fraction_level</a></span><span class="op">(</span>
+  x <span class="op">=</span> <span class="fl">0.777</span>, denominator <span class="op">=</span> <span class="fl">5</span>, digits <span class="op">=</span> <span class="fl">2</span>, rounding <span class="op">=</span> <span class="st">"down"</span>
+<span class="op">)</span>
+<span class="co">#&gt; [1] 0.776</span></code></pre></div>
+<p>These two functions are not currently part of any error detection workflow.</p>
 </div>
 <div class="section level2">
 <h2 id="rounding-bias">Rounding bias<a class="anchor" aria-label="anchor" href="#rounding-bias"></a>
@@ -330,7 +327,7 @@
 bias = x_{rounded} - x
 \]</span></p>
 <p>By default, the mean is computed to reduce the bias to a single data point:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">vec3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">0.6</span>, to <span class="op">=</span> <span class="fl">0.7</span>, by <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span>
 
 <span class="va">vec3</span>
@@ -345,31 +342,31 @@ bias = x_{rounded} - x
 <span class="co">#&gt; [1] 1</span>
 
 <span class="co"># ...and the difference is bias:</span>
-<span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">vec3</span>, decimals <span class="op">=</span> <span class="fl">0</span>, rounding <span class="op">=</span> <span class="st">"up"</span><span class="op">)</span>
+<span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">vec3</span>, digits <span class="op">=</span> <span class="fl">0</span>, rounding <span class="op">=</span> <span class="st">"up"</span><span class="op">)</span>
 <span class="co">#&gt; [1] 0.35</span></code></pre></div>
 <p>Set <code>mean</code> to <code>FALSE</code> to return the whole vector of individual biases instead:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">vec3</span>, decimals <span class="op">=</span> <span class="fl">0</span>, rounding <span class="op">=</span> <span class="st">"up"</span>, mean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">vec3</span>, digits <span class="op">=</span> <span class="fl">0</span>, rounding <span class="op">=</span> <span class="st">"up"</span>, mean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 <span class="co">#&gt;  [1] 0.40 0.39 0.38 0.37 0.36 0.35 0.34 0.33 0.32 0.31 0.30</span></code></pre></div>
 <p>Admittedly, this example is somewhat overdramatic. Here is a rather harmless one:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">vec4</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">50000</span>, <span class="fl">100</span>, <span class="fl">15</span><span class="op">)</span>
 
-<span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span><span class="va">vec4</span>, decimals <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>
-<span class="co">#&gt; [1] 1.093292e-05</span></code></pre></div>
+<span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span><span class="va">vec4</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>
+<span class="co">#&gt; [1] 4.359636e-06</span></code></pre></div>
 <p>What is responsible for such a difference? It seems to be (1) the sample size and (2) the number of decimal places to which the vector is rounded. The rounding method doesn’t appear to matter if numbers with many decimal places are rounded:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">up_1</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span><span class="va">vec4</span>, decimals <span class="op">=</span> <span class="fl">1</span>, rounding <span class="op">=</span> <span class="st">"up"</span><span class="op">)</span>
-<span class="va">up_2</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span><span class="va">vec4</span>, decimals <span class="op">=</span> <span class="fl">2</span>, rounding <span class="op">=</span> <span class="st">"up"</span><span class="op">)</span>
-<span class="va">up_3</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span><span class="va">vec4</span>, decimals <span class="op">=</span> <span class="fl">3</span>, rounding <span class="op">=</span> <span class="st">"up"</span><span class="op">)</span>
-<span class="va">up_4</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span><span class="va">vec4</span>, decimals <span class="op">=</span> <span class="fl">4</span>, rounding <span class="op">=</span> <span class="st">"up"</span><span class="op">)</span>
-<span class="va">up_5</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span><span class="va">vec4</span>, decimals <span class="op">=</span> <span class="fl">5</span>, rounding <span class="op">=</span> <span class="st">"up"</span><span class="op">)</span>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">up_1</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span><span class="va">vec4</span>, digits <span class="op">=</span> <span class="fl">1</span>, rounding <span class="op">=</span> <span class="st">"up"</span><span class="op">)</span>
+<span class="va">up_2</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span><span class="va">vec4</span>, digits <span class="op">=</span> <span class="fl">2</span>, rounding <span class="op">=</span> <span class="st">"up"</span><span class="op">)</span>
+<span class="va">up_3</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span><span class="va">vec4</span>, digits <span class="op">=</span> <span class="fl">3</span>, rounding <span class="op">=</span> <span class="st">"up"</span><span class="op">)</span>
+<span class="va">up_4</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span><span class="va">vec4</span>, digits <span class="op">=</span> <span class="fl">4</span>, rounding <span class="op">=</span> <span class="st">"up"</span><span class="op">)</span>
+<span class="va">up_5</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span><span class="va">vec4</span>, digits <span class="op">=</span> <span class="fl">5</span>, rounding <span class="op">=</span> <span class="st">"up"</span><span class="op">)</span>
 
-<span class="va">even_1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span><span class="va">vec4</span>, decimals <span class="op">=</span> <span class="fl">1</span>, rounding <span class="op">=</span> <span class="st">"even"</span><span class="op">)</span>
-<span class="va">even_2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span><span class="va">vec4</span>, decimals <span class="op">=</span> <span class="fl">2</span>, rounding <span class="op">=</span> <span class="st">"even"</span><span class="op">)</span>
-<span class="va">even_3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span><span class="va">vec4</span>, decimals <span class="op">=</span> <span class="fl">3</span>, rounding <span class="op">=</span> <span class="st">"even"</span><span class="op">)</span>
-<span class="va">even_4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span><span class="va">vec4</span>, decimals <span class="op">=</span> <span class="fl">4</span>, rounding <span class="op">=</span> <span class="st">"even"</span><span class="op">)</span>
-<span class="va">even_5</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span><span class="va">vec4</span>, decimals <span class="op">=</span> <span class="fl">5</span>, rounding <span class="op">=</span> <span class="st">"even"</span><span class="op">)</span>
+<span class="va">even_1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span><span class="va">vec4</span>, digits <span class="op">=</span> <span class="fl">1</span>, rounding <span class="op">=</span> <span class="st">"even"</span><span class="op">)</span>
+<span class="va">even_2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span><span class="va">vec4</span>, digits <span class="op">=</span> <span class="fl">2</span>, rounding <span class="op">=</span> <span class="st">"even"</span><span class="op">)</span>
+<span class="va">even_3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span><span class="va">vec4</span>, digits <span class="op">=</span> <span class="fl">3</span>, rounding <span class="op">=</span> <span class="st">"even"</span><span class="op">)</span>
+<span class="va">even_4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span><span class="va">vec4</span>, digits <span class="op">=</span> <span class="fl">4</span>, rounding <span class="op">=</span> <span class="st">"even"</span><span class="op">)</span>
+<span class="va">even_5</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span><span class="va">vec4</span>, digits <span class="op">=</span> <span class="fl">5</span>, rounding <span class="op">=</span> <span class="st">"even"</span><span class="op">)</span>
 
 
 <span class="va">bias</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>
@@ -389,16 +386,16 @@ bias = x_{rounded} - x
 <span class="co">#&gt; <span style="color: #949494;"># A tibble: 10 × 3</span></span>
 <span class="co">#&gt;             bias dp       rounding</span>
 <span class="co">#&gt;            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 0.000<span style="text-decoration: underline;">238</span>      1 (up)   (up)    </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 0.000<span style="text-decoration: underline;">010</span>9     2 (up)   (up)    </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 0.000<span style="text-decoration: underline;">001</span>41    3 (up)   (up)    </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 0.000<span style="text-decoration: underline;">000</span>008<span style="text-decoration: underline;">92</span> 4 (up)   (up)    </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 0.000<span style="text-decoration: underline;">000</span>006<span style="text-decoration: underline;">48</span> 5 (up)   (up)    </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 0.000<span style="text-decoration: underline;">238</span>      1 (even) (even)  </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 0.000<span style="text-decoration: underline;">010</span>9     2 (even) (even)  </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 0.000<span style="text-decoration: underline;">001</span>41    3 (even) (even)  </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 0.000<span style="text-decoration: underline;">000</span>008<span style="text-decoration: underline;">92</span> 4 (even) (even)  </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 0.000<span style="text-decoration: underline;">000</span>006<span style="text-decoration: underline;">48</span> 5 (even) (even)</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 0.000<span style="text-decoration: underline;">055</span>2     1 (up)   (up)    </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 0.000<span style="text-decoration: underline;">004</span>36    2 (up)   (up)    </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 0.000<span style="text-decoration: underline;">000</span>700   3 (up)   (up)    </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 0.000<span style="text-decoration: underline;">000</span>033<span style="text-decoration: underline;">6</span>  4 (up)   (up)    </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 0.000<span style="text-decoration: underline;">000</span>004<span style="text-decoration: underline;">04</span> 5 (up)   (up)    </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 0.000<span style="text-decoration: underline;">055</span>2     1 (even) (even)  </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 0.000<span style="text-decoration: underline;">004</span>36    2 (even) (even)  </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 0.000<span style="text-decoration: underline;">000</span>700   3 (even) (even)  </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 0.000<span style="text-decoration: underline;">000</span>033<span style="text-decoration: underline;">6</span>  4 (even) (even)  </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 0.000<span style="text-decoration: underline;">000</span>004<span style="text-decoration: underline;">04</span> 5 (even) (even)</span>
 
 <span class="va">`%+replace%`</span> <span class="op">&lt;-</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="va">`%+replace%`</span>
 
@@ -425,60 +422,44 @@ bias = x_{rounded} - x
     title <span class="op">=</span> <span class="st">"Directly from random numbers"</span>,
     subtitle <span class="op">=</span> <span class="st">"Raw \"data\" mostly have 12 or 13 decimal places "</span>
   <span class="op">)</span></code></pre></div>
-<p><img src="rounding_files/figure-html/unnamed-chunk-17-1.png" width="700"></p>
-<p>However, if the raw values are preliminarily rounded to 2 decimal places before rounding proceeds as above, the picture is different.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> I will spare you the code this time:</p>
+<p><img src="rounding_files/figure-html/unnamed-chunk-19-1.png" width="700"></p>
+<p>However, if the raw values are preliminarily rounded to 2 decimal places before rounding proceeds as above, the picture is different. I will spare you the code this time:</p>
 <pre><code><span class="co">#&gt; <span style="color: #949494;"># A tibble: 10 × 3</span></span>
 <span class="co">#&gt;        bias dp       rounding</span>
 <span class="co">#&gt;       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 0.004<span style="text-decoration: underline;">82</span>  1 (up)   (up)    </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 0.005<span style="text-decoration: underline;">12</span>  1 (up)   (up)    </span>
 <span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 0        2 (up)   (up)    </span>
 <span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 0        3 (up)   (up)    </span>
 <span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 0        4 (up)   (up)    </span>
 <span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 0        5 (up)   (up)    </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 0.000<span style="text-decoration: underline;">193</span> 1 (even) (even)  </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 0.000<span style="text-decoration: underline;">315</span> 1 (even) (even)  </span>
 <span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 0        2 (even) (even)  </span>
 <span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 0        3 (even) (even)  </span>
 <span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 0        4 (even) (even)  </span>
 <span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 0        5 (even) (even)</span></code></pre>
-<p><img src="rounding_files/figure-html/unnamed-chunk-18-1.png" width="700"></p>
+<p><img src="rounding_files/figure-html/unnamed-chunk-20-1.png" width="700"></p>
 <p>In sum, the function allows users to quantify the degree to which rounding biases a distribution, so that they can assess the relative merits of different rounding procedures. This is partly to sensitize readers to potential bias in edge cases, but also to enable them to make informed rounding decisions on their own.</p>
 </div>
-<div class="footnotes">
-<hr>
-<ol>
-<li id="fn1">
-<p>I would be amiss here not to mention <a href="https://psyarxiv.com/ctu9z/" class="external-link">RIVETS</a>, an error detection technique that calculates the probability that a given set of rounded summaries of statistical tests was derived from standard computing procedures. In particular, RIVETS allows probabilistic assessments of the hypothesis that the numbers were directly generated from raw data rather than from values already rounded before the test.</p>
-<p>Rounding bias might conceivably show some relevance to RIVETS. However, this technique is designed for situations in which no raw data are available, and a role for considerations of bias does not seem obvious at present.<a href="#fnref1" class="footnote-back">↩︎</a></p>
-</li>
-</ol>
-</div>
-  </div>
-
-  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
-
-        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
-    </nav>
-</div>
-
+  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 
 
-      <footer><div class="copyright">
+    <footer><div class="pkgdown-footer-left">
   <p></p>
 <p>Developed by Lukas Jung.</p>
 </div>
 
-<div class="pkgdown">
+<div class="pkgdown-footer-right">
   <p></p>
 <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
 </div>
 
-      </footer>
+    </footer>
 </div>
 
   
-
 
   
 

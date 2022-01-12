@@ -4,110 +4,84 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="description" content="scrutiny">
 <title>GRIM • scrutiny</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/flatly/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
-<script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="../deps/bootstrap-5.1.0/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.1.0/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="GRIM">
+<!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="GRIM">
 <meta property="og:description" content="scrutiny">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 </head>
-<body data-spy="scroll" data-target="#toc">
+<body>
+    <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
     
 
-    <div class="container template-article">
-      <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
-  <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">scrutiny</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.0.9000</span>
-      </span>
-    </div>
+    <nav class="navbar fixed-top navbar-dark navbar-expand-lg bg-primary"><div class="container">
+    
+    <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav">
-<li>
-  <a href="../reference/index.html">Reference</a>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+
+    
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar" class="collapse navbar-collapse ms-2">
+      <ul class="navbar-nav me-auto">
+<li class="nav-item">
+  <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-<li class="divider">
-    </li>
-<li class="dropdown-header">Consistency tests</li>
-    <li>
-      <a href="../articles/grim.html">GRIM</a>
-    </li>
-    <li>
-      <a href="../articles/debit.html">DEBIT</a>
-    </li>
-    <li class="divider">
-    </li>
-<li class="dropdown-header">Infrastructure</li>
-    <li>
-      <a href="../articles/rounding.html">Rounding</a>
-    </li>
-    <li>
-      <a href="../articles/infrastructure.html">Infrastructure beyond rounding</a>
-    </li>
-    <li class="divider">
-    </li>
-<li class="dropdown-header">Other</li>
-    <li>
-      <a href="../articles/wrangling.html">Data wrangling</a>
-    </li>
-    <li>
-      <a href="../articles/related.html">Related software</a>
-    </li>
-  </ul>
-</li>
-<li>
-  <a href="../news/index.html">Changelog</a>
-</li>
-      </ul>
-<ul class="nav navbar-nav navbar-right">
-<li>
-  <a href="https://github.com/lhdjung/scrutiny/" class="external-link">
-    <span class="fab fa-github fa-lg"></span>
-     
-  </a>
-</li>
-      </ul>
-</div>
-<!--/.nav-collapse -->
+<li class="active nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <h6 class="dropdown-header" data-toc-skip>Consistency tests</h6>
+    <a class="dropdown-item" href="../articles/grim.html">GRIM</a>
+    <a class="dropdown-item" href="../articles/debit.html">DEBIT</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Infrastructure</h6>
+    <a class="dropdown-item" href="../articles/rounding.html">Rounding</a>
+    <a class="dropdown-item" href="../articles/infrastructure.html">Infrastructure beyond rounding</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Other</h6>
+    <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
+    <a class="dropdown-item" href="../articles/related.html">Related software</a>
   </div>
-<!--/.container -->
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="../news/index.html">Changelog</a>
+</li>
+      </ul>
+<form class="form-inline my-2 my-lg-0" role="search">
+        <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off">
+</form>
+
+      <ul class="navbar-nav">
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://github.com/lhdjung/scrutiny/" aria-label="github">
+    <span class="fab fa fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
-<!--/.navbar -->
 
-      
-
-      </header><script src="grim_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
-  <div class="col-md-9 contents">
-    <div class="page-header toc-ignore">
-      <h1 data-toc-skip>GRIM</h1>
+    
+  </div>
+</nav><div class="container template-article">
+<script src="grim_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+  <main id="main"><div class="page-header">
+      <img src="" class="logo" alt=""><h1>GRIM</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/lhdjung/scrutiny/blob/HEAD/vignettes/grim.Rmd" class="external-link"><code>vignettes/grim.Rmd</code></a></small>
-      <div class="hidden name"><code>grim.Rmd</code></div>
-
+      <div class="d-none name"><code>grim.Rmd</code></div>
     </div>
 
     
@@ -175,7 +149,7 @@
 </h3>
 <p>If the mean is composed of multiple items, set the <code>items</code> parameter to that number. Below are hypothetical means of a three-items scale. With the single-item default, half of these are wrongly flagged as inconsistent:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">jpap1</span> <span class="op">&lt;-</span> <span class="fu">tribble</span><span class="op">(</span>
+<code class="sourceCode R"><span class="va">jpap_1</span> <span class="op">&lt;-</span> <span class="fu">tribble</span><span class="op">(</span>
    <span class="op">~</span><span class="va">x</span>,
   <span class="st">"5.90"</span>,
   <span class="st">"5.71"</span>,
@@ -186,7 +160,7 @@
 <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
   <span class="fu">mutate</span><span class="op">(</span>n <span class="op">=</span> <span class="fl">40</span><span class="op">)</span>
 
-<span class="va">jpap1</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
+<span class="va">jpap_1</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
   <span class="fu"><a href="../reference/grim_map.html">grim_map</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># default is wrong here!</span>
 <span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 5</span></span>
 <span class="co">#&gt;   x         n items consistency ratio</span>
@@ -199,7 +173,7 @@
 <span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 5.24     40     1 FALSE         0.6</span></code></pre></div>
 <p>Yet, all of them are consistent if the correct number of items is stated:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">jpap1</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
+<code class="sourceCode R"><span class="va">jpap_1</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
   <span class="fu"><a href="../reference/grim_map.html">grim_map</a></span><span class="op">(</span>items <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>
 <span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 5</span></span>
 <span class="co">#&gt;   x         n items consistency ratio</span>
@@ -212,7 +186,7 @@
 <span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 5.24     40     3 TRUE         -<span style="color: #BB0000;">0.2</span></span></code></pre></div>
 <p>It is also possible to include an <code>items</code> column in the data frame instead:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">jpap2</span> <span class="op">&lt;-</span> <span class="fu">tribble</span><span class="op">(</span>
+<code class="sourceCode R"><span class="va">jpap_2</span> <span class="op">&lt;-</span> <span class="fu">tribble</span><span class="op">(</span>
    <span class="op">~</span><span class="va">x</span>,    <span class="op">~</span><span class="va">items</span>,
   <span class="st">"6.92"</span>,  <span class="fl">1</span>,
   <span class="st">"3.48"</span>,  <span class="fl">1</span>,
@@ -223,7 +197,7 @@
 <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
   <span class="fu">mutate</span><span class="op">(</span>n <span class="op">=</span> <span class="fl">30</span><span class="op">)</span>
 
-<span class="va">jpap2</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
+<span class="va">jpap_2</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
   <span class="fu"><a href="../reference/grim_map.html">grim_map</a></span><span class="op">(</span><span class="op">)</span>
 <span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 5</span></span>
 <span class="co">#&gt;   x         n items consistency ratio</span>
@@ -241,7 +215,7 @@
 <p>An underappreciated strength of GRIM is testing percentages. Since these are actually decimal numbers inflated by a factor of 100, percentages come with two “free” decimal places. However, percentages are often reported with decimal places beyond those two, which increases the probability of GRIM-inconsistencies unless true values were correctly reported.</p>
 <p>Both <code><a href="../reference/grim.html">grim()</a></code> and <code><a href="../reference/grim_map.html">grim_map()</a></code> have a <code>percent</code> parameter which, if set to <code>TRUE</code>, divides the <code>x</code> values by 100 and increases the decimal count by two, so that percentages can be tested just like means:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">jpap3</span> <span class="op">&lt;-</span> <span class="fu">tribble</span><span class="op">(</span>
+<code class="sourceCode R"><span class="va">jpap_3</span> <span class="op">&lt;-</span> <span class="fu">tribble</span><span class="op">(</span>
   <span class="op">~</span><span class="va">x</span>,     <span class="op">~</span><span class="va">n</span>,
   <span class="st">"32.5"</span>,  <span class="fl">438</span>,
   <span class="st">"35.6"</span>,  <span class="fl">455</span>,
@@ -249,7 +223,7 @@
   <span class="st">"39.3"</span>,  <span class="fl">516</span>,
 <span class="op">)</span>
 
-<span class="va">jpap3</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
+<span class="va">jpap_3</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
   <span class="fu"><a href="../reference/grim_map.html">grim_map</a></span><span class="op">(</span>percent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> `x` converted from percentage</span>
 <span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 5</span></span>
@@ -267,7 +241,7 @@
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">pigs1</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
   <span class="fu"><a href="../reference/grim_map.html">grim_map</a></span><span class="op">(</span>show_rec <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="co">#&gt; <span style="color: #949494;"># A tibble: 12 × 10</span></span>
+<span class="co">#&gt; <span style="color: #949494;"># A tibble: 12 × 12</span></span>
 <span class="co">#&gt;    x         n items consistency rec_sum rec_x_upper rec_x_lower</span>
 <span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
 <span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 7.22     32     1 TRUE         231.          7.25       7.22 </span>
@@ -282,17 +256,21 @@
 <span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 6.89     31     1 FALSE        214.          6.90       6.87 </span>
 <span class="co">#&gt; <span style="color: #BCBCBC;">11</span> 5.00     25     1 TRUE         125           5          5    </span>
 <span class="co">#&gt; <span style="color: #BCBCBC;">12</span> 0.24     28     1 FALSE          6.72        0.25       0.214</span>
-<span class="co">#&gt; <span style="color: #949494;"># … with 3 more variables: rec_x_upper_rounded &lt;dbl&gt;,</span></span>
-<span class="co">#&gt; <span style="color: #949494;">#   rec_x_lower_rounded &lt;dbl&gt;, ratio &lt;dbl&gt;</span></span></code></pre></div>
+<span class="co">#&gt; <span style="color: #949494;"># … with 5 more variables: rec_x_upper_rounded_up &lt;dbl&gt;,</span></span>
+<span class="co">#&gt; <span style="color: #949494;">#   rec_x_upper_rounded_down &lt;dbl&gt;, rec_x_lower_rounded_up &lt;dbl&gt;,</span></span>
+<span class="co">#&gt; <span style="color: #949494;">#   rec_x_lower_rounded_down &lt;dbl&gt;, ratio &lt;dbl&gt;</span></span></code></pre></div>
 <p>The additional columns are —</p>
 <ul>
 <li><p><code>rec_sum</code>: the sum total from which the mean or proportion was ostensibly derived.</p></li>
 <li><p><code>rec_x_upper</code>: the upper reconstructed <code>x</code> value.</p></li>
 <li><p><code>rec_x_lower</code>: the lower reconstructed <code>x</code> value.</p></li>
-<li><p><code>rec_x_upper_rounded</code>: the rounded <code>rec_upper</code> value.</p></li>
-<li><p><code>rec_x_lower_rounded</code>: the rounded <code>rec_lower</code> value.</p></li>
+<li><p><code>rec_x_upper_rounded_up</code>: the <code>rec_x_upper</code> value rounded up.</p></li>
+<li><p><code>rec_x_upper_rounded_down</code>: the <code>rec_x_upper</code> value rounded down.</p></li>
+<li><p><code>rec_x_lower_rounded_up</code>: the <code>rec_x_lower</code> value rounded up.</p></li>
+<li><p><code>rec_x_lower_rounded_down</code>: the <code>rec_x_lower</code> value rounded down.</p></li>
 </ul>
-<p>Internally, GRIM-consistency is determined by whether or not a stated <code>x</code> value is near-identical to either <code>rec_x_upper_rounded</code> or <code>rec_x_lower_rounded</code>. This algorithm follows the charitable and conservative protocol outlined by Brown and Heathers (2016).</p>
+<p>The last four columns depend on <code>rounding</code>. Here, they follow the default <code>"up_or_down"</code>, leading to two columns for each of <code>rec_x_upper</code> and <code>rec_x_lower</code>. With a singular <code>rounding</code> procedure, such as <code>"up"</code>, there would only be one column each, and thus, two in total. The difference between these numbers is not greatly important, however, because rounding up and down mostly delivers the same results.</p>
+<p>Internally, GRIM-consistency is determined by whether or not a stated <code>x</code> value is near-identical to either <code>rec_x_upper_rounded</code> or <code>rec_x_lower_rounded</code>. This algorithm follows the charitable and conservative protocol outlined by Brown and Heathers (2017).</p>
 </div>
 <div class="section level3">
 <h3 id="rounding">Rounding<a class="anchor" aria-label="anchor" href="#rounding"></a>
@@ -310,32 +288,35 @@
 <p>Points 3 to 5 above list some quite obscure options that were only included to cover a wide spectrum of possible rounding procedures. The same is true for the <code>threshold</code> and <code>symmetric</code> parameters, so these aren’t discussed here any further. Learn more about scrutiny’s infrastructure for rounding at <code><a href="../articles/rounding.html">vignette("rounding")</a></code>.</p>
 <p>By default, <code><a href="../reference/grim.html">grim()</a></code> and <code><a href="../reference/grim_map.html">grim_map()</a></code> accept values rounded either up or down from 5. If you have reason to impose stricter assumptions on the way <code>x</code> was rounded, specify <code>rounding</code> accordingly:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">flying_pigs1</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
-  <span class="fu"><a href="../reference/grim_map.html">grim_map</a></span><span class="op">(</span>rounding <span class="op">=</span> <span class="st">"up"</span><span class="op">)</span>
-<span class="co">#&gt; <span style="color: #949494;"># A tibble: 7 × 5</span></span>
-<span class="co">#&gt;   x         n items consistency ratio</span>
-<span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 8.97     28     1 FALSE        0.72</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 2.61     28     1 TRUE         0.72</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 7.26     28     1 FALSE        0.72</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 3.64     28     1 TRUE         0.72</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 9.26     28     1 FALSE        0.72</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 10.46    28     1 TRUE         0.72</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 7.39     28     1 TRUE         0.72</span>
+<code class="sourceCode R"><span class="va">jpap_4</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span>
+    <span class="op">~</span><span class="va">x</span>,     <span class="op">~</span><span class="va">n</span>,
+    <span class="st">"2.02"</span>,  <span class="fl">80</span>,
+    <span class="st">"2.03"</span>,  <span class="fl">80</span>,
+    <span class="st">"2.04"</span>,  <span class="fl">80</span>,
+    <span class="st">"2.05"</span>,  <span class="fl">80</span>,
+<span class="op">)</span>
 
-<span class="va">flying_pigs1</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
-  <span class="fu"><a href="../reference/grim_map.html">grim_map</a></span><span class="op">(</span>rounding <span class="op">=</span> <span class="st">"even"</span><span class="op">)</span>
-<span class="co">#&gt; <span style="color: #949494;"># A tibble: 7 × 5</span></span>
+<span class="va">jpap_4</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
+  <span class="fu"><a href="../reference/grim_map.html">grim_map</a></span><span class="op">(</span>rounding <span class="op">=</span> <span class="st">"up"</span><span class="op">)</span>
+<span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 5</span></span>
 <span class="co">#&gt;   x         n items consistency ratio</span>
 <span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 8.97     28     1 FALSE        0.72</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 2.61     28     1 TRUE         0.72</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 7.26     28     1 FALSE        0.72</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 3.64     28     1 TRUE         0.72</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 9.26     28     1 FALSE        0.72</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 10.46    28     1 TRUE         0.72</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 7.39     28     1 TRUE         0.72</span></code></pre></div>
-<p>Although changing the rounding procedure didn’t make any difference in this case, it is important to account for the different ways in which numbers might be rounded, if only to demonstrate that some given results are robust to those variable decisions. To err on the side of caution, the default for <code>rounding</code> is the permissive <code>"up_or_down"</code>.</p>
+<span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 2.02     80     1 FALSE         0.2</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 2.03     80     1 TRUE          0.2</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2.04     80     1 TRUE          0.2</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 2.05     80     1 TRUE          0.2</span>
+
+<span class="va">jpap_4</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
+  <span class="fu"><a href="../reference/grim_map.html">grim_map</a></span><span class="op">(</span>rounding <span class="op">=</span> <span class="st">"down"</span><span class="op">)</span>
+<span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 5</span></span>
+<span class="co">#&gt;   x         n items consistency ratio</span>
+<span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 2.02     80     1 TRUE          0.2</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 2.03     80     1 FALSE         0.2</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2.04     80     1 TRUE          0.2</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 2.05     80     1 TRUE          0.2</span></code></pre></div>
+<p>Rounding up and down leads to precisely opposite results for the first two cases, although it agrees on the latter two. Even this example is cherry-picked: Sample sizes of 80 are highly unusual because, for most other <code>n</code> values, those two rounding procedures agree in the overwhelming majority of cases. See section <em>Visualizing results with <code><a href="../reference/grim_plot.html">grim_plot()</a></code></em> on this issue.</p>
+<p>It might still be important to account for the different ways in which numbers can be rounded, if only to demonstrate that some given results are robust to those variable decisions. To err on the side of caution, the default for <code>rounding</code> is the permissive <code>"up_or_down"</code>.</p>
 </div>
 </div>
 <div class="section level2">
@@ -423,9 +404,9 @@
   <span class="fu"><a href="../reference/audit.html">audit</a></span><span class="op">(</span><span class="op">)</span>
 <span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 7</span></span>
 <span class="co">#&gt;   incons_cases all_cases incons_rate mean_grim_ratio incons_to_ratio</span>
-<span class="co">#&gt;          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="co">#&gt;          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
 <span class="co">#&gt; <span style="color: #BCBCBC;">1</span>            3         7       0.429            0.72           0.595</span>
-<span class="co">#&gt; <span style="color: #949494;"># … with 2 more variables: testable_cases &lt;int&gt;, testable_rate &lt;dbl&gt;</span></span></code></pre></div>
+<span class="co">#&gt; <span style="color: #949494;"># … with 2 more variables: testable_cases &lt;dbl&gt;, testable_rate &lt;dbl&gt;</span></span></code></pre></div>
 <p>These columns are —</p>
 <ol style="list-style-type: decimal">
 <li><p><code>incons_cases</code>: number of GRIM-inconsistent value sets.</p></li>
@@ -442,7 +423,7 @@
 </h2>
 <p>There is a specialized visualization function for GRIM test results, <code><a href="../reference/grim_plot.html">grim_plot()</a></code>:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">jpap4</span> <span class="op">&lt;-</span> <span class="fu">tribble</span><span class="op">(</span>
+<code class="sourceCode R"><span class="va">jpap_5</span> <span class="op">&lt;-</span> <span class="fu">tribble</span><span class="op">(</span>
   <span class="op">~</span><span class="va">x</span>,        <span class="op">~</span><span class="va">n</span>,
   <span class="st">"7.19"</span>,    <span class="fl">28</span>,
   <span class="st">"4.56"</span>,    <span class="fl">34</span>,
@@ -457,7 +438,7 @@
 <span class="op">)</span>
 
 
-<span class="va">jpap4</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
+<span class="va">jpap_5</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
   <span class="fu"><a href="../reference/grim_map.html">grim_map</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
   <span class="fu"><a href="../reference/grim_plot.html">grim_plot</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <p><img src="grim_files/figure-html/unnamed-chunk-17-1.png" width="576"></p>
@@ -466,12 +447,14 @@
 <code class="sourceCode R"><span class="va">mtcars</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
   <span class="fu"><a href="../reference/grim_plot.html">grim_plot</a></span><span class="op">(</span><span class="op">)</span>
 <span class="co">#&gt; Error: `data` is not `grim_map()` output</span>
-<span class="co">#&gt; <span style="color: #BB0000;">✖</span> `grim_plot()` only works with GRIM test results.</span></code></pre></div>
+<span class="co">#&gt; <span style="color: #BB0000;">✖</span> `grim_plot()` needs GRIM test results.</span>
+<span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> The only exception is an "empty" plot that shows the background raster but no</span>
+<span class="co">#&gt;   empirical test results. Create such a plot by setting `show_data` to `FALSE`.</span></code></pre></div>
 <p>The sheer optics of this plot will probably not fit everyone’s taste. However, it is strictly based on the laws governing GRIM. The background raster shows all consistent (light) and inconsistent (dark) value pairs for two decimal places.</p>
 <p>Empirical values are shown in blue if consistent and red if inconsistent. Color settings and other ggplot2-typical options are available via arguments. Read about them at <code><a href="../reference/grim_plot.html">grim_plot()</a></code>’s documentation.</p>
 <p>You might notice the light vertical lines at <span class="math inline">\(N = 40\)</span> and <span class="math inline">\(N = 80\)</span>: Few values are flagged as inconsistent here. This reflects <code><a href="../reference/grim_map.html">grim_map()</a></code>’s charitable default of accepting values rounded either up <em>or</em> down from 5. If a different <code>rounding</code> specification is chosen in the <code><a href="../reference/grim_map.html">grim_map()</a></code> call, the plot raster will adjust automatically:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">jpap4</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
+<code class="sourceCode R"><span class="va">jpap_5</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
   <span class="fu"><a href="../reference/grim_map.html">grim_map</a></span><span class="op">(</span>rounding <span class="op">=</span> <span class="st">"up"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
   <span class="fu"><a href="../reference/grim_plot.html">grim_plot</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <p><img src="grim_files/figure-html/unnamed-chunk-19-1.png" width="576"></p>
@@ -527,7 +510,7 @@
 <div class="section level4">
 <h4 id="origins">Origins<a class="anchor" aria-label="anchor" href="#origins"></a>
 </h4>
-<p>Although the term “GRIM ratio” is new, the formula is arguably implicit in Brown and Heathers’ (2016) paper on GRIM. The numerator is a transformation of the formula presented on p. 364, and the authors discuss a common special case of the ratio (interpreted as a proportion) on p. 367:</p>
+<p>Although the term “GRIM ratio” is new, the formula is arguably implicit in Brown and Heathers’ (2017) paper on GRIM. The numerator is a transformation of the formula presented on p. 364, and the authors discuss a common special case of the ratio (interpreted as a proportion) on p. 367:</p>
 <blockquote>
 <p>With reporting to two decimal places, for a sample size <span class="math inline">\(N &lt; 100\)</span> [and a single item], a random mean value will be consistent in approximately <span class="math inline">\(N\)</span>% of cases.</p>
 </blockquote>
@@ -591,33 +574,26 @@ L = \frac{1}{NG}
 </div>
 </div>
 </div>
-  </div>
-
-  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
-
-        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
-    </nav>
-</div>
-
+  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 
 
-      <footer><div class="copyright">
+    <footer><div class="pkgdown-footer-left">
   <p></p>
 <p>Developed by Lukas Jung.</p>
 </div>
 
-<div class="pkgdown">
+<div class="pkgdown-footer-right">
   <p></p>
 <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
 </div>
 
-      </footer>
+    </footer>
 </div>
 
   
-
 
   
 
