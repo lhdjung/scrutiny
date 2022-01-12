@@ -60,11 +60,6 @@ the result to a specific number of digits in the usual way.
 at the specific decimal level (i.e., number of digits), without subsequent
 rounding. This is closer to conventional rounding functions.
 }
-
-For example, if that denominator is \code{4}, numbers will be rounded to \code{0},
-\code{0.25}, \code{0.50}, \code{0.75}, or \code{1}. You can choose to round them to some digit
-afterwards. This is regular, integer rounding, but with all of the options
-that \code{reround()} provides.
 }
 \examples{
 #`reround_to_fraction()` rounds `0.4`

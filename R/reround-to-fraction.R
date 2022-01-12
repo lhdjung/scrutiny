@@ -11,11 +11,6 @@
 #'   - `reround_to_fraction_level()` rounds to the nearest fraction of a number
 #'   at the specific decimal level (i.e., number of digits), without subsequent
 #'   rounding. This is closer to conventional rounding functions.
-#'
-#'   For example, if that denominator is `4`, numbers will be rounded to `0`,
-#'   `0.25`, `0.50`, `0.75`, or `1`. You can choose to round them to some digit
-#'   afterwards. This is regular, integer rounding, but with all of the options
-#'   that `reround()` provides.
 
 #' @param x Numeric. Vector of numbers to be rounded.
 #' @param denominator Numeric (>= 1) . `x` will be rounded to the nearest
