@@ -36,7 +36,6 @@ Scale item numbers are 1 by default.
 
     # Example data:
     pigs1
-
     #> # A tibble: 12 × 2
     #>    x         n
     #>    <chr> <dbl>
@@ -55,7 +54,6 @@ Scale item numbers are 1 by default.
 
     # GRIM-testing for data frames:
     grim_map(pigs1)
-
     #> # A tibble: 12 × 5
     #>    x         n items consistency ratio
     #>    <chr> <int> <int> <lgl>       <dbl>
@@ -75,7 +73,6 @@ Scale item numbers are 1 by default.
 Test percentages instead of means:
 
     pigs2
-
     #> # A tibble: 6 × 2
     #>   x         n
     #>   <chr> <dbl>
@@ -87,9 +84,7 @@ Test percentages instead of means:
     #> 6 55.4    150
 
     grim_map(pigs2, percent = TRUE)
-
     #> ℹ `x` converted from percentage
-
     #> # A tibble: 6 × 5
     #>   x         n items consistency ratio
     #>   <chr> <int> <int> <lgl>       <dbl>
@@ -112,7 +107,6 @@ Similarly, use DEBIT to test means and standard deviations of binary
 data:
 
     pigs3
-
     #> # A tibble: 7 × 3
     #>   x     sd        n
     #>   <chr> <chr> <dbl>
@@ -126,7 +120,6 @@ data:
 
     pigs3 %>% 
       debit_map()
-
     #> # A tibble: 7 × 11
     #>   x     sd        n consistency rounding   sd_lower sd_incl_lower sd_upper
     #>   <chr> <chr> <int> <lgl>       <chr>         <dbl> <lgl>            <dbl>

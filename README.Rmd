@@ -16,12 +16,12 @@ link-citations: TRUE
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
-  # collapse = TRUE,
+  collapse = TRUE,
   comment = "#>",
   fig.path = "man/figures/README-",
   out.width = "75%",
-  fig.width = 4,
-  fig.asp = 0.8
+  fig.width = 6,
+  fig.asp = 7/7.5
 )
 
 # Dev only: load scrutiny from scrutiny
