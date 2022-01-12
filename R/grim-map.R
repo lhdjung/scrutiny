@@ -303,10 +303,11 @@ that column."
   # within `grim_scalar()`. Also, issue an alert to the user about the
   # percentage conversion:
   if (percent) {
+    dp_original <- decimal_places(results$x)
+    results$x <- as.numeric(results$x) / 100
+
     results$x <- results$x %>%
-      as.numeric() %>%
-      `/`(100) %>%
-      restore_zeros(width = decimal_places(results$x)) %>%
+      restore_zeros(width = (dp_original + 2)) %>%
       suppressWarnings()
 
     results <- results %>%
