@@ -52,24 +52,24 @@ If you need to enter many such values as strings, consider using
 \examples{
 # The function works on both numeric values
 # and strings...
-decimal_places(2.851)
-decimal_places("2.851")
+decimal_places(x = 2.851)
+decimal_places(x = "2.851")
 
 # ... but trailing zeros are only counted within
 # strings:
-decimal_places(c(7.3900, "7.3900"))
+decimal_places(x = c(7.3900, "7.3900"))
 
 # This doesn't apply to non-trailing zeros; these
 # behave just like any other digit would:
-decimal_places(c(4.08, "4.08"))
+decimal_places(x = c(4.08, "4.08"))
 
 # Whitespace at the end of a string is not counted:
-decimal_places("6.0     ")
+decimal_places(x = "6.0     ")
 
 # This function is much faster, but only
 # works with a single number or string:
-decimal_places_scalar(8.13)
-decimal_places_scalar("5.024")
+decimal_places_scalar(x = 8.13)
+decimal_places_scalar(x = "5.024")
 
 
 }
