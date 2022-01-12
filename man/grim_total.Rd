@@ -41,7 +41,7 @@ mean or percentage values reported to varying \code{D}.
 \examples{
 # Many value sets are inconsistent here:
 grim_total(x = "83.29", n = 21)
-grim_ratio("83.29", 21)
+grim_ratio(x = "83.29", n = 21)
 
 # No sets are inconsistent in this case...
 grim_total(x = "5.14", n = 83)
