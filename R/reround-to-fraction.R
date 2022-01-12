@@ -78,9 +78,9 @@ reround_to_fraction <- function(x = NULL, denominator = 1, digits = Inf,
 
   # Checks ---
 
-  # (From the utils.R file) If any two arguments called right below are length >
-  # 1, they need to have the same length. Otherwise, the call will fail. But
-  # even so, there will be a warning that values will get paired:
+  # If any two arguments called right below are length > 1, they need to have
+  # the same length. Otherwise, the call will fail. But even so, there will be a
+  # warning that values will get paired:
   check_lengths_congruent(list(
     x, denominator, digits, rounding, threshold, symmetric
   ))
@@ -162,9 +162,9 @@ reround_to_fraction_level <- function(x = NULL, denominator = 1, digits = 0,
 
   # Checks ---
 
-  # (From the utils.R file) If any two arguments called right below are length >
-  # 1, they need to have the same length. Otherwise, the call will fail. But
-  # even so, there will be a warning that values will get paired:
+  # If any two arguments called right below are length > 1, they need to have
+  # the same length. Otherwise, the call will fail. But even so, there will be a
+  # warning that values will get paired:
   check_lengths_congruent(list(
     x, denominator, digits, rounding, threshold, symmetric
   ))

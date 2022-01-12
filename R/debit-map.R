@@ -66,6 +66,9 @@ debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
                       rounding = "up_or_down", threshold = 5,
                       symmetric = FALSE, show_rec = TRUE, extra = Inf) {
 
+  # If any two arguments called right below are length > 1, they need to have
+  # the same length. Otherwise, the call will fail. But even so, there will be a
+  # warning that values will get paired:
   check_lengths_congruent(list(rounding, threshold, symmetric))
 
   # Throw error if `extra` argument it misspecified:

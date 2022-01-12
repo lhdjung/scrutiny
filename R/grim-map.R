@@ -117,9 +117,9 @@ grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
                      symmetric = FALSE, tolerance = .Machine$double.eps^0.5,
                      testables_only = FALSE, extra = Inf) {
 
-  # Throw error if any two inputs listed below have length > 1 but both have
-  # different lengths among each other; and even if they have the same length,
-  # warn the user that values get paired:
+  # If any two arguments called right below are length > 1, they need to have
+  # the same length. Otherwise, the call will fail. But even so, there will be a
+  # warning that values will get paired:
   check_lengths_congruent(list(
     items, percent, rounding, threshold, symmetric, tolerance
   ))
