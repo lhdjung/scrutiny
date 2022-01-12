@@ -73,10 +73,10 @@ The final row, \code{.total}, summarizes across all other rows: It adds up the
 
 \examples{
 # Find duplicate values in a data frame...
-duplicate_detect(pigs4)
+duplicate_detect(x = pigs4)
 
 # ...or in a single vector:
-duplicate_detect(pigs4$snout)
+duplicate_detect(x = pigs4$snout)
 
 # Summary statistics with `audit()`:
 pigs4 \%>\%
