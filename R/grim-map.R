@@ -306,7 +306,7 @@ that column."
     results$x <- results$x %>%
       as.numeric() %>%
       `/`(100) %>%
-      restore_zeros() %>%
+      restore_zeros(width = decimal_places(results$x)) %>%
       suppressWarnings()
 
     results <- results %>%
