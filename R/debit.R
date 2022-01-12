@@ -36,7 +36,7 @@
 #'
 #' @seealso `debit_map()` applies `debit()` to any number of cases at once.
 #'
-#' @references Heathers, James A. J., und Nicholas J. L. Brown. 2019. DEBIT: A
+#' @references Heathers, James A. J., and Nicholas J. L. Brown. 2019. DEBIT: A
 #'   Simple Consistency Test For Binary Data. https://osf.io/5vb3u/.
 #'
 #' @examples
