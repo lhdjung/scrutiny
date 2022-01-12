@@ -44,9 +44,12 @@ Boolean. \code{TRUE} if \code{x}, \code{sd}, and \code{n} are mutually consisten
 \code{FALSE} if not.
 }
 \description{
-\code{debit()} tests summaries of binary data for consistency: If the mean and the
-standard deviation of binary data are given, are they consistent with the
-reported sample size?
+\code{debit()} tests summaries of binary data for consistency: If the
+mean and the standard deviation of binary data are given, are they
+consistent with the reported sample size?
+
+The function is vectorized, but it is recommended to use \code{debit_map()} for
+testing multiple cases.
 }
 \examples{
 # Check single cases of binary
