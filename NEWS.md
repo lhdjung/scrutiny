@@ -1,3 +1,5 @@
+# scrutiny 0.0.1
+
 # scrutiny 0.0.3
 
 This is a very minor release, mainly fixing a bug that used to affect the presentation of input data in `grim_map()`'s results. It needs to be emphasized that this bug only affected a convenience feature, namely the presentation of certain input data in the output, not the GRIM test itself.
