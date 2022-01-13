@@ -64,8 +64,8 @@
 <h2 class="pkg-version" data-toc-text="0.1.1" id="scrutiny-011">scrutiny 0.1.1<a class="anchor" aria-label="anchor" href="#scrutiny-011"></a></h2>
 <p>This is a patch, mainly fixing a bug that used to affect the presentation of input data in <code><a href="../reference/grim_map.html">grim_map()</a></code>’s results. It needs to be emphasized that this bug only affected a convenience feature, namely the presentation of certain input data in the output, not the GRIM test itself.</p>
 <ul><li><p>Previously, if <code>percent</code> was set to <code>TRUE</code>, the <code>x</code> values were converted to percentages. Because they need to be presented as strings, percentage conversion involves restoring the correct number of trailing zeros. The bug, then, was that all the <code>x</code> values appearing in the output (not in the internal computations!) were restored to the same “length” as the single longest one. This was now remedied, and <code>x</code> values are restored to their individually appropriate number of trailing zeros.</p></li>
-<li><p>Another bugfix concerns versioning. Previously, the package had an incorrect version number. It was nor corrected.</p></li>
-<li><p>Another changed was to remove an outdated and potentially misleading paragraph in the documentation of <code><a href="../reference/reround_to_fraction.html">reround_to_fraction()</a></code>.</p></li>
+<li><p>Another bugfix concerns versioning. Previously, the package had an incorrect version number. It was now corrected.</p></li>
+<li><p>Another change was to remove an outdated and potentially misleading paragraph in the documentation of <code><a href="../reference/reround_to_fraction.html">reround_to_fraction()</a></code>.</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.0" id="scrutiny-010">scrutiny 0.1.0<a class="anchor" aria-label="anchor" href="#scrutiny-010"></a></h2>
