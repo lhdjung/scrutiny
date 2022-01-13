@@ -1,3 +1,13 @@
+# scrutiny 0.0.2.1000
+
+This is a very minor release, mainly fixing a bug that used to affect the presentation of input data in `grim_map()`'s results. It needs to be emphasized that this bug only affected a convenience feature, namely the presentation of certain input data in the output, not the GRIM test itself.
+
+-   Previously, if `percent` was set to `TRUE`, the `x` values were converted to percentages. Because they need to be presented as strings, percentage conversion involves restoring the correct number of trailing zeros. The bug, then, was that all the `x` values appearing in the output (not in the internal computations!) were restored to the same "length" as the single longest one. This was now remedied, and `x` values are restored to their individually appropriate number of trailing zeros.
+
+-   Another bugfix concerns versioning. Previously, the package had an incorrect version number. It was nor corrected.
+
+-   Another changed was to remove an outdated and potentially misleading paragraph in the documentation of `reround_to_fraction()`.
+
 # scrutiny 0.0.2
 
 -   This version includes an overhaul of `grim_plot()`:
