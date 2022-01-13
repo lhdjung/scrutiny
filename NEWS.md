@@ -4,9 +4,9 @@ This is a patch, mainly fixing a bug that used to affect the presentation of inp
 
 -   Previously, if `percent` was set to `TRUE`, the `x` values were converted to percentages. Because they need to be presented as strings, percentage conversion involves restoring the correct number of trailing zeros. The bug, then, was that all the `x` values appearing in the output (not in the internal computations!) were restored to the same "length" as the single longest one. This was now remedied, and `x` values are restored to their individually appropriate number of trailing zeros.
 
--   Another bugfix concerns versioning. Previously, the package had an incorrect version number. It was nor corrected.
+-   Another bugfix concerns versioning. Previously, the package had an incorrect version number. It was now corrected.
 
--   Another changed was to remove an outdated and potentially misleading paragraph in the documentation of `reround_to_fraction()`.
+-   Another change was to remove an outdated and potentially misleading paragraph in the documentation of `reround_to_fraction()`.
 
 # scrutiny 0.1.0
 
