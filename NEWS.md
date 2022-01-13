@@ -6,7 +6,7 @@ This is a patch, mainly fixing a bug that used to affect the presentation of inp
 
 -   Another bugfix concerns versioning. Previously, the package had an incorrect version number. It was now corrected.
 
--   Another change was to remove an outdated and potentially misleading paragraph in the documentation of `reround_to_fraction()`.
+-   The last change was to remove an outdated and potentially misleading paragraph in the documentation of `reround_to_fraction()`.
 
 # scrutiny 0.1.0
 
