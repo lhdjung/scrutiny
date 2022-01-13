@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -353,7 +353,7 @@ bias = x_{rounded} - x
 <code class="sourceCode R"><span class="va">vec4</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">50000</span>, <span class="fl">100</span>, <span class="fl">15</span><span class="op">)</span>
 
 <span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span><span class="va">vec4</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>
-<span class="co">#&gt; [1] 4.359636e-06</span></code></pre></div>
+<span class="co">#&gt; [1] 7.706434e-06</span></code></pre></div>
 <p>What is responsible for such a difference? It seems to be (1) the sample size and (2) the number of decimal places to which the vector is rounded. The rounding method doesn’t appear to matter if numbers with many decimal places are rounded:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">up_1</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span><span class="va">vec4</span>, digits <span class="op">=</span> <span class="fl">1</span>, rounding <span class="op">=</span> <span class="st">"up"</span><span class="op">)</span>
@@ -386,16 +386,16 @@ bias = x_{rounded} - x
 <span class="co">#&gt; <span style="color: #949494;"># A tibble: 10 × 3</span></span>
 <span class="co">#&gt;             bias dp       rounding</span>
 <span class="co">#&gt;            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 0.000<span style="text-decoration: underline;">055</span>2     1 (up)   (up)    </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 0.000<span style="text-decoration: underline;">004</span>36    2 (up)   (up)    </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 0.000<span style="text-decoration: underline;">000</span>700   3 (up)   (up)    </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 0.000<span style="text-decoration: underline;">000</span>033<span style="text-decoration: underline;">6</span>  4 (up)   (up)    </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 0.000<span style="text-decoration: underline;">000</span>004<span style="text-decoration: underline;">04</span> 5 (up)   (up)    </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 0.000<span style="text-decoration: underline;">055</span>2     1 (even) (even)  </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 0.000<span style="text-decoration: underline;">004</span>36    2 (even) (even)  </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 0.000<span style="text-decoration: underline;">000</span>700   3 (even) (even)  </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 0.000<span style="text-decoration: underline;">000</span>033<span style="text-decoration: underline;">6</span>  4 (even) (even)  </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 0.000<span style="text-decoration: underline;">000</span>004<span style="text-decoration: underline;">04</span> 5 (even) (even)</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 0.000<span style="text-decoration: underline;">010</span>1     1 (up)   (up)    </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 0.000<span style="text-decoration: underline;">007</span>71    2 (up)   (up)    </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 0.000<span style="text-decoration: underline;">001</span>79    3 (up)   (up)    </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 0.000<span style="text-decoration: underline;">000</span>284   4 (up)   (up)    </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 0.000<span style="text-decoration: underline;">000</span>006<span style="text-decoration: underline;">37</span> 5 (up)   (up)    </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 0.000<span style="text-decoration: underline;">010</span>1     1 (even) (even)  </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 0.000<span style="text-decoration: underline;">007</span>71    2 (even) (even)  </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 0.000<span style="text-decoration: underline;">001</span>79    3 (even) (even)  </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 0.000<span style="text-decoration: underline;">000</span>284   4 (even) (even)  </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 0.000<span style="text-decoration: underline;">000</span>006<span style="text-decoration: underline;">37</span> 5 (even) (even)</span>
 
 <span class="va">`%+replace%`</span> <span class="op">&lt;-</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="va">`%+replace%`</span>
 
@@ -425,18 +425,18 @@ bias = x_{rounded} - x
 <p><img src="rounding_files/figure-html/unnamed-chunk-19-1.png" width="700"></p>
 <p>However, if the raw values are preliminarily rounded to 2 decimal places before rounding proceeds as above, the picture is different. I will spare you the code this time:</p>
 <pre><code><span class="co">#&gt; <span style="color: #949494;"># A tibble: 10 × 3</span></span>
-<span class="co">#&gt;        bias dp       rounding</span>
-<span class="co">#&gt;       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 0.005<span style="text-decoration: underline;">12</span>  1 (up)   (up)    </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 0        2 (up)   (up)    </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 0        3 (up)   (up)    </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 0        4 (up)   (up)    </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 0        5 (up)   (up)    </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 0.000<span style="text-decoration: underline;">315</span> 1 (even) (even)  </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 0        2 (even) (even)  </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 0        3 (even) (even)  </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 0        4 (even) (even)  </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 0        5 (even) (even)</span></code></pre>
+<span class="co">#&gt;          bias dp       rounding</span>
+<span class="co">#&gt;         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 0.004<span style="text-decoration: underline;">91</span>    1 (up)   (up)    </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 0          2 (up)   (up)    </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 0          3 (up)   (up)    </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 0          4 (up)   (up)    </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 0          5 (up)   (up)    </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 0.000<span style="text-decoration: underline;">003</span>60 1 (even) (even)  </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 0          2 (even) (even)  </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 0          3 (even) (even)  </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 0          4 (even) (even)  </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 0          5 (even) (even)</span></code></pre>
 <p><img src="rounding_files/figure-html/unnamed-chunk-20-1.png" width="700"></p>
 <p>In sum, the function allows users to quantify the degree to which rounding biases a distribution, so that they can assess the relative merits of different rounding procedures. This is partly to sensitize readers to potential bias in edge cases, but also to enable them to make informed rounding decisions on their own.</p>
 </div>
