@@ -74,14 +74,18 @@ restore_zeros <- function(x, width = NULL, sep = "\\.") {
   # the function go by the maximal length of already-present mantissas:
   if (is.null(width)) {
     if (length(x) == 1) {
-      rlang::warn(glue::glue(
-        "If `x` has length 1, trailing zeros can't be restored without \\
-        specifying `width`."
+      cli::cli_warn(c(
+        "No trailing zeros can be restored",
+        "!" = "`x` has length 1",
+        ">" = "Specify `width` to predetermine a number of decimal places \\
+        to which `x` values should be padded."
       ))
     } else if (purrr::every(width_mantissa, `==`, 0)) {
-      rlang::warn(glue::glue(
-        "None of the {length(x)} `x` values has any decimal places, so no \\
-        zeros can be restored without specifying `width`."
+      cli::cli_warn(c(
+        "No trailing zeros can be restored",
+        "!" = "None of the {length(x)} `x` values has any decimal places.",
+        ">" = "Specify `width` to predetermine a number of decimal places \\
+        to which `x` values should be padded."
       ))
     }
     width_target <- max(width_mantissa, na.rm = TRUE)
