@@ -36,8 +36,11 @@
 #' @param width Integer. Number of decimal places the mantissas should have,
 #'   including the restored zeros. Default is `NULL`, in which case the number
 #'   of characters in the longest mantissa will be used instead.
-#' @param sep Substring that separates the mantissa from the integer part.
-#'   Default is `"\\."`, which renders a decimal point.
+#' @param sep_input Substring that separates the input's mantissa from the
+#'   integer part. Default is `"\\."`, which renders a decimal point.
+#' @param sep_output Substring that will be returned in the output to separate
+#'   the mantissa from the integer part. Default is that `sep_output` is the
+#'   same as `sep_input`.
 #'
 #' @return A string vector. At least some of the strings will have newly
 #'   restored zeros, unless all input values had the same number of decimal
@@ -59,14 +62,15 @@
 #' vec %>% restore_zeros(width = 6)
 
 
-restore_zeros <- function(x, width = NULL, sep = "\\.") {
+restore_zeros <- function(x, width = NULL, sep_input = "\\.",
+                          sep_output = sep_input) {
 
   # Make sure no whitespace (from values that already were strings) is factored
   # into the count:
   x <- stringr::str_trim(x)
 
   # Count characters of the mantissa part:
-  parts <- stringr::str_split_fixed(x, sep, n = 2)
+  parts <- stringr::str_split_fixed(x, sep_input, n = 2)
   width_mantissa <- stringr::str_length(parts[, 2])
 
   # Determine the maximal width to which the mantissas should be padded in
@@ -93,13 +97,23 @@ restore_zeros <- function(x, width = NULL, sep = "\\.") {
     width_target <- width
   }
 
+
+  if (sep_input != "\\.") {
+    x <- stringr::str_replace(x, sep_input, "\\.")
+  }
+
   # Assemble the formatting expression, determined by `width_target` -- the
   # desired number of decimal places to which the `x` values should be padded:
   format <- paste0("%.", width_target, "f")
 
   # Pad `x` with the correct amount of trailing zeros:
-  sprintf(format, as.numeric(x))
+  out <- sprintf(format, as.numeric(x))
+
+  if (sep_output == "\\.") {
+    out
+  } else {
+    stringr::str_replace(out, "\\.", sep_output)
+  }
 
 }
-
 
