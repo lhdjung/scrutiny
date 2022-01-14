@@ -93,8 +93,8 @@ restore_zeros <- function(x, width = NULL, sep = "\\.") {
     width_target <- width
   }
 
-  # Assemble the formatting regex, determined by `width_target` -- the desired
-  # number of decimal places to which the `x` values should be padded:
+  # Assemble the formatting expression, determined by `width_target` -- the
+  # desired number of decimal places to which the `x` values should be padded:
   format <- paste0("%.", width_target, "f")
 
   # Pad `x` with the correct amount of trailing zeros:
