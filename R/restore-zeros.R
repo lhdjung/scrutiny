@@ -41,7 +41,8 @@
 #' @param sep_out Substring that will be returned in the output to separate the
 #'   mantissa from the integer part. By default, `sep_out` is the same as
 #'   `sep_in`.
-#' @param sep [[Deprecated]] Use `sep_in`, not `sep`.
+#' @param sep [[Deprecated]] Use `sep_in`, not `sep`. If `sep` is specified,
+#'   `sep_in` takes on `sep`'s value.
 #'
 #' @return A string vector. At least some of the strings will have newly
 #'   restored zeros, unless all input values had the same number of decimal
@@ -71,8 +72,22 @@ restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in,
   x <- stringr::str_trim(x)
 
   # The deprecated `sep` argument was replaced by `sep_in`. Therefore, if `sep`
-  # is still specified, `sep_in` needs to take on its role:
+  # is still specified...
   if (!is.null(sep)) {
+    if (sep_in != "\\.") {
+      cli::cli_abort(c(
+        "`sep` conflicts with `sep_in`",
+        "x" = "`sep` is deprecated.",
+        "!" = "If `sep` is still specified, `sep_in` takes on its value."
+      ))
+    } else {
+      cli::cli_warn(c(
+        "`sep` is deprecated",
+        ">" = "Use `sep_in`, not `sep`."
+      ))
+    }
+
+    # ... `sep_in` needs to take on its role:
     sep_in <- sep
   }
 
