@@ -41,6 +41,7 @@
 #' @param sep_out Substring that will be returned in the output to separate the
 #'   mantissa from the integer part. By default, `sep_out` is the same as
 #'   `sep_in`.
+#' @param sep [[Deprecated]] Use `sep_in`, not `sep`.
 #'
 #' @return A string vector. At least some of the strings will have newly
 #'   restored zeros, unless all input values had the same number of decimal
@@ -62,11 +63,18 @@
 #' vec %>% restore_zeros(width = 6)
 
 
-restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in) {
+restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in,
+                          sep = NULL) {
 
   # Make sure no whitespace (from values that already were strings) is factored
   # into the count:
   x <- stringr::str_trim(x)
+
+  # The deprecated `sep` argument was replaced by `sep_in`. Therefore, if `sep`
+  # is still specified, `sep_in` needs to take on its role:
+  if (!is.null(sep)) {
+    sep_in <- sep
+  }
 
   # Determine the maximal width to which the mantissas should be padded in
   # accordance with the `width` argument, the default of which, `NULL`, makes
@@ -118,10 +126,10 @@ restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in) {
   # Pad `x` with the correct amount of trailing zeros:
   out <- sprintf(format, as.numeric(x))
 
-  # By default, the separator in the output vector should be a point, but it
-  # might have been overridden -- either directly via `sep_out` or indirectly
-  # via `sep_in` because the default for `sep_out` is `sep_in`. If so, it now
-  # takes its place again; and in any case, the output is returned:
+  # By default, the separator in the output vector should be a decimal point,
+  # but it might have been overridden -- either directly via `sep_out` or
+  # indirectly via `sep_in` (because the default for `sep_out` is `sep_in`). If
+  # so, it now takes its place again. In any case, the output is returned:
   if (sep_out == "\\.") {
     out
   } else {

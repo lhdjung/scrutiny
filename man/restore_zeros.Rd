@@ -4,7 +4,7 @@
 \alias{restore_zeros}
 \title{Restore trailing zeros}
 \usage{
-restore_zeros(x, width = NULL, sep_in = "\\\\.", sep_out = sep_in)
+restore_zeros(x, width = NULL, sep_in = "\\\\.", sep_out = sep_in, sep = NULL)
 }
 \arguments{
 \item{x}{Numeric (or string coercible to numeric). Vector of numbers that
@@ -20,6 +20,8 @@ part. Default is \code{"\\\\."}, which renders a decimal point.}
 \item{sep_out}{Substring that will be returned in the output to separate the
 mantissa from the integer part. By default, \code{sep_out} is the same as
 \code{sep_in}.}
+
+\item{sep}{[\link{Deprecated}] Use \code{sep_in}, not \code{sep}.}
 }
 \value{
 A string vector. At least some of the strings will have newly
