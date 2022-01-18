@@ -330,7 +330,7 @@ jpap_5 %>%
 
 All `rounding` values other than `up_from`, `down_from`, and `up_from_or_down_from` are supported.
 
-Speed is not much of a concern here because all the rasters are based on data already stored within the package (in R/sysdata.rda), so they don't need to be generated on the spot every time the function is called. See R/data-gen.R for the way they were generated.
+Speed is not much of a concern here because all the rasters are based on data already stored within the package (in [R/sysdata.rda](https://github.com/lhdjung/scrutiny/blob/main/R/sysdata.rda)), so they don't need to be generated on the spot every time the function is called. See R/data-gen.R for the way they were generated.
 
 ## GRIM statistics
 
