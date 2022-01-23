@@ -74,7 +74,7 @@ pigs2
 grim_map(pigs2, percent = TRUE)
 ```
 
-Visualize GRIM results while also selecting a rounding procedure:
+You can visualize GRIM results while also choosing how the means are reconstructed. Blue dots are consistent values, red dots are inconsistent ones:
 
 ```{r}
 pigs1 %>% 

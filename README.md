@@ -95,7 +95,9 @@ Test percentages instead of means:
     #> 5 0.681   150     1 FALSE        0.85
     #> 6 0.554   150     1 FALSE        0.85
 
-Visualize GRIM results while also selecting a rounding procedure:
+You can visualize GRIM results while also choosing how the means are
+reconstructed. Blue dots are consistent values, red dots are
+inconsistent ones:
 
     pigs1 %>% 
       grim_map(rounding = "up") %>% 
