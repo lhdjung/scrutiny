@@ -24,9 +24,11 @@
 #'
 #' @return A tibble with string columns.
 #'
-#' @seealso `before_parens()` and `inside_parens()` take a string vector and
+#' @seealso - `before_parens()` and `inside_parens()` take a string vector and
 #'   extract values from the respective position. These two functions are mapped
 #'   within `split_by_parens().`
+#' - `tidyr::separate()`, a more general function (but without support for the
+#' closing parentheses)
 #'
 #' @export
 #'

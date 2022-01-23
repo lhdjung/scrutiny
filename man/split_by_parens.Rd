@@ -78,7 +78,11 @@ pigs \%>\%
   .col1 = "beta", .col2 = "se")
 }
 \seealso{
-\code{before_parens()} and \code{inside_parens()} take a string vector and
+\itemize{
+\item \code{before_parens()} and \code{inside_parens()} take a string vector and
 extract values from the respective position. These two functions are mapped
 within \verb{split_by_parens().}
+\item \code{tidyr::separate()}, a more general function (but without support for the
+closing parentheses)
+}
 }
