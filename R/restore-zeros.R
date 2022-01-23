@@ -77,7 +77,7 @@ restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in,
     if (sep_in != "\\.") {
       cli::cli_abort(c(
         "`sep` conflicts with `sep_in`",
-        "x" = "`sep` is deprecated.",
+        "x" = "`sep` is deprecated. It was replaced by `sep_in`.",
         "!" = "If `sep` is still specified, `sep_in` takes on its value."
       ))
     } else {
@@ -130,7 +130,7 @@ restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in,
   # In `x`, if integers and mantissas are separated by something other than
   # decimal points, these separators need to be temporarily changed to points,
   # so that `sprintf()` will be able to operate on `x` below:
-  if (sep_in != "\\.") {
+  if (any(sep_in != "\\.")) {
     x <- stringr::str_replace(x, sep_in, "\\.")
   }
 
@@ -145,7 +145,7 @@ restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in,
   # but it might have been overridden -- either directly via `sep_out` or
   # indirectly via `sep_in` (because the default for `sep_out` is `sep_in`). If
   # so, it now takes its place again. In any case, the output is returned:
-  if (sep_out == "\\.") {
+  if (all(sep_out == "\\.")) {
     out
   } else {
     stringr::str_replace(out, "\\.", sep_out)
