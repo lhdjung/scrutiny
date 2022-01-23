@@ -48,6 +48,7 @@ Collate:
     'grim.R'
     'data-doc.R'
     'debit-plot.R'
+    'disperse.R'
     'duplicate-count.R'
     'grim-base.R'
     'grim-granularity.R'
