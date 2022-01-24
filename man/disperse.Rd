@@ -2,9 +2,9 @@
 % Please edit documentation in R/disperse.R
 \name{disperse}
 \alias{disperse}
-\title{Lay out hypothetical group sizes}
+\title{Vary hypothetical group sizes}
 \usage{
-disperse(n, dispersion = 0:5, x_low = NA, x_high = NA, zero = FALSE)
+disperse(n, dispersion = 0:5, n_min = 1, n_max = NULL, x_low = NA, x_high = NA)
 }
 \arguments{
 \item{n}{Numeric. Number from which to go up and down. This might be half the
@@ -14,28 +14,36 @@ around half if it is odd.}
 \item{dispersion}{Numeric. Vector that determines the steps up and down from
 \code{n}. Default is \code{0:5}.}
 
+\item{n_min}{Numeric. Minimal group size. Default is \code{1}.}
+
+\item{n_max}{Numeric. Maximal group size. Default is \code{NULL}, i.e., no
+maximum.}
+
 \item{x_low, x_high}{Optionally, combine the low and high hypothetical group
 sizes with other values, such as means. Default is \code{NA}.}
-
-\item{zero}{Boolean. If set to \code{TRUE}, allows empty groups. Default is
-\code{FALSE}.}
 }
 \value{
 A tibble (data frame).
 }
 \description{
 Some published studies only report a total sample size but no
-group sizes. However, group sizes are crucial for procedures such as GRIM.
-Call \code{disperse()} to get a bird's-eye view of possible group sizes that all
-add up to the total sample size.
+group sizes. However, group sizes are crucial for procedures such as
+\href{https://lhdjung.github.io/scrutiny/articles/grim.html}{GRIM}. Call
+\code{disperse()} to get a bird's-eye view of possible group sizes that all add
+up to the total sample size.
 
 For convenience, mean (or other) values corresponding to the hypothetical
-sample sizes can be added.
+sample sizes can be added. The output will then be testable with functions
+like \code{grim_map()}.
 }
 \details{
-All negative group sizes and their complements are internally
-removed. By default (\code{zero = FALSE}), group sizes of 0 and their
-complements are also removed.
+If any group size is less than \code{n_min} or greater than \code{n_max}, it
+is removed. The corresponding size of the other group is also removed.
+
+If you follow up on \code{disperse()} with \code{grim_map()}, that will return an
+extra column, \code{both_consistent}. This column marks scenarios (row pairs) in
+which both group sizes are GRIM-consistent with their respective \code{x} and
+\code{items} values.
 }
 \examples{
 # For a total sample size of 40,
@@ -48,5 +56,11 @@ disperse(n = 20, dispersion = c(3, 6, 10))
 
 # Specify `x_low` and `x_high` to add
 # corresponding values, such as means:
-disperse(n = 20, x_low = "4.71", x_high = "5.3")
+out <- disperse(n = 20, x_low = "4.71", x_high = "5.3")
+out
+
+# With `grim_map()`, the extra column
+# `both_consistent` shows where both
+# group sizes fit the other values:
+grim_map(out)
 }
