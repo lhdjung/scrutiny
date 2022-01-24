@@ -318,6 +318,21 @@ that column."
     )
   }
 
+  # If `data` is itself the output of `disperse()`, add a column to `results`
+  # that marks scenarios in which both of the two hypothetical group sizes (`n`)
+  # are GRIM-consistent with their respective `x` and `items` values:
+  if (inherits(data, "scr_disperse")) {
+    both_consistent <- split(
+      consistency, ceiling(seq_along(consistency) / 2)
+    ) %>%
+      purrr::map_lgl(all) %>%
+      rep(each = 2) %>%
+      unname()
+
+    results <- results %>%
+      dplyr::mutate(both_consistent, .after = "consistency")
+  }
+
   # Finally, return either all of the results or only the GRIM-testable ones:
   if (testables_only) {
     dplyr::filter(results, ratio > 0)
