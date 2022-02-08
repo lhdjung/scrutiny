@@ -28,7 +28,8 @@
 #'
 #' @export
 #'
-#' @references ADD REFERENCE TO HEATHERS AND BROWN (2019 PREPRINT)
+#' @references Heathers, James A. J., and Brown, Nicholas J. L. 2019. DEBIT: A
+#'   Simple Consistency Test For Binary Data. https://osf.io/5vb3u/.
 #'
 #' @examples
 #' # If 127 values are coded as 0 and 153 as 1...

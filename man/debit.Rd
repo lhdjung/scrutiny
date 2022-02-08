@@ -57,7 +57,7 @@ testing multiple cases.
 debit(x = "0.36", sd = "0.11", n = 20)
 }
 \references{
-Heathers, James A. J., and Nicholas J. L. Brown. 2019. DEBIT: A
+Heathers, James A. J., and Brown, Nicholas J. L. 2019. DEBIT: A
 Simple Consistency Test For Binary Data. https://osf.io/5vb3u/.
 }
 \seealso{
