@@ -10,6 +10,7 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
   %\VignetteDepends{devtools}
+bibliography: references.bib
 ---
 
 ```{r, include = FALSE}
@@ -28,7 +29,7 @@ devtools::load_all(".")
 library(scrutiny)
 ```
 
-The descriptive binary test, or DEBIT, checks whether the reported mean, standard deviation (SD), and sample size of binary data are mutually consistent (Heathers and Brown 2019). Like GRIM, it tests if a given set of summary data can describe the same distribution.
+The descriptive binary test, or DEBIT, checks whether the reported mean, standard deviation (SD), and sample size of binary data are mutually consistent [@heathers_debit_2019]. Like GRIM, it tests if a given set of summary data can describe the same distribution.
 
 This vignette covers scrutiny's implementation of DEBIT:
 
@@ -56,17 +57,11 @@ As in `grim()`, the mean needs to be a string. (The same is true for the SD.) Th
 If you want to test more than a handful of cases, the recommended way is to enter them into a data frame and to run `debit_map()` on the data frame. Below are the example data from Heathers and Brown's (2019) Table 1. A useful way to enter such data is to copy them from a PDF file and paste them into `tibble::tribble()`, which is available via scrutiny:
 
 ```{r}
-flying_pigs <- tibble::tribble(
-  ~x,         ~sd,
-  "0.53",     "0.50",
-  "0.44",     "0.50",
-  "0.77",     "0.42",
-  "0.19",     "0.35",
-  "0.34",     "0.47",
-  "0.93",     "0.25",
-  "0.12",     "0.33",
-) %>% 
-  mutate(n = 1683)
+flying_pigs <- tibble(
+    x  = runif(5, 0.2, 1) %>% round(2) %>% restore_zeros(),
+    sd = runif(5, 0, 0.3) %>% round(2) %>% restore_zeros(),
+    n = 1000
+)
 
 
 flying_pigs
@@ -81,8 +76,6 @@ flying_pigs %>%
 
 The `x`, `sd`, and `n` columns are the same as in the input. The main result, `consistency`, is the DEBIT consistency of the former three columns.
 
-The function checks if the summary data really can describe a binary distribution:
-
 ```{r, error=TRUE}
 pigs3  # data saved within the package
 
@@ -93,12 +86,11 @@ pigs3 %>%
 DEBIT only makes sense with binary means and SDs. Both `debit()` and `debit_map()` check if the inputs are such data, and fail if they are not:
 
 ```{r, error=TRUE}
-pigs1  # no binary summary data!
+pigs1  # no binary means / SDs!
 
 pigs1 %>% 
   debit_map()
 ```
-
 
 Compared to `grim_map()`, `debit_map()` is more straightforward. There is no percentage conversion or accounting for multiple scale items. The same is true when comparing the basic `grim()` and `debit()` functions. However, both implementations tap scrutiny's arsenal of rounding procedures, so that is discussed next.
 
@@ -121,10 +113,10 @@ Points 3 to 5 above list some quite obscure options that were only included to c
 By default, `debit()` and `debit_map()` accept values rounded either up or down from 5. If you have reason to impose stricter assumptions on the way `x` was rounded, specify `rounding` accordingly:
 
 ```{r}
-flying_pigs %>% 
+pigs3 %>% 
   debit_map(rounding = "up")
 
-flying_pigs %>% 
+pigs3 %>% 
   debit_map(rounding = "even")
 ```
 
@@ -135,7 +127,7 @@ Although changing the rounding procedure didn't make any difference for the DEBI
 Following up on a call to `debit_map()`, the generic function `audit()` summarizes test results:
 
 ```{r}
-flying_pigs %>% 
+pigs3 %>% 
   debit_map() %>% 
   audit()
 ```
@@ -158,19 +150,21 @@ There is a specialized visualization function for DEBIT results, `debit_plot()`.
 ggplot2::theme_minimal(base_size = 12) %>% 
   ggplot2::theme_set()
 
-flying_pigs %>% 
+pigs3 %>% 
   debit_map() %>% 
   debit_plot()
 ```
 
 DEBIT-consistent value pairs are blue, inconsistent ones red. The black arc is the DEBIT line: Given the sample size, the pairs of mean and SD values are DEBIT-consistent if and only if they cross this line. More precisely, the inner boxes must cross the line --- the outer boxes are just pointers to the inner ones, in case these are poorly visible. They have no inherent meaning.
 
+[TO DO: Heathers noted [on Twitter](https://twitter.com/jamesheathers/status/1145663498376089606): "The little boxes are due to rounding - they're thin when there's no rounding, they're fat when there is." So that's my answer to the question about the difference between fat and thin boxes in the DEBIT paper --- it's just based on assumptions about those values having been rounded or not. So, I need to implement this in `debit()`, `debit_map()`, and `debit_plot()`!]
+
 Except for the colors, inner boxes must look exactly like they do here: Their sizes and shapes are completely determined by the mean and SD values. Since inner boxes cannot be enlarged at will, outer boxes might be helpful to spot them at first glance.
 
 However, if outer boxes are not desired, they can be turned off like this:
 
 ```{r}
-flying_pigs %>% 
+pigs3 %>% 
   debit_map() %>% 
   debit_plot(show_outer_boxes = FALSE)
 ```
@@ -178,5 +172,3 @@ flying_pigs %>%
 Color settings and other ggplot2-typical options are available via arguments, as are settings handed down to `ggrepel::geom_text_repel()`, which creates the labels. For more, see `debit_plot()`'s documentation.
 
 # References
-
-Heathers, James A. J., und Nicholas J. L. Brown. 2019. „DEBIT: A Simple Consistency Test For Binary Data". <https://osf.io/5vb3u/>.
