@@ -4,7 +4,7 @@
 \alias{disperse}
 \title{Vary hypothetical group sizes}
 \usage{
-disperse(n, dispersion = 0:5, n_min = 1, n_max = NULL, x_low = NA, x_high = NA)
+disperse(n, dispersion = 0:5, n_min = 1, n_max = NULL, x1 = NA, x2 = NA)
 }
 \arguments{
 \item{n}{Numeric. Number from which to go up and down. This might be half the
@@ -19,8 +19,8 @@ around half if it is odd.}
 \item{n_max}{Numeric. Maximal group size. Default is \code{NULL}, i.e., no
 maximum.}
 
-\item{x_low, x_high}{Optionally, combine the low and high hypothetical group
-sizes with other values, such as means. Default is \code{NA}.}
+\item{x1, x2}{Optionally, combine the low and high hypothetical group sizes
+with other values, such as means. Default is \code{NA}.}
 }
 \value{
 A tibble (data frame).
@@ -40,10 +40,10 @@ like \code{grim_map()}.
 If any group size is less than \code{n_min} or greater than \code{n_max}, it
 is removed. The corresponding size of the other group is also removed.
 
-If you follow up on \code{disperse()} with \code{grim_map()}, that will return an
-extra column, \code{both_consistent}. This column marks scenarios (row pairs) in
-which both group sizes are GRIM-consistent with their respective \code{x} and
-\code{items} values.
+In case you specify \code{x1} and \code{x2}, it makes sense to swap their
+specifications and run \code{disperse()} again, because it is not known which
+value corresponds to which group. \code{grim_map_disperse()} does that
+automatically.
 }
 \examples{
 # For a total sample size of 40,
@@ -54,13 +54,10 @@ disperse(n = 20)
 # the steps up and down from `n`:
 disperse(n = 20, dispersion = c(3, 6, 10))
 
-# Specify `x_low` and `x_high` to add
+# Specify `x1` and `x2` to add
 # corresponding values, such as means:
-out <- disperse(n = 20, x_low = "4.71", x_high = "5.3")
-out
-
-# With `grim_map()`, the extra column
-# `both_consistent` shows where both
-# group sizes fit the other values:
-grim_map(out)
+disperse(n = 20, x1 = "4.71", x2 = "5.3")
+}
+\seealso{
+\code{grim_map_disperse()}, \code{seq_distance_df()}
 }
