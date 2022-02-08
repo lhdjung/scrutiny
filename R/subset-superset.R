@@ -106,8 +106,6 @@ is_subset_of <- function(x, y) {
   length(x_rest) == 0
 }
 
-`%is_subset_of%` <- function(x, y) is_subset_of(x, y)
-
 
 #' @rdname is_subset_of
 #' @export
@@ -118,8 +116,6 @@ is_superset_of <- function(x, y) {
   length(y_rest) == 0
 }
 
-`%is_superset_of%` <- function(x, y) is_superset_of(x, y)
-
 
 
 #' @rdname is_subset_of
@@ -128,8 +124,6 @@ is_superset_of <- function(x, y) {
 is_equal_set <- function(x, y) {
   is_subset_of(x, y) && is_superset_of(x, y)
 }
-
-`%is_equal_set%` <- function(x, y) is_equal_set(x, y)
 
 
 
@@ -144,8 +138,6 @@ is_subset_of_vals <- function(x, ...) {
   is_subset_of(x, y)
 }
 
-`%is_subset_of_vals%` <- function(x, ...) is_subset_of_vals(x, ...)
-
 
 
 #' @rdname is_subset_of
@@ -157,8 +149,6 @@ is_superset_of_vals <- function(x, ...) {
   is_superset_of(x, y)
 }
 
-`%is_superset_of_vals%` <- function(x, ...) is_superset_of_vals(x, ...)
-
 
 
 #' @rdname is_subset_of
@@ -169,8 +159,6 @@ is_equal_set_vals <- function(x, ...) {
 
   is_equal_set(x, y)
 }
-
-`%is_equal_set_vals%` <- function(x, ...) is_equal_set_vals(x, ...)
 
 
 
@@ -188,8 +176,6 @@ is_subset_of_vecs <- function(x, ...) {
   is_subset_of(x, y)
 }
 
-`%is_subset_of_vecs%` <- function(x, ...) is_subset_of_vecs(x, ...)
-
 
 
 #' @rdname is_subset_of
@@ -201,8 +187,6 @@ is_superset_of_vecs <- function(x, ...) {
   is_superset_of(x, y)
 }
 
-`%is_superset_of_vecs%` <- function(x, ...) is_superset_of_vecs(x, ...)
-
 
 
 #' @rdname is_subset_of
@@ -213,7 +197,5 @@ is_equal_set_vecs <- function(x, ...) {
 
   is_equal_set(x, y)
 }
-
-`%is_equal_set_vecs%` <- function(x, ...) is_equal_set_vecs(x, ...)
 
 
