@@ -54,6 +54,7 @@ Collate:
     'grim-granularity.R'
     'manage-extra-cols.R'
     'grim-map.R'
+    'grim-map-disperse.R'
     'grim-plot.R'
     'grimmer.R'
     'method-debit-map.R'
