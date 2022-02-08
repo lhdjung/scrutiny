@@ -41,13 +41,16 @@
 #' 4. `mean_x`: the mean `x` (mean) value.
 #' 5. `mean_sd`: the mean `sd` value.
 #' 6. `distinct_n`: the number of distinct `n` values.
+
+#' @references Heathers, James A. J., and Brown, Nicholas J. L. 2019. DEBIT: A
+#'   Simple Consistency Test For Binary Data. https://osf.io/5vb3u/.
 #'
 #' @export
 #'
 #' @examples
 #' # Call `debit_map()` on binary summary
 #' # data such as these:
-#' # pigs3
+#' pigs3
 #'
 #' # The `consistency` column shows
 #' # whether the values to its left
