@@ -23,18 +23,20 @@
 #' @param n_min Numeric. Minimal group size. Default is `1`.
 #' @param n_max Numeric. Maximal group size. Default is `NULL`, i.e., no
 #'   maximum.
-#' @param x_low,x_high Optionally, combine the low and high hypothetical group
-#'   sizes with other values, such as means. Default is `NA`.
+#' @param x1,x2 Optionally, combine the low and high hypothetical group sizes
+#'   with other values, such as means. Default is `NA`.
 #'
 #' @details If any group size is less than `n_min` or greater than `n_max`, it
 #'   is removed. The corresponding size of the other group is also removed.
 #'
-#'   If you follow up on `disperse()` with `grim_map()`, that will return an
-#'   extra column, `both_consistent`. This column marks scenarios (row pairs) in
-#'   which both group sizes are GRIM-consistent with their respective `x` and
-#'   `items` values.
+#'   In case you specify `x1` and `x2`, it makes sense to swap their
+#'   specifications and run `disperse()` again, because it is not known which
+#'   value corresponds to which group. `grim_map_disperse()` does that
+#'   automatically.
 #'
 #' @return A tibble (data frame).
+#'
+#' @seealso `grim_map_disperse()`, `seq_distance_df()`
 #'
 #' @export
 #'
@@ -47,18 +49,13 @@
 #' # the steps up and down from `n`:
 #' disperse(n = 20, dispersion = c(3, 6, 10))
 #'
-#' # Specify `x_low` and `x_high` to add
+#' # Specify `x1` and `x2` to add
 #' # corresponding values, such as means:
-#' out <- disperse(n = 20, x_low = "4.71", x_high = "5.3")
-#' out
-#'
-#' # With `grim_map()`, the extra column
-#' # `both_consistent` shows where both
-#' # group sizes fit the other values:
-#' grim_map(out)
+#' disperse(n = 20, x1 = "4.71", x2 = "5.3")
+
 
 disperse <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
-                     x_low = NA, x_high = NA) {
+                     x1 = NA, x2 = NA) {
 
   # Checks ---
 
@@ -127,7 +124,7 @@ disperse <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
     )
 
 
-  if (is.na(x_low) & is.na(x_high)) {
+  if (is.na(x1) & is.na(x2)) {
 
     out %>%
       dplyr::relocate(n, n_change) %>%
@@ -135,7 +132,7 @@ disperse <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
 
   } else {
 
-    x <- c(x_low, x_high)
+    x <- c(x1, x2)
     x_rep_count <- nrow(out) / 2
 
     out %>%
@@ -145,4 +142,16 @@ disperse <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
   }
 
 }
+
+
+
+
+# Old to-do list for what became `grim_map_disperse()` --------------------
+
+# TO DO: write a function that (1) takes a vector that is either a single set of
+# the same arguments `disperse()` takes (while requiring `x1` and `x2`)
+# or a data frame where the rows are such sets; (2) runs `purrr::pmap(disperse)`
+# on that vector; (3) runs `grim_map()` on each resulting tibble; (4) calls
+# `dplyr::filter()` to remove all `FALSE` values of `both_consistent`; (5) binds
+# the rows of all resulting tibbles together
 
