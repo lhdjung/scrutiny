@@ -28,12 +28,16 @@ Numeric. \code{x} rounded to \code{digits} (except for \code{anti_trunc()}, whic
 has no \code{digits} argument).
 }
 \description{
-Round a decimal number in either of four ways: \code{round_ceiling()}
-always rounds up, \code{round_floor()} always rounds down, \code{round_trunc()}
-always rounds toward 0, and \code{round_anti_trunc()} always rounds away from 0.
+Uncommon rounding procedures:
+\itemize{
+\item \code{round_ceiling()} always rounds up.
+\item \code{round_floor()} always rounds down.
+\item \code{round_trunc()} always rounds toward 0.
+\item \code{round_anti_trunc()} always rounds away from 0.
+}
 
-These rounding methods don't seem to be widely used. Still, they are
-featured here in case they are needed for reconstruction.
+Despite not being widely used, they are featured here in case they are needed
+for reconstruction.
 }
 \details{
 \code{round_ceiling()}, \code{round_floor()}, and \code{round_trunc()} generalize

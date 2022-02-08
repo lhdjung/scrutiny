@@ -2,12 +2,14 @@
 
 #' Always round up, down, toward zero, or away from it
 #'
-#' @description Round a decimal number in either of four ways: `round_ceiling()`
-#'   always rounds up, `round_floor()` always rounds down, `round_trunc()`
-#'   always rounds toward 0, and `round_anti_trunc()` always rounds away from 0.
+#' @description Uncommon rounding procedures:
+#'   - `round_ceiling()` always rounds up.
+#'   - `round_floor()` always rounds down.
+#'   - `round_trunc()` always rounds toward 0.
+#'   - `round_anti_trunc()` always rounds away from 0.
 #'
-#'   These rounding methods don't seem to be widely used. Still, they are
-#'   featured here in case they are needed for reconstruction.
+#' Despite not being widely used, they are featured here in case they are needed
+#' for reconstruction.
 #'
 #' @details `round_ceiling()`, `round_floor()`, and `round_trunc()` generalize
 #'   the base functions `ceiling()`, `floor()`, and `trunc()`, and include them
