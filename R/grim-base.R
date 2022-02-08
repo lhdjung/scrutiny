@@ -28,6 +28,11 @@
 #' @return Integer or numeric. The number or proportion of possible GRIM
 #'   inconsistencies.
 #'
+#' @references Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A
+#'   Simple Technique Detects Numerous Anomalies in the Reporting of Results in
+#'   Psychology. *Social Psychological and Personality Science*, 8(4), 363–369.
+#'   https://doi.org/10.1177/1948550616673876
+#'
 #' @export
 #'
 #' @examples

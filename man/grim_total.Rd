@@ -51,6 +51,12 @@ grim_ratio(x = "5.14", n = 83)
 grim_total(x = "5.14", n = 83, percent = TRUE)
 grim_ratio(x = "5.14", n = 83, percent = TRUE)
 }
+\references{
+Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A
+Simple Technique Detects Numerous Anomalies in the Reporting of Results in
+Psychology. \emph{Social Psychological and Personality Science}, 8(4), 363–369.
+https://doi.org/10.1177/1948550616673876
+}
 \seealso{
 \code{grim()} for the GRIM test itself; as well as \code{grim_map()} for
 applying it to multiple cases at once.

@@ -36,8 +36,8 @@
 #'   anew every time the function is called. Inconsistent value sets are marked
 #'   with dark boxes. All other places in the raster denote consistent value
 #'   sets. The raster is independent of the data -- it only follows the
-#'   `rounding` specification in the `grim_map()` call and the `digits`
-#'   argument in `grim_plot()`.
+#'   `rounding` specification in the `grim_map()` call and the `digits` argument
+#'   in `grim_plot()`.
 #'
 #'   Display an "empty" plot, one without empirical test results, by setting
 #'   `show_data` to `FALSE`. You can then control key parameters of the plot
@@ -85,6 +85,11 @@
 #'   `"grey75"`.
 #'
 #' @include utils.R seq-decimal.R
+#'
+#' @references Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A
+#'   Simple Technique Detects Numerous Anomalies in the Reporting of Results in
+#'   Psychology. *Social Psychological and Personality Science*, 8(4), 363–369.
+#'   https://doi.org/10.1177/1948550616673876
 #'
 #' @export
 #'
