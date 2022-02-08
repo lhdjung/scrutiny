@@ -29,7 +29,7 @@ devtools::load_all(".")
 library(scrutiny)
 ```
 
-Granularity-related inconsistency of means, or GRIM, is a test for the mathematical consistency of reported means or proportions with the corresponding sample size [@brown2016]. It can be applied to summary statistics of discrete numerical distributions. GRIM answers a simple question: Is it possible that a granular distribution has both the reported mean or percentage and the reported sample size?
+Granularity-related inconsistency of means, or GRIM, is a test for the mathematical consistency of reported means or proportions with the corresponding sample size [@brown_grim_2017]. It can be applied to summary statistics of discrete numerical distributions. GRIM answers a simple question: Is it possible that a granular distribution has both the reported mean or percentage and the reported sample size?
 
 This vignette covers scrutiny's implementation of the GRIM test. It has the following sections --- to get started, though, you only need the first one:
 
