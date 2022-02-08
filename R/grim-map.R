@@ -81,6 +81,11 @@
 #' 7. `testable_rate`: proportion of GRIM-testable value sets.
 #'
 #' @include audit.R grim.R manage-extra-cols.R restore-zeros.R
+
+#' @references Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A
+#'   Simple Technique Detects Numerous Anomalies in the Reporting of Results in
+#'   Psychology. *Social Psychological and Personality Science*, 8(4), 363–369.
+#'   https://doi.org/10.1177/1948550616673876
 #'
 #' @export
 #'
@@ -316,21 +321,6 @@ that column."
     cli::cli_alert_info(
       "`x` converted from percentage"
     )
-  }
-
-  # If `data` is itself the output of `disperse()`, add a column to `results`
-  # that marks scenarios in which both of the two hypothetical group sizes (`n`)
-  # are GRIM-consistent with their respective `x` and `items` values:
-  if (inherits(data, "scr_disperse")) {
-    both_consistent <- split(
-      consistency, ceiling(seq_along(consistency) / 2)
-    ) %>%
-      purrr::map_lgl(all) %>%
-      rep(each = 2) %>%
-      unname()
-
-    results <- results %>%
-      dplyr::mutate(both_consistent, .after = "consistency")
   }
 
   # Finally, return either all of the results or only the GRIM-testable ones:
