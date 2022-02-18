@@ -63,7 +63,7 @@
 #' decimal_places(x = c(4.08, "4.08"))
 #'
 #' # Whitespace at the end of a string is not counted:
-#' # decimal_places(x = "6.0     ")
+#' decimal_places(x = "6.0     ")
 #'
 #' # `decimal_places_scalar()` is much faster,
 #' # but only works with a single number or string:
