@@ -11,12 +11,10 @@ inside <- rnorm(500, 25, 5) %>%
 x <- paste0(before, " (", inside, ")")
 
 
-
 test_that("Substrings are extracted from the expected positions", {
-  expect_equal(before_parens(x), before)
-  expect_equal(inside_parens(x), inside)
+  before_parens(x) %>% expect_equal(before)
+  inside_parens(x) %>% expect_equal(inside)
 })
-
 
 test_that("Parentheses are removed", {
    before_parens(x) %>% stringr::str_detect("\\(") %>% any() %>% expect_false()
@@ -24,4 +22,3 @@ test_that("Parentheses are removed", {
    before_parens(x) %>% stringr::str_detect("\\)") %>% any() %>% expect_false()
    inside_parens(x) %>% stringr::str_detect("\\)") %>% any() %>% expect_false()
 })
-
