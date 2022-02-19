@@ -62,14 +62,17 @@ proto_grim_map_disperse <- function(data, dispersion, n_min, n_max,
 #' with a total sample size of 40, it will go from 20 to 19 and 21, then to 18
 #' and 22, etc.
 #' - It GRIM-tests all of these values together with the group means.
-#' - For each number around half a total sample size, the function reports the
-#' number of scenarios in which both "dispersed" hypothetical group sizes are
-#' GRIM-consistent with the group means.
+#' - It reports the number of scenarios in which both "dispersed" hypothetical
+#' group sizes are GRIM-consistent with the group means.
+#'
+#' All of this works with one or more total sample sizes at a time, each
+#' represented by a number around its half. Of course, it is also sensible to
+#' test multiple of such numbers with a single set of group means.
 
-#' @param data Data frame with columns `x1`, `x2`, and `n`. The first two are
-#'   group mean or percentage values with unknown group sizes, and `n` is a
-#'   number around half the total sample size. The function will go up and down
-#'   from `n` to create hypothetical group sizes.
+#' @param data Data frame with string columns `x1` and `x2`, and numeric column
+#'   `n`. The first two are group mean or percentage values with unknown group
+#'   sizes, and `n` is a number around half the total sample size. The function
+#'   will go up and down from `n` to create hypothetical group sizes.
 #'
 #'   It is not very important whether a value is in `x1` or in `x2` because,
 #'   after the first round of tests, the function switches roles between `x1`
@@ -93,12 +96,12 @@ proto_grim_map_disperse <- function(data, dispersion, n_min, n_max,
 #'
 #' @references Bauer, P. J., & Francis, G. (2021). Expression of Concern: Is It
 #'   Light or Dark? Recalling Moral Behavior Changes Perception of Brightness.
-#'   Psychological Science, 32(12), 2042–2043.
+#'   *Psychological Science*, 32(12), 2042–2043.
 #'   https://doi.org/10.1177/09567976211058727
 #'
 #'   Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A Simple
 #'   Technique Detects Numerous Anomalies in the Reporting of Results in
-#'   Psychology. Social Psychological and Personality Science, 8(4), 363–369.
+#'   Psychology. *Social Psychological and Personality Science*, 8(4), 363–369.
 #'   https://doi.org/10.1177/1948550616673876
 
 #' @seealso `grim_map()`, `disperse()`
