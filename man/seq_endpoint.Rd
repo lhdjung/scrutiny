@@ -32,7 +32,6 @@ seq_distance_df(
   .length_out = 10,
   .dir = 1,
   .offset_from = 0,
-  .offset_to = 0,
   .string_output = TRUE
 )
 }

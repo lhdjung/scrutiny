@@ -227,8 +227,7 @@ seq_endpoint_df <- function(.from, .to, ..., .offset_from = 0, .offset_to = 0,
 #' @export
 
 seq_distance_df <- function(.from, ..., .length_out = 10, .dir = 1,
-                            .offset_from = 0, .offset_to = 0,
-                            .string_output = TRUE) {
+                            .offset_from = 0, .string_output = TRUE) {
 
   # Call the basic function to generate the sequence:
   x <- seq_distance(
