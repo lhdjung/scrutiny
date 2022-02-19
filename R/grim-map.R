@@ -147,7 +147,7 @@ grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
   # Provide a way to specify the mean (`x`) column from within a function call
   # even if the column in question is not named `x`:
   if (!is.null(x)) {
-    data <- dplyr::mutate(data, x = {{ x }})
+    data <- dplyr::mutate(data, x = {{ x }}, {{ x }} := NULL)
   } else if (!"x" %in% colnames(data)) {
     cli::cli_abort(c(
       "`x` column missing",
@@ -158,7 +158,7 @@ grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
 
   # Same with the sample size (`n`) column:
   if (!is.null(n)) {
-    data <- dplyr::mutate(data, n = {{ n }})
+    data <- dplyr::mutate(data, n = {{ n }}, {{ n }} := NULL)
   } else if (!"n" %in% colnames(data)) {
     cli::cli_abort(c(
       "`n` column missing",
