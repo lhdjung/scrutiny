@@ -251,7 +251,7 @@ check_length <- function(x, name, l) {
 }
 
 
-
+# Much the same as `check_length()`, but for object types rather than lengths:
 check_type <- function(x, name, type) {
   if (typeof(x) != type) {
     if (type == "character") {
