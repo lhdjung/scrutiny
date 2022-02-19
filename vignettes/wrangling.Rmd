@@ -180,7 +180,7 @@ flights3 %>%
 
 ## Replace column names by row values
 
-When extracting tables from PDF with tabulizer, you might get data frames (converted from matrices) that have wrong, nondescript column names, while the correct column names are stored in one or more rows within the data frame itself. If this issue occurs across many similar tables that are correctly imported otherwise, it becomes a significant obstacle.
+When extracting tables from PDF with tabulizer, you might get data frames (converted from matrices) that have wrong, nondescript column names, while the correct column names are stored in one or more rows within the data frame itself.
 
 I will first simulate the problem. `x` and `n` should be column names, but instead they are values in the first row:
 
