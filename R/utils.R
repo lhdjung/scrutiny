@@ -39,6 +39,8 @@ reconstruct_sd_scalar <- function(formula, x, n, group_0, group_1) {
       \"groups\" instead. Default is \"mean_n\"."
     ))
   }
+
+  sd_rec
 }
 
 
@@ -134,18 +136,6 @@ reverse_column_order <- function(data) {
 }
 
 
-str_atomize <- function(string) {
-  out <- stringr::str_split(string, "")
-
-  if (length(string) == 1) {
-    unlist(out)
-  } else {
-    out
-  }
-
-}
-
-
 
 # Censoring is used in some of scrutiny's unit tests:
 censor <- function(x, left, right) {
@@ -192,13 +182,6 @@ check_rounding_singular <- function(x) {
   }
 }
 
-
-# reround_to_fraction(
-#   x = c(4.23, 6.29, 2.74),
-#   denominator = c(20, 60),
-#   digits = 1:20,
-#   rounding = c("down", "even", "ceiling")
-# )
 
 
 proto_lengths_congruent <- function(x, y, residues,
@@ -252,5 +235,35 @@ check_lengths_congruent <- function(var_list) {
   }
 
 }
+
+
+# Make sure a vector `x` has length `l`, otherwise throw an informative error.
+# The `name` parameter (string) is the vector's name. For example, if a vector
+# called `vals` needs to have length 1, run: `check_length(vals, "vals", 1)`.
+# Using `name` is not as elegant as a tidy eval solution would be, but faster.
+check_length <- function(x, name, l) {
+  if (length(x) != l) {
+    cli::cli_abort(c(
+      "`{name}` has length {length(x)}",
+      "x" = "It needs to have length {l}."
+    ))
+  }
+}
+
+
+
+check_type <- function(x, name, type) {
+  if (typeof(x) != type) {
+    if (type == "character") {
+      type <- "string"
+    }
+    cli::cli_abort(c(
+      "`{name}` is {an_a_type(x)}.",
+      "x" = "It needs to be {an_a(type)} {type}."
+    ))
+  }
+}
+
+
 
 
