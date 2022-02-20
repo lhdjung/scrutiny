@@ -28,7 +28,8 @@ proto_grim_map_disperse <- function(data, dispersion, n_min, n_max,
       show_prob = show_prob, rounding = rounding, threshold = threshold,
       symmetric = symmetric, tolerance = tolerance, extra = extra
     ) %>%
-    purrr::map(mutate_both_consistent)
+    purrr::map(mutate_both_consistent) %>%
+    purrr::map(dplyr::relocate, n_change, .after = both_consistent)
 
   hits_count <- df_list %>%
     purrr::map(dplyr::filter, both_consistent) %>%
@@ -37,8 +38,7 @@ proto_grim_map_disperse <- function(data, dispersion, n_min, n_max,
     as.integer()
 
   hits_values <- df_list %>%
-    dplyr::bind_rows() %>%
-    dplyr::select(-both_consistent)
+    dplyr::bind_rows()
 
   data <- data %>%
     dplyr::mutate(hits = hits_count)
