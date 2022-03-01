@@ -2,7 +2,7 @@
 % Please edit documentation in R/grim-map-disperse.R
 \name{grim_map_disperse}
 \alias{grim_map_disperse}
-\title{GRIM-testing with varying group sizes}
+\title{GRIM-testing with dispersed group sizes}
 \usage{
 grim_map_disperse(
   data,
@@ -26,15 +26,13 @@ grim_map_disperse(
 \arguments{
 \item{data}{Data frame with string columns \code{x1} and \code{x2}, and numeric column
 \code{n}. The first two are group mean or percentage values with unknown group
-sizes, and \code{n} is a number around half the total sample size. The function
-will go up and down from \code{n} to create hypothetical group sizes.
+sizes, and \code{n} is the total sample size. It is not very important whether a
+value is in \code{x1} or in \code{x2} because, after the first round of tests, the
+function switches roles between \code{x1} and \code{x2}, and reports the outcomes
+both ways.}
 
-It is not very important whether a value is in \code{x1} or in \code{x2} because,
-after the first round of tests, the function switches roles between \code{x1}
-and \code{x2}, and reports the outcomes both ways.}
-
-\item{dispersion}{Numeric. Steps up and down from the \code{n} values. Default is
-\code{0:5}, i.e., \code{n} itself plus five steps up and down.}
+\item{dispersion}{Numeric. Steps up and down from half the \code{n} values.
+Default is \code{0:5}, i.e., half \code{n} itself followed by five steps up and down.}
 
 \item{n_min}{Numeric. Minimal group size. Default is 1.}
 
@@ -42,7 +40,7 @@ and \code{x2}, and reports the outcomes both ways.}
 maximum.}
 
 \item{x1, x2}{Optionally, specify which columns in \code{data} contain the mean or
-percentage values. If not specified here, \code{data} itself needs to contain
+proportion values. If not specified here, \code{data} itself needs to contain
 columns by those names. Default is \code{NULL}.}
 
 \item{show_all}{Boolean. If set to \code{TRUE}, the output is a list of tibbles
@@ -58,49 +56,47 @@ A tibble with summary data:
 \item \code{hits_total} is the total number of scenarios in which both \verb{x*} values
 are GRIM-consistent. Each scenario consists of two \code{n} values in the
 specified \code{dispersion} range tested against one \code{x1} and one \code{x2} value.
-Which one of the \verb{x*} values is entered as high or low does not matter
+Which one of the \verb{x*} values is entered as \code{x1} or \code{x2} does not matter
 because the tests go both ways.
 \item \code{hits_forth} is the number of scenarios with both \verb{x*} values consistent
-corresponding to \code{x1} for low \code{n} and \code{x2} for high \code{n} values.
-\item \code{hits_back}, then, is the number of scenarios in which both of the switched
-(role-reversed) \verb{x*} values are consistent.
+corresponding to \code{x1} for small \code{n} values and \code{x2} for large \code{n} values.
+\item \code{hits_back}, then, is the number of scenarios in which both of the
+role-reversed \verb{x*} values are consistent: those where \code{x1} corresponds to
+large \code{n} and \code{x2} to small \code{n} values.
 }
 
 If \code{show_all} is \code{TRUE}, this tibble (index \verb{[[1]]}) is part of a list of
-tibbles in which the other tibbles contain the detailed results.
-
-In particular, the first pair of detailed tibbles (index \verb{[[2]]}) contains
-test results corresponding to the original \code{x1} and \code{x2} columns. The second
-pair (index \verb{[[3]]}) has the values of \code{x1} and \code{x2} switched. The summary
-tibble at the top reports their results as \code{hits_forth} and \code{hits_back},
-respectively, and adds these two up to \code{hits_total}.
+tibbles in which the other ones contain the detailed results. Each tibble
+other than \verb{[[1]]} corresponds to one row in the input data frame. Tibbles
+under \verb{[[2]]} count towards \code{hits_forth}, those under \verb{[[3]]} count towards
+\code{hits_back}.
 }
 \description{
 When reporting group means, some published studies only report
 the total sample size but no group sizes corresponding to each mean.
-However, group sizes are crucial for GRIM-testing.
+However, group sizes are crucial for
+\href{https://lhdjung.github.io/scrutiny/articles/grim.html#handling-unknown-group-sizes-with-grim_map_disperse}{GRIM-testing}.
 
 In the two-groups case, \code{grim_map_disperse()} helps in these ways:
 \itemize{
-\item It creates hypothetical group sizes by incrementally moving up and down
-from a user-specified number around half the total sample size. For example,
-with a total sample size of 40, it will go from 20 to 19 and 21, then to 18
-and 22, etc.
+\item It creates hypothetical group sizes. With an even total sample size, it
+incrementally moves up and down from half the total sample size. For example,
+with a total sample size of 40, it starts at 20, goes on to 19 and 21, then
+to 18 and 22, etc. For odd sample sizes, it starts from the two integers
+around half.
 \item It GRIM-tests all of these values together with the group means.
 \item It reports the number of scenarios in which both "dispersed" hypothetical
 group sizes are GRIM-consistent with the group means.
 }
 
-All of this works with one or more total sample sizes at a time, each
-represented by a number around its half. Of course, it is also sensible to
-test multiple of such numbers with a single set of group means.
+All of this works with one or more total sample sizes at a time.
 }
 \examples{
 # Run `grim_map_disperse()` on data like these:
-df <- tibble::tibble(
-  x1 = runif(3, 2, 8) \%>\% round(2) \%>\% restore_zeros(),
-  x2 = runif(3, 2, 8) \%>\% round(2) \%>\% restore_zeros(),
-  n  = runif(3, 30, 60) \%>\% round()
+df <- tibble::tribble(
+  ~x1,    ~x2,   ~n,
+  "3.43", "5.28", 90,
+  "2.97", "4.42", 103
 )
 
 # The `hits_total` column shows all scenarios in
@@ -128,5 +124,5 @@ Psychology. \emph{Social Psychological and Personality Science}, 8(4), 363–369
 https://doi.org/10.1177/1948550616673876
 }
 \seealso{
-\code{grim_map()}, \code{disperse()}
+\code{grim_map()}, \code{disperse_total()}
 }
