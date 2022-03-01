@@ -59,12 +59,7 @@
 #
 #   # As `n` determines the length of combinations through its (single) value
 #   # rather than through its own length, the length needs to be 1:
-#   if (length(n) != 1) {
-#     cli::cli_abort(c(
-#       "`n` has length {length(n)}",
-#       "x" = "It needs to have length 1."
-#     ))
-#   }
+#   # check_length(n, "n", 1)
 #
 #   # Generate combinations, removing rows with the same value sets (regardless of
 #   # their order) and reversing the order of columns to accord with the behavior
