@@ -2,17 +2,28 @@
 % Please edit documentation in R/disperse.R
 \name{disperse}
 \alias{disperse}
+\alias{disperse2}
+\alias{disperse_total}
 \title{Vary hypothetical group sizes}
 \usage{
 disperse(n, dispersion = 0:5, n_min = 1, n_max = NULL, x1 = NA, x2 = NA)
+
+disperse2(n, dispersion = 0:5, n_min = 1, n_max = NULL, x1 = NA, x2 = NA)
+
+disperse_total(n, dispersion = 0:5, n_min = 1, n_max = NULL, x1 = NA, x2 = NA)
 }
 \arguments{
-\item{n}{Numeric. Number from which to go up and down. This might be half the
-total sample size if that number is even. You may want to choose a number
-around half if it is odd.}
+\item{n}{Numeric.
+\itemize{
+\item In \code{disperse()}, single number from which to go up and down. This should be
+half of an even total sample size.
+\item In \code{disperse2()}, the two consecutive numbers closest to half of an odd
+total sample size (e.g., \code{c(25, 26)} for a total of 51).
+\item In \code{disperse_total()}, the total sample size.
+}}
 
 \item{dispersion}{Numeric. Vector that determines the steps up and down from
-\code{n}. Default is \code{0:5}.}
+\code{n} (in \code{disperse_total()}, from half \code{n}). Default is \code{0:5}.}
 
 \item{n_min}{Numeric. Minimal group size. Default is \code{1}.}
 
@@ -23,18 +34,32 @@ maximum.}
 with other values, such as means. Default is \code{NA}.}
 }
 \value{
-A tibble (data frame).
+A tibble (data frame) with these columns:
+\itemize{
+\item \code{n} includes the dispersed \code{n} values. Every pair of consecutive rows has
+\code{n} values that each add up to the input \code{n}.
+\item \code{n_change} records how the input \code{n} was transformed to the output \code{n}. In
+\code{disperse2()}, the \code{n_change} strings label the lower of the input \code{n}
+values \code{n1} and the higher one \code{n2}.
+}
 }
 \description{
 Some published studies only report a total sample size but no
-group sizes. However, group sizes are crucial for procedures such as
-\href{https://lhdjung.github.io/scrutiny/articles/grim.html}{GRIM}. Call
-\code{disperse()} to get a bird's-eye view of possible group sizes that all add
-up to the total sample size.
+group sizes. However, group sizes are crucial for tests such as
+\href{https://lhdjung.github.io/scrutiny/articles/grim.html#handling-unknown-group-sizes-with-grim_map_disperse}{GRIM}.
+Call \code{disperse()} to generate possible group sizes that all add up to the
+total sample size, if that total is even.
 
-For convenience, mean (or other) values corresponding to the hypothetical
-sample sizes can be added. The output will then be testable with functions
-like \code{grim_map()}.
+\code{disperse2()} is a variant for odd totals. It takes two consecutive numbers
+and generates decreasing values from the lower as well as increasing values
+from the upper. In this way, all combinations still add up to the total.
+
+\code{disperse_total()} directly takes the total sample size, checks if it's
+even or odd, splits it up accordingly, and applies \code{disperse()} or
+\code{disperse2()}, respectively.
+
+These functions are primarily intended as helpers. They form the backbone
+of \code{grim_map_disperse()}.
 }
 \details{
 If any group size is less than \code{n_min} or greater than \code{n_max}, it
@@ -57,6 +82,12 @@ disperse(n = 20, dispersion = c(3, 6, 10))
 # Specify `x1` and `x2` to add
 # corresponding values, such as means:
 disperse(n = 20, x1 = "4.71", x2 = "5.3")
+}
+\references{
+Bauer, P. J., & Francis, G. (2021). Expression of Concern: Is It
+Light or Dark? Recalling Moral Behavior Changes Perception of Brightness.
+\emph{Psychological Science}, 32(12), 2042–2043.
+https://doi.org/10.1177/09567976211058727
 }
 \seealso{
 \code{grim_map_disperse()}, \code{seq_distance_df()}
