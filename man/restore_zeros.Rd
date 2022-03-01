@@ -21,8 +21,8 @@ part. Default is \code{"\\\\."}, which renders a decimal point.}
 mantissa from the integer part. By default, \code{sep_out} is the same as
 \code{sep_in}.}
 
-\item{sep}{[\link{Deprecated}] Use \code{sep_in}, not \code{sep}. If \code{sep} is specified,
-\code{sep_in} takes on \code{sep}'s value.}
+\item{sep}{[\link{Deprecated}] Use \code{sep_in}, not \code{sep}. If \code{sep} is specified
+nonetheless, \code{sep_in} takes on \code{sep}'s value.}
 }
 \value{
 A string vector. At least some of the strings will have newly
