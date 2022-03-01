@@ -224,10 +224,11 @@ disperse_total <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
 
   # Checks ---
 
-  if (!(length(n) %in% c(1, 2))) {
+  if (length(n) != 1) {
     cli::cli_abort(c(
       "`n` has length {length(n)}",
-      "x" = "It needs to have length 1 or 2.",
+      "x" = "It needs to have length 1; it's supposed \\
+      to be a *total* sample size.",
       ">" = "See documentation under `?disperse`."
     ))
   }
