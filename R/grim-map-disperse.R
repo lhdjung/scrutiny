@@ -12,8 +12,9 @@ mutate_both_consistent <- function(data) {
 }
 
 
-# Helper function for a single data frame used within `grim_map_disperse()`
-# below; not exported:
+
+# Helper function for two data frames, used within `grim_map_disperse()` below;
+# not exported:
 proto_grim_map_disperse <- function(data, dispersion, n_min, n_max,
                                     x1, x2, items, percent,
                                     show_rec, show_prob, rounding, threshold,
@@ -21,7 +22,7 @@ proto_grim_map_disperse <- function(data, dispersion, n_min, n_max,
 
   df_list <- data %>%
     purrr::pmap(
-      disperse, dispersion = dispersion, n_min = n_min, n_max = n_max
+      disperse_total, dispersion = dispersion, n_min = n_min, n_max = n_max
     ) %>%
     purrr::map(
       grim_map, items = items, percent = percent, show_rec = show_rec,
@@ -37,53 +38,51 @@ proto_grim_map_disperse <- function(data, dispersion, n_min, n_max,
     `/`(2) %>%
     as.integer()
 
-  hits_values <- df_list %>%
-    dplyr::bind_rows()
+  # hits_values <- df_list  # %>%
+  #   # dplyr::bind_rows()
 
   data <- data %>%
     dplyr::mutate(hits = hits_count)
 
-  list(data, hits_values)
+  list(data, df_list)
 
 }
 
 
 
-#' GRIM-testing with varying group sizes
+#' GRIM-testing with dispersed group sizes
 #'
 #' @description When reporting group means, some published studies only report
 #'   the total sample size but no group sizes corresponding to each mean.
-#'   However, group sizes are crucial for GRIM-testing.
+#'   However, group sizes are crucial for
+#'   \href{https://lhdjung.github.io/scrutiny/articles/grim.html#handling-unknown-group-sizes-with-grim_map_disperse}{GRIM-testing}.
 #'
 #'   In the two-groups case, `grim_map_disperse()` helps in these ways:
 
-#' - It creates hypothetical group sizes by incrementally moving up and down
-#' from a user-specified number around half the total sample size. For example,
-#' with a total sample size of 40, it will go from 20 to 19 and 21, then to 18
-#' and 22, etc.
+#' - It creates hypothetical group sizes. With an even total sample size, it
+#' incrementally moves up and down from half the total sample size. For example,
+#' with a total sample size of 40, it starts at 20, goes on to 19 and 21, then
+#' to 18 and 22, etc. For odd sample sizes, it starts from the two integers
+#' around half.
 #' - It GRIM-tests all of these values together with the group means.
 #' - It reports the number of scenarios in which both "dispersed" hypothetical
 #' group sizes are GRIM-consistent with the group means.
 #'
-#' All of this works with one or more total sample sizes at a time, each
-#' represented by a number around its half. Of course, it is also sensible to
-#' test multiple of such numbers with a single set of group means.
+#' All of this works with one or more total sample sizes at a time.
 
 #' @param data Data frame with string columns `x1` and `x2`, and numeric column
 #'   `n`. The first two are group mean or percentage values with unknown group
-#'   sizes, and `n` is a number around half the total sample size. The function
-#'   will go up and down from `n` to create hypothetical group sizes.
-#'
-#'   It is not very important whether a value is in `x1` or in `x2` because,
-#'   after the first round of tests, the function switches roles between `x1`
-#'   and `x2`, and reports the outcomes both ways.
-#' @param dispersion Numeric. Steps up and down from the `n` values. Default is
-#'   `0:5`, i.e., `n` itself plus five steps up and down.
+#'   sizes, and `n` is the total sample size. It is not very important whether a
+#'   value is in `x1` or in `x2` because, after the first round of tests, the
+#'   function switches roles between `x1` and `x2`, and reports the outcomes
+#'   both ways.
+#' @param dispersion Numeric. Steps up and down from half the `n` values.
+#'   Default is `0:5`, i.e., half `n` itself followed by five steps up and down.
 #' @param n_min Numeric. Minimal group size. Default is 1.
 #' @param n_max Numeric. Maximal group size. Default is `NULL`, i.e., no
 #'   maximum.
 #' @param x1,x2 Optionally, specify which columns in `data` contain the mean or
-#'   percentage values. If not specified here, `data` itself needs to contain
+#'   proportion values. If not specified here, `data` itself needs to contain
 #'   columns by those names. Default is `NULL`.
 #' @param show_all Boolean. If set to `TRUE`, the output is a list of tibbles
 #'   with detailed analyses. Default is `FALSE`, so that only a single tibble
@@ -92,7 +91,7 @@ proto_grim_map_disperse <- function(data, dispersion, n_min, n_max,
 #' items,percent,show_rec,show_prob,rounding,threshold,symmetric,tolerance,extra
 #' Arguments passed down to `grim_map()`.
 
-#' @include grim-map.R disperse.R
+#' @include utils.R grim-map.R disperse.R
 #'
 #' @references Bauer, P. J., & Francis, G. (2021). Expression of Concern: Is It
 #'   Light or Dark? Recalling Moral Behavior Changes Perception of Brightness.
@@ -104,37 +103,42 @@ proto_grim_map_disperse <- function(data, dispersion, n_min, n_max,
 #'   Psychology. *Social Psychological and Personality Science*, 8(4), 363–369.
 #'   https://doi.org/10.1177/1948550616673876
 
-#' @seealso `grim_map()`, `disperse()`
+#' @seealso `grim_map()`, `disperse_total()`
 #'
 #' @return A tibble with summary data:
 #' - `x1`, `x2`, and `n` are the inputs.
 #' - `hits_total` is the total number of scenarios in which both `x*` values
 #'   are GRIM-consistent. Each scenario consists of two `n` values in the
 #'   specified `dispersion` range tested against one `x1` and one `x2` value.
-#'   Which one of the `x*` values is entered as high or low does not matter
+#'   Which one of the `x*` values is entered as `x1` or `x2` does not matter
 #'   because the tests go both ways.
 #' - `hits_forth` is the number of scenarios with both `x*` values consistent
-#'   corresponding to `x1` for low `n` and `x2` for high `n` values.
-#' - `hits_back`, then, is the number of scenarios in which both of the switched
-#'   (role-reversed) `x*` values are consistent.
+#'   corresponding to `x1` for small `n` values and `x2` for large `n` values.
+#' - `hits_back`, then, is the number of scenarios in which both of the
+#'   role-reversed `x*` values are consistent: those where `x1` corresponds to
+#'   large `n` and `x2` to small `n` values.
 #'
 #' If `show_all` is `TRUE`, this tibble (index `[[1]]`) is part of a list of
-#' tibbles in which the other tibbles contain the detailed results.
-#'
-#' In particular, the first pair of detailed tibbles (index `[[2]]`) contains
-#' test results corresponding to the original `x1` and `x2` columns. The second
-#' pair (index `[[3]]`) has the values of `x1` and `x2` switched. The summary
-#' tibble at the top reports their results as `hits_forth` and `hits_back`,
-#' respectively, and adds these two up to `hits_total`.
+#' tibbles in which the other ones contain the detailed results. Each tibble
+#' other than `[[1]]` corresponds to one row in the input data frame. Tibbles
+#' under `[[2]]` count towards `hits_forth`, those under `[[3]]` count towards
+#' `hits_back`.
+
+
+# In particular, the first pair of detailed tibbles (index `[[2]]`) contains
+# test results corresponding to the original `x1` and `x2` columns. The second
+# pair (index `[[3]]`) has the values of `x1` and `x2` switched. The summary
+# tibble at the top reports their results as `hits_forth` and `hits_back`,
+# respectively, and adds these two up to `hits_total`.
 
 #' @export
 
 #' @examples
 #' # Run `grim_map_disperse()` on data like these:
-#' df <- tibble::tibble(
-#'   x1 = runif(3, 2, 8) %>% round(2) %>% restore_zeros(),
-#'   x2 = runif(3, 2, 8) %>% round(2) %>% restore_zeros(),
-#'   n  = runif(3, 30, 60) %>% round()
+#' df <- tibble::tribble(
+#'   ~x1,    ~x2,   ~n,
+#'   "3.43", "5.28", 90,
+#'   "2.97", "4.42", 103
 #' )
 #'
 #' # The `hits_total` column shows all scenarios in
@@ -149,6 +153,8 @@ proto_grim_map_disperse <- function(data, dispersion, n_min, n_max,
 #'
 #' # Get all the details with `show_all = TRUE`:
 #' grim_map_disperse(data = df, show_all = TRUE)
+
+
 
 
 grim_map_disperse <- function(data, dispersion = 0:5, n_min = 1, n_max = NULL,
@@ -188,6 +194,22 @@ grim_map_disperse <- function(data, dispersion = 0:5, n_min = 1, n_max = NULL,
     ))
   }
 
+  if (!all(is_whole_number(data$n))) {
+    offenders <- data$n[!is_whole_number(data$n)]
+    if (length(offenders) > 3) {
+      offenders <- offenders[1:3]
+      msg_offenders <- ", starting with"
+    } else {
+      msg_offenders <- ":"
+    }
+    cli::cli_abort(c(
+      "`n` values must be whole numbers",
+      "x" = "The `n` column includes decimal \\
+      numbers{msg_offenders} {offenders}.",
+      "i" = "They are supposed to be (total) sample sizes."
+    ))
+  }
+
 
   # Main part ---
 
@@ -217,37 +239,48 @@ grim_map_disperse <- function(data, dispersion = 0:5, n_min = 1, n_max = NULL,
     extra = extra
   )
 
+  # Isolate the number of both-consistent scenarios for each pairing...
   hits_forth <- out_forth[[1]]$hits
-  hits_back  <- out_back[[1]]$hits
+  hits_back <- out_back[[1]]$hits
 
+  # ...and sum them up:
   hits_total <- hits_forth + hits_back
 
-  # This used to be `df_total`:
-  df_total <- data %>%
+  # Create an overall summary tibble with the input values and the key results:
+  out_summary <- data %>%
     dplyr::mutate(hits_total, hits_forth, hits_back)
 
+
   if (show_all) {
+
+    # Detailed results are prefixed with an explanation of the various tibbles:
     cli::cli_inform(c(
-      "*" = "First table summarizes results.",
-      "*" = "Other tables contain detailed analyses.",
+      "i" = "Explanation:",
+      "*" = "Tibble [[1]] summarizes test results.",
+      "*" = "Tibbles under [[2]] and [[3]] contain detailed analyses, \\
+      with one tibble for each row in the input data frame.",
+      "*" = "Those under [[2]] correspond to `hits_forth`, \\
+      where `x2` is paired with the larger group.",
+      "*" = "Those under [[3]] correspond to `hits_back`, \\
+      where `x1` is paired with the larger group.",
       ">" = "(A \"hit\" is a scenario in which both dispersed `n` values \\
       are GRIM-consistent with their corresponding `x*` values.)"
     ))
 
-    out_forth[[1]] <- out_forth[[1]] %>%
-      dplyr::rename(hits_forth = hits)
+    # Remove the summary tibbles on top of each `proto_grim_map_disperse()`
+    # output list; they are no longer needed:
+    out_forth <- out_forth[[-1]]
+    out_back <- out_back[[-1]]
 
-    out_back[[1]] <- out_back[[1]] %>%
-      dplyr::rename(hits_back = hits)
-
-    details <- list(out_forth, out_back)
-
-    df_total %>%
-      list() %>%
-      append(details)
+    # Return results in a list with the overall summary tibble on top, followed
+    # by the `out_forth` and `out_back` lists of tibbles with detailed results:
+    return(list(out_summary, out_forth, out_back))
 
   } else {
-    df_total
+
+    # With the default `show_all = FALSE`, no lists with detailed results are
+    # returned, only the overall summary tibble:
+    return(out_summary)
   }
 
 }
