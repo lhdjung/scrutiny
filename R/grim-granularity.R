@@ -59,7 +59,7 @@
 
 
 grim_granularity <- function(n, items = 1) {
-  1 / (n * items)
+  return(1 / (n * items))
 }
 
 
@@ -71,7 +71,7 @@ grim_items <- function(n, gran, tolerance = .Machine$double.eps^0.5) {
   out_is_whole <- is_whole_number(out, tolerance = tolerance)
 
   if (all(out_is_whole)) {
-    out
+    return(out)
   } else {
     offenders <- out[!out_is_whole]
     if (length(offenders) == 1) {
@@ -88,7 +88,7 @@ grim_items <- function(n, gran, tolerance = .Machine$double.eps^0.5) {
       "!" = "Item counts have a granularity of 1, so they should be whole \\
       numbers. Are you sure about the `n` and `gran` values?"
     ))
-    out
+    return(out)
   }
 
 }

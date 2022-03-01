@@ -49,9 +49,9 @@ check_extra_cols <- function(data, extra, other_cols) {
 
   # Finally, make `other_cols` capture any and all extra columns, and return it:
   if (!is.infinite(extra) && length(other_cols) > 0) {
-    dplyr::select(other_cols, all_of(extra))
+    return(dplyr::select(other_cols, all_of(extra)))
   } else {
-    other_cols
+    return(other_cols)
   }
 
 }

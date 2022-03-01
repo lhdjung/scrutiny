@@ -69,21 +69,26 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
 
   if (!show_rec) {
     # Check if any of these two comparisons returned `TRUE`:
-    any(grain_is_x)
+    return(any(grain_is_x))
   } else {
     consistency <- any(grain_is_x)
     length_2ers <- c("up_or_down", "up_from_or_down_from", "ceiling_or_floor")
 
     if (any(length_2ers == rounding)) {
 
-      list(consistency, rec_sum, rec_x_upper, rec_x_lower,
-           grains_rounded[1], grains_rounded[2],
-           grains_rounded[3], grains_rounded[4])
+      return(list(
+        consistency, rec_sum, rec_x_upper, rec_x_lower,
+        grains_rounded[1], grains_rounded[2],
+        grains_rounded[3], grains_rounded[4]
+      ))
 
     } else {
 
-      list(consistency, rec_sum, rec_x_upper, rec_x_lower,
-           grains_rounded[1], grains_rounded[2])
+      return(list(
+        consistency, rec_sum, rec_x_upper, rec_x_lower,
+        grains_rounded[1], grains_rounded[2]
+      ))
+
     }
 
   }

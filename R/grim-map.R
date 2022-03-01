@@ -325,9 +325,9 @@ that column."
 
   # Finally, return either all of the results or only the GRIM-testable ones:
   if (testables_only) {
-    dplyr::filter(results, ratio > 0)
+    return(dplyr::filter(results, ratio > 0))
   } else {
-    results
+    return(results)
   }
 
 }

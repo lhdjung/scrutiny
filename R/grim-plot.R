@@ -450,12 +450,13 @@ grim_plot <- function(data = NULL,
 
 
   # Finally, return the plot with axis labels:
-  p +
-    ggplot2::labs(
-    x = "Sample size",
-    y = glue::glue("Fractional portion of {mean_percent_label}")
+  return(
+    p +
+      ggplot2::labs(
+        x = "Sample size",
+        y = glue::glue("Fractional portion of {mean_percent_label}")
+      )
   )
-
 
 }
 

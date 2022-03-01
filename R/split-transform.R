@@ -40,11 +40,12 @@ transform_split_parens_object <- function(data) {
   cols_2 <- cols_2 %>%
     dplyr::mutate(key = 1:nrow(cols_2))
 
-
-  dplyr::left_join(cols_1, cols_2, by = "key") %>%
-    dplyr::select(-.data$key, -.data$.origin_2) %>%
-    dplyr::mutate(.origin = stringr::str_remove(.data$.origin, uscore_end1)) %>%
-    dplyr::arrange(.data$.origin)
+  return(
+    dplyr::left_join(cols_1, cols_2, by = "key") %>%
+      dplyr::select(-.data$key, -.data$.origin_2) %>%
+      dplyr::mutate(.origin = stringr::str_remove(.data$.origin, uscore_end1)) %>%
+      dplyr::arrange(.data$.origin)
+  )
 }
 
 

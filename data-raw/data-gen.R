@@ -69,15 +69,15 @@ generate_grim_raster <- function(digits, rounding, n = NULL) {
   frac <- parcel_nth_elements(raster, n = 2, from = 1)
 
   # Finally, return both vectors in a list:
-  list(n, frac)
+  return(list(n, frac))
 }
 
 
 
-# Remember:
-grim_raster_1_up_or_down %>%
-  parcel_nth_elements(n = 2) %>%
-  `==`(as.numeric(grim_raster_1_up_or_down_frac))
+# # Remember:
+# grim_raster_1_up_or_down %>%
+#   parcel_nth_elements(n = 2) %>%
+#   `==`(as.numeric(grim_raster_1_up_or_down_frac))
 
 
 

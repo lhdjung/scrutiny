@@ -195,8 +195,6 @@ debit_plot <- function(data,
 
   # Other theme specifications (optional, default is `TRUE`):
   if (show_theme_other) {
-    `%+replace%` <- ggplot2::`%+replace%`
-
     p <- p +
       ggplot2::theme_update() +
       ggplot2::theme(
@@ -206,7 +204,7 @@ debit_plot <- function(data,
   }
 
   # Finally, return the plot:
-  p
+  return(p)
 
 }
 

@@ -165,9 +165,9 @@ reround <- function(x, digits = 0, rounding = "up_or_down",
   # `rounding`) has been found, proceed as described in the `Details` section of
   # the documentation. To vectorize the arguments, this is done via the helper
   # function at the top of the present file:
-  as.vector(reconstruct_rounded_numbers(
+  return(as.vector(reconstruct_rounded_numbers(
     x, digits, rounding, threshold, symmetric
-  ))
+  )))
 
 }
 

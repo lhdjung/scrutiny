@@ -116,9 +116,9 @@ split_by_parens <- function(.data, ..., .keep = FALSE, .transform = FALSE,
   # Return the output tibble. If desired, pivot it into a longer format using
   # the specified internal helper function from the split-transform.R file:
   if (.transform) {
-    transform_split_parens_object(out)
+    return(transform_split_parens_object(out))
   } else {
-    out
+    return(out)
   }
 
 }

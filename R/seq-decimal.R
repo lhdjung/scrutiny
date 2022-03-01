@@ -127,9 +127,9 @@ seq_endpoint <- function(from, to, offset_from = 0, offset_to = 0,
   # restored to the same number of decimal places that also determined the unit
   # of increments at the start of the function:
   if (string_output) {
-    restore_zeros(out, width = decimals_max)
+    return(restore_zeros(out, width = decimals_max))
   } else {
-    out
+    return(out)
   }
 
 }
@@ -188,9 +188,9 @@ seq_distance <- function(from, length_out = 10, dir = 1, offset_from = 0,
   # restored to the same number of decimal places that `from` has, and that also
   # determined the step size at the start of the function:
   if (string_output) {
-    restore_zeros(out, width = decimals)
+    return(restore_zeros(out, width = decimals))
   } else {
-    out
+    return(out)
   }
 
 }
@@ -217,8 +217,10 @@ seq_endpoint_df <- function(.from, .to, ..., .offset_from = 0, .offset_to = 0,
   # additional columns into it. Then, add a special class to the tibble, but
   # only to pass messages between (1) here, (2) the testing function, and (3)
   # `seq_test_ranking()`. Finally, return the resulting tibble:
-  tibble::tibble(x, !!!further_cols) %>%
-    add_class("scr_seq_df")
+  return(
+    tibble::tibble(x, !!!further_cols) %>%
+      add_class("scr_seq_df")
+  )
 }
 
 
@@ -243,8 +245,10 @@ seq_distance_df <- function(.from, ..., .length_out = 10, .dir = 1,
   # additional columns into it. Then, add a special class to the tibble, but
   # only to pass messages between (1) here, (2) the testing function, and (3)
   # `seq_test_ranking()`. Finally, return the resulting tibble:
-  tibble::tibble(x, !!!further_cols) %>%
-    add_class("scr_seq_df")
+  return(
+    tibble::tibble(x, !!!further_cols) %>%
+      add_class("scr_seq_df")
+  )
 }
 
 

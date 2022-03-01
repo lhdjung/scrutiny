@@ -57,7 +57,7 @@ debit <- function(x, sd, n,
     threshold = threshold, symmetric = symmetric
   )
 
-  out$consistency
+  return(out$consistency)
 }
 
 

@@ -60,7 +60,7 @@ grim_total <- function(x, n, items = 1, percent = FALSE) {
   if (percent) decimals <- decimals + 2
   p10 <- 10 ^ decimals
 
-  as.integer(p10 - (n * items))
+  return(as.integer(p10 - (n * items)))
 }
 
 
@@ -76,7 +76,7 @@ grim_ratio <- function(x, n, items = 1, percent = FALSE) {
   if (percent) decimals <- decimals + 2
   p10 <- 10 ^ decimals
 
-  (p10 - (n * items)) / p10
+  return((p10 - (n * items)) / p10)
 }
 
 

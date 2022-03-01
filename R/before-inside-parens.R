@@ -27,7 +27,7 @@ proto_split_parens <- function(string, sep = "parens") {
   s <- sub(sep_close, "", s)
   l <- length(s) / length(string)
 
-  split(s, ceiling(seq_along(s) / l))
+  return(split(s, ceiling(seq_along(s) / l)))
 }
 
 
@@ -53,7 +53,7 @@ before_parens <- function(string, sep = "parens") {
   s <- purrr::map(s, ~ .[1])
   s <- as.character(s)
 
-  stringr::str_trim(s)
+  return(stringr::str_trim(s))
 }
 
 
@@ -74,6 +74,6 @@ inside_parens <- function(string, sep = "parens") {
   s <- purrr::map(s, ~ .[2])
   s <- sub(glue::glue("{sep2}.*"), "", s)
 
-  as.character(s)
+  return(as.character(s))
 }
 

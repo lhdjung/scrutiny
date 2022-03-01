@@ -84,9 +84,9 @@ decimal_places <- function(x, sep = "\\.") {
   x <- purrr::modify_if(x, !is.na(x), stringr::str_length)
   x <- purrr::modify_if(x, is_length_1_and_not_na, set_to_0)
 
-  as.integer(unlist(
+  return(as.integer(unlist(
     purrr::map_if(x, is_length_greater_1, `[`, 2)
-  ))
+  )))
 }
 
 
@@ -108,12 +108,17 @@ decimal_places <- function(x, sep = "\\.") {
 # Faster, single-case (scalar) function to be used as a helper within other
 # single-case functions:
 decimal_places_scalar <- function(x, sep = "\\.") {
-  if (is.na(x)) return(NA)
+  if (is.na(x)) {
+    return(NA)
+  }
   x <- stringr::str_split(stringr::str_trim(x), sep, 2)
   x <- stringr::str_length(x[[1]][2])
-  if (is.na(x)) return(as.integer(0))
+  if (is.na(x)) {
+    return(as.integer(0))
+  }
 
-  as.integer(x)
+  return(as.integer(x))
 }
+
 
 
