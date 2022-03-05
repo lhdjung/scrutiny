@@ -226,6 +226,24 @@ And here is the distance data frame variant:
 seq_distance_df(.from = "4.50", .length_out = 5, n = 30)
 ```
 
+## Vary hypothetical group sizes
+
+The reporting of summary statistics is often insufficient --- certainly from an error detection point of view. In particular, values such as means and standard deviations are not always accompanied by their respective group sizes, but only by a total sample size. This requires splitting the total up into groups and creating multiple plausible scenarios of group sizes that add up to the total.
+
+`disperse_total()` automates this process. It powers the group size generation in `grim_map_disperse()`, which is my best attempt at the problem outlined above in the context of GRIM. See the [case study with GRIM](https://lhdjung.github.io/scrutiny/articles/grim.html#handling-unknown-group-sizes-with-grim_map_disperse) for how this logic works out in practice.
+
+Briefly, `disperse_total()` checks if an input total is even or odd, cuts it in half, and creates "dispersed" group sizes going out from there, with each pair of group sizes adding up to the input total. This works naturally with even totals. For odd totals, it starts with the two integers closest to half.
+
+The function internally calls either of `disperse()` and `disperse2()`, but I recommend simply using the higher-level `disperse_total()`. Here are two basic examples:
+
+```{r}
+# With an even total...
+disperse_total(n = 70)
+
+# ...and with an odd total:
+disperse_total(n = 83)
+```
+
 ## Test for subsets, supersets, and equal sets
 
 Starting with `is_subset_of()`, scrutiny features a distinctive family of predicate functions that test whether one vector `x` is a subset of another vector `y`, whether `x` is a superset of `y` (i.e. the reverse of a subset), or whether `x` and `y` are equal sets.
