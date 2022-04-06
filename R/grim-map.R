@@ -282,8 +282,6 @@ that column."
         stringr::str_split("_or_") %>%
         unlist()
 
-      # return(results)
-
       # These names are for the long version only; the short version has
       # different names 5 and 6, and it has no names 7 and 8 at all:
       name5 <- paste0("rec_x_upper_rounded_", rounding_split[1])
@@ -296,21 +294,6 @@ that column."
         name5, name6, name7, name8
       )
 
-
-      # results <- results %>%
-      #   tidyr::unnest_wider(col = consistency) %>%
-      #   suppressMessages() %>%
-      #   dplyr::rename(
-      #     consistency  = .data$`...1`,
-      #     rec_sum      = .data$`...2`,
-      #     rec_x_upper  = .data$`...3`,
-      #     rec_x_lower  = .data$`...4`,
-      #     "rec_x_upper_rounded_{rounding_split[1]}" := .data$`...5`,
-      #     "rec_x_upper_rounded_{rounding_split[2]}" := .data$`...6`,
-      #     "rec_x_lower_rounded_{rounding_split[1]}" := .data$`...7`,
-      #     "rec_x_lower_rounded_{rounding_split[2]}" := .data$`...8`
-      #   )
-
     } else {
 
       # The alternative names 5 and 6 for the short version:
@@ -321,18 +304,6 @@ that column."
         name1, name2, name3, name4,
         name5, name6  # no 7 and 8 here!
       )
-
-      # results <- results %>%
-      #   tidyr::unnest_wider(col = consistency) %>%
-      #   suppressMessages() %>%
-      #   dplyr::rename(
-      #     consistency          = .data$`...1`,
-      #     rec_sum              = .data$`...2`,
-      #     rec_x_upper          = .data$`...3`,
-      #     rec_x_lower          = .data$`...4`,
-      #     rec_x_upper_rounded  = .data$`...5`,
-      #     rec_x_lower_rounded  = .data$`...6`
-      #   )
 
     }
 
