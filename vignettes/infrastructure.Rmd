@@ -6,6 +6,7 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
   %\VignetteDepends{devtools}
+bibliography: references.bib
 ---
 
 ```{r, include = FALSE}
@@ -49,7 +50,7 @@ vec1 %>%
   decimal_places()
 ```
 
-Using strings that are coercible to numeric is recommended in an error detection context because trailing zeros can be crucial here. Numeric values drop trailing zeros, whereas strings preserve them:
+Using strings (that are coercible to numeric) is recommended in an error detection context because trailing zeros can be crucial here. Numeric values drop trailing zeros, whereas strings preserve them:
 
 ```{r}
 decimal_places(7.200)
@@ -228,9 +229,27 @@ seq_distance_df(.from = "4.50", .length_out = 5, n = 30)
 
 ## Vary hypothetical group sizes
 
-The reporting of summary statistics is often insufficient --- certainly from an error detection point of view. In particular, values such as means and standard deviations are not always accompanied by their respective group sizes, but only by a total sample size. This requires splitting the total up into groups and creating multiple plausible scenarios of group sizes that add up to the total.
+### The problem
 
-`disperse_total()` automates this process. It powers the group size generation in `grim_map_disperse()`, which is my best attempt at the problem outlined above in the context of GRIM. See the [case study with GRIM](https://lhdjung.github.io/scrutiny/articles/grim.html#handling-unknown-group-sizes-with-grim_map_disperse) for how this logic works out in practice.
+The reporting of summary statistics is often insufficient --- certainly from an error detection point of view. In particular, values such as means and standard deviations are not always accompanied by their respective group sizes, but only by a total sample size.
+
+This presents a problem for consistency tests that rely on reported group sizes, such as GRIM. It requires splitting the reported total into groups and creating multiple plausible scenarios of group sizes that add up to the total. Although no definitive test results can be gained this way, it does help to see whether reported values are consistent with at least some of the plausible group sizes [@bauer_expression_2021].
+
+### Producing functions with `function_map_disperse()`
+
+For GRIM, this problem can be tackled with `grim_map_disperse()`. See the [case study in the GRIM vignette](https://lhdjung.github.io/scrutiny/articles/grim.html#handling-unknown-group-sizes-with-grim_map_disperse) for how its logic works out in practice. Although the underlying code is fairly complex, the function itself was written in an extremely simple way --- by calling `function_map_disperse()`:
+
+```{r}
+grim_map_disperse <- function_map_disperse(
+  .fun = grim_map, .name_test = "GRIM"
+)
+```
+
+The same pattern can be applied to any function like `grim_map()`, i.e., a function that tests the values contained in two columns of a data frame for consistency. One of the columns, `n`, will have its values dispersed from half using `disperse_total()`, explained below. It's not currently possible to include more than two columns in this scheme (prohibiting use for DEBIT), but that might change in the future.
+
+To export a function created this way from your own package, make sure to follow [this purrr FAQ](https://purrr.tidyverse.org/reference/faq-adverbs-export.html). (Incredible as it sounds, scrutiny will then take on the role of purrr.) Also, see this [worked example](https://lhdjung.github.io/scrutiny/reference/function_map_disperse.html#ref-examples) for the `.onLoad` pattern.
+
+### Dispersal from (around) half with `disperse_total()`
 
 Briefly, `disperse_total()` checks if an input total is even or odd, cuts it in half, and creates "dispersed" group sizes going out from there, with each pair of group sizes adding up to the input total. This works naturally with even totals. For odd totals, it starts with the two integers closest to half.
 
@@ -251,3 +270,5 @@ Starting with `is_subset_of()`, scrutiny features a distinctive family of predic
 As a teaser: These functions are divided into three subgroups based on the way the second vector, `y`, is constituted. For example, you might test if `x` is a subset of multiple other vectors taken together, or a superset of a vector `y` that consists of multiple values entered along with `x`.
 
 Functions from this family are not currently used as helpers inside other scrutiny functions, but that may well change. Use elsewhere is also conceivable.
+
+# References
