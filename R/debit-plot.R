@@ -54,13 +54,6 @@
 # ADD @examples WHEN EXAMPLE DATA ARE AVAILABLE
 
 
-# newdata <- tibble::tibble(
-#   sd = rnorm(12, 0.5, 0.075) %>% round(2) %>% restore_zeros(),
-#   x  = rnorm(12, 0.5, 0.15)  %>% round(2) %>% restore_zeros()
-# ) %>%
-#   dplyr::mutate(n = 1000) %>%
-#   debit_map(intermed = TRUE)
-
 
 debit_plot <- function(data,
                        show_outer_boxes = TRUE,
@@ -112,7 +105,7 @@ debit_plot <- function(data,
   sd_num <- as.numeric(sd)
   x_num <- as.numeric(x)
 
-  value_labels <- glue::glue("{x}; {sd}")
+  value_labels <- paste0(x, "; ", sd)
 
   tile_height <- sd_upper - sd_lower + tile_width_offset
   tile_width <- x_upper - x_lower + tile_height_offset
@@ -135,12 +128,14 @@ debit_plot <- function(data,
                                                  label = value_labels)) +
 
     # DEBIT line:
-    ggplot2::geom_function(fun = draw_debit_line,
-                           alpha = line_alpha,
-                           color = line_color,
-                           linetype = line_linetype,
-                           size = line_size,
-                           na.rm = TRUE) +
+    ggplot2::geom_function(
+      fun = draw_debit_line,
+      alpha = line_alpha,
+      color = line_color,
+      linetype = line_linetype,
+      size = line_size,
+      na.rm = TRUE
+    ) +
 
     # Inner tiles that should cross the consistency line:
     ggplot2::geom_rect(
@@ -166,10 +161,12 @@ debit_plot <- function(data,
   if (show_labels) {
     p <- p +
       ggrepel::geom_text_repel(
-        force = label_force, force_pull = label_force_pull,
+        force = label_force,
+        force_pull = label_force_pull,
         box.padding = label_padding,
         segment.alpha = label_alpha,
-        color = color_by_consistency, segment.color = color_by_consistency,
+        color = color_by_consistency,
+        segment.color = color_by_consistency,
         segment.linetype = label_linetype,
         segment.size = label_linesize,
         size = label_size
@@ -205,8 +202,6 @@ debit_plot <- function(data,
 
   # Finally, return the plot:
   return(p)
-
 }
-
 
 
