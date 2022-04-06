@@ -2,7 +2,7 @@
 
 # Helper function used in the main function `unround()` via a vectorized version
 # right below:
-compute_rounding_bounds_scalar <- function(rounding, x_num, d_var, d) {
+rounding_bounds_scalar <- function(rounding, x_num, d_var, d) {
   dplyr::case_when(           # Component:       (1)              (2)               (3)   (4)
     rounding == "up_or_down"               ~ list(x_num - d_var,   x_num + d_var,   "<=", "<="),
     rounding == "up"                       ~ list(x_num - d_var,   x_num + d_var,   "<=", "<" ),
@@ -22,7 +22,7 @@ compute_rounding_bounds_scalar <- function(rounding, x_num, d_var, d) {
 }
 
 # The vectorized version:
-compute_rounding_bounds <- Vectorize(compute_rounding_bounds_scalar)
+rounding_bounds <- Vectorize(rounding_bounds_scalar)
 
 
 
@@ -170,7 +170,9 @@ unround <- function(x, rounding = "up_or_down", threshold = 5, digits = NULL) {
   # Compute the boundary values and figure out whether they are inclusive or
   # not, going by the `rounding` argument. In order to vectorize `rounding`, the
   # helper function at the top of the present file is called:
-  bounds <- compute_rounding_bounds(rounding, x_num, d_var, d)
+  bounds <- rounding_bounds(
+    rounding = rounding, x_num = x_num, d_var = d_var, d = d
+  )
 
   # Throw error if `rounding` was not specified in a valid way:
   if (list("error_trigger") %in% bounds) {
