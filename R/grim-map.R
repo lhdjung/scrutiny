@@ -175,14 +175,15 @@ that column."
   # If an `items` column is not yet present in `data`, supply it from the
   # `items` argument:
   if (!"items" %in% colnames(data)) {
-    data$items <- as.integer(items)
+    items <- as.integer(items)
+    data$items <- items
   }
 
   # Create `other_cols`, which contains all extra columns from `data` (i.e.,
   # those which play no role in the GRIM test), and run it through a specified
   # helper function:
   other_cols <- dplyr::select(data, -x, -n, -items) %>%
-    check_extra_cols(data, extra, .)
+    manage_extra_cols(data, extra, .)
 
   # Prepare a data frame for the GRIM computations below (steps 4 and 5):
   data_x_n_items <- dplyr::select(data, x, n, items)
@@ -243,6 +244,37 @@ that column."
   # numbers are now unnested (i.e., turned into their own columns) and
   # given their respective proper names:
   if (show_rec) {
+
+    # Custom function as a workaround to replace `tidyr::unnest_wider()`, which
+    # has become prohibitively slow with regards to use at this place:
+    unnest_consistency_cols <- function(results, col_names) {
+      n_cols <- length(col_names)
+
+      consistency_list <- results$consistency %>%
+        purrr::map(unlist)
+
+      consistency_df <- consistency_list %>%
+        tibble::as_tibble(.name_repair = "minimal") %>%
+        t() %>%
+        tibble::as_tibble(.name_repair = ~ paste0("V", 1:n_cols)) %>%
+        dplyr::mutate(V1 = as.logical(V1))
+
+      colnames(consistency_df) <- col_names
+
+      results <- results %>%
+        dplyr::select(-consistency) %>%
+        dplyr::bind_cols(consistency_df) %>%
+        dplyr::relocate(ratio, .after = n_cols + 4)
+
+      return(results)
+    }
+
+    # The first four names are common to both the short and the long version:
+    name1 <- "consistency"
+    name2 <- "rec_sum"
+    name3 <- "rec_x_upper"
+    name4 <- "rec_x_lower"
+
     length_2ers <- c("up_or_down", "up_from_or_down_from", "ceiling_or_floor")
     if (any(rounding %in% length_2ers)) {
 
@@ -250,37 +282,64 @@ that column."
         stringr::str_split("_or_") %>%
         unlist()
 
-      results <- results %>%
-        tidyr::unnest_wider(col = consistency) %>%
-        suppressMessages() %>%
-        dplyr::rename(
-          consistency  = .data$`...1`,
-          rec_sum      = .data$`...2`,
-          rec_x_upper  = .data$`...3`,
-          rec_x_lower  = .data$`...4`,
-          "rec_x_upper_rounded_{rounding_split[1]}" := .data$`...5`,
-          "rec_x_upper_rounded_{rounding_split[2]}" := .data$`...6`,
-          "rec_x_lower_rounded_{rounding_split[1]}" := .data$`...7`,
-          "rec_x_lower_rounded_{rounding_split[2]}" := .data$`...8`
-        )
+      # return(results)
+
+      # These names are for the long version only; the short version has
+      # different names 5 and 6, and it has no names 7 and 8 at all:
+      name5 <- paste0("rec_x_upper_rounded_", rounding_split[1])
+      name6 <- paste0("rec_x_upper_rounded_", rounding_split[2])
+      name7 <- paste0("rec_x_lower_rounded_", rounding_split[1])
+      name8 <- paste0("rec_x_lower_rounded_", rounding_split[2])
+
+      col_names <- c(
+        name1, name2, name3, name4,
+        name5, name6, name7, name8
+      )
+
+
+      # results <- results %>%
+      #   tidyr::unnest_wider(col = consistency) %>%
+      #   suppressMessages() %>%
+      #   dplyr::rename(
+      #     consistency  = .data$`...1`,
+      #     rec_sum      = .data$`...2`,
+      #     rec_x_upper  = .data$`...3`,
+      #     rec_x_lower  = .data$`...4`,
+      #     "rec_x_upper_rounded_{rounding_split[1]}" := .data$`...5`,
+      #     "rec_x_upper_rounded_{rounding_split[2]}" := .data$`...6`,
+      #     "rec_x_lower_rounded_{rounding_split[1]}" := .data$`...7`,
+      #     "rec_x_lower_rounded_{rounding_split[2]}" := .data$`...8`
+      #   )
 
     } else {
 
-      results <- results %>%
-        tidyr::unnest_wider(col = consistency) %>%
-        suppressMessages() %>%
-        dplyr::rename(
-          consistency          = .data$`...1`,
-          rec_sum              = .data$`...2`,
-          rec_x_upper          = .data$`...3`,
-          rec_x_lower          = .data$`...4`,
-          rec_x_upper_rounded  = .data$`...5`,
-          rec_x_lower_rounded  = .data$`...6`
-        )
+      # The alternative names 5 and 6 for the short version:
+      name5 <- "rec_x_upper_rounded"
+      name6 <- "rec_x_lower_rounded"
+
+      col_names <- c(
+        name1, name2, name3, name4,
+        name5, name6  # no 7 and 8 here!
+      )
+
+      # results <- results %>%
+      #   tidyr::unnest_wider(col = consistency) %>%
+      #   suppressMessages() %>%
+      #   dplyr::rename(
+      #     consistency          = .data$`...1`,
+      #     rec_sum              = .data$`...2`,
+      #     rec_x_upper          = .data$`...3`,
+      #     rec_x_lower          = .data$`...4`,
+      #     rec_x_upper_rounded  = .data$`...5`,
+      #     rec_x_lower_rounded  = .data$`...6`
+      #   )
 
     }
 
+    results <- results %>%
+      unnest_consistency_cols(col_names)
   }
+
 
   # If demanded via the `show_prob` argument, add a column that displays the
   # probability of GRIM inconsistency. This is simply the GRIM ratio
