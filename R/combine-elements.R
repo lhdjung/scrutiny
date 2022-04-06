@@ -59,7 +59,7 @@
 #
 #   # As `n` determines the length of combinations through its (single) value
 #   # rather than through its own length, the length needs to be 1:
-#   # check_length(n, "n", 1)
+#   # check_length(n, 1)
 #
 #   # Generate combinations, removing rows with the same value sets (regardless of
 #   # their order) and reversing the order of columns to accord with the behavior
