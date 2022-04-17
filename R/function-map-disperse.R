@@ -4,7 +4,8 @@
 mutate_both_consistent <- function(data) {
   consistency <- data$consistency
   both_consistent <- consistency %>%
-    split(ceiling(seq_along(consistency) / 2)) %>%
+    # split(ceiling(seq_along(consistency) / 2)) %>%
+    split_into_groups(group_size = 2) %>%
     purrr::map_lgl(all) %>%
     rep(each = 2)
 
@@ -14,11 +15,14 @@ mutate_both_consistent <- function(data) {
 
 
 # Used within `function_map_disperse()`:
-function_map_disperse_proto <- function(.fun, .reported, .dispersion = 0:5,
+function_map_disperse_proto <- function(.fun, .reported, .reported_orig, .dir,
+                                        .dispersion = 0:5,
                                         .n_min = 1, .n_max = NULL,
                                         .show_all = FALSE, ...) {
 
-  function(data, fun = .fun, reported = .reported, dispersion = .dispersion,
+  function(data, fun = .fun, reported = .reported,
+           reported_orig = .reported_orig, dir = .dir,
+           dispersion = .dispersion,
            n_min = .n_min, n_max = .n_max,
            # x1 = NA, x2 = NA,
            show_all = .show_all, ...) {
@@ -43,8 +47,19 @@ function_map_disperse_proto <- function(.fun, .reported, .dispersion = 0:5,
     #
     # data <- reported %>%
     #   dplyr::mutate(n = c(90, 103, 84))
+    #
+    # dir <- "forth"
+    # fun <- debit_map
+    #
+    # n <- 35
+    # dispersion <- 0:5
+    # reported_orig <- c("x", "sd")
+    # n_min <- 1
+    # n_max <- NULL
+    # x1 <- NA
+    # x2 <- NA
 
-    # # Example for `df_list`:
+    # # Example for `df_list` (if needed):
     # df_list <- list(
     #   disperse(45),
     #   disperse2(c(51, 52))[1:10, ],
@@ -53,7 +68,10 @@ function_map_disperse_proto <- function(.fun, .reported, .dispersion = 0:5,
 
 
 
-    reported_names <- names(reported)
+    reported_names  <- colnames(reported)
+    reported_n_cols <- ncol(reported)
+    reported_n_vars <- reported_n_cols / 2
+
 
     df_list <- data %>%
       dplyr::select(n) %>%
@@ -73,141 +91,152 @@ function_map_disperse_proto <- function(.fun, .reported, .dispersion = 0:5,
       # purrr::map(dplyr::relocate, n_change, .after = both_consistent)
 
 
-    n_reported_vars <- ncol(reported) / 2
+    # # Just as an example (for varying row numbers):
+    # df_list[[2]] <- df_list[[2]][1:10, ]
+    # df_list[[3]] <- df_list[[3]][1:8, ]
 
-    # Just as an example:
-    df_list_nrow <- df_list %>%
-      purrr::map_int(nrow)
+
+    # Row numbers of `disperse()` tibbles will be used below to determine how
+    # often the reported values need to be repeated:
+    df_list_nrow <- purrr::map_int(df_list, nrow)
+    df_list_n_groups <- length(df_list_nrow)
+
 
     # In this very promising approach, `df_list_nrow` is the vector of numbers
     # of rows of the data frames constituting the list-elements of `df_list`;
     # where the latter doesn't take `reported` or `reported_index` into account
     # at all, and while only `disperse_total()` has been mapped onto it --
-    # definitively not `fun` which, after all, is `grim_map` or `debit_map`! TO
-    # DO: Find a way to name the `reported` column appropriately, given the
-    # top-level input.
-    out_df <- reported %>%
+    # definitively not `fun` which, after all, is `grim_map` or `debit_map`!
+
+    # TO DO: After the second pipe below, it needs something like this to keep
+    # different pairs of reported statistics apart (e.g., "x1" and "x2" apart
+    # from "sd1" and "sd2"); but this seems to require previous relocating, or
+    # some other way to determine those pairs!  -> use `reported_orig`; this
+    # should be (e.g.) `c("x", "sd")`.
+
+    # purrr::map(
+    #   split_into_groups, group_size = dplyr::all_of(reported_n_cols)
+    # ) %>%
+    #   purrr::modify_depth(2, split_into_groups, group_size = 2)
+
+    out_df_nested <- reported %>%
       split_into_rows() %>%
-      purrr::map(split_into_n_groups, n = n_reported_vars) %>%
+      purrr::map(
+        split_into_groups, group_size = 2 # group_size = dplyr::all_of(reported_n_vars + 1)  # used to have: `reported_n_cols`
+      ) %>%
       tibble::tibble() %>%
       dplyr::rename(., reported = `.`) %>%
       dplyr::mutate(
         df_list,
         times    = df_list_nrow / 2,
-        # reported = purrr::map(reported, purrr::flatten_chr),  # this needs to be split by `n_reported_vars`
-        reported = purrr::map2(reported, times, ~ purrr::map2(.x, .y, rep)),
+        # reported = purrr::map(reported, purrr::flatten_chr),  # this needs to be split by `reported_n_vars`
+        reported = purrr::map2(reported, times, ~ purrr::map2(.x, .y, rep))
         # reported = purrr::map2(reported, times, ~ rep(.x, .y)),
-        df_list  = purrr::map2(df_list, reported, ~ dplyr::mutate(.x, reported = .y))
+        # df_list  = purrr::map2(df_list, reported, ~ dplyr::mutate(.x, reported = .y))
         # reported = purrr::map2(reported, times, ~ purrr::map(.x, rep, .y)),
         # reported = purrr::map2(reported, times, rep),
         # reported = purrr::map2(reported, times, ~ .x[1:.y]),
         # reported = purrr::map(reported, purrr::as_vector),
         # df_list  = purrr::map2(df_list, reported, dplyr::mutate)
+      ) %>%
+      tidyr::unnest_wider(reported) %>%
+      dplyr::rename_with(
+        .fn = ~ dplyr::all_of(reported_orig),
+        .cols = 1:dplyr::all_of(reported_n_vars)
+      ) %>%
+      dplyr::mutate(
+        dplyr::across(
+          1:dplyr::all_of(reported_n_vars),
+          ~ purrr::map(., tibble::as_tibble)
+        ), times = NULL
       )
 
 
 
-    # reported %>%
-    #   dplyr::mutate(df_list_nrow) %>%
-    #   dplyr::mutate(dplyr::across(1:ncol(reported), as.list)) %>%
-    #   dplyr::mutate(dplyr::across(1:ncol(reported), purrr::map, rep, times = 5))
+    # # To rename the nested tibbles within the list-columns:
+    # out_df %>%
+    #   dplyr::select(1:2) %>%
+    #   purrr::modify_depth(.depth = 2, `names<-`, "bla") %>%
+    #   dplyr::pull(x)
 
 
+    # Rename the tibbles nested within the list-columns using the original names
+    # of the reported variables (e.g., `c("x", "sd")`) so that it's clear what
+    # those values represent:
+    out_df_nested[1:reported_n_vars] <-
+      out_df_nested[1:reported_n_vars] %>%
+      tidyr::pivot_longer(cols = everything()) %>%
+      dplyr::mutate(
+        value = purrr::map2(value, name, setNames)
+      ) %>%
+      tidyr::pivot_wider(
+        names_from  = name,
+        values_from = value,
+        values_fn   = list
+      ) %>%
+      tidyr::unnest(cols = everything())
 
 
-    df_list_nrow <- df_list %>%
-      purrr::map(nrow)  # %>%
-      # purrr::map(
-      #   tibble::tibble,
-      #   scr_temp_nrow = rep(c("1", "2"), .[[i]] / 2)
-      # )
+    # This references the rows in the `reported` data frame to which the various
+    # scenarios belong. In other words, `case` is identical to the respective
+    # row number in `reported`:
+    case <- df_list_nrow %>%
+      purrr::map2(1:df_list_n_groups, ., rep) %>%
+      purrr::flatten_int()
 
-    # reported %>%
-    #   t() %>%
-    #   tibble::as_tibble() %>%
+    # # Better than this: new parameter to `function_map_disperse_proto()` that is
+    # # called `.dir` and is specified as either `"forth"` or `"back"`,
+    # # respectively, in the two calls to `function_map_disperse_proto()` within
+    # # `function_map_disperse()`.
+    # dir <- deparse(substitute(data)) %>%
+    #   stringr::str_remove("data_")
+
+
+    # # For the next step:
+    # out_df[1:reported_n_vars] %>%
     #   dplyr::rowwise() %>%
-    #   as.list()
+    #   dplyr::mutate(
+    #     all_reported_vars = list(
+    #       dplyr::bind_cols(dplyr::c_across(everything()))
+    #     )
+    #   )
+    #
+    # # Alternatively:
+    # out_df[1:reported_n_vars] %>%
+    #   dplyr::rowwise() %>%  # Not necessary! May cut it
+    #   tidyr::unnest(cols = everything())
+
+    # Or, even better (but `fun` should be mapped before the
+    # `dplyr::group_split()` step!):
+    out_df <- out_df_nested %>%
+      tidyr::unnest(cols = everything()) %>%  # tidyr::unnest(col = 1:(all_of(reported_n_vars + 1))) %>%  # alternatively: `reported_n_cols`
+      fun() %>%  # don't forget `...` here!
+      mutate_both_consistent() %>%
+      dplyr::mutate(case, dir) %>%
+      dplyr::relocate(n_change, .after = n)
+      # dplyr::group_split(case) %>%
+      # purrr::map(dplyr::mutate, case = NULL) %>%
+
+      # # Add `...`; just omitted the dots here for interactive testing! Better
+      # # yet, call `fun(...)` directly, without `purrr::map()`; and do so right
+      # # before `dplyr::mutate(case, dir)`.
+      # purrr::map(fun)
 
 
+      return(out_df)
 
 
-    # # Migrated from `disperse()` ----
+    # # Maybe cut this and just return `out_df`?
+    # hits <- df_list %>%
+    #   purrr::map(dplyr::filter, both_consistent) %>%
+    #   purrr::map_int(nrow) %>%
+    #   `/`(2) %>%
+    #   as.integer()
     #
+    # data <- data %>%
+    #   dplyr::mutate(hits)
     #
-    # # `reported` here is the same as `cols_expected` in the function factories!
-    #   contains1 <- stringr::str_detect(names(reported), "1")
-    #   reported_names_unique <- names(reported)[contains1] %>%
-    #     stringr::str_remove("1")
-    #
-    #   reported_transposed <- reported %>%
-    #     t() %>%
-    #     tibble::as_tibble(.name_repair = ~ paste0("V", 1:nrow(reported)))
-    #
-    #   reported_transposed <- reported_transposed %>%
-    #     .[rep(seq_len(nrow(.)), times = 3), ]
-    #
-    #   # reported_longer <- reported %>%
-    #   #   tidyr::pivot_longer(
-    #   #     cols = everything(),
-    #   #     names_to = "term",
-    #   #     values_to = "value"
-    #   #   )
-    #
-    #   df_count <- reported %>%
-    #     names() %>%
-    #     as.integer()
-    #
-    #   # TO DO: Build a system that replaces the `1` constant in the
-    #   # `dplyr::slice()` call by an integer variable that specifies the row number
-    #   # appropriate for the present row of the tibble of reported summary data! It
-    #   # will have to be passed down from the function factory level, probably from
-    #   # the top level; via either an additional column (inelegant!) or an extra
-    #   # class (maybe inefficient?):
-    #   reported_vals <- reported %>%
-    #     dplyr::slice(1) %>%
-    #     purrr::as_vector()
-    #
-    #   # n_groups <- nrow(reported_vals) / 2
-    #
-    #   # The number of scenarios is half the number of dispersed `n` values:
-    #   n_scenarios <- nrow(out) / 2
-    #
-    #   # `split_into_n_groups()` is an internal helper from the utils.R file. Its
-    #   # second argument is the size of each resulting group, which has to be `2`
-    #   # here because, for each variable in question, values for two groups were
-    #   # reported:
-    #   reported_groups <- reported_vals %>%
-    #     split_into_n_groups(2) %>%
-    #     purrr::map(rep, n_scenarios) %>%
-    #     tibble::as_tibble()
-    #
-    #   # These groups correspond to the original names distilled from `reported`:
-    #   names(reported_groups) <- reported_names_unique
-    #
-    #   # reported_df <- reported %>%
-    #   #   purrr::map(rep, nrow(out) / 2) %>%
-    #   #   tibble::as_tibble()
-    #
-    #   out <- out %>%
-    #     dplyr::bind_cols(reported_groups, .)
-    #
-    #
-    #
-    #
-    # # (End of migrated code)
-
-
-
-    hits <- df_list %>%
-      purrr::map(dplyr::filter, both_consistent) %>%
-      purrr::map_int(nrow) %>%
-      `/`(2) %>%
-      as.integer()
-
-    data <- data %>%
-      dplyr::mutate(hits)
-
-    return(list(data, df_list))
+    # return(list(data, df_list))
   }
 
 }
@@ -228,11 +257,18 @@ function_map_disperse_proto <- function(.fun, .reported, .dispersion = 0:5,
 #'   \href{https://purrr.tidyverse.org/reference/faq-adverbs-export.html}{purrr
 #'   adverbs}; see explanations there and examples below.
 #'
-#' @param .fun Function (length 1) such as `grim_map`: It will be used to test
-#'   rows in a data frame for consistency.
+#' @param .fun Function such as `grim_map`: It will be used to test rows in a
+#'   data frame for consistency.
+#' @param .reported String. Names of the columns containing group-specific
+#'   statistics that were reported alongside the total sample size(s). They will
+#'   be tested for consistency with the hypothetical group sizes. Examples are
+#'   `"x"` for GRIM and `c("x", "sd")` for DEBIT.
 #' @param .name_test String (length 1). The name of the consistency test, such
 #'   as `"GRIM"`, to be optionally shown in a message when using the
 #'   manufactured function.
+#' @param .name_class String. If specified, the tibbles returned by the
+#'   manufactured function will carry this string as an S3 class. Default is
+#'   `NULL`, i.e., no extra class.
 #' @param .dispersion,.n_min,.n_max,.show_all Arguments passed down to
 #'   `disperse_total()`, using defaults from there.
 #' @param ... Arguments passed down to `.fun`.
@@ -262,22 +298,30 @@ function_map_disperse_proto <- function(.fun, .reported, .dispersion = 0:5,
 #' @examples
 #' # Function definition of `grim_map_disperse()`:
 #' grim_map_disperse <- function_map_disperse(
-#'   .fun = grim_map, .name_test = "GRIM"
+#'   .fun = grim_map,
+#'   .reported = "x",
+#'   .name_test = "GRIM",
+#'   .name_class = "scr_grim_map_disperse"
 #' )
 #'
 #' # If you want to export a function manufactured
 #' # with `function_map_disperse()` from your own
 #' # package, follow this pattern (except for the
-#' # `if`-wrapping here):
+#' # `if`-wrapping here)...
 #' if (FALSE) {
 #'
 #'   schlim_map_disperse <- function(...) "dummy"
 #'
 #'   .onLoad <- function(lib, pkg) {
 #'     schlim_map_disperse <<- scrutiny::function_map_disperse(
-#'       .fun = schlim_map, .name_test = "SCHLIM"
+#'       .fun = schlim_map,
+#'       .reported = c("x", "y"),
+#'       .name_test = "SCHLIM",
+#'       .name_class = "yourpkg_schlim_map_disperse"
 #'     )
-#'   }
+#'   }   # ... where "x" and "y" are the types of
+#'       # reported summary statistics to be tested
+#'       # for consistency with the dispersed `n` values.
 #'
 #' }
 
@@ -301,13 +345,15 @@ function_map_disperse_proto <- function(.fun, .reported, .dispersion = 0:5,
 
 
 function_map_disperse <- function(.fun, .reported, .name_test,
+                                  .name_class = NULL,
                                   .dispersion = 0:5,
                                   .n_min = 1, .n_max = NULL,
                                   .show_all = FALSE, ...) {
 
 
   # The function factory returns this manufactured function:
-  function(data, fun = .fun, reported = .reported, name_test = .name_test,
+  function(data, fun = .fun, reported = .reported,
+           name_test = .name_test, name_class = .name_class,
            dispersion = .dispersion, n_min = .n_min, n_max = .n_max,
            show_all = .show_all, ...) {
 
@@ -354,6 +400,8 @@ function_map_disperse <- function(.fun, .reported, .name_test,
     data_forth <- data
     data_back  <- data    # NEW!
 
+    reported_orig <- reported
+
     # data_back <- data %>%
     #   dplyr::mutate(
     #     temp = x2,
@@ -378,7 +426,8 @@ function_map_disperse <- function(.fun, .reported, .name_test,
 
     # Since all of these reported columns matter to a test with dispersed group
     # sizes, check if any of them are missing from `data`...
-    cols_missing <- cols_expected_forth[!cols_expected_forth %in% colnames(data)]
+    cols_missing <-
+      cols_expected_forth[!cols_expected_forth %in% colnames(data)]
 
     # ...and if so, throw an error:
     if (length(cols_missing) > 0) {
@@ -393,7 +442,7 @@ function_map_disperse <- function(.fun, .reported, .name_test,
         msg_it_they <- "They're"
         msg_this_these <- "These columns are"
       }
-      msg_cols_missing <- paste0("`", cols_missing, "`")
+      msg_cols_missing <- paste0("`", colnames(cols_missing), "`")
       cli::cli_abort(c(
         "{msg_cols} {msg_cols_missing} {msg_is_are} missing from `data`.",
         "x" = "{msg_it_they} expected because of the `.reported` \\
@@ -430,7 +479,7 @@ function_map_disperse <- function(.fun, .reported, .name_test,
     cols_expected_forth <- data_forth %>%
       dplyr::select(all_of(cols_expected_forth))
 
-    cols_expected_back  <- data_back  %>%
+    cols_expected_back <- data_back %>%
       dplyr::select(all_of(cols_expected_back)) %>%
       dplyr::relocate(all_of(cols_forth_order))
 
@@ -447,14 +496,19 @@ function_map_disperse <- function(.fun, .reported, .name_test,
     # `data_forth` and `data_back`:
     map_disperse_proto <- function_map_disperse_proto(
       .fun = fun, .reported = cols_expected_forth,
-      .dispersion = dispersion,
+      .reported_orig = reported_orig, .dispersion = dispersion,
       .n_min = n_min, .n_max = n_max, .show_all = show_all, ...
     )
+
+
+    # NOTE: There's an error here! It's from `grim_map()`: ``n` column missing`
 
     # Now, call the manufactured function on both tibbles. First the original...
     out_forth <- map_disperse_proto(
       data = data_forth, reported = cols_expected_forth,
-      dispersion = dispersion, n_min = n_min, n_max = n_max,
+      reported_orig = reported_orig, dir = "forth",
+      dispersion = dispersion,
+      n_min = n_min, n_max = n_max,
       # x1 = x1, x2 = x2,
       ...
     )
@@ -462,10 +516,61 @@ function_map_disperse <- function(.fun, .reported, .name_test,
     # ...and second, the one with reversed index name portions:
     out_back  <- map_disperse_proto(
       data = data_back, reported = cols_expected_back,
-      dispersion = dispersion, n_min = n_min, n_max = n_max,
+      reported_orig = reported_orig, dir = "back",
+      dispersion = dispersion,
+      n_min = n_min, n_max = n_max,
       # x1 = x1, x2 = x2,
       ...
     )
+
+    # In case of an internal error with these functions themselves due to
+    # inconsistent results between the two `function_map_disperse_proto()` calls
+    # right above, the user would be left completely in the dark. This error
+    # message, then, would at least clarify the source of the problem:
+    if (!all(colnames(out_forth) == colnames(out_back))) {
+      names_out_forth <- paste0("`", colnames(out_forth), "`")
+      names_out_back  <- paste0("`", colnames(out_back ), "`")
+      cli::cli_abort(c(
+        "Column names returned by calls to the helper function \\
+        `scrutiny:::function_map_disperse_proto()` are not identical.",
+        "i" = "Column names in question --",
+        ">" = "`colnames(out_forth)`: {names_out_forth}",
+        ">" = "`colnames(out_back)`: {names_out_back}",
+        "x" = "This is a deep error within at least one of the \\
+        function operators `scrutiny::function_map_disperse()` \\
+        and `scrutiny:::function_map_disperse_proto()`.",
+        "x" = "Please check the source code for these."
+      ))
+    }
+
+
+    # Combine the two sets of results into one final tibble:
+    out_total <- dplyr::bind_rows(out_forth, out_back)
+
+    # If `.name_class` (note the dot) was specified in the course of creating
+    # the manufactured function, its value now becomes a class of the output:
+    if (!is.null(name_class)) {
+
+      # To make sure the correct `audit()` method is called, strip the results
+      # of "competing" scrutiny classes for which other `audit()` methods are
+      # defined. First, identify those classes...
+      other_scr_classes <-
+        class(out_total)[stringr::str_detect(class(out_total), "^scr_")]
+
+      # ...and second, remove them:
+      class(out_total) <-
+        class(out_total)[!class(out_total) %in% other_scr_classes]
+
+      # Add the new class:
+      out_total <- out_total %>%
+        add_class(name_class)
+    }
+
+
+    # Return the combined results:
+    return(out_total)
+
+
 
     # Isolate the number of both-consistent scenarios for each pairing...
     hits_forth <- out_forth[[1]]$hits

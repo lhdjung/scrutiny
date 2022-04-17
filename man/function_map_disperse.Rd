@@ -6,7 +6,9 @@
 \usage{
 function_map_disperse(
   .fun,
+  .reported,
   .name_test,
+  .name_class = NULL,
   .dispersion = 0:5,
   .n_min = 1,
   .n_max = NULL,
@@ -15,12 +17,21 @@ function_map_disperse(
 )
 }
 \arguments{
-\item{.fun}{Function (length 1) such as \code{grim_map}: It will be used to test
-rows in a data frame for consistency.}
+\item{.fun}{Function such as \code{grim_map}: It will be used to test rows in a
+data frame for consistency.}
+
+\item{.reported}{String. Names of the columns containing group-specific
+statistics that were reported alongside the total sample size(s). They will
+be tested for consistency with the hypothetical group sizes. Examples are
+\code{"x"} for GRIM and \code{c("x", "sd")} for DEBIT.}
 
 \item{.name_test}{String (length 1). The name of the consistency test, such
 as \code{"GRIM"}, to be optionally shown in a message when using the
 manufactured function.}
+
+\item{.name_class}{String. If specified, the tibbles returned by the
+manufactured function will carry this string as an S3 class. Default is
+\code{NULL}, i.e., no extra class.}
 
 \item{.dispersion, .n_min, .n_max, .show_all}{Arguments passed down to
 \code{disperse_total()}, using defaults from there.}
@@ -52,22 +63,30 @@ inputs, such as \code{grim_map()}. See Wickham (2019, ch. 10-11).
 \examples{
 # Function definition of `grim_map_disperse()`:
 grim_map_disperse <- function_map_disperse(
-  .fun = grim_map, .name_test = "GRIM"
+  .fun = grim_map,
+  .reported = "x",
+  .name_test = "GRIM",
+  .name_class = "scr_grim_map_disperse"
 )
 
 # If you want to export a function manufactured
 # with `function_map_disperse()` from your own
 # package, follow this pattern (except for the
-# `if`-wrapping here):
+# `if`-wrapping here)...
 if (FALSE) {
 
   schlim_map_disperse <- function(...) "dummy"
 
   .onLoad <- function(lib, pkg) {
     schlim_map_disperse <<- scrutiny::function_map_disperse(
-      .fun = schlim_map, .name_test = "SCHLIM"
+      .fun = schlim_map,
+      .reported = c("x", "y"),
+      .name_test = "SCHLIM",
+      .name_class = "yourpkg_schlim_map_disperse"
     )
-  }
+  }   # ... where "x" and "y" are the types of
+      # reported summary statistics to be tested
+      # for consistency with the dispersed `n` values.
 
 }
 }
