@@ -37,7 +37,7 @@ df <- tibble::tribble(
   "2.97", "4.42", 103
 )
 
-# When tested by a product of the
+# Test it using a product of the
 # `function_map_disperse()` factory:
 df_tested <- grim_map_disperse(df)
 df_tested
