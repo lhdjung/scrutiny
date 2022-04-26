@@ -176,8 +176,7 @@ if (FALSE) {
       .fun = schlim_map,
       .reported = "y",
       .name_test = "SCHLIM",
-      .name_class = "yourpkg_schlim_map_disperse",
-      .class_remove = "^yourpkg_"
+      .name_class = "yourpkg_schlim_map_disperse"
     )
   }
 
