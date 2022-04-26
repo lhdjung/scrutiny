@@ -28,7 +28,7 @@
 #'   "2.97", "4.42", 103
 #' )
 #'
-#' # When tested by a product of the
+#' # Test it using a product of the
 #' # `function_map_disperse()` factory:
 #' df_tested <- grim_map_disperse(df)
 #' df_tested
@@ -133,57 +133,4 @@ summarize_map_disperse <- function(data) {
 
   return(out)
 }
-
-
-
-# # Similar as in `disperse2()`:
-# locations1 <- seq(from = 1, to = nrow(data) - 1, by = 2)
-# locations2 <- seq(from = 2, to = nrow(data), by = 2)
-#
-# rows1 <- data %>% dplyr::slice(locations1) %>% dplyr::rename(x1 = x)
-# rows2 <- data %>% dplyr::slice(locations2) %>% dplyr::rename(x2 = x)
-
-# n_diff <- data$n_change %>%   # used to be: `rows1$n_change`
-#   stringr::str_extract("(?<=_minus_).+") %>%
-#   as.numeric()
-
-# # Questionable:
-# rows1 <- rows1 %>%
-#   dplyr::mutate(n_diff, n_was_odd, .after = n)
-
-# # TO DO: Replace `dplyr::distinct()` by a `dplyr::slice()` call that really
-# # takes the first row of each original-n block...
-# rows1 <- rows1 %>%
-#   dplyr::mutate(
-#     n_diff, .after = n
-#     # n = n + n_diff
-#   ) %>%
-#   dplyr::mutate(x2 = rows2$x2, .after = x1) %>%
-#   dplyr::distinct(x1, x2, n, n_diff, n_was_odd) %>%
-#   dplyr::mutate(
-#     n = (n + n_diff) * 2,
-#     n = dplyr::if_else(n_was_odd, n + 1, n)
-#   )
-
-# # From here on, unclear if (still) needed ---
-#
-# data_casewise <- data %>%
-#   dplyr::filter(stringr::str_detect(n_change, "minus_0"))
-#
-# reported_colnums <- 1:(which(colnames(data_casewise) %in% "n") - 1)
-#
-# data_casewise_reported <- data_casewise %>%
-#   dplyr::select(dplyr::all_of(reported_colnums))
-#
-# data_casewise_rows <- data_casewise %>%
-#   nrow() %>%
-#   seq(from = 1, to = ., by = 1)
-#
-# data_casewise_rows_odd <- data_casewise_rows %>%
-#   parcel_nth_elements(n = 2, from = 1)
-#
-# data_casewise_rows_even <- data_casewise_rows %>%
-#   parcel_nth_elements(n = 2, from = 2)
-
-
 
