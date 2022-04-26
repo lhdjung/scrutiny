@@ -17,10 +17,10 @@
 #'   `disperse2()`, respectively.
 #'
 #'   These functions are primarily intended as helpers. They form the backbone
-#'   of `grim_map_disperse()`.
-#'
+#'   of `grim_map_disperse()` and all other functions created with
+#'   `function_map_disperse()`.
 
-#' @param n Numeric.
+#' @param n Numeric:
 #' - In `disperse()`, single number from which to go up and down. This should be
 #'   half of an even total sample size.
 #' - In `disperse2()`, the two consecutive numbers closest to half of an odd
@@ -28,29 +28,23 @@
 #' - In `disperse_total()`, the total sample size.
 
 #' @param dispersion Numeric. Vector that determines the steps up and down from
-#'   `n` (in `disperse_total()`, from half `n`). Default is `0:5`.
+#'   `n` (or, in `disperse_total()`, from half `n`). Default is `0:5`.
 #' @param n_min Numeric. Minimal group size. Default is `1`.
 #' @param n_max Numeric. Maximal group size. Default is `NULL`, i.e., no
 #'   maximum.
-#' @param x1,x2 Optionally, combine the low and high hypothetical group sizes
-#'   with other values, such as means. Default is `NA`.
 #'
 #' @details If any group size is less than `n_min` or greater than `n_max`, it
-#'   is removed. The corresponding size of the other group is also removed.
-#'
-#'   In case you specify `x1` and `x2`, it makes sense to swap their
-#'   specifications and run `disperse()` again, because it is not known which
-#'   value corresponds to which group. `grim_map_disperse()` does that
-#'   automatically.
+#'   is removed. The complementary size of the other group is also removed.
 
 #' @return A tibble (data frame) with these columns:
 #' - `n` includes the dispersed `n` values. Every pair of consecutive rows has
-#'   `n` values that each add up to the input `n`.
+#'   `n` values that each add up to the total.
 #' - `n_change` records how the input `n` was transformed to the output `n`. In
 #'   `disperse2()`, the `n_change` strings label the lower of the input `n`
 #'   values `n1` and the higher one `n2`.
 
-#' @seealso `grim_map_disperse()`, `seq_distance_df()`
+#' @seealso `function_map_disperse()`, `grim_map_disperse()`,
+#'   `seq_distance_df()`
 #'
 #' @include utils.R
 #'
@@ -63,7 +57,7 @@
 #'
 #' @examples
 #' # For a total sample size of 40,
-#' # you may set `n` to `20`:
+#' # set `n` to `20`:
 #' disperse(n = 20)
 #'
 #' # Specify `dispersion` to control
@@ -73,17 +67,42 @@
 #' # Specify `x1` and `x2` to add
 #' # corresponding values, such as means:
 #' disperse(n = 20, x1 = "4.71", x2 = "5.3")
+#'
+#' # In `disperse2()`, specify `n` as two
+#' # consecutive numbers -- i.e., group sizes:
+#' disperse2(n = c(25, 26))
+#'
+#' # Use the total sample size directly
+#' # with `disperse_total()`. An even total
+#' # internally triggers `disperse()`...
+#' disperse_total(n = 40)
+#'
+#' # ...whereas an odd total triggers `disperse2()`:
+#' disperse_total(n = 51)
 
 
+# Basic function for halves of even totals --------------------------------
 
-# Basic function for even totals ------------------------------------------
-
-disperse <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
-                     x1 = NA, x2 = NA) {
+disperse <- function(n, reported = NULL, reported_index = NA,
+                     dispersion = 0:5,
+                     n_min = 1, n_max = NULL) {
 
   # Checks ---
 
-  check_length(n, "n", 1)
+  if (length(n) != 1) {
+    msg_single <- "It needs to have length 1."
+    if (length(n) == 2) {
+      msg_single <- paste(
+        msg_single,
+        "Did you mean to call `disperse2(n = c({n[1]}, {n[2]}))`?"
+      )
+    }
+    cli::cli_abort(c(
+      "`n` has length {length(n)}.",
+      "x" = msg_single,
+      ">" = "See documentation under `?disperse`."
+    ))
+  }
 
   if (any(dispersion < 0)) {
     offenders <- dispersion[dispersion < 0]
@@ -125,7 +144,8 @@ disperse <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
   n_minus <- n - dispersion
   n_plus  <- n + dispersion
 
-  out <- tibble::tibble(n_minus, n_plus) %>%
+  out <- tibble::tibble(n_minus, n_plus)
+  out <- out %>%
     tidyr::pivot_longer(
       cols = everything(),
       names_to = "n_change",
@@ -133,46 +153,130 @@ disperse <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
     ) %>%
     dplyr::mutate(
       n_change = paste0(n_change, "_", rep(dispersion, each = 2))
-    )
+    ) %>%
+    dplyr::relocate(n_change, .after = n)
 
 
-  if (is.na(x1) & is.na(x2)) {
+  # # An example for `out`:
+  #
+  # n <- 35
+  # dispersion <- 0:5
+  # n_min <- 1
+  # n_max <- NULL
+  # x1 <- NA
+  # x2 <- NA
+  #
+  # n_minus <- n - dispersion
+  # n_plus  <- n + dispersion
+  #
+  # out <- tibble::tibble(n_minus, n_plus)
+  # out <- out %>%
+  #   tidyr::pivot_longer(
+  #     cols = everything(),
+  #     names_to = "n_change",
+  #     values_to = "n"
+  #   ) %>%
+  #   dplyr::mutate(
+  #     n_change = paste0(n_change, "_", rep(dispersion, each = 2))
+  #   )
 
-    return(
-      out %>%
-        dplyr::relocate(n, n_change) %>%
-        add_class("scr_disperse")
-    )
 
-  } else {
+  # # Example for `reported`:
+  # reported <- tibble::tribble(
+  #   ~x1,    ~x2,
+  #   "3.43", "5.28",
+  #   "2.97", "4.42",
+  #   "0.54", "0.81",
+  # )
 
-    x <- c(x1, x2)
-    x_rep_count <- nrow(out) / 2
 
-    return(
-      out %>%
-        dplyr::mutate(x = rep(x, x_rep_count)) %>%
-        dplyr::relocate(x, n, n_change) %>%
-        add_class("scr_disperse")
-    )
+  # `reported` here is the same as `cols_expected` in the function factories!
+  if (!is.null(reported)) {
+    contains1 <- stringr::str_detect(names(reported), "1")
+    reported_names_unique <- names(reported)[contains1] %>%
+      stringr::str_remove("1")
 
+    # reported_longer <- reported %>%
+    #   tidyr::pivot_longer(
+    #     cols = everything(),
+    #     names_to = "term",
+    #     values_to = "value"
+    #   )
+
+    # df_count <- reported[[2]] %>%
+    #   names() %>%
+    #   as.integer()
+
+    # df_count <- data %>%
+    #   dplyr::slice()
+
+    # TO DO: Build a system that replaces the `1` constant in the
+    # `dplyr::slice()` call by an integer variable that specifies the row number
+    # appropriate for the present row of the tibble of reported summary data! It
+    # will have to be passed down from the function factory level, probably from
+    # the top level; via either an additional column (inelegant!) or an extra
+    # class (maybe inefficient?):
+    reported_vals <- reported %>%
+      t() %>%
+      tibble::as_tibble() %>%
+      dplyr::select(reported_index) %>%
+      purrr::as_vector() %>%
+      unname()
+
+    # The number of scenarios is half the number of dispersed `n` values:
+    n_scenarios <- nrow(out) / 2
+
+    # Another attempt -- but all of this probably belongs on the level of
+    # `function_map_disperse_proto()`, not here. In any case, the number of
+    # groups (i.e., list elements) into which the `reported` tibble is split
+    # here is equal to the number of its column because, this way, the tibble is
+    # effectively split into rows:
+    reported %>%
+      split_into_rows() %>%
+      purrr::map(rep, n_scenarios)
+
+    # n_groups <- nrow(reported_vals) / 2
+
+    # `split_into_groups()` is an internal helper from the utils.R file. Its
+    # second argument is the size of each resulting group, which has to be `2`
+    # here because, for each variable in question, values for two groups were
+    # reported:
+    reported_groups <- reported_vals %>%
+      split_into_groups(2) %>%
+      purrr::map(rep, n_scenarios) %>%
+      tibble::as_tibble(.name_repair = "minimal")
+
+    # These groups correspond to the original names distilled from `reported`:
+    names(reported_groups) <- reported_names_unique
+
+    # reported_df <- reported %>%
+    #   purrr::map(rep, nrow(out) / 2) %>%
+    #   tibble::as_tibble()
+
+    out <- out %>%
+      dplyr::bind_cols(reported_groups, .)
   }
 
+  out <- out %>%
+    add_class("scr_disperse")
+
+  return(out)
 }
 
 
 
-# Variant for odd totals --------------------------------------------------
+# Variant for halves of odd totals ----------------------------------------
 
 #' @rdname disperse
 #' @export
 
-disperse2 <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
-                      x1 = NA, x2 = NA) {
+disperse2 <- function(n, reported = NULL, reported_index = NA,
+                      dispersion = 0:5,
+                      n_min = 1, n_max = NULL) {
 
   # Checks ---
 
-  check_length(n, "n", 2)
+  check_length(n, 2)
 
   if (!dplyr::near(n[2] - n[1], 1)) {
     cli::cli_warn(c(
@@ -187,26 +291,27 @@ disperse2 <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
 
   # Take the mean of the two `n` values and disperse from there:
   out <- disperse(
-    n = mean(n), dispersion = dispersion, n_min = n_min, n_max = n_max,
-    x1 = x1, x2 = x2
+    n = mean(n), reported = reported, reported_index = reported_index,
+    dispersion = dispersion,
+    n_min = n_min, n_max = n_max
   )
 
   # Determine which row numbers in the output tibble have an `n` that needs to
   # be increased or decreased (using an internal helper function from utils.R):
   seq_rows <- 1:nrow(out)
-  locations_minus <- seq_rows %>% parcel_nth_elements(n = 2, from = 1)
-  locations_plus  <- seq_rows %>% parcel_nth_elements(n = 2, from = 2)
+  locations1 <- seq_rows %>% parcel_nth_elements(n = 2, from = 1)
+  locations2 <- seq_rows %>% parcel_nth_elements(n = 2, from = 2)
 
-  # Increase or decrease the dispersed values so that the lower values start
-  # from the lower of the two `n` values, the higher values from the higher one,
-  # and both of the two interleaved sequences proceed by increments of 1:
-  out$n <- out$n %>% purrr::modify_at(locations_minus, `-`, 0.5)
-  out$n <- out$n %>% purrr::modify_at(locations_plus,  `+`, 0.5)
+  # Increase or decrease the dispersed values so that the lower values decrease
+  # from the first of the two `n` values, the higher values increase from the
+  # second one, and both interleaved sequences proceed by increments of 1:
+  out$n <- out$n %>% purrr::modify_at(locations1, `-`, 0.5)
+  out$n <- out$n %>% purrr::modify_at(locations2, `+`, 0.5)
 
   # Adjust the `n_change` labels in the output by labeling the lower `n` value
   # `n1` and the higher `n` value `n2`:
   out$n_change <- out$n_change %>%
-    stringr::str_replace("n_", paste0("n", c(1, 2), "_"))
+    stringr::str_replace("n_", paste0("n", c("1", "2"), "_"))
 
   # Return the resulting tibble:
   return(out)
@@ -214,21 +319,29 @@ disperse2 <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
 
 
 
-# Variant for even / odd splitting ----------------------------------------
+# Variant for totals; with even / odd splitting ---------------------------
 
 #' @rdname disperse
 #' @export
 
-disperse_total <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
-                           x1 = NA, x2 = NA) {
+disperse_total <- function(n, reported = NULL, reported_index = NA,
+                           dispersion = 0:5,
+                           n_min = 1, n_max = NULL) {
 
   # Checks ---
 
   if (length(n) != 1) {
+    msg_single <- "It needs to have length 1; `n` is supposed \\
+    to be a *single*, total sample size."
+    if (length(n) == 2) {
+      msg_single <- paste(
+        msg_single,
+        "Did you mean to call `disperse2(n = c({n[1]}, {n[2]}))`?"
+      )
+    }
     cli::cli_abort(c(
-      "`n` has length {length(n)}",
-      "x" = "It needs to have length 1; it's supposed \\
-      to be a *total* sample size.",
+      "`n` has length {length(n)}.",
+      "x" = msg_single,
       ">" = "See documentation under `?disperse`."
     ))
   }
@@ -236,27 +349,29 @@ disperse_total <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
 
   # Main part ---
 
+  n_half <- n / 2
+
   # Test if `n` is even, then call the appropriate function. If `n` is even,
   # call `disperse()`; if `n` is odd, call `disperse2()`:
   if (n %% 2 == 0) {
 
     return(disperse(
-      n = (n / 2), dispersion = dispersion, n_min = n_min, n_max = n_max,
-      x1 = x1, x2 = x2
+      n = n_half, reported = reported, reported_index = reported_index,
+      dispersion = dispersion, n_min = n_min, n_max = n_max
     ))
 
   } else {
 
     # Determine the two whole numbers closest to half of the odd `n`:
-    n1 <- (n / 2) - 0.5
+    n1 <- n_half - 0.5
     n2 <- n1 + 1
+    n_both <- c(n1, n2)
 
     return(disperse2(
-      n = c(n1, n2), dispersion = dispersion, n_min = n_min, n_max = n_max,
-      x1 = x1, x2 = x2
+      n = n_both, reported = reported, reported_index = reported_index,
+      dispersion = dispersion, n_min = n_min, n_max = n_max
     ))
   }
-
 }
 
 

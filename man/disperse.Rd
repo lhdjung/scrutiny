@@ -6,14 +6,35 @@
 \alias{disperse_total}
 \title{Vary hypothetical group sizes}
 \usage{
-disperse(n, dispersion = 0:5, n_min = 1, n_max = NULL, x1 = NA, x2 = NA)
+disperse(
+  n,
+  reported = NULL,
+  reported_index = NA,
+  dispersion = 0:5,
+  n_min = 1,
+  n_max = NULL
+)
 
-disperse2(n, dispersion = 0:5, n_min = 1, n_max = NULL, x1 = NA, x2 = NA)
+disperse2(
+  n,
+  reported = NULL,
+  reported_index = NA,
+  dispersion = 0:5,
+  n_min = 1,
+  n_max = NULL
+)
 
-disperse_total(n, dispersion = 0:5, n_min = 1, n_max = NULL, x1 = NA, x2 = NA)
+disperse_total(
+  n,
+  reported = NULL,
+  reported_index = NA,
+  dispersion = 0:5,
+  n_min = 1,
+  n_max = NULL
+)
 }
 \arguments{
-\item{n}{Numeric.
+\item{n}{Numeric:
 \itemize{
 \item In \code{disperse()}, single number from which to go up and down. This should be
 half of an even total sample size.
@@ -23,21 +44,18 @@ total sample size (e.g., \code{c(25, 26)} for a total of 51).
 }}
 
 \item{dispersion}{Numeric. Vector that determines the steps up and down from
-\code{n} (in \code{disperse_total()}, from half \code{n}). Default is \code{0:5}.}
+\code{n} (or, in \code{disperse_total()}, from half \code{n}). Default is \code{0:5}.}
 
 \item{n_min}{Numeric. Minimal group size. Default is \code{1}.}
 
 \item{n_max}{Numeric. Maximal group size. Default is \code{NULL}, i.e., no
 maximum.}
-
-\item{x1, x2}{Optionally, combine the low and high hypothetical group sizes
-with other values, such as means. Default is \code{NA}.}
 }
 \value{
 A tibble (data frame) with these columns:
 \itemize{
 \item \code{n} includes the dispersed \code{n} values. Every pair of consecutive rows has
-\code{n} values that each add up to the input \code{n}.
+\code{n} values that each add up to the total.
 \item \code{n_change} records how the input \code{n} was transformed to the output \code{n}. In
 \code{disperse2()}, the \code{n_change} strings label the lower of the input \code{n}
 values \code{n1} and the higher one \code{n2}.
@@ -59,20 +77,16 @@ even or odd, splits it up accordingly, and applies \code{disperse()} or
 \code{disperse2()}, respectively.
 
 These functions are primarily intended as helpers. They form the backbone
-of \code{grim_map_disperse()}.
+of \code{grim_map_disperse()} and all other functions created with
+\code{function_map_disperse()}.
 }
 \details{
 If any group size is less than \code{n_min} or greater than \code{n_max}, it
-is removed. The corresponding size of the other group is also removed.
-
-In case you specify \code{x1} and \code{x2}, it makes sense to swap their
-specifications and run \code{disperse()} again, because it is not known which
-value corresponds to which group. \code{grim_map_disperse()} does that
-automatically.
+is removed. The complementary size of the other group is also removed.
 }
 \examples{
 # For a total sample size of 40,
-# you may set `n` to `20`:
+# set `n` to `20`:
 disperse(n = 20)
 
 # Specify `dispersion` to control
@@ -82,6 +96,18 @@ disperse(n = 20, dispersion = c(3, 6, 10))
 # Specify `x1` and `x2` to add
 # corresponding values, such as means:
 disperse(n = 20, x1 = "4.71", x2 = "5.3")
+
+# In `disperse2()`, specify `n` as two
+# consecutive numbers -- i.e., group sizes:
+disperse2(n = c(25, 26))
+
+# Use the total sample size directly
+# with `disperse_total()`. An even total
+# internally triggers `disperse()`...
+disperse_total(n = 40)
+
+# ...whereas an odd total triggers `disperse2()`:
+disperse_total(n = 51)
 }
 \references{
 Bauer, P. J., & Francis, G. (2021). Expression of Concern: Is It
@@ -90,5 +116,6 @@ Light or Dark? Recalling Moral Behavior Changes Perception of Brightness.
 https://doi.org/10.1177/09567976211058727
 }
 \seealso{
-\code{grim_map_disperse()}, \code{seq_distance_df()}
+\code{function_map_disperse()}, \code{grim_map_disperse()},
+\code{seq_distance_df()}
 }
