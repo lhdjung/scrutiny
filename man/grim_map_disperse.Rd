@@ -2,25 +2,19 @@
 % Please edit documentation in R/grim-map-disperse.R
 \name{grim_map_disperse}
 \alias{grim_map_disperse}
-\title{GRIM-testing with dispersed group sizes}
+\title{GRIM-testing with hypothetical group sizes}
 \usage{
 grim_map_disperse(
   data,
-  dispersion = 0:5,
-  n_min = 1,
-  n_max = NULL,
-  x1 = NULL,
-  x2 = NULL,
-  show_all = FALSE,
-  items = 1,
-  percent = FALSE,
-  show_rec = FALSE,
-  show_prob = FALSE,
-  rounding = "up_or_down",
-  threshold = 5,
-  symmetric = FALSE,
-  tolerance = .Machine$double.eps^0.5,
-  extra = Inf
+  fun = .fun,
+  reported = .reported,
+  name_test = .name_test,
+  name_class = .name_class,
+  dispersion = .dispersion,
+  n_min = .n_min,
+  n_max = .n_max,
+  show_all = .show_all,
+  ...
 )
 }
 \arguments{
@@ -39,37 +33,23 @@ Default is \code{0:5}, i.e., half \code{n} itself followed by five steps up and 
 \item{n_max}{Numeric. Maximal group size. Default is \code{NULL}, i.e., no
 maximum.}
 
-\item{x1, x2}{Optionally, specify which columns in \code{data} contain the mean or
-proportion values. If not specified here, \code{data} itself needs to contain
-columns by those names. Default is \code{NULL}.}
-
-\item{show_all}{Boolean. If set to \code{TRUE}, the output is a list of tibbles
-with detailed analyses. Default is \code{FALSE}, so that only a single tibble
-with summaries is shown.}
-
 \item{items, percent, show_rec, show_prob, rounding, threshold, symmetric, tolerance, extra}{Arguments passed down to \code{grim_map()}.}
 }
 \value{
-A tibble with summary data:
+A tibble with these columns:
 \itemize{
-\item \code{x1}, \code{x2}, and \code{n} are the inputs.
-\item \code{hits_total} is the total number of scenarios in which both \verb{x*} values
-are GRIM-consistent. Each scenario consists of two \code{n} values in the
-specified \code{dispersion} range tested against one \code{x1} and one \code{x2} value.
-Which one of the \verb{x*} values is entered as \code{x1} or \code{x2} does not matter
-because the tests go both ways.
-\item \code{hits_forth} is the number of scenarios with both \verb{x*} values consistent
-corresponding to \code{x1} for small \code{n} values and \code{x2} for large \code{n} values.
-\item \code{hits_back}, then, is the number of scenarios in which both of the
-role-reversed \verb{x*} values are consistent: those where \code{x1} corresponds to
-large \code{n} and \code{x2} to small \code{n} values.
+\item \code{x}, the group-wise reported input statistic, is repeated in row pairs.
+\item \code{n} is dispersed from half the input \code{n}, with \code{n_change} tracking the
+differences.
+\item \code{both_consistent} flags scenarios where both reported \code{x} values are
+consistent with the hypothetical \code{n} values.
+\item \code{case} corresponds to the row numbers of the input data frame.
+\item \code{dir} is \code{"forth"} in the first half of rows and \code{"back"} in the second
+half. \code{"forth"} means that \code{x2} from the input is paired with the larger
+dispersed \code{n}, whereas \code{"back"} means that \code{x1} is paired with the larger
+dispersed \code{n}.
+\item Other columns from \code{grim_map()} are preserved.
 }
-
-If \code{show_all} is \code{TRUE}, this tibble (index \verb{[[1]]}) is part of a list of
-tibbles in which the other ones contain the detailed results. Each tibble
-other than \verb{[[1]]} corresponds to one row in the input data frame. Tibbles
-under \verb{[[2]]} count towards \code{hits_forth}, those under \verb{[[3]]} count towards
-\code{hits_back}.
 }
 \description{
 When reporting group means, some published studies only report
@@ -82,15 +62,35 @@ In the two-groups case, \code{grim_map_disperse()} helps in these ways:
 \item It creates hypothetical group sizes. With an even total sample size, it
 incrementally moves up and down from half the total sample size. For example,
 with a total sample size of 40, it starts at 20, goes on to 19 and 21, then
-to 18 and 22, etc. For odd sample sizes, it starts from the two integers
+to 18 and 22, etc. With odd sample sizes, it starts from the two integers
 around half.
 \item It GRIM-tests all of these values together with the group means.
-\item It reports the number of scenarios in which both "dispersed" hypothetical
-group sizes are GRIM-consistent with the group means.
+\item It reports all the scenarios in which both "dispersed" hypothetical group
+sizes are GRIM-consistent with the group means.
 }
 
-All of this works with one or more total sample sizes at a time.
+All of this works with one or more total sample sizes at a time. Call
+\code{audit()} for summary statistics.
 }
+\section{Summaries with \code{audit()}}{
+ There is an S3 method for the \code{audit()}
+generic, so you can call \code{audit()} following up on \code{grim_map_disperse()} to
+get a tibble with summary statistics. It will have these columns:
+\itemize{
+\item \code{x1}, \code{x2}, and \code{n} are the original inputs.
+\item \code{hits_forth} is the number of scenarios in which both \code{x1} and \code{x2} are
+GRIM-consistent with the dispersed \code{n} values when \code{x2} is paired with the
+larger dispersed \code{n}.
+\item \code{hits_back} is the same, except \code{x1} is paired with the larger dispersed
+\code{n} value.
+\item \code{hits_total} is the sum of \code{hits_forth} and \code{hits_back}, i.e., the total
+number of both-consistent scenarios.
+\item \code{scenarios_total} is the total number of test scenarios, whether or not
+both \code{x1} and \code{x2} are consistent.
+\item \code{hit_rate} is the ratio of \code{hits_total} to \code{scenarios_total}.
+}
+}
+
 \examples{
 # Run `grim_map_disperse()` on data like these:
 df <- tibble::tribble(
@@ -99,18 +99,23 @@ df <- tibble::tribble(
   "2.97", "4.42", 103
 )
 
+grim_map_disperse(df)
+
+# `audit()` summaries can be more important than
+# the detailed results themselves.
 # The `hits_total` column shows all scenarios in
 # which both divergent `n` values are GRIM-consistent
 # with the `x*` values when paired with them both ways:
-grim_map_disperse(data = df)
+df \%>\%
+  grim_map_disperse() \%>\%
+  audit()
 
 # By default (`dispersion = 0:5`), the function goes
 # five steps up and down from `n`. If this sequence
 # gets longer, the number of hits tends to increase:
-grim_map_disperse(data = df, dispersion = 0:10)
-
-# Get all the details with `show_all = TRUE`:
-grim_map_disperse(data = df, show_all = TRUE)
+df \%>\%
+  grim_map_disperse(dispersion = 0:10) \%>\%
+  audit()
 }
 \references{
 Bauer, P. J., & Francis, G. (2021). Expression of Concern: Is It
@@ -124,5 +129,6 @@ Psychology. \emph{Social Psychological and Personality Science}, 8(4), 363–369
 https://doi.org/10.1177/1948550616673876
 }
 \seealso{
-\code{grim_map()}, \code{disperse_total()}
+\code{function_map_disperse()}, which created the present function using
+\code{grim_map()}.
 }
