@@ -17,20 +17,24 @@ function_map_disperse(
 )
 }
 \arguments{
-\item{.fun}{Function such as \code{grim_map}: It will be used to test rows in a
-data frame for consistency.}
+\item{.fun}{Function such as \code{grim_map}: It will be used to test columns in a
+data frame for consistency. Test results are Boolean and need to be
+contained in a column called \code{consistency} that is added to the input data
+frame. This modified data frame is then returned by \code{.fun}.}
 
 \item{.reported}{String. Names of the columns containing group-specific
 statistics that were reported alongside the total sample size(s). They will
 be tested for consistency with the hypothetical group sizes. Examples are
-\code{"x"} for GRIM and \code{c("x", "sd")} for DEBIT.}
+\code{"x"} for GRIM and \code{c("x", "sd")} for DEBIT. In the data frame with
+reported group statistics that the manufactured function takes as an input,
+each will need to fan out like \code{"x1"}, \code{"x2"}, \code{"sd1"}, and \code{"sd2"}.}
 
 \item{.name_test}{String (length 1). The name of the consistency test, such
 as \code{"GRIM"}, to be optionally shown in a message when using the
 manufactured function.}
 
 \item{.name_class}{String. If specified, the tibbles returned by the
-manufactured function will carry this string as an S3 class. Default is
+manufactured function will inherit this string as an S3 class. Default is
 \code{NULL}, i.e., no extra class.}
 
 \item{.dispersion, .n_min, .n_max, .show_all}{Arguments passed down to
@@ -39,15 +43,22 @@ manufactured function will carry this string as an S3 class. Default is
 \item{...}{Arguments passed down to \code{.fun}.}
 }
 \value{
-A function. See \code{grim_map_disperse()} for an example of a function
-manufactured by \code{function_map_disperse()}.
+A function such as these:\tabular{lll}{
+   \strong{Manufactured function} \tab \strong{Reported statistics} \tab \strong{Test vignette} \cr
+   \code{grim_map_disperse()} \tab \code{x} (means or proportions) \tab \code{vignette("grim")} \cr
+   \code{debit_map_disperse()} \tab \code{x} (binary means); \code{sd} (binary standard deviations) \tab \code{vignette("debit")} \cr
+}
 }
 \description{
-\code{function_map_disperse()} is the engine that powers
-\code{grim_map_disperse()}. It creates new, "manufactured" functions for
-consistency tests which take reported summary statistics such as means, to
-apply those tests in cases where only a total sample size is known, not
-group sizes.
+\code{function_map_disperse()} is the engine that powers functions
+such as \code{grim_map_disperse()}. It creates new, "manufactured" functions for
+consistency tests. The new functions take reported summary statistics such
+as means and apply those tests in cases where only a total sample size is
+known, not group sizes.
+
+This works by making \code{disperse_total()} create multiple pairs of
+hypothetical group sizes, all of which add up to the reported total. There
+need to be exactly two groups.
 
 If functions created this way are exported from other packages, they should
 be written as if they were created with
@@ -60,6 +71,26 @@ functions, such as \code{grim_map_disperse()}. More specifically, it is a
 function operator (a.k.a. decorator) because it also takes functions as
 inputs, such as \code{grim_map()}. See Wickham (2019, ch. 10-11).
 }
+\section{Conventions}{
+ The name of the manufactured function should
+mechanically follow from that of the input function. For example,
+\code{grim_map_disperse()} derives from \code{grim_map()}. This pattern fits best if
+the input function itself is named after the test it performs on a data
+frame, followed by \verb{_map}: \code{grim_map()} applies GRIM, \code{debit_map()} applies
+DEBIT, etc.
+
+Much the same is true for the classes of data frames returned by the
+manufactured function via the \code{.name_class} argument of
+\code{function_map_disperse()}. It should be the function's own name preceded by
+the name of the package that contains it or by an acronym of that package's
+name. In this way, existing classes are \code{scr_grim_map_disperse} and
+\code{scr_debit_map_disperse}.
+
+Consider writing an \code{audit()} method for every such class, as this is their
+main purpose. The method should simply call \code{summarize_map_disperse()},
+without any further computations.
+}
+
 \examples{
 # Function definition of `grim_map_disperse()`:
 grim_map_disperse <- function_map_disperse(
@@ -69,10 +100,73 @@ grim_map_disperse <- function_map_disperse(
   .name_class = "scr_grim_map_disperse"
 )
 
+
+# Case study of SCHLIM, a new consistency test --------------
+
+# (Note: This is a mock test without any real significance.
+# Its only purpose is to show the minimal steps necessary
+# for implementing a serious consistency test, and to use
+# it as a starting point for `function_map_disperse()`.)
+
+# The "SCHLIM test" is analogous to GRIM as implemented
+# in scrutiny. This is also true for the function names.
+# Note that the analogue to `schlim_scalar()`, a function
+# called `grim_scalar()`, is not exported from scrutiny,
+# but used internally for `grim()`, `grim_map()`, and,
+# indirectly, `grim_map_disperse()`.
+
+# Basic test implementation:
+schlim_scalar <- function(y, n) {
+  if (y / 3 > n) {
+    return(TRUE)
+  } else {
+    return(FALSE)
+  }
+}
+
+# This step is not needed below, but
+# included for completeness:
+schlim <- Vectorize(schlim_scalar)
+
+# This will be the input function for
+# `function_map_disperse()`:
+schlim_map <- function(data) {
+  consistency <- purrr::map2_lgl(
+    as.numeric(data$y),
+    as.numeric(data$n),
+    schlim_scalar
+  )
+  return(dplyr::mutate(data, consistency))
+}
+
+# Fire up the function factory:
+schlim_map_disperse <- function_map_disperse(
+  .fun = schlim_map,
+  .reported = "y",
+  .name_test = "SCHLIM",
+  .name_class = "scr_schlim_map_disperse"
+)
+
+# Create some example data:
+df <- tibble::tibble(
+  y1 = 16:25,
+  y2 = 26:35,
+  n  = 12:21
+)
+
+# Call the manufactured function:
+schlim_map_disperse(df)
+
+
+# Advice on exporting manufactured functions ----------------
+
+# (The guidelines below were adapted from purrr:
+# https://purrr.tidyverse.org/reference/faq-adverbs-export.html)
+
 # If you want to export a function manufactured
 # with `function_map_disperse()` from your own
 # package, follow this pattern (except for the
-# `if`-wrapping here)...
+# `if`-wrapping here):
 if (FALSE) {
 
   schlim_map_disperse <- function(...) "dummy"
@@ -80,13 +174,12 @@ if (FALSE) {
   .onLoad <- function(lib, pkg) {
     schlim_map_disperse <<- scrutiny::function_map_disperse(
       .fun = schlim_map,
-      .reported = c("x", "y"),
+      .reported = "y",
       .name_test = "SCHLIM",
-      .name_class = "yourpkg_schlim_map_disperse"
+      .name_class = "yourpkg_schlim_map_disperse",
+      .class_remove = "^yourpkg_"
     )
-  }   # ... where "x" and "y" are the types of
-      # reported summary statistics to be tested
-      # for consistency with the dispersed `n` values.
+  }
 
 }
 }
@@ -100,5 +193,5 @@ Wickham, H. (2019). \emph{Advanced R} (Second Edition). CRC Press/Taylor and
 Francis Group. https://adv-r.hadley.nz/index.html
 }
 \seealso{
-\code{grim_map()}, \code{disperse_total()}, \code{grim_map_disperse()}
+\code{disperse_total()}
 }
