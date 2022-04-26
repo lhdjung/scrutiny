@@ -84,8 +84,7 @@
 # Basic function for halves of even totals --------------------------------
 
 disperse <- function(n, reported = NULL, reported_index = NA,
-                     dispersion = 0:5,
-                     n_min = 1, n_max = NULL) {
+                     dispersion = 0:5, n_min = 1, n_max = NULL) {
 
   # Checks ---
 
@@ -156,107 +155,6 @@ disperse <- function(n, reported = NULL, reported_index = NA,
     ) %>%
     dplyr::relocate(n_change, .after = n)
 
-
-  # # An example for `out`:
-  #
-  # n <- 35
-  # dispersion <- 0:5
-  # n_min <- 1
-  # n_max <- NULL
-  # x1 <- NA
-  # x2 <- NA
-  #
-  # n_minus <- n - dispersion
-  # n_plus  <- n + dispersion
-  #
-  # out <- tibble::tibble(n_minus, n_plus)
-  # out <- out %>%
-  #   tidyr::pivot_longer(
-  #     cols = everything(),
-  #     names_to = "n_change",
-  #     values_to = "n"
-  #   ) %>%
-  #   dplyr::mutate(
-  #     n_change = paste0(n_change, "_", rep(dispersion, each = 2))
-  #   )
-
-
-  # # Example for `reported`:
-  # reported <- tibble::tribble(
-  #   ~x1,    ~x2,
-  #   "3.43", "5.28",
-  #   "2.97", "4.42",
-  #   "0.54", "0.81",
-  # )
-
-
-  # `reported` here is the same as `cols_expected` in the function factories!
-  if (!is.null(reported)) {
-    contains1 <- stringr::str_detect(names(reported), "1")
-    reported_names_unique <- names(reported)[contains1] %>%
-      stringr::str_remove("1")
-
-    # reported_longer <- reported %>%
-    #   tidyr::pivot_longer(
-    #     cols = everything(),
-    #     names_to = "term",
-    #     values_to = "value"
-    #   )
-
-    # df_count <- reported[[2]] %>%
-    #   names() %>%
-    #   as.integer()
-
-    # df_count <- data %>%
-    #   dplyr::slice()
-
-    # TO DO: Build a system that replaces the `1` constant in the
-    # `dplyr::slice()` call by an integer variable that specifies the row number
-    # appropriate for the present row of the tibble of reported summary data! It
-    # will have to be passed down from the function factory level, probably from
-    # the top level; via either an additional column (inelegant!) or an extra
-    # class (maybe inefficient?):
-    reported_vals <- reported %>%
-      t() %>%
-      tibble::as_tibble() %>%
-      dplyr::select(reported_index) %>%
-      purrr::as_vector() %>%
-      unname()
-
-    # The number of scenarios is half the number of dispersed `n` values:
-    n_scenarios <- nrow(out) / 2
-
-    # Another attempt -- but all of this probably belongs on the level of
-    # `function_map_disperse_proto()`, not here. In any case, the number of
-    # groups (i.e., list elements) into which the `reported` tibble is split
-    # here is equal to the number of its column because, this way, the tibble is
-    # effectively split into rows:
-    reported %>%
-      split_into_rows() %>%
-      purrr::map(rep, n_scenarios)
-
-    # n_groups <- nrow(reported_vals) / 2
-
-    # `split_into_groups()` is an internal helper from the utils.R file. Its
-    # second argument is the size of each resulting group, which has to be `2`
-    # here because, for each variable in question, values for two groups were
-    # reported:
-    reported_groups <- reported_vals %>%
-      split_into_groups(2) %>%
-      purrr::map(rep, n_scenarios) %>%
-      tibble::as_tibble(.name_repair = "minimal")
-
-    # These groups correspond to the original names distilled from `reported`:
-    names(reported_groups) <- reported_names_unique
-
-    # reported_df <- reported %>%
-    #   purrr::map(rep, nrow(out) / 2) %>%
-    #   tibble::as_tibble()
-
-    out <- out %>%
-      dplyr::bind_cols(reported_groups, .)
-  }
-
   out <- out %>%
     add_class("scr_disperse")
 
@@ -271,8 +169,7 @@ disperse <- function(n, reported = NULL, reported_index = NA,
 #' @export
 
 disperse2 <- function(n, reported = NULL, reported_index = NA,
-                      dispersion = 0:5,
-                      n_min = 1, n_max = NULL) {
+                      dispersion = 0:5, n_min = 1, n_max = NULL) {
 
   # Checks ---
 
@@ -325,8 +222,7 @@ disperse2 <- function(n, reported = NULL, reported_index = NA,
 #' @export
 
 disperse_total <- function(n, reported = NULL, reported_index = NA,
-                           dispersion = 0:5,
-                           n_min = 1, n_max = NULL) {
+                           dispersion = 0:5, n_min = 1, n_max = NULL) {
 
   # Checks ---
 
