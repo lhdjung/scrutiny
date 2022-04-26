@@ -86,3 +86,14 @@ An alternative to the present function would be an S3 method for
 for customizing geom parameters and might perhaps provide better
 accessibility overall.
 }
+\examples{
+# Run `debit_plot()` on the output
+# of `debit_map()`:
+pigs3 \%>\%
+  debit_map() \%>\%
+  debit_plot()
+}
+\references{
+Heathers, James A. J., and Brown, Nicholas J. L. 2019. DEBIT: A
+Simple Consistency Test For Binary Data. https://osf.io/5vb3u/.
+}

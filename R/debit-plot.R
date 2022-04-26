@@ -49,9 +49,17 @@
 #'
 #' @return A ggplot object.
 #'
+#' @references Heathers, James A. J., and Brown, Nicholas J. L. 2019. DEBIT: A
+#'   Simple Consistency Test For Binary Data. https://osf.io/5vb3u/.
+#'
 #' @export
-
-# ADD @examples WHEN EXAMPLE DATA ARE AVAILABLE
+#'
+#' @examples
+#' # Run `debit_plot()` on the output
+#' # of `debit_map()`:
+#' pigs3 %>%
+#'   debit_map() %>%
+#'   debit_plot()
 
 
 
