@@ -2,21 +2,6 @@
 
 #' @include grim-map.R
 
-function_map_seq <- function(.fun, .name_test, .name_class = NULL,
-                             .dispersion = 0:5, ...) {
-
-  # The function factory returns this manufactured function:
-  function(fun = .fun, name_test = .name_test, name_class = .name_class,
-           dispersion = .dispersion, ...) {
-    # MORE HERE! IN PARTICULAR, DECIDE BETWEEN `seq_distance()` AND
-    # `seq_endpoint()`.
-  }
-
-  # -- End of the manufactured function --
-
-}
-
-
 
 # Playground --------------------------------------------------------------
 
@@ -48,13 +33,6 @@ seq_disperse_df <- function(x, dispersion, include_reported = TRUE) {
 }
 
 
-# # Example data:
-# data <- grim_map(pigs1)
-# fun  <- grim_map
-# var  <- "n"    # `var` is the variable to be varied, i.e., dispersed.
-# dispersion <- 1:5
-# include_reported <- TRUE
-
 
 function_map_seq_proto <- function(.fun = fun, .var = var,
                                    .dispersion = dispersion,
@@ -64,9 +42,8 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
   function(data, fun = .fun, var = .var, dispersion = .dispersion,
            include_reported = .include_reported, ...) {
 
-    data_var <- match(var, colnames(data))
-    data_var <- data[data_var]
-    data_var <- data_var[[1]]
+    # Extract the vector from the `data` column specified as `var`:
+    data_var <- data[var][[1]]
 
     list_var <- purrr::map(
       data_var,
@@ -90,7 +67,7 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
     data_list_without_var <- dplyr::mutate(
       data[cols_for_testing_names_without_var],
       nrow_list_var,
-      dplyr::across({{ cols_el }}, as.list),
+      # dplyr::across({{ cols_el }}, as.list),
       dplyr::across({{ cols_el }}, ~ purrr::map2(., nrow_list_var, rep)),
       nrow_list_var = NULL
     )
@@ -131,8 +108,73 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 }
 
 
-x <- 0.25
-dispersion <- 0:5
+
+# # Example data:
+# x <- 0.25
+# dispersion <- 1:5
+#
+# data <- grim_map(pigs1)
+# fun  <- grim_map
+# var  <- c("x", "n")    # `var` is the variable to be varied, i.e., dispersed.
+# dispersion <- 1:5
+# include_reported <- TRUE
+#
+# .fun <- grim_map
+# .name_test <- "GRIM"
+# .name_class <- "scr_grim_map_seq"
+# .dispersion <- 1:5
+#
+# fun        <- .fun
+# name_test  <- .name_test
+# name_class <- .name_class
+# dispersion <- .dispersion
+
+
+
+function_map_seq <- function(.fun, .name_test, .name_class = NULL,
+                             .dispersion = 1:5, .include_reported = TRUE, ...) {
+
+  # The function factory returns this manufactured function:
+  function(data, var, fun = .fun, name_test = .name_test,
+           name_class = .name_class, dispersion = .dispersion,
+           include_reported = .include_reported, ...) {
+
+    ncol_index_consistency        <- match("consistency", colnames(data))
+    ncol_index_before_consistency <- 1:(ncol_index_consistency - 1)
+    ncol_index_after_consistency  <- (ncol_index_consistency + 1):ncol(data)
+
+    data_before_consistency <- data[ncol_index_before_consistency]
+    data_after_consistency  <- data[ncol_index_after_consistency]
+
+    map_seq_proto <- function_map_seq_proto(
+      .fun = fun,
+      .name_test = name_test,
+      .name_class = name_class,
+      .dispersion = dispersion,
+      .include_reported = include_reported
+    )
+
+    # out <- purrr::pmap(as.list(var), ~ map_seq_proto(data = data, var = var))[[1]]
+
+    out <- purrr::map(var, ~ map_seq_proto(data = data, var = .x))
+
+    nrow_out <- purrr::map_int(out, nrow)
+
+    var <- var %>%
+      purrr::map2(nrow_out, rep) %>%
+      purrr::flatten_chr()
+
+    out <- out %>%
+      dplyr::bind_rows() %>%
+      dplyr::mutate(var)
+
+    return(out)
+  }
+
+  # -- End of the manufactured function --
+
+}
+
 
 
 
@@ -143,3 +185,4 @@ grim_map_seq <- function_map_seq(
   .name_test = "GRIM",
   .name_class = "scr_grim_map_seq"
 )
+
