@@ -67,7 +67,6 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
     data_list_without_var <- dplyr::mutate(
       data[cols_for_testing_names_without_var],
       nrow_list_var,
-      # dplyr::across({{ cols_el }}, as.list),
       dplyr::across({{ cols_el }}, ~ purrr::map2(., nrow_list_var, rep)),
       nrow_list_var = NULL
     )
@@ -131,6 +130,56 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 
 
 
+
+#' Create new `*_map_seq()` functions
+#'
+#' @description `function_map_seq()` is the engine that powers `grim_map_seq()`
+#'   and `debit_map_seq()`. It creates new, "manufactured" functions that apply
+#'   consistency tests such as GRIM or DEBIT to sequences of specified
+#'   variables. The sequences are centered around the reported values of those
+#'   variables.
+#'
+#'   By default, only inconsistent values are dispersed from and tested. This
+#'   provides an easy and powerful way to assess whether small errors in
+#'   computing or reporting may be responsible for previously determined
+#'   inconsistencies.
+#'
+#'   If functions created this way are exported from other packages, they should
+#'   be written as if they were created with
+#'   \href{https://purrr.tidyverse.org/reference/faq-adverbs-export.html}{purrr
+#'   adverbs}; see explanations there and examples below.
+#'
+#' @param .fun Function such as `grim_map()`: It will be used to test columns in
+#'   a data frame for consistency. Test results are Boolean and need to be
+#'   contained in a column called `"consistency"` that is added to the input
+#'   data frame. This modified data frame is then returned by `.fun`.
+#' @param .name_test String (length 1). The name of the consistency test, such
+#'   as `"GRIM"`, to be optionally shown in a message when using the
+#'   manufactured function.
+#' @param .name_class String. If specified, the tibbles returned by the
+#'   manufactured function will inherit this string as an S3 class. Default is
+#'   `NULL`, i.e., no extra class.
+#' @param .dispersion Numeric. Sequence with steps up and down from the reported
+#'   values. It will be fit to these values' decimal level. For example, with a
+#'   reported `8.34`, the step size is `0.01`. Default is `1:5`, for five steps
+#'   up and down.
+#' @param .include_reported Boolean. Should the reported values themselves be
+#'   included in the sequences originating from them? Default is `FALSE` because
+#'   this might be redundant and bias the results.
+#' @param ... Arguments passed down to `.fun`.
+#'
+#' @details Unlike `function_map_total_n()`, this function is not based on
+#'   `disperse()` or its derivatives. It is not based on `seq_distance()`
+#'   either, which is surprising but necessary: `disperse()` does not adjust to
+#'   decimal places, whereas `seq_distance()` and friends lack the notion of
+#'   dispersion altogether.
+#'
+#' @return
+#' @export
+
+# @examples
+
+
 function_map_seq <- function(.fun, .name_test, .name_class = NULL,
                              .dispersion = 1:5, .include_reported = TRUE, ...) {
 
@@ -154,8 +203,6 @@ function_map_seq <- function(.fun, .name_test, .name_class = NULL,
       .include_reported = include_reported
     )
 
-    # out <- purrr::pmap(as.list(var), ~ map_seq_proto(data = data, var = var))[[1]]
-
     out <- purrr::map(var, ~ map_seq_proto(data = data, var = .x))
 
     nrow_out <- purrr::map_int(out, nrow)
@@ -167,6 +214,10 @@ function_map_seq <- function(.fun, .name_test, .name_class = NULL,
     out <- out %>%
       dplyr::bind_rows() %>%
       dplyr::mutate(var)
+
+    if (!is.null(name_class)) {
+      out <- add_class(out, name_class)
+    }
 
     return(out)
   }
