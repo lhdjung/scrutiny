@@ -5,33 +5,48 @@
 
 # Playground --------------------------------------------------------------
 
-# Helper used within the `*_proto()` function below; not exported:
-seq_disperse_df <- function(x, dispersion, include_reported = TRUE) {
+# # Helper used within the `*_proto()` function below; not exported:
+# seq_disperse_df_custom <- function(x, dispersion, include_reported = FALSE) {
+#
+#   digits <- max(decimal_places(x))
+#   p10 <- 1 / (10 ^ digits)
+#   dispersion <- dispersion * p10
+#
+#   x_num <- as.numeric(x)
+#
+#   x_minus <- x_num - dispersion
+#   x_plus  <- x_num + dispersion
+#
+#   if (include_reported) {
+#     out <- append(rev(x_minus), c(x_num, x_plus))
+#   } else {
+#     out <- append(rev(x_minus), x_plus)
+#   }
+#
+#   if (is.character(x)) {
+#     out <- restore_zeros(out, width = digits)
+#   }
+#
+#   out <- tibble::tibble(out)
+#
+#   return(out)
+# }
 
-  digits <- max(decimal_places(x))
-  p10 <- 1 / (10 ^ digits)
-  dispersion <- dispersion * p10
 
-  x_num <- as.numeric(x)
 
-  x_minus <- x_num - dispersion
-  x_plus  <- x_num + dispersion
 
-  if (include_reported) {
-    out <- append(rev(x_minus), c(x_num, x_plus))
-  } else {
-    out <- append(rev(x_minus), x_plus)
-  }
+# Function factories ------------------------------------------------------
 
-  if (is.character(x)) {
-    out <- restore_zeros(out, width = digits)
-  }
-
-  out <- tibble::tibble(out)
-
-  return(out)
-}
-
+# Note on helpers and implementation: Unlike `function_map_total_n()`, the main
+# function here -- `function_map_seq()` -- is not based on `disperse()` or its
+# derivatives. It is not based on `seq_endpoint()` or friends either, which is
+# surprising but necessary: `disperse()` is pair-based and does not construct a
+# linear sequence, whereas `seq_endpoint()` and friends lack support for
+# dispersion and would have been very cumbersome with regard to the
+# `include_reported` argument. It became clear that I needed something new -- a
+# blend of both aspects. I wrote `seq_disperse()` and `seq_disperse_df()`, and I
+# applied the latter within the internal helper function factory below,
+# `function_map_seq_proto()`.
 
 
 function_map_seq_proto <- function(.fun = fun, .var = var,
@@ -45,11 +60,19 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
     # Extract the vector from the `data` column specified as `var`:
     data_var <- data[var][[1]]
 
+    # list_var <- purrr::map(
+    #   data_var,
+    #   seq_disperse_df_custom,
+    #   dispersion = dispersion,
+    #   include_reported = include_reported
+    # )
+
     list_var <- purrr::map(
       data_var,
       seq_disperse_df,
-      dispersion = dispersion,
-      include_reported = include_reported
+      .dispersion = dispersion,
+      .string_output = "auto",
+      .include_reported = include_reported
     )
 
     nrow_list_var <- purrr::map_int(list_var, nrow)
@@ -160,19 +183,17 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 #'   manufactured function will inherit this string as an S3 class. Default is
 #'   `NULL`, i.e., no extra class.
 #' @param .dispersion Numeric. Sequence with steps up and down from the reported
-#'   values. It will be fit to these values' decimal level. For example, with a
-#'   reported `8.34`, the step size is `0.01`. Default is `1:5`, for five steps
-#'   up and down.
+#'   values. It will be adjusted to these values' decimal level. For example,
+#'   with a reported `8.34`, the step size is `0.01`. Default is `1:5`, for five
+#'   steps up and down.
 #' @param .include_reported Boolean. Should the reported values themselves be
 #'   included in the sequences originating from them? Default is `FALSE` because
 #'   this might be redundant and bias the results.
+#' @param .include_consistent Boolean. Should the function also process
+#'   consistent cases (from among those reported), not just inconsistent ones?
+#'   Default is `FALSE` because the focus should be on clarifying
+#'   inconsistencies.
 #' @param ... Arguments passed down to `.fun`.
-#'
-#' @details Unlike `function_map_total_n()`, this function is not based on
-#'   `disperse()` or its derivatives. It is not based on `seq_distance()`
-#'   either, which is surprising but necessary: `disperse()` does not adjust to
-#'   decimal places, whereas `seq_distance()` and friends lack the notion of
-#'   dispersion altogether.
 #'
 #' @return
 #' @export
@@ -181,20 +202,31 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 
 
 function_map_seq <- function(.fun, .name_test, .name_class = NULL,
-                             .dispersion = 1:5, .include_reported = TRUE, ...) {
+                             .dispersion = 1:5, .include_reported = FALSE,
+                             .include_consistent = FALSE, ...) {
 
   # The function factory returns this manufactured function:
   function(data, var, fun = .fun, name_test = .name_test,
            name_class = .name_class, dispersion = .dispersion,
-           include_reported = .include_reported, ...) {
+           include_reported = .include_reported,
+           include_consistent = .include_consistent, ...) {
 
-    ncol_index_consistency        <- match("consistency", colnames(data))
-    ncol_index_before_consistency <- 1:(ncol_index_consistency - 1)
-    ncol_index_after_consistency  <- (ncol_index_consistency + 1):ncol(data)
+    # Remove consistent cases from `data` if only the inconsistent ones are of
+    # interest (the default). The "filtering" code below is equivalent to
+    # `dplyr::filter(data, !consistency)`, but much faster.
+    if (!include_consistent) {
+      data <- data[!data$consistency, ]
+    }
 
-    data_before_consistency <- data[ncol_index_before_consistency]
-    data_after_consistency  <- data[ncol_index_after_consistency]
+    # ncol_index_consistency        <- match("consistency", colnames(data))
+    # ncol_index_before_consistency <- 1:(ncol_index_consistency - 1)
+    # ncol_index_after_consistency  <- (ncol_index_consistency + 1):ncol(data)
+    #
+    # data_before_consistency <- data[ncol_index_before_consistency]
+    # data_after_consistency  <- data[ncol_index_after_consistency]
 
+
+    # Create the lower-level testing function via an internal function factory:
     map_seq_proto <- function_map_seq_proto(
       .fun = fun,
       .name_test = name_test,
@@ -203,14 +235,19 @@ function_map_seq <- function(.fun, .name_test, .name_class = NULL,
       .include_reported = include_reported
     )
 
+    # Apply the lower-level function to all user-supplied variables (`var`) and
+    # all cases reported in `data`, or at least the inconsistent ones:
     out <- purrr::map(var, ~ map_seq_proto(data = data, var = .x))
 
     nrow_out <- purrr::map_int(out, nrow)
 
+    # Repeat the `var` strings so that they will be able to be added to `out`:
     var <- var %>%
       purrr::map2(nrow_out, rep) %>%
       purrr::flatten_chr()
 
+    # For better output, `out` should be a single data frame; and for
+    # identifying the origin of individual rows, `var` is added:
     out <- out %>%
       dplyr::bind_rows() %>%
       dplyr::mutate(var)
