@@ -136,10 +136,10 @@ restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in,
 
   # Assemble the formatting expression, determined by `width_target` -- the
   # desired number of decimal places to which the `x` values should be padded:
-  format <- paste0("%.", width_target, "f")
+  out_format <- paste0("%.", width_target, "f")
 
   # Pad `x` with the correct amount of trailing zeros:
-  out <- sprintf(format, as.numeric(x))
+  out <- sprintf(out_format, as.numeric(x))
 
   # By default, the separator in the output vector should be a decimal point,
   # but it might have been overridden -- either directly via `sep_out` or
