@@ -8,10 +8,10 @@
 # surprising but necessary: `disperse()` is pair-based and does not construct a
 # linear sequence, whereas `seq_endpoint()` and friends lack support for
 # dispersion and would have been very cumbersome with regard to the
-# `include_reported` argument. It became clear that I needed something new -- a
-# blend of both aspects. I wrote `seq_disperse()` and `seq_disperse_df()`, and I
-# applied the latter within the internal helper function factory below,
-# `function_map_seq_proto()`.
+# `.include_reported` argument. It became clear that I needed something new -- a
+# function that would perform dispersion while still producing linear output. I
+# wrote `seq_disperse()` and `seq_disperse_df()`, and I applied the latter
+# within the internal helper function factory below, `function_map_seq_proto()`.
 
 
 function_map_seq_proto <- function(.fun = fun, .var = var,
@@ -137,8 +137,8 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 #'
 #'   By default, only inconsistent values are dispersed from and tested. This
 #'   provides an easy and powerful way to assess whether small errors in
-#'   computing or reporting may be responsible for previously determined
-#'   inconsistencies.
+#'   computing or reporting may be responsible for inconsistencies in published
+#'   statistics.
 #'
 #'   All arguments here set the defaults for the arguments in the manufactured
 #'   function. They can still be specified differently when calling the latter.
@@ -152,6 +152,10 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 #'   a data frame for consistency. Test results are Boolean and need to be
 #'   contained in a column called `"consistency"` that is added to the input
 #'   data frame. This modified data frame is then returned by `.fun`.
+#' @param .var String. Variables that will be dispersed by the manufactured
+#'   function. Defaults to `.reported`.
+#' @param .reported String. All variables the manufactured function can disperse
+#'   in principle.
 #' @param .name_test String (length 1). The name of the consistency test, such
 #'   as `"GRIM"`, to be optionally shown in a message when using the
 #'   manufactured function.
@@ -294,15 +298,4 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
 
 }
 
-
-
-
-# Manufactured functions --------------------------------------------------
-
-grim_map_seq <- function_map_seq(
-  .fun = grim_map,
-  .reported = c("x", "n"),
-  .name_test = "GRIM",
-  .name_class = "scr_grim_map_seq"
-)
 
