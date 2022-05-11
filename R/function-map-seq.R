@@ -1,7 +1,4 @@
 
-
-# Function factories ------------------------------------------------------
-
 # Note on helpers and implementation: Unlike `function_map_total_n()`, the main
 # function here -- `function_map_seq()` -- is not based on `disperse()` or its
 # derivatives. It is not based on `seq_endpoint()` or friends either, which is
@@ -26,13 +23,6 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 
     # Extract the vector from the `data` column specified as `var`:
     data_var <- data[var][[1]]
-
-    # list_var <- purrr::map(
-    #   data_var,
-    #   seq_disperse_df_custom,
-    #   dispersion = dispersion,
-    #   include_reported = include_reported
-    # )
 
     list_var_and_var_change <- purrr::map(
       data_var,
@@ -101,28 +91,6 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
   # -- End of the manufactured function --
 
 }
-
-
-
-# # Example data:
-# x <- 0.25
-# dispersion <- 1:5
-#
-# data <- grim_map(pigs1)
-# fun  <- grim_map
-# var  <- c("x", "n")    # `var` is the variable to be varied, i.e., dispersed.
-# dispersion <- 1:5
-# include_reported <- TRUE
-#
-# .fun <- grim_map
-# .name_test <- "GRIM"
-# .name_class <- "scr_grim_map_seq"
-# .dispersion <- 1:5
-#
-# fun        <- .fun
-# name_test  <- .name_test
-# name_class <- .name_class
-# dispersion <- .dispersion
 
 
 
@@ -250,14 +218,6 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
     if (all(is.infinite(var))) {
       var <- reported
     }
-
-    # ncol_index_consistency        <- match("consistency", colnames(data))
-    # ncol_index_before_consistency <- 1:(ncol_index_consistency - 1)
-    # ncol_index_after_consistency  <- (ncol_index_consistency + 1):ncol(data)
-    #
-    # data_before_consistency <- data[ncol_index_before_consistency]
-    # data_after_consistency  <- data[ncol_index_after_consistency]
-
 
     # Create the lower-level testing function via an internal function factory:
     map_seq_proto <- function_map_seq_proto(
