@@ -74,17 +74,21 @@ grim_items <- function(n, gran, tolerance = .Machine$double.eps^0.5) {
     return(out)
   } else {
     offenders <- out[!out_is_whole]
+    offenders <- round(offenders, 3)
+    offenders <- paste0("`", offenders, "`")
     if (length(offenders) == 1) {
-      item_items <- glue::glue("Item count")
+      item_items <- "Item count"
       number_numbers <- "isn't a whole number"
     } else {
-      item_items <- glue::glue("{length(offenders)} item counts")
+      item_items <- paste(
+        length(offenders), "out of", length(out), "item counts"
+      )
       number_numbers <- "aren't whole numbers"
     }
 
     cli::cli_warn(c(
-      "{item_items} {number_numbers}",
-      ">" = "This concerns {round(offenders, 7)}.",
+      "{item_items} {number_numbers}.",
+      ">" = "This concerns {offenders}.",
       "!" = "Item counts have a granularity of 1, so they should be whole \\
       numbers. Are you sure about the `n` and `gran` values?"
     ))
