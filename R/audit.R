@@ -15,9 +15,9 @@
 #'   | \strong{Function}            | \strong{Class}            |
 #'   | ---                          | ---                       |
 #'   | `grim_map()`                 | `scr_grim_map`            |
-#'   | `grim_map_disperse()`        | `scr_grim_map_disperse`   |
+#'   | `grim_map_total_n()`         | `scr_grim_map_total_n`    |
 #'   | `debit_map()`                | `scr_debit_map`           |
-#'   | `debit_map_disperse()`       | `scr_debit_map_disperse`  |
+#'   | `debit_map_total_n()`        | `scr_debit_map_total_n`   |
 #'   | `duplicate_count()`          | `scr_dup_count`           |
 #'   | `duplicate_detect()`         | `scr_dup_detect`          |
 

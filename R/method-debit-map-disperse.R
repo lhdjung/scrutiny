@@ -1,8 +1,8 @@
 
 
-#' @include audit.R reverse-map-disperse.R
+#' @include audit.R reverse-map-total-n.R
 #' @export
 
-audit.scr_debit_map_disperse <- function(data) {
-  summarize_map_disperse(data)
+audit.scr_debit_map_total_n <- function(data) {
+  summarize_map_total_n(data)
 }

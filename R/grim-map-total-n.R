@@ -4,9 +4,9 @@
 #' @description When reporting group means, some published studies only report
 #'   the total sample size but no group sizes corresponding to each mean.
 #'   However, group sizes are crucial for
-#'   \href{https://lhdjung.github.io/scrutiny/articles/grim.html#handling-unknown-group-sizes-with-grim_map_disperse}{GRIM-testing}.
+#'   \href{https://lhdjung.github.io/scrutiny/articles/grim.html#handling-unknown-group-sizes-with-grim_map_total_n}{GRIM-testing}.
 #'
-#'   In the two-groups case, `grim_map_disperse()` helps in these ways:
+#'   In the two-groups case, `grim_map_total_n()` helps in these ways:
 
 #' - It creates hypothetical group sizes. With an even total sample size, it
 #' incrementally moves up and down from half the total sample size. For example,
@@ -35,7 +35,7 @@
 #' items,percent,show_rec,show_prob,rounding,threshold,symmetric,tolerance,extra
 #' Arguments passed down to `grim_map()`.
 
-#' @include function-map-disperse.R
+#' @include function-map-total-n.R
 #'
 #' @references Bauer, P. J., & Francis, G. (2021). Expression of Concern: Is It
 #'   Light or Dark? Recalling Moral Behavior Changes Perception of Brightness.
@@ -47,7 +47,7 @@
 #'   Psychology. *Social Psychological and Personality Science*, 8(4), 363–369.
 #'   https://doi.org/10.1177/1948550616673876
 
-#' @seealso `function_map_disperse()`, which created the present function using
+#' @seealso `function_map_total_n()`, which created the present function using
 #'   `grim_map()`.
 
 #' @return A tibble with these columns:
@@ -64,7 +64,7 @@
 #' - Other columns from `grim_map()` are preserved.
 
 #' @section Summaries with `audit()`: There is an S3 method for the `audit()`
-#'   generic, so you can call `audit()` following up on `grim_map_disperse()` to
+#'   generic, so you can call `audit()` following up on `grim_map_total_n()` to
 #'   get a tibble with summary statistics. It will have these columns:
 #'  - `x1`, `x2`, and `n` are the original inputs.
 #'  - `hits_forth` is the number of scenarios in which both `x1` and `x2` are
@@ -81,14 +81,14 @@
 #' @export
 
 #' @examples
-#' # Run `grim_map_disperse()` on data like these:
+#' # Run `grim_map_total_n()` on data like these:
 #' df <- tibble::tribble(
 #'   ~x1,    ~x2,   ~n,
 #'   "3.43", "5.28", 90,
 #'   "2.97", "4.42", 103
 #' )
 #'
-#' grim_map_disperse(df)
+#' grim_map_total_n(df)
 #'
 #' # `audit()` summaries can be more important than
 #' # the detailed results themselves.
@@ -96,30 +96,30 @@
 #' # which both divergent `n` values are GRIM-consistent
 #' # with the `x*` values when paired with them both ways:
 #' df %>%
-#'   grim_map_disperse() %>%
+#'   grim_map_total_n() %>%
 #'   audit()
 #'
 #' # By default (`dispersion = 0:5`), the function goes
 #' # five steps up and down from `n`. If this sequence
 #' # gets longer, the number of hits tends to increase:
 #' df %>%
-#'   grim_map_disperse(dispersion = 0:10) %>%
+#'   grim_map_total_n(dispersion = 0:10) %>%
 #'   audit()
 
 
 
-grim_map_disperse <- function_map_disperse(
+grim_map_total_n <- function_map_total_n(
   .fun = grim_map,
   .reported = "x",
   .name_test = "GRIM",
-  .name_class = "scr_grim_map_disperse"
+  .name_class = "scr_grim_map_total_n"
 )
 
 
 
 
 
-# grim_map_disperse <- function(data, dispersion = 0:5, n_min = 1, n_max = NULL,
+# grim_map_total_n <- function(data, dispersion = 0:5, n_min = 1, n_max = NULL,
 #                               x1 = NULL, x2 = NULL, show_all = FALSE,
 #                               items = 1, percent = FALSE, show_rec = FALSE,
 #                               show_prob = FALSE, rounding = "up_or_down",
@@ -185,7 +185,7 @@ grim_map_disperse <- function_map_disperse(
 #       temp = NULL
 #     )
 #
-#   out_forth <- proto_grim_map_disperse(
+#   out_forth <- proto_grim_map_total_n(
 #     data = data_forth, dispersion = dispersion, n_min = n_min, n_max = n_max,
 #     x1 = x1, x2 = x2, items = items, percent = percent,
 #     show_rec = show_rec, show_prob = show_prob, rounding = rounding,
@@ -193,7 +193,7 @@ grim_map_disperse <- function_map_disperse(
 #     extra = extra
 #   )
 #
-#   out_back <- proto_grim_map_disperse(
+#   out_back <- proto_grim_map_total_n(
 #     data = data_back, dispersion = dispersion, n_min = n_min, n_max = n_max,
 #     x1 = x1, x2 = x2, items = items, percent = percent,
 #     show_rec = show_rec, show_prob = show_prob, rounding = rounding,
@@ -229,7 +229,7 @@ grim_map_disperse <- function_map_disperse(
 #       are GRIM-consistent with their corresponding `x*` values.)"
 #     ))
 #
-#     # Remove the summary tibbles on top of each `proto_grim_map_disperse()`
+#     # Remove the summary tibbles on top of each `proto_grim_map_total_n()`
 #     # output list; they are no longer needed:
 #     out_forth <- out_forth[[-1]]
 #     out_back <- out_back[[-1]]

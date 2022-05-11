@@ -1,22 +1,23 @@
 
-#' Reverse and summarize the `*_map_disperse()` process
+#' Reverse and summarize the `*_map_total_n()` process
 #'
 #' @description Two functions that deal with the output of a function created by
-#'   `function_map_disperse()`:
+#'   `function_map_total_n()`:
 #'
-#'   - `reverse_map_disperse()` reconstructs the data frame of reported
+#'   - `reverse_map_total_n()` reconstructs the data frame of reported
 #'   statistics which the manufactured function took as an input.
 #'
-#'   - `summarize_map_disperse()` computes summaries of the output of the
+#'   - `summarize_map_total_n()` computes summaries of the output of the
 #'   manufactured function and attaches them to the reconstructed input. This
 #'   can be useful as a helper within `audit()` methods for classes created by
-#'   `function_map_disperse()`.
+#'   `function_map_total_n()`. Indeed, recommended use for such methods is to
+#'   only consist of a call to `summarize_map_total_n()`.
 
 #' @param data Data frame.
 #'
 #' @return A tibble (data frame). For an explanation of
-#'   `summarize_map_disperse()`'s output using the example of GRIM, see
-#'   `grim_map_disperse()`, section *Summaries with `audit()`*.
+#'   `summarize_map_total_n()`'s output using the example of GRIM, see
+#'   `grim_map_total_n()`, section *Summaries with `audit()`*.
 #'
 #' @export
 #'
@@ -29,18 +30,18 @@
 #' )
 #'
 #' # Test it using a product of the
-#' # `function_map_disperse()` factory:
-#' df_tested <- grim_map_disperse(df)
+#' # `function_map_total_n()` factory:
+#' df_tested <- grim_map_total_n(df)
 #' df_tested
 #'
 #' # Reconstruct the original data frame:
-#' reverse_map_disperse(df_tested)
+#' reverse_map_total_n(df_tested)
 #'
 #' # Compute summary statistics:
-#' summarize_map_disperse(df_tested)
+#' summarize_map_total_n(df_tested)
 
 
-reverse_map_disperse <- function(data) {
+reverse_map_total_n <- function(data) {
 
   # Take the first row of each original-`n` block:
   data_reduced <- data %>%
@@ -55,18 +56,16 @@ reverse_map_disperse <- function(data) {
     stringr::str_detect("n2") %>%
     as.numeric()
 
-  # n_diff <- data_reduced$n_change %>%   # used to be: `rows1$n_change`
-  #   stringr::str_extract("(?<=_minus_).+") %>%
-  #   as.numeric()
-
   data_reduced <- data_reduced %>%
     dplyr::mutate(
       n_was_odd, .after = n,
       n = (2 * n) - n_was_odd
     )
 
-  locations1 <- seq(from = 1, to = nrow(data_reduced) - 1, by = 2)
-  locations2 <- seq(from = 2, to = nrow(data_reduced),     by = 2)
+  nrow_data_reduced <- nrow(data_reduced)
+
+  locations1 <- seq(from = 1, to = nrow_data_reduced - 1, by = 2)
+  locations2 <- seq(from = 2, to = nrow_data_reduced,     by = 2)
 
   data1 <- data_reduced %>% dplyr::slice(locations1)
   data2 <- data_reduced %>% dplyr::slice(locations2)
@@ -83,13 +82,13 @@ reverse_map_disperse <- function(data) {
   colnames(data_reported_1) <- paste0(colnames_reported, "1")
   colnames(data_reported_2) <- paste0(colnames_reported, "2")
 
-  # colnames_all <- c(colnames(data_reported_1), colnames(data_reported_2))
-
   colnames_in_order <- colnames_reported %>%
     rep(each = 2) %>%
     paste0(c("1", "2"))
 
-  out <- dplyr::bind_cols(data_reported_1, data_reported_2) %>%
+  out <- dplyr::bind_cols(data_reported_1, data_reported_2)
+
+  out <- out %>%
     dplyr::relocate(all_of(colnames_in_order)) %>%
     dplyr::mutate(n = data2$n)
 
@@ -98,10 +97,10 @@ reverse_map_disperse <- function(data) {
 
 
 
-#' @rdname reverse_map_disperse
+#' @rdname reverse_map_total_n
 #' @export
 
-summarize_map_disperse <- function(data) {
+summarize_map_total_n <- function(data) {
 
   df_list <- split(data, data$case)
 
@@ -126,7 +125,7 @@ summarize_map_disperse <- function(data) {
 
   hit_rate <- hits_total / scenarios_total
 
-  data_rec <- reverse_map_disperse(data)
+  data_rec <- reverse_map_total_n(data)
 
   out <- data_rec %>%
     dplyr::mutate(hits_forth, hits_back, hits_total, scenarios_total, hit_rate)
