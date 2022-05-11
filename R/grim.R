@@ -10,7 +10,7 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
   # to be singular; i.e., `rounding` can either be (1) a string of length 1
   # indicating two procedures, such as `"up_or_down"`; or (2) a string of any
   # length with values such as `"up"` or `"even"`, but not `"up_or_down"`:
-  check_rounding_singular(rounding)
+  check_rounding_singular_all(rounding)
 
   # Provide some guidance in case users confuse `grim()` with `grim_map()`:
   if (is.data.frame(x)) {
