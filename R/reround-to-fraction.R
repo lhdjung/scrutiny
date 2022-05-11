@@ -84,7 +84,7 @@ reround_to_fraction <- function(x = NULL, denominator = 1, digits = Inf,
   # to be singular; i.e., `rounding` can either be (1) a string of length 1
   # indicating two procedures, such as `"up_or_down"`; or (2) a string of any
   # length with values such as `"up"` or `"even"`, but not `"up_or_down"`:
-  check_rounding_singular(rounding)
+  check_rounding_singular_all(rounding)
 
   # Check whether `denominator` values are >= 1:
   if (any(denominator < 1)) {
@@ -168,7 +168,7 @@ reround_to_fraction_level <- function(x = NULL, denominator = 1, digits = 0,
   # to be singular; i.e., `rounding` can either be (1) a string of length 1
   # indicating two procedures, such as `"up_or_down"`; or (2) a string of any
   # length with values such as `"up"` or `"even"`, but not `"up_or_down"`:
-  check_rounding_singular(rounding)
+  check_rounding_singular_all(rounding)
 
   if (any(denominator < 1)) {
     value_values <- dplyr::if_else(length(denominator) == 1, "value", "values")
