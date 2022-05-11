@@ -87,7 +87,8 @@ is_whole_number <- function(x, tolerance = .Machine$double.eps^0.5) {
 
 
 
-# Super-short functions used within `decimal_places()`:
+# Super-short functions used within `decimal_places()` -- because named
+# functions are somewhat faster than anonymous ones:
 is_length_1_and_not_na <- function(x) length(x) == 1 && !is.na(x)
 is_length_greater_1 <- function(x) length(x) > 1
 set_to_0 <- function(x) 0
@@ -183,16 +184,18 @@ check_rounding_singular_all <- function(x) {
 
 
 
-# `check_lengths_congruent()` takes a list of user-supplied arguments
-# (`var_list`) and checks if two or more of them have lengths that are greater
-# than 1. If at least two of these lengths are also different from each other,
-# the function throws a precisely informative error. If they have the same > 1
-# length and the `warn` argument is `TRUE` (the default), there will be an
-# informative warning. The only dependencies of this function are {rlang} and
-# {cli}. As these are tidyverse backend packages most users have installed
-# already, the function might conceivably be used more widely.
+# `check_lengths_congruent()` is called within a function `f()` and takes a list
+# of arguments to `f()` supplied by the user (`var_list`). It checks if two or
+# more of those arguments have lengths that are greater than 1. If at least two
+# of these lengths are also different from each other and the `error` argument
+# is `TRUE` (the default), the function will throw a precisely informative
+# error. If they have the same > 1 length and the `warn` argument is `TRUE` (the
+# default), there will be an informative warning. The only dependencies of this
+# function are {rlang} and {cli}. As these are tidyverse backend packages that
+# most users have installed already, the function might conceivably be used more
+# widely.
 
-check_lengths_congruent <- function(var_list, warn = TRUE) {
+check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
   var_names <- rlang::enexprs(var_list)
   var_lengths <- vapply(var_list, length, integer(1))
   var_list_gt1 <- var_list[var_lengths > 1]
@@ -211,7 +214,7 @@ check_lengths_congruent <- function(var_list, warn = TRUE) {
     # Error condition, checking if there is more than one element of `var_list`
     # with a unique length greater than one (the duplicated lengths were
     # filtered out from `var_list_gt1` right above):
-    if (length(var_list_gt1) > 1) {
+    if (error & (length(var_list_gt1) > 1)) {
 
       x <- var_list_gt1[[1]]
       y <- var_list_gt1[[2]]
@@ -309,6 +312,139 @@ check_type <- function(x, t) {
     cli::cli_abort(c(
       "`{msg_name}` is of type {typeof(x)}.",
       "x" = "It needs to {msg_object} {t}."
+    ))
+  }
+}
+
+
+
+split_into_groups <- function(x, group_size) {
+  check_length(group_size, 1)
+  remainder <- length(x) %% group_size
+
+  if (remainder != 0) {
+    if (!is_whole_number(group_size)) {
+      cli::cli_abort(c(
+        "`group_size` is `{group_size}`.",
+        "x" = "It needs to be a whole number."
+      ))
+    }
+    name_x <- deparse(substitute(x))
+    msg_el <- if (remainder == 1) "element" else "elements"
+    cli::cli_warn(c(
+      "!" = "`x` (`{name_x}`) can't be evenly divided into \\
+      groups of {group_size}.",
+      "x" = "It has length {length(x)}, so the last group has \\
+      {remainder} {msg_el}, not {group_size}."
+    ))
+  }
+
+  split(x, ceiling(seq_along(x) / group_size))
+}
+
+
+split_into_rows <- function(data) {
+  split_into_groups(x = t(data), group_size = ncol(data))
+}
+
+
+
+step_size_scalar <- function(x) {
+  digits <- decimal_places_scalar(x)
+  1 / (10 ^ digits)
+}
+
+step_size <- function(x) {
+  digits <- max(decimal_places(x))
+  1 / (10 ^ digits)
+}
+
+
+
+manage_string_output_seq <- function(out, from, string_output, digits) {
+  if (string_output == "auto") {
+    if (is.character(from)) {
+      out <- restore_zeros(out, width = digits)
+    }
+    return(out)
+  } else if (!is.logical(string_output)) {
+    if (is.character(string_output)) {
+      string_output <- paste0("\"", string_output, "\"")
+    } else {
+      string_output <- paste0("`", string_output, "`")
+    }
+    cli::cli_abort(c(
+      "`string_output` given as {string_output}.",
+      "x" = "It must be logical or \"auto\"."
+    ))
+  } else if (string_output) {
+    out <- restore_zeros(out, width = digits)
+  }
+  return(out)
+}
+
+
+write_doc_function_factory_map_conventions <- function(ending) {
+  glue::glue(
+    "#' @section Conventions: The name of a function manufactured with \n",
+    "#'   `function_map_{ending}()` should mechanically follow from that of the input \n",
+    "#'   function. For example, `grim_map_{ending}()` derives from `grim_map()`. \n",
+    "#'   This pattern fits best if the input function itself is named after the test \n",
+    "#'   it performs on a data frame, followed by `_map`: `grim_map()` applies GRIM, \n",
+    "#'   `debit_map()` applies DEBIT, etc. \n",
+    "#' \n",
+    "#'   Much the same is true for the classes of data frames returned by the \n",
+    "#'   manufactured function via the `.name_class` argument of \n",
+    "#'   `function_map_{ending}()`. It should be the function's own name preceded by \n",
+    "#'   the name of the package that contains it or by an acronym of that package's \n",
+    "#'   name. In this way, existing classes are `scr_grim_map_{ending}` and \n",
+    "#'   `scr_debit_map_{ending}`. \n",
+    "#' \n",
+    "#'   Consider writing an `audit()` method for every such class, as this is their \n",
+    "#'   main purpose. The method should simply call `summarize_map_{ending}()`, \n",
+    "#'   without any further computations. \n"
+  )
+}
+
+
+
+check_non_negative <- function(x) {
+  offenders <- x[x < 0]
+  if (length(offenders) > 0) {
+    if (length(offenders) > 3) {
+      offenders <- offenders[1:3]
+      msg_among_others <- ", among others"
+    } else {
+      msg_among_others <- ""
+    }
+    offenders <- paste0("`", offenders, "`")
+    name <- deparse(substitute(x))
+    cli::cli_abort(c(
+      "`{name}` contains {offenders}{msg_among_others}.",
+      "x" = "It can't be negative."
+    ))
+  }
+}
+
+
+
+is_even <- function(x) {
+  x %% 2 == 0
+}
+
+
+
+check_length_disperse_n <- function(n, msg_single) {
+  if (length(n) != 1) {
+    if (length(n) == 2) {
+      msg_single <- paste(
+        msg_single, "Did you mean to call `disperse2(n = c({n[1]}, {n[2]}))`?"
+      )
+    }
+    cli::cli_abort(c(
+      "`n` has length {length(n)}.",
+      "x" = msg_single,
+      ">" = "See documentation under `?disperse`."
     ))
   }
 }
