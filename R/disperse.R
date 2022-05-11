@@ -4,7 +4,7 @@
 #'
 #' @description Some published studies only report a total sample size but no
 #'   group sizes. However, group sizes are crucial for tests such as
-#'   \href{https://lhdjung.github.io/scrutiny/articles/grim.html#handling-unknown-group-sizes-with-grim_map_disperse}{GRIM}.
+#'   \href{https://lhdjung.github.io/scrutiny/articles/grim.html#handling-unknown-group-sizes-with-grim_map_total_n}{GRIM}.
 #'    Call `disperse()` to generate possible group sizes that all add up to the
 #'   total sample size, if that total is even.
 #'
@@ -17,8 +17,8 @@
 #'   `disperse2()`, respectively.
 #'
 #'   These functions are primarily intended as helpers. They form the backbone
-#'   of `grim_map_disperse()` and all other functions created with
-#'   `function_map_disperse()`.
+#'   of `grim_map_total_n()` and all other functions created with
+#'   `function_map_total_n()`.
 
 #' @param n Numeric:
 #' - In `disperse()`, single number from which to go up and down. This should be
@@ -43,7 +43,7 @@
 #'   `disperse2()`, the `n_change` strings label the lower of the input `n`
 #'   values `n1` and the higher one `n2`.
 
-#' @seealso `function_map_disperse()`, `grim_map_disperse()`,
+#' @seealso `function_map_total_n()`, `grim_map_total_n()`,
 #'   `seq_distance_df()`
 #'
 #' @include utils.R
@@ -88,42 +88,34 @@ disperse <- function(n, reported = NULL, reported_index = NA,
 
   # Checks ---
 
-  if (length(n) != 1) {
-    msg_single <- "It needs to have length 1."
-    if (length(n) == 2) {
-      msg_single <- paste(
-        msg_single,
-        "Did you mean to call `disperse2(n = c({n[1]}, {n[2]}))`?"
-      )
-    }
-    cli::cli_abort(c(
-      "`n` has length {length(n)}.",
-      "x" = msg_single,
-      ">" = "See documentation under `?disperse`."
-    ))
-  }
+  msg_single <- "It needs to have length 1."
+  check_length_disperse_n(n, msg_single)
+  check_non_negative(dispersion)
 
-  if (any(dispersion < 0)) {
-    offenders <- dispersion[dispersion < 0]
-    if (length(offenders) > 3) {
-      offenders <- offenders[1:3]
-      msg_among_others <- ", among others"
-    } else {
-      msg_among_others <- ""
-    }
-    cli::cli_abort(c(
-      "`dispersion` given as {offenders}{msg_among_others}",
-      "x" = "It can't be negative."
-    ))
-  }
+  # if (length(n) != 1) {
+  #   msg_single <- "It needs to have length 1."
+  #   if (length(n) == 2) {
+  #     msg_single <- paste(
+  #       msg_single, "Did you mean to call `disperse2(n = c({n[1]}, {n[2]}))`?"
+  #     )
+  #   }
+  #   cli::cli_abort(c(
+  #     "`n` has length {length(n)}.",
+  #     "x" = msg_single,
+  #     ">" = "See documentation under `?disperse`."
+  #   ))
+  # }
 
 
   # Main part ---
 
+  # (Note: The checks below count towards to the main part because they may lead
+  # to input transformations.)
+
   if (!is.null(n_min)) {
     if (length(n_min) > 1) {
       cli::cli_abort(c(
-        "`n_min` has length {length(n_min)}",
+        "`n_min` has length {length(n_min)}.",
         "x" = "It needs to have length 1 or to be `NULL`."
       ))
     }
@@ -133,29 +125,47 @@ disperse <- function(n, reported = NULL, reported_index = NA,
   if (!is.null(n_max)) {
     if (length(n_max) > 1) {
       cli::cli_abort(c(
-        "`n_max` has length {length(n_max)}",
+        "`n_max` has length {length(n_max)}.",
         "x" = "It needs to have length 1 or to be `NULL`."
       ))
     }
     dispersion <- dispersion[(n + dispersion) <= n_max]
   }
 
+  # # Support for decimal sequences, as in `seq_distance()` and friends:
+  # n_is_whole <- is_whole_number(n)
+  # if (!n_is_whole) {
+  #   digits <- decimal_places_scalar(n)
+  #   p10 <- 1 / (10 ^ digits)
+  #   dispersion <- dispersion * p10
+  # }
+
+  dispersion_index <- rep(dispersion, each = 2)
+
   n_minus <- n - dispersion
   n_plus  <- n + dispersion
 
-  out <- tibble::tibble(n_minus, n_plus)
-  out <- out %>%
+  n_orig <- n
+
+  minus_plus_df <- tibble::tibble(n_minus, n_plus)
+
+  out <- minus_plus_df %>%
     tidyr::pivot_longer(
       cols = everything(),
       names_to = "n_change",
       values_to = "n"
-    ) %>%
-    dplyr::mutate(
-      n_change = paste0(n_change, "_", rep(dispersion, each = 2))
-    ) %>%
-    dplyr::relocate(n_change, .after = n)
+    )
+
+  n_change_num <- out$n - n_orig
+  out$n_change <- n_change_num
+
+  if (!is_whole_number(n)) {
+    digits <- decimal_places_scalar(n)
+    out$n_change <- round(out$n_change, digits)
+  }
 
   out <- out %>%
+    reverse_column_order() %>%
     add_class("scr_disperse")
 
   return(out)
@@ -177,7 +187,7 @@ disperse2 <- function(n, reported = NULL, reported_index = NA,
 
   if (!dplyr::near(n[2] - n[1], 1)) {
     cli::cli_warn(c(
-      "`n` was given as `{n[1]}` and `{n[2]}`",
+      "`n` was given as `{n[1]}` and `{n[2]}`.",
       "!" = "It should be two consecutive numbers.",
       ">" = "(The second value in `n` should be the first plus 1.)"
     ))
@@ -205,10 +215,10 @@ disperse2 <- function(n, reported = NULL, reported_index = NA,
   out$n <- out$n %>% purrr::modify_at(locations1, `-`, 0.5)
   out$n <- out$n %>% purrr::modify_at(locations2, `+`, 0.5)
 
-  # Adjust the `n_change` labels in the output by labeling the lower `n` value
-  # `n1` and the higher `n` value `n2`:
-  out$n_change <- out$n_change %>%
-    stringr::str_replace("n_", paste0("n", c("1", "2"), "_"))
+  # # Adjust the `n_change` labels in the output by labeling the lower `n` value
+  # # `n1` and the higher `n` value `n2`:
+  # out$n_change <- out$n_change %>%
+  #   stringr::str_replace("n_", paste0("n", c("1", "2"), "_"))
 
   # Return the resulting tibble:
   return(out)
@@ -226,21 +236,9 @@ disperse_total <- function(n, reported = NULL, reported_index = NA,
 
   # Checks ---
 
-  if (length(n) != 1) {
-    msg_single <- "It needs to have length 1; `n` is supposed \\
+  msg_single <- "It needs to have length 1; `n` is supposed \\
     to be a *single*, total sample size."
-    if (length(n) == 2) {
-      msg_single <- paste(
-        msg_single,
-        "Did you mean to call `disperse2(n = c({n[1]}, {n[2]}))`?"
-      )
-    }
-    cli::cli_abort(c(
-      "`n` has length {length(n)}.",
-      "x" = msg_single,
-      ">" = "See documentation under `?disperse`."
-    ))
-  }
+  check_length_disperse_n(n, msg_single)
 
 
   # Main part ---
@@ -249,7 +247,7 @@ disperse_total <- function(n, reported = NULL, reported_index = NA,
 
   # Test if `n` is even, then call the appropriate function. If `n` is even,
   # call `disperse()`; if `n` is odd, call `disperse2()`:
-  if (n %% 2 == 0) {
+  if (is_even(n)) {
 
     return(disperse(
       n = n_half, reported = reported, reported_index = reported_index,
