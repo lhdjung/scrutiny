@@ -48,13 +48,16 @@
 #' @param offset_to,.offset_to Integer. If set to a non-zero number, the
 #'   endpoint will be offset by that many units on the level of the last decimal
 #'   digit. Default is `0`. Only in `seq_endpoint()` and `seq_endpoint_df()`.
-#' @param string_output,.string_output Boolean. If `TRUE` (the default), the
-#'   output is a string vector. Decimal places are then padded with zeros to
-#'   match `from`'s (or `to`'s) number of decimal places.
+#' @param string_output,.string_output Boolean or string. If `TRUE` (the
+#'   default), the output is a string vector. Decimal places are then padded
+#'   with zeros to match `from`'s (or `to`'s) number of decimal places. `"auto"`
+#'   works like `TRUE` if and only if `from` (`.from`) is a string.
 #'
 #' @include decimal-places.R restore-zeros.R
 #'
 #' @return String by default of `string_output`, numeric otherwise.
+#'
+#' @seealso `seq_disperse()` for sequences centered around the input.
 #'
 #' @export
 #'
@@ -95,13 +98,16 @@ seq_endpoint <- function(from, to, offset_from = 0, offset_to = 0,
   # Therefore, in this function, the step size (`by`) can't be manually chosen
   # as in `seq()`. Instead, it's determined by whichever extreme (starting point
   # or endpoint) has more decimal places:
-  decimals_max <- max(decimal_places_scalar(from), decimal_places_scalar(to))
-  by <- 1 / (10 ^ decimals_max)
+  digits <- max(decimal_places_scalar(from), decimal_places_scalar(to))
+  by <- 1 / (10 ^ digits)
+
+  from_orig <- from
+  to_orig   <- to
 
   # After that, trailing zeros can safely be dropped because `from` and `to` are
   # only relevant in terms of their numeric values:
   from <- as.numeric(from)
-  to <- as.numeric(to)
+  to   <- as.numeric(to)
 
   # The starting point and/or the endpoint might be offset by some non-zero
   # number of incremental steps. First, the starting point...
@@ -123,15 +129,20 @@ seq_endpoint <- function(from, to, offset_from = 0, offset_to = 0,
   # Generate the sequence:
   out <- suppressWarnings(seq(from = from, to = to, by = by))
 
-  # Finally, return the sequence, but -- by default -- with trailing zeros
-  # restored to the same number of decimal places that also determined the unit
-  # of increments at the start of the function:
-  if (string_output) {
-    return(restore_zeros(out, width = decimals_max))
-  } else {
-    return(out)
+  # Hackish way of conveying to `manage_string_output_seq()` whether or not
+  # either of `from` and `to` was specified as a string:
+  if (is.character(from_orig) | is.character(to_orig)) {
+    from <- as.character(from)
   }
 
+  # Following user preferences, do or don't convert the output to string,
+  # restoring trailing zeros to the same number of decimal places that also
+  # determined the unit of increments at the start of the function:
+  out <- manage_string_output_seq(
+    out = out, from = from, string_output = string_output, digits = digits
+  )
+
+  return(out)
 }
 
 
@@ -145,8 +156,11 @@ seq_distance <- function(from, length_out = 10, dir = 1, offset_from = 0,
   # The step size by which the sequence progresses (`by`) can't be manually
   # chosen as in `seq()`. Instead, it is determined by the number of decimal
   # places in `from`:
-  decimals <- decimal_places_scalar(from)
-  by <- 1 / (10 ^ decimals)
+  digits <- decimal_places_scalar(from)
+  by <- 1 / (10 ^ digits)
+
+  # Record if `from` was specified as string; relevant for `string_output`:
+  from_orig <- from
 
   # After that, trailing zeros can safely be dropped because `from` is only
   # relevant in terms of its numeric value:
@@ -184,15 +198,23 @@ seq_distance <- function(from, length_out = 10, dir = 1, offset_from = 0,
   # Generate the sequence:
   out <- suppressWarnings(seq(from = from, to = to, by = by))
 
+  # Hackish way of conveying to `manage_string_output_seq()` whether or not
+  # `from` was specified as a string:
+  if (is.character(from_orig)) {
+    from <- as.character(from)
+  }
+
+  # Following user preferences, do or don't convert the output to string,
+  # restoring trailing zeros to the same number of decimal places that also
+  # determined the unit of increments at the start of the function:
+  out <- manage_string_output_seq(
+    out = out, from = from, string_output = string_output, digits = digits
+  )
+
   # Finally, return the sequence, but -- by default -- with trailing zeros
   # restored to the same number of decimal places that `from` has, and that also
   # determined the step size at the start of the function:
-  if (string_output) {
-    return(restore_zeros(out, width = decimals))
-  } else {
-    return(out)
-  }
-
+  return(out)
 }
 
 
@@ -217,10 +239,15 @@ seq_endpoint_df <- function(.from, .to, ..., .offset_from = 0, .offset_to = 0,
   # additional columns into it. Then, add a special class to the tibble, but
   # only to pass messages between (1) here, (2) the testing function, and (3)
   # `seq_test_ranking()`. Finally, return the resulting tibble:
-  return(
-    tibble::tibble(x, !!!further_cols) %>%
-      add_class("scr_seq_df")
-  )
+  if (length(further_cols) > 0) {
+    out <- tibble::tibble(x, !!!further_cols)
+  } else {
+    out <- tibble::tibble(x)
+  }
+
+  out <- add_class(out, "scr_seq_df")
+
+  return(out)
 }
 
 
@@ -245,10 +272,15 @@ seq_distance_df <- function(.from, ..., .length_out = 10, .dir = 1,
   # additional columns into it. Then, add a special class to the tibble, but
   # only to pass messages between (1) here, (2) the testing function, and (3)
   # `seq_test_ranking()`. Finally, return the resulting tibble:
-  return(
-    tibble::tibble(x, !!!further_cols) %>%
-      add_class("scr_seq_df")
-  )
+  if (length(further_cols) > 0) {
+    out <- tibble::tibble(x, !!!further_cols)
+  } else {
+    out <- tibble::tibble(x)
+  }
+
+  out <- add_class(out, "scr_seq_df")
+
+  return(out)
 }
 
 
