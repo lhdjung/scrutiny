@@ -1,40 +1,5 @@
 
 
-#' @include grim-map.R
-
-
-# Playground --------------------------------------------------------------
-
-# # Helper used within the `*_proto()` function below; not exported:
-# seq_disperse_df_custom <- function(x, dispersion, include_reported = FALSE) {
-#
-#   digits <- max(decimal_places(x))
-#   p10 <- 1 / (10 ^ digits)
-#   dispersion <- dispersion * p10
-#
-#   x_num <- as.numeric(x)
-#
-#   x_minus <- x_num - dispersion
-#   x_plus  <- x_num + dispersion
-#
-#   if (include_reported) {
-#     out <- append(rev(x_minus), c(x_num, x_plus))
-#   } else {
-#     out <- append(rev(x_minus), x_plus)
-#   }
-#
-#   if (is.character(x)) {
-#     out <- restore_zeros(out, width = digits)
-#   }
-#
-#   out <- tibble::tibble(out)
-#
-#   return(out)
-# }
-
-
-
-
 # Function factories ------------------------------------------------------
 
 # Note on helpers and implementation: Unlike `function_map_total_n()`, the main
@@ -51,10 +16,12 @@
 
 function_map_seq_proto <- function(.fun = fun, .var = var,
                                    .dispersion = dispersion,
+                                   .out_min = out_min, .out_max = out_max,
                                    .include_reported = include_reported, ...) {
 
   # The function factory returns this manufactured function:
   function(data, fun = .fun, var = .var, dispersion = .dispersion,
+           out_min = .out_min, out_max = .out_max,
            include_reported = .include_reported, ...) {
 
     # Extract the vector from the `data` column specified as `var`:
@@ -67,13 +34,19 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
     #   include_reported = include_reported
     # )
 
-    list_var <- purrr::map(
+    list_var_and_var_change <- purrr::map(
       data_var,
       seq_disperse_df,
       .dispersion = dispersion,
+      .offset_from = 0,
+      .out_min = out_min,
+      .out_max = out_max,
       .string_output = "auto",
       .include_reported = include_reported
     )
+
+    list_var        <- purrr::map(list_var_and_var_change, `[`, 1)
+    list_var_change <- purrr::map(list_var_and_var_change, `[`, 2)
 
     nrow_list_var <- purrr::map_int(list_var, nrow)
 
@@ -82,7 +55,7 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 
     cols_for_testing <- data[, 1:ncol_before_consistency]
     cols_for_testing_names_without_var <-
-      colnames(cols_for_testing)[!colnames(cols_for_testing) == var]
+      colnames(cols_for_testing)[colnames(cols_for_testing) != var]
 
     # Short for "columns except (for the) last (one)":
     cols_el <- 1:length(cols_for_testing_names_without_var)
@@ -167,6 +140,9 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 #'   computing or reporting may be responsible for previously determined
 #'   inconsistencies.
 #'
+#'   All arguments here set the defaults for the arguments in the manufactured
+#'   function. They can still be specified differently when calling the latter.
+#'
 #'   If functions created this way are exported from other packages, they should
 #'   be written as if they were created with
 #'   \href{https://purrr.tidyverse.org/reference/faq-adverbs-export.html}{purrr
@@ -195,19 +171,66 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 #'   inconsistencies.
 #' @param ... Arguments passed down to `.fun`.
 #'
-#' @return
+#' @details This function is a so-called function factory: It produces other
+#'   functions, such as `grim_map_seq()`. More specifically, it is a function
+#'   operator (a.k.a. decorator) because it also takes functions as inputs, such
+#'   as `grim_map()`. See Wickham (2019, ch. 10-11).
+
+#' @return A function such as those below. ("Testable statistics" are variables
+#'   that can be selected via `var`, and are then varied. All variables except
+#'   for those in brackets are selected by default.)
+#'
+#'   | \strong{Manufactured function} | \strong{Testable statistics} | \strong{Test vignette}
+#'   | ---                            | ---                          | ---
+#'   | `grim_map_seq()`               | `"x"`, `"n"`, [[`"items"`]]  | `vignette("grim")`
+#'   | `debit_map_seq()`              | `"x"`, `"sd"`, `"n"`         | `vignette("debit")`
+
 #' @export
+
+#' @section Conventions: The name of a function manufactured with
+#'   `function_map_seq()` should mechanically follow from that of the input
+#'   function. For example, `grim_map_seq()` derives from `grim_map()`. This
+#'   pattern fits best if the input function itself is named after the test it
+#'   performs on a data frame, followed by `_map`: `grim_map()` applies GRIM,
+#'   `debit_map()` applies DEBIT, etc.
+#'
+#'   Much the same is true for the classes of data frames returned by the
+#'   manufactured function via the `.name_class` argument of
+#'   `function_map_seq()`. It should be the function's own name preceded by the
+#'   name of the package that contains it or by an acronym of that package's
+#'   name. In this way, existing classes are `scr_grim_map_seq` and
+#'   `scr_debit_map_seq`.
+#'
+#'   Consider writing an `audit()` method for every such class, as this is their
+#'   main purpose. The method should simply call `summarize_map_seq()`, without
+#'   any further computations.
+
+#' @references Wickham, H. (2019). *Advanced R* (Second Edition). CRC
+#'   Press/Taylor and Francis Group. https://adv-r.hadley.nz/index.html
+
 
 # @examples
 
 
-function_map_seq <- function(.fun, .name_test, .name_class = NULL,
-                             .dispersion = 1:5, .include_reported = FALSE,
+
+# TO DO: (1) WRITE `*_map_seq()` FUNCTIONS FOR GRIM AND DEBIT, FOLLOWING THE
+# CONVENTIONS ABOVE; (2) WRITE `summarize_map_seq()`, CLOSELY FOLLOWING
+# `summarize_map_total_n()`; (3) WRITE `audit()` METHODS THAT ONLY CALL
+# `summarize_map_seq()`.
+
+
+
+function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
+                             .name_class = NULL, .dispersion = 1:5,
+                             .out_min = "auto", .out_max = NULL,
+                             .include_reported = FALSE,
                              .include_consistent = FALSE, ...) {
 
   # The function factory returns this manufactured function:
-  function(data, var, fun = .fun, name_test = .name_test,
-           name_class = .name_class, dispersion = .dispersion,
+  function(data, var = .var, reported = .reported, fun = .fun,
+           name_test = .name_test, name_class = .name_class,
+           dispersion = .dispersion,
+           out_min = .out_min, out_max = .out_max,
            include_reported = .include_reported,
            include_consistent = .include_consistent, ...) {
 
@@ -216,6 +239,12 @@ function_map_seq <- function(.fun, .name_test, .name_class = NULL,
     # `dplyr::filter(data, !consistency)`, but much faster.
     if (!include_consistent) {
       data <- data[!data$consistency, ]
+    }
+
+    # As `var` is `Inf` by default, it needs to be referred to the names of
+    # designated `reported` variables:
+    if (all(is.infinite(var))) {
+      var <- reported
     }
 
     # ncol_index_consistency        <- match("consistency", colnames(data))
@@ -232,6 +261,8 @@ function_map_seq <- function(.fun, .name_test, .name_class = NULL,
       .name_test = name_test,
       .name_class = name_class,
       .dispersion = dispersion,
+      .out_min = out_min,
+      .out_max = out_max,
       .include_reported = include_reported
     )
 
@@ -270,6 +301,7 @@ function_map_seq <- function(.fun, .name_test, .name_class = NULL,
 
 grim_map_seq <- function_map_seq(
   .fun = grim_map,
+  .reported = c("x", "n"),
   .name_test = "GRIM",
   .name_class = "scr_grim_map_seq"
 )
