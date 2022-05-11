@@ -8,6 +8,8 @@
 #'   By default, it operates on all columns. Output can optionally be
 #'   transformed into a longer format by setting `.transform` to `TRUE`.
 #'
+#'   Choose separators other than parentheses by specifying the `.sep` argument.
+#'
 #' @param .data Data frame. Only in `split_by_parens()`.
 #' @param ... Optionally, name columns from `.data`. Splitting will then be
 #'   restricted to these columns. This is useful if not all values contain
