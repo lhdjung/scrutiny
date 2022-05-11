@@ -29,7 +29,7 @@
 #'
 #' @seealso `dplyr::slice()`, which the function wraps; and
 #'   \href{https://unheadr.liomys.mx/reference/mash_colnames.html}{`unheadr::mash_colnames()`},
-#'   a more sophisticated solution to the same problem.
+#'    a more sophisticated solution to the same problem.
 #'
 #' @return A data frame.
 #' @export
@@ -60,8 +60,9 @@ row_to_colnames <- function(data, row = 1, collapse = " ", drop = TRUE) {
   }
 
   if (any(!is_whole_number(row))) {
+    row <- paste0("`", row, "`")
     cli::cli_abort(c(
-      "`row` is `{row}`",
+      "`row` is {row}",
       "x" = "It needs to be a whole number."
     ))
   }
@@ -110,9 +111,9 @@ row_to_colnames <- function(data, row = 1, collapse = " ", drop = TRUE) {
   # Return the data frame. By default (`drop = TRUE`), remove the specified row
   # or rows beforehand:
   if (drop) {
-    dplyr::slice(data, -row)
+    return(dplyr::slice(data, -row))
   } else {
-    data
+    return(data)
   }
 
 }
