@@ -365,6 +365,8 @@ manage_string_output_seq <- function(out, from, string_output, digits) {
   if (string_output == "auto") {
     if (is.character(from)) {
       out <- restore_zeros(out, width = digits)
+    } else {
+      out <- methods::as(out, typeof(from))
     }
     return(out)
   } else if (!is.logical(string_output)) {
@@ -379,6 +381,8 @@ manage_string_output_seq <- function(out, from, string_output, digits) {
     ))
   } else if (string_output) {
     out <- restore_zeros(out, width = digits)
+  } else {
+    out <- methods::as(out, typeof(from))
   }
   return(out)
 }
