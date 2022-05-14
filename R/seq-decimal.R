@@ -104,6 +104,9 @@ seq_endpoint <- function(from, to, offset_from = 0, offset_to = 0,
   from_orig <- from
   to_orig   <- to
 
+  type_orig_from <- typeof(from)
+  type_orig_to   <- typeof(to)
+
   # After that, trailing zeros can safely be dropped because `from` and `to` are
   # only relevant in terms of their numeric values:
   from <- as.numeric(from)
@@ -130,9 +133,13 @@ seq_endpoint <- function(from, to, offset_from = 0, offset_to = 0,
   out <- suppressWarnings(seq(from = from, to = to, by = by))
 
   # Hackish way of conveying to `manage_string_output_seq()` whether or not
-  # either of `from` and `to` was specified as a string:
+  # either of `from` and `to` was specified as a string, or else as a double:
   if (is.character(from_orig) | is.character(to_orig)) {
     from <- as.character(from)
+  } else if (is.double(from_orig) | is.double(to_orig)) {
+    from <- as.double(from)
+  } else {
+    from <- as.integer(from)
   }
 
   # Following user preferences, do or don't convert the output to string,
@@ -161,6 +168,7 @@ seq_distance <- function(from, length_out = 10, dir = 1, offset_from = 0,
 
   # Record if `from` was specified as string; relevant for `string_output`:
   from_orig <- from
+  type_orig_from <- typeof(from)
 
   # After that, trailing zeros can safely be dropped because `from` is only
   # relevant in terms of its numeric value:
@@ -200,9 +208,7 @@ seq_distance <- function(from, length_out = 10, dir = 1, offset_from = 0,
 
   # Hackish way of conveying to `manage_string_output_seq()` whether or not
   # `from` was specified as a string:
-  if (is.character(from_orig)) {
-    from <- as.character(from)
-  }
+  from <- methods::as(from, typeof(from_orig))
 
   # Following user preferences, do or don't convert the output to string,
   # restoring trailing zeros to the same number of decimal places that also
@@ -211,9 +217,6 @@ seq_distance <- function(from, length_out = 10, dir = 1, offset_from = 0,
     out = out, from = from, string_output = string_output, digits = digits
   )
 
-  # Finally, return the sequence, but -- by default -- with trailing zeros
-  # restored to the same number of decimal places that `from` has, and that also
-  # determined the step size at the start of the function:
   return(out)
 }
 
