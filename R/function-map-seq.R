@@ -32,8 +32,9 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
       .out_min = out_min,
       .out_max = out_max,
       .string_output = "auto",
-      .include_reported = include_reported
-      # .track_var_change = TRUE
+      .include_reported = include_reported,
+      # .track_var_change = TRUE,
+      ...
     )
 
     # TO DO: INSERT `list_var_change` INTO THE OUTPUT
