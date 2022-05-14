@@ -34,6 +34,14 @@
 #' @export
 #'
 #' @examples
+#' # All the results:
+#' pigs1 %>%
+#'   grim_map_seq()
+#'
+#' # Case-wise summaries:
+#' pigs1 %>%
+#'   grim_map_seq() %>%
+#'   audit()
 
 
 grim_map_seq <- function_map_seq(
