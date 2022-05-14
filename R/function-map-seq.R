@@ -1,9 +1,9 @@
 
-# Note on helpers and implementation: Unlike `function_map_total_n()`, the main
-# function here -- `function_map_seq()` -- is not based on `disperse()` or its
-# derivatives. It is not based on `seq_endpoint()` or friends either, which is
-# surprising but necessary: `disperse()` is pair-based and does not construct a
-# linear sequence, whereas `seq_endpoint()` and friends lack support for
+# Background on helpers and implementation: Unlike `function_map_total_n()`, the
+# main function here -- `function_map_seq()` -- is not based on `disperse()` or
+# its derivatives. It is not based on `seq_endpoint()` or friends either, which
+# is surprising but necessary: `disperse()` is pair-based and does not construct
+# a linear sequence, whereas `seq_endpoint()` and friends lack support for
 # dispersion and would have been very cumbersome with regard to the
 # `.include_reported` argument. It became clear that I needed something new -- a
 # function that would perform dispersion while still producing linear output. I
@@ -33,10 +33,12 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
       .out_max = out_max,
       .string_output = "auto",
       .include_reported = include_reported
+      # .track_var_change = TRUE
     )
 
+    # TO DO: INSERT `list_var_change` INTO THE OUTPUT
     list_var        <- purrr::map(list_var_and_var_change, `[`, 1)
-    list_var_change <- purrr::map(list_var_and_var_change, `[`, 2)
+    # list_var_change <- purrr::map(list_var_and_var_change, `[`, 2)
 
     nrow_list_var <- purrr::map_int(list_var, nrow)
 
@@ -88,7 +90,7 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
     return(out)
   }
 
-  # -- End of the manufactured function --
+  # -- End of the manufactured helper (!) function --
 
 }
 
@@ -114,7 +116,7 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 #'   If functions created this way are exported from other packages, they should
 #'   be written as if they were created with
 #'   \href{https://purrr.tidyverse.org/reference/faq-adverbs-export.html}{purrr
-#'   adverbs}; see explanations there and examples below.
+#'   adverbs}.
 #'
 #' @param .fun Function such as `grim_map()`: It will be used to test columns in
 #'   a data frame for consistency. Test results are Boolean and need to be
@@ -188,7 +190,19 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 # TO DO: (1) WRITE `*_map_seq()` FUNCTIONS FOR GRIM AND DEBIT, FOLLOWING THE
 # CONVENTIONS ABOVE; (2) WRITE `summarize_map_seq()`, CLOSELY FOLLOWING
 # `summarize_map_total_n()`; (3) WRITE `audit()` METHODS THAT ONLY CALL
-# `summarize_map_seq()`.
+# `summarize_map_seq()`; (4) MAYBE WRITE EXAMPLES
+
+
+
+# # Defaults:
+# .var = Inf; .reported; .name_test; .name_class = NULL; .dispersion = 1:5;
+# .out_min = "auto"; .out_max = NULL; .include_reported = FALSE;
+# .include_consistent = FALSE
+# .fun <- grim_map
+# var = .var; reported = .reported; fun = .fun;name_test = .name_test;
+# name_class = .name_class;dispersion = .dispersion;out_min = .out_min;
+# out_max = .out_max;include_reported = .include_reported;
+# include_consistent = .include_consistent
 
 
 
@@ -205,6 +219,9 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
            out_min = .out_min, out_max = .out_max,
            include_reported = .include_reported,
            include_consistent = .include_consistent, ...) {
+
+    # First, basic testing with the `*_map()` function:
+    data <- fun(data, ...)
 
     # Remove consistent cases from `data` if only the inconsistent ones are of
     # interest (the default). The "filtering" code below is equivalent to
@@ -227,7 +244,8 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
       .dispersion = dispersion,
       .out_min = out_min,
       .out_max = out_max,
-      .include_reported = include_reported
+      .include_reported = include_reported,
+      ...
     )
 
     # Apply the lower-level function to all user-supplied variables (`var`) and
@@ -236,7 +254,8 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
 
     nrow_out <- purrr::map_int(out, nrow)
 
-    # Repeat the `var` strings so that they will be able to be added to `out`:
+    # Repeat the `var` strings so that they form a vector of the length that is
+    # the row number of `out`, and that can therefore be added to `out`:
     var <- var %>%
       purrr::map2(nrow_out, rep) %>%
       purrr::flatten_chr()
