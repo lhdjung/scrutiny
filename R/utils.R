@@ -455,3 +455,108 @@ check_length_disperse_n <- function(n, msg_single) {
 
 
 
+# Three helpers for `function_map_seq()` as well as its assorted `reverse_` and
+# `summarize_` functions:
+
+# 1.
+index_case_interpolate <- function(x, index_case_only = TRUE,
+                                   index_itself = FALSE) {
+
+  x_orig <- x
+  x <- as.numeric(x)
+
+  index_seq <- purrr::map_dbl(seq_along(x), ~ x[.] - x[. + 1])
+  # This doesn't seem to work: `index_seq <- x[x] - x[x + 1]`
+  index_seq <- stats::na.omit(abs(index_seq))
+
+  index_target <- match(max(index_seq), index_seq)
+
+  if (index_itself) {
+    return(index_target)
+  }
+
+  index_case <- x[index_target] + x[index_target + 1]
+  index_case <- index_case / 2
+  index_case <- methods::as(index_case, typeof(x_orig))
+
+  if (is.character(index_case)) {
+    x_orig_around_target <- c(x_orig[index_target], x_orig[index_target + 1])
+    dp_orig <- max(decimal_places(x_orig_around_target))
+    index_case <- restore_zeros(index_case, width = dp_orig)
+  }
+
+  if (index_case_only) {
+    return(index_case)
+  }
+
+  # The rest only gets run if the entire sequence was required:
+  out <- append(x, index_case, after = index_target)
+  out <- methods::as(out, typeof(x_orig))
+
+  if (is.character(out)) {
+    out <- restore_zeros(out)
+  }
+
+  return(out)
+}
+
+
+# 2.
+index_case_recover <- function(x, index_case_only = TRUE,
+                               index_itself = FALSE) {
+  lx <- length(x)
+
+  if (is_even(lx)) {
+    index_target <- lx / 2
+    from <- x[index_target]
+  } else {
+    ico <- index_case_only
+    ii  <- index_itself
+    out <- index_case_interpolate(x, index_case_only = ico, index_itself = ii)
+    return(out)
+  }
+
+  if (index_itself) {
+    return(index_target)
+  }
+
+  index_case <- seq_distance(
+    from = from, length_out = 1, offset_from = 1, string_output = "auto"
+  )
+
+  if (index_case_only) {
+    return(index_case)
+  } else {
+    out <- append(x, index_case, after = index_target)
+    return(out)
+  }
+
+}
+
+
+# 3.
+index_case_diff <- function(data) {
+  var <- data$var[[1]]
+  data_var <- data[var][[1]]
+  index <- index_case_recover(data_var, index_itself = TRUE)
+  index_diff <- 1:nrow(data) - index
+
+  # out <- dplyr::mutate(
+  #   data,
+  #   index = !!var,
+  #   index = index_case_recover(index, index_itself = TRUE),
+  #   diff = 1:nrow(data) - index
+  # )
+
+  # out$diff[out$diff < 1] <-
+  #   out$diff[out$diff < 1] - 1
+
+  index_diff[index_diff < 1] <-
+    index_diff[index_diff < 1] - 1
+
+  index_diff <- as.integer(index_diff)
+
+  dplyr::mutate(data, index_diff)
+}
+
+
