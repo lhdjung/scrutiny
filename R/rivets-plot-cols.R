@@ -14,7 +14,13 @@ label_y_axis = "Test statistic"
 text_size = 12
 color_1 = "royalblue1"
 color_2 = "red"
+alpha_1 = 0.5
+alpha_2 = 0.5
 tag = ggplot2::waiver()
+
+
+# TO DO: CREATE SPACE BETWEEN BAR GROUP WITHIN A *SINGLE* PLOT; SEE
+# https://www.learnbyexample.org/r-bar-plot-ggplot2/
 
 
 #' Visualize RIVETS using columns
@@ -93,12 +99,12 @@ rivets_plot_cols <- function(values_1,
     }
   }
 
-  check_length(values_1, "values_1", 3)
-  check_length(values_2, "values_2", 3)
-  check_length(dir, "dir", 1)
-  # check_length(label_x_axis, "label_x_axis", 2)
-  check_length(label_y_axis, "label_y_axis", 1)
-  check_length(text_size, "text_size", 1)
+  check_length(values_1, 3)
+  check_length(values_2, 3)
+  check_length(dir, 1)
+  # check_length(label_x_axis, 2)
+  check_length(label_y_axis, 1)
+  check_length(text_size, 1)
 
 
   # Main part ---
@@ -139,12 +145,131 @@ rivets_plot_cols <- function(values_1,
     ))
   }
 
-  df <- tibble::tibble(
-    col_sizes_1, col_sizes_2,
-    labels_min_max_1,
-    labels_numbers_1 = factor(labels_numbers_1, levels = labels_numbers_1),
-    labels_numbers_2 = factor(labels_numbers_2, levels = labels_numbers_2)
+
+  col_sizes <- append(col_sizes_1, col_sizes_2)
+  labels_numbers <- append(labels_numbers_1, labels_numbers_2)
+  labels_min_max <- append(labels_min_max_1, rev(labels_min_max_1))
+  x_position <- c("a", "a", "a", "b", "b", "b")  # c(rep("a", 3), rep("b", 3))
+  side <- c(1, 1, 1, 2, 2, 2)  # c(rep("left", 3), rep("right", 3))
+
+
+  # labels_numbers_1_new <- labels_numbers[1:3] %>%
+  #   restore_zeros() %>%
+  #   stringr::str_flatten(" ")
+
+  # labels_numbers_2_new <- labels_numbers[4:6] %>%
+  #   restore_zeros() %>%
+  #   stringr::str_flatten(" ")
+
+  labels_numbers <- restore_zeros(labels_numbers)
+
+  label_less <- "≤"
+
+  labels_numbers_1_new <- paste(
+    labels_numbers[1],
+    label_less,
+    labels_numbers[2],
+    label_less,
+    labels_numbers[3]
   )
+
+  labels_numbers_2_new <- paste(
+    labels_numbers[4],
+    label_less,
+    labels_numbers[5],
+    label_less,
+    labels_numbers[6]
+  )
+
+  # labels_numbers_new <-
+  #   c(rep(labels_numbers_1_new, 3), rep(labels_numbers_2_new, 3))
+
+  labels_numbers_new <-
+    rep(c(labels_numbers_1_new, labels_numbers_2_new), 3)
+
+
+  # For labels: Check out the answer starting with "First, create and save as
+  # object plot" at:
+  # https://stackoverflow.com/questions/16279295/axis-labels-for-each-bar-and-each-group-in-bar-charts-with-dodged-groups
+
+
+
+  df <- tibble::tibble(
+    col_sizes,
+    labels_numbers,
+    labels_min_max,
+    x_position,
+    side
+  )
+
+  # Following this site with regards to `geom_col()`:
+  # https://ggplot2.tidyverse.org/reference/position_dodge.html
+  df3 <- tibble::tibble(
+    x = c(rep("a", 3), rep("b", 3)),
+    y = col_sizes,
+    g = c(1:3, 1:3),
+    # color = c(1, 1, 1, 2, 2, 2),
+    labels_numbers,
+    labels_numbers_new,
+    color = rep(c(color_1, color_2), each = 3)
+  )
+
+  dfcol_args <- list(position = "dodge2", width = 0.75)
+
+
+  # New plot, adjusted from ggplot2 docs linked above:
+  plot_out <- ggplot2::ggplot(df3, ggplot2::aes(
+    x, y, group = g, fill = color
+  )) +
+    ggplot2::geom_col(
+      position = "dodge2", fill = df3$color, alpha = alpha_1
+    ) +
+    ggplot2::scale_x_discrete(
+      labels = labels_numbers_new
+    ) +
+    ggplot2::scale_y_continuous(
+      # labels = NULL,  # not sure why this was in the former version!
+      breaks = 1:6,  # 1:3
+      expand = ggplot2::expansion(c(0, 0.05))
+    ) +
+    # ggplot2::scale_color_manual(values = c(color_1, color_2)) +
+    ggplot2::labs(
+      y = label_y_axis,
+      tag = tag
+    ) +
+    ggplot2::theme(
+      panel.grid.major.x = ggplot2::element_blank(),
+      panel.grid.minor.y = ggplot2::element_blank(),
+      legend.position = "none"
+    )
+
+
+  return(plot_out)
+
+
+
+  # # Old RIVETS plot:
+  # ggplot2::ggplot(data = df, ggplot2::aes(
+  #   x = x_position,
+  #   y = col_sizes,
+  #   fill = side
+  # )) +
+  #   ggplot2::geom_col(width = 0.5) +
+  #   ggplot2::scale_x_discrete(
+  #     breaks = 1:6,
+  #     labels = labels_numbers
+  #   ) +
+  #   ggplot2::theme(
+  #     legend.position = "none"
+  #   )
+
+
+  # df <- tibble::tibble(
+  #   col_sizes_1, col_sizes_2,
+  #   labels_min_max_1,
+  #   labels_numbers_1 = factor(labels_numbers_1, levels = labels_numbers_1),
+  #   labels_numbers_2 = factor(labels_numbers_2, levels = labels_numbers_2)
+  # )
 
 
   # Right-side plot:
@@ -213,32 +338,32 @@ rivets_plot_cols <- function(values_1,
 
 # Examples ----------------------------------------------------------------
 
-# label_test_stat <- expression(paste(
-#   "Test statistic (", italic("t"), ")"
-# ))
-#
-# tag_a <- expression(bold("a"))
-# tag_b <- expression(bold("b"))
-#
-# plot_means <- rivets_plot_cols(
-#   values_1 = means_1,
-#   values_2 = means_2,
-#   dir = "outward",
-#   label_x_axis = c("Mean 2", "Mean 1"),
-#   label_y_axis = label_test_stat,
-#   tag = tag_a
-# )
-#
-# plot_sds <- rivets_plot_cols(
-#   values_1 = sds_1,
-#   values_2 = sds_2,
-#   dir = "backward",
-#   label_x_axis = c("Standard deviation 2", "Standard deviation 1"),
-#   label_y_axis = label_test_stat,
-#   tag = tag_b
-# )
-#
-# plot_both <- patchwork::wrap_plots(plot_means / plot_sds)
+label_test_stat <- expression(paste(
+  "Test statistic (", italic("t"), ")"
+))
+
+tag_a <- expression(bold("a"))
+tag_b <- expression(bold("b"))
+
+plot_means <- rivets_plot_cols(
+  values_1 = means_1,
+  values_2 = means_2,
+  dir = "outward",
+  label_x_axis = c("Mean 2", "Mean 1"),
+  label_y_axis = label_test_stat,
+  tag = tag_a
+)
+
+plot_sds <- rivets_plot_cols(
+  values_1 = sds_1,
+  values_2 = sds_2,
+  dir = "backward",
+  label_x_axis = c("Standard deviation 2", "Standard deviation 1"),
+  label_y_axis = label_test_stat,
+  tag = tag_b
+)
+
+plot_both <- patchwork::wrap_plots(plot_means / plot_sds)
 
 
 # ggplot2::ggsave(
