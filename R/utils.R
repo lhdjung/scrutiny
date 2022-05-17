@@ -458,10 +458,12 @@ check_length_disperse_n <- function(n, msg_single) {
 # Three helpers for `function_map_seq()` as well as its assorted `reverse_` and
 # `summarize_` functions:
 
-# 1.
+# 1. MAYBE I ONLY NEED THIS ONE?! This function relies on `x` being a double,
+# integer, or string vector of length > 1 that consists of a numeric sequence
+# with exactly one missing link, such that it's possible to interpolate the
+# missing value in a deterministic way.
 index_case_interpolate <- function(x, index_case_only = TRUE,
                                    index_itself = FALSE) {
-
   x_orig <- x
   x <- as.numeric(x)
 
@@ -501,44 +503,44 @@ index_case_interpolate <- function(x, index_case_only = TRUE,
 }
 
 
-# 2.
-index_case_recover <- function(x, index_case_only = TRUE,
-                               index_itself = FALSE) {
-  lx <- length(x)
-
-  if (is_even(lx)) {
-    index_target <- lx / 2
-    from <- x[index_target]
-  } else {
-    ico <- index_case_only
-    ii  <- index_itself
-    out <- index_case_interpolate(x, index_case_only = ico, index_itself = ii)
-    return(out)
-  }
-
-  if (index_itself) {
-    return(index_target)
-  }
-
-  index_case <- seq_distance(
-    from = from, length_out = 1, offset_from = 1, string_output = "auto"
-  )
-
-  if (index_case_only) {
-    return(index_case)
-  } else {
-    out <- append(x, index_case, after = index_target)
-    return(out)
-  }
-
-}
+# # 2. MAYBE I DON'T EVEN NEED THIS ONE?!
+# index_case_recover <- function(x, index_case_only = TRUE,
+#                                index_itself = FALSE) {
+#   lx <- length(x)
+#
+#   if (is_even(lx)) {
+#     index_target <- lx / 2
+#     from <- x[index_target]
+#   } else {
+#     ico <- index_case_only
+#     ii  <- index_itself
+#     out <- index_case_interpolate(x, index_case_only = ico, index_itself = ii)
+#     return(out)
+#   }
+#
+#   if (index_itself) {
+#     return(index_target)
+#   }
+#
+#   index_case <- seq_distance(
+#     from = from, length_out = 1, offset_from = 1, string_output = "auto"
+#   )
+#
+#   if (index_case_only) {
+#     return(index_case)
+#   } else {
+#     out <- append(x, index_case, after = index_target)
+#     return(out)
+#   }
+#
+# }
 
 
 # 3.
 index_case_diff <- function(data) {
   var <- data$var[[1]]
   data_var <- data[var][[1]]
-  index <- index_case_recover(data_var, index_itself = TRUE)
+  index <- index_case_interpolate(data_var, index_itself = TRUE)
   index_diff <- 1:nrow(data) - index
 
   # out <- dplyr::mutate(
