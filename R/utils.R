@@ -388,6 +388,24 @@ manage_string_output_seq <- function(out, from, string_output, digits) {
 }
 
 
+commas_and <- function(x) {
+  if (length(x) == 1) {
+    return(x)
+  }
+  if (length(x) == 2) {
+    collapse <- " "
+    and <- " and "
+  } else {
+    collapse <- ", "
+    and <- ", and "
+  }
+  out <- stringr::str_flatten(x[-length(x)], collapse = collapse)
+  out <- paste0(out, and, x[length(x)])
+  return(out)
+}
+
+
+
 write_doc_function_factory_map_conventions <- function(ending) {
   glue::glue(
     "#' @section Conventions: The name of a function manufactured with \n",
@@ -407,6 +425,52 @@ write_doc_function_factory_map_conventions <- function(ending) {
     "#'   Consider writing an `audit()` method for every such class, as this is their \n",
     "#'   main purpose. The method should simply call `summarize_map_{ending}()`, \n",
     "#'   without any further computations. \n"
+  )
+}
+
+
+
+write_doc_audit_seq <- function(var_list, name_test) {
+
+  # Checks ---
+  if (length(var_list) == 1) {
+    cli::cli_abort(c(
+      "`var_list` must have length > 1.",
+      "x" = "Consistency testing requires at least two values."
+    ))
+  }
+
+  # Main part ---
+  var_list_bt <- paste0("`", var_list, "`")
+  vars <- commas_and(var_list_bt)
+
+  var1 <- var_list[1]
+  var2 <- var_list[2]
+
+  var1_bt <- var_list_bt[1]
+  var2_bt <- var_list_bt[2]
+
+  if (length(var_list) == 2) {
+    var_ge_3_line <- ""
+  } else {
+    var_ge_3 <- var_list_bt[-(1:2)]
+    var_ge_3_line <- "#'   - Accordingly for {commas_and(var_ge_3)}."
+  }
+
+  # Return documentation:
+  glue::glue(
+    "#' @section Summaries with `audit_seq()`: There is a method for the \n",
+    "#'   `audit_seq()` generic, so you can call `audit_seq()` following \n",
+    "#'   `{tolower(name_test)}_map_seq()`. It will return a data frame with these columns: \n",
+    "#'   - {vars} are the original inputs, tested for `consistency` here. \n",
+    "#'   - `hits` is the number of {name_test}-consistent value combinations found within \n",
+    "#'   the specified `dispersion` range. \n",
+    "#'   - `diff_{var1}` reports the absolute difference between {var1_bt} and the next \n",
+    "#'   consistent dispersed value (in dispersion steps, not the actual numeric \n",
+    "#'   difference). `diff_{var1}_up` and `diff_{var1}_down` report the difference to the \n",
+    "#'   next higher or lower consistent value, respectively. \n",
+    "#'   - `diff_{var2}`, `diff_{var2}_up`, and `diff_{var2}_down` do the same for {var2_bt}. \n",
+    var_ge_3_line
   )
 }
 
