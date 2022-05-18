@@ -24,7 +24,7 @@
 #' @param .col1,.col2 Strings. Endings of the two column names that result from
 #'   splitting a column. Default is `"x"` for `.col1` and `"sd"` for `.col2`.
 #'
-#' @include before-inside-parens.R split-transform.R
+#' @include utils.R before-inside-parens.R
 #'
 #' @return A tibble with string columns.
 
