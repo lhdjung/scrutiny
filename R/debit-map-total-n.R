@@ -68,25 +68,31 @@
 #' @export
 
 #' @examples
-#' # Run `grim_map_total_n()` on data like these:
+#' # Run `debit_map_total_n()` on data like these:
 #' df <- tibble::tribble(
-#'   ~x1,    ~x2,   ~n,
-#'   "3.43", "5.28", 90,
-#'   "2.97", "4.42", 103
+#'   ~x1,  ~x2,  ~sd1,  ~sd2,  ~n,
+#'   "0.30", "0.28", "0.17", "0.10", 70,
+#'   "0.41", "0.39", "0.09", "0.15", 65
 #' )
 #'
+#' debit_map_total_n(df)
+#'
+#' # `audit()` summaries can be more important than
+#' # the detailed results themselves.
 #' # The `hits_total` column shows all scenarios in
-#' # which both divergent `n` values are GRIM-consistent
+#' # which both divergent `n` values are debit-consistent
 #' # with the `x*` values when paired with them both ways:
-#' grim_map_total_n(data = df)
+#' df %>%
+#'   debit_map_total_n() %>%
+#'   audit()
 #'
 #' # By default (`dispersion = 0:5`), the function goes
 #' # five steps up and down from `n`. If this sequence
 #' # gets longer, the number of hits tends to increase:
-#' grim_map_total_n(data = df, dispersion = 0:10)
-#'
-#' # Get all the details with `show_all = TRUE`:
-#' grim_map_total_n(data = df, show_all = TRUE)
+#' df %>%
+#'   debit_map_total_n(dispersion = 0:10) %>%
+#'   audit()
+
 
 
 debit_map_total_n <- function_map_total_n(
