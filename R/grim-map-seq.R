@@ -29,7 +29,19 @@
 #' @param
 #' items,percent,show_rec,show_prob,rounding,threshold,symmetric,tolerance,extra
 #' Arguments passed down to `grim_map()`.
-#'
+
+#' @section Summaries with `audit_seq()`: There is a method for the
+#'   `audit_seq()` generic, so you can call `audit_seq()` following
+#'   `grim_map_seq()`. It will return a data frame with these columns:
+#'   - `x` and `n` are the original inputs, tested for `consistency` here.
+#'   - `hits` is the number of GRIM-consistent value combinations found within
+#'   the specified `dispersion` range.
+#'   - `diff_x` reports the absolute difference between `x` and the next
+#'   consistent dispersed value (in dispersion steps, not the actual numeric
+#'   difference). `diff_x_up` and `diff_x_down` report the difference to the
+#'   next higher or lower consistent value, respectively.
+#'   - `diff_n`, `diff_n_up`, and `diff_n_down` do the same for `n`.
+
 #' @return
 #' @export
 #'
@@ -41,7 +53,7 @@
 #' # Case-wise summaries:
 #' pigs1 %>%
 #'   grim_map_seq() %>%
-#'   audit()
+#'   audit_seq()
 
 
 grim_map_seq <- function_map_seq(
