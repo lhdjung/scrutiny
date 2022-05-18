@@ -47,11 +47,11 @@ rivets_plot_lines <- function(values_1,
 
   # Checks ---
 
-  check_length(values_1, "values_1", 3)
-  check_length(values_2, "values_2", 3)
-  check_length(dir, "dir", 1)
-  check_length(label_stat, "label_stat", 1)
-  check_length(text_size, "text_size", 1)
+  check_length(values_1, 3)
+  check_length(values_2, 3)
+  check_length(dir, 1)
+  check_length(label_stat, 1)
+  check_length(text_size, 1)
 
 
   # Main part ---
