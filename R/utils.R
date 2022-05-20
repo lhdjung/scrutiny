@@ -643,28 +643,37 @@ transform_split_parens_object <- function(data) {
 
   cols_1 <- data %>%
     dplyr::select(contains(uscore_end1)) %>%
-    tidyr::pivot_longer(cols = everything(),
-                        names_to = ".origin",
-                        values_to = end1)
+    tidyr::pivot_longer(
+      cols = everything(),
+      names_to = ".origin",
+      values_to = end1
+    )
 
   cols_1 <- cols_1 %>%
     dplyr::mutate(key = 1:nrow(cols_1))
 
   cols_2 <- data %>%
     dplyr::select(contains(uscore_end2)) %>%
-    tidyr::pivot_longer(cols = everything(),
-                        names_to = ".origin_2",
-                        values_to = end2)
+    tidyr::pivot_longer(
+      cols = everything(),
+      names_to = ".origin_2",
+      values_to = end2
+    )
 
   cols_2 <- cols_2 %>%
     dplyr::mutate(key = 1:nrow(cols_2))
 
-  return(
-    dplyr::left_join(cols_1, cols_2, by = "key") %>%
-      dplyr::select(-.data$key, -.data$.origin_2) %>%
-      dplyr::mutate(.origin = stringr::str_remove(.data$.origin, uscore_end1)) %>%
-      dplyr::arrange(.data$.origin)
-  )
+  out <- dplyr::left_join(cols_1, cols_2, by = "key")
+
+  out$key <- NULL
+  out$.origin_2 <- NULL
+
+  out <- out %>%
+    dplyr::mutate(.origin = stringr::str_remove(.data$.origin, uscore_end1)) %>%
+    dplyr::arrange(.data$.origin)
+
+  return(out)
 }
+
 
 
