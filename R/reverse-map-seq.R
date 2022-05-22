@@ -145,7 +145,7 @@ summarize_map_seq <- function(data) {
   # }
 
 
-  fn_names <- rep(c("", "_pos", "_neg"), length(var_names))
+  fn_names <- rep(c("", "_up", "_down"), length(var_names))
 
   # TO DO: COMPUTE DISTANCE OF FIRST HIT FROM INDEX CASE; IN PARTICULAR, MAKE
   # SURE IT'S ACTUALLY THAT DISTANCE, NOT SIMPLY THE INDEX! GOOD START BELOW
