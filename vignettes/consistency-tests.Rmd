@@ -1,0 +1,211 @@
+---
+title: "Implementing consistency tests"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Implementing consistency tests}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+bibliography: references.bib
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(scrutiny)
+```
+
+When implementing consistency tests in R, you shouldn't have to start from zero. This vignette introduces scrutiny's support system for writing new consistency testing functions. It adds to the more widely applicable error detection infrastructure described in `vignette("infrastructure")` and `vignette("rounding")`.
+
+Following the vignette will dramatically simplify the implementation of advanced testing routines via function factories. It will also enable you to write entire families of functions in a streamlined way: If you are familiar with any one scrutiny-style consistency test, you will immediately be able to make some sense of the other ones. This is true across all levels of consistency testing.
+
+Here is an outline of these levels, and of the present vignette, with GRIM as a paradigmatic example:
+
+1.  A bare-bones, non-exported (!) function for testing a single set of cases, such as `grim_scalar()`.
+
+2.  A vectorized version of number 1, such as `grim()`.
+
+3.  A specialized mapping function that applies number 1 to a data frame, such as `grim_map()`.
+
+4.  A method for the `audit()` generic that summarizes the results of number 3.
+
+5.  A visualization function that plots the results of number 3, such as `grim_plot()`.
+
+6.  A mapping function that checks if slightly varied input values are consistent with the respective other reported values, such as `grim_map_seq()`.
+
+7.  A mapping function to be used if only the total sample size was reported (in a study with two groups), not the individual group sizes, such as `grim_map_total_n()`.
+
+8.  `audit_seq()` and `audit_total_n()` methods for numbers 6 and 7, respectively. These methods should simply call `summarize_map_seq()` or `summarize_map_total_n()`.
+
+If a valid consistency test is newly implemented with at least the first step, I'll be happy to accept a pull request to scrutiny. Please make sure to follow the [tidyverse style guide](https://style.tidyverse.org/) as well as the scrutiny-specific conventions laid out in this vignette, if applicable.
+
+Throughout the vignette, I will use a mock test called SCHLIM to demonstrate the minimal steps needed to implement consistency tests, scrutiny-style. Note that SCHLIM doesn't have any significance beyond standing in for serious consistency tests. Also note that any real implementation will, and perhaps should, be much more complex that the highly reduced examples below.
+
+Most functions discussed here deal with data frames. I always use [tibbles](https://r4ds.had.co.nz/tibbles.html), and I strongly recommend the same to you. There's no guarantee that each of those functions works with non-tibble data frames as it does with tibbles.
+
+# 1. Single-case
+
+The first function is the most important one. It contains the core implementation of the test. Although it is not exported itself, all other steps build up on it, and all of them are exported.
+
+This function takes two or more arguments of length 1 that are coercible to numeric. This means they either are numeric themselves or they are strings that can be converted to numbers. The function tests them for consistency and returns a single Boolean value: It's `TRUE` if the inputs are mutually consistent, and `FALSE` if they aren't.
+
+The function's name is that of the test, followed by `_scalar` which refers to the one-case limit. If your function happens to be applicable to multiple value sets already due to R's natural vectorization, leave out `_scalar` and skip the next section. (This will rarely be the case because every single argument will need to be vectorized.)
+
+```{r}
+ schlim_scalar <- function(y, n) {
+   y <- as.numeric(y)
+   n <- as.numeric(n)
+   y / 3 > n
+ }
+
+schlim_scalar(y = 2, n = 7)
+```
+
+# 2. Vectorized
+
+The easiest way to turn a scalar function into a vectorized (i.e., multiple-case) function is to run `Vectorize()` on it. The name of the resulting function should be the lower-case name of the test itself, which is also the name of the single-case function without `_scalar`:
+
+```{r}
+schlim <- Vectorize(schlim_scalar)
+
+schlim(y = 10:15, n = 4)
+```
+
+Functions created this way can be useful for quick testing, but unlike mapping functions, they are not great to build upon. They should never be called within other functions. Therefore, `schlim()` is not used in the remaining part of the vignette.
+
+# 3. Mapper
+
+## Introduction
+
+The most important practical use of a consistency test within scrutiny is to apply it to entire data frames, as `grim_map()` does. That's also the starting point for every other function below.
+
+An important point here is the distinction between "key arguments / columns" and other arguments or columns. The key arguments in a consistency-testing function are the values that are tested for consistency with each other, such as `x`, `n`, and `items` in `grim()`. By extension, key columns are those that contain such values. Every key column has the same name as the respective key argument.
+
+## Requirements
+
+A general system for implementing consistency tests needs some consistency itself. This is especially true for mapper functions, because all functions further down the line rely on the mapper having some very specific properties. The (only) requirements for the mapping function are:
+
+1.  It has the same name as the respective `_scalar` function, with the exception that it ends on `_map` instead of `_scalar`.
+
+2.  Its first argument is a data frame that contains the key columns of the respective consistency test. Other columns are permitted but don't factor into the test.
+
+3.  Its return value is a data frame that contains all of the key input columns. They are the first (i.e., leftmost) columns in the output, even if the input isn't ordered this way. If any of these columns are transformed within the mapping function, the output should include the transformed columns, not the original ones. An example is the change displayed by the `"x"` column in the output of `grim_map(percent = TRUE)`.
+
+4.  The output data frame also contains a Boolean column called `"consistency"`. It is placed immediately to the right of the key input columns. This column contains the test results. In every row, `"consistency"` is `TRUE` if the values to its left are mutually consistent, and `FALSE` if they aren't.
+
+5.  If the underlying single-case function performs rounding or unrounding, it should internally call `reround()` and/or `unround()`, respectively. The output data frame of the mapper function then inherits an S3 class (see section *S3 classes* below) such as `"scr_rounding_up_or_down"`: It consists of `"scr_rounding_"` followed by the rounding specification, e.g., `"up_or_down"`. The latter should also be the default rounding and unrounding specification. This specification can be supplied by the user via an argument called `rounding`, which is then passed down to the single-case function.
+
+6.  The output data frame inherits an S3 class that consists of the name of the mapper function, preceded by `"scr_"` (short for scrutiny). For example, the output of `grim_map()` inherits the `"scr_grim_map"` class. The `"scr_"` prefix is necessary for some follow-up computations introduced below, so it should be used even within functions that are not part of scrutiny. Any other classes added to the output data frame should start on `scr_`. None of them should end on `"_map"`.
+
+Some implications of these requirements: The output data frame may or may not contain test-irrelevant columns from the input, i.e., those with names that are not names of key arguments of functions like `schlim_scalar()`. It may or may not contain non-key columns created within the mapper function itself. (This can be useful, as with `"ratio"` in `grim_map()`'s output.) Any such non-key, non-`"consistency"` columns go to the right of `"consistency"`. The output data frame may inherit any number of other classes added within the mapper, as long as they start on `"scr_"`.
+
+## Practical steps
+
+### Mapping
+
+How to actually write mapper functions? I recommend applying the `_scalar` function to the input data frame using `purrr::map2_lgl()` if you have exactly two inputs, and `purrr::pmap_lgl()` if you have more than two inputs:
+
+```{r}
+schlim_map <- function(data) {
+  y <- data$y
+  n <- data$n
+  consistency <- purrr::map2_lgl(y, n, schlim_scalar)
+  tibble::tibble(y, n, consistency)
+}
+```
+
+Alternatively, call `dplyr::rowwise()` and directly mutate `"consistency"`:
+
+```{r}
+schlim_map_alt <- function(data) {
+  data %>% 
+    dplyr::rowwise() %>% 
+    dplyr::mutate(consistency = schlim_scalar(y, n)) %>% 
+    dplyr::ungroup()
+}
+```
+
+Both approaches should lead to the same results:
+
+```{r}
+# Example data
+df1 <- tibble::tibble(y = 16:25, n = 3:12)
+
+schlim_map(df1)
+
+schlim_map_alt(df1)
+```
+
+### S3 classes
+
+If you don't know what S3 classes are, don't worry. Just copy and paste the function below, and call it at the end of your mapper function. `x` is the output data frame, and `new_class` is a string vector. `new_class` consists of one or more "classes" that will be added to the existing classes of `x`:
+
+```{r, eval=FALSE}
+add_class <- function(x, new_class) {
+  class(x) <- c(new_class, class(x))
+  return(x)
+}
+```
+
+# 6. Sequence mapper
+
+## Introduction
+
+When reported values are inconsistent, it's never obvious why. Consistency tests provide mathematical certainty in their results, but there is a trade-off: They don't suggest any clear causal story about the summary statistics. (Contrast this with a reconstruction technique such as [SPRITE](https://lukaswallrich.github.io/rsprite2/index.html), which does not aim at mathematical proof but does point towards major issues with the origins of the data.)
+
+One possible reason for inconsistencies lies in small mistakes in computing and/or reporting by the original researchers. Indeed, when @brown2017 reanalyzed some of the data sets behind GRIM inconsistencies, they often found "a straightforward explanation, such as a minor error in the reported sample sizes, or a failure to report the exclusion of a participant" (p. 368).
+
+It may therefore be useful to test the numeric neighborhood of inconsistent reported values. Are there any nearby values that are consistent with the other statistics? The problem might then be due to a simple oversight. However, it would be very cumbersome to test each candidate value manually, or even to test sequences that were manually created with functions such as `seq_distance()`.
+
+Fortunately, scrutiny automates this process. `grim_map_seq()` and `debit_map_seq()` provide an instant assessment of whether or not consistent values are near the reported ones. They also allow the user to specify how many steps away from the reported value are permitted when looking for consistent values, as well as some other options.
+
+## Practical steps
+
+Although the code that underlies them is fairly complex, these functions themselves were written in a very simple way. Here is the one for GRIM:
+
+```{r, eval=FALSE}
+grim_map_seq <- function_map_seq(
+  .fun = grim_map,
+  .reported = c("x", "n"),
+  .name_test = "GRIM",
+  .name_class = "scr_grim_map_seq"
+)
+```
+
+Any consistency test that is already implemented in a mapper function like `grim_map()` can receive its own `*_map_seq()` function just as easily using `function_map_seq()`. That is because of scrutiny's streamlined design conventions --- specifically, the requirements for mapper functions laid out in section 3.
+
+# 8. Methods for `audit_seq()` and `audit_total_n()`
+
+## Introduction
+
+The output of sequence mappers and total-n mappers is very comprehensive. This makes it somewhat unwieldy and creates a need for summaries. As a first step, you can always call `audit()` on the output tibbles of manufactured functions like `grim_map_seq()`. It will go by the `*_map` class added internally by the basic mapper function, such as `grim_map()`, and return a regular `audit()` tibble.
+
+However, scrutiny features specialized generic functions for summarizing the results of manufactured `_seq` or `_total_n` functions: `audit_seq()` and `audit_total_n()`.
+
+These functions don't actually feature different methods for different classes. The reason is that we need an analogue to `audit()` for these two other kinds of mapper functions, but the streamlined design of the latter allows for all the methods to be the same. Indeed, they *should* all be the same. This makes the overall design consistent and predictable. Writing methods for new manufactured functions, then, is just a formality.
+
+## Practical steps
+
+Every `audit_seq()` method should be defined like this:
+
+```{r, eval=FALSE}
+function(data) {
+  summarize_map_seq(data)
+}
+```
+
+Likewise, every `audit_total_n()` method should be defined like this:
+
+```{r, eval=FALSE}
+function(data) {
+  summarize_map_total_n(data)
+}
+```
+
+## Writing documentation
+
+You should explain what your sequence mapper does, even if you are not developing a package.
