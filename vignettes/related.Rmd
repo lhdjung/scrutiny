@@ -22,12 +22,16 @@ Please contact me if you know about relevant software that isn't listed here (em
 
 -   James Heathers' [SPRITE](https://peerj.com/preprints/26968v1/) algorithm reconstructs possible distributions of raw data from summary statistics. James also wrote a [light introduction](https://medium.com/hackernoon/introducing-sprite-and-the-case-of-the-carthorse-child-58683c2bfeb) to SPRITE. For R users, it was implemented in [rsprite2](https://lukaswallrich.github.io/rsprite2/) by Lukas Wallrich, building up on code by Nick Brown. Nick also developed an interactive [Shiny app](https://shiny.ieis.tue.nl/sprite/) for SPRITE based on R. Jordan Anaya developed a [Python-based app](http://www.prepubmed.org/sprite/).
 
+-   The delta-F test for linearity, a.k.a. the "Förster test", was implemented in Dale J. Barr's R package [forsterUVA](https://github.com/dalejbarr/forsterUVA).
+
 -   Several R packages leverage the Benford distribution of naturally occurring numbers to assess whether reported numbers are, in fact, natural. These packages include:
 
     -   [benford.analysis](https://github.com/carloscinelli/benford.analysis) by Carlos Cinelli contains various sophisticated tools for inspecting data using the Benford distribution.
 
     -   [digitTests](https://koenderks.github.io/digitTests/index.html) by Koen Derks not only conducts Benford testing but also checks if values are repeated more often than expected.
 
--   Emerging from the Pruitt investigations, the R package [twopointzerothree](https://github.com/Sorbus-torminalis/twopointzerothree/) (by an anonymous developer) checks data for sequences of perfectly correlated numbers. These numbers are either duplicates of each other or they are duplicates offset by some constant amount; hence the name.
+-   Emerging from the Pruitt investigations, there is now R software for analyzing sequences:
 
--   The delta-F test for linearity, a.k.a. the "Förster test", was implemented in Dale J. Barr's R package [forsterUVA](https://github.com/dalejbarr/forsterUVA).
+    -   The package [twopointzerothree](https://github.com/Sorbus-torminalis/twopointzerothree/) (by an anonymous developer) checks data for sequences of perfectly correlated numbers. These numbers are either duplicates of each other or they are duplicates offset by some constant amount; hence the name.
+
+    -   Similarly, the [sequenceSniffer](https://github.com/alrutten/sequenceSniffer) app by Anne Rutten detects repetitions in sequences.
