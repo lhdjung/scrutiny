@@ -381,7 +381,7 @@ manage_string_output_seq <- function(out, from, string_output, digits) {
     ))
   } else if (string_output) {
     out <- restore_zeros(out, width = digits)
-  } else {
+  } else if (!is.character(typeof(from))) {
     out <- methods::as(out, typeof(from))
   }
   return(out)
