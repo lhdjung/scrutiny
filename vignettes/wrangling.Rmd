@@ -40,7 +40,7 @@ The only solution I know of is to work with strings --- namely, strings that can
 
 #### With tabulizer
 
-The [tabulizer](https://cran.r-project.org/web/packages/tabulizer/vignettes/tabulizer.html) package is a way to automatically extract tables from PDF. Using tabulizer requires [Java](https://www.java.com) to be installed. When it works well, tabulizer is a great tool for importing tables quickly and efficiently. It automatically captures values as strings, so trailing zeros are treated just like other digits. (See below, *Replace column names by row values*, for a solution to an issue than can occur with tabulizer.)
+The [tabulizer](https://docs.ropensci.org/tabulizer/) package is a way to automatically extract tables from PDF. Using tabulizer requires [Java](https://www.java.com) to be installed. When it works well, tabulizer is a great tool for importing tables quickly and efficiently. It automatically captures values as strings, so trailing zeros are treated just like other digits. (See below, *Replace column names by row values*, for a solution to an issue than can occur with tabulizer.)
 
 However, tabulizer does not currently seem reliable enough to be the focus of importing tables. That is most likely the fault of the PDF format itself because it has no inbuilt support for tables, so any effort to extract them faces serious ambiguities. If there are many tables in multiple files formatted in the same way, it can be useful to check if tabulizer reliably and accurately captures them. If it doesn't, you might have to use copy and paste.
 
@@ -136,13 +136,16 @@ flights2 %>%
   split_by_parens(.transform = TRUE)
 ```
 
-From here, you can call `debit_map()` right away (supposing you deal with binary distributions' means and standard deviations):
+From here, you can call `debit_map()` almost right away (supposing you deal with binary distributions' means and standard deviations):
 
 ```{r}
 flights2 %>% 
   split_by_parens(.transform = TRUE) %>% 
-  debit_map(n = 80)
+  dplyr::mutate(n = 80) %>% 
+  debit_map()
 ```
+
+If your strings look like `"2.65 [0.27]"`, specify the `.sep` argument as `"brackets"`. Likewise for `"2.65 {0.27}"` and `.sep = "braces"`. What about other separators, as in `"2.65 <0.27>"`? Specify `.sep` as those two substrings, like `.sep = c("<", ">")`. In all of these cases, the output will be the same as the default would be if the strings were like `"2.65 (0.27)"`.
 
 ### Column name suffixes
 
@@ -186,7 +189,7 @@ I will first simulate the problem. `x` and `n` should be column names, but inste
 
 ```{r}
 flights1_with_issues <- flights1 %>% 
-    mutate(n = as.character(n)) %>% 
+    dplyr::mutate(n = as.character(n)) %>% 
     tibble::add_row(x = "x", n = "n", .before = 1)
 
 colnames(flights1_with_issues) <- c("Var1", "Var2")
