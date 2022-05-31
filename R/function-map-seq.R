@@ -265,7 +265,8 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
     # identifying the origin of individual rows, `var` is added:
     out <- out %>%
       dplyr::bind_rows() %>%
-      dplyr::mutate(var)
+      dplyr::mutate(var) %>%
+      add_class("scr_map_seq")
 
     if (!is.null(name_class)) {
       out <- add_class(out, name_class)
