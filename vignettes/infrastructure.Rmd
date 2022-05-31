@@ -1,8 +1,8 @@
 ---
-title: "Infrastructure beyond rounding"
+title: "General infrastructure"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Infrastructure beyond rounding}
+  %\VignetteIndexEntry{General infrastructure}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
   %\VignetteDepends{devtools}
@@ -27,7 +27,7 @@ library(scrutiny)
 
 The implementation of error detection techniques in scrutiny rests on a foundation of specialized helper functions. Some of these are exported because they might be helpful in error detection more broadly, or perhaps even in other contexts.
 
-This vignette provides an overview of scrutiny's miscellaneous infrastructure for implementing error detection techniques. It does not discuss infrastructure for rounding, a topic so important to the package that it has its own article: `vignette("rounding")`.
+This vignette provides an overview of scrutiny's miscellaneous infrastructure for implementing error detection techniques. For more specific article, see `vignette("rounding")` or `vignette("consistency-tests")`.
 
 ## Count decimal places
 
@@ -58,7 +58,7 @@ decimal_places(7.200)
 decimal_places("7.200")
 ```
 
-`decimal_places_scalar()` is considerably faster than `decimal_places()` but only takes a single number or string into account. This makes it suitable as a helper within other single-case functions.
+`decimal_places_scalar()` is faster than `decimal_places()` but only takes a single number or string. This makes it suitable as a helper within other single-case functions.
 
 ## Restore trailing zeros
 
@@ -67,19 +67,19 @@ When dealing with numbers that used to have trailing zeros but lost them from be
 Suppose all of the following numbers originally had one decimal place, but some no longer do:
 
 ```{r}
-vec <- c(4, 6.9, 5, 4.2, 4.8, 7, 4)
+vec2 <- c(4, 6.9, 5, 4.2, 4.8, 7, 4)
 
-vec %>% 
+vec2 %>% 
   decimal_places()
 ```
 
 Now, get them back with `restore_zeros()`:
 
 ```{r}
-vec %>% 
+vec2 %>% 
   restore_zeros()
 
-vec %>% 
+vec2 %>% 
   restore_zeros() %>% 
   decimal_places()
 ```
@@ -87,10 +87,10 @@ vec %>%
 This uses the default of going by the longest mantissa and padding the other strings with decimal zeros until they have that many decimal places. However, this is just a heuristic: The longest mantissa might itself have lost decimal places. Specify the `width` argument to explicitly state the desired mantissa length:
 
 ```{r}
-vec %>% 
+vec2 %>% 
   restore_zeros(width = 2)
 
-vec %>% 
+vec2 %>% 
   restore_zeros(width = 2) %>% 
   decimal_places()
 ```
@@ -227,7 +227,35 @@ And here is the distance data frame variant:
 seq_distance_df(.from = "4.50", .length_out = 5, n = 30)
 ```
 
+### Dispersed sequences
+
+There is one last pair of functions to create decimal-level sequences: `seq_disperse()` and `seq_disperse_df()`. They also start at `from` but don't simply proceed forward. Instead, they construct a sequence centered around `from`:
+
+```{r}
+seq_disperse(from = 0.25)
+```
+
+A key argument here is `dispersion`, which controls the steps up and down. The default is `1:5` for five steps in each direction, but it's very flexible:
+
+```{r}
+seq_disperse(from = 0.25, dispersion = 1:2)
+
+seq_disperse(from = 0.25, dispersion = c(1, 3, 5))
+
+seq_disperse(from = 0.25, dispersion = 7:9)
+```
+
+The data frame variant is just what you would expect, except it can track the changes to `.from`:
+
+```{r}
+seq_disperse_df(.from = 0.25, .dispersion = 1:2, .track_var_change = TRUE)
+```
+
+These functions are hybrids between the `seq()` wrappers explained above and the `disperse*()` functions introduced next.
+
 ## Vary hypothetical group sizes
+
+TO DO: Port this entire section to the *Implementing consistency tests* vignette, except for the part on `disperse_total()`, because only this latter part really is general infrastructure!
 
 ### The problem
 
@@ -235,21 +263,28 @@ The reporting of summary statistics is often insufficient --- certainly from an 
 
 This presents a problem for consistency tests that rely on reported group sizes, such as GRIM. It requires splitting the reported total into groups and creating multiple plausible scenarios of group sizes that add up to the total. Although no definitive test results can be gained this way, it does help to see whether reported values are consistent with at least some of the plausible group sizes [@bauer_expression_2021].
 
-### Producing functions with `function_map_disperse()`
+### Producing functions with `function_map_total_n()`
 
-For GRIM, this problem can be tackled with `grim_map_disperse()`. See the [case study in the GRIM vignette](https://lhdjung.github.io/scrutiny/articles/grim.html#handling-unknown-group-sizes-with-grim_map_disperse) for how its logic works out in practice. Although the underlying code is fairly complex, the function itself was written in an extremely simple way --- by calling `function_map_disperse()`:
+`function_map_total_n()` creates new functions which follow this very scheme by applying a given consistency test to multiple combinations of reported and hypothetical summary statistics. It is the powerhouse behind `grim_map_total_n()` and `debit_map_total_n()`. It's not a helper used inside other functions when creating them with `function()` --- instead, it takes the place of `function()` itself.
 
-```{r}
-grim_map_disperse <- function_map_disperse(
-  .fun = grim_map, .name_test = "GRIM"
+See the [case study in the GRIM vignette](https://lhdjung.github.io/scrutiny/articles/grim.html#handling-unknown-group-sizes-with-grim_map_total_n) for an example of how `grim_map_total_n()` works out in practice. Although the underlying code is fairly complex, the function itself was written in a very simple way:
+
+```{r, eval=FALSE}
+grim_map_total_n <- function_map_total_n(
+  .fun = grim_map,
+  .reported = "x",
+  .name_test = "GRIM",
+  .name_class = "scr_grim_map_total_n"
 )
 ```
 
-The same pattern can be applied to any function like `grim_map()`, i.e., a function that tests the values contained in two columns of a data frame for consistency. One of the columns, `n`, will have its values dispersed from half using `disperse_total()`, explained below. It's not currently possible to include more than two columns in this scheme (prohibiting use for DEBIT), but that might change in the future.
+The same pattern can be applied to any function like `grim_map()`, i.e., a function that tests the values contained in multiple columns of a data frame for consistency. One of the columns, `n`, will have its values dispersed from half using `disperse_total()`, explained below.
 
-To export a function created this way from your own package, make sure to follow [this purrr FAQ](https://purrr.tidyverse.org/reference/faq-adverbs-export.html). (Incredible as it sounds, scrutiny will then take on the role of purrr.) Also, see this [worked example](https://lhdjung.github.io/scrutiny/reference/function_map_disperse.html#ref-examples) for the `.onLoad` pattern.
+To export such a function from your own package, make sure to follow [this purrr FAQ](https://purrr.tidyverse.org/reference/faq-adverbs-export.html). (Incredible as it sounds, scrutiny will then take on the role of purrr.) Also, see this [worked example](https://lhdjung.github.io/scrutiny/reference/function_map_total_n.html#ref-examples) for the `.onLoad` pattern.
 
-### Dispersal from (around) half with `disperse_total()`
+You might want to write an `audit()` method for the specific class inherited by the output of your manufactured function, or a method for a different generic. If so, `summarize_map_total_n()` will be of interest to you: This one really is a helper.
+
+### Dispersion from (around) half with `disperse_total()`
 
 Briefly, `disperse_total()` checks if an input total is even or odd, cuts it in half, and creates "dispersed" group sizes going out from there, with each pair of group sizes adding up to the input total. This works naturally with even totals. For odd totals, it starts with the two integers closest to half.
 
