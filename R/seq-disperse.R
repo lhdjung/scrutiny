@@ -42,8 +42,8 @@
 #'   regular and continuous.
 #'
 #'   Underlying this difference is the fact that `seq_disperse()` and
-#'   `seq_disperse_df()` are not actually based on `base::seq()`, although they
-#'   are otherwise similar to `seq_endpoint()` and friends.
+#'   `seq_disperse_df()` do not wrap around `base::seq()`, although they are
+#'   otherwise similar to `seq_endpoint()` and friends.
 #'
 #' @export
 #'
