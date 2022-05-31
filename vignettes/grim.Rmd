@@ -157,7 +157,8 @@ Set `show_rec` to `TRUE` if you want the values that were reconstructed during G
 
 ```{r}
 pigs1 %>% 
-  grim_map(show_rec = TRUE)
+  grim_map(show_rec = TRUE) %>% 
+  dplyr::select(5:8)   # output cut down for printing
 ```
 
 The additional columns are ---
@@ -218,81 +219,6 @@ Rounding up and down leads to precisely opposite results for the first two cases
 
 It might still be important to account for the different ways in which numbers can be rounded, if only to demonstrate that some given results are robust to those variable decisions. To err on the side of caution, the default for `rounding` is the permissive `"up_or_down"`.
 
-## Testing numeric sequences
-
-GRIM analysts might be interested in a mean or percentage value's numeric neighborhood. Suppose you found a reported mean of 5.30 to be inconsistent with a sample size of 32. You might hypothesize that it was swapped with the nearby correct value.
-
-There are two ways to approach this: (1) testing sequence vectors with `seq_distance()` and `grim()`, or (2) testing sequence data frames with `seq_distance_df()` and `grim_map()`. I think the second way is more useful, but see for yourself.
-
-### With `seq_distance()` and `grim()`
-
-Create a sequence starting from 5.30 with `seq_distance()` and pipe the result into `grim()`, where you specify `n` as 32. Although the starting point is allowed to be numeric, we need to enter 5.30 as a string to preserve the trailing zero:
-
-```{r}
-seq_distance(from = "5.30") %>% 
-  grim(n = 32)
-```
-
-### With `seq_distance_df()` and `grim_map()`
-
-First, use `seq_distance_df()` to create a data frame with a sequence column starting from 5.30, adding an `n` column that's constant at 32:
-
-```{r}
-seq_distance_df(.from = "5.30", n = 32)
-```
-
-This data frame can readily be piped into `grim_map()`, so we get a neat output table without much preparation:
-
-```{r, error=TRUE}
-seq_distance_df(.from = "5.30", n = 32) %>% 
-  grim_map()
-```
-
-These results, in turn, can be analyzed with `seq_test_ranking()`:
-
-```{r}
-seq_distance_df(.from = "5.30", n = 32) %>% 
-  grim_map() %>% 
-  seq_test_ranking()
-```
-
-Read more about scrutiny's four `seq_*` functions at `vignette("infrastructure")`; two were left out here.
-
-## Handling unknown group sizes with `grim_map_disperse()`
-
-### Problems from underreporting
-
-Unfortunately, some studies that report group averages don't report the corresponding group sizes --- only a total sample size. This makes any direct GRIM-testing impossible because only `x` values are known, not `n` values. All that is feasible here in terms of GRIM is to take a number around half the total sample size, go up and down from it, and check which *hypothetical* group sizes are consistent with the reported group means. `grim_map_disperse()` automates this process, motivated by a recent GRIM analysis [@bauer_expression_2021].
-
-The study examined by @bauer_expression_2021 reported means of 5.3 and 4.71 for a total sample size of 40. With equal group sizes (i.e., 20 in each group), only 5.3 is GRIM-consistent, not 4.71. However, Bauer and Francis looked for a plausible scenario in which both means were consistent. They checked if those scenarios came about if the 40 participants were distributed across the two groups in slightly different ways.
-
-More precisely, they went from a 20/20 group split to a 19/21 split, then to an 18/22 split, and finally to a 17/23 split. In the latter scenario, both means are consistent if 17 is paired with 4.71 and 23 with 5.3.
-
-### Automated solution
-
-Instead of going about this manually, call `grim_map_disperse()`. It will find two further plausible scenarios in which both means are consistent; more on that below.
-
-```{r}
-df <- tibble(x1 = "4.71", x2 = "5.3", n = 40)
-grim_map_disperse(df)
-```
-
-Each "hit" is a scenario in which both `x1` and `x2` are GRIM-consistent with one of the two hypothetical group sizes. By default (`dispersion = 0:5`), the function goes five steps up and down from `n`.
-
-For details, set `show_all` to `TRUE`:
-
-```{r}
-grim_map_disperse(df, show_all = TRUE)
-```
-
-### Testing both ways
-
-@bauer_expression_2021 only took those scenarios into account in which 4.71 was combined with the respective smaller group and 5.3 with the larger one, so 17/23 is the only "hit" they found (my term). However, the converse way of assigning hypothetical group sizes to the reported means would be equally justified. `grim_map_disperse()`, therefore, conducts two sets of GRIM tests: one for each way of pairing means and group sizes.
-
-It thus finds the group sizes 19/21 and 16/24 to be GRIM-consistent if 5.3 is combined with the smaller group and 4.71 with the larger one (i.e., with pairing reversed from Bauer and Francis' analysis). In the function's output, results from original pairing are named `hits_forth`, those from reversed pairing are named `hits_back`, and their sum is named `hits_total`.
-
-This example only features one case --- the `df` tibble has just a single row. It could have any number of rows, though; and `grim_map_disperse()` would determine and count the "hits" for each of them. See the *Examples* section of `grim_map_disperse()`'s documentation.
-
 ## Summarizing results with `audit()`
 
 Following up on a call to `grim_map()`, the generic function `audit()` summarizes GRIM test results:
@@ -300,7 +226,8 @@ Following up on a call to `grim_map()`, the generic function `audit()` summarize
 ```{r}
 flying_pigs1 %>% 
   grim_map() %>% 
-  audit()
+  audit() %>% 
+  dplyr::select(1:5)   # output cut down for printing
 ```
 
 These columns are ---
@@ -366,6 +293,83 @@ jpap_5 %>%
 All `rounding` values other than `up_from`, `down_from`, and `up_from_or_down_from` are supported.
 
 Speed is not much of a concern here because all the rasters are based on data already stored within the package (in [R/sysdata.rda](https://github.com/lhdjung/scrutiny/blob/main/R/sysdata.rda)), so they don't need to be generated on the spot every time the function is called. See R/data-gen.R for the way they were generated.
+
+## Testing numeric sequences
+
+GRIM analysts might be interested in a mean or percentage value's numeric neighborhood. Suppose you found a reported mean of 5.30 to be inconsistent with a sample size of 32. You might hypothesize that it was swapped with the nearby correct value.
+
+There are two ways to approach this: (1) testing sequence vectors with `seq_distance()` and `grim()`, or (2) testing sequence data frames with `seq_distance_df()` and `grim_map()`. I think the second way is more useful, but see for yourself.
+
+### With `seq_distance()` and `grim()`
+
+Create a sequence starting from 5.30 with `seq_distance()` and pipe the result into `grim()`, where you specify `n` as 32. Although the starting point is allowed to be numeric, we need to enter 5.30 as a string to preserve the trailing zero:
+
+```{r}
+seq_distance(from = "5.30") %>% 
+  grim(n = 32)
+```
+
+### With `seq_distance_df()` and `grim_map()`
+
+First, use `seq_distance_df()` to create a data frame with a sequence column starting from 5.30, adding an `n` column that's constant at 32:
+
+```{r}
+seq_distance_df(.from = "5.30", n = 32)
+```
+
+This data frame can readily be piped into `grim_map()`, so we get a neat output table without much preparation:
+
+```{r, error=TRUE}
+seq_distance_df(.from = "5.30", n = 32) %>% 
+  grim_map()
+```
+
+These results, in turn, can be analyzed with `seq_test_ranking()`:
+
+```{r}
+seq_distance_df(.from = "5.30", n = 32) %>% 
+  grim_map() %>% 
+  seq_test_ranking()
+```
+
+Read more about scrutiny's four `seq_*` functions at `vignette("infrastructure")`; two were left out here.
+
+## Handling unknown group sizes with `grim_map_total_n()`
+
+### Problems from underreporting
+
+Unfortunately, some studies that report group averages don't report the corresponding group sizes --- only a total sample size. This makes any direct GRIM-testing impossible because only `x` values are known, not `n` values. All that is feasible here in terms of GRIM is to take a number around half the total sample size, go up and down from it, and check which *hypothetical* group sizes are consistent with the reported group means. `grim_map_total_n()` automates this process, motivated by a recent GRIM analysis [@bauer_expression_2021].
+
+The study examined by @bauer_expression_2021 reported means of 5.3 and 4.71 for a total sample size of 40. With equal group sizes (i.e., 20 in each group), only 5.3 is GRIM-consistent, not 4.71. However, Bauer and Francis looked for a plausible scenario in which both means were consistent. They checked if those scenarios came about if the 40 participants were distributed across the two groups in slightly different ways.
+
+More precisely, they went from a 20/20 group split to a 19/21 split, then to an 18/22 split, and finally to a 17/23 split. In the latter scenario, both means are consistent if 17 is paired with 4.71 and 23 with 5.3.
+
+### Automated solution
+
+Instead of going about this manually, call `grim_map_total_n()`, followed by `audit()` for summarizing the results. It will find two further plausible scenarios in which both means are consistent; more on that below.
+
+```{r}
+df <- tibble(x1 = "4.71", x2 = "5.3", n = 40)
+
+# Detailed results:
+df %>% 
+  grim_map_total_n()
+
+# Summary:
+df %>% 
+  grim_map_total_n() %>% 
+  audit()
+```
+
+Each "hit" is a scenario in which both `x1` and `x2` are GRIM-consistent with one of the two hypothetical group sizes. By default (`dispersion = 0:5`), the function goes five steps up and down from `n`.
+
+### Testing both ways
+
+@bauer_expression_2021 only took those scenarios into account in which 4.71 was combined with the respective smaller group and 5.3 with the larger one, so 17/23 is the only "hit" they found (my term). However, the converse way of assigning hypothetical group sizes to the reported means would be equally justified. `grim_map_total_n()`, therefore, conducts two sets of GRIM tests: one for each way of pairing means and group sizes.
+
+It thus finds the group sizes 19/21 and 16/24 to be GRIM-consistent if 5.3 is combined with the smaller group and 4.71 with the larger one (i.e., with pairing reversed from Bauer and Francis' analysis). In the `audit()` summary of the function's output, results from original pairing are named `hits_forth`, those from reversed pairing are named `hits_back`, and their sum is named `hits_total`.
+
+This example only features one case --- the `df` tibble has just a single row. It could have any number of rows, though; and `grim_map_total_n()` would determine and count the "hits" for each of them. See the *Examples* section of `grim_map_total_n()`'s documentation.
 
 ## GRIM statistics
 
