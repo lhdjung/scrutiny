@@ -194,8 +194,8 @@ that column."
   # 1.-3.: Define `x`, `n`, and `items` as the respective columns from `data`
   # (these only come into play in the resulting tibble):
   x <- data$x
-  n <- data$n
-  items <- data$items
+  n <- as.integer(data$n * data$items)
+  # items <- data$items
 
   # 4.: GRIM-test all sets of `x`, `n`, and `items` by mapping `grim_scalar()`.
   # Instead of using the dots, `...`, the function manually passes the remaining
@@ -231,10 +231,10 @@ that column."
   # data frame (`other_cols`) unless the `extra` argument has been set to 0 --
   if (is.null(extra)) {
     # (Number:)               1  2    3         4         5
-    results <- tibble::tibble(x, n, items, consistency, ratio)
+    results <- tibble::tibble(x, n,        consistency, ratio)
   } else {
     # (Number:)               1  2    3         4         5       6(-?)
-    results <- tibble::tibble(x, n, items, consistency, ratio, other_cols)
+    results <- tibble::tibble(x, n,        consistency, ratio, other_cols)
   }
 
   # In case the user had set `show_rec` to `TRUE` for displaying the
