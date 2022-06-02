@@ -107,6 +107,11 @@ audit_seq <- function(data) {
     purrr::map(out, ~ .$index_diff)
   }
 
+  inf_to_na <- function(x) {
+    x[is.infinite(x)] <- NA
+    x
+  }
+
   # # HERE, I NEED TO USE (APPLY?) A FUNCTION THAT REALLY JUST GETS ME THE INDEX,
   # # NOT THE INDEX CASE; BUT THAT'S OTHERWISE JUST LIKE `index_case_recover()`...
   # df_by_var %>%
@@ -165,7 +170,12 @@ audit_seq <- function(data) {
       .fns = list(min_distance_abs, min_distance_pos, min_distance_neg),
       .names = "diff_{.col}{fn_names}"
     )) %>%
-    dplyr::select(-(1:length(var_names)))
+    dplyr::select(-(1:length(var_names))) %>%
+    dplyr::mutate(dplyr::across(
+      .cols = everything(),
+      .fns = inf_to_na
+    )) %>%
+    suppressWarnings()
 
   # dplyr::mutate(dplyr::across(
   #   everything(), purrr::map_int, min_distance_or_na  # , 1
@@ -176,15 +186,22 @@ audit_seq <- function(data) {
     purrr::map_dbl(mean) %>%
     unname()
 
-  dc <- class(data)
+  # dc <- class(data)
+  #
+  # rounding <- dc[stringr::str_detect(dc, "scr_rounding_")]
+  # rounding <- stringr::str_remove(rounding, "scr_rounding_")
 
-  rounding <- dc[stringr::str_detect(dc, "scr_rounding_")]
-  rounding <- stringr::str_remove(rounding, "scr_rounding_")
+  rounding <- rounding_class_arg(data)
 
   fun_test <-
     dc[stringr::str_detect(dc, "^scr_") & stringr::str_detect(dc, "_map$")]
   fun_test <- stringr::str_remove(fun_test, "scr_")
   fun_test <- rlang::eval_bare(rlang::parse_expr(fun_test))
+
+  # class_reported %>%
+  #   stringr::str_remove("scr_reported_") %>%
+  #   stringr::str_split("_SCR_STOP_") %>%
+  #   unlist()
 
   data_rev <- reverse_map_seq(data)
   data_rev_tested <- fun_test(data_rev, rounding = rounding)
