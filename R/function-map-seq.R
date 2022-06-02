@@ -261,6 +261,12 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
       purrr::map2(nrow_out, rep) %>%
       purrr::flatten_chr()
 
+    # # Create a custom class to hand down information about the reported
+    # # variables to `audit_seq()`, which will be used to
+    # class_reported <- reported %>%
+    #   paste(collapse = "_SCR_STOP_") %>%
+    #   paste0("scr_reported_", .)
+
     # For better output, `out` should be a single data frame; and for
     # identifying the origin of individual rows, `var` is added:
     out <- out %>%
