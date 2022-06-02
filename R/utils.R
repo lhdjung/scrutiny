@@ -607,4 +607,15 @@ transform_split_parens_object <- function(data) {
 }
 
 
+rounding_class <- function(x) {
+  x_cl <- class(x)
+  x_cl[stringr::str_detect(x_cl, "scr_rounding_")]
+}
+
+rounding_class_arg <- function(x) {
+  out <- rounding_class(x)
+  stringr::str_remove(out, "scr_rounding_")
+}
+
+
 
