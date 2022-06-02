@@ -1,31 +1,30 @@
 
 # Helper functions to be mapped in the other helper functions below...
 min_distance_abs_scalar <- function(x) {
-  if (is.null(x)) {
+  if (any(!is.numeric(x))) {
     return(NA)
   }
   min(abs(x))
 }
 
 min_distance_pos_scalar <- function(x) {
-  if (is.null(x)) {
+  if (any(!is.numeric(x))) {
     return(NA)
   }
   min(x[x > 0])
 }
 
 min_distance_neg_scalar <- function(x) {
-  if (is.null(x)) {
+  if (any(!is.numeric(x))) {
     return(NA)
   }
   max(x[x < 0])
 }
 
 # ...namely these ones:
-min_distance_abs <- function(x) purrr::map_int(x, min_distance_abs_scalar)
-min_distance_pos <- function(x) purrr::map_int(x, min_distance_pos_scalar)
-min_distance_neg <- function(x) purrr::map_int(x, min_distance_neg_scalar)
-
+min_distance_abs <- function(x) purrr::map_dbl(x, min_distance_abs_scalar)
+min_distance_pos <- function(x) purrr::map_dbl(x, min_distance_pos_scalar)
+min_distance_neg <- function(x) purrr::map_dbl(x, min_distance_neg_scalar)
 
 
 
