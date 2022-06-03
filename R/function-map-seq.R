@@ -195,14 +195,14 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 
 
 
-# # Defaults:
-# .var = Inf; .reported; .name_test; .name_class = NULL; .dispersion = 1:5;
-# .out_min = "auto"; .out_max = NULL; .include_reported = FALSE;
-# .include_consistent = FALSE
+# # Defaults (or taking GRIM as an example, respectively):
+# .var = Inf; .reported = c("x", "n"); .name_test = "GRIM"; .name_class = NULL;
+# .dispersion = 1:5; .out_min = "auto"; .out_max = NULL; .include_reported =
+# FALSE; .include_consistent = FALSE
 # .fun <- grim_map
-# var = .var; reported = .reported; fun = .fun;name_test = .name_test;
-# name_class = .name_class;dispersion = .dispersion;out_min = .out_min;
-# out_max = .out_max;include_reported = .include_reported;
+# var = .var; reported = .reported; fun = .fun; name_test = .name_test;
+# name_class = .name_class = "scr_grim_map_seq"; dispersion = .dispersion;
+# out_min = .out_min; out_max = .out_max;include_reported = .include_reported;
 # include_consistent = .include_consistent
 
 
