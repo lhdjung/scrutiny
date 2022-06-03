@@ -168,14 +168,14 @@ that column."
     ))
   }
 
-  # Convert `n` to integer (mainly because of the `split_by_parens()` issue,
-  # which would leave `n` as a string vector):
-  data$n <- as.integer(data$n)
+  # # Convert `n` to integer (mainly because of the `split_by_parens()` issue,
+  # # which would leave `n` as a string vector):
+  # data$n <- as.integer(data$n)
 
   # If an `items` column is not yet present in `data`, supply it from the
   # `items` argument:
   if (!"items" %in% colnames(data)) {
-    items <- as.integer(items)
+    # items <- as.integer(items)
     data$items <- items
   }
 
@@ -194,7 +194,7 @@ that column."
   # 1.-3.: Define `x`, `n`, and `items` as the respective columns from `data`
   # (these only come into play in the resulting tibble):
   x <- data$x
-  n <- as.integer(data$n * data$items)
+  n <- data$n * data$items
   # items <- data$items
 
   # 4.: GRIM-test all sets of `x`, `n`, and `items` by mapping `grim_scalar()`.
