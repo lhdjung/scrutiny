@@ -489,6 +489,7 @@ function_map_total_n <- function(.fun, .reported, .name_test,
 
     # Combine the two sets of results into one final tibble:
     out_total <- dplyr::bind_rows(out_forth, out_back)
+    out_total <- add_class(out_total, "scr_map_total_n")
 
     # If `.name_class` (note the dot) was specified in the course of creating
     # the manufactured function, its value will become a class of the output:
