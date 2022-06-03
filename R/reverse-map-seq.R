@@ -29,8 +29,8 @@ min_distance_neg <- function(x) purrr::map_dbl(x, min_distance_neg_scalar)
 
 
 # # Example data:
-# data <- pigs1 %>%
-#   grim_map_seq()
+# data <- grim_map_seq(pigs1)
+
 
 
 #' Reverse the `*_map_seq()` process
@@ -38,12 +38,19 @@ min_distance_neg <- function(x) purrr::map_dbl(x, min_distance_neg_scalar)
 #' `reverse_map_seq()` takes the output of a function created by
 #' `function_map_seq()` and reconstructs the original data frame.
 #'
-#' @param data
+#' @param data Data frame.
 #'
-#' @return
 #' @export
 #'
 #' @examples
+#' # Originally reported summary data...
+#' pigs1
+#'
+#' # ...GRIM-tested with varying inputs...
+#' out <- grim_map_seq(pigs1, include_consistent = TRUE)
+#'
+#' # ...and faithfully reconstructed:
+#' reverse_map_seq(out)
 
 
 reverse_map_seq <- function(data) {
