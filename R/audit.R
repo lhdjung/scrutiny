@@ -191,8 +191,6 @@ audit_seq <- function(data) {
   # rounding <- dc[stringr::str_detect(dc, "scr_rounding_")]
   # rounding <- stringr::str_remove(rounding, "scr_rounding_")
 
-  rounding <- rounding_class_arg(data)
-
   fun_test <-
     dc[stringr::str_detect(dc, "^scr_") & stringr::str_detect(dc, "_map$")]
   fun_test <- stringr::str_remove(fun_test, "scr_")
@@ -230,6 +228,43 @@ audit_seq <- function(data) {
 #' @export
 
 audit_total_n <- function(data) {
-  UseMethod("audit_total_n")
+
+  if (!inherits(data, "scr_map_total_n")) {
+    cli::cli_abort(c(
+      "Invalid `data` argument.",
+      "x" = "It needs to be the output of a `*map_total_n()` function, \\
+      such as `grim_map_total_n()`."
+    ))
+  }
+
+  df_list <- split(data, data$case)
+
+  df_list_hits <- df_list %>%
+    purrr::map(dplyr::filter, both_consistent)
+
+  hits_forth <- df_list_hits %>%
+    purrr::map(dplyr::filter, dir == "forth") %>%
+    purrr::map_int(nrow) %>%
+    `/`(2)
+
+  hits_back <- df_list_hits %>%
+    purrr::map(dplyr::filter, dir == "back") %>%
+    purrr::map_int(nrow) %>%
+    `/`(2)
+
+  hits_total <- hits_forth + hits_back
+
+  scenarios_total <- df_list %>%
+    purrr::map_int(nrow) %>%
+    `/`(2)
+
+  hit_rate <- hits_total / scenarios_total
+
+  data_rec <- reverse_map_total_n(data)
+
+  out <- data_rec %>%
+    dplyr::mutate(hits_forth, hits_back, hits_total, scenarios_total, hit_rate)
+
+  return(out)
 }
 
