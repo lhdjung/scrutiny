@@ -22,41 +22,58 @@
 #' @export
 #'
 #' @examples
-#' # Original data frame:
+#' # Originally reported summary data...
 #' df <- tibble::tribble(
 #'   ~x1,    ~x2,   ~n,
 #'   "3.43", "5.28", 90,
 #'   "2.97", "4.42", 103
 #' )
+#' df
 #'
-#' # Test it using a product of the
-#' # `function_map_total_n()` factory:
-#' df_tested <- grim_map_total_n(df)
-#' df_tested
+#' # ...GRIM-tested with dispersed `n` values...
+#' out <- grim_map_total_n(df)
+#' out
 #'
-#' # Reconstruct the original data frame:
-#' reverse_map_total_n(df_tested)
-#'
-#' # Compute summary statistics:
-#' summarize_map_total_n(df_tested)
+#' # ...and faithfully reconstructed:
+#' reverse_map_total_n(out)
 
 
 reverse_map_total_n <- function(data) {
 
+  if (!inherits(data, "scr_map_total_n")) {
+    cli::cli_abort(c(
+      "Invalid `data` argument.",
+      "x" = "It needs to be the output of a function that ends on \\
+      `*_map_seq()`, like `grim_map_seq()`."
+    ))
+  }
+
   # Take the first row of each original-`n` block:
   data_reduced <- data %>%
     dplyr::group_by(case) %>%
-    dplyr::slice(1:2) %>%
-    dplyr::ungroup()
+    dplyr::slice(1:2)
 
-  # `n_was_odd` is `1` if the original, total `n` was odd, and `0` otherwise. In
-  # this way, when `n_was_odd` is later added to `2 * n`, it completes the
-  # restoration of the original total:
-  n_was_odd <- data_reduced$n_change %>%
-    stringr::str_detect("n2") %>%
-    as.numeric()
+  n_was_even <- data_reduced %>%
+    dplyr::summarise(n_sum = sum(n)) %>%
+    dplyr::pull(n_sum) %>%
+    rep(each = 2) %>%
+    is_even()
+
+  # Negate the evenness and convert the results from Boolean to numeric, which
+  # returns `0` as a correction for even original `n` values because they don't
+  # need to be corrected, and `1` for odd original `n` values, because these
+  # ones do need a correction:
+  n_was_odd <- as.numeric(!n_was_even)
+
+  # # `n_was_odd` is `1` if the original, total `n` was odd, and `0` otherwise. In
+  # # this way, when `n_was_odd` is later added to `2 * n`, it completes the
+  # # restoration of the original total:
+  # n_was_odd <- data_reduced$n_change %>%
+  #   stringr::str_detect("n2") %>%
+  #   as.numeric()
 
   data_reduced <- data_reduced %>%
+    dplyr::ungroup() %>%
     dplyr::mutate(
       n_was_odd, .after = n,
       n = (2 * n) - n_was_odd
@@ -97,39 +114,39 @@ reverse_map_total_n <- function(data) {
 
 
 
-#' @rdname reverse_map_total_n
-#' @export
+# @rdname reverse_map_total_n
+# @export
 
-summarize_map_total_n <- function(data) {
-
-  df_list <- split(data, data$case)
-
-  df_list_hits <- df_list %>%
-    purrr::map(dplyr::filter, both_consistent)
-
-  hits_forth <- df_list_hits %>%
-    purrr::map(dplyr::filter, dir == "forth") %>%
-    purrr::map_int(nrow) %>%
-    `/`(2)
-
-  hits_back <- df_list_hits %>%
-    purrr::map(dplyr::filter, dir == "back") %>%
-    purrr::map_int(nrow) %>%
-    `/`(2)
-
-  hits_total <- hits_forth + hits_back
-
-  scenarios_total <- df_list %>%
-    purrr::map_int(nrow) %>%
-    `/`(2)
-
-  hit_rate <- hits_total / scenarios_total
-
-  data_rec <- reverse_map_total_n(data)
-
-  out <- data_rec %>%
-    dplyr::mutate(hits_forth, hits_back, hits_total, scenarios_total, hit_rate)
-
-  return(out)
-}
+# summarize_map_total_n <- function(data) {
+#
+#   df_list <- split(data, data$case)
+#
+#   df_list_hits <- df_list %>%
+#     purrr::map(dplyr::filter, both_consistent)
+#
+#   hits_forth <- df_list_hits %>%
+#     purrr::map(dplyr::filter, dir == "forth") %>%
+#     purrr::map_int(nrow) %>%
+#     `/`(2)
+#
+#   hits_back <- df_list_hits %>%
+#     purrr::map(dplyr::filter, dir == "back") %>%
+#     purrr::map_int(nrow) %>%
+#     `/`(2)
+#
+#   hits_total <- hits_forth + hits_back
+#
+#   scenarios_total <- df_list %>%
+#     purrr::map_int(nrow) %>%
+#     `/`(2)
+#
+#   hit_rate <- hits_total / scenarios_total
+#
+#   data_rec <- reverse_map_total_n(data)
+#
+#   out <- data_rec %>%
+#     dplyr::mutate(hits_forth, hits_back, hits_total, scenarios_total, hit_rate)
+#
+#   return(out)
+# }
 
