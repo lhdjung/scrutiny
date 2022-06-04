@@ -41,18 +41,21 @@
 #'   next higher or lower consistent value, respectively.
 #'   - `diff_n`, `diff_n_up`, and `diff_n_down` do the same for `n`.
 
-#' @return
 #' @export
 #'
 #' @examples
-#' # All the results:
-#' pigs1 %>%
-#'   grim_map_seq()
+#' # `grim_map_seq()` can take any input
+#' # that `grim_map()` can take:
+#' pigs1
 #'
-#' # Case-wise summaries:
-#' pigs1 %>%
-#'   grim_map_seq() %>%
-#'   audit_seq()
+#' # All the results:
+#' out <- grim_map_seq(pigs1, include_consistent = TRUE)
+#' out
+#'
+#' # Case-wise summaries with `audit_seq()`
+#' # can be more important than the raw results:
+#' audit_seq(out)
+
 
 
 grim_map_seq <- function_map_seq(

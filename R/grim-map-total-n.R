@@ -88,24 +88,25 @@
 #'   "3.43", "5.28", 90,
 #'   "2.97", "4.42", 103
 #' )
+#' df
 #'
 #' grim_map_total_n(df)
 #'
-#' # `audit()` summaries can be more important than
+#' # `audit_total_n()` summaries can be more important than
 #' # the detailed results themselves.
 #' # The `hits_total` column shows all scenarios in
 #' # which both divergent `n` values are GRIM-consistent
 #' # with the `x*` values when paired with them both ways:
 #' df %>%
 #'   grim_map_total_n() %>%
-#'   audit()
+#'   audit_total_n()
 #'
 #' # By default (`dispersion = 0:5`), the function goes
 #' # five steps up and down from `n`. If this sequence
 #' # gets longer, the number of hits tends to increase:
 #' df %>%
 #'   grim_map_total_n(dispersion = 0:10) %>%
-#'   audit()
+#'   audit_total_n()
 
 
 

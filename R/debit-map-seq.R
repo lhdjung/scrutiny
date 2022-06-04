@@ -43,19 +43,21 @@
 
 #' @include function-map-seq.R
 #'
-#' @return
 #' @export
 #'
 #' @examples
+#' # `debit_map_seq()` can take any input
+#' # that `debit_map()` can take:
+#' pigs3
 #'
 #' # All the results:
-#' pigs3 %>%
-#'   debit_map_seq()
+#' out <- debit_map_seq(pigs3, include_consistent = TRUE)
+#' out
 #'
-#' # Case-wise summaries:
-#' pigs3 %>%
-#'   debit_map_seq() %>%
-#'   audit()
+#' # Case-wise summaries with `audit_seq()`
+#' # can be more important than the raw results:
+#' audit_seq(out)
+
 
 
 debit_map_seq <- function_map_seq(
