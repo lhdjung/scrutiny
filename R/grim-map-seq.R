@@ -30,8 +30,7 @@
 #' items,percent,show_rec,show_prob,rounding,threshold,symmetric,tolerance,extra
 #' Arguments passed down to `grim_map()`.
 
-#' @section Summaries with `audit_seq()`: There is a method for the
-#'   `audit_seq()` generic, so you can call `audit_seq()` following
+#' @section Summaries with `audit_seq()`: You can call `audit_seq()` following
 #'   `grim_map_seq()`. It will return a data frame with these columns:
 #'   - `x` and `n` are the original inputs, tested for `consistency` here.
 #'   - `hits` is the number of GRIM-consistent value combinations found within

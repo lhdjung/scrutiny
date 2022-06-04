@@ -50,19 +50,20 @@
 #' with the larger dispersed `n`.
 #' - Other columns from `debit_map()` are preserved.
 
-#' @section Summaries with `audit()`: There is an S3 method for the `audit()`
-#'   generic, so you can call `audit()` following up on `debit_map_total_n()`
+#' @section Summaries with `audit_total_n()`: You can call
+#'   `audit_total_n()` following up on `debit_map_total_n()`
 #'   to get a tibble with summary statistics. It will have these columns:
 #'  - `x1`, `x2`, `sd1`, `sd2`, and `n` are the original inputs.
-#'  - `hits_forth` is the number of scenarios in which both `x1` and `sd1`, as
-#'  well as `x2` and `x2`, are DEBIT- consistent with the dispersed `n` values
-#'  when `x2` and `sd2` are paired with the larger dispersed `n`.
-#'  - `hits_back` is the same, except `x1` and `sd1` are paired with the larger
-#'  dispersed `n` value.
-#'  - `hits_total` is the sum of `hits_forth` and `hits_back`, i.e., the total
-#'  number of both-consistent scenarios.
-#'  - `scenarios_total` is the total number of test scenarios, whether or not
-#'  both `x1` / `sd1` and `x2` / `sd2` are consistent.
+#'  - `hits_forth` is the number of scenarios in which all of
+#'  `x1`, `x2`, `sd1`, and `sd2` are DEBIT-consistent with the dispersed
+#'  `n` values when `x2` and `sd2` are paired with the
+#'  larger dispersed `n`.
+#'  - `hits_back` is the same, except `x1` and `sd1` are
+#'  paired with the larger dispersed `n` value.
+#'  - `hits_total` is the sum of `hits_forth` and `hits_back`, i.e.,
+#'  the total number of both-consistent scenarios.
+#'  - `scenarios_total` is the total number of test scenarios,
+#'  whether or not all of `x1`, `x2`, `sd1`, and `sd2` are consistent.
 #'  - `hit_rate` is the ratio of `hits_total` to `scenarios_total`.
 
 #' @export
