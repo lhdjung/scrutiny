@@ -186,10 +186,10 @@ audit_seq <- function(data) {
     purrr::map_dbl(mean) %>%
     unname()
 
-  # dc <- class(data)
-  #
-  # rounding <- dc[stringr::str_detect(dc, "scr_rounding_")]
-  # rounding <- stringr::str_remove(rounding, "scr_rounding_")
+  dc <- class(data)
+
+  rounding <- dc[stringr::str_detect(dc, "scr_rounding_")]
+  rounding <- stringr::str_remove(rounding, "scr_rounding_")
 
   fun_test <-
     dc[stringr::str_detect(dc, "^scr_") & stringr::str_detect(dc, "_map$")]
