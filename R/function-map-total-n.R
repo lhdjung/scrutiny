@@ -189,9 +189,9 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 
 #' @section Conventions: The name of a function manufactured with
 #'   `function_map_total_n()` should mechanically follow from that of the input
-#'   function. For example, `grim_map_total_n()` derives from `grim_map()`. This
-#'   pattern fits best if the input function itself is named after the test it
-#'   performs on a data frame, followed by `_map`: `grim_map()` applies GRIM,
+#'   function. For example, `grim_map_total_n()` derives from `grim_map()`.
+#'   This pattern fits best if the input function itself is named after the test
+#'   it performs on a data frame, followed by `_map`: `grim_map()` applies GRIM,
 #'   `debit_map()` applies DEBIT, etc.
 #'
 #'   Much the same is true for the classes of data frames returned by the
@@ -200,10 +200,6 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 #'   the name of the package that contains it or by an acronym of that package's
 #'   name. In this way, existing classes are `scr_grim_map_total_n` and
 #'   `scr_debit_map_total_n`.
-#'
-#'   Consider writing an `audit()` method for every such class, as this is their
-#'   main purpose. The method should simply call `summarize_map_total_n()`,
-#'   without any further computations.
 
 #' @seealso `disperse_total()`
 #'
