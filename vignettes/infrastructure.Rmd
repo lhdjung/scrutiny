@@ -253,37 +253,6 @@ seq_disperse_df(.from = 0.25, .dispersion = 1:2, .track_var_change = TRUE)
 
 These functions are hybrids between the `seq()` wrappers explained above and the `disperse*()` functions introduced next.
 
-## Vary hypothetical group sizes
-
-TO DO: Port this entire section to the *Implementing consistency tests* vignette, except for the part on `disperse_total()`, because only this latter part really is general infrastructure!
-
-### The problem
-
-The reporting of summary statistics is often insufficient --- certainly from an error detection point of view. In particular, values such as means and standard deviations are not always accompanied by their respective group sizes, but only by a total sample size.
-
-This presents a problem for consistency tests that rely on reported group sizes, such as GRIM. It requires splitting the reported total into groups and creating multiple plausible scenarios of group sizes that add up to the total. Although no definitive test results can be gained this way, it does help to see whether reported values are consistent with at least some of the plausible group sizes [@bauer_expression_2021].
-
-### Producing functions with `function_map_total_n()`
-
-`function_map_total_n()` creates new functions which follow this very scheme by applying a given consistency test to multiple combinations of reported and hypothetical summary statistics. It is the powerhouse behind `grim_map_total_n()` and `debit_map_total_n()`. It's not a helper used inside other functions when creating them with `function()` --- instead, it takes the place of `function()` itself.
-
-See the [case study in the GRIM vignette](https://lhdjung.github.io/scrutiny/articles/grim.html#handling-unknown-group-sizes-with-grim_map_total_n) for an example of how `grim_map_total_n()` works out in practice. Although the underlying code is fairly complex, the function itself was written in a very simple way:
-
-```{r, eval=FALSE}
-grim_map_total_n <- function_map_total_n(
-  .fun = grim_map,
-  .reported = "x",
-  .name_test = "GRIM",
-  .name_class = "scr_grim_map_total_n"
-)
-```
-
-The same pattern can be applied to any function like `grim_map()`, i.e., a function that tests the values contained in multiple columns of a data frame for consistency. One of the columns, `n`, will have its values dispersed from half using `disperse_total()`, explained below.
-
-To export such a function from your own package, make sure to follow [this purrr FAQ](https://purrr.tidyverse.org/reference/faq-adverbs-export.html). (Incredible as it sounds, scrutiny will then take on the role of purrr.) Also, see this [worked example](https://lhdjung.github.io/scrutiny/reference/function_map_total_n.html#ref-examples) for the `.onLoad` pattern.
-
-You might want to write an `audit()` method for the specific class inherited by the output of your manufactured function, or a method for a different generic. If so, `summarize_map_total_n()` will be of interest to you: This one really is a helper.
-
 ### Dispersion from (around) half with `disperse_total()`
 
 Briefly, `disperse_total()` checks if an input total is even or odd, cuts it in half, and creates "dispersed" group sizes going out from there, with each pair of group sizes adding up to the input total. This works naturally with even totals. For odd totals, it starts with the two integers closest to half.
