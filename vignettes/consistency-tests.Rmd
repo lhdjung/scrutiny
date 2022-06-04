@@ -39,11 +39,11 @@ Here is an outline of these levels, and of the present vignette, with GRIM as a 
 
 7.  A mapping function to be used if only the total sample size was reported (in a study with two groups), not the individual group sizes, such as `grim_map_total_n()`.
 
-8.  `audit_seq()` and `audit_total_n()` methods for numbers 6 and 7, respectively. These methods should simply call `summarize_map_seq()` or `summarize_map_total_n()`.
+8.  `audit_seq()` and `audit_total_n()` already work with the output of numbers 6 and 7, respectively. They still have to be specifically documented.
 
 If a valid consistency test is newly implemented with at least the first step, I'll be happy to accept a pull request to scrutiny. Please make sure to follow the [tidyverse style guide](https://style.tidyverse.org/) as well as the scrutiny-specific conventions laid out in this vignette, wherever applicable.
 
-Throughout the vignette, I will use a toy test called SCHLIM as a model to demonstrate the minimal steps needed to implement consistency tests, scrutiny-style. Note that SCHLIM doesn't have any significance beyond standing in for serious consistency tests. Also note that any real implementation will, and perhaps should, be much more complex that the highly reduced examples below. However, I will also recur to existing functions that implement actual tests, and that the reader may be familiar with.
+I will sometimes use a toy test called SCHLIM as a model to demonstrate the minimal steps needed to implement consistency tests, scrutiny-style. Note that SCHLIM doesn't have any significance beyond standing in for serious consistency tests. Also note that any real implementation will, and perhaps should, be much more complex that the highly reduced examples below. However, I will also recur to existing functions that implement actual tests, and that the reader may be familiar with.
 
 Most functions discussed here deal with data frames. I always use [tibbles](https://r4ds.had.co.nz/tibbles.html), and I strongly recommend the same to you. There's no guarantee that each of those functions works with non-tibble data frames as it does with tibbles.
 
@@ -99,13 +99,13 @@ The (only) requirements for the mapping function are:
 
 1.  Its name ends on `_map` instead of `_scalar` but is otherwise the same as the name of the respective `_scalar` function.
 
-2.  Its first argument is a data frame that contains the key columns of the respective consistency test. Other columns are permitted but don't factor into the test unless they are transformer columns. The mapper's user never needs to include transformer columns and can always replace them by specifying arguments by the same names as those columns. If the user specifies such an argument but the input data frame contains a column by the same name, the function throws an error.
+2.  Its first argument is a data frame that contains the key columns of the respective consistency test. Other columns are permitted but don't factor into the test unless they are transformer columns. The mapper's user never needs to include transformer columns and can always replace them by specifying arguments by the same names as those columns. If the user specifies such an argument but the input data frame contains a column by the same name, the function throws an error. No column of the input data frame should be named `"consistency"`.
 
-3.  Its return value is a data frame that contains all of the key input columns. The types of these columns are the same as in the input data frame. They are the first (i.e., leftmost) columns in the output, even if the input isn't ordered this way. If any of these columns are transformed within the mapping function, the output should include the transformed columns, not the original ones. An example is the change displayed by the `"x"` column in the output of `grim_map(percent = TRUE)`.
+3.  Its return value is a tibble data frame that contains all of the key input columns. The types of these columns are the same as in the input data frame. They are the first (i.e., leftmost) columns in the output, even if the input isn't ordered this way. If any of these columns are modified within the mapping function, the output should include the modified columns, not the original ones. An example is the change displayed by the `"x"` column in the output of `grim_map(percent = TRUE)`. Transformer columns should not be included in the output.
 
-4.  The output data frame also contains a Boolean column named `"consistency"`. It contains the results of the consistency test. In each row, `"consistency"` is `TRUE` if the values to its left are mutually consistent, and `FALSE` if they aren't. This column is placed immediately to the right of the key columns.
+4.  The output data frame also contains a Boolean column named `"consistency"`. It contains the results of the consistency test, as determined by the respective `_scalar` function. In each row, `"consistency"` is `TRUE` if the values to its left are mutually consistent, and `FALSE` if they aren't. This column is placed immediately to the right of the key columns.
 
-5.  If the underlying single-case function performs rounding or unrounding, it should internally call `reround()` and/or `unround()`, respectively. The output data frame of the mapper function will then inherit an S3 class (see section *S3 classes* below) such as `"scr_rounding_up_or_down"`: It consists of `"scr_rounding_"` followed by the rounding specification, e.g., `"up_or_down"`. The latter should also be the default rounding and unrounding specification. This specification can be supplied by the user via an argument called `rounding`, which is then passed down to the single-case function.
+5.  If the underlying single-case function performs rounding or unrounding, it should internally call `reround()` and/or `unround()`, respectively. The output data frame of the mapper function will then inherit an S3 class (see section *S3 classes* below) such as `"scr_rounding_up_or_down"`: It consists of `"scr_rounding_"` followed by the rounding specification, e.g., `"up_or_down"`. The latter should also be the default rounding and unrounding specification. This specification can be supplied by the user via an argument called `rounding`, which is then passed down to the single-case function. If `reround()` is called within the mapper, all of its arguments need to be passed down from the mapper, which itself has all of the same arguments, with the same defaults. The same applies to `unround()`.
 
 6.  The output data frame inherits an S3 class that consists of `"scr_"` (short for scrutiny), followed by the name of the mapper function. For example, the output of `grim_map()` inherits the `"scr_grim_map"` class. The `"scr_"` prefix is necessary for some follow-up computations introduced below, so it should be used even within functions that are not part of scrutiny. Any other classes added to the output data frame should also start on `"scr_"`. None of them should end on `"_map"`.
 
@@ -115,19 +115,28 @@ Some implications of these requirements, and of the fact that the design space f
 
 Anything that factors into the consistency test other than tested columns needs to be conveyed to the mapper function via arguments. An example is the `rounding` argument in `grim_map()`. Mapper functions don't need to allow for transformer columns.
 
+The input data frame is not necessarily a tibble, but the output data frame is. The input data frame never contains a column named `"consistency"`, but the output data frame always does.
+
+Key columns can be modified by transformer columns and/or arguments.
+
 The output data frame may or may not contain non-tested columns from the input. It may or may not contain non-tested columns created within the mapper function itself. (This can be useful, as with `"ratio"` in `grim_map()`'s output.) Any such non-tested, non-`"consistency"` columns go to the right of `"consistency"`.
 
-If the number of key columns is $k$, the index of `"consistency"` is $k+1$.
+If the number of key columns is $k$, the index of `"consistency"` in the output is $k+1$.
 
 Besides the `"scr_*_map"` class, the output data frame may inherit any number of other classes added within the mapper, so long as they start on `"scr_"` but don't end on `"_map"`.
 
-The input columns are organized like this:
+The columns of the input and output data frames are organized like this:
 
-![](images/consistency_test_columns-01.png){width="500"}
+![](images/consistency_test_columns-02.png){width="585"}
 
 ## Practical steps
 
 ### Mapping
+
+```{r include=FALSE}
+# Just internally, so that the function source code below works:
+add_class <- scrutiny:::add_class
+```
 
 How to actually write mapper functions? I recommend applying the `_scalar` function to the input data frame using `purrr::map2_lgl()` if exactly two columns are tested, and `purrr::pmap_lgl()` if more than two columns are tested:
 
@@ -137,7 +146,8 @@ schlim_map <- function(data) {
   n <- data$n
   consistency <- purrr::map2_lgl(y, n, schlim_scalar)
   out <- tibble::tibble(y, n, consistency)
-  add_class(out, "scr_schlim_map")  # See section "S3 classes" below
+  out <- add_class(out, "scr_schlim_map")  # See section "S3 classes" below
+  out
 }
 ```
 
@@ -171,17 +181,17 @@ If you don't know what S3 classes are, don't worry. Just copy and paste the func
 ```{r, eval=FALSE}
 add_class <- function(x, new_class) {
   class(x) <- c(new_class, class(x))
-  return(x)
+  x
 }
 ```
 
 ### Internal helpers
 
-Within scrutiny, many functions that are exported for users internally call helper functions that are not, such as `add_class()`. If you'd like to use such an internal helper for yourself, specify it like `scrutiny:::add_class()` (note the three colons!).
+Within scrutiny, many functions that are exported for users internally call helper functions that are not, such as `add_class()`. You might be writing your own function following the design of an exported scrutiny function, but suddenly you can't access a function that you seem to need!
 
-However, you should only use this trick to copy and paste the helper's source code into your own source code. Never rely on a function called with `:::`, because these internals are not directly meant for users. They can easily shift and vanish without notice.
+If you'd like to employ such an internal helper for yourself, specify its namespace with three colons, like `scrutiny:::add_class`. However, you should only use this trick to copy and paste the helper's source code into your own source code. (That's why I left out the parentheses --- return the function itself.) Never rely on calling a function with `:::`, because these internals are not actually meant for users. They can easily shift and vanish without notice.
 
-When looking for internal helpers in scrutiny's source code, start at the [utils.R](https://github.com/lhdjung/scrutiny/blob/main/R/utils.R) file. Most helpers can be found there, and some of them feature some rudimentary documentation.
+When directly looking for internal helpers in scrutiny's source code, start at the [utils.R](https://github.com/lhdjung/scrutiny/blob/main/R/utils.R) file. Most helpers can be found there, and some of them feature rudimentary documentation.
 
 # 6. Sequence mapper
 
@@ -233,7 +243,7 @@ You will notice that I have talked about two existing functions, rather than ---
 
 If you're developing a package, you should document the behavior of `audit_seq()` and `audit_total_n()` on the same pages as your `_map_seq` and `_map_total_n` functions. This is necessary because the names of the output columns will depend on the number and names of the key columns in the output of your manufactured function.
 
-There are even specialized helpers for both of these functions, `write_doc_audit_seq()` and `write_doc_audit_total_n()`. Here is how I used the first one for `grim_map_seq()` and `debit_map_seq()`, omitting the output to save space:
+There are specialized helpers for both of these functions, `write_doc_audit_seq()` and `write_doc_audit_total_n()`. Here is how I used the first one for `grim_map_seq()` and `debit_map_seq()`, with the output omitted to save space:
 
 ```{r, eval=FALSE}
 write_doc_audit_seq(key_args = c("x", "n"), name_test = "GRIM")
