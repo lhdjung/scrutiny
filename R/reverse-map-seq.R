@@ -65,13 +65,9 @@ reverse_map_seq <- function(data) {
     ))
   }
 
-  # var <- unique(data$var)
-
   var <- data %>%
     select_tested_cols() %>%
     colnames()
-
-  # var_unique <- unique(data$var)
 
   var_unique <- var
 
@@ -91,36 +87,13 @@ reverse_map_seq <- function(data) {
     }
   }
 
-    # tibble::tibble(.name_repair = ~ "df") %>%
-    # dplyr::arrange(var) %>%
-    # dplyr::pull(df)
-
-
-  # case_count <- data %>%
-  #   dplyr::group_by(case, var) %>%
-  #   dplyr::count() %>%
-  #   dplyr::arrange(var) %>%
-  #   dplyr::ungroup()
-
-  # case_count <- data  # %>%
-  #   # dplyr::group_by(case, var)
-
-  # case_count_split <- split(case_count, case_count$var)[var]
-  # case_count_split <- case_count_split %>%
-  #   purrr::map(dplyr::pull, case)
-
-
-  # TO DO: APPLY `interpolate_index_case()` IN EACH ROW!
   data_nested <- data %>%
     dplyr::nest_by(case, var) %>%
     dplyr::arrange(var)
 
-  # Maybe do this later on in the algorithm:
   data_nested <- split(data_nested, data_nested$var)[var]
   data_nested <- dplyr::bind_rows(data_nested)
-  # data_nested$data <- purrr::map(data_nested$data, `[`)
 
-  # GO ON HERE:
   data_index_case <- data_nested %>%
     dplyr::mutate(
       scr_index_case = list(data[var]),
@@ -135,37 +108,6 @@ reverse_map_seq <- function(data) {
       values_from = scr_index_case,
       values_fn   = list
     ) %>%
-    tidyr::unnest(cols = everything()) %>%
-    tidyr::unnest(cols = everything()) # yes, this is weird
-
-  return(out)
-
-
-  # ALL CODE BELOW IS QUESTIONABLE AND SHOULD LIKELY BE REMOVED
-
-  data_var_with_index_case <- data_var %>%
-    purrr::map(split, data$case) %>%
-    tibble::tibble(.name_repair = ~ "df") %>%
-    dplyr::mutate(
-      var,
-      df = purrr::modify_depth(df, .depth = 2, select_tested_cols),  # dplyr::select, all_of(var)),
-      df = purrr::map2(df, var, ~ purrr::map2(.x, .y, `[`))
-    ) %>%
-    dplyr::pull(df) %>%
-    purrr::flatten() %>%
-    purrr::map(`[[`, 1) %>%
-    purrr::map(index_case_interpolate) %>%
-    suppressWarnings()
-
-  var_group_size <- length(data_var_with_index_case) / length(var)
-
-  data_var_with_index_case <- data_var_with_index_case %>%
-    split_into_groups(group_size = var_group_size)
-
-  out <- data_var_with_index_case %>%
-    tibble::tibble(.name_repair = ~ "df") %>%
-    dplyr::mutate(var) %>%
-    tidyr::pivot_wider(names_from = var, values_from = df) %>%
     tidyr::unnest(cols = everything()) %>%
     tidyr::unnest(cols = everything()) # yes, this is weird
 
