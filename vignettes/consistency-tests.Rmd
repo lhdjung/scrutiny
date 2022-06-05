@@ -123,7 +123,7 @@ The output data frame may or may not contain non-tested columns from the input. 
 
 If the number of key columns is $k$, the index of `"consistency"` in the output is $k+1$.
 
-Besides the `"scr_*_map"` class, the output data frame may inherit any number of other classes added within the mapper, so long as they start on `"scr_"` but don't end on `"_map"`.
+Besides the `"scr_*_map"` class, the output data frame may inherit any number of other classes added within the mapper, so long as they start on `"scr_"` but don't end on `"_map"`. It can't inherit the `"grouped_df"` or `"rowwise_df"` classes added by `dplyr::group_by()` and `dplyr::rowwise()`, respectively. If either of these functions is called within the mapper, it needs to be followed by `dplyr::ungroup()` at some point.
 
 The columns of the input data frame are organized like this:
 
@@ -162,7 +162,7 @@ schlim_map_alt <- function(data) {
   data %>% 
     dplyr::rowwise() %>% 
     dplyr::mutate(consistency = schlim_scalar(y, n)) %>% 
-    dplyr::ungroup() %>% 
+    dplyr::ungroup() %>%         # `ungroup()` is important
     add_class("scr_schlim_map")  # See section "S3 classes" below
 }
 ```
@@ -203,7 +203,7 @@ When directly looking for internal helpers in scrutiny's source code, start at t
 
 `audit()` is an S3 generic for summarizing the results of scrutiny's test result data frames, especially those of mapper functions such as `grim_map()`. Every mapper function should have its appropriate `audit()` method.
 
-This is an aspect of object-oriented programming (OOP), but scrutiny's use of OOP is simple even by R's standards. Your mapper function already returns a specific class, such as `"scr_grim_map"` or `"scr_debit_map"`. In `schlim_map()`, we added the `"scr_schlim_map"` class in addition to existing classes:
+This is an aspect of object-oriented programming (OOP), but scrutiny's use of OOP is simple even by the low standards of R. Your mapper function already returns a specific class, such as `"scr_grim_map"` or `"scr_debit_map"`. In `schlim_map()`, we added the `"scr_schlim_map"` class in addition to existing classes:
 
 ```{r}
 df1_tested <- schlim_map(df1)
@@ -233,17 +233,22 @@ Every `audit()` method for consistency test results should be the same insofar a
 
 3.  `incons_rate` is the ratio of `incons_cases` to `all_cases`.
 
-Apart from these, see for yourself which summary statistics your `audit()` method should compute.
+Apart from these, see for yourself which summary statistics your `audit()` method should compute. Means of variables in the `*_map()` function's output and their ratios to each other might be sensible choices.
 
 ## Documentation template
 
 Each `audit()` method should be documented on the same page as its respective mapper function. It should have its own section. Create it with `write_doc_audit()`:
 
-```{r, eval=FALSE}
-write_doc_audit(sample_output = audit(grim_map(pigs1)), name_test = "GRIM")
+```{r}
+audit_grim  <- audit(grim_map(pigs1))
+audit_debit <- audit(debit_map(pigs3))
+
+write_doc_audit(sample_output = audit_grim,  name_test = "GRIM")
+
+write_doc_audit(sample_output = audit_debit, name_test = "DEBIT")
 ```
 
-This function prepares a rogygen2 block section for you. It fills out the three standard columns for you, and it leaves space to describe the other columns. Also, the internal checks of `write_doc_audit()` make sure that you wrote a correct `audit()` method, as represented by the value of the `sample_output` argument.
+This function prepares a rogygen2 block section. It fills the three standard columns out for you, and it leaves space to describe the other columns. Also, the internal checks of `write_doc_audit()` make sure that you wrote a correct `audit()` method, as represented by the value of the `sample_output` argument.
 
 Copy the output from the console and paste it into the rogygen2 block of your `_map` function. To preserve the numbered list structure when indenting rogygen2 comments with `Ctrl`+`Shift`+`/`, leave empty lines between the pasted output and the rest of the block.
 
@@ -251,20 +256,21 @@ Copy the output from the console and paste it into the rogygen2 block of your `_
 
 ## Introduction
 
-It is hard to give general advice on how to create visualization functions for the results of consistency tests. As with the `_scalar` function, the implementation of a visualization function greatly depends on the idiosyncratic nature of the consistency test itself. When comparing the looks of `grim_plot()` and `debit_plot()`, it is clear that two very different things are going on.
+It is hard to give general advice on how to implement visualization functions for the results of consistency tests. As with the `_scalar` function, the best way to plot such results greatly depends on the idiosyncratic nature of the consistency test itself. When comparing the looks of `grim_plot()` and `debit_plot()`, it becomes clear that two very different things are going on. (This is mainly because granularity is crucial for GRIM but not for DEBIT.)
 
 ## Requirements
 
-Nevertheless, some requirements do apply to scrutiny-style visualization functions. They are much more like arbitrary conventions than the requirements for mapper functions, which often meet very particular technical needs. Visualization functions are also dead ends for programming: No other computations build up on them, at least not within scrutiny.
+Nevertheless, some general requirements do apply to scrutiny-style visualization functions. They are much more like arbitrary conventions than the requirements for mapper functions, which often meet very precise technical needs. Visualization functions are also dead ends for programming: No other computations build up on them, at least not within scrutiny.
 
-As a result, the points below are admittedly somewhat less important. If you violate them, nobody but me will be sad about it.
+As a result, the rules below are admittedly somewhat less important. If you violate them, nobody but me will be sad about it.
 
 1.  All plots should be based on ggplot2. They don't need to implement any newly created layers, such as geoms or themes. Indeed, neither of the two existing visualization functions relies on any new layers.
 2.  The first argument, `data`, is a data frame that is the result of a call to the respective mapper function, such as `grim_map()` or `debit_map()`. The visualization function makes sure this is true by checking that `data` inherits the special class added within the mapper, such as `scr_grim_map` or `scr_debit_map`. If `data` fails this check, the function throws an error.
 3.  Both plots mentioned above display consistent and inconsistent value sets. The defaults for colors should be `"royalblue1"` for consistent value sets and `"red"` for inconsistent ones. The user can override these defaults via two arguments named `color_cons` for consistent value sets and `color_incons` for inconsistent ones.
 4.  If certain layers are optional rather than essential to the plot, their display can be controlled via Boolean arguments that start on `show_`. Examples are `show_data` in `grim_plot()` or `show_outer_boxes` in `debit_plot()`. Only arguments of this kind should start on `show_`. They should have defaults (which will usually be `TRUE`, but this is not a requirement).
-5.  The most important aesthetics for the geom layers are passed down to the latter via arguments. This namely concerns `alpha` (i.e. opacity), `color`, and `size`, in this order. If the respective colors are covered by `color_cons` and `color_incons`, not further `color` argument is needed for them. If multiple layers need `alpha`, `color`, and `size` arguments, the latter should start with an expression that stands for the layer, not with `alpha`, `color`, or `size`, respectively. Examples are `line_alpha`, `line_color`, and `line_size` in `debit_plot()`.
-6.  Arguments passed on to aesthetics should have the same defaults as those aesthetics themselves have in ggplot2 unless there is a compelling reason for different defaults. Again, `line_alpha`, `line_color`, and `line_size` are examples for this.
+5.  The most important aesthetics for the geoms are passed down to the latter via arguments. Namely, these are `alpha` (i.e. opacity), `color`, and `size`, in this order. If multiple geoms need `alpha`, `color`, and `size` arguments, the latter should start with an expression that stands for the geom, not with `alpha`, `color`, or `size`, respectively. Examples are `line_alpha`, `line_color`, and `line_size` in `debit_plot()`.
+6.  Point 5 does not apply if the respective parameter is determined by the data, like the size of `geom_tile()` in `debit_plot()`. It does not apply either if there are good reasons to hold a parameter constant, as with `geom_rect()` in `grim_plot()`, where `size` is constant at `1` but the effective size is determined by the granularity of the data. If the respective colors are covered by `color_cons` and `color_incons`, not further `color` argument is needed for them.
+7.  Arguments passed on to aesthetics should have the same defaults as those aesthetics themselves have in ggplot2 unless there is a compelling reason for different defaults. Again, `line_alpha`, `line_color`, and `line_size` are examples for this.
 
 # 6. Sequence mapper
 
@@ -300,21 +306,52 @@ debit_map_seq <- function_map_seq(
 
 Any consistency test that is already implemented in a mapper function like `grim_map()` and `debit_map()` can receive its own `*_map_seq()` function just as easily using `function_map_seq()`. That is due to scrutiny's streamlined design conventions --- specifically, the requirements for mapper functions laid out in section 3.
 
+Let's write a sequence mapper for SCHLIM:
+
+```{r}
+schlim_map_seq <- function_map_seq(
+  .fun = schlim_map,
+  .reported = c("y", "n"),
+  .name_test = "SCHLIM",
+  .name_class = "scr_schlim_map_seq"
+)
+
+# Test dispersed sequences:
+out_seq <- schlim_map_seq(df1)
+out_seq
+
+# Summarize:
+audit_seq(out_seq)
+```
+
+By default, a `*_map_seq()` function only creates sequences around inconsistent input values. That is because its primary purpose is to shed light on inconsistencies in reported statistics. Override the default with `include_consistent = TRUE`:
+
+```{r}
+df1 %>% 
+  schlim_map_seq(include_consistent = TRUE) %>% 
+  audit_seq()
+
+# Compare with the original values:
+df1
+```
+
+As you can see, `function_map_seq()` is not a helper used inside other functions when creating them with `function()` --- instead, it takes the place of `function()` itself. This makes it a so-called function factory, or more precisely, a function operator, a.k.a. decorator [@wickham2019, ch. 10-11].
+
+To export a function manufactured this way from your own package, make sure to follow [this purrr FAQ](https://purrr.tidyverse.org/reference/faq-adverbs-export.html). (Incredible as it sounds, scrutiny will then take on the role of purrr.) Also, see this [worked example](https://lhdjung.github.io/scrutiny/reference/function_map_total_n.html#ref-examples) for the `.onLoad` pattern.
+
 # 7. Total-n mapper
 
-## Vary hypothetical group sizes
-
-### The problem
+## Introduction
 
 The reporting of summary statistics is often insufficient --- certainly from an error detection point of view. In particular, values such as means and standard deviations are not always accompanied by their respective group sizes, but only by a total sample size.
 
 This presents a problem for consistency tests that rely on reported group sizes, such as GRIM. It requires splitting the reported total into groups and creating multiple plausible scenarios of group sizes that add up to the total. Although no definitive test results can be gained this way, it does help to see whether reported values are consistent with at least some of the plausible group sizes [@bauer_expression_2021].
 
-### Producing functions with `function_map_total_n()`
+## Practical steps
 
-`function_map_total_n()` creates new functions which follow this very scheme by applying a given consistency test to multiple combinations of reported and hypothetical summary statistics. It is the powerhouse behind `grim_map_total_n()` and `debit_map_total_n()`. It's not a helper used inside other functions when creating them with `function()` --- instead, it takes the place of `function()` itself.
+`function_map_total_n()` creates new functions which follow this very scheme by applying a given consistency test to multiple combinations of reported and hypothetical summary statistics. It is the powerhouse behind `grim_map_total_n()` and `debit_map_total_n()`, just as `function_map_seq()` is the powerhouse behind `grim_map_seq()` and `debit_map_seq()`. See the [case study in the GRIM vignette](https://lhdjung.github.io/scrutiny/articles/grim.html#handling-unknown-group-sizes-with-grim_map_total_n) for an example of how `grim_map_total_n()` works out in practice.
 
-See the [case study in the GRIM vignette](https://lhdjung.github.io/scrutiny/articles/grim.html#handling-unknown-group-sizes-with-grim_map_total_n) for an example of how `grim_map_total_n()` works out in practice. Although the underlying code is fairly complex, the function itself was written in a very simple way:
+As with `function_map_seq()`, creating a manufactured `*_total_n()` function is very easy. Just let the function factory do the work for you:
 
 ```{r, eval=FALSE}
 grim_map_total_n <- function_map_total_n(
@@ -323,25 +360,55 @@ grim_map_total_n <- function_map_total_n(
   .name_test = "GRIM",
   .name_class = "scr_grim_map_total_n"
 )
+
+debit_map_total_n <- function_map_total_n(
+  .fun = debit_map,
+  .reported = c("x", "sd"),
+  .name_test = "DEBIT",
+  .name_class = "scr_debit_map_total_n"
+)
 ```
 
-The same pattern can be applied to any function like `grim_map()`, i.e., a function that tests the values contained in multiple columns of a data frame for consistency. One of the columns, `n`, will have its values dispersed from half using `disperse_total()`, explained below.
+To drive this point home, let's do the same with SCHLIM:
 
-To export such a function from your own package, make sure to follow [this purrr FAQ](https://purrr.tidyverse.org/reference/faq-adverbs-export.html). (Incredible as it sounds, scrutiny will then take on the role of purrr.) Also, see this [worked example](https://lhdjung.github.io/scrutiny/reference/function_map_total_n.html#ref-examples) for the `.onLoad` pattern.
+```{r}
+schlim_map_total_n <- function_map_total_n(
+  .fun = schlim_map,
+  .reported = "y",
+  .name_test = "SCHLIM",
+  .name_class = "scr_schlim_map_total_n"
+)
+
+# Example data:
+df_groups_schlim <- tibble::tribble(
+  ~y1, ~y2, ~n,
+   84,  37,  29,
+   61,  55,  26
+)
+
+# Test dispersed sequences:
+out_total_n <- schlim_map_total_n(df_groups_schlim)
+out_total_n
+
+# Summarize:
+audit_total_n(out_total_n)
+```
+
+The same pattern can be applied to any other mapper function that fulfills the requirements from section 3. One of the columns, `n`, will have its values dispersed from half, internally using `disperse_total()`. See the advice on exporting manufactured functions at the end of section 6.
 
 # 8. Documenting `audit_seq()` and `audit_total_n()`
 
 ## Introduction
 
-The output of sequence mappers and total-n mappers is very comprehensive. This makes it somewhat unwieldy and creates a need for summaries. As a first step, you can always call `audit()` on the tibbles returned by manufactured functions like `grim_map_seq()`. It will go by the `"*_map"` class added within the basic mapper function, such as `grim_map()`, and return the regular output of the respective `audit()` method.
+The output of sequence mappers and total-n mappers is very comprehensive. This makes it somewhat unwieldy and creates a need for summaries. As a first step, the user can always call `audit()` on the tibbles returned by manufactured functions like `grim_map_seq()`. It will go by the `"*_map"` class added within the basic mapper function, such as `grim_map()`, and return the regular output of the respective `audit()` method.
 
-However, scrutiny features specialized functions for summarizing the results of manufactured `*_seq()` or `*_total_n()` functions: `audit_seq()` and `audit_total_n()`. These two are not generic like `audit()`, but they only work with the output of functions created with `function_map_seq()` and `function_map_total_n()`, respectively.
+However, scrutiny features two specialized functions for summarizing the results of manufactured `*_seq()` or `*_total_n()` functions: `audit_seq()` and `audit_total_n()`. These two are not generic like `audit()`, but they only work with the output of functions created with `function_map_seq()` and `function_map_total_n()`, respectively.
 
 You will notice that I have talked about two existing functions, rather than --- as in the other sections --- a kind of function that you should be writing. Indeed, there is nothing left for you to do about these functions themselves, unless you find a bug in them! What you should do, however, is to document the behavior of `audit_seq()` and `audit_total_n()` with regard to the specific test that you have implemented.
 
 ## Documentation templates
 
-`audit_seq()` and `audit_total_n()` rely on the uniform design of the manufactured functions, which allows them to compute essentially the same summaries: Their behavior only varies with the names and numbers of the key columns, which in turn follow straightforwardly from the nature of the consistency test. If you're developing a package, you should therefore document the behavior of `audit_seq()` and `audit_total_n()` on the same pages as your manufactured `_map_seq` and `_map_total_n` functions.
+`audit_seq()` and `audit_total_n()` rely on the uniform design of the manufactured functions, which allows them to compute essentially the same summaries: Their behavior only varies with the names and numbers of the key columns, which in turn follow straightforwardly from the nature of the consistency test. If you're developing a package, you should therefore document the behavior of `audit_seq()` and `audit_total_n()` on the same pages as your manufactured `*_map_seq()` and `*_map_total_n()` functions.
 
 There are specialized helpers for creating the respective documentation sections, `write_doc_audit_seq()` and `write_doc_audit_total_n()`. Here is how I used the first one for `grim_map_seq()` and `debit_map_seq()`, with the output omitted to save space:
 
@@ -362,3 +429,5 @@ write_doc_audit_total_n(key_args = c("x", "sd", "n"), name_test = "DEBIT")
 ```
 
 Why did I develop, and export, such strange functions? Documenting one's package should not be glossed over, and there is value in standardization, as well. `write_doc_audit_seq()` and `write_doc_audit_total_n()` deliver quality documentation with little effort while also establishing firm conventions for it.
+
+# References
