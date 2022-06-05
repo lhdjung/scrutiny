@@ -150,7 +150,7 @@ censor <- function(x, left, right) {
 # Conveniently add one or more classes to an object:
 add_class <- function(x, new_class) {
   class(x) <- c(new_class, class(x))
-  return(x)
+  x
 }
 
 
@@ -312,6 +312,18 @@ check_type <- function(x, t) {
     cli::cli_abort(c(
       "`{msg_name}` is of type {typeof(x)}.",
       "x" = "It needs to {msg_object} {t}."
+    ))
+  }
+}
+
+
+
+check_class <- function(x, cl) {
+  if (!inherits(x, cl)) {
+    msg_name <- deparse(substitute(x))
+    cli::cli_abort(c(
+      "Required class missing.",
+      "x" = "`{msg_name}` doesn't inherit class \"{cl}\"."
     ))
   }
 }
