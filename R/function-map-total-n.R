@@ -318,6 +318,7 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 # fun <- grim_map
 # reported <- "x"
 # name_test <- "GRIM"
+# name_class <- "scr_grim_map_total_n"
 # dispersion <- 0:5
 # n_min <- 1
 # n_max <- NULL
