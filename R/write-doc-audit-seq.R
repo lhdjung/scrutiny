@@ -55,6 +55,100 @@ write_doc_factory_map_audit_section <- function(glue_strings) {
 
 
 
+#' Documentation template for `audit()`
+#'
+#' @description `write_doc_audit()` creates a roxygen2 block section to be
+#'   inserted into the documentation of a mapper function such as `grim_map()`
+#'   or `debit_map()`: functions for which there are, or should be, `audit()`
+#'   methods. The section informs users about the ways in which `audit()`
+#'   summarizes the results of the respective mapper function.
+#'
+#'   Copy the output from your console and paste it into the rogygen2 block of
+#'   your `*_map()` function. To preserve the numbered list structure when
+#'   indenting rogygen2 comments with `Ctrl`+`Shift`+`/`, leave empty lines
+#'   between the pasted output and the rest of the block.
+#'
+#' @param sample_output Data frame. Result of a call to `audit()` on a data
+#'   frame that resulted from a call to the mapper function for which you wrote
+#'   the `audit()` method, such as `audit(grim_map(pigs1))` or
+#'   `audit(debit_map(pigs3))`.
+#' @param name_test String (length 1). Name of the consistency test which the
+#'   mapper function applies, such as `"GRIM"` or `"DEBIT"`.
+#'
+#' @export
+#'
+#' @examples
+#' # Start by running `audit()`:
+#' out_grim  <- audit(grim_map(pigs1))
+#' out_debit <- audit(debit_map(pigs3))
+#'
+#' out_grim
+#' out_debit
+#'
+#' # Documenting the `audit()` method for `grim_map()`:
+#' write_doc_audit(sample_output = out_grim, name_test = "GRIM")
+#'
+#' # Documenting the `audit()` method for `debit_map()`:
+#' write_doc_audit(sample_output = out_debit, name_test = "DEBIT")
+
+
+write_doc_audit <- function(sample_output, name_test) {
+
+  check_class(sample_output, "data.frame")
+  check_class(sample_output, "tbl_df")
+  check_length(name_test, 1)
+
+  output_name <- colnames(sample_output)
+  output_number <- 1:length(output_name)
+  output_text <- c(
+    glue::glue("number of {name_test}-inconsistent value sets."),
+    "total number of value sets.",
+    glue::glue("proportion of {name_test}-inconsistent value sets.")
+  )
+
+  length_other_cols <- length(sample_output) - 3
+  output_text <- append(output_text, rep("", length_other_cols))
+
+  if (length(sample_output) < 3) {
+    cli::cli_abort(c(
+      "Invalid `sample_output` argument.",
+      "x" = "It needs to be the output of `audit()` applied \\
+      to a scrutiny-style mapper function, such as `grim_map()`.",
+      ">" = "(These outputs always have at least three columns.)"
+    ))
+  }
+
+  output_name_expected <- c("incons_cases", "all_cases", "incons_rate")
+
+  if (any(output_name[1:3] != output_name_expected)) {
+    cli::cli_abort(c(
+      "Invalid output names.",
+      "x" = "The first three columns in the output need to be named \\
+      \"incons_cases\", \"all_cases\", and \"incons_rate\"."
+    ))
+  }
+
+  name_test_lower <- tolower(name_test)
+
+  intro <- glue::glue(
+    "#' @section Summaries with `audit()`: There is an S3 method for `audit()`, so \n",
+    "#'   you can call `audit()` following `{name_test_lower}_map()` to get a summary of \n",
+    "#'   `{name_test_lower}_map()`'s results. It is a tibble with a single row and these \n",
+    "#'   columns -- \n",
+    "#' \n"
+  )
+
+  line <- "#' {output_number}. `{output_name}`: {output_text}\n"
+  lines_all <- glue::glue(line)
+
+  out <- c(intro, lines_all)
+  out <- glue::as_glue(out)
+  out
+}
+
+
+
+
 #' Documentation template for `audit_seq()`
 #'
 #' @description `write_doc_audit_seq()` creates a roxygen2 block section to be
@@ -138,7 +232,7 @@ write_doc_audit_seq <- write_doc_factory_map_audit_section(c(
 #     var_ge_3_line <- "#'   - Accordingly for {commas_and(var_ge_3)}."
 #   }
 #
-#   # Return documentation:
+#   # Return documentation section:
 #   glue::glue(
 #     "#' @section Summaries with `audit_seq()`: You can call `audit_seq()` following \n",
 #     "#'   `{tolower(name_test)}_map_seq()`. It will return a data frame with these columns: \n",
@@ -248,7 +342,7 @@ write_doc_audit_total_n <- function(key_args, name_test) {
   }
 
 
-  # Return documentation:
+  # Return documentation section:
   glue::glue(
     "#' @section Summaries with `audit_total_n()`: You can call \n",
     "#'   `audit_total_n()` following up on `{name_test_lower}_map_total_n()` \n",
@@ -265,7 +359,6 @@ write_doc_audit_total_n <- function(key_args, name_test) {
     "#'  - `scenarios_total` is the total number of test scenarios, \n",
     "#'  whether or not {both_all_of} {key_args_num_commas} are consistent. \n",
     "#'  - `hit_rate` is the ratio of `hits_total` to `scenarios_total`. \n"
-
   )
 }
 
@@ -300,26 +393,32 @@ write_doc_audit_total_n <- function(key_args, name_test) {
 #' write_doc_factory_map_conventions(ending = "total_n")
 
 
-write_doc_factory_map_conventions <- function(ending) {
+write_doc_factory_map_conventions <- function(ending, name_test1 = "GRIM",
+                                              name_test2 = "DEBIT") {
 
   # Checks ---
   check_length(ending, 1)
 
   # Main part ---
+
+  name_test1_lower <- tolower(name_test1)
+  name_test2_lower <- tolower(name_test2)
+
+  # Return documentation section:
   glue::glue(
     "#' @section Conventions: The name of a function manufactured with \n",
     "#'   `function_map_{ending}()` should mechanically follow from that of the input \n",
-    "#'   function. For example, `grim_map_{ending}()` derives from `grim_map()`. \n",
+    "#'   function. For example, `{name_test1_lower}_map_{ending}()` derives from `{name_test1_lower}_map()`. \n",
     "#'   This pattern fits best if the input function itself is named after the test \n",
-    "#'   it performs on a data frame, followed by `_map`: `grim_map()` applies GRIM, \n",
-    "#'   `debit_map()` applies DEBIT, etc. \n",
+    "#'   it performs on a data frame, followed by `_map`: `{name_test1_lower}_map()` applies {name_test1}, \n",
+    "#'   `{name_test2_lower}_map()` applies {name_test2}, etc. \n",
     "#' \n",
     "#'   Much the same is true for the classes of data frames returned by the \n",
     "#'   manufactured function via the `.name_class` argument of \n",
     "#'   `function_map_{ending}()`. It should be the function's own name preceded by \n",
     "#'   the name of the package that contains it or by an acronym of that package's \n",
-    "#'   name. In this way, existing classes are `scr_grim_map_{ending}` and \n",
-    "#'   `scr_debit_map_{ending}`. \n"
+    "#'   name. In this way, existing classes are `scr_{name_test1_lower}_map_{ending}` and \n",
+    "#'   `scr_{name_test2_lower}_map_{ending}`. \n"
   )
 }
 
