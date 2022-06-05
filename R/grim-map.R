@@ -261,10 +261,15 @@ that column."
 
       colnames(consistency_df) <- col_names
 
+      index_consistency <- results %>%
+        select_key_columns() %>%
+        ncol() %>%
+        `+`(1)
+
       results <- results %>%
         dplyr::select(-consistency) %>%
         dplyr::bind_cols(consistency_df) %>%
-        dplyr::relocate(ratio, .after = n_cols + 4)
+        dplyr::relocate(ratio, .after = index_consistency + n_cols)
 
       return(results)
     }
