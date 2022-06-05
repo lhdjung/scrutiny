@@ -111,14 +111,36 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
       purrr::map2(1:df_list_n_groups, ., rep) %>%
       purrr::flatten_int()
 
+
+    # JUST DONE: DEBUG THE FOLLOWING; IN PARTICULAR, (1) SEE IF THE COLUMNS
+    # BEFORE `n` CAN BE RENAMED AS THE `var` STRINGS (WITHOUT `n`); AND (2) SEE
+    # HOW TO MAKE SURE THAT `n_change` REMAINS IN `out_df` UNTIL THE END, IN
+    # EVERY MANUFACTURED FUNCTION! FOR (1), THIS LOCALLY HAS THE SAME EFFECT AS
+    # `dplyr::rename(y = value)` FOR SCHLIM.
+
     # Tidy the results, apply the testing function, and finish the output data
     # frame by adding the identifiers `case` and `dir`:
-    out_df <- out_df_nested %>%
-      tidyr::unnest(cols = everything()) %>%  # tidyr::unnest(col = 1:(all_of(reported_n_vars + 1))) %>%  # alternatively: `reported_n_cols`
-      fun(...) %>%  # don't forget `...` here!
+    out_df <- tidyr::unnest(out_df_nested, cols = everything())
+    n_change <- out_df$n_change
+    # index_last_col_before_n <- match("n", colnames(out_df)) - 1
+    colnames(out_df)[1:length(reported_orig)] <- reported_orig
+
+    out_df <- fun(out_df, ...)
+
+    if (!"n_change" %in% colnames(out_df)) {
+      out_df <- dplyr::mutate(out_df, n_change)
+    }
+
+    out_df <- out_df %>%
       mutate_both_consistent() %>%
       dplyr::mutate(case, dir) %>%
       dplyr::relocate(n_change, .after = n)
+
+    # # %>%  # tidyr::unnest(col = 1:(all_of(reported_n_vars + 1))) %>%  # alternatively: `reported_n_cols`
+    #   fun(...) %>%  # don't forget `...` here!
+    #   mutate_both_consistent() %>%
+    #   dplyr::mutate(case, dir) %>%
+    #   dplyr::relocate(n_change, .after = n)
 
     return(out_df)
   }
