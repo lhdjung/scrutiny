@@ -95,6 +95,54 @@ reverse_map_seq <- function(data) {
     # dplyr::arrange(var) %>%
     # dplyr::pull(df)
 
+
+  # case_count <- data %>%
+  #   dplyr::group_by(case, var) %>%
+  #   dplyr::count() %>%
+  #   dplyr::arrange(var) %>%
+  #   dplyr::ungroup()
+
+  # case_count <- data  # %>%
+  #   # dplyr::group_by(case, var)
+
+  # case_count_split <- split(case_count, case_count$var)[var]
+  # case_count_split <- case_count_split %>%
+  #   purrr::map(dplyr::pull, case)
+
+
+  # TO DO: APPLY `interpolate_index_case()` IN EACH ROW!
+  data_nested <- data %>%
+    dplyr::nest_by(case, var) %>%
+    dplyr::arrange(var)
+
+  # Maybe do this later on in the algorithm:
+  data_nested <- split(data_nested, data_nested$var)[var]
+  data_nested <- dplyr::bind_rows(data_nested)
+  # data_nested$data <- purrr::map(data_nested$data, `[`)
+
+  # GO ON HERE:
+  data_index_case <- data_nested %>%
+    dplyr::mutate(
+      scr_index_case = list(data[var]),
+      scr_index_case = list(index_case_interpolate(scr_index_case[[1]]))
+    ) %>%
+    dplyr::ungroup() %>%
+    dplyr::select(var, scr_index_case)
+
+  out <- data_index_case %>%
+    tidyr::pivot_wider(
+      names_from  = var,
+      values_from = scr_index_case,
+      values_fn   = list
+    ) %>%
+    tidyr::unnest(cols = everything()) %>%
+    tidyr::unnest(cols = everything()) # yes, this is weird
+
+  return(out)
+
+
+  # ALL CODE BELOW IS QUESTIONABLE AND SHOULD LIKELY BE REMOVED
+
   data_var_with_index_case <- data_var %>%
     purrr::map(split, data$case) %>%
     tibble::tibble(.name_repair = ~ "df") %>%
