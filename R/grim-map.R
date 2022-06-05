@@ -244,36 +244,6 @@ that column."
   # numbers are now unnested (i.e., turned into their own columns) and
   # given their respective proper names:
   if (show_rec) {
-
-    # Custom function as a workaround to replace `tidyr::unnest_wider()`, which
-    # has become prohibitively slow with regards to use at this place:
-    unnest_consistency_cols <- function(results, col_names) {
-      n_cols <- length(col_names)
-
-      consistency_list <- results$consistency %>%
-        purrr::map(unlist)
-
-      consistency_df <- consistency_list %>%
-        tibble::as_tibble(.name_repair = "minimal") %>%
-        t() %>%
-        tibble::as_tibble(.name_repair = ~ paste0("V", 1:n_cols)) %>%
-        dplyr::mutate(V1 = as.logical(V1))
-
-      colnames(consistency_df) <- col_names
-
-      index_consistency <- results %>%
-        select_key_columns() %>%
-        ncol() %>%
-        `+`(1)
-
-      results <- results %>%
-        dplyr::select(-consistency) %>%
-        dplyr::bind_cols(consistency_df) %>%
-        dplyr::relocate(ratio, .after = index_consistency + n_cols)
-
-      return(results)
-    }
-
     # The first four names are common to both the short and the long version:
     name1 <- "consistency"
     name2 <- "rec_sum"

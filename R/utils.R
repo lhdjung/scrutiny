@@ -642,3 +642,37 @@ backticks <- function(x) {
   paste0("`", x, "`")
 }
 
+
+
+# Custom function as a workaround to replace `tidyr::unnest_wider()` within
+# mapper functions -- specifically, `grim_map()` -- because `unnest_wider()` has
+# become too slow for that job:
+unnest_consistency_cols <- function(results, col_names) {
+  n_cols <- length(col_names)
+
+  consistency_list <- results$consistency %>%
+    purrr::map(unlist)
+
+  consistency_df <- consistency_list %>%
+    tibble::as_tibble(.name_repair = "minimal") %>%
+    t() %>%
+    tibble::as_tibble(.name_repair = ~ paste0("V", 1:n_cols)) %>%
+    dplyr::mutate(V1 = as.logical(V1))
+
+  colnames(consistency_df) <- col_names
+
+  index_consistency <- results %>%
+    select_key_columns() %>%
+    ncol() %>%
+    `+`(1)
+
+  results <- results %>%
+    dplyr::select(-consistency) %>%
+    dplyr::bind_cols(consistency_df) %>%
+    dplyr::relocate(ratio, .after = index_consistency + n_cols)
+
+  return(results)
+}
+
+
+
