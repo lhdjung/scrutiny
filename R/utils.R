@@ -661,10 +661,7 @@ unnest_consistency_cols <- function(results, col_names) {
 
   colnames(consistency_df) <- col_names
 
-  index_consistency <- results %>%
-    select_tested_cols() %>%
-    ncol() %>%
-    `+`(1)
+  index_consistency <- match("consistency", colnames(results))
 
   results <- results %>%
     dplyr::select(-consistency) %>%
