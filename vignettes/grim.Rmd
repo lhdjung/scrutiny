@@ -158,7 +158,7 @@ Set `show_rec` to `TRUE` if you want the values that were reconstructed during G
 ```{r}
 pigs1 %>% 
   grim_map(show_rec = TRUE) %>% 
-  dplyr::select(5:8)   # output cut down for printing
+  dplyr::select(4:8)   # output cut down for printing
 ```
 
 The additional columns are ---
@@ -274,13 +274,12 @@ jpap_5 %>%
 `grim_plot()` can only be called on `grim_map()`'s output. It will fail otherwise:
 
 ```{r, error=TRUE}
-mtcars %>% 
-  grim_plot()
+grim_plot(mtcars)
 ```
 
-The sheer optics of this plot will probably not fit everyone's taste. However, it is strictly based on the laws governing GRIM. The background raster shows all consistent (light) and inconsistent (dark) value pairs for two decimal places.
+With its unusual optics, this plot will probably not fit everyone's taste. The results of `grim_plot()` are like those of error detection in general: They are not pretty, but they put the unvarnished truth on display.
 
-Empirical values are shown in blue if consistent and red if inconsistent. Color settings and other ggplot2-typical options are available via arguments. Read about them at `grim_plot()`'s documentation.
+The plot is strictly based on the laws governing GRIM. Its background raster shows all consistent (light) and inconsistent (dark) value pairs for two decimal places. Empirical values are shown in blue if consistent and red if inconsistent. Color settings and other ggplot2-typical options are available via arguments. Read about them at `grim_plot()`'s documentation.
 
 You might notice the light vertical lines at $N = 40$ and $N = 80$: Few values are flagged as inconsistent here. This reflects `grim_map()`'s charitable default of accepting values rounded either up *or* down from 5. If a different `rounding` specification is chosen in the `grim_map()` call, the plot raster will adjust automatically:
 
@@ -294,45 +293,59 @@ All `rounding` values other than `up_from`, `down_from`, and `up_from_or_down_fr
 
 Speed is not much of a concern here because all the rasters are based on data already stored within the package (in [R/sysdata.rda](https://github.com/lhdjung/scrutiny/blob/main/R/sysdata.rda)), so they don't need to be generated on the spot every time the function is called. See R/data-gen.R for the way they were generated.
 
-## Testing numeric sequences
+## Testing numeric sequences with `grim_map_seq()`
 
-GRIM analysts might be interested in a mean or percentage value's numeric neighborhood. Suppose you found a reported mean of 5.30 to be inconsistent with a sample size of 32. You might hypothesize that it was swapped with the nearby correct value.
+GRIM analysts might be interested in a mean or percentage value's numeric neighborhood. Suppose you found multiple GRIM inconsistencies as in out example `pigs1` data. You might wonder whether they are due to small reporting or computing errors.
 
-There are two ways to approach this: (1) testing sequence vectors with `seq_distance()` and `grim()`, or (2) testing sequence data frames with `seq_distance_df()` and `grim_map()`. I think the second way is more useful, but see for yourself.
-
-### With `seq_distance()` and `grim()`
-
-Create a sequence starting from 5.30 with `seq_distance()` and pipe the result into `grim()`, where you specify `n` as 32. Although the starting point is allowed to be numeric, we need to enter 5.30 as a string to preserve the trailing zero:
+Use `grim_map_seq()` to GRIM-test the values surrounding the reported means and sample sizes:
 
 ```{r}
-seq_distance(from = "5.30") %>% 
-  grim(n = 32)
+out_seq1 <- grim_map_seq(pigs1)
+out_seq1
 ```
 
-### With `seq_distance_df()` and `grim_map()`
+### Summaries with `audit_seq()`
 
-First, use `seq_distance_df()` to create a data frame with a sequence column starting from 5.30, adding an `n` column that's constant at 32:
+As this output is a little unwieldy, run `audit_seq()` on the results:
 
 ```{r}
-seq_distance_df(.from = "5.30", n = 32)
+audit_seq(out_seq1)
 ```
 
-This data frame can readily be piped into `grim_map()`, so we get a neat output table without much preparation:
+Here is what the output columns mean:
 
-```{r, error=TRUE}
-seq_distance_df(.from = "5.30", n = 32) %>% 
-  grim_map()
-```
+-   `x` and `n` are the original inputs, reconstructed and tested for `consistency` here.
 
-These results, in turn, can be analyzed with `seq_test_ranking()`:
+-   `hits` is the number of GRIM-consistent value combinations found within the specified `dispersion` range.
+
+-   `diff_x` reports the absolute difference between `x` and the next consistent dispersed value (in dispersion steps, not the actual numeric difference). `diff_x_up` and `diff_x_down` report the difference to the next higher or lower consistent value, respectively.
+
+-   `diff_n`, `diff_n_up`, and `diff_n_down` do the same for `n`.
+
+The default for `dispersion` is `1:5`, for five steps up and down. When the `dispersion` sequence gets longer, the number of hits tends to increase:
 
 ```{r}
-seq_distance_df(.from = "5.30", n = 32) %>% 
-  grim_map() %>% 
-  seq_test_ranking()
+out_seq2 <- grim_map_seq(pigs1, dispersion = 1:10)
+audit_seq(out_seq2)
 ```
 
-Read more about scrutiny's four `seq_*` functions at `vignette("infrastructure")`; two were left out here.
+### Visualizing GRIM-tested sequences
+
+It's curious what happens when we plot the output of `grim_map_seq()`. Like regular GRIM plots, however, it does give us a sense of how many tested values are consistent:
+
+```{r, fig.width=6, fig.height=5.5}
+grim_plot(out_seq1)
+```
+
+The crosses appear because `grim_map_seq()` creates sequences around both `x` and `n`. Restrict this process to any one of these with the `var` argument:
+
+```{r, fig.width=6, fig.height=5.5}
+out_seq1_only_x <- grim_map_seq(pigs1, var = "x")
+out_seq1_only_n <- grim_map_seq(pigs1, var = "n")
+
+grim_plot(out_seq1_only_x)
+grim_plot(out_seq1_only_n)
+```
 
 ## Handling unknown group sizes with `grim_map_total_n()`
 
@@ -352,13 +365,10 @@ Instead of going about this manually, call `grim_map_total_n()`, followed by `au
 df <- tibble(x1 = "4.71", x2 = "5.3", n = 40)
 
 # Detailed results:
-df %>% 
-  grim_map_total_n()
+df_tested <- grim_map_total_n(df)
 
 # Summary:
-df %>% 
-  grim_map_total_n() %>% 
-  audit()
+audit_total_n(df_tested)
 ```
 
 Each "hit" is a scenario in which both `x1` and `x2` are GRIM-consistent with one of the two hypothetical group sizes. By default (`dispersion = 0:5`), the function goes five steps up and down from `n`.
