@@ -187,7 +187,6 @@ audit_seq <- function(data) {
     unname()
 
   dc <- class(data)
-
   rounding <- dc[stringr::str_detect(dc, "scr_rounding_")]
   rounding <- stringr::str_remove(rounding, "scr_rounding_")
 
@@ -202,7 +201,13 @@ audit_seq <- function(data) {
   #   unlist()
 
   data_rev <- reverse_map_seq(data)
-  data_rev_tested <- fun_test(data_rev, rounding = rounding)
+
+  if (length(rounding) > 0) {
+    data_rev_tested <- fun_test(data_rev, rounding = rounding)
+  } else {
+    data_rev_tested <- fun_test(data_rev)
+  }
+
   consistency <- data_rev_tested$consistency
 
   out <- data_rev %>%
@@ -216,6 +221,7 @@ audit_seq <- function(data) {
 
   return(out)
 }
+
 
 
 
