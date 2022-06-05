@@ -620,8 +620,8 @@ transform_split_parens_object <- function(data) {
 
 
 
-select_key_columns <- function(data, before = "consistency") {
-  index_last_key_col  <- match(before, colnames(data)) - 1
+select_tested_cols <- function(data, before = "consistency") {
+  index_last_key_col <- match(before, colnames(data)) - 1
   data[1:index_last_key_col]
 }
 
@@ -662,7 +662,7 @@ unnest_consistency_cols <- function(results, col_names) {
   colnames(consistency_df) <- col_names
 
   index_consistency <- results %>%
-    select_key_columns() %>%
+    select_tested_cols() %>%
     ncol() %>%
     `+`(1)
 

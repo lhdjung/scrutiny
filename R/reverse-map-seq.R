@@ -68,7 +68,7 @@ reverse_map_seq <- function(data) {
   # var <- unique(data$var)
 
   var <- data %>%
-    select_key_columns() %>%
+    select_tested_cols() %>%
     colnames()
 
   # var_unique <- unique(data$var)
@@ -100,7 +100,7 @@ reverse_map_seq <- function(data) {
     tibble::tibble(.name_repair = ~ "df") %>%
     dplyr::mutate(
       var,
-      df = purrr::modify_depth(df, .depth = 2, select_key_columns),  # dplyr::select, all_of(var)),
+      df = purrr::modify_depth(df, .depth = 2, select_tested_cols),  # dplyr::select, all_of(var)),
       df = purrr::map2(df, var, ~ purrr::map2(.x, .y, `[`))
     ) %>%
     dplyr::pull(df) %>%
