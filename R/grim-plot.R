@@ -221,8 +221,10 @@ grim_plot <- function(data = NULL,
 
   }
 
-  data <- data %>%
-    dplyr::mutate(x = (as.numeric(x) * items))
+  # data <- data %>%
+  #   dplyr::mutate(x = (as.numeric(x) * items))
+
+  data$x <- as.numeric(data$x)
 
 
   # Preparations ----
