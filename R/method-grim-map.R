@@ -5,6 +5,23 @@
 
 audit.scr_grim_map <- function(data) {
 
+  # If `data` is the output of `grim_map_seq()`, point the user to the dedicated
+  # summary function for such output, `audit_seq()`:
+  if (inherits(data, "scr_grim_map_seq")) {
+    cli::cli_alert_info(
+      "More specialized summaries available with `audit_seq()`."
+    )
+  }
+
+  # Likewise, if `data` is the output of `grim_map_total_n()`, point the user to
+  # `audit_total_n()`:
+  if (inherits(data, "scr_grim_map_total_n")) {
+    cli::cli_alert_info(
+      "More specialized summaries available with `audit_total_n()`."
+    )
+  }
+
+
   # Compute the summary values of interest ---
 
   # 1. the number of GRIM-inconsistent cases:
