@@ -5,22 +5,10 @@
 
 audit.scr_grim_map <- function(data) {
 
-  # If `data` is the output of `grim_map_seq()`, point the user to the dedicated
-  # summary function for such output, `audit_seq()`:
-  if (inherits(data, "scr_grim_map_seq")) {
-    cli::cli_alert_info(
-      "More specialized summaries available with `audit_seq()`."
-    )
-  }
-
-  # Likewise, if `data` is the output of `grim_map_total_n()`, point the user to
-  # `audit_total_n()`:
-  if (inherits(data, "scr_grim_map_total_n")) {
-    cli::cli_alert_info(
-      "More specialized summaries available with `audit_total_n()`."
-    )
-  }
-
+  # If `data` is the output of `grim_map_seq()` or `grim_map_total_n()`, point
+  # the user to the dedicated summary function for such output, i.e.,
+  # `audit_seq()` or `audit_total_n()`, respectively:
+  check_audit_special(data, "GRIM")
 
   # Compute the summary values of interest ---
 

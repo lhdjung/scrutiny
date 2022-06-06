@@ -4,6 +4,11 @@
 
 audit.scr_debit_map <- function(data) {
 
+  # If `data` is the output of `debit_map_seq()` or `debit_map_total_n()`, point
+  # the user to the dedicated summary function for such output, i.e.,
+  # `audit_seq()` or `audit_total_n()`, respectively:
+  check_audit_special(data, "DEBIT")
+
   # Compute the summary values of interest --
 
   # 1. the number of DEBIT-inconsistent cases:

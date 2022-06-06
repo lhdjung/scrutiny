@@ -673,3 +673,30 @@ unnest_consistency_cols <- function(results, col_names) {
 
 
 
+check_audit_special <- function(data, name_test) {
+
+  class_name_root <- paste0("scr_", tolower(name_test), "_map_")
+
+  class_seq     <- paste0(class_name_root, "seq")
+  class_total_n <- paste0(class_name_root, "total_n")
+
+  # If `data` is the output of `grim_map_seq()`, point the user to the dedicated
+  # summary function for such output, `audit_seq()`:
+  if (inherits(data, class_seq)) {
+    cli::cli_alert_info(
+      "More specialized {name_test} summaries available with `audit_seq()`."
+    )
+  }
+
+  # Likewise, if `data` is the output of `grim_map_total_n()`, point the user to
+  # `audit_total_n()`:
+  if (inherits(data, class_total_n)) {
+    cli::cli_alert_info(
+      "More specialized {name_test} summaries available with `audit_total_n()`."
+    )
+  }
+
+}
+
+
+
