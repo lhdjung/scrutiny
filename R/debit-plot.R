@@ -132,8 +132,11 @@ debit_plot <- function(data,
 
   # The plot itself ---
 
-  p <- ggplot2::ggplot(data = data, ggplot2::aes(x = x_num, y = sd_num,
-                                                 label = value_labels)) +
+  p <- ggplot2::ggplot(data = data, ggplot2::aes(
+    x     = {{ x_num }},
+    y     = {{ sd_num }},
+    label = {{ value_labels }}
+  )) +
 
     # DEBIT line:
     ggplot2::geom_function(

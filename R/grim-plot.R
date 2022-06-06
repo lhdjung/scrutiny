@@ -332,8 +332,8 @@ grim_plot <- function(data = NULL,
   # The plot itself ----
 
     # p <- ggplot2::ggplot(data = data_emp, ggplot2::aes(
-    #     x = n,
-    #     y = frac
+    #     x = .data$n,
+    #     y = .data$frac
     #   ))
 
 
@@ -345,8 +345,8 @@ grim_plot <- function(data = NULL,
 
       p <- ggplot2::ggplot(data = df_plot) +
         ggplot2::geom_tile(mapping = ggplot2::aes(
-          x = raster_n,
-          y = raster_frac
+          x = .data$raster_n,
+          y = .data$raster_frac
         ), alpha = raster_alpha, fill = raster_color) +
         ggplot2::theme(
           panel.border = ggplot2::element_rect(fill = NA, colour = "grey50"),
@@ -369,8 +369,8 @@ grim_plot <- function(data = NULL,
 
           p <- p +
             ggplot2::geom_tile(data = df_plot, mapping = ggplot2::aes(
-              x = raster_n,
-              y = raster_frac
+              x = .data$raster_n,
+              y = .data$raster_frac
             )) +
             ggplot2::annotation_custom(grid::rasterGrob(
               t(gradient),
@@ -399,8 +399,8 @@ grim_plot <- function(data = NULL,
       ggplot2::geom_tile(
         data = data_emp,
         mapping = ggplot2::aes(
-          x = n,
-          y = frac
+          x = .data$n,
+          y = .data$frac
         ),
         alpha = tile_alpha,
         size = 1,
