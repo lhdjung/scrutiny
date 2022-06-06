@@ -15,6 +15,11 @@ knitr::opts_chunk$set(
 )
 ```
 
+```{r include=FALSE}
+# Dev only: load scrutiny from within scrutiny
+devtools::load_all(".")
+```
+
 ```{r setup}
 library(scrutiny)
 ```
@@ -43,7 +48,7 @@ Here is an outline of these levels, and of the present vignette, with GRIM as a 
 
 If a valid consistency test is newly implemented with at least the first step, I'll be happy to accept a pull request to scrutiny. Please make sure to follow the [tidyverse style guide](https://style.tidyverse.org/) as well as the scrutiny-specific conventions laid out in this vignette, wherever applicable.
 
-I will sometimes use a toy test called SCHLIM as a model to demonstrate the minimal steps needed to implement consistency tests, scrutiny-style. Note that SCHLIM doesn't have any significance beyond standing in for serious consistency tests. Also note that any real implementation will, and perhaps should, be much more complex that the highly reduced examples below. However, I will also recur to existing functions that implement actual tests, and that the reader may be familiar with.
+I will sometimes use a toy test called SCHLIM as a model to demonstrate the minimal steps needed to implement consistency tests, scrutiny-style. Note that SCHLIM doesn't have any significance beyond standing in for serious consistency tests. Any real implementation might well be more complex than the brief code snippets below. I will also recur to existing functions that implement actual tests, and that the reader may be familiar with.
 
 Most functions discussed here deal with data frames. I always use [tibbles](https://r4ds.had.co.nz/tibbles.html), and I strongly recommend the same to you. There's no guarantee that each of those functions works with non-tibble data frames as it does with tibbles.
 
@@ -99,9 +104,9 @@ The (only) requirements for the mapping function are:
 
 1.  Its name ends on `_map` instead of `_scalar` but is otherwise the same as the name of the respective `_scalar` function.
 
-2.  Its first argument is a data frame that contains the key columns of the respective consistency test. Other columns are permitted but don't factor into the test unless they are transformer columns. The mapper's user never needs to include transformer columns and can always replace them by specifying arguments by the same names as those columns. If the user specifies such an argument but the input data frame contains a column by the same name, the function throws an error. No column of the input data frame should be named `"consistency"`.
+2.  Its first argument, `data`, is a data frame that contains the key columns of the respective consistency test. Other columns are permitted but don't factor into the test unless they are transformer columns. The mapper's user never needs to include transformer columns and can always replace them by specifying arguments by the same names as those columns. If the user specifies such an argument but the input data frame contains a column by the same name, the function throws an error. No column of the input data frame should be named `"consistency"`.
 
-3.  Its return value is a tibble data frame that contains all of the key input columns. The types of these columns are the same as in the input data frame. They are the first (i.e., leftmost) columns in the output, even if the input isn't ordered this way. If any of these columns are modified within the mapping function, the output should include the modified columns, not the original ones. An example is the change displayed by the `"x"` column in the output of `grim_map(percent = TRUE)`. Transformer columns should not be included in the output.
+3.  Its return value is a tibble data frame that contains all of the key input columns. The types of these columns are the same as in the input data frame. They are the first (i.e., leftmost) columns in the output, even if the input isn't ordered this way. If any of these columns are modified within the mapping function, the output should include the modified columns, not the original ones. Examples are the effects of transformer columns, but also the change displayed by the `"x"` column in the output of `grim_map(percent = TRUE)`. Transformer columns should not be included in the output.
 
 4.  The output data frame also contains a Boolean column named `"consistency"`. It contains the results of the consistency test, as determined by the respective `_scalar` function. In each row, `"consistency"` is `TRUE` if the values to its left are mutually consistent, and `FALSE` if they aren't. This column is placed immediately to the right of the key columns.
 
@@ -117,7 +122,7 @@ Anything that factors into the consistency test other than tested columns needs 
 
 The input data frame is not necessarily a tibble, but the output data frame is. The input data frame never contains a column named `"consistency"`, but the output data frame always does.
 
-Key columns can be modified by transformer columns and/or arguments.
+Key columns may or may not be modified by transformer columns and/or arguments.
 
 The output data frame may or may not contain non-tested columns from the input. It may or may not contain non-tested columns created within the mapper function itself. (This can be useful, as with `"ratio"` in `grim_map()`'s output.) Any such non-tested, non-`"consistency"` columns go to the right of `"consistency"`.
 
@@ -162,7 +167,7 @@ schlim_map_alt <- function(data) {
   data %>% 
     dplyr::rowwise() %>% 
     dplyr::mutate(consistency = schlim_scalar(y, n)) %>% 
-    dplyr::ungroup() %>%         # `ungroup()` is important
+    dplyr::ungroup() %>% 
     add_class("scr_schlim_map")  # See section "S3 classes" below
 }
 ```
@@ -201,7 +206,7 @@ When directly looking for internal helpers in scrutiny's source code, start at t
 
 ## Introduction
 
-`audit()` is an S3 generic for summarizing the results of scrutiny's test result data frames, especially those of mapper functions such as `grim_map()`. Every mapper function should have its appropriate `audit()` method.
+`audit()` is an S3 generic for summarizing scrutiny's test result data frames, especially those of mapper functions such as `grim_map()`. Every mapper function should have a corresponding `audit()` method.
 
 This is an aspect of object-oriented programming (OOP), but scrutiny's use of OOP is simple even by the low standards of R. Your mapper function already returns a specific class, such as `"scr_grim_map"` or `"scr_debit_map"`. In `schlim_map()`, we added the `"scr_schlim_map"` class in addition to existing classes:
 
@@ -225,7 +230,7 @@ audit(iris)
 
 ## Practical steps
 
-Every `audit()` method for consistency test results should be the same insofar as all consistency tests are the same. It should have a single argument named `data`. Its return value should be a tibble with a single row and at least these columns:
+Every `audit()` method for consistency test results should be the same insofar as all consistency tests are the same. It should have a single argument named `data`. Its return value should be a tibble with at least these columns:
 
 1.  `incons_cases` counts the inconsistent cases, i.e., the number of rows in the mapper's output where `"consistency"` is `FALSE`.
 
@@ -234,6 +239,8 @@ Every `audit()` method for consistency test results should be the same insofar a
 3.  `incons_rate` is the ratio of `incons_cases` to `all_cases`.
 
 Apart from these, see for yourself which summary statistics your `audit()` method should compute. Means of variables in the `*_map()` function's output and their ratios to each other might be sensible choices.
+
+All existing `audit()` methods for consistency tests return tibbles with a single row only. This makes sense because there is no obvious grouping variable for the input data frame, which would lead to multiple rows in `audit()`'s output. However, there might be good reasons for multiple rows when summarizing the results of other tests, so this is not a requirement.
 
 ## Documentation template
 
@@ -248,7 +255,7 @@ write_doc_audit(sample_output = audit_grim,  name_test = "GRIM")
 write_doc_audit(sample_output = audit_debit, name_test = "DEBIT")
 ```
 
-This function prepares a rogygen2 block section. It fills the three standard columns out for you, and it leaves space to describe the other columns. Also, the internal checks of `write_doc_audit()` make sure that you wrote a correct `audit()` method, as represented by the value of the `sample_output` argument.
+This function prepares a rogygen2 block section. It fills the three standard columns out for you, and it leaves space to describe any other columns. Also, the internal checks of `write_doc_audit()` make sure that you programmed a correct `audit()` method, as represented by the value of the `sample_output` argument.
 
 Copy the output from the console and paste it into the rogygen2 block of your `_map` function. To preserve the numbered list structure when indenting rogygen2 comments with `Ctrl`+`Shift`+`/`, leave empty lines between the pasted output and the rest of the block.
 
@@ -265,12 +272,15 @@ Nevertheless, some general requirements do apply to scrutiny-style visualization
 As a result, the rules below are admittedly somewhat less important. If you violate them, nobody but me will be sad about it.
 
 1.  All plots should be based on ggplot2. They don't need to implement any newly created layers, such as geoms or themes. Indeed, neither of the two existing visualization functions relies on any new layers.
-2.  The first argument, `data`, is a data frame that is the result of a call to the respective mapper function, such as `grim_map()` or `debit_map()`. The visualization function makes sure this is true by checking that `data` inherits the special class added within the mapper, such as `scr_grim_map` or `scr_debit_map`. If `data` fails this check, the function throws an error.
-3.  Both plots mentioned above display consistent and inconsistent value sets. The defaults for colors should be `"royalblue1"` for consistent value sets and `"red"` for inconsistent ones. The user can override these defaults via two arguments named `color_cons` for consistent value sets and `color_incons` for inconsistent ones.
-4.  If certain layers are optional rather than essential to the plot, their display can be controlled via Boolean arguments that start on `show_`. Examples are `show_data` in `grim_plot()` or `show_outer_boxes` in `debit_plot()`. Only arguments of this kind should start on `show_`. They should have defaults (which will usually be `TRUE`, but this is not a requirement).
-5.  The most important aesthetics for the geoms are passed down to the latter via arguments. Namely, these are `alpha` (i.e. opacity), `color`, and `size`, in this order. If multiple geoms need `alpha`, `color`, and `size` arguments, the latter should start with an expression that stands for the geom, not with `alpha`, `color`, or `size`, respectively. Examples are `line_alpha`, `line_color`, and `line_size` in `debit_plot()`.
-6.  Point 5 does not apply if the respective parameter is determined by the data, like the size of `geom_tile()` in `debit_plot()`. It does not apply either if there are good reasons to hold a parameter constant, as with `geom_rect()` in `grim_plot()`, where `size` is constant at `1` but the effective size is determined by the granularity of the data. If the respective colors are covered by `color_cons` and `color_incons`, not further `color` argument is needed for them.
-7.  Arguments passed on to aesthetics should have the same defaults as those aesthetics themselves have in ggplot2 unless there is a compelling reason for different defaults. Again, `line_alpha`, `line_color`, and `line_size` are examples for this.
+2.  The visualization function's name should be that of the test itself (in lowercase), followed by `_plot`. Naturally, this doesn't apply to methods for generic functions like `plot()` or `ggplot2::autoplot()`.
+3.  Its first argument, `data`, is a data frame that is the result of a call to the respective mapper function, such as `grim_map()` or `debit_map()`. The visualization function makes sure this is true by checking that `data` inherits the special class added within the mapper, such as `scr_grim_map` or `scr_debit_map`. If `data` fails this check, the function throws an error.
+4.  The function should display consistent and inconsistent value sets. The defaults for colors should be `"royalblue1"` for consistent value sets and `"red"` for inconsistent ones. The user can override these defaults via two arguments named `color_cons` for consistent value sets and `color_incons` for inconsistent ones.
+5.  If certain layers are optional rather than essential to the plot, their display can be controlled via Boolean arguments that start on `show_`. Examples are `show_data` in `grim_plot()` or `show_outer_boxes` in `debit_plot()`. Only arguments of this kind should start on `show_`. They should have defaults (which will usually be `TRUE`, but this is not a requirement).
+6.  The most important aesthetics for the geoms are passed down to the latter via arguments. Namely, these are `alpha` (i.e. opacity), `color`, and `size`, in this order. If multiple geoms need `alpha`, `color`, and `size` arguments, the latter should start with an expression that stands for the geom, not with `alpha`, `color`, or `size`, respectively. Examples are `line_alpha`, `line_color`, and `line_size` in `debit_plot()`.
+7.  Point 6 does not apply if the respective parameter is determined by the data, like the size of `geom_tile()` in `debit_plot()`. This includes cases where a parameter is specified as a constant. An example is the `geom_rect()` call for empirical data in `grim_plot()`, where `size` is constant at `1` but the effective size is determined by the granularity of the data. If the respective colors are covered by `color_cons` and `color_incons`, not further `color` argument is needed for them.
+8.  Arguments passed on to aesthetics should have the same defaults as those aesthetics themselves have in ggplot2 unless there is a compelling reason for different defaults. Again, `line_alpha`, `line_color`, and `line_size` are examples for this.
+
+See also the more general advice on [using ggplot2 in packages](https://ggplot2.tidyverse.org/articles/ggplot2-in-packages.html).
 
 # 6. Sequence mapper
 
