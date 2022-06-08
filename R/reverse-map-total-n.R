@@ -1,23 +1,14 @@
 
 #' Reverse and summarize the `*_map_total_n()` process
 #'
-#' @description Two functions that deal with the output of a function created by
-#'   `function_map_total_n()`:
+#' @description `reverse_map_total_n()` takes the output of a function created
+#'   by `function_map_total_n()` and reconstructs the original data frame.
 #'
-#'   - `reverse_map_total_n()` reconstructs the data frame of reported
-#'   statistics which the manufactured function took as an input.
+#'   See `audit_total_n()`, which takes `reverse_map_total_n()` as a basis.
 #'
-#'   - `summarize_map_total_n()` computes summaries of the output of the
-#'   manufactured function and attaches them to the reconstructed input. This
-#'   can be useful as a helper within `audit()` methods for classes created by
-#'   `function_map_total_n()`. Indeed, recommended use for such methods is to
-#'   only consist of a call to `summarize_map_total_n()`.
-
-#' @param data Data frame.
+#' @param data Data frame that inherits the `"scr_map_total_n"` class.
 #'
-#' @return A tibble (data frame). For an explanation of
-#'   `summarize_map_total_n()`'s output using the example of GRIM, see
-#'   `grim_map_total_n()`, section *Summaries with `audit()`*.
+#' @return A tibble (data frame).
 #'
 #' @export
 #'

@@ -35,10 +35,12 @@ min_distance_neg <- function(x) purrr::map_dbl(x, min_distance_neg_scalar)
 
 #' Reverse the `*_map_seq()` process
 #'
-#' `reverse_map_seq()` takes the output of a function created by
-#' `function_map_seq()` and reconstructs the original data frame.
+#' @description `reverse_map_seq()` takes the output of a function created by
+#'   `function_map_seq()` and reconstructs the original data frame.
 #'
-#' @param data Data frame.
+#'   See `audit_seq()`, which takes `reverse_map_seq()` as a basis.
+#'
+#' @param data Data frame that inherits the `"scr_map_seq"` class.
 #'
 #' @export
 #'

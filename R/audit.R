@@ -12,10 +12,11 @@
 #'   returned by any of these functions. The same is true for `audit_seq()` and
 #'   `audit_total_n()`.
 #'
-#'   Go to the documentation of any function below to learn about its particular
-#'   `audit()` method.
+#'   Go to the documentation of any function below to learn about its `audit()`
+#'   method, or about the way its output is processed by `audit_seq()` or
+#'   `audit_total_n()`.
 
-#   @section `audit()`: | \strong{Function}            | \strong{Class}            |
+#   @section `audit()`: | \strong{Function} | \strong{Class}   |
 #   | ---                          | ---                       |
 #   | `grim_map()`                 | `scr_grim_map`            |
 #   | `grim_map_total_n()`         | `scr_grim_map_total_n`    |
@@ -24,7 +25,7 @@
 #   | `duplicate_count()`          | `scr_dup_count`           |
 #   | `duplicate_detect()`         | `scr_dup_detect`          |
 
-#' @param data A data frame with one of the classes named below.
+#' @param data A data frame that inherits one of the classes named below.
 
 #' @section `audit()`:
 #'   | \strong{Function}            | \strong{Class}            |
