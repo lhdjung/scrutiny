@@ -1,5 +1,5 @@
 
-#' Reverse and summarize the `*_map_total_n()` process
+#' Reverse the `*_map_total_n()` process
 #'
 #' @description `reverse_map_total_n()` takes the output of a function created
 #'   by `function_map_total_n()` and reconstructs the original data frame.
