@@ -18,7 +18,7 @@ audit.scr_debit_map <- function(data) {
   all_cases <- nrow(data)
 
   # 3. the proportion of DEBIT-inconsistent cases:
-  incons_rate <- as.numeric(incons_cases / all_cases)
+  incons_rate <- incons_cases / all_cases
 
   # 4. the mean `x` value:
   mean_x <- data$x %>%
@@ -38,10 +38,11 @@ audit.scr_debit_map <- function(data) {
 
   # Finally, collect all of these values in a resulting tibble --
 
-  # (Number:)         1            2           3          4
-  tibble::tibble(incons_cases, all_cases, incons_rate, mean_x,
+  # (Number:)                1            2           3          4
+  out <- tibble::tibble(incons_cases, all_cases, incons_rate, mean_x,
   # (Number:)        5        6
                  mean_sd, distinct_n)
 
+  return(out)
 }
 
