@@ -179,8 +179,66 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 #' @references Wickham, H. (2019). *Advanced R* (Second Edition). CRC
 #'   Press/Taylor and Francis Group. https://adv-r.hadley.nz/index.html
 
+#' @examples
+#' # Function definition of `grim_map_seq()`:
+#' grim_map_seq <- function_map_seq(
+#'   .fun = grim_map,
+#'   .reported = c("x", "n"),
+#'   .name_test = "GRIM",
+#'   .name_class = "scr_grim_map_seq"
+#' )
+#'
+#'
+#' # Case study of SCHLIM, a new consistency test --------------
+#'
+#' # (Note: This is a mock test without any real significance.
+#' # Its only purpose is to show the minimal steps necessary
+#' # for implementing a serious consistency test, and to use
+#' # it as a starting point for `function_map_total_n()`.)
+#'
+#' # The "SCHLIM test" is analogous to GRIM as implemented
+#' # in scrutiny. This is also true for the function names.
+#' # Note that the analogue to `schlim_scalar()`, a function
+#' # called `grim_scalar()`, is not exported from scrutiny,
+#' # but used internally for `grim()`, `grim_map()`, and,
+#' # indirectly, `grim_map_seq()`.
+#'
+#' # Basic test implementation:
+#' schlim_scalar <- function(y, n) {
+#'   (y / 3) > n
+#' }
+#'
+#' # This step is not needed below, but
+#' # included for completeness:
+#' schlim <- Vectorize(schlim_scalar)
+#'
+#' # This will be the input function for
+#' # `function_map_total_n()`:
+#' schlim_map <- function_map(
+#'   .fun = schlim_scalar,
+#'   .reported = c("y", "n"),
+#'   .name_test = "SCHLIM"
+#' )
+#'
+#' # Fire up the function factory:
+#' schlim_map_seq <- function_map_seq(
+#'   .fun = schlim_map,
+#'   .reported = c("y", "n"),
+#'   .name_test = "SCHLIM",
+#'   .name_class = "scr_schlim_map_seq"
+#' )
+#'
+#' # Create some example data:
+#' df1 <- tibble::tibble(y = 16:25, n = 3:12)
+#'
+#' # Call the manufactured function:
+#' out <- schlim_map_seq(df1)
+#' out
+#'
+#' # Summarize the results:
+#' audit_seq(out)
 
-# @examples
+
 
 
 
@@ -216,6 +274,8 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
            out_min = .out_min, out_max = .out_max,
            include_reported = .include_reported,
            include_consistent = .include_consistent, ...) {
+
+    check_consistency_in_colnames(data, name_test)
 
     # First, basic testing with the `*_map()` function:
     data <- fun(data, ...)
