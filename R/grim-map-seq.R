@@ -1,10 +1,12 @@
 
 #' GRIM-testing with dispersed inputs
 #'
-#' `grim_map_seq()` performs GRIM-testing with values surrounding the input
-#' values. This provides an easy and powerful way to assess whether small errors
-#' in computing or reporting may be responsible for GRIM-inconsistencies in
-#' published statistics.
+#' @description `grim_map_seq()` performs GRIM-testing with values surrounding
+#'   the input values. This provides an easy and powerful way to assess whether
+#'   small errors in computing or reporting may be responsible for
+#'   GRIM-inconsistencies in published statistics.
+#'
+#'   Call `audit_seq()` on the results for summary statistics.
 #'
 #' @param data A data frame that `grim_map()` could take.
 #' @param var String. Names of the columns that will be dispersed. Default is
