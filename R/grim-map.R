@@ -122,6 +122,8 @@ grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
                      symmetric = FALSE, tolerance = .Machine$double.eps^0.5,
                      testables_only = FALSE, extra = Inf) {
 
+  check_consistency_in_colnames(data, "GRIM")
+
   # If any two arguments called right below are length > 1, they need to have
   # the same length. Otherwise, the call will fail. But even so, there will be a
   # warning that values will get paired:
