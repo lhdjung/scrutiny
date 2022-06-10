@@ -1,5 +1,13 @@
 
 
+test_that("The `globalVariables()` call returns these variables as strings", {
+  utils::globalVariables(c(
+    ".", "where", "desc", "all_of", "contains", "everything", "x", "items",
+    "frac"
+  )) %>% expect_type("character")
+})
+
+
 test_that("`wrong_spec_string()` returns a string", {
   wrong_spec_string(4) %>% expect_type("character")
 })
@@ -69,14 +77,14 @@ test_that("`is_whole_number()` returns correct values", {
 
 
 
-test_that(glue::glue("The super-short functions used within \\
-`decimal_places()` return correct values"), {
+test_that("The super-short functions used within `decimal_places()`
+          return correct values", {
   is_length_1_and_not_na("is this?") %>% expect_true()
   is_length_1_and_not_na(123) %>% expect_true()
   is_length_1_and_not_na(NA) %>% expect_false()
 
   is_length_greater_1(letters) %>% expect_true()
-  is_length_greater_1(1:5)     %>% expect_true()
+  is_length_greater_1(1:5) %>% expect_true()
   is_length_greater_1(c("Huey", "Dewey", "Louie")) %>% expect_true()
   is_length_greater_1(1) %>% expect_false()
   is_length_greater_1("not really") %>% expect_false()
@@ -150,33 +158,41 @@ test_that("`censor()` returns correct values", {
 
 
 
+
 vec_test_2 <- 1:7
 vec_test_2 <- add_class(vec_test_2, "silly test")
 
-test_that("", {
+df_test_3 <- add_class(df_test, "dummy class")
+df_test_4 <- add_class(df_test, c("dummy class 1", "dummy class 2"))
+
+test_that("`add_class()` really does add one or more classes", {
   vec_test_2 %>% expect_s3_class("silly test")
+  df_test_3  %>% expect_s3_class("dummy class")
+  df_test_4  %>% expect_s3_class("dummy class 1")
+  df_test_4  %>% expect_s3_class("dummy class 2")
 })
+
 
 
 
 vec_test_3 <- remove_na(c(1, NA, 3, 4, NA))
 vec_expected_3 <- c(1, 3, 4)
 
-test_that("", {
+test_that("`remove_na()` removes all instances of `NA`", {
   vec_test_3 %>% expect_equal(vec_expected_3)
 })
 
 
 
-test_that("`proto_rounding_singular()` throws an error iff it should", {
-  proto_rounding_singular(
+test_that("`check_rounding_singular()` throws an error iff it should", {
+  check_rounding_singular(
     c("up_or_down", "floor"),
     "up_or_down",
     "up",
     "down"
   ) %>% expect_error()
 
-  proto_rounding_singular(
+  check_rounding_singular(
     c("not a rounding procedure", "floor"),
     "up_or_down",
     "up",
@@ -187,47 +203,102 @@ test_that("`proto_rounding_singular()` throws an error iff it should", {
 
 
 
-test_that("", {
-  check_rounding_singular(c("up_or_down", "up")) %>% expect_error()
-  check_rounding_singular(c("ceiling_or_floor", "trunc")) %>% expect_error()
-  check_rounding_singular(c("ceiling", "up")) %>% expect_silent()
-  check_rounding_singular("up") %>% expect_silent()
-  check_rounding_singular("bla") %>% expect_silent()
+test_that("`check_rounding_singular_all()` throws error iff when it should", {
+  check_rounding_singular_all(c("up_or_down", "up")) %>% expect_error()
+  check_rounding_singular_all(c("ceiling_or_floor", "trunc")) %>% expect_error()
+  check_rounding_singular_all(c("ceiling", "up")) %>% expect_silent()
+  check_rounding_singular_all("up") %>% expect_silent()
+  check_rounding_singular_all("bla") %>% expect_silent()
 })
 
 
 
 
-test_that("`proto_lengths_congruent()` throws a warning when it should", {
-  proto_lengths_congruent(1, 2, 3, 4, 5) %>% expect_warning()
-  proto_lengths_congruent("a", "b", "c", "d", "e") %>% expect_warning()
-})
+# Vectors with lengths 5, 3, 2, and 3 (they are all > 1):
+numbers  <- 1:5
+nephews  <- c("Huey", "Dewey", "Louie")
+norberts <- c("Lammert", "Röttgen")
+nikes    <- c("Air Max", "Zoom Freak", "Phantom")
 
-
-test_that("`proto_lengths_congruent()` throws an error when it should", {
-  proto_lengths_congruent(1, c(1, 2), 3, 4, 5) %>% expect_error()
-  proto_lengths_congruent("a", c("a", "b"), "c", "d", "e") %>% expect_error()
-})
-
-
-
-numbers <- 1:5
-nephews <- c("Huey", "Dewey", "Louie")
+n_list <- list(numbers, nephews, norberts, nikes)
 
 test_that("`check_lengths_congruent()` throws an error when it should", {
-  check_lengths_congruent(list(numbers, nephews)) %>% expect_error()
+  check_lengths_congruent(list(numbers, nephews, norberts, nikes)) %>% expect_error()
+  check_lengths_congruent(list(numbers, nephews, norberts)) %>% expect_error()
+  check_lengths_congruent(list(numbers, nephews, nikes)) %>% expect_error()
+  check_lengths_congruent(list(numbers, norberts, nikes)) %>% expect_error()
+  check_lengths_congruent(list(nephews, norberts, nikes)) %>% expect_error()
+})
+
+test_that("`check_lengths_congruent()` throws a warning when it should", {
+  check_lengths_congruent(list(nephews, nikes), warn = TRUE) %>% expect_warning()
+  check_lengths_congruent(list(numbers, numbers), warn = TRUE) %>% expect_warning()
+  check_lengths_congruent(list(nephews, nephews), warn = TRUE) %>% expect_warning()
+  check_lengths_congruent(list(norberts, norberts), warn = TRUE) %>% expect_warning()
+  check_lengths_congruent(list(nikes, nikes), warn = TRUE) %>% expect_warning()
+})
+
+
+test_that("`check_lengths_congruent()` remains silent when it should", {
+  check_lengths_congruent(list(nephews, nikes), warn = FALSE) %>% expect_silent()
+  check_lengths_congruent(list(numbers, numbers), warn = FALSE) %>% expect_silent()
+  check_lengths_congruent(list(nephews, nephews), warn = FALSE) %>% expect_silent()
+  check_lengths_congruent(list(norberts, norberts), warn = FALSE) %>% expect_silent()
+  check_lengths_congruent(list(nikes, nikes), warn = FALSE) %>% expect_silent()
+})
+
+
+test_that("`check_lengths_congruent()` remains silent when it should", {
+  check_lengths_congruent(list(nephews, nikes), warn = FALSE) %>% expect_silent()
+  check_lengths_congruent(list("a", "b", c("c", "d", "e"))) %>% expect_silent()
+  check_lengths_congruent(list("a", "b")) %>% expect_silent()
+  check_lengths_congruent(list(1, 2, 3, 4, 5)) %>% expect_silent()
+  check_lengths_congruent(list("a", "b", "c", "d", "e")) %>% expect_silent()
+  check_lengths_congruent(list(1, c(1, 2), 3, 4, 5)) %>% expect_silent()
+  check_lengths_congruent(list("a", c("a", "b"), "c", "d", "e")) %>% expect_silent()
 })
 
 
 
-
-test_that("`check_length()` throws an error iff it should", {
-  check_length(numbers, "numbers", 1) %>% expect_error()
-  check_length(nephews, "nephews", 1) %>% expect_error()
-
-  check_length(numbers, "numbers", 5) %>% expect_silent()
-  check_length(nephews, "nephews", 3) %>% expect_silent()
+test_that("`check_length()` throws an error when it should", {
+  check_length(numbers, 1) %>% expect_error()
+  check_length(nephews, 1) %>% expect_error()
 })
+
+test_that("`check_length()` remains silent when it should", {
+  check_length(numbers, 5) %>% expect_silent()
+  check_length(nephews, 3) %>% expect_silent()
+})
+
+
+
+test_that("`check_type()` remains silent when the type is correct", {
+  numbers  %>% check_type("integer")   %>% expect_silent()
+  nephews  %>% check_type("character") %>% expect_silent()
+  norberts %>% check_type("character") %>% expect_silent()
+  nikes    %>% check_type("character") %>% expect_silent()
+})
+
+
+test_that("`check_type()` remains silent when the correct type is
+          contained in a string vector of length > 1, along with
+          wrong types", {
+  numbers  %>% check_type(c("integer",   "THESE")) %>% expect_silent()
+  nephews  %>% check_type(c("character", "TYPES")) %>% expect_silent()
+  norberts %>% check_type(c("character", "ARE"  )) %>% expect_silent()
+  nikes    %>% check_type(c("character", "WRONG")) %>% expect_silent()
+})
+
+
+
+test_that("`check_type()` throws an error if the type is wrong", {
+  numbers  %>% check_type("character") %>% expect_error()
+  nephews  %>% check_type("double")    %>% expect_error()
+  norberts %>% check_type("integer")   %>% expect_error()
+  nikes    %>% check_type("logical")   %>% expect_error()
+})
+
+
 
 
 
