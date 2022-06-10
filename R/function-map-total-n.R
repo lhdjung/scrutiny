@@ -239,11 +239,7 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 #'
 #' # Basic test implementation:
 #' schlim_scalar <- function(y, n) {
-#'   if (y / 3 > n) {
-#'     return(TRUE)
-#'   } else {
-#'     return(FALSE)
-#'   }
+#'   (y / 3) > n
 #' }
 #'
 #' # This step is not needed below, but
@@ -252,14 +248,11 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 #'
 #' # This will be the input function for
 #' # `function_map_total_n()`:
-#' schlim_map <- function(data) {
-#'   consistency <- purrr::map2_lgl(
-#'     as.numeric(data$y),
-#'     as.numeric(data$n),
-#'     schlim_scalar
-#'   )
-#'   return(dplyr::mutate(data, consistency))
-#' }
+#' schlim_map <- function_map(
+#'   .fun = schlim_scalar,
+#'   .reported = c("y", "n"),
+#'   .name_test = "SCHLIM"
+#' )
 #'
 #' # Fire up the function factory:
 #' schlim_map_total_n <- function_map_total_n(
@@ -278,31 +271,7 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 #'
 #' # Call the manufactured function:
 #' schlim_map_total_n(df)
-#'
-#'
-#' # Advice on exporting manufactured functions ----------------
-#'
-#' # (The guidelines below were adapted from purrr:
-#' # https://purrr.tidyverse.org/reference/faq-adverbs-export.html)
-#'
-#' # If you want to export a function manufactured
-#' # with `function_map_total_n()` from your own
-#' # package, follow this pattern (except for the
-#' # `if`-wrapping here):
-#' if (FALSE) {
-#'
-#'   schlim_map_total_n <- function(...) "dummy"
-#'
-#'   .onLoad <- function(lib, pkg) {
-#'     schlim_map_total_n <<- scrutiny::function_map_total_n(
-#'       .fun = schlim_map,
-#'       .reported = "y",
-#'       .name_test = "SCHLIM",
-#'       .name_class = "yourpkg_schlim_map_total_n"
-#'     )
-#'   }
-#'
-#' }
+
 
 
 
