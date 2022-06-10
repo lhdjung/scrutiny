@@ -18,7 +18,7 @@
 #' sizes are GRIM-consistent with the group means.
 #'
 #' All of this works with one or more total sample sizes at a time. Call
-#' `audit()` for summary statistics.
+#' `audit_total_n()` for summary statistics.
 
 #' @param data Data frame with string columns `x1` and `x2`, and numeric column
 #'   `n`. The first two are group mean or percentage values with unknown group
