@@ -24,11 +24,13 @@ devtools::load_all(".")
 library(scrutiny)
 ```
 
-When implementing consistency tests in R, you shouldn't have to start from zero. This vignette introduces scrutiny's support system for writing new consistency testing functions. It adds to the more widely applicable error detection infrastructure described in `vignette("infrastructure")` and `vignette("rounding")`.
+# Introduction
 
-Following the vignette will dramatically simplify the implementation of advanced testing routines via function factories. It will also enable you to write entire families of functions in a streamlined way: If you are familiar with any one scrutiny-style consistency test, you will immediately be able to make some sense of the other ones. This is true across all levels of consistency testing.
+When implementing consistency tests in R, you shouldn't have to start from zero. This vignette introduces scrutiny's support system for writing new consistency testing functions.
 
-Here is an outline of these levels, and of the present vignette, with GRIM as a paradigmatic example:
+Following the vignette will dramatically simplify the implementation of basic and advanced testing routines via function factories. It will enable you to write entire families of functions in a streamlined way: If you are familiar with any one scrutiny-style consistency test, you will immediately be able to make some sense of the other ones. This is true across all levels of consistency testing.
+
+Below is an outline of these levels, and of the present vignette, with GRIM as a paradigmatic example. If a valid consistency test is newly implemented with at least the first step, I'll be happy to accept a pull request to scrutiny. This means you'll only have to implement the core test itself, without even reading the vignette any further.
 
 1.  A bare-bones, non-exported (!) function for testing a single set of cases, such as `grim_scalar()`.
 
@@ -46,17 +48,19 @@ Here is an outline of these levels, and of the present vignette, with GRIM as a 
 
 8.  `audit_seq()` and `audit_total_n()` already work with the output of numbers 6 and 7, respectively. They still have to be specifically documented.
 
-If a valid consistency test is newly implemented with at least the first step, I'll be happy to accept a pull request to scrutiny. Please make sure to follow the [tidyverse style guide](https://style.tidyverse.org/) as well as the scrutiny-specific conventions laid out in this vignette, wherever applicable.
+I will use a toy test called SCHLIM as a model to demonstrate the minimal steps needed to implement consistency tests, scrutiny-style. Note that SCHLIM doesn't have any significance beyond standing in for serious consistency tests. Any real implementation might well be more complex than the brief code snippets below. I will also recur to existing functions that implement actual tests, and that the reader may be familiar with.
 
-I will sometimes use a toy test called SCHLIM as a model to demonstrate the minimal steps needed to implement consistency tests, scrutiny-style. Note that SCHLIM doesn't have any significance beyond standing in for serious consistency tests. Any real implementation might well be more complex than the brief code snippets below. I will also recur to existing functions that implement actual tests, and that the reader may be familiar with.
+Most functions discussed here deal with data frames. I always use [tibbles](https://r4ds.had.co.nz/tibbles.html), and I strongly recommend the same to you. There's no guarantee that each of those functions works with non-tibble data frames as it does with tibbles. Please make sure to follow the [tidyverse style guide](https://style.tidyverse.org/) as well as the scrutiny-specific conventions laid out below, wherever applicable.
 
-Most functions discussed here deal with data frames. I always use [tibbles](https://r4ds.had.co.nz/tibbles.html), and I strongly recommend the same to you. There's no guarantee that each of those functions works with non-tibble data frames as it does with tibbles.
+If you'd like to write a new package, work with Hadley Wickham's book *R Packages* [@wickham2015] in its most recent version, which is [free online](https://r-pkgs.org/).
 
 # 1. Single-case
 
 The first function is the most important one. It contains the core implementation of the test. Although it is not exported itself, all other steps build up on it, and all of them are exported.
 
 This function takes two or more arguments of length 1 that are coercible to numeric. This means they either are numeric themselves or they are strings that can be converted to numbers. The function tests them for consistency and returns a single Boolean value: It's `TRUE` if the inputs are mutually consistent, and `FALSE` if they aren't.
+
+Other arguments might still be necessary, especially if your function reconstructs rounded numbers. An argument that determines how the function rounds should be called `rounding`. The function should internally call `reround()`. The same goes for "unrounding" (i.e., reconstructing rounding bounds) and `unround()`. See also `vignette("rounding")`. A single-case function that performs rounding will also need a helper to count decimal places, which should be `decimal_places_scalar()`.
 
 The function's name is that of the test, followed by `_scalar` which refers to the one-case limit. If your function happens to be applicable to multiple value sets already due to R's natural vectorization, leave out `_scalar` and skip the next section. (This will rarely be the case because every single argument will need to be vectorized.)
 
@@ -84,11 +88,54 @@ Functions created this way can be useful for quick testing, but unlike mapping f
 
 # 3. Mapper
 
-## Introduction
-
 The most important practical use of a consistency test within scrutiny is to apply it to entire data frames, as `grim_map()` does. That's also the starting point for every other function below.
 
-First, some terminology:
+## Creating mappers with `function_map()`
+
+The safest and easiest way to create a mapper is via the function factory `function_map()`. A function "manufactured" this way is also guaranteed to fulfill all of the requirements for mapper functions listed further below. That's a major benefit because the list of requirements is long, and all of the follow-up functions in the remaining vignette assume that the mapper fulfills them.
+
+You will have no such troubles with `function_map()`:
+
+```{r}
+schlim_map <- function_map(
+  .fun = schlim_scalar,
+  .reported = c("y", "n"),
+  .name_test = "SCHLIM"
+)
+
+# Example data:
+df1 <- tibble::tibble(y = 16:25, n = 3:12)
+
+schlim_map(df1)
+```
+
+-   `.fun` is the single-case function from section 1.
+
+-   `.reported` is a string vector naming the reported statistics that `.fun` tests for consistency with each other.
+
+-   `.name_test` simply names the consistency test.
+
+As you can see, `function_map()` is not a helper used inside other functions when creating them with `function()` --- instead, it takes the place of `function()` itself. This makes it a so-called function factory, or more precisely, a function operator, a.k.a. decorator [@wickham2019, ch. 10-11].
+
+To export a function manufactured this way from your own package, make sure to follow [this purrr FAQ](https://purrr.tidyverse.org/reference/faq-adverbs-export.html). (Incredible as it sounds, scrutiny will then take on the role of purrr.) Also, see the worked example for the `.onLoad` pattern in `function_map()`'s documentation.
+
+## Writing mappers manually
+
+If `function_map()` is so handy, why would you ever not use it? There are four reasons:
+
+-   Manufactured functions don't have any tailor-made checks or error messages for any specific consistency test. (They do have some more general checks and errors.)
+
+-   They don't support transformer columns (see *Terminology* below).
+
+-   They are incapable of creating columns internally other than `"consistency"`.
+
+-   Finally, when using a manufactured function, any test-specific arguments the user might specify won't trigger RStudio's autocomplete.
+
+`grim_map()` and `debit_map()` were both "handwritten" rather than produced by `function_map()`. However, none of these issues affect the `"consistency"` results, and simply going with `function_map()` might often be the better option.
+
+The remaining part of section 3 explains how to write mapper functions manually. It is quite detailed because it's important to get these things right: Every other function in the rest of the vignette builds up on it. Still, the practical steps are not that complicated, as you can see in the code examples.
+
+### Terminology
 
 It's important to distinguish between *key arguments or columns* and other arguments or columns. The key arguments in a scalar or vectorized consistency-testing function are the values that are tested for consistency with each other, such as `x` and `n` in `grim()`. By extension, key columns are those that contain such values. Every key column has the same name as the respective key argument.
 
@@ -96,11 +143,13 @@ A *transformer column* is a column that is not key itself, but transforms the va
 
 Key and transformer columns are *tested* columns because they factor into the test. Any other columns are *non-tested*.
 
-## Requirements
+### Requirements
 
 A general system for implementing consistency tests needs some consistency itself. This is especially true for mapper functions, because all functions further down the line rely on the mapper's output having some very specific properties.
 
-The (only) requirements for the mapping function are:
+The level of detail in these requirements might seem pedantic. I still encourage you to follow every step when handwriting a new mapping function. It's easier than it looks at first, and many aspects are indispensable. That is because each function discussed below builds up on the mapper, and their interplay follows a carefully concerted system. If a mapper misses any one ingredient, those other functions may fail.
+
+The (only) requirements for a mapping function are:
 
 1.  Its name ends on `_map` instead of `_scalar` but is otherwise the same as the name of the respective `_scalar` function.
 
@@ -114,7 +163,7 @@ The (only) requirements for the mapping function are:
 
 6.  The output data frame inherits an S3 class that consists of `"scr_"` (short for scrutiny), followed by the name of the mapper function. For example, the output of `grim_map()` inherits the `"scr_grim_map"` class. The `"scr_"` prefix is necessary for some follow-up computations introduced below, so it should be used even within functions that are not part of scrutiny. Any other classes added to the output data frame should also start on `"scr_"`. None of them should end on `"_map"`.
 
-## Implications
+### Implications
 
 Some implications of these requirements, and of the fact that the design space for mapper functions is not restricted in any other ways:
 
@@ -138,23 +187,22 @@ By contrast, the columns of the output data frame look like this:
 
 ![](images/consistency_tests_columns_output.png){width="585"}
 
-## Practical steps
-
-### Mapping
+### Practical steps
 
 ```{r include=FALSE}
 # Just internally, so that the function source code below works:
 add_class <- scrutiny:::add_class
 ```
 
-How to actually write mapper functions? I recommend applying the `_scalar` function to the input data frame using `purrr::map2_lgl()` if exactly two columns are tested, and `purrr::pmap_lgl()` if more than two columns are tested:
+How to actually write mapper functions? Again, I recommend `function_map()`. The functions created below are conceptually very similar to it.
+
+Apply the `_scalar` function to the input data frame using `purrr::pmap_lgl()`:
 
 ```{r}
-schlim_map <- function(data) {
-  y <- data$y
-  n <- data$n
-  consistency <- purrr::map2_lgl(y, n, schlim_scalar)
-  out <- tibble::tibble(y, n, consistency)
+schlim_map_alt1 <- function(data, ...) {
+  consistency <- purrr::pmap_lgl(data, schlim_scalar, ...)
+  out <- tibble::tibble(y = data$y, n = data$n, consistency)
+  out <- dplyr::relocate(out, y, n, consistency)
   out <- add_class(out, "scr_schlim_map")  # See section "S3 classes" below
   out
 }
@@ -163,11 +211,12 @@ schlim_map <- function(data) {
 Alternatively, call `dplyr::rowwise()` and directly mutate `"consistency"`:
 
 ```{r}
-schlim_map_alt <- function(data) {
+schlim_map_alt2 <- function(data, ...) {
   data %>% 
     dplyr::rowwise() %>% 
-    dplyr::mutate(consistency = schlim_scalar(y, n)) %>% 
+    dplyr::mutate(consistency = schlim_scalar(y, n, ...)) %>% 
     dplyr::ungroup() %>% 
+    dplyr::relocate(y, n, consistency) %>% 
     add_class("scr_schlim_map")  # See section "S3 classes" below
 }
 ```
@@ -175,13 +224,12 @@ schlim_map_alt <- function(data) {
 Both approaches should lead to the same results:
 
 ```{r}
-# Example data
-df1 <- tibble::tibble(y = 16:25, n = 3:12)
+schlim_map_alt1(df1)
 
-schlim_map(df1)
-
-schlim_map_alt(df1)
+schlim_map_alt2(df1)
 ```
+
+You should let `function_map()` produce an equivalent function to make sure that it returns the same output as your handwritten one. To compare the output data frames, don't just eyeball them. Use `waldo::compare()` or, if you already run tests with testthat, `expect_equal()`. Of course, if your handwritten function creates new columns beyond `"consistency"`, you'll have to remove them from the output first.
 
 ### S3 classes
 
@@ -196,7 +244,7 @@ add_class <- function(x, new_class) {
 
 ### Internal helpers
 
-Within scrutiny, many functions that are exported for users internally call helper functions that are not, such as `add_class()`. You might be writing your own function following the design of an exported scrutiny function, but suddenly you can't access a function that you seem to need!
+Within scrutiny, many functions that are exported for users internally call helper functions that are not, such as `add_class()`. You might be writing your own function following the design of an exported scrutiny function, but suddenly you can't access an unknown function that you seem to need!
 
 If you'd like to employ such an internal helper for yourself, specify its namespace with three colons, like `scrutiny:::add_class`. However, you should only use this trick to copy and paste the helper's source code into your own source code. (That's why I left out the parentheses --- return the function itself.) Never rely on calling a function with `:::`, because these internals are not actually meant for users. They can easily shift and vanish without notice.
 
@@ -274,7 +322,7 @@ As a result, the rules below are admittedly somewhat less important. If you viol
 1.  All plots should be based on ggplot2. They don't need to implement any newly created layers, such as geoms or themes. Indeed, neither of the two existing visualization functions relies on any new layers.
 2.  The visualization function's name should be that of the test itself (in lowercase), followed by `_plot`. Naturally, this doesn't apply to methods for generic functions like `plot()` or `ggplot2::autoplot()`.
 3.  Its first argument, `data`, is a data frame that is the result of a call to the respective mapper function, such as `grim_map()` or `debit_map()`. The visualization function makes sure this is true by checking that `data` inherits the special class added within the mapper, such as `scr_grim_map` or `scr_debit_map`. If `data` fails this check, the function throws an error.
-4.  The function should display consistent and inconsistent value sets. The defaults for colors should be `"royalblue1"` for consistent value sets and `"red"` for inconsistent ones. The user can override these defaults via two arguments named `color_cons` for consistent value sets and `color_incons` for inconsistent ones.
+4.  The function should display consistent and inconsistent value sets. The color defaults should be `"royalblue1"` for consistent value sets and `"red"` for inconsistent ones. The user can override these defaults via two arguments named `color_cons` for consistent value sets and `color_incons` for inconsistent ones.
 5.  If certain layers are optional rather than essential to the plot, their display can be controlled via Boolean arguments that start on `show_`. Examples are `show_data` in `grim_plot()` or `show_outer_boxes` in `debit_plot()`. Only arguments of this kind should start on `show_`. They should have defaults (which will usually be `TRUE`, but this is not a requirement).
 6.  The most important aesthetics for the geoms are passed down to the latter via arguments. Namely, these are `alpha` (i.e. opacity), `color`, and `size`, in this order. If multiple geoms need `alpha`, `color`, and `size` arguments, the latter should start with an expression that stands for the geom, not with `alpha`, `color`, or `size`, respectively. Examples are `line_alpha`, `line_color`, and `line_size` in `debit_plot()`.
 7.  Point 6 does not apply if the respective parameter is determined by the data, like the size of `geom_tile()` in `debit_plot()`. This includes cases where a parameter is specified as a constant. An example is the `geom_rect()` call for empirical data in `grim_plot()`, where `size` is constant at `1` but the effective size is determined by the granularity of the data. If the respective colors are covered by `color_cons` and `color_incons`, not further `color` argument is needed for them.
@@ -345,9 +393,7 @@ df1 %>%
 df1
 ```
 
-As you can see, `function_map_seq()` is not a helper used inside other functions when creating them with `function()` --- instead, it takes the place of `function()` itself. This makes it a so-called function factory, or more precisely, a function operator, a.k.a. decorator [@wickham2019, ch. 10-11].
-
-To export a function manufactured this way from your own package, make sure to follow [this purrr FAQ](https://purrr.tidyverse.org/reference/faq-adverbs-export.html). (Incredible as it sounds, scrutiny will then take on the role of purrr.) Also, see this [worked example](https://lhdjung.github.io/scrutiny/reference/function_map_total_n.html#ref-examples) for the `.onLoad` pattern.
+As with `function_map()`, if you want to export a function created with `function_map_seq()`, follow [this purrr FAQ](https://purrr.tidyverse.org/reference/faq-adverbs-export.html).
 
 # 7. Total-n mapper
 
