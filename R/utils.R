@@ -700,3 +700,55 @@ check_audit_special <- function(data, name_test) {
 
 
 
+check_consistency_in_colnames <- function(data, name_test) {
+  if ("consistency" %in% colnames(data)) {
+    dc <- class(data)
+    class_basic   <- dc[stringr::str_detect(dc, "_map$")]
+    class_seq     <- dc[stringr::str_detect(dc, "_map_seq$")]
+    class_total_n <- dc[stringr::str_detect(dc, "_map_total_n$")]
+    if (length(class_basic) > 0) {
+      fun_name_basic <- stringr::str_remove(class_basic, "scr_")
+    } else {
+      fun_name_basic <- NULL
+    }
+    if (length(class_seq) > 0) {
+      fun_name_basic <- NULL
+      fun_name_seq <- stringr::str_remove(class_seq, "scr_")
+    } else {
+      fun_name_seq <- NULL
+    }
+    if (length(class_total_n) > 0) {
+      fun_name_basic <- NULL
+      fun_name_total_n <- stringr::str_remove(class_total_n, "scr_")
+    } else {
+      fun_name_total_n <- NULL
+    }
+    non_fun_name_classes <- c("map_seq", "map_total_n")
+    fun_name_all <- c(fun_name_basic, fun_name_seq, fun_name_total_n)
+    fun_name_all <- fun_name_all[!fun_name_all %in% non_fun_name_classes]
+    fun_name_all <- fun_name_all[length(fun_name_all) > 0]
+    if (stringr::str_detect(fun_name_all, "_seq")) {
+      msg_qualify <- "sequence "
+    } else if (stringr::str_detect(fun_name_all, "_total_n")) {
+      msg_qualify <- "total-n "
+    }
+    if (length(fun_name_all) > 0) {
+      msg_fun_name <- paste0(", `", fun_name_all, "()`,")
+    } else {
+      msg_fun_name <- ""
+    }
+    cli::cli_abort(c(
+      "`data` already includes a \"consistency\" column.",
+      "x" = "This shouldn't be the case before {name_test}-testing.",
+      "x" = "Did you use the output of a consistency test \\
+      {msg_qualify}mapper function for {name_test}{msg_fun_name} \\
+      as an input here?"
+    ))
+  }
+}
+
+
+
+
+
+
