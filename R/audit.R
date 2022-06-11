@@ -85,8 +85,6 @@ audit_seq <- function(data) {
 
   df_list <- split(data, data$case)
 
-  # Might be useful later: `purrr::map(df_list, split, ~ var)`
-
   df_list_hits <- df_list %>%
     purrr::map(dplyr::filter, consistency)
 
@@ -113,60 +111,12 @@ audit_seq <- function(data) {
     x
   }
 
-  # # HERE, I NEED TO USE (APPLY?) A FUNCTION THAT REALLY JUST GETS ME THE INDEX,
-  # # NOT THE INDEX CASE; BUT THAT'S OTHERWISE JUST LIKE `index_case_recover()`...
-  # df_by_var %>%
-  #   tibble::tibble(.name_repair = ~"df") %>%
-  #   dplyr::mutate(name = names(df_by_var)) %>%
-  #   dplyr::mutate(df = dplyr::mutate(df, THATS_RIGHT_HERE))
-  #
-  # # ... HERE'S HOW TO DO THAT FOR A SINGLE DATA FRAME:
-  # df <- df_list[[1]] %>%
-  #   dplyr::filter(var == "n")
-
-
-
-  # min_distance_or_na <- function(x) {
-  #   # x <- x[[1]]
-  #   if (is.null(x)) {
-  #     return(NA)
-  #   } else {
-  #     x_ma <- min(abs(x))
-  #     out <- x[x == -x_ma | x == x_ma]
-  #     # In case of a tie (i.e., same distance to 0 on the positive and the
-  #     # negative side), the positive number is returned. This is a pragmatic
-  #     # decision without any special meaning. Output length has to be 1, because
-  #     # the function will be mapped within `purrr::map_int()` below; so every
-  #     # single output will be an element of an atomic vector:
-  #     if (length(out) > 1) {
-  #       return(max(out))
-  #     } else {
-  #       return(out)
-  #     }
-  #     # min(abs(x))
-  #     # out <- x[x == min(abs(x))]
-  #     # if (length(out) == 0) {
-  #     #   return(NA)
-  #     # }
-  #     # return(out)
-  #     # min_abs_index <- match(x[x == min(abs(x))], x)
-  #     # min_abs_index_sign <- sign(min_abs_index)
-  #     # return(x[min_abs_index])
-  #     # return(x[index])
-  #   }
-  # }
-
-
   fn_names <- rep(c("", "_up", "_down"), length(var_names))
-
-  # TO DO: COMPUTE DISTANCE OF FIRST HIT FROM INDEX CASE; IN PARTICULAR, MAKE
-  # SURE IT'S ACTUALLY THAT DISTANCE, NOT SIMPLY THE INDEX! GOOD START BELOW
 
   length_at_depth <- function(x) {
     if (is.null(x)) {
       return(NA)
     }
-    # purrr::modify_depth(x, .depth = 1, length)
     purrr::modify(x, length)
   }
 
@@ -175,7 +125,6 @@ audit_seq <- function(data) {
     tibble::tibble(.name_repair = ~ "distance") %>%
     tidyr::unnest_wider(col = distance)
 
-  # TO DO: INCORPORATE THE BLOCK BELOW INTO THE OUTPUT
   cols_hits <- df_nested %>%
     dplyr::mutate(dplyr::across(
       .cols = everything(),
@@ -198,11 +147,6 @@ audit_seq <- function(data) {
     )) %>%
     suppressWarnings()
 
-  # dplyr::mutate(dplyr::across(
-  #   everything(), purrr::map_int, min_distance_or_na  # , 1
-  # ))
-
-
   hits_positions_means <- hits_positions %>%
     purrr::map_dbl(mean) %>%
     unname()
@@ -215,11 +159,6 @@ audit_seq <- function(data) {
     dc[stringr::str_detect(dc, "^scr_") & stringr::str_detect(dc, "_map$")]
   fun_test <- stringr::str_remove(fun_test, "scr_")
   fun_test <- rlang::eval_bare(rlang::parse_expr(fun_test))
-
-  # class_reported %>%
-  #   stringr::str_remove("scr_reported_") %>%
-  #   stringr::str_split("_SCR_STOP_") %>%
-  #   unlist()
 
   data_rev <- reverse_map_seq(data)
 
@@ -234,11 +173,6 @@ audit_seq <- function(data) {
   out <- data_rev %>%
     dplyr::mutate(consistency, hits_total) %>%
     dplyr::bind_cols(cols_hits, cols_diff)
-
-  # out <- data %>%
-  #   reverse_map_seq() %>%
-  #   dplyr::mutate(hits) %>%
-  #   dplyr::bind_cols(cols_diff)
 
   return(out)
 }
