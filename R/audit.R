@@ -90,7 +90,7 @@ audit_seq <- function(data) {
   df_list_hits <- df_list %>%
     purrr::map(dplyr::filter, consistency)
 
-  hits <- df_list_hits %>%
+  hits_total <- df_list_hits %>%
     purrr::map_int(nrow) %>%
     unname()
 
@@ -162,10 +162,30 @@ audit_seq <- function(data) {
   # TO DO: COMPUTE DISTANCE OF FIRST HIT FROM INDEX CASE; IN PARTICULAR, MAKE
   # SURE IT'S ACTUALLY THAT DISTANCE, NOT SIMPLY THE INDEX! GOOD START BELOW
 
-  diff_cols <- df_list %>%
+  length_at_depth <- function(x) {
+    if (is.null(x)) {
+      return(NA)
+    }
+    # purrr::modify_depth(x, .depth = 1, length)
+    purrr::modify(x, length)
+  }
+
+  df_nested <- df_list %>%
     purrr::map(index_hit_distance) %>%
     tibble::tibble(.name_repair = ~ "distance") %>%
-    tidyr::unnest_wider(col = distance) %>%
+    tidyr::unnest_wider(col = distance)
+
+  # TO DO: INCORPORATE THE BLOCK BELOW INTO THE OUTPUT
+  cols_hits <- df_nested %>%
+    dplyr::mutate(dplyr::across(
+      .cols = everything(),
+      .fns = length_at_depth,
+      .names = "hits_{.col}"
+    )) %>%
+    dplyr::select(-all_of(colnames(df_nested))) %>%
+    tidyr::unnest(cols = everything())
+
+  cols_diff <- df_nested %>%
     dplyr::mutate(dplyr::across(
       .cols = everything(),
       .fns = list(min_distance_abs, min_distance_pos, min_distance_neg),
@@ -212,13 +232,13 @@ audit_seq <- function(data) {
   consistency <- data_rev_tested$consistency
 
   out <- data_rev %>%
-    dplyr::mutate(consistency, hits) %>%
-    dplyr::bind_cols(diff_cols)
+    dplyr::mutate(consistency, hits_total) %>%
+    dplyr::bind_cols(cols_hits, cols_diff)
 
   # out <- data %>%
   #   reverse_map_seq() %>%
   #   dplyr::mutate(hits) %>%
-  #   dplyr::bind_cols(diff_cols)
+  #   dplyr::bind_cols(cols_diff)
 
   return(out)
 }
