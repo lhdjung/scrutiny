@@ -110,12 +110,11 @@ audit_seq <- function(data) {
     x
   }
 
-  fn_names <- rep(c("", "_up", "_down"), length(var_names))
+  fn_names <- c("", "_up", "_down")
+  fn_names <- rep(fn_names, length(var_names))
 
-  length_at_depth <- function(x) {
-    if (is.null(x)) {
-      return(NA)
-    }
+  modify_to_length <- function(x) {
+    x[is.na(x) | is.null(x)] <- NA
     purrr::modify(x, length)
   }
 
@@ -127,7 +126,7 @@ audit_seq <- function(data) {
   cols_hits <- df_nested %>%
     dplyr::mutate(dplyr::across(
       .cols = everything(),
-      .fns = length_at_depth,
+      .fns = modify_to_length,
       .names = "hits_{.col}"
     )) %>%
     dplyr::select(-all_of(colnames(df_nested))) %>%
