@@ -193,7 +193,7 @@ audit_total_n <- function(data) {
   if (!inherits(data, "scr_map_total_n")) {
     cli::cli_abort(c(
       "Invalid `data` argument.",
-      "x" = "It needs to be the output of a `*map_total_n()` function, \\
+      "x" = "It needs to be the output of a `*_map_total_n()` function, \\
       such as `grim_map_total_n()`."
     ))
   }
@@ -203,27 +203,28 @@ audit_total_n <- function(data) {
   df_list_hits <- df_list %>%
     purrr::map(dplyr::filter, both_consistent)
 
+  map_nrow_half <- function(x) {
+    out <- purrr::map_int(x, nrow)
+    out <- out / 2
+    out
+  }
+
   hits_forth <- df_list_hits %>%
     purrr::map(dplyr::filter, dir == "forth") %>%
-    purrr::map_int(nrow) %>%
-    `/`(2)
+    map_nrow_half()
+    # purrr::map_int(nrow) %>%
+    # `/`(2)
 
   hits_back <- df_list_hits %>%
     purrr::map(dplyr::filter, dir == "back") %>%
-    purrr::map_int(nrow) %>%
-    `/`(2)
+    map_nrow_half()
 
   hits_total <- hits_forth + hits_back
-
-  scenarios_total <- df_list %>%
-    purrr::map_int(nrow) %>%
-    `/`(2)
-
+  scenarios_total <- map_nrow_half(df_list)
   hit_rate <- hits_total / scenarios_total
 
-  data_rec <- reverse_map_total_n(data)
-
-  out <- data_rec %>%
+  out <- data %>%
+    reverse_map_total_n() %>%
     dplyr::mutate(hits_forth, hits_back, hits_total, scenarios_total, hit_rate)
 
   return(out)
