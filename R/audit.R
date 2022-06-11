@@ -212,8 +212,6 @@ audit_total_n <- function(data) {
   hits_forth <- df_list_hits %>%
     purrr::map(dplyr::filter, dir == "forth") %>%
     map_nrow_half()
-    # purrr::map_int(nrow) %>%
-    # `/`(2)
 
   hits_back <- df_list_hits %>%
     purrr::map(dplyr::filter, dir == "back") %>%
