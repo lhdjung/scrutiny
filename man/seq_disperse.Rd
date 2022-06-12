@@ -8,16 +8,24 @@
 seq_disperse(
   from,
   dispersion = 1:5,
-  string_output = "auto",
-  include_reported = TRUE
+  offset_from = 0,
+  out_min = "auto",
+  out_max = NULL,
+  string_output = TRUE,
+  include_reported = TRUE,
+  track_var_change = FALSE
 )
 
 seq_disperse_df(
   .from,
   ...,
   .dispersion = 1:5,
-  .string_output = "auto",
-  .include_reported = TRUE
+  .offset_from = 0,
+  .out_min = "auto",
+  .out_max = NULL,
+  .string_output = TRUE,
+  .include_reported = TRUE,
+  .track_var_change = FALSE
 )
 }
 \arguments{
@@ -29,18 +37,28 @@ and down, starting at \code{from} (or \code{.from}, respectively) and proceeding
 the level of its last decimal place. Default is \code{1:5}, i.e., five steps up
 and down.}
 
-\item{string_output, .string_output}{Boolean or string. If \code{TRUE}, the output
-is a string vector. Decimal places are then padded with zeros to match
-\code{from}'s number of decimal places. Default is \code{"auto"}, which works like
+\item{offset_from, .offset_from}{Integer. If set to a non-zero number, the
+starting point will be offset by that many units on the level of the last
+decimal digit. Default is \code{0}.}
+
+\item{out_min, .out_min, out_max, .out_max}{If specified, output will be
+restricted so that it's not below \code{out_min} or above \code{out_max}. Defaults
+are \code{"auto"} for \code{out_min}, i.e., a minimum of one decimal unit above zero;
+and \code{NULL} for \code{out_max}, i.e., no maximum.}
+
+\item{string_output, .string_output}{Boolean or string. If \code{TRUE} (the
+default), the output is a string vector. Decimal places are then padded
+with zeros to match \code{from}'s number of decimal places. \code{"auto"} works like
 \code{TRUE} if and only if \code{from} (\code{.from}) is a string.}
 
 \item{include_reported, .include_reported}{Boolean. Should \code{from} (\code{.from})
 itself be part of the sequence built around it? Default is \code{TRUE} for the
 sake of continuity, but this can be misleading if the focus is on the
 dispersed values, as opposed to the input.}
-}
-\value{
 
+\item{track_var_change, .track_var_change}{Boolean. In \code{seq_disperse()},
+ignore this argument. In \code{seq_disperse_df()}, default is \code{TRUE}, which
+creates the \code{"var_change"} output column.}
 }
 \description{
 \code{seq_disperse()} creates a sequence around a given number. It
@@ -52,23 +70,44 @@ values like \code{7.91}, \code{7.92}, and \code{7.94}, \code{7.95}, etc.
 can be added as in \code{tibble::tibble()}. Regular arguments are the same as in
 \code{seq_disperse()}, but with a dot before each.
 }
+\details{
+Unlike \code{seq_endpoint()} and friends, the present functions don't
+necessarily return continuous or even regular sequences. The greater
+flexibility is due to the \code{dispersion} (\code{.dispersion}) argument, which
+takes any numeric vector. By default, however, the output sequence is
+regular and continuous.
+
+Underlying this difference is the fact that \code{seq_disperse()} and
+\code{seq_disperse_df()} do not wrap around \code{base::seq()}, although they are
+otherwise similar to \code{seq_endpoint()} and friends.
+}
 \examples{
 # Basic usage:
 seq_disperse(from = 4.02)
 
-# If trailing zeros matter,
-# set `string_output` to `TRUE`:
-seq_disperse(from = 4.02, string_output = TRUE)
-
-# Data fame variant:
-seq_disperse_df(.from = 4.02)
+# If trailing zeros don't matter,
+# the output can be numeric:
+seq_disperse(from = 4.02, string_output = FALSE)
 
 # Control steps up and down with
 # `dispersion` (default is `1:5`):
 seq_disperse(from = 4.02, dispersion = 1:10)
-seq_disperse(from = 4.02, dispersion = seq(2, 10, 2))
+
+# Sequences might be discontinuous...
+disp1 <- seq(from = 2, to = 10, by = 2)
+seq_disperse(from = 4.02, dispersion = disp1)
+
+# ...or even irregular:
+disp2 <- c(2, 3, 7)
+seq_disperse(from = 4.02, dispersion = disp2)
+
+# The data fame variant supports further
+# columns added as in `tibble::tibble()`:
+seq_disperse_df(.from = 4.02, n = 45)
 }
 \seealso{
 Conceptually, \code{seq_disperse()} is a blend of two function families:
-\code{seq_endpoint()} and \code{disperse()}.
+those around \code{seq_endpoint()} and \code{disperse()}. The present functions were
+originally conceived for \code{seq_disperse_df()} to be a helper within the
+\code{function_map_seq()} implementation.
 }

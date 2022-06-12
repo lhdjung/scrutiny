@@ -64,7 +64,7 @@ values \code{n1} and the higher one \code{n2}.
 \description{
 Some published studies only report a total sample size but no
 group sizes. However, group sizes are crucial for tests such as
-\href{https://lhdjung.github.io/scrutiny/articles/grim.html#handling-unknown-group-sizes-with-grim_map_disperse}{GRIM}.
+\href{https://lhdjung.github.io/scrutiny/articles/grim.html#handling-unknown-group-sizes-with-grim_map_total_n}{GRIM}.
 Call \code{disperse()} to generate possible group sizes that all add up to the
 total sample size, if that total is even.
 
@@ -77,8 +77,8 @@ even or odd, splits it up accordingly, and applies \code{disperse()} or
 \code{disperse2()}, respectively.
 
 These functions are primarily intended as helpers. They form the backbone
-of \code{grim_map_disperse()} and all other functions created with
-\code{function_map_disperse()}.
+of \code{grim_map_total_n()} and all other functions created with
+\code{function_map_total_n()}.
 }
 \details{
 If any group size is less than \code{n_min} or greater than \code{n_max}, it
@@ -116,6 +116,6 @@ Light or Dark? Recalling Moral Behavior Changes Perception of Brightness.
 https://doi.org/10.1177/09567976211058727
 }
 \seealso{
-\code{function_map_disperse()}, \code{grim_map_disperse()},
+\code{function_map_total_n()}, \code{grim_map_total_n()},
 \code{seq_distance_df()}
 }

@@ -50,9 +50,10 @@ decimal digit. Default is \code{0}.}
 endpoint will be offset by that many units on the level of the last decimal
 digit. Default is \code{0}. Only in \code{seq_endpoint()} and \code{seq_endpoint_df()}.}
 
-\item{string_output, .string_output}{Boolean. If \code{TRUE} (the default), the
-output is a string vector. Decimal places are then padded with zeros to
-match \code{from}'s (or \code{to}'s) number of decimal places.}
+\item{string_output, .string_output}{Boolean or string. If \code{TRUE} (the
+default), the output is a string vector. Decimal places are then padded
+with zeros to match \code{from}'s (or \code{to}'s) number of decimal places. \code{"auto"}
+works like \code{TRUE} if and only if \code{from} (\code{.from}) is a string.}
 
 \item{length_out, .length_out}{Integer. Length of the output vector (i.e., the
 number of its values). Default is \code{10}. Only in \code{seq_distance()} and
@@ -125,4 +126,7 @@ seq_distance(from = 20.03, dir = -1)
 # `tibble::tibble()`:
 seq_endpoint_df(.from = 4.7, .to = 5, n = 20)
 seq_distance_df(.from = 0.43, .length_out = 5, sd = 0.08)
+}
+\seealso{
+\code{seq_disperse()} for sequences centered around the input.
 }

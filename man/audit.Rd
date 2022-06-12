@@ -2,12 +2,18 @@
 % Please edit documentation in R/audit.R
 \name{audit}
 \alias{audit}
+\alias{audit_seq}
+\alias{audit_total_n}
 \title{Summaries of scrutiny objects}
 \usage{
 audit(data)
+
+audit_seq(data)
+
+audit_total_n(data)
 }
 \arguments{
-\item{data}{A data frame with one of the classes named above.}
+\item{data}{A data frame that inherits one of the classes named below.}
 }
 \value{
 A tibble (data frame) with test summary statistics.
@@ -15,23 +21,45 @@ A tibble (data frame) with test summary statistics.
 \description{
 \code{audit()} is an S3 generic to follow up on those scrutiny
 functions that perform tests on a data frame. It summarizes results of
-those tests and presents the summaries in a tibble.
+those tests and presents the summaries in a tibble. \code{audit_seq()} and
+\code{audit_total_n()} summarize the results of functions that end on \verb{_seq} and
+\verb{_total_n}, respectively.
 
 Below is a list of functions that return objects with classes for which
 there are \code{audit()} methods. This means you can run \code{audit()} on the output
-returned by any of these functions.
+returned by any of these functions. The same is true for \code{audit_seq()} and
+\code{audit_total_n()}.
 
-Go to the documentation of any function below to learn about its particular
-\code{audit()} method.\tabular{ll}{
+Go to the documentation of any function below to learn about its \code{audit()}
+method, or about the way its output is processed by \code{audit_seq()} or
+\code{audit_total_n()}.
+}
+\section{\code{audit()}}{
+\tabular{ll}{
    \strong{Function} \tab \strong{Class} \cr
-   \code{grim_map()} \tab \code{scr_grim_map} \cr
-   \code{grim_map_disperse()} \tab \code{scr_grim_map_disperse} \cr
-   \code{debit_map()} \tab \code{scr_debit_map} \cr
-   \code{debit_map_disperse()} \tab \code{scr_debit_map_disperse} \cr
-   \code{duplicate_count()} \tab \code{scr_dup_count} \cr
-   \code{duplicate_detect()} \tab \code{scr_dup_detect} \cr
+   \code{grim_map()} \tab \code{"scr_grim_map"} \cr
+   \code{debit_map()} \tab \code{"scr_debit_map"} \cr
+   \code{duplicate_count()} \tab \code{"scr_dup_count"} \cr
+   \code{duplicate_detect()} \tab \code{"scr_dup_detect"} \cr
 }
 }
+
+\section{\code{audit_seq()}}{
+\tabular{ll}{
+   \strong{Function} \tab \strong{Class} \cr
+   \code{grim_map_seq()} \tab \code{"scr_grim_map_seq"} \cr
+   \code{debit_map_seq()} \tab \code{"scr_debit_map_seq"} \cr
+}
+}
+
+\section{\code{audit_total_n()}}{
+\tabular{ll}{
+   \strong{Function} \tab \strong{Class} \cr
+   \code{grim_map_total_n()} \tab \code{"scr_grim_map_total_n"} \cr
+   \code{debit_map_total_n()} \tab \code{"scr_debit_map_total_n"} \cr
+}
+}
+
 \examples{
 # For GRIM-testing:
 pigs1 \%>\%

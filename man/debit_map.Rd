@@ -9,6 +9,8 @@ debit_map(
   x = NULL,
   sd = NULL,
   n = NULL,
+  unround_x = TRUE,
+  unround_sd = TRUE,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
@@ -68,7 +70,7 @@ tibble with these columns ---
 \examples{
 # Call `debit_map()` on binary summary
 # data such as these:
-# pigs3
+pigs3
 
 # The `consistency` column shows
 # whether the values to its left
@@ -80,4 +82,8 @@ pigs3 \%>\%
 pigs3 \%>\%
   debit_map() \%>\%
   audit()
+}
+\references{
+Heathers, James A. J., and Brown, Nicholas J. L. 2019. DEBIT: A
+Simple Consistency Test For Binary Data. https://osf.io/5vb3u/.
 }
