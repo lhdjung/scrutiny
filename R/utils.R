@@ -700,7 +700,7 @@ check_audit_special <- function(data, name_test) {
 
 
 
-check_consistency_in_colnames <- function(data, name_test) {
+check_consistency_not_in_colnames <- function(data, name_test) {
   if ("consistency" %in% colnames(data)) {
     dc <- class(data)
     class_basic   <- dc[stringr::str_detect(dc, "_map$")]
@@ -727,10 +727,15 @@ check_consistency_in_colnames <- function(data, name_test) {
     fun_name_all <- c(fun_name_basic, fun_name_seq, fun_name_total_n)
     fun_name_all <- fun_name_all[!fun_name_all %in% non_fun_name_classes]
     fun_name_all <- fun_name_all[length(fun_name_all) > 0]
+    if (length(fun_name_all) == 0) {
+      fun_name_all <- ""
+    }
     if (stringr::str_detect(fun_name_all, "_seq")) {
       msg_qualify <- "sequence "
     } else if (stringr::str_detect(fun_name_all, "_total_n")) {
       msg_qualify <- "total-n "
+    } else {
+      msg_qualify <- ""
     }
     if (length(fun_name_all) > 0) {
       msg_fun_name <- paste0(", `", fun_name_all, "()`,")
@@ -749,6 +754,39 @@ check_consistency_in_colnames <- function(data, name_test) {
 
 
 
+
+# In a consistency test mapper function, check that `data` has columns
+# corresponding to all the key arguments of the `*_scalar()` function:
+check_key_args_in_colnames <- function(data, reported) {
+  offenders <- reported[!reported %in% colnames(data)]
+  if (length(offenders) > 0) {
+    if (length(offenders) == 1) {
+      msg_cols <- "Column"
+      msg_it_they <- "It's"
+    } else {
+      msg_cols <- "Columns"
+      msg_it_they <- "They are"
+    }
+    if (length(offenders) > 1) {
+      msg_each_other <- "each other"
+    } else {
+      msg_each_other <- ""
+    }
+    non_offenders <- reported[!reported %in% offenders]
+    if (length(non_offenders) > 0) {
+      if (length(offenders) > 1) {
+        msg_each_other <- paste0(msg_each_other, " and with ")
+      }
+      non_offenders <- backticks(non_offenders)
+    }
+    offenders <- backticks(offenders)
+    cli::cli_abort(c(
+      "{msg_cols} {offenders} missing from `data`.",
+      "{msg_it_they} meant to be tested for consistency with \\
+      {msg_each_other}{non_offenders}."
+    ))
+  }
+}
 
 
 
