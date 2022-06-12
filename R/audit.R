@@ -216,7 +216,7 @@ audit_total_n <- function(data) {
 
   out <- data %>%
     reverse_map_total_n() %>%
-    dplyr::mutate(hits_forth, hits_back, hits_total, scenarios_total, hit_rate)
+    dplyr::mutate(hits_total, hits_forth, hits_back, scenarios_total, hit_rate)
 
   return(out)
 }
