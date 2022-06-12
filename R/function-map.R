@@ -4,23 +4,25 @@
 #' @description `function_map()` creates new basic mapper functions for
 #'   consistency tests, such as `grim_map()` or `debit_map()`.
 #'
-#' @param .fun Single-case consistency testing function to be applied, such as
-#'   the (non-exported) scrutiny functions `grim_scalar()` and `debit_scalar()`.
-#'   It needs to return a Boolean value of length 1, i.e., `TRUE` or `FALSE`.
-#'   Its name needs to end on `"_scalar"`. The part before that should be the
-#'   name of the test.
+#' @param .fun Single-case consistency testing function that will be applied to
+#'   each row in a data frame, such as the (non-exported) scrutiny functions
+#'   `grim_scalar()` and `debit_scalar()`. It needs to return a Boolean value of
+#'   length 1, i.e., `TRUE` or `FALSE`.
 #' @param .reported String. Names of the columns to be tested.
+#' @param .name_test String (length 1). Plain-text name of the consistency test,
+#'   such as `"GRIM"`.
 #' @param .name_class String. One or more classes to be added to the output data
 #'   frame.
 #' @param ... Arguments passed down to `.fun`.
-#'
+
 #' @details The output tibble returned by the manufactured function will inherit
 #'   one or two classes independently of the `.name_class` argument:
-#' - If a `rounding` argument is specified via
-#'   `...`, or else if `.fun` has a `rounding` argument with a default, the
-#'   output tibble inherits a class named `"scr_rounding_<rounding>"`.
-#' - The output tibble will inherit a class named `"scr_<test>_map"`, where
-#'   `"<test>"` is the part of `.fun`'s name before `"_scalar"`.
+#' - It will inherit a class named `"scr_{tolower(.name_test)}_map"`; for
+#'   example, `"scr_grim_map"` if `.name_test` is `"GRIM"`.
+#' - If a `rounding` argument is specified via `...`, or else if `.fun` has a
+#'   `rounding` argument with a default, the output tibble inherits a class
+#'   named `"scr_rounding_{rounding}"`; for example,
+#'   `"scr_rounding_up_or_down"`.
 
 #' @return A "manufactured" function with these arguments:
 #' - `data`: Data frame with all the columns named in `.reported`. It needs to
@@ -31,8 +33,12 @@
 #'   manufactured function.
 #' - `...`: Arguments passed down to `fun`.
 #'
+#' The manufactured function should then return a tibble that includes
+#' `"consistency"`: a Boolean column that shows whether the values to its left
+#' are mutually consistent (`TRUE`) or not (`FALSE`).
+
 #' @export
-#'
+
 #' @examples
 #' # Basic test implementation for "SCHLIM",
 #' # a mock test with no real significance:
@@ -48,15 +54,21 @@
 #'   .name_test = "SCHLIM"
 #' )
 #'
+#' # Example data:
+#' df1 <- tibble::tibble(y = 16:25, n = 3:12)
+#'
+#' # Call the "manufactured" function:
+#' schlim_map(df1)
+#'
+#'
 #' # Advice on exporting manufactured functions ----------------
 #'
 #' # (The guidelines below were adapted from purrr:
 #' # https://purrr.tidyverse.org/reference/faq-adverbs-export.html)
 #'
 #' # If you want to export a function produced
-#' # by`function_map()` from your own package,
-#' # follow this pattern (except for the
-#' # `if`-wrapping here):
+#' # by `function_map()` from your own package,
+#' # follow this pattern, except for the `if`-wrapping:
 #'
 #' if (FALSE) {
 #'
@@ -93,6 +105,7 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL, ...) {
 
   # Checks ---
 
+  fun_name <- deparse(substitute(.fun))
   fun_args <- as.list(args(.fun))
   offenders <- .reported[!.reported %in% names(fun_args)]
 
@@ -121,38 +134,32 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL, ...) {
 
     # Checks ---
 
-    check_consistency_in_colnames(data, name_test)
+    check_key_args_in_colnames(data, reported)
+    check_consistency_not_in_colnames(data, name_test)
 
-    offenders <- reported[!reported %in% colnames(data)]
-
+    # Check that no argument specified via the dots, `...`, was misspelled:
+    dots <- rlang::enexprs(...)
+    dots_names <- names(dots)
+    offenders <- dots_names[!dots_names %in% names(fun_args)]
     if (length(offenders) > 0) {
-      non_offenders <- reported[!reported %in% offenders]
       offenders <- backticks(offenders)
       if (length(offenders) == 1) {
-        non_offenders <- backticks(non_offenders)
-        msg_cols <- "column"
-        msg_it_they <- "It's"
+        msg_arg <- "argument"
+        msg_it_they <- "It's not an"
       } else {
-        msg_cols <- "columns"
-        msg_it_they <- "They are"
-      }
-      if (length(non_offenders) > 0) {
-        msg_non_offenders <- paste(" and", non_offenders)
-      } else {
-        msg_non_offenders <- ""
+        msg_arg <- "arguments"
+        msg_it_they <- "They are not"
       }
       cli::cli_abort(c(
-        "`data` lacks {msg_cols} {offenders}.",
-        "{msg_it_they} meant to be tested for consistency with \\
-        each other{msg_non_offenders}."
+        "Unknown {msg_arg} {offenders}.",
+        "x" = "{msg_it_they} {msg_arg} of `{fun_name}`."
       ))
     }
 
+
     # Main part ---
 
-    dots <- rlang::enexprs(...)
     rounding_dots <- dots$rounding
-
     rounding_args <- fun_args$rounding
 
     if (length(rounding_dots) > 0) {
@@ -203,10 +210,17 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL, ...) {
 
 
 
+
 grim_map_alt <- function_map(
   .fun = grim_scalar,
   .reported = c("x", "n"),
   .name_test = "GRIM"
+)
+
+debit_map_alt <- function_map(
+  .fun = debit_scalar,
+  .reported = c("x", "sd", "n"),
+  .name_test = "DEBIT"
 )
 
 
