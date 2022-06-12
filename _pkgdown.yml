@@ -1,5 +1,9 @@
 url: https://lhdjung.github.io/scrutiny
 
+# Prevent the text contributed by pkgdown (most importantly, the header) from
+# switching to German by ensuring that it will be in English:
+lang: en
+
 home:
   title: Error detection in science
   description: >
@@ -8,9 +12,19 @@ home:
          aims to make these methods easy to use in a tidyverse-friendly way,
          helping the new field of error detection go mainstream.
 
+
+# List of Bootstrap 5 variables:
+# https://rstudio.github.io/bslib/articles/bs5-variables.html
+
+# Candidate values for `link-color` and `code-color` (they should be the same):
+# ed1a1a, b51212, ef0404, ca225e
 template:
   bootstrap: 5
   bootswatch: flatly
+  bslib:
+    link-color: "#ca225e"
+    code-color: "#ca225e"
+    # popover-arrow-outer-color: "#ca225e"
 
 pkgdown:
   as_is: true
@@ -26,8 +40,9 @@ articles:
 - title: Infrastructure
   navbar: Infrastructure
   contents:
-  - rounding
   - infrastructure
+  - consistency-tests
+  - rounding
 
 - title: Other
   navbar: Other
@@ -35,17 +50,6 @@ articles:
   - wrangling
   - related
 
-# home:
-  # template:
-  #   bootstrap: 4
-  #   bootswatch: flatly
-    # ganalytics: UA-000000-01
-# template:
-#   bootstrap: 4
-#   bootswatch: flatly
-#   title: scrutiny
-#   description: Error detection in science
-  # url: [PUT URL HERE!]
 
 
 reference:
@@ -60,6 +64,8 @@ reference:
 - contents:
   - grim
   - grim_map
+  - grim_map_seq
+  - grim_map_total_n
   - grim_plot
   - grim_ratio
   - grim_total
@@ -72,6 +78,8 @@ reference:
 - contents:
   - debit
   - debit_map
+  - debit_map_seq
+  - debit_map_total_n
   - debit_plot
   - sd_binary_0_n
 
@@ -84,17 +92,26 @@ reference:
   - duplicate_count
 
 - title: Summarize scrutiny tests
-  desc: Generic function to follow up on scrutiny's testing functions
+  desc: Follow up on scrutiny's testing functions by computing specific summary
+        statistics
 - contents:
   - audit
 
 
 - title: Infrastructure
-  desc: Helpers for implementing error detection techniques; divided into
-        four subcategories ---
+  desc: Helpers for implementing error detection techniques
+
+- subtitle: Function factories
+  desc: Easily create new mapper functions for consistency tests
+- contents:
+  - function_map
+  - function_map_seq
+  - function_map_total_n
+  - reverse_map_seq
+  - reverse_map_total_n
 
 - subtitle: Rounding
-  desc: Various functions to reconstruct rounding procedures
+  desc: Reconstruct rounding procedures
 - contents:
   - round_up
   - round_down
@@ -108,18 +125,27 @@ reference:
   - rounding_bias
 
 - subtitle: Counting decimal places
-  desc: The indispensable foundation of many other scrutiny functions
 - contents:
   - decimal_places
 
 - subtitle: Sequence generation
-  desc: Create sequences at the correct decimal level
 - contents:
   - seq_endpoint
   - seq_distance
   - seq_endpoint_df
   - seq_distance_df
   - seq_test_ranking
+  - seq_disperse
+  - disperse
+
+- subtitle: Documentation templates
+  desc: Return standardized building blocks for documenting specific kinds of
+        functions
+- contents:
+  - write_doc_audit
+  - write_doc_audit_seq
+  - write_doc_audit_total_n
+  - write_doc_factory_map_conventions
 
 - subtitle: Testing for subsets / supersets
   desc: Predicate functions for logical relations between vectors; supports
@@ -129,8 +155,7 @@ reference:
 
 
 - title: Data wrangling
-  desc: Convenience functions to automate formatting tasks with a special
-        relevance to error detection
+  desc: Automate formatting tasks with a special relevance to error detection
 - contents:
   - restore_zeros
   - split_by_parens
