@@ -1,8 +1,8 @@
 
 # Helper; not exported:
 manage_key_args <- function(key_args) {
-  key_args_bt <- paste0("`", key_args, "`")
-  vars <- commas_and(key_args_bt)   # `commas_and()` is from utils.R
+  key_args_bt <- backticks(key_args) # function from utils.R
+  vars <- commas_and(key_args_bt)    # function from utils.R
 
   arg1 <- key_args[1]
   arg2 <- key_args[2]
@@ -63,9 +63,9 @@ write_doc_factory_map_audit_section <- function(glue_strings) {
 #'   methods. The section informs users about the ways in which `audit()`
 #'   summarizes the results of the respective mapper function.
 #'
-#'   Copy the output from your console and paste it into the rogygen2 block of
+#'   Copy the output from your console and paste it into the roxygen2 block of
 #'   your `*_map()` function. To preserve the numbered list structure when
-#'   indenting rogygen2 comments with `Ctrl`+`Shift`+`/`, leave empty lines
+#'   indenting roxygen2 comments with `Ctrl`+`Shift`+`/`, leave empty lines
 #'   between the pasted output and the rest of the block.
 #'
 #' @param sample_output Data frame. Result of a call to `audit()` on a data
@@ -157,9 +157,9 @@ write_doc_audit <- function(sample_output, name_test) {
 #'   `audit_seq()` summarizes the results of the manufactured `*_map_seq()`
 #'   function.
 #'
-#'   Copy the output from your console and paste it into the rogygen2 block of
+#'   Copy the output from your console and paste it into the roxygen2 block of
 #'   your `*_map_seq()` function. To preserve the bullet-point structure when
-#'   indenting rogygen2 comments with `Ctrl`+`Shift`+`/`, leave empty lines
+#'   indenting roxygen2 comments with `Ctrl`+`Shift`+`/`, leave empty lines
 #'   between the pasted output and the rest of the block.
 #'
 #' @param key_args String vector with the names of the key columns that are
@@ -183,13 +183,16 @@ write_doc_audit <- function(sample_output, name_test) {
 #' write_doc_audit_seq(key_args = c("x", "sd", "n"), name_test = "DEBIT")
 
 
-
+# TO DO: INCLUDE THE NEW `hits_*` COLUMNS IN THE DOCUMENTATION TEMPLATE
 write_doc_audit_seq <- write_doc_factory_map_audit_section(c(
   "#' @section Summaries with `audit_seq()`: You can call `audit_seq()` following \n",
   "#'   `{tolower(name_test)}_map_seq()`. It will return a data frame with these columns: \n",
   "#'   - {vars} are the original inputs, tested for `consistency` here. \n",
-  "#'   - `hits` is the number of {name_test}-consistent value combinations found within \n" ,
-  "#'   the specified `dispersion` range. \n",
+  "#'   - `hits_total` is the total number of {name_test}-consistent value sets \n" ,
+  "#'   found within the specified `dispersion` range. \n",
+  "#'   - `hits_{arg1}` is the number of {name_test}-consistent value sets \n",
+  "#'   - found by varying {arg1_bt}. \n",
+  "#'   - Accordingly with {arg2_bt} and `hits_{arg2}`. \n",
   "#'   - `diff_{arg1}` reports the absolute difference between {arg1_bt} and the next \n",
   "#'   consistent dispersed value (in dispersion steps, not the actual numeric \n"   ,
   "#'   difference). `diff_{arg1}_up` and `diff_{arg1}_down` report the difference to the \n",
@@ -260,9 +263,9 @@ write_doc_audit_seq <- write_doc_factory_map_audit_section(c(
 #'   `audit_seq()` summarizes the results of the manufactured `*_map_total_n()`
 #'   function.
 #'
-#'   Copy the output from your console and paste it into the rogygen2 block of
+#'   Copy the output from your console and paste it into the roxygen2 block of
 #'   your `*_map_total_n()` function. To preserve the bullet-point structure
-#'   when indenting rogygen2 comments with `Ctrl`+`Shift`+`/`, leave empty lines
+#'   when indenting roxygen2 comments with `Ctrl`+`Shift`+`/`, leave empty lines
 #'   between the pasted output and the rest of the block.
 #'
 #' @param key_args String vector with the names of the key columns that are
@@ -341,6 +344,12 @@ write_doc_audit_total_n <- function(key_args, name_test) {
     is_are_nums <- "are"
   }
 
+  if (length(key_args_num1) == 1) {
+    and_as_well_as <- "and"
+  } else {
+    and_as_well_as <- "as well as"
+  }
+
 
   # Return documentation section:
   glue::glue(
@@ -348,16 +357,16 @@ write_doc_audit_total_n <- function(key_args, name_test) {
     "#'   `audit_total_n()` following up on `{name_test_lower}_map_total_n()` \n",
     "#'   to get a tibble with summary statistics. It will have these columns: \n",
     "#'  - {key_args_all_commas} are the original inputs. \n",
-    "#'  - `hits_forth` is the number of scenarios in which {both_all_of} \n",
-    "#'  {key_args_num_commas} are {name_test}-consistent with the dispersed \n",
-    "#'  `n` values when {key_args_num2_commas} {is_are_nums} paired with the \n",
-    "#'  larger dispersed `n`. \n",
+    "#'  - `hits_total` is the number of scenarios in which {both_all_of} \n",
+    "#'  {key_args_num_commas} are {name_test}-consistent. It is the sum \n",
+    "#'  of `hits_forth` and `hits_back` below. \n",
+    "#'  - `hits_forth` is the number of both-consistent cases that result \n",
+    "#'  from pairing {key_args_num2_commas} with the larger dispersed `n` value. \n",
     "#'  - `hits_back` is the same, except {key_args_num1_commas} {is_are_nums} \n",
     "#'  paired with the larger dispersed `n` value. \n",
-    "#'  - `hits_total` is the sum of `hits_forth` and `hits_back`, i.e., \n",
-    "#'  the total number of both-consistent scenarios. \n",
     "#'  - `scenarios_total` is the total number of test scenarios, \n",
-    "#'  whether or not {both_all_of} {key_args_num_commas} are consistent. \n",
+    "#'  whether or not both {key_args_num1_commas} {and_as_well_as} {key_args_num2_commas} \n",
+    "#'  are {name_test}-consistent. \n",
     "#'  - `hit_rate` is the ratio of `hits_total` to `scenarios_total`. \n"
   )
 }
@@ -375,7 +384,7 @@ write_doc_audit_total_n <- function(key_args, name_test) {
 #'   guidelines that users of your function factory should follow when creating
 #'   new manufactured functions.
 #'
-#'   Copy the output from your console and paste it into the rogygen2 block of
+#'   Copy the output from your console and paste it into the roxygen2 block of
 #'   your function factory.
 #'
 #' @param ending String (length 1). The part of your function factory's name
