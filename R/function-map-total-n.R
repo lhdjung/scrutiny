@@ -400,8 +400,8 @@ function_map_total_n <- function(.fun, .reported, .name_test,
 
     # Complete the switching by ordering the relevant columns so that the column
     # names are as in the original `data` (and hence, as in `data_forth`), but
-    # the columns themselvesself -- the values -- have switched positions. This
-    # goes by `cols_forth_order` because that's what will lead to column names
+    # the columns themselves -- the values -- have switched positions. This goes
+    # by `cols_forth_order` because that's what will lead to column names
     # identical to those in `data_forth`:
     data_back <- data_back %>%
       dplyr::relocate(all_of(cols_forth_order))
