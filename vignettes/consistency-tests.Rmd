@@ -62,7 +62,7 @@ This function takes two or more arguments of length 1 that are coercible to nume
 
 Other arguments might still be necessary, especially if your function reconstructs rounded numbers. An argument that determines how the function rounds should be called `rounding`. The function should internally call `reround()`. The same goes for "unrounding" (i.e., reconstructing rounding bounds) and `unround()`. See also `vignette("rounding")`. A single-case function that performs rounding will also need a helper to count decimal places, which should be `decimal_places_scalar()`.
 
-The function's name is that of the test, followed by `_scalar` which refers to the one-case limit. If your function happens to be applicable to multiple value sets already due to R's natural vectorization, leave out `_scalar` and skip the next section. (This will rarely be the case because every single argument will need to be vectorized.)
+The function's name is that of the test, followed by `_scalar` which refers to the one-case limit. If your function happens to be applicable to multiple value sets already due to R's natural vectorization, leave out `_scalar` and skip the next section. If you're building a package, export the function. (This will rarely be the case because every single argument will need to be vectorized.)
 
 ```{r}
  schlim_scalar <- function(y, n) {
@@ -84,7 +84,7 @@ schlim <- Vectorize(schlim_scalar)
 schlim(y = 10:15, n = 4)
 ```
 
-Functions created this way can be useful for quick testing, but unlike mapping functions, they are not great to build upon. They should never be called within other functions. Therefore, `schlim()` is not used in the remaining part of the vignette.
+Functions created this way can be useful for quick testing, but unlike mapper functions, they are not great to build upon. They should never be called within other functions. Therefore, `schlim()` is not used in the remaining part of the vignette.
 
 # 3. Mapper
 
@@ -115,25 +115,29 @@ schlim_map(df1)
 
 -   `.name_test` simply names the consistency test.
 
-As you can see, `function_map()` is not a helper used inside other functions when creating them with `function()` --- instead, it takes the place of `function()` itself. This makes it a so-called function factory, or more precisely, a function operator, a.k.a. decorator [@wickham2019, ch. 10-11].
+As you can see, `function_map()` is not a helper used inside other functions when creating them with `function()` --- instead, it takes the place of `function()` itself. This makes it a so-called function factory, or more precisely, a function operator, a.k.a. decorator [@wickham2019, ch. 10-11]. You already met `base::Vectorize()` in section 2, which is also a function operator, but a more straightforward one.
 
 To export a function manufactured this way from your own package, make sure to follow [this purrr FAQ](https://purrr.tidyverse.org/reference/faq-adverbs-export.html). (Incredible as it sounds, scrutiny will then take on the role of purrr.) Also, see the worked example for the `.onLoad` pattern in `function_map()`'s documentation.
 
-## Writing mappers manually
+### Drawbacks
 
-If `function_map()` is so handy, why would you ever not use it? There are four reasons:
+If `function_map()` is so helpful, why would you ever not use it? There are four reasons:
 
--   Manufactured functions don't have any tailor-made checks or error messages for any specific consistency test. (They do have some more general checks and errors.)
-
--   They don't support transformer columns (see *Terminology* below).
+-   Functions produced by `function_map()` don't have any tailor-made checks, messages, or transformations for any specific consistency test. (They do have some more general checks and error messages.)
 
 -   They are incapable of creating columns internally other than `"consistency"`.
 
--   Finally, when using a manufactured function, any test-specific arguments the user might specify won't trigger RStudio's autocomplete.
+-   They don't support transformer columns (see *Terminology* below).
+
+-   Finally, when calling such a manufactured function, any test-specific arguments the user might specify via `…` (the dots) won't trigger RStudio's autocomplete. This is not as dangerous as in some other functions that use the dots because, when calling a function produced by `function_map()`, misspelled argument names always throw an error.
 
 `grim_map()` and `debit_map()` were both "handwritten" rather than produced by `function_map()`. However, none of these issues affect the `"consistency"` results, and simply going with `function_map()` might often be the better option.
 
-The remaining part of section 3 explains how to write mapper functions manually. It is quite detailed because it's important to get these things right: Every other function in the rest of the vignette builds up on it. Still, the practical steps are not that complicated, as you can see in the code examples.
+## Writing mappers manually
+
+### Introduction
+
+The remaining part of section 3 explains how to write mapper functions manually. It is quite detailed because it's important to get these things right: Every other function in the rest of this vignette builds up on it. Still, the practical steps are not that complicated, as you can see in the code examples.
 
 ### Terminology
 
@@ -147,7 +151,7 @@ Key and transformer columns are *tested* columns because they factor into the te
 
 A general system for implementing consistency tests needs some consistency itself. This is especially true for mapper functions, because all functions further down the line rely on the mapper's output having some very specific properties.
 
-The level of detail in these requirements might seem pedantic. I still encourage you to follow every step when handwriting a new mapping function. It's easier than it looks at first, and many aspects are indispensable. That is because each function discussed below builds up on the mapper, and their interplay follows a carefully concerted system. If a mapper misses any one ingredient, those other functions may fail.
+The level of detail in these requirements might seem pedantic. I still encourage you to follow every step when handwriting a new mapping function. It's easier than it looks at first, and many aspects are indispensable. That is because the interplay between the mapper and the higher-level functions follows a carefully concerted system. If the mapper misses any one ingredient, those other functions may fail.
 
 The (only) requirements for a mapping function are:
 
@@ -161,7 +165,7 @@ The (only) requirements for a mapping function are:
 
 5.  If the underlying single-case function performs rounding or unrounding, it should internally call `reround()` and/or `unround()`, respectively. The output data frame of the mapper function will then inherit an S3 class (see section *S3 classes* below) such as `"scr_rounding_up_or_down"`: It consists of `"scr_rounding_"` followed by the rounding specification, e.g., `"up_or_down"`. The latter should also be the default rounding and unrounding specification. This specification can be supplied by the user via an argument called `rounding`, which is then passed down to the single-case function. If `reround()` is called within the mapper, all of its arguments need to be passed down from the mapper, which itself has all of the same arguments, with the same defaults. The same applies to `unround()`.
 
-6.  The output data frame inherits an S3 class that consists of `"scr_"` (short for scrutiny), followed by the name of the mapper function. For example, the output of `grim_map()` inherits the `"scr_grim_map"` class. The `"scr_"` prefix is necessary for some follow-up computations introduced below, so it should be used even within functions that are not part of scrutiny. Any other classes added to the output data frame should also start on `"scr_"`. None of them should end on `"_map"`.
+6.  The output data frame inherits an S3 class that starts on `"scr_"` (short for scrutiny), followed by the name of the mapper function. For example, the output of `grim_map()` inherits the `"scr_grim_map"` class. The `"scr_"` prefix is necessary for some follow-up computations introduced below, so it should be used even within functions that are not part of scrutiny. Any other classes added to the output data frame should also start on `"scr_"`. None of them should end on `"_map"`.
 
 ### Implications
 
@@ -233,13 +237,21 @@ You should let `function_map()` produce an equivalent function to make sure that
 
 ### S3 classes
 
-If you don't know what S3 classes are, don't worry. Just copy and paste the function below, and call it at the end of your mapper function. `x` is the output data frame, and `new_class` is a string vector. `new_class` consists of one or more "classes" that will be added to the existing classes of `x`:
+If you don't know what S3 classes are, don't worry. Just copy and paste the function below, and call it at the end of your mapper function. `x` is the output data frame, and `new_class` is a string vector. `new_class` consists of one or more "classes" that will be added to the existing classes of `x`.
 
 ```{r, eval=FALSE}
 add_class <- function(x, new_class) {
   class(x) <- c(new_class, class(x))
   x
 }
+```
+
+You can access the classes that an object carries --- or "inherits" --- by calling `class()`:
+
+```{r}
+dummy <- tibble::tibble(x = 5)
+dummy <- add_class(dummy, "dummy class")
+class(dummy)
 ```
 
 ### Internal helpers
@@ -254,9 +266,9 @@ When directly looking for internal helpers in scrutiny's source code, start at t
 
 ## Introduction
 
-`audit()` is an S3 generic for summarizing scrutiny's test result data frames, especially those of mapper functions such as `grim_map()`. Every mapper function should have a corresponding `audit()` method.
+`audit()` is an S3 generic for summarizing scrutiny's test result data frames, especially those of mapper functions such as `grim_map()`. It should always return descriptive statistics but nothing else. Every mapper function should have its corresponding `audit()` method.
 
-This is an aspect of object-oriented programming (OOP), but scrutiny's use of OOP is simple even by the low standards of R. Your mapper function already returns a specific class, such as `"scr_grim_map"` or `"scr_debit_map"`. In `schlim_map()`, we added the `"scr_schlim_map"` class in addition to existing classes:
+This is an aspect of object-oriented programming (OOP), but scrutiny's use of OOP is simple even by the low standards of R. Your mapper function's output already inherits a specific class, such as `"scr_grim_map"` or `"scr_debit_map"`. In `schlim_map()`, we added the `"scr_schlim_map"` class in addition to existing classes:
 
 ```{r}
 df1_tested <- schlim_map(df1)
@@ -270,6 +282,7 @@ audit.scr_schlim_map <- function(data) {
   "dummy output"
 }
 
+# This calls our new "dummy output" method:
 audit(df1_tested)
 
 # This doesn't work because no method was defined:
@@ -286,7 +299,7 @@ Every `audit()` method for consistency test results should be the same insofar a
 
 3.  `incons_rate` is the ratio of `incons_cases` to `all_cases`.
 
-Apart from these, see for yourself which summary statistics your `audit()` method should compute. Means of variables in the `*_map()` function's output and their ratios to each other might be sensible choices.
+Apart from these, see for yourself which descriptive statistics your `audit()` method should compute. Means of variables in the `*_map()` function's output and their ratios to each other might be sensible choices.
 
 All existing `audit()` methods for consistency tests return tibbles with a single row only. This makes sense because there is no obvious grouping variable for the input data frame, which would lead to multiple rows in `audit()`'s output. However, there might be good reasons for multiple rows when summarizing the results of other tests, so this is not a requirement.
 
@@ -303,9 +316,9 @@ write_doc_audit(sample_output = audit_grim,  name_test = "GRIM")
 write_doc_audit(sample_output = audit_debit, name_test = "DEBIT")
 ```
 
-This function prepares a rogygen2 block section. It fills the three standard columns out for you, and it leaves space to describe any other columns. Also, the internal checks of `write_doc_audit()` make sure that you programmed a correct `audit()` method, as represented by the value of the `sample_output` argument.
+This function prepares a roxygen2 block section. It fills the three standard columns out for you, and it leaves space to describe any other columns there might be. Also, the internal checks of `write_doc_audit()` make sure that you programmed a correct `audit()` method, as represented by the value of the `sample_output` argument.
 
-Copy the output from the console and paste it into the rogygen2 block of your `_map` function. To preserve the numbered list structure when indenting rogygen2 comments with `Ctrl`+`Shift`+`/`, leave empty lines between the pasted output and the rest of the block.
+Copy the output from the console and paste it into the roxygen2 block of your `_map` function. To preserve the numbered list structure when indenting roxygen2 comments with `Ctrl`+`Shift`+`/`, leave empty lines between the pasted output and the rest of the block.
 
 # 5. Visualization function
 
@@ -315,7 +328,7 @@ It is hard to give general advice on how to implement visualization functions fo
 
 ## Requirements
 
-Nevertheless, some general requirements do apply to scrutiny-style visualization functions. They are much more like arbitrary conventions than the requirements for mapper functions, which often meet very precise technical needs. Visualization functions are also dead ends for programming: No other computations build up on them, at least not within scrutiny.
+Nevertheless, some general requirements do apply to scrutiny-style visualization functions. They are much more like arbitrary conventions than the requirements for mapper functions, which often meet very precise technical needs. Visualization functions are also dead ends for programming: No other computations build up on them, at least not within scrutiny. They can still be extended by additional ggplot2 layers.
 
 As a result, the rules below are admittedly somewhat less important. If you violate them, nobody but me will be sad about it.
 
@@ -362,7 +375,7 @@ debit_map_seq <- function_map_seq(
 )
 ```
 
-Any consistency test that is already implemented in a mapper function like `grim_map()` and `debit_map()` can receive its own `*_map_seq()` function just as easily using `function_map_seq()`. That is due to scrutiny's streamlined design conventions --- specifically, the requirements for mapper functions laid out in section 3.
+Any consistency test that is already implemented in a mapper function like `grim_map()` and `debit_map()` can receive its own `*_map_seq()` function just as easily using `function_map_seq()`. This is due to scrutiny's streamlined design conventions --- specifically, the requirements for mapper functions laid out in section 3.
 
 Let's write a sequence mapper for SCHLIM:
 
@@ -393,7 +406,7 @@ df1 %>%
 df1
 ```
 
-As with `function_map()`, if you want to export a function created with `function_map_seq()`, follow [this purrr FAQ](https://purrr.tidyverse.org/reference/faq-adverbs-export.html).
+As with `function_map()`, if you want to export a function produced by `function_map_seq()`, follow [this purrr FAQ](https://purrr.tidyverse.org/reference/faq-adverbs-export.html).
 
 # 7. Total-n mapper
 
@@ -401,7 +414,7 @@ As with `function_map()`, if you want to export a function created with `functio
 
 The reporting of summary statistics is often insufficient --- certainly from an error detection point of view. In particular, values such as means and standard deviations are not always accompanied by their respective group sizes, but only by a total sample size.
 
-This presents a problem for consistency tests that rely on reported group sizes, such as GRIM. It requires splitting the reported total into groups and creating multiple plausible scenarios of group sizes that add up to the total. Although no definitive test results can be gained this way, it does help to see whether reported values are consistent with at least some of the plausible group sizes [@bauer_expression_2021].
+This presents a problem for consistency tests that rely on reported group sizes, such as GRIM. It requires splitting the reported total into groups and creating multiple plausible scenarios of group sizes that each add up to the total. Although no definitive test results can be gained this way, it does help to see whether reported values are consistent with at least some of the plausible group sizes [@bauer_expression_2021].
 
 ## Practical steps
 
@@ -450,7 +463,9 @@ out_total_n
 audit_total_n(out_total_n)
 ```
 
-The same pattern can be applied to any other mapper function that fulfills the requirements from section 3. One of the columns, `n`, will have its values dispersed from half, internally using `disperse_total()`. See the advice on exporting manufactured functions at the end of section 6.
+The same pattern can be applied to any other mapper function that fulfills the requirements from section 3. One of the columns, `n`, will have its values dispersed from half, internally using `disperse_total()`.
+
+See the advice on exporting manufactured functions at the end of section 6.
 
 # 8. Documenting `audit_seq()` and `audit_total_n()`
 
@@ -458,9 +473,9 @@ The same pattern can be applied to any other mapper function that fulfills the r
 
 The output of sequence mappers and total-n mappers is very comprehensive. This makes it somewhat unwieldy and creates a need for summaries. As a first step, the user can always call `audit()` on the tibbles returned by manufactured functions like `grim_map_seq()`. It will go by the `"*_map"` class added within the basic mapper function, such as `grim_map()`, and return the regular output of the respective `audit()` method.
 
-However, scrutiny features two specialized functions for summarizing the results of manufactured `*_seq()` or `*_total_n()` functions: `audit_seq()` and `audit_total_n()`. These two are not generic like `audit()`, but they only work with the output of functions created with `function_map_seq()` and `function_map_total_n()`, respectively.
+However, scrutiny features two specialized functions for summarizing the results of manufactured `*_seq()` or `*_total_n()` functions: `audit_seq()` and `audit_total_n()`. These two are not generic like `audit()`, but they only work with functions produced by `function_map_seq()` and `function_map_total_n()`, respectively.
 
-You will notice that I have talked about two existing functions, rather than --- as in the other sections --- a kind of function that you should be writing. Indeed, there is nothing left for you to do about these functions themselves, unless you find a bug in them! What you should do, however, is to document the behavior of `audit_seq()` and `audit_total_n()` with regard to the specific test that you have implemented.
+You will notice that I have talked about two existing functions, rather than --- as in the other sections --- a kind of function that you should be writing. Indeed, there is nothing left for you to do about `audit_seq()` and `audit_total_n()` themselves, unless you find a bug in them! What you should do, however, is to document the behavior of `audit_seq()` and `audit_total_n()` with regard to the specific test that you have implemented.
 
 ## Documentation templates
 
@@ -475,7 +490,7 @@ write_doc_audit_seq(key_args = c("x", "sd", "n"), name_test = "DEBIT")
 
 `key_args` is a string vector with the names of the respective test's key arguments. (You will see that the function is sensitive to the length of `key_args`, not just to its values.) `name_test` is the plain-text name of that consistency test itself.
 
-Copy the output from the console and paste it into the rogygen2 block of your `_map_seq` function. To preserve the bullet-point structure when indenting rogygen2 comments with `Ctrl`+`Shift`+`/`, leave empty lines between the pasted output and the rest of the block.
+Copy the output from the console and paste it into the roxygen2 block of your `_map_seq` function. To preserve the bullet-point structure when indenting roxygen2 comments with `Ctrl`+`Shift`+`/`, leave empty lines between the pasted output and the rest of the block.
 
 Likewise, documenting `audit_total_n()` for `grim_map_total_n()` and `debit_map_total_n()`:
 
