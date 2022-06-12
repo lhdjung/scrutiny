@@ -276,6 +276,7 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
            include_reported = .include_reported,
            include_consistent = .include_consistent, ...) {
 
+    check_key_args_in_colnames(data, reported)
     check_consistency_not_in_colnames(data, name_test)
 
     # First, basic testing with the `*_map()` function:

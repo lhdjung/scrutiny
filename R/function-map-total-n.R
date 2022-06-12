@@ -309,6 +309,8 @@ function_map_total_n <- function(.fun, .reported, .name_test,
 
     # Checks ---
 
+    check_consistency_not_in_colnames(data, name_test)
+
     # Make sure that the `n` column is present...
     if (!"n" %in% colnames(data)) {
       cli::cli_abort(c(
