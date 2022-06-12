@@ -267,7 +267,8 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
                              .include_reported = FALSE,
                              .include_consistent = FALSE, ...) {
 
-  # The function factory returns this manufactured function:
+  # --- Start of the manufactured function ---
+
   function(data, var = .var, reported = .reported, fun = .fun,
            name_test = .name_test, name_class = .name_class,
            dispersion = .dispersion,
@@ -275,7 +276,7 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
            include_reported = .include_reported,
            include_consistent = .include_consistent, ...) {
 
-    check_consistency_in_colnames(data, name_test)
+    check_consistency_not_in_colnames(data, name_test)
 
     # First, basic testing with the `*_map()` function:
     data <- fun(data, ...)
@@ -337,7 +338,7 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
     return(out)
   }
 
-  # -- End of the manufactured function --
+  # --- End of the manufactured function ---
 
 }
 
