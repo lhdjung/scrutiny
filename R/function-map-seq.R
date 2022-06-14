@@ -186,7 +186,6 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 #'   .fun = grim_map,
 #'   .reported = c("x", "n"),
 #'   .name_test = "GRIM",
-#'   .name_class = "scr_grim_map_seq"
 #' )
 #'
 #'
