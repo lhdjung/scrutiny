@@ -2,17 +2,22 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/lhdjung/scrutiny/workflows/R-CMD-check/badge.svg)](https://github.com/lhdjung/scrutiny/actions)
+[![Codecov test
+coverage](https://codecov.io/gh/lhdjung/scrutiny/branch/main/graph/badge.svg)](https://app.codecov.io/gh/lhdjung/scrutiny?branch=main)
 
 <!-- badges: end -->
 
 # Error detection in science
 
 The goal of scrutiny is to test published summary statistics for
-consistency and reconstruct some of the processes which created them.
-The package makes these methods easy to use in a tidyverse-friendly way.
-It hopes to help the new field of error detection go mainstream.
+consistency using techniques like
+[GRIM](file:///Users/lukasjung/Documents/R-code/scrutiny/docs/articles/grim.html)
+and to check their plausibility by reconstructing some of the processes
+behind them. The package makes these methods easy to use in a
+tidyverse-friendly way. It hopes to help the new field of error
+detection go mainstream.
 
-Besides consistency tests, scrutiny features infrastructure for
+Besides ready-made tests, scrutiny features infrastructure for
 implementing error detection techniques, as well as specialized data
 wrangling functions. See the *Articles* tab for vignettes.
 
@@ -95,8 +100,9 @@ Test percentages instead of means:
     #> 5 0.681   150     1 FALSE        0.85
     #> 6 0.554   150     1 FALSE        0.85
 
-You can visualize GRIM results while also choosing how the means are
-reconstructed. Blue dots are consistent values, red dots are
+You can choose how the means are reconstructed for testing — here,
+rounded up from 5. When visualizing results, the plot will adjust
+automatically. Blue dots are consistent values, red dots are
 inconsistent ones:
 
     pigs1 %>% 
@@ -162,12 +168,11 @@ data:
 
 # References
 
-Pickett, Justin T. „The Stewart Retractions: A Quantitative and
-Qualitative Analysis". *Econ Journal Watch* 17, Nr. 1 (March 2020):
-152–90. URL:
+Pickett, J. T. (2020). The Stewart Retractions: A Quantitative and
+Qualitative Analysis. *Econ Journal Watch*, *17*(1), 152–190.
 <https://econjwatch.org/articles/the-stewart-retractions-a-quantitative-and-qualitative-analysis>.
 
-van der Zee, Tim, Jordan Anaya, und Nicholas J. L. Brown. „Statistical
-Heartburn: An Attempt to Digest Four Pizza Publications from the Cornell
-Food and Brand Lab". *BMC Nutrition* 3, Nr. 1 (Dezember 2017): 54.
+van der Zee, T., Anaya, J., & Brown, N. J. L. (2017). Statistical
+heartburn: An attempt to digest four pizza publications from the Cornell
+Food and Brand Lab. *BMC Nutrition*, *3*(1), 54.
 <https://doi.org/10.1186/s40795-017-0167-x>.
