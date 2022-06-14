@@ -151,7 +151,7 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 #'   If functions created this way are exported from other packages, they should
 #'   be written as if they were created with
 #'   \href{https://purrr.tidyverse.org/reference/faq-adverbs-export.html}{purrr
-#'   adverbs}; see explanations there and examples below.
+#'   adverbs}; see explanations there and examples at `function_map()`.
 #'
 #' @param .fun Function such as `grim_map`: It will be used to test columns in a
 #'   data frame for consistency. Test results are Boolean and need to be
@@ -259,18 +259,22 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 #'   .fun = schlim_map,
 #'   .reported = "y",
 #'   .name_test = "SCHLIM",
-#'   .name_class = "scr_schlim_map_total_n"
 #' )
 #'
 #' # Create some example data:
-#' df <- tibble::tibble(
+#' df1 <- tibble::tibble(
 #'   y1 = 16:25,
 #'   y2 = 26:35,
 #'   n  = 12:21
 #' )
+#' df1
 #'
 #' # Call the manufactured function:
-#' schlim_map_total_n(df)
+#' out <- schlim_map_total_n(df1)
+#' out
+#'
+#' # Summarize the results:
+#' audit_total_n(out)
 
 
 
@@ -287,7 +291,6 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 # fun <- grim_map
 # reported <- "x"
 # name_test <- "GRIM"
-# name_class <- "scr_grim_map_total_n"
 # dispersion <- 0:5
 # n_min <- 1
 # n_max <- NULL
