@@ -78,14 +78,6 @@ debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
   # Check the column names of `data`:
   check_mapper_input_colnames(data, c("x", "sd", "n"), "DEBIT")
 
-  # # Throw error if `extra` argument it misspecified:
-  # if (!is.infinite(extra) && !is.numeric(extra) && !extra %in% colnames(data)) {
-  #   cli::cli_abort(
-  #     "At least one `extra` column name was supplied that is not part of \\
-  #     `data`."
-  #   )
-  # }
-
   # Defuse the argument specifications that can be used to assign the roles of
   # `x`, `sd`, and `n` to specific columns in case these columns don't already
   # have those names:
@@ -102,7 +94,7 @@ debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
   # Provide a way to specify the mean (`x`) column from within a function call
   # even if the column in question is not named `x`:
   if (!is.null(x)) {
-    x_orig <- x  # rlang::expr_text(x)
+    x_orig <- x
     data <- dplyr::mutate(data, x = {{ x }})
   }
 
@@ -146,21 +138,6 @@ debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
   # `extra` argument (default is `Inf`, i.e., all extra columns):
   extra_cols <- manage_extra_cols(data, extra, other_cols)
 
-  # # Throw error if the `extra` argument is specified as numeric, but if that
-  # # number is larger than the actual number of extra columns:
-  # if (!is.infinite(extra) && is.numeric(extra) && extra > length(other_cols)) {
-  #   cli::cli_abort(c(
-  #     "The number supplied for `extra` columns is too large -- there aren't \\
-  #     as many extra columns in `data`."
-  #   ))
-  # }
-  #
-  # # Make `other_cols` capture any and all extra columns:
-  # if (!is.infinite(extra) && length(other_cols) > 0) {
-  #   other_cols <- other_cols %>%
-  #     dplyr::select(all_of(extra))
-  # }
-
   # Prepare input vectors for the resulting tibble:
   sd <- sd_chr <- data$sd
   x <- x_chr <- data$x
@@ -179,14 +156,6 @@ debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
       symmetric = symmetric
     ) %>%
     add_class(c("scr_debit_map", rounding_class))
-
-  # # Mediate between `seq_endpoint_df()` or `seq_distance_df()`, on the one hand,
-  # # and `seq_test_ranking()`, on the other:
-  # if (inherits(data, "scr_seq_df")) {
-  #   # class(results) <- c("scr_seq_test", class(results))
-  #   results <- results %>%
-  #     add_class("scr_seq_test")
-  # }
 
   # Finally, return the results, with or without the intermediary values
   # (rounding method, boundary values, and Boolean information about the
@@ -213,18 +182,6 @@ debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
         # dplyr::all_of(extra_cols)
       )
   }
-
-
-  # orig_names <- c("x_orig", "sd_orig", "n_orig")
-  # orig_names_exist <- vapply(orig_names, exists, logical(1))
-  #
-  # if (any(orig_names_exist)) {
-  #   out <- out %>%
-  #     dplyr::select(-x_orig, -sd_orig, -n_orig)
-  # }
-
-  # out <- out %>%
-  #   dplyr::select(-x_orig, -sd_orig, -n_orig)
 
   if (length(extra_cols) > 0) out <- dplyr::mutate(out, extra_cols)
 
