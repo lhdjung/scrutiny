@@ -64,6 +64,5 @@ debit_map_seq <- function_map_seq(
   .fun = debit_map,
   .reported = c("x", "sd", "n"),
   .name_test = "DEBIT",
-  .name_class = "scr_debit_map_seq"
 )
 
