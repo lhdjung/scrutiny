@@ -16,7 +16,8 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
                                    .out_min = out_min, .out_max = out_max,
                                    .include_reported = include_reported, ...) {
 
-  # The function factory returns this manufactured function:
+  # --- Start of the manufactured helper (!) function ---
+
   function(data, fun = .fun, var = .var, dispersion = .dispersion,
            out_min = .out_min, out_max = .out_max,
            include_reported = .include_reported, ...) {
@@ -91,7 +92,7 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
     return(out)
   }
 
-  # -- End of the manufactured helper (!) function --
+  # --- End of the manufactured helper (!) function ---
 
 }
 
