@@ -39,10 +39,10 @@ test_that("It has the correct rounding-specific class", {
 })
 
 
-consistency_expected <- c(T, F, F, F, F, T, F, T, F, F, T, F)
+cns_exp <- c(T, F, F, F, F, T, F, T, F, F, T, F)
 
 test_that("`consistency` has the correct values", {
-  df1_grim$consistency %>% expect_equal(consistency_expected)
+  df1_grim$consistency %>% expect_equal(cns_exp)
 })
 
 
@@ -72,8 +72,10 @@ n <- rnorm(500, 50, 20) %>%
   round()
 
 df3 <- tibble::tibble(x, n)
+
 df3_percent_true <- grim_map(df3, percent = TRUE, show_rec = TRUE) %>%
   suppressMessages()
+
 df3_percent_false <- grim_map(df3, show_rec = TRUE)
 
 all_percent_ratios_greater <-
@@ -102,8 +104,7 @@ df3_true_accord <- df3_percent_true %>%
       FALSE
     ))
 
-accord <- (df3_true_accord$consistency == df3_true_accord$accord) %>%
-  all()
+accord <- all(df3_true_accord$consistency == df3_true_accord$accord)
 
 
 test_that(glue::glue(

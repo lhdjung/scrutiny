@@ -12,8 +12,8 @@
 # that `debit_map()` does.
 
 grim_map_alt <- function_map(
-  .reported = c("x", "n"),
   .fun = grim_scalar,
+  .reported = c("x", "n"),
   .name_test = "GRIM",
   .name_class = "scr_grim_map"
 )
@@ -29,9 +29,10 @@ debit_map_alt <- function_map(
 
 # Example data ------------------------------------------------------------
 
-df_grim1 <- pigs1
+df_grim1  <- pigs1
 df_debit1 <- pigs3
 
+# Create this many random numbers per column:
 n_dfs2 <- 150
 
 df_grim2 <- tibble::tibble(
@@ -46,6 +47,9 @@ df_debit2 <- tibble::tibble(
 )
 
 
+
+# Running old and new (= manufactured) functions --------------------------
+
 out_grim_old1  <- grim_map(df_grim1)[1:3]
 out_debit_old1 <- debit_map(df_debit1)[1:4]
 
@@ -59,6 +63,7 @@ out_grim_new2  <- grim_map_alt(df_grim2)
 out_debit_new2 <- debit_map_alt(df_debit2)
 
 
+
 # Testing -----------------------------------------------------------------
 
 test_that("It works for GRIM", {
@@ -66,7 +71,7 @@ test_that("It works for GRIM", {
   out_grim_old2 %>% expect_equal(out_grim_new2)
 })
 
-test_that("It works for DEBIT (with `pigs3`)", {
+test_that("It works for DEBIT", {
   out_debit_old1 %>% expect_equal(out_debit_new1)
   out_debit_old2 %>% expect_equal(out_debit_new2)
 })

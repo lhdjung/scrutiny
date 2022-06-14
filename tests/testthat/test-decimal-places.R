@@ -1,4 +1,5 @@
 
+# Long vectors with decimal numbers:
 x1 <- iris$Petal.Length
 x2 <- mtcars$qsec
 x3 <- randu$y
@@ -119,4 +120,15 @@ test_that("Both functions return the same count for each individual number", {
   x5 %>% decimal_places() %>% expect_equal(out_scalar_x5)
   x6 %>% decimal_places() %>% expect_equal(out_scalar_x6)
 })
+
+
+
+
+test_that("`decimal_places_scalar()` consitions work as expected", {
+  25 %>% decimal_places_scalar() %>% expect_equal(0)
+  NA %>% decimal_places_scalar() %>% expect_equal(NA)
+})
+
+
+
 
