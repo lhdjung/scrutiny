@@ -103,18 +103,8 @@ debit_table <- function(x, sd, n, unround_x = TRUE, unround_sd = TRUE,
 
   # Coerce the values reported for SD and average to numeric (because they were
   # given as strings):
-  sd <- as.numeric(sd)
   x <- as.numeric(x)
-
-  # Recover lower and upper bounds for the original SD and mean values, going by
-  # the reported value each...
-  sd_unrounded <- suppressMessages(unround(
-    sd_chr[unround_sd], rounding = rounding, digits = digits_sd
-  ))
-
-  x_unrounded  <- suppressMessages(unround(
-    x_chr[unround_x], rounding = rounding, digits = digits_x
-  ))
+  sd <- as.numeric(sd)
 
   # ...and define values out of the tibble resulting from that call:
   # sd_upper <- sd_unrounded$upper
@@ -137,8 +127,13 @@ debit_table <- function(x, sd, n, unround_x = TRUE, unround_sd = TRUE,
   # sd_incl_lower <- dplyr::if_else(unround_sd, sd_unrounded$incl_lower, TRUE)
   # sd_incl_upper <- dplyr::if_else(unround_sd, sd_unrounded$incl_upper, TRUE)
 
-
+  # By default, recover lower and upper bounds for the original mean and SD
+  # values using `unround()`, going by the reported value each time and defining
+  # values out of the tibble resulting from that call:
   if (unround_x) {
+    x_unrounded   <- suppressMessages(unround(
+      x_chr, rounding = rounding, threshold = threshold, digits = digits_x
+    ))
     x_upper       <- x_unrounded$upper
     x_lower       <- x_unrounded$lower
     x_incl_lower  <- x_unrounded$incl_lower
@@ -151,6 +146,9 @@ debit_table <- function(x, sd, n, unround_x = TRUE, unround_sd = TRUE,
   }
 
   if (unround_sd) {
+    sd_unrounded  <- suppressMessages(unround(
+      sd_chr, rounding = rounding, threshold = threshold, digits = digits_sd
+    ))
     sd_upper      <- sd_unrounded$upper
     sd_lower      <- sd_unrounded$lower
     sd_incl_lower <- sd_unrounded$incl_lower
