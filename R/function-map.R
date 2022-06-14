@@ -12,7 +12,7 @@
 #' @param .name_test String (length 1). Plain-text name of the consistency test,
 #'   such as `"GRIM"`.
 #' @param .name_class String. One or more classes to be added to the output data
-#'   frame.
+#'   frame. Default is `NULL`, i.e., no extra class (but see *Details*).
 #' @param ... Arguments passed down to `.fun`.
 
 #' @details The output tibble returned by the manufactured function will inherit
@@ -98,7 +98,6 @@
 # reported <- c("x", "n")
 # fun <- grim_scalar
 # name_test <- "GRIM"
-# name_class <- "scr_grim_map"
 
 
 function_map <- function(.fun, .reported, .name_test, .name_class = NULL, ...) {
@@ -134,8 +133,7 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL, ...) {
 
     # Checks ---
 
-    check_key_args_in_colnames(data, reported)
-    check_consistency_not_in_colnames(data, name_test)
+    check_mapper_input_colnames(data, reported, name_test)
 
     # Check that no argument specified via the dots, `...`, was misspelled:
     dots <- rlang::enexprs(...)
@@ -175,15 +173,15 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL, ...) {
       name_class <- append(name_class, rounding_class)
     }
 
-    # name_class_all <- stringr::str_remove(fun_name, "_scalar")
-    # name_class_all <- paste0("scr_", name_class_all, "_map")
+    # all_classes <- stringr::str_remove(fun_name, "_scalar")
+    # all_classes <- paste0("scr_", all_classes, "_map")
 
     # This ends on `_all`...
-    name_class_all <- paste0("scr_", tolower(name_test), "_map")
+    all_classes <- paste0("scr_", tolower(name_test), "_map")
 
     # ...because more values might be added to it:
     if (!is.null(name_class)) {
-      name_class_all <- c(name_class_all, name_class)
+      all_classes <- c(all_classes, name_class)
     }
 
     # Separate the data into tested and non-tested columns, going by the column
@@ -199,7 +197,7 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL, ...) {
     # to the tested columns). Any other columns from the input go to the right
     # of `"consistency"`:
     out <- tibble::tibble(data_tested, consistency, data_non_tested)
-    out <- add_class(out, name_class_all)
+    out <- add_class(out, all_classes)
 
     return(out)
   }
@@ -211,17 +209,17 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL, ...) {
 
 
 
-grim_map_alt <- function_map(
-  .fun = grim_scalar,
-  .reported = c("x", "n"),
-  .name_test = "GRIM"
-)
-
-debit_map_alt <- function_map(
-  .fun = debit_scalar,
-  .reported = c("x", "sd", "n"),
-  .name_test = "DEBIT"
-)
+# grim_map_alt <- function_map(
+#   .fun = grim_scalar,
+#   .reported = c("x", "n"),
+#   .name_test = "GRIM"
+# )
+#
+# debit_map_alt <- function_map(
+#   .fun = debit_scalar,
+#   .reported = c("x", "sd", "n"),
+#   .name_test = "DEBIT"
+# )
 
 
 
