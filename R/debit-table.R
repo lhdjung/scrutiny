@@ -61,42 +61,10 @@ debit_table <- function(x, sd, n, unround_x = TRUE, unround_sd = TRUE,
                         formula = "mean_n", rounding = "up_or_down",
                         threshold = 5, symmetric = FALSE, show_rec = TRUE) {
 
-  # Checks ---
-
-  # As trailing zeros matter for DEBIT, mean and standard deviation need to be
-  # given as strings:
-  # check_type(x,  "character")
-  # check_type(sd, "character")
-
-  # if (!is.character(x)) {
-  #   cli::cli_abort(c(
-  #     "`x` is {an_a_type(x)}.",
-  #     "i" = "It needs to be a string."
-  #   ))
-  # }
-  #
-  # if (!is.character(sd)) {
-  #   cli::cli_abort(c(
-  #     "`sd` is {an_a_type(sd)}.",
-  #     "i" = "It needs to be a string."
-  #   ))
-  # }
-
-
-  # Main part ---
-
   # Count decimal places of the standard deviation (SD) and the distribution
   # mean, both as reported:
   digits_x  <- decimal_places(x)
   digits_sd <- decimal_places(sd)
-
-  #  if (n < 10 ^ (digits_sd + 1)) {
-  #    rlang::abort("The reported sample size is too small for an SD with so many decimal places.")
-  #  }
-  #
-  #  if (n < 10 ^ (digits_x + 1)) {
-  #    rlang::abort("The reported sample size is too small for a mean with so many decimal places.")
-  #  }
 
   sd_chr <- sd
   x_chr <- x
@@ -105,27 +73,6 @@ debit_table <- function(x, sd, n, unround_x = TRUE, unround_sd = TRUE,
   # given as strings):
   x <- as.numeric(x)
   sd <- as.numeric(sd)
-
-  # ...and define values out of the tibble resulting from that call:
-  # sd_upper <- sd_unrounded$upper
-  # sd_lower <- sd_unrounded$lower
-  # sd_incl_lower <- sd_unrounded$incl_lower
-  # sd_incl_upper <- sd_unrounded$incl_upper
-  #
-  # x_upper <- x_unrounded$upper
-  # x_lower <- x_unrounded$lower
-  # x_incl_upper <- x_unrounded$incl_upper
-  # x_incl_lower <- x_unrounded$incl_lower
-
-  # x_upper       <- dplyr::if_else(unround_x,   x_unrounded$upper, x)
-  # x_lower       <- dplyr::if_else(unround_x,   x_unrounded$lower, x)
-  # x_incl_lower  <- dplyr::if_else(unround_x,   x_unrounded$incl_lower, TRUE)
-  # x_incl_upper  <- dplyr::if_else(unround_x,   x_unrounded$incl_upper, TRUE)
-  #
-  # sd_upper      <- dplyr::if_else(unround_sd, sd_unrounded$upper, sd)
-  # sd_lower      <- dplyr::if_else(unround_sd, sd_unrounded$lower, sd)
-  # sd_incl_lower <- dplyr::if_else(unround_sd, sd_unrounded$incl_lower, TRUE)
-  # sd_incl_upper <- dplyr::if_else(unround_sd, sd_unrounded$incl_upper, TRUE)
 
   # By default, recover lower and upper bounds for the original mean and SD
   # values using `unround()`, going by the reported value each time and defining
@@ -192,13 +139,6 @@ debit_table <- function(x, sd, n, unround_x = TRUE, unround_sd = TRUE,
   # determined by `unround()`:
 
   sd_rec_both <- c(sd_rec_lower, sd_rec_upper)
-
-  # consistency <- dplyr::case_when(
-  #   sd_incl_lower  &&  sd_incl_upper   ~  any(sd_lower <= sd_rec_both) && any(sd_rec_both <= sd_upper),
-  #   sd_incl_lower  && !sd_incl_upper   ~  any(sd_lower <= sd_rec_both) && any(sd_rec_both <  sd_upper),
-  #   !sd_incl_lower &&  sd_incl_upper   ~  any(sd_lower <  sd_rec_both) && any(sd_rec_both <= sd_upper),
-  #   TRUE                               ~  any(sd_lower <  sd_rec_both) && any(sd_rec_both <  sd_upper)
-  # )
 
   if (sd_incl_lower && sd_incl_upper) {
     consistency <- any(sd_lower <= sd_rec_both) && any(sd_rec_both <= sd_upper)
