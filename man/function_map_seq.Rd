@@ -81,7 +81,7 @@ function. They can still be specified differently when calling the latter.
 If functions created this way are exported from other packages, they should
 be written as if they were created with
 \href{https://purrr.tidyverse.org/reference/faq-adverbs-export.html}{purrr
-adverbs}.
+adverbs}; see explanations there and examples at \code{function_map()}.
 }
 \details{
 This function is a so-called function factory: It produces other
@@ -111,7 +111,6 @@ grim_map_seq <- function_map_seq(
   .fun = grim_map,
   .reported = c("x", "n"),
   .name_test = "GRIM",
-  .name_class = "scr_grim_map_seq"
 )
 
 
@@ -151,7 +150,6 @@ schlim_map_seq <- function_map_seq(
   .fun = schlim_map,
   .reported = c("y", "n"),
   .name_test = "SCHLIM",
-  .name_class = "scr_schlim_map_seq"
 )
 
 # Create some example data:

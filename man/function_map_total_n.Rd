@@ -63,7 +63,7 @@ need to be exactly two groups.
 If functions created this way are exported from other packages, they should
 be written as if they were created with
 \href{https://purrr.tidyverse.org/reference/faq-adverbs-export.html}{purrr
-adverbs}; see explanations there and examples below.
+adverbs}; see explanations there and examples at \code{function_map()}.
 }
 \details{
 This function is a so-called function factory: It produces other
@@ -133,18 +133,22 @@ schlim_map_total_n <- function_map_total_n(
   .fun = schlim_map,
   .reported = "y",
   .name_test = "SCHLIM",
-  .name_class = "scr_schlim_map_total_n"
 )
 
 # Create some example data:
-df <- tibble::tibble(
+df1 <- tibble::tibble(
   y1 = 16:25,
   y2 = 26:35,
   n  = 12:21
 )
+df1
 
 # Call the manufactured function:
-schlim_map_total_n(df)
+out <- schlim_map_total_n(df1)
+out
+
+# Summarize the results:
+audit_total_n(out)
 }
 \references{
 Bauer, P. J., & Francis, G. (2021). Expression of Concern: Is It

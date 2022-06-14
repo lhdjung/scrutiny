@@ -18,7 +18,7 @@ length 1, i.e., \code{TRUE} or \code{FALSE}.}
 such as \code{"GRIM"}.}
 
 \item{.name_class}{String. One or more classes to be added to the output data
-frame.}
+frame. Default is \code{NULL}, i.e., no extra class (but see \emph{Details}).}
 
 \item{...}{Arguments passed down to \code{.fun}.}
 }
