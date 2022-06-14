@@ -62,7 +62,7 @@ This function takes two or more arguments of length 1 that are coercible to nume
 
 Other arguments might still be necessary, especially if your function reconstructs rounded numbers. An argument that determines how the function rounds should be called `rounding`. The function should internally call `reround()`. The same goes for "unrounding" (i.e., reconstructing rounding bounds) and `unround()`. See also `vignette("rounding")`. A single-case function that performs rounding will also need a helper to count decimal places, which should be `decimal_places_scalar()`.
 
-The function's name is that of the test, followed by `_scalar` which refers to the one-case limit. If your function happens to be applicable to multiple value sets already due to R's natural vectorization, leave out `_scalar` and skip the next section. If you're building a package, export the function. (This will rarely be the case because every single argument will need to be vectorized.)
+The function's name is that of the test (in lowercase), followed by `_scalar` which refers to the one-case limit. If your function happens to be applicable to multiple value sets already due to R's natural vectorization, leave out `_scalar` and skip the next section. If you're building a package, export the function. (This will rarely be the case because every single argument will need to be vectorized.)
 
 ```{r}
  schlim_scalar <- function(y, n) {
@@ -115,7 +115,7 @@ schlim_map(df1)
 
 -   `.name_test` simply names the consistency test.
 
-As you can see, `function_map()` is not a helper used inside other functions when creating them with `function()` --- instead, it takes the place of `function()` itself. This makes it a so-called function factory, or more precisely, a function operator, a.k.a. decorator [@wickham2019, ch. 10-11]. You already met `base::Vectorize()` in section 2, which is also a function operator, but a more straightforward one.
+As you can see, `function_map()` is not a helper used inside other functions when creating them with `function()` --- instead, it takes the place of `function()` itself. This makes it a so-called function factory, or more precisely, a function operator, a.k.a. decorator [@wickham2019, ch. 10-11]. You already met `base::Vectorize()` in section 2, which is also a function operator, but a more general and straightforward one.
 
 To export a function manufactured this way from your own package, make sure to follow [this purrr FAQ](https://purrr.tidyverse.org/reference/faq-adverbs-export.html). (Incredible as it sounds, scrutiny will then take on the role of purrr.) Also, see the worked example for the `.onLoad` pattern in `function_map()`'s documentation.
 
@@ -131,13 +131,13 @@ If `function_map()` is so helpful, why would you ever not use it? There are four
 
 -   Finally, when calling such a manufactured function, any test-specific arguments the user might specify via `…` (the dots) won't trigger RStudio's autocomplete. This is not as dangerous as in some other functions that use the dots because, when calling a function produced by `function_map()`, misspelled argument names always throw an error.
 
-`grim_map()` and `debit_map()` were both "handwritten" rather than produced by `function_map()`. However, none of these issues affect the `"consistency"` results, and simply going with `function_map()` might often be the better option.
+Both `grim_map()` and `debit_map()` were "handwritten" rather than produced by `function_map()`. However, none of the issues named above affect the `"consistency"` results, and simply going with `function_map()` might often be the better option. If that's what you choose to do, skip right to section 4.
 
 ## Writing mappers manually
 
 ### Introduction
 
-The remaining part of section 3 explains how to write mapper functions manually. It is quite detailed because it's important to get these things right: Every other function in the rest of this vignette builds up on it. Still, the practical steps are not that complicated, as you can see in the code examples.
+The remaining part of section 3 explains how to write mapper functions like `grim_map()` or `debit_map()` manually. It is quite detailed because it's important to get these things right: Every other function in the rest of this vignette builds up on it. Still, the practical steps are not that complicated, as you can see in the code examples.
 
 ### Terminology
 
@@ -204,9 +204,9 @@ Apply the `_scalar` function to the input data frame using `purrr::pmap_lgl()`:
 
 ```{r}
 schlim_map_alt1 <- function(data, ...) {
+  scrutiny::check_mapper_input_colnames(data, c("y", "n"), "SCHLIM")
   consistency <- purrr::pmap_lgl(data, schlim_scalar, ...)
   out <- tibble::tibble(y = data$y, n = data$n, consistency)
-  out <- dplyr::relocate(out, y, n, consistency)
   out <- add_class(out, "scr_schlim_map")  # See section "S3 classes" below
   out
 }
@@ -216,6 +216,7 @@ Alternatively, call `dplyr::rowwise()` and directly mutate `"consistency"`:
 
 ```{r}
 schlim_map_alt2 <- function(data, ...) {
+  scrutiny::check_mapper_input_colnames(data, c("y", "n"), "SCHLIM")
   data %>% 
     dplyr::rowwise() %>% 
     dplyr::mutate(consistency = schlim_scalar(y, n, ...)) %>% 
@@ -225,6 +226,8 @@ schlim_map_alt2 <- function(data, ...) {
 }
 ```
 
+(The call to `check_mapper_input_colnames()` is not required but adds safety to your function.)
+
 Both approaches should lead to the same results:
 
 ```{r}
@@ -232,6 +235,8 @@ schlim_map_alt1(df1)
 
 schlim_map_alt2(df1)
 ```
+
+### Testing
 
 You should let `function_map()` produce an equivalent function to make sure that it returns the same output as your handwritten one. To compare the output data frames, don't just eyeball them. Use `waldo::compare()` or, if you already run tests with testthat, `expect_equal()`. Of course, if your handwritten function creates new columns beyond `"consistency"`, you'll have to remove them from the output first.
 
@@ -488,7 +493,7 @@ write_doc_audit_seq(key_args = c("x", "n"), name_test = "GRIM")
 write_doc_audit_seq(key_args = c("x", "sd", "n"), name_test = "DEBIT")
 ```
 
-`key_args` is a string vector with the names of the respective test's key arguments. (You will see that the function is sensitive to the length of `key_args`, not just to its values.) `name_test` is the plain-text name of that consistency test itself.
+`key_args` is a string vector with the names of the respective test's key arguments. (You will see that the function is sensitive to the length of `key_args`, not just to its values.) `name_test` is the short, plain-text name of that consistency test itself.
 
 Copy the output from the console and paste it into the roxygen2 block of your `_map_seq` function. To preserve the bullet-point structure when indenting roxygen2 comments with `Ctrl`+`Shift`+`/`, leave empty lines between the pasted output and the rest of the block.
 
