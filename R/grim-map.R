@@ -122,8 +122,8 @@ grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
                      symmetric = FALSE, tolerance = .Machine$double.eps^0.5,
                      testables_only = FALSE, extra = Inf) {
 
-  check_key_args_in_colnames(data, c("x", "n"))
-  check_consistency_not_in_colnames(data, "GRIM")
+  # Check the column names of `data`:
+  check_mapper_input_colnames(data, c("x", "n"), "GRIM")
 
   # If any two arguments called right below are length > 1, they need to have
   # the same length. Otherwise, the call will fail. But even so, there will be a

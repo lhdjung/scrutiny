@@ -117,7 +117,7 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 #'   If functions created this way are exported from other packages, they should
 #'   be written as if they were created with
 #'   \href{https://purrr.tidyverse.org/reference/faq-adverbs-export.html}{purrr
-#'   adverbs}.
+#'   adverbs}; see explanations there and examples at `function_map()`.
 #'
 #' @param .fun Function such as `grim_map()`: It will be used to test columns in
 #'   a data frame for consistency. Test results are Boolean and need to be
@@ -225,7 +225,6 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 #'   .fun = schlim_map,
 #'   .reported = c("y", "n"),
 #'   .name_test = "SCHLIM",
-#'   .name_class = "scr_schlim_map_seq"
 #' )
 #'
 #' # Create some example data:
@@ -276,7 +275,7 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
            include_reported = .include_reported,
            include_consistent = .include_consistent, ...) {
 
-    check_key_args_in_colnames(data, reported)
+    check_mapper_input_colnames(data, reported)
     check_consistency_not_in_colnames(data, name_test)
 
     # First, basic testing with the `*_map()` function:
