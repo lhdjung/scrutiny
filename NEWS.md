@@ -1,3 +1,18 @@
+# scrutiny ?.?.?
+
+-   A new vignette lays out how to implement consistency tests using scrutiny's infrastructure. It includes many new features mentioned below.
+-   Because of the new, stricter rules for consistency tests, the output of `grim_map()` no longer includes an `items` column. Instead, the numbers of items (1 by default) are factored into the output's `n` column. This focuses the presentation on the essence of GRIM.
+-   `grim_map_seq()` checks if GRIM inconsistencies might be due to small errors, and the true values might be close to the reported ones. It varies the inputs up and down in a specified range, holding the respective other ones constant, and tests all those combinations. For summaries, call `audit_seq()` on the results.
+-   `debit_map_seq()` does the same for DEBIT.
+-   The above two are powered by `function_map_seq()`, which allows users to easily create functions like these, provided a data-frame-level consistency testing function like `grim_map()` or `debit_map()`.
+-   `grim_map_total_n()` applies GRIM in cases where no group sizes are reported, only total sample sizes. It systematically matches possible group sizes (around half the total) with reported mean or proportion values, GRIM-tests them, and counts the scenarios in which both matches are consistent. This follows an idea from [Bauer and Francis (2021)](https://doi.org/10.1177%2F09567976211058727). For summaries, call `audit_total_n()` on the results.
+-   `debit_map_total_n()` does the same for DEBIT.
+-   The above two are powered by `function_map_total_n()`, which allows users to easily create new functions like `grim_map_total_n()` or `debit_map_total_n()`, provided a data-frame-level consistency testing function like `grim_map()` or `debit_map()`.
+-   On a lower level still, `disperse_total()` takes a total sample size (comprised of the two unknown group sizes on interest) and calls the appropriate group-level function: `disperse()` for even totals, `disperse2()` for odd ones.
+-   In `debit_map()`, the `x` column is now to the left of the `sd` column if `show_rec` is `FALSE`, in accordance with the `show_rec = TRUE` default.
+-   `debit()` is now vectorized.
+-   `split_by_parens()` now accepts any pair of separators passed to `.sep` as a length-2 vector.
+
 # scrutiny 0.1.1
 
 This is a patch, mainly fixing a bug that used to affect the presentation of input data in `grim_map()`'s results. It needs to be emphasized that this bug only affected a convenience feature, namely the presentation of certain input data in the output, not the GRIM test itself.
