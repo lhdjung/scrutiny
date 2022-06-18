@@ -161,28 +161,6 @@ remove_na <- function(x) {
 
 
 
-check_rounding_singular <- function(x, bad, good_1, good_2) {
-  if (bad %in% x) {
-    cli::cli_abort(c(
-      "`rounding` given as \"{bad}\" plus others.",
-      "x" = "If `rounding` has length > 1, only single rounding procedures \\
-      are supported, such as \"{good_1}\" and \"{good_2}\".",
-      "i" = "You can still concatenate multiple of them; just leave out \\
-      those with \"_or_\"."
-    ))
-  }
-}
-
-check_rounding_singular_all <- function(x) {
-  if (length(x) > 1) {
-    check_rounding_singular(x, "up_or_down", "up", "down")
-    check_rounding_singular(x, "up_from_or_down_from", "up_from", "down_from")
-    check_rounding_singular(x, "ceiling_or_floor", "ceiling", "floor")
-  }
-}
-
-
-
 
 # `check_lengths_congruent()` is called within a function `f()` and takes a list
 # of arguments to `f()` supplied by the user (`var_list`). It checks if two or
@@ -673,30 +651,5 @@ unnest_consistency_cols <- function(results, col_names) {
 
 
 
-
-check_audit_special <- function(data, name_test) {
-
-  class_name_root <- paste0("scr_", tolower(name_test), "_map_")
-
-  class_seq     <- paste0(class_name_root, "seq")
-  class_total_n <- paste0(class_name_root, "total_n")
-
-  # If `data` is the output of a function like `grim_map_seq()`, point the user
-  # to the dedicated summary function for such output, `audit_seq()`:
-  if (inherits(data, class_seq)) {
-    cli::cli_alert_info(
-      "More specialized {name_test} summaries available with `audit_seq()`."
-    )
-  }
-
-  # Likewise, if `data` is the output of a function like `grim_map_total_n()`,
-  # point the user to `audit_total_n()`:
-  if (inherits(data, class_total_n)) {
-    cli::cli_alert_info(
-      "More specialized {name_test} summaries available with `audit_total_n()`."
-    )
-  }
-
-}
 
 
