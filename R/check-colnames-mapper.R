@@ -1,5 +1,7 @@
 
-# Internal helper; not exported:
+
+# Internal helpers; not exported ------------------------------------------
+
 check_key_args_in_colnames <- function(data, reported) {
   offenders <- reported[!reported %in% colnames(data)]
   if (length(offenders) > 0) {
@@ -32,8 +34,6 @@ check_key_args_in_colnames <- function(data, reported) {
 }
 
 
-
-# Internal helper; not exported:
 check_consistency_not_in_colnames <- function(data, name_test) {
   if ("consistency" %in% colnames(data)) {
     dc <- class(data)
@@ -89,6 +89,7 @@ check_consistency_not_in_colnames <- function(data, name_test) {
 
 
 
+
 #' Check that a mapper's input has correct column names
 #'
 #' @description When called within a consistency test mapper function,
@@ -119,4 +120,50 @@ check_mapper_input_colnames <- function(data, reported, name_test) {
   check_key_args_in_colnames(data, reported)
   check_consistency_not_in_colnames(data, name_test)
 }
+
+
+
+
+#' Alert user if more specific `audit_*()` summaries are available
+#'
+#' @description Call `check_audit_special()` within an `audit()` method for a
+#'   consistency test mapper function, such as `audit.scr_grim_map()`. It checks
+#'   if the input data frame was the product of a function produced by
+#'   `function_map_seq()` or `function_map_total_n()`.
+#'
+#'   If so, the function issues a gentle alert to the user that points to
+#'   `audit_seq()` or `audit_total_n()`, respectively.
+#'
+#' @param data The `audit()` method's input data frame.
+#' @param name_test String (length 1). Short, plain-text name of the consistency
+#'   test, such as `"GRIM"`.
+#'
+#' @export
+
+
+check_audit_special <- function(data, name_test) {
+
+  class_name_root <- paste0("scr_", tolower(name_test), "_map_")
+
+  class_seq     <- paste0(class_name_root, "seq")
+  class_total_n <- paste0(class_name_root, "total_n")
+
+  # If `data` is the output of a function like `grim_map_seq()`, point the user
+  # to the dedicated summary function for such output, `audit_seq()`:
+  if (inherits(data, class_seq)) {
+    cli::cli_alert_info(
+      "More specialized {name_test} summaries available with `audit_seq()`."
+    )
+  }
+
+  # Likewise, if `data` is the output of a function like `grim_map_total_n()`,
+  # point the user to `audit_total_n()`:
+  if (inherits(data, class_total_n)) {
+    cli::cli_alert_info(
+      "More specialized {name_test} summaries available with `audit_total_n()`."
+    )
+  }
+
+}
+
 
