@@ -13,25 +13,24 @@
 #'   such as `"GRIM"`.
 #' @param .name_class String. One or more classes to be added to the output data
 #'   frame. Default is `NULL`, i.e., no extra class (but see *Details*).
-#' @param ... Arguments passed down to `.fun`.
 
 #' @details The output tibble returned by the manufactured function will inherit
 #'   one or two classes independently of the `.name_class` argument:
 #' - It will inherit a class named `"scr_{tolower(.name_test)}_map"`; for
 #'   example, `"scr_grim_map"` if `.name_test` is `"GRIM"`.
 #' - If a `rounding` argument is specified via `...`, or else if `.fun` has a
-#'   `rounding` argument with a default, the output tibble inherits a class
+#'   `rounding` argument with a default, the output tibble will inherit a class
 #'   named `"scr_rounding_{rounding}"`; for example,
 #'   `"scr_rounding_up_or_down"`.
 
-#' @return A "manufactured" function with these arguments:
+#' @return A factory-made function with these arguments:
 #' - `data`: Data frame with all the columns named in `.reported`. It needs to
 #'   have columns named after the key arguments in `.fun`. Other columns are
 #'   permitted.
 #' - `reported`, `fun`, `name_class`: Same as when calling `function_map()` but
 #'   spelled without dots. You can override these defaults when calling the
 #'   manufactured function.
-#' - `...`: Arguments passed down to `fun`.
+#' - `...`: Arguments passed down to `.fun`.
 #'
 #' The manufactured function should then return a tibble that includes
 #' `"consistency"`: a Boolean column that shows whether the values to its left
@@ -100,7 +99,7 @@
 # name_test <- "GRIM"
 
 
-function_map <- function(.fun, .reported, .name_test, .name_class = NULL, ...) {
+function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
 
   # Checks ---
 
@@ -214,6 +213,7 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL, ...) {
 #   .reported = c("x", "n"),
 #   .name_test = "GRIM"
 # )
+#
 #
 # debit_map_alt <- function_map(
 #   .fun = debit_scalar,

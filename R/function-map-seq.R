@@ -145,7 +145,6 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 #'   consistent cases (from among those reported), not just inconsistent ones?
 #'   Default is `FALSE` because the focus should be on clarifying
 #'   inconsistencies.
-#' @param ... Arguments passed down to `.fun`.
 #'
 #' @details This function is a so-called function factory: It produces other
 #'   functions, such as `grim_map_seq()`. More specifically, it is a function
@@ -160,6 +159,9 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 #'   | ---                            | ---                          | ---
 #'   | `grim_map_seq()`               | `"x"`, `"n"`, [[`"items"`]]  | `vignette("grim")`
 #'   | `debit_map_seq()`              | `"x"`, `"sd"`, `"n"`         | `vignette("debit")`
+#'
+#'   The factory-made function will also have dots, `...`, to pass arguments
+#'   down to `.fun`, i.e., the basic mapper function.
 
 #' @export
 
@@ -264,7 +266,7 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
                              .name_class = NULL, .dispersion = 1:5,
                              .out_min = "auto", .out_max = NULL,
                              .include_reported = FALSE,
-                             .include_consistent = FALSE, ...) {
+                             .include_consistent = FALSE) {
 
   # --- Start of the manufactured function ---
 
@@ -324,15 +326,22 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
     #   paste(collapse = "_SCR_STOP_") %>%
     #   paste0("scr_reported_", .)
 
+    # Create classes that will identify `out` as output of the specific
+    # manufactured function:
+    classes_seq <- c(
+      "scr_map_seq",
+      paste0("scr_", tolower(name_test), "_map_seq")
+    )
+
     # For better output, `out` should be a single data frame; and for
     # identifying the origin of individual rows, `var` is added:
     out <- out %>%
       dplyr::bind_rows() %>%
       dplyr::mutate(var) %>%
-      add_class("scr_map_seq")
+      add_class(classes_seq)
 
     if (!is.null(name_class)) {
-      out <- add_class(out, name_class)
+      out <- add_class(out, classes_seq)
     }
 
     return(out)

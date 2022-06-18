@@ -171,7 +171,6 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 #'   `NULL`, i.e., no extra class.
 #' @param .dispersion,.n_min,.n_max,.show_all Arguments passed down to
 #'   `disperse_total()`, using defaults from there.
-#' @param ... Arguments passed down to `.fun`.
 #'
 #' @details This function is a so-called function factory: It produces other
 #'   functions, such as `grim_map_total_n()`. More specifically, it is a
@@ -192,6 +191,9 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 #'   | ---                            | ---                           | ---
 #'   | `grim_map_total_n()`           | `"x"`                         | `vignette("grim")`
 #'   | `debit_map_total_n()`          | `"x"`, `"sd"`                 | `vignette("debit")`
+#'
+#'   The factory-made function will also have dots, `...`, to pass arguments
+#'   down to `.fun`, i.e., the basic mapper function.
 
 #' @section Conventions: The name of a function manufactured with
 #'   `function_map_total_n()` should mechanically follow from that of the input
@@ -301,7 +303,7 @@ function_map_total_n <- function(.fun, .reported, .name_test,
                                  .name_class = NULL,
                                  .dispersion = 0:5,
                                  .n_min = 1, .n_max = NULL,
-                                 .show_all = FALSE, ...) {
+                                 .show_all = FALSE) {
 
 
   # The function factory returns this manufactured function:
