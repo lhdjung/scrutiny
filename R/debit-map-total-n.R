@@ -21,7 +21,7 @@
 #' @param n_max Numeric. Maximal group size. Default is `NULL`, i.e., no
 #'   maximum.
 #' @param rounding,threshold,symmetric,extra Arguments passed down to
-#'   `debit_map()`.
+#'   `debit_map()` via `...` (the dots).
 
 #' @include debit-map.R function-map-total-n.R
 

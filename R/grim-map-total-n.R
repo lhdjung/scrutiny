@@ -33,7 +33,7 @@
 #'   maximum.
 #' @param
 #' items,percent,show_rec,show_prob,rounding,threshold,symmetric,tolerance,extra
-#' Arguments passed down to `grim_map()`.
+#' Arguments passed down to `grim_map()` via `...` (the dots).
 
 #' @include function-map-total-n.R
 #'

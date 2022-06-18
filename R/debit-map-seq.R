@@ -27,7 +27,7 @@
 #' @param reported,fun,name_test,name_class Arguments passed down to
 #'   `function_map_seq()` but not documented here.
 #' @param rounding,threshold,symmetric,show_rec Arguments passed down to
-#'   `debit_map()`.
+#'   `debit_map()` via `...` (the dots).
 
 #' @section Summaries with `audit_seq()`: You can call `audit_seq()` following
 #'   `debit_map_seq()`. It will return a data frame with these columns:

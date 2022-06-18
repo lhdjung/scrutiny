@@ -30,7 +30,7 @@
 #'   `function_map_seq()` but not documented here.
 #' @param
 #' items,percent,show_rec,show_prob,rounding,threshold,symmetric,tolerance,extra
-#' Arguments passed down to `grim_map()`.
+#' Arguments passed down to `grim_map()` via `...` (the dots).
 
 #' @section Summaries with `audit_seq()`: You can call `audit_seq()` following
 #'   `grim_map_seq()`. It will return a data frame with these columns:
