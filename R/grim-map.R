@@ -141,6 +141,8 @@ grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
     ))
   }
 
+  check_audit_special(data, "GRIM")
+
   # Defuse the argument specifications that can be used to assign the roles of
   # `x` and `n` to specific columns in case these columns don't already have
   # those names:
