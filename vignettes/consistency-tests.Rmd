@@ -111,7 +111,7 @@ schlim_map(df1)
 
 -   `.fun` is the single-case function from section 1.
 
--   `.reported` is a string vector naming the reported statistics that `.fun` tests for consistency with each other.
+-   `.reported` is a string vector naming the reported statistics that `.fun` tests for consistency with each other. These need to be arguments of `.fun`, but `.fun` may have other arguments, as well.
 
 -   `.name_test` simply names the consistency test.
 
@@ -137,7 +137,7 @@ Both `grim_map()` and `debit_map()` were "handwritten" rather than produced by `
 
 ### Introduction
 
-The remaining part of section 3 explains how to write mapper functions like `grim_map()` or `debit_map()` manually. It is quite detailed because it's important to get these things right: Every other function in the rest of this vignette builds up on it. Still, the practical steps are not that complicated, as you can see in the code examples.
+The remaining part of section 3 explains how to manually write mapper functions like `grim_map()` or `debit_map()`. It is quite detailed because it's important to get these things right: Every other function in the rest of this vignette builds up on it. Still, the practical steps are not that complicated, as you can see in the code examples.
 
 ### Terminology
 
