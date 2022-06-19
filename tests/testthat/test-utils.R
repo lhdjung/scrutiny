@@ -203,12 +203,12 @@ test_that("`check_rounding_singular()` throws an error iff it should", {
 
 
 
-test_that("`check_rounding_singular_all()` throws error iff when it should", {
-  check_rounding_singular_all(c("up_or_down", "up")) %>% expect_error()
-  check_rounding_singular_all(c("ceiling_or_floor", "trunc")) %>% expect_error()
-  check_rounding_singular_all(c("ceiling", "up")) %>% expect_silent()
-  check_rounding_singular_all("up") %>% expect_silent()
-  check_rounding_singular_all("bla") %>% expect_silent()
+test_that("`check_rounding_singular()` throws error iff when it should", {
+  check_rounding_singular(c("up_or_down", "up")) %>% expect_error()
+  check_rounding_singular(c("ceiling_or_floor", "trunc")) %>% expect_error()
+  check_rounding_singular(c("ceiling", "up")) %>% expect_silent()
+  check_rounding_singular("up") %>% expect_silent()
+  check_rounding_singular("bla") %>% expect_silent()
 })
 
 
