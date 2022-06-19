@@ -95,7 +95,7 @@ vec2 %>%
   decimal_places()
 ```
 
-## Sequence generation
+## Generate sequences
 
 ### Introduction
 
@@ -145,7 +145,7 @@ seq_disperse(from = 4.1)
 
 `seq_disperse()` is a hybrid between the two `seq()` wrappers explained above and the `disperse*()` functions introduced next.
 
-## Dispersion from (around) half with `disperse_total()`
+## Disperse from (around) half with `disperse_total()`
 
 Briefly, `disperse_total()` checks if an input total is even or odd, cuts it in half, and creates "dispersed" group sizes going out from there, with each pair of group sizes adding up to the input total. This works naturally with even totals. For odd totals, it starts with the two integers closest to half.
 
