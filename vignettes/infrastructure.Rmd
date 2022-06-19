@@ -115,6 +115,8 @@ Each of these functions has a `*_df()` variant that embeds the sequence as a tib
 
 ### Examples
 
+The `seq_*()` functions have some more features, such as offsets and direction reversal, but I'll focus on the basics here.
+
 Call `seq_endpoint()` to bridge two numbers at the correct decimal level:
 
 ```{r}
@@ -132,7 +134,7 @@ seq_distance(from = 4.1, length_out = 3)
 seq_distance(from = 4.1)
 ```
 
-Finally, call `seq_disperse()` to create a sequence around `from`:
+Finally, call `seq_disperse()` to construct a sequence around `from`:
 
 ```{r}
 seq_disperse(from = 4.1, dispersion = 1:3)
@@ -143,7 +145,7 @@ seq_disperse(from = 4.1)
 
 `seq_disperse()` is a hybrid between the two `seq()` wrappers explained above and the `disperse*()` functions introduced next.
 
-### Dispersion from (around) half with `disperse_total()`
+## Dispersion from (around) half with `disperse_total()`
 
 Briefly, `disperse_total()` checks if an input total is even or odd, cuts it in half, and creates "dispersed" group sizes going out from there, with each pair of group sizes adding up to the input total. This works naturally with even totals. For odd totals, it starts with the two integers closest to half.
 
