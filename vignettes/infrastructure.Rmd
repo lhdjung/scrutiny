@@ -27,7 +27,7 @@ library(scrutiny)
 
 The implementation of error detection techniques in scrutiny rests on a foundation of specialized helper functions. Some of these are exported because they might be helpful in error detection more broadly, or perhaps even in other contexts.
 
-This vignette provides an overview of scrutiny's miscellaneous infrastructure for implementing error detection techniques. For more specific article, see `vignette("rounding")` or `vignette("consistency-tests")`.
+This vignette provides an overview of scrutiny's miscellaneous infrastructure for implementing error detection techniques. For more specific articles, see `vignette("rounding")` or `vignette("consistency-tests")`.
 
 ## Count decimal places
 
@@ -97,161 +97,51 @@ vec2 %>%
 
 ## Sequence generation
 
-### The limits of `seq()`
+### Introduction
 
-`base::seq()` is an elegant way to generate regular sequences, but it is almost too elegant: The way to determine the step size entirely depends on which arguments are added with non-standard evaluation (i.e., via the dots, `…`).
+`base::seq()` offers a flexible way to generate sequences, but it is not cut out for working with decimal numbers. The `by` argument only allows for manual specifications of the step size, i.e., the difference between two consecutive output values. In an error detection context, there is also the problem of trailing zeros in numeric values.
 
-By default, the step size is assumed to be 1, which can be overridden using the `by` parameter. However, `by` clashes with the only way to state the desired output length, which is the `length.out` parameter. This makes the step size dependent on `from`, `to`, and `by`, and therefore highly variable in the face of different specifications of these parameters. For example:
+Use scrutiny's `seq_*()` functions to automatically determine step size from the input numbers and, by default, to supply missing trailing zeros via `restore_zeros()`. Output will then naturally be string.
 
-```{r}
-seq(from = 4, to = 7, length.out = 5)
+Why are there multiple such functions? The first two disentangle the two different ways in which `seq()` can be used. A third function adds a way of generating sequences not directly covered by `seq()`.
 
-seq(from = 4, to = 20, length.out = 5)
-```
+-   `seq_endpoint()` takes two main arguments, `from` and `to`. It creates a sequence between the two, inferring step size from the greater number of decimal places among them. This corresponds to a `seq()` call in which `to` was specified.
 
-It is worth emphasizing that `seq()` encapsulates two mutually exclusive ways of generating sequences: (1) by a manually specified step size without controlling output length; and (2) by a manually specified output length without controlling step size. These two approaches overdetermine each other, and are therefore irreconcilable. Here's what you get if you try it both ways within a single call:
+-   `seq_distance()` takes a `from` argument, uses it to infer the step size, and creates a sequence of a length specified by the `length_out` argument (default is `10`). This corresponds to a `seq()` call in which `length.out` was specified.
 
-```{r error=TRUE}
-seq(from = 4, to = 7, by = 0.1, length.out = 5)
-```
+-   Finally, `seq_disperse()` creates a sequence centered around `from`.
 
-Another issue is that `seq()` doesn't automatically take the input numbers' decimal depth into account (i.e., unless `by` was specified in such a way), which would be desirable in an error detection context.
+Each of these functions has a `*_df()` variant that embeds the sequence as a tibble column.
 
-With regards to decimal sequences, therefore, `seq()` does both too much and too little. It has two distinct functional rationales that uneasily sit together in a single function. One might wish to disentangle them: to generate sequences that either run from A to B at the appropriate decimal level, or that have some given length without jeopardizing the step size. It might even be worth spelling out the two rationales in distinct functions.
+### Examples
 
-As it happens, scrutiny features two wrappers around `seq()` that separately capture both of its modi operandi, all while guided by the input numbers' decimal depth: `seq_endpoint()` and `seq_distance()`. Both functions forsake the `by` argument, but that's actually good because they infer the step size automatically from the number of decimal places in their input values.
-
-The package also has two functions that build up on these basic ones by quickly and flexibly constructing data frames with the respective kind of sequence, `seq_endpoint_df()` and `seq_distance_df()`. These latter two accept new columns entered as in `tibble::tibble()` or `dplyr::mutate()`.
-
-Here, I will first present the two basic `seq()` wrappers. Next, I will briefly discuss the higher-level `*_df` functions.
-
-### Two `seq()` wrappers
-
-#### Sequence between two fix points
-
-Consider this call to `seq()`:
+Call `seq_endpoint()` to bridge two numbers at the correct decimal level:
 
 ```{r}
-seq(from = 4.1, to = 7)
+seq_endpoint(from = 4.1, to = 6)
+
+seq_endpoint(from = 4.1, to = 4.15)
 ```
 
-The intended output of such a call is likely a sequence that progresses in steps of 0.1, and that actually arrives at 7. `base::seq()` won't understand this, but `scrutiny::seq_endpoint()` will:
+Call `seq_distance()` to get a sequence of desired length:
 
 ```{r}
-seq_endpoint(from = 4.1, to = 7)
+seq_distance(from = 4.1, length_out = 3)
+
+# Default for `length_out` is `10`:
+seq_distance(from = 4.1)
 ```
 
-Unlike `seq()`, therefore, `seq_endpoint()` always reaches its target. The last value in a vector returned by `seq_endpoint()` will be numerically equal to the value of its `to` argument, no matter how the arguments were specified.
-
-(The output is string by default, but it doesn't need to be:)
+Finally, call `seq_disperse()` to create a sequence around `from`:
 
 ```{r}
-seq_endpoint(from = 4.1, to = 7, string_output = FALSE)
+seq_disperse(from = 4.1, dispersion = 1:3)
+
+# Default for `dispersion` if `1:5`:
+seq_disperse(from = 4.1)
 ```
 
-For step size ($S$), the function counts decimal places in `from` and `to`, and then looks for the greater number of decimal places ($D_{max}$). It proceeds by one unit of the longer mantissa's last decimal digit:
-
-$$
-S = \frac{1}{10^{D_{max}}}
-$$
-
-So if the endpoint has more decimal places than the starting point, it works like this:
-
-```{r}
-seq_endpoint(from = 4.5, to = 4.62)
-```
-
-Because the step size in `seq_endpoint()` is determined by the greater decimal depth from among its main arguments, it's possible to set off the starting point and/or the endpoint of the sequence at that very level:
-
-```{r}
-seq_endpoint(from = 0, to = 0.5)                    # no offset
-
-seq_endpoint(from = 0, to = 0.5, offset_from = 3)   # start at 0.3 instead of 0
-
-seq_endpoint(from = 0, to = 0.5, offset_to = 3)     # end at 0.8 instead of 0.5
-```
-
-It also works with negative offset values:
-
-```{r}
-seq_endpoint(from = 0, to = 0.5, offset_from = -3)   # start at -0.3 instead of 0
-
-seq_endpoint(from = 0, to = 0.5, offset_to = -3)     # end at 0.2 instead of 0.5
-```
-
-#### Sequence of stated length
-
-`seq_distance()` doesn't take a `to` argument --- it only takes a starting point and generates a sequence from there. The length can be chosen at will, and the sequence always proceeds by one unit of `from`'s last decimal digit:
-
-```{r}
-seq_distance(from = 8, length_out = 5)
-
-seq_distance(from = 3.2, length_out = 5)
-```
-
-The default length is 10:
-
-```{r}
-seq_distance(29.97)
-```
-
-Reverse the direction with `dir = -1`:
-
-```{r}
-seq_distance(from = 2.7, dir = -1)
-```
-
-Offsetting the starting point works as in `seq_endpoint()`, although there is no `offset_to` argument:
-
-```{r}
-seq_distance(from = 2.7, offset_from = 4)
-
-seq_distance(from = 2.7, offset_from = -4)
-```
-
-### Data frames with sequence columns
-
-Both `seq_*` functions from above have a `seq_*_df()` variant. These are meant for interactive analysis, e.g., GRIM-testing the neighbors of an inconsistent value. New columns can be created within the call as in `tibble::tibble()` or `dplyr::mutate()`. All arguments from the basic functions are available, but with a dot before each.
-
-Output of these functions has the correct format for scrutiny's data frame testing functions like `grim_map()`. See `vignette("grim")`, section *Testing numeric sequences*.
-
-Here is the endpoint data frame variant, with an extra column added:
-
-```{r}
-seq_endpoint_df(.from = "4.50", .to = 4.57, n = 30)
-```
-
-And here is the distance data frame variant:
-
-```{r}
-seq_distance_df(.from = "4.50", .length_out = 5, n = 30)
-```
-
-### Dispersed sequences
-
-There is one last pair of functions to create decimal-level sequences: `seq_disperse()` and `seq_disperse_df()`. They also start at `from` but don't simply proceed forward. Instead, they construct a sequence centered around `from`:
-
-```{r}
-seq_disperse(from = 0.25)
-```
-
-A key argument here is `dispersion`, which controls the steps up and down. The default is `1:5` for five steps in each direction, but it's very flexible:
-
-```{r}
-seq_disperse(from = 0.25, dispersion = 1:2)
-
-seq_disperse(from = 0.25, dispersion = c(1, 3, 5))
-
-seq_disperse(from = 0.25, dispersion = 7:9)
-```
-
-The data frame variant is just what you would expect, except it can track the changes to `.from`:
-
-```{r}
-seq_disperse_df(.from = 0.25, .dispersion = 1:2, .track_var_change = TRUE)
-```
-
-These functions are hybrids between the `seq()` wrappers explained above and the `disperse*()` functions introduced next.
+`seq_disperse()` is a hybrid between the two `seq()` wrappers explained above and the `disperse*()` functions introduced next.
 
 ### Dispersion from (around) half with `disperse_total()`
 
