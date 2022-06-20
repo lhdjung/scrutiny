@@ -31,7 +31,7 @@
 #' # that applies a test called SCHLIM and returns
 #' # a data frame with the `"scr_schlim_map"` class:
 #' audit.scr_schlim_map <- function(data) {
-#'   required_audit_cols(data)
+#'   required_audit_cols(data, name_test = "SCHLIM")
 #' }
 #'
 #' # If you like, add other summary columns
