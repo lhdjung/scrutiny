@@ -175,7 +175,7 @@ Anything that factors into the consistency test other than tested columns needs 
 
 The input data frame is not necessarily a tibble, but the output data frame is. The input data frame never contains a column named `"consistency"`, but the output data frame always does.
 
-Key columns may or may not be modified by transformer columns and/or arguments.
+Key columns may or may not be modified by transformer columns and/or by arguments.
 
 The output data frame may or may not contain non-tested columns from the input. It may or may not contain non-tested columns created within the mapper function itself. (This can be useful, as with `"ratio"` in `grim_map()`'s output.) Any such non-tested, non-`"consistency"` columns go to the right of `"consistency"`.
 
