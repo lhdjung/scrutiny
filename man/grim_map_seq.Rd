@@ -47,7 +47,7 @@ consistent cases (from among those reported), not just inconsistent ones?
 Default is \code{FALSE} because the focus should be on clarifying
 inconsistencies.}
 
-\item{items, percent, show_rec, show_prob, rounding, threshold, symmetric, tolerance, extra}{Arguments passed down to \code{grim_map()}.}
+\item{items, percent, show_rec, show_prob, rounding, threshold, symmetric, tolerance, extra}{Arguments passed down to \code{grim_map()} via \code{...} (the dots).}
 }
 \description{
 \code{grim_map_seq()} performs GRIM-testing with values surrounding

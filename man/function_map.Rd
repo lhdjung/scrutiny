@@ -4,7 +4,7 @@
 \alias{function_map}
 \title{Create new \verb{*_map()} functions}
 \usage{
-function_map(.fun, .reported, .name_test, .name_class = NULL, ...)
+function_map(.fun, .reported, .name_test, .name_class = NULL)
 }
 \arguments{
 \item{.fun}{Single-case consistency testing function that will be applied to
@@ -19,11 +19,9 @@ such as \code{"GRIM"}.}
 
 \item{.name_class}{String. One or more classes to be added to the output data
 frame. Default is \code{NULL}, i.e., no extra class (but see \emph{Details}).}
-
-\item{...}{Arguments passed down to \code{.fun}.}
 }
 \value{
-A "manufactured" function with these arguments:
+A factory-made function with these arguments:
 \itemize{
 \item \code{data}: Data frame with all the columns named in \code{.reported}. It needs to
 have columns named after the key arguments in \code{.fun}. Other columns are
@@ -31,7 +29,7 @@ permitted.
 \item \code{reported}, \code{fun}, \code{name_class}: Same as when calling \code{function_map()} but
 spelled without dots. You can override these defaults when calling the
 manufactured function.
-\item \code{...}: Arguments passed down to \code{fun}.
+\item \code{...}: Arguments passed down to \code{.fun}.
 }
 
 The manufactured function should then return a tibble that includes
@@ -49,7 +47,7 @@ one or two classes independently of the \code{.name_class} argument:
 \item It will inherit a class named \code{"scr_{tolower(.name_test)}_map"}; for
 example, \code{"scr_grim_map"} if \code{.name_test} is \code{"GRIM"}.
 \item If a \code{rounding} argument is specified via \code{...}, or else if \code{.fun} has a
-\code{rounding} argument with a default, the output tibble inherits a class
+\code{rounding} argument with a default, the output tibble will inherit a class
 named \code{"scr_rounding_{rounding}"}; for example,
 \code{"scr_rounding_up_or_down"}.
 }

@@ -48,7 +48,7 @@ Default is \code{FALSE} because the focus should be on clarifying
 inconsistencies.}
 
 \item{rounding, threshold, symmetric, show_rec}{Arguments passed down to
-\code{debit_map()}.}
+\code{debit_map()} via \code{...} (the dots).}
 }
 \description{
 \code{debit_map_seq()} applies DEBIT with values surrounding the input values.

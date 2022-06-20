@@ -36,7 +36,7 @@ Default is \code{0:5}, i.e., half \code{n} itself followed by five steps up and 
 maximum.}
 
 \item{rounding, threshold, symmetric, extra}{Arguments passed down to
-\code{debit_map()}.}
+\code{debit_map()} via \code{...} (the dots).}
 }
 \value{
 A tibble with these columns:

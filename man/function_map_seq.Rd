@@ -14,8 +14,7 @@ function_map_seq(
   .out_min = "auto",
   .out_max = NULL,
   .include_reported = FALSE,
-  .include_consistent = FALSE,
-  ...
+  .include_consistent = FALSE
 )
 }
 \arguments{
@@ -51,8 +50,6 @@ this might be redundant and bias the results.}
 consistent cases (from among those reported), not just inconsistent ones?
 Default is \code{FALSE} because the focus should be on clarifying
 inconsistencies.}
-
-\item{...}{Arguments passed down to \code{.fun}.}
 }
 \value{
 A function such as those below. ("Testable statistics" are variables
@@ -62,6 +59,10 @@ for those in brackets are selected by default.)\tabular{lll}{
    \code{grim_map_seq()} \tab \code{"x"}, \code{"n"}, [\code{\link{"items"}}] \tab \code{vignette("grim")} \cr
    \code{debit_map_seq()} \tab \code{"x"}, \code{"sd"}, \code{"n"} \tab \code{vignette("debit")} \cr
 }
+
+
+The factory-made function will also have dots, \code{...}, to pass arguments
+down to \code{.fun}, i.e., the basic mapper function.
 }
 \description{
 \code{function_map_seq()} is the engine that powers \code{grim_map_seq()}

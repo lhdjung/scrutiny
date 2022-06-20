@@ -33,7 +33,7 @@ Default is \code{0:5}, i.e., half \code{n} itself followed by five steps up and 
 \item{n_max}{Numeric. Maximal group size. Default is \code{NULL}, i.e., no
 maximum.}
 
-\item{items, percent, show_rec, show_prob, rounding, threshold, symmetric, tolerance, extra}{Arguments passed down to \code{grim_map()}.}
+\item{items, percent, show_rec, show_prob, rounding, threshold, symmetric, tolerance, extra}{Arguments passed down to \code{grim_map()} via \code{...} (the dots).}
 }
 \value{
 A tibble with these columns:

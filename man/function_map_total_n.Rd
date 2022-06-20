@@ -12,8 +12,7 @@ function_map_total_n(
   .dispersion = 0:5,
   .n_min = 1,
   .n_max = NULL,
-  .show_all = FALSE,
-  ...
+  .show_all = FALSE
 )
 }
 \arguments{
@@ -39,8 +38,6 @@ manufactured function will inherit this string as an S3 class. Default is
 
 \item{.dispersion, .n_min, .n_max, .show_all}{Arguments passed down to
 \code{disperse_total()}, using defaults from there.}
-
-\item{...}{Arguments passed down to \code{.fun}.}
 }
 \value{
 A function such as these:\tabular{lll}{
@@ -48,6 +45,10 @@ A function such as these:\tabular{lll}{
    \code{grim_map_total_n()} \tab \code{"x"} \tab \code{vignette("grim")} \cr
    \code{debit_map_total_n()} \tab \code{"x"}, \code{"sd"} \tab \code{vignette("debit")} \cr
 }
+
+
+The factory-made function will also have dots, \code{...}, to pass arguments
+down to \code{.fun}, i.e., the basic mapper function.
 }
 \description{
 \code{function_map_total_n()} is the engine that powers functions
