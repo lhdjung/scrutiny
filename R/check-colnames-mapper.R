@@ -127,7 +127,7 @@ check_mapper_input_colnames <- function(data, reported, name_test) {
 #' Alert user if more specific `audit_*()` summaries are available
 #'
 #' @description (Note: Ignore this function if your `audit()` method calls
-#'   `required_audit_cols()`.)
+#'   `audit_cols_minimal()`.)
 #'
 #'   Call `check_audit_special()` within an `audit()` method for a consistency
 #'   test mapper function, such as `audit.scr_grim_map()`. It checks if the

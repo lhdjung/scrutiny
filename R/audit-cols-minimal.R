@@ -1,7 +1,7 @@
 
 #' Compute minimal `audit()` summaries
 #'
-#' @description Call `required_audit_cols()` within your `audit()` methods for
+#' @description Call `audit_cols_minimal()` within your `audit()` methods for
 #'   the output of consistency test mapper functions such as `grim_map()`. It
 #'   will create a tibble with the three minimal, required columns:
 #'
@@ -24,21 +24,21 @@
 #' @include check-colnames-mapper.R
 #'
 #' @seealso For context, see `vignette("consistency-tests")`. In case you don't
-#'   call `required_audit_cols()`, you should call `check_audit_special()`.
+#'   call `audit_cols_minimal()`, you should call `check_audit_special()`.
 #'
 #' @examples
 #' # For a mapper function called `schlim_map()`
 #' # that applies a test called SCHLIM and returns
 #' # a data frame with the `"scr_schlim_map"` class:
 #' audit.scr_schlim_map <- function(data) {
-#'   required_audit_cols(data, name_test = "SCHLIM")
+#'   audit_cols_minimal(data, name_test = "SCHLIM")
 #' }
 #'
 #' # If you like, add other summary columns
 #' # with `dplyr::mutate` or similar.
 
 
-required_audit_cols <- function(data, name_test) {
+audit_cols_minimal <- function(data, name_test) {
 
   check_audit_special(data, name_test)
 

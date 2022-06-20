@@ -9,7 +9,7 @@ audit.scr_debit_map <- function(data) {
   # 1. the number of DEBIT-inconsistent cases;
   # 2. the total number of cases;
   # 3. the proportion of DEBIT-inconsistent cases:
-  out <- required_audit_cols(data, "DEBIT")
+  out <- audit_cols_minimal(data, "DEBIT")
 
   # 4. the mean `x` value:
   mean_x <- data$x %>%

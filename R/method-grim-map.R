@@ -10,7 +10,7 @@ audit.scr_grim_map <- function(data) {
   # 1. the number of GRIM-inconsistent cases;
   # 2. the total number of cases;
   # 3. the proportion of GRIM-inconsistent cases:
-  out <- required_audit_cols(data, "GRIM")
+  out <- audit_cols_minimal(data, "GRIM")
 
   # 4. the average of GRIM ratios:
   mean_grim_ratio <- data %>%

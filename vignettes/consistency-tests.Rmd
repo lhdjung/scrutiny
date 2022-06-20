@@ -296,13 +296,13 @@ All existing `audit()` methods for consistency tests return tibbles with a singl
 
 ### Practical steps
 
-Your `audit()` method is simply a function named `audit` plus a dot and your specific class. Call `required_audit_cols()` within the method to create a tibble with the three required columns. If you don't use `required_audit_cols()`, call `check_audit_special()` in your method.
+Your `audit()` method is simply a function named `audit` plus a dot and your specific class. Call `audit_cols_minimal()` within the method to create a tibble with the three required columns. If you don't use `audit_cols_minimal()`, call `check_audit_special()` in your method.
 
 ```{r, error=TRUE}
 # The `name_test` argument is only for the alert
 # that might be issued by `check_audit_special()`:
 audit.scr_schlim_map <- function(data) {
-  required_audit_cols(data, name_test = "SCHLIM")
+  audit_cols_minimal(data, name_test = "SCHLIM")
 }
 
 # This calls our new method:
@@ -312,7 +312,7 @@ audit(df1_tested)
 audit(iris)
 ```
 
-You can still add other summary columns to the tibble returned by `required_audit_cols()`. Use `dplyr::mutate()` or similar.
+You can still add other summary columns to the tibble returned by `audit_cols_minimal()`. Use `dplyr::mutate()` or similar.
 
 ## Documentation template
 
