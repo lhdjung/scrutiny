@@ -185,11 +185,15 @@ Besides the `"scr_*_map"` class, the output data frame may inherit any number of
 
 The columns of the input data frame are organized like this:
 
+```{r eval=FALSE, include=FALSE}
+# NOTE: The two diagrams below should have width 585 and height 456 (the latter via a locked aspect ratio).
+```
+
 ![](images/consistency_test_columns_input.png){width="585"}
 
 By contrast, the columns of the output data frame look like this:
 
-![](images/consistency_tests_columns_output.png){width="585"}
+![](images/consistency_test_columns_output.png){width="585"}
 
 ### Practical steps
 
