@@ -15,7 +15,7 @@ License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
 Imports: 
     cli,
     devtools,
@@ -27,11 +27,13 @@ Imports:
     stringr,
     tibble
 Collate: 
+    'import-reexport.R'
+    'utils.R'
+    'check-colnames-mapper.R'
+    'audit-cols-minimal.R'
     'audit.R'
     'before-inside-parens.R'
     'combine-elements.R'
-    'import-reexport.R'
-    'utils.R'
     'duplicate-detect.R'
     'round-ceil-floor.R'
     'round.R'
@@ -47,39 +49,54 @@ Collate:
     'seq-decimal.R'
     'grim.R'
     'data-doc.R'
-    'debit-plot.R'
+    'function-map-seq.R'
+    'debit-map-seq.R'
     'disperse.R'
+    'function-map-total-n.R'
+    'debit-map-total-n.R'
+    'debit-plot.R'
     'duplicate-count.R'
+    'function-map.R'
     'grim-base.R'
+    'grim-explain.R'
     'grim-granularity.R'
+    'grim-map-seq.R'
+    'grim-map-total-n.R'
     'manage-extra-cols.R'
     'grim-map.R'
-    'grim-map-disperse.R'
     'grim-plot.R'
+    'grimmer-attempt.R'
     'grimmer.R'
     'method-debit-map.R'
     'method-detect.R'
     'method-dup-count.R'
     'method-grim-map.R'
     'method-grim-sequence.R'
+    'reverse-map-total-n.R'
+    'reverse-map-seq.R'
+    'methods-function-factories.R'
     'reround-to-fraction.R'
-    'rivets-orig-total.R'
+    'rivets-perfect-mean-sd.R'
+    'rivets-plot-cols.R'
+    'rivets-plot-lines.R'
     'rivets-t-test.R'
     'rivets_new.R'
     'rounding-bias.R'
     'row-to-colnames.R'
-    'split-transform.R'
+    'seq-disperse.R'
     'split-by-parens.R'
     'utils-pipe.R'
     'utils-tidy-eval.R'
+    'write-doc-audit.R'
 Suggests: 
+    covr,
     ellipsis,
-    roxygen2,
     ggplot2,
     ggrepel,
     janitor,
     knitr,
     rmarkdown,
+    roxygen2,
     stats,
     testthat (>= 3.0.0),
     tidyr,
