@@ -4,21 +4,12 @@
 
 audit.scr_debit_map <- function(data) {
 
-  # If `data` is the output of `debit_map_seq()` or `debit_map_total_n()`, point
-  # the user to the dedicated summary function for such output, i.e.,
-  # `audit_seq()` or `audit_total_n()`, respectively:
-  check_audit_special(data, "DEBIT")
-
   # Compute the summary values of interest --
 
-  # 1. the number of DEBIT-inconsistent cases:
-  incons_cases <- nrow(data[!data$consistency, ])
-
-  # 2. the total number of cases:
-  all_cases <- nrow(data)
-
+  # 1. the number of DEBIT-inconsistent cases;
+  # 2. the total number of cases;
   # 3. the proportion of DEBIT-inconsistent cases:
-  incons_rate <- incons_cases / all_cases
+  out <- required_audit_cols(data, "DEBIT")
 
   # 4. the mean `x` value:
   mean_x <- data$x %>%
@@ -35,13 +26,8 @@ audit.scr_debit_map <- function(data) {
     unique() %>%
     length()
 
-
   # Finally, collect all of these values in a resulting tibble --
-
-  # (Number:)                1            2           3          4
-  out <- tibble::tibble(incons_cases, all_cases, incons_rate, mean_x,
-  # (Number:)        5        6
-                 mean_sd, distinct_n)
+  out <- tibble::tibble(out, mean_x, mean_sd, distinct_n)
 
   return(out)
 }

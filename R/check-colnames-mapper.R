@@ -95,7 +95,7 @@ check_consistency_not_in_colnames <- function(data, name_test) {
 #' @description When called within a consistency test mapper function,
 #'   `check_mapper_input_colnames()` makes sure that the input data frame has
 #'   correct column names:
-#'
+
 #'  - They include all the key columns corresponding to the test applied by the
 #'  mapper.
 #'  - They don't already include `"consistency"`.
@@ -126,9 +126,12 @@ check_mapper_input_colnames <- function(data, reported, name_test) {
 
 #' Alert user if more specific `audit_*()` summaries are available
 #'
-#' @description Call `check_audit_special()` within an `audit()` method for a
-#'   consistency test mapper function, such as `audit.scr_grim_map()`. It checks
-#'   if the input data frame was the product of a function produced by
+#' @description (Note: Ignore this function if your `audit()` method calls
+#'   `required_audit_cols()`.)
+#'
+#'   Call `check_audit_special()` within an `audit()` method for a consistency
+#'   test mapper function, such as `audit.scr_grim_map()`. It checks if the
+#'   input data frame was the product of a function produced by
 #'   `function_map_seq()` or `function_map_total_n()`.
 #'
 #'   If so, the function issues a gentle alert to the user that points to

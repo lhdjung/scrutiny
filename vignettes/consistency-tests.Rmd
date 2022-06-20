@@ -280,21 +280,7 @@ df1_tested <- schlim_map(df1)
 class(df1_tested)
 ```
 
-Your `audit()` method is simply a function named `audit` plus a dot and your specific class:
-
-```{r, error=TRUE}
-audit.scr_schlim_map <- function(data) {
-  "dummy output"
-}
-
-# This calls our new "dummy output" method:
-audit(df1_tested)
-
-# This doesn't work because no method was defined:
-audit(iris)
-```
-
-## Practical steps
+### Basics
 
 Every `audit()` method for consistency test results should be the same insofar as all consistency tests are the same. It should have a single argument named `data`. Its return value should be a tibble with at least these columns:
 
@@ -307,6 +293,26 @@ Every `audit()` method for consistency test results should be the same insofar a
 Apart from these, see for yourself which descriptive statistics your `audit()` method should compute. Means of variables in the `*_map()` function's output and their ratios to each other might be sensible choices.
 
 All existing `audit()` methods for consistency tests return tibbles with a single row only. This makes sense because there is no obvious grouping variable for the input data frame, which would lead to multiple rows in `audit()`'s output. However, there might be good reasons for multiple rows when summarizing the results of other tests, so this is not a requirement.
+
+### Practical steps
+
+Your `audit()` method is simply a function named `audit` plus a dot and your specific class. Call `required_audit_cols()` within the method to create a tibble with the three required columns. If you don't use `required_audit_cols()`, call `check_audit_special()` in your method.
+
+```{r, error=TRUE}
+# The `name_test` argument is only for the alert
+# that might be issued by `check_audit_special()`:
+audit.scr_schlim_map <- function(data) {
+  required_audit_cols(data, name_test = "SCHLIM")
+}
+
+# This calls our new method:
+audit(df1_tested)
+
+# This doesn't work because no method was defined:
+audit(iris)
+```
+
+You can still add other summary columns to the tibble returned by `required_audit_cols()`. Use `dplyr::mutate()` or similar.
 
 ## Documentation template
 
