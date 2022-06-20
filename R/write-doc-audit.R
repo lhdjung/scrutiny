@@ -130,10 +130,16 @@ write_doc_audit <- function(sample_output, name_test) {
 
   name_test_lower <- tolower(name_test)
 
+  if (nrow(sample_output) == 1) {
+    msg_nrow <- "a single row"
+  } else {
+    msg_nrow <- paste(nrow(sample_output), "rows")
+  }
+
   intro <- glue::glue(
     "#' @section Summaries with `audit()`: There is an S3 method for `audit()`, so \n",
     "#'   you can call `audit()` following `{name_test_lower}_map()` to get a summary of \n",
-    "#'   `{name_test_lower}_map()`'s results. It is a tibble with a single row and these \n",
+    "#'   `{name_test_lower}_map()`'s results. It is a tibble with {msg_nrow} and these \n",
     "#'   columns -- \n",
     "#' \n"
   )
