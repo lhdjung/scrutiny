@@ -14,15 +14,13 @@
 grim_map_alt <- function_map(
   .fun = grim_scalar,
   .reported = c("x", "n"),
-  .name_test = "GRIM",
-  .name_class = "scr_grim_map"
+  .name_test = "GRIM"
 )
 
 debit_map_alt <- function_map(
   .reported = c("x", "sd", "n"),
   .fun = debit_scalar,
-  .name_test = "DEBIT",
-  .name_class = "scr_debit_map"
+  .name_test = "DEBIT"
 )
 
 
@@ -76,4 +74,12 @@ test_that("It works for DEBIT", {
   out_debit_old2 %>% expect_equal(out_debit_new2)
 })
 
+test_that("Wrong `.reported` values throw an error", {
+  grim_map_alt <- function_map(
+    .fun = grim_scalar,
+    .reported = c("x", "bla", "n"),
+    .name_test = "GRIM",
+    .name_class = "scr_grim_map"
+  ) %>% expect_error()
+})
 
