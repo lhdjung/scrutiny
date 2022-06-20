@@ -15,8 +15,9 @@
 #'   You can still add other columns to this tibble. Either way, make sure to
 #'   name your method correctly. See examples.
 
-#' @param .name_test String (length 1). Short, plain-text name of the
-#'   consistency test, such as `"GRIM"`. Only needed for a potential alert.
+#' @param data Data frame returned by a mapper function, such as`grim_map()`.
+#' @param name_test String (length 1). Short, plain-text name of the consistency
+#'   test, such as `"GRIM"`. Only needed for a potential alert.
 #'
 #' @export
 #'
