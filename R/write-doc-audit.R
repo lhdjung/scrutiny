@@ -197,7 +197,7 @@ write_doc_audit_seq <- write_doc_factory_map_audit_section(c(
   "#'   - `hits_total` is the total number of {name_test}-consistent value sets \n" ,
   "#'   found within the specified `dispersion` range. \n",
   "#'   - `hits_{arg1}` is the number of {name_test}-consistent value sets \n",
-  "#'   - found by varying {arg1_bt}. \n",
+  "#'   found by varying {arg1_bt}. \n",
   "#'   - Accordingly with {arg2_bt} and `hits_{arg2}`. \n",
   "#'   - `diff_{arg1}` reports the absolute difference between {arg1_bt} and the next \n",
   "#'   consistent dispersed value (in dispersion steps, not the actual numeric \n"   ,

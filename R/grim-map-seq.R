@@ -38,7 +38,7 @@
 #'   - `hits_total` is the total number of GRIM-consistent value sets
 #'   found within the specified `dispersion` range.
 #'   - `hits_x` is the number of GRIM-consistent value sets
-#'   - found by varying `x`.
+#'   found by varying `x`.
 #'   - Accordingly with `n` and `hits_n`.
 #'   - `diff_x` reports the absolute difference between `x` and the next
 #'   consistent dispersed value (in dispersion steps, not the actual numeric
