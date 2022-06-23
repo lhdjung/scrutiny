@@ -96,6 +96,7 @@ audit_seq <- function(data) {
 
   var_names <- unique(df_list[[1]]$var)
 
+  # Define some helper functions to be mapped below:
   index_hit_distance <- function(df, var_order = var_names) {
     df_by_var <- split(df, df$var)
     out <- purrr::map(df_by_var, index_case_diff)
@@ -110,13 +111,17 @@ audit_seq <- function(data) {
     x
   }
 
-  fn_names <- c("", "_up", "_down")
-  fn_names <- rep(fn_names, length(var_names))
-
   modify_to_length <- function(x) {
+    if (is.logical(x)) {
+      x <- as.character(x)
+    }
     x[is.na(x) | is.null(x)] <- NA
     purrr::modify(x, length)
   }
+
+  # Prepare endings of the `diff_*` columns:
+  fn_names <- c("", "_up", "_down")
+  fn_names <- rep(fn_names, length(var_names))
 
   df_nested <- df_list %>%
     purrr::map(index_hit_distance) %>%
