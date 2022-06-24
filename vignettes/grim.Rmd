@@ -450,7 +450,7 @@ Thus, all I did regarding the GRIM ratio was to make the general formula explici
 
 ### Granularity and scale items
 
-A distribution's granularity is the minimal amount by which two means or proportions of a non-continuous distribution can differ. It is derived from the sample size and the number of scale items. The number of items, in turn, naturally follows from the distribution's sample size and granularity.
+The granularity of a non-continuous distribution is the minimal amount by which two means or proportions of the distribution can differ. It is derived from the sample size and the number of scale items. The number of items, in turn, naturally follows from the distribution's sample size and granularity.
 
 #### Formulas
 
