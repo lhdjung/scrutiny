@@ -79,8 +79,10 @@ an_a_type <- function(x) {
 }
 
 
-# This function is essentially taken from the Examples section of the
-# documentation for `integer()`, where it's called `is.wholenumber()`:
+# This function was adapted from the examples of `?is.integer()`, where it's
+# called `is.wholenumber()`. The default for the `tolerance` argument is close
+# to 1 / (10 ^ 8), which is reasonable but still user-imposed. To test if R
+# itself considers a vector integer-like, use `rlang::is_integerish()` instead.
 is_whole_number <- function(x, tolerance = .Machine$double.eps^0.5) {
   abs(x - round(x)) < tolerance
 }
