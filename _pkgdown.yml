@@ -147,10 +147,13 @@ reference:
   - write_doc_audit_total_n
   - write_doc_factory_map_conventions
 
-- subtitle: Mapping helper
-  desc: Call this function inside of your own consistency test mapper functions.
+- subtitle: Consistency test helpers
+  desc: Call these helpers inside of your own functions that implement
+        consistency tests at various levels
 - contents:
   - check_mapper_input_colnames
+  - check_audit_special
+  - audit_cols_minimal
 
 - subtitle: Testing for subsets / supersets
   desc: Predicate functions for logical relations between vectors; supports
