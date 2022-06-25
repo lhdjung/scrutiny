@@ -100,7 +100,6 @@
 debit_map_total_n <- function_map_total_n(
   .fun = debit_map,
   .reported = c("x", "sd"),
-  .name_test = "DEBIT",
-  .name_class = "scr_debit_map_total_n"
+  .name_test = "DEBIT"
 )
 

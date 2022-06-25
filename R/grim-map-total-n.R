@@ -113,8 +113,7 @@
 grim_map_total_n <- function_map_total_n(
   .fun = grim_map,
   .reported = "x",
-  .name_test = "GRIM",
-  .name_class = "scr_grim_map_total_n"
+  .name_test = "GRIM"
 )
 
 
