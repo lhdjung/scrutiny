@@ -187,7 +187,7 @@ Besides the `"scr_*_map"` class, the output data frame may inherit any number of
 The columns of the input data frame are organized like this:
 
 ```{r eval=FALSE, include=FALSE}
-# NOTE: The two diagrams below should have width 585 and height 456 (the latter via a locked aspect ratio).
+# NOTE: The two diagrams below should have width 585 and height 456 (the latter automatically, via a locked aspect ratio).
 ```
 
 ![](images/consistency_test_columns_input.png){width="585"}
@@ -243,7 +243,9 @@ schlim_map_alt2(df1)
 
 ### Testing
 
-You should let `function_map()` produce an equivalent function to make sure that it returns the same output as your handwritten one. To compare the output data frames, don't just eyeball them. Use `waldo::compare()` or, if you already run tests with testthat, `expect_equal()`. Of course, if your handwritten function creates new columns beyond `"consistency"`, you'll have to remove them from the output first.
+You should let `function_map()` produce an equivalent function to make sure that it returns the same output as your handwritten one. To compare the two output data frames, don't just eyeball them. Use `waldo::compare()` or, if you already run tests with testthat, `expect_equal()`.
+
+If your handwritten function creates new columns beyond `"consistency"`, you'll have to remove them from the output first. Don't use transformer columns when testing because `function_map()` can't handle them.
 
 ### S3 classes
 
