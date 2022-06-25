@@ -50,19 +50,13 @@ Below is an outline of these levels, and of the present vignette, with GRIM as a
 
 I will use a toy test called SCHLIM as a model to demonstrate the minimal steps needed to implement consistency tests, scrutiny-style. Note that SCHLIM doesn't have any significance beyond standing in for serious consistency tests. Any real implementation might well be more complex than the brief code snippets below. I will also recur to existing functions that implement actual tests, and that the reader may be familiar with.
 
-Most functions discussed here deal with data frames. I always use [tibbles](https://r4ds.had.co.nz/tibbles.html), and I strongly recommend the same to you. There's no guarantee that each of those functions works with non-tibble data frames as it does with tibbles. Please make sure to follow the [tidyverse style guide](https://style.tidyverse.org/) as well as the scrutiny-specific conventions laid out below, wherever applicable.
-
-If you'd like to write a new package, work with Hadley Wickham's book *R Packages* [@wickham2015] in its most recent version, which is [free online](https://r-pkgs.org/).
+Please make sure to follow the [tidyverse style guide](https://style.tidyverse.org/) as well as the scrutiny-specific conventions laid out below, wherever applicable. If you'd like to write a new package, work with Hadley Wickham's book *R Packages* [@wickham2015] in its most recent version, which is [free online](https://r-pkgs.org/).
 
 # 1. Single-case
 
 The first function is the most important one. It contains the core implementation of the test. Although it is not exported itself, all other steps build up on it, and all of them are exported.
 
-This function takes two or more arguments of length 1 that are coercible to numeric. This means they either are numeric themselves or they are strings that can be converted to numbers. The function tests them for consistency and returns a single Boolean value: It's `TRUE` if the inputs are mutually consistent, and `FALSE` if they aren't.
-
-Other arguments might still be necessary, especially if your function reconstructs rounded numbers. An argument that determines how the function rounds should be called `rounding`. The function should internally call `reround()`. The same goes for "unrounding" (i.e., reconstructing rounding bounds) and `unround()`. See also `vignette("rounding")`. A single-case function that performs rounding will also need a helper to count decimal places, which should be `decimal_places_scalar()`.
-
-The function's name is that of the test (in lowercase), followed by `_scalar` which refers to the one-case limit. If your function happens to be applicable to multiple value sets already due to R's natural vectorization, leave out `_scalar` and skip the next section. If you're building a package, export the function. (This will rarely be the case because every single argument will need to be vectorized.)
+This function takes two or more arguments of length 1 that are meant to be tested for consistency with each other. Typically, they will be coercible to numeric. This means they either are numeric themselves or they are strings that can be converted to numbers. The function returns a Boolean value of length 1: It's `TRUE` if the inputs are mutually consistent, and `FALSE` if they aren't.
 
 ```{r}
  schlim_scalar <- function(y, n) {
@@ -71,8 +65,13 @@ The function's name is that of the test (in lowercase), followed by `_scalar` wh
    y / 3 > n
  }
 
+schlim_scalar(y = 30, n = 4)
 schlim_scalar(y = 2, n = 7)
 ```
+
+Other arguments might still be necessary, especially if your function reconstructs rounded numbers. An argument that determines how the function will round numbers should be called `rounding`. The function should then internally call `reround()`. The same goes for "unrounding" (i.e., reconstructing rounding bounds) and `unround()`. See also `vignette("rounding")`. A single-case function that performs rounding will also need a helper to count decimal places, which should be `decimal_places_scalar()`.
+
+The function's name is that of the test in lowercase, followed by `_scalar` which refers to the one-case limit. If your function happens to be applicable to multiple value sets already due to R's natural vectorization, leave out `_scalar` and skip the next section. If you're building a package, export the function. (This will rarely be the case because every single argument needs to be vectorized.)
 
 # 2. Vectorized
 
@@ -84,15 +83,17 @@ schlim <- Vectorize(schlim_scalar)
 schlim(y = 10:15, n = 4)
 ```
 
-Functions created this way can be useful for quick testing, but unlike mapper functions, they are not great to build upon. They should never be called within other functions. Therefore, `schlim()` is not used in the remaining part of the vignette.
+Functions created this way can be useful for quick testing, but they won't be used in the remaining part of the vignette. That's because functions like `schlim()` are not great to build upon --- unlike mapper functions, which will be discussed next.
 
 # 3. Mapper
 
 The most important practical use of a consistency test within scrutiny is to apply it to entire data frames, as `grim_map()` does. That's also the starting point for every other function below.
 
+Most functions discussed in the remaining part of the vignette deal with data frames. I always use [tibbles](https://r4ds.had.co.nz/tibbles.html), and I strongly recommend the same to you. There's no guarantee that each of those functions works with non-tibble data frames as it does with tibbles.
+
 ## Creating mappers with `function_map()`
 
-The safest and easiest way to create a mapper is via the function factory `function_map()`. A function "manufactured" this way is also guaranteed to fulfill all of the requirements for mapper functions listed further below. That's a major benefit because the list of requirements is long, and all of the follow-up functions in the remaining vignette assume that the mapper fulfills them.
+The safest and easiest way to create a mapper is via `function_map()`. A function written this way is also guaranteed to fulfill all of the requirements for mapper functions listed further below. That's a major benefit because the list of requirements is long, and all of the follow-up functions in the remaining vignette assume that the mapper fulfills them.
 
 You will have no such troubles with `function_map()`:
 
@@ -258,9 +259,9 @@ add_class <- function(x, new_class) {
 You can access the classes that an object carries --- or "inherits" --- by calling `class()`:
 
 ```{r}
-dummy <- tibble::tibble(x = 5)
-dummy <- add_class(dummy, "dummy class")
-class(dummy)
+some_object <- tibble::tibble(x = 5)
+some_object <- add_class(some_object, "dummy class")
+class(some_object)
 ```
 
 ### Internal helpers
@@ -379,14 +380,12 @@ grim_map_seq <- function_map_seq(
   .fun = grim_map,
   .reported = c("x", "n"),
   .name_test = "GRIM",
-  .name_class = "scr_grim_map_seq"
 )
 
 debit_map_seq <- function_map_seq(
   .fun = debit_map,
   .reported = c("x", "sd", "n"),
   .name_test = "DEBIT",
-  .name_class = "scr_debit_map_seq"
 )
 ```
 
@@ -398,8 +397,7 @@ Let's write a sequence mapper for SCHLIM:
 schlim_map_seq <- function_map_seq(
   .fun = schlim_map,
   .reported = c("y", "n"),
-  .name_test = "SCHLIM",
-  .name_class = "scr_schlim_map_seq"
+  .name_test = "SCHLIM"
 )
 
 # Test dispersed sequences:
@@ -410,7 +408,7 @@ out_seq
 audit_seq(out_seq)
 ```
 
-By default, a `*_map_seq()` function only creates sequences around inconsistent input values. That is because its primary purpose is to shed light on inconsistencies in reported statistics. Override the default with `include_consistent = TRUE`:
+By default, a `*_map_seq()` function only creates sequences around inconsistent input values. That's because its primary purpose is to shed light on inconsistencies in reported statistics. Override the default with `include_consistent = TRUE`:
 
 ```{r}
 df1 %>% 
@@ -441,15 +439,13 @@ As with `function_map_seq()`, creating a manufactured `*_total_n()` function is 
 grim_map_total_n <- function_map_total_n(
   .fun = grim_map,
   .reported = "x",
-  .name_test = "GRIM",
-  .name_class = "scr_grim_map_total_n"
+  .name_test = "GRIM"
 )
 
 debit_map_total_n <- function_map_total_n(
   .fun = debit_map,
   .reported = c("x", "sd"),
-  .name_test = "DEBIT",
-  .name_class = "scr_debit_map_total_n"
+  .name_test = "DEBIT"
 )
 ```
 
@@ -459,8 +455,7 @@ To drive this point home, let's do the same with SCHLIM:
 schlim_map_total_n <- function_map_total_n(
   .fun = schlim_map,
   .reported = "y",
-  .name_test = "SCHLIM",
-  .name_class = "scr_schlim_map_total_n"
+  .name_test = "SCHLIM"
 )
 
 # Example data:
