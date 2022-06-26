@@ -128,7 +128,7 @@ If `function_map()` is so helpful, why would you ever not use it? There are four
 
 -   They are incapable of creating columns internally other than `"consistency"`.
 
--   They don't support transformer columns (see *Terminology* below).
+-   They don't support helper columns (see *Terminology* below).
 
 -   Finally, when calling such a manufactured function, any test-specific arguments the user might specify via `…` (the dots) won't trigger RStudio's autocomplete. This is not as dangerous as in some other functions that use the dots because, when calling a function produced by `function_map()`, misspelled argument names always throw an error.
 
@@ -144,9 +144,9 @@ The remaining part of section 3 explains how to manually write mapper functions 
 
 It's important to distinguish between *key arguments or columns* and other arguments or columns. The key arguments in a scalar or vectorized consistency-testing function are the values that are tested for consistency with each other, such as `x` and `n` in `grim()`. By extension, key columns are those that contain such values. Every key column has the same name as the respective key argument.
 
-A *transformer column* is a column that is not key itself, but transforms the values of one or more key columns. In this way, transformer columns indirectly factor into the consistency test. An example is the optional `items` column in `grim_map()`'s input data frame.
+A *helper column* is a column that is not key itself, but still factors into the consistency test. An example is the optional `items` column in `grim_map()`'s input data frame: It transforms the `n` column, which in turn affects the test outcomes. However, helper columns need not work via key columns.
 
-Key and transformer columns are *tested* columns because they factor into the test. Any other columns are *non-tested*.
+Key and helper columns are *tested* columns because they factor into the test. Any other columns are *non-tested*.
 
 ### Requirements
 
@@ -158,9 +158,9 @@ The (only) requirements for a mapping function are:
 
 1.  Its name ends on `_map` instead of `_scalar` but is otherwise the same as the name of the respective `_scalar` function.
 
-2.  Its first argument, `data`, is a data frame that contains the key columns of the respective consistency test. Other columns are permitted but don't factor into the test unless they are transformer columns. The mapper's user never needs to include transformer columns and can always replace them by specifying arguments by the same names as those columns. If the user specifies such an argument but the input data frame contains a column by the same name, the function throws an error. No column of the input data frame should be named `"consistency"`.
+2.  Its first argument, `data`, is a data frame that contains the key columns of the respective consistency test. Other columns are permitted but don't factor into the test unless they are helper columns. The mapper's user never needs to include helper columns and can always replace them by specifying arguments by the same names as those columns. If the user specifies such an argument but the input data frame contains a column by the same name, the function throws an error. No column of the input data frame should be named `"consistency"`.
 
-3.  Its return value is a tibble data frame that contains all of the key input columns. The types of these columns are the same as in the input data frame. They are the first (i.e., leftmost) columns in the output, even if the input isn't ordered this way. If any of these columns are modified within the mapping function, the output should include the modified columns, not the original ones. Examples are the effects of transformer columns, but also the change displayed by the `"x"` column in the output of `grim_map(percent = TRUE)`. Transformer columns should not be included in the output.
+3.  Its return value is a tibble data frame that contains all of the key input columns. The types of these columns are the same as in the input data frame. They are the first (i.e., leftmost) columns in the output, even if the input isn't ordered this way. If any of these columns are modified within the mapping function, the output should include the modified columns, not the original ones. Examples are the effects of helper columns, but also the change displayed by the `"x"` column in the output of `grim_map(percent = TRUE)`. helper columns should not be included in the output.
 
 4.  The output data frame also contains a Boolean column named `"consistency"`. It contains the results of the consistency test, as determined by the respective `_scalar` function. In each row, `"consistency"` is `TRUE` if the values to its left are mutually consistent, and `FALSE` if they aren't. This column is placed immediately to the right of the key columns.
 
@@ -172,11 +172,11 @@ The (only) requirements for a mapping function are:
 
 Some implications of these requirements, and of the fact that the design space for mapper functions is not restricted in any other ways:
 
-Anything that factors into the consistency test other than tested columns needs to be conveyed to the mapper function via arguments. An example is the `rounding` argument in `grim_map()`. Mapper functions don't need to allow for transformer columns.
+Anything that factors into the consistency test other than tested columns needs to be conveyed to the mapper function via arguments. An example is the `rounding` argument in `grim_map()`. Mapper functions don't need to allow for helper columns.
 
 The input data frame is not necessarily a tibble, but the output data frame is. The input data frame never contains a column named `"consistency"`, but the output data frame always does.
 
-Key columns may or may not be modified by transformer columns and/or by arguments.
+Key columns may or may not be modified by helper columns and/or by arguments.
 
 The output data frame may or may not contain non-tested columns from the input. It may or may not contain non-tested columns created within the mapper function itself. (This can be useful, as with `"ratio"` in `grim_map()`'s output.) Any such non-tested, non-`"consistency"` columns go to the right of `"consistency"`.
 
@@ -245,7 +245,7 @@ schlim_map_alt2(df1)
 
 You should let `function_map()` produce an equivalent function to make sure that it returns the same output as your handwritten one. To compare the two output data frames, don't just eyeball them. Use `waldo::compare()` or, if you already run tests with testthat, `expect_equal()`.
 
-If your handwritten function creates new columns beyond `"consistency"`, you'll have to remove them from the output first. Don't use transformer columns when testing because `function_map()` can't handle them.
+If your handwritten function creates new columns beyond `"consistency"`, you'll have to remove them from the output first. Don't use helper columns when testing because `function_map()` can't handle them.
 
 ### S3 classes
 
