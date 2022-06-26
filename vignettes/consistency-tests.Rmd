@@ -87,7 +87,7 @@ Functions created this way can be useful for quick testing, but they won't be us
 
 # 3. Mapper
 
-The most important practical use of a consistency test within scrutiny is to apply it to entire data frames, as `grim_map()` does. That's also the starting point for every other function below.
+The most important practical use of a consistency test within scrutiny is to apply it to entire data frames at once, as `grim_map()` does. That's also the starting point for every other function below.
 
 Most functions discussed in the remaining part of the vignette deal with data frames. I always use [tibbles](https://r4ds.had.co.nz/tibbles.html), and I strongly recommend the same to you. There's no guarantee that each of those functions works with non-tibble data frames as it does with tibbles.
 
@@ -132,7 +132,7 @@ If `function_map()` is so helpful, why would you ever not use it? There are four
 
 -   Finally, when calling such a manufactured function, any test-specific arguments the user might specify via `…` (the dots) won't trigger RStudio's autocomplete. This is not as dangerous as in some other functions that use the dots because, when calling a function produced by `function_map()`, misspelled argument names always throw an error.
 
-Both `grim_map()` and `debit_map()` were "handwritten" rather than produced by `function_map()`. However, none of the issues named above affect the `"consistency"` results, and simply going with `function_map()` might often be the better option. If that's what you choose to do, skip right to section 4.
+Both `grim_map()` and `debit_map()` were "handwritten" rather than produced by `function_map()`. For example, the `show_rec` argument in `grim_map()` or the `ratio` column in the function's output would not have been possible with `function_map()`. However, such issues don't affect the `"consistency"` results, and simply going with `function_map()` might often be the better option. If that's what you choose to do, skip right to section 4.
 
 ## Writing mappers manually
 
