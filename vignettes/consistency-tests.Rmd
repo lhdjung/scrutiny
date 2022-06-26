@@ -190,7 +190,7 @@ Besides the `"scr_*_map"` class, the output data frame may inherit any number of
 
 The columns of the input data frame are organized like this:
 
-![](images/consistency_test_columns_input-02.png)
+![](images/consistency_test_columns_input-01.png)
 
 By contrast, the columns of the output data frame are organized like this:
 
