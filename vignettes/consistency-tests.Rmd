@@ -338,13 +338,13 @@ write_doc_audit(sample_output = audit_debit, name_test = "DEBIT")
 
 This function prepares a roxygen2 block section. It fills the three standard columns out for you, and it leaves space to describe any other columns there might be. Also, the internal checks of `write_doc_audit()` make sure that you programmed a correct `audit()` method, as represented by the value of the `sample_output` argument.
 
-Copy the output from the console and paste it into the roxygen2 block of your `_map` function. To preserve the numbered list structure when indenting roxygen2 comments with `Ctrl`+`Shift`+`/`, leave empty lines between the pasted output and the rest of the block.
+Copy the output from the console and paste it into the roxygen2 block of your `*_map()` function. To preserve the numbered list structure when indenting roxygen2 comments with `Ctrl`+`Shift`+`/`, leave empty lines between the pasted output and the rest of the block.
 
 # 5. Visualization function
 
 ## Introduction
 
-It is hard to give general advice on how to implement visualization functions for the results of consistency tests. As with the `_scalar` function, the best way to plot such results greatly depends on the idiosyncratic nature of the consistency test itself. When comparing the looks of `grim_plot()` and `debit_plot()`, it becomes clear that two very different things are going on. (This is mainly because granularity is crucial for GRIM but not for DEBIT.)
+It is hard to give general advice on how to implement visualization functions for the results of consistency tests. As with the `*_scalar()` function, the best way to plot such results greatly depends on the idiosyncratic nature of the consistency test itself. When comparing the looks of `grim_plot()` and `debit_plot()`, it becomes clear that two very different things are going on. (This is mainly because granularity is crucial for GRIM but not for DEBIT.)
 
 ## Requirements
 
@@ -352,12 +352,12 @@ Nevertheless, some general requirements do apply to scrutiny-style visualization
 
 As a result, the rules below are admittedly somewhat less important. If you violate them, nobody but me will be sad about it.
 
-1.  All plots should be based on ggplot2. They don't need to implement any newly created layers, such as geoms or themes. Indeed, neither of the two existing visualization functions relies on any new layers.
+1.  All visualization functions should be based on ggplot2. They should follow its developers' general advice on [using ggplot2 in packages](https://ggplot2.tidyverse.org/articles/ggplot2-in-packages.html). Visualization functions don't need to implement any newly created layers, such as geoms or themes. Indeed, neither of the two existing visualization functions relies on any new layers.
 2.  The visualization function's name should be that of the test itself (in lowercase), followed by `_plot`. Naturally, this doesn't apply to methods for generic functions like `plot()` or `ggplot2::autoplot()`.
-3.  Its first argument, `data`, is a data frame that is the result of a call to the respective mapper function, such as `grim_map()` or `debit_map()`. The visualization function makes sure this is true by checking that `data` inherits the special class added within the mapper, such as `scr_grim_map` or `scr_debit_map`. If `data` fails this check, the function throws an error.
+3.  Its first argument, `data`, is a data frame that is the result of a call to the respective mapper function, such as `grim_map()` or `debit_map()`. The visualization function makes sure this is true by checking that `data` inherits the special class added within the mapper, such as `"scr_grim_map"` or `"scr_debit_map"`. If `data` fails this check, the function throws an error.
 4.  The function should display consistent and inconsistent value sets. The color defaults should be `"royalblue1"` for consistent value sets and `"red"` for inconsistent ones. The user can override these defaults via two arguments named `color_cons` for consistent value sets and `color_incons` for inconsistent ones.
 5.  If certain layers are optional rather than essential to the plot, their display can be controlled via Boolean arguments that start on `show_`. Examples are `show_data` in `grim_plot()` or `show_outer_boxes` in `debit_plot()`. Only arguments of this kind should start on `show_`. They should have defaults (which will usually be `TRUE`, but this is not a requirement).
-6.  The most important aesthetics for the geoms are passed down to the latter via arguments. Namely, these are `alpha` (i.e. opacity), `color`, and `size`, in this order. If multiple geoms need `alpha`, `color`, and `size` arguments, the latter should start with an expression that stands for the geom, not with `alpha`, `color`, or `size`, respectively. Examples are `line_alpha`, `line_color`, and `line_size` in `debit_plot()`.
+6.  The most important aesthetics for the geoms are passed down to the latter via arguments. Namely, these are `alpha` (i.e., opacity), `color`, and `size`, in this order. If multiple geoms need `alpha`, `color`, and `size` arguments, the latter should start with an expression that stands for the geom, not with `alpha`, `color`, or `size`, respectively. Examples are `line_alpha`, `line_color`, and `line_size` in `debit_plot()`.
 7.  Point 6 does not apply if the respective parameter is determined by the data, like the size of `geom_tile()` in `debit_plot()`. This includes cases where a parameter is specified as a constant. An example is the `geom_rect()` call for empirical data in `grim_plot()`, where `size` is constant at `1` but the effective size is determined by the granularity of the data. If the respective colors are covered by `color_cons` and `color_incons`, not further `color` argument is needed for them.
 8.  Arguments passed on to aesthetics should have the same defaults as those aesthetics themselves have in ggplot2 unless there is a compelling reason for different defaults. Again, `line_alpha`, `line_color`, and `line_size` are examples for this.
 
