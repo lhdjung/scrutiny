@@ -170,3 +170,70 @@ check_audit_special <- function(data, name_test) {
 }
 
 
+
+
+
+#' Helper column operations
+#'
+#' @description If your consistency test mapper function supports helper
+#'   columns, call `manage_helper_col()` internally; once for every such column.
+#'   It will check whether a helper column is compatible with its eponymous
+#'   argument. By default (`affix = TRUE`), it will add the column to the
+#'   mapper's input data frame.
+#'
+#'   This only works in mapper functions that were "handwritten" using
+#'   `function()`, as opposed to those produced by `function_map()`. See
+#'   `vignette("consistency-tests")`, section *Writing mappers manually*.
+#'
+#' @param data The data frame that is the mapper function's first argument.
+#' @param var_arg The argument to the mapper function that has the same name as
+#'   the helper column you want to manage.
+#' @param default The default for the argument that was specified in `var_arg`.
+#' @param fun_name String (length 1). Name of the mapper function, such as
+#'   `"grim_map"`.
+#' @param affix Boolean (length 1). If `data` doesn't include the helper column
+#'   already, should `var_arg` be added to `data`, bearing its proper name?
+#'   Default is `TRUE`.
+#'
+#' @return `data`, possibly with modifications (see `affix` argument).
+#' @export
+
+
+manage_helper_col <- function(data, var_arg, default, fun_name, affix = TRUE) {
+
+  # Retrieve the variable's name:
+  var_name <- deparse(substitute(var_arg))
+
+  # Throw error if the argument in question was specified in a way that
+  # contradicts `data`:
+  if (var_name %in% colnames(data)) {
+    # Choose a function that determines whether or not the argument in question
+    # was specified by the user; i.e., whether it's not the same as the default.
+    # For numeric values, strict equality as tested by `identical()` would be
+    # asking too much, so `dplyr::near()` is used instead:
+    if (is.numeric(var_arg) & is.numeric(default)) {
+      about_equal <- dplyr::near
+    } else {
+      about_equal <- identical
+    }
+    if (!about_equal(var_arg, default)) {
+      data_name <- deparse(substitute(data))
+      cli::cli_abort(c(
+        "Column `{var_name}` already in `{data_name}`.",
+        "x" = "The `{var_name}` argument in `{fun_name}()` \\
+        was specified as `{var_arg}` (default: `{default}`).",
+        "x" = "This conflicts with the `{var_name}` column in `{data_name}`."
+      ))
+    }
+  } else if (affix) {
+    # If a column by that name is not yet present in `data`, supply it from the
+    # respective argument. Disable this feature with `affix = FALSE` if the
+    # helper column transformed one or more key columns:
+    data <- dplyr::mutate(data, {{ var_name }} := var_arg)
+  }
+
+  data
+}
+
+
+
