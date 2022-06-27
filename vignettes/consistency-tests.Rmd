@@ -160,13 +160,15 @@ The (only) requirements for a mapping function are:
 
 2.  Its first argument, `data`, is a data frame that contains the key columns of the respective consistency test. Other columns are permitted but don't factor into the test unless they are helper columns. The mapper's user never needs to include helper columns and can always replace them by specifying arguments by the same names as those columns. If the user specifies such an argument but the input data frame contains a column by the same name, the function throws an error. No column of the input data frame should be named `"consistency"`.
 
-3.  Its return value is a tibble data frame that contains all of the key input columns. The types of these columns are the same as in the input data frame. They are the first (i.e., leftmost) columns in the output, even if the input isn't ordered this way. If any of these columns are modified within the mapping function, the output should include the modified columns, not the original ones. Examples can be effects of helper columns, but also the change displayed by the `"x"` column in the output of `grim_map(percent = TRUE)`. Helper columns should be included in the output unless they transform one or more key columns. In these cases, representing them in the output would be confusing because their effects have already played out via the transformed key column(s). An example is the optional `items` column in `grim_map()`.
+3.  Its return value is a tibble data frame that contains all of the key input columns. The types of these columns are the same as in the input data frame. They are the first (i.e., leftmost) columns in the output, even if the input isn't ordered this way. If any of these columns are modified within the mapping function, the output should include the modified columns, not the original ones. Examples can be effects of helper columns, but also the change displayed by the `"x"` column in the output of `grim_map(percent = TRUE)`.
 
-4.  The output data frame also contains a Boolean column named `"consistency"`. It contains the results of the consistency test, as determined by the respective `_scalar` function. In each row, `"consistency"` is `TRUE` if the values to its left are mutually consistent, and `FALSE` if they aren't. This column is placed immediately to the right of the key columns.
+4.  Helper columns should be included in the output unless they transform one or more key columns. In these cases, representing them in the output would be confusing because their effects have already played out via the transformed key column(s). An example is the optional `items` column in `grim_map()`. To work with helper columns, call `manage_helper_col()` within the mapper.
 
-5.  If the underlying single-case function performs rounding or unrounding, it should internally call `reround()` and/or `unround()`, respectively. The output data frame of the mapper function will then inherit an S3 class (see section *S3 classes* below) such as `"scr_rounding_up_or_down"`: It consists of `"scr_rounding_"` followed by the rounding specification, e.g., `"up_or_down"`. The latter should also be the default rounding and unrounding specification. This specification can be supplied by the user via an argument called `rounding`, which is then passed down to the single-case function. If `reround()` is called within the mapper, all of its arguments need to be passed down from the mapper, which itself has all of the same arguments, with the same defaults. The same applies to `unround()`.
+5.  The output data frame also contains a Boolean column named `"consistency"`. It contains the results of the consistency test, as determined by the respective `_scalar` function. In each row, `"consistency"` is `TRUE` if the values to its left are mutually consistent, and `FALSE` if they aren't. This column is placed immediately to the right of the key columns.
 
-6.  The output data frame inherits an S3 class that starts on `"scr_"` (short for scrutiny), followed by the name of the mapper function. For example, the output of `grim_map()` inherits the `"scr_grim_map"` class. The `"scr_"` prefix is necessary for some follow-up computations introduced below, so it should be used even within functions that are not part of scrutiny. Any other classes added to the output data frame should also start on `"scr_"`. None of them should end on `"_map"`.
+6.  If the underlying single-case function performs rounding or unrounding, it should internally call `reround()` and/or `unround()`, respectively. The output data frame of the mapper function will then inherit an S3 class (see section *S3 classes* below) such as `"scr_rounding_up_or_down"`: It consists of `"scr_rounding_"` followed by the rounding specification, e.g., `"up_or_down"`. The latter should also be the default rounding and unrounding specification. This specification can be supplied by the user via an argument called `rounding`, which is then passed down to the single-case function. If `reround()` is called within the mapper, all of its arguments need to be passed down from the mapper, which itself has all of the same arguments, with the same defaults. The same applies to `unround()`.
+
+7.  The output data frame inherits an S3 class that starts on `"scr_"` (short for scrutiny), followed by the name of the mapper function. For example, the output of `grim_map()` inherits the `"scr_grim_map"` class. The `"scr_"` prefix is necessary for some follow-up computations introduced below, so it should be used even within functions that are not part of scrutiny. Any other classes added to the output data frame should also start on `"scr_"`. None of them should end on `"_map"`.
 
 ### Implications
 
@@ -190,11 +192,11 @@ Besides the `"scr_*_map"` class, the output data frame may inherit any number of
 
 The columns of the input data frame are organized like this:
 
-![](images/consistency_test_columns_input-01.png)
+![](images/consistency_test_columns_input-01.png){width="585"}
 
 By contrast, the columns of the output data frame are organized like this:
 
-![](images/consistency_test_columns_output-01.png)
+![](images/consistency_test_columns_output-01.png){width="585"}
 
 ### Practical steps
 
