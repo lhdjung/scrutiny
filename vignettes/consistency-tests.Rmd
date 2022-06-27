@@ -361,8 +361,6 @@ As a result, the rules below are admittedly somewhat less important. If you viol
 7.  Point 6 does not apply if the respective parameter is determined by the data, like the size of `geom_tile()` in `debit_plot()`. This includes cases where a parameter is specified as a constant. An example is the `geom_rect()` call for empirical data in `grim_plot()`, where `size` is constant at `1` but the effective size is determined by the granularity of the data. If the respective colors are covered by `color_cons` and `color_incons`, not further `color` argument is needed for them.
 8.  Arguments passed on to aesthetics should have the same defaults as those aesthetics themselves have in ggplot2 unless there is a compelling reason for different defaults. Again, `line_alpha`, `line_color`, and `line_size` are examples for this.
 
-See also the more general advice on [using ggplot2 in packages](https://ggplot2.tidyverse.org/articles/ggplot2-in-packages.html).
-
 # 6. Sequence mapper
 
 ## Introduction
