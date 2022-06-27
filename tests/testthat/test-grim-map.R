@@ -131,7 +131,7 @@ df5 <- df1 %>%
 
 
 test_that("`show_rec` increases the number of columns correctly", {
-  df5 %>% ncol() %>% expect_equal(12)
+  df5 %>% ncol() %>% expect_equal(11)
 })
 
 
