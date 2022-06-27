@@ -17,7 +17,8 @@ behind them. The package makes these methods easy to use in a
 tidyverse-friendly way. It hopes to help the new field of error
 detection go mainstream.
 
-Besides ready-made tests, scrutiny features infrastructure for
+Besides ready-made tests, scrutiny features a complete system for
+implementing new consistency tests, more general infrastructure for
 implementing error detection techniques, as well as specialized data
 wrangling functions. See the *Articles* tab for vignettes.
 
@@ -59,21 +60,21 @@ Scale item numbers are 1 by default.
 
     # GRIM-testing for data frames:
     grim_map(pigs1)
-    #> # A tibble: 12 × 5
-    #>    x         n items consistency ratio
-    #>    <chr> <int> <int> <lgl>       <dbl>
-    #>  1 7.22     32     1 TRUE         0.68
-    #>  2 4.74     25     1 FALSE        0.75
-    #>  3 5.23     29     1 FALSE        0.71
-    #>  4 2.57     24     1 FALSE        0.76
-    #>  5 6.77     27     1 FALSE        0.73
-    #>  6 2.68     28     1 TRUE         0.72
-    #>  7 7.01     29     1 FALSE        0.71
-    #>  8 7.38     26     1 TRUE         0.74
-    #>  9 3.14     27     1 FALSE        0.73
-    #> 10 6.89     31     1 FALSE        0.69
-    #> 11 5.00     25     1 TRUE         0.75
-    #> 12 0.24     28     1 FALSE        0.72
+    #> # A tibble: 12 × 4
+    #>    x         n consistency ratio
+    #>    <chr> <dbl> <lgl>       <dbl>
+    #>  1 7.22     32 TRUE         0.68
+    #>  2 4.74     25 FALSE        0.75
+    #>  3 5.23     29 FALSE        0.71
+    #>  4 2.57     24 FALSE        0.76
+    #>  5 6.77     27 FALSE        0.73
+    #>  6 2.68     28 TRUE         0.72
+    #>  7 7.01     29 FALSE        0.71
+    #>  8 7.38     26 TRUE         0.74
+    #>  9 3.14     27 FALSE        0.73
+    #> 10 6.89     31 FALSE        0.69
+    #> 11 5.00     25 TRUE         0.75
+    #> 12 0.24     28 FALSE        0.72
 
 Test percentages instead of means:
 
@@ -90,15 +91,15 @@ Test percentages instead of means:
 
     grim_map(pigs2, percent = TRUE)
     #> ℹ `x` converted from percentage
-    #> # A tibble: 6 × 5
-    #>   x         n items consistency ratio
-    #>   <chr> <int> <int> <lgl>       <dbl>
-    #> 1 0.674   150     1 FALSE        0.85
-    #> 2 0.542   150     1 FALSE        0.85
-    #> 3 0.540   150     1 TRUE         0.85
-    #> 4 0.698   150     1 FALSE        0.85
-    #> 5 0.681   150     1 FALSE        0.85
-    #> 6 0.554   150     1 FALSE        0.85
+    #> # A tibble: 6 × 4
+    #>   x         n consistency ratio
+    #>   <chr> <dbl> <lgl>       <dbl>
+    #> 1 0.674   150 FALSE        0.85
+    #> 2 0.542   150 FALSE        0.85
+    #> 3 0.540   150 TRUE         0.85
+    #> 4 0.698   150 FALSE        0.85
+    #> 5 0.681   150 FALSE        0.85
+    #> 6 0.554   150 FALSE        0.85
 
 You can choose how the means are reconstructed for testing — here,
 rounded up from 5. When visualizing results, the plot will adjust
@@ -129,16 +130,17 @@ data:
     pigs3 %>% 
       debit_map()
     #> # A tibble: 7 × 11
-    #>   x     sd        n consistency rounding   sd_lower sd_incl_lower sd_upper
-    #>   <chr> <chr> <int> <lgl>       <chr>         <dbl> <lgl>            <dbl>
-    #> 1 0.53  0.50   1683 TRUE        up_or_down    0.495 TRUE             0.505
-    #> 2 0.44  0.50   1683 TRUE        up_or_down    0.495 TRUE             0.505
-    #> 3 0.77  0.42   1683 TRUE        up_or_down    0.415 TRUE             0.425
-    #> 4 0.19  0.35   1683 FALSE       up_or_down    0.345 TRUE             0.355
-    #> 5 0.34  0.47   1683 TRUE        up_or_down    0.465 TRUE             0.475
-    #> 6 0.93  0.25   1683 TRUE        up_or_down    0.245 TRUE             0.255
-    #> 7 0.12  0.33   1683 TRUE        up_or_down    0.325 TRUE             0.335
-    #> # … with 3 more variables: sd_incl_upper <lgl>, x_lower <dbl>, x_upper <dbl>
+    #>   x     sd        n consistency rounding sd_lo…¹ sd_in…² sd_up…³ sd_in…⁴ x_lower
+    #>   <chr> <chr> <int> <lgl>       <chr>      <dbl> <lgl>     <dbl> <lgl>     <dbl>
+    #> 1 0.53  0.50   1683 TRUE        up_or_d…   0.495 TRUE      0.505 TRUE      0.525
+    #> 2 0.44  0.50   1683 TRUE        up_or_d…   0.495 TRUE      0.505 TRUE      0.435
+    #> 3 0.77  0.42   1683 TRUE        up_or_d…   0.415 TRUE      0.425 TRUE      0.765
+    #> 4 0.19  0.35   1683 FALSE       up_or_d…   0.345 TRUE      0.355 TRUE      0.185
+    #> 5 0.34  0.47   1683 TRUE        up_or_d…   0.465 TRUE      0.475 TRUE      0.335
+    #> 6 0.93  0.25   1683 TRUE        up_or_d…   0.245 TRUE      0.255 TRUE      0.925
+    #> 7 0.12  0.33   1683 TRUE        up_or_d…   0.325 TRUE      0.335 TRUE      0.115
+    #> # … with 1 more variable: x_upper <dbl>, and abbreviated variable names
+    #> #   ¹​sd_lower, ²​sd_incl_lower, ³​sd_upper, ⁴​sd_incl_upper
 
     pigs3 %>% 
       debit_map() %>% 
