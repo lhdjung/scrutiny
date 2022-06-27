@@ -122,9 +122,6 @@ grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
                      symmetric = FALSE, tolerance = .Machine$double.eps^0.5,
                      testables_only = FALSE, extra = Inf) {
 
-  # Check the column names of `data`:
-  check_mapper_input_colnames(data, c("x", "n"), "GRIM")
-
   # If any two arguments called right below are length > 1, they need to have
   # the same length. Otherwise, the call will fail. But even so, there will be a
   # warning that values will get paired:
@@ -132,16 +129,14 @@ grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
     items, percent, rounding, threshold, symmetric, tolerance
   ))
 
-  # Throw error if `items` is specified in a way that contradicts `data`:
-  if ("items" %in% colnames(data) && !items == 1) {
-    cli::cli_abort(c(
-      "`items` already in `data`",
-      "x" = "Specifying the `items` argument in `grim_map()` conflicts with \\
-      the `items` column in `data`."
-    ))
-  }
-
-  check_audit_special(data, "GRIM")
+  # # Throw error if `items` is specified in a way that contradicts `data`:
+  # if ("items" %in% colnames(data) && !items == 1) {
+  #   cli::cli_abort(c(
+  #     "`items` already in `data`",
+  #     "x" = "Specifying the `items` argument in `grim_map()` conflicts with \\
+  #     the `items` column in `data`."
+  #   ))
+  # }
 
   # Defuse the argument specifications that can be used to assign the roles of
   # `x` and `n` to specific columns in case these columns don't already have
@@ -173,22 +168,22 @@ that column."
     ))
   }
 
+  # Check the column names of `data`:
+  check_mapper_input_colnames(data, c("x", "n"), "GRIM")
+
   # # Convert `n` to integer (mainly because of the `split_by_parens()` issue,
   # # which would leave `n` as a string vector):
   # data$n <- as.integer(data$n)
 
-  # If an `items` column is not yet present in `data`, supply it from the
-  # `items` argument:
-  if (!"items" %in% colnames(data)) {
-    # items <- as.integer(items)
-    data$items <- items
-  }
+  data <- manage_helper_col(
+    data = data, var_arg = items, default = 1, fun_name = "grim_map"
+  )
 
   # Create `other_cols`, which contains all extra columns from `data` (i.e.,
   # those which play no role in the GRIM test), and run it through a specified
   # helper function:
-  other_cols <- dplyr::select(data, -x, -n, -items) %>%
-    manage_extra_cols(data, extra, .)
+  other_cols <- dplyr::select(data, -x, -n, -items)
+  other_cols <- manage_extra_cols(data, extra, other_cols)
 
   # Prepare a data frame for the GRIM computations below (steps 4 and 5):
   data_x_n_items <- dplyr::select(data, x, n, items)
@@ -235,11 +230,11 @@ that column."
   # Create a tibble with results that also includes extra columns from the input
   # data frame (`other_cols`) unless the `extra` argument has been set to 0 --
   if (is.null(extra)) {
-    # (Number:)               1  2    3         4         5
-    results <- tibble::tibble(x, n,        consistency, ratio)
+    # (Number:)               1  2       3         4
+    results <- tibble::tibble(x, n, consistency, ratio)
   } else {
-    # (Number:)               1  2    3         4         5       6(-?)
-    results <- tibble::tibble(x, n,        consistency, ratio, other_cols)
+    # (Number:)               1  2       3         4       5(-?)
+    results <- tibble::tibble(x, n, consistency, ratio, other_cols)
   }
 
   # In case the user had set `show_rec` to `TRUE` for displaying the
