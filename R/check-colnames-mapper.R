@@ -22,9 +22,9 @@ check_key_args_in_colnames <- function(data, reported) {
       if (length(offenders) > 1) {
         msg_each_other <- paste0(msg_each_other, " and with ")
       }
-      non_offenders <- backticks(non_offenders)
+      non_offenders <- wrap_in_backticks(non_offenders)
     }
-    offenders <- backticks(offenders)
+    offenders <- wrap_in_backticks(offenders)
     cli::cli_abort(c(
       "{msg_cols} {offenders} missing from `data`.",
       "{msg_it_they} meant to be tested for consistency with \\
@@ -178,10 +178,14 @@ check_audit_special <- function(data, name_test) {
 #' @description If your consistency test mapper function supports helper
 #'   columns, call `manage_helper_col()` internally; once for every such column.
 #'   It will check whether a helper column is compatible with its eponymous
-#'   argument. By default (`affix = TRUE`), it will add the column to the
-#'   mapper's input data frame.
+#'   argument, i.e., if the argument was not specified by the user but has its
+#'   default value.
 #'
-#'   This only works in mapper functions that were "handwritten" using
+#'   By default (`affix = TRUE`), the function will add the column to the
+#'   mapper's input data frame. It returns the input data frame, so reassign its
+#'   output to that variable.
+#'
+#'   All of this only works in mapper functions that were "handwritten" using
 #'   `function()`, as opposed to those produced by `function_map()`. See
 #'   `vignette("consistency-tests")`, section *Writing mappers manually*.
 #'
@@ -207,28 +211,27 @@ manage_helper_col <- function(data, var_arg, default, fun_name, affix = TRUE) {
   # Throw error if the argument in question was specified in a way that
   # contradicts `data`:
   if (var_name %in% colnames(data)) {
-    # Choose a function that determines whether or not the argument in question
-    # was specified by the user; i.e., whether it's not the same as the default.
-    # For numeric values, strict equality as tested by `identical()` would be
-    # asking too much, so `dplyr::near()` is used instead:
-    if (is.numeric(var_arg) & is.numeric(default)) {
-      about_equal <- dplyr::near
-    } else {
-      about_equal <- identical
-    }
+    # Determine whether or not the argument in question was specified by the
+    # user; i.e., whether it's different from the default. For numeric values,
+    # strict equality as tested by `identical()` would be asking too much, so
+    # `dplyr::near()` is used instead. This works via a helper from utils.R:
     if (!about_equal(var_arg, default)) {
       data_name <- deparse(substitute(data))
+      data_name <- wrap_in_backticks(data_name)
+      var_name_as_arg <- wrap_in_backticks(var_name)
+      var_name <- wrap_in_quotes(var_name)
+      var_arg  <- wrap_in_quotes_or_backticks(var_arg)
+      default  <- wrap_in_quotes_or_backticks(default)
       cli::cli_abort(c(
-        "Column `{var_name}` already in `{data_name}`.",
-        "x" = "The `{var_name}` argument in `{fun_name}()` \\
-        was specified as `{var_arg}` (default: `{default}`).",
-        "x" = "This conflicts with the `{var_name}` column in `{data_name}`."
+        "Column {var_name} already in {data_name}.",
+        "x" = "The {var_name_as_arg} argument in `{fun_name}()` \\
+        was specified as {var_arg} (default: {default}).",
+        "x" = "This conflicts with the {var_name} column in {data_name}."
       ))
     }
   } else if (affix) {
     # If a column by that name is not yet present in `data`, supply it from the
-    # respective argument. Disable this feature with `affix = FALSE` if the
-    # helper column transformed one or more key columns:
+    # respective argument:
     data <- dplyr::mutate(data, {{ var_name }} := var_arg)
   }
 

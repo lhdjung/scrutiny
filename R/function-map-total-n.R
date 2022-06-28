@@ -336,7 +336,7 @@ function_map_total_n <- function(.fun, .reported, .name_test,
       } else {
         msg_starting_with <- ":"
       }
-      msg_offenders <- backticks(offenders)
+      msg_offenders <- wrap_in_backticks(offenders)
       cli::cli_abort(c(
         "`n` values must be whole numbers.",
         "x" = "The `n` column includes decimal \\
@@ -377,7 +377,7 @@ function_map_total_n <- function(.fun, .reported, .name_test,
         msg_it_they <- "They're"
         msg_this_these <- "These columns"
       }
-      msg_cols_missing <- backticks(cols_missing)
+      msg_cols_missing <- wrap_in_backticks(cols_missing)
       cli::cli_abort(c(
         "{msg_cols} {msg_cols_missing} {msg_is_are} missing from `data`.",
         "x" = "{msg_it_they} expected because of the `.reported` \\
@@ -451,8 +451,8 @@ function_map_total_n <- function(.fun, .reported, .name_test,
     # right above, the user would be left completely in the dark. This error
     # message, then, would at least clarify the source of the problem:
     if (!all(colnames(out_forth) == colnames(out_back))) {
-      names_out_forth <- backticks(colnames(out_forth))
-      names_out_back  <- backticks(colnames(out_back))
+      names_out_forth <- wrap_in_backticks(colnames(out_forth))
+      names_out_back  <- wrap_in_backticks(colnames(out_back))
       cli::cli_abort(c(
         "Column names returned by calls to the helper function \\
         `scrutiny:::function_map_total_n_proto()` are not identical.",

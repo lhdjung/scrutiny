@@ -75,7 +75,7 @@ grim_items <- function(n, gran, tolerance = .Machine$double.eps^0.5) {
   } else {
     offenders <- out[!out_is_whole]
     offenders <- round(offenders, 3)
-    offenders <- backticks(offenders)
+    offenders <- wrap_in_backticks(offenders)
     if (length(offenders) == 1) {
       item_items <- "Item count"
       number_numbers <- "isn't a whole number"

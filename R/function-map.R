@@ -108,7 +108,7 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
   offenders <- .reported[!.reported %in% names(fun_args)]
 
   if (length(offenders) > 0) {
-    offenders <- backticks(offenders)
+    offenders <- wrap_in_backticks(offenders)
     fun_name <- deparse(substitute(.fun))
     if (length(offenders) == 1) {
       msg_arg <- "argument"
@@ -139,7 +139,7 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
     dots_names <- names(dots)
     offenders <- dots_names[!dots_names %in% names(fun_args)]
     if (length(offenders) > 0) {
-      offenders <- backticks(offenders)
+      offenders <- wrap_in_backticks(offenders)
       if (length(offenders) == 1) {
         msg_arg <- "argument"
         msg_it_they <- "It's not an"
@@ -208,12 +208,13 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
 
 
 
+# # Example factory-made functions:
+#
 # grim_map_alt <- function_map(
 #   .fun = grim_scalar,
 #   .reported = c("x", "n"),
 #   .name_test = "GRIM"
 # )
-#
 #
 # debit_map_alt <- function_map(
 #   .fun = debit_scalar,

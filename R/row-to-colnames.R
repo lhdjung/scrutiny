@@ -60,7 +60,7 @@ row_to_colnames <- function(data, row = 1, collapse = " ", drop = TRUE) {
   }
 
   if (any(!is_whole_number(row))) {
-    row <- backticks(row)
+    row <- wrap_in_backticks(row)
     cli::cli_abort(c(
       "`row` is {row}",
       "x" = "It needs to be a whole number."

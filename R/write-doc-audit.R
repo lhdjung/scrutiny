@@ -1,7 +1,7 @@
 
 # Helper; not exported:
 manage_key_args <- function(key_args) {
-  key_args_bt <- backticks(key_args) # function from utils.R
+  key_args_bt <- wrap_in_backticks(key_args) # function from utils.R
   vars <- commas_and(key_args_bt)    # function from utils.R
 
   arg1 <- key_args[1]
@@ -321,7 +321,7 @@ write_doc_audit_total_n <- function(key_args, name_test) {
   key_args_num <- key_args_num %>%
     rep(each = 2) %>%
     paste0(c("1", "2")) %>%
-    backticks()
+    wrap_in_backticks()
 
   key_args_num1 <- key_args_num[stringr::str_detect(key_args_num, "1")]
   key_args_num2 <- key_args_num[stringr::str_detect(key_args_num, "2")]
@@ -333,7 +333,7 @@ write_doc_audit_total_n <- function(key_args, name_test) {
   key_args_all <- append(key_args_num, "`n`")
   key_args_all_commas <- commas_and(key_args_all)
 
-  key_args_bt <- backticks(key_args)
+  key_args_bt <- wrap_in_backticks(key_args)
   vars <- commas_and(key_args_bt)
 
   name_test_lower <- tolower(name_test)
