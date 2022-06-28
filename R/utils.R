@@ -678,7 +678,7 @@ unnest_consistency_cols <- function(results, col_names) {
 # be asking too much from numeric values, so `dplyr::near()` is used instead:
 about_equal <- function(x, y) {
   if (is.numeric(x) && is.numeric(y)) {
-    dplyr::near(x, y)
+    all(dplyr::near(x, y))
   } else {
     identical(x, y)
   }
