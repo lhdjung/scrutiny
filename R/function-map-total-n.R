@@ -305,8 +305,20 @@ function_map_total_n <- function(.fun, .reported, .name_test,
                                  .n_min = 1, .n_max = NULL,
                                  .show_all = FALSE) {
 
+  # Throw error if `n` itself was named as a reported statistic:
+  if ("n" %in% .reported) {
+    cli::cli_abort(c(
+      "Don't specify \"n\" as a reported statistic.",
+      "x" = "Functions produced by `function_map_total_n()` \\
+      assume that `n` was not reported, and deal with it \\
+      in hypothetical terms.",
+      "x" = "Therefore, it can't be a `.reported` value."
+    ))
+  }
 
-  # The function factory returns this manufactured function:
+
+  # --- Start of the manufactured function ---
+
   function(data, fun = .fun, reported = .reported,
            name_test = .name_test, name_class = .name_class,
            dispersion = .dispersion, n_min = .n_min, n_max = .n_max,
@@ -481,6 +493,6 @@ function_map_total_n <- function(.fun, .reported, .name_test,
     return(out_total)
   }
 
-  # -- End of the manufactured function --
+  # --- End of the manufactured function ---
 
 }
