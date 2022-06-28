@@ -247,7 +247,7 @@ schlim_map_alt2(df1)
 
 You should let `function_map()` produce an equivalent function to make sure that it returns the same output as your handwritten one. To compare the two output data frames, don't just eyeball them. Use `waldo::compare()` or, if you already run tests with testthat, `expect_equal()`.
 
-If your handwritten function creates new columns beyond `"consistency"`, you'll have to remove them from the output first. Don't use helper columns when testing because `function_map()` can't handle them.
+If your handwritten mapper creates new columns beyond `"consistency"`, you'll have to remove them from the output first. Don't use helper columns when testing because `function_map()` can't handle them.
 
 ### S3 classes
 
@@ -440,13 +440,13 @@ As with `function_map_seq()`, creating a manufactured `*_total_n()` function is 
 ```{r, eval=FALSE}
 grim_map_total_n <- function_map_total_n(
   .fun = grim_map,
-  .reported = "x",
+  .reported = "x",  # don't include `n` here
   .name_test = "GRIM"
 )
 
 debit_map_total_n <- function_map_total_n(
   .fun = debit_map,
-  .reported = c("x", "sd"),
+  .reported = c("x", "sd"),  # don't include `n` here
   .name_test = "DEBIT"
 )
 ```
