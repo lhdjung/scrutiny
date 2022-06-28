@@ -618,8 +618,29 @@ get_rounding_class_arg <- function(x) {
 }
 
 
-backticks <- function(x) {
+# For error messages and similar, wrap objects into backticks or quotes:
+wrap_in_backticks <- function(x) {
   paste0("`", x, "`")
+}
+
+wrap_in_quotes <- function(x) {
+  paste0("\"", x, "\"")
+}
+
+wrap_in_quotes_if_string <- function(x) {
+  if (is.character(x)) {
+    x <- paste0("\"", x, "\"")
+  }
+  x
+}
+
+wrap_in_quotes_or_backticks <- function(x) {
+  if (is.character(x)) {
+    x <- paste0("\"", x, "\"")
+  } else {
+    x <- paste0("`", x, "`")
+  }
+  x
 }
 
 
@@ -652,6 +673,16 @@ unnest_consistency_cols <- function(results, col_names) {
 }
 
 
+
+# When testing for equality, strict equality as assessed by `identical()` would
+# be asking too much from numeric values, so `dplyr::near()` is used instead:
+about_equal <- function(x, y) {
+  if (is.numeric(x) && is.numeric(y)) {
+    dplyr::near(x, y)
+  } else {
+    identical(x, y)
+  }
+}
 
 
 
