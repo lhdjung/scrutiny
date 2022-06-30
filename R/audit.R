@@ -77,7 +77,7 @@ audit_seq <- function(data) {
   if (!inherits(data, "scr_map_seq")) {
     cli::cli_abort(c(
       "Invalid `data` argument.",
-      "It needs to be the output of a `*_map_seq()` function, \\
+      "x" = "It needs to be the output of a `*_map_seq()` function, \\
       such as `grim_map_seq()`."
     ))
   }
