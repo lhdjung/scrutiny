@@ -310,8 +310,8 @@ function_map_total_n <- function(.fun, .reported, .name_test,
     cli::cli_abort(c(
       "Don't specify \"n\" as a reported statistic.",
       "x" = "Functions produced by `function_map_total_n()` \\
-      assume that `n` was not reported, and deal with it \\
-      in hypothetical terms.",
+      assume that group-wise `n` values were not reported, \\
+      and deal with them in hypothetical terms.",
       "x" = "Therefore, it can't be a `.reported` value."
     ))
   }
@@ -326,15 +326,20 @@ function_map_total_n <- function(.fun, .reported, .name_test,
 
     # Checks ---
 
+    # The usual key argument check conducted by `check_mapper_input_colnames()`
+    # is not applicable to `data`, so the function only checks the remaining
+    # point, using an internal helper:
     check_consistency_not_in_colnames(data, name_test)
 
     # Make sure that the `n` column is present...
     if (!"n" %in% colnames(data)) {
       cli::cli_abort(c(
         "Column `n` missing.",
-        "x" = "These should be the reported total sample sizes \\
-        (one per row). They will be cut in half and varied \\
-        from there using `disperse_total()`."
+        "x" = "`n` should contain the reported total sample sizes \\
+        (one per row).",
+        "i" = "The function will use `disperse_total()` to go up \\
+        and down from the integer at half an even `n`, or the \\
+        two integers just around half an odd `n`."
       ))
     }
 
