@@ -5,12 +5,13 @@
 #' @description Uncommon rounding procedures:
 #'   - `round_ceiling()` always rounds up.
 #'   - `round_floor()` always rounds down.
-#'   - `round_trunc()` always rounds toward 0.
-#'   - `round_anti_trunc()` always rounds away from 0.
+#'   - `round_trunc()` always rounds toward zero.
+#'   - `round_anti_trunc()` always rounds away from zero. (`0` itself is
+#'   rounded to `1`.)
 #'
 #' Despite not being widely used, they are featured here in case they are needed
 #' for reconstruction.
-#'
+
 #' @details `round_ceiling()`, `round_floor()`, and `round_trunc()` generalize
 #'   the base functions `ceiling()`, `floor()`, and `trunc()`, and include them
 #'   as special cases: With the default value for `digits`, 0, these `round_*`
