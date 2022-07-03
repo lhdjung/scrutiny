@@ -13,9 +13,9 @@ utils::globalVariables(c(
 
 wrong_spec_string <- function(x) {
   if (is.character(x)) {
-    return(glue::glue("\"{x}\""))
+    glue::glue("\"{x}\"")
   } else {
-    return(glue::glue("`{x}` (not a string)"))
+    glue::glue("`{x}` (not a string)")
   }
 }
 
@@ -59,11 +59,11 @@ integer_places <- function(x) {
 
 
 
-# A helper for tidy evaluation used within `is_subset_of_vecs()`,
-# `is_superset_of_vecs()`, and `is_equal_set_vecs()`:
+# A helper for tidy evaluation used within `is_subset_of_vecs()` and friends
+# (i.e., other functions documented on that page):
 straighten_out <- function(...) {
   y <- rlang::enexprs(...)
-  return(purrr::flatten(purrr::map(y, rlang::eval_bare)))
+  purrr::flatten(purrr::map(y, rlang::eval_bare))
 }
 
 
