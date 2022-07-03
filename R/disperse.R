@@ -64,10 +64,6 @@
 #' # the steps up and down from `n`:
 #' disperse(n = 20, dispersion = c(3, 6, 10))
 #'
-#' # Specify `x1` and `x2` to add
-#' # corresponding values, such as means:
-#' disperse(n = 20, x1 = "4.71", x2 = "5.3")
-#'
 #' # In `disperse2()`, specify `n` as two
 #' # consecutive numbers -- i.e., group sizes:
 #' disperse2(n = c(25, 26))
