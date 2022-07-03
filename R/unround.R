@@ -23,7 +23,7 @@ rounding_bounds_scalar <- function(rounding, x_num, d_var, d) {
         "trunc_x_greater"      = list(x_num,           x_num + (2 * d), "<=",  "<"),
         "trunc_x_less"         = list(x_num - (2 * d), x_num,           "<",  "<="),
         "trunc_x_is_0"         = list(x_num - (2 * d), x_num + (2 * d), "<",   "<"),
-        "anti_trunc_x_greater" = list(x_num - (2 * d), x_num,           "<",  "<="),
+        "anti_trunc_x_greater" = list(x_num - (2 * d), x_num,           "<=",  "<"),
         "anti_trunc_x_less"    = list(x_num,           x_num + (2 * d), "<=",  "<"),
         "anti_trunc_x_is_0"    = list(NA,        NA,        NA,   NA)
     )
@@ -38,7 +38,7 @@ rounding_bounds_scalar <- function(rounding, x_num, d_var, d) {
         "even"       = list(x_num - d,       x_num + d,       "<",   "<"),
         "ceiling"    = list(x_num - (2 * d), x_num,           "<",  "<="),
         "floor"      = list(x_num,           x_num + (2 * d), "<=",  "<"),
-                  list("error_trigger")
+                       list("error_trigger")
   )
 }
 
@@ -133,7 +133,7 @@ rounding_bounds <- Vectorize(rounding_bounds_scalar)
 #'   For more about the less likely `rounding` methods, `"ceiling"`, `"floor"`,
 #'   `"trunc"`, and `"anti_trunc"`, see documentation for `round_ceiling()`.
 #'
-#' @include utils.R subset-superset.R
+#' @include utils.R
 #'
 #' @export
 #'
@@ -227,12 +227,6 @@ unround <- function(x, rounding = "up_or_down", threshold = 5, digits = NULL) {
   # Translate the inequation signs into Boolean values for the resulting tibble:
   incl_lower <- dplyr::if_else(sign_lower == "<=", TRUE, FALSE)
   incl_upper <- dplyr::if_else(sign_upper == "<=", TRUE, FALSE)
-
-  # If `rounding` is either of `"ceiling"`, `"floor"`, `"trunc"`, and
-  # `"anti_trunc"`, one bound is always equal to the rounded value. In that
-  # case, change the respective inequation sign to an equation sign:
-  sign_lower <- dplyr::if_else(x_num == lower, "==", sign_lower)
-  sign_upper <- dplyr::if_else(x_num == upper, "==", sign_upper)
 
   # Prepare a string that displays the range with its appropriate signs:
   range <- as.character(glue::glue(
