@@ -88,20 +88,6 @@ disperse <- function(n, reported = NULL, reported_index = NA,
   check_length_disperse_n(n, msg_single)
   check_non_negative(dispersion)
 
-  # if (length(n) != 1) {
-  #   msg_single <- "It needs to have length 1."
-  #   if (length(n) == 2) {
-  #     msg_single <- paste(
-  #       msg_single, "Did you mean to call `disperse2(n = c({n[1]}, {n[2]}))`?"
-  #     )
-  #   }
-  #   cli::cli_abort(c(
-  #     "`n` has length {length(n)}.",
-  #     "x" = msg_single,
-  #     ">" = "See documentation under `?disperse`."
-  #   ))
-  # }
-
 
   # Main part ---
 
@@ -127,14 +113,6 @@ disperse <- function(n, reported = NULL, reported_index = NA,
     }
     dispersion <- dispersion[(n + dispersion) <= n_max]
   }
-
-  # # Support for decimal sequences, as in `seq_distance()` and friends:
-  # n_is_whole <- is_whole_number(n)
-  # if (!n_is_whole) {
-  #   digits <- decimal_places_scalar(n)
-  #   p10 <- 1 / (10 ^ digits)
-  #   dispersion <- dispersion * p10
-  # }
 
   dispersion_index <- rep(dispersion, each = 2)
 
