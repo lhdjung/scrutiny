@@ -3,7 +3,9 @@
 
 utils::globalVariables(c(
   ".", "where", "desc", "all_of", "contains", "everything", "x", "items",
-  "frac"
+  "frac", "distance", "both_consistent", "fun", "var", "dispersion", "out_min",
+  "out_max", "include_reported", "n", "times", "value", "name", "setNames",
+  "rounding", "case", "n_sum", "V1", "consistency", "ratio", "scr_index_case"
 ))
 
 
