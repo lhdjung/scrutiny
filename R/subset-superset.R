@@ -117,12 +117,27 @@ is_superset_of <- function(x, y) {
 }
 
 
-
 #' @rdname is_subset_of
 #' @export
 
 is_equal_set <- function(x, y) {
   is_subset_of(x, y) && is_superset_of(x, y)
+}
+
+
+#' @rdname is_subset_of
+#' @export
+
+is_proper_subset_of <- function(x, y) {
+  is_subset_of(x, y) && !is_equal_set(x, y)
+}
+
+
+#' @rdname is_subset_of
+#' @export
+
+is_proper_superset_of <- function(x, y) {
+  is_superset_of(x, y) && !is_equal_set(x, y)
 }
 
 
@@ -161,6 +176,26 @@ is_equal_set_vals <- function(x, ...) {
 }
 
 
+#' @rdname is_subset_of
+#' @export
+
+is_proper_subset_of_vals <- function(x, ...) {
+  y <- rlang::enexprs(...)
+
+  is_proper_subset_of(x, y)
+}
+
+
+#' @rdname is_subset_of
+#' @export
+
+is_proper_superset_of_vals <- function(x, ...) {
+  y <- rlang::enexprs(...)
+
+  is_proper_superset_of(x, y)
+}
+
+
 
 
 # With multiple arguments that might contain values -----------------------
@@ -196,6 +231,18 @@ is_equal_set_vecs <- function(x, ...) {
   y <- straighten_out(...)
 
   is_equal_set(x, y)
+}
+
+is_proper_subset_of_vecs <- function(x, ...) {
+  y <- straighten_out(...)
+
+  is_proper_subset_of(x, y)
+}
+
+is_proper_superset_of_vecs <- function(x, ...) {
+  y <- straighten_out(...)
+
+  is_proper_superset_of(x, y)
 }
 
 
