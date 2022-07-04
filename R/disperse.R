@@ -32,6 +32,12 @@
 #' @param n_min Numeric. Minimal group size. Default is `1`.
 #' @param n_max Numeric. Maximal group size. Default is `NULL`, i.e., no
 #'   maximum.
+#' @param reported Optionally, add a length-2 vector or a list of length-2
+#'   vectors to accompany the pairs of dispersed values. Default is `NULL`,
+#'   i.e., no reported values.
+#' @param reported_index Integer (length 1). Index of `reported` in the output
+#'   tibble. If `NULL` (the default), `reported` will go to the right of
+#'   `n_change`.
 #'
 #' @details If any group size is less than `n_min` or greater than `n_max`, it
 #'   is removed. The complementary size of the other group is also removed.
@@ -75,12 +81,22 @@
 #'
 #' # ...whereas an odd total triggers `disperse2()`:
 #' disperse_total(n = 51)
+#'
+#' # Add "reported" values that repeat along with the
+#' # dispersed ones but remain constant themselves.
+#' # Such values can be a length-2 vector for a single
+#' # column...
+#' disperse_total(37, reported = c("5.24", "3.80"))
+#'
+#' # ... or a list of length-2 vectors for multiple columns:
+#' reported_list <- list(c("5.24", "3.80"), 7:8, c(TRUE, FALSE))
+#' disperse_total(37, reported = reported_list)
 
 
 # Basic function for halves of even totals --------------------------------
 
-disperse <- function(n, reported = NULL, reported_index = NA,
-                     dispersion = 0:5, n_min = 1, n_max = NULL) {
+disperse <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
+                     reported = NULL, reported_index = NULL) {
 
   # Checks ---
 
@@ -142,6 +158,32 @@ disperse <- function(n, reported = NULL, reported_index = NA,
     reverse_column_order() %>%
     add_class("scr_disperse")
 
+  if (!is.null(reported)) {
+    manage_reported <- function(reported, out, list_input = FALSE) {
+      if (list_input) {
+        reported_list_element <- reported
+        check_length_or_null(reported_list_element, 2)
+      } else {
+        check_length_or_null(reported, 2)
+      }
+      rep(reported, times = nrow(out) / 2)
+    }
+
+    if (is.list(reported)) {
+      reported <- purrr::map(reported, manage_reported, out, list_input = TRUE)
+      reported <- tibble::as_tibble(
+        reported, .name_repair = ~ paste0("reported", 1:length(reported))
+      )
+    } else {
+      reported <- manage_reported(reported, out)
+    }
+
+    if (is.null(reported_index)) {
+      reported_index <- match("n_change", colnames(out)) + 1
+    }
+    out <- dplyr::mutate(out, reported, .before = reported_index)
+  }
+
   return(out)
 }
 
@@ -152,8 +194,8 @@ disperse <- function(n, reported = NULL, reported_index = NA,
 #' @rdname disperse
 #' @export
 
-disperse2 <- function(n, reported = NULL, reported_index = NA,
-                      dispersion = 0:5, n_min = 1, n_max = NULL) {
+disperse2 <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
+                      reported = NULL, reported_index = NULL) {
 
   # Checks ---
 
@@ -205,8 +247,8 @@ disperse2 <- function(n, reported = NULL, reported_index = NA,
 #' @rdname disperse
 #' @export
 
-disperse_total <- function(n, reported = NULL, reported_index = NA,
-                           dispersion = 0:5, n_min = 1, n_max = NULL) {
+disperse_total <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
+                           reported = NULL, reported_index = NULL) {
 
   # Checks ---
 
@@ -224,8 +266,8 @@ disperse_total <- function(n, reported = NULL, reported_index = NA,
   if (is_even(n)) {
 
     return(disperse(
-      n = n_half, reported = reported, reported_index = reported_index,
-      dispersion = dispersion, n_min = n_min, n_max = n_max
+      n = n_half, dispersion = dispersion, n_min = n_min, n_max = n_max,
+      reported = reported, reported_index = reported_index
     ))
 
   } else {
@@ -236,8 +278,8 @@ disperse_total <- function(n, reported = NULL, reported_index = NA,
     n_both <- c(n1, n2)
 
     return(disperse2(
-      n = n_both, reported = reported, reported_index = reported_index,
-      dispersion = dispersion, n_min = n_min, n_max = n_max
+      n = n_both, dispersion = dispersion, n_min = n_min, n_max = n_max,
+      reported = reported, reported_index = reported_index
     ))
   }
 }
