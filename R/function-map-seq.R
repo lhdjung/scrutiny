@@ -349,10 +349,6 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
         paste0("scr_rounding_", dots$rounding)
     }
 
-    if (!is.null(name_class)) {
-      out <- add_class(out, classes_seq)
-    }
-
     return(out)
   }
 
