@@ -32,15 +32,22 @@
 #' @param n_min Numeric. Minimal group size. Default is `1`.
 #' @param n_max Numeric. Maximal group size. Default is `NULL`, i.e., no
 #'   maximum.
-#' @param reported Optionally, add a length-2 vector or a list of length-2
-#'   vectors to accompany the pairs of dispersed values. Default is `NULL`,
-#'   i.e., no reported values.
-#' @param reported_index Integer (length 1). Index of `reported` in the output
-#'   tibble. If `NULL` (the default), `reported` will go to the right of
-#'   `n_change`.
+#' @param constant Optionally, add a length-2 vector or a list of length-2
+#'   vectors (such as a data frame with exactly two rows) to accompany the pairs
+#'   of dispersed values. Default is `NULL`, i.e., no constant values.
+#' @param constant_index Integer (length 1). Index of `constant` or the first
+#'   `constant` column in the output tibble. If `NULL` (the default), `constant`
+#'   will go to the right of `n_change`.
 #'
 #' @details If any group size is less than `n_min` or greater than `n_max`, it
 #'   is removed. The complementary size of the other group is also removed.
+#'
+#'   `constant` values are pairwise repeated. That is why `constant` needs to be
+#'   a length-2 atomic vector or a list of such vectors. If `constant` is a data
+#'   frame or some other named list, the resulting columns will have the same
+#'   names as the list-element names. If the list is not named, the new column
+#'   names will be `"constant1"`, `"constant2"`, etc; or just `"constant"`, for
+#'   a single pair.
 
 #' @return A tibble (data frame) with these columns:
 #' - `n` includes the dispersed `n` values. Every pair of consecutive rows has
@@ -82,21 +89,25 @@
 #' # ...whereas an odd total triggers `disperse2()`:
 #' disperse_total(n = 51)
 #'
-#' # Add "reported" values that repeat along with the
+#' # You may add values that repeat along with the
 #' # dispersed ones but remain constant themselves.
-#' # Such values can be a length-2 vector for a single
-#' # column...
-#' disperse_total(37, reported = c("5.24", "3.80"))
+#' # Such values can be stored in a length-2 vector
+#' # for a single column...
+#' disperse_total(37, constant = c("5.24", "3.80"))
 #'
-#' # ... or a list of length-2 vectors for multiple columns:
-#' reported_list <- list(c("5.24", "3.80"), 7:8, c(TRUE, FALSE))
-#' disperse_total(37, reported = reported_list)
+#' # ... or a list of length-2 vectors for multiple
+#' # columns. This includes data frames with 2 rows:
+#' df_constant <- tibble::tibble(
+#'   name = c("Paul", "Mathilda"), age = 27:28,
+#'   registered = c(TRUE, FALSE)
+#' )
+#' disperse_total(37, constant = df_constant)
 
 
 # Basic function for halves of even totals --------------------------------
 
 disperse <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
-                     reported = NULL, reported_index = NULL) {
+                     constant = NULL, constant_index = NULL) {
 
   # Checks ---
 
@@ -158,38 +169,39 @@ disperse <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
     reverse_column_order() %>%
     add_class("scr_disperse")
 
-  if (!is.null(reported)) {
-    manage_reported <- function(reported, out, list_input = FALSE) {
+  if (!is.null(constant)) {
+    manage_constant <- function(constant, out, list_input = FALSE) {
       if (list_input) {
-        reported_list_element <- reported
-        check_length_or_null(reported_list_element, 2)
+        constant_list_element <- constant
+        check_length_or_null(constant_list_element, 2)
       } else {
-        check_length_or_null(reported, 2)
+        check_length_or_null(constant, 2)
       }
-      rep(reported, times = nrow(out) / 2)
+      rep(constant, times = nrow(out) / 2)
     }
 
-    if (is.list(reported)) {
-      reported <- purrr::map(reported, manage_reported, out, list_input = TRUE)
-      reported_is_named_list <- !is.null(names(reported)) &&
-        length(names(reported)) == length(reported)
-      if (reported_is_named_list) {
-        reported <- tibble::as_tibble(
-          reported, .name_repair = ~ names(reported)
+    if (is.list(constant)) {
+      constant <- purrr::map(constant, manage_constant, out, list_input = TRUE)
+      constant_is_named_list <- !is.null(names(constant)) &&
+        length(names(constant)) == length(constant)
+      if (constant_is_named_list) {
+        constant <- tibble::as_tibble(
+          constant, .name_repair = ~ names(constant)
         )
       } else {
-        reported <- tibble::as_tibble(
-          reported, .name_repair = ~ paste0("reported", 1:length(reported))
+        constant <- tibble::as_tibble(
+          constant, .name_repair = ~ paste0("constant", 1:length(constant))
         )
       }
     } else {
-      reported <- manage_reported(reported, out)
+      constant <- manage_constant(constant, out)
     }
 
-    if (is.null(reported_index)) {
-      reported_index <- match("n_change", colnames(out)) + 1
+    if (is.null(constant_index)) {
+      constant_index <- match("n_change", colnames(out)) + 1
     }
-    out <- dplyr::mutate(out, reported, .before = reported_index)
+
+    out <- dplyr::mutate(out, constant, .before = constant_index)
   }
 
   return(out)
@@ -203,7 +215,7 @@ disperse <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
 #' @export
 
 disperse2 <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
-                      reported = NULL, reported_index = NULL) {
+                      constant = NULL, constant_index = NULL) {
 
   # Checks ---
 
@@ -222,7 +234,7 @@ disperse2 <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
 
   # Take the mean of the two `n` values and disperse from there:
   out <- disperse(
-    n = mean(n), reported = reported, reported_index = reported_index,
+    n = mean(n), constant = constant, constant_index = constant_index,
     dispersion = dispersion,
     n_min = n_min, n_max = n_max
   )
@@ -256,7 +268,7 @@ disperse2 <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
 #' @export
 
 disperse_total <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
-                           reported = NULL, reported_index = NULL) {
+                           constant = NULL, constant_index = NULL) {
 
   # Checks ---
 
@@ -275,7 +287,7 @@ disperse_total <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
 
     out <- disperse(
       n = n_half, dispersion = dispersion, n_min = n_min, n_max = n_max,
-      reported = reported, reported_index = reported_index
+      constant = constant, constant_index = constant_index
     )
 
     return(out)
@@ -289,7 +301,7 @@ disperse_total <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
 
     out <- disperse2(
       n = n_both, dispersion = dispersion, n_min = n_min, n_max = n_max,
-      reported = reported, reported_index = reported_index
+      constant = constant, constant_index = constant_index
     )
 
     return(out)
