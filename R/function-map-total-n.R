@@ -45,12 +45,14 @@ mutate_both_consistent <- function(data) {
 # Used within `function_map_total_n()`:
 function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
                                        .dispersion = 0:5,
-                                       .n_min = 1, .n_max = NULL, ...) {
+                                       .n_min = 1, .n_max = NULL,
+                                       .constant = NULL, ...) {
 
   function(data, fun = .fun, reported = .reported,
            reported_orig = .reported_orig, dir = .dir,
            dispersion = .dispersion,
-           n_min = .n_min, n_max = .n_max, ...) {
+           n_min = .n_min, n_max = .n_max,
+           constant = .constant, ...) {
 
     reported_names  <- colnames(reported)
     reported_n_cols <- ncol(reported)
@@ -59,7 +61,8 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
     df_list <- data %>%
       dplyr::select(n) %>%
       purrr::pmap(
-        disperse_total, dispersion = dispersion, n_min = n_min, n_max = n_max
+        disperse_total, dispersion = dispersion, n_min = n_min, n_max = n_max,
+        constant = constant
       )
 
     # Row numbers of `disperse()` tibbles will be used below to determine how
@@ -167,8 +170,8 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 #' @param .name_class String. If specified, the tibbles returned by the
 #'   manufactured function will inherit this string as an S3 class. Default is
 #'   `NULL`, i.e., no extra class.
-#' @param .dispersion,.n_min,.n_max Arguments passed down to `disperse_total()`,
-#'   using defaults from there.
+#' @param .dispersion,.n_min,.n_max,.constant,.constant_index Arguments passed
+#'   down to `disperse_total()`, using defaults from there.
 #'
 #' @details This function is a so-called function factory: It produces other
 #'   functions, such as `grim_map_total_n()`. More specifically, it is a
@@ -299,7 +302,9 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 function_map_total_n <- function(.fun, .reported, .name_test,
                                  .name_class = NULL,
                                  .dispersion = 0:5,
-                                 .n_min = 1, .n_max = NULL) {
+                                 .n_min = 1, .n_max = NULL,
+                                 .constant = NULL,
+                                 .constant_index = NULL) {
 
   # Throw error if `n` itself was named as a reported statistic:
   if ("n" %in% .reported) {
@@ -316,12 +321,16 @@ function_map_total_n <- function(.fun, .reported, .name_test,
   # --- Start of the manufactured function ---
 
   function(data, dispersion = .dispersion, n_min = .n_min, n_max = .n_max,
-           ...) {
+           constant = .constant, constant_index = .constant_index, ...) {
 
     fun <- .fun
     reported <- .reported
     name_test <- .name_test
     name_class <- .name_class
+
+    # constant_index_orig <- constant_index
+    # constant_index <- rlang::enexprs(constant_index)
+
 
     # Checks ---
 
@@ -441,7 +450,9 @@ function_map_total_n <- function(.fun, .reported, .name_test,
     map_total_n_proto <- function_map_total_n_proto(
       .fun = fun, .reported = cols_expected_forth,
       .reported_orig = reported_orig, .dispersion = dispersion,
-      .n_min = n_min, .n_max = n_max, ...
+      .n_min = n_min, .n_max = n_max,
+      .constant = constant,
+      ...
     )
 
     # Now, call the manufactured function on both tibbles. First the original...
@@ -450,6 +461,7 @@ function_map_total_n <- function(.fun, .reported, .name_test,
       reported_orig = reported_orig, dir = "forth",
       dispersion = dispersion,
       n_min = n_min, n_max = n_max,
+      constant = constant,
       ...
     )
 
@@ -459,6 +471,7 @@ function_map_total_n <- function(.fun, .reported, .name_test,
       reported_orig = reported_orig, dir = "back",
       dispersion = dispersion,
       n_min = n_min, n_max = n_max,
+      constant = constant,
       ...
     )
 
@@ -486,11 +499,53 @@ function_map_total_n <- function(.fun, .reported, .name_test,
     out_total <- dplyr::bind_rows(out_forth, out_back)
     out_total <- add_class(out_total, "scr_map_total_n")
 
+    # This is a hack, but it works. Its solves the following problem:
+    # `constant_index` is meant to work within the `disperse_total()` tibble,
+    # but the final output tibble, `out_total`, looks very different from that
+    # tibble. If `constant_index` were to operate on the dispersion tibble, as
+    # in the `disperse()` functions themselves, there would be a mismatch
+    # between the functionality of `constant_index` and the user-facing tibble.
+    # Therefore, `constant_index` needs to play itself out here, not within
+    # `disperse_total()`:
+    if (!is.null(constant) && !is.null(constant_index)) {
+
+      check_length(constant_index, 1)
+
+      if (is.null(names(constant))) {
+        constant_ref <- "constant"
+      } else {
+        constant_ref <- names(constant)
+      }
+
+      # constant_index_is_not_numeric <-
+      #   suppressWarnings(is.na(as.numeric(rlang::expr_text(constant_index))))
+
+      # if (constant_index_is_not_numeric) {
+      #   # constant_index <- rlang::expr(!!constant_index)
+      #   constant_index <- as.character(constant_index)
+      #   constant_index <- match(constant_index, colnames(out_total))
+      #
+      # } else {
+      #   return(constant_index)
+      #   constant_index <- as.numeric(rlang::expr(!!constant_index))
+      # }
+
+      # constant_index <- rlang::exprs(!!constant_index)
+      # constant_index <- unlist(constant_index)[[1]]
+
+      # if (!is.numeric(constant_index)) {
+      #   constant_index <- deparse(substitute(constant_index))
+      # }
+
+      out_total <- dplyr::relocate(
+        out_total, all_of(constant_ref), .before = constant_index
+      )
+    }
+
     # If `.name_class` (note the dot) was specified in the course of creating
     # the manufactured function, its value will become a class of the output:
     if (!is.null(name_class)) {
-      out_total <- out_total %>%
-        add_class(name_class)
+      out_total <- add_class(out_total, name_class)
     }
 
     # Return the combined results:
