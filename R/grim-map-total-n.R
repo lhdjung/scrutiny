@@ -31,6 +31,7 @@
 #' @param n_min Numeric. Minimal group size. Default is 1.
 #' @param n_max Numeric. Maximal group size. Default is `NULL`, i.e., no
 #'   maximum.
+#' @inheritParams disperse_total
 #' @param ... Arguments passed down to `grim_map()`.
 
 # # Used to have this instead of `@param ...`:
