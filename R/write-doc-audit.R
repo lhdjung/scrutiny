@@ -395,6 +395,8 @@ write_doc_audit_total_n <- function(key_args, name_test) {
 #'
 #' @param ending String (length 1). The part of your function factory's name
 #'   after `function_map_`.
+#' @param name_test1,name_test2 Strings (length 1). Plain-text names of example
+#'   consistency tests. Defaults are `"GRIM"` and `"DEBIT"`, respectively.
 #'
 #' @export
 #'
@@ -413,6 +415,8 @@ write_doc_factory_map_conventions <- function(ending, name_test1 = "GRIM",
 
   # Checks ---
   check_length(ending, 1)
+  check_length(name_test1, 1)
+  check_length(name_test2, 1)
 
   # Main part ---
 
