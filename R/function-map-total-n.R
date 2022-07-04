@@ -328,9 +328,6 @@ function_map_total_n <- function(.fun, .reported, .name_test,
     name_test <- .name_test
     name_class <- .name_class
 
-    # constant_index_orig <- constant_index
-    # constant_index <- rlang::enexprs(constant_index)
-
 
     # Checks ---
 
@@ -516,26 +513,6 @@ function_map_total_n <- function(.fun, .reported, .name_test,
       } else {
         constant_ref <- names(constant)
       }
-
-      # constant_index_is_not_numeric <-
-      #   suppressWarnings(is.na(as.numeric(rlang::expr_text(constant_index))))
-
-      # if (constant_index_is_not_numeric) {
-      #   # constant_index <- rlang::expr(!!constant_index)
-      #   constant_index <- as.character(constant_index)
-      #   constant_index <- match(constant_index, colnames(out_total))
-      #
-      # } else {
-      #   return(constant_index)
-      #   constant_index <- as.numeric(rlang::expr(!!constant_index))
-      # }
-
-      # constant_index <- rlang::exprs(!!constant_index)
-      # constant_index <- unlist(constant_index)[[1]]
-
-      # if (!is.numeric(constant_index)) {
-      #   constant_index <- deparse(substitute(constant_index))
-      # }
 
       out_total <- dplyr::relocate(
         out_total, all_of(constant_ref), .before = constant_index
