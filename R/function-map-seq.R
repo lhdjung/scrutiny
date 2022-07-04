@@ -242,14 +242,6 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 
 
 
-
-# TO DO: (1) WRITE `*_map_seq()` FUNCTIONS FOR GRIM AND DEBIT, FOLLOWING THE
-# CONVENTIONS ABOVE; (2) WRITE `summarize_map_seq()`, CLOSELY FOLLOWING
-# `summarize_map_total_n()`; (3) WRITE `audit()` METHODS THAT ONLY CALL
-# `summarize_map_seq()`; (4) MAYBE WRITE EXAMPLES
-
-
-
 # # Defaults (or taking GRIM as an example, respectively):
 # .var = Inf; .reported = c("x", "n"); .name_test = "GRIM"; .name_class = NULL;
 # .dispersion = 1:5; .out_min = "auto"; .out_max = NULL; .include_reported =
@@ -319,12 +311,6 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
     var <- var %>%
       purrr::map2(nrow_out, rep) %>%
       purrr::flatten_chr()
-
-    # # Create a custom class to hand down information about the reported
-    # # variables to `audit_seq()`, which will be used to
-    # class_reported <- reported %>%
-    #   paste(collapse = "_SCR_STOP_") %>%
-    #   paste0("scr_reported_", .)
 
     # Create classes that will identify `out` as output of the specific
     # manufactured function:
