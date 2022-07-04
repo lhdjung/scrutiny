@@ -32,8 +32,9 @@ Uncommon rounding procedures:
 \itemize{
 \item \code{round_ceiling()} always rounds up.
 \item \code{round_floor()} always rounds down.
-\item \code{round_trunc()} always rounds toward 0.
-\item \code{round_anti_trunc()} always rounds away from 0.
+\item \code{round_trunc()} always rounds toward zero.
+\item \code{round_anti_trunc()} always rounds away from zero. (\code{0} itself is
+rounded to \code{1}.)
 }
 
 Despite not being widely used, they are featured here in case they are needed

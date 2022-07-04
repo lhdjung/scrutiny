@@ -7,10 +7,6 @@
 grim_map_seq(
   data,
   var = .var,
-  reported = .reported,
-  fun = .fun,
-  name_test = .name_test,
-  name_class = .name_class,
   dispersion = .dispersion,
   out_min = .out_min,
   out_max = .out_max,
@@ -24,9 +20,6 @@ grim_map_seq(
 
 \item{var}{String. Names of the columns that will be dispersed. Default is
 \code{c("x", "n")}.}
-
-\item{reported, fun, name_test, name_class}{Arguments passed down to
-\code{function_map_seq()} but not documented here.}
 
 \item{dispersion}{Numeric. Sequence with steps up and down from the \code{var}
 inputs. It will be adjusted to these values' decimal levels. For example,
@@ -47,7 +40,7 @@ consistent cases (from among those reported), not just inconsistent ones?
 Default is \code{FALSE} because the focus should be on clarifying
 inconsistencies.}
 
-\item{items, percent, show_rec, show_prob, rounding, threshold, symmetric, tolerance, extra}{Arguments passed down to \code{grim_map()} via \code{...} (the dots).}
+\item{...}{Arguments passed down to \code{grim_map()} or \code{function_map_seq()}.}
 }
 \description{
 \code{grim_map_seq()} performs GRIM-testing with values surrounding
@@ -65,7 +58,7 @@ Call \code{audit_seq()} on the results for summary statistics.
 \item \code{hits_total} is the total number of GRIM-consistent value sets
 found within the specified \code{dispersion} range.
 \item \code{hits_x} is the number of GRIM-consistent value sets
-\item found by varying \code{x}.
+found by varying \code{x}.
 \item Accordingly with \code{n} and \code{hits_n}.
 \item \code{diff_x} reports the absolute difference between \code{x} and the next
 consistent dispersed value (in dispersion steps, not the actual numeric

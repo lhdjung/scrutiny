@@ -4,12 +4,18 @@
 \alias{is_subset_of}
 \alias{is_superset_of}
 \alias{is_equal_set}
+\alias{is_proper_subset_of}
+\alias{is_proper_superset_of}
 \alias{is_subset_of_vals}
 \alias{is_superset_of_vals}
 \alias{is_equal_set_vals}
+\alias{is_proper_subset_of_vals}
+\alias{is_proper_superset_of_vals}
 \alias{is_subset_of_vecs}
 \alias{is_superset_of_vecs}
 \alias{is_equal_set_vecs}
+\alias{is_proper_subset_of_vecs}
+\alias{is_proper_superset_of_vecs}
 \title{Test for subsets, supersets, and equal sets}
 \usage{
 is_subset_of(x, y)
@@ -18,17 +24,29 @@ is_superset_of(x, y)
 
 is_equal_set(x, y)
 
+is_proper_subset_of(x, y)
+
+is_proper_superset_of(x, y)
+
 is_subset_of_vals(x, ...)
 
 is_superset_of_vals(x, ...)
 
 is_equal_set_vals(x, ...)
 
+is_proper_subset_of_vals(x, ...)
+
+is_proper_superset_of_vals(x, ...)
+
 is_subset_of_vecs(x, ...)
 
 is_superset_of_vecs(x, ...)
 
 is_equal_set_vecs(x, ...)
+
+is_proper_subset_of_vecs(x, ...)
+
+is_proper_superset_of_vecs(x, ...)
 }
 \arguments{
 \item{x}{A vector.}
@@ -69,6 +87,11 @@ Finally, \code{is_subset_of_vecs()}, \code{is_superset_of_vecs()}, and
 \code{is_equal_set_vecs()} take one vector plus any number of other vectors and
 treat their elements (!) like elements of a second vector in the basic
 functions above.
+
+Each \verb{is_subset*()} function has an \verb{is_proper_subset*()} variant. These
+variants also test whether the sets are unequal, so that \code{x} is a subset of
+\code{y} but \code{y} is not a subset of \code{x}. The same applies to \verb{is_superset*()}
+functions and their \verb{is_proper_superset*()} variants.
 }
 \details{
 The \verb{_vals} variants are meant for flexible, interactive

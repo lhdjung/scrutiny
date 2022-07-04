@@ -9,8 +9,6 @@ debit_map(
   x = NULL,
   sd = NULL,
   n = NULL,
-  unround_x = TRUE,
-  unround_sd = TRUE,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,

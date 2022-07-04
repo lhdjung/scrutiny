@@ -13,6 +13,9 @@ write_doc_factory_map_conventions(
 \arguments{
 \item{ending}{String (length 1). The part of your function factory's name
 after \code{function_map_}.}
+
+\item{name_test1, name_test2}{Strings (length 1). Plain-text names of example
+consistency tests. Defaults are \code{"GRIM"} and \code{"DEBIT"}, respectively.}
 }
 \description{
 \code{write_doc_factory_map_conventions()} creates a roxygen2 block

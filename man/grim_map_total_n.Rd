@@ -6,14 +6,9 @@
 \usage{
 grim_map_total_n(
   data,
-  fun = .fun,
-  reported = .reported,
-  name_test = .name_test,
-  name_class = .name_class,
   dispersion = .dispersion,
   n_min = .n_min,
   n_max = .n_max,
-  show_all = .show_all,
   ...
 )
 }
@@ -33,7 +28,7 @@ Default is \code{0:5}, i.e., half \code{n} itself followed by five steps up and 
 \item{n_max}{Numeric. Maximal group size. Default is \code{NULL}, i.e., no
 maximum.}
 
-\item{items, percent, show_rec, show_prob, rounding, threshold, symmetric, tolerance, extra}{Arguments passed down to \code{grim_map()} via \code{...} (the dots).}
+\item{...}{Arguments passed down to \code{grim_map()}.}
 }
 \value{
 A tibble with these columns:

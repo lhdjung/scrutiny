@@ -11,8 +11,7 @@ function_map_total_n(
   .name_class = NULL,
   .dispersion = 0:5,
   .n_min = 1,
-  .n_max = NULL,
-  .show_all = FALSE
+  .n_max = NULL
 )
 }
 \arguments{
@@ -36,8 +35,8 @@ manufactured function.}
 manufactured function will inherit this string as an S3 class. Default is
 \code{NULL}, i.e., no extra class.}
 
-\item{.dispersion, .n_min, .n_max, .show_all}{Arguments passed down to
-\code{disperse_total()}, using defaults from there.}
+\item{.dispersion, .n_min, .n_max}{Arguments passed down to \code{disperse_total()},
+using defaults from there.}
 }
 \value{
 A function such as these:\tabular{lll}{

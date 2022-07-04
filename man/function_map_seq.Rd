@@ -42,6 +42,11 @@ values. It will be adjusted to these values' decimal level. For example,
 with a reported \code{8.34}, the step size is \code{0.01}. Default is \code{1:5}, for five
 steps up and down.}
 
+\item{.out_min, .out_max}{If specified when calling a factory-made function,
+output will be restricted so that it's not below \code{.out_min} or above
+\code{.out_max}. Defaults are \code{"auto"} for \code{.out_min}, i.e., a minimum of one
+decimal unit above zero; and \code{NULL} for \code{.out_max}, i.e., no maximum.}
+
 \item{.include_reported}{Boolean. Should the reported values themselves be
 included in the sequences originating from them? Default is \code{FALSE} because
 this might be redundant and bias the results.}
@@ -54,9 +59,9 @@ inconsistencies.}
 \value{
 A function such as those below. ("Testable statistics" are variables
 that can be selected via \code{var}, and are then varied. All variables except
-for those in brackets are selected by default.)\tabular{lll}{
+for those in parentheses are selected by default.)\tabular{lll}{
    \strong{Manufactured function} \tab \strong{Testable statistics} \tab \strong{Test vignette} \cr
-   \code{grim_map_seq()} \tab \code{"x"}, \code{"n"}, [\code{\link{"items"}}] \tab \code{vignette("grim")} \cr
+   \code{grim_map_seq()} \tab \code{"x"}, \code{"n"}, (\code{"items"}) \tab \code{vignette("grim")} \cr
    \code{debit_map_seq()} \tab \code{"x"}, \code{"sd"}, \code{"n"} \tab \code{vignette("debit")} \cr
 }
 

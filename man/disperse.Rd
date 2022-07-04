@@ -8,29 +8,29 @@
 \usage{
 disperse(
   n,
-  reported = NULL,
-  reported_index = NA,
   dispersion = 0:5,
   n_min = 1,
-  n_max = NULL
+  n_max = NULL,
+  reported = NULL,
+  reported_index = NULL
 )
 
 disperse2(
   n,
-  reported = NULL,
-  reported_index = NA,
   dispersion = 0:5,
   n_min = 1,
-  n_max = NULL
+  n_max = NULL,
+  reported = NULL,
+  reported_index = NULL
 )
 
 disperse_total(
   n,
-  reported = NULL,
-  reported_index = NA,
   dispersion = 0:5,
   n_min = 1,
-  n_max = NULL
+  n_max = NULL,
+  reported = NULL,
+  reported_index = NULL
 )
 }
 \arguments{
@@ -50,6 +50,14 @@ total sample size (e.g., \code{c(25, 26)} for a total of 51).
 
 \item{n_max}{Numeric. Maximal group size. Default is \code{NULL}, i.e., no
 maximum.}
+
+\item{reported}{Optionally, add a length-2 vector or a list of length-2
+vectors to accompany the pairs of dispersed values. Default is \code{NULL},
+i.e., no reported values.}
+
+\item{reported_index}{Integer (length 1). Index of \code{reported} in the output
+tibble. If \code{NULL} (the default), \code{reported} will go to the right of
+\code{n_change}.}
 }
 \value{
 A tibble (data frame) with these columns:
@@ -93,10 +101,6 @@ disperse(n = 20)
 # the steps up and down from `n`:
 disperse(n = 20, dispersion = c(3, 6, 10))
 
-# Specify `x1` and `x2` to add
-# corresponding values, such as means:
-disperse(n = 20, x1 = "4.71", x2 = "5.3")
-
 # In `disperse2()`, specify `n` as two
 # consecutive numbers -- i.e., group sizes:
 disperse2(n = c(25, 26))
@@ -108,6 +112,16 @@ disperse_total(n = 40)
 
 # ...whereas an odd total triggers `disperse2()`:
 disperse_total(n = 51)
+
+# Add "reported" values that repeat along with the
+# dispersed ones but remain constant themselves.
+# Such values can be a length-2 vector for a single
+# column...
+disperse_total(37, reported = c("5.24", "3.80"))
+
+# ... or a list of length-2 vectors for multiple columns:
+reported_list <- list(c("5.24", "3.80"), 7:8, c(TRUE, FALSE))
+disperse_total(37, reported = reported_list)
 }
 \references{
 Bauer, P. J., & Francis, G. (2021). Expression of Concern: Is It

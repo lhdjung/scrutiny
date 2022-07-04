@@ -59,6 +59,9 @@ dispersed values, as opposed to the input.}
 \item{track_var_change, .track_var_change}{Boolean. In \code{seq_disperse()},
 ignore this argument. In \code{seq_disperse_df()}, default is \code{TRUE}, which
 creates the \code{"var_change"} output column.}
+
+\item{...}{Further columns, added as in \code{tibble::tibble()}. Only in
+\code{seq_disperse_df()}.}
 }
 \description{
 \code{seq_disperse()} creates a sequence around a given number. It
