@@ -133,7 +133,7 @@ duplicate_detect <- function(x, numeric_only = TRUE, colname_end = "dup") {
   # value to the right, as above:
   df <- df %>%
     split(row_id) %>%
-    purrr::flatten_dfc() %>%
+    dplyr::bind_cols(.name_repair = "minimal") %>%
     suppressMessages() %>%
     stats::na.omit()
 
