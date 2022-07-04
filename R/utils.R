@@ -279,6 +279,17 @@ check_length <- function(x, l) {
   }
 }
 
+check_length_or_null <- function(x, l) {
+  if (length(x) != l) {
+    name <- deparse(substitute(x))
+    cli::cli_abort(c(
+      "`{name}` has length {length(x)}.",
+      "x" = "It needs to have length {l} or to be `NULL`."
+    ))
+  }
+}
+
+
 
 # Much the same as `check_length()`, but for object types rather than lengths.
 # An object `x` needs to have one of the types in `t`, or else there will be an
