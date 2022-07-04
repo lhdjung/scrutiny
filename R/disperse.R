@@ -265,10 +265,12 @@ disperse_total <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
   # call `disperse()`; if `n` is odd, call `disperse2()`:
   if (is_even(n)) {
 
-    return(disperse(
+    out <- disperse(
       n = n_half, dispersion = dispersion, n_min = n_min, n_max = n_max,
       reported = reported, reported_index = reported_index
-    ))
+    )
+
+    return(out)
 
   } else {
 
@@ -277,10 +279,12 @@ disperse_total <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
     n2 <- n1 + 1
     n_both <- c(n1, n2)
 
-    return(disperse2(
+    out <- disperse2(
       n = n_both, dispersion = dispersion, n_min = n_min, n_max = n_max,
       reported = reported, reported_index = reported_index
-    ))
+    )
+
+    return(out)
   }
 }
 
