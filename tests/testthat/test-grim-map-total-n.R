@@ -26,46 +26,19 @@ test_that("The output is a tibble", {
 })
 
 test_that("It has correct dimensions", {
-  df1_tested %>% dim() %>% expect_equal(c(1200, 9))
-  df2_tested %>% dim() %>% expect_equal(c(  48, 9))
+  df1_tested %>% dim() %>% expect_equal(c(1200, 8))
+  df2_tested %>% dim() %>% expect_equal(c(  48, 8))
 })
 
 
 colnames_exp <- c(
-  "x", "n", "n_change", "items", "consistency", "both_consistent",
-  "ratio", "case", "dir"
+  "x", "n", "n_change", "consistency", "both_consistent", "ratio", "case", "dir"
 )
 
 
 test_that("It has correct column names", {
   df1_tested %>% colnames() %>% expect_equal(colnames_exp)
   df2_tested %>% colnames() %>% expect_equal(colnames_exp)
-})
-
-
-
-# S3  method for `audit()` ------------------------------------------------
-
-df1_audit <- df1_tested %>% audit()
-df2_audit <- df2_tested %>% audit()
-
-colnames_exp_audit <- c(
-  "x1", "x2", "n", "hits_forth", "hits_back", "hits_total",
-  "scenarios_total", "hit_rate"
-)
-
-test_that("[`audit()`] It has correct column names", {
-  df1_audit %>% colnames() %>% expect_equal(colnames_exp_audit)
-  df2_audit %>% colnames() %>% expect_equal(colnames_exp_audit)
-})
-
-
-test_that("It has correct values", {
-  df2_audit$hits_forth      %>% unname() %>% expect_equal(c(2, 0))
-  df2_audit$hits_back       %>% unname() %>% expect_equal(c(1, 0))
-  df2_audit$hits_total      %>% unname() %>% expect_equal(c(3, 0))
-  df2_audit$scenarios_total %>% unname() %>% expect_equal(c(12, 12))
-  df2_audit$hit_rate        %>% unname() %>% expect_equal(c(0.25, 0))
 })
 
 

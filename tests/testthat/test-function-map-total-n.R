@@ -40,7 +40,7 @@ schlim_map_total_n <- function_map_total_n(
 
 
 # Apply the manufactured function to `df1`:
-df1_tested <- schlim_map_total_n(df1, show_all = TRUE)
+df1_tested <- schlim_map_total_n(df1)
 
 
 # Conduct tests:

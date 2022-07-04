@@ -68,11 +68,7 @@ rbs_even       <- rounding_bounds_scalar("even"      , 8.2, 0.05, 0.5)
 rbs_ceiling    <- rounding_bounds_scalar("ceiling"   , 8.2, 0.05, 0.5)
 rbs_floor      <- rounding_bounds_scalar("floor"     , 8.2, 0.05, 0.5)
 rbs_trunc      <- rounding_bounds_scalar("trunc"     , 8.2, 0.05, 0.5)
-rbs_trunc      <- rounding_bounds_scalar("trunc"     , 8.2, 0.05, 0.5)
-rbs_anti_trunc <- rounding_bounds_scalar("anti_trunc", 8.2, 0.05, 0.5)
-rbs_anti_trunc <- rounding_bounds_scalar("anti_trunc", 8.2, 0.05, 0.5)
-rbs_trunc      <- rounding_bounds_scalar("trunc"     , 8.2, 0.05, 0.5)
-rbs_anti_trunc <- rounding_bounds_scalar("anti_trunc", 8.2, 0.05, 0.5)
+rbs_anti_trunc <- rounding_bounds_scalar("anti_trunc", 8.2, 0.05, 0.05)
 rbs_error      <- rounding_bounds_scalar("doesn't exist", 6, 6, 6)
 
 rbs_types_exp <- c("double", "double", "character", "character")
@@ -99,7 +95,7 @@ test_that("The list has correct values", {
   rbs_ceiling    %>% expect_equal(list(7.2 , 8.2 , "<" , "<="))
   rbs_floor      %>% expect_equal(list(8.2 , 9.2 , "<=", "<" ))
   rbs_trunc      %>% expect_equal(list(8.2 , 9.2 , "<=", "<" ))
-  rbs_anti_trunc %>% expect_equal(list(7.2 , 8.2 , "<" , "<="))
+  rbs_anti_trunc %>% expect_equal(list(8.1 , 8.2 , "<=",  "<"))
 })
 
 

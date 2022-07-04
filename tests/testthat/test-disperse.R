@@ -13,12 +13,12 @@ test_that("It has the right dimensions", {
 
 test_that("It starts with the right values", {
   df1$n[1] %>% expect_equal(20)
-  df1$n_change[1] %>% expect_equal("n_minus_0")
+  df1$n_change[1] %>% expect_equal(0)
 })
 
 test_that("It ends with the right values", {
   df1$n[12] %>% expect_equal(25)
-  df1$n_change[12] %>% expect_equal("n_plus_5")
+  df1$n_change[12] %>% expect_equal(5)
 })
 
 

@@ -185,31 +185,13 @@ test_that("`remove_na()` removes all instances of `NA`", {
 
 
 test_that("`check_rounding_singular()` throws an error iff it should", {
-  check_rounding_singular(
-    c("up_or_down", "floor"),
-    "up_or_down",
-    "up",
-    "down"
-  ) %>% expect_error()
-
-  check_rounding_singular(
-    c("not a rounding procedure", "floor"),
-    "up_or_down",
-    "up",
-    "down"
-  ) %>% expect_silent()
-
+  c("up_or_down", "floor")    %>% check_rounding_singular() %>% expect_error()
+  c("ceiling_or_floor", "up") %>% check_rounding_singular() %>% expect_error()
+  "up_or_down"                %>% check_rounding_singular() %>% expect_silent()
+  "up"                        %>% check_rounding_singular() %>% expect_silent()
+  "down"                      %>% check_rounding_singular() %>% expect_silent()
 })
 
-
-
-test_that("`check_rounding_singular()` throws error iff when it should", {
-  check_rounding_singular(c("up_or_down", "up")) %>% expect_error()
-  check_rounding_singular(c("ceiling_or_floor", "trunc")) %>% expect_error()
-  check_rounding_singular(c("ceiling", "up")) %>% expect_silent()
-  check_rounding_singular("up") %>% expect_silent()
-  check_rounding_singular("bla") %>% expect_silent()
-})
 
 
 
