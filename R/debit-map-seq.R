@@ -24,10 +24,12 @@
 #'   consistent cases (from among those reported), not just inconsistent ones?
 #'   Default is `FALSE` because the focus should be on clarifying
 #'   inconsistencies.
-#' @param reported,fun,name_test,name_class Arguments passed down to
-#'   `function_map_seq()` but not documented here.
-#' @param rounding,threshold,symmetric,show_rec Arguments passed down to
-#'   `debit_map()` via `...` (the dots).
+#' @param ... Arguments passed down to `debit_map()`.
+
+# # Used to include (as second from below):
+# @param reported,fun,name_test,name_class Arguments passed down to
+#   `function_map_seq()` but not documented here.
+
 
 #' @section Summaries with `audit_seq()`: You can call `audit_seq()` following
 #'   `debit_map_seq()`. It will return a data frame with these columns:

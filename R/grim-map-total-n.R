@@ -31,9 +31,12 @@
 #' @param n_min Numeric. Minimal group size. Default is 1.
 #' @param n_max Numeric. Maximal group size. Default is `NULL`, i.e., no
 #'   maximum.
-#' @param
-#' items,percent,show_rec,show_prob,rounding,threshold,symmetric,tolerance,extra
-#' Arguments passed down to `grim_map()` via `...` (the dots).
+#' @param ... Arguments passed down to `grim_map()`.
+
+# # Used to have this instead of `@param ...`:
+# @param
+# items,percent,show_rec,show_prob,rounding,threshold,symmetric,tolerance,extra
+# Arguments passed down to `grim_map()` via `...` (the dots).
 
 #' @include function-map-total-n.R
 #'

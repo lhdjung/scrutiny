@@ -26,11 +26,7 @@
 #'   consistent cases (from among those reported), not just inconsistent ones?
 #'   Default is `FALSE` because the focus should be on clarifying
 #'   inconsistencies.
-#' @param reported,fun,name_test,name_class Arguments passed down to
-#'   `function_map_seq()` but not documented here.
-#' @param
-#' items,percent,show_rec,show_prob,rounding,threshold,symmetric,tolerance,extra
-#' Arguments passed down to `grim_map()` via `...` (the dots).
+#' @param ... Arguments passed down to `grim_map()` or `function_map_seq()`.
 
 #' @section Summaries with `audit_seq()`: You can call `audit_seq()` following
 #'   `grim_map_seq()`. It will return a data frame with these columns:

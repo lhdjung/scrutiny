@@ -45,14 +45,12 @@ mutate_both_consistent <- function(data) {
 # Used within `function_map_total_n()`:
 function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
                                        .dispersion = 0:5,
-                                       .n_min = 1, .n_max = NULL,
-                                       .show_all = FALSE, ...) {
+                                       .n_min = 1, .n_max = NULL, ...) {
 
   function(data, fun = .fun, reported = .reported,
            reported_orig = .reported_orig, dir = .dir,
            dispersion = .dispersion,
-           n_min = .n_min, n_max = .n_max,
-           show_all = .show_all, ...) {
+           n_min = .n_min, n_max = .n_max, ...) {
 
     reported_names  <- colnames(reported)
     reported_n_cols <- ncol(reported)
@@ -169,8 +167,8 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 #' @param .name_class String. If specified, the tibbles returned by the
 #'   manufactured function will inherit this string as an S3 class. Default is
 #'   `NULL`, i.e., no extra class.
-#' @param .dispersion,.n_min,.n_max,.show_all Arguments passed down to
-#'   `disperse_total()`, using defaults from there.
+#' @param .dispersion,.n_min,.n_max Arguments passed down to `disperse_total()`,
+#'   using defaults from there.
 #'
 #' @details This function is a so-called function factory: It produces other
 #'   functions, such as `grim_map_total_n()`. More specifically, it is a
@@ -296,14 +294,12 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 # dispersion <- 0:5
 # n_min <- 1
 # n_max <- NULL
-# show_all <- FALSE
 
 
 function_map_total_n <- function(.fun, .reported, .name_test,
                                  .name_class = NULL,
                                  .dispersion = 0:5,
-                                 .n_min = 1, .n_max = NULL,
-                                 .show_all = FALSE) {
+                                 .n_min = 1, .n_max = NULL) {
 
   # Throw error if `n` itself was named as a reported statistic:
   if ("n" %in% .reported) {
@@ -319,10 +315,13 @@ function_map_total_n <- function(.fun, .reported, .name_test,
 
   # --- Start of the manufactured function ---
 
-  function(data, fun = .fun, reported = .reported,
-           name_test = .name_test, name_class = .name_class,
-           dispersion = .dispersion, n_min = .n_min, n_max = .n_max,
-           show_all = .show_all, ...) {
+  function(data, dispersion = .dispersion, n_min = .n_min, n_max = .n_max,
+           ...) {
+
+    fun <- .fun
+    reported <- .reported
+    name_test <- .name_test
+    name_class <- .name_class
 
     # Checks ---
 
@@ -442,7 +441,7 @@ function_map_total_n <- function(.fun, .reported, .name_test,
     map_total_n_proto <- function_map_total_n_proto(
       .fun = fun, .reported = cols_expected_forth,
       .reported_orig = reported_orig, .dispersion = dispersion,
-      .n_min = n_min, .n_max = n_max, .show_all = show_all, ...
+      .n_min = n_min, .n_max = n_max, ...
     )
 
     # Now, call the manufactured function on both tibbles. First the original...

@@ -138,6 +138,10 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 #'   values. It will be adjusted to these values' decimal level. For example,
 #'   with a reported `8.34`, the step size is `0.01`. Default is `1:5`, for five
 #'   steps up and down.
+#' @param .out_min,.out_max If specified when calling a factory-made function,
+#'   output will be restricted so that it's not below `.out_min` or above
+#'   `.out_max`. Defaults are `"auto"` for `.out_min`, i.e., a minimum of one
+#'   decimal unit above zero; and `NULL` for `.out_max`, i.e., no maximum.
 #' @param .include_reported Boolean. Should the reported values themselves be
 #'   included in the sequences originating from them? Default is `FALSE` because
 #'   this might be redundant and bias the results.
@@ -262,12 +266,16 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
 
   # --- Start of the manufactured function ---
 
-  function(data, var = .var, reported = .reported, fun = .fun,
-           name_test = .name_test, name_class = .name_class,
+  function(data, var = .var,
            dispersion = .dispersion,
            out_min = .out_min, out_max = .out_max,
            include_reported = .include_reported,
            include_consistent = .include_consistent, ...) {
+
+    reported <- .reported
+    fun <- .fun
+    name_test <- .name_test
+    name_class <- .name_class
 
     check_mapper_input_colnames(data, reported)
     check_consistency_not_in_colnames(data, name_test)

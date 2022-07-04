@@ -65,7 +65,6 @@
 
 
 debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
-                      unround_x = TRUE, unround_sd = TRUE,
                       # group_0 = NULL, group_1 = NULL,
                       rounding = "up_or_down", threshold = 5,
                       symmetric = FALSE, show_rec = TRUE, extra = Inf) {
@@ -150,7 +149,6 @@ debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
     dplyr::select(sd, x, n) %>%
     purrr::pmap_dfr(
       debit_table,
-      unround_x = unround_x, unround_sd = unround_sd,
       # group_0 = group_0, group_1 = group_1,
       rounding = rounding, threshold = threshold,
       symmetric = symmetric

@@ -56,7 +56,7 @@ check_debit_inputs_all <- function(x, sd) {
 
 #' @include utils.R decimal-places.R sd-binary.R round.R unround.R reround.R
 
-debit_table <- function(x, sd, n, unround_x = TRUE, unround_sd = TRUE,
+debit_table <- function(x, sd, n,
                         group_0 = NA, group_1 = NA,
                         formula = "mean_n", rounding = "up_or_down",
                         threshold = 5, symmetric = FALSE, show_rec = TRUE) {
@@ -74,39 +74,25 @@ debit_table <- function(x, sd, n, unround_x = TRUE, unround_sd = TRUE,
   x <- as.numeric(x)
   sd <- as.numeric(sd)
 
-  # By default, recover lower and upper bounds for the original mean and SD
-  # values using `unround()`, going by the reported value each time and defining
-  # values out of the tibble resulting from that call:
-  if (unround_x) {
-    x_unrounded   <- suppressMessages(unround(
-      x_chr, rounding = rounding, threshold = threshold, digits = digits_x
-    ))
-    x_upper       <- x_unrounded$upper
-    x_lower       <- x_unrounded$lower
-    x_incl_lower  <- x_unrounded$incl_lower
-    x_incl_upper  <- x_unrounded$incl_upper
-  } else {
-    x_upper       <- x
-    x_lower       <- x
-    x_incl_lower  <- TRUE
-    x_incl_upper  <- TRUE
-  }
+  # Recover lower and upper bounds for the original mean and SD values using
+  # `unround()`, going by the reported value each time and defining values out
+  # of the tibble resulting from that call. First, the mean...
+  x_unrounded   <- suppressMessages(unround(
+    x_chr, rounding = rounding, threshold = threshold, digits = digits_x
+  ))
+  x_upper       <- x_unrounded$upper
+  x_lower       <- x_unrounded$lower
+  x_incl_lower  <- x_unrounded$incl_lower
+  x_incl_upper  <- x_unrounded$incl_upper
 
-  if (unround_sd) {
-    sd_unrounded  <- suppressMessages(unround(
-      sd_chr, rounding = rounding, threshold = threshold, digits = digits_sd
-    ))
-    sd_upper      <- sd_unrounded$upper
-    sd_lower      <- sd_unrounded$lower
-    sd_incl_lower <- sd_unrounded$incl_lower
-    sd_incl_upper <- sd_unrounded$incl_upper
-  } else {
-    sd_upper      <- sd
-    sd_lower      <- sd
-    sd_incl_lower <- TRUE
-    sd_incl_upper <- TRUE
-  }
-
+  # ...and second, the SD:
+  sd_unrounded  <- suppressMessages(unround(
+    sd_chr, rounding = rounding, threshold = threshold, digits = digits_sd
+  ))
+  sd_upper      <- sd_unrounded$upper
+  sd_lower      <- sd_unrounded$lower
+  sd_incl_lower <- sd_unrounded$incl_lower
+  sd_incl_upper <- sd_unrounded$incl_upper
 
   # Reconstruct the original SD:
   sd_rec_lower <- reconstruct_sd(formula, x_lower, n)  # ADD `group_0, group_1` TO SUPPORT OTHER FORMULAS

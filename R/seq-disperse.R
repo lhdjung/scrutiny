@@ -34,6 +34,8 @@
 #' @param track_var_change,.track_var_change Boolean. In `seq_disperse()`,
 #'   ignore this argument. In `seq_disperse_df()`, default is `TRUE`, which
 #'   creates the `"var_change"` output column.
+#' @param ... Further columns, added as in `tibble::tibble()`. Only in
+#'   `seq_disperse_df()`.
 #'
 #' @details Unlike `seq_endpoint()` and friends, the present functions don't
 #'   necessarily return continuous or even regular sequences. The greater
