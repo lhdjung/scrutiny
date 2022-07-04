@@ -170,7 +170,7 @@ disperse <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
     add_class("scr_disperse")
 
   if (!is.null(constant)) {
-    manage_constant <- function(constant, out, list_input = FALSE) {
+    repeat_constant <- function(constant, out, list_input = FALSE) {
       if (list_input) {
         constant_list_element <- constant
         check_length_or_null(constant_list_element, 2)
@@ -181,7 +181,7 @@ disperse <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
     }
 
     if (is.list(constant)) {
-      constant <- purrr::map(constant, manage_constant, out, list_input = TRUE)
+      constant <- purrr::map(constant, repeat_constant, out, list_input = TRUE)
       constant_is_named_list <- !is.null(names(constant)) &&
         length(names(constant)) == length(constant)
       if (constant_is_named_list) {
@@ -194,7 +194,7 @@ disperse <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
         )
       }
     } else {
-      constant <- manage_constant(constant, out)
+      constant <- repeat_constant(constant, out)
     }
 
     if (is.null(constant_index)) {
