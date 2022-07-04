@@ -171,9 +171,17 @@ disperse <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
 
     if (is.list(reported)) {
       reported <- purrr::map(reported, manage_reported, out, list_input = TRUE)
-      reported <- tibble::as_tibble(
-        reported, .name_repair = ~ paste0("reported", 1:length(reported))
-      )
+      reported_is_named_list <- !is.null(names(reported)) &&
+        length(names(reported)) == length(reported)
+      if (reported_is_named_list) {
+        reported <- tibble::as_tibble(
+          reported, .name_repair = ~ names(reported)
+        )
+      } else {
+        reported <- tibble::as_tibble(
+          reported, .name_repair = ~ paste0("reported", 1:length(reported))
+        )
+      }
     } else {
       reported <- manage_reported(reported, out)
     }
