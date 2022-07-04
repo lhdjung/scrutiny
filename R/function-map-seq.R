@@ -153,11 +153,11 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 
 #' @return A function such as those below. ("Testable statistics" are variables
 #'   that can be selected via `var`, and are then varied. All variables except
-#'   for those in brackets are selected by default.)
+#'   for those in parentheses are selected by default.)
 #'
 #'   | \strong{Manufactured function} | \strong{Testable statistics} | \strong{Test vignette}
 #'   | ---                            | ---                          | ---
-#'   | `grim_map_seq()`               | `"x"`, `"n"`, [[`"items"`]]  | `vignette("grim")`
+#'   | `grim_map_seq()`               | `"x"`, `"n"`, (`"items"`)    | `vignette("grim")`
 #'   | `debit_map_seq()`              | `"x"`, `"sd"`, `"n"`         | `vignette("debit")`
 #'
 #'   The factory-made function will also have dots, `...`, to pass arguments
@@ -254,7 +254,7 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 # .var = Inf; .reported = c("x", "n"); .name_test = "GRIM"; .name_class = NULL;
 # .dispersion = 1:5; .out_min = "auto"; .out_max = NULL; .include_reported =
 # FALSE; .include_consistent = FALSE
-# .fun <- grim_map
+# .fun <- grim_map; data <- pigs1
 # var = .var; reported = .reported; fun = .fun; name_test = .name_test;
 # name_class = .name_class = "scr_grim_map_seq"; dispersion = .dispersion;
 # out_min = .out_min; out_max = .out_max;include_reported = .include_reported;
@@ -339,6 +339,15 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
       dplyr::bind_rows() %>%
       dplyr::mutate(var) %>%
       add_class(classes_seq)
+
+    # Make sure the "rounding class" (i.e., `"scr_rounding_*"`) has the correct
+    # value. As this is not naturally guaranteed as in `*_map()` functions, it
+    # needs to be done by hand:
+    dots <- rlang::enexprs(...)
+    if (length(dots$rounding) > 0) {
+      class(out)[stringr::str_detect(class(out), "scr_rounding_")] <-
+        paste0("scr_rounding_", dots$rounding)
+    }
 
     if (!is.null(name_class)) {
       out <- add_class(out, classes_seq)
