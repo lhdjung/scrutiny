@@ -20,6 +20,9 @@
 #' @param items Integer. If there is no `items` column in `data`, this specifies
 #'   the number of items composing the `x` values. Default is 1, the most common
 #'   case.
+#' @param merge_items Boolean. If `TRUE` (the default), there will be no `items`
+#'   column in the output. Instead, values from an `items` column or argument
+#'   will be multiplied with values in the `n` column.
 #' @param percent Boolean. Set `percent` to `TRUE` if the `x` values are
 #'   percentages. This will convert them to decimal numbers and adjust the
 #'   decimal count (i.e., increase it by 2). It also affects the `ratio` column.
@@ -116,8 +119,8 @@
 # `purrr::pmap_lgl(grim)` or `purrr::pmap(grim)` instead of simply being passed
 # via `...` so that starting to type them will trigger RStudio's autocomplete.
 
-grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
-                     show_rec = FALSE, show_prob = FALSE,
+grim_map <- function(data, items = 1, merge_items = TRUE, percent = FALSE,
+                     x = NULL, n = NULL, show_rec = FALSE, show_prob = FALSE,
                      rounding = "up_or_down", threshold = 5,
                      symmetric = FALSE, tolerance = .Machine$double.eps^0.5,
                      testables_only = FALSE, extra = Inf) {
@@ -164,7 +167,7 @@ grim_map <- function(data, items = 1, percent = FALSE, x = NULL, n = NULL,
       "`n` column missing",
       ">" = "The sample size column in `data` needs to be named `n`, \\
       or else specify the `n` argument in `grim_map()` as the name of \\
-that column."
+      that column."
     ))
   }
 
@@ -192,9 +195,18 @@ that column."
   # Create the columns of the resulting tibble --
 
   # 1.-3.: Define `x`, `n`, and `items` as the respective columns from `data`
-  # (these only come into play in the resulting tibble):
+  # (these only come into play in the resulting tibble). The `items` column is
+  # disabled by default of `merge_items`. Instead, its values are merged into
+  # the `n` column:
   x <- data$x
-  n <- data$n * data$items
+
+  if (merge_items) {
+    n <- data$n * data$items
+  } else {
+    n <- tibble::tibble(n = data$n, items = data$items)
+  }
+
+  # n <- data$n * data$items
   # items <- data$items
 
   # 4.: GRIM-test all sets of `x`, `n`, and `items` by mapping `grim_scalar()`.
@@ -204,20 +216,20 @@ that column."
   # `purrr::pmap_lgl()` or `purrr::pmap()`, depends on whether intermediary
   # numbers were chosen to be shown in the resulting tibble because the former
   # only returns a logical value whereas the latter returns a list:
-  if (show_rec == FALSE) {
-    consistency <- purrr::pmap_lgl(
+  if (show_rec) {
+    consistency <- purrr::pmap(
       data_x_n_items, grim_scalar, percent = percent,
       show_rec = show_rec, rounding = rounding,
       threshold = threshold, symmetric = symmetric,
       tolerance = tolerance
     )
   } else {
-    consistency <- purrr::pmap(
-        data_x_n_items, grim_scalar, percent = percent,
-        show_rec = show_rec, rounding = rounding,
-        threshold = threshold, symmetric = symmetric,
-        tolerance = tolerance
-      )
+    consistency <- purrr::pmap_lgl(
+      data_x_n_items, grim_scalar, percent = percent,
+      show_rec = show_rec, rounding = rounding,
+      threshold = threshold, symmetric = symmetric,
+      tolerance = tolerance
+    )
   }
 
   # 5.: Compute the GRIM ratios for all of the same value sets via
