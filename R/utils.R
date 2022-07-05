@@ -699,20 +699,10 @@ about_equal <- function(x, y) {
 
 
 
-manage_arg_naming_col <- function(data, arg, description) {
+manage_key_column_names <- function(data, arg, description) {
   arg_name <- deparse(substitute(arg))
-  # arg <- as.character(arg)
-
-  # #          "avg" "x"
-  # return(list(arg,  arg_name))
-
   if (!is.null(arg)) {
-    data <- dplyr::rename(data,
-      {{ arg_name }} := arg
-      # {{ arg_name }} := NULL
-      # data[!arg_name %in% colnames(data)]
-    )
-    # data <- dplyr::rename(data, {{ arg_name }} := {{ arg }})
+    data <- dplyr::rename(data, {{ arg_name }} := arg)
   } else if (!arg_name %in% colnames(data)) {
     cli::cli_abort(c(
       "`{arg_name}` column missing.",
