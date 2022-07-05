@@ -139,34 +139,10 @@ grim_map <- function(data, items = 1, merge_items = TRUE, percent = FALSE,
   x <- rlang::enexpr(x)
   n <- rlang::enexpr(n)
 
+  # Check for non-standard column names and, if present, rename them. If the
+  # respective argument was not specified as that column name, throw an error:
   data <- manage_key_column_names(data, x, "mean/proportion")
   data <- manage_key_column_names(data, n, "sample size")
-
-
-
-  # # Provide a way to specify the mean (`x`) column from within a function call
-  # # even if the column in question is not named `x`:
-  # if (!is.null(x)) {
-  #   data <- dplyr::mutate(data, x = {{ x }}, {{ x }} := NULL)
-  # } else if (!"x" %in% colnames(data)) {
-  #   cli::cli_abort(c(
-  #     "`x` column missing",
-  #     ">" = "The mean/proportion column in `data` needs to be named `x`, \\
-  #     or else specify the `x` argument as the name of that column."
-  #   ))
-  # }
-  #
-  # # Same with the sample size (`n`) column:
-  # if (!is.null(n)) {
-  #   data <- dplyr::mutate(data, n = {{ n }}, {{ n }} := NULL)
-  # } else if (!"n" %in% colnames(data)) {
-  #   cli::cli_abort(c(
-  #     "`n` column missing",
-  #     ">" = "The sample size column in `data` needs to be named `n`, \\
-  #     or else specify the `n` argument in `grim_map()` as the name of \\
-  #     that column."
-  #   ))
-  # }
 
   # Check the column names of `data`:
   check_mapper_input_colnames(data, c("x", "n"), "GRIM")
