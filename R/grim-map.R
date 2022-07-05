@@ -132,15 +132,6 @@ grim_map <- function(data, items = 1, merge_items = TRUE, percent = FALSE,
     items, percent, rounding, threshold, symmetric, tolerance
   ))
 
-  # # Throw error if `items` is specified in a way that contradicts `data`:
-  # if ("items" %in% colnames(data) && !items == 1) {
-  #   cli::cli_abort(c(
-  #     "`items` already in `data`",
-  #     "x" = "Specifying the `items` argument in `grim_map()` conflicts with \\
-  #     the `items` column in `data`."
-  #   ))
-  # }
-
   # Defuse the argument specifications that can be used to assign the roles of
   # `x` and `n` to specific columns in case these columns don't already have
   # those names:
@@ -205,9 +196,6 @@ grim_map <- function(data, items = 1, merge_items = TRUE, percent = FALSE,
   } else {
     n <- tibble::tibble(n = data$n, items = data$items)
   }
-
-  # n <- data$n * data$items
-  # items <- data$items
 
   # 4.: GRIM-test all sets of `x`, `n`, and `items` by mapping `grim_scalar()`.
   # Instead of using the dots, `...`, the function manually passes the remaining
