@@ -247,7 +247,7 @@ manage_helper_col <- function(data, var_arg, default, fun_name, affix = TRUE) {
 #' @description A handwritten mapper function for consistency tests, such as
 #'   `grim_map()`, may include arguments named after the key columns in its
 #'   input data frame. When such an argument is specified by the user as a
-#'   column names of the input data frame, it identifies a differently-named
+#'   column name of the input data frame, it identifies a differently-named
 #'   column as that key column.
 #'
 #'   Create such functionality in three steps:
