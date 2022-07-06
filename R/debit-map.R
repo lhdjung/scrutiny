@@ -74,9 +74,6 @@ debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
   # warning that values will get paired:
   check_lengths_congruent(list(rounding, threshold, symmetric))
 
-  # Check the column names of `data`:
-  check_mapper_input_colnames(data, c("x", "sd", "n"), "DEBIT")
-
   # Defuse the argument specifications that can be used to assign the roles of
   # `x`, `sd`, and `n` to specific columns in case these columns don't already
   # have those names:
@@ -85,6 +82,13 @@ debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
   n  <- rlang::enexpr(n)
   # group_0 <- rlang::enexpr(group_0)
   # group_1 <- rlang::enexpr(group_1)
+
+  data <- manage_key_column_names(data, x,  "binary mean")
+  data <- manage_key_column_names(data, sd, "binary SD")
+  data <- manage_key_column_names(data, n,  "sample size")
+
+  # Check the column names of `data`:
+  check_mapper_input_colnames(data, c("x", "sd", "n"), "DEBIT")
 
   x_spec  <- x
   sd_spec <- sd
@@ -142,8 +146,6 @@ debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
   x <- x_chr <- data$x
   n <- data$n
 
-  rounding_class <- paste0("scr_rounding_", rounding)
-
   # Compute the DEBIT results and construct the resulting tibble:
   results <- data %>%
     dplyr::select(sd, x, n) %>%
@@ -152,8 +154,7 @@ debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
       # group_0 = group_0, group_1 = group_1,
       rounding = rounding, threshold = threshold,
       symmetric = symmetric
-    ) %>%
-    add_class(c("scr_debit_map", rounding_class))
+    )
 
   # Finally, return the results, with or without the intermediary values
   # (rounding method, boundary values, and Boolean information about the
@@ -186,6 +187,9 @@ debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
   if (!is.null(x_spec))  out <- dplyr::select(out, -all_of(x_orig))
   if (!is.null(sd_spec)) out <- dplyr::select(out, -all_of(sd_orig))
   if (!is.null(n_spec))  out <- dplyr::select(out, -all_of(n_orig))
+
+  rounding_class <- glue::glue("scr_rounding_{rounding}")
+  out <- add_class(out, c("scr_debit_map", rounding_class))
 
   return(out)
 }
