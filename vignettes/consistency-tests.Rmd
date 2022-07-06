@@ -233,7 +233,7 @@ schlim_map_alt2 <- function(data, ...) {
 }
 ```
 
-(The call to `check_mapper_input_colnames()` is not required but adds safety to your function.)
+The call to `check_mapper_input_colnames()` is not required but adds safety to your function. Also, see `manage_key_column_names()` which grants the user more flexibility in naming key columns.
 
 Both approaches should lead to the same results:
 
