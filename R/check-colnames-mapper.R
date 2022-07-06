@@ -240,3 +240,54 @@ manage_helper_col <- function(data, var_arg, default, fun_name, affix = TRUE) {
 
 
 
+
+
+#' Enable name-independent key column identification
+#'
+#' @description A handwritten mapper function for consistency tests, such as
+#'   `grim_map()`, may include arguments named after the key columns in its
+#'   input data frame. When such an argument is specified by the user as a
+#'   column names of the input data frame, it identifies a differently-named
+#'   column as that key column.
+#'
+#'   Create such functionality in three steps:
+#'
+#'   1. Add arguments to your mapper function named after the respective key
+#'   columns. They should be `NULL` by default; e.g., `x = NULL, n = NULL`.
+#'
+#'   2. Within the mapper, capture the user input by quoting it using
+#'   `rlang::enexpr()`. Reassign these values to the argument variables; e.g.,
+#'   `x <- rlang::enexpr(x)` and `n <- rlang::enexpr(n)`.
+#'
+#'   3. For every such argument, call `manage_key_column_names()` and reassign
+#'   its value to the input data frame variable, adding a short description;
+#'   e.g.,`data <- manage_key_column_names(data, x, "mean/proportion")` and
+#'   `data <- manage_key_column_names(data, n, "sample size")`.
+#'
+#' @param data The mapper function's input data frame.
+#' @param arg Symbol. The quoted input variable, captured by `rlang::enexpr()`.
+#' @param description String (length 1). Short description of the column in
+#'   question, to be inserted into an error message.
+#'
+#' @return The input data frame, `data`, possibly modified.
+#' @export
+
+manage_key_column_names <- function(data, arg, description) {
+  arg_name <- deparse(substitute(arg))
+  if (!is.null(arg)) {
+    data <- dplyr::rename(data, {{ arg_name }} := arg)
+  } else if (!arg_name %in% colnames(data)) {
+    check_length(description, 1)
+    cli::cli_abort(c(
+      "`{arg_name}` column missing.",
+      ">" = "The {description} column in `data` needs to be named \\
+      `{arg_name}`, or else specify the `{arg_name}` argument as \\
+      the name of that column."
+    ))
+  }
+  data
+}
+
+
+
+
