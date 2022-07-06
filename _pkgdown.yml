@@ -154,6 +154,8 @@ reference:
   - check_mapper_input_colnames
   - check_audit_special
   - audit_cols_minimal
+  - manage_helper_col
+  - manage_key_column_names
 
 - subtitle: Testing for subsets / supersets
   desc: Predicate functions for logical relations between vectors; supports
