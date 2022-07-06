@@ -65,7 +65,6 @@
 
 
 debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
-                      # group_0 = NULL, group_1 = NULL,
                       rounding = "up_or_down", threshold = 5,
                       symmetric = FALSE, show_rec = TRUE, extra = Inf) {
 
@@ -80,8 +79,6 @@ debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
   x  <- rlang::enexpr(x)
   sd <- rlang::enexpr(sd)
   n  <- rlang::enexpr(n)
-  # group_0 <- rlang::enexpr(group_0)
-  # group_1 <- rlang::enexpr(group_1)
 
   data <- manage_key_column_names(data, x,  "binary mean")
   data <- manage_key_column_names(data, sd, "binary SD")
@@ -151,7 +148,6 @@ debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
     dplyr::select(sd, x, n) %>%
     purrr::pmap_dfr(
       debit_table,
-      # group_0 = group_0, group_1 = group_1,
       rounding = rounding, threshold = threshold,
       symmetric = symmetric
     )
@@ -162,7 +158,7 @@ debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
   if (show_rec) {
     out <- results %>%
       dplyr::mutate(
-        x = x, n = n, consistency = .data$consistency # dplyr::all_of(extra_cols)
+        x = x, n = n, consistency = .data$consistency
       ) %>%
       dplyr::select(
         x, sd, n, .data$consistency, rounding,
@@ -176,10 +172,7 @@ debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
         sd = sd, x = x, n = n, consistency = .data$consistency
         # dplyr::all_of(extra_cols)
       ) %>%
-      dplyr::select(
-        x, sd, n, .data$consistency
-        # dplyr::all_of(extra_cols)
-      )
+      dplyr::select(x, sd, n, .data$consistency)
   }
 
   if (length(extra_cols) > 0) out <- dplyr::mutate(out, extra_cols)
