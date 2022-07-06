@@ -172,9 +172,6 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
       name_class <- append(name_class, rounding_class)
     }
 
-    # all_classes <- stringr::str_remove(fun_name, "_scalar")
-    # all_classes <- paste0("scr_", all_classes, "_map")
-
     # This ends on `_all`...
     all_classes <- paste0("scr_", tolower(name_test), "_map")
 
@@ -183,8 +180,8 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
       all_classes <- c(all_classes, name_class)
     }
 
-    # Separate the data into tested and non-tested columns, going by the column
-    # names expected from the `reported` argument:
+    # Divide the data into tested and non-tested columns, going by the key
+    # column names expected from the `reported` argument:
     data_tested <- data[, reported]
     data_non_tested <- data[!colnames(data) %in% reported]
 
