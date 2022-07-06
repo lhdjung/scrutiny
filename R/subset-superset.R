@@ -33,23 +33,23 @@
 #'   `y` but `y` is not a subset of `x`. The same applies to `is_superset*()`
 #'   functions and their `is_proper_superset*()` variants.
 #'
-#' @details The `_vals` variants are meant for flexible, interactive
-#'   subset/superset testing. That is, if you can guess which values might
+#' @details The `*_vals()` variants are meant for flexible, interactive
+#'   subset/superset testing. That is, in order to test whether certain values
 #'   collectively fulfill the role of the second vector, you can just add them
-#'   to the call.
+#'   to the function call.
 #'
-#'   The `_vecs` variants likewise offer flexibility, but also bridge the gap
+#'   The `*_vecs()` variants likewise offer flexibility, but also bridge the gap
 #'   between vectors and values contained in them.
 #'
 #'   All functions simply check if values are present, regardless of how often a
 #'   value occurs. In other words, they look for types but don't count tokens.
 #'
 #' @param x A vector.
-#' @param y A vector. Only in the basic functions, not those with `_vals` or
-#'   `_vecs`.
-#' @param ... In the `_vals` functions, any number of values `x` might contain;
-#'   in the `_vecs` functions, any number of vectors the elements of which `x`
-#'   might contain.
+#' @param y A vector. Only in the basic functions, not those with `*_vals()` or
+#'   `*_vecs()`.
+#' @param ... In the `*_vals()` functions, any number of values `x` might
+#'   contain; in the `*_vecs()` functions, any number of vectors the elements of
+#'   which `x` might contain.
 #'
 #' @return A single Boolean value.
 #'
@@ -82,7 +82,7 @@
 #' abc %>% is_equal_set(abc)
 #' abc %>% is_equal_set(abcde)
 #'
-#' # Each of the three functions has a `_vals` variant
+#' # Each of the three functions has a `*_vals()` variant
 #' # that doesn't take a second vector like the first
 #' # one, but any number of other arguments. These are
 #' # jointly treated like the elements of the second
@@ -93,8 +93,8 @@
 #'
 #' # (... and likewise for supersets and equal sets.)
 #'
-#' # The `_vecs` functions are like the basic ones
-#' # but for any number of other vectors:
+#' # The `*_vecs()` functions are like the basic
+#' # ones but for any number of other vectors:
 #' abc %>% is_subset_of_vecs(ab, "c")
 #' abc %>% is_subset_of_vecs(ab, c("c", "d"))
 #' abc %>% is_subset_of_vecs(ab, c(3, 4, 5))
