@@ -688,7 +688,10 @@ unnest_consistency_cols <- function(results, col_names) {
 
 
 # When testing for equality, strict equality as assessed by `identical()` would
-# be asking too much from numeric values, so `dplyr::near()` is used instead:
+# be asking too much from numeric values, so `dplyr::near()` is used instead.
+# Since `near()` is vectorized and `identical()` is not, their results are not
+# on par with each other, so `near()` needs to be wrapped in `all()`, which
+# makes sure that there are no differences beyond the tolerance:
 about_equal <- function(x, y) {
   if (is.numeric(x) && is.numeric(y)) {
     all(dplyr::near(x, y))
