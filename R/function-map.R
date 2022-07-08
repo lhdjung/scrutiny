@@ -130,24 +130,8 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
   fn_out <- function(data, fun = .fun, reported = .reported,
                      name_test = .name_test, name_class = .name_class, ...) {
 
-    key_args <- reported
-    names(key_args) <- reported
-    key_args <- purrr::map(key_args, list(rlang::parse_expr))
-
     key_cols_missing <- reported[!reported %in% colnames(data)]
     key_cols_missing <- as.character(key_cols_missing)
-    # key_cols_missing <- rlang::syms(key_cols_missing)
-    # key_cols_missing <- purrr::map(key_cols_missing, rlang::eval_tidy)
-
-    # key_cols_args <- args(sys.function(sys.parent()))
-    # key_cols_args <- key_cols_args[names(key_cols_args) %in% key_cols_missing]
-
-    # key_cols_call <- purrr::map(key_cols_missing, rlang::eval_tidy)
-    # key_cols_call <- purrr::map(key_cols_call, list(rlang::parse_expr, rlang::eval_tidy))
-    # key_cols_call <- purrr::map(key_cols_call, list(substitute, deparse))
-
-    # key_cols_call <- rlang::current_env()
-    # key_cols_call <- rlang::quos(key_cols_call[key_cols_missing %in% names(as.list(key_cols_call))])
 
     key_cols_call <- as.list(rlang::call_match())
     key_cols_call <- key_cols_call[key_cols_missing %in% names(key_cols_call)]
@@ -156,37 +140,16 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
     key_cols_call <- as.character(key_cols_call)
     names(key_cols_call) <- key_cols_call_names
 
-    # return(key_cols_call)
-
     # Rename key columns with non-standard names, following user-supplied
     # directions via the arguments automatically inserted below the function:
     if (length(key_cols_missing) > 0) {
       names(key_cols_missing) <- key_cols_missing
-
-      # # BEFORE THIS NEXT STEP, THE ARGUMENTS NEED TO BE SYMBOLS; OTHERWISE
-      # # ERROR. NEED TO FIND A WAY TO DEFUSE ALL OF THESE (UNKNOWN!) ARGUMENTS:
-      # key_cols_missing <- rlang::syms(key_cols_missing)
-      # key_cols_missing <- purrr::map(key_cols_missing, rlang::sym)
-      # key_cols_missing <- purrr::map(key_cols_missing, rlang::eval_tidy)
-
-      # return(key_cols_missing)
-
-      # df_colnames <- tibble::tibble(
-      #   data = list(data),
-      #   name_missing = names(key_cols_missing),
-      #   name_given = key_cols_args
-      #   # name_given =
-      #   #   as.character(purrr::map(name_missing, rlang::eval_tidy))
-      #   # # used to have (didn't quite work): rlang::eval_tidy, env = rlang::env_parent()
-      # )
 
       df_colnames <- tibble::tibble(
         data = list(data),
         name_missing = names(key_cols_missing),
         name_call = key_cols_call
       )
-
-      # return(df_colnames)
 
       offenders <-
         df_colnames$name_call[!df_colnames$name_call %in% colnames(data)]
@@ -203,9 +166,6 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
         ))
       }
 
-      # df_colnames_split <- split_into_rows(df_colnames)
-
-
       replace_colname <- function(data, name_missing, name_call) {
         # index <- match(name_given, colnames(data)[[1]][[1]])
         # colnames(data[index]) <- name_missing
@@ -213,45 +173,19 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
         data[name_missing]
       }
 
-      # RIGHT ON! NOW, EXTRACT THE RENAMED COLUMNS FROM THE TIBBLE RETURNED
-      # BELOW AND PUT THEM TOGETHER WITH EACH OTHER AND THE NON-RENAMED COLUMNS!
+      # Extract the renamed columns from the tibble returned below and put them
+      # together with each other and the non-renamed columns!
       df_key_cols_renamed <- df_colnames %>%
         dplyr::rowwise() %>%
         dplyr::mutate(
           data = list(replace_colname(data, name_missing, name_call))
         )
 
-      # return(df_key_cols_renamed)
-
       data_renamed <- dplyr::bind_cols(df_key_cols_renamed$data)
       data_not_renamed <- data[!colnames(data) %in% df_colnames$name_call]
+
       data <- dplyr::bind_cols(data_renamed, data_not_renamed)
-
-      # return(data)
     }
-
-
-    # replace_colname <- function(colname, data_arg = data,
-    #                             df_colnames_arg = df_colnames) {
-    #   name_given <- df_colnames_arg$name_given
-    #   if (colname %in% name_given) {
-    #     index <- match(colname, name_given)
-    #     return(df_colnames_arg$name_missing[index])
-    #   }
-    #   colname
-    # }
-
-    # data <- dplyr::rename_with(data, replace_colname, data, df_colnames)
-
-    # for (i in df_colnames) {
-    #   data <- dplyr::rename(data, {{ i[[1]][2] }} := i[[1]][1])
-    # }
-
-    # data <- purrr::map(key_args, ~ manage_key_column_names(data, .))
-    # data <- purrr::map(data, drop_cols_with, "scr_temp_placeholder")
-    # data <- purrr::flatten_df(data)
-
-    # return(data)
 
 
     # Checks ---
