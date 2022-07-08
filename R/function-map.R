@@ -167,8 +167,6 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
       }
 
       replace_colname <- function(data, name_missing, name_call) {
-        # index <- match(name_given, colnames(data)[[1]][[1]])
-        # colnames(data[index]) <- name_missing
         colnames(data)[colnames(data) == name_call] <- name_missing
         data[name_missing]
       }
