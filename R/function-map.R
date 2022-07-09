@@ -138,12 +138,47 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
     if (length(key_cols_missing) > 0) {
       names(key_cols_missing) <- key_cols_missing
 
+      # Extract the expressions supplied by the factory-made function's user as
+      # values of the arguments that are named after `reported`. Coerce them to
+      # string because they will be needed as column names. This
       key_cols_call <- as.list(rlang::call_match())
       key_cols_call <- key_cols_call[key_cols_missing %in% names(key_cols_call)]
-      key_cols_call <- key_cols_call[-(1:2)]  # remove (1) empty name, (2) `data`
+      key_cols_call <- key_cols_call[-(1:2)]  # remove 1. empty name, 2. `data`
       key_cols_call_names <- names(key_cols_call)
       key_cols_call <- as.character(key_cols_call)
       names(key_cols_call) <- key_cols_call_names
+
+      if (length(key_cols_call) < length(key_cols_missing)) {
+        offenders <- key_cols_missing
+        offenders <- offenders[!offenders %in% key_cols_call_names]
+        offenders <- wrap_in_backticks(offenders)
+        msg_fn_name <- rlang::current_call()
+        msg_fn_name <- paste0(msg_fn_name[[1]], "()")
+        msg_fn_name <- wrap_in_backticks(msg_fn_name)
+        if (length(offenders) == 1) {
+          msg_missing <- "Column {offenders} is"
+          msg_is_are <- "is"
+          msg_needs_to_be <- "It needs to be a column"
+          msg_names <- "the name of the equivalent column"
+          msg_column_s <- "Column"
+          msg_argument <- "argument"
+        } else {
+          msg_missing <- "Columns {offenders} are"
+          msg_is_are <- "are"
+          msg_needs_to_be <- "They need to be columns"
+          msg_names <- "the names of the equivalent columns"
+          msg_it_them <- "them"
+          msg_column_s <- "Columns"
+          msg_argument <- "arguments"
+        }
+        cli::cli_abort(c(
+          "{msg_column_s} {offenders} {msg_is_are} \\
+          missing from `data`.",
+          "x" = "{msg_needs_to_be} of the input data frame, \\
+          or else specify the {offenders} {msg_argument} of \\
+          {msg_fn_name} as {msg_names}."
+        ))
+      }
 
       df_colnames <- tibble::tibble(
         data = list(data),
@@ -172,7 +207,8 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
       }
 
       # Extract the renamed columns from the tibble returned below and put them
-      # together with each other and the non-renamed columns!
+      # together with each other and the non-renamed columns! MAYBE REWRITE THIS
+      # WITH purrr? THAT MIGHT BE `purrr::pmap_df()` OR SO.
       df_key_cols_renamed <- df_colnames %>%
         dplyr::rowwise() %>%
         dplyr::mutate(
