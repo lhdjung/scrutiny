@@ -152,9 +152,7 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
         offenders <- key_cols_missing
         offenders <- offenders[!offenders %in% key_cols_call_names]
         offenders <- wrap_in_backticks(offenders)
-        msg_fn_name <- rlang::current_call()
-        msg_fn_name <- paste0(msg_fn_name[[1]], "()")
-        msg_fn_name <- wrap_in_backticks(msg_fn_name)
+        msg_fn_name <- name_caller_call()
         if (length(offenders) == 1) {
           msg_missing <- "Column {offenders} is"
           msg_is_are <- "is"
