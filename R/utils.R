@@ -702,3 +702,28 @@ about_equal <- function(x, y) {
 
 
 
+# This little helper checks `data`'s column names and removes all columns the
+# names of which include the string specified via `drop_with`:
+drop_cols_with <- function(data, drop_with) {
+  data[!stringr::str_detect(names(data), drop_with)]
+}
+
+
+
+# Get the name of a function that is being called. By default (`n = 1`), that's
+# the function within which `name_caller_call()` is called. Also by default
+# (`wrap = TRUE`), the name is coerced to string, suffixed with parentheses, and
+# wrapped in backticks. Example: f --> `f()`
+name_caller_call <- function(n = 1, wrap = TRUE) {
+  name <- rlang::caller_call(n = n)
+  name <- name[[1]]
+  if (wrap) {
+    name <- paste0("`", name, "()`")
+  }
+  name
+}
+
+
+
+
+
