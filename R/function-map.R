@@ -133,17 +133,17 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
     key_cols_missing <- reported[!reported %in% colnames(data)]
     key_cols_missing <- as.character(key_cols_missing)
 
-    key_cols_call <- as.list(rlang::call_match())
-    key_cols_call <- key_cols_call[key_cols_missing %in% names(key_cols_call)]
-    key_cols_call <- key_cols_call[-(1:2)]  # remove (1) empty name, (2) `data`
-    key_cols_call_names <- names(key_cols_call)
-    key_cols_call <- as.character(key_cols_call)
-    names(key_cols_call) <- key_cols_call_names
-
     # Rename key columns with non-standard names, following user-supplied
     # directions via the arguments automatically inserted below the function:
     if (length(key_cols_missing) > 0) {
       names(key_cols_missing) <- key_cols_missing
+
+      key_cols_call <- as.list(rlang::call_match())
+      key_cols_call <- key_cols_call[key_cols_missing %in% names(key_cols_call)]
+      key_cols_call <- key_cols_call[-(1:2)]  # remove (1) empty name, (2) `data`
+      key_cols_call_names <- names(key_cols_call)
+      key_cols_call <- as.character(key_cols_call)
+      names(key_cols_call) <- key_cols_call_names
 
       df_colnames <- tibble::tibble(
         data = list(data),
