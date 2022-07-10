@@ -3,8 +3,6 @@
 check_key_args_values <- function(data, key_cols_call) {
   offenders <- key_cols_call[!key_cols_call %in% colnames(data)]
 
-  # return(offenders)
-
   if (length(offenders) > 0) {
     offenders_names <- glue::as_glue(names(offenders))
     offenders_names <- wrap_in_backticks(offenders_names)
@@ -38,7 +36,6 @@ check_key_args_values <- function(data, key_cols_call) {
         )
       )
     }
-    # msg_error <- glue::as_glue(msg_error)
     cli::cli_abort(msg_error)
   }
 }
@@ -137,7 +134,6 @@ check_key_args_values <- function(data, key_cols_call) {
 
 
 
-
 # # Example data:
 # data <- pigs1
 # reported <- c("x", "n")
@@ -186,30 +182,22 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
 
       # Extract the expressions supplied by the factory-made function's user as
       # values of the arguments that are named after `reported`. Coerce them to
-      # string because they will be needed as column names. This
+      # string because they will be needed as column names:
       key_cols_call <- as.list(rlang::call_match())
-      # key_cols_call <- key_cols_call[key_cols_missing %in% names(key_cols_call)]
       key_cols_call <- key_cols_call[names(key_cols_call) %in% key_cols_missing]
-      # key_cols_call <- key_cols_call[-(1:2)]  # remove 1. empty name, 2. `data`
       key_cols_call_names <- names(key_cols_call)
       key_cols_call <- as.character(key_cols_call)
       names(key_cols_call) <- key_cols_call_names
-
-      # return(list(data, key_cols_call))
 
       check_key_args_values(data, key_cols_call)
 
       offenders <- key_cols_missing
       offenders <- offenders[!offenders %in% key_cols_call_names]
 
-      # return(offenders)
-
       # Throw an error if any of the `reported` values that are not column names
       # of `data` are not supplied as values of the respective arguments: (used
       # to have:) `length(key_cols_call) < length(key_cols_missing)`
       if (length(offenders) > 0) {
-        # offenders <- key_cols_missing
-        # offenders <- offenders[!offenders %in% key_cols_call_names]
         offenders <- wrap_in_backticks(offenders)
         # Get the name of the current (i.e., factory-made) function using a
         # helper from the utils.R file that wraps `rlang::caller_call()`:
@@ -246,8 +234,6 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
         name_missing = names(key_cols_missing),
         name_call = key_cols_call
       )
-
-      # check_key_args_values(data, df_colnames)
 
       replace_colname <- function(data, name_missing, name_call) {
         colnames(data)[colnames(data) == name_call] <- name_missing
@@ -354,19 +340,19 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
 
 
 
-# Example factory-made functions:
-
-grim_map_alt <- function_map(
-  .fun = grim_scalar,
-  .reported = c("x", "n"),
-  .name_test = "GRIM"
-)
-
-debit_map_alt <- function_map(
-  .fun = debit_scalar,
-  .reported = c("x", "sd", "n"),
-  .name_test = "DEBIT"
-)
+# # Example factory-made functions:
+#
+# grim_map_alt <- function_map(
+#   .fun = grim_scalar,
+#   .reported = c("x", "n"),
+#   .name_test = "GRIM"
+# )
+#
+# debit_map_alt <- function_map(
+#   .fun = debit_scalar,
+#   .reported = c("x", "sd", "n"),
+#   .name_test = "DEBIT"
+# )
 
 
 
