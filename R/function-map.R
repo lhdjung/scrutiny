@@ -1,4 +1,50 @@
 
+# Internal helper function used twice within the factory-made function below:
+check_key_args_values <- function(data, key_cols_call) {
+  offenders <- key_cols_call[!key_cols_call %in% colnames(data)]
+
+  # return(offenders)
+
+  if (length(offenders) > 0) {
+    offenders_names <- glue::as_glue(names(offenders))
+    offenders_names <- wrap_in_backticks(offenders_names)
+    offenders <- wrap_in_backticks(offenders)
+    name_current_fn <- name_caller_call(n = 2)
+    if (length(offenders) == 1) {
+      msg_is_colname <- "is not a column name"
+    } else {
+      msg_is_colname <- "are not column names"
+    }
+    msg_error <- c(
+      "!" = "{offenders} {msg_is_colname} of `data`.",
+      "x" = "The {offenders_names[1]} argument of \\
+      {name_current_fn} was specified as {offenders[[1]]}, \\
+      but there is no column in `data` called {offenders[[1]]}."
+    )
+    if (length(offenders) > 1) {
+      if (length(offenders) == 2) {
+        msg_arg_s <- "argument"
+        msg_a <- "a "
+        msg_col <- "column"
+      } else {
+        msg_arg_s <- "arguments"
+        msg_a <- ""
+        msg_col <- "columns"
+      }
+      msg_error <- append(
+        msg_error, c(
+          "x" = "Same with the {offenders_names[-1]} {msg_arg_s}: \\
+          `data` doesn't contain {msg_a}{offenders[-1]} {msg_col}."
+        )
+      )
+    }
+    # msg_error <- glue::as_glue(msg_error)
+    cli::cli_abort(msg_error)
+  }
+}
+
+
+
 #' Create new `*_map()` functions
 #'
 #' @description `function_map()` creates new basic mapper functions for
@@ -142,22 +188,28 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
       # values of the arguments that are named after `reported`. Coerce them to
       # string because they will be needed as column names. This
       key_cols_call <- as.list(rlang::call_match())
-      key_cols_call <- key_cols_call[key_cols_missing %in% names(key_cols_call)]
-      key_cols_call <- key_cols_call[-(1:2)]  # remove 1. empty name, 2. `data`
+      # key_cols_call <- key_cols_call[key_cols_missing %in% names(key_cols_call)]
+      key_cols_call <- key_cols_call[names(key_cols_call) %in% key_cols_missing]
+      # key_cols_call <- key_cols_call[-(1:2)]  # remove 1. empty name, 2. `data`
       key_cols_call_names <- names(key_cols_call)
       key_cols_call <- as.character(key_cols_call)
       names(key_cols_call) <- key_cols_call_names
 
+      # return(list(data, key_cols_call))
+
+      return(check_key_args_values(data, key_cols_call))
 
       offenders <- key_cols_missing
       offenders <- offenders[!offenders %in% key_cols_call_names]
+
+      # return(offenders)
 
       # Throw an error if any of the `reported` values that are not column names
       # of `data` are not supplied as values of the respective arguments: (used
       # to have:) `length(key_cols_call) < length(key_cols_missing)`
       if (length(offenders) > 0) {
-        offenders <- key_cols_missing
-        offenders <- offenders[!offenders %in% key_cols_call_names]
+        # offenders <- key_cols_missing
+        # offenders <- offenders[!offenders %in% key_cols_call_names]
         offenders <- wrap_in_backticks(offenders)
         # Get the name of the current (i.e., factory-made) function using a
         # helper from the utils.R file that wraps `rlang::caller_call()`:
@@ -195,20 +247,7 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
         name_call = key_cols_call
       )
 
-      offenders <-
-        df_colnames$name_call[!df_colnames$name_call %in% colnames(data)]
-
-      if (length(offenders) > 0) {
-        offenders <- wrap_in_backticks(offenders)
-        if (length(offenders) == 1) {
-          msg_is_colname <- "is not a column name"
-        } else {
-          msg_is_colname <- "are not column names"
-        }
-        cli::cli_abort(c(
-          "{offenders} {msg_is_colname} of `data`."
-        ))
-      }
+      check_key_args_values(data, df_colnames)
 
       replace_colname <- function(data, name_missing, name_call) {
         colnames(data)[colnames(data) == name_call] <- name_missing
