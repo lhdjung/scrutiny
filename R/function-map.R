@@ -133,7 +133,7 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
     key_cols_missing <- reported[!reported %in% colnames(data)]
     key_cols_missing <- as.character(key_cols_missing)
 
-    # Rename key columns with non-standard names, following user-supplied
+    # Rename key columns that have non-standard names, following user-supplied
     # directions via the arguments automatically inserted below the function:
     if (length(key_cols_missing) > 0) {
       names(key_cols_missing) <- key_cols_missing
@@ -148,22 +148,33 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
       key_cols_call <- as.character(key_cols_call)
       names(key_cols_call) <- key_cols_call_names
 
-      if (length(key_cols_call) < length(key_cols_missing)) {
+
+      offenders <- key_cols_missing
+      offenders <- offenders[!offenders %in% key_cols_call_names]
+
+      # Throw an error if any of the `reported` values that are not column names
+      # of `data` are not supplied as values of the respective arguments: (used
+      # to have:) `length(key_cols_call) < length(key_cols_missing)`
+      if (length(offenders) > 0) {
         offenders <- key_cols_missing
         offenders <- offenders[!offenders %in% key_cols_call_names]
         offenders <- wrap_in_backticks(offenders)
+        # Get the name of the current (i.e., factory-made) function using a
+        # helper from the utils.R file that wraps `rlang::caller_call()`:
         msg_fn_name <- name_caller_call()
+        # Because either one or more arguments (or column names) may be missing,
+        # the wording of the error message may be either singular or plural:
         if (length(offenders) == 1) {
           msg_missing <- "Column {offenders} is"
           msg_is_are <- "is"
-          msg_needs_to_be <- "It needs to be a column"
+          msg_needs_to_be <- "It should be a column"
           msg_names <- "the name of the equivalent column"
           msg_column_s <- "Column"
           msg_argument <- "argument"
         } else {
           msg_missing <- "Columns {offenders} are"
           msg_is_are <- "are"
-          msg_needs_to_be <- "They need to be columns"
+          msg_needs_to_be <- "They should be columns"
           msg_names <- "the names of the equivalent columns"
           msg_it_them <- "them"
           msg_column_s <- "Columns"
@@ -172,9 +183,9 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
         cli::cli_abort(c(
           "{msg_column_s} {offenders} {msg_is_are} \\
           missing from `data`.",
-          "x" = "{msg_needs_to_be} of the input data frame, \\
-          or else specify the {offenders} {msg_argument} of \\
-          {msg_fn_name} as {msg_names}."
+          "x" = "{msg_needs_to_be} of the input data frame.",
+          "i" = "Alternatively, specify the {offenders} \\
+          {msg_argument} of {msg_fn_name} as {msg_names}."
         ))
       }
 
