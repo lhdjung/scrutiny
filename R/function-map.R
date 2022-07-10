@@ -247,7 +247,7 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
         name_call = key_cols_call
       )
 
-      check_key_args_values(data, df_colnames)
+      # check_key_args_values(data, df_colnames)
 
       replace_colname <- function(data, name_missing, name_call) {
         colnames(data)[colnames(data) == name_call] <- name_missing
