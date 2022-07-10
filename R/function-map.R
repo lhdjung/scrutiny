@@ -1,8 +1,16 @@
 
-# Internal helper function used twice within the factory-made function below:
-check_key_args_values <- function(data, key_cols_call) {
+# Two internal helper functions to check the validity of arguments supplied to
+# the factory-made function. The first one concerns the input data frame in
+# conjunction with the expressions provided to identify the "key" columns in
+# `data` and makes sure that no values other than these column names have been
+# provided. The second one checks that all key columns have been identified.
+
+check_factory_key_args_values <- function(data, key_cols_call) {
+
   offenders <- key_cols_call[!key_cols_call %in% colnames(data)]
 
+  # Error condition -- one or more key arguments have been specified with values
+  # that are not actually column names of `data`:
   if (length(offenders) > 0) {
     offenders_names <- glue::as_glue(names(offenders))
     offenders_names <- wrap_in_backticks(offenders_names)
@@ -13,12 +21,16 @@ check_key_args_values <- function(data, key_cols_call) {
     } else {
       msg_is_colname <- "are not column names"
     }
+
+    # Prepare an error message. It might be subsequently appended...
     msg_error <- c(
       "!" = "{offenders} {msg_is_colname} of `data`.",
       "x" = "The {offenders_names[1]} argument of \\
       {name_current_fn} was specified as {offenders[[1]]}, \\
       but there is no column in `data` called {offenders[[1]]}."
     )
+
+    # ... to point out that more than one supplied value is flawed:
     if (length(offenders) > 1) {
       if (length(offenders) == 2) {
         msg_arg_s <- "argument"
@@ -36,9 +48,61 @@ check_key_args_values <- function(data, key_cols_call) {
         )
       )
     }
+
+    # Throw the actual error:
     cli::cli_abort(msg_error)
   }
+
 }
+
+
+
+check_factory_key_args_names <- function(key_cols_missing,
+                                         key_cols_call_names) {
+
+  offenders <- key_cols_missing
+  offenders <- offenders[!offenders %in% key_cols_call_names]
+
+  # Error condition -- not all of the `reported` values that are not column
+  # names of `data` have been supplied as values of the respective arguments:
+  if (length(offenders) > 0) {
+    offenders <- wrap_in_backticks(offenders)
+
+    # Get the name of the current (i.e., factory-made) function using a helper
+    # from the utils.R file that wraps `rlang::caller_call()`:
+    msg_fn_name <- name_caller_call(n = 2)
+
+    # Because either one or more arguments (or column names) may be missing, the
+    # wording of the error message may be either singular or plural:
+    if (length(offenders) == 1) {
+      msg_missing <- "Column {offenders} is"
+      msg_is_are <- "is"
+      msg_needs_to_be <- "It should be a column"
+      msg_names <- "the name of the equivalent column"
+      msg_column_s <- "Column"
+      msg_argument <- "argument"
+    } else {
+      msg_missing <- "Columns {offenders} are"
+      msg_is_are <- "are"
+      msg_needs_to_be <- "They should be columns"
+      msg_names <- "the names of the equivalent columns"
+      msg_it_them <- "them"
+      msg_column_s <- "Columns"
+      msg_argument <- "arguments"
+    }
+
+    # Throw the error:
+    cli::cli_abort(c(
+      "{msg_column_s} {offenders} {msg_is_are} \\
+          missing from `data`.",
+      "x" = "{msg_needs_to_be} of the input data frame.",
+      "i" = "Alternatively, specify the {offenders} \\
+          {msg_argument} of {msg_fn_name} as {msg_names}."
+    ))
+  }
+
+}
+
 
 
 
@@ -172,6 +236,8 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
   fn_out <- function(data, fun = .fun, reported = .reported,
                      name_test = .name_test, name_class = .name_class, ...) {
 
+    # Manage key columns in `data` ---
+
     key_cols_missing <- reported[!reported %in% colnames(data)]
     key_cols_missing <- as.character(key_cols_missing)
 
@@ -189,45 +255,10 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
       key_cols_call <- as.character(key_cols_call)
       names(key_cols_call) <- key_cols_call_names
 
-      check_key_args_values(data, key_cols_call)
-
-      offenders <- key_cols_missing
-      offenders <- offenders[!offenders %in% key_cols_call_names]
-
-      # Throw an error if any of the `reported` values that are not column names
-      # of `data` are not supplied as values of the respective arguments: (used
-      # to have:) `length(key_cols_call) < length(key_cols_missing)`
-      if (length(offenders) > 0) {
-        offenders <- wrap_in_backticks(offenders)
-        # Get the name of the current (i.e., factory-made) function using a
-        # helper from the utils.R file that wraps `rlang::caller_call()`:
-        msg_fn_name <- name_caller_call()
-        # Because either one or more arguments (or column names) may be missing,
-        # the wording of the error message may be either singular or plural:
-        if (length(offenders) == 1) {
-          msg_missing <- "Column {offenders} is"
-          msg_is_are <- "is"
-          msg_needs_to_be <- "It should be a column"
-          msg_names <- "the name of the equivalent column"
-          msg_column_s <- "Column"
-          msg_argument <- "argument"
-        } else {
-          msg_missing <- "Columns {offenders} are"
-          msg_is_are <- "are"
-          msg_needs_to_be <- "They should be columns"
-          msg_names <- "the names of the equivalent columns"
-          msg_it_them <- "them"
-          msg_column_s <- "Columns"
-          msg_argument <- "arguments"
-        }
-        cli::cli_abort(c(
-          "{msg_column_s} {offenders} {msg_is_are} \\
-          missing from `data`.",
-          "x" = "{msg_needs_to_be} of the input data frame.",
-          "i" = "Alternatively, specify the {offenders} \\
-          {msg_argument} of {msg_fn_name} as {msg_names}."
-        ))
-      }
+      # Run specialized checks on the code supplied by the factory-made
+      # function's user to the subsequently inserted key argument parameters:
+      check_factory_key_args_values(data, key_cols_call)
+      check_factory_key_args_names(key_cols_missing, key_cols_call_names)
 
       df_colnames <- tibble::tibble(
         data = list(data),
@@ -328,7 +359,10 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
 
 
   # Insert parameters named after the key columns into `fn_out()`, with `NULL`
-  # as the default for each:
+  # as the default for each. The key columns need to be present in the input
+  # data frame. They are expected to have the names specified in `.reported`. If
+  # they don't, however, the user can simply specify the key column arguments as
+  # the non-quoted names of the columns meant to fulfill these roles:
   key_args <- list(NULL)
   key_args <- rep(key_args, times = length(.reported))
   names(key_args) <- .reported
@@ -340,19 +374,19 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
 
 
 
-# # Example factory-made functions:
-#
-# grim_map_alt <- function_map(
-#   .fun = grim_scalar,
-#   .reported = c("x", "n"),
-#   .name_test = "GRIM"
-# )
-#
-# debit_map_alt <- function_map(
-#   .fun = debit_scalar,
-#   .reported = c("x", "sd", "n"),
-#   .name_test = "DEBIT"
-# )
+# Example factory-made functions:
+
+grim_map_alt <- function_map(
+  .fun = grim_scalar,
+  .reported = c("x", "n"),
+  .name_test = "GRIM"
+)
+
+debit_map_alt <- function_map(
+  .fun = debit_scalar,
+  .reported = c("x", "sd", "n"),
+  .name_test = "DEBIT"
+)
 
 
 
