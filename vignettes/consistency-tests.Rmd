@@ -87,6 +87,8 @@ Functions created this way can be useful for quick testing, but they won't be us
 
 # 3. Mapper
 
+## Introduction
+
 The most important practical use of a consistency test within scrutiny is to apply it to entire data frames at once, as `grim_map()` does. That's also the starting point for every other function below.
 
 Most functions discussed in the remaining part of the vignette deal with data frames. I always use [tibbles](https://r4ds.had.co.nz/tibbles.html), and I strongly recommend the same to you. There's no guarantee that each of those functions works with non-tibble data frames as it does with tibbles.
@@ -116,9 +118,33 @@ schlim_map(df1)
 
 -   `.name_test` simply names the consistency test.
 
+### Context
+
 As you can see, `function_map()` is not a helper used inside other functions when creating them with `function()` --- instead, it takes the place of `function()` itself. This makes it a so-called function factory, or more precisely, a function operator, a.k.a. decorator [@wickham2019, ch. 10-11]. You already met `base::Vectorize()` in section 2, which is also a function operator, but a more general and straightforward one.
 
 To export a function manufactured this way from your own package, make sure to follow [this purrr FAQ](https://purrr.tidyverse.org/reference/faq-adverbs-export.html). (Incredible as it sounds, scrutiny will then take on the role of purrr.) Also, see the worked example for the `.onLoad` pattern in `function_map()`'s documentation.
+
+### Identifying columns
+
+All such factory-made functions come with a special convenience feature: Their `.reported` values are inserted into the list of the function's parameters. This means you don't need a data frame with the same column names as the `.reported` values. Instead, you can specify the arguments by those names as the names of the actual columns:
+
+```{r}
+df2 <- df1
+names(df2) <- c("foo", "bar")
+
+df2
+
+schlim_map(df2, y = foo, n = bar)
+```
+
+If any columns are neither present in the data frame nor identified via arguments, there will be a precise error:
+
+```{r, error=TRUE}
+schlim_map(df2, y = foo)
+
+# With a wrong identification:
+schlim_map(df2, n = mike)
+```
 
 ### Drawbacks
 
