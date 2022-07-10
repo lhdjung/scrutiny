@@ -214,7 +214,8 @@ manage_helper_col <- function(data, var_arg, default, fun_name, affix = TRUE) {
     # Determine whether or not the argument in question was specified by the
     # user; i.e., whether it's different from the default. For numeric values,
     # strict equality as tested by `identical()` would be asking too much, so
-    # `dplyr::near()` is used instead. This works via a helper from utils.R:
+    # `all(dplyr::near())` is used instead. This works via a helper from
+    # utils.R:
     if (!about_equal(var_arg, default)) {
       data_name <- deparse(substitute(data))
       data_name <- wrap_in_backticks(data_name)
@@ -272,18 +273,39 @@ manage_helper_col <- function(data, var_arg, default, fun_name, affix = TRUE) {
 #' @return The input data frame, `data`, possibly modified.
 #' @export
 
-manage_key_column_names <- function(data, arg, description) {
+manage_key_column_names <- function(data, arg, description = NULL) {
   arg_name <- deparse(substitute(arg))
   if (!is.null(arg)) {
-    data <- dplyr::rename(data, {{ arg_name }} := arg)
+    data <- dplyr::rename(data, "scr_temp_placeholder" := arg)  # {{ arg_name }} := arg
   } else if (!arg_name %in% colnames(data)) {
-    check_length(description, 1)
+    if (is.null(description)) {
+      msg_this_col <- "One"
+    } else {
+      msg_this_col <- paste("The ", description)
+    }
     cli::cli_abort(c(
-      "`{arg_name}` column missing.",
-      ">" = "The {description} column in `data` needs to be named \\
+      "Column `{arg_name}` missing.",
+      ">" = "{msg_this_col} column in `data` needs to be named \\
       `{arg_name}`, or else specify the `{arg_name}` argument as \\
       the name of that column."
     ))
+  }
+  data
+}
+
+
+# manage_key_column_names_list <- function(data, key_args) {
+#   key_args <- key_args[!is.null(key_args)]
+#   key_args_names <- names(key_args)
+#   for (i in key_args) {
+#     data <- dplyr::rename(data, {{ i }} := )
+#   }
+# }
+
+
+manage_key_column_names_list_el <- function(data, key_arg) {
+  if (!is.null(key_arg)) {
+    data <- dplyr::rename(data, {{ names(key_arg) }} := key_arg)
   }
   data
 }
