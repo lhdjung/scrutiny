@@ -109,7 +109,8 @@ check_factory_key_args_names <- function(key_cols_missing,
 #' Create new `*_map()` functions
 #'
 #' @description `function_map()` creates new basic mapper functions for
-#'   consistency tests, such as `grim_map()` or `debit_map()`.
+#'   consistency tests, such as `grim_map()` or `debit_map()`. For context, see
+#'   `vignette("consistency-tests")`.
 #'
 #' @param .fun Single-case consistency testing function that will be applied to
 #'   each row in a data frame, such as the (non-exported) scrutiny functions
@@ -121,7 +122,7 @@ check_factory_key_args_names <- function(key_cols_missing,
 #' @param .name_class String. One or more classes to be added to the output data
 #'   frame. Default is `NULL`, i.e., no extra class (but see *Details*).
 
-#' @details The output tibble returned by the manufactured function will inherit
+#' @details The output tibble returned by the factory-made function will inherit
 #'   one or two classes independently of the `.name_class` argument:
 #' - It will inherit a class named `"scr_{tolower(.name_test)}_map"`; for
 #'   example, `"scr_grim_map"` if `.name_test` is `"GRIM"`.
@@ -134,14 +135,18 @@ check_factory_key_args_names <- function(key_cols_missing,
 #' - `data`: Data frame with all the columns named in `.reported`. It needs to
 #'   have columns named after the key arguments in `.fun`. Other columns are
 #'   permitted.
+#' - Arguments named after the `.reported` values. They can be specified as the
+#'   names of `data` columns so that the function will rename that column using
+#'   the `.reported` name.
 #' - `reported`, `fun`, `name_class`: Same as when calling `function_map()` but
 #'   spelled without dots. You can override these defaults when calling the
-#'   manufactured function.
-#' - `...`: Arguments passed down to `.fun`.
-#'
-#' The manufactured function should then return a tibble that includes
-#' `"consistency"`: a Boolean column that shows whether the values to its left
-#' are mutually consistent (`TRUE`) or not (`FALSE`).
+#'   factory-made function.
+#' - `...`: Arguments passed down to `.fun`. This does not include the
+#'   column-identifying arguments derived from `.reported`.
+
+#' @section Value returned by the factory-made function: A tibble that includes
+#'   `"consistency"`: a Boolean column showing whether the values to its left
+#'   are mutually consistent (`TRUE`) or not (`FALSE`).
 
 #' @export
 
@@ -163,11 +168,11 @@ check_factory_key_args_names <- function(key_cols_missing,
 #' # Example data:
 #' df1 <- tibble::tibble(y = 16:25, n = 3:12)
 #'
-#' # Call the "manufactured" function:
+#' # Call the "factory-made" function:
 #' schlim_map(df1)
 #'
 #'
-#' # Advice on exporting manufactured functions ----------------
+#' # Advice on exporting factory-made functions ----------------
 #'
 #' # (The guidelines below were adapted from purrr:
 #' # https://purrr.tidyverse.org/reference/faq-adverbs-export.html)
@@ -231,10 +236,14 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
   }
 
 
-  # --- Start of the manufactured function, `fn_out()` ---
+  # --- Start of the factory-made function, `fn_out()` ---
 
-  fn_out <- function(data, fun = .fun, reported = .reported,
-                     name_test = .name_test, name_class = .name_class, ...) {
+  fn_out <- function(data, ...) {
+
+    fun <- .fun
+    reported <- .reported
+    name_test <- .name_test
+    name_class <- .name_class
 
     # Manage key columns in `data` ---
 
@@ -355,7 +364,7 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
     return(out)
   }
 
-  # --- End of the manufactured function, `fn_out()` ---
+  # --- End of the factory-made function, `fn_out()` ---
 
 
   # Insert parameters named after the key columns into `fn_out()`, with `NULL`
