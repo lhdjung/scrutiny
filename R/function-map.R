@@ -197,7 +197,7 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
 
       # return(list(data, key_cols_call))
 
-      return(check_key_args_values(data, key_cols_call))
+      check_key_args_values(data, key_cols_call)
 
       offenders <- key_cols_missing
       offenders <- offenders[!offenders %in% key_cols_call_names]
