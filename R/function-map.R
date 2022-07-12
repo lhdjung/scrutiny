@@ -280,16 +280,18 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
         data[name_missing]
       }
 
-      # Extract the renamed columns from the tibble returned below and put them
-      # together with each other and the non-renamed columns! MAYBE REWRITE THIS
-      # WITH purrr? THAT MIGHT BE `purrr::pmap_df()` OR SO.
-      df_key_cols_renamed <- df_colnames %>%
-        dplyr::rowwise() %>%
-        dplyr::mutate(
-          data = list(replace_colname(data, name_missing, name_call))
-        )
+      # # Extract the renamed columns from the tibble returned below and put them
+      # # together with each other and the non-renamed columns! MAYBE REWRITE THIS
+      # # WITH purrr? THAT MIGHT BE `purrr::pmap_df()` OR SO.
+      # df_key_cols_renamed <- df_colnames %>%
+      #   dplyr::rowwise() %>%
+      #   dplyr::mutate(
+      #     data = list(replace_colname(data, name_missing, name_call))
+      #   )
 
-      data_renamed <- dplyr::bind_cols(df_key_cols_renamed$data)
+      data_renamed <- purrr::pmap_dfc(df_colnames, replace_colname)
+
+      # data_renamed <- dplyr::bind_cols(df_key_cols_renamed$data)
       data_not_renamed <- data[!colnames(data) %in% df_colnames$name_call]
 
       data <- dplyr::bind_cols(data_renamed, data_not_renamed)
