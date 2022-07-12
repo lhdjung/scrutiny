@@ -281,7 +281,7 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
       }
 
       data_renamed <- purrr::pmap_dfc(df_colnames, replace_colname)
-      data_not_renamed <- data[!colnames(data) %in% df_colnames$name_call]
+      data_not_renamed <- data[!colnames(data) %in% key_cols_call]
 
       data <- dplyr::bind_cols(data_renamed, data_not_renamed)
     }
