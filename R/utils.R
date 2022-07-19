@@ -5,7 +5,8 @@ utils::globalVariables(c(
   ".", "where", "desc", "all_of", "contains", "everything", "x", "items",
   "frac", "distance", "both_consistent", "fun", "var", "dispersion", "out_min",
   "out_max", "include_reported", "n", "times", "value", "name", "setNames",
-  "rounding", "case", "n_sum", "V1", "consistency", "ratio", "scr_index_case"
+  "rounding", "case", "n_sum", "V1", "consistency", "ratio", "scr_index_case",
+  "dust"
 ))
 
 
@@ -724,6 +725,8 @@ name_caller_call <- function(n = 1, wrap = TRUE) {
 }
 
 
-
+# "Dust" variables were used by Nick Brown and later by Lukas Wallrich in
+# rsprite2. They get rid of spurious precision in reconstructed decimal numbers:
+dust <- 1e-12
 
 
