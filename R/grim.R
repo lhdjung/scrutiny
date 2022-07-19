@@ -1,4 +1,17 @@
 
+
+# # Example data:
+# x         <- "5.19"
+# n         <- 40
+# items     <- 1
+# percent   <- FALSE
+# show_rec  <- FALSE
+# rounding  <- "up_or_down"
+# threshold <- 5
+# symmetric <- FALSE
+# tolerance <- .Machine$double.eps^0.5
+
+
 # Single-case function; not exported but used as a basis for the vectorized
 # `grim()` as well as within `grim_map()`:
 grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
@@ -41,15 +54,11 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
 
   # Now, reconstruct the possible mean or percentage values (or "grains"),
   # controlling for small differences introduced by spurious precision:
-  rec_x_upper_orig <- ceiling(rec_sum) / n_items
-  rec_x_lower_orig <- floor(rec_sum) / n_items
+  rec_x_upper <- ceiling(rec_sum) / n_items
+  rec_x_lower <- floor(rec_sum) / n_items
 
-  rec_x_upper <- c(rec_x_upper_orig, rec_x_upper_orig - dust)
-  rec_x_upper <- c(rec_x_upper,      rec_x_upper_orig + dust)
-
-  rec_x_lower <- c(rec_x_lower_orig, rec_x_lower_orig - dust)
-  rec_x_lower <- c(rec_x_lower,      rec_x_lower_orig + dust)
-
+  rec_x_upper <- dustify(rec_x_upper)
+  rec_x_lower <- dustify(rec_x_lower)
 
   # Round these "grains" using an internal helper function that also gets the
   # number of decimal places as well as the `rounding`, `threshold`, and

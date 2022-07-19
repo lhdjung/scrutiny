@@ -729,4 +729,11 @@ name_caller_call <- function(n = 1, wrap = TRUE) {
 # rsprite2. They get rid of spurious precision in reconstructed decimal numbers:
 dust <- 1e-12
 
+# This applies the global `dust` variable to a number `x`. The idea is to catch
+# very minor variation from `x` introduced by spurious precision in floating
+# point numbers, so that such purely accidental deviations don't lead to false
+# assertions of significant numeric difference when there is none:
+dustify <- function(x) {
+  c(x - dust, x + dust)
+}
 
