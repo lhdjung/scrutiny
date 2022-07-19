@@ -39,9 +39,17 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
   n_items <- n * items
   rec_sum <- x_num * n_items
 
-  # Now, reconstruct the two possible mean or percentage values (or "grains"):
-  rec_x_upper <- ceiling(rec_sum) / n_items
-  rec_x_lower <- floor(rec_sum) / n_items
+  # Now, reconstruct the possible mean or percentage values (or "grains"),
+  # controlling for small differences introduced by spurious precision:
+  rec_x_upper_orig <- ceiling(rec_sum) / n_items
+  rec_x_lower_orig <- floor(rec_sum) / n_items
+
+  rec_x_upper <- c(rec_x_upper_orig, rec_x_upper_orig - dust)
+  rec_x_upper <- c(rec_x_upper,      rec_x_upper_orig + dust)
+
+  rec_x_lower <- c(rec_x_lower_orig, rec_x_lower_orig - dust)
+  rec_x_lower <- c(rec_x_lower,      rec_x_lower_orig + dust)
+
 
   # Round these "grains" using an internal helper function that also gets the
   # number of decimal places as well as the `rounding`, `threshold`, and
