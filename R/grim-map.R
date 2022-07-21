@@ -48,7 +48,7 @@
 #'   return none of them, set `extra` to 0.
 
 #' @return A tibble with these columns --
-#' - `x`, `n`, `items`: the inputs.
+#' - `x`, `n`: the inputs.
 #' - `consistency`: GRIM consistency of `x`, `n`, and `items`.
 #' - `<extra>`: any columns from `data` other than `x`, `n`, and `items`.
 #' - `ratio`: the GRIM ratio; see `grim_ratio()`.
