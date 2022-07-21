@@ -57,7 +57,10 @@ df <- tibble::tibble(
 
 # My take -----------------------------------------------------------------
 
-grimmer_scalar <- function(n, mean, SD, decimals_mean = 2, decimals_SD = 2){
+grimmer_scalar <- function(n, mean, SD, items = 1, rounding = "up_or_down",
+                           threshold = 5, symmetric = FALSE,
+                           tolerance = .Machine$double.eps^0.5,
+                           decimals_mean = 2, decimals_SD = 2) {
 
   # if(n>10^decimals_mean){
   #   print("The sample size is too big compared to the precision of the reported mean, it is not possible to apply GRIM.")
@@ -71,47 +74,82 @@ grimmer_scalar <- function(n, mean, SD, decimals_mean = 2, decimals_SD = 2){
 
 
 
-  # Creates functions to round a number consistently up or down, when the last digit is 5
+  # # Creates functions to round a number consistently up or down, when the last digit is 5
+  #
+  # round_down <- function(number, decimals=2){
+  #   is_five <- number*10^(decimals+1)-floor(number*10^(decimals))*10
+  #   number_rounded <- ifelse(is_five==5, floor(number*10^decimals)/10^decimals, round(number, digits = decimals))
+  #   return(number_rounded)
+  # }
+  #
+  # round_up <- function(number, decimals=2){
+  #   is_five <- number*10^(decimals+1)-floor(number*10^(decimals))*10
+  #   number_rounded <- ifelse(is_five==5, ceiling(number*10^decimals)/10^decimals, round(number, digits = decimals))
+  #   return(number_rounded)
+  # }
+  #
+  # # Applies the GRIM test, to see whether the reconstituted mean is the same as the reported mean (with both down and up rounding)
+  #
+  # consistency_down <- round_down(number = realmean, decimals = decimals_mean)==mean
+  # consistency_up <- round_up(number = realmean, decimals = decimals_mean)==mean
+  #
+  # if(consistency_down+consistency_up==0){
+  #   return(FALSE)
+  # }
 
-  round_down <- function(number, decimals=2){
-    is_five <- number*10^(decimals+1)-floor(number*10^(decimals))*10
-    number_rounded <- ifelse(is_five==5, floor(number*10^decimals)/10^decimals, round(number, digits = decimals))
-    return(number_rounded)
-  }
 
-  round_up <- function(number, decimals=2){
-    is_five <- number*10^(decimals+1)-floor(number*10^(decimals))*10
-    number_rounded <- ifelse(is_five==5, ceiling(number*10^decimals)/10^decimals, round(number, digits = decimals))
-    return(number_rounded)
-  }
+  grim_consistency <- grim_scalar(
+    x = as.character(mean), n = n, items = items, rounding = rounding,
+    threshold = threshold, symmetric = symmetric, tolerance = tolerance
+  )
 
-  # Applies the GRIM test, to see whether the reconstituted mean is the same as the reported mean (with both down and up rounding)
-
-  consistency_down <- round_down(number = realmean, decimals = decimals_mean)==mean
-  consistency_up <- round_up(number = realmean, decimals = decimals_mean)==mean
-
-  if(consistency_down+consistency_up==0){
+  if (!grim_consistency) {
     return(FALSE)
   }
 
 
-  #Computes the lower and upper bounds for the sd.
+  # #Computes the lower and upper bounds for the sd.
+  #
+  # Lsigma <- ifelse(SD<5/(10^decimals_SD), 0, SD-5/(10^decimals_SD))
+  # Usigma <- SD+5/(10^decimals_SD)
+  #
+  # #Computes the lower and upper bounds for the sum of squares of items.
+  #
+  # Lowerbound <- (n-1)*Lsigma^2+n*realmean^2
+  # Upperbound <- (n-1)*Usigma^2+n*realmean^2
+  #
+  # #Checks that there is at least an integer between the lower and upperbound
+  #
+  # FirstTest<- ifelse(ceiling(Lowerbound)>floor(Upperbound), FALSE, TRUE)
+  #
+  # if(FirstTest==FALSE){
+  #   return(FALSE)
+  # }
 
-  Lsigma <- ifelse(SD<5/(10^decimals_SD), 0, SD-5/(10^decimals_SD))
-  Usigma <- SD+5/(10^decimals_SD)
 
-  #Computes the lower and upper bounds for the sum of squares of items.
+  p10 <- 10 ^ decimals_SD
+  p10_frac <- 5 / p10
 
-  Lowerbound <- (n-1)*Lsigma^2+n*realmean^2
-  Upperbound <- (n-1)*Usigma^2+n*realmean^2
-
-  #Checks that there is at least an integer between the lower and upperbound
-
-  FirstTest<- ifelse(ceiling(Lowerbound)>floor(Upperbound), FALSE, TRUE)
-
-  if(FirstTest==FALSE){
-    return(FALSE)
+  # SD bound calculations, step 1 of 2:
+  if (SD < p10_frac) {
+    sd_lower <- 0
+  } else {
+    sd_lower <- SD - p10_frac
   }
+
+  sd_upper <- SD + p10_frac
+
+  # SD bound calculations, step 2 of 2:
+  sd_lower <- (n - 1) * sd_lower ^ 2 + n * realmean ^ 2
+  sd_upper <- (n - 1) * sd_upper ^ 2 + n * realmean ^ 2
+
+
+  # For the moment, continue to use the old variable names by assigning the
+  # newly derived -- and newly named -- values to them:
+  Lowerbound <- sd_lower
+  Upperbound <- sd_upper
+
+
 
   #Takes a vector of all the integers between the lowerbound and upperbound
 
@@ -384,98 +422,6 @@ grimmer_scalar <- function(n, mean, SD, decimals_mean = 2, decimals_SD = 2){
 
 
 
-# Original by Allard ------------------------------------------------------
-
-aGrimmer <- function(n, mean, SD, decimals_mean = 2, decimals_SD = 2){
-
-  # if(n>10^decimals_mean){
-  #   print("The sample size is too big compared to the precision of the reported mean, it is not possible to apply GRIM.")
-  # }
-
-  #Applies the GRIM test, and computes the possible mean.
-
-  sum <- mean*n
-  realsum <- round(sum)
-  realmean <- realsum/n
-
-
-
-  # Creates functions to round a number consistently up or down, when the last digit is 5
-
-  round_down <- function(number, decimals=2){
-    is_five <- number*10^(decimals+1)-floor(number*10^(decimals))*10
-    number_rounded <- ifelse(is_five==5, floor(number*10^decimals)/10^decimals, round(number, digits = decimals))
-    return(number_rounded)
-  }
-
-  round_up <- function(number, decimals=2){
-    is_five <- number*10^(decimals+1)-floor(number*10^(decimals))*10
-    number_rounded <- ifelse(is_five==5, ceiling(number*10^decimals)/10^decimals, round(number, digits = decimals))
-    return(number_rounded)
-  }
-
-  # Applies the GRIM test, to see whether the reconstituted mean is the same as the reported mean (with both down and up rounding)
-
-  consistency_down <- round_down(number = realmean, decimals = decimals_mean)==mean
-  consistency_up <- round_up(number = realmean, decimals = decimals_mean)==mean
-
-  if(consistency_down+consistency_up==0){
-    return("GRIM inconsistent")
-  }
-
-
-  #Computes the lower and upper bounds for the sd.
-
-  Lsigma <- ifelse(SD<5/(10^decimals_SD), 0, SD-5/(10^decimals_SD))
-  Usigma <- SD+5/(10^decimals_SD)
-
-  #Computes the lower and upper bounds for the sum of squares of items.
-
-  Lowerbound <- (n-1)*Lsigma^2+n*realmean^2
-  Upperbound <- (n-1)*Usigma^2+n*realmean^2
-
-  #Checks that there is at least an integer between the lower and upperbound
-
-  FirstTest<- ifelse(ceiling(Lowerbound)>floor(Upperbound), FALSE, TRUE)
-
-  if(FirstTest==FALSE){
-    return("GRIMMER inconsistent (test 1)")
-  }
-
-  #Takes a vector of all the integers between the lowerbound and upperbound
-
-  Possible_Integers <- ceiling(Lowerbound):floor(Upperbound)
-
-  #Creates the predicted variance and sd
-
-  Predicted_Variance <- (Possible_Integers-n*realmean^2)/(n-1)
-  Predicted_SD <- sqrt(Predicted_Variance)
-
-  #Computes whether one Predicted_SD matches the SD (trying to round both down and up)
-
-  Rounded_SD_down <- round_down(Predicted_SD, decimals_SD)
-  Rounded_SD_up <- round_up(Predicted_SD, decimals_SD)
-
-  Matches_SD <- Rounded_SD_down==SD | Rounded_SD_up==SD
-
-  if(sum(Matches_SD)==0){
-    return("GRIMMER inconsistent (test 2)")
-  }
-
-  #Computes first whether there is any integer between lower and upper bound, and then whether there is
-  #an integer of the correct oddness between the lower and upper bounds.
-  oddness <- realsum%%2
-  Matches_Oddness <- Possible_Integers%%2==oddness
-  Third_Test <- Matches_SD&Matches_Oddness
-  return(ifelse(
-    sum(Third_Test)==0, "GRIMMER inconsistent (test 3)", "The mean and SD are consistent.")
-  )
-}
-
-
-
-
-
 
 # # My earlier attempt ------------------------------------------------------
 #
@@ -677,6 +623,95 @@ aGrimmer <- function(n, mean, SD, decimals_mean = 2, decimals_SD = 2){
 #
 # }
 
+
+
+# Original by Allard ------------------------------------------------------
+
+aGrimmer <- function(n, mean, SD, decimals_mean = 2, decimals_SD = 2){
+
+  # if(n>10^decimals_mean){
+  #   print("The sample size is too big compared to the precision of the reported mean, it is not possible to apply GRIM.")
+  # }
+
+  #Applies the GRIM test, and computes the possible mean.
+
+  sum <- mean*n
+  realsum <- round(sum)
+  realmean <- realsum/n
+
+
+
+  # Creates functions to round a number consistently up or down, when the last digit is 5
+
+  round_down <- function(number, decimals=2){
+    is_five <- number*10^(decimals+1)-floor(number*10^(decimals))*10
+    number_rounded <- ifelse(is_five==5, floor(number*10^decimals)/10^decimals, round(number, digits = decimals))
+    return(number_rounded)
+  }
+
+  round_up <- function(number, decimals=2){
+    is_five <- number*10^(decimals+1)-floor(number*10^(decimals))*10
+    number_rounded <- ifelse(is_five==5, ceiling(number*10^decimals)/10^decimals, round(number, digits = decimals))
+    return(number_rounded)
+  }
+
+  # Applies the GRIM test, to see whether the reconstituted mean is the same as the reported mean (with both down and up rounding)
+
+  consistency_down <- round_down(number = realmean, decimals = decimals_mean)==mean
+  consistency_up <- round_up(number = realmean, decimals = decimals_mean)==mean
+
+  if(consistency_down+consistency_up==0){
+    return("GRIM inconsistent")
+  }
+
+
+  #Computes the lower and upper bounds for the sd.
+
+  Lsigma <- ifelse(SD<5/(10^decimals_SD), 0, SD-5/(10^decimals_SD))
+  Usigma <- SD+5/(10^decimals_SD)
+
+  #Computes the lower and upper bounds for the sum of squares of items.
+
+  Lowerbound <- (n-1)*Lsigma^2+n*realmean^2
+  Upperbound <- (n-1)*Usigma^2+n*realmean^2
+
+  #Checks that there is at least an integer between the lower and upperbound
+
+  FirstTest<- ifelse(ceiling(Lowerbound)>floor(Upperbound), FALSE, TRUE)
+
+  if(FirstTest==FALSE){
+    return("GRIMMER inconsistent (test 1)")
+  }
+
+  #Takes a vector of all the integers between the lowerbound and upperbound
+
+  Possible_Integers <- ceiling(Lowerbound):floor(Upperbound)
+
+  #Creates the predicted variance and sd
+
+  Predicted_Variance <- (Possible_Integers-n*realmean^2)/(n-1)
+  Predicted_SD <- sqrt(Predicted_Variance)
+
+  #Computes whether one Predicted_SD matches the SD (trying to round both down and up)
+
+  Rounded_SD_down <- round_down(Predicted_SD, decimals_SD)
+  Rounded_SD_up <- round_up(Predicted_SD, decimals_SD)
+
+  Matches_SD <- Rounded_SD_down==SD | Rounded_SD_up==SD
+
+  if(sum(Matches_SD)==0){
+    return("GRIMMER inconsistent (test 2)")
+  }
+
+  #Computes first whether there is any integer between lower and upper bound, and then whether there is
+  #an integer of the correct oddness between the lower and upper bounds.
+  oddness <- realsum%%2
+  Matches_Oddness <- Possible_Integers%%2==oddness
+  Third_Test <- Matches_SD&Matches_Oddness
+  return(ifelse(
+    sum(Third_Test)==0, "GRIMMER inconsistent (test 3)", "The mean and SD are consistent.")
+  )
+}
 
 
 
