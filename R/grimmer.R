@@ -47,12 +47,15 @@ df <- tibble::tibble(
 
 # # Example inputs:
 # n <- 40
-# mean <- "1.03"
-# sd <- "0.41"
-# items = 1
-# rounding = "up_or_down"
-# threshold = 5
-# symmetric = FALSE
+# mean <- 1.03
+# SD <- 0.41
+# items <- 1
+# rounding <- "up_or_down"
+# threshold <- 5
+# symmetric <- FALSE
+# tolerance <- .Machine$double.eps^0.5
+# decimals_mean <- 2
+# decimals_SD <- 2
 
 
 # My take -----------------------------------------------------------------
@@ -119,13 +122,6 @@ grimmer_scalar <- function(n, mean, SD, items = 1, rounding = "up_or_down",
   # Upperbound <- (n-1)*Usigma^2+n*realmean^2
   #
   # #Checks that there is at least an integer between the lower and upperbound
-  #
-  # FirstTest<- ifelse(ceiling(Lowerbound)>floor(Upperbound), FALSE, TRUE)
-  #
-  # if(FirstTest==FALSE){
-  #   return(FALSE)
-  # }
-
 
   p10 <- 10 ^ decimals_SD
   p10_frac <- 5 / p10
@@ -150,6 +146,14 @@ grimmer_scalar <- function(n, mean, SD, items = 1, rounding = "up_or_down",
   Upperbound <- sum_squares_upper
 
 
+  FirstTest <- !ceiling(Lowerbound) > floor(Upperbound)
+
+  if (!FirstTest) {
+    return(FALSE)
+  }
+
+
+
 
   #Takes a vector of all the integers between the lowerbound and upperbound
 
@@ -157,7 +161,7 @@ grimmer_scalar <- function(n, mean, SD, items = 1, rounding = "up_or_down",
 
   #Creates the predicted variance and sd
 
-  Predicted_Variance <- (Possible_Integers-n*realmean^2)/(n-1)
+  Predicted_Variance <- (Possible_Integers - n * realmean ^ 2) / (n - 1)
   Predicted_SD <- sqrt(Predicted_Variance)
 
   # #Computes whether one Predicted_SD matches the SD (trying to round both down and up)
@@ -175,20 +179,37 @@ grimmer_scalar <- function(n, mean, SD, items = 1, rounding = "up_or_down",
     symmetric = symmetric
   )
 
-  Matches_SD <- any(SD == sd_rec_rounded)
+  Matches_SD <- any(dplyr::near(SD, sd_rec_rounded, tol = tolerance))
 
-  if(sum(Matches_SD)==0){
+  if (!Matches_SD) {
     return(FALSE)
   }
 
-  #Computes first whether there is any integer between lower and upper bound, and then whether there is
-  #an integer of the correct oddness between the lower and upper bounds.
-  oddness <- realsum%%2
-  Matches_Oddness <- Possible_Integers%%2==oddness
-  Third_Test <- Matches_SD&Matches_Oddness
-  return(ifelse(
-    sum(Third_Test)==0, FALSE, TRUE)
-  )
+  # #Computes first whether there is any integer between lower and upper bound, and then whether there is
+  # #an integer of the correct oddness between the lower and upper bounds.
+  # oddness <- realsum%%2
+  # Matches_Oddness <- Possible_Integers%%2==oddness
+  # Third_Test <- Matches_SD&Matches_Oddness
+  # return(ifelse(
+  #   sum(Third_Test)==0, FALSE, TRUE)
+  # )
+
+  parity_realsum <- realsum %% 2
+  parity_Possible_Integers <- Possible_Integers %% 2
+
+  parity_matches <- parity_realsum == parity_Possible_Integers
+
+  Third_Test <- any(Matches_SD & parity_matches)
+
+  # return(ifelse(
+  #   sum(Third_Test)==0, FALSE, TRUE)
+  # )
+
+  if (!Third_Test) {
+    return(FALSE)
+  }
+
+  return(TRUE)
 }
 
 
