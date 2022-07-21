@@ -130,7 +130,7 @@ grimmer_scalar <- function(n, mean, SD, items = 1, rounding = "up_or_down",
   p10 <- 10 ^ decimals_SD
   p10_frac <- 5 / p10
 
-  # SD bound calculations, step 1 of 2:
+  # SD bounds, lower and upper:
   if (SD < p10_frac) {
     sd_lower <- 0
   } else {
@@ -139,15 +139,15 @@ grimmer_scalar <- function(n, mean, SD, items = 1, rounding = "up_or_down",
 
   sd_upper <- SD + p10_frac
 
-  # SD bound calculations, step 2 of 2:
-  sd_lower <- (n - 1) * sd_lower ^ 2 + n * realmean ^ 2
-  sd_upper <- (n - 1) * sd_upper ^ 2 + n * realmean ^ 2
+  # Sum of squares bounds, lower and upper:
+  sum_squares_lower <- (n - 1) * sd_lower ^ 2 + n * realmean ^ 2
+  sum_squares_upper <- (n - 1) * sd_upper ^ 2 + n * realmean ^ 2
 
 
   # For the moment, continue to use the old variable names by assigning the
   # newly derived -- and newly named -- values to them:
-  Lowerbound <- sd_lower
-  Upperbound <- sd_upper
+  Lowerbound <- sum_squares_lower
+  Upperbound <- sum_squares_upper
 
 
 
@@ -160,12 +160,22 @@ grimmer_scalar <- function(n, mean, SD, items = 1, rounding = "up_or_down",
   Predicted_Variance <- (Possible_Integers-n*realmean^2)/(n-1)
   Predicted_SD <- sqrt(Predicted_Variance)
 
-  #Computes whether one Predicted_SD matches the SD (trying to round both down and up)
+  # #Computes whether one Predicted_SD matches the SD (trying to round both down and up)
+  #
+  # Rounded_SD_down <- round_down(Predicted_SD, decimals_SD)
+  # Rounded_SD_up <- round_up(Predicted_SD, decimals_SD)
+  #
+  # Matches_SD <- Rounded_SD_down==SD | Rounded_SD_up==SD
 
-  Rounded_SD_down <- round_down(Predicted_SD, decimals_SD)
-  Rounded_SD_up <- round_up(Predicted_SD, decimals_SD)
+  sd_rec_rounded <- reround(
+    x         = Predicted_SD,
+    digits    = decimals_SD,
+    rounding  = rounding,
+    threshold = threshold,
+    symmetric = symmetric
+  )
 
-  Matches_SD <- Rounded_SD_down==SD | Rounded_SD_up==SD
+  Matches_SD <- any(SD == sd_rec_rounded)
 
   if(sum(Matches_SD)==0){
     return(FALSE)
