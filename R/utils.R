@@ -662,7 +662,7 @@ wrap_in_quotes_or_backticks <- function(x) {
 # Custom function as a workaround to replace `tidyr::unnest_wider()` within
 # mapper functions -- specifically, `grim_map()` -- because `unnest_wider()` has
 # become too slow for that job:
-unnest_consistency_cols <- function(results, col_names) {
+unnest_consistency_cols_grim <- function(results, col_names) {
   n_cols <- length(col_names)
 
   consistency_list <- results$consistency %>%

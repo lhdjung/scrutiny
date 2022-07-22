@@ -265,7 +265,7 @@ grim_map <- function(data, items = 1, merge_items = TRUE, percent = FALSE,
     }
 
     results <- results %>%
-      unnest_consistency_cols(col_names)
+      unnest_consistency_cols_grim(col_names)
   }
 
 
