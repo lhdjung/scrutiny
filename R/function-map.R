@@ -121,6 +121,9 @@ check_factory_key_args_names <- function(key_cols_missing,
 #'   such as `"GRIM"`.
 #' @param .name_class String. One or more classes to be added to the output data
 #'   frame. Default is `NULL`, i.e., no extra class (but see *Details*).
+#' @param .arg_list Optionally, specify a named list. The names will be
+#'   hard-coded into the factory-made function as arguments passed on to to
+#'   `.fun`, and the values will be their defaults.
 
 #' @details The output tibble returned by the factory-made function will inherit
 #'   one or two classes independently of the `.name_class` argument:
@@ -210,7 +213,8 @@ check_factory_key_args_names <- function(key_cols_missing,
 # name_test <- "GRIM"
 
 
-function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
+function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
+                         .arg_list = NULL) {
 
   # Checks ---
 
@@ -343,7 +347,16 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
     data_non_tested <- data[!colnames(data) %in% reported]
 
     # Test for consistency:
-    consistency <- purrr::pmap_lgl(data_tested, fun, ...)
+    if (is.null(.arg_list)) {
+      consistency <- purrr::pmap(data_tested, fun, ...)
+    } else {
+      call_args <- as.list(rlang::current_call())
+      call_args <- call_args[names(call_args) %in% names(.arg_list)]
+      consistency <- rlang::call2(
+        .fn = "pmap", data_tested, .f = fun, !!!call_args, ..., .ns = "purrr"
+      )
+      consistency <- eval(consistency)
+    }
 
     # Following scrutiny's requirements for mapper functions, `"consistency"`
     # goes immediately to the right of the key columns (which here are identical
@@ -351,6 +364,27 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
     # of `"consistency"`:
     out <- tibble::tibble(data_tested, consistency, data_non_tested)
     out <- add_class(out, all_classes)
+
+    lengths_consistency <- purrr::map_int(out$consistency, length)
+    out$consistency[lengths_consistency == 1] <- list(list(TRUE, NA))
+
+    out <- tidyr::unnest_wider(
+      out,
+      col = consistency,
+      names_repair = ~ c("consistency", "reason")
+    )
+
+    return(out)
+
+
+    # if (any(lengths_consistency == 1)) {
+    #   out$consistency[length(out$consistency) == 1] <-
+    #     append(list(out$consistency[length(consistency) == 1]), list(NA))
+    #   # out <- tidyr::unnest_wider(
+    #   #   out, col = "consistency",
+    #   #   names_repair = "minimal"
+    #   # )
+    # }
 
     return(out)
   }
@@ -367,6 +401,11 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL) {
   key_args <- rep(key_args, times = length(.reported))
   names(key_args) <- .reported
   formals(fn_out) <- append(formals(fn_out), key_args, after = 1)
+
+  if (!is.null(.arg_list)) {
+    index_start <- 1 + length(.reported)
+    formals(fn_out) <- append(formals(fn_out), .arg_list, after = index_start)
+  }
 
   return(fn_out)
 }
