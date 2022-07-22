@@ -87,17 +87,20 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
 
     if (any(length_2ers == rounding)) {
 
+      # Skipping those values that are identical to the selected ones apart from
+      # `dust` addition or subtraction via `dustify()`:
       return(list(
         consistency, rec_sum, rec_x_upper, rec_x_lower,
         grains_rounded[1], grains_rounded[2],
-        grains_rounded[3], grains_rounded[4]
+        grains_rounded[5], grains_rounded[6]
       ))
 
     } else {
 
+      # Skipping as above:
       return(list(
         consistency, rec_sum, rec_x_upper, rec_x_lower,
-        grains_rounded[1], grains_rounded[2]
+        grains_rounded[1], grains_rounded[3]
       ))
 
     }
