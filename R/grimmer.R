@@ -48,7 +48,8 @@
 
 
 
-grimmer_scalar <- function(x, sd, n, items = 1, rounding = "up_or_down",
+grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
+                           rounding = "up_or_down",
                            threshold = 5, symmetric = FALSE,
                            tolerance = .Machine$double.eps^0.5) {
 
@@ -79,6 +80,12 @@ grimmer_scalar <- function(x, sd, n, items = 1, rounding = "up_or_down",
   )
 
   if (!grim_consistency) {
+    if (show_reason) {
+      return(list(
+        FALSE,
+        "GRIM inconsistent"
+      ))
+    }
     return(FALSE)
   }
 
@@ -101,6 +108,12 @@ grimmer_scalar <- function(x, sd, n, items = 1, rounding = "up_or_down",
   pass_test1 <- !ceiling(sum_squares_lower) > floor(sum_squares_upper)
 
   if (!pass_test1) {
+    if (show_reason) {
+      return(list(
+        FALSE,
+        "GRIMMER inconsistent (test 1)"
+      ))
+    }
     return(FALSE)
   }
 
@@ -128,6 +141,12 @@ grimmer_scalar <- function(x, sd, n, items = 1, rounding = "up_or_down",
   pass_test2 <- any(matches_sd)
 
   if (!pass_test2) {
+    if (show_reason) {
+      return(list(
+        FALSE,
+        "GRIMMER inconsistent (test 2)"
+      ))
+    }
     return(FALSE)
   }
 
@@ -141,6 +160,12 @@ grimmer_scalar <- function(x, sd, n, items = 1, rounding = "up_or_down",
   pass_test3 <- any(matches_sd & matches_parity)
 
   if (!pass_test3) {
+    if (show_reason) {
+      return(list(
+        FALSE,
+        "GRIMMER inconsistent (test 3)"
+      ))
+    }
     return(FALSE)
   }
 
@@ -150,23 +175,30 @@ grimmer_scalar <- function(x, sd, n, items = 1, rounding = "up_or_down",
 
 
 
-#' The GRIMMER test
+#' The GRIMMER test (granularity-related inconsistency of means mapped to error
+#' repeats)
 #'
-#' @param x
-#' @param sd
-#' @param n
-#' @param items
-#' @param show_reason
-#' @param rounding
-#' @param threshold
-#' @param symmetric
-#' @param tolerance
+#' @description `grimmer()` checks if reported mean and SD values of integer
+#'   data are mathematically consistent with the reported sample size and the
+#'   number of items that compose the mean value. It works much like `grim()`.
 #'
-#' @return
+#'   The function is vectorized, but it is recommended to use `grimmer_map()`
+#'   for testing multiple cases.
+#'
+#' @param x String. The reported mean value.
+#' @param sd String. The reported standard deviation.
+#' @param n Integer. The reported sample size.
+#' @param show_reason Not currently used.
+#'
+#' @inheritParams grim
+#'
+#' @return Boolean. `TRUE` if `x`, `sd`, `n`, and `items` are mutually
+#'   consistent, `FALSE` if not.
+#'
 #' @export
 #'
 #' @examples
 
 
-# grimmer <- Vectorize(grimmer_scalar)
+grimmer <- Vectorize(grimmer_scalar)
 
