@@ -666,6 +666,7 @@ unnest_consistency_cols <- function(results, col_names) {
   n_cols <- length(col_names)
 
   consistency_list <- results$consistency %>%
+    purrr::map_depth(.depth = 2, .f =  `[`, 1) %>%
     purrr::map(unlist)
 
   consistency_df <- consistency_list %>%
