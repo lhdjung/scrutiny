@@ -203,7 +203,7 @@ check_audit_special <- function(data, name_test) {
 #' @export
 
 
-manage_helper_col <- function(data, var_arg, default, fun_name, affix = TRUE) {
+manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
 
   # Retrieve the variable's name:
   var_name <- deparse(substitute(var_arg))
@@ -215,17 +215,18 @@ manage_helper_col <- function(data, var_arg, default, fun_name, affix = TRUE) {
     # user; i.e., whether it's different from the default. For numeric values,
     # strict equality as tested by `identical()` would be asking too much, so
     # `all(dplyr::near())` is used instead. This works via a helper from
-    # utils.R:
+    # utils.R, which is also the source of all the other helpers here:
     if (!about_equal(var_arg, default)) {
       data_name <- deparse(substitute(data))
       data_name <- wrap_in_backticks(data_name)
       var_name_as_arg <- wrap_in_backticks(var_name)
       var_name <- wrap_in_quotes(var_name)
       var_arg  <- wrap_in_quotes_or_backticks(var_arg)
+      fun_name <- name_caller_call(n = 2)
       default  <- wrap_in_quotes_or_backticks(default)
       cli::cli_abort(c(
         "Column {var_name} already in {data_name}.",
-        "x" = "The {var_name_as_arg} argument in `{fun_name}()` \\
+        "x" = "The {var_name_as_arg} argument in {fun_name} \\
         was specified as {var_arg} (default: {default}).",
         "x" = "This conflicts with the {var_name} column in {data_name}."
       ))
@@ -276,7 +277,8 @@ manage_helper_col <- function(data, var_arg, default, fun_name, affix = TRUE) {
 manage_key_column_names <- function(data, arg, description = NULL) {
   arg_name <- deparse(substitute(arg))
   if (!is.null(arg)) {
-    data <- dplyr::rename(data, "scr_temp_placeholder" := arg)  # {{ arg_name }} := arg
+    # data <- dplyr::rename(data, "scr_temp_placeholder" := arg)  # {{ arg_name }} := arg
+    data <- dplyr::rename(data, {{ arg_name }} := arg)
   } else if (!arg_name %in% colnames(data)) {
     if (is.null(description)) {
       msg_this_col <- "One"
@@ -309,7 +311,5 @@ manage_key_column_names_list_el <- function(data, key_arg) {
   }
   data
 }
-
-
 
 
