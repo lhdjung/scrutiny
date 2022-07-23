@@ -151,9 +151,7 @@ grim_map <- function(data, items = 1, merge_items = TRUE, percent = FALSE,
   # # which would leave `n` as a string vector):
   # data$n <- as.integer(data$n)
 
-  data <- manage_helper_col(
-    data = data, var_arg = items, default = 1, fun_name = "grim_map"
-  )
+  data <- manage_helper_col(data = data, var_arg = items, default = 1)
 
   # Create `other_cols`, which contains all extra columns from `data` (i.e.,
   # those which play no role in the GRIM test), and run it through a specified
