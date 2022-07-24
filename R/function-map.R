@@ -214,7 +214,8 @@ check_factory_key_args_names <- function(key_cols_missing,
 
 
 function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
-                         .arg_list = NULL) {
+                         .arg_list = NULL, .args_disabled = NULL,
+                         .col_names = NULL, .show_more_cols = NULL) {
 
   # Checks ---
 
@@ -314,6 +315,43 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
       ))
     }
 
+    if (!is.null(.args_disabled)) {
+      arg_names_current_call <- names(rlang::current_call())
+      offenders <- .args_disabled[.args_disabled %in% arg_names_current_call]
+      if (length(offenders) > 0) {
+        fun_name <- name_caller_call()
+        fun_name_bare <- name_caller_call(wrap = FALSE)
+        fun_name_bare <- as.character(fun_name_bare)
+        package_name <- utils::getAnywhere(fun_name_bare)$where
+        package_name <- as.character(package_name[1])
+        package_name <- sub("package:", "", package_name)
+        if (length(offenders) > 3) {
+          offenders <- offenders[1:3]
+          msg_among_others <- ", among others"
+        } else {
+          msg_among_others <- ""
+        }
+        if (length(offenders) > 1) {
+          msg_arg_s <- "Arguments"
+          msg_is_are <- "are"
+        } else {
+          msg_arg_s <- "Argument"
+          msg_is_are <- "is"
+        }
+        cli::cli_abort(c(
+          "{msg_arg_s} {wrap_in_backticks(offenders)} {msg_is_are} \\
+          disabled in {fun_name}{msg_among_others}.",
+          "i" = "This is by design. When {fun_name} was created \\
+          within {package_name} using `scrutiny::function_map()`, \\
+          this function factory's `.args_disabled` argument was \\
+          specified so as to include \"{offenders}\".",
+          "i" = "The purpose is to prevent hidden errors that \\
+          might otherwise arise due to certain arguments not \\
+          working properly within `scrutiny::function_map()`."
+        ))
+      }
+    }
+
 
     # Main part ---
 
@@ -346,15 +384,28 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
     data_tested <- data[, reported]
     data_non_tested <- data[!colnames(data) %in% reported]
 
+    # force(.show_more_cols)
+
     # Test for consistency:
     if (is.null(.arg_list)) {
       consistency <- purrr::pmap(data_tested, fun, ...)
     } else {
       call_args <- as.list(rlang::current_call())
-      call_args <- call_args[names(call_args) %in% names(.arg_list)]
+      call_args <- call_args[names(call_args) != ""]
+
+      formals(fun)[names(formals(fun)) %in% names(.arg_list)] <-
+        .arg_list[names(.arg_list) %in% names(formals(fun))]
+
+      formals(fun)[names(formals(fun)) %in% names(call_args)] <-
+        call_args[names(call_args) %in% names(formals(fun))]
+
+      # return(list(.arg_list, call_args))
+      .arg_list[names(call_args)] <- call_args
+      # call_args <- .arg_list[names(.arg_list) %in% names(call_args)]
       consistency <- rlang::call2(
         .fn = "pmap", data_tested, .f = fun, !!!call_args, ..., .ns = "purrr"
       )
+      # return(consistency)
       consistency <- eval(consistency)
     }
 
@@ -365,16 +416,44 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
     out <- tibble::tibble(data_tested, consistency, data_non_tested)
     out <- add_class(out, all_classes)
 
-    lengths_consistency <- purrr::map_int(out$consistency, length)
-    out$consistency[lengths_consistency == 1] <- list(list(TRUE, NA))
+    # The idea here is that `.show_more_cols` might have been specified as a
+    # string that is the name of a Boolean argument which controls whether or
+    # not additional columns beyond `"consistency"` are shown. They would have
+    # to be extracted from the `*_scalar()` function and initially stored in a
+    # `"consistency"` list-column, together with the actual `consistency` value:
+    if (!is.null(.show_more_cols)) {
+      .show_more_cols <- eval(rlang::parse_expr(.show_more_cols))
+      # return(.show_more_cols)
+      lengths_consistency <- vapply(consistency, length, integer(1))
+      lengths_consistency_all1 <- all(lengths_consistency == 1)
+      if (.show_more_cols & !lengths_consistency_all1) {
+        extend_if_l1 <- function(x, value_if_l1) {
+          if (length(x) == 1) {
+            list(list(x, value_if_l1))
+          } else {
+            x
+          }
+        }
+        out$consistency <- purrr::map(out$consistency, extend_if_l1, NA)
+        # out$consistency[lengths_consistency == 1] <- list(list(TRUE, NA))
+        out <- unnest_consistency_cols(
+          out, col_names = c("consistency", .col_names), index = FALSE
+        )
+      } else {
+        out <- tidyr::unnest(out, cols = consistency)
+      }
+    }
 
-    out <- tidyr::unnest_wider(
-      out,
-      col = consistency,
-      names_repair = ~ c("consistency", "reason")
-    )
+    # out <- tidyr::unnest_wider(
+    #   out,
+    #   col = consistency,
+    #   names_repair = ~ c("consistency", "reason")
+    # )
 
-    return(out)
+    # out <- unnest_consistency_cols(
+    #   out, col_names = c("consistency", "reason"), index = FALSE
+    # )
+
 
 
     # if (any(lengths_consistency == 1)) {
@@ -385,6 +464,8 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
     #   #   names_repair = "minimal"
     #   # )
     # }
+
+    out <- add_class(out, all_classes)
 
     return(out)
   }
@@ -402,6 +483,10 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
   names(key_args) <- .reported
   formals(fn_out) <- append(formals(fn_out), key_args, after = 1)
 
+  # Do the same with any other arguments and their defaults specified by the
+  # user of `function_map()` in the form of a named list that was passed to the
+  # `.arg_list` argument. The defaults are the values of `.arg_list`, and the
+  # arguments themselves are the names of these values:
   if (!is.null(.arg_list)) {
     index_start <- 1 + length(.reported)
     formals(fn_out) <- append(formals(fn_out), .arg_list, after = index_start)
@@ -418,13 +503,23 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
 grim_map_alt <- function_map(
   .fun = grim_scalar,
   .reported = c("x", "n"),
-  .name_test = "GRIM"
+  .name_test = "GRIM",
+  .arg_list = list(
+    items = 1, percent = FALSE, x = NULL, n = NULL,
+    rounding = "up_or_down", threshold = 5,
+    symmetric = FALSE, tolerance = .Machine$double.eps^0.5
+  ),
+  .args_disabled = "show_rec"
 )
 
 debit_map_alt <- function_map(
   .fun = debit_scalar,
   .reported = c("x", "sd", "n"),
-  .name_test = "DEBIT"
+  .name_test = "DEBIT",
+  .arg_list = list(
+    rounding = "up_or_down", threshold = 5,
+    symmetric = FALSE
+  )
 )
 
 
