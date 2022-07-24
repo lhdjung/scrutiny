@@ -1,5 +1,8 @@
 
-# Notes: Analytic-GRIMMER (A-GRIMMER) was developed by Aurélien Allard
+
+# Introductory notes ------------------------------------------------------
+
+# Analytic-GRIMMER (A-GRIMMER) was developed by Aurélien Allard
 # (https://aurelienallard.netlify.app/post/anaytic-grimmer-possibility-standard-deviations/).
 # His original algorithm received some modifications here, for three reasons:
 # First, tapping scrutiny's infrastructure for implementing error detection
@@ -10,10 +13,10 @@
 
 
 
-# Translation of variable names:
-#
+# Translation of variable names -------------------------------------------
+
 # original           --> scrutiny
-# --------               --------
+# ********               ********
 #
 # aGrimmer           --> grimmer_scalar
 # mean               --> x
@@ -47,6 +50,7 @@
 
 
 
+# Implementation ----------------------------------------------------------
 
 grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
                            rounding = "up_or_down",
@@ -81,10 +85,7 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
 
   if (!grim_consistency) {
     if (show_reason) {
-      return(list(
-        FALSE,
-        "GRIM inconsistent"
-      ))
+      return(list(FALSE, "GRIM inconsistent"))
     }
     return(FALSE)
   }
@@ -109,10 +110,7 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
 
   if (!pass_test1) {
     if (show_reason) {
-      return(list(
-        FALSE,
-        "GRIMMER inconsistent (test 1)"
-      ))
+      return(list(FALSE, "GRIMMER inconsistent (test 1)"))
     }
     return(FALSE)
   }
@@ -142,10 +140,7 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
 
   if (!pass_test2) {
     if (show_reason) {
-      return(list(
-        FALSE,
-        "GRIMMER inconsistent (test 2)"
-      ))
+      return(list(FALSE, "GRIMMER inconsistent (test 2)"))
     }
     return(FALSE)
   }
@@ -161,10 +156,7 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
 
   if (!pass_test3) {
     if (show_reason) {
-      return(list(
-        FALSE,
-        "GRIMMER inconsistent (test 3)"
-      ))
+      return(list(FALSE, "GRIMMER inconsistent (test 3)"))
     }
     return(FALSE)
   }
@@ -195,6 +187,24 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
 #' @return Boolean. `TRUE` if `x`, `sd`, `n`, and `items` are mutually
 #'   consistent, `FALSE` if not.
 #'
+#' @details GRIMMER was originally devised by Anaya (2016). The present
+#'   implementation follows Allard's (2018) refined Analytic-GRIMMER (A-GRIMMER)
+#'   algorithm. It adapts the R function `aGrimmer()` provided by Allard and
+#'   modifies it to accord with scrutiny's standards, as laid out in
+#'   `vignette("consistency-tests")`, sections 1-2. The resulting `grimmer()`
+#'   function, then, is a vectorized version of this basic implementation. For
+#'   more context and variable name translations, see the top of the
+#'   \href{https://github.com/lhdjung/scrutiny/blob/main/R/grimmer.R}{source
+#'   file}.
+
+#' @references Allard, A. (2018). Analytic-GRIMMER: a new way of testing the
+#'   possibility of standard deviations.
+#'   https://aurelienallard.netlify.app/post/anaytic-grimmer-possibility-standard-deviations/
+#'
+#'   Anaya, J. (2016). The GRIMMER test: A method for testing the validity of
+#'   reported measures of variability. *PeerJ Preprints.*
+#'   https://doi.org/10.7287/peerj.preprints.2400v1
+
 #' @export
 #'
 #' @examples
