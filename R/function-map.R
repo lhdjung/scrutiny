@@ -119,11 +119,22 @@ check_factory_key_args_names <- function(key_cols_missing,
 #' @param .reported String. Names of the columns to be tested.
 #' @param .name_test String (length 1). Plain-text name of the consistency test,
 #'   such as `"GRIM"`.
-#' @param .name_class String. One or more classes to be added to the output data
-#'   frame. Default is `NULL`, i.e., no extra class (but see *Details*).
-#' @param .arg_list Optionally, specify a named list. The names will be
-#'   hard-coded into the factory-made function as arguments passed on to to
-#'   `.fun`, and the values will be their defaults.
+#' @param .name_class String. Optionally, one or more classes to be added to the
+#'   output data frame. Default is `NULL`, i.e., no extra class (but see
+#'   *Details*).
+#' @param .args_disabled Optionally, a string vector with names of arguments of
+#'   the `*_scalar()` function that don't work with the factory-made function.
+#'   If the user  tries to specify these arguments, an informative error will be
+#'   thrown.
+#' @param .col_names Optionally, a string vector with the names of additional
+#'   columns that are derived from the `*_scalar()` function. Requires a
+#'   `.col_control` specification.
+#' @param .col_control Optionally, a single string with the name of the
+#'   `*_scalar()` function's Boolean argument that controls if the columns named
+#'   in `.col_names` will be displayed.
+#' @param .arg_list Optionally, a named list. The names will be hard-coded into
+#'   the factory-made function as arguments passed on to to `.fun`, and the
+#'   values will be their defaults.
 
 #' @details The output tibble returned by the factory-made function will inherit
 #'   one or two classes independently of the `.name_class` argument:
