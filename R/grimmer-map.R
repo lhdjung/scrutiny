@@ -17,6 +17,9 @@
 #'   (`x`), standard deviations (`sd`), and/or sample sizes (`n`). If not
 #'   specified here, `data` itself needs to contain columns by those names.
 #'   Default is `NULL`.
+#' @param show_reason Boolean (length 1). Should there be a `reason` column that
+#'   shows the reasons for inconsistencies (and `NA` for consistent values)?
+#'   Default is `FALSE`.
 #' @param rounding,threshold,symmetric,tolerance Further parameters of
 #'   GRIMMER-testing; see documentation for `grimmer()`.
 
@@ -50,10 +53,24 @@ grimmer_map <- function_map(
   .fun = grimmer_scalar,
   .reported = c("x", "sd", "n"),
   .name_test = "GRIMMER",
+  .name_class = "scr_grim_map",
   .arg_list = list(
-    show_reason = FALSE, rounding = "up_or_down", threshold = 5,
+    show_reason = TRUE, rounding = "up_or_down", threshold = 5,
     symmetric = FALSE, tolerance = .Machine$double.eps^0.5
-  )
+  ),
+  .col_names = "reason",
+  .col_control = "show_reason"
 )
+
+
+
+# Example data:
+pigs5 <- scrutiny::pigs1 %>%
+  dplyr::mutate(
+    sd = runif(12, 2, 8) %>%
+      round_up(2) %>%
+      restore_zeros(width = 2),
+    .after = 1
+  )
 
 
