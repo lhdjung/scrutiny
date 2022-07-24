@@ -296,25 +296,7 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
 
     check_mapper_input_colnames(data, reported, name_test)
 
-    # Check that no argument specified via the dots, `...`, was misspelled:
-    dots <- rlang::enexprs(...)
-    dots_names <- names(dots)
-    offenders <- dots_names[!dots_names %in% names(fun_args)]
-    if (length(offenders) > 0) {
-      offenders <- wrap_in_backticks(offenders)
-      if (length(offenders) == 1) {
-        msg_arg <- "argument"
-        msg_it_they <- "It's not an"
-      } else {
-        msg_arg <- "arguments"
-        msg_it_they <- "They are not"
-      }
-      cli::cli_abort(c(
-        "Unknown {msg_arg} {offenders}.",
-        "x" = "{msg_it_they} {msg_arg} of `{fun_name}`."
-      ))
-    }
-
+    # Enforce argument disabling via `.args_disabled`:
     if (!is.null(.args_disabled)) {
       arg_names_current_call <- names(rlang::current_call())
       offenders <- .args_disabled[.args_disabled %in% arg_names_current_call]
@@ -338,18 +320,38 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
           msg_arg_s <- "Argument"
           msg_is_are <- "is"
         }
+        offenders <- wrap_in_backticks(offenders)
         cli::cli_abort(c(
-          "{msg_arg_s} {wrap_in_backticks(offenders)} {msg_is_are} \\
+          "{msg_arg_s} {offenders} {msg_is_are} \\
           disabled in {fun_name}{msg_among_others}.",
           "i" = "This is by design. When {fun_name} was created \\
           within {package_name} using `scrutiny::function_map()`, \\
           this function factory's `.args_disabled` argument was \\
-          specified so as to include \"{offenders}\".",
+          specified so as to include {offenders}.",
           "i" = "The purpose is to prevent hidden errors that \\
           might otherwise arise due to certain arguments not \\
           working properly within `scrutiny::function_map()`."
         ))
       }
+    }
+
+    # Check that no argument specified via the dots, `...`, was misspelled:
+    dots <- rlang::enexprs(...)
+    dots_names <- names(dots)
+    offenders <- dots_names[!dots_names %in% names(fun_args)]
+    if (length(offenders) > 0) {
+      offenders <- wrap_in_backticks(offenders)
+      if (length(offenders) == 1) {
+        msg_arg <- "argument"
+        msg_it_they <- "It's not an"
+      } else {
+        msg_arg <- "arguments"
+        msg_it_they <- "They are not"
+      }
+      cli::cli_abort(c(
+        "Unknown {msg_arg} {offenders}.",
+        "x" = "{msg_it_they} {msg_arg} of `{fun_name}`."
+      ))
     }
 
 
@@ -389,8 +391,13 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
     call_args <- call_args[names(call_args) != ""]
 
     # Prioritize mapper function defaults before scalar defaults...
-    formals(fun)[names(formals(fun)) %in% names(.arg_list)] <-
-      .arg_list[names(.arg_list) %in% names(formals(fun))]
+    args_default <- formals(fun)[names(formals(fun)) %in% names(.arg_list)]
+    args_default <- names(args_default)
+    formals(fun)[args_default] <- .arg_list[args_default]
+
+    # # Prioritize mapper function defaults before scalar defaults...
+    # formals(fun)[names(formals(fun)) %in% names(.arg_list)] <-
+    #   .arg_list[names(.arg_list) %in% names(formals(fun))]
 
     # ... and user-specified arguments before mapper defaults:
     formals(fun)[names(formals(fun)) %in% names(call_args)] <-
@@ -489,7 +496,7 @@ grim_map_alt <- function_map(
     rounding = "up_or_down", threshold = 5,
     symmetric = FALSE, tolerance = .Machine$double.eps^0.5
   ),
-  .args_disabled = "show_rec"
+  .args_disabled = c("show_rec", "show_prob")
 )
 
 debit_map_alt <- function_map(
