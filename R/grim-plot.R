@@ -170,7 +170,6 @@ grim_plot <- function(data = NULL,
     reason <- data$reason[!is.na(data$reason)]
     grimmer_cases <- stringr::str_detect(reason, "GRIMMER")
     grimmer_cases <- length(grimmer_cases[grimmer_cases])
-    msg_all <- "Visualizing GRIMMER results."
     if (grimmer_cases > 0) {
       if (grimmer_cases == 1) {
         msg_case_s <- "case was"
