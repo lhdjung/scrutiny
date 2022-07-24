@@ -5,7 +5,8 @@
 #'   of mean, standard deviation, sample size, and number of items. Mapping
 #'   function for GRIMMER-testing.
 #'
-#'   For summary statistics, call `audit()` on the results.
+#'   For summary statistics, call `audit()` on the results. Visualize results
+#'   using `grim_plot()`, as with GRIM results.
 #'
 #' @param data Data frame with columns `x`, `sd`, `n`, and optionally `items`
 #'   (see documentation for `grim()`). Any other columns in `data` will be
@@ -29,7 +30,8 @@
 #' - `<extra>`: any columns from `data` other than `x`, `n`, and `items`.
 #'
 #' The tibble has the `scr_grimmer_map` class, which is recognized by the
-#' `audit()` generic.
+#' `audit()` generic. It also has the `scr_grim_map` class, so it can be
+#' visualized by `grim_plot()`.
 
 #' @section Summaries with `audit()`: There is an S3 method for `audit()`, so
 #'   you can call `audit()` following `grimmer_map()` to get a summary of
@@ -49,17 +51,19 @@
 #' @examples
 
 
+# The `.name_class = "scr_grim_map"` specification has the purpose of allowing
+# GRIMMER results to be visualized by `grim_plot()`:
 grimmer_map <- function_map(
   .fun = grimmer_scalar,
   .reported = c("x", "sd", "n"),
   .name_test = "GRIMMER",
   .name_class = "scr_grim_map",
+  .col_names = "reason",
+  .col_control = "show_reason",
   .arg_list = list(
     show_reason = TRUE, rounding = "up_or_down", threshold = 5,
     symmetric = FALSE, tolerance = .Machine$double.eps^0.5
-  ),
-  .col_names = "reason",
-  .col_control = "show_reason"
+  )
 )
 
 
