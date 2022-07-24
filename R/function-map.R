@@ -441,26 +441,9 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
       }
     }
 
-    # out <- tidyr::unnest_wider(
-    #   out,
-    #   col = consistency,
-    #   names_repair = ~ c("consistency", "reason")
-    # )
-
-    # out <- unnest_consistency_cols(
-    #   out, col_names = c("consistency", "reason"), index = FALSE
-    # )
-
-
-
-    # if (any(lengths_consistency == 1)) {
-    #   out$consistency[length(out$consistency) == 1] <-
-    #     append(list(out$consistency[length(consistency) == 1]), list(NA))
-    #   # out <- tidyr::unnest_wider(
-    #   #   out, col = "consistency",
-    #   #   names_repair = "minimal"
-    #   # )
-    # }
+    if (is.list(out$consistency)) {
+      out$consistency <- unlist(out$consistency)
+    }
 
     out <- add_class(out, all_classes)
 
