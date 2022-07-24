@@ -214,8 +214,8 @@ check_factory_key_args_names <- function(key_cols_missing,
 
 
 function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
-                         .arg_list = NULL, .args_disabled = NULL,
-                         .col_names = NULL, .col_control = NULL) {
+                         .args_disabled = NULL, .col_names = NULL,
+                         .col_control = NULL, .arg_list = NULL) {
 
   # Checks ---
 
