@@ -662,10 +662,15 @@ wrap_in_quotes_or_backticks <- function(x) {
 # Custom function as a workaround to replace `tidyr::unnest_wider()` within
 # mapper functions -- specifically, `grim_map()` -- because `unnest_wider()` has
 # become too slow for that job:
-unnest_consistency_cols <- function(results, col_names) {
-  consistency_list <- results$consistency %>%
-    purrr::map_depth(.depth = 2, .f =  `[`, 1) %>%
-    purrr::map(unlist)
+unnest_consistency_cols <- function(results, col_names, index) {
+
+  if (index) {
+    consistency_list <- results$consistency %>%
+      purrr::map_depth(.depth = 2, .f =  `[`, 1) %>%
+      purrr::map(unlist)
+  } else {
+    consistency_list <- purrr::map(results$consistency, unlist)
+  }
 
   consistency_df <- consistency_list %>%
     tibble::as_tibble(.name_repair = "minimal") %>%
