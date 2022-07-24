@@ -357,30 +357,6 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
 
     # Main part ---
 
-    rounding_dots <- dots$rounding
-    rounding_args <- fun_args$rounding
-
-    if (length(rounding_dots) > 0) {
-      rounding <- rounding_dots
-    } else if (length(rounding_args) > 0) {
-      rounding <- rounding_args
-    } else {
-      rounding <- NULL
-    }
-
-    if (length(rounding) > 0) {
-      rounding_class <- paste0("scr_rounding_", rounding)
-      name_class <- append(name_class, rounding_class)
-    }
-
-    # This says `all`...
-    all_classes <- paste0("scr_", tolower(name_test), "_map")
-
-    # ...because more values might be added to it:
-    if (!is.null(name_class)) {
-      all_classes <- c(all_classes, name_class)
-    }
-
     # Divide the data into tested and non-tested columns, going by the key
     # column names expected from the `reported` argument:
     data_tested <- data[, reported]
@@ -411,6 +387,33 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
       consistency <- eval(rlang::call2(
         .fn = "pmap", data_tested, .f = fun, !!!call_args, ..., .ns = "purrr"
       ))
+    }
+
+    # # Manage rounding:
+    # rounding_dots <- dots$rounding
+    # rounding_args <- fun_args$rounding
+    #
+    # if (length(rounding_dots) > 0) {
+    #   rounding <- rounding_dots
+    # } else if (length(rounding_args) > 0) {
+    #   rounding <- rounding_args
+    # } else {
+    #   rounding <- NULL
+    # }
+
+    rounding <- formals(fun)$rounding
+
+    if (length(rounding) > 0) {
+      rounding_class <- paste0("scr_rounding_", rounding)
+      name_class <- append(name_class, rounding_class)
+    }
+
+    # This says `all`...
+    all_classes <- paste0("scr_", tolower(name_test), "_map")
+
+    # ...because more values might be added to it:
+    if (!is.null(name_class)) {
+      all_classes <- c(all_classes, name_class)
     }
 
     # Following scrutiny's requirements for mapper functions, `"consistency"`
@@ -451,8 +454,6 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
     if (is.list(out$consistency)) {
       out$consistency <- unlist(out$consistency)
     }
-
-    out <- add_class(out, all_classes)
 
     return(out)
   }
