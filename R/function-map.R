@@ -215,7 +215,7 @@ check_factory_key_args_names <- function(key_cols_missing,
 
 function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
                          .arg_list = NULL, .args_disabled = NULL,
-                         .col_names = NULL, .show_more_cols = NULL) {
+                         .col_names = NULL, .col_control = NULL) {
 
   # Checks ---
 
@@ -384,29 +384,26 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
     data_tested <- data[, reported]
     data_non_tested <- data[!colnames(data) %in% reported]
 
-    # force(.show_more_cols)
+    # Capture any arguments specified by the user of the factory-made function:
+    call_args <- as.list(rlang::current_call())
+    call_args <- call_args[names(call_args) != ""]
+
+    # Prioritize mapper function defaults before scalar defaults...
+    formals(fun)[names(formals(fun)) %in% names(.arg_list)] <-
+      .arg_list[names(.arg_list) %in% names(formals(fun))]
+
+    # ... and user-specified arguments before mapper defaults:
+    formals(fun)[names(formals(fun)) %in% names(call_args)] <-
+      call_args[names(call_args) %in% names(formals(fun))]
 
     # Test for consistency:
     if (is.null(.arg_list)) {
       consistency <- purrr::pmap(data_tested, fun, ...)
     } else {
-      call_args <- as.list(rlang::current_call())
-      call_args <- call_args[names(call_args) != ""]
-
-      formals(fun)[names(formals(fun)) %in% names(.arg_list)] <-
-        .arg_list[names(.arg_list) %in% names(formals(fun))]
-
-      formals(fun)[names(formals(fun)) %in% names(call_args)] <-
-        call_args[names(call_args) %in% names(formals(fun))]
-
-      # return(list(.arg_list, call_args))
       .arg_list[names(call_args)] <- call_args
-      # call_args <- .arg_list[names(.arg_list) %in% names(call_args)]
-      consistency <- rlang::call2(
+      consistency <- eval(rlang::call2(
         .fn = "pmap", data_tested, .f = fun, !!!call_args, ..., .ns = "purrr"
-      )
-      # return(consistency)
-      consistency <- eval(consistency)
+      ))
     }
 
     # Following scrutiny's requirements for mapper functions, `"consistency"`
@@ -416,17 +413,17 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
     out <- tibble::tibble(data_tested, consistency, data_non_tested)
     out <- add_class(out, all_classes)
 
-    # The idea here is that `.show_more_cols` might have been specified as a
-    # string that is the name of a Boolean argument which controls whether or
-    # not additional columns beyond `"consistency"` are shown. They would have
-    # to be extracted from the `*_scalar()` function and initially stored in a
+    # The idea here is that `.col_control` might have been specified as a string
+    # that is the name of a Boolean argument which controls whether or not
+    # additional columns beyond `"consistency"` are shown. They would have to be
+    # extracted from the `*_scalar()` function and initially stored in a
     # `"consistency"` list-column, together with the actual `consistency` value:
-    if (!is.null(.show_more_cols)) {
-      .show_more_cols <- eval(rlang::parse_expr(.show_more_cols))
-      # return(.show_more_cols)
+    if (!is.null(.col_control)) {
+      .col_control <- eval(rlang::parse_expr(.col_control))
+      # return(.col_control)
       lengths_consistency <- vapply(consistency, length, integer(1))
       lengths_consistency_all1 <- all(lengths_consistency == 1)
-      if (.show_more_cols & !lengths_consistency_all1) {
+      if (.col_control & !lengths_consistency_all1) {
         extend_if_l1 <- function(x, value_if_l1) {
           if (length(x) == 1) {
             list(list(x, value_if_l1))
