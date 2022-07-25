@@ -28,24 +28,27 @@
 #' @param data A data frame that inherits one of the classes named below.
 
 #' @section `audit()`:
-#'   | \strong{Function}            | \strong{Class}            |
-#'   | ---                          | ---                       |
-#'   | `grim_map()`                 | `"scr_grim_map"`          |
-#'   | `debit_map()`                | `"scr_debit_map"`         |
-#'   | `duplicate_count()`          | `"scr_dup_count"`         |
-#'   | `duplicate_detect()`         | `"scr_dup_detect"`        |
+#'   | \strong{Function}            | \strong{Class}              |
+#'   | ---                          | ---                         |
+#'   | `grim_map()`                 | `"scr_grim_map"`            |
+#'   | `grimmer_map()`              | `"scr_grimmer_map"`         |
+#'   | `debit_map()`                | `"scr_debit_map"`           |
+#'   | `duplicate_count()`          | `"scr_dup_count"`           |
+#'   | `duplicate_detect()`         | `"scr_dup_detect"`          |
 
 #' @section `audit_seq()`:
-#'   | \strong{Function}            | \strong{Class}            |
-#'   | ---                          | ---                       |
-#'   | `grim_map_seq()`             | `"scr_grim_map_seq"`      |
-#'   | `debit_map_seq()`            | `"scr_debit_map_seq"`     |
+#'   | \strong{Function}            | \strong{Class}              |
+#'   | ---                          | ---                         |
+#'   | `grim_map_seq()`             | `"scr_grim_map_seq"`        |
+#'   | `grimmer_map_seq()`          | `"scr_grimmer_map_seq"`     |
+#'   | `debit_map_seq()`            | `"scr_debit_map_seq"`       |
 
 #' @section `audit_total_n()`:
-#'   | \strong{Function}            | \strong{Class}            |
-#'   | ---                          | ---                       |
-#'   | `grim_map_total_n()`         | `"scr_grim_map_total_n"`  |
-#'   | `debit_map_total_n()`        | `"scr_debit_map_total_n"` |
+#'   | \strong{Function}            | \strong{Class}              |
+#'   | ---                          | ---                         |
+#'   | `grim_map_total_n()`         | `"scr_grim_map_total_n"`    |
+#'   | `grimmer_map_total_n()`      | `"scr_grimmer_map_total_n"` |
+#'   | `debit_map_total_n()`        | `"scr_debit_map_total_n"`   |
 
 #' @return A tibble (data frame) with test summary statistics.
 #' @export
