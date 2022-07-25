@@ -3,7 +3,7 @@
 #'
 #' `debit_map_seq()` applies DEBIT with values surrounding the input values.
 #' This provides an easy and powerful way to assess whether small errors in
-#' computing or reporting may be responsible for debit-inconsistencies in
+#' computing or reporting may be responsible for DEBIT-inconsistencies in
 #' published statistics.
 #'
 #' @param data A data frame that `debit_map()` could take.
@@ -25,11 +25,6 @@
 #'   Default is `FALSE` because the focus should be on clarifying
 #'   inconsistencies.
 #' @param ... Arguments passed down to `debit_map()`.
-
-# # Used to include (as second from below):
-# @param reported,fun,name_test,name_class Arguments passed down to
-#   `function_map_seq()` but not documented here.
-
 
 #' @section Summaries with `audit_seq()`: You can call `audit_seq()` following
 #'   `debit_map_seq()`. It will return a data frame with these columns:
