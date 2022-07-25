@@ -127,11 +127,14 @@ check_factory_key_args_names <- function(key_cols_missing,
 #'   If the user  tries to specify these arguments, an informative error will be
 #'   thrown.
 #' @param .col_names Optionally, a string vector with the names of additional
-#'   columns that are derived from the `*_scalar()` function. Requires a
-#'   `.col_control` specification.
+#'   columns that are derived from the `*_scalar()` function. Requires
+#'   `.col_control` and `.col_filler` specifications.
 #' @param .col_control Optionally, a single string with the name of the
 #'   `*_scalar()` function's Boolean argument that controls if the columns named
 #'   in `.col_names` will be displayed.
+#' @param .col_filler Optionally, a vector specifying the values of `.col_names`
+#'   columns in rows where the `*_scalar()` function only returned the
+#'   `consistency` value.
 #' @param .arg_list Optionally, a named list. The names will be hard-coded into
 #'   the factory-made function as arguments passed on to to `.fun`, and the
 #'   values will be their defaults.
@@ -226,7 +229,8 @@ check_factory_key_args_names <- function(key_cols_missing,
 
 function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
                          .args_disabled = NULL, .col_names = NULL,
-                         .col_control = NULL, .arg_list = NULL) {
+                         .col_control = NULL, .col_filler = NULL,
+                         .arg_list = NULL) {
 
   # Checks ---
 
@@ -445,14 +449,16 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
       lengths_consistency <- vapply(consistency, length, integer(1))
       lengths_consistency_all1 <- all(lengths_consistency == 1)
       if (.col_control & !lengths_consistency_all1) {
-        extend_if_l1 <- function(x, value_if_l1) {
+        extend_if_length1 <- function(x, value_if_length1) {
           if (length(x) == 1) {
-            list(list(x, value_if_l1))
+            list(list(x, value_if_length1))
           } else {
             x
           }
         }
-        out$consistency <- purrr::map(out$consistency, extend_if_l1, NA)
+        out$consistency <- purrr::map(
+          out$consistency, extend_if_length1, value_if_length1 = .col_filler
+        )
         # out$consistency[lengths_consistency == 1] <- list(list(TRUE, NA))
         out <- unnest_consistency_cols(
           out, col_names = c("consistency", .col_names), index = FALSE
@@ -503,18 +509,19 @@ grim_map_alt <- function_map(
   .fun = grim_scalar,
   .reported = c("x", "n"),
   .name_test = "GRIM",
+  .args_disabled = c("show_rec", "show_prob"),
   .arg_list = list(
     items = 1, percent = FALSE, x = NULL, n = NULL,
     rounding = "up_or_down", threshold = 5,
     symmetric = FALSE, tolerance = .Machine$double.eps^0.5
-  ),
-  .args_disabled = c("show_rec", "show_prob")
+  )
 )
 
 debit_map_alt <- function_map(
   .fun = debit_scalar,
   .reported = c("x", "sd", "n"),
   .name_test = "DEBIT",
+  .args_disabled = "show_rec",
   .arg_list = list(
     rounding = "up_or_down", threshold = 5,
     symmetric = FALSE
