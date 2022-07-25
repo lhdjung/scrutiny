@@ -115,9 +115,6 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
     return(FALSE)
   }
 
-
-
-
   # Create a vector of all possible integers between the lower and upper bounds
   # of the sum of squares:
   integers_possible <- ceiling(sum_squares_lower):floor(sum_squares_upper)
@@ -136,7 +133,7 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
   )
 
   matches_sd <- dplyr::near(sd, sd_rec_rounded, tol = tolerance)
-  pass_test2 <- any(matches_sd)
+  pass_test2 <- any(matches_sd[!is.na(matches_sd)])
 
   if (!pass_test2) {
     if (show_reason) {
