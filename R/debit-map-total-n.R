@@ -4,8 +4,8 @@
 #' @description `debit_map_total_n()` extends DEBIT to cases where only group
 #'   means and standard deviations (SDs) were reported, not group sizes.
 #'
-#'   The function is analogous to `grim_map_total_n()`, relying on the same
-#'   infrastructure.
+#'   The function is analogous to `grim_map_total_n()` and
+#'   `grimmer_map_total_n()`, relying on the same infrastructure.
 
 #' @param data Data frame with string columns `x1`, `x2`, `sd1`, and `sd2`, as
 #'   well as numeric column `n`. The first two are reported group means. `sd1`
@@ -82,7 +82,7 @@
 #' # `audit_total_n()` summaries can be more important than
 #' # the detailed results themselves.
 #' # The `hits_total` column shows all scenarios in
-#' # which both divergent `n` values are debit-consistent
+#' # which both divergent `n` values are DEBIT-consistent
 #' # with the `x*` values when paired with them both ways:
 #' df %>%
 #'   debit_map_total_n() %>%
