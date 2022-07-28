@@ -165,6 +165,8 @@ grim_plot <- function(data = NULL,
     }
   }
 
+  # Warn the user who passed suitable data to `grim_plot()` but also set
+  # `show_data` to `FALSE`, thereby defeating the data's purpose here:
   if (!show_data && any(inherits_grim, inherits_grimmer)) {
     if (inherits_grimmer) {
       msg_grimmer <- " and GRIMMER"
@@ -180,16 +182,18 @@ grim_plot <- function(data = NULL,
     ))
   }
 
+  # The `digits` argument, if specified, needs to be a single integer-like
+  # number because it controls the number of decimal places for which the plot
+  # will be constructed:
   if (!is.null(digits)) {
-    if (!length(digits) == 1) {
+    if (length(digits) != 1) {
       cli::cli_abort(c(
-        "`digits` has length {length(digits)}",
-        "x" = "It needs to have length 1 (a single number)."
+        "`digits` has length {length(digits)}.",
+        "x" = "It needs to have length 1 (i.e., be a single number)."
       ))
-    }
-    if (!is_whole_number(digits)) {
+    } else if (!is_whole_number(digits)) {
       cli::cli_abort(c(
-        "`digits` is {digits}",
+        "`digits` is {digits}.",
         "x" = "It needs to be a whole number."
       ))
     }
