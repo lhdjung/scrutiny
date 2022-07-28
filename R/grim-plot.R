@@ -130,21 +130,51 @@ grim_plot <- function(data = NULL,
 
   # Checks ----
 
-  if (!inherits(data, "scr_grim_map")) {
-    if (show_data) {
+  inherits_grim    <- inherits(data, "scr_grim_map")
+  inherits_grimmer <- inherits(data, "scr_grimmer_map")
+
+  if (!inherits_grim) {
+    # Issue an alert if any GRIMMER inconsistencies were found in `data`:
+    if (inherits_grimmer) {
+      reason <- data$reason[!is.na(data$reason)]
+      grimmer_cases <- stringr::str_detect(reason, "GRIMMER")
+      grimmer_cases <- length(grimmer_cases[grimmer_cases])
+      if (grimmer_cases > 0) {
+        if (grimmer_cases == 1) {
+          msg_case_s <- "case was"
+          msg_incons <- "inconsistency"
+        } else {
+          msg_case_s <- "cases were"
+          msg_incons <- "inconsistencies"
+        }
+        if (grimmer_cases < length(reason)) {
+          msg_viz <- "Also visualizing"
+        } else {
+          msg_viz <- "Visualizing"
+        }
+        cli::cli_alert("{msg_viz} {grimmer_cases} GRIMMER {msg_incons}.")
+      }
+    } else if (show_data) {
       cli::cli_abort(c(
-        "`data` is not `grim_map()` output",
-        "x" = "`grim_plot()` needs GRIM test results.",
+        "`data` is not `grim_map()` or `grimmer_map()` output.",
+        "x" = "`grim_plot()` needs GRIM or GRIMMER test results.",
         "i" = "The only exception is an \"empty\" plot that shows the \\
         background raster but no empirical test results. Create such a plot \\
         by setting `show_data` to `FALSE`."
       ))
     }
-  } else if (!show_data) {
+  }
+
+  if (!show_data && any(inherits_grim, inherits_grimmer)) {
+    if (inherits_grimmer) {
+      msg_grimmer <- " and GRIMMER"
+    } else {
+      msg_grimmer <- ""
+    }
     cli::cli_warn(c(
-      "Test results are not visualized",
-      "!" = "You set `show_data` to `FALSE`, but still gave GRIM test \\
-        results to `grim_plot()`.",
+      "Test results are not visualized.",
+      "!" = "You set `show_data` to `FALSE`, but still passed \\
+      GRIM{msg_grimmer} test results to `grim_plot()`.",
       ">" = "Only the background raster or gradient will be shown, not the \\
         tested data."
     ))
@@ -162,28 +192,6 @@ grim_plot <- function(data = NULL,
         "`digits` is {digits}",
         "x" = "It needs to be a whole number."
       ))
-    }
-  }
-
-  # Issue an alert if any GRIMMER inconsistencies were found in `data`:
-  if (inherits(data, "scr_grimmer_map")) {
-    reason <- data$reason[!is.na(data$reason)]
-    grimmer_cases <- stringr::str_detect(reason, "GRIMMER")
-    grimmer_cases <- length(grimmer_cases[grimmer_cases])
-    if (grimmer_cases > 0) {
-      if (grimmer_cases == 1) {
-        msg_case_s <- "case was"
-        msg_incons <- "inconsistency"
-      } else {
-        msg_case_s <- "cases were"
-        msg_incons <- "inconsistencies"
-      }
-      if (grimmer_cases < length(reason)) {
-        msg_viz <- "Also visualizing"
-      } else {
-        msg_viz <- "Visualizing"
-      }
-      cli::cli_alert("{msg_viz} {grimmer_cases} GRIMMER {msg_incons}.")
     }
   }
 
