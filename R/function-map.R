@@ -1,111 +1,4 @@
 
-# Two internal helper functions to check the validity of arguments supplied to
-# the factory-made function. The first one concerns the input data frame in
-# conjunction with the expressions provided to identify the "key" columns in
-# `data` and makes sure that no values other than these column names have been
-# provided. The second one checks that all key columns have been identified.
-
-check_factory_key_args_values <- function(data, key_cols_call) {
-
-  offenders <- key_cols_call[!key_cols_call %in% colnames(data)]
-
-  # Error condition -- one or more key arguments have been specified with values
-  # that are not actually column names of `data`:
-  if (length(offenders) > 0) {
-    offenders_names <- glue::as_glue(names(offenders))
-    offenders_names <- wrap_in_backticks(offenders_names)
-    offenders <- wrap_in_backticks(offenders)
-    name_current_fn <- name_caller_call(n = 2)
-    if (length(offenders) == 1) {
-      msg_is_colname <- "is not a column name"
-    } else {
-      msg_is_colname <- "are not column names"
-    }
-
-    # Prepare an error message. It might be subsequently appended...
-    msg_error <- c(
-      "!" = "{offenders} {msg_is_colname} of `data`.",
-      "x" = "The {offenders_names[1]} argument of \\
-      {name_current_fn} was specified as {offenders[[1]]}, \\
-      but there is no column in `data` called {offenders[[1]]}."
-    )
-
-    # ... to point out that more than one supplied value is flawed:
-    if (length(offenders) > 1) {
-      if (length(offenders) == 2) {
-        msg_arg_s <- "argument"
-        msg_a <- "a "
-        msg_col <- "column"
-      } else {
-        msg_arg_s <- "arguments"
-        msg_a <- ""
-        msg_col <- "columns"
-      }
-      msg_error <- append(
-        msg_error, c(
-          "x" = "Same with the {offenders_names[-1]} {msg_arg_s}: \\
-          `data` doesn't contain {msg_a}{offenders[-1]} {msg_col}."
-        )
-      )
-    }
-
-    # Throw the actual error:
-    cli::cli_abort(msg_error)
-  }
-
-}
-
-
-
-check_factory_key_args_names <- function(key_cols_missing,
-                                         key_cols_call_names) {
-
-  offenders <- key_cols_missing
-  offenders <- offenders[!offenders %in% key_cols_call_names]
-
-  # Error condition -- not all of the `reported` values that are not column
-  # names of `data` have been supplied as values of the respective arguments:
-  if (length(offenders) > 0) {
-    offenders <- wrap_in_backticks(offenders)
-
-    # Get the name of the current (i.e., factory-made) function using a helper
-    # from the utils.R file that wraps `rlang::caller_call()`:
-    msg_fn_name <- name_caller_call(n = 2)
-
-    # Because either one or more arguments (or column names) may be missing, the
-    # wording of the error message may be either singular or plural:
-    if (length(offenders) == 1) {
-      msg_missing <- "Column {offenders} is"
-      msg_is_are <- "is"
-      msg_needs_to_be <- "It should be a column"
-      msg_names <- "the name of the equivalent column"
-      msg_column_s <- "Column"
-      msg_argument <- "argument"
-    } else {
-      msg_missing <- "Columns {offenders} are"
-      msg_is_are <- "are"
-      msg_needs_to_be <- "They should be columns"
-      msg_names <- "the names of the equivalent columns"
-      msg_it_them <- "them"
-      msg_column_s <- "Columns"
-      msg_argument <- "arguments"
-    }
-
-    # Throw the error:
-    cli::cli_abort(c(
-      "{msg_column_s} {offenders} {msg_is_are} \\
-          missing from `data`.",
-      "x" = "{msg_needs_to_be} of the input data frame.",
-      "i" = "Alternatively, specify the {offenders} \\
-          {msg_argument} of {msg_fn_name} as {msg_names}."
-    ))
-  }
-
-}
-
-
-
-
 #' Create new `*_map()` functions
 #'
 #' @description `function_map()` creates new basic mapper functions for
@@ -164,6 +57,8 @@ check_factory_key_args_names <- function(key_cols_missing,
 #' @section Value returned by the factory-made function: A tibble that includes
 #'   `"consistency"`: a Boolean column showing whether the values to its left
 #'   are mutually consistent (`TRUE`) or not (`FALSE`).
+
+#' @include function-factory-helpers.R
 
 #' @export
 
@@ -265,50 +160,13 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
     name_test <- .name_test
     name_class <- .name_class
 
-    # Manage key columns in `data` ---
-
-    key_cols_missing <- reported[!reported %in% colnames(data)]
-    key_cols_missing <- as.character(key_cols_missing)
-
-    # Rename key columns that have non-standard names, following user-supplied
-    # directions via the arguments automatically inserted below the function:
-    if (length(key_cols_missing) > 0) {
-      names(key_cols_missing) <- key_cols_missing
-
-      # Extract the expressions supplied by the factory-made function's user as
-      # values of the arguments that are named after `reported`. Coerce them to
-      # string because they will be needed as column names:
-      key_cols_call <- as.list(rlang::call_match())
-      key_cols_call <- key_cols_call[names(key_cols_call) %in% key_cols_missing]
-      key_cols_call_names <- names(key_cols_call)
-      key_cols_call <- as.character(key_cols_call)
-      names(key_cols_call) <- key_cols_call_names
-
-      # Run specialized checks on the code supplied by the factory-made
-      # function's user to the subsequently inserted key argument parameters:
-      check_factory_key_args_values(data, key_cols_call)
-      check_factory_key_args_names(key_cols_missing, key_cols_call_names)
-
-      df_colnames <- tibble::tibble(
-        data = list(data),
-        name_missing = names(key_cols_missing),
-        name_call = key_cols_call
-      )
-
-      replace_colname <- function(data, name_missing, name_call) {
-        colnames(data)[colnames(data) == name_call] <- name_missing
-        data[name_missing]
-      }
-
-      data_renamed <- purrr::pmap_dfc(df_colnames, replace_colname)
-      data_not_renamed <- data[!colnames(data) %in% key_cols_call]
-
-      data <- dplyr::bind_cols(data_renamed, data_not_renamed)
-    }
+    # Manage key columns in `data`:
+    data <- absorb_key_args(data, reported)
 
 
     # Checks ---
 
+    check_factory_dots(fun, fun_name, ...)
     check_mapper_input_colnames(data, reported, name_test)
 
     # Enforce argument disabling via `.args_disabled`:
@@ -350,24 +208,24 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
       }
     }
 
-    # Check that no argument specified via the dots, `...`, was misspelled:
-    dots <- rlang::enexprs(...)
-    dots_names <- names(dots)
-    offenders <- dots_names[!dots_names %in% names(fun_args)]
-    if (length(offenders) > 0) {
-      offenders <- wrap_in_backticks(offenders)
-      if (length(offenders) == 1) {
-        msg_arg <- "argument"
-        msg_it_they <- "It's not an"
-      } else {
-        msg_arg <- "arguments"
-        msg_it_they <- "They are not"
-      }
-      cli::cli_abort(c(
-        "Unknown {msg_arg} {offenders}.",
-        "x" = "{msg_it_they} {msg_arg} of `{fun_name}`."
-      ))
-    }
+    # # Check that no argument specified via the dots, `...`, was misspelled:
+    # dots <- rlang::enexprs(...)
+    # dots_names <- names(dots)
+    # offenders <- dots_names[!dots_names %in% names(fun_args)]
+    # if (length(offenders) > 0) {
+    #   offenders <- wrap_in_backticks(offenders)
+    #   if (length(offenders) == 1) {
+    #     msg_arg <- "argument"
+    #     msg_it_they <- "It's not an"
+    #   } else {
+    #     msg_arg <- "arguments"
+    #     msg_it_they <- "They are not"
+    #   }
+    #   cli::cli_abort(c(
+    #     "Unknown {msg_arg} {offenders}.",
+    #     "x" = "{msg_it_they} {msg_arg} of `{fun_name}`."
+    #   ))
+    # }
 
 
     # Main part ---
@@ -394,11 +252,19 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
     formals(fun)[names(formals(fun)) %in% names(call_args)] <-
       call_args[names(call_args) %in% names(formals(fun))]
 
+    # return(call_args)
+    # return(formals(fun))
+
     # Test for consistency:
     if (is.null(.arg_list)) {
       consistency <- purrr::pmap(data_tested, fun, ...)
     } else {
       .arg_list[names(call_args)] <- call_args
+      # .arg_list <- .arg_list[order(match(.arg_list, call_args))]
+      call_args <- call_args[!names(call_args) %in% names(.arg_list)]
+      # return(call_args)
+      # return(.arg_list)
+      # return(formals(rlang::current_fn()))
       consistency <- eval(rlang::call2(
         .fn = "pmap", data_tested, .f = fun, !!!call_args, ..., .ns = "purrr"
       ))
@@ -511,7 +377,7 @@ grim_map_alt <- function_map(
   .name_test = "GRIM",
   .args_disabled = c("show_rec", "show_prob"),
   .arg_list = list(
-    items = 1, percent = FALSE, x = NULL, n = NULL,
+    items = 1, percent = FALSE,
     rounding = "up_or_down", threshold = 5,
     symmetric = FALSE, tolerance = .Machine$double.eps^0.5
   )

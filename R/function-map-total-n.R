@@ -212,7 +212,7 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 
 #' @seealso `disperse_total()`
 #'
-#' @include utils.R disperse.R
+#' @include utils.R disperse.R function-factory-helpers.R
 #'
 #' @export
 #'
@@ -317,19 +317,30 @@ function_map_total_n <- function(.fun, .reported, .name_test,
     ))
   }
 
+  fun_name <- deparse(substitute(.fun))
 
-  # --- Start of the manufactured function ---
+  reported_reduplicated <- rep(.reported, each = 2)
+  reported_reduplicated <- paste0(reported_reduplicated, c("1", "2"))
 
-  function(data, dispersion = .dispersion, n_min = .n_min, n_max = .n_max,
-           constant = .constant, constant_index = .constant_index, ...) {
+
+  # --- Start of the manufactured function, `fn_out()` ---
+
+  fn_out <- function(data, dispersion = .dispersion,
+                     n_min = .n_min, n_max = .n_max,
+                     constant = .constant,
+                     constant_index = .constant_index, ...) {
 
     fun <- .fun
     reported <- .reported
     name_test <- .name_test
     name_class <- .name_class
 
+    data <- absorb_key_args(data, reported_reduplicated)
+
 
     # Checks ---
+
+    check_factory_dots(fun, fun_name, ...)
 
     # The usual key argument check conducted by `check_mapper_input_colnames()`
     # is not applicable to `data`, so the function only checks the remaining
@@ -376,10 +387,8 @@ function_map_total_n <- function(.fun, .reported, .name_test,
     reported_orig <- reported
 
     # Determine the column names with `"1"` or `"2"` that should be in `data`,
-    # going by `reported` (specified in the call to the function operator):
-    cols_expected_forth <- reported %>%
-      rep(each = 2) %>%
-      paste0(c("1", "2"))
+    # going by `reported` (specified in the call to the function factory):
+    cols_expected_forth <- reported_reduplicated
 
     # Since all of these reported columns matter to a test with dispersed group
     # sizes, check if any of them are missing from `data`...
@@ -529,6 +538,13 @@ function_map_total_n <- function(.fun, .reported, .name_test,
     return(out_total)
   }
 
-  # --- End of the manufactured function ---
+  # --- End of the manufactured function, `fn_out()` ---
 
+
+  # Duplicate the names of the statistics reported pairwise with one total `n`
+  # per pair. Paste `"1"` and `"2"` at the ends of these names, then add them to
+  # the list of arguments of the manufactured function:
+  fn_out <- insert_key_args(fn_out, reported_reduplicated)
+
+  return(fn_out)
 }

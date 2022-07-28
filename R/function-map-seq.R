@@ -167,6 +167,8 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 #'   The factory-made function will also have dots, `...`, to pass arguments
 #'   down to `.fun`, i.e., the basic mapper function.
 
+#' @include function-factory-helpers.R
+
 #' @export
 
 #' @section Conventions: The name of a function manufactured with
@@ -258,25 +260,35 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 
 
 
+# TO DO: INSERT ARGUMENTS OF THE BASIC MAPPER INTO THE MANUFACTURED SEQUENCE
+# MAPPER IN THE POST-END PART OF `function_map_seq()`!
+
+
 function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
                              .name_class = NULL, .dispersion = 1:5,
                              .out_min = "auto", .out_max = NULL,
                              .include_reported = FALSE,
                              .include_consistent = FALSE) {
 
-  # --- Start of the manufactured function ---
+  fun_name <- deparse(substitute(.fun))
 
-  function(data, var = .var,
-           dispersion = .dispersion,
-           out_min = .out_min, out_max = .out_max,
-           include_reported = .include_reported,
-           include_consistent = .include_consistent, ...) {
+
+  # --- Start of the manufactured function, `fn_out()` ---
+
+  fn_out <- function(data, var = .var,
+                     dispersion = .dispersion,
+                     out_min = .out_min, out_max = .out_max,
+                     include_reported = .include_reported,
+                     include_consistent = .include_consistent, ...) {
 
     reported <- .reported
     fun <- .fun
     name_test <- .name_test
     name_class <- .name_class
 
+    data <- absorb_key_args(data, reported)
+
+    check_factory_dots(fun, fun_name, ...)
     check_mapper_input_colnames(data, reported)
     check_consistency_not_in_colnames(data, name_test)
 
@@ -346,8 +358,15 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
     return(out)
   }
 
-  # --- End of the manufactured function ---
+  # --- End of the manufactured function, `fn_out()` ---
 
+
+  # Insert parameters named after the key columns into `fn_out()`, with `NULL`
+  # as the default for each. The key columns need to be present in the input
+  # data frame. They are expected to have the names specified in `.reported`. If
+  # they don't, however, the user can simply specify the key column arguments as
+  # the non-quoted names of the columns meant to fulfill these roles:
+  insert_key_args(fun = fn_out, reported = .reported)
 }
 
 
