@@ -97,6 +97,23 @@ audit_seq <- function(data) {
   hits_positions <- df_list %>%
     purrr::map(~ which(.$consistency))
 
+  if (is.null(dim(data))) {
+    fun <- class(data)[stringr::str_detect(class(data), "_map_seq")]
+    fun <- fun[fun != "scr_map_seq"]
+    fun <- stringr::str_remove(fun, "scr_")
+    fun <- eval(rlang::parse_expr(fun))
+    msg_error <- "No values could be tested with the current parameters."
+    if ("items" %in% names(formals(fun))) {
+      fun_name <- deparse(substitute(fun))
+      msg_items <- list(
+        ">" = "Did you specify the `items` argument in {fun_name} \\
+        as an unreasonably high number?"
+      )
+      msg_error <- append(msg_error, msg_items)
+    }
+    cli::cli_abort(msg_error)
+  }
+
   var_names <- unique(df_list[[1]]$var)
 
   # Define some helper functions to be mapped below:
