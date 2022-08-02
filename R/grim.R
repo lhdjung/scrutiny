@@ -19,6 +19,9 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
                         symmetric = FALSE,
                         tolerance = .Machine$double.eps^0.5) {
 
+  check_type(items, c("double", "integer"))
+  check_type(percent, "logical")
+
   # Provide some guidance in case users confuse `grim()` with `grim_map()`:
   if (is.data.frame(x)) {
     cli::cli_abort(c(
