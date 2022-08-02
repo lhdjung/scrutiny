@@ -26,7 +26,7 @@
 #'   consistent cases (from among those reported), not just inconsistent ones?
 #'   Default is `FALSE` because the focus should be on clarifying
 #'   inconsistencies.
-#' @param ... Arguments passed down to `grim_map()` or `function_map_seq()`.
+#' @param ... Arguments passed down to `grim_map()`.
 
 #' @section Summaries with `audit_seq()`: You can call `audit_seq()` following
 #'   `grim_map_seq()`. It will return a data frame with these columns:
@@ -41,6 +41,8 @@
 #'   difference). `diff_x_up` and `diff_x_down` report the difference to the
 #'   next higher or lower consistent value, respectively.
 #'   - `diff_n`, `diff_n_up`, and `diff_n_down` do the same for `n`.
+
+#' @include grim-map.R
 
 #' @export
 #'
@@ -60,7 +62,7 @@
 
 
 grim_map_seq <- function_map_seq(
-  .fun = grim_map,
+  .fun = grim_map_alt,
   .reported = c("x", "n"),
-  .name_test = "GRIM",
+  .name_test = "GRIM"
 )
