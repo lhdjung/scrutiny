@@ -39,7 +39,7 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
     )
 
     # TO DO: INSERT `list_var_change` INTO THE OUTPUT
-    list_var        <- purrr::map(list_var_and_var_change, `[`, 1)
+    list_var <- purrr::map(list_var_and_var_change, `[`, 1)
     # list_var_change <- purrr::map(list_var_and_var_change, `[`, 2)
 
     nrow_list_var <- purrr::map_int(list_var, nrow)
@@ -76,6 +76,22 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
     # Apply the testing function, `fun`, to all data frames in the list:
     data_list_tested <- data_list_for_testing %>%
       purrr::map(fun, ...)
+
+    # arg_list <- purrr::flatten(arg_list)
+
+    # return(arg_list)
+
+
+    # TO DO: ROLL BACK ENTIRE ARGUMENT INSERTION FRAMEWORK! IT'S JUST TOO UNSAFE
+    # AND ERROR-PRONE, LEADING TO CHECKS IN AT LEAST ONE `*_scalar()` FUNCTION
+    # NOT BEING CONDUCTED, AND THE RESPECTIVE ERRORS NOT THROWN. CLIMB DOWN FROM
+    # THIS ROTTEN TREE! ELLIPSIS IT IS!
+
+    # data_list_tested <- rlang::call2(
+    #   .fn = "map", data_list_for_testing, .f = fun, !!!arg_list, .ns = "purrr"
+    # )
+    #
+    # data_list_tested <- rlang::eval_tidy(data_list_tested)
 
     # Mark the original case (i.e., row in `data`, the input data frame):
     case <- data_list_tested %>%
@@ -260,15 +276,14 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 
 
 
-# TO DO: INSERT ARGUMENTS OF THE BASIC MAPPER INTO THE MANUFACTURED SEQUENCE
-# MAPPER IN THE POST-END PART OF `function_map_seq()`!
-
-
 function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
-                             .name_class = NULL, .dispersion = 1:5,
+                             .name_class = NULL, .args_disabled = NULL,
+                             .dispersion = 1:5,
                              .out_min = "auto", .out_max = NULL,
                              .include_reported = FALSE,
                              .include_consistent = FALSE) {
+
+  check_args_disabled_unnamed(.args_disabled)
 
   fun_name <- deparse(substitute(.fun))
 
@@ -288,7 +303,13 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
 
     data <- absorb_key_args(data, reported)
 
-    check_factory_dots(fun, fun_name, ...)
+    # check_factory_dots(fun, fun_name, ...)
+
+    args_excluded <- c(reported, .args_disabled)
+
+    arg_list <- call_arg_list()
+    arg_list <- arg_list[!(names(arg_list)) %in% args_excluded]
+
     check_mapper_input_colnames(data, reported)
     check_consistency_not_in_colnames(data, name_test)
 
@@ -317,12 +338,15 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
       .out_min = out_min,
       .out_max = out_max,
       .include_reported = include_reported,
+      # .arg_list = arg_list,
       ...
     )
 
     # Apply the lower-level function to all user-supplied variables (`var`) and
     # all cases reported in `data`, or at least the inconsistent ones:
     out <- purrr::map(var, ~ map_seq_proto(data = data, var = .x))
+
+    # return(out)
 
     nrow_out <- purrr::map_int(out, nrow)
 
@@ -366,7 +390,35 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
   # data frame. They are expected to have the names specified in `.reported`. If
   # they don't, however, the user can simply specify the key column arguments as
   # the non-quoted names of the columns meant to fulfill these roles:
-  insert_key_args(fun = fn_out, reported = .reported)
-}
+  fn_out <- insert_key_args(fn_out, .reported)
 
+  # fun_env <- rlang::fn_env(.fun)
+  # args_unwanted <- c("data", "...", fun_env$.args_disabled)
+  # arg_list <- fun_env$.arg_list
+  # arg_list <- arg_list[!arg_list %in% .args_disabled]
+  # arg_list <- arg_list[!arg_list %in% args_unwanted]
+
+  # arg_list <- rlang::fn_env(.fun)$.arg_list
+  # arg_list <- arg_list[!arg_list %in% .args_disabled]
+
+
+  # # Arguments by these names won't be appended to the factory-made function's
+  # # list of arguments; either because this would be redundant or because they
+  # # were manually disabled via `.args_disabled`:
+  # args_excluded <- c(names(formals(fn_out)), names(.args_disabled))
+  #
+  # # Create a list of all arguments (plus defaults) from the basic mapper
+  # # function that were not caught by `args_excluded`:
+  # arg_list <- formals(.fun)
+  # arg_list <- arg_list[!(names(arg_list) %in% args_excluded)]
+  #
+  # # Append this list to the arguments of the factory-made function. The newly
+  # # inserted arguments start right after the last key argument:
+  # index_last_key <- .reported[length(.reported)]
+  # index_last_key <- match(index_last_key, names(formals(fn_out))) + 1
+  #
+  # formals(fn_out) <- append(formals(fn_out), arg_list, after = index_last_key)
+
+  return(fn_out)
+}
 
