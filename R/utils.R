@@ -470,7 +470,8 @@ index_case_interpolate <- function(x, index_case_only = TRUE,
 
   index_seq <- purrr::map_dbl(seq_along(x), ~ x[.] - x[. + 1])
   # This doesn't seem to work: `index_seq <- x[x] - x[x + 1]`
-  index_seq <- stats::na.omit(abs(index_seq))
+  index_seq <- abs(index_seq[!is.na(index_seq)])
+  # index_seq <- stats::na.omit(abs(index_seq))  # old version
 
   index_target <- match(max(index_seq), index_seq)
 
@@ -661,15 +662,20 @@ wrap_in_quotes_or_backticks <- function(x) {
 
 # Custom function as a workaround to replace `tidyr::unnest_wider()` within
 # mapper functions -- specifically, `grim_map()` -- because `unnest_wider()` has
-# become too slow for that job:
-unnest_consistency_cols <- function(results, col_names, index) {
+# become too slow for that job. The `col_names` argument is a string vector of
+# new names for the unnested columns, starting with `key` which is, of course,
+# `"consistency"` by default:
+unnest_consistency_cols <- function(results, col_names, index = FALSE,
+                                    key = "consistency") {
 
+  # The difference between the two conditions lies only in the
+  # `purrr::map_depth()` call:
   if (index) {
-    consistency_list <- results$consistency %>%
+    consistency_list <- results[key][[1]] %>%
       purrr::map_depth(.depth = 2, .f =  `[`, 1) %>%
       purrr::map(unlist)
   } else {
-    consistency_list <- purrr::map(results$consistency, unlist)
+    consistency_list <- purrr::map(results[key][[1]], unlist)
   }
 
   consistency_df <- consistency_list %>%
@@ -681,7 +687,7 @@ unnest_consistency_cols <- function(results, col_names, index) {
   colnames(consistency_df) <- col_names
 
   results <- results %>%
-    dplyr::select(-consistency) %>%
+    dplyr::select(- {{ key }}) %>%
     dplyr::bind_cols(consistency_df)
 
   return(results)
@@ -738,4 +744,6 @@ dust <- 1e-12
 dustify <- function(x) {
   c(x - dust, x + dust)
 }
+
+
 
