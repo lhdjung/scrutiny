@@ -34,33 +34,6 @@ might_be_linear <- function(x, tolerance = .Machine$double.eps^0.5) {
 
 
 
-#' Is a vector a linear sequence?
-#'
-#' @description `is_seq_linear()` checks if a vector `x` has these properties:
-#'   - It is numeric or coercible to numeric.
-#'   - Each successive element differs from the previous one by some constant
-#'   amount.
-#'
-#' The variants `is_seq_linear_ascending()` and `is_seq_linear_descending()` are
-#' more strict: They also check if the step size is positive or negative,
-#' respectively.
-#'
-#' @param x Numeric or coercible to numeric. Vector to be tested.
-#' @param tolerance Numeric. Tolerance of comparison between the distances
-#'   between individual `x` values and the minimal distance. Default is circa
-#'   0.000000015 (1.490116e-08), as in `dplyr::near()`.
-
-#' @return Boolean. `NA` elements of `x` are handled in a nuanced way:
-#'   - If all elements of `x` are `NA`, the functions return `NA.`
-#'   - If some but not all elements are `NA`, they check if `x` *might* be a
-#'   linear sequence; i.e., if it is linear after the `NA`s are replaced by
-#'   appropriate values. If so, they return `NA`; otherwise, they return
-#'   `FALSE`.
-
-#' @export
-#'
-#' @examples
-
 
 is_seq_linear_internal <- function(x, tolerance = .Machine$double.eps^0.5,
                                    test_special = NULL) {
@@ -120,11 +93,6 @@ is_seq_linear_internal <- function(x, tolerance = .Machine$double.eps^0.5,
       }
     }
 
-    # if (might_be_linear(x, tolerance)) {
-    #   return(NA)
-    # }
-    #
-    # return(FALSE)
   }
 
   x_passes_test <- might_be_linear(x, tolerance)
@@ -152,84 +120,56 @@ is_seq_linear_internal <- function(x, tolerance = .Machine$double.eps^0.5,
 }
 
 
-# if (test_special == "ascending") {
-#   x_is_ascending <- x[2] - x[1] > 0
-#   return(x_is_ascending)
-# }
-# if (test_special == "descending") {
-#   x_is_descending <- x[2] - x[1] < 0
-#   return(x_is_descending)
-# }
 
+
+#' Is a vector a linear sequence?
+#'
+#' @description `is_seq_linear()` checks if a vector `x` has these properties:
+#'   - It is numeric or coercible to numeric.
+#'   - Each successive element differs from the previous one by some constant
+#'   amount.
+#'
+#' The variants `is_seq_linear_ascending()` and `is_seq_linear_descending()` are
+#' more strict: They also check if the step size is positive or negative,
+#' respectively.
+#'
+#' @param x Numeric or coercible to numeric. Vector to be tested.
+#' @param tolerance Numeric. Tolerance of comparison between the distances
+#'   between individual `x` values and the minimal distance. Default is circa
+#'   0.000000015 (1.490116e-08), as in `dplyr::near()`.
+
+#' @return Boolean. `NA` elements of `x` are handled in a nuanced way:
+#'   - If all elements of `x` are `NA`, the functions return `NA.`
+#'   - If some but not all elements are `NA`, they check if `x` *might* be a
+#'   linear sequence; i.e., if it is linear after the `NA`s are replaced by
+#'   appropriate values. If so, they return `NA`; otherwise, they return
+#'   `FALSE`.
+
+#' @export
+#'
+#' @examples
 
 
 is_seq_linear <- function(x, tolerance = .Machine$double.eps^0.5) {
   is_seq_linear_internal(x, tolerance, test_special = NULL)
 }
 
+
+
+#' @export
+#' @rdname is_seq_linear
+
 is_seq_linear_ascending <- function(x, tolerance = .Machine$double.eps^0.5) {
   is_seq_linear_internal(x, tolerance, test_special = "ascending")
 }
+
+
+
+#' @export
+#' @rdname is_seq_linear
 
 is_seq_linear_descending <- function(x, tolerance = .Machine$double.eps^0.5) {
   is_seq_linear_internal(x, tolerance, test_special = "descending")
 }
 
-
-
-
-# # Non-exported helper for the `is_seq_linear_ascending()` and
-# # `is_seq_linear_descending()` variants further below:
-# check_seq_linear_special <- function(x, tolerance, description) {
-#   if (all(is.na(x))) {
-#     return(NA)
-#   }
-#
-#   # This says `isFALSE()` rather than simply `!` because its argument might be
-#   # `NA`, and the present condition is not meant to handle such cases:
-#   if (isFALSE(is_seq_linear(x, tolerance))) {
-#     return(FALSE)
-#   }
-#
-#   if (!is.numeric(x)) {
-#     x <- as.numeric(x)
-#   }
-#
-#   if (length(x) == 1) {
-#     cli::cli_warn(c(
-#       "{description} order couldn't be determined.",
-#       "x" = "`x` (`{x}`) has length 1.",
-#       ">" = "Returning `NA`."
-#     ))
-#     return(NA)
-#   }
-#
-#   return(x)
-# }
-
-
-
-#' @export
-#' @rdname is_seq_linear
-
-# is_seq_linear_ascending <- function(x, tolerance = .Machine$double.eps^0.5) {
-#   x <- check_seq_linear_special(x, tolerance, "Ascending")
-#   if (!is.numeric(x)) {
-#     return(x)
-#   }
-#   x[2] - x[1] > 0
-# }
-
-
-
-#' @export
-#' @rdname is_seq_linear
-
-# is_seq_linear_descending <- function(x, tolerance = .Machine$double.eps^0.5) {
-#   x <- check_seq_linear_special(x, tolerance, "Descending")
-#   if (!is.numeric(x)) {
-#     return(x)
-#   }
-#   x[2] - x[1] < 0
-# }
 
