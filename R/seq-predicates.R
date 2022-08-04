@@ -62,7 +62,8 @@ might_be_linear <- function(x, tolerance = .Machine$double.eps^0.5) {
 #' @examples
 
 
-is_seq_linear <- function(x, tolerance = .Machine$double.eps^0.5) {
+is_seq_linear_internal <- function(x, tolerance = .Machine$double.eps^0.5,
+                                   test_special = NULL) {
   if (all(is.na(x))) {
     return(NA)
   }
@@ -90,8 +91,6 @@ is_seq_linear <- function(x, tolerance = .Machine$double.eps^0.5) {
 
     for (i in seq_along(x)) {
       if (is.na(x[i])) {
-        # lower <- max(0, i - 1)
-        # upper <- min(length(x), i + 1)
         index_lower <- 1
         index_upper <- 1
         while (is.na(x[i - index_lower])) {
@@ -100,15 +99,6 @@ is_seq_linear <- function(x, tolerance = .Machine$double.eps^0.5) {
         while (is.na(x[i + index_upper])) {
           index_upper <- index_upper + 1
         }
-        # replacement_seq <- seq(
-        #   from = index_lower,
-        #   to   = index_upper,
-        #   by = (index_upper - index_lower) / (length(index_lower:index_upper) - 1)
-        # )
-        # replacement_seq <- (i - (index_lower - 1)):(i + (index_upper - 1))
-        # replacement_seq <- replacement_seq[1:index_upper]
-        # # Very unclear if correct:
-        # replacement_seq <- replacement_seq + length(replacement_seq)
 
         seq_start <- x[i - index_lower]
         seq_end   <- x[i + index_upper]
@@ -126,83 +116,120 @@ is_seq_linear <- function(x, tolerance = .Machine$double.eps^0.5) {
           return(FALSE)
         }
 
-        # if (length(seq_replacement) == 2) {
-        #   seq_replacement <- seq_replacement[1]
-        # }
-
         x[i + ((index_lower:index_upper) - 1)] <- seq_replacement
-
-        # x[i:(i + length(replacement_seq) - 1)] <- replacement_seq
-
-        # x[i] <- stats::median(c(x[index_lower], x[index_upper]))
       }
     }
 
-    if (might_be_linear(x, tolerance)) {
+    # if (might_be_linear(x, tolerance)) {
+    #   return(NA)
+    # }
+    #
+    # return(FALSE)
+  }
+
+  x_passes_test <- might_be_linear(x, tolerance)
+
+  # Interface for the special variant functions:
+  if (!is.null(test_special)) {
+    x_passes_test_special <- switch (
+      test_special,
+      "ascending"  = x[2] - x[1] > 0,
+      "descending" = x[2] - x[1] < 0
+    )
+    x_passes_test <- x_passes_test && x_passes_test_special
+  }
+
+  if (x_passes_test) {
+    if (x_has_na) {
       return(NA)
+    } else {
+      return(TRUE)
     }
-
+  } else {
     return(FALSE)
   }
 
-  might_be_linear(x, tolerance)
 }
 
 
+# if (test_special == "ascending") {
+#   x_is_ascending <- x[2] - x[1] > 0
+#   return(x_is_ascending)
+# }
+# if (test_special == "descending") {
+#   x_is_descending <- x[2] - x[1] < 0
+#   return(x_is_descending)
+# }
 
 
-# Non-exported helper for the `is_seq_linear_ascending()` and
-# `is_seq_linear_descending()` variants further below:
-check_seq_linear_special <- function(x, tolerance, description) {
-  if (all(is.na(x))) {
-    return(NA)
-  }
 
-  # This says `isFALSE()` rather than simply `!` because its argument might be
-  # `NA`, and the present condition is not meant to handle such cases:
-  if (isFALSE(is_seq_linear(x, tolerance))) {
-    return(FALSE)
-  }
-
-  if (!is.numeric(x)) {
-    x <- as.numeric(x)
-  }
-
-  if (length(x) == 1) {
-    cli::cli_warn(c(
-      "{description} order couldn't be determined.",
-      "x" = "`x` (`{x}`) has length 1.",
-      ">" = "Returning `NA`."
-    ))
-    return(NA)
-  }
-
-  return(x)
+is_seq_linear <- function(x, tolerance = .Machine$double.eps^0.5) {
+  is_seq_linear_internal(x, tolerance, test_special = NULL)
 }
-
-
-
-#' @export
-#' @rdname is_seq_linear
 
 is_seq_linear_ascending <- function(x, tolerance = .Machine$double.eps^0.5) {
-  x <- check_seq_linear_special(x, tolerance, "Ascending")
-  if (!is.numeric(x)) {
-    return(x)
-  }
-  x[2] - x[1] > 0
+  is_seq_linear_internal(x, tolerance, test_special = "ascending")
 }
+
+is_seq_linear_descending <- function(x, tolerance = .Machine$double.eps^0.5) {
+  is_seq_linear_internal(x, tolerance, test_special = "descending")
+}
+
+
+
+
+# # Non-exported helper for the `is_seq_linear_ascending()` and
+# # `is_seq_linear_descending()` variants further below:
+# check_seq_linear_special <- function(x, tolerance, description) {
+#   if (all(is.na(x))) {
+#     return(NA)
+#   }
+#
+#   # This says `isFALSE()` rather than simply `!` because its argument might be
+#   # `NA`, and the present condition is not meant to handle such cases:
+#   if (isFALSE(is_seq_linear(x, tolerance))) {
+#     return(FALSE)
+#   }
+#
+#   if (!is.numeric(x)) {
+#     x <- as.numeric(x)
+#   }
+#
+#   if (length(x) == 1) {
+#     cli::cli_warn(c(
+#       "{description} order couldn't be determined.",
+#       "x" = "`x` (`{x}`) has length 1.",
+#       ">" = "Returning `NA`."
+#     ))
+#     return(NA)
+#   }
+#
+#   return(x)
+# }
 
 
 
 #' @export
 #' @rdname is_seq_linear
 
-is_seq_linear_descending <- function(x, tolerance = .Machine$double.eps^0.5) {
-  x <- check_seq_linear_special(x, tolerance, "Descending")
-  if (!is.numeric(x)) {
-    return(x)
-  }
-  x[2] - x[1] < 0
-}
+# is_seq_linear_ascending <- function(x, tolerance = .Machine$double.eps^0.5) {
+#   x <- check_seq_linear_special(x, tolerance, "Ascending")
+#   if (!is.numeric(x)) {
+#     return(x)
+#   }
+#   x[2] - x[1] > 0
+# }
+
+
+
+#' @export
+#' @rdname is_seq_linear
+
+# is_seq_linear_descending <- function(x, tolerance = .Machine$double.eps^0.5) {
+#   x <- check_seq_linear_special(x, tolerance, "Descending")
+#   if (!is.numeric(x)) {
+#     return(x)
+#   }
+#   x[2] - x[1] < 0
+# }
 
