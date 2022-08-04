@@ -117,6 +117,18 @@ is_seq_linear <- function(x, tolerance = .Machine$double.eps^0.5) {
 
         seq_replacement <- seq(from = seq_start, to = seq_end, by = step)
         seq_replacement <- seq_replacement[-1]
+        seq_replacement <- seq_replacement[-length(seq_replacement)]
+
+        # In this case, the replacement sequence is longer than the subsequence
+        # of `NA` elements, which always means that the numbers surrounding the
+        # `NA`s are too far spaced out for there to be a linear sequence:
+        if (length(seq_replacement) > length(index_lower:index_upper)) {
+          return(FALSE)
+        }
+
+        # if (length(seq_replacement) == 2) {
+        #   seq_replacement <- seq_replacement[1]
+        # }
 
         x[i + ((index_lower:index_upper) - 1)] <- seq_replacement
 
