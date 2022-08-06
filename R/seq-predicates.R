@@ -34,9 +34,32 @@ is_linear <- function(x, tolerance) {
 
 
 
+is_seq_ascending_basic <- function(x) {
+  for (i in 1:(length(x) - 1)) {
+    if (x[i + 1] <= x[i]) {
+      return(FALSE)
+    }
+  }
+  TRUE
+}
+
+
+is_seq_descending_basic <- function(x) {
+  for (i in 1:(length(x) - 1)) {
+    if (x[i + 1] >= x[i]) {
+      return(FALSE)
+    }
+  }
+  TRUE
+}
+
+
+
+# Non-exported helper, workhorse of all the sequence predicates. It contains the
+# general framework
 is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
-                         test_special = NULL, args_other = NULL,
-                         test_linear = TRUE) {
+                         test_linear = TRUE, test_special = NULL,
+                         args_other = NULL) {
   if (all(is.na(x))) {
     return(NA)
   }
@@ -112,26 +135,26 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
   if (test_linear) {
     x_seq <- index_seq(x)
     x_seq <- dplyr::near(x_seq, min(x_seq), tol = tolerance)
-    x_passes_test <- all(x_seq)
-    if (!x_passes_test) {
+    pass_test <- all(x_seq)
+    if (!pass_test) {
       return(FALSE)
     }
   } else {
-    x_passes_test <- TRUE
+    pass_test <- TRUE
   }
 
   # Interface for the special variant functions:
   if (!is.null(test_special)) {
-    x_passes_test_special <- switch (
+    pass_test_special <- switch (
       test_special,
-      "ascending"  = x[2] - x[1] > 0,
-      "descending" = x[2] - x[1] < 0,
+      "ascending"  = is_seq_ascending_basic(x),
+      "descending" = is_seq_descending_basic(x),
       "dispersed"  = is_seq_dispersed_basic(x, args_other$from, tolerance)
     )
-    x_passes_test <- x_passes_test && x_passes_test_special
+    pass_test <- pass_test && pass_test_special
   }
 
-  if (x_passes_test) {
+  if (pass_test) {
 
     if (x_has_na) {
       return(NA)
@@ -152,22 +175,24 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
 #'
 #' @description Predicate functions that test whether `x` is a numeric vector
 #'   (or coercible to numeric) and has some special properties:
-#'   - `is_seq_linear()` tests if each successive element of `x` differs from the
-#'   previous one by some constant amount.
-#'   - `is_seq_linear_ascending()` and `is_seq_linear_descending()` are more
-#'   strict: They also test whether the step size is positive or negative,
-#'   respectively.
-#'   - `is_seq_linear_dispersed()` additionally tests whether `x` values are
-#'   grouped around a specific value, `from`, with the same distances to both
-#'   sides per value. Its variant `is_seq_dispersed()` does not also test for
-#'   linearity, as the other functions do.
+
+#'   - `is_seq_linear()` tests if each successive element of `x` differs from
+#'   the previous one by some constant amount.
+
+#'   - `is_seq_ascending()` and `is_seq_descending()` test whether the
+#'   difference between every two consecutive values is positive or negative,
+#'   respectively. `is_seq_dispersed()` tests whether `x` values are grouped
+#'   around a specific central value, `from`, with the same distance to both
+#'   sides per value pair. By default (`test_linear = TRUE`), these functions
+#'   also test for linearity, like `is_seq_linear()`.
 #'
 #' `NA` elements of `x` are handled in a nuanced way. See *Value* section.
 
 #' @param x Numeric or coercible to numeric. Vector to be tested.
-#' @param from Numeric or coercible to numeric. Only in the `*_dispersed()`
-#'   functions. They test if `from` is at the center of `x`, and if all other
-#'   values are mirror-symmetric to it.
+#' @param from Numeric or coercible to numeric. Only in `is_seq_dispersed()`. It
+#'   will test whether `from` is at the center of `x`, and if every pair of
+#'   other values is equidistant to it.
+#' @param test_linear Boolean.
 #' @param tolerance Numeric. Tolerance of comparison between the distances
 #'   between individual `x` values and the minimal distance. Default is circa
 #'   0.000000015 (1.490116e-08), as in `dplyr::near()`.
@@ -181,10 +206,11 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
 #'   `FALSE`.
 
 #' @seealso `validate::is_linear_sequence()`, which is more permissive with `NA`
-#'   values. It supports further classes and comes with more features overall.
+#'   values than `is_seq_linear()`. It comes with some other features, such as
+#'   support for date-times.
 
 #' @export
-#'
+
 #' @examples
 
 
@@ -197,8 +223,11 @@ is_seq_linear <- function(x, tolerance = .Machine$double.eps^0.5) {
 #' @export
 #' @rdname is_seq_linear
 
-is_seq_linear_ascending <- function(x, tolerance = .Machine$double.eps^0.5) {
-  is_seq_basic(x, tolerance, test_special = "ascending")
+is_seq_ascending <- function(x, test_linear = TRUE,
+                             tolerance = .Machine$double.eps^0.5) {
+  is_seq_basic(
+    x, tolerance, test_linear, test_special = "ascending"
+  )
 }
 
 
@@ -206,8 +235,11 @@ is_seq_linear_ascending <- function(x, tolerance = .Machine$double.eps^0.5) {
 #' @export
 #' @rdname is_seq_linear
 
-is_seq_linear_descending <- function(x, tolerance = .Machine$double.eps^0.5) {
-  is_seq_basic(x, tolerance, test_special = "descending")
+is_seq_descending <- function(x, test_linear = TRUE,
+                              tolerance = .Machine$double.eps^0.5) {
+  is_seq_basic(
+    x, tolerance, test_linear, test_special = "descending"
+  )
 }
 
 
@@ -215,27 +247,18 @@ is_seq_linear_descending <- function(x, tolerance = .Machine$double.eps^0.5) {
 #' @export
 #' @rdname is_seq_linear
 
-is_seq_linear_dispersed <- function(x, from,
+is_seq_dispersed <- function(x, from, test_linear = TRUE,
                                     tolerance = .Machine$double.eps^0.5) {
   is_seq_basic(
-    x, tolerance, test_special = "dispersed", args_other = list(from = from)
+    x, tolerance, test_linear, test_special = "dispersed",
+    args_other = list(from = from)
   )
 }
 
 
 
-#' @export
-#' @rdname is_seq_linear
 
-is_seq_dispersed <- function(x, from, tolerance = .Machine$double.eps^0.5) {
-  is_seq_basic(
-    x, tolerance, test_special = "dispersed",
-    args_other = list(from = from), test_linear = FALSE
-  )
-}
-
-
-
+# Helper, not exported:
 is_seq_dispersed_basic <- function(x, from,
                                    tolerance = .Machine$double.eps^0.5) {
 
