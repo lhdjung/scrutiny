@@ -158,6 +158,9 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
     return(FALSE)
   }
 
+  if (show_reason) {
+    return(list(TRUE, "Passed all tests"))
+  }
   return(TRUE)
 }
 
