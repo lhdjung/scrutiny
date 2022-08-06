@@ -55,16 +55,19 @@ is_seq_descending_basic <- function(x) {
 
 
 
-# Non-exported helper, workhorse of all the sequence predicates. It contains the
-# general framework
+# Non-exported workhorse API of all the sequence predicates:
 is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
                          test_linear = TRUE, test_special = NULL,
-                         args_other = NULL) {
+                         min_length = NULL, args_other = NULL) {
   if (all(is.na(x))) {
     return(NA)
   }
 
   if (!is_numericish(x)) {
+    return(FALSE)
+  }
+
+  if (!is.null(min_length) && length(x) < min_length) {
     return(FALSE)
   }
 
@@ -228,7 +231,7 @@ is_seq_linear <- function(x, tolerance = .Machine$double.eps^0.5) {
 is_seq_ascending <- function(x, test_linear = TRUE,
                              tolerance = .Machine$double.eps^0.5) {
   is_seq_basic(
-    x, tolerance, test_linear, test_special = "ascending"
+    x, tolerance, test_linear, test_special = "ascending", min_length = 2
   )
 }
 
@@ -240,7 +243,7 @@ is_seq_ascending <- function(x, test_linear = TRUE,
 is_seq_descending <- function(x, test_linear = TRUE,
                               tolerance = .Machine$double.eps^0.5) {
   is_seq_basic(
-    x, tolerance, test_linear, test_special = "descending"
+    x, tolerance, test_linear, test_special = "descending", min_length = 2
   )
 }
 
@@ -252,7 +255,7 @@ is_seq_descending <- function(x, test_linear = TRUE,
 is_seq_dispersed <- function(x, from, test_linear = TRUE,
                                     tolerance = .Machine$double.eps^0.5) {
   is_seq_basic(
-    x, tolerance, test_linear, test_special = "dispersed",
+    x, tolerance, test_linear, test_special = "dispersed", min_length = 3,
     args_other = list(from = from)
   )
 }
@@ -268,7 +271,7 @@ is_seq_dispersed_basic <- function(x, from,
   # was not supplied:
   force(from)
 
-  if (length(x) < 3 || is_even(length(x))) {
+  if (is_even(length(x))) {
     return(FALSE)
   }
 
