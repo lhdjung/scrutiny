@@ -130,14 +130,3 @@ grimmer_map_alt <- function_map(
 
 
 
-# Example data:
-pigs5 <- scrutiny::pigs1 %>%
-  dplyr::mutate(
-    sd = runif(12, 2, 8) %>%
-      round_up(2) %>%
-      restore_zeros(width = 2),
-    .after = 1,
-    n = n - 20
-  )
-
-
