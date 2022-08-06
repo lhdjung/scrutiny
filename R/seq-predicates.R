@@ -26,7 +26,7 @@ index_seq <- function(x) {
 
 
 
-might_be_linear <- function(x, tolerance = .Machine$double.eps^0.5) {
+is_linear <- function(x, tolerance) {
   x_seq <- index_seq(x)
   x_seq <- dplyr::near(x_seq, min(x_seq), tol = tolerance)
   all(x_seq)
@@ -34,9 +34,9 @@ might_be_linear <- function(x, tolerance = .Machine$double.eps^0.5) {
 
 
 
-
-is_seq_linear_internal <- function(x, tolerance = .Machine$double.eps^0.5,
-                                   test_special = NULL) {
+is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
+                         test_special = NULL, args_other = NULL,
+                         test_linear = TRUE) {
   if (all(is.na(x))) {
     return(NA)
   }
@@ -79,40 +79,66 @@ is_seq_linear_internal <- function(x, tolerance = .Machine$double.eps^0.5,
         step <- step_size(c(seq_start, seq_end))
 
         seq_replacement <- seq(from = seq_start, to = seq_end, by = step)
+
+        # Remove the first and the last element because these correspond to the
+        # two next surrounding non-`NA` numbers rather than to the `NA`
+        # subsequence, and therefore should not replace any `NA`s:
         seq_replacement <- seq_replacement[-1]
         seq_replacement <- seq_replacement[-length(seq_replacement)]
 
-        # In this case, the replacement sequence is longer than the subsequence
-        # of `NA` elements, which always means that the numbers surrounding the
-        # `NA`s are too far spaced out for there to be a linear sequence:
-        if (length(seq_replacement) > length(index_lower:index_upper)) {
+        # In the first of these two cases, the replacement sequence is too short
+        # to bridge the `NA` subsequence. In the second case, the replacement
+        # sequence is longer than the subsequence of `NA` elements, which
+        # invariably means that the numbers surrounding the `NA`s are too far
+        # spaced out for there to be a linear sequence. In either case...
+        seq_replacement_has_wrong_length <- length(seq_replacement) == 0 ||
+          length(seq_replacement) > length(index_lower:index_upper)
+
+        # ...an error is thrown:
+        if (seq_replacement_has_wrong_length) {
           return(FALSE)
         }
 
+        # Substitute the replacement sequence for `NA` elements:
         x[i + ((index_lower:index_upper) - 1)] <- seq_replacement
-      }
+
+      } # End of the `is.na(x[i])` condition
+    }   # End of the for loop
+
+  }     # End of the `x_has_na` condition
+
+  # If desired, test `x` -- as passed to the function or as partly reconstructed
+  # in the for loop above -- for linearity:
+  if (test_linear) {
+    x_seq <- index_seq(x)
+    x_seq <- dplyr::near(x_seq, min(x_seq), tol = tolerance)
+    x_passes_test <- all(x_seq)
+    if (!x_passes_test) {
+      return(FALSE)
     }
-
+  } else {
+    x_passes_test <- TRUE
   }
-
-  x_passes_test <- might_be_linear(x, tolerance)
 
   # Interface for the special variant functions:
   if (!is.null(test_special)) {
     x_passes_test_special <- switch (
       test_special,
       "ascending"  = x[2] - x[1] > 0,
-      "descending" = x[2] - x[1] < 0
+      "descending" = x[2] - x[1] < 0,
+      "dispersed"  = is_seq_dispersed_basic(x, args_other$from, tolerance)
     )
     x_passes_test <- x_passes_test && x_passes_test_special
   }
 
   if (x_passes_test) {
+
     if (x_has_na) {
       return(NA)
     } else {
       return(TRUE)
     }
+
   } else {
     return(FALSE)
   }
@@ -124,10 +150,12 @@ is_seq_linear_internal <- function(x, tolerance = .Machine$double.eps^0.5,
 
 #' Is a vector a linear sequence?
 #'
-#' @description `is_seq_linear()` checks if a vector `x` has these properties:
+#' @description `is_seq_linear()` tests if a vector `x` has these properties:
 #'   - It is numeric or coercible to numeric.
 #'   - Each successive element differs from the previous one by some constant
 #'   amount.
+#'
+#' `NA` elements of `x` are handled in a nuanced way. See *Value* section.
 #'
 #' The variants `is_seq_linear_ascending()` and `is_seq_linear_descending()` are
 #' more strict: They also check if the step size is positive or negative,
@@ -138,12 +166,16 @@ is_seq_linear_internal <- function(x, tolerance = .Machine$double.eps^0.5,
 #'   between individual `x` values and the minimal distance. Default is circa
 #'   0.000000015 (1.490116e-08), as in `dplyr::near()`.
 
-#' @return Boolean. `NA` elements of `x` are handled in a nuanced way:
-#'   - If all elements of `x` are `NA`, the functions return `NA.`
+#' @return Boolean. If `x` contains at least one `NA` value, the functions
+#'   return `NA` or `FALSE`, depending on the context:
+#'   - If all elements of `x` are `NA`, the functions return `NA`.
 #'   - If some but not all elements are `NA`, they check if `x` *might* be a
-#'   linear sequence; i.e., if it is linear after the `NA`s are replaced by
+#'   linear sequence; i.e., if it is linear after the `NA`s were replaced by
 #'   appropriate values. If so, they return `NA`; otherwise, they return
 #'   `FALSE`.
+
+#' @seealso `validate::is_linear_sequence()`, which is more permissive with `NA`
+#'   values. It supports further classes and comes with more features overall.
 
 #' @export
 #'
@@ -151,7 +183,7 @@ is_seq_linear_internal <- function(x, tolerance = .Machine$double.eps^0.5,
 
 
 is_seq_linear <- function(x, tolerance = .Machine$double.eps^0.5) {
-  is_seq_linear_internal(x, tolerance, test_special = NULL)
+  is_seq_basic(x, tolerance)
 }
 
 
@@ -160,7 +192,7 @@ is_seq_linear <- function(x, tolerance = .Machine$double.eps^0.5) {
 #' @rdname is_seq_linear
 
 is_seq_linear_ascending <- function(x, tolerance = .Machine$double.eps^0.5) {
-  is_seq_linear_internal(x, tolerance, test_special = "ascending")
+  is_seq_basic(x, tolerance, test_special = "ascending")
 }
 
 
@@ -169,7 +201,75 @@ is_seq_linear_ascending <- function(x, tolerance = .Machine$double.eps^0.5) {
 #' @rdname is_seq_linear
 
 is_seq_linear_descending <- function(x, tolerance = .Machine$double.eps^0.5) {
-  is_seq_linear_internal(x, tolerance, test_special = "descending")
+  is_seq_basic(x, tolerance, test_special = "descending")
 }
+
+
+
+#' @export
+#' @rdname is_seq_linear
+
+is_seq_linear_dispersed <- function(x, from,
+                                    tolerance = .Machine$double.eps^0.5) {
+  is_seq_basic(
+    x, tolerance, test_special = "dispersed", args_other = list(from = from)
+  )
+}
+
+
+
+#' @export
+#' @rdname is_seq_linear
+
+is_seq_dispersed <- function(x, from, tolerance = .Machine$double.eps^0.5) {
+  is_seq_basic(
+    x, tolerance, test_special = "dispersed",
+    args_other = list(from = from), test_linear = FALSE
+  )
+}
+
+
+
+is_seq_dispersed_basic <- function(x, from,
+                                   tolerance = .Machine$double.eps^0.5) {
+
+  # Without `force(from)`, the function may return `FALSE` early, even if `from`
+  # was not supplied:
+  force(from)
+
+  if (length(x) < 3 || is_even(length(x))) {
+    return(FALSE)
+  }
+
+  if (!is.numeric(x)) {
+    if (is_numericish(x)) {
+      x <- as.numeric(x)
+    } else {
+      return(FALSE)
+    }
+  }
+
+  if (!is.numeric(from)) {
+    if (is_numericish(from)) {
+      x <- as.numeric(from)
+    } else {
+      return(FALSE)
+    }
+  }
+
+  index_central <- ((length(x) - 1) / 2) + 1
+
+  if (!dplyr::near(x[index_central], from, tolerance)) {
+    return(FALSE)
+  }
+
+  dispersion_minus <- from - x[1:(index_central - 1)]
+  dispersion_plus  <- from + x[(index_central + 1):length(x)]
+
+  from_reconstructed <- (dispersion_plus - rev(dispersion_minus)) / 2
+
+  all(dplyr::near(from, from_reconstructed, tolerance))
+}
+
 
 
