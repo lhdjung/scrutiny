@@ -51,15 +51,77 @@
 #' @examples
 
 
+
+grimmer_map <- function(data, items = 1, merge_items = TRUE,
+                        x = NULL, sd = NULL, n = NULL,
+                        show_reason = TRUE, rounding = "up_or_down",
+                        threshold = 5, symmetric = FALSE,
+                        tolerance = .Machine$double.eps^0.5) {
+
+  check_mapper_input_colnames(data, c("x", "sd", "n"), "GRIMMER")
+
+  # Defuse the argument specifications that can be used to assign the roles of
+  # `x`, `sd`, and `n` to specific columns in case these columns don't already
+  # have those names:
+  x  <- rlang::enexpr(x)
+  sd <- rlang::enexpr(sd)
+  n  <- rlang::enexpr(n)
+
+  # Check for non-standard column names and, if present, rename them. If the
+  # respective argument was not specified as that column name, throw an error:
+  data <- manage_key_column_names(data, x,  "mean/proportion")
+  data <- manage_key_column_names(data, sd, "standard deviation")
+  data <- manage_key_column_names(data, n,  "sample size")
+
+  check_mapper_input_colnames(data, c("x", "n"), "GRIM")
+
+  data <- manage_helper_col(data = data, var_arg = items, default = 1)
+
+  data_x_sd_n_items <- data[c("x", "sd", "n", "items")]
+
+
+  x <- data$x
+
+  if (merge_items) {
+    n <- data$n * data$items
+  } else {
+    n <- tibble::tibble(n = data$n, items = data$items)
+  }
+
+  if (show_reason) {
+    consistency <- purrr::pmap(
+      data_x_sd_n_items, grimmer_scalar, show_reason = show_reason,
+      rounding = rounding, threshold = threshold, symmetric = symmetric,
+      tolerance = tolerance
+    )
+  } else {
+    consistency <- purrr::pmap_lgl(
+      data_x_sd_n_items, grimmer_scalar, show_reason = show_reason,
+      rounding = rounding, threshold = threshold, symmetric = symmetric,
+      tolerance = tolerance
+    )
+  }
+
+  out <- tibble::tibble(x = data$x, sd = data$sd, n, consistency)
+  out <- add_class(out, "scr_grimmer_map")
+  out <- unnest_consistency_cols(
+    out, col_names = c("consistency", "reason"), index = FALSE
+  )
+
+  out
+}
+
+
 # The `.name_class = "scr_grim_map"` specification has the purpose of allowing
 # GRIMMER results to be visualized by `grim_plot()`:
-grimmer_map <- function_map(
+grimmer_map_alt <- function_map(
   .fun = grimmer_scalar,
   .reported = c("x", "sd", "n"),
   .name_test = "GRIMMER",
-  .name_class = "scr_grim_map",
+  # .name_class = "grim_map",
   .col_names = "reason",
-  .col_control = "show_reason",
+  # .col_control = "show_reason",
+  .col_filler = "Passed all tests",
   .arg_list = list(
     show_reason = TRUE, rounding = "up_or_down", threshold = 5,
     symmetric = FALSE, tolerance = .Machine$double.eps^0.5
@@ -74,7 +136,8 @@ pigs5 <- scrutiny::pigs1 %>%
     sd = runif(12, 2, 8) %>%
       round_up(2) %>%
       restore_zeros(width = 2),
-    .after = 1
+    .after = 1,
+    n = n - 20
   )
 
 
