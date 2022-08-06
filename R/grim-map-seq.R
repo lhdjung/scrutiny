@@ -62,7 +62,7 @@
 
 
 grim_map_seq <- function_map_seq(
-  .fun = grim_map_alt,
+  .fun = grim_map,
   .reported = c("x", "n"),
   .name_test = "GRIM"
 )
