@@ -58,7 +58,7 @@
 #'   `"consistency"`: a Boolean column showing whether the values to its left
 #'   are mutually consistent (`TRUE`) or not (`FALSE`).
 
-#' @include function-factory-helpers.R
+#' @include grim.R debit.R function-factory-helpers.R
 
 #' @export
 
