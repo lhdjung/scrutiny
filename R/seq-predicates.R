@@ -148,20 +148,26 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
 
 
 
-#' Is a vector a linear sequence?
+#' Is a vector a certain kind of sequence?
 #'
-#' @description `is_seq_linear()` tests if a vector `x` has these properties:
-#'   - It is numeric or coercible to numeric.
-#'   - Each successive element differs from the previous one by some constant
-#'   amount.
+#' @description Predicate functions that test whether `x` is a numeric vector
+#'   (or coercible to numeric) and has some special properties:
+#'   - `is_seq_linear()` tests if each successive element of `x` differs from the
+#'   previous one by some constant amount.
+#'   - `is_seq_linear_ascending()` and `is_seq_linear_descending()` are more
+#'   strict: They also test whether the step size is positive or negative,
+#'   respectively.
+#'   - `is_seq_linear_dispersed()` additionally tests whether `x` values are
+#'   grouped around a specific value, `from`, with the same distances to both
+#'   sides per value. Its variant `is_seq_dispersed()` does not also test for
+#'   linearity, as the other functions do.
 #'
 #' `NA` elements of `x` are handled in a nuanced way. See *Value* section.
-#'
-#' The variants `is_seq_linear_ascending()` and `is_seq_linear_descending()` are
-#' more strict: They also check if the step size is positive or negative,
-#' respectively.
-#'
+
 #' @param x Numeric or coercible to numeric. Vector to be tested.
+#' @param from Numeric or coercible to numeric. Only in the `*_dispersed()`
+#'   functions. They test if `from` is at the center of `x`, and if all other
+#'   values are mirror-symmetric to it.
 #' @param tolerance Numeric. Tolerance of comparison between the distances
 #'   between individual `x` values and the minimal distance. Default is circa
 #'   0.000000015 (1.490116e-08), as in `dplyr::near()`.
