@@ -8,7 +8,7 @@
 #' used to demonstrate the functionality of `grim_map()` and functions building
 #' up on it.
 
-#' @include utils.R grim.R seq-decimal.R
+#' @include utils.R grim-map.R seq-decimal.R
 #'
 #' @format A tibble (data frame) with 12 rows and 2 columns. The columns are:
 #' \describe{
@@ -85,8 +85,31 @@
 
 
 
+#' Means, SDs, and sample sizes for GRIMMER-testing
+#'
+#' A fictional dataset with means, standard deviations (SDs), and sample sizes
+#' of flying pigs. It can be used to demonstrate the functionality of
+#' `grimmer_map()` and functions building up on it.
 
-# Code for creating the data (normally outcommented) ----------------------
+#' @include utils.R grimmer-map.R seq-decimal.R
+#'
+#' @format A tibble (data frame) with 12 rows and 3 columns. The columns are:
+#' \describe{
+#'  \item{x}{String. Means.}
+#'  \item{sd}{String. Standard deviations.}
+#'  \item{n}{Numeric. Sample sizes.}
+#' }
+
+#' @seealso `pigs1` for (only) GRIM-testing the same means as here, `pigs2` for
+#'   GRIM-testing percentages instead of means, `pigs3` for DEBIT-testing, and
+#'   `pigs4` for detecting duplicates.
+#'
+"pigs5"
+
+
+
+
+# # Code for creating the data (normally outcommented) --------------------
 
 
 # # GRIM for means:
@@ -144,15 +167,35 @@
 # )
 #
 #
-#
-#
+# # GRIMMER:
+# pigs5 <- tibble::tribble(
+#   ~x,      ~sd,     ~n,
+#   "7.22",  "5.30",  38,
+#   "4.74",  "6.55",  31,
+#   "5.23",  "2.55",  35,
+#   "2.57",  "2.57",  30,
+#   "6.77",  "2.18",  33,
+#   "2.68",  "2.59",  34,
+#   "7.01",  "6.68",  35,
+#   "7.38",  "3.65",  32,
+#   "3.14",  "5.32",  33,
+#   "6.89",  "4.18",  37,
+#   "5.00",  "2.18",  31,
+#   "0.24",  "6.43",  34
+# )
+
+
+
+
+
 # # Save data:
-#
 # usethis::use_data(
 #   pigs1,
 #   pigs2,
 #   pigs3,
 #   pigs4,
+#   pigs5,
 #
 #   overwrite = TRUE
 # )
+
