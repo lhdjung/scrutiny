@@ -174,10 +174,10 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
 #' Is a vector a certain kind of sequence?
 #'
 #' @description Predicate functions that test whether `x` is a numeric vector
-#'   (or coercible to numeric) and has some special properties:
+#'   (or coercible to numeric) with some special properties:
 
-#'   - `is_seq_linear()` tests if each successive element of `x` differs from
-#'   the previous one by some constant amount.
+#'   - `is_seq_linear()` tests whether every two consecutive elements of `x`
+#'   differ by some constant amount.
 
 #'   - `is_seq_ascending()` and `is_seq_descending()` test whether the
 #'   difference between every two consecutive values is positive or negative,
@@ -192,10 +192,12 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
 #' @param from Numeric or coercible to numeric. Only in `is_seq_dispersed()`. It
 #'   will test whether `from` is at the center of `x`, and if every pair of
 #'   other values is equidistant to it.
-#' @param test_linear Boolean.
-#' @param tolerance Numeric. Tolerance of comparison between the distances
-#'   between individual `x` values and the minimal distance. Default is circa
-#'   0.000000015 (1.490116e-08), as in `dplyr::near()`.
+#' @param test_linear Boolean. Should `x` be tested for linearity, as in
+#'   `is_seq_linear()`? Default is `TRUE`.
+#' @param tolerance Numeric. Tolerance of comparison between numbers such as the
+#'   difference between individual `x` values and the minimal difference in
+#'   linearity testing. Default is circa 0.000000015 (1.490116e-08), as in
+#'   `dplyr::near()`.
 
 #' @return Boolean. If `x` contains at least one `NA` value, the functions
 #'   return `NA` or `FALSE`, depending on the context:
@@ -205,9 +207,9 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
 #'   appropriate values. If so, they return `NA`; otherwise, they return
 #'   `FALSE`.
 
-#' @seealso `validate::is_linear_sequence()`, which is more permissive with `NA`
-#'   values than `is_seq_linear()`. It comes with some other features, such as
-#'   support for date-times.
+#' @seealso `validate::is_linear_sequence()`, which is much like
+#'   `is_seq_linear()` but more permissive with `NA` values. It comes with some
+#'   other features, such as support for date-times.
 
 #' @export
 
