@@ -170,64 +170,6 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
     check_factory_dots(fun, fun_name, ...)
     check_mapper_input_colnames(data, reported, name_test)
 
-    # # Enforce argument disabling via `.args_disabled`:
-    # if (!is.null(.args_disabled)) {
-    #   arg_names_current_call <- names(rlang::current_call())
-    #   offenders <- .args_disabled[.args_disabled %in% arg_names_current_call]
-    #   if (length(offenders) > 0) {
-    #     fun_name <- name_caller_call()
-    #     fun_name_bare <- name_caller_call(wrap = FALSE)
-    #     fun_name_bare <- as.character(fun_name_bare)
-    #     package_name <- utils::getAnywhere(fun_name_bare)$where
-    #     package_name <- as.character(package_name[1])
-    #     package_name <- sub("package:", "", package_name)
-    #     if (length(offenders) > 3) {
-    #       offenders <- offenders[1:3]
-    #       msg_among_others <- ", among others"
-    #     } else {
-    #       msg_among_others <- ""
-    #     }
-    #     if (length(offenders) > 1) {
-    #       msg_arg_s <- "Arguments"
-    #       msg_is_are <- "are"
-    #     } else {
-    #       msg_arg_s <- "Argument"
-    #       msg_is_are <- "is"
-    #     }
-    #     offenders <- wrap_in_backticks(offenders)
-    #     cli::cli_abort(c(
-    #       "{msg_arg_s} {offenders} {msg_is_are} \\
-    #       disabled in {fun_name}{msg_among_others}.",
-    #       "i" = "This is by design. When {fun_name} was created \\
-    #       within {package_name} using `scrutiny::function_map()`, \\
-    #       this function factory's `.args_disabled` argument was \\
-    #       specified so as to include {offenders}.",
-    #       "i" = "The purpose is to prevent hidden errors that \\
-    #       might otherwise arise due to certain arguments not \\
-    #       working properly within `scrutiny::function_map()`."
-    #     ))
-    #   }
-    # }
-
-    # # Check that no argument specified via the dots, `...`, was misspelled:
-    # dots <- rlang::enexprs(...)
-    # dots_names <- names(dots)
-    # offenders <- dots_names[!dots_names %in% names(fun_args)]
-    # if (length(offenders) > 0) {
-    #   offenders <- wrap_in_backticks(offenders)
-    #   if (length(offenders) == 1) {
-    #     msg_arg <- "argument"
-    #     msg_it_they <- "It's not an"
-    #   } else {
-    #     msg_arg <- "arguments"
-    #     msg_it_they <- "They are not"
-    #   }
-    #   cli::cli_abort(c(
-    #     "Unknown {msg_arg} {offenders}.",
-    #     "x" = "{msg_it_they} {msg_arg} of `{fun_name}`."
-    #   ))
-    # }
-
 
     # Main part ---
 
@@ -236,69 +178,16 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
     data_tested <- data[, reported]
     data_non_tested <- data[!colnames(data) %in% reported]
 
-    # # Capture any arguments specified by the user of the factory-made function:
-    # call_args <- as.list(rlang::current_call())
-    # call_args <- call_args[names(call_args) != ""]
-    #
-    # # Prioritize mapper function defaults before scalar defaults...
-    # args_default <- formals(fun)[names(formals(fun)) %in% names(.arg_list)]
-    # args_default <- names(args_default)
-    # formals(fun)[args_default] <- .arg_list[args_default]
-    #
-    # # # Prioritize mapper function defaults before scalar defaults...
-    # # formals(fun)[names(formals(fun)) %in% names(.arg_list)] <-
-    # #   .arg_list[names(.arg_list) %in% names(formals(fun))]
-    #
-    # # ... and user-specified arguments before mapper defaults:
-    # formals(fun)[names(formals(fun)) %in% names(call_args)] <-
-    #   call_args[names(call_args) %in% names(formals(fun))]
-
-    # return(call_args)
-    # return(formals(fun))
-
-
     # Test for consistency:
     consistency <- purrr::pmap(data_tested, fun, ...)
 
-    # if (is.null(.arg_list)) {
-    #   consistency <- purrr::pmap(data_tested, fun, ...)
-    # } else {
-    #   .arg_list[names(call_args)] <- call_args
-    #   # .arg_list <- .arg_list[order(match(.arg_list, call_args))]
-    #   call_args <- call_args[!names(call_args) %in% names(.arg_list)]
-    #   # return(call_args)
-    #   # return(.arg_list)
-    #   # return(formals(rlang::current_fn()))
-    #   consistency <- eval(rlang::call2(
-    #     .fn = "pmap", data_tested, .f = fun, !!!call_args, ..., .ns = "purrr"
-    #   ))
-    # }
-
-    # # Manage rounding:
-    # rounding_dots <- dots$rounding
-    # rounding_args <- fun_args$rounding
-    #
-    # if (length(rounding_dots) > 0) {
-    #   rounding <- rounding_dots
-    # } else if (length(rounding_args) > 0) {
-    #   rounding <- rounding_args
-    # } else {
-    #   rounding <- NULL
-    # }
-
+    # Support rounding classes:
     dots <- rlang::enexprs(...)
 
     if ("rounding" %in% names(dots)) {
       rounding_class <- paste0("scr_rounding_", dots$rounding)
       name_class <- c(name_class, rounding_class)
     }
-
-    # rounding <- formals(fun)$rounding
-    #
-    # if (length(rounding) > 0) {
-    #   rounding_class <- paste0("scr_rounding_", rounding)
-    #   name_class <- append(name_class, rounding_class)
-    # }
 
     # This says `all`...
     all_classes <- paste0("scr_", tolower(name_test), "_map")
@@ -363,15 +252,6 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
   # they don't, however, the user can simply specify the key column arguments as
   # the non-quoted names of the columns meant to fulfill these roles:
   fn_out <- insert_key_args(fun = fn_out, reported = .reported)
-
-  # # Do the same with any other arguments and their defaults specified by the
-  # # user of `function_map()` in the form of a named list that was passed to the
-  # # `.arg_list` argument. The defaults are the values of `.arg_list`, and the
-  # # arguments themselves are the names of these values:
-  # if (!is.null(.arg_list)) {
-  #   index_start <- 1 + length(.reported)
-  #   formals(fn_out) <- append(formals(fn_out), .arg_list, after = index_start)
-  # }
 
   return(fn_out)
 }
