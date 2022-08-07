@@ -204,7 +204,8 @@ usethis::use_data(
   grim_raster_2_anti_trunc_frac,
 
 
-  internal = TRUE
+  internal = TRUE,
+  overwrite = TRUE
 
 )
 
