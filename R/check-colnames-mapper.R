@@ -296,14 +296,6 @@ manage_key_column_names <- function(data, arg, description = NULL) {
 }
 
 
-# manage_key_column_names_list <- function(data, key_args) {
-#   key_args <- key_args[!is.null(key_args)]
-#   key_args_names <- names(key_args)
-#   for (i in key_args) {
-#     data <- dplyr::rename(data, {{ i }} := )
-#   }
-# }
-
 
 manage_key_column_names_list_el <- function(data, key_arg) {
   if (!is.null(key_arg)) {
