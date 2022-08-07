@@ -40,7 +40,14 @@
 
 audit_cols_minimal <- function(data, name_test) {
 
+  # Checks ---
+
+  if (!is.data.frame(data)) {
+    cli::cli_abort("`data` must be a data frame.")
+  }
+
   check_audit_special(data, name_test)
+
 
   # Compute the summary values of interest ---
 
