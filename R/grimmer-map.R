@@ -69,9 +69,9 @@ grimmer_map <- function(data, items = 1, merge_items = TRUE,
 
   # Check for non-standard column names and, if present, rename them. If the
   # respective argument was not specified as that column name, throw an error:
-  data <- manage_key_column_names(data, x,  "mean/proportion")
-  data <- manage_key_column_names(data, sd, "standard deviation")
-  data <- manage_key_column_names(data, n,  "sample size")
+  data <- manage_key_colnames(data, x,  "mean/proportion")
+  data <- manage_key_colnames(data, sd, "standard deviation")
+  data <- manage_key_colnames(data, n,  "sample size")
 
   check_mapper_input_colnames(data, c("x", "n"), "GRIM")
 

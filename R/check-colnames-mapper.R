@@ -260,11 +260,11 @@ manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
 #'   2. Within the mapper, capture the user input by quoting it using
 #'   `rlang::enexpr()`. Reassign these values to the argument variables; e.g.,
 #'   `x <- rlang::enexpr(x)` and `n <- rlang::enexpr(n)`.
-#'
-#'   3. For every such argument, call `manage_key_column_names()` and reassign
-#'   its value to the input data frame variable, adding a short description;
-#'   e.g.,`data <- manage_key_column_names(data, x, "mean/proportion")` and
-#'   `data <- manage_key_column_names(data, n, "sample size")`.
+
+#'   3. For every such argument, call `manage_key_colnames()` and reassign its
+#'   value to the input data frame variable, adding a short description;
+#'   e.g.,`data <- manage_key_colnames(data, x, "mean/proportion")` and `data <-
+#'   manage_key_colnames(data, n, "sample size")`.
 #'
 #' @param data The mapper function's input data frame.
 #' @param arg Symbol. The quoted input variable, captured by `rlang::enexpr()`.
@@ -274,7 +274,7 @@ manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
 #' @return The input data frame, `data`, possibly modified.
 #' @export
 
-manage_key_column_names <- function(data, arg, description = NULL) {
+manage_key_colnames <- function(data, arg, description = NULL) {
   arg_name <- deparse(substitute(arg))
   if (!is.null(arg)) {
     # data <- dplyr::rename(data, "scr_temp_placeholder" := arg)  # {{ arg_name }} := arg
@@ -297,7 +297,7 @@ manage_key_column_names <- function(data, arg, description = NULL) {
 
 
 
-manage_key_column_names_list_el <- function(data, key_arg) {
+manage_key_colnames_list_el <- function(data, key_arg) {
   if (!is.null(key_arg)) {
     data <- dplyr::rename(data, {{ names(key_arg) }} := key_arg)
   }

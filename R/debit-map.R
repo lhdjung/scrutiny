@@ -80,9 +80,9 @@ debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
   sd <- rlang::enexpr(sd)
   n  <- rlang::enexpr(n)
 
-  data <- manage_key_column_names(data, x,  "binary mean")
-  data <- manage_key_column_names(data, sd, "binary SD")
-  data <- manage_key_column_names(data, n,  "sample size")
+  data <- manage_key_colnames(data, x,  "binary mean")
+  data <- manage_key_colnames(data, sd, "binary SD")
+  data <- manage_key_colnames(data, n,  "sample size")
 
   # Check the column names of `data`:
   check_mapper_input_colnames(data, c("x", "sd", "n"), "DEBIT")
