@@ -27,9 +27,9 @@
 #'
 #' @include utils.R
 #'
-#' @seealso `dplyr::slice()`, which the function wraps; and
-#'   \href{https://unheadr.liomys.mx/reference/mash_colnames.html}{`unheadr::mash_colnames()`},
-#'    a more sophisticated solution to the same problem.
+#' @seealso
+#' \href{https://unheadr.liomys.mx/reference/mash_colnames.html}{`unheadr::mash_colnames()`},
+#' a more sophisticated solution to the same problem.
 #'
 #' @return A data frame.
 #' @export
