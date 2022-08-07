@@ -286,15 +286,24 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
     #   rounding <- NULL
     # }
 
-    rounding <- formals(fun)$rounding
+    dots <- rlang::enexprs(...)
 
-    if (length(rounding) > 0) {
-      rounding_class <- paste0("scr_rounding_", rounding)
-      name_class <- append(name_class, rounding_class)
+    if ("rounding" %in% names(dots)) {
+      rounding_class <- paste0("scr_rounding_", dots$rounding)
+      name_class <- c(name_class, rounding_class)
     }
+
+    # rounding <- formals(fun)$rounding
+    #
+    # if (length(rounding) > 0) {
+    #   rounding_class <- paste0("scr_rounding_", rounding)
+    #   name_class <- append(name_class, rounding_class)
+    # }
 
     # This says `all`...
     all_classes <- paste0("scr_", tolower(name_test), "_map")
+
+    # all_classes <- append_rounding_class()
 
     # ...because more values might be added to it:
     if (!is.null(name_class)) {
