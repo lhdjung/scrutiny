@@ -72,9 +72,9 @@ row_to_colnames <- function(data, row = 1, collapse = " ", drop = TRUE) {
 
   # Restore the vector of correct column names by the values stored in the one
   # or more rows that were specified by the `row` argument:
-  correct <- dplyr::slice(data, row) %>%
-    rbind(colnames(data), .) %>%
-    purrr::map(remove_na)
+  correct <- data[row, ]
+  correct <- rbind(colnames(data), correct)
+  correct <- purrr::map(correct, remove_na)
 
   correct <- purrr::map(correct, utils::tail, (length(correct[[1]]) - 1))
 
@@ -96,7 +96,7 @@ row_to_colnames <- function(data, row = 1, collapse = " ", drop = TRUE) {
     n_empty <- length(correct_is_empty[correct_is_empty])
     name_names <- dplyr::if_else(n_empty == 1, "name", "names")
     cli::cli_abort(c(
-      "{n_empty} empty column {name_names}",
+      "{n_empty} empty column {name_names}.",
       "x" = "Each column name must have at least one character.",
       ">" = "Make sure to specify `row` in `row_to_colnames()` accordingly."
     ))
@@ -111,7 +111,7 @@ row_to_colnames <- function(data, row = 1, collapse = " ", drop = TRUE) {
   # Return the data frame. By default (`drop = TRUE`), remove the specified row
   # or rows beforehand:
   if (drop) {
-    return(dplyr::slice(data, -row))
+    return(data[-row, ])
   } else {
     return(data)
   }
