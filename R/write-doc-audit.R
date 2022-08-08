@@ -48,7 +48,7 @@ write_doc_factory_map_audit_section <- function(glue_strings) {
     glue::glue(glue_strings)
   }
 
-  # ---End of the manufactured function ---
+  # --- End of the manufactured function ---
 
 }
 
@@ -98,6 +98,20 @@ write_doc_audit <- function(sample_output, name_test) {
   check_class(sample_output, "tbl_df")
   check_length(name_test, 1)
 
+  if (length(sample_output) < 3) {
+    cli::cli_abort(c(
+      "Invalid `sample_output` argument.",
+      "x" = "It needs to be the output of `audit()` applied \\
+      to a scrutiny-style mapper function, such as `grim_map()`.",
+      ">" = "(These outputs always have at least three columns.)",
+      ">" = "Create it like this:",
+      "pigs1 %>%
+           grim_map() %>%
+           audit() %>%
+           write_doc_audit(name_test = \"GRIM\")"
+    ))
+  }
+
   output_name <- colnames(sample_output)
   output_number <- 1:length(output_name)
   output_text <- c(
@@ -108,15 +122,6 @@ write_doc_audit <- function(sample_output, name_test) {
 
   length_other_cols <- length(sample_output) - 3
   output_text <- append(output_text, rep("", length_other_cols))
-
-  if (length(sample_output) < 3) {
-    cli::cli_abort(c(
-      "Invalid `sample_output` argument.",
-      "x" = "It needs to be the output of `audit()` applied \\
-      to a scrutiny-style mapper function, such as `grim_map()`.",
-      ">" = "(These outputs always have at least three columns.)"
-    ))
-  }
 
   output_name_expected <- c("incons_cases", "all_cases", "incons_rate")
 
