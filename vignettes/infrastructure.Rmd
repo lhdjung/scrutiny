@@ -95,7 +95,7 @@ vec2 %>%
   decimal_places()
 ```
 
-## Generate sequences
+## Sequence generation
 
 ### Introduction
 
@@ -144,6 +144,57 @@ seq_disperse(from = 4.1)
 ```
 
 `seq_disperse()` is a hybrid between the two `seq()` wrappers explained above and the `disperse*()` functions introduced next.
+
+## Sequence testing
+
+Four predicate functions around `is_seq_linear()` test whether a vector `x` represents particular kinds of sequences. They are listed as infrastructure because the sequence generators above are, but these testing functions can serve as analytic instruments in their own right.
+
+`is_seq_linear()` returns `TRUE` if the difference between all neighboring values is the same:
+
+```{r}
+is_seq_linear(x = 8:15)
+is_seq_linear(x = c(8:15, 16))
+is_seq_linear(x = c(8:15, 17))
+```
+
+`is_seq_ascending()` tests whether that difference is always positive...
+
+```{r}
+is_seq_ascending(x = 8:15)
+is_seq_ascending(x = 16:9)
+
+# Default also tests for linearity:
+is_seq_ascending(x = c(8:15, 17))
+is_seq_ascending(x = c(8:15, 17), test_linear = FALSE)
+```
+
+...whereas `is_seq_descending()` tests whether it is always negative:
+
+```{r}
+is_seq_descending(x = 8:15)
+is_seq_descending(x = 16:9)
+
+# Default also tests for linearity:
+is_seq_descending(x = c(16:9, 2))
+is_seq_descending(x = c(16:9, 2), test_linear = FALSE)
+```
+
+`is_seq_dispersed()` tests whether the vector is grouped around its `from` argument:
+
+```{r}
+is_seq_dispersed(x = 3:7, from = 5)
+
+# Direction doesn't matter here:
+is_seq_dispersed(x = 7:3, from = 5)
+is_seq_dispersed(x = 3:7, from = 4)
+
+# Dispersed from `50`, but not linear:
+x_nonlinear <- c(49, 42, 47, 44, 50, 56, 53, 58, 51)
+
+# Default also tests for linearity:
+is_seq_dispersed(x = x_nonlinear, from = 50)
+is_seq_dispersed(x = x_nonlinear, from = 50, test_linear = FALSE)
+```
 
 ## Disperse from (around) half with `disperse_total()`
 
