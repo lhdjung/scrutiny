@@ -112,21 +112,29 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
         seq_replacement <- seq_replacement[-1]
         seq_replacement <- seq_replacement[-length(seq_replacement)]
 
-        # In the first of these two cases, the replacement sequence is too short
-        # to bridge the `NA` subsequence. In the second case, the replacement
-        # sequence is longer than the subsequence of `NA` elements, which
-        # invariably means that the numbers surrounding the `NA`s are too far
-        # spaced out for there to be a linear sequence. In either case...
-        seq_replacement_has_wrong_length <- length(seq_replacement) == 0 ||
-          length(seq_replacement) > length(index_lower:index_upper)
+        if (test_linear) {
+          # In the first of these two cases, the replacement sequence is too
+          # short to bridge the `NA` subsequence. In the second case, the
+          # replacement sequence is longer than the subsequence of `NA`
+          # elements, which invariably means that the numbers surrounding the
+          # `NA`s are too far spaced out for there to be a linear sequence. In
+          # either case...
+          seq_replacement_has_wrong_length <- length(seq_replacement) == 0 ||
+            length(seq_replacement) > length(index_lower:index_upper)
 
-        # ...an error is thrown:
-        if (seq_replacement_has_wrong_length) {
-          return(FALSE)
+          # ...an error is thrown:
+          if (seq_replacement_has_wrong_length) {
+            return(FALSE)
+          }
         }
 
-        # Substitute the replacement sequence for `NA` elements:
-        x[i + ((index_lower:index_upper) - 1)] <- seq_replacement
+        # Substitute the replacement sequence for `NA` elements. Warnings are
+        # suppressed because the lengths will only differ in an unproblematic
+        # case -- `x` is non-linear and `test_linear` is `FALSE`, i.e., the user
+        # only wants one of the special tests but not the test for linearity:
+        suppressWarnings(
+          x[i + ((index_lower:index_upper) - 1)] <- seq_replacement
+        )
 
       } # End of the `is.na(x[i])` condition
     }   # End of the for loop
@@ -253,7 +261,7 @@ is_seq_descending <- function(x, test_linear = TRUE,
 #' @rdname is_seq_linear
 
 is_seq_dispersed <- function(x, from, test_linear = TRUE,
-                                    tolerance = .Machine$double.eps^0.5) {
+                             tolerance = .Machine$double.eps^0.5) {
   is_seq_basic(
     x, tolerance, test_linear, test_special = "dispersed", min_length = 3,
     args_other = list(from = from)
