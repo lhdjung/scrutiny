@@ -154,7 +154,7 @@ If `function_map()` is so helpful, why would you ever not use it? There are four
 
 -   Functions produced by `function_map()` don't have any tailor-made checks, messages, or transformations for any specific consistency test. (They do have some more general checks and error messages.)
 
--   They only have limited capabilities to create columns internally other than `"consistency"`: Values in such columns need to be produced by the basic `*_scalar()` function. That's the process behind the `reason` column in `grimmer_map()`'s output.
+-   They only have limited capabilities to create columns internally other than `"consistency"`: Values in such columns need to be produced by the basic `*_scalar()` function. (This might replace tailor-made functionality for creating the `reason` column in the output of the handwritten `grimmer_map()`, but it is currently experimental.)
 
 -   They don't support helper columns (see *Terminology* below).
 
