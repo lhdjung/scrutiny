@@ -126,7 +126,7 @@ grimmer_map_alt <- function_map(
   # .name_class = "grim_map",
   .col_names = "reason",
   # .col_control = "show_reason",
-  .col_filler = "Passed all tests",
+  .col_filler = "Passed all",
   .arg_list = list(
     show_reason = TRUE, rounding = "up_or_down", threshold = 5,
     symmetric = FALSE, tolerance = .Machine$double.eps^0.5
