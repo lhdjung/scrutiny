@@ -173,9 +173,10 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
 #' @param percent Boolean. Set `percent` to `TRUE` if `x` is a percentage. This
 #'   will convert it to a decimal number and adjust the decimal count (i.e.,
 #'   increase it by 2). Default is `FALSE`.
-#' @param show_rec Boolean. If set to `TRUE`, the output is a matrix that also
-#'   contains intermediary values from GRIM-testing. This is not recommended;
-#'   instead, use `show_rec` in `grim_map()`. Default is `FALSE`.
+#' @param show_rec Boolean. For internal use only.  If set to `TRUE`, the output
+#'   is a matrix that also contains intermediary values from GRIM-testing. Don't
+#'   specify this manually; instead, use `show_rec` in `grim_map()`. Default is
+#'   `FALSE`.
 #' @param rounding String. Rounding method or methods to be used for
 #'   reconstructing the values to which `x` will be compared. Default is
 #'   `"up_or_down"` (from 5).

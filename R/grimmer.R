@@ -180,7 +180,10 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
 #' @param x String. The reported mean value.
 #' @param sd String. The reported standard deviation.
 #' @param n Integer. The reported sample size.
-#' @param show_reason Not currently used.
+#' @param show_reason Boolean. For internal use only. If set to `TRUE`, the
+#'   output is a list of length-2 lists which also contain the reasons for
+#'   inconsistencies. Don't specify this manually; instead, use `show_reason` in
+#'   `grimmer_map()`. Default is `FALSE`.
 #'
 #' @inheritParams grim
 #'
