@@ -466,7 +466,7 @@ This presents a problem for consistency tests that rely on reported group sizes,
 
 ## Practical steps
 
-`function_map_total_n()` creates new functions which follow this very scheme by applying a given consistency test to multiple combinations of reported and hypothetical summary statistics. It is the powerhouse behind `grim_map_total_n()` and `debit_map_total_n()`, just as `function_map_seq()` is the powerhouse behind `grim_map_seq()` and `debit_map_seq()`. See the [case study in the GRIM vignette](https://lhdjung.github.io/scrutiny/articles/grim.html#handling-unknown-group-sizes-with-grim_map_total_n) for an example of how `grim_map_total_n()` works out in practice.
+`function_map_total_n()` creates new functions which follow this very scheme by applying a given consistency test to multiple combinations of reported and hypothetical summary statistics. It is the powerhouse behind `grim_map_total_n()`, `grimmer_map_total_n()`, and `debit_map_total_n()`, just as `function_map_seq()` is the powerhouse behind `grim_map_seq()`, `grimmer_map_seq()`, and `debit_map_seq()`. See the [case study in the GRIM vignette](https://lhdjung.github.io/scrutiny/articles/grim.html#handling-unknown-group-sizes-with-grim_map_total_n) for an example of how `grim_map_total_n()` works out in practice.
 
 As with `function_map_seq()`, creating a manufactured `*_total_n()` function is very easy. Just let the function factory do the work for you:
 
@@ -475,6 +475,12 @@ grim_map_total_n <- function_map_total_n(
   .fun = grim_map,
   .reported = "x",  # don't include `n` here
   .name_test = "GRIM"
+)
+
+grimmer_map_total_n <- function_map_total_n(
+  .fun = grimmer_map,
+  .reported = c("x", "sd"),  # don't include `n` here
+  .name_test = "GRIMMER"
 )
 
 debit_map_total_n <- function_map_total_n(
@@ -526,10 +532,11 @@ You will notice that I have talked about two existing functions, rather than ---
 
 `audit_seq()` and `audit_total_n()` rely on the uniform design of the manufactured functions, which allows them to compute essentially the same summaries: Their behavior only varies with the names and numbers of the key columns, which in turn follow straightforwardly from the nature of the consistency test. If you're developing a package, you should therefore document the behavior of `audit_seq()` and `audit_total_n()` on the same pages as your manufactured `*_map_seq()` and `*_map_total_n()` functions.
 
-There are specialized helpers for creating the respective documentation sections, `write_doc_audit_seq()` and `write_doc_audit_total_n()`. Here is how I used the first one for `grim_map_seq()` and `debit_map_seq()`, with the output omitted to save space:
+There are specialized helpers for creating the respective documentation sections, `write_doc_audit_seq()` and `write_doc_audit_total_n()`. Here is how I used the first one for `grim_map_seq()`, `grimmer_map_seq()`, and `debit_map_seq()`; but with the output omitted to save space:
 
 ```{r, eval=FALSE}
 write_doc_audit_seq(key_args = c("x", "n"), name_test = "GRIM")
+write_doc_audit_seq(key_args = c("x", "sd", "n"), name_test = "GRIMMER")
 write_doc_audit_seq(key_args = c("x", "sd", "n"), name_test = "DEBIT")
 ```
 
@@ -537,10 +544,11 @@ write_doc_audit_seq(key_args = c("x", "sd", "n"), name_test = "DEBIT")
 
 Copy the output from the console and paste it into the roxygen2 block of your `_map_seq` function. To preserve the bullet-point structure when indenting roxygen2 comments with `Ctrl`+`Shift`+`/`, leave empty lines between the pasted output and the rest of the block.
 
-Likewise, documenting `audit_total_n()` for `grim_map_total_n()` and `debit_map_total_n()`:
+Likewise, documenting `audit_total_n()` for `grim_map_total_n()`, `grimmer_map_total_n()`, and `debit_map_total_n()`:
 
 ```{r, eval=FALSE}
 write_doc_audit_total_n(key_args = c("x", "n"), name_test = "GRIM")
+write_doc_audit_total_n(key_args = c("x", "sd", "n"), name_test = "GRIMMER")
 write_doc_audit_total_n(key_args = c("x", "sd", "n"), name_test = "DEBIT")
 ```
 
