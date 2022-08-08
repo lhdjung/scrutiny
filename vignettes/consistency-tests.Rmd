@@ -112,6 +112,8 @@ df1 <- tibble::tibble(y = 16:25, n = 3:12)
 schlim_map(df1)
 ```
 
+These are the most important arguments:
+
 -   `.fun` is the single-case function from section 1.
 
 -   `.reported` is a string vector naming the reported statistics that `.fun` tests for consistency with each other. These need to be arguments of `.fun`, but `.fun` may have other arguments, as well.
@@ -152,19 +154,21 @@ If `function_map()` is so helpful, why would you ever not use it? There are four
 
 -   Functions produced by `function_map()` don't have any tailor-made checks, messages, or transformations for any specific consistency test. (They do have some more general checks and error messages.)
 
--   They are incapable of creating columns internally other than `"consistency"`.
+-   They only have limited capabilities to create columns internally other than `"consistency"`: Values in such columns need to be produced by the basic `*_scalar()` function. That's the process behind the `reason` column in `grimmer_map()`'s output.
 
 -   They don't support helper columns (see *Terminology* below).
 
 -   Finally, when calling such a manufactured function, any test-specific arguments the user might specify via `…` (the dots) won't trigger RStudio's autocomplete. This is not as dangerous as in some other functions that use the dots because, when calling a function produced by `function_map()`, misspelled argument names always throw an error.
 
-Both `grim_map()` and `debit_map()` were "handwritten" rather than produced by `function_map()`. For example, the `show_rec` argument in `grim_map()` or the `ratio` column in the function's output would not have been possible with `function_map()`. However, such issues don't affect the `"consistency"` results, and simply going with `function_map()` might often be the better option. If that's what you choose to do, skip right to section 4.
+`grimmer_map()` was produced by `function_map()`, but
+
+`grim_map()`, `grimmer_map()`, and `debit_map()` were all "handwritten" for flexibility with columns beyond `"consistency"`, even though their variants `grim_map_alt()`, `grimmer_map_alt()` and `debit_map_alt()` were produced by `function_map()` as proofs of concept. For example, the `show_rec` argument in `grim_map()` or the `ratio` column in the function's output would not have been possible with `function_map()`. However, such issues don't affect the `"consistency"` results, and simply going with `function_map()` might often be the better option. If that's what you choose to do, skip right to section 4.
 
 ## Writing mappers manually
 
 ### Introduction
 
-The remaining part of section 3 explains how to manually write mapper functions like `grim_map()` or `debit_map()`. It is quite detailed because it's important to get these things right: Every other function in the rest of this vignette builds up on it. Still, the practical steps are not that complicated, as you can see in the code examples.
+The remaining part of section 3 explains how to manually write mapper functions like `grim_map()`, `grimmer_map()`, or `debit_map()`. It is quite detailed because it's important to get these things right: Every other function in the rest of this vignette builds up on it. Still, the practical steps are not that complicated, as you can see in the code examples.
 
 ### Terminology
 
@@ -231,9 +235,9 @@ By contrast, the columns of the output data frame are organized like this:
 add_class <- scrutiny:::add_class
 ```
 
-How to actually write mapper functions? Again, I recommend `function_map()`. The functions created below are conceptually very similar to it.
+How to actually write mapper functions? Again, I recommend `function_map()`. The functions created below are conceptually very similar.
 
-Apply the `_scalar` function to the input data frame using `purrr::pmap_lgl()`:
+Apply the `*_scalar()` function to the input data frame using `purrr::pmap_lgl()`:
 
 ```{r}
 schlim_map_alt1 <- function(data, ...) {
@@ -308,7 +312,7 @@ When directly looking for internal helpers in scrutiny's source code, start at t
 
 `audit()` is an S3 generic for summarizing scrutiny's test result data frames, especially those of mapper functions such as `grim_map()`. It should always return descriptive statistics but nothing else. Every mapper function should have its corresponding `audit()` method.
 
-This is an aspect of object-oriented programming (OOP), but scrutiny's use of OOP is simple even by the low standards of R. Your mapper function's output already inherits a specific class, such as `"scr_grim_map"` or `"scr_debit_map"`. In `schlim_map()`, we added the `"scr_schlim_map"` class in addition to existing classes:
+This is an aspect of object-oriented programming (OOP), but scrutiny's use of OOP is simple even by the low standards of R. Your mapper function's output already inherits a specific class, such as `"scr_grim_map"`, `"scr_grimmer_map"`, or `"scr_debit_map"`. In `schlim_map()`, we added the `"scr_schlim_map"` class in addition to existing classes:
 
 ```{r}
 df1_tested <- schlim_map(df1)
@@ -354,12 +358,12 @@ You can still add other summary columns to the tibble returned by `audit_cols_mi
 Each `audit()` method should be documented on the same page as its respective mapper function. It should have its own section. Create it with `write_doc_audit()`:
 
 ```{r}
-audit_grim  <- audit(grim_map(pigs1))
-audit_debit <- audit(debit_map(pigs3))
+audit_grim    <- audit(grim_map(pigs1))
+audit_grimmer <- audit(grimmer_map(pigs5))
 
 write_doc_audit(sample_output = audit_grim,  name_test = "GRIM")
 
-write_doc_audit(sample_output = audit_debit, name_test = "DEBIT")
+write_doc_audit(sample_output = audit_grimmer, name_test = "GRIMMER")
 ```
 
 This function prepares a roxygen2 block section. It fills the three standard columns out for you, and it leaves space to describe any other columns there might be. Also, the internal checks of `write_doc_audit()` make sure that you programmed a correct `audit()` method, as represented by the value of the `sample_output` argument.
@@ -397,17 +401,23 @@ One possible reason for inconsistencies lies in small mistakes in computing and/
 
 It may therefore be useful to test the numeric neighborhood of inconsistent reported values. Are there any nearby values that are consistent with the other statistics? If so, how many and where? The problem might then be due to a simple oversight. However, it would be very cumbersome to test each candidate value manually, or even to test sequences that were manually created with functions such as `seq_distance()`.
 
-Fortunately, scrutiny automates this process. `grim_map_seq()` and `debit_map_seq()` provide an instant assessment of whether or not inconsistent reported values are close to consistent numbers. They also allow the user to specify how many steps away from the reported value are permitted when looking for consistent ones, as well as some other options.
+Fortunately, scrutiny semi-automates this process. `grim_map_seq()`, `grimmer_map_seq()` and `debit_map_seq()` provide an instant assessment of whether or not inconsistent reported values are close to consistent numbers. They also allow the user to specify how many steps away from the reported value are permitted when looking for consistent ones, as well as some other options.
 
 ## Practical steps
 
-Although the code that underlies them is fairly complex, these functions themselves were written in a very simple way. Here are the ones for GRIM and DEBIT:
+Although the code that underlies them is fairly complex, these functions themselves were written in a very simple way. Here are the ones for GRIM, GRIMMER, and DEBIT:
 
 ```{r, eval=FALSE}
 grim_map_seq <- function_map_seq(
   .fun = grim_map,
   .reported = c("x", "n"),
   .name_test = "GRIM",
+)
+
+grimmer_map_seq <- function_map_seq(
+  .fun = grimmer_map,
+  .reported = c("x", "sd", "n"),
+  .name_test = "GRIMMER"
 )
 
 debit_map_seq <- function_map_seq(
@@ -417,7 +427,7 @@ debit_map_seq <- function_map_seq(
 )
 ```
 
-Any consistency test that is already implemented in a mapper function like `grim_map()` and `debit_map()` can receive its own `*_map_seq()` function just as easily using `function_map_seq()`. This is due to scrutiny's streamlined design conventions --- specifically, the requirements for mapper functions laid out in section 3.
+Any consistency test that is already implemented in a mapper function like `grim_map()`, `grimmer_map()`, and `debit_map()` can receive its own `*_map_seq()` function just as easily using `function_map_seq()`. This is due to scrutiny's streamlined design conventions --- specifically, the requirements for mapper functions laid out in section 3.
 
 Let's write a sequence mapper for SCHLIM:
 
