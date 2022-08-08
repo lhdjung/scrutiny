@@ -355,7 +355,7 @@ You can still add other summary columns to the tibble returned by `audit_cols_mi
 
 ## Documentation template
 
-Each `audit()` method should be documented on the same page as its respective mapper function. It should have its own section. Create it with `write_doc_audit()`:
+Each `audit()` method should be documented on the same page as its respective mapper function. It should have its own section called *Summaries with `audit()`*. Create it with `write_doc_audit()`:
 
 ```{r}
 audit_grim    <- audit(grim_map(pigs1))
