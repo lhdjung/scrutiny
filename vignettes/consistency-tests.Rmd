@@ -524,15 +524,15 @@ See the advice on exporting manufactured functions at the end of section 6.
 
 The output of sequence mappers and total-n mappers is very comprehensive. This makes it somewhat unwieldy and creates a need for summaries. As a first step, the user can always call `audit()` on the tibbles returned by manufactured functions like `grim_map_seq()`. It will go by the `"*_map"` class added within the basic mapper function, such as `grim_map()`, and return the regular output of the respective `audit()` method.
 
-However, scrutiny features two specialized functions for summarizing the results of manufactured `*_seq()` or `*_total_n()` functions: `audit_seq()` and `audit_total_n()`. These two are not generic like `audit()`, but they only work with functions produced by `function_map_seq()` and `function_map_total_n()`, respectively.
+However, scrutiny features two specialized functions for summarizing the results of manufactured `*_seq()` or `*_total_n()` functions: `audit_seq()` and `audit_total_n()`. These two are not generic like `audit()`, but they only accept the output of functions produced by `function_map_seq()` and `function_map_total_n()`, respectively.
 
-You will notice that I have talked about two existing functions, rather than --- as in the other sections --- a kind of function that you should be writing. Indeed, there is nothing left for you to do about `audit_seq()` and `audit_total_n()` themselves, unless you find a bug in them! What you should do, however, is to document the behavior of `audit_seq()` and `audit_total_n()` with regard to the specific test that you have implemented.
+You will notice that I have spoken about two existing functions, rather than --- as in the other sections --- a kind of function that you should be writing. Indeed, there is nothing left for you to do about `audit_seq()` and `audit_total_n()` themselves, unless you find a bug in them! What you should do, however, is to document their behavior with regard to the specific test that you have implemented.
 
 ## Documentation templates
 
 `audit_seq()` and `audit_total_n()` rely on the uniform design of the manufactured functions, which allows them to compute essentially the same summaries: Their behavior only varies with the names and numbers of the key columns, which in turn follow straightforwardly from the nature of the consistency test. If you're developing a package, you should therefore document the behavior of `audit_seq()` and `audit_total_n()` on the same pages as your manufactured `*_map_seq()` and `*_map_total_n()` functions.
 
-There are specialized helpers for creating the respective documentation sections, `write_doc_audit_seq()` and `write_doc_audit_total_n()`. Here is how I used the first one for `grim_map_seq()`, `grimmer_map_seq()`, and `debit_map_seq()`; but with the output omitted to save space:
+There are specialized helpers for creating the respective documentation sections, `write_doc_audit_seq()` and `write_doc_audit_total_n()`, in analogy to `write_doc_audit()`. Here is how I used the first one for `grim_map_seq()`, `grimmer_map_seq()`, and `debit_map_seq()`; but with the output omitted to save space:
 
 ```{r, eval=FALSE}
 write_doc_audit_seq(key_args = c("x", "n"), name_test = "GRIM")
