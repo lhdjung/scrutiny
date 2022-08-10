@@ -197,9 +197,6 @@ manage_var_ge_3 <- function(var_ge_3, prefix, suffix, segway = "as well as") {
       and finally {var_ge_3_line[length(var_ge_3_line)]}"
       )
     }
-    # else {
-    #   var_ge_3_line <- paste("as well as", var_ge_3_line)
-    # }
   } else {
     var_ge_3_line <- ""
   }
@@ -228,11 +225,6 @@ write_doc_audit_seq <- function(key_args, name_test) {
     var_ge_3_line_hits <- paste0(" ", var_ge_3_line_hits)
   }
 
-  # var_ge_3_line_diff <- manage_var_ge_3(
-  #   var_ge_3, prefix = rep("diff", 3), suffix = c("", "up", "down"),
-  #   segway = "Accordingly with"
-  # )
-
   suffix <- c("", "up", "down")
   var_ge_3_line_diff <- ""
 
@@ -257,22 +249,9 @@ write_doc_audit_seq <- function(key_args, name_test) {
   var_ge_3_line_diff_all <- "#'   - `diff_{arg2}`, `diff_{arg2}_up`, \\
   and `diff_{arg2}_down` do the same for {arg2_bt}. \n"
 
-  # var_ge_3_line_diff_all <- glue::glue(
-  #   "#'   - `diff_{arg2}`, `diff_{arg2}_up`, and `diff_{arg2}_down` \\
-  #     do the same for {arg2_bt}. \n",
-  #   "#'   - {var_ge_3_line_diff} \n"
-  # )
-
   if (var_ge_3_line_diff != "") {
     var_ge_3_line_diff_all <- paste0(var_ge_3_line_diff_all, "#'   - {var_ge_3_line_diff} \n")
   }
-
-  # var_ge_3_line_diff_all <- glue::glue(
-  #   "#'   - `diff_{arg2}`, `diff_{arg2}_up`, and `diff_{arg2}_down` \\
-  #     do the same for {arg2_bt}. \n",
-  #   "#'   - {var_ge_3_line_diff} \n"
-  # )
-
 
   glue::glue(
     "#' @section Summaries with `audit_seq()`: You can call `audit_seq()` following \n",
@@ -292,82 +271,8 @@ write_doc_audit_seq <- function(key_args, name_test) {
     "#'   difference). `diff_{arg1}_up` and `diff_{arg1}_down` report the difference to the \n",
     "#'   next higher or lower consistent value, respectively. \n",
     var_ge_3_line_diff_all
-    # "#'   - `diff_{arg2}`, `diff_{arg2}_up`, and `diff_{arg2}_down` do the same for {arg2_bt}.{var_ge_3_line_diff} \n"
   )
 }
-
-
-
-# write_doc_audit_seq <- write_doc_factory_map_audit_section(c(
-#   "#' @section Summaries with `audit_seq()`: You can call `audit_seq()` following \n",
-#   "#'   `{tolower(name_test)}_map_seq()`. It will return a data frame with these columns: \n",
-#   "#'   - {vars} are the original inputs, \n",
-#   "#'   tested for `consistency` here. \n",
-#   "#'   - `hits_total` is the total number of {name_test}-consistent value sets \n" ,
-#   "#'   found within the specified `dispersion` range. \n",
-#   "#'   - `hits_{arg1}` is the number of {name_test}-consistent value sets \n",
-#   "#'   found by varying {arg1_bt}. \n",
-#   "#'   - Accordingly with {arg2_bt} and `hits_{arg2}`. \n",
-#   "#'   - (Note that any consistent reported cases will be counted by the \n",
-#   "#'   `hits_*` columns if both `include_reported` and `include_consistent` \n",
-#   "#'   are set to `TRUE`.) \n",
-#   "#'   - `diff_{arg1}` reports the absolute difference between {arg1_bt} and the next \n",
-#   "#'   consistent dispersed value (in dispersion steps, not the actual numeric \n"   ,
-#   "#'   difference). `diff_{arg1}_up` and `diff_{arg1}_down` report the difference to the \n",
-#   "#'   next higher or lower consistent value, respectively. \n",
-#   "#'   - `diff_{arg2}`, `diff_{arg2}_up`, and `diff_{arg2}_down` do the same for {arg2_bt}. \n"
-# ))
-
-
-
-
-# write_doc_audit_seq_manual <- function(key_args, name_test) {
-#
-#   # Checks ---
-#
-#   check_length(name_test, 1)
-#
-#   if (!length(key_args) > 1) {
-#     cli::cli_abort(c(
-#       "`key_args` must have length > 1.",
-#       "x" = "Consistency testing requires at least two values."
-#     ))
-#   }
-#
-#
-#   # Main part ---
-#
-#   key_args_bt <- paste0("`", key_args, "`")
-#   vars <- commas_and(key_args_bt)   # `commas_and()` is from utils.R
-#
-#   arg1 <- key_args[1]
-#   arg2 <- key_args[2]
-#
-#   arg1_bt <- key_args_bt[1]
-#   arg2_bt <- key_args_bt[2]
-#
-#   if (length(key_args) == 2) {
-#     var_ge_3_line <- ""
-#   } else {
-#     var_ge_3 <- key_args_bt[-(1:2)]
-#     var_ge_3_line <- "#'   - Accordingly for {commas_and(var_ge_3)}."
-#   }
-#
-#   # Return documentation section:
-#   glue::glue(
-#     "#' @section Summaries with `audit_seq()`: You can call `audit_seq()` following \n",
-#     "#'   `{tolower(name_test)}_map_seq()`. It will return a data frame with these columns: \n",
-#     "#'   - {vars} are the original inputs, tested for `consistency` here. \n",
-#     "#'   - `hits` is the number of {name_test}-consistent value combinations found within \n",
-#     "#'   the specified `dispersion` range. \n",
-#     "#'   - `diff_{arg1}` reports the absolute difference between {arg1_bt} and the next \n",
-#     "#'   consistent dispersed value (in dispersion steps, not the actual numeric \n",
-#     "#'   difference). `diff_{arg1}_up` and `diff_{arg1}_down` report the difference to the \n",
-#     "#'   next higher or lower consistent value, respectively. \n",
-#     "#'   - `diff_{arg2}`, `diff_{arg2}_up`, and `diff_{arg2}_down` do the same for {arg2_bt}. \n",
-#     var_ge_3_line
-#   )
-# }
 
 
 
