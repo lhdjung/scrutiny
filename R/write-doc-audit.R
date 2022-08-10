@@ -23,6 +23,51 @@ manage_key_args <- function(key_args) {
 
 
 
+# Helper; not exported:
+manage_var_ge_3 <- function(var_ge_3, prefix, suffix, segway = "as well as") {
+
+  for (i in seq_along(prefix)) {
+    if (prefix[i] != "") {
+      prefix[i] <- paste0(prefix[i], "_")
+    }
+  }
+
+  for (i in seq_along(suffix)) {
+    if (suffix[i] != "") {
+      suffix[i] <- paste0("_", suffix[i])
+    }
+  }
+
+
+  if (all(var_ge_3 != "")) {
+    if (length(var_ge_3) == 1) {
+      var_ge_3_line <- glue::glue(
+        "`{prefix}{var_ge_3}{suffix}`"  # used to have: `hits_{var_ge_3}`
+      )
+      var_ge_3_line <- commas_and(var_ge_3_line)
+      var_ge_3_line <- paste(wrap_in_backticks(var_ge_3), "and", var_ge_3_line)
+      var_ge_3_line <- paste(segway, var_ge_3_line)
+    } else {
+      var_ge_3_line <- glue::glue("`{var_ge_3}` and `{prefix}{var_ge_3}{suffix}`")
+      var_ge_3_line_without_last <- paste(
+        var_ge_3_line[1:(length(var_ge_3_line) - 1)],
+        collapse = "; "
+      )
+      var_ge_3_line <- glue::glue(
+        " {segway} {var_ge_3_line_without_last}; \\
+      and finally {var_ge_3_line[length(var_ge_3_line)]}"
+      )
+    }
+  } else {
+    var_ge_3_line <- ""
+  }
+
+  return(var_ge_3_line)
+}
+
+
+
+
 
 #' Documentation template for `audit()`
 #'
@@ -161,50 +206,6 @@ write_doc_audit <- function(sample_output, name_test) {
 #'
 #' # For DEBIT and `debit_map_seq()`:
 #' write_doc_audit_seq(key_args = c("x", "sd", "n"), name_test = "DEBIT")
-
-
-manage_var_ge_3 <- function(var_ge_3, prefix, suffix, segway = "as well as") {
-
-  for (i in seq_along(prefix)) {
-    if (prefix[i] != "") {
-      prefix[i] <- paste0(prefix[i], "_")
-    }
-  }
-
-  for (i in seq_along(suffix)) {
-    if (suffix[i] != "") {
-      suffix[i] <- paste0("_", suffix[i])
-    }
-  }
-
-
-  if (all(var_ge_3 != "")) {
-    if (length(var_ge_3) == 1) {
-      var_ge_3_line <- glue::glue(
-        "`{prefix}{var_ge_3}{suffix}`"  # used to have: `hits_{var_ge_3}`
-      )
-      var_ge_3_line <- commas_and(var_ge_3_line)
-      var_ge_3_line <- paste(wrap_in_backticks(var_ge_3), "and", var_ge_3_line)
-      var_ge_3_line <- paste(segway, var_ge_3_line)
-    } else {
-      var_ge_3_line <- glue::glue("`{var_ge_3}` and `{prefix}{var_ge_3}{suffix}`")
-      var_ge_3_line_without_last <- paste(
-        var_ge_3_line[1:(length(var_ge_3_line) - 1)],
-        collapse = "; "
-      )
-      var_ge_3_line <- glue::glue(
-        " {segway} {var_ge_3_line_without_last}; \\
-      and finally {var_ge_3_line[length(var_ge_3_line)]}"
-      )
-    }
-  } else {
-    var_ge_3_line <- ""
-  }
-
-  return(var_ge_3_line)
-}
-
-
 
 
 write_doc_audit_seq <- function(key_args, name_test) {
