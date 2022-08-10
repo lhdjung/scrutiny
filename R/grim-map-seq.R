@@ -30,17 +30,21 @@
 
 #' @section Summaries with `audit_seq()`: You can call `audit_seq()` following
 #'   `grim_map_seq()`. It will return a data frame with these columns:
-#'   - `x` and `n` are the original inputs, tested for `consistency` here.
+#'   - `x` and `n` are the original inputs,
+#'   tested for `consistency` here.
 #'   - `hits_total` is the total number of GRIM-consistent value sets
 #'   found within the specified `dispersion` range.
 #'   - `hits_x` is the number of GRIM-consistent value sets
 #'   found by varying `x`.
 #'   - Accordingly with `n` and `hits_n`.
+#'   - (Note that any consistent reported cases will be counted by the
+#'   `hits_*` columns if both `include_reported` and `include_consistent`
+#'   are set to `TRUE`.)
 #'   - `diff_x` reports the absolute difference between `x` and the next
 #'   consistent dispersed value (in dispersion steps, not the actual numeric
 #'   difference). `diff_x_up` and `diff_x_down` report the difference to the
 #'   next higher or lower consistent value, respectively.
-#'   - `diff_n`, `diff_n_up`, and `diff_n_down` do the same for `n`.
+#'   - `diff_n`, `diff_n_up`,   and `diff_n_down` do the same for `n`.
 
 #' @include grim-map.R
 

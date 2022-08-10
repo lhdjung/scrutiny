@@ -163,6 +163,52 @@ write_doc_audit <- function(sample_output, name_test) {
 #' write_doc_audit_seq(key_args = c("x", "sd", "n"), name_test = "DEBIT")
 
 
+manage_var_ge_3 <- function(var_ge_3, prefix, suffix, segway = "as well as") {
+
+  for (i in seq_along(prefix)) {
+    if (prefix[i] != "") {
+      prefix[i] <- paste0(prefix[i], "_")
+    }
+  }
+
+  for (i in seq_along(suffix)) {
+    if (suffix[i] != "") {
+      suffix[i] <- paste0("_", suffix[i])
+    }
+  }
+
+
+  if (all(var_ge_3 != "")) {
+    if (length(var_ge_3) == 1) {
+      var_ge_3_line <- glue::glue(
+        "`{prefix}{var_ge_3}{suffix}`"  # used to have: `hits_{var_ge_3}`
+      )
+      var_ge_3_line <- commas_and(var_ge_3_line)
+      var_ge_3_line <- paste(wrap_in_backticks(var_ge_3), "and", var_ge_3_line)
+      var_ge_3_line <- paste(segway, var_ge_3_line)
+    } else {
+      var_ge_3_line <- glue::glue("`{var_ge_3}` and `{prefix}{var_ge_3}{suffix}`")
+      var_ge_3_line_without_last <- paste(
+        var_ge_3_line[1:(length(var_ge_3_line) - 1)],
+        collapse = "; "
+      )
+      var_ge_3_line <- glue::glue(
+        " {segway} {var_ge_3_line_without_last}; \\
+      and finally {var_ge_3_line[length(var_ge_3_line)]}"
+      )
+    }
+    # else {
+    #   var_ge_3_line <- paste("as well as", var_ge_3_line)
+    # }
+  } else {
+    var_ge_3_line <- ""
+  }
+
+  return(var_ge_3_line)
+}
+
+
+
 
 write_doc_audit_seq <- function(key_args, name_test) {
   key_args_list <- manage_key_args(key_args)
@@ -174,24 +220,58 @@ write_doc_audit_seq <- function(key_args, name_test) {
   vars <- key_args_list[5]
   var_ge_3 <- key_args_list[6][[1]]
 
-  if (all(var_ge_3 != "")) {
-    var_ge_3_line <- glue::glue(
-      "{wrap_in_backticks(var_ge_3)} and `hits_{var_ge_3}`"
-    )
-    if (length(var_ge_3) > 1) {
-      var_ge_3_line_without_last <- paste(
-        var_ge_3_line[1:(length(var_ge_3_line) - 1)], collapse = "; "
-      )
-      var_ge_3_line <- glue::glue(
-        " as well as {var_ge_3_line_without_last}; \\
-      and finally {var_ge_3_line[length(var_ge_3_line)]}"
-      )
-    } else {
-      var_ge_3_line <- paste("as well as", var_ge_3_line)
-    }
-  } else {
-    var_ge_3_line <- ""
+  var_ge_3_line_hits <- manage_var_ge_3(
+    var_ge_3, prefix = "hits", suffix = "", segway = "as well as"
+  )
+
+  if (var_ge_3_line_hits != "") {
+    var_ge_3_line_hits <- paste0(" ", var_ge_3_line_hits)
   }
+
+  # var_ge_3_line_diff <- manage_var_ge_3(
+  #   var_ge_3, prefix = rep("diff", 3), suffix = c("", "up", "down"),
+  #   segway = "Accordingly with"
+  # )
+
+  suffix <- c("", "up", "down")
+  var_ge_3_line_diff <- ""
+
+  semicolons_as_well_as <- function(x) {
+    x[-length(x)] <- paste0(x[-length(x)], "; ")
+    x[length(x)]  <- paste0("as well as ", x[length(x)])
+    stringr::str_flatten(x)
+  }
+
+  if (all(var_ge_3 == "")) {
+    var_ge_3_line_diff <- ""
+  } else {
+    var_ge_3_line_diff <- purrr::map(var_ge_3, ~ paste0("diff_", .))
+    var_ge_3_line_diff <- purrr::map(var_ge_3_line_diff, paste0, c("", "_up", "_down"))
+    var_ge_3_line_diff <- purrr::map(var_ge_3_line_diff, list(wrap_in_backticks, commas_and))
+    if (all(length(var_ge_3) > 1)) {
+      var_ge_3_line_diff <- semicolons_as_well_as(var_ge_3_line_diff)
+    }
+    var_ge_3_line_diff <- paste0(" Likewise with ", var_ge_3_line_diff, ".")
+  }
+
+  var_ge_3_line_diff_all <- "#'   - `diff_{arg2}`, `diff_{arg2}_up`, \\
+  and `diff_{arg2}_down` do the same for {arg2_bt}. \n"
+
+  # var_ge_3_line_diff_all <- glue::glue(
+  #   "#'   - `diff_{arg2}`, `diff_{arg2}_up`, and `diff_{arg2}_down` \\
+  #     do the same for {arg2_bt}. \n",
+  #   "#'   - {var_ge_3_line_diff} \n"
+  # )
+
+  if (var_ge_3_line_diff != "") {
+    var_ge_3_line_diff_all <- paste0(var_ge_3_line_diff_all, "#'   - {var_ge_3_line_diff} \n")
+  }
+
+  # var_ge_3_line_diff_all <- glue::glue(
+  #   "#'   - `diff_{arg2}`, `diff_{arg2}_up`, and `diff_{arg2}_down` \\
+  #     do the same for {arg2_bt}. \n",
+  #   "#'   - {var_ge_3_line_diff} \n"
+  # )
 
 
   glue::glue(
@@ -203,8 +283,7 @@ write_doc_audit_seq <- function(key_args, name_test) {
     "#'   found within the specified `dispersion` range. \n",
     "#'   - `hits_{arg1}` is the number of {name_test}-consistent value sets \n",
     "#'   found by varying {arg1_bt}. \n",
-    "#'   - Accordingly with {arg2_bt} and `hits_{arg2}` \n",
-    "#'   {var_ge_3_line}. \n",
+    "#'   - Accordingly with {arg2_bt} and `hits_{arg2}`{var_ge_3_line_hits}. \n",
     "#'   - (Note that any consistent reported cases will be counted by the \n",
     "#'   `hits_*` columns if both `include_reported` and `include_consistent` \n",
     "#'   are set to `TRUE`.) \n",
@@ -212,7 +291,8 @@ write_doc_audit_seq <- function(key_args, name_test) {
     "#'   consistent dispersed value (in dispersion steps, not the actual numeric \n"   ,
     "#'   difference). `diff_{arg1}_up` and `diff_{arg1}_down` report the difference to the \n",
     "#'   next higher or lower consistent value, respectively. \n",
-    "#'   - `diff_{arg2}`, `diff_{arg2}_up`, and `diff_{arg2}_down` do the same for {arg2_bt}. \n"
+    var_ge_3_line_diff_all
+    # "#'   - `diff_{arg2}`, `diff_{arg2}_up`, and `diff_{arg2}_down` do the same for {arg2_bt}.{var_ge_3_line_diff} \n"
   )
 }
 
