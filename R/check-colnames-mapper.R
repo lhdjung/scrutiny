@@ -112,7 +112,7 @@ check_consistency_not_in_colnames <- function(data, name_test) {
 #'
 #' @export
 #'
-#' @seealso `vignette("consistency-tests")` for context and the "key columns"
+#' @seealso `vignette("consistency-tests")`, for context and the "key columns"
 #'   terminology.
 
 
@@ -140,6 +140,8 @@ check_mapper_input_colnames <- function(data, reported, name_test) {
 #' @param data The `audit()` method's input data frame.
 #' @param name_test String (length 1). Short, plain-text name of the consistency
 #'   test, such as `"GRIM"`.
+#'
+#' @seealso `vignette("consistency-tests")`, for context.
 #'
 #' @export
 
@@ -272,7 +274,11 @@ manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
 #'   question, to be inserted into an error message.
 #'
 #' @return The input data frame, `data`, possibly modified.
+#'
+#' @seealso `vignette("consistency-tests")`, for context.
+#'
 #' @export
+
 
 manage_key_colnames <- function(data, arg, description = NULL) {
   arg_name <- deparse(substitute(arg))
@@ -334,6 +340,8 @@ manage_key_colnames_list_el <- function(data, key_arg) {
 #'   function.
 #'
 #' @return Data frame. The column names are determined by `col_names`.
+#'
+#' @seealso `vignette("consistency-tests")`, for context.
 #'
 #' @export
 
