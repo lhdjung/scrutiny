@@ -2,8 +2,8 @@
 #' Summaries of scrutiny objects
 #'
 #' @description `audit()` is an S3 generic to follow up on those scrutiny
-#'   functions that perform tests on a data frame. It summarizes results of
-#'   those tests and presents the summaries in a tibble. `audit_seq()` and
+#'   functions that perform tests on data frames. It summarizes results of those
+#'   tests and presents the summaries in a tibble. `audit_seq()` and
 #'   `audit_total_n()` summarize the results of functions that end on `_seq` and
 #'   `_total_n`, respectively.
 #'
@@ -12,9 +12,9 @@
 #'   returned by any of these functions. The same is true for `audit_seq()` and
 #'   `audit_total_n()`.
 #'
-#'   Go to the documentation of any function below to learn about its `audit()`
-#'   method, or about the way its output is processed by `audit_seq()` or
-#'   `audit_total_n()`.
+#'   Go to the documentation of any function named below to learn about its
+#'   `audit()` method, or about the way its output is processed by `audit_seq()`
+#'   or `audit_total_n()`.
 
 #   @section `audit()`: | \strong{Function} | \strong{Class}     |
 #   | ---                          | ---                         |
