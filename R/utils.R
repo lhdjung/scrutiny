@@ -455,25 +455,44 @@ check_length_disperse_n <- function(n, msg_single) {
 }
 
 
+# Test if a vector `x` is numeric or coercible to numeric:
+is_numericish <- function(x) {
+  if (all(is.na(x))) {
+    return(NA)
+  }
+  x <- x[!is.na(x)]
+  x <- suppressWarnings(as.numeric(x))
+  !any(is.na(x))
+}
 
-# Three helpers for `function_map_seq()` as well as its assorted `reverse_` and
-# `summarize_` functions:
 
-# 1. MAYBE I ONLY NEED THIS ONE?! This function relies on `x` being a double,
-# integer, or string vector of length > 1 that consists of a numeric sequence
-# with exactly one missing link, such that it's possible to interpolate the
-# missing value in a deterministic way.
+# This function expects an `x` vector like the one described above for
+# `index_seq()`, with the additional expectation that continuous sequences have
+# an odd length. That is because an index case needs to be identified, and
+# without a gap in the sequence, this has to be a single median value. If the
+# index case is missing, it is reconstructed and returned. If the sequence is
+# continuous, the index case is identical to the median, so this metric is
+# returned. All of that works independently of the step size:
 index_case_interpolate <- function(x, index_case_only = TRUE,
                                    index_itself = FALSE) {
   x_orig <- x
   x <- as.numeric(x)
 
-  index_seq <- purrr::map_dbl(seq_along(x), ~ x[.] - x[. + 1])
-  # This doesn't seem to work: `index_seq <- x[x] - x[x + 1]`
-  index_seq <- abs(index_seq[!is.na(index_seq)])
-  # index_seq <- stats::na.omit(abs(index_seq))  # old version
+  index_seq_x <- index_seq(x)
+  index_target <- match(max(index_seq_x), index_seq_x)
 
-  index_target <- match(max(index_seq), index_seq)
+  # For continuous `x` sequences, the index case is already present in the
+  # sequence as its median. It is here identified, coerced into the original
+  # type of `x`, and then returned:
+  if (is_seq_linear(x)) {
+    index_case <- stats::median(x)
+    index_case <- methods::as(index_case, typeof(x_orig))
+    if (index_itself) {
+      index_target <- match(index_case, x)
+      return(index_target)
+    }
+    return(index_case)
+  }
 
   if (index_itself) {
     return(index_target)
@@ -538,7 +557,6 @@ index_case_interpolate <- function(x, index_case_only = TRUE,
 # }
 
 
-# 3.
 index_case_diff <- function(data) {
   var <- data$var[[1]]
   data_var <- data[var][[1]]
@@ -555,8 +573,10 @@ index_case_diff <- function(data) {
   # out$diff[out$diff < 1] <-
   #   out$diff[out$diff < 1] - 1
 
-  index_diff[index_diff < 1] <-
-    index_diff[index_diff < 1] - 1
+  if (is_even(length(index_diff))) {
+    index_diff[index_diff < 1] <-
+      index_diff[index_diff < 1] - 1
+  }
 
   index_diff <- as.integer(index_diff)
 
@@ -656,41 +676,6 @@ wrap_in_quotes_or_backticks <- function(x) {
     x <- paste0("`", x, "`")
   }
   x
-}
-
-
-
-# Custom function as a workaround to replace `tidyr::unnest_wider()` within
-# mapper functions -- specifically, `grim_map()` -- because `unnest_wider()` has
-# become too slow for that job. The `col_names` argument is a string vector of
-# new names for the unnested columns, starting with `key` which is, of course,
-# `"consistency"` by default:
-unnest_consistency_cols <- function(results, col_names, index = FALSE,
-                                    key = "consistency") {
-
-  # The difference between the two conditions lies only in the
-  # `purrr::map_depth()` call:
-  if (index) {
-    consistency_list <- results[key][[1]] %>%
-      purrr::map_depth(.depth = 2, .f =  `[`, 1) %>%
-      purrr::map(unlist)
-  } else {
-    consistency_list <- purrr::map(results[key][[1]], unlist)
-  }
-
-  consistency_df <- consistency_list %>%
-    tibble::as_tibble(.name_repair = "minimal") %>%
-    t() %>%
-    tibble::as_tibble(.name_repair = ~ paste0("V", 1:length(col_names))) %>%
-    dplyr::mutate(V1 = as.logical(V1))
-
-  colnames(consistency_df) <- col_names
-
-  results <- results %>%
-    dplyr::select(- {{ key }}) %>%
-    dplyr::bind_cols(consistency_df)
-
-  return(results)
 }
 
 
