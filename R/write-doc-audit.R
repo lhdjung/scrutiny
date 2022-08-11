@@ -209,6 +209,9 @@ write_doc_audit <- function(sample_output, name_test) {
 
 
 write_doc_audit_seq <- function(key_args, name_test) {
+
+  check_length(name_test, 1)
+
   key_args_list <- manage_key_args(key_args)
 
   arg1 <- key_args_list[1]
@@ -227,7 +230,7 @@ write_doc_audit_seq <- function(key_args, name_test) {
   }
 
   suffix <- c("", "up", "down")
-  var_ge_3_line_diff <- ""
+  # var_ge_3_line_diff <- ""
 
   semicolons_as_well_as <- function(x) {
     x[-length(x)] <- paste0(x[-length(x)], "; ")
@@ -247,8 +250,8 @@ write_doc_audit_seq <- function(key_args, name_test) {
     var_ge_3_line_diff <- paste0(" Likewise with ", var_ge_3_line_diff, ".")
   }
 
-  var_ge_3_line_diff_all <- "#'   - `diff_{arg2}`, `diff_{arg2}_up`, \\
-  and `diff_{arg2}_down` do the same for {arg2_bt}. \n"
+  var_ge_3_line_diff_all <-
+    "#'   - `diff_{arg2}`, `diff_{arg2}_up`, and `diff_{arg2}_down` do the same for {arg2_bt}. \n"
 
   if (var_ge_3_line_diff != "") {
     var_ge_3_line_diff_all <- paste0(var_ge_3_line_diff_all, "#'   - {var_ge_3_line_diff} \n")
