@@ -21,7 +21,7 @@
 #'
 #' @export
 #'
-#' @include check-colnames-mapper.R
+#' @include mapper-function-helpers.R
 #'
 #' @seealso For context, see `vignette("consistency-tests")`. In case you don't
 #'   call `audit_cols_minimal()`, you should call `check_audit_special()`.
