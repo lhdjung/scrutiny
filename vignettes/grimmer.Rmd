@@ -155,7 +155,7 @@ It might still be important to account for the different ways in which numbers c
 
 ## Summarizing results with `audit()`
 
-Following up on a call to `grimmer_map()`, the generic function `audit()` summarizes GRIM test results:
+Following up on a call to `grimmer_map()`, the generic function `audit()` summarizes GRIMMER test results:
 
 ```{r}
 flying_pigs1 %>% 
@@ -171,13 +171,7 @@ These columns are ---
 
 3.  `incons_rate`: proportion of GRIMMER-inconsistent value sets.
 
-4.  `mean_grim_ratio`: average of GRIM ratios.
-
-5.  `incons_to_ratio`: ratio of `incons_rate` to `mean_ratio`.
-
-6.  `testable_cases`: number of GRIMMER-testable value sets (i.e., those with a positive ratio).
-
-7.  `testable_rate`: proportion of GRIMMER-testable value sets.
+4.  `fail_grim`, `fail_test1`, `fail_test2`, `fail_test3`: number of value sets failing the GRIM test or one of the three GRIMMER tests, respectively.
 
 ## Visualizing results with `grim_plot()`
 
@@ -250,7 +244,7 @@ audit_seq(out_seq2)
 
 ### Visualizing GRIMMER-tested sequences
 
-It's curious what happens when we plot the output of `grimmer_map_seq()`. Like regular GRIM plots, however, it does give us a sense of how many tested values are consistent:
+It's curious what happens when we plot the output of `grimmer_map_seq()`. Like regular GRIM or GRIMMER plots, however, it does give us a sense of how many tested values are consistent:
 
 ```{r, fig.width=6, fig.height=5.5}
 grim_plot(out_seq1)
