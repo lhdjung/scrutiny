@@ -309,14 +309,15 @@ manage_key_colnames_list_el <- function(data, key_arg) {
 
 #' Unnest a test result column
 #'
-#' Within a consistency test mapper function, it may become necessary to unpack
-#' a column resulting from a basic `*_scalar()` testing function. That will be
-#' the case if the a `show_*` argument of the mapper function is `TRUE`, and the
-#' `*_scalar()` function returns a list of values, not just a single value.
+#' @description Within a consistency test mapper function, it may become
+#'   necessary to unpack a column resulting from a basic `*_scalar()` testing
+#'   function. That will be the case if the a `show_*` argument of the mapper
+#'   function is `TRUE`, and the `*_scalar()` function returns a list of values,
+#'   not just a single value.
 #'
-#' At the point where such as list is stored in a column (usually
-#' `"consistency"`), call `unnest_consistency_cols()` to unnest the results into
-#' multiple columns.
+#'   At the point where such as list is stored in a data frame column (most
+#'   likely `"consistency"`), call `unnest_consistency_cols()` to unnest the
+#'   results into multiple columns.
 #'
 #' @param results Data frame containing a list-column by the name passed to
 #'   `col`.
