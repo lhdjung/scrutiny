@@ -187,7 +187,7 @@ The scrutiny package provides infrastructure for reconstructing rounded numbers.
 
 First and foremost is `rounding`. It takes a string with the rounding procedure's name, which leads to the number being rounded in either of these ways:
 
-1.  Rounded `"up"` or `"down"` from 5. Note that SAS, SPSS, Stata, Matlab, and Excel round `"up"` from 5, whereas Python rounds `"down"` from 5.
+1.  Rounded `"up"` or `"down"` from 5. Note that SAS, SPSS, Stata, Matlab, and Excel round `"up"` from 5, whereas Python used to round `"down"` from 5.
 2.  Rounded to `"even"` using base R's own `round()`.
 3.  Rounded `"up_from"` or `"down_from"` some number, which then needs to be specified via the `threshold` parameter.
 4.  Given a `"ceiling"` or `"floor"` at the respective decimal place.
