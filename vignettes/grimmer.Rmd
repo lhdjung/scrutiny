@@ -214,12 +214,12 @@ See the [GRIM vignette section](https://lhdjung.github.io/scrutiny/articles/grim
 
 ## Testing numeric sequences with `grimmer_map_seq()`
 
-GRIM analysts might be interested in a mean or percentage value's numeric neighborhood. Suppose you found multiple GRIM inconsistencies as in out example `pigs1` data. You might wonder whether they are due to small reporting or computing errors.
+GRIMMER analysts might be interested in a mean or percentage value's numeric neighborhood. Suppose you found multiple GRIMMER inconsistencies as in out example `pigs5` data. You might wonder whether they are due to small reporting or computing errors.
 
 Use `grimmer_map_seq()` to GRIMMER-test the values surrounding the reported means and sample sizes:
 
 ```{r}
-out_seq1 <- grimmer_map_seq(pigs1)
+out_seq1 <- grimmer_map_seq(pigs5)
 out_seq1
 ```
 
@@ -244,7 +244,7 @@ Here is what the output columns mean:
 The default for `dispersion` is `1:5`, for five steps up and down. When the `dispersion` sequence gets longer, the number of hits tends to increase:
 
 ```{r}
-out_seq2 <- grimmer_map_seq(pigs1, dispersion = 1:10)
+out_seq2 <- grimmer_map_seq(pigs5, dispersion = 1:10)
 audit_seq(out_seq2)
 ```
 
@@ -259,8 +259,8 @@ grim_plot(out_seq1)
 The crosses appear because `grimmer_map_seq()` creates sequences around both `x` and `n`. Restrict this process to any one of these with the `var` argument:
 
 ```{r, fig.width=6, fig.height=5.5}
-out_seq1_only_x <- grimmer_map_seq(pigs1, var = "x")
-out_seq1_only_n <- grimmer_map_seq(pigs1, var = "n")
+out_seq1_only_x <- grimmer_map_seq(pigs5, var = "x")
+out_seq1_only_n <- grimmer_map_seq(pigs5, var = "n")
 
 grim_plot(out_seq1_only_x)
 grim_plot(out_seq1_only_n)
