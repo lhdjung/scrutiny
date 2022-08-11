@@ -26,11 +26,11 @@ devtools::load_all(".")
 
 Granularity-related inconsistency of means mapped to error repeats, or GRIMMER, is a test for the mathematical consistency of reported means or proportions with the corresponding standard deviations (SDs) and sample sizes [@anaya2016b; @allard2018].
 
-GRIMMER is closely related to [GRIM](https://lhdjung.github.io/scrutiny/articles/grim.html). Indeed, the elegant Analytic-GRIMMER algorithm [@allard2018] implemented in scrutiny tests for GRIM-consistency before conducting its own unique tests.
+GRIMMER builds up on GRIM [@brown_grim_2017]. Indeed, the elegant Analytic-GRIMMER algorithm [@allard2018] implemented in scrutiny tests for GRIM-consistency before conducting its own unique tests.
 
-This vignette covers scrutiny's implementation of the GRIMMER test. It's an adapted version of the GRIM vignette because the tests themselves are so similar.
+This vignette covers scrutiny's implementation of the GRIMMER test. It's an adapted version of the [GRIM vignette](https://lhdjung.github.io/scrutiny/articles/grim.html) because both the tests themselves and their implementations in scrutiny are very similar. If you are familiar with scrutiny's `grim_*()` functions, much of the present vignette will seem quite natural to you.
 
-The present vignette has the following sections --- to get started, though, you only need the first one:
+The vignette has the following sections --- to get started, though, you only need the first one:
 
 1.  The basic `grimmer()` function and a specialized mapping function, `grimmer_map()`.
 
