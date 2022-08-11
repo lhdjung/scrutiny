@@ -107,6 +107,6 @@ pigs3 %>%
 
 # References
 
-Pickett, J. T. (2020). The Stewart Retractions: A Quantitative and Qualitative Analysis. *Econ Journal Watch*, *17*(1), 152–190. <https://econjwatch.org/articles/the-stewart-retractions-a-quantitative-and-qualitative-analysis>.
+Pickett, J. T. (2020). The Stewart Retractions: A Quantitative and Qualitative Analysis. *Econ Journal Watch*, *17*(1), 152--190. <https://econjwatch.org/articles/the-stewart-retractions-a-quantitative-and-qualitative-analysis>.
 
 van der Zee, T., Anaya, J., & Brown, N. J. L. (2017). Statistical heartburn: An attempt to digest four pizza publications from the Cornell Food and Brand Lab. *BMC Nutrition*, *3*(1), 54. <https://doi.org/10.1186/s40795-017-0167-x>.

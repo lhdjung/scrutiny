@@ -141,6 +141,7 @@ data:
     #> 7 0.12  0.33   1683 TRUE        up_or_d…   0.325 TRUE      0.335 TRUE      0.115
     #> # … with 1 more variable: x_upper <dbl>, and abbreviated variable names
     #> #   ¹​sd_lower, ²​sd_incl_lower, ³​sd_upper, ⁴​sd_incl_upper
+    #> # ℹ Use `colnames()` to see all variable names
 
     pigs3 %>% 
       debit_map() %>% 
