@@ -107,10 +107,10 @@ parcel_nth_elements <- function(x, n, from = 1) {
 
 
 
-# This one is for GRIMMER. It differs from `dplyr::distinct()` mainly insofar as
-# it doesn't take the order of values within a row into account. Thus, it only
-# checks which values are present in a row how many times; hence "equivalent"
-# (see example below the function):
+# This function differs from `dplyr::distinct()` mainly insofar as it doesn't
+# take the order of values within a row into account. Thus, it only checks which
+# values are present in a row how many times; hence "equivalent" (see example
+# below the function):
 remove_equivalent_rows <- function(data) {
   data_array <- apply(data, 1, sort)
 
@@ -132,7 +132,7 @@ remove_equivalent_rows <- function(data) {
 # order of values, which the function ignores.
 
 
-# Also for GRIMMER:
+
 reverse_column_order <- function(data) {
   col_numbers_reversed <- ncol(data):1
 
