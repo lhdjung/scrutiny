@@ -90,13 +90,16 @@ aGrimmer <- function(n, mean, SD, decimals_mean = 2, decimals_SD = 2){
 
 
 
+
+
 # Preparations ------------------------------------------------------------
 
-# Generating 22223 values in the first step leaves 20000 values with exactly 2
-# decimal places in the second. There are the first 20000 values greater than 1
-# that have exactly two decimal places and where the second decimal place is not
-# zero (so it counts as a decimal place even without a string transformation):
-df1_mean <- seq(1, length.out = 10000, by = 0.01)
+# Randomly generating a great number of values in the first step leaves nearly
+# as many values with exactly 2 decimal places in the second. There are the
+# first values by that number greater than 1 that have exactly two decimal
+# places and where the second decimal place is not zero (so it counts as a
+# decimal place even without a string transformation):
+df1_mean <- seq(1, length.out = 1000, by = 0.01)
 df1_mean <- df1_mean[decimal_places(df1_mean) == 2]
 
 length(df1_mean)
@@ -128,24 +131,6 @@ as_logical_consistency <- function(x) {
 }
 
 
-# # Run the tests:
-# out1 <- purrr::pmap_chr(df1, grimmer_scalar)
-# out2 <- purrr::pmap_chr(df2, aGrimmer)
-#
-# # Translate to Boolean:
-# out1_lgl <- out1 %>% as_logical_consistency()
-# out2_lgl <- out2 %>% as_logical_consistency()
-#
-#
-# test_that("Both agree on consistency per se; i.e., Boolean values", {
-#   out1_lgl %>% expect_equal(out2_lgl)
-# })
-#
-# test_that("Both agree on the reasons for (in)consistency, as well", {
-#   out1 %>% expect_equal(out2)
-# })
-
-
 
 names(df1) <- c("n", "x", "sd")
 df1 <- df1 %>%
@@ -169,7 +154,7 @@ out2 <- as_logical_consistency(out2)
 
 
 df_out <- tibble::tibble(df1, out1, out2)
-df_out <- dplyr::mutate(df_out, digits_SD = decimal_places(SD))
+df_out <- dplyr::mutate(df_out, digits_sd = decimal_places(sd))
 
 # The problem seems to be restricted to cases where `out1` is consistent and
 # `out2` is not, and where `n` is either `40` or `80`:
