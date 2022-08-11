@@ -24,7 +24,7 @@ library(scrutiny)
 devtools::load_all(".")
 ```
 
-Granularity-related inconsistency of means mapped to error repeats, or GRIMMER, is a test for the mathematical consistency of reported means or proportions with the corresponding standard deviations (SDs) and sample sizes [@anaya2016b; @allard2018a].
+Granularity-related inconsistency of means mapped to error repeats, or GRIMMER, is a test for the mathematical consistency of reported means or proportions with the corresponding standard deviations (SDs) and sample sizes [@anaya2016b; @allard2018].
 
 GRIMMER is closely related to [GRIM](https://lhdjung.github.io/scrutiny/articles/grim.html). Indeed, the elegant Analytic-GRIMMER algorithm [@allard2018] implemented in scrutiny tests for GRIM-consistency before conducting its own unique tests.
 
