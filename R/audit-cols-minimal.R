@@ -35,7 +35,7 @@
 #' }
 #'
 #' # If you like, add other summary columns
-#' # with `dplyr::mutate` or similar.
+#' # with `dplyr::mutate()` or similar.
 
 
 audit_cols_minimal <- function(data, name_test) {
