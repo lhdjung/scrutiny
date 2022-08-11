@@ -524,37 +524,6 @@ index_case_interpolate <- function(x, index_case_only = TRUE,
 }
 
 
-# # 2. MAYBE I DON'T EVEN NEED THIS ONE?!
-# index_case_recover <- function(x, index_case_only = TRUE,
-#                                index_itself = FALSE) {
-#   lx <- length(x)
-#
-#   if (is_even(lx)) {
-#     index_target <- lx / 2
-#     from <- x[index_target]
-#   } else {
-#     ico <- index_case_only
-#     ii  <- index_itself
-#     out <- index_case_interpolate(x, index_case_only = ico, index_itself = ii)
-#     return(out)
-#   }
-#
-#   if (index_itself) {
-#     return(index_target)
-#   }
-#
-#   index_case <- seq_distance(
-#     from = from, length_out = 1, offset_from = 1, string_output = "auto"
-#   )
-#
-#   if (index_case_only) {
-#     return(index_case)
-#   } else {
-#     out <- append(x, index_case, after = index_target)
-#     return(out)
-#   }
-#
-# }
 
 
 index_case_diff <- function(data) {
@@ -562,16 +531,6 @@ index_case_diff <- function(data) {
   data_var <- data[var][[1]]
   index <- index_case_interpolate(data_var, index_itself = TRUE)
   index_diff <- 1:nrow(data) - index
-
-  # out <- dplyr::mutate(
-  #   data,
-  #   index = !!var,
-  #   index = index_case_recover(index, index_itself = TRUE),
-  #   diff = 1:nrow(data) - index
-  # )
-
-  # out$diff[out$diff < 1] <-
-  #   out$diff[out$diff < 1] - 1
 
   if (is_even(length(index_diff))) {
     index_diff[index_diff < 1] <-
