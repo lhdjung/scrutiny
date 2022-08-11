@@ -305,3 +305,63 @@ manage_key_colnames_list_el <- function(data, key_arg) {
 }
 
 
+
+
+#' Unnest a test result column
+#'
+#' Within a consistency test mapper function, it may become necessary to unpack
+#' a column resulting from a basic `*_scalar()` testing function. That will be
+#' the case if the a `show_*` argument of the mapper function is `TRUE`, and the
+#' `*_scalar()` function returns a list of values, not just a single value.
+#'
+#' At the point where such as list is stored in a column (usually
+#' `"consistency"`), call `unnest_consistency_cols()` to unnest the results into
+#' multiple columns.
+#'
+#' @param results Data frame containing a list-column by the name passed to
+#'   `col`.
+#' @param col_names String vector of new names for the unnested columns. It
+#'   should start with the same string that was given for `col`.
+#' @param index Boolean. Should the list-column be indexed into? Default is
+#'   `FALSE`.
+#' @param col String (length 1). Name of the list-column within `results` to
+#'   operate on. Default is `"consistency"`.
+#'
+#' @details This function is a custom workaround in place of
+#'   `tidyr::unnest_wider()`, mirroring some of the latter's functionality. It
+#'   was created because `unnest_wider()` can be too slow for use as a helper
+#'   function.
+#'
+#' @return Data frame. The column names are determined by `col_names`.
+#'
+#' @export
+
+
+unnest_consistency_cols <- function(results, col_names, index = FALSE,
+                                    col = "consistency") {
+
+  # The difference between the two conditions lies only in the
+  # `purrr::map_depth()` call:
+  if (index) {
+    consistency_list <- results[col][[1]] %>%
+      purrr::map_depth(.depth = 2, .f =  `[`, 1) %>%
+      purrr::map(unlist)
+  } else {
+    consistency_list <- purrr::map(results[col][[1]], unlist)
+  }
+
+  consistency_df <- consistency_list %>%
+    tibble::as_tibble(.name_repair = "minimal") %>%
+    t() %>%
+    tibble::as_tibble(.name_repair = ~ paste0("V", 1:length(col_names))) %>%
+    dplyr::mutate(V1 = as.logical(V1))
+
+  colnames(consistency_df) <- col_names
+
+  results <- results %>%
+    dplyr::select(- {{ col }}) %>%
+    dplyr::bind_cols(consistency_df)
+
+  return(results)
+}
+
