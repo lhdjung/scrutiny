@@ -1,5 +1,5 @@
 
-#' Summaries of scrutiny objects
+#' Summarize scrutiny objects
 #'
 #' @description `audit()` is an S3 generic to follow up on those scrutiny
 #'   functions that perform tests on data frames. It summarizes results of those
@@ -15,15 +15,6 @@
 #'   Go to the documentation of any function named below to learn about its
 #'   `audit()` method, or about the way its output is processed by `audit_seq()`
 #'   or `audit_total_n()`.
-
-#   @section `audit()`: | \strong{Function} | \strong{Class}     |
-#   | ---                          | ---                         |
-#   | `grim_map()`                 | `"scr_grim_map"`            |
-#   | `grim_map_total_n()`         | `"scr_grim_map_total_n"`    |
-#   | `debit_map()`                | `"scr_debit_map"`           |
-#   | `debit_map_total_n()`        | `"scr_debit_map_total_n"`   |
-#   | `duplicate_count()`          | `"scr_dup_count"`           |
-#   | `duplicate_detect()`         | `"scr_dup_detect"`          |
 
 #' @param data A data frame that inherits one of the classes named below.
 
