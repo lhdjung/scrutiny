@@ -160,9 +160,7 @@ If `function_map()` is so helpful, why would you ever not use it? There are four
 
 -   Finally, when calling such a manufactured function, any test-specific arguments the user might specify via `…` (the dots) won't trigger RStudio's autocomplete. This is not as dangerous as in some other functions that use the dots because, when calling a function produced by `function_map()`, misspelled argument names always throw an error.
 
-`grimmer_map()` was produced by `function_map()`, but
-
-`grim_map()`, `grimmer_map()`, and `debit_map()` were all "handwritten" for flexibility with columns beyond `"consistency"`, even though their variants `grim_map_alt()`, `grimmer_map_alt()` and `debit_map_alt()` were produced by `function_map()` as proofs of concept. For example, the `show_rec` argument in `grim_map()` or the `ratio` column in the function's output would not have been possible with `function_map()`. However, such issues don't affect the `"consistency"` results, and simply going with `function_map()` might often be the better option. If that's what you choose to do, skip right to section 4.
+`grim_map()`, `grimmer_map()`, and `debit_map()` were all "handwritten" for flexibility with columns beyond `"consistency"`. For example, the `show_rec` argument in `grim_map()` or the `ratio` column in the function's output would not have been possible with `function_map()`. However, such issues don't affect the `"consistency"` results, and simply going with `function_map()` might often be the better option. If that's what you choose to do, skip right to section 4.
 
 ## Writing mappers manually
 
