@@ -271,8 +271,8 @@ test_that("rounding specifications lead to the expected consistency
 df9_up_1 <- grim_map(df1, rounding = "up_from", threshold = 1)
 df9_up_9 <- grim_map(df1, rounding = "up_from", threshold = 9)
 
-df9_up_1_exp <- c(T, F, F, F, F, T, F, F, F, F, T, F)
-df9_up_9_exp <- c(F, F, F, F, T, F, F, T, T, F, T, F)
+df9_up_1_exp <- c(t, f, f, f, f, t, f, f, f, f, t, f)
+df9_up_9_exp <- c(f, f, f, f, t, f, f, t, t, f, t, f)
 
 test_that("the minimum of `threshold` yields expected results", {
   df9_up_1$consistency %>% expect_equal(df9_up_1_exp)
@@ -283,8 +283,8 @@ test_that("the minimum of `threshold` yields expected results", {
 df9_down_1 <- grim_map(df1, rounding = "down_from", threshold = 1)
 df9_down_9 <- grim_map(df1, rounding = "down_from", threshold = 9)
 
-df9_down_1_exp <- c(F, F, F, F, T, F, F, T, T, F, T, F)
-df9_down_9_exp <- c(T, F, F, F, F, T, F, F, F, F, T, F)
+df9_down_1_exp <- c(f, f, f, f, t, f, f, t, t, f, t, f)
+df9_down_9_exp <- c(t, f, f, f, f, t, f, f, f, f, t, f)
 
 test_that("the maximum of `threshold` yields expected results", {
   df9_down_1$consistency %>% expect_equal(df9_down_1_exp)
