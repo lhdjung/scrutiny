@@ -225,6 +225,34 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
 #' @export
 
 #' @examples
+#' # These are linear sequences...
+#' is_seq_linear(x = 3:7)
+#' is_seq_linear(x = c(3:7, 8))
+#'
+#' # ...but this isn't:
+#' is_seq_linear(x = c(3:7, 9))
+#'
+#' # All other `is_seq_*()` functions
+#' # test for linearity by default
+#' # besides conducting their
+#' # individual tests:
+#' is_seq_ascending(x = c(1, 2, 5))
+#' is_seq_ascending(x = c(1, 2, 5), test_linear = FALSE)
+#'
+#' is_seq_descending(x = c(9, 7, 2))
+#' is_seq_descending(x = c(9, 7, 2), test_linear = FALSE)
+#'
+#' is_seq_dispersed(x = c(2, 3 ,5, 7, 8), from = 5)
+#' is_seq_dispersed(x = c(2, 3 ,5, 7, 8), from = 5, test_linear = FALSE)
+#'
+#' # These fail the respective
+#' # individual test even
+#' # without linearity testing:
+#' is_seq_ascending(x = c(1, 7, 4), test_linear = FALSE)
+#' is_seq_descending(x = c(9, 15, 3), test_linear = FALSE)
+#' is_seq_dispersed(1:10, from = 5, test_linear = FALSE)
+
+
 
 
 is_seq_linear <- function(x, tolerance = .Machine$double.eps^0.5) {
