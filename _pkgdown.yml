@@ -35,6 +35,7 @@ articles:
   navbar: Consistency tests
   contents:
   - grim
+  - grimmer
   - debit
 
 - title: Infrastructure
@@ -71,6 +72,15 @@ reference:
   - grim_total
   - grim_granularity
   - grim_items
+
+- subtitle: GRIMMER
+  desc: Test reported means and standard deviations for numerical consistency
+        with reported sample sizes
+- contents:
+  - grimmer
+  - grimmer_map
+  - grimmer_map_seq
+  - grimmer_map_total_n
 
 - subtitle: DEBIT
   desc: Test reported means and standard deviations of binary data for
@@ -137,6 +147,7 @@ reference:
   - seq_test_ranking
   - seq_disperse
   - disperse
+  - is_seq_linear
 
 - subtitle: Documentation templates
   desc: Return standardized building blocks for documenting specific kinds of
@@ -152,13 +163,14 @@ reference:
         consistency tests at various levels
 - contents:
   - check_mapper_input_colnames
-  - check_audit_special
-  - audit_cols_minimal
   - manage_helper_col
-  - manage_key_column_names
+  - manage_key_colnames
+  - unnest_consistency_cols
+  - audit_cols_minimal
+  - check_audit_special
 
 - subtitle: Testing for subsets / supersets
-  desc: Predicate functions for logical relations between vectors; supports
+  desc: Predicate functions for logical relations between vectors, supporting
         flexible data entry and tidy evaluation
 - contents:
   - is_subset_of
@@ -182,4 +194,5 @@ reference:
   - pigs2
   - pigs3
   - pigs4
+  - pigs5
 
