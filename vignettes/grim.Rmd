@@ -281,11 +281,11 @@ With its unusual optics, this plot will probably not fit everyone's taste. The r
 
 The plot is strictly based on the laws governing GRIM. Its background raster shows all consistent (light) and inconsistent (dark) value pairs for two decimal places. Empirical values are shown in blue if consistent and red if inconsistent. Color settings and other ggplot2-typical options are available via arguments. Read about them at `grim_plot()`'s documentation.
 
-You might notice the light vertical lines at $N = 40$ and $N = 80$: Few values are flagged as inconsistent here. This reflects `grim_map()`'s charitable default of accepting values rounded either up *or* down from 5. If a different `rounding` specification is chosen in the `grim_map()` call, the plot raster will adjust automatically:
+You might notice the light vertical lines at $N = 40$ and $N = 80$: Few values are flagged as inconsistent here. This reflects `grim_map()`'s charitable default of accepting values rounded either up *or* down from 5. If a different `rounding` specification is chosen in the `grim_map()` call, the plot raster will adjust automatically (although it will often be the same as before):
 
 ```{r, fig.width=6, fig.height=5.5}
 jpap_5 %>% 
-  grim_map(rounding = "up") %>% 
+  grim_map(rounding = "ceiling") %>% 
   grim_plot()
 ```
 
