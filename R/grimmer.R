@@ -132,6 +132,10 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
     symmetric = symmetric
   )
 
+  # Introduce some numeric tolerance to the SD values before comparing them:
+  sd <- dustify(sd)
+  sd_rec_rounded <- dustify(sd_rec_rounded)
+
   matches_sd <- dplyr::near(sd, sd_rec_rounded, tol = tolerance)
   pass_test2 <- any(matches_sd[!is.na(matches_sd)])
 
