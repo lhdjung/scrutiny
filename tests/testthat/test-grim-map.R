@@ -15,10 +15,11 @@ df1_grim_anti_trunc       <- grim_map(df1, rounding = "anti_trunc")
 
 df1_grim <- grim_map(df1)
 
+
 test_that("A tibble is returned", {
-  expect_true(is.data.frame(df1_grim))
-  expect_true(inherits(df1_grim, "tbl_df"))
-  expect_true(inherits(df1_grim, "tbl"))
+  df1_grim %>% is.data.frame()    %>% expect_true()
+  df1_grim %>% inherits("tbl_df") %>% expect_true()
+  df1_grim %>% inherits("tbl")    %>% expect_true()
 })
 
 
@@ -28,14 +29,14 @@ test_that("It has the correct function-general class", {
 })
 
 test_that("It has the correct rounding-specific class", {
-  expect_true( inherits( df1_grim_up_or_down,       "scr_rounding_up_or_down"))
-  expect_true( inherits( df1_grim_up,               "scr_rounding_up"))
-  expect_true( inherits( df1_grim_down,             "scr_rounding_down"))
-  expect_true( inherits( df1_grim_ceiling_or_floor, "scr_rounding_ceiling_or_floor"))
-  expect_true( inherits( df1_grim_ceiling,          "scr_rounding_ceiling"))
-  expect_true( inherits( df1_grim_floor,            "scr_rounding_floor"))
-  expect_true( inherits( df1_grim_trunc,            "scr_rounding_trunc"))
-  expect_true( inherits( df1_grim_anti_trunc,       "scr_rounding_anti_trunc"))
+  df1_grim_up_or_down       %>% inherits("scr_rounding_up_or_down")       %>% expect_true()
+  df1_grim_up               %>% inherits("scr_rounding_up")               %>% expect_true()
+  df1_grim_down             %>% inherits("scr_rounding_down")             %>% expect_true()
+  df1_grim_ceiling_or_floor %>% inherits("scr_rounding_ceiling_or_floor") %>% expect_true()
+  df1_grim_ceiling          %>% inherits("scr_rounding_ceiling")          %>% expect_true()
+  df1_grim_floor            %>% inherits("scr_rounding_floor")            %>% expect_true()
+  df1_grim_trunc            %>% inherits("scr_rounding_trunc")            %>% expect_true()
+  df1_grim_anti_trunc       %>% inherits("scr_rounding_anti_trunc")       %>% expect_true()
 })
 
 
@@ -205,22 +206,26 @@ format_consistency_results <- function(df) {
     purrr::map_chr(paste0, ", ") %>%
     stringr::str_flatten() %>%
     stringr::str_remove(", $") %>%
-    stringr::str_replace_all("TRUE", "T") %>%
-    stringr::str_replace_all("FALSE", "F")
+    stringr::str_replace_all("TRUE", "t") %>%
+    stringr::str_replace_all("FALSE", "f")
 
   paste0("c(", out, ")")
 }
 
 
-df8_n40_grim_up_or_down_exp       <- c(T, F, T, T, T, T, F, T, F, F, T, F)
-df8_n40_grim_up_exp               <- c(F, F, T, F, F, T, F, T, F, F, T, F)
-df8_n40_grim_down_exp             <- c(T, F, F, T, T, F, F, F, F, F, T, F)
-df8_n40_grim_even_exp             <- c(T, F, F, F, F, F, F, T, F, F, T, F)
-df8_n40_grim_ceiling_or_floor_exp <- c(T, F, T, T, T, T, F, T, F, F, T, F)
-df8_n40_grim_ceiling_exp          <- c(F, F, T, F, F, T, F, T, F, F, T, F)
-df8_n40_grim_floor_exp            <- c(T, F, F, T, T, F, F, F, F, F, T, F)
-df8_n40_grim_trunc_exp            <- c(T, F, F, T, T, F, F, F, F, F, T, F)
-df8_n40_grim_anti_trunc_exp       <- c(F, F, T, F, F, T, T, T, F, F, F, F)
+t <- TRUE
+f <- FALSE
+
+
+df8_n40_grim_up_or_down_exp       <- c(t, f, t, t, t, t, f, t, f, f, t, f)
+df8_n40_grim_up_exp               <- c(t, f, t, t, t, t, f, t, f, f, t, f)
+df8_n40_grim_down_exp             <- c(t, f, t, t, t, t, f, t, f, f, t, f)
+df8_n40_grim_even_exp             <- c(t, f, t, t, t, t, f, t, f, f, t, f)
+df8_n40_grim_ceiling_or_floor_exp <- c(t, t, t, t, t, t, t, t, t, t, t, t)
+df8_n40_grim_ceiling_exp          <- c(f, f, t, f, f, t, t, t, f, f, t, f)
+df8_n40_grim_floor_exp            <- c(t, t, f, t, t, f, f, f, t, t, t, t)
+df8_n40_grim_trunc_exp            <- c(t, t, f, t, t, f, f, f, t, t, t, t)
+df8_n40_grim_anti_trunc_exp       <- c(f, f, t, f, f, t, t, t, f, f, t, f)
 
 
 test_that("rounding specifications lead to the expected consistency
@@ -237,15 +242,15 @@ test_that("rounding specifications lead to the expected consistency
 })
 
 
-df8_n80_grim_up_or_down_exp       <- c(T, T, T, T, T, T, T, T, T, T, T, T)
-df8_n80_grim_up_exp               <- c(F, T, T, F, F, T, T, T, T, T, T, T)
-df8_n80_grim_down_exp             <- c(T, T, F, T, T, F, T, F, T, T, T, T)
-df8_n80_grim_even_exp             <- c(T, T, F, F, F, F, T, T, T, T, T, T)
-df8_n80_grim_ceiling_or_floor_exp <- c(T, T, T, T, T, T, T, T, T, T, T, T)
-df8_n80_grim_ceiling_exp          <- c(T, T, T, T, T, T, F, T, T, T, T, T)
-df8_n80_grim_floor_exp            <- c(T, F, T, T, T, T, T, T, F, F, T, F)
-df8_n80_grim_trunc_exp            <- c(T, F, T, T, T, T, T, T, F, F, T, F)
-df8_n80_grim_anti_trunc_exp       <- c(T, T, T, T, T, T, T, T, T, T, F, T)
+df8_n80_grim_up_or_down_exp       <- c(t, t, t, t, t, t, t, t, t, t, t, t)
+df8_n80_grim_up_exp               <- c(t, t, t, t, t, t, t, t, t, t, t, t)
+df8_n80_grim_down_exp             <- c(t, t, t, t, t, t, t, t, t, t, t, t)
+df8_n80_grim_even_exp             <- c(t, t, t, t, t, t, t, t, t, t, t, t)
+df8_n80_grim_ceiling_or_floor_exp <- c(t, t, t, t, t, t, t, t, t, t, t, t)
+df8_n80_grim_ceiling_exp          <- c(t, t, t, t, t, t, t, t, t, t, t, t)
+df8_n80_grim_floor_exp            <- c(t, t, t, t, t, t, t, t, t, t, t, t)
+df8_n80_grim_trunc_exp            <- c(t, t, t, t, t, t, t, t, t, t, t, t)
+df8_n80_grim_anti_trunc_exp       <- c(t, t, t, t, t, t, t, t, t, t, t, t)
 
 
 test_that("rounding specifications lead to the expected consistency
@@ -324,11 +329,5 @@ df13_exp <- grim_map(df1)
 test_that("`extra = 0` drops all extra columns", {
   df13 %>% grim_map(extra = 0) %>% expect_equal(df13_exp)
 })
-
-
-
-
-
-
 
 
