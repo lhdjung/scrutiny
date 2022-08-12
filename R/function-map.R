@@ -182,10 +182,16 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
     consistency <- purrr::pmap(data_tested, fun, ...)
 
     # Support rounding classes:
-    dots <- rlang::enexprs(...)
+    if ("rounding" %in% names(formals(fun))) {
+      dots <- rlang::enexprs(...)
 
-    if ("rounding" %in% names(dots)) {
-      rounding_class <- paste0("scr_rounding_", dots$rounding)
+      if ("rounding" %in% names(dots)) {
+        rounding_class <- dots$rounding
+      } else {
+        rounding_class <- formals(fun)$rounding
+      }
+
+      rounding_class <- paste0("scr_rounding_", rounding_class)
       name_class <- c(name_class, rounding_class)
     }
 
