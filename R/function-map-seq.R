@@ -133,6 +133,9 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 #' @param .name_class String. If specified, the tibbles returned by the
 #'   manufactured function will inherit this string as an S3 class. Default is
 #'   `NULL`, i.e., no extra class.
+#' @param .args_disabled String. Optionally, names of the basic `*_map()`
+#'   function's arguments. These arguments will throw an error if specified when
+#'   calling the factory-made function.
 #' @param .dispersion Numeric. Sequence with steps up and down from the reported
 #'   values. It will be adjusted to these values' decimal level. For example,
 #'   with a reported `8.34`, the step size is `0.01`. Default is `1:5`, for five
