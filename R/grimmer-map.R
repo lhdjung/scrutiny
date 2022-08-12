@@ -45,12 +45,30 @@
 
 #' @include audit.R grimmer.R function-map.R
 #'
-#' @references
+#' @references Allard, A. (2018). Analytic-GRIMMER: a new way of testing the
+#'   possibility of standard deviations.
+#'   https://aurelienallard.netlify.app/post/anaytic-grimmer-possibility-standard-deviations/
+#'
+#'   Anaya, J. (2016). The GRIMMER test: A method for testing the validity of
+#'   reported measures of variability. *PeerJ Preprints.*
+#'   https://doi.org/10.7287/peerj.preprints.2400v1
 #'
 #' @export
 #'
 #' @examples
-
+#' # Use `grimmer_map()` on data like these:
+#' pigs5
+#'
+#' # The `consistency` column shows whether
+#' # the values to its left are GRIMMER-consistent.
+#' # If they aren't, the `reason` column says why:
+#' pigs5 %>%
+#'   grimmer_map()
+#'
+#' # Get summaries with `audit()`:
+#' pigs5 %>%
+#'   grimmer_map() %>%
+#'   audit()
 
 
 grimmer_map <- function(data, items = 1, merge_items = TRUE,
