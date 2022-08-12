@@ -15,13 +15,13 @@ License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.1
 Imports: 
     cli,
-    devtools,
     dplyr,
     glue,
     magrittr,
+    methods,
     purrr,
     rlang (>= 0.4.11),
     stringr,
@@ -29,25 +29,30 @@ Imports:
 Collate: 
     'import-reexport.R'
     'utils.R'
-    'check-colnames-mapper.R'
+    'mapper-function-helpers.R'
     'audit-cols-minimal.R'
     'audit.R'
     'before-inside-parens.R'
     'combine-elements.R'
-    'duplicate-detect.R'
+    'function-factory-helpers.R'
     'round-ceil-floor.R'
     'round.R'
     'reround.R'
-    'subset-superset.R'
     'unround.R'
     'sd-binary.R'
     'decimal-places.R'
     'debit-table.R'
     'debit.R'
+    'grim.R'
+    'function-map.R'
+    'grimmer.R'
+    'grimmer-map.R'
+    'duplicate-detect.R'
     'debit-map.R'
     'restore-zeros.R'
     'seq-decimal.R'
-    'grim.R'
+    'manage-extra-cols.R'
+    'grim-map.R'
     'data-doc.R'
     'function-map-seq.R'
     'debit-map-seq.R'
@@ -56,26 +61,23 @@ Collate:
     'debit-map-total-n.R'
     'debit-plot.R'
     'duplicate-count.R'
-    'function-map.R'
     'grim-base.R'
     'grim-explain.R'
     'grim-granularity.R'
     'grim-map-seq.R'
     'grim-map-total-n.R'
-    'manage-extra-cols.R'
-    'grim-map.R'
     'grim-plot.R'
-    'grimmer-attempt.R'
-    'grimmer.R'
+    'grimmer-map-seq.R'
+    'grimmer-map-total-n.R'
     'method-debit-map.R'
     'method-detect.R'
     'method-dup-count.R'
     'method-grim-map.R'
     'method-grim-sequence.R'
-    'reverse-map-total-n.R'
-    'reverse-map-seq.R'
-    'methods-function-factories.R'
+    'method-grimmer-map.R'
     'reround-to-fraction.R'
+    'reverse-map-seq.R'
+    'reverse-map-total-n.R'
     'rivets-perfect-mean-sd.R'
     'rivets-plot-cols.R'
     'rivets-plot-lines.R'
@@ -84,12 +86,15 @@ Collate:
     'rounding-bias.R'
     'row-to-colnames.R'
     'seq-disperse.R'
+    'seq-predicates.R'
     'split-by-parens.R'
+    'subset-superset.R'
     'utils-pipe.R'
     'utils-tidy-eval.R'
     'write-doc-audit.R'
 Suggests: 
     covr,
+    devtools,
     ellipsis,
     ggplot2,
     ggrepel,
