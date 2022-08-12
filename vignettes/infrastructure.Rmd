@@ -147,7 +147,7 @@ seq_disperse(from = 4.1)
 
 ## Sequence testing
 
-Four predicate functions around `is_seq_linear()` test whether a vector `x` represents particular kinds of sequences. They are listed as infrastructure because the sequence generators above are, but these testing functions can serve as analytic instruments in their own right.
+Four predicate functions around `is_seq_linear()` test whether a vector `x` represents particular kinds of sequences. These testing functions can be used as helpers, but they are also analytic instruments in their own right.
 
 `is_seq_linear()` returns `TRUE` if the difference between all neighboring values is the same:
 
