@@ -1,5 +1,5 @@
 
-#' Split columns by parentheses
+#' Split columns by parentheses, brackets, braces, or similar
 #'
 #' @description Summary statistics are often presented like `"2.65 (0.27)"`.
 #'   When working with tables from PDF, it can be tedious to separate values
@@ -30,9 +30,10 @@
 
 #' @seealso
 #'  - `before_parens()` and `inside_parens()` take a string vector and
-#'  extract values from the respective position. These two functions are mapped
-#'  within `split_by_parens().`
-#'  - `tidyr::separate()`, a more general function (but without support for the
+#'  extract values from the respective position.
+#'  - `dplyr::across()` powers the application of the two above functions within
+#'  `split_by_parens()`, including the creation of new columns.
+#'  - `tidyr::separate()` is a more general function (but does not recognize
 #'  closing elements).
 
 #' @export
