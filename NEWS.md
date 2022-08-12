@@ -1,16 +1,23 @@
 # scrutiny ?.?.?
 
--   A new vignette lays out how to implement consistency tests using scrutiny's infrastructure. It includes many new features mentioned below.
--   Because of the new, stricter rules for consistency tests, the output of `grim_map()` no longer includes an `items` column. Instead, the numbers of items (1 by default) are factored into the output's `n` column. This focuses the presentation on the essence of GRIM.
+This is a massive release, with many new features and improvements all over scrutiny. Most notably, the package now includes an entirely new system for implementing consistency tests.
+
+-   A [new vignette](https://lhdjung.github.io/scrutiny/articles/consistency-tests.html) lays out how to implement consistency tests using scrutiny's infrastructure. It describes many of the features mentioned below.
+-   GRIMMER support was added, as explained in [another new vignette](https://lhdjung.github.io/scrutiny/articles/grimmer.html). All GRIM and DEBIT functions mentioned below have GRIMMER equivalents. For example, `grimmer_map_seq()` is analogous to `grim_map_seq()`.
+-   Because of the new, stricter rules for consistency tests, the output of `grim_map()` no longer includes an `items` column by default. Instead, the numbers of items (1 by default) are factored into the output's `n` column. This focuses the presentation on the essence of GRIM.
+-   `function_map()` enables users to quickly create consistency test functions for data frames much like `grim_map()` or `debit_map()`.
 -   `grim_map_seq()` checks if GRIM inconsistencies might be due to small errors, and the true values might be close to the reported ones. It varies the inputs up and down in a specified range, holding the respective other ones constant, and tests all those combinations. For summaries, call `audit_seq()` on the results.
 -   `debit_map_seq()` does the same for DEBIT.
--   The above two are powered by `function_map_seq()`, which allows users to easily create functions like these, provided a data-frame-level consistency testing function like `grim_map()` or `debit_map()`.
+-   The above two are powered by `function_map_seq()`, which allows users to easily create functions just like these for any consistency test. All that's needed is a data-frame-level consistency testing function like `grim_map()` or `debit_map()`.
 -   `grim_map_total_n()` applies GRIM in cases where no group sizes are reported, only total sample sizes. It systematically matches possible group sizes (around half the total) with reported mean or proportion values, GRIM-tests them, and counts the scenarios in which both matches are consistent. This follows an idea from [Bauer and Francis (2021)](https://doi.org/10.1177%2F09567976211058727). For summaries, call `audit_total_n()` on the results.
 -   `debit_map_total_n()` does the same for DEBIT.
 -   The above two are powered by `function_map_total_n()`, which allows users to easily create new functions like `grim_map_total_n()` or `debit_map_total_n()`, provided a data-frame-level consistency testing function like `grim_map()` or `debit_map()`.
 -   On a lower level still, `disperse_total()` takes a total sample size (comprised of the two unknown group sizes on interest) and calls the appropriate group-level function: `disperse()` for even totals, `disperse2()` for odd ones.
+-   `seq_disperse()` and `seq_disperse_df()` extend scrutiny's support for string decimal sequences with trailing zeros. They construct sequences centered around the input; a use case not directly covered by `base::seq()`.
+-   Predicate functions around `is_seq_linear()` test whether a vector represents a certain kind of numeric sequence.
 -   In `debit_map()`, the `x` column is now to the left of the `sd` column if `show_rec` is `FALSE`, in accordance with the `show_rec = TRUE` default.
 -   `debit()` is now vectorized.
+-   The functions around `is_subset_of() and is_superset_of()` functions now have stricter variants grouped around `is_proper_subset_of()` and `is_proper_superset_of()`.
 -   `split_by_parens()` now accepts any pair of separators passed to `.sep` as a length-2 vector.
 
 # scrutiny 0.1.1
