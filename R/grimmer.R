@@ -211,6 +211,16 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
 #' @export
 #'
 #' @examples
+#' # A mean of 5.23 is not consistent with an SD of 2.55
+#' # and a sample size of 35:
+#' grimmer(x = "5.23", sd = "2.55", n = 35)
+#'
+#' # However, mean and SD are consistent with a
+#' # sample size of 31:
+#' grimmer(x = "5.23", sd = "2.55", n = 31)
+#'
+#' # For a scale composed of two items:
+#' grimmer(x = "2.74", sd = "0.96", n = 63, items = 2)
 
 
 grimmer <- Vectorize(grimmer_scalar)
