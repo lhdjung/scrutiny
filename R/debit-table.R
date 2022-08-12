@@ -126,14 +126,18 @@ debit_table <- function(x, sd, n,
 
   sd_rec_both <- c(sd_rec_lower, sd_rec_upper)
 
+  sd_lower_test    <- dustify(sd_lower)
+  sd_rec_both_test <- dustify(sd_rec_both)
+  sd_upper_test    <- dustify(sd_upper)
+
   if (sd_incl_lower && sd_incl_upper) {
-    consistency <- any(sd_lower <= sd_rec_both) && any(sd_rec_both <= sd_upper)
+    consistency <- any(sd_lower_test <= sd_rec_both_test) && any(sd_rec_both_test <= sd_upper_test)
   } else if (sd_incl_lower && !sd_incl_upper) {
-    consistency <- any(sd_lower <= sd_rec_both) && any(sd_rec_both < sd_upper)
+    consistency <- any(sd_lower_test <= sd_rec_both_test) && any(sd_rec_both_test  < sd_upper_test)
   } else if (!sd_incl_lower && sd_incl_upper) {
-    consistency <- any(sd_lower < sd_rec_both)  && any(sd_rec_both  <= sd_upper)
+    consistency <- any(sd_lower_test < sd_rec_both_test)  && any(sd_rec_both_test <= sd_upper_test)
   } else {
-    consistency <- any(sd_lower < sd_rec_both)  && any(sd_rec_both  < sd_upper)
+    consistency <- any(sd_lower_test < sd_rec_both_test)  && any(sd_rec_both_test  < sd_upper_test)
   }
 
   # `n` is always a whole number, so it's good to convert it to integer:
