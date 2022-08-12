@@ -195,8 +195,6 @@ check_audit_special <- function(data, name_test) {
 #' @param var_arg The argument to the mapper function that has the same name as
 #'   the helper column you want to manage.
 #' @param default The default for the argument that was specified in `var_arg`.
-#' @param fun_name String (length 1). Name of the mapper function, such as
-#'   `"grim_map"`.
 #' @param affix Boolean (length 1). If `data` doesn't include the helper column
 #'   already, should `var_arg` be added to `data`, bearing its proper name?
 #'   Default is `TRUE`.
