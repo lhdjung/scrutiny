@@ -111,67 +111,70 @@ test_that("There are as many outputs as inputs", {
 
 # Comparing GRIM implementations ------------------------------------------
 
-compare_grim_implementations <- function(x_seq_string, n = 40,
-                                         filter = TRUE) {
-  out <- tibble::tibble(x = x_seq_string, n) %>%
-    grim_map() %>%
-    dplyr::select(-ratio) %>%
-    dplyr::mutate(
-      consistency_old = purrr::map2_lgl(
-        as.numeric(x), n,
-        rsprite2::GRIM_test, m_prec = 2
-      )
-    )
-  if (filter) {
-    out <- dplyr::filter(out, consistency != consistency_old)
-  }
-  return(out)
-}
+# # NOTE: All of the below has been outcommented in order to avoid an rsprite2
+# dependency -- at least for now.
 
-
-
-n_test_cases <- 5000
-
-
-seq_random <- runif(n_test_cases, 0, 50)
-seq_random <- seq_random %>%
-  round_up(2) %>%
-  restore_zeros(width = 2)
-
-
-n_random <- rnorm(n_test_cases, 50, 10)
-n_random <- round(n_random, 0)
-
-df_80 <- compare_grim_implementations(seq_random, n = 80)
-df_80
-
-
-
-seq_random0 <- as.numeric(seq_random) - trunc(as.numeric(seq_random))
-seq_random0 <- restore_zeros(seq_random0, width = 2)
-
-
-df_40_0 <- compare_grim_implementations(seq_random0, n = 40)
-df_80_0 <- compare_grim_implementations(seq_random0, n = 80)
-
-df_40_0
-df_80_0
-
-
-n_random <- rnorm(n_test_cases, 50, 10)
-n_random <- round(n_random, 0)
-
-df_random <- compare_grim_implementations(seq_random, n = n_random)
-df_random
-
-
-# All of these data frames only list cases of disagreement between the two GRIM
-# implementations, so these two agree completely if and only if the data frames
-# don't list any cases; i.e., they have no rows:
-test_that("Both GRIM implementations agree completely", {
-  df_80     %>% nrow() %>% expect_equal(0)
-  df_40_0   %>% nrow() %>% expect_equal(0)
-  df_80_0   %>% nrow() %>% expect_equal(0)
-  df_random %>% nrow() %>% expect_equal(0)
-})
+# compare_grim_implementations <- function(x_seq_string, n = 40,
+#                                          filter = TRUE) {
+#   out <- tibble::tibble(x = x_seq_string, n) %>%
+#     grim_map() %>%
+#     dplyr::select(-ratio) %>%
+#     dplyr::mutate(
+#       consistency_old = purrr::map2_lgl(
+#         as.numeric(x), n,
+#         rsprite2::GRIM_test, m_prec = 2
+#       )
+#     )
+#   if (filter) {
+#     out <- dplyr::filter(out, consistency != consistency_old)
+#   }
+#   return(out)
+# }
+#
+#
+#
+# n_test_cases <- 5000
+#
+#
+# seq_random <- runif(n_test_cases, 0, 50)
+# seq_random <- seq_random %>%
+#   round_up(2) %>%
+#   restore_zeros(width = 2)
+#
+#
+# n_random <- rnorm(n_test_cases, 50, 10)
+# n_random <- round(n_random, 0)
+#
+# df_80 <- compare_grim_implementations(seq_random, n = 80)
+# df_80
+#
+#
+#
+# seq_random0 <- as.numeric(seq_random) - trunc(as.numeric(seq_random))
+# seq_random0 <- restore_zeros(seq_random0, width = 2)
+#
+#
+# df_40_0 <- compare_grim_implementations(seq_random0, n = 40)
+# df_80_0 <- compare_grim_implementations(seq_random0, n = 80)
+#
+# df_40_0
+# df_80_0
+#
+#
+# n_random <- rnorm(n_test_cases, 50, 10)
+# n_random <- round(n_random, 0)
+#
+# df_random <- compare_grim_implementations(seq_random, n = n_random)
+# df_random
+#
+#
+# # All of these data frames only list cases of disagreement between the two GRIM
+# # implementations, so these two agree completely if and only if the data frames
+# # don't list any cases; i.e., they have no rows:
+# test_that("Both GRIM implementations agree completely", {
+#   df_80     %>% nrow() %>% expect_equal(0)
+#   df_40_0   %>% nrow() %>% expect_equal(0)
+#   df_80_0   %>% nrow() %>% expect_equal(0)
+#   df_random %>% nrow() %>% expect_equal(0)
+# })
 
