@@ -26,6 +26,7 @@
 #'   value is in `x1` or in `x2` because, after the first round of tests, the
 #'   function switches roles between `x1` and `x2`, and reports the outcomes
 #'   both ways.
+#' @param x1,x2 Optionally, specify these arguments as column names in `data`.
 #' @param dispersion Numeric. Steps up and down from half the `n` values.
 #'   Default is `0:5`, i.e., half `n` itself followed by five steps up and down.
 #' @param n_min Numeric. Minimal group size. Default is 1.

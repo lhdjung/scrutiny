@@ -7,6 +7,7 @@
 #' published statistics.
 #'
 #' @param data A data frame that `debit_map()` could take.
+#' @param x,sd,n Optionally, specify column names in `data` as these arguments.
 #' @param var String. Names of the columns that will be dispersed. Default is
 #'   `c("x", "sd", "n")`.
 #' @param dispersion Numeric. Sequence with steps up and down from the `var`

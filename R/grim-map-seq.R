@@ -9,6 +9,7 @@
 #'   Call `audit_seq()` on the results for summary statistics.
 #'
 #' @param data A data frame that `grim_map()` could take.
+#' @param x,n Optionally, specify these arguments as column names in `data`.
 #' @param var String. Names of the columns that will be dispersed. Default is
 #'   `c("x", "n")`.
 #' @param dispersion Numeric. Sequence with steps up and down from the `var`

@@ -28,9 +28,7 @@
 #'   percentages. This will convert them to decimal numbers and adjust the
 #'   decimal count (i.e., increase it by 2). It also affects the `ratio` column.
 #'   Default is `FALSE`.
-#' @param x,n Optionally specify which columns from `data` contain the means
-#'   (`x`) and/or sample sizes (`n`). If not specified here, `data` itself needs
-#'   to contain columns by those names. Default is `NULL`.
+#' @param x,n Optionally, specify these arguments as column names in `data`.
 #' @param show_rec Boolean. If set to `TRUE`, the reconstructed numbers from
 #'   GRIM-testing are shown as columns. See section *Reconstructed numbers*
 #'   below. Default is `FALSE`.

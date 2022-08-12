@@ -14,10 +14,11 @@
 #' @param items Integer. If there is no `items` column in `data`, this specifies
 #'   the number of items composing the `x` values. Default is 1, the most common
 #'   case.
-#' @param x,sd,n Optionally specify which columns from `data` contain the means
-#'   (`x`), standard deviations (`sd`), and/or sample sizes (`n`). If not
-#'   specified here, `data` itself needs to contain columns by those names.
-#'   Default is `NULL`.
+#' @param merge_items Boolean. If `TRUE` (the default), there will be no `items`
+#'   column in the output. Instead, values from an `items` column or argument
+#'   will be multiplied with values in the `n` column. This does not affect
+#'   GRIM- or GRIMMER-testing.
+#' @param x,sd,n Optionally, specify these arguments as column names in `data`.
 #' @param show_reason Boolean (length 1). Should there be a `reason` column that
 #'   shows the reasons for inconsistencies (and `NA` for consistent values)?
 #'   Default is `FALSE`.

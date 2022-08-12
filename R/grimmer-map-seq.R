@@ -1,5 +1,5 @@
 
-#' GRIM-testing with dispersed inputs
+#' GRIMMER-testing with dispersed inputs
 #'
 #' @description `grimmer_map_seq()` performs GRIMMER-testing with values
 #'   surrounding the input values. This provides an easy and powerful way to
@@ -8,7 +8,8 @@
 #'
 #'   Call `audit_seq()` on the results for summary statistics.
 #'
-#' @param data A data frame that `grim_map()` could take.
+#' @param data A data frame that `grimmer_map()` could take.
+#' @param x,sd,n Optionally, specify these arguments as column names in `data`.
 #' @param var String. Names of the columns that will be dispersed. Default is
 #'   `c("x", "sd", "n")`.
 #' @param dispersion Numeric. Sequence with steps up and down from the `var`

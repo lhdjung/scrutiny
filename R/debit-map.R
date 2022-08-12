@@ -9,10 +9,7 @@
 #'   For summary statistics, call `audit()` on the results.
 #'
 #' @param data Data frame.
-#' @param x,sd,n Optionally specify which columns from `data` contain the means
-#'   (`x`), standard deviations (`sd`), and/or sample sizes (`n`). If not
-#'   specified here, `data` itself needs to contain columns by those names.
-#'   Default is `NULL`.
+#' @param x,sd,n Optionally, specify these arguments as column names in `data`.
 #' @param rounding,threshold,symmetric Arguments passed on to `debit()`, with
 #'   the same defaults.
 #' @param show_rec If set to `FALSE`, the resulting tibble only includes the
