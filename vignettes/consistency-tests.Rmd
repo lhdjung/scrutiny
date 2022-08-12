@@ -554,4 +554,18 @@ write_doc_audit_total_n(key_args = c("x", "sd", "n"), name_test = "DEBIT")
 
 Why did I develop, and export, such strange functions? Documenting one's package should not be glossed over, and there is value in standardization, as well. `write_doc_audit_seq()` and `write_doc_audit_total_n()` deliver quality documentation with little effort while also establishing firm conventions for it.
 
+# Wrap-up
+
+The key part about consistency tests is compelling mathematical insight into the relationship between summary statistics. All the rest is implementation and application. No software package can generate new consistency tests as of yet, but it can make their implementation and application at scale as easy as possible. That is what scrutiny hopes to do.
+
+This vignette generated five example functions, four of them via function factories. Three of these factories are part of scrutiny's infrastructure. Starting with a simple mock test, an entire family of functions sprung up to apply that test in special cases, with a unified API, and at any scale --- all with just a few lines of easy to write code.
+
+Below is their function family tree. Fields with bold margins are function factories. Arrows passing through them indicate that a new function is generated on the basis of an earlier one.
+
+```{r include=FALSE, eval=FALSE}
+# Note: The bold margins were created by (1) selecting the respective field, (2) clicking on the View symbol at the upper left, (3) selecting "Format Panel", and (4) setting the line thickness from 1 to 3 pt.
+```
+
+![](images/scrutiny_mappers_schlim.png)
+
 # References
