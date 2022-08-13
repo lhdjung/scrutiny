@@ -19,15 +19,15 @@
 #'   the `*_scalar()` function that don't work with the factory-made function.
 #'   If the user  tries to specify these arguments, an informative error will be
 #'   thrown.
-#' @param .col_names Optionally, a string vector with the names of additional
-#'   columns that are derived from the `*_scalar()` function. Requires
-#'   `.col_control` and `.col_filler` specifications.
-#' @param .col_control Optionally, a single string with the name of the
-#'   `*_scalar()` function's Boolean argument that controls if the columns named
-#'   in `.col_names` will be displayed.
-#' @param .col_filler Optionally, a vector specifying the values of `.col_names`
-#'   columns in rows where the `*_scalar()` function only returned the
-#'   `consistency` value.
+#' @param .col_names (Experimental) Optionally, a string vector with the names
+#'   of additional columns that are derived from the `*_scalar()` function.
+#'   Requires `.col_control` and `.col_filler` specifications.
+#' @param .col_control (Experimental) Optionally, a single string with the name
+#'   of the `*_scalar()` function's Boolean argument that controls if the
+#'   columns named in `.col_names` will be displayed.
+#' @param .col_filler (Experimental) Optionally, a vector specifying the values
+#'   of `.col_names` columns in rows where the `*_scalar()` function only
+#'   returned the `consistency` value.
 #' @param .arg_list Optionally, a named list. The names will be hard-coded into
 #'   the factory-made function as arguments passed on to to `.fun`, and the
 #'   values will be their defaults.
