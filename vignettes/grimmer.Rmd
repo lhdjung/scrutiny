@@ -264,7 +264,7 @@ grim_plot(out_seq1_only_n)
 
 ### Problems from underreporting
 
-Unfortunately, some studies that report group averages don't report the corresponding group sizes --- only a total sample size. This makes any direct GRIMMER-testing impossible because only `x` values are known, not `n` values. All that is feasible here in terms of GRIMMER is to take a number around half the total sample size, go up and down from it, and check which *hypothetical* group sizes are consistent with the reported group means. `grimmer_map_total_n()` automates this process, motivated by a recent GRIM analysis [@bauer_expression_2021].
+Unfortunately, some studies that report group averages don't report the corresponding group sizes --- only a total sample size. This makes any direct GRIMMER-testing impossible because only `x` values are known, not `n` values. All that is feasible here in terms of GRIMMER is to take a number around half the total sample size, go up and down from it, and check which *hypothetical* group sizes are consistent with the reported group means. `grimmer_map_total_n()` semi-automates this process, motivated by a recent GRIM analysis [@bauer_expression_2021].
 
 Here is an example:
 

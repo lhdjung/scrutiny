@@ -351,13 +351,13 @@ grim_plot(out_seq1_only_n)
 
 ### Problems from underreporting
 
-Unfortunately, some studies that report group averages don't report the corresponding group sizes --- only a total sample size. This makes any direct GRIM-testing impossible because only `x` values are known, not `n` values. All that is feasible here in terms of GRIM is to take a number around half the total sample size, go up and down from it, and check which *hypothetical* group sizes are consistent with the reported group means. `grim_map_total_n()` automates this process, motivated by a recent GRIM analysis [@bauer_expression_2021].
+Unfortunately, some studies that report group averages don't report the corresponding group sizes --- only a total sample size. This makes any direct GRIM-testing impossible because only `x` values are known, not `n` values. All that is feasible here in terms of GRIM is to take a number around half the total sample size, go up and down from it, and check which *hypothetical* group sizes are consistent with the reported group means. `grim_map_total_n()` semi-automates this process, motivated by a recent GRIM analysis [@bauer_expression_2021].
 
 The study examined by @bauer_expression_2021 reported means of 5.3 and 4.71 for a total sample size of 40. With equal group sizes (i.e., 20 in each group), only 5.3 is GRIM-consistent, not 4.71. However, Bauer and Francis looked for a plausible scenario in which both means were consistent. They checked if those scenarios came about if the 40 participants were distributed across the two groups in slightly different ways.
 
 More precisely, they went from a 20/20 group split to a 19/21 split, then to an 18/22 split, and finally to a 17/23 split. In the latter scenario, both means are consistent if 17 is paired with 4.71 and 23 with 5.3.
 
-### Automated solution
+### Semi-automated solution
 
 Instead of going about this manually, call `grim_map_total_n()`, followed by `audit_total_n()` for summarizing the results. It will find two further plausible scenarios in which both means are consistent; more on that below.
 
