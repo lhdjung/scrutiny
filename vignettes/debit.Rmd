@@ -205,6 +205,10 @@ out_seq2 <- debit_map_seq(pigs3, dispersion = 1:7, include_consistent = TRUE)
 audit_seq(out_seq2)
 ```
 
+### Visualizing DEBIT-checked sequences
+
+Although it is possible in principle to visualize results of `debit_map_seq()` using `debit_plot()`, it's not recommended because the results don't currently look great. This issue might be fixed in a future version of `debit_plot()`.
+
 ## Handling unknown group sizes with `debit_map_total_n()`
 
 ### Problems from underreporting
