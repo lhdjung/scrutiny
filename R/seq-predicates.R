@@ -75,9 +75,21 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
     return(TRUE)
   }
 
+  if (!is.null(test_special) && test_special == "dispersed") {
+    # A dispersed sequence requires one central value, so the number of elements
+    # in `x` must be odd:
+    if (is_even(length(x))) {
+      return(FALSE)
+    }
+    # Save the unmodified `x` for a test that is conducted if `x` contains one
+    # or more `NA` elements:
+    x_orig <- x
+  }
+
   x_has_na <- any(is.na(x))
 
   if (x_has_na) {
+
     # These two `while`-loops remove all `NA` values from the start and the end
     # of `x` because `NA`s at these particular locations have no bearing on
     # whether or not `x` might represent a linear sequence:
@@ -86,6 +98,15 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
     }
     while (is.na(x[length(x)])) {
       x <- x[-length(x)]
+    }
+
+    # If the removal of leading and / or trailing `NA` elements in `x` caused
+    # the central value to shift, the original `x` was not grouped around that
+    # value, and hence not a dispersed sequence:
+    if (!is.null(test_special) && test_special == "dispersed") {
+      if (!dplyr::near(x[index_central(x)], x_orig[index_central(x_orig)], tolerance)) {
+        return(FALSE)
+      }
     }
 
     for (i in seq_along(x)) {
