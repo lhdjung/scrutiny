@@ -543,6 +543,12 @@ index_case_diff <- function(data) {
 
 
 
+index_central <- function(x) {
+  ((length(x) - 1) / 2) + 1
+}
+
+
+
 # Helper for `split_by_parens()`:
 transform_split_parens_object <- function(data) {
 
