@@ -101,17 +101,13 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
     }
 
     # If the removal of leading and / or trailing `NA` elements in `x` caused
-    # the central value to shift, the original `x` was not grouped around that
-    # value, and hence not a dispersed sequence:
+    # the central value to shift, or if only one side from among left and right
+    # had any `NA` values, the original `x` was not symmetrically grouped around
+    # that value, and hence not a dispersed sequence:
     if (!is.null(test_special) && test_special == "dispersed") {
-      # diff_lengths_parity <- is_even(length(x)) != is_even(length(x_orig))
       diff_central_index <-
         !dplyr::near(args_other$from, x[index_central(x)], tolerance)
       one_sided_na <- (!is.na(x_orig[1])) || (!is.na(x_orig[length(x_orig)]))
-      # # If either is true, throw an error:
-      # if (diff_lengths_parity || diff_central_index) {
-      #   return(FALSE)
-      # }
       if (is_even(length(x)) || diff_central_index || one_sided_na) {
         return(FALSE)
       }
