@@ -352,14 +352,14 @@ is_seq_dispersed_basic <- function(x, from,
     }
   }
 
-  index_central <- ((length(x) - 1) / 2) + 1
+  index_central_x <- index_central(x)
 
-  if (!dplyr::near(x[index_central], from, tolerance)) {
+  if (!dplyr::near(x[index_central_x], from, tolerance)) {
     return(FALSE)
   }
 
-  dispersion_minus <- from - x[1:(index_central - 1)]
-  dispersion_plus  <- from + x[(index_central + 1):length(x)]
+  dispersion_minus <- from - x[1:(index_central_x - 1)]
+  dispersion_plus  <- from + x[(index_central_x + 1):length(x)]
 
   from_reconstructed <- (dispersion_plus - rev(dispersion_minus)) / 2
 
