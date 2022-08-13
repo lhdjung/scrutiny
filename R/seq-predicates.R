@@ -222,7 +222,8 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
 #'   sides per value pair. By default (`test_linear = TRUE`), these functions
 #'   also test for linearity, like `is_seq_linear()`.
 #'
-#' `NA` elements of `x` are handled in a nuanced way. See *Value* section.
+#' `NA` elements of `x` are handled in a nuanced way. See *Value* section here
+#' and the examples in `vignette("infrastructure")`, section *NA handling*.
 
 #' @param x Numeric or coercible to numeric. Vector to be tested.
 #' @param from Numeric or coercible to numeric. Only in `is_seq_dispersed()`. It
