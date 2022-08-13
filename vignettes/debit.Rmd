@@ -122,7 +122,7 @@ pigs3 %>%
 
 Although changing the rounding procedure didn't make any difference for the DEBIT consistency here, it is important to account for the different ways in which numbers might be rounded, if only to demonstrate that some given results are robust to those variable decisions. To err on the side of caution, the default for `rounding` is the permissive `"up_or_down"`.
 
-## Summarize results with `audit()`
+## Summarizing results with `audit()`
 
 Following up on a call to `debit_map()`, the generic function `audit()` summarizes test results:
 
@@ -141,7 +141,7 @@ These columns are ---
 5.  `mean_sd`: average of binary distribution standard deviations.
 6.  `distinct_n`: number of different sample sizes.
 
-## Visualize results with `debit_plot()`
+## Visualizing results with `debit_plot()`
 
 There is a specialized visualization function for DEBIT results, `debit_plot()`. Only run it on `debit_map()`'s output. It will fail otherwise.
 
