@@ -205,4 +205,27 @@ out_seq2 <- debit_map_seq(pigs3, dispersion = 1:7, include_consistent = TRUE)
 audit_seq(out_seq2)
 ```
 
+## Handling unknown group sizes with `debit_map_total_n()`
+
+### Problems from underreporting
+
+Unfortunately, some studies that report group averages don't report the corresponding group sizes --- only a total sample size. This makes any direct use of DEBIT impossible because only `x` and `sd` values are known, not `n` values. All that is feasible here in terms of DEBIT is to take a number around half the total sample size, go up and down from it, and check which *hypothetical* group sizes are consistent with the reported group means and SDs. `debit_map_total_n()` semi-automates this process, motivated by a recent GRIM analysis [@bauer_expression_2021].
+
+Here is an example:
+
+```{r}
+out_total_n <- tibble::tribble(
+  ~x1,     ~x2,   ~sd1,   ~sd2,  ~n,
+  "0.30", "0.28", "0.17", "0.10", 70,
+  "0.41", "0.39", "0.09", "0.15", 65
+)
+
+out_total_n <- debit_map_total_n(out_total_n)
+out_total_n
+
+audit_total_n(out_total_n)
+```
+
+See the GRIM vignette for a [more comprehensive case study](https://lhdjung.github.io/scrutiny/articles/grim.html#handling-unknown-group-sizes-with-grim_map_total_n). It uses `grim_map_total_n()`, which is the same as `debit_map_total_n()` but only for GRIM.
+
 # References
