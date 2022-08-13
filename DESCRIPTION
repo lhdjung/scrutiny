@@ -33,7 +33,6 @@ Collate:
     'audit-cols-minimal.R'
     'audit.R'
     'before-inside-parens.R'
-    'combine-elements.R'
     'function-factory-helpers.R'
     'round-ceil-floor.R'
     'round.R'
