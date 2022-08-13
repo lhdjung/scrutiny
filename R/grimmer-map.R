@@ -42,6 +42,13 @@
 #' 1. `incons_cases`: number of GRIMMER-inconsistent value sets.
 #' 2. `all_cases`: total number of value sets.
 #' 3. `incons_rate`: proportion of GRIMMER-inconsistent value sets.
+#' 4. `fail_grim`: number of value sets that fail the GRIM test.
+#' 5. `fail_test1`: number of value sets that fail the first GRIMMER test (sum
+#'     of squares is a whole number)
+#' 6. `fail_test2`: number of value sets that fail the second GRIMMER test
+#'     (matching SDs)
+#' 7. `fail_test3`: number of value sets that fail the third GRIMMER test (equal
+#'     parity)
 
 #' @include audit.R grimmer.R function-map.R
 #'
