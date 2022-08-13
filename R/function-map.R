@@ -28,9 +28,6 @@
 #' @param .col_filler (Experimental) Optionally, a vector specifying the values
 #'   of `.col_names` columns in rows where the `*_scalar()` function only
 #'   returned the `consistency` value.
-#' @param .arg_list Optionally, a named list. The names will be hard-coded into
-#'   the factory-made function as arguments passed on to to `.fun`, and the
-#'   values will be their defaults.
 
 #' @details The output tibble returned by the factory-made function will inherit
 #'   one or two classes independently of the `.name_class` argument:
@@ -124,8 +121,7 @@
 
 function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
                          .args_disabled = NULL, .col_names = NULL,
-                         .col_control = NULL, .col_filler = NULL,
-                         .arg_list = NULL) {
+                         .col_control = NULL, .col_filler = NULL) {
 
   # Checks ---
 
