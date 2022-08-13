@@ -169,4 +169,40 @@ pigs3 %>%
 
 Color settings and other ggplot2-typical options are available via arguments, as are settings handed down to `ggrepel::geom_text_repel()`, which creates the labels. For more, see `debit_plot()`'s documentation.
 
+## Testing numeric sequences with `debit_map_seq()`
+
+DEBIT analysts might be interested in a mean or percentage value's numeric neighborhood. Suppose you found DEBIT inconsistencies, as in out example `pigs3` data. You might wonder whether they are due to small reporting or computing errors.
+
+Use `debit_map_seq()` to use DEBIT for the values surrounding the reported means, SDs, and sample sizes:
+
+```{r}
+out_seq1 <- debit_map_seq(pigs3)
+out_seq1
+```
+
+### Summaries with `audit_seq()`
+
+As this output is a little unwieldy, run `audit_seq()` on the results:
+
+```{r}
+audit_seq(out_seq1)
+```
+
+Here is what the output columns mean:
+
+-   `x`, `sd`, and `n` are the original inputs, reconstructed and tested for `consistency` here.
+
+-   The `hits_*` columns display is the number of DEBIT-consistent value combinations found within the specified `dispersion` range; either in total or by varying individual parameters.
+
+-   `diff_x` reports the absolute difference between `x` and the next consistent dispersed value (in dispersion steps, not the actual numeric difference). `diff_x_up` and `diff_x_down` report the difference to the next higher or lower consistent value, respectively.
+
+-   Accordingly with the `diff_sd*` and `diff_n*` columns.
+
+The default for `dispersion` is `1:5`, for five steps up and down. When the `dispersion` sequence gets longer, the number of hits tends to increase:
+
+```{r}
+out_seq2 <- debit_map_seq(pigs3, dispersion = 1:7, include_consistent = TRUE)
+audit_seq(out_seq2)
+```
+
 # References
