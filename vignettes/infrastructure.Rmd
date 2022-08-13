@@ -147,6 +147,8 @@ seq_disperse(from = 4.1)
 
 ## Sequence testing
 
+### General points
+
 Four predicate functions around `is_seq_linear()` test whether a vector `x` represents particular kinds of sequences. These testing functions can be used as helpers, but they are also analytic instruments in their own right.
 
 `is_seq_linear()` returns `TRUE` if the difference between all neighboring values is the same:
@@ -195,6 +197,8 @@ x_nonlinear <- c(49, 42, 47, 44, 50, 56, 53, 58, 51)
 is_seq_dispersed(x = x_nonlinear, from = 50)
 is_seq_dispersed(x = x_nonlinear, from = 50, test_linear = FALSE)
 ```
+
+### `NA` handling
 
 All the `is_seq_*()` functions take special care with `NA` values in `x`. If one or more elements of `x` are `NA`, this doesn't necessarily mean that it's unknown whether or not `x` might possibly represent the kind of sequence in question.
 
