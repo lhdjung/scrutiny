@@ -6,6 +6,9 @@
 # user. For now, these internal data are restricted to the background raster
 # vectors for `grim_plot()`.
 
+# Code for the example datasets with `pigs` in their names is in the
+# R/data-doc.R file.
+
 # Some nomenclature -- `n`: sample size, `frac`: fractional portion of a mean or
 # fraction.
 
