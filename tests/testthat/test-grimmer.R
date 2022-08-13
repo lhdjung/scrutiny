@@ -94,12 +94,14 @@ aGrimmer <- function(n, mean, SD, decimals_mean = 2, decimals_SD = 2){
 
 # Preparations ------------------------------------------------------------
 
+tested_cases_orig <- 7500
+
 # Randomly generating a great number of values in the first step leaves nearly
 # as many values with exactly 2 decimal places in the second. There are the
 # first values by that number greater than 1 that have exactly two decimal
 # places and where the second decimal place is not zero (so it counts as a
 # decimal place even without a string transformation):
-df1_mean <- seq(1, length.out = 1000, by = 0.01)
+df1_mean <- seq(1, length.out = tested_cases_orig, by = 0.01)
 df1_mean <- df1_mean[decimal_places(df1_mean) == 2]
 
 length(df1_mean)
@@ -163,5 +165,33 @@ df_disagree <- df_out %>%
 
 
 df_disagree
+
+
+disagree_rate <- nrow(df_disagree) / nrow(df_out)
+
+disagree_rate
+
+
+df_disagree_out1_true <- df_disagree %>%
+  dplyr::filter(out1)
+
+
+disagree_new_impl_true_rate <- nrow(df_disagree_out1_true) / nrow(df_disagree)
+
+disagree_new_impl_true_rate
+
+
+# The reason behind this test is that `grimmer_scalar()`, and thereby all of
+# scrutiny's GRIMMER implementation, is somewhat different from the original
+# `aGrimmer()` function -- circa 70 percent of the disagreements are due to
+# `grimmer_scalar()` being more lenient. The overall rate of disagreement
+# revolves around 0.3 percent, but due to the element of randomness and the
+# relatively low number of tested cases (equal to `nrow(df_out)`), the test only
+# requires the rate to be below 5 percent. This will be met absent some
+# significant changes in `grimmer_scalar()`. In such a situation, it would be
+# better for the test to fail.
+test_that("the two functions disagree on less than 3 percent of cases", {
+  disagree_rate %>% expect_lt(0.05)
+})
 
 
