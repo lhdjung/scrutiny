@@ -157,10 +157,6 @@ rounding_bounds <- Vectorize(rounding_bounds_scalar)
 #' unround(x = c(3.6, "5.20", 5.174))
 
 
-# Title used to be: Reconstruct lower and upper bounds for original value of
-# rounded number
-
-
 
 # # Example values:
 # x <- "2.37"

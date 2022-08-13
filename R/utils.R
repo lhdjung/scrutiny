@@ -135,7 +135,6 @@ remove_equivalent_rows <- function(data) {
 
 reverse_column_order <- function(data) {
   col_numbers_reversed <- ncol(data):1
-
   data[, order(col_numbers_reversed)]
 }
 

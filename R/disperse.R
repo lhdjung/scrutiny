@@ -251,11 +251,6 @@ disperse2 <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
   out$n <- out$n %>% purrr::modify_at(locations1, `-`, 0.5)
   out$n <- out$n %>% purrr::modify_at(locations2, `+`, 0.5)
 
-  # # Adjust the `n_change` labels in the output by labeling the lower `n` value
-  # # `n1` and the higher `n` value `n2`:
-  # out$n_change <- out$n_change %>%
-  #   stringr::str_replace("n_", paste0("n", c("1", "2"), "_"))
-
   # Return the resulting tibble:
   return(out)
 }

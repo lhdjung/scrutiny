@@ -138,7 +138,6 @@ seq_test_ranking <- function(x, explain = TRUE) {
     out <- tibble::tibble(consistent, inconsistent, lead_lag)
   }
 
-  # class(out) <- c("seq_test_ranking", class(out))
   out <- add_class(out, "seq_test_ranking")
 
   class_is_scr_map_class <-

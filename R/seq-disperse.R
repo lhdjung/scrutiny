@@ -149,11 +149,6 @@ seq_disperse <- function(from, dispersion = 1:5, offset_from = 0,
   # not `from` was specified as a string:
   from <- methods::as(from, typeof(from_orig))
 
-  # if (is.character(from_orig)) {
-  #   from <- as.character(from)
-  # }
-
-
   # Following user preferences, do or don't convert the output to string,
   # restoring trailing zeros to the same number of decimal places that also
   # determined the unit of increments at the start of the function:
@@ -163,12 +158,6 @@ seq_disperse <- function(from, dispersion = 1:5, offset_from = 0,
 
   if (track_var_change) {
     var_change <- as.numeric(out) - as.numeric(from)
-    # var_change <- var_change %>%
-    #   round(digits) %>%
-    #   paste0("var_plus_", .) %>%
-    #   stringr::str_replace("var_plus_-", "var_minus_") %>%
-    #   stringr::str_replace("var_plus_0$", "var_plus_minus_0")
-
     out <- list(out, var_change)
   }
 

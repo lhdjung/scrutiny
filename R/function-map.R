@@ -198,8 +198,6 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
     # This says `all`...
     all_classes <- paste0("scr_", tolower(name_test), "_map")
 
-    # all_classes <- append_rounding_class()
-
     # ...because more values might be added to it:
     if (!is.null(name_class)) {
       all_classes <- c(all_classes, name_class)
@@ -233,7 +231,6 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
         out$consistency <- purrr::map(
           out$consistency, extend_if_length1, value_if_length1 = .col_filler
         )
-        # out$consistency[lengths_consistency == 1] <- list(list(TRUE, NA))
         out <- unnest_consistency_cols(
           out, col_names = c("consistency", .col_names), index = FALSE
         )
@@ -262,31 +259,4 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
   return(fn_out)
 }
 
-
-
-
-# Example factory-made functions:
-
-grim_map_alt <- function_map(
-  .fun = grim_scalar,
-  .reported = c("x", "n"),
-  .name_test = "GRIM",
-  .args_disabled = c("show_rec", "show_prob"),
-  .arg_list = list(
-    items = 1, percent = FALSE,
-    rounding = "up_or_down", threshold = 5,
-    symmetric = FALSE, tolerance = .Machine$double.eps^0.5
-  )
-)
-
-debit_map_alt <- function_map(
-  .fun = debit_scalar,
-  .reported = c("x", "sd", "n"),
-  .name_test = "DEBIT",
-  .args_disabled = "show_rec",
-  .arg_list = list(
-    rounding = "up_or_down", threshold = 5,
-    symmetric = FALSE
-  )
-)
 

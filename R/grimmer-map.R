@@ -136,21 +136,23 @@ grimmer_map <- function(data, items = 1, merge_items = TRUE,
 }
 
 
-# The `.name_class = "scr_grim_map"` specification has the purpose of allowing
-# GRIMMER results to be visualized by `grim_plot()`:
-grimmer_map_alt <- function_map(
-  .fun = grimmer_scalar,
-  .reported = c("x", "sd", "n"),
-  .name_test = "GRIMMER",
-  # .name_class = "grim_map",
-  .col_names = "reason",
-  # .col_control = "show_reason",
-  .col_filler = "Passed all",
-  .arg_list = list(
-    show_reason = TRUE, rounding = "up_or_down", threshold = 5,
-    symmetric = FALSE, tolerance = .Machine$double.eps^0.5
-  )
-)
+
+# # Alternative version of `grimmer_map()`, using experimental functionality
+# from `function_map()`:
+#
+# # The `.name_class = "scr_grim_map"` specification has the purpose of allowing
+# # GRIMMER results to be visualized by `grim_plot()`:
+# grimmer_map_alt <- function_map(
+#   .fun = grimmer_scalar,
+#   .reported = c("x", "sd", "n"),
+#   .name_test = "GRIMMER",
+#   .col_names = "reason",
+#   .col_filler = "Passed all",
+#   .arg_list = list(
+#     show_reason = TRUE, rounding = "up_or_down", threshold = 5,
+#     symmetric = FALSE, tolerance = .Machine$double.eps^0.5
+#   )
+# )
 
 
 

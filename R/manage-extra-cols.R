@@ -32,13 +32,6 @@ manage_extra_cols <- function(data, extra, other_cols) {
       )
     }
 
-    # msg_n_cols <- dplyr::case_when(
-    #   length(other_cols) == 0  ~ glue::glue("there aren't any extra columns"),
-    #   length(other_cols) == 1  ~ glue::glue("there's only 1 extra column"),
-    #   TRUE                     ~ glue::glue("there are only \\
-    #                                         {length(other_cols)} extra columns")
-    # )
-
     if (length(extra) == 1) {
       cli::cli_abort(c(
       "`extra` was specified as `{extra}`, for extra column number {extra}.",
@@ -52,11 +45,6 @@ manage_extra_cols <- function(data, extra, other_cols) {
         msg_num_length <- "That last number is"
       }
 
-      # msg_num_length <- dplyr::if_else(
-      #   length(other_cols) < extra[1],
-      #   "These numbers are",
-      #   "That last number is"
-      # )
       cli::cli_abort(c(
       "`extra` was specified as `{rlang::enexprs(extra)}`.",
       "x" = "{msg_num_length} too high -- {msg_n_cols} in `data`."

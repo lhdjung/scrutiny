@@ -256,9 +256,6 @@ grim_plot <- function(data = NULL,
 
   }
 
-  # data <- data %>%
-  #   dplyr::mutate(x = (as.numeric(x) * items))
-
   data$x <- as.numeric(data$x)
 
 
@@ -366,17 +363,10 @@ grim_plot <- function(data = NULL,
 
   # The plot itself ----
 
-    # p <- ggplot2::ggplot(data = data_emp, ggplot2::aes(
-    #     x = .data$n,
-    #     y = .data$frac
-    #   ))
-
-
   # Background raster / gradient:
   if (show_raster) {
 
     # With 1 or 2 digits, the function provides a background raster...
-    # if (!(digits > 2)) {
 
       p <- ggplot2::ggplot(data = df_plot) +
         ggplot2::geom_tile(mapping = ggplot2::aes(

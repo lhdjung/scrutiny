@@ -112,7 +112,6 @@ audit_seq <- function(data) {
     df_by_var <- split(df, df$var)
     out <- purrr::map(df_by_var, index_case_diff)
     out <- purrr::map(out, ~ .[.$consistency, ])
-    # out <- purrr::map(df_by_var, ~ which(.$consistency))
     out <- out[order(var_order)]
     purrr::map(out, ~ .$index_diff)
   }

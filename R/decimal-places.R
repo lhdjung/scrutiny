@@ -90,16 +90,6 @@ decimal_places <- function(x, sep = "\\.") {
 }
 
 
-# Idea for an error message, but probably not sensible:
-
-# if (any(!stringr::str_detect(x, sep)) && !any(sep == c("\\.", ",", ":"))) {
-#   cli::cli_abort(c(
-#     "`sep` not in `x`",
-#     "x" = "The `sep` string, \"{sep}\", must be part of `x` (unless `sep` \\
-#     is \"\\\\.\", \",\", or \":\")."
-#   ))
-# }
-
 
 
 #' @rdname decimal_places
