@@ -157,8 +157,6 @@ pigs3 %>%
 
 DEBIT-consistent value pairs are blue, inconsistent ones red. The black arc is the DEBIT line: Given the sample size, the pairs of mean and SD values are DEBIT-consistent if and only if they cross this line. More precisely, the inner boxes must cross the line --- the outer boxes are just pointers to the inner ones, in case these are poorly visible. They have no inherent meaning.
 
-[TO DO: Heathers noted [on Twitter](https://twitter.com/jamesheathers/status/1145663498376089606): "The little boxes are due to rounding - they're thin when there's no rounding, they're fat when there is." So that's my answer to the question about the difference between fat and thin boxes in the DEBIT paper --- it's just based on assumptions about those values having been rounded or not. So, I need to implement this in `debit()`, `debit_map()`, and `debit_plot()`!]
-
 Except for the colors, inner boxes must look exactly like they do here: Their sizes and shapes are completely determined by the mean and SD values. Since inner boxes cannot be enlarged at will, outer boxes might be helpful to spot them at first glance.
 
 However, if outer boxes are not desired, they can be turned off like this:
