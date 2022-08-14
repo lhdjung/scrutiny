@@ -464,7 +464,7 @@ This presents a problem for consistency tests that rely on reported group sizes,
 
 ## Practical steps
 
-`function_map_total_n()` creates new functions which follow this very scheme by applying a given consistency test to multiple combinations of reported and hypothetical summary statistics. It is the powerhouse behind `grim_map_total_n()`, `grimmer_map_total_n()`, and `debit_map_total_n()`, just as `function_map_seq()` is the powerhouse behind `grim_map_seq()`, `grimmer_map_seq()`, and `debit_map_seq()`. See the [case study in the GRIM vignette](https://lhdjung.github.io/scrutiny/articles/grim.html#handling-unknown-group-sizes-with-grim_map_total_n) for an example of how `grim_map_total_n()` works out in practice.
+`function_map_total_n()` creates new functions which follow this very scheme by applying a given consistency test to multiple combinations of reported and hypothetical summary statistics. It is the powerhouse behind `grim_map_total_n()`, `grimmer_map_total_n()`, and `debit_map_total_n()`, just as `function_map_seq()` is the powerhouse behind `grim_map_seq()`, `grimmer_map_seq()`, and `debit_map_seq()`. See the case study in `vignette("grim")` , section *Handling unknown group sizes with `grim_map_total_n()`*, for an example of how `grim_map_total_n()` works out in practice.
 
 As with `function_map_seq()`, creating a manufactured `*_total_n()` function is very easy. Just let the function factory do the work for you:
 
