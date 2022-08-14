@@ -193,7 +193,7 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
 #'
 #' @return Boolean. `TRUE` if `x`, `sd`, `n`, and `items` are mutually
 #'   consistent, `FALSE` if not.
-#'
+
 #' @details GRIMMER was originally devised by Anaya (2016). The present
 #'   implementation follows Allard's (2018) refined Analytic-GRIMMER (A-GRIMMER)
 #'   algorithm. It adapts the R function `aGrimmer()` provided by Allard and
@@ -203,6 +203,12 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
 #'   more context and variable name translations, see the top of the
 #'   \href{https://github.com/lhdjung/scrutiny/blob/main/R/grimmer.R}{source
 #'   file}.
+#'
+#'   The present implementation can differ from Allard's in a small number of
+#'   cases. In most cases, this means that the original flags a value set as
+#'   inconsistent, but scrutiny's `grimmer*()` functions don't. See the end of
+#'   \href{https://github.com/lhdjung/scrutiny/blob/main/tests/testthat/test-grimmer.R}{this
+#'    test file} for details.
 
 #' @references Allard, A. (2018). Analytic-GRIMMER: a new way of testing the
 #'   possibility of standard deviations.
