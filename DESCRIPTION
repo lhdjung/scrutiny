@@ -8,9 +8,8 @@ Authors@R:
            email = "jung-lukas@gmx.net")
 Description: Test published summary statistics for consistency
     and reconstruct some of the processes which created them.
-    The package aims to make these methods easy to use in a
-    tidyverse-friendly way, helping the new field of error
-    detection go mainstream.
+    The package provides infrastructure for implementing new
+    techniques to help error detection go mainstream.
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
