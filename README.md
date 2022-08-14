@@ -4,6 +4,7 @@
 [![R-CMD-check](https://github.com/lhdjung/scrutiny/workflows/R-CMD-check/badge.svg)](https://github.com/lhdjung/scrutiny/actions)
 [![Codecov test
 coverage](https://codecov.io/gh/lhdjung/scrutiny/branch/main/graph/badge.svg)](https://app.codecov.io/gh/lhdjung/scrutiny?branch=main)
+[![R-CMD-check](https://github.com/lhdjung/scrutiny/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/lhdjung/scrutiny/actions/workflows/R-CMD-check.yaml)
 
 <!-- badges: end -->
 
