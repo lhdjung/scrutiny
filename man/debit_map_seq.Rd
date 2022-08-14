@@ -6,6 +6,9 @@
 \usage{
 debit_map_seq(
   data,
+  x = NULL,
+  sd = NULL,
+  n = NULL,
   var = .var,
   dispersion = .dispersion,
   out_min = .out_min,
@@ -17,6 +20,8 @@ debit_map_seq(
 }
 \arguments{
 \item{data}{A data frame that \code{debit_map()} could take.}
+
+\item{x, sd, n}{Optionally, specify column names in \code{data} as these arguments.}
 
 \item{var}{String. Names of the columns that will be dispersed. Default is
 \code{c("x", "sd", "n")}.}
@@ -45,25 +50,29 @@ inconsistencies.}
 \description{
 \code{debit_map_seq()} applies DEBIT with values surrounding the input values.
 This provides an easy and powerful way to assess whether small errors in
-computing or reporting may be responsible for debit-inconsistencies in
+computing or reporting may be responsible for DEBIT-inconsistencies in
 published statistics.
 }
 \section{Summaries with \code{audit_seq()}}{
  You can call \code{audit_seq()} following
 \code{debit_map_seq()}. It will return a data frame with these columns:
 \itemize{
-\item \code{x}, \code{sd}, and \code{n} are the original inputs, tested for \code{consistency} here.
+\item \code{x}, \code{sd}, and \code{n} are the original inputs,
+tested for \code{consistency} here.
 \item \code{hits_total} is the total number of DEBIT-consistent value sets
 found within the specified \code{dispersion} range.
 \item \code{hits_x} is the number of DEBIT-consistent value sets
 found by varying \code{x}.
-\item Accordingly with \code{sd} and \code{hits_sd}.
+\item Accordingly with \code{sd} and \code{hits_sd} as well as \code{n} and \code{hits_n}.
+\item (Note that any consistent reported cases will be counted by the
+\verb{hits_*} columns if both \code{include_reported} and \code{include_consistent}
+are set to \code{TRUE}.)
 \item \code{diff_x} reports the absolute difference between \code{x} and the next
 consistent dispersed value (in dispersion steps, not the actual numeric
 difference). \code{diff_x_up} and \code{diff_x_down} report the difference to the
 next higher or lower consistent value, respectively.
-\item \code{diff_sd}, \code{diff_sd_up}, and \code{diff_sd_down} do the same for \code{sd}.
-\item Accordingly for \code{n}.
+\item \code{diff_sd}, \code{diff_sd_up},   and \code{diff_sd_down} do the same for \code{sd}.
+\item Likewise with \code{diff_n}, \code{diff_n_up}, and \code{diff_n_down}.
 }
 }
 

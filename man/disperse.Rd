@@ -11,8 +11,8 @@ disperse(
   dispersion = 0:5,
   n_min = 1,
   n_max = NULL,
-  reported = NULL,
-  reported_index = NULL
+  constant = NULL,
+  constant_index = NULL
 )
 
 disperse2(
@@ -20,8 +20,8 @@ disperse2(
   dispersion = 0:5,
   n_min = 1,
   n_max = NULL,
-  reported = NULL,
-  reported_index = NULL
+  constant = NULL,
+  constant_index = NULL
 )
 
 disperse_total(
@@ -29,8 +29,8 @@ disperse_total(
   dispersion = 0:5,
   n_min = 1,
   n_max = NULL,
-  reported = NULL,
-  reported_index = NULL
+  constant = NULL,
+  constant_index = NULL
 )
 }
 \arguments{
@@ -51,13 +51,13 @@ total sample size (e.g., \code{c(25, 26)} for a total of 51).
 \item{n_max}{Numeric. Maximal group size. Default is \code{NULL}, i.e., no
 maximum.}
 
-\item{reported}{Optionally, add a length-2 vector or a list of length-2
-vectors to accompany the pairs of dispersed values. Default is \code{NULL},
-i.e., no reported values.}
+\item{constant}{Optionally, add a length-2 vector or a list of length-2
+vectors (such as a data frame with exactly two rows) to accompany the pairs
+of dispersed values. Default is \code{NULL}, i.e., no constant values.}
 
-\item{reported_index}{Integer (length 1). Index of \code{reported} in the output
-tibble. If \code{NULL} (the default), \code{reported} will go to the right of
-\code{n_change}.}
+\item{constant_index}{Integer (length 1). Index of \code{constant} or the first
+\code{constant} column in the output tibble. If \code{NULL} (the default), \code{constant}
+will go to the right of \code{n_change}.}
 }
 \value{
 A tibble (data frame) with these columns:
@@ -91,6 +91,13 @@ of \code{grim_map_total_n()} and all other functions created with
 \details{
 If any group size is less than \code{n_min} or greater than \code{n_max}, it
 is removed. The complementary size of the other group is also removed.
+
+\code{constant} values are pairwise repeated. That is why \code{constant} needs to be
+a length-2 atomic vector or a list of such vectors. If \code{constant} is a data
+frame or some other named list, the resulting columns will have the same
+names as the list-element names. If the list is not named, the new column
+names will be \code{"constant1"}, \code{"constant2"}, etc; or just \code{"constant"}, for
+a single pair.
 }
 \examples{
 # For a total sample size of 40,
@@ -113,15 +120,19 @@ disperse_total(n = 40)
 # ...whereas an odd total triggers `disperse2()`:
 disperse_total(n = 51)
 
-# Add "reported" values that repeat along with the
+# You may add values that repeat along with the
 # dispersed ones but remain constant themselves.
-# Such values can be a length-2 vector for a single
-# column...
-disperse_total(37, reported = c("5.24", "3.80"))
+# Such values can be stored in a length-2 vector
+# for a single column...
+disperse_total(37, constant = c("5.24", "3.80"))
 
-# ... or a list of length-2 vectors for multiple columns:
-reported_list <- list(c("5.24", "3.80"), 7:8, c(TRUE, FALSE))
-disperse_total(37, reported = reported_list)
+# ... or a list of length-2 vectors for multiple
+# columns. This includes data frames with 2 rows:
+df_constant <- tibble::tibble(
+  name = c("Paul", "Mathilda"), age = 27:28,
+  registered = c(TRUE, FALSE)
+)
+disperse_total(37, constant = df_constant)
 }
 \references{
 Bauer, P. J., & Francis, G. (2021). Expression of Concern: Is It

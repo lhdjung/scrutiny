@@ -4,7 +4,16 @@
 \alias{function_map}
 \title{Create new \verb{*_map()} functions}
 \usage{
-function_map(.fun, .reported, .name_test, .name_class = NULL)
+function_map(
+  .fun,
+  .reported,
+  .name_test,
+  .name_class = NULL,
+  .args_disabled = NULL,
+  .col_names = NULL,
+  .col_control = NULL,
+  .col_filler = NULL
+)
 }
 \arguments{
 \item{.fun}{Single-case consistency testing function that will be applied to
@@ -17,8 +26,26 @@ length 1, i.e., \code{TRUE} or \code{FALSE}.}
 \item{.name_test}{String (length 1). Plain-text name of the consistency test,
 such as \code{"GRIM"}.}
 
-\item{.name_class}{String. One or more classes to be added to the output data
-frame. Default is \code{NULL}, i.e., no extra class (but see \emph{Details}).}
+\item{.name_class}{String. Optionally, one or more classes to be added to the
+output data frame. Default is \code{NULL}, i.e., no extra class (but see
+\emph{Details}).}
+
+\item{.args_disabled}{Optionally, a string vector with names of arguments of
+the \verb{*_scalar()} function that don't work with the factory-made function.
+If the user  tries to specify these arguments, an informative error will be
+thrown.}
+
+\item{.col_names}{(Experimental) Optionally, a string vector with the names
+of additional columns that are derived from the \verb{*_scalar()} function.
+Requires \code{.col_control} and \code{.col_filler} specifications.}
+
+\item{.col_control}{(Experimental) Optionally, a single string with the name
+of the \verb{*_scalar()} function's Boolean argument that controls if the
+columns named in \code{.col_names} will be displayed.}
+
+\item{.col_filler}{(Experimental) Optionally, a vector specifying the values
+of \code{.col_names} columns in rows where the \verb{*_scalar()} function only
+returned the \code{consistency} value.}
 }
 \value{
 A factory-made function with these arguments:
@@ -26,22 +53,23 @@ A factory-made function with these arguments:
 \item \code{data}: Data frame with all the columns named in \code{.reported}. It needs to
 have columns named after the key arguments in \code{.fun}. Other columns are
 permitted.
+\item Arguments named after the \code{.reported} values. They can be specified as the
+names of \code{data} columns so that the function will rename that column using
+the \code{.reported} name.
 \item \code{reported}, \code{fun}, \code{name_class}: Same as when calling \code{function_map()} but
 spelled without dots. You can override these defaults when calling the
-manufactured function.
-\item \code{...}: Arguments passed down to \code{.fun}.
+factory-made function.
+\item \code{...}: Arguments passed down to \code{.fun}. This does not include the
+column-identifying arguments derived from \code{.reported}.
 }
-
-The manufactured function should then return a tibble that includes
-\code{"consistency"}: a Boolean column that shows whether the values to its left
-are mutually consistent (\code{TRUE}) or not (\code{FALSE}).
 }
 \description{
 \code{function_map()} creates new basic mapper functions for
-consistency tests, such as \code{grim_map()} or \code{debit_map()}.
+consistency tests, such as \code{grim_map()} or \code{debit_map()}. For context, see
+\code{vignette("consistency-tests")}.
 }
 \details{
-The output tibble returned by the manufactured function will inherit
+The output tibble returned by the factory-made function will inherit
 one or two classes independently of the \code{.name_class} argument:
 \itemize{
 \item It will inherit a class named \code{"scr_{tolower(.name_test)}_map"}; for
@@ -52,6 +80,12 @@ named \code{"scr_rounding_{rounding}"}; for example,
 \code{"scr_rounding_up_or_down"}.
 }
 }
+\section{Value returned by the factory-made function}{
+ A tibble that includes
+\code{"consistency"}: a Boolean column showing whether the values to its left
+are mutually consistent (\code{TRUE}) or not (\code{FALSE}).
+}
+
 \examples{
 # Basic test implementation for "SCHLIM",
 # a mock test with no real significance:
@@ -70,11 +104,11 @@ schlim_map <- function_map(
 # Example data:
 df1 <- tibble::tibble(y = 16:25, n = 3:12)
 
-# Call the "manufactured" function:
+# Call the "factory-made" function:
 schlim_map(df1)
 
 
-# Advice on exporting manufactured functions ----------------
+# Advice on exporting factory-made functions ----------------
 
 # (The guidelines below were adapted from purrr:
 # https://purrr.tidyverse.org/reference/faq-adverbs-export.html)

@@ -28,13 +28,14 @@ most common case.}
 will convert it to a decimal number and adjust the decimal count (i.e.,
 increase it by 2). Default is \code{FALSE}.}
 
-\item{show_rec}{Boolean. If set to \code{TRUE}, the output is a matrix that also
-contains intermediary values from GRIM-testing. This is not recommended;
-instead, use \code{show_rec} in \code{grim_map()}. Default is \code{FALSE}.}
+\item{show_rec}{Boolean. For internal use only.  If set to \code{TRUE}, the output
+is a matrix that also contains intermediary values from GRIM-testing. Don't
+specify this manually; instead, use \code{show_rec} in \code{grim_map()}. Default is
+\code{FALSE}.}
 
 \item{rounding}{String. Rounding method or methods to be used for
 reconstructing the values to which \code{x} will be compared. Default is
-\code{"up_or_down"} (from 5). For more options, see Details.}
+\code{"up_or_down"} (from 5).}
 
 \item{threshold}{Numeric. If \code{rounding} is set to \code{"up_from"}, \code{"down_from"},
 or \code{"up_from_or_down_from"}, set \code{threshold} to the number from which the

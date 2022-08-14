@@ -35,7 +35,7 @@ audit.scr_schlim_map <- function(data) {
 }
 
 # If you like, add other summary columns
-# with `dplyr::mutate` or similar.
+# with `dplyr::mutate()` or similar.
 }
 \seealso{
 For context, see \code{vignette("consistency-tests")}. In case you don't

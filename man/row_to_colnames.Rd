@@ -40,7 +40,6 @@ In R, these data frames (converted from matrices) do sometimes have the
 issue described above.
 }
 \seealso{
-\code{dplyr::slice()}, which the function wraps; and
 \href{https://unheadr.liomys.mx/reference/mash_colnames.html}{\code{unheadr::mash_colnames()}},
 a more sophisticated solution to the same problem.
 }

@@ -120,9 +120,10 @@ pigs1 \%>\%
 
 # If you change the rounding procedure
 # in `grim_map()`, the plot will
-# follow automatically:
+# follow automatically if there is
+# a difference:
 pigs1 \%>\%
-  grim_map(rounding = "up") \%>\%
+  grim_map(rounding = "ceiling") \%>\%
   grim_plot()
 
 # For percentages, the y-axis

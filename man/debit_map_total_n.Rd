@@ -6,9 +6,15 @@
 \usage{
 debit_map_total_n(
   data,
+  x1 = NULL,
+  x2 = NULL,
+  sd1 = NULL,
+  sd2 = NULL,
   dispersion = .dispersion,
   n_min = .n_min,
   n_max = .n_max,
+  constant = .constant,
+  constant_index = .constant_index,
   ...
 )
 }
@@ -22,6 +28,9 @@ the first round of tests, the function switches roles between \code{x1} and
 \code{sd2}. However, do make sure the \verb{x*} and \verb{sd*} values are paired
 accurately, as reported.}
 
+\item{x1, x2, sd1, sd2}{Optionally, specify these arguments as column names in
+\code{data}.}
+
 \item{dispersion}{Numeric. Steps up and down from half the \code{n} values.
 Default is \code{0:5}, i.e., half \code{n} itself followed by five steps up and down.}
 
@@ -29,6 +38,14 @@ Default is \code{0:5}, i.e., half \code{n} itself followed by five steps up and 
 
 \item{n_max}{Numeric. Maximal group size. Default is \code{NULL}, i.e., no
 maximum.}
+
+\item{constant}{Optionally, add a length-2 vector or a list of length-2
+vectors (such as a data frame with exactly two rows) to accompany the pairs
+of dispersed values. Default is \code{NULL}, i.e., no constant values.}
+
+\item{constant_index}{Integer (length 1). Index of \code{constant} or the first
+\code{constant} column in the output tibble. If \code{NULL} (the default), \code{constant}
+will go to the right of \code{n_change}.}
 
 \item{...}{Arguments passed down to \code{debit_map()}.}
 }
@@ -53,8 +70,8 @@ with the larger dispersed \code{n}.
 \code{debit_map_total_n()} extends DEBIT to cases where only group
 means and standard deviations (SDs) were reported, not group sizes.
 
-The function is analogous to \code{grim_map_total_n()}, relying on the same
-infrastructure.
+The function is analogous to \code{grim_map_total_n()} and
+\code{grimmer_map_total_n()}, relying on the same infrastructure.
 }
 \section{Summaries with \code{audit_total_n()}}{
  You can call
@@ -90,7 +107,7 @@ debit_map_total_n(df)
 # `audit_total_n()` summaries can be more important than
 # the detailed results themselves.
 # The `hits_total` column shows all scenarios in
-# which both divergent `n` values are debit-consistent
+# which both divergent `n` values are DEBIT-consistent
 # with the `x*` values when paired with them both ways:
 df \%>\%
   debit_map_total_n() \%>\%

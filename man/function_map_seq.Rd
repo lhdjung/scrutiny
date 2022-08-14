@@ -10,6 +10,7 @@ function_map_seq(
   .reported,
   .name_test,
   .name_class = NULL,
+  .args_disabled = NULL,
   .dispersion = 1:5,
   .out_min = "auto",
   .out_max = NULL,
@@ -36,6 +37,10 @@ manufactured function.}
 \item{.name_class}{String. If specified, the tibbles returned by the
 manufactured function will inherit this string as an S3 class. Default is
 \code{NULL}, i.e., no extra class.}
+
+\item{.args_disabled}{String. Optionally, names of the basic \verb{*_map()}
+function's arguments. These arguments will throw an error if specified when
+calling the factory-made function.}
 
 \item{.dispersion}{Numeric. Sequence with steps up and down from the reported
 values. It will be adjusted to these values' decimal level. For example,

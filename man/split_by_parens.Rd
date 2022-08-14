@@ -2,7 +2,7 @@
 % Please edit documentation in R/split-by-parens.R
 \name{split_by_parens}
 \alias{split_by_parens}
-\title{Split columns by parentheses}
+\title{Split columns by parentheses, brackets, braces, or similar}
 \usage{
 split_by_parens(
   .data,
@@ -111,9 +111,10 @@ df3 \%>\%
 \seealso{
 \itemize{
 \item \code{before_parens()} and \code{inside_parens()} take a string vector and
-extract values from the respective position. These two functions are mapped
-within \verb{split_by_parens().}
-\item \code{tidyr::separate()}, a more general function (but without support for the
+extract values from the respective position.
+\item \code{dplyr::across()} powers the application of the two above functions within
+\code{split_by_parens()}, including the creation of new columns.
+\item \code{tidyr::separate()} is a more general function (but does not recognize
 closing elements).
 }
 }
