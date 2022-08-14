@@ -30,7 +30,7 @@
 #' @references Bauer, P. J., & Francis, G. (2021). Expression of Concern: Is It
 #'   Light or Dark? Recalling Moral Behavior Changes Perception of Brightness.
 #'   *Psychological Science*, 32(12), 2042–2043.
-#'   https://doi.org/10.1177/09567976211058727
+#'   https://journals.sagepub.com/doi/10.1177/09567976211058727
 #'
 #'   Heathers, J. A. J., & Brown, N. J. L. (2019). DEBIT: A Simple Consistency
 #'   Test For Binary Data. https://osf.io/5vb3u/.

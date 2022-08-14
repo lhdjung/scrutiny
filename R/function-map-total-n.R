@@ -181,7 +181,7 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 #' @references Bauer, P. J., & Francis, G. (2021). Expression of Concern: Is It
 #'   Light or Dark? Recalling Moral Behavior Changes Perception of Brightness.
 #'   *Psychological Science*, 32(12), 2042–2043.
-#'   https://doi.org/10.1177/09567976211058727
+#'   https://journals.sagepub.com/doi/10.1177/09567976211058727
 #'
 #'   Wickham, H. (2019). *Advanced R* (Second Edition). CRC Press/Taylor and
 #'   Francis Group. https://adv-r.hadley.nz/index.html

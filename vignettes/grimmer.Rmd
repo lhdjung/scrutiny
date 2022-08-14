@@ -281,6 +281,6 @@ out_total_n
 audit_total_n(out_total_n)
 ```
 
-See the GRIM vignette for a [more comprehensive case study](https://lhdjung.github.io/scrutiny/articles/grim.html#handling-unknown-group-sizes-with-grim_map_total_n). It uses `grim_map_total_n()`, which is the same as `grimmer_map_total_n()` but only for GRIM.
+See the GRIM vignette, section *Handling unknown group sizes with `grim_map_total_n()`*, for a more comprehensive case study. It uses `grim_map_total_n()`, which is the same as `grimmer_map_total_n()` but only for GRIM.
 
 # References

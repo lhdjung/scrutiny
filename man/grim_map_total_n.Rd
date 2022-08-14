@@ -63,8 +63,7 @@ dispersed \code{n}.
 \description{
 When reporting group means, some published studies only report
 the total sample size but no group sizes corresponding to each mean.
-However, group sizes are crucial for
-\href{https://lhdjung.github.io/scrutiny/articles/grim.html#handling-unknown-group-sizes-with-grim_map_total_n}{GRIM-testing}.
+However, group sizes are crucial for GRIM-testing.
 
 In the two-groups case, \code{grim_map_total_n()} helps in these ways:
 \itemize{
@@ -132,12 +131,12 @@ df \%>\%
 Bauer, P. J., & Francis, G. (2021). Expression of Concern: Is It
 Light or Dark? Recalling Moral Behavior Changes Perception of Brightness.
 \emph{Psychological Science}, 32(12), 2042–2043.
-https://doi.org/10.1177/09567976211058727
+https://journals.sagepub.com/doi/10.1177/09567976211058727
 
 Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A Simple
 Technique Detects Numerous Anomalies in the Reporting of Results in
 Psychology. \emph{Social Psychological and Personality Science}, 8(4), 363–369.
-https://doi.org/10.1177/1948550616673876
+https://journals.sagepub.com/doi/10.1177/1948550616673876
 }
 \seealso{
 \code{function_map_total_n()}, which created the present function using

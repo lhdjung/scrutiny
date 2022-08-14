@@ -11,9 +11,9 @@
 #'   column are pasted together. Some special characters might then be missing.
 #'
 #'   This function might be useful when importing tables from PDF, e.g. with
-#'   \href{https://cran.r-project.org/web/packages/tabulizer/vignettes/tabulizer.html}{tabulizer}.
-#'    In R, these data frames (converted from matrices) do sometimes have the
-#'   issue described above.
+#'   \href{https://cran.r-project.org/package=tabulizer}{tabulizer}. In R, these
+#'   data frames (converted from matrices) do sometimes have the issue described
+#'   above.
 #'
 #' @param data Data frame or matrix.
 #' @param row Integer. Position of the rows (one or more) that jointly contain

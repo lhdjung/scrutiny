@@ -126,7 +126,7 @@ grim(x = "71", n = 43, percent = TRUE)
 Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A
 Simple Technique Detects Numerous Anomalies in the Reporting of Results in
 Psychology. \emph{Social Psychological and Personality Science}, 8(4), 363–369.
-https://doi.org/10.1177/1948550616673876
+https://journals.sagepub.com/doi/10.1177/1948550616673876
 }
 \seealso{
 \code{grim_map()} applies \code{grim()} to any number of cases at once.

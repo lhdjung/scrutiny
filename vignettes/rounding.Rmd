@@ -158,7 +158,7 @@ vec3 %>%
   round(1)
 ```
 
-Sometimes `round()` behaves just as it should, but at other times, results can be hard to explain. [Martin Mächler](https://cran.r-project.org/web/packages/round/vignettes/Rounding.html), who wrote the present version of `round()`, describes the issue about as follows:
+Sometimes `round()` behaves just as it should, but at other times, results can be hard to explain. [Martin Mächler](https://cran.r-project.org/package=round), who wrote the present version of `round()`, describes the issue about as follows:
 
 The reason for the above behavior is that most decimal fractions can't, in fact, be represented as double precision numbers. Even seemingly "clean" numbers with only a few decimal places come with an invisible mantissa, and are therefore closer to one side or the other. Rounding to even in R, while ostensibly about breaking the tie that occurs at 5, is actually much more about measuring which of the two sides is closer to the number to be rounded.
 

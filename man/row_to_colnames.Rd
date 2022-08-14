@@ -35,9 +35,9 @@ If multiple rows are specified, the row values for each individual
 column are pasted together. Some special characters might then be missing.
 
 This function might be useful when importing tables from PDF, e.g. with
-\href{https://cran.r-project.org/web/packages/tabulizer/vignettes/tabulizer.html}{tabulizer}.
-In R, these data frames (converted from matrices) do sometimes have the
-issue described above.
+\href{https://cran.r-project.org/package=tabulizer}{tabulizer}. In R, these
+data frames (converted from matrices) do sometimes have the issue described
+above.
 }
 \seealso{
 \href{https://unheadr.liomys.mx/reference/mash_colnames.html}{\code{unheadr::mash_colnames()}},

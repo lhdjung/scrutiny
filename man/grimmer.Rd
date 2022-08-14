@@ -70,14 +70,12 @@ modifies it to accord with scrutiny's standards, as laid out in
 \code{vignette("consistency-tests")}, sections 1-2. The resulting \code{grimmer()}
 function, then, is a vectorized version of this basic implementation. For
 more context and variable name translations, see the top of the
-\href{https://github.com/lhdjung/scrutiny/blob/main/R/grimmer.R}{source
-file}.
+R/grimmer.R, the source file.
 
 The present implementation can differ from Allard's in a small number of
 cases. In most cases, this means that the original flags a value set as
-inconsistent, but scrutiny's \verb{grimmer*()} functions don't. See the end of
-\href{https://github.com/lhdjung/scrutiny/blob/main/tests/testthat/test-grimmer.R}{this
-test file} for details.
+inconsistent, but scrutiny's \verb{grimmer*()} functions don't. For details, see
+the end of tests/testthat/test-grimmer.R, the \code{grimmer()} test file.
 }
 \examples{
 # A mean of 5.23 is not consistent with an SD of 2.55
@@ -98,5 +96,5 @@ https://aurelienallard.netlify.app/post/anaytic-grimmer-possibility-standard-dev
 
 Anaya, J. (2016). The GRIMMER test: A method for testing the validity of
 reported measures of variability. \emph{PeerJ Preprints.}
-https://doi.org/10.7287/peerj.preprints.2400v1
+https://peerj.com/preprints/2400v1/
 }

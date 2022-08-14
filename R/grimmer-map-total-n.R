@@ -3,8 +3,7 @@
 #'
 #' @description When reporting group means, some published studies only report
 #'   the total sample size but no group sizes corresponding to each mean.
-#'   However, group sizes are crucial for
-#'   \href{https://lhdjung.github.io/scrutiny/articles/grimmer.html#handling-unknown-group-sizes-with-grimmer_map_total_n}{GRIMMER-testing}.
+#'   However, group sizes are crucial for GRIMMER-testing.
 #'
 #'   In the two-groups case, `grimmer_map_total_n()` helps in these ways:
 
@@ -43,8 +42,7 @@
 #' @references Bauer, P. J., & Francis, G. (2021). Expression of Concern: Is It
 #'   Light or Dark? Recalling Moral Behavior Changes Perception of Brightness.
 #'   *Psychological Science*, 32(12), 2042–2043.
-#'   https://doi.org/10.1177/09567976211058727
-#'
+#'   https://journals.sagepub.com/doi/10.1177/09567976211058727
 
 #' @seealso `function_map_total_n()`, which created the present function using
 #'   `grimmer_map()`.
@@ -85,7 +83,7 @@
 #'   Bauer, P. J., & Francis, G. (2021). Expression of Concern: Is It Light or
 #'   Dark? Recalling Moral Behavior Changes Perception of Brightness.
 #'   *Psychological Science*, 32(12), 2042–2043.
-#'   https://doi.org/10.1177/09567976211058727
+#'   https://journals.sagepub.com/doi/10.1177/09567976211058727
 
 #' @export
 

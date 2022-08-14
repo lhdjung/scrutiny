@@ -58,7 +58,7 @@
 #'
 #'   Anaya, J. (2016). The GRIMMER test: A method for testing the validity of
 #'   reported measures of variability. *PeerJ Preprints.*
-#'   https://doi.org/10.7287/peerj.preprints.2400v1
+#'   https://peerj.com/preprints/2400v1/
 #'
 #' @export
 #'

@@ -201,14 +201,12 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
 #'   `vignette("consistency-tests")`, sections 1-2. The resulting `grimmer()`
 #'   function, then, is a vectorized version of this basic implementation. For
 #'   more context and variable name translations, see the top of the
-#'   \href{https://github.com/lhdjung/scrutiny/blob/main/R/grimmer.R}{source
-#'   file}.
+#'   R/grimmer.R, the source file.
 #'
 #'   The present implementation can differ from Allard's in a small number of
 #'   cases. In most cases, this means that the original flags a value set as
-#'   inconsistent, but scrutiny's `grimmer*()` functions don't. See the end of
-#'   \href{https://github.com/lhdjung/scrutiny/blob/main/tests/testthat/test-grimmer.R}{this
-#'    test file} for details.
+#'   inconsistent, but scrutiny's `grimmer*()` functions don't. For details, see
+#'   the end of tests/testthat/test-grimmer.R, the `grimmer()` test file.
 
 #' @references Allard, A. (2018). Analytic-GRIMMER: a new way of testing the
 #'   possibility of standard deviations.
@@ -216,7 +214,7 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
 #'
 #'   Anaya, J. (2016). The GRIMMER test: A method for testing the validity of
 #'   reported measures of variability. *PeerJ Preprints.*
-#'   https://doi.org/10.7287/peerj.preprints.2400v1
+#'   https://peerj.com/preprints/2400v1/
 
 #' @export
 #'

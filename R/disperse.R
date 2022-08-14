@@ -3,10 +3,9 @@
 #' Vary hypothetical group sizes
 #'
 #' @description Some published studies only report a total sample size but no
-#'   group sizes. However, group sizes are crucial for tests such as
-#'   \href{https://lhdjung.github.io/scrutiny/articles/grim.html#handling-unknown-group-sizes-with-grim_map_total_n}{GRIM}.
-#'    Call `disperse()` to generate possible group sizes that all add up to the
-#'   total sample size, if that total is even.
+#'   group sizes. However, group sizes are crucial for consistency tests such as
+#'   GRIM. Call `disperse()` to generate possible group sizes that all add up to
+#'   the total sample size, if that total is even.
 #'
 #'   `disperse2()` is a variant for odd totals. It takes two consecutive numbers
 #'   and generates decreasing values from the lower as well as increasing values
@@ -62,12 +61,12 @@
 #' @include utils.R
 #'
 #' @export
-#'
+
 #' @references Bauer, P. J., & Francis, G. (2021). Expression of Concern: Is It
 #'   Light or Dark? Recalling Moral Behavior Changes Perception of Brightness.
 #'   *Psychological Science*, 32(12), 2042–2043.
-#'   https://doi.org/10.1177/09567976211058727
-#'
+#'   https://journals.sagepub.com/doi/10.1177/09567976211058727
+
 #' @examples
 #' # For a total sample size of 40,
 #' # set `n` to `20`:
