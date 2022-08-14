@@ -4,7 +4,7 @@ original value: lower and upper bounds for the hypothetical earlier number
 that was later rounded to the input number. It also displays a range with
 inequation signs, showing whether the bounds are inclusive or not.
 By default, the presumed rounding method is rounding up (or down) from 5.
-See the Rounding section for other methods."><title>Reconstruct rounding bounds — unround • scrutiny</title><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.1.0/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.1.0/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous"><!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Reconstruct rounding bounds — unround"><meta property="og:description" content="unround() takes a rounded number and returns the range of the
+See the Rounding section for other methods."><title>Reconstruct rounding bounds — unround • scrutiny</title><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.1.3/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.1.3/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous"><!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Reconstruct rounding bounds — unround"><meta property="og:description" content="unround() takes a rounded number and returns the range of the
 original value: lower and upper bounds for the hypothetical earlier number
 that was later rounded to the input number. It also displays a range with
 inequation signs, showing whether the bounds are inclusive or not.
@@ -20,14 +20,14 @@ See the Rounding section for other methods."><!-- mathjax --><script src="https:
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div id="navbar" class="collapse navbar-collapse ms-2">
+    <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
@@ -36,11 +36,13 @@ See the Rounding section for other methods."><!-- mathjax --><script src="https:
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <h6 class="dropdown-header" data-toc-skip>Consistency tests</h6>
     <a class="dropdown-item" href="../articles/grim.html">GRIM</a>
+    <a class="dropdown-item" href="../articles/grimmer.html">GRIMMER</a>
     <a class="dropdown-item" href="../articles/debit.html">DEBIT</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Infrastructure</h6>
+    <a class="dropdown-item" href="../articles/infrastructure.html">General infrastructure</a>
+    <a class="dropdown-item" href="../articles/consistency-tests.html">Implementing consistency tests</a>
     <a class="dropdown-item" href="../articles/rounding.html">Rounding</a>
-    <a class="dropdown-item" href="../articles/infrastructure.html">Infrastructure beyond rounding</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Other</h6>
     <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
@@ -82,7 +84,7 @@ See the <code>Rounding</code> section for other methods.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">unround</span><span class="op">(</span><span class="va">x</span>, rounding <span class="op">=</span> <span class="st">"up_or_down"</span>, threshold <span class="op">=</span> <span class="fl">5</span>, digits <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">unround</span><span class="op">(</span><span class="va">x</span>, rounding <span class="op">=</span> <span class="st">"up_or_down"</span>, threshold <span class="op">=</span> <span class="fl">5</span>, digits <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -91,22 +93,31 @@ See the <code>Rounding</code> section for other methods.</p>
 <dd><p>String or numeric. Rounded number. <code>x</code> needs to be a string unless
 <code>digits</code> is specified (most likely by a function that uses <code>unround()</code> as a
 helper).</p></dd>
+
+
 <dt>rounding</dt>
 <dd><p>String. Rounding method presumably used to create <code>x</code>.
 Default is <code>"up_or_down"</code>. For more, see section <code>Rounding</code>.</p></dd>
+
+
 <dt>threshold</dt>
 <dd><p>Integer. Number from which to round up or down. Other
 rounding methods are not affected. Default is <code>5</code>.</p></dd>
+
+
 <dt>digits</dt>
 <dd><p>Integer. This argument is meant to make <code>unround()</code> more
 efficient to use as a helper function so that it doesn't need to
 redundantly count decimal places. Don't specify it otherwise. Default is
 <code>NULL</code>, in which case decimal places really are counted internally and <code>x</code>
 needs to be a string.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A tibble with seven columns: <code>range</code>, <code>rounding</code>, <code>lower</code>,
+    
+
+<p>A tibble with seven columns: <code>range</code>, <code>rounding</code>, <code>lower</code>,
 <code>incl_lower</code>, <code>x</code>, <code>incl_upper</code>, and <code>upper</code>. The <code>range</code> column is a handy
 representation of the information stored in the columns from <code>lower</code> to
 <code>upper</code>, in the same order.</p>
@@ -150,45 +161,46 @@ documentation for <code><a href="round_up_from.html">round_up()</a></code>.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co"># By default, the function assumes that `x`</span></span>
-<span class="r-in"><span class="co"># was either rounded up or down:</span></span>
-<span class="r-in"><span class="fu">unround</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"2.7"</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># By default, the function assumes that `x`</span></span></span>
+<span class="r-in"><span><span class="co"># was either rounded up or down:</span></span></span>
+<span class="r-in"><span><span class="fu">unround</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"2.7"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 7</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   range                  rounding   lower incl_lower x     incl_upper upper</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 2.65 &lt;= x(2.7) &lt;= 2.75 up_or_down  2.65 TRUE       2.7   TRUE        2.75</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># If `x` was rounded up, run this:</span></span>
-<span class="r-in"><span class="fu">unround</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"2.7"</span>, rounding <span class="op">=</span> <span class="st">"up"</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># If `x` was rounded up, run this:</span></span></span>
+<span class="r-in"><span><span class="fu">unround</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"2.7"</span>, rounding <span class="op">=</span> <span class="st">"up"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 7</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   range                 rounding lower incl_lower x     incl_upper upper</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 2.65 &lt;= x(2.7) &lt; 2.75 up        2.65 TRUE       2.7   FALSE       2.75</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Likewise with rounding down...</span></span>
-<span class="r-in"><span class="fu">unround</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"2.7"</span>, rounding <span class="op">=</span> <span class="st">"down"</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Likewise with rounding down...</span></span></span>
+<span class="r-in"><span><span class="fu">unround</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"2.7"</span>, rounding <span class="op">=</span> <span class="st">"down"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 7</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   range                 rounding lower incl_lower x     incl_upper upper</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 2.65 &lt; x(2.7) &lt;= 2.75 down      2.65 FALSE      2.7   TRUE        2.75</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># ...and with `base::round()` which, broadly</span></span>
-<span class="r-in"><span class="co"># speaking, rounds to the nearest even number:</span></span>
-<span class="r-in"><span class="fu">unround</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"2.7"</span>, rounding <span class="op">=</span> <span class="st">"even"</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># ...and with `base::round()` which, broadly</span></span></span>
+<span class="r-in"><span><span class="co"># speaking, rounds to the nearest even number:</span></span></span>
+<span class="r-in"><span><span class="fu">unround</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"2.7"</span>, rounding <span class="op">=</span> <span class="st">"even"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 7</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   range                rounding lower incl_lower x     incl_upper upper</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 2.65 &lt; x(2.7) &lt; 2.75 even      2.65 FALSE      2.7   FALSE       2.75</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Multiple input number-strings return</span></span>
-<span class="r-in"><span class="co"># multiple rows in the output data frame:</span></span>
-<span class="r-in"><span class="fu">unround</span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3.6</span>, <span class="st">"5.20"</span>, <span class="fl">5.174</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Multiple input number-strings return</span></span></span>
+<span class="r-in"><span><span class="co"># multiple rows in the output data frame:</span></span></span>
+<span class="r-in"><span><span class="fu">unround</span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3.6</span>, <span class="st">"5.20"</span>, <span class="fl">5.174</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 3 × 7</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   range                        rounding  lower incl_lower x     incl_upper upper</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 3.55 &lt;= x(3.6) &lt;= 3.65       up_or_do…  3.55 TRUE       3.6   TRUE        3.65</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> 5.195 &lt;= x(5.20) &lt;= 5.205    up_or_do…  5.20 TRUE       5.20  TRUE        5.20</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> 5.1735 &lt;= x(5.174) &lt;= 5.1745 up_or_do…  5.17 TRUE       5.174 TRUE        5.17</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   range                        rounding   lower incl_lower x     incl_up…¹ upper</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 3.55 &lt;= x(3.6) &lt;= 3.65       up_or_down  3.55 TRUE       3.6   TRUE       3.65</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> 5.195 &lt;= x(5.20) &lt;= 5.205    up_or_down  5.20 TRUE       5.20  TRUE       5.20</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> 5.1735 &lt;= x(5.174) &lt;= 5.1745 up_or_down  5.17 TRUE       5.174 TRUE       5.17</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># … with abbreviated variable name ¹​incl_upper</span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
@@ -200,7 +212,7 @@ documentation for <code><a href="round_up_from.html">round_up()</a></code>.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
     </footer></div>

@@ -8,8 +8,8 @@
 <meta name="description" content="scrutiny">
 <title>Related software • scrutiny</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.1.0/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.1.0/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link href="../deps/bootstrap-5.1.3/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.1.3/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Related software">
 <meta property="og:description" content="scrutiny">
@@ -26,14 +26,14 @@
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div id="navbar" class="collapse navbar-collapse ms-2">
+    <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
@@ -43,11 +43,13 @@
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <h6 class="dropdown-header" data-toc-skip>Consistency tests</h6>
     <a class="dropdown-item" href="../articles/grim.html">GRIM</a>
+    <a class="dropdown-item" href="../articles/grimmer.html">GRIMMER</a>
     <a class="dropdown-item" href="../articles/debit.html">DEBIT</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Infrastructure</h6>
+    <a class="dropdown-item" href="../articles/infrastructure.html">General infrastructure</a>
+    <a class="dropdown-item" href="../articles/consistency-tests.html">Implementing consistency tests</a>
     <a class="dropdown-item" href="../articles/rounding.html">Rounding</a>
-    <a class="dropdown-item" href="../articles/infrastructure.html">Infrastructure beyond rounding</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Other</h6>
     <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
@@ -75,8 +77,11 @@
     
   </div>
 </nav><div class="container template-article">
+
+
+
 <script src="related_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
-  <main id="main"><div class="page-header">
+  <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>Related software</h1>
             
       
@@ -89,8 +94,10 @@
 <p>Software for error detection goes well beyond scrutiny. This vignette presents broadly similar packages and apps, with no claim to completeness.</p>
 <p>Please contact me if you know about relevant software that isn’t listed here (email: jung-lukas@gmx.net).</p>
 <ul>
-<li><p>For good reason, <a href="http://statcheck.io/index.php" class="external-link">statcheck</a> by Sacha Epskamp and Michèle Nuijten is the best-known error detection software. It reconstructs <em>p</em>-values and tests them for consistency with their respective statistic, such as <em>t</em> or <em>F</em>. Even better, it operates on PDF files automatically, enabling users to scan <a href="https://link.springer.com/article/10.3758/s13428-015-0664-2" class="external-link">massive amounts</a> of published articles.</p></li>
+<li><p>For good reason, <a href="http://statcheck.io/index.php" class="external-link">statcheck</a> by Sacha Epskamp and Michèle Nuijten is the best-known error detection software. It reconstructs <em>p</em>-values and tests them for consistency with their respective statistic, such as <em>t</em> or <em>F</em>. Even better, it operates on PDF files automatically, enabling users to scan <a href="https://link.springer.com/article/10.3758/s13428-015-0664-2" class="external-link">massive amounts</a> of published articles. Steve Haroz built a <a href="https://steveharoz.shinyapps.io/statchecksimple/" class="external-link">simple edition</a> of the statcheck web app.</p></li>
 <li><p>James Heathers’ <a href="https://peerj.com/preprints/26968v1/" class="external-link">SPRITE</a> algorithm reconstructs possible distributions of raw data from summary statistics. James also wrote a <a href="https://medium.com/hackernoon/introducing-sprite-and-the-case-of-the-carthorse-child-58683c2bfeb" class="external-link">light introduction</a> to SPRITE. For R users, it was implemented in <a href="https://lukaswallrich.github.io/rsprite2/" class="external-link">rsprite2</a> by Lukas Wallrich, building up on code by Nick Brown. Nick also developed an interactive <a href="https://shiny.ieis.tue.nl/sprite/" class="external-link">Shiny app</a> for SPRITE based on R. Jordan Anaya developed a <a href="http://www.prepubmed.org/sprite/" class="external-link">Python-based app</a>.</p></li>
+<li><p>The R package <a href="https://cran.r-project.org/package=validate" class="external-link">validate</a> by Mark P.J. van der Loo provides numerous tools for data checking.</p></li>
+<li><p>The delta-F test for linearity, a.k.a. the “Förster test”, was implemented in Dale J. Barr’s R package <a href="https://github.com/dalejbarr/forsterUVA" class="external-link">forsterUVA</a>.</p></li>
 <li>
 <p>Several R packages leverage the Benford distribution of naturally occurring numbers to assess whether reported numbers are, in fact, natural. These packages include:</p>
 <ul>
@@ -98,8 +105,13 @@
 <li><p><a href="https://koenderks.github.io/digitTests/index.html" class="external-link">digitTests</a> by Koen Derks not only conducts Benford testing but also checks if values are repeated more often than expected.</p></li>
 </ul>
 </li>
-<li><p>Emerging from the Pruitt investigations, the R package <a href="https://github.com/Sorbus-torminalis/twopointzerothree/" class="external-link">twopointzerothree</a> (by an anonymous developer) checks data for sequences of perfectly correlated numbers. These numbers are either duplicates of each other or they are duplicates offset by some constant amount; hence the name.</p></li>
-<li><p>The delta-F test for linearity, a.k.a. the “Förster test”, was implemented in Dale J. Barr’s R package <a href="https://github.com/dalejbarr/forsterUVA" class="external-link">forsterUVA</a>.</p></li>
+<li>
+<p>Emerging from the Pruitt investigations, there is now R software for analyzing sequences:</p>
+<ul>
+<li><p>The package <a href="https://github.com/Sorbus-torminalis/twopointzerothree/" class="external-link">twopointzerothree</a> (by an anonymous developer) checks data for sequences of perfectly correlated numbers. These numbers are either duplicates of each other or they are duplicates offset by some constant amount; hence the name.</p></li>
+<li><p>Similarly, the <a href="https://github.com/alrutten/sequenceSniffer" class="external-link">sequenceSniffer</a> app by Anne Rutten detects repetitions in sequences.</p></li>
+</ul>
+</li>
 </ul></main>
 </div>
 
@@ -112,7 +124,7 @@
 
 <div class="pkgdown-footer-right">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
     </footer>

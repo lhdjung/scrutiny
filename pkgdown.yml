@@ -1,14 +1,16 @@
 pandoc: 2.7.3
-pkgdown: 2.0.1
+pkgdown: 2.0.6
 pkgdown_sha: ~
 articles:
+  consistency-tests: consistency-tests.html
   debit: debit.html
   grim: grim.html
+  grimmer: grimmer.html
   infrastructure: infrastructure.html
   related: related.html
   rounding: rounding.html
   wrangling: wrangling.html
-last_built: 2022-01-13T15:37Z
+last_built: 2022-08-14T14:30Z
 urls:
   reference: https://lhdjung.github.io/scrutiny/reference
   article: https://lhdjung.github.io/scrutiny/articles

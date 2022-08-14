@@ -6,7 +6,7 @@ Set percent to TRUE if the x values are percentages. This will
 convert x values to decimals and adjust the decimal count accordingly.
 Display intermediary numbers from GRIM-testing in columns by setting
 show_rec to TRUE.
-For summary statistics, call audit() on the results."><title>GRIM-test many cases at once — grim_map • scrutiny</title><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.1.0/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.1.0/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous"><!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="GRIM-test many cases at once — grim_map"><meta property="og:description" content="Call grim_map() to GRIM-test any number of combinations of
+For summary statistics, call audit() on the results."><title>GRIM-test many cases at once — grim_map • scrutiny</title><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.1.3/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.1.3/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous"><!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="GRIM-test many cases at once — grim_map"><meta property="og:description" content="Call grim_map() to GRIM-test any number of combinations of
 mean/proportion, sample size, and number of items. Mapping function for
 GRIM-testing.
 Set percent to TRUE if the x values are percentages. This will
@@ -24,14 +24,14 @@ For summary statistics, call audit() on the results."><!-- mathjax --><script sr
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div id="navbar" class="collapse navbar-collapse ms-2">
+    <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
@@ -40,11 +40,13 @@ For summary statistics, call audit() on the results."><!-- mathjax --><script sr
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <h6 class="dropdown-header" data-toc-skip>Consistency tests</h6>
     <a class="dropdown-item" href="../articles/grim.html">GRIM</a>
+    <a class="dropdown-item" href="../articles/grimmer.html">GRIMMER</a>
     <a class="dropdown-item" href="../articles/debit.html">DEBIT</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Infrastructure</h6>
+    <a class="dropdown-item" href="../articles/infrastructure.html">General infrastructure</a>
+    <a class="dropdown-item" href="../articles/consistency-tests.html">Implementing consistency tests</a>
     <a class="dropdown-item" href="../articles/rounding.html">Rounding</a>
-    <a class="dropdown-item" href="../articles/infrastructure.html">Infrastructure beyond rounding</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Other</h6>
     <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
@@ -88,21 +90,22 @@ convert <code>x</code> values to decimals and adjust the decimal count according
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">grim_map</span><span class="op">(</span>
-  <span class="va">data</span>,
-  items <span class="op">=</span> <span class="fl">1</span>,
-  percent <span class="op">=</span> <span class="cn">FALSE</span>,
-  x <span class="op">=</span> <span class="cn">NULL</span>,
-  n <span class="op">=</span> <span class="cn">NULL</span>,
-  show_rec <span class="op">=</span> <span class="cn">FALSE</span>,
-  show_prob <span class="op">=</span> <span class="cn">FALSE</span>,
-  rounding <span class="op">=</span> <span class="st">"up_or_down"</span>,
-  threshold <span class="op">=</span> <span class="fl">5</span>,
-  symmetric <span class="op">=</span> <span class="cn">FALSE</span>,
-  tolerance <span class="op">=</span> <span class="va">.Machine</span><span class="op">$</span><span class="va">double.eps</span><span class="op">^</span><span class="fl">0.5</span>,
-  testables_only <span class="op">=</span> <span class="cn">FALSE</span>,
-  extra <span class="op">=</span> <span class="cn">Inf</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">grim_map</span><span class="op">(</span></span>
+<span>  <span class="va">data</span>,</span>
+<span>  items <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  merge_items <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  percent <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  x <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  n <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  show_rec <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  show_prob <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  rounding <span class="op">=</span> <span class="st">"up_or_down"</span>,</span>
+<span>  threshold <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>  symmetric <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  tolerance <span class="op">=</span> <span class="va">.Machine</span><span class="op">$</span><span class="va">double.eps</span><span class="op">^</span><span class="fl">0.5</span>,</span>
+<span>  testables_only <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  extra <span class="op">=</span> <span class="cn">Inf</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -111,47 +114,74 @@ convert <code>x</code> values to decimals and adjust the decimal count according
 <dd><p>Data frame with columns <code>x</code>, <code>n</code>, and optionally <code>items</code> (see
 documentation for <code><a href="grim.html">grim()</a></code>. By default, any other columns in <code>data</code> will be
 returned alongside GRIM test results (see <code>extra</code> below).</p></dd>
+
+
 <dt>items</dt>
 <dd><p>Integer. If there is no <code>items</code> column in <code>data</code>, this specifies
 the number of items composing the <code>x</code> values. Default is 1, the most common
 case.</p></dd>
+
+
+<dt>merge_items</dt>
+<dd><p>Boolean. If <code>TRUE</code> (the default), there will be no <code>items</code>
+column in the output. Instead, values from an <code>items</code> column or argument
+will be multiplied with values in the <code>n</code> column. This does not affect
+GRIM-testing.</p></dd>
+
+
 <dt>percent</dt>
 <dd><p>Boolean. Set <code>percent</code> to <code>TRUE</code> if the <code>x</code> values are
 percentages. This will convert them to decimal numbers and adjust the
 decimal count (i.e., increase it by 2). It also affects the <code>ratio</code> column.
 Default is <code>FALSE</code>.</p></dd>
+
+
 <dt>x, n</dt>
-<dd><p>Optionally specify which columns from <code>data</code> contain the means
-(<code>x</code>) and/or sample sizes (<code>n</code>). If not specified here, <code>data</code> itself needs
-to contain columns by those names. Default is <code>NULL</code>.</p></dd>
+<dd><p>Optionally, specify these arguments as column names in <code>data</code>.</p></dd>
+
+
 <dt>show_rec</dt>
 <dd><p>Boolean. If set to <code>TRUE</code>, the reconstructed numbers from
 GRIM-testing are shown as columns. See section <em>Reconstructed numbers</em>
 below. Default is <code>FALSE</code>.</p></dd>
+
+
 <dt>show_prob</dt>
 <dd><p>Boolean. If set to <code>TRUE</code>, adds a <code>prob</code> column that
 contains the probability of GRIM inconsistency. This is simply the <code>ratio</code>
 column censored to range between 0 and 1. Default is <code>FALSE</code>.</p></dd>
+
+
 <dt>rounding, threshold, symmetric, tolerance</dt>
 <dd><p>Further parameters of
 GRIM-testing; see documentation for <code><a href="grim.html">grim()</a></code>.</p></dd>
+
+
 <dt>testables_only</dt>
 <dd><p>Boolean. If <code>testables_only</code> is set to <code>TRUE</code>, only
 GRIM-testable cases (i.e., those with a positive GRIM ratio) are included.
 Default is <code>FALSE</code>.</p></dd>
+
+
 <dt>extra</dt>
 <dd><p>String or integer. The other column(s) from <code>data</code> to be
 returned in the output tibble alongside test results, referenced by their
 name(s) or number(s). Default is <code>Inf</code>, which returns all columns. To
 return none of them, set <code>extra</code> to 0.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A tibble with these columns --</p><ul><li><p><code>x</code>, <code>n</code>, <code>items</code>: the inputs.</p></li>
+    
+
+<p>A tibble with these columns --</p><ul><li><p><code>x</code>, <code>n</code>: the inputs.</p></li>
 <li><p><code>consistency</code>: GRIM consistency of <code>x</code>, <code>n</code>, and <code>items</code>.</p></li>
 <li><p><code>&lt;extra&gt;</code>: any columns from <code>data</code> other than <code>x</code>, <code>n</code>, and <code>items</code>.</p></li>
 <li><p><code>ratio</code>: the GRIM ratio; see <code><a href="grim_total.html">grim_ratio()</a></code>.</p></li>
-</ul><p>The tibble has the <code>scr_grim_map</code> class, which is recognized by the <code><a href="audit.html">audit()</a></code>generic.</p>
+</ul><p>The tibble has the <code>scr_grim_map</code> class, which is recognized by the <code><a href="audit.html">audit()</a></code></p>
+
+
+<p>generic.</p>
     </div>
     <div class="section level2">
     <h2 id="reconstructed-numbers">Reconstructed numbers<a class="anchor" aria-label="anchor" href="#reconstructed-numbers"></a></h2>
@@ -180,11 +210,18 @@ columns --</p><ol><li><p><code>incons_cases</code>: number of GRIM-inconsistent 
 positive ratio).</p></li>
 <li><p><code>testable_rate</code>: proportion of GRIM-testable value sets.</p></li>
 </ol></div>
+    <div class="section level2">
+    <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
+    <p>Brown, N. J. L., &amp; Heathers, J. A. J. (2017). The GRIM Test: A
+Simple Technique Detects Numerous Anomalies in the Reporting of Results in
+Psychology. <em>Social Psychological and Personality Science</em>, 8(4), 363–369.
+https://journals.sagepub.com/doi/10.1177/1948550616673876</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co"># Use `grim_map()` on data like these:</span></span>
-<span class="r-in"><span class="va">pigs1</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Use `grim_map()` on data like these:</span></span></span>
+<span class="r-in"><span><span class="va">pigs1</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 12 × 2</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    x         n</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
@@ -200,60 +237,63 @@ positive ratio).</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> 6.89     31</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">11</span> 5.00     25</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">12</span> 0.24     28</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># The `consistency` column shows</span></span>
-<span class="r-in"><span class="co"># whether the values to its left</span></span>
-<span class="r-in"><span class="co"># are GRIM-consistent:</span></span>
-<span class="r-in"><span class="va">pigs1</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span>
-<span class="r-in">  <span class="fu">grim_map</span><span class="op">(</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 12 × 5</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    x         n items consistency ratio</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> 7.22     32     1 TRUE         0.68</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> 4.74     25     1 FALSE        0.75</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> 5.23     29     1 FALSE        0.71</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> 2.57     24     1 FALSE        0.76</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> 6.77     27     1 FALSE        0.73</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> 2.68     28     1 TRUE         0.72</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> 7.01     29     1 FALSE        0.71</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> 7.38     26     1 TRUE         0.74</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> 3.14     27     1 FALSE        0.73</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> 6.89     31     1 FALSE        0.69</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">11</span> 5.00     25     1 TRUE         0.75</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">12</span> 0.24     28     1 FALSE        0.72</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Display intermediary numbers from</span></span>
-<span class="r-in"><span class="co"># GRIM-testing with `show_rec = TRUE`:</span></span>
-<span class="r-in"><span class="va">pigs1</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span>
-<span class="r-in">  <span class="fu">grim_map</span><span class="op">(</span>show_rec <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 12 × 12</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    x         n items consistency rec_sum rec_x_upper rec_x_lower</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> 7.22     32     1 TRUE         231.          7.25       7.22 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> 4.74     25     1 FALSE        118.          4.76       4.72 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> 5.23     29     1 FALSE        152.          5.24       5.21 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> 2.57     24     1 FALSE         61.7         2.58       2.54 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> 6.77     27     1 FALSE        183.          6.78       6.74 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> 2.68     28     1 TRUE          75.0         2.71       2.68 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> 7.01     29     1 FALSE        203.          7.03       7    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> 7.38     26     1 TRUE         192.          7.38       7.35 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> 3.14     27     1 FALSE         84.8         3.15       3.11 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> 6.89     31     1 FALSE        214.          6.90       6.87 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">11</span> 5.00     25     1 TRUE         125           5          5    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">12</span> 0.24     28     1 FALSE          6.72        0.25       0.214</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># … with 5 more variables: rec_x_upper_rounded_up &lt;dbl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   rec_x_upper_rounded_down &lt;dbl&gt;, rec_x_lower_rounded_up &lt;dbl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   rec_x_lower_rounded_down &lt;dbl&gt;, ratio &lt;dbl&gt;</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Get summaries with `audit()`:</span></span>
-<span class="r-in"><span class="va">pigs1</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span>
-<span class="r-in">  <span class="fu">grim_map</span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span>
-<span class="r-in">  <span class="fu"><a href="audit.html">audit</a></span><span class="op">(</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The `consistency` column shows</span></span></span>
+<span class="r-in"><span><span class="co"># whether the values to its left</span></span></span>
+<span class="r-in"><span><span class="co"># are GRIM-consistent:</span></span></span>
+<span class="r-in"><span><span class="va">pigs1</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+<span class="r-in"><span>  <span class="fu">grim_map</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 12 × 4</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    x         n consistency ratio</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> 7.22     32 TRUE         0.68</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> 4.74     25 FALSE        0.75</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> 5.23     29 FALSE        0.71</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> 2.57     24 FALSE        0.76</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> 6.77     27 FALSE        0.73</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> 2.68     28 TRUE         0.72</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> 7.01     29 FALSE        0.71</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> 7.38     26 TRUE         0.74</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> 3.14     27 FALSE        0.73</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> 6.89     31 FALSE        0.69</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">11</span> 5.00     25 TRUE         0.75</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">12</span> 0.24     28 FALSE        0.72</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Display intermediary numbers from</span></span></span>
+<span class="r-in"><span><span class="co"># GRIM-testing with `show_rec = TRUE`:</span></span></span>
+<span class="r-in"><span><span class="va">pigs1</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+<span class="r-in"><span>  <span class="fu">grim_map</span><span class="op">(</span>show_rec <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 12 × 11</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    x         n consist…¹ rec_sum rec_x…² rec_x…³ rec_x…⁴ rec_x…⁵ rec_x…⁶ rec_x…⁷</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> 7.22     32 TRUE       231.     7.25    7.22     7.25    7.25    7.22    7.22</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> 4.74     25 FALSE      118.     4.76    4.72     4.76    4.76    4.72    4.72</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> 5.23     29 FALSE      152.     5.24    5.21     5.24    5.24    5.21    5.21</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> 2.57     24 FALSE       61.7    2.58    2.54     2.58    2.58    2.54    2.54</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> 6.77     27 FALSE      183.     6.78    6.74     6.78    6.78    6.74    6.74</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> 2.68     28 TRUE        75.0    2.71    2.68     2.71    2.71    2.68    2.68</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> 7.01     29 FALSE      203.     7.03    7.00     7.03    7.03    7       7   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> 7.38     26 TRUE       192.     7.38    7.35     7.38    7.38    7.35    7.35</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> 3.14     27 FALSE       84.8    3.15    3.11     3.15    3.15    3.11    3.11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> 6.89     31 FALSE      214.     6.90    6.87     6.9     6.9     6.87    6.87</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">11</span> 5.00     25 TRUE       125      5.00    5.00     5       5       5       5   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">12</span> 0.24     28 FALSE        6.72   0.250   0.214    0.25    0.25    0.21    0.21</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># … with 1 more variable: ratio &lt;dbl&gt;, and abbreviated variable names</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   ¹​consistency, ²​rec_x_upper, ³​rec_x_lower, ⁴​rec_x_upper_rounded_up,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   ⁵​rec_x_upper_rounded_down, ⁶​rec_x_lower_rounded_up,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   ⁷​rec_x_lower_rounded_down</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ Use `colnames()` to see all variable names</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Get summaries with `audit()`:</span></span></span>
+<span class="r-in"><span><span class="va">pigs1</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+<span class="r-in"><span>  <span class="fu">grim_map</span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="audit.html">audit</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 7</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   incons_cases all_cases incons_rate mean_grim_ratio incons_to_ratio</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>            8        12       0.667           0.724           0.921</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># … with 2 more variables: testable_cases &lt;dbl&gt;, testable_rate &lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   incons_cases all_cases incons_rate mean_grim_ratio incons_to…¹ testa…² testa…³</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>            8        12       0.667           0.724       0.921      12       1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># … with abbreviated variable names ¹​incons_to_ratio, ²​testable_cases,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   ³​testable_rate</span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
@@ -265,7 +305,7 @@ positive ratio).</p></li>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
     </footer></div>

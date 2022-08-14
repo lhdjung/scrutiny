@@ -13,7 +13,7 @@ point.
 seq_endpoint_df() and seq_distance_df() are variants that create a data
 frame. Further columns can be added as in tibble::tibble(). Regular
 arguments are the same as in the respective non-df function, but with a dot
-before each."><title>Sequence generation at decimal level — seq_endpoint • scrutiny</title><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.1.0/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.1.0/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous"><!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Sequence generation at decimal level — seq_endpoint"><meta property="og:description" content="Functions that provide a smooth interface to generating
+before each."><title>Sequence generation at decimal level — seq_endpoint • scrutiny</title><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.1.3/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.1.3/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous"><!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Sequence generation at decimal level — seq_endpoint"><meta property="og:description" content="Functions that provide a smooth interface to generating
 sequences based on the input values' decimal depth. Each function creates a
 sequence with a step size of one unit on the level of the input values'
 ultimate decimal digit (e.g., 2.45, 2.46, 2.47, ...):
@@ -38,14 +38,14 @@ before each."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/lib
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div id="navbar" class="collapse navbar-collapse ms-2">
+    <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
@@ -54,11 +54,13 @@ before each."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/lib
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <h6 class="dropdown-header" data-toc-skip>Consistency tests</h6>
     <a class="dropdown-item" href="../articles/grim.html">GRIM</a>
+    <a class="dropdown-item" href="../articles/grimmer.html">GRIMMER</a>
     <a class="dropdown-item" href="../articles/debit.html">DEBIT</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Infrastructure</h6>
+    <a class="dropdown-item" href="../articles/infrastructure.html">General infrastructure</a>
+    <a class="dropdown-item" href="../articles/consistency-tests.html">Implementing consistency tests</a>
     <a class="dropdown-item" href="../articles/rounding.html">Rounding</a>
-    <a class="dropdown-item" href="../articles/infrastructure.html">Infrastructure beyond rounding</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Other</h6>
     <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
@@ -106,34 +108,33 @@ before each.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">seq_endpoint</span><span class="op">(</span><span class="va">from</span>, <span class="va">to</span>, offset_from <span class="op">=</span> <span class="fl">0</span>, offset_to <span class="op">=</span> <span class="fl">0</span>, string_output <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-
-<span class="fu">seq_distance</span><span class="op">(</span>
-  <span class="va">from</span>,
-  length_out <span class="op">=</span> <span class="fl">10</span>,
-  dir <span class="op">=</span> <span class="fl">1</span>,
-  offset_from <span class="op">=</span> <span class="fl">0</span>,
-  string_output <span class="op">=</span> <span class="cn">TRUE</span>
-<span class="op">)</span>
-
-<span class="fu">seq_endpoint_df</span><span class="op">(</span>
-  <span class="va">.from</span>,
-  <span class="va">.to</span>,
-  <span class="va">...</span>,
-  .offset_from <span class="op">=</span> <span class="fl">0</span>,
-  .offset_to <span class="op">=</span> <span class="fl">0</span>,
-  .string_output <span class="op">=</span> <span class="cn">TRUE</span>
-<span class="op">)</span>
-
-<span class="fu">seq_distance_df</span><span class="op">(</span>
-  <span class="va">.from</span>,
-  <span class="va">...</span>,
-  .length_out <span class="op">=</span> <span class="fl">10</span>,
-  .dir <span class="op">=</span> <span class="fl">1</span>,
-  .offset_from <span class="op">=</span> <span class="fl">0</span>,
-  .offset_to <span class="op">=</span> <span class="fl">0</span>,
-  .string_output <span class="op">=</span> <span class="cn">TRUE</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">seq_endpoint</span><span class="op">(</span><span class="va">from</span>, <span class="va">to</span>, offset_from <span class="op">=</span> <span class="fl">0</span>, offset_to <span class="op">=</span> <span class="fl">0</span>, string_output <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">seq_distance</span><span class="op">(</span></span>
+<span>  <span class="va">from</span>,</span>
+<span>  length_out <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>  dir <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  offset_from <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  string_output <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">seq_endpoint_df</span><span class="op">(</span></span>
+<span>  <span class="va">.from</span>,</span>
+<span>  <span class="va">.to</span>,</span>
+<span>  <span class="va">...</span>,</span>
+<span>  .offset_from <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  .offset_to <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  .string_output <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">seq_distance_df</span><span class="op">(</span></span>
+<span>  <span class="va">.from</span>,</span>
+<span>  <span class="va">...</span>,</span>
+<span>  .length_out <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>  .dir <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  .offset_from <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  .string_output <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -141,35 +142,53 @@ before each.</p>
     <dl><dt>from, .from</dt>
 <dd><p>Numeric (or string coercible to numeric). Starting point of
 the sequence.</p></dd>
+
+
 <dt>to, .to</dt>
 <dd><p>Numeric (or string coercible to numeric). Endpoint of the
 sequence. Only in <code>seq_endpoint()</code> and <code>seq_endpoint_df()</code>.</p></dd>
+
+
 <dt>offset_from, .offset_from</dt>
 <dd><p>Integer. If set to a non-zero number, the
 starting point will be offset by that many units on the level of the last
 decimal digit. Default is <code>0</code>.</p></dd>
+
+
 <dt>offset_to, .offset_to</dt>
 <dd><p>Integer. If set to a non-zero number, the
 endpoint will be offset by that many units on the level of the last decimal
 digit. Default is <code>0</code>. Only in <code>seq_endpoint()</code> and <code>seq_endpoint_df()</code>.</p></dd>
+
+
 <dt>string_output, .string_output</dt>
-<dd><p>Boolean. If <code>TRUE</code> (the default), the
-output is a string vector. Decimal places are then padded with zeros to
-match <code>from</code>'s (or <code>to</code>'s) number of decimal places.</p></dd>
+<dd><p>Boolean or string. If <code>TRUE</code> (the
+default), the output is a string vector. Decimal places are then padded
+with zeros to match <code>from</code>'s (or <code>to</code>'s) number of decimal places. <code>"auto"</code>
+works like <code>TRUE</code> if and only if <code>from</code> (<code>.from</code>) is a string.</p></dd>
+
+
 <dt>length_out, .length_out</dt>
 <dd><p>Integer. Length of the output vector (i.e., the
 number of its values). Default is <code>10</code>. Only in <code>seq_distance()</code> and
 <code>seq_distance_df()</code>.</p></dd>
+
+
 <dt>dir, .dir</dt>
 <dd><p>Integer. If set to <code>-1</code>, the sequence goes backward. Default
 is <code>1</code>. Only in <code>seq_distance()</code> and <code>seq_distance_df()</code>.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Further columns, added as in <code><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble::tibble()</a></code>. Only in
 <code>seq_endpoint_df()</code> and <code>seq_distance_df()</code>.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>String by default of <code>string_output</code>, numeric otherwise.</p>
+    
+
+<p>String by default of <code>string_output</code>, numeric otherwise.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -184,41 +203,45 @@ that by default (of <code>string_output</code>).</p>
 <p>These functions are scrutiny's take on <code><a href="https://rdrr.io/r/base/seq.html" class="external-link">base::seq()</a></code>, and themselves
 wrappers around it.</p>
     </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><code><a href="seq_disperse.html">seq_disperse()</a></code> for sequences centered around the input.</p></div>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co"># Sequence between two points:</span></span>
-<span class="r-in"><span class="fu">seq_endpoint</span><span class="op">(</span>from <span class="op">=</span> <span class="fl">4.7</span>, to <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Sequence between two points:</span></span></span>
+<span class="r-in"><span><span class="fu">seq_endpoint</span><span class="op">(</span>from <span class="op">=</span> <span class="fl">4.7</span>, to <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "4.7" "4.8" "4.9" "5.0"</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Sequence of some length; default is 10:</span></span>
-<span class="r-in"><span class="fu">seq_distance</span><span class="op">(</span>from <span class="op">=</span> <span class="fl">0.93</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Sequence of some length; default is 10:</span></span></span>
+<span class="r-in"><span><span class="fu">seq_distance</span><span class="op">(</span>from <span class="op">=</span> <span class="fl">0.93</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "0.93" "0.94" "0.95" "0.96" "0.97" "0.98" "0.99" "1.00" "1.01" "1.02"</span>
-<span class="r-in"><span class="fu">seq_distance</span><span class="op">(</span>from <span class="op">=</span> <span class="fl">0.93</span>, length_out <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu">seq_distance</span><span class="op">(</span>from <span class="op">=</span> <span class="fl">0.93</span>, length_out <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "0.93" "0.94" "0.95" "0.96" "0.97"</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Both of these functions can offset the</span></span>
-<span class="r-in"><span class="co"># starting point...</span></span>
-<span class="r-in"><span class="fu">seq_endpoint</span><span class="op">(</span>from <span class="op">=</span> <span class="fl">14.2</span>, to <span class="op">=</span> <span class="fl">15</span>, offset_from <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Both of these functions can offset the</span></span></span>
+<span class="r-in"><span><span class="co"># starting point...</span></span></span>
+<span class="r-in"><span><span class="fu">seq_endpoint</span><span class="op">(</span>from <span class="op">=</span> <span class="fl">14.2</span>, to <span class="op">=</span> <span class="fl">15</span>, offset_from <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "14.6" "14.7" "14.8" "14.9" "15.0"</span>
-<span class="r-in"><span class="fu">seq_distance</span><span class="op">(</span>from <span class="op">=</span> <span class="fl">14.2</span>, offset_from <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu">seq_distance</span><span class="op">(</span>from <span class="op">=</span> <span class="fl">14.2</span>, offset_from <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "14.6" "14.7" "14.8" "14.9" "15.0" "15.1" "15.2" "15.3" "15.4" "15.5"</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># ...but only `seq_endpoint()` can offset the</span></span>
-<span class="r-in"><span class="co"># endpoint, because of its `to` argument:</span></span>
-<span class="r-in"><span class="fu">seq_endpoint</span><span class="op">(</span>from <span class="op">=</span> <span class="fl">9.5</span>, to <span class="op">=</span> <span class="fl">10</span>, offset_to <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># ...but only `seq_endpoint()` can offset the</span></span></span>
+<span class="r-in"><span><span class="co"># endpoint, because of its `to` argument:</span></span></span>
+<span class="r-in"><span><span class="fu">seq_endpoint</span><span class="op">(</span>from <span class="op">=</span> <span class="fl">9.5</span>, to <span class="op">=</span> <span class="fl">10</span>, offset_to <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "9.5"  "9.6"  "9.7"  "9.8"  "9.9"  "10.0" "10.1" "10.2"</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># In return, `seq_distance()` can reverse its direction:</span></span>
-<span class="r-in"><span class="fu">seq_distance</span><span class="op">(</span>from <span class="op">=</span> <span class="fl">20.03</span>, dir <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># In return, `seq_distance()` can reverse its direction:</span></span></span>
+<span class="r-in"><span><span class="fu">seq_distance</span><span class="op">(</span>from <span class="op">=</span> <span class="fl">20.03</span>, dir <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "20.03" "20.02" "20.01" "20.00" "19.99" "19.98" "19.97" "19.96" "19.95"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [10] "19.94"</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Both functions have a `_df` variant that returns</span></span>
-<span class="r-in"><span class="co"># a data frame. Arguments are the same but with a</span></span>
-<span class="r-in"><span class="co"># dot, and further columns can be added as in</span></span>
-<span class="r-in"><span class="co"># `tibble::tibble()`:</span></span>
-<span class="r-in"><span class="fu">seq_endpoint_df</span><span class="op">(</span>.from <span class="op">=</span> <span class="fl">4.7</span>, .to <span class="op">=</span> <span class="fl">5</span>, n <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Both functions have a `_df` variant that returns</span></span></span>
+<span class="r-in"><span><span class="co"># a data frame. Arguments are the same but with a</span></span></span>
+<span class="r-in"><span><span class="co"># dot, and further columns can be added as in</span></span></span>
+<span class="r-in"><span><span class="co"># `tibble::tibble()`:</span></span></span>
+<span class="r-in"><span><span class="fu">seq_endpoint_df</span><span class="op">(</span>.from <span class="op">=</span> <span class="fl">4.7</span>, .to <span class="op">=</span> <span class="fl">5</span>, n <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 4 × 2</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   x         n</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
@@ -226,7 +249,7 @@ wrappers around it.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> 4.8      20</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> 4.9      20</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> 5.0      20</span>
-<span class="r-in"><span class="fu">seq_distance_df</span><span class="op">(</span>.from <span class="op">=</span> <span class="fl">0.43</span>, .length_out <span class="op">=</span> <span class="fl">5</span>, sd <span class="op">=</span> <span class="fl">0.08</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu">seq_distance_df</span><span class="op">(</span>.from <span class="op">=</span> <span class="fl">0.43</span>, .length_out <span class="op">=</span> <span class="fl">5</span>, sd <span class="op">=</span> <span class="fl">0.08</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 5 × 2</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   x        sd</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
@@ -246,7 +269,7 @@ wrappers around it.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
     </footer></div>

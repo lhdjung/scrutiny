@@ -8,7 +8,7 @@ inconsistent ones are red. These and other parameters of the underlying
 geoms can be controlled via arguments.
 The background raster follows the rounding argument from the grim_map()
 call (unless any of the plotted mean or proportion values has more than 2
-decimal places, in which case a gradient is shown, not a raster)."><title>Visualize GRIM test results — grim_plot • scrutiny</title><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.1.0/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.1.0/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous"><!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Visualize GRIM test results — grim_plot"><meta property="og:description" content="grim_plot() visualizes summary data and their mutual GRIM
+decimal places, in which case a gradient is shown, not a raster)."><title>Visualize GRIM test results — grim_plot • scrutiny</title><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.1.3/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.1.3/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous"><!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Visualize GRIM test results — grim_plot"><meta property="og:description" content="grim_plot() visualizes summary data and their mutual GRIM
 consistency. Call this function only on a data frame that resulted from a
 call to grim_map().
 Consistent and inconsistent value pairs from the input data frame are shown
@@ -28,14 +28,14 @@ decimal places, in which case a gradient is shown, not a raster)."><!-- mathjax 
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div id="navbar" class="collapse navbar-collapse ms-2">
+    <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
@@ -44,11 +44,13 @@ decimal places, in which case a gradient is shown, not a raster)."><!-- mathjax 
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <h6 class="dropdown-header" data-toc-skip>Consistency tests</h6>
     <a class="dropdown-item" href="../articles/grim.html">GRIM</a>
+    <a class="dropdown-item" href="../articles/grimmer.html">GRIMMER</a>
     <a class="dropdown-item" href="../articles/debit.html">DEBIT</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Infrastructure</h6>
+    <a class="dropdown-item" href="../articles/infrastructure.html">General infrastructure</a>
+    <a class="dropdown-item" href="../articles/consistency-tests.html">Implementing consistency tests</a>
     <a class="dropdown-item" href="../articles/rounding.html">Rounding</a>
-    <a class="dropdown-item" href="../articles/infrastructure.html">Infrastructure beyond rounding</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Other</h6>
     <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
@@ -94,61 +96,80 @@ decimal places, in which case a gradient is shown, not a raster).</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">grim_plot</span><span class="op">(</span>
-  data <span class="op">=</span> <span class="cn">NULL</span>,
-  show_data <span class="op">=</span> <span class="cn">TRUE</span>,
-  show_raster <span class="op">=</span> <span class="cn">TRUE</span>,
-  show_gradient <span class="op">=</span> <span class="cn">TRUE</span>,
-  n <span class="op">=</span> <span class="cn">NULL</span>,
-  digits <span class="op">=</span> <span class="cn">NULL</span>,
-  rounding <span class="op">=</span> <span class="st">"up_or_down"</span>,
-  color_cons <span class="op">=</span> <span class="st">"royalblue1"</span>,
-  color_incons <span class="op">=</span> <span class="st">"red"</span>,
-  tile_alpha <span class="op">=</span> <span class="fl">1</span>,
-  tile_size <span class="op">=</span> <span class="fl">1.5</span>,
-  raster_alpha <span class="op">=</span> <span class="fl">1</span>,
-  raster_color <span class="op">=</span> <span class="st">"grey75"</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">grim_plot</span><span class="op">(</span></span>
+<span>  data <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  show_data <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  show_raster <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  show_gradient <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  n <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  digits <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  rounding <span class="op">=</span> <span class="st">"up_or_down"</span>,</span>
+<span>  color_cons <span class="op">=</span> <span class="st">"royalblue1"</span>,</span>
+<span>  color_incons <span class="op">=</span> <span class="st">"red"</span>,</span>
+<span>  tile_alpha <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  tile_size <span class="op">=</span> <span class="fl">1.5</span>,</span>
+<span>  raster_alpha <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  raster_color <span class="op">=</span> <span class="st">"grey75"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>data</dt>
 <dd><p>Data frame. Result of a call to <code><a href="grim_map.html">grim_map()</a></code>.</p></dd>
+
+
 <dt>show_data</dt>
 <dd><p>Boolean. If set to <code>FALSE</code>, test results from the data are
 not displayed. Choose this if you only want to show the background raster.
 You can then control plot parameters directly via the <code>n</code>, <code>digits</code>, and
 <code>rounding</code> arguments. Default is <code>TRUE</code>.</p></dd>
+
+
 <dt>show_raster</dt>
 <dd><p>Boolean. If <code>TRUE</code> (the default), the plot has a
 background raster.</p></dd>
+
+
 <dt>show_gradient</dt>
 <dd><p>Boolean. If the number of decimal places is 3 or
 greater, should a gradient be shown to signal the overall probability of
 GRIM inconsistency? Default is <code>TRUE</code>.</p></dd>
+
+
 <dt>n</dt>
 <dd><p>Integer. Maximal value on the x-axis. Default is <code>NULL</code>, in which
 case <code>n</code> becomes <code>10 ^ digits</code> (e.g., <code>100</code> if <code>digits</code> is <code>2</code>).</p></dd>
+
+
 <dt>digits</dt>
 <dd><p>Integer. Only relevant if <code>show_data</code> is set to <code>FALSE</code>. The
 plot will then be constructed as it would be for data where all <code>x</code> values
 have this many decimal places. Default is <code>2</code>.</p></dd>
+
+
 <dt>rounding</dt>
 <dd><p>String. Only relevant if <code>show_data</code> is set to <code>FALSE</code>. The
 plot will then be constructed as it would be for data rounded in this
 particular way. Default is <code>"up_or_down"</code>.</p></dd>
+
+
 <dt>color_cons, color_incons</dt>
 <dd><p>Strings. Fill colors of the consistent and
 inconsistent scatter points. Defaults are <code>"royalblue1"</code> (consistent) and
 <code>"red"</code> (inconsistent).</p></dd>
+
+
 <dt>tile_alpha, tile_size</dt>
 <dd><p>Numeric. Further parameters of the scatter
 points: opacity and, indirectly, size. Defaults are <code>1</code> and <code>1.5</code>.</p></dd>
+
+
 <dt>raster_alpha, raster_color</dt>
 <dd><p>Numeric and string, respectively. Parameters
 of the background raster: opacity and fill color. Defaults are <code>1</code> and
 <code>"grey75"</code>.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="background-raster">Background raster<a class="anchor" aria-label="anchor" href="#background-raster"></a></h2>
@@ -171,8 +192,8 @@ data saved in the package itself, so these data don't need to be generated
 anew every time the function is called. Inconsistent value sets are marked
 with dark boxes. All other places in the raster denote consistent value
 sets. The raster is independent of the data -- it only follows the
-<code>rounding</code> specification in the <code><a href="grim_map.html">grim_map()</a></code> call and the <code>digits</code>
-argument in <code>grim_plot()</code>.</p>
+<code>rounding</code> specification in the <code><a href="grim_map.html">grim_map()</a></code> call and the <code>digits</code> argument
+in <code>grim_plot()</code>.</p>
 <p>Display an "empty" plot, one without empirical test results, by setting
 <code>show_data</code> to <code>FALSE</code>. You can then control key parameters of the plot
 with <code>digits</code> and <code>rounding</code>.</p>
@@ -186,28 +207,36 @@ or down is more careful and conservative than any other rounding procedure.
 In any case, <code>grim_plot()</code> doesn't cause this effect --- it only reveals
 it.</p>
     </div>
+    <div class="section level2">
+    <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
+    <p>Brown, N. J. L., &amp; Heathers, J. A. J. (2017). The GRIM Test: A
+Simple Technique Detects Numerous Anomalies in the Reporting of Results in
+Psychology. <em>Social Psychological and Personality Science</em>, 8(4), 363–369.
+https://journals.sagepub.com/doi/10.1177/1948550616673876</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co"># Call `grim_plot()` following `grim_map()`:</span></span>
-<span class="r-in"><span class="va">pigs1</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span>
-<span class="r-in">  <span class="fu"><a href="grim_map.html">grim_map</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span>
-<span class="r-in">  <span class="fu">grim_plot</span><span class="op">(</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Call `grim_plot()` following `grim_map()`:</span></span></span>
+<span class="r-in"><span><span class="va">pigs1</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="grim_map.html">grim_map</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+<span class="r-in"><span>  <span class="fu">grim_plot</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="grim_plot-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># If you change the rounding procedure</span></span>
-<span class="r-in"><span class="co"># in `grim_map()`, the plot will</span></span>
-<span class="r-in"><span class="co"># follow automatically:</span></span>
-<span class="r-in"><span class="va">pigs1</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span>
-<span class="r-in">  <span class="fu"><a href="grim_map.html">grim_map</a></span><span class="op">(</span>rounding <span class="op">=</span> <span class="st">"up"</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span>
-<span class="r-in">  <span class="fu">grim_plot</span><span class="op">(</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># If you change the rounding procedure</span></span></span>
+<span class="r-in"><span><span class="co"># in `grim_map()`, the plot will</span></span></span>
+<span class="r-in"><span><span class="co"># follow automatically if there is</span></span></span>
+<span class="r-in"><span><span class="co"># a difference:</span></span></span>
+<span class="r-in"><span><span class="va">pigs1</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="grim_map.html">grim_map</a></span><span class="op">(</span>rounding <span class="op">=</span> <span class="st">"ceiling"</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+<span class="r-in"><span>  <span class="fu">grim_plot</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="grim_plot-2.png" alt="" width="700" height="433"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># For percentages, the y-axis</span></span>
-<span class="r-in"><span class="co"># label also changes automatically:</span></span>
-<span class="r-in"><span class="va">pigs2</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span>
-<span class="r-in">  <span class="fu"><a href="grim_map.html">grim_map</a></span><span class="op">(</span>percent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span>
-<span class="r-in">  <span class="fu">grim_plot</span><span class="op">(</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># For percentages, the y-axis</span></span></span>
+<span class="r-in"><span><span class="co"># label also changes automatically:</span></span></span>
+<span class="r-in"><span><span class="va">pigs2</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="grim_map.html">grim_map</a></span><span class="op">(</span>percent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+<span class="r-in"><span>  <span class="fu">grim_plot</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> `x` converted from percentage</span>
 <span class="r-plt img"><img src="grim_plot-3.png" alt="" width="700" height="433"></span>
 </code></pre></div>
@@ -221,7 +250,7 @@ it.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
     </footer></div>
