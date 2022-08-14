@@ -1,10 +1,11 @@
-# scrutiny ?.?.?
+# scrutiny 0.2.0
 
 This is a massive release, with many new features and improvements all over scrutiny. Most notably, the package now includes an entirely new system for implementing consistency tests.
 
 -   A [new vignette](https://lhdjung.github.io/scrutiny/articles/consistency-tests.html) lays out how to implement consistency tests using scrutiny's infrastructure. It describes many of the features mentioned below.
 -   GRIMMER support was added, as explained in [another new vignette](https://lhdjung.github.io/scrutiny/articles/grimmer.html). All GRIM and DEBIT functions mentioned below have GRIMMER equivalents. For example, `grimmer_map_seq()` is analogous to `grim_map_seq()`.
 -   Because of the new, stricter rules for consistency tests, the output of `grim_map()` no longer includes an `items` column by default. Instead, the numbers of items (1 by default) are factored into the output's `n` column. This focuses the presentation on the essence of GRIM.
+-   GRIM and DEBIT functions are now somewhat less likely to flag value sets as inconsistent. That is because measures were taken to reduce spurious, computer-induced differences when comparing floating-point numbers. The same applies to the new GRIMMER functions.
 -   `function_map()` enables users to quickly create consistency test functions for data frames much like `grim_map()` or `debit_map()`.
 -   `grim_map_seq()` checks if GRIM inconsistencies might be due to small errors, and the true values might be close to the reported ones. It varies the inputs up and down in a specified range, holding the respective other ones constant, and tests all those combinations. For summaries, call `audit_seq()` on the results.
 -   `debit_map_seq()` does the same for DEBIT.
