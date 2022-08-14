@@ -1,28 +1,54 @@
 
-
 # Helper function used in the main function `unround()` via a vectorized version
 # right below:
-compute_rounding_bounds_scalar <- function(rounding, x_num, d_var, d) {
-  dplyr::case_when(           # Component:       (1)              (2)               (3)   (4)
-    rounding == "up_or_down"               ~ list(x_num - d_var,   x_num + d_var,   "<=", "<="),
-    rounding == "up"                       ~ list(x_num - d_var,   x_num + d_var,   "<=", "<" ),
-    rounding == "down"                     ~ list(x_num - d_var,   x_num + d_var,   "<", "<=" ),
-    rounding == "even"                     ~ list(x_num - d,       x_num + d,       "<",  "<" ),
-    rounding == "ceiling"                  ~ list(x_num - (2 * d), x_num,           "<", "<=" ),
-    rounding == "floor"                    ~ list(x_num,           x_num + (2 * d), "<=", "<" ),
-    rounding == "trunc"      & x_num > 0   ~ list(x_num,           x_num + (2 * d), "<=", "<" ),
-    rounding == "trunc"      & x_num < 0   ~ list(x_num - (2 * d), x_num,           "<", "<=" ),
-    rounding == "anti_trunc" & x_num > 0   ~ list(x_num - (2 * d), x_num,           "<", "<=" ),
-    rounding == "anti_trunc" & x_num < 0   ~ list(x_num,           x_num + (2 * d), "<=", "<" ),
-    rounding == "trunc"      & x_num == 0  ~ list(x_num - (2 * d), x_num + (2 * d), "<",  "<" ),
-    # rounding == "anti_trunc" & x_num == 0  ~ list("error_trigger_anti_trunc_zero"),
-    rounding == "anti_trunc" & x_num == 0  ~ list(NA,              NA,               NA,   NA),
-    TRUE                                   ~ list("error_trigger")
+rounding_bounds_scalar <- function(rounding, x_num, d_var, d) {
+
+  # Manage the two rounding procedures that depend on the sign of the input
+  # number, rounding with truncation and "anti-truncation":
+  if (rounding %in% c("trunc", "anti_trunc")) {
+    rounding_orig <- rounding
+    if (x_num > 0) {
+      rounding <- "trunc_x_greater"
+    } else if (x_num < 0) {
+      rounding <- "trunc_x_less"
+    } else {
+      rounding <- "trunc_x_is_0"
+    }
+
+    if (rounding_orig %in% "anti_trunc") {
+      rounding <- paste0("anti_", rounding)
+    }
+
+    out <- switch (rounding,   #     (1)              (2)               (3)    (4)
+        "trunc_x_greater"      = list(x_num,           x_num + (2 * d), "<=",  "<"),
+        "trunc_x_less"         = list(x_num - (2 * d), x_num,           "<",  "<="),
+        "trunc_x_is_0"         = list(x_num - (2 * d), x_num + (2 * d), "<",   "<"),
+        "anti_trunc_x_greater" = list(x_num - (2 * d), x_num,           "<=",  "<"),
+        "anti_trunc_x_less"    = list(x_num,           x_num + (2 * d), "<=",  "<"),
+        "anti_trunc_x_is_0"    = list(NA,        NA,        NA,   NA)
+    )
+    return(out)
+  }
+
+  # This switch-statement is evaluated for all other rounding procedures:
+  switch (rounding,  #     (1)              (2)               (3)   (4)
+        "up_or_down" = list(x_num - d_var,   x_num + d_var,   "<=", "<="),
+        "up"         = list(x_num - d_var,   x_num + d_var,   "<=",  "<"),
+        "down"       = list(x_num - d_var,   x_num + d_var,   "<",  "<="),
+        "even"       = list(x_num - d,       x_num + d,       "<",   "<"),
+        "ceiling"    = list(x_num - (2 * d), x_num,           "<",  "<="),
+        "floor"      = list(x_num,           x_num + (2 * d), "<=",  "<"),
+                       list("error_trigger")
   )
 }
 
-# The vectorized version:
-compute_rounding_bounds <- Vectorize(compute_rounding_bounds_scalar)
+
+# The above function is "scalar" (i.e., single-case only), but `unround()` is
+# vectorized: It takes arguments of length > 1. Therefore, `rounding_bounds()`
+# is created as a vectorized version of `rounding_bounds_scalar()`:
+rounding_bounds <- Vectorize(rounding_bounds_scalar)
+
+
 
 
 
@@ -107,7 +133,7 @@ compute_rounding_bounds <- Vectorize(compute_rounding_bounds_scalar)
 #'   For more about the less likely `rounding` methods, `"ceiling"`, `"floor"`,
 #'   `"trunc"`, and `"anti_trunc"`, see documentation for `round_ceiling()`.
 #'
-#' @include utils.R subset-superset.R
+#' @include utils.R
 #'
 #' @export
 #'
@@ -131,8 +157,12 @@ compute_rounding_bounds <- Vectorize(compute_rounding_bounds_scalar)
 #' unround(x = c(3.6, "5.20", 5.174))
 
 
-# Title used to be: Reconstruct lower and upper bounds for original value of
-# rounded number
+
+# # Example values:
+# x <- "2.37"
+# rounding <- "up_or_down"
+# threshold <- 5
+# digits <- NULL
 
 
 
@@ -150,8 +180,8 @@ unround <- function(x, rounding = "up_or_down", threshold = 5, digits = NULL) {
   if (is.null(digits)) {
     if (!is.character(x)) {
       cli::cli_abort(c(
-        "`x` is {an_a_type(x)}",
-        "i" = "If `digits` is not specified, `x` needs to be a string."
+        "`x` is {an_a_type(x)}.",
+        "x" = "If `digits` is not specified, `x` needs to be a string."
       ))
     }
     digits <- decimal_places(x)
@@ -167,10 +197,12 @@ unround <- function(x, rounding = "up_or_down", threshold = 5, digits = NULL) {
   # The bound helper function operates on the numeric value of `x`:
   x_num <- as.numeric(x)
 
-  # Compute the boundary values and figure out whether they are inclusive or
-  # not, going by the `rounding` argument. In order to vectorize `rounding`, the
-  # helper function at the top of the present file is called:
-  bounds <- compute_rounding_bounds(rounding, x_num, d_var, d)
+  # Calculate the boundary values and determine out whether they are inclusive
+  # or not, going by the `rounding` argument. In order to vectorize `rounding`,
+  # the helper function at the top of the present file is called:
+  bounds <- rounding_bounds(
+    rounding = rounding, x_num = x_num, d_var = d_var, d = d
+  )
 
   # Throw error if `rounding` was not specified in a valid way:
   if (list("error_trigger") %in% bounds) {
@@ -182,31 +214,15 @@ unround <- function(x, rounding = "up_or_down", threshold = 5, digits = NULL) {
     ))
   }
 
-  # # Throw error if a mathematically impossible corner case is present:
-  # if ("error_trigger_anti_trunc_zero" %in% bounds) {
-  #   cli::cli_abort(c(
-  #     "Anti-truncated numbers can't be zero",
-  #     "x" = "You specified \"anti_trunc\" for zero, which is mathematically \\
-  #     impossible: Rounding with the anti-truncating method always turns away \\
-  #     from zero."
-  #   ))
-  # }
-
   # Split the `bounds` list up into its four component vectors:
-  lower      <-   as.numeric(bounds[1, ])  # lower bound
-  upper      <-   as.numeric(bounds[2, ])  # upper bound
-  sign_lower <- as.character(bounds[3, ])  # lower bound inclusive or not
-  sign_upper <- as.character(bounds[4, ])  # upper bound inclusive or not
+  lower      <-   as.numeric(bounds[1, ]) # lower bound
+  upper      <-   as.numeric(bounds[2, ]) # upper bound
+  sign_lower <- as.character(bounds[3, ]) # lower bound inclusive (`"<="`)?
+  sign_upper <- as.character(bounds[4, ]) # upper bound inclusive (`"<="`)?
 
   # Translate the inequation signs into Boolean values for the resulting tibble:
   incl_lower <- dplyr::if_else(sign_lower == "<=", TRUE, FALSE)
   incl_upper <- dplyr::if_else(sign_upper == "<=", TRUE, FALSE)
-
-  # If `rounding` is either of `"ceiling"`, `"floor"`, `"trunc"`, and
-  # `"anti_trunc"`, one bound is always equal to the rounded value. In that
-  # case, change the respective inequation sign to an equation sign:
-  sign_lower <- dplyr::if_else(x_num == lower, "==", sign_lower)
-  sign_upper <- dplyr::if_else(x_num == upper, "==", sign_upper)
 
   # Prepare a string that displays the range with its appropriate signs:
   range <- as.character(glue::glue(

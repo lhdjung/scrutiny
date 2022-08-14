@@ -24,7 +24,7 @@ Integer. Number of decimal places in \code{x}.
 vector, or in a string vector that can be coerced to numeric.
 
 \code{decimal_places_scalar()} is much faster but only takes a single input. It
-is recommended as a helper within other single-case functions.
+is useful as a helper within other single-case functions.
 }
 \details{
 Decimal places in numeric values can't be counted accurately if the
@@ -33,7 +33,7 @@ the decimal point. A possible solutions is to enter the number as a string
 to count all digits. (Converting to string is not sufficient -- those
 numbers need to be \emph{entered} in quotes.)
 
-The function ignores any whitespace at the end of a string, so it won't
+The functions ignore any whitespace at the end of a string, so they won't
 mistake spaces for decimal places.
 }
 \section{Trailing zeros}{
@@ -50,7 +50,7 @@ If you need to enter many such values as strings, consider using
 }
 
 \examples{
-# The function works on both numeric values
+# `decimal_places()` works on both numeric values
 # and strings...
 decimal_places(x = 2.851)
 decimal_places(x = "2.851")
@@ -66,8 +66,8 @@ decimal_places(x = c(4.08, "4.08"))
 # Whitespace at the end of a string is not counted:
 decimal_places(x = "6.0     ")
 
-# This function is much faster, but only
-# works with a single number or string:
+# `decimal_places_scalar()` is much faster,
+# but only works with a single number or string:
 decimal_places_scalar(x = 8.13)
 decimal_places_scalar(x = "5.024")
 

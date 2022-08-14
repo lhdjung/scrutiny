@@ -36,8 +36,13 @@
 #' @param width Integer. Number of decimal places the mantissas should have,
 #'   including the restored zeros. Default is `NULL`, in which case the number
 #'   of characters in the longest mantissa will be used instead.
-#' @param sep Substring that separates the mantissa from the integer part.
-#'   Default is `"\\."`, which renders a decimal point.
+#' @param sep_in Substring that separates the input's mantissa from its integer
+#'   part. Default is `"\\."`, which renders a decimal point.
+#' @param sep_out Substring that will be returned in the output to separate the
+#'   mantissa from the integer part. By default, `sep_out` is the same as
+#'   `sep_in`.
+#' @param sep [[Deprecated]] Use `sep_in`, not `sep`. If `sep` is specified
+#'   nonetheless, `sep_in` takes on `sep`'s value.
 #'
 #' @return A string vector. At least some of the strings will have newly
 #'   restored zeros, unless all input values had the same number of decimal
@@ -47,7 +52,7 @@
 #'
 #' @include utils.R
 #'
-#' @seealso `decimal_places()`
+#' @seealso Wrapped functions: `sprintf()` and `decimal_places()`.
 #'
 #' @examples
 #' # By default, the target width is that of
@@ -59,69 +64,92 @@
 #' vec %>% restore_zeros(width = 6)
 
 
-restore_zeros <- function(x, width = NULL, sep = "\\.") {
-
-  # # To get trailing zeros, all elements need to be strings:
-  # x <- as.character(x)
+restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in,
+                          sep = NULL) {
 
   # Make sure no whitespace (from values that already were strings) is factored
   # into the count:
   x <- stringr::str_trim(x)
 
-  # Count characters of the integer and mantissa parts via internal helper
-  # functions:
-  # width_integer <- width_integer(x)
-  # width_mantissa <- width_mantissa(x)
+  # The deprecated `sep` argument was replaced by `sep_in`. Therefore, if `sep`
+  # is still specified...
+  if (!is.null(sep)) {
+    if (sep_in != "\\.") {
+      cli::cli_abort(c(
+        "`sep` conflicts with `sep_in`",
+        "x" = "`sep` is deprecated. It was replaced by `sep_in`.",
+        "!" = "If `sep` is still specified, `sep_in` takes on its value."
+      ))
+    } else {
+      cli::cli_warn(c(
+        "`sep` is deprecated",
+        ">" = "Use `sep_in`, not `sep`."
+      ))
+    }
 
-  parts <- stringr::str_split_fixed(x, sep, n = 2)
-  width_integer <- stringr::str_length(parts[, 1])
-  width_mantissa <- stringr::str_length(parts[, 2])
+    # ... `sep_in` needs to take on its role:
+    sep_in <- sep
+  }
 
   # Determine the maximal width to which the mantissas should be padded in
   # accordance with the `width` argument, the default of which, `NULL`, makes
-  # the function go for the maximal length of already-present mantissas:
+  # the function go by the maximal length of already-present mantissas:
   if (is.null(width)) {
+
+    # Count characters of the mantissa part:
+    parts <- stringr::str_split_fixed(x, sep_in, n = 2)
+    width_mantissa <- stringr::str_length(parts[, 2])
+
+    # Throw a warning if `x` can't be formatted with the given arguments:
     if (length(x) == 1) {
-      rlang::warn(glue::glue(
-        "If `x` has length 1, trailing zeros can't be restored without \\
-        specifying `width`."
+      cli::cli_warn(c(
+        "No trailing zeros can be restored",
+        "!" = "`x` has length 1",
+        ">" = "Specify `width` to predetermine a number of decimal places \\
+        to which `x` values should be padded."
       ))
     } else if (purrr::every(width_mantissa, `==`, 0)) {
-      rlang::warn(glue::glue(
-        "None of the {length(x)} `x` values has any decimal places, so no \\
-        zeros can be restored without specifying `width`."
+      cli::cli_warn(c(
+        "No trailing zeros can be restored",
+        "!" = "None of the {length(x)} `x` values has any decimal places.",
+        ">" = "Specify `width` to predetermine a number of decimal places \\
+        to which `x` values should be padded."
       ))
     }
+
+    # The number of decimal places to which `x` values will be padded with zeros
+    # is determined by the number of characters in the longest mantissa...
     width_target <- max(width_mantissa, na.rm = TRUE)
+
   } else {
+
+    # ... unless the user manually specified that target number via `width`:
     width_target <- width
   }
 
-  # The number of trailing zeros to be added takes the respective lengths of
-  # three variables into account: the integer part (via an internal helper
-  # function), the decimal point (i.e., 1), and the target mantissa length
-  # (determined above). Note that the integer part is only relevant for being
-  # balanced against, precisely so that it ultimately plays no role. Also note
-  # that `"i"` and `"d"` are just placeholders here, used to make sure there is
-  # exactly one `sep` substring (default is a decimal point) in each resulting
-  # string value...
-  out <- stringr::str_pad(x, width = width_integer + 1 + width_target,
-                          side = "right", pad = "i") %>%
-    stringr::str_replace(    "i", sep) %>%
-    stringr::str_replace_all("i", "0") %>%
-    stringr::str_replace(    sep, "d") %>%
-    stringr::str_replace_all(sep, "0") %>%
-    stringr::str_replace(    "d", sep)
+  # In `x`, if integers and mantissas are separated by something other than
+  # decimal points, these separators need to be temporarily changed to points,
+  # so that `sprintf()` will be able to operate on `x` below:
+  if (any(sep_in != "\\.")) {
+    x <- stringr::str_replace(x, sep_in, "\\.")
+  }
 
-  # ...unless a string has no decimal places, in which case the `sep` substring
-  # at the end of the value would be superfluous. It is removed before the
-  # output is returned:
-  dplyr::if_else(
-    stringr::str_detect(out, paste0(sep, "$")),  # used to have: "\\.$"
-    stringr::str_remove(out, sep),
-    out
-  )
+  # Assemble the formatting expression, determined by `width_target` -- the
+  # desired number of decimal places to which the `x` values should be padded:
+  out_format <- paste0("%.", width_target, "f")
+
+  # Pad `x` with the correct amount of trailing zeros:
+  out <- sprintf(out_format, as.numeric(x))
+
+  # By default, the separator in the output vector should be a decimal point,
+  # but it might have been overridden -- either directly via `sep_out` or
+  # indirectly via `sep_in` (because the default for `sep_out` is `sep_in`). If
+  # so, it now takes its place again. In any case, the output is returned:
+  if (all(sep_out == "\\.")) {
+    return(out)
+  } else {
+    return(stringr::str_replace(out, "\\.", sep_out))
+  }
 
 }
-
 

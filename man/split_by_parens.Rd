@@ -2,7 +2,7 @@
 % Please edit documentation in R/split-by-parens.R
 \name{split_by_parens}
 \alias{split_by_parens}
-\title{Split columns by parentheses}
+\title{Split columns by parentheses, brackets, braces, or similar}
 \usage{
 split_by_parens(
   .data,
@@ -28,7 +28,8 @@ also appear in the output. Default is \code{FALSE}.}
 to be better accessible for typical follow-up tasks. Default is \code{FALSE}.}
 
 \item{.sep}{String. What to split by. Either \code{"parens"}, \code{"brackets"}, or
-\code{"braces"}. Default is \code{"parens"}.}
+\code{"braces"}; or a length-2 vector of custom separators (see Examples).
+Default is \code{"parens"}.}
 
 \item{.col1, .col2}{Strings. Endings of the two column names that result from
 splitting a column. Default is \code{"x"} for \code{.col1} and \code{"sd"} for \code{.col2}.}
@@ -40,12 +41,15 @@ A tibble with string columns.
 Summary statistics are often presented like \code{"2.65 (0.27)"}.
 When working with tables from PDF, it can be tedious to separate values
 before and inside parentheses. \code{split_by_parens()} does that automatically.
+
 By default, it operates on all columns. Output can optionally be
 transformed into a longer format by setting \code{.transform} to \code{TRUE}.
+
+Choose separators other than parentheses by specifying the \code{.sep} argument.
 }
 \examples{
 # Call `split_by_parens()` on data like these:
-pigs <- tibble::tribble(
+df1 <- tibble::tribble(
   ~drone,           ~selfpilot,
   "0.09 (0.21)",    "0.19 (0.13)",
   "0.19 (0.28)",    "0.53 (0.10)",
@@ -53,32 +57,64 @@ pigs <- tibble::tribble(
   "0.15 (0.35)",    "0.57 (0.16)",
 )
 
-pigs
-
 # Basic usage:
-pigs \%>\%
+df1 \%>\%
   split_by_parens()
 
 # Name specific columns to only return those:
-pigs \%>\%
+df1 \%>\%
   split_by_parens(drone)
 
 # Pivot the data into a longer format
 # by setting `.transform` to `TRUE`:
-pigs \%>\%
+df1 \%>\%
   split_by_parens(.transform = TRUE)
 
 # Choose different column names or
 # name suffixes with `.col1` and `.col2`:
-pigs \%>\%
+df1 \%>\%
   split_by_parens(.col1 = "beta", .col2 = "se")
 
-pigs \%>\%
+df1 \%>\%
   split_by_parens(.transform = TRUE,
   .col1 = "beta", .col2 = "se")
+
+# With a different separator...
+df2 <- tibble::tribble(
+  ~drone,           ~selfpilot,
+  "0.09 [0.21]",    "0.19 [0.13]",
+  "0.19 [0.28]",    "0.53 [0.10]",
+  "0.62 [0.16]",    "0.50 [0.11]",
+  "0.15 [0.35]",    "0.57 [0.16]",
+)
+
+# ... specify `.sep`:
+df2 \%>\%
+  split_by_parens(.sep = "brackets")
+
+# (Accordingly with `{}` and `"braces"`.)
+
+# If the separator is yet a different one...
+df3 <- tibble::tribble(
+  ~drone,           ~selfpilot,
+  "0.09 <0.21>",    "0.19 <0.13>",
+  "0.19 <0.28>",    "0.53 <0.10>",
+  "0.62 <0.16>",    "0.50 <0.11>",
+  "0.15 <0.35>",    "0.57 <0.16>",
+)
+
+# ... `.sep` should be a length-2 vector
+# that contains the separating elements:
+df3 \%>\%
+  split_by_parens(.sep = c("<", ">"))
 }
 \seealso{
-\code{before_parens()} and \code{inside_parens()} take a string vector and
-extract values from the respective position. These two functions are mapped
-within \verb{split_by_parens().}
+\itemize{
+\item \code{before_parens()} and \code{inside_parens()} take a string vector and
+extract values from the respective position.
+\item \code{dplyr::across()} powers the application of the two above functions within
+\code{split_by_parens()}, including the creation of new columns.
+\item \code{tidyr::separate()} is a more general function (but does not recognize
+closing elements).
+}
 }

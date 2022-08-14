@@ -93,7 +93,7 @@ round_down_from(x = 4.28, digits = 1, threshold = 1)
 
 ### To even (base R)
 
-Base R's own rounding function is an outlier in statistical computing. `base::round()` doesn't round up or down, or use any other procedure based solely on the removed part of the number. Instead, `round()` strives to round to the next even number. (This is also called "banker's rounding".)
+Base R's own rounding function is an outlier in statistical computing. `base::round()` doesn't round up or down, or use any other procedure based solely on the truncated part of the number. Instead, `round()` strives to round to the next even number. (This is also called "banker's rounding".)
 
 Realizing that `round()` works in a highly unintuitive way sometimes leads to consternation. Why can't we just round like we learned in school, that is, up from 5? The reason seems to be bias. Because 5 is right in between two whole numbers, any procedure that rounds 5 in some predetermined direction introduces a bias toward that direction. Rounding up from 5 is therefore biased upward, and rounding down from 5 is biased downward.
 
@@ -122,8 +122,6 @@ mean(down1)
 # Mean when rounding to even: no bias
 mean(even1)
 ```
-
-A more formal take on this issue can be found below under *Rounding bias*.
 
 However, this noble goal of unbiased rounding runs up against the reality of floating point computations. You might therefore get results from `round()` that first seem bizarre, or at least unpredictable. Consider:
 
@@ -160,13 +158,13 @@ vec3 %>%
   round(1)
 ```
 
-Sometimes `round()` behaves just as it should, but at other times, results can be hard to explain. Martin Mächler, who wrote the present version of `round()`, describes the issue about as follows (<https://cran.r-project.org/web/packages/round/vignettes/Rounding.html>):
+Sometimes `round()` behaves just as it should, but at other times, results can be hard to explain. [Martin Mächler](https://cran.r-project.org/package=round), who wrote the present version of `round()`, describes the issue about as follows:
 
-The reason for the above behavior is that most decimal fractions can't, in fact, be represented as double precision numbers. Even seemingly clean numbers with only a few decimal places come with an invisible mantissa, and are therefore closer to one side or the other. Rounding to even in R, while ostensibly about breaking the tie that occurs at 5, is actually much more about measuring which of the two sides is closer to the number to be rounded.
+The reason for the above behavior is that most decimal fractions can't, in fact, be represented as double precision numbers. Even seemingly "clean" numbers with only a few decimal places come with an invisible mantissa, and are therefore closer to one side or the other. Rounding to even in R, while ostensibly about breaking the tie that occurs at 5, is actually much more about measuring which of the two sides is closer to the number to be rounded.
 
 This seems better than going with mathematical intuitions that sometimes may have little relation to the way computers actually deal with these issues. R has been using the present solution since version 4.0.0.
 
-In effect, `base::round()` is a black box, but it seems to be unbiased in the long run. I recommend using `round()` for original work --- even though it is quite different from other rounding procedures, and therefore unsuitable to reconstructing them. Instead, we need something like scrutiny's `round_*` functions.
+In effect, `base::round()` is a black box, but it seems to be unbiased in the long run. I recommend using `round()` for original work, even though it is quite different from other rounding procedures --- and therefore unsuitable to reconstructing them. Instead, we need something like scrutiny's `round_*()` functions.
 
 ## Reconstruct rounding bounds with `unround()`
 
@@ -226,7 +224,7 @@ What if you want to round numbers to a fraction instead of an integer? Check out
 reround_to_fraction(x = 0.4, denominator = 2, rounding = "up")
 ```
 
-This function rounds `0.4` to `0.5` because that's the closest fraction of `2`. It is inspired by `janitor::round_to_fraction()`, and credit for the core implementation goes there. `reround_to_fraction()` blends fractional rounding with the flexibility and precision that `reround()` provides.
+This function rounds `0.4` to `0.5` because that's the closest fraction of `2`. It is inspired by `janitor::round_to_fraction()`, and credit for the core implementation goes there. `reround_to_fraction()` blends janitor's fractional rounding with the flexibility and precision that `reround()` provides.
 
 What's more, `reround_to_fraction_level()` rounds to the nearest fraction at the decimal level specified via its `digits` argument:
 
@@ -289,7 +287,7 @@ rounding_bias(vec4, digits = 2)
 
 What is responsible for such a difference? It seems to be (1) the sample size and (2) the number of decimal places to which the vector is rounded. The rounding method doesn't appear to matter if numbers with many decimal places are rounded:
 
-```{r}
+```{r echo=FALSE}
 up_1   <- rounding_bias(vec4, digits = 1, rounding = "up")
 up_2   <- rounding_bias(vec4, digits = 2, rounding = "up")
 up_3   <- rounding_bias(vec4, digits = 3, rounding = "up")
@@ -308,15 +306,23 @@ bias <- abs(c(
   even_1, even_2, even_3, even_4, even_5
 ))
 
-dp <- rep(1:5, 2)
-rounding <- c(rep("(up)", 5), rep("(even)", 5))
+decimal_digits <- rep(1:5, 2)
+rounding <- c(rep("up", 5), rep("even", 5))
 
-dp <- paste(dp, rounding)
+decimal_digits <- paste(decimal_digits, rounding)
 
-df <- tibble::tibble(bias, dp, rounding)
+df <- tibble::tibble(bias, decimal_digits, rounding)
 
 # Display simulated data:
 df
+
+df <- df %>% 
+  dplyr::mutate(
+    rounding = paste0("(", rounding, ")"),
+    decimal_digits = paste(c(1:5, 1:5), rounding)
+    # decimal_digits = paste0("(", decimal_digits, ")"),
+    # rounding = paste0("(", rounding, ")")
+  )
 
 `%+replace%` <- ggplot2::`%+replace%`
 
@@ -330,7 +336,7 @@ ggplot2::theme_minimal(base_size = 12) %+replace%
   ggplot2::theme_set()
 
 # Visualize:
-ggplot2::ggplot(df, ggplot2::aes(x = dp, y = bias,
+ggplot2::ggplot(df, ggplot2::aes(x = decimal_digits, y = bias,
                                  fill = rounding)) +
   ggplot2::geom_col(ggplot2::aes(fill = rounding)) +
   ggplot2::scale_y_continuous(expand = ggplot2::expansion(add = c(0, 0))
@@ -346,7 +352,7 @@ ggplot2::ggplot(df, ggplot2::aes(x = dp, y = bias,
 
 ```
 
-However, if the raw values are preliminarily rounded to 2 decimal places before rounding proceeds as above, the picture is different. I will spare you the code this time:
+However, if the raw values are preliminarily rounded to 2 decimal places before rounding proceeds as above, the picture is different:
 
 ```{r echo=FALSE}
 vec5 <- round(vec4, 2)
@@ -368,17 +374,26 @@ bias <- abs(c(
   even_1, even_2, even_3, even_4, even_5
 ))
 
-dp <- rep(1:5, 2)
-rounding <- c(rep("(up)", 5), rep("(even)", 5))
+decimal_digits <- rep(1:5, 2)
+rounding <- c(rep("up", 5), rep("even", 5))
 
-dp <- paste(dp, rounding)
+decimal_digits <- paste(decimal_digits, rounding)
 
-df_new <- tibble::tibble(bias, dp, rounding)
+df_new <- tibble::tibble(bias, decimal_digits, rounding)
 
+# Display simulated data:
 df_new
 
+df_new <- df_new %>% 
+  dplyr::mutate(
+    rounding = paste0("(", rounding, ")"),
+    decimal_digits = paste(c(1:5, 1:5), rounding)
+    # decimal_digits = paste0("(", decimal_digits, ")"),
+    # rounding = paste0("(", rounding, ")")
+  )
+
 # Visualize:
-ggplot2::ggplot(df_new, ggplot2::aes(x = dp, y = bias, fill = rounding)) +
+ggplot2::ggplot(df_new, ggplot2::aes(x = decimal_digits, y = bias, fill = rounding)) +
   ggplot2::geom_col(ggplot2::aes(fill = rounding)) +
   ggplot2::scale_y_continuous(expand = ggplot2::expansion(add = c(0, 0))) +
   ggplot2::scale_fill_discrete(name = "Rounding") +

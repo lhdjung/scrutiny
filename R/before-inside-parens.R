@@ -3,31 +3,43 @@
 # Basic function (not exported) -------------------------------------------
 
 proto_split_parens <- function(string, sep = "parens") {
-  if (sep %in% c("parens", "(", "\\(")) {
-    p_open <- "\\("
-    p_close <- "\\)"
-  } else if (sep %in% c("brackets", "[", "\\[")) {
-    p_open <- "\\["
-    p_close <- "\\]"
-  } else if (sep %in% c("braces", "{", "\\{")) {
-    p_open <- "\\{"
-    p_close <- "\\}"
+
+  if (length(sep) == 2) {
+    sep_open  <- sep[1]
+    sep_close <- sep[2]
   } else {
-    cli::cli_abort(c(
-      "`sep` given as `{sep}`",
-      ">" = "Please specify `sep` as either \"parens\", \"brackets\", or \\
-      \"braces\"; or as \"(\", \"[\", or \"{{\"."
-    ))
+    if (sep %in% c("parens", "(", "\\(")) {
+      sep_open  <- "\\("
+      sep_close <- "\\)"
+    } else if (sep %in% c("brackets", "[", "\\[")) {
+      sep_open  <- "\\["
+      sep_close <- "\\]"
+    } else if (sep %in% c("braces", "{", "\\{")) {
+      sep_open  <- "\\{"
+      sep_close <- "\\}"
+    } else {
+      msg_sep <- paste0("`", sep, "`")
+      cli::cli_abort(c(
+        "`sep` given as {msg_sep}.",
+        ">" = "Please specify `sep` as either \"parens\", \"brackets\", or \\
+      \"braces\"; or as \"(\", \"[\", or \"{{\".",
+        "i" = "Alternatively, choose two custom separators; e.g., \\
+      `.sep = c(\"<\", \">\")` for strings such as \"2.65 <0.27>\"."
+      ))
+    }
   }
 
-  sep_close <- glue::glue("{p_close}.*")
+  sep_close <- paste0(sep_close, ".*")
 
-  s <- stringr::str_split(string, p_open)
-  s <- unlist(s)
-  s <- sub(sep_close, "", s)
-  l <- length(s) / length(string)
+  out <- stringr::str_split(string, sep_open)
+  out <- unlist(out)
+  out <- sub(sep_close, "", out)
 
-  split(s, ceiling(seq_along(s) / l))
+  divisor <- length(out) / length(string)
+
+  out <- split(out, ceiling(seq_along(out) / divisor))
+
+  return(out)
 }
 
 
@@ -49,11 +61,11 @@ proto_split_parens <- function(string, sep = "parens") {
 
 
 before_parens <- function(string, sep = "parens") {
-  s <- proto_split_parens(string, sep)
-  s <- purrr::map(s, ~ .[1])
-  s <- as.character(s)
+  out <- proto_split_parens(string, sep)
+  out <- purrr::map_chr(out, ~ .[1])
+  out <- stringr::str_trim(out)
 
-  stringr::str_trim(s)
+  return(out)
 }
 
 
@@ -62,18 +74,24 @@ before_parens <- function(string, sep = "parens") {
 
 inside_parens <- function(string, sep = "parens") {
 
-  if (sep %in% c("parens", "(", "\\(")) {
-    sep2 <- "\\)"
-  } else if (sep %in% c("brackets", "[", "\\[")) {
-    sep2 <- "\\]"
-  } else if (sep %in% c("braces", "{", "\\{")) {
-    sep2 <- "\\}"
+  if (length(sep) == 2) {
+    sep_close <- sep[2]
+  } else {
+    if (sep %in% c("parens", "(", "\\(")) {
+      sep_close <- "\\)"
+    } else if (sep %in% c("brackets", "[", "\\[")) {
+      sep_close <- "\\]"
+    } else if (sep %in% c("braces", "{", "\\{")) {
+      sep_close <- "\\}"
+    }
   }
 
-  s <- proto_split_parens(string, sep)
-  s <- purrr::map(s, ~ .[2])
-  s <- sub(glue::glue("{sep2}.*"), "", s)
+  sep_close <- paste0(sep_close, ".*")
 
-  as.character(s)
+  out <- proto_split_parens(string, sep)
+  out <- purrr::map(out, ~ .[2])
+  out <- sub(sep_close, "", out)
+
+  return(out)
 }
 

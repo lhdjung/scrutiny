@@ -6,6 +6,9 @@
 # user. For now, these internal data are restricted to the background raster
 # vectors for `grim_plot()`.
 
+# Code for the example datasets with `pigs` in their names is in the
+# R/data-doc.R file.
+
 # Some nomenclature -- `n`: sample size, `frac`: fractional portion of a mean or
 # fraction.
 
@@ -69,15 +72,15 @@ generate_grim_raster <- function(digits, rounding, n = NULL) {
   frac <- parcel_nth_elements(raster, n = 2, from = 1)
 
   # Finally, return both vectors in a list:
-  list(n, frac)
+  return(list(n, frac))
 }
 
 
 
-# Remember:
-grim_raster_1_up_or_down %>%
-  parcel_nth_elements(n = 2) %>%
-  `==`(as.numeric(grim_raster_1_up_or_down_frac))
+# # Remember:
+# grim_raster_1_up_or_down %>%
+#   parcel_nth_elements(n = 2) %>%
+#   `==`(as.numeric(grim_raster_1_up_or_down_frac))
 
 
 
@@ -204,7 +207,8 @@ usethis::use_data(
   grim_raster_2_anti_trunc_frac,
 
 
-  internal = TRUE
+  internal = TRUE,
+  overwrite = TRUE
 
 )
 

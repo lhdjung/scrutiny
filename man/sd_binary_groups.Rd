@@ -59,7 +59,8 @@ sd_binary_1_n(group_1 = 153, n = 280)
 sd_binary_mean_n(mean = 0.5464286, n = 280)
 }
 \references{
-ADD REFERENCE TO HEATHERS AND BROWN (2019 PREPRINT)
+Heathers, James A. J., and Brown, Nicholas J. L. 2019. DEBIT: A
+Simple Consistency Test For Binary Data. https://osf.io/5vb3u/.
 }
 \seealso{
 \code{is_subset_of_vals(x, 0, 1)} checks whether \code{x} (a list or atomic

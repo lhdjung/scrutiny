@@ -10,6 +10,7 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
   %\VignetteDepends{devtools}
+bibliography: references.bib
 ---
 
 ```{r, include = FALSE}
@@ -28,7 +29,7 @@ devtools::load_all(".")
 library(scrutiny)
 ```
 
-The descriptive binary test, or DEBIT, checks whether the reported mean, standard deviation (SD), and sample size of binary data are mutually consistent (Heathers and Brown 2019). Like GRIM, it tests if a given set of summary data can describe the same distribution.
+The descriptive binary test, or DEBIT, checks whether the reported mean, standard deviation (SD), and sample size of binary data are mutually consistent [@heathers_debit_2019]. Like GRIM, it tests if a given set of summary data can describe the same distribution.
 
 This vignette covers scrutiny's implementation of DEBIT:
 
@@ -56,17 +57,11 @@ As in `grim()`, the mean needs to be a string. (The same is true for the SD.) Th
 If you want to test more than a handful of cases, the recommended way is to enter them into a data frame and to run `debit_map()` on the data frame. Below are the example data from Heathers and Brown's (2019) Table 1. A useful way to enter such data is to copy them from a PDF file and paste them into `tibble::tribble()`, which is available via scrutiny:
 
 ```{r}
-flying_pigs <- tibble::tribble(
-  ~x,         ~sd,
-  "0.53",     "0.50",
-  "0.44",     "0.50",
-  "0.77",     "0.42",
-  "0.19",     "0.35",
-  "0.34",     "0.47",
-  "0.93",     "0.25",
-  "0.12",     "0.33",
-) %>% 
-  mutate(n = 1683)
+flying_pigs <- tibble(
+    x  = runif(5, 0.2, 1) %>% round(2) %>% restore_zeros(),
+    sd = runif(5, 0, 0.3) %>% round(2) %>% restore_zeros(),
+    n = 1000
+)
 
 
 flying_pigs
@@ -81,8 +76,6 @@ flying_pigs %>%
 
 The `x`, `sd`, and `n` columns are the same as in the input. The main result, `consistency`, is the DEBIT consistency of the former three columns.
 
-The function checks if the summary data really can describe a binary distribution:
-
 ```{r, error=TRUE}
 pigs3  # data saved within the package
 
@@ -93,12 +86,11 @@ pigs3 %>%
 DEBIT only makes sense with binary means and SDs. Both `debit()` and `debit_map()` check if the inputs are such data, and fail if they are not:
 
 ```{r, error=TRUE}
-pigs1  # no binary summary data!
+pigs1  # no binary means / SDs!
 
 pigs1 %>% 
   debit_map()
 ```
-
 
 Compared to `grim_map()`, `debit_map()` is more straightforward. There is no percentage conversion or accounting for multiple scale items. The same is true when comparing the basic `grim()` and `debit()` functions. However, both implementations tap scrutiny's arsenal of rounding procedures, so that is discussed next.
 
@@ -121,21 +113,21 @@ Points 3 to 5 above list some quite obscure options that were only included to c
 By default, `debit()` and `debit_map()` accept values rounded either up or down from 5. If you have reason to impose stricter assumptions on the way `x` was rounded, specify `rounding` accordingly:
 
 ```{r}
-flying_pigs %>% 
+pigs3 %>% 
   debit_map(rounding = "up")
 
-flying_pigs %>% 
+pigs3 %>% 
   debit_map(rounding = "even")
 ```
 
 Although changing the rounding procedure didn't make any difference for the DEBIT consistency here, it is important to account for the different ways in which numbers might be rounded, if only to demonstrate that some given results are robust to those variable decisions. To err on the side of caution, the default for `rounding` is the permissive `"up_or_down"`.
 
-## Summarize results with `audit()`
+## Summarizing results with `audit()`
 
 Following up on a call to `debit_map()`, the generic function `audit()` summarizes test results:
 
 ```{r}
-flying_pigs %>% 
+pigs3 %>% 
   debit_map() %>% 
   audit()
 ```
@@ -149,7 +141,7 @@ These columns are ---
 5.  `mean_sd`: average of binary distribution standard deviations.
 6.  `distinct_n`: number of different sample sizes.
 
-## Visualize results with `debit_plot()`
+## Visualizing results with `debit_plot()`
 
 There is a specialized visualization function for DEBIT results, `debit_plot()`. Only run it on `debit_map()`'s output. It will fail otherwise.
 
@@ -158,7 +150,7 @@ There is a specialized visualization function for DEBIT results, `debit_plot()`.
 ggplot2::theme_minimal(base_size = 12) %>% 
   ggplot2::theme_set()
 
-flying_pigs %>% 
+pigs3 %>% 
   debit_map() %>% 
   debit_plot()
 ```
@@ -170,13 +162,74 @@ Except for the colors, inner boxes must look exactly like they do here: Their si
 However, if outer boxes are not desired, they can be turned off like this:
 
 ```{r}
-flying_pigs %>% 
+pigs3 %>% 
   debit_map() %>% 
   debit_plot(show_outer_boxes = FALSE)
 ```
 
 Color settings and other ggplot2-typical options are available via arguments, as are settings handed down to `ggrepel::geom_text_repel()`, which creates the labels. For more, see `debit_plot()`'s documentation.
 
-# References
+## Testing numeric sequences with `debit_map_seq()`
 
-Heathers, James A. J., und Nicholas J. L. Brown. 2019. „DEBIT: A Simple Consistency Test For Binary Data". <https://osf.io/5vb3u/>.
+DEBIT analysts might be interested in a mean or percentage value's numeric neighborhood. Suppose you found DEBIT inconsistencies, as in out example `pigs3` data. You might wonder whether they are due to small reporting or computing errors.
+
+Use `debit_map_seq()` to use DEBIT for the values surrounding the reported means, SDs, and sample sizes:
+
+```{r}
+out_seq1 <- debit_map_seq(pigs3)
+out_seq1
+```
+
+### Summaries with `audit_seq()`
+
+As this output is a little unwieldy, run `audit_seq()` on the results:
+
+```{r}
+audit_seq(out_seq1)
+```
+
+Here is what the output columns mean:
+
+-   `x`, `sd`, and `n` are the original inputs, reconstructed and tested for `consistency` here.
+
+-   The `hits_*` columns display is the number of DEBIT-consistent value combinations found within the specified `dispersion` range; either in total or by varying individual parameters.
+
+-   `diff_x` reports the absolute difference between `x` and the next consistent dispersed value (in dispersion steps, not the actual numeric difference). `diff_x_up` and `diff_x_down` report the difference to the next higher or lower consistent value, respectively.
+
+-   Accordingly with the `diff_sd*` and `diff_n*` columns.
+
+The default for `dispersion` is `1:5`, for five steps up and down. When the `dispersion` sequence gets longer, the number of hits tends to increase:
+
+```{r}
+out_seq2 <- debit_map_seq(pigs3, dispersion = 1:7, include_consistent = TRUE)
+audit_seq(out_seq2)
+```
+
+### Visualizing DEBIT-checked sequences
+
+Although it is possible in principle to visualize results of `debit_map_seq()` using `debit_plot()`, it's not recommended because the results don't currently look great. This issue might be fixed in a future version of `debit_plot()`.
+
+## Handling unknown group sizes with `debit_map_total_n()`
+
+### Problems from underreporting
+
+Unfortunately, some studies that report group averages don't report the corresponding group sizes --- only a total sample size. This makes any direct use of DEBIT impossible because only `x` and `sd` values are known, not `n` values. All that is feasible here in terms of DEBIT is to take a number around half the total sample size, go up and down from it, and check which *hypothetical* group sizes are consistent with the reported group means and SDs. `debit_map_total_n()` semi-automates this process, motivated by a recent GRIM analysis [@bauer_expression_2021].
+
+Here is an example:
+
+```{r}
+out_total_n <- tibble::tribble(
+  ~x1,     ~x2,   ~sd1,   ~sd2,  ~n,
+  "0.30", "0.28", "0.17", "0.10", 70,
+  "0.41", "0.39", "0.09", "0.15", 65
+)
+
+out_total_n <- debit_map_total_n(out_total_n)
+out_total_n
+
+audit_total_n(out_total_n)
+```
+
+See the GRIM vignette, section *Handling unknown group sizes with `grim_map_total_n()`*, for a more comprehensive case study. It uses `grim_map_total_n()`, which is the same as `debit_map_total_n()` but only for GRIM.
+
+# References

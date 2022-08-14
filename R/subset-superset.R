@@ -28,23 +28,28 @@
 #'   treat their elements (!) like elements of a second vector in the basic
 #'   functions above.
 #'
-#' @details The `_vals` variants are meant for flexible, interactive
-#'   subset/superset testing. That is, if you can guess which values might
-#'   collectively fulfill the role of the second vector, you can just add them
-#'   to the call.
+#'   Each `is_subset*()` function has an `is_proper_subset*()` variant. These
+#'   variants also test whether the sets are unequal, so that `x` is a subset of
+#'   `y` but `y` is not a subset of `x`. The same applies to `is_superset*()`
+#'   functions and their `is_proper_superset*()` variants.
 #'
-#'   The `_vecs` variants likewise offer flexibility, but also bridge the gap
+#' @details The `*_vals()` variants are meant for flexible, interactive
+#'   subset/superset testing. That is, in order to test whether certain values
+#'   collectively fulfill the role of the second vector, you can just add them
+#'   to the function call.
+#'
+#'   The `*_vecs()` variants likewise offer flexibility, but also bridge the gap
 #'   between vectors and values contained in them.
 #'
 #'   All functions simply check if values are present, regardless of how often a
 #'   value occurs. In other words, they look for types but don't count tokens.
 #'
 #' @param x A vector.
-#' @param y A vector. Only in the basic functions, not those with `_vals` or
-#'   `_vecs`.
-#' @param ... In the `_vals` functions, any number of values `x` might contain;
-#'   in the `_vecs` functions, any number of vectors the elements of which `x`
-#'   might contain.
+#' @param y A vector. Only in the basic functions, not those with `*_vals()` or
+#'   `*_vecs()`.
+#' @param ... In the `*_vals()` functions, any number of values `x` might
+#'   contain; in the `*_vecs()` functions, any number of vectors the elements of
+#'   which `x` might contain.
 #'
 #' @return A single Boolean value.
 #'
@@ -77,7 +82,7 @@
 #' abc %>% is_equal_set(abc)
 #' abc %>% is_equal_set(abcde)
 #'
-#' # Each of the three functions has a `_vals` variant
+#' # Each of the three functions has a `*_vals()` variant
 #' # that doesn't take a second vector like the first
 #' # one, but any number of other arguments. These are
 #' # jointly treated like the elements of the second
@@ -88,11 +93,13 @@
 #'
 #' # (... and likewise for supersets and equal sets.)
 #'
-#' # The `_vecs` functions are like the basic ones
-#' # but for any number of other vectors:
-#' abc %>% is_subset_of_vecs(ab, "c")
-#' abc %>% is_subset_of_vecs(ab, c("c", "d"))
-#' abc %>% is_subset_of_vecs(ab, c(3, 4, 5))
+#' # The `*_vecs()` functions are like the basic
+#' # ones but for any number of other vectors:
+#' if (FALSE) {
+#'   abc %>% is_subset_of_vecs(ab, "c")
+#'   abc %>% is_subset_of_vecs(ab, c("c", "d"))
+#'   abc %>% is_subset_of_vecs(ab, c(3, 4, 5))
+#' }
 #'
 #' # (... again, likewise for supersets and equal sets.)
 
@@ -125,6 +132,22 @@ is_equal_set <- function(x, y) {
 }
 
 
+#' @rdname is_subset_of
+#' @export
+
+is_proper_subset_of <- function(x, y) {
+  is_subset_of(x, y) && !is_superset_of(x, y)
+}
+
+
+#' @rdname is_subset_of
+#' @export
+
+is_proper_superset_of <- function(x, y) {
+  is_superset_of(x, y) && !is_subset_of(x, y)
+}
+
+
 
 # With multiple arguments treated as values -------------------------------
 
@@ -138,6 +161,7 @@ is_subset_of_vals <- function(x, ...) {
 }
 
 
+
 #' @rdname is_subset_of
 #' @export
 
@@ -148,6 +172,7 @@ is_superset_of_vals <- function(x, ...) {
 }
 
 
+
 #' @rdname is_subset_of
 #' @export
 
@@ -156,6 +181,27 @@ is_equal_set_vals <- function(x, ...) {
 
   is_equal_set(x, y)
 }
+
+
+#' @rdname is_subset_of
+#' @export
+
+is_proper_subset_of_vals <- function(x, ...) {
+  y <- rlang::enexprs(...)
+
+  is_proper_subset_of(x, y)
+}
+
+
+#' @rdname is_subset_of
+#' @export
+
+is_proper_superset_of_vals <- function(x, ...) {
+  y <- rlang::enexprs(...)
+
+  is_proper_superset_of(x, y)
+}
+
 
 
 
@@ -193,4 +239,25 @@ is_equal_set_vecs <- function(x, ...) {
 
   is_equal_set(x, y)
 }
+
+
+#' @rdname is_subset_of
+#' @export
+
+is_proper_subset_of_vecs <- function(x, ...) {
+  y <- straighten_out(...)
+
+  is_proper_subset_of(x, y)
+}
+
+
+#' @rdname is_subset_of
+#' @export
+
+is_proper_superset_of_vecs <- function(x, ...) {
+  y <- straighten_out(...)
+
+  is_proper_superset_of(x, y)
+}
+
 

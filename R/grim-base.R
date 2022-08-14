@@ -28,6 +28,11 @@
 #' @return Integer or numeric. The number or proportion of possible GRIM
 #'   inconsistencies.
 #'
+#' @references Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A
+#'   Simple Technique Detects Numerous Anomalies in the Reporting of Results in
+#'   Psychology. *Social Psychological and Personality Science*, 8(4), 363–369.
+#'   https://journals.sagepub.com/doi/10.1177/1948550616673876
+#'
 #' @export
 #'
 #' @examples
@@ -55,7 +60,7 @@ grim_total <- function(x, n, items = 1, percent = FALSE) {
   if (percent) decimals <- decimals + 2
   p10 <- 10 ^ decimals
 
-  as.integer(p10 - (n * items))
+  return(as.integer(p10 - (n * items)))
 }
 
 
@@ -71,7 +76,7 @@ grim_ratio <- function(x, n, items = 1, percent = FALSE) {
   if (percent) decimals <- decimals + 2
   p10 <- 10 ^ decimals
 
-  (p10 - (n * items)) / p10
+  return((p10 - (n * items)) / p10)
 }
 
 

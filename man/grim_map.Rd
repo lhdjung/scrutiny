@@ -7,6 +7,7 @@
 grim_map(
   data,
   items = 1,
+  merge_items = TRUE,
   percent = FALSE,
   x = NULL,
   n = NULL,
@@ -29,14 +30,17 @@ returned alongside GRIM test results (see \code{extra} below).}
 the number of items composing the \code{x} values. Default is 1, the most common
 case.}
 
+\item{merge_items}{Boolean. If \code{TRUE} (the default), there will be no \code{items}
+column in the output. Instead, values from an \code{items} column or argument
+will be multiplied with values in the \code{n} column. This does not affect
+GRIM-testing.}
+
 \item{percent}{Boolean. Set \code{percent} to \code{TRUE} if the \code{x} values are
 percentages. This will convert them to decimal numbers and adjust the
 decimal count (i.e., increase it by 2). It also affects the \code{ratio} column.
 Default is \code{FALSE}.}
 
-\item{x, n}{Optionally specify which columns from \code{data} contain the means
-(\code{x}) and/or sample sizes (\code{n}). If not specified here, \code{data} itself needs
-to contain columns by those names. Default is \code{NULL}.}
+\item{x, n}{Optionally, specify these arguments as column names in \code{data}.}
 
 \item{show_rec}{Boolean. If set to \code{TRUE}, the reconstructed numbers from
 GRIM-testing are shown as columns. See section \emph{Reconstructed numbers}
@@ -61,7 +65,7 @@ return none of them, set \code{extra} to 0.}
 \value{
 A tibble with these columns --
 \itemize{
-\item \code{x}, \code{n}, \code{items}: the inputs.
+\item \code{x}, \code{n}: the inputs.
 \item \code{consistency}: GRIM consistency of \code{x}, \code{n}, and \code{items}.
 \item \verb{<extra>}: any columns from \code{data} other than \code{x}, \code{n}, and \code{items}.
 \item \code{ratio}: the GRIM ratio; see \code{grim_ratio()}.
@@ -136,4 +140,10 @@ pigs1 \%>\%
 pigs1 \%>\%
   grim_map() \%>\%
   audit()
+}
+\references{
+Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A
+Simple Technique Detects Numerous Anomalies in the Reporting of Results in
+Psychology. \emph{Social Psychological and Personality Science}, 8(4), 363–369.
+https://journals.sagepub.com/doi/10.1177/1948550616673876
 }

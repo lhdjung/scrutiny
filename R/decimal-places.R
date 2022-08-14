@@ -5,7 +5,7 @@
 #'   vector, or in a string vector that can be coerced to numeric.
 #'
 #'   `decimal_places_scalar()` is much faster but only takes a single input. It
-#'   is recommended as a helper within other single-case functions.
+#'   is useful as a helper within other single-case functions.
 #'
 #' @section Trailing zeros: If trailing zeros matter, don't convert numeric
 #'   values to strings: In numeric values, any trailing zeros have already been
@@ -24,7 +24,7 @@
 #'   to count all digits. (Converting to string is not sufficient -- those
 #'   numbers need to be *entered* in quotes.)
 #'
-#'   The function ignores any whitespace at the end of a string, so it won't
+#'   The functions ignore any whitespace at the end of a string, so they won't
 #'   mistake spaces for decimal places.
 
 #' @param x Numeric (or string that can be coerced to numeric). Object with
@@ -49,7 +49,7 @@
 #' original value.
 
 #' @examples
-#' # The function works on both numeric values
+#' # `decimal_places()` works on both numeric values
 #' # and strings...
 #' decimal_places(x = 2.851)
 #' decimal_places(x = "2.851")
@@ -65,8 +65,8 @@
 #' # Whitespace at the end of a string is not counted:
 #' decimal_places(x = "6.0     ")
 #'
-#' # This function is much faster, but only
-#' # works with a single number or string:
+#' # `decimal_places_scalar()` is much faster,
+#' # but only works with a single number or string:
 #' decimal_places_scalar(x = 8.13)
 #' decimal_places_scalar(x = "5.024")
 #'
@@ -80,25 +80,15 @@
 # used here instead of anonymous functions because they run slightly faster.
 
 decimal_places <- function(x, sep = "\\.") {
-  x <- stringr::str_split(stringr::str_trim(x), sep, 2)
-  x <- purrr::modify_if(x, !is.na(x), stringr::str_length)
-  x <- purrr::modify_if(x, is_length_1_and_not_na, set_to_0)
+  out <- stringr::str_split(stringr::str_trim(x), sep, 2)
+  out <- purrr::modify_if(out, !is.na(out), stringr::str_length)
+  out <- purrr::modify_if(out, is_length_1_and_not_na, set_to_0)
 
-  as.integer(unlist(
-    purrr::map_if(x, is_length_greater_1, `[`, 2)
-  ))
+  return(as.integer(unlist(
+    purrr::map_if(out, is_length_greater_1, `[`, 2)
+  )))
 }
 
-
-# Idea for an error message, but probably not sensible:
-
-# if (any(!stringr::str_detect(x, sep)) && !any(sep == c("\\.", ",", ":"))) {
-#   cli::cli_abort(c(
-#     "`sep` not in `x`",
-#     "x" = "The `sep` string, \"{sep}\", must be part of `x` (unless `sep` \\
-#     is \"\\\\.\", \",\", or \":\")."
-#   ))
-# }
 
 
 
@@ -108,12 +98,17 @@ decimal_places <- function(x, sep = "\\.") {
 # Faster, single-case (scalar) function to be used as a helper within other
 # single-case functions:
 decimal_places_scalar <- function(x, sep = "\\.") {
-  if (is.na(x)) return(NA)
-  x <- stringr::str_split(stringr::str_trim(x), sep, 2)
-  x <- stringr::str_length(x[[1]][2])
-  if (is.na(x)) return(as.integer(0))
+  if (is.na(x)) {
+    return(NA)
+  }
+  out <- stringr::str_split(stringr::str_trim(x), sep, 2)
+  out <- stringr::str_length(out[[1]][2])
+  if (is.na(out)) {
+    return(as.integer(0))
+  }
 
-  as.integer(x)
+  return(as.integer(out))
 }
+
 
 

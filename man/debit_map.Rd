@@ -19,10 +19,7 @@ debit_map(
 \arguments{
 \item{data}{Data frame.}
 
-\item{x, sd, n}{Optionally specify which columns from \code{data} contain the means
-(\code{x}), standard deviations (\code{sd}), and/or sample sizes (\code{n}). If not
-specified here, \code{data} itself needs to contain columns by those names.
-Default is \code{NULL}.}
+\item{x, sd, n}{Optionally, specify these arguments as column names in \code{data}.}
 
 \item{rounding, threshold, symmetric}{Arguments passed on to \code{debit()}, with
 the same defaults.}
@@ -68,7 +65,7 @@ tibble with these columns ---
 \examples{
 # Call `debit_map()` on binary summary
 # data such as these:
-# pigs3
+pigs3
 
 # The `consistency` column shows
 # whether the values to its left
@@ -80,4 +77,8 @@ pigs3 \%>\%
 pigs3 \%>\%
   debit_map() \%>\%
   audit()
+}
+\references{
+Heathers, James A. J., and Brown, Nicholas J. L. 2019. DEBIT: A
+Simple Consistency Test For Binary Data. https://osf.io/5vb3u/.
 }

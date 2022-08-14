@@ -1,0 +1,286 @@
+---
+title: "GRIMMER"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{GRIMMER}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+bibliography: references.bib
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(scrutiny)
+```
+
+```{r include=FALSE}
+# Dev only: load scrutiny from within scrutiny
+devtools::load_all(".")
+```
+
+Granularity-related inconsistency of means mapped to error repeats, or GRIMMER, is a test for the mathematical consistency of reported means or proportions with the corresponding standard deviations (SDs) and sample sizes [@anaya2016b; @allard2018].
+
+GRIMMER builds up on GRIM [@brown_grim_2017]. Indeed, the elegant Analytic-GRIMMER algorithm [@allard2018] implemented here tests for GRIM-consistency before conducting its own unique tests.
+
+This vignette covers scrutiny's implementation of the GRIMMER test. It's an adapted version of the [GRIM vignette](https://lhdjung.github.io/scrutiny/articles/grim.html) because both the tests themselves and their implementations in scrutiny are very similar. If you are familiar with scrutiny's `grim_*()` functions, much of the present vignette will seem quite natural to you.
+
+The vignette has the following sections --- to get started, though, you only need the first one:
+
+1.  The basic `grimmer()` function and a specialized mapping function, `grimmer_map()`.
+
+2.  The `audit()` method for summarizing `grimmer_map()`'s results.
+
+3.  The visualization function `grim_plot()`, which also works for GRIMMER.
+
+4.  Testing numeric sequences with `grimmer_map_seq()`.
+
+5.  Handling unknown group sizes with `grimmer_map_total_n()`.
+
+## Basic GRIMMER testing
+
+### Few cases: `grimmer()`
+
+To test if a reported mean of 7.3 on a granular scale is GRIMMER-consistent with an SD of 2.51 and a sample size of 12, run this:
+
+```{r}
+grimmer(x = "7.3", sd = "2.51", n = 12)
+```
+
+Note that `x`, the reported mean, needs to be a string. The reason is that strings preserve trailing zeros, which can be crucial for GRIMMER-testing. Numeric values don't, and even converting them to strings won't help. A workaround for larger numbers of such values, `restore_zeros()`, is discussed in `vignette("wrangling")`.
+
+`grimmer()` has some further parameters, but all of them can be used from within `grimmer_map()`. The other parameters will be discussed in that context because `grimmer_map()` is often the more useful function in practice. Furthermore, although `grimmer()` is vectorized, `grimmer_map()` is safer and more convenient for testing multiple combinations of means, SDs, and sample sizes.
+
+### Many cases: `grimmer_map()`
+
+If you want to GRIMMER-test more than a handful of cases, the recommended way is to enter them into a data frame and to run `grimmer_map()` on the data frame. Two different ways to do that are discussed in `vignette("wrangling")`, but here, I will only describe an easily accessible solution for a single table.
+
+Copy summary data from a PDF file and paste them into `tibble::tribble()`, which is available via scrutiny:
+
+```{r}
+flying_pigs1 <- tribble(
+  ~x,   ~sd,
+"8.9",  "2.81",
+"2.6",  "2.05",
+"7.2",  "2.89",
+"3.6",  "3.11",
+"9.2",  "7.13",
+"10.4", "2.53",
+"7.3",  "3.14"
+) %>% 
+  mutate(n = 25)
+```
+
+Use RStudio's multiple cursors to draw quotation marks around all the `x` and `sd` values, and to set commas at the end. See `vignette("wrangling")`, section *With copy and paste*, if you are not sure how to do that.
+
+Now, simply run `grimmer_map()` on that data frame:
+
+```{r, error=TRUE}
+grimmer_map(flying_pigs1)
+```
+
+The `x` and `n` columns are the same as in the input. By default, the number of `items` composing the mean is assumed to be 1. The main result, `consistency`, is the GRIMMER consistency of the former three columns.
+
+The `reason` column says why a set of values was inconsistent. To be GRIMMER-consistent, a value set needs to pass four separate tests: the three GRIMMER tests by @allard2018 and the more basic GRIM test. Here, the two inconsistent values passed GRIM as well as the first two GRIMMER tests, but failed the third one. All consistent value sets are marked as `"Passed all"` in the `"reason"` column.
+
+### Scale items
+
+If a mean is composed of multiple items, set the `items` parameter to that number. Below are hypothetical means of a three-items scale. With the single-item default, half of these are wrongly flagged as inconsistent:
+
+```{r, error=TRUE}
+jpap_1 <- tribble(
+   ~x,    ~sd,
+  "5.90", "2.19",
+  "5.71", "1.42",
+  "3.50", "1.81",
+  "3.82", "2.43",
+  "4.61", "1.92",
+  "5.24", "2.51",
+) %>% 
+  mutate(n = 40)
+
+jpap_1 %>% 
+  grimmer_map()  # default is wrong here!
+```
+
+Yet, all of them are consistent if the correct number of items is stated:
+
+```{r, error=TRUE}
+jpap_1 %>% 
+  grimmer_map(items = 3)
+```
+
+It is also possible to include an `items` column in the data frame instead:
+
+```{r, error=TRUE}
+jpap_2 <- tribble(
+   ~x,     ~sd,    ~items,
+  "6.92",  "2.19",  1,
+  "3.48",  "1.42",  1,
+  "1.59",  "1.81",  2,
+  "2.61",  "2.43",  2,
+  "4.04",  "1.92",  3,
+  "4.50",  "2.51",  3,
+) %>% 
+  mutate(n = 30)
+
+jpap_2 %>% 
+  grimmer_map()
+```
+
+### Rounding
+
+The scrutiny package provides infrastructure for reconstructing rounded numbers. All of that can be commanded from within `grimmer()` and `grimmer_map()`. Several parameters allow for stating the precise way in which the original numbers have supposedly been rounded.
+
+First and foremost is `rounding`. It takes a string with the rounding procedure's name, which leads to the number being rounded in either of these ways:
+
+1.  Rounded `"up"` or `"down"` from 5. Note that SAS, SPSS, Stata, Matlab, and Excel round `"up"` from 5, whereas Python used to round `"down"` from 5.
+2.  Rounded to `"even"` using base R's own `round()`.
+3.  Rounded `"up_from"` or `"down_from"` some number, which then needs to be specified via the `threshold` parameter.
+4.  Given a `"ceiling"` or `"floor"` at the respective decimal place.
+5.  Rounded towards zero with `"trunc"` or away from zero with `"anti_trunc"`.
+
+The default, `"up_or_down"`, allows for numbers rounded either `"up"` or `"down"` from 5 when GRIMMER-testing; and likewise for `"up_from_or_down_from"` and `"ceiling_or_floor"`. For more about these procedures, see documentation for `round()`, `round_up()`, and `round_ceiling()`. These include all of the above ways of rounding.
+
+Points 3 to 5 above list some quite obscure options that were only included to cover a wide spectrum of possible rounding procedures. The same is true for the `threshold` and `symmetric` parameters, so these aren't discussed here any further. Learn more about scrutiny's infrastructure for rounding at `vignette("rounding")`.
+
+By default, `grimmer()` and `grimmer_map()` accept values rounded either up or down from 5. If you have reason to impose stricter assumptions on the way `x` and `sd` were rounded, specify `rounding` accordingly.
+
+It might still be important to account for the different ways in which numbers can be rounded, if only to demonstrate that some given results are robust to those variable decisions. To err on the side of caution, the default for `rounding` is the permissive `"up_or_down"`.
+
+## Summarizing results with `audit()`
+
+Following up on a call to `grimmer_map()`, the generic function `audit()` summarizes GRIMMER test results:
+
+```{r}
+flying_pigs1 %>% 
+  grimmer_map() %>% 
+  audit()
+```
+
+These columns are ---
+
+1.  `incons_cases`: number of GRIMMER-inconsistent value sets.
+
+2.  `all_cases`: total number of value sets.
+
+3.  `incons_rate`: proportion of GRIMMER-inconsistent value sets.
+
+4.  `fail_grim`, `fail_test1`, `fail_test2`, `fail_test3`: number of value sets failing the GRIM test or one of the three GRIMMER tests, respectively.
+
+## Visualizing results with `grim_plot()`
+
+GRIMMER does not currently have a dedicated visualization function in scrutiny. However, `grim_plot()` will accept the output of `grimmer_map()` just as well as that from `grim_map()`:
+
+```{r, fig.width=6, fig.height=5.5}
+jpap_5 <- tribble(
+  ~x,      ~sd,    ~n,
+  "7.19",  "1.19",  54,
+  "4.56",  "2.56",  66,
+  "0.42",  "1.29",  59,
+  "1.31",  "3.50",  57,
+  "3.48",  "3.65",  66,
+  "4.27",  "2.86",  61,
+  "6.21",  "2.15",  62,
+  "3.11",  "3.17",  50,
+  "5.39",  "2.37",  68,
+  "5.66",  "1.11",  44,
+)
+
+
+jpap_5 %>% 
+  grimmer_map() %>% 
+  grim_plot()
+```
+
+However, `grim_plot()` will fail with any object not returned by either of these two functions:
+
+```{r, error=TRUE}
+grim_plot(mtcars)
+```
+
+See the [GRIM vignette section](https://lhdjung.github.io/scrutiny/articles/grim.html#visualizing-results-with-grim_plot) on `grim_plot()` for more information.
+
+## Testing numeric sequences with `grimmer_map_seq()`
+
+GRIMMER analysts might be interested in a mean or percentage value's numeric neighborhood. Suppose you found multiple GRIMMER inconsistencies as in out example `pigs5` data. You might wonder whether they are due to small reporting or computing errors.
+
+Use `grimmer_map_seq()` to GRIMMER-test the values surrounding the reported means and sample sizes:
+
+```{r}
+out_seq1 <- grimmer_map_seq(pigs5)
+out_seq1
+```
+
+### Summaries with `audit_seq()`
+
+As this output is a little unwieldy, run `audit_seq()` on the results:
+
+```{r}
+audit_seq(out_seq1)
+```
+
+Here is what the output columns mean:
+
+-   `x` and `n` are the original inputs, reconstructed and tested for `consistency` here.
+
+-   `hits` is the number of GRIMMER-consistent value combinations found within the specified `dispersion` range.
+
+-   `diff_x` reports the absolute difference between `x` and the next consistent dispersed value (in dispersion steps, not the actual numeric difference). `diff_x_up` and `diff_x_down` report the difference to the next higher or lower consistent value, respectively.
+
+-   `diff_n`, `diff_n_up`, and `diff_n_down` do the same for `n`.
+
+The default for `dispersion` is `1:5`, for five steps up and down. When the `dispersion` sequence gets longer, the number of hits tends to increase:
+
+```{r}
+out_seq2 <- grimmer_map_seq(pigs5, dispersion = 1:10)
+audit_seq(out_seq2)
+```
+
+### Visualizing GRIMMER-tested sequences
+
+It's curious what happens when we plot the output of `grimmer_map_seq()`. Like regular GRIM or GRIMMER plots, however, it does give us a sense of how many tested values are consistent:
+
+```{r, fig.width=6, fig.height=5.5}
+grim_plot(out_seq1)
+```
+
+The crosses appear because `grimmer_map_seq()` creates sequences around both `x` and `n`. Restrict this process to any one of these with the `var` argument:
+
+```{r, fig.width=6, fig.height=5.5}
+out_seq1_only_x <- grimmer_map_seq(pigs5, var = "x")
+out_seq1_only_n <- grimmer_map_seq(pigs5, var = "n")
+
+grim_plot(out_seq1_only_x)
+grim_plot(out_seq1_only_n)
+```
+
+## Handling unknown group sizes with `grimmer_map_total_n()`
+
+### Problems from underreporting
+
+Unfortunately, some studies that report group averages don't report the corresponding group sizes --- only a total sample size. This makes any direct GRIMMER-testing impossible because only `x` values are known, not `n` values. All that is feasible here in terms of GRIMMER is to take a number around half the total sample size, go up and down from it, and check which *hypothetical* group sizes are consistent with the reported group means. `grimmer_map_total_n()` semi-automates this process, motivated by a recent GRIM analysis [@bauer_expression_2021].
+
+Here is an example:
+
+```{r}
+jpap_6 <- tibble::tribble(
+    ~x1,    ~x2,    ~sd1,   ~sd2,   ~n,
+    "3.43", "5.28", "1.09", "2.12", 70,
+    "2.97", "4.42", "0.43", "1.65", 65
+)
+
+out_total_n <- grimmer_map_total_n(jpap_6)
+out_total_n
+
+audit_total_n(out_total_n)
+```
+
+See the GRIM vignette, section *Handling unknown group sizes with `grim_map_total_n()`*, for a more comprehensive case study. It uses `grim_map_total_n()`, which is the same as `grimmer_map_total_n()` but only for GRIM.
+
+# References

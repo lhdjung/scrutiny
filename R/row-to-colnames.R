@@ -11,9 +11,9 @@
 #'   column are pasted together. Some special characters might then be missing.
 #'
 #'   This function might be useful when importing tables from PDF, e.g. with
-#'   \href{https://cran.r-project.org/web/packages/tabulizer/vignettes/tabulizer.html}{tabulizer}.
-#'    In R, these data frames (converted from matrices) do sometimes have the
-#'   issue described above.
+#'   \href{https://cran.r-project.org/package=tabulizer}{tabulizer}. In R, these
+#'   data frames (converted from matrices) do sometimes have the issue described
+#'   above.
 #'
 #' @param data Data frame or matrix.
 #' @param row Integer. Position of the rows (one or more) that jointly contain
@@ -27,9 +27,9 @@
 #'
 #' @include utils.R
 #'
-#' @seealso `dplyr::slice()`, which the function wraps; and
-#'   \href{https://unheadr.liomys.mx/reference/mash_colnames.html}{`unheadr::mash_colnames()`},
-#'   a more sophisticated solution to the same problem.
+#' @seealso
+#' \href{https://unheadr.liomys.mx/reference/mash_colnames.html}{`unheadr::mash_colnames()`},
+#' a more sophisticated solution to the same problem.
 #'
 #' @return A data frame.
 #' @export
@@ -60,8 +60,9 @@ row_to_colnames <- function(data, row = 1, collapse = " ", drop = TRUE) {
   }
 
   if (any(!is_whole_number(row))) {
+    row <- wrap_in_backticks(row)
     cli::cli_abort(c(
-      "`row` is `{row}`",
+      "`row` is {row}",
       "x" = "It needs to be a whole number."
     ))
   }
@@ -71,9 +72,9 @@ row_to_colnames <- function(data, row = 1, collapse = " ", drop = TRUE) {
 
   # Restore the vector of correct column names by the values stored in the one
   # or more rows that were specified by the `row` argument:
-  correct <- dplyr::slice(data, row) %>%
-    rbind(colnames(data), .) %>%
-    purrr::map(remove_na)
+  correct <- data[row, ]
+  correct <- rbind(colnames(data), correct)
+  correct <- purrr::map(correct, remove_na)
 
   correct <- purrr::map(correct, utils::tail, (length(correct[[1]]) - 1))
 
@@ -95,7 +96,7 @@ row_to_colnames <- function(data, row = 1, collapse = " ", drop = TRUE) {
     n_empty <- length(correct_is_empty[correct_is_empty])
     name_names <- dplyr::if_else(n_empty == 1, "name", "names")
     cli::cli_abort(c(
-      "{n_empty} empty column {name_names}",
+      "{n_empty} empty column {name_names}.",
       "x" = "Each column name must have at least one character.",
       ">" = "Make sure to specify `row` in `row_to_colnames()` accordingly."
     ))
@@ -110,9 +111,9 @@ row_to_colnames <- function(data, row = 1, collapse = " ", drop = TRUE) {
   # Return the data frame. By default (`drop = TRUE`), remove the specified row
   # or rows beforehand:
   if (drop) {
-    dplyr::slice(data, -row)
+    return(data[-row, ])
   } else {
-    data
+    return(data)
   }
 
 }

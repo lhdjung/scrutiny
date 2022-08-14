@@ -93,8 +93,8 @@ data saved in the package itself, so these data don't need to be generated
 anew every time the function is called. Inconsistent value sets are marked
 with dark boxes. All other places in the raster denote consistent value
 sets. The raster is independent of the data -- it only follows the
-\code{rounding} specification in the \code{grim_map()} call and the \code{digits}
-argument in \code{grim_plot()}.
+\code{rounding} specification in the \code{grim_map()} call and the \code{digits} argument
+in \code{grim_plot()}.
 
 Display an "empty" plot, one without empirical test results, by setting
 \code{show_data} to \code{FALSE}. You can then control key parameters of the plot
@@ -120,9 +120,10 @@ pigs1 \%>\%
 
 # If you change the rounding procedure
 # in `grim_map()`, the plot will
-# follow automatically:
+# follow automatically if there is
+# a difference:
 pigs1 \%>\%
-  grim_map(rounding = "up") \%>\%
+  grim_map(rounding = "ceiling") \%>\%
   grim_plot()
 
 # For percentages, the y-axis
@@ -130,4 +131,10 @@ pigs1 \%>\%
 pigs2 \%>\%
   grim_map(percent = TRUE) \%>\%
   grim_plot()
+}
+\references{
+Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A
+Simple Technique Detects Numerous Anomalies in the Reporting of Results in
+Psychology. \emph{Social Psychological and Personality Science}, 8(4), 363–369.
+https://journals.sagepub.com/doi/10.1177/1948550616673876
 }

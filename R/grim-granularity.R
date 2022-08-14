@@ -20,8 +20,8 @@
 #'
 #'   It would be wrong to determine a scale's granularity from the minimal
 #'   distance between two values in a given distribution. This would only
-#'   signify how those values actually do differ, not how they *can* differ
-#'   *a priori* based on scale design. Also, keep in mind that continuous scales
+#'   signify how those values actually do differ, not how they *can* differ *a
+#'   priori* based on scale design. Also, keep in mind that continuous scales
 #'   have no granularity at all.
 #'
 #' @param n Numeric. Sample size.
@@ -33,6 +33,11 @@
 #'   that amount, a warning will be shown.
 #'
 #' @include utils.R
+#'
+#' @references Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A
+#'   Simple Technique Detects Numerous Anomalies in the Reporting of Results in
+#'   Psychology. *Social Psychological and Personality Science*, 8(4), 363–369.
+#'   https://journals.sagepub.com/doi/10.1177/1948550616673876
 #'
 #' @export
 #'
@@ -54,7 +59,7 @@
 
 
 grim_granularity <- function(n, items = 1) {
-  1 / (n * items)
+  return(1 / (n * items))
 }
 
 
@@ -66,24 +71,28 @@ grim_items <- function(n, gran, tolerance = .Machine$double.eps^0.5) {
   out_is_whole <- is_whole_number(out, tolerance = tolerance)
 
   if (all(out_is_whole)) {
-    out
+    return(out)
   } else {
     offenders <- out[!out_is_whole]
+    offenders <- round(offenders, 3)
+    offenders <- wrap_in_backticks(offenders)
     if (length(offenders) == 1) {
-      item_items <- glue::glue("Item count")
+      item_items <- "Item count"
       number_numbers <- "isn't a whole number"
     } else {
-      item_items <- glue::glue("{length(offenders)} item counts")
+      item_items <- paste(
+        length(offenders), "out of", length(out), "item counts"
+      )
       number_numbers <- "aren't whole numbers"
     }
 
     cli::cli_warn(c(
-      "{item_items} {number_numbers}",
-      ">" = "This concerns {round(offenders, 7)}.",
+      "{item_items} {number_numbers}.",
+      ">" = "This concerns {offenders}.",
       "!" = "Item counts have a granularity of 1, so they should be whole \\
       numbers. Are you sure about the `n` and `gran` values?"
     ))
-    out
+    return(out)
   }
 
 }

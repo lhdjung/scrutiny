@@ -36,8 +36,8 @@
 #'   anew every time the function is called. Inconsistent value sets are marked
 #'   with dark boxes. All other places in the raster denote consistent value
 #'   sets. The raster is independent of the data -- it only follows the
-#'   `rounding` specification in the `grim_map()` call and the `digits`
-#'   argument in `grim_plot()`.
+#'   `rounding` specification in the `grim_map()` call and the `digits` argument
+#'   in `grim_plot()`.
 #'
 #'   Display an "empty" plot, one without empirical test results, by setting
 #'   `show_data` to `FALSE`. You can then control key parameters of the plot
@@ -86,6 +86,11 @@
 #'
 #' @include utils.R seq-decimal.R
 #'
+#' @references Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A
+#'   Simple Technique Detects Numerous Anomalies in the Reporting of Results in
+#'   Psychology. *Social Psychological and Personality Science*, 8(4), 363–369.
+#'   https://journals.sagepub.com/doi/10.1177/1948550616673876
+#'
 #' @export
 #'
 #' @examples
@@ -96,9 +101,10 @@
 #'
 #' # If you change the rounding procedure
 #' # in `grim_map()`, the plot will
-#' # follow automatically:
+#' # follow automatically if there is
+#' # a difference:
 #' pigs1 %>%
-#'   grim_map(rounding = "up") %>%
+#'   grim_map(rounding = "ceiling") %>%
 #'   grim_plot()
 #'
 #' # For percentages, the y-axis
@@ -125,36 +131,70 @@ grim_plot <- function(data = NULL,
 
   # Checks ----
 
-  if (!inherits(data, "scr_grim_map")) {
-    if (show_data) {
+  inherits_grim    <- inherits(data, "scr_grim_map")
+  inherits_grimmer <- inherits(data, "scr_grimmer_map")
+
+  if (!inherits_grim) {
+    # Issue an alert if any GRIMMER inconsistencies were found in `data`:
+    if (inherits_grimmer) {
+      reason <- data$reason[!is.na(data$reason)]
+      grimmer_cases <- stringr::str_detect(reason, "GRIMMER")
+      grimmer_cases <- length(grimmer_cases[grimmer_cases])
+      if (grimmer_cases > 0) {
+        if (grimmer_cases == 1) {
+          msg_case_s <- "case was"
+          msg_incons <- "inconsistency"
+        } else {
+          msg_case_s <- "cases were"
+          msg_incons <- "inconsistencies"
+        }
+        if (grimmer_cases < length(reason)) {
+          msg_viz <- "Also visualizing"
+        } else {
+          msg_viz <- "Visualizing"
+        }
+        cli::cli_alert("{msg_viz} {grimmer_cases} GRIMMER {msg_incons}.")
+      }
+    } else if (show_data) {
       cli::cli_abort(c(
-        "`data` is not `grim_map()` output",
-        "x" = "`grim_plot()` needs GRIM test results.",
+        "`data` is not `grim_map()` or `grimmer_map()` output.",
+        "x" = "`grim_plot()` needs GRIM or GRIMMER test results.",
         "i" = "The only exception is an \"empty\" plot that shows the \\
         background raster but no empirical test results. Create such a plot \\
         by setting `show_data` to `FALSE`."
       ))
     }
-  } else if (!show_data) {
+  }
+
+  # Warn the user who passed suitable data to `grim_plot()` but also set
+  # `show_data` to `FALSE`, thereby defeating the data's purpose here:
+  if (!show_data && any(inherits_grim, inherits_grimmer)) {
+    if (inherits_grimmer) {
+      msg_grimmer <- " and GRIMMER"
+    } else {
+      msg_grimmer <- ""
+    }
     cli::cli_warn(c(
-      "Test results are not visualized",
-      "!" = "You set `show_data` to `FALSE`, but still gave GRIM test \\
-        results to `grim_plot()`.",
+      "Test results are not visualized.",
+      "!" = "You set `show_data` to `FALSE`, but still passed \\
+      GRIM{msg_grimmer} test results to `grim_plot()`.",
       ">" = "Only the background raster or gradient will be shown, not the \\
         tested data."
     ))
   }
 
+  # The `digits` argument, if specified, needs to be a single integer-like
+  # number because it controls the number of decimal places for which the plot
+  # will be constructed:
   if (!is.null(digits)) {
-    if (!length(digits) == 1) {
+    if (length(digits) != 1) {
       cli::cli_abort(c(
-        "`digits` has length {length(digits)}",
-        "x" = "It needs to have length 1 (a single number)."
+        "`digits` has length {length(digits)}.",
+        "x" = "It needs to have length 1 (i.e., be a single number)."
       ))
-    }
-    if (!is_whole_number(digits)) {
+    } else if (!is_whole_number(digits)) {
       cli::cli_abort(c(
-        "`digits` is {digits}",
+        "`digits` is {digits}.",
         "x" = "It needs to be a whole number."
       ))
     }
@@ -216,8 +256,7 @@ grim_plot <- function(data = NULL,
 
   }
 
-  data <- data %>%
-    dplyr::mutate(x = (as.numeric(x) * items))
+  data$x <- as.numeric(data$x)
 
 
   # Preparations ----
@@ -324,22 +363,15 @@ grim_plot <- function(data = NULL,
 
   # The plot itself ----
 
-    # p <- ggplot2::ggplot(data = data_emp, ggplot2::aes(
-    #     x = n,
-    #     y = frac
-    #   ))
-
-
   # Background raster / gradient:
   if (show_raster) {
 
     # With 1 or 2 digits, the function provides a background raster...
-    # if (!(digits > 2)) {
 
       p <- ggplot2::ggplot(data = df_plot) +
         ggplot2::geom_tile(mapping = ggplot2::aes(
-          x = raster_n,
-          y = raster_frac
+          x = .data$raster_n,
+          y = .data$raster_frac
         ), alpha = raster_alpha, fill = raster_color) +
         ggplot2::theme(
           panel.border = ggplot2::element_rect(fill = NA, colour = "grey50"),
@@ -362,8 +394,8 @@ grim_plot <- function(data = NULL,
 
           p <- p +
             ggplot2::geom_tile(data = df_plot, mapping = ggplot2::aes(
-              x = raster_n,
-              y = raster_frac
+              x = .data$raster_n,
+              y = .data$raster_frac
             )) +
             ggplot2::annotation_custom(grid::rasterGrob(
               t(gradient),
@@ -392,8 +424,8 @@ grim_plot <- function(data = NULL,
       ggplot2::geom_tile(
         data = data_emp,
         mapping = ggplot2::aes(
-          x = n,
-          y = frac
+          x = .data$n,
+          y = .data$frac
         ),
         alpha = tile_alpha,
         size = 1,
@@ -445,12 +477,13 @@ grim_plot <- function(data = NULL,
 
 
   # Finally, return the plot with axis labels:
-  p +
-    ggplot2::labs(
-    x = "Sample size",
-    y = glue::glue("Fractional portion of {mean_percent_label}")
+  return(
+    p +
+      ggplot2::labs(
+        x = "Sample size",
+        y = glue::glue("Fractional portion of {mean_percent_label}")
+      )
   )
-
 
 }
 

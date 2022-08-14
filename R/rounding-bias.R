@@ -50,12 +50,6 @@ rounding_bias <- function(x, digits, rounding = "up", threshold = 5,
 
   # Checks ---
 
-  # For calls with multiple rounding procedures, each individual procedure needs
-  # to be singular; i.e., `rounding` can either be (1) a string of length 1
-  # indicating two procedures, such as `"up_or_down"`; or (2) a string of any
-  # length with values such as `"up"` or `"even"`, but not `"up_or_down"`:
-  check_rounding_singular(rounding)
-
   # If any two arguments called right below are length > 1, they need to have
   # the same length. Otherwise, the call will fail. But even so, there will be a
   # warning that values will get paired:

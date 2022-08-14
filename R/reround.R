@@ -1,5 +1,28 @@
 
-# Helper function used in the main function `reround()`:
+
+# Helper functions; not exported ------------------------------------------
+
+check_rounding_singular_proto <- function(rounding, bad, good_1, good_2) {
+  if (bad %in% rounding) {
+    cli::cli_abort(c(
+      "`rounding` given as \"{bad}\" plus others.",
+      "x" = "If `rounding` has length > 1, only single rounding procedures \\
+      are supported, such as \"{good_1}\" and \"{good_2}\".",
+      "i" = "You can still concatenate multiple of them; just leave out \\
+      those with \"_or_\"."
+    ))
+  }
+}
+
+check_rounding_singular <- function(rounding) {
+  if (length(rounding) > 1) {
+    check_rounding_singular_proto(rounding, "up_or_down", "up", "down")
+    check_rounding_singular_proto(rounding, "up_from_or_down_from", "up_from", "down_from")
+    check_rounding_singular_proto(rounding, "ceiling_or_floor", "ceiling", "floor")
+  }
+}
+
+
 reconstruct_rounded_numbers_scalar <- function(x, digits, rounding,
                                                threshold, symmetric) {
 
@@ -108,7 +131,13 @@ reconstruct_rounded_numbers <- Vectorize(reconstruct_rounded_numbers_scalar,
 reround <- function(x, digits = 0, rounding = "up_or_down",
                     threshold = 5, symmetric = FALSE) {
 
-  # Checks --
+  # Checks ---
+
+  # For calls with multiple rounding procedures, each individual procedure needs
+  # to be singular; i.e., `rounding` can either be (1) a string of length 1
+  # indicating two procedures, such as `"up_or_down"`; or (2) a string of any
+  # length with values such as `"up"` or `"even"`, but not `"up_or_down"`:
+  check_rounding_singular(rounding)
 
   # Throw an error if the lengths of the first two arguments are inconsistent:
   if (length(x) > 1 &&
@@ -165,53 +194,11 @@ reround <- function(x, digits = 0, rounding = "up_or_down",
   # `rounding`) has been found, proceed as described in the `Details` section of
   # the documentation. To vectorize the arguments, this is done via the helper
   # function at the top of the present file:
-  as.vector(reconstruct_rounded_numbers(
+  return(as.vector(reconstruct_rounded_numbers(
     x, digits, rounding, threshold, symmetric
-  ))
+  )))
 
 }
 
 
-
-
-
-# Possible alternative to the helper `reconstruct_rounded_numbers()` -- but it
-# doesn't currently work:
-
-
-# dplyr::case_when(
-#
-#   rounding == "up_or_down"  ~ c(
-#     round_up(x, digits, symmetric),
-#     round_down(x, digits, symmetric)
-#   ),
-#
-#   rounding == "up_from_or_down_from"  ~ c(
-#     round_up_from(x, digits, threshold, symmetric),
-#     round_down_from(x, digits, threshold, symmetric)
-#   ),
-#
-#   rounding == "ceiling_or_floor"  ~ c(
-#     round_ceiling(x, digits),
-#     round_floor(x, digits)
-#   ),
-#
-#   rounding == "even"  ~ round(x, digits),
-#   rounding == "up"  ~ round_up(x, digits, symmetric),
-#   rounding == "down"  ~ round_down(x, digits, symmetric),
-#   rounding == "up_from"  ~ round_up_from(x, digits, threshold, symmetric),
-#   rounding == "down_from"  ~ round_down_from(x, digits, threshold, symmetric),
-#   rounding == "ceiling"  ~ round_ceiling(x, digits),
-#   rounding == "floor"  ~ round_floor(x, digits),
-#   rounding == "trunc"  ~ round_trunc(x, digits),
-#   rounding == "anti_trunc"  ~ round_anti_trunc(x, digits),
-#
-#   TRUE  ~ cli::cli_abort(c(
-#     "`rounding` misspecified",
-#     "x" = "`rounding` was given as {wrong_spec_string(rounding)}.",
-#     ">" = "Please use one of the designated string values instead. See \\
-#       documentation for `grim()`, section `Rounding`."
-#   ))
-#
-# )
 

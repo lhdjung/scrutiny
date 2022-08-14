@@ -1,4 +1,17 @@
 
+
+# # Example data:
+# x         <- "5.19"
+# n         <- 40
+# items     <- 1
+# percent   <- FALSE
+# show_rec  <- FALSE
+# rounding  <- "up_or_down"
+# threshold <- 5
+# symmetric <- FALSE
+# tolerance <- .Machine$double.eps^0.5
+
+
 # Single-case function; not exported but used as a basis for the vectorized
 # `grim()` as well as within `grim_map()`:
 grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
@@ -6,11 +19,8 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
                         symmetric = FALSE,
                         tolerance = .Machine$double.eps^0.5) {
 
-  # For calls with multiple rounding procedures, each individual procedure needs
-  # to be singular; i.e., `rounding` can either be (1) a string of length 1
-  # indicating two procedures, such as `"up_or_down"`; or (2) a string of any
-  # length with values such as `"up"` or `"even"`, but not `"up_or_down"`:
-  check_rounding_singular(rounding)
+  check_type(items, c("double", "integer"))
+  check_type(percent, "logical")
 
   # Provide some guidance in case users confuse `grim()` with `grim_map()`:
   if (is.data.frame(x)) {
@@ -45,9 +55,13 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
   n_items <- n * items
   rec_sum <- x_num * n_items
 
-  # Now, reconstruct the two possible mean or percentage values (or "grains"):
+  # Now, reconstruct the possible mean or percentage values (or "grains"),
+  # controlling for small differences introduced by spurious precision:
   rec_x_upper <- ceiling(rec_sum) / n_items
   rec_x_lower <- floor(rec_sum) / n_items
+
+  rec_x_upper <- dustify(rec_x_upper)
+  rec_x_lower <- dustify(rec_x_lower)
 
   # Round these "grains" using an internal helper function that also gets the
   # number of decimal places as well as the `rounding`, `threshold`, and
@@ -69,21 +83,29 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
 
   if (!show_rec) {
     # Check if any of these two comparisons returned `TRUE`:
-    any(grain_is_x)
+    return(any(grain_is_x))
   } else {
     consistency <- any(grain_is_x)
     length_2ers <- c("up_or_down", "up_from_or_down_from", "ceiling_or_floor")
 
     if (any(length_2ers == rounding)) {
 
-      list(consistency, rec_sum, rec_x_upper, rec_x_lower,
-           grains_rounded[1], grains_rounded[2],
-           grains_rounded[3], grains_rounded[4])
+      # Skipping those values that are identical to the selected ones apart from
+      # `dust` addition or subtraction via `dustify()`:
+      return(list(
+        consistency, rec_sum, rec_x_upper, rec_x_lower,
+        grains_rounded[1], grains_rounded[2],
+        grains_rounded[5], grains_rounded[6]
+      ))
 
     } else {
 
-      list(consistency, rec_sum, rec_x_upper, rec_x_lower,
-           grains_rounded[1], grains_rounded[2])
+      # Skipping as above:
+      return(list(
+        consistency, rec_sum, rec_x_upper, rec_x_lower,
+        grains_rounded[1], grains_rounded[3]
+      ))
+
     }
 
   }
@@ -151,12 +173,13 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
 #' @param percent Boolean. Set `percent` to `TRUE` if `x` is a percentage. This
 #'   will convert it to a decimal number and adjust the decimal count (i.e.,
 #'   increase it by 2). Default is `FALSE`.
-#' @param show_rec Boolean. If set to `TRUE`, the output is a matrix that also
-#'   contains intermediary values from GRIM-testing. This is not recommended;
-#'   instead, use `show_rec` in `grim_map()`. Default is `FALSE`.
+#' @param show_rec Boolean. For internal use only.  If set to `TRUE`, the output
+#'   is a matrix that also contains intermediary values from GRIM-testing. Don't
+#'   specify this manually; instead, use `show_rec` in `grim_map()`. Default is
+#'   `FALSE`.
 #' @param rounding String. Rounding method or methods to be used for
 #'   reconstructing the values to which `x` will be compared. Default is
-#'   `"up_or_down"` (from 5). For more options, see Details.
+#'   `"up_or_down"` (from 5).
 #' @param threshold Numeric. If `rounding` is set to `"up_from"`, `"down_from"`,
 #'   or `"up_from_or_down_from"`, set `threshold` to the number from which the
 #'   reconstructed values should then be rounded up or down. Otherwise, this
@@ -178,10 +201,10 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
 #'
 #' @importFrom magrittr %>%
 #'
-#' @references Brown, Nicholas J. L., and James A. J. Heathers. 2017. The GRIM
-#'   Test: A Simple Technique Detects Numerous Anomalies in the Reporting of
-#'   Results in Psychology. *Social Psychological and Personality Science* 8
-#'   (4): 363–69. https://doi.org/10.1177/1948550616673876.
+#' @references Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A
+#'   Simple Technique Detects Numerous Anomalies in the Reporting of Results in
+#'   Psychology. *Social Psychological and Personality Science*, 8(4), 363–369.
+#'   https://journals.sagepub.com/doi/10.1177/1948550616673876
 #'
 #' @examples
 #' # A mean of 5.19 is not consistent with a sample size of 28:

@@ -4,12 +4,18 @@
 \alias{is_subset_of}
 \alias{is_superset_of}
 \alias{is_equal_set}
+\alias{is_proper_subset_of}
+\alias{is_proper_superset_of}
 \alias{is_subset_of_vals}
 \alias{is_superset_of_vals}
 \alias{is_equal_set_vals}
+\alias{is_proper_subset_of_vals}
+\alias{is_proper_superset_of_vals}
 \alias{is_subset_of_vecs}
 \alias{is_superset_of_vecs}
 \alias{is_equal_set_vecs}
+\alias{is_proper_subset_of_vecs}
+\alias{is_proper_superset_of_vecs}
 \title{Test for subsets, supersets, and equal sets}
 \usage{
 is_subset_of(x, y)
@@ -18,27 +24,39 @@ is_superset_of(x, y)
 
 is_equal_set(x, y)
 
+is_proper_subset_of(x, y)
+
+is_proper_superset_of(x, y)
+
 is_subset_of_vals(x, ...)
 
 is_superset_of_vals(x, ...)
 
 is_equal_set_vals(x, ...)
 
+is_proper_subset_of_vals(x, ...)
+
+is_proper_superset_of_vals(x, ...)
+
 is_subset_of_vecs(x, ...)
 
 is_superset_of_vecs(x, ...)
 
 is_equal_set_vecs(x, ...)
+
+is_proper_subset_of_vecs(x, ...)
+
+is_proper_superset_of_vecs(x, ...)
 }
 \arguments{
 \item{x}{A vector.}
 
-\item{y}{A vector. Only in the basic functions, not those with \verb{_vals} or
-\verb{_vecs}.}
+\item{y}{A vector. Only in the basic functions, not those with \verb{*_vals()} or
+\verb{*_vecs()}.}
 
-\item{...}{In the \verb{_vals} functions, any number of values \code{x} might contain;
-in the \verb{_vecs} functions, any number of vectors the elements of which \code{x}
-might contain.}
+\item{...}{In the \verb{*_vals()} functions, any number of values \code{x} might
+contain; in the \verb{*_vecs()} functions, any number of vectors the elements of
+which \code{x} might contain.}
 }
 \value{
 A single Boolean value.
@@ -69,14 +87,19 @@ Finally, \code{is_subset_of_vecs()}, \code{is_superset_of_vecs()}, and
 \code{is_equal_set_vecs()} take one vector plus any number of other vectors and
 treat their elements (!) like elements of a second vector in the basic
 functions above.
+
+Each \verb{is_subset*()} function has an \verb{is_proper_subset*()} variant. These
+variants also test whether the sets are unequal, so that \code{x} is a subset of
+\code{y} but \code{y} is not a subset of \code{x}. The same applies to \verb{is_superset*()}
+functions and their \verb{is_proper_superset*()} variants.
 }
 \details{
-The \verb{_vals} variants are meant for flexible, interactive
-subset/superset testing. That is, if you can guess which values might
+The \verb{*_vals()} variants are meant for flexible, interactive
+subset/superset testing. That is, in order to test whether certain values
 collectively fulfill the role of the second vector, you can just add them
-to the call.
+to the function call.
 
-The \verb{_vecs} variants likewise offer flexibility, but also bridge the gap
+The \verb{*_vecs()} variants likewise offer flexibility, but also bridge the gap
 between vectors and values contained in them.
 
 All functions simply check if values are present, regardless of how often a
@@ -107,7 +130,7 @@ abc \%>\% is_equal_set(ab)
 abc \%>\% is_equal_set(abc)
 abc \%>\% is_equal_set(abcde)
 
-# Each of the three functions has a `_vals` variant
+# Each of the three functions has a `*_vals()` variant
 # that doesn't take a second vector like the first
 # one, but any number of other arguments. These are
 # jointly treated like the elements of the second
@@ -118,11 +141,13 @@ abc \%>\% is_subset_of_vals("a", "b", "c", "d", "e")
 
 # (... and likewise for supersets and equal sets.)
 
-# The `_vecs` functions are like the basic ones
-# but for any number of other vectors:
-abc \%>\% is_subset_of_vecs(ab, "c")
-abc \%>\% is_subset_of_vecs(ab, c("c", "d"))
-abc \%>\% is_subset_of_vecs(ab, c(3, 4, 5))
+# The `*_vecs()` functions are like the basic
+# ones but for any number of other vectors:
+if (FALSE) {
+  abc \%>\% is_subset_of_vecs(ab, "c")
+  abc \%>\% is_subset_of_vecs(ab, c("c", "d"))
+  abc \%>\% is_subset_of_vecs(ab, c(3, 4, 5))
+}
 
 # (... again, likewise for supersets and equal sets.)
 }

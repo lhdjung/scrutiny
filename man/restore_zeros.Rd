@@ -4,7 +4,7 @@
 \alias{restore_zeros}
 \title{Restore trailing zeros}
 \usage{
-restore_zeros(x, width = NULL, sep = "\\\\.")
+restore_zeros(x, width = NULL, sep_in = "\\\\.", sep_out = sep_in, sep = NULL)
 }
 \arguments{
 \item{x}{Numeric (or string coercible to numeric). Vector of numbers that
@@ -14,8 +14,15 @@ might have lost trailing zeros.}
 including the restored zeros. Default is \code{NULL}, in which case the number
 of characters in the longest mantissa will be used instead.}
 
-\item{sep}{Substring that separates the mantissa from the integer part.
-Default is \code{"\\\\."}, which renders a decimal point.}
+\item{sep_in}{Substring that separates the input's mantissa from its integer
+part. Default is \code{"\\\\."}, which renders a decimal point.}
+
+\item{sep_out}{Substring that will be returned in the output to separate the
+mantissa from the integer part. By default, \code{sep_out} is the same as
+\code{sep_in}.}
+
+\item{sep}{[\link{Deprecated}] Use \code{sep_in}, not \code{sep}. If \code{sep} is specified
+nonetheless, \code{sep_in} takes on \code{sep}'s value.}
 }
 \value{
 A string vector. At least some of the strings will have newly
@@ -65,5 +72,5 @@ vec \%>\% restore_zeros()
 vec \%>\% restore_zeros(width = 6)
 }
 \seealso{
-\code{decimal_places()}
+Wrapped functions: \code{sprintf()} and \code{decimal_places()}.
 }

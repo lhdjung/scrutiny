@@ -41,8 +41,8 @@ name), a warning will be shown.
 
 It would be wrong to determine a scale's granularity from the minimal
 distance between two values in a given distribution. This would only
-signify how those values actually do differ, not how they \emph{can} differ
-\emph{a priori} based on scale design. Also, keep in mind that continuous scales
+signify how those values actually do differ, not how they \emph{can} differ \emph{a
+priori} based on scale design. Also, keep in mind that continuous scales
 have no granularity at all.
 }
 \examples{
@@ -60,4 +60,10 @@ grim_items(n = 1, gran = 0.5)
 # With more cases, a warning appears
 # because items can only be whole numbers:
 grim_items(n = c(10, 15, 20), gran = 0.5)
+}
+\references{
+Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A
+Simple Technique Detects Numerous Anomalies in the Reporting of Results in
+Psychology. \emph{Social Psychological and Personality Science}, 8(4), 363–369.
+https://journals.sagepub.com/doi/10.1177/1948550616673876
 }

@@ -29,7 +29,7 @@ devtools::load_all(".")
 library(scrutiny)
 ```
 
-Granularity-related inconsistency of means, or GRIM, is a test for the mathematical consistency of reported means or proportions with the corresponding sample size [@brown2016]. It can be applied to summary statistics of discrete numerical distributions. GRIM answers a simple question: Is it possible that a granular distribution has both the reported mean or percentage and the reported sample size?
+Granularity-related inconsistency of means, or GRIM, is a test for the mathematical consistency of reported means or proportions with the corresponding sample size [@brown_grim_2017]. It can be applied to summary statistics of discrete numerical distributions. GRIM answers a simple question: Is it possible that a granular distribution has both the reported mean or percentage and the reported sample size?
 
 This vignette covers scrutiny's implementation of the GRIM test. It has the following sections --- to get started, though, you only need the first one:
 
@@ -43,7 +43,7 @@ This vignette covers scrutiny's implementation of the GRIM test. It has the foll
 
 5.  Statistical benchmarks, such as granularity and the GRIM ratio.
 
-## GRIM testing
+## Basic GRIM testing
 
 ### Few cases: `grim()`
 
@@ -89,7 +89,7 @@ The `x` and `n` columns are the same as in the input. By default, the number of 
 
 ### Scale items
 
-If the mean is composed of multiple items, set the `items` parameter to that number. Below are hypothetical means of a three-items scale. With the single-item default, half of these are wrongly flagged as inconsistent:
+If a mean is composed of multiple items, set the `items` parameter to that number. Below are hypothetical means of a three-items scale. With the single-item default, half of these are wrongly flagged as inconsistent:
 
 ```{r, error=TRUE}
 jpap_1 <- tribble(
@@ -138,7 +138,7 @@ An underappreciated strength of GRIM is testing percentages. Since these are act
 
 Both `grim()` and `grim_map()` have a `percent` parameter which, if set to `TRUE`, divides the `x` values by 100 and increases the decimal count by two, so that percentages can be tested just like means:
 
-```{r, error=TRUE}
+```{r}
 jpap_3 <- tribble(
   ~x,     ~n,
   "32.5",  438,
@@ -157,7 +157,8 @@ Set `show_rec` to `TRUE` if you want the values that were reconstructed during G
 
 ```{r}
 pigs1 %>% 
-  grim_map(show_rec = TRUE)
+  grim_map(show_rec = TRUE) %>% 
+  dplyr::select(4:8)   # output cut down for printing
 ```
 
 The additional columns are ---
@@ -178,7 +179,7 @@ The additional columns are ---
 
 The last four columns depend on `rounding`. Here, they follow the default `"up_or_down"`, leading to two columns for each of `rec_x_upper` and `rec_x_lower`. With a singular `rounding` procedure, such as `"up"`, there would only be one column each, and thus, two in total. The difference between these numbers is not greatly important, however, because rounding up and down mostly delivers the same results.
 
-Internally, GRIM-consistency is determined by whether or not a stated `x` value is near-identical to either `rec_x_upper_rounded` or `rec_x_lower_rounded`. This algorithm follows the charitable and conservative protocol outlined by Brown and Heathers (2017).
+Internally, GRIM-consistency is determined by whether or not a stated `x` value is near-identical to either `rec_x_upper_rounded` or `rec_x_lower_rounded`. This algorithm follows the charitable and conservative protocol outlined by Brown and Heathers (2017). The `rec_*` columns were inspired by @bauer_expression_2021's Table 1 but present values in slightly different ways.
 
 ### Rounding
 
@@ -186,7 +187,7 @@ The scrutiny package provides infrastructure for reconstructing rounded numbers.
 
 First and foremost is `rounding`. It takes a string with the rounding procedure's name, which leads to the number being rounded in either of these ways:
 
-1.  Rounded `"up"` or `"down"` from 5. Note that SAS, SPSS, Stata, Matlab, and Excel round `"up"` from 5, whereas Python rounds `"down"` from 5.
+1.  Rounded `"up"` or `"down"` from 5. Note that SAS, SPSS, Stata, Matlab, and Excel round `"up"` from 5, whereas Python used to round `"down"` from 5.
 2.  Rounded to `"even"` using base R's own `round()`.
 3.  Rounded `"up_from"` or `"down_from"` some number, which then needs to be specified via the `threshold` parameter.
 4.  Given a `"ceiling"` or `"floor"` at the respective decimal place.
@@ -198,7 +199,7 @@ Points 3 to 5 above list some quite obscure options that were only included to c
 
 By default, `grim()` and `grim_map()` accept values rounded either up or down from 5. If you have reason to impose stricter assumptions on the way `x` was rounded, specify `rounding` accordingly:
 
-```{r, error=TRUE}
+```{r}
 jpap_4 <- tibble::tribble(
     ~x,     ~n,
     "2.02",  80,
@@ -214,49 +215,9 @@ jpap_4 %>%
   grim_map(rounding = "down")
 ```
 
-Rounding up and down leads to precisely opposite results for the first two cases, although it agrees on the latter two. Even this example is cherry-picked: Sample sizes of 80 are highly unusual because, for most other `n` values, those two rounding procedures agree in the overwhelming majority of cases. See section *Visualizing results with `grim_plot()`* on this issue.
+Rounding up and down leads to precisely opposite results for the first two cases, although it agrees on the latter two. Even this example is cherry-picked: Sample sizes of 80 are highly unusual because, for most other `n` values, those two rounding procedures agree in the vast majority of cases. See section *Visualizing results with `grim_plot()`* on this issue.
 
 It might still be important to account for the different ways in which numbers can be rounded, if only to demonstrate that some given results are robust to those variable decisions. To err on the side of caution, the default for `rounding` is the permissive `"up_or_down"`.
-
-## Testing numeric sequences
-
-Analysts might be interested in a mean or percentage value's numeric neighborhood. Suppose you found a reported mean of 5.30 to be GRIM-inconsistent with a sample size of 32. You might hypothesize that it was swapped with the nearby correct value.
-
-There are two ways to approach this: (1) testing sequence vectors with `seq_distance()` and `grim()`, or (2) testing sequence data frames with `seq_distance_df()` and `grim_map()`. I think the second way is more useful, but see for yourself.
-
-### With `seq_distance()` and `grim()`
-
-Create a sequence starting from 5.30 with `seq_distance()` and pipe the result into `grim()`, where you specify `n` as 32. Although the starting point is allowed to be numeric, we need to enter 5.30 as a string to preserve the trailing zero:
-
-```{r}
-seq_distance(from = "5.30") %>% 
-  grim(n = 32)
-```
-
-### With `seq_distance_df()` and `grim_map()`
-
-First, use `seq_distance_df()` to create a data frame with a sequence column starting from 5.30, adding an `n` column that's constant at 32:
-
-```{r}
-seq_distance_df(.from = "5.30", n = 32)
-```
-
-This data frame can readily be piped into `grim_map()`, so we get a neat output table without much preparation:
-
-```{r, error=TRUE}
-seq_distance_df(.from = "5.30", n = 32) %>% 
-  grim_map()
-```
-
-These results, in turn, can be analyzed with `seq_test_ranking()`:
-
-```{r}
-seq_distance_df(.from = "5.30", n = 32) %>% 
-  grim_map() %>% 
-  seq_test_ranking()
-```
-
-Read more about scrutiny's four `seq_*` functions at `vignette("infrastructure")`; two were left out here.
 
 ## Summarizing results with `audit()`
 
@@ -265,7 +226,8 @@ Following up on a call to `grim_map()`, the generic function `audit()` summarize
 ```{r}
 flying_pigs1 %>% 
   grim_map() %>% 
-  audit()
+  audit() %>% 
+  dplyr::select(1:5)   # output cut down for printing
 ```
 
 These columns are ---
@@ -276,9 +238,9 @@ These columns are ---
 
 3.  `incons_rate`: proportion of GRIM-inconsistent value sets.
 
-4.  `mean_ratio`: average of GRIM ratios.
+4.  `mean_grim_ratio`: average of GRIM ratios.
 
-5.  `incons_base_ratio`: ratio of `incons_rate` to `mean_ratio`.
+5.  `incons_to_ratio`: ratio of `incons_rate` to `mean_ratio`.
 
 6.  `testable_cases`: number of GRIM-testable value sets (i.e., those with a positive ratio).
 
@@ -312,25 +274,113 @@ jpap_5 %>%
 `grim_plot()` can only be called on `grim_map()`'s output. It will fail otherwise:
 
 ```{r, error=TRUE}
-mtcars %>% 
-  grim_plot()
+grim_plot(mtcars)
 ```
 
-The sheer optics of this plot will probably not fit everyone's taste. However, it is strictly based on the laws governing GRIM. The background raster shows all consistent (light) and inconsistent (dark) value pairs for two decimal places.
+With its unusual optics, this plot will probably not fit everyone's taste. The results of `grim_plot()` are like those of error detection in general: They are not pretty, but they put the unvarnished truth on display.
 
-Empirical values are shown in blue if consistent and red if inconsistent. Color settings and other ggplot2-typical options are available via arguments. Read about them at `grim_plot()`'s documentation.
+The plot is strictly based on the laws governing GRIM. Its background raster shows all consistent (light) and inconsistent (dark) value pairs for two decimal places. Empirical values are shown in blue if consistent and red if inconsistent. Color settings and other ggplot2-typical options are available via arguments. Read about them at `grim_plot()`'s documentation.
 
-You might notice the light vertical lines at $N = 40$ and $N = 80$: Few values are flagged as inconsistent here. This reflects `grim_map()`'s charitable default of accepting values rounded either up *or* down from 5. If a different `rounding` specification is chosen in the `grim_map()` call, the plot raster will adjust automatically:
+You might notice the light vertical lines at $N = 40$ and $N = 80$: Few values are flagged as inconsistent here. This reflects `grim_map()`'s charitable default of accepting values rounded either up *or* down from 5. If a different `rounding` specification is chosen in the `grim_map()` call, the plot raster will adjust automatically (although it will often be the same as before):
 
 ```{r, fig.width=6, fig.height=5.5}
 jpap_5 %>% 
-  grim_map(rounding = "up") %>% 
+  grim_map(rounding = "ceiling") %>% 
   grim_plot()
 ```
 
 All `rounding` values other than `up_from`, `down_from`, and `up_from_or_down_from` are supported.
 
-Speed is not much of a concern here because all the rasters are based on data already stored within the package (in R/sysdata.rda), so they don't need to be generated on the spot every time the function is called. See R/data-gen.R for the way they were generated.
+Speed is not much of a concern here because all the rasters are based on data already stored within the package (in [R/sysdata.rda](https://github.com/lhdjung/scrutiny/blob/main/R/sysdata.rda)), so they don't need to be generated on the spot every time the function is called. See R/data-gen.R for the way they were generated.
+
+## Testing numeric sequences with `grim_map_seq()`
+
+GRIM analysts might be interested in a mean or percentage value's numeric neighborhood. Suppose you found multiple GRIM inconsistencies as in out example `pigs1` data. You might wonder whether they are due to small reporting or computing errors.
+
+Use `grim_map_seq()` to GRIM-test the values surrounding the reported means and sample sizes:
+
+```{r}
+out_seq1 <- grim_map_seq(pigs1)
+out_seq1
+```
+
+### Summaries with `audit_seq()`
+
+As this output is a little unwieldy, run `audit_seq()` on the results:
+
+```{r}
+audit_seq(out_seq1)
+```
+
+Here is what the output columns mean:
+
+-   `x` and `n` are the original inputs, reconstructed and tested for `consistency` here.
+
+-   `hits` is the number of GRIM-consistent value combinations found within the specified `dispersion` range.
+
+-   `diff_x` reports the absolute difference between `x` and the next consistent dispersed value (in dispersion steps, not the actual numeric difference). `diff_x_up` and `diff_x_down` report the difference to the next higher or lower consistent value, respectively.
+
+-   `diff_n`, `diff_n_up`, and `diff_n_down` do the same for `n`.
+
+The default for `dispersion` is `1:5`, for five steps up and down. When the `dispersion` sequence gets longer, the number of hits tends to increase:
+
+```{r}
+out_seq2 <- grim_map_seq(pigs1, dispersion = 1:10)
+audit_seq(out_seq2)
+```
+
+### Visualizing GRIM-tested sequences
+
+It's curious what happens when we plot the output of `grim_map_seq()`. Like regular GRIM plots, however, it does give us a sense of how many tested values are consistent:
+
+```{r, fig.width=6, fig.height=5.5}
+grim_plot(out_seq1)
+```
+
+The crosses appear because `grim_map_seq()` creates sequences around both `x` and `n`. Restrict this process to any one of these with the `var` argument:
+
+```{r, fig.width=6, fig.height=5.5}
+out_seq1_only_x <- grim_map_seq(pigs1, var = "x")
+out_seq1_only_n <- grim_map_seq(pigs1, var = "n")
+
+grim_plot(out_seq1_only_x)
+grim_plot(out_seq1_only_n)
+```
+
+## Handling unknown group sizes with `grim_map_total_n()`
+
+### Problems from underreporting
+
+Unfortunately, some studies that report group averages don't report the corresponding group sizes --- only a total sample size. This makes any direct GRIM-testing impossible because only `x` values are known, not `n` values. All that is feasible here in terms of GRIM is to take a number around half the total sample size, go up and down from it, and check which *hypothetical* group sizes are consistent with the reported group means. `grim_map_total_n()` semi-automates this process, motivated by a recent GRIM analysis [@bauer_expression_2021].
+
+The study examined by @bauer_expression_2021 reported means of 5.3 and 4.71 for a total sample size of 40. With equal group sizes (i.e., 20 in each group), only 5.3 is GRIM-consistent, not 4.71. However, Bauer and Francis looked for a plausible scenario in which both means were consistent. They checked if those scenarios came about if the 40 participants were distributed across the two groups in slightly different ways.
+
+More precisely, they went from a 20/20 group split to a 19/21 split, then to an 18/22 split, and finally to a 17/23 split. In the latter scenario, both means are consistent if 17 is paired with 4.71 and 23 with 5.3.
+
+### Semi-automated solution
+
+Instead of going about this manually, call `grim_map_total_n()`, followed by `audit_total_n()` for summarizing the results. It will find two further plausible scenarios in which both means are consistent; more on that below.
+
+```{r}
+df <- tibble(x1 = "4.71", x2 = "5.3", n = 40)
+
+# Detailed results:
+df_tested <- grim_map_total_n(df)
+df_tested
+
+# Summary:
+audit_total_n(df_tested)
+```
+
+Each "hit" is a scenario in which both `x1` and `x2` are GRIM-consistent with one of the two hypothetical group sizes. By default (`dispersion = 0:5`), the function goes five steps up and down from `n`.
+
+### Testing both ways
+
+@bauer_expression_2021 only took those scenarios into account in which 4.71 was combined with the respective smaller group and 5.3 with the larger one, so 17/23 is the only "hit" they found (my term). However, the converse way of assigning hypothetical group sizes to the reported means would be equally justified. `grim_map_total_n()`, therefore, conducts two sets of GRIM tests: one for each way of pairing means and group sizes.
+
+It thus finds the group sizes 19/21 and 16/24 to be GRIM-consistent if 5.3 is combined with the smaller group and 4.71 with the larger one (i.e., with pairing reversed from Bauer and Francis' analysis). In the `audit_total_n()` summary of the function's output, results from original pairing are named `hits_forth`, those from reversed pairing are named `hits_back`, and their sum is named `hits_total`.
+
+This example only features one case --- the `df` tibble has just a single row. It could have any number of rows, though; and `grim_map_total_n()` would determine and count the "hits" for each of them. See the *Examples* section of `grim_map_total_n()`'s documentation.
 
 ## GRIM statistics
 
@@ -400,7 +450,7 @@ Thus, all I did regarding the GRIM ratio was to make the general formula explici
 
 ### Granularity and scale items
 
-A distribution's granularity is the minimal amount by which two means or proportions of a non-continuous distribution can differ. It is derived from the sample size and the number of scale items. The number of items, in turn, naturally follows from the distribution's sample size and granularity.
+The granularity of a non-continuous distribution is the minimal amount by which two means or proportions of the distribution can differ. It is derived from the sample size and the number of scale items. The number of items, in turn, naturally follows from the distribution's sample size and granularity.
 
 #### Formulas
 
