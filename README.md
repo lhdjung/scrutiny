@@ -10,12 +10,10 @@ coverage](https://codecov.io/gh/lhdjung/scrutiny/branch/main/graph/badge.svg)](h
 # Error detection in science
 
 The goal of scrutiny is to test published summary statistics for
-consistency using techniques like
-[GRIM](file:///Users/lukasjung/Documents/R-code/scrutiny/docs/articles/grim.html)
-and to check their plausibility by reconstructing some of the processes
-behind them. The package makes these methods easy to use in a
-tidyverse-friendly way. It hopes to help the new field of error
-detection go mainstream.
+consistency using techniques like GRIM and to check their plausibility
+by reconstructing some of the processes behind them. The package makes
+these methods easy to use in a tidyverse-friendly way. It hopes to help
+the new field of error detection go mainstream.
 
 Besides ready-made tests, scrutiny features a complete system for
 implementing new consistency tests, more general infrastructure for
