@@ -1,3 +1,11 @@
+# scrutiny 0.2.1
+
+This is a patch.
+
+-   It reduces the scope of some examples for CRAN compliance.
+
+-   Minor vignette changes.
+
 # scrutiny 0.2.0
 
 This is a massive release, with many new features and improvements all over scrutiny. Most notably, the package now includes an entirely new system for implementing consistency tests.
