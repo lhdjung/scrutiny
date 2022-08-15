@@ -81,8 +81,11 @@ next higher or lower consistent value, respectively.
 # that `debit_map()` can take:
 pigs3
 
-# All the results:
-out <- debit_map_seq(pigs3, include_consistent = TRUE)
+# Results from testing the first two rows:
+out <- pigs3 \%>\%
+  dplyr::slice(1:2) \%>\%
+  debit_map_seq(include_consistent = TRUE)
+
 out
 
 # Case-wise summaries with `audit_seq()`
