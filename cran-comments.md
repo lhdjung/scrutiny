@@ -2,6 +2,8 @@
 
 0 errors | 0 warnings | 1 note
 
-* This is a new release.
+This is a resubmission. I now have:
 
-* The NOTE refers to a functional website created with Github Actions. Thank you for your attention.
+* Added a trailing slash to the URL in DESCRIPTION
+
+* Reduced the scope of some examples
