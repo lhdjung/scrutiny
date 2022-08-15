@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -92,7 +92,7 @@
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lhdjung.github.io/scrutiny">scrutiny</a></span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lhdjung.github.io/scrutiny/">scrutiny</a></span><span class="op">)</span></span></code></pre></div>
 <p>Large parts of scrutiny are about rounding. This topic is more diverse and variegated than one might think. “Rounding” is often taken to simply mean rounding up from 5, and although that’s wrong, it doesn’t make much of a difference most of the time. Where it does matter is in <em>reconstructing</em> the rounding procedures that others used, claim to have used, or are alleged to have used. In short, rounding and all its details matter for error detection.</p>
 <p>This vignette covers scrutiny’s infrastructure for reconstructing rounding procedures and results from summary statistics. Doing so is essential for the package: It is a precondition for translating assumptions about the processes behind published summary data into a few simple, higher-level function calls. Some of the functions presented here might be useful beyond the package, as well. Feel free to skip the more theoretical parts if your focus is on the code.</p>
 <div class="section level2">
@@ -357,32 +357,32 @@ bias = x_{rounded} - x
 <code class="sourceCode R"><span><span class="va">vec4</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">50000</span>, <span class="fl">100</span>, <span class="fl">15</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span><span class="va">vec4</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] -2.177364e-06</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 9.37451e-06</span></span></code></pre></div>
 <p>What is responsible for such a difference? It seems to be (1) the sample size and (2) the number of decimal places to which the vector is rounded. The rounding method doesn’t appear to matter if numbers with many decimal places are rounded:</p>
 <pre><code><span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 10 × 3</span></span></span>
-<span><span class="co">#&gt;            bias decimal_digits rounding</span></span>
-<span><span class="co">#&gt;           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 0.000<span style="text-decoration: underline;">086</span>4    1 up           up      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 0.000<span style="text-decoration: underline;">002</span>18   2 up           up      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 0.000<span style="text-decoration: underline;">002</span>68   3 up           up      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 0.000<span style="text-decoration: underline;">000</span>289  4 up           up      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 0.000<span style="text-decoration: underline;">000</span>013<span style="text-decoration: underline;">0</span> 5 up           up      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 0.000<span style="text-decoration: underline;">086</span>4    1 even         even    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 0.000<span style="text-decoration: underline;">002</span>18   2 even         even    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 0.000<span style="text-decoration: underline;">002</span>68   3 even         even    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 0.000<span style="text-decoration: underline;">000</span>289  4 even         even    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 0.000<span style="text-decoration: underline;">000</span>013<span style="text-decoration: underline;">0</span> 5 even         even</span></span></code></pre>
+<span><span class="co">#&gt;        bias decimal_digits rounding</span></span>
+<span><span class="co">#&gt;       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 4.86<span style="color: #949494;">e</span><span style="color: #BB0000;">- 5</span> 1 up           up      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 9.37<span style="color: #949494;">e</span><span style="color: #BB0000;">- 6</span> 2 up           up      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 1.11<span style="color: #949494;">e</span><span style="color: #BB0000;">- 6</span> 3 up           up      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 1.09<span style="color: #949494;">e</span><span style="color: #BB0000;">- 7</span> 4 up           up      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 8.90<span style="color: #949494;">e</span><span style="color: #BB0000;">-10</span> 5 up           up      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 4.86<span style="color: #949494;">e</span><span style="color: #BB0000;">- 5</span> 1 even         even    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 9.37<span style="color: #949494;">e</span><span style="color: #BB0000;">- 6</span> 2 even         even    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 1.11<span style="color: #949494;">e</span><span style="color: #BB0000;">- 6</span> 3 even         even    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 1.09<span style="color: #949494;">e</span><span style="color: #BB0000;">- 7</span> 4 even         even    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 8.90<span style="color: #949494;">e</span><span style="color: #BB0000;">-10</span> 5 even         even</span></span></code></pre>
 <p><img src="rounding_files/figure-html/unnamed-chunk-19-1.png" width="700"></p>
 <p>However, if the raw values are preliminarily rounded to 2 decimal places before rounding proceeds as above, the picture is different:</p>
 <pre><code><span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 10 × 3</span></span></span>
 <span><span class="co">#&gt;         bias decimal_digits rounding</span></span>
 <span><span class="co">#&gt;        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 0.004<span style="text-decoration: underline;">98</span>   1 up           up      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 0.004<span style="text-decoration: underline;">99</span>   1 up           up      </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 0         2 up           up      </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 0         3 up           up      </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 0         4 up           up      </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 0         5 up           up      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 0.000<span style="text-decoration: underline;">012</span>2 1 even         even    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 0.000<span style="text-decoration: underline;">024</span>0 1 even         even    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 0         2 even         even    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 0         3 even         even    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 0         4 even         even    </span></span>
