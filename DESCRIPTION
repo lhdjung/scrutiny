@@ -1,11 +1,16 @@
 Package: scrutiny
 Title: Error Detection in Science
 Version: 0.2.0
-Authors@R: 
+Authors@R: c(
     person(given = "Lukas",
            family = "Jung",
            role = c("aut", "cre"),
-           email = "jung-lukas@gmx.net")
+           email = "jung-lukas@gmx.net"),
+    person(given = "Aurélien",
+           family = "Allard",
+           role = c("ctb"))
+  )
+Maintainer: Lukas Jung <jung-lukas@gmx.net>
 Description: Test published summary statistics for consistency
     and reconstruct some of the processes which created them.
     The package provides infrastructure for implementing new
