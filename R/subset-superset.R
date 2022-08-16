@@ -93,16 +93,6 @@
 #' abc %>% is_subset_of_vals("a", "b", "c", "d", "e")
 #'
 #' # (... and likewise for supersets and equal sets.)
-#'
-#' # The `*_vecs()` functions are like the basic
-#' # ones but for any number of other vectors:
-#' \donttest {
-#'   abc %>% is_subset_of_vecs(ab, "c")
-#'   abc %>% is_subset_of_vecs(ab, c("c", "d"))
-#'   abc %>% is_subset_of_vecs(ab, c(3, 4, 5))
-#' }
-#'
-#' # (... again, likewise for supersets and equal sets.)
 
 
 
