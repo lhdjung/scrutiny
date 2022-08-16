@@ -18,7 +18,7 @@ can lead to all kinds of coercion issues.}
 Default is \code{"dup"}.}
 }
 \value{
-A tibble ---
+A tibble (data frame) —
 \itemize{
 \item If \code{x} is a vector, there are two columns: the input \code{value} and the
 Boolean \code{has_duplicates}.

@@ -38,7 +38,9 @@
 #'   Simple Technique Detects Numerous Anomalies in the Reporting of Results in
 #'   Psychology. *Social Psychological and Personality Science*, 8(4), 363–369.
 #'   https://journals.sagepub.com/doi/10.1177/1948550616673876
-#'
+
+#' @return Numeric. Granularity or number of items.
+
 #' @export
 #'
 #' @examples

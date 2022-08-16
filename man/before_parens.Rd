@@ -15,6 +15,10 @@ inside_parens(string, sep = "parens")
 \item{sep}{String. What to split by. Either \code{"parens"}, \code{"brackets"}, or
 \code{"braces"}. Default is \code{"parens"}.}
 }
+\value{
+String. The part of \code{string} before or inside the separating
+elements, respectively.
+}
 \description{
 Two functions that extract substrings from before or inside
 parentheses (or brackets, or curly braces): \code{before_parens()} and

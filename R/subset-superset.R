@@ -2,9 +2,9 @@
 
 #' Test for subsets, supersets, and equal sets
 #'
-#' @description Functions that take a vector and test whether it has some
-#'   particular relation to another vector. That second vector is entered in
-#'   either of three ways --
+#' @description Predicate functions that take a vector and test whether it has
+#'   some particular relation to another vector. That second vector is entered
+#'   in either of three ways --
 #'
 #'   \strong{Enter it directly (basic functions):}
 #'
@@ -51,7 +51,8 @@
 #'   contain; in the `*_vecs()` functions, any number of vectors the elements of
 #'   which `x` might contain.
 #'
-#' @return A single Boolean value.
+#' @return A single Boolean value. `TRUE` if the respective test was passed,
+#'   `FALSE` otherwise.
 #'
 #' @include utils.R
 #'

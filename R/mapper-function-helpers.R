@@ -112,6 +112,8 @@ check_consistency_not_in_colnames <- function(data, name_test) {
 #'
 #' @export
 #'
+#' @return No return value. Might throw an error.
+#'
 #' @seealso `vignette("consistency-tests")`, for context and the "key columns"
 #'   terminology.
 
@@ -144,6 +146,8 @@ check_mapper_input_colnames <- function(data, reported, name_test) {
 #' @seealso `vignette("consistency-tests")`, for context.
 #'
 #' @export
+#'
+#' @return No return value. Might print an alert.
 
 
 check_audit_special <- function(data, name_test) {
@@ -199,7 +203,9 @@ check_audit_special <- function(data, name_test) {
 #'   already, should `var_arg` be added to `data`, bearing its proper name?
 #'   Default is `TRUE`.
 #'
-#' @return `data`, possibly with modifications (see `affix` argument).
+#' @return The input data frame,  `data`, possibly modified (see `affix`
+#'   argument).
+#'
 #' @export
 
 

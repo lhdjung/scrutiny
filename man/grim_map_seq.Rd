@@ -46,6 +46,9 @@ inconsistencies.}
 
 \item{...}{Arguments passed down to \code{grim_map()}.}
 }
+\value{
+A tibble (data frame) with detailed test results.
+}
 \description{
 \code{grim_map_seq()} performs GRIM-testing with values surrounding
 the input values. This provides an easy and powerful way to assess whether

@@ -15,6 +15,9 @@ A tibble (data frame) with 7 rows and 3 columns. The columns are:
 \usage{
 pigs3
 }
+\value{
+A tibble (data frame).
+}
 \description{
 A fictional dataset with means and standard deviations from a binary
 distribution related to flying pigs. It can be used to demonstrate the

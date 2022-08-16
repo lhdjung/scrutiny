@@ -161,10 +161,11 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 #'   that can be selected via `var`, and are then varied. All variables except
 #'   for those in parentheses are selected by default.)
 #'
-#'   | \strong{Manufactured function} | \strong{Testable statistics} | \strong{Test vignette}
-#'   | ---                            | ---                          | ---
-#'   | `grim_map_seq()`               | `"x"`, `"n"`, (`"items"`)    | `vignette("grim")`
-#'   | `debit_map_seq()`              | `"x"`, `"sd"`, `"n"`         | `vignette("debit")`
+#'   | \strong{Manufactured function} | \strong{Testable statistics}         | \strong{Test vignette}
+#'   | ---                            | ---                                  | ---
+#'   | `grim_map_seq()`               | `"x"`, `"n"`, (`"items"`)            | `vignette("grim")`
+#'   | `grimmer_map_seq()`            | `"x"`, `"sd"`, `"n"`, (`"items"`)    | `vignette("grimmer")`
+#'   | `debit_map_seq()`              | `"x"`, `"sd"`, `"n"`                 | `vignette("debit")`
 #'
 #'   The factory-made function will also have dots, `...`, to pass arguments
 #'   down to `.fun`, i.e., the basic mapper function.

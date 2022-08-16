@@ -46,6 +46,8 @@
 #'   - `diff_sd`, `diff_sd_up`,   and `diff_sd_down` do the same for `sd`.
 #'   -  Likewise with `diff_n`, `diff_n_up`, and `diff_n_down`.
 
+#' @return A tibble (data frame) with detailed test results.
+
 #' @include function-map-seq.R
 #'
 #' @export

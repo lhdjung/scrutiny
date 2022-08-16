@@ -15,6 +15,9 @@ to have the same order as in that function's output.}
 \item{name_test}{String (length 1). Name of the consistency test which the
 \verb{*_map_seq()} function applies, such as \code{"GRIM"}.}
 }
+\value{
+A string vector formatted by \code{glue::glue()}.
+}
 \description{
 \code{write_doc_audit_total_n()} creates a roxygen2 block section to
 be inserted into the documentation of functions created with

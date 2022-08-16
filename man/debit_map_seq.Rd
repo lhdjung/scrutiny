@@ -47,6 +47,9 @@ inconsistencies.}
 
 \item{...}{Arguments passed down to \code{debit_map()}.}
 }
+\value{
+A tibble (data frame) with detailed test results.
+}
 \description{
 \code{debit_map_seq()} applies DEBIT with values surrounding the input values.
 This provides an easy and powerful way to assess whether small errors in

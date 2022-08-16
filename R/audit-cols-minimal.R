@@ -21,6 +21,8 @@
 #'
 #' @export
 #'
+#' @return A tibble (data frame) with the columns listed above.
+#'
 #' @include mapper-function-helpers.R
 #'
 #' @seealso For context, see `vignette("consistency-tests")`. In case you don't

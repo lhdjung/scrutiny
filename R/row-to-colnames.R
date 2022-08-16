@@ -31,7 +31,7 @@
 #' \href{https://unheadr.liomys.mx/reference/mash_colnames.html}{`unheadr::mash_colnames()`},
 #' a more sophisticated solution to the same problem.
 #'
-#' @return A data frame.
+#' @return A tibble (data frame).
 #' @export
 
 # @examples

@@ -16,6 +16,8 @@
 #'  \item{n}{Numeric. Sample sizes.}
 #' }
 
+#' @return A tibble (data frame).
+#'
 #' @seealso `pigs2` for GRIM-testing percentages instead of means, `pigs3` for
 #'   DEBIT-testing, and `pigs4` for detecting duplicates.
 #'
@@ -36,6 +38,8 @@
 #'  \item{n}{Numeric. Sample sizes.}
 #' }
 
+#' @return A tibble (data frame).
+#'
 #' @seealso `pigs1` for GRIM-testing means instead of percentages, `pigs3` for
 #'   DEBIT-testing, and `pigs4` for detecting duplicates.
 #'
@@ -57,6 +61,8 @@
 #'  \item{n}{Numeric. Sample sizes.}
 #' }
 
+#' @return A tibble (data frame).
+#'
 #' @seealso `pigs1` for GRIM-testing means, `pigs2` for GRIM-testing
 #'   percentages, and `pigs4` for detecting duplicates.
 #'
@@ -78,6 +84,8 @@
 #'  \item{n}{Numeric. Sample sizes.}
 #' }
 
+#' @return A tibble (data frame).
+#'
 #' @seealso `pigs1` for GRIM-testing means, `pigs2` for GRIM-testing
 #'   percentages, and `pigs3` for using DEBIT.
 #'
@@ -100,6 +108,8 @@
 #'  \item{n}{Numeric. Sample sizes.}
 #' }
 
+#' @return A tibble (data frame).
+#'
 #' @seealso `pigs1` for (only) GRIM-testing the same means as here, `pigs2` for
 #'   GRIM-testing percentages instead of means, `pigs3` for DEBIT-testing, and
 #'   `pigs4` for detecting duplicates.

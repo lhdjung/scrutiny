@@ -59,12 +59,13 @@ contain; in the \verb{*_vecs()} functions, any number of vectors the elements of
 which \code{x} might contain.}
 }
 \value{
-A single Boolean value.
+A single Boolean value. \code{TRUE} if the respective test was passed,
+\code{FALSE} otherwise.
 }
 \description{
-Functions that take a vector and test whether it has some
-particular relation to another vector. That second vector is entered in
-either of three ways --
+Predicate functions that take a vector and test whether it has
+some particular relation to another vector. That second vector is entered
+in either of three ways --
 
 \strong{Enter it directly (basic functions):}
 

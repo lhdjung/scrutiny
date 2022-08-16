@@ -15,6 +15,9 @@ A tibble (data frame) with 7 rows and 3 columns. The columns are:
 \usage{
 pigs4
 }
+\value{
+A tibble (data frame).
+}
 \description{
 A fictional dataset with observations of flying pigs. Two pairs of values are
 duplicates. The dataset can be used to demonstrate the functionality of

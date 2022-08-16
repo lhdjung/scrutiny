@@ -67,6 +67,7 @@ that can be selected via \code{var}, and are then varied. All variables except
 for those in parentheses are selected by default.)\tabular{lll}{
    \strong{Manufactured function} \tab \strong{Testable statistics} \tab \strong{Test vignette} \cr
    \code{grim_map_seq()} \tab \code{"x"}, \code{"n"}, (\code{"items"}) \tab \code{vignette("grim")} \cr
+   \code{grimmer_map_seq()} \tab \code{"x"}, \code{"sd"}, \code{"n"}, (\code{"items"}) \tab \code{vignette("grimmer")} \cr
    \code{debit_map_seq()} \tab \code{"x"}, \code{"sd"}, \code{"n"} \tab \code{vignette("debit")} \cr
 }
 

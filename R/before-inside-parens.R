@@ -58,6 +58,9 @@ proto_split_parens <- function(string, sep = "parens") {
 #'   `"braces"`. Default is `"parens"`.
 #'
 #' @export
+#'
+#' @return String. The part of `string` before or inside the separating
+#'   elements, respectively.
 
 
 before_parens <- function(string, sep = "parens") {

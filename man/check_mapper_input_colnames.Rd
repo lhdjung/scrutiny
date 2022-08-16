@@ -15,6 +15,9 @@ have, such as \code{c("x", "n")} for \code{grim_map()}.}
 \item{name_test}{String (length 1). Short, plain-text name of the consistency
 test that the mapper function applies, such as \code{"GRIM"}.}
 }
+\value{
+No return value. Might throw an error.
+}
 \description{
 When called within a consistency test mapper function,
 \code{check_mapper_input_colnames()} makes sure that the input data frame has

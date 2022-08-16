@@ -44,6 +44,7 @@ down to \code{disperse_total()}, using defaults from there.}
 A function such as these:\tabular{lll}{
    \strong{Manufactured function} \tab \strong{Reported statistics} \tab \strong{Test vignette} \cr
    \code{grim_map_total_n()} \tab \code{"x"} \tab \code{vignette("grim")} \cr
+   \code{grimmer_map_total_n()} \tab \code{"x"}, \code{"sd"} \tab \code{vignette("grimmer")} \cr
    \code{debit_map_total_n()} \tab \code{"x"}, \code{"sd"} \tab \code{vignette("debit")} \cr
 }
 

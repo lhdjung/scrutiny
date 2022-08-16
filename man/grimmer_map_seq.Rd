@@ -47,6 +47,9 @@ inconsistencies.}
 
 \item{...}{Arguments passed down to \code{grimmer_map()}.}
 }
+\value{
+A tibble (data frame) with detailed test results.
+}
 \description{
 \code{grimmer_map_seq()} performs GRIMMER-testing with values
 surrounding the input values. This provides an easy and powerful way to

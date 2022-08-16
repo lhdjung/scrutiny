@@ -11,6 +11,10 @@ seq_test_ranking(x, explain = TRUE)
 
 \item{explain}{If \code{TRUE} (the default), results come with an explanation.}
 }
+\value{
+A tibble (data frame). The function will also print an explanation of
+the results. See examples.
+}
 \description{
 Run this function after generating a sequence with
 \code{seq_endpoint_df()} or \code{seq_distance_df()} and testing it with one of
@@ -20,4 +24,9 @@ consistent and inconsistent results by their positions in the sequence.
 \details{
 The function checks the provenance of the test results and throws a
 warning if it's not correct.
+}
+\examples{
+seq_distance_df(.from = "0.00", n = 50) \%>\%
+  grim_map() \%>\%
+  seq_test_ranking()
 }

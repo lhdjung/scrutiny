@@ -44,6 +44,9 @@ min_distance_neg <- function(x) purrr::map_dbl(x, min_distance_neg_scalar)
 #'
 #' @export
 #'
+#' @return The reconstructed tibble (data frame) which a factory-made
+#'   `*_map_seq()` function took as its `data` argument.
+#'
 #' @examples
 #' # Originally reported summary data...
 #' pigs1
