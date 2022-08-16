@@ -1,7 +1,7 @@
 
 
 round_to <- rnorm(50, 2, 1) %>%
-  censor(0, 4) %>%
+  censor(1, 4) %>%
   round()
 
 numbers <- rnorm(50, 100, 30) %>%
