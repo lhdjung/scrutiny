@@ -144,7 +144,7 @@ abc \%>\% is_subset_of_vals("a", "b", "c", "d", "e")
 
 # The `*_vecs()` functions are like the basic
 # ones but for any number of other vectors:
-if (FALSE) {
+\donttest {
   abc \%>\% is_subset_of_vecs(ab, "c")
   abc \%>\% is_subset_of_vecs(ab, c("c", "d"))
   abc \%>\% is_subset_of_vecs(ab, c(3, 4, 5))
