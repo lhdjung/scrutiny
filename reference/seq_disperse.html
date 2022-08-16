@@ -164,6 +164,17 @@ creates the <code>"var_change"</code> output column.</p></dd>
 
 </dl></div>
     <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    
+
+<ul><li><p><code>seq_disperse()</code> returns a string vector by default
+(<code>string_output = TRUE</code>) and a numeric otherwise.</p></li>
+<li><p><code>seq_disperse_df()</code> returns a tibble (data frame). The sequence is stored
+in the <code>x</code> column. <code>x</code> is string by default (<code>.string_output = TRUE</code>),
+numeric otherwise. Other columns might have been added via the dots
+(<code>...</code>).</p></li>
+</ul></div>
+    <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Unlike <code><a href="seq_endpoint.html">seq_endpoint()</a></code> and friends, the present functions don't
 necessarily return continuous or even regular sequences. The greater
@@ -177,9 +188,9 @@ otherwise similar to <code><a href="seq_endpoint.html">seq_endpoint()</a></code>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Conceptually, <code>seq_disperse()</code> is a blend of two function families:
-those around <code><a href="seq_endpoint.html">seq_endpoint()</a></code> and <code><a href="disperse.html">disperse()</a></code>. The present functions were
-originally conceived for <code>seq_disperse_df()</code> to be a helper within the
-<code><a href="function_map_seq.html">function_map_seq()</a></code> implementation.</p></div>
+those around <code><a href="seq_endpoint.html">seq_endpoint()</a></code> and those around <code><a href="disperse.html">disperse()</a></code>. The present
+functions were originally conceived for <code>seq_disperse_df()</code> to be a helper
+within the <code><a href="function_map_seq.html">function_map_seq()</a></code> implementation.</p></div>
     </div>
 
     <div class="section level2">
