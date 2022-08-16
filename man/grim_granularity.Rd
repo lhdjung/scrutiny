@@ -21,6 +21,9 @@ which will hold for most non-Likert scales.}
 amount by which results may differ from being whole numbers. If they exceed
 that amount, a warning will be shown.}
 }
+\value{
+Numeric. Granularity or number of items.
+}
 \description{
 \code{grim_granularity()} computes the minimal difference between two
 means or proportions of ordinal or interval data.

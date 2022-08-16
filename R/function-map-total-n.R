@@ -191,6 +191,7 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 #'   | \strong{Manufactured function} | \strong{Reported statistics}  | \strong{Test vignette}
 #'   | ---                            | ---                           | ---
 #'   | `grim_map_total_n()`           | `"x"`                         | `vignette("grim")`
+#'   | `grimmer_map_total_n()`        | `"x"`, `"sd"`                 | `vignette("grimmer")`
 #'   | `debit_map_total_n()`          | `"x"`, `"sd"`                 | `vignette("debit")`
 #'
 #'   The factory-made function will also have dots, `...`, to pass arguments

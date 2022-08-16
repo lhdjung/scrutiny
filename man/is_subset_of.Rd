@@ -59,12 +59,13 @@ contain; in the \verb{*_vecs()} functions, any number of vectors the elements of
 which \code{x} might contain.}
 }
 \value{
-A single Boolean value.
+A single Boolean value. \code{TRUE} if the respective test was passed,
+\code{FALSE} otherwise.
 }
 \description{
-Functions that take a vector and test whether it has some
-particular relation to another vector. That second vector is entered in
-either of three ways --
+Predicate functions that take a vector and test whether it has
+some particular relation to another vector. That second vector is entered
+in either of three ways --
 
 \strong{Enter it directly (basic functions):}
 
@@ -140,14 +141,4 @@ abc \%>\% is_subset_of_vals("a", "b", "c")
 abc \%>\% is_subset_of_vals("a", "b", "c", "d", "e")
 
 # (... and likewise for supersets and equal sets.)
-
-# The `*_vecs()` functions are like the basic
-# ones but for any number of other vectors:
-if (FALSE) {
-  abc \%>\% is_subset_of_vecs(ab, "c")
-  abc \%>\% is_subset_of_vecs(ab, c("c", "d"))
-  abc \%>\% is_subset_of_vecs(ab, c(3, 4, 5))
-}
-
-# (... again, likewise for supersets and equal sets.)
 }

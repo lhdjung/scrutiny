@@ -26,8 +26,9 @@ nonetheless, \code{sep_in} takes on \code{sep}'s value.}
 }
 \value{
 A string vector. At least some of the strings will have newly
-restored zeros, unless all input values had the same number of decimal
-places.
+restored zeros, unless (1) all input values had the same number of decimal
+places, and (2) \code{width} was not specified as a number greater than that
+single number of decimal places.
 }
 \description{
 \code{restore_zeros()} takes a vector with values that might have

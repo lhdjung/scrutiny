@@ -9,6 +9,10 @@ reverse_map_seq(data)
 \arguments{
 \item{data}{Data frame that inherits the \code{"scr_map_seq"} class.}
 }
+\value{
+The reconstructed tibble (data frame) which a factory-made
+\verb{*_map_seq()} function took as its \code{data} argument.
+}
 \description{
 \code{reverse_map_seq()} takes the output of a function created by
 \code{function_map_seq()} and reconstructs the original data frame.

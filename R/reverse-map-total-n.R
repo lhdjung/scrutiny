@@ -8,7 +8,8 @@
 #'
 #' @param data Data frame that inherits the `"scr_map_total_n"` class.
 #'
-#' @return A tibble (data frame).
+#' @return The reconstructed tibble (data frame) which a factory-made
+#'   `*_map_total_n()` function took as its `data` argument.
 #'
 #' @export
 #'

@@ -63,6 +63,16 @@ creates the \code{"var_change"} output column.}
 \item{...}{Further columns, added as in \code{tibble::tibble()}. Only in
 \code{seq_disperse_df()}.}
 }
+\value{
+\itemize{
+\item \code{seq_disperse()} returns a string vector by default
+(\code{string_output = TRUE}) and a numeric otherwise.
+\item \code{seq_disperse_df()} returns a tibble (data frame). The sequence is stored
+in the \code{x} column. \code{x} is string by default (\code{.string_output = TRUE}),
+numeric otherwise. Other columns might have been added via the dots
+(\code{...}).
+}
+}
 \description{
 \code{seq_disperse()} creates a sequence around a given number. It
 goes a specified number of steps up and down from it. Step size depends on
@@ -110,7 +120,7 @@ seq_disperse_df(.from = 4.02, n = 45)
 }
 \seealso{
 Conceptually, \code{seq_disperse()} is a blend of two function families:
-those around \code{seq_endpoint()} and \code{disperse()}. The present functions were
-originally conceived for \code{seq_disperse_df()} to be a helper within the
-\code{function_map_seq()} implementation.
+those around \code{seq_endpoint()} and those around \code{disperse()}. The present
+functions were originally conceived for \code{seq_disperse_df()} to be a helper
+within the \code{function_map_seq()} implementation.
 }

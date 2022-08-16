@@ -14,6 +14,9 @@ A tibble (data frame) with 6 rows and 2 columns. The columns are:
 \usage{
 pigs2
 }
+\value{
+A tibble (data frame).
+}
 \description{
 A fictional dataset with percentages and sample sizes of flying pigs. It can
 be used to demonstrate the functionality of \code{grim_map()}, particularly its

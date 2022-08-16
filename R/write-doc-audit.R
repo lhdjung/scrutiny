@@ -91,6 +91,8 @@ manage_var_ge_3 <- function(var_ge_3, prefix, suffix, segway = "as well as") {
 #'
 #' @export
 #'
+#' @return A string vector formatted by `glue::glue()`.
+#'
 #' @examples
 #' # Start by running `audit()`:
 #' out_grim  <- audit(grim_map(pigs1))
@@ -196,6 +198,8 @@ write_doc_audit <- function(sample_output, name_test) {
 #' @include utils.R
 #'
 #' @export
+#'
+#' @return A string vector formatted by `glue::glue()`.
 #'
 #' @seealso The sister function `write_doc_audit_total_n()` and, for context,
 #'   `vignette("consistency-tests")`.
@@ -303,6 +307,8 @@ write_doc_audit_seq <- function(key_args, name_test) {
 #'   `*_map_seq()` function applies, such as `"GRIM"`.
 #'
 #' @export
+#'
+#' @return A string vector formatted by `glue::glue()`.
 #'
 #' @seealso The sister function `write_doc_audit_seq()` and, for context,
 #'   `vignette("consistency-tests")`.
@@ -420,6 +426,8 @@ write_doc_audit_total_n <- function(key_args, name_test) {
 #'   consistency tests. Defaults are `"GRIM"` and `"DEBIT"`, respectively.
 #'
 #' @export
+#'
+#' @return A string vector formatted by `glue::glue()`.
 #'
 #' @seealso For context, see `vignette("consistency-tests")`.
 #'

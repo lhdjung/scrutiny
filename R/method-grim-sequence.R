@@ -98,7 +98,15 @@ explain_seq_test_ranking <- function(x, scr_func_info) {
 #' @param x Data frame.
 #' @param explain If `TRUE` (the default), results come with an explanation.
 #'
+#' @return A tibble (data frame). The function will also print an explanation of
+#'   the results. See examples.
+#'
 #' @export
+#'
+#' @examples
+#' seq_distance_df(.from = "0.00", n = 50) %>%
+#'   grim_map() %>%
+#'   seq_test_ranking()
 
 
 seq_test_ranking <- function(x, explain = TRUE) {

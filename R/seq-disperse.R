@@ -46,13 +46,21 @@
 #'   Underlying this difference is the fact that `seq_disperse()` and
 #'   `seq_disperse_df()` do not wrap around `base::seq()`, although they are
 #'   otherwise similar to `seq_endpoint()` and friends.
-#'
+
+#' @return
+#'   - `seq_disperse()` returns a string vector by default
+#'   (`string_output = TRUE`) and a numeric otherwise.
+#'   - `seq_disperse_df()` returns a tibble (data frame). The sequence is stored
+#'   in the `x` column. `x` is string by default (`.string_output = TRUE`),
+#'   numeric otherwise. Other columns might have been added via the dots
+#'   (`...`).
+
 #' @export
 #'
 #' @seealso Conceptually, `seq_disperse()` is a blend of two function families:
-#'   those around `seq_endpoint()` and `disperse()`. The present functions were
-#'   originally conceived for `seq_disperse_df()` to be a helper within the
-#'   `function_map_seq()` implementation.
+#'   those around `seq_endpoint()` and those around `disperse()`. The present
+#'   functions were originally conceived for `seq_disperse_df()` to be a helper
+#'   within the `function_map_seq()` implementation.
 #'
 #' @examples
 #' # Basic usage:

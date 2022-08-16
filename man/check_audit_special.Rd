@@ -12,6 +12,9 @@ check_audit_special(data, name_test)
 \item{name_test}{String (length 1). Short, plain-text name of the consistency
 test, such as \code{"GRIM"}.}
 }
+\value{
+No return value. Might print an alert.
+}
 \description{
 (Note: Ignore this function if your \code{audit()} method calls
 \code{audit_cols_minimal()}.)

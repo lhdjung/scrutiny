@@ -17,6 +17,9 @@ after \code{function_map_}.}
 \item{name_test1, name_test2}{Strings (length 1). Plain-text names of example
 consistency tests. Defaults are \code{"GRIM"} and \code{"DEBIT"}, respectively.}
 }
+\value{
+A string vector formatted by \code{glue::glue()}.
+}
 \description{
 \code{write_doc_factory_map_conventions()} creates a roxygen2 block
 section to be inserted into the documentation of a function factory such as

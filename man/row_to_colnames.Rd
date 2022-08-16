@@ -21,7 +21,7 @@ Default is \code{" "} (a space).}
 are removed.}
 }
 \value{
-A data frame.
+A tibble (data frame).
 }
 \description{
 Data frames sometimes have wrong column names, while the correct

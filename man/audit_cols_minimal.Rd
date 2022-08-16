@@ -12,6 +12,9 @@ audit_cols_minimal(data, name_test)
 \item{name_test}{String (length 1). Short, plain-text name of the consistency
 test, such as \code{"GRIM"}. Only needed for a potential alert.}
 }
+\value{
+A tibble (data frame) with the columns listed above.
+}
 \description{
 Call \code{audit_cols_minimal()} within your \code{audit()} methods for
 the output of consistency test mapper functions such as \code{grim_map()}. It

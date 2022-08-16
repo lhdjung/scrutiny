@@ -29,6 +29,8 @@
 #'   inconsistencies.
 #' @param ... Arguments passed down to `grimmer_map()`.
 
+#' @return A tibble (data frame) with detailed test results.
+
 #' @section Summaries with `audit_seq()`: You can call `audit_seq()` following
 #'   `grimmer_map_seq()`. It will return a data frame with these columns:
 #'   - `x`, `sd`, and `n` are the original inputs,

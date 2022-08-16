@@ -57,6 +57,9 @@ points: opacity and, indirectly, size. Defaults are \code{1} and \code{1.5}.}
 of the background raster: opacity and fill color. Defaults are \code{1} and
 \code{"grey75"}.}
 }
+\value{
+A ggplot object.
+}
 \description{
 \code{grim_plot()} visualizes summary data and their mutual GRIM
 consistency. Call this function only on a data frame that resulted from a

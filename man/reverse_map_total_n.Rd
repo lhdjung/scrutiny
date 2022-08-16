@@ -10,7 +10,8 @@ reverse_map_total_n(data)
 \item{data}{Data frame that inherits the \code{"scr_map_total_n"} class.}
 }
 \value{
-A tibble (data frame).
+The reconstructed tibble (data frame) which a factory-made
+\verb{*_map_total_n()} function took as its \code{data} argument.
 }
 \description{
 \code{reverse_map_total_n()} takes the output of a function created

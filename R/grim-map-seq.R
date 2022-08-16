@@ -47,6 +47,8 @@
 #'   next higher or lower consistent value, respectively.
 #'   - `diff_n`, `diff_n_up`,   and `diff_n_down` do the same for `n`.
 
+#' @return A tibble (data frame) with detailed test results.
+
 #' @include grim-map.R
 
 #' @export

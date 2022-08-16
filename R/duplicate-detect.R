@@ -31,7 +31,7 @@
 #' @param colname_end String. Name ending of the Boolean test result columns.
 #'   Default is `"dup"`.
 
-#' @return A tibble ---
+#' @return A tibble (data frame) —
 #'   - If `x` is a vector, there are two columns: the input `value` and the
 #'     Boolean `has_duplicates`.
 #'   - If `x` is a data frame, the output tibble has (some of) the columns from
