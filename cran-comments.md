@@ -5,6 +5,10 @@
 ## Resubmission
 This is a resubmission. I now have:
 
-* Added a trailing slash to the URL in DESCRIPTION
+* Added references to the description field of the DESCRIPTION file.
 
-* Reduced the scope of some examples
+* Added \value sections to all .Rd files in which they had been missing.
+
+* Removed problematic examples.
+
+* Increased required version of R to >= 3.4.0, and of the 'rlang' package to >= 1.0.2.
