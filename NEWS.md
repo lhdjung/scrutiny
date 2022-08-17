@@ -1,5 +1,11 @@
 # scrutiny 0.2.2
 
+This is a patch for CRAN compliance.
+
+-   It fixes references and version requirements in the DESCRIPTION file.
+
+-   Subtle changes to `split_by_parens()` that users generally won't notice.
+
 # scrutiny 0.2.1
 
 This is a patch.
