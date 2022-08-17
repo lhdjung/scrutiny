@@ -1,3 +1,5 @@
+# scrutiny 0.2.2
+
 # scrutiny 0.2.1
 
 This is a patch.
