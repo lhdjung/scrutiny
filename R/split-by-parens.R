@@ -137,7 +137,8 @@ split_by_parens <- function(.data, ..., .keep = FALSE, .transform = FALSE,
   end2 <- paste0("_", .col2)
 
   # Modify the column names with the endings prepared above:
-  names(out) <- stringr::str_replace(names(out), c("_1", "_2"), c(end1, end2))
+  names(out) <- stringr::str_replace(names(out), "_1$", end1)
+  names(out) <- stringr::str_replace(names(out), "_2$", end2)
 
   # Write new classes to inform the helper `transform_split_parens_object()`
   # about the specified column name endings:

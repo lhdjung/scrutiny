@@ -1,6 +1,6 @@
 Package: scrutiny
 Title: Error Detection in Science
-Version: 0.2.1
+Version: 0.2.2
 Authors@R: c(
     person(given = "Lukas",
            family = "Jung",
@@ -12,9 +12,11 @@ Authors@R: c(
   )
 Maintainer: Lukas Jung <jung-lukas@gmx.net>
 Description: Test published summary statistics for consistency
-    and reconstruct some of the processes which created them.
-    The package provides infrastructure for implementing new
-    techniques to help error detection go mainstream.
+    (Brown and Heathers, 2017, <doi:10.1177/1948550616673876>;
+    Allard, 2018, <https://aurelienallard.netlify.app/post/anaytic-grimmer-possibility-standard-deviations/>;
+    Heathers and Brown, 2019, <https://osf.io/5vb3u/>).
+    The package also provides infrastructure for implementing new
+    error detection techniques.
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
@@ -27,7 +29,7 @@ Imports:
     magrittr,
     methods,
     purrr,
-    rlang (>= 0.4.11),
+    rlang (>= 1.0.2),
     stringr,
     tibble
 Collate: 
@@ -111,7 +113,7 @@ Suggests:
     tidyselect
 Config/testthat/edition: 3
 Depends: 
-    R (>= 2.10)
+    R (>= 3.4.0)
 VignetteBuilder: knitr
 URL: https://lhdjung.github.io/scrutiny/, https://github.com/lhdjung/scrutiny/
 BugReports: https://github.com/lhdjung/scrutiny/issues

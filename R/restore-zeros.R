@@ -109,7 +109,7 @@ restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in,
         ">" = "Specify `width` to predetermine a number of decimal places \\
         to which `x` values should be padded."
       ))
-    } else if (purrr::every(width_mantissa, `==`, 0)) {
+    } else if (all(width_mantissa == 0)) {
       cli::cli_warn(c(
         "No trailing zeros can be restored",
         "!" = "None of the {length(x)} `x` values has any decimal places.",

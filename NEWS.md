@@ -1,3 +1,11 @@
+# scrutiny 0.2.2
+
+This is a patch for CRAN compliance.
+
+-   The package now requires R version \>= 3.4.0 and rlang version \>= 1.0.2.
+
+-   Subtle changes to `split_by_parens()` that users generally won't notice.
+
 # scrutiny 0.2.1
 
 This is a patch.
