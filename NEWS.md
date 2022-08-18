@@ -6,6 +6,8 @@ This is a patch for CRAN compliance.
 
 -   Subtle changes to `split_by_parens()` that users generally won't notice.
 
+-   Minor shifts in the documentation (e.g., `vignette("consistency-tests")` now has instructions on exporting factory-made functions.).
+
 # scrutiny 0.2.1
 
 This is a patch.
