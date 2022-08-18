@@ -93,7 +93,9 @@ function. They can still be specified differently when calling the latter.
 If functions created this way are exported from other packages, they should
 be written as if they were created with
 \href{https://purrr.tidyverse.org/reference/faq-adverbs-export.html}{purrr
-adverbs}; see explanations there and examples at \code{function_map()}.
+adverbs}; see explanations there and examples at
+\code{vignette("consistency-tests")}, section \emph{Creating mappers with
+\code{function_map()}}.
 }
 \details{
 This function is a so-called function factory: It produces other

@@ -2,8 +2,10 @@
 #' Create new `*_map()` functions
 #'
 #' @description `function_map()` creates new basic mapper functions for
-#'   consistency tests, such as `grim_map()` or `debit_map()`. For context, see
-#'   `vignette("consistency-tests")`.
+#'   consistency tests, such as `grim_map()` or `debit_map()`.
+#'
+#'   For context, see `vignette("consistency-tests")`, section *Creating mappers
+#'   with `function_map()`*.
 #'
 #' @param .fun Single-case consistency testing function that will be applied to
 #'   each row in a data frame, such as the (non-exported) scrutiny functions
@@ -79,36 +81,6 @@
 #'
 #' # Call the "factory-made" function:
 #' schlim_map(df1)
-#'
-#'
-#' # Advice on exporting factory-made functions ----------------
-#'
-#' # (The guidelines below were adapted from purrr:
-#' # https://purrr.tidyverse.org/reference/faq-adverbs-export.html)
-#'
-#' # If you want to export a function produced
-#' # by `function_map()` from your own package,
-#' # follow this pattern, except for the `if`-wrapping:
-#'
-#' if (FALSE) {
-#'
-#'   schlim_map <- function(...) "dummy"
-#'
-#'   .onLoad <- function(lib, pkg) {
-#'     schlim_map <<- function_map(
-#'       .fun = schlim_scalar,
-#'       .reported = c("y", "n"),
-#'       .name_test = "SCHLIM"
-#'     )
-#'   }
-#'
-#' }
-#'
-#' # The same applies to functions
-#' # produced with scrutiny's other
-#' # function factories, `function_map_seq()`
-#' # and `function_map_total_n()`.
-
 
 
 

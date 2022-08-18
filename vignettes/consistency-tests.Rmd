@@ -120,11 +120,23 @@ These are the most important arguments:
 
 -   `.name_test` simply names the consistency test.
 
-### Context
+### Context and export
 
 As you can see, `function_map()` is not a helper used inside other functions when creating them with `function()` --- instead, it takes the place of `function()` itself. This makes it a so-called function factory, or more precisely, a function operator, a.k.a. decorator [@wickham2019, ch. 10-11]. You already met `base::Vectorize()` in section 2, which is also a function operator, but a more general and straightforward one.
 
-To export a function manufactured this way from your own package, make sure to follow [this purrr FAQ](https://purrr.tidyverse.org/reference/faq-adverbs-export.html). (Incredible as it sounds, scrutiny will then take on the role of purrr.) Also, see the worked example for the `.onLoad` pattern in `function_map()`'s documentation.
+To export a function manufactured this way from your own package, make sure to follow [this purrr FAQ](https://purrr.tidyverse.org/reference/faq-adverbs-export.html). (Incredible as it sounds, scrutiny will then take on the role of purrr.) Your version should look about like this:
+
+```{r eval=FALSE}
+schlim_map <- function(...) "dummy"
+
+.onLoad <- function(lib, pkg) {
+  schlim_map <<- scrutiny::function_map(
+    .fun = schlim_scalar,
+    .reported = c("y", "n"),
+    .name_test = "SCHLIM"
+  )
+}
+```
 
 ### Identifying columns
 

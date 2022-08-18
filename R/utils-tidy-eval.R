@@ -97,7 +97,19 @@
 #'   `as_label()` handles those cases gracefully. If your code assumes
 #'   a simple column name, use `as_name()` instead. This is safer
 #'   because it throws an error if the input is not a name as expected.
+
+#' @return
+#'   - `enquo()` returns an expression, `enquos()` returns a list of
+#'   expressions.
+#'   - `as_name()` and `as_label()` return a string vector of length 1.
+#'   - `.data` is a pronoun that should only be used within tidy eval functions.
+#'   - `:=` has no return value. It will throw an error if called outside of the
+#'   dynamic dots of a tidy eval function.
 #'
+#'   See the description to learn about the functionality of these objects.
+#'   (This value section was only added in scrutiny; not in rlang by the tidy
+#'   eval developers.)
+
 #' @md
 #' @name tidyeval
 #' @keywords internal

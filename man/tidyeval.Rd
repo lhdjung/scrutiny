@@ -9,6 +9,20 @@
 \alias{as_name}
 \alias{as_label}
 \title{Tidy eval helpers}
+\value{
+\itemize{
+\item \code{enquo()} returns an expression, \code{enquos()} returns a list of
+expressions.
+\item \code{as_name()} and \code{as_label()} return a string vector of length 1.
+\item \code{.data} is a pronoun that should only be used within tidy eval functions.
+\item \verb{:=} has no return value. It will throw an error if called outside of the
+dynamic dots of a tidy eval function.
+}
+
+See the description to learn about the functionality of these objects.
+(This value section was only added in scrutiny; not in rlang by the tidy
+eval developers.)
+}
 \description{
 This page lists the tidy eval tools reexported in scrutiny from
 rlang. To learn about using tidy eval in scripts and packages at a

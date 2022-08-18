@@ -56,7 +56,7 @@ articles:
 reference:
 
 - title: Consistency tests
-  desc: Check the numerical consistency of summary statistics; two tests
+  desc: Check the numerical consistency of summary statistics; three tests
         currently implemented ---
 
 - subtitle: GRIM
