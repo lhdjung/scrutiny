@@ -131,11 +131,11 @@
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 3</span></span></span>
 <span><span class="co">#&gt;   x     sd        n</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0.89  0.10   <span style="text-decoration: underline;">1</span>000</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0.88  0.13   <span style="text-decoration: underline;">1</span>000</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 0.39  0.07   <span style="text-decoration: underline;">1</span>000</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 1.00  0.23   <span style="text-decoration: underline;">1</span>000</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 0.85  0.13   <span style="text-decoration: underline;">1</span>000</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0.87  0.06   <span style="text-decoration: underline;">1</span>000</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0.45  0.15   <span style="text-decoration: underline;">1</span>000</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 0.64  0.17   <span style="text-decoration: underline;">1</span>000</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 0.95  0.07   <span style="text-decoration: underline;">1</span>000</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 0.37  0.20   <span style="text-decoration: underline;">1</span>000</span></span></code></pre></div>
 <p>Now, simply run <code><a href="../reference/debit_map.html">debit_map()</a></code> on that data frame:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">flying_pigs</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
@@ -143,11 +143,11 @@
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 11</span></span></span>
 <span><span class="co">#&gt;   x     sd        n consistency rounding sd_lo…¹ sd_in…² sd_up…³ sd_in…⁴ x_lower</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0.89  0.10   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_d…   0.095 TRUE      0.105 TRUE      0.885</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0.88  0.13   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_d…   0.125 TRUE      0.135 TRUE      0.875</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 0.39  0.07   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_d…   0.065 TRUE      0.075 TRUE      0.385</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 1.00  0.23   <span style="text-decoration: underline;">1</span>000 <span style="color: #BB0000;">NA</span>          up_or_d…   0.225 TRUE      0.235 TRUE      0.995</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 0.85  0.13   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_d…   0.125 TRUE      0.135 TRUE      0.845</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0.87  0.06   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_d…   0.055 TRUE      0.065 TRUE      0.865</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0.45  0.15   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_d…   0.145 TRUE      0.155 TRUE      0.445</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 0.64  0.17   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_d…   0.165 TRUE      0.175 TRUE      0.635</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 0.95  0.07   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_d…   0.065 TRUE      0.075 TRUE      0.945</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 0.37  0.20   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_d…   0.195 TRUE      0.205 TRUE      0.365</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># … with 1 more variable: x_upper &lt;dbl&gt;, and abbreviated variable names</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   ¹​sd_lower, ²​sd_incl_lower, ³​sd_upper, ⁴​sd_incl_upper</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ Use `colnames()` to see all variable names</span></span></span></code></pre></div>

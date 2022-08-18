@@ -285,6 +285,20 @@ because it throws an error if the input is not a name as expected.</p></li>
 </ul></div>
 
 
+    <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    
+
+<ul><li><p><code>enquo()</code> returns an expression, <code>enquos()</code> returns a list of
+expressions.</p></li>
+<li><p><code>as_name()</code> and <code>as_label()</code> return a string vector of length 1.</p></li>
+<li><p><code>.data</code> is a pronoun that should only be used within tidy eval functions.</p></li>
+<li><p><code>:=</code> has no return value. It will throw an error if called outside of the
+dynamic dots of a tidy eval function.</p></li>
+</ul><p>See the description to learn about the functionality of these objects.
+(This value section was only added in scrutiny; not in rlang by the tidy
+eval developers.)</p>
+    </div>
 
   </main></div>
 

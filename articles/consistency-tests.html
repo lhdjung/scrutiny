@@ -187,16 +187,26 @@
 <li><p><code>.name_test</code> simply names the consistency test.</p></li>
 </ul>
 <div class="section level4">
-<h4 id="context">Context<a class="anchor" aria-label="anchor" href="#context"></a>
+<h4 id="context-and-export">Context and export<a class="anchor" aria-label="anchor" href="#context-and-export"></a>
 </h4>
 <p>As you can see, <code><a href="../reference/function_map.html">function_map()</a></code> is not a helper used inside other functions when creating them with <code>function()</code> — instead, it takes the place of <code>function()</code> itself. This makes it a so-called function factory, or more precisely, a function operator, a.k.a. decorator <span class="citation">(Wickham 2019, ch. 10-11)</span>. You already met <code><a href="https://rdrr.io/r/base/Vectorize.html" class="external-link">base::Vectorize()</a></code> in section 2, which is also a function operator, but a more general and straightforward one.</p>
-<p>To export a function manufactured this way from your own package, make sure to follow <a href="https://purrr.tidyverse.org/reference/faq-adverbs-export.html" class="external-link">this purrr FAQ</a>. (Incredible as it sounds, scrutiny will then take on the role of purrr.) Also, see the worked example for the <code>.onLoad</code> pattern in <code><a href="../reference/function_map.html">function_map()</a></code>’s documentation.</p>
+<p>To export a function manufactured this way from your own package, make sure to follow <a href="https://purrr.tidyverse.org/reference/faq-adverbs-export.html" class="external-link">this purrr FAQ</a>. (Incredible as it sounds, scrutiny will then take on the role of purrr.) Your version should look about like this:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">schlim_map</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">...</span><span class="op">)</span> <span class="st">"dummy"</span></span>
+<span></span>
+<span><span class="va">.onLoad</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">lib</span>, <span class="va">pkg</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">schlim_map</span> <span class="op">&lt;&lt;-</span> <span class="fu">scrutiny</span><span class="fu">::</span><span class="fu"><a href="../reference/function_map.html">function_map</a></span><span class="op">(</span></span>
+<span>    .fun <span class="op">=</span> <span class="va">schlim_scalar</span>,</span>
+<span>    .reported <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"y"</span>, <span class="st">"n"</span><span class="op">)</span>,</span>
+<span>    .name_test <span class="op">=</span> <span class="st">"SCHLIM"</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="identifying-columns">Identifying columns<a class="anchor" aria-label="anchor" href="#identifying-columns"></a>
 </h4>
 <p>All such factory-made functions come with a special convenience feature: Their <code>.reported</code> values are inserted into the list of the function’s parameters. This means you don’t need a data frame with the same column names as the <code>.reported</code> values. Instead, you can specify the arguments by those names as the names of the actual columns:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df2</span> <span class="op">&lt;-</span> <span class="va">df1</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">df2</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"foo"</span>, <span class="st">"bar"</span><span class="op">)</span></span>
 <span></span>
@@ -230,7 +240,7 @@
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>    24    11 FALSE      </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>    25    12 FALSE</span></span></code></pre></div>
 <p>If any columns are neither present in the data frame nor identified via arguments, there will be a precise error:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">schlim_map</span><span class="op">(</span><span class="va">df2</span>, y <span class="op">=</span> <span class="va">foo</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `check_factory_key_args_names()` at scrutiny/R/function-factory-helpers.R:199:2:</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Column `n` is missing from `data`.</span></span>
@@ -309,7 +319,7 @@
 </h4>
 <p>How to actually write mapper functions? Again, I recommend <code><a href="../reference/function_map.html">function_map()</a></code>. The functions created below are conceptually very similar.</p>
 <p>Apply the <code>*_scalar()</code> function to the input data frame using <code><a href="https://purrr.tidyverse.org/reference/map2.html" class="external-link">purrr::pmap_lgl()</a></code>:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">schlim_map_alt1</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">data</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu">scrutiny</span><span class="fu">::</span><span class="fu"><a href="../reference/check_mapper_input_colnames.html">check_mapper_input_colnames</a></span><span class="op">(</span><span class="va">data</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"y"</span>, <span class="st">"n"</span><span class="op">)</span>, <span class="st">"SCHLIM"</span><span class="op">)</span></span>
 <span>  <span class="va">consistency</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map2.html" class="external-link">pmap_lgl</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">schlim_scalar</span>, <span class="va">...</span><span class="op">)</span></span>
@@ -318,7 +328,7 @@
 <span>  <span class="va">out</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>Alternatively, call <code><a href="https://dplyr.tidyverse.org/reference/rowwise.html" class="external-link">dplyr::rowwise()</a></code> and directly mutate <code>"consistency"</code>:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">schlim_map_alt2</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">data</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu">scrutiny</span><span class="fu">::</span><span class="fu"><a href="../reference/check_mapper_input_colnames.html">check_mapper_input_colnames</a></span><span class="op">(</span><span class="va">data</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"y"</span>, <span class="st">"n"</span><span class="op">)</span>, <span class="st">"SCHLIM"</span><span class="op">)</span></span>
 <span>  <span class="va">data</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
@@ -330,7 +340,7 @@
 <span><span class="op">}</span></span></code></pre></div>
 <p>The call to <code><a href="../reference/check_mapper_input_colnames.html">check_mapper_input_colnames()</a></code> is not required but adds safety to your function. Also, see <code><a href="../reference/manage_key_colnames.html">manage_key_colnames()</a></code> which grants the user more flexibility in naming key columns.</p>
 <p>Both approaches should lead to the same results:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">schlim_map_alt1</span><span class="op">(</span><span class="va">df1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 10 × 3</span></span></span>
 <span><span class="co">#&gt;        y     n consistency</span></span>
@@ -371,13 +381,13 @@
 <h4 id="s3-classes">S3 classes<a class="anchor" aria-label="anchor" href="#s3-classes"></a>
 </h4>
 <p>If you don’t know what S3 classes are, don’t worry. Just copy and paste the function below, and call it at the end of your mapper function. <code>x</code> is the output data frame, and <code>new_class</code> is a string vector. <code>new_class</code> consists of one or more “classes” that will be added to the existing classes of <code>x</code>.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">add_class</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">new_class</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">new_class</span>, <span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="va">x</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>You can access the classes that an object carries — or “inherits” — by calling <code><a href="https://rdrr.io/r/base/class.html" class="external-link">class()</a></code>:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">some_object</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="va">some_object</span> <span class="op">&lt;-</span> <span class="fu">add_class</span><span class="op">(</span><span class="va">some_object</span>, <span class="st">"dummy class"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">some_object</span><span class="op">)</span></span>
@@ -400,7 +410,7 @@
 </h3>
 <p><code><a href="../reference/audit.html">audit()</a></code> is an S3 generic for summarizing scrutiny’s test result data frames, especially those of mapper functions such as <code><a href="../reference/grim_map.html">grim_map()</a></code>. It should always return descriptive statistics but nothing else. Every mapper function should have its corresponding <code><a href="../reference/audit.html">audit()</a></code> method.</p>
 <p>This is an aspect of object-oriented programming (OOP), but scrutiny’s use of OOP is simple even by the low standards of R. Your mapper function’s output already inherits a specific class, such as <code>"scr_grim_map"</code>, <code>"scr_grimmer_map"</code>, or <code>"scr_debit_map"</code>. In <code>schlim_map()</code>, we added the <code>"scr_schlim_map"</code> class in addition to existing classes:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df1_tested</span> <span class="op">&lt;-</span> <span class="fu">schlim_map</span><span class="op">(</span><span class="va">df1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">df1_tested</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "scr_schlim_map" "tbl_df"         "tbl"            "data.frame"</span></span></code></pre></div>
@@ -420,7 +430,7 @@
 <h4 id="practical-steps-1">Practical steps<a class="anchor" aria-label="anchor" href="#practical-steps-1"></a>
 </h4>
 <p>Your <code><a href="../reference/audit.html">audit()</a></code> method is simply a function named <code>audit</code> plus a dot and your specific class. Call <code><a href="../reference/audit_cols_minimal.html">audit_cols_minimal()</a></code> within the method to create a tibble with the three required columns. If you don’t use <code><a href="../reference/audit_cols_minimal.html">audit_cols_minimal()</a></code>, call <code><a href="../reference/check_audit_special.html">check_audit_special()</a></code> in your method.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># The `name_test` argument is only for the alert</span></span>
 <span><span class="co"># that might be issued by `check_audit_special()`:</span></span>
 <span><span class="va">audit.scr_schlim_map</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">data</span><span class="op">)</span> <span class="op">{</span></span>
@@ -444,7 +454,7 @@
 <h3 id="documentation-template">Documentation template<a class="anchor" aria-label="anchor" href="#documentation-template"></a>
 </h3>
 <p>Each <code><a href="../reference/audit.html">audit()</a></code> method should be documented on the same page as its respective mapper function. It should have its own section called <em>Summaries with <code><a href="../reference/audit.html">audit()</a></code></em>. Create it with <code><a href="../reference/write_doc_audit.html">write_doc_audit()</a></code>:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">audit_grim</span>    <span class="op">&lt;-</span> <span class="fu"><a href="../reference/audit.html">audit</a></span><span class="op">(</span><span class="fu"><a href="../reference/grim_map.html">grim_map</a></span><span class="op">(</span><span class="va">pigs1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">audit_grimmer</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/audit.html">audit</a></span><span class="op">(</span><span class="fu"><a href="../reference/grimmer_map.html">grimmer_map</a></span><span class="op">(</span><span class="va">pigs5</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -516,7 +526,7 @@
 <h3 id="practical-steps-2">Practical steps<a class="anchor" aria-label="anchor" href="#practical-steps-2"></a>
 </h3>
 <p>Although the code that underlies them is fairly complex, these functions themselves were written in a very simple way. Here are the ones for GRIM, GRIMMER, and DEBIT:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">grim_map_seq</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/function_map_seq.html">function_map_seq</a></span><span class="op">(</span></span>
 <span>  .fun <span class="op">=</span> <span class="va">grim_map</span>,</span>
 <span>  .reported <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"n"</span><span class="op">)</span>,</span>
@@ -536,7 +546,7 @@
 <span><span class="op">)</span></span></code></pre></div>
 <p>Any consistency test that is already implemented in a mapper function like <code><a href="../reference/grim_map.html">grim_map()</a></code>, <code><a href="../reference/grimmer_map.html">grimmer_map()</a></code>, and <code><a href="../reference/debit_map.html">debit_map()</a></code> can receive its own <code>*_map_seq()</code> function just as easily using <code><a href="../reference/function_map_seq.html">function_map_seq()</a></code>. This is due to scrutiny’s streamlined design conventions — specifically, the requirements for mapper functions laid out in section 3.</p>
 <p>Let’s write a sequence mapper for SCHLIM:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">schlim_map_seq</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/function_map_seq.html">function_map_seq</a></span><span class="op">(</span></span>
 <span>  .fun <span class="op">=</span> <span class="va">schlim_map</span>,</span>
 <span>  .reported <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"y"</span>, <span class="st">"n"</span><span class="op">)</span>,</span>
@@ -577,7 +587,7 @@
 <span><span class="co">#&gt; <span style="color: #949494;">#   variable names ¹​diff_y_up, ²​diff_y_down</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ Use `colnames()` to see all variable names</span></span></span></code></pre></div>
 <p>By default, a <code>*_map_seq()</code> function only creates sequences around inconsistent input values. That’s because its primary purpose is to shed light on inconsistencies in reported statistics. Override the default with <code>include_consistent = TRUE</code>:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df1</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu">schlim_map_seq</span><span class="op">(</span>include_consistent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/audit.html">audit_seq</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -630,7 +640,7 @@
 </h3>
 <p><code><a href="../reference/function_map_total_n.html">function_map_total_n()</a></code> creates new functions which follow this very scheme by applying a given consistency test to multiple combinations of reported and hypothetical summary statistics. It is the powerhouse behind <code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code>, <code><a href="../reference/grimmer_map_total_n.html">grimmer_map_total_n()</a></code>, and <code><a href="../reference/debit_map_total_n.html">debit_map_total_n()</a></code>, just as <code><a href="../reference/function_map_seq.html">function_map_seq()</a></code> is the powerhouse behind <code><a href="../reference/grim_map_seq.html">grim_map_seq()</a></code>, <code><a href="../reference/grimmer_map_seq.html">grimmer_map_seq()</a></code>, and <code><a href="../reference/debit_map_seq.html">debit_map_seq()</a></code>. See the case study in <code><a href="../articles/grim.html">vignette("grim")</a></code> , section <em>Handling unknown group sizes with <code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code></em>, for an example of how <code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code> works out in practice.</p>
 <p>As with <code><a href="../reference/function_map_seq.html">function_map_seq()</a></code>, creating a manufactured <code>*_total_n()</code> function is very easy. Just let the function factory do the work for you:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">grim_map_total_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/function_map_total_n.html">function_map_total_n</a></span><span class="op">(</span></span>
 <span>  .fun <span class="op">=</span> <span class="va">grim_map</span>,</span>
 <span>  .reported <span class="op">=</span> <span class="st">"x"</span>,  <span class="co"># don't include `n` here</span></span>
@@ -649,7 +659,7 @@
 <span>  .name_test <span class="op">=</span> <span class="st">"DEBIT"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>To drive this point home, let’s do the same with SCHLIM:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">schlim_map_total_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/function_map_total_n.html">function_map_total_n</a></span><span class="op">(</span></span>
 <span>  .fun <span class="op">=</span> <span class="va">schlim_map</span>,</span>
 <span>  .reported <span class="op">=</span> <span class="st">"y"</span>,</span>
@@ -708,14 +718,14 @@
 </h3>
 <p><code><a href="../reference/audit.html">audit_seq()</a></code> and <code><a href="../reference/audit.html">audit_total_n()</a></code> rely on the uniform design of the manufactured functions, which allows them to compute essentially the same summaries: Their behavior only varies with the names and numbers of the key columns, which in turn follow straightforwardly from the nature of the consistency test. If you’re developing a package, you should therefore document the behavior of <code><a href="../reference/audit.html">audit_seq()</a></code> and <code><a href="../reference/audit.html">audit_total_n()</a></code> on the same pages as your manufactured <code>*_map_seq()</code> and <code>*_map_total_n()</code> functions.</p>
 <p>There are specialized helpers for creating the respective documentation sections, <code><a href="../reference/write_doc_audit_seq.html">write_doc_audit_seq()</a></code> and <code><a href="../reference/write_doc_audit_total_n.html">write_doc_audit_total_n()</a></code>, in analogy to <code><a href="../reference/write_doc_audit.html">write_doc_audit()</a></code>. Here is how I used the first one for <code><a href="../reference/grim_map_seq.html">grim_map_seq()</a></code>, <code><a href="../reference/grimmer_map_seq.html">grimmer_map_seq()</a></code>, and <code><a href="../reference/debit_map_seq.html">debit_map_seq()</a></code>; but with the output omitted to save space:</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/write_doc_audit_seq.html">write_doc_audit_seq</a></span><span class="op">(</span>key_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"n"</span><span class="op">)</span>, name_test <span class="op">=</span> <span class="st">"GRIM"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/write_doc_audit_seq.html">write_doc_audit_seq</a></span><span class="op">(</span>key_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"sd"</span>, <span class="st">"n"</span><span class="op">)</span>, name_test <span class="op">=</span> <span class="st">"GRIMMER"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/write_doc_audit_seq.html">write_doc_audit_seq</a></span><span class="op">(</span>key_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"sd"</span>, <span class="st">"n"</span><span class="op">)</span>, name_test <span class="op">=</span> <span class="st">"DEBIT"</span><span class="op">)</span></span></code></pre></div>
 <p><code>key_args</code> is a string vector with the names of the respective test’s key arguments. (You will see that the function is sensitive to the length of <code>key_args</code>, not just to its values.) <code>name_test</code> is the short, plain-text name of that consistency test itself.</p>
 <p>Copy the output from the console and paste it into the roxygen2 block of your <code>_map_seq</code> function. To preserve the bullet-point structure when indenting roxygen2 comments with <code>Ctrl</code>+<code>Shift</code>+<code>/</code>, leave empty lines between the pasted output and the rest of the block.</p>
 <p>Likewise, documenting <code><a href="../reference/audit.html">audit_total_n()</a></code> for <code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code>, <code><a href="../reference/grimmer_map_total_n.html">grimmer_map_total_n()</a></code>, and <code><a href="../reference/debit_map_total_n.html">debit_map_total_n()</a></code>:</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/write_doc_audit_total_n.html">write_doc_audit_total_n</a></span><span class="op">(</span>key_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"n"</span><span class="op">)</span>, name_test <span class="op">=</span> <span class="st">"GRIM"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/write_doc_audit_total_n.html">write_doc_audit_total_n</a></span><span class="op">(</span>key_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"sd"</span>, <span class="st">"n"</span><span class="op">)</span>, name_test <span class="op">=</span> <span class="st">"GRIMMER"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/write_doc_audit_total_n.html">write_doc_audit_total_n</a></span><span class="op">(</span>key_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"sd"</span>, <span class="st">"n"</span><span class="op">)</span>, name_test <span class="op">=</span> <span class="st">"DEBIT"</span><span class="op">)</span></span></code></pre></div>
