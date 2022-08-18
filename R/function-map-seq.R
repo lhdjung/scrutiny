@@ -117,7 +117,9 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 #'   If functions created this way are exported from other packages, they should
 #'   be written as if they were created with
 #'   \href{https://purrr.tidyverse.org/reference/faq-adverbs-export.html}{purrr
-#'   adverbs}; see explanations there and examples at `function_map()`.
+#'   adverbs}; see explanations there and examples at
+#'   `vignette("consistency-tests")`, section *Creating mappers with
+#'   `function_map()`*.
 #'
 #' @param .fun Function such as `grim_map()`: It will be used to test columns in
 #'   a data frame for consistency. Test results are Boolean and need to be
