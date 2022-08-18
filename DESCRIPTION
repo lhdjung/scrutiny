@@ -12,7 +12,7 @@ Authors@R: c(
   )
 Maintainer: Lukas Jung <jung-lukas@gmx.net>
 Description: Test published summary statistics for consistency
-    (Brown and Heathers, 2017, <doi:10.1177/1948550616673876>;
+    (Brown and Heathers, 2017, <https://journals.sagepub.com/doi/10.1177/1948550616673876/>;
     Allard, 2018, <https://aurelienallard.netlify.app/post/anaytic-grimmer-possibility-standard-deviations/>;
     Heathers and Brown, 2019, <https://osf.io/5vb3u/>).
     The package also provides infrastructure for implementing new
