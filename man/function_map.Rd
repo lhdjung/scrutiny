@@ -65,8 +65,10 @@ column-identifying arguments derived from \code{.reported}.
 }
 \description{
 \code{function_map()} creates new basic mapper functions for
-consistency tests, such as \code{grim_map()} or \code{debit_map()}. For context, see
-\code{vignette("consistency-tests")}.
+consistency tests, such as \code{grim_map()} or \code{debit_map()}.
+
+For context, see \code{vignette("consistency-tests")}, section \emph{Creating mappers
+with \code{function_map()}}.
 }
 \details{
 The output tibble returned by the factory-made function will inherit
@@ -106,33 +108,4 @@ df1 <- tibble::tibble(y = 16:25, n = 3:12)
 
 # Call the "factory-made" function:
 schlim_map(df1)
-
-
-# Advice on exporting factory-made functions ----------------
-
-# (The guidelines below were adapted from purrr:
-# https://purrr.tidyverse.org/reference/faq-adverbs-export.html)
-
-# If you want to export a function produced
-# by `function_map()` from your own package,
-# follow this pattern, except for the `if`-wrapping:
-
-if (FALSE) {
-
-  schlim_map <- function(...) "dummy"
-
-  .onLoad <- function(lib, pkg) {
-    schlim_map <<- function_map(
-      .fun = schlim_scalar,
-      .reported = c("y", "n"),
-      .name_test = "SCHLIM"
-    )
-  }
-
-}
-
-# The same applies to functions
-# produced with scrutiny's other
-# function factories, `function_map_seq()`
-# and `function_map_total_n()`.
 }
