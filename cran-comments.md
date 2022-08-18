@@ -7,8 +7,12 @@ This is a resubmission. I now have:
 
 * Added references to the description field of the DESCRIPTION file.
 
-* Added \value sections to all .Rd files in which they had been missing.
+* Added a \value to the tidyeval.Rd file in which it had been missing.
 
-* Removed problematic examples.
+* Removed if(FALSE) wrapping from the function_map.Rd file and moved the problematic example from function_map.Rd to the consistency-tests.Rmd file.
 
-* Increased required version of R to >= 3.4.0, and of the 'rlang' package to >= 1.0.2.
+Furthermore, the CRAN check's NOTE on the description field of the DESCRIPTION file might refer to:
+
+* The names of two authors of the references ('Allard' and 'Heathers').
+
+* The URL <https://journals.sagepub.com/doi/10.1177/1948550616673876/>, which is only invalid because of the trailing slash. The corresponding DOI is also flagged by CRAN.
