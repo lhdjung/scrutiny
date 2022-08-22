@@ -27,21 +27,6 @@ rate_from_data <- function(data, x, y, count, na.rm) {
 }
 
 
-index_from_rates_list <- function(rates, index_pair) {
-  rates[[1]][index_pair]
-}
-
-
-# rate_from_data <- function(data, var, count, na.rm) {
-#   var <- data[var]
-#   if (na.rm) {
-#     var <- remove_na(var)
-#   }
-#   count / length(var)
-# }
-
-
-
 
 #' Count duplicate values by column
 #'
@@ -115,12 +100,6 @@ duplicate_count_colpair <- function(data, na.rm = TRUE, show_rates = TRUE) {
     # `unnest_consistency_cols()`:
     rate_x <- purrr::map(rates, `[`, 1) %>% purrr::flatten() %>% as.numeric()
     rate_y <- purrr::map(rates, `[`, 2) %>% purrr::flatten() %>% as.numeric()
-
-    # rate_x <- purrr::pmap_dbl(out[-2], rate_from_data, "x", na.rm = na.rm)
-    # rate_y <- purrr::pmap_dbl(out[-1], rate_from_data, "y", na.rm = na.rm)
-
-    # rate_x <- purrr::map(rates, index_from_rates_list, index_pair = 1) %>% as.numeric()
-    # rate_y <- purrr::map(rates, index_from_rates_list, index_pair = 2) %>% as.numeric()
 
     out <- dplyr::mutate(out, rate_x, rate_y)
   }
