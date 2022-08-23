@@ -696,3 +696,14 @@ dustify <- function(x) {
 
 
 
+
+# In this helper, the dots are merely pro forma; their purpose is to swallow up
+# the `na.rm = TRUE` specification in a for loop with `dplyr::across()`.
+na_count <- function(x, ...) {
+  length(x[is.na(x)])
+}
+
+
+
+
+
