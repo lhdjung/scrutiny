@@ -88,7 +88,7 @@ DEBIT only makes sense with binary means and SDs. Both `debit()` and `debit_map(
 ```{r, error=TRUE}
 pigs1  # no binary means / SDs!
 
-pigs1 %>% 
+pigs5 %>% 
   debit_map()
 ```
 
