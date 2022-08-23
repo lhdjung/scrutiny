@@ -183,9 +183,20 @@ audit_seq <- function(data) {
 
   consistency <- data_rev_tested$consistency
 
+  cols_hits <- dplyr::mutate(cols_hits, dplyr::across(
+    .cols = where(is.character),
+    .fns = as.numeric
+  ))
+
+  cols_diff <- dplyr::mutate(cols_diff, dplyr::across(
+    .cols = where(is.character),
+    .fns = as.numeric
+  ))
+
   out <- data_rev %>%
     dplyr::mutate(consistency, hits_total) %>%
-    dplyr::bind_cols(cols_hits, cols_diff)
+    dplyr::bind_cols(cols_hits, cols_diff) %>%
+    add_class("scr_audit_seq")
 
   return(out)
 }
