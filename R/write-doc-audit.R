@@ -278,7 +278,9 @@ write_doc_audit_seq <- function(key_args, name_test) {
     "#'   consistent dispersed value (in dispersion steps, not the actual numeric \n"   ,
     "#'   difference). `diff_{arg1}_up` and `diff_{arg1}_down` report the difference to the \n",
     "#'   next higher or lower consistent value, respectively. \n",
-    var_ge_3_line_diff_all
+    var_ge_3_line_diff_all,
+    "#' \n",
+    "#'   Call `audit()` following `audit_seq()` to summarize results even further. \n"
   )
 }
 

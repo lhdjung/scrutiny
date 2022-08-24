@@ -75,8 +75,10 @@ are set to \code{TRUE}.)
 consistent dispersed value (in dispersion steps, not the actual numeric
 difference). \code{diff_x_up} and \code{diff_x_down} report the difference to the
 next higher or lower consistent value, respectively.
-\item \code{diff_n}, \code{diff_n_up},   and \code{diff_n_down} do the same for \code{n}.
+\item \code{diff_n}, \code{diff_n_up}, and \code{diff_n_down} do the same for \code{n}.
 }
+
+Call \code{audit()} following \code{audit_seq()} to summarize results even further.
 }
 
 \examples{
@@ -90,5 +92,12 @@ out
 
 # Case-wise summaries with `audit_seq()`
 # can be more important than the raw results:
-audit_seq(out)
+out \%>\%
+  audit_seq()
+
+# Summarize across cases with `audit()`
+# following up on `audit_seq()`:
+out \%>\%
+  audit_seq() \%>\%
+  audit()
 }

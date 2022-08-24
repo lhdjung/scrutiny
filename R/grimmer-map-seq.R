@@ -47,12 +47,34 @@
 #'   consistent dispersed value (in dispersion steps, not the actual numeric
 #'   difference). `diff_x_up` and `diff_x_down` report the difference to the
 #'   next higher or lower consistent value, respectively.
-#'   - `diff_sd`, `diff_sd_up`,   and `diff_sd_down` do the same for `sd`.
+#'   - `diff_sd`, `diff_sd_up`, and `diff_sd_down` do the same for `sd`.
 #'   -  Likewise with `diff_n`, `diff_n_up`, and `diff_n_down`.
+#'
+#'   Call `audit()` following `audit_seq()` to summarize results even further.
 
 #' @include grimmer-map.R
 
 #' @export
+
+#' @examples
+#' # `grimmer_map_seq()` can take any input
+#' # that `grimmer_map()` can take:
+#' pigs5
+#'
+#' # All the results:
+#' out <- grimmer_map_seq(pigs5, include_consistent = TRUE)
+#' out
+#'
+#' # Case-wise summaries with `audit_seq()`
+#' # can be more important than the raw results:
+#' out %>%
+#'   audit_seq()
+#'
+#' # Summarize across cases with `audit()`
+#' # following up on `audit_seq()`:
+#' out %>%
+#'   audit_seq() %>%
+#'   audit()
 
 
 grimmer_map_seq <- function_map_seq(
