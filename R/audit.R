@@ -242,7 +242,10 @@ audit_total_n <- function(data) {
 
   out <- data %>%
     reverse_map_total_n() %>%
-    dplyr::mutate(hits_total, hits_forth, hits_back, scenarios_total, hit_rate)
+    dplyr::mutate(
+      hits_total, hits_forth, hits_back, scenarios_total, hit_rate
+    ) %>%
+    add_class("scr_audit_total_n")
 
   return(out)
 }
