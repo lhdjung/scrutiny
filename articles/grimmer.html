@@ -155,6 +155,7 @@
 <div class="section level4">
 <h4 id="scale-items">Scale items<a class="anchor" aria-label="anchor" href="#scale-items"></a>
 </h4>
+<p><strong>NOTE: Don’t use the <code>items</code> argument. It currently contains a bug that will be fixed in scrutiny’s next CRAN release.</strong></p>
 <p>If a mean is composed of multiple items, set the <code>items</code> parameter to that number. Below are hypothetical means of a three-items scale. With the single-item default, half of these are wrongly flagged as inconsistent:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">jpap_1</span> <span class="op">&lt;-</span> <span class="fu">tribble</span><span class="op">(</span></span>
