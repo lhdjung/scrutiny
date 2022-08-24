@@ -45,8 +45,6 @@
 #'   next higher or lower consistent value, respectively.
 #'   - `diff_sd`, `diff_sd_up`, and `diff_sd_down` do the same for `sd`.
 #'   -  Likewise with `diff_n`, `diff_n_up`, and `diff_n_down`.
-#'
-#'   Call `audit()` following `audit_seq()` to summarize results even further.
 
 #' @return A tibble (data frame) with detailed test results.
 
@@ -70,13 +68,7 @@
 #' # can be more important than the raw results:
 #' out %>%
 #'   audit_seq()
-#'
-#' # Summarize across cases with `audit()`
-#' # following up on `audit_seq()`:
-#' out %>%
-#'   audit_seq() %>%
-#'   audit() %>%
-#'   suppressWarnings()
+
 
 debit_map_seq <- function_map_seq(
   .fun = debit_map,

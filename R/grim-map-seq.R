@@ -68,12 +68,6 @@
 #' # can be more important than the raw results:
 #' out %>%
 #'   audit_seq()
-#'
-#' # Summarize across cases with `audit()`
-#' # following up on `audit_seq()`:
-#' out %>%
-#'   audit_seq() %>%
-#'   audit()
 
 
 grim_map_seq <- function_map_seq(

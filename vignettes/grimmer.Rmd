@@ -90,6 +90,8 @@ The `reason` column says why a set of values was inconsistent. To be GRIMMER-con
 
 ### Scale items
 
+**NOTE: Don't use the `items` argument. It currently contains a bug that will be fixed in scrutiny's next CRAN release.**
+
 If a mean is composed of multiple items, set the `items` parameter to that number. Below are hypothetical means of a three-items scale. With the single-item default, half of these are wrongly flagged as inconsistent:
 
 ```{r, error=TRUE}

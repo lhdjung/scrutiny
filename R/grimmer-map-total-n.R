@@ -115,13 +115,6 @@
 #' df %>%
 #'   grimmer_map_total_n(dispersion = 0:10) %>%
 #'   audit_total_n()
-#'
-#' # Summarize across cases with `audit()`
-#' # following up on `audit_total_n()`:
-#' df %>%
-#'   grimmer_map_total_n() %>%
-#'   audit_total_n() %>%
-#'   audit()
 
 
 grimmer_map_total_n <- function_map_total_n(
