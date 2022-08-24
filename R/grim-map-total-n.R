@@ -114,7 +114,13 @@
 #' df %>%
 #'   grim_map_total_n(dispersion = 0:10) %>%
 #'   audit_total_n()
-
+#'
+#' # Summarize across cases with `audit()`
+#' # following up on `audit_total_n()`:
+#' df %>%
+#'   grim_map_total_n() %>%
+#'   audit_total_n() %>%
+#'   audit()
 
 
 grim_map_total_n <- function_map_total_n(

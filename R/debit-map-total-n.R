@@ -99,6 +99,13 @@
 #' df %>%
 #'   debit_map_total_n() %>%
 #'   audit_total_n()
+#'
+#' # Summarize across cases with `audit()`
+#' # following up on `audit_total_n()`:
+#' df %>%
+#'   debit_map_total_n() %>%
+#'   audit_total_n() %>%
+#'   audit()
 
 
 
