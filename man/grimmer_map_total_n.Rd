@@ -47,7 +47,9 @@ of dispersed values. Default is \code{NULL}, i.e., no constant values.}
 \code{constant} column in the output tibble. If \code{NULL} (the default), \code{constant}
 will go to the right of \code{n_change}.}
 
-\item{...}{Arguments passed down to \code{grimmer_map()}.}
+\item{...}{Arguments passed down to \code{grimmer_map()}. \emph{(NOTE: Don't use the
+\code{items} argument. It currently contains a bug that will be fixed in
+scrutiny's next CRAN release.)}}
 }
 \value{
 A tibble with these columns:
@@ -103,9 +105,6 @@ whether or not both \code{x1} and \code{sd1} as well as \code{x2} and \code{sd2}
 are GRIMMER-consistent.
 \item \code{hit_rate} is the ratio of \code{hits_total} to \code{scenarios_total}.
 }
-
-Call \code{audit()} following \code{audit_total_n()} to summarize results
-even further.
 }
 
 \examples{

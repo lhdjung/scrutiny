@@ -35,7 +35,9 @@
 #' @param n_max Numeric. Maximal group size. Default is `NULL`, i.e., no
 #'   maximum.
 #' @inheritParams disperse_total
-#' @param ... Arguments passed down to `grimmer_map()`.
+#' @param ... Arguments passed down to `grimmer_map()`. *(NOTE: Don't use the
+#'   `items` argument. It currently contains a bug that will be fixed in
+#'   scrutiny's next CRAN release.)*
 
 #' @include function-map-total-n.R
 #'
@@ -75,9 +77,6 @@
 #'  whether or not both `x1` and `sd1` as well as `x2` and `sd2`
 #'  are GRIMMER-consistent.
 #'  - `hit_rate` is the ratio of `hits_total` to `scenarios_total`.
-#'
-#'  Call `audit()` following `audit_total_n()` to summarize results
-#'  even further.
 
 #' @references Allard, A. (2018). Analytic-GRIMMER: a new way of testing the
 #'   possibility of standard deviations.

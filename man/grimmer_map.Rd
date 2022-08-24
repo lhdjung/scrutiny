@@ -23,9 +23,10 @@ grimmer_map(
 (see documentation for \code{grim()}). Any other columns in \code{data} will be
 returned alongside GRIMMER test results.}
 
-\item{items}{Integer. If there is no \code{items} column in \code{data}, this specifies
-the number of items composing the \code{x} values. Default is 1, the most common
-case.}
+\item{items}{\emph{(NOTE: Don't use the \code{items} argument. It currently contains a
+bug that will be fixed in scrutiny's next CRAN release.)} Integer. If there
+is no \code{items} column in \code{data}, this specifies the number of items
+composing the \code{x} and \code{sd} values. Default is 1, the most common case.}
 
 \item{merge_items}{Boolean. If \code{TRUE} (the default), there will be no \code{items}
 column in the output. Instead, values from an \code{items} column or argument

@@ -184,6 +184,10 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
 #' @param x String. The reported mean value.
 #' @param sd String. The reported standard deviation.
 #' @param n Integer. The reported sample size.
+#' @param items *(NOTE: Don't use the `items` argument. It currently contains a
+#'   bug that will be fixed in scrutiny's next CRAN release.)* Integer. The
+#'   number of items composing the `x` and `sd` values. Default is 1, the most
+#'   common case.
 #' @param show_reason Boolean. For internal use only. If set to `TRUE`, the
 #'   output is a list of length-2 lists which also contain the reasons for
 #'   inconsistencies. Don't specify this manually; instead, use `show_reason` in

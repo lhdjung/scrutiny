@@ -24,8 +24,7 @@ functions that perform tests on data frames. It summarizes results of those
 tests and presents the summaries in a tibble.
 
 \code{audit_seq()} and \code{audit_total_n()} summarize the results of functions that
-end on \verb{_seq} and \verb{_total_n}, respectively. Call \code{audit()} following either
-of these two functions to further summarize their results.
+end on \verb{_seq} and \verb{_total_n}, respectively.
 
 Below is a list of functions that return objects with classes for which
 there are \code{audit()} methods. This means you can run \code{audit()} on the output
@@ -44,8 +43,6 @@ or \code{audit_total_n()}.
    \code{debit_map()} \tab \code{"scr_debit_map"} \cr
    \code{duplicate_count()} \tab \code{"scr_dup_count"} \cr
    \code{duplicate_detect()} \tab \code{"scr_dup_detect"} \cr
-   \code{audit_seq()} \tab \code{"scr_audit_seq"} \cr
-   \code{audit_total_n()} \tab \code{"scr_audit_total_n"} \cr
 }
 }
 
@@ -78,12 +75,6 @@ pigs1 \%>\%
 pigs1 \%>\%
   grim_map_seq() \%>\%
   audit_seq()
-
-# Summarize further:
-pigs1 \%>\%
-  grim_map_seq() \%>\%
-  audit_seq() \%>\%
-  audit()
 
 # For detecting duplicates:
 pigs4 \%>\%

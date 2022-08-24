@@ -11,9 +11,10 @@
 #' @param data Data frame with columns `x`, `sd`, `n`, and optionally `items`
 #'   (see documentation for `grim()`). Any other columns in `data` will be
 #'   returned alongside GRIMMER test results.
-#' @param items Integer. If there is no `items` column in `data`, this specifies
-#'   the number of items composing the `x` values. Default is 1, the most common
-#'   case.
+#' @param items *(NOTE: Don't use the `items` argument. It currently contains a
+#'   bug that will be fixed in scrutiny's next CRAN release.)* Integer. If there
+#'   is no `items` column in `data`, this specifies the number of items
+#'   composing the `x` and `sd` values. Default is 1, the most common case.
 #' @param merge_items Boolean. If `TRUE` (the default), there will be no `items`
 #'   column in the output. Instead, values from an `items` column or argument
 #'   will be multiplied with values in the `n` column. This does not affect
