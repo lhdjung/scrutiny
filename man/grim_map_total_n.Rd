@@ -86,18 +86,21 @@ All of this works with one or more total sample sizes at a time. Call
 to get a tibble with summary statistics. It will have these columns:
 \itemize{
 \item \code{x1}, \code{x2}, and \code{n} are the original inputs.
-\item \code{hits_forth} is the number of scenarios in which both
-\code{x1} and \code{x2} are GRIM-consistent with the dispersed
-\code{n} values when \code{x2} is paired with the
-larger dispersed \code{n}.
+\item \code{hits_total} is the number of scenarios in which both
+\code{x1} and \code{x2} are GRIM-consistent. It is the sum
+of \code{hits_forth} and \code{hits_back} below.
+\item \code{hits_forth} is the number of both-consistent cases that result
+from pairing \code{x2} with the larger dispersed \code{n} value.
 \item \code{hits_back} is the same, except \code{x1} is
 paired with the larger dispersed \code{n} value.
-\item \code{hits_total} is the sum of \code{hits_forth} and \code{hits_back}, i.e.,
-the total number of both-consistent scenarios.
 \item \code{scenarios_total} is the total number of test scenarios,
-whether or not both \code{x1} and \code{x2} are consistent.
+whether or not both \code{x1} and \code{x2}
+are GRIM-consistent.
 \item \code{hit_rate} is the ratio of \code{hits_total} to \code{scenarios_total}.
 }
+
+Call \code{audit()} following \code{audit_total_n()} to summarize results
+even further.
 }
 
 \examples{

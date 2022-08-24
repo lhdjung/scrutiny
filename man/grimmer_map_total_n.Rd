@@ -103,6 +103,9 @@ whether or not both \code{x1} and \code{sd1} as well as \code{x2} and \code{sd2}
 are GRIMMER-consistent.
 \item \code{hit_rate} is the ratio of \code{hits_total} to \code{scenarios_total}.
 }
+
+Call \code{audit()} following \code{audit_total_n()} to summarize results
+even further.
 }
 
 \examples{
