@@ -1,5 +1,3 @@
-# scrutiny 0.2.3
-
 # scrutiny 0.2.2.9000 (development version)
 
 # scrutiny 0.2.2
