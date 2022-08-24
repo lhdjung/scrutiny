@@ -16,7 +16,7 @@ grimmer_map_total_n(), relying on the same infrastructure."><!-- mathjax --><scr
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -163,18 +163,20 @@ with the larger dispersed <code>n</code>.</p></li>
     <p>You can call
 <code><a href="audit.html">audit_total_n()</a></code> following up on <code>debit_map_total_n()</code>
 to get a tibble with summary statistics. It will have these columns:</p><ul><li><p><code>x1</code>, <code>x2</code>, <code>sd1</code>, <code>sd2</code>, and <code>n</code> are the original inputs.</p></li>
-<li><p><code>hits_forth</code> is the number of scenarios in which all of
-<code>x1</code>, <code>x2</code>, <code>sd1</code>, and <code>sd2</code> are DEBIT-consistent with the dispersed
-<code>n</code> values when <code>x2</code> and <code>sd2</code> are paired with the
-larger dispersed <code>n</code>.</p></li>
+<li><p><code>hits_total</code> is the number of scenarios in which all of
+<code>x1</code>, <code>x2</code>, <code>sd1</code>, and <code>sd2</code> are DEBIT-consistent. It is the sum
+of <code>hits_forth</code> and <code>hits_back</code> below.</p></li>
+<li><p><code>hits_forth</code> is the number of both-consistent cases that result
+from pairing <code>x2</code> and <code>sd2</code> with the larger dispersed <code>n</code> value.</p></li>
 <li><p><code>hits_back</code> is the same, except <code>x1</code> and <code>sd1</code> are
 paired with the larger dispersed <code>n</code> value.</p></li>
-<li><p><code>hits_total</code> is the sum of <code>hits_forth</code> and <code>hits_back</code>, i.e.,
-the total number of both-consistent scenarios.</p></li>
 <li><p><code>scenarios_total</code> is the total number of test scenarios,
-whether or not all of <code>x1</code>, <code>x2</code>, <code>sd1</code>, and <code>sd2</code> are consistent.</p></li>
+whether or not both <code>x1</code> and <code>sd1</code> as well as <code>x2</code> and <code>sd2</code>
+are DEBIT-consistent.</p></li>
 <li><p><code>hit_rate</code> is the ratio of <code>hits_total</code> to <code>scenarios_total</code>.</p></li>
-</ul></div>
+</ul><p>Call <code><a href="audit.html">audit()</a></code> following <code><a href="audit.html">audit_total_n()</a></code> to summarize results
+even further.</p>
+    </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
     <p>Bauer, P. J., &amp; Francis, G. (2021). Expression of Concern: Is It
@@ -251,6 +253,21 @@ Test For Binary Data. https://osf.io/5vb3u/.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 0.30  0.28  0.17  0.10     70          0          0         0       12       0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> 0.41  0.39  0.09  0.15     65          0          0         0       12       0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># … with abbreviated variable names ¹​scenarios_total, ²​hit_rate</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Summarize across cases with `audit()`</span></span></span>
+<span class="r-in"><span><span class="co"># following up on `audit_total_n()`:</span></span></span>
+<span class="r-in"><span><span class="va">df</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+<span class="r-in"><span>  <span class="fu">debit_map_total_n</span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="audit.html">audit_total_n</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="audit.html">audit</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 5 × 7</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   term             mean    sd median   min   max na_count</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> hits_total          0     0      0     0     0        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> hits_forth          0     0      0     0     0        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> hits_back           0     0      0     0     0        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> scenarios_total    12     0     12    12    12        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> hit_rate            0     0      0     0     0        0</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

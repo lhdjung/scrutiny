@@ -18,7 +18,7 @@ Call audit_seq() on the results for summary statistics."><!-- mathjax --><script
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -164,8 +164,9 @@ are set to <code>TRUE</code>.)</p></li>
 consistent dispersed value (in dispersion steps, not the actual numeric
 difference). <code>diff_x_up</code> and <code>diff_x_down</code> report the difference to the
 next higher or lower consistent value, respectively.</p></li>
-<li><p><code>diff_n</code>, <code>diff_n_up</code>,   and <code>diff_n_down</code> do the same for <code>n</code>.</p></li>
-</ul></div>
+<li><p><code>diff_n</code>, <code>diff_n_up</code>, and <code>diff_n_down</code> do the same for <code>n</code>.</p></li>
+</ul><p>Call <code><a href="audit.html">audit()</a></code> following <code><a href="audit.html">audit_seq()</a></code> to summarize results even further.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
@@ -208,7 +209,8 @@ next higher or lower consistent value, respectively.</p></li>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Case-wise summaries with `audit_seq()`</span></span></span>
 <span class="r-in"><span><span class="co"># can be more important than the raw results:</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="audit.html">audit_seq</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">out</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="audit.html">audit_seq</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 12 × 12</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    x         n consistency hits_to…¹ hits_x hits_n diff_x diff_…² diff_…³ diff_n</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
@@ -226,6 +228,24 @@ next higher or lower consistent value, respectively.</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">12</span> 0.24     28 FALSE               6      3      3      1       1      -<span style="color: #BB0000;">3</span>      1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># … with 2 more variables: diff_n_up &lt;dbl&gt;, diff_n_down &lt;dbl&gt;, and abbreviated</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   variable names ¹​hits_total, ²​diff_x_up, ³​diff_x_down</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Summarize across cases with `audit()`</span></span></span>
+<span class="r-in"><span><span class="co"># following up on `audit_seq()`:</span></span></span>
+<span class="r-in"><span><span class="va">out</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="audit.html">audit_seq</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="audit.html">audit</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 9 × 7</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   term         mean    sd median   min   max na_count</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> hits_total   6    2.34     6       3    12        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> hits_x       2.67 0.651    3       2     4        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> hits_n       3.33 2.35     3       0    10        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> diff_x       1.83 1.11     1       1     4        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> diff_x_up    2    1.21     1.5     1     4        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> diff_x_down -<span style="color: #BB0000;">2.75</span> 0.866   -<span style="color: #BB0000;">3</span>      -<span style="color: #BB0000;">4</span>    -<span style="color: #BB0000;">1</span>        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">7</span> diff_n       1.82 1.08     1       1     4        1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">8</span> diff_n_up    2.45 1.29     3       1     4        1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">9</span> diff_n_down -<span style="color: #BB0000;">2.64</span> 1.43    -<span style="color: #BB0000;">3</span>      -<span style="color: #BB0000;">5</span>    -<span style="color: #BB0000;">1</span>        1</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
