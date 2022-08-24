@@ -43,8 +43,10 @@
 #'   consistent dispersed value (in dispersion steps, not the actual numeric
 #'   difference). `diff_x_up` and `diff_x_down` report the difference to the
 #'   next higher or lower consistent value, respectively.
-#'   - `diff_sd`, `diff_sd_up`,   and `diff_sd_down` do the same for `sd`.
+#'   - `diff_sd`, `diff_sd_up`, and `diff_sd_down` do the same for `sd`.
 #'   -  Likewise with `diff_n`, `diff_n_up`, and `diff_n_down`.
+#'
+#'   Call `audit()` following `audit_seq()` to summarize results even further.
 
 #' @return A tibble (data frame) with detailed test results.
 
@@ -59,14 +61,22 @@
 #'
 #' # Results from testing the first two rows:
 #' out <- pigs3 %>%
-#'   dplyr::slice(1:2) %>%
+#'   dplyr::slice(3:4) %>%
 #'   debit_map_seq(include_consistent = TRUE)
 #'
 #' out
 #'
 #' # Case-wise summaries with `audit_seq()`
 #' # can be more important than the raw results:
-#' audit_seq(out)
+#' out %>%
+#'   audit_seq()
+#'
+#' # Summarize across cases with `audit()`
+#' # following up on `audit_seq()`:
+#' out %>%
+#'   audit_seq() %>%
+#'   audit() %>%
+#'   suppressWarnings()
 
 debit_map_seq <- function_map_seq(
   .fun = debit_map,

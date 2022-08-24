@@ -21,9 +21,10 @@ A tibble (data frame) with test summary statistics.
 \description{
 \code{audit()} is an S3 generic to follow up on those scrutiny
 functions that perform tests on data frames. It summarizes results of those
-tests and presents the summaries in a tibble. \code{audit_seq()} and
-\code{audit_total_n()} summarize the results of functions that end on \verb{_seq} and
-\verb{_total_n}, respectively.
+tests and presents the summaries in a tibble.
+
+\code{audit_seq()} and \code{audit_total_n()} summarize the results of functions that
+end on \verb{_seq} and \verb{_total_n}, respectively.
 
 Below is a list of functions that return objects with classes for which
 there are \code{audit()} methods. This means you can run \code{audit()} on the output
@@ -64,10 +65,16 @@ or \code{audit_total_n()}.
 }
 
 \examples{
-# For GRIM-testing:
+# For basic GRIM-testing:
 pigs1 \%>\%
   grim_map() \%>\%
   audit()
+
+# For GRIM-testing with
+# dispersed inputs:
+pigs1 \%>\%
+  grim_map_seq() \%>\%
+  audit_seq()
 
 # For detecting duplicates:
 pigs4 \%>\%

@@ -278,7 +278,9 @@ write_doc_audit_seq <- function(key_args, name_test) {
     "#'   consistent dispersed value (in dispersion steps, not the actual numeric \n"   ,
     "#'   difference). `diff_{arg1}_up` and `diff_{arg1}_down` report the difference to the \n",
     "#'   next higher or lower consistent value, respectively. \n",
-    var_ge_3_line_diff_all
+    var_ge_3_line_diff_all,
+    "#' \n",
+    "#'   Call `audit()` following `audit_seq()` to summarize results even further. \n"
   )
 }
 
@@ -400,7 +402,10 @@ write_doc_audit_total_n <- function(key_args, name_test) {
     "#'  - `scenarios_total` is the total number of test scenarios, \n",
     "#'  whether or not both {key_args_num1_commas} {and_as_well_as} {key_args_num2_commas} \n",
     "#'  are {name_test}-consistent. \n",
-    "#'  - `hit_rate` is the ratio of `hits_total` to `scenarios_total`. \n"
+    "#'  - `hit_rate` is the ratio of `hits_total` to `scenarios_total`. \n",
+    "#' \n",
+    "#'  Call `audit()` following `audit_total_n()` to summarize results \n",
+    "#'  even further. \n"
   )
 }
 

@@ -45,7 +45,9 @@ consistent cases (from among those reported), not just inconsistent ones?
 Default is \code{FALSE} because the focus should be on clarifying
 inconsistencies.}
 
-\item{...}{Arguments passed down to \code{grimmer_map()}.}
+\item{...}{Arguments passed down to \code{grimmer_map()}. \emph{(NOTE: Don't use the
+\code{items} argument. It currently contains a bug that will be fixed in
+scrutiny's next CRAN release.)}}
 }
 \value{
 A tibble (data frame) with detailed test results.
@@ -76,8 +78,28 @@ are set to \code{TRUE}.)
 consistent dispersed value (in dispersion steps, not the actual numeric
 difference). \code{diff_x_up} and \code{diff_x_down} report the difference to the
 next higher or lower consistent value, respectively.
-\item \code{diff_sd}, \code{diff_sd_up},   and \code{diff_sd_down} do the same for \code{sd}.
+\item \code{diff_sd}, \code{diff_sd_up}, and \code{diff_sd_down} do the same for \code{sd}.
 \item Likewise with \code{diff_n}, \code{diff_n_up}, and \code{diff_n_down}.
 }
 }
 
+\examples{
+# `grimmer_map_seq()` can take any input
+# that `grimmer_map()` can take:
+pigs5
+
+# All the results:
+out <- grimmer_map_seq(pigs5, include_consistent = TRUE)
+out
+
+# Case-wise summaries with `audit_seq()`
+# can be more important than the raw results:
+out \%>\%
+  audit_seq()
+
+# Summarize across cases with `audit()`
+# following up on `audit_seq()`:
+out \%>\%
+  audit_seq() \%>\%
+  audit()
+}

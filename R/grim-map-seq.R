@@ -45,7 +45,9 @@
 #'   consistent dispersed value (in dispersion steps, not the actual numeric
 #'   difference). `diff_x_up` and `diff_x_down` report the difference to the
 #'   next higher or lower consistent value, respectively.
-#'   - `diff_n`, `diff_n_up`,   and `diff_n_down` do the same for `n`.
+#'   - `diff_n`, `diff_n_up`, and `diff_n_down` do the same for `n`.
+#'
+#'   Call `audit()` following `audit_seq()` to summarize results even further.
 
 #' @return A tibble (data frame) with detailed test results.
 
@@ -64,8 +66,14 @@
 #'
 #' # Case-wise summaries with `audit_seq()`
 #' # can be more important than the raw results:
-#' audit_seq(out)
-
+#' out %>%
+#'   audit_seq()
+#'
+#' # Summarize across cases with `audit()`
+#' # following up on `audit_seq()`:
+#' out %>%
+#'   audit_seq() %>%
+#'   audit()
 
 
 grim_map_seq <- function_map_seq(

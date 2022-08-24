@@ -24,8 +24,10 @@ grimmer(
 
 \item{n}{Integer. The reported sample size.}
 
-\item{items}{Numeric. The number of items composing \code{x}. Default is 1, the
-most common case.}
+\item{items}{\emph{(NOTE: Don't use the \code{items} argument. It currently contains a
+bug that will be fixed in scrutiny's next CRAN release.)} Integer. The
+number of items composing the \code{x} and \code{sd} values. Default is 1, the most
+common case.}
 
 \item{show_reason}{Boolean. For internal use only. If set to \code{TRUE}, the
 output is a list of length-2 lists which also contain the reasons for
