@@ -3,9 +3,11 @@
 #'
 #' @description `audit()` is an S3 generic to follow up on those scrutiny
 #'   functions that perform tests on data frames. It summarizes results of those
-#'   tests and presents the summaries in a tibble. `audit_seq()` and
-#'   `audit_total_n()` summarize the results of functions that end on `_seq` and
-#'   `_total_n`, respectively.
+#'   tests and presents the summaries in a tibble.
+#'
+#'   `audit_seq()` and `audit_total_n()` summarize the results of functions that
+#'   end on `_seq` and `_total_n`, respectively. Call `audit()` following either
+#'   of these two functions to further summarize their results.
 #'
 #'   Below is a list of functions that return objects with classes for which
 #'   there are `audit()` methods. This means you can run `audit()` on the output
@@ -26,6 +28,8 @@
 #'   | `debit_map()`                | `"scr_debit_map"`           |
 #'   | `duplicate_count()`          | `"scr_dup_count"`           |
 #'   | `duplicate_detect()`         | `"scr_dup_detect"`          |
+#'   | `audit_seq()`                | `"scr_audit_seq"`           |
+#'   | `audit_total_n()`            | `"scr_audit_total_n"`       |
 
 #' @section `audit_seq()`:
 #'   | \strong{Function}            | \strong{Class}              |
@@ -45,9 +49,21 @@
 #' @export
 #'
 #' @examples
-#' # For GRIM-testing:
+#' # For basic GRIM-testing:
 #' pigs1 %>%
 #'   grim_map() %>%
+#'   audit()
+#'
+#' # For GRIM-testing with
+#' # dispersed inputs:
+#' pigs1 %>%
+#'   grim_map_seq() %>%
+#'   audit_seq()
+#'
+#' # Summarize further:
+#' pigs1 %>%
+#'   grim_map_seq() %>%
+#'   audit_seq() %>%
 #'   audit()
 #'
 #' # For detecting duplicates:
