@@ -183,9 +183,20 @@ audit_seq <- function(data) {
 
   consistency <- data_rev_tested$consistency
 
+  cols_hits <- dplyr::mutate(cols_hits, dplyr::across(
+    .cols = where(is.character),
+    .fns = as.numeric
+  ))
+
+  cols_diff <- dplyr::mutate(cols_diff, dplyr::across(
+    .cols = where(is.character),
+    .fns = as.numeric
+  ))
+
   out <- data_rev %>%
     dplyr::mutate(consistency, hits_total) %>%
-    dplyr::bind_cols(cols_hits, cols_diff)
+    dplyr::bind_cols(cols_hits, cols_diff) %>%
+    add_class("scr_audit_seq")
 
   return(out)
 }
@@ -231,7 +242,10 @@ audit_total_n <- function(data) {
 
   out <- data %>%
     reverse_map_total_n() %>%
-    dplyr::mutate(hits_total, hits_forth, hits_back, scenarios_total, hit_rate)
+    dplyr::mutate(
+      hits_total, hits_forth, hits_back, scenarios_total, hit_rate
+    ) %>%
+    add_class("scr_audit_total_n")
 
   return(out)
 }

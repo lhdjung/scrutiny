@@ -24,8 +24,11 @@ scrutiny is a work in progress. You are welcome to contribute with pull
 requests. However, please [open an
 issue](https://github.com/lhdjung/scrutiny/issues) first.
 
-The package is not on CRAN yet. You can install in from GitHub like
-this:
+Install the package from CRAN:
+
+    install.packages("scrutiny")
+
+Alternatively, install the development version from GitHub:
 
     remotes::install_github("lhdjung/scrutiny")
 
@@ -108,7 +111,7 @@ inconsistent ones:
       grim_map(rounding = "up") %>% 
       grim_plot()
 
-<img src="man/figures/README-unnamed-chunk-4-1.png" width="75%" />
+<img src="man/figures/README-unnamed-chunk-5-1.png" width="75%" />
 
 Similarly, use DEBIT to test means and standard deviations of binary
 data:
@@ -145,7 +148,7 @@ data:
       debit_map() %>% 
       debit_plot()
 
-<img src="man/figures/README-unnamed-chunk-5-1.png" width="75%" />
+<img src="man/figures/README-unnamed-chunk-6-1.png" width="75%" />
 
 ## Guiding ideas
 

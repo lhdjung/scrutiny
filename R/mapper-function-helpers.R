@@ -378,3 +378,30 @@ unnest_consistency_cols <- function(results, col_names, index = FALSE,
   return(results)
 }
 
+
+
+summarize_audit_special <- function(data, cols) {
+
+  cols <- rlang::enexprs(cols)
+
+  fn_names <- c(  "mean",      "sd",      "median", "min", "max", "na_count")
+  fns      <- list(mean, stats::sd, stats::median,   min,   max,   na_count)
+
+  out <- tibble::tibble()
+
+  for (fn in fns) {
+    temp <- dplyr::summarise(data, dplyr::across(
+      .cols = c(!!!cols),
+      .fns  = fn,
+      na.rm = TRUE
+    ))
+    out <- dplyr::bind_rows(out, temp)
+  }
+
+  term <- names(out)
+  out <- tibble::as_tibble(t(out), .name_repair = ~ fn_names)
+
+  dplyr::mutate(out, term, .before = 1)
+}
+
+

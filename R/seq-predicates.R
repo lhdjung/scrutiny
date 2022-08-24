@@ -59,6 +59,22 @@ is_seq_descending_basic <- function(x) {
 is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
                          test_linear = TRUE, test_special = NULL,
                          min_length = NULL, args_other = NULL) {
+
+  if (!is.null(test_special) && test_special == "dispersed") {
+    # Without the `force()` call, the function may return `FALSE` early, even if
+    # `from` was not supplied:
+    force(args_other$from)
+
+    # A dispersed sequence requires one central value, so the number of elements
+    # in `x` must be odd:
+    if (is_even(length(x))) {
+      return(FALSE)
+    }
+    # Save the unmodified `x` for a test that is conducted if `x` contains one
+    # or more `NA` elements:
+    x_orig <- x
+  }
+
   if (all(is.na(x))) {
     return(NA)
   }
@@ -73,17 +89,6 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
 
   if (length(x) == 1) {
     return(TRUE)
-  }
-
-  if (!is.null(test_special) && test_special == "dispersed") {
-    # A dispersed sequence requires one central value, so the number of elements
-    # in `x` must be odd:
-    if (is_even(length(x))) {
-      return(FALSE)
-    }
-    # Save the unmodified `x` for a test that is conducted if `x` contains one
-    # or more `NA` elements:
-    x_orig <- x
   }
 
   x_has_na <- any(is.na(x))
@@ -328,10 +333,6 @@ is_seq_dispersed <- function(x, from, test_linear = TRUE,
 # Helper, not exported:
 is_seq_dispersed_basic <- function(x, from,
                                    tolerance = .Machine$double.eps^0.5) {
-
-  # Without `force(from)`, the function may return `FALSE` early, even if `from`
-  # was not supplied:
-  force(from)
 
   if (is_even(length(x))) {
     return(FALSE)
