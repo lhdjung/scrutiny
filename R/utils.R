@@ -456,10 +456,10 @@ check_length_disperse_n <- function(n, msg_single) {
 
 # Test if a vector `x` is numeric or coercible to numeric:
 is_numericish <- function(x) {
-  if (all(is.na(x))) {
+  x <- x[!is.na(x)]
+  if (length(x) == 0) {
     return(NA)
   }
-  x <- x[!is.na(x)]
   x <- suppressWarnings(as.numeric(x))
   !any(is.na(x))
 }
