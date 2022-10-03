@@ -118,6 +118,10 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
       }
     }
 
+    # Used within the for loop below to check whether the step size needs to be
+    # negative:
+    x_is_descending_basic <- is_seq_descending_basic(x[!is.na(x)])
+
     for (i in seq_along(x)) {
       if (is.na(x[i])) {
         index_lower <- 1
@@ -133,6 +137,11 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
         seq_end   <- x[i + index_upper]
 
         step <- step_size(c(seq_start, seq_end))
+
+        # Descending sequences require a negative step size:
+        if (x_is_descending_basic) {
+          step <- -step
+        }
 
         seq_replacement <- seq(from = seq_start, to = seq_end, by = step)
 
