@@ -705,5 +705,11 @@ na_count <- function(x, ...) {
 
 
 
+# Remove all scrutiny classes -- those starting on "scr_":
+unclass_scr <- function(x) {
+  class(x) <- class(x)[!stringr::str_detect(class(x), "^scr_")]
+  x
+}
+
 
 
