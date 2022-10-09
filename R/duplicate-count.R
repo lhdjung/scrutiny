@@ -75,7 +75,7 @@ duplicate_count <- function(x, numeric_only = TRUE) {
     } else {
       val <- x %>%
         purrr::flatten() %>%
-        purrr::as_vector()
+        unlist()
     }
   }
 
