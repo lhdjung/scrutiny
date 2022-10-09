@@ -341,19 +341,38 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
       purrr::map2(nrow_out, rep) %>%
       purrr::flatten_chr()
 
-    # Create classes that will identify `out` as output of the specific
-    # manufactured function:
-    classes_seq <- c(
-      "scr_map_seq",
-      paste0("scr_", tolower(name_test), "_map_seq")
-    )
+    # if ("rounding" %in% names(formals(fun))) {
+    #   rounding <- formals(fun)$rounding
+    #   rounding <- paste0("scr_rounding_", rounding)
+    # } else {
+    #   rounding <- NULL
+    # }
+
+
+    # data_sample <- data[var]
+    # data_sample <- fun(data_sample[1, ], ...)
+
 
     # For better output, `out` should be a single data frame; and for
     # identifying the origin of individual rows, `var` is added:
     out <- out %>%
       dplyr::bind_rows() %>%
-      dplyr::mutate(var) %>%
-      add_class(classes_seq)
+      dplyr::mutate(var)
+
+    # # These are the classes added by `fun()` that have not yet been added to
+    # # `out`, necessarily:
+    # classes_fun <- class(data)[!class(data) %in% class(out)]
+
+    # Create classes that will identify `out` as output of the specific
+    # manufactured function:
+    classes_seq <- c(
+      "scr_map_seq",
+      # rounding,
+      # classes_fun,
+      paste0("scr_", tolower(name_test), "_map_seq")
+    )
+
+    out <- add_class(out, classes_seq)
 
     # Make sure the "rounding class" (i.e., `"scr_rounding_*"`) has the correct
     # value. As this is not naturally guaranteed as in `*_map()` functions, it
