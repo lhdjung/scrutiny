@@ -6,7 +6,9 @@ utils::globalVariables(c(
   "frac", "distance", "both_consistent", "fun", "var", "dispersion", "out_min",
   "out_max", "include_reported", "n", "times", "value", "name", "setNames",
   "rounding", "case", "n_sum", "V1", "consistency", "ratio", "scr_index_case",
-  "dust"
+  "dust", "starts_with", "value_duplicated", "variable", "sd_lower",
+  "sd_incl_lower", "sd_upper", "sd_incl_upper", "x_lower", "x_upper",
+  "dupe_count"
 ))
 
 
@@ -456,10 +458,10 @@ check_length_disperse_n <- function(n, msg_single) {
 
 # Test if a vector `x` is numeric or coercible to numeric:
 is_numericish <- function(x) {
-  if (all(is.na(x))) {
+  x <- x[!is.na(x)]
+  if (length(x) == 0) {
     return(NA)
   }
-  x <- x[!is.na(x)]
   x <- suppressWarnings(as.numeric(x))
   !any(is.na(x))
 }
@@ -704,6 +706,12 @@ na_count <- function(x, ...) {
 }
 
 
+
+# Remove all scrutiny classes -- those starting on "scr_":
+unclass_scr <- function(x) {
+  class(x) <- class(x)[!stringr::str_detect(class(x), "^scr_")]
+  x
+}
 
 
 

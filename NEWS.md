@@ -1,5 +1,9 @@
 # scrutiny 0.2.2.9000 (development version)
 
+-   New `seq_length()` function to extend or shorten linear sequences.
+
+-   Internal changes for compatibility with purrr 1.0.0.
+
 # scrutiny 0.2.2
 
 This is a patch for CRAN compliance.

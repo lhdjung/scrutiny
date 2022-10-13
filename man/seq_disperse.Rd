@@ -7,6 +7,7 @@
 \usage{
 seq_disperse(
   from,
+  by = NULL,
   dispersion = 1:5,
   offset_from = 0,
   out_min = "auto",
@@ -18,6 +19,7 @@ seq_disperse(
 
 seq_disperse_df(
   .from,
+  .by = NULL,
   ...,
   .dispersion = 1:5,
   .offset_from = 0,
@@ -31,6 +33,9 @@ seq_disperse_df(
 \arguments{
 \item{from, .from}{Numeric (or string coercible to numeric). Starting point of
 the sequence.}
+
+\item{by, .by}{Numeric. Step size of the sequence. If not set, inferred
+automatically. Default is \code{NULL}.}
 
 \item{dispersion, .dispersion}{Numeric. Vector that determines the steps up
 and down, starting at \code{from} (or \code{.from}, respectively) and proceeding on

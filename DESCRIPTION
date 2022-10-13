@@ -95,6 +95,7 @@ Collate:
     'rounding-bias.R'
     'row-to-colnames.R'
     'seq-disperse.R'
+    'seq-length.R'
     'seq-predicates.R'
     'split-by-parens.R'
     'subset-superset.R'

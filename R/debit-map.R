@@ -155,19 +155,19 @@ debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
   if (show_rec) {
     out <- results %>%
       dplyr::mutate(
-        x = x, n = n, consistency = .data$consistency
+        x = x, n = n, consistency = consistency
       ) %>%
       dplyr::select(
-        x, sd, n, .data$consistency, rounding,
-        .data$sd_lower, .data$sd_incl_lower, .data$sd_upper,
-        .data$sd_incl_upper, .data$x_lower, .data$x_upper
+        x, sd, n, consistency, rounding,
+        sd_lower, sd_incl_lower, sd_upper,
+        sd_incl_upper, x_lower, x_upper
       )
   } else {
     out <- results %>%
       dplyr::mutate(
-        sd = sd, x = x, n = n, consistency = .data$consistency
+        sd = sd, x = x, n = n, consistency = consistency
       ) %>%
-      dplyr::select(x, sd, n, .data$consistency)
+      dplyr::select(x, sd, n, consistency)
   }
 
   if (length(extra_cols) > 0) out <- dplyr::mutate(out, extra_cols)

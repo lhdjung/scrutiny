@@ -75,7 +75,7 @@ duplicate_count <- function(x, numeric_only = TRUE) {
     } else {
       val <- x %>%
         purrr::flatten() %>%
-        purrr::as_vector()
+        unlist()
     }
   }
 
@@ -84,7 +84,7 @@ duplicate_count <- function(x, numeric_only = TRUE) {
     tibble::as_tibble() %>%
     janitor::get_dupes() %>%
     dplyr::distinct() %>%
-    dplyr::rename(count = .data$dupe_count) %>%
+    dplyr::rename(count = dupe_count) %>%
     dplyr::arrange(desc(.data$count)) %>%
     add_class("scr_dup_count") %>%
     suppressMessages()

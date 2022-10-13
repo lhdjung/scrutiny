@@ -11,6 +11,7 @@ seq_endpoint(from, to, offset_from = 0, offset_to = 0, string_output = TRUE)
 
 seq_distance(
   from,
+  by = NULL,
   length_out = 10,
   dir = 1,
   offset_from = 0,
@@ -28,6 +29,7 @@ seq_endpoint_df(
 
 seq_distance_df(
   .from,
+  .by = NULL,
   ...,
   .length_out = 10,
   .dir = 1,
@@ -55,6 +57,10 @@ default), the output is a string vector. Decimal places are then padded
 with zeros to match \code{from}'s (or \code{to}'s) number of decimal places. \code{"auto"}
 works like \code{TRUE} if and only if \code{from} (\code{.from}) is a string.}
 
+\item{by, .by}{Numeric. Only in \code{seq_distance()} and \code{seq_distance_df()}. Step
+size of the sequence. If not set, inferred automatically. Default is
+\code{NULL}.}
+
 \item{length_out, .length_out}{Integer. Length of the output vector (i.e., the
 number of its values). Default is \code{10}. Only in \code{seq_distance()} and
 \code{seq_distance_df()}.}
@@ -78,7 +84,7 @@ ultimate decimal digit (e.g., \code{2.45}, \code{2.46}, \code{2.47}, ...):
 step size, it goes by the value with more decimal places.
 \item \code{seq_distance()} only takes the starting point and, instead of the
 endpoint, the desired output length. For step size, it goes by the starting
-point.
+point by default.
 }
 
 \code{seq_endpoint_df()} and \code{seq_distance_df()} are variants that create a data

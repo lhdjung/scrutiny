@@ -81,7 +81,7 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
       ) %>%
       tidyr::unnest_wider(reported) %>%
       dplyr::rename_with(
-        .fn   = ~ dplyr::all_of(reported_orig),
+        .fn   = ~ reported_orig,
         .cols = 1:dplyr::all_of(reported_n_vars)
       ) %>%
       dplyr::mutate(

@@ -128,12 +128,8 @@ audit_seq <- function(data) {
     x
   }
 
-  modify_to_length <- function(x) {
-    if (is.logical(x)) {
-      x <- as.character(x)
-    }
-    x[is.na(x) | is.null(x)] <- NA
-    purrr::modify(x, length)
+  map_to_length <- function(x) {
+    purrr::map(x, length)
   }
 
   # Prepare endings of the `diff_*` columns:
@@ -148,7 +144,7 @@ audit_seq <- function(data) {
   cols_hits <- df_nested %>%
     dplyr::mutate(dplyr::across(
       .cols = everything(),
-      .fns = modify_to_length,
+      .fns = map_to_length,
       .names = "hits_{.col}"
     )) %>%
     dplyr::select(-all_of(colnames(df_nested))) %>%

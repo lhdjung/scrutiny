@@ -44,11 +44,11 @@ articles:
   - infrastructure
   - consistency-tests
   - rounding
+  - wrangling
 
 - title: Other
   navbar: Other
   contents:
-  - wrangling
   - related
 
 

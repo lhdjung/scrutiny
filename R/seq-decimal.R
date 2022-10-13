@@ -11,7 +11,7 @@
 #'   step size, it goes by the value with more decimal places.
 #'   - `seq_distance()` only takes the starting point and, instead of the
 #'   endpoint, the desired output length. For step size, it goes by the starting
-#'   point.
+#'   point by default.
 #'
 #' `seq_endpoint_df()` and `seq_distance_df()` are variants that create a data
 #' frame. Further columns can be added as in `tibble::tibble()`. Regular
@@ -35,6 +35,9 @@
 #'   the sequence.
 #' @param to,.to Numeric (or string coercible to numeric). Endpoint of the
 #'   sequence. Only in `seq_endpoint()` and `seq_endpoint_df()`.
+#' @param by,.by Numeric. Only in `seq_distance()` and `seq_distance_df()`. Step
+#'   size of the sequence. If not set, inferred automatically. Default is
+#'   `NULL`.
 #' @param ... Further columns, added as in `tibble::tibble()`. Only in
 #'   `seq_endpoint_df()` and `seq_distance_df()`.
 #' @param length_out,.length_out Integer. Length of the output vector (i.e., the
@@ -154,17 +157,24 @@ seq_endpoint <- function(from, to, offset_from = 0, offset_to = 0,
 
 
 
+
 #' @rdname seq_endpoint
 #' @export
 
-seq_distance <- function(from, length_out = 10, dir = 1, offset_from = 0,
-                         string_output = TRUE) {
+seq_distance <- function(from, by = NULL, length_out = 10, dir = 1,
+                         offset_from = 0, string_output = TRUE) {
 
-  # The step size by which the sequence progresses (`by`) can't be manually
-  # chosen as in `seq()`. Instead, it is determined by the number of decimal
-  # places in `from`:
-  digits <- decimal_places_scalar(from)
-  by <- 1 / (10 ^ digits)
+  # If the step size by which the sequence progresses (`by`) was not manually
+  # chosen as in `seq()`, it is determined by the number of decimal places in
+  # `from`:
+  if (is.null(by)) {
+    digits <- decimal_places_scalar(from)
+    by <- 1 / (10 ^ digits)
+  } else {
+    check_length(by, 1)
+    check_type(by, c("integer", "double"))
+    digits <- decimal_places_scalar(by)
+  }
 
   # Record if `from` was specified as string; relevant for `string_output`:
   from_orig <- from
@@ -258,13 +268,13 @@ seq_endpoint_df <- function(.from, .to, ..., .offset_from = 0, .offset_to = 0,
 #' @rdname seq_endpoint
 #' @export
 
-seq_distance_df <- function(.from, ..., .length_out = 10, .dir = 1,
+seq_distance_df <- function(.from, .by = NULL, ..., .length_out = 10, .dir = 1,
                             .offset_from = 0, .string_output = TRUE) {
 
   # Call the basic function to generate the sequence:
   x <- seq_distance(
-    from = .from, length_out = .length_out, dir = .dir,
-    offset_from = .offset_from,
+    from = .from, by = .by, length_out = .length_out,
+    dir = .dir, offset_from = .offset_from,
     string_output = .string_output
   )
 
