@@ -88,7 +88,7 @@
 
 
 
-seq_disperse <- function(from, dispersion = 1:5, offset_from = 0,
+seq_disperse <- function(from, by = NULL, dispersion = 1:5, offset_from = 0,
                          out_min = "auto", out_max = NULL,
                          string_output = TRUE, include_reported = TRUE,
                          track_var_change = FALSE) {
@@ -103,8 +103,18 @@ seq_disperse <- function(from, dispersion = 1:5, offset_from = 0,
 
   # Main part ---
 
-  digits <- decimal_places_scalar(from)
-  by <- 1 / (10 ^ digits)
+  # If the step size by which the sequence progresses (`by`) was not manually
+  # chosen as in `seq()`, it is determined by the number of decimal places in
+  # `from`:
+  if (is.null(by)) {
+    digits <- decimal_places_scalar(from)
+    by <- 1 / (10 ^ digits)
+  } else {
+    check_length(by, 1)
+    check_type(by, c("integer", "double"))
+    digits <- decimal_places_scalar(by)
+  }
+
   dispersion <- dispersion * by
 
   disp_minus <- dispersion
@@ -177,7 +187,8 @@ seq_disperse <- function(from, dispersion = 1:5, offset_from = 0,
 #' @rdname seq_disperse
 #' @export
 
-seq_disperse_df <- function(.from, ..., .dispersion = 1:5, .offset_from = 0,
+seq_disperse_df <- function(.from, .by = NULL, ...,
+                            .dispersion = 1:5, .offset_from = 0,
                             .out_min = "auto", .out_max = NULL,
                             .string_output = TRUE, .include_reported = TRUE,
                             .track_var_change = FALSE) {
@@ -185,7 +196,7 @@ seq_disperse_df <- function(.from, ..., .dispersion = 1:5, .offset_from = 0,
   further_cols <- rlang::enexprs(...)
 
   out_basic_fun <- seq_disperse(
-    from = .from, dispersion = .dispersion, offset_from = .offset_from,
+    from = .from, by = .by, dispersion = .dispersion, offset_from = .offset_from,
     out_min = .out_min, out_max = .out_max, string_output = .string_output,
     include_reported = .include_reported, track_var_change = .track_var_change
   )
