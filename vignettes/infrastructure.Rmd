@@ -219,13 +219,15 @@ is_seq_linear(x = c(1, 2, 3, 4, 5, 6))
 is_seq_linear(x = c(1, 2, 17, 29, 32, 6))
 ```
 
-Sometimes, however, `x` cannot possibly represent the tested kind of sequence, independently of the numbers substituted for `NA` elements. In such cases, scrutiny's `is_seq_*()` functions will always return `FALSE`:
+Sometimes, however, `x` cannot possibly represent the tested kind of sequence, independently of the hypothetical numbers substituted for `NA` elements. In such cases, scrutiny's `is_seq_*()` functions will always return `FALSE`:
 
 ```{r}
 is_seq_linear(x = c(1, 2, NA, 10))
 is_seq_linear(x = c(1, 2, NA, NA, NA, 10))
 
 ```
+
+This is very much in the spirit of consistency testing. Even if certain data are unknown, it still makes sense to check whether or not *any* data could possibly fill in the gaps. The `is_seq_*()` functions effectively ask: Are the numbers left and right of the `NA`s consistent with each other, given their index positions?
 
 Leading and trailing `NA`s are ignored when determining whether `x` *might* be a linear sequence (or other kind of sequence). They do prevent the functions from returning `TRUE`, but they don't require the non-missing values to be in any particular order:
 
