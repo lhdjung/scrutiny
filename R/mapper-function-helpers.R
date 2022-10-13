@@ -288,7 +288,7 @@ manage_key_colnames <- function(data, arg, description = NULL) {
   arg_name <- deparse(substitute(arg))
   if (!is.null(arg)) {
     # data <- dplyr::rename(data, "scr_temp_placeholder" := arg)  # {{ arg_name }} := arg
-    data <- dplyr::rename(data, {{ arg_name }} := arg)
+    data <- dplyr::rename(data, {{ arg_name }} := all_of(arg))
   } else if (!arg_name %in% colnames(data)) {
     if (is.null(description)) {
       msg_this_col <- "One"

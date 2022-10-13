@@ -28,11 +28,11 @@ audit.scr_dup_detect <- function(data) {
   # fashion it a little, and compute the duplicate rate:
   out <- data_dup_tidy %>%
     dplyr::group_by(.data$variable) %>%
-    dplyr::count(.data$value_duplicated) %>%
+    dplyr::count(value_duplicated) %>%
     dplyr::ungroup() %>%
     dplyr::filter(.data$value_duplicated) %>%
-    dplyr::select(-.data$value_duplicated) %>%
-    dplyr::rename(n_duplicated = .data$n) %>%
+    dplyr::select(variable, n) %>%
+    dplyr::rename(n_duplicated = n) %>%
     dplyr::mutate(
       n_total  = nrow(data),
       dup_rate = .data$n_duplicated / nrow(data)
