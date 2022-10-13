@@ -7,6 +7,7 @@
 \usage{
 seq_disperse(
   from,
+  by = NULL,
   dispersion = 1:5,
   offset_from = 0,
   out_min = "auto",
@@ -18,6 +19,7 @@ seq_disperse(
 
 seq_disperse_df(
   .from,
+  .by = NULL,
   ...,
   .dispersion = 1:5,
   .offset_from = 0,
