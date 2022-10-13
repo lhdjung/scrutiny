@@ -171,7 +171,8 @@ seq_distance <- function(from, by = NULL, length_out = 10, dir = 1,
     digits <- decimal_places_scalar(from)
     by <- 1 / (10 ^ digits)
   } else {
-    check_type(by, "numeric")
+    check_length(by, 1)
+    check_type(by, c("integer", "double"))
     digits <- decimal_places_scalar(by)
   }
 
