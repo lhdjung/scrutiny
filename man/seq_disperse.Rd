@@ -34,6 +34,9 @@ seq_disperse_df(
 \item{from, .from}{Numeric (or string coercible to numeric). Starting point of
 the sequence.}
 
+\item{by, .by}{Numeric. Step size of the sequence. If not set, inferred
+automatically. Default is \code{NULL}.}
+
 \item{dispersion, .dispersion}{Numeric. Vector that determines the steps up
 and down, starting at \code{from} (or \code{.from}, respectively) and proceeding on
 the level of its last decimal place. Default is \code{1:5}, i.e., five steps up

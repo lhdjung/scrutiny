@@ -12,6 +12,8 @@
 #'
 #' @param from,.from Numeric (or string coercible to numeric). Starting point of
 #'   the sequence.
+#' @param by,.by Numeric. Step size of the sequence. If not set, inferred
+#'   automatically. Default is `NULL`.
 #' @param dispersion,.dispersion Numeric. Vector that determines the steps up
 #'   and down, starting at `from` (or `.from`, respectively) and proceeding on
 #'   the level of its last decimal place. Default is `1:5`, i.e., five steps up
