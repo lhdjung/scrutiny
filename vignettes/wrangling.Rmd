@@ -38,11 +38,13 @@ The only solution I know of is to work with strings --- namely, strings that can
 
 ### Enter numbers as strings
 
-#### With tabulizer
+#### Automated
 
-The [tabulizer](https://docs.ropensci.org/tabulizer/) package is a way to automatically extract tables from PDF. Using tabulizer requires [Java](https://www.java.com) to be installed. When it works well, tabulizer is a great tool for importing tables quickly and efficiently. It automatically captures values as strings, so trailing zeros are treated just like other digits. (See below, *Replace column names by row values*, for a solution to an issue than can occur with tabulizer.)
+Several R packages help to extract tables from PDF. I recommend tabulizer (not on CRAN; see [installation notes](https://docs.ropensci.org/tabulizer/#installation)). There are also the [pdftables](https://expersso.r-universe.dev/ui#package:pdftables) and [pdftools](https://ropensci.r-universe.dev/ui#package:pdftools) packages.
 
-However, tabulizer does not currently seem reliable enough to be the focus of importing tables. That is most likely the fault of the PDF format itself because it has no inbuilt support for tables, so any effort to extract them faces serious ambiguities. If there are many tables in multiple files formatted in the same way, it can be useful to check if tabulizer reliably and accurately captures them. If it doesn't, you might have to use copy and paste.
+Using tabulizer requires [Java](https://www.java.com) to be installed. When it works well, tabulizer is a great tool for importing tables quickly and efficiently. It automatically captures values as strings, so trailing zeros are treated just like other digits. (See below, *Replace column names by row values*, for a solution to an issue than can occur with tabulizer.)
+
+However, tabulizer might sometimes struggle, especially with older PDF files. That is most likely the fault of the PDF format itself because it has no inbuilt support for tables, so any effort to extract them faces serious ambiguities. If there are many tables in multiple files formatted in the same way, it can be useful to check if tabulizer reliably and accurately captures them. If it doesn't, you might have to use copy and paste.
 
 #### With copy and paste
 
