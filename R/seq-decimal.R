@@ -11,7 +11,7 @@
 #'   step size, it goes by the value with more decimal places.
 #'   - `seq_distance()` only takes the starting point and, instead of the
 #'   endpoint, the desired output length. For step size, it goes by the starting
-#'   point.
+#'   point by default.
 #'
 #' `seq_endpoint_df()` and `seq_distance_df()` are variants that create a data
 #' frame. Further columns can be added as in `tibble::tibble()`. Regular
@@ -35,6 +35,9 @@
 #'   the sequence.
 #' @param to,.to Numeric (or string coercible to numeric). Endpoint of the
 #'   sequence. Only in `seq_endpoint()` and `seq_endpoint_df()`.
+#' @param by,.by Numeric. Only in `seq_distance()` and `seq_distance_df()`. Step
+#'   size of the sequence. If not set, inferred automatically. Default is
+#'   `NULL`.
 #' @param ... Further columns, added as in `tibble::tibble()`. Only in
 #'   `seq_endpoint_df()` and `seq_distance_df()`.
 #' @param length_out,.length_out Integer. Length of the output vector (i.e., the
@@ -168,6 +171,7 @@ seq_distance <- function(from, by = NULL, length_out = 10, dir = 1,
     digits <- decimal_places_scalar(from)
     by <- 1 / (10 ^ digits)
   } else {
+    check_type(by, "numeric")
     digits <- decimal_places_scalar(by)
   }
 
