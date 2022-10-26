@@ -19,7 +19,7 @@ each other.}
 performance.}
 }
 \value{
-A tibble (data frame) with these columns -
+A tibble (data frame) with these columns ---
 \itemize{
 \item \code{x} and \code{y}: Each line contains a unique combination of \code{data}'s columns,
 stored in the \code{x} and \code{y} output columns.

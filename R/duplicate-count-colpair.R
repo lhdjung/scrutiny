@@ -49,7 +49,7 @@ rate_from_data <- function(data, x, y, count, na.rm) {
 #'   `rate_y`. See value section. Set `show_rates` to `FALSE` for higher
 #'   performance.
 
-#' @return A tibble (data frame) with these columns -
+#' @return A tibble (data frame) with these columns ---
 #' - `x` and `y`: Each line contains a unique combination of `data`'s columns,
 #' stored in the `x` and `y` output columns.
 #' - `count`: Number of "duplicates", i.e., values that are present in both `x`
@@ -103,7 +103,8 @@ duplicate_count_colpair <- function(data, na.rm = TRUE, show_rates = TRUE) {
     rates <- purrr::pmap(out, rate_from_data, data, na.rm)
 
     # Yet another workaround to replace `tidyr::unnest_wider()` -- compare to
-    # `unnest_consistency_cols()`:
+    # `unnest_consistency_cols()`. After some time, replace the superseded
+    # `purrr::flatten()` by `purrr::list_flatten()`.
     rate_x <- purrr::map(rates, `[`, 1) %>% purrr::flatten() %>% as.numeric()
     rate_y <- purrr::map(rates, `[`, 2) %>% purrr::flatten() %>% as.numeric()
 
