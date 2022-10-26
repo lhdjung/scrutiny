@@ -50,6 +50,9 @@ Summary statistics of the \code{rate_x} column (index 7 to 11).
 \item \code{rate_y_min}, \code{rate_y_max}, \code{rate_y_mean}, \code{rate_y_sd}, \code{rate_y_median}:
 Summary statistics of the \code{rate_y} column (index 12 to 16).
 }
+
+You may pipe the output of \code{audit()} into \code{as.list()} for better
+readability.
 }
 
 \examples{

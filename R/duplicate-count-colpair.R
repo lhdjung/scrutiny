@@ -71,6 +71,9 @@ rate_from_data <- function(data, x, y, count, na.rm) {
 #'   Summary statistics of the `rate_x` column (index 7 to 11).
 #'   - `rate_y_min`, `rate_y_max`, `rate_y_mean`, `rate_y_sd`, `rate_y_median`:
 #'   Summary statistics of the `rate_y` column (index 12 to 16).
+#'
+#'   You may pipe the output of `audit()` into `as.list()` for better
+#'   readability.
 
 #' @export
 #'
