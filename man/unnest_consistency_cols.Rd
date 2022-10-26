@@ -25,9 +25,9 @@ Data frame. The column names are determined by \code{col_names}.
 \description{
 Within a consistency test mapper function, it may become
 necessary to unpack a column resulting from a basic \verb{*_scalar()} testing
-function. That will be the case if the a \verb{show_*} argument of the mapper
-function is \code{TRUE}, and the \verb{*_scalar()} function returns a list of values,
-not just a single value.
+function. That will be the case if a \verb{show_*} argument of the mapper
+function like \code{show_rec} in \code{grim_map()} is \code{TRUE}, and the \verb{*_scalar()}
+function returns a list of values, not just a single value.
 
 At the point where such as list is stored in a data frame column (most
 likely \code{"consistency"}), call \code{unnest_consistency_cols()} to unnest the

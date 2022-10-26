@@ -321,9 +321,9 @@ manage_key_colnames_list_el <- function(data, key_arg) {
 #'
 #' @description Within a consistency test mapper function, it may become
 #'   necessary to unpack a column resulting from a basic `*_scalar()` testing
-#'   function. That will be the case if the a `show_*` argument of the mapper
-#'   function is `TRUE`, and the `*_scalar()` function returns a list of values,
-#'   not just a single value.
+#'   function. That will be the case if a `show_*` argument of the mapper
+#'   function like `show_rec` in `grim_map()` is `TRUE`, and the `*_scalar()`
+#'   function returns a list of values, not just a single value.
 #'
 #'   At the point where such as list is stored in a data frame column (most
 #'   likely `"consistency"`), call `unnest_consistency_cols()` to unnest the
