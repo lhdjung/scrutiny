@@ -57,7 +57,7 @@
 #' # that `debit_map()` can take:
 #' pigs3
 #'
-#' # Results from testing the first two rows:
+#' # Results from testing some few rows:
 #' out <- pigs3 %>%
 #'   dplyr::slice(3:4) %>%
 #'   debit_map_seq(include_consistent = TRUE)
