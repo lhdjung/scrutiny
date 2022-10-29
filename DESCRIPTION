@@ -75,6 +75,7 @@ Collate:
     'grim-plot.R'
     'grimmer-map-seq.R'
     'grimmer-map-total-n.R'
+    'metadata.R'
     'method-audit-seq.R'
     'method-audit-total-n.R'
     'method-debit-map.R'
