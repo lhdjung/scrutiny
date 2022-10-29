@@ -316,7 +316,7 @@ If you'd like to employ such an internal helper for yourself, specify its namesp
 
 If you develop your own package, see [this blogpost](https://www.tidyverse.org/blog/2022/09/playing-on-the-same-team-as-your-dependecy/) by Thomas Lin Pedersen for more information on using internal code from other packages. In particular, package developers should mind licenses when copying code from scrutiny because scrutiny is GPL-3 licensed.
 
-When directly looking for internal helpers in scrutiny's source code, start at the [utils.R](https://github.com/lhdjung/scrutiny/blob/main/R/utils.R) file. Most helpers can be found there, and some of them feature rudimentary documentation.
+When directly looking for internal helpers in scrutiny's source code, start at the [utils.R](https://github.com/lhdjung/scrutiny/blob/main/R/utils.R) file. Most helpers can be found there, and every helper in utils.R is documented.
 
 # 4. `audit()` method
 
