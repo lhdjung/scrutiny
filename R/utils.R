@@ -232,23 +232,22 @@ reverse_column_order <- function(data) {
 
 #' Censor left and right
 #'
-#' `censor()` is used in some of scrutiny's unit tests.
+#' `censor()` is used in some of scrutiny's unit tests. The `left` and `right`
+#' arguments should only be length 1, although this is not checked.
 #'
 #' @param x Numeric.
-#' @param left Lower bound. Any elements of `x` that are less than `left` will
-#'   be replaced by `left`.
-#' @param right Upper bound. Any elements of `x` that are greater than `right`
-#'   will be replaced by `right`.
+#' @param left Numeric. Lower bound. Any elements of `x` that are less than
+#'   `left` will be replaced by `left`.
+#' @param right Numeric. Upper bound. Any elements of `x` that are greater than
+#'   `right` will be replaced by `right`.
 #'
 #' @return Numeric vector of length `length(x)`.
 #'
 #' @noRd
 censor <- function(x, left, right) {
-  dplyr::case_when(
-    x < left   ~ left,
-    x > right  ~ right,
-    TRUE       ~ x
-  )
+  x[x < left] <- left
+  x[x > right] <- right
+  x
 }
 
 
