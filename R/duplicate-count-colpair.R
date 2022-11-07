@@ -98,8 +98,8 @@ duplicate_count_colpair <- function(data, na.rm = TRUE, show_rates = TRUE) {
     corrr::colpair_map(duplicate_count_by_vec, na.rm = na.rm) %>%
     corrr::shave() %>%
     corrr::stretch(na.rm = TRUE, remove.dups = FALSE) %>%
-    dplyr::arrange(dplyr::desc(r)) %>%
-    dplyr::rename(count = r)
+    dplyr::arrange(dplyr::desc(.data$r)) %>%
+    dplyr::rename(count = "r")
 
   if (show_rates) {
     # Calculate the duplication rates using a helper function:
