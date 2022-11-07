@@ -104,6 +104,7 @@ Collate:
     'utils-tidy-eval.R'
     'write-doc-audit.R'
 Suggests: 
+    corrr,
     covr,
     devtools,
     ellipsis,
