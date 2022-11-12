@@ -2,6 +2,8 @@
 
 -   New `seq_length()` function to extend or shorten linear sequences.
 
+-   Bugfixes in the `is_seq_*()` functions.
+
 -   Internal changes for compatibility with purrr 1.0.0.
 
 # scrutiny 0.2.2
