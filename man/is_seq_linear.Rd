@@ -23,27 +23,26 @@ is_seq_dispersed(
 \arguments{
 \item{x}{Numeric or coercible to numeric. Vector to be tested.}
 
-\item{tolerance}{Numeric. Tolerance of comparison between numbers such as the
-difference between individual \code{x} values and the minimal difference in
-linearity testing. Default is circa 0.000000015 (1.490116e-08), as in
+\item{tolerance}{Numeric. Tolerance of comparison between numbers when
+testing. Default is circa 0.000000015 (1.490116e-08), as in
 \code{dplyr::near()}.}
 
-\item{test_linear}{Boolean. Should \code{x} be tested for linearity, as in
-\code{is_seq_linear()}? Default is \code{TRUE}.}
+\item{test_linear}{Boolean. In functions other than \code{is_seq_linear()}, should
+\code{x} also be tested for linearity? Default is \code{TRUE}.}
 
 \item{from}{Numeric or coercible to numeric. Only in \code{is_seq_dispersed()}. It
 will test whether \code{from} is at the center of \code{x}, and if every pair of
 other values is equidistant to it.}
 }
 \value{
-Boolean. If \code{x} contains at least one \code{NA} value, the functions
-return \code{NA} or \code{FALSE}, depending on the context:
+A single Boolean value. If \code{x} contains at least one \code{NA} element,
+the functions return either \code{NA} or \code{FALSE}:
 \itemize{
 \item If all elements of \code{x} are \code{NA}, the functions return \code{NA}.
 \item If some but not all elements are \code{NA}, they check if \code{x} \emph{might} be a
-linear sequence; i.e., if it is linear after the \code{NA}s were replaced by
-appropriate values. If so, they return \code{NA}; otherwise, they return
-\code{FALSE}.
+sequence of the kind in question: Is it a linear (and / or ascending, etc.)
+sequence after the \code{NA}s were replaced by appropriate values? If so, they
+return \code{NA}; otherwise, they return \code{FALSE}.
 }
 }
 \description{
@@ -60,7 +59,7 @@ sides per value pair. By default (\code{test_linear = TRUE}), these functions
 also test for linearity, like \code{is_seq_linear()}.
 }
 
-\code{NA} elements of \code{x} are handled in a nuanced way. See \emph{Value} section here
+\code{NA} elements of \code{x} are handled in a nuanced way. See \emph{Value} section below
 and the examples in \code{vignette("infrastructure")}, section \emph{NA handling}.
 }
 \examples{
@@ -68,23 +67,22 @@ and the examples in \code{vignette("infrastructure")}, section \emph{NA handling
 is_seq_linear(x = 3:7)
 is_seq_linear(x = c(3:7, 8))
 
-# ...but this isn't:
+# ...but these aren't:
 is_seq_linear(x = c(3:7, 9))
+is_seq_linear(x = c(10, 3:7))
 
 # All other `is_seq_*()` functions
-# test for linearity by default
-# besides conducting their
-# individual tests:
-is_seq_ascending(x = c(1, 2, 5))
-is_seq_ascending(x = c(1, 2, 5), test_linear = FALSE)
+# also test for linearity by default:
+is_seq_ascending(x = c(2, 7, 9))
+is_seq_ascending(x = c(2, 7, 9), test_linear = FALSE)
 
 is_seq_descending(x = c(9, 7, 2))
 is_seq_descending(x = c(9, 7, 2), test_linear = FALSE)
 
-is_seq_dispersed(x = c(2, 3 ,5, 7, 8), from = 5)
-is_seq_dispersed(x = c(2, 3 ,5, 7, 8), from = 5, test_linear = FALSE)
+is_seq_dispersed(x = c(2, 3, 5, 7, 8), from = 5)
+is_seq_dispersed(x = c(2, 3, 5, 7, 8), from = 5, test_linear = FALSE)
 
-# These fail the respective
+# These fail their respective
 # individual test even
 # without linearity testing:
 is_seq_ascending(x = c(1, 7, 4), test_linear = FALSE)
@@ -94,5 +92,5 @@ is_seq_dispersed(1:10, from = 5, test_linear = FALSE)
 \seealso{
 \code{validate::is_linear_sequence()}, which is much like
 \code{is_seq_linear()} but more permissive with \code{NA} values. It comes with some
-other features, such as support for date-times.
+additional features, such as support for date-times.
 }
