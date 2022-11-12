@@ -139,10 +139,11 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
         step <- step_size(c(seq_start, seq_end))
 
         # Descending sequences require a negative step size:
-        if (x_is_descending_basic) {
+        if (x_is_descending_basic || seq_start > seq_end) {
           step <- -step
         }
 
+        # Look here for `seq.default()` errors:
         seq_replacement <- seq(from = seq_start, to = seq_end, by = step)
 
         # Remove the first and the last element because these correspond to the
