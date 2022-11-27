@@ -753,9 +753,16 @@ check_length_disperse_n <- function(n, msg_single) {
 
 #' Test if a vector is numeric or coercible to numeric
 #'
-#' Return `TRUE` if at least one element of `x` can be coerced to a non-`NA`
-#' numeric value, and `FALSE` otherwise. This is what the notion of an R vector
-#' being "coercible to numeric" comes down to.
+#' @description Return `TRUE` if `x` is a non-factor vector in which at least
+#'   one element can be coerced to a non-`NA` numeric value, and `FALSE`
+#'   otherwise.
+#'
+#'   This is meant to implement the common notion of an R vector being
+#'   "coercible to numeric". However, factors are excluded here because treating
+#'   them like numeric variables is not useful in the context of scrutiny: The
+#'   package often deals with number-strings, as in `restore_zeros_df()`, which
+#'   uses `is_numericish()` as a selector. Accepting factors there would make no
+#'   sense.
 #'
 #' @param x Vector.
 #'
@@ -766,6 +773,9 @@ check_length_disperse_n <- function(n, msg_single) {
 #'
 #' @noRd
 is_numericish <- function(x) {
+  if (is.factor(x)) {
+    return(FALSE)
+  }
   x <- x[!is.na(x)]
   if (length(x) == 0) {
     return(NA)
