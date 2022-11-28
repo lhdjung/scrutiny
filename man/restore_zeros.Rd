@@ -9,10 +9,10 @@ restore_zeros(x, width = NULL, sep_in = "\\\\.", sep_out = sep_in, sep = NULL)
 
 restore_zeros_df(
   data,
+  cols = "auto",
   width = NULL,
   sep_in = "\\\\.",
-  sep_out = sep_in,
-  cols = "auto"
+  sep_out = sep_in
 )
 }
 \arguments{
@@ -90,14 +90,21 @@ among its values like this:
 # By default, the target width is that of
 # the longest mantissa:
 vec <- c(212, 75.38, 4.9625)
-vec \%>\% restore_zeros()
+vec \%>\%
+  restore_zeros()
 
 # Alternatively, supply a number via `width`:
-vec \%>\% restore_zeros(width = 6)
+vec \%>\%
+  restore_zeros(width = 6)
 
 # Apply `restore_zeros()` to all numeric
 # columns, but not to the factor column:
-restore_zeros_df(iris)
+iris \%>\%
+  restore_zeros_df()
+
+# Select columns as in `dplyr::select()`:
+iris \%>\%
+  restore_zeros_df(starts_with("Sepal"), width = 3)
 }
 \seealso{
 Wrapped functions: \code{sprintf()} and \code{decimal_places()}.

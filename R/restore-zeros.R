@@ -70,14 +70,21 @@
 #' # By default, the target width is that of
 #' # the longest mantissa:
 #' vec <- c(212, 75.38, 4.9625)
-#' vec %>% restore_zeros()
+#' vec %>%
+#'   restore_zeros()
 #'
 #' # Alternatively, supply a number via `width`:
-#' vec %>% restore_zeros(width = 6)
+#' vec %>%
+#'   restore_zeros(width = 6)
 #'
 #' # Apply `restore_zeros()` to all numeric
 #' # columns, but not to the factor column:
-#' restore_zeros_df(iris)
+#' iris %>%
+#'   restore_zeros_df()
+#'
+#' # Select columns as in `dplyr::select()`:
+#' iris %>%
+#'   restore_zeros_df(starts_with("Sepal"), width = 3)
 
 
 restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in,
