@@ -1,5 +1,7 @@
 # scrutiny 0.2.2.9000 (development version)
 
+-   New `restore_zeros_df()` function to easily restore trailing zeros in all numeric-like columns in a data frame.
+
 -   New `seq_length()` function to extend or shorten linear sequences.
 
 -   Bugfixes in the `is_seq_*()` functions.
