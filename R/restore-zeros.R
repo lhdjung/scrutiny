@@ -173,9 +173,8 @@ restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in,
 #' @rdname restore_zeros
 #' @export
 
-restore_zeros_df <- function(data, width = NULL,
-                             sep_in = "\\.", sep_out = sep_in,
-                             cols = "auto") {
+restore_zeros_df <- function(data, cols = "auto", width = NULL,
+                             sep_in = "\\.", sep_out = sep_in) {
 
   cols <- rlang::enexpr(cols)
 
