@@ -75,20 +75,17 @@
 #' @export
 
 
-# Note: The internal helper functions used within `decimal_places()` can be
-# found in the utils.R file, but they are essentially self-explaining. They are
-# used here instead of anonymous functions because they run slightly faster.
-
 decimal_places <- function(x, sep = "\\.") {
-  out <- stringr::str_split(stringr::str_trim(x), sep, 2)
+  out <- stringr::str_split(stringr::str_trim(x), sep, 2L)
   out <- purrr::modify_if(out, !is.na(out), stringr::str_length)
-  out <- purrr::modify_if(out, is_length_1_and_not_na, set_to_0)
+  out <- purrr::modify_if(
+    out, function(x) length(x) == 1L && !is.na(x), function(x) 0L
+  )
 
-  return(as.integer(unlist(
-    purrr::map_if(out, is_length_greater_1, `[`, 2)
-  )))
+  as.integer(unlist(
+    purrr::map_if(out, function(x) length(x) > 1L, `[`, 2L)
+  ))
 }
-
 
 
 
@@ -99,16 +96,15 @@ decimal_places <- function(x, sep = "\\.") {
 # single-case functions:
 decimal_places_scalar <- function(x, sep = "\\.") {
   if (is.na(x)) {
-    return(NA)
+    return(NA_integer_)
   }
-  out <- stringr::str_split(stringr::str_trim(x), sep, 2)
+  out <- stringr::str_split(stringr::str_trim(x), sep, 2L)
   out <- stringr::str_length(out[[1]][2])
   if (is.na(out)) {
-    return(as.integer(0))
+    return(0L)
   }
 
-  return(as.integer(out))
+  as.integer(out)
 }
-
 
 

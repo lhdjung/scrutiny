@@ -157,14 +157,6 @@ is_whole_number <- function(x, tolerance = .Machine$double.eps^0.5) {
 
 
 
-# Super-short functions used within `decimal_places()` -- because named
-# functions are somewhat faster than anonymous ones:
-is_length_1_and_not_na <- function(x) length(x) == 1 && !is.na(x)
-is_length_greater_1 <- function(x) length(x) > 1
-set_to_0 <- function(x) 0
-
-
-
 #' Subset every `n`th element from a vector `x`:
 #'
 #' @param x Vector from which the `n`th element should be subsetted.

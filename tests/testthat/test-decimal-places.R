@@ -123,12 +123,11 @@ test_that("Both functions return the same count for each individual number", {
 
 
 
-
-test_that("`decimal_places_scalar()` consitions work as expected", {
-  25 %>% decimal_places_scalar() %>% expect_equal(0)
-  NA %>% decimal_places_scalar() %>% expect_equal(NA)
+test_that("`decimal_places_scalar()` conditions work as expected", {
+  25  %>% decimal_places_scalar() %>% expect_identical(0L)
+  2.7 %>% decimal_places_scalar() %>% expect_identical(1L)
+  NA  %>% decimal_places_scalar() %>% expect_identical(NA_integer_)
+  NA  %>% decimal_places_scalar() %>% is.na() %>% expect_true()
 })
-
-
 
 
