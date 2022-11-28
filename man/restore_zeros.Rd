@@ -2,9 +2,18 @@
 % Please edit documentation in R/restore-zeros.R
 \name{restore_zeros}
 \alias{restore_zeros}
+\alias{restore_zeros_df}
 \title{Restore trailing zeros}
 \usage{
 restore_zeros(x, width = NULL, sep_in = "\\\\.", sep_out = sep_in, sep = NULL)
+
+restore_zeros_df(
+  data,
+  width = NULL,
+  sep_in = "\\\\.",
+  sep_out = sep_in,
+  cols = "auto"
+)
 }
 \arguments{
 \item{x}{Numeric (or string coercible to numeric). Vector of numbers that
@@ -23,12 +32,22 @@ mantissa from the integer part. By default, \code{sep_out} is the same as
 
 \item{sep}{[\link{Deprecated}] Use \code{sep_in}, not \code{sep}. If \code{sep} is specified
 nonetheless, \code{sep_in} takes on \code{sep}'s value.}
+
+\item{data}{Data frame or matrix. Only in \code{restore_zeros_df()}, and instead
+of \code{x}.}
+
+\item{cols}{Only in \code{restore_zeros_df()}, where it controls which columns
+from \code{data} the function operates on. Passed on to the \code{.cols} argument in
+\code{dplyr::across()}. Default is \code{"auto"}, which will select columns that are
+coercible to numeric.}
 }
 \value{
-A string vector. At least some of the strings will have newly
-restored zeros, unless (1) all input values had the same number of decimal
-places, and (2) \code{width} was not specified as a number greater than that
-single number of decimal places.
+For \code{restore_zeros()}, a string vector. At least some of the strings
+will have newly restored zeros, unless (1) all input values had the same
+number of decimal places, and (2) \code{width} was not specified as a number
+greater than that single number of decimal places.
+
+For \code{restore_zeros_df()}, a data frame.
 }
 \description{
 \code{restore_zeros()} takes a vector with values that might have
@@ -42,14 +61,18 @@ of the vector's values. The length of the integer part plays no role.
 Don't rely on the default limit without checking: The original width could
 have been larger because the longest extant mantissa might itself have lost
 trailing zeros.
+
+\code{restore_zeros_df()} is a variant for data frames. It wraps
+\code{restore_zeros()} and applies it to all numeric-like columns.
 }
 \details{
-This function exploits the fact that groups of summary values such
+These functions exploit the fact that groups of summary values such
 as means or percentages are often reported to the same number of decimal
 places. If such a number is known but values were not entered as strings,
-trailing zeros will be lost. In this case, \code{restore_zeros()} will be
-helpful to prepare data for consistency testing functions such as
-\code{grim_map()} or \code{debit_map()}. Otherwise, it should probably not be used.
+trailing zeros will be lost. In this case, \code{restore_zeros()} or
+\code{restore_zeros_df()} will be helpful to prepare data for consistency
+testing functions such as \code{grim_map()} or \code{debit_map()}. Otherwise, it
+should probably not be used.
 }
 \section{Displaying decimal places}{
  You might not see all decimal places of
@@ -71,6 +94,10 @@ vec \%>\% restore_zeros()
 
 # Alternatively, supply a number via `width`:
 vec \%>\% restore_zeros(width = 6)
+
+# Apply `restore_zeros()` to all numeric
+# columns, but not to the factor column:
+restore_zeros_df(iris)
 }
 \seealso{
 Wrapped functions: \code{sprintf()} and \code{decimal_places()}.

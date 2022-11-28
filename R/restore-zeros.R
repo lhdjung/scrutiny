@@ -1,5 +1,4 @@
 
-
 #' Restore trailing zeros
 #'
 #' @description `restore_zeros()` takes a vector with values that might have
@@ -14,13 +13,17 @@
 #'   have been larger because the longest extant mantissa might itself have lost
 #'   trailing zeros.
 #'
-#' @details This function exploits the fact that groups of summary values such
+#'   `restore_zeros_df()` is a variant for data frames. It wraps
+#'   `restore_zeros()` and applies it to all numeric-like columns.
+
+#' @details These functions exploit the fact that groups of summary values such
 #'   as means or percentages are often reported to the same number of decimal
 #'   places. If such a number is known but values were not entered as strings,
-#'   trailing zeros will be lost. In this case, `restore_zeros()` will be
-#'   helpful to prepare data for consistency testing functions such as
-#'   `grim_map()` or `debit_map()`. Otherwise, it should probably not be used.
-#'
+#'   trailing zeros will be lost. In this case, `restore_zeros()` or
+#'   `restore_zeros_df()` will be helpful to prepare data for consistency
+#'   testing functions such as `grim_map()` or `debit_map()`. Otherwise, it
+#'   should probably not be used.
+
 #' @section Displaying decimal places: You might not see all decimal places of
 #'   numeric values in a vector, and consequently wonder if `restore_zeros()`,
 #'   when applied to the vector, adds too many zeros. That is because displayed
@@ -43,11 +46,19 @@
 #'   `sep_in`.
 #' @param sep [[Deprecated]] Use `sep_in`, not `sep`. If `sep` is specified
 #'   nonetheless, `sep_in` takes on `sep`'s value.
+#' @param data Data frame or matrix. Only in `restore_zeros_df()`, and instead
+#'   of `x`.
+#' @param cols Only in `restore_zeros_df()`, where it controls which columns
+#'   from `data` the function operates on. Passed on to the `.cols` argument in
+#'   `dplyr::across()`. Default is `"auto"`, which will select columns that are
+#'   coercible to numeric.
 #'
-#' @return A string vector. At least some of the strings will have newly
-#'   restored zeros, unless (1) all input values had the same number of decimal
-#'   places, and (2) `width` was not specified as a number greater than that
-#'   single number of decimal places.
+#' @return For `restore_zeros()`, a string vector. At least some of the strings
+#'   will have newly restored zeros, unless (1) all input values had the same
+#'   number of decimal places, and (2) `width` was not specified as a number
+#'   greater than that single number of decimal places.
+#'
+#'   For `restore_zeros_df()`, a data frame.
 #'
 #' @export
 #'
@@ -63,6 +74,10 @@
 #'
 #' # Alternatively, supply a number via `width`:
 #' vec %>% restore_zeros(width = 6)
+#'
+#' # Apply `restore_zeros()` to all numeric
+#' # columns, but not to the factor column:
+#' restore_zeros_df(iris)
 
 
 restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in,
@@ -152,5 +167,38 @@ restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in,
     return(stringr::str_replace(out, "\\.", sep_out))
   }
 
+}
+
+
+#' @rdname restore_zeros
+#' @export
+
+restore_zeros_df <- function(data, width = NULL,
+                             sep_in = "\\.", sep_out = sep_in,
+                             cols = "auto") {
+
+  cols <- rlang::enexpr(cols)
+
+  if (cols == rlang::expr("auto")) {
+    cols <- is_numericish
+  }
+
+  if (!is.data.frame(data)) {
+    if (is.matrix(data)) {
+      data <- tibble::as_tibble(data, .name_repair = "unique")
+    } else (
+      cli::cli_abort(c(
+        "`data` must be a data frame (or a matrix).",
+        "i" = "Did you mean `restore_zeros()`?"
+      ))
+    )
+  }
+
+  dplyr::mutate(data, dplyr::across(
+    .cols = !!cols,
+    .fns = ~ restore_zeros(
+      x = ., width = width, sep_in = sep_in, sep_out = sep_out
+    )
+  ))
 }
 
