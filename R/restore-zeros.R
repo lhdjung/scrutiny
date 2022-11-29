@@ -21,7 +21,7 @@
 #'   places. If such a number is known but values were not entered as strings,
 #'   trailing zeros will be lost. In this case, `restore_zeros()` or
 #'   `restore_zeros_df()` will be helpful to prepare data for consistency
-#'   testing functions such as `grim_map()` or `debit_map()`. Otherwise, it
+#'   testing functions such as `grim_map()` or `debit_map()`. Otherwise, they
 #'   should probably not be used.
 
 #' @section Displaying decimal places: You might not see all decimal places of
@@ -36,22 +36,22 @@
 #'
 #' @param x Numeric (or string coercible to numeric). Vector of numbers that
 #'   might have lost trailing zeros.
-#' @param width Integer. Number of decimal places the mantissas should have,
-#'   including the restored zeros. Default is `NULL`, in which case the number
-#'   of characters in the longest mantissa will be used instead.
-#' @param sep_in Substring that separates the input's mantissa from its integer
-#'   part. Default is `"\\."`, which renders a decimal point.
-#' @param sep_out Substring that will be returned in the output to separate the
-#'   mantissa from the integer part. By default, `sep_out` is the same as
-#'   `sep_in`.
-#' @param sep [[Deprecated]] Use `sep_in`, not `sep`. If `sep` is specified
+#' @param width,.width Integer. Number of decimal places the mantissas should
+#'   have, including the restored zeros. Default is `NULL`, in which case the
+#'   number of characters in the longest mantissa will be used instead.
+#' @param sep_in,.sep_in Substring that separates the input's mantissa from its
+#'   integer part. Default is `"\\."`, which renders a decimal point.
+#' @param sep_out,.sep_out Substring that will be returned in the output to
+#'   separate the mantissa from the integer part. By default, `sep_out` is the
+#'   same as `sep_in`.
+#' @param sep,.sep [[Deprecated]] Use `sep_in`, not `sep`. If `sep` is specified
 #'   nonetheless, `sep_in` takes on `sep`'s value.
-#' @param data Data frame or matrix. Only in `restore_zeros_df()`, and instead
+#' @param .data Data frame or matrix. Only in `restore_zeros_df()`, and instead
 #'   of `x`.
-#' @param cols Only in `restore_zeros_df()`, where it controls which columns
-#'   from `data` the function operates on. Passed on to the `.cols` argument in
-#'   `dplyr::across()`. Default is `"auto"`, which will select columns that are
-#'   coercible to numeric.
+#' @param ... Only in `restore_zeros_df()`, where the dots select columns from
+#'   `.data` to operate on. Passed on to the `.cols` argument in
+#'   `dplyr::across()`. Default is to select all columns that are coercible to
+#'   numeric.
 #'
 #' @return For `restore_zeros()`, a string vector. At least some of the strings
 #'   will have newly restored zeros, unless (1) all input values had the same
@@ -77,6 +77,9 @@
 #' vec %>%
 #'   restore_zeros(width = 6)
 #'
+#' # For better printing:
+#' iris <- tibble::as_tibble(iris)
+#'
 #' # Apply `restore_zeros()` to all numeric
 #' # columns, but not to the factor column:
 #' iris %>%
@@ -84,7 +87,7 @@
 #'
 #' # Select columns as in `dplyr::select()`:
 #' iris %>%
-#'   restore_zeros_df(starts_with("Sepal"), width = 3)
+#'   restore_zeros_df(starts_with("Sepal"), .width = 3)
 
 
 restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in,
@@ -180,31 +183,37 @@ restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in,
 #' @rdname restore_zeros
 #' @export
 
-restore_zeros_df <- function(data, cols = "auto", width = NULL,
-                             sep_in = "\\.", sep_out = sep_in) {
+restore_zeros_df <- function(.data, ..., .width = NULL,
+                             .sep_in = "\\.", .sep_out = NULL,
+                             .sep = NULL) {
 
-  cols <- rlang::enexpr(cols)
+  ellipsis::check_dots_unnamed()
 
-  if (cols == rlang::expr("auto")) {
-    cols <- is_numericish
+  cols <- rlang::enexprs(...)
+
+  if (length(cols) == 0L) {
+    cols <- rlang::expr(is_numericish)
   }
 
-  if (!is.data.frame(data)) {
-    if (is.matrix(data)) {
-      data <- tibble::as_tibble(data, .name_repair = "unique")
+  if (!is.data.frame(.data)) {
+    if (is.matrix(.data)) {
+      .data <- tibble::as_tibble(.data, .name_repair = "unique")
     } else (
       cli::cli_abort(c(
-        "`data` must be a data frame (or a matrix).",
+        "`.data` must be a data frame (or a matrix).",
         "i" = "Did you mean `restore_zeros()`?"
       ))
     )
   }
 
-  dplyr::mutate(data, dplyr::across(
-    .cols = !!cols,
-    .fns = ~ restore_zeros(
-      x = ., width = width, sep_in = sep_in, sep_out = sep_out
-    )
+  dplyr::mutate(.data, dplyr::across(
+    .cols = c(!!!cols),
+    .fns = function(.x) {
+      restore_zeros(
+        x = .x, width = .width,
+        sep_in = .sep_in, sep_out = .sep_out, sep = .sep
+      )
+    }
   ))
 }
 
