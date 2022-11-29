@@ -1234,4 +1234,69 @@ unclass_scr <- function(x) {
 }
 
 
+#' Check for ggplot2 versions
+#'
+#' These two functions negotiate a breaking change in ggplot2 since version
+#' 3.4.0:
+#'
+#' - `check_ggplot2_size()` checks whether the default for the deprecated `size`
+#' aesthetic was changed by the user. Call it if
+#' `utils::packageVersion("ggplot2") >= 3.4` is `TRUE`.
+#'
+#' - `check_ggplot2_linewidth()` checks whether the default for the
+#' not-yet-implemented `linewidth` aesthetic was changed by the user. Call it if
+#' the `utils::packageVersion()` call above returns `FALSE`.
+#'
+#' As of now, these two functions are only used within `debit_plot()`.
+#'
+#' @param arg_old,default_old `size`-like parameter and its default value.
+#' @param arg_new,default_new `linewidth`-like parameter and its default value.
+#'
+#' @return No return value; might throw error.
+#'
+#' @noRd
+check_ggplot2_size <- function(arg_old, default_old) {
 
+  if (arg_old != default_old) {
+    msg1 <- paste0(
+      "That's because your ggplot2 version is >= 3.4.0 (actually, ",
+      utils::packageVersion("ggplot2"), ")."
+    )
+    msg2 <- paste(
+      "In ggplot2, the `size` aesthetic has been deprecated since",
+      "version 3.4.0."
+    )
+    msg3 <- "See https://www.tidyverse.org/blog/2022/11/ggplot2-3-4-0/#hello-linewidth"
+    cli::cli_abort(c(
+      paste0("`", arg_old, "` is deprecated for you."),
+      "x" = msg1,
+      "i" = msg2,
+      "i" = msg3
+    ))
+  }
+
+}
+
+
+check_ggplot2_linewidth <- function(arg_new, default_new) {
+
+  if (arg_new != default_new) {
+    msg1 <- paste0(
+      "That's because your ggplot2 version is < 3.4.0 (actually, ",
+      utils::packageVersion("ggplot2"), ")."
+    )
+    msg2 <- paste(
+      "In ggplot2, the `size` aesthetic has been deprecated since",
+      "version 3.4.0. The `linewidth` aesthetic is used as a replacement,",
+      "but it's not accessible for versions lower than 3.4.0."
+    )
+    msg3 <- "See https://www.tidyverse.org/blog/2022/11/ggplot2-3-4-0/#hello-linewidth"
+    cli::cli_abort(c(
+      paste0("You can't use `", arg_new, "`."),
+      "x" = msg1,
+      "i" = msg2,
+      "i" = msg3
+    ))
+  }
+
+}

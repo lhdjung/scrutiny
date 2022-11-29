@@ -34,8 +34,8 @@
 #' @param rect_alpha Parameter of the DEBIT rectangles. (Due to the nature of
 #'   the data mapping, there can be no leeway regarding the shape or size of
 #'   this particular geom.)
-#' @param line_alpha,line_color,line_linetype,line_size Parameters of the curved
-#'   DEBIT line.
+#' @param line_alpha,line_color,line_linetype,line_width,line_size Parameters of
+#'   the curved DEBIT line.
 #' @param
 #' tile_alpha,tile_height_offset,tile_width_offset,tile_height_min,tile_width_min
 #' Parameters of the outer tiles surrounding the DEBIT rectangles. Offset refers
@@ -73,6 +73,7 @@ debit_plot <- function(data,
                        line_alpha = 1,
                        line_color = "black",
                        line_linetype = 1,
+                       line_width = 0.5,
                        line_size = 0.5,
                        rect_alpha = 1,
                        tile_alpha = 0.15,
@@ -125,10 +126,6 @@ debit_plot <- function(data,
     consistency, color_cons, color_incons
   )
 
-  draw_debit_line <- function(.x = x, .n = n) {
-    suppressWarnings(sqrt((.n / (.n - 1)) * (.x * (1 - .x))))
-  }
-
 
   # The plot itself ---
 
@@ -136,19 +133,96 @@ debit_plot <- function(data,
     x     = {{ x_num }},
     y     = {{ sd_num }},
     label = {{ value_labels }}
-  )) +
+  ))
 
-    # DEBIT line:
-    ggplot2::geom_function(
-      fun = draw_debit_line,
-      alpha = line_alpha,
-      color = line_color,
-      linetype = line_linetype,
-      size = line_size,
-      na.rm = TRUE
-    ) +
+  # DEBIT line:
+  draw_debit_line <- function(.x = x, .n = n, .label = p$label) {
+    suppressWarnings(sqrt((.n / (.n - 1)) * (.x * (1 - .x))))
+  }
 
-    # Inner tiles that should cross the consistency line:
+  if (utils::packageVersion("ggplot2") >= 3.4) {
+    check_ggplot2_size(line_size, 0.5)
+    p <- p +
+      ggplot2::geom_function(
+        fun = draw_debit_line,
+        alpha = line_alpha,
+        color = line_color,
+        linetype = line_linetype,
+        linewidth = line_width,
+        na.rm = TRUE
+      )
+  } else {
+    check_ggplot2_linewidth(line_width, 0.5)
+    p <- p +
+      ggplot2::geom_function(
+        fun = draw_debit_line,
+        alpha = line_alpha,
+        color = line_color,
+        linetype = line_linetype,
+        size = line_size,
+        na.rm = TRUE
+      )
+  }
+
+  # if (utils::packageVersion("ggplot2") >= 3.4) {
+  #   if (line_size != 0.5) {
+  #     msg1 <- paste0(
+  #       "That's because your ggplot2 version is >= 3.4.0 (actually, ",
+  #       utils::packageVersion("ggplot2"), ")."
+  #     )
+  #     msg2 <- paste(
+  #       "In ggplot2, the `size` aesthetic has been deprecated since",
+  #       "version 3.4.0."
+  #     )
+  #     msg3 <- "See https://www.tidyverse.org/blog/2022/11/ggplot2-3-4-0/#hello-linewidth"
+  #     cli::cli_abort(c(
+  #       "`line_size` is deprecated for you.",
+  #       "x" = msg1,
+  #       "i" = msg2,
+  #       "i" = msg3
+  #     ))
+  #   }
+  #   p <- p +
+  #     ggplot2::geom_function(
+  #       fun = draw_debit_line,
+  #       alpha = line_alpha,
+  #       color = line_color,
+  #       linetype = line_linetype,
+  #       linewidth = line_width,
+  #       na.rm = TRUE
+  #     )
+  # } else {
+  #   if (line_width != 0.5) {
+  #     msg1 <- paste0(
+  #       "That's because your ggplot2 version is < 3.4.0 (actually, ",
+  #       utils::packageVersion("ggplot2"), ")."
+  #     )
+  #     msg2 <- paste(
+  #       "In ggplot2, the `size` aesthetic has been deprecated since",
+  #       "version 3.4.0. The `linewidth` aesthetic is used as a replacement,",
+  #       "but it's not accessible for versions lower than 3.4.0."
+  #     )
+  #     msg3 <- "See https://www.tidyverse.org/blog/2022/11/ggplot2-3-4-0/#hello-linewidth"
+  #     cli::cli_abort(c(
+  #       "You can't use `line_width`.",
+  #       "x" = msg1,
+  #       "i" = msg2,
+  #       "i" = msg3
+  #     ))
+  #   }
+  #   p <- p +
+  #     ggplot2::geom_function(
+  #       fun = draw_debit_line,
+  #       alpha = line_alpha,
+  #       color = line_color,
+  #       linetype = line_linetype,
+  #       size = line_size,
+  #       na.rm = TRUE
+  #     )
+  # }
+
+  # Inner tiles that should cross the consistency line:
+  p <- p +
     ggplot2::geom_rect(
       xmin = x_lower, xmax = x_upper,
       ymin = sd_lower, ymax = sd_upper,
