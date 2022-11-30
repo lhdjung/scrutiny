@@ -745,9 +745,9 @@ check_length_disperse_n <- function(n, msg_single) {
 
 #' Test if a vector is numeric or coercible to numeric
 #'
-#' @description Return `TRUE` if `x` is a non-factor vector in which at least
-#'   one element can be coerced to a non-`NA` numeric value, and `FALSE`
-#'   otherwise.
+#' @description `is_numericish()` returns `TRUE` if `x` is a non-factor vector
+#'   in which at least one element can be coerced to a non-`NA` numeric value,
+#'   and `FALSE` otherwise.
 #'
 #'   This is meant to implement the common notion of an R vector being
 #'   "coercible to numeric". However, factors are excluded here because treating
@@ -774,6 +774,26 @@ is_numericish <- function(x) {
   }
   x <- suppressWarnings(as.numeric(x))
   !any(is.na(x))
+}
+
+
+
+#' Test if numeric-like vectors contain at least some decimal places
+#'
+#' For numeric-like `x` inputs (as determined by `is_numericish()`),
+#' `has_decimals_if_numericish()` checks if at least one element of `x` has at
+#' least one decimal place. If so, or if `x` is not numeric-like, the function
+#' returns `TRUE`. Otherwise, it returns `FALSE`.
+#'
+#' @param x Object to test.
+#' @param sep Separator between the integer and decimal parts. Passed on to
+#'   `decimal_places()`. Default is `"\\."`, a decimal point.
+#'
+#' @return Boolean (length 1).
+#'
+#' @noRd
+has_decimals_if_numericish <- function(x, sep = "\\.") {
+  !is_numericish(x) || !all(decimal_places(x, sep = sep) == 0L)
 }
 
 
