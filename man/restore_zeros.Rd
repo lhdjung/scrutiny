@@ -5,11 +5,12 @@
 \alias{restore_zeros_df}
 \title{Restore trailing zeros}
 \usage{
-restore_zeros(x, width = NULL, sep_in = "\\\\.", sep_out = NULL, sep = NULL)
+restore_zeros(x, width = NULL, sep_in = "\\\\.", sep_out = sep_in, sep = NULL)
 
 restore_zeros_df(
   .data,
   ...,
+  .check_decimals = FALSE,
   .width = NULL,
   .sep_in = "\\\\.",
   .sep_out = NULL,
@@ -41,14 +42,19 @@ of \code{x}.}
 \code{.data} to operate on. Passed on to the \code{.cols} argument in
 \code{dplyr::across()}. Default is to select all columns that are coercible to
 numeric.}
+
+\item{.check_decimals}{Boolean. Only in \code{restore_zeros_df()}. If set to
+\code{TRUE}, the function will skip columns where no values have any decimal
+places. Default is \code{FALSE}.}
 }
 \value{
-For \code{restore_zeros()}, a string vector. At least some of the strings
+\itemize{
+\item For \code{restore_zeros()}, a string vector. At least some of the strings
 will have newly restored zeros, unless (1) all input values had the same
 number of decimal places, and (2) \code{width} was not specified as a number
 greater than that single number of decimal places.
-
-For \code{restore_zeros_df()}, a data frame.
+\item For \code{restore_zeros_df()}, a data frame.
+}
 }
 \description{
 \code{restore_zeros()} takes a vector with values that might have
@@ -64,7 +70,8 @@ have been larger because the longest extant mantissa might itself have lost
 trailing zeros.
 
 \code{restore_zeros_df()} is a variant for data frames. It wraps
-\code{restore_zeros()} and applies it to all numeric-like columns.
+\code{restore_zeros()} and, by default, applies it to all columns that are
+coercible to numeric.
 }
 \details{
 These functions exploit the fact that groups of summary values such

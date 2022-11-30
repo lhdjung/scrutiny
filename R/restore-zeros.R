@@ -14,7 +14,8 @@
 #'   trailing zeros.
 #'
 #'   `restore_zeros_df()` is a variant for data frames. It wraps
-#'   `restore_zeros()` and applies it to all numeric-like columns.
+#'   `restore_zeros()` and, by default, applies it to all columns that are
+#'   coercible to numeric.
 
 #' @details These functions exploit the fact that groups of summary values such
 #'   as means or percentages are often reported to the same number of decimal
@@ -52,13 +53,16 @@
 #'   `.data` to operate on. Passed on to the `.cols` argument in
 #'   `dplyr::across()`. Default is to select all columns that are coercible to
 #'   numeric.
+#' @param .check_decimals Boolean. Only in `restore_zeros_df()`. If set to
+#'   `TRUE`, the function will skip columns where no values have any decimal
+#'   places. Default is `FALSE`.
 #'
-#' @return For `restore_zeros()`, a string vector. At least some of the strings
+#' @return
+#' - For `restore_zeros()`, a string vector. At least some of the strings
 #'   will have newly restored zeros, unless (1) all input values had the same
 #'   number of decimal places, and (2) `width` was not specified as a number
 #'   greater than that single number of decimal places.
-#'
-#'   For `restore_zeros_df()`, a data frame.
+#' - For `restore_zeros_df()`, a data frame.
 #'
 #' @export
 #'
@@ -183,34 +187,56 @@ restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in,
 #' @rdname restore_zeros
 #' @export
 
-restore_zeros_df <- function(.data, ..., .width = NULL,
+restore_zeros_df <- function(.data, ..., .check_decimals = FALSE,
+                             .width = NULL,
                              .sep_in = "\\.", .sep_out = NULL,
                              .sep = NULL) {
 
+  # Make sure no arguments from `restore_zeros()` -- i.e., those without dots --
+  # are erroneously specified:
   ellipsis::check_dots_unnamed()
 
+  # Capture any tidyselect specifications by the user. If there aren't any...
   cols <- rlang::enexprs(...)
 
+  # ...`cols` is now set up to select all numeric-like columns:
   if (length(cols) == 0L) {
-    cols <- rlang::expr(is_numericish)
+    cols <- list(rlang::expr(where(is_numericish)))
   }
 
+  # Check that `.data` is a data frame or matrix:
   if (!is.data.frame(.data)) {
     if (is.matrix(.data)) {
       .data <- tibble::as_tibble(.data, .name_repair = "unique")
     } else (
       cli::cli_abort(c(
         "`.data` must be a data frame (or a matrix).",
-        "i" = "Did you mean `restore_zeros()`?"
+        "i" = "Did you mean `restore_zeros()`, without `_df`?"
       ))
     )
   }
 
+  # If desired by the user, create an additional selection criterion: At least
+  # one value in a column must have at least one decimal place. Otherwise...
+  if (.check_decimals) {
+    selector2 <- rlang::expr(
+      where(function(x) has_decimals_if_numericish(x, sep = .sep_in))
+    )
+  } else {
+    # ... the new variable is set up to be evaluated as `everything()`, which is
+    # the neutral element of the `&` operator in tidyselect:
+    selector2 <- rlang::expr(dplyr::everything())
+  }
+
+  # Columns are selected via `cols`, which defaults to selecting all
+  # numeric-like columns. Additional constrains might come via `selector2` (see
+  # above). The `.fns` argument uses an anonymous function to pass on all the
+  # arguments to `restore_zeros()`:
   dplyr::mutate(.data, dplyr::across(
-    .cols = c(!!!cols),
-    .fns = function(.x) {
+    .cols = c(!!!cols) & !!selector2,
+    .fns = function(data_dummy) {
       restore_zeros(
-        x = .x, width = .width,
+        x = data_dummy, width = .width,
         sep_in = .sep_in, sep_out = .sep_out, sep = .sep
       )
     }

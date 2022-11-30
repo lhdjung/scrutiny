@@ -17,3 +17,58 @@ test_that("The number of decimal places checks out", {
 test_that("The total number of characters checks out", {
   (stringr::str_length(numbers) - 5) %>% expect_equal(integer_places(numbers))
 })
+
+
+test_that("The `*_df()` variant produces correct results", {
+  iris %>% restore_zeros_df() %>% expect_no_error()
+
+  iris %>% restore_zeros_df(contains("Sepal")) %>% expect_no_error()
+
+  iris %>%
+    restore_zeros_df(contains("Sepal")) %>%
+    purrr::map_chr(typeof) %>%
+    unname() %>%
+    expect_equal(c("character", "character", "double", "double", "integer"))
+
+  iris %>%
+    dplyr::select(1:4) %>%
+    restore_zeros_df() %>%
+    purrr::map_lgl(is.character) %>%
+    all() %>%
+    expect_true()
+
+  iris %>%
+    dplyr::select(5) %>%
+    restore_zeros_df() %>%
+    dplyr::pull(1) %>%
+    is.factor() %>%
+    expect_true()
+})
+
+
+test_that("the `.check_decimals` argument works correctly", {
+  iris %>%
+    dplyr::mutate(Sepal.Length = trunc(Sepal.Length)) %>%
+    restore_zeros_df(.check_decimals = TRUE) %>%
+    dplyr::pull(1) %>%
+    expect_type("double")
+
+  iris %>%
+    dplyr::mutate(Sepal.Length = trunc(Sepal.Length)) %>%
+    restore_zeros_df(.check_decimals = FALSE) %>%
+    dplyr::pull(1) %>%
+    expect_warning()
+
+  iris %>%
+    dplyr::mutate(Sepal.Length = trunc(Sepal.Length)) %>%
+    restore_zeros_df(.check_decimals = FALSE) %>%
+    dplyr::pull(1) %>%
+    expect_warning()
+
+  iris %>%
+    dplyr::mutate(Sepal.Length = trunc(Sepal.Length)) %>%
+    restore_zeros_df(.check_decimals = FALSE) %>%
+    dplyr::pull(1) %>%
+    suppressWarnings() %>%
+    expect_type("character")
+})
