@@ -197,11 +197,11 @@ restore_zeros_df <- function(.data, ..., .check_decimals = FALSE,
   ellipsis::check_dots_unnamed()
 
   # Capture any tidyselect specifications by the user. If there aren't any...
-  cols <- rlang::enexprs(...)
+  selector1 <- rlang::enexprs(...)
 
-  # ...`cols` is now set up to select all numeric-like columns:
-  if (length(cols) == 0L) {
-    cols <- list(rlang::expr(where(is_numericish)))
+  # ...`selector1` is now set up to select all numeric-like columns:
+  if (length(selector1) == 0L) {
+    selector1 <- list(rlang::expr(where(is_numericish)))
   }
 
   # Check that `.data` is a data frame or matrix:
@@ -216,8 +216,9 @@ restore_zeros_df <- function(.data, ..., .check_decimals = FALSE,
     )
   }
 
-  # If desired by the user, create an additional selection criterion: At least
-  # one value in a column must have at least one decimal place. Otherwise...
+  # If desired by the user, create an additional selection criterion: In a
+  # numeric-like column, at least one value must have at least one decimal
+  # place. Otherwise...
   if (.check_decimals) {
     selector2 <- rlang::expr(
       where(function(x) has_decimals_if_numericish(x, sep = .sep_in))
@@ -228,12 +229,12 @@ restore_zeros_df <- function(.data, ..., .check_decimals = FALSE,
     selector2 <- rlang::expr(dplyr::everything())
   }
 
-  # Columns are selected via `cols`, which defaults to selecting all
-  # numeric-like columns. Additional constrains might come via `selector2` (see
-  # above). The `.fns` argument uses an anonymous function to pass on all the
-  # arguments to `restore_zeros()`:
+  # Columns are primarily selected via `selector1`, which defaults to selecting
+  # all numeric-like columns. Additional constrains might come via `selector2`
+  # (see above). The `.fns` argument uses an anonymous function to pass on all
+  # the named arguments to `restore_zeros()`:
   dplyr::mutate(.data, dplyr::across(
-    .cols = c(!!!cols) & !!selector2,
+    .cols = c(!!!selector1) & !!selector2,
     .fns = function(data_dummy) {
       restore_zeros(
         x = data_dummy, width = .width,
