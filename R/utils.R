@@ -923,11 +923,11 @@ index_central <- function(x) {
 #' @description Only called within `split_by_parens()`, and only if the latter
 #'   function's `.transform` argument is set to `TRUE`.
 #'
-#'   `transform_split_parens_object()` pivots the data into a longer format
-#'   using `tidyr::pivot_longer()`. It lumps values from all original columns
-#'   into two new columns named after the two split-column endings (`"x"` and
-#'   `"sd"` by default), but preserves the information about their origin by
-#'   storing it in a `.origin` column.
+#'   `transform_split_parens()` pivots the data into a longer format using
+#'   `tidyr::pivot_longer()`. It lumps values from all original columns into two
+#'   new columns named after the two split-column endings (`"x"` and `"sd"` by
+#'   default), but preserves the information about their origin by storing it in
+#'   a `.origin` column.
 #'
 #' @param data Data frame created as an intermediate product within
 #'   `split_by_parens()`.
@@ -939,15 +939,7 @@ index_central <- function(x) {
 #'   `.col2` arguments. Default are `"x"` and `"sd"`.
 #'
 #' @noRd
-transform_split_parens_object <- function(data) {
-
-  class_d <- class(data)
-
-  end1 <- class_d[stringr::str_detect(class_d, "scr_end1_")]
-  end1 <- stringr::str_remove(end1, "scr_end1_")
-
-  end2 <- class_d[stringr::str_detect(class_d, "scr_end2_")]
-  end2 <- stringr::str_remove(end2, "scr_end2_")
+transform_split_parens <- function(data, end1, end2) {
 
   uscore_end1 <- paste0("_", end1)
   uscore_end2 <- paste0("_", end2)
@@ -979,11 +971,9 @@ transform_split_parens_object <- function(data) {
   out$key <- NULL
   out$.origin_2 <- NULL
 
-  out <- out %>%
+  out %>%
     dplyr::mutate(.origin = stringr::str_remove(.data$.origin, uscore_end1)) %>%
     dplyr::arrange(.data$.origin)
-
-  return(out)
 }
 
 
