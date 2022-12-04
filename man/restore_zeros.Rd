@@ -38,9 +38,9 @@ nonetheless, \code{sep_in} takes on \code{sep}'s value.}
 \item{.data}{Data frame or matrix. Only in \code{restore_zeros_df()}, and instead
 of \code{x}.}
 
-\item{...}{Only in \code{restore_zeros_df()}, where the dots select columns from
-\code{.data} to operate on. Passed on to the \code{.cols} argument in
-\code{dplyr::across()}. Default is to select all columns that are coercible to
+\item{...}{Only in \code{restore_zeros_df()}. Optionally, select columns from
+\code{.data} as in \code{dplyr::select()}. Restoring zeros will then be restricted to
+these columns. Default is to select all columns that are coercible to
 numeric.}
 
 \item{.check_decimals}{Boolean. Only in \code{restore_zeros_df()}. If set to

@@ -49,14 +49,14 @@
 #'   nonetheless, `sep_in` takes on `sep`'s value.
 #' @param .data Data frame or matrix. Only in `restore_zeros_df()`, and instead
 #'   of `x`.
-#' @param ... Only in `restore_zeros_df()`, where the dots select columns from
-#'   `.data` to operate on. Passed on to the `.cols` argument in
-#'   `dplyr::across()`. Default is to select all columns that are coercible to
+#' @param ... Only in `restore_zeros_df()`. Optionally, select columns from
+#'   `.data` as in `dplyr::select()`. Restoring zeros will then be restricted to
+#'   these columns. Default is to select all columns that are coercible to
 #'   numeric.
 #' @param .check_decimals Boolean. Only in `restore_zeros_df()`. If set to
 #'   `TRUE`, the function will skip columns where no values have any decimal
 #'   places. Default is `FALSE`.
-#'
+
 #' @return
 #' - For `restore_zeros()`, a string vector. At least some of the strings
 #'   will have newly restored zeros, unless (1) all input values had the same

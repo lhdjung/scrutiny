@@ -11,9 +11,9 @@
 #'   Choose separators other than parentheses by specifying the `.sep` argument.
 #'
 #' @param .data Data frame. Only in `split_by_parens()`.
-#' @param ... Optionally, name columns from `.data`. Splitting will then be
-#'   restricted to these columns. This is useful if not all values contain
-#'   parentheses.
+#' @param ... Optionally, select columns from `.data` as in `dplyr::select()`.
+#'   Splitting will then be restricted to these columns. This is useful if not
+#'   all values contain parentheses.
 #' @param .keep Boolean. If set to `TRUE`, the original columns from `.data`
 #'   also appear in the output. Default is `FALSE`.
 #' @param .transform Boolean. If set to `TRUE`, the output will be transformed
