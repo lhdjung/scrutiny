@@ -4,7 +4,7 @@
 
 proto_split_parens <- function(string, sep = "parens") {
 
-  if (length(sep) == 2) {
+  if (length(sep) == 2L) {
     sep_open  <- sep[1]
     sep_close <- sep[2]
   } else {
@@ -29,17 +29,13 @@ proto_split_parens <- function(string, sep = "parens") {
     }
   }
 
-  sep_close <- paste0(sep_close, ".*")
-
   out <- stringr::str_split(string, sep_open)
   out <- unlist(out)
-  out <- sub(sep_close, "", out)
+  out <- sub(paste0(sep_close, ".*"), "", out)
 
   divisor <- length(out) / length(string)
 
-  out <- split(out, ceiling(seq_along(out) / divisor))
-
-  return(out)
+  split(out, ceiling(seq_along(out) / divisor))
 }
 
 
@@ -47,28 +43,38 @@ proto_split_parens <- function(string, sep = "parens") {
 #' Extract substrings from before and inside parentheses
 #'
 #' @description Two functions that extract substrings from before or inside
-#'   parentheses (or brackets, or curly braces): `before_parens()` and
-#'   `inside_parens()`.
+#'   parentheses, or similar separators like brackets or curly braces:
+#'   `before_parens()` and `inside_parens()`.
 #'
 #'   See `split_by_parens()` to split some or all columns in a data frame into
 #'   both parts.
 #'
-#' @param string Vector of strings with parentheses, brackets, or curly braces.
-#' @param sep String. What to split by. Either `"parens"`, `"brackets"`, or
-#'   `"braces"`. Default is `"parens"`.
+#' @param string Vector of strings with parentheses or similar.
+#' @param sep String. What to split by. Either `"parens"`, `"brackets"`,
+#'   `"braces"`, or a length-2 vector of custom separators. See examples for
+#'   `split_by_parens()`. Default is `"parens"`.
 #'
 #' @export
 #'
-#' @return String. The part of `string` before or inside the separating
-#'   elements, respectively.
+#' @return String vector of the same length as `string`. The part of `string`
+#'   before or inside `sep`, respectively.
+#'
+#' @examples
+#' x <- c(
+#'   "3.72 (0.95)",
+#'   "5.86 (2.75)",
+#'   "3.06 (6.48)"
+#' )
+#'
+#' before_parens(string = x)
+#'
+#' inside_parens(string = x)
 
 
 before_parens <- function(string, sep = "parens") {
   out <- proto_split_parens(string, sep)
-  out <- purrr::map_chr(out, ~ .[1])
-  out <- stringr::str_trim(out)
-
-  return(out)
+  out <- purrr::map_chr(out, function(x) x[1])
+  stringr::str_trim(out)
 }
 
 
@@ -77,7 +83,7 @@ before_parens <- function(string, sep = "parens") {
 
 inside_parens <- function(string, sep = "parens") {
 
-  if (length(sep) == 2) {
+  if (length(sep) == 2L) {
     sep_close <- sep[2]
   } else {
     if (sep %in% c("parens", "(", "\\(")) {
@@ -89,12 +95,8 @@ inside_parens <- function(string, sep = "parens") {
     }
   }
 
-  sep_close <- paste0(sep_close, ".*")
-
   out <- proto_split_parens(string, sep)
-  out <- purrr::map(out, ~ .[2])
-  out <- sub(sep_close, "", out)
-
-  return(out)
+  out <- purrr::map(out, function(x) x[2])
+  sub(paste0(sep_close, ".*"), "", out)
 }
 

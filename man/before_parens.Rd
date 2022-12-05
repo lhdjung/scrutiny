@@ -10,20 +10,32 @@ before_parens(string, sep = "parens")
 inside_parens(string, sep = "parens")
 }
 \arguments{
-\item{string}{Vector of strings with parentheses, brackets, or curly braces.}
+\item{string}{Vector of strings with parentheses or similar.}
 
-\item{sep}{String. What to split by. Either \code{"parens"}, \code{"brackets"}, or
-\code{"braces"}. Default is \code{"parens"}.}
+\item{sep}{String. What to split by. Either \code{"parens"}, \code{"brackets"},
+\code{"braces"}, or a length-2 vector of custom separators. See examples for
+\code{split_by_parens()}. Default is \code{"parens"}.}
 }
 \value{
-String. The part of \code{string} before or inside the separating
-elements, respectively.
+String vector of the same length as \code{string}. The part of \code{string}
+before or inside \code{sep}, respectively.
 }
 \description{
 Two functions that extract substrings from before or inside
-parentheses (or brackets, or curly braces): \code{before_parens()} and
-\code{inside_parens()}.
+parentheses, or similar separators like brackets or curly braces:
+\code{before_parens()} and \code{inside_parens()}.
 
 See \code{split_by_parens()} to split some or all columns in a data frame into
 both parts.
+}
+\examples{
+x <- c(
+  "3.72 (0.95)",
+  "5.86 (2.75)",
+  "3.06 (6.48)"
+)
+
+before_parens(string = x)
+
+inside_parens(string = x)
 }
