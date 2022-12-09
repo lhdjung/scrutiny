@@ -380,9 +380,9 @@ unnest_consistency_cols <- function(results, col_names, index = FALSE,
 
 
 
-summarize_audit_special <- function(data, cols) {
+summarize_audit_special <- function(data, selector) {
 
-  cols <- rlang::enexprs(cols)
+  selector <- rlang::enexprs(selector)
 
   fn_names <- c(  "mean",      "sd",      "median", "min", "max", "na_count")
   fns      <- list(mean, stats::sd, stats::median,   min,   max,   na_count)
@@ -391,7 +391,7 @@ summarize_audit_special <- function(data, cols) {
 
   for (fn in fns) {
     temp <- dplyr::summarise(data, dplyr::across(
-      .cols = c(!!!cols),
+      .cols = c(!!!selector),
       .fns  = fn,
       na.rm = TRUE
     ))
