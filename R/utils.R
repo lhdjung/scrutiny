@@ -756,24 +756,64 @@ check_length_disperse_n <- function(n, msg_single) {
 #'   uses `is_numericish()` as a selector. Accepting factors there would make no
 #'   sense.
 #'
-#' @param x Vector.
+#'   `check_numericish()` throws an informative error if `is_numericish()`
+#'   returns `FALSE`.
 #'
-#' @return Boolean (length 1).
+#' @param x Any object.
 #'
-#' @details This function resulted in Hadley Wickham liking one of my tweets! :D
-#'   https://twitter.com/lukasjung_hd/status/1571852033996595200
+#' @return Boolean (length 1) for `is_numericish()`; none for
+#'   `check_numericish()` which might throw an error.
+#'
+#' @details `is_numericish()` resulted in Hadley Wickham liking one of my
+#'   tweets! :D https://twitter.com/lukasjung_hd/status/1571852033996595200
 #'
 #' @noRd
 is_numericish <- function(x) {
+  if (!rlang::is_vector(x)) {
+    return(FALSE)
+  }
   if (is.factor(x)) {
     return(FALSE)
   }
   x <- x[!is.na(x)]
-  if (length(x) == 0) {
+  if (length(x) == 0L) {
     return(NA)
   }
   x <- suppressWarnings(as.numeric(x))
   !any(is.na(x))
+}
+
+
+check_numericish <- function(x) {
+  if (isFALSE(is_numericish(x))) {
+    name <- deparse(substitute(x))
+    if (rlang::is_vector(x)) {
+      length_non_na <- length(x[!is.na(x)])
+      if (length_non_na == 1L) {
+        msg_values <- "a non-`NA` value"
+        msg_elements <- "element"
+      } else {
+        msg_values <- "non-`NA` values"
+        msg_elements <- "elements"
+      }
+      if (is.factor(x)) {
+        msg_factor <- " In the present context, it must also not be a factor."
+      } else {
+        msg_factor <- ""
+      }
+      cli::cli_abort(c(
+        "`{name}` must be numeric or coercible to numeric.",
+        ">" = "(This means that converting it to numeric \\
+        must return {msg_values} for its {length_non_na} \\
+        non-`NA` {msg_elements}.{msg_factor})"
+      ))
+    } else {
+      cli::cli_abort(c(
+        "`{name}` is {an_a_type(x)}.",
+        "x" = "It must be numeric or coercible to numeric."
+      ))
+    }
+  }
 }
 
 
