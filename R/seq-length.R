@@ -58,21 +58,18 @@
 
 seq_length <- function(x, value) {
 
-  check_numericish(x)
+  # check_numericish(x)
   x_is_linear <- is_seq_linear(x)
 
   if (!isTRUE(x_is_linear)) {
-    call <- rlang::current_call()
-    call <- call[length(call)]
-    call <- paste("length(x) <-", call)
     if (is.na(x_is_linear)) {
       cli::cli_abort(c(
-        "Unknown whether `x` in `{call}` is a linear sequence.",
+        "Unknown whether `x` in `seq_length(x) <- value` is a linear sequence.",
         "x" = "It needs to be linear for its length to be set."
       ))
     }
     cli::cli_abort(c(
-      "`x` in `{call}` is not a linear sequence.",
+      "`x` in `seq_length(x) <- value` is not a linear sequence.",
       "x" = "The length of `x` can only be set if each one \\
       of its elements differs from the next by the same amount."
     ))
