@@ -756,13 +756,13 @@ check_length_disperse_n <- function(n, msg_single) {
 #'   uses `is_numericish()` as a selector. Accepting factors there would make no
 #'   sense.
 #'
-#'   `check_numericish()` throws an informative error if `is_numericish()`
+#'   `check_type_numericish()` throws an informative error if `is_numericish()`
 #'   returns `FALSE`.
 #'
 #' @param x Any object.
 #'
 #' @return Boolean (length 1) for `is_numericish()`; none for
-#'   `check_numericish()` which might throw an error.
+#'   `check_type_numericish()` which might throw an error.
 #'
 #' @details `is_numericish()` resulted in Hadley Wickham liking one of my
 #'   tweets! :D https://twitter.com/lukasjung_hd/status/1571852033996595200
@@ -784,7 +784,7 @@ is_numericish <- function(x) {
 }
 
 
-check_numericish <- function(x) {
+check_type_numericish <- function(x) {
   if (isFALSE(is_numericish(x))) {
     name <- deparse(substitute(x))
     if (rlang::is_vector(x)) {
