@@ -1,10 +1,4 @@
 
-
-# NOTE: This file has been outcommented so that it won't generate documentation
-# on the website before `duplicate_count_colpair()` is released. It will be
-# released in the first minor or major version after 0.2.2.
-
-
 # For each element of `x`, this helper determines if that element is also to be
 # found in `y`. Then, it counts the number of times for which this test returned
 # `TRUE`, i.e., the number of elements of `x` that are also elements of `y`.
