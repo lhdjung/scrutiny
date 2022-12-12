@@ -100,6 +100,7 @@ reference:
 - contents:
   - duplicate_detect
   - duplicate_count
+  - duplicate_count_colpair
 
 - title: Summarize scrutiny tests
   desc: Follow up on scrutiny's testing functions by computing specific summary
@@ -147,6 +148,7 @@ reference:
   - seq_test_ranking
   - seq_disperse
   - disperse
+  - seq_length
   - is_seq_linear
 
 - subtitle: Documentation templates
