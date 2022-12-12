@@ -155,11 +155,10 @@ call_arg_list <- function() {
 # can simply specify the key column arguments as the non-quoted names of the
 # columns meant to fulfill these roles:
 insert_key_args <- function(fun, reported, insert_after = 1) {
-  key_args <- list(NULL)
-  key_args <- rep(key_args, times = length(reported))
+  key_args <- rep(list(NULL), times = length(reported))
   names(key_args) <- reported
   formals(fun) <- append(formals(fun), key_args, after = insert_after)
-  return(fun)
+  fun
 }
 
 

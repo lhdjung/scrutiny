@@ -86,7 +86,7 @@ pigs3 %>%
 DEBIT only makes sense with binary means and SDs. Both `debit()` and `debit_map()` check if the inputs are such data, and fail if they are not:
 
 ```{r, error=TRUE}
-pigs1  # no binary means / SDs!
+pigs5  # no binary means / SDs!
 
 pigs5 %>% 
   debit_map()

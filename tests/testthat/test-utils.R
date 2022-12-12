@@ -77,25 +77,6 @@ test_that("`is_whole_number()` returns correct values", {
 
 
 
-test_that("The super-short functions used within `decimal_places()`
-          return correct values", {
-  is_length_1_and_not_na("is this?") %>% expect_true()
-  is_length_1_and_not_na(123) %>% expect_true()
-  is_length_1_and_not_na(NA) %>% expect_false()
-
-  is_length_greater_1(letters) %>% expect_true()
-  is_length_greater_1(1:5) %>% expect_true()
-  is_length_greater_1(c("Huey", "Dewey", "Louie")) %>% expect_true()
-  is_length_greater_1(1) %>% expect_false()
-  is_length_greater_1("not really") %>% expect_false()
-
-  set_to_0(letters) %>% expect_equal(0)
-  set_to_0(1:5) %>% expect_equal(0)
-  set_to_0(c("Huey", "Dewey", "Louie")) %>% expect_equal(0)
-})
-
-
-
 parcel_letters_expected <- c(
   "a", "c", "e", "g", "i", "k", "m", "o", "q", "s", "u", "w", "y"
 )

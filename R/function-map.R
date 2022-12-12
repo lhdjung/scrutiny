@@ -95,6 +95,15 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
                          .args_disabled = NULL, .col_names = NULL,
                          .col_control = NULL, .col_filler = NULL) {
 
+  force(.fun)
+  force(.reported)
+  force(.name_test)
+  force(.name_class)
+  force(.args_disabled)
+  force(.col_names)
+  force(.col_control)
+  force(.col_filler)
+
   # Checks ---
 
   fun_name <- deparse(substitute(.fun))

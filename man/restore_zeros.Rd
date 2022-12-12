@@ -2,33 +2,59 @@
 % Please edit documentation in R/restore-zeros.R
 \name{restore_zeros}
 \alias{restore_zeros}
+\alias{restore_zeros_df}
 \title{Restore trailing zeros}
 \usage{
 restore_zeros(x, width = NULL, sep_in = "\\\\.", sep_out = sep_in, sep = NULL)
+
+restore_zeros_df(
+  .data,
+  ...,
+  .check_decimals = FALSE,
+  .width = NULL,
+  .sep_in = "\\\\.",
+  .sep_out = NULL,
+  .sep = NULL
+)
 }
 \arguments{
 \item{x}{Numeric (or string coercible to numeric). Vector of numbers that
 might have lost trailing zeros.}
 
-\item{width}{Integer. Number of decimal places the mantissas should have,
-including the restored zeros. Default is \code{NULL}, in which case the number
-of characters in the longest mantissa will be used instead.}
+\item{width, .width}{Integer. Number of decimal places the mantissas should
+have, including the restored zeros. Default is \code{NULL}, in which case the
+number of characters in the longest mantissa will be used instead.}
 
-\item{sep_in}{Substring that separates the input's mantissa from its integer
-part. Default is \code{"\\\\."}, which renders a decimal point.}
+\item{sep_in, .sep_in}{Substring that separates the input's mantissa from its
+integer part. Default is \code{"\\\\."}, which renders a decimal point.}
 
-\item{sep_out}{Substring that will be returned in the output to separate the
-mantissa from the integer part. By default, \code{sep_out} is the same as
-\code{sep_in}.}
+\item{sep_out, .sep_out}{Substring that will be returned in the output to
+separate the mantissa from the integer part. By default, \code{sep_out} is the
+same as \code{sep_in}.}
 
-\item{sep}{[\link{Deprecated}] Use \code{sep_in}, not \code{sep}. If \code{sep} is specified
+\item{sep, .sep}{[\link{Deprecated}] Use \code{sep_in}, not \code{sep}. If \code{sep} is specified
 nonetheless, \code{sep_in} takes on \code{sep}'s value.}
+
+\item{.data}{Data frame or matrix. Only in \code{restore_zeros_df()}, and instead
+of \code{x}.}
+
+\item{...}{Only in \code{restore_zeros_df()}. Optionally, select columns from
+\code{.data} as in \code{dplyr::select()}. Restoring zeros will then be restricted to
+these columns. Default is to select all columns that are coercible to
+numeric.}
+
+\item{.check_decimals}{Boolean. Only in \code{restore_zeros_df()}. If set to
+\code{TRUE}, the function will skip columns where no values have any decimal
+places. Default is \code{FALSE}.}
 }
 \value{
-A string vector. At least some of the strings will have newly
-restored zeros, unless (1) all input values had the same number of decimal
-places, and (2) \code{width} was not specified as a number greater than that
-single number of decimal places.
+\itemize{
+\item For \code{restore_zeros()}, a string vector. At least some of the strings
+will have newly restored zeros, unless (1) all input values had the same
+number of decimal places, and (2) \code{width} was not specified as a number
+greater than that single number of decimal places.
+\item For \code{restore_zeros_df()}, a data frame.
+}
 }
 \description{
 \code{restore_zeros()} takes a vector with values that might have
@@ -42,14 +68,19 @@ of the vector's values. The length of the integer part plays no role.
 Don't rely on the default limit without checking: The original width could
 have been larger because the longest extant mantissa might itself have lost
 trailing zeros.
+
+\code{restore_zeros_df()} is a variant for data frames. It wraps
+\code{restore_zeros()} and, by default, applies it to all columns that are
+coercible to numeric.
 }
 \details{
-This function exploits the fact that groups of summary values such
+These functions exploit the fact that groups of summary values such
 as means or percentages are often reported to the same number of decimal
 places. If such a number is known but values were not entered as strings,
-trailing zeros will be lost. In this case, \code{restore_zeros()} will be
-helpful to prepare data for consistency testing functions such as
-\code{grim_map()} or \code{debit_map()}. Otherwise, it should probably not be used.
+trailing zeros will be lost. In this case, \code{restore_zeros()} or
+\code{restore_zeros_df()} will be helpful to prepare data for consistency
+testing functions such as \code{grim_map()} or \code{debit_map()}. Otherwise, they
+should probably not be used.
 }
 \section{Displaying decimal places}{
  You might not see all decimal places of
@@ -67,10 +98,24 @@ among its values like this:
 # By default, the target width is that of
 # the longest mantissa:
 vec <- c(212, 75.38, 4.9625)
-vec \%>\% restore_zeros()
+vec \%>\%
+  restore_zeros()
 
 # Alternatively, supply a number via `width`:
-vec \%>\% restore_zeros(width = 6)
+vec \%>\%
+  restore_zeros(width = 6)
+
+# For better printing:
+iris <- tibble::as_tibble(iris)
+
+# Apply `restore_zeros()` to all numeric
+# columns, but not to the factor column:
+iris \%>\%
+  restore_zeros_df()
+
+# Select columns as in `dplyr::select()`:
+iris \%>\%
+  restore_zeros_df(starts_with("Sepal"), .width = 3)
 }
 \seealso{
 Wrapped functions: \code{sprintf()} and \code{decimal_places()}.

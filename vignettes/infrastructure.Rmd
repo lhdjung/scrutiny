@@ -149,7 +149,7 @@ seq_disperse(from = 4.1)
 
 ### General points
 
-Four predicate functions around `is_seq_linear()` test whether a vector `x` represents particular kinds of sequences. These testing functions can be used as helpers, but they are also analytic instruments in their own right.
+Four predicate functions test whether a vector `x` represents particular kinds of sequences. These testing functions can be used as helpers, but they are also analytic tools in their own right.
 
 `is_seq_linear()` returns `TRUE` if the difference between all neighboring values is the same:
 
@@ -200,7 +200,7 @@ is_seq_dispersed(x = x_nonlinear, from = 50, test_linear = FALSE)
 
 ### `NA` handling
 
-All the `is_seq_*()` functions take special care with `NA` values in `x`. If one or more elements of `x` are `NA`, this doesn't necessarily mean that it's unknown whether or not `x` might possibly represent the kind of sequence in question.
+All the `is_seq_*()` functions take special care with missing values. If one or more elements of `x` are `NA`, this doesn't necessarily mean that it's unknown whether or not `x` might possibly represent the kind of sequence in question.
 
 In these examples, it is genuinely unclear whether `x` is linear:
 
@@ -229,14 +229,16 @@ is_seq_linear(x = c(1, 2, NA, NA, NA, 10))
 
 This is very much in the spirit of consistency testing. Even if certain data are unknown, it still makes sense to check whether or not *any* data could possibly fill in the gaps. The `is_seq_*()` functions effectively ask: Are the numbers left and right of the `NA`s consistent with each other, given their index positions?
 
-Leading and trailing `NA`s are ignored when determining whether `x` *might* be a linear sequence (or other kind of sequence). They do prevent the functions from returning `TRUE`, but they don't require the non-missing values to be in any particular order:
+It is worth emphasizing that this behavior is not exotic, or specific to scrutiny. It simply asserts the fundamental ideas of `NA` propagation in R. For example, `is_seq_ascending(x = c(1, 2, NA, 1))` is `FALSE` for the same reason that `NA & FALSE` is `FALSE`: The outcome is the same for all possible values of `NA` [@wickham2019, ch. 3.2.3].
+
+Leading and trailing `NA`s are mostly ignored when determining whether `x` *might* be the kind of sequence in question:
 
 ```{r}
 is_seq_linear(x = c(NA, NA, 1, 2, 3, 4, NA))
 is_seq_linear(x = c(NA, NA, 1, 2, NA, 4, NA))
 ```
 
-`is_seq_dispersed()` is particularly sensitive to `NA` values:
+The only exception, `is_seq_dispersed()`, is particularly sensitive to `NA` values:
 
 ```{r}
 # `TRUE` because `x` is symmetrically dispersed
@@ -244,7 +246,7 @@ is_seq_linear(x = c(NA, NA, 1, 2, NA, 4, NA))
 is_seq_dispersed(x = c(3:7), from = 5)
 
 # `NA` because it might be dispersed from 5,
-# depending on the true values behind the `NA`s:
+# depending on the values hidden behind the `NA`s:
 is_seq_dispersed(x = c(NA, 3:7, NA), from = 5)
 is_seq_dispersed(x = c(NA, NA, 3:7, NA, NA), from = 5)
 

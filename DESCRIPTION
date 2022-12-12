@@ -1,6 +1,6 @@
 Package: scrutiny
 Title: Error Detection in Science
-Version: 0.2.2.9000
+Version: 0.2.3
 Authors@R: c(
     person(given = "Lukas",
            family = "Jung",
@@ -21,7 +21,7 @@ License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.2
 Imports: 
     cli,
     dplyr,
@@ -75,6 +75,7 @@ Collate:
     'grim-plot.R'
     'grimmer-map-seq.R'
     'grimmer-map-total-n.R'
+    'metadata.R'
     'method-audit-seq.R'
     'method-audit-total-n.R'
     'method-debit-map.R'
@@ -103,6 +104,7 @@ Collate:
     'utils-tidy-eval.R'
     'write-doc-audit.R'
 Suggests: 
+    corrr,
     covr,
     devtools,
     ellipsis,

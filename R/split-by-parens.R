@@ -11,9 +11,9 @@
 #'   Choose separators other than parentheses by specifying the `.sep` argument.
 #'
 #' @param .data Data frame. Only in `split_by_parens()`.
-#' @param ... Optionally, name columns from `.data`. Splitting will then be
-#'   restricted to these columns. This is useful if not all values contain
-#'   parentheses.
+#' @param ... Optionally, select columns from `.data` as in `dplyr::select()`.
+#'   Splitting will then be restricted to these columns. This is useful if not
+#'   all values contain parentheses.
 #' @param .keep Boolean. If set to `TRUE`, the original columns from `.data`
 #'   also appear in the output. Default is `FALSE`.
 #' @param .transform Boolean. If set to `TRUE`, the output will be transformed
@@ -104,58 +104,54 @@
 split_by_parens <- function(.data, ..., .keep = FALSE, .transform = FALSE,
                             .sep = "parens", .col1 = "x", .col2 = "sd") {
 
-  # Arguments specified via tidy evaluation (i.e., the dots) can only be column
-  # names, so they should not have the form of named arguments:
+  # Anything passed through the dots can only be a tidyselect specification, not
+  # a formal argument. This call checks for named arguments within the dots, and
+  # throws an error if there are any:
   ellipsis::check_dots_unnamed()
 
-  # Capture the names of any columns from `.data` that might have been specified
-  # by the user through tidy evaluation:
-  cols <- rlang::enexprs(...)
+  # Capture any valid tidyselect specification that might have been applied by
+  # the user to select columns from `.data`:
+  selector <- rlang::enexprs(...)
+
+  # Since `.sep` will be passed through the dots of `dplyr::across()`, which may
+  # lead to issues with the timing of evaluation, its evaluation is forced here:
+  force(.sep)
 
   # In case no columns were specified that way, prepare and defuse a call that
-  # will select all columns from `.data`:
-  if (length(cols) == 0) {
-    cols <- rlang::exprs(dplyr::everything())
+  # will select all columns:
+  if (length(selector) == 0L) {
+    selector <- rlang::exprs(dplyr::everything())
   }
 
   # Apply the extractor functions `before_parens()` and `inside_parens()` to all
   # selected columns from `.data` (see above), going by `.sep`, which is
   # `"parens"` by default and will thus look for parentheses:
   out <- dplyr::mutate(.data, dplyr::across(
-    .cols = c(!!!cols),
+    .cols = c(!!!selector),
     .fns = list(before_parens, inside_parens),
     sep = .sep
   ))
 
-  # By default (`.keep = FALSE`), the original columns are dropped:
+  # By default, the original columns are dropped. If the user disabled this by
+  # setting `.keep` to `TRUE`, `.transform` can't also be `TRUE` because this
+  # would likely lead to incommensurable data frame dimensions:
   if (!.keep) {
     out <- dplyr::select(out, -names(.data))
+  } else if (.transform) {
+    cli::cli_abort("`.keep` and `.transform` can't both be `TRUE`.")
   }
 
-  # Format the column name endings:
-  end1 <- paste0("_", .col1)
-  end2 <- paste0("_", .col2)
+  # Modify the column names with the endings from the `.col*` arguments:
+  names(out) <- stringr::str_replace(names(out), "_1$", paste0("_", .col1))
+  names(out) <- stringr::str_replace(names(out), "_2$", paste0("_", .col2))
 
-  # Modify the column names with the endings prepared above:
-  names(out) <- stringr::str_replace(names(out), "_1$", end1)
-  names(out) <- stringr::str_replace(names(out), "_2$", end2)
-
-  # Write new classes to inform the helper `transform_split_parens_object()`
-  # about the specified column name endings:
-  class_end1 <- paste0("scr_end1_", .col1)
-  class_end2 <- paste0("scr_end2_", .col2)
-
-  # Add these classes and a more general one to the output tibble:
-  out <- add_class(out, c("scr_split_by_parens", class_end1, class_end2))
-
-  # Return the output tibble. If desired, pivot it into a longer format using
-  # the specified internal helper function from the split-transform.R file:
+  # Return the output tibble. If desired, pivot it to a longer format beforehand
+  # using a specified internal helper function from the utils.R file:
   if (.transform) {
-    return(transform_split_parens_object(out))
-  } else {
-    return(out)
+    return(transform_split_parens(out, end1 = .col1, end2 = .col2))
   }
 
+  out
 }
 
 

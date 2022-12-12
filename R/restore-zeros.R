@@ -1,5 +1,4 @@
 
-
 #' Restore trailing zeros
 #'
 #' @description `restore_zeros()` takes a vector with values that might have
@@ -14,13 +13,18 @@
 #'   have been larger because the longest extant mantissa might itself have lost
 #'   trailing zeros.
 #'
-#' @details This function exploits the fact that groups of summary values such
+#'   `restore_zeros_df()` is a variant for data frames. It wraps
+#'   `restore_zeros()` and, by default, applies it to all columns that are
+#'   coercible to numeric.
+
+#' @details These functions exploit the fact that groups of summary values such
 #'   as means or percentages are often reported to the same number of decimal
 #'   places. If such a number is known but values were not entered as strings,
-#'   trailing zeros will be lost. In this case, `restore_zeros()` will be
-#'   helpful to prepare data for consistency testing functions such as
-#'   `grim_map()` or `debit_map()`. Otherwise, it should probably not be used.
-#'
+#'   trailing zeros will be lost. In this case, `restore_zeros()` or
+#'   `restore_zeros_df()` will be helpful to prepare data for consistency
+#'   testing functions such as `grim_map()` or `debit_map()`. Otherwise, they
+#'   should probably not be used.
+
 #' @section Displaying decimal places: You might not see all decimal places of
 #'   numeric values in a vector, and consequently wonder if `restore_zeros()`,
 #'   when applied to the vector, adds too many zeros. That is because displayed
@@ -33,21 +37,32 @@
 #'
 #' @param x Numeric (or string coercible to numeric). Vector of numbers that
 #'   might have lost trailing zeros.
-#' @param width Integer. Number of decimal places the mantissas should have,
-#'   including the restored zeros. Default is `NULL`, in which case the number
-#'   of characters in the longest mantissa will be used instead.
-#' @param sep_in Substring that separates the input's mantissa from its integer
-#'   part. Default is `"\\."`, which renders a decimal point.
-#' @param sep_out Substring that will be returned in the output to separate the
-#'   mantissa from the integer part. By default, `sep_out` is the same as
-#'   `sep_in`.
-#' @param sep [[Deprecated]] Use `sep_in`, not `sep`. If `sep` is specified
+#' @param width,.width Integer. Number of decimal places the mantissas should
+#'   have, including the restored zeros. Default is `NULL`, in which case the
+#'   number of characters in the longest mantissa will be used instead.
+#' @param sep_in,.sep_in Substring that separates the input's mantissa from its
+#'   integer part. Default is `"\\."`, which renders a decimal point.
+#' @param sep_out,.sep_out Substring that will be returned in the output to
+#'   separate the mantissa from the integer part. By default, `sep_out` is the
+#'   same as `sep_in`.
+#' @param sep,.sep [[Deprecated]] Use `sep_in`, not `sep`. If `sep` is specified
 #'   nonetheless, `sep_in` takes on `sep`'s value.
-#'
-#' @return A string vector. At least some of the strings will have newly
-#'   restored zeros, unless (1) all input values had the same number of decimal
-#'   places, and (2) `width` was not specified as a number greater than that
-#'   single number of decimal places.
+#' @param .data Data frame or matrix. Only in `restore_zeros_df()`, and instead
+#'   of `x`.
+#' @param ... Only in `restore_zeros_df()`. Optionally, select columns from
+#'   `.data` as in `dplyr::select()`. Restoring zeros will then be restricted to
+#'   these columns. Default is to select all columns that are coercible to
+#'   numeric.
+#' @param .check_decimals Boolean. Only in `restore_zeros_df()`. If set to
+#'   `TRUE`, the function will skip columns where no values have any decimal
+#'   places. Default is `FALSE`.
+
+#' @return
+#' - For `restore_zeros()`, a string vector. At least some of the strings
+#'   will have newly restored zeros, unless (1) all input values had the same
+#'   number of decimal places, and (2) `width` was not specified as a number
+#'   greater than that single number of decimal places.
+#' - For `restore_zeros_df()`, a data frame.
 #'
 #' @export
 #'
@@ -59,10 +74,24 @@
 #' # By default, the target width is that of
 #' # the longest mantissa:
 #' vec <- c(212, 75.38, 4.9625)
-#' vec %>% restore_zeros()
+#' vec %>%
+#'   restore_zeros()
 #'
 #' # Alternatively, supply a number via `width`:
-#' vec %>% restore_zeros(width = 6)
+#' vec %>%
+#'   restore_zeros(width = 6)
+#'
+#' # For better printing:
+#' iris <- tibble::as_tibble(iris)
+#'
+#' # Apply `restore_zeros()` to all numeric
+#' # columns, but not to the factor column:
+#' iris %>%
+#'   restore_zeros_df()
+#'
+#' # Select columns as in `dplyr::select()`:
+#' iris %>%
+#'   restore_zeros_df(starts_with("Sepal"), .width = 3)
 
 
 restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in,
@@ -152,5 +181,66 @@ restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in,
     return(stringr::str_replace(out, "\\.", sep_out))
   }
 
+}
+
+
+#' @rdname restore_zeros
+#' @export
+
+restore_zeros_df <- function(.data, ..., .check_decimals = FALSE,
+                             .width = NULL,
+                             .sep_in = "\\.", .sep_out = NULL,
+                             .sep = NULL) {
+
+  # Make sure no arguments from `restore_zeros()` -- i.e., those without dots --
+  # are erroneously specified:
+  ellipsis::check_dots_unnamed()
+
+  # Capture any tidyselect specifications by the user. If there aren't any...
+  selector1 <- rlang::enexprs(...)
+
+  # ...`selector1` is now set up to select all numeric-like columns:
+  if (length(selector1) == 0L) {
+    selector1 <- list(rlang::expr(where(is_numericish)))
+  }
+
+  # Check that `.data` is a data frame or matrix:
+  if (!is.data.frame(.data)) {
+    if (is.matrix(.data)) {
+      .data <- tibble::as_tibble(.data, .name_repair = "unique")
+    } else (
+      cli::cli_abort(c(
+        "`.data` must be a data frame (or a matrix).",
+        "i" = "Did you mean `restore_zeros()`, without `_df`?"
+      ))
+    )
+  }
+
+  # If desired by the user, create an additional selection criterion: In a
+  # numeric-like column, at least one value must have at least one decimal
+  # place. Otherwise...
+  if (.check_decimals) {
+    selector2 <- rlang::expr(
+      where(function(x) has_decimals_if_numericish(x, sep = .sep_in))
+    )
+  } else {
+    # ... the new variable is set up to be evaluated as `everything()`, which is
+    # the neutral element of the `&` operator in tidyselect:
+    selector2 <- rlang::expr(dplyr::everything())
+  }
+
+  # Columns are primarily selected via `selector1`, which defaults to selecting
+  # all numeric-like columns. Additional constrains might come via `selector2`
+  # (see above). The `.fns` argument uses an anonymous function to pass on all
+  # the named arguments to `restore_zeros()`:
+  dplyr::mutate(.data, dplyr::across(
+    .cols = c(!!!selector1) & !!selector2,
+    .fns = function(data_dummy) {
+      restore_zeros(
+        x = data_dummy, width = .width,
+        sep_in = .sep_in, sep_out = .sep_out, sep = .sep
+      )
+    }
+  ))
 }
 

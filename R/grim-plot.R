@@ -342,7 +342,7 @@ grim_plot <- function(data = NULL,
 
   if (!show_data) {
     data_emp <- data_emp %>%
-      dplyr::mutate(dplyr::across(everything(), set_to_0))
+      dplyr::mutate(dplyr::across(everything(), function(x) 0L))
   }
 
   # If `percent = TRUE` in the underlying `grim_map()` call, the y-axis label is
@@ -421,21 +421,39 @@ grim_plot <- function(data = NULL,
 
   if (show_data) {
 
-    # Empirical data:
-    p <- p +
-      ggplot2::geom_tile(
-        data = data_emp,
-        mapping = ggplot2::aes(
-          x = .data$n,
-          y = .data$frac
-        ),
-        alpha = tile_alpha,
-        size = 1,
-        color = color_by_consistency,
-        fill = color_by_consistency,
-        width = tile_size / 2,
-        height = (frac_unit * tile_size) / 2
-      )
+    if (utils::packageVersion("ggplot2") >= 3.4) {
+      p <- p +
+        ggplot2::geom_tile(
+          data = data_emp,
+          mapping = ggplot2::aes(
+            x = .data$n,
+            y = .data$frac
+          ),
+          alpha = tile_alpha,
+          # Replaced here:
+          linewidth = 1,
+          color = color_by_consistency,
+          fill = color_by_consistency,
+          width = tile_size / 2,
+          height = (frac_unit * tile_size) / 2
+        )
+    } else {
+      p <- p +
+        ggplot2::geom_tile(
+          data = data_emp,
+          mapping = ggplot2::aes(
+            x = .data$n,
+            y = .data$frac
+          ),
+          alpha = tile_alpha,
+          # Still here:
+          size = 1,
+          color = color_by_consistency,
+          fill = color_by_consistency,
+          width = tile_size / 2,
+          height = (frac_unit * tile_size) / 2
+        )
+    }
 
   }
 

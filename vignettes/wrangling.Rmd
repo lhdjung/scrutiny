@@ -32,19 +32,21 @@ This vignette shows how to save your time preparing data for error detection. It
 
 ### Motivation
 
-One particular challenge when looking for numeric irregularities in R is that numbers often have to be treated as strings. The reason is that R drops any trailing zeros in a number once it registers that object as a numeric value. This is a major problem because trailing zeros are as important to, e.g., GRIM or DEBIT as any other trailing digits would be.
+One particular challenge when looking for numeric irregularities using R is that numbers often have to be treated as strings. The reason is that numeric values don't preserve any trailing zeros. This is a major problem because trailing zeros are as important to, e.g., GRIM or DEBIT as any other trailing digits would be.
 
-The only solution I know of is to work with strings --- namely, strings that can be converted to non-`NA` numeric values. I will present two ways to work with them: (1) directly entering or importing numbers as strings, and (2) restoring trailing zeros.
+The only solution I know of is to work with strings --- namely, strings that can be converted to non-`NA` numeric values. I will discuss two ways to work with them: (1) directly entering or importing numbers as strings, and (2) restoring trailing zeros.
 
 ### Enter numbers as strings
 
 #### Automated
 
-Several R packages help to extract tables from PDF. I recommend tabulizer (not on CRAN; see [installation notes](https://docs.ropensci.org/tabulizer/#installation)). There are also the [pdftables](https://expersso.r-universe.dev/ui#package:pdftables) and [pdftools](https://ropensci.r-universe.dev/ui#package:pdftools) packages.
+Several R packages help to extract tables from PDF. I recommend tabulizer (not currently on CRAN; see [installation notes](https://docs.ropensci.org/tabulizer/#installation)). There are also the [pdftables](https://expersso.r-universe.dev/ui#package:pdftables) and [pdftools](https://ropensci.r-universe.dev/ui#package:pdftools) packages.
 
-Using tabulizer requires [Java](https://www.java.com) to be installed. When it works well, tabulizer is a great tool for importing tables quickly and efficiently. It automatically captures values as strings, so trailing zeros are treated just like other digits. (See below, *Replace column names by row values*, for a solution to an issue than can occur with tabulizer.)
+Using tabulizer requires [Java](https://www.java.com) to be installed. When it works well, tabulizer is a great tool for importing tables quickly and efficiently. It automatically captures values as strings, so trailing zeros are treated just like other digits.
 
-However, tabulizer might sometimes struggle, especially with older PDF files. That is most likely the fault of the PDF format itself because it has no inbuilt support for tables, so any effort to extract them faces serious ambiguities. If there are many tables in multiple files formatted in the same way, it can be useful to check if tabulizer reliably and accurately captures them. If it doesn't, you might have to use copy and paste.
+However, tabulizer might sometimes struggle, especially with older PDF files. That is most likely the fault of the PDF format itself because it has no inbuilt support for tables, so any effort to extract them faces serious ambiguities. (See below, *Replace column names by row values*, for a solution to one such issue.)
+
+If there are many tables in multiple files formatted in the same way, it can be useful to check if tabulizer reliably and accurately captures them. If it doesn't, you might have to use copy and paste.
 
 #### With copy and paste
 
@@ -110,6 +112,21 @@ vec %>%
 vec %>% 
   restore_zeros(width = 2) %>% 
   decimal_places()
+```
+
+A convenient way to restore trailing zeros in a data frame is `restore_zeros_df()`. By default, it operates on all columns that are coercible to numeric (factors don't count):
+
+```{r}
+iris <- as_tibble(iris)
+iris %>% 
+  restore_zeros_df(.width = 3)
+```
+
+Specify columns as you would in `dplyr::select()`:
+
+```{r}
+iris %>% 
+  restore_zeros_df(starts_with("Sepal"), .width = 3)
 ```
 
 ## Split strings by parentheses

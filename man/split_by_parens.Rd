@@ -17,9 +17,9 @@ split_by_parens(
 \arguments{
 \item{.data}{Data frame. Only in \code{split_by_parens()}.}
 
-\item{...}{Optionally, name columns from \code{.data}. Splitting will then be
-restricted to these columns. This is useful if not all values contain
-parentheses.}
+\item{...}{Optionally, select columns from \code{.data} as in \code{dplyr::select()}.
+Splitting will then be restricted to these columns. This is useful if not
+all values contain parentheses.}
 
 \item{.keep}{Boolean. If set to \code{TRUE}, the original columns from \code{.data}
 also appear in the output. Default is \code{FALSE}.}

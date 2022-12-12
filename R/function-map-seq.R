@@ -272,6 +272,18 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
                              .include_reported = FALSE,
                              .include_consistent = FALSE) {
 
+  force(.fun)
+  force(.var)
+  force(.reported)
+  force(.name_test)
+  force(.name_class)
+  force(.args_disabled)
+  force(.dispersion)
+  force(.out_min)
+  force(.out_max)
+  force(.include_reported)
+  force(.include_consistent)
+
   check_args_disabled_unnamed(.args_disabled)
 
   fun_name <- deparse(substitute(.fun))

@@ -314,7 +314,9 @@ Within scrutiny, many functions that are exported for users internally call help
 
 If you'd like to employ such an internal helper for yourself, specify its namespace with three colons, like `scrutiny:::add_class`. However, you should only use this trick to copy and paste the helper's source code into your own source code. (That's why I left out the parentheses --- return the function itself.) Never rely on calling a function with `:::`, because these internals are not actually meant for users. They can easily shift and vanish without notice.
 
-When directly looking for internal helpers in scrutiny's source code, start at the [utils.R](https://github.com/lhdjung/scrutiny/blob/main/R/utils.R) file. Most helpers can be found there, and some of them feature rudimentary documentation.
+If you develop your own package, see [this blogpost](https://www.tidyverse.org/blog/2022/09/playing-on-the-same-team-as-your-dependecy/) by Thomas Lin Pedersen for more information on using internal code from other packages. In particular, package developers should mind licenses when copying code from scrutiny because scrutiny is GPL-3 licensed.
+
+When directly looking for internal helpers in scrutiny's source code, start at the [utils.R](https://github.com/lhdjung/scrutiny/blob/main/R/utils.R) file. Most helpers can be found there, and every helper in utils.R is documented.
 
 # 4. `audit()` method
 

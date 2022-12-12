@@ -309,6 +309,16 @@ function_map_total_n <- function(.fun, .reported, .name_test,
                                  .constant = NULL,
                                  .constant_index = NULL) {
 
+  force(.fun)
+  force(.reported)
+  force(.name_test)
+  force(.name_class)
+  force(.dispersion)
+  force(.n_min)
+  force(.n_max)
+  force(.constant)
+  force(.constant_index)
+
   # Throw error if `n` itself was named as a reported statistic:
   if ("n" %in% .reported) {
     cli::cli_abort(c(
