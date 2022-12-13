@@ -4,7 +4,7 @@
 [![R-CMD-check](https://github.com/lhdjung/scrutiny/workflows/R-CMD-check/badge.svg)](https://github.com/lhdjung/scrutiny/actions)
 [![Codecov test
 coverage](https://codecov.io/gh/lhdjung/scrutiny/branch/main/graph/badge.svg)](https://app.codecov.io/gh/lhdjung/scrutiny?branch=main)
-
+[![R-CMD-check](https://github.com/lhdjung/scrutiny/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/lhdjung/scrutiny/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 # Error detection in science
@@ -110,6 +110,7 @@ inconsistent ones:
     pigs1 %>% 
       grim_map(rounding = "up") %>% 
       grim_plot()
+    #> Warning: Removed 1 rows containing missing values (`geom_tile()`).
 
 <img src="man/figures/README-unnamed-chunk-5-1.png" width="75%" />
 
@@ -142,11 +143,15 @@ data:
     #> 7 0.12  0.33   1683 TRUE        up_or_d…   0.325 TRUE      0.335 TRUE      0.115
     #> # … with 1 more variable: x_upper <dbl>, and abbreviated variable names
     #> #   ¹​sd_lower, ²​sd_incl_lower, ³​sd_upper, ⁴​sd_incl_upper
-    #> # ℹ Use `colnames()` to see all variable names
 
     pigs3 %>% 
       debit_map() %>% 
       debit_plot()
+    #> Warning: The following aesthetics were dropped during statistical transformation: label
+    #> ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    #>   the data.
+    #> ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    #>   variable into a factor?
 
 <img src="man/figures/README-unnamed-chunk-6-1.png" width="75%" />
 
