@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,9 +33,9 @@
     <a class="dropdown-item" href="../articles/infrastructure.html">General infrastructure</a>
     <a class="dropdown-item" href="../articles/consistency-tests.html">Implementing consistency tests</a>
     <a class="dropdown-item" href="../articles/rounding.html">Rounding</a>
+    <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Other</h6>
-    <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
     <a class="dropdown-item" href="../articles/related.html">Related software</a>
   </div>
 </li>
@@ -62,7 +62,17 @@
       <small>Source: <a href="https://github.com/lhdjung/scrutiny/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
-    <div class="section level2"><h2 class="pkg-version" data-toc-text="0.2.2.9000" id="scrutiny-0229000-development-version">scrutiny 0.2.2.9000 (development version)<a class="anchor" aria-label="anchor" href="#scrutiny-0229000-development-version"></a></h2></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.2.3" id="scrutiny-023">scrutiny 0.2.3<a class="anchor" aria-label="anchor" href="#scrutiny-023"></a></h2><p class="text-muted">CRAN release: 2022-12-11</p>
+<p>Some new features and bugfixes:</p>
+<ul><li><p>New <code><a href="../reference/audit.html">audit()</a></code> methods for the output of <code><a href="../reference/audit.html">audit_seq()</a></code> and <code><a href="../reference/audit.html">audit_total_n()</a></code>.</p></li>
+<li><p>New <code><a href="../reference/duplicate_count_colpair.html">duplicate_count_colpair()</a></code> function that checks each combination of columns in a data frame for duplicates.</p></li>
+<li><p>New <code><a href="../reference/restore_zeros.html">restore_zeros_df()</a></code> function to easily restore trailing zeros in all numeric-like columns in a data frame.</p></li>
+<li><p>New <code><a href="../reference/seq_length.html">seq_length()</a></code> function to extend or shorten linear sequences.</p></li>
+<li><p>Bugfixes in the <code>is_seq_*()</code> functions.</p></li>
+<li><p>Some possible corner case issues in <code><a href="../reference/split_by_parens.html">split_by_parens()</a></code> are now prevented.</p></li>
+<li><p>Internal changes for compatibility with purrr 1.0.0 and tidyselect 1.2.0.</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.2" id="scrutiny-022">scrutiny 0.2.2<a class="anchor" aria-label="anchor" href="#scrutiny-022"></a></h2><p class="text-muted">CRAN release: 2022-08-22</p>
 <p>This is a patch for CRAN compliance.</p>
@@ -141,7 +151,8 @@
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.0.9000" id="scrutiny-0009000">scrutiny 0.0.0.9000<a class="anchor" aria-label="anchor" href="#scrutiny-0009000"></a></h2>
-<ul><li>Added a <code>NEWS.md</code> file to track changes to the package.</li></ul></div>
+<ul><li>Added a <code>NEWS.md</code> file to track changes to the package.</li>
+</ul></div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>
 

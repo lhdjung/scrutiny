@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,9 +50,9 @@
     <a class="dropdown-item" href="../articles/infrastructure.html">General infrastructure</a>
     <a class="dropdown-item" href="../articles/consistency-tests.html">Implementing consistency tests</a>
     <a class="dropdown-item" href="../articles/rounding.html">Rounding</a>
+    <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Other</h6>
-    <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
     <a class="dropdown-item" href="../articles/related.html">Related software</a>
   </div>
 </li>
@@ -80,7 +80,8 @@
 
 
 
-<script src="related_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+
+<div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>Related software</h1>
             
@@ -91,25 +92,54 @@
 
     
     
-<p>Software for error detection goes well beyond scrutiny. This vignette presents broadly similar packages and apps, with no claim to completeness.</p>
-<p>Please contact me if you know about relevant software that isn’t listed here (email: jung-lukas@gmx.net).</p>
+<p>Software for error detection goes well beyond scrutiny. This vignette
+presents broadly similar packages and apps, with no claim to
+completeness.</p>
+<p>Please contact me if you know about relevant software that isn’t
+listed here (email: jung-lukas@gmx.net).</p>
 <ul>
-<li><p>For good reason, <a href="http://statcheck.io/index.php" class="external-link">statcheck</a> by Sacha Epskamp and Michèle Nuijten is the best-known error detection software. It reconstructs <em>p</em>-values and tests them for consistency with their respective statistic, such as <em>t</em> or <em>F</em>. Even better, it operates on PDF files automatically, enabling users to scan <a href="https://link.springer.com/article/10.3758/s13428-015-0664-2" class="external-link">massive amounts</a> of published articles. Steve Haroz built a <a href="https://steveharoz.shinyapps.io/statchecksimple/" class="external-link">simple edition</a> of the statcheck web app.</p></li>
-<li><p>James Heathers’ <a href="https://peerj.com/preprints/26968v1/" class="external-link">SPRITE</a> algorithm reconstructs possible distributions of raw data from summary statistics. James also wrote a <a href="https://medium.com/hackernoon/introducing-sprite-and-the-case-of-the-carthorse-child-58683c2bfeb" class="external-link">light introduction</a> to SPRITE. For R users, it was implemented in <a href="https://lukaswallrich.github.io/rsprite2/" class="external-link">rsprite2</a> by Lukas Wallrich, building up on code by Nick Brown. Jordan Anaya developed a <a href="http://www.prepubmed.org/sprite/" class="external-link">Python-based SPRITE app</a>.</p></li>
-<li><p>The R package <a href="https://cran.r-project.org/package=validate" class="external-link">validate</a> by Mark P.J. van der Loo provides numerous tools for data checking.</p></li>
-<li><p>The delta-F test for linearity, a.k.a. the “Förster test”, was implemented in Dale J. Barr’s R package <a href="https://github.com/dalejbarr/forsterUVA" class="external-link">forsterUVA</a>.</p></li>
+<li><p>For good reason, <a href="https://michelenuijten.shinyapps.io/statcheck-web/" class="external-link">statcheck</a>
+by Sacha Epskamp and Michèle Nuijten is the best-known error detection
+software. It reconstructs <em>p</em>-values and tests them for
+consistency with their respective statistic, such as <em>t</em> or
+<em>F</em>. Even better, it operates on PDF files automatically,
+enabling users to scan <a href="https://link.springer.com/article/10.3758/s13428-015-0664-2" class="external-link">massive
+amounts</a> of published articles. Steve Haroz built a <a href="https://steveharoz.shinyapps.io/statchecksimple/" class="external-link">simple
+edition</a> of the statcheck web app.</p></li>
+<li><p>James Heathers’ <a href="https://peerj.com/preprints/26968v1/" class="external-link">SPRITE</a> algorithm
+reconstructs possible distributions of raw data from summary statistics.
+James also wrote a <a href="https://medium.com/hackernoon/introducing-sprite-and-the-case-of-the-carthorse-child-58683c2bfeb" class="external-link">light
+introduction</a> to SPRITE. For R users, it was implemented in <a href="https://lukaswallrich.github.io/rsprite2/" class="external-link">rsprite2</a> by Lukas
+Wallrich, building up on code by Nick Brown. Jordan Anaya developed a <a href="http://www.prepubmed.org/sprite/" class="external-link">Python-based SPRITE
+app</a>.</p></li>
+<li><p>The R package <a href="https://cran.r-project.org/package=validate" class="external-link">validate</a> by Mark
+P.J. van der Loo provides numerous tools for data checking.</p></li>
+<li><p>The delta-F test for linearity, a.k.a. the “Förster test”, was
+implemented in Dale J. Barr’s R package <a href="https://github.com/dalejbarr/forsterUVA" class="external-link">forsterUVA</a>.</p></li>
 <li>
-<p>Several R packages leverage the Benford distribution of naturally occurring numbers to assess whether reported numbers are, in fact, natural. These packages include:</p>
+<p>Several R packages leverage the Benford distribution of naturally
+occurring numbers to assess whether reported numbers are, in fact,
+natural. These packages include:</p>
 <ul>
-<li><p><a href="https://github.com/carloscinelli/benford.analysis" class="external-link">benford.analysis</a> by Carlos Cinelli contains various sophisticated tools for inspecting data using the Benford distribution.</p></li>
-<li><p><a href="https://koenderks.github.io/digitTests/index.html" class="external-link">digitTests</a> by Koen Derks not only conducts Benford testing but also checks if values are repeated more often than expected.</p></li>
+<li><p><a href="https://github.com/carloscinelli/benford.analysis" class="external-link">benford.analysis</a>
+by Carlos Cinelli contains various sophisticated tools for inspecting
+data using the Benford distribution.</p></li>
+<li><p><a href="https://koenderks.github.io/digitTests/index.html" class="external-link">digitTests</a>
+by Koen Derks not only conducts Benford testing but also checks if
+values are repeated more often than expected.</p></li>
 </ul>
 </li>
 <li>
-<p>Emerging from the Pruitt investigations, there is now R software for analyzing sequences:</p>
+<p>Emerging from the Pruitt investigations, there is now R software
+for analyzing sequences:</p>
 <ul>
-<li><p>The package <a href="https://github.com/Sorbus-torminalis/twopointzerothree/" class="external-link">twopointzerothree</a> (by an anonymous developer) checks data for sequences of perfectly correlated numbers. These numbers are either duplicates of each other or they are duplicates offset by some constant amount; hence the name.</p></li>
-<li><p>Similarly, the <a href="https://github.com/alrutten/sequenceSniffer" class="external-link">sequenceSniffer</a> app by Anne Rutten detects repetitions in sequences.</p></li>
+<li><p>The package <a href="https://github.com/Sorbus-torminalis/twopointzerothree/" class="external-link">twopointzerothree</a>
+(by an anonymous developer) checks data for sequences of perfectly
+correlated numbers. These numbers are either duplicates of each other or
+they are duplicates offset by some constant amount; hence the
+name.</p></li>
+<li><p>Similarly, the <a href="https://github.com/alrutten/sequenceSniffer" class="external-link">sequenceSniffer</a>
+app by Anne Rutten detects repetitions in sequences.</p></li>
 </ul>
 </li>
 </ul></main>

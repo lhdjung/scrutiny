@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,9 +50,9 @@
     <a class="dropdown-item" href="../articles/infrastructure.html">General infrastructure</a>
     <a class="dropdown-item" href="../articles/consistency-tests.html">Implementing consistency tests</a>
     <a class="dropdown-item" href="../articles/rounding.html">Rounding</a>
+    <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Other</h6>
-    <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
     <a class="dropdown-item" href="../articles/related.html">Related software</a>
   </div>
 </li>
@@ -80,7 +80,8 @@
 
 
 
-<script src="consistency-tests_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+
+<div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>Implementing consistency tests</h1>
             
@@ -96,27 +97,67 @@
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>When implementing consistency tests in R, you shouldn’t have to start from zero. This vignette introduces scrutiny’s support system for writing new consistency testing functions.</p>
-<p>Following the vignette will dramatically simplify the implementation of basic and advanced testing routines via function factories. It will enable you to write entire families of functions in a streamlined way: If you are familiar with any one scrutiny-style consistency test, you will immediately be able to make some sense of the other ones. This is true across all levels of consistency testing.</p>
-<p>Below is an outline of these levels, and of the present vignette, with GRIM as a paradigmatic example. If a valid consistency test is newly implemented with at least the first step, I’ll be happy to accept a pull request to scrutiny. This means you’ll only have to implement the core test itself, without even reading the vignette any further.</p>
+<p>When implementing consistency tests in R, you shouldn’t have to start
+from zero. This vignette introduces scrutiny’s support system for
+writing new consistency testing functions.</p>
+<p>Following the vignette will dramatically simplify the implementation
+of basic and advanced testing routines via function factories. It will
+enable you to write entire families of functions in a streamlined way:
+If you are familiar with any one scrutiny-style consistency test, you
+will immediately be able to make some sense of the other ones. This is
+true across all levels of consistency testing.</p>
+<p>Below is an outline of these levels, and of the present vignette,
+with GRIM as a paradigmatic example. If a valid consistency test is
+newly implemented with at least the first step, I’ll be happy to accept
+a pull request to scrutiny. This means you’ll only have to implement the
+core test itself, without even reading the vignette any further.</p>
 <ol style="list-style-type: decimal">
-<li><p>A bare-bones, non-exported (!) function for testing a single set of cases, such as <code>grim_scalar()</code>.</p></li>
-<li><p>A vectorized version of the single-case function, such as <code><a href="../reference/grim.html">grim()</a></code>.</p></li>
-<li><p>A specialized mapping function that applies the single-case function to a data frame, such as <code><a href="../reference/grim_map.html">grim_map()</a></code>.</p></li>
-<li><p>A method for the <code><a href="../reference/audit.html">audit()</a></code> generic that summarizes the results of number 3.</p></li>
-<li><p>A visualization function that plots the results of number 3, such as <code><a href="../reference/grim_plot.html">grim_plot()</a></code>.</p></li>
-<li><p>A mapping function that checks if slightly varied input values are consistent with the respective other reported values, such as <code><a href="../reference/grim_map_seq.html">grim_map_seq()</a></code>.</p></li>
-<li><p>A mapping function to be used if only the total sample size was reported (in a study with two groups), not the individual group sizes, such as <code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code>.</p></li>
-<li><p><code><a href="../reference/audit.html">audit_seq()</a></code> and <code><a href="../reference/audit.html">audit_total_n()</a></code> already work with the output of numbers 6 and 7, respectively. They still have to be specifically documented.</p></li>
+<li><p>A bare-bones, non-exported (!) function for testing a single set
+of cases, such as <code>grim_scalar()</code>.</p></li>
+<li><p>A vectorized version of the single-case function, such as
+<code><a href="../reference/grim.html">grim()</a></code>.</p></li>
+<li><p>A specialized mapping function that applies the single-case
+function to a data frame, such as <code><a href="../reference/grim_map.html">grim_map()</a></code>.</p></li>
+<li><p>A method for the <code><a href="../reference/audit.html">audit()</a></code> generic that summarizes the
+results of number 3.</p></li>
+<li><p>A visualization function that plots the results of number 3, such
+as <code><a href="../reference/grim_plot.html">grim_plot()</a></code>.</p></li>
+<li><p>A mapping function that checks if slightly varied input values
+are consistent with the respective other reported values, such as
+<code><a href="../reference/grim_map_seq.html">grim_map_seq()</a></code>.</p></li>
+<li><p>A mapping function to be used if only the total sample size was
+reported (in a study with two groups), not the individual group sizes,
+such as <code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code>.</p></li>
+<li><p><code><a href="../reference/audit.html">audit_seq()</a></code> and <code><a href="../reference/audit.html">audit_total_n()</a></code> already
+work with the output of numbers 6 and 7, respectively. They still have
+to be specifically documented.</p></li>
 </ol>
-<p>I will use a toy test called SCHLIM as a model to demonstrate the minimal steps needed to implement consistency tests, scrutiny-style. Note that SCHLIM doesn’t have any significance beyond standing in for serious consistency tests. Any real implementation might well be more complex than the brief code snippets below. I will also recur to existing functions that implement actual tests, and that the reader may be familiar with.</p>
-<p>Please make sure to follow the <a href="https://style.tidyverse.org/" class="external-link">tidyverse style guide</a> as well as the scrutiny-specific conventions laid out below, wherever applicable. If you’d like to write a new package, work with Hadley Wickham’s book <em>R Packages</em> <span class="citation">(Wickham 2015)</span> in its most recent version, which is <a href="https://r-pkgs.org/" class="external-link">free online</a>.</p>
+<p>I will use a toy test called SCHLIM as a model to demonstrate the
+minimal steps needed to implement consistency tests, scrutiny-style.
+Note that SCHLIM doesn’t have any significance beyond standing in for
+serious consistency tests. Any real implementation might well be more
+complex than the brief code snippets below. I will also recur to
+existing functions that implement actual tests, and that the reader may
+be familiar with.</p>
+<p>Please make sure to follow the <a href="https://style.tidyverse.org/" class="external-link">tidyverse style guide</a> as well as
+the scrutiny-specific conventions laid out below, wherever applicable.
+If you’d like to write a new package, work with Hadley Wickham’s book
+<em>R Packages</em> <span class="citation">(Wickham 2015)</span> in its
+most recent version, which is <a href="https://r-pkgs.org/" class="external-link">free
+online</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="single-case">1. Single-case<a class="anchor" aria-label="anchor" href="#single-case"></a>
 </h2>
-<p>The first function is the most important one. It contains the core implementation of the test. Although it is not exported itself, all other steps build up on it, and all of them are exported.</p>
-<p>This function takes two or more arguments of length 1 that are meant to be tested for consistency with each other. Typically, they will be coercible to numeric. This means they either are numeric themselves or they are strings that can be converted to numbers. The function returns a Boolean value of length 1: It’s <code>TRUE</code> if the inputs are mutually consistent, and <code>FALSE</code> if they aren’t.</p>
+<p>The first function is the most important one. It contains the core
+implementation of the test. Although it is not exported itself, all
+other steps build up on it, and all of them are exported.</p>
+<p>This function takes two or more arguments of length 1 that are meant
+to be tested for consistency with each other. Typically, they will be
+coercible to numeric. This means they either are numeric themselves or
+they are strings that can be converted to numbers. The function returns
+a Boolean value of length 1: It’s <code>TRUE</code> if the inputs are
+mutually consistent, and <code>FALSE</code> if they aren’t.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span> <span class="va">schlim_scalar</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">y</span>, <span class="va">n</span><span class="op">)</span> <span class="op">{</span></span>
 <span>   <span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
@@ -128,19 +169,40 @@
 <span><span class="co">#&gt; [1] TRUE</span></span>
 <span><span class="fu">schlim_scalar</span><span class="op">(</span>y <span class="op">=</span> <span class="fl">2</span>, n <span class="op">=</span> <span class="fl">7</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] FALSE</span></span></code></pre></div>
-<p>Other arguments might still be necessary, especially if your function reconstructs rounded numbers. An argument that determines how the function will round numbers should be called <code>rounding</code>. The function should then internally call <code><a href="../reference/reround.html">reround()</a></code>. The same goes for “unrounding” (i.e., reconstructing rounding bounds) and <code><a href="../reference/unround.html">unround()</a></code>. See also <code><a href="../articles/rounding.html">vignette("rounding")</a></code>. A single-case function that performs rounding will also need a helper to count decimal places, which should be <code><a href="../reference/decimal_places.html">decimal_places_scalar()</a></code>.</p>
-<p>The function’s name is that of the test in lowercase, followed by <code>_scalar</code> which refers to the one-case limit. If your function happens to be applicable to multiple value sets already due to R’s natural vectorization, leave out <code>_scalar</code> and skip the next section. If you’re building a package, export the function. (This will rarely be the case because every single argument needs to be vectorized.)</p>
+<p>Other arguments might still be necessary, especially if your function
+reconstructs rounded numbers. An argument that determines how the
+function will round numbers should be called <code>rounding</code>. The
+function should then internally call <code><a href="../reference/reround.html">reround()</a></code>. The same
+goes for “unrounding” (i.e., reconstructing rounding bounds) and
+<code><a href="../reference/unround.html">unround()</a></code>. See also <code><a href="../articles/rounding.html">vignette("rounding")</a></code>. A
+single-case function that performs rounding will also need a helper to
+count decimal places, which should be
+<code><a href="../reference/decimal_places.html">decimal_places_scalar()</a></code>.</p>
+<p>The function’s name is that of the test in lowercase, followed by
+<code>_scalar</code> which refers to the one-case limit. If your
+function happens to be applicable to multiple value sets already due to
+R’s natural vectorization, leave out <code>_scalar</code> and skip the
+next section. If you’re building a package, export the function. (This
+will rarely be the case because every single argument needs to be
+vectorized.)</p>
 </div>
 <div class="section level2">
 <h2 id="vectorized">2. Vectorized<a class="anchor" aria-label="anchor" href="#vectorized"></a>
 </h2>
-<p>The easiest way to turn a scalar function into a vectorized (i.e., multiple-case) function is to run <code><a href="https://rdrr.io/r/base/Vectorize.html" class="external-link">Vectorize()</a></code> on it. The name of the resulting function should be the lower-case name of the test itself, which is also the name of the single-case function without <code>_scalar</code>:</p>
+<p>The easiest way to turn a scalar function into a vectorized (i.e.,
+multiple-case) function is to run <code><a href="https://rdrr.io/r/base/Vectorize.html" class="external-link">Vectorize()</a></code> on it. The
+name of the resulting function should be the lower-case name of the test
+itself, which is also the name of the single-case function without
+<code>_scalar</code>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">schlim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Vectorize.html" class="external-link">Vectorize</a></span><span class="op">(</span><span class="va">schlim_scalar</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">schlim</span><span class="op">(</span>y <span class="op">=</span> <span class="fl">10</span><span class="op">:</span><span class="fl">15</span>, n <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] FALSE FALSE FALSE  TRUE  TRUE  TRUE</span></span></code></pre></div>
-<p>Functions created this way can be useful for quick testing, but they won’t be used in the remaining part of the vignette. That’s because functions like <code>schlim()</code> are not great to build upon — unlike mapper functions, which will be discussed next.</p>
+<p>Functions created this way can be useful for quick testing, but they
+won’t be used in the remaining part of the vignette. That’s because
+functions like <code>schlim()</code> are not great to build upon —
+unlike mapper functions, which will be discussed next.</p>
 </div>
 <div class="section level2">
 <h2 id="mapper">3. Mapper<a class="anchor" aria-label="anchor" href="#mapper"></a>
@@ -148,13 +210,24 @@
 <div class="section level3">
 <h3 id="introduction-1">Introduction<a class="anchor" aria-label="anchor" href="#introduction-1"></a>
 </h3>
-<p>The most important practical use of a consistency test within scrutiny is to apply it to entire data frames at once, as <code><a href="../reference/grim_map.html">grim_map()</a></code> does. That’s also the starting point for every other function below.</p>
-<p>Most functions discussed in the remaining part of the vignette deal with data frames. I always use <a href="https://r4ds.had.co.nz/tibbles.html" class="external-link">tibbles</a>, and I strongly recommend the same to you. There’s no guarantee that each of those functions works with non-tibble data frames as it does with tibbles.</p>
+<p>The most important practical use of a consistency test within
+scrutiny is to apply it to entire data frames at once, as
+<code><a href="../reference/grim_map.html">grim_map()</a></code> does. That’s also the starting point for every
+other function below.</p>
+<p>Most functions discussed in the remaining part of the vignette deal
+with data frames. I always use <a href="https://r4ds.had.co.nz/tibbles.html" class="external-link">tibbles</a>, and I strongly
+recommend the same to you. There’s no guarantee that each of those
+functions works with non-tibble data frames as it does with tibbles.</p>
 </div>
 <div class="section level3">
 <h3 id="creating-mappers-with-function_map">Creating mappers with <code>function_map()</code><a class="anchor" aria-label="anchor" href="#creating-mappers-with-function_map"></a>
 </h3>
-<p>The safest and easiest way to create a mapper is via <code><a href="../reference/function_map.html">function_map()</a></code>. A function written this way is also guaranteed to fulfill all of the requirements for mapper functions listed further below. That’s a major benefit because the list of requirements is long, and all of the follow-up functions in the remaining vignette assume that the mapper fulfills them.</p>
+<p>The safest and easiest way to create a mapper is via
+<code><a href="../reference/function_map.html">function_map()</a></code>. A function written this way is also
+guaranteed to fulfill all of the requirements for mapper functions
+listed further below. That’s a major benefit because the list of
+requirements is long, and all of the follow-up functions in the
+remaining vignette assume that the mapper fulfills them.</p>
 <p>You will have no such troubles with <code><a href="../reference/function_map.html">function_map()</a></code>:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">schlim_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/function_map.html">function_map</a></span><span class="op">(</span></span>
@@ -182,15 +255,30 @@
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>    25    12 FALSE</span></span></code></pre></div>
 <p>These are the most important arguments:</p>
 <ul>
-<li><p><code>.fun</code> is the single-case function from section 1.</p></li>
-<li><p><code>.reported</code> is a string vector naming the reported statistics that <code>.fun</code> tests for consistency with each other. These need to be arguments of <code>.fun</code>, but <code>.fun</code> may have other arguments, as well.</p></li>
-<li><p><code>.name_test</code> simply names the consistency test.</p></li>
+<li><p><code>.fun</code> is the single-case function from section
+1.</p></li>
+<li><p><code>.reported</code> is a string vector naming the reported
+statistics that <code>.fun</code> tests for consistency with each other.
+These need to be arguments of <code>.fun</code>, but <code>.fun</code>
+may have other arguments, as well.</p></li>
+<li><p><code>.name_test</code> simply names the consistency
+test.</p></li>
 </ul>
 <div class="section level4">
 <h4 id="context-and-export">Context and export<a class="anchor" aria-label="anchor" href="#context-and-export"></a>
 </h4>
-<p>As you can see, <code><a href="../reference/function_map.html">function_map()</a></code> is not a helper used inside other functions when creating them with <code>function()</code> — instead, it takes the place of <code>function()</code> itself. This makes it a so-called function factory, or more precisely, a function operator, a.k.a. decorator <span class="citation">(Wickham 2019, ch. 10-11)</span>. You already met <code><a href="https://rdrr.io/r/base/Vectorize.html" class="external-link">base::Vectorize()</a></code> in section 2, which is also a function operator, but a more general and straightforward one.</p>
-<p>To export a function manufactured this way from your own package, make sure to follow <a href="https://purrr.tidyverse.org/reference/faq-adverbs-export.html" class="external-link">this purrr FAQ</a>. (Incredible as it sounds, scrutiny will then take on the role of purrr.) Your version should look about like this:</p>
+<p>As you can see, <code><a href="../reference/function_map.html">function_map()</a></code> is not a helper used
+inside other functions when creating them with <code>function()</code> —
+instead, it takes the place of <code>function()</code> itself. This
+makes it a so-called function factory, or more precisely, a function
+operator, a.k.a. decorator <span class="citation">(Wickham 2019,
+ch. 10-11)</span>. You already met <code><a href="https://rdrr.io/r/base/Vectorize.html" class="external-link">base::Vectorize()</a></code> in
+section 2, which is also a function operator, but a more general and
+straightforward one.</p>
+<p>To export a function manufactured this way from your own package,
+make sure to follow <a href="https://purrr.tidyverse.org/reference/faq-adverbs-export.html" class="external-link">this
+purrr FAQ</a>. (Incredible as it sounds, scrutiny will then take on the
+role of purrr.) Your version should look about like this:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">schlim_map</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">...</span><span class="op">)</span> <span class="st">"dummy"</span></span>
 <span></span>
@@ -205,7 +293,12 @@
 <div class="section level4">
 <h4 id="identifying-columns">Identifying columns<a class="anchor" aria-label="anchor" href="#identifying-columns"></a>
 </h4>
-<p>All such factory-made functions come with a special convenience feature: Their <code>.reported</code> values are inserted into the list of the function’s parameters. This means you don’t need a data frame with the same column names as the <code>.reported</code> values. Instead, you can specify the arguments by those names as the names of the actual columns:</p>
+<p>All such factory-made functions come with a special convenience
+feature: Their <code>.reported</code> values are inserted into the list
+of the function’s parameters. This means you don’t need a data frame
+with the same column names as the <code>.reported</code> values.
+Instead, you can specify the arguments by those names as the names of
+the actual columns:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df2</span> <span class="op">&lt;-</span> <span class="va">df1</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">df2</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"foo"</span>, <span class="st">"bar"</span><span class="op">)</span></span>
@@ -239,10 +332,11 @@
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>    23    10 FALSE      </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>    24    11 FALSE      </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>    25    12 FALSE</span></span></code></pre></div>
-<p>If any columns are neither present in the data frame nor identified via arguments, there will be a precise error:</p>
+<p>If any columns are neither present in the data frame nor identified
+via arguments, there will be a precise error:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">schlim_map</span><span class="op">(</span><span class="va">df2</span>, y <span class="op">=</span> <span class="va">foo</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `check_factory_key_args_names()` at scrutiny/R/function-factory-helpers.R:199:2:</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `check_factory_key_args_names()` at scrutiny/R/function-factory-helpers.R:198:2:</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Column `n` is missing from `data`.</span></span>
 <span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> It should be a column of the input data frame.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Alternatively, specify the `n` argument of `absorb_key_args()` as the name of</span></span>
@@ -250,7 +344,7 @@
 <span></span>
 <span><span class="co"># With a wrong identification:</span></span>
 <span><span class="fu">schlim_map</span><span class="op">(</span><span class="va">df2</span>, n <span class="op">=</span> <span class="va">mike</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `check_factory_key_args_values()` at scrutiny/R/function-factory-helpers.R:198:2:</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `check_factory_key_args_values()` at scrutiny/R/function-factory-helpers.R:197:2:</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> `mike` is not a column name of `data`.</span></span>
 <span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> The `n` argument of `absorb_key_args()` was specified as `mike`, but there is</span></span>
 <span><span class="co">#&gt;   no column in `data` called `mike`.</span></span></code></pre></div>
@@ -258,14 +352,37 @@
 <div class="section level4">
 <h4 id="drawbacks">Drawbacks<a class="anchor" aria-label="anchor" href="#drawbacks"></a>
 </h4>
-<p>If <code><a href="../reference/function_map.html">function_map()</a></code> is so helpful, why would you ever not use it? There are four reasons:</p>
+<p>If <code><a href="../reference/function_map.html">function_map()</a></code> is so helpful, why would you ever not
+use it? There are four reasons:</p>
 <ul>
-<li><p>Functions produced by <code><a href="../reference/function_map.html">function_map()</a></code> don’t have any tailor-made checks, messages, or transformations for any specific consistency test. (They do have some more general checks and error messages.)</p></li>
-<li><p>They only have limited capabilities to create columns internally other than <code>"consistency"</code>: Values in such columns need to be produced by the basic <code>*_scalar()</code> function. (This might replace tailor-made functionality for creating the <code>reason</code> column in the output of the handwritten <code><a href="../reference/grimmer_map.html">grimmer_map()</a></code>, but it is currently experimental.)</p></li>
-<li><p>They don’t support helper columns (see <em>Terminology</em> below).</p></li>
-<li><p>Finally, when calling such a manufactured function, any test-specific arguments the user might specify via <code>…</code> (the dots) won’t trigger RStudio’s autocomplete. This is not as dangerous as in some other functions that use the dots because, when calling a function produced by <code><a href="../reference/function_map.html">function_map()</a></code>, misspelled argument names always throw an error.</p></li>
+<li><p>Functions produced by <code><a href="../reference/function_map.html">function_map()</a></code> don’t have any
+tailor-made checks, messages, or transformations for any specific
+consistency test. (They do have some more general checks and error
+messages.)</p></li>
+<li><p>They only have limited capabilities to create columns internally
+other than <code>"consistency"</code>: Values in such columns need to be
+produced by the basic <code>*_scalar()</code> function. (This might
+replace tailor-made functionality for creating the <code>reason</code>
+column in the output of the handwritten <code><a href="../reference/grimmer_map.html">grimmer_map()</a></code>, but
+it is currently experimental.)</p></li>
+<li><p>They don’t support helper columns (see <em>Terminology</em>
+below).</p></li>
+<li><p>Finally, when calling such a manufactured function, any
+test-specific arguments the user might specify via <code>…</code> (the
+dots) won’t trigger RStudio’s autocomplete. This is not as dangerous as
+in some other functions that use the dots because, when calling a
+function produced by <code><a href="../reference/function_map.html">function_map()</a></code>, misspelled argument
+names always throw an error.</p></li>
 </ul>
-<p><code><a href="../reference/grim_map.html">grim_map()</a></code>, <code><a href="../reference/grimmer_map.html">grimmer_map()</a></code>, and <code><a href="../reference/debit_map.html">debit_map()</a></code> were all “handwritten” for flexibility with columns beyond <code>"consistency"</code>. For example, the <code>show_rec</code> argument in <code><a href="../reference/grim_map.html">grim_map()</a></code> or the <code>ratio</code> column in the function’s output would not have been possible with <code><a href="../reference/function_map.html">function_map()</a></code>. However, such issues don’t affect the <code>"consistency"</code> results, and simply going with <code><a href="../reference/function_map.html">function_map()</a></code> might often be the better option. If that’s what you choose to do, skip right to section 4.</p>
+<p><code><a href="../reference/grim_map.html">grim_map()</a></code>, <code><a href="../reference/grimmer_map.html">grimmer_map()</a></code>, and
+<code><a href="../reference/debit_map.html">debit_map()</a></code> were all “handwritten” for flexibility with
+columns beyond <code>"consistency"</code>. For example, the
+<code>show_rec</code> argument in <code><a href="../reference/grim_map.html">grim_map()</a></code> or the
+<code>ratio</code> column in the function’s output would not have been
+possible with <code><a href="../reference/function_map.html">function_map()</a></code>. However, such issues don’t
+affect the <code>"consistency"</code> results, and simply going with
+<code><a href="../reference/function_map.html">function_map()</a></code> might often be the better option. If that’s
+what you choose to do, skip right to section 4.</p>
 </div>
 </div>
 <div class="section level3">
@@ -274,51 +391,163 @@
 <div class="section level4">
 <h4 id="introduction-2">Introduction<a class="anchor" aria-label="anchor" href="#introduction-2"></a>
 </h4>
-<p>The remaining part of section 3 explains how to manually write mapper functions like <code><a href="../reference/grim_map.html">grim_map()</a></code>, <code><a href="../reference/grimmer_map.html">grimmer_map()</a></code>, or <code><a href="../reference/debit_map.html">debit_map()</a></code>. It is quite detailed because it’s important to get these things right: Every other function in the rest of this vignette builds up on it. Still, the practical steps are not that complicated, as you can see in the code examples.</p>
+<p>The remaining part of section 3 explains how to manually write mapper
+functions like <code><a href="../reference/grim_map.html">grim_map()</a></code>, <code><a href="../reference/grimmer_map.html">grimmer_map()</a></code>, or
+<code><a href="../reference/debit_map.html">debit_map()</a></code>. It is quite detailed because it’s important to
+get these things right: Every other function in the rest of this
+vignette builds up on it. Still, the practical steps are not that
+complicated, as you can see in the code examples.</p>
 </div>
 <div class="section level4">
 <h4 id="terminology">Terminology<a class="anchor" aria-label="anchor" href="#terminology"></a>
 </h4>
-<p>It’s important to distinguish between <em>key arguments or columns</em> and other arguments or columns. The key arguments in a scalar or vectorized consistency-testing function are the values that are tested for consistency with each other, such as <code>x</code> and <code>n</code> in <code><a href="../reference/grim.html">grim()</a></code>. By extension, key columns are those that contain such values. Every key column has the same name as the respective key argument.</p>
-<p>A <em>helper column</em> is a column that is not key itself, but still factors into the consistency test. An example is the optional <code>items</code> column in <code><a href="../reference/grim_map.html">grim_map()</a></code>’s input data frame: It transforms the <code>n</code> column, which in turn affects the test outcomes. However, helper columns need not work via key columns.</p>
-<p>Key and helper columns are <em>tested</em> columns because they factor into the test. Any other columns are <em>non-tested</em>.</p>
+<p>It’s important to distinguish between <em>key arguments or
+columns</em> and other arguments or columns. The key arguments in a
+scalar or vectorized consistency-testing function are the values that
+are tested for consistency with each other, such as <code>x</code> and
+<code>n</code> in <code><a href="../reference/grim.html">grim()</a></code>. By extension, key columns are
+those that contain such values. Every key column has the same name as
+the respective key argument.</p>
+<p>A <em>helper column</em> is a column that is not key itself, but
+still factors into the consistency test. An example is the optional
+<code>items</code> column in <code><a href="../reference/grim_map.html">grim_map()</a></code>’s input data frame:
+It transforms the <code>n</code> column, which in turn affects the test
+outcomes. However, helper columns need not work via key columns.</p>
+<p>Key and helper columns are <em>tested</em> columns because they
+factor into the test. Any other columns are <em>non-tested</em>.</p>
 </div>
 <div class="section level4">
 <h4 id="requirements">Requirements<a class="anchor" aria-label="anchor" href="#requirements"></a>
 </h4>
-<p>A general system for implementing consistency tests needs some consistency itself. This is especially true for mapper functions, because all functions further down the line rely on the mapper’s output having some very specific properties.</p>
-<p>The level of detail in these requirements might seem pedantic. I still encourage you to follow every step when handwriting a new mapping function. It’s easier than it looks at first, and many aspects are indispensable. That is because the interplay between the mapper and the higher-level functions follows a carefully concerted system. If the mapper misses any one ingredient, those other functions may fail.</p>
+<p>A general system for implementing consistency tests needs some
+consistency itself. This is especially true for mapper functions,
+because all functions further down the line rely on the mapper’s output
+having some very specific properties.</p>
+<p>The level of detail in these requirements might seem pedantic. I
+still encourage you to follow every step when handwriting a new mapping
+function. It’s easier than it looks at first, and many aspects are
+indispensable. That is because the interplay between the mapper and the
+higher-level functions follows a carefully concerted system. If the
+mapper misses any one ingredient, those other functions may fail.</p>
 <p>The (only) requirements for a mapping function are:</p>
 <ol style="list-style-type: decimal">
-<li><p>Its name ends on <code>_map</code> instead of <code>_scalar</code> but is otherwise the same as the name of the respective <code>_scalar</code> function.</p></li>
-<li><p>Its first argument, <code>data</code>, is a data frame that contains the key columns of the respective consistency test. Other columns are permitted. The mapper’s user never needs to include helper columns and can always replace them by specifying arguments by the same names as those columns. If the user specifies such an argument but the input data frame contains a column by the same name, the function throws an error. No column of the input data frame should be named <code>"consistency"</code>.</p></li>
-<li><p>Its return value is a tibble data frame that contains all of the key input columns. The types of these columns are the same as in the input data frame. They are the first (i.e., leftmost) columns in the output, even if the input isn’t ordered this way. If any of these columns are modified within the mapping function, the output should include the modified columns, not the original ones. Examples can be effects of helper columns, but also the change displayed by the <code>"x"</code> column in the output of <code>grim_map(percent = TRUE)</code>.</p></li>
-<li><p>Helper columns should be included in the output unless they transform one or more key columns. In this case, representing them in the output would be confusing because their effects have already played out via the transformed key column(s). For every helper column that performs such transformations, the mapper should have a Boolean argument, <code>TRUE</code> by default, that determines whether or not the helper column transforms those key column(s). If <code>TRUE</code>, the helper column does but is not included in the output itself. If <code>FALSE</code>, the helper column is included but no transformation takes place. The name of this Boolean argument should start on <code>merge_</code>, followed by the name of the helper column in question. An example for all of that is the optional <code>items</code> column in <code><a href="../reference/grim_map.html">grim_map()</a></code>’s input data frame, together with this function’s <code>items</code> and <code>merge_items</code> arguments. To work with helper columns, call <code><a href="../reference/manage_helper_col.html">manage_helper_col()</a></code> within the mapper.</p></li>
-<li><p>The output data frame also includes a Boolean column named <code>"consistency"</code>. It contains the results of the consistency test, as determined by the respective <code>*_scalar()</code> function. In each row, <code>"consistency"</code> is <code>TRUE</code> if the values to its left are mutually consistent, and <code>FALSE</code> if they aren’t. This column is placed immediately to the right of the group of key (and, potentially, helper) columns.</p></li>
-<li><p>If the underlying single-case function performs rounding or unrounding, it should internally call <code><a href="../reference/reround.html">reround()</a></code> and/or <code><a href="../reference/unround.html">unround()</a></code>, respectively. The output data frame of the mapper function will then inherit an S3 class (see section <em>S3 classes</em> below) such as <code>"scr_rounding_up_or_down"</code>: It consists of <code>"scr_rounding_"</code> followed by the rounding specification, e.g., <code>"up_or_down"</code>. The latter should also be the default rounding and unrounding specification. This specification can be supplied by the user via an argument called <code>rounding</code>, which is then passed down to the single-case function. If <code><a href="../reference/reround.html">reround()</a></code> is called within the mapper, all of its arguments need to be passed down from the mapper, which itself has all of the same arguments, with the same defaults. The same applies to <code><a href="../reference/unround.html">unround()</a></code>.</p></li>
-<li><p>The output data frame inherits an S3 class that starts on <code>"scr_"</code> (short for scrutiny), followed by the name of the mapper function. For example, the output of <code><a href="../reference/grim_map.html">grim_map()</a></code> inherits the <code>"scr_grim_map"</code> class. The <code>"scr_"</code> prefix is necessary for some follow-up computations introduced below, so it should be used even within functions that are not part of scrutiny. Any other classes added to the output data frame should also start on <code>"scr_"</code>. None of them should end on <code>"_map"</code>.</p></li>
+<li><p>Its name ends on <code>_map</code> instead of
+<code>_scalar</code> but is otherwise the same as the name of the
+respective <code>_scalar</code> function.</p></li>
+<li><p>Its first argument, <code>data</code>, is a data frame that
+contains the key columns of the respective consistency test. Other
+columns are permitted. The mapper’s user never needs to include helper
+columns and can always replace them by specifying arguments by the same
+names as those columns. If the user specifies such an argument but the
+input data frame contains a column by the same name, the function throws
+an error. No column of the input data frame should be named
+<code>"consistency"</code>.</p></li>
+<li><p>Its return value is a tibble data frame that contains all of the
+key input columns. The types of these columns are the same as in the
+input data frame. They are the first (i.e., leftmost) columns in the
+output, even if the input isn’t ordered this way. If any of these
+columns are modified within the mapping function, the output should
+include the modified columns, not the original ones. Examples can be
+effects of helper columns, but also the change displayed by the
+<code>"x"</code> column in the output of
+<code>grim_map(percent = TRUE)</code>.</p></li>
+<li><p>Helper columns should be included in the output unless they
+transform one or more key columns. In this case, representing them in
+the output would be confusing because their effects have already played
+out via the transformed key column(s). For every helper column that
+performs such transformations, the mapper should have a Boolean
+argument, <code>TRUE</code> by default, that determines whether or not
+the helper column transforms those key column(s). If <code>TRUE</code>,
+the helper column does but is not included in the output itself. If
+<code>FALSE</code>, the helper column is included but no transformation
+takes place. The name of this Boolean argument should start on
+<code>merge_</code>, followed by the name of the helper column in
+question. An example for all of that is the optional <code>items</code>
+column in <code><a href="../reference/grim_map.html">grim_map()</a></code>’s input data frame, together with this
+function’s <code>items</code> and <code>merge_items</code> arguments. To
+work with helper columns, call <code><a href="../reference/manage_helper_col.html">manage_helper_col()</a></code> within
+the mapper.</p></li>
+<li><p>The output data frame also includes a Boolean column named
+<code>"consistency"</code>. It contains the results of the consistency
+test, as determined by the respective <code>*_scalar()</code> function.
+In each row, <code>"consistency"</code> is <code>TRUE</code> if the
+values to its left are mutually consistent, and <code>FALSE</code> if
+they aren’t. This column is placed immediately to the right of the group
+of key (and, potentially, helper) columns.</p></li>
+<li><p>If the underlying single-case function performs rounding or
+unrounding, it should internally call <code><a href="../reference/reround.html">reround()</a></code> and/or
+<code><a href="../reference/unround.html">unround()</a></code>, respectively. The output data frame of the
+mapper function will then inherit an S3 class (see section <em>S3
+classes</em> below) such as <code>"scr_rounding_up_or_down"</code>: It
+consists of <code>"scr_rounding_"</code> followed by the rounding
+specification, e.g., <code>"up_or_down"</code>. The latter should also
+be the default rounding and unrounding specification. This specification
+can be supplied by the user via an argument called
+<code>rounding</code>, which is then passed down to the single-case
+function. If <code><a href="../reference/reround.html">reround()</a></code> is called within the mapper, all of
+its arguments need to be passed down from the mapper, which itself has
+all of the same arguments, with the same defaults. The same applies to
+<code><a href="../reference/unround.html">unround()</a></code>.</p></li>
+<li><p>The output data frame inherits an S3 class that starts on
+<code>"scr_"</code> (short for scrutiny), followed by the name of the
+mapper function. For example, the output of <code><a href="../reference/grim_map.html">grim_map()</a></code>
+inherits the <code>"scr_grim_map"</code> class. The <code>"scr_"</code>
+prefix is necessary for some follow-up computations introduced below, so
+it should be used even within functions that are not part of scrutiny.
+Any other classes added to the output data frame should also start on
+<code>"scr_"</code>. None of them should end on
+<code>"_map"</code>.</p></li>
 </ol>
 </div>
 <div class="section level4">
 <h4 id="implications">Implications<a class="anchor" aria-label="anchor" href="#implications"></a>
 </h4>
-<p>Some implications of these requirements, and of the fact that the design space for mapper functions is not restricted in any other ways:</p>
-<p>Anything that factors into the consistency test other than tested columns needs to be conveyed to the mapper function via arguments. An example is the <code>rounding</code> argument in <code><a href="../reference/grim_map.html">grim_map()</a></code>. Mapper functions don’t need to allow for helper columns.</p>
-<p>The input data frame is not necessarily a tibble, but the output data frame is. The input data frame never contains a column named <code>"consistency"</code>, but the output data frame always does.</p>
-<p>Key columns may or may not be modified by helper columns and/or by arguments. The number of key columns doesn’t change between the input and output data frames.</p>
-<p>The output data frame may or may not contain non-tested columns from the input. It may or may not contain non-tested columns created within the mapper function itself. (This can be useful, as with <code>"ratio"</code> in <code><a href="../reference/grim_map.html">grim_map()</a></code>’s output.) Any such non-tested, non-<code>"consistency"</code> columns go to the right of <code>"consistency"</code>.</p>
-<p>If the number of key columns plus the number of helper columns in the output is <span class="math inline">\(k\)</span>, the index of <code>"consistency"</code> is <span class="math inline">\(k+1\)</span>.</p>
-<p>Besides the <code>"scr_*_map"</code> class, the output data frame may inherit any number of other classes added within the mapper, so long as they start on <code>"scr_"</code> but don’t end on <code>"_map"</code>. It can’t inherit the <code>"grouped_df"</code> or <code>"rowwise_df"</code> classes added by <code><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">dplyr::group_by()</a></code> and <code><a href="https://dplyr.tidyverse.org/reference/rowwise.html" class="external-link">dplyr::rowwise()</a></code>, respectively. If either of these functions is called within the mapper, it needs to be followed by <code><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">dplyr::ungroup()</a></code> at some point.</p>
+<p>Some implications of these requirements, and of the fact that the
+design space for mapper functions is not restricted in any other
+ways:</p>
+<p>Anything that factors into the consistency test other than tested
+columns needs to be conveyed to the mapper function via arguments. An
+example is the <code>rounding</code> argument in
+<code><a href="../reference/grim_map.html">grim_map()</a></code>. Mapper functions don’t need to allow for helper
+columns.</p>
+<p>The input data frame is not necessarily a tibble, but the output data
+frame is. The input data frame never contains a column named
+<code>"consistency"</code>, but the output data frame always does.</p>
+<p>Key columns may or may not be modified by helper columns and/or by
+arguments. The number of key columns doesn’t change between the input
+and output data frames.</p>
+<p>The output data frame may or may not contain non-tested columns from
+the input. It may or may not contain non-tested columns created within
+the mapper function itself. (This can be useful, as with
+<code>"ratio"</code> in <code><a href="../reference/grim_map.html">grim_map()</a></code>’s output.) Any such
+non-tested, non-<code>"consistency"</code> columns go to the right of
+<code>"consistency"</code>.</p>
+<p>If the number of key columns plus the number of helper columns in the
+output is <span class="math inline">\(k\)</span>, the index of
+<code>"consistency"</code> is <span class="math inline">\(k+1\)</span>.</p>
+<p>Besides the <code>"scr_*_map"</code> class, the output data frame may
+inherit any number of other classes added within the mapper, so long as
+they start on <code>"scr_"</code> but don’t end on <code>"_map"</code>.
+It can’t inherit the <code>"grouped_df"</code> or
+<code>"rowwise_df"</code> classes added by
+<code><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">dplyr::group_by()</a></code> and <code><a href="https://dplyr.tidyverse.org/reference/rowwise.html" class="external-link">dplyr::rowwise()</a></code>,
+respectively. If either of these functions is called within the mapper,
+it needs to be followed by <code><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">dplyr::ungroup()</a></code> at some
+point.</p>
 <p>The columns of the input data frame are organized like this:</p>
 <p><img src="images/consistency_test_columns_input-01.png" width="585"></p>
-<p>By contrast, the columns of the output data frame are organized like this:</p>
+<p>By contrast, the columns of the output data frame are organized like
+this:</p>
 <p><img src="images/consistency_test_columns_output-01.png" width="585"></p>
 </div>
 <div class="section level4">
 <h4 id="practical-steps">Practical steps<a class="anchor" aria-label="anchor" href="#practical-steps"></a>
 </h4>
-<p>How to actually write mapper functions? Again, I recommend <code><a href="../reference/function_map.html">function_map()</a></code>. The functions created below are conceptually very similar.</p>
-<p>Apply the <code>*_scalar()</code> function to the input data frame using <code><a href="https://purrr.tidyverse.org/reference/map2.html" class="external-link">purrr::pmap_lgl()</a></code>:</p>
+<p>How to actually write mapper functions? Again, I recommend
+<code><a href="../reference/function_map.html">function_map()</a></code>. The functions created below are
+conceptually very similar.</p>
+<p>Apply the <code>*_scalar()</code> function to the input data frame
+using <code><a href="https://purrr.tidyverse.org/reference/map2.html" class="external-link">purrr::pmap_lgl()</a></code>:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">schlim_map_alt1</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">data</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu">scrutiny</span><span class="fu">::</span><span class="fu"><a href="../reference/check_mapper_input_colnames.html">check_mapper_input_colnames</a></span><span class="op">(</span><span class="va">data</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"y"</span>, <span class="st">"n"</span><span class="op">)</span>, <span class="st">"SCHLIM"</span><span class="op">)</span></span>
@@ -327,7 +556,8 @@
 <span>  <span class="va">out</span> <span class="op">&lt;-</span> <span class="fu">add_class</span><span class="op">(</span><span class="va">out</span>, <span class="st">"scr_schlim_map"</span><span class="op">)</span>  <span class="co"># See section "S3 classes" below</span></span>
 <span>  <span class="va">out</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>Alternatively, call <code><a href="https://dplyr.tidyverse.org/reference/rowwise.html" class="external-link">dplyr::rowwise()</a></code> and directly mutate <code>"consistency"</code>:</p>
+<p>Alternatively, call <code><a href="https://dplyr.tidyverse.org/reference/rowwise.html" class="external-link">dplyr::rowwise()</a></code> and directly mutate
+<code>"consistency"</code>:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">schlim_map_alt2</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">data</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu">scrutiny</span><span class="fu">::</span><span class="fu"><a href="../reference/check_mapper_input_colnames.html">check_mapper_input_colnames</a></span><span class="op">(</span><span class="va">data</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"y"</span>, <span class="st">"n"</span><span class="op">)</span>, <span class="st">"SCHLIM"</span><span class="op">)</span></span>
@@ -338,7 +568,10 @@
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/relocate.html" class="external-link">relocate</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">n</span>, <span class="va">consistency</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>    <span class="fu">add_class</span><span class="op">(</span><span class="st">"scr_schlim_map"</span><span class="op">)</span>  <span class="co"># See section "S3 classes" below</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>The call to <code><a href="../reference/check_mapper_input_colnames.html">check_mapper_input_colnames()</a></code> is not required but adds safety to your function. Also, see <code><a href="../reference/manage_key_colnames.html">manage_key_colnames()</a></code> which grants the user more flexibility in naming key columns.</p>
+<p>The call to <code><a href="../reference/check_mapper_input_colnames.html">check_mapper_input_colnames()</a></code> is not
+required but adds safety to your function. Also, see
+<code><a href="../reference/manage_key_colnames.html">manage_key_colnames()</a></code> which grants the user more
+flexibility in naming key columns.</p>
 <p>Both approaches should lead to the same results:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">schlim_map_alt1</span><span class="op">(</span><span class="va">df1</span><span class="op">)</span></span>
@@ -374,19 +607,32 @@
 <div class="section level4">
 <h4 id="testing">Testing<a class="anchor" aria-label="anchor" href="#testing"></a>
 </h4>
-<p>You should let <code><a href="../reference/function_map.html">function_map()</a></code> produce an equivalent function to make sure that it returns the same output as your handwritten one. To compare the two output data frames, don’t just eyeball them. Use <code><a href="https://waldo.r-lib.org/reference/compare.html" class="external-link">waldo::compare()</a></code> or, if you already run tests with testthat, <code>expect_equal()</code>.</p>
-<p>If your handwritten mapper creates new columns beyond <code>"consistency"</code>, you’ll have to remove them from the output first. Don’t use helper columns when testing because <code><a href="../reference/function_map.html">function_map()</a></code> can’t handle them.</p>
+<p>You should let <code><a href="../reference/function_map.html">function_map()</a></code> produce an equivalent
+function to make sure that it returns the same output as your
+handwritten one. To compare the two output data frames, don’t just
+eyeball them. Use <code><a href="https://waldo.r-lib.org/reference/compare.html" class="external-link">waldo::compare()</a></code> or, if you already run
+tests with testthat, <code>expect_equal()</code>.</p>
+<p>If your handwritten mapper creates new columns beyond
+<code>"consistency"</code>, you’ll have to remove them from the output
+first. Don’t use helper columns when testing because
+<code><a href="../reference/function_map.html">function_map()</a></code> can’t handle them.</p>
 </div>
 <div class="section level4">
 <h4 id="s3-classes">S3 classes<a class="anchor" aria-label="anchor" href="#s3-classes"></a>
 </h4>
-<p>If you don’t know what S3 classes are, don’t worry. Just copy and paste the function below, and call it at the end of your mapper function. <code>x</code> is the output data frame, and <code>new_class</code> is a string vector. <code>new_class</code> consists of one or more “classes” that will be added to the existing classes of <code>x</code>.</p>
+<p>If you don’t know what S3 classes are, don’t worry. Just copy and
+paste the function below, and call it at the end of your mapper
+function. <code>x</code> is the output data frame, and
+<code>new_class</code> is a string vector. <code>new_class</code>
+consists of one or more “classes” that will be added to the existing
+classes of <code>x</code>.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">add_class</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">new_class</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">new_class</span>, <span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="va">x</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>You can access the classes that an object carries — or “inherits” — by calling <code><a href="https://rdrr.io/r/base/class.html" class="external-link">class()</a></code>:</p>
+<p>You can access the classes that an object carries — or “inherits” —
+by calling <code><a href="https://rdrr.io/r/base/class.html" class="external-link">class()</a></code>:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">some_object</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="va">some_object</span> <span class="op">&lt;-</span> <span class="fu">add_class</span><span class="op">(</span><span class="va">some_object</span>, <span class="st">"dummy class"</span><span class="op">)</span></span>
@@ -396,9 +642,27 @@
 <div class="section level4">
 <h4 id="internal-helpers">Internal helpers<a class="anchor" aria-label="anchor" href="#internal-helpers"></a>
 </h4>
-<p>Within scrutiny, many functions that are exported for users internally call helper functions that are not, such as <code>add_class()</code>. You might be writing your own function following the design of an exported scrutiny function, but suddenly you can’t access an unknown function that you seem to need!</p>
-<p>If you’d like to employ such an internal helper for yourself, specify its namespace with three colons, like <code>scrutiny:::add_class</code>. However, you should only use this trick to copy and paste the helper’s source code into your own source code. (That’s why I left out the parentheses — return the function itself.) Never rely on calling a function with <code>:::</code>, because these internals are not actually meant for users. They can easily shift and vanish without notice.</p>
-<p>When directly looking for internal helpers in scrutiny’s source code, start at the <a href="https://github.com/lhdjung/scrutiny/blob/main/R/utils.R" class="external-link">utils.R</a> file. Most helpers can be found there, and some of them feature rudimentary documentation.</p>
+<p>Within scrutiny, many functions that are exported for users
+internally call helper functions that are not, such as
+<code>add_class()</code>. You might be writing your own function
+following the design of an exported scrutiny function, but suddenly you
+can’t access an unknown function that you seem to need!</p>
+<p>If you’d like to employ such an internal helper for yourself, specify
+its namespace with three colons, like <code>scrutiny:::add_class</code>.
+However, you should only use this trick to copy and paste the helper’s
+source code into your own source code. (That’s why I left out the
+parentheses — return the function itself.) Never rely on calling a
+function with <code>:::</code>, because these internals are not actually
+meant for users. They can easily shift and vanish without notice.</p>
+<p>If you develop your own package, see <a href="https://www.tidyverse.org/blog/2022/09/playing-on-the-same-team-as-your-dependecy/" class="external-link">this
+blogpost</a> by Thomas Lin Pedersen for more information on using
+internal code from other packages. In particular, package developers
+should mind licenses when copying code from scrutiny because scrutiny is
+GPL-3 licensed.</p>
+<p>When directly looking for internal helpers in scrutiny’s source code,
+start at the <a href="https://github.com/lhdjung/scrutiny/blob/main/R/utils.R" class="external-link">utils.R</a>
+file. Most helpers can be found there, and every helper in utils.R is
+documented.</p>
 </div>
 </div>
 </div>
@@ -408,8 +672,17 @@
 <div class="section level3">
 <h3 id="introduction-3">Introduction<a class="anchor" aria-label="anchor" href="#introduction-3"></a>
 </h3>
-<p><code><a href="../reference/audit.html">audit()</a></code> is an S3 generic for summarizing scrutiny’s test result data frames, especially those of mapper functions such as <code><a href="../reference/grim_map.html">grim_map()</a></code>. It should always return descriptive statistics but nothing else. Every mapper function should have its corresponding <code><a href="../reference/audit.html">audit()</a></code> method.</p>
-<p>This is an aspect of object-oriented programming (OOP), but scrutiny’s use of OOP is simple even by the low standards of R. Your mapper function’s output already inherits a specific class, such as <code>"scr_grim_map"</code>, <code>"scr_grimmer_map"</code>, or <code>"scr_debit_map"</code>. In <code>schlim_map()</code>, we added the <code>"scr_schlim_map"</code> class in addition to existing classes:</p>
+<p><code><a href="../reference/audit.html">audit()</a></code> is an S3 generic for summarizing scrutiny’s test
+result data frames, especially those of mapper functions such as
+<code><a href="../reference/grim_map.html">grim_map()</a></code>. It should always return descriptive statistics
+but nothing else. Every mapper function should have its corresponding
+<code><a href="../reference/audit.html">audit()</a></code> method.</p>
+<p>This is an aspect of object-oriented programming (OOP), but
+scrutiny’s use of OOP is simple even by the low standards of R. Your
+mapper function’s output already inherits a specific class, such as
+<code>"scr_grim_map"</code>, <code>"scr_grimmer_map"</code>, or
+<code>"scr_debit_map"</code>. In <code>schlim_map()</code>, we added the
+<code>"scr_schlim_map"</code> class in addition to existing classes:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df1_tested</span> <span class="op">&lt;-</span> <span class="fu">schlim_map</span><span class="op">(</span><span class="va">df1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">df1_tested</span><span class="op">)</span></span>
@@ -417,19 +690,39 @@
 <div class="section level4">
 <h4 id="basics">Basics<a class="anchor" aria-label="anchor" href="#basics"></a>
 </h4>
-<p>Every <code><a href="../reference/audit.html">audit()</a></code> method for consistency test results should be the same insofar as all consistency tests are the same. It should have a single argument named <code>data</code>. Its return value should be a tibble with at least these columns:</p>
+<p>Every <code><a href="../reference/audit.html">audit()</a></code> method for consistency test results should
+be the same insofar as all consistency tests are the same. It should
+have a single argument named <code>data</code>. Its return value should
+be a tibble with at least these columns:</p>
 <ol style="list-style-type: decimal">
-<li><p><code>incons_cases</code> counts the inconsistent cases, i.e., the number of rows in the mapper’s output where <code>"consistency"</code> is <code>FALSE</code>.</p></li>
-<li><p><code>all_cases</code> is the total number of rows in the mapper’s output.</p></li>
-<li><p><code>incons_rate</code> is the ratio of <code>incons_cases</code> to <code>all_cases</code>.</p></li>
+<li><p><code>incons_cases</code> counts the inconsistent cases, i.e.,
+the number of rows in the mapper’s output where
+<code>"consistency"</code> is <code>FALSE</code>.</p></li>
+<li><p><code>all_cases</code> is the total number of rows in the
+mapper’s output.</p></li>
+<li><p><code>incons_rate</code> is the ratio of
+<code>incons_cases</code> to <code>all_cases</code>.</p></li>
 </ol>
-<p>Apart from these, see for yourself which descriptive statistics your <code><a href="../reference/audit.html">audit()</a></code> method should compute. Means of variables in the <code>*_map()</code> function’s output and their ratios to each other might be sensible choices.</p>
-<p>All existing <code><a href="../reference/audit.html">audit()</a></code> methods for consistency tests return tibbles with a single row only. This makes sense because there is no obvious grouping variable for the input data frame, which would lead to multiple rows in <code><a href="../reference/audit.html">audit()</a></code>’s output. However, there might be good reasons for multiple rows when summarizing the results of other tests, so this is not a requirement.</p>
+<p>Apart from these, see for yourself which descriptive statistics your
+<code><a href="../reference/audit.html">audit()</a></code> method should compute. Means of variables in the
+<code>*_map()</code> function’s output and their ratios to each other
+might be sensible choices.</p>
+<p>All existing <code><a href="../reference/audit.html">audit()</a></code> methods for consistency tests
+return tibbles with a single row only. This makes sense because there is
+no obvious grouping variable for the input data frame, which would lead
+to multiple rows in <code><a href="../reference/audit.html">audit()</a></code>’s output. However, there might
+be good reasons for multiple rows when summarizing the results of other
+tests, so this is not a requirement.</p>
 </div>
 <div class="section level4">
 <h4 id="practical-steps-1">Practical steps<a class="anchor" aria-label="anchor" href="#practical-steps-1"></a>
 </h4>
-<p>Your <code><a href="../reference/audit.html">audit()</a></code> method is simply a function named <code>audit</code> plus a dot and your specific class. Call <code><a href="../reference/audit_cols_minimal.html">audit_cols_minimal()</a></code> within the method to create a tibble with the three required columns. If you don’t use <code><a href="../reference/audit_cols_minimal.html">audit_cols_minimal()</a></code>, call <code><a href="../reference/check_audit_special.html">check_audit_special()</a></code> in your method.</p>
+<p>Your <code><a href="../reference/audit.html">audit()</a></code> method is simply a function named
+<code>audit</code> plus a dot and your specific class. Call
+<code><a href="../reference/audit_cols_minimal.html">audit_cols_minimal()</a></code> within the method to create a tibble
+with the three required columns. If you don’t use
+<code><a href="../reference/audit_cols_minimal.html">audit_cols_minimal()</a></code>, call
+<code><a href="../reference/check_audit_special.html">check_audit_special()</a></code> in your method.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># The `name_test` argument is only for the alert</span></span>
 <span><span class="co"># that might be issued by `check_audit_special()`:</span></span>
@@ -447,13 +740,18 @@
 <span><span class="co"># This doesn't work because no method was defined:</span></span>
 <span><span class="fu"><a href="../reference/audit.html">audit</a></span><span class="op">(</span><span class="va">iris</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Error in UseMethod("audit"): no applicable method for 'audit' applied to an object of class "data.frame"</span></span></code></pre></div>
-<p>You can still add other summary columns to the tibble returned by <code><a href="../reference/audit_cols_minimal.html">audit_cols_minimal()</a></code>. Use <code><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">dplyr::mutate()</a></code> or similar.</p>
+<p>You can still add other summary columns to the tibble returned by
+<code><a href="../reference/audit_cols_minimal.html">audit_cols_minimal()</a></code>. Use <code><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">dplyr::mutate()</a></code> or
+similar.</p>
 </div>
 </div>
 <div class="section level3">
 <h3 id="documentation-template">Documentation template<a class="anchor" aria-label="anchor" href="#documentation-template"></a>
 </h3>
-<p>Each <code><a href="../reference/audit.html">audit()</a></code> method should be documented on the same page as its respective mapper function. It should have its own section called <em>Summaries with <code><a href="../reference/audit.html">audit()</a></code></em>. Create it with <code><a href="../reference/write_doc_audit.html">write_doc_audit()</a></code>:</p>
+<p>Each <code><a href="../reference/audit.html">audit()</a></code> method should be documented on the same
+page as its respective mapper function. It should have its own section
+called <em>Summaries with <code><a href="../reference/audit.html">audit()</a></code></em>. Create it with
+<code><a href="../reference/write_doc_audit.html">write_doc_audit()</a></code>:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">audit_grim</span>    <span class="op">&lt;-</span> <span class="fu"><a href="../reference/audit.html">audit</a></span><span class="op">(</span><span class="fu"><a href="../reference/grim_map.html">grim_map</a></span><span class="op">(</span><span class="va">pigs1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">audit_grimmer</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/audit.html">audit</a></span><span class="op">(</span><span class="fu"><a href="../reference/grimmer_map.html">grimmer_map</a></span><span class="op">(</span><span class="va">pigs5</span><span class="op">)</span><span class="op">)</span></span>
@@ -485,8 +783,17 @@
 <span><span class="co">#&gt; #' 5. `fail_test1`: </span></span>
 <span><span class="co">#&gt; #' 6. `fail_test2`: </span></span>
 <span><span class="co">#&gt; #' 7. `fail_test3`:</span></span></code></pre></div>
-<p>This function prepares a roxygen2 block section. It fills the three standard columns out for you, and it leaves space to describe any other columns there might be. Also, the internal checks of <code><a href="../reference/write_doc_audit.html">write_doc_audit()</a></code> make sure that you programmed a correct <code><a href="../reference/audit.html">audit()</a></code> method, as represented by the value of the <code>sample_output</code> argument.</p>
-<p>Copy the output from the console and paste it into the roxygen2 block of your <code>*_map()</code> function. To preserve the numbered list structure when indenting roxygen2 comments with <code>Ctrl</code>+<code>Shift</code>+<code>/</code>, leave empty lines between the pasted output and the rest of the block.</p>
+<p>This function prepares a roxygen2 block section. It fills the three
+standard columns out for you, and it leaves space to describe any other
+columns there might be. Also, the internal checks of
+<code><a href="../reference/write_doc_audit.html">write_doc_audit()</a></code> make sure that you programmed a correct
+<code><a href="../reference/audit.html">audit()</a></code> method, as represented by the value of the
+<code>sample_output</code> argument.</p>
+<p>Copy the output from the console and paste it into the roxygen2 block
+of your <code>*_map()</code> function. To preserve the numbered list
+structure when indenting roxygen2 comments with
+<code>Ctrl</code>+<code>Shift</code>+<code>/</code>, leave empty lines
+between the pasted output and the rest of the block.</p>
 </div>
 </div>
 <div class="section level2">
@@ -495,19 +802,56 @@
 <div class="section level3">
 <h3 id="introduction-4">Introduction<a class="anchor" aria-label="anchor" href="#introduction-4"></a>
 </h3>
-<p>It is hard to give general advice on how to implement visualization functions for the results of consistency tests. As with the <code>*_scalar()</code> function, the best way to plot such results greatly depends on the idiosyncratic nature of the consistency test itself. When comparing the looks of <code><a href="../reference/grim_plot.html">grim_plot()</a></code> and <code><a href="../reference/debit_plot.html">debit_plot()</a></code>, it becomes clear that two very different things are going on. (This is mainly because granularity is crucial for GRIM but not for DEBIT.)</p>
+<p>It is hard to give general advice on how to implement visualization
+functions for the results of consistency tests. As with the
+<code>*_scalar()</code> function, the best way to plot such results
+greatly depends on the idiosyncratic nature of the consistency test
+itself. When comparing the looks of <code><a href="../reference/grim_plot.html">grim_plot()</a></code> and
+<code><a href="../reference/debit_plot.html">debit_plot()</a></code>, it becomes clear that two very different
+things are going on. (This is mainly because granularity is crucial for
+GRIM but not for DEBIT.)</p>
 </div>
 <div class="section level3">
 <h3 id="requirements-1">Requirements<a class="anchor" aria-label="anchor" href="#requirements-1"></a>
 </h3>
-<p>Nevertheless, some general requirements do apply to scrutiny-style visualization functions. They are much more like arbitrary conventions than the requirements for mapper functions, which often meet very precise technical needs. Visualization functions, however, are not the basis for any other computations apart from modifications by additional ggplot2 layers.</p>
-<p>As a result, the rules below are admittedly somewhat less important. If you violate them, nobody but me will be sad about it.</p>
+<p>Nevertheless, some general requirements do apply to scrutiny-style
+visualization functions. They are much more like arbitrary conventions
+than the requirements for mapper functions, which often meet very
+precise technical needs. Visualization functions, however, are not the
+basis for any other computations apart from modifications by additional
+ggplot2 layers.</p>
+<p>As a result, the rules below are admittedly somewhat less important.
+If you violate them, nobody but me will be sad about it.</p>
 <ol style="list-style-type: decimal">
-<li>All visualization functions should be based on ggplot2. They should follow its developers’ general advice on <a href="https://ggplot2.tidyverse.org/articles/ggplot2-in-packages.html" class="external-link">using ggplot2 in packages</a>. Visualization functions don’t need to implement any newly created layers, such as geoms or themes. Indeed, neither of the two existing visualization functions relies on any new layers.</li>
-<li>The visualization function’s name should be that of the test itself (in lowercase), followed by <code>_plot</code>. Naturally, this doesn’t apply to methods for generic functions like <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> or <code><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">ggplot2::autoplot()</a></code>.</li>
-<li>Its first argument, <code>data</code>, is a data frame that is the result of a call to the respective mapper function, such as <code><a href="../reference/grim_map.html">grim_map()</a></code> or <code><a href="../reference/debit_map.html">debit_map()</a></code>. The visualization function makes sure this is true by checking that <code>data</code> inherits the special class added within the mapper, such as <code>"scr_grim_map"</code> or <code>"scr_debit_map"</code>. If <code>data</code> fails this check, the function throws an error.</li>
-<li>The function should display consistent and inconsistent value sets. The color defaults should be <code>"royalblue1"</code> for consistent value sets and <code>"red"</code> for inconsistent ones. The user can override these defaults via two arguments named <code>color_cons</code> for consistent value sets and <code>color_incons</code> for inconsistent ones.</li>
-<li>If certain layers are optional rather than essential to the plot, their display can be controlled via Boolean arguments that start on <code>show_</code>. Examples are <code>show_data</code> in <code><a href="../reference/grim_plot.html">grim_plot()</a></code> or <code>show_outer_boxes</code> in <code><a href="../reference/debit_plot.html">debit_plot()</a></code>. Only arguments of this kind should start on <code>show_</code>. They should have defaults (which will usually be <code>TRUE</code>, but this is not a requirement).</li>
+<li>All visualization functions should be based on ggplot2. They should
+follow its developers’ general advice on <a href="https://ggplot2.tidyverse.org/articles/ggplot2-in-packages.html" class="external-link">using
+ggplot2 in packages</a>. Visualization functions don’t need to implement
+any newly created layers, such as geoms or themes. Indeed, neither of
+the two existing visualization functions relies on any new layers.</li>
+<li>The visualization function’s name should be that of the test itself
+(in lowercase), followed by <code>_plot</code>. Naturally, this doesn’t
+apply to methods for generic functions like <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> or
+<code><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">ggplot2::autoplot()</a></code>.</li>
+<li>Its first argument, <code>data</code>, is a data frame that is the
+result of a call to the respective mapper function, such as
+<code><a href="../reference/grim_map.html">grim_map()</a></code> or <code><a href="../reference/debit_map.html">debit_map()</a></code>. The visualization
+function makes sure this is true by checking that <code>data</code>
+inherits the special class added within the mapper, such as
+<code>"scr_grim_map"</code> or <code>"scr_debit_map"</code>. If
+<code>data</code> fails this check, the function throws an error.</li>
+<li>The function should display consistent and inconsistent value sets.
+The color defaults should be <code>"royalblue1"</code> for consistent
+value sets and <code>"red"</code> for inconsistent ones. The user can
+override these defaults via two arguments named <code>color_cons</code>
+for consistent value sets and <code>color_incons</code> for inconsistent
+ones.</li>
+<li>If certain layers are optional rather than essential to the plot,
+their display can be controlled via Boolean arguments that start on
+<code>show_</code>. Examples are <code>show_data</code> in
+<code><a href="../reference/grim_plot.html">grim_plot()</a></code> or <code>show_outer_boxes</code> in
+<code><a href="../reference/debit_plot.html">debit_plot()</a></code>. Only arguments of this kind should start on
+<code>show_</code>. They should have defaults (which will usually be
+<code>TRUE</code>, but this is not a requirement).</li>
 </ol>
 </div>
 </div>
@@ -517,15 +861,41 @@
 <div class="section level3">
 <h3 id="introduction-5">Introduction<a class="anchor" aria-label="anchor" href="#introduction-5"></a>
 </h3>
-<p>When reported values are inconsistent, it’s never obvious why. Consistency tests provide mathematical certainty in their results, but there is a trade-off: They don’t suggest any clear causal story about the summary statistics. (Contrast this with a reconstruction technique such as <a href="https://lukaswallrich.github.io/rsprite2/index.html" class="external-link">SPRITE</a>, which does not aim at mathematical proof but does point towards major issues with the origins of the data.)</p>
-<p>One possible reason for inconsistencies lies in small mistakes in computing and/or reporting by the original researchers. Indeed, when <span class="citation">Brown and Heathers (2017)</span> reanalyzed some of the data sets behind GRIM inconsistencies, they often found “a straightforward explanation, such as a minor error in the reported sample sizes, or a failure to report the exclusion of a participant” (p. 368).</p>
-<p>It may therefore be useful to test the numeric neighborhood of inconsistent reported values. Are there any nearby values that are consistent with the other statistics? If so, how many and where? The problem might then be due to a simple oversight. However, it would be very cumbersome to test each candidate value manually, or even to test sequences that were manually created with functions such as <code><a href="../reference/seq_endpoint.html">seq_distance()</a></code>.</p>
-<p>Fortunately, scrutiny semi-automates this process. <code><a href="../reference/grim_map_seq.html">grim_map_seq()</a></code>, <code><a href="../reference/grimmer_map_seq.html">grimmer_map_seq()</a></code> and <code><a href="../reference/debit_map_seq.html">debit_map_seq()</a></code> provide an instant assessment of whether or not inconsistent reported values are close to consistent numbers. They also allow the user to specify how many steps away from the reported value are permitted when looking for consistent ones, as well as some other options.</p>
+<p>When reported values are inconsistent, it’s never obvious why.
+Consistency tests provide mathematical certainty in their results, but
+there is a trade-off: They don’t suggest any clear causal story about
+the summary statistics. (Contrast this with a reconstruction technique
+such as <a href="https://lukaswallrich.github.io/rsprite2/index.html" class="external-link">SPRITE</a>,
+which does not aim at mathematical proof but does point towards major
+issues with the origins of the data.)</p>
+<p>One possible reason for inconsistencies lies in small mistakes in
+computing and/or reporting by the original researchers. Indeed, when
+<span class="citation">Brown and Heathers (2017)</span> reanalyzed some
+of the data sets behind GRIM inconsistencies, they often found “a
+straightforward explanation, such as a minor error in the reported
+sample sizes, or a failure to report the exclusion of a participant”
+(p. 368).</p>
+<p>It may therefore be useful to test the numeric neighborhood of
+inconsistent reported values. Are there any nearby values that are
+consistent with the other statistics? If so, how many and where? The
+problem might then be due to a simple oversight. However, it would be
+very cumbersome to test each candidate value manually, or even to test
+sequences that were manually created with functions such as
+<code><a href="../reference/seq_endpoint.html">seq_distance()</a></code>.</p>
+<p>Fortunately, scrutiny semi-automates this process.
+<code><a href="../reference/grim_map_seq.html">grim_map_seq()</a></code>, <code><a href="../reference/grimmer_map_seq.html">grimmer_map_seq()</a></code> and
+<code><a href="../reference/debit_map_seq.html">debit_map_seq()</a></code> provide an instant assessment of whether or
+not inconsistent reported values are close to consistent numbers. They
+also allow the user to specify how many steps away from the reported
+value are permitted when looking for consistent ones, as well as some
+other options.</p>
 </div>
 <div class="section level3">
 <h3 id="practical-steps-2">Practical steps<a class="anchor" aria-label="anchor" href="#practical-steps-2"></a>
 </h3>
-<p>Although the code that underlies them is fairly complex, these functions themselves were written in a very simple way. Here are the ones for GRIM, GRIMMER, and DEBIT:</p>
+<p>Although the code that underlies them is fairly complex, these
+functions themselves were written in a very simple way. Here are the
+ones for GRIM, GRIMMER, and DEBIT:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">grim_map_seq</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/function_map_seq.html">function_map_seq</a></span><span class="op">(</span></span>
 <span>  .fun <span class="op">=</span> <span class="va">grim_map</span>,</span>
@@ -544,7 +914,12 @@
 <span>  .reported <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"sd"</span>, <span class="st">"n"</span><span class="op">)</span>,</span>
 <span>  .name_test <span class="op">=</span> <span class="st">"DEBIT"</span>,</span>
 <span><span class="op">)</span></span></code></pre></div>
-<p>Any consistency test that is already implemented in a mapper function like <code><a href="../reference/grim_map.html">grim_map()</a></code>, <code><a href="../reference/grimmer_map.html">grimmer_map()</a></code>, and <code><a href="../reference/debit_map.html">debit_map()</a></code> can receive its own <code>*_map_seq()</code> function just as easily using <code><a href="../reference/function_map_seq.html">function_map_seq()</a></code>. This is due to scrutiny’s streamlined design conventions — specifically, the requirements for mapper functions laid out in section 3.</p>
+<p>Any consistency test that is already implemented in a mapper function
+like <code><a href="../reference/grim_map.html">grim_map()</a></code>, <code><a href="../reference/grimmer_map.html">grimmer_map()</a></code>, and
+<code><a href="../reference/debit_map.html">debit_map()</a></code> can receive its own <code>*_map_seq()</code>
+function just as easily using <code><a href="../reference/function_map_seq.html">function_map_seq()</a></code>. This is
+due to scrutiny’s streamlined design conventions — specifically, the
+requirements for mapper functions laid out in section 3.</p>
 <p>Let’s write a sequence mapper for SCHLIM:</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">schlim_map_seq</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/function_map_seq.html">function_map_seq</a></span><span class="op">(</span></span>
@@ -584,7 +959,10 @@
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span>    25    12 FALSE                2      0      2     <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      4</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># … with 2 more variables: diff_n_up &lt;dbl&gt;, diff_n_down &lt;dbl&gt;, and abbreviated</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   variable names ¹​diff_y_up, ²​diff_y_down</span></span></span></code></pre></div>
-<p>By default, a <code>*_map_seq()</code> function only creates sequences around inconsistent input values. That’s because its primary purpose is to shed light on inconsistencies in reported statistics. Override the default with <code>include_consistent = TRUE</code>:</p>
+<p>By default, a <code>*_map_seq()</code> function only creates
+sequences around inconsistent input values. That’s because its primary
+purpose is to shed light on inconsistencies in reported statistics.
+Override the default with <code>include_consistent = TRUE</code>:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df1</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu">schlim_map_seq</span><span class="op">(</span>include_consistent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
@@ -620,7 +998,9 @@
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>    23    10</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>    24    11</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>    25    12</span></span></code></pre></div>
-<p>As with <code><a href="../reference/function_map.html">function_map()</a></code>, if you want to export a function produced by <code><a href="../reference/function_map_seq.html">function_map_seq()</a></code>, follow <a href="https://purrr.tidyverse.org/reference/faq-adverbs-export.html" class="external-link">this purrr FAQ</a>.</p>
+<p>As with <code><a href="../reference/function_map.html">function_map()</a></code>, if you want to export a function
+produced by <code><a href="../reference/function_map_seq.html">function_map_seq()</a></code>, follow <a href="https://purrr.tidyverse.org/reference/faq-adverbs-export.html" class="external-link">this
+purrr FAQ</a>.</p>
 </div>
 </div>
 <div class="section level2">
@@ -629,14 +1009,35 @@
 <div class="section level3">
 <h3 id="introduction-6">Introduction<a class="anchor" aria-label="anchor" href="#introduction-6"></a>
 </h3>
-<p>The reporting of summary statistics is often insufficient — certainly from an error detection point of view. In particular, values such as means and standard deviations are not always accompanied by their respective group sizes, but only by a total sample size.</p>
-<p>This presents a problem for consistency tests that rely on reported group sizes, such as GRIM. It requires splitting the reported total into groups and creating multiple plausible scenarios of group sizes that each add up to the total. Although no definitive test results can be gained this way, it does help to see whether reported values are consistent with at least some of the plausible group sizes <span class="citation">(Bauer and Francis 2021)</span>.</p>
+<p>The reporting of summary statistics is often insufficient — certainly
+from an error detection point of view. In particular, values such as
+means and standard deviations are not always accompanied by their
+respective group sizes, but only by a total sample size.</p>
+<p>This presents a problem for consistency tests that rely on reported
+group sizes, such as GRIM. It requires splitting the reported total into
+groups and creating multiple plausible scenarios of group sizes that
+each add up to the total. Although no definitive test results can be
+gained this way, it does help to see whether reported values are
+consistent with at least some of the plausible group sizes <span class="citation">(Bauer and Francis 2021)</span>.</p>
 </div>
 <div class="section level3">
 <h3 id="practical-steps-3">Practical steps<a class="anchor" aria-label="anchor" href="#practical-steps-3"></a>
 </h3>
-<p><code><a href="../reference/function_map_total_n.html">function_map_total_n()</a></code> creates new functions which follow this very scheme by applying a given consistency test to multiple combinations of reported and hypothetical summary statistics. It is the powerhouse behind <code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code>, <code><a href="../reference/grimmer_map_total_n.html">grimmer_map_total_n()</a></code>, and <code><a href="../reference/debit_map_total_n.html">debit_map_total_n()</a></code>, just as <code><a href="../reference/function_map_seq.html">function_map_seq()</a></code> is the powerhouse behind <code><a href="../reference/grim_map_seq.html">grim_map_seq()</a></code>, <code><a href="../reference/grimmer_map_seq.html">grimmer_map_seq()</a></code>, and <code><a href="../reference/debit_map_seq.html">debit_map_seq()</a></code>. See the case study in <code><a href="../articles/grim.html">vignette("grim")</a></code> , section <em>Handling unknown group sizes with <code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code></em>, for an example of how <code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code> works out in practice.</p>
-<p>As with <code><a href="../reference/function_map_seq.html">function_map_seq()</a></code>, creating a manufactured <code>*_total_n()</code> function is very easy. Just let the function factory do the work for you:</p>
+<p><code><a href="../reference/function_map_total_n.html">function_map_total_n()</a></code> creates new functions which
+follow this very scheme by applying a given consistency test to multiple
+combinations of reported and hypothetical summary statistics. It is the
+powerhouse behind <code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code>,
+<code><a href="../reference/grimmer_map_total_n.html">grimmer_map_total_n()</a></code>, and
+<code><a href="../reference/debit_map_total_n.html">debit_map_total_n()</a></code>, just as
+<code><a href="../reference/function_map_seq.html">function_map_seq()</a></code> is the powerhouse behind
+<code><a href="../reference/grim_map_seq.html">grim_map_seq()</a></code>, <code><a href="../reference/grimmer_map_seq.html">grimmer_map_seq()</a></code>, and
+<code><a href="../reference/debit_map_seq.html">debit_map_seq()</a></code>. See the case study in
+<code><a href="../articles/grim.html">vignette("grim")</a></code> , section <em>Handling unknown group sizes
+with <code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code></em>, for an example of how
+<code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code> works out in practice.</p>
+<p>As with <code><a href="../reference/function_map_seq.html">function_map_seq()</a></code>, creating a manufactured
+<code>*_total_n()</code> function is very easy. Just let the function
+factory do the work for you:</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">grim_map_total_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/function_map_total_n.html">function_map_total_n</a></span><span class="op">(</span></span>
 <span>  .fun <span class="op">=</span> <span class="va">grim_map</span>,</span>
@@ -695,62 +1096,136 @@
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>    84    37    29          4          0         4              12    0.333</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>    61    55    26         12          6         6              12    1</span></span></code></pre></div>
-<p>The same pattern can be applied to any other mapper function that fulfills the requirements from section 3. One of the columns, <code>n</code>, will have its values dispersed from half, internally using <code><a href="../reference/disperse.html">disperse_total()</a></code>.</p>
-<p>See the advice on exporting manufactured functions at the end of section 6.</p>
+<p>The same pattern can be applied to any other mapper function that
+fulfills the requirements from section 3. One of the columns,
+<code>n</code>, will have its values dispersed from half, internally
+using <code><a href="../reference/disperse.html">disperse_total()</a></code>.</p>
+<p>See the advice on exporting manufactured functions at the end of
+section 6.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="documenting-audit_seq-and-audit_total_n">8. Documenting <code>audit_seq()</code> and <code>audit_total_n()</code><a class="anchor" aria-label="anchor" href="#documenting-audit_seq-and-audit_total_n"></a>
+<h2 id="documenting-audit_seq-and-audit_total_n">8. Documenting <code>audit_seq()</code> and
+<code>audit_total_n()</code><a class="anchor" aria-label="anchor" href="#documenting-audit_seq-and-audit_total_n"></a>
 </h2>
 <div class="section level3">
 <h3 id="introduction-7">Introduction<a class="anchor" aria-label="anchor" href="#introduction-7"></a>
 </h3>
-<p>The output of sequence mappers and total-n mappers is very comprehensive. This makes it somewhat unwieldy and creates a need for summaries. As a first step, the user can always call <code><a href="../reference/audit.html">audit()</a></code> on the tibbles returned by manufactured functions like <code><a href="../reference/grim_map_seq.html">grim_map_seq()</a></code>. It will go by the <code>"*_map"</code> class added within the basic mapper function, such as <code><a href="../reference/grim_map.html">grim_map()</a></code>, and return the regular output of the respective <code><a href="../reference/audit.html">audit()</a></code> method.</p>
-<p>However, scrutiny features two specialized functions for summarizing the results of manufactured <code>*_seq()</code> or <code>*_total_n()</code> functions: <code><a href="../reference/audit.html">audit_seq()</a></code> and <code><a href="../reference/audit.html">audit_total_n()</a></code>. These two are not generic like <code><a href="../reference/audit.html">audit()</a></code>, but they only accept the output of functions produced by <code><a href="../reference/function_map_seq.html">function_map_seq()</a></code> and <code><a href="../reference/function_map_total_n.html">function_map_total_n()</a></code>, respectively.</p>
-<p>You will notice that I have spoken about two existing functions, rather than — as in the other sections — a kind of function that you should be writing. Indeed, there is nothing left for you to do about <code><a href="../reference/audit.html">audit_seq()</a></code> and <code><a href="../reference/audit.html">audit_total_n()</a></code> themselves, unless you find a bug in them! What you should do, however, is to document their behavior with regard to the specific test that you have implemented.</p>
+<p>The output of sequence mappers and total-n mappers is very
+comprehensive. This makes it somewhat unwieldy and creates a need for
+summaries. As a first step, the user can always call
+<code><a href="../reference/audit.html">audit()</a></code> on the tibbles returned by manufactured functions
+like <code><a href="../reference/grim_map_seq.html">grim_map_seq()</a></code>. It will go by the <code>"*_map"</code>
+class added within the basic mapper function, such as
+<code><a href="../reference/grim_map.html">grim_map()</a></code>, and return the regular output of the respective
+<code><a href="../reference/audit.html">audit()</a></code> method.</p>
+<p>However, scrutiny features two specialized functions for summarizing
+the results of manufactured <code>*_seq()</code> or
+<code>*_total_n()</code> functions: <code><a href="../reference/audit.html">audit_seq()</a></code> and
+<code><a href="../reference/audit.html">audit_total_n()</a></code>. These two are not generic like
+<code><a href="../reference/audit.html">audit()</a></code>, but they only accept the output of functions
+produced by <code><a href="../reference/function_map_seq.html">function_map_seq()</a></code> and
+<code><a href="../reference/function_map_total_n.html">function_map_total_n()</a></code>, respectively.</p>
+<p>You will notice that I have spoken about two existing functions,
+rather than — as in the other sections — a kind of function that you
+should be writing. Indeed, there is nothing left for you to do about
+<code><a href="../reference/audit.html">audit_seq()</a></code> and <code><a href="../reference/audit.html">audit_total_n()</a></code> themselves,
+unless you find a bug in them! What you should do, however, is to
+document their behavior with regard to the specific test that you have
+implemented.</p>
 </div>
 <div class="section level3">
 <h3 id="documentation-templates">Documentation templates<a class="anchor" aria-label="anchor" href="#documentation-templates"></a>
 </h3>
-<p><code><a href="../reference/audit.html">audit_seq()</a></code> and <code><a href="../reference/audit.html">audit_total_n()</a></code> rely on the uniform design of the manufactured functions, which allows them to compute essentially the same summaries: Their behavior only varies with the names and numbers of the key columns, which in turn follow straightforwardly from the nature of the consistency test. If you’re developing a package, you should therefore document the behavior of <code><a href="../reference/audit.html">audit_seq()</a></code> and <code><a href="../reference/audit.html">audit_total_n()</a></code> on the same pages as your manufactured <code>*_map_seq()</code> and <code>*_map_total_n()</code> functions.</p>
-<p>There are specialized helpers for creating the respective documentation sections, <code><a href="../reference/write_doc_audit_seq.html">write_doc_audit_seq()</a></code> and <code><a href="../reference/write_doc_audit_total_n.html">write_doc_audit_total_n()</a></code>, in analogy to <code><a href="../reference/write_doc_audit.html">write_doc_audit()</a></code>. Here is how I used the first one for <code><a href="../reference/grim_map_seq.html">grim_map_seq()</a></code>, <code><a href="../reference/grimmer_map_seq.html">grimmer_map_seq()</a></code>, and <code><a href="../reference/debit_map_seq.html">debit_map_seq()</a></code>; but with the output omitted to save space:</p>
+<p><code><a href="../reference/audit.html">audit_seq()</a></code> and <code><a href="../reference/audit.html">audit_total_n()</a></code> rely on the
+uniform design of the manufactured functions, which allows them to
+compute essentially the same summaries: Their behavior only varies with
+the names and numbers of the key columns, which in turn follow
+straightforwardly from the nature of the consistency test. If you’re
+developing a package, you should therefore document the behavior of
+<code><a href="../reference/audit.html">audit_seq()</a></code> and <code><a href="../reference/audit.html">audit_total_n()</a></code> on the same
+pages as your manufactured <code>*_map_seq()</code> and
+<code>*_map_total_n()</code> functions.</p>
+<p>There are specialized helpers for creating the respective
+documentation sections, <code><a href="../reference/write_doc_audit_seq.html">write_doc_audit_seq()</a></code> and
+<code><a href="../reference/write_doc_audit_total_n.html">write_doc_audit_total_n()</a></code>, in analogy to
+<code><a href="../reference/write_doc_audit.html">write_doc_audit()</a></code>. Here is how I used the first one for
+<code><a href="../reference/grim_map_seq.html">grim_map_seq()</a></code>, <code><a href="../reference/grimmer_map_seq.html">grimmer_map_seq()</a></code>, and
+<code><a href="../reference/debit_map_seq.html">debit_map_seq()</a></code>; but with the output omitted to save
+space:</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/write_doc_audit_seq.html">write_doc_audit_seq</a></span><span class="op">(</span>key_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"n"</span><span class="op">)</span>, name_test <span class="op">=</span> <span class="st">"GRIM"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/write_doc_audit_seq.html">write_doc_audit_seq</a></span><span class="op">(</span>key_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"sd"</span>, <span class="st">"n"</span><span class="op">)</span>, name_test <span class="op">=</span> <span class="st">"GRIMMER"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/write_doc_audit_seq.html">write_doc_audit_seq</a></span><span class="op">(</span>key_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"sd"</span>, <span class="st">"n"</span><span class="op">)</span>, name_test <span class="op">=</span> <span class="st">"DEBIT"</span><span class="op">)</span></span></code></pre></div>
-<p><code>key_args</code> is a string vector with the names of the respective test’s key arguments. (You will see that the function is sensitive to the length of <code>key_args</code>, not just to its values.) <code>name_test</code> is the short, plain-text name of that consistency test itself.</p>
-<p>Copy the output from the console and paste it into the roxygen2 block of your <code>_map_seq</code> function. To preserve the bullet-point structure when indenting roxygen2 comments with <code>Ctrl</code>+<code>Shift</code>+<code>/</code>, leave empty lines between the pasted output and the rest of the block.</p>
-<p>Likewise, documenting <code><a href="../reference/audit.html">audit_total_n()</a></code> for <code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code>, <code><a href="../reference/grimmer_map_total_n.html">grimmer_map_total_n()</a></code>, and <code><a href="../reference/debit_map_total_n.html">debit_map_total_n()</a></code>:</p>
+<p><code>key_args</code> is a string vector with the names of the
+respective test’s key arguments. (You will see that the function is
+sensitive to the length of <code>key_args</code>, not just to its
+values.) <code>name_test</code> is the short, plain-text name of that
+consistency test itself.</p>
+<p>Copy the output from the console and paste it into the roxygen2 block
+of your <code>_map_seq</code> function. To preserve the bullet-point
+structure when indenting roxygen2 comments with
+<code>Ctrl</code>+<code>Shift</code>+<code>/</code>, leave empty lines
+between the pasted output and the rest of the block.</p>
+<p>Likewise, documenting <code><a href="../reference/audit.html">audit_total_n()</a></code> for
+<code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code>, <code><a href="../reference/grimmer_map_total_n.html">grimmer_map_total_n()</a></code>, and
+<code><a href="../reference/debit_map_total_n.html">debit_map_total_n()</a></code>:</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/write_doc_audit_total_n.html">write_doc_audit_total_n</a></span><span class="op">(</span>key_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"n"</span><span class="op">)</span>, name_test <span class="op">=</span> <span class="st">"GRIM"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/write_doc_audit_total_n.html">write_doc_audit_total_n</a></span><span class="op">(</span>key_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"sd"</span>, <span class="st">"n"</span><span class="op">)</span>, name_test <span class="op">=</span> <span class="st">"GRIMMER"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/write_doc_audit_total_n.html">write_doc_audit_total_n</a></span><span class="op">(</span>key_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"sd"</span>, <span class="st">"n"</span><span class="op">)</span>, name_test <span class="op">=</span> <span class="st">"DEBIT"</span><span class="op">)</span></span></code></pre></div>
-<p>Why did I develop, and export, such strange functions? Documenting one’s package should not be glossed over, and there is value in standardization, as well. <code><a href="../reference/write_doc_audit_seq.html">write_doc_audit_seq()</a></code> and <code><a href="../reference/write_doc_audit_total_n.html">write_doc_audit_total_n()</a></code> deliver quality documentation with little effort while also establishing firm conventions for it.</p>
+<p>Why did I develop, and export, such strange functions? Documenting
+one’s package should not be glossed over, and there is value in
+standardization, as well. <code><a href="../reference/write_doc_audit_seq.html">write_doc_audit_seq()</a></code> and
+<code><a href="../reference/write_doc_audit_total_n.html">write_doc_audit_total_n()</a></code> deliver quality documentation
+with little effort while also establishing firm conventions for it.</p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="wrap-up">Wrap-up<a class="anchor" aria-label="anchor" href="#wrap-up"></a>
 </h2>
-<p>The key part about consistency tests is compelling mathematical insight into the relationship between summary statistics. All the rest is implementation and application. No software package can generate new consistency tests as of yet, but it can make their implementation and application at scale as easy as possible. That is what scrutiny hopes to do.</p>
-<p>This vignette generated five example functions (not counting the <code><a href="../reference/audit.html">audit()</a></code> method), four of them via function factories. Three of these factories are part of scrutiny’s infrastructure. Starting with a simple mock test, an entire family of functions sprang up to apply that test in special cases, with a unified API, and at any scale — all with just a few lines of easy to write code.</p>
-<p>Below is their function family tree. Fields with bold margins are function factories. Arrows passing through them indicate that a new function is generated on the basis of an earlier one.</p>
+<p>The key part about consistency tests is compelling mathematical
+insight into the relationship between summary statistics. All the rest
+is implementation and application. No software package can generate new
+consistency tests as of yet, but it can make their implementation and
+application at scale as easy as possible. That is what scrutiny hopes to
+do.</p>
+<p>This vignette generated five example functions (not counting the
+<code><a href="../reference/audit.html">audit()</a></code> method), four of them via function factories. Three
+of these factories are part of scrutiny’s infrastructure. Starting with
+a simple mock test, an entire family of functions sprang up to apply
+that test in special cases, with a unified API, and at any scale — all
+with just a few lines of easy to write code.</p>
+<p>Below is their function family tree. Fields with bold margins are
+function factories. Arrows passing through them indicate that a new
+function is generated on the basis of an earlier one.</p>
 <p><img src="images/scrutiny_mappers_schlim.png"></p>
 </div>
 <div class="section level2">
-<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+<h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references">
-<div id="ref-bauer_expression_2021">
-<p>Bauer, Patricia J., and Gregory Francis. 2021. “Expression of Concern: Is It Light or Dark? Recalling Moral Behavior Changes Perception of Brightness.” <em>Psychological Science</em> 32 (12): 2042–3.</p>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-bauer_expression_2021" class="csl-entry">
+Bauer, Patricia J., and Gregory Francis. 2021. <span>“Expression of
+<span>Concern</span>: <span>Is</span> <span>It</span> <span>Light</span>
+or <span>Dark</span>? <span>Recalling</span> <span>Moral</span>
+<span>Behavior</span> <span>Changes</span> <span>Perception</span> of
+<span>Brightness</span>.”</span> <em>Psychological Science</em> 32 (12):
+2042–43.
 </div>
-<div id="ref-brown2017">
-<p>Brown, Nicholas J. L., and James A. J. Heathers. 2017. “The Grim Test: A Simple Technique Detects Numerous Anomalies in the Reporting of Results in Psychology.” <em>Social Psychological and Personality Science</em> 8 (4): 363–69.</p>
+<div id="ref-brown2017" class="csl-entry">
+Brown, Nicholas J. L., and James A. J. Heathers. 2017. <span>“The GRIM
+Test: A Simple Technique Detects Numerous Anomalies in the Reporting of
+Results in Psychology.”</span> <em>Social Psychological and Personality
+Science</em> 8 (4): 363–69.
 </div>
-<div id="ref-wickham2015">
-<p>Wickham, Hadley. 2015. <em>R Packages</em>. First edition. Sebastopol, CA: O’Reilly Media.</p>
+<div id="ref-wickham2015" class="csl-entry">
+Wickham, Hadley. 2015. <em>R Packages</em>. First edition. Sebastopol,
+CA: O’Reilly Media.
 </div>
-<div id="ref-wickham2019">
-<p>———. 2019. <em>Advanced R</em>. Second edition. Boca Raton: CRC Press/Taylor; Francis Group.</p>
+<div id="ref-wickham2019" class="csl-entry">
+———. 2019. <em>Advanced r</em>. Second edition. Boca Raton: CRC
+Press/Taylor; Francis Group.
 </div>
 </div>
 </div>

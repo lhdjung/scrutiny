@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,9 +50,9 @@
     <a class="dropdown-item" href="../articles/infrastructure.html">General infrastructure</a>
     <a class="dropdown-item" href="../articles/consistency-tests.html">Implementing consistency tests</a>
     <a class="dropdown-item" href="../articles/rounding.html">Rounding</a>
+    <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Other</h6>
-    <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
     <a class="dropdown-item" href="../articles/related.html">Related software</a>
   </div>
 </li>
@@ -80,7 +80,8 @@
 
 
 
-<script src="wrangling_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+
+<div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>Data wrangling</h1>
             
@@ -93,35 +94,71 @@
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lhdjung.github.io/scrutiny/">scrutiny</a></span><span class="op">)</span></span></code></pre></div>
-<p>In general, scrutiny’s techniques for error detection are designed for a focus on the essential points, cutting out time-consuming repetition. There are some bottlenecks, however, such as entering decimal numbers as strings, or splitting strings that look like <code>"7.64 (1.5)"</code>.</p>
-<p>This vignette shows how to save your time preparing data for error detection. It gives some general tips for these tasks, and then presents scrutiny’s own specialized wrangling functions.</p>
+<p>In general, scrutiny’s techniques for error detection are designed
+for a focus on the essential points, cutting out time-consuming
+repetition. There are some bottlenecks, however, such as entering
+decimal numbers as strings, or splitting strings that look like
+<code>"7.64 (1.5)"</code>.</p>
+<p>This vignette shows how to save your time preparing data for error
+detection. It gives some general tips for these tasks, and then presents
+scrutiny’s own specialized wrangling functions.</p>
 <div class="section level2">
 <h2 id="trailing-zeros">Trailing zeros<a class="anchor" aria-label="anchor" href="#trailing-zeros"></a>
 </h2>
 <div class="section level3">
 <h3 id="motivation">Motivation<a class="anchor" aria-label="anchor" href="#motivation"></a>
 </h3>
-<p>One particular challenge when looking for numeric irregularities in R is that numbers often have to be treated as strings. The reason is that R drops any trailing zeros in a number once it registers that object as a numeric value. This is a major problem because trailing zeros are as important to, e.g., GRIM or DEBIT as any other trailing digits would be.</p>
-<p>The only solution I know of is to work with strings — namely, strings that can be converted to non-<code>NA</code> numeric values. I will present two ways to work with them: (1) directly entering or importing numbers as strings, and (2) restoring trailing zeros.</p>
+<p>One particular challenge when looking for numeric irregularities
+using R is that numbers often have to be treated as strings. The reason
+is that numeric values don’t preserve any trailing zeros. This is a
+major problem because trailing zeros are as important to, e.g., GRIM or
+DEBIT as any other trailing digits would be.</p>
+<p>The only solution I know of is to work with strings — namely, strings
+that can be converted to non-<code>NA</code> numeric values. I will
+discuss two ways to work with them: (1) directly entering or importing
+numbers as strings, and (2) restoring trailing zeros.</p>
 </div>
 <div class="section level3">
 <h3 id="enter-numbers-as-strings">Enter numbers as strings<a class="anchor" aria-label="anchor" href="#enter-numbers-as-strings"></a>
 </h3>
 <div class="section level4">
-<h4 id="with-tabulizer">With tabulizer<a class="anchor" aria-label="anchor" href="#with-tabulizer"></a>
+<h4 id="automated">Automated<a class="anchor" aria-label="anchor" href="#automated"></a>
 </h4>
-<p>The <a href="https://docs.ropensci.org/tabulizer/" class="external-link">tabulizer</a> package is a way to automatically extract tables from PDF. Using tabulizer requires <a href="https://www.java.com" class="external-link">Java</a> to be installed. When it works well, tabulizer is a great tool for importing tables quickly and efficiently. It automatically captures values as strings, so trailing zeros are treated just like other digits. (See below, <em>Replace column names by row values</em>, for a solution to an issue than can occur with tabulizer.)</p>
-<p>However, tabulizer does not currently seem reliable enough to be the focus of importing tables. That is most likely the fault of the PDF format itself because it has no inbuilt support for tables, so any effort to extract them faces serious ambiguities. If there are many tables in multiple files formatted in the same way, it can be useful to check if tabulizer reliably and accurately captures them. If it doesn’t, you might have to use copy and paste.</p>
+<p>Several R packages help to extract tables from PDF. I recommend
+tabulizer (not currently on CRAN; see <a href="https://docs.ropensci.org/tabulizer/#installation" class="external-link">installation
+notes</a>). There are also the <a href="https://expersso.r-universe.dev/ui#package:pdftables" class="external-link">pdftables</a>
+and <a href="https://ropensci.r-universe.dev/ui#package:pdftools" class="external-link">pdftools</a>
+packages.</p>
+<p>Using tabulizer requires <a href="https://www.java.com" class="external-link">Java</a> to
+be installed. When it works well, tabulizer is a great tool for
+importing tables quickly and efficiently. It automatically captures
+values as strings, so trailing zeros are treated just like other
+digits.</p>
+<p>However, tabulizer might sometimes struggle, especially with older
+PDF files. That is most likely the fault of the PDF format itself
+because it has no inbuilt support for tables, so any effort to extract
+them faces serious ambiguities. (See below, <em>Replace column names by
+row values</em>, for a solution to one such issue.)</p>
+<p>If there are many tables in multiple files formatted in the same way,
+it can be useful to check if tabulizer reliably and accurately captures
+them. If it doesn’t, you might have to use copy and paste.</p>
 </div>
 <div class="section level4">
 <h4 id="with-copy-and-paste">With copy and paste<a class="anchor" aria-label="anchor" href="#with-copy-and-paste"></a>
 </h4>
-<p>Perhaps not all R users know that RStudio features an option for multiple cursors. These are especially useful in conjunction with <code><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tibble::tribble()</a></code>, which is available via scrutiny. Here’s how to use multiple cursors in the present context:</p>
+<p>Perhaps not all R users know that RStudio features an option for
+multiple cursors. These are especially useful in conjunction with
+<code><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tibble::tribble()</a></code>, which is available via scrutiny. Here’s
+how to use multiple cursors in the present context:</p>
 <ol style="list-style-type: decimal">
-<li>Copy a column of numbers from PDF, pressing and holding <code>Alt</code> on Windows or <code>option</code> on Mac. (This works at least in Adobe Acrobat.)</li>
+<li>Copy a column of numbers from PDF, pressing and holding
+<code>Alt</code> on Windows or <code>option</code> on Mac. (This works
+at least in Adobe Acrobat.)</li>
 <li>Paste it into a <code>tribble()</code> call as below.</li>
-<li>Pressing and holding <code>Alt</code>/<code>option</code>, select all the copied numbers.</li>
-<li>Enter quotation marks and, for <code>tribble()</code>’s syntax, a comma.</li>
+<li>Pressing and holding <code>Alt</code>/<code>option</code>, select
+all the copied numbers.</li>
+<li>Enter quotation marks and, for <code>tribble()</code>’s syntax, a
+comma.</li>
 </ol>
 <p>You should then get something like this:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
@@ -135,7 +172,9 @@
 <span><span class="st">"10.46"</span>,</span>
 <span><span class="st">"7.39"</span>,</span>
 <span><span class="op">)</span></span></code></pre></div>
-<p>All that’s missing is the sample size. Add it either via another <code>tribble()</code> column as above or via <code><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">dplyr::mutate()</a></code>, which also comes with scrutiny:</p>
+<p>All that’s missing is the sample size. Add it either via another
+<code>tribble()</code> column as above or via
+<code><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">dplyr::mutate()</a></code>, which also comes with scrutiny:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">flights1</span> <span class="op">&lt;-</span> <span class="va">flights1</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu">mutate</span><span class="op">(</span>n <span class="op">=</span> <span class="fl">28</span><span class="op">)</span></span>
@@ -156,7 +195,10 @@
 <div class="section level3">
 <h3 id="restore-trailing-zeros">Restore trailing zeros<a class="anchor" aria-label="anchor" href="#restore-trailing-zeros"></a>
 </h3>
-<p>When dealing with numbers that used to have trailing zeros but lost them from being registered as numeric, call <code><a href="../reference/restore_zeros.html">restore_zeros()</a></code> to format them correctly. Suppose all of the following numbers originally had one decimal place, but some no longer do:</p>
+<p>When dealing with numbers that used to have trailing zeros but lost
+them from being registered as numeric, call <code><a href="../reference/restore_zeros.html">restore_zeros()</a></code>
+to format them correctly. Suppose all of the following numbers
+originally had one decimal place, but some no longer do:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">6.9</span>, <span class="fl">5</span>, <span class="fl">4.2</span>, <span class="fl">4.8</span>, <span class="fl">7</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span></span>
@@ -173,7 +215,11 @@
 <span>  <span class="fu"><a href="../reference/restore_zeros.html">restore_zeros</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/decimal_places.html">decimal_places</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 1 1 1 1 1 1 1</span></span></code></pre></div>
-<p>This uses the default of going by the longest mantissa and padding the other strings with decimal zeros until they have that many decimal places. However, this is just a heuristic: The longest mantissa might itself have lost decimal places. Specify the <code>width</code> argument to explicitly state the desired mantissa length:</p>
+<p>This uses the default of going by the longest mantissa and padding
+the other strings with decimal zeros until they have that many decimal
+places. However, this is just a heuristic: The longest mantissa might
+itself have lost decimal places. Specify the <code>width</code> argument
+to explicitly state the desired mantissa length:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vec</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/restore_zeros.html">restore_zeros</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
@@ -183,6 +229,45 @@
 <span>  <span class="fu"><a href="../reference/restore_zeros.html">restore_zeros</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/decimal_places.html">decimal_places</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 2 2 2 2 2 2 2</span></span></code></pre></div>
+<p>A convenient way to restore trailing zeros in a data frame is
+<code><a href="../reference/restore_zeros.html">restore_zeros_df()</a></code>. By default, it operates on all columns
+that are coercible to numeric (factors don’t count):</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">iris</span> <span class="op">&lt;-</span> <span class="fu">as_tibble</span><span class="op">(</span><span class="va">iris</span><span class="op">)</span></span>
+<span><span class="va">iris</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="../reference/restore_zeros.html">restore_zeros_df</a></span><span class="op">(</span>.width <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 150 × 5</span></span></span>
+<span><span class="co">#&gt;    Sepal.Length Sepal.Width Petal.Length Petal.Width Species</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 5.100        3.500       1.400        0.200       setosa </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 4.900        3.000       1.400        0.200       setosa </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 4.700        3.200       1.300        0.200       setosa </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 4.600        3.100       1.500        0.200       setosa </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 5.000        3.600       1.400        0.200       setosa </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 5.400        3.900       1.700        0.400       setosa </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 4.600        3.400       1.400        0.300       setosa </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 5.000        3.400       1.500        0.200       setosa </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 4.400        2.900       1.400        0.200       setosa </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 4.900        3.100       1.500        0.100       setosa </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># … with 140 more rows</span></span></span></code></pre></div>
+<p>Specify columns as you would in <code><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">dplyr::select()</a></code>:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">iris</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="../reference/restore_zeros.html">restore_zeros_df</a></span><span class="op">(</span><span class="fu">starts_with</span><span class="op">(</span><span class="st">"Sepal"</span><span class="op">)</span>, .width <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 150 × 5</span></span></span>
+<span><span class="co">#&gt;    Sepal.Length Sepal.Width Petal.Length Petal.Width Species</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 5.100        3.500                1.4         0.2 setosa </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 4.900        3.000                1.4         0.2 setosa </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 4.700        3.200                1.3         0.2 setosa </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 4.600        3.100                1.5         0.2 setosa </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 5.000        3.600                1.4         0.2 setosa </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 5.400        3.900                1.7         0.4 setosa </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 4.600        3.400                1.4         0.3 setosa </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 5.000        3.400                1.5         0.2 setosa </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 4.400        2.900                1.4         0.2 setosa </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 4.900        3.100                1.5         0.1 setosa </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># … with 140 more rows</span></span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -191,8 +276,10 @@
 <div class="section level3">
 <h3 id="basic-usage">Basic usage<a class="anchor" aria-label="anchor" href="#basic-usage"></a>
 </h3>
-<p>With summary data copied or extracted from PDF (see above), you might encounter values presented like <code>5.22 (0.73)</code>. Instead of manually teasing them apart, call <code><a href="../reference/split_by_parens.html">split_by_parens()</a></code>:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<p>With summary data copied or extracted from PDF (see above), you might
+encounter values presented like <code>5.22 (0.73)</code>. Instead of
+manually teasing them apart, call <code><a href="../reference/split_by_parens.html">split_by_parens()</a></code>:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">flights2</span> <span class="op">&lt;-</span> <span class="fu">tribble</span><span class="op">(</span></span>
 <span>  <span class="op">~</span><span class="va">drone</span>,           <span class="op">~</span><span class="va">selfpilot</span>,</span>
 <span>  <span class="st">"0.09 (0.21)"</span>,    <span class="st">"0.19 (0.13)"</span>,</span>
@@ -211,7 +298,7 @@
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 0.62    0.16     0.50        0.11        </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 0.15    0.35     0.57        0.16</span></span></code></pre></div>
 <p>Optionally, transform these values into a more useful format:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">flights2</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/split_by_parens.html">split_by_parens</a></span><span class="op">(</span>.transform <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 8 × 3</span></span></span>
@@ -225,8 +312,10 @@
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> selfpilot 0.53  0.10 </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> selfpilot 0.50  0.11 </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">8</span> selfpilot 0.57  0.16</span></span></code></pre></div>
-<p>From here, you can call <code><a href="../reference/debit_map.html">debit_map()</a></code> almost right away (supposing you deal with binary distributions’ means and standard deviations):</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<p>From here, you can call <code><a href="../reference/debit_map.html">debit_map()</a></code> almost right away
+(supposing you deal with binary distributions’ means and standard
+deviations):</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">flights2</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/split_by_parens.html">split_by_parens</a></span><span class="op">(</span>.transform <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">80</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
@@ -244,13 +333,24 @@
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">8</span> 0.57  0.16     80 FALSE       up_or_d…   0.155 TRUE      0.165 TRUE      0.565</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># … with 2 more variables: x_upper &lt;dbl&gt;, .origin &lt;chr&gt;, and abbreviated</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   variable names ¹​sd_lower, ²​sd_incl_lower, ³​sd_upper, ⁴​sd_incl_upper</span></span></span></code></pre></div>
-<p>If your strings look like <code>"2.65 [0.27]"</code>, specify the <code>.sep</code> argument as <code>"brackets"</code>. Likewise for <code>"2.65 {0.27}"</code> and <code>.sep = "braces"</code>. What about other separators, as in <code>"2.65 &lt;0.27&gt;"</code>? Specify <code>.sep</code> as those two substrings, like <code>.sep = c("&lt;", "&gt;")</code>. In all of these cases, the output will be the same as the default would be if the strings were like <code>"2.65 (0.27)"</code>.</p>
+<p>If your strings look like <code>"2.65 [0.27]"</code>, specify the
+<code>.sep</code> argument as <code>"brackets"</code>. Likewise for
+<code>"2.65 {0.27}"</code> and <code>.sep = "braces"</code>. What about
+other separators, as in <code>"2.65 &lt;0.27&gt;"</code>? Specify
+<code>.sep</code> as those two substrings, like
+<code>.sep = c("&lt;", "&gt;")</code>. In all of these cases, the output
+will be the same as the default would be if the strings were like
+<code>"2.65 (0.27)"</code>.</p>
 </div>
 <div class="section level3">
 <h3 id="column-name-suffixes">Column name suffixes<a class="anchor" aria-label="anchor" href="#column-name-suffixes"></a>
 </h3>
-<p>The defaults for column name suffixes are (1) <code>"x"</code> for the part before the parentheses and (2) <code>"sd"</code> for the part inside of them. However, this won’t fit for all data presented like <code>5.22 (0.73)</code>. Override the defaults by specifying <code>.col1</code> and/or <code>.col2</code>:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<p>The defaults for column name suffixes are (1) <code>"x"</code> for
+the part before the parentheses and (2) <code>"sd"</code> for the part
+inside of them. However, this won’t fit for all data presented like
+<code>5.22 (0.73)</code>. Override the defaults by specifying
+<code>.col1</code> and/or <code>.col2</code>:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">flights2</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/split_by_parens.html">split_by_parens</a></span><span class="op">(</span>.col1 <span class="op">=</span> <span class="st">"beta"</span>, .col2 <span class="op">=</span> <span class="st">"se"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 4</span></span></span>
@@ -260,8 +360,9 @@
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0.19       0.28     0.53           0.10        </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 0.62       0.16     0.50           0.11        </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 0.15       0.35     0.57           0.16</span></span></code></pre></div>
-<p>These suffixes become column names if <code>.transform</code> is set to <code>TRUE</code>:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<p>These suffixes become column names if <code>.transform</code> is set
+to <code>TRUE</code>:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">flights2</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/split_by_parens.html">split_by_parens</a></span><span class="op">(</span>.col1 <span class="op">=</span> <span class="st">"beta"</span>, .col2 <span class="op">=</span> <span class="st">"se"</span>, .transform <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 8 × 3</span></span></span>
@@ -277,10 +378,12 @@
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">8</span> selfpilot 0.57  0.16</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="extract-substrings-from-before_parens-and-inside_parens">Extract substrings from <code>before_parens()</code> and <code>inside_parens()</code><a class="anchor" aria-label="anchor" href="#extract-substrings-from-before_parens-and-inside_parens"></a>
+<h3 id="extract-substrings-from-before_parens-and-inside_parens">Extract substrings from <code>before_parens()</code> and
+<code>inside_parens()</code><a class="anchor" aria-label="anchor" href="#extract-substrings-from-before_parens-and-inside_parens"></a>
 </h3>
-<p>There also are specific functions for extracting the parts of the individual string vectors before or inside the parentheses:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<p>There also are specific functions for extracting the parts of the
+individual string vectors before or inside the parentheses:</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">flights3</span> <span class="op">&lt;-</span> <span class="va">flights2</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">selfpilot</span><span class="op">)</span></span>
 <span></span>
@@ -299,9 +402,14 @@
 <div class="section level2">
 <h2 id="replace-column-names-by-row-values">Replace column names by row values<a class="anchor" aria-label="anchor" href="#replace-column-names-by-row-values"></a>
 </h2>
-<p>When extracting tables from PDF with tabulizer, you might get data frames (converted from matrices) that have wrong, nondescript column names, while the correct column names are stored in one or more rows within the data frame itself.</p>
-<p>I will first simulate the problem. <code>x</code> and <code>n</code> should be column names, but instead they are values in the first row:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<p>When extracting tables from PDF with tabulizer, you might get data
+frames (converted from matrices) that have wrong, nondescript column
+names, while the correct column names are stored in one or more rows
+within the data frame itself.</p>
+<p>I will first simulate the problem. <code>x</code> and <code>n</code>
+should be column names, but instead they are values in the first
+row:</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">flights1_with_issues</span> <span class="op">&lt;-</span> <span class="va">flights1</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>    <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/add_row.html" class="external-link">add_row</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"x"</span>, n <span class="op">=</span> <span class="st">"n"</span>, .before <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
@@ -320,9 +428,15 @@
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 9.26  28   </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 10.46 28   </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">8</span> 7.39  28</span></span></code></pre></div>
-<p>To remedy the issue, call <code><a href="../reference/row_to_colnames.html">row_to_colnames()</a></code> on the data frame. It will replace the column names by the values of one or more rows. The latter are specified by their position numbers as in <code><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">dplyr::slice()</a></code>. For these numbers, the default is <code>1</code> because the column names will often be stored in the first row, if at all. The specified row or rows are then dropped because they shouldn’t have been rows in the first place.</p>
+<p>To remedy the issue, call <code><a href="../reference/row_to_colnames.html">row_to_colnames()</a></code> on the data
+frame. It will replace the column names by the values of one or more
+rows. The latter are specified by their position numbers as in
+<code><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">dplyr::slice()</a></code>. For these numbers, the default is
+<code>1</code> because the column names will often be stored in the
+first row, if at all. The specified row or rows are then dropped because
+they shouldn’t have been rows in the first place.</p>
 <p>With the above example:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">flights1_with_issues</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/row_to_colnames.html">row_to_colnames</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 7 × 2</span></span></span>
@@ -335,7 +449,8 @@
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 9.26  28   </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 10.46 28   </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 7.39  28</span></span></code></pre></div>
-<p>Note that <code>n</code> is still a string vector, but this is true for all columns in tables extracted with tabulizer.</p>
+<p>Note that <code>n</code> is still a string vector, but this is true
+for all columns in tables extracted with tabulizer.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>

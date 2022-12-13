@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,9 +50,9 @@
     <a class="dropdown-item" href="../articles/infrastructure.html">General infrastructure</a>
     <a class="dropdown-item" href="../articles/consistency-tests.html">Implementing consistency tests</a>
     <a class="dropdown-item" href="../articles/rounding.html">Rounding</a>
+    <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Other</h6>
-    <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
     <a class="dropdown-item" href="../articles/related.html">Related software</a>
   </div>
 </li>
@@ -80,7 +80,8 @@
 
 
 
-<script src="debit_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+
+<div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>DEBIT</h1>
             
@@ -93,24 +94,39 @@
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lhdjung.github.io/scrutiny/">scrutiny</a></span><span class="op">)</span></span></code></pre></div>
-<p>The descriptive binary test, or DEBIT, checks whether the reported mean, standard deviation (SD), and sample size of binary data are mutually consistent <span class="citation">(Heathers and Brown 2019)</span>. Like GRIM, it tests if a given set of summary data can describe the same distribution.</p>
+<p>The descriptive binary test, or DEBIT, checks whether the reported
+mean, standard deviation (SD), and sample size of binary data are
+mutually consistent <span class="citation">(Heathers and Brown
+2019)</span>. Like GRIM, it tests if a given set of summary data can
+describe the same distribution.</p>
 <p>This vignette covers scrutiny’s implementation of DEBIT:</p>
 <ol style="list-style-type: decimal">
 <li>The basic, single-case <code><a href="../reference/debit.html">debit()</a></code> function.</li>
 <li>A specialized mapping function, <code><a href="../reference/debit_map.html">debit_map()</a></code>.</li>
-<li>The <code><a href="../reference/audit.html">audit()</a></code> method for summarizing <code><a href="../reference/debit_map.html">debit_map()</a></code>’s results.</li>
+<li>The <code><a href="../reference/audit.html">audit()</a></code> method for summarizing
+<code><a href="../reference/debit_map.html">debit_map()</a></code>’s results.</li>
 <li>Finally, the visualization function <code><a href="../reference/debit_plot.html">debit_plot()</a></code>.</li>
 </ol>
 <div class="section level3">
 <h3 id="debit-basics">DEBIT basics<a class="anchor" aria-label="anchor" href="#debit-basics"></a>
 </h3>
-<p>Consider these summary data for a binary distribution: a mean of 0.35, an SD of 0.18, and a sample size of 20. To test their consistency, run this:</p>
+<p>Consider these summary data for a binary distribution: a mean of
+0.35, an SD of 0.18, and a sample size of 20. To test their consistency,
+run this:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/debit.html">debit</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"0.35"</span>, sd <span class="op">=</span> <span class="st">"0.18"</span>, n <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  0.35 </span></span>
 <span><span class="co">#&gt; FALSE</span></span></code></pre></div>
-<p>As in <code><a href="../reference/grim.html">grim()</a></code>, the mean needs to be a string. (The same is true for the SD.) That is because strings preserve trailing zeros, which can be crucial for DEBIT. Numeric values don’t, and even converting them to strings won’t help. A workaround for larger numbers of such values, <code><a href="../reference/restore_zeros.html">restore_zeros()</a></code>, is discussed in the <em>Data wrangling</em> vignette.</p>
-<p><code><a href="../reference/debit.html">debit()</a></code> has some further arguments, but all of them can be used from within <code><a href="../reference/debit_map.html">debit_map()</a></code>. Since <code><a href="../reference/debit_map.html">debit_map()</a></code> is the more useful function in practice, the other arguments will be discussed in that context.</p>
+<p>As in <code><a href="../reference/grim.html">grim()</a></code>, the mean needs to be a string. (The same
+is true for the SD.) That is because strings preserve trailing zeros,
+which can be crucial for DEBIT. Numeric values don’t, and even
+converting them to strings won’t help. A workaround for larger numbers
+of such values, <code><a href="../reference/restore_zeros.html">restore_zeros()</a></code>, is discussed in the
+<em>Data wrangling</em> vignette.</p>
+<p><code><a href="../reference/debit.html">debit()</a></code> has some further arguments, but all of them can
+be used from within <code><a href="../reference/debit_map.html">debit_map()</a></code>. Since
+<code><a href="../reference/debit_map.html">debit_map()</a></code> is the more useful function in practice, the
+other arguments will be discussed in that context.</p>
 </div>
 <div class="section level3">
 <h3 id="testing-multiple-cases">Testing multiple cases<a class="anchor" aria-label="anchor" href="#testing-multiple-cases"></a>
@@ -118,7 +134,12 @@
 <div class="section level4">
 <h4 id="working-with-debit_map">Working with <code>debit_map()</code><a class="anchor" aria-label="anchor" href="#working-with-debit_map"></a>
 </h4>
-<p>If you want to test more than a handful of cases, the recommended way is to enter them into a data frame and to run <code><a href="../reference/debit_map.html">debit_map()</a></code> on the data frame. Below are the example data from Heathers and Brown’s (2019) Table 1. A useful way to enter such data is to copy them from a PDF file and paste them into <code><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tibble::tribble()</a></code>, which is available via scrutiny:</p>
+<p>If you want to test more than a handful of cases, the recommended way
+is to enter them into a data frame and to run <code><a href="../reference/debit_map.html">debit_map()</a></code>
+on the data frame. Below are the example data from Heathers and Brown’s
+(2019) Table 1. A useful way to enter such data is to copy them from a
+PDF file and paste them into <code><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tibble::tribble()</a></code>, which is
+available via scrutiny:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">flying_pigs</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="op">(</span></span>
 <span>    x  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">0.2</span>, <span class="fl">1</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/restore_zeros.html">restore_zeros</a></span><span class="op">(</span><span class="op">)</span>,</span>
@@ -131,11 +152,11 @@
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 3</span></span></span>
 <span><span class="co">#&gt;   x     sd        n</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0.64  0.00   <span style="text-decoration: underline;">1</span>000</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0.67  0.22   <span style="text-decoration: underline;">1</span>000</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 0.96  0.06   <span style="text-decoration: underline;">1</span>000</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 0.26  0.22   <span style="text-decoration: underline;">1</span>000</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 0.44  0.28   <span style="text-decoration: underline;">1</span>000</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0.44  0.21   <span style="text-decoration: underline;">1</span>000</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0.99  0.21   <span style="text-decoration: underline;">1</span>000</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 0.37  0.13   <span style="text-decoration: underline;">1</span>000</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 0.40  0.24   <span style="text-decoration: underline;">1</span>000</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 0.43  0.23   <span style="text-decoration: underline;">1</span>000</span></span></code></pre></div>
 <p>Now, simply run <code><a href="../reference/debit_map.html">debit_map()</a></code> on that data frame:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">flying_pigs</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
@@ -143,14 +164,16 @@
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 11</span></span></span>
 <span><span class="co">#&gt;   x     sd        n consistency rounding sd_lo…¹ sd_in…² sd_up…³ sd_in…⁴ x_lower</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0.64  0.00   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_d…  -<span style="color: #BB0000;">0.005</span> TRUE      0.005 TRUE      0.635</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0.67  0.22   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_d…   0.215 TRUE      0.225 TRUE      0.665</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 0.96  0.06   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_d…   0.055 TRUE      0.065 TRUE      0.955</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 0.26  0.22   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_d…   0.215 TRUE      0.225 TRUE      0.255</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 0.44  0.28   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_d…   0.275 TRUE      0.285 TRUE      0.435</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0.44  0.21   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_d…   0.205 TRUE      0.215 TRUE      0.435</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0.99  0.21   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_d…   0.205 TRUE      0.215 TRUE      0.985</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 0.37  0.13   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_d…   0.125 TRUE      0.135 TRUE      0.365</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 0.40  0.24   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_d…   0.235 TRUE      0.245 TRUE      0.395</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 0.43  0.23   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_d…   0.225 TRUE      0.235 TRUE      0.425</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># … with 1 more variable: x_upper &lt;dbl&gt;, and abbreviated variable names</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   ¹​sd_lower, ²​sd_incl_lower, ³​sd_upper, ⁴​sd_incl_upper</span></span></span></code></pre></div>
-<p>The <code>x</code>, <code>sd</code>, and <code>n</code> columns are the same as in the input. The main result, <code>consistency</code>, is the DEBIT consistency of the former three columns.</p>
+<p>The <code>x</code>, <code>sd</code>, and <code>n</code> columns are
+the same as in the input. The main result, <code>consistency</code>, is
+the DEBIT consistency of the former three columns.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pigs3</span>  <span class="co"># data saved within the package</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 7 × 3</span></span></span>
@@ -178,24 +201,26 @@
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 0.12  0.33   <span style="text-decoration: underline;">1</span>683 TRUE        up_or_d…   0.325 TRUE      0.335 TRUE      0.115</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># … with 1 more variable: x_upper &lt;dbl&gt;, and abbreviated variable names</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   ¹​sd_lower, ²​sd_incl_lower, ³​sd_upper, ⁴​sd_incl_upper</span></span></span></code></pre></div>
-<p>DEBIT only makes sense with binary means and SDs. Both <code><a href="../reference/debit.html">debit()</a></code> and <code><a href="../reference/debit_map.html">debit_map()</a></code> check if the inputs are such data, and fail if they are not:</p>
+<p>DEBIT only makes sense with binary means and SDs. Both
+<code><a href="../reference/debit.html">debit()</a></code> and <code><a href="../reference/debit_map.html">debit_map()</a></code> check if the inputs
+are such data, and fail if they are not:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">pigs1</span>  <span class="co"># no binary means / SDs!</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 12 × 2</span></span></span>
-<span><span class="co">#&gt;    x         n</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 7.22     32</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 4.74     25</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 5.23     29</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 2.57     24</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 6.77     27</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 2.68     28</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 7.01     29</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 7.38     26</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 3.14     27</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 6.89     31</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> 5.00     25</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span> 0.24     28</span></span>
+<code class="sourceCode R"><span><span class="va">pigs5</span>  <span class="co"># no binary means / SDs!</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 12 × 3</span></span></span>
+<span><span class="co">#&gt;    x     sd        n</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 7.22  5.30     38</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 4.74  6.55     31</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 5.23  2.55     35</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 2.57  2.57     30</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 6.77  2.18     33</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 2.68  2.59     34</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 7.01  6.68     35</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 7.38  3.65     32</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 3.14  5.32     33</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 6.89  4.18     37</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> 5.00  2.18     31</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span> 0.24  6.43     34</span></span>
 <span></span>
 <span><span class="va">pigs5</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/debit_map.html">debit_map</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -204,23 +229,53 @@
 <span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Binary mean (`x`) values must range from 0 to 1.</span></span>
 <span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> 11 out of 12 `x` values are not in that range, starting with 7.22, 4.74, and</span></span>
 <span><span class="co">#&gt;   5.23.</span></span></code></pre></div>
-<p>Compared to <code><a href="../reference/grim_map.html">grim_map()</a></code>, <code><a href="../reference/debit_map.html">debit_map()</a></code> is more straightforward. There is no percentage conversion or accounting for multiple scale items. The same is true when comparing the basic <code><a href="../reference/grim.html">grim()</a></code> and <code><a href="../reference/debit.html">debit()</a></code> functions. However, both implementations tap scrutiny’s arsenal of rounding procedures, so that is discussed next.</p>
+<p>Compared to <code><a href="../reference/grim_map.html">grim_map()</a></code>, <code><a href="../reference/debit_map.html">debit_map()</a></code> is more
+straightforward. There is no percentage conversion or accounting for
+multiple scale items. The same is true when comparing the basic
+<code><a href="../reference/grim.html">grim()</a></code> and <code><a href="../reference/debit.html">debit()</a></code> functions. However, both
+implementations tap scrutiny’s arsenal of rounding procedures, so that
+is discussed next.</p>
 </div>
 <div class="section level4">
 <h4 id="rounding">Rounding<a class="anchor" aria-label="anchor" href="#rounding"></a>
 </h4>
-<p>The scrutiny package provides infrastructure for reconstructing rounded numbers. All of that can be commanded from within <code><a href="../reference/debit.html">debit()</a></code> and <code><a href="../reference/debit_map.html">debit_map()</a></code>. Several arguments allow for stating the precise way in which the original numbers have supposedly been rounded.</p>
-<p>First and foremost is the <code>rounding</code> argument. It takes a string with the rounding procedure’s name, which leads to the number being rounded in either of these ways:</p>
+<p>The scrutiny package provides infrastructure for reconstructing
+rounded numbers. All of that can be commanded from within
+<code><a href="../reference/debit.html">debit()</a></code> and <code><a href="../reference/debit_map.html">debit_map()</a></code>. Several arguments
+allow for stating the precise way in which the original numbers have
+supposedly been rounded.</p>
+<p>First and foremost is the <code>rounding</code> argument. It takes a
+string with the rounding procedure’s name, which leads to the number
+being rounded in either of these ways:</p>
 <ol style="list-style-type: decimal">
-<li>Rounded <code>"up"</code> or <code>"down"</code> from 5. Note that SAS, SPSS, Stata, Matlab, and Excel round <code>"up"</code> from 5, whereas Python rounds <code>"down"</code> from 5.</li>
-<li>Rounded to <code>"even"</code> using base R’s own <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">round()</a></code>.</li>
-<li>Rounded <code>"up_from"</code> or <code>"down_from"</code> some number, which then needs to be specified via the <code>threshold</code> argument.</li>
-<li>Given a <code>"ceiling"</code> or <code>"floor"</code> at the respective decimal place.</li>
-<li>Rounded towards zero with <code>"trunc"</code> or away from zero with <code>"anti_trunc"</code>.</li>
+<li>Rounded <code>"up"</code> or <code>"down"</code> from 5. Note that
+SAS, SPSS, Stata, Matlab, and Excel round <code>"up"</code> from 5,
+whereas Python rounds <code>"down"</code> from 5.</li>
+<li>Rounded to <code>"even"</code> using base R’s own
+<code><a href="https://rdrr.io/r/base/Round.html" class="external-link">round()</a></code>.</li>
+<li>Rounded <code>"up_from"</code> or <code>"down_from"</code> some
+number, which then needs to be specified via the <code>threshold</code>
+argument.</li>
+<li>Given a <code>"ceiling"</code> or <code>"floor"</code> at the
+respective decimal place.</li>
+<li>Rounded towards zero with <code>"trunc"</code> or away from zero
+with <code>"anti_trunc"</code>.</li>
 </ol>
-<p>The default, <code>"up_or_down"</code>, allows for numbers rounded either <code>"up"</code> or <code>"down"</code> from 5 when using DEBIT; and likewise for <code>"up_from_or_down_from"</code> and <code>"ceiling_or_floor"</code>. For more about these procedures, see documentation for <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">round()</a></code>, <code><a href="../reference/round_up_from.html">round_up()</a></code>, and <code><a href="../reference/round_ceiling.html">round_ceiling()</a></code>. These include all of the above ways of rounding.</p>
-<p>Points 3 to 5 above list some quite obscure options that were only included to cover a wide spectrum of possible rounding procedures. The same is true for the <code>threshold</code> and <code>symmetric</code> arguments, so these aren’t discussed here any further.</p>
-<p>By default, <code><a href="../reference/debit.html">debit()</a></code> and <code><a href="../reference/debit_map.html">debit_map()</a></code> accept values rounded either up or down from 5. If you have reason to impose stricter assumptions on the way <code>x</code> was rounded, specify <code>rounding</code> accordingly:</p>
+<p>The default, <code>"up_or_down"</code>, allows for numbers rounded
+either <code>"up"</code> or <code>"down"</code> from 5 when using DEBIT;
+and likewise for <code>"up_from_or_down_from"</code> and
+<code>"ceiling_or_floor"</code>. For more about these procedures, see
+documentation for <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">round()</a></code>, <code><a href="../reference/round_up_from.html">round_up()</a></code>, and
+<code><a href="../reference/round_ceiling.html">round_ceiling()</a></code>. These include all of the above ways of
+rounding.</p>
+<p>Points 3 to 5 above list some quite obscure options that were only
+included to cover a wide spectrum of possible rounding procedures. The
+same is true for the <code>threshold</code> and <code>symmetric</code>
+arguments, so these aren’t discussed here any further.</p>
+<p>By default, <code><a href="../reference/debit.html">debit()</a></code> and <code><a href="../reference/debit_map.html">debit_map()</a></code> accept
+values rounded either up or down from 5. If you have reason to impose
+stricter assumptions on the way <code>x</code> was rounded, specify
+<code>rounding</code> accordingly:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pigs3</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/debit_map.html">debit_map</a></span><span class="op">(</span>rounding <span class="op">=</span> <span class="st">"up"</span><span class="op">)</span></span>
@@ -251,13 +306,19 @@
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 0.12  0.33   <span style="text-decoration: underline;">1</span>683 TRUE        even       0.325 FALSE     0.335 FALSE     0.115</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># … with 1 more variable: x_upper &lt;dbl&gt;, and abbreviated variable names</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   ¹​sd_lower, ²​sd_incl_lower, ³​sd_upper, ⁴​sd_incl_upper</span></span></span></code></pre></div>
-<p>Although changing the rounding procedure didn’t make any difference for the DEBIT consistency here, it is important to account for the different ways in which numbers might be rounded, if only to demonstrate that some given results are robust to those variable decisions. To err on the side of caution, the default for <code>rounding</code> is the permissive <code>"up_or_down"</code>.</p>
+<p>Although changing the rounding procedure didn’t make any difference
+for the DEBIT consistency here, it is important to account for the
+different ways in which numbers might be rounded, if only to demonstrate
+that some given results are robust to those variable decisions. To err
+on the side of caution, the default for <code>rounding</code> is the
+permissive <code>"up_or_down"</code>.</p>
 </div>
 </div>
 <div class="section level3">
 <h3 id="summarizing-results-with-audit">Summarizing results with <code>audit()</code><a class="anchor" aria-label="anchor" href="#summarizing-results-with-audit"></a>
 </h3>
-<p>Following up on a call to <code><a href="../reference/debit_map.html">debit_map()</a></code>, the generic function <code><a href="../reference/audit.html">audit()</a></code> summarizes test results:</p>
+<p>Following up on a call to <code><a href="../reference/debit_map.html">debit_map()</a></code>, the generic
+function <code><a href="../reference/audit.html">audit()</a></code> summarizes test results:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pigs3</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/debit_map.html">debit_map</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
@@ -273,11 +334,13 @@
 <li>
 <code>all_cases</code>: total number of value sets.</li>
 <li>
-<code>incons_rate</code>: proportion of DEBIT-inconsistent value sets.</li>
+<code>incons_rate</code>: proportion of DEBIT-inconsistent value
+sets.</li>
 <li>
 <code>mean_x</code>: average of binary distribution means.</li>
 <li>
-<code>mean_sd</code>: average of binary distribution standard deviations.</li>
+<code>mean_sd</code>: average of binary distribution standard
+deviations.</li>
 <li>
 <code>distinct_n</code>: number of different sample sizes.</li>
 </ol>
@@ -285,7 +348,9 @@
 <div class="section level3">
 <h3 id="visualizing-results-with-debit_plot">Visualizing results with <code>debit_plot()</code><a class="anchor" aria-label="anchor" href="#visualizing-results-with-debit_plot"></a>
 </h3>
-<p>There is a specialized visualization function for DEBIT results, <code><a href="../reference/debit_plot.html">debit_plot()</a></code>. Only run it on <code><a href="../reference/debit_map.html">debit_map()</a></code>’s output. It will fail otherwise.</p>
+<p>There is a specialized visualization function for DEBIT results,
+<code><a href="../reference/debit_plot.html">debit_plot()</a></code>. Only run it on <code><a href="../reference/debit_map.html">debit_map()</a></code>’s
+output. It will fail otherwise.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Determine plot theme for the remaining session:</span></span>
 <span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
@@ -293,23 +358,49 @@
 <span></span>
 <span><span class="va">pigs3</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/debit_map.html">debit_map</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="../reference/debit_plot.html">debit_plot</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu"><a href="../reference/debit_plot.html">debit_plot</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: The following aesthetics were dropped during statistical transformation: <span style="color: #00BB00;">label</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> This can happen when ggplot fails to infer the correct grouping structure in</span></span>
+<span><span class="co">#&gt;   the data.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you forget to specify a `group` aesthetic or to convert a numerical</span></span>
+<span><span class="co">#&gt;   variable into a factor?</span></span></code></pre></div>
 <p><img src="debit_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
-<p>DEBIT-consistent value pairs are blue, inconsistent ones red. The black arc is the DEBIT line: Given the sample size, the pairs of mean and SD values are DEBIT-consistent if and only if they cross this line. More precisely, the inner boxes must cross the line — the outer boxes are just pointers to the inner ones, in case these are poorly visible. They have no inherent meaning.</p>
-<p>Except for the colors, inner boxes must look exactly like they do here: Their sizes and shapes are completely determined by the mean and SD values. Since inner boxes cannot be enlarged at will, outer boxes might be helpful to spot them at first glance.</p>
-<p>However, if outer boxes are not desired, they can be turned off like this:</p>
+<p>DEBIT-consistent value pairs are blue, inconsistent ones red. The
+black arc is the DEBIT line: Given the sample size, the pairs of mean
+and SD values are DEBIT-consistent if and only if they cross this line.
+More precisely, the inner boxes must cross the line — the outer boxes
+are just pointers to the inner ones, in case these are poorly visible.
+They have no inherent meaning.</p>
+<p>Except for the colors, inner boxes must look exactly like they do
+here: Their sizes and shapes are completely determined by the mean and
+SD values. Since inner boxes cannot be enlarged at will, outer boxes
+might be helpful to spot them at first glance.</p>
+<p>However, if outer boxes are not desired, they can be turned off like
+this:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pigs3</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/debit_map.html">debit_map</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="../reference/debit_plot.html">debit_plot</a></span><span class="op">(</span>show_outer_boxes <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu"><a href="../reference/debit_plot.html">debit_plot</a></span><span class="op">(</span>show_outer_boxes <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: The following aesthetics were dropped during statistical transformation: <span style="color: #00BB00;">label</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> This can happen when ggplot fails to infer the correct grouping structure in</span></span>
+<span><span class="co">#&gt;   the data.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you forget to specify a `group` aesthetic or to convert a numerical</span></span>
+<span><span class="co">#&gt;   variable into a factor?</span></span></code></pre></div>
 <p><img src="debit_files/figure-html/unnamed-chunk-11-1.png" width="700"></p>
-<p>Color settings and other ggplot2-typical options are available via arguments, as are settings handed down to <code><a href="https://rdrr.io/pkg/ggrepel/man/geom_text_repel.html" class="external-link">ggrepel::geom_text_repel()</a></code>, which creates the labels. For more, see <code><a href="../reference/debit_plot.html">debit_plot()</a></code>’s documentation.</p>
+<p>Color settings and other ggplot2-typical options are available via
+arguments, as are settings handed down to
+<code><a href="https://rdrr.io/pkg/ggrepel/man/geom_text_repel.html" class="external-link">ggrepel::geom_text_repel()</a></code>, which creates the labels. For
+more, see <code><a href="../reference/debit_plot.html">debit_plot()</a></code>’s documentation.</p>
 </div>
 <div class="section level3">
 <h3 id="testing-numeric-sequences-with-debit_map_seq">Testing numeric sequences with <code>debit_map_seq()</code><a class="anchor" aria-label="anchor" href="#testing-numeric-sequences-with-debit_map_seq"></a>
 </h3>
-<p>DEBIT analysts might be interested in a mean or percentage value’s numeric neighborhood. Suppose you found DEBIT inconsistencies, as in out example <code>pigs3</code> data. You might wonder whether they are due to small reporting or computing errors.</p>
-<p>Use <code><a href="../reference/debit_map_seq.html">debit_map_seq()</a></code> to use DEBIT for the values surrounding the reported means, SDs, and sample sizes:</p>
+<p>DEBIT analysts might be interested in a mean or percentage value’s
+numeric neighborhood. Suppose you found DEBIT inconsistencies, as in out
+example <code>pigs3</code> data. You might wonder whether they are due
+to small reporting or computing errors.</p>
+<p>Use <code><a href="../reference/debit_map_seq.html">debit_map_seq()</a></code> to use DEBIT for the values
+surrounding the reported means, SDs, and sample sizes:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">out_seq1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/debit_map_seq.html">debit_map_seq</a></span><span class="op">(</span><span class="va">pigs3</span><span class="op">)</span></span>
 <span><span class="va">out_seq1</span></span>
@@ -332,24 +423,37 @@
 <div class="section level4">
 <h4 id="summaries-with-audit_seq">Summaries with <code>audit_seq()</code><a class="anchor" aria-label="anchor" href="#summaries-with-audit_seq"></a>
 </h4>
-<p>As this output is a little unwieldy, run <code><a href="../reference/audit.html">audit_seq()</a></code> on the results:</p>
+<p>As this output is a little unwieldy, run <code><a href="../reference/audit.html">audit_seq()</a></code> on
+the results:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/audit.html">audit_seq</a></span><span class="op">(</span><span class="va">out_seq1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 17</span></span></span>
 <span><span class="co">#&gt;   x     sd        n consi…¹ hits_…² hits_x hits_sd hits_n diff_x diff_…³ diff_…⁴</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0.19  0.35   <span style="text-decoration: underline;">1</span>683 FALSE         4      2       2      1      4      <span style="color: #BB0000;">NA</span>      -<span style="color: #BB0000;">4</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># … with 6 more variables: diff_sd &lt;dbl&gt;, diff_sd_up &lt;dbl&gt;, diff_sd_down &lt;dbl&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   diff_n &lt;dbl&gt;, diff_n_up &lt;dbl&gt;, diff_n_down &lt;dbl&gt;, and abbreviated variable</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   names ¹​consistency, ²​hits_total, ³​diff_x_up, ⁴​diff_x_down</span></span></span></code></pre></div>
 <p>Here is what the output columns mean:</p>
 <ul>
-<li><p><code>x</code>, <code>sd</code>, and <code>n</code> are the original inputs, reconstructed and tested for <code>consistency</code> here.</p></li>
-<li><p>The <code>hits_*</code> columns display is the number of DEBIT-consistent value combinations found within the specified <code>dispersion</code> range; either in total or by varying individual parameters.</p></li>
-<li><p><code>diff_x</code> reports the absolute difference between <code>x</code> and the next consistent dispersed value (in dispersion steps, not the actual numeric difference). <code>diff_x_up</code> and <code>diff_x_down</code> report the difference to the next higher or lower consistent value, respectively.</p></li>
-<li><p>Accordingly with the <code>diff_sd*</code> and <code>diff_n*</code> columns.</p></li>
+<li><p><code>x</code>, <code>sd</code>, and <code>n</code> are the
+original inputs, reconstructed and tested for <code>consistency</code>
+here.</p></li>
+<li><p>The <code>hits_*</code> columns display is the number of
+DEBIT-consistent value combinations found within the specified
+<code>dispersion</code> range; either in total or by varying individual
+parameters.</p></li>
+<li><p><code>diff_x</code> reports the absolute difference between
+<code>x</code> and the next consistent dispersed value (in dispersion
+steps, not the actual numeric difference). <code>diff_x_up</code> and
+<code>diff_x_down</code> report the difference to the next higher or
+lower consistent value, respectively.</p></li>
+<li><p>Accordingly with the <code>diff_sd*</code> and
+<code>diff_n*</code> columns.</p></li>
 </ul>
-<p>The default for <code>dispersion</code> is <code>1:5</code>, for five steps up and down. When the <code>dispersion</code> sequence gets longer, the number of hits tends to increase:</p>
+<p>The default for <code>dispersion</code> is <code>1:5</code>, for five
+steps up and down. When the <code>dispersion</code> sequence gets
+longer, the number of hits tends to increase:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">out_seq2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/debit_map_seq.html">debit_map_seq</a></span><span class="op">(</span><span class="va">pigs3</span>, dispersion <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">7</span>, include_consistent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/audit.html">audit_seq</a></span><span class="op">(</span><span class="va">out_seq2</span><span class="op">)</span></span>
@@ -370,16 +474,28 @@
 <div class="section level4">
 <h4 id="visualizing-debit-checked-sequences">Visualizing DEBIT-checked sequences<a class="anchor" aria-label="anchor" href="#visualizing-debit-checked-sequences"></a>
 </h4>
-<p>Although it is possible in principle to visualize results of <code><a href="../reference/debit_map_seq.html">debit_map_seq()</a></code> using <code><a href="../reference/debit_plot.html">debit_plot()</a></code>, it’s not recommended because the results don’t currently look great. This issue might be fixed in a future version of <code><a href="../reference/debit_plot.html">debit_plot()</a></code>.</p>
+<p>Although it is possible in principle to visualize results of
+<code><a href="../reference/debit_map_seq.html">debit_map_seq()</a></code> using <code><a href="../reference/debit_plot.html">debit_plot()</a></code>, it’s not
+recommended because the results don’t currently look great. This issue
+might be fixed in a future version of <code><a href="../reference/debit_plot.html">debit_plot()</a></code>.</p>
 </div>
 </div>
 <div class="section level3">
-<h3 id="handling-unknown-group-sizes-with-debit_map_total_n">Handling unknown group sizes with <code>debit_map_total_n()</code><a class="anchor" aria-label="anchor" href="#handling-unknown-group-sizes-with-debit_map_total_n"></a>
+<h3 id="handling-unknown-group-sizes-with-debit_map_total_n">Handling unknown group sizes with
+<code>debit_map_total_n()</code><a class="anchor" aria-label="anchor" href="#handling-unknown-group-sizes-with-debit_map_total_n"></a>
 </h3>
 <div class="section level4">
 <h4 id="problems-from-underreporting">Problems from underreporting<a class="anchor" aria-label="anchor" href="#problems-from-underreporting"></a>
 </h4>
-<p>Unfortunately, some studies that report group averages don’t report the corresponding group sizes — only a total sample size. This makes any direct use of DEBIT impossible because only <code>x</code> and <code>sd</code> values are known, not <code>n</code> values. All that is feasible here in terms of DEBIT is to take a number around half the total sample size, go up and down from it, and check which <em>hypothetical</em> group sizes are consistent with the reported group means and SDs. <code><a href="../reference/debit_map_total_n.html">debit_map_total_n()</a></code> semi-automates this process, motivated by a recent GRIM analysis <span class="citation">(Bauer and Francis 2021)</span>.</p>
+<p>Unfortunately, some studies that report group averages don’t report
+the corresponding group sizes — only a total sample size. This makes any
+direct use of DEBIT impossible because only <code>x</code> and
+<code>sd</code> values are known, not <code>n</code> values. All that is
+feasible here in terms of DEBIT is to take a number around half the
+total sample size, go up and down from it, and check which
+<em>hypothetical</em> group sizes are consistent with the reported group
+means and SDs. <code><a href="../reference/debit_map_total_n.html">debit_map_total_n()</a></code> semi-automates this
+process, motivated by a recent GRIM analysis <span class="citation">(Bauer and Francis 2021)</span>.</p>
 <p>Here is an example:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">out_total_n</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
@@ -415,18 +531,29 @@
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0.30  0.28  0.17  0.10     70          0          0         0       12       0</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0.41  0.39  0.09  0.15     65          0          0         0       12       0</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># … with abbreviated variable names ¹​scenarios_total, ²​hit_rate</span></span></span></code></pre></div>
-<p>See the GRIM vignette, section <em>Handling unknown group sizes with <code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code></em>, for a more comprehensive case study. It uses <code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code>, which is the same as <code><a href="../reference/debit_map_total_n.html">debit_map_total_n()</a></code> but only for GRIM.</p>
+<p>See the GRIM vignette, section <em>Handling unknown group sizes with
+<code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code></em>, for a more comprehensive case
+study. It uses <code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code>, which is the same as
+<code><a href="../reference/debit_map_total_n.html">debit_map_total_n()</a></code> but only for GRIM.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+<h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references">
-<div id="ref-bauer_expression_2021">
-<p>Bauer, Patricia J., and Gregory Francis. 2021. “Expression of Concern: Is It Light or Dark? Recalling Moral Behavior Changes Perception of Brightness.” <em>Psychological Science</em> 32 (12): 2042–3.</p>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-bauer_expression_2021" class="csl-entry">
+Bauer, Patricia J., and Gregory Francis. 2021. <span>“Expression of
+<span>Concern</span>: <span>Is</span> <span>It</span> <span>Light</span>
+or <span>Dark</span>? <span>Recalling</span> <span>Moral</span>
+<span>Behavior</span> <span>Changes</span> <span>Perception</span> of
+<span>Brightness</span>.”</span> <em>Psychological Science</em> 32 (12):
+2042–43.
 </div>
-<div id="ref-heathers_debit_2019">
-<p>Heathers, James A. J., and Nicholas J. L. Brown. 2019. “DEBIT: A Simple Consistency Test for Binary Data.” <a href="https://osf.io/5vb3u/" class="external-link">https://osf.io/5vb3u/</a>.</p>
+<div id="ref-heathers_debit_2019" class="csl-entry">
+Heathers, James A. J., and Nicholas J. L. Brown. 2019.
+<span>“<span>DEBIT</span>: <span>A</span> <span>Simple</span>
+<span>Consistency</span> <span>Test</span> <span>For</span>
+<span>Binary</span> <span>Data</span>.”</span> <a href="https://osf.io/5vb3u/" class="external-link">https://osf.io/5vb3u/</a>.
 </div>
 </div>
 </div>

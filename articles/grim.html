@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,9 +50,9 @@
     <a class="dropdown-item" href="../articles/infrastructure.html">General infrastructure</a>
     <a class="dropdown-item" href="../articles/consistency-tests.html">Implementing consistency tests</a>
     <a class="dropdown-item" href="../articles/rounding.html">Rounding</a>
+    <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Other</h6>
-    <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
     <a class="dropdown-item" href="../articles/related.html">Related software</a>
   </div>
 </li>
@@ -80,7 +80,8 @@
 
 
 
-<script src="grim_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+
+<div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>GRIM</h1>
             
@@ -93,14 +94,25 @@
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lhdjung.github.io/scrutiny/">scrutiny</a></span><span class="op">)</span></span></code></pre></div>
-<p>Granularity-related inconsistency of means, or GRIM, is a test for the mathematical consistency of reported means or proportions with the corresponding sample size <span class="citation">(Brown and Heathers 2017)</span>. It can be applied to summary statistics of discrete numerical distributions. GRIM answers a simple question: Is it possible that a granular distribution has both the reported mean or percentage and the reported sample size?</p>
-<p>This vignette covers scrutiny’s implementation of the GRIM test. It has the following sections — to get started, though, you only need the first one:</p>
+<p>Granularity-related inconsistency of means, or GRIM, is a test for
+the mathematical consistency of reported means or proportions with the
+corresponding sample size <span class="citation">(Brown and Heathers
+2017)</span>. It can be applied to summary statistics of discrete
+numerical distributions. GRIM answers a simple question: Is it possible
+that a granular distribution has both the reported mean or percentage
+and the reported sample size?</p>
+<p>This vignette covers scrutiny’s implementation of the GRIM test. It
+has the following sections — to get started, though, you only need the
+first one:</p>
 <ol style="list-style-type: decimal">
-<li><p>The basic <code><a href="../reference/grim.html">grim()</a></code> function and a specialized mapping function, <code><a href="../reference/grim_map.html">grim_map()</a></code>.</p></li>
+<li><p>The basic <code><a href="../reference/grim.html">grim()</a></code> function and a specialized mapping
+function, <code><a href="../reference/grim_map.html">grim_map()</a></code>.</p></li>
 <li><p>Testing sequences of means or proportions.</p></li>
-<li><p>The <code><a href="../reference/audit.html">audit()</a></code> method for summarizing <code><a href="../reference/grim_map.html">grim_map()</a></code>’s results.</p></li>
+<li><p>The <code><a href="../reference/audit.html">audit()</a></code> method for summarizing
+<code><a href="../reference/grim_map.html">grim_map()</a></code>’s results.</p></li>
 <li><p>The visualization function <code><a href="../reference/grim_plot.html">grim_plot()</a></code>.</p></li>
-<li><p>Statistical benchmarks, such as granularity and the GRIM ratio.</p></li>
+<li><p>Statistical benchmarks, such as granularity and the GRIM
+ratio.</p></li>
 </ol>
 <div class="section level3">
 <h3 id="basic-grim-testing">Basic GRIM testing<a class="anchor" aria-label="anchor" href="#basic-grim-testing"></a>
@@ -108,19 +120,36 @@
 <div class="section level4">
 <h4 id="few-cases-grim">Few cases: <code>grim()</code><a class="anchor" aria-label="anchor" href="#few-cases-grim"></a>
 </h4>
-<p>To test if a reported mean of 5.27 on a granular scale is GRIM-consistent with a sample size of 43, run this:</p>
+<p>To test if a reported mean of 5.27 on a granular scale is
+GRIM-consistent with a sample size of 43, run this:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/grim.html">grim</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"5.27"</span>, n <span class="op">=</span> <span class="fl">43</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  5.27 </span></span>
 <span><span class="co">#&gt; FALSE</span></span></code></pre></div>
-<p>Note that <code>x</code>, the reported mean, needs to be a string. The reason is that strings preserve trailing zeros, which can be crucial for GRIM-testing. Numeric values don’t, and even converting them to strings won’t help. A workaround for larger numbers of such values, <code><a href="../reference/restore_zeros.html">restore_zeros()</a></code>, is discussed in <code><a href="../articles/wrangling.html">vignette("wrangling")</a></code>.</p>
-<p><code><a href="../reference/grim.html">grim()</a></code> has some further parameters, but all of them can be used from within <code><a href="../reference/grim_map.html">grim_map()</a></code>. The other parameters will be discussed in that context because <code><a href="../reference/grim_map.html">grim_map()</a></code> is often the more useful function in practice. Furthermore, although <code><a href="../reference/grim.html">grim()</a></code> is vectorized, <code><a href="../reference/grim_map.html">grim_map()</a></code> is more safe and convenient for testing multiple combinations of means/proportions and sample sizes.</p>
+<p>Note that <code>x</code>, the reported mean, needs to be a string.
+The reason is that strings preserve trailing zeros, which can be crucial
+for GRIM-testing. Numeric values don’t, and even converting them to
+strings won’t help. A workaround for larger numbers of such values,
+<code><a href="../reference/restore_zeros.html">restore_zeros()</a></code>, is discussed in
+<code><a href="../articles/wrangling.html">vignette("wrangling")</a></code>.</p>
+<p><code><a href="../reference/grim.html">grim()</a></code> has some further parameters, but all of them can
+be used from within <code><a href="../reference/grim_map.html">grim_map()</a></code>. The other parameters will
+be discussed in that context because <code><a href="../reference/grim_map.html">grim_map()</a></code> is often
+the more useful function in practice. Furthermore, although
+<code><a href="../reference/grim.html">grim()</a></code> is vectorized, <code><a href="../reference/grim_map.html">grim_map()</a></code> is more safe
+and convenient for testing multiple combinations of means/proportions
+and sample sizes.</p>
 </div>
 <div class="section level4">
 <h4 id="many-cases-grim_map">Many cases: <code>grim_map()</code><a class="anchor" aria-label="anchor" href="#many-cases-grim_map"></a>
 </h4>
-<p>If you want to GRIM-test more than a handful of cases, the recommended way is to enter them into a data frame and to run <code><a href="../reference/grim_map.html">grim_map()</a></code> on the data frame. Two different ways to do that are discussed in <code><a href="../articles/wrangling.html">vignette("wrangling")</a></code>, but here, I will only describe an easily accessible solution for a single table.</p>
-<p>Copy summary data from a PDF file and paste them into <code><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tibble::tribble()</a></code>, which is available via scrutiny:</p>
+<p>If you want to GRIM-test more than a handful of cases, the
+recommended way is to enter them into a data frame and to run
+<code><a href="../reference/grim_map.html">grim_map()</a></code> on the data frame. Two different ways to do that
+are discussed in <code><a href="../articles/wrangling.html">vignette("wrangling")</a></code>, but here, I will
+only describe an easily accessible solution for a single table.</p>
+<p>Copy summary data from a PDF file and paste them into
+<code><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tibble::tribble()</a></code>, which is available via scrutiny:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">flying_pigs1</span> <span class="op">&lt;-</span> <span class="fu">tribble</span><span class="op">(</span></span>
 <span>  <span class="op">~</span><span class="va">x</span>,</span>
@@ -133,7 +162,10 @@
 <span><span class="st">"7.39"</span></span>
 <span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu">mutate</span><span class="op">(</span>n <span class="op">=</span> <span class="fl">28</span><span class="op">)</span></span></code></pre></div>
-<p>Use RStudio’s multiple cursors to draw quotation marks around all the <code>x</code> values, and to set commas at the end. See <code><a href="../articles/wrangling.html">vignette("wrangling")</a></code>, section <em>With copy and paste</em>, if you are not sure how to do that.</p>
+<p>Use RStudio’s multiple cursors to draw quotation marks around all the
+<code>x</code> values, and to set commas at the end. See
+<code><a href="../articles/wrangling.html">vignette("wrangling")</a></code>, section <em>With copy and
+paste</em>, if you are not sure how to do that.</p>
 <p>Now, simply run <code><a href="../reference/grim_map.html">grim_map()</a></code> on that data frame:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/grim_map.html">grim_map</a></span><span class="op">(</span><span class="va">flying_pigs1</span><span class="op">)</span></span>
@@ -147,12 +179,19 @@
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 9.26     28 FALSE        0.72</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 10.46    28 TRUE         0.72</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 7.39     28 TRUE         0.72</span></span></code></pre></div>
-<p>The <code>x</code> and <code>n</code> columns are the same as in the input. By default, the number of <code>items</code> composing the mean is assumed to be 1. The main result, <code>consistency</code>, is the GRIM consistency of the former three columns. On the <code>ratio</code> column, see section <em>The GRIM ratio</em>.</p>
+<p>The <code>x</code> and <code>n</code> columns are the same as in the
+input. By default, the number of <code>items</code> composing the mean
+is assumed to be 1. The main result, <code>consistency</code>, is the
+GRIM consistency of the former three columns. On the <code>ratio</code>
+column, see section <em>The GRIM ratio</em>.</p>
 </div>
 <div class="section level4">
 <h4 id="scale-items">Scale items<a class="anchor" aria-label="anchor" href="#scale-items"></a>
 </h4>
-<p>If a mean is composed of multiple items, set the <code>items</code> parameter to that number. Below are hypothetical means of a three-items scale. With the single-item default, half of these are wrongly flagged as inconsistent:</p>
+<p>If a mean is composed of multiple items, set the <code>items</code>
+parameter to that number. Below are hypothetical means of a three-items
+scale. With the single-item default, half of these are wrongly flagged
+as inconsistent:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">jpap_1</span> <span class="op">&lt;-</span> <span class="fu">tribble</span><span class="op">(</span></span>
 <span>   <span class="op">~</span><span class="va">x</span>,</span>
@@ -176,7 +215,8 @@
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 3.82     40 TRUE          0.6</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 4.61     40 FALSE         0.6</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 5.24     40 FALSE         0.6</span></span></code></pre></div>
-<p>Yet, all of them are consistent if the correct number of items is stated:</p>
+<p>Yet, all of them are consistent if the correct number of items is
+stated:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">jpap_1</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/grim_map.html">grim_map</a></span><span class="op">(</span>items <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
@@ -189,7 +229,8 @@
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 3.82    120 TRUE         -<span style="color: #BB0000;">0.2</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 4.61    120 TRUE         -<span style="color: #BB0000;">0.2</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 5.24    120 TRUE         -<span style="color: #BB0000;">0.2</span></span></span></code></pre></div>
-<p>It is also possible to include an <code>items</code> column in the data frame instead:</p>
+<p>It is also possible to include an <code>items</code> column in the
+data frame instead:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">jpap_2</span> <span class="op">&lt;-</span> <span class="fu">tribble</span><span class="op">(</span></span>
 <span>   <span class="op">~</span><span class="va">x</span>,    <span class="op">~</span><span class="va">items</span>,</span>
@@ -217,8 +258,16 @@
 <div class="section level4">
 <h4 id="percentage-conversion">Percentage conversion<a class="anchor" aria-label="anchor" href="#percentage-conversion"></a>
 </h4>
-<p>An underappreciated strength of GRIM is testing percentages. Since these are actually decimal numbers inflated by a factor of 100, percentages come with two “free” decimal places. However, percentages are often reported with decimal places beyond those two, which increases the probability of GRIM-inconsistencies unless true values were correctly reported.</p>
-<p>Both <code><a href="../reference/grim.html">grim()</a></code> and <code><a href="../reference/grim_map.html">grim_map()</a></code> have a <code>percent</code> parameter which, if set to <code>TRUE</code>, divides the <code>x</code> values by 100 and increases the decimal count by two, so that percentages can be tested just like means:</p>
+<p>An underappreciated strength of GRIM is testing percentages. Since
+these are actually decimal numbers inflated by a factor of 100,
+percentages come with two “free” decimal places. However, percentages
+are often reported with decimal places beyond those two, which increases
+the probability of GRIM-inconsistencies unless true values were
+correctly reported.</p>
+<p>Both <code><a href="../reference/grim.html">grim()</a></code> and <code><a href="../reference/grim_map.html">grim_map()</a></code> have a
+<code>percent</code> parameter which, if set to <code>TRUE</code>,
+divides the <code>x</code> values by 100 and increases the decimal count
+by two, so that percentages can be tested just like means:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">jpap_3</span> <span class="op">&lt;-</span> <span class="fu">tribble</span><span class="op">(</span></span>
 <span>  <span class="op">~</span><span class="va">x</span>,     <span class="op">~</span><span class="va">n</span>,</span>
@@ -242,7 +291,9 @@
 <div class="section level4">
 <h4 id="reconstructed-values">Reconstructed values<a class="anchor" aria-label="anchor" href="#reconstructed-values"></a>
 </h4>
-<p>Set <code>show_rec</code> to <code>TRUE</code> if you want the values that were reconstructed during GRIM-testing to be displayed in the output. They will be columns prefixed with <code>rec_</code>:</p>
+<p>Set <code>show_rec</code> to <code>TRUE</code> if you want the values
+that were reconstructed during GRIM-testing to be displayed in the
+output. They will be columns prefixed with <code>rec_</code>:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pigs1</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/grim_map.html">grim_map</a></span><span class="op">(</span>show_rec <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
@@ -265,32 +316,78 @@
 <span><span class="co">#&gt; <span style="color: #949494;"># … with abbreviated variable name ¹​rec_x_upper_rounded_down</span></span></span></code></pre></div>
 <p>The additional columns are —</p>
 <ul>
-<li><p><code>rec_sum</code>: the sum total from which the mean or proportion was ostensibly derived.</p></li>
-<li><p><code>rec_x_upper</code>: the upper reconstructed <code>x</code> value.</p></li>
-<li><p><code>rec_x_lower</code>: the lower reconstructed <code>x</code> value.</p></li>
-<li><p><code>rec_x_upper_rounded_up</code>: the <code>rec_x_upper</code> value rounded up.</p></li>
-<li><p><code>rec_x_upper_rounded_down</code>: the <code>rec_x_upper</code> value rounded down.</p></li>
-<li><p><code>rec_x_lower_rounded_up</code>: the <code>rec_x_lower</code> value rounded up.</p></li>
-<li><p><code>rec_x_lower_rounded_down</code>: the <code>rec_x_lower</code> value rounded down.</p></li>
+<li><p><code>rec_sum</code>: the sum total from which the mean or
+proportion was ostensibly derived.</p></li>
+<li><p><code>rec_x_upper</code>: the upper reconstructed <code>x</code>
+value.</p></li>
+<li><p><code>rec_x_lower</code>: the lower reconstructed <code>x</code>
+value.</p></li>
+<li><p><code>rec_x_upper_rounded_up</code>: the <code>rec_x_upper</code>
+value rounded up.</p></li>
+<li><p><code>rec_x_upper_rounded_down</code>: the
+<code>rec_x_upper</code> value rounded down.</p></li>
+<li><p><code>rec_x_lower_rounded_up</code>: the <code>rec_x_lower</code>
+value rounded up.</p></li>
+<li><p><code>rec_x_lower_rounded_down</code>: the
+<code>rec_x_lower</code> value rounded down.</p></li>
 </ul>
-<p>The last four columns depend on <code>rounding</code>. Here, they follow the default <code>"up_or_down"</code>, leading to two columns for each of <code>rec_x_upper</code> and <code>rec_x_lower</code>. With a singular <code>rounding</code> procedure, such as <code>"up"</code>, there would only be one column each, and thus, two in total. The difference between these numbers is not greatly important, however, because rounding up and down mostly delivers the same results.</p>
-<p>Internally, GRIM-consistency is determined by whether or not a stated <code>x</code> value is near-identical to either <code>rec_x_upper_rounded</code> or <code>rec_x_lower_rounded</code>. This algorithm follows the charitable and conservative protocol outlined by Brown and Heathers (2017). The <code>rec_*</code> columns were inspired by <span class="citation">Bauer and Francis (2021)</span>’s Table 1 but present values in slightly different ways.</p>
+<p>The last four columns depend on <code>rounding</code>. Here, they
+follow the default <code>"up_or_down"</code>, leading to two columns for
+each of <code>rec_x_upper</code> and <code>rec_x_lower</code>. With a
+singular <code>rounding</code> procedure, such as <code>"up"</code>,
+there would only be one column each, and thus, two in total. The
+difference between these numbers is not greatly important, however,
+because rounding up and down mostly delivers the same results.</p>
+<p>Internally, GRIM-consistency is determined by whether or not a stated
+<code>x</code> value is near-identical to either
+<code>rec_x_upper_rounded</code> or <code>rec_x_lower_rounded</code>.
+This algorithm follows the charitable and conservative protocol outlined
+by Brown and Heathers (2017). The <code>rec_*</code> columns were
+inspired by <span class="citation">Bauer and Francis (2021)</span>’s
+Table 1 but present values in slightly different ways.</p>
 </div>
 <div class="section level4">
 <h4 id="rounding">Rounding<a class="anchor" aria-label="anchor" href="#rounding"></a>
 </h4>
-<p>The scrutiny package provides infrastructure for reconstructing rounded numbers. All of that can be commanded from within <code><a href="../reference/grim.html">grim()</a></code> and <code><a href="../reference/grim_map.html">grim_map()</a></code>. Several parameters allow for stating the precise way in which the original numbers have supposedly been rounded.</p>
-<p>First and foremost is <code>rounding</code>. It takes a string with the rounding procedure’s name, which leads to the number being rounded in either of these ways:</p>
+<p>The scrutiny package provides infrastructure for reconstructing
+rounded numbers. All of that can be commanded from within
+<code><a href="../reference/grim.html">grim()</a></code> and <code><a href="../reference/grim_map.html">grim_map()</a></code>. Several parameters
+allow for stating the precise way in which the original numbers have
+supposedly been rounded.</p>
+<p>First and foremost is <code>rounding</code>. It takes a string with
+the rounding procedure’s name, which leads to the number being rounded
+in either of these ways:</p>
 <ol style="list-style-type: decimal">
-<li>Rounded <code>"up"</code> or <code>"down"</code> from 5. Note that SAS, SPSS, Stata, Matlab, and Excel round <code>"up"</code> from 5, whereas Python used to round <code>"down"</code> from 5.</li>
-<li>Rounded to <code>"even"</code> using base R’s own <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">round()</a></code>.</li>
-<li>Rounded <code>"up_from"</code> or <code>"down_from"</code> some number, which then needs to be specified via the <code>threshold</code> parameter.</li>
-<li>Given a <code>"ceiling"</code> or <code>"floor"</code> at the respective decimal place.</li>
-<li>Rounded towards zero with <code>"trunc"</code> or away from zero with <code>"anti_trunc"</code>.</li>
+<li>Rounded <code>"up"</code> or <code>"down"</code> from 5. Note that
+SAS, SPSS, Stata, Matlab, and Excel round <code>"up"</code> from 5,
+whereas Python used to round <code>"down"</code> from 5.</li>
+<li>Rounded to <code>"even"</code> using base R’s own
+<code><a href="https://rdrr.io/r/base/Round.html" class="external-link">round()</a></code>.</li>
+<li>Rounded <code>"up_from"</code> or <code>"down_from"</code> some
+number, which then needs to be specified via the <code>threshold</code>
+parameter.</li>
+<li>Given a <code>"ceiling"</code> or <code>"floor"</code> at the
+respective decimal place.</li>
+<li>Rounded towards zero with <code>"trunc"</code> or away from zero
+with <code>"anti_trunc"</code>.</li>
 </ol>
-<p>The default, <code>"up_or_down"</code>, allows for numbers rounded either <code>"up"</code> or <code>"down"</code> from 5 when GRIM-testing; and likewise for <code>"up_from_or_down_from"</code> and <code>"ceiling_or_floor"</code>. For more about these procedures, see documentation for <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">round()</a></code>, <code><a href="../reference/round_up_from.html">round_up()</a></code>, and <code><a href="../reference/round_ceiling.html">round_ceiling()</a></code>. These include all of the above ways of rounding.</p>
-<p>Points 3 to 5 above list some quite obscure options that were only included to cover a wide spectrum of possible rounding procedures. The same is true for the <code>threshold</code> and <code>symmetric</code> parameters, so these aren’t discussed here any further. Learn more about scrutiny’s infrastructure for rounding at <code><a href="../articles/rounding.html">vignette("rounding")</a></code>.</p>
-<p>By default, <code><a href="../reference/grim.html">grim()</a></code> and <code><a href="../reference/grim_map.html">grim_map()</a></code> accept values rounded either up or down from 5. If you have reason to impose stricter assumptions on the way <code>x</code> was rounded, specify <code>rounding</code> accordingly:</p>
+<p>The default, <code>"up_or_down"</code>, allows for numbers rounded
+either <code>"up"</code> or <code>"down"</code> from 5 when
+GRIM-testing; and likewise for <code>"up_from_or_down_from"</code> and
+<code>"ceiling_or_floor"</code>. For more about these procedures, see
+documentation for <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">round()</a></code>, <code><a href="../reference/round_up_from.html">round_up()</a></code>, and
+<code><a href="../reference/round_ceiling.html">round_ceiling()</a></code>. These include all of the above ways of
+rounding.</p>
+<p>Points 3 to 5 above list some quite obscure options that were only
+included to cover a wide spectrum of possible rounding procedures. The
+same is true for the <code>threshold</code> and <code>symmetric</code>
+parameters, so these aren’t discussed here any further. Learn more about
+scrutiny’s infrastructure for rounding at
+<code><a href="../articles/rounding.html">vignette("rounding")</a></code>.</p>
+<p>By default, <code><a href="../reference/grim.html">grim()</a></code> and <code><a href="../reference/grim_map.html">grim_map()</a></code> accept
+values rounded either up or down from 5. If you have reason to impose
+stricter assumptions on the way <code>x</code> was rounded, specify
+<code>rounding</code> accordingly:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">jpap_4</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
 <span>    <span class="op">~</span><span class="va">x</span>,     <span class="op">~</span><span class="va">n</span>,</span>
@@ -319,14 +416,24 @@
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 2.03     80 TRUE          0.2</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2.04     80 TRUE          0.2</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 2.05     80 TRUE          0.2</span></span></code></pre></div>
-<p>Rounding up and down leads to precisely opposite results for the first two cases, although it agrees on the latter two. Even this example is cherry-picked: Sample sizes of 80 are highly unusual because, for most other <code>n</code> values, those two rounding procedures agree in the vast majority of cases. See section <em>Visualizing results with <code><a href="../reference/grim_plot.html">grim_plot()</a></code></em> on this issue.</p>
-<p>It might still be important to account for the different ways in which numbers can be rounded, if only to demonstrate that some given results are robust to those variable decisions. To err on the side of caution, the default for <code>rounding</code> is the permissive <code>"up_or_down"</code>.</p>
+<p>Rounding up and down leads to precisely opposite results for the
+first two cases, although it agrees on the latter two. Even this example
+is cherry-picked: Sample sizes of 80 are highly unusual because, for
+most other <code>n</code> values, those two rounding procedures agree in
+the vast majority of cases. See section <em>Visualizing results with
+<code><a href="../reference/grim_plot.html">grim_plot()</a></code></em> on this issue.</p>
+<p>It might still be important to account for the different ways in
+which numbers can be rounded, if only to demonstrate that some given
+results are robust to those variable decisions. To err on the side of
+caution, the default for <code>rounding</code> is the permissive
+<code>"up_or_down"</code>.</p>
 </div>
 </div>
 <div class="section level3">
 <h3 id="summarizing-results-with-audit">Summarizing results with <code>audit()</code><a class="anchor" aria-label="anchor" href="#summarizing-results-with-audit"></a>
 </h3>
-<p>Following up on a call to <code><a href="../reference/grim_map.html">grim_map()</a></code>, the generic function <code><a href="../reference/audit.html">audit()</a></code> summarizes GRIM test results:</p>
+<p>Following up on a call to <code><a href="../reference/grim_map.html">grim_map()</a></code>, the generic
+function <code><a href="../reference/audit.html">audit()</a></code> summarizes GRIM test results:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">flying_pigs1</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/grim_map.html">grim_map</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
@@ -338,19 +445,25 @@
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>            3         7       0.429            0.72           0.595</span></span></code></pre></div>
 <p>These columns are —</p>
 <ol style="list-style-type: decimal">
-<li><p><code>incons_cases</code>: number of GRIM-inconsistent value sets.</p></li>
+<li><p><code>incons_cases</code>: number of GRIM-inconsistent value
+sets.</p></li>
 <li><p><code>all_cases</code>: total number of value sets.</p></li>
-<li><p><code>incons_rate</code>: proportion of GRIM-inconsistent value sets.</p></li>
+<li><p><code>incons_rate</code>: proportion of GRIM-inconsistent value
+sets.</p></li>
 <li><p><code>mean_grim_ratio</code>: average of GRIM ratios.</p></li>
-<li><p><code>incons_to_ratio</code>: ratio of <code>incons_rate</code> to <code>mean_ratio</code>.</p></li>
-<li><p><code>testable_cases</code>: number of GRIM-testable value sets (i.e., those with a positive ratio).</p></li>
-<li><p><code>testable_rate</code>: proportion of GRIM-testable value sets.</p></li>
+<li><p><code>incons_to_ratio</code>: ratio of <code>incons_rate</code>
+to <code>mean_ratio</code>.</p></li>
+<li><p><code>testable_cases</code>: number of GRIM-testable value sets
+(i.e., those with a positive ratio).</p></li>
+<li><p><code>testable_rate</code>: proportion of GRIM-testable value
+sets.</p></li>
 </ol>
 </div>
 <div class="section level3">
 <h3 id="visualizing-results-with-grim_plot">Visualizing results with <code>grim_plot()</code><a class="anchor" aria-label="anchor" href="#visualizing-results-with-grim_plot"></a>
 </h3>
-<p>There is a specialized visualization function for GRIM test results, <code><a href="../reference/grim_plot.html">grim_plot()</a></code>:</p>
+<p>There is a specialized visualization function for GRIM test results,
+<code><a href="../reference/grim_plot.html">grim_plot()</a></code>:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">jpap_5</span> <span class="op">&lt;-</span> <span class="fu">tribble</span><span class="op">(</span></span>
 <span>  <span class="op">~</span><span class="va">x</span>,        <span class="op">~</span><span class="va">n</span>,</span>
@@ -371,7 +484,8 @@
 <span>  <span class="fu"><a href="../reference/grim_map.html">grim_map</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/grim_plot.html">grim_plot</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="grim_files/figure-html/unnamed-chunk-13-1.png" width="576"></p>
-<p><code><a href="../reference/grim_plot.html">grim_plot()</a></code> can only be called on <code><a href="../reference/grim_map.html">grim_map()</a></code>’s output. It will fail otherwise:</p>
+<p><code><a href="../reference/grim_plot.html">grim_plot()</a></code> can only be called on
+<code><a href="../reference/grim_map.html">grim_map()</a></code>’s output. It will fail otherwise:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/grim_plot.html">grim_plot</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `grim_plot()`:</span></span></span>
@@ -379,22 +493,45 @@
 <span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> `grim_plot()` needs GRIM or GRIMMER test results.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> The only exception is an "empty" plot that shows the background raster but no</span></span>
 <span><span class="co">#&gt;   empirical test results. Create such a plot by setting `show_data` to `FALSE`.</span></span></code></pre></div>
-<p>With its unusual optics, this plot will probably not fit everyone’s taste. The results of <code><a href="../reference/grim_plot.html">grim_plot()</a></code> are like those of error detection in general: They are not pretty, but they put the unvarnished truth on display.</p>
-<p>The plot is strictly based on the laws governing GRIM. Its background raster shows all consistent (light) and inconsistent (dark) value pairs for two decimal places. Empirical values are shown in blue if consistent and red if inconsistent. Color settings and other ggplot2-typical options are available via arguments. Read about them at <code><a href="../reference/grim_plot.html">grim_plot()</a></code>’s documentation.</p>
-<p>You might notice the light vertical lines at <span class="math inline">\(N = 40\)</span> and <span class="math inline">\(N = 80\)</span>: Few values are flagged as inconsistent here. This reflects <code><a href="../reference/grim_map.html">grim_map()</a></code>’s charitable default of accepting values rounded either up <em>or</em> down from 5. If a different <code>rounding</code> specification is chosen in the <code><a href="../reference/grim_map.html">grim_map()</a></code> call, the plot raster will adjust automatically (although it will often be the same as before):</p>
+<p>With its unusual optics, this plot will probably not fit everyone’s
+taste. The results of <code><a href="../reference/grim_plot.html">grim_plot()</a></code> are like those of error
+detection in general: They are not pretty, but they put the unvarnished
+truth on display.</p>
+<p>The plot is strictly based on the laws governing GRIM. Its background
+raster shows all consistent (light) and inconsistent (dark) value pairs
+for two decimal places. Empirical values are shown in blue if consistent
+and red if inconsistent. Color settings and other ggplot2-typical
+options are available via arguments. Read about them at
+<code><a href="../reference/grim_plot.html">grim_plot()</a></code>’s documentation.</p>
+<p>You might notice the light vertical lines at <span class="math inline">\(N = 40\)</span> and <span class="math inline">\(N
+= 80\)</span>: Few values are flagged as inconsistent here. This
+reflects <code><a href="../reference/grim_map.html">grim_map()</a></code>’s charitable default of accepting
+values rounded either up <em>or</em> down from 5. If a different
+<code>rounding</code> specification is chosen in the
+<code><a href="../reference/grim_map.html">grim_map()</a></code> call, the plot raster will adjust automatically
+(although it will often be the same as before):</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">jpap_5</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/grim_map.html">grim_map</a></span><span class="op">(</span>rounding <span class="op">=</span> <span class="st">"ceiling"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/grim_plot.html">grim_plot</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="grim_files/figure-html/unnamed-chunk-15-1.png" width="576"></p>
-<p>All <code>rounding</code> values other than <code>up_from</code>, <code>down_from</code>, and <code>up_from_or_down_from</code> are supported.</p>
-<p>Speed is not much of a concern here because all the rasters are based on data already stored within the package (in <a href="https://github.com/lhdjung/scrutiny/blob/main/R/sysdata.rda" class="external-link">R/sysdata.rda</a>), so they don’t need to be generated on the spot every time the function is called. See R/data-gen.R for the way they were generated.</p>
+<p>All <code>rounding</code> values other than <code>up_from</code>,
+<code>down_from</code>, and <code>up_from_or_down_from</code> are
+supported.</p>
+<p>Speed is not much of a concern here because all the rasters are based
+on data already stored within the package (in <a href="https://github.com/lhdjung/scrutiny/blob/main/R/sysdata.rda" class="external-link">R/sysdata.rda</a>),
+so they don’t need to be generated on the spot every time the function
+is called. See R/data-gen.R for the way they were generated.</p>
 </div>
 <div class="section level3">
 <h3 id="testing-numeric-sequences-with-grim_map_seq">Testing numeric sequences with <code>grim_map_seq()</code><a class="anchor" aria-label="anchor" href="#testing-numeric-sequences-with-grim_map_seq"></a>
 </h3>
-<p>GRIM analysts might be interested in a mean or percentage value’s numeric neighborhood. Suppose you found multiple GRIM inconsistencies as in out example <code>pigs1</code> data. You might wonder whether they are due to small reporting or computing errors.</p>
-<p>Use <code><a href="../reference/grim_map_seq.html">grim_map_seq()</a></code> to GRIM-test the values surrounding the reported means and sample sizes:</p>
+<p>GRIM analysts might be interested in a mean or percentage value’s
+numeric neighborhood. Suppose you found multiple GRIM inconsistencies as
+in out example <code>pigs1</code> data. You might wonder whether they
+are due to small reporting or computing errors.</p>
+<p>Use <code><a href="../reference/grim_map_seq.html">grim_map_seq()</a></code> to GRIM-test the values surrounding
+the reported means and sample sizes:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">out_seq1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grim_map_seq.html">grim_map_seq</a></span><span class="op">(</span><span class="va">pigs1</span><span class="op">)</span></span>
 <span><span class="va">out_seq1</span></span>
@@ -415,7 +552,8 @@
 <div class="section level4">
 <h4 id="summaries-with-audit_seq">Summaries with <code>audit_seq()</code><a class="anchor" aria-label="anchor" href="#summaries-with-audit_seq"></a>
 </h4>
-<p>As this output is a little unwieldy, run <code><a href="../reference/audit.html">audit_seq()</a></code> on the results:</p>
+<p>As this output is a little unwieldy, run <code><a href="../reference/audit.html">audit_seq()</a></code> on
+the results:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/audit.html">audit_seq</a></span><span class="op">(</span><span class="va">out_seq1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 8 × 12</span></span></span>
@@ -433,12 +571,22 @@
 <span><span class="co">#&gt; <span style="color: #949494;">#   variable names ¹​diff_x_up, ²​diff_x_down</span></span></span></code></pre></div>
 <p>Here is what the output columns mean:</p>
 <ul>
-<li><p><code>x</code> and <code>n</code> are the original inputs, reconstructed and tested for <code>consistency</code> here.</p></li>
-<li><p><code>hits</code> is the number of GRIM-consistent value combinations found within the specified <code>dispersion</code> range.</p></li>
-<li><p><code>diff_x</code> reports the absolute difference between <code>x</code> and the next consistent dispersed value (in dispersion steps, not the actual numeric difference). <code>diff_x_up</code> and <code>diff_x_down</code> report the difference to the next higher or lower consistent value, respectively.</p></li>
-<li><p><code>diff_n</code>, <code>diff_n_up</code>, and <code>diff_n_down</code> do the same for <code>n</code>.</p></li>
+<li><p><code>x</code> and <code>n</code> are the original inputs,
+reconstructed and tested for <code>consistency</code> here.</p></li>
+<li><p><code>hits</code> is the number of GRIM-consistent value
+combinations found within the specified <code>dispersion</code>
+range.</p></li>
+<li><p><code>diff_x</code> reports the absolute difference between
+<code>x</code> and the next consistent dispersed value (in dispersion
+steps, not the actual numeric difference). <code>diff_x_up</code> and
+<code>diff_x_down</code> report the difference to the next higher or
+lower consistent value, respectively.</p></li>
+<li><p><code>diff_n</code>, <code>diff_n_up</code>, and
+<code>diff_n_down</code> do the same for <code>n</code>.</p></li>
 </ul>
-<p>The default for <code>dispersion</code> is <code>1:5</code>, for five steps up and down. When the <code>dispersion</code> sequence gets longer, the number of hits tends to increase:</p>
+<p>The default for <code>dispersion</code> is <code>1:5</code>, for five
+steps up and down. When the <code>dispersion</code> sequence gets
+longer, the number of hits tends to increase:</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">out_seq2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grim_map_seq.html">grim_map_seq</a></span><span class="op">(</span><span class="va">pigs1</span>, dispersion <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/audit.html">audit_seq</a></span><span class="op">(</span><span class="va">out_seq2</span><span class="op">)</span></span>
@@ -459,16 +607,22 @@
 <div class="section level4">
 <h4 id="visualizing-grim-tested-sequences">Visualizing GRIM-tested sequences<a class="anchor" aria-label="anchor" href="#visualizing-grim-tested-sequences"></a>
 </h4>
-<p>It’s curious what happens when we plot the output of <code><a href="../reference/grim_map_seq.html">grim_map_seq()</a></code>. Like regular GRIM plots, however, it does give us a sense of how many tested values are consistent:</p>
+<p>It’s curious what happens when we plot the output of
+<code><a href="../reference/grim_map_seq.html">grim_map_seq()</a></code>. Like regular GRIM plots, however, it does
+give us a sense of how many tested values are consistent:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/grim_plot.html">grim_plot</a></span><span class="op">(</span><span class="va">out_seq1</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/grim_plot.html">grim_plot</a></span><span class="op">(</span><span class="va">out_seq1</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: Removed 1 rows containing missing values (`geom_tile()`).</span></span></code></pre></div>
 <p><img src="grim_files/figure-html/unnamed-chunk-19-1.png" width="576"></p>
-<p>The crosses appear because <code><a href="../reference/grim_map_seq.html">grim_map_seq()</a></code> creates sequences around both <code>x</code> and <code>n</code>. Restrict this process to any one of these with the <code>var</code> argument:</p>
+<p>The crosses appear because <code><a href="../reference/grim_map_seq.html">grim_map_seq()</a></code> creates
+sequences around both <code>x</code> and <code>n</code>. Restrict this
+process to any one of these with the <code>var</code> argument:</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">out_seq1_only_x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grim_map_seq.html">grim_map_seq</a></span><span class="op">(</span><span class="va">pigs1</span>, var <span class="op">=</span> <span class="st">"x"</span><span class="op">)</span></span>
 <span><span class="va">out_seq1_only_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grim_map_seq.html">grim_map_seq</a></span><span class="op">(</span><span class="va">pigs1</span>, var <span class="op">=</span> <span class="st">"n"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/grim_plot.html">grim_plot</a></span><span class="op">(</span><span class="va">out_seq1_only_x</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/grim_plot.html">grim_plot</a></span><span class="op">(</span><span class="va">out_seq1_only_x</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: Removed 1 rows containing missing values (`geom_tile()`).</span></span></code></pre></div>
 <p><img src="grim_files/figure-html/unnamed-chunk-20-1.png" width="576"></p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/grim_plot.html">grim_plot</a></span><span class="op">(</span><span class="va">out_seq1_only_n</span><span class="op">)</span></span></code></pre></div>
@@ -476,19 +630,42 @@
 </div>
 </div>
 <div class="section level3">
-<h3 id="handling-unknown-group-sizes-with-grim_map_total_n">Handling unknown group sizes with <code>grim_map_total_n()</code><a class="anchor" aria-label="anchor" href="#handling-unknown-group-sizes-with-grim_map_total_n"></a>
+<h3 id="handling-unknown-group-sizes-with-grim_map_total_n">Handling unknown group sizes with
+<code>grim_map_total_n()</code><a class="anchor" aria-label="anchor" href="#handling-unknown-group-sizes-with-grim_map_total_n"></a>
 </h3>
 <div class="section level4">
 <h4 id="problems-from-underreporting">Problems from underreporting<a class="anchor" aria-label="anchor" href="#problems-from-underreporting"></a>
 </h4>
-<p>Unfortunately, some studies that report group averages don’t report the corresponding group sizes — only a total sample size. This makes any direct GRIM-testing impossible because only <code>x</code> values are known, not <code>n</code> values. All that is feasible here in terms of GRIM is to take a number around half the total sample size, go up and down from it, and check which <em>hypothetical</em> group sizes are consistent with the reported group means. <code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code> semi-automates this process, motivated by a recent GRIM analysis <span class="citation">(Bauer and Francis 2021)</span>.</p>
-<p>The study examined by <span class="citation">Bauer and Francis (2021)</span> reported means of 5.3 and 4.71 for a total sample size of 40. With equal group sizes (i.e., 20 in each group), only 5.3 is GRIM-consistent, not 4.71. However, Bauer and Francis looked for a plausible scenario in which both means were consistent. They checked if those scenarios came about if the 40 participants were distributed across the two groups in slightly different ways.</p>
-<p>More precisely, they went from a 20/20 group split to a 19/21 split, then to an 18/22 split, and finally to a 17/23 split. In the latter scenario, both means are consistent if 17 is paired with 4.71 and 23 with 5.3.</p>
+<p>Unfortunately, some studies that report group averages don’t report
+the corresponding group sizes — only a total sample size. This makes any
+direct GRIM-testing impossible because only <code>x</code> values are
+known, not <code>n</code> values. All that is feasible here in terms of
+GRIM is to take a number around half the total sample size, go up and
+down from it, and check which <em>hypothetical</em> group sizes are
+consistent with the reported group means.
+<code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code> semi-automates this process, motivated
+by a recent GRIM analysis <span class="citation">(Bauer and Francis
+2021)</span>.</p>
+<p>The study examined by <span class="citation">Bauer and Francis
+(2021)</span> reported means of 5.3 and 4.71 for a total sample size of
+40. With equal group sizes (i.e., 20 in each group), only 5.3 is
+GRIM-consistent, not 4.71. However, Bauer and Francis looked for a
+plausible scenario in which both means were consistent. They checked if
+those scenarios came about if the 40 participants were distributed
+across the two groups in slightly different ways.</p>
+<p>More precisely, they went from a 20/20 group split to a 19/21 split,
+then to an 18/22 split, and finally to a 17/23 split. In the latter
+scenario, both means are consistent if 17 is paired with 4.71 and 23
+with 5.3.</p>
 </div>
 <div class="section level4">
 <h4 id="semi-automated-solution">Semi-automated solution<a class="anchor" aria-label="anchor" href="#semi-automated-solution"></a>
 </h4>
-<p>Instead of going about this manually, call <code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code>, followed by <code><a href="../reference/audit.html">audit_total_n()</a></code> for summarizing the results. It will find two further plausible scenarios in which both means are consistent; more on that below.</p>
+<p>Instead of going about this manually, call
+<code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code>, followed by
+<code><a href="../reference/audit.html">audit_total_n()</a></code> for summarizing the results. It will find
+two further plausible scenarios in which both means are consistent; more
+on that below.</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="op">(</span>x1 <span class="op">=</span> <span class="st">"4.71"</span>, x2 <span class="op">=</span> <span class="st">"5.3"</span>, n <span class="op">=</span> <span class="fl">40</span><span class="op">)</span></span>
 <span></span>
@@ -516,14 +693,33 @@
 <span><span class="co">#&gt;   x1    x2        n hits_total hits_forth hits_back scenarios_total hit_rate</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 4.71  5.3      40          3          1         2              12     0.25</span></span></code></pre></div>
-<p>Each “hit” is a scenario in which both <code>x1</code> and <code>x2</code> are GRIM-consistent with one of the two hypothetical group sizes. By default (<code>dispersion = 0:5</code>), the function goes five steps up and down from <code>n</code>.</p>
+<p>Each “hit” is a scenario in which both <code>x1</code> and
+<code>x2</code> are GRIM-consistent with one of the two hypothetical
+group sizes. By default (<code>dispersion = 0:5</code>), the function
+goes five steps up and down from <code>n</code>.</p>
 </div>
 <div class="section level4">
 <h4 id="testing-both-ways">Testing both ways<a class="anchor" aria-label="anchor" href="#testing-both-ways"></a>
 </h4>
-<p><span class="citation">Bauer and Francis (2021)</span> only took those scenarios into account in which 4.71 was combined with the respective smaller group and 5.3 with the larger one, so 17/23 is the only “hit” they found (my term). However, the converse way of assigning hypothetical group sizes to the reported means would be equally justified. <code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code>, therefore, conducts two sets of GRIM tests: one for each way of pairing means and group sizes.</p>
-<p>It thus finds the group sizes 19/21 and 16/24 to be GRIM-consistent if 5.3 is combined with the smaller group and 4.71 with the larger one (i.e., with pairing reversed from Bauer and Francis’ analysis). In the <code><a href="../reference/audit.html">audit_total_n()</a></code> summary of the function’s output, results from original pairing are named <code>hits_forth</code>, those from reversed pairing are named <code>hits_back</code>, and their sum is named <code>hits_total</code>.</p>
-<p>This example only features one case — the <code>df</code> tibble has just a single row. It could have any number of rows, though; and <code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code> would determine and count the “hits” for each of them. See the <em>Examples</em> section of <code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code>’s documentation.</p>
+<p><span class="citation">Bauer and Francis (2021)</span> only took
+those scenarios into account in which 4.71 was combined with the
+respective smaller group and 5.3 with the larger one, so 17/23 is the
+only “hit” they found (my term). However, the converse way of assigning
+hypothetical group sizes to the reported means would be equally
+justified. <code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code>, therefore, conducts two sets
+of GRIM tests: one for each way of pairing means and group sizes.</p>
+<p>It thus finds the group sizes 19/21 and 16/24 to be GRIM-consistent
+if 5.3 is combined with the smaller group and 4.71 with the larger one
+(i.e., with pairing reversed from Bauer and Francis’ analysis). In the
+<code><a href="../reference/audit.html">audit_total_n()</a></code> summary of the function’s output, results
+from original pairing are named <code>hits_forth</code>, those from
+reversed pairing are named <code>hits_back</code>, and their sum is
+named <code>hits_total</code>.</p>
+<p>This example only features one case — the <code>df</code> tibble has
+just a single row. It could have any number of rows, though; and
+<code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code> would determine and count the “hits” for
+each of them. See the <em>Examples</em> section of
+<code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code>’s documentation.</p>
 </div>
 </div>
 <div class="section level3">
@@ -535,16 +731,23 @@
 <div class="section level5">
 <h5 id="formula">Formula<a class="anchor" aria-label="anchor" href="#formula"></a>
 </h5>
-<p>The <code>ratio</code> column in a tibble returned by <code><a href="../reference/grim_map.html">grim_map()</a></code> is the “GRIM ratio”, i.e.:</p>
+<p>The <code>ratio</code> column in a tibble returned by
+<code><a href="../reference/grim_map.html">grim_map()</a></code> is the “GRIM ratio”, i.e.:</p>
 <p><span class="math display">\[
 \frac{10^D - NL}{10^D}
 \]</span></p>
-<p>where <span class="math inline">\(D\)</span> is the number of decimal places in <code>x</code> (the mean or proportion), <span class="math inline">\(N\)</span> is the sample size, and <span class="math inline">\(L\)</span> is the number of scale items. Because <span class="math inline">\(N, L \geq 1\)</span>, the GRIM ratio ranges from <span class="math inline">\(-\infty\)</span> to <span class="math inline">\(1 - \frac{1}{10^D}\)</span>, asymptotically approaching 1. Its upper bound will be 0.9 if <span class="math inline">\(D = 1\)</span> and 0.99 if <span class="math inline">\(D = 2\)</span>, etc.</p>
+<p>where <span class="math inline">\(D\)</span> is the number of decimal
+places in <code>x</code> (the mean or proportion), <span class="math inline">\(N\)</span> is the sample size, and <span class="math inline">\(L\)</span> is the number of scale items. Because
+<span class="math inline">\(N, L \geq 1\)</span>, the GRIM ratio ranges
+from <span class="math inline">\(-\infty\)</span> to <span class="math inline">\(1 - \frac{1}{10^D}\)</span>, asymptotically
+approaching 1. Its upper bound will be 0.9 if <span class="math inline">\(D = 1\)</span> and 0.99 if <span class="math inline">\(D = 2\)</span>, etc.</p>
 </div>
 <div class="section level5">
 <h5 id="functions">Functions<a class="anchor" aria-label="anchor" href="#functions"></a>
 </h5>
-<p><code><a href="../reference/grim_total.html">grim_ratio()</a></code> takes the arguments <code>x</code>, <code>n</code>, <code>items</code>, and <code>percent</code> as in <code><a href="../reference/grim.html">grim()</a></code> and <code><a href="../reference/grim_map.html">grim_map()</a></code>:</p>
+<p><code><a href="../reference/grim_total.html">grim_ratio()</a></code> takes the arguments <code>x</code>,
+<code>n</code>, <code>items</code>, and <code>percent</code> as in
+<code><a href="../reference/grim.html">grim()</a></code> and <code><a href="../reference/grim_map.html">grim_map()</a></code>:</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/grim_total.html">grim_ratio</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">1.42</span>, n <span class="op">=</span> <span class="fl">72</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.28</span></span>
@@ -554,7 +757,8 @@
 <span></span>
 <span><span class="fu"><a href="../reference/grim_total.html">grim_ratio</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"84.20"</span>, n <span class="op">=</span> <span class="fl">40</span>, percent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>  <span class="co"># Enter `x` as string to preserve trailing zero</span></span>
 <span><span class="co">#&gt; [1] 0.996</span></span></code></pre></div>
-<p>In addition, <code><a href="../reference/grim_total.html">grim_total()</a></code> takes the same arguments but returns only the numerator of the above formula:</p>
+<p>In addition, <code><a href="../reference/grim_total.html">grim_total()</a></code> takes the same arguments but
+returns only the numerator of the above formula:</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/grim_total.html">grim_total</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">1.42</span>, n <span class="op">=</span> <span class="fl">72</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 28</span></span>
@@ -564,45 +768,74 @@
 <span></span>
 <span><span class="fu"><a href="../reference/grim_total.html">grim_total</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"84.20"</span>, n <span class="op">=</span> <span class="fl">40</span>, percent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>  <span class="co"># Enter `x` as string to preserve trailing zero</span></span>
 <span><span class="co">#&gt; [1] 9960</span></span></code></pre></div>
-<p>If <code><a href="../reference/grim_map.html">grim_map()</a></code>’s <code>prob</code> argument is set to <code>TRUE</code>, it adds a <code>prob</code> column that shows the probability of GRIM inconsistency. <code>prob</code> is derived from left-censoring the <code>ratio</code> column at 0, so it is equal to <code>ratio</code> if and only if <span class="math inline">\(0 \leq ratio\)</span>. If <span class="math inline">\(ratio &lt; 0\)</span>, then <span class="math inline">\(prob = 0\)</span>. (The GRIM ratio cannot be 1 or greater.)</p>
+<p>If <code><a href="../reference/grim_map.html">grim_map()</a></code>’s <code>prob</code> argument is set to
+<code>TRUE</code>, it adds a <code>prob</code> column that shows the
+probability of GRIM inconsistency. <code>prob</code> is derived from
+left-censoring the <code>ratio</code> column at 0, so it is equal to
+<code>ratio</code> if and only if <span class="math inline">\(0 \leq
+ratio\)</span>. If <span class="math inline">\(ratio &lt; 0\)</span>,
+then <span class="math inline">\(prob = 0\)</span>. (The GRIM ratio
+cannot be 1 or greater.)</p>
 </div>
 <div class="section level5">
 <h5 id="interpretation">Interpretation<a class="anchor" aria-label="anchor" href="#interpretation"></a>
 </h5>
-<p>If the GRIM ratio is non-negative, it can be interpreted as the proportion of inconsistent value sets corresponding to a given set of parameters. This is also the probability that a randomly chosen mean is GRIM-inconsistent. If the ratio is negative, the probability is 0.</p>
-<p>Similarly, if the <code><a href="../reference/grim_total.html">grim_total()</a></code> value is non-negative, it can be interpreted as the total number of GRIM inconsistencies corresponding to a given set of parameters. If it is negative, that total is 0.</p>
+<p>If the GRIM ratio is non-negative, it can be interpreted as the
+proportion of inconsistent value sets corresponding to a given set of
+parameters. This is also the probability that a randomly chosen mean is
+GRIM-inconsistent. If the ratio is negative, the probability is 0.</p>
+<p>Similarly, if the <code><a href="../reference/grim_total.html">grim_total()</a></code> value is non-negative, it
+can be interpreted as the total number of GRIM inconsistencies
+corresponding to a given set of parameters. If it is negative, that
+total is 0.</p>
 </div>
 <div class="section level5">
 <h5 id="origins">Origins<a class="anchor" aria-label="anchor" href="#origins"></a>
 </h5>
-<p>Although the term “GRIM ratio” is new, the formula is arguably implicit in Brown and Heathers’ (2017) paper on GRIM. The numerator is a transformation of the formula presented on p. 364, and the authors discuss a common special case of the ratio (interpreted as a proportion) on p. 367:</p>
+<p>Although the term “GRIM ratio” is new, the formula is arguably
+implicit in Brown and Heathers’ (2017) paper on GRIM. The numerator is a
+transformation of the formula presented on p. 364, and the authors
+discuss a common special case of the ratio (interpreted as a proportion)
+on p. 367:</p>
 <blockquote>
-<p>With reporting to two decimal places, for a sample size <span class="math inline">\(N &lt; 100\)</span> [and a single item], a random mean value will be consistent in approximately <span class="math inline">\(N\)</span>% of cases.</p>
+<p>With reporting to two decimal places, for a sample size <span class="math inline">\(N &lt; 100\)</span> [and a single item], a random
+mean value will be consistent in approximately <span class="math inline">\(N\)</span>% of cases.</p>
 </blockquote>
-<p>Assuming <span class="math inline">\(N = 70\)</span> and inserting all of these values into the above formula returns</p>
+<p>Assuming <span class="math inline">\(N = 70\)</span> and inserting
+all of these values into the above formula returns</p>
 <p><span class="math display">\[
 \frac{10^2-70×1}{10^2} = 0.3
 \]</span></p>
-<p>so that a random mean will be inconsistent in about 30% of cases and, conversely, consistent in about 70%.</p>
-<p>Here is the same in code (assuming an arbitrary mean with two decimal places):</p>
+<p>so that a random mean will be inconsistent in about 30% of cases and,
+conversely, consistent in about 70%.</p>
+<p>Here is the same in code (assuming an arbitrary mean with two decimal
+places):</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/grim_total.html">grim_ratio</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">0.99</span>, n <span class="op">=</span> <span class="fl">70</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.3</span></span></code></pre></div>
-<p>Thus, all I did regarding the GRIM ratio was to make the general formula explicit and give it a name. Researchers may judge for themselves how useful it is for further analyses.</p>
+<p>Thus, all I did regarding the GRIM ratio was to make the general
+formula explicit and give it a name. Researchers may judge for
+themselves how useful it is for further analyses.</p>
 </div>
 </div>
 <div class="section level4">
 <h4 id="granularity-and-scale-items">Granularity and scale items<a class="anchor" aria-label="anchor" href="#granularity-and-scale-items"></a>
 </h4>
-<p>The granularity of a non-continuous distribution is the minimal amount by which two means or proportions of the distribution can differ. It is derived from the sample size and the number of scale items. The number of items, in turn, naturally follows from the distribution’s sample size and granularity.</p>
+<p>The granularity of a non-continuous distribution is the minimal
+amount by which two means or proportions of the distribution can differ.
+It is derived from the sample size and the number of scale items. The
+number of items, in turn, naturally follows from the distribution’s
+sample size and granularity.</p>
 <div class="section level5">
 <h5 id="formulas">Formulas<a class="anchor" aria-label="anchor" href="#formulas"></a>
 </h5>
-<p>The granularity (<span class="math inline">\(G\)</span>) formula is</p>
+<p>The granularity (<span class="math inline">\(G\)</span>) formula
+is</p>
 <p><span class="math display">\[
 G = \frac{1}{NL}
 \]</span></p>
-<p>where <span class="math inline">\(N\)</span> is the sample size and <span class="math inline">\(L\)</span> is the number of items.</p>
+<p>where <span class="math inline">\(N\)</span> is the sample size and
+<span class="math inline">\(L\)</span> is the number of items.</p>
 <p>The scale items formula is the converse:</p>
 <p><span class="math display">\[
 L = \frac{1}{NG}
@@ -611,15 +844,21 @@ L = \frac{1}{NG}
 <div class="section level5">
 <h5 id="functions-1">Functions<a class="anchor" aria-label="anchor" href="#functions-1"></a>
 </h5>
-<p>Suppose you have an ordinal distribution with 80 observations and five items. To get its granularity, run this:</p>
+<p>Suppose you have an ordinal distribution with 80 observations and
+five items. To get its granularity, run this:</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/grim_granularity.html">grim_granularity</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">80</span>, items <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.003125</span></span></code></pre></div>
-<p>Now, imagine a distribution with 50 observations and a granularity of 0.01. To get the number of its items (actual or effective), use this code:</p>
+<p>Now, imagine a distribution with 50 observations and a granularity of
+0.01. To get the number of its items (actual or effective), use this
+code:</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/grim_granularity.html">grim_items</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">50</span>, gran <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 2</span></span></code></pre></div>
-<p>As the number of items itself has a granularity of 1, a call to <code><a href="../reference/grim_granularity.html">grim_items()</a></code> that doesn’t return whole numbers indicates a problem in earlier computations. A warning to that effect will be displayed:</p>
+<p>As the number of items itself has a granularity of 1, a call to
+<code><a href="../reference/grim_granularity.html">grim_items()</a></code> that doesn’t return whole numbers indicates a
+problem in earlier computations. A warning to that effect will be
+displayed:</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/grim_granularity.html">grim_items</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">50</span>, <span class="fl">65</span>, <span class="fl">93</span><span class="op">)</span>, gran <span class="op">=</span> <span class="fl">0.02</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: 2 out of 3 item counts aren't whole numbers.</span></span>
@@ -631,14 +870,24 @@ L = \frac{1}{NG}
 </div>
 </div>
 <div class="section level2">
-<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+<h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references">
-<div id="ref-bauer_expression_2021">
-<p>Bauer, Patricia J., and Gregory Francis. 2021. “Expression of Concern: Is It Light or Dark? Recalling Moral Behavior Changes Perception of Brightness.” <em>Psychological Science</em> 32 (12): 2042–3.</p>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-bauer_expression_2021" class="csl-entry">
+Bauer, Patricia J., and Gregory Francis. 2021. <span>“Expression of
+<span>Concern</span>: <span>Is</span> <span>It</span> <span>Light</span>
+or <span>Dark</span>? <span>Recalling</span> <span>Moral</span>
+<span>Behavior</span> <span>Changes</span> <span>Perception</span> of
+<span>Brightness</span>.”</span> <em>Psychological Science</em> 32 (12):
+2042–43.
 </div>
-<div id="ref-brown_grim_2017">
-<p>Brown, Nicholas J. L., and James A. J. Heathers. 2017. “The GRIM Test: A Simple Technique Detects Numerous Anomalies in the Reporting of Results in Psychology.” <em>Social Psychological and Personality Science</em> 8 (4): 363–69.</p>
+<div id="ref-brown_grim_2017" class="csl-entry">
+Brown, Nicholas J. L., and James A. J. Heathers. 2017. <span>“The
+<span>GRIM</span> <span>Test</span>: <span>A</span> <span>Simple</span>
+<span>Technique</span> <span>Detects</span> <span>Numerous</span>
+<span>Anomalies</span> in the <span>Reporting</span> of
+<span>Results</span> in <span>Psychology</span>.”</span> <em>Social
+Psychological and Personality Science</em> 8 (4): 363–69.
 </div>
 </div>
 </div>

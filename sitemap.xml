@@ -85,6 +85,9 @@
     <loc>https://lhdjung.github.io/scrutiny/reference/duplicate_count.html</loc>
   </url>
   <url>
+    <loc>https://lhdjung.github.io/scrutiny/reference/duplicate_count_colpair.html</loc>
+  </url>
+  <url>
     <loc>https://lhdjung.github.io/scrutiny/reference/duplicate_detect.html</loc>
   </url>
   <url>
@@ -197,6 +200,9 @@
   </url>
   <url>
     <loc>https://lhdjung.github.io/scrutiny/reference/seq_endpoint.html</loc>
+  </url>
+  <url>
+    <loc>https://lhdjung.github.io/scrutiny/reference/seq_length.html</loc>
   </url>
   <url>
     <loc>https://lhdjung.github.io/scrutiny/reference/seq_test_ranking.html</loc>

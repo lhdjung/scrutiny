@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,9 +33,9 @@
     <a class="dropdown-item" href="../articles/infrastructure.html">General infrastructure</a>
     <a class="dropdown-item" href="../articles/consistency-tests.html">Implementing consistency tests</a>
     <a class="dropdown-item" href="../articles/rounding.html">Rounding</a>
+    <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Other</h6>
-    <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
     <a class="dropdown-item" href="../articles/related.html">Related software</a>
   </div>
 </li>
@@ -207,6 +207,11 @@ repeats)</dd>
           <code><a href="duplicate_count.html">duplicate_count()</a></code> 
         </dt>
         <dd>Count duplicate values</dd>
+      </dl><dl><dt>
+          
+          <code><a href="duplicate_count_colpair.html">duplicate_count_colpair()</a></code> 
+        </dt>
+        <dd>Count duplicate values by column</dd>
       </dl></div><div class="section level2">
       <h2 id="summarize-scrutiny-tests">Summarize scrutiny tests<a class="anchor" aria-label="anchor" href="#summarize-scrutiny-tests"></a></h2>
       
@@ -355,6 +360,11 @@ repeats)</dd>
         <dd>Vary hypothetical group sizes</dd>
       </dl><dl><dt>
           
+          <code><a href="seq_length.html">seq_length()</a></code> <code><a href="seq_length.html">`seq_length&lt;-`()</a></code> 
+        </dt>
+        <dd>Set sequence length</dd>
+      </dl><dl><dt>
+          
           <code><a href="is_seq_linear.html">is_seq_linear()</a></code> <code><a href="is_seq_linear.html">is_seq_ascending()</a></code> <code><a href="is_seq_linear.html">is_seq_descending()</a></code> <code><a href="is_seq_linear.html">is_seq_dispersed()</a></code> 
         </dt>
         <dd>Is a vector a certain kind of sequence?</dd>
@@ -459,7 +469,7 @@ repeats)</dd>
 
       <dl><dt>
           
-          <code><a href="restore_zeros.html">restore_zeros()</a></code> 
+          <code><a href="restore_zeros.html">restore_zeros()</a></code> <code><a href="restore_zeros.html">restore_zeros_df()</a></code> 
         </dt>
         <dd>Restore trailing zeros</dd>
       </dl><dl><dt>

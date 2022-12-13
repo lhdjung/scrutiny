@@ -7,7 +7,7 @@ seq_endpoint() creates a sequence from one input value to another. For
 step size, it goes by the value with more decimal places.
 seq_distance() only takes the starting point and, instead of the
 endpoint, the desired output length. For step size, it goes by the starting
-point.
+point by default.
 
 
 seq_endpoint_df() and seq_distance_df() are variants that create a data
@@ -21,7 +21,7 @@ seq_endpoint() creates a sequence from one input value to another. For
 step size, it goes by the value with more decimal places.
 seq_distance() only takes the starting point and, instead of the
 endpoint, the desired output length. For step size, it goes by the starting
-point.
+point by default.
 
 
 seq_endpoint_df() and seq_distance_df() are variants that create a data
@@ -38,7 +38,7 @@ before each."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/lib
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -61,9 +61,9 @@ before each."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/lib
     <a class="dropdown-item" href="../articles/infrastructure.html">General infrastructure</a>
     <a class="dropdown-item" href="../articles/consistency-tests.html">Implementing consistency tests</a>
     <a class="dropdown-item" href="../articles/rounding.html">Rounding</a>
+    <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Other</h6>
-    <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
     <a class="dropdown-item" href="../articles/related.html">Related software</a>
   </div>
 </li>
@@ -99,7 +99,7 @@ ultimate decimal digit (e.g., <code>2.45</code>, <code>2.46</code>, <code>2.47</
 step size, it goes by the value with more decimal places.</p></li>
 <li><p><code>seq_distance()</code> only takes the starting point and, instead of the
 endpoint, the desired output length. For step size, it goes by the starting
-point.</p></li>
+point by default.</p></li>
 </ul><p><code>seq_endpoint_df()</code> and <code>seq_distance_df()</code> are variants that create a data
 frame. Further columns can be added as in <code><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble::tibble()</a></code>. Regular
 arguments are the same as in the respective non-<code>df</code> function, but with a dot
@@ -112,6 +112,7 @@ before each.</p>
 <span></span>
 <span><span class="fu">seq_distance</span><span class="op">(</span></span>
 <span>  <span class="va">from</span>,</span>
+<span>  by <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  length_out <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  dir <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  offset_from <span class="op">=</span> <span class="fl">0</span>,</span>
@@ -129,6 +130,7 @@ before each.</p>
 <span></span>
 <span><span class="fu">seq_distance_df</span><span class="op">(</span></span>
 <span>  <span class="va">.from</span>,</span>
+<span>  .by <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span>,</span>
 <span>  .length_out <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  .dir <span class="op">=</span> <span class="fl">1</span>,</span>
@@ -166,6 +168,12 @@ digit. Default is <code>0</code>. Only in <code>seq_endpoint()</code> and <code>
 default), the output is a string vector. Decimal places are then padded
 with zeros to match <code>from</code>'s (or <code>to</code>'s) number of decimal places. <code>"auto"</code>
 works like <code>TRUE</code> if and only if <code>from</code> (<code>.from</code>) is a string.</p></dd>
+
+
+<dt>by, .by</dt>
+<dd><p>Numeric. Only in <code>seq_distance()</code> and <code>seq_distance_df()</code>. Step
+size of the sequence. If not set, inferred automatically. Default is
+<code>NULL</code>.</p></dd>
 
 
 <dt>length_out, .length_out</dt>

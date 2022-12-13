@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,9 +50,9 @@
     <a class="dropdown-item" href="../articles/infrastructure.html">General infrastructure</a>
     <a class="dropdown-item" href="../articles/consistency-tests.html">Implementing consistency tests</a>
     <a class="dropdown-item" href="../articles/rounding.html">Rounding</a>
+    <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Other</h6>
-    <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
     <a class="dropdown-item" href="../articles/related.html">Related software</a>
   </div>
 </li>
@@ -80,7 +80,8 @@
 
 
 
-<script src="infrastructure_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+
+<div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>General infrastructure</h1>
             
@@ -93,12 +94,21 @@
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lhdjung.github.io/scrutiny/">scrutiny</a></span><span class="op">)</span></span></code></pre></div>
-<p>The implementation of error detection techniques in scrutiny rests on a foundation of specialized helper functions. Some of these are exported because they might be helpful in error detection more broadly, or perhaps even in other contexts.</p>
-<p>This vignette provides an overview of scrutiny’s miscellaneous infrastructure for implementing error detection techniques. For more specific articles, see <code><a href="../articles/rounding.html">vignette("rounding")</a></code> or <code><a href="../articles/consistency-tests.html">vignette("consistency-tests")</a></code>.</p>
+<p>The implementation of error detection techniques in scrutiny rests on
+a foundation of specialized helper functions. Some of these are exported
+because they might be helpful in error detection more broadly, or
+perhaps even in other contexts.</p>
+<p>This vignette provides an overview of scrutiny’s miscellaneous
+infrastructure for implementing error detection techniques. For more
+specific articles, see <code><a href="../articles/rounding.html">vignette("rounding")</a></code> or
+<code><a href="../articles/consistency-tests.html">vignette("consistency-tests")</a></code>.</p>
 <div class="section level3">
 <h3 id="count-decimal-places">Count decimal places<a class="anchor" aria-label="anchor" href="#count-decimal-places"></a>
 </h3>
-<p>Large parts of the package ultimately rest on either of two functions that simply count decimal places. These are digits after a number’s decimal point or some other separator. Both functions also take strings.</p>
+<p>Large parts of the package ultimately rest on either of two functions
+that simply count decimal places. These are digits after a number’s
+decimal point or some other separator. Both functions also take
+strings.</p>
 <p><code><a href="../reference/decimal_places.html">decimal_places()</a></code> is vectorized:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/decimal_places.html">decimal_places</a></span><span class="op">(</span><span class="st">"2.80"</span><span class="op">)</span></span>
@@ -117,20 +127,30 @@
 <span><span class="va">vec1</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/decimal_places.html">decimal_places</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  [1] 1 1 1 1 0 1 1 0 1 1</span></span></code></pre></div>
-<p>Using strings (that are coercible to numeric) is recommended in an error detection context because trailing zeros can be crucial here. Numeric values drop trailing zeros, whereas strings preserve them:</p>
+<p>Using strings (that are coercible to numeric) is recommended in an
+error detection context because trailing zeros can be crucial here.
+Numeric values drop trailing zeros, whereas strings preserve them:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/decimal_places.html">decimal_places</a></span><span class="op">(</span><span class="fl">7.200</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 1</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/decimal_places.html">decimal_places</a></span><span class="op">(</span><span class="st">"7.200"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 3</span></span></code></pre></div>
-<p><code><a href="../reference/decimal_places.html">decimal_places_scalar()</a></code> is faster than <code><a href="../reference/decimal_places.html">decimal_places()</a></code> but only takes a single number or string. This makes it suitable as a helper within other single-case functions.</p>
+<p><code><a href="../reference/decimal_places.html">decimal_places_scalar()</a></code> is faster than
+<code><a href="../reference/decimal_places.html">decimal_places()</a></code> but only takes a single number or string.
+This makes it suitable as a helper within other single-case
+functions.</p>
 </div>
 <div class="section level3">
 <h3 id="restore-trailing-zeros">Restore trailing zeros<a class="anchor" aria-label="anchor" href="#restore-trailing-zeros"></a>
 </h3>
-<p>When dealing with numbers that used to have trailing zeros but lost them from being registered as numeric, call <code><a href="../reference/restore_zeros.html">restore_zeros()</a></code> to format them correctly. This can be relevant within functions that create vectors where trailing zeros matter, such as the <code>seq_*()</code> functions presented in the next section.</p>
-<p>Suppose all of the following numbers originally had one decimal place, but some no longer do:</p>
+<p>When dealing with numbers that used to have trailing zeros but lost
+them from being registered as numeric, call <code><a href="../reference/restore_zeros.html">restore_zeros()</a></code>
+to format them correctly. This can be relevant within functions that
+create vectors where trailing zeros matter, such as the
+<code>seq_*()</code> functions presented in the next section.</p>
+<p>Suppose all of the following numbers originally had one decimal
+place, but some no longer do:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vec2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">6.9</span>, <span class="fl">5</span>, <span class="fl">4.2</span>, <span class="fl">4.8</span>, <span class="fl">7</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span></span>
@@ -147,7 +167,11 @@
 <span>  <span class="fu"><a href="../reference/restore_zeros.html">restore_zeros</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/decimal_places.html">decimal_places</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 1 1 1 1 1 1 1</span></span></code></pre></div>
-<p>This uses the default of going by the longest mantissa and padding the other strings with decimal zeros until they have that many decimal places. However, this is just a heuristic: The longest mantissa might itself have lost decimal places. Specify the <code>width</code> argument to explicitly state the desired mantissa length:</p>
+<p>This uses the default of going by the longest mantissa and padding
+the other strings with decimal zeros until they have that many decimal
+places. However, this is just a heuristic: The longest mantissa might
+itself have lost decimal places. Specify the <code>width</code> argument
+to explicitly state the desired mantissa length:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vec2</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/restore_zeros.html">restore_zeros</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
@@ -164,21 +188,44 @@
 <div class="section level4">
 <h4 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h4>
-<p><code><a href="https://rdrr.io/r/base/seq.html" class="external-link">base::seq()</a></code> offers a flexible way to generate sequences, but it is not cut out for working with decimal numbers. The <code>by</code> argument only allows for manual specifications of the step size, i.e., the difference between two consecutive output values. In an error detection context, there is also the problem of trailing zeros in numeric values.</p>
-<p>Use scrutiny’s <code>seq_*()</code> functions to automatically determine step size from the input numbers and, by default, to supply missing trailing zeros via <code><a href="../reference/restore_zeros.html">restore_zeros()</a></code>. Output will then naturally be string.</p>
-<p>Why are there multiple such functions? The first two disentangle the two different ways in which <code><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq()</a></code> can be used. A third function adds a way of generating sequences not directly covered by <code><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq()</a></code>.</p>
+<p><code><a href="https://rdrr.io/r/base/seq.html" class="external-link">base::seq()</a></code> offers a flexible way to generate sequences,
+but it is not cut out for working with decimal numbers. The
+<code>by</code> argument only allows for manual specifications of the
+step size, i.e., the difference between two consecutive output values.
+In an error detection context, there is also the problem of trailing
+zeros in numeric values.</p>
+<p>Use scrutiny’s <code>seq_*()</code> functions to automatically
+determine step size from the input numbers and, by default, to supply
+missing trailing zeros via <code><a href="../reference/restore_zeros.html">restore_zeros()</a></code>. Output will
+then naturally be string.</p>
+<p>Why are there multiple such functions? The first two disentangle the
+two different ways in which <code><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq()</a></code> can be used. A third
+function adds a way of generating sequences not directly covered by
+<code><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq()</a></code>.</p>
 <ul>
-<li><p><code><a href="../reference/seq_endpoint.html">seq_endpoint()</a></code> takes two main arguments, <code>from</code> and <code>to</code>. It creates a sequence between the two, inferring step size from the greater number of decimal places among them. This corresponds to a <code><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq()</a></code> call in which <code>to</code> was specified.</p></li>
-<li><p><code><a href="../reference/seq_endpoint.html">seq_distance()</a></code> takes a <code>from</code> argument, uses it to infer the step size, and creates a sequence of a length specified by the <code>length_out</code> argument (default is <code>10</code>). This corresponds to a <code><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq()</a></code> call in which <code>length.out</code> was specified.</p></li>
-<li><p>Finally, <code><a href="../reference/seq_disperse.html">seq_disperse()</a></code> creates a sequence centered around <code>from</code>.</p></li>
+<li><p><code><a href="../reference/seq_endpoint.html">seq_endpoint()</a></code> takes two main arguments,
+<code>from</code> and <code>to</code>. It creates a sequence between the
+two, inferring step size from the greater number of decimal places among
+them. This corresponds to a <code><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq()</a></code> call in which
+<code>to</code> was specified.</p></li>
+<li><p><code><a href="../reference/seq_endpoint.html">seq_distance()</a></code> takes a <code>from</code> argument,
+uses it to infer the step size, and creates a sequence of a length
+specified by the <code>length_out</code> argument (default is
+<code>10</code>). This corresponds to a <code><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq()</a></code> call in which
+<code>length.out</code> was specified.</p></li>
+<li><p>Finally, <code><a href="../reference/seq_disperse.html">seq_disperse()</a></code> creates a sequence centered
+around <code>from</code>.</p></li>
 </ul>
-<p>Each of these functions has a <code>*_df()</code> variant that embeds the sequence as a tibble column.</p>
+<p>Each of these functions has a <code>*_df()</code> variant that embeds
+the sequence as a tibble column.</p>
 </div>
 <div class="section level4">
 <h4 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
 </h4>
-<p>The <code>seq_*()</code> functions have some more features, such as offsets and direction reversal, but I’ll focus on the basics here.</p>
-<p>Call <code><a href="../reference/seq_endpoint.html">seq_endpoint()</a></code> to bridge two numbers at the correct decimal level:</p>
+<p>The <code>seq_*()</code> functions have some more features, such as
+offsets and direction reversal, but I’ll focus on the basics here.</p>
+<p>Call <code><a href="../reference/seq_endpoint.html">seq_endpoint()</a></code> to bridge two numbers at the correct
+decimal level:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/seq_endpoint.html">seq_endpoint</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">4.1</span>, to <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  [1] "4.1" "4.2" "4.3" "4.4" "4.5" "4.6" "4.7" "4.8" "4.9" "5.0" "5.1" "5.2"</span></span>
@@ -186,7 +233,8 @@
 <span></span>
 <span><span class="fu"><a href="../reference/seq_endpoint.html">seq_endpoint</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">4.1</span>, to <span class="op">=</span> <span class="fl">4.15</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "4.10" "4.11" "4.12" "4.13" "4.14" "4.15"</span></span></code></pre></div>
-<p>Call <code><a href="../reference/seq_endpoint.html">seq_distance()</a></code> to get a sequence of desired length:</p>
+<p>Call <code><a href="../reference/seq_endpoint.html">seq_distance()</a></code> to get a sequence of desired
+length:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/seq_endpoint.html">seq_distance</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">4.1</span>, length_out <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "4.1" "4.2" "4.3"</span></span>
@@ -194,7 +242,8 @@
 <span><span class="co"># Default for `length_out` is `10`:</span></span>
 <span><span class="fu"><a href="../reference/seq_endpoint.html">seq_distance</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">4.1</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  [1] "4.1" "4.2" "4.3" "4.4" "4.5" "4.6" "4.7" "4.8" "4.9" "5.0"</span></span></code></pre></div>
-<p>Finally, call <code><a href="../reference/seq_disperse.html">seq_disperse()</a></code> to construct a sequence around <code>from</code>:</p>
+<p>Finally, call <code><a href="../reference/seq_disperse.html">seq_disperse()</a></code> to construct a sequence
+around <code>from</code>:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/seq_disperse.html">seq_disperse</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">4.1</span>, dispersion <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "3.8" "3.9" "4.0" "4.1" "4.2" "4.3" "4.4"</span></span>
@@ -202,7 +251,9 @@
 <span><span class="co"># Default for `dispersion` if `1:5`:</span></span>
 <span><span class="fu"><a href="../reference/seq_disperse.html">seq_disperse</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">4.1</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  [1] "3.6" "3.7" "3.8" "3.9" "4.0" "4.1" "4.2" "4.3" "4.4" "4.5" "4.6"</span></span></code></pre></div>
-<p><code><a href="../reference/seq_disperse.html">seq_disperse()</a></code> is a hybrid between the two <code><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq()</a></code> wrappers explained above and the <code>disperse*()</code> functions introduced next.</p>
+<p><code><a href="../reference/seq_disperse.html">seq_disperse()</a></code> is a hybrid between the two
+<code><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq()</a></code> wrappers explained above and the
+<code>disperse*()</code> functions introduced next.</p>
 </div>
 </div>
 <div class="section level3">
@@ -211,8 +262,12 @@
 <div class="section level4">
 <h4 id="general-points">General points<a class="anchor" aria-label="anchor" href="#general-points"></a>
 </h4>
-<p>Four predicate functions around <code><a href="../reference/is_seq_linear.html">is_seq_linear()</a></code> test whether a vector <code>x</code> represents particular kinds of sequences. These testing functions can be used as helpers, but they are also analytic instruments in their own right.</p>
-<p><code><a href="../reference/is_seq_linear.html">is_seq_linear()</a></code> returns <code>TRUE</code> if the difference between all neighboring values is the same:</p>
+<p>Four predicate functions test whether a vector <code>x</code>
+represents particular kinds of sequences. These testing functions can be
+used as helpers, but they are also analytic tools in their own
+right.</p>
+<p><code><a href="../reference/is_seq_linear.html">is_seq_linear()</a></code> returns <code>TRUE</code> if the
+difference between all neighboring values is the same:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/is_seq_linear.html">is_seq_linear</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">8</span><span class="op">:</span><span class="fl">15</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span>
@@ -220,7 +275,8 @@
 <span><span class="co">#&gt; [1] TRUE</span></span>
 <span><span class="fu"><a href="../reference/is_seq_linear.html">is_seq_linear</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">8</span><span class="op">:</span><span class="fl">15</span>, <span class="fl">17</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] FALSE</span></span></code></pre></div>
-<p><code><a href="../reference/is_seq_linear.html">is_seq_ascending()</a></code> tests whether that difference is always positive…</p>
+<p><code><a href="../reference/is_seq_linear.html">is_seq_ascending()</a></code> tests whether that difference is
+always positive…</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/is_seq_linear.html">is_seq_ascending</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">8</span><span class="op">:</span><span class="fl">15</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span>
@@ -232,7 +288,8 @@
 <span><span class="co">#&gt; [1] FALSE</span></span>
 <span><span class="fu"><a href="../reference/is_seq_linear.html">is_seq_ascending</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">8</span><span class="op">:</span><span class="fl">15</span>, <span class="fl">17</span><span class="op">)</span>, test_linear <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
-<p>…whereas <code><a href="../reference/is_seq_linear.html">is_seq_descending()</a></code> tests whether it is always negative:</p>
+<p>…whereas <code><a href="../reference/is_seq_linear.html">is_seq_descending()</a></code> tests whether it is always
+negative:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/is_seq_linear.html">is_seq_descending</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">8</span><span class="op">:</span><span class="fl">15</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] FALSE</span></span>
@@ -244,7 +301,8 @@
 <span><span class="co">#&gt; [1] FALSE</span></span>
 <span><span class="fu"><a href="../reference/is_seq_linear.html">is_seq_descending</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">15</span><span class="op">:</span><span class="fl">8</span>, <span class="fl">2</span><span class="op">)</span>, test_linear <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
-<p><code><a href="../reference/is_seq_linear.html">is_seq_dispersed()</a></code> tests whether the vector is grouped around its <code>from</code> argument:</p>
+<p><code><a href="../reference/is_seq_linear.html">is_seq_dispersed()</a></code> tests whether the vector is grouped
+around its <code>from</code> argument:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/is_seq_linear.html">is_seq_dispersed</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">3</span><span class="op">:</span><span class="fl">7</span>, from <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] FALSE</span></span>
@@ -268,14 +326,20 @@
 <h4 id="na-handling">
 <code>NA</code> handling<a class="anchor" aria-label="anchor" href="#na-handling"></a>
 </h4>
-<p>All the <code>is_seq_*()</code> functions take special care with <code>NA</code> values in <code>x</code>. If one or more elements of <code>x</code> are <code>NA</code>, this doesn’t necessarily mean that it’s unknown whether or not <code>x</code> might possibly represent the kind of sequence in question.</p>
-<p>In these examples, it is genuinely unclear whether <code>x</code> is linear:</p>
+<p>All the <code>is_seq_*()</code> functions take special care with
+missing values. If one or more elements of <code>x</code> are
+<code>NA</code>, this doesn’t necessarily mean that it’s unknown whether
+or not <code>x</code> might possibly represent the kind of sequence in
+question.</p>
+<p>In these examples, it is genuinely unclear whether <code>x</code> is
+linear:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/is_seq_linear.html">is_seq_linear</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="cn">NA</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] NA</span></span>
 <span><span class="fu"><a href="../reference/is_seq_linear.html">is_seq_linear</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">6</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] NA</span></span></code></pre></div>
-<p>Linearity thus depends on the unknown, missing value behind <code>NA</code>:</p>
+<p>Linearity thus depends on the unknown, missing value behind
+<code>NA</code>:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/is_seq_linear.html">is_seq_linear</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span>
@@ -286,19 +350,40 @@
 <span><span class="co">#&gt; [1] TRUE</span></span>
 <span><span class="fu"><a href="../reference/is_seq_linear.html">is_seq_linear</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">17</span>, <span class="fl">29</span>, <span class="fl">32</span>, <span class="fl">6</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] FALSE</span></span></code></pre></div>
-<p>Sometimes, however, <code>x</code> cannot possibly represent the tested kind of sequence, independently of the numbers substituted for <code>NA</code> elements. In such cases, scrutiny’s <code>is_seq_*()</code> functions will always return <code>FALSE</code>:</p>
+<p>Sometimes, however, <code>x</code> cannot possibly represent the
+tested kind of sequence, independently of the hypothetical numbers
+substituted for <code>NA</code> elements. In such cases, scrutiny’s
+<code>is_seq_*()</code> functions will always return
+<code>FALSE</code>:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/is_seq_linear.html">is_seq_linear</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="cn">NA</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] FALSE</span></span>
 <span><span class="fu"><a href="../reference/is_seq_linear.html">is_seq_linear</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] FALSE</span></span></code></pre></div>
-<p>Leading and trailing <code>NA</code>s are ignored when determining whether <code>x</code> <em>might</em> be a linear sequence (or other kind of sequence). They do prevent the functions from returning <code>TRUE</code>, but they don’t require the non-missing values to be in any particular order:</p>
+<p>This is very much in the spirit of consistency testing. Even if
+certain data are unknown, it still makes sense to check whether or not
+<em>any</em> data could possibly fill in the gaps. The
+<code>is_seq_*()</code> functions effectively ask: Are the numbers left
+and right of the <code>NA</code>s consistent with each other, given
+their index positions?</p>
+<p>It is worth emphasizing that this behavior is not exotic, or specific
+to scrutiny. It simply asserts the fundamental ideas of <code>NA</code>
+propagation in R. For example,
+<code>is_seq_ascending(x = c(1, 2, NA, 1))</code> is <code>FALSE</code>
+for the same reason that <code>NA &amp; FALSE</code> is
+<code>FALSE</code>: The outcome is the same for all possible values of
+<code>NA</code> <span class="citation">(Wickham 2019,
+ch. 3.2.3)</span>.</p>
+<p>Leading and trailing <code>NA</code>s are mostly ignored when
+determining whether <code>x</code> <em>might</em> be the kind of
+sequence in question:</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/is_seq_linear.html">is_seq_linear</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] NA</span></span>
 <span><span class="fu"><a href="../reference/is_seq_linear.html">is_seq_linear</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="cn">NA</span>, <span class="fl">4</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] NA</span></span></code></pre></div>
-<p><code><a href="../reference/is_seq_linear.html">is_seq_dispersed()</a></code> is particularly sensitive to <code>NA</code> values:</p>
+<p>The only exception, <code><a href="../reference/is_seq_linear.html">is_seq_dispersed()</a></code>, is particularly
+sensitive to <code>NA</code> values:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># `TRUE` because `x` is symmetrically dispersed</span></span>
 <span><span class="co"># from 5 and contains no `NA` values:</span></span>
@@ -306,7 +391,7 @@
 <span><span class="co">#&gt; [1] TRUE</span></span>
 <span></span>
 <span><span class="co"># `NA` because it might be dispersed from 5,</span></span>
-<span><span class="co"># depending on the true values behind the `NA`s:</span></span>
+<span><span class="co"># depending on the values hidden behind the `NA`s:</span></span>
 <span><span class="fu"><a href="../reference/is_seq_linear.html">is_seq_dispersed</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">3</span><span class="op">:</span><span class="fl">7</span>, <span class="cn">NA</span><span class="op">)</span>, from <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] NA</span></span>
 <span><span class="fu"><a href="../reference/is_seq_linear.html">is_seq_dispersed</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">3</span><span class="op">:</span><span class="fl">7</span>, <span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span>, from <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
@@ -327,8 +412,14 @@
 <div class="section level3">
 <h3 id="disperse-from-around-half-with-disperse_total">Disperse from (around) half with <code>disperse_total()</code><a class="anchor" aria-label="anchor" href="#disperse-from-around-half-with-disperse_total"></a>
 </h3>
-<p>Briefly, <code><a href="../reference/disperse.html">disperse_total()</a></code> checks if an input total is even or odd, cuts it in half, and creates “dispersed” group sizes going out from there, with each pair of group sizes adding up to the input total. This works naturally with even totals. For odd totals, it starts with the two integers closest to half.</p>
-<p>The function internally calls either of <code><a href="../reference/disperse.html">disperse()</a></code> and <code><a href="../reference/disperse.html">disperse2()</a></code>, but I recommend simply using the higher-level <code><a href="../reference/disperse.html">disperse_total()</a></code>. Here are two basic examples:</p>
+<p>Briefly, <code><a href="../reference/disperse.html">disperse_total()</a></code> checks if an input total is
+even or odd, cuts it in half, and creates “dispersed” group sizes going
+out from there, with each pair of group sizes adding up to the input
+total. This works naturally with even totals. For odd totals, it starts
+with the two integers closest to half.</p>
+<p>The function internally calls either of <code><a href="../reference/disperse.html">disperse()</a></code> and
+<code><a href="../reference/disperse.html">disperse2()</a></code>, but I recommend simply using the higher-level
+<code><a href="../reference/disperse.html">disperse_total()</a></code>. Here are two basic examples:</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># With an even total...</span></span>
 <span><span class="fu"><a href="../reference/disperse.html">disperse_total</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">70</span><span class="op">)</span></span>
@@ -369,13 +460,30 @@
 <div class="section level3">
 <h3 id="test-for-subsets-supersets-and-equal-sets">Test for subsets, supersets, and equal sets<a class="anchor" aria-label="anchor" href="#test-for-subsets-supersets-and-equal-sets"></a>
 </h3>
-<p>Starting with <code><a href="../reference/is_subset_of.html">is_subset_of()</a></code>, scrutiny features a distinctive family of predicate functions that test whether one vector <code>x</code> is a subset of another vector <code>y</code>, whether <code>x</code> is a superset of <code>y</code> (i.e. the reverse of a subset), or whether <code>x</code> and <code>y</code> are equal sets.</p>
-<p>As a teaser: These functions are divided into three subgroups based on the way the second vector, <code>y</code>, is constituted. For example, you might test if <code>x</code> is a subset of multiple other vectors taken together, or a superset of a vector <code>y</code> that consists of multiple values entered along with <code>x</code>.</p>
-<p>Functions from this family are not currently used as helpers inside other scrutiny functions, but that may well change. Use elsewhere is also conceivable.</p>
+<p>Starting with <code><a href="../reference/is_subset_of.html">is_subset_of()</a></code>, scrutiny features a
+distinctive family of predicate functions that test whether one vector
+<code>x</code> is a subset of another vector <code>y</code>, whether
+<code>x</code> is a superset of <code>y</code> (i.e. the reverse of a
+subset), or whether <code>x</code> and <code>y</code> are equal
+sets.</p>
+<p>As a teaser: These functions are divided into three subgroups based
+on the way the second vector, <code>y</code>, is constituted. For
+example, you might test if <code>x</code> is a subset of multiple other
+vectors taken together, or a superset of a vector <code>y</code> that
+consists of multiple values entered along with <code>x</code>.</p>
+<p>Functions from this family are not currently used as helpers inside
+other scrutiny functions, but that may well change. Use elsewhere is
+also conceivable.</p>
 </div>
 <div class="section level2">
-<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+<h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-wickham2019" class="csl-entry">
+Wickham, Hadley. 2019. <em>Advanced r</em>. Second edition. Boca Raton:
+CRC Press/Taylor; Francis Group.
+</div>
+</div>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>

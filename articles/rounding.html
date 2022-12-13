@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,9 +50,9 @@
     <a class="dropdown-item" href="../articles/infrastructure.html">General infrastructure</a>
     <a class="dropdown-item" href="../articles/consistency-tests.html">Implementing consistency tests</a>
     <a class="dropdown-item" href="../articles/rounding.html">Rounding</a>
+    <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Other</h6>
-    <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
     <a class="dropdown-item" href="../articles/related.html">Related software</a>
   </div>
 </li>
@@ -80,7 +80,8 @@
 
 
 
-<script src="rounding_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+
+<div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>Rounding</h1>
             
@@ -93,26 +94,62 @@
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lhdjung.github.io/scrutiny/">scrutiny</a></span><span class="op">)</span></span></code></pre></div>
-<p>Large parts of scrutiny are about rounding. This topic is more diverse and variegated than one might think. “Rounding” is often taken to simply mean rounding up from 5, and although that’s wrong, it doesn’t make much of a difference most of the time. Where it does matter is in <em>reconstructing</em> the rounding procedures that others used, claim to have used, or are alleged to have used. In short, rounding and all its details matter for error detection.</p>
-<p>This vignette covers scrutiny’s infrastructure for reconstructing rounding procedures and results from summary statistics. Doing so is essential for the package: It is a precondition for translating assumptions about the processes behind published summary data into a few simple, higher-level function calls. Some of the functions presented here might be useful beyond the package, as well. Feel free to skip the more theoretical parts if your focus is on the code.</p>
+<p>Large parts of scrutiny are about rounding. This topic is more
+diverse and variegated than one might think. “Rounding” is often taken
+to simply mean rounding up from 5, and although that’s wrong, it doesn’t
+make much of a difference most of the time. Where it does matter is in
+<em>reconstructing</em> the rounding procedures that others used, claim
+to have used, or are alleged to have used. In short, rounding and all
+its details matter for error detection.</p>
+<p>This vignette covers scrutiny’s infrastructure for reconstructing
+rounding procedures and results from summary statistics. Doing so is
+essential for the package: It is a precondition for translating
+assumptions about the processes behind published summary data into a few
+simple, higher-level function calls. Some of the functions presented
+here might be useful beyond the package, as well. Feel free to skip the
+more theoretical parts if your focus is on the code.</p>
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p>Base R’s <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">round()</a></code> function is surprisingly sophisticated, which distinguishes it from the very simple ways in which decimal numbers are normally rounded — most of the time, rounding up from 5. For this very reason, however, it can’t be used to reconstruct the rounding procedures of other software programs. This is the job of scrutiny’s rounding functions.</p>
-<p>First, I will present <code><a href="../reference/reround.html">reround()</a></code>, a general interface to reconstructing rounded numbers, before going through the individual rounding functions. I will add some comments on these.</p>
-<p>I will also discuss <code><a href="../reference/unround.html">unround()</a></code>, which works the reverse way: It takes a rounded number and reconstructs the bounds of the original number, taking details about the assumed rounding procedure into account.</p>
-<p>Finally, I will take a closer look at bias from rounding raw numbers.</p>
+<p>Base R’s <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">round()</a></code> function is surprisingly sophisticated,
+which distinguishes it from the very simple ways in which decimal
+numbers are normally rounded — most of the time, rounding up from 5. For
+this very reason, however, it can’t be used to reconstruct the rounding
+procedures of other software programs. This is the job of scrutiny’s
+rounding functions.</p>
+<p>First, I will present <code><a href="../reference/reround.html">reround()</a></code>, a general interface to
+reconstructing rounded numbers, before going through the individual
+rounding functions. I will add some comments on these.</p>
+<p>I will also discuss <code><a href="../reference/unround.html">unround()</a></code>, which works the reverse
+way: It takes a rounded number and reconstructs the bounds of the
+original number, taking details about the assumed rounding procedure
+into account.</p>
+<p>Finally, I will take a closer look at bias from rounding raw
+numbers.</p>
 </div>
 <div class="section level2">
 <h2 id="reconstruct-rounded-numbers-with-reround">Reconstruct rounded numbers with <code>reround()</code><a class="anchor" aria-label="anchor" href="#reconstruct-rounded-numbers-with-reround"></a>
 </h2>
-<p>None of the error detection techniques in scrutiny calls the individual rounding functions directly. Instead, all of them call <code><a href="../reference/reround.html">reround()</a></code>, which mediates between these two levels. <code><a href="../reference/reround.html">reround()</a></code> takes the vector of “raw” reconstructed numbers that were not yet rounded in the way that’s assumed to have been the original rounding procedure. Its next argument is <code>digits</code>, the number of decimal places to round to.</p>
-<p>The remaining three arguments are about the rounding procedure. Most of the time, only <code>rounding</code> will be of any interest. It takes a string with the name of one of the rounding procedures discussed below.</p>
+<p>None of the error detection techniques in scrutiny calls the
+individual rounding functions directly. Instead, all of them call
+<code><a href="../reference/reround.html">reround()</a></code>, which mediates between these two levels.
+<code><a href="../reference/reround.html">reround()</a></code> takes the vector of “raw” reconstructed numbers
+that were not yet rounded in the way that’s assumed to have been the
+original rounding procedure. Its next argument is <code>digits</code>,
+the number of decimal places to round to.</p>
+<p>The remaining three arguments are about the rounding procedure. Most
+of the time, only <code>rounding</code> will be of any interest. It
+takes a string with the name of one of the rounding procedures discussed
+below.</p>
 <p>Here is an example for a <code><a href="../reference/reround.html">reround()</a></code> call:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/reround.html">reround</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5.812</span>, <span class="fl">7.249</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">2</span>, rounding <span class="op">=</span> <span class="st">"up"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 5.81 7.25</span></span></code></pre></div>
-<p>The two remaining arguments are mostly forgettable: They only concern obscure cases of rounding with a threshold other than 5 (<code>threshold</code>) and rounding such that the absolute values of positive and negative numbers are the same (<code>symmetric</code>). Ignore them otherwise.</p>
+<p>The two remaining arguments are mostly forgettable: They only concern
+obscure cases of rounding with a threshold other than 5
+(<code>threshold</code>) and rounding such that the absolute values of
+positive and negative numbers are the same (<code>symmetric</code>).
+Ignore them otherwise.</p>
 </div>
 <div class="section level2">
 <h2 id="rounding-procedures-in-detail">Rounding procedures in detail<a class="anchor" aria-label="anchor" href="#rounding-procedures-in-detail"></a>
@@ -120,7 +157,10 @@
 <div class="section level3">
 <h3 id="up-and-down">Up and down<a class="anchor" aria-label="anchor" href="#up-and-down"></a>
 </h3>
-<p><code><a href="../reference/round_up_from.html">round_up()</a></code> does what most people think of as rounding. If the decimal portion to be cut off by rounding is 5 or greater, it rounds up. Otherwise, it rounds down. SAS, SPSS, Stata, Matlab, and Excel use this procedure.</p>
+<p><code><a href="../reference/round_up_from.html">round_up()</a></code> does what most people think of as rounding.
+If the decimal portion to be cut off by rounding is 5 or greater, it
+rounds up. Otherwise, it rounds down. SAS, SPSS, Stata, Matlab, and
+Excel use this procedure.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/round_up_from.html">round_up</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">1.24</span>, digits <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 1.2</span></span>
@@ -130,14 +170,19 @@
 <span></span>
 <span><span class="fu"><a href="../reference/round_up_from.html">round_up</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">1.25</span><span class="op">)</span>  <span class="co"># default for `digits` is 0</span></span>
 <span><span class="co">#&gt; [1] 1</span></span></code></pre></div>
-<p>Rounding up from 5 is actually a special case of <code><a href="../reference/round_up_from.html">round_up_from()</a></code>, which can take any numeric threshold, not just 5:</p>
+<p>Rounding up from 5 is actually a special case of
+<code><a href="../reference/round_up_from.html">round_up_from()</a></code>, which can take any numeric threshold, not
+just 5:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/round_up_from.html">round_up_from</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">4.28</span>, digits <span class="op">=</span> <span class="fl">1</span>, threshold <span class="op">=</span> <span class="fl">9</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 4.2</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/round_up_from.html">round_up_from</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">4.28</span>, digits <span class="op">=</span> <span class="fl">1</span>, threshold <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 4.3</span></span></code></pre></div>
-<p>These two functions have their mirror images in <code><a href="../reference/round_up_from.html">round_down()</a></code> and <code><a href="../reference/round_up_from.html">round_down_from()</a></code>. Like <code><a href="../reference/round_up_from.html">round_down()</a></code>, Python rounds down from 5. The arguments are the same as in <code><a href="../reference/round_up_from.html">round_up()</a></code>:</p>
+<p>These two functions have their mirror images in
+<code><a href="../reference/round_up_from.html">round_down()</a></code> and <code><a href="../reference/round_up_from.html">round_down_from()</a></code>. Like
+<code><a href="../reference/round_up_from.html">round_down()</a></code>, Python rounds down from 5. The arguments are
+the same as in <code><a href="../reference/round_up_from.html">round_up()</a></code>:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/round_up_from.html">round_down</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">1.24</span>, digits <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 1.2</span></span>
@@ -147,7 +192,8 @@
 <span></span>
 <span><span class="fu"><a href="../reference/round_up_from.html">round_down</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">1.25</span><span class="op">)</span>  <span class="co"># default for `digits` is 0</span></span>
 <span><span class="co">#&gt; [1] 1</span></span></code></pre></div>
-<p><code><a href="../reference/round_up_from.html">round_down_from()</a></code>, then, is just the reverse of <code><a href="../reference/round_up_from.html">round_up_from()</a></code>:</p>
+<p><code><a href="../reference/round_up_from.html">round_down_from()</a></code>, then, is just the reverse of
+<code><a href="../reference/round_up_from.html">round_up_from()</a></code>:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/round_up_from.html">round_down_from</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">4.28</span>, digits <span class="op">=</span> <span class="fl">1</span>, threshold <span class="op">=</span> <span class="fl">9</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 4.3</span></span>
@@ -158,10 +204,28 @@
 <div class="section level3">
 <h3 id="to-even-base-r">To even (base R)<a class="anchor" aria-label="anchor" href="#to-even-base-r"></a>
 </h3>
-<p>Base R’s own rounding function is an outlier in statistical computing. <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">base::round()</a></code> doesn’t round up or down, or use any other procedure based solely on the truncated part of the number. Instead, <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">round()</a></code> strives to round to the next even number. (This is also called “banker’s rounding”.)</p>
-<p>Realizing that <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">round()</a></code> works in a highly unintuitive way sometimes leads to consternation. Why can’t we just round like we learned in school, that is, up from 5? The reason seems to be bias. Because 5 is right in between two whole numbers, any procedure that rounds 5 in some predetermined direction introduces a bias toward that direction. Rounding up from 5 is therefore biased upward, and rounding down from 5 is biased downward.</p>
-<p>As shown in the <em>Rounding bias</em> section below, this is unlikely to be a major issue when rounding raw numbers that originally have many decimal places. It might be more serious, however, if the initial number of decimal places is low (for whatever reason) and the need for precision is high.</p>
-<p>At least in theory, “rounding to even” is not biased in either direction, such that the mean of the rounded distribution is equal to the mean of the original distribution. That is how <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">round()</a></code> aims to operate. Here is a case in which it works out, whereas the bias of rounding up or down is fully apparent:</p>
+<p>Base R’s own rounding function is an outlier in statistical
+computing. <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">base::round()</a></code> doesn’t round up or down, or use
+any other procedure based solely on the truncated part of the number.
+Instead, <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">round()</a></code> strives to round to the next even number.
+(This is also called “banker’s rounding”.)</p>
+<p>Realizing that <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">round()</a></code> works in a highly unintuitive way
+sometimes leads to consternation. Why can’t we just round like we
+learned in school, that is, up from 5? The reason seems to be bias.
+Because 5 is right in between two whole numbers, any procedure that
+rounds 5 in some predetermined direction introduces a bias toward that
+direction. Rounding up from 5 is therefore biased upward, and rounding
+down from 5 is biased downward.</p>
+<p>As shown in the <em>Rounding bias</em> section below, this is
+unlikely to be a major issue when rounding raw numbers that originally
+have many decimal places. It might be more serious, however, if the
+initial number of decimal places is low (for whatever reason) and the
+need for precision is high.</p>
+<p>At least in theory, “rounding to even” is not biased in either
+direction, such that the mean of the rounded distribution is equal to
+the mean of the original distribution. That is how <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">round()</a></code>
+aims to operate. Here is a case in which it works out, whereas the bias
+of rounding up or down is fully apparent:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vec1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">0.5</span>, to <span class="op">=</span> <span class="fl">9.5</span><span class="op">)</span></span>
 <span><span class="va">up1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/round_up_from.html">round_up</a></span><span class="op">(</span><span class="va">vec1</span><span class="op">)</span></span>
@@ -190,7 +254,10 @@
 <span><span class="co"># Mean when rounding to even: no bias</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">even1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 5</span></span></code></pre></div>
-<p>However, this noble goal of unbiased rounding runs up against the reality of floating point computations. You might therefore get results from <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">round()</a></code> that first seem bizarre, or at least unpredictable. Consider:</p>
+<p>However, this noble goal of unbiased rounding runs up against the
+reality of floating point computations. You might therefore get results
+from <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">round()</a></code> that first seem bizarre, or at least
+unpredictable. Consider:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vec2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">4.5</span>, to <span class="op">=</span> <span class="fl">10.5</span><span class="op">)</span></span>
 <span></span>
@@ -232,47 +299,90 @@
 <span>  <span class="fu">`+`</span><span class="op">(</span><span class="fl">1</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  [1] 2.0 2.1 2.2 2.4 2.5 2.5 2.6 2.8 2.9 3.0</span></span></code></pre></div>
-<p>Sometimes <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">round()</a></code> behaves just as it should, but at other times, results can be hard to explain. <a href="https://cran.r-project.org/package=round" class="external-link">Martin Mächler</a>, who wrote the present version of <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">round()</a></code>, describes the issue about as follows:</p>
-<p>The reason for the above behavior is that most decimal fractions can’t, in fact, be represented as double precision numbers. Even seemingly “clean” numbers with only a few decimal places come with an invisible mantissa, and are therefore closer to one side or the other. Rounding to even in R, while ostensibly about breaking the tie that occurs at 5, is actually much more about measuring which of the two sides is closer to the number to be rounded.</p>
-<p>This seems better than going with mathematical intuitions that sometimes may have little relation to the way computers actually deal with these issues. R has been using the present solution since version 4.0.0.</p>
-<p>In effect, <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">base::round()</a></code> is a black box, but it seems to be unbiased in the long run. I recommend using <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">round()</a></code> for original work, even though it is quite different from other rounding procedures — and therefore unsuitable to reconstructing them. Instead, we need something like scrutiny’s <code>round_*()</code> functions.</p>
+<p>Sometimes <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">round()</a></code> behaves just as it should, but at
+other times, results can be hard to explain. <a href="https://cran.r-project.org/package=round" class="external-link">Martin Mächler</a>, who
+wrote the present version of <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">round()</a></code>, describes the issue
+about as follows:</p>
+<p>The reason for the above behavior is that most decimal fractions
+can’t, in fact, be represented as double precision numbers. Even
+seemingly “clean” numbers with only a few decimal places come with an
+invisible mantissa, and are therefore closer to one side or the other.
+Rounding to even in R, while ostensibly about breaking the tie that
+occurs at 5, is actually much more about measuring which of the two
+sides is closer to the number to be rounded.</p>
+<p>This seems better than going with mathematical intuitions that
+sometimes may have little relation to the way computers actually deal
+with these issues. R has been using the present solution since version
+4.0.0.</p>
+<p>In effect, <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">base::round()</a></code> is a black box, but it seems to
+be unbiased in the long run. I recommend using <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">round()</a></code> for
+original work, even though it is quite different from other rounding
+procedures — and therefore unsuitable to reconstructing them. Instead,
+we need something like scrutiny’s <code>round_*()</code> functions.</p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="reconstruct-rounding-bounds-with-unround">Reconstruct rounding bounds with <code>unround()</code><a class="anchor" aria-label="anchor" href="#reconstruct-rounding-bounds-with-unround"></a>
 </h2>
-<p>Rounding deletes information. The mantissa is cut off in part or in full, and the resulting number is underdetermined with respect to the original number: The latter can’t be inferred from the former. It might be of interest, however, to compute the range of the original number given the rounded number (especially the number of decimal places to which it was rounded) and the presumed rounding method.</p>
-<p>While it’s often easy to infer such a range, it might also be also useful to have a general function to use as a helper in another function for analyzing reported numbers. That function is <code><a href="../reference/unround.html">unround()</a></code>. It returns the lower and upper bounds, and it says whether these bounds are inclusive or not — something that varies greatly by rounding procedure. Currently, <code><a href="../reference/unround.html">unround()</a></code> is used as a helper within scrutiny’s DEBIT implementation; see <code><a href="../articles/debit.html">vignette("debit")</a></code>.</p>
-<p>The default rounding procedure for <code><a href="../reference/unround.html">unround()</a></code> is <code>"up_or_down"</code>:</p>
+<p>Rounding deletes information. The mantissa is cut off in part or in
+full, and the resulting number is underdetermined with respect to the
+original number: The latter can’t be inferred from the former. It might
+be of interest, however, to compute the range of the original number
+given the rounded number (especially the number of decimal places to
+which it was rounded) and the presumed rounding method.</p>
+<p>While it’s often easy to infer such a range, it might also be also
+useful to have a general function to use as a helper in another function
+for analyzing reported numbers. That function is <code><a href="../reference/unround.html">unround()</a></code>.
+It returns the lower and upper bounds, and it says whether these bounds
+are inclusive or not — something that varies greatly by rounding
+procedure. Currently, <code><a href="../reference/unround.html">unround()</a></code> is used as a helper within
+scrutiny’s DEBIT implementation; see <code><a href="../articles/debit.html">vignette("debit")</a></code>.</p>
+<p>The default rounding procedure for <code><a href="../reference/unround.html">unround()</a></code> is
+<code>"up_or_down"</code>:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/unround.html">unround</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"8.0"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 7</span></span></span>
 <span><span class="co">#&gt;   range                  rounding   lower incl_lower x     incl_upper upper</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 7.95 &lt;= x(8.0) &lt;= 8.05 up_or_down  7.95 TRUE       8.0   TRUE        8.05</span></span></code></pre></div>
-<p>For a complete list of featured rounding procedures, see documentation for <code><a href="../reference/unround.html">unround()</a></code>, section <em>Rounding</em>.</p>
-<p>On the left, the <code>range</code> column displays a pithy graphical overview of the other columns (except for <code>rounding</code>) in the same order:</p>
+<p>For a complete list of featured rounding procedures, see
+documentation for <code><a href="../reference/unround.html">unround()</a></code>, section <em>Rounding</em>.</p>
+<p>On the left, the <code>range</code> column displays a pithy graphical
+overview of the other columns (except for <code>rounding</code>) in the
+same order:</p>
 <ol style="list-style-type: decimal">
 <li>
 <code>lower</code> is the lower bound for the original number.</li>
 <li>
-<code>incl_lower</code> is <code>TRUE</code> if the lower bound is inclusive and <code>FALSE</code> otherwise.</li>
+<code>incl_lower</code> is <code>TRUE</code> if the lower bound is
+inclusive and <code>FALSE</code> otherwise.</li>
 <li>
 <code>x</code> is the input value.</li>
 <li>
-<code>incl_upper</code> is <code>TRUE</code> if the upper bound is inclusive and <code>FALSE</code> otherwise.</li>
+<code>incl_upper</code> is <code>TRUE</code> if the upper bound is
+inclusive and <code>FALSE</code> otherwise.</li>
 <li>
 <code>upper</code> is the upper bound for the original number.</li>
 </ol>
-<p>By default, decimal places are counted internally so that the function always operates on the appropriate decimal level. This creates a need to take trailing zeros into account, which is why <code>x</code> needs to be a string:</p>
+<p>By default, decimal places are counted internally so that the
+function always operates on the appropriate decimal level. This creates
+a need to take trailing zeros into account, which is why <code>x</code>
+needs to be a string:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/unround.html">unround</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"3.50"</span>, rounding <span class="op">=</span> <span class="st">"up"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 7</span></span></span>
 <span><span class="co">#&gt;   range                    rounding lower incl_lower x     incl_upper upper</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 3.495 &lt;= x(3.50) &lt; 3.505 up        3.50 TRUE       3.50  FALSE       3.50</span></span></code></pre></div>
-<p>Alternatively, a function that uses <code><a href="../reference/unround.html">unround()</a></code> as a helper might count decimal places by itself (i.e., by internally calling <code><a href="../reference/decimal_places.html">decimal_places()</a></code>). It should then pass these numbers to <code><a href="../reference/unround.html">unround()</a></code> via the <code>decimals</code> argument instead of letting it redundantly count decimal places a second time.</p>
-<p>In this case, <code>x</code> can be numeric because trailing zeros are no longer needed. (That, in turn, is because the responsibility to count decimal places in number-strings rather than numeric values shifts from <code><a href="../reference/unround.html">unround()</a></code> to the higher-level function.)</p>
+<p>Alternatively, a function that uses <code><a href="../reference/unround.html">unround()</a></code> as a
+helper might count decimal places by itself (i.e., by internally calling
+<code><a href="../reference/decimal_places.html">decimal_places()</a></code>). It should then pass these numbers to
+<code><a href="../reference/unround.html">unround()</a></code> via the <code>decimals</code> argument instead of
+letting it redundantly count decimal places a second time.</p>
+<p>In this case, <code>x</code> can be numeric because trailing zeros
+are no longer needed. (That, in turn, is because the responsibility to
+count decimal places in number-strings rather than numeric values shifts
+from <code><a href="../reference/unround.html">unround()</a></code> to the higher-level function.)</p>
 <p>The following call returns the exact same tibble as above:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/unround.html">unround</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">3.5</span>, digits <span class="op">=</span> <span class="fl">2</span>, rounding <span class="op">=</span> <span class="st">"up"</span><span class="op">)</span></span>
@@ -280,7 +390,8 @@
 <span><span class="co">#&gt;   range                   rounding lower incl_lower     x incl_upper upper</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 3.495 &lt;= x(3.5) &lt; 3.505 up        3.50 TRUE         3.5 FALSE       3.50</span></span></code></pre></div>
-<p>Since <code>x</code> is vectorized, you might test several reported numbers at once:</p>
+<p>Since <code>x</code> is vectorized, you might test several reported
+numbers at once:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vec2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">3.1</span>, <span class="fl">3.5</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/restore_zeros.html">restore_zeros</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -300,12 +411,21 @@
 <div class="section level2">
 <h2 id="fractional-rounding">Fractional rounding<a class="anchor" aria-label="anchor" href="#fractional-rounding"></a>
 </h2>
-<p>What if you want to round numbers to a fraction instead of an integer? Check out <code><a href="../reference/reround_to_fraction.html">reround_to_fraction()</a></code> and <code><a href="../reference/reround_to_fraction.html">reround_to_fraction_level()</a></code>:</p>
+<p>What if you want to round numbers to a fraction instead of an
+integer? Check out <code><a href="../reference/reround_to_fraction.html">reround_to_fraction()</a></code> and
+<code><a href="../reference/reround_to_fraction.html">reround_to_fraction_level()</a></code>:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/reround_to_fraction.html">reround_to_fraction</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">0.4</span>, denominator <span class="op">=</span> <span class="fl">2</span>, rounding <span class="op">=</span> <span class="st">"up"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.5</span></span></code></pre></div>
-<p>This function rounds <code>0.4</code> to <code>0.5</code> because that’s the closest fraction of <code>2</code>. It is inspired by <code><a href="https://rdrr.io/pkg/janitor/man/round_to_fraction.html" class="external-link">janitor::round_to_fraction()</a></code>, and credit for the core implementation goes there. <code><a href="../reference/reround_to_fraction.html">reround_to_fraction()</a></code> blends janitor’s fractional rounding with the flexibility and precision that <code><a href="../reference/reround.html">reround()</a></code> provides.</p>
-<p>What’s more, <code><a href="../reference/reround_to_fraction.html">reround_to_fraction_level()</a></code> rounds to the nearest fraction at the decimal level specified via its <code>digits</code> argument:</p>
+<p>This function rounds <code>0.4</code> to <code>0.5</code> because
+that’s the closest fraction of <code>2</code>. It is inspired by
+<code><a href="https://rdrr.io/pkg/janitor/man/round_to_fraction.html" class="external-link">janitor::round_to_fraction()</a></code>, and credit for the core
+implementation goes there. <code><a href="../reference/reround_to_fraction.html">reround_to_fraction()</a></code> blends
+janitor’s fractional rounding with the flexibility and precision that
+<code><a href="../reference/reround.html">reround()</a></code> provides.</p>
+<p>What’s more, <code><a href="../reference/reround_to_fraction.html">reround_to_fraction_level()</a></code> rounds to the
+nearest fraction at the decimal level specified via its
+<code>digits</code> argument:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/reround_to_fraction.html">reround_to_fraction_level</a></span><span class="op">(</span></span>
 <span>  x <span class="op">=</span> <span class="fl">0.777</span>, denominator <span class="op">=</span> <span class="fl">5</span>, digits <span class="op">=</span> <span class="fl">0</span>, rounding <span class="op">=</span> <span class="st">"down"</span></span>
@@ -319,18 +439,33 @@
 <span>  x <span class="op">=</span> <span class="fl">0.777</span>, denominator <span class="op">=</span> <span class="fl">5</span>, digits <span class="op">=</span> <span class="fl">2</span>, rounding <span class="op">=</span> <span class="st">"down"</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.776</span></span></code></pre></div>
-<p>These two functions are not currently part of any error detection workflow.</p>
+<p>These two functions are not currently part of any error detection
+workflow.</p>
 </div>
 <div class="section level2">
 <h2 id="rounding-bias">Rounding bias<a class="anchor" aria-label="anchor" href="#rounding-bias"></a>
 </h2>
-<p>I wrote above that rounding up or down from 5 is biased. However, this points to a wider problem: It is true of any rounding procedure that doesn’t take active precautions against such bias. <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">base::round()</a></code> does, and that is why I recommend it for original work (as opposed to reconstruction).</p>
-<p>It might be useful to have a general and flexible way to quantify how far rounding biases a distribution, as compared to how it looked like before rounding. The function <code><a href="../reference/rounding_bias.html">rounding_bias()</a></code> fulfills this role. It is a wrapper around <code><a href="../reference/reround.html">reround()</a></code>, so it can access any rounding procedure that <code><a href="../reference/reround.html">reround()</a></code> can, and takes all of the same arguments. However, the default for <code>rounding</code> is <code>"up"</code> instead of <code>"up_or_down"</code> because <code><a href="../reference/rounding_bias.html">rounding_bias()</a></code> only makes sense with single rounding procedures.</p>
-<p>In general, bias due to rounding is computed by subtracting the original distribution from the rounded one:</p>
+<p>I wrote above that rounding up or down from 5 is biased. However,
+this points to a wider problem: It is true of any rounding procedure
+that doesn’t take active precautions against such bias.
+<code><a href="https://rdrr.io/r/base/Round.html" class="external-link">base::round()</a></code> does, and that is why I recommend it for
+original work (as opposed to reconstruction).</p>
+<p>It might be useful to have a general and flexible way to quantify how
+far rounding biases a distribution, as compared to how it looked like
+before rounding. The function <code><a href="../reference/rounding_bias.html">rounding_bias()</a></code> fulfills this
+role. It is a wrapper around <code><a href="../reference/reround.html">reround()</a></code>, so it can access
+any rounding procedure that <code><a href="../reference/reround.html">reround()</a></code> can, and takes all of
+the same arguments. However, the default for <code>rounding</code> is
+<code>"up"</code> instead of <code>"up_or_down"</code> because
+<code><a href="../reference/rounding_bias.html">rounding_bias()</a></code> only makes sense with single rounding
+procedures.</p>
+<p>In general, bias due to rounding is computed by subtracting the
+original distribution from the rounded one:</p>
 <p><span class="math display">\[
 bias = x_{rounded} - x
 \]</span></p>
-<p>By default, the mean is computed to reduce the bias to a single data point:</p>
+<p>By default, the mean is computed to reduce the bias to a single data
+point:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vec3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">0.6</span>, to <span class="op">=</span> <span class="fl">0.7</span>, by <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span></span>
 <span></span>
@@ -348,47 +483,57 @@ bias = x_{rounded} - x
 <span><span class="co"># ...and the difference is bias:</span></span>
 <span><span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">vec3</span>, digits <span class="op">=</span> <span class="fl">0</span>, rounding <span class="op">=</span> <span class="st">"up"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.35</span></span></code></pre></div>
-<p>Set <code>mean</code> to <code>FALSE</code> to return the whole vector of individual biases instead:</p>
+<p>Set <code>mean</code> to <code>FALSE</code> to return the whole
+vector of individual biases instead:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">vec3</span>, digits <span class="op">=</span> <span class="fl">0</span>, rounding <span class="op">=</span> <span class="st">"up"</span>, mean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  [1] 0.40 0.39 0.38 0.37 0.36 0.35 0.34 0.33 0.32 0.31 0.30</span></span></code></pre></div>
-<p>Admittedly, this example is somewhat overdramatic. Here is a rather harmless one:</p>
+<p>Admittedly, this example is somewhat overdramatic. Here is a rather
+harmless one:</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vec4</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">50000</span>, <span class="fl">100</span>, <span class="fl">15</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span><span class="va">vec4</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] -1.503644e-05</span></span></code></pre></div>
-<p>What is responsible for such a difference? It seems to be (1) the sample size and (2) the number of decimal places to which the vector is rounded. The rounding method doesn’t appear to matter if numbers with many decimal places are rounded:</p>
+<span><span class="co">#&gt; [1] -1.753967e-05</span></span></code></pre></div>
+<p>What is responsible for such a difference? It seems to be (1) the
+sample size and (2) the number of decimal places to which the vector is
+rounded. The rounding method doesn’t appear to matter if numbers with
+many decimal places are rounded:</p>
 <pre><code><span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 10 × 3</span></span></span>
 <span><span class="co">#&gt;             bias decimal_digits rounding</span></span>
 <span><span class="co">#&gt;            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 0.000<span style="text-decoration: underline;">028</span>0     1 up           up      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 0.000<span style="text-decoration: underline;">015</span>0     2 up           up      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 0.000<span style="text-decoration: underline;">000</span>696   3 up           up      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 0.000<span style="text-decoration: underline;">000</span>088<span style="text-decoration: underline;">4</span>  4 up           up      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 0.000<span style="text-decoration: underline;">000</span>009<span style="text-decoration: underline;">56</span> 5 up           up      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 0.000<span style="text-decoration: underline;">028</span>0     1 even         even    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 0.000<span style="text-decoration: underline;">015</span>0     2 even         even    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 0.000<span style="text-decoration: underline;">000</span>696   3 even         even    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 0.000<span style="text-decoration: underline;">000</span>088<span style="text-decoration: underline;">4</span>  4 even         even    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 0.000<span style="text-decoration: underline;">000</span>009<span style="text-decoration: underline;">56</span> 5 even         even</span></span></code></pre>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 0.000<span style="text-decoration: underline;">191</span>      1 up           up      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 0.000<span style="text-decoration: underline;">017</span>5     2 up           up      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 0.000<span style="text-decoration: underline;">000</span>340   3 up           up      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 0.000<span style="text-decoration: underline;">000</span>079<span style="text-decoration: underline;">7</span>  4 up           up      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 0.000<span style="text-decoration: underline;">000</span>007<span style="text-decoration: underline;">07</span> 5 up           up      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 0.000<span style="text-decoration: underline;">191</span>      1 even         even    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 0.000<span style="text-decoration: underline;">017</span>5     2 even         even    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 0.000<span style="text-decoration: underline;">000</span>340   3 even         even    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 0.000<span style="text-decoration: underline;">000</span>079<span style="text-decoration: underline;">7</span>  4 even         even    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 0.000<span style="text-decoration: underline;">000</span>007<span style="text-decoration: underline;">07</span> 5 even         even</span></span></code></pre>
 <p><img src="rounding_files/figure-html/unnamed-chunk-19-1.png" width="700"></p>
-<p>However, if the raw values are preliminarily rounded to 2 decimal places before rounding proceeds as above, the picture is different:</p>
+<p>However, if the raw values are preliminarily rounded to 2 decimal
+places before rounding proceeds as above, the picture is different:</p>
 <pre><code><span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 10 × 3</span></span></span>
-<span><span class="co">#&gt;         bias decimal_digits rounding</span></span>
-<span><span class="co">#&gt;        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 0.005<span style="text-decoration: underline;">03</span>   1 up           up      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 0         2 up           up      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 0         3 up           up      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 0         4 up           up      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 0         5 up           up      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 0.000<span style="text-decoration: underline;">083</span>0 1 even         even    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 0         2 even         even    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 0         3 even         even    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 0         4 even         even    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 0         5 even         even</span></span></code></pre>
+<span><span class="co">#&gt;        bias decimal_digits rounding</span></span>
+<span><span class="co">#&gt;       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 0.005<span style="text-decoration: underline;">15</span>  1 up           up      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 0        2 up           up      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 0        3 up           up      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 0        4 up           up      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 0        5 up           up      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 0.000<span style="text-decoration: underline;">341</span> 1 even         even    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 0        2 even         even    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 0        3 even         even    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 0        4 even         even    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 0        5 even         even</span></span></code></pre>
 <p><img src="rounding_files/figure-html/unnamed-chunk-20-1.png" width="700"></p>
-<p>In sum, the function allows users to quantify the degree to which rounding biases a distribution, so that they can assess the relative merits of different rounding procedures. This is partly to sensitize readers to potential bias in edge cases, but also to enable them to make informed rounding decisions on their own.</p>
+<p>In sum, the function allows users to quantify the degree to which
+rounding biases a distribution, so that they can assess the relative
+merits of different rounding procedures. This is partly to sensitize
+readers to potential bias in edge cases, but also to enable them to make
+informed rounding decisions on their own.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
