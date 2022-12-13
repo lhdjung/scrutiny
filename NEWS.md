@@ -12,6 +12,8 @@ Some new features and bugfixes:
 
 -   Bugfixes in the `is_seq_*()` functions.
 
+-   Argument evaluation is now forced in the function factories: `function_map()`, `function_map_seq()`, and `function_map_total_n()`.
+
 -   Some possible corner case issues in `split_by_parens()` are now prevented.
 
 -   Internal changes for compatibility with purrr 1.0.0 and tidyselect 1.2.0.
