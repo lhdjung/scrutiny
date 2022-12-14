@@ -62,7 +62,7 @@ This function takes two or more arguments of length 1 that are meant to be teste
  schlim_scalar <- function(y, n) {
    y <- as.numeric(y)
    n <- as.numeric(n)
-   y / 3 > n
+   all(y / 3 > n)
  }
 
 schlim_scalar(y = 30, n = 4)
