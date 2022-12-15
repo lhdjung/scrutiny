@@ -59,6 +59,7 @@ Collate:
     'manage-extra-cols.R'
     'grim-map.R'
     'data-doc.R'
+    'data-frame-predicates.R'
     'function-map-seq.R'
     'debit-map-seq.R'
     'disperse.R'
