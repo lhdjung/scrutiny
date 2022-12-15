@@ -367,22 +367,19 @@ class_with <- function(data, contains, all_classes = FALSE,
   }
   # End of outer loop
 
-
-  # Error if nothing was found:
-  if (length(contains) == 1) {
-    msg_substring_s <- "the substring"
-  } else {
-    msg_substring_s <- " any of these substrings:"
-  }
-  cd <- wrap_in_backticks(cd)
-  contains <- wrap_in_backticks(contains)
-  cli::cli_abort(c(
-    "String not found in classes.",
-    "x" = "`data` inherits no classes containing \\
-    {msg_substring_s} {contains}.",
-    "i" = "It does inherit these classes: {cd}."
-  ))
+  character(0L)
 }
 
 
+# Predicate function that wraps `class_with()` and tests whether it returns at
+# least one class:
+inherits_class_with <- function(x, contains, all_classes = FALSE,
+                                order_decreasing = TRUE) {
+  classes <- class_with(
+    data = x, contains = contains, all_classes = all_classes,
+    order_decreasing = order_decreasing
+  )
+
+  length(classes) > 0L
+}
 
