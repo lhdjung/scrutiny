@@ -46,7 +46,10 @@ or \code{audit_total_n()}.
    \code{grimmer_map()} \tab \code{"scr_grimmer_map"} \cr
    \code{debit_map()} \tab \code{"scr_debit_map"} \cr
    \code{duplicate_count()} \tab \code{"scr_dup_count"} \cr
+   \code{duplicate_count_colpair()} \tab \code{"scr_dup_count_colpair"} \cr
    \code{duplicate_detect()} \tab \code{"scr_dup_detect"} \cr
+   \code{audit_seq()} \tab \code{"scr_audit_seq"} \cr
+   \code{audit_total_n()} \tab \code{"scr_audit_total_n"} \cr
 }
 }
 

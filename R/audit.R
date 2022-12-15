@@ -27,7 +27,10 @@
 #'   | `grimmer_map()`              | `"scr_grimmer_map"`         |
 #'   | `debit_map()`                | `"scr_debit_map"`           |
 #'   | `duplicate_count()`          | `"scr_dup_count"`           |
+#'   | `duplicate_count_colpair()`  | `"scr_dup_count_colpair"`   |
 #'   | `duplicate_detect()`         | `"scr_dup_detect"`          |
+#'   | `audit_seq()`                | `"scr_audit_seq"`           |
+#'   | `audit_total_n()`            | `"scr_audit_total_n"`       |
 
 #' @section `audit_seq()`:
 #'   | \strong{Function}            | \strong{Class}              |
