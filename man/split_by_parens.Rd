@@ -15,7 +15,7 @@ split_by_parens(
 )
 }
 \arguments{
-\item{.data}{Data frame. Only in \code{split_by_parens()}.}
+\item{.data}{Data frame.}
 
 \item{...}{Optionally, select columns from \code{.data} as in \code{dplyr::select()}.
 Splitting will then be restricted to these columns. This is useful if not
@@ -24,8 +24,8 @@ all values contain parentheses.}
 \item{.keep}{Boolean. If set to \code{TRUE}, the original columns from \code{.data}
 also appear in the output. Default is \code{FALSE}.}
 
-\item{.transform}{Boolean. If set to \code{TRUE}, the output will be transformed
-to be better accessible for typical follow-up tasks. Default is \code{FALSE}.}
+\item{.transform}{Boolean. If set to \code{TRUE}, the output will be pivoted to be
+better suitable for typical follow-up tasks. Default is \code{FALSE}.}
 
 \item{.sep}{String. What to split by. Either \code{"parens"}, \code{"brackets"}, or
 \code{"braces"}; or a length-2 vector of custom separators (see Examples).
@@ -39,11 +39,12 @@ A tibble with string columns.
 }
 \description{
 Summary statistics are often presented like \code{"2.65 (0.27)"}.
-When working with tables from PDF, it can be tedious to separate values
-before and inside parentheses. \code{split_by_parens()} does that automatically.
+When working with tables copied into R, it can be tedious to separate
+values before and inside parentheses. \code{split_by_parens()} does this
+automatically.
 
-By default, it operates on all columns. Output can optionally be
-transformed into a longer format by setting \code{.transform} to \code{TRUE}.
+By default, it operates on all columns. Output can optionally be pivoted
+into a longer format by setting \code{.transform} to \code{TRUE}.
 
 Choose separators other than parentheses by specifying the \code{.sep} argument.
 }
@@ -114,7 +115,7 @@ df3 \%>\%
 extract values from the respective position.
 \item \code{dplyr::across()} powers the application of the two above functions within
 \code{split_by_parens()}, including the creation of new columns.
-\item \code{tidyr::separate()} is a more general function (but does not recognize
-closing elements).
+\item \code{tidyr::separate()} is a more general function, but it does not recognize
+closing elements (e.g., closed parentheses).
 }
 }

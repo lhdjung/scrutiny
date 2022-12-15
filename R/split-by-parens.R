@@ -2,22 +2,23 @@
 #' Split columns by parentheses, brackets, braces, or similar
 #'
 #' @description Summary statistics are often presented like `"2.65 (0.27)"`.
-#'   When working with tables from PDF, it can be tedious to separate values
-#'   before and inside parentheses. `split_by_parens()` does that automatically.
+#'   When working with tables copied into R, it can be tedious to separate
+#'   values before and inside parentheses. `split_by_parens()` does this
+#'   automatically.
 #'
-#'   By default, it operates on all columns. Output can optionally be
-#'   transformed into a longer format by setting `.transform` to `TRUE`.
+#'   By default, it operates on all columns. Output can optionally be pivoted
+#'   into a longer format by setting `.transform` to `TRUE`.
 #'
 #'   Choose separators other than parentheses by specifying the `.sep` argument.
 #'
-#' @param .data Data frame. Only in `split_by_parens()`.
+#' @param .data Data frame.
 #' @param ... Optionally, select columns from `.data` as in `dplyr::select()`.
 #'   Splitting will then be restricted to these columns. This is useful if not
 #'   all values contain parentheses.
 #' @param .keep Boolean. If set to `TRUE`, the original columns from `.data`
 #'   also appear in the output. Default is `FALSE`.
-#' @param .transform Boolean. If set to `TRUE`, the output will be transformed
-#'   to be better accessible for typical follow-up tasks. Default is `FALSE`.
+#' @param .transform Boolean. If set to `TRUE`, the output will be pivoted to be
+#'   better suitable for typical follow-up tasks. Default is `FALSE`.
 #' @param .sep String. What to split by. Either `"parens"`, `"brackets"`, or
 #'   `"braces"`; or a length-2 vector of custom separators (see Examples).
 #'   Default is `"parens"`.
@@ -33,8 +34,8 @@
 #'  extract values from the respective position.
 #'  - `dplyr::across()` powers the application of the two above functions within
 #'  `split_by_parens()`, including the creation of new columns.
-#'  - `tidyr::separate()` is a more general function (but does not recognize
-#'  closing elements).
+#'  - `tidyr::separate()` is a more general function, but it does not recognize
+#'  closing elements (e.g., closed parentheses).
 
 #' @export
 #'
