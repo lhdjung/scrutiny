@@ -3,7 +3,8 @@
 #'
 #' @description `audit()` is an S3 generic to follow up on those scrutiny
 #'   functions that perform tests on data frames. It summarizes results of those
-#'   tests and presents the summaries in a tibble.
+#'   tests and presents the summaries in a tibble. `audit_list()` is a variant
+#'   that returns a named list instead.
 #'
 #'   `audit_seq()` and `audit_total_n()` summarize the results of functions that
 #'   end on `_seq` and `_total_n`, respectively.
@@ -63,12 +64,24 @@
 #'   audit()
 
 
+
+# Main function (and list variant) ----------------------------------------
+
 audit <- function(data) {
   UseMethod("audit")
 }
 
 
+#' @rdname audit
+#' @export
 
+audit_list <- function(data) {
+  as.list(audit(data))
+}
+
+
+
+# Variants for the output of other function factories ---------------------
 
 #' @rdname audit
 #' @export
