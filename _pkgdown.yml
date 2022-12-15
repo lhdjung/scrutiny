@@ -171,6 +171,11 @@ reference:
   - audit_cols_minimal
   - check_audit_special
 
+- subtitle: Data frame predicates
+  desc: Test for mapper function output
+- contents:
+  - is_map_df
+
 - subtitle: Testing for subsets / supersets
   desc: Predicate functions for logical relations between vectors, supporting
         flexible data entry and tidy evaluation
