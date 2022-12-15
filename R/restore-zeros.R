@@ -208,12 +208,12 @@ restore_zeros_df <- function(.data, ..., .check_decimals = FALSE,
   if (!is.data.frame(.data)) {
     if (is.matrix(.data)) {
       .data <- tibble::as_tibble(.data, .name_repair = "unique")
-    } else (
+    } else {
       cli::cli_abort(c(
         "`.data` must be a data frame (or a matrix).",
         "i" = "Did you mean `restore_zeros()`, without `_df`?"
       ))
-    )
+    }
   }
 
   # If desired by the user, create an additional selection criterion: In a
