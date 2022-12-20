@@ -138,6 +138,7 @@ reference:
 - subtitle: Counting decimal places
 - contents:
   - decimal_places
+  - decimal_places_df
 
 - subtitle: Sequence generation
 - contents:

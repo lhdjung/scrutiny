@@ -74,17 +74,6 @@ decimal_places_scalar(x = "5.024")
 
 }
 \seealso{
-Rounding functions:
-\itemize{
-\item \code{round_up()} and \code{round_down()} round up or down from 5, respectively.
-\item \code{round_up_from()} and \code{round_down_from()} allow users to specify custom
-thresholds for rounding up or down.
-\item \code{round_ceiling()} and \code{round_floor()} work like \code{ceiling()} or \code{floor()},
-but for decimal numbers instead of just integers.
-\item \code{round_trunc()} and \code{round_anti_trunc()} always round towards zero or away
-from it.
-}
-
-Furthermore, \code{unround()} takes a rounded number and returns the range of the
-original value.
+\code{decimal_places_df()}, which applies \code{decimal_places()} to all
+numeric-like columns in a data frame.
 }
