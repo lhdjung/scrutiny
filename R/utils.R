@@ -958,6 +958,76 @@ index_central <- function(x) {
 
 
 
+#' Check for old-style arguments in a `split_by_parens()` call
+#'
+#' @description `check_old_args_split_by_parens()` checks a call to
+#'   `split_by_parens()` for two kinds of errors that used to be part of the
+#'   design of `split_by_parens()`, but no longer are:
+#'
+#'   1. Column names are specified via the dots, `...`.
+#'   2. Argument names are prefixed with a dot, like `.transform`.
+#'
+#'   If either case, a precisely informative error is thrown.
+#'
+#' @details The second error gives also points the user to the change from
+#'   `col*` to `end*` is given if `.col1` or `.col2` were specified.
+#'
+#' @return No return value; might throw an error.
+#'
+#' @noRd
+check_old_args_split_by_parens <- function(data, dots) {
+  dots_names <- names(purrr::map(dots, rlang::as_label))
+  offenders1 <- dots_names[dots_names %in% colnames(data)]
+  if (length(offenders1) > 0L) {
+    if (length(offenders1) == 1L) {
+      msg_cols <- glue::glue("{offenders1}")
+    } else {
+      msg_cols <- stringr::str_flatten(as.character(offenders1), ", ")
+      msg_cols <- paste0("c(", msg_cols, ")")
+    }
+    cli::cli_abort(c(
+      "x" = "`split_by_parens()` no longer uses the dots, `...`, \\
+      for column selection.",
+      ">" = "Use the `cols` argument instead, like `cols = {msg_cols}`.",
+      " " = "Apologies for the inconvenience."
+    ))
+  }
+  arg_names <- names(rlang::caller_call())
+  offenders2 <- arg_names[
+    arg_names %in% c(".data", ".keep", ".transform", ".sep", ".col1", ".col2")
+  ]
+  if (length(offenders2) > 0L) {
+    if (length(offenders2) == 1L) {
+      msg_args <- "an argument"
+      msg_is_are <- "is"
+      msg_dots <- "a dot"
+    } else {
+      msg_args <- "arguments"
+      msg_is_are <- "are"
+      msg_dots <- "dots"
+    }
+    msg_new_args <- stringr::str_remove(offenders2, ".")
+    if (any(c("col1", "col2") %in% msg_new_args)) {
+      msg_new_args[msg_new_args == "col1"] <- "end1"
+      msg_new_args[msg_new_args == "col2"] <- "end2"
+      msg_switch_end <- " Note the switch from `col*` to `end*`."
+    } else {
+      msg_switch_end <- ""
+    }
+    msg_new_args <- wrap_in_backticks(msg_new_args)
+    offenders2 <- wrap_in_backticks(offenders2)
+    cli::cli_abort(c(
+      "x" = "{offenders2} {msg_is_are} no longer {msg_args} \\
+      of `split_by_parens()`.",
+      ">" = "Use {msg_new_args} instead \\
+      (without {msg_dots}).{msg_switch_end}",
+      " " = "Apologies for the inconvenience."
+    ))
+  }
+}
+
+
+
 #' Transformation helper for `split_by_parens()`
 #'
 #' @description Only called within `split_by_parens()`, and only if the latter

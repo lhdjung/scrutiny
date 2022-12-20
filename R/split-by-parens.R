@@ -7,23 +7,26 @@
 #'   automatically.
 #'
 #'   By default, it operates on all columns. Output can optionally be pivoted
-#'   into a longer format by setting `.transform` to `TRUE`.
+#'   into a longer format by setting `transform` to `TRUE`.
 #'
-#'   Choose separators other than parentheses by specifying the `.sep` argument.
+#'   Choose separators other than parentheses by specifying the `sep` argument.
 #'
-#' @param .data Data frame.
-#' @param ... Optionally, select columns from `.data` as in `dplyr::select()`.
+#' @param data Data frame.
+#' @param cols Select columns from `data` using
+#'   \href{https://tidyselect.r-lib.org/reference/language.html}{tidyselect}.
+#'   Default is `everything()`, which selects all columns.
+#' @param ... Optionally, select columns from `data` as in `dplyr::select()`.
 #'   Splitting will then be restricted to these columns. This is useful if not
 #'   all values contain parentheses.
-#' @param .keep Boolean. If set to `TRUE`, the original columns from `.data`
-#'   also appear in the output. Default is `FALSE`.
-#' @param .transform Boolean. If set to `TRUE`, the output will be pivoted to be
+#' @param keep Boolean. If set to `TRUE`, the original columns from `data` also
+#'   appear in the output. Default is `FALSE`.
+#' @param transform Boolean. If set to `TRUE`, the output will be pivoted to be
 #'   better suitable for typical follow-up tasks. Default is `FALSE`.
-#' @param .sep String. What to split by. Either `"parens"`, `"brackets"`, or
+#' @param sep String. What to split by. Either `"parens"`, `"brackets"`, or
 #'   `"braces"`; or a length-2 vector of custom separators (see Examples).
 #'   Default is `"parens"`.
-#' @param .col1,.col2 Strings. Endings of the two column names that result from
-#'   splitting a column. Default is `"x"` for `.col1` and `"sd"` for `.col2`.
+#' @param end1,end2 Strings. Endings of the two column names that result from
+#'   splitting a column. Default is `"x"` for `end1` and `"sd"` for `end2`.
 #'
 #' @include utils.R before-inside-parens.R
 #'
@@ -58,18 +61,20 @@
 #'   split_by_parens(drone)
 #'
 #' # Pivot the data into a longer format
-#' # by setting `.transform` to `TRUE`:
+#' # by setting `transform` to `TRUE`:
 #' df1 %>%
-#'   split_by_parens(.transform = TRUE)
+#'   split_by_parens(transform = TRUE)
 #'
 #' # Choose different column names or
-#' # name suffixes with `.col1` and `.col2`:
+#' # name suffixes with `end1` and `end2`:
 #' df1 %>%
-#'   split_by_parens(.col1 = "beta", .col2 = "se")
+#'   split_by_parens(end1 = "beta", end2 = "se")
 #'
 #' df1 %>%
-#'   split_by_parens(.transform = TRUE,
-#'   .col1 = "beta", .col2 = "se")
+#'   split_by_parens(
+#'     transform = TRUE,
+#'     end1 = "beta", end2 = "se"
+#'   )
 #'
 #' # With a different separator...
 #' df2 <- tibble::tribble(
@@ -80,9 +85,9 @@
 #'   "0.15 [0.35]",    "0.57 [0.16]",
 #' )
 #'
-#' # ... specify `.sep`:
+#' # ... specify `sep`:
 #' df2 %>%
-#'   split_by_parens(.sep = "brackets")
+#'   split_by_parens(sep = "brackets")
 #'
 #' # (Accordingly with `{}` and `"braces"`.)
 #'
@@ -95,64 +100,64 @@
 #'   "0.15 <0.35>",    "0.57 <0.16>",
 #' )
 #'
-#' # ... `.sep` should be a length-2 vector
+#' # ... `sep` should be a length-2 vector
 #' # that contains the separating elements:
 #' df3 %>%
-#'   split_by_parens(.sep = c("<", ">"))
+#'   split_by_parens(sep = c("<", ">"))
 
 
+split_by_parens <- function(data, cols = everything(), keep = FALSE,
+                            transform = FALSE, sep = "parens",
+                            end1 = "x", end2 = "sd", ...) {
 
-split_by_parens <- function(.data, ..., .keep = FALSE, .transform = FALSE,
-                            .sep = "parens", .col1 = "x", .col2 = "sd") {
+  # Check whether the user specified any "old" arguments: those starting on a
+  # dot. This check is performed by a custom function from the utils.R file. It
+  # is now the only remaining purpose of the `...` dots because these are no
+  # longer meant to be used. Any other arguments passed through them should
+  # still lead to an error:
+  check_old_args_split_by_parens(data, rlang::enquos(...))
+  rlang::check_dots_empty()
 
-  # Anything passed through the dots can only be a tidyselect specification, not
-  # a formal argument. This call checks for named arguments within the dots, and
-  # throws an error if there are any:
-  ellipsis::check_dots_unnamed()
-
-  # Capture any valid tidyselect specification that might have been applied by
-  # the user to select columns from `.data`:
-  selector <- rlang::enexprs(...)
-
-  # Since `.sep` will be passed through the dots of `dplyr::across()`, which may
+  # Since `sep` will be passed through the dots of `dplyr::across()`, which may
   # lead to issues with the timing of evaluation, its evaluation is forced here:
-  force(.sep)
+  force(sep)
 
-  # In case no columns were specified that way, prepare and defuse a call that
-  # will select all columns:
-  if (length(selector) == 0L) {
-    selector <- rlang::exprs(dplyr::everything())
-  }
+  # # Prepare the endings of the new columns -- one pair of endings for each
+  # # original column:
+  # endings <- rep(c(end1, end2), times = ncol(data))
 
   # Apply the extractor functions `before_parens()` and `inside_parens()` to all
-  # selected columns from `.data` (see above), going by `.sep`, which is
+  # selected columns from `data` (see above), going by `sep`, which is
   # `"parens"` by default and will thus look for parentheses:
-  out <- dplyr::mutate(.data, dplyr::across(
-    .cols = c(!!!selector),
+  out <- dplyr::mutate(data, dplyr::across(
+    .cols = {{ cols }},
     .fns = list(before_parens, inside_parens),
-    sep = .sep
+    # .names = "{.col}_{endings}",
+    sep = sep
   ))
 
   # By default, the original columns are dropped. If the user disabled this by
-  # setting `.keep` to `TRUE`, `.transform` can't also be `TRUE` because this
+  # setting `keep` to `TRUE`, `transform` can't also be `TRUE` because this
   # would likely lead to incommensurable data frame dimensions:
-  if (!.keep) {
-    out <- dplyr::select(out, -names(.data))
-  } else if (.transform) {
-    cli::cli_abort("`.keep` and `.transform` can't both be `TRUE`.")
+  if (!keep) {
+    out <- dplyr::select(out, -names(data))
+  } else if (transform) {
+    cli::cli_abort(c("x" = "`keep` and `transform` can't both be `TRUE`."))
   }
 
-  # Modify the column names with the endings from the `.col*` arguments:
-  names(out) <- stringr::str_replace(names(out), "_1$", paste0("_", .col1))
-  names(out) <- stringr::str_replace(names(out), "_2$", paste0("_", .col2))
+  # Modify the column names with the endings from the `end*` arguments. We
+  # can't use the `.names` argument of `across()` because the number of columns
+  # is not yet known at that earlier point.
+  names(out) <- stringr::str_replace(names(out), "_1$", paste0("_", end1))
+  names(out) <- stringr::str_replace(names(out), "_2$", paste0("_", end2))
 
   # Return the output tibble. If desired, pivot it to a longer format beforehand
   # using a specified internal helper function from the utils.R file:
-  if (.transform) {
-    return(transform_split_parens(out, end1 = .col1, end2 = .col2))
+  if (transform) {
+    transform_split_parens(out, end1 = end1, end2 = end2)
+  } else {
+    out
   }
 
-  out
 }
-
 
