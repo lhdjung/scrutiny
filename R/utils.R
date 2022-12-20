@@ -961,22 +961,27 @@ index_central <- function(x) {
 #' Check for old-style arguments in a `split_by_parens()` call
 #'
 #' @description `check_old_args_split_by_parens()` checks a call to
-#'   `split_by_parens()` for two kinds of errors that used to be part of the
+#'   `split_by_parens()` for three kinds of errors that used to be part of the
 #'   design of `split_by_parens()`, but no longer are:
 #'
-#'   1. Column names are specified via the dots, `...`.
+#'   1. Column names are selected via the dots, `...`.
 #'   2. Argument names are prefixed with a dot, like `.transform`.
+#'   3. `col1` or `col2` are specified. (After losing their prefix dots, these
+#'   arguments were renamed to `end1` and `end2`.)
 #'
-#'   If either case, a precisely informative error is thrown.
+#'   If any of these cases, a precisely informative error is thrown.
 #'
-#' @details The second error gives also points the user to the change from
-#'   `col*` to `end*` is given if `.col1` or `.col2` were specified.
+#' @details The second error also points the user to the shift from `col*` to
+#'   `end*` if `.col1` or `.col2` were specified, much like the third one does.
 #'
 #' @return No return value; might throw an error.
 #'
 #' @noRd
 check_old_args_split_by_parens <- function(data, dots) {
+
   dots_names <- names(purrr::map(dots, rlang::as_label))
+
+  # Error 1: Column names are selected via the dots, `...`.
   offenders1 <- dots_names[dots_names %in% colnames(data)]
   if (length(offenders1) > 0L) {
     if (length(offenders1) == 1L) {
@@ -992,7 +997,10 @@ check_old_args_split_by_parens <- function(data, dots) {
       " " = "Apologies for the inconvenience."
     ))
   }
+
   arg_names <- names(rlang::caller_call())
+
+  # Error 2: Argument names are prefixed with a dot, like `.transform`.
   offenders2 <- arg_names[
     arg_names %in% c(".data", ".keep", ".transform", ".sep", ".col1", ".col2")
   ]
@@ -1010,7 +1018,7 @@ check_old_args_split_by_parens <- function(data, dots) {
     if (any(c("col1", "col2") %in% msg_new_args)) {
       msg_new_args[msg_new_args == "col1"] <- "end1"
       msg_new_args[msg_new_args == "col2"] <- "end2"
-      msg_switch_end <- " Note the switch from `col*` to `end*`."
+      msg_switch_end <- " Note the shift from `col*` to `end*`."
     } else {
       msg_switch_end <- ""
     }
@@ -1024,6 +1032,30 @@ check_old_args_split_by_parens <- function(data, dots) {
       " " = "Apologies for the inconvenience."
     ))
   }
+
+  # Error 3: `col1` or `col2` are specified.
+  offenders3 <- arg_names[arg_names %in% c("col1", "col2")]
+  if (length(offenders3) > 0L) {
+    if (length(offenders3) == 1L) {
+      msg_no_args <- "is not an argument"
+      msg_dots <- "with a dot"
+    } else {
+      msg_no_args <- "are not arguments"
+      msg_dots <- "with dots"
+    }
+    msg_offenders_old <- paste0(".", offenders3)
+    msg_offenders_old <- wrap_in_backticks(msg_offenders_old)
+    msg_new_args <- stringr::str_replace(offenders3, "col", "end")
+    msg_new_args <- wrap_in_backticks(msg_new_args)
+    offenders3 <- wrap_in_backticks(offenders3)
+    cli::cli_abort(c(
+      "x" = "{offenders3} {msg_no_args} of `split_by_parens()`.",
+      "x" = "You're right not to use {msg_offenders_old} anymore \\
+      ({msg_dots}), but also note that it says {msg_new_args} now.",
+      " " = "Apologies for the inconvenience."
+    ))
+  }
+
 }
 
 
@@ -1031,7 +1063,7 @@ check_old_args_split_by_parens <- function(data, dots) {
 #' Transformation helper for `split_by_parens()`
 #'
 #' @description Only called within `split_by_parens()`, and only if the latter
-#'   function's `.transform` argument is set to `TRUE`.
+#'   function's `transform` argument is set to `TRUE`.
 #'
 #'   `transform_split_parens()` pivots the data into a longer format using
 #'   `tidyr::pivot_longer()`. It lumps values from all original columns into two
@@ -1045,8 +1077,8 @@ check_old_args_split_by_parens <- function(data, dots) {
 #' @return Data frame with these columns:
 #' - `.origin`: Names of the original columns of the data frame that
 #'   `split_by_parens()` took as an input.
-#' - Two columns named after the values of `split_by_parens()`'s `.col1` and
-#'   `.col2` arguments. Default are `"x"` and `"sd"`.
+#' - Two columns named after the values of `split_by_parens()`'s `end1` and
+#'   `end2` arguments. Default are `"x"` and `"sd"`.
 #'
 #' @noRd
 transform_split_parens <- function(data, end1, end2) {
