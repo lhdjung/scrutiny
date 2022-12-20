@@ -263,6 +263,25 @@ test_that("`check_type()` throws an error if the type is wrong", {
 
 
 
+test_that("`is_numericish()` handles base types correctly", {
+  75.5 %>% is_numericish() %>% expect_true()
+  999L %>% is_numericish() %>% expect_true()
+  "42" %>% is_numericish() %>% expect_true()
+  "ab" %>% is_numericish() %>% expect_false()
+  TRUE %>% is_numericish() %>% expect_false()
+})
 
 
+test_that("`is_numericish()` handles factors correctly", {
+  1:5     %>% factor() %>% is_numericish() %>% expect_true()
+  letters %>% factor() %>% is_numericish() %>% expect_false()
+  iris$Species         %>% is_numericish() %>% expect_false()
+})
+
+test_that("`is_numericish()` handles non-vectors correctly", {
+  # Testing a builtin, a closure, and an environment:
+  length       %>% is_numericish() %>% expect_false()
+  append       %>% is_numericish() %>% expect_false()
+  rlang::env() %>% is_numericish() %>% expect_false()
+})
 

@@ -769,11 +769,11 @@ check_length_disperse_n <- function(n, msg_single) {
 #'
 #' @noRd
 is_numericish <- function(x) {
-  if (!rlang::is_vector(x)) {
+  if (is.logical(x) || !rlang::is_vector(x)) {
     return(FALSE)
   }
   if (is.factor(x)) {
-    return(FALSE)
+    x <- as.character(x)
   }
   x <- x[!is.na(x)]
   if (length(x) == 0L) {
