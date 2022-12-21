@@ -52,6 +52,8 @@ coercible to numeric.}
 \item{check_decimals}{Boolean. Only in \code{restore_zeros_df()}. If set to
 \code{TRUE}, the function will skip columns where no values have any decimal
 places. Default is \code{FALSE}.}
+
+\item{...}{Only in \code{restore_zeros_df()}. These dots must be empty.}
 }
 \value{
 \itemize{
@@ -85,8 +87,7 @@ as means or percentages are often reported to the same number of decimal
 places. If such a number is known but values were not entered as strings,
 trailing zeros will be lost. In this case, \code{restore_zeros()} or
 \code{restore_zeros_df()} will be helpful to prepare data for consistency
-testing functions such as \code{grim_map()} or \code{debit_map()}. Otherwise, they
-should probably not be used.
+testing functions such as \code{grim_map()} or \code{grimmer_map()}.
 }
 \section{Displaying decimal places}{
  You might not see all decimal places of

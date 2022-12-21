@@ -22,8 +22,7 @@
 #'   places. If such a number is known but values were not entered as strings,
 #'   trailing zeros will be lost. In this case, `restore_zeros()` or
 #'   `restore_zeros_df()` will be helpful to prepare data for consistency
-#'   testing functions such as `grim_map()` or `debit_map()`. Otherwise, they
-#'   should probably not be used.
+#'   testing functions such as `grim_map()` or `grimmer_map()`.
 
 #' @section Displaying decimal places: You might not see all decimal places of
 #'   numeric values in a vector, and consequently wonder if `restore_zeros()`,
@@ -59,6 +58,7 @@
 #' @param check_decimals Boolean. Only in `restore_zeros_df()`. If set to
 #'   `TRUE`, the function will skip columns where no values have any decimal
 #'   places. Default is `FALSE`.
+#' @param ... Only in `restore_zeros_df()`. These dots must be empty.
 
 #' @return
 #' - For `restore_zeros()`, a string vector. At least some of the strings
@@ -130,7 +130,7 @@ restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in,
   if (is.null(width)) {
 
     # Count characters of the mantissa part:
-    parts <- stringr::str_split_fixed(x, sep_in, n = 2)
+    parts <- stringr::str_split_fixed(x, sep_in, n = 2L)
     width_mantissa <- stringr::str_length(parts[, 2])
 
     # Throw a warning if `x` can't be formatted with the given arguments:
@@ -141,7 +141,7 @@ restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in,
         ">" = "Specify `width` to predetermine a number of decimal places \\
         to which `x` values should be padded."
       ))
-    } else if (all(width_mantissa == 0)) {
+    } else if (all(width_mantissa == 0L)) {
       cli::cli_warn(c(
         "No trailing zeros can be restored",
         "!" = "None of the {length(x)} `x` values has any decimal places.",
@@ -179,9 +179,9 @@ restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in,
   # indirectly via `sep_in` (because the default for `sep_out` is `sep_in`). If
   # so, it now takes its place again. In any case, the output is returned:
   if (all(sep_out == "\\.")) {
-    return(out)
+    out
   } else {
-    return(stringr::str_replace(out, "\\.", sep_out))
+    stringr::str_replace(out, "\\.", sep_out)
   }
 
 }
@@ -240,10 +240,11 @@ restore_zeros_df <- function(data, cols = everything(),
 
   # Columns are primarily selected via the `cols` argument, which defaults to
   # selecting all numeric-like columns. Additional constrains might come via
-  # `selection3` (see above). The `.fns` argument uses an anonymous function to
-  # pass on all the named arguments to `restore_zeros()`:
+  # `selection2` or `selection3` (see above; by default, only `selection2`). The
+  # `.fns` argument uses an anonymous function to pass on all the named
+  # arguments to `restore_zeros()`:
   dplyr::mutate(data, dplyr::across(
-    .cols = {{ cols }} & !! selection2 & !!selection3,
+    .cols = {{ cols }} & !!selection2 & !!selection3,
     .fns = function(data_dummy) {
       restore_zeros(
         x = data_dummy, width = width,
