@@ -35,9 +35,7 @@ Default is \code{"parens"}.}
 \item{end1, end2}{Strings. Endings of the two column names that result from
 splitting a column. Default is \code{"x"} for \code{end1} and \code{"sd"} for \code{end2}.}
 
-\item{...}{Optionally, select columns from \code{data} as in \code{dplyr::select()}.
-Splitting will then be restricted to these columns. This is useful if not
-all values contain parentheses.}
+\item{...}{These dots must be empty.}
 }
 \value{
 A tibble with string columns.
@@ -51,7 +49,7 @@ automatically.
 By default, it operates on all columns. Output can optionally be pivoted
 into a longer format by setting \code{transform} to \code{TRUE}.
 
-Choose separators other than parentheses by specifying the \code{sep} argument.
+Choose separators other than parentheses with the \code{sep} argument.
 }
 \examples{
 # Call `split_by_parens()` on data like these:
@@ -67,9 +65,9 @@ df1 <- tibble::tribble(
 df1 \%>\%
   split_by_parens()
 
-# Name specific columns to only return those:
+# Name specific columns with `cols` to only split those:
 df1 \%>\%
-  split_by_parens(drone)
+  split_by_parens(cols = drone)
 
 # Pivot the data into a longer format
 # by setting `transform` to `TRUE`:
@@ -118,11 +116,11 @@ df3 \%>\%
 }
 \seealso{
 \itemize{
-\item \code{before_parens()} and \code{inside_parens()} take a string vector and
-extract values from the respective position.
+\item \code{before_parens()} and \code{inside_parens()} take a string vector and extract
+values from the respective position.
 \item \code{dplyr::across()} powers the application of the two above functions within
 \code{split_by_parens()}, including the creation of new columns.
 \item \code{tidyr::separate()} is a more general function, but it does not recognize
-closing elements (e.g., closed parentheses).
+closing elements such as closed parentheses.
 }
 }

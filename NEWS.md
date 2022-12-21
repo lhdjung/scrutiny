@@ -1,3 +1,7 @@
+# scrutiny (development version)
+
+-   `split_by_parens()` now uses a `cols` argument instead of the dots (`...`). The default, `cols = everything()`, is equivalent to the old default. All other arguments no longer start on a dot. This follows [tidyselect development recommendations](https://tidyselect.r-lib.org/articles/tidyselect.html#selections-as-dots-or-as-named-arguments). Also, `.col1` and `.col2` have been renamed to `end1` and `end2`. All of these changes are enforced by specific errors.
+
 # scrutiny 0.2.3
 
 Some new features and bugfixes:

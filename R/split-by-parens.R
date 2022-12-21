@@ -9,15 +9,12 @@
 #'   By default, it operates on all columns. Output can optionally be pivoted
 #'   into a longer format by setting `transform` to `TRUE`.
 #'
-#'   Choose separators other than parentheses by specifying the `sep` argument.
+#'   Choose separators other than parentheses with the `sep` argument.
 #'
 #' @param data Data frame.
 #' @param cols Select columns from `data` using
 #'   \href{https://tidyselect.r-lib.org/reference/language.html}{tidyselect}.
 #'   Default is `everything()`, which selects all columns.
-#' @param ... Optionally, select columns from `data` as in `dplyr::select()`.
-#'   Splitting will then be restricted to these columns. This is useful if not
-#'   all values contain parentheses.
 #' @param keep Boolean. If set to `TRUE`, the original columns from `data` also
 #'   appear in the output. Default is `FALSE`.
 #' @param transform Boolean. If set to `TRUE`, the output will be pivoted to be
@@ -27,18 +24,19 @@
 #'   Default is `"parens"`.
 #' @param end1,end2 Strings. Endings of the two column names that result from
 #'   splitting a column. Default is `"x"` for `end1` and `"sd"` for `end2`.
+#' @param ... These dots must be empty.
 #'
 #' @include utils.R before-inside-parens.R
 #'
 #' @return A tibble with string columns.
 
 #' @seealso
-#'  - `before_parens()` and `inside_parens()` take a string vector and
-#'  extract values from the respective position.
+#'  - `before_parens()` and `inside_parens()` take a string vector and extract
+#'  values from the respective position.
 #'  - `dplyr::across()` powers the application of the two above functions within
 #'  `split_by_parens()`, including the creation of new columns.
 #'  - `tidyr::separate()` is a more general function, but it does not recognize
-#'  closing elements (e.g., closed parentheses).
+#'  closing elements such as closed parentheses.
 
 #' @export
 #'
@@ -56,9 +54,9 @@
 #' df1 %>%
 #'   split_by_parens()
 #'
-#' # Name specific columns to only return those:
+#' # Name specific columns with `cols` to only split those:
 #' df1 %>%
-#'   split_by_parens(drone)
+#'   split_by_parens(cols = drone)
 #'
 #' # Pivot the data into a longer format
 #' # by setting `transform` to `TRUE`:
@@ -122,17 +120,12 @@ split_by_parens <- function(data, cols = everything(), keep = FALSE,
   # lead to issues with the timing of evaluation, its evaluation is forced here:
   force(sep)
 
-  # # Prepare the endings of the new columns -- one pair of endings for each
-  # # original column:
-  # endings <- rep(c(end1, end2), times = ncol(data))
-
   # Apply the extractor functions `before_parens()` and `inside_parens()` to all
   # selected columns from `data` (see above), going by `sep`, which is
   # `"parens"` by default and will thus look for parentheses:
   out <- dplyr::mutate(data, dplyr::across(
     .cols = {{ cols }},
     .fns = list(before_parens, inside_parens),
-    # .names = "{.col}_{endings}",
     sep = sep
   ))
 
@@ -145,9 +138,9 @@ split_by_parens <- function(data, cols = everything(), keep = FALSE,
     cli::cli_abort(c("x" = "`keep` and `transform` can't both be `TRUE`."))
   }
 
-  # Modify the column names with the endings from the `end*` arguments. We
-  # can't use the `.names` argument of `across()` because the number of columns
-  # is not yet known at that earlier point.
+  # Modify the column names with the endings from the `end*` arguments. We can't
+  # use the `.names` argument of `dplyr::across()` because the number of columns
+  # in the output data frame is not yet known at that earlier point.
   names(out) <- stringr::str_replace(names(out), "_1$", paste0("_", end1))
   names(out) <- stringr::str_replace(names(out), "_2$", paste0("_", end2))
 
