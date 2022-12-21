@@ -109,12 +109,14 @@ split_by_parens <- function(data, cols = everything(), keep = FALSE,
                             end1 = "x", end2 = "sd", ...) {
 
   # Check whether the user specified any "old" arguments: those starting on a
-  # dot. This check is performed by a custom function from the utils.R file. It
-  # is now the only remaining purpose of the `...` dots because these are no
-  # longer meant to be used. Any other arguments passed through them should
-  # still lead to an error:
-  check_old_args_split_by_parens(data, rlang::enquos(...))
-  rlang::check_dots_empty()
+  # dot. This check is now the only remaining purpose of the `...` dots because
+  # these are no longer meant to be used. Any other arguments passed through
+  # them should still lead to an error:
+  check_new_args_without_dots(
+    data, dots = rlang::enquos(...),
+    old_args = c(".data", ".keep", ".transform", ".sep", ".col1", ".col2"),
+    name_fn = "split_by_parens", test_renamed_split_args = TRUE
+  )
 
   # Since `sep` will be passed through the dots of `dplyr::across()`, which may
   # lead to issues with the timing of evaluation, its evaluation is forced here:

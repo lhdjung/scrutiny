@@ -958,26 +958,39 @@ index_central <- function(x) {
 
 
 
-#' Check for old-style arguments in a `split_by_parens()` call
+#' Check for arguments with or via dots
 #'
 #' @description `check_old_args_split_by_parens()` checks a call to
-#'   `split_by_parens()` for three kinds of errors that used to be part of the
-#'   design of `split_by_parens()`, but no longer are:
+#'   `split_by_parens()` or `restore_zeros_df()` for certain kinds of errors
+#'   that used to be part of the design of these functions, but no longer are:
 #'
 #'   1. Column names are selected via the dots, `...`.
-#'   2. Argument names are prefixed with a dot, like `.transform`.
+#'   2. Argument names are prefixed with a dot, like `.transform` or
+#'   `.check_decimals`.
 #'   3. `col1` or `col2` are specified. (After losing their prefix dots, these
-#'   arguments were renamed to `end1` and `end2`.)
+#'   arguments of `split_by_parens()` were renamed to `end1` and `end2`.)
 #'
-#'   If any of these cases, a precisely informative error is thrown.
+#'   If any of these cases, a precisely informative error is thrown. There is
+#'   also a more generic error if any other argument is passed through the dots,
+#'   `...`. This used to be checked within `split_by_parens()` and
+#'   `restore_zeros_df()` themselves.
+
+#' @param data Input data frame of the main function itself.
+#' @param dots Captures in the main function with `rlang::enquos(...)`.
+#' @param old_args String vector with the old, dot-prefixed arguments.
+#' @param name_fn String. Name of the main function.
+#' @param test_renamed_split_args Boolean. Should the third kind of error be
+#'   checked for? Only `TRUE` if specified within `split_by_parens()`, and
+#'   `FALSE` otherwise.
 #'
-#' @details The second error also points the user to the shift from `col*` to
-#'   `end*` if `.col1` or `.col2` were specified, much like the third one does.
+#' @details Error 2 also points the user to the shift from `col*` to `end*` if
+#'   `.col1` or `.col2` were specified, much like error 3 does.
 #'
 #' @return No return value; might throw an error.
 #'
 #' @noRd
-check_old_args_split_by_parens <- function(data, dots) {
+check_new_args_without_dots <- function(data, dots, old_args, name_fn,
+                                        test_renamed_split_args) {
 
   dots_names <- names(purrr::map(dots, rlang::as_label))
 
@@ -991,7 +1004,7 @@ check_old_args_split_by_parens <- function(data, dots) {
       msg_cols <- paste0("c(", msg_cols, ")")
     }
     cli::cli_abort(c(
-      "x" = "`split_by_parens()` no longer uses the dots, `...`, \\
+      "x" = "`{name_fn}()` no longer uses the dots, `...`, \\
       for column selection.",
       ">" = "Use the `cols` argument instead, like `cols = {msg_cols}`.",
       " " = "Apologies for the inconvenience."
@@ -1001,9 +1014,7 @@ check_old_args_split_by_parens <- function(data, dots) {
   arg_names <- names(rlang::caller_call())
 
   # Error 2: Argument names are prefixed with a dot, like `.transform`.
-  offenders2 <- arg_names[
-    arg_names %in% c(".data", ".keep", ".transform", ".sep", ".col1", ".col2")
-  ]
+  offenders2 <- arg_names[arg_names %in% old_args]
   if (length(offenders2) > 0L) {
     if (length(offenders2) == 1L) {
       msg_args <- "an argument"
@@ -1015,7 +1026,8 @@ check_old_args_split_by_parens <- function(data, dots) {
       msg_dots <- "dots"
     }
     msg_new_args <- stringr::str_remove(offenders2, ".")
-    if (any(c("col1", "col2") %in% msg_new_args)) {
+
+    if (test_renamed_split_args && any(c("col1", "col2") %in% msg_new_args)) {
       msg_new_args[msg_new_args == "col1"] <- "end1"
       msg_new_args[msg_new_args == "col2"] <- "end2"
       msg_switch_end <- " Note the shift from `col*` to `end*`."
@@ -1026,36 +1038,40 @@ check_old_args_split_by_parens <- function(data, dots) {
     offenders2 <- wrap_in_backticks(offenders2)
     cli::cli_abort(c(
       "x" = "{offenders2} {msg_is_are} no longer {msg_args} \\
-      of `split_by_parens()`.",
+      of `{name_fn}()`.",
       ">" = "Use {msg_new_args} instead \\
       (without {msg_dots}).{msg_switch_end}",
       " " = "Apologies for the inconvenience."
     ))
   }
 
-  # Error 3: `col1` or `col2` are specified.
-  offenders3 <- arg_names[arg_names %in% c("col1", "col2")]
-  if (length(offenders3) > 0L) {
-    if (length(offenders3) == 1L) {
-      msg_no_args <- "is not an argument"
-      msg_dots <- "with a dot"
-    } else {
-      msg_no_args <- "are not arguments"
-      msg_dots <- "with dots"
-    }
-    msg_offenders_old <- paste0(".", offenders3)
-    msg_offenders_old <- wrap_in_backticks(msg_offenders_old)
-    msg_new_args <- stringr::str_replace(offenders3, "col", "end")
-    msg_new_args <- wrap_in_backticks(msg_new_args)
-    offenders3 <- wrap_in_backticks(offenders3)
-    cli::cli_abort(c(
-      "x" = "{offenders3} {msg_no_args} of `split_by_parens()`.",
-      "x" = "You're right not to use {msg_offenders_old} anymore \\
+  if (test_renamed_split_args) {
+    # Error 3: `col1` or `col2` are specified (only in `split_by_parens()`).
+    offenders3 <- arg_names[arg_names %in% c("col1", "col2")]
+    if (length(offenders3) > 0L) {
+      if (length(offenders3) == 1L) {
+        msg_no_args <- "is not an argument"
+        msg_dots <- "with a dot"
+      } else {
+        msg_no_args <- "are not arguments"
+        msg_dots <- "with dots"
+      }
+      msg_offenders_old <- paste0(".", offenders3)
+      msg_offenders_old <- wrap_in_backticks(msg_offenders_old)
+      msg_new_args <- stringr::str_replace(offenders3, "col", "end")
+      msg_new_args <- wrap_in_backticks(msg_new_args)
+      offenders3 <- wrap_in_backticks(offenders3)
+      cli::cli_abort(c(
+        "x" = "{offenders3} {msg_no_args} of `{name_fn}()`.",
+        "x" = "You're right not to use {msg_offenders_old} anymore \\
       ({msg_dots}), but also note that it says {msg_new_args} now.",
       " " = "Apologies for the inconvenience."
-    ))
+      ))
+    }
   }
 
+  # Finally, check that no other arguments are passed through the dots:
+  rlang::check_dots_empty(env = rlang::caller_env(n = 1))
 }
 
 
