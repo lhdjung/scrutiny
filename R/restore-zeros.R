@@ -202,7 +202,7 @@ restore_zeros_df <- function(data, cols = everything(),
   check_new_args_without_dots(
     data, dots = rlang::enquos(...), old_args = c(
       ".data", ".check_decimals", ".width",".sep_in", ".sep_out", ".sep"
-    ), name_fn = "restore_zeros_df", test_renamed_split_args = FALSE
+    ), name_fn = "restore_zeros_df"
   )
 
   # Check that `data` is a data frame or matrix:

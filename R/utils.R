@@ -979,9 +979,6 @@ index_central <- function(x) {
 #' @param dots Captures in the main function with `rlang::enquos(...)`.
 #' @param old_args String vector with the old, dot-prefixed arguments.
 #' @param name_fn String. Name of the main function.
-#' @param test_renamed_split_args Boolean. Should the third kind of error be
-#'   checked for? Only `TRUE` if specified within `split_by_parens()`, and
-#'   `FALSE` otherwise.
 #'
 #' @details Error 2 also points the user to the shift from `col*` to `end*` if
 #'   `.col1` or `.col2` were specified, much like error 3 does.
@@ -989,8 +986,11 @@ index_central <- function(x) {
 #' @return No return value; might throw an error.
 #'
 #' @noRd
-check_new_args_without_dots <- function(data, dots, old_args, name_fn,
-                                        test_renamed_split_args) {
+check_new_args_without_dots <- function(data, dots, old_args, name_fn) {
+
+  if (length(dots) == 0L) {
+    return(invisible(NULL))
+  }
 
   dots_names <- names(purrr::map(dots, rlang::as_label))
 
@@ -1007,7 +1007,7 @@ check_new_args_without_dots <- function(data, dots, old_args, name_fn,
       "x" = "`{name_fn}()` no longer uses the dots, `...`, \\
       for column selection.",
       ">" = "Use the `cols` argument instead, like `cols = {msg_cols}`.",
-      " " = "Apologies for the inconvenience."
+      "*" = "Apologies for the inconvenience."
     ))
   }
 
@@ -1017,17 +1017,16 @@ check_new_args_without_dots <- function(data, dots, old_args, name_fn,
   offenders2 <- arg_names[arg_names %in% old_args]
   if (length(offenders2) > 0L) {
     if (length(offenders2) == 1L) {
-      msg_args <- "an argument"
-      msg_is_are <- "is"
-      msg_dots <- "a dot"
+      msg_was_were <- "was"
+      msg_dot_dots <- "a dot"
     } else {
-      msg_args <- "arguments"
-      msg_is_are <- "are"
-      msg_dots <- "dots"
+      msg_was_were <- "were"
+      msg_dot_dots <- "dots"
     }
     msg_new_args <- stringr::str_remove(offenders2, ".")
 
-    if (test_renamed_split_args && any(c("col1", "col2") %in% msg_new_args)) {
+    if (name_fn == "split_by_parens" &&
+        any(c("col1", "col2") %in% msg_new_args)) {
       msg_new_args[msg_new_args == "col1"] <- "end1"
       msg_new_args[msg_new_args == "col2"] <- "end2"
       msg_switch_end <- " Note the shift from `col*` to `end*`."
@@ -1037,24 +1036,22 @@ check_new_args_without_dots <- function(data, dots, old_args, name_fn,
     msg_new_args <- wrap_in_backticks(msg_new_args)
     offenders2 <- wrap_in_backticks(offenders2)
     cli::cli_abort(c(
-      "x" = "{offenders2} {msg_is_are} no longer {msg_args} \\
-      of `{name_fn}()`.",
-      ">" = "Use {msg_new_args} instead \\
-      (without {msg_dots}).{msg_switch_end}",
-      " " = "Apologies for the inconvenience."
+      "x" = "In `{name_fn}()`, {offenders2} {msg_was_were} \\
+      renamed to {msg_new_args} (without {msg_dot_dots}).{msg_switch_end}",
+      "*" = "Apologies for the inconvenience."
     ))
   }
 
-  if (test_renamed_split_args) {
+  if (name_fn == "split_by_parens") {
     # Error 3: `col1` or `col2` are specified (only in `split_by_parens()`).
     offenders3 <- arg_names[arg_names %in% c("col1", "col2")]
     if (length(offenders3) > 0L) {
       if (length(offenders3) == 1L) {
         msg_no_args <- "is not an argument"
-        msg_dots <- "with a dot"
+        msg_dot_dots <- "with a dot"
       } else {
         msg_no_args <- "are not arguments"
-        msg_dots <- "with dots"
+        msg_dot_dots <- "with dots"
       }
       msg_offenders_old <- paste0(".", offenders3)
       msg_offenders_old <- wrap_in_backticks(msg_offenders_old)
@@ -1064,8 +1061,8 @@ check_new_args_without_dots <- function(data, dots, old_args, name_fn,
       cli::cli_abort(c(
         "x" = "{offenders3} {msg_no_args} of `{name_fn}()`.",
         "x" = "You're right not to use {msg_offenders_old} anymore \\
-      ({msg_dots}), but also note that it says {msg_new_args} now.",
-      " " = "Apologies for the inconvenience."
+        ({msg_dot_dots}), but also note that it says {msg_new_args} now.",
+        "*" = "Apologies for the inconvenience."
       ))
     }
   }
@@ -1468,3 +1465,4 @@ check_ggplot2_linewidth <- function(arg_new, default_new) {
   }
 
 }
+

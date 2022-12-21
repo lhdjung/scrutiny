@@ -115,7 +115,7 @@ split_by_parens <- function(data, cols = everything(), keep = FALSE,
   check_new_args_without_dots(
     data, dots = rlang::enquos(...),
     old_args = c(".data", ".keep", ".transform", ".sep", ".col1", ".col2"),
-    name_fn = "split_by_parens", test_renamed_split_args = TRUE
+    name_fn = "split_by_parens"
   )
 
   # Since `sep` will be passed through the dots of `dplyr::across()`, which may
