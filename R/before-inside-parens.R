@@ -24,7 +24,7 @@ proto_split_parens <- function(string, sep = "parens") {
         ">" = "Please specify `sep` as either \"parens\", \"brackets\", or \\
       \"braces\"; or as \"(\", \"[\", or \"{{\".",
         "i" = "Alternatively, choose two custom separators; e.g., \\
-      `.sep = c(\"<\", \">\")` for strings such as \"2.65 <0.27>\"."
+      `sep = c(\"<\", \">\")` for strings such as \"2.65 <0.27>\"."
       ))
     }
   }

@@ -131,6 +131,46 @@ split_by_parens <- function(data, cols = everything(), keep = FALSE,
     sep = sep
   ))
 
+  # The output should always be a tibble:
+  out <- tibble::as_tibble(out)
+
+  # Select the newly created columns and check if any of them contain nothing
+  # but `NA` values. If so, this means that one or more columns in `data` don't
+  # contain the `sep` elements. These columns are screened out...
+  index_first_col_out <- ncol(dplyr::select(data, {{ cols }})) + 1L
+  names_new_na_cols <- colnames(dplyr::select(
+    out,
+    all_of(index_first_col_out):ncol(out) & where(function(x) all(is.na(x)))
+  ))
+
+  # ...and the user is warned that operating on them was not successful:
+  if (length(names_new_na_cols) > 0L) {
+    colnames_wrong <- stringr::str_remove(names_new_na_cols, "_1$|_2$")
+    colnames_wrong <- wrap_in_backticks(colnames_wrong)
+    if (ncol(new_na_cols) == 1L) {
+      msg_one_some <- "One column"
+      msg_this_these <- "This column doesn't"
+    } else {
+      msg_one_some <- "Some columns"
+      msg_this_these <- "These columns don't"
+    }
+    if (length(sep) == 2L) {
+      msg_seps <- wrap_in_quotes(sep)
+      msg_seps <- glue::glue("{msg_seps[1]} and {msg_seps[2]}")
+    } else if (sep == "parens") {
+      msg_seps <- "i.e., parentheses"
+    } else if (sep == "brackets") {
+      msg_seps <- "i.e., square brackets"
+    } else if (sep == "braces") {
+      msg_seps <- "i.e., curly braces"
+    }
+    cli::cli_warn(c(
+      "!" = "{msg_one_some} couldn't be split.",
+      "!" = "{msg_this_these} contain the `sep` elements, {msg_seps}:",
+      ">" = "{colnames_wrong}."
+    ))
+  }
+
   # By default, the original columns are dropped. If the user disabled this by
   # setting `keep` to `TRUE`, `transform` can't also be `TRUE` because this
   # would likely lead to incommensurable data frame dimensions:
