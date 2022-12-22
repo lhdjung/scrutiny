@@ -1,6 +1,7 @@
 # scrutiny (development version)
 
--   `split_by_parens()` now uses a `cols` argument instead of the dots (`...`). The default, `cols = everything()`, is equivalent to the old default. All other arguments no longer start on a dot. This follows [tidyselect development recommendations](https://tidyselect.r-lib.org/articles/tidyselect.html#selections-as-dots-or-as-named-arguments). Also, `.col1` and `.col2` have been renamed to `end1` and `end2`. All of these changes are enforced by specific errors.
+-   `split_by_parens()` now uses a `cols` argument instead of the dots (`...`). The default, `cols = everything()`, is equivalent to the old default. All other arguments were renamed: they no longer start on a dot. This follows [tidyselect development guidelines](https://tidyselect.r-lib.org/articles/tidyselect.html#selections-as-dots-or-as-named-arguments). Furthermore, `.col1` and `.col2` have been renamed to `end1` and `end2`. All of these changes are enforced by specific errors. A warning is now issued if splitting one or more columns fails. This occurs if a column doesn't contain the `sep` elements (by default, parentheses).
+-   In `restore_zeros_df()` as well, the dots (`...`) were replaced by a `cols` argument, and each other argument no longer has a prefix dot. This follows the changes in `split_by_parens()`, but note the default selection restrictions by the new `check_numeric_like` argument. The optional `check_decimals` argument goes even further.
 
 # scrutiny 0.2.3
 
