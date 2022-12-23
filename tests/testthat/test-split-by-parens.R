@@ -85,3 +85,16 @@ test_that("using the dots, `...`, is an error", {
 })
 
 
+pigs_wider <- pigs %>% dplyr::mutate(letters = letters[1:4])
+
+test_that("non-`sep` columns are handled correctly with `check_sep = TRUE` (the default)", {
+  pigs_wider %>% split_by_parens() %>% expect_warning()
+  pigs_wider %>% split_by_parens() %>% suppressWarnings() %>% ncol() %>% expect_equal(4L)
+})
+
+test_that("non-`sep` columns are handled correctly with `check_sep = FALSE", {
+  pigs_wider %>% split_by_parens(check_sep = FALSE) %>% expect_warning()
+  pigs_wider %>% split_by_parens(check_sep = FALSE) %>% suppressWarnings() %>% ncol() %>% expect_equal(6L)
+})
+
+

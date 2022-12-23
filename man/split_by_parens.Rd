@@ -7,6 +7,7 @@
 split_by_parens(
   data,
   cols = everything(),
+  check_sep = TRUE,
   keep = FALSE,
   transform = FALSE,
   sep = "parens",
@@ -20,7 +21,10 @@ split_by_parens(
 
 \item{cols}{Select columns from \code{data} using
 \href{https://tidyselect.r-lib.org/reference/language.html}{tidyselect}.
-Default is \code{everything()}, which selects all columns.}
+Default is \code{everything()}, which selects all columns that pass \code{check_sep}.}
+
+\item{check_sep}{Boolean. If \code{TRUE} (the default), columns are excluded if
+they don't contain the \code{sep} elements.}
 
 \item{keep}{Boolean. If set to \code{TRUE}, the original columns from \code{data} also
 appear in the output. Default is \code{FALSE}.}

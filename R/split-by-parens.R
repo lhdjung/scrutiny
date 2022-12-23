@@ -14,7 +14,9 @@
 #' @param data Data frame.
 #' @param cols Select columns from `data` using
 #'   \href{https://tidyselect.r-lib.org/reference/language.html}{tidyselect}.
-#'   Default is `everything()`, which selects all columns.
+#'   Default is `everything()`, which selects all columns that pass `check_sep`.
+#' @param check_sep Boolean. If `TRUE` (the default), columns are excluded if
+#'   they don't contain the `sep` elements.
 #' @param keep Boolean. If set to `TRUE`, the original columns from `data` also
 #'   appear in the output. Default is `FALSE`.
 #' @param transform Boolean. If set to `TRUE`, the output will be pivoted to be
@@ -104,8 +106,8 @@
 #'   split_by_parens(sep = c("<", ">"))
 
 
-split_by_parens <- function(data, cols = everything(), keep = FALSE,
-                            transform = FALSE, sep = "parens",
+split_by_parens <- function(data, cols = everything(), check_sep = TRUE,
+                            keep = FALSE, transform = FALSE, sep = "parens",
                             end1 = "x", end2 = "sd", ...) {
 
   # Check whether the user specified any "old" arguments: those starting on a
@@ -122,60 +124,85 @@ split_by_parens <- function(data, cols = everything(), keep = FALSE,
   # lead to issues with the timing of evaluation, its evaluation is forced here:
   force(sep)
 
+  # Determine which columns have suitable values with regards to the `sep`
+  # elements and capture their names:
+  names_of_cols_with_seps <- data %>%
+    dplyr::select(
+      function(x) {
+        sep_in_order <- translate_length1_sep_keywords(sep)
+        sep_in_order <- paste0(sep_in_order[1], "[^)]*", sep_in_order[2])
+        x %>%
+          stringr::str_detect(sep_in_order) %>%
+          all()
+      }
+    ) %>%
+    colnames()
+
+  # By default, take care that only those columns which contain the `sep`
+  # elements will be operated on:
+  if (check_sep) {
+    selection2 <- rlang::expr(all_of(names_of_cols_with_seps))
+  } else {
+    selection2 <- rlang::expr(dplyr::everything())
+  }
+
   # Apply the extractor functions `before_parens()` and `inside_parens()` to all
   # selected columns from `data` (see above), going by `sep`, which is
   # `"parens"` by default and will thus look for parentheses:
-  out <- dplyr::mutate(data, dplyr::across(
-    .cols = {{ cols }},
-    .fns = list(before_parens, inside_parens),
-    sep = sep
-  ))
+  out <- data %>%
+    dplyr::mutate(dplyr::across(
+      .cols = {{ cols }} & !!selection2,
+      .fns = list(before_parens, inside_parens),
+      sep = sep
+    )) %>%
+    tibble::as_tibble()
 
-  # The output should always be a tibble:
-  out <- tibble::as_tibble(out)
+  # From here onward, the only relevant aspect of `data` is its column names:
+  data_names <- colnames(data)
+  rm(data)
 
-  # Select the newly created columns and check if any of them contain nothing
-  # but `NA` values. If so, this means that one or more columns in `data` don't
-  # contain the `sep` elements. These columns are screened out...
-  index_first_col_out <- ncol(dplyr::select(data, {{ cols }})) + 1L
-  names_new_na_cols <- colnames(dplyr::select(
-    out,
-    all_of(index_first_col_out):ncol(out) & where(function(x) all(is.na(x)))
-  ))
-
-  # ...and the user is warned that operating on them was not successful:
-  if (length(names_new_na_cols) > 0L) {
-    colnames_wrong <- stringr::str_remove(names_new_na_cols, "_1$|_2$")
-    colnames_wrong <- wrap_in_backticks(colnames_wrong)
-    if (ncol(new_na_cols) == 1L) {
-      msg_one_some <- "One column"
-      msg_this_these <- "This column doesn't"
+  # Check if any columns from `data` don't contain the `sep` elements. If so,
+  # the way this was handled above depends on `check_sep`: They were either
+  # excluded from splitting (`TRUE`, the default) or they were included and
+  # split in a way that was likely not intended. In both cases, the user is
+  # warned appropriately:
+  if (!identical(names_of_cols_with_seps, data_names)) {
+    names_wrong_cols <- data_names[!data_names %in% names_of_cols_with_seps]
+    msg_colnames <- wrap_in_backticks(names_wrong_cols)
+    msg_seps <- message_sep_if_cols_excluded(sep)
+    if (check_sep) {
+      if (length(names_wrong_cols) == 1L) {
+        msg_col_cols <- "1 column was"
+        msg_it_they <- "It doesn't"
+      } else {
+        msg_col_cols <- paste0(length(names_wrong_cols), " columns were")
+        msg_it_they <- "They don't"
+      }
+      names_wrong_cols <- wrap_in_backticks(names_wrong_cols)
+      cli::cli_warn(c(
+        "!" = "{msg_col_cols} excluded: {names_wrong_cols}.",
+        "!" = "{msg_it_they} contain the `sep` elements, {msg_seps}."
+      ))
     } else {
-      msg_one_some <- "Some columns"
-      msg_this_these <- "These columns don't"
+      if (length(names_wrong_cols) == 1L) {
+        msg_col_cols <- "1 column"
+        msg_this_these <- "It doesn't"
+      } else {
+        msg_col_cols <- paste0(length(names_wrong_cols), " columns")
+        msg_this_these <- "These columns don't"
+      }
+      cli::cli_warn(c(
+        "!" = "{msg_col_cols} couldn't be split: {msg_colnames}.",
+        "!" = "{msg_this_these} contain the `sep` elements, {msg_seps}."
+      ))
     }
-    if (length(sep) == 2L) {
-      msg_seps <- wrap_in_quotes(sep)
-      msg_seps <- glue::glue("{msg_seps[1]} and {msg_seps[2]}")
-    } else if (sep == "parens") {
-      msg_seps <- "i.e., parentheses"
-    } else if (sep == "brackets") {
-      msg_seps <- "i.e., square brackets"
-    } else if (sep == "braces") {
-      msg_seps <- "i.e., curly braces"
-    }
-    cli::cli_warn(c(
-      "!" = "{msg_one_some} couldn't be split.",
-      "!" = "{msg_this_these} contain the `sep` elements, {msg_seps}:",
-      ">" = "{colnames_wrong}."
-    ))
   }
 
   # By default, the original columns are dropped. If the user disabled this by
   # setting `keep` to `TRUE`, `transform` can't also be `TRUE` because this
   # would likely lead to incommensurable data frame dimensions:
   if (!keep) {
-    out <- dplyr::select(out, -names(data))
+    out <- dplyr::select(out, -all_of(data_names))
   } else if (transform) {
     cli::cli_abort(c("x" = "`keep` and `transform` can't both be `TRUE`."))
   }

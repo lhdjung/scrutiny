@@ -1,6 +1,51 @@
 
+# Helpers (not exported) --------------------------------------------------
 
-# Basic function (not exported) -------------------------------------------
+check_length_parens_sep <- function(sep) {
+  if (!length(sep) %in% c(1L, 2L)) {
+    cli::cli_abort(c(
+      "x" = "`sep` (`{sep}`) has length {length(sep)}.",
+      "x" = "It can only have length 1 or 2."
+    ))
+  }
+}
+
+
+translate_length1_sep_keywords <- function(sep) {
+  check_length_parens_sep(sep)
+  if (length(sep) == 2L) {
+    sep
+  } else if (sep %in% c("parens", "(", "\\(")) {
+    c("\\(", "\\)")
+  } else if (sep %in% c("brackets", "[", "\\[")) {
+    c("\\[", "\\]")
+  } else if (sep %in% c("braces", "{", "\\{")) {
+    c("\\{", "\\}")
+  } else {
+    cli::cli_abort(c(
+      "`sep` given as {wrap_in_backticks(sep)}.",
+      ">" = "Please specify `sep` as either \"parens\", \"brackets\", or \\
+        \"braces\"; or as \"(\", \"[\", or \"{{\".",
+      "i" = "Alternatively, choose two custom separators; e.g., \\
+        `sep = c(\"<\", \">\")` for strings such as \"2.65 <0.27>\"."
+    ))
+  }
+}
+
+# This one is only used within `split_by_parens()`:
+message_sep_if_cols_excluded <- function(sep) {
+  if (length(sep) == 2L) {
+    msg_seps <- wrap_in_quotes(sep)
+    glue::glue("{msg_seps[1]} and {msg_seps[2]}")
+  } else if (sep == "parens") {
+    "i.e., parentheses"
+  } else if (sep == "brackets") {
+    "i.e., square brackets"
+  } else if (sep == "braces") {
+    "i.e., curly braces"
+  }
+}
+
 
 proto_split_parens <- function(string, sep = "parens") {
 
@@ -8,25 +53,9 @@ proto_split_parens <- function(string, sep = "parens") {
     sep_open  <- sep[1]
     sep_close <- sep[2]
   } else {
-    if (sep %in% c("parens", "(", "\\(")) {
-      sep_open  <- "\\("
-      sep_close <- "\\)"
-    } else if (sep %in% c("brackets", "[", "\\[")) {
-      sep_open  <- "\\["
-      sep_close <- "\\]"
-    } else if (sep %in% c("braces", "{", "\\{")) {
-      sep_open  <- "\\{"
-      sep_close <- "\\}"
-    } else {
-      msg_sep <- paste0("`", sep, "`")
-      cli::cli_abort(c(
-        "`sep` given as {msg_sep}.",
-        ">" = "Please specify `sep` as either \"parens\", \"brackets\", or \\
-      \"braces\"; or as \"(\", \"[\", or \"{{\".",
-        "i" = "Alternatively, choose two custom separators; e.g., \\
-      `sep = c(\"<\", \">\")` for strings such as \"2.65 <0.27>\"."
-      ))
-    }
+    separators <- translate_length1_sep_keywords(sep)
+    sep_open   <- separators[1]
+    sep_close  <- separators[2]
   }
 
   out <- stringr::str_split(string, sep_open)
@@ -39,6 +68,8 @@ proto_split_parens <- function(string, sep = "parens") {
 }
 
 
+
+# Main functions ----------------------------------------------------------
 
 #' Extract substrings from before and inside parentheses
 #'
@@ -72,6 +103,7 @@ proto_split_parens <- function(string, sep = "parens") {
 
 
 before_parens <- function(string, sep = "parens") {
+  check_length_parens_sep(sep)
   out <- proto_split_parens(string, sep)
   out <- purrr::map_chr(out, function(x) x[1])
   stringr::str_trim(out)
@@ -82,6 +114,8 @@ before_parens <- function(string, sep = "parens") {
 #' @export
 
 inside_parens <- function(string, sep = "parens") {
+
+  check_length_parens_sep(sep)
 
   if (length(sep) == 2L) {
     sep_close <- sep[2]
