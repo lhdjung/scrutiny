@@ -42,7 +42,7 @@ splitting a column. Default is \code{"x"} for \code{end1} and \code{"sd"} for \c
 \item{...}{These dots must be empty.}
 }
 \value{
-A tibble with string columns.
+A data frame with string columns.
 }
 \description{
 Summary statistics are often presented like \code{"2.65 (0.27)"}.

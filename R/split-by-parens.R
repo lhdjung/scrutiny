@@ -30,7 +30,7 @@
 #'
 #' @include utils.R before-inside-parens.R
 #'
-#' @return A tibble with string columns.
+#' @return A data frame with string columns.
 
 #' @seealso
 #'  - `before_parens()` and `inside_parens()` take a string vector and extract
