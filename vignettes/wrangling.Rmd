@@ -119,14 +119,14 @@ A convenient way to restore trailing zeros in a data frame is `restore_zeros_df(
 ```{r}
 iris <- as_tibble(iris)
 iris %>% 
-  restore_zeros_df(.width = 3)
+  restore_zeros_df(width = 3)
 ```
 
-Specify columns as you would in `dplyr::select()`:
+Specify columns mostly like you would in `dplyr::select()`:
 
 ```{r}
 iris %>% 
-  restore_zeros_df(starts_with("Sepal"), .width = 3)
+  restore_zeros_df(starts_with("Sepal"), width = 3)
 ```
 
 ## Split strings by parentheses
