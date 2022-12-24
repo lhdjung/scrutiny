@@ -149,13 +149,15 @@ split_by_parens <- function(data, cols = everything(), check_sep = TRUE,
   # Apply the extractor functions `before_parens()` and `inside_parens()` to all
   # selected columns from `data` (see above), going by `sep`, which is
   # `"parens"` by default and will thus look for parentheses:
-  out <- data %>%
-    dplyr::mutate(dplyr::across(
+  out <- dplyr::mutate(data, dplyr::across(
       .cols = {{ cols }} & !!selection2,
       .fns = list(before_parens, inside_parens),
       sep = sep
-    )) %>%
-    tibble::as_tibble()
+    ))
+
+  if (tibble::is_tibble(data)) {
+    out <- tibble::as_tibble(out)
+  }
 
   # From here onward, the only relevant aspect of `data` is its column names:
   data_names <- colnames(data)
