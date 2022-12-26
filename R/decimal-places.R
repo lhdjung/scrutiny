@@ -101,7 +101,7 @@ decimal_places_scalar <- function(x, sep = "\\.") {
 
 #' Count decimal places in a data frame
 #'
-#' For every value in a column, `decimal_places_df()` count its decimal places.
+#' For every value in a column, `decimal_places_df()` counts its decimal places.
 #' By default, it operates on all columns that are coercible to numeric.
 #'
 #' @param data Data frame.
@@ -114,7 +114,7 @@ decimal_places_scalar <- function(x, sep = "\\.") {
 #'   Default is `"\\."`, which renders a decimal point.
 #'
 #' @return Data frame. The values of the selected columns are replaced by the
-#'   number of their decimal places.
+#'   numbers of their decimal places.
 #'
 #' @seealso Wrapped functions: `decimal_places()`, `dplyr::across()`.
 #'
@@ -143,6 +143,28 @@ decimal_places_df <- function(data, cols = everything(),
   } else {
     selection2 <- rlang::expr(dplyr::everything())
   }
+
+  names_of_numeric_like_cols <- data %>%
+    dplyr::select(where(is_numericish)) %>%
+    colnames()
+
+  data_names <- colnames(data)
+
+  if (!identical(names_of_numeric_like_cols, data_names)) {
+    names_wrong_cols <- data_names[!data_names %in% names_of_numeric_like_cols]
+    if (check_numeric_like) {
+      msg_exclusion <- paste0(c("was", "were"), " excluded")
+    } else {
+      msg_exclusion <- "didn't have any decimal places counted"
+    }
+    warn_wrong_columns_selected(
+      names_wrong_cols,
+      msg_exclusion,
+      msg_reason = "numeric-like",
+      msg_it_they = c("It isn't", "They aren't")
+    )
+  }
+
   dplyr::mutate(data, dplyr::across(
     .cols = {{ cols }} & !!selection2,
     .fns  = function(x) decimal_places(x = x, sep = sep)

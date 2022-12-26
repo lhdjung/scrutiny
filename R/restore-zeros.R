@@ -134,7 +134,7 @@ restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in,
     width_mantissa <- stringr::str_length(parts[, 2])
 
     # Throw a warning if `x` can't be formatted with the given arguments:
-    if (length(x) == 1) {
+    if (length(x) == 1L) {
       cli::cli_warn(c(
         "No trailing zeros can be restored",
         "!" = "`x` has length 1",
@@ -201,7 +201,7 @@ restore_zeros_df <- function(data, cols = everything(),
   # them should still lead to an error:
   check_new_args_without_dots(
     data, dots = rlang::enquos(...), old_args = c(
-      ".data", ".check_decimals", ".width",".sep_in", ".sep_out", ".sep"
+      ".data", ".check_decimals", ".width", ".sep_in", ".sep_out", ".sep"
     ), name_fn = "restore_zeros_df"
   )
 
@@ -217,10 +217,15 @@ restore_zeros_df <- function(data, cols = everything(),
     }
   }
 
+  # Names of selection-suitable columns:
+  names_num_cols <- data %>%
+    dplyr::select(where(is_numericish)) %>%
+    colnames()
+
   # By default, selection is restricted to columns that are numeric or coercible
   # to numeric. This is checked with an internal helper from the utils.R file:
   if (check_numeric_like) {
-    selection2 <- rlang::expr(where(is_numericish))
+    selection2 <- rlang::expr(all_of(names_num_cols))
   } else {
     selection2 <- rlang::expr(dplyr::everything())
   }
@@ -238,13 +243,36 @@ restore_zeros_df <- function(data, cols = everything(),
     selection3 <- rlang::expr(dplyr::everything())
   }
 
-  # Columns are primarily selected via the `cols` argument, which defaults to
-  # selecting all numeric-like columns. Additional constrains might come via
-  # `selection2` or `selection3` (see above; by default, only `selection2`). The
+  # Column selection is outsourced here so that the resultv can also be used in
+  # a check below:
+  cols_to_select <- rlang::expr({{ cols }} & !!selection2 & !!selection3)
+  cols_to_select <- tidyselect::eval_select(cols_to_select, data)
+
+  # Check whether any selected columns are not numeric-like, in which case they
+  # can't have any decimal places restored. If so...
+  names_cols_select <- names(cols_to_select)
+  names_wrong_cols <- names_cols_select[!names_cols_select %in% names_num_cols]
+
+  # ...the user is warned:
+  if (length(names_wrong_cols) > 0L) {
+    warn_wrong_columns_selected(
+      names_wrong_cols,
+      msg_exclusion = "didn't have any decimal places restored",
+      msg_reason = "numeric-like",
+      msg_it_they = c("It isn't", "They aren't")
+    )
+  }
+
+  # Save memory by removing objects that are no longer needed:
+  rm(names_num_cols, selection2, selection3)
+
+  # By default, a columns is selected if and only if it's numeric-like.
+  # Additional constrains might come via `selection2` or `selection3` (see
+  # `cols_to_select` above; by default, only `selection2` takes effect). The
   # `.fns` argument uses an anonymous function to pass on all the named
   # arguments to `restore_zeros()`:
   dplyr::mutate(data, dplyr::across(
-    .cols = {{ cols }} & !!selection2 & !!selection3,
+    .cols = all_of(cols_to_select),
     .fns = function(data_dummy) {
       restore_zeros(
         x = data_dummy, width = width,

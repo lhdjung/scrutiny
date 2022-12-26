@@ -158,11 +158,11 @@ split_by_parens <- function(data, cols = everything(), check_sep = TRUE,
   # selected columns from `data` (see above), going by `sep`, which is
   # `"parens"` by default and will thus look for parentheses:
   out <- dplyr::mutate(data, dplyr::across(
-      .cols = all_of(cols_to_select),
-      .fns = list(before_parens, inside_parens),
-      .names = "{.col}_{endings}",
-      sep = sep
-    ), .before = 1L)
+    .cols = all_of(cols_to_select),
+    .fns = list(before_parens, inside_parens),
+    .names = "{.col}_{endings}",
+    sep = sep
+  ), .before = 1L)
 
   # The output is meant to have the same class as the input. Since `out` is not
   # a tibble, coerce it to a tibble if and only if `data` is:
@@ -194,7 +194,6 @@ split_by_parens <- function(data, cols = everything(), check_sep = TRUE,
   # warned appropriately:
   if (!identical(names_of_cols_with_seps, names_data)) {
     names_wrong_cols <- names_data[!names_data %in% names_of_cols_with_seps]
-    msg_colnames <- wrap_in_backticks(names_wrong_cols)
     msg_reason <- message_sep_if_cols_excluded(sep)
     msg_reason <- paste0("contain the `sep` elements, ", msg_reason)
     if (check_sep) {
@@ -202,7 +201,7 @@ split_by_parens <- function(data, cols = everything(), check_sep = TRUE,
     } else {
       msg_exclusion <- "couldn't be split"
     }
-    warning_wrong_columns_selected(names_wrong_cols, msg_exclusion, msg_reason)
+    warn_wrong_columns_selected(names_wrong_cols, msg_exclusion, msg_reason)
   }
 
   # Without a special transformation, nothing is left to do except for appending

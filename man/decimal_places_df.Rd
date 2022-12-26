@@ -26,10 +26,10 @@ Default is \code{"\\\\."}, which renders a decimal point.}
 }
 \value{
 Data frame. The values of the selected columns are replaced by the
-number of their decimal places.
+numbers of their decimal places.
 }
 \description{
-For every value in a column, \code{decimal_places_df()} count its decimal places.
+For every value in a column, \code{decimal_places_df()} counts its decimal places.
 By default, it operates on all columns that are coercible to numeric.
 }
 \examples{
