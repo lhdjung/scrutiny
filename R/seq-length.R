@@ -58,7 +58,7 @@
 
 seq_length <- function(x, value) {
 
-  check_type_numericish(x)
+  check_type_numeric_like(x)
   x_is_linear <- is_seq_linear(x)
 
   if (!isTRUE(x_is_linear)) {

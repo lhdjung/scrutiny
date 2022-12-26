@@ -1,5 +1,5 @@
 
-#' @include import-reexport.R
+#' @include import-reexport.R is-numeric-like.R
 
 utils::globalVariables(c(
   ".", "where", "desc", "all_of", "contains", "everything", "x", "items",
@@ -746,49 +746,18 @@ check_length_disperse_n <- function(n, msg_single) {
 
 
 
-#' Test if a vector is numeric or coercible to numeric
+#' Check if a vector is numeric or coercible to numeric
 #'
-#' @description `is_numericish()` returns `TRUE` if `x` is a non-factor vector
-#'   in which at least one element can be coerced to a non-`NA` numeric value,
-#'   and `FALSE` otherwise.
+#' `check_type_numeric_like()` throws an informative error if `is_numeric_like()`
+#'   returns `FALSE`. This means it tolerates `NA`, not just `TRUE.`
 #'
-#'   This is meant to implement the common notion of an R vector being
-#'   "coercible to numeric". However, factors are excluded here because treating
-#'   them like numeric variables is not useful in the context of scrutiny: The
-#'   package often deals with number-strings, as in `restore_zeros_df()`, which
-#'   uses `is_numericish()` as a selector. Accepting factors there would make no
-#'   sense.
+#' @param x Object to be tested.
 #'
-#'   `check_type_numericish()` throws an informative error if `is_numericish()`
-#'   returns `FALSE`.
-#'
-#' @param x Any object.
-#'
-#' @return Boolean (length 1) for `is_numericish()`; none for
-#'   `check_type_numericish()` which might throw an error.
-#'
-#' @details `is_numericish()` resulted in Hadley Wickham liking one of my
-#'   tweets! :D https://twitter.com/lukasjung_hd/status/1571852033996595200
+#' @return No return value; might throw an error.
 #'
 #' @noRd
-is_numericish <- function(x) {
-  if (is.logical(x) || !rlang::is_vector(x)) {
-    return(FALSE)
-  }
-  if (is.factor(x)) {
-    x <- as.character(x)
-  }
-  x <- x[!is.na(x)]
-  if (length(x) == 0L) {
-    return(NA)
-  }
-  x <- suppressWarnings(as.numeric(x))
-  !any(is.na(x))
-}
-
-
-check_type_numericish <- function(x) {
-  if (isFALSE(is_numericish(x))) {
+check_type_numeric_like <- function(x) {
+  if (isFALSE(is_numeric_like(x))) {
     name <- deparse(substitute(x))
     if (rlang::is_vector(x)) {
       length_non_na <- length(x[!is.na(x)])
@@ -823,8 +792,8 @@ check_type_numericish <- function(x) {
 
 #' Test if numeric-like vectors contain at least some decimal places
 #'
-#' For numeric-like `x` inputs (as determined by `is_numericish()`),
-#' `has_decimals_if_numericish()` checks if at least one element of `x` has at
+#' For numeric-like `x` inputs (as determined by `is_numeric_like()`),
+#' `has_decimals_if_numeric_like()` checks if at least one element of `x` has at
 #' least one decimal place. If so, or if `x` is not numeric-like, the function
 #' returns `TRUE`. Otherwise, it returns `FALSE`.
 #'
@@ -835,8 +804,8 @@ check_type_numericish <- function(x) {
 #' @return Boolean (length 1).
 #'
 #' @noRd
-has_decimals_if_numericish <- function(x, sep = "\\.") {
-  !is_numericish(x) || !all(decimal_places(x, sep = sep) == 0L)
+has_decimals_if_numeric_like <- function(x, sep = "\\.") {
+  !is_numeric_like(x) || !all(decimal_places(x, sep = sep) == 0L)
 }
 
 

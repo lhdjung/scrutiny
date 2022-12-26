@@ -33,6 +33,7 @@ Imports:
     stringr,
     tibble
 Collate: 
+    'is-numeric-like.R'
     'import-reexport.R'
     'utils.R'
     'mapper-function-helpers.R'

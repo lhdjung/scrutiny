@@ -183,6 +183,10 @@ reference:
 - contents:
   - is_subset_of
 
+- subtitle: Testing for numeric-like vectors
+- contents:
+  - is_numeric_like
+
 
 - title: Data wrangling
   desc: Automate formatting tasks with a special relevance to error detection

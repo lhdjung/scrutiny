@@ -79,7 +79,7 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
     return(NA)
   }
 
-  if (!is_numericish(x)) {
+  if (!is_numeric_like(x)) {
     return(FALSE)
   }
 
@@ -347,7 +347,7 @@ is_seq_dispersed_basic <- function(x, from,
   }
 
   if (!is.numeric(x)) {
-    if (is_numericish(x)) {
+    if (is_numeric_like(x)) {
       x <- as.numeric(x)
     } else {
       return(FALSE)
@@ -355,7 +355,7 @@ is_seq_dispersed_basic <- function(x, from,
   }
 
   if (!is.numeric(from)) {
-    if (is_numericish(from)) {
+    if (is_numeric_like(from)) {
       x <- as.numeric(from)
     } else {
       return(FALSE)

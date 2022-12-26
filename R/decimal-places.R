@@ -139,13 +139,13 @@ decimal_places_scalar <- function(x, sep = "\\.") {
 decimal_places_df <- function(data, cols = everything(),
                               check_numeric_like = TRUE, sep = "\\.") {
   if (check_numeric_like) {
-    selection2 <- rlang::expr(where(is_numericish))
+    selection2 <- rlang::expr(where(is_numeric_like))
   } else {
     selection2 <- rlang::expr(dplyr::everything())
   }
 
   names_of_numeric_like_cols <- data %>%
-    dplyr::select(where(is_numericish)) %>%
+    dplyr::select(where(is_numeric_like)) %>%
     colnames()
 
   data_names <- colnames(data)

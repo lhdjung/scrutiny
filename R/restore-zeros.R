@@ -219,7 +219,7 @@ restore_zeros_df <- function(data, cols = everything(),
 
   # Names of selection-suitable columns:
   names_num_cols <- data %>%
-    dplyr::select(where(is_numericish)) %>%
+    dplyr::select(where(is_numeric_like)) %>%
     colnames()
 
   # By default, selection is restricted to columns that are numeric or coercible
@@ -235,7 +235,7 @@ restore_zeros_df <- function(data, cols = everything(),
   # place. Otherwise...
   if (check_decimals) {
     selection3 <- rlang::expr(where(
-      function(x) has_decimals_if_numericish(x, sep = sep_in)
+      function(x) has_decimals_if_numeric_like(x, sep = sep_in)
     ))
   } else {
     # ... the new variable is set up to be evaluated as `everything()`, which is
