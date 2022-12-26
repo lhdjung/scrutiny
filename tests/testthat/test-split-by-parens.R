@@ -89,7 +89,7 @@ pigs_wider <- pigs %>% dplyr::mutate(letters = letters[1:4])
 
 test_that("non-`sep` columns are handled correctly with `check_sep = TRUE` (the default)", {
   pigs_wider %>% split_by_parens() %>% expect_warning()
-  pigs_wider %>% split_by_parens() %>% suppressWarnings() %>% ncol() %>% expect_equal(4L)
+  pigs_wider %>% split_by_parens() %>% suppressWarnings() %>% ncol() %>% expect_equal(5L)
 })
 
 test_that("non-`sep` columns are handled correctly with `check_sep = FALSE", {

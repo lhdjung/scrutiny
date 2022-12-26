@@ -26,8 +26,8 @@ Default is \code{everything()}, which selects all columns that pass \code{check_
 \item{check_sep}{Boolean. If \code{TRUE} (the default), columns are excluded if
 they don't contain the \code{sep} elements.}
 
-\item{keep}{Boolean. If set to \code{TRUE}, the original columns from \code{data} also
-appear in the output. Default is \code{FALSE}.}
+\item{keep}{Boolean. If set to \code{TRUE}, the originally selected columns that
+were split by the function also appear in the output. Default is \code{FALSE}.}
 
 \item{transform}{Boolean. If set to \code{TRUE}, the output will be pivoted to be
 better suitable for typical follow-up tasks. Default is \code{FALSE}.}
@@ -42,7 +42,7 @@ splitting a column. Default is \code{"x"} for \code{end1} and \code{"sd"} for \c
 \item{...}{These dots must be empty.}
 }
 \value{
-A data frame with string columns.
+Data frame.
 }
 \description{
 Summary statistics are often presented like \code{"2.65 (0.27)"}.

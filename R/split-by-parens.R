@@ -17,8 +17,8 @@
 #'   Default is `everything()`, which selects all columns that pass `check_sep`.
 #' @param check_sep Boolean. If `TRUE` (the default), columns are excluded if
 #'   they don't contain the `sep` elements.
-#' @param keep Boolean. If set to `TRUE`, the original columns from `data` also
-#'   appear in the output. Default is `FALSE`.
+#' @param keep Boolean. If set to `TRUE`, the originally selected columns that
+#'   were split by the function also appear in the output. Default is `FALSE`.
 #' @param transform Boolean. If set to `TRUE`, the output will be pivoted to be
 #'   better suitable for typical follow-up tasks. Default is `FALSE`.
 #' @param sep String. What to split by. Either `"parens"`, `"brackets"`, or
@@ -30,7 +30,7 @@
 #'
 #' @include utils.R before-inside-parens.R
 #'
-#' @return A data frame with string columns.
+#' @return Data frame.
 
 #' @seealso
 #'  - `before_parens()` and `inside_parens()` take a string vector and extract
@@ -146,82 +146,83 @@ split_by_parens <- function(data, cols = everything(), check_sep = TRUE,
     selection2 <- rlang::expr(dplyr::everything())
   }
 
+  # Compute a named integer vector of index locations (within `data`) of the
+  # columns that will be split:
+  cols_to_select <- rlang::expr({{ cols }} & !!selection2)
+  cols_to_select <- tidyselect::eval_select(cols_to_select, data)
+
+  # Prepare the endings of the split column names:
+  endings <- rep(c(end1, end2), times = length(cols_to_select))
+
   # Apply the extractor functions `before_parens()` and `inside_parens()` to all
   # selected columns from `data` (see above), going by `sep`, which is
   # `"parens"` by default and will thus look for parentheses:
   out <- dplyr::mutate(data, dplyr::across(
-      .cols = {{ cols }} & !!selection2,
+      .cols = all_of(cols_to_select),
       .fns = list(before_parens, inside_parens),
+      .names = "{.col}_{endings}",
       sep = sep
-    ))
+    ), .before = 1L)
 
+  # The output is meant to have the same class as the input. Since `out` is not
+  # a tibble, coerce it to a tibble if and only if `data` is:
   if (tibble::is_tibble(data)) {
     out <- tibble::as_tibble(out)
   }
 
-  # From here onward, the only relevant aspect of `data` is its column names:
-  data_names <- colnames(data)
-  rm(data)
+  # Select all "neutral" columns: those that were not selected above. They will
+  # be added to `out` in the end unless it's transformed.
+  names_data <- colnames(data)
+  names_neutral_cols <- names_data[!names_data %in% names(cols_to_select)]
+  neutral_cols <- dplyr::select(data, all_of(names_neutral_cols))
+
+  # Save memory by removing objects that are no longer needed:
+  rm(data, selection2, cols_to_select, endings)
+
+  # By default, the original columns are dropped. If the user disabled this by
+  # setting `keep` to `TRUE`, `transform` can't also be `TRUE` because this
+  # would likely lead to incommensurable data frame dimensions:
+  if (!keep) {
+    names_original <- names_data[!names_data %in% names_neutral_cols]
+    out <- dplyr::select(out, !all_of(names_original))
+  }
 
   # Check if any columns from `data` don't contain the `sep` elements. If so,
   # the way this was handled above depends on `check_sep`: They were either
   # excluded from splitting (`TRUE`, the default) or they were included and
   # split in a way that was likely not intended. In both cases, the user is
   # warned appropriately:
-  if (!identical(names_of_cols_with_seps, data_names)) {
-    names_wrong_cols <- data_names[!data_names %in% names_of_cols_with_seps]
+  if (!identical(names_of_cols_with_seps, names_data)) {
+    names_wrong_cols <- names_data[!names_data %in% names_of_cols_with_seps]
     msg_colnames <- wrap_in_backticks(names_wrong_cols)
-    msg_seps <- message_sep_if_cols_excluded(sep)
+    msg_reason <- message_sep_if_cols_excluded(sep)
+    msg_reason <- paste0("contain the `sep` elements, ", msg_reason)
     if (check_sep) {
-      if (length(names_wrong_cols) == 1L) {
-        msg_col_cols <- "1 column was"
-        msg_it_they <- "It doesn't"
-      } else {
-        msg_col_cols <- paste0(length(names_wrong_cols), " columns were")
-        msg_it_they <- "They don't"
-      }
-      names_wrong_cols <- wrap_in_backticks(names_wrong_cols)
-      cli::cli_warn(c(
-        "!" = "{msg_col_cols} excluded: {names_wrong_cols}.",
-        "!" = "{msg_it_they} contain the `sep` elements, {msg_seps}."
-      ))
+      msg_exclusion <- paste0(c("was", "were"), " not split")
     } else {
-      if (length(names_wrong_cols) == 1L) {
-        msg_col_cols <- "1 column"
-        msg_this_these <- "It doesn't"
-      } else {
-        msg_col_cols <- paste0(length(names_wrong_cols), " columns")
-        msg_this_these <- "These columns don't"
-      }
-      cli::cli_warn(c(
-        "!" = "{msg_col_cols} couldn't be split: {msg_colnames}.",
-        "!" = "{msg_this_these} contain the `sep` elements, {msg_seps}."
-      ))
+      msg_exclusion <- "couldn't be split"
     }
+    warning_wrong_columns_selected(names_wrong_cols, msg_exclusion, msg_reason)
   }
 
-  # By default, the original columns are dropped. If the user disabled this by
-  # setting `keep` to `TRUE`, `transform` can't also be `TRUE` because this
-  # would likely lead to incommensurable data frame dimensions:
-  if (!keep) {
-    out <- dplyr::select(out, -all_of(data_names))
-  } else if (transform) {
+  # Without a special transformation, nothing is left to do except for appending
+  # those columns that were never split to the output:
+  if (!transform) {
+    return(dplyr::mutate(out, {{ neutral_cols }}))
+  }
+
+  # Pivot the output to a longer format beforehand using a specified internal
+  # helper function from the utils.R file. Since this changes the format, it
+  # only works if no columns were left unsplit. If there are any, an error is
+  # thrown:
+  if (keep) {
     cli::cli_abort(c("x" = "`keep` and `transform` can't both be `TRUE`."))
+  } else if (length(names_neutral_cols) > 0L) {
+    cli::cli_abort(c(
+      "x" = "`transform` can't be `TRUE` if some columns are left unsplit."
+    ))
   }
-
-  # Modify the column names with the endings from the `end*` arguments. We can't
-  # use the `.names` argument of `dplyr::across()` because the number of columns
-  # in the output data frame is not yet known at that earlier point.
-  names(out) <- stringr::str_replace(names(out), "_1$", paste0("_", end1))
-  names(out) <- stringr::str_replace(names(out), "_2$", paste0("_", end2))
-
-  # Return the output tibble. If desired, pivot it to a longer format beforehand
-  # using a specified internal helper function from the utils.R file:
-  if (transform) {
-    transform_split_parens(out, end1 = end1, end2 = end2)
-  } else {
-    out
-  }
+  transform_split_parens(out, end1, end2)
 
 }
 

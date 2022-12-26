@@ -32,6 +32,28 @@ translate_length1_sep_keywords <- function(sep) {
   }
 }
 
+
+# Warning thrown within tidyselect-supporting functions:
+warning_wrong_columns_selected <- function(names_wrong_cols,
+                                           msg_exclusion, msg_reason,
+                                           msg_it_they = c("It doesn't", "They don't")) {
+  if (length(names_wrong_cols) == 1L) {
+    msg_col_cols <- "1 column"
+    msg_it_they <- msg_it_they[1]
+    msg_exclusion <- msg_exclusion[1]
+  } else {
+    msg_col_cols <- paste0(length(names_wrong_cols), " columns")
+    msg_it_they <- msg_it_they[max(1, length(msg_it_they))]
+    msg_exclusion <- msg_exclusion[max(1, length(msg_exclusion))]
+  }
+  names_wrong_cols <- wrap_in_backticks(names_wrong_cols)
+  cli::cli_warn(c(
+    "!" = "{msg_col_cols} {msg_exclusion}: {names_wrong_cols}.",
+    "!" = "{msg_it_they} {msg_reason}."
+  ))
+}
+
+
 # This one is only used within `split_by_parens()`:
 message_sep_if_cols_excluded <- function(sep) {
   if (length(sep) == 2L) {
