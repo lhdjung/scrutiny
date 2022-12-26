@@ -9,7 +9,7 @@
 #'   - Other vectors (most likely strings) are `TRUE` if all their non-`NA`
 #'   values can be coerced to non-`NA` numeric values, and `FALSE` otherwise.
 #'   - Factors are first coerced to string, then tested.
-#'   - If all values are `NA`, the output is also `NA`.
+#'   - If all values are (non-Boolean) `NA`, the output is also `NA`.
 #'
 #'   See details for discussion.
 #'
@@ -52,19 +52,14 @@
 #' # Booleans are always false:
 #' is_numeric_like(c(TRUE, FALSE))
 #'
-#' # If all values are `NA`, so is the output:
-#' is_numeric_like(c(NA, NA, NA))
+#' # If all values are `NA`, so is the output
+#' # (except for logical `NA`):
+#' is_numeric_like(as.character(c(NA, NA, NA)))
+#' is_numeric_like(as.logical(c(NA, NA, NA)))
 
 
 is_numeric_like <- function(x) {
-  if (is.logical(x)) {
-    if (all(is.na(x))) {
-      return(NA)
-    } else {
-      return(FALSE)
-    }
-  }
-  if (!rlang::is_vector(x)) {
+  if (is.logical(x) || !rlang::is_vector(x)) {
     return(FALSE)
   }
   if (is.factor(x)) {

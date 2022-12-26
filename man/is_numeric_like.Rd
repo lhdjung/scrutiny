@@ -21,7 +21,7 @@ numeric" by the standards of scrutiny. This means:
 \item Other vectors (most likely strings) are \code{TRUE} if all their non-\code{NA}
 values can be coerced to non-\code{NA} numeric values, and \code{FALSE} otherwise.
 \item Factors are first coerced to string, then tested.
-\item If all values are \code{NA}, the output is also \code{NA}.
+\item If all values are (non-Boolean) \code{NA}, the output is also \code{NA}.
 }
 
 See details for discussion.
@@ -56,8 +56,10 @@ is_numeric_like(as.factor("xyz"))
 # Booleans are always false:
 is_numeric_like(c(TRUE, FALSE))
 
-# If all values are `NA`, so is the output:
-is_numeric_like(c(NA, NA, NA))
+# If all values are `NA`, so is the output
+# (except for logical `NA`):
+is_numeric_like(as.character(c(NA, NA, NA)))
+is_numeric_like(as.logical(c(NA, NA, NA)))
 }
 \seealso{
 The \href{https://vctrs.r-lib.org/}{vctrs} package provides a
