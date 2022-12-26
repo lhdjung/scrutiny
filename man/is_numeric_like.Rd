@@ -17,9 +17,9 @@ Boolean (length 1).
 numeric" by the standards of scrutiny. This means:
 \itemize{
 \item Integer and double vectors are \code{TRUE}.
-\item Booleans are always \code{FALSE}, as are non-vectors.
-\item Other vectors (most likely strings) are \code{TRUE} if all their values can be
-coerced to non-\code{NA} numeric values, and \code{FALSE} otherwise.
+\item Booleans are always \code{FALSE}, as are non-vector objects.
+\item Other vectors (most likely strings) are \code{TRUE} if all their non-\code{NA}
+values can be coerced to non-\code{NA} numeric values, and \code{FALSE} otherwise.
 \item Factors are first coerced to string, then tested.
 \item If all values are \code{NA}, the output is also \code{NA}.
 }

@@ -5,9 +5,9 @@
 #'   numeric" by the standards of scrutiny. This means:
 #'
 #'   - Integer and double vectors are `TRUE`.
-#'   - Booleans are always `FALSE`, as are non-vectors.
-#'   - Other vectors (most likely strings) are `TRUE` if all their values can be
-#'   coerced to non-`NA` numeric values, and `FALSE` otherwise.
+#'   - Booleans are always `FALSE`, as are non-vector objects.
+#'   - Other vectors (most likely strings) are `TRUE` if all their non-`NA`
+#'   values can be coerced to non-`NA` numeric values, and `FALSE` otherwise.
 #'   - Factors are first coerced to string, then tested.
 #'   - If all values are `NA`, the output is also `NA`.
 #'
