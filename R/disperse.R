@@ -140,8 +140,6 @@ disperse <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
     dispersion <- dispersion[(n + dispersion) <= n_max]
   }
 
-  dispersion_index <- rep(dispersion, each = 2)
-
   n_minus <- n - dispersion
   n_plus  <- n + dispersion
 

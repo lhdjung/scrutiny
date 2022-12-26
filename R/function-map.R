@@ -197,7 +197,7 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
       # return(.col_control)
       lengths_consistency <- vapply(consistency, length, integer(1))
       lengths_consistency_all1 <- all(lengths_consistency == 1)
-      if (.col_control & !lengths_consistency_all1) {
+      if (.col_control && !lengths_consistency_all1) {
         extend_if_length1 <- function(x, value_if_length1) {
           if (length(x) == 1) {
             list(list(x, value_if_length1))

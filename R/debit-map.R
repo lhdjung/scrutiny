@@ -136,8 +136,8 @@ debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
   extra_cols <- manage_extra_cols(data, extra, other_cols)
 
   # Prepare input vectors for the resulting tibble:
-  sd <- sd_chr <- data$sd
-  x <- x_chr <- data$x
+  sd <- data$sd
+  x <- data$x
   n <- data$n
 
   # Compute the DEBIT results and construct the resulting tibble:

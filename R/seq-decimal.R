@@ -107,9 +107,6 @@ seq_endpoint <- function(from, to, offset_from = 0, offset_to = 0,
   from_orig <- from
   to_orig   <- to
 
-  type_orig_from <- typeof(from)
-  type_orig_to   <- typeof(to)
-
   # After that, trailing zeros can safely be dropped because `from` and `to` are
   # only relevant in terms of their numeric values:
   from <- as.numeric(from)
@@ -137,9 +134,9 @@ seq_endpoint <- function(from, to, offset_from = 0, offset_to = 0,
 
   # Hackish way of conveying to `manage_string_output_seq()` whether or not
   # either of `from` and `to` was specified as a string, or else as a double:
-  if (is.character(from_orig) | is.character(to_orig)) {
+  if (is.character(from_orig) || is.character(to_orig)) {
     from <- as.character(from)
-  } else if (is.double(from_orig) | is.double(to_orig)) {
+  } else if (is.double(from_orig) || is.double(to_orig)) {
     from <- as.double(from)
   } else {
     from <- as.integer(from)
@@ -178,7 +175,6 @@ seq_distance <- function(from, by = NULL, length_out = 10, dir = 1,
 
   # Record if `from` was specified as string; relevant for `string_output`:
   from_orig <- from
-  type_orig_from <- typeof(from)
 
   # After that, trailing zeros can safely be dropped because `from` is only
   # relevant in terms of its numeric value:

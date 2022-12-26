@@ -72,7 +72,10 @@ test_that("It has the correct dimensions when split by `case`", {
 
 vals_exp_y <- c(16, 26, 16, 26, 16, 26)
 vals_exp_n <- c(6, 6, 5, 7, 4, 8)
-vals_exp_consistency <- c(F, T, T, T, T, T)
+
+f <- FALSE
+t <- TRUE
+vals_exp_consistency <- c(f, t, t, t, t, t)
 
 test_that("Judging by a small sample, it has correct values", {
   df1_tested$y[1:6] %>% expect_equal(vals_exp_y)

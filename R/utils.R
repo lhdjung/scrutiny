@@ -216,6 +216,9 @@ remove_equivalent_rows <- function(data) {
 #'
 #' @noRd
 reverse_column_order <- function(data) {
+  if (ncol(data) == 0L) {
+    return(data)
+  }
   col_numbers_reversed <- ncol(data):1
   data[, order(col_numbers_reversed)]
 }
@@ -320,7 +323,7 @@ check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
     # Error condition, checking if there is more than one element of `var_list`
     # with a unique length greater than one (the duplicated lengths were
     # filtered out from `var_list_gt1` right above):
-    if (error & (length(var_list_gt1) > 1)) {
+    if (error && (length(var_list_gt1) > 1)) {
 
       x <- var_list_gt1[[1]]
       y <- var_list_gt1[[2]]

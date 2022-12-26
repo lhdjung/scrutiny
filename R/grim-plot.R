@@ -271,10 +271,6 @@ grim_plot <- function(data = NULL,
 
   frac_unit <- 1 / p10
 
-  frac_sequence <- seq_endpoint(from = frac_unit, to = (1 - frac_unit))
-  n_sequence <- 1:n
-
-
   # By default, a background raster is displayed in the plot:
   if (show_raster) {
 

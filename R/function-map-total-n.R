@@ -54,7 +54,6 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
            n_min = .n_min, n_max = .n_max,
            constant = .constant, ...) {
 
-    reported_names  <- colnames(reported)
     reported_n_cols <- ncol(reported)
     reported_n_vars <- reported_n_cols / 2
 

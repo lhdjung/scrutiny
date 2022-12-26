@@ -179,10 +179,6 @@ audit_seq <- function(data) {
     )) %>%
     suppressWarnings()
 
-  hits_positions_means <- hits_positions %>%
-    purrr::map_dbl(mean) %>%
-    unname()
-
   dc <- class(data)
   rounding <- dc[stringr::str_detect(dc, "scr_rounding_")]
   rounding <- stringr::str_remove(rounding, "scr_rounding_")
