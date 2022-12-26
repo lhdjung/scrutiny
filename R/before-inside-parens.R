@@ -34,7 +34,7 @@ translate_length1_sep_keywords <- function(sep) {
 
 
 # Warning thrown within tidyselect-supporting functions:
-warning_wrong_columns_selected <- function(names_wrong_cols,
+warn_wrong_columns_selected <- function(names_wrong_cols,
                                            msg_exclusion, msg_reason,
                                            msg_it_they = c("It doesn't", "They don't")) {
   if (length(names_wrong_cols) == 1L) {
