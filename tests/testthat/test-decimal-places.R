@@ -131,3 +131,25 @@ test_that("`decimal_places_scalar()` conditions work as expected", {
 })
 
 
+iris <- iris %>%
+  tibble::as_tibble() %>%
+  dplyr::mutate(dplyr::across(everything(), as.character)) %>%
+  dplyr::slice(1:5)
+
+iris_counted <- decimal_places_df(iris[1:4])
+
+test_that("", {
+  iris_counted[[1]] %>% expect_equal(as.integer(c(1, 1, 1, 1, 0)))
+  iris_counted[[2]] %>% expect_equal(as.integer(c(1, 0, 1, 1, 1)))
+  iris_counted[[3]] %>% expect_equal(as.integer(c(1, 1, 1, 1, 1)))
+  iris_counted[[4]] %>% expect_equal(as.integer(c(1, 1, 1, 1, 1)))
+})
+
+test_that("`decimal_places_df()` throws a warning if and only if it should", {
+  iris %>% decimal_places_df() %>% expect_warning()
+  iris %>% dplyr::select(1:4) %>% decimal_places_df() %>% expect_no_warning()
+  iris %>% decimal_places_df(check_numeric_like = FALSE) %>% expect_warning()
+  iris %>% dplyr::select(1:4) %>% decimal_places_df(check_numeric_like = FALSE) %>% expect_no_warning()
+})
+
+
