@@ -14,6 +14,14 @@ test_that("`is_numeric_like()` handles factors correctly", {
   iris$Species         %>% is_numeric_like() %>% expect_false()
 })
 
+
+test_that("`is_numeric_like()` handles lists correctly", {
+  list(1, 2, NA)        %>% is_numeric_like() %>% expect_true()
+  list(1, 2, 3:7)       %>% is_numeric_like() %>% expect_false()
+  list(1, 2, list(3:7)) %>% is_numeric_like() %>% expect_false()
+})
+
+
 test_that("`is_numeric_like()` handles non-vectors correctly", {
   # Testing a builtin, a closure, and an environment:
   length       %>% is_numeric_like() %>% expect_false()
