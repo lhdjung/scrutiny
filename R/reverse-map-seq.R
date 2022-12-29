@@ -76,7 +76,7 @@ reverse_map_seq <- function(data) {
 
   var_unique <- var
 
-  if (length(var_unique) == 1) {
+  if (length(var_unique) == 1L) {
     data_var <- list(data)
     data_var <- append(data_var, data_var)
     names(data_var) <- c(var_unique, "scr_split_dummy")

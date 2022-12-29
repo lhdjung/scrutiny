@@ -94,7 +94,7 @@
 
 
 
-seq_endpoint <- function(from, to, offset_from = 0, offset_to = 0,
+seq_endpoint <- function(from, to, offset_from = 0L, offset_to = 0L,
                          string_output = TRUE) {
 
   # A number's neighborhood depends on how many decimal places the number has.
@@ -114,12 +114,12 @@ seq_endpoint <- function(from, to, offset_from = 0, offset_to = 0,
 
   # The starting point and/or the endpoint might be offset by some non-zero
   # number of incremental steps. First, the starting point...
-  if (offset_from != 0) {
+  if (offset_from != 0L) {
     from <- from + (by * offset_from)
   }
 
   # ...and then, the endpoint:
-  if (offset_to != 0) {
+  if (offset_to != 0L) {
     to <- to + (by * offset_to)
   }
 
@@ -158,8 +158,8 @@ seq_endpoint <- function(from, to, offset_from = 0, offset_to = 0,
 #' @rdname seq_endpoint
 #' @export
 
-seq_distance <- function(from, by = NULL, length_out = 10, dir = 1,
-                         offset_from = 0, string_output = TRUE) {
+seq_distance <- function(from, by = NULL, length_out = 10L, dir = 1,
+                         offset_from = 0L, string_output = TRUE) {
 
   # If the step size by which the sequence progresses (`by`) was not manually
   # chosen as in `seq()`, it is determined by the number of decimal places in
@@ -168,7 +168,7 @@ seq_distance <- function(from, by = NULL, length_out = 10, dir = 1,
     digits <- decimal_places_scalar(from)
     by <- 1 / (10 ^ digits)
   } else {
-    check_length(by, 1)
+    check_length(by, 1L)
     check_type(by, c("integer", "double"))
     digits <- decimal_places_scalar(by)
   }
@@ -182,7 +182,7 @@ seq_distance <- function(from, by = NULL, length_out = 10, dir = 1,
 
   # The starting point might be offset by some non-zero number of incremental
   # steps (the default is 0, in which case this does nothing):
-  if (offset_from != 0) {
+  if (offset_from != 0L) {
     from <- from + (by * offset_from)
   }
 
@@ -190,7 +190,7 @@ seq_distance <- function(from, by = NULL, length_out = 10, dir = 1,
   # step size in conjunction with the desired output length (`length_out`).
   # However, the starting point is also part of the sequence, so it needs to be
   # compensated by subtracting 1 from the desired length:
-  distance <- by * (length_out - 1)
+  distance <- by * (length_out - 1L)
 
   # The endpoint of the sequence, `to`, is simply the starting point plus the
   # distance. However, that's just the default. If `dir` was set to `-1`, it
@@ -231,7 +231,7 @@ seq_distance <- function(from, by = NULL, length_out = 10, dir = 1,
 #' @rdname seq_endpoint
 #' @export
 
-seq_endpoint_df <- function(.from, .to, ..., .offset_from = 0, .offset_to = 0,
+seq_endpoint_df <- function(.from, .to, ..., .offset_from = 0L, .offset_to = 0L,
                             .string_output = TRUE) {
 
   # Call the basic function to generate the sequence:
@@ -248,7 +248,7 @@ seq_endpoint_df <- function(.from, .to, ..., .offset_from = 0, .offset_to = 0,
   # additional columns into it. Then, add a special class to the tibble, but
   # only to pass messages between (1) here, (2) the testing function, and (3)
   # `seq_test_ranking()`. Finally, return the resulting tibble:
-  if (length(further_cols) > 0) {
+  if (length(further_cols) > 0L) {
     out <- tibble::tibble(x, !!!further_cols)
   } else {
     out <- tibble::tibble(x)
@@ -264,8 +264,8 @@ seq_endpoint_df <- function(.from, .to, ..., .offset_from = 0, .offset_to = 0,
 #' @rdname seq_endpoint
 #' @export
 
-seq_distance_df <- function(.from, .by = NULL, ..., .length_out = 10, .dir = 1,
-                            .offset_from = 0, .string_output = TRUE) {
+seq_distance_df <- function(.from, .by = NULL, ..., .length_out = 10L, .dir = 1,
+                            .offset_from = 0L, .string_output = TRUE) {
 
   # Call the basic function to generate the sequence:
   x <- seq_distance(
@@ -281,7 +281,7 @@ seq_distance_df <- function(.from, .by = NULL, ..., .length_out = 10, .dir = 1,
   # additional columns into it. Then, add a special class to the tibble, but
   # only to pass messages between (1) here, (2) the testing function, and (3)
   # `seq_test_ranking()`. Finally, return the resulting tibble:
-  if (length(further_cols) > 0) {
+  if (length(further_cols) > 0L) {
     out <- tibble::tibble(x, !!!further_cols)
   } else {
     out <- tibble::tibble(x)

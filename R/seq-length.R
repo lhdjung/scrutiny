@@ -75,20 +75,20 @@ seq_length <- function(x, value) {
     ))
   }
 
-  check_length(value, 1)
+  check_length(value, 1L)
 
   if (!is_whole_number(value)) {
     cli::cli_abort("`{value}` in `length(x) <- {value}` is not a whole number.")
   }
 
-  if (value == 0) {
-    out <- vector(mode = typeof(x), length = 0)
+  if (value == 0L) {
+    out <- vector(mode = typeof(x), length = 0L)
     return(out)
   }
 
   diff <- value - length(x)
 
-  if (diff == 0) {
+  if (diff == 0L) {
     return(x)
   }
 
@@ -101,7 +101,7 @@ seq_length <- function(x, value) {
     dir <- 1
   }
 
-  if (diff < 0) {
+  if (diff < 0L) {
     out <- x[1:(length(x) - abs(diff))]
     return(out)
   }

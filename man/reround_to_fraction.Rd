@@ -17,7 +17,7 @@ reround_to_fraction(
 reround_to_fraction_level(
   x = NULL,
   denominator = 1,
-  digits = 0,
+  digits = 0L,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE

@@ -13,15 +13,15 @@ check_debit_inputs <- function(input, type, symbol) {
   # error. First, the error message is prepared...
   offenders <- input[!input_in_range]
 
-  if (length(offenders) > 0) {
+  if (length(offenders) > 0L) {
 
-    if (length(offenders) == 1) {
+    if (length(offenders) == 1L) {
       msg_is_are <- "is"
     } else {
       msg_is_are <- "are"
     }
 
-    if (length(offenders) > 3) {
+    if (length(offenders) > 3L) {
       offenders_all <- offenders
       offenders <- offenders[1:3]
       msg_offenders <- ", starting with"

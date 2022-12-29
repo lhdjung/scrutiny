@@ -110,10 +110,10 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
   fun_args <- as.list(args(.fun))
   offenders <- .reported[!.reported %in% names(fun_args)]
 
-  if (length(offenders) > 0) {
+  if (length(offenders) > 0L) {
     offenders <- wrap_in_backticks(offenders)
     fun_name <- deparse(substitute(.fun))
-    if (length(offenders) == 1) {
+    if (length(offenders) == 1L) {
       msg_arg <- "argument"
       msg_it_they <- "It was"
     } else {
@@ -195,8 +195,8 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
     if (!is.null(.col_control)) {
       .col_control <- eval(rlang::parse_expr(.col_control))
       # return(.col_control)
-      lengths_consistency <- vapply(consistency, length, integer(1))
-      lengths_consistency_all1 <- all(lengths_consistency == 1)
+      lengths_consistency <- vapply(consistency, length, integer(1L))
+      lengths_consistency_all1 <- all(lengths_consistency == 1L)
       if (.col_control && !lengths_consistency_all1) {
         extend_if_length1 <- function(x, value_if_length1) {
           if (length(x) == 1) {

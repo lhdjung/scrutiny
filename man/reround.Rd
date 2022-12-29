@@ -6,7 +6,7 @@
 \usage{
 reround(
   x,
-  digits = 0,
+  digits = 0L,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE

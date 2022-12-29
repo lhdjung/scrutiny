@@ -4,22 +4,22 @@
 
 check_key_args_in_colnames <- function(data, reported) {
   offenders <- reported[!reported %in% colnames(data)]
-  if (length(offenders) > 0) {
-    if (length(offenders) == 1) {
+  if (length(offenders) > 0L) {
+    if (length(offenders) == 1L) {
       msg_cols <- "Column"
       msg_it_they <- "It's"
     } else {
       msg_cols <- "Columns"
       msg_it_they <- "They are"
     }
-    if (length(offenders) > 1) {
+    if (length(offenders) > 1L) {
       msg_each_other <- "each other"
     } else {
       msg_each_other <- ""
     }
     non_offenders <- reported[!reported %in% offenders]
-    if (length(non_offenders) > 0) {
-      if (length(offenders) > 1) {
+    if (length(non_offenders) > 0L) {
+      if (length(offenders) > 1L) {
         msg_each_other <- paste0(msg_each_other, " and with ")
       }
       non_offenders <- wrap_in_backticks(non_offenders)
@@ -40,18 +40,18 @@ check_consistency_not_in_colnames <- function(data, name_test) {
     class_basic   <- dc[stringr::str_detect(dc, "_map$")]
     class_seq     <- dc[stringr::str_detect(dc, "_map_seq$")]
     class_total_n <- dc[stringr::str_detect(dc, "_map_total_n$")]
-    if (length(class_basic) > 0) {
+    if (length(class_basic) > 0L) {
       fun_name_basic <- stringr::str_remove(class_basic, "scr_")
     } else {
       fun_name_basic <- NULL
     }
-    if (length(class_seq) > 0) {
+    if (length(class_seq) > 0L) {
       fun_name_basic <- NULL
       fun_name_seq <- stringr::str_remove(class_seq, "scr_")
     } else {
       fun_name_seq <- NULL
     }
-    if (length(class_total_n) > 0) {
+    if (length(class_total_n) > 0L) {
       fun_name_basic <- NULL
       fun_name_total_n <- stringr::str_remove(class_total_n, "scr_")
     } else {
@@ -60,8 +60,8 @@ check_consistency_not_in_colnames <- function(data, name_test) {
     non_fun_name_classes <- c("map_seq", "map_total_n")
     fun_name_all <- c(fun_name_basic, fun_name_seq, fun_name_total_n)
     fun_name_all <- fun_name_all[!fun_name_all %in% non_fun_name_classes]
-    fun_name_all <- fun_name_all[length(fun_name_all) > 0]
-    if (length(fun_name_all) == 0) {
+    fun_name_all <- fun_name_all[length(fun_name_all) > 0L]
+    if (length(fun_name_all) == 0L) {
       fun_name_all <- ""
     }
     if (stringr::str_detect(fun_name_all, "_seq")) {
@@ -71,7 +71,7 @@ check_consistency_not_in_colnames <- function(data, name_test) {
     } else {
       msg_special <- ""
     }
-    if (length(fun_name_all) > 0) {
+    if (length(fun_name_all) > 0L) {
       msg_fun_name <- paste0(", `", fun_name_all, "()`,")
     } else {
       msg_fun_name <- ""
@@ -228,7 +228,7 @@ manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
       var_name_as_arg <- wrap_in_backticks(var_name)
       var_name <- wrap_in_quotes(var_name)
       var_arg  <- wrap_in_quotes_or_backticks(var_arg)
-      fun_name <- name_caller_call(n = 2)
+      fun_name <- name_caller_call(n = 2L)
       default  <- wrap_in_quotes_or_backticks(default)
       cli::cli_abort(c(
         "Column {var_name} already in {data_name}.",
@@ -357,7 +357,7 @@ unnest_consistency_cols <- function(results, col_names, index = FALSE,
   # `purrr::map_depth()` call:
   if (index) {
     consistency_list <- results[col][[1]] %>%
-      purrr::map_depth(.depth = 2, .f =  `[`, 1) %>%
+      purrr::map_depth(.depth = 2L, .f =  `[`, 1) %>%
       purrr::map(unlist)
   } else {
     consistency_list <- purrr::map(results[col][[1]], unlist)
@@ -401,7 +401,7 @@ summarize_audit_special <- function(data, selector) {
   term <- names(out)
   out <- tibble::as_tibble(t(out), .name_repair = ~ fn_names)
 
-  dplyr::mutate(out, term, .before = 1)
+  dplyr::mutate(out, term, .before = 1L)
 }
 
 

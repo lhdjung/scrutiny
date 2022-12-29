@@ -5,7 +5,7 @@ mutate_both_consistent <- function(data) {
   both_consistent <- data$consistency %>%
     split_into_groups(group_size = 2) %>%
     purrr::map_lgl(all) %>%
-    rep(each = 2)
+    rep(each = 2L)
 
   dplyr::mutate(data, both_consistent, .after = "consistency")
 }
@@ -45,7 +45,7 @@ mutate_both_consistent <- function(data) {
 # Used within `function_map_total_n()`:
 function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
                                        .dispersion = 0:5,
-                                       .n_min = 1, .n_max = NULL,
+                                       .n_min = 1L, .n_max = NULL,
                                        .constant = NULL, ...) {
 
   function(data, fun = .fun, reported = .reported,
@@ -304,7 +304,7 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 function_map_total_n <- function(.fun, .reported, .name_test,
                                  .name_class = NULL,
                                  .dispersion = 0:5,
-                                 .n_min = 1, .n_max = NULL,
+                                 .n_min = 1L, .n_max = NULL,
                                  .constant = NULL,
                                  .constant_index = NULL) {
 
@@ -331,7 +331,7 @@ function_map_total_n <- function(.fun, .reported, .name_test,
 
   fun_name <- deparse(substitute(.fun))
 
-  reported_reduplicated <- rep(.reported, each = 2)
+  reported_reduplicated <- rep(.reported, each = 2L)
   reported_reduplicated <- paste0(reported_reduplicated, c("1", "2"))
 
 
@@ -374,8 +374,8 @@ function_map_total_n <- function(.fun, .reported, .name_test,
     # ...and that all of its values are whole numbers:
     offenders <- data$n[!is_whole_number(data$n)]
 
-    if (length(offenders) > 0) {
-      if (length(offenders) > 3) {
+    if (length(offenders) > 0L) {
+      if (length(offenders) > 3L) {
         offenders <- offenders[1:3]
         msg_starting_with <- ", starting with"
       } else {
@@ -408,8 +408,8 @@ function_map_total_n <- function(.fun, .reported, .name_test,
       cols_expected_forth[!cols_expected_forth %in% colnames(data)]
 
     # ...and if so, throw an error:
-    if (length(cols_missing) > 0) {
-      if (length(cols_missing) == 1) {
+    if (length(cols_missing) > 0L) {
+      if (length(cols_missing) == 1L) {
         msg_cols <- "Column"
         msg_is_are <- "is"
         msg_it_they <- "It's"
@@ -527,7 +527,7 @@ function_map_total_n <- function(.fun, .reported, .name_test,
     # `disperse_total()`:
     if (!is.null(constant) && !is.null(constant_index)) {
 
-      check_length(constant_index, 1)
+      check_length(constant_index, 1L)
 
       if (is.null(names(constant))) {
         constant_ref <- "constant"

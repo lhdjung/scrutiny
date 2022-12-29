@@ -4,7 +4,7 @@
 \alias{row_to_colnames}
 \title{Turn row values into column names}
 \usage{
-row_to_colnames(data, row = 1, collapse = " ", drop = TRUE)
+row_to_colnames(data, row = 1L, collapse = " ", drop = TRUE)
 }
 \arguments{
 \item{data}{Data frame or matrix.}

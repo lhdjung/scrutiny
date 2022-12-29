@@ -142,8 +142,8 @@ grim_plot <- function(data = NULL,
       reason <- data$reason[!is.na(data$reason)]
       grimmer_cases <- stringr::str_detect(reason, "GRIMMER")
       grimmer_cases <- length(grimmer_cases[grimmer_cases])
-      if (grimmer_cases > 0) {
-        if (grimmer_cases == 1) {
+      if (grimmer_cases > 0L) {
+        if (grimmer_cases == 1L) {
           msg_case_s <- "case was"
           msg_incons <- "inconsistency"
         } else {
@@ -189,7 +189,7 @@ grim_plot <- function(data = NULL,
   # number because it controls the number of decimal places for which the plot
   # will be constructed:
   if (!is.null(digits)) {
-    if (length(digits) != 1) {
+    if (length(digits) != 1L) {
       cli::cli_abort(c(
         "`digits` has length {length(digits)}.",
         "x" = "It needs to have length 1 (i.e., be a single number)."
@@ -226,7 +226,7 @@ grim_plot <- function(data = NULL,
           "Means"
         )
         dp_unique <- unique(digits_x)
-        if (length(dp_unique) <= 3) {
+        if (length(dp_unique) <= 3L) {
           dp_unique_presented <- sort(dp_unique)
           msg_starting_with <- ":"
         } else {
@@ -276,7 +276,7 @@ grim_plot <- function(data = NULL,
 
     # For 1 or 2 decimal places, the function selects the appropriate raster
     # from among those saved within the package itself:
-    if (!(digits > 2)) {
+    if (!(digits > 2L)) {
 
       # Check the way `x` values were rounded in the preceding `grim_map()` call
       # to prepare selecting the plot background raster:
@@ -383,7 +383,7 @@ grim_plot <- function(data = NULL,
       # Boxes are still added pro forma; the call to `geom_tile()` is the same
       # as above (except for the `alpha` and `fill` specifications):
 
-      if (digits > 2) {
+      if (digits > 2L) {
 
         if (show_gradient) {
 
@@ -454,7 +454,7 @@ grim_plot <- function(data = NULL,
   }
 
 
-  if (!(digits > 2)) {
+  if (!(digits > 2L)) {
 
     # Further specifications:
     p <- p +

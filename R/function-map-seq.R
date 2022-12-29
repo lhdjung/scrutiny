@@ -44,7 +44,7 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
     nrow_list_var <- purrr::map_int(list_var, nrow)
 
     ncol_index_var <- match(var, colnames(data))
-    ncol_before_consistency <- match("consistency", colnames(data)) - 1
+    ncol_before_consistency <- match("consistency", colnames(data)) - 1L
 
     cols_for_testing <- data[, 1:ncol_before_consistency]
     cols_for_testing_names_without_var <-
@@ -390,7 +390,7 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
     # value. As this is not naturally guaranteed as in `*_map()` functions, it
     # needs to be done by hand:
     dots <- rlang::enexprs(...)
-    if (length(dots$rounding) > 0) {
+    if (length(dots$rounding) > 0L) {
       class(out)[stringr::str_detect(class(out), "scr_rounding_")] <-
         paste0("scr_rounding_", dots$rounding)
     }

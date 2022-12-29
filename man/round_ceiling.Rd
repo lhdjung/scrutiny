@@ -8,15 +8,15 @@
 \alias{round_anti_trunc}
 \title{Always round up, down, toward zero, or away from it}
 \usage{
-round_ceiling(x, digits = 0)
+round_ceiling(x, digits = 0L)
 
-round_floor(x, digits = 0)
+round_floor(x, digits = 0L)
 
-round_trunc(x, digits = 0)
+round_trunc(x, digits = 0L)
 
 anti_trunc(x)
 
-round_anti_trunc(x, digits = 0)
+round_anti_trunc(x, digits = 0L)
 }
 \arguments{
 \item{x}{Numeric. The decimal number to round.}

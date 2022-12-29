@@ -28,7 +28,7 @@
 
 #' @param dispersion Numeric. Vector that determines the steps up and down from
 #'   `n` (or, in `disperse_total()`, from half `n`). Default is `0:5`.
-#' @param n_min Numeric. Minimal group size. Default is `1`.
+#' @param n_min Numeric. Minimal group size. Default is `1L`.
 #' @param n_max Numeric. Maximal group size. Default is `NULL`, i.e., no
 #'   maximum.
 #' @param constant Optionally, add a length-2 vector or a list of length-2
@@ -105,7 +105,7 @@
 
 # Basic function for halves of even totals --------------------------------
 
-disperse <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
+disperse <- function(n, dispersion = 0:5, n_min = 1L, n_max = NULL,
                      constant = NULL, constant_index = NULL) {
 
   # Checks ---
@@ -121,7 +121,7 @@ disperse <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
   # to input transformations.)
 
   if (!is.null(n_min)) {
-    if (length(n_min) > 1) {
+    if (length(n_min) > 1L) {
       cli::cli_abort(c(
         "`n_min` has length {length(n_min)}.",
         "x" = "It needs to have length 1 or to be `NULL`."
@@ -131,7 +131,7 @@ disperse <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
   }
 
   if (!is.null(n_max)) {
-    if (length(n_max) > 1) {
+    if (length(n_max) > 1L) {
       cli::cli_abort(c(
         "`n_max` has length {length(n_max)}.",
         "x" = "It needs to have length 1 or to be `NULL`."
@@ -170,9 +170,9 @@ disperse <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
     repeat_constant <- function(constant, out, list_input = FALSE) {
       if (list_input) {
         constant_list_element <- constant
-        check_length_or_null(constant_list_element, 2)
+        check_length_or_null(constant_list_element, 2L)
       } else {
-        check_length_or_null(constant, 2)
+        check_length_or_null(constant, 2L)
       }
       rep(constant, times = nrow(out) / 2)
     }
@@ -195,7 +195,7 @@ disperse <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
     }
 
     if (is.null(constant_index)) {
-      constant_index <- match("n_change", colnames(out)) + 1
+      constant_index <- match("n_change", colnames(out)) + 1L
     }
 
     out <- dplyr::mutate(out, constant, .before = constant_index)
@@ -211,12 +211,12 @@ disperse <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
 #' @rdname disperse
 #' @export
 
-disperse2 <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
+disperse2 <- function(n, dispersion = 0:5, n_min = 1L, n_max = NULL,
                       constant = NULL, constant_index = NULL) {
 
   # Checks ---
 
-  check_length(n, 2)
+  check_length(n, 2L)
 
   if (!dplyr::near(n[2] - n[1], 1)) {
     cli::cli_warn(c(
@@ -239,8 +239,8 @@ disperse2 <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
   # Determine which row numbers in the output tibble have an `n` that needs to
   # be increased or decreased (using an internal helper function from utils.R):
   seq_rows <- 1:nrow(out)
-  locations1 <- seq_rows %>% parcel_nth_elements(n = 2, from = 1)
-  locations2 <- seq_rows %>% parcel_nth_elements(n = 2, from = 2)
+  locations1 <- seq_rows %>% parcel_nth_elements(n = 2, from = 1L)
+  locations2 <- seq_rows %>% parcel_nth_elements(n = 2, from = 2L)
 
   # Increase or decrease the dispersed values so that the lower values decrease
   # from the first of the two `n` values, the higher values increase from the
@@ -259,7 +259,7 @@ disperse2 <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
 #' @rdname disperse
 #' @export
 
-disperse_total <- function(n, dispersion = 0:5, n_min = 1, n_max = NULL,
+disperse_total <- function(n, dispersion = 0:5, n_min = 1L, n_max = NULL,
                            constant = NULL, constant_index = NULL) {
 
   # Checks ---

@@ -35,7 +35,7 @@ is_linear <- function(x, tolerance) {
 
 
 is_seq_ascending_basic <- function(x) {
-  for (i in 1:(length(x) - 1)) {
+  for (i in 1:(length(x) - 1L)) {
     if (x[i + 1] <= x[i]) {
       return(FALSE)
     }
@@ -45,7 +45,7 @@ is_seq_ascending_basic <- function(x) {
 
 
 is_seq_descending_basic <- function(x) {
-  for (i in 1:(length(x) - 1)) {
+  for (i in 1:(length(x) - 1L)) {
     if (x[i + 1] >= x[i]) {
       return(FALSE)
     }
@@ -124,13 +124,13 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
 
     for (i in seq_along(x)) {
       if (is.na(x[i])) {
-        index_lower <- 1
-        index_upper <- 1
+        index_lower <- 1L
+        index_upper <- 1L
         while (is.na(x[i - index_lower])) {
-          index_lower <- index_lower - 1
+          index_lower <- index_lower - 1L
         }
         while (is.na(x[i + index_upper])) {
-          index_upper <- index_upper + 1
+          index_upper <- index_upper + 1L
         }
 
         seq_start <- x[i - index_lower]
@@ -159,7 +159,7 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
           # elements, which invariably means that the numbers surrounding the
           # `NA`s are too far spaced out for there to be a linear sequence. In
           # either case...
-          seq_replacement_has_wrong_length <- length(seq_replacement) == 0 ||
+          seq_replacement_has_wrong_length <- length(seq_replacement) == 0L ||
             length(seq_replacement) > length(index_lower:index_upper)
 
           # ...an error is thrown:
@@ -173,7 +173,7 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
         # case -- `x` is non-linear and `test_linear` is `FALSE`, i.e., the user
         # only wants one of the special tests but not the test for linearity:
         suppressWarnings(
-          x[i + ((index_lower:index_upper) - 1)] <- seq_replacement
+          x[i + ((index_lower:index_upper) - 1L)] <- seq_replacement
         )
 
       } # End of the `is.na(x[i])` condition
@@ -306,7 +306,7 @@ is_seq_linear <- function(x, tolerance = .Machine$double.eps^0.5) {
 is_seq_ascending <- function(x, test_linear = TRUE,
                              tolerance = .Machine$double.eps^0.5) {
   is_seq_basic(
-    x, tolerance, test_linear, test_special = "ascending", min_length = 2
+    x, tolerance, test_linear, test_special = "ascending", min_length = 2L
   )
 }
 
@@ -318,7 +318,7 @@ is_seq_ascending <- function(x, test_linear = TRUE,
 is_seq_descending <- function(x, test_linear = TRUE,
                               tolerance = .Machine$double.eps^0.5) {
   is_seq_basic(
-    x, tolerance, test_linear, test_special = "descending", min_length = 2
+    x, tolerance, test_linear, test_special = "descending", min_length = 2L
   )
 }
 
@@ -330,7 +330,7 @@ is_seq_descending <- function(x, test_linear = TRUE,
 is_seq_dispersed <- function(x, from, test_linear = TRUE,
                              tolerance = .Machine$double.eps^0.5) {
   is_seq_basic(
-    x, tolerance, test_linear, test_special = "dispersed", min_length = 3,
+    x, tolerance, test_linear, test_special = "dispersed", min_length = 3L,
     args_other = list(from = from)
   )
 }
@@ -368,8 +368,8 @@ is_seq_dispersed_basic <- function(x, from,
     return(FALSE)
   }
 
-  dispersion_minus <- from - x[1:(index_central_x - 1)]
-  dispersion_plus  <- from + x[(index_central_x + 1):length(x)]
+  dispersion_minus <- from - x[1:(index_central_x - 1L)]
+  dispersion_plus  <- from + x[(index_central_x + 1L):length(x)]
 
   from_reconstructed <- (dispersion_plus - rev(dispersion_minus)) / 2
 

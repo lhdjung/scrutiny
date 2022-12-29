@@ -101,7 +101,7 @@
 is_subset_of <- function(x, y) {
   x_rest <- x[!x %in% y]
 
-  length(x_rest) == 0
+  length(x_rest) == 0L
 }
 
 
@@ -111,7 +111,7 @@ is_subset_of <- function(x, y) {
 is_superset_of <- function(x, y) {
   y_rest <- y[!y %in% x]
 
-  length(y_rest) == 0
+  length(y_rest) == 0L
 }
 
 

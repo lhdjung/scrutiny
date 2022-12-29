@@ -11,12 +11,12 @@ check_factory_key_args_values <- function(data, key_cols_call) {
 
   # Error condition -- one or more key arguments have been specified with values
   # that are not actually column names of `data`:
-  if (length(offenders) > 0) {
+  if (length(offenders) > 0L) {
     offenders_names <- glue::as_glue(names(offenders))
     offenders_names <- wrap_in_backticks(offenders_names)
     offenders <- wrap_in_backticks(offenders)
-    name_current_fn <- name_caller_call(n = 2)
-    if (length(offenders) == 1) {
+    name_current_fn <- name_caller_call(n = 2L)
+    if (length(offenders) == 1L) {
       msg_is_colname <- "is not a column name"
     } else {
       msg_is_colname <- "are not column names"
@@ -31,8 +31,8 @@ check_factory_key_args_values <- function(data, key_cols_call) {
     )
 
     # ... to point out that more than one supplied value is flawed:
-    if (length(offenders) > 1) {
-      if (length(offenders) == 2) {
+    if (length(offenders) > 1L) {
+      if (length(offenders) == 2L) {
         msg_arg_s <- "argument"
         msg_a <- "a "
         msg_col <- "column"
@@ -65,16 +65,16 @@ check_factory_key_args_names <- function(key_cols_missing,
 
   # Error condition -- not all of the `reported` values that are not column
   # names of `data` have been supplied as values of the respective arguments:
-  if (length(offenders) > 0) {
+  if (length(offenders) > 0L) {
     offenders <- wrap_in_backticks(offenders)
 
     # Get the name of the current (i.e., factory-made) function using a helper
     # from the utils.R file that wraps `rlang::caller_call()`:
-    msg_fn_name <- name_caller_call(n = 2)
+    msg_fn_name <- name_caller_call(n = 2L)
 
     # Because either one or more arguments (or column names) may be missing, the
     # wording of the error message may be either singular or plural:
-    if (length(offenders) == 1) {
+    if (length(offenders) == 1L) {
       msg_missing <- "Column {offenders} is"
       msg_is_are <- "is"
       msg_needs_to_be <- "It should be a column"
@@ -116,10 +116,10 @@ check_factory_dots <- function(fun, fun_name_scalar, ...) {
   dots <- rlang::enexprs(...)
   dots_names <- names(dots)
   offenders <- dots_names[!dots_names %in% names(formals(fun))]
-  if (length(offenders) > 0) {
-    fun_name_mapper <- name_caller_call(n = 2)
+  if (length(offenders) > 0L) {
+    fun_name_mapper <- name_caller_call(n = 2L)
     offenders <- wrap_in_backticks(offenders)
-    if (length(offenders) == 1) {
+    if (length(offenders) == 1L) {
       msg_arg <- "argument"
       msg_it_they <- "It's not an"
     } else {
@@ -154,7 +154,7 @@ call_arg_list <- function() {
 # to have the names specified in `.reported`. If they don't, however, the user
 # can simply specify the key column arguments as the non-quoted names of the
 # columns meant to fulfill these roles:
-insert_key_args <- function(fun, reported, insert_after = 1) {
+insert_key_args <- function(fun, reported, insert_after = 1L) {
   key_args <- rep(list(NULL), times = length(reported))
   names(key_args) <- reported
   formals(fun) <- append(formals(fun), key_args, after = insert_after)
@@ -177,7 +177,7 @@ absorb_key_args <- function(data, reported, key_cols_call) {
 
   # No need to work with key arguments here if `data` has all of the expected
   # column names:
-  if (length(key_cols_missing) == 0) {
+  if (length(key_cols_missing) == 0L) {
     return(data)
   }
 
@@ -254,20 +254,20 @@ check_args_disabled <- function(args_disabled) {
     arg_names_caller_call <- rlang::frame_call(frame = parent.frame())
     arg_names_caller_call <- names(arg_names_caller_call)
     offenders <- args_disabled[args_disabled %in% arg_names_caller_call]
-    if (length(offenders) > 0) {
-      fun_name <- name_caller_call(n = 2)
+    if (length(offenders) > 0L) {
+      fun_name <- name_caller_call(n = 2L)
       fun_name_bare <- name_caller_call(wrap = FALSE)
       fun_name_bare <- as.character(fun_name_bare)
       package_name <- utils::getAnywhere(fun_name_bare)$where
       package_name <- as.character(package_name[1])
       package_name <- sub("package:", "", package_name)
-      if (length(offenders) > 3) {
+      if (length(offenders) > 3L) {
         offenders <- offenders[1:3]
         msg_among_others <- ", among others"
       } else {
         msg_among_others <- ""
       }
-      if (length(offenders) > 1) {
+      if (length(offenders) > 1L) {
         msg_arg_s <- "Arguments"
         msg_is_are <- "are"
       } else {
@@ -300,8 +300,8 @@ check_args_disabled_unnamed <- function(args_disabled) {
   if (!is.null(names(args_disabled))) {
     name <- deparse(substitute(args_disabled))
     name_names <- wrap_in_backticks(names(args_disabled))
-    name_fun <- name_caller_call(n = 2)
-    if (length(name_names) == 1) {
+    name_fun <- name_caller_call(n = 2L)
+    if (length(name_names) == 1L) {
       msg_names <- "this name"
     } else {
       msg_names <- "these names"
@@ -333,7 +333,7 @@ class_with <- function(data, contains, all_classes = FALSE,
   cd <- class(data)
 
   if (all_classes) {
-    if (length(contains) > 1) {
+    if (length(contains) > 1L) {
       contains <- wrap_in_backticks(contains)
       cli::cli_abort(c(
         "`contains` has length {length(contains)}.",
@@ -343,7 +343,7 @@ class_with <- function(data, contains, all_classes = FALSE,
       ))
     }
     out <- cd[stringr::str_detect(cd, contains)]
-    if (length(out) == 0) {
+    if (length(out) == 0L) {
       cli::cli_abort("No class containing `{contains}` found.")
     }
     return(out)

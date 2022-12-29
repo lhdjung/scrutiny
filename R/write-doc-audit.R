@@ -10,7 +10,7 @@ manage_key_args <- function(key_args) {
   arg1_bt <- key_args_bt[1]
   arg2_bt <- key_args_bt[2]
 
-  if (length(key_args) == 2) {
+  if (length(key_args) == 2L) {
     var_ge_3 <- ""
     var_ge_3_line <- ""
   } else {
@@ -40,7 +40,7 @@ manage_var_ge_3 <- function(var_ge_3, prefix, suffix, segway = "as well as") {
 
 
   if (all(var_ge_3 != "")) {
-    if (length(var_ge_3) == 1) {
+    if (length(var_ge_3) == 1L) {
       var_ge_3_line <- glue::glue(
         "`{prefix}{var_ge_3}{suffix}`"  # used to have: `hits_{var_ge_3}`
       )
@@ -50,7 +50,7 @@ manage_var_ge_3 <- function(var_ge_3, prefix, suffix, segway = "as well as") {
     } else {
       var_ge_3_line <- glue::glue("`{var_ge_3}` and `{prefix}{var_ge_3}{suffix}`")
       var_ge_3_line_without_last <- paste(
-        var_ge_3_line[1:(length(var_ge_3_line) - 1)],
+        var_ge_3_line[1:(length(var_ge_3_line) - 1L)],
         collapse = "; "
       )
       var_ge_3_line <- glue::glue(
@@ -112,9 +112,9 @@ write_doc_audit <- function(sample_output, name_test) {
 
   check_class(sample_output, "data.frame")
   check_class(sample_output, "tbl_df")
-  check_length(name_test, 1)
+  check_length(name_test, 1L)
 
-  if (length(sample_output) < 3) {
+  if (length(sample_output) < 3L) {
     cli::cli_abort(c(
       "Invalid `sample_output` argument.",
       "x" = "It needs to be the output of `audit()` applied \\
@@ -136,7 +136,7 @@ write_doc_audit <- function(sample_output, name_test) {
     glue::glue("proportion of {name_test}-inconsistent value sets.")
   )
 
-  length_other_cols <- length(sample_output) - 3
+  length_other_cols <- length(sample_output) - 3L
   output_text <- append(output_text, rep("", length_other_cols))
 
   output_name_expected <- c("incons_cases", "all_cases", "incons_rate")
@@ -151,7 +151,7 @@ write_doc_audit <- function(sample_output, name_test) {
 
   name_test_lower <- tolower(name_test)
 
-  if (nrow(sample_output) == 1) {
+  if (nrow(sample_output) == 1L) {
     msg_nrow <- "a single row"
   } else {
     msg_nrow <- paste(nrow(sample_output), "rows")
@@ -214,7 +214,7 @@ write_doc_audit <- function(sample_output, name_test) {
 
 write_doc_audit_seq <- function(key_args, name_test) {
 
-  check_length(name_test, 1)
+  check_length(name_test, 1L)
 
   key_args_list <- manage_key_args(key_args)
 
@@ -248,7 +248,7 @@ write_doc_audit_seq <- function(key_args, name_test) {
     var_ge_3_line_diff <- purrr::map(var_ge_3, ~ paste0("diff_", .))
     var_ge_3_line_diff <- purrr::map(var_ge_3_line_diff, paste0, c("", "_up", "_down"))
     var_ge_3_line_diff <- purrr::map(var_ge_3_line_diff, list(wrap_in_backticks, commas_and))
-    if (all(length(var_ge_3) > 1)) {
+    if (all(length(var_ge_3) > 1L)) {
       var_ge_3_line_diff <- semicolons_as_well_as(var_ge_3_line_diff)
     }
     var_ge_3_line_diff <- paste0(" Likewise with ", var_ge_3_line_diff, ".")
@@ -327,9 +327,9 @@ write_doc_audit_total_n <- function(key_args, name_test) {
 
   # Checks ---
 
-  check_length(name_test, 1)
+  check_length(name_test, 1L)
 
-  if (!length(key_args) > 1) {
+  if (!length(key_args) > 1L) {
     cli::cli_abort(c(
       "`key_args` must have length > 1.",
       "x" = "Consistency testing requires at least two values."
@@ -367,19 +367,19 @@ write_doc_audit_total_n <- function(key_args, name_test) {
 
   name_test_lower <- tolower(name_test)
 
-  if (length(key_args_num) == 2) {
+  if (length(key_args_num) == 2L) {
     both_all_of <- "both"
   } else {
     both_all_of <- "all of"
   }
 
-  if (length(key_args_num1) == 1) {
+  if (length(key_args_num1) == 1L) {
     is_are_nums <- "is"
   } else {
     is_are_nums <- "are"
   }
 
-  if (length(key_args_num1) == 1) {
+  if (length(key_args_num1) == 1L) {
     and_as_well_as <- "and"
   } else {
     and_as_well_as <- "as well as"
@@ -448,9 +448,9 @@ write_doc_factory_map_conventions <- function(ending, name_test1 = "GRIM",
                                               name_test2 = "DEBIT") {
 
   # Checks ---
-  check_length(ending, 1)
-  check_length(name_test1, 1)
-  check_length(name_test2, 1)
+  check_length(ending, 1L)
+  check_length(name_test1, 1L)
+  check_length(name_test2, 1L)
 
   # Main part ---
 

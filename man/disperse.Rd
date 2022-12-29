@@ -9,7 +9,7 @@
 disperse(
   n,
   dispersion = 0:5,
-  n_min = 1,
+  n_min = 1L,
   n_max = NULL,
   constant = NULL,
   constant_index = NULL
@@ -18,7 +18,7 @@ disperse(
 disperse2(
   n,
   dispersion = 0:5,
-  n_min = 1,
+  n_min = 1L,
   n_max = NULL,
   constant = NULL,
   constant_index = NULL
@@ -27,7 +27,7 @@ disperse2(
 disperse_total(
   n,
   dispersion = 0:5,
-  n_min = 1,
+  n_min = 1L,
   n_max = NULL,
   constant = NULL,
   constant_index = NULL
@@ -46,7 +46,7 @@ total sample size (e.g., \code{c(25, 26)} for a total of 51).
 \item{dispersion}{Numeric. Vector that determines the steps up and down from
 \code{n} (or, in \code{disperse_total()}, from half \code{n}). Default is \code{0:5}.}
 
-\item{n_min}{Numeric. Minimal group size. Default is \code{1}.}
+\item{n_min}{Numeric. Minimal group size. Default is \code{1L}.}
 
 \item{n_max}{Numeric. Maximal group size. Default is \code{NULL}, i.e., no
 maximum.}

@@ -190,7 +190,7 @@ audit_seq <- function(data) {
 
   data_rev <- reverse_map_seq(data)
 
-  if (length(rounding) > 0) {
+  if (length(rounding) > 0L) {
     data_rev_tested <- fun_test(data_rev, rounding = rounding)
   } else {
     data_rev_tested <- fun_test(data_rev)

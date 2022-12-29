@@ -85,7 +85,7 @@
 
 # Round up from some threshold -----------------------------------------------
 
-round_up_from <- function(x, digits = 0, threshold, symmetric = FALSE) {
+round_up_from <- function(x, digits = 0L, threshold, symmetric = FALSE) {
 
   p10 <- 10 ^ digits
 
@@ -108,7 +108,7 @@ round_up_from <- function(x, digits = 0, threshold, symmetric = FALSE) {
 #' @rdname round_up_from
 #' @export
 
-round_down_from <- function(x, digits = 0, threshold, symmetric = FALSE) {
+round_down_from <- function(x, digits = 0L, threshold, symmetric = FALSE) {
 
   p10 <- 10 ^ digits
 
@@ -135,7 +135,7 @@ round_down_from <- function(x, digits = 0, threshold, symmetric = FALSE) {
 #' @rdname round_up_from
 #' @export
 
-round_up <- function(x, digits = 0, symmetric = FALSE) {
+round_up <- function(x, digits = 0L, symmetric = FALSE) {
 
   round_up_from(x = x, digits = digits, threshold = 5, symmetric = symmetric)
 }
@@ -152,7 +152,7 @@ round_up <- function(x, digits = 0, symmetric = FALSE) {
 #' @rdname round_up_from
 #' @export
 
-round_down <- function(x, digits = 0, symmetric = FALSE) {
+round_down <- function(x, digits = 0L, symmetric = FALSE) {
 
   round_down_from(x = x, digits = digits, threshold = 5, symmetric = symmetric)
 }

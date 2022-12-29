@@ -7,13 +7,13 @@
 \alias{round_down}
 \title{Likely rounding procedures}
 \usage{
-round_up_from(x, digits = 0, threshold, symmetric = FALSE)
+round_up_from(x, digits = 0L, threshold, symmetric = FALSE)
 
-round_down_from(x, digits = 0, threshold, symmetric = FALSE)
+round_down_from(x, digits = 0L, threshold, symmetric = FALSE)
 
-round_up(x, digits = 0, symmetric = FALSE)
+round_up(x, digits = 0L, symmetric = FALSE)
 
-round_down(x, digits = 0, symmetric = FALSE)
+round_down(x, digits = 0L, symmetric = FALSE)
 }
 \arguments{
 \item{x}{Numeric. The decimal number to round.}

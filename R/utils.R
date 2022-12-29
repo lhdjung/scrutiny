@@ -84,7 +84,7 @@ reconstruct_sd <- Vectorize(reconstruct_sd_scalar, USE.NAMES = FALSE)
 integer_places <- function(x) {
   x %>%
     stringr::str_trim() %>%
-    stringr::str_split_fixed("\\.", n = 2) %>%
+    stringr::str_split_fixed("\\.", n = 2L) %>%
     .[, 1] %>%
     stringr::str_length()
 }
@@ -163,12 +163,12 @@ is_whole_number <- function(x, tolerance = .Machine$double.eps^0.5) {
 #' @param n Numeric. Distance between two consecutive elements that will be
 #'   subsetted.
 #' @param from Numeric. Index of `x` where subsetting will start. Default is
-#'   `1`.
+#'   `1L`.
 #'
 #' @return Vector containing some (or, in theory, all) elements of `x`.
 #'
 #' @noRd
-parcel_nth_elements <- function(x, n, from = 1) {
+parcel_nth_elements <- function(x, n, from = 1L) {
   x[seq(from = from, to = length(x), by = n)]
 }
 
@@ -201,9 +201,9 @@ parcel_nth_elements <- function(x, n, from = 1) {
 #'
 #' @noRd
 remove_equivalent_rows <- function(data) {
-  data_array <- apply(data, 1, sort)
+  data_array <- apply(data, 1L, sort)
 
-  data[!duplicated(data_array, MARGIN = 2), ]
+  data[!duplicated(data_array, MARGIN = 2L), ]
 }
 
 
@@ -306,14 +306,14 @@ remove_na <- function(x) {
 #' @noRd
 check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
   var_names <- rlang::enexprs(var_list)
-  var_lengths <- vapply(var_list, length, integer(1))
-  var_list_gt1 <- var_list[var_lengths > 1]
+  var_lengths <- vapply(var_list, length, integer(1L))
+  var_list_gt1 <- var_list[var_lengths > 1L]
 
   # Condition of checking for error and warning:
-  if (length(var_list_gt1) > 1) {
+  if (length(var_list_gt1) > 1L) {
     var_names <- var_names[[1]][-1]
     var_names <- as.character(var_names)
-    var_names_gt1 <- var_names[var_lengths > 1]
+    var_names_gt1 <- var_names[var_lengths > 1L]
     vnames_gt1_all <- var_names_gt1   # for the warning
 
     length_dup <- duplicated(var_lengths)
@@ -323,7 +323,7 @@ check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
     # Error condition, checking if there is more than one element of `var_list`
     # with a unique length greater than one (the duplicated lengths were
     # filtered out from `var_list_gt1` right above):
-    if (error && (length(var_list_gt1) > 1)) {
+    if (error && (length(var_list_gt1) > 1L)) {
 
       x <- var_list_gt1[[1]]
       y <- var_list_gt1[[2]]
@@ -335,7 +335,7 @@ check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
         "Both need to have the same length unless either has length 1."
 
       # Append-to-error-message condition:
-      if (length(residues_names) > 0) {
+      if (length(residues_names) > 0L) {
         residues_names <- paste0("`", residues_names, "`")
         msg_need <- paste(
           msg_need,
@@ -361,13 +361,13 @@ check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
 
       l_vnames <- length(vnames_gt1_all)
 
-      if (l_vnames > 2) {
+      if (l_vnames > 2L) {
         msg_example <- ", for example,"
       } else {
         msg_example <- ""
       }
 
-      if (l_vnames == 2) {
+      if (l_vnames == 2L) {
         one_both_all <- "one or both"
         var_count <- ""
       } else {
@@ -455,7 +455,7 @@ check_length_or_null <- function(x, l) {
 check_type <- function(x, t) {
   if (!typeof(x) %in% t) {
     msg_name <- deparse(substitute(x))
-    if (length(t) == 1) {
+    if (length(t) == 1L) {
       msg_object <- "be of type"
     } else {
       msg_object <- "be one of these types:"
@@ -507,10 +507,10 @@ check_class <- function(x, cl) {
 #'
 #' @noRd
 split_into_groups <- function(x, group_size) {
-  check_length(group_size, 1)
+  check_length(group_size, 1L)
   remainder <- length(x) %% group_size
 
-  if (remainder != 0) {
+  if (remainder != 0L) {
     if (!is_whole_number(group_size)) {
       cli::cli_abort(c(
         "`group_size` is `{group_size}`.",
@@ -518,7 +518,7 @@ split_into_groups <- function(x, group_size) {
       ))
     }
     name_x <- deparse(substitute(x))
-    msg_el <- if (remainder == 1) "element" else "elements"
+    msg_el <- if (remainder == 1L) "element" else "elements"
     cli::cli_warn(c(
       "!" = "`x` (`{name_x}`) can't be evenly divided into \\
       groups of {group_size}.",
@@ -650,10 +650,10 @@ manage_string_output_seq <- function(out, from, string_output, digits) {
 #'
 #' @noRd
 commas_and <- function(x) {
-  if (length(x) == 1) {
+  if (length(x) == 1L) {
     return(x)
   }
-  if (length(x) == 2) {
+  if (length(x) == 2L) {
     collapse <- " "
     and <- " and "
   } else {
@@ -678,8 +678,8 @@ commas_and <- function(x) {
 #' @noRd
 check_non_negative <- function(x) {
   offenders <- x[x < 0]
-  if (length(offenders) > 0) {
-    if (length(offenders) > 3) {
+  if (length(offenders) > 0L) {
+    if (length(offenders) > 3L) {
       offenders <- offenders[1:3]
       msg_among_others <- ", among others"
     } else {
@@ -730,8 +730,8 @@ is_even <- function(x) {
 #'
 #' @noRd
 check_length_disperse_n <- function(n, msg_single) {
-  if (length(n) != 1) {
-    if (length(n) == 2) {
+  if (length(n) != 1L) {
+    if (length(n) == 2L) {
       msg_single <- paste(
         msg_single, "Did you mean to call `disperse2(n = c({n[1]}, {n[2]}))`?"
       )
@@ -1040,7 +1040,7 @@ check_new_args_without_dots <- function(data, dots, old_args, name_fn) {
   }
 
   # Finally, check that no other arguments are passed through the dots:
-  rlang::check_dots_empty(env = rlang::caller_env(n = 1))
+  rlang::check_dots_empty(env = rlang::caller_env(n = 1L))
 }
 
 
@@ -1121,7 +1121,7 @@ transform_split_parens <- function(data, end1, end2) {
 #'
 #' @noRd
 select_tested_cols <- function(data, before = "consistency") {
-  index_last_key_col <- match(before, colnames(data)) - 1
+  index_last_key_col <- match(before, colnames(data)) - 1L
   data[1:index_last_key_col]
 }
 
@@ -1298,7 +1298,7 @@ drop_cols_with <- function(data, drop_with) {
 #' @return String (length 1).
 #'
 #' @noRd
-name_caller_call <- function(n = 1, wrap = TRUE) {
+name_caller_call <- function(n = 1L, wrap = TRUE) {
   name <- rlang::caller_call(n = n)
   name <- name[[1]]
   if (wrap) {

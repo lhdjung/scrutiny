@@ -48,7 +48,7 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
   # numbers:
   if (percent) {
     x_num <- x_num / 100
-    digits <- digits + 2
+    digits <- digits + 2L
   }
 
   # Prepare further objects for reconstructing the original values:

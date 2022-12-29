@@ -190,7 +190,7 @@ unround <- function(x, rounding = "up_or_down", threshold = 5, digits = NULL) {
   # Determine the difference between the rounded number and the boundary values.
   # That difference is variable when rounding up or down, because in that case,
   # it depends on the value of `threshold`:
-  p10 <- 10 ^ (digits + 1)
+  p10 <- 10 ^ (digits + 1L)
   d <- 5 / p10
   d_var <- threshold / p10
 

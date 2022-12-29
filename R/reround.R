@@ -15,7 +15,7 @@ check_rounding_singular_proto <- function(rounding, bad, good_1, good_2) {
 }
 
 check_rounding_singular <- function(rounding) {
-  if (length(rounding) > 1) {
+  if (length(rounding) > 1L) {
     check_rounding_singular_proto(rounding, "up_or_down", "up", "down")
     check_rounding_singular_proto(rounding, "up_from_or_down_from", "up_from", "down_from")
     check_rounding_singular_proto(rounding, "ceiling_or_floor", "ceiling", "floor")
@@ -128,7 +128,7 @@ reconstruct_rounded_numbers <- Vectorize(reconstruct_rounded_numbers_scalar,
 #'   which case it has length 2.)
 
 
-reround <- function(x, digits = 0, rounding = "up_or_down",
+reround <- function(x, digits = 0L, rounding = "up_or_down",
                     threshold = 5, symmetric = FALSE) {
 
   # Checks ---
@@ -140,8 +140,8 @@ reround <- function(x, digits = 0, rounding = "up_or_down",
   check_rounding_singular(rounding)
 
   # Throw an error if the lengths of the first two arguments are inconsistent:
-  if (length(x) > 1 &&
-      length(rounding) > 1 &&
+  if (length(x) > 1L &&
+      length(rounding) > 1L &&
       length(x) != length(rounding)) {
     cli::cli_abort(c(
       "Lengths of `x` and `rounding` not congruent",
@@ -168,13 +168,13 @@ reround <- function(x, digits = 0, rounding = "up_or_down",
     ))
   }
 
-  if (length(rounding) > 1) {
+  if (length(rounding) > 1L) {
     length_2ers <- c("up_or_down", "up_from_or_down_from", "ceiling_or_floor")
     if (any(length_2ers %in% rounding)) {
       offenders <- length_2ers[length_2ers %in% rounding]
       msg_no_other <- glue::glue("If `rounding` is \"{offenders[1]}\", \\
       there can be no other `rounding` values.")
-      if (length(offenders) > 1) {
+      if (length(offenders) > 1L) {
         offenders[-1] <- paste0("\"", offenders[-1], "\"")
         msg_no_other <- paste(
           msg_no_other, "This also applies to {offenders[-1]}."

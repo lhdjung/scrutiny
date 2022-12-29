@@ -68,7 +68,7 @@
 
 # Always round up ------------------------------------------------------------
 
-round_ceiling <- function(x, digits = 0) {
+round_ceiling <- function(x, digits = 0L) {
   p10 <- 10 ^ digits
 
   ceiling(x * p10) / p10
@@ -81,7 +81,7 @@ round_ceiling <- function(x, digits = 0) {
 #' @rdname round_ceiling
 #' @export
 
-round_floor <- function(x, digits = 0) {
+round_floor <- function(x, digits = 0L) {
   p10 <- 10 ^ digits
 
   floor(x * p10) / p10
@@ -94,7 +94,7 @@ round_floor <- function(x, digits = 0) {
 #' @rdname round_ceiling
 #' @export
 
-round_trunc <- function(x, digits = 0) {
+round_trunc <- function(x, digits = 0L) {
 
   p10 <- 10 ^ digits
 
@@ -136,7 +136,7 @@ anti_trunc <- function(x) {
 #' @rdname round_ceiling
 #' @export
 
-round_anti_trunc <- function(x, digits = 0) {
+round_anti_trunc <- function(x, digits = 0L) {
   p10 <- 10 ^ digits
 
   anti_trunc(x * p10) / p10

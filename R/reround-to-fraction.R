@@ -82,7 +82,7 @@ reround_to_fraction <- function(x = NULL, denominator = 1, digits = Inf,
 
   # Check whether `denominator` values are >= 1:
   if (any(denominator < 1)) {
-    value_values <- dplyr::if_else(length(denominator) == 1, "value", "values")
+    value_values <- dplyr::if_else(length(denominator) == 1L, "value", "values")
     cli::cli_abort(c(
       "`denominator` has {value_values} {denominator[denominator < 1]}",
       "x" = "It needs to be 1 or greater."
@@ -112,7 +112,7 @@ reround_to_fraction <- function(x = NULL, denominator = 1, digits = Inf,
 
   # Calculate the key result, going by the denominator:
   out <- reround(
-    x = x * denominator, digits = 0, rounding = rounding,
+    x = x * denominator, digits = 0L, rounding = rounding,
     threshold = threshold, symmetric = symmetric
   )
   out <- out / denominator
@@ -120,7 +120,7 @@ reround_to_fraction <- function(x = NULL, denominator = 1, digits = Inf,
   # The `auto` option for `digits` is the same as in
   # `janitor::round_to_fraction()`:
   if (identical(digits, "auto")) {
-    digits <- ceiling(log10(denominator)) + 1
+    digits <- ceiling(log10(denominator)) + 1L
   }
 
   # Round all resulting values for which a number of digits has been specified
@@ -145,7 +145,7 @@ reround_to_fraction <- function(x = NULL, denominator = 1, digits = Inf,
 #' @rdname reround_to_fraction
 #' @export
 
-reround_to_fraction_level <- function(x = NULL, denominator = 1, digits = 0,
+reround_to_fraction_level <- function(x = NULL, denominator = 1, digits = 0L,
                                       rounding = "up_or_down", threshold = 5,
                                       symmetric = FALSE) {
 
@@ -159,7 +159,7 @@ reround_to_fraction_level <- function(x = NULL, denominator = 1, digits = 0,
   ))
 
   if (any(denominator < 1)) {
-    value_values <- dplyr::if_else(length(denominator) == 1, "value", "values")
+    value_values <- dplyr::if_else(length(denominator) == 1L, "value", "values")
     cli::cli_abort(c(
       "`denominator` has {value_values} {denominator[denominator < 1]}",
       "x" = "It needs to be 1 or greater."
@@ -169,7 +169,7 @@ reround_to_fraction_level <- function(x = NULL, denominator = 1, digits = 0,
   # The `auto` option for `digits` is the same as in
   # `janitor::round_to_fraction()`:
   if (identical(digits, "auto")) {
-    digits <- ceiling(log10(denominator)) + 1
+    digits <- ceiling(log10(denominator)) + 1L
   }
 
   # Check whether `digit` values are whole numbers:

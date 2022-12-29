@@ -82,7 +82,7 @@ is_numeric_like <- function(x) {
   if (is.logical(x) || !rlang::is_vector(x)) {
     return(FALSE)
   }
-  if (is.list(x) && !all(vapply(x, function(x) length(x) == 1L, logical(1)))) {
+  if (is.list(x) && !all(vapply(x, function(x) length(x) == 1L, logical(1L)))) {
     return(FALSE)
   }
   if (is.factor(x)) {
