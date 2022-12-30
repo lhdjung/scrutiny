@@ -54,7 +54,7 @@
 #'   `check_numeric_like`.
 #' @param check_numeric_like Boolean. Only in `restore_zeros_df()`. If `TRUE`
 #'   (the default), the function will skip columns that are not numeric or
-#'   coercible to numeric.
+#'   coercible to numeric, as determined by `is_numeric_like()`.
 #' @param check_decimals Boolean. Only in `restore_zeros_df()`. If set to
 #'   `TRUE`, the function will skip columns where no values have any decimal
 #'   places. Default is `FALSE`.

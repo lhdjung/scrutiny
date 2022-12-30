@@ -21,7 +21,8 @@ is_seq_dispersed(
 )
 }
 \arguments{
-\item{x}{Numeric or coercible to numeric. Vector to be tested.}
+\item{x}{Numeric or coercible to numeric, as determined by
+\code{is_numeric_like()}. Vector to be tested.}
 
 \item{tolerance}{Numeric. Tolerance of comparison between numbers when
 testing. Default is circa 0.000000015 (1.490116e-08), as in

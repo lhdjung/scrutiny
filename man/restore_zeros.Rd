@@ -47,7 +47,7 @@ Default is \code{everything()}, which selects all columns that pass the test of
 
 \item{check_numeric_like}{Boolean. Only in \code{restore_zeros_df()}. If \code{TRUE}
 (the default), the function will skip columns that are not numeric or
-coercible to numeric.}
+coercible to numeric, as determined by \code{is_numeric_like()}.}
 
 \item{check_decimals}{Boolean. Only in \code{restore_zeros_df()}. If set to
 \code{TRUE}, the function will skip columns where no values have any decimal

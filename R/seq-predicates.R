@@ -240,7 +240,8 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
 #' `NA` elements of `x` are handled in a nuanced way. See *Value* section below
 #' and the examples in `vignette("infrastructure")`, section *NA handling*.
 
-#' @param x Numeric or coercible to numeric. Vector to be tested.
+#' @param x Numeric or coercible to numeric, as determined by
+#'   `is_numeric_like()`. Vector to be tested.
 #' @param from Numeric or coercible to numeric. Only in `is_seq_dispersed()`. It
 #'   will test whether `from` is at the center of `x`, and if every pair of
 #'   other values is equidistant to it.

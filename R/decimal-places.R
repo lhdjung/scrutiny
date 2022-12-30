@@ -109,7 +109,8 @@ decimal_places_scalar <- function(x, sep = "\\.") {
 #'   \href{https://tidyselect.r-lib.org/reference/language.html}{tidyselect}.
 #'   Default is `everything()`, but restricted by `check_numeric_like`.
 #' @param check_numeric_like Boolean. If `TRUE` (the default), the function only
-#'   operates on numeric columns and other columns coercible to numeric.
+#'   operates on numeric columns and other columns coercible to numeric, as
+#'   determined by `is_numeric_like()`.
 #' @param sep Substring that separates the mantissa from the integer part.
 #'   Default is `"\\."`, which renders a decimal point.
 #'

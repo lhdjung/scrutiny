@@ -19,7 +19,8 @@ decimal_places_df(
 Default is \code{everything()}, but restricted by \code{check_numeric_like}.}
 
 \item{check_numeric_like}{Boolean. If \code{TRUE} (the default), the function only
-operates on numeric columns and other columns coercible to numeric.}
+operates on numeric columns and other columns coercible to numeric, as
+determined by \code{is_numeric_like()}.}
 
 \item{sep}{Substring that separates the mantissa from the integer part.
 Default is \code{"\\\\."}, which renders a decimal point.}
