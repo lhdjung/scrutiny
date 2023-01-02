@@ -196,7 +196,7 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
 
   # Interface for the special variant functions:
   if (!is.null(test_special)) {
-    pass_test_special <- switch (
+    pass_test_special <- switch(
       test_special,
       "ascending"  = is_seq_ascending_basic(x),
       "descending" = is_seq_descending_basic(x),
@@ -205,17 +205,27 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
     pass_test <- pass_test && pass_test_special
   }
 
-  if (pass_test) {
-
-    if (x_has_na) {
-      return(NA)
-    } else {
-      return(TRUE)
-    }
-
-  } else {
+  if (!pass_test) {
     return(FALSE)
   }
+
+  if (x_has_na) {
+    NA
+  } else {
+    TRUE
+  }
+
+  # if (pass_test) {
+  #
+  #   if (x_has_na) {
+  #     return(NA)
+  #   } else {
+  #     return(TRUE)
+  #   }
+  #
+  # } else {
+  #   return(FALSE)
+  # }
 
 }
 

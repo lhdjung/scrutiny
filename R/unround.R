@@ -19,7 +19,7 @@ rounding_bounds_scalar <- function(rounding, x_num, d_var, d) {
       rounding <- paste0("anti_", rounding)
     }
 
-    out <- switch (rounding,   #     (1)              (2)               (3)    (4)
+    out <- switch(rounding,    #     (1)              (2)               (3)    (4)
         "trunc_x_greater"      = list(x_num,           x_num + (2 * d), "<=",  "<"),
         "trunc_x_less"         = list(x_num - (2 * d), x_num,           "<",  "<="),
         "trunc_x_is_0"         = list(x_num - (2 * d), x_num + (2 * d), "<",   "<"),
@@ -31,7 +31,7 @@ rounding_bounds_scalar <- function(rounding, x_num, d_var, d) {
   }
 
   # This switch-statement is evaluated for all other rounding procedures:
-  switch (rounding,  #     (1)              (2)               (3)   (4)
+  switch(rounding,   #     (1)              (2)               (3)   (4)
         "up_or_down" = list(x_num - d_var,   x_num + d_var,   "<=", "<="),
         "up"         = list(x_num - d_var,   x_num + d_var,   "<=",  "<"),
         "down"       = list(x_num - d_var,   x_num + d_var,   "<",  "<="),
