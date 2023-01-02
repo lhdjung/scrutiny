@@ -112,6 +112,8 @@ proto_split_parens <- function(string, sep = "parens") {
 #' @return String vector of the same length as `string`. The part of `string`
 #'   before or inside `sep`, respectively.
 #'
+#' @name parens-extractors
+#'
 #' @examples
 #' x <- c(
 #'   "3.72 (0.95)",
@@ -132,7 +134,7 @@ before_parens <- function(string, sep = "parens") {
 }
 
 
-#' @rdname before_parens
+#' @rdname parens-extractors
 #' @export
 
 inside_parens <- function(string, sep = "parens") {

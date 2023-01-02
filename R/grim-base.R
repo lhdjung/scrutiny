@@ -35,6 +35,8 @@
 #'
 #' @export
 #'
+#' @name grim-counts
+#'
 #' @examples
 #' # Many value sets are inconsistent here:
 #' grim_total(x = "83.29", n = 21)
@@ -52,6 +54,7 @@
 
 # Absolute ----------------------------------------------------------------
 
+#' @rdname grim-counts
 #' @export
 
 grim_total <- function(x, n, items = 1, percent = FALSE) {
@@ -67,7 +70,7 @@ grim_total <- function(x, n, items = 1, percent = FALSE) {
 
 # Relative ----------------------------------------------------------------
 
-#' @rdname grim_total
+#' @rdname grim-counts
 #' @export
 
 grim_ratio <- function(x, n, items = 1, percent = FALSE) {

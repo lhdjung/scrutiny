@@ -60,6 +60,8 @@
 #'
 #' @return String by default of `string_output`, numeric otherwise.
 #'
+#' @name seq-decimal
+#'
 #' @seealso `seq_disperse()` for sequences centered around the input.
 #'
 #' @export
@@ -92,7 +94,8 @@
 #' seq_distance_df(.from = 0.43, .length_out = 5, sd = 0.08)
 
 
-
+#' @rdname seq-decimal
+#' @export
 
 seq_endpoint <- function(from, to, offset_from = 0L, offset_to = 0L,
                          string_output = TRUE) {
@@ -155,7 +158,7 @@ seq_endpoint <- function(from, to, offset_from = 0L, offset_to = 0L,
 
 
 
-#' @rdname seq_endpoint
+#' @rdname seq-decimal
 #' @export
 
 seq_distance <- function(from, by = NULL, length_out = 10L, dir = 1,
@@ -228,7 +231,7 @@ seq_distance <- function(from, by = NULL, length_out = 10L, dir = 1,
 
 
 
-#' @rdname seq_endpoint
+#' @rdname seq-decimal
 #' @export
 
 seq_endpoint_df <- function(.from, .to, ..., .offset_from = 0L, .offset_to = 0L,
@@ -261,7 +264,7 @@ seq_endpoint_df <- function(.from, .to, ..., .offset_from = 0L, .offset_to = 0L,
 
 
 
-#' @rdname seq_endpoint
+#' @rdname seq-decimal
 #' @export
 
 seq_distance_df <- function(.from, .by = NULL, ..., .length_out = 10L, .dir = 1,

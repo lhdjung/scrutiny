@@ -1,6 +1,6 @@
 
 
-#' Likely rounding procedures
+#' Common rounding procedures
 #'
 #' @description `round_up()` rounds up from 5, `round_down()` rounds down from
 #'   5. Otherwise, both functions work like `base::round()`.
@@ -44,7 +44,10 @@
 #'   absolute values are equal. Default is `FALSE`.
 #'
 #' @return Numeric. `x` rounded to `digits`.
+#'
 #' @export
+#'
+#' @name rounding-common
 #'
 #' @seealso `round_ceiling()` always rounds up, `round_floor()` always rounds
 #'   down, `round_trunc()` always rounds toward 0, and `round_anti_trunc()`
@@ -85,6 +88,9 @@
 
 # Round up from some threshold -----------------------------------------------
 
+#' @rdname rounding-common
+#' @export
+
 round_up_from <- function(x, digits = 0L, threshold, symmetric = FALSE) {
 
   p10 <- 10 ^ digits
@@ -105,7 +111,7 @@ round_up_from <- function(x, digits = 0L, threshold, symmetric = FALSE) {
 
 # Round down from some threshold ---------------------------------------------
 
-#' @rdname round_up_from
+#' @rdname rounding-common
 #' @export
 
 round_down_from <- function(x, digits = 0L, threshold, symmetric = FALSE) {
@@ -132,7 +138,7 @@ round_down_from <- function(x, digits = 0L, threshold, symmetric = FALSE) {
 # less than 5, `x` should instead be rounded down. The `threshold` for rounding
 # up is therefore set to 5.
 
-#' @rdname round_up_from
+#' @rdname rounding-common
 #' @export
 
 round_up <- function(x, digits = 0L, symmetric = FALSE) {
@@ -149,7 +155,7 @@ round_up <- function(x, digits = 0L, symmetric = FALSE) {
 # should instead be rounded up. The `threshold` for rounding down is therefore
 # set to 5.
 
-#' @rdname round_up_from
+#' @rdname rounding-common
 #' @export
 
 round_down <- function(x, digits = 0L, symmetric = FALSE) {

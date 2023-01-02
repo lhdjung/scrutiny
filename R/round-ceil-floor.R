@@ -1,8 +1,7 @@
 
-
-#' Always round up, down, toward zero, or away from it
+#' Uncommon rounding procedures
 #'
-#' @description Uncommon rounding procedures:
+#' @description Always round up, down, toward zero, or away from it:
 #'   - `round_ceiling()` always rounds up.
 #'   - `round_floor()` always rounds down.
 #'   - `round_trunc()` always rounds toward zero.
@@ -41,10 +40,12 @@
 #'
 #' @export
 #'
-#' @aliases round_ceiling
-#' @aliases round_floor
-#' @aliases round_trunc
-#'
+#' @name rounding-uncommon
+
+# @aliases round_ceiling
+# @aliases round_floor
+# @aliases round_trunc
+
 #' @seealso `round_up()` and `round_down()` round up or down from 5,
 #'   respectively. `round_up_from()` and `round_down_from()` allow users to
 #'   specify custom thresholds for rounding up or down.
@@ -68,6 +69,9 @@
 
 # Always round up ------------------------------------------------------------
 
+#' @rdname rounding-uncommon
+#' @export
+
 round_ceiling <- function(x, digits = 0L) {
   p10 <- 10 ^ digits
 
@@ -78,7 +82,7 @@ round_ceiling <- function(x, digits = 0L) {
 
 # Always round down ----------------------------------------------------------
 
-#' @rdname round_ceiling
+#' @rdname rounding-uncommon
 #' @export
 
 round_floor <- function(x, digits = 0L) {
@@ -91,7 +95,7 @@ round_floor <- function(x, digits = 0L) {
 
 # Always round toward zero ---------------------------------------------------
 
-#' @rdname round_ceiling
+#' @rdname rounding-uncommon
 #' @export
 
 round_trunc <- function(x, digits = 0L) {
@@ -112,7 +116,7 @@ round_trunc <- function(x, digits = 0L) {
 
 # Interlude: "anti-truncate" a number ----------------------------------------
 
-#' @rdname round_ceiling
+#' @rdname rounding-uncommon
 #' @export
 
 anti_trunc <- function(x) {
@@ -133,7 +137,7 @@ anti_trunc <- function(x) {
 
 # Always round away from zero ------------------------------------------------
 
-#' @rdname round_ceiling
+#' @rdname rounding-uncommon
 #' @export
 
 round_anti_trunc <- function(x, digits = 0L) {

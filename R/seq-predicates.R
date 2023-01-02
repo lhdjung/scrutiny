@@ -264,6 +264,8 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
 #'   additional features, such as support for date-times.
 
 #' @export
+#'
+#' @name seq-predicates
 
 #' @examples
 #' # These are linear sequences...
@@ -294,6 +296,8 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
 
 
 
+#' @rdname seq-predicates
+#' @export
 
 is_seq_linear <- function(x, tolerance = .Machine$double.eps^0.5) {
   is_seq_basic(x, tolerance, test_linear = TRUE)
@@ -301,8 +305,8 @@ is_seq_linear <- function(x, tolerance = .Machine$double.eps^0.5) {
 
 
 
+#' @rdname seq-predicates
 #' @export
-#' @rdname is_seq_linear
 
 is_seq_ascending <- function(x, test_linear = TRUE,
                              tolerance = .Machine$double.eps^0.5) {
@@ -313,8 +317,8 @@ is_seq_ascending <- function(x, test_linear = TRUE,
 
 
 
+#' @rdname seq-predicates
 #' @export
-#' @rdname is_seq_linear
 
 is_seq_descending <- function(x, test_linear = TRUE,
                               tolerance = .Machine$double.eps^0.5) {
@@ -325,8 +329,8 @@ is_seq_descending <- function(x, test_linear = TRUE,
 
 
 
+#' @rdname seq-predicates
 #' @export
-#' @rdname is_seq_linear
 
 is_seq_dispersed <- function(x, from, test_linear = TRUE,
                              tolerance = .Machine$double.eps^0.5) {

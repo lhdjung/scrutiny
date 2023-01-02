@@ -34,6 +34,8 @@
 #'
 #' @export
 #'
+#' @name fractional-rounding
+#'
 #' @seealso `reround()`, which the functions wrap, and
 #'   `janitor::round_to_fraction()`, part of which they copy.
 #'
@@ -66,6 +68,9 @@
 #' reround_to_fraction_level(0.12345, denominator = 2, digits = 1)
 #' reround_to_fraction_level(0.12345, denominator = 2, digits = 2)
 
+
+#' @rdname fractional-rounding
+#' @export
 
 reround_to_fraction <- function(x = NULL, denominator = 1, digits = Inf,
                                 rounding = "up_or_down", threshold = 5,
@@ -142,7 +147,7 @@ reround_to_fraction <- function(x = NULL, denominator = 1, digits = Inf,
 
 
 
-#' @rdname reround_to_fraction
+#' @rdname fractional-rounding
 #' @export
 
 reround_to_fraction_level <- function(x = NULL, denominator = 1, digits = 0L,
