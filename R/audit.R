@@ -172,7 +172,7 @@ audit_seq <- function(data) {
       .fns = list(min_distance_abs, min_distance_pos, min_distance_neg),
       .names = "diff_{.col}{fn_names}"
     )) %>%
-    dplyr::select(-(1:length(var_names))) %>%
+    dplyr::select(-(seq_along(var_names))) %>%
     dplyr::mutate(dplyr::across(
       .cols = everything(),
       .fns = inf_to_na

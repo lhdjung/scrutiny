@@ -129,7 +129,7 @@ write_doc_audit <- function(sample_output, name_test) {
   }
 
   output_name <- colnames(sample_output)
-  output_number <- 1:length(output_name)
+  output_number <- seq_along(output_name)
   output_text <- c(
     glue::glue("number of {name_test}-inconsistent value sets."),
     "total number of value sets.",

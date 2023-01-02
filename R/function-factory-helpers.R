@@ -353,10 +353,10 @@ class_with <- function(data, contains, all_classes = FALSE,
   cd <- cd[order(cd_lengths, decreasing = order_decreasing)]
 
   # Outer loop:
-  for (i in 1:length(contains)) {
+  for (i in seq_along(contains)) {
 
     # Inner loop:
-    for (j in 1:length(cd)) {
+    for (j in seq_along(cd)) {
       cd_contains_string <- stringr::str_detect(cd[j], contains[i])
       if (cd_contains_string) {
         return(cd[j])

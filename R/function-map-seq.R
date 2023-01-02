@@ -51,7 +51,7 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
       colnames(cols_for_testing)[colnames(cols_for_testing) != var]
 
     # Short for "columns except (for the) last (one)":
-    cols_el <- 1:length(cols_for_testing_names_without_var)
+    cols_el <- seq_along(cols_for_testing_names_without_var)
 
     data_list_without_var <- dplyr::mutate(
       data[cols_for_testing_names_without_var],
@@ -79,7 +79,7 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
     # Mark the original case (i.e., row in `data`, the input data frame):
     case <- data_list_tested %>%
       purrr::map_int(nrow) %>%
-      purrr::map2(1:length(data_list_tested), ., rep) %>%
+      purrr::map2(seq_along(data_list_tested), ., rep) %>%
       purrr::flatten_int()
 
     # Combine all output data frames to one. As each of them represents one row

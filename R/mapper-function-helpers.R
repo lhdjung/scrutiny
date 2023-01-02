@@ -366,7 +366,7 @@ unnest_consistency_cols <- function(results, col_names, index = FALSE,
   consistency_df <- consistency_list %>%
     tibble::as_tibble(.name_repair = "minimal") %>%
     t() %>%
-    tibble::as_tibble(.name_repair = ~ paste0("V", 1:length(col_names))) %>%
+    tibble::as_tibble(.name_repair = ~ paste0("V", seq_along(col_names))) %>%
     dplyr::mutate(V1 = as.logical(V1))
 
   colnames(consistency_df) <- col_names

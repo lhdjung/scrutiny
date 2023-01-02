@@ -219,6 +219,8 @@ reverse_column_order <- function(data) {
   if (ncol(data) == 0L) {
     return(data)
   }
+  # Don't mind sequence linting here; the early return above takes care of the
+  # empty edge case already!
   col_numbers_reversed <- ncol(data):1
   data[, order(col_numbers_reversed)]
 }
@@ -903,7 +905,7 @@ index_case_diff <- function(data) {
   var <- data$var[[1]]
   data_var <- data[var][[1]]
   index <- index_case_interpolate(data_var, index_itself = TRUE)
-  index_diff <- 1:nrow(data) - index
+  index_diff <- seq_len(nrow(data)) - index
 
   if (is_even(length(index_diff))) {
     index_diff[index_diff < 1] <-
@@ -1080,7 +1082,7 @@ transform_split_parens <- function(data, end1, end2) {
     )
 
   cols_1 <- cols_1 %>%
-    dplyr::mutate(key = 1:nrow(cols_1))
+    dplyr::mutate(key = seq_len(nrow(cols_1)))
 
   cols_2 <- data %>%
     dplyr::select(contains(uscore_end2)) %>%
@@ -1091,7 +1093,7 @@ transform_split_parens <- function(data, end1, end2) {
     )
 
   cols_2 <- cols_2 %>%
-    dplyr::mutate(key = 1:nrow(cols_2))
+    dplyr::mutate(key = seq_len(nrow(cols_2)))
 
   out <- dplyr::left_join(cols_1, cols_2, by = "key")
 

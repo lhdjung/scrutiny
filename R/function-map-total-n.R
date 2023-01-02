@@ -113,7 +113,7 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 
     out_df <- tidyr::unnest(out_df_nested, cols = everything())
     n_change <- out_df$n_change
-    colnames(out_df)[1:length(reported_orig)] <- reported_orig
+    colnames(out_df)[seq_along(reported_orig)] <- reported_orig
 
     out_df <- fun(out_df, ...)
 

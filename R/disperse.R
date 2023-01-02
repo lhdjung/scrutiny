@@ -187,7 +187,7 @@ disperse <- function(n, dispersion = 0:5, n_min = 1L, n_max = NULL,
         )
       } else {
         constant <- tibble::as_tibble(
-          constant, .name_repair = ~ paste0("constant", 1:length(constant))
+          constant, .name_repair = ~ paste0("constant", seq_along(constant))
         )
       }
     } else {
@@ -238,7 +238,7 @@ disperse2 <- function(n, dispersion = 0:5, n_min = 1L, n_max = NULL,
 
   # Determine which row numbers in the output tibble have an `n` that needs to
   # be increased or decreased (using an internal helper function from utils.R):
-  seq_rows <- 1:nrow(out)
+  seq_rows <- seq_len(nrow(out))
   locations1 <- seq_rows %>% parcel_nth_elements(n = 2, from = 1L)
   locations2 <- seq_rows %>% parcel_nth_elements(n = 2, from = 2L)
 
