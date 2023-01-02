@@ -24,17 +24,29 @@ Boolean (length 1).
 \description{
 \itemize{
 \item \code{is_map_df()} tests whether an object is the output of a scrutiny-style
-mapper function for consistency tests, like \code{grim_map()}. These functions
-also include those produced by \code{function_map()}, \code{function_map_seq()}, and
-\code{function_map_total_n()}.
-\item \code{is_map_basic_df()} is a variant of \code{is_map_df()} that tests if an object
-is the output of a "basic" mapper function. This does not include functions
+mapper function for consistency tests, like \code{grim_map()}. These mapper
+functions also include those produced by \code{function_map()},
+\code{function_map_seq()}, and \code{function_map_total_n()}.
+\item \code{is_map_basic_df()} is a variant of \code{is_map_df()} that tests whether an
+object is the output of a "basic" mapper function. This includes functions
+like \code{grim_map()} and those produced by \code{function_map()}, but not those
 produced by \code{function_map_seq()} or \code{function_map_total_n()}.
 \item \code{is_map_seq_df()} tests whether an object is the output of a function that
-was made by \code{function_map_seq()}.
+was produced by \code{function_map_seq()}.
 \item \code{is_map_total_n_df()} tests whether an object is the output of a function
-that was made by \code{function_map_total_n()}.
+that was produced by \code{function_map_total_n()}.
 }
+}
+\details{
+Sections 3, 6, and 7 of \code{vignette("consistency-tests")} discuss
+which function factories produce which functions, and which of these new,
+factory-made functions return which kinds of tibbles.
+
+These tibbles are what the \verb{is_map_*()} functions test for. As an example,
+\code{function_map_seq()} produces \code{grim_map_seq()}, and this new function
+returns a tibble. \code{is_map_df()} and \code{is_map_seq_df()} return \code{TRUE} for
+this tibble, but \code{is_map_basic_df()} and \code{is_map_total_n_df()} return
+\code{FALSE}.
 }
 \examples{
 # Example test output:
