@@ -157,14 +157,16 @@ split_by_parens <- function(data, cols = everything(), check_sep = TRUE,
   # Apply the extractor functions `before_parens()` and `inside_parens()` to all
   # selected columns from `data` (see above), going by `sep`, which is
   # `"parens"` by default and will thus look for parentheses:
-  out <- dplyr::mutate(data, dplyr::across(
+  out <- suppressWarnings(dplyr::mutate(data, dplyr::across(
     .cols = all_of(cols_to_select),
+    # .fns = list(before_parens, inside_parens),
     .fns = list(
       ~ before_parens(string = .x, sep = sep),
       ~ inside_parens(string = .x, sep = sep)
     ),
-    .names = "{.col}_{endings}",
-  ), .before = 1L)
+    .names = "{.col}_{endings}"
+    # sep = sep
+  ), .before = 1L))
 
   # The output is meant to have the same class as the input. Since `out` is not
   # a tibble, coerce it to a tibble if and only if `data` is:
