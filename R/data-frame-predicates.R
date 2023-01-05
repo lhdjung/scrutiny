@@ -18,7 +18,7 @@
 #' @param x Object to be tested.
 #'
 #' @return Boolean (length 1).
-#'
+
 #' @details Sections 3, 6, and 7 of `vignette("consistency-tests")` discuss
 #'   which function factories produce which functions, and which of these new,
 #'   factory-made functions return which kinds of tibbles.
@@ -29,6 +29,9 @@
 #'   this tibble, but `is_map_basic_df()` and `is_map_total_n_df()` return
 #'   `FALSE`.
 #'
+#'   For an overview, see the table at the end of
+#'   `vignette("consistency-tests")`.
+
 #' @export
 #'
 #' @name data-frame-predicates

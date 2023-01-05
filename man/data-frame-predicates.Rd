@@ -48,6 +48,9 @@ These tibbles are what the \verb{is_map_*()} functions test for. As an example,
 returns a tibble. \code{is_map_df()} and \code{is_map_seq_df()} return \code{TRUE} for
 this tibble, but \code{is_map_basic_df()} and \code{is_map_total_n_df()} return
 \code{FALSE}.
+
+For an overview, see the table at the end of
+\code{vignette("consistency-tests")}.
 }
 \examples{
 # Example test output:
