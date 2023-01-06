@@ -56,9 +56,9 @@ reconstruct_sd_scalar <- function(formula, x, n, group_0, group_1) {
     sd_rec <- sd_binary_groups(group_0 = group_0, group_1 = group_1)
   } else {
     cli::cli_abort(c(
-      "`formula` was given as {wrong_spec_string(formula)}.",
-      "i" = "Please specify it as \"mean_n\", \"0_n\", \"1_n\", or \\
-      \"groups\" instead. Default is \"mean_n\"."
+      "!" = "`formula` must be \"mean_n\", \"0_n\", \"1_n\", or \\
+      \"groups\".",
+      "It is {wrong_spec_string(formula)}.",
     ))
   }
 
@@ -333,25 +333,40 @@ check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
       y_name <- var_names_gt1[[2]]
 
       residues_names <- var_names[!var_names %in% c(x_name, y_name)]
-      msg_need <-
-        "Both need to have the same length unless either has length 1."
+
+      # msg_need <-
+      #   "Both need to have the same length unless either has length 1."
+
+      msg_error <- c(
+        "`{x_name}` and `{y_name}` must have the same length \\
+        unless either has length 1.",
+        "*" = "`{x_name}` has length {length(x)}.",
+        "*" = "`{y_name}` has length {length(y)}."
+      )
 
       # Append-to-error-message condition:
       if (length(residues_names) > 0L) {
         residues_names <- paste0("`", residues_names, "`")
-        msg_need <- paste(
-          msg_need,
-          "This also applies to {residues_names}."
+        msg_error <- append(
+          msg_error, c("i" = "This also applies to {residues_names}.")
         )
+
+        # msg_need <- paste(
+        #   msg_need,
+        #   "This also applies to {residues_names}."
+        # )
       }
 
       # Throw error:
-      cli::cli_abort(c(
-        "Lengths of `{x_name}` and `{y_name}` are not congruent.",
-        "x" = "`{x_name}` has length {length(x)}.",
-        "x" = "`{y_name}` has length {length(y)}.",
-        "!" = msg_need
-      ))
+      cli::cli_abort(msg_error)
+
+      # cli::cli_abort(c(
+      #   "`{x_name}` and `{y_name}` must have the same length \\
+      #   unless either has length 1.",
+      #   "x" = "`{x_name}` has length {length(x)}.",
+      #   "x" = "`{y_name}` has length {length(y)}.",
+      #   "!" = msg_need
+      # ))
     }
 
     # Warning condition, triggered if more than one element of `var_list` has
@@ -409,8 +424,8 @@ check_length <- function(x, l) {
   if (length(x) != l) {
     name <- deparse(substitute(x))
     cli::cli_abort(c(
-      "`{name}` has length {length(x)}.",
-      "x" = "It needs to have length {l}."
+      "!" = "`{name}` must have length {l}.",
+      "x" = "It has length {length(x)}."
     ))
   }
 }
@@ -434,8 +449,8 @@ check_length_or_null <- function(x, l) {
   if (length(x) != l) {
     name <- deparse(substitute(x))
     cli::cli_abort(c(
-      "`{name}` has length {length(x)}.",
-      "x" = "It needs to have length {l} or to be `NULL`."
+      "!" = "`{name}` must have length {l} unless it's `NULL`.",
+      "x" = "It has length {length(x)}."
     ))
   }
 }
@@ -463,8 +478,8 @@ check_type <- function(x, t) {
       msg_object <- "be one of these types:"
     }
     cli::cli_abort(c(
-      "`{msg_name}` is of type {typeof(x)}.",
-      "x" = "It needs to {msg_object} {t}."
+      "!" = "`{msg_name}` must {msg_object} {t}.",
+      "x" = "It is {an_a_type(x)}."
     ))
   }
 }
@@ -487,8 +502,8 @@ check_class <- function(x, cl) {
   if (!inherits(x, cl)) {
     msg_name <- deparse(substitute(x))
     cli::cli_abort(c(
-      "Required class missing.",
-      "x" = "`{msg_name}` doesn't inherit class \"{cl}\"."
+      "!" = "`{msg_name}` must inherit class \"{cl}\".",
+      "x" = "It doesn't."
     ))
   }
 }
@@ -515,8 +530,8 @@ split_into_groups <- function(x, group_size) {
   if (remainder != 0L) {
     if (!is_whole_number(group_size)) {
       cli::cli_abort(c(
-        "`group_size` is `{group_size}`.",
-        "x" = "It needs to be a whole number."
+        "!" = "`group_size` must be a whole number.",
+        "x" = "It is `{group_size}`."
       ))
     }
     name_x <- deparse(substitute(x))
@@ -624,8 +639,8 @@ manage_string_output_seq <- function(out, from, string_output, digits) {
       string_output <- paste0("`", string_output, "`")
     }
     cli::cli_abort(c(
-      "`string_output` given as {string_output}.",
-      "x" = "It must be logical or \"auto\"."
+      "!" = "`string_output` must be logical or \"auto\".",
+      "x" = "It is {string_output}."
     ))
   } else if (string_output) {
     out <- restore_zeros(out, width = digits)
@@ -690,8 +705,8 @@ check_non_negative <- function(x) {
     offenders <- paste0("`", offenders, "`")
     name <- deparse(substitute(x))
     cli::cli_abort(c(
-      "`{name}` contains {offenders}{msg_among_others}.",
-      "x" = "It can't be negative."
+      "!" = "`{name}` can't be negative.",
+      "x" = "It contains {offenders}{msg_among_others}."
     ))
   }
 }
@@ -741,7 +756,7 @@ check_length_disperse_n <- function(n, msg_single) {
     cli::cli_abort(c(
       "`n` has length {length(n)}.",
       "x" = msg_single,
-      ">" = "See documentation under `?disperse`."
+      "i" = "See documentation under `?disperse`."
     ))
   }
 }
@@ -770,21 +785,16 @@ check_type_numeric_like <- function(x) {
         msg_values <- "non-`NA` values"
         msg_elements <- "elements"
       }
-      if (is.factor(x)) {
-        msg_factor <- " In the present context, it must also not be a factor."
-      } else {
-        msg_factor <- ""
-      }
       cli::cli_abort(c(
-        "`{name}` must be numeric or coercible to numeric.",
-        ">" = "(This means that converting it to numeric \\
+        "!" = "`{name}` must be numeric or coercible to numeric.",
+        "i" = "(This means that converting it to numeric \\
         must return {msg_values} for its {length_non_na} \\
-        non-`NA` {msg_elements}.{msg_factor})"
+        non-`NA` {msg_elements}.)"
       ))
     } else {
       cli::cli_abort(c(
-        "`{name}` is {an_a_type(x)}.",
-        "x" = "It must be numeric or coercible to numeric."
+        "!" = "`{name}` must be numeric or coercible to numeric.",
+        "x" = "It is {an_a_type(x)}."
       ))
     }
   }
@@ -978,9 +988,9 @@ check_new_args_without_dots <- function(data, dots, old_args, name_fn) {
       msg_cols <- paste0("c(", msg_cols, ")")
     }
     cli::cli_abort(c(
-      "x" = "`{name_fn}()` no longer uses the dots, `...`, \\
+      "!" = "`{name_fn}()` no longer uses the dots, `...`, \\
       for column selection.",
-      ">" = "Use the `cols` argument instead, like `cols = {msg_cols}`.",
+      "i" = "Use the `cols` argument instead, like `cols = {msg_cols}`.",
       "*" = "Apologies for the inconvenience."
     ))
   }
@@ -1010,7 +1020,7 @@ check_new_args_without_dots <- function(data, dots, old_args, name_fn) {
     msg_new_args <- wrap_in_backticks(msg_new_args)
     offenders2 <- wrap_in_backticks(offenders2)
     cli::cli_abort(c(
-      "x" = "In `{name_fn}()`, {offenders2} {msg_was_were} \\
+      "!" = "In `{name_fn}()`, {offenders2} {msg_was_were} \\
       renamed to {msg_new_args} (without {msg_dot_dots}).{msg_switch_end}",
       "*" = "Apologies for the inconvenience."
     ))
@@ -1033,8 +1043,8 @@ check_new_args_without_dots <- function(data, dots, old_args, name_fn) {
       msg_new_args <- wrap_in_backticks(msg_new_args)
       offenders3 <- wrap_in_backticks(offenders3)
       cli::cli_abort(c(
-        "x" = "{offenders3} {msg_no_args} of `{name_fn}()`.",
-        "x" = "You're right not to use {msg_offenders_old} anymore \\
+        "!" = "{offenders3} {msg_no_args} of `{name_fn}()`.",
+        "i" = "You're right not to use {msg_offenders_old} anymore \\
         ({msg_dot_dots}), but also note that it says {msg_new_args} now.",
         "*" = "Apologies for the inconvenience."
       ))

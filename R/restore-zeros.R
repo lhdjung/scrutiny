@@ -109,9 +109,9 @@ restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in,
   if (!is.null(sep)) {
     if (sep_in != "\\.") {
       cli::cli_abort(c(
-        "`sep` conflicts with `sep_in`",
-        "x" = "`sep` is deprecated. It was replaced by `sep_in`.",
-        "!" = "If `sep` is still specified, `sep_in` takes on its value."
+        "!" = "`sep` is deprecated. It was replaced by `sep_in`.",
+        "x" = "`sep` conflicts with `sep_in`",
+        "i" = "If `sep` is still specified, `sep_in` takes on its value."
       ))
     } else {
       cli::cli_warn(c(
@@ -211,7 +211,8 @@ restore_zeros_df <- function(data, cols = everything(),
       data <- tibble::as_tibble(data, .name_repair = "unique")
     } else {
       cli::cli_abort(c(
-        "x" = "`data` must be a data frame (or a matrix).",
+        "!" = "`data` must be a data frame (or a matrix).",
+        "x" = "It is {an_a_type(data)}.",
         ">" = "Did you mean `restore_zeros()`, without `_df`?"
       ))
     }

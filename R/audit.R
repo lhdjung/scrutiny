@@ -94,7 +94,7 @@ audit_seq <- function(data) {
   if (!inherits(data, "scr_map_seq")) {
     cli::cli_abort(c(
       "Invalid `data` argument.",
-      "x" = "It needs to be the output of a `*_map_seq()` function, \\
+      "!" = "It needs to be the output of a `*_map_seq()` function, \\
       such as `grim_map_seq()`."
     ))
   }
@@ -116,12 +116,13 @@ audit_seq <- function(data) {
     fun <- fun[fun != "scr_map_seq"]
     fun <- stringr::str_remove(fun, "scr_")
     fun <- eval(rlang::parse_expr(fun))
-    msg_error <- "No values could be tested with the current parameters."
+    msg_error <-
+      c("!" = "No values could be tested.")
     if ("items" %in% names(formals(fun))) {
       fun_name <- deparse(substitute(fun))
-      msg_items <- list(
-        ">" = "Did you specify the `items` argument in {fun_name} \\
-        as an unreasonably high number?"
+      msg_items <- c(
+        "x" = "Did you specify the `items` argument in {fun_name} \\
+        as an unreasonably large number?"
       )
       msg_error <- append(msg_error, msg_items)
     }
@@ -227,7 +228,7 @@ audit_total_n <- function(data) {
   if (!inherits(data, "scr_map_total_n")) {
     cli::cli_abort(c(
       "Invalid `data` argument.",
-      "x" = "It needs to be the output of a `*_map_total_n()` function, \\
+      "!" = "It needs to be the output of a `*_map_total_n()` function, \\
       such as `grim_map_total_n()`."
     ))
   }

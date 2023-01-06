@@ -4,8 +4,8 @@
 check_length_parens_sep <- function(sep) {
   if (!length(sep) %in% c(1L, 2L)) {
     cli::cli_abort(c(
-      "x" = "`sep` (`{sep}`) has length {length(sep)}.",
-      "x" = "It can only have length 1 or 2."
+      "!" = "`sep` must have length 1 or 2.",
+      "x" = "It has length {length(sep)}: {wrap_in_backticks(sep)}."
     ))
   }
 }
@@ -23,9 +23,9 @@ translate_length1_sep_keywords <- function(sep) {
     c("\\{", "\\}")
   } else {
     cli::cli_abort(c(
-      "`sep` given as {wrap_in_backticks(sep)}.",
-      ">" = "Please specify `sep` as either \"parens\", \"brackets\", or \\
-        \"braces\"; or as \"(\", \"[\", or \"{{\".",
+      "!" = "`sep` must be either \"parens\", \"brackets\", or \\
+        \"braces\"; or \"(\", \"[\", or \"{{\".",
+      "x" = "It was given as {wrap_in_quotes_or_backticks(sep)}.",
       "i" = "Alternatively, choose two custom separators; e.g., \\
         `sep = c(\"<\", \">\")` for strings such as \"2.65 <0.27>\"."
     ))
@@ -49,7 +49,7 @@ warn_wrong_columns_selected <- function(names_wrong_cols,
   names_wrong_cols <- wrap_in_backticks(names_wrong_cols)
   cli::cli_warn(c(
     "!" = "{msg_col_cols} {msg_exclusion}: {names_wrong_cols}.",
-    "!" = "{msg_it_they} {msg_reason}."
+    "x" = "{msg_it_they} {msg_reason}."
   ))
 }
 

@@ -159,8 +159,8 @@ grim_plot <- function(data = NULL,
       }
     } else if (show_data) {
       cli::cli_abort(c(
-        "`data` is not `grim_map()` or `grimmer_map()` output.",
-        "x" = "`grim_plot()` needs GRIM or GRIMMER test results.",
+        "!" = "`grim_plot()` needs GRIM or GRIMMER test results.",
+        "x" = "`data` is not `grim_map()` or `grimmer_map()` output.",
         "i" = "The only exception is an \"empty\" plot that shows the \\
         background raster but no empirical test results. Create such a plot \\
         by setting `show_data` to `FALSE`."
@@ -191,13 +191,13 @@ grim_plot <- function(data = NULL,
   if (!is.null(digits)) {
     if (length(digits) != 1L) {
       cli::cli_abort(c(
-        "`digits` has length {length(digits)}.",
-        "x" = "It needs to have length 1 (i.e., be a single number)."
+        "!" = "`digits` needs to have length 1 (i.e., be a single number).",
+        "x" = "It has length {length(digits)}.",
       ))
     } else if (!is_whole_number(digits)) {
       cli::cli_abort(c(
-        "`digits` is {digits}.",
-        "x" = "It needs to be a whole number."
+        "!" = "`digits` needs to be a whole number.",
+        "x" = "It is {digits}."
       ))
     }
   }
@@ -235,13 +235,13 @@ grim_plot <- function(data = NULL,
         }
 
         cli::cli_abort(c(
-          "{means_percentages} have different numbers of decimal places",
+          "{means_percentages} must have the same number of decimal places.",
           "x" = "There are {length(dp_unique)} unique numbers of decimal \\
           places in `x`{msg_starting_with} {dp_unique_presented}.",
-          "!" = "The background raster is only informative if the number of \\
+          "i" = "The background raster is only informative if the number of \\
           decimal places is consistent across the \\
           {tolower(means_percentages)}.",
-          ">" = "Avoid this error by plotting {tolower(means_percentages)} \\
+          "i" = "Avoid this error by plotting {tolower(means_percentages)} \\
           separately for each number of decimal places. (Alternatively, you \\
           can specify `digits` as the number of decimal places for which \\
           the plot should be shown. Be aware that this will not be sensible \\
@@ -292,7 +292,7 @@ grim_plot <- function(data = NULL,
       if (rounding_is_bad) {
         cli::cli_abort(c(
           "No background raster available for `rounding = {rounding_id}`",
-          "!" = "Please use a different `rounding` specification within the \\
+          "i" = "Use a different `rounding` specification within the \\
           `grim_map()` call or set `show_raster` to `FALSE` within the \\
           `grim_plot()` call."
         ))

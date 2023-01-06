@@ -181,7 +181,7 @@ unround <- function(x, rounding = "up_or_down", threshold = 5, digits = NULL) {
     if (!is.character(x)) {
       cli::cli_abort(c(
         "`x` is {an_a_type(x)}.",
-        "x" = "If `digits` is not specified, `x` needs to be a string."
+        "x" = "If `digits` is not specified, `x` must be a string."
       ))
     }
     digits <- decimal_places(x)
@@ -207,10 +207,10 @@ unround <- function(x, rounding = "up_or_down", threshold = 5, digits = NULL) {
   # Throw error if `rounding` was not specified in a valid way:
   if (list("error_trigger") %in% bounds) {
     cli::cli_abort(c(
-      "`rounding` misspecified",
-      "x" = "`rounding` was given as {wrong_spec_string(rounding)}.",
-      ">" = "Please use one or more of the designated string values instead. \\
-      See documentation for `unround()`, section `Rounding`."
+      "`rounding` must be one or more of the designated \\
+      string values. See documentation for `unround()`, \\
+      section `Rounding`.",
+      "x" = "It is {wrong_spec_string(rounding)}."
     ))
   }
 

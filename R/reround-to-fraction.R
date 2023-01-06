@@ -89,8 +89,8 @@ reround_to_fraction <- function(x = NULL, denominator = 1, digits = Inf,
   if (any(denominator < 1)) {
     value_values <- dplyr::if_else(length(denominator) == 1L, "value", "values")
     cli::cli_abort(c(
-      "`denominator` has {value_values} {denominator[denominator < 1]}",
-      "x" = "It needs to be 1 or greater."
+      "!" = "`denominator` needs to be 1 or greater.",
+      "x" = "It has {value_values} {denominator[denominator < 1]}",
     ))
   }
 
@@ -98,8 +98,9 @@ reround_to_fraction <- function(x = NULL, denominator = 1, digits = Inf,
     digits_numeric <- digits[!is.infinite(digits)]
     if (!all(is_whole_number(digits_numeric))) {
       cli::cli_abort(c(
-        "`digits` given as {digits_numeric[!is_whole_number(digits_numeric)]}",
-        "x" = "Each `digit` value needs to be a whole number."
+        "!" = "Each `digit` value needs to be a whole number.",
+        "x" = "`digits` was given as \\
+        {digits_numeric[!is_whole_number(digits_numeric)]}."
       ))
     }
   }
@@ -166,8 +167,9 @@ reround_to_fraction_level <- function(x = NULL, denominator = 1, digits = 0L,
   if (any(denominator < 1)) {
     value_values <- dplyr::if_else(length(denominator) == 1L, "value", "values")
     cli::cli_abort(c(
-      "`denominator` has {value_values} {denominator[denominator < 1]}",
-      "x" = "It needs to be 1 or greater."
+      "!" = "`denominator` needs to be 1 or greater.",
+      "x" = "It has {value_values} \\
+      {wrap_in_backticks(denominator[denominator < 1])}."
     ))
   }
 
@@ -182,8 +184,9 @@ reround_to_fraction_level <- function(x = NULL, denominator = 1, digits = 0L,
     digits_numeric <- digits[!is.infinite(digits)]
     if (!all(is_whole_number(digits_numeric))) {
       cli::cli_abort(c(
-        "`digits` given as {digits_numeric[!is_whole_number(digits_numeric)]}",
-        "x" = "Each `digit` value needs to be a whole number."
+        "!" = "Each `digits` value needs to be a whole number.",
+        "x" = "`digits` was given as \\
+        {digits_numeric[!is_whole_number(digits_numeric)]}."
       ))
     }
   }

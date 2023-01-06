@@ -122,7 +122,7 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
     }
     cli::cli_abort(c(
       "Function `{fun_name}()` lacks {msg_arg} {offenders}.",
-      "x" = "{msg_it_they} stated as `.reported` in the \\
+      "i" = "{msg_it_they} given as `.reported` in the \\
       `function_map()` call, where `.fun` was specified as `{fun_name}`."
     ))
   }

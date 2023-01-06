@@ -25,18 +25,19 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
   # Provide some guidance in case users confuse `grim()` with `grim_map()`:
   if (is.data.frame(x)) {
     cli::cli_abort(c(
-      "`x` is a data frame",
-      "x" = "For `grim()`, please provide a single set of values, not a \\
-      data frame (see documentation). If you want to GRIM-test multiple \\
-      value sets at once, call `grim_map()` instead."
+      "`x` can't be a data frame.",
+      "x" = "For `grim()`, please provide a single set of values, \\
+      not a data frame.",
+      "i" = "If you want to GRIM-test multiple value sets \\
+      in a data frame, call `grim_map()` instead."
     ))
   }
 
   # As trailing zeros matter for the GRIM test, `x` needs to be a string:
   if (!is.character(x)) {
     cli::cli_abort(c(
-      "`x` is {an_a_type(x)}.",
-      "i" = "It needs to be a string."
+      "!" = "`x` needs to be a string.",
+      "x" = "It is {an_a_type(x)}."
     ))
   }
 

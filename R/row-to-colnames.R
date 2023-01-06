@@ -46,24 +46,25 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
       data <- tibble::as_tibble(data)
     } else {
       cli::cli_abort(c(
-        "`data` is {an_a_type(data)}",
-        "x" = "It needs to be a data frame or a matrix."
+        "!" = "`data` must be a data frame or a matrix.",
+        "x" = "It is {an_a_type(data)}."
       ))
     }
   }
 
   if (length(row) < 1L) {
     cli::cli_abort(c(
-      "`row` has length {length(row)}",
-      "x" = "It needs to have length 1 or more."
+      "!" = "`row` must have length 1 or greater.",
+      "x" = "It has length {length(row)}."
     ))
   }
 
   if (any(!is_whole_number(row))) {
-    row <- wrap_in_backticks(row)
+    offenders <- row[!is_whole_number(row)]
+    offenders <- wrap_in_backticks(offenders)
     cli::cli_abort(c(
-      "`row` is {row}",
-      "x" = "It needs to be a whole number."
+      "!" = "`row` must only have whole numbers.",
+      "x" = "It includes {offenders}."
     ))
   }
 
@@ -96,9 +97,9 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
     n_empty <- length(correct_is_empty[correct_is_empty])
     name_names <- dplyr::if_else(n_empty == 1L, "name", "names")
     cli::cli_abort(c(
-      "{n_empty} empty column {name_names}.",
-      "x" = "Each column name must have at least one character.",
-      ">" = "Make sure to specify `row` in `row_to_colnames()` accordingly."
+      "!" = "Each column name must have at least one character.",
+      "x" = "{n_empty} empty column {name_names}.",
+      "i" = "Make sure to specify `row` in `row_to_colnames()` accordingly."
     ))
   }
 

@@ -31,7 +31,7 @@ check_debit_inputs <- function(input, type, symbol) {
 
     # ...and second, the actual error is thrown:
     cli::cli_abort(c(
-      "DEBIT only works with binary summary data.",
+      "!" = "DEBIT only works with binary summary data.",
       "!" = "Binary {type} (`{symbol}`) values must range from 0 to 1.",
       "x" = "{length(offenders_all)} out of {length(input)} \\
       `{symbol}` values {msg_is_are} not in that \\

@@ -64,13 +64,14 @@ seq_length <- function(x, value) {
   if (!isTRUE(x_is_linear)) {
     if (is.na(x_is_linear)) {
       cli::cli_abort(c(
-        "Unknown whether `x` in `seq_length(x) <- value` is a linear sequence.",
-        "x" = "It needs to be linear for its length to be set."
+        "!" = "`x` in `seq_length(x) <- value` must be a linear sequence.",
+        "x" = "Linearity of `x` can't be determined."
       ))
     }
     cli::cli_abort(c(
-      "`x` in `seq_length(x) <- value` is not a linear sequence.",
-      "x" = "The length of `x` can only be set if each one \\
+      "`x` in `seq_length(x) <- value` must be a linear sequence.",
+      "x" = "It isn't.",
+      "i" = "The length of `x` can only be set if each one \\
       of its elements differs from the next by the same amount."
     ))
   }
@@ -78,7 +79,10 @@ seq_length <- function(x, value) {
   check_length(value, 1L)
 
   if (!is_whole_number(value)) {
-    cli::cli_abort("`{value}` in `length(x) <- {value}` is not a whole number.")
+    cli::cli_abort(c(
+      "!" = "`value` in `length(x) <- value` must be a whole number.",
+      "x" = "It is `{value}`."
+    ))
   }
 
   if (value == 0L) {

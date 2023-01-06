@@ -130,8 +130,8 @@ seq_disperse <- function(from, by = NULL, dispersion = 1:5, offset_from = 0L,
   if (!is.null(out_min)) {
     if (length(out_min) > 1L) {
       cli::cli_abort(c(
-        "`out_min` has length {length(out_min)}",
-        "x" = "It needs to have length 1 or to be `NULL`."
+        "!" = "`out_min` must have length 1 or to be `NULL`.",
+        "x" = "It has length {length(out_min)}."
       ))
     }
     if (out_min == "auto") {
@@ -144,8 +144,8 @@ seq_disperse <- function(from, by = NULL, dispersion = 1:5, offset_from = 0L,
   if (!is.null(out_max)) {
     if (length(out_max) > 1L) {
       cli::cli_abort(c(
-        "`out_max` has length {length(out_max)}",
-        "x" = "It needs to have length 1 or to be `NULL`."
+        "!" = "`out_max` must have length 1 or to be `NULL`.",
+        "x" = "It has length {length(out_max)}."
       ))
     }
     disp_plus <- disp_plus[(from + disp_plus) <= out_max]

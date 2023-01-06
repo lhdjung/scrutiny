@@ -34,9 +34,10 @@ reverse_map_total_n <- function(data) {
 
   if (!inherits(data, "scr_map_total_n")) {
     cli::cli_abort(c(
-      "Invalid `data` argument.",
-      "x" = "It needs to be the output of a function that ends on \\
-      `*_map_seq()`, like `grim_map_seq()`."
+      "!" = "`data` must be the output of \\
+      a function like `grim_map_total_n()`.",
+      "x" = "It isn't.",
+      "i" = "Such functions were created by `function_map_total_n()`."
     ))
   }
 

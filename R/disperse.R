@@ -123,8 +123,8 @@ disperse <- function(n, dispersion = 0:5, n_min = 1L, n_max = NULL,
   if (!is.null(n_min)) {
     if (length(n_min) > 1L) {
       cli::cli_abort(c(
-        "`n_min` has length {length(n_min)}.",
-        "x" = "It needs to have length 1 or to be `NULL`."
+        "!" = "`n_min` needs to have length 1 or to be `NULL`.",
+        "x" = "It has length {length(n_min)}."
       ))
     }
     dispersion <- dispersion[(n - dispersion) >= n_min]
@@ -133,8 +133,8 @@ disperse <- function(n, dispersion = 0:5, n_min = 1L, n_max = NULL,
   if (!is.null(n_max)) {
     if (length(n_max) > 1L) {
       cli::cli_abort(c(
-        "`n_max` has length {length(n_max)}.",
-        "x" = "It needs to have length 1 or to be `NULL`."
+        "!" = "`n_max` needs to have length 1 or to be `NULL`.",
+        "x" = "It has length {length(n_max)}."
       ))
     }
     dispersion <- dispersion[(n + dispersion) <= n_max]

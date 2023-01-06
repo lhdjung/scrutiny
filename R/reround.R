@@ -5,9 +5,9 @@
 check_rounding_singular_proto <- function(rounding, bad, good_1, good_2) {
   if (bad %in% rounding) {
     cli::cli_abort(c(
-      "`rounding` given as \"{bad}\" plus others.",
-      "x" = "If `rounding` has length > 1, only single rounding procedures \\
+      "!" = "If `rounding` has length > 1, only single rounding procedures \\
       are supported, such as \"{good_1}\" and \"{good_2}\".",
+      "x" = "`rounding` was given as \"{bad}\" plus others.",
       "i" = "You can still concatenate multiple of them; just leave out \\
       those with \"_or_\"."
     ))
@@ -67,10 +67,9 @@ reconstruct_rounded_numbers_scalar <- function(x, digits, rounding,
     # Finally, if the `rounding` argument was not specified as any of the
     # designated rounding options, throw an error:
     cli::cli_abort(c(
-      "`rounding` misspecified",
-      "x" = "`rounding` was given as {wrong_spec_string(rounding)}.",
-      ">" = "Please use one of the designated string values instead. See \\
-      documentation for `grim()`, section `Rounding`."
+      "`rounding` must be one of the designated string values.",
+      "x" = "It was given as {wrong_spec_string(rounding)}.",
+      "i" = "See documentation for `grim()`, section `Rounding`."
     ))
   }
 }
@@ -144,8 +143,10 @@ reround <- function(x, digits = 0L, rounding = "up_or_down",
       length(rounding) > 1L &&
       length(x) != length(rounding)) {
     cli::cli_abort(c(
-      "Lengths of `x` and `rounding` not congruent",
-      "x" = "Both must have the same length unless either has length 1."
+      "!" = "`x` and `rounding` must have the same length \\
+      unless either has length 1.",
+      "i" = "`x` has length {length(x)}.",
+      "i" = "`rounding` has length {length(rounding)}."
     ))
   }
 
@@ -159,12 +160,13 @@ reround <- function(x, digits = 0L, rounding = "up_or_down",
   # number -- but `threshold` was not, in fact, set to any number:
   if (rounding_needs_threshold && !is.numeric(threshold)) {
     cli::cli_abort(c(
-      "`threshold` not specified",
-      ">" = "If `rounding` is set to `\"up_from\"`, `\"down_from\"`, or \\
-      `\"up_from_or_down_from\"`, please set `threshold` to the number \\
+      "`threshold` must be specified.",
+      "i" = "If `rounding` is set to \"up_from\", \"down_from\", or \\
+      \"up_from_or_down_from\", set `threshold` to the number \\
       from which the reconstructed values should then be rounded up or down, \\
-      respectively. (If that number is 5, you can simply set `rounding` to \\
-      `\"up\"`, `\"down\"`, or `\"up_or_down\"` instead.)"
+      respectively.",
+      "i" = "If that number is 5, you can simply set `rounding` to \\
+      \"up\", \"down\", or \"up_or_down\" instead."
     ))
   }
 
@@ -172,7 +174,7 @@ reround <- function(x, digits = 0L, rounding = "up_or_down",
     length_2ers <- c("up_or_down", "up_from_or_down_from", "ceiling_or_floor")
     if (any(length_2ers %in% rounding)) {
       offenders <- length_2ers[length_2ers %in% rounding]
-      msg_no_other <- glue::glue("If `rounding` is \"{offenders[1]}\", \\
+      msg_no_other <- glue::glue("If `rounding` includes \"{offenders[1]}\", \\
       there can be no other `rounding` values.")
       if (length(offenders) > 1L) {
         offenders[-1] <- paste0("\"", offenders[-1], "\"")
@@ -181,8 +183,8 @@ reround <- function(x, digits = 0L, rounding = "up_or_down",
         )
       }
       cli::cli_abort(c(
-        "\"{offenders[1]}\" in `rounding`, which has length {length(rounding)}",
-        "x" = msg_no_other
+        "!" = msg_no_other,
+        "x" = "`rounding` has length {length(rounding)}."
       ))
     }
   }

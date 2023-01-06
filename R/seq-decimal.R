@@ -207,8 +207,8 @@ seq_distance <- function(from, by = NULL, length_out = 10L, dir = 1,
     by <- -by
   } else {
     cli::cli_abort(c(
-      "`dir` given as `{dir}`",
-      "x" = "`dir` needs to be either `1` or `-1`."
+      "!" = "`dir` must be either `1` or `-1`.",
+      "x" = "It was given as `{dir}`."
     ))
   }
 

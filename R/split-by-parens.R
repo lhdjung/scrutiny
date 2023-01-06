@@ -219,10 +219,12 @@ split_by_parens <- function(data, cols = everything(), check_sep = TRUE,
   # only works if no columns were left unsplit. If there are any, an error is
   # thrown:
   if (keep) {
-    cli::cli_abort(c("x" = "`keep` and `transform` can't both be `TRUE`."))
+    cli::cli_abort(c("!" = "`keep` and `transform` can't both be `TRUE`."))
   } else if (length(names_neutral_cols) > 0L) {
+    names_neutral_cols <- wrap_in_backticks(names_neutral_cols)
     cli::cli_abort(c(
-      "x" = "`transform` can't be `TRUE` if some columns are left unsplit."
+      "!" = "`transform` can't be `TRUE` if some columns are left unsplit.",
+      "i" = "This concerns {names_neutral_cols}."
     ))
   }
   transform_split_parens(out, end1, end2)

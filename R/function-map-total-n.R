@@ -321,11 +321,11 @@ function_map_total_n <- function(.fun, .reported, .name_test,
   # Throw error if `n` itself was named as a reported statistic:
   if ("n" %in% .reported) {
     cli::cli_abort(c(
-      "Don't specify \"n\" as a reported statistic.",
-      "x" = "Functions produced by `function_map_total_n()` \\
+      "Can't take \"n\" as a reported statistic.",
+      "i" = "Functions produced by `function_map_total_n()` \\
       assume that group-wise `n` values were not reported, \\
       and deal with them in hypothetical terms.",
-      "x" = "Therefore, it can't be a `.reported` value."
+      "i" = "Therefore, \"n\" can't be a `.reported` value."
     ))
   }
 
@@ -363,7 +363,7 @@ function_map_total_n <- function(.fun, .reported, .name_test,
     if (!"n" %in% colnames(data)) {
       cli::cli_abort(c(
         "Column `n` missing.",
-        "x" = "`n` should contain the reported total sample sizes \\
+        "i" = "`n` should contain the reported total sample sizes \\
         (one per row).",
         "i" = "The function will use `disperse_total()` to go up \\
         and down from the integer at half an even `n`, or the \\
@@ -423,10 +423,10 @@ function_map_total_n <- function(.fun, .reported, .name_test,
       msg_cols_missing <- wrap_in_backticks(cols_missing)
       cli::cli_abort(c(
         "{msg_cols} {msg_cols_missing} {msg_is_are} missing from `data`.",
-        "x" = "{msg_it_they} expected because of the `.reported` \\
+        "i" = "{msg_it_they} expected because of the `.reported` \\
         specification in the call to `function_map_total_n()` that \\
         created the present function.",
-        "x" = "{msg_this_these} should contain reported group statistics. \\
+        "i" = "{msg_this_these} should contain reported group statistics. \\
         {msg_it_they} presumably essential to {name_test}."
       ))
     }
@@ -504,12 +504,12 @@ function_map_total_n <- function(.fun, .reported, .name_test,
         "Column names returned by calls to the helper function \\
         `scrutiny:::function_map_total_n_proto()` are not identical.",
         "i" = "Column names in question --",
-        ">" = "`colnames(out_forth)`: {names_out_forth}",
-        ">" = "`colnames(out_back)`: {names_out_back}",
+        "*" = "`colnames(out_forth)`: {names_out_forth}",
+        "*" = "`colnames(out_back)`: {names_out_back}",
         "x" = "This is a deep error within at least one of the \\
         function operators `scrutiny::function_map_total_n()` \\
         and `scrutiny:::function_map_total_n_proto()`.",
-        "x" = "Please check the source code for these."
+        "i" = "Please check the source code for these."
       ))
     }
 

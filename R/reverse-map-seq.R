@@ -64,9 +64,10 @@ reverse_map_seq <- function(data) {
   # manufactured using `function_map_seq()`:
   if (!inherits(data, "scr_map_seq")) {
     cli::cli_abort(c(
-      "Invalid `data` argument.",
-      "x" = "It needs to be the output of a function like `grim_map_seq()`.",
-      ">" = "Such functions were created by `function_map_seq()`."
+      "!" = "`data` must be the output of \\
+      a function like `grim_map_seq()`.",
+      "x" = "It isn't.",
+      "i" = "Such functions were created by `function_map_seq()`."
     ))
   }
 

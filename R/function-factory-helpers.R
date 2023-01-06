@@ -287,6 +287,7 @@ check_args_disabled <- function(args_disabled) {
           working properly within `scrutiny::function_map()`."
       ))
     }
+    rm(arg_names_caller_call, offenders)
   }
 
 }
@@ -337,14 +338,14 @@ class_with <- function(data, contains, all_classes = FALSE,
       contains <- wrap_in_backticks(contains)
       cli::cli_abort(c(
         "`contains` has length {length(contains)}.",
-        "With `all_classes` set to `TRUE`, `contains` \\
+        "x" = "With `all_classes` set to `TRUE`, `contains` \\
         cannot be longer than 1.",
         "i" = "(Its values are {contains}.)"
       ))
     }
     out <- cd[stringr::str_detect(cd, contains)]
     if (length(out) == 0L) {
-      cli::cli_abort("No class containing `{contains}` found.")
+      cli::cli_abort(c("x" = "No class containing `{contains}` found."))
     }
     return(out)
   }
