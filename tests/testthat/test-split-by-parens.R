@@ -37,14 +37,14 @@ test_that("It has correct values", {
 
 pigs_brackets <- pigs %>%
   dplyr::mutate(
-    dplyr::across(everything(), stringr::str_replace, "\\(", "["),
-    dplyr::across(everything(), stringr::str_replace, "\\)", "]")
+    dplyr::across(everything(), function(x) stringr::str_replace(x, "\\(", "[")),
+    dplyr::across(everything(), function(x) stringr::str_replace(x, "\\)", "]"))
   )
 
 pigs_braces <- pigs %>%
   dplyr::mutate(
-    dplyr::across(everything(), stringr::str_replace, "\\(", "{"),
-    dplyr::across(everything(), stringr::str_replace, "\\)", "}")
+    dplyr::across(everything(), function(x) stringr::str_replace(x, "\\(", "{")),
+    dplyr::across(everything(), function(x) stringr::str_replace(x, "\\)", "}"))
   )
 
 pigs_brackets_tested <- split_by_parens(pigs_brackets, sep = "brackets")

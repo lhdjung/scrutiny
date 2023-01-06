@@ -85,8 +85,8 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
       ) %>%
       dplyr::mutate(
         dplyr::across(
-          1:dplyr::all_of(reported_n_vars),
-          ~ purrr::map(., tibble::as_tibble)
+          .cols = 1:dplyr::all_of(reported_n_vars),
+          .fns  = ~ purrr::map(., tibble::as_tibble)
         ), times = NULL
       )
 

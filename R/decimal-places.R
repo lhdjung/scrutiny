@@ -170,5 +170,6 @@ decimal_places_df <- function(data, cols = everything(),
     .cols = {{ cols }} & !!selection2,
     .fns  = function(x) decimal_places(x = x, sep = sep)
   ))
+
 }
 
