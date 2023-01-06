@@ -26,9 +26,9 @@ utils::globalVariables(c(
 #' @noRd
 wrong_spec_string <- function(x) {
   if (is.character(x)) {
-    glue::glue("\"{x}\"")
+    paste0("\"", x, "\"")
   } else {
-    glue::glue("`{x}` (not a string)")
+    paste0("`", x, "` (not a string)")
   }
 }
 
@@ -109,7 +109,7 @@ straighten_out <- function(...) {
 
 
 
-#' Write "an" or "a", depending on the preceding word
+#' Write "an" or "a", depending on the next word
 #'
 #' @param x String. A string value that ends on a vowel letter returns `"an"`;
 #'   else, it returns `"a"`.
@@ -124,7 +124,9 @@ an_a <- function(x) {
 
 #' Prefix an object's type with "an" or "a"
 #'
-#' This uses `an_a()` to prepend the type of `x` with "an" or "a".
+#' This uses `an_a()` to prepend the type of `x` with "an" or "a". Because the
+#' function meant to be used in messages, it replaces "double" by "double
+#' (numeric value)" and "character" by "string".
 #'
 #' @param x Any object.
 #'
@@ -132,8 +134,13 @@ an_a <- function(x) {
 #'
 #' @noRd
 an_a_type <- function(x) {
-  type <- dplyr::if_else(is.double(x), "double (numeric value)", typeof(x))
-  glue::glue("{an_a(typeof(x))} {type}")
+  type <- typeof(x)
+  if (type == "double") {
+    type <- "double (numeric value)"
+  } else if (type == "character") {
+    type <- "string"
+  }
+  paste(an_a(typeof(x)), type)
 }
 
 
