@@ -418,7 +418,7 @@ check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
 #' Check length
 #'
 #' Make sure a vector `x` has length `l`, otherwise throw an informative error.
-#' For example, if a vector called `vals` needs to have length 1, run:
+#' For example, if a vector called `vals` must have length 1, run:
 #' `check_length(vals, 1)`.
 #'
 #' @param x Vector.
@@ -467,7 +467,7 @@ check_length_or_null <- function(x, l) {
 #' Check type
 #'
 #' Much the same as `check_length()`, but for object types rather than lengths.
-#' An object `x` needs to have one of the types in `t`, or else there will be an
+#' An object `x` must have one of the types in `t`, or else there will be an
 #' informative error.
 #'
 #' @param x Vector.
@@ -496,7 +496,7 @@ check_type <- function(x, t) {
 #' Check class
 #'
 #' Much the same as `check_length()` or `check_type()`, but for classes. An
-#' object `x` needs to have one of the types in `t`, or else there will be an
+#' object `x` must have one of the types in `t`, or else there will be an
 #' informative error.
 #'
 #' @param x Vector.
@@ -738,8 +738,8 @@ is_even <- function(x) {
 #' Check for length-1 sample size in dispersion functions
 #'
 #' @description Only used within `disperse()` and `disperse_total()`. In these
-#'   functions, the `n` argument needs to be length 1. This is in contrast to
-#'   `disperse2()` where it needs to be length 2, so a length-2 `n` will trigger
+#'   functions, the `n` argument must be length 1. This is in contrast to
+#'   `disperse2()` where it must be length 2, so a length-2 `n` will trigger
 #'   an error message that specifically points to `disperse2()`.
 #'
 #'   All `n` values with a length other than 1 will trigger an error that refers
@@ -834,7 +834,7 @@ has_decimals_if_numeric_like <- function(x, sep = "\\.") {
 #' @description This function expects an `x` vector like the one described
 #'   elsewhere for `index_seq()`, with the additional expectation that
 #'   continuous sequences have an odd length. That is because an index case
-#'   needs to be identified; and without a gap in the sequence, this has to be a
+#'   must be identified; and without a gap in the sequence, this has to be a
 #'   single median value. If the index case is missing, it is reconstructed and
 #'   returned.
 #'
@@ -1269,7 +1269,7 @@ wrap_in_quotes_or_backticks <- function(x) {
 #' @return Boolean (length 1).
 #'
 #' @details Since `near()` is vectorized and `identical()` is not, their results
-#'   are not on par with each other, so `near()` needs to be wrapped in `all()`,
+#'   are not on par with each other, so `near()` must be wrapped in `all()`,
 #'   which makes sure that there are no differences beyond the tolerance.
 #'
 #' @noRd

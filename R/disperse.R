@@ -41,7 +41,7 @@
 #' @details If any group size is less than `n_min` or greater than `n_max`, it
 #'   is removed. The complementary size of the other group is also removed.
 #'
-#'   `constant` values are pairwise repeated. That is why `constant` needs to be
+#'   `constant` values are pairwise repeated. That is why `constant` must be
 #'   a length-2 atomic vector or a list of such vectors. If `constant` is a data
 #'   frame or some other named list, the resulting columns will have the same
 #'   names as the list-element names. If the list is not named, the new column
@@ -110,7 +110,7 @@ disperse <- function(n, dispersion = 0:5, n_min = 1L, n_max = NULL,
 
   # Checks ---
 
-  msg_single <- "It needs to have length 1."
+  msg_single <- "It must have length 1."
   check_length_disperse_n(n, msg_single)
   check_non_negative(dispersion)
 
@@ -123,7 +123,7 @@ disperse <- function(n, dispersion = 0:5, n_min = 1L, n_max = NULL,
   if (!is.null(n_min)) {
     if (length(n_min) > 1L) {
       cli::cli_abort(c(
-        "!" = "`n_min` needs to have length 1 or to be `NULL`.",
+        "!" = "`n_min` must have length 1 or to be `NULL`.",
         "x" = "It has length {length(n_min)}."
       ))
     }
@@ -133,7 +133,7 @@ disperse <- function(n, dispersion = 0:5, n_min = 1L, n_max = NULL,
   if (!is.null(n_max)) {
     if (length(n_max) > 1L) {
       cli::cli_abort(c(
-        "!" = "`n_max` needs to have length 1 or to be `NULL`.",
+        "!" = "`n_max` must have length 1 or to be `NULL`.",
         "x" = "It has length {length(n_max)}."
       ))
     }
@@ -236,7 +236,7 @@ disperse2 <- function(n, dispersion = 0:5, n_min = 1L, n_max = NULL,
     n_min = n_min, n_max = n_max
   )
 
-  # Determine which row numbers in the output tibble have an `n` that needs to
+  # Determine which row numbers in the output tibble have an `n` that must
   # be increased or decreased (using an internal helper function from utils.R):
   seq_rows <- seq_len(nrow(out))
   locations1 <- seq_rows %>% parcel_nth_elements(n = 2, from = 1L)
@@ -264,7 +264,7 @@ disperse_total <- function(n, dispersion = 0:5, n_min = 1L, n_max = NULL,
 
   # Checks ---
 
-  msg_single <- "It needs to have length 1; `n` is supposed \\
+  msg_single <- "It must have length 1; `n` is supposed \\
     to be a *single*, total sample size."
   check_length_disperse_n(n, msg_single)
 

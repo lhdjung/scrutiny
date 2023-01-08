@@ -9,7 +9,7 @@ check_mapper_input_colnames(data, reported, name_test)
 \arguments{
 \item{data}{Data frame. Input to the mapper function.}
 
-\item{reported}{String vector of the "key" column names that \code{data} needs to
+\item{reported}{String vector of the "key" column names that \code{data} must
 have, such as \code{c("x", "n")} for \code{grim_map()}.}
 
 \item{name_test}{String (length 1). Short, plain-text name of the consistency

@@ -9,7 +9,7 @@
 #'
 #' @param .fun Single-case consistency testing function that will be applied to
 #'   each row in a data frame, such as the (non-exported) scrutiny functions
-#'   `grim_scalar()` and `debit_scalar()`. It needs to return a Boolean value of
+#'   `grim_scalar()` and `debit_scalar()`. It must return a Boolean value of
 #'   length 1, i.e., `TRUE` or `FALSE`.
 #' @param .reported String. Names of the columns to be tested.
 #' @param .name_test String (length 1). Plain-text name of the consistency test,
@@ -41,7 +41,7 @@
 #'   `"scr_rounding_up_or_down"`.
 
 #' @return A factory-made function with these arguments:
-#' - `data`: Data frame with all the columns named in `.reported`. It needs to
+#' - `data`: Data frame with all the columns named in `.reported`. It must
 #'   have columns named after the key arguments in `.fun`. Other columns are
 #'   permitted.
 #' - Arguments named after the `.reported` values. They can be specified as the

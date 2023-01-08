@@ -26,7 +26,7 @@ check_key_args_in_colnames <- function(data, reported) {
     }
     offenders <- wrap_in_backticks(offenders)
     cli::cli_abort(c(
-      "{msg_cols} {offenders} needs to be in `data`.",
+      "{msg_cols} {offenders} must be in `data`.",
       "{msg_it_they} meant to be tested for consistency with \\
       {msg_each_other}{non_offenders}."
     ))
@@ -103,7 +103,7 @@ check_consistency_not_in_colnames <- function(data, name_test) {
 #'   If either check fails, the function throws an informative error.
 
 #' @param data Data frame. Input to the mapper function.
-#' @param reported String vector of the "key" column names that `data` needs to
+#' @param reported String vector of the "key" column names that `data` must
 #'   have, such as `c("x", "n")` for `grim_map()`.
 #' @param name_test String (length 1). Short, plain-text name of the consistency
 #'   test that the mapper function applies, such as `"GRIM"`.
@@ -297,7 +297,7 @@ manage_key_colnames <- function(data, arg, description = NULL) {
     }
     cli::cli_abort(c(
       "Column `{arg_name}` missing.",
-      "i" = "{msg_this_col} column in `data` needs to be named \\
+      "i" = "{msg_this_col} column in `data` must be named \\
       `{arg_name}`. Alternatively, specify the `{arg_name}` argument \\
       as the name of that column."
     ))

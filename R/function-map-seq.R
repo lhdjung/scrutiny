@@ -324,7 +324,7 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
       data <- data[!data$consistency, ]
     }
 
-    # As `var` is `Inf` by default, it needs to be referred to the names of
+    # As `var` is `Inf` by default, it must be referred to the names of
     # designated `reported` variables:
     if (all(is.infinite(var))) {
       var <- reported
@@ -388,7 +388,7 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
 
     # Make sure the "rounding class" (i.e., `"scr_rounding_*"`) has the correct
     # value. As this is not naturally guaranteed as in `*_map()` functions, it
-    # needs to be done by hand:
+    # must be done by hand:
     dots <- rlang::enexprs(...)
     if (length(dots$rounding) > 0L) {
       class(out)[stringr::str_detect(class(out), "scr_rounding_")] <-

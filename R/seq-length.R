@@ -7,7 +7,7 @@
 #'   Alternatively, you can directly set the length of a linear sequence in this
 #'   way: `seq_length(x) <- value`.
 #'
-#' @param x Numeric or coercible to numeric. `x` needs to be linear, i.e., each
+#' @param x Numeric or coercible to numeric. `x` must be linear, i.e., each
 #'   of its elements must differ from the next by the same amount.
 #' @param value Numeric (whole number, length 1). The new length for `x`.
 #'

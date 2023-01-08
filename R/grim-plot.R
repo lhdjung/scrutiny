@@ -185,18 +185,18 @@ grim_plot <- function(data = NULL,
     ))
   }
 
-  # The `digits` argument, if specified, needs to be a single integer-like
+  # The `digits` argument, if specified, must be a single integer-like
   # number because it controls the number of decimal places for which the plot
   # will be constructed:
   if (!is.null(digits)) {
     if (length(digits) != 1L) {
       cli::cli_abort(c(
-        "!" = "`digits` needs to have length 1 (i.e., be a single number).",
+        "!" = "`digits` must have length 1 (i.e., be a single number).",
         "x" = "It has length {length(digits)}.",
       ))
     } else if (!is_whole_number(digits)) {
       cli::cli_abort(c(
-        "!" = "`digits` needs to be a whole number.",
+        "!" = "`digits` must be a whole number.",
         "x" = "It is {digits}."
       ))
     }
@@ -207,7 +207,7 @@ grim_plot <- function(data = NULL,
 
   # In case the user set `show_data` to `FALSE`, a plot without empirical test
   # results (blue and/or red dots) will be shown. To this end, the function
-  # needs to completely bypass the `data` argument. It does so via creating a
+  # must completely bypass the `data` argument. It does so via creating a
   # dummy object by that name:
   if (!show_data) {
     data <- tibble::tibble(x = "0.00", n = 1, items = 1, consistency = TRUE) %>%
@@ -478,7 +478,7 @@ grim_plot <- function(data = NULL,
 
   } else {
 
-    # ...or a gradient, in which case we need the x-axis needs to be forced to
+    # ...or a gradient, in which case we need the x-axis must be forced to
     # run from 0 to 1 using `limits = c(0, n)`, which is omitted above to remove
     # the space between the raster and the y-axis:
     p <- p +

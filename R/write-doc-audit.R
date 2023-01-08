@@ -116,7 +116,7 @@ write_doc_audit <- function(sample_output, name_test) {
 
   if (length(sample_output) < 3L) {
     cli::cli_abort(c(
-      "!" = "`sample_output` needs to be the output of `audit()` applied \\
+      "!" = "`sample_output` must be the output of `audit()` applied \\
       to a scrutiny-style mapper function, such as `grim_map()`.",
       "i" = "(These outputs always have at least three columns.)",
       "i" = "Create it like this:",

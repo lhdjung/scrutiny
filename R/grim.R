@@ -33,10 +33,10 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
     ))
   }
 
-  # As trailing zeros matter for the GRIM test, `x` needs to be a string:
+  # As trailing zeros matter for the GRIM test, `x` must be a string:
   if (!is.character(x)) {
     cli::cli_abort(c(
-      "!" = "`x` needs to be a string.",
+      "!" = "`x` must be a string.",
       "x" = "It is {an_a_type(x)}."
     ))
   }
@@ -146,7 +146,7 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
 #'   - Rounded to `"even"` using base R's own `round()`.
 #'   - Rounded `"up"` or `"down"` from 5. (Note that SAS, SPSS, Stata, Matlab,
 #'   and Excel round `"up"` from 5, whereas Python rounds `"down"` from 5.)
-#'   - Rounded `"up_from"` or `"down_from"` some number, which then needs to be
+#'   - Rounded `"up_from"` or `"down_from"` some number, which then must be
 #'   specified via the `threshold` argument.
 #'   - Given a `"ceiling"` or `"floor"` at the respective decimal place.
 #'   - Rounded towards zero with `"trunc"` or away from zero with

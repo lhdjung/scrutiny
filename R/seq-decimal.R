@@ -191,7 +191,7 @@ seq_distance <- function(from, by = NULL, length_out = 10L, dir = 1,
 
   # The distance between the starting point and the end point follows from the
   # step size in conjunction with the desired output length (`length_out`).
-  # However, the starting point is also part of the sequence, so it needs to be
+  # However, the starting point is also part of the sequence, so it must be
   # compensated by subtracting 1 from the desired length:
   distance <- by * (length_out - 1L)
 

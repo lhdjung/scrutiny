@@ -523,7 +523,7 @@ function_map_total_n <- function(.fun, .reported, .name_test,
     # tibble. If `constant_index` were to operate on the dispersion tibble, as
     # in the `disperse()` functions themselves, there would be a mismatch
     # between the functionality of `constant_index` and the user-facing tibble.
-    # Therefore, `constant_index` needs to play itself out here, not within
+    # Therefore, `constant_index` must play itself out here, not within
     # `disperse_total()`:
     if (!is.null(constant) && !is.null(constant_index)) {
 

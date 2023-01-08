@@ -120,7 +120,7 @@ restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in,
       ))
     }
 
-    # ... `sep_in` needs to take on its role:
+    # ... `sep_in` must take on its role:
     sep_in <- sep
   }
 

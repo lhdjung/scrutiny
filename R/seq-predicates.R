@@ -118,7 +118,7 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
       }
     }
 
-    # Used within the for loop below to check whether the step size needs to be
+    # Used within the for loop below to check whether the step size must be
     # negative:
     x_is_descending_basic <- is_seq_descending_basic(x[!is.na(x)])
 

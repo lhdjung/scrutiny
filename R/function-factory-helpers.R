@@ -166,7 +166,7 @@ insert_key_args <- function(fun, reported, insert_after = 1L) {
 
 # If `insert_key_args()` is used in the epilogue of a function factory (i.e.,
 # after the part that produces the factory-made function), `absorb_key_args()`
-# needs to be used in the main part. Unlike the former, it transforms `data`,
+# must be used in the main part. Unlike the former, it transforms `data`,
 # not `fun`, and should be reassigned to `data`. Rename key columns that have
 # non-standard names, following user-supplied directions via the arguments
 # automatically inserted below the function.

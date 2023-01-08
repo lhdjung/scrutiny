@@ -94,7 +94,7 @@ audit_seq <- function(data) {
   if (!inherits(data, "scr_map_seq")) {
     cli::cli_abort(c(
       "Invalid `data` argument.",
-      "!" = "It needs to be the output of a `*_map_seq()` function, \\
+      "!" = "It must be the output of a `*_map_seq()` function, \\
       such as `grim_map_seq()`."
     ))
   }
@@ -228,7 +228,7 @@ audit_total_n <- function(data) {
   if (!inherits(data, "scr_map_total_n")) {
     cli::cli_abort(c(
       "Invalid `data` argument.",
-      "!" = "It needs to be the output of a `*_map_total_n()` function, \\
+      "!" = "It must be the output of a `*_map_total_n()` function, \\
       such as `grim_map_total_n()`."
     ))
   }

@@ -109,7 +109,7 @@ reconstruct_rounded_numbers <- Vectorize(reconstruct_rounded_numbers_scalar,
 #'   Default is `"up_or_down"`, which returns two values: `x` rounded up *and*
 #'   down.
 #' @param threshold Integer. If `rounding` is set to `"up_from"`, `"down_from"`,
-#'   or `"up_from_or_down_from"`, `threshold` needs to be set to the number from
+#'   or `"up_from_or_down_from"`, `threshold` must be set to the number from
 #'   which the reconstructed values should then be rounded up or down. Otherwise
 #'   irrelevant. Default is `5`.
 #' @param symmetric Boolean. Set `symmetric` to `TRUE` if the rounding of

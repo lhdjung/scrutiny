@@ -91,7 +91,7 @@ of \code{grim_map_total_n()} and all other functions created with
 If any group size is less than \code{n_min} or greater than \code{n_max}, it
 is removed. The complementary size of the other group is also removed.
 
-\code{constant} values are pairwise repeated. That is why \code{constant} needs to be
+\code{constant} values are pairwise repeated. That is why \code{constant} must be
 a length-2 atomic vector or a list of such vectors. If \code{constant} is a data
 frame or some other named list, the resulting columns will have the same
 names as the list-element names. If the list is not named, the new column

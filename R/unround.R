@@ -66,13 +66,13 @@ rounding_bounds <- Vectorize(rounding_bounds_scalar)
 #'   useful to unround multiple numbers at once, or to check how a single number
 #'   is unrounded with different assumed rounding methods.
 #'
-#'   If both vectors have a length greater than 1, it needs to be the same
+#'   If both vectors have a length greater than 1, it must be the same
 #'   length. However, this will pair numbers with rounding methods, which can be
 #'   confusing. It is recommended that at least one of these input vectors has
 #'   length 1.
 #'
 #'   Why does `x` need to be a string if `digits` is not specified? In that
-#'   case, `unround()` needs to count decimal places by itself. If `x` then was
+#'   case, `unround()` must count decimal places by itself. If `x` then was
 #'   numeric, it wouldn't have any trailing zeros because these get dropped from
 #'   numerics.
 #'
@@ -109,7 +109,7 @@ rounding_bounds <- Vectorize(rounding_bounds_scalar)
 #' boundary values are inclusive or not is hard to predict. Therefore,
 #' `unround()` checks if they are, and informs you about it.
 
-#' @param x String or numeric. Rounded number. `x` needs to be a string unless
+#' @param x String or numeric. Rounded number. `x` must be a string unless
 #'   `digits` is specified (most likely by a function that uses `unround()` as a
 #'   helper).
 #' @param rounding String. Rounding method presumably used to create `x`.
@@ -120,7 +120,7 @@ rounding_bounds <- Vectorize(rounding_bounds_scalar)
 #'   efficient to use as a helper function so that it doesn't need to
 #'   redundantly count decimal places. Don't specify it otherwise. Default is
 #'   `NULL`, in which case decimal places really are counted internally and `x`
-#'   needs to be a string.
+#'   must be a string.
 #'
 #' @return A tibble with seven columns: `range`, `rounding`, `lower`,
 #'   `incl_lower`, `x`, `incl_upper`, and `upper`. The `range` column is a handy
@@ -175,7 +175,7 @@ unround <- function(x, rounding = "up_or_down", threshold = 5, digits = NULL) {
 
   # The number of decimal places might be given from within another function via
   # the `digits` argument. Otherwise -- if `digits` is not specified, and
-  # therefore `NULL` -- the `x` argument needs to be a string so that decimal
+  # therefore `NULL` -- the `x` argument must be a string so that decimal
   # places can be counted accurately (cf. trailing zeros), which is then done:
   if (is.null(digits)) {
     if (!is.character(x)) {
