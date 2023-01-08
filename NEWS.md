@@ -3,6 +3,7 @@
 -   New `decimal_places_df()` function that takes a data frame and counts the decimal places in all numeric-like columns.
 -   Four new predicate functions centered around `is_map_df()` test whether an object is the output of a scrutiny-style mapper function for consistency tests.
 -   Newly exported `is_numeric_like()` function to test whether an object (e.g., a string vector) can be coerced to numeric.
+-   New `grim_ratio_upper()` function gives an upper bound for `grim_ratio()`.
 -   Changes in `split_by_parens()`:
     -   The function now uses a `cols` argument instead of the dots (`...`). This follows [tidyselect development guidelines](https://tidyselect.r-lib.org/articles/tidyselect.html#selections-as-dots-or-as-named-arguments). The default, `cols = everything()`, is to select all columns that contain the `sep` elements (by default, parentheses). Set the new `check_sep` argument to `FALSE` to select all columns regardless.
 
