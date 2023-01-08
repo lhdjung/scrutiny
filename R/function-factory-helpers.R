@@ -153,13 +153,14 @@ call_arg_list <- function() {
 # key columns need to be present in the input data frame. They are expected to
 # have the names specified in `.reported`. If they don't, however, the user can
 # simply specify the key column arguments as the non-quoted names of the columns
-# meant to fulfill these roles. Note that the``formals<-`(fun, value)` and
-# ``names<-`(key_args, value = reported)` notations are for performance only. An
-# equivalent but better-readable version is outcommented below the function.
+# meant to fulfill these roles. The function is very hard to read, but this is
+# for performance only. An equivalent but better-readable version is
+# outcommented below the function.
 insert_key_args <- function(fun, reported, insert_after = 1L) {
-  key_args <- rep(list(NULL), times = length(reported))
   `formals<-`(fun, value = append(
-    formals(fun), `names<-`(key_args, value = reported), after = insert_after
+    formals(fun),
+    `names<-`(rep(list(NULL), times = length(reported)), value = reported),
+    after = insert_after
   ))
 }
 
