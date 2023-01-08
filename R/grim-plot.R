@@ -192,7 +192,7 @@ grim_plot <- function(data = NULL,
     if (length(digits) != 1L) {
       cli::cli_abort(c(
         "!" = "`digits` must have length 1 (i.e., be a single number).",
-        "x" = "It has length {length(digits)}.",
+        "x" = "It has length {length(digits)}."
       ))
     } else if (!is_whole_number(digits)) {
       cli::cli_abort(c(

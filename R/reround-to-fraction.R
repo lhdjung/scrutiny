@@ -90,7 +90,7 @@ reround_to_fraction <- function(x = NULL, denominator = 1, digits = Inf,
     value_values <- dplyr::if_else(length(denominator) == 1L, "value", "values")
     cli::cli_abort(c(
       "!" = "`denominator` must be 1 or greater.",
-      "x" = "It has {value_values} {denominator[denominator < 1]}",
+      "x" = "It has {value_values} {denominator[denominator < 1]}."
     ))
   }
 

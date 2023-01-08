@@ -58,7 +58,7 @@ reconstruct_sd_scalar <- function(formula, x, n, group_0, group_1) {
     cli::cli_abort(c(
       "!" = "`formula` must be \"mean_n\", \"0_n\", \"1_n\", or \\
       \"groups\".",
-      "It is {wrong_spec_string(formula)}.",
+      "x" = "It is {wrong_spec_string(formula)}."
     ))
   }
 
