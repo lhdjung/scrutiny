@@ -149,17 +149,26 @@ call_arg_list <- function() {
 
 # Helper for the epilogue of function factories (i.e., the part after the first
 # version of the factory-made function is created). Insert parameters named
-# after the key columns into `fun()`, with `NULL` as the default for each.
-# The key columns need to be present in the input data frame. They are expected
-# to have the names specified in `.reported`. If they don't, however, the user
-# can simply specify the key column arguments as the non-quoted names of the
-# columns meant to fulfill these roles:
+# after the key columns into `fun()`, with `NULL` as the default for each. The
+# key columns need to be present in the input data frame. They are expected to
+# have the names specified in `.reported`. If they don't, however, the user can
+# simply specify the key column arguments as the non-quoted names of the columns
+# meant to fulfill these roles. Note that the``formals<-`(fun, value)` and
+# ``names<-`(key_args, value = reported)` notations are for performance only. An
+# equivalent but better-readable version is outcommented below the function.
 insert_key_args <- function(fun, reported, insert_after = 1L) {
   key_args <- rep(list(NULL), times = length(reported))
-  names(key_args) <- reported
-  formals(fun) <- append(formals(fun), key_args, after = insert_after)
-  fun
+  `formals<-`(fun, value = append(
+    formals(fun), `names<-`(key_args, value = reported), after = insert_after
+  ))
 }
+
+# insert_key_args <- function(fun, reported, insert_after = 1L) {
+#   key_args <- rep(list(NULL), times = length(reported))
+#   names(key_args) <- reported
+#   formals(fun) <- append(formals(fun), key_args, after = insert_after)
+#   fun
+# }
 
 
 
