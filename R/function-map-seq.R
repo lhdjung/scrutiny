@@ -286,7 +286,7 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
 
   check_args_disabled_unnamed(.args_disabled)
 
-  fun_name <- deparse(substitute(.fun))
+  fn_name <- deparse(substitute(.fun))
 
 
   # --- Start of the manufactured function, `fn_out()` ---
@@ -304,7 +304,7 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
 
     data <- absorb_key_args(data, reported)
 
-    check_factory_dots(fun, fun_name, ...)
+    check_factory_dots(fun, fn_name, ...)
 
     args_excluded <- c(reported, .args_disabled)
 
@@ -400,14 +400,14 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
 
   # --- End of the manufactured function, `fn_out()` ---
 
+  # Garbage collection:
+  rm(fn_name)
 
   # Insert parameters named after the key columns into `fn_out()`, with `NULL`
   # as the default for each. The key columns need to be present in the input
   # data frame. They are expected to have the names specified in `.reported`. If
   # they don't, however, the user can simply specify the key column arguments as
   # the non-quoted names of the columns meant to fulfill these roles:
-  fn_out <- insert_key_args(fn_out, .reported)
-
-  return(fn_out)
+  insert_key_args(fn_out, .reported)
 }
 

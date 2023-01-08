@@ -329,7 +329,7 @@ function_map_total_n <- function(.fun, .reported, .name_test,
     ))
   }
 
-  fun_name <- deparse(substitute(.fun))
+  fn_name <- deparse(substitute(.fun))
 
   reported_reduplicated <- rep(.reported, each = 2L)
   reported_reduplicated <- paste0(reported_reduplicated, c("1", "2"))
@@ -352,7 +352,7 @@ function_map_total_n <- function(.fun, .reported, .name_test,
 
     # Checks ---
 
-    check_factory_dots(fun, fun_name, ...)
+    check_factory_dots(fun, fn_name, ...)
 
     # The usual key argument check conducted by `check_mapper_input_colnames()`
     # is not applicable to `data`, so the function only checks the remaining
@@ -552,11 +552,11 @@ function_map_total_n <- function(.fun, .reported, .name_test,
 
   # --- End of the manufactured function, `fn_out()` ---
 
+  # Garbage collection:
+  rm(fn_name)
 
   # Duplicate the names of the statistics reported pairwise with one total `n`
   # per pair. Paste `"1"` and `"2"` at the ends of these names, then add them to
   # the list of arguments of the manufactured function:
-  fn_out <- insert_key_args(fn_out, reported_reduplicated)
-
-  return(fn_out)
+  insert_key_args(fn_out, reported_reduplicated)
 }

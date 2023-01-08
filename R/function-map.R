@@ -106,13 +106,12 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
 
   # Checks ---
 
-  fun_name <- deparse(substitute(.fun))
-  fun_args <- as.list(args(.fun))
-  offenders <- .reported[!.reported %in% names(fun_args)]
+  fn_name <- deparse(substitute(.fun))
+  offenders <- .reported[!.reported %in% names(formals(.fun))]
 
   if (length(offenders) > 0L) {
     offenders <- wrap_in_backticks(offenders)
-    fun_name <- deparse(substitute(.fun))
+    fn_name <- deparse(substitute(.fun))
     if (length(offenders) == 1L) {
       msg_arg <- "argument"
       msg_it_they <- "It was"
@@ -121,11 +120,14 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
       msg_it_they <- "They were"
     }
     cli::cli_abort(c(
-      "Function `{fun_name}()` lacks {msg_arg} {offenders}.",
+      "Function `{fn_name}()` lacks {msg_arg} {offenders}.",
       "i" = "{msg_it_they} given as `.reported` in the \\
-      `function_map()` call, where `.fun` was specified as `{fun_name}`."
+      `function_map()` call, where `.fun` was specified as `{fn_name}`."
     ))
   }
+
+  # Garbage collection, 1/2:
+  rm(offenders)
 
 
   # --- Start of the factory-made function, `fn_out()` ---
@@ -144,7 +146,7 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
     # Checks ---
 
     check_args_disabled(.args_disabled)
-    check_factory_dots(fun, fun_name, ...)
+    check_factory_dots(fun, fn_name, ...)
     check_mapper_input_colnames(data, reported, name_test)
 
 
@@ -225,15 +227,15 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
 
   # --- End of the factory-made function, `fn_out()` ---
 
+  # Garbage collection, 2/2:
+  rm(fn_name)
 
   # Insert parameters named after the key columns into `fn_out()`, with `NULL`
   # as the default for each. The key columns need to be present in the input
   # data frame. They are expected to have the names specified in `.reported`. If
   # they don't, however, the user can simply specify the key column arguments as
   # the non-quoted names of the columns meant to fulfill these roles:
-  fn_out <- insert_key_args(fun = fn_out, reported = .reported)
-
-  return(fn_out)
+  insert_key_args(fun = fn_out, reported = .reported)
 }
 
 
