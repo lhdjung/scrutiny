@@ -19,17 +19,17 @@
 #'
 #' @details The scrutiny package often deals with "number-strings", i.e.,
 #'   strings that can be coerced to numeric without introducing new `NA`s. This
-#'   is a matter of representing numbers by displaying data in a certain way, as
-#'   opposed to these data's storage mode.
+#'   is a matter of displaying data in a certain way, as opposed to their
+#'   storage mode.
 #'
 #'   `is_numeric_like()` returns `FALSE` for Booleans simply because these are
 #'   displayed as words, not as numbers, and the usual coercion rules would be
 #'   misleading in this context. Likewise, the function treats factors like
-#'   strings because that is much closer to the way they are displayed -- the
-#'   fact that factors are stored as integers is irrelevant.
+#'   strings because that is how they are displayed: the fact that factors are
+#'   stored as integers is irrelevant.
 #'
-#'   Why store numbers in strings or factors? Only these data types can preserve
-#'   trailing zeros, and only if the numbers were originally entered as strings.
+#'   Why store numbers as strings or factors? Only these data types can preserve
+#'   trailing zeros, and only if the data were originally entered as strings.
 #'   See `vignette("wrangling")`, section *Trailing zeros*.
 #'
 #' @return Boolean (length 1).
@@ -48,24 +48,24 @@
 #' # Booleans are always `FALSE`:
 #' is_numeric_like(x = c(TRUE, FALSE))
 #'
-#' # Strings are `TRUE` if all of their values
-#' # can be coerced to non-`NA` numbers, and
-#' # `FALSE` otherwise:
-#' is_numeric_like(x = c("42", "0.7"))
-#' is_numeric_like(x = c("42", "xyz"))
+#' # Strings are `TRUE` if all of their non-`NA`
+#' # values can be coerced to non-`NA` numbers,
+#' # and `FALSE` otherwise:
+#' is_numeric_like(x = c("42", "0.7", NA))
+#' is_numeric_like(x = c("42", "xyz", NA))
 #'
 #' # Factors are treated like their
 #' # string equivalents:
-#' is_numeric_like(x = as.factor(c("42", "0.7")))
-#' is_numeric_like(x = as.factor(c("42", "xyz")))
+#' is_numeric_like(x = as.factor(c("42", "0.7", NA)))
+#' is_numeric_like(x = as.factor(c("42", "0.7", NA)))
 #'
 #' # Lists behave like atomic vectors if all of their
 #' # elements have length 1...
-#' is_numeric_like(x = list("42", "0.7"))
-#' is_numeric_like(x = list("42", "xyz"))
+#' is_numeric_like(x = list("42", "0.7", NA))
+#' is_numeric_like(x = list("42", "xyz", NA))
 #'
 #' # ...but if they don't, they are `FALSE`:
-#' is_numeric_like(x = list("42", "0.7", c(1, 2, 3)))
+#' is_numeric_like(x = list("42", "0.7", NA, c(1, 2, 3)))
 #'
 #' # If all values are `NA`, so is the output...
 #' is_numeric_like(x = as.character(c(NA, NA, NA)))
@@ -79,10 +79,11 @@ is_numeric_like <- function(x) {
   if (is.numeric(x)) {
     return(TRUE)
   }
-  if (is.logical(x) || !rlang::is_vector(x)) {
-    return(FALSE)
-  }
-  if (is.list(x) && !all(vapply(x, function(x) length(x) == 1L, logical(1L)))) {
+  if (
+    is.logical(x) ||
+    !rlang::is_vector(x) ||
+    is.list(x) && !all(vapply(x, function(x) length(x) == 1L, logical(1L)))
+  ) {
     return(FALSE)
   }
   if (is.factor(x)) {
