@@ -8,7 +8,7 @@ utils::globalVariables(c(
   "rounding", "case", "n_sum", "V1", "consistency", "ratio", "scr_index_case",
   "dust", "starts_with", "value_duplicated", "variable", "sd_lower",
   "sd_incl_lower", "sd_upper", "sd_incl_upper", "x_lower", "x_upper",
-  "dupe_count"
+  "dupe_count", "fn_name"
 ))
 
 
