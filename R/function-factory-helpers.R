@@ -442,10 +442,11 @@ check_args_disabled_unnamed <- function(args_disabled) {
 #'
 #' These functions are used within `is_map_df()` and friends:
 #' - `class_with()` returns the longest (or all) of an object's classes that
-#' contain a user-specified substring.
+#' contain at least one user-specified substring.
 #' - `inherits_class_with()` wraps `class_with()` and tests whether its output
-#' is length 1 or more. This is conceptually on the same level as `inherits()`,
-#' but more flexible.
+#' is length 1 or more -- i.e., whether an object inherits at least 1 class with
+#' one of the specified substrings. This is conceptually similar to
+#' `inherits()`, but more flexible.
 #'
 #' @details `class_with()` loops through a string vector, `contains`, and tests
 #'   whether any of its values are present within any of those of another string
@@ -517,15 +518,13 @@ class_with <- function(data, contains, all_classes = FALSE,
 }
 
 
-# Predicate function that wraps `class_with()` and tests whether it returns at
-# least one class:
+
 inherits_class_with <- function(data, contains, all_classes = FALSE,
                                 order_decreasing = TRUE) {
-  classes <- class_with(
+  length(class_with(
     data = data, contains = contains, all_classes = all_classes,
     order_decreasing = order_decreasing
-  )
-
-  length(classes) > 0L
+  )) > 0L
 }
+
 
