@@ -441,8 +441,8 @@ check_args_disabled_unnamed <- function(args_disabled) {
 #' Inheritance tests
 #'
 #' These functions are used within `is_map_df()` and friends:
-#' - `class_with()` returns those classes of an object that contain a
-#' user-specified substring.
+#' - `class_with()` returns the longest (or all) of an object's classes that
+#' contain a user-specified substring.
 #' - `inherits_class_with()` wraps `class_with()` and tests whether its output
 #' is length 1 or more. This is conceptually on the same level as `inherits()`,
 #' but more flexible.
@@ -492,11 +492,7 @@ class_with <- function(data, contains, all_classes = FALSE,
         "i" = "(Its values are {contains}.)"
       ))
     }
-    out <- cd[stringr::str_detect(cd, contains)]
-    if (length(out) == 0L) {
-      cli::cli_abort(c("x" = "No class containing `{contains}` found."))
-    }
-    return(out)
+    return(cd[stringr::str_detect(cd, contains)])
   }
 
   cd_lengths <- purrr::map_int(cd, stringr::str_length)
