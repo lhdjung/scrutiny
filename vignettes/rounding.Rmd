@@ -154,7 +154,7 @@ mean(vec3)
 mean(round(vec3, 1))
 ```
 
-Sometimes `round()` behaves just as it should, but at other times, results can be hard to explain. Martin Mächler, who wrote the present version of `round()`, [describes the issue](https://cran.r-project.org/web/packages/round/vignettes/Rounding.html) about as follows:
+Sometimes `round()` behaves just as it should, but at other times, results can be hard to explain. Martin Mächler, who wrote the present version of `round()`, [describes the issue](https://rpubs.com/maechler/Rounding) about as follows:
 
 The reason for the above behavior is that most decimal fractions can't, in fact, be represented as double precision numbers. Even seemingly "clean" numbers with only a few decimal places come with a long invisible mantissa, and are therefore closer to one side or the other.
 
