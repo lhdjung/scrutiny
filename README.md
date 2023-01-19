@@ -104,7 +104,7 @@ Test percentages instead of means:
     #> 5 0.681   150 FALSE        0.85
     #> 6 0.554   150 FALSE        0.85
 
-You can choose how the means are reconstructed for testing — here,
+You can choose how the means are reconstructed for testing — below,
 rounded up from 5. When visualizing results, the plot will adjust
 automatically. Blue dots are consistent values, red dots are
 inconsistent ones:
@@ -112,7 +112,6 @@ inconsistent ones:
     pigs1 %>% 
       grim_map(rounding = "up") %>% 
       grim_plot()
-    #> Warning: Removed 1 rows containing missing values (`geom_tile()`).
 
 <img src="man/figures/README-unnamed-chunk-5-1.png" width="75%" />
 
@@ -149,11 +148,6 @@ data:
     pigs3 %>% 
       debit_map() %>% 
       debit_plot()
-    #> Warning: The following aesthetics were dropped during statistical transformation: label
-    #> ℹ This can happen when ggplot fails to infer the correct grouping structure in
-    #>   the data.
-    #> ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
-    #>   variable into a factor?
 
 <img src="man/figures/README-unnamed-chunk-6-1.png" width="75%" />
 

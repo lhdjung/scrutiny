@@ -492,14 +492,15 @@ grim_plot <- function(data = NULL,
 
 
 
-  # Finally, return the plot with axis labels:
-  return(
+  # Finally, return the plot with axis labels, suppressing unnecessary ggplot2
+  # warnings:
+  suppressWarnings(print(
     p +
       ggplot2::labs(
         x = "Sample size",
         y = glue::glue("Fractional portion of {mean_percent_label}")
       )
-  )
+  ))
 
 }
 
