@@ -1,4 +1,4 @@
-# scrutiny (development version)
+# scrutiny 0.2.4
 
 -   New `decimal_places_df()` function that takes a data frame and counts the decimal places in all numeric-like columns.
 -   Four new predicate functions centered around `is_map_df()` test whether an object is the output of a scrutiny-style mapper function for consistency tests.
