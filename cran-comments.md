@@ -2,7 +2,7 @@
 
 0 errors | 0 warnings | 1 note
 
-## New version 0.2.3
+## New version 0.2.4
 
 The CRAN check's NOTE on the description field of the DESCRIPTION file might refer to:
 
