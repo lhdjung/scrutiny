@@ -13,6 +13,7 @@
 
     -   Internal changes for compatibility with dplyr 1.1.0.
 -   In `restore_zeros_df()` as well, the dots (`...`) were replaced by a `cols` argument, and each other argument no longer has a prefix dot. This follows the changes in `split_by_parens()`, but note the default selection restrictions by the new `check_numeric_like` argument. The optional `check_decimals` argument goes even further.
+-   Prevent false-positive warnings when printing ggplot objects (they had occurred since ggplot2 3.4.0).
 
 # scrutiny 0.2.3
 
