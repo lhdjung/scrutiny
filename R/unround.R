@@ -19,7 +19,7 @@ rounding_bounds_scalar <- function(rounding, x_num, d_var, d) {
       rounding <- paste0("anti_", rounding)
     }
 
-    out <- switch (rounding,   #     (1)              (2)               (3)    (4)
+    out <- switch(rounding,    #     (1)              (2)               (3)    (4)
         "trunc_x_greater"      = list(x_num,           x_num + (2 * d), "<=",  "<"),
         "trunc_x_less"         = list(x_num - (2 * d), x_num,           "<",  "<="),
         "trunc_x_is_0"         = list(x_num - (2 * d), x_num + (2 * d), "<",   "<"),
@@ -31,7 +31,7 @@ rounding_bounds_scalar <- function(rounding, x_num, d_var, d) {
   }
 
   # This switch-statement is evaluated for all other rounding procedures:
-  switch (rounding,  #     (1)              (2)               (3)   (4)
+  switch(rounding,   #     (1)              (2)               (3)   (4)
         "up_or_down" = list(x_num - d_var,   x_num + d_var,   "<=", "<="),
         "up"         = list(x_num - d_var,   x_num + d_var,   "<=",  "<"),
         "down"       = list(x_num - d_var,   x_num + d_var,   "<",  "<="),
@@ -66,13 +66,13 @@ rounding_bounds <- Vectorize(rounding_bounds_scalar)
 #'   useful to unround multiple numbers at once, or to check how a single number
 #'   is unrounded with different assumed rounding methods.
 #'
-#'   If both vectors have a length greater than 1, it needs to be the same
+#'   If both vectors have a length greater than 1, it must be the same
 #'   length. However, this will pair numbers with rounding methods, which can be
 #'   confusing. It is recommended that at least one of these input vectors has
 #'   length 1.
 #'
 #'   Why does `x` need to be a string if `digits` is not specified? In that
-#'   case, `unround()` needs to count decimal places by itself. If `x` then was
+#'   case, `unround()` must count decimal places by itself. If `x` then was
 #'   numeric, it wouldn't have any trailing zeros because these get dropped from
 #'   numerics.
 #'
@@ -109,7 +109,7 @@ rounding_bounds <- Vectorize(rounding_bounds_scalar)
 #' boundary values are inclusive or not is hard to predict. Therefore,
 #' `unround()` checks if they are, and informs you about it.
 
-#' @param x String or numeric. Rounded number. `x` needs to be a string unless
+#' @param x String or numeric. Rounded number. `x` must be a string unless
 #'   `digits` is specified (most likely by a function that uses `unround()` as a
 #'   helper).
 #' @param rounding String. Rounding method presumably used to create `x`.
@@ -120,7 +120,7 @@ rounding_bounds <- Vectorize(rounding_bounds_scalar)
 #'   efficient to use as a helper function so that it doesn't need to
 #'   redundantly count decimal places. Don't specify it otherwise. Default is
 #'   `NULL`, in which case decimal places really are counted internally and `x`
-#'   needs to be a string.
+#'   must be a string.
 #'
 #' @return A tibble with seven columns: `range`, `rounding`, `lower`,
 #'   `incl_lower`, `x`, `incl_upper`, and `upper`. The `range` column is a handy
@@ -175,13 +175,13 @@ unround <- function(x, rounding = "up_or_down", threshold = 5, digits = NULL) {
 
   # The number of decimal places might be given from within another function via
   # the `digits` argument. Otherwise -- if `digits` is not specified, and
-  # therefore `NULL` -- the `x` argument needs to be a string so that decimal
+  # therefore `NULL` -- the `x` argument must be a string so that decimal
   # places can be counted accurately (cf. trailing zeros), which is then done:
   if (is.null(digits)) {
     if (!is.character(x)) {
       cli::cli_abort(c(
         "`x` is {an_a_type(x)}.",
-        "x" = "If `digits` is not specified, `x` needs to be a string."
+        "x" = "If `digits` is not specified, `x` must be a string."
       ))
     }
     digits <- decimal_places(x)
@@ -190,7 +190,7 @@ unround <- function(x, rounding = "up_or_down", threshold = 5, digits = NULL) {
   # Determine the difference between the rounded number and the boundary values.
   # That difference is variable when rounding up or down, because in that case,
   # it depends on the value of `threshold`:
-  p10 <- 10 ^ (digits + 1)
+  p10 <- 10 ^ (digits + 1L)
   d <- 5 / p10
   d_var <- threshold / p10
 
@@ -207,10 +207,10 @@ unround <- function(x, rounding = "up_or_down", threshold = 5, digits = NULL) {
   # Throw error if `rounding` was not specified in a valid way:
   if (list("error_trigger") %in% bounds) {
     cli::cli_abort(c(
-      "`rounding` misspecified",
-      "x" = "`rounding` was given as {wrong_spec_string(rounding)}.",
-      ">" = "Please use one or more of the designated string values instead. \\
-      See documentation for `unround()`, section `Rounding`."
+      "`rounding` must be one or more of the designated \\
+      string values. See documentation for `unround()`, \\
+      section `Rounding`.",
+      "x" = "It is {wrong_spec_string(rounding)}."
     ))
   }
 

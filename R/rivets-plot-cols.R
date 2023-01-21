@@ -94,7 +94,7 @@
 #     if (length(label_x_axis) != 2) {
 #       cli::cli_abort(c(
 #         "`label_x_axis` has length {length(label_x_axis)}",
-#         "x" = "It needs to have length 0 or 2."
+#         "x" = "It must have length 0 or 2."
 #       ))
 #     }
 #   }

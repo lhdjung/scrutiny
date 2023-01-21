@@ -56,8 +56,8 @@ rate_from_data <- function(data, x, y, count, na.rm) {
 #' @section Summaries with `audit()`: There is an S3 method for `audit()`, so
 #'   you can call `audit()` following `duplicate_count_colpair()` to get a
 #'   summary of `duplicate_count_colpair()`'s results. It is a tibble with a
-#'   single row and these columns --
-#'
+#'   single row and the columns below. If the tibble is too wide, call
+#'   `audit_list()` instead.
 #'   - `n`: number of column pairs tested (index 1).
 #'   - `count_min`, `count_max`, `count_mean`, `count_sd`, `count_median`:
 #'   Summary statistics of the duplicate `count` column (index 2 to 6).
@@ -65,9 +65,6 @@ rate_from_data <- function(data, x, y, count, na.rm) {
 #'   Summary statistics of the `rate_x` column (index 7 to 11).
 #'   - `rate_y_min`, `rate_y_max`, `rate_y_mean`, `rate_y_sd`, `rate_y_median`:
 #'   Summary statistics of the `rate_y` column (index 12 to 16).
-#'
-#'   You may pipe the output of `audit()` into `as.list()` for better
-#'   readability.
 
 #' @export
 #'

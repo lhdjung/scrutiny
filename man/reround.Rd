@@ -6,7 +6,7 @@
 \usage{
 reround(
   x,
-  digits = 0,
+  digits = 0L,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE
@@ -25,7 +25,7 @@ Default is \code{"up_or_down"}, which returns two values: \code{x} rounded up \e
 down.}
 
 \item{threshold}{Integer. If \code{rounding} is set to \code{"up_from"}, \code{"down_from"},
-or \code{"up_from_or_down_from"}, \code{threshold} needs to be set to the number from
+or \code{"up_from_or_down_from"}, \code{threshold} must be set to the number from
 which the reconstructed values should then be rounded up or down. Otherwise
 irrelevant. Default is \code{5}.}
 

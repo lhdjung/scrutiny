@@ -85,7 +85,7 @@ schlim(y = 10:15, n = 4)
 
 Functions created this way can be useful for quick testing, but they won't be used in the remaining part of the vignette. That's because functions like `schlim()` are not great to build upon --- unlike mapper functions, which will be discussed next.
 
-# 3. Mapper
+# 3. Basic mapper
 
 ## Introduction
 
@@ -93,9 +93,9 @@ The most important practical use of a consistency test within scrutiny is to app
 
 Most functions discussed in the remaining part of the vignette deal with data frames. I always use [tibbles](https://r4ds.had.co.nz/tibbles.html), and I strongly recommend the same to you. There's no guarantee that each of those functions works with non-tibble data frames as it does with tibbles.
 
-## Creating mappers with `function_map()`
+## Creating basic mappers with `function_map()`
 
-The safest and easiest way to create a mapper is via `function_map()`. A function written this way is also guaranteed to fulfill all of the requirements for mapper functions listed further below. That's a major benefit because the list of requirements is long, and all of the follow-up functions in the remaining vignette assume that the mapper fulfills them.
+The safest and easiest way to create a (basic) mapper is via `function_map()`. A function written this way is also guaranteed to fulfill all of the requirements for mapper functions listed further below. That's a major benefit because the list of requirements is long, and all of the follow-up functions in the remaining vignette assume that the mapper fulfills them.
 
 You will have no such troubles with `function_map()`:
 
@@ -190,17 +190,17 @@ Key and helper columns are *tested* columns because they factor into the test. A
 
 ### Requirements
 
-A general system for implementing consistency tests needs some consistency itself. This is especially true for mapper functions, because all functions further down the line rely on the mapper's output having some very specific properties.
+A general system for implementing consistency tests needs some consistency itself. This is especially true for basic mapper functions, because all functions further down the line rely on the mapper's output having some very specific properties.
 
 The level of detail in these requirements might seem pedantic. I still encourage you to follow every step when handwriting a new mapping function. It's easier than it looks at first, and many aspects are indispensable. That is because the interplay between the mapper and the higher-level functions follows a carefully concerted system. If the mapper misses any one ingredient, those other functions may fail.
 
-The (only) requirements for a mapping function are:
+The (only) requirements for a basic mapping function are:
 
 1.  Its name ends on `_map` instead of `_scalar` but is otherwise the same as the name of the respective `_scalar` function.
 
 2.  Its first argument, `data`, is a data frame that contains the key columns of the respective consistency test. Other columns are permitted. The mapper's user never needs to include helper columns and can always replace them by specifying arguments by the same names as those columns. If the user specifies such an argument but the input data frame contains a column by the same name, the function throws an error. No column of the input data frame should be named `"consistency"`.
 
-3.  Its return value is a tibble data frame that contains all of the key input columns. The types of these columns are the same as in the input data frame. They are the first (i.e., leftmost) columns in the output, even if the input isn't ordered this way. If any of these columns are modified within the mapping function, the output should include the modified columns, not the original ones. Examples can be effects of helper columns, but also the change displayed by the `"x"` column in the output of `grim_map(percent = TRUE)`.
+3.  Its return value is a tibble data frame that contains all of the key input columns. The types of these columns are the same as in the input data frame. They are the first (i.e., leftmost) columns in the output, even if the input isn't ordered this way. If any of these columns are modified within the mapping function, the output should include the modified columns, not the original ones. Examples can be effects of helper columns, but also the change displayed by the `"x"` column in the output of `grim_map(percent = TRUE)`. The output must test `TRUE` with `is_map_df()` and `is_map_basic_df()`, but `FALSE` with the other two `is_map_*()` functions.
 
 4.  Helper columns should be included in the output unless they transform one or more key columns. In this case, representing them in the output would be confusing because their effects have already played out via the transformed key column(s). For every helper column that performs such transformations, the mapper should have a Boolean argument, `TRUE` by default, that determines whether or not the helper column transforms those key column(s). If `TRUE`, the helper column does but is not included in the output itself. If `FALSE`, the helper column is included but no transformation takes place. The name of this Boolean argument should start on `merge_`, followed by the name of the helper column in question. An example for all of that is the optional `items` column in `grim_map()`'s input data frame, together with this function's `items` and `merge_items` arguments. To work with helper columns, call `manage_helper_col()` within the mapper.
 
@@ -436,7 +436,7 @@ debit_map_seq <- function_map_seq(
 )
 ```
 
-Any consistency test that is already implemented in a mapper function like `grim_map()`, `grimmer_map()`, and `debit_map()` can receive its own `*_map_seq()` function just as easily using `function_map_seq()`. This is due to scrutiny's streamlined design conventions --- specifically, the requirements for mapper functions laid out in section 3.
+Any consistency test that is already implemented in a basic mapper function like `grim_map()`, `grimmer_map()`, and `debit_map()` can receive its own `*_map_seq()` function just as easily using `function_map_seq()`. This is due to scrutiny's streamlined design conventions --- specifically, the requirements for mapper functions laid out in section 3.
 
 Let's write a sequence mapper for SCHLIM:
 
@@ -526,7 +526,7 @@ out_total_n
 audit_total_n(out_total_n)
 ```
 
-The same pattern can be applied to any other mapper function that fulfills the requirements from section 3. One of the columns, `n`, will have its values dispersed from half, internally using `disperse_total()`.
+The same pattern can be applied to any other basic mapper function that fulfills the requirements from section 3. One of the columns, `n`, will have its values dispersed from half, internally using `disperse_total()`.
 
 See the advice on exporting manufactured functions at the end of section 6.
 
@@ -579,5 +579,15 @@ Below is their function family tree. Fields with bold margins are function facto
 ```
 
 ![](images/scrutiny_mappers_schlim.png)
+
+Here is an overview of scrutiny's function factories:
+
+| Output function type | Section here | Function factory         | GRIM example function | Predicate function    |
+|---------------|---------------|---------------|---------------|---------------|
+| Basic mapper         | 3            | `function_map()`         | `grim_map()`          | `is_map_basic_df()`   |
+| Sequence mapper      | 6            | `function_map_seq()`     | `grim_map_seq()`      | `is_map_seq_df()`     |
+| Total-n mapper       | 7            | `function_map_total_n()` | `grim_map_total_n()`  | `is_map_total_n_df()` |
+
+Predicate functions are those that return `TRUE` for the data frames returned by the factory-made functions. The more general `is_map_df()` returns `TRUE` for all those data frames. As explained in section 3, `grim_map()` was written "by hand" rather than produced by `function_map()`, but such a factory-made function would be equivalent except for some additional columns in the output.
 
 # References

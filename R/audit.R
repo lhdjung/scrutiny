@@ -3,7 +3,8 @@
 #'
 #' @description `audit()` is an S3 generic to follow up on those scrutiny
 #'   functions that perform tests on data frames. It summarizes results of those
-#'   tests and presents the summaries in a tibble.
+#'   tests and presents the summaries in a tibble. `audit_list()` is a variant
+#'   that returns a named list instead.
 #'
 #'   `audit_seq()` and `audit_total_n()` summarize the results of functions that
 #'   end on `_seq` and `_total_n`, respectively.
@@ -26,7 +27,10 @@
 #'   | `grimmer_map()`              | `"scr_grimmer_map"`         |
 #'   | `debit_map()`                | `"scr_debit_map"`           |
 #'   | `duplicate_count()`          | `"scr_dup_count"`           |
+#'   | `duplicate_count_colpair()`  | `"scr_dup_count_colpair"`   |
 #'   | `duplicate_detect()`         | `"scr_dup_detect"`          |
+#'   | `audit_seq()`                | `"scr_audit_seq"`           |
+#'   | `audit_total_n()`            | `"scr_audit_total_n"`       |
 
 #' @section `audit_seq()`:
 #'   | \strong{Function}            | \strong{Class}              |
@@ -63,12 +67,24 @@
 #'   audit()
 
 
+
+# Main function (and list variant) ----------------------------------------
+
 audit <- function(data) {
   UseMethod("audit")
 }
 
 
+#' @rdname audit
+#' @export
 
+audit_list <- function(data) {
+  as.list(audit(data))
+}
+
+
+
+# Variants for the output of other function factories ---------------------
 
 #' @rdname audit
 #' @export
@@ -78,7 +94,7 @@ audit_seq <- function(data) {
   if (!inherits(data, "scr_map_seq")) {
     cli::cli_abort(c(
       "Invalid `data` argument.",
-      "x" = "It needs to be the output of a `*_map_seq()` function, \\
+      "!" = "It must be the output of a `*_map_seq()` function, \\
       such as `grim_map_seq()`."
     ))
   }
@@ -100,12 +116,13 @@ audit_seq <- function(data) {
     fun <- fun[fun != "scr_map_seq"]
     fun <- stringr::str_remove(fun, "scr_")
     fun <- eval(rlang::parse_expr(fun))
-    msg_error <- "No values could be tested with the current parameters."
+    msg_error <-
+      c("!" = "No values could be tested.")
     if ("items" %in% names(formals(fun))) {
       fun_name <- deparse(substitute(fun))
-      msg_items <- list(
-        ">" = "Did you specify the `items` argument in {fun_name} \\
-        as an unreasonably high number?"
+      msg_items <- c(
+        "x" = "Did you specify the `items` argument in {fun_name} \\
+        as an unreasonably large number?"
       )
       msg_error <- append(msg_error, msg_items)
     }
@@ -156,16 +173,12 @@ audit_seq <- function(data) {
       .fns = list(min_distance_abs, min_distance_pos, min_distance_neg),
       .names = "diff_{.col}{fn_names}"
     )) %>%
-    dplyr::select(-(1:length(var_names))) %>%
+    dplyr::select(-(seq_along(var_names))) %>%
     dplyr::mutate(dplyr::across(
       .cols = everything(),
       .fns = inf_to_na
     )) %>%
     suppressWarnings()
-
-  hits_positions_means <- hits_positions %>%
-    purrr::map_dbl(mean) %>%
-    unname()
 
   dc <- class(data)
   rounding <- dc[stringr::str_detect(dc, "scr_rounding_")]
@@ -178,7 +191,7 @@ audit_seq <- function(data) {
 
   data_rev <- reverse_map_seq(data)
 
-  if (length(rounding) > 0) {
+  if (length(rounding) > 0L) {
     data_rev_tested <- fun_test(data_rev, rounding = rounding)
   } else {
     data_rev_tested <- fun_test(data_rev)
@@ -215,7 +228,7 @@ audit_total_n <- function(data) {
   if (!inherits(data, "scr_map_total_n")) {
     cli::cli_abort(c(
       "Invalid `data` argument.",
-      "x" = "It needs to be the output of a `*_map_total_n()` function, \\
+      "!" = "It must be the output of a `*_map_total_n()` function, \\
       such as `grim_map_total_n()`."
     ))
   }

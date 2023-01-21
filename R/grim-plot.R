@@ -142,8 +142,8 @@ grim_plot <- function(data = NULL,
       reason <- data$reason[!is.na(data$reason)]
       grimmer_cases <- stringr::str_detect(reason, "GRIMMER")
       grimmer_cases <- length(grimmer_cases[grimmer_cases])
-      if (grimmer_cases > 0) {
-        if (grimmer_cases == 1) {
+      if (grimmer_cases > 0L) {
+        if (grimmer_cases == 1L) {
           msg_case_s <- "case was"
           msg_incons <- "inconsistency"
         } else {
@@ -159,8 +159,8 @@ grim_plot <- function(data = NULL,
       }
     } else if (show_data) {
       cli::cli_abort(c(
-        "`data` is not `grim_map()` or `grimmer_map()` output.",
-        "x" = "`grim_plot()` needs GRIM or GRIMMER test results.",
+        "!" = "`grim_plot()` needs GRIM or GRIMMER test results.",
+        "x" = "`data` is not `grim_map()` or `grimmer_map()` output.",
         "i" = "The only exception is an \"empty\" plot that shows the \\
         background raster but no empirical test results. Create such a plot \\
         by setting `show_data` to `FALSE`."
@@ -185,19 +185,19 @@ grim_plot <- function(data = NULL,
     ))
   }
 
-  # The `digits` argument, if specified, needs to be a single integer-like
+  # The `digits` argument, if specified, must be a single integer-like
   # number because it controls the number of decimal places for which the plot
   # will be constructed:
   if (!is.null(digits)) {
-    if (length(digits) != 1) {
+    if (length(digits) != 1L) {
       cli::cli_abort(c(
-        "`digits` has length {length(digits)}.",
-        "x" = "It needs to have length 1 (i.e., be a single number)."
+        "!" = "`digits` must have length 1 (i.e., be a single number).",
+        "x" = "It has length {length(digits)}."
       ))
     } else if (!is_whole_number(digits)) {
       cli::cli_abort(c(
-        "`digits` is {digits}.",
-        "x" = "It needs to be a whole number."
+        "!" = "`digits` must be a whole number.",
+        "x" = "It is {digits}."
       ))
     }
   }
@@ -207,7 +207,7 @@ grim_plot <- function(data = NULL,
 
   # In case the user set `show_data` to `FALSE`, a plot without empirical test
   # results (blue and/or red dots) will be shown. To this end, the function
-  # needs to completely bypass the `data` argument. It does so via creating a
+  # must completely bypass the `data` argument. It does so via creating a
   # dummy object by that name:
   if (!show_data) {
     data <- tibble::tibble(x = "0.00", n = 1, items = 1, consistency = TRUE) %>%
@@ -226,7 +226,7 @@ grim_plot <- function(data = NULL,
           "Means"
         )
         dp_unique <- unique(digits_x)
-        if (length(dp_unique) <= 3) {
+        if (length(dp_unique) <= 3L) {
           dp_unique_presented <- sort(dp_unique)
           msg_starting_with <- ":"
         } else {
@@ -235,13 +235,13 @@ grim_plot <- function(data = NULL,
         }
 
         cli::cli_abort(c(
-          "{means_percentages} have different numbers of decimal places",
+          "{means_percentages} must have the same number of decimal places.",
           "x" = "There are {length(dp_unique)} unique numbers of decimal \\
           places in `x`{msg_starting_with} {dp_unique_presented}.",
-          "!" = "The background raster is only informative if the number of \\
+          "i" = "The background raster is only informative if the number of \\
           decimal places is consistent across the \\
           {tolower(means_percentages)}.",
-          ">" = "Avoid this error by plotting {tolower(means_percentages)} \\
+          "i" = "Avoid this error by plotting {tolower(means_percentages)} \\
           separately for each number of decimal places. (Alternatively, you \\
           can specify `digits` as the number of decimal places for which \\
           the plot should be shown. Be aware that this will not be sensible \\
@@ -271,16 +271,12 @@ grim_plot <- function(data = NULL,
 
   frac_unit <- 1 / p10
 
-  frac_sequence <- seq_endpoint(from = frac_unit, to = (1 - frac_unit))
-  n_sequence <- 1:n
-
-
   # By default, a background raster is displayed in the plot:
   if (show_raster) {
 
     # For 1 or 2 decimal places, the function selects the appropriate raster
     # from among those saved within the package itself:
-    if (!(digits > 2)) {
+    if (!(digits > 2L)) {
 
       # Check the way `x` values were rounded in the preceding `grim_map()` call
       # to prepare selecting the plot background raster:
@@ -296,7 +292,7 @@ grim_plot <- function(data = NULL,
       if (rounding_is_bad) {
         cli::cli_abort(c(
           "No background raster available for `rounding = {rounding_id}`",
-          "!" = "Please use a different `rounding` specification within the \\
+          "i" = "Use a different `rounding` specification within the \\
           `grim_map()` call or set `show_raster` to `FALSE` within the \\
           `grim_plot()` call."
         ))
@@ -387,7 +383,7 @@ grim_plot <- function(data = NULL,
       # Boxes are still added pro forma; the call to `geom_tile()` is the same
       # as above (except for the `alpha` and `fill` specifications):
 
-      if (digits > 2) {
+      if (digits > 2L) {
 
         if (show_gradient) {
 
@@ -458,7 +454,7 @@ grim_plot <- function(data = NULL,
   }
 
 
-  if (!(digits > 2)) {
+  if (!(digits > 2L)) {
 
     # Further specifications:
     p <- p +
@@ -482,7 +478,7 @@ grim_plot <- function(data = NULL,
 
   } else {
 
-    # ...or a gradient, in which case we need the x-axis needs to be forced to
+    # ...or a gradient, in which case we need the x-axis must be forced to
     # run from 0 to 1 using `limits = c(0, n)`, which is omitted above to remove
     # the space between the raster and the y-axis:
     p <- p +
@@ -496,14 +492,15 @@ grim_plot <- function(data = NULL,
 
 
 
-  # Finally, return the plot with axis labels:
-  return(
+  # Finally, return the plot with axis labels, suppressing unnecessary ggplot2
+  # warnings:
+  suppressWarnings(print(
     p +
       ggplot2::labs(
         x = "Sample size",
         y = glue::glue("Fractional portion of {mean_percent_label}")
       )
-  )
+  ))
 
 }
 

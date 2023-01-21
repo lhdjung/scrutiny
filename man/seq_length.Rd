@@ -10,7 +10,7 @@ seq_length(x, value)
 seq_length(x) <- value
 }
 \arguments{
-\item{x}{Numeric or coercible to numeric. \code{x} needs to be linear, i.e., each
+\item{x}{Numeric or coercible to numeric. \code{x} must be linear, i.e., each
 of its elements must differ from the next by the same amount.}
 
 \item{value}{Numeric (whole number, length 1). The new length for \code{x}.}

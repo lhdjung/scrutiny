@@ -10,7 +10,7 @@ function_map_total_n(
   .name_test,
   .name_class = NULL,
   .dispersion = 0:5,
-  .n_min = 1,
+  .n_min = 1L,
   .n_max = NULL,
   .constant = NULL,
   .constant_index = NULL

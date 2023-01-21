@@ -86,7 +86,7 @@ ways:
 \item Rounded to \code{"even"} using base R's own \code{round()}.
 \item Rounded \code{"up"} or \code{"down"} from 5. (Note that SAS, SPSS, Stata, Matlab,
 and Excel round \code{"up"} from 5, whereas Python rounds \code{"down"} from 5.)
-\item Rounded \code{"up_from"} or \code{"down_from"} some number, which then needs to be
+\item Rounded \code{"up_from"} or \code{"down_from"} some number, which then must be
 specified via the \code{threshold} argument.
 \item Given a \code{"ceiling"} or \code{"floor"} at the respective decimal place.
 \item Rounded towards zero with \code{"trunc"} or away from zero with

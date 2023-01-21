@@ -7,7 +7,7 @@ manage_extra_cols <- function(data, extra, other_cols) {
   if (!all(extra %in% colnames(data)) && is.character(extra)) {
     wrong_colnames <- extra[!extra %in% colnames(data)]
     is_name_are_names <- dplyr::if_else(
-      length(wrong_colnames) == 1,
+      length(wrong_colnames) == 1L,
       "is not a column name",
       "are not column names"
     )
@@ -22,9 +22,9 @@ manage_extra_cols <- function(data, extra, other_cols) {
       any(c(extra, length(extra)) > length(other_cols))) {
 
     # Prepare error message:
-    if (length(other_cols) == 0) {
+    if (length(other_cols) == 0L) {
       msg_n_cols <- "there aren't any extra columns"
-    } else if (length(other_cols) == 1) {
+    } else if (length(other_cols) == 1L) {
       msg_n_cols <- "there's only 1 extra column"
     } else {
       msg_n_cols <- glue::glue(
@@ -32,7 +32,7 @@ manage_extra_cols <- function(data, extra, other_cols) {
       )
     }
 
-    if (length(extra) == 1) {
+    if (length(extra) == 1L) {
       cli::cli_abort(c(
       "`extra` was specified as `{extra}`, for extra column number {extra}.",
       "x" = "This number is too high -- {msg_n_cols} in `data`."
@@ -54,7 +54,7 @@ manage_extra_cols <- function(data, extra, other_cols) {
 
 
   # Finally, make `other_cols` capture any and all extra columns, and return it:
-  if (!is.infinite(extra) && length(other_cols) > 0) {
+  if (!is.infinite(extra) && length(other_cols) > 0L) {
     return(dplyr::select(other_cols, dplyr::all_of(extra)))
   } else {
     return(other_cols)

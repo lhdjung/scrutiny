@@ -44,14 +44,14 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
     nrow_list_var <- purrr::map_int(list_var, nrow)
 
     ncol_index_var <- match(var, colnames(data))
-    ncol_before_consistency <- match("consistency", colnames(data)) - 1
+    ncol_before_consistency <- match("consistency", colnames(data)) - 1L
 
     cols_for_testing <- data[, 1:ncol_before_consistency]
     cols_for_testing_names_without_var <-
       colnames(cols_for_testing)[colnames(cols_for_testing) != var]
 
     # Short for "columns except (for the) last (one)":
-    cols_el <- 1:length(cols_for_testing_names_without_var)
+    cols_el <- seq_along(cols_for_testing_names_without_var)
 
     data_list_without_var <- dplyr::mutate(
       data[cols_for_testing_names_without_var],
@@ -79,7 +79,7 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
     # Mark the original case (i.e., row in `data`, the input data frame):
     case <- data_list_tested %>%
       purrr::map_int(nrow) %>%
-      purrr::map2(1:length(data_list_tested), ., rep) %>%
+      purrr::map2(seq_along(data_list_tested), ., rep) %>%
       purrr::flatten_int()
 
     # Combine all output data frames to one. As each of them represents one row
@@ -286,7 +286,7 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
 
   check_args_disabled_unnamed(.args_disabled)
 
-  fun_name <- deparse(substitute(.fun))
+  fn_name <- deparse(substitute(.fun))
 
 
   # --- Start of the manufactured function, `fn_out()` ---
@@ -304,7 +304,7 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
 
     data <- absorb_key_args(data, reported)
 
-    check_factory_dots(fun, fun_name, ...)
+    check_factory_dots(fun, fn_name, ...)
 
     args_excluded <- c(reported, .args_disabled)
 
@@ -324,7 +324,7 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
       data <- data[!data$consistency, ]
     }
 
-    # As `var` is `Inf` by default, it needs to be referred to the names of
+    # As `var` is `Inf` by default, it must be referred to the names of
     # designated `reported` variables:
     if (all(is.infinite(var))) {
       var <- reported
@@ -388,9 +388,9 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
 
     # Make sure the "rounding class" (i.e., `"scr_rounding_*"`) has the correct
     # value. As this is not naturally guaranteed as in `*_map()` functions, it
-    # needs to be done by hand:
+    # must be done by hand:
     dots <- rlang::enexprs(...)
-    if (length(dots$rounding) > 0) {
+    if (length(dots$rounding) > 0L) {
       class(out)[stringr::str_detect(class(out), "scr_rounding_")] <-
         paste0("scr_rounding_", dots$rounding)
     }
@@ -400,14 +400,14 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
 
   # --- End of the manufactured function, `fn_out()` ---
 
+  # Garbage collection:
+  rm(fn_name)
 
   # Insert parameters named after the key columns into `fn_out()`, with `NULL`
   # as the default for each. The key columns need to be present in the input
   # data frame. They are expected to have the names specified in `.reported`. If
   # they don't, however, the user can simply specify the key column arguments as
   # the non-quoted names of the columns meant to fulfill these roles:
-  fn_out <- insert_key_args(fn_out, .reported)
-
-  return(fn_out)
+  insert_key_args(fn_out, .reported)
 }
 

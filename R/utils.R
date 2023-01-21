@@ -1,5 +1,5 @@
 
-#' @include import-reexport.R
+#' @include import-reexport.R is-numeric-like.R
 
 utils::globalVariables(c(
   ".", "where", "desc", "all_of", "contains", "everything", "x", "items",
@@ -8,7 +8,7 @@ utils::globalVariables(c(
   "rounding", "case", "n_sum", "V1", "consistency", "ratio", "scr_index_case",
   "dust", "starts_with", "value_duplicated", "variable", "sd_lower",
   "sd_incl_lower", "sd_upper", "sd_incl_upper", "x_lower", "x_upper",
-  "dupe_count"
+  "dupe_count", "fn_name"
 ))
 
 
@@ -26,9 +26,9 @@ utils::globalVariables(c(
 #' @noRd
 wrong_spec_string <- function(x) {
   if (is.character(x)) {
-    glue::glue("\"{x}\"")
+    paste0("\"", x, "\"")
   } else {
-    glue::glue("`{x}` (not a string)")
+    paste0("`", x, "` (not a string)")
   }
 }
 
@@ -56,9 +56,9 @@ reconstruct_sd_scalar <- function(formula, x, n, group_0, group_1) {
     sd_rec <- sd_binary_groups(group_0 = group_0, group_1 = group_1)
   } else {
     cli::cli_abort(c(
-      "`formula` was given as {wrong_spec_string(formula)}.",
-      "i" = "Please specify it as \"mean_n\", \"0_n\", \"1_n\", or \\
-      \"groups\" instead. Default is \"mean_n\"."
+      "!" = "`formula` must be \"mean_n\", \"0_n\", \"1_n\", or \\
+      \"groups\".",
+      "x" = "It is {wrong_spec_string(formula)}."
     ))
   }
 
@@ -84,7 +84,7 @@ reconstruct_sd <- Vectorize(reconstruct_sd_scalar, USE.NAMES = FALSE)
 integer_places <- function(x) {
   x %>%
     stringr::str_trim() %>%
-    stringr::str_split_fixed("\\.", n = 2) %>%
+    stringr::str_split_fixed("\\.", n = 2L) %>%
     .[, 1] %>%
     stringr::str_length()
 }
@@ -109,7 +109,7 @@ straighten_out <- function(...) {
 
 
 
-#' Write "an" or "a", depending on the preceding word
+#' Write "an" or "a", depending on the next word
 #'
 #' @param x String. A string value that ends on a vowel letter returns `"an"`;
 #'   else, it returns `"a"`.
@@ -124,7 +124,9 @@ an_a <- function(x) {
 
 #' Prefix an object's type with "an" or "a"
 #'
-#' This uses `an_a()` to prepend the type of `x` with "an" or "a".
+#' This uses `an_a()` to prepend the type of `x` with "an" or "a". Because the
+#' function meant to be used in messages, it replaces "double" by "double
+#' (numeric value)" and "character" by "string".
 #'
 #' @param x Any object.
 #'
@@ -132,8 +134,13 @@ an_a <- function(x) {
 #'
 #' @noRd
 an_a_type <- function(x) {
-  type <- dplyr::if_else(is.double(x), "double (numeric value)", typeof(x))
-  glue::glue("{an_a(typeof(x))} {type}")
+  type <- typeof(x)
+  if (type == "double") {
+    type <- "double (numeric value)"
+  } else if (type == "character") {
+    type <- "string"
+  }
+  paste(an_a(typeof(x)), type)
 }
 
 
@@ -163,12 +170,12 @@ is_whole_number <- function(x, tolerance = .Machine$double.eps^0.5) {
 #' @param n Numeric. Distance between two consecutive elements that will be
 #'   subsetted.
 #' @param from Numeric. Index of `x` where subsetting will start. Default is
-#'   `1`.
+#'   `1L`.
 #'
 #' @return Vector containing some (or, in theory, all) elements of `x`.
 #'
 #' @noRd
-parcel_nth_elements <- function(x, n, from = 1) {
+parcel_nth_elements <- function(x, n, from = 1L) {
   x[seq(from = from, to = length(x), by = n)]
 }
 
@@ -201,9 +208,9 @@ parcel_nth_elements <- function(x, n, from = 1) {
 #'
 #' @noRd
 remove_equivalent_rows <- function(data) {
-  data_array <- apply(data, 1, sort)
+  data_array <- apply(data, 1L, sort)
 
-  data[!duplicated(data_array, MARGIN = 2), ]
+  data[!duplicated(data_array, MARGIN = 2L), ]
 }
 
 
@@ -216,6 +223,11 @@ remove_equivalent_rows <- function(data) {
 #'
 #' @noRd
 reverse_column_order <- function(data) {
+  if (ncol(data) == 0L) {
+    return(data)
+  }
+  # Don't mind sequence linting here; the early return above takes care of the
+  # empty edge case already!
   col_numbers_reversed <- ncol(data):1
   data[, order(col_numbers_reversed)]
 }
@@ -303,14 +315,14 @@ remove_na <- function(x) {
 #' @noRd
 check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
   var_names <- rlang::enexprs(var_list)
-  var_lengths <- vapply(var_list, length, integer(1))
-  var_list_gt1 <- var_list[var_lengths > 1]
+  var_lengths <- vapply(var_list, length, integer(1L))
+  var_list_gt1 <- var_list[var_lengths > 1L]
 
   # Condition of checking for error and warning:
-  if (length(var_list_gt1) > 1) {
+  if (length(var_list_gt1) > 1L) {
     var_names <- var_names[[1]][-1]
     var_names <- as.character(var_names)
-    var_names_gt1 <- var_names[var_lengths > 1]
+    var_names_gt1 <- var_names[var_lengths > 1L]
     vnames_gt1_all <- var_names_gt1   # for the warning
 
     length_dup <- duplicated(var_lengths)
@@ -320,7 +332,7 @@ check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
     # Error condition, checking if there is more than one element of `var_list`
     # with a unique length greater than one (the duplicated lengths were
     # filtered out from `var_list_gt1` right above):
-    if (error & (length(var_list_gt1) > 1)) {
+    if (error && (length(var_list_gt1) > 1L)) {
 
       x <- var_list_gt1[[1]]
       y <- var_list_gt1[[2]]
@@ -328,25 +340,40 @@ check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
       y_name <- var_names_gt1[[2]]
 
       residues_names <- var_names[!var_names %in% c(x_name, y_name)]
-      msg_need <-
-        "Both need to have the same length unless either has length 1."
+
+      # msg_need <-
+      #   "Both need to have the same length unless either has length 1."
+
+      msg_error <- c(
+        "`{x_name}` and `{y_name}` must have the same length \\
+        unless either has length 1.",
+        "*" = "`{x_name}` has length {length(x)}.",
+        "*" = "`{y_name}` has length {length(y)}."
+      )
 
       # Append-to-error-message condition:
-      if (length(residues_names) > 0) {
+      if (length(residues_names) > 0L) {
         residues_names <- paste0("`", residues_names, "`")
-        msg_need <- paste(
-          msg_need,
-          "This also applies to {residues_names}."
+        msg_error <- append(
+          msg_error, c("i" = "This also applies to {residues_names}.")
         )
+
+        # msg_need <- paste(
+        #   msg_need,
+        #   "This also applies to {residues_names}."
+        # )
       }
 
       # Throw error:
-      cli::cli_abort(c(
-        "Lengths of `{x_name}` and `{y_name}` are not congruent.",
-        "x" = "`{x_name}` has length {length(x)}.",
-        "x" = "`{y_name}` has length {length(y)}.",
-        "!" = msg_need
-      ))
+      cli::cli_abort(msg_error)
+
+      # cli::cli_abort(c(
+      #   "`{x_name}` and `{y_name}` must have the same length \\
+      #   unless either has length 1.",
+      #   "x" = "`{x_name}` has length {length(x)}.",
+      #   "x" = "`{y_name}` has length {length(y)}.",
+      #   "!" = msg_need
+      # ))
     }
 
     # Warning condition, triggered if more than one element of `var_list` has
@@ -358,13 +385,13 @@ check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
 
       l_vnames <- length(vnames_gt1_all)
 
-      if (l_vnames > 2) {
+      if (l_vnames > 2L) {
         msg_example <- ", for example,"
       } else {
         msg_example <- ""
       }
 
-      if (l_vnames == 2) {
+      if (l_vnames == 2L) {
         one_both_all <- "one or both"
         var_count <- ""
       } else {
@@ -391,7 +418,7 @@ check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
 #' Check length
 #'
 #' Make sure a vector `x` has length `l`, otherwise throw an informative error.
-#' For example, if a vector called `vals` needs to have length 1, run:
+#' For example, if a vector called `vals` must have length 1, run:
 #' `check_length(vals, 1)`.
 #'
 #' @param x Vector.
@@ -404,8 +431,8 @@ check_length <- function(x, l) {
   if (length(x) != l) {
     name <- deparse(substitute(x))
     cli::cli_abort(c(
-      "`{name}` has length {length(x)}.",
-      "x" = "It needs to have length {l}."
+      "!" = "`{name}` must have length {l}.",
+      "x" = "It has length {length(x)}."
     ))
   }
 }
@@ -429,8 +456,8 @@ check_length_or_null <- function(x, l) {
   if (length(x) != l) {
     name <- deparse(substitute(x))
     cli::cli_abort(c(
-      "`{name}` has length {length(x)}.",
-      "x" = "It needs to have length {l} or to be `NULL`."
+      "!" = "`{name}` must have length {l} unless it's `NULL`.",
+      "x" = "It has length {length(x)}."
     ))
   }
 }
@@ -440,7 +467,7 @@ check_length_or_null <- function(x, l) {
 #' Check type
 #'
 #' Much the same as `check_length()`, but for object types rather than lengths.
-#' An object `x` needs to have one of the types in `t`, or else there will be an
+#' An object `x` must have one of the types in `t`, or else there will be an
 #' informative error.
 #'
 #' @param x Vector.
@@ -452,14 +479,14 @@ check_length_or_null <- function(x, l) {
 check_type <- function(x, t) {
   if (!typeof(x) %in% t) {
     msg_name <- deparse(substitute(x))
-    if (length(t) == 1) {
+    if (length(t) == 1L) {
       msg_object <- "be of type"
     } else {
       msg_object <- "be one of these types:"
     }
     cli::cli_abort(c(
-      "`{msg_name}` is of type {typeof(x)}.",
-      "x" = "It needs to {msg_object} {t}."
+      "!" = "`{msg_name}` must {msg_object} {t}.",
+      "x" = "It is {an_a_type(x)}."
     ))
   }
 }
@@ -469,7 +496,7 @@ check_type <- function(x, t) {
 #' Check class
 #'
 #' Much the same as `check_length()` or `check_type()`, but for classes. An
-#' object `x` needs to have one of the types in `t`, or else there will be an
+#' object `x` must have one of the types in `t`, or else there will be an
 #' informative error.
 #'
 #' @param x Vector.
@@ -482,8 +509,8 @@ check_class <- function(x, cl) {
   if (!inherits(x, cl)) {
     msg_name <- deparse(substitute(x))
     cli::cli_abort(c(
-      "Required class missing.",
-      "x" = "`{msg_name}` doesn't inherit class \"{cl}\"."
+      "!" = "`{msg_name}` must inherit class \"{cl}\".",
+      "x" = "It doesn't."
     ))
   }
 }
@@ -504,18 +531,18 @@ check_class <- function(x, cl) {
 #'
 #' @noRd
 split_into_groups <- function(x, group_size) {
-  check_length(group_size, 1)
+  check_length(group_size, 1L)
   remainder <- length(x) %% group_size
 
-  if (remainder != 0) {
+  if (remainder != 0L) {
     if (!is_whole_number(group_size)) {
       cli::cli_abort(c(
-        "`group_size` is `{group_size}`.",
-        "x" = "It needs to be a whole number."
+        "!" = "`group_size` must be a whole number.",
+        "x" = "It is `{group_size}`."
       ))
     }
     name_x <- deparse(substitute(x))
-    msg_el <- if (remainder == 1) "element" else "elements"
+    msg_el <- if (remainder == 1L) "element" else "elements"
     cli::cli_warn(c(
       "!" = "`x` (`{name_x}`) can't be evenly divided into \\
       groups of {group_size}.",
@@ -619,8 +646,8 @@ manage_string_output_seq <- function(out, from, string_output, digits) {
       string_output <- paste0("`", string_output, "`")
     }
     cli::cli_abort(c(
-      "`string_output` given as {string_output}.",
-      "x" = "It must be logical or \"auto\"."
+      "!" = "`string_output` must be logical or \"auto\".",
+      "x" = "It is {string_output}."
     ))
   } else if (string_output) {
     out <- restore_zeros(out, width = digits)
@@ -647,10 +674,10 @@ manage_string_output_seq <- function(out, from, string_output, digits) {
 #'
 #' @noRd
 commas_and <- function(x) {
-  if (length(x) == 1) {
+  if (length(x) == 1L) {
     return(x)
   }
-  if (length(x) == 2) {
+  if (length(x) == 2L) {
     collapse <- " "
     and <- " and "
   } else {
@@ -675,8 +702,8 @@ commas_and <- function(x) {
 #' @noRd
 check_non_negative <- function(x) {
   offenders <- x[x < 0]
-  if (length(offenders) > 0) {
-    if (length(offenders) > 3) {
+  if (length(offenders) > 0L) {
+    if (length(offenders) > 3L) {
       offenders <- offenders[1:3]
       msg_among_others <- ", among others"
     } else {
@@ -685,8 +712,8 @@ check_non_negative <- function(x) {
     offenders <- paste0("`", offenders, "`")
     name <- deparse(substitute(x))
     cli::cli_abort(c(
-      "`{name}` contains {offenders}{msg_among_others}.",
-      "x" = "It can't be negative."
+      "!" = "`{name}` can't be negative.",
+      "x" = "It contains {offenders}{msg_among_others}."
     ))
   }
 }
@@ -711,8 +738,8 @@ is_even <- function(x) {
 #' Check for length-1 sample size in dispersion functions
 #'
 #' @description Only used within `disperse()` and `disperse_total()`. In these
-#'   functions, the `n` argument needs to be length 1. This is in contrast to
-#'   `disperse2()` where it needs to be length 2, so a length-2 `n` will trigger
+#'   functions, the `n` argument must be length 1. This is in contrast to
+#'   `disperse2()` where it must be length 2, so a length-2 `n` will trigger
 #'   an error message that specifically points to `disperse2()`.
 #'
 #'   All `n` values with a length other than 1 will trigger an error that refers
@@ -727,8 +754,8 @@ is_even <- function(x) {
 #'
 #' @noRd
 check_length_disperse_n <- function(n, msg_single) {
-  if (length(n) != 1) {
-    if (length(n) == 2) {
+  if (length(n) != 1L) {
+    if (length(n) == 2L) {
       msg_single <- paste(
         msg_single, "Did you mean to call `disperse2(n = c({n[1]}, {n[2]}))`?"
       )
@@ -736,56 +763,25 @@ check_length_disperse_n <- function(n, msg_single) {
     cli::cli_abort(c(
       "`n` has length {length(n)}.",
       "x" = msg_single,
-      ">" = "See documentation under `?disperse`."
+      "i" = "See documentation under `?disperse`."
     ))
   }
 }
 
 
 
-#' Test if a vector is numeric or coercible to numeric
+#' Check if a vector is numeric or coercible to numeric
 #'
-#' @description `is_numericish()` returns `TRUE` if `x` is a non-factor vector
-#'   in which at least one element can be coerced to a non-`NA` numeric value,
-#'   and `FALSE` otherwise.
+#' `check_type_numeric_like()` throws an informative error if `is_numeric_like()`
+#'   returns `FALSE`. This means it tolerates `NA`, not just `TRUE.`
 #'
-#'   This is meant to implement the common notion of an R vector being
-#'   "coercible to numeric". However, factors are excluded here because treating
-#'   them like numeric variables is not useful in the context of scrutiny: The
-#'   package often deals with number-strings, as in `restore_zeros_df()`, which
-#'   uses `is_numericish()` as a selector. Accepting factors there would make no
-#'   sense.
+#' @param x Object to be tested.
 #'
-#'   `check_type_numericish()` throws an informative error if `is_numericish()`
-#'   returns `FALSE`.
-#'
-#' @param x Any object.
-#'
-#' @return Boolean (length 1) for `is_numericish()`; none for
-#'   `check_type_numericish()` which might throw an error.
-#'
-#' @details `is_numericish()` resulted in Hadley Wickham liking one of my
-#'   tweets! :D https://twitter.com/lukasjung_hd/status/1571852033996595200
+#' @return No return value; might throw an error.
 #'
 #' @noRd
-is_numericish <- function(x) {
-  if (!rlang::is_vector(x)) {
-    return(FALSE)
-  }
-  if (is.factor(x)) {
-    return(FALSE)
-  }
-  x <- x[!is.na(x)]
-  if (length(x) == 0L) {
-    return(NA)
-  }
-  x <- suppressWarnings(as.numeric(x))
-  !any(is.na(x))
-}
-
-
-check_type_numericish <- function(x) {
-  if (isFALSE(is_numericish(x))) {
+check_type_numeric_like <- function(x) {
+  if (isFALSE(is_numeric_like(x))) {
     name <- deparse(substitute(x))
     if (rlang::is_vector(x)) {
       length_non_na <- length(x[!is.na(x)])
@@ -796,21 +792,16 @@ check_type_numericish <- function(x) {
         msg_values <- "non-`NA` values"
         msg_elements <- "elements"
       }
-      if (is.factor(x)) {
-        msg_factor <- " In the present context, it must also not be a factor."
-      } else {
-        msg_factor <- ""
-      }
       cli::cli_abort(c(
-        "`{name}` must be numeric or coercible to numeric.",
-        ">" = "(This means that converting it to numeric \\
+        "!" = "`{name}` must be numeric or coercible to numeric.",
+        "i" = "(This means that converting it to numeric \\
         must return {msg_values} for its {length_non_na} \\
-        non-`NA` {msg_elements}.{msg_factor})"
+        non-`NA` {msg_elements}.)"
       ))
     } else {
       cli::cli_abort(c(
-        "`{name}` is {an_a_type(x)}.",
-        "x" = "It must be numeric or coercible to numeric."
+        "!" = "`{name}` must be numeric or coercible to numeric.",
+        "x" = "It is {an_a_type(x)}."
       ))
     }
   }
@@ -820,8 +811,8 @@ check_type_numericish <- function(x) {
 
 #' Test if numeric-like vectors contain at least some decimal places
 #'
-#' For numeric-like `x` inputs (as determined by `is_numericish()`),
-#' `has_decimals_if_numericish()` checks if at least one element of `x` has at
+#' For numeric-like `x` inputs (as determined by `is_numeric_like()`),
+#' `has_decimals_if_numeric_like()` checks if at least one element of `x` has at
 #' least one decimal place. If so, or if `x` is not numeric-like, the function
 #' returns `TRUE`. Otherwise, it returns `FALSE`.
 #'
@@ -832,8 +823,8 @@ check_type_numericish <- function(x) {
 #' @return Boolean (length 1).
 #'
 #' @noRd
-has_decimals_if_numericish <- function(x, sep = "\\.") {
-  !is_numericish(x) || !all(decimal_places(x, sep = sep) == 0L)
+has_decimals_if_numeric_like <- function(x, sep = "\\.") {
+  !is_numeric_like(x) || !all(decimal_places(x, sep = sep) == 0L)
 }
 
 
@@ -843,7 +834,7 @@ has_decimals_if_numericish <- function(x, sep = "\\.") {
 #' @description This function expects an `x` vector like the one described
 #'   elsewhere for `index_seq()`, with the additional expectation that
 #'   continuous sequences have an odd length. That is because an index case
-#'   needs to be identified; and without a gap in the sequence, this has to be a
+#'   must be identified; and without a gap in the sequence, this has to be a
 #'   single median value. If the index case is missing, it is reconstructed and
 #'   returned.
 #'
@@ -931,7 +922,7 @@ index_case_diff <- function(data) {
   var <- data$var[[1]]
   data_var <- data[var][[1]]
   index <- index_case_interpolate(data_var, index_itself = TRUE)
-  index_diff <- 1:nrow(data) - index
+  index_diff <- seq_len(nrow(data)) - index
 
   if (is_even(length(index_diff))) {
     index_diff[index_diff < 1] <-
@@ -958,10 +949,125 @@ index_central <- function(x) {
 
 
 
+#' Check for arguments with or via dots
+#'
+#' @description `check_old_args_split_by_parens()` checks a call to
+#'   `split_by_parens()` or `restore_zeros_df()` for certain kinds of errors
+#'   that used to be part of the design of these functions, but no longer are:
+#'
+#'   1. Column names are selected via the dots, `...`.
+#'   2. Argument names are prefixed with a dot, like `.transform` or
+#'   `.check_decimals`.
+#'   3. `col1` or `col2` are specified. (After losing their prefix dots, these
+#'   arguments of `split_by_parens()` were renamed to `end1` and `end2`.)
+#'
+#'   If any of these cases, a precisely informative error is thrown. There is
+#'   also a more generic error if any other argument is passed through the dots,
+#'   `...`. This used to be checked within `split_by_parens()` and
+#'   `restore_zeros_df()` themselves.
+
+#' @param data Input data frame of the main function itself.
+#' @param dots Captures in the main function with `rlang::enquos(...)`.
+#' @param old_args String vector with the old, dot-prefixed arguments.
+#' @param name_fn String. Name of the main function.
+#'
+#' @details Error 2 also points the user to the shift from `col*` to `end*` if
+#'   `.col1` or `.col2` were specified, much like error 3 does.
+#'
+#' @return No return value; might throw an error.
+#'
+#' @noRd
+check_new_args_without_dots <- function(data, dots, old_args, name_fn) {
+
+  if (length(dots) == 0L) {
+    return(invisible(NULL))
+  }
+
+  dots_names <- names(purrr::map(dots, rlang::as_label))
+
+  # Error 1: Column names are selected via the dots, `...`.
+  offenders1 <- dots_names[dots_names %in% colnames(data)]
+  if (length(offenders1) > 0L) {
+    if (length(offenders1) == 1L) {
+      msg_cols <- glue::glue("{offenders1}")
+    } else {
+      msg_cols <- stringr::str_flatten(as.character(offenders1), ", ")
+      msg_cols <- paste0("c(", msg_cols, ")")
+    }
+    cli::cli_abort(c(
+      "!" = "`{name_fn}()` no longer uses the dots, `...`, \\
+      for column selection.",
+      "i" = "Use the `cols` argument instead, like `cols = {msg_cols}`.",
+      "*" = "Apologies for the inconvenience."
+    ))
+  }
+
+  arg_names <- names(rlang::caller_call())
+
+  # Error 2: Argument names are prefixed with a dot, like `.transform`.
+  offenders2 <- arg_names[arg_names %in% old_args]
+  if (length(offenders2) > 0L) {
+    if (length(offenders2) == 1L) {
+      msg_was_were <- "was"
+      msg_dot_dots <- "a dot"
+    } else {
+      msg_was_were <- "were"
+      msg_dot_dots <- "dots"
+    }
+    msg_new_args <- stringr::str_remove(offenders2, ".")
+
+    if (name_fn == "split_by_parens" &&
+        any(c("col1", "col2") %in% msg_new_args)) {
+      msg_new_args[msg_new_args == "col1"] <- "end1"
+      msg_new_args[msg_new_args == "col2"] <- "end2"
+      msg_switch_end <- " Note the shift from `col*` to `end*`."
+    } else {
+      msg_switch_end <- ""
+    }
+    msg_new_args <- wrap_in_backticks(msg_new_args)
+    offenders2 <- wrap_in_backticks(offenders2)
+    cli::cli_abort(c(
+      "!" = "In `{name_fn}()`, {offenders2} {msg_was_were} \\
+      renamed to {msg_new_args} (without {msg_dot_dots}).{msg_switch_end}",
+      "*" = "Apologies for the inconvenience."
+    ))
+  }
+
+  if (name_fn == "split_by_parens") {
+    # Error 3: `col1` or `col2` are specified (only in `split_by_parens()`).
+    offenders3 <- arg_names[arg_names %in% c("col1", "col2")]
+    if (length(offenders3) > 0L) {
+      if (length(offenders3) == 1L) {
+        msg_no_args <- "is not an argument"
+        msg_dot_dots <- "with a dot"
+      } else {
+        msg_no_args <- "are not arguments"
+        msg_dot_dots <- "with dots"
+      }
+      msg_offenders_old <- paste0(".", offenders3)
+      msg_offenders_old <- wrap_in_backticks(msg_offenders_old)
+      msg_new_args <- stringr::str_replace(offenders3, "col", "end")
+      msg_new_args <- wrap_in_backticks(msg_new_args)
+      offenders3 <- wrap_in_backticks(offenders3)
+      cli::cli_abort(c(
+        "!" = "{offenders3} {msg_no_args} of `{name_fn}()`.",
+        "i" = "You're right not to use {msg_offenders_old} anymore \\
+        ({msg_dot_dots}), but also note that it says {msg_new_args} now.",
+        "*" = "Apologies for the inconvenience."
+      ))
+    }
+  }
+
+  # Finally, check that no other arguments are passed through the dots:
+  rlang::check_dots_empty(env = rlang::caller_env(n = 1L))
+}
+
+
+
 #' Transformation helper for `split_by_parens()`
 #'
 #' @description Only called within `split_by_parens()`, and only if the latter
-#'   function's `.transform` argument is set to `TRUE`.
+#'   function's `transform` argument is set to `TRUE`.
 #'
 #'   `transform_split_parens()` pivots the data into a longer format using
 #'   `tidyr::pivot_longer()`. It lumps values from all original columns into two
@@ -975,8 +1081,8 @@ index_central <- function(x) {
 #' @return Data frame with these columns:
 #' - `.origin`: Names of the original columns of the data frame that
 #'   `split_by_parens()` took as an input.
-#' - Two columns named after the values of `split_by_parens()`'s `.col1` and
-#'   `.col2` arguments. Default are `"x"` and `"sd"`.
+#' - Two columns named after the values of `split_by_parens()`'s `end1` and
+#'   `end2` arguments. Default are `"x"` and `"sd"`.
 #'
 #' @noRd
 transform_split_parens <- function(data, end1, end2) {
@@ -993,7 +1099,7 @@ transform_split_parens <- function(data, end1, end2) {
     )
 
   cols_1 <- cols_1 %>%
-    dplyr::mutate(key = 1:nrow(cols_1))
+    dplyr::mutate(key = seq_len(nrow(cols_1)))
 
   cols_2 <- data %>%
     dplyr::select(contains(uscore_end2)) %>%
@@ -1004,7 +1110,7 @@ transform_split_parens <- function(data, end1, end2) {
     )
 
   cols_2 <- cols_2 %>%
-    dplyr::mutate(key = 1:nrow(cols_2))
+    dplyr::mutate(key = seq_len(nrow(cols_2)))
 
   out <- dplyr::left_join(cols_1, cols_2, by = "key")
 
@@ -1034,7 +1140,7 @@ transform_split_parens <- function(data, end1, end2) {
 #'
 #' @noRd
 select_tested_cols <- function(data, before = "consistency") {
-  index_last_key_col <- match(before, colnames(data)) - 1
+  index_last_key_col <- match(before, colnames(data)) - 1L
   data[1:index_last_key_col]
 }
 
@@ -1163,7 +1269,7 @@ wrap_in_quotes_or_backticks <- function(x) {
 #' @return Boolean (length 1).
 #'
 #' @details Since `near()` is vectorized and `identical()` is not, their results
-#'   are not on par with each other, so `near()` needs to be wrapped in `all()`,
+#'   are not on par with each other, so `near()` must be wrapped in `all()`,
 #'   which makes sure that there are no differences beyond the tolerance.
 #'
 #' @noRd
@@ -1211,7 +1317,7 @@ drop_cols_with <- function(data, drop_with) {
 #' @return String (length 1).
 #'
 #' @noRd
-name_caller_call <- function(n = 1, wrap = TRUE) {
+name_caller_call <- function(n = 1L, wrap = TRUE) {
   name <- rlang::caller_call(n = n)
   name <- name[[1]]
   if (wrap) {
@@ -1350,3 +1456,4 @@ check_ggplot2_linewidth <- function(arg_new, default_new) {
   }
 
 }
+

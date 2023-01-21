@@ -119,14 +119,14 @@ A convenient way to restore trailing zeros in a data frame is `restore_zeros_df(
 ```{r}
 iris <- as_tibble(iris)
 iris %>% 
-  restore_zeros_df(.width = 3)
+  restore_zeros_df(width = 3)
 ```
 
-Specify columns as you would in `dplyr::select()`:
+Specify columns mostly like you would in `dplyr::select()`:
 
 ```{r}
 iris %>% 
-  restore_zeros_df(starts_with("Sepal"), .width = 3)
+  restore_zeros_df(starts_with("Sepal"), width = 3)
 ```
 
 ## Split strings by parentheses
@@ -152,14 +152,14 @@ Optionally, transform these values into a more useful format:
 
 ```{r}
 flights2 %>% 
-  split_by_parens(.transform = TRUE)
+  split_by_parens(transform = TRUE)
 ```
 
 From here, you can call `debit_map()` almost right away (supposing you deal with binary distributions' means and standard deviations):
 
 ```{r}
 flights2 %>% 
-  split_by_parens(.transform = TRUE) %>% 
+  split_by_parens(transform = TRUE) %>% 
   dplyr::mutate(n = 80) %>% 
   debit_map()
 ```
@@ -172,14 +172,14 @@ The defaults for column name suffixes are (1) `"x"` for the part before the pare
 
 ```{r}
 flights2 %>% 
-  split_by_parens(.col1 = "beta", .col2 = "se")
+  split_by_parens(end1 = "beta", end2 = "se")
 ```
 
 These suffixes become column names if `.transform` is set to `TRUE`:
 
 ```{r}
 flights2 %>% 
-  split_by_parens(.col1 = "beta", .col2 = "se", .transform = TRUE)
+  split_by_parens(end1 = "beta", end2 = "se", transform = TRUE)
 
 ```
 

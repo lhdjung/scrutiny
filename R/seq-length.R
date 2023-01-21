@@ -7,7 +7,7 @@
 #'   Alternatively, you can directly set the length of a linear sequence in this
 #'   way: `seq_length(x) <- value`.
 #'
-#' @param x Numeric or coercible to numeric. `x` needs to be linear, i.e., each
+#' @param x Numeric or coercible to numeric. `x` must be linear, i.e., each
 #'   of its elements must differ from the next by the same amount.
 #' @param value Numeric (whole number, length 1). The new length for `x`.
 #'
@@ -58,37 +58,41 @@
 
 seq_length <- function(x, value) {
 
-  check_type_numericish(x)
+  check_type_numeric_like(x)
   x_is_linear <- is_seq_linear(x)
 
   if (!isTRUE(x_is_linear)) {
     if (is.na(x_is_linear)) {
       cli::cli_abort(c(
-        "Unknown whether `x` in `seq_length(x) <- value` is a linear sequence.",
-        "x" = "It needs to be linear for its length to be set."
+        "!" = "`x` in `seq_length(x) <- value` must be a linear sequence.",
+        "x" = "Linearity of `x` can't be determined."
       ))
     }
     cli::cli_abort(c(
-      "`x` in `seq_length(x) <- value` is not a linear sequence.",
-      "x" = "The length of `x` can only be set if each one \\
+      "`x` in `seq_length(x) <- value` must be a linear sequence.",
+      "x" = "It isn't.",
+      "i" = "The length of `x` can only be set if each one \\
       of its elements differs from the next by the same amount."
     ))
   }
 
-  check_length(value, 1)
+  check_length(value, 1L)
 
   if (!is_whole_number(value)) {
-    cli::cli_abort("`{value}` in `length(x) <- {value}` is not a whole number.")
+    cli::cli_abort(c(
+      "!" = "`value` in `length(x) <- value` must be a whole number.",
+      "x" = "It is `{value}`."
+    ))
   }
 
-  if (value == 0) {
-    out <- vector(mode = typeof(x), length = 0)
+  if (value == 0L) {
+    out <- vector(mode = typeof(x), length = 0L)
     return(out)
   }
 
   diff <- value - length(x)
 
-  if (diff == 0) {
+  if (diff == 0L) {
     return(x)
   }
 
@@ -101,7 +105,7 @@ seq_length <- function(x, value) {
     dir <- 1
   }
 
-  if (diff < 0) {
+  if (diff < 0L) {
     out <- x[1:(length(x) - abs(diff))]
     return(out)
   }

@@ -60,7 +60,7 @@ test_that("`an_a()` returns correct values", {
 
 
 test_that("`an_a_type()` returns correct values", {
-  an_a_type("bla") %>% expect_equal("a character")
+  an_a_type("bla") %>% expect_equal("a string")
   an_a_type(4)     %>% expect_equal("a double (numeric value)")
 })
 
@@ -260,9 +260,4 @@ test_that("`check_type()` throws an error if the type is wrong", {
   norberts %>% check_type("integer")   %>% expect_error()
   nikes    %>% check_type("logical")   %>% expect_error()
 })
-
-
-
-
-
 

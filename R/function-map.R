@@ -9,7 +9,7 @@
 #'
 #' @param .fun Single-case consistency testing function that will be applied to
 #'   each row in a data frame, such as the (non-exported) scrutiny functions
-#'   `grim_scalar()` and `debit_scalar()`. It needs to return a Boolean value of
+#'   `grim_scalar()` and `debit_scalar()`. It must return a Boolean value of
 #'   length 1, i.e., `TRUE` or `FALSE`.
 #' @param .reported String. Names of the columns to be tested.
 #' @param .name_test String (length 1). Plain-text name of the consistency test,
@@ -41,7 +41,7 @@
 #'   `"scr_rounding_up_or_down"`.
 
 #' @return A factory-made function with these arguments:
-#' - `data`: Data frame with all the columns named in `.reported`. It needs to
+#' - `data`: Data frame with all the columns named in `.reported`. It must
 #'   have columns named after the key arguments in `.fun`. Other columns are
 #'   permitted.
 #' - Arguments named after the `.reported` values. They can be specified as the
@@ -106,14 +106,13 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
 
   # Checks ---
 
-  fun_name <- deparse(substitute(.fun))
-  fun_args <- as.list(args(.fun))
-  offenders <- .reported[!.reported %in% names(fun_args)]
+  fn_name <- deparse(substitute(.fun))
+  offenders <- .reported[!.reported %in% names(formals(.fun))]
 
-  if (length(offenders) > 0) {
+  if (length(offenders) > 0L) {
     offenders <- wrap_in_backticks(offenders)
-    fun_name <- deparse(substitute(.fun))
-    if (length(offenders) == 1) {
+    fn_name <- deparse(substitute(.fun))
+    if (length(offenders) == 1L) {
       msg_arg <- "argument"
       msg_it_they <- "It was"
     } else {
@@ -121,11 +120,14 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
       msg_it_they <- "They were"
     }
     cli::cli_abort(c(
-      "Function `{fun_name}()` lacks {msg_arg} {offenders}.",
-      "x" = "{msg_it_they} stated as `.reported` in the \\
-      `function_map()` call, where `.fun` was specified as `{fun_name}`."
+      "Function `{fn_name}()` lacks {msg_arg} {offenders}.",
+      "i" = "{msg_it_they} given as `.reported` in the \\
+      `function_map()` call, where `.fun` was specified as `{fn_name}`."
     ))
   }
+
+  # Garbage collection, 1/2:
+  rm(offenders)
 
 
   # --- Start of the factory-made function, `fn_out()` ---
@@ -144,7 +146,7 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
     # Checks ---
 
     check_args_disabled(.args_disabled)
-    check_factory_dots(fun, fun_name, ...)
+    check_factory_dots(fun, fn_name, ...)
     check_mapper_input_colnames(data, reported, name_test)
 
 
@@ -195,9 +197,9 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
     if (!is.null(.col_control)) {
       .col_control <- eval(rlang::parse_expr(.col_control))
       # return(.col_control)
-      lengths_consistency <- vapply(consistency, length, integer(1))
-      lengths_consistency_all1 <- all(lengths_consistency == 1)
-      if (.col_control & !lengths_consistency_all1) {
+      lengths_consistency <- vapply(consistency, length, integer(1L))
+      lengths_consistency_all1 <- all(lengths_consistency == 1L)
+      if (.col_control && !lengths_consistency_all1) {
         extend_if_length1 <- function(x, value_if_length1) {
           if (length(x) == 1) {
             list(list(x, value_if_length1))
@@ -225,15 +227,15 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
 
   # --- End of the factory-made function, `fn_out()` ---
 
+  # Garbage collection, 2/2:
+  rm(fn_name)
 
   # Insert parameters named after the key columns into `fn_out()`, with `NULL`
   # as the default for each. The key columns need to be present in the input
   # data frame. They are expected to have the names specified in `.reported`. If
   # they don't, however, the user can simply specify the key column arguments as
   # the non-quoted names of the columns meant to fulfill these roles:
-  fn_out <- insert_key_args(fun = fn_out, reported = .reported)
-
-  return(fn_out)
+  insert_key_args(fun = fn_out, reported = .reported)
 }
 
 

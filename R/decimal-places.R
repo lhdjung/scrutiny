@@ -36,17 +36,8 @@
 #'
 #' @include utils.R
 
-#' @seealso Rounding functions:
-#' - `round_up()` and `round_down()` round up or down from 5, respectively.
-#' - `round_up_from()` and `round_down_from()` allow users to specify custom
-#'   thresholds for rounding up or down.
-#' - `round_ceiling()` and `round_floor()` work like `ceiling()` or `floor()`,
-#'   but for decimal numbers instead of just integers.
-#' - `round_trunc()` and `round_anti_trunc()` always round towards zero or away
-#'   from it.
-#'
-#' Furthermore, `unround()` takes a rounded number and returns the range of the
-#' original value.
+#' @seealso `decimal_places_df()`, which applies `decimal_places()` to all
+#'   numeric-like columns in a data frame.
 
 #' @examples
 #' # `decimal_places()` works on both numeric values
@@ -107,4 +98,78 @@ decimal_places_scalar <- function(x, sep = "\\.") {
   as.integer(out)
 }
 
+
+#' Count decimal places in a data frame
+#'
+#' For every value in a column, `decimal_places_df()` counts its decimal places.
+#' By default, it operates on all columns that are coercible to numeric.
+#'
+#' @param data Data frame.
+#' @param cols Select columns from `data` using
+#'   \href{https://tidyselect.r-lib.org/reference/language.html}{tidyselect}.
+#'   Default is `everything()`, but restricted by `check_numeric_like`.
+#' @param check_numeric_like Boolean. If `TRUE` (the default), the function only
+#'   operates on numeric columns and other columns coercible to numeric, as
+#'   determined by `is_numeric_like()`.
+#' @param sep Substring that separates the mantissa from the integer part.
+#'   Default is `"\\."`, which renders a decimal point.
+#'
+#' @return Data frame. The values of the selected columns are replaced by the
+#'   numbers of their decimal places.
+#'
+#' @seealso Wrapped functions: `decimal_places()`, `dplyr::across()`.
+#'
+#' @export
+#'
+#' @examples
+#' # Coerce all columns to string:
+#' iris <- iris %>%
+#'   tibble::as_tibble() %>%
+#'   dplyr::mutate(across(everything(), as.character))
+#'
+#' # The function will operate on all
+#' # numeric-like columns but not on `"Species"`:
+#' iris %>%
+#'   decimal_places_df()
+#'
+#' # Operate on some select columns only
+#' # (from among the numeric-like columns):
+#' iris %>%
+#'   decimal_places_df(cols = starts_with("Sepal"))
+
+decimal_places_df <- function(data, cols = everything(),
+                              check_numeric_like = TRUE, sep = "\\.") {
+  if (check_numeric_like) {
+    selection2 <- rlang::expr(where(is_numeric_like))
+  } else {
+    selection2 <- rlang::expr(dplyr::everything())
+  }
+
+  names_of_numeric_like_cols <- data %>%
+    dplyr::select(where(is_numeric_like)) %>%
+    colnames()
+
+  data_names <- colnames(data)
+
+  if (!identical(names_of_numeric_like_cols, data_names)) {
+    names_wrong_cols <- data_names[!data_names %in% names_of_numeric_like_cols]
+    if (check_numeric_like) {
+      msg_exclusion <- paste0(c("was", "were"), " excluded")
+    } else {
+      msg_exclusion <- "didn't have any decimal places counted"
+    }
+    warn_wrong_columns_selected(
+      names_wrong_cols,
+      msg_exclusion,
+      msg_reason = "numeric-like",
+      msg_it_they = c("It isn't", "They aren't")
+    )
+  }
+
+  dplyr::mutate(data, dplyr::across(
+    .cols = {{ cols }} & !!selection2,
+    .fns  = function(x) decimal_places(x = x, sep = sep)
+  ))
+
+}
 

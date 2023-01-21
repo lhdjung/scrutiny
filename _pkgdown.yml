@@ -138,6 +138,7 @@ reference:
 - subtitle: Counting decimal places
 - contents:
   - decimal_places
+  - decimal_places_df
 
 - subtitle: Sequence generation
 - contents:
@@ -171,11 +172,20 @@ reference:
   - audit_cols_minimal
   - check_audit_special
 
+- subtitle: Data frame predicates
+  desc: Test for mapper function output
+- contents:
+  - is_map_df
+
 - subtitle: Testing for subsets / supersets
   desc: Predicate functions for logical relations between vectors, supporting
         flexible data entry and tidy evaluation
 - contents:
   - is_subset_of
+
+- subtitle: Testing for numeric-like vectors
+- contents:
+  - is_numeric_like
 
 
 - title: Data wrangling

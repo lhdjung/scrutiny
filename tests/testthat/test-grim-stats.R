@@ -23,3 +23,17 @@ test_that("`grim_ratio()` works with percentage conversion", {
   grim_ratio("87.50", 45:55, percent = TRUE) %>% expect_equal(exp2)
 })
 
+
+test_that("`grim_ratio_upper()` returns correct values", {
+  grim_ratio_upper(0.1)   %>% expect_equal(0.9)
+  grim_ratio_upper(0.11)  %>% expect_equal(0.99)
+  grim_ratio_upper(0.111) %>% expect_equal(0.999)
+})
+
+
+test_that("`grim_ratio_upper()` works with percentage conversion", {
+  grim_ratio_upper(0.1,   percent = TRUE) %>% expect_equal(0.999)
+  grim_ratio_upper(0.11,  percent = TRUE) %>% expect_equal(0.9999)
+  grim_ratio_upper(0.111, percent = TRUE) %>% expect_equal(0.99999)
+})
+

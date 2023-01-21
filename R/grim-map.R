@@ -265,7 +265,7 @@ grim_map <- function(data, items = 1, merge_items = TRUE, percent = FALSE,
 
     # The minus-1 operation balances the temporary removal of `"consistency"`
     # that occurred within `unnest_consistency_cols()`:
-    index_consistency <- match("consistency", colnames(results)) - 1
+    index_consistency <- match("consistency", colnames(results)) - 1L
 
     results <- results %>%
       dplyr::relocate(ratio, .after = index_consistency + length(col_names))
@@ -302,7 +302,7 @@ grim_map <- function(data, items = 1, merge_items = TRUE, percent = FALSE,
     results$x <- as.numeric(results$x) / 100
 
     results$x <- results$x %>%
-      restore_zeros(width = (dp_original + 2)) %>%
+      restore_zeros(width = (dp_original + 2L)) %>%
       suppressWarnings()
 
     results <- results %>%

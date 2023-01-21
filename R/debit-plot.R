@@ -94,8 +94,8 @@ debit_plot <- function(data,
 
   if (!inherits(data, "scr_debit_map")) {
     cli::cli_abort(c(
-      "`data` is not `debit_map()` output",
-      "x" = "`debit_plot()` only works with DEBIT results."
+      "!" = "`debit_plot()` only works with DEBIT results.",
+      "x" = "`data` is not `debit_map()` output."
     ))
   }
 
@@ -285,8 +285,8 @@ debit_plot <- function(data,
       )
   }
 
-  # Finally, return the plot:
-  return(p)
+  # Finally, return the plot while suppressing unnecessary ggplot2 warnings:
+  suppressWarnings(print(p))
 }
 
 

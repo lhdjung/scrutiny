@@ -1,6 +1,6 @@
 Package: scrutiny
 Title: Error Detection in Science
-Version: 0.2.3
+Version: 0.2.4
 Authors@R: c(
     person(given = "Lukas",
            family = "Jung",
@@ -33,6 +33,7 @@ Imports:
     stringr,
     tibble
 Collate: 
+    'is-numeric-like.R'
     'import-reexport.R'
     'utils.R'
     'mapper-function-helpers.R'
@@ -59,6 +60,7 @@ Collate:
     'manage-extra-cols.R'
     'grim-map.R'
     'data-doc.R'
+    'data-frame-predicates.R'
     'function-map-seq.R'
     'debit-map-seq.R'
     'disperse.R'
@@ -67,12 +69,12 @@ Collate:
     'debit-plot.R'
     'duplicate-count-colpair.R'
     'duplicate-count.R'
-    'grim-base.R'
     'grim-explain.R'
     'grim-granularity.R'
     'grim-map-seq.R'
     'grim-map-total-n.R'
     'grim-plot.R'
+    'grim-stats.R'
     'grimmer-map-seq.R'
     'grimmer-map-total-n.R'
     'metadata.R'

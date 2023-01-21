@@ -64,9 +64,10 @@ reverse_map_seq <- function(data) {
   # manufactured using `function_map_seq()`:
   if (!inherits(data, "scr_map_seq")) {
     cli::cli_abort(c(
-      "Invalid `data` argument.",
-      "x" = "It needs to be the output of a function like `grim_map_seq()`.",
-      ">" = "Such functions were created by `function_map_seq()`."
+      "!" = "`data` must be the output of \\
+      a function like `grim_map_seq()`.",
+      "x" = "It isn't.",
+      "i" = "Such functions were created by `function_map_seq()`."
     ))
   }
 
@@ -76,7 +77,7 @@ reverse_map_seq <- function(data) {
 
   var_unique <- var
 
-  if (length(var_unique) == 1) {
+  if (length(var_unique) == 1L) {
     data_var <- list(data)
     data_var <- append(data_var, data_var)
     names(data_var) <- c(var_unique, "scr_split_dummy")

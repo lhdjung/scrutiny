@@ -46,29 +46,38 @@ test_that("The `*_df()` variant produces correct results", {
 })
 
 
-test_that("the `.check_decimals` argument works correctly", {
+test_that("the `check_decimals` argument works correctly", {
   iris %>%
     dplyr::mutate(Sepal.Length = trunc(Sepal.Length)) %>%
-    restore_zeros_df(.check_decimals = TRUE) %>%
+    restore_zeros_df(check_decimals = TRUE) %>%
     dplyr::pull(1) %>%
     expect_type("double")
 
   iris %>%
     dplyr::mutate(Sepal.Length = trunc(Sepal.Length)) %>%
-    restore_zeros_df(.check_decimals = FALSE) %>%
+    restore_zeros_df(check_decimals = FALSE) %>%
     dplyr::pull(1) %>%
     expect_warning()
 
   iris %>%
     dplyr::mutate(Sepal.Length = trunc(Sepal.Length)) %>%
-    restore_zeros_df(.check_decimals = FALSE) %>%
+    restore_zeros_df(check_decimals = FALSE) %>%
     dplyr::pull(1) %>%
     expect_warning()
 
   iris %>%
     dplyr::mutate(Sepal.Length = trunc(Sepal.Length)) %>%
-    restore_zeros_df(.check_decimals = FALSE) %>%
+    restore_zeros_df(check_decimals = FALSE) %>%
     dplyr::pull(1) %>%
     suppressWarnings() %>%
     expect_type("character")
 })
+
+
+test_that("", {
+  iris %>% restore_zeros_df(.check_decimals = TRUE) %>% expect_error()
+  iris %>% restore_zeros_df(wooh = TRUE) %>% expect_error()
+})
+
+
+

@@ -40,7 +40,10 @@ test_that("It has the correct rounding-specific class", {
 })
 
 
-cns_exp <- c(T, F, F, F, F, T, F, T, F, F, T, F)
+t <- TRUE
+f <- FALSE
+
+cns_exp <- c(t, f, f, f, f, t, f, t, f, f, t, f)
 
 test_that("`consistency` has the correct values", {
   df1_grim$consistency %>% expect_equal(cns_exp)

@@ -90,7 +90,7 @@
 
 
 
-seq_disperse <- function(from, by = NULL, dispersion = 1:5, offset_from = 0,
+seq_disperse <- function(from, by = NULL, dispersion = 1:5, offset_from = 0L,
                          out_min = "auto", out_max = NULL,
                          string_output = TRUE, include_reported = TRUE,
                          track_var_change = FALSE) {
@@ -99,7 +99,7 @@ seq_disperse <- function(from, by = NULL, dispersion = 1:5, offset_from = 0,
 
   # Any sequence can only proceed from a single number (for multiple numbers,
   # map the function). Also, the steps away from the number can't be negative:
-  check_length(from, 1)
+  check_length(from, 1L)
   check_non_negative(dispersion)
 
 
@@ -112,7 +112,7 @@ seq_disperse <- function(from, by = NULL, dispersion = 1:5, offset_from = 0,
     digits <- decimal_places_scalar(from)
     by <- 1 / (10 ^ digits)
   } else {
-    check_length(by, 1)
+    check_length(by, 1L)
     check_type(by, c("integer", "double"))
     digits <- decimal_places_scalar(by)
   }
@@ -128,10 +128,10 @@ seq_disperse <- function(from, by = NULL, dispersion = 1:5, offset_from = 0,
   # Filter the `dispersion` vector from values that fall outside of the range
   # specified by `out_min` at the lower end...
   if (!is.null(out_min)) {
-    if (length(out_min) > 1) {
+    if (length(out_min) > 1L) {
       cli::cli_abort(c(
-        "`out_min` has length {length(out_min)}",
-        "x" = "It needs to have length 1 or to be `NULL`."
+        "!" = "`out_min` must have length 1 or to be `NULL`.",
+        "x" = "It has length {length(out_min)}."
       ))
     }
     if (out_min == "auto") {
@@ -142,17 +142,17 @@ seq_disperse <- function(from, by = NULL, dispersion = 1:5, offset_from = 0,
 
   # ...and `out_max` at the upper end:
   if (!is.null(out_max)) {
-    if (length(out_max) > 1) {
+    if (length(out_max) > 1L) {
       cli::cli_abort(c(
-        "`out_max` has length {length(out_max)}",
-        "x" = "It needs to have length 1 or to be `NULL`."
+        "!" = "`out_max` must have length 1 or to be `NULL`.",
+        "x" = "It has length {length(out_max)}."
       ))
     }
     disp_plus <- disp_plus[(from + disp_plus) <= out_max]
   }
 
 
-  if (offset_from != 0) {
+  if (offset_from != 0L) {
     from <- from + (by * offset_from)
   }
 
@@ -190,7 +190,7 @@ seq_disperse <- function(from, by = NULL, dispersion = 1:5, offset_from = 0,
 #' @export
 
 seq_disperse_df <- function(.from, .by = NULL, ...,
-                            .dispersion = 1:5, .offset_from = 0,
+                            .dispersion = 1:5, .offset_from = 0L,
                             .out_min = "auto", .out_max = NULL,
                             .string_output = TRUE, .include_reported = TRUE,
                             .track_var_change = FALSE) {
@@ -211,7 +211,7 @@ seq_disperse_df <- function(.from, .by = NULL, ...,
     var_change <- NULL
   }
 
-  if (length(further_cols) > 0) {
+  if (length(further_cols) > 0L) {
     out <- tibble::tibble(x, var_change, !!!further_cols)
   } else {
     out <- tibble::tibble(x, var_change)

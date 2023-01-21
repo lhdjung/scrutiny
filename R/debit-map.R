@@ -124,7 +124,7 @@ debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
 
   # Create `other_cols`, which contains any and all extra columns from `data`
   # (i.e., those which play no role in DEBIT):
-  if (ncol(data) > 3) {
+  if (ncol(data) > 3L) {
     other_cols <- data %>%
       dplyr::select(-x, -sd, -n)
   } else {
@@ -136,8 +136,8 @@ debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
   extra_cols <- manage_extra_cols(data, extra, other_cols)
 
   # Prepare input vectors for the resulting tibble:
-  sd <- sd_chr <- data$sd
-  x <- x_chr <- data$x
+  sd <- data$sd
+  x <- data$x
   n <- data$n
 
   # Compute the DEBIT results and construct the resulting tibble:
@@ -170,7 +170,7 @@ debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
       dplyr::select(x, sd, n, consistency)
   }
 
-  if (length(extra_cols) > 0) out <- dplyr::mutate(out, extra_cols)
+  if (length(extra_cols) > 0L) out <- dplyr::mutate(out, extra_cols)
 
   if (!is.null(x_spec))  out <- dplyr::select(out, -all_of(x_orig))
   if (!is.null(sd_spec)) out <- dplyr::select(out, -all_of(sd_orig))

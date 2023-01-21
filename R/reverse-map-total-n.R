@@ -34,9 +34,10 @@ reverse_map_total_n <- function(data) {
 
   if (!inherits(data, "scr_map_total_n")) {
     cli::cli_abort(c(
-      "Invalid `data` argument.",
-      "x" = "It needs to be the output of a function that ends on \\
-      `*_map_seq()`, like `grim_map_seq()`."
+      "!" = "`data` must be the output of \\
+      a function like `grim_map_total_n()`.",
+      "x" = "It isn't.",
+      "i" = "Such functions were created by `function_map_total_n()`."
     ))
   }
 
@@ -48,7 +49,7 @@ reverse_map_total_n <- function(data) {
   n_was_even <- data_reduced %>%
     dplyr::summarise(n_sum = sum(n)) %>%
     dplyr::pull(n_sum) %>%
-    rep(each = 2) %>%
+    rep(each = 2L) %>%
     is_even()
 
   # Negate the evenness and convert the results from Boolean to numeric, which
@@ -74,7 +75,7 @@ reverse_map_total_n <- function(data) {
 
   # Number of columns before `n` (i.e., the columns with hypothetical values
   # dispersed from the reported statistics):
-  ncol_before_n <- match("n", colnames(data)) - 1
+  ncol_before_n <- match("n", colnames(data)) - 1L
 
   colnames_reported <- colnames(data_reduced)[1:ncol_before_n]
 
@@ -85,7 +86,7 @@ reverse_map_total_n <- function(data) {
   colnames(data_reported_2) <- paste0(colnames_reported, "2")
 
   colnames_in_order <- colnames_reported %>%
-    rep(each = 2) %>%
+    rep(each = 2L) %>%
     paste0(c("1", "2"))
 
   out <- dplyr::bind_cols(data_reported_1, data_reported_2)

@@ -7,10 +7,10 @@
 audit.scr_dup_count <- function(data) {
 
   term <- names(data)
-  n <- rep(nrow(data), 2)
+  n <- rep(nrow(data), 2L)
 
   count_max <- data %>%
-    dplyr::slice(1) %>%
+    dplyr::slice(1L) %>%
     as.numeric()
 
   count_min <- data %>%

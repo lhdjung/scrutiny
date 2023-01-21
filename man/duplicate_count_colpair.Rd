@@ -40,7 +40,8 @@ number of duplicates.
  There is an S3 method for \code{audit()}, so
 you can call \code{audit()} following \code{duplicate_count_colpair()} to get a
 summary of \code{duplicate_count_colpair()}'s results. It is a tibble with a
-single row and these columns --
+single row and the columns below. If the tibble is too wide, call
+\code{audit_list()} instead.
 \itemize{
 \item \code{n}: number of column pairs tested (index 1).
 \item \code{count_min}, \code{count_max}, \code{count_mean}, \code{count_sd}, \code{count_median}:
@@ -50,9 +51,6 @@ Summary statistics of the \code{rate_x} column (index 7 to 11).
 \item \code{rate_y_min}, \code{rate_y_max}, \code{rate_y_mean}, \code{rate_y_sd}, \code{rate_y_median}:
 Summary statistics of the \code{rate_y} column (index 12 to 16).
 }
-
-You may pipe the output of \code{audit()} into \code{as.list()} for better
-readability.
 }
 
 \examples{

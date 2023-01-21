@@ -58,6 +58,8 @@
 #'
 #' @export
 #'
+#' @name subset-superset
+#'
 #' @examples
 #' # Define example vectors:
 #' ab <- c("a", "b")
@@ -98,24 +100,25 @@
 
 # Basic two-vector functions ----------------------------------------------
 
+#' @rdname subset-superset
+#' @export
+
 is_subset_of <- function(x, y) {
   x_rest <- x[!x %in% y]
-
-  length(x_rest) == 0
+  length(x_rest) == 0L
 }
 
 
-#' @rdname is_subset_of
+#' @rdname subset-superset
 #' @export
 
 is_superset_of <- function(x, y) {
   y_rest <- y[!y %in% x]
-
-  length(y_rest) == 0
+  length(y_rest) == 0L
 }
 
 
-#' @rdname is_subset_of
+#' @rdname subset-superset
 #' @export
 
 is_equal_set <- function(x, y) {
@@ -123,7 +126,7 @@ is_equal_set <- function(x, y) {
 }
 
 
-#' @rdname is_subset_of
+#' @rdname subset-superset
 #' @export
 
 is_proper_subset_of <- function(x, y) {
@@ -131,7 +134,7 @@ is_proper_subset_of <- function(x, y) {
 }
 
 
-#' @rdname is_subset_of
+#' @rdname subset-superset
 #' @export
 
 is_proper_superset_of <- function(x, y) {
@@ -142,54 +145,49 @@ is_proper_superset_of <- function(x, y) {
 
 # With multiple arguments treated as values -------------------------------
 
-#' @rdname is_subset_of
+#' @rdname subset-superset
 #' @export
 
 is_subset_of_vals <- function(x, ...) {
   y <- rlang::enexprs(...)
-
   is_subset_of(x, y)
 }
 
 
 
-#' @rdname is_subset_of
+#' @rdname subset-superset
 #' @export
 
 is_superset_of_vals <- function(x, ...) {
   y <- rlang::enexprs(...)
-
   is_superset_of(x, y)
 }
 
 
 
-#' @rdname is_subset_of
+#' @rdname subset-superset
 #' @export
 
 is_equal_set_vals <- function(x, ...) {
   y <- rlang::enexprs(...)
-
   is_equal_set(x, y)
 }
 
 
-#' @rdname is_subset_of
+#' @rdname subset-superset
 #' @export
 
 is_proper_subset_of_vals <- function(x, ...) {
   y <- rlang::enexprs(...)
-
   is_proper_subset_of(x, y)
 }
 
 
-#' @rdname is_subset_of
+#' @rdname subset-superset
 #' @export
 
 is_proper_superset_of_vals <- function(x, ...) {
   y <- rlang::enexprs(...)
-
   is_proper_superset_of(x, y)
 }
 
@@ -200,54 +198,49 @@ is_proper_superset_of_vals <- function(x, ...) {
 
 # Note: The helper function `straighten_out()` can be found in the utils.R file.
 
-#' @rdname is_subset_of
+#' @rdname subset-superset
 #' @export
 
 is_subset_of_vecs <- function(x, ...) {
   y <- straighten_out(...)
-
   is_subset_of(x, y)
 }
 
 
 
-#' @rdname is_subset_of
+#' @rdname subset-superset
 #' @export
 
 is_superset_of_vecs <- function(x, ...) {
   y <- straighten_out(...)
-
   is_superset_of(x, y)
 }
 
 
 
-#' @rdname is_subset_of
+#' @rdname subset-superset
 #' @export
 
 is_equal_set_vecs <- function(x, ...) {
   y <- straighten_out(...)
-
   is_equal_set(x, y)
 }
 
 
-#' @rdname is_subset_of
+#' @rdname subset-superset
 #' @export
 
 is_proper_subset_of_vecs <- function(x, ...) {
   y <- straighten_out(...)
-
   is_proper_subset_of(x, y)
 }
 
 
-#' @rdname is_subset_of
+#' @rdname subset-superset
 #' @export
 
 is_proper_superset_of_vecs <- function(x, ...) {
   y <- straighten_out(...)
-
   is_proper_superset_of(x, y)
 }
 

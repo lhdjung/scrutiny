@@ -7,7 +7,7 @@
 unround(x, rounding = "up_or_down", threshold = 5, digits = NULL)
 }
 \arguments{
-\item{x}{String or numeric. Rounded number. \code{x} needs to be a string unless
+\item{x}{String or numeric. Rounded number. \code{x} must be a string unless
 \code{digits} is specified (most likely by a function that uses \code{unround()} as a
 helper).}
 
@@ -21,7 +21,7 @@ rounding methods are not affected. Default is \code{5}.}
 efficient to use as a helper function so that it doesn't need to
 redundantly count decimal places. Don't specify it otherwise. Default is
 \code{NULL}, in which case decimal places really are counted internally and \code{x}
-needs to be a string.}
+must be a string.}
 }
 \value{
 A tibble with seven columns: \code{range}, \code{rounding}, \code{lower},
@@ -43,13 +43,13 @@ The function is vectorized over \code{x} and \code{rounding}. This can be
 useful to unround multiple numbers at once, or to check how a single number
 is unrounded with different assumed rounding methods.
 
-If both vectors have a length greater than 1, it needs to be the same
+If both vectors have a length greater than 1, it must be the same
 length. However, this will pair numbers with rounding methods, which can be
 confusing. It is recommended that at least one of these input vectors has
 length 1.
 
 Why does \code{x} need to be a string if \code{digits} is not specified? In that
-case, \code{unround()} needs to count decimal places by itself. If \code{x} then was
+case, \code{unround()} must count decimal places by itself. If \code{x} then was
 numeric, it wouldn't have any trailing zeros because these get dropped from
 numerics.
 

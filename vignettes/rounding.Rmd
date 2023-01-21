@@ -73,7 +73,7 @@ round_up_from(x = 4.28, digits = 1, threshold = 9)
 round_up_from(x = 4.28, digits = 1, threshold = 1)
 ```
 
-These two functions have their mirror images in `round_down()` and `round_down_from()`. Like `round_down()`, Python rounds down from 5. The arguments are the same as in `round_up()`:
+These two functions have their mirror images in `round_down()` and `round_down_from()`. The arguments are the same as in `round_up()`:
 
 ```{r}
 round_down(x = 1.24, digits = 1)
@@ -93,13 +93,13 @@ round_down_from(x = 4.28, digits = 1, threshold = 1)
 
 ### To even (base R)
 
-Base R's own rounding function is an outlier in statistical computing. `base::round()` doesn't round up or down, or use any other procedure based solely on the truncated part of the number. Instead, `round()` strives to round to the next even number. (This is also called "banker's rounding".)
+Like Python's [`round()`](https://python-reference.readthedocs.io/en/latest/docs/functions/round.html) function, R's `base::round()` doesn't round up or down, or use any other procedure based solely on the truncated part of the number. Instead, `round()` strives to round to the next even number. This is also called "banker's rounding", and it follows a technical standard, [IEEE 754](https://en.m.wikipedia.org/wiki/IEEE_754#Roundings_to_nearest).
 
 Realizing that `round()` works in a highly unintuitive way sometimes leads to consternation. Why can't we just round like we learned in school, that is, up from 5? The reason seems to be bias. Because 5 is right in between two whole numbers, any procedure that rounds 5 in some predetermined direction introduces a bias toward that direction. Rounding up from 5 is therefore biased upward, and rounding down from 5 is biased downward.
 
 As shown in the *Rounding bias* section below, this is unlikely to be a major issue when rounding raw numbers that originally have many decimal places. It might be more serious, however, if the initial number of decimal places is low (for whatever reason) and the need for precision is high.
 
-At least in theory, "rounding to even" is not biased in either direction, such that the mean of the rounded distribution is equal to the mean of the original distribution. That is how `round()` aims to operate. Here is a case in which it works out, whereas the bias of rounding up or down is fully apparent:
+At least in theory, "rounding to even" is not biased in either direction, and it preserves the mean of the original distribution. That is how `round()` aims to operate. Here is a case in which it works out, whereas the bias of rounding up or down is fully apparent:
 
 ```{r}
 vec1 <- seq(from = 0.5, to = 9.5)
@@ -123,7 +123,7 @@ mean(down1)
 mean(even1)
 ```
 
-However, this noble goal of unbiased rounding runs up against the reality of floating point computations. You might therefore get results from `round()` that first seem bizarre, or at least unpredictable. Consider:
+However, this noble goal of unbiased rounding runs up against the reality of floating point arithmetic. You might therefore get results from `round()` that first seem bizarre, or at least unpredictable. Consider:
 
 ```{r}
 vec2 <- seq(from = 4.5, to = 10.5)
@@ -140,7 +140,7 @@ even2  # No symmetry here...
 mean(vec2)
 mean(up2)
 mean(down2)
-mean(even2)  # ... and the mean is biased downward!
+mean(even2)  # ... and the mean is slightly biased downward!
 
 
 vec3 <- c(
@@ -148,29 +148,27 @@ vec3 <- c(
   1.55, 1.65, 1.75, 1.85, 1.95
 )
 
-# This seems fine...
-vec3 %>% 
-  round(1)
-
-# ...but this doesn't:
-vec3 %>% 
-  `+`(1) %>% 
-  round(1)
+# No bias here, though:
+round(vec3, 1)
+mean(vec3)
+mean(round(vec3, 1))
 ```
 
-Sometimes `round()` behaves just as it should, but at other times, results can be hard to explain. [Martin Mächler](https://cran.r-project.org/package=round), who wrote the present version of `round()`, describes the issue about as follows:
+Sometimes `round()` behaves just as it should, but at other times, results can be hard to explain. Martin Mächler, who wrote the present version of `round()`, [describes the issue](https://rpubs.com/maechler/Rounding) about as follows:
 
-The reason for the above behavior is that most decimal fractions can't, in fact, be represented as double precision numbers. Even seemingly "clean" numbers with only a few decimal places come with an invisible mantissa, and are therefore closer to one side or the other. Rounding to even in R, while ostensibly about breaking the tie that occurs at 5, is actually much more about measuring which of the two sides is closer to the number to be rounded.
+The reason for the above behavior is that most decimal fractions can't, in fact, be represented as double precision numbers. Even seemingly "clean" numbers with only a few decimal places come with a long invisible mantissa, and are therefore closer to one side or the other.
 
-This seems better than going with mathematical intuitions that sometimes may have little relation to the way computers actually deal with these issues. R has been using the present solution since version 4.0.0.
+We usually think that rounding rules are all about breaking a tie that occurs at 5. Most floating-point numbers, however, are just somewhat less than or greater than 5. There is no tie! Consequently, Mächler says, rounding functions need to "*measure, not guess* which of the two possible decimals is closer to `x`" --- and therefore, which way to round.
 
-In effect, `base::round()` is a black box, but it seems to be unbiased in the long run. I recommend using `round()` for original work, even though it is quite different from other rounding procedures --- and therefore unsuitable to reconstructing them. Instead, we need something like scrutiny's `round_*()` functions.
+This seems better than going with mathematical intuitions that may not always correspond to the way computers actually deal with these issues. R has been using the present solution since version 4.0.0.
+
+`base::round()` can seem like a black box, but it seems unbiased in the long run. I recommend using `round()` for original work, even though it is quite different from other rounding procedures --- and therefore unsuitable for reconstructing them. Instead, we need something like scrutiny's `round_*()` functions.
 
 ## Reconstruct rounding bounds with `unround()`
 
-Rounding deletes information. The mantissa is cut off in part or in full, and the resulting number is underdetermined with respect to the original number: The latter can't be inferred from the former. It might be of interest, however, to compute the range of the original number given the rounded number (especially the number of decimal places to which it was rounded) and the presumed rounding method.
+Rounding leads to a loss of information. The mantissa is cut off in part or in full, and the resulting number is underdetermined with respect to the original number: The latter can't be inferred from the former. It might be of interest, however, to compute the range of the original number given the rounded number (especially the number of decimal places to which it was rounded) and the presumed rounding method.
 
-While it's often easy to infer such a range, it might also be also useful to have a general function to use as a helper in another function for analyzing reported numbers. That function is `unround()`. It returns the lower and upper bounds, and it says whether these bounds are inclusive or not --- something that varies greatly by rounding procedure. Currently, `unround()` is used as a helper within scrutiny's DEBIT implementation; see `vignette("debit")`.
+While it's often easy to infer such a range, we better have the computer do it. Enter `unround()`. It returns the lower and upper bounds, and it says whether these bounds are inclusive or not --- something that varies greatly by rounding procedure. Currently, `unround()` is used as a helper within scrutiny's DEBIT implementation; see `vignette("debit")`.
 
 The default rounding procedure for `unround()` is `"up_or_down"`:
 

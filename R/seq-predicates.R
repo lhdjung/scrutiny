@@ -35,7 +35,7 @@ is_linear <- function(x, tolerance) {
 
 
 is_seq_ascending_basic <- function(x) {
-  for (i in 1:(length(x) - 1)) {
+  for (i in 1:(length(x) - 1L)) {
     if (x[i + 1] <= x[i]) {
       return(FALSE)
     }
@@ -45,7 +45,7 @@ is_seq_ascending_basic <- function(x) {
 
 
 is_seq_descending_basic <- function(x) {
-  for (i in 1:(length(x) - 1)) {
+  for (i in 1:(length(x) - 1L)) {
     if (x[i + 1] >= x[i]) {
       return(FALSE)
     }
@@ -79,7 +79,7 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
     return(NA)
   }
 
-  if (!is_numericish(x)) {
+  if (!is_numeric_like(x)) {
     return(FALSE)
   }
 
@@ -118,19 +118,19 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
       }
     }
 
-    # Used within the for loop below to check whether the step size needs to be
+    # Used within the for loop below to check whether the step size must be
     # negative:
     x_is_descending_basic <- is_seq_descending_basic(x[!is.na(x)])
 
     for (i in seq_along(x)) {
       if (is.na(x[i])) {
-        index_lower <- 1
-        index_upper <- 1
+        index_lower <- 1L
+        index_upper <- 1L
         while (is.na(x[i - index_lower])) {
-          index_lower <- index_lower - 1
+          index_lower <- index_lower - 1L
         }
         while (is.na(x[i + index_upper])) {
-          index_upper <- index_upper + 1
+          index_upper <- index_upper + 1L
         }
 
         seq_start <- x[i - index_lower]
@@ -159,7 +159,7 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
           # elements, which invariably means that the numbers surrounding the
           # `NA`s are too far spaced out for there to be a linear sequence. In
           # either case...
-          seq_replacement_has_wrong_length <- length(seq_replacement) == 0 ||
+          seq_replacement_has_wrong_length <- length(seq_replacement) == 0L ||
             length(seq_replacement) > length(index_lower:index_upper)
 
           # ...an error is thrown:
@@ -173,7 +173,7 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
         # case -- `x` is non-linear and `test_linear` is `FALSE`, i.e., the user
         # only wants one of the special tests but not the test for linearity:
         suppressWarnings(
-          x[i + ((index_lower:index_upper) - 1)] <- seq_replacement
+          x[i + ((index_lower:index_upper) - 1L)] <- seq_replacement
         )
 
       } # End of the `is.na(x[i])` condition
@@ -196,7 +196,7 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
 
   # Interface for the special variant functions:
   if (!is.null(test_special)) {
-    pass_test_special <- switch (
+    pass_test_special <- switch(
       test_special,
       "ascending"  = is_seq_ascending_basic(x),
       "descending" = is_seq_descending_basic(x),
@@ -205,17 +205,27 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
     pass_test <- pass_test && pass_test_special
   }
 
-  if (pass_test) {
-
-    if (x_has_na) {
-      return(NA)
-    } else {
-      return(TRUE)
-    }
-
-  } else {
+  if (!pass_test) {
     return(FALSE)
   }
+
+  if (x_has_na) {
+    NA
+  } else {
+    TRUE
+  }
+
+  # if (pass_test) {
+  #
+  #   if (x_has_na) {
+  #     return(NA)
+  #   } else {
+  #     return(TRUE)
+  #   }
+  #
+  # } else {
+  #   return(FALSE)
+  # }
 
 }
 
@@ -240,7 +250,8 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
 #' `NA` elements of `x` are handled in a nuanced way. See *Value* section below
 #' and the examples in `vignette("infrastructure")`, section *NA handling*.
 
-#' @param x Numeric or coercible to numeric. Vector to be tested.
+#' @param x Numeric or coercible to numeric, as determined by
+#'   `is_numeric_like()`. Vector to be tested.
 #' @param from Numeric or coercible to numeric. Only in `is_seq_dispersed()`. It
 #'   will test whether `from` is at the center of `x`, and if every pair of
 #'   other values is equidistant to it.
@@ -263,6 +274,8 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
 #'   additional features, such as support for date-times.
 
 #' @export
+#'
+#' @name seq-predicates
 
 #' @examples
 #' # These are linear sequences...
@@ -293,6 +306,8 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
 
 
 
+#' @rdname seq-predicates
+#' @export
 
 is_seq_linear <- function(x, tolerance = .Machine$double.eps^0.5) {
   is_seq_basic(x, tolerance, test_linear = TRUE)
@@ -300,37 +315,37 @@ is_seq_linear <- function(x, tolerance = .Machine$double.eps^0.5) {
 
 
 
+#' @rdname seq-predicates
 #' @export
-#' @rdname is_seq_linear
 
 is_seq_ascending <- function(x, test_linear = TRUE,
                              tolerance = .Machine$double.eps^0.5) {
   is_seq_basic(
-    x, tolerance, test_linear, test_special = "ascending", min_length = 2
+    x, tolerance, test_linear, test_special = "ascending", min_length = 2L
   )
 }
 
 
 
+#' @rdname seq-predicates
 #' @export
-#' @rdname is_seq_linear
 
 is_seq_descending <- function(x, test_linear = TRUE,
                               tolerance = .Machine$double.eps^0.5) {
   is_seq_basic(
-    x, tolerance, test_linear, test_special = "descending", min_length = 2
+    x, tolerance, test_linear, test_special = "descending", min_length = 2L
   )
 }
 
 
 
+#' @rdname seq-predicates
 #' @export
-#' @rdname is_seq_linear
 
 is_seq_dispersed <- function(x, from, test_linear = TRUE,
                              tolerance = .Machine$double.eps^0.5) {
   is_seq_basic(
-    x, tolerance, test_linear, test_special = "dispersed", min_length = 3,
+    x, tolerance, test_linear, test_special = "dispersed", min_length = 3L,
     args_other = list(from = from)
   )
 }
@@ -347,7 +362,7 @@ is_seq_dispersed_basic <- function(x, from,
   }
 
   if (!is.numeric(x)) {
-    if (is_numericish(x)) {
+    if (is_numeric_like(x)) {
       x <- as.numeric(x)
     } else {
       return(FALSE)
@@ -355,7 +370,7 @@ is_seq_dispersed_basic <- function(x, from,
   }
 
   if (!is.numeric(from)) {
-    if (is_numericish(from)) {
+    if (is_numeric_like(from)) {
       x <- as.numeric(from)
     } else {
       return(FALSE)
@@ -368,8 +383,8 @@ is_seq_dispersed_basic <- function(x, from,
     return(FALSE)
   }
 
-  dispersion_minus <- from - x[1:(index_central_x - 1)]
-  dispersion_plus  <- from + x[(index_central_x + 1):length(x)]
+  dispersion_minus <- from - x[1:(index_central_x - 1L)]
+  dispersion_plus  <- from + x[(index_central_x + 1L):length(x)]
 
   from_reconstructed <- (dispersion_plus - rev(dispersion_minus)) / 2
 

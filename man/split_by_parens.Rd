@@ -5,47 +5,55 @@
 \title{Split columns by parentheses, brackets, braces, or similar}
 \usage{
 split_by_parens(
-  .data,
-  ...,
-  .keep = FALSE,
-  .transform = FALSE,
-  .sep = "parens",
-  .col1 = "x",
-  .col2 = "sd"
+  data,
+  cols = everything(),
+  check_sep = TRUE,
+  keep = FALSE,
+  transform = FALSE,
+  sep = "parens",
+  end1 = "x",
+  end2 = "sd",
+  ...
 )
 }
 \arguments{
-\item{.data}{Data frame. Only in \code{split_by_parens()}.}
+\item{data}{Data frame.}
 
-\item{...}{Optionally, select columns from \code{.data} as in \code{dplyr::select()}.
-Splitting will then be restricted to these columns. This is useful if not
-all values contain parentheses.}
+\item{cols}{Select columns from \code{data} using
+\href{https://tidyselect.r-lib.org/reference/language.html}{tidyselect}.
+Default is \code{everything()}, which selects all columns that pass \code{check_sep}.}
 
-\item{.keep}{Boolean. If set to \code{TRUE}, the original columns from \code{.data}
-also appear in the output. Default is \code{FALSE}.}
+\item{check_sep}{Boolean. If \code{TRUE} (the default), columns are excluded if
+they don't contain the \code{sep} elements.}
 
-\item{.transform}{Boolean. If set to \code{TRUE}, the output will be transformed
-to be better accessible for typical follow-up tasks. Default is \code{FALSE}.}
+\item{keep}{Boolean. If set to \code{TRUE}, the originally selected columns that
+were split by the function also appear in the output. Default is \code{FALSE}.}
 
-\item{.sep}{String. What to split by. Either \code{"parens"}, \code{"brackets"}, or
+\item{transform}{Boolean. If set to \code{TRUE}, the output will be pivoted to be
+better suitable for typical follow-up tasks. Default is \code{FALSE}.}
+
+\item{sep}{String. What to split by. Either \code{"parens"}, \code{"brackets"}, or
 \code{"braces"}; or a length-2 vector of custom separators (see Examples).
 Default is \code{"parens"}.}
 
-\item{.col1, .col2}{Strings. Endings of the two column names that result from
-splitting a column. Default is \code{"x"} for \code{.col1} and \code{"sd"} for \code{.col2}.}
+\item{end1, end2}{Strings. Endings of the two column names that result from
+splitting a column. Default is \code{"x"} for \code{end1} and \code{"sd"} for \code{end2}.}
+
+\item{...}{These dots must be empty.}
 }
 \value{
-A tibble with string columns.
+Data frame.
 }
 \description{
 Summary statistics are often presented like \code{"2.65 (0.27)"}.
-When working with tables from PDF, it can be tedious to separate values
-before and inside parentheses. \code{split_by_parens()} does that automatically.
+When working with tables copied into R, it can be tedious to separate
+values before and inside parentheses. \code{split_by_parens()} does this
+automatically.
 
-By default, it operates on all columns. Output can optionally be
-transformed into a longer format by setting \code{.transform} to \code{TRUE}.
+By default, it operates on all columns. Output can optionally be pivoted
+into a longer format by setting \code{transform} to \code{TRUE}.
 
-Choose separators other than parentheses by specifying the \code{.sep} argument.
+Choose separators other than parentheses with the \code{sep} argument.
 }
 \examples{
 # Call `split_by_parens()` on data like these:
@@ -61,23 +69,25 @@ df1 <- tibble::tribble(
 df1 \%>\%
   split_by_parens()
 
-# Name specific columns to only return those:
+# Name specific columns with `cols` to only split those:
 df1 \%>\%
-  split_by_parens(drone)
+  split_by_parens(cols = drone)
 
 # Pivot the data into a longer format
-# by setting `.transform` to `TRUE`:
+# by setting `transform` to `TRUE`:
 df1 \%>\%
-  split_by_parens(.transform = TRUE)
+  split_by_parens(transform = TRUE)
 
 # Choose different column names or
-# name suffixes with `.col1` and `.col2`:
+# name suffixes with `end1` and `end2`:
 df1 \%>\%
-  split_by_parens(.col1 = "beta", .col2 = "se")
+  split_by_parens(end1 = "beta", end2 = "se")
 
 df1 \%>\%
-  split_by_parens(.transform = TRUE,
-  .col1 = "beta", .col2 = "se")
+  split_by_parens(
+    transform = TRUE,
+    end1 = "beta", end2 = "se"
+  )
 
 # With a different separator...
 df2 <- tibble::tribble(
@@ -88,9 +98,9 @@ df2 <- tibble::tribble(
   "0.15 [0.35]",    "0.57 [0.16]",
 )
 
-# ... specify `.sep`:
+# ... specify `sep`:
 df2 \%>\%
-  split_by_parens(.sep = "brackets")
+  split_by_parens(sep = "brackets")
 
 # (Accordingly with `{}` and `"braces"`.)
 
@@ -103,18 +113,18 @@ df3 <- tibble::tribble(
   "0.15 <0.35>",    "0.57 <0.16>",
 )
 
-# ... `.sep` should be a length-2 vector
+# ... `sep` should be a length-2 vector
 # that contains the separating elements:
 df3 \%>\%
-  split_by_parens(.sep = c("<", ">"))
+  split_by_parens(sep = c("<", ">"))
 }
 \seealso{
 \itemize{
-\item \code{before_parens()} and \code{inside_parens()} take a string vector and
-extract values from the respective position.
+\item \code{before_parens()} and \code{inside_parens()} take a string vector and extract
+values from the respective position.
 \item \code{dplyr::across()} powers the application of the two above functions within
 \code{split_by_parens()}, including the creation of new columns.
-\item \code{tidyr::separate()} is a more general function (but does not recognize
-closing elements).
+\item \code{tidyr::separate()} is a more general function, but it does not recognize
+closing elements such as closed parentheses.
 }
 }

@@ -18,7 +18,7 @@ function_map(
 \arguments{
 \item{.fun}{Single-case consistency testing function that will be applied to
 each row in a data frame, such as the (non-exported) scrutiny functions
-\code{grim_scalar()} and \code{debit_scalar()}. It needs to return a Boolean value of
+\code{grim_scalar()} and \code{debit_scalar()}. It must return a Boolean value of
 length 1, i.e., \code{TRUE} or \code{FALSE}.}
 
 \item{.reported}{String. Names of the columns to be tested.}
@@ -50,7 +50,7 @@ returned the \code{consistency} value.}
 \value{
 A factory-made function with these arguments:
 \itemize{
-\item \code{data}: Data frame with all the columns named in \code{.reported}. It needs to
+\item \code{data}: Data frame with all the columns named in \code{.reported}. It must
 have columns named after the key arguments in \code{.fun}. Other columns are
 permitted.
 \item Arguments named after the \code{.reported} values. They can be specified as the

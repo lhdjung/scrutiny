@@ -37,7 +37,7 @@
 # @examples
 
 
-row_to_colnames <- function(data, row = 1, collapse = " ", drop = TRUE) {
+row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
 
   # Initial checks ---
 
@@ -46,24 +46,25 @@ row_to_colnames <- function(data, row = 1, collapse = " ", drop = TRUE) {
       data <- tibble::as_tibble(data)
     } else {
       cli::cli_abort(c(
-        "`data` is {an_a_type(data)}",
-        "x" = "It needs to be a data frame or a matrix."
+        "!" = "`data` must be a data frame or a matrix.",
+        "x" = "It is {an_a_type(data)}."
       ))
     }
   }
 
-  if (length(row) < 1) {
+  if (length(row) < 1L) {
     cli::cli_abort(c(
-      "`row` has length {length(row)}",
-      "x" = "It needs to have length 1 or more."
+      "!" = "`row` must have length 1 or greater.",
+      "x" = "It has length {length(row)}."
     ))
   }
 
   if (any(!is_whole_number(row))) {
-    row <- wrap_in_backticks(row)
+    offenders <- row[!is_whole_number(row)]
+    offenders <- wrap_in_backticks(offenders)
     cli::cli_abort(c(
-      "`row` is {row}",
-      "x" = "It needs to be a whole number."
+      "!" = "`row` must only have whole numbers.",
+      "x" = "It includes {offenders}."
     ))
   }
 
@@ -76,9 +77,9 @@ row_to_colnames <- function(data, row = 1, collapse = " ", drop = TRUE) {
   correct <- rbind(colnames(data), correct)
   correct <- purrr::map(correct, remove_na)
 
-  correct <- purrr::map(correct, utils::tail, (length(correct[[1]]) - 1))
+  correct <- purrr::map(correct, utils::tail, (length(correct[[1]]) - 1L))
 
-  # If multiple rows were specified that way, the resulting vector needs to be
+  # If multiple rows were specified that way, the resulting vector must be
   # pasted to one single string per column to restore the correct column names:
   if (length(row) > 1) {
     correct <- purrr::map(correct, paste0, collapse = collapse)
@@ -88,17 +89,17 @@ row_to_colnames <- function(data, row = 1, collapse = " ", drop = TRUE) {
   # Subsequent checks ---
 
   # Check for empty strings in the "correct" column names:
-  correct_is_empty <- stringr::str_length(correct) == 0
+  correct_is_empty <- stringr::str_length(correct) == 0L
 
   # If any of those strings really are empty, they are unsuitable as column
   # names. An error is then thrown:
   if (any(correct_is_empty)) {
     n_empty <- length(correct_is_empty[correct_is_empty])
-    name_names <- dplyr::if_else(n_empty == 1, "name", "names")
+    name_names <- dplyr::if_else(n_empty == 1L, "name", "names")
     cli::cli_abort(c(
-      "{n_empty} empty column {name_names}.",
-      "x" = "Each column name must have at least one character.",
-      ">" = "Make sure to specify `row` in `row_to_colnames()` accordingly."
+      "!" = "Each column name must have at least one character.",
+      "x" = "{n_empty} empty column {name_names}.",
+      "i" = "Make sure to specify `row` in `row_to_colnames()` accordingly."
     ))
   }
 

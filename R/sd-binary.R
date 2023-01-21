@@ -28,6 +28,8 @@
 #'
 #' @export
 #'
+#' @name sd-binary
+#'
 #' @references Heathers, James A. J., and Brown, Nicholas J. L. 2019. DEBIT: A
 #'   Simple Consistency Test For Binary Data. https://osf.io/5vb3u/.
 #'
@@ -50,6 +52,8 @@
 
 # From both groups --------------------------------------------------------
 
+#' @rdname sd-binary
+
 sd_binary_groups <- function(group_0, group_1) {
   n <- group_0 + group_1
 
@@ -60,7 +64,7 @@ sd_binary_groups <- function(group_0, group_1) {
 
 # From subgroup coded as 0 and sample size --------------------------------
 
-#' @rdname sd_binary_groups
+#' @rdname sd-binary
 #' @export
 
 sd_binary_0_n <- function(group_0, n) {
@@ -73,7 +77,7 @@ sd_binary_0_n <- function(group_0, n) {
 
 # From subgroup coded as 1 and sample size --------------------------------
 
-#' @rdname sd_binary_groups
+#' @rdname sd-binary
 #' @export
 
 sd_binary_1_n <- function(group_1, n) {
@@ -86,7 +90,7 @@ sd_binary_1_n <- function(group_1, n) {
 
 # From mean and sample size -----------------------------------------------
 
-#' @rdname sd_binary_groups
+#' @rdname sd-binary
 #' @export
 
 sd_binary_mean_n <- function(mean, n) {

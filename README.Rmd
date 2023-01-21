@@ -80,7 +80,7 @@ pigs2
 grim_map(pigs2, percent = TRUE)
 ```
 
-You can choose how the means are reconstructed for testing --- here, rounded up from 5. When visualizing results, the plot will adjust automatically. Blue dots are consistent values, red dots are inconsistent ones:
+You can choose how the means are reconstructed for testing --- below, rounded up from 5. When visualizing results, the plot will adjust automatically. Blue dots are consistent values, red dots are inconsistent ones:
 
 ```{r}
 pigs1 %>% 
