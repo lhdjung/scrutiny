@@ -52,13 +52,13 @@
     <loc>https://lhdjung.github.io/scrutiny/reference/audit_cols_minimal.html</loc>
   </url>
   <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/before_parens.html</loc>
-  </url>
-  <url>
     <loc>https://lhdjung.github.io/scrutiny/reference/check_audit_special.html</loc>
   </url>
   <url>
     <loc>https://lhdjung.github.io/scrutiny/reference/check_mapper_input_colnames.html</loc>
+  </url>
+  <url>
+    <loc>https://lhdjung.github.io/scrutiny/reference/data-frame-predicates.html</loc>
   </url>
   <url>
     <loc>https://lhdjung.github.io/scrutiny/reference/debit.html</loc>
@@ -79,6 +79,9 @@
     <loc>https://lhdjung.github.io/scrutiny/reference/decimal_places.html</loc>
   </url>
   <url>
+    <loc>https://lhdjung.github.io/scrutiny/reference/decimal_places_df.html</loc>
+  </url>
+  <url>
     <loc>https://lhdjung.github.io/scrutiny/reference/disperse.html</loc>
   </url>
   <url>
@@ -91,6 +94,9 @@
     <loc>https://lhdjung.github.io/scrutiny/reference/duplicate_detect.html</loc>
   </url>
   <url>
+    <loc>https://lhdjung.github.io/scrutiny/reference/fractional-rounding.html</loc>
+  </url>
+  <url>
     <loc>https://lhdjung.github.io/scrutiny/reference/function_map.html</loc>
   </url>
   <url>
@@ -98,6 +104,9 @@
   </url>
   <url>
     <loc>https://lhdjung.github.io/scrutiny/reference/function_map_total_n.html</loc>
+  </url>
+  <url>
+    <loc>https://lhdjung.github.io/scrutiny/reference/grim-stats.html</loc>
   </url>
   <url>
     <loc>https://lhdjung.github.io/scrutiny/reference/grim.html</loc>
@@ -118,9 +127,6 @@
     <loc>https://lhdjung.github.io/scrutiny/reference/grim_plot.html</loc>
   </url>
   <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/grim_total.html</loc>
-  </url>
-  <url>
     <loc>https://lhdjung.github.io/scrutiny/reference/grimmer.html</loc>
   </url>
   <url>
@@ -136,16 +142,16 @@
     <loc>https://lhdjung.github.io/scrutiny/reference/index.html</loc>
   </url>
   <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/is_seq_linear.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/is_subset_of.html</loc>
+    <loc>https://lhdjung.github.io/scrutiny/reference/is_numeric_like.html</loc>
   </url>
   <url>
     <loc>https://lhdjung.github.io/scrutiny/reference/manage_helper_col.html</loc>
   </url>
   <url>
     <loc>https://lhdjung.github.io/scrutiny/reference/manage_key_colnames.html</loc>
+  </url>
+  <url>
+    <loc>https://lhdjung.github.io/scrutiny/reference/parens-extractors.html</loc>
   </url>
   <url>
     <loc>https://lhdjung.github.io/scrutiny/reference/pigs1.html</loc>
@@ -169,9 +175,6 @@
     <loc>https://lhdjung.github.io/scrutiny/reference/reround.html</loc>
   </url>
   <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/reround_to_fraction.html</loc>
-  </url>
-  <url>
     <loc>https://lhdjung.github.io/scrutiny/reference/restore_zeros.html</loc>
   </url>
   <url>
@@ -181,10 +184,10 @@
     <loc>https://lhdjung.github.io/scrutiny/reference/reverse_map_total_n.html</loc>
   </url>
   <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/round_ceiling.html</loc>
+    <loc>https://lhdjung.github.io/scrutiny/reference/rounding-common.html</loc>
   </url>
   <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/round_up_from.html</loc>
+    <loc>https://lhdjung.github.io/scrutiny/reference/rounding-uncommon.html</loc>
   </url>
   <url>
     <loc>https://lhdjung.github.io/scrutiny/reference/rounding_bias.html</loc>
@@ -193,13 +196,16 @@
     <loc>https://lhdjung.github.io/scrutiny/reference/row_to_colnames.html</loc>
   </url>
   <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/sd_binary_groups.html</loc>
+    <loc>https://lhdjung.github.io/scrutiny/reference/sd-binary.html</loc>
+  </url>
+  <url>
+    <loc>https://lhdjung.github.io/scrutiny/reference/seq-decimal.html</loc>
+  </url>
+  <url>
+    <loc>https://lhdjung.github.io/scrutiny/reference/seq-predicates.html</loc>
   </url>
   <url>
     <loc>https://lhdjung.github.io/scrutiny/reference/seq_disperse.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/seq_endpoint.html</loc>
   </url>
   <url>
     <loc>https://lhdjung.github.io/scrutiny/reference/seq_length.html</loc>
@@ -209,6 +215,9 @@
   </url>
   <url>
     <loc>https://lhdjung.github.io/scrutiny/reference/split_by_parens.html</loc>
+  </url>
+  <url>
+    <loc>https://lhdjung.github.io/scrutiny/reference/subset-superset.html</loc>
   </url>
   <url>
     <loc>https://lhdjung.github.io/scrutiny/reference/tidyeval.html</loc>
