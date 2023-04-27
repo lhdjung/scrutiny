@@ -398,10 +398,11 @@ summarize_audit_special <- function(data, selector) {
     out <- dplyr::bind_rows(out, temp)
   }
 
-  term <- names(out)
-  out <- tibble::as_tibble(t(out), .name_repair = ~ fn_names)
-
-  dplyr::mutate(out, term, .before = 1L)
+  out %>%
+    t() %>%
+    tibble::as_tibble(.name_repair = ~ fn_names) %>%
+    dplyr::mutate(term = names(out), .before = 1L) %>%
+    dplyr::mutate(na_rate = na_count / nrow(data), .after = na_rate)
 }
 
 

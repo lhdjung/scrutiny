@@ -280,7 +280,10 @@ write_doc_audit_seq <- function(key_args, name_test) {
     "#'   next higher or lower consistent value, respectively. \n",
     var_ge_3_line_diff_all,
     "#' \n",
-    "#'   Call `audit()` following `audit_seq()` to summarize results even further. \n"
+    "#'   Call `audit()` following `audit_seq()` to summarize results even further. \n",
+    "#'   It's mostly self-explaining, but `na_count` and `na_rate` are the number \n",
+    "#'   and rate of times that a difference could not be computed because of a lack \n",
+    "#'   of corresponding hits within the `dispersion` range. \n"
   )
 }
 

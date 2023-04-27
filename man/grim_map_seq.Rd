@@ -79,6 +79,9 @@ next higher or lower consistent value, respectively.
 }
 
 Call \code{audit()} following \code{audit_seq()} to summarize results even further.
+It's mostly self-explaining, but \code{na_count} and \code{na_rate} are the number
+and rate of times that a difference could not be computed because of a lack
+of corresponding hits within the \code{dispersion} range.
 }
 
 \examples{
