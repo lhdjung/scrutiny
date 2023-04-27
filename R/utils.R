@@ -793,26 +793,6 @@ check_type_numeric_like <- function(x) {
 
 
 
-#' Test if numeric-like vectors contain at least some decimal places
-#'
-#' For numeric-like `x` inputs (as determined by `is_numeric_like()`),
-#' `has_decimals_if_numeric_like()` checks if at least one element of `x` has at
-#' least one decimal place. If so, or if `x` is not numeric-like, the function
-#' returns `TRUE`. Otherwise, it returns `FALSE`.
-#'
-#' @param x Object to test.
-#' @param sep Separator between the integer and decimal parts. Passed on to
-#'   `decimal_places()`. Default is `"\\."`, a decimal point.
-#'
-#' @return Boolean (length 1).
-#'
-#' @noRd
-has_decimals_if_numeric_like <- function(x, sep = "\\.") {
-  !is_numeric_like(x) || !all(decimal_places(x, sep = sep) == 0L)
-}
-
-
-
 #' Interpolate the index case
 #'
 #' @description This function expects an `x` vector like the one described
