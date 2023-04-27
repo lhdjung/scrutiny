@@ -1,26 +1,18 @@
 
 #' Summarize scrutiny objects
 #'
-#' @description `audit()` is an S3 generic to follow up on those scrutiny
-#'   functions that perform tests on data frames. It summarizes results of those
-#'   tests and presents the summaries in a tibble. `audit_list()` is a variant
-#'   that returns a named list instead.
+#' @description `audit()` summarizes the results of scrutiny functions like
+#'   `grim_map()` that perform tests on data frames. `audit_list()` is a variant
+#'   that returns a named list instead of a tibble.
 #'
-#'   `audit_seq()` and `audit_total_n()` summarize the results of functions that
-#'   end on `_seq` and `_total_n`, respectively.
-#'
-#'   Below is a list of functions that return objects with classes for which
-#'   there are `audit()` methods. This means you can run `audit()` on the output
-#'   returned by any of these functions. The same is true for `audit_seq()` and
-#'   `audit_total_n()`.
-#'
-#'   Go to the documentation of any function named below to learn about its
-#'   `audit()` method, or about the way its output is processed by `audit_seq()`
-#'   or `audit_total_n()`.
+#'   See below for a record of such functions. Go to the documentation of any of
+#'   them to learn about its `audit()` method.
 
 #' @param data A data frame that inherits one of the classes named below.
 
-#' @section `audit()`:
+#' @details `audit()` is an S3 generic.
+
+#' @section Before `audit()`:
 #'   | \strong{Function}            | \strong{Class}              |
 #'   | ---                          | ---                         |
 #'   | `grim_map()`                 | `"scr_grim_map"`            |
@@ -32,20 +24,6 @@
 #'   | `audit_seq()`                | `"scr_audit_seq"`           |
 #'   | `audit_total_n()`            | `"scr_audit_total_n"`       |
 
-#' @section `audit_seq()`:
-#'   | \strong{Function}            | \strong{Class}              |
-#'   | ---                          | ---                         |
-#'   | `grim_map_seq()`             | `"scr_grim_map_seq"`        |
-#'   | `grimmer_map_seq()`          | `"scr_grimmer_map_seq"`     |
-#'   | `debit_map_seq()`            | `"scr_debit_map_seq"`       |
-
-#' @section `audit_total_n()`:
-#'   | \strong{Function}            | \strong{Class}              |
-#'   | ---                          | ---                         |
-#'   | `grim_map_total_n()`         | `"scr_grim_map_total_n"`    |
-#'   | `grimmer_map_total_n()`      | `"scr_grimmer_map_total_n"` |
-#'   | `debit_map_total_n()`        | `"scr_debit_map_total_n"`   |
-
 #' @return A tibble (data frame) with test summary statistics.
 #' @export
 #'
@@ -55,20 +33,11 @@
 #'   grim_map() %>%
 #'   audit()
 #'
-#' # For GRIM-testing with
-#' # dispersed inputs:
-#' pigs1 %>%
-#'   grim_map_seq() %>%
-#'   audit_seq()
-#'
-#' # For detecting duplicates:
+#' # For duplicate detection:
 #' pigs4 %>%
 #'   duplicate_detect() %>%
 #'   audit()
 
-
-
-# Main function (and list variant) ----------------------------------------
 
 audit <- function(data) {
   UseMethod("audit")
@@ -84,10 +53,52 @@ audit_list <- function(data) {
 
 
 
-# Variants for the output of other function factories ---------------------
+#' Summarize output of sequence mappers and total-n mappers
+#'
+#' @description `audit_seq()` and `audit_total_n()` summarize the results of
+#'   functions that end on `_seq` and `_total_n`, respectively.
+#'
+#'   See below for a record of such functions. Go to the documentation of any of
+#'   them to learn about the way its output is processed by `audit_seq()` or
+#'   `audit_total_n()`.
 
-#' @rdname audit
+#' @details All functions named below that end on `_seq` were made by
+#'   `function_map_seq()`. All that end on `_total_n` were made by
+#'   `function_map_total_n()`.
+
+#' @param data A data frame that inherits one of the classes named below.
+
+#' @name audit-special
+
+#' @section Before `audit_seq()`:
+#'   | \strong{Function}            | \strong{Class}              |
+#'   | ---                          | ---                         |
+#'   | `grim_map_seq()`             | `"scr_grim_map_seq"`        |
+#'   | `grimmer_map_seq()`          | `"scr_grimmer_map_seq"`     |
+#'   | `debit_map_seq()`            | `"scr_debit_map_seq"`       |
+
+#' @section Before `audit_total_n()`:
+#'   | \strong{Function}            | \strong{Class}              |
+#'   | ---                          | ---                         |
+#'   | `grim_map_total_n()`         | `"scr_grim_map_total_n"`    |
+#'   | `grimmer_map_total_n()`      | `"scr_grimmer_map_total_n"` |
+#'   | `debit_map_total_n()`        | `"scr_debit_map_total_n"`   |
+
+#' @return A tibble (data frame) with test summary statistics.
+#'
 #' @export
+#'
+#' @examples
+#' # For GRIM-testing with dispersed inputs:
+#' out <- pigs1 %>%
+#'   grim_map_seq() %>%
+#'   audit_seq()
+#' out
+#'
+#' # Follow up on `audit_seq()` or
+#' # `audit_total_n()` with `audit()`:
+#' audit(out)
+
 
 audit_seq <- function(data) {
 
@@ -220,7 +231,7 @@ audit_seq <- function(data) {
 
 
 
-#' @rdname audit
+#' @rdname audit-special
 #' @export
 
 audit_total_n <- function(data) {
