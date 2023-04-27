@@ -156,14 +156,6 @@ test_that("`add_class()` really does add one or more classes", {
 
 
 
-vec_test_3 <- remove_na(c(1, NA, 3, 4, NA))
-vec_expected_3 <- c(1, 3, 4)
-
-test_that("`remove_na()` removes all instances of `NA`", {
-  vec_test_3 %>% expect_equal(vec_expected_3)
-})
-
-
 
 test_that("`check_rounding_singular()` throws an error iff it should", {
   c("up_or_down", "floor")    %>% check_rounding_singular() %>% expect_error()

@@ -6,8 +6,8 @@
 
 duplicate_count_by_vec <- function(x, y, na.rm) {
   if (na.rm) {
-    x <- remove_na(x)
-    y <- remove_na(y)
+    x <- x[!is.na(x)]
+    y <- y[!is.na(y)]
   }
   count <- purrr::map_lgl(x, `%in%`, y)
   length(count[count])
@@ -17,9 +17,10 @@ duplicate_count_by_vec <- function(x, y, na.rm) {
 rate_from_data <- function(data, x, y, count, na.rm) {
   x <- data[x]
   y <- data[y]
+  rm(data)
   if (na.rm) {
-    x <- remove_na(x)
-    y <- remove_na(y)
+    x <- x[!is.na(x)]
+    y <- y[!is.na(y)]
   }
   x_rate <- count / length(x)
   y_rate <- count / length(y)
@@ -99,10 +100,11 @@ duplicate_count_colpair <- function(data, na.rm = TRUE, show_rates = TRUE) {
     # Yet another workaround to replace `tidyr::unnest_wider()` -- compare to
     # `unnest_consistency_cols()`. After some time, replace the superseded
     # `purrr::flatten()` by `purrr::list_flatten()`.
-    rate_x <- purrr::map(rates, `[`, 1) %>% purrr::flatten() %>% as.numeric()
-    rate_y <- purrr::map(rates, `[`, 2) %>% purrr::flatten() %>% as.numeric()
-
-    out <- dplyr::mutate(out, rate_x, rate_y)
+    out <- dplyr::mutate(
+      out,
+      rate_x = purrr::map(rates, `[`, 1) %>% purrr::flatten() %>% as.numeric(),
+      rate_y = purrr::map(rates, `[`, 2) %>% purrr::flatten() %>% as.numeric()
+    )
   }
 
   add_class(out, "scr_dup_count_colpair")

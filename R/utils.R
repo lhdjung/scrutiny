@@ -272,22 +272,6 @@ add_class <- function(x, new_class) {
 
 
 
-#' Remove any `NA` elements
-#'
-#' Mapped within `row_to_colnames()`.
-#'
-#' @param x Vector.
-#'
-#' @return `x` but without any `NA` elements.
-#'
-#' @noRd
-remove_na <- function(x) {
-  x[!is.na(x)]
-}
-
-
-
-
 #' Check if lengths are congruent
 #'
 #' `check_lengths_congruent()` is called within a function `f()` and takes a
