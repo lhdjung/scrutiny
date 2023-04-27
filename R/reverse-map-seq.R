@@ -2,21 +2,21 @@
 # Helper functions to be mapped in the other helper functions below...
 min_distance_abs_scalar <- function(x) {
   if (any(!is.numeric(x))) {
-    return(NA)
+    return(NA_real_)
   }
   min(abs(x))
 }
 
 min_distance_pos_scalar <- function(x) {
   if (any(!is.numeric(x))) {
-    return(NA)
+    return(NA_real_)
   }
   min(x[x > 0])
 }
 
 min_distance_neg_scalar <- function(x) {
   if (any(!is.numeric(x))) {
-    return(NA)
+    return(NA_real_)
   }
   max(x[x < 0])
 }
@@ -107,7 +107,7 @@ reverse_map_seq <- function(data) {
     dplyr::ungroup() %>%
     dplyr::select(var, scr_index_case)
 
-  out <- data_index_case %>%
+  data_index_case %>%
     tidyr::pivot_wider(
       names_from  = var,
       values_from = scr_index_case,
@@ -115,8 +115,6 @@ reverse_map_seq <- function(data) {
     ) %>%
     tidyr::unnest(cols = everything()) %>%
     tidyr::unnest(cols = everything()) # yes, this is weird
-
-  return(out)
 }
 
 

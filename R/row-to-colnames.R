@@ -81,7 +81,7 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
 
   # If multiple rows were specified that way, the resulting vector must be
   # pasted to one single string per column to restore the correct column names:
-  if (length(row) > 1) {
+  if (length(row) > 1L) {
     correct <- purrr::map(correct, paste0, collapse = collapse)
   }
 

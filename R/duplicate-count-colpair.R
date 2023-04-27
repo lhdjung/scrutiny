@@ -2,15 +2,16 @@
 # For each element of `x`, this helper determines if that element is also to be
 # found in `y`. Then, it counts the number of times for which this test returned
 # `TRUE`, i.e., the number of elements of `x` that are also elements of `y`.
-# Note the use of `purrr::map_lgl()` as opposed to `purrr::map2_lgl()`:
+# Note that a single vector is mapped -- in purrr terms, this would be
+# `map_lgl()` as opposed to `map2_lgl()`:
 
 duplicate_count_by_vec <- function(x, y, na.rm) {
   if (na.rm) {
     x <- x[!is.na(x)]
     y <- y[!is.na(y)]
   }
-  count <- purrr::map_lgl(x, `%in%`, y)
-  length(count[count])
+  count <- vapply(x, `%in%`, logical(1L), y)
+  length(which(count))
 }
 
 
@@ -22,9 +23,10 @@ rate_from_data <- function(data, x, y, count, na.rm) {
     x <- x[!is.na(x)]
     y <- y[!is.na(y)]
   }
-  x_rate <- count / length(x)
-  y_rate <- count / length(y)
-  list(x_rate, y_rate)
+  list(
+    x_rate = count / length(x),
+    y_rate = count / length(y)
+  )
 }
 
 

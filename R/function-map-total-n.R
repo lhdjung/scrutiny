@@ -4,7 +4,7 @@
 mutate_both_consistent <- function(data) {
   both_consistent <- data$consistency %>%
     split_into_groups(group_size = 2) %>%
-    purrr::map_lgl(all) %>%
+    vapply(all, logical(1L)) %>%
     rep(each = 2L)
 
   dplyr::mutate(data, both_consistent, .after = "consistency")
@@ -66,7 +66,7 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 
     # Row numbers of `disperse()` tibbles will be used below to determine how
     # often the reported values need to be repeated:
-    df_list_nrow <- purrr::map_int(df_list, nrow)
+    df_list_nrow <- vapply(df_list, nrow, 1L)
     df_list_n_groups <- length(df_list_nrow)
 
     out_df_nested <- reported %>%

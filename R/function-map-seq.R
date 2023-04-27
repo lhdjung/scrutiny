@@ -41,7 +41,8 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
     list_var <- purrr::map(list_var_and_var_change, `[`, 1)
     # list_var_change <- purrr::map(list_var_and_var_change, `[`, 2)
 
-    nrow_list_var <- purrr::map_int(list_var, nrow)
+    # nrow_list_var <- purrr::map_int(list_var, nrow)
+    nrow_list_var <- vapply(list_var, nrow, 1L)
 
     ncol_index_var <- match(var, colnames(data))
     ncol_before_consistency <- match("consistency", colnames(data)) - 1L
@@ -348,7 +349,7 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
 
     # Repeat the `var` strings so that they form a vector of the length that is
     # the row number of `out`, and that can therefore be added to `out`:
-    nrow_out <- purrr::map_int(out, nrow)
+    nrow_out <- vapply(out, nrow, 1L)
     var <- var %>%
       purrr::map2(nrow_out, rep) %>%
       purrr::flatten_chr()

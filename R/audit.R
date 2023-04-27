@@ -151,15 +151,6 @@ audit_seq <- function(data) {
     purrr::map(out, ~ .$index_diff)
   }
 
-  inf_to_na <- function(x) {
-    x[is.infinite(x)] <- NA
-    x
-  }
-
-  map_to_length <- function(x) {
-    purrr::map(x, length)
-  }
-
   # Prepare endings of the `diff_*` columns:
   fn_names <- c("", "_up", "_down")
   fn_names <- rep(fn_names, length(var_names))
@@ -172,7 +163,9 @@ audit_seq <- function(data) {
   cols_hits <- df_nested %>%
     dplyr::mutate(dplyr::across(
       .cols = everything(),
-      .fns = map_to_length,
+      .fns = function(x) {
+        purrr::map(x, length)
+      },
       .names = "hits_{.col}"
     )) %>%
     dplyr::select(-all_of(colnames(df_nested))) %>%
@@ -187,7 +180,10 @@ audit_seq <- function(data) {
     dplyr::select(-(seq_along(var_names))) %>%
     dplyr::mutate(dplyr::across(
       .cols = everything(),
-      .fns = inf_to_na
+      .fns = function(x) {
+        x[is.infinite(x)] <- NA
+        x
+      }
     )) %>%
     suppressWarnings()
 
@@ -220,12 +216,10 @@ audit_seq <- function(data) {
     .fns = as.numeric
   ))
 
-  out <- data_rev %>%
+  data_rev %>%
     dplyr::mutate(consistency, hits_total) %>%
     dplyr::bind_cols(cols_hits, cols_diff) %>%
     add_class("scr_audit_seq")
-
-  return(out)
 }
 
 
@@ -250,9 +244,7 @@ audit_total_n <- function(data) {
     purrr::map(dplyr::filter, both_consistent)
 
   map_nrow_half <- function(x) {
-    out <- purrr::map_int(x, nrow)
-    out <- out / 2
-    out
+    vapply(x, nrow, 1L) / 2L
   }
 
   hits_forth <- df_list_hits %>%
@@ -267,13 +259,11 @@ audit_total_n <- function(data) {
   scenarios_total <- map_nrow_half(df_list)
   hit_rate <- hits_total / scenarios_total
 
-  out <- data %>%
+  data %>%
     reverse_map_total_n() %>%
     dplyr::mutate(
       hits_total, hits_forth, hits_back, scenarios_total, hit_rate
     ) %>%
     add_class("scr_audit_total_n")
-
-  return(out)
 }
 
