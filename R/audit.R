@@ -129,7 +129,7 @@ audit_seq <- function(data) {
     fun <- eval(rlang::parse_expr(fun))
     msg_error <-
       c("!" = "No values could be tested.")
-    if ("items" %in% names(formals(fun))) {
+    if (any("items" == names(formals(fun)))) {
       fun_name <- deparse(substitute(fun))
       msg_items <- c(
         "x" = "Did you specify the `items` argument in {fun_name} \\

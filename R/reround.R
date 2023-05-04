@@ -3,7 +3,7 @@
 # Helper functions; not exported ------------------------------------------
 
 check_rounding_singular_proto <- function(rounding, bad, good_1, good_2) {
-  if (bad %in% rounding) {
+  if (any(bad == rounding)) {
     cli::cli_abort(c(
       "!" = "If `rounding` has length > 1, only single rounding procedures \\
       are supported, such as \"{good_1}\" and \"{good_2}\".",

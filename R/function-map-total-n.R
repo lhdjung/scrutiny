@@ -117,7 +117,7 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 
     out_df <- fun(out_df, ...)
 
-    if (!"n_change" %in% colnames(out_df)) {
+    if (!any("n_change" == colnames(out_df))) {
       out_df <- dplyr::mutate(out_df, n_change)
     }
 
@@ -319,7 +319,7 @@ function_map_total_n <- function(.fun, .reported, .name_test,
   force(.constant_index)
 
   # Throw error if `n` itself was named as a reported statistic:
-  if ("n" %in% .reported) {
+  if (any("n" == .reported)) {
     cli::cli_abort(c(
       "Can't take \"n\" as a reported statistic.",
       "i" = "Functions produced by `function_map_total_n()` \\
@@ -362,7 +362,7 @@ function_map_total_n <- function(.fun, .reported, .name_test,
     check_tibble(data)
 
     # Make sure that the `n` column is present...
-    if (!"n" %in% colnames(data)) {
+    if (!any("n" == colnames(data))) {
       cli::cli_abort(c(
         "Column `n` missing.",
         "i" = "`n` should contain the reported total sample sizes \\

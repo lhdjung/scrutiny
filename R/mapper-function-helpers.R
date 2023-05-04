@@ -35,7 +35,7 @@ check_key_args_in_colnames <- function(data, reported) {
 
 
 check_consistency_not_in_colnames <- function(data, name_test) {
-  if ("consistency" %in% colnames(data)) {
+  if (any("consistency" == colnames(data))) {
     dc <- class(data)
     class_basic   <- dc[stringr::str_detect(dc, "_map$")]
     class_seq     <- dc[stringr::str_detect(dc, "_map_seq$")]
@@ -216,7 +216,7 @@ manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
 
   # Throw error if the argument in question was specified in a way that
   # contradicts `data`:
-  if (var_name %in% colnames(data)) {
+  if (any(var_name == colnames(data))) {
     # Determine whether or not the argument in question was specified by the
     # user; i.e., whether it's different from the default. For numeric values,
     # strict equality as tested by `identical()` would be asking too much, so
@@ -289,7 +289,7 @@ manage_key_colnames <- function(data, arg, description = NULL) {
   if (!is.null(arg)) {
     # data <- dplyr::rename(data, "scr_temp_placeholder" := arg)  # {{ arg_name }} := arg
     data <- dplyr::rename(data, {{ arg_name }} := all_of(arg))
-  } else if (!arg_name %in% colnames(data)) {
+  } else if (!any(arg_name == colnames(data))) {
     if (is.null(description)) {
       msg_this_col <- "One"
     } else {

@@ -10,7 +10,7 @@ duplicate_count_by_vec <- function(x, y, na.rm) {
     x <- x[!is.na(x)]
     y <- y[!is.na(y)]
   }
-  count <- vapply(x, `%in%`, logical(1L), y)
+  count <- vapply(x, function(e1, e2) any(e1 == e2), logical(1L), y)
   length(which(count))
 }
 

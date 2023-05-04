@@ -162,10 +162,10 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
     consistency <- purrr::pmap(data_tested, fun, ...)
 
     # Support rounding classes:
-    if ("rounding" %in% names(formals(fun))) {
+    if (any("rounding" == names(formals(fun)))) {
       dots <- rlang::enexprs(...)
 
-      if ("rounding" %in% names(dots)) {
+      if (any("rounding" == names(dots))) {
         rounding_class <- dots$rounding
       } else {
         rounding_class <- formals(fun)$rounding

@@ -461,7 +461,7 @@ check_length_or_null <- function(x, l) {
 #'
 #' @noRd
 check_type <- function(x, t) {
-  if (!typeof(x) %in% t) {
+  if (!any(typeof(x) == t)) {
     msg_name <- deparse(substitute(x))
     if (length(t) == 1L) {
       msg_object <- "be of type"
