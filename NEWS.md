@@ -1,3 +1,5 @@
+# scrutiny (development version)
+
 # scrutiny 0.2.4
 
 -   New `decimal_places_df()` function that takes a data frame and counts the decimal places in all numeric-like columns.
