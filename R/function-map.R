@@ -4,8 +4,8 @@
 #' @description `function_map()` creates new basic mapper functions for
 #'   consistency tests, such as `grim_map()` or `debit_map()`.
 #'
-#'   For context, see `vignette("consistency-tests")`, section *Creating mappers
-#'   with `function_map()`*.
+#'   For context, see `vignette("consistency-tests")`, section *Creating basic
+#'   mappers with `function_map()`*.
 #'
 #' @param .fun Single-case consistency testing function that will be applied to
 #'   each row in a data frame, such as the (non-exported) scrutiny functions
