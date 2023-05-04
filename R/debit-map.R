@@ -83,6 +83,7 @@ debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
 
   # Check the column names of `data`:
   check_mapper_input_colnames(data, c("x", "sd", "n"), "DEBIT")
+  check_tibble(data)
 
   x_spec  <- x
   sd_spec <- sd

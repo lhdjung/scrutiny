@@ -101,6 +101,7 @@ grimmer_map <- function(data, items = 1, merge_items = TRUE,
   data <- manage_key_colnames(data, n,  "sample size")
 
   check_mapper_input_colnames(data, c("x", "n"), "GRIM")
+  check_tibble(data)
 
   data <- manage_helper_col(data = data, var_arg = items, default = 1)
 

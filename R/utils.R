@@ -501,6 +501,26 @@ check_class <- function(x, cl) {
 
 
 
+#' Check whether an object is a tibble
+#'
+#' Note: This assumes the name of `x` within the user-calles function is `data`.
+#'
+#' @param x A user-supplied data frame.
+#'
+#' @return Boolean (length 1).
+#'
+#' @noRd
+check_tibble <- function(x) {
+  if (!tibble::is_tibble(x)) {
+    cli::cli_abort(c(
+      "!" = "`data` must be a tibble.",
+      "i" = "Convert it with `tibble::as_tibble()`."
+    ))
+  }
+}
+
+
+
 #' Split into groups
 #'
 #' Split up a vector `x` into groups that each consist of a number of elements

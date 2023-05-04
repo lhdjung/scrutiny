@@ -314,6 +314,7 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
 
     check_mapper_input_colnames(data, reported)
     check_consistency_not_in_colnames(data, name_test)
+    check_tibble(data)
 
     # First, basic testing with the `*_map()` function:
     data <- fun(data, ...)

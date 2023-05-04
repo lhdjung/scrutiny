@@ -359,6 +359,8 @@ function_map_total_n <- function(.fun, .reported, .name_test,
     # point, using an internal helper:
     check_consistency_not_in_colnames(data, name_test)
 
+    check_tibble(data)
+
     # Make sure that the `n` column is present...
     if (!"n" %in% colnames(data)) {
       cli::cli_abort(c(
