@@ -1,5 +1,9 @@
 # scrutiny (development version)
 
+-   New function `audit_list()` for displaying `audit()`'s output as a list. `audit_seq()` and `audit_total_n()` are now documented separately from `audit()` and `audit_list()`.
+
+-   Some performance improvements.
+
 # scrutiny 0.2.4
 
 -   New `decimal_places_df()` function that takes a data frame and counts the decimal places in all numeric-like columns.
