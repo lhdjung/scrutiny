@@ -1,5 +1,9 @@
 # scrutiny (development version)
 
+-   New consistency tests for to check whether reported percentages and sums are correct:
+
+    -   Use `is_percentage_of()` for single cases, and `is_percentage_of_map()` to apply it to a data frame.
+
 -   New function `audit_list()` for displaying `audit()`'s output as a list. `audit_seq()` and `audit_total_n()` are now documented separately from `audit()` and `audit_list()`.
 
 -   Some performance improvements.
