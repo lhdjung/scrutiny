@@ -140,7 +140,7 @@ debit_plot <- function(data,
     suppressWarnings(sqrt((.n / (.n - 1)) * (.x * (1 - .x))))
   }
 
-  if (utils::packageVersion("ggplot2") >= 3.4) {
+  if (utils::packageVersion("ggplot2") >= "3.4") {
     check_ggplot2_size(line_size, 0.5)
     p <- p +
       ggplot2::geom_function(
@@ -164,7 +164,7 @@ debit_plot <- function(data,
       )
   }
 
-  # if (utils::packageVersion("ggplot2") >= 3.4) {
+  # if (utils::packageVersion("ggplot2") >= "3.4") {
   #   if (line_size != 0.5) {
   #     msg1 <- paste0(
   #       "That's because your ggplot2 version is >= 3.4.0 (actually, ",

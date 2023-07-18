@@ -417,7 +417,7 @@ grim_plot <- function(data = NULL,
 
   if (show_data) {
 
-    if (utils::packageVersion("ggplot2") >= 3.4) {
+    if (utils::packageVersion("ggplot2") >= "3.4") {
       p <- p +
         ggplot2::geom_tile(
           data = data_emp,

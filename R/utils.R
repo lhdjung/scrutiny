@@ -1381,11 +1381,11 @@ unclass_scr <- function(x) {
 #'
 #' - `check_ggplot2_size()` checks whether the default for the deprecated `size`
 #' aesthetic was changed by the user. Call it if
-#' `utils::packageVersion("ggplot2") >= 3.4` is `TRUE`.
+#' `utils::packageVersion("ggplot2") >= "3.4"` is `TRUE`.
 #'
 #' - `check_ggplot2_linewidth()` checks whether the default for the
 #' not-yet-implemented `linewidth` aesthetic was changed by the user. Call it if
-#' the `utils::packageVersion()` call above returns `FALSE`.
+#' the `utils::packageVersion()` comparison above returns `FALSE`.
 #'
 #' As of now, these two functions are only used within `debit_plot()`.
 #'
