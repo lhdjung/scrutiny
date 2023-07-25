@@ -4,8 +4,8 @@
 #' @description `function_map()` creates new basic mapper functions for
 #'   consistency tests, such as `grim_map()` or `debit_map()`.
 #'
-#'   For context, see `vignette("consistency-tests")`, section *Creating mappers
-#'   with `function_map()`*.
+#'   For context, see `vignette("consistency-tests")`, section *Creating basic
+#'   mappers with `function_map()`*.
 #'
 #' @param .fun Single-case consistency testing function that will be applied to
 #'   each row in a data frame, such as the (non-exported) scrutiny functions
@@ -148,6 +148,7 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
     check_args_disabled(.args_disabled)
     check_factory_dots(fun, fn_name, ...)
     check_mapper_input_colnames(data, reported, name_test)
+    check_tibble(data)
 
 
     # Main part ---
@@ -161,10 +162,10 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
     consistency <- purrr::pmap(data_tested, fun, ...)
 
     # Support rounding classes:
-    if ("rounding" %in% names(formals(fun))) {
+    if (any("rounding" == names(formals(fun)))) {
       dots <- rlang::enexprs(...)
 
-      if ("rounding" %in% names(dots)) {
+      if (any("rounding" == names(dots))) {
         rounding_class <- dots$rounding
       } else {
         rounding_class <- formals(fun)$rounding

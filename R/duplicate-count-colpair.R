@@ -2,28 +2,31 @@
 # For each element of `x`, this helper determines if that element is also to be
 # found in `y`. Then, it counts the number of times for which this test returned
 # `TRUE`, i.e., the number of elements of `x` that are also elements of `y`.
-# Note the use of `purrr::map_lgl()` as opposed to `purrr::map2_lgl()`:
+# Note that a single vector is mapped -- in purrr terms, this would be
+# `map_lgl()` as opposed to `map2_lgl()`:
 
 duplicate_count_by_vec <- function(x, y, na.rm) {
   if (na.rm) {
-    x <- remove_na(x)
-    y <- remove_na(y)
+    x <- x[!is.na(x)]
+    y <- y[!is.na(y)]
   }
-  count <- purrr::map_lgl(x, `%in%`, y)
-  length(count[count])
+  count <- vapply(x, function(e1, e2) any(e1 == e2), logical(1L), y)
+  length(which(count))
 }
 
 
 rate_from_data <- function(data, x, y, count, na.rm) {
   x <- data[x]
   y <- data[y]
+  rm(data)
   if (na.rm) {
-    x <- remove_na(x)
-    y <- remove_na(y)
+    x <- x[!is.na(x)]
+    y <- y[!is.na(y)]
   }
-  x_rate <- count / length(x)
-  y_rate <- count / length(y)
-  list(x_rate, y_rate)
+  list(
+    x_rate = count / length(x),
+    y_rate = count / length(y)
+  )
 }
 
 
@@ -99,10 +102,11 @@ duplicate_count_colpair <- function(data, na.rm = TRUE, show_rates = TRUE) {
     # Yet another workaround to replace `tidyr::unnest_wider()` -- compare to
     # `unnest_consistency_cols()`. After some time, replace the superseded
     # `purrr::flatten()` by `purrr::list_flatten()`.
-    rate_x <- purrr::map(rates, `[`, 1) %>% purrr::flatten() %>% as.numeric()
-    rate_y <- purrr::map(rates, `[`, 2) %>% purrr::flatten() %>% as.numeric()
-
-    out <- dplyr::mutate(out, rate_x, rate_y)
+    out <- dplyr::mutate(
+      out,
+      rate_x = purrr::map(rates, `[`, 1) %>% purrr::flatten() %>% as.numeric(),
+      rate_y = purrr::map(rates, `[`, 2) %>% purrr::flatten() %>% as.numeric()
+    )
   }
 
   add_class(out, "scr_dup_count_colpair")

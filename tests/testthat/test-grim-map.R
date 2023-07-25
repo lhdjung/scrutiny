@@ -222,8 +222,8 @@ f <- FALSE
 
 
 df8_n40_grim_up_or_down_exp       <- c(t, f, t, t, t, t, f, t, f, f, t, f)
-df8_n40_grim_up_exp               <- c(t, f, t, t, t, t, f, t, f, f, t, f)
-df8_n40_grim_down_exp             <- c(t, f, t, t, t, t, f, t, f, f, t, f)
+df8_n40_grim_up_exp               <- c(f, f, t, f, f, t, f, t, f, f, t, f)
+df8_n40_grim_down_exp             <- c(t, f, f, t, t, f, f, f, f, f, t, f)
 df8_n40_grim_even_exp             <- c(t, f, t, t, t, t, f, t, f, f, t, f)
 df8_n40_grim_ceiling_or_floor_exp <- c(t, t, t, t, t, t, t, t, t, t, t, t)
 df8_n40_grim_ceiling_exp          <- c(f, f, t, f, f, t, t, t, f, f, t, f)
@@ -247,8 +247,8 @@ test_that("rounding specifications lead to the expected consistency
 
 
 df8_n80_grim_up_or_down_exp       <- c(t, t, t, t, t, t, t, t, t, t, t, t)
-df8_n80_grim_up_exp               <- c(t, t, t, t, t, t, t, t, t, t, t, t)
-df8_n80_grim_down_exp             <- c(t, t, t, t, t, t, t, t, t, t, t, t)
+df8_n80_grim_up_exp               <- c(f, t, t, f, f, t, t, t, t, t, t, t)
+df8_n80_grim_down_exp             <- c(t, t, f, t, t, f, t, f, t, t, t, t)
 df8_n80_grim_even_exp             <- c(t, t, t, t, t, t, t, t, t, t, t, t)
 df8_n80_grim_ceiling_or_floor_exp <- c(t, t, t, t, t, t, t, t, t, t, t, t)
 df8_n80_grim_ceiling_exp          <- c(t, t, t, t, t, t, t, t, t, t, t, t)

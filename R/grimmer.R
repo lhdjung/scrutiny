@@ -60,6 +60,14 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
   check_type(x,  "character")
   check_type(sd, "character")
 
+  # A provisional solution:
+  if (items != 1) {
+    cli::cli_warn(c(
+      "The `items` argument in GRIMMER functions doesn't currently \
+      work the way it should."
+    ))
+  }
+
   digits_sd <- decimal_places_scalar(sd)
 
   x_orig <- x
@@ -185,7 +193,7 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
 #' @param sd String. The reported standard deviation.
 #' @param n Integer. The reported sample size.
 #' @param items *(NOTE: Don't use the `items` argument. It currently contains a
-#'   bug that will be fixed in scrutiny's next CRAN release.)* Integer. The
+#'   bug that will be fixed in the future.)* Integer. The
 #'   number of items composing the `x` and `sd` values. Default is 1, the most
 #'   common case.
 #' @param show_reason Boolean. For internal use only. If set to `TRUE`, the

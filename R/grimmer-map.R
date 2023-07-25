@@ -12,9 +12,9 @@
 #'   (see documentation for `grim()`). Any other columns in `data` will be
 #'   returned alongside GRIMMER test results.
 #' @param items *(NOTE: Don't use the `items` argument. It currently contains a
-#'   bug that will be fixed in scrutiny's next CRAN release.)* Integer. If there
-#'   is no `items` column in `data`, this specifies the number of items
-#'   composing the `x` and `sd` values. Default is 1, the most common case.
+#'   bug that will be fixed in the future.)* Integer. If there is no `items`
+#'   column in `data`, this specifies the number of items composing the `x` and
+#'   `sd` values. Default is 1, the most common case.
 #' @param merge_items Boolean. If `TRUE` (the default), there will be no `items`
 #'   column in the output. Instead, values from an `items` column or argument
 #'   will be multiplied with values in the `n` column. This does not affect
@@ -101,6 +101,7 @@ grimmer_map <- function(data, items = 1, merge_items = TRUE,
   data <- manage_key_colnames(data, n,  "sample size")
 
   check_mapper_input_colnames(data, c("x", "n"), "GRIM")
+  check_tibble(data)
 
   data <- manage_helper_col(data = data, var_arg = items, default = 1)
 

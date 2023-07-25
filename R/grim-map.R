@@ -144,6 +144,7 @@ grim_map <- function(data, items = 1, merge_items = TRUE, percent = FALSE,
 
   # Check the column names of `data`:
   check_mapper_input_colnames(data, c("x", "n"), "GRIM")
+  check_tibble(data)
 
   # # Convert `n` to integer (mainly because of the `split_by_parens()` issue,
   # # which would leave `n` as a string vector):

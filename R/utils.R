@@ -272,22 +272,6 @@ add_class <- function(x, new_class) {
 
 
 
-#' Remove any `NA` elements
-#'
-#' Mapped within `row_to_colnames()`.
-#'
-#' @param x Vector.
-#'
-#' @return `x` but without any `NA` elements.
-#'
-#' @noRd
-remove_na <- function(x) {
-  x[!is.na(x)]
-}
-
-
-
-
 #' Check if lengths are congruent
 #'
 #' `check_lengths_congruent()` is called within a function `f()` and takes a
@@ -477,7 +461,7 @@ check_length_or_null <- function(x, l) {
 #'
 #' @noRd
 check_type <- function(x, t) {
-  if (!typeof(x) %in% t) {
+  if (!any(typeof(x) == t)) {
     msg_name <- deparse(substitute(x))
     if (length(t) == 1L) {
       msg_object <- "be of type"
@@ -511,6 +495,26 @@ check_class <- function(x, cl) {
     cli::cli_abort(c(
       "!" = "`{msg_name}` must inherit class \"{cl}\".",
       "x" = "It doesn't."
+    ))
+  }
+}
+
+
+
+#' Check whether an object is a tibble
+#'
+#' Note: This assumes the name of `x` within the user-calles function is `data`.
+#'
+#' @param x A user-supplied data frame.
+#'
+#' @return Boolean (length 1).
+#'
+#' @noRd
+check_tibble <- function(x) {
+  if (!tibble::is_tibble(x)) {
+    cli::cli_abort(c(
+      "!" = "`data` must be a tibble.",
+      "i" = "Convert it with `tibble::as_tibble()`."
     ))
   }
 }
@@ -805,26 +809,6 @@ check_type_numeric_like <- function(x) {
       ))
     }
   }
-}
-
-
-
-#' Test if numeric-like vectors contain at least some decimal places
-#'
-#' For numeric-like `x` inputs (as determined by `is_numeric_like()`),
-#' `has_decimals_if_numeric_like()` checks if at least one element of `x` has at
-#' least one decimal place. If so, or if `x` is not numeric-like, the function
-#' returns `TRUE`. Otherwise, it returns `FALSE`.
-#'
-#' @param x Object to test.
-#' @param sep Separator between the integer and decimal parts. Passed on to
-#'   `decimal_places()`. Default is `"\\."`, a decimal point.
-#'
-#' @return Boolean (length 1).
-#'
-#' @noRd
-has_decimals_if_numeric_like <- function(x, sep = "\\.") {
-  !is_numeric_like(x) || !all(decimal_places(x, sep = sep) == 0L)
 }
 
 
@@ -1397,11 +1381,11 @@ unclass_scr <- function(x) {
 #'
 #' - `check_ggplot2_size()` checks whether the default for the deprecated `size`
 #' aesthetic was changed by the user. Call it if
-#' `utils::packageVersion("ggplot2") >= 3.4` is `TRUE`.
+#' `utils::packageVersion("ggplot2") >= "3.4"` is `TRUE`.
 #'
 #' - `check_ggplot2_linewidth()` checks whether the default for the
 #' not-yet-implemented `linewidth` aesthetic was changed by the user. Call it if
-#' the `utils::packageVersion()` call above returns `FALSE`.
+#' the `utils::packageVersion()` comparison above returns `FALSE`.
 #'
 #' As of now, these two functions are only used within `debit_plot()`.
 #'
@@ -1455,5 +1439,24 @@ check_ggplot2_linewidth <- function(arg_new, default_new) {
     ))
   }
 
+}
+
+
+
+#' Remove the integer part, keeping the decimal part
+#'
+#' `trunc_reverse()` reduces a number to its decimal portion. It is the opposite
+#' of `trunc()`: Whereas `trunc(3.45)` returns `3,` `trunc_reverse(3.45)`
+#' returns `0.45`.
+#'
+#' This is used in some unit tests.
+#'
+#' @param x Decimal number.
+#'
+#' @return Decimal part of `x`.
+#'
+#' @noRd
+trunc_reverse <- function(x) {
+  x - trunc(x)
 }
 

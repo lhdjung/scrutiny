@@ -496,7 +496,7 @@ class_with <- function(data, contains, all_classes = FALSE,
     return(cd[stringr::str_detect(cd, contains)])
   }
 
-  cd_lengths <- purrr::map_int(cd, stringr::str_length)
+  cd_lengths <- vapply(cd, stringr::str_length, integer(1L))
   cd <- cd[order(cd_lengths, decreasing = order_decreasing)]
 
   # Outer loop:

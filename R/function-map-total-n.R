@@ -4,7 +4,7 @@
 mutate_both_consistent <- function(data) {
   both_consistent <- data$consistency %>%
     split_into_groups(group_size = 2) %>%
-    purrr::map_lgl(all) %>%
+    vapply(all, logical(1L)) %>%
     rep(each = 2L)
 
   dplyr::mutate(data, both_consistent, .after = "consistency")
@@ -66,7 +66,7 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 
     # Row numbers of `disperse()` tibbles will be used below to determine how
     # often the reported values need to be repeated:
-    df_list_nrow <- purrr::map_int(df_list, nrow)
+    df_list_nrow <- vapply(df_list, nrow, 1L)
     df_list_n_groups <- length(df_list_nrow)
 
     out_df_nested <- reported %>%
@@ -117,7 +117,7 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 
     out_df <- fun(out_df, ...)
 
-    if (!"n_change" %in% colnames(out_df)) {
+    if (!any("n_change" == colnames(out_df))) {
       out_df <- dplyr::mutate(out_df, n_change)
     }
 
@@ -319,7 +319,7 @@ function_map_total_n <- function(.fun, .reported, .name_test,
   force(.constant_index)
 
   # Throw error if `n` itself was named as a reported statistic:
-  if ("n" %in% .reported) {
+  if (any("n" == .reported)) {
     cli::cli_abort(c(
       "Can't take \"n\" as a reported statistic.",
       "i" = "Functions produced by `function_map_total_n()` \\
@@ -359,8 +359,10 @@ function_map_total_n <- function(.fun, .reported, .name_test,
     # point, using an internal helper:
     check_consistency_not_in_colnames(data, name_test)
 
+    check_tibble(data)
+
     # Make sure that the `n` column is present...
-    if (!"n" %in% colnames(data)) {
+    if (!any("n" == colnames(data))) {
       cli::cli_abort(c(
         "Column `n` missing.",
         "i" = "`n` should contain the reported total sample sizes \\

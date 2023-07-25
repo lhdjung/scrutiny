@@ -67,8 +67,8 @@ column-identifying arguments derived from \code{.reported}.
 \code{function_map()} creates new basic mapper functions for
 consistency tests, such as \code{grim_map()} or \code{debit_map()}.
 
-For context, see \code{vignette("consistency-tests")}, section \emph{Creating mappers
-with \code{function_map()}}.
+For context, see \code{vignette("consistency-tests")}, section \emph{Creating basic
+mappers with \code{function_map()}}.
 }
 \details{
 The output tibble returned by the factory-made function will inherit

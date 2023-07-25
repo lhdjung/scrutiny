@@ -89,13 +89,14 @@ decimal_places_scalar <- function(x, sep = "\\.") {
   if (is.na(x)) {
     return(NA_integer_)
   }
-  out <- stringr::str_split(stringr::str_trim(x), sep, 2L)
-  out <- stringr::str_length(out[[1]][2])
+  out <- stringr::str_length(stringr::str_extract(
+    x, paste0("(?<=", sep, ")\\d+")
+  ))
   if (is.na(out)) {
-    return(0L)
+    0L
+  } else {
+    out
   }
-
-  as.integer(out)
 }
 
 

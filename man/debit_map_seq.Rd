@@ -77,6 +77,11 @@ next higher or lower consistent value, respectively.
 \item \code{diff_sd}, \code{diff_sd_up}, and \code{diff_sd_down} do the same for \code{sd}.
 \item Likewise with \code{diff_n}, \code{diff_n_up}, and \code{diff_n_down}.
 }
+
+Call \code{audit()} following \code{audit_seq()} to summarize results even further.
+It's mostly self-explaining, but \code{na_count} and \code{na_rate} are the number
+and rate of times that a difference could not be computed because of a lack
+of corresponding hits within the \code{dispersion} range.
 }
 
 \examples{

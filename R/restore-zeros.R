@@ -107,19 +107,18 @@ restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in,
   # The deprecated `sep` argument was replaced by `sep_in`. Therefore, if `sep`
   # is still specified...
   if (!is.null(sep)) {
-    if (sep_in != "\\.") {
+    if (sep_in == "\\.") {
+      cli::cli_warn(c(
+        "`sep` is deprecated",
+        ">" = "Use `sep_in`, not `sep`."
+      ))
+    } else {
       cli::cli_abort(c(
         "!" = "`sep` is deprecated. It was replaced by `sep_in`.",
         "x" = "`sep` conflicts with `sep_in`",
         "i" = "If `sep` is still specified, `sep_in` takes on its value."
       ))
-    } else {
-      cli::cli_warn(c(
-        "`sep` is deprecated",
-        ">" = "Use `sep_in`, not `sep`."
-      ))
     }
-
     # ... `sep_in` must take on its role:
     sep_in <- sep
   }
@@ -231,12 +230,13 @@ restore_zeros_df <- function(data, cols = everything(),
     selection2 <- rlang::expr(dplyr::everything())
   }
 
-  # If desired by the user, create an additional selection criterion: In a
+  # If desired by the user, create an additional selection criterion: In each
   # numeric-like column, at least one value must have at least one decimal
   # place. Otherwise...
   if (check_decimals) {
-    selection3 <- rlang::expr(where(
-      function(x) has_decimals_if_numeric_like(x, sep = sep_in)
+    selection3 <- rlang::expr(where(function(x, sep = "\\.") {
+      !is_numeric_like(x) || !all(decimal_places(x, sep = sep_in) == 0L)
+    }
     ))
   } else {
     # ... the new variable is set up to be evaluated as `everything()`, which is
@@ -244,8 +244,8 @@ restore_zeros_df <- function(data, cols = everything(),
     selection3 <- rlang::expr(dplyr::everything())
   }
 
-  # Column selection is outsourced here so that the resultv can also be used in
-  # a check below:
+  # Column selection is outsourced here so that the result can also be used in a
+  # check below:
   cols_to_select <- rlang::expr({{ cols }} & !!selection2 & !!selection3)
   cols_to_select <- tidyselect::eval_select(cols_to_select, data)
 
@@ -265,7 +265,10 @@ restore_zeros_df <- function(data, cols = everything(),
   }
 
   # Save memory by removing objects that are no longer needed:
-  rm(names_num_cols, selection2, selection3)
+  rm(
+    cols, names_num_cols, names_wrong_cols, names_cols_select,
+    selection2, selection3
+  )
 
   # By default, a columns is selected if and only if it's numeric-like.
   # Additional constrains might come via `selection2` or `selection3` (see

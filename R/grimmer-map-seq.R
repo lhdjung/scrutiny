@@ -28,8 +28,8 @@
 #'   Default is `FALSE` because the focus should be on clarifying
 #'   inconsistencies.
 #' @param ... Arguments passed down to `grimmer_map()`. *(NOTE: Don't use the
-#'   `items` argument. It currently contains a bug that will be fixed in
-#'   scrutiny's next CRAN release.)*
+#'   `items` argument. It currently contains a bug that will be fixed in the
+#'   future.)*
 
 #' @return A tibble (data frame) with detailed test results.
 
@@ -51,6 +51,11 @@
 #'   next higher or lower consistent value, respectively.
 #'   - `diff_sd`, `diff_sd_up`, and `diff_sd_down` do the same for `sd`.
 #'   -  Likewise with `diff_n`, `diff_n_up`, and `diff_n_down`.
+#'
+#'   Call `audit()` following `audit_seq()` to summarize results even further.
+#'   It's mostly self-explaining, but `na_count` and `na_rate` are the number
+#'   and rate of times that a difference could not be computed because of a lack
+#'   of corresponding hits within the `dispersion` range.
 
 #' @include grimmer-map.R
 

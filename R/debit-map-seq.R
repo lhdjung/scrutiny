@@ -45,6 +45,11 @@
 #'   next higher or lower consistent value, respectively.
 #'   - `diff_sd`, `diff_sd_up`, and `diff_sd_down` do the same for `sd`.
 #'   -  Likewise with `diff_n`, `diff_n_up`, and `diff_n_down`.
+#'
+#'   Call `audit()` following `audit_seq()` to summarize results even further.
+#'   It's mostly self-explaining, but `na_count` and `na_rate` are the number
+#'   and rate of times that a difference could not be computed because of a lack
+#'   of corresponding hits within the `dispersion` range.
 
 #' @return A tibble (data frame) with detailed test results.
 

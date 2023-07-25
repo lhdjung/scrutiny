@@ -94,6 +94,7 @@
 round_up_from <- function(x, digits = 0L, threshold, symmetric = FALSE) {
 
   p10 <- 10 ^ digits
+  threshold <- threshold - .Machine$double.eps^0.5
 
   if (symmetric) {
     dplyr::if_else(
@@ -117,6 +118,7 @@ round_up_from <- function(x, digits = 0L, threshold, symmetric = FALSE) {
 round_down_from <- function(x, digits = 0L, threshold, symmetric = FALSE) {
 
   p10 <- 10 ^ digits
+  threshold <- threshold - .Machine$double.eps^0.5
 
   if (symmetric) {
     dplyr::if_else(

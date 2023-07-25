@@ -75,13 +75,13 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
   # or more rows that were specified by the `row` argument:
   correct <- data[row, ]
   correct <- rbind(colnames(data), correct)
-  correct <- purrr::map(correct, remove_na)
+  correct <- purrr::map(correct, function(x) x[!is.na(x)])
 
   correct <- purrr::map(correct, utils::tail, (length(correct[[1]]) - 1L))
 
   # If multiple rows were specified that way, the resulting vector must be
   # pasted to one single string per column to restore the correct column names:
-  if (length(row) > 1) {
+  if (length(row) > 1L) {
     correct <- purrr::map(correct, paste0, collapse = collapse)
   }
 

@@ -56,7 +56,7 @@ Please make sure to follow the [tidyverse style guide](https://style.tidyverse.o
 
 The first function is the most important one. It contains the core implementation of the test. Although it is not exported itself, all other steps build up on it, and all of them are exported.
 
-This function takes two or more arguments of length 1 that are meant to be tested for consistency with each other. Typically, they will be coercible to numeric. This means they either are numeric themselves or they are strings that can be converted to numbers. The function returns a Boolean value of length 1: It's `TRUE` if the inputs are mutually consistent, and `FALSE` if they aren't.
+This function takes two or more arguments of length 1 that are meant to be tested for consistency with each other. Typically, they will be coercible to numeric. This means they either are numeric themselves or they are strings that can be converted to numbers (see `is_numeric_like()`). The function returns a Boolean value of length 1: It's `TRUE` if the inputs are mutually consistent, and `FALSE` if they aren't.
 
 ```{r}
  schlim_scalar <- function(y, n) {
@@ -91,7 +91,7 @@ Functions created this way can be useful for quick testing, but they won't be us
 
 The most important practical use of a consistency test within scrutiny is to apply it to entire data frames at once, as `grim_map()` does. That's also the starting point for every other function below.
 
-Most functions discussed in the remaining part of the vignette deal with data frames. I always use [tibbles](https://r4ds.had.co.nz/tibbles.html), and I strongly recommend the same to you. There's no guarantee that each of those functions works with non-tibble data frames as it does with tibbles.
+Most functions discussed in the remaining part of the vignette deal with data frames. I always use [tibbles](https://r4ds.had.co.nz/tibbles.html), and I strongly recommend the same to you. In fact, the mapper functions introduced here require tibbles. They might not work correctly with non-tibble data frames.
 
 ## Creating basic mappers with `function_map()`
 
@@ -198,7 +198,7 @@ The (only) requirements for a basic mapping function are:
 
 1.  Its name ends on `_map` instead of `_scalar` but is otherwise the same as the name of the respective `_scalar` function.
 
-2.  Its first argument, `data`, is a data frame that contains the key columns of the respective consistency test. Other columns are permitted. The mapper's user never needs to include helper columns and can always replace them by specifying arguments by the same names as those columns. If the user specifies such an argument but the input data frame contains a column by the same name, the function throws an error. No column of the input data frame should be named `"consistency"`.
+2.  Its first argument, `data`, is a tibble (data frame) that contains the key columns of the respective consistency test. Other columns are permitted. The mapper's user never needs to include helper columns and can always replace them by specifying arguments by the same names as those columns. If the user specifies such an argument but the input data frame contains a column by the same name, the function throws an error. No column of the input data frame should be named `"consistency"`.
 
 3.  Its return value is a tibble data frame that contains all of the key input columns. The types of these columns are the same as in the input data frame. They are the first (i.e., leftmost) columns in the output, even if the input isn't ordered this way. If any of these columns are modified within the mapping function, the output should include the modified columns, not the original ones. Examples can be effects of helper columns, but also the change displayed by the `"x"` column in the output of `grim_map(percent = TRUE)`. The output must test `TRUE` with `is_map_df()` and `is_map_basic_df()`, but `FALSE` with the other two `is_map_*()` functions.
 
