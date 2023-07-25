@@ -40,7 +40,7 @@ The only solution I know of is to work with strings --- namely, strings that can
 
 #### Automated
 
-Several R packages help to extract tables from PDF. I recommend tabulizer (not currently on CRAN; see [installation notes](https://docs.ropensci.org/tabulizer/#installation)). There are also the [pdftables](https://expersso.r-universe.dev/ui#package:pdftables) and [pdftools](https://ropensci.r-universe.dev/ui#package:pdftools) packages.
+Several R packages help to extract tables from PDF. I recommend tabulizer (not currently on CRAN; see [installation notes](https://docs.ropensci.org/tabulizer/#installation)). There are also the [pdftables](https://expersso.r-universe.dev/pdftables#) and [pdftools](https://ropensci.r-universe.dev/pdftools#) packages.
 
 Using tabulizer requires Java to be installed. When it works well, tabulizer is a great tool for importing tables quickly and efficiently. It automatically captures values as strings, so trailing zeros are treated just like other digits.
 
