@@ -1,35 +1,19 @@
-url: https://lhdjung.github.io/scrutiny
-
-# Prevent the text contributed by pkgdown (most importantly, the header) from
-# switching to German by ensuring that it will be in English:
+url: https://lhdjung.github.io/scrutiny/
 lang: en
-
 home:
   title: Error detection in science
-  description: >
-         Test published summary statistics for consistency and
-         reconstruct some of the processes which created them. The package
-         aims to make these methods easy to use in a tidyverse-friendly way,
-         helping the new field of error detection go mainstream.
-
-
-# List of Bootstrap 5 variables:
-# https://rstudio.github.io/bslib/articles/bs5-variables.html
-
-# Candidate values for `link-color` and `code-color` (they should be the same):
-# ed1a1a, b51212, ef0404, ca225e
+  description: |
+    Test published summary statistics for consistency and reconstruct some of the processes which created them. The package aims to make these methods easy to use in a tidyverse-friendly way, helping the new field of error detection go mainstream.
 template:
   bootstrap: 5
   bootswatch: flatly
+  # Candidate values for `link-color` and `code-color` (they should be the
+  # same): ed1a1a, b51212, ef0404, ca225e
   bslib:
-    link-color: "#ca225e"
-    code-color: "#ca225e"
-    # popover-arrow-outer-color: "#ca225e"
-
+    link-color: '#ca225e'
+    code-color: '#ca225e'
 pkgdown:
-  as_is: true
-
-
+  as_is: yes
 articles:
 - title: Consistency tests
   navbar: Consistency tests
@@ -37,7 +21,6 @@ articles:
   - grim
   - grimmer
   - debit
-
 - title: Infrastructure
   navbar: Infrastructure
   contents:
@@ -45,23 +28,16 @@ articles:
   - consistency-tests
   - rounding
   - wrangling
-
 - title: Other
   navbar: Other
-  contents:
-  - related
-
-
-
+  contents: related
 reference:
-
 - title: Consistency tests
-  desc: Check the numerical consistency of summary statistics; three tests
-        currently implemented ---
-
+  desc: Check the numerical consistency of summary statistics; three tests currently
+    implemented ---
 - subtitle: GRIM
-  desc: Test reported means or percentages for numerical consistency
-        with reported sample sizes
+  desc: Test reported means or percentages for numerical consistency with reported
+    sample sizes
 - contents:
   - grim
   - grim_map
@@ -72,19 +48,17 @@ reference:
   - grim_total
   - grim_granularity
   - grim_items
-
 - subtitle: GRIMMER
-  desc: Test reported means and standard deviations for numerical consistency
-        with reported sample sizes
+  desc: Test reported means and standard deviations for numerical consistency with
+    reported sample sizes
 - contents:
   - grimmer
   - grimmer_map
   - grimmer_map_seq
   - grimmer_map_total_n
-
 - subtitle: DEBIT
-  desc: Test reported means and standard deviations of binary data for
-        numerical consistency with reported sample sizes
+  desc: Test reported means and standard deviations of binary data for numerical consistency
+    with reported sample sizes
 - contents:
   - debit
   - debit_map
@@ -92,27 +66,20 @@ reference:
   - debit_map_total_n
   - debit_plot
   - sd_binary_0_n
-
-
 - title: Duplicate detection
-  desc: Blunt functions to tentatively discover and count duplicate numeric
-        values; interpret results with care
+  desc: Blunt functions to tentatively discover and count duplicate numeric values;
+    interpret results with care
 - contents:
   - duplicate_detect
   - duplicate_count
   - duplicate_count_colpair
-
 - title: Summarize scrutiny tests
-  desc: Follow up on scrutiny's testing functions by computing specific summary
-        statistics
+  desc: Follow up on scrutiny's testing functions by computing specific summary statistics
 - contents:
   - audit
   - audit-special
-
-
 - title: Infrastructure
   desc: Helpers for implementing error detection techniques
-
 - subtitle: Function factories
   desc: Easily create new mapper functions for consistency tests
 - contents:
@@ -121,7 +88,6 @@ reference:
   - function_map_total_n
   - reverse_map_seq
   - reverse_map_total_n
-
 - subtitle: Rounding
   desc: Reconstruct rounding procedures
 - contents:
@@ -135,12 +101,10 @@ reference:
   - reround_to_fraction
   - unround
   - rounding_bias
-
 - subtitle: Counting decimal places
 - contents:
   - decimal_places
   - decimal_places_df
-
 - subtitle: Sequence generation
 - contents:
   - seq_endpoint
@@ -152,19 +116,16 @@ reference:
   - disperse
   - seq_length
   - is_seq_linear
-
 - subtitle: Documentation templates
-  desc: Return standardized building blocks for documenting specific kinds of
-        functions
+  desc: Return standardized building blocks for documenting specific kinds of functions
 - contents:
   - write_doc_audit
   - write_doc_audit_seq
   - write_doc_audit_total_n
   - write_doc_factory_map_conventions
-
 - subtitle: Consistency test helpers
-  desc: Call these helpers inside of your own functions that implement
-        consistency tests at various levels
+  desc: Call these helpers inside of your own functions that implement consistency
+    tests at various levels
 - contents:
   - check_mapper_input_colnames
   - manage_helper_col
@@ -172,23 +133,15 @@ reference:
   - unnest_consistency_cols
   - audit_cols_minimal
   - check_audit_special
-
 - subtitle: Data frame predicates
   desc: Test for mapper function output
-- contents:
-  - is_map_df
-
+- contents: is_map_df
 - subtitle: Testing for subsets / supersets
-  desc: Predicate functions for logical relations between vectors, supporting
-        flexible data entry and tidy evaluation
-- contents:
-  - is_subset_of
-
+  desc: Predicate functions for logical relations between vectors, supporting flexible
+    data entry and tidy evaluation
+- contents: is_subset_of
 - subtitle: Testing for numeric-like vectors
-- contents:
-  - is_numeric_like
-
-
+- contents: is_numeric_like
 - title: Data wrangling
   desc: Automate formatting tasks with a special relevance to error detection
 - contents:
@@ -197,11 +150,8 @@ reference:
   - before_parens
   - inside_parens
   - row_to_colnames
-
-
 - title: Datasets
-  desc: Small example datasets to demonstrate how `grim_map()` and
-        `debit_map()` work
+  desc: Small example datasets to demonstrate how `grim_map()` and `debit_map()` work
 - contents:
   - pigs1
   - pigs2
