@@ -28,8 +28,8 @@
 #'   Default is `FALSE` because the focus should be on clarifying
 #'   inconsistencies.
 #' @param ... Arguments passed down to `grimmer_map()`. *(NOTE: Don't use the
-#'   `items` argument. It currently contains a bug that will be fixed in
-#'   scrutiny's next CRAN release.)*
+#'   `items` argument. It currently contains a bug that will be fixed in the
+#'   future.)*
 
 #' @return A tibble (data frame) with detailed test results.
 

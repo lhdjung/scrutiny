@@ -46,8 +46,8 @@ Default is \code{FALSE} because the focus should be on clarifying
 inconsistencies.}
 
 \item{...}{Arguments passed down to \code{grimmer_map()}. \emph{(NOTE: Don't use the
-\code{items} argument. It currently contains a bug that will be fixed in
-scrutiny's next CRAN release.)}}
+\code{items} argument. It currently contains a bug that will be fixed in the
+future.)}}
 }
 \value{
 A tibble (data frame) with detailed test results.

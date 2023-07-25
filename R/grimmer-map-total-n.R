@@ -36,8 +36,8 @@
 #'   maximum.
 #' @inheritParams disperse_total
 #' @param ... Arguments passed down to `grimmer_map()`. *(NOTE: Don't use the
-#'   `items` argument. It currently contains a bug that will be fixed in
-#'   scrutiny's next CRAN release.)*
+#'   `items` argument. It currently contains a bug that will be fixed in the
+#'   future.)*
 
 #' @include function-map-total-n.R
 #'

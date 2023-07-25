@@ -25,7 +25,7 @@ grimmer(
 \item{n}{Integer. The reported sample size.}
 
 \item{items}{\emph{(NOTE: Don't use the \code{items} argument. It currently contains a
-bug that will be fixed in scrutiny's next CRAN release.)} Integer. The
+bug that will be fixed in the future.)} Integer. The
 number of items composing the \code{x} and \code{sd} values. Default is 1, the most
 common case.}
 
