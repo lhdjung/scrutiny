@@ -152,8 +152,8 @@ audit_seq <- function(data) {
   }
 
   # Prepare endings of the `diff_*` columns:
-  fn_names <- c("", "_up", "_down")
-  fn_names <- rep(fn_names, length(var_names))
+  fun_names <- c("", "_up", "_down")
+  fun_names <- rep(fun_names, length(var_names))
 
   df_nested <- df_list %>%
     purrr::map(index_hit_distance) %>%
@@ -175,7 +175,7 @@ audit_seq <- function(data) {
     dplyr::mutate(dplyr::across(
       .cols = everything(),
       .fns = list(min_distance_abs, min_distance_pos, min_distance_neg),
-      .names = "diff_{.col}{fn_names}"
+      .names = "diff_{.col}{fun_names}"
     )) %>%
     dplyr::select(-(seq_along(var_names))) %>%
     dplyr::mutate(dplyr::across(

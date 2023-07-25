@@ -8,7 +8,9 @@ utils::globalVariables(c(
   "rounding", "case", "n_sum", "V1", "consistency", "ratio", "scr_index_case",
   "dust", "starts_with", "value_duplicated", "variable", "sd_lower",
   "sd_incl_lower", "sd_upper", "sd_incl_upper", "x_lower", "x_upper",
-  "dupe_count", "fn_name"
+  "dupe_count", "fun_name",
+  # Added after rewriting the function factories using `rlang::new_function()`:
+  "!!", "constant", "constant_index", "include_consistent", "n_max", "n_min"
 ))
 
 

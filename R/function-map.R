@@ -30,6 +30,7 @@
 #' @param .col_filler (Experimental) Optionally, a vector specifying the values
 #'   of `.col_names` columns in rows where the `*_scalar()` function only
 #'   returned the `consistency` value.
+#' @param ... These dots must be empty.
 
 #' @details The output tibble returned by the factory-made function will inherit
 #'   one or two classes independently of the `.name_class` argument:
@@ -93,7 +94,7 @@
 
 function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
                          .args_disabled = NULL, .col_names = NULL,
-                         .col_control = NULL, .col_filler = NULL) {
+                         .col_control = NULL, .col_filler = NULL, ...) {
 
   force(.fun)
   force(.reported)
@@ -106,12 +107,16 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
 
   # Checks ---
 
-  fn_name <- deparse(substitute(.fun))
+  # The dots are only included to prevent a false-positive CRAN warning, so they
+  # must not be used:
+  rlang::check_dots_empty()
+
+  fun_name <- deparse(substitute(.fun))
   offenders <- .reported[!.reported %in% names(formals(.fun))]
 
   if (length(offenders) > 0L) {
     offenders <- wrap_in_backticks(offenders)
-    fn_name <- deparse(substitute(.fun))
+    fun_name <- deparse(substitute(.fun))
     if (length(offenders) == 1L) {
       msg_arg <- "argument"
       msg_it_they <- "It was"
@@ -120,9 +125,9 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
       msg_it_they <- "They were"
     }
     cli::cli_abort(c(
-      "Function `{fn_name}()` lacks {msg_arg} {offenders}.",
+      "Function `{fun_name}()` lacks {msg_arg} {offenders}.",
       "i" = "{msg_it_they} given as `.reported` in the \\
-      `function_map()` call, where `.fun` was specified as `{fn_name}`."
+      `function_map()` call, where `.fun` was specified as `{fun_name}`."
     ))
   }
 
@@ -132,104 +137,108 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
 
   # --- Start of the factory-made function, `fn_out()` ---
 
-  fn_out <- function(data, ...) {
+  fn_out <- rlang::new_function(
+    args = rlang::pairlist2(data = , ... = ),
+    body = rlang::expr({
 
-    fun <- .fun
-    reported <- .reported
-    name_test <- .name_test
-    name_class <- .name_class
+      fun <- `!!`(.fun)
+      reported <- `!!`(.reported)
+      name_test <- `!!`(.name_test)
+      name_class <- `!!`(.name_class)
 
-    # Manage key columns in `data`:
-    data <- absorb_key_args(data, reported)
-
-
-    # Checks ---
-
-    check_args_disabled(.args_disabled)
-    check_factory_dots(fun, fn_name, ...)
-    check_mapper_input_colnames(data, reported, name_test)
-    check_tibble(data)
+      # Manage key columns in `data`:
+      data <- absorb_key_args(data, reported)
 
 
-    # Main part ---
+      # Checks ---
 
-    # Divide the data into tested and non-tested columns, going by the key
-    # column names expected from the `reported` argument:
-    data_tested <- data[, reported]
-    data_non_tested <- data[!colnames(data) %in% reported]
+      check_args_disabled(.args_disabled)
+      check_factory_dots(fun, fun_name, ...)
+      check_mapper_input_colnames(data, reported, name_test)
+      check_tibble(data)
 
-    # Test for consistency:
-    consistency <- purrr::pmap(data_tested, fun, ...)
 
-    # Support rounding classes:
-    if (any("rounding" == names(formals(fun)))) {
-      dots <- rlang::enexprs(...)
+      # Main part ---
 
-      if (any("rounding" == names(dots))) {
-        rounding_class <- dots$rounding
-      } else {
-        rounding_class <- formals(fun)$rounding
-      }
+      # Divide the data into tested and non-tested columns, going by the key
+      # column names expected from the `reported` argument:
+      data_tested <- data[, reported]
+      data_non_tested <- data[!colnames(data) %in% reported]
 
-      rounding_class <- paste0("scr_rounding_", rounding_class)
-      name_class <- c(name_class, rounding_class)
-    }
+      # Test for consistency:
+      consistency <- purrr::pmap(data_tested, fun, ...)
 
-    # This says `all`...
-    all_classes <- paste0("scr_", tolower(name_test), "_map")
+      # Support rounding classes:
+      if (any("rounding" == names(formals(fun)))) {
+        dots <- rlang::enexprs(...)
 
-    # ...because more values might be added to it:
-    if (!is.null(name_class)) {
-      all_classes <- c(all_classes, name_class)
-    }
-
-    # Following scrutiny's requirements for mapper functions, `"consistency"`
-    # goes immediately to the right of the key columns (which here are identical
-    # to the tested columns). Any other columns from the input go to the right
-    # of `"consistency"`:
-    out <- tibble::tibble(data_tested, consistency, data_non_tested)
-    out <- add_class(out, all_classes)
-
-    # The idea here is that `.col_control` might have been specified as a string
-    # that is the name of a Boolean argument which controls whether or not
-    # additional columns beyond `"consistency"` are shown. They would have to be
-    # extracted from the `*_scalar()` function and initially stored in a
-    # `"consistency"` list-column, together with the actual `consistency` value:
-    if (!is.null(.col_control)) {
-      .col_control <- eval(rlang::parse_expr(.col_control))
-      # return(.col_control)
-      lengths_consistency <- vapply(consistency, length, integer(1L))
-      lengths_consistency_all1 <- all(lengths_consistency == 1L)
-      if (.col_control && !lengths_consistency_all1) {
-        extend_if_length1 <- function(x, value_if_length1) {
-          if (length(x) == 1) {
-            list(list(x, value_if_length1))
-          } else {
-            x
-          }
+        if (any("rounding" == names(dots))) {
+          rounding_class <- dots$rounding
+        } else {
+          rounding_class <- formals(fun)$rounding
         }
-        out$consistency <- purrr::map(
-          out$consistency, extend_if_length1, value_if_length1 = .col_filler
-        )
-        out <- unnest_consistency_cols(
-          out, col_names = c("consistency", .col_names), index = FALSE
-        )
-      } else {
-        out <- tidyr::unnest(out, cols = consistency)
+
+        rounding_class <- paste0("scr_rounding_", rounding_class)
+        name_class <- c(name_class, rounding_class)
       }
-    }
 
-    if (is.list(out$consistency)) {
-      out$consistency <- unlist(out$consistency)
-    }
+      # This says `all`...
+      all_classes <- paste0("scr_", tolower(name_test), "_map")
 
-    return(out)
-  }
+      # ...because more values might be added to it:
+      if (!is.null(name_class)) {
+        all_classes <- c(all_classes, name_class)
+      }
+
+      # Following scrutiny's requirements for mapper functions, `"consistency"`
+      # goes immediately to the right of the key columns (which here are identical
+      # to the tested columns). Any other columns from the input go to the right
+      # of `"consistency"`:
+      out <- tibble::tibble(data_tested, consistency, data_non_tested)
+      out <- add_class(out, all_classes)
+
+      # The idea here is that `.col_control` might have been specified as a string
+      # that is the name of a Boolean argument which controls whether or not
+      # additional columns beyond `"consistency"` are shown. They would have to be
+      # extracted from the `*_scalar()` function and initially stored in a
+      # `"consistency"` list-column, together with the actual `consistency` value:
+      if (!is.null(.col_control)) {
+        .col_control <- eval(rlang::parse_expr(.col_control))
+        # return(.col_control)
+        lengths_consistency <- vapply(consistency, length, integer(1L))
+        lengths_consistency_all1 <- all(lengths_consistency == 1L)
+        if (.col_control && !lengths_consistency_all1) {
+          extend_if_length1 <- function(x, value_if_length1) {
+            if (length(x) == 1) {
+              list(list(x, value_if_length1))
+            } else {
+              x
+            }
+          }
+          out$consistency <- purrr::map(
+            out$consistency, extend_if_length1, value_if_length1 = .col_filler
+          )
+          out <- unnest_consistency_cols(
+            out, col_names = c("consistency", .col_names), index = FALSE
+          )
+        } else {
+          out <- tidyr::unnest(out, cols = consistency)
+        }
+      }
+
+      if (is.list(out$consistency)) {
+        out$consistency <- unlist(out$consistency)
+      }
+
+      return(out)
+    })
+  )
+
 
   # --- End of the factory-made function, `fn_out()` ---
 
   # Garbage collection, 2/2:
-  rm(fn_name)
+  rm(fun_name)
 
   # Insert parameters named after the key columns into `fn_out()`, with `NULL`
   # as the default for each. The key columns need to be present in the input

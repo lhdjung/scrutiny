@@ -384,15 +384,15 @@ summarize_audit_special <- function(data, selector) {
 
   selector <- rlang::enexprs(selector)
 
-  fn_names <- c(  "mean",      "sd",      "median", "min", "max", "na_count")
-  fns      <- list(mean, stats::sd, stats::median,   min,   max,   na_count)
+  fun_names <- c(  "mean",      "sd",      "median", "min", "max", "na_count")
+  funs      <- list(mean, stats::sd, stats::median,   min,   max,   na_count)
 
   out <- tibble::tibble()
 
-  for (fn in fns) {
+  for (fun in funs) {
     temp <- dplyr::summarise(data, dplyr::across(
       .cols = c(!!!selector),
-      .fns  = fn,
+      .fns  = fun,
       na.rm = TRUE
     ))
     out <- dplyr::bind_rows(out, temp)
@@ -400,9 +400,9 @@ summarize_audit_special <- function(data, selector) {
 
   out %>%
     t() %>%
-    tibble::as_tibble(.name_repair = ~ fn_names) %>%
+    tibble::as_tibble(.name_repair = ~ fun_names) %>%
     dplyr::mutate(term = names(out), .before = 1L) %>%
-    dplyr::mutate(na_rate = na_count / nrow(data), .after = na_rate)
+    dplyr::mutate(na_rate = na_count / nrow(data), .after = "na_rate")
 }
 
 

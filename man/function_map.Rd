@@ -12,7 +12,8 @@ function_map(
   .args_disabled = NULL,
   .col_names = NULL,
   .col_control = NULL,
-  .col_filler = NULL
+  .col_filler = NULL,
+  ...
 )
 }
 \arguments{
@@ -46,6 +47,8 @@ columns named in \code{.col_names} will be displayed.}
 \item{.col_filler}{(Experimental) Optionally, a vector specifying the values
 of \code{.col_names} columns in rows where the \verb{*_scalar()} function only
 returned the \code{consistency} value.}
+
+\item{...}{These dots must be empty.}
 }
 \value{
 A factory-made function with these arguments:
