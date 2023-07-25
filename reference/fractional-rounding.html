@@ -30,7 +30,7 @@ rounding. This is closer to conventional rounding functions.
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,7 +86,7 @@ rounding. This is closer to conventional rounding functions.
     <div class="ref-description section level2">
     <p>Two functions that round numbers to specific fractions, not just
 to the next higher decimal level. They are inspired by
-<code><a href="https://rdrr.io/pkg/janitor/man/round_to_fraction.html" class="external-link">janitor::round_to_fraction()</a></code> but feature all the options of <code><a href="reround.html">reround()</a></code>:</p><ul><li><p><code>reround_to_fraction()</code> closely follows <code><a href="https://rdrr.io/pkg/janitor/man/round_to_fraction.html" class="external-link">janitor::round_to_fraction()</a></code>
+<code><a href="https://sfirke.github.io/janitor/reference/round_to_fraction.html" class="external-link">janitor::round_to_fraction()</a></code> but feature all the options of <code><a href="reround.html">reround()</a></code>:</p><ul><li><p><code>reround_to_fraction()</code> closely follows <code><a href="https://sfirke.github.io/janitor/reference/round_to_fraction.html" class="external-link">janitor::round_to_fraction()</a></code>
 by first rounding to fractions of a whole number, then optionally rounding
 the result to a specific number of digits in the usual way.</p></li>
 <li><p><code>reround_to_fraction_level()</code> rounds to the nearest fraction of a number
@@ -130,7 +130,7 @@ fraction of <code>denominator</code>. Default is <code>1</code>.</p></dd>
 <dd><p>Numeric (whole numbers).</p><ul><li><p>In <code>reround_to_fraction()</code>: If <code>digits</code> is specified, the values
 resulting from fractional rounding will subsequently be rounded to that
 many decimal places. If set to <code>"auto"</code>, it internally becomes
-<code>ceiling(log10(denominator)) + 1</code>, as in <code><a href="https://rdrr.io/pkg/janitor/man/round_to_fraction.html" class="external-link">janitor::round_to_fraction()</a></code>.
+<code>ceiling(log10(denominator)) + 1</code>, as in <code><a href="https://sfirke.github.io/janitor/reference/round_to_fraction.html" class="external-link">janitor::round_to_fraction()</a></code>.
 Default is <code>Inf</code>, in which case there is no subsequent rounding.</p></li>
 <li><p>In <code>reround_to_fraction_level()</code>: This function will round to a fraction
 of the number at the decimal level specified by <code>digits</code>. Default is <code>0</code>.</p></li>
@@ -153,7 +153,7 @@ these cases, it will always have length 2.</p>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="reround.html">reround()</a></code>, which the functions wrap, and
-<code><a href="https://rdrr.io/pkg/janitor/man/round_to_fraction.html" class="external-link">janitor::round_to_fraction()</a></code>, part of which they copy.</p></div>
+<code><a href="https://sfirke.github.io/janitor/reference/round_to_fraction.html" class="external-link">janitor::round_to_fraction()</a></code>, part of which they copy.</p></div>
     </div>
 
     <div class="section level2">

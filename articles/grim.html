@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -313,7 +313,7 @@ output. They will be columns prefixed with <code>rec_</code>:</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>  214.         6.90        6.87                    6.9                    6.9 </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span>  125          5.00        5.00                    5                      5   </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span>    6.72       0.250       0.214                   0.25                   0.25</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># … with abbreviated variable name ¹​rec_x_upper_rounded_down</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ abbreviated name: ¹​rec_x_upper_rounded_down</span></span></span></code></pre></div>
 <p>The additional columns are —</p>
 <ul>
 <li><p><code>rec_sum</code>: the sum total from which the mean or
@@ -402,7 +402,7 @@ stricter assumptions on the way <code>x</code> was rounded, specify
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 4</span></span></span>
 <span><span class="co">#&gt;   x         n consistency ratio</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 2.02     80 TRUE          0.2</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 2.02     80 FALSE         0.2</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 2.03     80 TRUE          0.2</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2.04     80 TRUE          0.2</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 2.05     80 TRUE          0.2</span></span>
@@ -413,7 +413,7 @@ stricter assumptions on the way <code>x</code> was rounded, specify
 <span><span class="co">#&gt;   x         n consistency ratio</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 2.02     80 TRUE          0.2</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 2.03     80 TRUE          0.2</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 2.03     80 FALSE         0.2</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2.04     80 TRUE          0.2</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 2.05     80 TRUE          0.2</span></span></code></pre></div>
 <p>Rounding up and down leads to precisely opposite results for the
@@ -548,27 +548,26 @@ the reported means and sample sizes:</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 4.77     25 FALSE        0.75     1 x    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 4.78     25 FALSE        0.75     1 x    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 4.79     25 FALSE        0.75     1 x    </span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># … with 150 more rows</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 150 more rows</span></span></span></code></pre></div>
 <div class="section level4">
 <h4 id="summaries-with-audit_seq">Summaries with <code>audit_seq()</code><a class="anchor" aria-label="anchor" href="#summaries-with-audit_seq"></a>
 </h4>
-<p>As this output is a little unwieldy, run <code><a href="../reference/audit.html">audit_seq()</a></code> on
+<p>As this output is a little unwieldy, run <code><a href="../reference/audit-special.html">audit_seq()</a></code> on
 the results:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/audit.html">audit_seq</a></span><span class="op">(</span><span class="va">out_seq1</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/audit-special.html">audit_seq</a></span><span class="op">(</span><span class="va">out_seq1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 8 × 12</span></span></span>
-<span><span class="co">#&gt;   x         n consistency hits_total hits_x hits_n diff_x diff_…¹ diff_…² diff_n</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 4.74     25 FALSE                4      2      2      2       2      -<span style="color: #BB0000;">2</span>      2</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 5.23     29 FALSE                6      3      3      1       1      -<span style="color: #BB0000;">2</span>      1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2.57     24 FALSE                6      3      3      1       1      -<span style="color: #BB0000;">3</span>      1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 6.77     27 FALSE                7      3      4      1       1      -<span style="color: #BB0000;">3</span>      1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 7.01     29 FALSE                3      3      0      1       2      -<span style="color: #BB0000;">1</span>     <span style="color: #BB0000;">NA</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 3.14     27 FALSE                6      3      3      1       1      -<span style="color: #BB0000;">3</span>      1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 6.89     31 FALSE                8      4      4      1       1      -<span style="color: #BB0000;">2</span>      3</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">8</span> 0.24     28 FALSE                6      3      3      1       1      -<span style="color: #BB0000;">3</span>      1</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># … with 2 more variables: diff_n_up &lt;dbl&gt;, diff_n_down &lt;dbl&gt;, and abbreviated</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   variable names ¹​diff_x_up, ²​diff_x_down</span></span></span></code></pre></div>
+<span><span class="co">#&gt;   x         n consistency hits_total hits_x hits_n diff_x diff_x_up diff_x_down</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 4.74     25 FALSE                4      2      2      2         2          -<span style="color: #BB0000;">2</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 5.23     29 FALSE                6      3      3      1         1          -<span style="color: #BB0000;">2</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2.57     24 FALSE                6      3      3      1         1          -<span style="color: #BB0000;">3</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 6.77     27 FALSE                7      3      4      1         1          -<span style="color: #BB0000;">3</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 7.01     29 FALSE                3      3      0      1         2          -<span style="color: #BB0000;">1</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 3.14     27 FALSE                6      3      3      1         1          -<span style="color: #BB0000;">3</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 6.89     31 FALSE                8      4      4      1         1          -<span style="color: #BB0000;">2</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">8</span> 0.24     28 FALSE                6      3      3      1         1          -<span style="color: #BB0000;">3</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 3 more variables: diff_n &lt;dbl&gt;, diff_n_up &lt;dbl&gt;, diff_n_down &lt;dbl&gt;</span></span></span></code></pre></div>
 <p>Here is what the output columns mean:</p>
 <ul>
 <li><p><code>x</code> and <code>n</code> are the original inputs,
@@ -589,20 +588,19 @@ steps up and down. When the <code>dispersion</code> sequence gets
 longer, the number of hits tends to increase:</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">out_seq2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grim_map_seq.html">grim_map_seq</a></span><span class="op">(</span><span class="va">pigs1</span>, dispersion <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/audit.html">audit_seq</a></span><span class="op">(</span><span class="va">out_seq2</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/audit-special.html">audit_seq</a></span><span class="op">(</span><span class="va">out_seq2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 8 × 12</span></span></span>
-<span><span class="co">#&gt;   x         n consistency hits_total hits_x hits_n diff_x diff_…¹ diff_…² diff_n</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 4.74     25 FALSE               12      6      6      2       2      -<span style="color: #BB0000;">2</span>      2</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 5.23     29 FALSE               12      6      6      1       1      -<span style="color: #BB0000;">2</span>      1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2.57     24 FALSE               11      6      5      1       1      -<span style="color: #BB0000;">3</span>      1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 6.77     27 FALSE               11      6      5      1       1      -<span style="color: #BB0000;">3</span>      1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 7.01     29 FALSE                6      6      0      1       2      -<span style="color: #BB0000;">1</span>     <span style="color: #BB0000;">NA</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 3.14     27 FALSE               13      6      7      1       1      -<span style="color: #BB0000;">3</span>      1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 6.89     31 FALSE               12      6      6      1       1      -<span style="color: #BB0000;">2</span>      3</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">8</span> 0.24     28 FALSE               13      6      7      1       1      -<span style="color: #BB0000;">3</span>      1</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># … with 2 more variables: diff_n_up &lt;dbl&gt;, diff_n_down &lt;dbl&gt;, and abbreviated</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   variable names ¹​diff_x_up, ²​diff_x_down</span></span></span></code></pre></div>
+<span><span class="co">#&gt;   x         n consistency hits_total hits_x hits_n diff_x diff_x_up diff_x_down</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 4.74     25 FALSE               12      6      6      2         2          -<span style="color: #BB0000;">2</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 5.23     29 FALSE               12      6      6      1         1          -<span style="color: #BB0000;">2</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2.57     24 FALSE               11      6      5      1         1          -<span style="color: #BB0000;">3</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 6.77     27 FALSE               11      6      5      1         1          -<span style="color: #BB0000;">3</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 7.01     29 FALSE                6      6      0      1         2          -<span style="color: #BB0000;">1</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 3.14     27 FALSE               13      6      7      1         1          -<span style="color: #BB0000;">3</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 6.89     31 FALSE               12      6      6      1         1          -<span style="color: #BB0000;">2</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">8</span> 0.24     28 FALSE               13      6      7      1         1          -<span style="color: #BB0000;">3</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 3 more variables: diff_n &lt;dbl&gt;, diff_n_up &lt;dbl&gt;, diff_n_down &lt;dbl&gt;</span></span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="visualizing-grim-tested-sequences">Visualizing GRIM-tested sequences<a class="anchor" aria-label="anchor" href="#visualizing-grim-tested-sequences"></a>
@@ -661,7 +659,7 @@ with 5.3.</p>
 </h4>
 <p>Instead of going about this manually, call
 <code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code>, followed by
-<code><a href="../reference/audit.html">audit_total_n()</a></code> for summarizing the results. It will find
+<code><a href="../reference/audit-special.html">audit_total_n()</a></code> for summarizing the results. It will find
 two further plausible scenarios in which both means are consistent; more
 on that below.</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
@@ -683,10 +681,10 @@ on that below.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 5.3      23        3 TRUE        TRUE            -<span style="color: #BB0000;">1.3</span>      1 forth</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 4.71     16       -<span style="color: #BB0000;">4</span> FALSE       FALSE            0.84     1 forth</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 5.3      24        4 TRUE        FALSE           -<span style="color: #BB0000;">1.4</span>      1 forth</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># … with 14 more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 14 more rows</span></span></span>
 <span></span>
 <span><span class="co"># Summary:</span></span>
-<span><span class="fu"><a href="../reference/audit.html">audit_total_n</a></span><span class="op">(</span><span class="va">df_tested</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/audit-special.html">audit_total_n</a></span><span class="op">(</span><span class="va">df_tested</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 8</span></span></span>
 <span><span class="co">#&gt;   x1    x2        n hits_total hits_forth hits_back scenarios_total hit_rate</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
@@ -709,7 +707,7 @@ of GRIM tests: one for each way of pairing means and group sizes.</p>
 <p>It thus finds the group sizes 19/21 and 16/24 to be GRIM-consistent
 if 5.3 is combined with the smaller group and 4.71 with the larger one
 (i.e., with pairing reversed from Bauer and Francis’ analysis). In the
-<code><a href="../reference/audit.html">audit_total_n()</a></code> summary of the function’s output, results
+<code><a href="../reference/audit-special.html">audit_total_n()</a></code> summary of the function’s output, results
 from original pairing are named <code>hits_forth</code>, those from
 reversed pairing are named <code>hits_back</code>, and their sum is
 named <code>hits_total</code>.</p>

@@ -26,7 +26,7 @@ between the pasted output and the rest of the block."><!-- mathjax --><script sr
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -83,7 +83,7 @@ between the pasted output and the rest of the block."><!-- mathjax --><script sr
     <p><code>write_doc_audit_seq()</code> creates a roxygen2 block section to be
 inserted into the documentation of functions created with
 <code><a href="function_map_seq.html">function_map_seq()</a></code>. The section informs users about the ways in which
-<code><a href="audit.html">audit_seq()</a></code> summarizes the results of the manufactured <code>*_map_seq()</code>
+<code><a href="audit-special.html">audit_seq()</a></code> summarizes the results of the manufactured <code>*_map_seq()</code>
 function.</p>
 <p>Copy the output from your console and paste it into the roxygen2 block of
 your <code>*_map_seq()</code> function. To preserve the bullet-point structure when
@@ -144,6 +144,9 @@ have the same order as in that function's output.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> #'   - `diff_n`, `diff_n_up`, and `diff_n_down` do the same for `n`. </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> #' </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> #'   Call `audit()` following `audit_seq()` to summarize results even further. </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #'   It's mostly self-explaining, but `na_count` and `na_rate` are the number </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #'   and rate of times that a difference could not be computed because of a lack </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #'   of corresponding hits within the `dispersion` range. </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># For DEBIT and `debit_map_seq()`:</span></span></span>
 <span class="r-in"><span><span class="fu">write_doc_audit_seq</span><span class="op">(</span>key_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"sd"</span>, <span class="st">"n"</span><span class="op">)</span>, name_test <span class="op">=</span> <span class="st">"DEBIT"</span><span class="op">)</span></span></span>
@@ -167,6 +170,9 @@ have the same order as in that function's output.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> #'   -  Likewise with `diff_n`, `diff_n_up`, and `diff_n_down`. </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> #' </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> #'   Call `audit()` following `audit_seq()` to summarize results even further. </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #'   It's mostly self-explaining, but `na_count` and `na_rate` are the number </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #'   and rate of times that a difference could not be computed because of a lack </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #'   of corresponding hits within the `dispersion` range. </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

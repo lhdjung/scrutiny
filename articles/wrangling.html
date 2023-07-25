@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -248,7 +248,7 @@ that are coercible to numeric (factors don’t count):</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 5.000        3.400       1.500        0.200       setosa </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 4.400        2.900       1.400        0.200       setosa </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 4.900        3.100       1.500        0.100       setosa </span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># … with 140 more rows</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 140 more rows</span></span></span></code></pre></div>
 <p>Specify columns mostly like you would in
 <code><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">dplyr::select()</a></code>:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
@@ -267,7 +267,7 @@ that are coercible to numeric (factors don’t count):</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 5.000        3.400                1.5         0.2 setosa </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 4.400        2.900                1.4         0.2 setosa </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 4.900        3.100                1.5         0.1 setosa </span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># … with 140 more rows</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 140 more rows</span></span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -321,18 +321,18 @@ deviations):</p>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">80</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/debit_map.html">debit_map</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 8 × 12</span></span></span>
-<span><span class="co">#&gt;   x     sd        n consistency rounding sd_lo…¹ sd_in…² sd_up…³ sd_in…⁴ x_lower</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0.09  0.21     80 FALSE       up_or_d…   0.205 TRUE      0.215 TRUE      0.085</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0.19  0.28     80 FALSE       up_or_d…   0.275 TRUE      0.285 TRUE      0.185</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 0.62  0.16     80 FALSE       up_or_d…   0.155 TRUE      0.165 TRUE      0.615</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 0.15  0.35     80 TRUE        up_or_d…   0.345 TRUE      0.355 TRUE      0.145</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 0.19  0.13     80 FALSE       up_or_d…   0.125 TRUE      0.135 TRUE      0.185</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 0.53  0.10     80 FALSE       up_or_d…   0.095 TRUE      0.105 TRUE      0.525</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 0.50  0.11     80 FALSE       up_or_d…   0.105 TRUE      0.115 TRUE      0.495</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">8</span> 0.57  0.16     80 FALSE       up_or_d…   0.155 TRUE      0.165 TRUE      0.565</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># … with 2 more variables: x_upper &lt;dbl&gt;, .origin &lt;chr&gt;, and abbreviated</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   variable names ¹​sd_lower, ²​sd_incl_lower, ³​sd_upper, ⁴​sd_incl_upper</span></span></span></code></pre></div>
+<span><span class="co">#&gt;   x     sd        n consistency rounding   sd_lower sd_incl_lower sd_upper</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0.09  0.21     80 FALSE       up_or_down    0.205 TRUE             0.215</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0.19  0.28     80 FALSE       up_or_down    0.275 TRUE             0.285</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 0.62  0.16     80 FALSE       up_or_down    0.155 TRUE             0.165</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 0.15  0.35     80 TRUE        up_or_down    0.345 TRUE             0.355</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 0.19  0.13     80 FALSE       up_or_down    0.125 TRUE             0.135</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 0.53  0.10     80 FALSE       up_or_down    0.095 TRUE             0.105</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 0.50  0.11     80 FALSE       up_or_down    0.105 TRUE             0.115</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">8</span> 0.57  0.16     80 FALSE       up_or_down    0.155 TRUE             0.165</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 4 more variables: sd_incl_upper &lt;lgl&gt;, x_lower &lt;dbl&gt;, x_upper &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   .origin &lt;chr&gt;</span></span></span></code></pre></div>
 <p>If your strings look like <code>"2.65 [0.27]"</code>, specify the
 <code>.sep</code> argument as <code>"brackets"</code>. Likewise for
 <code>"2.65 {0.27}"</code> and <code>.sep = "braces"</code>. What about

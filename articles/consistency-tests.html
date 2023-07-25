@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -128,7 +128,7 @@ are consistent with the respective other reported values, such as
 <li><p>A mapping function to be used if only the total sample size was
 reported (in a study with two groups), not the individual group sizes,
 such as <code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code>.</p></li>
-<li><p><code><a href="../reference/audit.html">audit_seq()</a></code> and <code><a href="../reference/audit.html">audit_total_n()</a></code> already
+<li><p><code><a href="../reference/audit-special.html">audit_seq()</a></code> and <code><a href="../reference/audit-special.html">audit_total_n()</a></code> already
 work with the output of numbers 6 and 7, respectively. They still have
 to be specifically documented.</p></li>
 </ol>
@@ -155,9 +155,10 @@ other steps build up on it, and all of them are exported.</p>
 <p>This function takes two or more arguments of length 1 that are meant
 to be tested for consistency with each other. Typically, they will be
 coercible to numeric. This means they either are numeric themselves or
-they are strings that can be converted to numbers. The function returns
-a Boolean value of length 1: It’s <code>TRUE</code> if the inputs are
-mutually consistent, and <code>FALSE</code> if they aren’t.</p>
+they are strings that can be converted to numbers (see
+<code><a href="../reference/is_numeric_like.html">is_numeric_like()</a></code>). The function returns a Boolean value of
+length 1: It’s <code>TRUE</code> if the inputs are mutually consistent,
+and <code>FALSE</code> if they aren’t.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span> <span class="va">schlim_scalar</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">y</span>, <span class="va">n</span><span class="op">)</span> <span class="op">{</span></span>
 <span>   <span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
@@ -216,8 +217,9 @@ scrutiny is to apply it to entire data frames at once, as
 other function below.</p>
 <p>Most functions discussed in the remaining part of the vignette deal
 with data frames. I always use <a href="https://r4ds.had.co.nz/tibbles.html" class="external-link">tibbles</a>, and I strongly
-recommend the same to you. There’s no guarantee that each of those
-functions works with non-tibble data frames as it does with tibbles.</p>
+recommend the same to you. In fact, the mapper functions introduced here
+require tibbles. They might not work correctly with non-tibble data
+frames.</p>
 </div>
 <div class="section level3">
 <h3 id="creating-basic-mappers-with-function_map">Creating basic mappers with <code>function_map()</code><a class="anchor" aria-label="anchor" href="#creating-basic-mappers-with-function_map"></a>
@@ -434,8 +436,8 @@ mapper misses any one ingredient, those other functions may fail.</p>
 <li><p>Its name ends on <code>_map</code> instead of
 <code>_scalar</code> but is otherwise the same as the name of the
 respective <code>_scalar</code> function.</p></li>
-<li><p>Its first argument, <code>data</code>, is a data frame that
-contains the key columns of the respective consistency test. Other
+<li><p>Its first argument, <code>data</code>, is a tibble (data frame)
+that contains the key columns of the respective consistency test. Other
 columns are permitted. The mapper’s user never needs to include helper
 columns and can always replace them by specifying arguments by the same
 names as those columns. If the user specifies such an argument but the
@@ -947,21 +949,20 @@ requirements for mapper functions laid out in section 3.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>    23     7 TRUE            1 y    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>    24     7 TRUE            1 y    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>    25     7 TRUE            1 y    </span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># … with 110 more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 110 more rows</span></span></span>
 <span></span>
 <span><span class="co"># Summarize:</span></span>
-<span><span class="fu"><a href="../reference/audit.html">audit_seq</a></span><span class="op">(</span><span class="va">out_seq</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/audit-special.html">audit_seq</a></span><span class="op">(</span><span class="va">out_seq</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 12</span></span></span>
-<span><span class="co">#&gt;       y     n consistency hits_total hits_y hits_n diff_y diff_…¹ diff_…² diff_n</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>    20     7 FALSE                9      4      5      2       2      <span style="color: #BB0000;">NA</span>      1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>    21     8 FALSE                6      2      4      4       4      <span style="color: #BB0000;">NA</span>      2</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>    22     9 FALSE                4      0      4     <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      2</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>    23    10 FALSE                3      0      3     <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      3</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>    24    11 FALSE                2      0      2     <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      4</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span>    25    12 FALSE                2      0      2     <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      4</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># … with 2 more variables: diff_n_up &lt;dbl&gt;, diff_n_down &lt;dbl&gt;, and abbreviated</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   variable names ¹​diff_y_up, ²​diff_y_down</span></span></span></code></pre></div>
+<span><span class="co">#&gt;       y     n consistency hits_total hits_y hits_n diff_y diff_y_up diff_y_down</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>    20     7 FALSE                9      4      5      2         2          <span style="color: #BB0000;">NA</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>    21     8 FALSE                6      2      4      4         4          <span style="color: #BB0000;">NA</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>    22     9 FALSE                4      0      4     <span style="color: #BB0000;">NA</span>        <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>    23    10 FALSE                3      0      3     <span style="color: #BB0000;">NA</span>        <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>    24    11 FALSE                2      0      2     <span style="color: #BB0000;">NA</span>        <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span>    25    12 FALSE                2      0      2     <span style="color: #BB0000;">NA</span>        <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 3 more variables: diff_n &lt;dbl&gt;, diff_n_up &lt;dbl&gt;, diff_n_down &lt;dbl&gt;</span></span></span></code></pre></div>
 <p>By default, a <code>*_map_seq()</code> function only creates
 sequences around inconsistent input values. That’s because its primary
 purpose is to shed light on inconsistencies in reported statistics.
@@ -969,22 +970,21 @@ Override the default with <code>include_consistent = TRUE</code>:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df1</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu">schlim_map_seq</span><span class="op">(</span>include_consistent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="../reference/audit.html">audit_seq</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="../reference/audit-special.html">audit_seq</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 10 × 12</span></span></span>
-<span><span class="co">#&gt;        y     n consistency hits_to…¹ hits_y hits_n diff_y diff_…² diff_…³ diff_n</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>    16     3 TRUE               14     10      4      1       1      -<span style="color: #BB0000;">1</span>      0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>    17     4 TRUE               13      9      4      1       1      -<span style="color: #BB0000;">1</span>      1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>    18     5 TRUE               11      7      4      1       1      -<span style="color: #BB0000;">1</span>      0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>    19     6 TRUE               10      5      5      1       1      <span style="color: #BB0000;">NA</span>      1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>    20     7 FALSE               9      4      5      2       2      <span style="color: #BB0000;">NA</span>      1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>    21     8 FALSE               6      2      4      4       4      <span style="color: #BB0000;">NA</span>      2</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>    22     9 FALSE               4      0      4     <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      2</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>    23    10 FALSE               3      0      3     <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      3</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>    24    11 FALSE               2      0      2     <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      4</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>    25    12 FALSE               2      0      2     <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      4</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># … with 2 more variables: diff_n_up &lt;dbl&gt;, diff_n_down &lt;dbl&gt;, and abbreviated</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   variable names ¹​hits_total, ²​diff_y_up, ³​diff_y_down</span></span></span>
+<span><span class="co">#&gt;        y     n consistency hits_total hits_y hits_n diff_y diff_y_up diff_y_down</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>    16     3 TRUE                14     10      4      1         1          -<span style="color: #BB0000;">1</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>    17     4 TRUE                13      9      4      1         1          -<span style="color: #BB0000;">1</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>    18     5 TRUE                11      7      4      1         1          -<span style="color: #BB0000;">1</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>    19     6 TRUE                10      5      5      1         1          <span style="color: #BB0000;">NA</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>    20     7 FALSE                9      4      5      2         2          <span style="color: #BB0000;">NA</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>    21     8 FALSE                6      2      4      4         4          <span style="color: #BB0000;">NA</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>    22     9 FALSE                4      0      4     <span style="color: #BB0000;">NA</span>        <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>    23    10 FALSE                3      0      3     <span style="color: #BB0000;">NA</span>        <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>    24    11 FALSE                2      0      2     <span style="color: #BB0000;">NA</span>        <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>    25    12 FALSE                2      0      2     <span style="color: #BB0000;">NA</span>        <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 3 more variables: diff_n &lt;dbl&gt;, diff_n_up &lt;dbl&gt;, diff_n_down &lt;dbl&gt;</span></span></span>
 <span></span>
 <span><span class="co"># Compare with the original values:</span></span>
 <span><span class="va">df1</span></span>
@@ -1090,10 +1090,10 @@ factory do the work for you:</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>    37    18        3 FALSE       FALSE               1 forth</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>    84    10       -<span style="color: #BB0000;">4</span> TRUE        FALSE               1 forth</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>    37    19        4 FALSE       FALSE               1 forth</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># … with 38 more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 38 more rows</span></span></span>
 <span></span>
 <span><span class="co"># Summarize:</span></span>
-<span><span class="fu"><a href="../reference/audit.html">audit_total_n</a></span><span class="op">(</span><span class="va">out_total_n</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/audit-special.html">audit_total_n</a></span><span class="op">(</span><span class="va">out_total_n</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 8</span></span></span>
 <span><span class="co">#&gt;      y1    y2     n hits_total hits_forth hits_back scenarios_total hit_rate</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
@@ -1124,15 +1124,15 @@ class added within the basic mapper function, such as
 <code><a href="../reference/audit.html">audit()</a></code> method.</p>
 <p>However, scrutiny features two specialized functions for summarizing
 the results of manufactured <code>*_seq()</code> or
-<code>*_total_n()</code> functions: <code><a href="../reference/audit.html">audit_seq()</a></code> and
-<code><a href="../reference/audit.html">audit_total_n()</a></code>. These two are not generic like
+<code>*_total_n()</code> functions: <code><a href="../reference/audit-special.html">audit_seq()</a></code> and
+<code><a href="../reference/audit-special.html">audit_total_n()</a></code>. These two are not generic like
 <code><a href="../reference/audit.html">audit()</a></code>, but they only accept the output of functions
 produced by <code><a href="../reference/function_map_seq.html">function_map_seq()</a></code> and
 <code><a href="../reference/function_map_total_n.html">function_map_total_n()</a></code>, respectively.</p>
 <p>You will notice that I have spoken about two existing functions,
 rather than — as in the other sections — a kind of function that you
 should be writing. Indeed, there is nothing left for you to do about
-<code><a href="../reference/audit.html">audit_seq()</a></code> and <code><a href="../reference/audit.html">audit_total_n()</a></code> themselves,
+<code><a href="../reference/audit-special.html">audit_seq()</a></code> and <code><a href="../reference/audit-special.html">audit_total_n()</a></code> themselves,
 unless you find a bug in them! What you should do, however, is to
 document their behavior with regard to the specific test that you have
 implemented.</p>
@@ -1140,13 +1140,13 @@ implemented.</p>
 <div class="section level3">
 <h3 id="documentation-templates">Documentation templates<a class="anchor" aria-label="anchor" href="#documentation-templates"></a>
 </h3>
-<p><code><a href="../reference/audit.html">audit_seq()</a></code> and <code><a href="../reference/audit.html">audit_total_n()</a></code> rely on the
+<p><code><a href="../reference/audit-special.html">audit_seq()</a></code> and <code><a href="../reference/audit-special.html">audit_total_n()</a></code> rely on the
 uniform design of the manufactured functions, which allows them to
 compute essentially the same summaries: Their behavior only varies with
 the names and numbers of the key columns, which in turn follow
 straightforwardly from the nature of the consistency test. If you’re
 developing a package, you should therefore document the behavior of
-<code><a href="../reference/audit.html">audit_seq()</a></code> and <code><a href="../reference/audit.html">audit_total_n()</a></code> on the same
+<code><a href="../reference/audit-special.html">audit_seq()</a></code> and <code><a href="../reference/audit-special.html">audit_total_n()</a></code> on the same
 pages as your manufactured <code>*_map_seq()</code> and
 <code>*_map_total_n()</code> functions.</p>
 <p>There are specialized helpers for creating the respective
@@ -1170,7 +1170,7 @@ of your <code>_map_seq</code> function. To preserve the bullet-point
 structure when indenting roxygen2 comments with
 <code>Ctrl</code>+<code>Shift</code>+<code>/</code>, leave empty lines
 between the pasted output and the rest of the block.</p>
-<p>Likewise, documenting <code><a href="../reference/audit.html">audit_total_n()</a></code> for
+<p>Likewise, documenting <code><a href="../reference/audit-special.html">audit_total_n()</a></code> for
 <code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code>, <code><a href="../reference/grimmer_map_total_n.html">grimmer_map_total_n()</a></code>, and
 <code><a href="../reference/debit_map_total_n.html">debit_map_total_n()</a></code>:</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">

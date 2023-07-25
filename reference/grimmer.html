@@ -20,7 +20,7 @@ for testing multiple cases."><!-- mathjax --><script src="https://cdnjs.cloudfla
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -113,7 +113,7 @@ for testing multiple cases.</p>
 
 <dt>items</dt>
 <dd><p><em>(NOTE: Don't use the <code>items</code> argument. It currently contains a
-bug that will be fixed in scrutiny's next CRAN release.)</em> Integer. The
+bug that will be fixed in the future.)</em> Integer. The
 number of items composing the <code>x</code> and <code>sd</code> values. Default is 1, the most
 common case.</p></dd>
 
@@ -199,6 +199,8 @@ https://peerj.com/preprints/2400v1/</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># For a scale composed of two items:</span></span></span>
 <span class="r-in"><span><span class="fu">grimmer</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"2.74"</span>, sd <span class="op">=</span> <span class="st">"0.96"</span>, n <span class="op">=</span> <span class="fl">63</span>, items <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>The `items` argument in GRIMMER functions doesn't currently work the way it</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> should.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2.74 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> TRUE </span>
 </code></pre></div>

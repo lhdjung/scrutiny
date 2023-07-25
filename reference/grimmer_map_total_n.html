@@ -40,7 +40,7 @@ audit_total_n() for summary statistics.'><!-- mathjax --><script src="https://cd
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -106,7 +106,7 @@ around half.</p></li>
 <li><p>It reports all the scenarios in which both "dispersed" hypothetical group
 sizes are GRIMMER-consistent with the group means.</p></li>
 </ul><p>All of this works with one or more total sample sizes at a time. Call
-<code><a href="audit.html">audit_total_n()</a></code> for summary statistics.</p>
+<code><a href="audit-special.html">audit_total_n()</a></code> for summary statistics.</p>
     </div>
 
     <div class="section level2">
@@ -172,8 +172,8 @@ will go to the right of <code>n_change</code>.</p></dd>
 
 <dt>...</dt>
 <dd><p>Arguments passed down to <code><a href="grimmer_map.html">grimmer_map()</a></code>. <em>(NOTE: Don't use the
-<code>items</code> argument. It currently contains a bug that will be fixed in
-scrutiny's next CRAN release.)</em></p></dd>
+<code>items</code> argument. It currently contains a bug that will be fixed in the
+future.)</em></p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -193,9 +193,9 @@ dispersed <code>n</code>.</p></li>
 <li><p>Other columns from <code><a href="grimmer_map.html">grimmer_map()</a></code> are preserved</p></li>
 </ul></div>
     <div class="section level2">
-    <h2 id="summaries-with-audit-total-n-">Summaries with <code><a href="audit.html">audit_total_n()</a></code><a class="anchor" aria-label="anchor" href="#summaries-with-audit-total-n-"></a></h2>
+    <h2 id="summaries-with-audit-total-n-">Summaries with <code><a href="audit-special.html">audit_total_n()</a></code><a class="anchor" aria-label="anchor" href="#summaries-with-audit-total-n-"></a></h2>
     <p>You can call
-<code><a href="audit.html">audit_total_n()</a></code> following up on <code>grimmer_map_total_n()</code>
+<code><a href="audit-special.html">audit_total_n()</a></code> following up on <code>grimmer_map_total_n()</code>
 to get a tibble with summary statistics. It will have these columns:</p><ul><li><p><code>x1</code>, <code>x2</code>, <code>sd1</code>, <code>sd2</code>, and <code>n</code> are the original inputs.</p></li>
 <li><p><code>hits_total</code> is the number of scenarios in which all of
 <code>x1</code>, <code>x2</code>, <code>sd1</code>, and <code>sd2</code> are GRIMMER-consistent. It is the sum
@@ -258,7 +258,7 @@ https://journals.sagepub.com/doi/10.1177/09567976211058727</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> 5.28  2.12     38        3 FALSE       FALSE           GRIM inco…     1 forth</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> 3.43  1.09     31       -<span style="color: #BB0000;">4</span> FALSE       FALSE           GRIM inco…     1 forth</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> 5.28  2.12     39        4 FALSE       FALSE           GRIMMER i…     1 forth</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># … with 38 more rows</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 38 more rows</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># `audit_total_n()` summaries can be more important than</span></span></span>
 <span class="r-in"><span><span class="co"># the detailed results themselves.</span></span></span>
@@ -267,26 +267,26 @@ https://journals.sagepub.com/doi/10.1177/09567976211058727</p>
 <span class="r-in"><span><span class="co"># with the `x*` values when paired with them both ways:</span></span></span>
 <span class="r-in"><span><span class="va">df</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu">grimmer_map_total_n</span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="audit.html">audit_total_n</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="audit-special.html">audit_total_n</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 2 × 10</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   x1    x2    sd1   sd2       n hits_total hits_forth hits_back scenar…¹ hit_r…²</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 3.43  5.28  1.09  2.12     70          1          1         0       12  0.083<span style="text-decoration: underline;">3</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> 2.97  4.42  0.43  1.65     65          1          0         1       12  0.083<span style="text-decoration: underline;">3</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># … with abbreviated variable names ¹​scenarios_total, ²​hit_rate</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   x1    x2    sd1   sd2       n hits_total hits_forth hits_back scenarios_total</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 3.43  5.28  1.09  2.12     70          1          1         0              12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> 2.97  4.42  0.43  1.65     65          1          0         1              12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 1 more variable: hit_rate &lt;dbl&gt;</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># By default (`dispersion = 0:5`), the function goes</span></span></span>
 <span class="r-in"><span><span class="co"># five steps up and down from `n`. If this sequence</span></span></span>
 <span class="r-in"><span><span class="co"># gets longer, the number of hits tends to increase:</span></span></span>
 <span class="r-in"><span><span class="va">df</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu">grimmer_map_total_n</span><span class="op">(</span>dispersion <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="audit.html">audit_total_n</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="audit-special.html">audit_total_n</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 2 × 10</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   x1    x2    sd1   sd2       n hits_total hits_forth hits_back scenar…¹ hit_r…²</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 3.43  5.28  1.09  2.12     70          1          1         0       22  0.045<span style="text-decoration: underline;">5</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> 2.97  4.42  0.43  1.65     65          1          0         1       22  0.045<span style="text-decoration: underline;">5</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># … with abbreviated variable names ¹​scenarios_total, ²​hit_rate</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   x1    x2    sd1   sd2       n hits_total hits_forth hits_back scenarios_total</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 3.43  5.28  1.09  2.12     70          1          1         0              22</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> 2.97  4.42  0.43  1.65     65          1          0         1              22</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 1 more variable: hit_rate &lt;dbl&gt;</span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

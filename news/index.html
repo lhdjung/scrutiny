@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,6 +63,15 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="development version" id="scrutiny-development-version">scrutiny (development version)<a class="anchor" aria-label="anchor" href="#scrutiny-development-version"></a></h2>
+<ul><li>
+<p>New consistency tests for to check whether reported percentages and sums are correct:</p>
+<ul><li>Use <code>is_percentage_of()</code> for single cases, and <code>is_percentage_of_map()</code> to apply it to a data frame.</li>
+</ul></li>
+<li><p>New function <code><a href="../reference/audit.html">audit_list()</a></code> for displaying <code><a href="../reference/audit.html">audit()</a></code>’s output as a list. <code><a href="../reference/audit-special.html">audit_seq()</a></code> and <code><a href="../reference/audit-special.html">audit_total_n()</a></code> are now documented separately from <code><a href="../reference/audit.html">audit()</a></code> and <code><a href="../reference/audit.html">audit_list()</a></code>.</p></li>
+<li><p>Some performance improvements.</p></li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.4" id="scrutiny-024">scrutiny 0.2.4<a class="anchor" aria-label="anchor" href="#scrutiny-024"></a></h2><p class="text-muted">CRAN release: 2023-01-20</p>
 <ul><li>New <code><a href="../reference/decimal_places_df.html">decimal_places_df()</a></code> function that takes a data frame and counts the decimal places in all numeric-like columns.</li>
 <li>Four new predicate functions centered around <code><a href="../reference/data-frame-predicates.html">is_map_df()</a></code> test whether an object is the output of a scrutiny-style mapper function for consistency tests.</li>
@@ -80,7 +89,7 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.3" id="scrutiny-023">scrutiny 0.2.3<a class="anchor" aria-label="anchor" href="#scrutiny-023"></a></h2><p class="text-muted">CRAN release: 2022-12-11</p>
 <p>Some new features and bugfixes:</p>
-<ul><li><p>New <code><a href="../reference/audit.html">audit()</a></code> methods for the output of <code><a href="../reference/audit.html">audit_seq()</a></code> and <code><a href="../reference/audit.html">audit_total_n()</a></code>.</p></li>
+<ul><li><p>New <code><a href="../reference/audit.html">audit()</a></code> methods for the output of <code><a href="../reference/audit-special.html">audit_seq()</a></code> and <code><a href="../reference/audit-special.html">audit_total_n()</a></code>.</p></li>
 <li><p>New <code><a href="../reference/duplicate_count_colpair.html">duplicate_count_colpair()</a></code> function that checks each combination of columns in a data frame for duplicates.</p></li>
 <li><p>New <code><a href="../reference/restore_zeros.html">restore_zeros_df()</a></code> function to easily restore trailing zeros in all numeric-like columns in a data frame.</p></li>
 <li><p>New <code><a href="../reference/seq_length.html">seq_length()</a></code> function to extend or shorten linear sequences.</p></li>
@@ -112,12 +121,12 @@
 <li>
 <code><a href="../reference/function_map.html">function_map()</a></code> enables users to quickly create consistency test functions for data frames much like <code><a href="../reference/grim_map.html">grim_map()</a></code> or <code><a href="../reference/debit_map.html">debit_map()</a></code>.</li>
 <li>
-<code><a href="../reference/grim_map_seq.html">grim_map_seq()</a></code> checks if GRIM inconsistencies might be due to small errors, and the true values might be close to the reported ones. It varies the inputs up and down in a specified range, holding the respective other ones constant, and tests all those combinations. For summaries, call <code><a href="../reference/audit.html">audit_seq()</a></code> on the results.</li>
+<code><a href="../reference/grim_map_seq.html">grim_map_seq()</a></code> checks if GRIM inconsistencies might be due to small errors, and the true values might be close to the reported ones. It varies the inputs up and down in a specified range, holding the respective other ones constant, and tests all those combinations. For summaries, call <code><a href="../reference/audit-special.html">audit_seq()</a></code> on the results.</li>
 <li>
 <code><a href="../reference/debit_map_seq.html">debit_map_seq()</a></code> does the same for DEBIT.</li>
 <li>The above two are powered by <code><a href="../reference/function_map_seq.html">function_map_seq()</a></code>, which allows users to easily create functions just like these for any consistency test. All that’s needed is a data-frame-level consistency testing function like <code><a href="../reference/grim_map.html">grim_map()</a></code> or <code><a href="../reference/debit_map.html">debit_map()</a></code>.</li>
 <li>
-<code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code> applies GRIM in cases where no group sizes are reported, only total sample sizes. It systematically matches possible group sizes (around half the total) with reported mean or proportion values, GRIM-tests them, and counts the scenarios in which both matches are consistent. For summaries, call <code><a href="../reference/audit.html">audit_total_n()</a></code> on the results.</li>
+<code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code> applies GRIM in cases where no group sizes are reported, only total sample sizes. It systematically matches possible group sizes (around half the total) with reported mean or proportion values, GRIM-tests them, and counts the scenarios in which both matches are consistent. For summaries, call <code><a href="../reference/audit-special.html">audit_total_n()</a></code> on the results.</li>
 <li>
 <code><a href="../reference/debit_map_total_n.html">debit_map_total_n()</a></code> does the same for DEBIT.</li>
 <li>The above two are powered by <code><a href="../reference/function_map_total_n.html">function_map_total_n()</a></code>, which allows users to easily create new functions like <code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code> or <code><a href="../reference/debit_map_total_n.html">debit_map_total_n()</a></code>, provided a data-frame-level consistency testing function like <code><a href="../reference/grim_map.html">grim_map()</a></code> or <code><a href="../reference/debit_map.html">debit_map()</a></code>.</li>
@@ -150,7 +159,7 @@
 <li><p>Previously, there was some space between the raster and the y-axis. It has now been removed.</p></li>
 <li><p>Test result data points, shown in blue and/or red by default, are now built on top of the raster, which makes for a more distinct appearance.</p></li>
 </ul></li>
-<li><p>Two new functions, <code><a href="../reference/fractional-rounding.html">reround_to_fraction()</a></code>, and <code><a href="../reference/fractional-rounding.html">reround_to_fraction_level()</a></code>, enable fractional rounding, inspired by <code><a href="https://rdrr.io/pkg/janitor/man/round_to_fraction.html" class="external-link">janitor::round_to_fraction()</a></code>. For example, they might round <code>0.4</code> to <code>0.5</code> for fractions of <code>2</code>. What tells the new functions apart is that they come with all the flexibility of <code><a href="../reference/reround.html">reround()</a></code>. Furthermore, <code><a href="../reference/fractional-rounding.html">reround_to_fraction_level()</a></code> is closer to a conventional rounding function than the other two.</p></li>
+<li><p>Two new functions, <code><a href="../reference/fractional-rounding.html">reround_to_fraction()</a></code>, and <code><a href="../reference/fractional-rounding.html">reround_to_fraction_level()</a></code>, enable fractional rounding, inspired by <code><a href="https://sfirke.github.io/janitor/reference/round_to_fraction.html" class="external-link">janitor::round_to_fraction()</a></code>. For example, they might round <code>0.4</code> to <code>0.5</code> for fractions of <code>2</code>. What tells the new functions apart is that they come with all the flexibility of <code><a href="../reference/reround.html">reround()</a></code>. Furthermore, <code><a href="../reference/fractional-rounding.html">reround_to_fraction_level()</a></code> is closer to a conventional rounding function than the other two.</p></li>
 <li><p>The new version also fixes a bug in <code><a href="../reference/row_to_colnames.html">row_to_colnames()</a></code>, rewriting the function’s core.</p></li>
 <li><p>Another bug was fixed in <code><a href="../reference/grim.html">grim()</a></code> and <code><a href="../reference/grim_map.html">grim_map()</a></code>, concerning <code>show_rec</code>: For <code>rounding</code> strings that lead to four reconstructed numbers per <code>x</code> value rather than just two, it used to be the case that only the two values corresponding to the first of the two rounding procedures were displayed in the output tibble. Now, all four are displayed, bearing appropriate names.</p></li>
 <li><p>Another bugfix is for the <code>threshold</code> argument in <code><a href="../reference/reround.html">reround()</a></code>, which didn’t work properly before. This used to affect higher-level functions such as <code><a href="../reference/grim.html">grim()</a></code>, <code><a href="../reference/grim_map.html">grim_map()</a></code>, <code><a href="../reference/debit.html">debit()</a></code>, and <code><a href="../reference/debit_map.html">debit_map()</a></code>, as well. The default for <code>threshold</code> is now <code>5</code> in all such functions. Note that rounding up and down from 5 has been fully functional independently of it.</p></li>

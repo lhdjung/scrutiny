@@ -16,7 +16,7 @@ published statistics."><!-- mathjax --><script src="https://cdnjs.cloudflare.com
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -146,8 +146,8 @@ inconsistencies.</p></dd>
 <p>A tibble (data frame) with detailed test results.</p>
     </div>
     <div class="section level2">
-    <h2 id="summaries-with-audit-seq-">Summaries with <code><a href="audit.html">audit_seq()</a></code><a class="anchor" aria-label="anchor" href="#summaries-with-audit-seq-"></a></h2>
-    <p>You can call <code><a href="audit.html">audit_seq()</a></code> following
+    <h2 id="summaries-with-audit-seq-">Summaries with <code><a href="audit-special.html">audit_seq()</a></code><a class="anchor" aria-label="anchor" href="#summaries-with-audit-seq-"></a></h2>
+    <p>You can call <code><a href="audit-special.html">audit_seq()</a></code> following
 <code>debit_map_seq()</code>. It will return a data frame with these columns:</p><ul><li><p><code>x</code>, <code>sd</code>, and <code>n</code> are the original inputs,
 tested for <code>consistency</code> here.</p></li>
 <li><p><code>hits_total</code> is the total number of DEBIT-consistent value sets
@@ -164,7 +164,11 @@ difference). <code>diff_x_up</code> and <code>diff_x_down</code> report the diff
 next higher or lower consistent value, respectively.</p></li>
 <li><p><code>diff_sd</code>, <code>diff_sd_up</code>, and <code>diff_sd_down</code> do the same for <code>sd</code>.</p></li>
 <li><p>Likewise with <code>diff_n</code>, <code>diff_n_up</code>, and <code>diff_n_down</code>.</p></li>
-</ul></div>
+</ul><p>Call <code><a href="audit.html">audit()</a></code> following <code><a href="audit-special.html">audit_seq()</a></code> to summarize results even further.
+It's mostly self-explaining, but <code>na_count</code> and <code>na_rate</code> are the number
+and rate of times that a difference could not be computed because of a lack
+of corresponding hits within the <code>dispersion</code> range.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
@@ -189,34 +193,34 @@ next higher or lower consistent value, respectively.</p></li>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">out</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 60 × 13</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    x     sd        n consistency round…¹ sd_lo…² sd_in…³ sd_up…⁴ sd_in…⁵ x_lower</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> 0.72  0.42   <span style="text-decoration: underline;">1</span>683 FALSE       up_or_…   0.415 TRUE      0.425 TRUE      0.715</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> 0.73  0.42   <span style="text-decoration: underline;">1</span>683 FALSE       up_or_…   0.415 TRUE      0.425 TRUE      0.725</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> 0.74  0.42   <span style="text-decoration: underline;">1</span>683 FALSE       up_or_…   0.415 TRUE      0.425 TRUE      0.735</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> 0.75  0.42   <span style="text-decoration: underline;">1</span>683 FALSE       up_or_…   0.415 TRUE      0.425 TRUE      0.745</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> 0.76  0.42   <span style="text-decoration: underline;">1</span>683 TRUE        up_or_…   0.415 TRUE      0.425 TRUE      0.755</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> 0.78  0.42   <span style="text-decoration: underline;">1</span>683 TRUE        up_or_…   0.415 TRUE      0.425 TRUE      0.775</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> 0.79  0.42   <span style="text-decoration: underline;">1</span>683 FALSE       up_or_…   0.415 TRUE      0.425 TRUE      0.785</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> 0.80  0.42   <span style="text-decoration: underline;">1</span>683 FALSE       up_or_…   0.415 TRUE      0.425 TRUE      0.795</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> 0.81  0.42   <span style="text-decoration: underline;">1</span>683 FALSE       up_or_…   0.415 TRUE      0.425 TRUE      0.805</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> 0.82  0.42   <span style="text-decoration: underline;">1</span>683 FALSE       up_or_…   0.415 TRUE      0.425 TRUE      0.815</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># … with 50 more rows, 3 more variables: x_upper &lt;dbl&gt;, case &lt;int&gt;, var &lt;chr&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   and abbreviated variable names ¹​rounding, ²​sd_lower, ³​sd_incl_lower,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   ⁴​sd_upper, ⁵​sd_incl_upper</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    x     sd        n consistency rounding   sd_lower sd_incl_lower sd_upper</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> 0.72  0.42   <span style="text-decoration: underline;">1</span>683 FALSE       up_or_down    0.415 TRUE             0.425</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> 0.73  0.42   <span style="text-decoration: underline;">1</span>683 FALSE       up_or_down    0.415 TRUE             0.425</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> 0.74  0.42   <span style="text-decoration: underline;">1</span>683 FALSE       up_or_down    0.415 TRUE             0.425</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> 0.75  0.42   <span style="text-decoration: underline;">1</span>683 FALSE       up_or_down    0.415 TRUE             0.425</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> 0.76  0.42   <span style="text-decoration: underline;">1</span>683 TRUE        up_or_down    0.415 TRUE             0.425</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> 0.78  0.42   <span style="text-decoration: underline;">1</span>683 TRUE        up_or_down    0.415 TRUE             0.425</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> 0.79  0.42   <span style="text-decoration: underline;">1</span>683 FALSE       up_or_down    0.415 TRUE             0.425</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> 0.80  0.42   <span style="text-decoration: underline;">1</span>683 FALSE       up_or_down    0.415 TRUE             0.425</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> 0.81  0.42   <span style="text-decoration: underline;">1</span>683 FALSE       up_or_down    0.415 TRUE             0.425</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> 0.82  0.42   <span style="text-decoration: underline;">1</span>683 FALSE       up_or_down    0.415 TRUE             0.425</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 50 more rows</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 5 more variables: sd_incl_upper &lt;lgl&gt;, x_lower &lt;dbl&gt;, x_upper &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   case &lt;int&gt;, var &lt;chr&gt;</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Case-wise summaries with `audit_seq()`</span></span></span>
 <span class="r-in"><span><span class="co"># can be more important than the raw results:</span></span></span>
 <span class="r-in"><span><span class="va">out</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="audit.html">audit_seq</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="audit-special.html">audit_seq</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 2 × 17</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   x     sd        n consi…¹ hits_…² hits_x hits_sd hits_n diff_x diff_…³ diff_…⁴</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 0.77  0.42   <span style="text-decoration: underline;">1</span>683 TRUE         12      2       0     10      1       1      -<span style="color: #BB0000;">1</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> 0.19  0.35   <span style="text-decoration: underline;">1</span>683 FALSE         4      2       2      0      4      <span style="color: #BB0000;">NA</span>      -<span style="color: #BB0000;">4</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># … with 6 more variables: diff_sd &lt;dbl&gt;, diff_sd_up &lt;dbl&gt;, diff_sd_down &lt;dbl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   diff_n &lt;dbl&gt;, diff_n_up &lt;dbl&gt;, diff_n_down &lt;dbl&gt;, and abbreviated variable</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   names ¹​consistency, ²​hits_total, ³​diff_x_up, ⁴​diff_x_down</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   x     sd        n consistency hits_total hits_x hits_sd hits_n diff_x</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 0.77  0.42   <span style="text-decoration: underline;">1</span>683 TRUE                12      2       0     10      1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> 0.19  0.35   <span style="text-decoration: underline;">1</span>683 FALSE                4      2       2      0      4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 8 more variables: diff_x_up &lt;dbl&gt;, diff_x_down &lt;dbl&gt;, diff_sd &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   diff_sd_up &lt;dbl&gt;, diff_sd_down &lt;dbl&gt;, diff_n &lt;dbl&gt;, diff_n_up &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   diff_n_down &lt;dbl&gt;</span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
