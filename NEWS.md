@@ -1,10 +1,12 @@
 # scrutiny (development version)
 
--   New consistency tests for to check whether reported percentages and sums are correct:
-
-    -   Use `is_percentage_of()` for single cases, and `is_percentage_of_map()` to apply it to a data frame.
-
 -   New function `audit_list()` for displaying `audit()`'s output as a list. `audit_seq()` and `audit_total_n()` are now documented separately from `audit()` and `audit_list()`.
+
+-   Fixed a numeric precision bug in `round_up_from()` and `round_down_from()` that occurred when rounding numbers greater than circa 2100 with a part to be truncated that was equal to 5 on that decimal level (thanks to \@kaz462, #43). These functions are called within `round_up()` and `round_down()`, and indirectly by all consistency-testing functions.
+
+-   Documentation for `grim_map_seq()` and all other functions made by `function_map()`, `function_map_seq()`, or `function_map_total_n()` now displays meaningful defaults. Printing the factory-made functions is more meaningful, as well. Internally, they now work with `rlang::new_function()`, which allows for unquoting.
+
+-   Adjusted to new CRAN requirements for `packageVersion()`.
 
 -   Some performance improvements.
 
