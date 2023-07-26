@@ -31,15 +31,14 @@ test_that("`audit()` summarizes DEBIT tests accurately", {
 # `audit_seq()` -----------------------------------------------------------
 
 data_grim_seq  <- grim_map_seq(pigs1)
+data_grimmer_seq <- grimmer_map_seq(pigs5)
 data_debit_seq <- debit_map_seq(pigs3)
 
-audit_seq_grim  <- audit_seq(data_grim_seq)
-audit_seq_debit <- audit_seq(data_debit_seq)
-
-audit_seq_grim <- pigs1 %>%
-  grim_map_seq() %>%
-  audit_seq() %>%
-  unclass_scr()
+# The scrutiny class is removed for the GRIM tibble because the latter is tested
+# as an example for equality with tibbles that don't have that class:
+audit_seq_grim    <- data_grim_seq    %>% audit_seq() %>% unclass_scr()
+audit_seq_grimmer <- data_grimmer_seq %>% audit_seq()
+audit_seq_debit   <- data_debit_seq   %>% audit_seq()
 
 data_incons <- pigs1 %>%
   grim_map() %>%
@@ -47,7 +46,7 @@ data_incons <- pigs1 %>%
   unclass_scr()
 
 
-test_that("", {
+test_that("`audit_seq()` has correct output", {
   audit_seq_grim %>% dim() %>% expect_equal(c(8, 12))
   audit_seq_grim[1:3] %>% expect_equal(data_incons[1:3])
   audit_seq_grim[[4]] %>% expect_equal(c(4, 6, 6, 7, 3, 6, 8, 6))
@@ -56,4 +55,22 @@ test_that("", {
   audit_seq_grim[[7]] %>% expect_equal(c(2, 1, 1, 1, 1, 1, 1, 1))
 })
 
+
+hits_total_is_correct <- function(audit_seq_output) {
+  expected <- audit_seq_output %>%
+    dplyr::rowwise() %>%
+    dplyr::select(starts_with("hits"), -hits_total) %>%
+    dplyr::mutate(hits_total_expected = sum(dplyr::c_across(everything()))) %>%
+    dplyr::pull(hits_total_expected)
+
+  all(expected == audit_seq_output$hits_total)
+}
+
+
+test_that("the `hits_total` column correctly sums up
+          the other `hits_` columns", {
+  audit_seq_grim    %>% hits_total_is_correct() %>% expect_true()
+  audit_seq_grimmer %>% hits_total_is_correct() %>% expect_true()
+  audit_seq_debit   %>% hits_total_is_correct() %>% expect_true()
+})
 
