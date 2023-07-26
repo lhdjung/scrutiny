@@ -151,6 +151,14 @@ audit_seq <- function(data) {
     purrr::map(out, ~ .$index_diff)
   }
 
+  length_unless_na <- function(x) {
+    if (length(x) == 1L && is.na(x)) {
+      0L
+    } else {
+      length(x)
+    }
+  }
+
   # Prepare endings of the `diff_*` columns:
   fun_names <- c("", "_up", "_down")
   fun_names <- rep(fun_names, length(var_names))
@@ -164,7 +172,7 @@ audit_seq <- function(data) {
     dplyr::mutate(dplyr::across(
       .cols = everything(),
       .fns = function(x) {
-        purrr::map(x, length)
+        vapply(x, length_unless_na, integer(1L))
       },
       .names = "hits_{.col}"
     )) %>%
