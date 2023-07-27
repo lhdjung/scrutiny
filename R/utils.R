@@ -640,11 +640,10 @@ step_size <- function(x) {
 manage_string_output_seq <- function(out, from, string_output, digits) {
   if (string_output == "auto") {
     if (is.character(from)) {
-      out <- restore_zeros(out, width = digits)
+      return(restore_zeros(out, width = digits))
     } else {
-      out <- methods::as(out, typeof(from))
+      return(methods::as(out, typeof(from)))
     }
-    return(out)
   } else if (!is.logical(string_output)) {
     if (is.character(string_output)) {
       string_output <- paste0("\"", string_output, "\"")
@@ -660,7 +659,7 @@ manage_string_output_seq <- function(out, from, string_output, digits) {
   } else if (typeof(from) != "character") {
     out <- methods::as(out, typeof(from))
   }
-  return(out)
+  out
 }
 
 
@@ -691,8 +690,7 @@ commas_and <- function(x) {
     and <- ", and "
   }
   out <- stringr::str_flatten(x[-length(x)], collapse = collapse)
-  out <- paste0(out, and, x[length(x)])
-  return(out)
+  paste0(out, and, x[length(x)])
 }
 
 
@@ -882,10 +880,11 @@ index_case_interpolate <- function(x, index_case_only = TRUE,
   out <- methods::as(out, typeof(x_orig))
 
   if (is.character(out)) {
-    out <- restore_zeros(out)
+    restore_zeros(out)
+  } else {
+    out
   }
 
-  return(out)
 }
 
 

@@ -40,13 +40,11 @@ audit.scr_dup_detect <- function(data) {
 
   dup_total <- sum(out$n_duplicated)
 
-  out <- dplyr::add_row(
+  dplyr::add_row(
     out, variable = ".total", n_duplicated = dup_total,
     n_total = sum(out$n_total),
     dup_rate = .data$n_duplicated / .data$n_total
   )
-
-  return(out)
 }
 
 

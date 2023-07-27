@@ -366,7 +366,9 @@ unnest_consistency_cols <- function(results, col_names, index = FALSE,
   consistency_df <- consistency_list %>%
     tibble::as_tibble(.name_repair = "minimal") %>%
     t() %>%
-    tibble::as_tibble(.name_repair = ~ paste0("V", seq_along(col_names))) %>%
+    tibble::as_tibble(.name_repair = function(x) {
+      paste0("V", seq_along(col_names))
+    }) %>%
     dplyr::mutate(V1 = as.logical(V1))
 
   colnames(consistency_df) <- col_names
@@ -400,7 +402,7 @@ summarize_audit_special <- function(data, selector) {
 
   out %>%
     t() %>%
-    tibble::as_tibble(.name_repair = ~ fun_names) %>%
+    tibble::as_tibble(.name_repair = function(x) fun_names) %>%
     dplyr::mutate(term = names(out), .before = 1L) %>%
     dplyr::mutate(na_rate = na_count / nrow(data), .after = "na_rate")
 }

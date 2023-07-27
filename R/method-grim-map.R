@@ -32,10 +32,8 @@ audit.scr_grim_map <- function(data) {
   testable_rate <- testable_cases / all_cases
 
   # Finally, collect all of these values in a resulting tibble --
-  out <- tibble::tibble(
+  tibble::tibble(
     out, mean_grim_ratio, incons_to_ratio, testable_cases, testable_rate
   )
-
-  return(out)
 }
 

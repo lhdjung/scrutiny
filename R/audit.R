@@ -116,11 +116,11 @@ audit_seq <- function(data) {
     purrr::map(dplyr::filter, consistency)
 
   hits_total <- df_list_hits %>%
-    purrr::map_int(nrow) %>%
+    vapply(nrow, 1L) %>%
     unname()
 
   hits_positions <- df_list %>%
-    purrr::map(~ which(.$consistency))
+    purrr::map(function(x) which(x$consistency))
 
   if (is.null(dim(data))) {
     fun <- class(data)[stringr::str_detect(class(data), "_map_seq")]
@@ -146,9 +146,9 @@ audit_seq <- function(data) {
   index_hit_distance <- function(df, var_order = var_names) {
     df_by_var <- split(df, df$var)
     out <- purrr::map(df_by_var, index_case_diff)
-    out <- purrr::map(out, ~ .[.$consistency, ])
+    out <- purrr::map(out, function(x) x[x$consistency, ])
     out <- out[order(var_order)]
-    purrr::map(out, ~ .$index_diff)
+    purrr::map(out, function(x) x$index_diff)
   }
 
   length_unless_na <- function(x) {
@@ -165,7 +165,7 @@ audit_seq <- function(data) {
 
   df_nested <- df_list %>%
     purrr::map(index_hit_distance) %>%
-    tibble::tibble(.name_repair = ~ "distance") %>%
+    tibble::tibble(.name_repair = function(x) "distance") %>%
     tidyr::unnest_wider(col = distance)
 
   cols_hits <- df_nested %>%

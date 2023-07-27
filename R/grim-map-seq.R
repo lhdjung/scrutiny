@@ -73,6 +73,26 @@
 #'   audit_seq()
 
 
+# # Example input (for manual testing):
+#
+# data <- pigs1
+# x <- NULL
+# n <- NULL
+# var <- Inf
+# dispersion <- 1:5
+# out_min <- "auto"
+# out_max <- NULL
+# include_reported <- FALSE
+# include_consistent <- FALSE
+#
+# name_test <- "GRIM"
+# name_fun <- "grim_map"
+# name_class <- NULL
+# args_disabled <- NULL
+# reported <- c("x", "n")
+# fun <- grim_map
+
+
 grim_map_seq <- function_map_seq(
   .fun = grim_map,
   .reported = c("x", "n"),

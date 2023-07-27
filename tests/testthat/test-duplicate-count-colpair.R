@@ -50,7 +50,29 @@ df1_exp <- structure(
 )
 
 
+
+df2 <- tibble(
+  a = 1:5,
+  b = 3:7,
+  c = c(5, NA, NA, 8, 9)
+) %>%
+  duplicate_count_colpair()
+
+df2_exp <- tibble::tibble(
+  x = c("a", "a", "b"),
+  y = c("b", "c", "c"),
+  count = c(3L, 1L, 1L),
+  rate_x = c(0.6, 0.2, 0.2),
+  rate_y = c(0.6, 0.3333333333333333148296, 0.3333333333333333148296),
+) %>%
+  structure(class = c("scr_dup_count_colpair", "tbl_df", "tbl", "data.frame"))
+
+
 test_that("The output has the right values", {
   df1 %>% expect_equal(df1_exp)
+  df2 %>% expect_equal(df2_exp)
 })
+
+
+
 

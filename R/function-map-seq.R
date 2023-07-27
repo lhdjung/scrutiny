@@ -59,7 +59,10 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
     data_list_without_var <- dplyr::mutate(
       data[cols_for_testing_names_without_var],
       nrow_list_var,
-      dplyr::across({{ cols_el }}, ~ purrr::map2(., nrow_list_var, rep)),
+      dplyr::across(
+        .cols = {{ cols_el }},
+        .fns = function(x) purrr::map2(x, nrow_list_var, rep)
+      ),
       nrow_list_var = NULL
     )
 
@@ -72,26 +75,26 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
       split_into_rows() %>%
       purrr::map(
         tibble::as_tibble,
-        .name_repair = ~ colnames(cols_for_testing)
+        .name_repair = function(x) colnames(cols_for_testing)
       )
 
     # Apply the testing function, `fun`, to all data frames in the list:
     data_list_tested <- data_list_for_testing %>%
       purrr::map(fun, ...)
 
-    # Mark the original case (i.e., row in `data`, the input data frame):
+    # TODO: After some time, replace the superseded `purrr::flatten_int()` by
+    # `purrr::list_c()`. -- Mark the original case (i.e., row in `data`, the
+    # input data frame).
     case <- data_list_tested %>%
-      purrr::map_int(nrow) %>%
+      vapply(nrow, 1L) %>%
       purrr::map2(seq_along(data_list_tested), ., rep) %>%
       purrr::flatten_int()
 
     # Combine all output data frames to one. As each of them represents one row
     # of the input data frame -- one "case" -- distinguish them by `case`:
-    out <- data_list_tested %>%
+    data_list_tested %>%
       dplyr::bind_rows() %>%
       dplyr::mutate(case)
-
-    return(out)
   }
 
   # --- End of the manufactured helper (!) function ---
@@ -210,19 +213,7 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 #'   .name_test = "GRIM",
 #' )
 
-
-
-# # Defaults (or taking GRIM as an example, respectively):
-# .var = Inf; .reported = c("x", "n"); .name_test = "GRIM"; .name_class = NULL;
-# .dispersion = 1:5; .out_min = "auto"; .out_max = NULL; .include_reported =
-# FALSE; .include_consistent = FALSE
-# .fun <- grim_map; data <- pigs1
-# var = .var; reported = .reported; fun = .fun; name_test = .name_test;
-# name_class = .name_class = "scr_grim_map_seq"; dispersion = .dispersion;
-# out_min = .out_min; out_max = .out_max;include_reported = .include_reported;
-# include_consistent = .include_consistent
-
-
+# For example inputs, see: grim-map-seq.R
 
 function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
                              .name_class = NULL, .args_disabled = NULL,
@@ -269,8 +260,9 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
 
       name_test <- `!!`(.name_test)
       name_fun <- `!!`(name_fun)
-      name_class <- `!!`(.name_class)
       reported <- `!!`(.reported)
+      name_class <- `!!`(.name_class)
+      args_disabled <- `!!`(.args_disabled)
       fun <- `!!`(.fun)
 
 
@@ -278,7 +270,7 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
 
       check_factory_dots(fun, name_fun, ...)
 
-      args_excluded <- c(reported, .args_disabled)
+      args_excluded <- c(reported, args_disabled)
 
       arg_list <- call_arg_list()
       arg_list <- arg_list[!(names(arg_list)) %in% args_excluded]
@@ -368,7 +360,7 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
           paste0("scr_rounding_", dots$rounding)
       }
 
-      return(out)
+      out
     }),
     env = rlang::env()
   )

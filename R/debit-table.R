@@ -148,15 +148,13 @@ debit_table <- function(x, sd, n,
   # (rounding method, boundary values, and Boolean information about the
   # boundary values being inclusive or not):
   if (show_rec) {
-    out <- tibble::tibble(
+    tibble::tibble(
       sd = sd_chr, x = x_chr, n, consistency, rounding,
       sd_lower, sd_incl_lower, sd_incl_upper, sd_upper,
       x_lower, x_incl_lower, x_upper, x_incl_upper
     )
-    return(out)
   } else {
-    out <- tibble::tibble(sd = sd_chr, x = x_chr, n, consistency)
-    return(out)
+    tibble::tibble(sd = sd_chr, x = x_chr, n, consistency)
   }
 
 }

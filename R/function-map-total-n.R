@@ -72,21 +72,23 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
     out_df_nested <- reported %>%
       split_into_rows() %>%
       purrr::map(split_into_groups, group_size = 2) %>%
-      tibble::tibble(.name_repair = ~ "reported") %>%
+      tibble::tibble(.name_repair = function(x) "reported") %>%
       dplyr::mutate(
         df_list,
         times    = df_list_nrow / 2,
-        reported = purrr::map2(reported, times, ~ purrr::map2(.x, .y, rep))
+        reported = purrr::map2(
+          reported, times, function(x, y) purrr::map2(x, y, rep)
+        )
       ) %>%
       tidyr::unnest_wider(reported) %>%
       dplyr::rename_with(
-        .fn   = ~ reported_orig,
+        .fn   = function(x) reported_orig,
         .cols = 1:dplyr::all_of(reported_n_vars)
       ) %>%
       dplyr::mutate(
         dplyr::across(
           .cols = 1:dplyr::all_of(reported_n_vars),
-          .fns  = ~ purrr::map(., tibble::as_tibble)
+          .fns  = function(x) purrr::map(x, tibble::as_tibble)
         ), times = NULL
       )
 

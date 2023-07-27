@@ -19,15 +19,14 @@ rounding_bounds_scalar <- function(rounding, x_num, d_var, d) {
       rounding <- paste0("anti_", rounding)
     }
 
-    out <- switch(rounding,    #     (1)              (2)               (3)    (4)
+    return(switch(rounding,    #     (1)              (2)               (3)    (4)
         "trunc_x_greater"      = list(x_num,           x_num + (2 * d), "<=",  "<"),
         "trunc_x_less"         = list(x_num - (2 * d), x_num,           "<",  "<="),
         "trunc_x_is_0"         = list(x_num - (2 * d), x_num + (2 * d), "<",   "<"),
         "anti_trunc_x_greater" = list(x_num - (2 * d), x_num,           "<=",  "<"),
         "anti_trunc_x_less"    = list(x_num,           x_num + (2 * d), "<=",  "<"),
         "anti_trunc_x_is_0"    = list(NA,        NA,        NA,   NA)
-    )
-    return(out)
+    ))
   }
 
   # This switch-statement is evaluated for all other rounding procedures:

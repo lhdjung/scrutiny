@@ -245,7 +245,7 @@ write_doc_audit_seq <- function(key_args, name_test) {
   if (all(var_ge_3 == "")) {
     var_ge_3_line_diff <- ""
   } else {
-    var_ge_3_line_diff <- purrr::map(var_ge_3, ~ paste0("diff_", .))
+    var_ge_3_line_diff <- purrr::map(var_ge_3, function(x) paste0("diff_", x))
     var_ge_3_line_diff <- purrr::map(var_ge_3_line_diff, paste0, c("", "_up", "_down"))
     var_ge_3_line_diff <- purrr::map(var_ge_3_line_diff, list(wrap_in_backticks, commas_and))
     if (all(length(var_ge_3) > 1L)) {

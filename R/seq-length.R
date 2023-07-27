@@ -86,8 +86,7 @@ seq_length <- function(x, value) {
   }
 
   if (value == 0L) {
-    out <- vector(mode = typeof(x), length = 0L)
-    return(out)
+    return(vector(mode = typeof(x), length = 0L))
   }
 
   diff <- value - length(x)
@@ -106,8 +105,7 @@ seq_length <- function(x, value) {
   }
 
   if (diff < 0L) {
-    out <- x[1:(length(x) - abs(diff))]
-    return(out)
+    return(x[1:(length(x) - abs(diff))])
   }
 
   extension <- seq_distance(
@@ -119,10 +117,11 @@ seq_length <- function(x, value) {
   out <- c(x, extension)
 
   if (is.character(out)) {
-    return(out)
+    out
+  } else {
+    methods::as(out, typeof(x))
   }
 
-  methods::as(out, typeof(x))
 }
 
 

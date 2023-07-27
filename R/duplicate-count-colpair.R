@@ -100,12 +100,11 @@ duplicate_count_colpair <- function(data, na.rm = TRUE, show_rates = TRUE) {
     rates <- purrr::pmap(out, rate_from_data, data, na.rm)
 
     # Yet another workaround to replace `tidyr::unnest_wider()` -- compare to
-    # `unnest_consistency_cols()`. After some time, replace the superseded
-    # `purrr::flatten()` by `purrr::list_flatten()`.
+    # `unnest_consistency_cols()`:
     out <- dplyr::mutate(
       out,
-      rate_x = purrr::map(rates, `[`, 1) %>% purrr::flatten() %>% as.numeric(),
-      rate_y = purrr::map(rates, `[`, 2) %>% purrr::flatten() %>% as.numeric()
+      rate_x = vapply(rates, function(x) x[[1L]], double(1L)),
+      rate_y = vapply(rates, function(x) x[[2L]], double(1L))
     )
   }
 

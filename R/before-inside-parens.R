@@ -129,7 +129,7 @@ proto_split_parens <- function(string, sep = "parens") {
 before_parens <- function(string, sep = "parens") {
   check_length_parens_sep(sep)
   out <- proto_split_parens(string, sep)
-  out <- purrr::map_chr(out, function(x) x[1])
+  out <- vapply(out, function(x) x[1], character(1L))
   stringr::str_trim(out)
 }
 
@@ -154,7 +154,7 @@ inside_parens <- function(string, sep = "parens") {
   }
 
   out <- proto_split_parens(string, sep)
-  out <- purrr::map(out, function(x) x[2])
+  out <- vapply(out, function(x) x[2], "", USE.NAMES = FALSE)
   sub(paste0(sep_close, ".*"), "", out)
 }
 

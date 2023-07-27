@@ -230,7 +230,7 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
         out$consistency <- unlist(out$consistency)
       }
 
-      return(out)
+      out
     })
   )
 

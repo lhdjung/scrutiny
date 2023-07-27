@@ -69,7 +69,7 @@ duplicate_count <- function(x, numeric_only = TRUE) {
       x <- x %>%
         dplyr::select(where(is.numeric) | where(is.character)) %>%
         dplyr::mutate(dplyr::across(dplyr::everything(), as.numeric)) %>%
-        dplyr::select(where(~ !all(is.na(.)))) %>%
+        dplyr::select(where(function(x) !all(is.na(x)))) %>%
         suppressWarnings()
       val <- purrr::flatten_dbl(x)
     } else {

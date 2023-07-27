@@ -181,7 +181,7 @@ seq_disperse <- function(from, by = NULL, dispersion = 1:5, offset_from = 0L,
     out <- list(out, var_change)
   }
 
-  return(out)
+  out
 }
 
 
@@ -212,12 +212,10 @@ seq_disperse_df <- function(.from, .by = NULL, ...,
   }
 
   if (length(further_cols) > 0L) {
-    out <- tibble::tibble(x, var_change, !!!further_cols)
+    tibble::tibble(x, var_change, !!!further_cols)
   } else {
-    out <- tibble::tibble(x, var_change)
+    tibble::tibble(x, var_change)
   }
-
-  return(out)
 }
 
 

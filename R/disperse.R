@@ -174,7 +174,7 @@ disperse <- function(n, dispersion = 0:5, n_min = 1L, n_max = NULL,
       } else {
         check_length_or_null(constant, 2L)
       }
-      rep(constant, times = nrow(out) / 2)
+      rep(constant, times = nrow(out) / 2L)
     }
 
     if (is.list(constant)) {
@@ -183,12 +183,12 @@ disperse <- function(n, dispersion = 0:5, n_min = 1L, n_max = NULL,
         length(names(constant)) == length(constant)
       if (constant_is_named_list) {
         constant <- tibble::as_tibble(
-          constant, .name_repair = ~ names(constant)
+          constant, .name_repair = function(x) names(constant)
         )
       } else {
-        constant <- tibble::as_tibble(
-          constant, .name_repair = ~ paste0("constant", seq_along(constant))
-        )
+        constant <- tibble::as_tibble(constant, .name_repair = function(x) {
+            paste0("constant", seq_along(constant))
+          })
       }
     } else {
       constant <- repeat_constant(constant, out)
@@ -201,7 +201,7 @@ disperse <- function(n, dispersion = 0:5, n_min = 1L, n_max = NULL,
     out <- dplyr::mutate(out, constant, .before = constant_index)
   }
 
-  return(out)
+  out
 }
 
 
@@ -249,7 +249,7 @@ disperse2 <- function(n, dispersion = 0:5, n_min = 1L, n_max = NULL,
   out$n <- out$n %>% purrr::modify_at(locations2, `+`, 0.5)
 
   # Return the resulting tibble:
-  return(out)
+  out
 }
 
 
@@ -277,12 +277,10 @@ disperse_total <- function(n, dispersion = 0:5, n_min = 1L, n_max = NULL,
   # call `disperse()`; if `n` is odd, call `disperse2()`:
   if (is_even(n)) {
 
-    out <- disperse(
+    disperse(
       n = n_half, dispersion = dispersion, n_min = n_min, n_max = n_max,
       constant = constant, constant_index = constant_index
     )
-
-    return(out)
 
   } else {
 
@@ -291,12 +289,11 @@ disperse_total <- function(n, dispersion = 0:5, n_min = 1L, n_max = NULL,
     n2 <- n1 + 1
     n_both <- c(n1, n2)
 
-    out <- disperse2(
+    disperse2(
       n = n_both, dispersion = dispersion, n_min = n_min, n_max = n_max,
       constant = constant, constant_index = constant_index
     )
 
-    return(out)
   }
 }
 

@@ -148,11 +148,9 @@ seq_endpoint <- function(from, to, offset_from = 0L, offset_to = 0L,
   # Following user preferences, do or don't convert the output to string,
   # restoring trailing zeros to the same number of decimal places that also
   # determined the unit of increments at the start of the function:
-  out <- manage_string_output_seq(
+  manage_string_output_seq(
     out = out, from = from, string_output = string_output, digits = digits
   )
-
-  return(out)
 }
 
 
@@ -222,11 +220,9 @@ seq_distance <- function(from, by = NULL, length_out = 10L, dir = 1,
   # Following user preferences, do or don't convert the output to string,
   # restoring trailing zeros to the same number of decimal places that also
   # determined the unit of increments at the start of the function:
-  out <- manage_string_output_seq(
+  manage_string_output_seq(
     out = out, from = from, string_output = string_output, digits = digits
   )
-
-  return(out)
 }
 
 
@@ -257,9 +253,7 @@ seq_endpoint_df <- function(.from, .to, ..., .offset_from = 0L, .offset_to = 0L,
     out <- tibble::tibble(x)
   }
 
-  out <- add_class(out, "scr_seq_df")
-
-  return(out)
+  add_class(out, "scr_seq_df")
 }
 
 
@@ -290,9 +284,7 @@ seq_distance_df <- function(.from, .by = NULL, ..., .length_out = 10L, .dir = 1,
     out <- tibble::tibble(x)
   }
 
-  out <- add_class(out, "scr_seq_df")
-
-  return(out)
+  add_class(out, "scr_seq_df")
 }
 
 
