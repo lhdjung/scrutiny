@@ -583,7 +583,7 @@ Below is their function family tree. Fields with bold margins are function facto
 Here is an overview of scrutiny's function factories:
 
 | Output function type | Section here | Function factory         | GRIM example function | Predicate function    |
-|---------------|---------------|---------------|---------------|---------------|
+|----------------------|--------------|--------------------------|-----------------------|-----------------------|
 | Basic mapper         | 3            | `function_map()`         | `grim_map()`          | `is_map_basic_df()`   |
 | Sequence mapper      | 6            | `function_map_seq()`     | `grim_map_seq()`      | `is_map_seq_df()`     |
 | Total-n mapper       | 7            | `function_map_total_n()` | `grim_map_total_n()`  | `is_map_total_n_df()` |

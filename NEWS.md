@@ -1,12 +1,24 @@
 # scrutiny (development version)
 
+-   An overhaul of `duplicate_count_colpair()`:
+
+    -   New `total_x` and `total_y` columns in the output show how many non-missing values were checked for duplicates.
+
+    -   New `ignore` argument lets users specify one or more values that will not be checked for duplicates.
+
+    -   The `na.rm` argument is deprecated. It wasn't very useful because missing values are never checked for duplicates.
+
 -   New function `audit_list()` for displaying `audit()`'s output as a list. `audit_seq()` and `audit_total_n()` are now documented separately from `audit()` and `audit_list()`.
 
 -   Fixed a numeric precision bug in `round_up_from()` and `round_down_from()` that occurred when rounding numbers greater than circa 2100 with a part to be truncated that was equal to 5 on that decimal level (thanks to \@kaz462, #43). These functions are called within `round_up()` and `round_down()`, and indirectly by all consistency-testing functions.
 
+-   Fixed a bug in `audit_seq()` that displayed one "hit" found by varying a given reported value if there were no such hits. The other columns were not affected.
+
+-   Fixed a bug in `function_map()` that displayed the wrong calling function's name in case of an error.
+
 -   Documentation for `grim_map_seq()` and all other functions made by `function_map()`, `function_map_seq()`, or `function_map_total_n()` now displays meaningful defaults. Printing the factory-made functions is more meaningful, as well. Internally, they now work with `rlang::new_function()`, which allows for unquoting.
 
--   Adjusted to new CRAN requirements for `packageVersion()`.
+-   Adjusted to new CRAN requirements for `packageVersion()` usage.
 
 -   Some performance improvements.
 
