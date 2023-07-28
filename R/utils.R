@@ -268,8 +268,7 @@ censor <- function(x, left, right) {
 #'
 #' @noRd
 add_class <- function(x, new_class) {
-  class(x) <- c(new_class, class(x))
-  x
+  `class<-`(x, value = c(new_class, class(x)))
 }
 
 
