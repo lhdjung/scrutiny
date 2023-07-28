@@ -31,7 +31,7 @@ check_factory_key_args_values <- function(data, key_cols_call) {
     offenders_names <- glue::as_glue(names(offenders))
     offenders_names <- wrap_in_backticks(offenders_names)
     offenders <- wrap_in_backticks(offenders)
-    name_current_fn <- name_caller_call(n = 2L)
+    name_current_fn <- name_caller_call(n = 3L)
     if (length(offenders) == 1L) {
       msg_is_colname <- "is not a column name"
     } else {
@@ -86,7 +86,7 @@ check_factory_key_args_names <- function(key_cols_missing,
 
     # Get the name of the current (i.e., factory-made) function using a helper
     # from the utils.R file that wraps `rlang::caller_call()`:
-    msg_fun_name <- name_caller_call(n = 2L)
+    msg_fun_name <- name_caller_call(n = 3L)
 
     # Because either one or more arguments (or column names) may be missing, the
     # wording of the error message may be either singular or plural:
