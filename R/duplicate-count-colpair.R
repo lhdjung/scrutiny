@@ -113,10 +113,10 @@ duplicate_count_colpair <- function(data, ignore = NULL, show_rates = TRUE,
 
   dplyr::mutate(
     out,
-    total_x  = unname(total_values[x]),
-    total_y  = unname(total_values[y]),
-    rate_x = count / total_x,
-    rate_y = count / total_y
+    total_x  = unname(total_values[.data$x]),
+    total_y  = unname(total_values[.data$y]),
+    rate_x = .data$count / .data$total_x,
+    rate_y = .data$count / .data$total_y
   )
 }
 
