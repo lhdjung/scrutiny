@@ -4,19 +4,18 @@
 \alias{duplicate_count_colpair}
 \title{Count duplicate values by column}
 \usage{
-duplicate_count_colpair(data, na.rm = TRUE, show_rates = TRUE)
+duplicate_count_colpair(data, ignore = NULL, show_rates = TRUE, na.rm = TRUE)
 }
 \arguments{
 \item{data}{Data frame.}
 
-\item{na.rm}{Boolean. If \code{TRUE} (the default), any \code{NA} values in \code{data}'s
-columns will be removed before checking for duplicates. This makes sure
-that \code{NA} values in different columns will not be counted as duplicates of
-each other.}
+\item{ignore}{Vector of values that should not be checked for duplicates.}
 
 \item{show_rates}{Boolean. If \code{TRUE} (the default), adds columns \code{rate_x} and
 \code{rate_y}. See value section. Set \code{show_rates} to \code{FALSE} for higher
 performance.}
+
+\item{na.rm}{[\link{Deprecated}] Missing values are never counted in any case.}
 }
 \value{
 A tibble (data frame) with these columns ---
@@ -25,10 +24,11 @@ A tibble (data frame) with these columns ---
 stored in the \code{x} and \code{y} output columns.
 \item \code{count}: Number of "duplicates", i.e., values that are present in both \code{x}
 and \code{y}.
-\item \code{rate_x} and \code{rate_y} (added by default): \code{rate_x} is the proportion of \code{x}
-values that are duplicated in \code{y}. Likewise, \code{rate_y} is the proportion of
-\code{y} values that are duplicated in \code{x}. These two \verb{rate_*} columns will be
-equal unless \code{NA} values are present.
+\item \code{total_x}, \code{total_y}, \code{rate_x}, and \code{rate_y} (added by default): \code{total_x}
+is the number of non-missing values in the column named under \code{x}. Also,
+\code{rate_x} is the proportion of \code{x} values that are duplicated in \code{y}, i.e.,
+\code{count / total_x}. Likewise with \code{total_y} and \code{rate_y}. The two \verb{rate_*}
+columns will be equal unless \code{NA} values are present.
 }
 }
 \description{
