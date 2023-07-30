@@ -1,10 +1,18 @@
 # scrutiny (development version)
 
--   An overhaul of `duplicate_count_colpair()`:
+-   An overhaul of `duplicate_count()`:
+
+    -   All values are now treated like character strings, so all can be checked. The `numeric_only` argument is deprecated and should no longer be used.
+
+    -   The output tibble has two new columns, `locations` and `locations_n`. These hold the names of all input columns in which a value appears and the number of these columns. Details are controlled by the new `locations_type` argument.
+
+    -   New `ignore` argument for specifying one or more values that will not be checked for duplicates
+
+-   Similarly, an overhaul of `duplicate_count_colpair()`:
 
     -   New `total_x` and `total_y` columns in the output show how many non-missing values were checked for duplicates.
 
-    -   New `ignore` argument lets users specify one or more values that will not be checked for duplicates.
+    -   New `ignore` argument as in `duplicate_count()`.
 
     -   The `na.rm` argument is deprecated. It wasn't very useful because missing values are never checked for duplicates.
 
@@ -17,6 +25,8 @@
 -   Fixed a bug in `function_map()` that displayed the wrong calling function's name in case of an error.
 
 -   Documentation for `grim_map_seq()` and all other functions made by `function_map()`, `function_map_seq()`, or `function_map_total_n()` now displays meaningful defaults. Printing the factory-made functions is more meaningful, as well. Internally, they now work with `rlang::new_function()`, which allows for unquoting.
+
+-   The janitor package is no longer suggested.
 
 -   Adjusted to new CRAN requirements for `packageVersion()` usage.
 
