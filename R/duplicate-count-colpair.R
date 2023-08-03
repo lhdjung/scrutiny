@@ -22,7 +22,8 @@ dup_count_pairwise <- function(x, y) {
 #' number of duplicates.
 #'
 #' @param data Data frame.
-#' @param ignore Vector of values that should not be checked for duplicates.
+#' @param ignore Optionally, a vector of values that should not be checked for
+#'   duplicates.
 #' @param show_rates Boolean. If `TRUE` (the default), adds columns `rate_x` and
 #'   `rate_y`. See value section. Set `show_rates` to `FALSE` for higher
 #'   performance.
@@ -82,11 +83,17 @@ dup_count_pairwise <- function(x, y) {
 duplicate_count_colpair <- function(data, ignore = NULL, show_rates = TRUE,
                                     na.rm = TRUE) {
 
-  if (!na.rm) {
+  if (!missing(na.rm)) {
     cli::cli_warn(c(
       "The `na.rm` argument is deprecated.",
       "!" = "Missing values are never counted."
     ))
+  }
+
+  if (!is.data.frame(data)) {
+    cli::cli_abort("`data` must be a data frame.")
+  } else if (!tibble::is_tibble(data) || !rlang::is_named(data)) {
+    data <- tibble::as_tibble(data)
   }
 
   if (!is.null(ignore)) {

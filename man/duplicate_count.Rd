@@ -14,7 +14,7 @@ duplicate_count(
 \arguments{
 \item{x}{Vector or data frame.}
 
-\item{ignore}{Optionally, a vector of values to exclude from the count.}
+\item{ignore}{Optionally, a vector of values that should not be counted.}
 
 \item{locations_type}{String. One of \code{"character"} or \code{"list"}. With
 \code{"list"}, each \code{locations} value is a vector of column names, which is

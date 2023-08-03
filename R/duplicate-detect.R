@@ -95,6 +95,8 @@ duplicate_detect <- function(x, ignore = NULL, colname_end = "dup",
         function(x) paste0("col", seq_along(x))
       }
     )
+  } else if (!tibble::is_tibble(x)) {
+    x <- tibble::as_tibble(x)
   }
 
   # Save the column names before the transformations that will occur below:

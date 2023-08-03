@@ -10,7 +10,7 @@
 #'   For summary statistics, call `audit()` on the results.
 #'
 #' @param x Vector or data frame.
-#' @param ignore Optionally, a vector of values to exclude from the count.
+#' @param ignore Optionally, a vector of values that should not be counted.
 #' @param locations_type String. One of `"character"` or `"list"`. With
 #'   `"list"`, each `locations` value is a vector of column names, which is
 #'   better for further programming. By default (`"character"`), the column
@@ -90,6 +90,8 @@ duplicate_count <- function(x, ignore = NULL,
         function(x) paste0("col", seq_along(x))
       }
     )
+  } else if (!tibble::is_tibble(x)) {
+    x <- tibble::as_tibble(x)
   }
 
   x <- x %>%
