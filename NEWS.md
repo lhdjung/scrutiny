@@ -1,20 +1,28 @@
 # scrutiny (development version)
 
--   An overhaul of `duplicate_count()`:
+-   All three duplicate-related functions were overhauled:
 
-    -   All values are now treated like character strings, so all can be checked. The `numeric_only` argument is deprecated and should no longer be used.
+    -   In `duplicate_count()`:
 
-    -   The output tibble has two new columns, `locations` and `locations_n`. These hold the names of all input columns in which a value appears and the number of these columns. Details are controlled by the new `locations_type` argument.
+        -   All values are now treated like character strings, so all can be checked. The `numeric_only` argument is deprecated and should no longer be used.
 
-    -   New `ignore` argument for specifying one or more values that will not be checked for duplicates
+        -   The output tibble has two new columns, `locations` and `locations_n`. These hold the names of all input columns in which a value appears and the number of these columns. Details are controlled by the new `locations_type` argument.
 
--   Similarly, an overhaul of `duplicate_count_colpair()`:
+        -   New `ignore` argument for specifying one or more values that will not be checked for duplicates.
 
-    -   New `total_x` and `total_y` columns in the output show how many non-missing values were checked for duplicates.
+    -   In `duplicate_count_colpair()`:
 
-    -   New `ignore` argument as in `duplicate_count()`.
+        -   New `total_x` and `total_y` columns in the output show how many non-missing values were checked for duplicates.
 
-    -   The `na.rm` argument is deprecated. It wasn't very useful because missing values are never checked for duplicates.
+        -   New `ignore` argument as in `duplicate_count()`.
+
+        -   The `na.rm` argument is deprecated. It wasn't very useful because missing values are never checked for duplicates.
+
+    -   In `duplicate_detect()`:
+
+        -   As in `duplicate_count()`, all values are now treated like character strings, so all can be checked. The `numeric_only` argument is deprecated and should no longer be used.
+        -   The duplicate status of missing values is now shown as `NA`.
+        -   New `ignore` argument as in `duplicate_count()`.
 
 -   New function `audit_list()` for displaying `audit()`'s output as a list. `audit_seq()` and `audit_total_n()` are now documented separately from `audit()` and `audit_list()`.
 
