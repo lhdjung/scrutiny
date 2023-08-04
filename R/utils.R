@@ -5,7 +5,7 @@ utils::globalVariables(c(
   ".", "where", "desc", "all_of", "contains", "everything", "x", "items",
   "frac", "distance", "both_consistent", "fun", "var", "dispersion", "out_min",
   "out_max", "include_reported", "n", "times", "value", "name", "setNames",
-  "rounding", "case", "n_sum", "V1", "consistency", "ratio", "scr_index_case",
+  "rounding", "case", "n_sum", "consistency", "ratio", "scr_index_case",
   "dust", "starts_with", "value_duplicated", "variable", "sd_lower",
   "sd_incl_lower", "sd_upper", "sd_incl_upper", "x_lower", "x_upper",
   "dupe_count", "fun_name",
@@ -1337,23 +1337,6 @@ dust <- 1e-12
 #' @noRd
 dustify <- function(x) {
   c(x - dust, x + dust)
-}
-
-
-
-#' Count `NA` elements
-#'
-#' Mapped within `summarize_audit_special()`.
-#'
-#' @param x Vector.
-#' @param ... The dots are merely pro forma; their purpose is to swallow up the
-#'   `na.rm = TRUE` specification in a for loop with `dplyr::across()`.
-#'
-#' @return Integer (length 1).
-#'
-#' @noRd
-na_count <- function(x, ...) {
-  length(x[is.na(x)])
 }
 
 

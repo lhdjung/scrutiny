@@ -240,7 +240,7 @@ manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
   } else if (affix) {
     # If a column by that name is not yet present in `data`, supply it from the
     # respective argument:
-    data <- dplyr::mutate(data, {{ var_name }} := var_arg)
+    return(dplyr::mutate(data, {{ var_name }} := var_arg))
   }
 
   data
@@ -308,10 +308,11 @@ manage_key_colnames <- function(data, arg, description = NULL) {
 
 
 manage_key_colnames_list_el <- function(data, key_arg) {
-  if (!is.null(key_arg)) {
-    data <- dplyr::rename(data, {{ names(key_arg) }} := key_arg)
+  if (is.null(key_arg)) {
+    data
+  } else {
+    dplyr::rename(data, {{ names(key_arg) }} := key_arg)
   }
-  data
 }
 
 
@@ -369,33 +370,38 @@ unnest_consistency_cols <- function(results, col_names, index = FALSE,
     tibble::as_tibble(.name_repair = function(x) {
       paste0("V", seq_along(col_names))
     }) %>%
-    dplyr::mutate(V1 = as.logical(V1))
+    dplyr::mutate("V1" = as.logical(.data$V1))
 
   colnames(consistency_df) <- col_names
 
-  results <- results %>%
+  results %>%
     dplyr::select(- {{ col }}) %>%
     dplyr::bind_cols(consistency_df)
-
-  return(results)
 }
 
 
 
-summarize_audit_special <- function(data, selector) {
+audit_summary_stats <- function(data, selection) {
 
-  selector <- rlang::enexprs(selector)
+  selection <- rlang::enexprs(selection)
+
+  # The dots are merely pro forma; their purpose is to swallow up the `na.rm =
+  # TRUE` specification in a for loop below.
+  na_count <- function(x, ...) {
+    length(x[is.na(x)])
+  }
 
   fun_names <- c(  "mean",      "sd",      "median", "min", "max", "na_count")
   funs      <- list(mean, stats::sd, stats::median,   min,   max,   na_count)
 
   out <- tibble::tibble()
 
+  # Applying each summarizing function individually, compute the output tibble
+  # row by row:
   for (fun in funs) {
     temp <- dplyr::summarise(data, dplyr::across(
-      .cols = c(!!!selector),
-      .fns  = fun,
-      na.rm = TRUE
+      .cols = c(!!!selection),
+      .fns  = function(x) fun(x, na.rm = TRUE)
     ))
     out <- dplyr::bind_rows(out, temp)
   }
