@@ -70,9 +70,10 @@ reference:
   desc: Blunt functions to tentatively discover and count duplicate numeric values;
     interpret results with care
 - contents:
-  - duplicate_detect
   - duplicate_count
   - duplicate_count_colpair
+  - duplicate_tally
+  - duplicate_detect
 - title: Summarize scrutiny tests
   desc: Follow up on scrutiny's testing functions by computing specific summary statistics
 - contents:

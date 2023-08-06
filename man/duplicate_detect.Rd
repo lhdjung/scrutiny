@@ -41,24 +41,23 @@ only have a few characters each. Many of them may have duplicates just by
 chance. For example, in R's built-in \code{iris} data set, 99\% of values have
 duplicates.
 
-In general, the fewer values and the more characters per value there are,
-the more significant \code{duplicate_detect()}'s results will be.
+In general, the fewer values and the more characters per value, the more
+significant the results.
 }
 \section{Summaries with \code{audit()}}{
  There is an S3 method for the \code{audit()}
 generic, so you can call \code{audit()} following \code{duplicate_detect()}. It
 returns a tibble with these columns ---
 \itemize{
-\item \code{term}: The original data frame's variables with at least one
-"duplicated" value: one that has at least one duplicate anywhere else in
-the data frame. For a vector, \code{x}.
-\item \code{n_duplicated}: Number of "duplicated" values of that variable: those
-that have at least one duplicate anywhere in the data frame.
-\item \code{dup_rate}: Rate of "duplicated" values of that variable.
+\item \code{term}: The original data frame's variables.
+\item \code{dup_count}: Number of "duplicated" values of that \code{term} variable: those
+which have at least one duplicate anywhere in the data frame.
+\item \code{total}: Number of all non-\code{NA} values of that \code{term} variable.
+\item \code{dup_rate}: Rate of "duplicated" values of that \code{term} variable.
 }
 
 The final row, \code{.total}, summarizes across all other rows: It adds up the
-\code{n_duplicated} and \code{n_total} columns, and calculates the average of the
+\code{dup_count} and \code{total_count} columns, and calculates the mean of the
 \code{dup_rate} column.
 }
 
@@ -80,8 +79,11 @@ pigs4 \%>\%
 }
 \seealso{
 \itemize{
-\item \code{duplicate_count()} provides a frequency table.
-\item \code{duplicate_count_colpair()} to check each value for duplicates.
+\item \code{duplicate_tally()} to count instances of a value instead of just stating
+whether it is duplicated.
+\item \code{duplicate_count()} for a frequency table.
+\item \code{duplicate_count_colpair()} to check each combination of columns for
+duplicates.
 \item \code{janitor::get_dupes()} to search for duplicate rows.
 }
 }

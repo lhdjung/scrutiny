@@ -88,6 +88,7 @@ Collate:
     'method-grim-map.R'
     'method-grim-sequence.R'
     'method-grimmer-map.R'
+    'method-tally.R'
     'reround-to-fraction.R'
     'reverse-map-seq.R'
     'reverse-map-total-n.R'
