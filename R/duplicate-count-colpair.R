@@ -29,7 +29,7 @@ dup_count_pairwise <- function(x, y) {
 #'   performance.
 #' @param na.rm [[Deprecated]] Missing values are never counted in any case.
 
-#' @return A tibble (data frame) with these columns ---
+#' @return A tibble (data frame) with these columns –
 #' - `x` and `y`: Each line contains a unique combination of `data`'s columns,
 #'   stored in the `x` and `y` output columns.
 #' - `count`: Number of "duplicates", i.e., values that are present in both `x`
@@ -41,24 +41,19 @@ dup_count_pairwise <- function(x, y) {
 #'   columns will be equal unless `NA` values are present.
 
 #' @section Summaries with `audit()`: There is an S3 method for `audit()`, so
-#'   you can call `audit()` following `duplicate_count_colpair()` to get a
-#'   summary of `duplicate_count_colpair()`'s results. It is a tibble with a
-#'   single row and the columns below. If the tibble is too wide, call
-#'   `audit_list()` instead.
-#'   - `n`: number of column pairs tested (index 1).
-#'   - `count_min`, `count_max`, `count_mean`, `count_sd`, `count_median`:
-#'   Summary statistics of the duplicate `count` column (index 2 to 6).
-#'   - `rate_x_min`, `rate_x_max`, `rate_x_mean`, `rate_x_sd`, `rate_x_median`:
-#'   Summary statistics of the `rate_x` column (index 7 to 11).
-#'   - `rate_y_min`, `rate_y_max`, `rate_y_mean`, `rate_y_sd`, `rate_y_median`:
-#'   Summary statistics of the `rate_y` column (index 12 to 16).
-
+#'   you can call `audit()` following `duplicate_count_colpair()`. It returns a
+#'   tibble with summary statistics.
+#'
 #' @export
 #'
 #' @include utils.R
 #'
-#' @seealso `corrr::colpair_map()`, a versatile tool for pairwise column
-#'   analysis which the present function wraps.
+#' @seealso
+#' - `duplicate_count()` for a frequency table.
+#' - `duplicate_tally()` to show instances of a value next to each instance.
+#' - `janitor::get_dupes()` to search for duplicate rows.
+#' - `corrr::colpair_map()`, a versatile tool for pairwise column analysis which
+#' the present function wraps.
 #'
 #' @examples
 #' # Basic usage:
@@ -120,10 +115,10 @@ duplicate_count_colpair <- function(data, ignore = NULL, show_rates = TRUE,
 
   dplyr::mutate(
     out,
-    total_x  = unname(total_values[.data$x]),
-    total_y  = unname(total_values[.data$y]),
-    rate_x = .data$count / .data$total_x,
-    rate_y = .data$count / .data$total_y
+    total_x = unname(total_values[.data$x]),
+    total_y = unname(total_values[.data$y]),
+    rate_x  = .data$count / .data$total_x,
+    rate_y  = .data$count / .data$total_y
   )
 }
 

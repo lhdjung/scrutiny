@@ -19,7 +19,7 @@ performance.}
 \item{na.rm}{[\link{Deprecated}] Missing values are never counted in any case.}
 }
 \value{
-A tibble (data frame) with these columns ---
+A tibble (data frame) with these columns –
 \itemize{
 \item \code{x} and \code{y}: Each line contains a unique combination of \code{data}'s columns,
 stored in the \code{x} and \code{y} output columns.
@@ -39,19 +39,8 @@ number of duplicates.
 }
 \section{Summaries with \code{audit()}}{
  There is an S3 method for \code{audit()}, so
-you can call \code{audit()} following \code{duplicate_count_colpair()} to get a
-summary of \code{duplicate_count_colpair()}'s results. It is a tibble with a
-single row and the columns below. If the tibble is too wide, call
-\code{audit_list()} instead.
-\itemize{
-\item \code{n}: number of column pairs tested (index 1).
-\item \code{count_min}, \code{count_max}, \code{count_mean}, \code{count_sd}, \code{count_median}:
-Summary statistics of the duplicate \code{count} column (index 2 to 6).
-\item \code{rate_x_min}, \code{rate_x_max}, \code{rate_x_mean}, \code{rate_x_sd}, \code{rate_x_median}:
-Summary statistics of the \code{rate_x} column (index 7 to 11).
-\item \code{rate_y_min}, \code{rate_y_max}, \code{rate_y_mean}, \code{rate_y_sd}, \code{rate_y_median}:
-Summary statistics of the \code{rate_y} column (index 12 to 16).
-}
+you can call \code{audit()} following \code{duplicate_count_colpair()}. It returns a
+tibble with summary statistics.
 }
 
 \examples{
@@ -65,6 +54,11 @@ mtcars \%>\%
   audit()
 }
 \seealso{
-\code{corrr::colpair_map()}, a versatile tool for pairwise column
-analysis which the present function wraps.
+\itemize{
+\item \code{duplicate_count()} for a frequency table.
+\item \code{duplicate_tally()} to show instances of a value next to each instance.
+\item \code{janitor::get_dupes()} to search for duplicate rows.
+\item \code{corrr::colpair_map()}, a versatile tool for pairwise column analysis which
+the present function wraps.
+}
 }

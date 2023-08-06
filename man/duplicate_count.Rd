@@ -77,7 +77,7 @@ iris \%>\%
 \itemize{
 \item \code{duplicate_count_colpair()} to check each combination of columns for
 duplicates.
-\item \code{duplicate_detect()} to check each value for duplicates.
+\item \code{duplicate_tally()} to show instances of a value next to each instance.
 \item \code{janitor::get_dupes()} to search for duplicate rows.
 }
 }

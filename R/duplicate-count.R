@@ -43,7 +43,7 @@
 #' @seealso
 #' - `duplicate_count_colpair()` to check each combination of columns for
 #' duplicates.
-#' - `duplicate_detect()` to check each value for duplicates.
+#' - `duplicate_tally()` to show instances of a value next to each instance.
 #' - `janitor::get_dupes()` to search for duplicate rows.
 #'
 #' @include utils.R
@@ -94,6 +94,8 @@ duplicate_count <- function(x, ignore = NULL,
     x <- tibble::as_tibble(x)
   }
 
+  names_orig <- colnames(x)
+
   x <- x %>%
     dplyr::mutate(dplyr::across(everything(), as.factor)) %>%
     tidyr::pivot_longer(
@@ -124,16 +126,19 @@ duplicate_count <- function(x, ignore = NULL,
   }
 
   # In the original `x` input data frame, count the columns in which each unique
-  # value appears:
+  # value appears. Store the names of those columns, and sort them by their
+  # order of appearance in the input data frame:
   x$name <- as.character(x$name)
   locations <- vector("list", nrow(out))
   locations_n <- integer(nrow(out))
   for (i in seq_along(locations)) {
-    locations[i] <- list(unique(x[x$value == out$value[i], ]$name))
+    locs <- unique(x[x$value == out$value[i], ]$name)
+    locations[i] <- list(locs[order(match(locs, names_orig))])
     locations_n[i] <- length(locations[[i]])
   }
   rm(x)
 
+  # By default, collapse each vector of location names into a string:
   if (locations_type == "character") {
     locations <- vapply(
       locations, function(x) paste(x, collapse = ", "), character(1L)
