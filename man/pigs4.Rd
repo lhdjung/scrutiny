@@ -5,11 +5,12 @@
 \alias{pigs4}
 \title{Data with duplications}
 \format{
-A tibble (data frame) with 7 rows and 3 columns. The columns are:
+A tibble (data frame) with 5 rows and 3 columns, describing various
+body measures of the fictional pigs. The columns are:
 \describe{
-\item{x}{String. Means.}
-\item{sd}{String. Standard deviations.}
-\item{n}{Numeric. Sample sizes.}
+\item{snout}{String. Snout width.}
+\item{tail}{String. Tail length.}
+\item{wings}{String. Wingspan.}
 }
 }
 \usage{
@@ -19,12 +20,12 @@ pigs4
 A tibble (data frame).
 }
 \description{
-A fictional dataset with observations of flying pigs. Two pairs of values are
+A fictional dataset with observations of flying pigs. It contains multiple
 duplicates. The dataset can be used to demonstrate the functionality of
-\code{duplicate_detect()} and functions building up on it.
+\verb{duplicate_*()} functions such as \code{duplicate_count()}.
 }
 \seealso{
 \code{pigs1} for GRIM-testing means, \code{pigs2} for GRIM-testing
-percentages, and \code{pigs3} for using DEBIT.
+percentages, \code{pigs3} for using DEBIT, and \code{pigs5} for GRIMMER-testing.
 }
 \keyword{datasets}

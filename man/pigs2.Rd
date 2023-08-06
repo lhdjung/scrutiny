@@ -25,5 +25,8 @@ be used to demonstrate the functionality of \code{grim_map()}, particularly its
 \seealso{
 \code{pigs1} for GRIM-testing means instead of percentages, \code{pigs3} for
 DEBIT-testing, and \code{pigs4} for detecting duplicates.
+
+\code{pigs1} for GRIM-testing means, \code{pigs3} for DEBIT-testing, \code{pigs4}
+for detecting duplicates, and \code{pigs5} for GRIMMER-testing.
 }
 \keyword{datasets}

@@ -1,7 +1,6 @@
 
 # Documenting exported data -----------------------------------------------
 
-
 #' Means and sample sizes for GRIM-testing
 #'
 #' A fictional dataset with means and sample sizes of flying pigs. It can be
@@ -21,7 +20,12 @@
 #' @seealso `pigs2` for GRIM-testing percentages instead of means, `pigs3` for
 #'   DEBIT-testing, and `pigs4` for detecting duplicates.
 #'
+#' @seealso `pigs2` for GRIM-testing percentages instead of means, `pigs3` for
+#'   DEBIT-testing, `pigs4` for detecting duplicates, and `pigs5` for
+#'   GRIMMER-testing.
+#'
 "pigs1"
+
 
 
 #' Percentages and sample sizes for GRIM-testing
@@ -43,7 +47,11 @@
 #' @seealso `pigs1` for GRIM-testing means instead of percentages, `pigs3` for
 #'   DEBIT-testing, and `pigs4` for detecting duplicates.
 #'
+#' @seealso `pigs1` for GRIM-testing means, `pigs3` for DEBIT-testing, `pigs4`
+#'   for detecting duplicates, and `pigs5` for GRIMMER-testing.
+#'
 "pigs2"
+
 
 
 #' Binary means and standard deviations for using DEBIT
@@ -66,28 +74,34 @@
 #' @seealso `pigs1` for GRIM-testing means, `pigs2` for GRIM-testing
 #'   percentages, and `pigs4` for detecting duplicates.
 #'
+#' @seealso `pigs1` for GRIM-testing means, `pigs2` for GRIM-testing percentages
+#'   instead of means, `pigs4` for detecting duplicates, and `pigs5` for
+#'   GRIMMER-testing.
+#'
 "pigs3"
+
 
 
 #' Data with duplications
 #'
-#' A fictional dataset with observations of flying pigs. Two pairs of values are
+#' A fictional dataset with observations of flying pigs. It contains multiple
 #' duplicates. The dataset can be used to demonstrate the functionality of
-#' `duplicate_detect()` and functions building up on it.
+#' `duplicate_*()` functions such as `duplicate_count()`.
 
 #' @include utils.R duplicate-detect.R
 #'
-#' @format A tibble (data frame) with 7 rows and 3 columns. The columns are:
+#' @format A tibble (data frame) with 5 rows and 3 columns, describing various
+#'   body measures of the fictional pigs. The columns are:
 #' \describe{
-#'  \item{x}{String. Means.}
-#'  \item{sd}{String. Standard deviations.}
-#'  \item{n}{Numeric. Sample sizes.}
+#'  \item{snout}{String. Snout width.}
+#'  \item{tail}{String. Tail length.}
+#'  \item{wings}{String. Wingspan.}
 #' }
 
 #' @return A tibble (data frame).
 #'
 #' @seealso `pigs1` for GRIM-testing means, `pigs2` for GRIM-testing
-#'   percentages, and `pigs3` for using DEBIT.
+#'   percentages, `pigs3` for using DEBIT, and `pigs5` for GRIMMER-testing.
 #'
 "pigs4"
 
@@ -168,12 +182,12 @@
 #
 #
 # pigs4 <- tibble::tribble(
-#   ~snout,  ~tail,
-#   4.736,   6.887,
-#   8.131,   7.331,
-#   4.221,   6.095,
-#   4.221,   7.574,
-#   5.179,   8.131,
+#   ~snout,  ~tail,    ~wings,
+#   "4.73",   "6.88",  "6.09",
+#   "8.13",   "7.33",  "8.27",
+#   "4.22",   "5.17",  "4.40",
+#   "4.22",   "7.57",  "5.92",
+#   "5.17",   "8.13",  "5.17"
 # )
 #
 #
@@ -193,11 +207,8 @@
 #   "5.00",  "2.18",  31,
 #   "0.24",  "6.43",  34
 # )
-
-
-
-
-
+#
+#
 # # Save data:
 # usethis::use_data(
 #   pigs1,
@@ -205,7 +216,6 @@
 #   pigs3,
 #   pigs4,
 #   pigs5,
-#
 #   overwrite = TRUE
 # )
 
