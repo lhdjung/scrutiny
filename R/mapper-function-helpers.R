@@ -379,38 +379,3 @@ unnest_consistency_cols <- function(results, col_names, index = FALSE,
     dplyr::bind_cols(consistency_df)
 }
 
-
-
-audit_summary_stats <- function(data, selection) {
-
-  selection <- rlang::enexprs(selection)
-
-  # The dots are merely pro forma; their purpose is to swallow up the `na.rm =
-  # TRUE` specification in a for loop below.
-  na_count <- function(x, ...) {
-    length(x[is.na(x)])
-  }
-
-  fun_names <- c(  "mean",      "sd",      "median", "min", "max", "na_count")
-  funs      <- list(mean, stats::sd, stats::median,   min,   max,   na_count)
-
-  out <- tibble::tibble()
-
-  # Applying each summarizing function individually, compute the output tibble
-  # row by row:
-  for (fun in funs) {
-    temp <- dplyr::summarise(data, dplyr::across(
-      .cols = c(!!!selection),
-      .fns  = function(x) fun(x, na.rm = TRUE)
-    ))
-    out <- dplyr::bind_rows(out, temp)
-  }
-
-  out %>%
-    t() %>%
-    tibble::as_tibble(.name_repair = function(x) fun_names) %>%
-    dplyr::mutate(term = names(out), .before = 1L) %>%
-    dplyr::mutate(na_rate = na_count / nrow(data), .after = "na_rate")
-}
-
-

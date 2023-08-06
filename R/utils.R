@@ -10,7 +10,9 @@ utils::globalVariables(c(
   "sd_incl_lower", "sd_upper", "sd_incl_upper", "x_lower", "x_upper",
   "dupe_count", "fun_name",
   # Added after rewriting the function factories using `rlang::new_function()`:
-  "!!", "constant", "constant_index", "include_consistent", "n_max", "n_min"
+  "!!", "constant", "constant_index", "include_consistent", "n_max", "n_min",
+  # Added for `function_duplicate_cols()`, which uses `rlang::new_function()`:
+  "colname_end", "ignore", "numeric_only"
 ))
 
 
@@ -1441,5 +1443,83 @@ check_ggplot2_linewidth <- function(arg_new, default_new) {
 #' @noRd
 trunc_reverse <- function(x) {
   x - trunc(x)
+}
+
+
+
+#' Conventional summary statistics for `audit()` methods
+#'
+#' @description `audit_summary_stats()` takes a tidyselect spec and uses it to
+#'   compute statistics like mean, SD, and median by column.
+#'
+#'   This is used in many `audit()` methods, such as those following up on
+#'   `duplicate_*()` functions, as well as on `audit_seq()` and
+#'   `audit_total_n()`. (The latter two have their own `audit()` methods to
+#'   summarize their results even further.)
+#'
+#' @param data Data frame.
+#' @param selection Tidyselect specification to select the columns from `data`
+#'   to operate on. It is spliced into `dplyr::across()`.
+#' @param total Boolean. Should a `.total` column summarize across all values in
+#'   `data`, regardless of their original columns? If so, `.total` will be the
+#'   last row of the output tibble.
+#'
+#' @return Tibble with summary statistics.
+#'
+#' @noRd
+audit_summary_stats <- function(data, selection, total = FALSE) {
+
+  selection <- rlang::enexprs(selection)
+
+  if (total && any(".total" == colnames(data))) {
+    cli::cli_abort(c(
+      "`.total` can't be a column name.",
+      "!" = "Please rename the `.total` column, then try again.",
+      "i" = "You could use `dplyr::rename()` for this."
+    ))
+  }
+
+  # The dots are merely pro forma; their purpose is to swallow up the `na.rm =
+  # TRUE` specification in a for loop below.
+  na_count <- function(x, ...) {
+    length(x[is.na(x)])
+  }
+
+  fun_names <- c(  "mean",      "sd",      "median", "min", "max", "na_count")
+  funs      <- list(mean, stats::sd, stats::median,   min,   max,   na_count)
+
+  out <- tibble::tibble()
+
+  # Applying each summarizing function individually, compute the output tibble
+  # row by row:
+  for (i in seq_along(funs)) {
+    temp <- dplyr::summarise(data, dplyr::across(
+      .cols = c(!!!selection),
+      .fns  = function(x) funs[[i]](x, na.rm = TRUE)
+    ))
+    out <- dplyr::bind_rows(out, temp)
+  }
+
+  if (total) {
+    total_summary <- vector("list", length(funs))
+    values_all <- data %>%
+      dplyr::select(c(!!!selection)) %>%
+      tidyr::pivot_longer(dplyr::everything()) %>%
+      dplyr::pull("value")
+    for (i in seq_along(funs)) {
+      total_summary[[i]] <- funs[[i]](values_all, na.rm = TRUE)
+    }
+    total_summary <- c(".total", total_summary)
+    names(total_summary) <- c("term", fun_names)
+  } else {
+    total_summary <- NULL
+  }
+
+  out %>%
+    t() %>%
+    tibble::as_tibble(.name_repair = function(x) fun_names) %>%
+    dplyr::mutate("term" = names(out), .before = 1L) %>%
+    dplyr::bind_rows(total_summary) %>%
+    dplyr::mutate(na_rate = na_count / nrow(data), .after = "na_rate")
 }
 
