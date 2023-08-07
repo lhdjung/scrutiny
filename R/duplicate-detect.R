@@ -127,9 +127,14 @@ function_duplicate_cols <- function(code_new_cols, default_end, name_class,
 
 #' Detect duplicate values
 #'
-#' @description For every value in a vector or data frame, `duplicate_detect()`
-#'   tests whether there is at least one identical value. Test results are
-#'   presented next to every value.
+#' @description `r lifecycle::badge('superseded')`
+#'
+#'   `duplicate_detect()` is superseded because it's less informative than
+#'   `duplicate_tally()` and `duplicate_count()`. Use these functions instead.
+#'
+#'   For every value in a vector or data frame, `duplicate_detect()` tests
+#'   whether there is at least one identical value. Test results are presented
+#'   next to every value.
 #'
 #'   This function is a blunt tool designed for initial data checking. Don't put
 #'   too much weight on its results.

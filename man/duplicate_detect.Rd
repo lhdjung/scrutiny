@@ -26,9 +26,14 @@ The tibble has the \code{scr_dup_detect} class, which is recognized by the
 \code{audit()} generic.
 }
 \description{
-For every value in a vector or data frame, \code{duplicate_detect()}
-tests whether there is at least one identical value. Test results are
-presented next to every value.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#superseded}{\figure{lifecycle-superseded.svg}{options: alt='[Superseded]'}}}{\strong{[Superseded]}}
+
+\code{duplicate_detect()} is superseded because it's less informative than
+\code{duplicate_tally()} and \code{duplicate_count()}. Use these functions instead.
+
+For every value in a vector or data frame, \code{duplicate_detect()} tests
+whether there is at least one identical value. Test results are presented
+next to every value.
 
 This function is a blunt tool designed for initial data checking. Don't put
 too much weight on its results.
