@@ -2,8 +2,7 @@
 #' Summarize scrutiny objects
 #'
 #' @description `audit()` summarizes the results of scrutiny functions like
-#'   `grim_map()` that perform tests on data frames. `audit_list()` is a variant
-#'   that returns a named list instead of a tibble.
+#'   `grim_map()` that perform tests on data frames.
 #'
 #'   See below for a record of such functions. Go to the documentation of any of
 #'   them to learn about its `audit()` method.
@@ -44,10 +43,35 @@ audit <- function(data) {
 }
 
 
-#' @rdname audit
+
+#' Summaries in list form
+#' @description `r lifecycle::badge("deprecated")`
+#'
+#'   `audit_list()` is deprecated. Use `audit()` instead.
+#'
+#'   It was meant to be used when `audit()` would have returned tibbles that
+#'   were too wide to be read. However, the output format for `audit()` has now
+#'   been overhauled, there is no longer a need for `audit_list()`.
+#'
+#' @return Named list of `audit()`'s results.
+#'
+#' @keywords internal
+#'
 #' @export
+#'
+#' @examples
+#' # Only use `audit()` instead:
+#' pigs1 %>%
+#'   grim_map() %>%
+#'   audit()
+
 
 audit_list <- function(data) {
+  lifecycle::deprecate_warn(
+    when = "0.3.0",
+    what = "audit_list()",
+    with = "audit()"
+  )
   as.list(audit(data))
 }
 
