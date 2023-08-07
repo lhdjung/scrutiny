@@ -26,6 +26,7 @@ Imports:
     cli,
     dplyr,
     glue,
+    lifecycle,
     magrittr,
     methods,
     purrr,
@@ -99,6 +100,7 @@ Collate:
     'rivets_new.R'
     'rounding-bias.R'
     'row-to-colnames.R'
+    'scrutiny-package.R'
     'seq-disperse.R'
     'seq-length.R'
     'seq-predicates.R'
