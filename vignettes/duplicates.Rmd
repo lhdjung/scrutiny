@@ -1,0 +1,91 @@
+---
+title: "Duplication analysis"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Duplication analysis}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r include=FALSE}
+# Dev only: load scrutiny from within scrutiny
+devtools::load_all(".")
+```
+
+```{r setup}
+library(scrutiny)
+```
+
+You can use scrutiny to analyze duplicate values in data. Duplications can go a long way in assessing the reliability of published research.
+
+This vignette walks you through scrutiny's tools for finding, counting, and summarizing duplications. It uses the `pigs4` dataset as a simple example:
+
+```{r}
+pigs4
+```
+
+## Ranked counting with `duplicate_count()`
+
+A good first step is to create a frequency table. To do so, use `duplicate_count()`:
+
+```{r}
+pigs4 %>% 
+  duplicate_count()
+```
+
+It returns a tibble (data frame) that lists all unique `value`s. It is ordered by the `count` of values in the input data frame, so the values that appear most often are at the top. The `locations` are the names of the column or columns in which a given value appears. They are counted by `locations_n`.
+
+For larger datasets, summary statistics can be helpful. Just run `audit()` after `duplicate_count()`:
+
+```{r}
+pigs4 %>% 
+    duplicate_count() %>% 
+    audit()
+```
+
+## Counting by column pair with `duplicate_count_colpair()`
+
+Sometimes, a sequence of data may be repeated in multiple columns. `duplicate_count_colpair()` helps find such cases:
+
+```{r}
+pigs4 %>% 
+  duplicate_count_colpair()
+```
+
+`x` and `y` represent all combinations of columns in `pigs4`. The `count` is the number of values that appear in both respective columns. This is different from `duplicate_count()`, where `count` displays total frequencies.
+
+`snout` and `tail` are the column pair with the most overlap: 2 out of 5 values are the same, a rate of 0.4. If there are no missing values, `total_x` and `total_y` are the same. The same applies to `rate_x` and `rate_y`.
+
+Again, you can get summary statistics with `audit()`:
+
+```{r}
+pigs4 %>% 
+  duplicate_count_colpair() %>% 
+  audit()
+```
+
+## Counting by observation with `duplicate_tally()`
+
+Unlike the other two functions, `duplicate_tally()` preserves the structure of the original data frame. It adds an `_n` column next to each original column. The newly added columns count how often each value appears in the data frame as a whole:
+
+```{r}
+pigs4 %>% 
+    duplicate_tally()
+```
+
+In `snout`, for example, `4.22` appears twice, so its entries in `snout_n` are `2`. But likewise, `8.13` appears in both `snout` and `tail`, so both observations are marked `2` in the `_n` columns.
+
+When following `duplicate_tally()` up with `audit()`, it shows summary statistics for each `_n` column. The last row summarizes all of these columns together.
+
+```{r}
+pigs4 %>% 
+    duplicate_tally() %>% 
+    audit()
+```
