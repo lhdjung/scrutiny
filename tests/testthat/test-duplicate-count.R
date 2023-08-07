@@ -92,9 +92,9 @@ mtcars_exp <- tibble::tibble(
   ),
   locations = rep(
     c(
-      "vs, am", "am, vs, carb", "gear, carb, cyl", "gear, carb, drat", "cyl, carb",
+      "vs, am", "vs, am, carb", "cyl, gear, carb", "drat, gear, carb", "cyl, carb",
       "carb", "cyl, carb", "gear", "disp", "hp", "drat", "drat, wt", "drat", "wt",
-      "mpg", "mpg, qsec", "mpg", "disp", "hp", "drat", "wt, drat", "drat", "wt",
+      "mpg", "mpg, qsec", "mpg", "disp", "hp", "drat", "drat, wt", "drat", "wt",
       "qsec", "mpg", "disp", "hp", "drat", "wt", "qsec"
     ),
     c(
@@ -200,9 +200,9 @@ mtcars_exp_ignore <- tibble::tibble(
   ),
   locations = rep(
     c(
-      "vs, am", "am, vs, carb", "gear, carb, cyl", "gear, carb, drat", "cyl, carb",
+      "vs, am", "vs, am, carb", "cyl, gear, carb", "drat, gear, carb", "cyl, carb",
       "carb", "cyl, carb", "disp", "hp", "drat", "drat, wt", "drat", "wt", "mpg",
-      "mpg, qsec", "mpg", "disp", "hp", "drat", "wt, drat", "drat", "wt", "qsec",
+      "mpg, qsec", "mpg", "disp", "hp", "drat", "drat, wt", "drat", "wt", "qsec",
       "mpg", "disp", "hp", "drat", "wt", "qsec"
     ),
     c(

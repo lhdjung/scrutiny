@@ -29,11 +29,11 @@ audit.scr_dup_detect <- function(data) {
       names_to  = "term",
       values_to = "value_duplicated"
     ) %>%
-    dplyr::group_by(term) %>%
+    dplyr::group_by(.data$term) %>%
     dplyr::count(.data$value_duplicated) %>%
     dplyr::ungroup() %>%
     dplyr::filter(.data$value_duplicated) %>%
-    dplyr::select(term, n) %>%
+    dplyr::select("term", "n") %>%
     dplyr::rename(dup_count = n) %>%
     dplyr::mutate(
       total_count = orig_nrow,
