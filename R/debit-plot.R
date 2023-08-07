@@ -164,63 +164,6 @@ debit_plot <- function(data,
       )
   }
 
-  # if (utils::packageVersion("ggplot2") >= "3.4") {
-  #   if (line_size != 0.5) {
-  #     msg1 <- paste0(
-  #       "That's because your ggplot2 version is >= 3.4.0 (actually, ",
-  #       utils::packageVersion("ggplot2"), ")."
-  #     )
-  #     msg2 <- paste(
-  #       "In ggplot2, the `size` aesthetic has been deprecated since",
-  #       "version 3.4.0."
-  #     )
-  #     msg3 <- "See https://www.tidyverse.org/blog/2022/11/ggplot2-3-4-0/#hello-linewidth"
-  #     cli::cli_abort(c(
-  #       "`line_size` is deprecated for you.",
-  #       "x" = msg1,
-  #       "i" = msg2,
-  #       "i" = msg3
-  #     ))
-  #   }
-  #   p <- p +
-  #     ggplot2::geom_function(
-  #       fun = draw_debit_line,
-  #       alpha = line_alpha,
-  #       color = line_color,
-  #       linetype = line_linetype,
-  #       linewidth = line_width,
-  #       na.rm = TRUE
-  #     )
-  # } else {
-  #   if (line_width != 0.5) {
-  #     msg1 <- paste0(
-  #       "That's because your ggplot2 version is < 3.4.0 (actually, ",
-  #       utils::packageVersion("ggplot2"), ")."
-  #     )
-  #     msg2 <- paste(
-  #       "In ggplot2, the `size` aesthetic has been deprecated since",
-  #       "version 3.4.0. The `linewidth` aesthetic is used as a replacement,",
-  #       "but it's not accessible for versions lower than 3.4.0."
-  #     )
-  #     msg3 <- "See https://www.tidyverse.org/blog/2022/11/ggplot2-3-4-0/#hello-linewidth"
-  #     cli::cli_abort(c(
-  #       "You can't use `line_width`.",
-  #       "x" = msg1,
-  #       "i" = msg2,
-  #       "i" = msg3
-  #     ))
-  #   }
-  #   p <- p +
-  #     ggplot2::geom_function(
-  #       fun = draw_debit_line,
-  #       alpha = line_alpha,
-  #       color = line_color,
-  #       linetype = line_linetype,
-  #       size = line_size,
-  #       na.rm = TRUE
-  #     )
-  # }
-
   # Inner tiles that should cross the consistency line:
   p <- p +
     ggplot2::geom_rect(
