@@ -73,7 +73,6 @@ reference:
   - duplicate_count
   - duplicate_count_colpair
   - duplicate_tally
-  - duplicate_detect
 - title: Summarize scrutiny tests
   desc: Follow up on scrutiny's testing functions by computing specific summary statistics
 - contents:
@@ -159,4 +158,7 @@ reference:
   - pigs3
   - pigs4
   - pigs5
+- title: Superseded
+- contents:
+  - duplicate_detect
 

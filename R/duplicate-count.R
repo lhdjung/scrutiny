@@ -67,16 +67,17 @@
 
 duplicate_count <- function(x, ignore = NULL,
                             locations_type = c("character", "list"),
-                            numeric_only = TRUE) {
+                            numeric_only = deprecated()) {
 
   locations_type <- rlang::arg_match(locations_type, c("character", "list"))
 
-  if (!missing(numeric_only)) {
-    cli::cli_warn(c(
-      "`numeric_only` is deprecated.",
-      "!" = "It no longer has any effect because all input \
+  if (lifecycle::is_present(numeric_only)) {
+    lifecycle::deprecate_warn(
+      when = "0.3.0",
+      what = "duplicate_count(numeric_only)",
+      details = "It no longer has any effect because all input \
       values are now coerced to character strings."
-    ))
+    )
   }
 
   # Convert `x` to a data frame if needed (`x_was_named` will also be checked

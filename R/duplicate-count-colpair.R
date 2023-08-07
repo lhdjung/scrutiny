@@ -76,13 +76,14 @@ dup_count_pairwise <- function(x, y) {
 
 
 duplicate_count_colpair <- function(data, ignore = NULL, show_rates = TRUE,
-                                    na.rm = TRUE) {
+                                    na.rm = deprecated()) {
 
-  if (!missing(na.rm)) {
-    cli::cli_warn(c(
-      "The `na.rm` argument is deprecated.",
-      "!" = "Missing values are never counted."
-    ))
+  if (lifecycle::is_present(na.rm)) {
+    lifecycle::deprecate_warn(
+      when = "0.3.0",
+      what = "duplicate_count_colpair(na.rm)",
+      details = "Missing values are never counted, so `na.rm` has no effect."
+    )
   }
 
   if (!is.data.frame(data)) {

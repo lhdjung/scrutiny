@@ -8,7 +8,7 @@ duplicate_count(
   x,
   ignore = NULL,
   locations_type = c("character", "list"),
-  numeric_only = TRUE
+  numeric_only = deprecated()
 )
 }
 \arguments{

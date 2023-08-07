@@ -16,7 +16,7 @@
 #'   will add to the tibble that it returns.
 #' @param include_numeric_only_arg Boolean. Should the factory-made function
 #'   have the deprecated `numeric_only = TRUE` argument? Only for compatibility
-#'   with older versions of scrutiny. Default is `FALSE`.
+#'   with older versions of scrutiny (i.e., before 0.3.0). Default is `FALSE`.
 #'
 #' @return Function such as `duplicate_detect()` or `duplicate_tally()`.
 #'
@@ -29,14 +29,15 @@ function_duplicate_cols <- function(code_new_cols, default_end, name_class,
   code_new_cols <- rlang::enexpr(code_new_cols)
 
   if (include_numeric_only_arg) {
-    numeric_only_arg <- list(numeric_only = TRUE)
+    numeric_only_arg <- list(numeric_only = deprecated())
     numeric_only_check <- rlang::expr({
-      if (!missing(numeric_only)) {
-        cli::cli_warn(c(
-          "`numeric_only` is deprecated.",
-          "!" = "It no longer has any effect because all input \
+      if (lifecycle::is_present(numeric_only)) {
+        lifecycle::deprecate_warn(
+          when = "0.3.0",
+          what = paste0(name_caller_call(), "(numeric_only)"),
+          details = "It no longer has any effect because all input \
           values are now coerced to character strings."
-        ))
+        )
       }
     })
   } else {

@@ -98,28 +98,22 @@
 
 
 restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in,
-                          sep = NULL) {
+                          sep = deprecated()) {
 
   # Make sure no whitespace (from values that already were strings) is factored
   # into the count:
   x <- stringr::str_trim(x)
 
-  # The deprecated `sep` argument was replaced by `sep_in`. Therefore, if `sep`
-  # is still specified...
-  if (!is.null(sep)) {
-    if (sep_in == "\\.") {
-      cli::cli_warn(c(
-        "`sep` is deprecated",
-        ">" = "Use `sep_in`, not `sep`."
-      ))
-    } else {
-      cli::cli_abort(c(
-        "!" = "`sep` is deprecated. It was replaced by `sep_in`.",
-        "x" = "`sep` conflicts with `sep_in`",
-        "i" = "If `sep` is still specified, `sep_in` takes on its value."
-      ))
-    }
-    # ... `sep_in` must take on its role:
+  if (lifecycle::is_present(sep)) {
+    lifecycle::deprecate_warn(
+      when = "0.1.1",
+      what = "restore_zeros(sep)",
+      details = c(
+        "`sep` was replaced by `sep_in`, which now conflicts with it.",
+        "If `sep` is still specified, `sep_in` takes on its value."
+      )
+    )
+    # If `sep` is specified, `sep_in` must take on its role:
     sep_in <- sep
   }
 

@@ -4,7 +4,12 @@
 \alias{duplicate_count_colpair}
 \title{Count duplicate values by column}
 \usage{
-duplicate_count_colpair(data, ignore = NULL, show_rates = TRUE, na.rm = TRUE)
+duplicate_count_colpair(
+  data,
+  ignore = NULL,
+  show_rates = TRUE,
+  na.rm = deprecated()
+)
 }
 \arguments{
 \item{data}{Data frame.}

@@ -4,7 +4,7 @@
 \alias{duplicate_detect}
 \title{Detect duplicate values}
 \usage{
-duplicate_detect(x, ignore = NULL, colname_end = "dup", numeric_only = TRUE)
+duplicate_detect(x, ignore = NULL, colname_end = "dup", numeric_only)
 }
 \arguments{
 \item{x}{Vector or data frame.}
