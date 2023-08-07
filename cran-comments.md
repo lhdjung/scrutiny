@@ -1,8 +1,9 @@
-## Resubmission
-For this version, I have replaced the URL <https://journals.sagepub.com/doi/10.1177/1948550616673876/> by the DOI <doi:10.1177/1948550616673876> in the description field.
+## R CMD check results
+
+0 errors | 0 warnings | 0 notes
+
+For this version, I have removed numeric inputs to packageVersion(), as requested by CRAN.
 
 A NOTE on the description field of the DESCRIPTION file might refer to:
-- The DOI mentioned above, which is valid (but might be flagged).
+- The DOI <doi:10.1177/1948550616673876>, which is valid (but might be flagged).
 - The names of two authors of the references ('Allard' and 'Heathers').
-
-I'm submitting this new version somewhat early for compatibility with the upcoming dplyr 1.1.0.

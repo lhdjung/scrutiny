@@ -21,6 +21,10 @@ articles:
   - grim
   - grimmer
   - debit
+- title: Plausibility checks
+  navbar: Plausibility checks
+  contents:
+  - duplicates
 - title: Infrastructure
   navbar: Infrastructure
   contents:
