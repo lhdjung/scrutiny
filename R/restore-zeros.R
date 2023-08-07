@@ -186,7 +186,21 @@ restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in,
 restore_zeros_df <- function(data, cols = everything(),
                              check_numeric_like = TRUE, check_decimals = FALSE,
                              width = NULL, sep_in = "\\.", sep_out = NULL,
-                             sep = NULL, ...) {
+                             sep = deprecated(), ...) {
+
+  if (lifecycle::is_present(sep)) {
+    lifecycle::deprecate_warn(
+      when = "0.3.0",
+      what = "restore_zeros_df(sep)",
+      details = c(
+        "`sep` was replaced by `sep_in`, which now conflicts with it.",
+        "If `sep` is still specified, `sep_in` takes on its value \
+        within `restore_zeros()`."
+      )
+    )
+    # # If `sep` is specified, `sep_in` must take on its role:
+    # sep_in <- sep
+  }
 
   # Check whether the user specified any "old" arguments: those starting on a
   # dot. This check is now the only remaining purpose of the `...` dots because
@@ -274,7 +288,7 @@ restore_zeros_df <- function(data, cols = everything(),
     .fns = function(data_dummy) {
       restore_zeros(
         x = data_dummy, width = width,
-        sep_in = sep_in, sep_out = sep_out, sep = sep
+        sep_in = sep_in, sep_out = sep_out
       )
     }
   ))

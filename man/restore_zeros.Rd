@@ -21,7 +21,7 @@ restore_zeros_df(
   width = NULL,
   sep_in = "\\\\.",
   sep_out = NULL,
-  sep = NULL,
+  sep = deprecated(),
   ...
 )
 }
