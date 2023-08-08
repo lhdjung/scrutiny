@@ -1,3 +1,5 @@
+# scrutiny (development version)
+
 # scrutiny 0.3.0
 
 ## Duplicate analysis overhaul
