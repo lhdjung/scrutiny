@@ -15,7 +15,8 @@ function_map_seq(
   .out_min = "auto",
   .out_max = NULL,
   .include_reported = FALSE,
-  .include_consistent = FALSE
+  .include_consistent = FALSE,
+  ...
 )
 }
 \arguments{
@@ -60,6 +61,8 @@ this might be redundant and bias the results.}
 consistent cases (from among those reported), not just inconsistent ones?
 Default is \code{FALSE} because the focus should be on clarifying
 inconsistencies.}
+
+\item{...}{These dots must be empty.}
 }
 \value{
 A function such as those below. ("Testable statistics" are variables
@@ -73,12 +76,12 @@ for those in parentheses are selected by default.)\tabular{lll}{
 
 
 The factory-made function will also have dots, \code{...}, to pass arguments
-down to \code{.fun}, i.e., the basic mapper function.
+down to \code{.fun}, i.e., the basic mapper function such as \code{grim_map()}.
 }
 \description{
-\code{function_map_seq()} is the engine that powers \code{grim_map_seq()}
-and \code{debit_map_seq()}. It creates new, "manufactured" functions that apply
-consistency tests such as GRIM or DEBIT to sequences of specified
+\code{function_map_seq()} is the engine that powers functions such as
+\code{grim_map_seq()}. It creates new, "factory-made" functions that apply
+consistency tests such as GRIM or GRIMMER to sequences of specified
 variables. The sequences are centered around the reported values of those
 variables.
 
@@ -87,36 +90,41 @@ provides an easy and powerful way to assess whether small errors in
 computing or reporting may be responsible for inconsistencies in published
 statistics.
 
-All arguments here set the defaults for the arguments in the manufactured
-function. They can still be specified differently when calling the latter.
+For background and more examples, see the
+\href{https://lhdjung.github.io/scrutiny/articles/consistency-tests.html#sequence-mapper}{sequence
+mapper section} of \emph{Implementing consistency tests}.
+}
+\details{
+All arguments of \code{function_map_seq()} set the defaults for the
+arguments in the manufactured function. They can still be specified
+differently when calling the latter.
 
 If functions created this way are exported from other packages, they should
 be written as if they were created with
 \href{https://purrr.tidyverse.org/reference/faq-adverbs-export.html}{purrr
-adverbs}; see explanations there and examples at
-\code{vignette("consistency-tests")}, section \emph{Creating mappers with
-\code{function_map()}}.
-}
-\details{
-This function is a so-called function factory: It produces other
-functions, such as \code{grim_map_seq()}. More specifically, it is a function
-operator (a.k.a. decorator) because it also takes functions as inputs, such
-as \code{grim_map()}. See Wickham (2019, ch. 10-11).
+adverbs}; see explanations there, and examples in the
+\href{https://lhdjung.github.io/scrutiny/articles/consistency-tests.html#context-and-export}{export
+section} of \emph{Implementing consistency tests}.
+
+This function is a so-called function factory: It produces other functions,
+such as \code{grim_map_seq()}. More specifically, it is a function operator
+because it also takes functions as inputs, such as \code{grim_map()}. See
+Wickham (2019, ch. 10-11).
 }
 \section{Conventions}{
  The name of a function manufactured with
 \code{function_map_seq()} should mechanically follow from that of the input
-function. For example, \code{grim_map_seq()} derives from \code{grim_map()}.
-This pattern fits best if the input function itself is named after the test
-it performs on a data frame, followed by \verb{_map}: \code{grim_map()} applies GRIM,
-\code{debit_map()} applies DEBIT, etc.
+function. For example, \code{grim_map_seq()} derives from \code{grim_map()}. This
+pattern fits best if the input function itself is named after the test it
+performs on a data frame, followed by \verb{_map}: \code{grim_map()} applies GRIM,
+\code{grimmer_map()} applies GRIMMER, etc.
 
 Much the same is true for the classes of data frames returned by the
 manufactured function via the \code{.name_class} argument of
-\code{function_map_seq()}. It should be the function's own name preceded by
-the name of the package that contains it or by an acronym of that package's
-name. In this way, existing classes are \code{scr_grim_map_seq} and
-\code{scr_debit_map_seq}.
+\code{function_map_seq()}. It should be the function's own name preceded by the
+name of the package that contains it or by an acronym of that package's
+name. In this way, some existing classes are \code{scr_grim_map_seq} and
+\code{scr_grimmer_map_seq}.
 }
 
 \examples{
@@ -126,55 +134,6 @@ grim_map_seq <- function_map_seq(
   .reported = c("x", "n"),
   .name_test = "GRIM",
 )
-
-
-# Case study of SCHLIM, a new consistency test --------------
-
-# (Note: This is a mock test without any real significance.
-# Its only purpose is to show the minimal steps necessary
-# for implementing a serious consistency test, and to use
-# it as a starting point for `function_map_total_n()`.)
-
-# The "SCHLIM test" is analogous to GRIM as implemented
-# in scrutiny. This is also true for the function names.
-# Note that the analogue to `schlim_scalar()`, a function
-# called `grim_scalar()`, is not exported from scrutiny,
-# but used internally for `grim()`, `grim_map()`, and,
-# indirectly, `grim_map_seq()`.
-
-# Basic test implementation:
-schlim_scalar <- function(y, n) {
-  (y / 3) > n
-}
-
-# This step is not needed below, but
-# included for completeness:
-schlim <- Vectorize(schlim_scalar)
-
-# This will be the input function for
-# `function_map_total_n()`:
-schlim_map <- function_map(
-  .fun = schlim_scalar,
-  .reported = c("y", "n"),
-  .name_test = "SCHLIM"
-)
-
-# Fire up the function factory:
-schlim_map_seq <- function_map_seq(
-  .fun = schlim_map,
-  .reported = c("y", "n"),
-  .name_test = "SCHLIM",
-)
-
-# Create some example data:
-df1 <- tibble::tibble(y = 16:25, n = 3:12)
-
-# Call the manufactured function:
-out <- schlim_map_seq(df1)
-out
-
-# Summarize the results:
-audit_seq(out)
 }
 \references{
 Wickham, H. (2019). \emph{Advanced R} (Second Edition). CRC

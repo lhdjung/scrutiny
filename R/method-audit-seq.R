@@ -5,8 +5,8 @@
 
 
 audit.scr_audit_seq <- function(data) {
-  summarize_audit_special(
-    data, selector = starts_with("hits_") | starts_with("diff_")
+  audit_summary_stats(
+    data, selection = starts_with("hits_") | starts_with("diff_")
   )
 }
 

@@ -13,7 +13,8 @@ function_map_total_n(
   .n_min = 1L,
   .n_max = NULL,
   .constant = NULL,
-  .constant_index = NULL
+  .constant_index = NULL,
+  ...
 )
 }
 \arguments{
@@ -39,6 +40,8 @@ manufactured function will inherit this string as an S3 class. Default is
 
 \item{.dispersion, .n_min, .n_max, .constant, .constant_index}{Arguments passed
 down to \code{disperse_total()}, using defaults from there.}
+
+\item{...}{These dots must be empty.}
 }
 \value{
 A function such as these:\tabular{lll}{
@@ -54,42 +57,46 @@ down to \code{.fun}, i.e., the basic mapper function.
 }
 \description{
 \code{function_map_total_n()} is the engine that powers functions
-such as \code{grim_map_total_n()}. It creates new, "manufactured" functions for
-consistency tests. The new functions take reported summary statistics such
-as means and apply those tests in cases where only a total sample size is
-known, not group sizes.
+such as \code{grim_map_total_n()}. It creates new, "factory-made" functions for
+consistency tests such as GRIM or GRIMMER. The new functions take reported
+summary statistics (e.g., means) and apply those tests in cases where only
+a total sample size is known, not group sizes.
 
 This works by making \code{disperse_total()} create multiple pairs of
 hypothetical group sizes, all of which add up to the reported total. There
 need to be exactly two groups.
 
-If functions created this way are exported from other packages, they should
-be written as if they were created with
-\href{https://purrr.tidyverse.org/reference/faq-adverbs-export.html}{purrr
-adverbs}; see explanations there and examples at
-\code{vignette("consistency-tests")}, section \emph{Creating mappers with
-\code{function_map()}}.
+For background and more examples, see the
+\href{https://lhdjung.github.io/scrutiny/articles/consistency-tests.html#total-n-mapper}{total-n
+mapper section} of \emph{Implementing consistency tests}.
 }
 \details{
-This function is a so-called function factory: It produces other
-functions, such as \code{grim_map_total_n()}. More specifically, it is a
-function operator (a.k.a. decorator) because it also takes functions as
-inputs, such as \code{grim_map()}. See Wickham (2019, ch. 10-11).
+If functions created by \code{function_map_total_n()} are exported from
+other packages, they should be written as if they were created with
+\href{https://purrr.tidyverse.org/reference/faq-adverbs-export.html}{purrr
+adverbs}; see explanations there, and examples in the
+\href{https://lhdjung.github.io/scrutiny/articles/consistency-tests.html#context-and-export}{export
+section} of \emph{Implementing consistency tests}.
+
+This function is a so-called function factory: It produces other functions,
+such as \code{grim_map_total_n()}. More specifically, it is a function operator
+because it also takes functions as inputs, such as \code{grim_map()}. See
+Wickham (2019), ch. 10-11.
 }
 \section{Conventions}{
  The name of a function manufactured with
 \code{function_map_total_n()} should mechanically follow from that of the input
-function. For example, \code{grim_map_total_n()} derives from \code{grim_map()}.
-This pattern fits best if the input function itself is named after the test
-it performs on a data frame, followed by \verb{_map}: \code{grim_map()} applies GRIM,
-\code{debit_map()} applies DEBIT, etc.
+function. For example, \code{grim_map_total_n()} derives from \code{grim_map()}. This
+pattern fits best if the input function itself is named after the test it
+performs on a data frame, followed by \verb{_map}: \code{grim_map()} applies GRIM,
+\code{grimmer_map()} applies GRIMMER, etc.
 
 Much the same is true for the classes of data frames returned by the
 manufactured function via the \code{.name_class} argument of
 \code{function_map_total_n()}. It should be the function's own name preceded by
 the name of the package that contains it or by an acronym of that package's
-name. In this way, existing classes are \code{scr_grim_map_total_n} and
-\code{scr_debit_map_total_n}.
+name. In this way, some existing classes are \code{scr_grim_map_total_n} and
+\code{scr_grimmer_map_total_n}.
 }
 
 \examples{
@@ -97,63 +104,8 @@ name. In this way, existing classes are \code{scr_grim_map_total_n} and
 grim_map_total_n <- function_map_total_n(
   .fun = grim_map,
   .reported = "x",
-  .name_test = "GRIM",
-  .name_class = "scr_grim_map_total_n"
+  .name_test = "GRIM"
 )
-
-
-# Case study of SCHLIM, a new consistency test --------------
-
-# (Note: This is a mock test without any real significance.
-# Its only purpose is to show the minimal steps necessary
-# for implementing a serious consistency test, and to use
-# it as a starting point for `function_map_total_n()`.)
-
-# The "SCHLIM test" is analogous to GRIM as implemented
-# in scrutiny. This is also true for the function names.
-# Note that the analogue to `schlim_scalar()`, a function
-# called `grim_scalar()`, is not exported from scrutiny,
-# but used internally for `grim()`, `grim_map()`, and,
-# indirectly, `grim_map_total_n()`.
-
-# Basic test implementation:
-schlim_scalar <- function(y, n) {
-  (y / 3) > n
-}
-
-# This step is not needed below, but
-# included for completeness:
-schlim <- Vectorize(schlim_scalar)
-
-# This will be the input function for
-# `function_map_total_n()`:
-schlim_map <- function_map(
-  .fun = schlim_scalar,
-  .reported = c("y", "n"),
-  .name_test = "SCHLIM"
-)
-
-# Fire up the function factory:
-schlim_map_total_n <- function_map_total_n(
-  .fun = schlim_map,
-  .reported = "y",
-  .name_test = "SCHLIM",
-)
-
-# Create some example data:
-df1 <- tibble::tibble(
-  y1 = 16:25,
-  y2 = 26:35,
-  n  = 12:21
-)
-df1
-
-# Call the manufactured function:
-out <- schlim_map_total_n(df1)
-out
-
-# Summarize the results:
-audit_total_n(out)
 }
 \references{
 Bauer, P. J., & Francis, G. (2021). Expression of Concern: Is It
@@ -165,5 +117,5 @@ Wickham, H. (2019). \emph{Advanced R} (Second Edition). CRC Press/Taylor and
 Francis Group. https://adv-r.hadley.nz/index.html
 }
 \seealso{
-\code{disperse_total()}
+\code{function_map_seq()}
 }

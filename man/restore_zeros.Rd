@@ -5,7 +5,13 @@
 \alias{restore_zeros_df}
 \title{Restore trailing zeros}
 \usage{
-restore_zeros(x, width = NULL, sep_in = "\\\\.", sep_out = sep_in, sep = NULL)
+restore_zeros(
+  x,
+  width = NULL,
+  sep_in = "\\\\.",
+  sep_out = sep_in,
+  sep = deprecated()
+)
 
 restore_zeros_df(
   data,
@@ -15,7 +21,7 @@ restore_zeros_df(
   width = NULL,
   sep_in = "\\\\.",
   sep_out = NULL,
-  sep = NULL,
+  sep = deprecated(),
   ...
 )
 }

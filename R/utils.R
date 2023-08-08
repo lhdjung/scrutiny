@@ -5,10 +5,14 @@ utils::globalVariables(c(
   ".", "where", "desc", "all_of", "contains", "everything", "x", "items",
   "frac", "distance", "both_consistent", "fun", "var", "dispersion", "out_min",
   "out_max", "include_reported", "n", "times", "value", "name", "setNames",
-  "rounding", "case", "n_sum", "V1", "consistency", "ratio", "scr_index_case",
+  "rounding", "case", "n_sum", "consistency", "ratio", "scr_index_case",
   "dust", "starts_with", "value_duplicated", "variable", "sd_lower",
   "sd_incl_lower", "sd_upper", "sd_incl_upper", "x_lower", "x_upper",
-  "dupe_count", "fn_name"
+  "dupe_count", "fun_name",
+  # Added after rewriting the function factories using `rlang::new_function()`:
+  "!!", "constant", "constant_index", "include_consistent", "n_max", "n_min",
+  # Added for `function_duplicate_cols()`, which uses `rlang::new_function()`:
+  "colname_end", "ignore", "numeric_only"
 ))
 
 
@@ -266,8 +270,7 @@ censor <- function(x, left, right) {
 #'
 #' @noRd
 add_class <- function(x, new_class) {
-  class(x) <- c(new_class, class(x))
-  x
+  `class<-`(x, value = c(new_class, class(x)))
 }
 
 
@@ -638,11 +641,10 @@ step_size <- function(x) {
 manage_string_output_seq <- function(out, from, string_output, digits) {
   if (string_output == "auto") {
     if (is.character(from)) {
-      out <- restore_zeros(out, width = digits)
+      return(restore_zeros(out, width = digits))
     } else {
-      out <- methods::as(out, typeof(from))
+      return(methods::as(out, typeof(from)))
     }
-    return(out)
   } else if (!is.logical(string_output)) {
     if (is.character(string_output)) {
       string_output <- paste0("\"", string_output, "\"")
@@ -658,7 +660,7 @@ manage_string_output_seq <- function(out, from, string_output, digits) {
   } else if (typeof(from) != "character") {
     out <- methods::as(out, typeof(from))
   }
-  return(out)
+  out
 }
 
 
@@ -689,8 +691,7 @@ commas_and <- function(x) {
     and <- ", and "
   }
   out <- stringr::str_flatten(x[-length(x)], collapse = collapse)
-  out <- paste0(out, and, x[length(x)])
-  return(out)
+  paste0(out, and, x[length(x)])
 }
 
 
@@ -880,10 +881,11 @@ index_case_interpolate <- function(x, index_case_only = TRUE,
   out <- methods::as(out, typeof(x_orig))
 
   if (is.character(out)) {
-    out <- restore_zeros(out)
+    restore_zeros(out)
+  } else {
+    out
   }
 
-  return(out)
 }
 
 
@@ -1341,23 +1343,6 @@ dustify <- function(x) {
 
 
 
-#' Count `NA` elements
-#'
-#' Mapped within `summarize_audit_special()`.
-#'
-#' @param x Vector.
-#' @param ... The dots are merely pro forma; their purpose is to swallow up the
-#'   `na.rm = TRUE` specification in a for loop with `dplyr::across()`.
-#'
-#' @return Integer (length 1).
-#'
-#' @noRd
-na_count <- function(x, ...) {
-  length(x[is.na(x)])
-}
-
-
-
 #' Remove scrutiny classes
 #'
 #' Strip any and all scrutiny classes from `x`: those classes that start on
@@ -1458,5 +1443,83 @@ check_ggplot2_linewidth <- function(arg_new, default_new) {
 #' @noRd
 trunc_reverse <- function(x) {
   x - trunc(x)
+}
+
+
+
+#' Conventional summary statistics for `audit()` methods
+#'
+#' @description `audit_summary_stats()` takes a tidyselect spec and uses it to
+#'   compute statistics like mean, SD, and median by column.
+#'
+#'   This is used in many `audit()` methods, such as those following up on
+#'   `duplicate_*()` functions, as well as on `audit_seq()` and
+#'   `audit_total_n()`. (The latter two have their own `audit()` methods to
+#'   summarize their results even further.)
+#'
+#' @param data Data frame.
+#' @param selection Tidyselect specification to select the columns from `data`
+#'   to operate on. It is spliced into `dplyr::across()`.
+#' @param total Boolean. Should a `.total` column summarize across all values in
+#'   `data`, regardless of their original columns? If so, `.total` will be the
+#'   last row of the output tibble.
+#'
+#' @return Tibble with summary statistics.
+#'
+#' @noRd
+audit_summary_stats <- function(data, selection, total = FALSE) {
+
+  selection <- rlang::enexprs(selection)
+
+  if (total && any(".total" == colnames(data))) {
+    cli::cli_abort(c(
+      "`.total` can't be a column name.",
+      "!" = "Please rename the `.total` column, then try again.",
+      "i" = "You could use `dplyr::rename()` for this."
+    ))
+  }
+
+  # The dots are merely pro forma; their purpose is to swallow up the `na.rm =
+  # TRUE` specification in a for loop below.
+  na_count <- function(x, ...) {
+    length(x[is.na(x)])
+  }
+
+  fun_names <- c(  "mean",      "sd",      "median", "min", "max", "na_count")
+  funs      <- list(mean, stats::sd, stats::median,   min,   max,   na_count)
+
+  out <- tibble::tibble()
+
+  # Applying each summarizing function individually, compute the output tibble
+  # row by row:
+  for (i in seq_along(funs)) {
+    temp <- dplyr::summarise(data, dplyr::across(
+      .cols = c(!!!selection),
+      .fns  = function(x) funs[[i]](x, na.rm = TRUE)
+    ))
+    out <- dplyr::bind_rows(out, temp)
+  }
+
+  if (total) {
+    total_summary <- vector("list", length(funs))
+    values_all <- data %>%
+      dplyr::select(c(!!!selection)) %>%
+      tidyr::pivot_longer(dplyr::everything()) %>%
+      dplyr::pull("value")
+    for (i in seq_along(funs)) {
+      total_summary[[i]] <- funs[[i]](values_all, na.rm = TRUE)
+    }
+    total_summary <- c(".total", total_summary)
+    names(total_summary) <- c("term", fun_names)
+  } else {
+    total_summary <- NULL
+  }
+
+  out %>%
+    t() %>%
+    tibble::as_tibble(.name_repair = function(x) fun_names) %>%
+    dplyr::mutate("term" = names(out), .before = 1L) %>%
+    dplyr::bind_rows(total_summary) %>%
+    dplyr::mutate(na_rate = na_count / nrow(data), .after = "na_rate")
 }
 

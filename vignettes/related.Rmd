@@ -30,7 +30,7 @@ Please contact me if you know about relevant software that isn't listed here (em
 
     -   [benford.analysis](https://github.com/carloscinelli/benford.analysis) by Carlos Cinelli contains various sophisticated tools for inspecting data using the Benford distribution.
 
-    -   [digitTests](https://koenderks.github.io/digitTests/index.html) by Koen Derks not only conducts Benford testing but also checks if values are repeated more often than expected.
+    -   [jfa](https://koenderks.github.io/jfa/index.html) by Koen Derks offers a full statistical auditing suite (including Benford analysis).
 
 -   Emerging from the Pruitt investigations, there is now R software for analyzing sequences:
 

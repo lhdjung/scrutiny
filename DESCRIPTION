@@ -1,6 +1,6 @@
 Package: scrutiny
 Title: Error Detection in Science
-Version: 0.2.4.9000
+Version: 0.3.0
 Authors@R: c(
     person(given = "Lukas",
            family = "Jung",
@@ -26,6 +26,7 @@ Imports:
     cli,
     dplyr,
     glue,
+    lifecycle,
     magrittr,
     methods,
     purrr,
@@ -39,10 +40,9 @@ Collate:
     'mapper-function-helpers.R'
     'audit-cols-minimal.R'
     'audit.R'
+    'baseline-consistency-tests.R'
+    'before-inside-parens.R'
     'function-factory-helpers.R'
-    'disperse.R'
-    'function-map-total-n.R'
-    'function-map-seq.R'
     'round-ceil-floor.R'
     'round.R'
     'reround.R'
@@ -53,8 +53,6 @@ Collate:
     'debit.R'
     'grim.R'
     'function-map.R'
-    'baseline-consistency-tests.R'
-    'before-inside-parens.R'
     'grimmer.R'
     'grimmer-map.R'
     'duplicate-detect.R'
@@ -65,7 +63,10 @@ Collate:
     'grim-map.R'
     'data-doc.R'
     'data-frame-predicates.R'
+    'function-map-seq.R'
     'debit-map-seq.R'
+    'disperse.R'
+    'function-map-total-n.R'
     'debit-map-total-n.R'
     'debit-plot.R'
     'duplicate-count-colpair.R'
@@ -88,6 +89,7 @@ Collate:
     'method-grim-map.R'
     'method-grim-sequence.R'
     'method-grimmer-map.R'
+    'method-tally.R'
     'reround-to-fraction.R'
     'reverse-map-seq.R'
     'reverse-map-total-n.R'
@@ -98,6 +100,7 @@ Collate:
     'rivets_new.R'
     'rounding-bias.R'
     'row-to-colnames.R'
+    'scrutiny-package.R'
     'seq-disperse.R'
     'seq-length.R'
     'seq-predicates.R'

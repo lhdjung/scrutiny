@@ -25,5 +25,9 @@ up on it.
 \seealso{
 \code{pigs2} for GRIM-testing percentages instead of means, \code{pigs3} for
 DEBIT-testing, and \code{pigs4} for detecting duplicates.
+
+\code{pigs2} for GRIM-testing percentages instead of means, \code{pigs3} for
+DEBIT-testing, \code{pigs4} for detecting duplicates, and \code{pigs5} for
+GRIMMER-testing.
 }
 \keyword{datasets}

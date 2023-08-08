@@ -4,21 +4,34 @@
 \alias{duplicate_count}
 \title{Count duplicate values}
 \usage{
-duplicate_count(x, numeric_only = TRUE)
+duplicate_count(
+  x,
+  ignore = NULL,
+  locations_type = c("character", "list"),
+  numeric_only = deprecated()
+)
 }
 \arguments{
 \item{x}{Vector or data frame.}
 
-\item{numeric_only}{Boolean. If \code{TRUE} (the default), and if \code{x} is a data
-frame, the function includes only numeric columns and string columns
-coercible to numeric. \emph{Note}: Be careful when setting it to \code{FALSE}. This
-can lead to all kinds of coercion issues.}
+\item{ignore}{Optionally, a vector of values that should not be counted.}
+
+\item{locations_type}{String. One of \code{"character"} or \code{"list"}. With
+\code{"list"}, each \code{locations} value is a vector of column names, which is
+better for further programming. By default (\code{"character"}), the column
+names are pasted into a string, which is more readable.}
+
+\item{numeric_only}{[\link{Deprecated}] No longer used: All values are coerced to
+character.}
 }
 \value{
-A tibble with two columns —
+If \code{x} is a data frame or another named vector, a tibble with four
+columns. If \code{x} isn't named, only the first two columns appear:
 \itemize{
-\item \code{value} includes all the values from \code{x}.
-\item \code{count} is the frequency of each value in \code{x}, in descending order.
+\item \code{value}: All the values from \code{x}.
+\item \code{count}: The frequency of each value in \code{x}, in descending order.
+\item \code{locations}: The names of all columns from \code{x} in which \code{value} appears.
+\item \code{locations_n}: The number of columns named in \code{locations}.
 The tibble has the \code{scr_dup_count} class, which is recognized by the
 \code{audit()} generic.
 }
@@ -27,35 +40,44 @@ The tibble has the \code{scr_dup_count} class, which is recognized by the
 \code{duplicate_count()} returns a frequency table. When searching a
 data frame, it includes values from all columns for each frequency count.
 
-This function is a blunt tool designed for initial data checking. Don't put
-too much weight on its results.
+This function is a blunt tool designed for initial data checking. It is not
+too informative if many values have few characters each.
 
 For summary statistics, call \code{audit()} on the results.
 }
 \details{
-\code{duplicate_count()} is a thin wrapper around \code{janitor::get_dupes()}.
-Use \code{get_dupes()} to search for duplicate rows.
-
-The function is not too informative if the values have few characters.
+Don't use \code{numeric_only}. It no longer has any effect and will be
+removed in the future. The only reason for this argument was the risk of
+errors introduced by coercing values to numeric. This is no longer an issue
+because all values are now coerced to character, which is more appropriate
+for checking reported statistics.
 }
 \section{Summaries with \code{audit()}}{
  There is an S3 method for the \code{audit()}
-generic, so you can call \code{audit()} following \code{duplicate_count()} to get
-summary statistics. These are mostly self-explaining, but \code{count_max} and
-\code{count_min} only directly apply to \code{count} and display their respective
-\code{value} numbers, not the minimal and maximal \code{value} numbers.
+generic, so you can call \code{audit()} following \code{duplicate_count()}. It
+returns a tibble with summary statistics for the two numeric columns,
+\code{count} and \code{locations_n} (or only for \code{count}; see above).
 }
 
 \examples{
 # Count duplicate values...
-BJsales \%>\%
+iris \%>\%
   duplicate_count()
 
 # ...and compute summaries:
-BJsales \%>\%
+iris \%>\%
   duplicate_count() \%>\%
   audit()
+
+# Any values can be ignored:
+iris \%>\%
+  duplicate_count(ignore = c("setosa", "versicolor", "virginica"))
 }
 \seealso{
-\code{duplicate_detect()} checks if values have duplicates.
+\itemize{
+\item \code{duplicate_count_colpair()} to check each combination of columns for
+duplicates.
+\item \code{duplicate_tally()} to show instances of a value next to each instance.
+\item \code{janitor::get_dupes()} to search for duplicate rows.
+}
 }

@@ -83,22 +83,6 @@
 #' df
 #'
 #' debit_map_total_n(df)
-#'
-#' # `audit_total_n()` summaries can be more important than
-#' # the detailed results themselves.
-#' # The `hits_total` column shows all scenarios in
-#' # which both divergent `n` values are DEBIT-consistent
-#' # with the `x*` values when paired with them both ways:
-#' df %>%
-#'   debit_map_total_n(dispersion = 0:2) %>%
-#'   audit_total_n()
-#'
-#' # By default (`dispersion = 0:5`), the function goes
-#' # five steps up and down from `n`. The longer this
-#' # sequence, the larger the number of hits tends to be:
-#' df %>%
-#'   debit_map_total_n() %>%
-#'   audit_total_n()
 
 
 debit_map_total_n <- function_map_total_n(

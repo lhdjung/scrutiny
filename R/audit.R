@@ -2,8 +2,7 @@
 #' Summarize scrutiny objects
 #'
 #' @description `audit()` summarizes the results of scrutiny functions like
-#'   `grim_map()` that perform tests on data frames. `audit_list()` is a variant
-#'   that returns a named list instead of a tibble.
+#'   `grim_map()` that perform tests on data frames.
 #'
 #'   See below for a record of such functions. Go to the documentation of any of
 #'   them to learn about its `audit()` method.
@@ -44,10 +43,35 @@ audit <- function(data) {
 }
 
 
-#' @rdname audit
+
+#' Summaries in list form
+#' @description `r lifecycle::badge("deprecated")`
+#'
+#'   `audit_list()` is deprecated. Use `audit()` instead.
+#'
+#'   It was meant to be used when `audit()` would have returned tibbles that
+#'   were too wide to be read. However, the output format for `audit()` has now
+#'   been overhauled, there is no longer a need for `audit_list()`.
+#'
+#' @return Named list of `audit()`'s results.
+#'
+#' @keywords internal
+#'
 #' @export
+#'
+#' @examples
+#' # Only use `audit()` instead:
+#' pigs1 %>%
+#'   grim_map() %>%
+#'   audit()
+
 
 audit_list <- function(data) {
+  lifecycle::deprecate_warn(
+    when = "0.3.0",
+    what = "audit_list()",
+    with = "audit()"
+  )
   as.list(audit(data))
 }
 
@@ -116,11 +140,11 @@ audit_seq <- function(data) {
     purrr::map(dplyr::filter, consistency)
 
   hits_total <- df_list_hits %>%
-    purrr::map_int(nrow) %>%
+    vapply(nrow, 1L) %>%
     unname()
 
   hits_positions <- df_list %>%
-    purrr::map(~ which(.$consistency))
+    purrr::map(function(x) which(x$consistency))
 
   if (is.null(dim(data))) {
     fun <- class(data)[stringr::str_detect(class(data), "_map_seq")]
@@ -146,25 +170,33 @@ audit_seq <- function(data) {
   index_hit_distance <- function(df, var_order = var_names) {
     df_by_var <- split(df, df$var)
     out <- purrr::map(df_by_var, index_case_diff)
-    out <- purrr::map(out, ~ .[.$consistency, ])
+    out <- purrr::map(out, function(x) x[x$consistency, ])
     out <- out[order(var_order)]
-    purrr::map(out, ~ .$index_diff)
+    purrr::map(out, function(x) x$index_diff)
+  }
+
+  length_unless_na <- function(x) {
+    if (length(x) == 1L && is.na(x)) {
+      0L
+    } else {
+      length(x)
+    }
   }
 
   # Prepare endings of the `diff_*` columns:
-  fn_names <- c("", "_up", "_down")
-  fn_names <- rep(fn_names, length(var_names))
+  fun_names <- c("", "_up", "_down")
+  fun_names <- rep(fun_names, length(var_names))
 
   df_nested <- df_list %>%
     purrr::map(index_hit_distance) %>%
-    tibble::tibble(.name_repair = ~ "distance") %>%
+    tibble::tibble(.name_repair = function(x) "distance") %>%
     tidyr::unnest_wider(col = distance)
 
   cols_hits <- df_nested %>%
     dplyr::mutate(dplyr::across(
       .cols = everything(),
       .fns = function(x) {
-        purrr::map(x, length)
+        vapply(x, length_unless_na, integer(1L))
       },
       .names = "hits_{.col}"
     )) %>%
@@ -175,7 +207,7 @@ audit_seq <- function(data) {
     dplyr::mutate(dplyr::across(
       .cols = everything(),
       .fns = list(min_distance_abs, min_distance_pos, min_distance_neg),
-      .names = "diff_{.col}{fn_names}"
+      .names = "diff_{.col}{fun_names}"
     )) %>%
     dplyr::select(-(seq_along(var_names))) %>%
     dplyr::mutate(dplyr::across(

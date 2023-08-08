@@ -17,6 +17,6 @@ audit.scr_grimmer_map <- function(data) {
       `audit()` will count the reasons for inconsistencies."
     )
   }
-  return(out)
+  out
 }
 

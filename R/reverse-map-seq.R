@@ -22,9 +22,13 @@ min_distance_neg_scalar <- function(x) {
 }
 
 # ...namely these ones:
-min_distance_abs <- function(x) purrr::map_dbl(x, min_distance_abs_scalar)
-min_distance_pos <- function(x) purrr::map_dbl(x, min_distance_pos_scalar)
-min_distance_neg <- function(x) purrr::map_dbl(x, min_distance_neg_scalar)
+# min_distance_abs <- function(x) purrr::map_dbl(x, min_distance_abs_scalar)
+# min_distance_pos <- function(x) purrr::map_dbl(x, min_distance_pos_scalar)
+# min_distance_neg <- function(x) purrr::map_dbl(x, min_distance_neg_scalar)
+
+min_distance_abs <- function(x) vapply(x, min_distance_abs_scalar, double(1L))
+min_distance_pos <- function(x) vapply(x, min_distance_pos_scalar, double(1L))
+min_distance_neg <- function(x) vapply(x, min_distance_neg_scalar, double(1L))
 
 
 

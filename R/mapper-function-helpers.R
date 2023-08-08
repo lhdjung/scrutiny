@@ -240,7 +240,7 @@ manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
   } else if (affix) {
     # If a column by that name is not yet present in `data`, supply it from the
     # respective argument:
-    data <- dplyr::mutate(data, {{ var_name }} := var_arg)
+    return(dplyr::mutate(data, {{ var_name }} := var_arg))
   }
 
   data
@@ -308,10 +308,11 @@ manage_key_colnames <- function(data, arg, description = NULL) {
 
 
 manage_key_colnames_list_el <- function(data, key_arg) {
-  if (!is.null(key_arg)) {
-    data <- dplyr::rename(data, {{ names(key_arg) }} := key_arg)
+  if (is.null(key_arg)) {
+    data
+  } else {
+    dplyr::rename(data, {{ names(key_arg) }} := key_arg)
   }
-  data
 }
 
 
@@ -366,43 +367,15 @@ unnest_consistency_cols <- function(results, col_names, index = FALSE,
   consistency_df <- consistency_list %>%
     tibble::as_tibble(.name_repair = "minimal") %>%
     t() %>%
-    tibble::as_tibble(.name_repair = ~ paste0("V", seq_along(col_names))) %>%
-    dplyr::mutate(V1 = as.logical(V1))
+    tibble::as_tibble(.name_repair = function(x) {
+      paste0("V", seq_along(col_names))
+    }) %>%
+    dplyr::mutate("V1" = as.logical(.data$V1))
 
   colnames(consistency_df) <- col_names
 
-  results <- results %>%
+  results %>%
     dplyr::select(- {{ col }}) %>%
     dplyr::bind_cols(consistency_df)
-
-  return(results)
 }
-
-
-
-summarize_audit_special <- function(data, selector) {
-
-  selector <- rlang::enexprs(selector)
-
-  fn_names <- c(  "mean",      "sd",      "median", "min", "max", "na_count")
-  fns      <- list(mean, stats::sd, stats::median,   min,   max,   na_count)
-
-  out <- tibble::tibble()
-
-  for (fn in fns) {
-    temp <- dplyr::summarise(data, dplyr::across(
-      .cols = c(!!!selector),
-      .fns  = fn,
-      na.rm = TRUE
-    ))
-    out <- dplyr::bind_rows(out, temp)
-  }
-
-  out %>%
-    t() %>%
-    tibble::as_tibble(.name_repair = ~ fn_names) %>%
-    dplyr::mutate(term = names(out), .before = 1L) %>%
-    dplyr::mutate(na_rate = na_count / nrow(data), .after = na_rate)
-}
-
 

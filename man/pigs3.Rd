@@ -26,5 +26,9 @@ functionality of \code{debit_map()} and functions building up on it.
 \seealso{
 \code{pigs1} for GRIM-testing means, \code{pigs2} for GRIM-testing
 percentages, and \code{pigs4} for detecting duplicates.
+
+\code{pigs1} for GRIM-testing means, \code{pigs2} for GRIM-testing percentages
+instead of means, \code{pigs4} for detecting duplicates, and \code{pigs5} for
+GRIMMER-testing.
 }
 \keyword{datasets}

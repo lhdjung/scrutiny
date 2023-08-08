@@ -1,10 +1,50 @@
-# scrutiny (development version)
+# scrutiny 0.3.0
 
--   New consistency tests for to check whether reported percentages and sums are correct:
+## Duplicate analysis overhaul
 
-    -   Use `is_percentage_of()` for single cases, and `is_percentage_of_map()` to apply it to a data frame.
+The `duplicate_*()` functions now present their output better and have overall been streamlined. Read more at `vignette("duplicates")`.
 
--   New function `audit_list()` for displaying `audit()`'s output as a list. `audit_seq()` and `audit_total_n()` are now documented separately from `audit()` and `audit_list()`.
+-   A new function, `duplicate_tally()`, marks each observation with its overall frequency. It is similar to `duplicate_detect()` but more informative.
+
+-   In `duplicate_count()`:
+
+    -   All values are now treated like character strings, so all can be checked. The `numeric_only` argument is deprecated and should no longer be used.
+
+    -   The output tibble has two new columns, `locations` and `locations_n`. These hold the names of all input columns in which a value appears and the number of these columns. Details are controlled by the new `locations_type` argument.
+
+    -   New `ignore` argument for specifying one or more values that will not be checked for duplicates.
+
+-   In `duplicate_count_colpair()`:
+
+    -   New `total_x` and `total_y` columns in the output show how many non-missing values were checked for duplicates.
+
+    -   New `ignore` argument as in `duplicate_count()`.
+
+    -   The `na.rm` argument is deprecated. It wasn't very useful because missing values are never checked for duplicates.
+
+-   `duplicate_detect()` is superseded. It is less informative than `duplicate_count()` and, in particular, `duplicate_tally()`. Still, it shares in the overhaul:
+
+    -   As in `duplicate_count()`, all values are now treated like character strings, so all can be checked. The `numeric_only` argument is deprecated and should no longer be used.
+    -   The duplicate status of missing values is now shown as `NA`.
+    -   New `ignore` argument as in `duplicate_count()`.
+
+## Bugfixes
+
+-   Fixed a numeric precision bug in `round_up_from()` and `round_down_from()` that occurred when rounding numbers greater than circa 2100 with a part to be truncated that was equal to 5 on that decimal level (thanks to \@kaz462, #43). These functions are called within `round_up()` and `round_down()`, and indirectly by all consistency-testing functions.
+
+-   Fixed a bug in `audit_seq()` that displayed one "hit" found by varying a given reported value if there were no such hits. The other columns were not affected.
+
+-   Fixed a bug in `function_map()` that displayed the wrong calling function's name in case of an error.
+
+## Minor improvements
+
+-   Documentation for `grim_map_seq()` and all other functions made by `function_map()`, `function_map_seq()`, or `function_map_total_n()` now displays meaningful defaults. Printing the factory-made functions is more meaningful, as well. Internally, they now work with `rlang::new_function()`, which allows for flexible metaprogramming.
+
+-   The experimental function `audit_list()` is deprecated. Just use `audit()` instead. `audit_seq()` and `audit_total_n()` are now documented separately from `audit()` and `audit_list()`.
+
+-   The lifecycle package is now imported and used in formal deprecations such as that of `sep` in the `restore_*()` functions. The janitor package is no longer suggested.
+
+-   Adjusted to new CRAN requirements for `packageVersion()` usage.
 
 -   Some performance improvements.
 

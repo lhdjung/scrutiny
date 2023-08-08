@@ -12,15 +12,15 @@ coverage](https://codecov.io/gh/lhdjung/scrutiny/branch/main/graph/badge.svg)](h
 # Error detection in science
 
 The goal of scrutiny is to test published summary statistics for
-consistency using techniques like GRIM and to check their plausibility
-by reconstructing some of the processes behind them. The package makes
-these methods easy to use in a tidyverse-friendly way. It hopes to help
-the new field of error detection go mainstream.
+consistency using techniques like GRIM and to check their plausibility.
+The package makes these methods easy to use in a tidyverse-friendly way.
+It hopes to help the new field of error detection go mainstream.
 
 Besides ready-made tests, scrutiny features a complete system for
-implementing new consistency tests, more general infrastructure for
-implementing error detection techniques, as well as specialized data
-wrangling functions. See the *Articles* tab for vignettes.
+implementing new consistency tests. It also has duplication analysis,
+more general infrastructure for implementing error detection techniques,
+as well as specialized data wrangling functions. See the *Articles* tab
+for vignettes.
 
 scrutiny is a work in progress. You are welcome to contribute with pull
 requests. However, please [open an
@@ -37,9 +37,8 @@ Alternatively, install the development version from GitHub:
 ## Get started
 
 Here is how to GRIM-test all values in a data frame. When using
-`grim_map()`, the `consistency` column tells you if the means (`x`),
-sample sizes (`n`), and numbers of scale items are mutually consistent.
-Scale item numbers are 1 by default.
+`grim_map()`, the `consistency` column tells you if the means (`x`) and
+sample sizes (`n`) are mutually consistent.
 
     library(scrutiny)
 
@@ -133,17 +132,16 @@ data:
     pigs3 %>% 
       debit_map()
     #> # A tibble: 7 × 11
-    #>   x     sd        n consistency rounding sd_lo…¹ sd_in…² sd_up…³ sd_in…⁴ x_lower
-    #>   <chr> <chr> <int> <lgl>       <chr>      <dbl> <lgl>     <dbl> <lgl>     <dbl>
-    #> 1 0.53  0.50   1683 TRUE        up_or_d…   0.495 TRUE      0.505 TRUE      0.525
-    #> 2 0.44  0.50   1683 TRUE        up_or_d…   0.495 TRUE      0.505 TRUE      0.435
-    #> 3 0.77  0.42   1683 TRUE        up_or_d…   0.415 TRUE      0.425 TRUE      0.765
-    #> 4 0.19  0.35   1683 FALSE       up_or_d…   0.345 TRUE      0.355 TRUE      0.185
-    #> 5 0.34  0.47   1683 TRUE        up_or_d…   0.465 TRUE      0.475 TRUE      0.335
-    #> 6 0.93  0.25   1683 TRUE        up_or_d…   0.245 TRUE      0.255 TRUE      0.925
-    #> 7 0.12  0.33   1683 TRUE        up_or_d…   0.325 TRUE      0.335 TRUE      0.115
-    #> # … with 1 more variable: x_upper <dbl>, and abbreviated variable names
-    #> #   ¹​sd_lower, ²​sd_incl_lower, ³​sd_upper, ⁴​sd_incl_upper
+    #>   x     sd        n consistency rounding   sd_lower sd_incl_lower sd_upper
+    #>   <chr> <chr> <int> <lgl>       <chr>         <dbl> <lgl>            <dbl>
+    #> 1 0.53  0.50   1683 TRUE        up_or_down    0.495 TRUE             0.505
+    #> 2 0.44  0.50   1683 TRUE        up_or_down    0.495 TRUE             0.505
+    #> 3 0.77  0.42   1683 TRUE        up_or_down    0.415 TRUE             0.425
+    #> 4 0.19  0.35   1683 FALSE       up_or_down    0.345 TRUE             0.355
+    #> 5 0.34  0.47   1683 TRUE        up_or_down    0.465 TRUE             0.475
+    #> 6 0.93  0.25   1683 TRUE        up_or_down    0.245 TRUE             0.255
+    #> 7 0.12  0.33   1683 TRUE        up_or_down    0.325 TRUE             0.335
+    #> # ℹ 3 more variables: sd_incl_upper <lgl>, x_lower <dbl>, x_upper <dbl>
 
     pigs3 %>% 
       debit_map() %>% 

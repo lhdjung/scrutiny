@@ -245,7 +245,7 @@ write_doc_audit_seq <- function(key_args, name_test) {
   if (all(var_ge_3 == "")) {
     var_ge_3_line_diff <- ""
   } else {
-    var_ge_3_line_diff <- purrr::map(var_ge_3, ~ paste0("diff_", .))
+    var_ge_3_line_diff <- purrr::map(var_ge_3, function(x) paste0("diff_", x))
     var_ge_3_line_diff <- purrr::map(var_ge_3_line_diff, paste0, c("", "_up", "_down"))
     var_ge_3_line_diff <- purrr::map(var_ge_3_line_diff, list(wrap_in_backticks, commas_and))
     if (all(length(var_ge_3) > 1L)) {
@@ -418,7 +418,7 @@ write_doc_audit_total_n <- function(key_args, name_test) {
 
 
 
-#' Documentation template for `*_map()` function factory conventions
+#' Documentation template for function factory conventions
 #'
 #' @description `write_doc_factory_map_conventions()` creates a roxygen2 block
 #'   section to be inserted into the documentation of a function factory such as
@@ -430,15 +430,17 @@ write_doc_audit_total_n <- function(key_args, name_test) {
 #'   your function factory.
 #'
 #' @param ending String (length 1). The part of your function factory's name
-#'   after `function_map_`.
+#'   after `function_map_`. To
 #' @param name_test1,name_test2 Strings (length 1). Plain-text names of example
-#'   consistency tests. Defaults are `"GRIM"` and `"DEBIT"`, respectively.
+#'   consistency tests. Defaults are `"GRIM"` and `"GRIMMER"`, respectively.
 #'
 #' @export
 #'
 #' @return A string vector formatted by `glue::glue()`.
 #'
-#' @seealso For context, see `vignette("consistency-tests")`.
+#' @seealso For context, see
+#'   \href{https://lhdjung.github.io/scrutiny/articles/consistency-tests.html}{*Implementing
+#'   consistency tests*}.
 #'
 #' @examples
 #' # For `function_map_seq()`:
@@ -449,7 +451,7 @@ write_doc_audit_total_n <- function(key_args, name_test) {
 
 
 write_doc_factory_map_conventions <- function(ending, name_test1 = "GRIM",
-                                              name_test2 = "DEBIT") {
+                                              name_test2 = "GRIMMER") {
 
   # Checks ---
   check_length(ending, 1L)
@@ -458,24 +460,28 @@ write_doc_factory_map_conventions <- function(ending, name_test1 = "GRIM",
 
   # Main part ---
 
+  if (ending != "") {
+    ending <- paste0("_", ending)
+  }
+
   name_test1_lower <- tolower(name_test1)
   name_test2_lower <- tolower(name_test2)
 
   # Return documentation section:
   glue::glue(
     "#' @section Conventions: The name of a function manufactured with \n",
-    "#'   `function_map_{ending}()` should mechanically follow from that of the input \n",
-    "#'   function. For example, `{name_test1_lower}_map_{ending}()` derives from `{name_test1_lower}_map()`. \n",
+    "#'   `function_map{ending}()` should mechanically follow from that of the input \n",
+    "#'   function. For example, `{name_test1_lower}_map{ending}()` derives from `{name_test1_lower}_map()`. \n",
     "#'   This pattern fits best if the input function itself is named after the test \n",
     "#'   it performs on a data frame, followed by `_map`: `{name_test1_lower}_map()` applies {name_test1}, \n",
     "#'   `{name_test2_lower}_map()` applies {name_test2}, etc. \n",
     "#' \n",
     "#'   Much the same is true for the classes of data frames returned by the \n",
     "#'   manufactured function via the `.name_class` argument of \n",
-    "#'   `function_map_{ending}()`. It should be the function's own name preceded by \n",
+    "#'   `function_map{ending}()`. It should be the function's own name preceded by \n",
     "#'   the name of the package that contains it or by an acronym of that package's \n",
-    "#'   name. In this way, existing classes are `scr_{name_test1_lower}_map_{ending}` and \n",
-    "#'   `scr_{name_test2_lower}_map_{ending}`. \n"
+    "#'   name. In this way, some existing classes are `scr_{name_test1_lower}_map{ending}` and \n",
+    "#'   `scr_{name_test2_lower}_map{ending}`. \n"
   )
 }
 

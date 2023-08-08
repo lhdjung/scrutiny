@@ -2,12 +2,9 @@
 % Please edit documentation in R/audit.R
 \name{audit}
 \alias{audit}
-\alias{audit_list}
 \title{Summarize scrutiny objects}
 \usage{
 audit(data)
-
-audit_list(data)
 }
 \arguments{
 \item{data}{A data frame that inherits one of the classes named below.}
@@ -17,8 +14,7 @@ A tibble (data frame) with test summary statistics.
 }
 \description{
 \code{audit()} summarizes the results of scrutiny functions like
-\code{grim_map()} that perform tests on data frames. \code{audit_list()} is a variant
-that returns a named list instead of a tibble.
+\code{grim_map()} that perform tests on data frames.
 
 See below for a record of such functions. Go to the documentation of any of
 them to learn about its \code{audit()} method.

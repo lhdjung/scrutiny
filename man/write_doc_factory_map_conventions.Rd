@@ -2,20 +2,20 @@
 % Please edit documentation in R/write-doc-audit.R
 \name{write_doc_factory_map_conventions}
 \alias{write_doc_factory_map_conventions}
-\title{Documentation template for \verb{*_map()} function factory conventions}
+\title{Documentation template for function factory conventions}
 \usage{
 write_doc_factory_map_conventions(
   ending,
   name_test1 = "GRIM",
-  name_test2 = "DEBIT"
+  name_test2 = "GRIMMER"
 )
 }
 \arguments{
 \item{ending}{String (length 1). The part of your function factory's name
-after \code{function_map_}.}
+after \code{function_map_}. To}
 
 \item{name_test1, name_test2}{Strings (length 1). Plain-text names of example
-consistency tests. Defaults are \code{"GRIM"} and \code{"DEBIT"}, respectively.}
+consistency tests. Defaults are \code{"GRIM"} and \code{"GRIMMER"}, respectively.}
 }
 \value{
 A string vector formatted by \code{glue::glue()}.
@@ -38,5 +38,7 @@ write_doc_factory_map_conventions(ending = "seq")
 write_doc_factory_map_conventions(ending = "total_n")
 }
 \seealso{
-For context, see \code{vignette("consistency-tests")}.
+For context, see
+\href{https://lhdjung.github.io/scrutiny/articles/consistency-tests.html}{\emph{Implementing
+consistency tests}}.
 }

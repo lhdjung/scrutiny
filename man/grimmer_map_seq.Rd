@@ -9,12 +9,12 @@ grimmer_map_seq(
   x = NULL,
   sd = NULL,
   n = NULL,
-  var = .var,
-  dispersion = .dispersion,
-  out_min = .out_min,
-  out_max = .out_max,
-  include_reported = .include_reported,
-  include_consistent = .include_consistent,
+  var = Inf,
+  dispersion = 1:5,
+  out_min = "auto",
+  out_max = NULL,
+  include_reported = FALSE,
+  include_consistent = FALSE,
   ...
 )
 }

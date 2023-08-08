@@ -10,11 +10,11 @@ debit_map_total_n(
   x2 = NULL,
   sd1 = NULL,
   sd2 = NULL,
-  dispersion = .dispersion,
-  n_min = .n_min,
-  n_max = .n_max,
-  constant = .constant,
-  constant_index = .constant_index,
+  dispersion = 0:5,
+  n_min = 1L,
+  n_max = NULL,
+  constant = NULL,
+  constant_index = NULL,
   ...
 )
 }
@@ -106,22 +106,6 @@ df <- tibble::tribble(
 df
 
 debit_map_total_n(df)
-
-# `audit_total_n()` summaries can be more important than
-# the detailed results themselves.
-# The `hits_total` column shows all scenarios in
-# which both divergent `n` values are DEBIT-consistent
-# with the `x*` values when paired with them both ways:
-df \%>\%
-  debit_map_total_n(dispersion = 0:2) \%>\%
-  audit_total_n()
-
-# By default (`dispersion = 0:5`), the function goes
-# five steps up and down from `n`. The longer this
-# sequence, the larger the number of hits tends to be:
-df \%>\%
-  debit_map_total_n() \%>\%
-  audit_total_n()
 }
 \references{
 Bauer, P. J., & Francis, G. (2021). Expression of Concern: Is It

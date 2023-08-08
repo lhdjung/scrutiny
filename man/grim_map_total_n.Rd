@@ -8,11 +8,11 @@ grim_map_total_n(
   data,
   x1 = NULL,
   x2 = NULL,
-  dispersion = .dispersion,
-  n_min = .n_min,
-  n_max = .n_max,
-  constant = .constant,
-  constant_index = .constant_index,
+  dispersion = 0:5,
+  n_min = 1L,
+  n_max = NULL,
+  constant = NULL,
+  constant_index = NULL,
   ...
 )
 }

@@ -1,14 +1,141 @@
 
+#' New duplicate analysis functions
+#'
+#' @description `function_duplicate_cols()` is an internal (non-exported)
+#'   function factory. It creates new functions
+#'
+#' @param code_new_cols Expression which the factory-made function will evaluate
+#'   at runtime. It computes the vector that will be split into the new columns
+#'   -- those that contain the test results. Therefore, the vector must have the
+#'   same length as the `x` object on which it operates, and which contains all
+#'   values from the factory-made function's first argument.
+#' @param default_end String. In the factory-made function, this will be the
+#'   default for the `colname_end` argument, i.e., the ending of each of the
+#'   newly created columns.
+#' @param name_class String. Name of the class which the factory-made function
+#'   will add to the tibble that it returns.
+#' @param include_numeric_only_arg Boolean. Should the factory-made function
+#'   have the deprecated `numeric_only = TRUE` argument? Only for compatibility
+#'   with older versions of scrutiny (i.e., before 0.3.0). Default is `FALSE`.
+#'
+#' @return Function such as `duplicate_detect()` or `duplicate_tally()`.
+#'
+#' @noRd
+
+
+function_duplicate_cols <- function(code_new_cols, default_end, name_class,
+                                    include_numeric_only_arg = FALSE) {
+
+  code_new_cols <- rlang::enexpr(code_new_cols)
+
+  if (include_numeric_only_arg) {
+    numeric_only_arg <- list(numeric_only = deprecated())
+    numeric_only_check <- rlang::expr({
+      if (lifecycle::is_present(numeric_only)) {
+        lifecycle::deprecate_warn(
+          when = "0.3.0",
+          what = paste0(name_caller_call(), "(numeric_only)"),
+          details = "It no longer has any effect because all input \
+          values are now coerced to character strings."
+        )
+      }
+    })
+  } else {
+    numeric_only_arg <- NULL
+    numeric_only_check <- NULL
+  }
+
+
+  # --- Start of the manufactured function ---
+
+  rlang::new_function(
+    args = rlang::pairlist2(
+      x =, ignore = NULL, colname_end = default_end, !!!numeric_only_arg
+    ),
+    body = rlang::expr({
+      `!!`(numeric_only_check)
+
+      # Convert `x` to a data frame if needed:
+      x_was_named <- rlang::is_named(x)
+      if (!x_was_named || !is.data.frame(x)) {
+        x <- tibble::as_tibble(
+          x, .name_repair = if (x_was_named) {
+            function(x) x
+          } else if (is.atomic(x) || length(x) == 1L) {
+            function(x) "value"
+          } else {
+            function(x) paste0("col", seq_along(x))
+          }
+        )
+      } else if (!tibble::is_tibble(x)) {
+        x <- tibble::as_tibble(x)
+      }
+
+      # Save the column names before the transformations that will occur below:
+      colnames_original <- names(x)
+      nrow_original <- nrow(x)
+
+      # Create a reference vector with all values from `x` so that they can be
+      # tested against. To make all values fit together, they are coerced to
+      # character strings:
+      x <- x %>%
+        tidyr::pivot_longer(
+          cols = everything(),
+          # names_to = "name",
+          # values_to = "value",
+          values_transform = as.character,
+          cols_vary = "slowest"
+        ) %>%
+        dplyr::pull(.data$value)
+
+      new_cols <- `!!`(code_new_cols)
+
+      # With missing values from the input, it's not known whether they have
+      # duplicates or not. `NA` should also be substituted if the user chose to
+      # ignore that value:
+      if (is.null(ignore)) {
+        new_cols[is.na(x)] <- NA
+      } else {
+        new_cols[is.na(x) | x %in% ignore] <- NA
+      }
+
+      # Gather both vectors in a tibble, so that each test value is joined by a
+      # Boolean value indicating whether it has any duplicates in the rest of
+      # the vector (i.e., in the flattened original data frame). Split the
+      # two-column tibble and rearrange it into one of the same shape as the
+      # original data frame, but with every test value accompanied by its
+      # corresponding Boolean value to the right, as above. Also, add the
+      # "scr_dup_detect" class added, which is recognized by the `audit()`
+      # generic:
+      x %>%
+        tibble::tibble(new_cols) %>%
+        split(ceiling(seq_along(x) / nrow_original)) %>%
+        dplyr::bind_cols(.name_repair = function(x) {
+          colnames_test <- paste0(colnames_original, "_", colname_end)
+          as.vector(rbind(colnames_original, colnames_test))
+        }) %>%
+        add_class(`!!`(name_class))
+    })
+  )
+
+  # --- End of the manufactured function ---
+
+}
+
+
+
+# duplicate_detect() ------------------------------------------------------
 
 #' Detect duplicate values
 #'
-#' @description For every value in a vector or data frame, `duplicate_detect()`
-#'   tests whether there is at least one identical value. Test results are
-#'   presented next to every value.
+#' @description `r lifecycle::badge('superseded')`
 #'
-#'   By default, only numeric columns and string columns coercible to numeric
-#'   are tested (if `x` is a data frame). Any other columns are silently
-#'   dropped.
+#'   `duplicate_detect()` is superseded because it's less informative than
+#'   `duplicate_tally()` and `duplicate_count()`. Use these functions instead.
+#'
+#'   For every value in a vector or data frame, `duplicate_detect()` tests
+#'   whether there is at least one identical value. Test results are presented
+#'   next to every value.
 #'
 #'   This function is a blunt tool designed for initial data checking. Don't put
 #'   too much weight on its results.
@@ -20,42 +147,43 @@
 #'   chance. For example, in R's built-in `iris` data set, 99% of values have
 #'   duplicates.
 #'
-#'   In general, the fewer values and the more characters per value there are,
-#'   the more significant `duplicate_detect()`'s results will be.
+#'   In general, the fewer values and the more characters per value, the more
+#'   significant the results.
 #'
 #' @param x Vector or data frame.
-#' @param numeric_only Boolean. If `TRUE` (the default) and if `x` is a data
-#'   frame, the function will only test numeric columns and string columns
-#'   coercible to numeric. *Note*: Be careful when setting it to `FALSE`. This
-#'   can lead to all kinds of coercion issues.
+#' @param ignore Optionally, a vector of values that should not be checked. In
+#'   the test result columns, they will be marked `NA`.
 #' @param colname_end String. Name ending of the Boolean test result columns.
 #'   Default is `"dup"`.
+#' @param numeric_only [[Deprecated]] No longer used: All values are coerced to
+#'   character.
 
-#' @return A tibble (data frame) —
-#'   - If `x` is a vector, there are two columns: the input `value` and the
-#'     Boolean `has_duplicates`.
-#'   - If `x` is a data frame, the output tibble has (some of) the columns from
-#'     `x`, and to each of these columns' right, the corresponding Boolean
-#'     column with an index value.
+#' @return A tibble (data frame). It has all the columns from `x`, and to each
+#'   of these columns' right, the corresponding test result column.
 #'
-#' The tibble has the `scr_dup_detect` class, which is recognized by the
-#' `audit()` generic.
+#'   The tibble has the `scr_dup_detect` class, which is recognized by the
+#'   `audit()` generic.
 
 #' @section Summaries with `audit()`: There is an S3 method for the `audit()`
 #'   generic, so you can call `audit()` following `duplicate_detect()`. It
 #'   returns a tibble with these columns ---
-#'   - `variable`: The original data frame's variables with at least one
-#'     "duplicated" value: one that has at least one duplicate anywhere else in
-#'     the data frame. For a vector, `x`.
-#'   - `n_duplicated`: Number of "duplicated" values of that variable: those
-#'     that have at least one duplicate anywhere in the data frame.
-#'   - `dup_rate`: Rate of "duplicated" values of that variable.
+#'   - `term`: The original data frame's variables.
+#'   - `dup_count`: Number of "duplicated" values of that `term` variable: those
+#'   which have at least one duplicate anywhere in the data frame.
+#'   - `total`: Number of all non-`NA` values of that `term` variable.
+#'   - `dup_rate`: Rate of "duplicated" values of that `term` variable.
 #'
 #'   The final row, `.total`, summarizes across all other rows: It adds up the
-#'   `n_duplicated` and `n_total` columns, and calculates the average of the
+#'   `dup_count` and `total_count` columns, and calculates the mean of the
 #'   `dup_rate` column.
 #'
-#' @seealso `duplicate_count()` provides a frequency table.
+#' @seealso
+#'  - `duplicate_tally()` to count instances of a value instead of just stating
+#' whether it is duplicated.
+#'  - `duplicate_count()` for a frequency table.
+#'  - `duplicate_count_colpair()` to check each combination of columns for
+#' duplicates.
+#'  - `janitor::get_dupes()` to search for duplicate rows.
 #'
 #' @include utils.R
 #'
@@ -73,78 +201,83 @@
 #'   duplicate_detect() %>%
 #'   audit()
 #'
-#' # If there are many values and/or few
-#' # characters per value, `duplicate_detect()`
-#' # can be misleading:
-#' iris %>%
-#'   duplicate_detect()
+#' # Any values can be ignored:
+#' pigs4 %>%
+#'   duplicate_detect(ignore = c(8.131, 7.574))
+
+duplicate_detect <- function_duplicate_cols(
+  # Create a Boolean vector pointing out duplicates within the vector of all
+  # input values, both from the start forward and from the end backward:
+  code_new_cols = duplicated(x) | duplicated(x, fromLast = TRUE),
+  default_end = "dup",
+  name_class = "scr_dup_detect",
+  include_numeric_only_arg = TRUE
+)
+
+
+
+# duplicate_tally() -------------------------------------------------------
+
+#' Count duplicates at each observation
 #'
-#' iris %>%
-#'   duplicate_detect() %>%
+#' @description For every value in a vector or data frame, `duplicate_tally()`
+#'   counts how often it appears in total. Tallies are presented next to each
+#'   value.
+#'
+#'   For summary statistics, call `audit()` on the results.
+#'
+#' @param colname_end String. Name ending of the Boolean test result columns.
+#'   Default is `"n"`.
+#'
+#' @inheritParams duplicate_detect
+#' @inherit duplicate_detect details
+#'
+#' @return A tibble (data frame). It has all the columns from `x`, and to each
+#'   of these columns' right, the corresponding tally column.
+#'
+#'   The tibble has the `scr_dup_detect` class, which is recognized by the
+#'   `audit()` generic.
+#'
+#' @section Summaries with `audit()`: There is an S3 method for the `audit()`
+#'   generic, so you can call `audit()` following `duplicate_tally()`. It
+#'   returns a tibble with summary statistics.
+#'
+#' @seealso
+#'  - `duplicate_count()` for a frequency table.
+#'  - `duplicate_count_colpair()` to check each combination of columns for
+#' duplicates.
+#'  - `janitor::get_dupes()` to search for duplicate rows.
+#'
+#' @include utils.R
+
+#' @export
+#'
+#' @examples
+#' # Tally duplicate values in a data frame...
+#' duplicate_tally(x = pigs4)
+#'
+#' # ...or in a single vector:
+#' duplicate_tally(x = pigs4$snout)
+#'
+#' # Summary statistics with `audit()`:
+#' pigs4 %>%
+#'   duplicate_tally() %>%
 #'   audit()
+#'
+#' # Any values can be ignored:
+#' pigs4 %>%
+#'   duplicate_tally(ignore = c(8.131, 7.574))
 
-
-
-duplicate_detect <- function(x, numeric_only = TRUE, colname_end = "dup") {
-
-  # Deal with a non-data-frame vector:
-  if (!is.data.frame(x)) {
-    value <- tibble::as_tibble(x)
-    has_duplicates <- duplicated(value) | duplicated(value, fromLast = TRUE)
-    df <- tibble::tibble(value, has_duplicates) %>%
-      stats::na.omit() %>%
-      add_class("scr_dup_detect")
-    return(df)
-  }
-
-  # (The rest is for data frames only.)
-
-  # By default, coerce all columns to numeric with which that is possible and
-  # drop the rest. In any case, lump all of the data frame's values into a
-  # single vector:
-  if (numeric_only) {
-    x <- x %>%
-      dplyr::select(where(is.numeric) | where(is.character)) %>%
-      dplyr::mutate(dplyr::across(dplyr::everything(), as.numeric)) %>%
-      dplyr::select(where(~ !all(is.na(.)))) %>%
-      suppressWarnings()
-
-    val <- purrr::flatten_dbl(x)
-  } else {
-    val <- x %>%
-      purrr::flatten() %>%
-      purrr::as_vector()
-  }
-
-  # Create a Boolean vector pointing out duplicates within the test vector, both
-  # from the start forward and from the end backward:
-  dup <- duplicated(val) | duplicated(val, fromLast = TRUE)
-
-  # Gather both vectors in a tibble, so that each test value is joined by a
-  # Boolean value indicating whether it has any duplicates in the rest of the
-  # vector (i.e., in the flattened original data frame):
-  df <- tibble::tibble(val, dup)
-
-  # Prepare row index for the data frame transformation below:
-  row_id <- ceiling(seq_along(val) / nrow(x))
-
-  # Split the two-column tibble into one of the same shape as the original data
-  # frame, but with every test value accompanied by its corresponding Boolean
-  # value to the right, as above:
-  df <- df %>%
-    split(row_id) %>%
-    dplyr::bind_cols(.name_repair = "minimal") %>%
-    suppressMessages() %>%
-    stats::na.omit()
-
-  # Name both kinds of columns:
-  colnames_dup <- paste0(names(x), "_", colname_end)   # used to have: , 1:ncol(df)
-  colnames(df) <- rbind(colnames(x), colnames_dup)
-
-  # Return the tibble, but with the "scr_dup_detect" class added, which is
-  # recognized by the `audit()` generic:
-  df %>%
-    add_class("scr_dup_detect")
-}
-
+duplicate_tally <- function_duplicate_cols(
+  # For each input value, count how many other instances of that value exist:
+  code_new_cols = {
+    new_cols <- integer(length(x))
+    for (i in seq_along(new_cols)) {
+      new_cols[i] <- length(x[x == x[i]])
+    }
+    new_cols
+  },
+  default_end = "n",
+  name_class = "scr_dup_tally"
+)
 

@@ -4,40 +4,36 @@
 \alias{duplicate_detect}
 \title{Detect duplicate values}
 \usage{
-duplicate_detect(x, numeric_only = TRUE, colname_end = "dup")
+duplicate_detect(x, ignore = NULL, colname_end = "dup", numeric_only)
 }
 \arguments{
 \item{x}{Vector or data frame.}
 
-\item{numeric_only}{Boolean. If \code{TRUE} (the default) and if \code{x} is a data
-frame, the function will only test numeric columns and string columns
-coercible to numeric. \emph{Note}: Be careful when setting it to \code{FALSE}. This
-can lead to all kinds of coercion issues.}
+\item{ignore}{Optionally, a vector of values that should not be checked. In
+the test result columns, they will be marked \code{NA}.}
 
 \item{colname_end}{String. Name ending of the Boolean test result columns.
 Default is \code{"dup"}.}
+
+\item{numeric_only}{[\link{Deprecated}] No longer used: All values are coerced to
+character.}
 }
 \value{
-A tibble (data frame) —
-\itemize{
-\item If \code{x} is a vector, there are two columns: the input \code{value} and the
-Boolean \code{has_duplicates}.
-\item If \code{x} is a data frame, the output tibble has (some of) the columns from
-\code{x}, and to each of these columns' right, the corresponding Boolean
-column with an index value.
-}
+A tibble (data frame). It has all the columns from \code{x}, and to each
+of these columns' right, the corresponding test result column.
 
 The tibble has the \code{scr_dup_detect} class, which is recognized by the
 \code{audit()} generic.
 }
 \description{
-For every value in a vector or data frame, \code{duplicate_detect()}
-tests whether there is at least one identical value. Test results are
-presented next to every value.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#superseded}{\figure{lifecycle-superseded.svg}{options: alt='[Superseded]'}}}{\strong{[Superseded]}}
 
-By default, only numeric columns and string columns coercible to numeric
-are tested (if \code{x} is a data frame). Any other columns are silently
-dropped.
+\code{duplicate_detect()} is superseded because it's less informative than
+\code{duplicate_tally()} and \code{duplicate_count()}. Use these functions instead.
+
+For every value in a vector or data frame, \code{duplicate_detect()} tests
+whether there is at least one identical value. Test results are presented
+next to every value.
 
 This function is a blunt tool designed for initial data checking. Don't put
 too much weight on its results.
@@ -50,24 +46,23 @@ only have a few characters each. Many of them may have duplicates just by
 chance. For example, in R's built-in \code{iris} data set, 99\% of values have
 duplicates.
 
-In general, the fewer values and the more characters per value there are,
-the more significant \code{duplicate_detect()}'s results will be.
+In general, the fewer values and the more characters per value, the more
+significant the results.
 }
 \section{Summaries with \code{audit()}}{
  There is an S3 method for the \code{audit()}
 generic, so you can call \code{audit()} following \code{duplicate_detect()}. It
 returns a tibble with these columns ---
 \itemize{
-\item \code{variable}: The original data frame's variables with at least one
-"duplicated" value: one that has at least one duplicate anywhere else in
-the data frame. For a vector, \code{x}.
-\item \code{n_duplicated}: Number of "duplicated" values of that variable: those
-that have at least one duplicate anywhere in the data frame.
-\item \code{dup_rate}: Rate of "duplicated" values of that variable.
+\item \code{term}: The original data frame's variables.
+\item \code{dup_count}: Number of "duplicated" values of that \code{term} variable: those
+which have at least one duplicate anywhere in the data frame.
+\item \code{total}: Number of all non-\code{NA} values of that \code{term} variable.
+\item \code{dup_rate}: Rate of "duplicated" values of that \code{term} variable.
 }
 
 The final row, \code{.total}, summarizes across all other rows: It adds up the
-\code{n_duplicated} and \code{n_total} columns, and calculates the average of the
+\code{dup_count} and \code{total_count} columns, and calculates the mean of the
 \code{dup_rate} column.
 }
 
@@ -83,16 +78,17 @@ pigs4 \%>\%
   duplicate_detect() \%>\%
   audit()
 
-# If there are many values and/or few
-# characters per value, `duplicate_detect()`
-# can be misleading:
-iris \%>\%
-  duplicate_detect()
-
-iris \%>\%
-  duplicate_detect() \%>\%
-  audit()
+# Any values can be ignored:
+pigs4 \%>\%
+  duplicate_detect(ignore = c(8.131, 7.574))
 }
 \seealso{
-\code{duplicate_count()} provides a frequency table.
+\itemize{
+\item \code{duplicate_tally()} to count instances of a value instead of just stating
+whether it is duplicated.
+\item \code{duplicate_count()} for a frequency table.
+\item \code{duplicate_count_colpair()} to check each combination of columns for
+duplicates.
+\item \code{janitor::get_dupes()} to search for duplicate rows.
+}
 }

@@ -63,9 +63,7 @@ audit_cols_minimal <- function(data, name_test) {
   incons_rate <- incons_cases / all_cases
 
   # Collect these values in a resulting tibble:
-  out <- tibble::tibble(incons_cases, all_cases, incons_rate)
-
-  return(out)
+  tibble::tibble(incons_cases, all_cases, incons_rate)
 }
 
 
