@@ -16,7 +16,7 @@ mappers with function_map().'><!-- mathjax --><script src="https://cdnjs.cloudfl
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,6 +34,9 @@ mappers with function_map().'><!-- mathjax --><script src="https://cdnjs.cloudfl
     <a class="dropdown-item" href="../articles/grim.html">GRIM</a>
     <a class="dropdown-item" href="../articles/grimmer.html">GRIMMER</a>
     <a class="dropdown-item" href="../articles/debit.html">DEBIT</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Plausibility checks</h6>
+    <a class="dropdown-item" href="../articles/duplicates.html">Duplication analysis</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Infrastructure</h6>
     <a class="dropdown-item" href="../articles/infrastructure.html">General infrastructure</a>
@@ -86,7 +89,8 @@ mappers with <code>function_map()</code></em>.</p>
 <span>  .args_disabled <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  .col_names <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  .col_control <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  .col_filler <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  .col_filler <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -137,6 +141,10 @@ columns named in <code>.col_names</code> will be displayed.</p></dd>
 <dd><p>(Experimental) Optionally, a vector specifying the values
 of <code>.col_names</code> columns in rows where the <code>*_scalar()</code> function only
 returned the <code>consistency</code> value.</p></dd>
+
+
+<dt>...</dt>
+<dd><p>These dots must be empty.</p></dd>
 
 </dl></div>
     <div class="section level2">

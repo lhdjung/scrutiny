@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -28,6 +28,9 @@
     <a class="dropdown-item" href="../articles/grim.html">GRIM</a>
     <a class="dropdown-item" href="../articles/grimmer.html">GRIMMER</a>
     <a class="dropdown-item" href="../articles/debit.html">DEBIT</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Plausibility checks</h6>
+    <a class="dropdown-item" href="../articles/duplicates.html">Duplication analysis</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Infrastructure</h6>
     <a class="dropdown-item" href="../articles/infrastructure.html">General infrastructure</a>
@@ -63,14 +66,45 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="scrutiny-development-version">scrutiny (development version)<a class="anchor" aria-label="anchor" href="#scrutiny-development-version"></a></h2>
-<ul><li>
-<p>New consistency tests for to check whether reported percentages and sums are correct:</p>
-<ul><li>Use <code>is_percentage_of()</code> for single cases, and <code>is_percentage_of_map()</code> to apply it to a data frame.</li>
+<h2 class="pkg-version" data-toc-text="0.3.0" id="scrutiny-030">scrutiny 0.3.0<a class="anchor" aria-label="anchor" href="#scrutiny-030"></a></h2><p class="text-muted">CRAN release: 2023-08-08</p>
+<div class="section level3">
+<h3 id="duplicate-analysis-overhaul-0-3-0">Duplicate analysis overhaul<a class="anchor" aria-label="anchor" href="#duplicate-analysis-overhaul-0-3-0"></a></h3>
+<p>The <code>duplicate_*()</code> functions now present their output better and have overall been streamlined. Read more at <code><a href="../articles/duplicates.html">vignette("duplicates")</a></code>.</p>
+<ul><li><p>A new function, <code><a href="../reference/duplicate_tally.html">duplicate_tally()</a></code>, marks each observation with its overall frequency. It is similar to <code><a href="../reference/duplicate_detect.html">duplicate_detect()</a></code> but more informative.</p></li>
+<li>
+<p>In <code><a href="../reference/duplicate_count.html">duplicate_count()</a></code>:</p>
+<ul><li><p>All values are now treated like character strings, so all can be checked. The <code>numeric_only</code> argument is deprecated and should no longer be used.</p></li>
+<li><p>The output tibble has two new columns, <code>locations</code> and <code>locations_n</code>. These hold the names of all input columns in which a value appears and the number of these columns. Details are controlled by the new <code>locations_type</code> argument.</p></li>
+<li><p>New <code>ignore</code> argument for specifying one or more values that will not be checked for duplicates.</p></li>
 </ul></li>
-<li><p>New function <code><a href="../reference/audit.html">audit_list()</a></code> for displaying <code><a href="../reference/audit.html">audit()</a></code>’s output as a list. <code><a href="../reference/audit-special.html">audit_seq()</a></code> and <code><a href="../reference/audit-special.html">audit_total_n()</a></code> are now documented separately from <code><a href="../reference/audit.html">audit()</a></code> and <code><a href="../reference/audit.html">audit_list()</a></code>.</p></li>
+<li>
+<p>In <code><a href="../reference/duplicate_count_colpair.html">duplicate_count_colpair()</a></code>:</p>
+<ul><li><p>New <code>total_x</code> and <code>total_y</code> columns in the output show how many non-missing values were checked for duplicates.</p></li>
+<li><p>New <code>ignore</code> argument as in <code><a href="../reference/duplicate_count.html">duplicate_count()</a></code>.</p></li>
+<li><p>The <code>na.rm</code> argument is deprecated. It wasn’t very useful because missing values are never checked for duplicates.</p></li>
+</ul></li>
+<li>
+<p><code><a href="../reference/duplicate_detect.html">duplicate_detect()</a></code> is superseded. It is less informative than <code><a href="../reference/duplicate_count.html">duplicate_count()</a></code> and, in particular, <code><a href="../reference/duplicate_tally.html">duplicate_tally()</a></code>. Still, it shares in the overhaul:</p>
+<ul><li>As in <code><a href="../reference/duplicate_count.html">duplicate_count()</a></code>, all values are now treated like character strings, so all can be checked. The <code>numeric_only</code> argument is deprecated and should no longer be used.</li>
+<li>The duplicate status of missing values is now shown as <code>NA</code>.</li>
+<li>New <code>ignore</code> argument as in <code><a href="../reference/duplicate_count.html">duplicate_count()</a></code>.</li>
+</ul></li>
+</ul></div>
+<div class="section level3">
+<h3 id="bugfixes-0-3-0">Bugfixes<a class="anchor" aria-label="anchor" href="#bugfixes-0-3-0"></a></h3>
+<ul><li><p>Fixed a numeric precision bug in <code><a href="../reference/rounding-common.html">round_up_from()</a></code> and <code><a href="../reference/rounding-common.html">round_down_from()</a></code> that occurred when rounding numbers greater than circa 2100 with a part to be truncated that was equal to 5 on that decimal level (thanks to <a href="https://github.com/kaz462" class="external-link">@kaz462</a>, <a href="https://github.com/lhdjung/scrutiny/issues/43" class="external-link">#43</a>). These functions are called within <code><a href="../reference/rounding-common.html">round_up()</a></code> and <code><a href="../reference/rounding-common.html">round_down()</a></code>, and indirectly by all consistency-testing functions.</p></li>
+<li><p>Fixed a bug in <code><a href="../reference/audit-special.html">audit_seq()</a></code> that displayed one “hit” found by varying a given reported value if there were no such hits. The other columns were not affected.</p></li>
+<li><p>Fixed a bug in <code><a href="../reference/function_map.html">function_map()</a></code> that displayed the wrong calling function’s name in case of an error.</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="minor-improvements-0-3-0">Minor improvements<a class="anchor" aria-label="anchor" href="#minor-improvements-0-3-0"></a></h3>
+<ul><li><p>Documentation for <code><a href="../reference/grim_map_seq.html">grim_map_seq()</a></code> and all other functions made by <code><a href="../reference/function_map.html">function_map()</a></code>, <code><a href="../reference/function_map_seq.html">function_map_seq()</a></code>, or <code><a href="../reference/function_map_total_n.html">function_map_total_n()</a></code> now displays meaningful defaults. Printing the factory-made functions is more meaningful, as well. Internally, they now work with <code><a href="https://rlang.r-lib.org/reference/new_function.html" class="external-link">rlang::new_function()</a></code>, which allows for flexible metaprogramming.</p></li>
+<li><p>The experimental function <code><a href="../reference/audit_list.html">audit_list()</a></code> is deprecated. Just use <code><a href="../reference/audit.html">audit()</a></code> instead. <code><a href="../reference/audit-special.html">audit_seq()</a></code> and <code><a href="../reference/audit-special.html">audit_total_n()</a></code> are now documented separately from <code><a href="../reference/audit.html">audit()</a></code> and <code><a href="../reference/audit_list.html">audit_list()</a></code>.</p></li>
+<li><p>The lifecycle package is now imported and used in formal deprecations such as that of <code>sep</code> in the <code>restore_*()</code> functions. The janitor package is no longer suggested.</p></li>
+<li><p>Adjusted to new CRAN requirements for <code><a href="https://rdrr.io/r/utils/packageDescription.html" class="external-link">packageVersion()</a></code> usage.</p></li>
 <li><p>Some performance improvements.</p></li>
 </ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.4" id="scrutiny-024">scrutiny 0.2.4<a class="anchor" aria-label="anchor" href="#scrutiny-024"></a></h2><p class="text-muted">CRAN release: 2023-01-20</p>
 <ul><li>New <code><a href="../reference/decimal_places_df.html">decimal_places_df()</a></code> function that takes a data frame and counts the decimal places in all numeric-like columns.</li>

@@ -16,7 +16,7 @@ grimmer_map_total_n(), relying on the same infrastructure."><!-- mathjax --><scr
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,6 +34,9 @@ grimmer_map_total_n(), relying on the same infrastructure."><!-- mathjax --><scr
     <a class="dropdown-item" href="../articles/grim.html">GRIM</a>
     <a class="dropdown-item" href="../articles/grimmer.html">GRIMMER</a>
     <a class="dropdown-item" href="../articles/debit.html">DEBIT</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Plausibility checks</h6>
+    <a class="dropdown-item" href="../articles/duplicates.html">Duplication analysis</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Infrastructure</h6>
     <a class="dropdown-item" href="../articles/infrastructure.html">General infrastructure</a>
@@ -84,11 +87,11 @@ means and standard deviations (SDs) were reported, not group sizes.</p>
 <span>  x2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  sd1 <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  sd2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  dispersion <span class="op">=</span> <span class="va">.dispersion</span>,</span>
-<span>  n_min <span class="op">=</span> <span class="va">.n_min</span>,</span>
-<span>  n_max <span class="op">=</span> <span class="va">.n_max</span>,</span>
-<span>  constant <span class="op">=</span> <span class="va">.constant</span>,</span>
-<span>  constant_index <span class="op">=</span> <span class="va">.constant_index</span>,</span>
+<span>  dispersion <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">5</span>,</span>
+<span>  n_min <span class="op">=</span> <span class="fl">1L</span>,</span>
+<span>  n_max <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  constant <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  constant_index <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -224,34 +227,6 @@ Test For Binary Data. https://osf.io/5vb3u/.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 38 more rows</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 7 more variables: sd_incl_lower &lt;lgl&gt;, sd_upper &lt;dbl&gt;, sd_incl_upper &lt;lgl&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   x_lower &lt;dbl&gt;, x_upper &lt;dbl&gt;, case &lt;int&gt;, dir &lt;chr&gt;</span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># `audit_total_n()` summaries can be more important than</span></span></span>
-<span class="r-in"><span><span class="co"># the detailed results themselves.</span></span></span>
-<span class="r-in"><span><span class="co"># The `hits_total` column shows all scenarios in</span></span></span>
-<span class="r-in"><span><span class="co"># which both divergent `n` values are DEBIT-consistent</span></span></span>
-<span class="r-in"><span><span class="co"># with the `x*` values when paired with them both ways:</span></span></span>
-<span class="r-in"><span><span class="va">df</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
-<span class="r-in"><span>  <span class="fu">debit_map_total_n</span><span class="op">(</span>dispersion <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="audit-special.html">audit_total_n</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 2 × 10</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   x1    x2    sd1   sd2       n hits_total hits_forth hits_back scenarios_total</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 0.30  0.28  0.17  0.10     70          0          0         0               6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> 0.41  0.39  0.09  0.15     65          0          0         0               6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 1 more variable: hit_rate &lt;dbl&gt;</span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># By default (`dispersion = 0:5`), the function goes</span></span></span>
-<span class="r-in"><span><span class="co"># five steps up and down from `n`. The longer this</span></span></span>
-<span class="r-in"><span><span class="co"># sequence, the larger the number of hits tends to be:</span></span></span>
-<span class="r-in"><span><span class="va">df</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
-<span class="r-in"><span>  <span class="fu">debit_map_total_n</span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="audit-special.html">audit_total_n</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 2 × 10</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   x1    x2    sd1   sd2       n hits_total hits_forth hits_back scenarios_total</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 0.30  0.28  0.17  0.10     70          0          0         0              12</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> 0.41  0.39  0.09  0.15     65          0          0         0              12</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 1 more variable: hit_rate &lt;dbl&gt;</span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

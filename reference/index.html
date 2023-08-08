@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -28,6 +28,9 @@
     <a class="dropdown-item" href="../articles/grim.html">GRIM</a>
     <a class="dropdown-item" href="../articles/grimmer.html">GRIMMER</a>
     <a class="dropdown-item" href="../articles/debit.html">DEBIT</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Plausibility checks</h6>
+    <a class="dropdown-item" href="../articles/duplicates.html">Duplication analysis</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Infrastructure</h6>
     <a class="dropdown-item" href="../articles/infrastructure.html">General infrastructure</a>
@@ -199,11 +202,6 @@ repeats)</dd>
 
       <dl><dt>
           
-          <code><a href="duplicate_detect.html">duplicate_detect()</a></code> 
-        </dt>
-        <dd>Detect duplicate values</dd>
-      </dl><dl><dt>
-          
           <code><a href="duplicate_count.html">duplicate_count()</a></code> 
         </dt>
         <dd>Count duplicate values</dd>
@@ -212,6 +210,11 @@ repeats)</dd>
           <code><a href="duplicate_count_colpair.html">duplicate_count_colpair()</a></code> 
         </dt>
         <dd>Count duplicate values by column</dd>
+      </dl><dl><dt>
+          
+          <code><a href="duplicate_tally.html">duplicate_tally()</a></code> 
+        </dt>
+        <dd>Count duplicates at each observation</dd>
       </dl></div><div class="section level2">
       <h2 id="summarize-scrutiny-tests">Summarize scrutiny tests<a class="anchor" aria-label="anchor" href="#summarize-scrutiny-tests"></a></h2>
       
@@ -225,7 +228,7 @@ repeats)</dd>
 
       <dl><dt>
           
-          <code><a href="audit.html">audit()</a></code> <code><a href="audit.html">audit_list()</a></code> 
+          <code><a href="audit.html">audit()</a></code> 
         </dt>
         <dd>Summarize scrutiny objects</dd>
       </dl><dl><dt>
@@ -408,7 +411,7 @@ repeats)</dd>
           
           <code><a href="write_doc_factory_map_conventions.html">write_doc_factory_map_conventions()</a></code> 
         </dt>
-        <dd>Documentation template for <code>*_map()</code> function factory conventions</dd>
+        <dd>Documentation template for function factory conventions</dd>
       </dl></div><div class="section level2">
       
       <h3 id="consistency-test-helpers">Consistency test helpers<a class="anchor" aria-label="anchor" href="#consistency-test-helpers"></a></h3>
@@ -565,6 +568,22 @@ repeats)</dd>
           <code><a href="pigs5.html">pigs5</a></code> 
         </dt>
         <dd>Means, SDs, and sample sizes for GRIMMER-testing</dd>
+      </dl></div><div class="section level2">
+      <h2 id="superseded">Superseded<a class="anchor" aria-label="anchor" href="#superseded"></a></h2>
+      
+      
+
+      
+    </div><div id="" class="section level2">
+      
+      
+      
+
+      <dl><dt>
+          
+          <code><a href="duplicate_detect.html">duplicate_detect()</a></code> 
+        </dt>
+        <dd>Detect duplicate values</dd>
       </dl></div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>

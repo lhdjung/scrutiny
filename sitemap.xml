@@ -16,6 +16,9 @@
     <loc>https://lhdjung.github.io/scrutiny/articles/debit.html</loc>
   </url>
   <url>
+    <loc>https://lhdjung.github.io/scrutiny/articles/duplicates.html</loc>
+  </url>
+  <url>
     <loc>https://lhdjung.github.io/scrutiny/articles/grim.html</loc>
   </url>
   <url>
@@ -53,6 +56,9 @@
   </url>
   <url>
     <loc>https://lhdjung.github.io/scrutiny/reference/audit_cols_minimal.html</loc>
+  </url>
+  <url>
+    <loc>https://lhdjung.github.io/scrutiny/reference/audit_list.html</loc>
   </url>
   <url>
     <loc>https://lhdjung.github.io/scrutiny/reference/check_audit_special.html</loc>
@@ -95,6 +101,9 @@
   </url>
   <url>
     <loc>https://lhdjung.github.io/scrutiny/reference/duplicate_detect.html</loc>
+  </url>
+  <url>
+    <loc>https://lhdjung.github.io/scrutiny/reference/duplicate_tally.html</loc>
   </url>
   <url>
     <loc>https://lhdjung.github.io/scrutiny/reference/fractional-rounding.html</loc>
@@ -197,6 +206,9 @@
   </url>
   <url>
     <loc>https://lhdjung.github.io/scrutiny/reference/row_to_colnames.html</loc>
+  </url>
+  <url>
+    <loc>https://lhdjung.github.io/scrutiny/reference/scrutiny-package.html</loc>
   </url>
   <url>
     <loc>https://lhdjung.github.io/scrutiny/reference/sd-binary.html</loc>

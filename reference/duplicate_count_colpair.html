@@ -14,7 +14,7 @@ number of duplicates."><!-- mathjax --><script src="https://cdnjs.cloudflare.com
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,9 @@ number of duplicates."><!-- mathjax --><script src="https://cdnjs.cloudflare.com
     <a class="dropdown-item" href="../articles/grim.html">GRIM</a>
     <a class="dropdown-item" href="../articles/grimmer.html">GRIMMER</a>
     <a class="dropdown-item" href="../articles/debit.html">DEBIT</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Plausibility checks</h6>
+    <a class="dropdown-item" href="../articles/duplicates.html">Duplication analysis</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Infrastructure</h6>
     <a class="dropdown-item" href="../articles/infrastructure.html">General infrastructure</a>
@@ -75,7 +78,12 @@ number of duplicates.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">duplicate_count_colpair</span><span class="op">(</span><span class="va">data</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span>, show_rates <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">duplicate_count_colpair</span><span class="op">(</span></span>
+<span>  <span class="va">data</span>,</span>
+<span>  ignore <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  show_rates <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  na.rm <span class="op">=</span> <span class="fu">deprecated</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -84,11 +92,9 @@ number of duplicates.</p>
 <dd><p>Data frame.</p></dd>
 
 
-<dt>na.rm</dt>
-<dd><p>Boolean. If <code>TRUE</code> (the default), any <code>NA</code> values in <code>data</code>'s
-columns will be removed before checking for duplicates. This makes sure
-that <code>NA</code> values in different columns will not be counted as duplicates of
-each other.</p></dd>
+<dt>ignore</dt>
+<dd><p>Optionally, a vector of values that should not be checked for
+duplicates.</p></dd>
 
 
 <dt>show_rates</dt>
@@ -96,38 +102,40 @@ each other.</p></dd>
 <code>rate_y</code>. See value section. Set <code>show_rates</code> to <code>FALSE</code> for higher
 performance.</p></dd>
 
+
+<dt>na.rm</dt>
+<dd><p>[<a href="https://rdrr.io/r/base/Deprecated.html" class="external-link">Deprecated</a>] Missing values are never counted in any case.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>A tibble (data frame) with these columns ---</p><ul><li><p><code>x</code> and <code>y</code>: Each line contains a unique combination of <code>data</code>'s columns,
+<p>A tibble (data frame) with these columns –</p><ul><li><p><code>x</code> and <code>y</code>: Each line contains a unique combination of <code>data</code>'s columns,
 stored in the <code>x</code> and <code>y</code> output columns.</p></li>
 <li><p><code>count</code>: Number of "duplicates", i.e., values that are present in both <code>x</code>
 and <code>y</code>.</p></li>
-<li><p><code>rate_x</code> and <code>rate_y</code> (added by default): <code>rate_x</code> is the proportion of <code>x</code>
-values that are duplicated in <code>y</code>. Likewise, <code>rate_y</code> is the proportion of
-<code>y</code> values that are duplicated in <code>x</code>. These two <code>rate_*</code> columns will be
-equal unless <code>NA</code> values are present.</p></li>
+<li><p><code>total_x</code>, <code>total_y</code>, <code>rate_x</code>, and <code>rate_y</code> (added by default): <code>total_x</code>
+is the number of non-missing values in the column named under <code>x</code>. Also,
+<code>rate_x</code> is the proportion of <code>x</code> values that are duplicated in <code>y</code>, i.e.,
+<code>count / total_x</code>. Likewise with <code>total_y</code> and <code>rate_y</code>. The two <code>rate_*</code>
+columns will be equal unless <code>NA</code> values are present.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="summaries-with-audit-">Summaries with <code><a href="audit.html">audit()</a></code><a class="anchor" aria-label="anchor" href="#summaries-with-audit-"></a></h2>
     <p>There is an S3 method for <code><a href="audit.html">audit()</a></code>, so
-you can call <code><a href="audit.html">audit()</a></code> following <code>duplicate_count_colpair()</code> to get a
-summary of <code>duplicate_count_colpair()</code>'s results. It is a tibble with a
-single row and the columns below. If the tibble is too wide, call
-<code><a href="audit.html">audit_list()</a></code> instead.</p><ul><li><p><code>n</code>: number of column pairs tested (index 1).</p></li>
-<li><p><code>count_min</code>, <code>count_max</code>, <code>count_mean</code>, <code>count_sd</code>, <code>count_median</code>:
-Summary statistics of the duplicate <code>count</code> column (index 2 to 6).</p></li>
-<li><p><code>rate_x_min</code>, <code>rate_x_max</code>, <code>rate_x_mean</code>, <code>rate_x_sd</code>, <code>rate_x_median</code>:
-Summary statistics of the <code>rate_x</code> column (index 7 to 11).</p></li>
-<li><p><code>rate_y_min</code>, <code>rate_y_max</code>, <code>rate_y_mean</code>, <code>rate_y_sd</code>, <code>rate_y_median</code>:
-Summary statistics of the <code>rate_y</code> column (index 12 to 16).</p></li>
-</ul></div>
+you can call <code><a href="audit.html">audit()</a></code> following <code>duplicate_count_colpair()</code>. It returns a
+tibble with summary statistics.</p>
+    </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="https://corrr.tidymodels.org/reference/colpair_map.html" class="external-link">corrr::colpair_map()</a></code>, a versatile tool for pairwise column
-analysis which the present function wraps.</p></div>
+    <div class="dont-index">
+<ul><li><p><code><a href="duplicate_count.html">duplicate_count()</a></code> for a frequency table.</p></li>
+<li><p><code><a href="duplicate_tally.html">duplicate_tally()</a></code> to show instances of a value next to each instance.</p></li>
+<li><p><code><a href="https://sfirke.github.io/janitor/reference/get_dupes.html" class="external-link">janitor::get_dupes()</a></code> to search for duplicate rows.</p></li>
+<li><p><code><a href="https://corrr.tidymodels.org/reference/colpair_map.html" class="external-link">corrr::colpair_map()</a></code>, a versatile tool for pairwise column analysis which
+the present function wraps.</p></li>
+</ul></div>
     </div>
 
     <div class="section level2">
@@ -135,32 +143,33 @@ analysis which the present function wraps.</p></div>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Basic usage:</span></span></span>
 <span class="r-in"><span><span class="va">mtcars</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu">duplicate_count_colpair</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 55 × 5</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    x     y     count rate_x rate_y</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> cyl   carb     32 1      1     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> vs    am       32 1      1     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> gear  carb     27 0.844  0.844 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> vs    carb     14 0.438  0.438 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> am    carb     13 0.406  0.406 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> cyl   gear     11 0.344  0.344 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> drat  wt        3 0.093<span style="text-decoration: underline;">8</span> 0.093<span style="text-decoration: underline;">8</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> mpg   qsec      2 0.062<span style="text-decoration: underline;">5</span> 0.062<span style="text-decoration: underline;">5</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> drat  gear      1 0.031<span style="text-decoration: underline;">2</span> 0.031<span style="text-decoration: underline;">2</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> drat  carb      1 0.031<span style="text-decoration: underline;">2</span> 0.031<span style="text-decoration: underline;">2</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 55 × 7</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    x     y     count total_x total_y rate_x rate_y</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> cyl   carb     32      32      32 1      1     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> vs    am       32      32      32 1      1     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> gear  carb     27      32      32 0.844  0.844 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> vs    carb     14      32      32 0.438  0.438 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> am    carb     13      32      32 0.406  0.406 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> cyl   gear     11      32      32 0.344  0.344 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> drat  wt        3      32      32 0.093<span style="text-decoration: underline;">8</span> 0.093<span style="text-decoration: underline;">8</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> mpg   qsec      2      32      32 0.062<span style="text-decoration: underline;">5</span> 0.062<span style="text-decoration: underline;">5</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> drat  gear      1      32      32 0.031<span style="text-decoration: underline;">2</span> 0.031<span style="text-decoration: underline;">2</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> drat  carb      1      32      32 0.031<span style="text-decoration: underline;">2</span> 0.031<span style="text-decoration: underline;">2</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 45 more rows</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Summaries with `audit()`:</span></span></span>
 <span class="r-in"><span><span class="va">mtcars</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu">duplicate_count_colpair</span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="audit.html">audit</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 16</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       n count_min count_max count_mean count_sd count_median rate_x_min</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>    55         0        32       2.47     7.38            0          0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 9 more variables: rate_x_max &lt;dbl&gt;, rate_x_mean &lt;dbl&gt;, rate_x_sd &lt;dbl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   rate_x_median &lt;dbl&gt;, rate_y_min &lt;dbl&gt;, rate_y_max &lt;dbl&gt;, rate_y_mean &lt;dbl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   rate_y_sd &lt;dbl&gt;, rate_y_median &lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 5 × 8</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   term       mean    sd median   min   max na_count na_rate</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> count    2.47   7.38       0     0    32        0       0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> total_x 32      0         32    32    32        0       0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> total_y 32      0         32    32    32        0       0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> rate_x   0.077<span style="text-decoration: underline;">3</span> 0.231      0     0     1        0       0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> rate_y   0.077<span style="text-decoration: underline;">3</span> 0.231      0     0     1        0       0</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

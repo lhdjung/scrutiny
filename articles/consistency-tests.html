@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,6 +45,9 @@
     <a class="dropdown-item" href="../articles/grim.html">GRIM</a>
     <a class="dropdown-item" href="../articles/grimmer.html">GRIMMER</a>
     <a class="dropdown-item" href="../articles/debit.html">DEBIT</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Plausibility checks</h6>
+    <a class="dropdown-item" href="../articles/duplicates.html">Duplication analysis</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Infrastructure</h6>
     <a class="dropdown-item" href="../articles/infrastructure.html">General infrastructure</a>
@@ -341,15 +344,15 @@ via arguments, there will be a precise error:</p>
 <span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `check_factory_key_args_names()` at scrutiny/R/function-factory-helpers.R:274:2:</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Column `n` is missing from `data`.</span></span>
 <span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> It should be a column of the input data frame.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Alternatively, specify the `n` argument of `absorb_key_args()` as the name of</span></span>
-<span><span class="co">#&gt;   the equivalent column.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Alternatively, specify the `n` argument of `schlim_map()` as the name of the</span></span>
+<span><span class="co">#&gt;   equivalent column.</span></span>
 <span></span>
 <span><span class="co"># With a wrong identification:</span></span>
 <span><span class="fu">schlim_map</span><span class="op">(</span><span class="va">df2</span>, n <span class="op">=</span> <span class="va">mike</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `check_factory_key_args_values()` at scrutiny/R/function-factory-helpers.R:273:2:</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> `mike` is not a column name of `data`.</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> The `n` argument of `absorb_key_args()` was specified as `mike`, but there is</span></span>
-<span><span class="co">#&gt;   no column in `data` called `mike`.</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> The `n` argument of `schlim_map()` was specified as `mike`, but there is no</span></span>
+<span><span class="co">#&gt;   column in `data` called `mike`.</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="drawbacks">Drawbacks<a class="anchor" aria-label="anchor" href="#drawbacks"></a>
@@ -1207,10 +1210,10 @@ function is generated on the basis of an earlier one.</p>
 <table class="table">
 <colgroup>
 <col width="20%">
-<col width="20%">
-<col width="20%">
-<col width="20%">
-<col width="20%">
+<col width="12%">
+<col width="24%">
+<col width="21%">
+<col width="21%">
 </colgroup>
 <thead><tr class="header">
 <th>Output function type</th>

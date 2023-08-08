@@ -32,7 +32,7 @@ coercible to numeric."><!-- mathjax --><script src="https://cdnjs.cloudflare.com
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,6 +50,9 @@ coercible to numeric."><!-- mathjax --><script src="https://cdnjs.cloudflare.com
     <a class="dropdown-item" href="../articles/grim.html">GRIM</a>
     <a class="dropdown-item" href="../articles/grimmer.html">GRIMMER</a>
     <a class="dropdown-item" href="../articles/debit.html">DEBIT</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Plausibility checks</h6>
+    <a class="dropdown-item" href="../articles/duplicates.html">Duplication analysis</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Infrastructure</h6>
     <a class="dropdown-item" href="../articles/infrastructure.html">General infrastructure</a>
@@ -102,7 +105,13 @@ coercible to numeric.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">restore_zeros</span><span class="op">(</span><span class="va">x</span>, width <span class="op">=</span> <span class="cn">NULL</span>, sep_in <span class="op">=</span> <span class="st">"\\."</span>, sep_out <span class="op">=</span> <span class="va">sep_in</span>, sep <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">restore_zeros</span><span class="op">(</span></span>
+<span>  <span class="va">x</span>,</span>
+<span>  width <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  sep_in <span class="op">=</span> <span class="st">"\\."</span>,</span>
+<span>  sep_out <span class="op">=</span> <span class="va">sep_in</span>,</span>
+<span>  sep <span class="op">=</span> <span class="fu">deprecated</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">restore_zeros_df</span><span class="op">(</span></span>
 <span>  <span class="va">data</span>,</span>
@@ -112,7 +121,7 @@ coercible to numeric.</p>
 <span>  width <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  sep_in <span class="op">=</span> <span class="st">"\\."</span>,</span>
 <span>  sep_out <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  sep <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  sep <span class="op">=</span> <span class="fu">deprecated</span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>

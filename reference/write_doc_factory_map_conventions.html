@@ -5,7 +5,7 @@ function_map_seq() or function_map_total_n(). It lays out the naming
 guidelines that users of your function factory should follow when creating
 new manufactured functions.
 Copy the output from your console and paste it into the roxygen2 block of
-your function factory."><title>Documentation template for *_map() function factory conventions — write_doc_factory_map_conventions • scrutiny</title><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous"><!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Documentation template for *_map() function factory conventions — write_doc_factory_map_conventions"><meta property="og:description" content="write_doc_factory_map_conventions() creates a roxygen2 block
+your function factory."><title>Documentation template for function factory conventions — write_doc_factory_map_conventions • scrutiny</title><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous"><!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Documentation template for function factory conventions — write_doc_factory_map_conventions"><meta property="og:description" content="write_doc_factory_map_conventions() creates a roxygen2 block
 section to be inserted into the documentation of a function factory such as
 function_map_seq() or function_map_total_n(). It lays out the naming
 guidelines that users of your function factory should follow when creating
@@ -22,7 +22,7 @@ your function factory."><!-- mathjax --><script src="https://cdnjs.cloudflare.co
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,6 +40,9 @@ your function factory."><!-- mathjax --><script src="https://cdnjs.cloudflare.co
     <a class="dropdown-item" href="../articles/grim.html">GRIM</a>
     <a class="dropdown-item" href="../articles/grimmer.html">GRIMMER</a>
     <a class="dropdown-item" href="../articles/debit.html">DEBIT</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Plausibility checks</h6>
+    <a class="dropdown-item" href="../articles/duplicates.html">Duplication analysis</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Infrastructure</h6>
     <a class="dropdown-item" href="../articles/infrastructure.html">General infrastructure</a>
@@ -70,7 +73,7 @@ your function factory."><!-- mathjax --><script src="https://cdnjs.cloudflare.co
 </nav><div class="container template-reference-topic">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="" class="logo" alt=""><h1>Documentation template for <code>*_map()</code> function factory conventions</h1>
+      <img src="" class="logo" alt=""><h1>Documentation template for function factory conventions</h1>
       <small class="dont-index">Source: <a href="https://github.com/lhdjung/scrutiny/blob/HEAD/R/write-doc-audit.R" class="external-link"><code>R/write-doc-audit.R</code></a></small>
       <div class="d-none name"><code>write_doc_factory_map_conventions.Rd</code></div>
     </div>
@@ -90,7 +93,7 @@ your function factory.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">write_doc_factory_map_conventions</span><span class="op">(</span></span>
 <span>  <span class="va">ending</span>,</span>
 <span>  name_test1 <span class="op">=</span> <span class="st">"GRIM"</span>,</span>
-<span>  name_test2 <span class="op">=</span> <span class="st">"DEBIT"</span></span>
+<span>  name_test2 <span class="op">=</span> <span class="st">"GRIMMER"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -98,12 +101,12 @@ your function factory.</p>
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>ending</dt>
 <dd><p>String (length 1). The part of your function factory's name
-after <code>function_map_</code>.</p></dd>
+after <code>function_map_</code>. To</p></dd>
 
 
 <dt>name_test1, name_test2</dt>
 <dd><p>Strings (length 1). Plain-text names of example
-consistency tests. Defaults are <code>"GRIM"</code> and <code>"DEBIT"</code>, respectively.</p></dd>
+consistency tests. Defaults are <code>"GRIM"</code> and <code>"GRIMMER"</code>, respectively.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -114,7 +117,9 @@ consistency tests. Defaults are <code>"GRIM"</code> and <code>"DEBIT"</code>, re
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p>For context, see <code><a href="../articles/consistency-tests.html">vignette("consistency-tests")</a></code>.</p></div>
+    <div class="dont-index"><p>For context, see
+<a href="https://lhdjung.github.io/scrutiny/articles/consistency-tests.html"><em>Implementing
+consistency tests</em></a>.</p></div>
     </div>
 
     <div class="section level2">
@@ -126,14 +131,14 @@ consistency tests. Defaults are <code>"GRIM"</code> and <code>"DEBIT"</code>, re
 <span class="r-out co"><span class="r-pr">#&gt;</span> #'   function. For example, `grim_map_seq()` derives from `grim_map()`. </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> #'   This pattern fits best if the input function itself is named after the test </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> #'   it performs on a data frame, followed by `_map`: `grim_map()` applies GRIM, </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #'   `debit_map()` applies DEBIT, etc. </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #'   `grimmer_map()` applies GRIMMER, etc. </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> #' </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> #'   Much the same is true for the classes of data frames returned by the </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> #'   manufactured function via the `.name_class` argument of </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> #'   `function_map_seq()`. It should be the function's own name preceded by </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> #'   the name of the package that contains it or by an acronym of that package's </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #'   name. In this way, existing classes are `scr_grim_map_seq` and </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #'   `scr_debit_map_seq`. </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #'   name. In this way, some existing classes are `scr_grim_map_seq` and </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #'   `scr_grimmer_map_seq`. </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># For `function_map_total_n()`:</span></span></span>
 <span class="r-in"><span><span class="fu">write_doc_factory_map_conventions</span><span class="op">(</span>ending <span class="op">=</span> <span class="st">"total_n"</span><span class="op">)</span></span></span>
@@ -142,14 +147,14 @@ consistency tests. Defaults are <code>"GRIM"</code> and <code>"DEBIT"</code>, re
 <span class="r-out co"><span class="r-pr">#&gt;</span> #'   function. For example, `grim_map_total_n()` derives from `grim_map()`. </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> #'   This pattern fits best if the input function itself is named after the test </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> #'   it performs on a data frame, followed by `_map`: `grim_map()` applies GRIM, </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #'   `debit_map()` applies DEBIT, etc. </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #'   `grimmer_map()` applies GRIMMER, etc. </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> #' </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> #'   Much the same is true for the classes of data frames returned by the </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> #'   manufactured function via the `.name_class` argument of </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> #'   `function_map_total_n()`. It should be the function's own name preceded by </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> #'   the name of the package that contains it or by an acronym of that package's </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #'   name. In this way, existing classes are `scr_grim_map_total_n` and </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #'   `scr_debit_map_total_n`. </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #'   name. In this way, some existing classes are `scr_grim_map_total_n` and </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #'   `scr_grimmer_map_total_n`. </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
