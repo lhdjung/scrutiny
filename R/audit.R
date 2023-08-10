@@ -110,6 +110,8 @@ audit_list <- function(data) {
 
 #' @return A tibble (data frame) with test summary statistics.
 #'
+#' @include utils.R
+#'
 #' @export
 #'
 #' @examples
@@ -214,7 +216,7 @@ audit_seq <- function(data) {
       .cols = everything(),
       .fns = function(x) {
         x[is.infinite(x)] <- NA
-        x
+        as.integer(x)
       }
     )) %>%
     suppressWarnings()

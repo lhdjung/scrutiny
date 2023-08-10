@@ -1523,3 +1523,54 @@ audit_summary_stats <- function(data, selection, total = FALSE) {
     dplyr::mutate(na_rate = na_count / nrow(data), .after = "na_rate")
 }
 
+
+
+#' Helper functions for `audit_seq()`
+#'
+#' These functions are mapped in one particular place within `audit_seq()` and
+#' shouldn't really be used elsewhere. Instead of being anonymous functions,
+#' they are defined here for better performance.
+#'
+#' @param x Integer vector measuring the number of steps between inconsistent
+#'   reported values and their consistent neighbors. The notion of "steps" is
+#'   the same as in, e.g., `grim_map_seq()`.
+#'
+#' @return Numeric vector of the same length as `x`.
+#'
+#' @noRd
+min_distance_abs <- function(x) {
+  vapply(
+    x, function(x) {
+      if (any(!is.numeric(x))) {
+        return(NA_real_)
+      }
+      min(abs(x))
+    },
+    numeric(1L)
+  )
+}
+
+min_distance_pos <- function(x) {
+  vapply(
+    x, function(x) {
+      if (any(!is.numeric(x))) {
+        return(NA_real_)
+      }
+      min(x[x > 0])
+    },
+    numeric(1L)
+  )
+}
+
+min_distance_neg <- function(x) {
+  vapply(
+    x, function(x) {
+      if (any(!is.numeric(x))) {
+        return(NA_real_)
+      }
+      max(x[x < 0])
+    },
+    numeric(1L)
+  )
+}
+

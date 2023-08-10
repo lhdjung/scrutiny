@@ -334,7 +334,7 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
       # identifying the origin of individual rows, `var` is added:
       out <- out %>%
         dplyr::bind_rows() %>%
-        dplyr::mutate(var)
+        dplyr::mutate(var, n = as.integer(n))
 
       # # These are the classes added by `fun()` that have not yet been added to
       # # `out`, necessarily:
