@@ -201,6 +201,7 @@ disperse <- function(n, dispersion = 0:5, n_min = 1L, n_max = NULL,
     out <- dplyr::mutate(out, constant, .before = constant_index)
   }
 
+  out$n_change <- as.integer(out$n_change)
   out
 }
 

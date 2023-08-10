@@ -59,7 +59,7 @@ df2_rows_1_3_expected <- tibble::tibble(
     ), 2
   ),
   case = rep(rep(1:2, 2), each = 12L),
-  dir = rep(c("forth", "back"), each = 24L),
+  dir = factor(rep(c("forth", "back"), each = 24L), levels = c("forth", "back"))
 ) %>%
   structure(
     class = c(

@@ -125,7 +125,7 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 
     out_df <- out_df %>%
       mutate_both_consistent() %>%
-      dplyr::mutate(case, dir) %>%
+      dplyr::mutate(case, dir, n = as.integer(n)) %>%
       dplyr::relocate(n_change, .after = n)
 
     return(out_df)
@@ -330,10 +330,10 @@ function_map_total_n <- function(.fun, .reported, .name_test,
         cli::cli_abort(c(
           "Column `n` missing.",
           "i" = "`n` should contain the reported total sample sizes \\
-        (one per row).",
-        "i" = "The function will use `disperse_total()` to go up \\
-        and down from the integer at half an even `n`, or the \\
-        two integers just around half an odd `n`."
+          (one per row).",
+          "i" = "The function will use `disperse_total()` to go up \\
+          and down from the integer at half an even `n`, or the \\
+          two integers just around half an odd `n`."
         ))
       }
 
@@ -351,8 +351,8 @@ function_map_total_n <- function(.fun, .reported, .name_test,
         cli::cli_abort(c(
           "`n` values must be whole numbers.",
           "x" = "The `n` column includes decimal \\
-        numbers{msg_starting_with} {msg_offenders}.",
-        "i" = "They are supposed to be (total) sample sizes."
+          numbers{msg_starting_with} {msg_offenders}.",
+          "i" = "They are supposed to be (total) sample sizes."
         ))
       }
 
@@ -390,10 +390,10 @@ function_map_total_n <- function(.fun, .reported, .name_test,
         cli::cli_abort(c(
           "{msg_cols} {msg_cols_missing} {msg_is_are} missing from `data`.",
           "i" = "{msg_it_they} expected because of the `.reported` \\
-        specification in the call to `function_map_total_n()` that \\
-        created the present function.",
-        "i" = "{msg_this_these} should contain reported group statistics. \\
-        {msg_it_they} presumably essential to {name_test}."
+          specification in the call to `function_map_total_n()` that \\
+          created the present function.",
+          "i" = "{msg_this_these} should contain reported group statistics. \\
+          {msg_it_they} presumably essential to {name_test}."
         ))
       }
 
@@ -443,7 +443,7 @@ function_map_total_n <- function(.fun, .reported, .name_test,
       # original...
       out_forth <- map_total_n_proto(
         data = data_forth, reported = cols_expected_forth,
-        reported_orig = reported_orig, dir = "forth",
+        reported_orig = reported_orig, dir = factor("forth"),
         dispersion = dispersion,
         n_min = n_min, n_max = n_max,
         constant = constant,
@@ -453,7 +453,7 @@ function_map_total_n <- function(.fun, .reported, .name_test,
       # ...and second, the one with reversed index name portions:
       out_back  <- map_total_n_proto(
         data = data_back, reported = cols_expected_back,
-        reported_orig = reported_orig, dir = "back",
+        reported_orig = reported_orig, dir = factor("back"),
         dispersion = dispersion,
         n_min = n_min, n_max = n_max,
         constant = constant,
@@ -469,14 +469,14 @@ function_map_total_n <- function(.fun, .reported, .name_test,
         names_out_back  <- wrap_in_backticks(colnames(out_back))
         cli::cli_abort(c(
           "Column names returned by calls to the helper function \\
-        `scrutiny:::function_map_total_n_proto()` are not identical.",
-        "i" = "Column names in question --",
-        "*" = "`colnames(out_forth)`: {names_out_forth}",
-        "*" = "`colnames(out_back)`: {names_out_back}",
-        "x" = "This is a deep error within at least one of the \\
-        function operators `scrutiny::function_map_total_n()` \\
-        and `scrutiny:::function_map_total_n_proto()`.",
-        "i" = "Please check the source code for these."
+          `scrutiny:::function_map_total_n_proto()` are not identical.",
+          "i" = "Column names in question --",
+          "*" = "`colnames(out_forth)`: {names_out_forth}",
+          "*" = "`colnames(out_back)`: {names_out_back}",
+          "x" = "This is a deep error within at least one of the \\
+          function operators `scrutiny::function_map_total_n()` \\
+          and `scrutiny:::function_map_total_n_proto()`.",
+          "i" = "Please check the source code for these."
         ))
       }
 
@@ -519,221 +519,6 @@ function_map_total_n <- function(.fun, .reported, .name_test,
     env = rlang::caller_env()
   )
 
-
-  # fn_out <- function(data, dispersion = .dispersion,
-  #                    n_min = .n_min, n_max = .n_max,
-  #                    constant = .constant,
-  #                    constant_index = .constant_index, ...) {
-  #
-  #   fun <- .fun
-  #   reported <- .reported
-  #   name_test <- .name_test
-  #   name_class <- .name_class
-  #
-  #   data <- absorb_key_args(data, reported_reduplicated)
-  #
-  #
-  #   # Checks ---
-  #
-  #   check_factory_dots(fun, name_fun, ...)
-  #
-  #   # The usual key argument check conducted by `check_mapper_input_colnames()`
-  #   # is not applicable to `data`, so the function only checks the remaining
-  #   # point, using an internal helper:
-  #   check_consistency_not_in_colnames(data, name_test)
-  #
-  #   check_tibble(data)
-  #
-  #   # Make sure that the `n` column is present...
-  #   if (!any("n" == colnames(data))) {
-  #     cli::cli_abort(c(
-  #       "Column `n` missing.",
-  #       "i" = "`n` should contain the reported total sample sizes \\
-  #       (one per row).",
-  #       "i" = "The function will use `disperse_total()` to go up \\
-  #       and down from the integer at half an even `n`, or the \\
-  #       two integers just around half an odd `n`."
-  #     ))
-  #   }
-  #
-  #   # ...and that all of its values are whole numbers:
-  #   offenders <- data$n[!is_whole_number(data$n)]
-  #
-  #   if (length(offenders) > 0L) {
-  #     if (length(offenders) > 3L) {
-  #       offenders <- offenders[1:3]
-  #       msg_starting_with <- ", starting with"
-  #     } else {
-  #       msg_starting_with <- ":"
-  #     }
-  #     msg_offenders <- wrap_in_backticks(offenders)
-  #     cli::cli_abort(c(
-  #       "`n` values must be whole numbers.",
-  #       "x" = "The `n` column includes decimal \\
-  #       numbers{msg_starting_with} {msg_offenders}.",
-  #       "i" = "They are supposed to be (total) sample sizes."
-  #     ))
-  #   }
-  #
-  #
-  #   # Main part ---
-  #
-  #   data_forth <- data
-  #   data_back  <- data
-  #
-  #   reported_orig <- reported
-  #
-  #   # Determine the column names with `"1"` or `"2"` that should be in `data`,
-  #   # going by `reported` (specified in the call to the function factory):
-  #   cols_expected_forth <- reported_reduplicated
-  #
-  #   # Since all of these reported columns matter to a test with dispersed group
-  #   # sizes, check if any of them are missing from `data`...
-  #   cols_missing <-
-  #     cols_expected_forth[!cols_expected_forth %in% colnames(data)]
-  #
-  #   # ...and if so, throw an error:
-  #   if (length(cols_missing) > 0L) {
-  #     if (length(cols_missing) == 1L) {
-  #       msg_cols <- "Column"
-  #       msg_is_are <- "is"
-  #       msg_it_they <- "It's"
-  #       msg_this_these <- "This column"
-  #     } else {
-  #       msg_cols <- "Columns"
-  #       msg_is_are <- "are"
-  #       msg_it_they <- "They're"
-  #       msg_this_these <- "These columns"
-  #     }
-  #     msg_cols_missing <- wrap_in_backticks(cols_missing)
-  #     cli::cli_abort(c(
-  #       "{msg_cols} {msg_cols_missing} {msg_is_are} missing from `data`.",
-  #       "i" = "{msg_it_they} expected because of the `.reported` \\
-  #       specification in the call to `function_map_total_n()` that \\
-  #       created the present function.",
-  #       "i" = "{msg_this_these} should contain reported group statistics. \\
-  #       {msg_it_they} presumably essential to {name_test}."
-  #     ))
-  #   }
-  #
-  #   # Switch `"1"` and `"2"` in the relevant column names of `data`:
-  #   temp <- "_scr_names_temp_placeholder"
-  #   cols_expected_back <- cols_expected_forth %>%
-  #     stringr::str_replace("1", temp) %>%
-  #     stringr::str_replace("2", "1") %>%
-  #     stringr::str_replace(temp, "2")
-  #
-  #   # Bring the names with switched index portions back into the `data_back`
-  #   # tibble (because all of this switching is only for `data_back`):
-  #   names(data_back)[names(data_back) %in% cols_expected_back] <-
-  #     cols_expected_back
-  #
-  #   # Needed below for ordering:
-  #   cols_forth_order <- cols_expected_forth
-  #
-  #   # Complete the switching by ordering the relevant columns so that the column
-  #   # names are as in the original `data` (and hence, as in `data_forth`), but
-  #   # the columns themselves -- the values -- have switched positions. This goes
-  #   # by `cols_forth_order` because that's what will lead to column names
-  #   # identical to those in `data_forth`:
-  #   data_back <- data_back %>%
-  #     dplyr::relocate(all_of(cols_forth_order))
-  #
-  #   # Isolate the expected columns:
-  #   cols_expected_forth <- data_forth %>%
-  #     dplyr::select(all_of(cols_expected_forth))
-  #
-  #   cols_expected_back <- data_back %>%
-  #     dplyr::select(all_of(cols_expected_back)) %>%
-  #     dplyr::relocate(all_of(cols_forth_order))
-  #
-  #   # Generate the lower-level "proto" function that will apply `disperse_total`
-  #   # and `fun` (the test-specific mapping function, such as `grim_map`) to
-  #   # `data_forth` and `data_back`:
-  #   map_total_n_proto <- function_map_total_n_proto(
-  #     .fun = fun, .reported = cols_expected_forth,
-  #     .reported_orig = reported_orig, .dispersion = dispersion,
-  #     .n_min = n_min, .n_max = n_max,
-  #     .constant = constant,
-  #     ...
-  #   )
-  #
-  #   # Now, call the manufactured function on both tibbles. First the original...
-  #   out_forth <- map_total_n_proto(
-  #     data = data_forth, reported = cols_expected_forth,
-  #     reported_orig = reported_orig, dir = "forth",
-  #     dispersion = dispersion,
-  #     n_min = n_min, n_max = n_max,
-  #     constant = constant,
-  #     ...
-  #   )
-  #
-  #   # ...and second, the one with reversed index name portions:
-  #   out_back  <- map_total_n_proto(
-  #     data = data_back, reported = cols_expected_back,
-  #     reported_orig = reported_orig, dir = "back",
-  #     dispersion = dispersion,
-  #     n_min = n_min, n_max = n_max,
-  #     constant = constant,
-  #     ...
-  #   )
-  #
-  #   # In case of an internal error with these functions themselves due to
-  #   # inconsistent results between the two `function_map_total_n_proto()` calls
-  #   # right above, the user would be left completely in the dark. This error
-  #   # message, then, would at least clarify the source of the problem:
-  #   if (!all(colnames(out_forth) == colnames(out_back))) {
-  #     names_out_forth <- wrap_in_backticks(colnames(out_forth))
-  #     names_out_back  <- wrap_in_backticks(colnames(out_back))
-  #     cli::cli_abort(c(
-  #       "Column names returned by calls to the helper function \\
-  #       `scrutiny:::function_map_total_n_proto()` are not identical.",
-  #       "i" = "Column names in question --",
-  #       "*" = "`colnames(out_forth)`: {names_out_forth}",
-  #       "*" = "`colnames(out_back)`: {names_out_back}",
-  #       "x" = "This is a deep error within at least one of the \\
-  #       function operators `scrutiny::function_map_total_n()` \\
-  #       and `scrutiny:::function_map_total_n_proto()`.",
-  #       "i" = "Please check the source code for these."
-  #     ))
-  #   }
-  #
-  #   # Combine the two sets of results into one final tibble:
-  #   out_total <- dplyr::bind_rows(out_forth, out_back)
-  #   out_total <- add_class(out_total, "scr_map_total_n")
-  #
-  #   # This is a hack, but it works. Its solves the following problem:
-  #   # `constant_index` is meant to work within the `disperse_total()` tibble,
-  #   # but the final output tibble, `out_total`, looks very different from that
-  #   # tibble. If `constant_index` were to operate on the dispersion tibble, as
-  #   # in the `disperse()` functions themselves, there would be a mismatch
-  #   # between the functionality of `constant_index` and the user-facing tibble.
-  #   # Therefore, `constant_index` must play itself out here, not within
-  #   # `disperse_total()`:
-  #   if (!is.null(constant) && !is.null(constant_index)) {
-  #
-  #     check_length(constant_index, 1L)
-  #
-  #     if (is.null(names(constant))) {
-  #       constant_ref <- "constant"
-  #     } else {
-  #       constant_ref <- names(constant)
-  #     }
-  #
-  #     out_total <- dplyr::relocate(
-  #       out_total, all_of(constant_ref), .before = constant_index
-  #     )
-  #   }
-  #
-  #   # If `.name_class` (note the dot) was specified in the course of creating
-  #   # the manufactured function, its value will become a class of the output:
-  #   if (!is.null(name_class)) {
-  #     out_total <- add_class(out_total, name_class)
-  #   }
-  #
-  #   # Return the combined results:
-  #   return(out_total)
-  # }
 
   # --- End of the manufactured function, `fn_out()` ---
 

@@ -296,7 +296,11 @@ audit_total_n <- function(data) {
   data %>%
     reverse_map_total_n() %>%
     dplyr::mutate(
-      hits_total, hits_forth, hits_back, scenarios_total, hit_rate
+      hits_total, hits_forth, hits_back, scenarios_total, hit_rate,
+      dplyr::across(
+        .cols = c("n", starts_with("hits"), "scenarios_total"),
+        .fns  = as.integer
+      )
     ) %>%
     add_class("scr_audit_total_n")
 }
