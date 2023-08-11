@@ -37,7 +37,7 @@ rounding_bounds_scalar <- function(rounding, x_num, d_var, d) {
         "even"       = list(x_num - d,       x_num + d,       "<",   "<"),
         "ceiling"    = list(x_num - (2 * d), x_num,           "<",  "<="),
         "floor"      = list(x_num,           x_num + (2 * d), "<=",  "<"),
-                       list("error_trigger")
+        "error_trigger"
   )
 }
 
@@ -204,7 +204,7 @@ unround <- function(x, rounding = "up_or_down", threshold = 5, digits = NULL) {
   )
 
   # Throw error if `rounding` was not specified in a valid way:
-  if (list("error_trigger") %in% bounds) {
+  if (any("error_trigger" == bounds)) {
     cli::cli_abort(c(
       "`rounding` must be one or more of the designated \\
       string values. See documentation for `unround()`, \\
@@ -214,22 +214,23 @@ unround <- function(x, rounding = "up_or_down", threshold = 5, digits = NULL) {
   }
 
   # Split the `bounds` list up into its four component vectors:
-  lower      <-   as.numeric(bounds[1, ]) # lower bound
-  upper      <-   as.numeric(bounds[2, ]) # upper bound
-  sign_lower <- as.character(bounds[3, ]) # lower bound inclusive (`"<="`)?
-  sign_upper <- as.character(bounds[4, ]) # upper bound inclusive (`"<="`)?
+  lower      <-   as.numeric(bounds[1L, ]) # lower bound
+  upper      <-   as.numeric(bounds[2L, ]) # upper bound
+  sign_lower <- as.character(bounds[3L, ]) # lower bound inclusive (`"<="`)?
+  sign_upper <- as.character(bounds[4L, ]) # upper bound inclusive (`"<="`)?
 
-  # Translate the inequation signs into Boolean values for the resulting tibble:
-  incl_lower <- dplyr::if_else(sign_lower == "<=", TRUE, FALSE)
-  incl_upper <- dplyr::if_else(sign_upper == "<=", TRUE, FALSE)
-
-  # Prepare a string that displays the range with its appropriate signs:
-  range <- as.character(glue::glue(
-    "{lower} {sign_lower} x({x}) {sign_upper} {upper}"
-  ))
-
-  # Finally, return the resulting tibble:
-  tibble::tibble(range, rounding, lower, incl_lower, x, incl_upper, upper)
+  tibble::tibble(
+    # Display the range with its appropriate signs:
+    range = paste0(
+      lower, " ", sign_lower, " x(", x, ") ", sign_upper, " ", upper
+    ),
+    rounding,
+    lower,
+    incl_lower = sign_lower == "<=",
+    x,
+    incl_upper = sign_upper == "<=",
+    upper
+  )
 }
 
 

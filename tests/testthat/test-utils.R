@@ -155,20 +155,6 @@ test_that("`add_class()` really does add one or more classes", {
 
 
 
-
-
-test_that("`check_rounding_singular()` throws an error iff it should", {
-  c("up_or_down", "floor")    %>% check_rounding_singular() %>% expect_error()
-  c("ceiling_or_floor", "up") %>% check_rounding_singular() %>% expect_error()
-  "up_or_down"                %>% check_rounding_singular() %>% expect_silent()
-  "up"                        %>% check_rounding_singular() %>% expect_silent()
-  "down"                      %>% check_rounding_singular() %>% expect_silent()
-})
-
-
-
-
-
 # Vectors with lengths 5, 3, 2, and 3 (they are all > 1):
 numbers  <- 1:5
 nephews  <- c("Huey", "Dewey", "Louie")

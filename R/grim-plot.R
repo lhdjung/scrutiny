@@ -140,30 +140,31 @@ grim_plot <- function(data = NULL,
     # Issue an alert if any GRIMMER inconsistencies were found in `data`:
     if (inherits_grimmer) {
       reason <- data$reason[!is.na(data$reason)]
-      grimmer_cases <- stringr::str_detect(reason, "GRIMMER")
-      grimmer_cases <- length(grimmer_cases[grimmer_cases])
-      if (grimmer_cases > 0L) {
-        if (grimmer_cases == 1L) {
+      n_grimmer_cases <- stringr::str_detect(reason, "GRIMMER")
+      n_grimmer_cases <- length(which(n_grimmer_cases))
+      if (n_grimmer_cases > 0L) {
+        if (n_grimmer_cases == 1L) {
           msg_case_s <- "case was"
           msg_incons <- "inconsistency"
         } else {
           msg_case_s <- "cases were"
           msg_incons <- "inconsistencies"
         }
-        if (grimmer_cases < length(reason)) {
+        if (n_grimmer_cases < length(reason)) {
           msg_viz <- "Also visualizing"
         } else {
           msg_viz <- "Visualizing"
         }
-        cli::cli_alert("{msg_viz} {grimmer_cases} GRIMMER {msg_incons}.")
+        cli::cli_alert("{msg_viz} {n_grimmer_cases} GRIMMER {msg_incons}.")
       }
     } else if (show_data) {
       cli::cli_abort(c(
         "!" = "`grim_plot()` needs GRIM or GRIMMER test results.",
-        "x" = "`data` is not `grim_map()` or `grimmer_map()` output.",
+        "x" = "`data` is not the output of `grim_map()`, `grim_map_seq()`, \\
+        or `grim_map_total_n()`; or of the respective `grimmer_*()` functions.",
         "i" = "The only exception is an \"empty\" plot that shows the \\
         background raster but no empirical test results. Create such a plot \\
-        by setting `show_data` to `FALSE`."
+        with `show_data = FALSE`."
       ))
     }
   }
@@ -171,17 +172,17 @@ grim_plot <- function(data = NULL,
   # Warn the user who passed suitable data to `grim_plot()` but also set
   # `show_data` to `FALSE`, thereby defeating the data's purpose here:
   if (!show_data && any(inherits_grim, inherits_grimmer)) {
-    if (inherits_grimmer) {
-      msg_grimmer <- " and GRIMMER"
+    msg_grimmer <- if (inherits_grimmer) {
+      " and GRIMMER"
     } else {
-      msg_grimmer <- ""
+      ""
     }
     cli::cli_warn(c(
       "Test results are not visualized.",
       "!" = "You set `show_data` to `FALSE`, but still passed \\
       GRIM{msg_grimmer} test results to `grim_plot()`.",
-      ">" = "Only the background raster or gradient will be shown, not the \\
-        tested data."
+      "!" = "Only the background raster or gradient will be shown, not the \\
+      tested data."
     ))
   }
 
@@ -286,10 +287,9 @@ grim_plot <- function(data = NULL,
 
       # Throw error if the specified rounding option is one of the few for which
       # no raster is available:
-      rounding_is_bad <- any(
+      if (any(
         rounding_id == c("up_from", "down_from", "up_from_or_down_from")
-      )
-      if (rounding_is_bad) {
+      )) {
         cli::cli_abort(c(
           "No background raster available for `rounding = {rounding_id}`",
           "i" = "Use a different `rounding` specification within the \\
@@ -344,11 +344,11 @@ grim_plot <- function(data = NULL,
   # If `percent = TRUE` in the underlying `grim_map()` call, the y-axis label is
   # automatically adjusted to reflect the fact that the fractional values are
   # percentages (converted to decimal numbers), not means:
-  mean_percent_label <- dplyr::if_else(
-    inherits(data, "scr_percent_true"),
-    "% (as decimal)",
+  mean_percent_label <- if (inherits(data, "scr_percent_true")) {
+    "% (as decimal)"
+  } else {
     "mean"
-  )
+  }
 
   # Automatically color the boxes of value pairs by whether they are
   # GRIM-consistent or not:
@@ -498,7 +498,7 @@ grim_plot <- function(data = NULL,
     p +
       ggplot2::labs(
         x = "Sample size",
-        y = glue::glue("Fractional portion of {mean_percent_label}")
+        y = paste("Fractional portion of", mean_percent_label)
       )
   ))
 
