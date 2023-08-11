@@ -1,5 +1,7 @@
 # scrutiny (development version)
 
+-   `grim_total()`, `grim_ratio()`, and `grim_ratio_upper()` now require `x` to have length 1.
+
 # scrutiny 0.3.0
 
 ## Duplicate analysis overhaul

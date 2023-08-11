@@ -15,10 +15,10 @@
 #'
 #'   For discussion, see `vignette("grim")`, section *GRIM statistics*.
 
-#' @param x String or numeric. Mean or percentage value computed from data with
-#'   integer units (e.g., mean scores on a Likert scale or percentage of study
-#'   participants in some condition). *Note*: Numeric inputs don't include
-#'   trailing zeros, although these are important for both functions. See
+#' @param x String or numeric (length 1). Mean or percentage value computed from
+#'   data with integer units (e.g., mean scores on a Likert scale or percentage
+#'   of study participants in some condition). *Note*: Numeric inputs don't
+#'   include trailing zeros, but these are important for GRIM functions. See
 #'   documentation for `grim()`.
 #' @param n Integer. Sample size corresponding to `x`.
 #' @param items Integer. Number of items composing the mean or percentage value
@@ -63,7 +63,7 @@
 #' @export
 
 grim_total <- function(x, n, items = 1, percent = FALSE) {
-  digits <- decimal_places(x)
+  digits <- decimal_places_scalar(x)
   if (percent) digits <- digits + 2L
   p10 <- 10 ^ digits
   as.integer(p10 - (n * items))
@@ -77,7 +77,7 @@ grim_total <- function(x, n, items = 1, percent = FALSE) {
 #' @export
 
 grim_ratio <- function(x, n, items = 1, percent = FALSE) {
-  digits <- decimal_places(x)
+  digits <- decimal_places_scalar(x)
   if (percent) digits <- digits + 2L
   p10 <- 10 ^ digits
   (p10 - (n * items)) / p10

@@ -656,9 +656,9 @@ manage_string_output_seq <- function(out, from, string_output, digits) {
       "x" = "It is {string_output}."
     ))
   } else if (string_output) {
-    out <- restore_zeros(out, width = digits)
+    return(restore_zeros(out, width = digits))
   } else if (typeof(from) != "character") {
-    out <- methods::as(out, typeof(from))
+    return(methods::as(out, typeof(from)))
   }
   out
 }

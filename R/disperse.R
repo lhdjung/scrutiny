@@ -110,8 +110,7 @@ disperse <- function(n, dispersion = 0:5, n_min = 1L, n_max = NULL,
 
   # Checks ---
 
-  msg_single <- "It must have length 1."
-  check_length_disperse_n(n, msg_single)
+  check_length_disperse_n(n, "It must have length 1.")
   check_non_negative(dispersion)
 
 
@@ -143,8 +142,6 @@ disperse <- function(n, dispersion = 0:5, n_min = 1L, n_max = NULL,
   n_minus <- n - dispersion
   n_plus  <- n + dispersion
 
-  n_orig <- n
-
   minus_plus_df <- tibble::tibble(n_minus, n_plus)
 
   out <- minus_plus_df %>%
@@ -154,7 +151,7 @@ disperse <- function(n, dispersion = 0:5, n_min = 1L, n_max = NULL,
       values_to = "n"
     )
 
-  n_change_num <- out$n - n_orig
+  n_change_num <- out$n - n
   out$n_change <- n_change_num
 
   if (!is_whole_number(n)) {
@@ -265,9 +262,10 @@ disperse_total <- function(n, dispersion = 0:5, n_min = 1L, n_max = NULL,
 
   # Checks ---
 
-  msg_single <- "It must have length 1; `n` is supposed \\
+  check_length_disperse_n(
+    n, "It must have length 1; `n` is supposed \\
     to be a *single*, total sample size."
-  check_length_disperse_n(n, msg_single)
+  )
 
 
   # Main part ---
@@ -286,16 +284,12 @@ disperse_total <- function(n, dispersion = 0:5, n_min = 1L, n_max = NULL,
   } else {
 
     # Determine the two whole numbers closest to half of the odd `n`:
-    n1 <- n_half - 0.5
-    n2 <- n1 + 1
-    n_both <- c(n1, n2)
-
     disperse2(
-      n = n_both, dispersion = dispersion, n_min = n_min, n_max = n_max,
-      constant = constant, constant_index = constant_index
+      n = c(n_half - 0.5, n_half + 0.5), dispersion = dispersion,
+      n_min = n_min, n_max = n_max, constant = constant,
+      constant_index = constant_index
     )
 
   }
 }
-
 

@@ -22,17 +22,6 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
   check_type(items, c("double", "integer"))
   check_type(percent, "logical")
 
-  # Provide some guidance in case users confuse `grim()` with `grim_map()`:
-  if (is.data.frame(x)) {
-    cli::cli_abort(c(
-      "`x` can't be a data frame.",
-      "x" = "For `grim()`, please provide a single set of values, \\
-      not a data frame.",
-      "i" = "If you want to GRIM-test multiple value sets \\
-      in a data frame, call `grim_map()` instead."
-    ))
-  }
-
   # As trailing zeros matter for the GRIM test, `x` must be a string:
   if (!is.character(x)) {
     cli::cli_abort(c(
@@ -58,11 +47,8 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
 
   # Now, reconstruct the possible mean or percentage values (or "grains"),
   # controlling for small differences introduced by spurious precision:
-  rec_x_upper <- ceiling(rec_sum) / n_items
-  rec_x_lower <- floor(rec_sum) / n_items
-
-  rec_x_upper <- dustify(rec_x_upper)
-  rec_x_lower <- dustify(rec_x_lower)
+  rec_x_upper <- dustify(ceiling(rec_sum) / n_items)
+  rec_x_lower <- dustify(floor(rec_sum) / n_items)
 
   # Round these "grains" using an internal helper function that also gets the
   # number of decimal places as well as the `rounding`, `threshold`, and
@@ -80,13 +66,13 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
   # `tolerance` argument -- tolerance of comparison between the reported and
   # reconstructed values -- that comes into play here is the same as in
   # `dplyr::near()` itself, i.e., circa 0.000000015:
-  grain_is_x <- dplyr::near(grains_rounded, x_num, tol = tolerance)
+  grain_is_x <- any(dplyr::near(grains_rounded, x_num, tol = tolerance))
 
   if (!show_rec) {
     # Check if any of these two comparisons returned `TRUE`:
-    return(any(grain_is_x))
+    return(grain_is_x)
   } else {
-    consistency <- any(grain_is_x)
+    consistency <- grain_is_x
     length_2ers <- c("up_or_down", "up_from_or_down_from", "ceiling_or_floor")
 
     if (any(length_2ers == rounding)) {

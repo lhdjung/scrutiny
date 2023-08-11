@@ -27,7 +27,7 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
     # Extract the vector from the `data` column specified as `var`:
     data_var <- data[var][[1]]
 
-    list_var_and_var_change <- purrr::map(
+    list_var_and_var_change <- lapply(
       data_var,
       seq_disperse_df,
       .dispersion = dispersion,
@@ -40,11 +40,11 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
     )
 
     # TO DO: INSERT `list_var_change` INTO THE OUTPUT
-    list_var <- purrr::map(list_var_and_var_change, `[`, 1)
+    list_var <- lapply(list_var_and_var_change, `[`, 1)
     # list_var_change <- purrr::map(list_var_and_var_change, `[`, 2)
 
     # nrow_list_var <- purrr::map_int(list_var, nrow)
-    nrow_list_var <- vapply(list_var, nrow, 1L)
+    nrow_list_var <- vapply(list_var, nrow, integer(1L))
 
     ncol_index_var <- match(var, colnames(data))
     ncol_before_consistency <- match("consistency", colnames(data)) - 1L
@@ -73,14 +73,14 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
         .before = all_of(ncol_index_var)
       ) %>%
       split_into_rows() %>%
-      purrr::map(
+      lapply(
         tibble::as_tibble,
         .name_repair = function(x) colnames(cols_for_testing)
       )
 
     # Apply the testing function, `fun`, to all data frames in the list:
     data_list_tested <- data_list_for_testing %>%
-      purrr::map(fun, ...)
+      lapply(fun, ...)
 
     # TODO: After some time, replace the superseded `purrr::flatten_int()` by
     # `purrr::list_c()`. -- Mark the original case (i.e., row in `data`, the

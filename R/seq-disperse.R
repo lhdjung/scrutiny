@@ -122,7 +122,7 @@ seq_disperse <- function(from, by = NULL, dispersion = 1:5, offset_from = 0L,
   disp_minus <- dispersion
   disp_plus  <- dispersion
 
-  from_orig <- from
+  from_orig_type <- typeof(from)
   from <- as.numeric(from)
 
   # Filter the `dispersion` vector from values that fall outside of the range
@@ -156,18 +156,15 @@ seq_disperse <- function(from, by = NULL, dispersion = 1:5, offset_from = 0L,
     from <- from + (by * offset_from)
   }
 
-  from_minus <- from - disp_minus
-  from_plus  <- from + disp_plus
-
   if (include_reported) {
-    out <- append(rev(from_minus), c(from, from_plus))
+    out <- append(rev(from - disp_minus), c(from, from + disp_plus))
   } else {
-    out <- append(rev(from_minus), from_plus)
+    out <- append(rev(from - disp_minus), from + disp_plus)
   }
 
   # Somewhat hackish way of conveying to `manage_string_output_seq()` whether or
   # not `from` was specified as a string:
-  from <- methods::as(from, typeof(from_orig))
+  from <- methods::as(from, from_orig_type)
 
   # Following user preferences, do or don't convert the output to string,
   # restoring trailing zeros to the same number of decimal places that also
