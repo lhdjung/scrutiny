@@ -146,7 +146,7 @@ reround <- function(x, digits = 0L, rounding = "up_or_down",
   # `"up_from_or_down_from"` -- which require `threshold` to be set to some
   # number -- but `threshold` was not, in fact, set to any number:
   if (
-    any(rounding == c("up_from", "down_from", "up_from_or_down_from")) &&
+    any(rounding %in% c("up_from", "down_from", "up_from_or_down_from")) &&
     missing(threshold)
   ) {
     cli::cli_abort(c(
