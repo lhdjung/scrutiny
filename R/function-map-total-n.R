@@ -443,7 +443,7 @@ function_map_total_n <- function(.fun, .reported, .name_test,
       # original...
       out_forth <- map_total_n_proto(
         data = data_forth, reported = cols_expected_forth,
-        reported_orig = reported_orig, dir = factor("forth"),
+        reported_orig = reported_orig, dir = factor("forth", levels = "forth"),
         dispersion = dispersion,
         n_min = n_min, n_max = n_max,
         constant = constant,
@@ -453,7 +453,7 @@ function_map_total_n <- function(.fun, .reported, .name_test,
       # ...and second, the one with reversed index name portions:
       out_back  <- map_total_n_proto(
         data = data_back, reported = cols_expected_back,
-        reported_orig = reported_orig, dir = factor("back"),
+        reported_orig = reported_orig, dir = factor("back", levels = "back"),
         dispersion = dispersion,
         n_min = n_min, n_max = n_max,
         constant = constant,
