@@ -24,83 +24,70 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
            out_min = .out_min, out_max = .out_max,
            include_reported = .include_reported, ...) {
 
-    # Extract the vector from the `data` column specified as `var`:
-    data_var <- data[var][[1]]
-
-    list_var_and_var_change <- lapply(
-      data_var,
-      seq_disperse_df,
-      .dispersion = dispersion,
-      .offset_from = 0,
-      .out_min = out_min,
-      .out_max = out_max,
-      .string_output = "auto",
-      .include_reported = include_reported,
-      ...
-    )
-
-    # TO DO: INSERT `list_var_change` INTO THE OUTPUT
-    list_var <- lapply(list_var_and_var_change, `[`, 1)
-    # list_var_change <- purrr::map(list_var_and_var_change, `[`, 2)
-
-    # nrow_list_var <- purrr::map_int(list_var, nrow)
-    nrow_list_var <- vapply(list_var, nrow, integer(1L))
-
-    ncol_index_var <- match(var, colnames(data))
-    ncol_before_consistency <- match("consistency", colnames(data)) - 1L
-
-    cols_for_testing <- data[, 1:ncol_before_consistency]
-    cols_for_testing_names_without_var <-
-      colnames(cols_for_testing)[colnames(cols_for_testing) != var]
-
-    # Short for "columns except (for the) last (one)":
-    cols_el <- seq_along(cols_for_testing_names_without_var)
-
-    data_list_without_var <- dplyr::mutate(
-      data[cols_for_testing_names_without_var],
-      nrow_list_var,
-      dplyr::across(
-        .cols = {{ cols_el }},
-        .fns = function(x) purrr::map2(x, nrow_list_var, rep)
-      ),
-      nrow_list_var = NULL
-    )
-
-    # Prepare the data frames for testing:
-    data_list_for_testing <- data_list_without_var %>%
-      dplyr::mutate(
-        {{ var }} := purrr::map(list_var, dplyr::pull),
-        .before = all_of(ncol_index_var)
-      ) %>%
-      split_into_rows() %>%
+    # Extract the vector from the `data` column specified as `var`, then apply
+    # the data-frame-level dispersion function to get a list of data frames with
+    # dispersed `var` sequences; one per inconsistent value set:
+    df_var <- data[var][[1L]] %>%
       lapply(
-        tibble::as_tibble,
-        .name_repair = function(x) colnames(cols_for_testing)
+        seq_disperse_df,
+        .dispersion = dispersion,
+        .offset_from = 0,
+        .out_min = out_min,
+        .out_max = out_max,
+        .string_output = "auto",
+        .include_reported = include_reported,
+        .track_var_change = TRUE,
+        ...
       )
 
-    # Apply the testing function, `fun`, to all data frames in the list:
-    data_list_tested <- data_list_for_testing %>%
-      lapply(fun, ...)
+    nrow_list_var <- vapply(df_var, nrow, integer(1L))
+    nrow_data_seq <- seq_along(nrow_list_var)
 
-    # TODO: After some time, replace the superseded `purrr::flatten_int()` by
-    # `purrr::list_c()`. -- Mark the original case (i.e., row in `data`, the
-    # input data frame).
-    case <- data_list_tested %>%
-      vapply(nrow, 1L) %>%
-      purrr::map2(seq_along(data_list_tested), ., rep) %>%
-      purrr::flatten_int()
+    # Combine the list elements to one single data frame with `var`,
+    # `var_change`, and `case`:
+    df_var <- dplyr::bind_rows(df_var)
 
-    # Combine all output data frames to one. As each of them represents one row
-    # of the input data frame -- one "case" -- distinguish them by `case`:
-    data_list_tested %>%
-      dplyr::bind_rows() %>%
-      dplyr::mutate(case)
+    cols_for_testing_names <-
+      colnames(data)[1L:match("consistency", colnames(data)) - 1L]
+
+    cols_for_testing_names_without_var <-
+      cols_for_testing_names[cols_for_testing_names != var]
+
+    cols_except_last <- seq_along(cols_for_testing_names_without_var)
+
+    # Repeat the vector(s) non-tested key argument names so that they are just
+    # as long as the dispersed `var` sequences -- and hence fit together as rows
+    # of the same data frame. This returns list-columns, which are immediately
+    # unnested. Next, the dispersed `var` sequences are added at the appropriate
+    # position, so that the key columns are in the same order as in `data`.
+    # These key columns with partially dispersed values are then tested for
+    # consistency using `fun()`. Finally, the last columns are added:
+    # `var_change`, which captures the distance between the reported and the
+    # original values in `var`; and `case`, which records the row number of the
+    # reported `var` value in `data`.
+    data[cols_for_testing_names_without_var] %>%
+      dplyr::mutate(dplyr::across(
+        .cols = {{ cols_except_last }},
+        .fns = function(x) purrr::map2(x, nrow_list_var, rep)
+      )) %>%
+      tidyr::unnest_longer(col = everything()) %>%
+      dplyr::mutate(
+        {{ var }} := df_var[[1L]],
+        .before = all_of(match(var, colnames(data)))
+      ) %>%
+      fun(...) %>%
+      dplyr::mutate(
+        var_change = df_var$var_change,
+        case = unlist(
+          purrr::map2(nrow_data_seq, nrow_list_var, rep), use.names = FALSE
+        )
+      )
+
   }
 
   # --- End of the manufactured helper (!) function ---
 
 }
-
 
 
 
@@ -316,7 +303,7 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
       nrow_out <- vapply(out, nrow, 1L)
       var <- var %>%
         purrr::map2(nrow_out, rep) %>%
-        purrr::flatten_chr()
+        unlist(use.names = FALSE)
 
       # if ("rounding" %in% names(formals(fun))) {
       #   rounding <- formals(fun)$rounding
