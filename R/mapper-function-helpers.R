@@ -359,9 +359,11 @@ unnest_consistency_cols <- function(results, col_names, index = FALSE,
   if (index) {
     consistency_list <- results[col][[1]] %>%
       purrr::map_depth(.depth = 2L, .f =  `[`, 1) %>%
-      purrr::map(unlist)
+      purrr::map(function(x) unlist(x, use.names = FALSE))
   } else {
-    consistency_list <- purrr::map(results[col][[1]], unlist)
+    consistency_list <- purrr::map(
+      results[col][[1]], function(x) unlist(x, use.names = FALSE)
+    )
   }
 
   consistency_df <- consistency_list %>%

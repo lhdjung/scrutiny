@@ -234,7 +234,7 @@ grim_map <- function(data, items = 1, merge_items = TRUE, percent = FALSE,
 
       rounding_split <- rounding %>%
         stringr::str_split("_or_") %>%
-        unlist()
+        unlist(use.names = FALSE)
 
       # These names are for the long version only; the short version has
       # different names 5 and 6, and it has no names 7 and 8 at all:

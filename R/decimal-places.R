@@ -74,7 +74,8 @@ decimal_places <- function(x, sep = "\\.") {
   )
 
   as.integer(unlist(
-    purrr::map_if(out, function(x) length(x) > 1L, `[`, 2L)
+    purrr::map_if(out, function(x) length(x) > 1L, `[`, 2L),
+    use.names = FALSE
   ))
 }
 

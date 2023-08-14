@@ -81,7 +81,7 @@ proto_split_parens <- function(string, sep = "parens") {
   }
 
   out <- stringr::str_split(string, sep_open)
-  out <- unlist(out)
+  out <- unlist(out, use.names = FALSE)
   out <- sub(paste0(sep_close, ".*"), "", out)
 
   divisor <- length(out) / length(string)

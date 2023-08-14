@@ -227,7 +227,7 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
       }
 
       if (is.list(out$consistency)) {
-        out$consistency <- unlist(out$consistency)
+        out$consistency <- unlist(out$consistency, use.names = FALSE)
       }
 
       out
