@@ -33,9 +33,11 @@
 #'   itself be part of the sequence built around it? Default is `TRUE` for the
 #'   sake of continuity, but this can be misleading if the focus is on the
 #'   dispersed values, as opposed to the input.
-#' @param track_var_change,.track_var_change Boolean. In `seq_disperse()`,
-#'   ignore this argument. In `seq_disperse_df()`, default is `TRUE`, which
-#'   creates the `"var_change"` output column.
+#' @param track_diff_var,.track_diff_var Boolean. In `seq_disperse()`, ignore
+#'   this argument. In `seq_disperse_df()`, default is `TRUE`, which creates the
+#'   `"diff_var"` output column.
+#' @param track_var_change,.track_var_change `r lifecycle::badge("deprecated")`
+#'   Renamed to `track_diff_var` / `.track_diff_var`.
 #' @param ... Further columns, added as in `tibble::tibble()`. Only in
 #'   `seq_disperse_df()`.
 #'
@@ -93,7 +95,8 @@
 seq_disperse <- function(from, by = NULL, dispersion = 1:5, offset_from = 0L,
                          out_min = "auto", out_max = NULL,
                          string_output = TRUE, include_reported = TRUE,
-                         track_var_change = FALSE) {
+                         track_diff_var = FALSE,
+                         track_var_change = deprecated()) {
 
   # Checks ---
 
@@ -101,6 +104,17 @@ seq_disperse <- function(from, by = NULL, dispersion = 1:5, offset_from = 0L,
   # map the function). Also, the steps away from the number can't be negative:
   check_length(from, 1L)
   check_non_negative(dispersion)
+
+  if (!missing(track_var_change)) {
+    lifecycle::deprecate_warn(
+      when = "0.3.1",
+      what = "seq_disperse(track_var_change)",
+      details = "It was renamed to `track_diff_var`. \\
+      If `track_var_change` is still specified, track_diff_var \\
+      takes on its value."
+    )
+    track_diff_var <- track_var_change
+  }
 
 
   # Main part ---
@@ -117,10 +131,10 @@ seq_disperse <- function(from, by = NULL, dispersion = 1:5, offset_from = 0L,
     digits <- decimal_places_scalar(by)
   }
 
-  dispersion <- dispersion * by
+  # dispersion <- dispersion * by
 
-  disp_minus <- dispersion
-  disp_plus  <- dispersion
+  disp_minus <- dispersion * by
+  disp_plus  <- disp_minus
 
   from_orig_type <- typeof(from)
   from <- as.numeric(from)
@@ -151,7 +165,6 @@ seq_disperse <- function(from, by = NULL, dispersion = 1:5, offset_from = 0L,
     disp_plus <- disp_plus[(from + disp_plus) <= out_max]
   }
 
-
   if (offset_from != 0L) {
     from <- from + (by * offset_from)
   }
@@ -162,23 +175,32 @@ seq_disperse <- function(from, by = NULL, dispersion = 1:5, offset_from = 0L,
     out <- append(rev(from - disp_minus), from + disp_plus)
   }
 
-  # Somewhat hackish way of conveying to `manage_string_output_seq()` whether or
-  # not `from` was specified as a string:
-  from <- methods::as(from, from_orig_type)
+  # # Somewhat hackish way of conveying to `manage_string_output_seq()` whether or
+  # # not `from` was specified as a string:
+  # from <- methods::as(from, from_orig_type)
 
-  # Following user preferences, do or don't convert the output to string,
-  # restoring trailing zeros to the same number of decimal places that also
-  # determined the unit of increments at the start of the function:
+  # Following user preferences, do or don't convert the output to string.
+  # However, the default (`string_output == "auto"`) is to decide this by the
+  # original type of `from`. Also, restore trailing zeros to the same number of
+  # decimal places that also determined the unit of increments at the start of
+  # the function:
   out <- manage_string_output_seq(
-    out = out, from = from, string_output = string_output, digits = digits
+    out = out, from = methods::as(from, from_orig_type),
+    string_output = string_output, digits = digits
   )
 
-  if (track_var_change) {
-    var_change <- as.numeric(out) - as.numeric(from)
-    out <- list(out, var_change)
+  if (!track_diff_var) {
+    return(out)
   }
 
-  out
+  # The complete vector of dispersion steps -- negative as well as positive --
+  # includes the midpoint at zero if and only if chosen by the user:
+  if (include_reported) {
+    list(out, c(-rev(dispersion), 0L, dispersion))
+  } else {
+    list(out, c(-rev(dispersion), dispersion))
+  }
+
 }
 
 
@@ -190,28 +212,41 @@ seq_disperse_df <- function(.from, .by = NULL, ...,
                             .dispersion = 1:5, .offset_from = 0L,
                             .out_min = "auto", .out_max = NULL,
                             .string_output = TRUE, .include_reported = TRUE,
+                            .track_diff_var = FALSE,
                             .track_var_change = FALSE) {
 
   further_cols <- rlang::enexprs(...)
 
+  if (!missing(.track_var_change)) {
+    lifecycle::deprecate_warn(
+      when = "0.3.1",
+      what = "seq_disperse_df(.track_var_change)",
+      details = "It was renamed to `.track_diff_var`. \\
+      If `.track_var_change` is still specified, .track_diff_var \\
+      takes on its value."
+    )
+    .track_diff_var <- .track_var_change
+  }
+
   out_basic_fun <- seq_disperse(
-    from = .from, by = .by, dispersion = .dispersion, offset_from = .offset_from,
-    out_min = .out_min, out_max = .out_max, string_output = .string_output,
-    include_reported = .include_reported, track_var_change = .track_var_change
+    from = .from, by = .by, dispersion = .dispersion,
+    offset_from = .offset_from, out_min = .out_min, out_max = .out_max,
+    string_output = .string_output, include_reported = .include_reported,
+    track_diff_var = .track_diff_var
   )
 
-  if (.track_var_change) {
+  if (.track_diff_var) {
     x <- out_basic_fun[[1]]
-    var_change <- out_basic_fun[[2]]
+    diff_var <- out_basic_fun[[2]]
   } else {
     x <- out_basic_fun
-    var_change <- NULL
+    diff_var <- NULL
   }
 
   if (length(further_cols) > 0L) {
-    tibble::tibble(x, var_change, !!!further_cols)
+    tibble::tibble(x, diff_var, !!!further_cols)
   } else {
-    tibble::tibble(x, var_change)
+    tibble::tibble(x, diff_var)
   }
 }
 

@@ -36,7 +36,7 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
         .out_max = out_max,
         .string_output = "auto",
         .include_reported = include_reported,
-        .track_var_change = TRUE,
+        .track_diff_var = TRUE,
         ...
       )
 
@@ -44,7 +44,7 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
     nrow_data_seq <- seq_along(nrow_list_var)
 
     # Combine the list elements to one single data frame with `var`,
-    # `var_change`, and `case`:
+    # `diff_var`, and `case`:
     df_var <- dplyr::bind_rows(df_var)
 
     cols_for_testing_names <-
@@ -62,7 +62,7 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
     # position, so that the key columns are in the same order as in `data`.
     # These key columns with partially dispersed values are then tested for
     # consistency using `fun()`. Finally, the last columns are added:
-    # `var_change`, which captures the distance between the reported and the
+    # `diff_var`, which captures the distance between the reported and the
     # original values in `var`; and `case`, which records the row number of the
     # reported `var` value in `data`.
     data[cols_for_testing_names_without_var] %>%
@@ -77,7 +77,7 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
       ) %>%
       fun(...) %>%
       dplyr::mutate(
-        var_change = df_var$var_change,
+        diff_var = df_var$diff_var,
         case = unlist(
           purrr::map2(nrow_data_seq, nrow_list_var, rep), use.names = FALSE
         )

@@ -14,7 +14,8 @@ seq_disperse(
   out_max = NULL,
   string_output = TRUE,
   include_reported = TRUE,
-  track_var_change = FALSE
+  track_diff_var = FALSE,
+  track_var_change = deprecated()
 )
 
 seq_disperse_df(
@@ -27,6 +28,7 @@ seq_disperse_df(
   .out_max = NULL,
   .string_output = TRUE,
   .include_reported = TRUE,
+  .track_diff_var = FALSE,
   .track_var_change = FALSE
 )
 }
@@ -61,9 +63,12 @@ itself be part of the sequence built around it? Default is \code{TRUE} for the
 sake of continuity, but this can be misleading if the focus is on the
 dispersed values, as opposed to the input.}
 
-\item{track_var_change, .track_var_change}{Boolean. In \code{seq_disperse()},
-ignore this argument. In \code{seq_disperse_df()}, default is \code{TRUE}, which
-creates the \code{"var_change"} output column.}
+\item{track_diff_var, .track_diff_var}{Boolean. In \code{seq_disperse()}, ignore
+this argument. In \code{seq_disperse_df()}, default is \code{TRUE}, which creates the
+\code{"diff_var"} output column.}
+
+\item{track_var_change, .track_var_change}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+Renamed to \code{track_diff_var} / \code{.track_diff_var}.}
 
 \item{...}{Further columns, added as in \code{tibble::tibble()}. Only in
 \code{seq_disperse_df()}.}

@@ -1,5 +1,8 @@
 # scrutiny (development version)
 
+-   In `seq_disperse()` and `seq_disperse()`, the `track_var_change` / `.track_var_change` argument was renamed to `track_diff_var` / `.track_diff_var`. The arguments with the old names are still present for now but will be removed in a future version.
+-   The output of `grim_map_seq()`, `grimmer_map_seq()`, `debit_map_seq()` and any other function made by `function_map_seq()` now has a `diff_var` column that tracks the difference between the dispersed variable (see the `var` column) and the reported value. Following the `diff_*` columns in the output of `audit_seq()`, this is the number of dispersion steps, not the actual numeric difference.
+-   The same `diff_*` columns are now integer, not double.
 -   `grim_total()`, `grim_ratio()`, and `grim_ratio_upper()` now require `x` to have length 1.
 
 # scrutiny 0.3.0
