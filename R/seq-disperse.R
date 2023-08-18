@@ -90,8 +90,6 @@
 #' # columns added as in `tibble::tibble()`:
 #' seq_disperse_df(.from = 4.02, n = 45)
 
-
-
 seq_disperse <- function(from, by = NULL, dispersion = 1:5, offset_from = 0L,
                          out_min = "auto", out_max = NULL,
                          string_output = TRUE, include_reported = TRUE,
@@ -130,8 +128,6 @@ seq_disperse <- function(from, by = NULL, dispersion = 1:5, offset_from = 0L,
     check_type(by, c("integer", "double"))
     digits <- decimal_places_scalar(by)
   }
-
-  # dispersion <- dispersion * by
 
   disp_minus <- dispersion * by
   disp_plus  <- disp_minus
@@ -175,10 +171,6 @@ seq_disperse <- function(from, by = NULL, dispersion = 1:5, offset_from = 0L,
     out <- append(rev(from - disp_minus), from + disp_plus)
   }
 
-  # # Somewhat hackish way of conveying to `manage_string_output_seq()` whether or
-  # # not `from` was specified as a string:
-  # from <- methods::as(from, from_orig_type)
-
   # Following user preferences, do or don't convert the output to string.
   # However, the default (`string_output == "auto"`) is to decide this by the
   # original type of `from`. Also, restore trailing zeros to the same number of
@@ -193,13 +185,24 @@ seq_disperse <- function(from, by = NULL, dispersion = 1:5, offset_from = 0L,
     return(out)
   }
 
-  # The complete vector of dispersion steps -- negative as well as positive --
-  # includes the midpoint at zero if and only if chosen by the user:
-  if (include_reported) {
-    list(out, c(-rev(dispersion), 0L, dispersion))
+  # The complete vector of dispersion steps -- negative and positive -- includes
+  # the midpoint at zero to represent `.from` if and only if chosen by the user:
+  disp_zero <- if (include_reported) {
+    0L
   } else {
-    list(out, c(-rev(dispersion), dispersion))
+    NULL
   }
+
+  list(
+    # Sequence dispersed around `.from`:
+    out,
+    # Sequence of dispersion steps:
+    c(
+      -rev(seq_along(disp_minus)),
+      disp_zero,
+      seq_along(disp_plus)
+    )
+  )
 
 }
 
