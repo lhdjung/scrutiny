@@ -11,6 +11,9 @@
 # function that would perform dispersion while still producing linear output. I
 # wrote `seq_disperse()` and `seq_disperse_df()`, and I applied the latter
 # within the internal helper function factory below, `function_map_seq_proto()`.
+# Later on, I wrote `seq_disperse_df_internal()` as a lightweight internal
+# helper to replace `seq_disperse_df()` within `function_map_seq_proto()` in
+# order to improve performance.
 
 
 function_map_seq_proto <- function(.fun = fun, .var = var,
@@ -29,15 +32,14 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
     # dispersed `var` sequences; one per inconsistent value set:
     df_var <- data[var][[1L]] %>%
       lapply(
-        seq_disperse_df,
+        seq_disperse_df_internal,
         .dispersion = dispersion,
         .offset_from = 0,
         .out_min = out_min,
         .out_max = out_max,
         .string_output = "auto",
         .include_reported = include_reported,
-        .track_diff_var = TRUE,
-        ...
+        .track_diff_var = TRUE
       )
 
     nrow_list_var <- vapply(df_var, nrow, integer(1L))
