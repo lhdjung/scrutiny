@@ -175,7 +175,6 @@ write_doc_audit <- function(sample_output, name_test) {
 
 
 
-
 #' Documentation template for `audit_seq()`
 #'
 #' @description `write_doc_audit_seq()` creates a roxygen2 block section to be
@@ -286,8 +285,6 @@ write_doc_audit_seq <- function(key_args, name_test) {
     "#'   of corresponding hits within the `dispersion` range. \n"
   )
 }
-
-
 
 
 
@@ -415,9 +412,6 @@ write_doc_audit_total_n <- function(key_args, name_test) {
 
 
 
-
-
-
 #' Documentation template for function factory conventions
 #'
 #' @description `write_doc_factory_map_conventions()` creates a roxygen2 block
@@ -483,5 +477,6 @@ write_doc_factory_map_conventions <- function(ending, name_test1 = "GRIM",
     "#'   name. In this way, some existing classes are `scr_{name_test1_lower}_map{ending}` and \n",
     "#'   `scr_{name_test2_lower}_map{ending}`. \n"
   )
+
 }
 

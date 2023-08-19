@@ -145,7 +145,6 @@ debit_table <- function(x, sd, n,
   # `n` is always a whole number, so it's good to convert it to integer:
   n <- as.integer(n)
 
-
   # Finally, return the results, with or without the reconstructed numbers
   # (rounding method, boundary values, and Boolean information about the
   # boundary values being inclusive or not):

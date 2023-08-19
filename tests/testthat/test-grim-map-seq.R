@@ -1,4 +1,6 @@
 
+# Expected output ---------------------------------------------------------
+
 # These expected outputs were created using `constructive::construct()`:
 
 pigs1_exp <- tibble::tibble(
@@ -223,13 +225,12 @@ pigs1_include_reported_exp <- tibble::tibble(
   )
 
 
-# TODO: Adjust the expected objects to the new columns in sequence mapper
-# output! These functions themselves work fine, except they might need some
-# upstream work on `seq_disperse()` in terms of the `var_change` column. This
-# should be done first to avoid wrong new expectations for `var_change` here.
+
+# Testing -----------------------------------------------------------------
+
 test_that("`grim_map_seq()` works correctly", {
   pigs1 %>% grim_map_seq() %>% expect_equal(pigs1_exp)
   pigs2 %>% grim_map_seq(percent = TRUE) %>% suppressMessages() %>% expect_equal(pigs2_exp)
-  pigs1 |> grim_map_seq(include_reported = TRUE) |> expect_equal(pigs1_include_reported_exp)
+  pigs1 %>% grim_map_seq(include_reported = TRUE) %>% expect_equal(pigs1_include_reported_exp)
 })
 

@@ -1,5 +1,4 @@
 
-
 #' GRIM-test many cases at once
 #'
 #' @description Call `grim_map()` to GRIM-test any number of combinations of
@@ -112,11 +111,11 @@
 #'   audit()
 
 
-
 # Note: All the arguments passed on to the internal testing function
 # `grim_scalar()` are listed here as well as in the internal call to
 # `purrr::pmap_lgl(grim)` or `purrr::pmap(grim)` instead of simply being passed
 # via `...` so that starting to type them will trigger RStudio's autocomplete.
+
 
 grim_map <- function(data, items = 1, merge_items = TRUE, percent = FALSE,
                      x = NULL, n = NULL, show_rec = FALSE, show_prob = FALSE,
@@ -145,10 +144,6 @@ grim_map <- function(data, items = 1, merge_items = TRUE, percent = FALSE,
   # Check the column names of `data`:
   check_mapper_input_colnames(data, c("x", "n"), "GRIM")
   check_tibble(data)
-
-  # # Convert `n` to integer (mainly because of the `split_by_parens()` issue,
-  # # which would leave `n` as a string vector):
-  # data$n <- as.integer(data$n)
 
   data <- manage_helper_col(data = data, var_arg = items, default = 1)
 
@@ -228,37 +223,29 @@ grim_map <- function(data, items = 1, merge_items = TRUE, percent = FALSE,
     name2 <- "rec_sum"
     name3 <- "rec_x_upper"
     name4 <- "rec_x_lower"
-
     length_2ers <- c("up_or_down", "up_from_or_down_from", "ceiling_or_floor")
     if (any(rounding %in% length_2ers)) {
-
       rounding_split <- rounding %>%
         stringr::str_split("_or_") %>%
         unlist(use.names = FALSE)
-
       # These names are for the long version only; the short version has
       # different names 5 and 6, and it has no names 7 and 8 at all:
       name5 <- paste0("rec_x_upper_rounded_", rounding_split[1])
       name6 <- paste0("rec_x_upper_rounded_", rounding_split[2])
       name7 <- paste0("rec_x_lower_rounded_", rounding_split[1])
       name8 <- paste0("rec_x_lower_rounded_", rounding_split[2])
-
       col_names <- c(
         name1, name2, name3, name4,
         name5, name6, name7, name8
       )
-
     } else {
-
       # The alternative names 5 and 6 for the short version:
       name5 <- "rec_x_upper_rounded"
       name6 <- "rec_x_lower_rounded"
-
       col_names <- c(
         name1, name2, name3, name4,
         name5, name6  # no 7 and 8 here!
       )
-
     }
 
     results <- results %>%
@@ -283,7 +270,7 @@ grim_map <- function(data, items = 1, merge_items = TRUE, percent = FALSE,
       )
   }
 
-  # Add the "scr_grim_map" class that `audit()` will take as a shibboleth:
+  # Add the "scr_grim_map" class that `audit()` will recognize:
   results <- results %>%
     add_class(c("scr_grim_map", glue::glue("scr_rounding_{rounding}")))
 

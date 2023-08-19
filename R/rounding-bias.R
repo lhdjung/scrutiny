@@ -1,5 +1,4 @@
 
-
 #' Compute rounding bias
 #'
 #' @description Rounding often leads to bias, such that the mean of a rounded
@@ -71,7 +70,6 @@ rounding_bias <- function(x, digits, rounding = "up", threshold = 5,
 }
 
 
-
 # # Proof that it works (this is for a previous version that didn't compute the
 # # mean but only subtracted `x` from `x_rounded`) --
 #
@@ -85,5 +83,4 @@ rounding_bias <- function(x, digits, rounding = "up", threshold = 5,
 # dplyr::near(
 #   (reround(x, digits, rounding, threshold) - rounding_bias(x, 1)), x
 # )
-
 

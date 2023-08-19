@@ -90,6 +90,7 @@
 #' # columns added as in `tibble::tibble()`:
 #' seq_disperse_df(.from = 4.02, n = 45)
 
+
 seq_disperse <- function(from, by = NULL, dispersion = 1:5, offset_from = 0L,
                          out_min = "auto", out_max = NULL,
                          string_output = TRUE, include_reported = TRUE,

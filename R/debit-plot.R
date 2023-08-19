@@ -119,9 +119,6 @@ debit_plot <- function(data,
   tile_height <- sd_upper - sd_lower + tile_width_offset
   tile_width <- x_upper - x_lower + tile_height_offset
 
-  #  max_y <- max(sd_upper) + tile_width_offset
-  #  min_y <- min(sd_lower) - tile_width_offset
-
   color_by_consistency <- dplyr::if_else(
     consistency, color_cons, color_incons
   )

@@ -67,5 +67,3 @@ debit_scalar <- function(x, sd, n,
 
 debit <- Vectorize(debit_scalar)
 
-
-

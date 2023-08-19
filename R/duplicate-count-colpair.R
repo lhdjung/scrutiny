@@ -66,7 +66,7 @@ dup_count_pairwise <- function(x, y) {
 #'   audit()
 
 
-# # Example input:
+# # Full example input:
 # data <- df <- tibble::tibble(
 #   a = c(1, 2, 3, NA, 5), b = c(NA, 3L, 4L, 5L, 6L), c = c(3L, 4L, NA, NA, NA)
 # )

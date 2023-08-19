@@ -2,7 +2,12 @@
 #' New duplicate analysis functions
 #'
 #' @description `function_duplicate_cols()` is an internal (non-exported)
-#'   function factory. It creates new functions
+#'   function factory. It creates new functions that take a data frame and affix
+#'   one new column to the right of each existing column.
+#'
+#'   These functions were made by `function_duplicate_cols()`:
+#'   - `duplicate_tally()`
+#'   - `duplicate_detect()`
 #'
 #' @param code_new_cols Expression which the factory-made function will evaluate
 #'   at runtime. It computes the vector that will be split into the new columns
@@ -18,7 +23,7 @@
 #'   have the deprecated `numeric_only = TRUE` argument? Only for compatibility
 #'   with older versions of scrutiny (i.e., before 0.3.0). Default is `FALSE`.
 #'
-#' @return Function such as `duplicate_detect()` or `duplicate_tally()`.
+#' @return Function such as `duplicate_tally()` or `duplicate_detect()`.
 #'
 #' @noRd
 
@@ -81,8 +86,6 @@ function_duplicate_cols <- function(code_new_cols, default_end, name_class,
       x <- x %>%
         tidyr::pivot_longer(
           cols = everything(),
-          # names_to = "name",
-          # values_to = "value",
           values_transform = as.character,
           cols_vary = "slowest"
         ) %>%

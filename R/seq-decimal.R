@@ -1,5 +1,4 @@
 
-
 #' Sequence generation at decimal level
 #'
 #' @description Functions that provide a smooth interface to generating
@@ -151,8 +150,8 @@ seq_endpoint <- function(from, to, offset_from = 0L, offset_to = 0L,
   manage_string_output_seq(
     out = out, from = from, string_output = string_output, digits = digits
   )
-}
 
+}
 
 
 
@@ -286,6 +285,4 @@ seq_distance_df <- function(.from, .by = NULL, ..., .length_out = 10L, .dir = 1,
 
   add_class(out, "scr_seq_df")
 }
-
-
 

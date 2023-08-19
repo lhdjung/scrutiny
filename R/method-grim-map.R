@@ -2,7 +2,6 @@
 #' @include audit.R grim-map.R
 #' @export
 
-
 audit.scr_grim_map <- function(data) {
 
   # Compute the summary values of interest ---
@@ -36,4 +35,3 @@ audit.scr_grim_map <- function(data) {
     out, mean_grim_ratio, incons_to_ratio, testable_cases, testable_rate
   )
 }
-

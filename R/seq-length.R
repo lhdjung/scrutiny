@@ -126,12 +126,10 @@ seq_length <- function(x, value) {
 
 
 
-
 #' @rdname seq_length
 #' @export
 
 `seq_length<-` <- function(x, value) {
   seq_length(x, value)
 }
-
 

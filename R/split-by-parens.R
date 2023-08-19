@@ -225,7 +225,7 @@ split_by_parens <- function(data, cols = everything(), check_sep = TRUE,
       "i" = "This concerns {names_neutral_cols}."
     ))
   }
-  transform_split_parens(out, end1, end2)
 
+  transform_split_parens(out, end1, end2)
 }
 

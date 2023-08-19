@@ -1,5 +1,4 @@
 
-
 #' @export
 
 audit.scr_grimmer_map <- function(data) {
@@ -19,4 +18,3 @@ audit.scr_grimmer_map <- function(data) {
   }
   out
 }
-

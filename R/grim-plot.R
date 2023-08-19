@@ -1,5 +1,4 @@
 
-
 #' Visualize GRIM test results
 #'
 #' @description `grim_plot()` visualizes summary data and their mutual GRIM
@@ -363,9 +362,7 @@ grim_plot <- function(data = NULL,
 
   # Background raster / gradient:
   if (show_raster) {
-
     # With 1 or 2 digits, the function provides a background raster...
-
       p <- ggplot2::ggplot(data = df_plot) +
         ggplot2::geom_tile(mapping = ggplot2::aes(
           x = .data$raster_n,
@@ -376,20 +373,14 @@ grim_plot <- function(data = NULL,
           panel.background = ggplot2::element_rect(fill = "white", colour = NA),
           panel.grid = ggplot2::element_blank()
         )
-
-
       # ... but with more decimal places, individual boxes would be too small to
       # display, so we need a gradient instead to simply show the overall trend.
       # Boxes are still added pro forma; the call to `geom_tile()` is the same
       # as above (except for the `alpha` and `fill` specifications):
-
       if (digits > 2L) {
-
         if (show_gradient) {
-
           gradient <-
             grDevices::colorRampPalette(c(raster_color, "white"))(10000)
-
           p <- p +
             ggplot2::geom_tile(data = df_plot, mapping = ggplot2::aes(
               x = .data$raster_n,
@@ -400,23 +391,17 @@ grim_plot <- function(data = NULL,
               width  = grid::unit(1, "npc"),
               height = grid::unit(1, "npc")
             ))
-
         }
-
         # Keep the y-axis ranging from 0 to 1, even with the gradient in place:
         p <- p +
           ggplot2::scale_y_continuous(
             expand = ggplot2::expansion(add = c(0, 0.01)),
             limits = c(0, 1)
           )
-
       }
-
   }
 
-
   if (show_data) {
-
     if (utils::packageVersion("ggplot2") >= "3.4") {
       p <- p +
         ggplot2::geom_tile(
@@ -450,12 +435,9 @@ grim_plot <- function(data = NULL,
           height = (frac_unit * tile_size) / 2
         )
     }
-
   }
 
-
   if (!(digits > 2L)) {
-
     # Further specifications:
     p <- p +
       ggplot2::theme(
@@ -466,7 +448,6 @@ grim_plot <- function(data = NULL,
         expand = ggplot2::expansion(add = c(0.01, 0)),
         limits = c(0, 1)
       )
-
     # Make the exact x-axis scale specification dependent on whether the plot
     # will (by default) show a raster...
     p <- p +
@@ -474,10 +455,7 @@ grim_plot <- function(data = NULL,
         breaks = seq(from = 0, to = n, by = (n / 5)),
         expand = ggplot2::expansion(mult = c(0, 0.01))
       )
-
-
   } else {
-
     # ...or a gradient, in which case we need the x-axis must be forced to
     # run from 0 to 1 using `limits = c(0, n)`, which is omitted above to remove
     # the space between the raster and the y-axis:
@@ -487,10 +465,7 @@ grim_plot <- function(data = NULL,
         expand = ggplot2::expansion(mult = c(0, 0.01)),
         limits = c(0, n)
       )
-
   }
-
-
 
   # Finally, return the plot with axis labels, suppressing unnecessary ggplot2
   # warnings:
@@ -503,5 +478,4 @@ grim_plot <- function(data = NULL,
   ))
 
 }
-
 

@@ -235,7 +235,7 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 
 
 
-# # Example specifications:
+# # Full example inputs:
 #
 # data <- tibble::tribble(
 #   ~x1,    ~ x2 ,  ~n,

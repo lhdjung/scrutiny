@@ -32,22 +32,22 @@ with_out_max_df_exp <- tibble::tibble(
 # Testing -----------------------------------------------------------------
 
 test_that("it works with the defaults", {
-  seq_disperse(25)        |> expect_equal(basic1_exp)
-  seq_disperse_df(25)     |> expect_equal(basic1_df_exp)
-  seq_disperse("4.56")    |> expect_equal(basic2_exp)
-  seq_disperse_df("4.56") |> expect_equal(basic2_df_exp)
+  seq_disperse(25)        %>% expect_equal(basic1_exp)
+  seq_disperse_df(25)     %>% expect_equal(basic1_df_exp)
+  seq_disperse("4.56")    %>% expect_equal(basic2_exp)
+  seq_disperse_df("4.56") %>% expect_equal(basic2_df_exp)
 })
 
 test_that("it works when overriding some of the defaults", {
   seq_disperse(
     75, out_max = 77,
     include_reported = FALSE, track_diff_var = TRUE
-  ) |>
+  ) %>%
     expect_equal(with_out_max_exp)
   seq_disperse_df(
     75, .out_max = 77,
     .include_reported = FALSE, .track_diff_var = TRUE
-  ) |>
+  ) %>%
     expect_equal(with_out_max_df_exp)
 })
 

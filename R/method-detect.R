@@ -2,7 +2,6 @@
 #' @include audit.R duplicate-detect.R grim-map.R
 #' @export
 
-
 audit.scr_dup_detect <- function(data) {
 
   # Select the Boolean test columns (i.e., every second column):
@@ -45,4 +44,3 @@ audit.scr_dup_detect <- function(data) {
     total_count = sum(out$total_count), dup_rate = .data$dup_count / .data$total_count
   )
 }
-

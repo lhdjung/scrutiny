@@ -202,7 +202,8 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 #'   .name_test = "GRIM",
 #' )
 
-# For example inputs, see: grim-map-seq.R
+
+# For full example inputs (and connected unit tests), see: grim-map-seq.R
 
 function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
                              .name_class = NULL, .args_disabled = NULL,
@@ -307,27 +308,13 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
         purrr::map2(nrow_out, rep) %>%
         unlist(use.names = FALSE)
 
-      # if ("rounding" %in% names(formals(fun))) {
-      #   rounding <- formals(fun)$rounding
-      #   rounding <- paste0("scr_rounding_", rounding)
-      # } else {
-      #   rounding <- NULL
-      # }
-
-
-      # data_sample <- data[var]
-      # data_sample <- fun(data_sample[1, ], ...)
-
+      # TODO: CLEAN UP OUTCOMMENTED CODE THROUGHOUT THE PACKAGE!
 
       # For better output, `out` should be a single data frame; and for
       # identifying the origin of individual rows, `var` is added:
       out <- out %>%
         dplyr::bind_rows() %>%
         dplyr::mutate(var, n = as.integer(n))
-
-      # # These are the classes added by `fun()` that have not yet been added to
-      # # `out`, necessarily:
-      # classes_fun <- class(data)[!class(data) %in% class(out)]
 
       # Create classes that will identify `out` as output of the specific
       # manufactured function:

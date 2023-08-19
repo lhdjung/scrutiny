@@ -1,5 +1,4 @@
 
-
 # Internal helpers; not exported ------------------------------------------
 
 check_key_args_in_colnames <- function(data, reported) {
@@ -88,8 +87,6 @@ check_consistency_not_in_colnames <- function(data, name_test) {
 
 
 
-
-
 #' Check that a mapper's input has correct column names
 #'
 #' @description When called within a consistency test mapper function,
@@ -122,7 +119,6 @@ check_mapper_input_colnames <- function(data, reported, name_test) {
   check_key_args_in_colnames(data, reported)
   check_consistency_not_in_colnames(data, name_test)
 }
-
 
 
 
@@ -174,8 +170,6 @@ check_audit_special <- function(data, name_test) {
   }
 
 }
-
-
 
 
 

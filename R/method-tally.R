@@ -2,7 +2,6 @@
 #' @include audit.R
 #' @export
 
-
 audit.scr_dup_tally <- function(data) {
 
   # Select the Boolean test columns (i.e., every second column):
@@ -15,4 +14,3 @@ audit.scr_dup_tally <- function(data) {
 
   audit_summary_stats(data_dup, everything(), total = TRUE)
 }
-

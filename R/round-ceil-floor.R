@@ -74,7 +74,6 @@
 
 round_ceiling <- function(x, digits = 0L) {
   p10 <- 10 ^ digits
-
   ceiling(x * p10) / p10
 }
 
@@ -87,7 +86,6 @@ round_ceiling <- function(x, digits = 0L) {
 
 round_floor <- function(x, digits = 0L) {
   p10 <- 10 ^ digits
-
   floor(x * p10) / p10
 }
 
@@ -99,7 +97,6 @@ round_floor <- function(x, digits = 0L) {
 #' @export
 
 round_trunc <- function(x, digits = 0L) {
-
   p10 <- 10 ^ digits
 
   # For symmetry between positive and negative numbers, use the absolute value:
@@ -109,7 +106,6 @@ round_trunc <- function(x, digits = 0L) {
   # Therefore, in this case, the function returns the negative of `core`, the
   # absolute value; otherwise it simply returns `core` itself:
   dplyr::if_else(x < 0, -core, core)
-
 }
 
 
@@ -130,7 +126,6 @@ anti_trunc <- function(x) {
   # anti-truncated absolute value of `x`, called `core`; otherwise it simply
   # returns `core` itself:
   dplyr::if_else(x < 0, -core, core)
-
 }
 
 
@@ -142,8 +137,6 @@ anti_trunc <- function(x) {
 
 round_anti_trunc <- function(x, digits = 0L) {
   p10 <- 10 ^ digits
-
   anti_trunc(x * p10) / p10
 }
-
 

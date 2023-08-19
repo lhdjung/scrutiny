@@ -1,6 +1,5 @@
 
-
-# # Example data:
+# # Full example inputs:
 # x         <- "5.19"
 # n         <- 40
 # items     <- 1
@@ -74,9 +73,7 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
   } else {
     consistency <- grain_is_x
     length_2ers <- c("up_or_down", "up_from_or_down_from", "ceiling_or_floor")
-
     if (any(length_2ers == rounding)) {
-
       # Skipping those values that are identical to the selected ones apart from
       # `dust` addition or subtraction via `dustify()`:
       return(list(
@@ -84,21 +81,16 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
         grains_rounded[1], grains_rounded[2],
         grains_rounded[5], grains_rounded[6]
       ))
-
     } else {
-
       # Skipping as above:
       return(list(
         consistency, rec_sum, rec_x_upper, rec_x_lower,
         grains_rounded[1], grains_rounded[3]
       ))
-
     }
-
   }
 
 }
-
 
 
 
@@ -210,8 +202,6 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
 #' @export grim
 
 
-
 # Vectorized version:
 grim <- Vectorize(grim_scalar)
-
 

@@ -95,7 +95,6 @@ integer_places <- function(x) {
 
 
 
-
 #' Collect dots-arguments in a list
 #'
 #' A helper for tidy evaluation used within `is_subset_of_vecs()` and friends
@@ -124,6 +123,7 @@ straighten_out <- function(...) {
 an_a <- function(x) {
   dplyr::if_else(stringr::str_detect(x, "^[aeiou]"), "an", "a")
 }
+
 
 
 #' Prefix an object's type with "an" or "a"
@@ -328,9 +328,6 @@ check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
 
       residues_names <- var_names[!var_names %in% c(x_name, y_name)]
 
-      # msg_need <-
-      #   "Both need to have the same length unless either has length 1."
-
       msg_error <- c(
         "`{x_name}` and `{y_name}` must have the same length \\
         unless either has length 1.",
@@ -344,23 +341,10 @@ check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
         msg_error <- append(
           msg_error, c("i" = "This also applies to {residues_names}.")
         )
-
-        # msg_need <- paste(
-        #   msg_need,
-        #   "This also applies to {residues_names}."
-        # )
       }
 
       # Throw error:
       cli::cli_abort(msg_error)
-
-      # cli::cli_abort(c(
-      #   "`{x_name}` and `{y_name}` must have the same length \\
-      #   unless either has length 1.",
-      #   "x" = "`{x_name}` has length {length(x)}.",
-      #   "x" = "`{y_name}` has length {length(y)}.",
-      #   "!" = msg_need
-      # ))
     }
 
     # Warning condition, triggered if more than one element of `var_list` has
@@ -1285,12 +1269,6 @@ drop_cols_with <- function(data, drop_with) {
 
 
 
-# Get the name of a function that is being called. By default (`n = 1`), that's
-# the function within which `name_caller_call()` is called. Also by default
-# (`wrap = TRUE`), the name is coerced to string, suffixed with parentheses, and
-# wrapped in backticks. Example: f --> `f()`
-
-
 #' Get name of function being called
 #'
 #' Returns the name of the function within which `name_caller_call()` is called
@@ -1311,6 +1289,7 @@ name_caller_call <- function(n = 1L, wrap = TRUE) {
   }
   name
 }
+
 
 
 # "Dust" variables were used by Nick Brown and later by Lukas Wallrich in

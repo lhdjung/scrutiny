@@ -84,8 +84,7 @@
 #' schlim_map(df1)
 
 
-
-# # Example data:
+# # Full example inputs:
 # data <- pigs1
 # reported <- c("x", "n")
 # fun <- grim_scalar
@@ -204,7 +203,6 @@ function_map <- function(.fun, .reported, .name_test, .name_class = NULL,
       # `"consistency"` list-column, together with the actual `consistency` value:
       if (!is.null(.col_control)) {
         .col_control <- eval(rlang::parse_expr(.col_control))
-        # return(.col_control)
         lengths_consistency <- vapply(consistency, length, integer(1L))
         lengths_consistency_all1 <- all(lengths_consistency == 1L)
         if (.col_control && !lengths_consistency_all1) {

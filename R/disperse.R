@@ -1,5 +1,4 @@
 
-
 #' Vary hypothetical group sizes
 #'
 #' @description Some published studies only report a total sample size but no
@@ -275,21 +274,18 @@ disperse_total <- function(n, dispersion = 0:5, n_min = 1L, n_max = NULL,
   # Test if `n` is even, then call the appropriate function. If `n` is even,
   # call `disperse()`; if `n` is odd, call `disperse2()`:
   if (is_even(n)) {
-
     disperse(
       n = n_half, dispersion = dispersion, n_min = n_min, n_max = n_max,
       constant = constant, constant_index = constant_index
     )
-
   } else {
-
     # Determine the two whole numbers closest to half of the odd `n`:
     disperse2(
       n = c(n_half - 0.5, n_half + 0.5), dispersion = dispersion,
       n_min = n_min, n_max = n_max, constant = constant,
       constant_index = constant_index
     )
-
   }
+
 }
 

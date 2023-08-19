@@ -49,8 +49,6 @@ rounding_bounds <- Vectorize(rounding_bounds_scalar)
 
 
 
-
-
 #' Reconstruct rounding bounds
 #'
 #' @description `unround()` takes a rounded number and returns the range of the
@@ -156,13 +154,11 @@ rounding_bounds <- Vectorize(rounding_bounds_scalar)
 #' unround(x = c(3.6, "5.20", 5.174))
 
 
-
-# # Example values:
+# # Full example inputs:
 # x <- "2.37"
 # rounding <- "up_or_down"
 # threshold <- 5
 # digits <- NULL
-
 
 
 unround <- function(x, rounding = "up_or_down", threshold = 5, digits = NULL) {
@@ -231,7 +227,6 @@ unround <- function(x, rounding = "up_or_down", threshold = 5, digits = NULL) {
     incl_upper = sign_upper == "<=",
     upper
   )
+
 }
-
-
 

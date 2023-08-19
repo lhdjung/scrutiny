@@ -29,4 +29,3 @@ audit.scr_debit_map <- function(data) {
   # Finally, collect all of these values in a resulting tibble --
   tibble::tibble(out, mean_x, mean_sd, distinct_n)
 }
-

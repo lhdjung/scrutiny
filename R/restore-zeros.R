@@ -121,11 +121,9 @@ restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in,
   # accordance with the `width` argument, the default of which, `NULL`, makes
   # the function go by the maximal length of already-present mantissas:
   if (is.null(width)) {
-
     # Count characters of the mantissa part:
     parts <- stringr::str_split_fixed(x, sep_in, n = 2L)
     width_mantissa <- stringr::str_length(parts[, 2])
-
     # Throw a warning if `x` can't be formatted with the given arguments:
     if (length(x) == 1L) {
       cli::cli_warn(c(
@@ -142,13 +140,10 @@ restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in,
         to which `x` values should be padded."
       ))
     }
-
     # The number of decimal places to which `x` values will be padded with zeros
     # is determined by the number of characters in the longest mantissa...
     width_target <- max(width_mantissa, na.rm = TRUE)
-
   } else {
-
     # ... unless the user manually specified that target number via `width`:
     width_target <- width
   }
@@ -198,8 +193,6 @@ restore_zeros_df <- function(data, cols = everything(),
         within `restore_zeros()`."
       )
     )
-    # # If `sep` is specified, `sep_in` must take on its role:
-    # sep_in <- sep
   }
 
   # Check whether the user specified any "old" arguments: those starting on a

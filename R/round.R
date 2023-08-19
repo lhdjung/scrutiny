@@ -1,5 +1,4 @@
 
-
 #' Common rounding procedures
 #'
 #' @description `round_up()` rounds up from 5, `round_down()` rounds down from
@@ -144,7 +143,6 @@ round_down_from <- function(x, digits = 0L, threshold, symmetric = FALSE) {
 #' @export
 
 round_up <- function(x, digits = 0L, symmetric = FALSE) {
-
   round_up_from(x = x, digits = digits, threshold = 5, symmetric = symmetric)
 }
 
@@ -161,7 +159,6 @@ round_up <- function(x, digits = 0L, symmetric = FALSE) {
 #' @export
 
 round_down <- function(x, digits = 0L, symmetric = FALSE) {
-
   round_down_from(x = x, digits = digits, threshold = 5, symmetric = symmetric)
 }
 

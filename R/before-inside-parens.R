@@ -35,8 +35,8 @@ translate_length1_sep_keywords <- function(sep) {
 
 # Warning thrown within tidyselect-supporting functions:
 warn_wrong_columns_selected <- function(names_wrong_cols,
-                                           msg_exclusion, msg_reason,
-                                           msg_it_they = c("It doesn't", "They don't")) {
+                                        msg_exclusion, msg_reason,
+                                        msg_it_they = c("It doesn't", "They don't")) {
   if (length(names_wrong_cols) == 1L) {
     msg_col_cols <- "1 column"
     msg_it_they <- msg_it_they[1]
@@ -85,7 +85,6 @@ proto_split_parens <- function(string, sep = "parens") {
   out <- sub(paste0(sep_close, ".*"), "", out)
 
   divisor <- length(out) / length(string)
-
   split(out, ceiling(seq_along(out) / divisor))
 }
 

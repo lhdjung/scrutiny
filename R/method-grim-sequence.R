@@ -70,7 +70,7 @@ explain_seq_test_ranking <- function(x, scr_func_info) {
                              inconsistent ones by numbers of places from \\
                              {lead[1]} to {lead[l_lead]} in the \\
                              {scr_func_info} data frame. \n")
-    }  # used to have: min(lead[tail(lead, 1)])
+    }
     msg_incons <- "All other value sets are inconsistent."
     cli::cli_inform(c(
       "Explanation: ",
@@ -81,7 +81,6 @@ explain_seq_test_ranking <- function(x, scr_func_info) {
   }
 
 }
-
 
 
 
@@ -177,5 +176,3 @@ seq_test_ranking <- function(x, explain = TRUE) {
   }
 
 }
-
-

@@ -1,5 +1,4 @@
 
-
 # Introductory notes ------------------------------------------------------
 
 # Analytic-GRIMMER (A-GRIMMER) was developed by Aurélien Allard
@@ -10,7 +9,6 @@
 # `decimal_places_scalar()`. Second, changing the return value to Boolean, which
 # is the expected output from the basic implementation of any consistency test
 # within scrutiny. Third, adjusting variable names to the tidyverse style guide.
-
 
 
 # Translation of variable names -------------------------------------------
@@ -35,7 +33,6 @@
 # Third_Test         --> pass_test3
 
 
-
 # # Example inputs:
 # n <- 40
 # mean <- 1.03
@@ -47,7 +44,6 @@
 # tolerance <- .Machine$double.eps^0.5
 # decimals_mean <- 2
 # decimals_SD <- 2
-
 
 
 # Implementation ----------------------------------------------------------
@@ -175,7 +171,6 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
   }
   return(TRUE)
 }
-
 
 
 

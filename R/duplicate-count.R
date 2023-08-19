@@ -133,11 +133,11 @@ duplicate_count <- function(x, ignore = NULL,
   locations <- vector("list", nrow(out))
   locations_n <- integer(nrow(out))
   for (i in seq_along(locations)) {
-    locs <- unique(x[x$value == out$value[i], ]$name)
-    locations[i] <- list(locs[order(match(locs, names_orig))])
+    temp <- unique(x[x$value == out$value[i], ]$name)
+    locations[i] <- list(temp[order(match(temp, names_orig))])
     locations_n[i] <- length(locations[[i]])
   }
-  rm(x)
+  rm(x, temp)
 
   # By default, collapse each vector of location names into a string:
   if (locations_type == "character") {

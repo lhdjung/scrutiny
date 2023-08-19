@@ -1,5 +1,4 @@
 
-
 # Helpers for `function_map_seq()` as well as its assorted `reverse_*()` and
 # `summarize_*()` functions:
 
@@ -132,10 +131,8 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
         while (is.na(x[i + index_upper])) {
           index_upper <- index_upper + 1L
         }
-
         seq_start <- x[i - index_lower]
         seq_end   <- x[i + index_upper]
-
         step <- step_size(c(seq_start, seq_end))
 
         # Descending sequences require a negative step size:
@@ -178,7 +175,6 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
 
       } # End of the `is.na(x[i])` condition
     }   # End of the for loop
-
   }     # End of the `x_has_na` condition
 
   # If desired, test `x` -- as passed to the function or as partly reconstructed
@@ -215,20 +211,7 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
     TRUE
   }
 
-  # if (pass_test) {
-  #
-  #   if (x_has_na) {
-  #     return(NA)
-  #   } else {
-  #     return(TRUE)
-  #   }
-  #
-  # } else {
-  #   return(FALSE)
-  # }
-
 }
-
 
 
 
@@ -352,7 +335,6 @@ is_seq_dispersed <- function(x, from, test_linear = TRUE,
 
 
 
-
 # Helper, not exported:
 is_seq_dispersed_basic <- function(x, from,
                                    tolerance = .Machine$double.eps^0.5) {
@@ -390,6 +372,4 @@ is_seq_dispersed_basic <- function(x, from,
 
   all(dplyr::near(from, from_reconstructed, tolerance))
 }
-
-
 

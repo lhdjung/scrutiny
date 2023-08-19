@@ -76,7 +76,6 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
   correct <- data[row, ]
   correct <- rbind(colnames(data), correct)
   correct <- purrr::map(correct, function(x) x[!is.na(x)])
-
   correct <- purrr::map(correct, utils::tail, (length(correct[[1]]) - 1L))
 
   # If multiple rows were specified that way, the resulting vector must be

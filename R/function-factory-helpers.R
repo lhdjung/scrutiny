@@ -299,12 +299,12 @@ absorb_key_args <- function(data, reported, key_cols_call) {
 #' any other arguments, and it must be reassigned to `fun`, not to `data`.
 #'
 #' The function is not currently used because I'm now very skeptical of its
-#' utility and even its reliability. It uses on a style of function manipulation
-#' that might just be too intricate to be feasible in practice.
+#' utility and even its reliability. It relies on a style of function
+#' manipulation that might just be too intricate to use in practice.
 #'
-#' I originally attempted for `absorb_other_args()` to replace the dots on one
-#' level, thereby enabling their use on another level, but this solution was
-#' somewhat overengineered.
+#' I originally aimed for `absorb_other_args()` to replace the dots on one level
+#' of function calls, thereby enabling their use on another level, but this
+#' solution turned out to have been somewhat overengineered.
 #'
 #' @param fun Function to be applied.
 #' @param reported String. Names of the key arguments.
@@ -526,5 +526,4 @@ inherits_class_with <- function(data, contains, all_classes = FALSE,
     order_decreasing = order_decreasing
   )) > 0L
 }
-
 

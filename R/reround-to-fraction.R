@@ -72,6 +72,7 @@
 #' @rdname fractional-rounding
 #' @export
 
+
 reround_to_fraction <- function(x = NULL, denominator = 1, digits = Inf,
                                 rounding = "up_or_down", threshold = 5,
                                 symmetric = FALSE) {
@@ -141,9 +142,7 @@ reround_to_fraction <- function(x = NULL, denominator = 1, digits = Inf,
     )
   }
 
-  # Finally, return the results:
   out
-
 }
 
 

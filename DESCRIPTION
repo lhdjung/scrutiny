@@ -71,7 +71,6 @@ Collate:
     'debit-plot.R'
     'duplicate-count-colpair.R'
     'duplicate-count.R'
-    'grim-explain.R'
     'grim-granularity.R'
     'grim-map-seq.R'
     'grim-map-total-n.R'

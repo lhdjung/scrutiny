@@ -83,4 +83,3 @@ reverse_map_seq <- function(data) {
     tidyr::unnest(cols = everything()) # yes, this is weird
 }
 
-
