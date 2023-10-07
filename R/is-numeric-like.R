@@ -57,7 +57,7 @@
 #' # Factors are treated like their
 #' # string equivalents:
 #' is_numeric_like(x = as.factor(c("42", "0.7", NA)))
-#' is_numeric_like(x = as.factor(c("42", "0.7", NA)))
+#' is_numeric_like(x = as.factor(c("42", "xyz", NA)))
 #'
 #' # Lists behave like atomic vectors if all of their
 #' # elements have length 1...
