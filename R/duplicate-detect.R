@@ -23,6 +23,8 @@
 #'   have the deprecated `numeric_only = TRUE` argument? Only for compatibility
 #'   with older versions of scrutiny (i.e., before 0.3.0). Default is `FALSE`.
 #'
+#' @include utils.R
+#'
 #' @return Function such as `duplicate_tally()` or `duplicate_detect()`.
 #'
 #' @noRd
@@ -59,6 +61,14 @@ function_duplicate_cols <- function(code_new_cols, default_end, name_class,
     ),
     body = rlang::expr({
       `!!`(numeric_only_check)
+
+      # Type checking:
+      if (!rlang::is_vector(x)) {
+        cli::cli_abort(c(
+          "`x` must be a data frame or other type of vector.",
+          "x" = paste0("It is ", an_a_type(x), ".")
+        ))
+      }
 
       # Convert `x` to a data frame if needed:
       x_was_named <- rlang::is_named(x)
