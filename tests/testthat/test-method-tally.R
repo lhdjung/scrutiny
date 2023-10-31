@@ -2,7 +2,7 @@
 # Expected output ---------------------------------------------------------
 
 iris_exp <- tibble::tibble(
-  term = c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width", "Species", ".total"),
+  term = c("Sepal.Length_n", "Sepal.Width_n", "Petal.Length_n", "Petal.Width_n", "Species_n", ".total"),
   mean = c(
     8.713333333333332930692, 12.8, 11.85333333333333349913,
     15.16666666666666607455, 50, 19.70666666666666699825
@@ -19,7 +19,7 @@ iris_exp <- tibble::tibble(
 )
 
 mtcars_exp <- tibble::tibble(
-  term = c("mpg", "cyl", "disp", "hp", "drat", "wt", "qsec", "vs", "am", "gear", "carb", ".total"),
+  term = c("mpg_n", "cyl_n", "disp_n", "hp_n", "drat_n", "wt_n", "qsec_n", "vs_n", "am_n", "gear_n", "carb_n", ".total"),
   mean = c(
     1.5, 19.65625, 1.375, 1.8125, 2.40625, 1.34375, 1.1875, 35.6875, 35.78125,
     22.0625, 23.375, 13.28977272727272662678
@@ -38,7 +38,7 @@ mtcars_exp <- tibble::tibble(
 )
 
 pigs4_exp <- tibble::tibble(
-  term = c("snout", "tail", "wings", ".total"),
+  term = c("snout_n", "tail_n", "wings_n", ".total"),
   mean = c(2, 1.6, 1.4, 1.666666666666666740682),
   sd = c(
     0.7071067811865475727373, 0.8944271909999158554072, 0.8944271909999158554072,
