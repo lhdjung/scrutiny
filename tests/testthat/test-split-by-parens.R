@@ -73,7 +73,8 @@ test_that("The function works with curly braces as with square brackets", {
 
 
 test_that("named but non-formal arguments are an error", {
-  # These should be caught by `ellipsis::check_dots_unnamed()`.
+  # These should be caught by `rlang::check_dots_empty()` within
+  # `check_new_args_without_dots()`:
   pigs %>% split_by_parens(abc = 5)         %>% expect_error()
   pigs %>% split_by_parens(no_arg = hello)  %>% expect_error()
 })

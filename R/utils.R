@@ -10,7 +10,8 @@ utils::globalVariables(c(
   "sd_incl_lower", "sd_upper", "sd_incl_upper", "x_lower", "x_upper",
   "dupe_count", "fun_name",
   # Added after rewriting the function factories using `rlang::new_function()`:
-  "!!", "constant", "constant_index", "include_consistent", "n_max", "n_min",
+  "!!", "!!!", "constant", "constant_index", "include_consistent",
+  "n_min", "n_max",
   # Added for `function_duplicate_cols()`, which uses `rlang::new_function()`:
   "colname_end", "ignore", "numeric_only"
 ))
