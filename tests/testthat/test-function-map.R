@@ -23,6 +23,20 @@ debit_map_alt <- function_map(
   .name_test = "DEBIT"
 )
 
+grim_map_alt_renamed <- function_map(
+  .fun = grim_scalar,
+  .reported = c("x", "n"),
+  .name_test = "GRIM",
+  .name_key_result = "success"
+)
+
+debit_map_alt_renamed <- function_map(
+  .reported = c("x", "sd", "n"),
+  .fun = debit_scalar,
+  .name_test = "DEBIT",
+  .name_key_result = "success"
+)
+
 
 
 # Example data ------------------------------------------------------------
@@ -44,6 +58,21 @@ df_debit2 <- tibble::tibble(
   n  = runif(n_dfs2, 40, 100)  %>% round(0)
 )
 
+df_grim3 <- tibble::tibble(
+  x = c(
+    "7.22", "4.74", "5.23", "2.57", "6.77", "2.68", "7.01", "7.38", "3.14",
+    "6.89", "5.00", "0.24"
+  ),
+  n = c(32, 25, 29, 24, 27, 28, 29, 26, 27, 31, 25, 28),
+  success = c(
+    TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, TRUE, FALSE,
+    FALSE, TRUE, FALSE
+  ),
+) %>%
+  structure(
+    class = c("scr_grim_map", "scr_rounding_up_or_down", "tbl_df", "tbl", "data.frame")
+  )
+
 
 
 # Running old and new (= manufactured) functions --------------------------
@@ -61,6 +90,17 @@ out_grim_new2  <- grim_map_alt(df_grim2)
 out_debit_new2 <- debit_map_alt(df_debit2)
 
 
+out_grim_old_renamed <- out_grim_old1 %>%
+  dplyr::rename(success = consistency)
+
+out_grim_new_renamed <- grim_map_alt_renamed(df_grim1)
+
+out_debit_old_renamed <- out_debit_old1 %>%
+  dplyr::rename(success = consistency)
+
+out_debit_new_renamed <- debit_map_alt_renamed(df_debit1)
+
+
 
 # Testing -----------------------------------------------------------------
 
@@ -74,12 +114,16 @@ test_that("It works for DEBIT", {
   out_debit_old2 %>% expect_equal(out_debit_new2)
 })
 
+test_that("Renaming `\"consistency\"` via `.name_key_result` works", {
+  out_grim_old_renamed  %>% expect_equal(out_grim_new_renamed)
+  out_debit_old_renamed %>% expect_equal(out_debit_new_renamed)
+})
+
 test_that("Wrong `.reported` values throw an error", {
-  grim_map_alt <- function_map(
+  function_map(
     .fun = grim_scalar,
-    .reported = c("x", "bla", "n"),
-    .name_test = "GRIM",
-    .name_class = "scr_grim_map"
+    .reported = c("x", "success", "n"),
+    .name_test = "GRIM"
   ) %>% expect_error()
 })
 

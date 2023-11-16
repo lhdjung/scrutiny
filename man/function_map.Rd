@@ -8,6 +8,7 @@ function_map(
   .fun,
   .reported,
   .name_test,
+  .name_key_result = "consistency",
   .name_class = NULL,
   .args_disabled = NULL,
   .col_names = NULL,
@@ -19,13 +20,17 @@ function_map(
 \arguments{
 \item{.fun}{Single-case consistency testing function that will be applied to
 each row in a data frame, such as the (non-exported) scrutiny functions
-\code{grim_scalar()} and \code{debit_scalar()}. It must return a Boolean value of
+\code{grim_scalar()} and \code{grimmer_scalar()}. It must return a Boolean value of
 length 1, i.e., \code{TRUE} or \code{FALSE}.}
 
 \item{.reported}{String. Names of the columns to be tested.}
 
 \item{.name_test}{String (length 1). Plain-text name of the consistency test,
 such as \code{"GRIM"}.}
+
+\item{.name_key_result}{(Experimental) Optionally, a single string that will
+be the name of the key result column in the output. Default is
+\code{"consistency"}.}
 
 \item{.name_class}{String. Optionally, one or more classes to be added to the
 output data frame. Default is \code{NULL}, i.e., no extra class (but see
@@ -70,8 +75,7 @@ column-identifying arguments derived from \code{.reported}.
 \code{function_map()} creates new basic mapper functions for
 consistency tests, such as \code{grim_map()} or \code{debit_map()}.
 
-For context, see \code{vignette("consistency-tests")}, section \emph{Creating basic
-mappers with \code{function_map()}}.
+For context, see \href{https://lhdjung.github.io/scrutiny/articles/consistency-tests.html#creating-basic-mappers-with-function_map}{\emph{Creating basic mappers with \code{function_map()}}}.
 }
 \details{
 The output tibble returned by the factory-made function will inherit
