@@ -1554,3 +1554,34 @@ min_distance_neg <- function(x) {
   )
 }
 
+
+
+#' Check for linearly increasing dispersion in sequence mapper output
+#'
+#' @description This throws an error if a data frame returned by a sequence
+#'   mapper (i.e., a function such as `grim_map_seq()`) was computed with the
+#'   `dispersion` argument of that sequence mapper specified as anything other
+#'   than a linearly increasing sequence.
+#'
+#'   For example, the default `1:5` is linearly increasing, but `5:1` and `c(3,
+#'   7, 2)` are not.
+#'
+#' @param data Data frame returned by a function made by `function_map_seq()`.
+#'
+#' @return No return value; might throw an error.
+#'
+#' @noRd
+check_dispersion_linear <- function(data) {
+  if (inherits(data, "scr_map_seq_disp_nonlinear")) {
+    name_mapper <- class(data)[grepl("_map_seq$", class(data))]
+    name_mapper <- name_mapper[name_mapper != "scr_map_seq"]
+    name_mapper <- sub("scr_*", "", name_mapper)
+    cli::cli_abort(c(
+      "Invalid for data with this dispersion.",
+      "!" = "`audit_seq()` is only applicable if `dispersion` \\
+      in `{name_mapper}()` is a linearly increasing sequence.",
+      "i" = "This limitation may be removed in a future version of scrutiny."
+    ))
+  }
+}
+

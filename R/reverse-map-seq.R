@@ -8,6 +8,8 @@
 #'
 #' @param data Data frame that inherits the `"scr_map_seq"` class.
 #'
+#' @include utils.R
+#'
 #' @export
 #'
 #' @return The reconstructed tibble (data frame) which a factory-made
@@ -36,6 +38,8 @@ reverse_map_seq <- function(data) {
       "i" = "Such functions were created by `function_map_seq()`."
     ))
   }
+
+  check_dispersion_linear(data)
 
   var <- data %>%
     select_tested_cols() %>%

@@ -136,6 +136,8 @@ audit_seq <- function(data) {
     ))
   }
 
+  check_dispersion_linear(data)
+
   df_list <- split(data, data$case)
 
   df_list_hits <- df_list %>%

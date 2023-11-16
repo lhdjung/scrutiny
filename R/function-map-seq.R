@@ -1,5 +1,5 @@
 
-#' @include function-factory-helpers.R
+#' @include function-factory-helpers.R seq-predicates.R
 
 # Background on helpers and implementation: Unlike `function_map_total_n()`, the
 # main function here -- `function_map_seq()` -- is not based on `disperse()` or
@@ -308,13 +308,17 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
         purrr::map2(nrow_out, rep) %>%
         unlist(use.names = FALSE)
 
-      # TODO: CLEAN UP OUTCOMMENTED CODE THROUGHOUT THE PACKAGE!
-
       # For better output, `out` should be a single data frame; and for
       # identifying the origin of individual rows, `var` is added:
       out <- out %>%
         dplyr::bind_rows() %>%
         dplyr::mutate(var, n = as.integer(n))
+
+      class_dispersion_ascending <- if (is_seq_ascending(dispersion)) {
+        NULL
+      } else {
+        "scr_map_seq_disp_nonlinear"
+      }
 
       # Create classes that will identify `out` as output of the specific
       # manufactured function:
@@ -322,7 +326,8 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
         "scr_map_seq",
         # rounding,
         # classes_fun,
-        paste0("scr_", tolower(name_test), "_map_seq")
+        paste0("scr_", tolower(name_test), "_map_seq"),
+        class_dispersion_ascending
       )
 
       out <- add_class(out, classes_seq)
