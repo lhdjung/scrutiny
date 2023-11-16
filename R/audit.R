@@ -172,11 +172,11 @@ audit_seq <- function(data) {
 
   # Define some helper functions to be mapped below:
   index_hit_distance <- function(df, var_order = var_names) {
-    df_by_var <- split(df, df$var)
-    out <- purrr::map(df_by_var, index_case_diff)
-    out <- purrr::map(out, function(x) x[x$consistency, ])
-    out <- out[order(var_order)]
-    purrr::map(out, function(x) x$diff_var)
+    out <- df %>%
+      split(df$var) %>%
+      purrr::map(function(x) x[x$consistency, ])
+    out[order(var_order)] %>%
+      purrr::map(function(x) x$diff_var)
   }
 
   length_unless_na <- function(x) {

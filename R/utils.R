@@ -875,38 +875,6 @@ index_case_interpolate <- function(x, index_case_only = TRUE,
 
 
 
-#' Compute difference to index case in `audit_seq()`
-#'
-#' @description Mapped within `audit_seq()`, this helper wraps
-#'   `index_case_interpolate()` to calculate the difference between an index
-#'   case and the next consistent value within a dispersed sequence.
-#'
-#'   The function should likely not be used in any other context.
-#'
-#' @param data Data frame created as an intermediate product within
-#'   `audit_seq()`.
-#'
-#' @return Data frame.
-#'
-#' @noRd
-index_case_diff <- function(data) {
-  var <- data$var[[1]]
-  data_var <- data[var][[1]]
-  index <- index_case_interpolate(data_var, index_itself = TRUE)
-  index_diff <- seq_len(nrow(data)) - index
-
-  if (is_even(length(index_diff))) {
-    index_diff[index_diff < 1] <-
-      index_diff[index_diff < 1] - 1
-  }
-
-  index_diff <- as.integer(index_diff)
-
-  dplyr::mutate(data, index_diff)
-}
-
-
-
 #' Compute central index
 #'
 #' @param x Vector of an odd length (!).
