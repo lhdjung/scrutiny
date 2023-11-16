@@ -176,7 +176,7 @@ audit_seq <- function(data) {
     out <- purrr::map(df_by_var, index_case_diff)
     out <- purrr::map(out, function(x) x[x$consistency, ])
     out <- out[order(var_order)]
-    purrr::map(out, function(x) x$index_diff)
+    purrr::map(out, function(x) x$diff_var)
   }
 
   length_unless_na <- function(x) {
