@@ -136,9 +136,12 @@ seq_disperse <- function(from, by = NULL, dispersion = 1:5, offset_from = 0L,
   from_orig_type <- typeof(from)
   from <- as.numeric(from)
 
-  # Filter the `dispersion` vector from values that fall outside of the range
-  # specified by `out_min` at the lower end...
-  if (!is.null(out_min)) {
+  # Filter the `dispersion` vector -- and the `disp_minus` vector derived from
+  # it -- from values that fall outside of the range specified by `out_min` at
+  # the lower end:
+  if (is.null(out_min)) {
+    disp_minus_represent <- dispersion
+  } else {
     if (length(out_min) > 1L) {
       cli::cli_abort(c(
         "!" = "`out_min` must have length 1 or to be `NULL`.",
@@ -148,29 +151,39 @@ seq_disperse <- function(from, by = NULL, dispersion = 1:5, offset_from = 0L,
     if (out_min == "auto") {
       out_min <- by
     }
-    disp_minus <- disp_minus[(from - disp_minus) >= out_min]
+    is_within_range_lower <- (from - disp_minus) >= out_min
+    disp_minus_represent <- dispersion[is_within_range_lower]
+    disp_minus <- disp_minus[is_within_range_lower]
   }
 
-  # ...and `out_max` at the upper end:
-  if (!is.null(out_max)) {
+  # Do the same but for `disp_plus` and `out_max` at the upper end:
+  if (is.null(out_max)) {
+    disp_plus_represent <- dispersion
+  } else {
     if (length(out_max) > 1L) {
       cli::cli_abort(c(
         "!" = "`out_max` must have length 1 or to be `NULL`.",
         "x" = "It has length {length(out_max)}."
       ))
     }
-    disp_plus <- disp_plus[(from + disp_plus) <= out_max]
+    is_within_range_upper <- (from + disp_plus) <= out_max
+    disp_plus_represent <- dispersion[is_within_range_upper]
+    disp_plus <- disp_plus[is_within_range_upper]
   }
 
   if (offset_from != 0L) {
     from <- from + (by * offset_from)
   }
 
-  if (include_reported) {
-    out <- append(rev(from - disp_minus), c(from, from + disp_plus))
+  disp_zero <- if (include_reported) {
+    from
   } else {
-    out <- append(rev(from - disp_minus), from + disp_plus)
+    NULL
   }
+
+  # Create sequences that are dispersed upward and downward, starting at `from`.
+  # If this very value is meant to be included, it is positioned in between:
+  out <- append(rev(from - disp_minus), c(disp_zero, from + disp_plus))
 
   # Following user preferences, do or don't convert the output to string.
   # However, the default (`string_output == "auto"`) is to decide this by the
@@ -182,29 +195,26 @@ seq_disperse <- function(from, by = NULL, dispersion = 1:5, offset_from = 0L,
     string_output = string_output, digits = digits
   )
 
+  # All the rest is only for creating and appending a sequence of dispersion
+  # steps, so if this is not desired, the `out` vector is returned right now:
   if (!track_diff_var) {
     return(out)
   }
 
   # The complete vector of dispersion steps -- negative and positive -- includes
-  # the midpoint at zero to represent `.from` if and only if chosen by the user:
-  disp_zero <- if (include_reported) {
+  # the midpoint at zero to represent `from` if and only if chosen by the user:
+  disp_zero_represent <- if (include_reported) {
     0L
   } else {
     NULL
   }
 
+  # Collect the sequence dispersed around `from` and the sequence of dispersion
+  # steps in a list:
   list(
-    # Sequence dispersed around `.from`:
     out,
-    # Sequence of dispersion steps:
-    c(
-      -rev(seq_along(disp_minus)),
-      disp_zero,
-      seq_along(disp_plus)
-    )
+    c(-rev(disp_minus_represent), disp_zero_represent, disp_plus_represent)
   )
-
 }
 
 

@@ -27,6 +27,8 @@ with_out_max_df_exp <- tibble::tibble(
   diff_var = c(-5L, -4L, -3L, -2L, -1L, 1L, 2L),
 )
 
+with_track_diff_var <- list(c("0.3", "0.9", "1.1", "1.2"), c(-3, 3, 5, 6))
+
 
 
 # Testing -----------------------------------------------------------------
@@ -49,5 +51,10 @@ test_that("it works when overriding some of the defaults", {
     .include_reported = FALSE, .track_diff_var = TRUE
   ) %>%
     expect_equal(with_out_max_df_exp)
+  seq_disperse(
+    from = 0.6, dispersion = c(3, 5, 6),
+    track_diff_var = TRUE, include_reported = FALSE
+  ) %>%
+    expect_equal(with_track_diff_var)
 })
 
