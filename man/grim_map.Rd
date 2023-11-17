@@ -30,30 +30,30 @@ returned alongside GRIM test results (see \code{extra} below).}
 the number of items composing the \code{x} values. Default is 1, the most common
 case.}
 
-\item{merge_items}{Boolean. If \code{TRUE} (the default), there will be no \code{items}
+\item{merge_items}{Logical. If \code{TRUE} (the default), there will be no \code{items}
 column in the output. Instead, values from an \code{items} column or argument
 will be multiplied with values in the \code{n} column. This does not affect
 GRIM-testing.}
 
-\item{percent}{Boolean. Set \code{percent} to \code{TRUE} if the \code{x} values are
+\item{percent}{Logical. Set \code{percent} to \code{TRUE} if the \code{x} values are
 percentages. This will convert them to decimal numbers and adjust the
 decimal count (i.e., increase it by 2). It also affects the \code{ratio} column.
 Default is \code{FALSE}.}
 
 \item{x, n}{Optionally, specify these arguments as column names in \code{data}.}
 
-\item{show_rec}{Boolean. If set to \code{TRUE}, the reconstructed numbers from
+\item{show_rec}{Logical. If set to \code{TRUE}, the reconstructed numbers from
 GRIM-testing are shown as columns. See section \emph{Reconstructed numbers}
 below. Default is \code{FALSE}.}
 
-\item{show_prob}{Boolean. If set to \code{TRUE}, adds a \code{prob} column that
+\item{show_prob}{Logical. If set to \code{TRUE}, adds a \code{prob} column that
 contains the probability of GRIM inconsistency. This is simply the \code{ratio}
 column censored to range between 0 and 1. Default is \code{FALSE}.}
 
 \item{rounding, threshold, symmetric, tolerance}{Further parameters of
 GRIM-testing; see documentation for \code{grim()}.}
 
-\item{testables_only}{Boolean. If \code{testables_only} is set to \code{TRUE}, only
+\item{testables_only}{Logical. If \code{testables_only} is set to \code{TRUE}, only
 GRIM-testable cases (i.e., those with a positive GRIM ratio) are included.
 Default is \code{FALSE}.}
 

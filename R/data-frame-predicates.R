@@ -17,7 +17,7 @@
 #'
 #' @param x Object to be tested.
 #'
-#' @return Boolean (length 1).
+#' @return Logical (length 1).
 
 #' @details Sections 3, 6, and 7 of `vignette("consistency-tests")` discuss
 #'   which function factories produce which functions, and which of these new,

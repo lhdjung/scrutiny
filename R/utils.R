@@ -160,7 +160,7 @@ an_a_type <- function(x) {
 #' @param tolerance Numeric. The default is close to `1 / (10 ^ 8)`, which is
 #'   reasonable but still user-imposed.
 #'
-#' @return Boolean vector of length `length(x)`.
+#' @return Logical vector of length `length(x)`.
 #'
 #' @noRd
 is_whole_number <- function(x, tolerance = .Machine$double.eps^0.5) {
@@ -293,9 +293,9 @@ add_class <- function(x, new_class) {
 #'
 #' @param var_list List of variables that were passed to the enclosing function
 #'   as arguments.
-#' @param error Boolean (length 1). Should an error be thrown if lengths are not
+#' @param error Logical (length 1). Should an error be thrown if lengths are not
 #'   congruent? Default is `TRUE`.
-#' @param warn Boolean (length 1). If no error is thrown, should a warning be
+#' @param warn Logical (length 1). If no error is thrown, should a warning be
 #'   issued if appropriate (see description)? Default is `TRUE`.
 #'
 #' @return No return value; might throw error or warning.
@@ -495,7 +495,7 @@ check_class <- function(x, cl) {
 #'
 #' @param x A user-supplied data frame.
 #'
-#' @return Boolean (length 1).
+#' @return Logical (length 1).
 #'
 #' @noRd
 check_tibble <- function(x) {
@@ -616,7 +616,7 @@ step_size <- function(x) {
 #'   output of the calling `seq_*()` function.
 #' @param from Numeric (or string coercible to numeric). Argument of the calling
 #'   function. The `out` sequence was generated starting from this point.
-#' @param string_output Boolean (or a string that says `"auto"`).
+#' @param string_output Logical (or a string that says `"auto"`).
 #' @param digits Numeric. Number of digits to which `out` will be padded if it's
 #'   coerced to string.
 #'
@@ -716,7 +716,7 @@ check_non_negative <- function(x) {
 #'
 #' @param x Numeric.
 #'
-#' @return Boolean vector of length `length(x)`.
+#' @return Logical vector of length `length(x)`.
 #'
 #' @noRd
 is_even <- function(x) {
@@ -813,7 +813,7 @@ check_type_numeric_like <- function(x) {
 #'   size.
 #'
 #' @param x Numeric (or coercible to numeric).
-#' @param index_case_only Boolean. If `TRUE` (the default), only the
+#' @param index_case_only Logical. If `TRUE` (the default), only the
 #'   reconstructed index case is returned. If `FALSE`, the entire `x` sequence
 #'   is returned, with the index case inserted at the center.
 #' @param index_itself If set to `TRUE`, the index of the "index case" is
@@ -1205,7 +1205,7 @@ wrap_in_quotes_or_backticks <- function(x) {
 #'
 #' @param x,y Two objects to be compared.
 #'
-#' @return Boolean (length 1).
+#' @return Logical (length 1).
 #'
 #' @details Since `near()` is vectorized and `identical()` is not, their results
 #'   are not on par with each other, so `near()` must be wrapped in `all()`,
@@ -1244,7 +1244,7 @@ drop_cols_with <- function(data, drop_with) {
 #' (by default of `n`).
 #'
 #' @param n The number of callers to go back. See `?rlang::caller_call()`.
-#' @param wrap Boolean. If `TRUE` (the default), the output is wrapped into
+#' @param wrap Logical. If `TRUE` (the default), the output is wrapped into
 #'   backticks and appended with `()`.
 #'
 #' @return String (length 1).
@@ -1408,7 +1408,7 @@ trunc_reverse <- function(x) {
 #' @param data Data frame.
 #' @param selection Tidyselect specification to select the columns from `data`
 #'   to operate on. It is spliced into `dplyr::across()`.
-#' @param total Boolean. Should a `.total` column summarize across all values in
+#' @param total Logical. Should a `.total` column summarize across all values in
 #'   `data`, regardless of their original columns? If so, `.total` will be the
 #'   last row of the output tibble.
 #'

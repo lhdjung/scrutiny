@@ -51,11 +51,11 @@ of \code{x}.}
 Default is \code{everything()}, which selects all columns that pass the test of
 \code{check_numeric_like}.}
 
-\item{check_numeric_like}{Boolean. Only in \code{restore_zeros_df()}. If \code{TRUE}
+\item{check_numeric_like}{Logical. Only in \code{restore_zeros_df()}. If \code{TRUE}
 (the default), the function will skip columns that are not numeric or
 coercible to numeric, as determined by \code{is_numeric_like()}.}
 
-\item{check_decimals}{Boolean. Only in \code{restore_zeros_df()}. If set to
+\item{check_decimals}{Logical. Only in \code{restore_zeros_df()}. If set to
 \code{TRUE}, the function will skip columns where no values have any decimal
 places. Default is \code{FALSE}.}
 

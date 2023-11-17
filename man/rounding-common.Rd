@@ -26,7 +26,7 @@ Threshold for rounding up or down, respectively. Value is \code{5} in
 \code{round_up()}'s internal call to \code{round_up_from()} and in \code{round_down()}'s
 internal call to \code{round_down_from()}.}
 
-\item{symmetric}{Boolean. Set \code{symmetric} to \code{TRUE} if the rounding of
+\item{symmetric}{Logical. Set \code{symmetric} to \code{TRUE} if the rounding of
 negative numbers should mirror that of positive numbers so that their
 absolute values are equal. Default is \code{FALSE}.}
 }

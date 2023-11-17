@@ -155,7 +155,7 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 #'   mapper section} of *Implementing consistency tests*.
 #'
 #' @param .fun Function such as `grim_map`: It will be used to test columns in a
-#'   data frame for consistency. Test results are Boolean and need to be
+#'   data frame for consistency. Test results are logical and need to be
 #'   contained in a column called `consistency` that is added to the input data
 #'   frame. This modified data frame is then returned by `.fun`.
 #' @param .reported String. Names of the columns containing group-specific

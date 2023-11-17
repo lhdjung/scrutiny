@@ -38,7 +38,7 @@
 #'   Threshold for rounding up or down, respectively. Value is `5` in
 #'   `round_up()`'s internal call to `round_up_from()` and in `round_down()`'s
 #'   internal call to `round_down_from()`.
-#' @param symmetric Boolean. Set `symmetric` to `TRUE` if the rounding of
+#' @param symmetric Logical. Set `symmetric` to `TRUE` if the rounding of
 #'   negative numbers should mirror that of positive numbers so that their
 #'   absolute values are equal. Default is `FALSE`.
 #'

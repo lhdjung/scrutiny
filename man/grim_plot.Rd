@@ -23,15 +23,15 @@ grim_plot(
 \arguments{
 \item{data}{Data frame. Result of a call to \code{grim_map()}.}
 
-\item{show_data}{Boolean. If set to \code{FALSE}, test results from the data are
+\item{show_data}{Logical. If set to \code{FALSE}, test results from the data are
 not displayed. Choose this if you only want to show the background raster.
 You can then control plot parameters directly via the \code{n}, \code{digits}, and
 \code{rounding} arguments. Default is \code{TRUE}.}
 
-\item{show_raster}{Boolean. If \code{TRUE} (the default), the plot has a
+\item{show_raster}{Logical. If \code{TRUE} (the default), the plot has a
 background raster.}
 
-\item{show_gradient}{Boolean. If the number of decimal places is 3 or
+\item{show_gradient}{Logical. If the number of decimal places is 3 or
 greater, should a gradient be shown to signal the overall probability of
 GRIM inconsistency? Default is \code{TRUE}.}
 

@@ -6,7 +6,7 @@
 # His original algorithm received some modifications here, for three reasons:
 # First, tapping scrutiny's infrastructure for implementing error detection
 # techniques; for example, functions like `reround()` and
-# `decimal_places_scalar()`. Second, changing the return value to Boolean, which
+# `decimal_places_scalar()`. Second, changing the return value to logical, which
 # is the expected output from the basic implementation of any consistency test
 # within scrutiny. Third, adjusting variable names to the tidyverse style guide.
 
@@ -191,14 +191,14 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
 #'   bug that will be fixed in the future.)* Integer. The
 #'   number of items composing the `x` and `sd` values. Default is 1, the most
 #'   common case.
-#' @param show_reason Boolean. For internal use only. If set to `TRUE`, the
+#' @param show_reason Logical. For internal use only. If set to `TRUE`, the
 #'   output is a list of length-2 lists which also contain the reasons for
 #'   inconsistencies. Don't specify this manually; instead, use `show_reason` in
 #'   `grimmer_map()`. Default is `FALSE`.
 #'
 #' @inheritParams grim
 #'
-#' @return Boolean. `TRUE` if `x`, `sd`, `n`, and `items` are mutually
+#' @return Logical. `TRUE` if `x`, `sd`, `n`, and `items` are mutually
 #'   consistent, `FALSE` if not.
 
 #' @details GRIMMER was originally devised by Anaya (2016). The present

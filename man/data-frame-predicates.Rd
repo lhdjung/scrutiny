@@ -20,7 +20,7 @@ is_map_total_n_df(x)
 \item{x}{Object to be tested.}
 }
 \value{
-Boolean (length 1).
+Logical (length 1).
 }
 \description{
 \itemize{

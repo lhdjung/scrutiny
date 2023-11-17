@@ -17,7 +17,7 @@ column name will be that many row values pasted together. \code{collapse}, then,
 is the substring between two former row values in the final column names.
 Default is \code{" "} (a space).}
 
-\item{drop}{Boolean. If \code{TRUE} (the default), the rows specified with \code{row}
+\item{drop}{Logical. If \code{TRUE} (the default), the rows specified with \code{row}
 are removed.}
 }
 \value{

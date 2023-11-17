@@ -193,7 +193,7 @@ check_audit_special <- function(data, name_test) {
 #' @param var_arg The argument to the mapper function that has the same name as
 #'   the helper column you want to manage.
 #' @param default The default for the argument that was specified in `var_arg`.
-#' @param affix Boolean (length 1). If `data` doesn't include the helper column
+#' @param affix Logical (length 1). If `data` doesn't include the helper column
 #'   already, should `var_arg` be added to `data`, bearing its proper name?
 #'   Default is `TRUE`.
 #'
@@ -328,7 +328,7 @@ manage_key_colnames_list_el <- function(data, key_arg) {
 #'   `col`.
 #' @param col_names String vector of new names for the unnested columns. It
 #'   should start with the same string that was given for `col`.
-#' @param index Boolean. Should the list-column be indexed into? Default is
+#' @param index Logical. Should the list-column be indexed into? Default is
 #'   `FALSE`.
 #' @param col String (length 1). Name of the list-column within `results` to
 #'   operate on. Default is `"consistency"`.

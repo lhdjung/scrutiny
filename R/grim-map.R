@@ -19,24 +19,24 @@
 #' @param items Integer. If there is no `items` column in `data`, this specifies
 #'   the number of items composing the `x` values. Default is 1, the most common
 #'   case.
-#' @param merge_items Boolean. If `TRUE` (the default), there will be no `items`
+#' @param merge_items Logical. If `TRUE` (the default), there will be no `items`
 #'   column in the output. Instead, values from an `items` column or argument
 #'   will be multiplied with values in the `n` column. This does not affect
 #'   GRIM-testing.
-#' @param percent Boolean. Set `percent` to `TRUE` if the `x` values are
+#' @param percent Logical. Set `percent` to `TRUE` if the `x` values are
 #'   percentages. This will convert them to decimal numbers and adjust the
 #'   decimal count (i.e., increase it by 2). It also affects the `ratio` column.
 #'   Default is `FALSE`.
 #' @param x,n Optionally, specify these arguments as column names in `data`.
-#' @param show_rec Boolean. If set to `TRUE`, the reconstructed numbers from
+#' @param show_rec Logical. If set to `TRUE`, the reconstructed numbers from
 #'   GRIM-testing are shown as columns. See section *Reconstructed numbers*
 #'   below. Default is `FALSE`.
-#' @param show_prob Boolean. If set to `TRUE`, adds a `prob` column that
+#' @param show_prob Logical. If set to `TRUE`, adds a `prob` column that
 #'   contains the probability of GRIM inconsistency. This is simply the `ratio`
 #'   column censored to range between 0 and 1. Default is `FALSE`.
 #' @param rounding,threshold,symmetric,tolerance Further parameters of
 #'   GRIM-testing; see documentation for `grim()`.
-#' @param testables_only Boolean. If `testables_only` is set to `TRUE`, only
+#' @param testables_only Logical. If `testables_only` is set to `TRUE`, only
 #'   GRIM-testable cases (i.e., those with a positive GRIM ratio) are included.
 #'   Default is `FALSE`.
 #' @param extra String or integer. The other column(s) from `data` to be

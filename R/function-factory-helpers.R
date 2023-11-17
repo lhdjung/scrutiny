@@ -468,15 +468,15 @@ check_args_disabled_unnamed <- function(args_disabled) {
 #' @param contains String. The presence of `contains` values in the classes of
 #'   `data` is tested via `stringr::str_detect()`. Note that the order among
 #'   `contains` values matters.
-#' @param all_classes Boolean. If set to `TRUE`, returns all classes with a
+#' @param all_classes Logical. If set to `TRUE`, returns all classes with a
 #'   length-1 `contains` value. (Other lengths will then throw an error.)
 #'   Default is `FALSE`.
-#' @param order_decreasing Boolean. If `TRUE` (the default), longer classes are
+#' @param order_decreasing Logical. If `TRUE` (the default), longer classes are
 #'   tested before shorter ones.
 #'
 #' @return
 #' - For `class_with()`, a string vector.
-#' - For `inherits_class_with()`, a length-1 Boolean vector.
+#' - For `inherits_class_with()`, a length-1 logical vector.
 #'
 #' @noRd
 class_with <- function(data, contains, all_classes = FALSE,

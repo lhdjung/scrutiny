@@ -54,11 +54,11 @@
 #'   it.
 #'
 #' @param data Data frame. Result of a call to `grim_map()`.
-#' @param show_data Boolean. If set to `FALSE`, test results from the data are
+#' @param show_data Logical. If set to `FALSE`, test results from the data are
 #'   not displayed. Choose this if you only want to show the background raster.
 #'   You can then control plot parameters directly via the `n`, `digits`, and
 #'   `rounding` arguments. Default is `TRUE`.
-#' @param show_gradient Boolean. If the number of decimal places is 3 or
+#' @param show_gradient Logical. If the number of decimal places is 3 or
 #'   greater, should a gradient be shown to signal the overall probability of
 #'   GRIM inconsistency? Default is `TRUE`.
 #' @param digits Integer. Number of decimal places for which the background
@@ -72,7 +72,7 @@
 #' @param rounding String. Only relevant if `show_data` is set to `FALSE`. The
 #'   plot will then be constructed as it would be for data rounded in this
 #'   particular way. Default is `"up_or_down"`.
-#' @param show_raster Boolean. If `TRUE` (the default), the plot has a
+#' @param show_raster Logical. If `TRUE` (the default), the plot has a
 #'   background raster.
 #' @param color_cons,color_incons Strings. Fill colors of the consistent and
 #'   inconsistent scatter points. Defaults are `"royalblue1"` (consistent) and

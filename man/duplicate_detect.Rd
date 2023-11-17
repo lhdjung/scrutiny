@@ -12,7 +12,7 @@ duplicate_detect(x, ignore = NULL, colname_end = "dup", numeric_only)
 \item{ignore}{Optionally, a vector of values that should not be checked. In
 the test result columns, they will be marked \code{NA}.}
 
-\item{colname_end}{String. Name ending of the Boolean test result columns.
+\item{colname_end}{String. Name ending of the logical test result columns.
 Default is \code{"dup"}.}
 
 \item{numeric_only}{[\link{Deprecated}] No longer used: All values are coerced to

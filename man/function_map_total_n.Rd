@@ -19,7 +19,7 @@ function_map_total_n(
 }
 \arguments{
 \item{.fun}{Function such as \code{grim_map}: It will be used to test columns in a
-data frame for consistency. Test results are Boolean and need to be
+data frame for consistency. Test results are logical and need to be
 contained in a column called \code{consistency} that is added to the input data
 frame. This modified data frame is then returned by \code{.fun}.}
 

@@ -19,15 +19,15 @@
 #'   accessibility overall.
 #'
 #' @param data Data frame. Result of a call to `debit_map()`.
-#' @param show_outer_boxes Boolean. Should outer tiles surround the actual data
+#' @param show_outer_boxes Logical. Should outer tiles surround the actual data
 #'   points, making it easier to spot them and to assess their overlap? Default
 #'   is `TRUE`.
-#' @param show_labels Boolean. Should the data points have labels (of the form
+#' @param show_labels Logical. Should the data points have labels (of the form
 #'   "mean; SD")? Default is `TRUE`.
-#' @param show_full_scale Boolean. Should the plot be fixed to full scale,
+#' @param show_full_scale Logical. Should the plot be fixed to full scale,
 #'   showing the entire consistency line independently of the data? Default is
 #'   `TRUE`.
-#' @param show_theme_other Boolean. Should the theme be modified in a way
+#' @param show_theme_other Logical. Should the theme be modified in a way
 #'   fitting the plot structure? Default is `TRUE`.
 #' @param color_cons,color_incons Strings. Colors of the geoms representing
 #'   consistent and inconsistent values, respectively.

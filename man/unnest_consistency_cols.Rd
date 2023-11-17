@@ -13,7 +13,7 @@ unnest_consistency_cols(results, col_names, index = FALSE, col = "consistency")
 \item{col_names}{String vector of new names for the unnested columns. It
 should start with the same string that was given for \code{col}.}
 
-\item{index}{Boolean. Should the list-column be indexed into? Default is
+\item{index}{Logical. Should the list-column be indexed into? Default is
 \code{FALSE}.}
 
 \item{col}{String (length 1). Name of the list-column within \code{results} to

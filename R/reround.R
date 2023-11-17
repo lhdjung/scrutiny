@@ -94,7 +94,7 @@ reconstruct_rounded_numbers <- Vectorize(reconstruct_rounded_numbers_scalar,
 #'   or `"up_from_or_down_from"`, `threshold` must be set to the number from
 #'   which the reconstructed values should then be rounded up or down. Otherwise
 #'   irrelevant. Default is `5`.
-#' @param symmetric Boolean. Set `symmetric` to `TRUE` if the rounding of
+#' @param symmetric Logical. Set `symmetric` to `TRUE` if the rounding of
 #'   negative numbers with `"up_or_down"`, `"up"`, `"down"`,
 #'   `"up_from_or_down_from"`, `"up_from"`, or `"down_from"` should mirror that
 #'   of positive numbers so that their absolute values are always equal.

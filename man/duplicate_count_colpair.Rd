@@ -17,7 +17,7 @@ duplicate_count_colpair(
 \item{ignore}{Optionally, a vector of values that should not be checked for
 duplicates.}
 
-\item{show_rates}{Boolean. If \code{TRUE} (the default), adds columns \code{rate_x} and
+\item{show_rates}{Logical. If \code{TRUE} (the default), adds columns \code{rate_x} and
 \code{rate_y}. See value section. Set \code{show_rates} to \code{FALSE} for higher
 performance.}
 

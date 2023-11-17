@@ -25,9 +25,8 @@
 #' - `consistency`: DEBIT consistency of `x`, `sd`, and `n`.
 #'
 #'  By default, the tibble also includes the rounding method, boundary values,
-#'  and Boolean information about the boundary values being inclusive or not.
-#'  The tibble has the `scr_debit_map` class, which is recognized by the
-#'  `audit()` generic.
+#'  and information about the boundary values being inclusive or not. The tibble
+#'  has the `scr_debit_map` class, which is recognized by the `audit()` generic.
 #'
 #' @section Summaries with `audit()`: There is an S3 method for the `audit()`
 #'   generic, so you can call `audit()` following `debit_map()`. It returns a
@@ -155,7 +154,7 @@ debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
     )
 
   # Finally, return the results, with or without the intermediary values
-  # (rounding method, boundary values, and Boolean information about the
+  # (rounding method, boundary values, and Logical information about the
   # boundary values being inclusive or not):
   if (show_rec) {
     out <- results %>%

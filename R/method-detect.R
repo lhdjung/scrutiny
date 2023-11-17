@@ -4,7 +4,7 @@
 
 audit.scr_dup_detect <- function(data) {
 
-  # Select the Boolean test columns (i.e., every second column):
+  # Select the logical test columns (i.e., every second column):
   data_dup <- data[is_even(seq_len(ncol(data)))]
 
   # Extract original term names:
@@ -12,7 +12,7 @@ audit.scr_dup_detect <- function(data) {
     dplyr::select(-names(data_dup)) %>%
     names()
 
-  # Boolean columns get original term names (the "_dup" would be redundant):
+  # Logical columns get original term names (the "_dup" would be redundant):
   names(data_dup) <- orig_names
 
   # After saving the number of its rows, `data` is no longer needed:

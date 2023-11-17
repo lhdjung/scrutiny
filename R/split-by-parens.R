@@ -15,11 +15,11 @@
 #' @param cols Select columns from `data` using
 #'   \href{https://tidyselect.r-lib.org/reference/language.html}{tidyselect}.
 #'   Default is `everything()`, which selects all columns that pass `check_sep`.
-#' @param check_sep Boolean. If `TRUE` (the default), columns are excluded if
+#' @param check_sep Logical. If `TRUE` (the default), columns are excluded if
 #'   they don't contain the `sep` elements.
-#' @param keep Boolean. If set to `TRUE`, the originally selected columns that
+#' @param keep Logical. If set to `TRUE`, the originally selected columns that
 #'   were split by the function also appear in the output. Default is `FALSE`.
-#' @param transform Boolean. If set to `TRUE`, the output will be pivoted to be
+#' @param transform Logical. If set to `TRUE`, the output will be pivoted to be
 #'   better suitable for typical follow-up tasks. Default is `FALSE`.
 #' @param sep String. What to split by. Either `"parens"`, `"brackets"`, or
 #'   `"braces"`; or a length-2 vector of custom separators (see Examples).

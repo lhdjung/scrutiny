@@ -19,7 +19,7 @@
 #'   newly created columns.
 #' @param name_class String. Name of the class which the factory-made function
 #'   will add to the tibble that it returns.
-#' @param include_numeric_only_arg Boolean. Should the factory-made function
+#' @param include_numeric_only_arg Logical. Should the factory-made function
 #'   have the deprecated `numeric_only = TRUE` argument? Only for compatibility
 #'   with older versions of scrutiny (i.e., before 0.3.0). Default is `FALSE`.
 #'
@@ -113,11 +113,11 @@ function_duplicate_cols <- function(code_new_cols, default_end, name_class,
       }
 
       # Gather both vectors in a tibble, so that each test value is joined by a
-      # Boolean value indicating whether it has any duplicates in the rest of
+      # Logical value indicating whether it has any duplicates in the rest of
       # the vector (i.e., in the flattened original data frame). Split the
       # two-column tibble and rearrange it into one of the same shape as the
       # original data frame, but with every test value accompanied by its
-      # corresponding Boolean value to the right, as above. Also, add the
+      # corresponding logical value to the right, as above. Also, add the
       # "scr_dup_detect" class added, which is recognized by the `audit()`
       # generic:
       x %>%
@@ -166,7 +166,7 @@ function_duplicate_cols <- function(code_new_cols, default_end, name_class,
 #' @param x Vector or data frame.
 #' @param ignore Optionally, a vector of values that should not be checked. In
 #'   the test result columns, they will be marked `NA`.
-#' @param colname_end String. Name ending of the Boolean test result columns.
+#' @param colname_end String. Name ending of the logical test result columns.
 #'   Default is `"dup"`.
 #' @param numeric_only [[Deprecated]] No longer used: All values are coerced to
 #'   character.
@@ -219,7 +219,7 @@ function_duplicate_cols <- function(code_new_cols, default_end, name_class,
 #'   duplicate_detect(ignore = c(8.131, 7.574))
 
 duplicate_detect <- function_duplicate_cols(
-  # Create a Boolean vector pointing out duplicates within the vector of all
+  # Create a logical vector pointing out duplicates within the vector of all
   # input values, both from the start forward and from the end backward:
   code_new_cols = duplicated(x) | duplicated(x, fromLast = TRUE),
   default_end = "dup",
@@ -239,7 +239,7 @@ duplicate_detect <- function_duplicate_cols(
 #'
 #'   For summary statistics, call `audit()` on the results.
 #'
-#' @param colname_end String. Name ending of the Boolean test result columns.
+#' @param colname_end String. Name ending of the logical test result columns.
 #'   Default is `"n"`.
 #'
 #' @inheritParams duplicate_detect

@@ -20,7 +20,7 @@ function_map(
 \arguments{
 \item{.fun}{Single-case consistency testing function that will be applied to
 each row in a data frame, such as the (non-exported) scrutiny functions
-\code{grim_scalar()} and \code{grimmer_scalar()}. It must return a Boolean value of
+\code{grim_scalar()} and \code{grimmer_scalar()}. It must return a logical value of
 length 1, i.e., \code{TRUE} or \code{FALSE}.}
 
 \item{.reported}{String. Names of the columns to be tested.}
@@ -46,7 +46,7 @@ of additional columns that are derived from the \verb{*_scalar()} function.
 Requires \code{.col_control} and \code{.col_filler} specifications.}
 
 \item{.col_control}{(Experimental) Optionally, a single string with the name
-of the \verb{*_scalar()} function's Boolean argument that controls if the
+of the \verb{*_scalar()} function's logical argument that controls if the
 columns named in \code{.col_names} will be displayed.}
 
 \item{.col_filler}{(Experimental) Optionally, a vector specifying the values
@@ -91,7 +91,7 @@ named \code{"scr_rounding_{rounding}"}; for example,
 }
 \section{Value returned by the factory-made function}{
  A tibble that includes
-\code{"consistency"}: a Boolean column showing whether the values to its left
+\code{"consistency"}: a logical column showing whether the values to its left
 are mutually consistent (\code{TRUE}) or not (\code{FALSE}).
 }
 

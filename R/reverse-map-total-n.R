@@ -52,7 +52,7 @@ reverse_map_total_n <- function(data) {
     rep(each = 2L) %>%
     is_even()
 
-  # Negate the evenness and convert the results from Boolean to numeric, which
+  # Negate the evenness and convert the results from logical to numeric, which
   # returns `0` as a correction for even original `n` values because they don't
   # need to be corrected, and `1` for odd original `n` values, because these
   # ones do need a correction:

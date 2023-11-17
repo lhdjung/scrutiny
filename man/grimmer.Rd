@@ -29,7 +29,7 @@ bug that will be fixed in the future.)} Integer. The
 number of items composing the \code{x} and \code{sd} values. Default is 1, the most
 common case.}
 
-\item{show_reason}{Boolean. For internal use only. If set to \code{TRUE}, the
+\item{show_reason}{Logical. For internal use only. If set to \code{TRUE}, the
 output is a list of length-2 lists which also contain the reasons for
 inconsistencies. Don't specify this manually; instead, use \code{show_reason} in
 \code{grimmer_map()}. Default is \code{FALSE}.}
@@ -43,7 +43,7 @@ or \code{"up_from_or_down_from"}, set \code{threshold} to the number from which 
 reconstructed values should then be rounded up or down. Otherwise, this
 argument plays no role. Default is \code{5}.}
 
-\item{symmetric}{Boolean. Set \code{symmetric} to \code{TRUE} if the rounding of
+\item{symmetric}{Logical. Set \code{symmetric} to \code{TRUE} if the rounding of
 negative numbers with \code{"up"}, \code{"down"}, \code{"up_from"}, or \code{"down_from"}
 should mirror that of positive numbers so that their absolute values are
 always equal. Default is \code{FALSE}.}
@@ -53,7 +53,7 @@ possible mean or percentage values. Default is circa 0.000000015
 (1.490116e-08), as in \code{dplyr::near()}.}
 }
 \value{
-Boolean. \code{TRUE} if \code{x}, \code{sd}, \code{n}, and \code{items} are mutually
+Logical. \code{TRUE} if \code{x}, \code{sd}, \code{n}, and \code{items} are mutually
 consistent, \code{FALSE} if not.
 }
 \description{

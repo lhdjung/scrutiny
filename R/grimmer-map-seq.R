@@ -20,10 +20,10 @@
 #'   not below `out_min` or above `out_max`. Defaults are `"auto"` for
 #'   `out_min`, i.e., a minimum of one decimal unit above zero; and `NULL` for
 #'   `out_max`, i.e., no maximum.
-#' @param include_reported Boolean. Should the reported values themselves be
+#' @param include_reported Logical. Should the reported values themselves be
 #'   included in the sequences originating from them? Default is `FALSE` because
 #'   this might be redundant and bias the results.
-#' @param include_consistent Boolean. Should the function also process
+#' @param include_consistent Logical. Should the function also process
 #'   consistent cases (from among those reported), not just inconsistent ones?
 #'   Default is `FALSE` because the focus should be on clarifying
 #'   inconsistencies.

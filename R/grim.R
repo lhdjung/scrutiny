@@ -149,10 +149,10 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
 #' @param n Integer. The reported sample size.
 #' @param items Numeric. The number of items composing `x`. Default is 1, the
 #'   most common case.
-#' @param percent Boolean. Set `percent` to `TRUE` if `x` is a percentage. This
+#' @param percent Logical. Set `percent` to `TRUE` if `x` is a percentage. This
 #'   will convert it to a decimal number and adjust the decimal count (i.e.,
 #'   increase it by 2). Default is `FALSE`.
-#' @param show_rec Boolean. For internal use only.  If set to `TRUE`, the output
+#' @param show_rec Logical. For internal use only.  If set to `TRUE`, the output
 #'   is a matrix that also contains intermediary values from GRIM-testing. Don't
 #'   specify this manually; instead, use `show_rec` in `grim_map()`. Default is
 #'   `FALSE`.
@@ -163,7 +163,7 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
 #'   or `"up_from_or_down_from"`, set `threshold` to the number from which the
 #'   reconstructed values should then be rounded up or down. Otherwise, this
 #'   argument plays no role. Default is `5`.
-#' @param symmetric Boolean. Set `symmetric` to `TRUE` if the rounding of
+#' @param symmetric Logical. Set `symmetric` to `TRUE` if the rounding of
 #'   negative numbers with `"up"`, `"down"`, `"up_from"`, or `"down_from"`
 #'   should mirror that of positive numbers so that their absolute values are
 #'   always equal. Default is `FALSE`.
@@ -171,7 +171,7 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
 #'   possible mean or percentage values. Default is circa 0.000000015
 #'   (1.490116e-08), as in `dplyr::near()`.
 #'
-#' @return Boolean. `TRUE` if `x`, `n`, and `items` are mutually consistent,
+#' @return Logical. `TRUE` if `x`, `n`, and `items` are mutually consistent,
 #'   `FALSE` if not.
 #'
 #' @seealso `grim_map()` applies `grim()` to any number of cases at once.

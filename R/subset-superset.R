@@ -50,7 +50,7 @@
 #'   contain; in the `*_vecs()` functions, any number of vectors the elements of
 #'   which `x` might contain.
 #'
-#' @return A single Boolean value. `TRUE` if the respective test was passed,
+#' @return A single logical value. `TRUE` if the respective test was passed,
 #'   `FALSE` otherwise.
 #'
 #' @include utils.R

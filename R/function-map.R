@@ -10,7 +10,7 @@
 #'
 #' @param .fun Single-case consistency testing function that will be applied to
 #'   each row in a data frame, such as the (non-exported) scrutiny functions
-#'   `grim_scalar()` and `grimmer_scalar()`. It must return a Boolean value of
+#'   `grim_scalar()` and `grimmer_scalar()`. It must return a logical value of
 #'   length 1, i.e., `TRUE` or `FALSE`.
 #' @param .reported String. Names of the columns to be tested.
 #' @param .name_test String (length 1). Plain-text name of the consistency test,
@@ -29,7 +29,7 @@
 #'   of additional columns that are derived from the `*_scalar()` function.
 #'   Requires `.col_control` and `.col_filler` specifications.
 #' @param .col_control (Experimental) Optionally, a single string with the name
-#'   of the `*_scalar()` function's Boolean argument that controls if the
+#'   of the `*_scalar()` function's logical argument that controls if the
 #'   columns named in `.col_names` will be displayed.
 #' @param .col_filler (Experimental) Optionally, a vector specifying the values
 #'   of `.col_names` columns in rows where the `*_scalar()` function only
@@ -59,7 +59,7 @@
 #'   column-identifying arguments derived from `.reported`.
 
 #' @section Value returned by the factory-made function: A tibble that includes
-#'   `"consistency"`: a Boolean column showing whether the values to its left
+#'   `"consistency"`: a logical column showing whether the values to its left
 #'   are mutually consistent (`TRUE`) or not (`FALSE`).
 
 #' @include grim.R debit.R function-factory-helpers.R
@@ -282,7 +282,7 @@ function_map <- function(.fun, .reported, .name_test,
         add_class(c(`!!`(all_classes), rounding_class))
 
       # The idea here is that `.col_control` might have been specified as a
-      # string that is the name of a Boolean argument which controls whether or
+      # string that is the name of a logical argument which controls whether or
       # not additional columns beyond `"consistency"` are shown. They would have
       # to be extracted from the `*_scalar()` function and initially stored in a
       # `"consistency"` list-column, together with the actual `consistency`

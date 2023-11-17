@@ -23,7 +23,7 @@
 #' @param n Integer. Sample size corresponding to `x`.
 #' @param items Integer. Number of items composing the mean or percentage value
 #'   in question. Default is `1`.
-#' @param percent Boolean. Set `percent` to `TRUE` if `x` is expressed as a
+#' @param percent Logical. Set `percent` to `TRUE` if `x` is expressed as a
 #'   proportion of 100 rather than 1. The functions will then account for this
 #'   fact through increasing the decimal count by 2. Default is `FALSE`.
 

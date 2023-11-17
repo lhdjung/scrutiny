@@ -36,11 +36,11 @@ not below \code{out_min} or above \code{out_max}. Defaults are \code{"auto"} for
 \code{out_min}, i.e., a minimum of one decimal unit above zero; and \code{NULL} for
 \code{out_max}, i.e., no maximum.}
 
-\item{include_reported}{Boolean. Should the reported values themselves be
+\item{include_reported}{Logical. Should the reported values themselves be
 included in the sequences originating from them? Default is \code{FALSE} because
 this might be redundant and bias the results.}
 
-\item{include_consistent}{Boolean. Should the function also process
+\item{include_consistent}{Logical. Should the function also process
 consistent cases (from among those reported), not just inconsistent ones?
 Default is \code{FALSE} because the focus should be on clarifying
 inconsistencies.}

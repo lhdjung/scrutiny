@@ -24,11 +24,11 @@ grim(
 \item{items}{Numeric. The number of items composing \code{x}. Default is 1, the
 most common case.}
 
-\item{percent}{Boolean. Set \code{percent} to \code{TRUE} if \code{x} is a percentage. This
+\item{percent}{Logical. Set \code{percent} to \code{TRUE} if \code{x} is a percentage. This
 will convert it to a decimal number and adjust the decimal count (i.e.,
 increase it by 2). Default is \code{FALSE}.}
 
-\item{show_rec}{Boolean. For internal use only.  If set to \code{TRUE}, the output
+\item{show_rec}{Logical. For internal use only.  If set to \code{TRUE}, the output
 is a matrix that also contains intermediary values from GRIM-testing. Don't
 specify this manually; instead, use \code{show_rec} in \code{grim_map()}. Default is
 \code{FALSE}.}
@@ -42,7 +42,7 @@ or \code{"up_from_or_down_from"}, set \code{threshold} to the number from which 
 reconstructed values should then be rounded up or down. Otherwise, this
 argument plays no role. Default is \code{5}.}
 
-\item{symmetric}{Boolean. Set \code{symmetric} to \code{TRUE} if the rounding of
+\item{symmetric}{Logical. Set \code{symmetric} to \code{TRUE} if the rounding of
 negative numbers with \code{"up"}, \code{"down"}, \code{"up_from"}, or \code{"down_from"}
 should mirror that of positive numbers so that their absolute values are
 always equal. Default is \code{FALSE}.}
@@ -52,7 +52,7 @@ possible mean or percentage values. Default is circa 0.000000015
 (1.490116e-08), as in \code{dplyr::near()}.}
 }
 \value{
-Boolean. \code{TRUE} if \code{x}, \code{n}, and \code{items} are mutually consistent,
+Logical. \code{TRUE} if \code{x}, \code{n}, and \code{items} are mutually consistent,
 \code{FALSE} if not.
 }
 \description{

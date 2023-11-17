@@ -34,13 +34,13 @@ or \code{"up_from_or_down_from"}, set \code{threshold} to the number from which 
 reconstructed values should then be rounded up or down. Otherwise
 irrelevant. Default is \code{5}.}
 
-\item{symmetric}{Boolean. Set \code{symmetric} to \code{TRUE} if the rounding of
+\item{symmetric}{Logical. Set \code{symmetric} to \code{TRUE} if the rounding of
 negative numbers with \code{"up"}, \code{"down"}, \code{"up_from"}, or \code{"down_from"}
 should mirror that of positive numbers so that their absolute values are
 always equal. Default is \code{FALSE}.}
 }
 \value{
-Boolean. \code{TRUE} if \code{x}, \code{sd}, and \code{n} are mutually consistent,
+Logical. \code{TRUE} if \code{x}, \code{sd}, and \code{n} are mutually consistent,
 \code{FALSE} if not.
 }
 \description{

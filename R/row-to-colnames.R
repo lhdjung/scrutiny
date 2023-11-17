@@ -22,7 +22,7 @@
 #'   column name will be that many row values pasted together. `collapse`, then,
 #'   is the substring between two former row values in the final column names.
 #'   Default is `" "` (a space).
-#' @param drop Boolean. If `TRUE` (the default), the rows specified with `row`
+#' @param drop Logical. If `TRUE` (the default), the rows specified with `row`
 #'   are removed.
 #'
 #' @include utils.R

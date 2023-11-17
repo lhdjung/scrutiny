@@ -25,7 +25,7 @@ documentation for \code{grim()}.}
 \item{items}{Integer. Number of items composing the mean or percentage value
 in question. Default is \code{1}.}
 
-\item{percent}{Boolean. Set \code{percent} to \code{TRUE} if \code{x} is expressed as a
+\item{percent}{Logical. Set \code{percent} to \code{TRUE} if \code{x} is expressed as a
 proportion of 100 rather than 1. The functions will then account for this
 fact through increasing the decimal count by 2. Default is \code{FALSE}.}
 }

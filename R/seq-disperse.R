@@ -25,15 +25,15 @@
 #'   restricted so that it's not below `out_min` or above `out_max`. Defaults
 #'   are `"auto"` for `out_min`, i.e., a minimum of one decimal unit above zero;
 #'   and `NULL` for `out_max`, i.e., no maximum.
-#' @param string_output,.string_output Boolean or string. If `TRUE` (the
+#' @param string_output,.string_output Logical or string. If `TRUE` (the
 #'   default), the output is a string vector. Decimal places are then padded
 #'   with zeros to match `from`'s number of decimal places. `"auto"` works like
 #'   `TRUE` if and only if `from` (`.from`) is a string.
-#' @param include_reported,.include_reported Boolean. Should `from` (`.from`)
+#' @param include_reported,.include_reported Logical. Should `from` (`.from`)
 #'   itself be part of the sequence built around it? Default is `TRUE` for the
 #'   sake of continuity, but this can be misleading if the focus is on the
 #'   dispersed values, as opposed to the input.
-#' @param track_diff_var,.track_diff_var Boolean. In `seq_disperse()`, ignore
+#' @param track_diff_var,.track_diff_var Logical. In `seq_disperse()`, ignore
 #'   this argument. In `seq_disperse_df()`, default is `TRUE`, which creates the
 #'   `"diff_var"` output column.
 #' @param track_var_change,.track_var_change `r lifecycle::badge("deprecated")`

@@ -53,17 +53,17 @@ restricted so that it's not below \code{out_min} or above \code{out_max}. Defaul
 are \code{"auto"} for \code{out_min}, i.e., a minimum of one decimal unit above zero;
 and \code{NULL} for \code{out_max}, i.e., no maximum.}
 
-\item{string_output, .string_output}{Boolean or string. If \code{TRUE} (the
+\item{string_output, .string_output}{Logical or string. If \code{TRUE} (the
 default), the output is a string vector. Decimal places are then padded
 with zeros to match \code{from}'s number of decimal places. \code{"auto"} works like
 \code{TRUE} if and only if \code{from} (\code{.from}) is a string.}
 
-\item{include_reported, .include_reported}{Boolean. Should \code{from} (\code{.from})
+\item{include_reported, .include_reported}{Logical. Should \code{from} (\code{.from})
 itself be part of the sequence built around it? Default is \code{TRUE} for the
 sake of continuity, but this can be misleading if the focus is on the
 dispersed values, as opposed to the input.}
 
-\item{track_diff_var, .track_diff_var}{Boolean. In \code{seq_disperse()}, ignore
+\item{track_diff_var, .track_diff_var}{Logical. In \code{seq_disperse()}, ignore
 this argument. In \code{seq_disperse_df()}, default is \code{TRUE}, which creates the
 \code{"diff_var"} output column.}
 

@@ -5,13 +5,13 @@
 #'   numeric" by the particular standards of scrutiny. This means:
 #'
 #'   - Integer and double vectors are `TRUE`.
-#'   - Booleans are `FALSE`, as are non-vector objects.
+#'   - Logical vectors are `FALSE`, as are non-vector objects.
 #'   - Other vectors (most likely strings) are `TRUE` if all their non-`NA`
 #'   values can be coerced to non-`NA` numeric values, and `FALSE` otherwise.
 #'   - Factors are first coerced to string, then tested.
 #'   - Lists are tested like atomic vectors unless any of their elements have
 #'   length greater 1, in which case they are always `FALSE`.
-#'   - If all values are non-numeric, non-Boolean `NA`, the output is also `NA`.
+#'   - If all values are non-numeric, non-logical `NA`, the output is also `NA`.
 #'
 #'   See details for discussion.
 #'
@@ -22,17 +22,17 @@
 #'   is a matter of displaying data in a certain way, as opposed to their
 #'   storage mode.
 #'
-#'   `is_numeric_like()` returns `FALSE` for Booleans simply because these are
-#'   displayed as words, not as numbers, and the usual coercion rules would be
-#'   misleading in this context. Likewise, the function treats factors like
-#'   strings because that is how they are displayed: the fact that factors are
-#'   stored as integers is irrelevant.
+#'   `is_numeric_like()` returns `FALSE` for logical vectors simply because
+#'   these are displayed as strings, not as numbers, and the usual coercion
+#'   rules would be misleading in this context. Likewise, the function treats
+#'   factors like strings because that is how they are displayed: the fact that
+#'   factors are stored as integers is irrelevant.
 #'
 #'   Why store numbers as strings or factors? Only these data types can preserve
 #'   trailing zeros, and only if the data were originally entered as strings.
 #'   See `vignette("wrangling")`, section *Trailing zeros*.
 #'
-#' @return Boolean (length 1).
+#' @return Logical (length 1).
 #'
 #' @seealso The \href{https://vctrs.r-lib.org/}{vctrs} package provides a
 #'   serious typing framework for R; quite in contrast to this rather ad-hoc and
@@ -45,7 +45,7 @@
 #' is_numeric_like(x = 1:5)
 #' is_numeric_like(x = 2.47)
 #'
-#' # Booleans are always `FALSE`:
+#' # Logical vectors are always `FALSE`:
 #' is_numeric_like(x = c(TRUE, FALSE))
 #'
 #' # Strings are `TRUE` if all of their non-`NA`
@@ -70,7 +70,7 @@
 #' # If all values are `NA`, so is the output...
 #' is_numeric_like(x = as.character(c(NA, NA, NA)))
 #'
-#' # ...unless the `NA`s are numeric or Boolean:
+#' # ...unless the `NA`s are numeric or logical:
 #' is_numeric_like(x = as.numeric(c(NA, NA, NA)))
 #' is_numeric_like(x = c(NA, NA, NA))
 

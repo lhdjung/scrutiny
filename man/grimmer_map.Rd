@@ -28,14 +28,14 @@ bug that will be fixed in the future.)} Integer. If there is no \code{items}
 column in \code{data}, this specifies the number of items composing the \code{x} and
 \code{sd} values. Default is 1, the most common case.}
 
-\item{merge_items}{Boolean. If \code{TRUE} (the default), there will be no \code{items}
+\item{merge_items}{Logical. If \code{TRUE} (the default), there will be no \code{items}
 column in the output. Instead, values from an \code{items} column or argument
 will be multiplied with values in the \code{n} column. This does not affect
 GRIM- or GRIMMER-testing.}
 
 \item{x, sd, n}{Optionally, specify these arguments as column names in \code{data}.}
 
-\item{show_reason}{Boolean (length 1). Should there be a \code{reason} column that
+\item{show_reason}{Logical (length 1). Should there be a \code{reason} column that
 shows the reasons for inconsistencies (and \code{NA} for consistent values)?
 Default is \code{FALSE}.}
 

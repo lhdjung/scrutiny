@@ -24,7 +24,7 @@ dup_count_pairwise <- function(x, y) {
 #' @param data Data frame.
 #' @param ignore Optionally, a vector of values that should not be checked for
 #'   duplicates.
-#' @param show_rates Boolean. If `TRUE` (the default), adds columns `rate_x` and
+#' @param show_rates Logical. If `TRUE` (the default), adds columns `rate_x` and
 #'   `rate_y`. See value section. Set `show_rates` to `FALSE` for higher
 #'   performance.
 #' @param na.rm [[Deprecated]] Missing values are never counted in any case.

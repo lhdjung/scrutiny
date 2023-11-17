@@ -15,12 +15,12 @@
 #'   bug that will be fixed in the future.)* Integer. If there is no `items`
 #'   column in `data`, this specifies the number of items composing the `x` and
 #'   `sd` values. Default is 1, the most common case.
-#' @param merge_items Boolean. If `TRUE` (the default), there will be no `items`
+#' @param merge_items Logical. If `TRUE` (the default), there will be no `items`
 #'   column in the output. Instead, values from an `items` column or argument
 #'   will be multiplied with values in the `n` column. This does not affect
 #'   GRIM- or GRIMMER-testing.
 #' @param x,sd,n Optionally, specify these arguments as column names in `data`.
-#' @param show_reason Boolean (length 1). Should there be a `reason` column that
+#' @param show_reason Logical (length 1). Should there be a `reason` column that
 #'   shows the reasons for inconsistencies (and `NA` for consistent values)?
 #'   Default is `FALSE`.
 #' @param rounding,threshold,symmetric,tolerance Further parameters of
@@ -101,6 +101,10 @@ grimmer_map <- function(data, items = 1, merge_items = TRUE,
     n <- rlang::enexpr(n)
     data <- manage_key_colnames(data, n, "sample size")
   }
+
+  # TODO: REWRITE `grimmer_map()` USING `function_map()`! THAT IS, DEVELOP
+  # `function_map()` SO THAT IT CAN HANDLE ALL THE FUNCTIONALITY THAT THIS
+  # REQUIRES! BUT FIRST, WRITE TEST FOR `grimmer_map()`!
 
   check_mapper_input_colnames(data, c("x", "n"), "GRIM")
   check_tibble(data)

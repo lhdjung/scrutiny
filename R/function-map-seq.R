@@ -111,7 +111,7 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 #'   mapper section} of *Implementing consistency tests*.
 #'
 #' @param .fun Function such as `grim_map()`: It will be used to test columns in
-#'   a data frame for consistency. Test results are Boolean and need to be
+#'   a data frame for consistency. Test results are logical and need to be
 #'   contained in a column called `"consistency"` that is added to the input
 #'   data frame. This modified data frame is then returned by `.fun`.
 #' @param .var String. Variables that will be dispersed by the manufactured
@@ -135,10 +135,10 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 #'   output will be restricted so that it's not below `.out_min` or above
 #'   `.out_max`. Defaults are `"auto"` for `.out_min`, i.e., a minimum of one
 #'   decimal unit above zero; and `NULL` for `.out_max`, i.e., no maximum.
-#' @param .include_reported Boolean. Should the reported values themselves be
+#' @param .include_reported Logical. Should the reported values themselves be
 #'   included in the sequences originating from them? Default is `FALSE` because
 #'   this might be redundant and bias the results.
-#' @param .include_consistent Boolean. Should the function also process
+#' @param .include_consistent Logical. Should the function also process
 #'   consistent cases (from among those reported), not just inconsistent ones?
 #'   Default is `FALSE` because the focus should be on clarifying
 #'   inconsistencies.

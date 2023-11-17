@@ -23,13 +23,13 @@ split_by_parens(
 \href{https://tidyselect.r-lib.org/reference/language.html}{tidyselect}.
 Default is \code{everything()}, which selects all columns that pass \code{check_sep}.}
 
-\item{check_sep}{Boolean. If \code{TRUE} (the default), columns are excluded if
+\item{check_sep}{Logical. If \code{TRUE} (the default), columns are excluded if
 they don't contain the \code{sep} elements.}
 
-\item{keep}{Boolean. If set to \code{TRUE}, the originally selected columns that
+\item{keep}{Logical. If set to \code{TRUE}, the originally selected columns that
 were split by the function also appear in the output. Default is \code{FALSE}.}
 
-\item{transform}{Boolean. If set to \code{TRUE}, the output will be pivoted to be
+\item{transform}{Logical. If set to \code{TRUE}, the output will be pivoted to be
 better suitable for typical follow-up tasks. Default is \code{FALSE}.}
 
 \item{sep}{String. What to split by. Either \code{"parens"}, \code{"brackets"}, or

@@ -52,10 +52,10 @@
 #'   \href{https://tidyselect.r-lib.org/reference/language.html}{tidyselect}.
 #'   Default is `everything()`, which selects all columns that pass the test of
 #'   `check_numeric_like`.
-#' @param check_numeric_like Boolean. Only in `restore_zeros_df()`. If `TRUE`
+#' @param check_numeric_like Logical. Only in `restore_zeros_df()`. If `TRUE`
 #'   (the default), the function will skip columns that are not numeric or
 #'   coercible to numeric, as determined by `is_numeric_like()`.
-#' @param check_decimals Boolean. Only in `restore_zeros_df()`. If set to
+#' @param check_decimals Logical. Only in `restore_zeros_df()`. If set to
 #'   `TRUE`, the function will skip columns where no values have any decimal
 #'   places. Default is `FALSE`.
 #' @param ... Only in `restore_zeros_df()`. These dots must be empty.

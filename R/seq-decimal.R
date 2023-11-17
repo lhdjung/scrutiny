@@ -50,7 +50,7 @@
 #' @param offset_to,.offset_to Integer. If set to a non-zero number, the
 #'   endpoint will be offset by that many units on the level of the last decimal
 #'   digit. Default is `0`. Only in `seq_endpoint()` and `seq_endpoint_df()`.
-#' @param string_output,.string_output Boolean or string. If `TRUE` (the
+#' @param string_output,.string_output Logical or string. If `TRUE` (the
 #'   default), the output is a string vector. Decimal places are then padded
 #'   with zeros to match `from`'s (or `to`'s) number of decimal places. `"auto"`
 #'   works like `TRUE` if and only if `from` (`.from`) is a string.

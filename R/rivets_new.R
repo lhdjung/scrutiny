@@ -135,7 +135,7 @@
 #   # What exactly it means to "transgress at" the limits reconstructed by
 #   # unrounding depends on whether or not these limits are meant to be inclusive.
 #   # The functions that will be used in the `repeat` loops below, therefore, are
-#   # defined in dependence on the Boolean `x_incl_*` values. First, the lower
+#   # defined in dependence on the logical `x_incl_*` values. First, the lower
 #   # bound...
 #   if (x_incl_lower) {
 #     transgresses_at_lower <- `<`

@@ -23,7 +23,7 @@ documentation for \code{grim()}, section \code{Rounding}. Default is \code{"up"}
 
 \item{threshold, symmetric}{Further arguments passed down to \code{reround()}.}
 
-\item{mean}{Boolean. If \code{TRUE} (the default), the mean total of bias will be
+\item{mean}{Logical. If \code{TRUE} (the default), the mean total of bias will be
 returned. Set \code{mean} to \code{FALSE} to get a vector of individual biases the
 length of \code{x}.}
 }

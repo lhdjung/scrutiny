@@ -238,13 +238,13 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
 #' @param from Numeric or coercible to numeric. Only in `is_seq_dispersed()`. It
 #'   will test whether `from` is at the center of `x`, and if every pair of
 #'   other values is equidistant to it.
-#' @param test_linear Boolean. In functions other than `is_seq_linear()`, should
+#' @param test_linear Logical. In functions other than `is_seq_linear()`, should
 #'   `x` also be tested for linearity? Default is `TRUE`.
 #' @param tolerance Numeric. Tolerance of comparison between numbers when
 #'   testing. Default is circa 0.000000015 (1.490116e-08), as in
 #'   `dplyr::near()`.
 
-#' @return A single Boolean value. If `x` contains at least one `NA` element,
+#' @return A single logical value. If `x` contains at least one `NA` element,
 #'   the functions return either `NA` or `FALSE`:
 #'   - If all elements of `x` are `NA`, the functions return `NA`.
 #'   - If some but not all elements are `NA`, they check if `x` *might* be a

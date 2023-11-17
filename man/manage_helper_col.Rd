@@ -14,7 +14,7 @@ the helper column you want to manage.}
 
 \item{default}{The default for the argument that was specified in \code{var_arg}.}
 
-\item{affix}{Boolean (length 1). If \code{data} doesn't include the helper column
+\item{affix}{Logical (length 1). If \code{data} doesn't include the helper column
 already, should \code{var_arg} be added to \code{data}, bearing its proper name?
 Default is \code{TRUE}.}
 }

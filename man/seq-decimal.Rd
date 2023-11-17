@@ -53,7 +53,7 @@ decimal digit. Default is \code{0}.}
 endpoint will be offset by that many units on the level of the last decimal
 digit. Default is \code{0}. Only in \code{seq_endpoint()} and \code{seq_endpoint_df()}.}
 
-\item{string_output, .string_output}{Boolean or string. If \code{TRUE} (the
+\item{string_output, .string_output}{Logical or string. If \code{TRUE} (the
 default), the output is a string vector. Decimal places are then padded
 with zeros to match \code{from}'s (or \code{to}'s) number of decimal places. \code{"auto"}
 works like \code{TRUE} if and only if \code{from} (\code{.from}) is a string.}
