@@ -87,18 +87,20 @@ grimmer_map <- function(data, items = 1, merge_items = TRUE,
 
   check_mapper_input_colnames(data, c("x", "sd", "n"), "GRIMMER")
 
-  # Defuse the argument specifications that can be used to assign the roles of
-  # `x`, `sd`, and `n` to specific columns in case these columns don't already
-  # have those names:
-  x  <- rlang::enexpr(x)
-  sd <- rlang::enexpr(sd)
-  n  <- rlang::enexpr(n)
+  if (!missing(x)) {
+    x <- rlang::enexpr(x)
+    data <- manage_key_colnames(data, x, "mean")
+  }
 
-  # Check for non-standard column names and, if present, rename them. If the
-  # respective argument was not specified as that column name, throw an error:
-  data <- manage_key_colnames(data, x,  "mean/proportion")
-  data <- manage_key_colnames(data, sd, "standard deviation")
-  data <- manage_key_colnames(data, n,  "sample size")
+  if (!missing(sd)) {
+    sd <- rlang::enexpr(sd)
+    data <- manage_key_colnames(data, sd, "standard deviation")
+  }
+
+  if (!missing(n)) {
+    n <- rlang::enexpr(n)
+    data <- manage_key_colnames(data, n, "sample size")
+  }
 
   check_mapper_input_colnames(data, c("x", "n"), "GRIM")
   check_tibble(data)

@@ -130,16 +130,24 @@ grim_map <- function(data, items = 1, merge_items = TRUE, percent = FALSE,
     items, percent, rounding, threshold, symmetric, tolerance
   ))
 
-  # Defuse the argument specifications that can be used to assign the roles of
-  # `x` and `n` to specific columns in case these columns don't already have
-  # those names:
-  x <- rlang::enexpr(x)
-  n <- rlang::enexpr(n)
+  # Check if the user specified the arguments named after the key columns, `x`
+  # and `n`. If so, the user-supplied value for that argument will be checked
+  # against the column names of `data`. If the value is one of those column
+  # names, that column is renamed to the respective key argument. Otherwise,
+  # there is an error.
+  if (!missing(x)) {
+    x <- rlang::enexpr(x)
+    data <- manage_key_colnames(data, x, "mean/proportion")
+  }
 
-  # Check for non-standard column names and, if present, rename them. If the
-  # respective argument was not specified as that column name, throw an error:
-  data <- manage_key_colnames(data, x, "mean/proportion")
-  data <- manage_key_colnames(data, n, "sample size")
+  if (!missing(n)) {
+    n <- rlang::enexpr(n)
+    data <- manage_key_colnames(data, n, "sample size")
+  }
+
+
+  # TODO: Optimize `grim_map()` for performance!
+
 
   # Check the column names of `data`:
   check_mapper_input_colnames(data, c("x", "n"), "GRIM")
@@ -150,8 +158,9 @@ grim_map <- function(data, items = 1, merge_items = TRUE, percent = FALSE,
   # Create `other_cols`, which contains all extra columns from `data` (i.e.,
   # those which play no role in the GRIM test), and run it through a specified
   # helper function:
-  other_cols <- dplyr::select(data, -x, -n, -items)
-  other_cols <- manage_extra_cols(data, extra, other_cols)
+  other_cols <- manage_extra_cols(
+    data, extra, dplyr::select(data, -x, -n, -items)
+  )
 
   # Prepare a data frame for the GRIM computations below (steps 4 and 5):
   data_x_n_items <- dplyr::select(data, x, n, items)

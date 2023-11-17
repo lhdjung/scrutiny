@@ -70,16 +70,20 @@ debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
   # warning that values will get paired:
   check_lengths_congruent(list(rounding, threshold, symmetric))
 
-  # Defuse the argument specifications that can be used to assign the roles of
-  # `x`, `sd`, and `n` to specific columns in case these columns don't already
-  # have those names:
-  x  <- rlang::enexpr(x)
-  sd <- rlang::enexpr(sd)
-  n  <- rlang::enexpr(n)
+  if (!missing(x)) {
+    x <- rlang::enexpr(x)
+    data <- manage_key_colnames(data, x, "mean/proportion")
+  }
 
-  data <- manage_key_colnames(data, x,  "binary mean")
-  data <- manage_key_colnames(data, sd, "binary SD")
-  data <- manage_key_colnames(data, n,  "sample size")
+  if (!missing(sd)) {
+    sd <- rlang::enexpr(sd)
+    data <- manage_key_colnames(data, sd, "standard deviation")
+  }
+
+  if (!missing(n)) {
+    n <- rlang::enexpr(n)
+    data <- manage_key_colnames(data, n, "sample size")
+  }
 
   # Check the column names of `data`:
   check_mapper_input_colnames(data, c("x", "sd", "n"), "DEBIT")
