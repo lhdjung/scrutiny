@@ -128,7 +128,7 @@ proto_split_parens <- function(string, sep = "parens") {
 before_parens <- function(string, sep = "parens") {
   check_length_parens_sep(sep)
   out <- proto_split_parens(string, sep)
-  out <- vapply(out, function(x) x[1], character(1L))
+  out <- vapply(out, function(x) x[1], character(1L), USE.NAMES = FALSE)
   stringr::str_trim(out)
 }
 

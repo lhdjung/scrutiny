@@ -144,7 +144,7 @@ audit_seq <- function(data) {
     purrr::map(dplyr::filter, consistency)
 
   hits_total <- df_list_hits %>%
-    vapply(nrow, 1L) %>%
+    vapply(nrow, integer(1L), USE.NAMES = FALSE) %>%
     unname()
 
   hits_positions <- df_list %>%
@@ -200,7 +200,7 @@ audit_seq <- function(data) {
     dplyr::mutate(dplyr::across(
       .cols = everything(),
       .fns = function(x) {
-        vapply(x, length_unless_na, integer(1L))
+        vapply(x, length_unless_na, integer(1L), USE.NAMES = FALSE)
       },
       .names = "hits_{.col}"
     )) %>%
@@ -280,7 +280,7 @@ audit_total_n <- function(data) {
     purrr::map(dplyr::filter, both_consistent)
 
   map_nrow_half <- function(x) {
-    vapply(x, nrow, 1L) / 2L
+    vapply(x, nrow, integer(1L), USE.NAMES = FALSE) / 2L
   }
 
   hits_forth <- df_list_hits %>%

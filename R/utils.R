@@ -152,12 +152,12 @@ an_a_type <- function(x) {
 
 #' Check whether numbers are whole
 #'
-#' For each element of a numeric vector `x`, `is_whole_number()` checks whether
-#' that element is a whole number. This is not the same as the integer data
-#' type, so doubles and integers are treated the same way.
+#' @description For each element of a numeric vector `x`, `is_whole_number()`
+#'   checks whether that element is a whole number.
 #'
-#' To test if R itself considers a vector integer-like, use
-#' `rlang::is_integerish()` instead.
+#'   This is not the same as the integer data type, so doubles and integers are
+#'   tested the same way. See the note in `?integer`. To test if R itself
+#'   considers a vector integer-like, use `rlang::is_integerish()` instead.
 #'
 #' @param x Numeric.
 #' @param tolerance Numeric. Any difference between `x` and a truncated version
@@ -167,19 +167,20 @@ an_a_type <- function(x) {
 #'
 #' @return Logical vector of the same length as `x`.
 #'
-#' @details This function was adapted (with modifications) from the examples of
-#' `?integer`, where a very similar function is called `is.wholenumber()`.
+#' @details This function was adapted (with naming modifications) from the
+#'   examples of `?integer`, where a very similar function is called
+#'   `is.wholenumber()`.
 #'
 #' @author R Core Team, Lukas Jung
 #'
 #' @noRd
 is_whole_number <- function(x, tolerance = .Machine$double.eps^0.5) {
-  abs(x - trunc(x)) < tolerance
+  abs(x - round(x)) < tolerance
 }
 
 
 
-#' Subset every `n`th element from a vector `x`:
+#' Subset every `n`th element
 #'
 #' @param x Vector from which the `n`th element should be subsetted.
 #' @param n Numeric. Distance between two consecutive elements that will be
@@ -224,7 +225,6 @@ parcel_nth_elements <- function(x, n, from = 1L) {
 #' @noRd
 remove_equivalent_rows <- function(data) {
   data_array <- apply(data, 1L, sort)
-
   data[!duplicated(data_array, MARGIN = 2L), ]
 }
 
@@ -243,7 +243,7 @@ reverse_column_order <- function(data) {
   }
   # Don't mind sequence linting here; the early return above takes care of the
   # empty edge case already!
-  col_numbers_reversed <- ncol(data):1
+  col_numbers_reversed <- ncol(data):1L
   data[, order(col_numbers_reversed)]
 }
 
@@ -273,9 +273,13 @@ censor <- function(x, left, right) {
 
 #' Conveniently add classes to an object
 #'
+#' `add_class()` is pipeable, unlike the replacement function it wraps.
+#'
 #' @param x Some object. In scrutiny, always a tibble.
-#' @param new_class String. One or more classes that will be prepended to the
-#'   classes of `x`.
+#' @param new_class String. One or more classes that will be added to the
+#'   `class(x)` attribute. They are prepended before the classes of `x`, so that
+#'   subclasses that are added later take precedence over existing -- and more
+#'   generic -- base classes.
 #'
 #' @return `x` but with new classes.
 #'
@@ -286,7 +290,7 @@ add_class <- function(x, new_class) {
 
 
 
-#' Check if lengths are congruent
+#' Check whether lengths are congruent
 #'
 #' `check_lengths_congruent()` is called within a function `f()` and takes a
 #' list of arguments to `f()` supplied by the user (`var_list`). It checks if
@@ -313,7 +317,7 @@ add_class <- function(x, new_class) {
 #' @noRd
 check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
   var_names <- rlang::enexprs(var_list)
-  var_lengths <- vapply(var_list, length, integer(1L))
+  var_lengths <- vapply(var_list, length, integer(1L), USE.NAMES = FALSE)
   var_list_gt1 <- var_list[var_lengths > 1L]
 
   # Condition of checking for error and warning:
@@ -1504,7 +1508,7 @@ min_distance_abs <- function(x) {
       }
       min(abs(x))
     },
-    numeric(1L)
+    numeric(1L), USE.NAMES = FALSE
   )
 }
 
@@ -1516,7 +1520,7 @@ min_distance_pos <- function(x) {
       }
       min(x[x > 0])
     },
-    numeric(1L)
+    numeric(1L), USE.NAMES = FALSE
   )
 }
 
@@ -1528,7 +1532,7 @@ min_distance_neg <- function(x) {
       }
       max(x[x < 0])
     },
-    numeric(1L)
+    numeric(1L), USE.NAMES = FALSE
   )
 }
 

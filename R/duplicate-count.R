@@ -142,7 +142,8 @@ duplicate_count <- function(x, ignore = NULL,
   # By default, collapse each vector of location names into a string:
   if (locations_type == "character") {
     locations <- vapply(
-      locations, function(x) paste(x, collapse = ", "), character(1L)
+      locations, function(x) paste(x, collapse = ", "), character(1L),
+      USE.NAMES = FALSE
     )
   }
 

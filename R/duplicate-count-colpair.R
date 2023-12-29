@@ -112,7 +112,7 @@ duplicate_count_colpair <- function(data, ignore = NULL, show_rates = TRUE,
     return(out)
   }
 
-  total_values <- vapply(data, function(x) length(x[[1L]]), 1L)
+  total_values <- vapply(data, function(x) length(x[[1L]]), integer(1L))
 
   dplyr::mutate(
     out,

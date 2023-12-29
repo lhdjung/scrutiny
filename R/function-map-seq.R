@@ -42,7 +42,7 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
         .track_diff_var = TRUE
       )
 
-    nrow_list_var <- vapply(df_var, nrow, integer(1L))
+    nrow_list_var <- vapply(df_var, nrow, integer(1L), USE.NAMES = FALSE)
     nrow_data_seq <- seq_along(nrow_list_var)
 
     # Combine the list elements to one single data frame with `var`,
@@ -303,7 +303,7 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
 
       # Repeat the `var` strings so that they form a vector of the length that is
       # the row number of `out`, and that can therefore be added to `out`:
-      nrow_out <- vapply(out, nrow, 1L)
+      nrow_out <- vapply(out, nrow, integer(1L), USE.NAMES = FALSE)
       var <- var %>%
         purrr::map2(nrow_out, rep) %>%
         unlist(use.names = FALSE)
