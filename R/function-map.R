@@ -9,9 +9,8 @@
 #'   ).
 #'
 #' @param .fun Single-case consistency testing function that will be applied to
-#'   each row in a data frame, such as the (non-exported) scrutiny functions
-#'   `grim_scalar()` and `grimmer_scalar()`. It must return a logical value of
-#'   length 1, i.e., `TRUE` or `FALSE`.
+#'   each row in a data frame. The function must return a single logical value,
+#'   i.e., `TRUE`, `FALSE`, or `NA`.
 #' @param .reported String. Names of the columns to be tested.
 #' @param .name_test String (length 1). Plain-text name of the consistency test,
 #'   such as `"GRIM"`.
@@ -39,7 +38,7 @@
 #' @details The output tibble returned by the factory-made function will inherit
 #'   one or two classes independently of the `.name_class` argument:
 #' - It will inherit a class named `"scr_{tolower(.name_test)}_map"`; for
-#'   example, `"scr_grim_map"` if `.name_test` is `"GRIM"`.
+#'   example, the class is `"scr_grim_map"` if `.name_test` is `"GRIM"`.
 #' - If a `rounding` argument is specified via `...`, or else if `.fun` has a
 #'   `rounding` argument with a default, the output tibble will inherit a class
 #'   named `"scr_rounding_{rounding}"`; for example,
@@ -210,29 +209,6 @@ function_map <- function(.fun, .reported, .name_test,
     }
   }
 
-  # Enable renaming the `"consistency"` column for binary procedures that are
-  # not consistency tests:
-  if (.name_key_result == "consistency") {
-    code_rename_col_key_result <- NULL
-  } else {
-    code_rename_col_key_result <- rlang::expr({
-      out <- dplyr::rename(out, `!!`(.name_key_result) := consistency)
-    })
-  }
-
-  # Process the (possibly renamed) key result column, then return the results:
-  code_col_key_result <- rlang::expr({
-    `!!!`(code_rename_col_key_result)
-    if (is.list(out$`!!`(rlang::sym(.name_key_result)))) {
-      `$<-`(
-        out, `!!`(rlang::sym(.name_key_result)),
-        unlist(out$`!!`(.name_key_result), use.names = FALSE)
-      )
-    } else {
-      out
-    }
-  })
-
   all_classes <- c(paste0("scr_", tolower(.name_test), "_map"), .name_class)
 
 
@@ -292,7 +268,7 @@ function_map <- function(.fun, .reported, .name_test,
       # Unquote-splice the code that finalizes `out`. This includes unnesting if
       # the `"consistency"` column has been a list, and renaming it if
       # `.name_key_result` was specified:
-      `!!!`(code_col_key_result)
+      `!!!`(write_code_col_key_result(.name_key_result))
     })
   )
 
@@ -302,7 +278,7 @@ function_map <- function(.fun, .reported, .name_test,
   # Garbage collection, 2/2:
   rm(
     fun_name, code_key_arg_checks, code_rounding_class, code_col_control,
-    code_rename_col_key_result, code_col_key_result, all_classes
+    all_classes
   )
 
   # Insert parameters named after the key columns into `fn_out()`, with `NULL`

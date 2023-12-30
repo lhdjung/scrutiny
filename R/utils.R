@@ -1567,3 +1567,50 @@ check_dispersion_linear <- function(data) {
   }
 }
 
+
+
+#' Generate code to process the `"consistency"` column
+#'
+#' @description Call `write_code_col_key_result()` within a function factory
+#'   such as `function_map()`. It returns an expression to be unquoted at the
+#'   end of the factory-made function's body using ``!!!`()`.
+#'
+#'   This will insert code into the body that may process the `"consistency"`
+#'   column of the output data frame, `out`, in one or both of these two ways:
+#'
+#'   - If the `name_key_result` argument is not the default `"consistency"`, the
+#'   column will be renamed accordingly. This makes sense when applying tests
+#'   that are not consistency tests. (As of now, these other procedures also
+#'   need to return logical values.)
+#'   - If the column is still a list, it is transformed into a logical vector
+#'   using `unlist()`.
+#'
+#' @param name_key_result String (length 1). The `.name_key_result` argument of
+#'   the function factory, passed to the present function.
+#'
+#' @return Expression.
+#'
+#' @noRd
+write_code_col_key_result <- function(name_key_result = "consistency") {
+  # Enable renaming the `"consistency"` column for binary procedures that are
+  # not consistency tests:
+  code_rename <- if (name_key_result == "consistency") {
+    NULL
+  } else {
+    rlang::expr({
+      out <- dplyr::rename(out, `!!`(name_key_result) := consistency)
+    })
+  }
+  # Generate code to process the (possibly renamed) key result column:
+  rlang::expr({
+    `!!!`(code_rename)
+    if (!is.list(out$`!!`(name_key_result))) {
+      return(out)
+    }
+    `$<-`(
+      out, `!!`(name_key_result),
+      unlist(out$`!!`(name_key_result), use.names = FALSE)
+    )
+  })
+}
+

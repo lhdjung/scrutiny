@@ -19,9 +19,8 @@ function_map(
 }
 \arguments{
 \item{.fun}{Single-case consistency testing function that will be applied to
-each row in a data frame, such as the (non-exported) scrutiny functions
-\code{grim_scalar()} and \code{grimmer_scalar()}. It must return a logical value of
-length 1, i.e., \code{TRUE} or \code{FALSE}.}
+each row in a data frame. The function must return a single logical value,
+i.e., \code{TRUE}, \code{FALSE}, or \code{NA}.}
 
 \item{.reported}{String. Names of the columns to be tested.}
 
@@ -82,7 +81,7 @@ The output tibble returned by the factory-made function will inherit
 one or two classes independently of the \code{.name_class} argument:
 \itemize{
 \item It will inherit a class named \code{"scr_{tolower(.name_test)}_map"}; for
-example, \code{"scr_grim_map"} if \code{.name_test} is \code{"GRIM"}.
+example, the class is \code{"scr_grim_map"} if \code{.name_test} is \code{"GRIM"}.
 \item If a \code{rounding} argument is specified via \code{...}, or else if \code{.fun} has a
 \code{rounding} argument with a default, the output tibble will inherit a class
 named \code{"scr_rounding_{rounding}"}; for example,

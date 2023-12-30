@@ -8,6 +8,7 @@ function_map_total_n(
   .fun,
   .reported,
   .name_test,
+  .name_key_result = "consistency",
   .name_class = NULL,
   .dispersion = 0:5,
   .n_min = 1L,
@@ -18,10 +19,11 @@ function_map_total_n(
 )
 }
 \arguments{
-\item{.fun}{Function such as \code{grim_map}: It will be used to test columns in a
-data frame for consistency. Test results are logical and need to be
-contained in a column called \code{consistency} that is added to the input data
-frame. This modified data frame is then returned by \code{.fun}.}
+\item{.fun}{Function such as \code{grim_map()}, or one made by \code{function_map()}:
+It will be used to test columns in a data frame for consistency. Test
+results are logical and need to be contained in a column called
+\code{consistency} that is added to the input data frame. This modified data
+frame is then returned by \code{.fun}.}
 
 \item{.reported}{String. Names of the columns containing group-specific
 statistics that were reported alongside the total sample size(s). They will
@@ -33,6 +35,10 @@ each will need to fan out like \code{"x1"}, \code{"x2"}, \code{"sd1"}, and \code
 \item{.name_test}{String (length 1). The name of the consistency test, such
 as \code{"GRIM"}, to be optionally shown in a message when using the
 manufactured function.}
+
+\item{.name_key_result}{(Experimental) Optionally, a single string that will
+be the name of the key result column in the output. Default is
+\code{"consistency"}.}
 
 \item{.name_class}{String. If specified, the tibbles returned by the
 manufactured function will inherit this string as an S3 class. Default is

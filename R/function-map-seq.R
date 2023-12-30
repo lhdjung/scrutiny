@@ -110,10 +110,11 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 #'   \href{https://lhdjung.github.io/scrutiny/articles/consistency-tests.html#sequence-mapper}{sequence
 #'   mapper section} of *Implementing consistency tests*.
 #'
-#' @param .fun Function such as `grim_map()`: It will be used to test columns in
-#'   a data frame for consistency. Test results are logical and need to be
-#'   contained in a column called `"consistency"` that is added to the input
-#'   data frame. This modified data frame is then returned by `.fun`.
+#' @param .fun Function such as `grim_map()`, or one made by `function_map()`:
+#'   It will be used to test columns in a data frame for consistency. Test
+#'   results are logical and need to be contained in a column called
+#'   `"consistency"` that is added to the input data frame. This modified data
+#'   frame is then returned by `.fun`.
 #' @param .var String. Variables that will be dispersed by the manufactured
 #'   function. Defaults to `.reported`.
 #' @param .reported String. All variables the manufactured function can disperse
@@ -143,6 +144,8 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 #'   Default is `FALSE` because the focus should be on clarifying
 #'   inconsistencies.
 #' @param ... These dots must be empty.
+#'
+#' @inheritParams function_map
 #'
 #' @details All arguments of `function_map_seq()` set the defaults for the
 #'   arguments in the manufactured function. They can still be specified
@@ -206,6 +209,7 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 # For full example inputs (and connected unit tests), see: grim-map-seq.R
 
 function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
+                             .name_key_result = "consistency",
                              .name_class = NULL, .args_disabled = NULL,
                              .dispersion = 1:5,
                              .out_min = "auto", .out_max = NULL,
@@ -216,6 +220,7 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
   force(.var)
   force(.reported)
   force(.name_test)
+  force(.name_key_result)
   force(.name_class)
   force(.args_disabled)
   force(.dispersion)
@@ -341,7 +346,7 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
           paste0("scr_rounding_", dots$rounding)
       }
 
-      out
+      `!!!`(write_code_col_key_result(.name_key_result))
     }),
     env = rlang::env()
   )

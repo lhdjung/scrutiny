@@ -154,10 +154,11 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 #'   \href{https://lhdjung.github.io/scrutiny/articles/consistency-tests.html#total-n-mapper}{total-n
 #'   mapper section} of *Implementing consistency tests*.
 #'
-#' @param .fun Function such as `grim_map`: It will be used to test columns in a
-#'   data frame for consistency. Test results are logical and need to be
-#'   contained in a column called `consistency` that is added to the input data
-#'   frame. This modified data frame is then returned by `.fun`.
+#' @param .fun Function such as `grim_map()`, or one made by `function_map()`:
+#'   It will be used to test columns in a data frame for consistency. Test
+#'   results are logical and need to be contained in a column called
+#'   `consistency` that is added to the input data frame. This modified data
+#'   frame is then returned by `.fun`.
 #' @param .reported String. Names of the columns containing group-specific
 #'   statistics that were reported alongside the total sample size(s). They will
 #'   be tested for consistency with the hypothetical group sizes. Examples are
@@ -173,6 +174,8 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 #' @param .dispersion,.n_min,.n_max,.constant,.constant_index Arguments passed
 #'   down to `disperse_total()`, using defaults from there.
 #' @param ... These dots must be empty.
+#'
+#' @inheritParams function_map
 #'
 #' @details If functions created by `function_map_total_n()` are exported from
 #'   other packages, they should be written as if they were created with
@@ -253,6 +256,7 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 
 
 function_map_total_n <- function(.fun, .reported, .name_test,
+                                 .name_key_result = "consistency",
                                  .name_class = NULL,
                                  .dispersion = 0:5,
                                  .n_min = 1L, .n_max = NULL,
@@ -262,6 +266,7 @@ function_map_total_n <- function(.fun, .reported, .name_test,
   force(.fun)
   force(.reported)
   force(.name_test)
+  force(.name_key_result)
   force(.name_class)
   force(.dispersion)
   force(.n_min)
@@ -481,12 +486,12 @@ function_map_total_n <- function(.fun, .reported, .name_test,
       }
 
       # Combine the two sets of results into one final tibble:
-      out_total <- dplyr::bind_rows(out_forth, out_back)
-      out_total <- add_class(out_total, "scr_map_total_n")
+      out <- dplyr::bind_rows(out_forth, out_back)
+      out <- add_class(out, "scr_map_total_n")
 
       # This is a hack, but it works. Its solves the following problem:
       # `constant_index` is meant to work within the `disperse_total()` tibble,
-      # but the final output tibble, `out_total`, looks very different from that
+      # but the final output tibble, `out`, looks very different from that
       # tibble. If `constant_index` were to operate on the dispersion tibble, as
       # in the `disperse()` functions themselves, there would be a mismatch
       # between the functionality of `constant_index` and the user-facing
@@ -502,19 +507,18 @@ function_map_total_n <- function(.fun, .reported, .name_test,
           constant_ref <- names(constant)
         }
 
-        out_total <- dplyr::relocate(
-          out_total, all_of(constant_ref), .before = constant_index
+        out <- dplyr::relocate(
+          out, all_of(constant_ref), .before = constant_index
         )
       }
 
       # If `.name_class` (note the dot) was specified in the course of creating
       # the manufactured function, its value will become a class of the output:
       if (!is.null(name_class)) {
-        out_total <- add_class(out_total, name_class)
+        out <- add_class(out, name_class)
       }
 
-      # Return the combined results:
-      return(out_total)
+      `!!!`(write_code_col_key_result(.name_key_result))
     }),
     env = rlang::caller_env()
   )
