@@ -85,8 +85,6 @@ grimmer_map <- function(data, items = 1, merge_items = TRUE,
                         threshold = 5, symmetric = FALSE,
                         tolerance = .Machine$double.eps^0.5) {
 
-  check_mapper_input_colnames(data, c("x", "sd", "n"), "GRIMMER")
-
   if (!missing(x)) {
     x <- rlang::enexpr(x)
     data <- manage_key_colnames(data, x, "mean")
@@ -101,6 +99,8 @@ grimmer_map <- function(data, items = 1, merge_items = TRUE,
     n <- rlang::enexpr(n)
     data <- manage_key_colnames(data, n, "sample size")
   }
+
+  check_mapper_input_colnames(data, c("x", "sd", "n"), "GRIMMER")
 
   # TODO: REWRITE `grimmer_map()` USING `function_map()`! THAT IS, DEVELOP
   # `function_map()` SO THAT IT CAN HANDLE ALL THE FUNCTIONALITY THAT THIS
