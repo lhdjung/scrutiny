@@ -166,19 +166,19 @@
 #   label_less <- "≤"
 #
 #   labels_numbers_1_new <- paste(
-#     labels_numbers[1],
+#     labels_numbers[1L],
 #     label_less,
-#     labels_numbers[2],
+#     labels_numbers[2L],
 #     label_less,
-#     labels_numbers[3]
+#     labels_numbers[3L]
 #   )
 #
 #   labels_numbers_2_new <- paste(
-#     labels_numbers[4],
+#     labels_numbers[4L],
 #     label_less,
-#     labels_numbers[5],
+#     labels_numbers[5L],
 #     label_less,
-#     labels_numbers[6]
+#     labels_numbers[6L]
 #   )
 #
 #   # labels_numbers_new <-
@@ -319,8 +319,8 @@
 #     plot_1 <- plot_1 + ggplot2::labs(x = NULL)
 #     plot_2 <- plot_2 + ggplot2::labs(x = NULL)
 #   } else {
-#     plot_1 <- plot_1 + ggplot2::labs(x = label_x_axis[2])
-#     plot_2 <- plot_2 + ggplot2::labs(x = label_x_axis[1])
+#     plot_1 <- plot_1 + ggplot2::labs(x = label_x_axis[2L])
+#     plot_2 <- plot_2 + ggplot2::labs(x = label_x_axis[1L])
 #   }
 #
 #

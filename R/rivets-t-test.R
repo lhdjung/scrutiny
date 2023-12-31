@@ -199,12 +199,12 @@
 # #   perf <- perfectMSD(m1, sd1, n1, m2, sd2, n2, dp, nsamp, GRIMitems)
 # #   format <- paste("%.", dp, "f", sep="")
 # #   cat("DP=", dp, " n1=", n1, " n2=", n2,
-# #       " Matched=", sprintf(format, perf[[4]] * 100), "%",
-# #       " tPerf=", sprintf(format, perf[[1]]),
-# #       " tMin=", sprintf(format, perf[[2]]),
-# #       " tMinObs=", sprintf(format, perf[[5]]),
-# #       " tMax=", sprintf(format, perf[[3]]),
-# #       " tMaxObs=", sprintf(format, perf[[6]]),
+# #       " Matched=", sprintf(format, perf[[4L]] * 100), "%",
+# #       " tPerf=", sprintf(format, perf[[1L]]),
+# #       " tMin=", sprintf(format, perf[[2L]]),
+# #       " tMinObs=", sprintf(format, perf[[5L]]),
+# #       " tMax=", sprintf(format, perf[[3L]]),
+# #       " tMaxObs=", sprintf(format, perf[[6L]]),
 # #       "\n", sep="")
 # # }
 # #
@@ -213,12 +213,12 @@
 # #   perf <- perfectBSE(b, se, dp, nsamp)
 # #   format <- paste("%.", dp, "f", sep="")
 # #   cat("DP=", dp,
-# #       " Matched=", sprintf("%.4f", perf[[4]]),    # as fraction to 4dp
-# #       " tPerf=", sprintf(format, perf[[1]]),
-# #       " tMin=", sprintf(format, perf[[2]]),
-# #       " tMinObs=", sprintf(format, perf[[5]]),
-# #       " tMax=", sprintf(format, perf[[3]]),
-# #       " tMaxObs=", sprintf(format, perf[[6]]),
+# #       " Matched=", sprintf("%.4f", perf[[4L]]),    # as fraction to 4dp
+# #       " tPerf=", sprintf(format, perf[[1L]]),
+# #       " tMin=", sprintf(format, perf[[2L]]),
+# #       " tMinObs=", sprintf(format, perf[[5L]]),
+# #       " tMax=", sprintf(format, perf[[3L]]),
+# #       " tMaxObs=", sprintf(format, perf[[6L]]),
 # #       "\n", sep="")
 # # }
 # #

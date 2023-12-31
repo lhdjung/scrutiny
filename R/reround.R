@@ -158,12 +158,12 @@ reround <- function(x, digits = 0L, rounding = "up_or_down",
     length_2ers <- c("up_or_down", "up_from_or_down_from", "ceiling_or_floor")
     if (any(length_2ers %in% rounding)) {
       offenders <- length_2ers[length_2ers %in% rounding]
-      msg_no_other <- glue::glue("If `rounding` includes \"{offenders[1]}\", \\
+      msg_no_other <- glue::glue("If `rounding` includes \"{offenders[1L]}\", \\
       there can be no other `rounding` values.")
       if (length(offenders) > 1L) {
-        offenders[-1] <- paste0("\"", offenders[-1], "\"")
+        offenders[-1L] <- paste0("\"", offenders[-1L], "\"")
         msg_no_other <- paste(
-          msg_no_other, "This also applies to {offenders[-1]}."
+          msg_no_other, "This also applies to {offenders[-1L]}."
         )
       }
       cli::cli_abort(c(

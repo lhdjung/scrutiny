@@ -239,10 +239,10 @@ grim_map <- function(data, items = 1, merge_items = TRUE, percent = FALSE,
         unlist(use.names = FALSE)
       # These names are for the long version only; the short version has
       # different names 5 and 6, and it has no names 7 and 8 at all:
-      name5 <- paste0("rec_x_upper_rounded_", rounding_split[1])
-      name6 <- paste0("rec_x_upper_rounded_", rounding_split[2])
-      name7 <- paste0("rec_x_lower_rounded_", rounding_split[1])
-      name8 <- paste0("rec_x_lower_rounded_", rounding_split[2])
+      name5 <- paste0("rec_x_upper_rounded_", rounding_split[1L])
+      name6 <- paste0("rec_x_upper_rounded_", rounding_split[2L])
+      name7 <- paste0("rec_x_lower_rounded_", rounding_split[1L])
+      name8 <- paste0("rec_x_lower_rounded_", rounding_split[2L])
       col_names <- c(
         name1, name2, name3, name4,
         name5, name6, name7, name8

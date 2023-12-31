@@ -67,8 +67,8 @@ reverse_map_total_n <- function(data) {
 
   nrow_data_reduced <- nrow(data_reduced)
 
-  locations1 <- seq(from = 1, to = nrow_data_reduced - 1, by = 2)
-  locations2 <- seq(from = 2, to = nrow_data_reduced,     by = 2)
+  locations1 <- seq(from = 1, to = nrow_data_reduced - 1L, by = 2)
+  locations2 <- seq(from = 2, to = nrow_data_reduced,      by = 2)
 
   data1 <- data_reduced %>% dplyr::slice(locations1)
   data2 <- data_reduced %>% dplyr::slice(locations2)
@@ -77,7 +77,7 @@ reverse_map_total_n <- function(data) {
   # dispersed from the reported statistics):
   ncol_before_n <- match("n", colnames(data)) - 1L
 
-  colnames_reported <- colnames(data_reduced)[1:ncol_before_n]
+  colnames_reported <- colnames(data_reduced)[1L:ncol_before_n]
 
   data_reported_1 <- data1[, colnames_reported]
   data_reported_2 <- data2[, colnames_reported]

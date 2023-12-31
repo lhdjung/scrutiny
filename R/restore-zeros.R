@@ -123,7 +123,7 @@ restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in,
   if (is.null(width)) {
     # Count characters of the mantissa part:
     parts <- stringr::str_split_fixed(x, sep_in, n = 2L)
-    width_mantissa <- stringr::str_length(parts[, 2])
+    width_mantissa <- stringr::str_length(parts[, 2L])
     # Throw a warning if `x` can't be formatted with the given arguments:
     if (length(x) == 1L) {
       cli::cli_warn(c(

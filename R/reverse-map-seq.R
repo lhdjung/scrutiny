@@ -56,7 +56,7 @@ reverse_map_seq <- function(data) {
     data_var <- data_var[var_unique]  # order by `var`
     if (length(unique(data$var)) < length(data_var)) {
       length_diff <- length(data_var) - length(unique(data$var))
-      data_var_fill <- rep(data_var[1], length_diff)
+      data_var_fill <- rep(data_var[1L], length_diff)
       data_var <- append(data_var, data_var_fill)
       data_var <- Filter(length, data_var)
     }
@@ -72,7 +72,7 @@ reverse_map_seq <- function(data) {
   data_index_case <- data_nested %>%
     dplyr::mutate(
       scr_index_case = list(data[var]),
-      scr_index_case = list(index_case_interpolate(scr_index_case[[1]]))
+      scr_index_case = list(index_case_interpolate(scr_index_case[[1L]]))
     ) %>%
     dplyr::ungroup() %>%
     dplyr::select(var, scr_index_case)

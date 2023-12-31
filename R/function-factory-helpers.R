@@ -41,9 +41,9 @@ check_factory_key_args_values <- function(data, key_cols_call) {
     # Prepare an error message. It might be subsequently appended...
     msg_error <- c(
       "!" = "{offenders} {msg_is_colname} of `data`.",
-      "x" = "The {offenders_names[1]} argument of \\
-      {name_current_fn} was specified as {offenders[[1]]}, \\
-      but there is no column in `data` called {offenders[[1]]}."
+      "x" = "The {offenders_names[1L]} argument of \\
+      {name_current_fn} was specified as {offenders[[1L]]}, \\
+      but there is no column in `data` called {offenders[[1L]]}."
     )
 
     # ... to point out that more than one supplied value is flawed:
@@ -59,8 +59,8 @@ check_factory_key_args_values <- function(data, key_cols_call) {
       }
       msg_error <- append(
         msg_error, c(
-          "x" = "Same with the {offenders_names[-1]} {msg_arg_s}: \\
-          `data` doesn't contain {msg_a}{offenders[-1]} {msg_col}."
+          "x" = "Same with the {offenders_names[-1L]} {msg_arg_s}: \\
+          `data` doesn't contain {msg_a}{offenders[-1L]} {msg_col}."
         )
       )
     }
@@ -370,7 +370,7 @@ check_args_disabled <- function(args_disabled) {
       fun_name_bare <- name_caller_call(wrap = FALSE)
       fun_name_bare <- as.character(fun_name_bare)
       package_name <- utils::getAnywhere(fun_name_bare)$where
-      package_name <- as.character(package_name[1])
+      package_name <- as.character(package_name[1L])
       package_name <- sub("package:", "", package_name)
       if (length(offenders) > 3L) {
         offenders <- offenders[1:3]

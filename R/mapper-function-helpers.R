@@ -351,12 +351,12 @@ unnest_consistency_cols <- function(results, col_names, index = FALSE,
   # The difference between the two conditions lies only in the
   # `purrr::map_depth()` call:
   if (index) {
-    consistency_list <- results[col][[1]] %>%
+    consistency_list <- results[col][[1L]] %>%
       purrr::map_depth(.depth = 2L, .f =  `[`, 1) %>%
       purrr::map(function(x) unlist(x, use.names = FALSE))
   } else {
     consistency_list <- purrr::map(
-      results[col][[1]], function(x) unlist(x, use.names = FALSE)
+      results[col][[1L]], function(x) unlist(x, use.names = FALSE)
     )
   }
 

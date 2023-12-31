@@ -37,7 +37,7 @@ manage_extra_cols <- function(data, extra, other_cols) {
       "x" = "This number is too high -- {msg_n_cols} in `data`."
       ))
     } else {
-      if (length(other_cols) < extra[1]) {
+      if (length(other_cols) < extra[1L]) {
         msg_num_length <- "These numbers are"
       } else {
         msg_num_length <- "That last number is"

@@ -168,7 +168,7 @@ audit_seq <- function(data) {
     cli::cli_abort(msg_error)
   }
 
-  var_names <- unique(df_list[[1]]$var)
+  var_names <- unique(df_list[[1L]]$var)
 
   # Define some helper functions to be mapped below:
   index_hit_distance <- function(df, var_order = var_names) {

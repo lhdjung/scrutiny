@@ -130,7 +130,7 @@ split_by_parens <- function(data, cols = everything(), check_sep = TRUE,
     dplyr::select(
       function(x) {
         sep_in_order <- translate_length1_sep_keywords(sep)
-        sep_in_order <- paste0(sep_in_order[1], "[^)]*", sep_in_order[2])
+        sep_in_order <- paste0(sep_in_order[1L], "[^)]*", sep_in_order[2L])
         x %>%
           stringr::str_detect(sep_in_order) %>%
           all()

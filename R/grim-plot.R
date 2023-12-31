@@ -219,7 +219,7 @@ grim_plot <- function(data = NULL,
     digits_x <- decimal_places(data$x)    # used to be wrapped in `max()`
 
     if (show_raster) {
-      if (!all(digits_x[1] == digits_x)) {
+      if (!all(digits_x[1L] == digits_x)) {
         means_percentages <- dplyr::if_else(
           inherits(data, "scr_percent_true"),
           "Percentages",
@@ -254,7 +254,7 @@ grim_plot <- function(data = NULL,
     # number of decimal places. Therefore, `digits` can now be determined
     # simply by taking the first element; or indeed any other element there
     # might be:
-    digits <- digits_x[1]
+    digits <- digits_x[1L]
 
   }
 

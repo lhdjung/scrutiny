@@ -83,11 +83,11 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
       tidyr::unnest_wider(reported) %>%
       dplyr::rename_with(
         .fn   = function(x) reported_orig,
-        .cols = 1:dplyr::all_of(reported_n_vars)
+        .cols = 1L:dplyr::all_of(reported_n_vars)
       ) %>%
       dplyr::mutate(
         dplyr::across(
-          .cols = 1:dplyr::all_of(reported_n_vars),
+          .cols = 1L:dplyr::all_of(reported_n_vars),
           .fns  = function(x) purrr::map(x, tibble::as_tibble)
         ), times = NULL
       )
@@ -95,8 +95,8 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
     # Rename the tibbles nested within the list-columns using the original names
     # of the reported variables (e.g., `c("x", "sd")`) so that it's clear what
     # those values represent:
-    out_df_nested[1:reported_n_vars] <-
-      out_df_nested[1:reported_n_vars] %>%
+    out_df_nested[1L:reported_n_vars] <-
+      out_df_nested[1L:reported_n_vars] %>%
       tidyr::pivot_longer(cols = everything()) %>%
       dplyr::mutate(value = purrr::map2(value, name, setNames)) %>%
       tidyr::pivot_wider(
@@ -110,7 +110,7 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
     # scenarios belong. In other words, `case` is identical to the respective
     # row number in `reported`:
     case <- df_list_nrow %>%
-      purrr::map2(1:df_list_n_groups, ., rep) %>%
+      purrr::map2(1L:df_list_n_groups, ., rep) %>%
       purrr::flatten_int()
 
     out_df <- tidyr::unnest(out_df_nested, cols = everything())

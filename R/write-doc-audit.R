@@ -4,11 +4,11 @@ manage_key_args <- function(key_args) {
   key_args_bt <- wrap_in_backticks(key_args) # function from utils.R
   vars <- commas_and(key_args_bt)    # function from utils.R
 
-  arg1 <- key_args[1]
-  arg2 <- key_args[2]
+  arg1 <- key_args[1L]
+  arg2 <- key_args[2L]
 
-  arg1_bt <- key_args_bt[1]
-  arg2_bt <- key_args_bt[2]
+  arg1_bt <- key_args_bt[1L]
+  arg2_bt <- key_args_bt[2L]
 
   if (length(key_args) == 2L) {
     var_ge_3 <- ""
@@ -50,7 +50,7 @@ manage_var_ge_3 <- function(var_ge_3, prefix, suffix, segway = "as well as") {
     } else {
       var_ge_3_line <- glue::glue("`{var_ge_3}` and `{prefix}{var_ge_3}{suffix}`")
       var_ge_3_line_without_last <- paste(
-        var_ge_3_line[1:(length(var_ge_3_line) - 1L)],
+        var_ge_3_line[1L:(length(var_ge_3_line) - 1L)],
         collapse = "; "
       )
       var_ge_3_line <- glue::glue(
@@ -217,12 +217,12 @@ write_doc_audit_seq <- function(key_args, name_test) {
 
   key_args_list <- manage_key_args(key_args)
 
-  arg1 <- key_args_list[1]
-  arg2 <- key_args_list[2]
-  arg1_bt <- key_args_list[3]
-  arg2_bt <- key_args_list[4]
-  vars <- key_args_list[5]
-  var_ge_3 <- key_args_list[6][[1]]
+  arg1 <- key_args_list[1L]
+  arg2 <- key_args_list[2L]
+  arg1_bt <- key_args_list[3L]
+  arg2_bt <- key_args_list[4L]
+  vars <- key_args_list[5L]
+  var_ge_3 <- key_args_list[6L][[1L]]
 
   var_ge_3_line_hits <- manage_var_ge_3(
     var_ge_3, prefix = "hits", suffix = "", segway = "as well as"

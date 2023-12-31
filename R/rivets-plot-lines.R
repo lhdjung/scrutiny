@@ -157,8 +157,8 @@
 #
 #   if (!is.null(label_x_axis)) {
 #     label_x_axis <- rev(label_x_axis)
-#     plot_1 <- plot_1 + ggplot2::labs(x = label_x_axis[1])
-#     plot_2 <- plot_2 + ggplot2::labs(x = label_x_axis[2])
+#     plot_1 <- plot_1 + ggplot2::labs(x = label_x_axis[1L])
+#     plot_2 <- plot_2 + ggplot2::labs(x = label_x_axis[2L])
 #   } else {
 #     plot_1 <- plot_1 + ggplot2::labs(x = NULL)
 #     plot_2 <- plot_2 + ggplot2::labs(x = NULL)

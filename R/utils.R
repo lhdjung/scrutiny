@@ -90,7 +90,7 @@ integer_places <- function(x) {
   x %>%
     stringr::str_trim() %>%
     stringr::str_split_fixed("\\.", n = 2L) %>%
-    .[, 1] %>%
+    .[, 1L] %>%
     stringr::str_length()
 }
 
@@ -322,7 +322,7 @@ check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
 
   # Condition of checking for error and warning:
   if (length(var_list_gt1) > 1L) {
-    var_names <- var_names[[1]][-1]
+    var_names <- var_names[[1L]][-1L]
     var_names <- as.character(var_names)
     var_names_gt1 <- var_names[var_lengths > 1L]
     vnames_gt1_all <- var_names_gt1   # for the warning
@@ -336,10 +336,10 @@ check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
     # filtered out from `var_list_gt1` right above):
     if (error && (length(var_list_gt1) > 1L)) {
 
-      x <- var_list_gt1[[1]]
-      y <- var_list_gt1[[2]]
-      x_name <- var_names_gt1[[1]]
-      y_name <- var_names_gt1[[2]]
+      x <- var_list_gt1[[1L]]
+      y <- var_list_gt1[[2L]]
+      x_name <- var_names_gt1[[1L]]
+      y_name <- var_names_gt1[[2L]]
 
       residues_names <- var_names[!var_names %in% c(x_name, y_name)]
 
@@ -366,8 +366,8 @@ check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
     # length > 1, it's the same length for all (hence no error), and the `warn`
     # argument is `TRUE` (the default):
     if (warn) {
-      x_name <- vnames_gt1_all[[1]]
-      y_name <- vnames_gt1_all[[2]]
+      x_name <- vnames_gt1_all[[1L]]
+      y_name <- vnames_gt1_all[[2L]]
 
       l_vnames <- length(vnames_gt1_all)
 
@@ -761,7 +761,7 @@ check_length_disperse_n <- function(n, msg_single) {
   if (length(n) != 1L) {
     if (length(n) == 2L) {
       msg_single <- paste(
-        msg_single, "Did you mean to call `disperse2(n = c({n[1]}, {n[2]}))`?"
+        msg_single, "Did you mean to call `disperse2(n = c({n[1L]}, {n[2L]}))`?"
       )
     }
     cli::cli_abort(c(
@@ -861,12 +861,12 @@ index_case_interpolate <- function(x, index_case_only = TRUE,
     return(index_target)
   }
 
-  index_case <- x[index_target] + x[index_target + 1]
+  index_case <- x[index_target] + x[index_target + 1L]
   index_case <- index_case / 2
   index_case <- methods::as(index_case, typeof(x_orig))
 
   if (is.character(index_case)) {
-    x_orig_around_target <- c(x_orig[index_target], x_orig[index_target + 1])
+    x_orig_around_target <- c(x_orig[index_target], x_orig[index_target + 1L])
     dp_orig <- max(decimal_places(x_orig_around_target))
     index_case <- restore_zeros(index_case, width = dp_orig)
   }
@@ -1094,7 +1094,7 @@ transform_split_parens <- function(data, end1, end2) {
 #' @noRd
 select_tested_cols <- function(data, before = "consistency") {
   index_last_key_col <- match(before, colnames(data)) - 1L
-  data[1:index_last_key_col]
+  data[1L:index_last_key_col]
 }
 
 
@@ -1266,7 +1266,7 @@ drop_cols_with <- function(data, drop_with) {
 #' @noRd
 name_caller_call <- function(n = 1L, wrap = TRUE) {
   name <- rlang::caller_call(n = n)
-  name <- name[[1]]
+  name <- name[[1L]]
   if (wrap) {
     name <- paste0("`", name, "()`")
   }

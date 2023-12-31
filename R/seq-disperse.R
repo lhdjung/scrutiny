@@ -250,8 +250,8 @@ seq_disperse_df <- function(.from, .by = NULL, ...,
   )
 
   if (.track_diff_var) {
-    x <- out_basic_fun[[1]]
-    diff_var <- out_basic_fun[[2]]
+    x <- out_basic_fun[[1L]]
+    diff_var <- out_basic_fun[[2L]]
   } else {
     x <- out_basic_fun
     diff_var <- NULL

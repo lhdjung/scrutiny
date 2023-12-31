@@ -215,9 +215,9 @@ disperse2 <- function(n, dispersion = 0:5, n_min = 1L, n_max = NULL,
 
   check_length(n, 2L)
 
-  if (!dplyr::near(n[2] - n[1], 1)) {
+  if (!dplyr::near(n[2L] - n[1L], 1)) {
     cli::cli_warn(c(
-      "`n` was given as `{n[1]}` and `{n[2]}`.",
+      "`n` was given as `{n[1L]}` and `{n[2L]}`.",
       "!" = "It should be two consecutive numbers.",
       ">" = "(The second value in `n` should be the first plus 1.)"
     ))

@@ -19,7 +19,7 @@ index_seq <- function(x) {
     x <- as.numeric(x)
   }
   x_seq <- seq_along(x)
-  x_seq <- x[x_seq] - x[x_seq + 1]
+  x_seq <- x[x_seq] - x[x_seq + 1L]
   abs(x_seq[!is.na(x_seq)])
 }
 
@@ -34,8 +34,8 @@ is_linear <- function(x, tolerance) {
 
 
 is_seq_ascending_basic <- function(x) {
-  for (i in 1:(length(x) - 1L)) {
-    if (x[i + 1] <= x[i]) {
+  for (i in 1L:(length(x) - 1L)) {
+    if (x[i + 1L] <= x[i]) {
       return(FALSE)
     }
   }
@@ -44,8 +44,8 @@ is_seq_ascending_basic <- function(x) {
 
 
 is_seq_descending_basic <- function(x) {
-  for (i in 1:(length(x) - 1L)) {
-    if (x[i + 1] >= x[i]) {
+  for (i in 1L:(length(x) - 1L)) {
+    if (x[i + 1L] >= x[i]) {
       return(FALSE)
     }
   }
@@ -86,7 +86,7 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
     return(FALSE)
   }
 
-  if (length(x) == 1) {
+  if (length(x) == 1L) {
     return(TRUE)
   }
 
@@ -97,8 +97,8 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
     # These two `while`-loops remove all `NA` values from the start and the end
     # of `x` because `NA`s at these particular locations have no bearing on
     # whether or not `x` might represent a linear sequence:
-    while (is.na(x[1])) {
-      x <- x[-1]
+    while (is.na(x[1L])) {
+      x <- x[-1L]
     }
     while (is.na(x[length(x)])) {
       x <- x[-length(x)]
@@ -111,7 +111,7 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
     if (!is.null(test_special) && test_special == "dispersed") {
       diff_central_index <-
         !dplyr::near(args_other$from, x[index_central(x)], tolerance)
-      one_sided_na <- (!is.na(x_orig[1])) || (!is.na(x_orig[length(x_orig)]))
+      one_sided_na <- (!is.na(x_orig[1L])) || (!is.na(x_orig[length(x_orig)]))
       if (is_even(length(x)) || diff_central_index || one_sided_na) {
         return(FALSE)
       }
@@ -146,7 +146,7 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
         # Remove the first and the last element because these correspond to the
         # two next surrounding non-`NA` numbers rather than to the `NA`
         # subsequence, and therefore should not replace any `NA`s:
-        seq_replacement <- seq_replacement[-1]
+        seq_replacement <- seq_replacement[-1L]
         seq_replacement <- seq_replacement[-length(seq_replacement)]
 
         if (test_linear) {
@@ -365,7 +365,7 @@ is_seq_dispersed_basic <- function(x, from,
     return(FALSE)
   }
 
-  dispersion_minus <- from - x[1:(index_central_x - 1L)]
+  dispersion_minus <- from - x[1L:(index_central_x - 1L)]
   dispersion_plus  <- from + x[(index_central_x + 1L):length(x)]
 
   from_reconstructed <- (dispersion_plus - rev(dispersion_minus)) / 2
