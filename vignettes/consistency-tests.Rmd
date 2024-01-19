@@ -50,13 +50,13 @@ Below is an outline of these levels, and of the present vignette, with GRIM as a
 
 I will use a toy test called SCHLIM as a model to demonstrate the minimal steps needed to implement consistency tests, scrutiny-style. Note that SCHLIM doesn't have any significance beyond standing in for serious consistency tests. Any real implementation might well be more complex than the brief code snippets below. I will also recur to existing functions that implement actual tests, and that the reader may be familiar with.
 
-Please make sure to follow the [tidyverse style guide](https://style.tidyverse.org/) as well as the scrutiny-specific conventions laid out below, wherever applicable. If you'd like to write a new package, work with Hadley Wickham's book *R Packages* [@wickham2015] in its most recent version, which is [free online](https://r-pkgs.org/).
+Please make sure to follow the [tidyverse style guide](https://style.tidyverse.org/) as well as the scrutiny-specific conventions laid out below, wherever applicable. If you'd like to write a new package, work with the free online book [*R Packages*](https://r-pkgs.org/) [@wickham2023].
 
 # 1. Single-case
 
 The first function is the most important one. It contains the core implementation of the test. Although it is not exported itself, all other steps build up on it, and all of them are exported.
 
-This function takes two or more arguments of length 1 that are meant to be tested for consistency with each other. Typically, they will be coercible to numeric. This means they either are numeric themselves or they are strings that can be converted to numbers (see `is_numeric_like()`). The function returns a Boolean value of length 1: It's `TRUE` if the inputs are mutually consistent, and `FALSE` if they aren't.
+This function takes two or more arguments of length 1 that are meant to be tested for consistency with each other. Typically, they will be coercible to numeric. This means they either are numeric themselves or they are strings that can be converted to numbers (see `is_numeric_like()`). The function returns a logical value of length 1: It's `TRUE` if the inputs are mutually consistent, and `FALSE` if they aren't.
 
 ```{r}
  schlim_scalar <- function(y, n) {
@@ -122,7 +122,7 @@ These are the most important arguments:
 
 ### Context and export
 
-As you can see, `function_map()` is not a helper used inside other functions when creating them with `function()` --- instead, it takes the place of `function()` itself. This makes it a so-called function factory, or more precisely, a function operator, a.k.a. decorator [@wickham2019, ch. 10-11]. You already met `base::Vectorize()` in section 2, which is also a function operator, but a more general and straightforward one.
+As you can see, `function_map()` is not a helper used inside other functions when creating them with `function()` --- instead, it takes the place of `function()` itself. This makes it a so-called function factory, or more precisely, a [function operator](https://adv-r.hadley.nz/function-operators.html) [@wickham2019]. You already met `base::Vectorize()` in section 2, which is also a function operator, but a more general and straightforward one.
 
 To export a function manufactured this way from your own package, make sure to follow [this purrr FAQ](https://purrr.tidyverse.org/reference/faq-adverbs-export.html). (Incredible as it sounds, scrutiny will then take on the role of purrr.) Your version should look about like this:
 
@@ -202,9 +202,9 @@ The (only) requirements for a basic mapping function are:
 
 3.  Its return value is a tibble data frame that contains all of the key input columns. The types of these columns are the same as in the input data frame. They are the first (i.e., leftmost) columns in the output, even if the input isn't ordered this way. If any of these columns are modified within the mapping function, the output should include the modified columns, not the original ones. Examples can be effects of helper columns, but also the change displayed by the `"x"` column in the output of `grim_map(percent = TRUE)`. The output must test `TRUE` with `is_map_df()` and `is_map_basic_df()`, but `FALSE` with the other two `is_map_*()` functions.
 
-4.  Helper columns should be included in the output unless they transform one or more key columns. In this case, representing them in the output would be confusing because their effects have already played out via the transformed key column(s). For every helper column that performs such transformations, the mapper should have a Boolean argument, `TRUE` by default, that determines whether or not the helper column transforms those key column(s). If `TRUE`, the helper column does but is not included in the output itself. If `FALSE`, the helper column is included but no transformation takes place. The name of this Boolean argument should start on `merge_`, followed by the name of the helper column in question. An example for all of that is the optional `items` column in `grim_map()`'s input data frame, together with this function's `items` and `merge_items` arguments. To work with helper columns, call `manage_helper_col()` within the mapper.
+4.  Helper columns should be included in the output unless they transform one or more key columns. In this case, representing them in the output would be confusing because their effects have already played out via the transformed key column(s). For every helper column that performs such transformations, the mapper should have a logical argument, `TRUE` by default, that determines whether or not the helper column transforms those key column(s). If `TRUE`, the helper column does but is not included in the output itself. If `FALSE`, the helper column is included but no transformation takes place. The name of this logical argument should start on `merge_`, followed by the name of the helper column in question. An example for all of that is the optional `items` column in `grim_map()`'s input data frame, together with this function's `items` and `merge_items` arguments. To work with helper columns, call `manage_helper_col()` within the mapper.
 
-5.  The output data frame also includes a Boolean column named `"consistency"`. It contains the results of the consistency test, as determined by the respective `*_scalar()` function. In each row, `"consistency"` is `TRUE` if the values to its left are mutually consistent, and `FALSE` if they aren't. This column is placed immediately to the right of the group of key (and, potentially, helper) columns.
+5.  The output data frame also includes a logical column named `"consistency"`. It contains the results of the consistency test, as determined by the respective `*_scalar()` function. In each row, `"consistency"` is `TRUE` if the values to its left are mutually consistent, and `FALSE` if they aren't. This column is placed immediately to the right of the group of key (and, potentially, helper) columns.
 
 6.  If the underlying single-case function performs rounding or unrounding, it should internally call `reround()` and/or `unround()`, respectively. The output data frame of the mapper function will then inherit an S3 class (see section *S3 classes* below) such as `"scr_rounding_up_or_down"`: It consists of `"scr_rounding_"` followed by the rounding specification, e.g., `"up_or_down"`. The latter should also be the default rounding and unrounding specification. This specification can be supplied by the user via an argument called `rounding`, which is then passed down to the single-case function. If `reround()` is called within the mapper, all of its arguments need to be passed down from the mapper, which itself has all of the same arguments, with the same defaults. The same applies to `unround()`.
 
@@ -245,21 +245,23 @@ By contrast, the columns of the output data frame are organized like this:
 add_class <- scrutiny:::add_class
 ```
 
-How to actually write mapper functions? Again, I recommend `function_map()`. The functions created below are conceptually very similar.
+How to actually write mapper functions? Again, I recommend `function_map()`. The two functions created below are very similar but don't have as many options. Of course, you can manually add code for any options you like so long as the requirements above are still met.
 
 Apply the `*_scalar()` function to the input data frame using `purrr::pmap_lgl()`:
 
 ```{r}
 schlim_map_alt1 <- function(data, ...) {
   scrutiny::check_mapper_input_colnames(data, c("y", "n"), "SCHLIM")
-  consistency <- purrr::pmap_lgl(data, schlim_scalar, ...)
-  out <- tibble::tibble(y = data$y, n = data$n, consistency)
-  out <- add_class(out, "scr_schlim_map")  # See section "S3 classes" below
-  out
+  tibble::tibble(
+    y = data$y,
+    n = data$n,
+    consistency = purrr::pmap_lgl(data, schlim_scalar, ...)
+  ) %>% 
+    add_class("scr_schlim_map")  # See section "S3 classes" below
 }
 ```
 
-Alternatively, call `dplyr::rowwise()` and directly mutate `"consistency"`:
+Alternatively, you might call `dplyr::rowwise()` and directly mutate `"consistency"`. I don't recommend this approach because `dplyr::rowwise()` is quite slow.
 
 ```{r}
 schlim_map_alt2 <- function(data, ...) {
@@ -398,7 +400,7 @@ As a result, the rules below are admittedly somewhat less important. If you viol
 2.  The visualization function's name should be that of the test itself (in lowercase), followed by `_plot`. Naturally, this doesn't apply to methods for generic functions like `plot()` or `ggplot2::autoplot()`.
 3.  Its first argument, `data`, is a data frame that is the result of a call to the respective mapper function, such as `grim_map()` or `debit_map()`. The visualization function makes sure this is true by checking that `data` inherits the special class added within the mapper, such as `"scr_grim_map"` or `"scr_debit_map"`. If `data` fails this check, the function throws an error.
 4.  The function should display consistent and inconsistent value sets. The color defaults should be `"royalblue1"` for consistent value sets and `"red"` for inconsistent ones. The user can override these defaults via two arguments named `color_cons` for consistent value sets and `color_incons` for inconsistent ones.
-5.  If certain layers are optional rather than essential to the plot, their display can be controlled via Boolean arguments that start on `show_`. Examples are `show_data` in `grim_plot()` or `show_outer_boxes` in `debit_plot()`. Only arguments of this kind should start on `show_`. They should have defaults (which will usually be `TRUE`, but this is not a requirement).
+5.  If certain layers are optional rather than essential to the plot, their display can be controlled via logical arguments that start on `show_`. Examples are `show_data` in `grim_plot()` or `show_outer_boxes` in `debit_plot()`. Only arguments of this kind should start on `show_`. They should have defaults (which will usually be `TRUE`, but this is not a requirement).
 
 # 6. Sequence mapper
 
@@ -583,7 +585,7 @@ Below is their function family tree. Fields with bold margins are function facto
 Here is an overview of scrutiny's function factories:
 
 | Output function type | Section here | Function factory         | GRIM example function | Predicate function    |
-|----------------------|--------------|--------------------------|-----------------------|-----------------------|
+|---------------|---------------|---------------|---------------|---------------|
 | Basic mapper         | 3            | `function_map()`         | `grim_map()`          | `is_map_basic_df()`   |
 | Sequence mapper      | 6            | `function_map_seq()`     | `grim_map_seq()`      | `is_map_seq_df()`     |
 | Total-n mapper       | 7            | `function_map_total_n()` | `grim_map_total_n()`  | `is_map_total_n_df()` |
