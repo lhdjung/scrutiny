@@ -237,6 +237,25 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
 
   name_fun <- deparse(substitute(.fun))
 
+  # Prepare some code to be inserted into the body of the factory-made function.
+  # If one of the key (reported) arguments is `n`, this will be whole numbers,
+  # so they should be coerced to integer for better representation in an app.
+  # However, if there is no such `n` argument, the code should not assume there
+  # is, which would lead to an error.
+  code_bind_cols <- if (any(.reported == "n")) {
+    rlang::expr({
+      out <- out %>%
+        dplyr::bind_rows() %>%
+        dplyr::mutate(var, n = as.integer(n))
+    })
+  } else {
+    rlang::expr({
+      out <- out %>%
+        dplyr::bind_rows() %>%
+        dplyr::mutate(var)
+    })
+  }
+
 
   # --- Start of the manufactured function, `fn_out()` ---
 
@@ -314,10 +333,8 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
         unlist(use.names = FALSE)
 
       # For better output, `out` should be a single data frame; and for
-      # identifying the origin of individual rows, `var` is added:
-      out <- out %>%
-        dplyr::bind_rows() %>%
-        dplyr::mutate(var, n = as.integer(n))
+      # identifying the origin of individual rows, `var` is added. See above.
+      `!!!`(code_bind_cols)
 
       class_dispersion_ascending <- if (is_seq_ascending(dispersion)) {
         NULL
