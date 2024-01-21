@@ -207,13 +207,13 @@ audit_seq <- function(data) {
     dplyr::select(-all_of(colnames(df_nested))) %>%
     tidyr::unnest(cols = everything())
 
+  # Go to utils.R to see the `list_min_distance_functions` object.
   cols_diff <- df_nested %>%
     dplyr::mutate(dplyr::across(
       .cols = everything(),
-      .fns = list(min_distance_abs, min_distance_pos, min_distance_neg),
+      .fns = list_min_distance_functions,
       .names = "diff_{.col}{fun_names}"
-    )) %>%
-    dplyr::select(-(seq_along(var_names))) %>%
+    ), .keep = "none") %>%
     dplyr::mutate(dplyr::across(
       .cols = everything(),
       .fns = function(x) {

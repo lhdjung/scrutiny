@@ -1487,54 +1487,59 @@ audit_summary_stats <- function(data, selection, total = FALSE) {
 
 
 
-#' Helper functions for `audit_seq()`
+#' List of minimal-distance functions for `audit_seq()`
 #'
-#' These functions are mapped in one particular place within `audit_seq()` and
-#' shouldn't really be used elsewhere. Instead of being anonymous functions,
-#' they are defined here for better performance.
+#' @description These functions are mapped in one particular place within
+#'   `audit_seq()` and shouldn't really be used elsewhere.
 #'
-#' @param x Integer vector measuring the number of steps between inconsistent
-#'   reported values and their consistent neighbors. The notion of "steps" is
-#'   the same as in, e.g., `grim_map_seq()`.
+#'   Instead of being anonymous functions, they are stored in a list here for
+#'   greater efficiency -- in terms of both speed and memory.
 #'
-#' @return Numeric vector of the same length as `x`.
+#'   The `x` parameter in all three functions is an integer vector measuring the
+#'   number of steps between inconsistent reported values and their consistent
+#'   neighbors. The notion of "steps" is the same as in, e.g., `grim_map_seq()`.
+#'
+#' @return List of three functions.
 #'
 #' @noRd
-min_distance_abs <- function(x) {
-  vapply(
-    x, function(x) {
-      if (any(!is.numeric(x))) {
-        return(NA_real_)
-      }
-      min(abs(x))
-    },
-    numeric(1L), USE.NAMES = FALSE
-  )
-}
-
-min_distance_pos <- function(x) {
-  vapply(
-    x, function(x) {
-      if (any(!is.numeric(x))) {
-        return(NA_real_)
-      }
-      min(x[x > 0])
-    },
-    numeric(1L), USE.NAMES = FALSE
-  )
-}
-
-min_distance_neg <- function(x) {
-  vapply(
-    x, function(x) {
-      if (any(!is.numeric(x))) {
-        return(NA_real_)
-      }
-      max(x[x < 0])
-    },
-    numeric(1L), USE.NAMES = FALSE
-  )
-}
+list_min_distance_functions <- list(
+  # Absolute distance:
+  function(x) {
+    vapply(
+      x, function(x) {
+        if (any(!is.numeric(x))) {
+          return(NA_real_)
+        }
+        min(abs(x), na.rm = TRUE)
+      },
+      numeric(1L), USE.NAMES = FALSE
+    )
+  },
+  # Positive distance:
+  function(x) {
+    vapply(
+      x, function(x) {
+        if (any(!is.numeric(x))) {
+          return(NA_real_)
+        }
+        min(x[x > 0L], na.rm = TRUE)
+      },
+      numeric(1L), USE.NAMES = FALSE
+    )
+  },
+  # Negative distance:
+  function(x) {
+    vapply(
+      x, function(x) {
+        if (any(!is.numeric(x))) {
+          return(NA_real_)
+        }
+        max(x[x < 0L], na.rm = TRUE)
+      },
+      numeric(1L), USE.NAMES = FALSE
+    )
+  }
+)
 
 
 
