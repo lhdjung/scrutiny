@@ -152,23 +152,32 @@ function_map <- function(.fun, .reported, .name_test,
   code_rounding_class <-
     if (any("rounding" == names(formals(.fun)))) {
       rlang::expr({
-      dots <- rlang::enexprs(...)
-      if (any("rounding" == names(dots))) {
-        rounding_class <- dots$rounding
-      } else {
-        rounding_class <- formals(fun)$rounding
-      }
-      rounding_class <- paste0("scr_rounding_", rounding_class)
-      name_class <- c(name_class, rounding_class)
-    })
+        dots <- rlang::enexprs(...)
+        if (any("rounding" == names(dots))) {
+          rounding_class <- dots$rounding
+        } else {
+          rounding_class <- formals(fun)$rounding
+        }
+        rounding_class <- paste0("scr_rounding_", rounding_class)
+        name_class <- c(name_class, rounding_class)
+      })
     } else {
-    rlang::expr({
-      rounding_class <- NULL
-    })
-  }
+      rlang::expr({
+        rounding_class <- NULL
+      })
+    }
 
-  # TODO: DEBUG THIS!
-  if (!missing(.col_names)) {
+  # TODO: DEBUG THE `code_col_control` STUFF! TEST IT WITH:
+  if (missing(.col_names)) {
+    # No unnesting code will be created if this argument is not specified:
+    code_col_control <- NULL
+    if (!missing(.col_control) || !missing(.col_filler)) {
+      cli::cli_warn(c(
+        "`.col_control` and `.col_filler` have no effect.",
+        "i" = "That's because `.col_names` is not specified."
+      ))
+    }
+  } else {
     # Check that both of the other arguments needed for column unnesting are
     # present:
     if (missing(.col_control) || missing(.col_filler)) {
@@ -199,14 +208,6 @@ function_map <- function(.fun, .reported, .name_test,
         out <- tidyr::unnest(out, cols = consistency)
       }
     })
-  } else {
-    code_col_control <- NULL
-    if (!missing(.col_control) || !missing(.col_filler)) {
-      cli::cli_warn(c(
-        "`.col_control` and `.col_filler` have no effect.",
-        "i" = "That's because `.col_names` is not specified."
-      ))
-    }
   }
 
   all_classes <- c(paste0("scr_", tolower(.name_test), "_map"), .name_class)
@@ -219,8 +220,6 @@ function_map <- function(.fun, .reported, .name_test,
     body = rlang::expr({
 
       fun <- `!!`(.fun)
-      # reported <- `!!`(.reported)
-      # name_test <- `!!`(.name_test)
       name_class <- `!!`(.name_class)
 
       # # Manage key columns in `data`, renaming missing columns using the
