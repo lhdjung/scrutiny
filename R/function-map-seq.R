@@ -42,6 +42,10 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
         .track_diff_var = TRUE
       )
 
+    if (length(df_var) == 0L) {
+      return(NULL)
+    }
+
     nrow_list_var <- vapply(df_var, nrow, integer(1L), USE.NAMES = FALSE)
     nrow_data_seq <- seq_along(nrow_list_var)
 
@@ -81,7 +85,8 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
       dplyr::mutate(
         diff_var = df_var$diff_var,
         case = unlist(
-          purrr::map2(nrow_data_seq, nrow_list_var, rep), use.names = FALSE
+          purrr::map2(nrow_data_seq, nrow_list_var, rep),
+          use.names = FALSE
         )
       )
 
@@ -324,6 +329,21 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
       # Apply the lower-level function to all user-supplied variables (`var`) and
       # all cases reported in `data`, or at least the inconsistent ones:
       out <- purrr::map(var, ~ map_seq_proto(data = data, var = .x))
+
+      # Remove list-elements that are `NULL`, then check for an early return:
+      out[vapply(out, is.null, logical(1L))] <- NULL
+      if (length(out) == 0L) {
+        msg_setting <- if (interactive()) {
+          "`include_consistent = TRUE`"
+        } else {
+          "unchecking \"Inconsistent cases only\""
+        }
+        cli::cli_warn(c(
+          "!" = "No inconsistent cases to disperse from.",
+          "i" = "Try {msg_setting} to disperse from consistent cases, as well."
+        ))
+        return(tibble::tibble())
+      }
 
       # Repeat the `var` strings so that they form a vector of the length that is
       # the row number of `out`, and that can therefore be added to `out`:
