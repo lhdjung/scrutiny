@@ -281,8 +281,8 @@ grim_plot <- function(data = NULL,
       # Check the way `x` values were rounded in the preceding `grim_map()` call
       # to prepare selecting the plot background raster:
       dc <- class(data)
-      rounding_id <- dc[stringr::str_detect(dc, "scr_rounding_")]
-      rounding_id <- stringr::str_remove(rounding_id, "scr_rounding_")
+      rounding_id <- dc[stringr::str_detect(dc, "^scr_rounding_")]
+      rounding_id <- stringr::str_remove(rounding_id, "^scr_rounding_")
 
       # Throw error if the specified rounding option is one of the few for which
       # no raster is available:

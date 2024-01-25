@@ -148,10 +148,10 @@ seq_test_ranking <- function(x, explain = TRUE) {
   out <- add_class(out, "seq_test_ranking")
 
   class_is_scr_map_class <-
-    stringr::str_detect(class(x), "scr_") &
-    stringr::str_detect(class(x), "_map")
+    stringr::str_detect(class(x), "^scr_") &
+    stringr::str_detect(class(x), "_map$")
   scr_func_info <- class(x)[class_is_scr_map_class]
-  scr_func_info <- stringr::str_remove(scr_func_info, "scr_")
+  scr_func_info <- stringr::str_remove(scr_func_info, "^scr_")
   scr_func_info <- paste0("`", scr_func_info, "()`")
 
   if (inherits(x, "scr_seq_test")) {

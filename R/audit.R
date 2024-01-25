@@ -151,13 +151,13 @@ audit_seq <- function(data) {
     purrr::map(function(x) which(x$consistency))
 
   if (is.null(dim(data))) {
-    fun <- class(data)[stringr::str_detect(class(data), "_map_seq")]
+    fun <- class(data)[stringr::str_detect(class(data), "_map_seq$")]
     fun <- fun[fun != "scr_map_seq"]
-    fun <- stringr::str_remove(fun, "scr_")
+    fun <- stringr::str_remove(fun, "^scr_")
     fun <- eval(rlang::parse_expr(fun))
     msg_error <-
       c("!" = "No values could be tested.")
-    if (any("items" == names(formals(fun)))) {
+    if (any(names(formals(fun)) == "items")) {
       fun_name <- deparse(substitute(fun))
       msg_items <- c(
         "x" = "Did you specify the `items` argument in {fun_name} \\
@@ -203,8 +203,7 @@ audit_seq <- function(data) {
         vapply(x, length_unless_na, integer(1L), USE.NAMES = FALSE)
       },
       .names = "hits_{.col}"
-    )) %>%
-    dplyr::select(-all_of(colnames(df_nested))) %>%
+    ), .keep = "none") %>%
     tidyr::unnest(cols = everything())
 
   # Go to utils.R to see the `list_min_distance_functions` object.
@@ -224,12 +223,11 @@ audit_seq <- function(data) {
     suppressWarnings()
 
   dc <- class(data)
-  rounding <- dc[stringr::str_detect(dc, "scr_rounding_")]
-  rounding <- stringr::str_remove(rounding, "scr_rounding_")
+  rounding <- dc[stringr::str_detect(dc, "^scr_rounding_")]
+  rounding <- stringr::str_remove(rounding, "^scr_rounding_")
 
-  fun_test <-
-    dc[stringr::str_detect(dc, "^scr_") & stringr::str_detect(dc, "_map$")]
-  fun_test <- stringr::str_remove(fun_test, "scr_")
+  fun_test <- dc[stringr::str_detect(dc, "^scr_.*map$")]
+  fun_test <- stringr::str_remove(fun_test, "^scr_")
   fun_test <- rlang::eval_bare(rlang::parse_expr(fun_test))
 
   data_rev <- reverse_map_seq(data)

@@ -379,7 +379,7 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
       # must be done by hand:
       dots <- rlang::enexprs(...)
       if (length(dots$rounding) > 0L) {
-        class(out)[stringr::str_detect(class(out), "scr_rounding_")] <-
+        class(out)[stringr::str_detect(class(out), "^scr_rounding_")] <-
           paste0("scr_rounding_", dots$rounding)
       }
 

@@ -40,19 +40,19 @@ check_consistency_not_in_colnames <- function(data, name_test) {
     class_seq     <- dc[stringr::str_detect(dc, "_map_seq$")]
     class_total_n <- dc[stringr::str_detect(dc, "_map_total_n$")]
     if (length(class_basic) > 0L) {
-      fun_name_basic <- stringr::str_remove(class_basic, "scr_")
+      fun_name_basic <- stringr::str_remove(class_basic, "^scr_")
     } else {
       fun_name_basic <- NULL
     }
     if (length(class_seq) > 0L) {
       fun_name_basic <- NULL
-      fun_name_seq <- stringr::str_remove(class_seq, "scr_")
+      fun_name_seq <- stringr::str_remove(class_seq, "^scr_")
     } else {
       fun_name_seq <- NULL
     }
     if (length(class_total_n) > 0L) {
       fun_name_basic <- NULL
-      fun_name_total_n <- stringr::str_remove(class_total_n, "scr_")
+      fun_name_total_n <- stringr::str_remove(class_total_n, "^scr_")
     } else {
       fun_name_total_n <- NULL
     }
@@ -63,9 +63,9 @@ check_consistency_not_in_colnames <- function(data, name_test) {
     if (length(fun_name_all) == 0L) {
       fun_name_all <- ""
     }
-    if (stringr::str_detect(fun_name_all, "_seq")) {
+    if (stringr::str_detect(fun_name_all, "_seq$")) {
       msg_special <- "sequence "
-    } else if (stringr::str_detect(fun_name_all, "_total_n")) {
+    } else if (stringr::str_detect(fun_name_all, "_total_n$")) {
       msg_special <- "total-n "
     } else {
       msg_special <- ""

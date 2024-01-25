@@ -1115,7 +1115,7 @@ select_tested_cols <- function(data, before = "consistency") {
 #' @noRd
 get_rounding_class <- function(x) {
   x_cl <- class(x)
-  x_cl[stringr::str_detect(x_cl, "scr_rounding_")]
+  x_cl[stringr::str_detect(x_cl, "^scr_rounding_")]
 }
 
 
@@ -1135,7 +1135,7 @@ get_rounding_class <- function(x) {
 #' @noRd
 get_rounding_class_arg <- function(x) {
   out <- get_rounding_class(x)
-  stringr::str_remove(out, "scr_rounding_")
+  stringr::str_remove(out, "^scr_rounding_")
 }
 
 
