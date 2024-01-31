@@ -150,10 +150,10 @@ function_map <- function(.fun, .reported, .name_test,
   })
 
   code_rounding_class <-
-    if (any("rounding" == names(formals(.fun)))) {
+    if ("rounding" %in% names(formals(.fun))) {
       rlang::expr({
         dots <- rlang::enexprs(...)
-        if (any("rounding" == names(dots))) {
+        if ("rounding" %in% names(dots)) {
           rounding_class <- dots$rounding
         } else {
           rounding_class <- formals(fun)$rounding

@@ -4,7 +4,7 @@
 
 explain_seq_test_ranking <- function(x, scr_func_info) {
 
-  if (!any("lead_lag" == colnames(x))) {
+  if (!"lead_lag" %in% colnames(x)) {
     x$lead_lag <- NA
   }
 
@@ -110,7 +110,7 @@ explain_seq_test_ranking <- function(x, scr_func_info) {
 
 seq_test_ranking <- function(x, explain = TRUE) {
 
-  if (!any("consistency" == colnames(x))) {
+  if (!"consistency" %in% colnames(x)) {
     cli::cli_abort(c(
       "Column `consistency` is missing.",
       "i" = "Only run `seq_test_ranking()` on the output of a \\
