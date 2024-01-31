@@ -21,7 +21,7 @@ License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 Imports: 
     cli,
     corrr,
@@ -69,6 +69,7 @@ Collate:
     'grim-map.R'
     'data-doc.R'
     'data-frame-predicates.R'
+    'seq-predicates.R'
     'function-map-seq.R'
     'debit-map-seq.R'
     'disperse.R'
@@ -108,7 +109,6 @@ Collate:
     'scrutiny-package.R'
     'seq-disperse.R'
     'seq-length.R'
-    'seq-predicates.R'
     'split-by-parens.R'
     'subset-superset.R'
     'utils-pipe.R'
@@ -119,7 +119,7 @@ Suggests:
     knitr,
     rmarkdown,
     roxygen2,
-    testthat (>= 3.0.0),
+    testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Depends: 
     R (>= 3.4.0)
