@@ -51,7 +51,7 @@ As in `grim()`, the mean needs to be a string. (The same is true for the SD.) Th
 If you want to test more than a handful of cases, the recommended way is to enter them into a data frame and to run `debit_map()` on the data frame. Below are the example data from Heathers and Brown's (2019) Table 1. A useful way to enter such data is to copy them from a PDF file and paste them into `tibble::tribble()`, which is available via scrutiny:
 
 ```{r}
-flying_pigs <- tibble(
+flying_pigs <- tibble::tibble(
     x  = runif(5, 0.2, 1) %>% round(2) %>% restore_zeros(),
     sd = runif(5, 0, 0.3) %>% round(2) %>% restore_zeros(),
     n = 1000

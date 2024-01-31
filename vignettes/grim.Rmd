@@ -59,7 +59,7 @@ If you want to GRIM-test more than a handful of cases, the recommended way is to
 Copy summary data from a PDF file and paste them into `tibble::tribble()`, which is available via scrutiny:
 
 ```{r}
-flying_pigs1 <- tribble(
+flying_pigs1 <- tibble::tribble(
   ~x,
 "8.97",
 "2.61",
@@ -69,7 +69,7 @@ flying_pigs1 <- tribble(
 "10.46",
 "7.39"
 ) %>% 
-  mutate(n = 28)
+  dplyr::mutate(n = 28)
 ```
 
 Use RStudio's multiple cursors to draw quotation marks around all the `x` values, and to set commas at the end. See `vignette("wrangling")`, section *With copy and paste*, if you are not sure how to do that.
@@ -87,7 +87,7 @@ The `x` and `n` columns are the same as in the input. By default, the number of 
 If a mean is composed of multiple items, set the `items` parameter to that number. Below are hypothetical means of a three-items scale. With the single-item default, half of these are wrongly flagged as inconsistent:
 
 ```{r, error=TRUE}
-jpap_1 <- tribble(
+jpap_1 <- tibble::tribble(
    ~x,
   "5.90",
   "5.71",
@@ -96,7 +96,7 @@ jpap_1 <- tribble(
   "4.61",
   "5.24",
 ) %>% 
-  mutate(n = 40)
+  dplyr::mutate(n = 40)
 
 jpap_1 %>% 
   grim_map()  # default is wrong here!
@@ -112,7 +112,7 @@ jpap_1 %>%
 It is also possible to include an `items` column in the data frame instead:
 
 ```{r, error=TRUE}
-jpap_2 <- tribble(
+jpap_2 <- tibble::tribble(
    ~x,    ~items,
   "6.92",  1,
   "3.48",  1,
@@ -134,7 +134,7 @@ An underappreciated strength of GRIM is testing percentages. Since these are act
 Both `grim()` and `grim_map()` have a `percent` parameter which, if set to `TRUE`, divides the `x` values by 100 and increases the decimal count by two, so that percentages can be tested just like means:
 
 ```{r}
-jpap_3 <- tribble(
+jpap_3 <- tibble::tribble(
   ~x,     ~n,
   "32.5",  438,
   "35.6",  455,
@@ -246,7 +246,7 @@ These columns are ---
 There is a specialized visualization function for GRIM test results, `grim_plot()`:
 
 ```{r, error=TRUE, fig.width=6, fig.height=5.5}
-jpap_5 <- tribble(
+jpap_5 <- tibble::tribble(
   ~x,        ~n,
   "7.19",    28,
   "4.56",    34,
@@ -357,7 +357,7 @@ More precisely, they went from a 20/20 group split to a 19/21 split, then to an 
 Instead of going about this manually, call `grim_map_total_n()`, followed by `audit_total_n()` for summarizing the results. It will find two further plausible scenarios in which both means are consistent; more on that below.
 
 ```{r}
-df <- tibble(x1 = "4.71", x2 = "5.3", n = 40)
+df <- tibble::tibble(x1 = "4.71", x2 = "5.3", n = 40)
 
 # Detailed results:
 df_tested <- grim_map_total_n(df)
