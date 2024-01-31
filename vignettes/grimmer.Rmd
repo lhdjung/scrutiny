@@ -19,10 +19,6 @@ knitr::opts_chunk$set(
 library(scrutiny)
 ```
 
-```{r include=FALSE}
-# Dev only: load scrutiny from within scrutiny
-devtools::load_all(".")
-```
 
 Granularity-related inconsistency of means mapped to error repeats, or GRIMMER, is a test for the mathematical consistency of reported means or proportions with the corresponding standard deviations (SDs) and sample sizes [@anaya2016b; @allard2018].
 

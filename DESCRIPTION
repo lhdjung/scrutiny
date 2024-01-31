@@ -116,7 +116,6 @@ Collate:
     'write-doc-audit.R'
 Suggests: 
     covr,
-    devtools,
     knitr,
     rmarkdown,
     roxygen2,

@@ -5,7 +5,6 @@ vignette: >
   %\VignetteIndexEntry{Data wrangling}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-  %\VignetteDepends{devtools}
 ---
 
 ```{r, include = FALSE}
@@ -13,11 +12,6 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
-```
-
-```{r include=FALSE}
-# Dev only: load scrutiny from within scrutiny
-devtools::load_all(".")
 ```
 
 ```{r setup, message=FALSE}

@@ -14,11 +14,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r include=FALSE}
-# Dev only: load scrutiny from within scrutiny
-devtools::load_all(".")
-```
-
 ```{r setup, message=FALSE}
 library(scrutiny)
 ```
