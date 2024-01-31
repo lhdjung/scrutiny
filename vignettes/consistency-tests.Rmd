@@ -5,7 +5,7 @@ vignette: >
   %\VignetteIndexEntry{Implementing consistency tests}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-  %\VignetteDepends{pkgloqd}
+  %\VignetteDepends{pkgload}
 bibliography: references.bib
 ---
 

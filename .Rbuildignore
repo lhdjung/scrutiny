@@ -11,8 +11,10 @@
 ^CITATION\.cff$
 ^doc$
 ^Meta$
+R\.Rproj$
 ^codecov\.yml$
 ^cran-comments\.md$
 ^CRAN-SUBMISSION$
 ^\.lintr$
 .Rprofile$
+.Rprofile\.R$
