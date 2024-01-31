@@ -12,16 +12,14 @@ audit_pigs2 <- pigs2 %>%
 
 
 test_that("The output is a tibble", {
-  audit_pigs1 %>% tibble::is_tibble() %>% expect_true()
-  audit_pigs2 %>% tibble::is_tibble() %>% expect_true()
+  audit_pigs1 %>% expect_s3_class("tbl_df")
+  audit_pigs2 %>% expect_s3_class("tbl_df")
 })
 
 
 test_that("The output has correct dimensions", {
-  audit_pigs1 %>% ncol() %>% expect_equal(7)
-  audit_pigs1 %>% nrow() %>% expect_equal(1)
-  audit_pigs2 %>% ncol() %>% expect_equal(7)
-  audit_pigs2 %>% nrow() %>% expect_equal(1)
+  audit_pigs1 %>% dim() %>% expect_equal(c(1, 7))
+  audit_pigs2 %>% dim() %>% expect_equal(c(1, 7))
 })
 
 

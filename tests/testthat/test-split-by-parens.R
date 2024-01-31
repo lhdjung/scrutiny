@@ -13,14 +13,14 @@ pigs_tested <- split_by_parens(pigs)
 
 
 test_that("The output is a tibble", {
-  pigs_tested %>% tibble::is_tibble() %>% expect_true()
+  expect_s3_class(pigs_tested, "tbl_df")
 })
 
 
 colnames_expected <- c("drone_x", "drone_sd", "selfpilot_x", "selfpilot_sd")
 
 test_that("It has correct column names", {
-  pigs_tested %>% colnames() %>% expect_equal(colnames_expected)
+  expect_named(pigs_tested, colnames_expected)
 })
 
 
@@ -89,13 +89,13 @@ test_that("using the dots, `...`, is an error", {
 pigs_wider <- pigs %>% dplyr::mutate(letters = letters[1:4])
 
 test_that("non-`sep` columns are handled correctly with `check_sep = TRUE` (the default)", {
-  pigs_wider %>% split_by_parens() %>% expect_warning()
-  pigs_wider %>% split_by_parens() %>% suppressWarnings() %>% ncol() %>% expect_equal(5L)
+  expect_warning(out <- split_by_parens(pigs_wider))
+  expect_equal(ncol(out), 5L)
 })
 
 test_that("non-`sep` columns are handled correctly with `check_sep = FALSE", {
-  pigs_wider %>% split_by_parens(check_sep = FALSE) %>% expect_warning()
-  pigs_wider %>% split_by_parens(check_sep = FALSE) %>% suppressWarnings() %>% ncol() %>% expect_equal(6L)
+  expect_warning(out <- split_by_parens(pigs_wider, check_sep = FALSE))
+  expect_equal(ncol(out), 6L)
 })
 
 

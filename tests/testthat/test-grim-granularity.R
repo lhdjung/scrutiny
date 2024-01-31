@@ -1,10 +1,10 @@
 
 
 test_that("`grim_granularity()` returns a numeric value", {
-  grim_granularity(20, 1) %>% is.numeric() %>% expect_true()
-  grim_granularity(20, 2) %>% is.numeric() %>% expect_true()
-  grim_granularity(25, 1) %>% is.numeric() %>% expect_true()
-  grim_granularity(25, 2) %>% is.numeric() %>% expect_true()
+  grim_granularity(20, 1) %>% expect_type("double")
+  grim_granularity(20, 2) %>% expect_type("double")
+  grim_granularity(25, 1) %>% expect_type("double")
+  grim_granularity(25, 2) %>% expect_type("double")
 })
 
 
