@@ -9,9 +9,12 @@
 
 #' @param data A data frame that inherits one of the classes named below.
 
-#' @details `audit()` is an S3 generic.
+#' @details `audit()` is an S3 generic. It looks up the (invisible) scrutiny
+#'   class of a tibble returned by any function named below. You don't need to
+#'   deal with the classes directly. Behind the scenes, they mediate between
+#'   these functions and their associated summary statistics.
 
-#' @section Before `audit()`:
+#' @section Run before `audit()`:
 #'   | \strong{Function}            | \strong{Class}              |
 #'   | ---                          | ---                         |
 #'   | `grim_map()`                 | `"scr_grim_map"`            |
@@ -19,6 +22,7 @@
 #'   | `debit_map()`                | `"scr_debit_map"`           |
 #'   | `duplicate_count()`          | `"scr_dup_count"`           |
 #'   | `duplicate_count_colpair()`  | `"scr_dup_count_colpair"`   |
+#'   | `duplicate_tally()`          | `"scr_dup_tally"`           |
 #'   | `duplicate_detect()`         | `"scr_dup_detect"`          |
 #'   | `audit_seq()`                | `"scr_audit_seq"`           |
 #'   | `audit_total_n()`            | `"scr_audit_total_n"`       |
@@ -34,9 +38,8 @@
 #'
 #' # For duplicate detection:
 #' pigs4 %>%
-#'   duplicate_detect() %>%
+#'   duplicate_count() %>%
 #'   audit()
-
 
 audit <- function(data) {
   UseMethod("audit")

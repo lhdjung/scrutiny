@@ -117,34 +117,6 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
 #'   Browse the source code in the grim.R file. `grim()` is a vectorized version
 #'   of the internal `grim_scalar()` function found there.
 #'
-#' @section Rounding: Here are the options for the `rounding` argument.
-#'   Reconstructed mean or percentage values can be rounded in either of these
-#'   ways:
-
-#'   - Rounded to `"even"` using base R's own `round()`.
-#'   - Rounded `"up"` or `"down"` from 5. (Note that SAS, SPSS, Stata, Matlab,
-#'   and Excel round `"up"` from 5, whereas Python rounds `"down"` from 5.)
-#'   - Rounded `"up_from"` or `"down_from"` some number, which then must be
-#'   specified via the `threshold` argument.
-#'   - Given a `"ceiling"` or `"floor"` at the respective decimal place.
-#'   - Rounded towards zero with `"trunc"` or away from zero with
-#'   `"anti_trunc"`.
-
-#' The default, `"up_or_down"`, allows for numbers rounded either `"up"` or
-#' `"down"` from 5 when GRIM-testing; and likewise for `"up_from_or_down_from"`
-#' and `"ceiling_or_floor"`.
-#'
-#' With `rounding = "up_or_down"`, if `n` is 40 or 80 and `x` has two decimal
-#' places, very few values will test as inconsistent; but note that many will be
-#' with either of `rounding = "up"` and `rounding = "down"`, or indeed with any
-#' other rounding method. This is part of a more general pattern: `n` is 400 or
-#' 800 and `x` has three decimal places, etc.
-#'
-#' For more information about these methods, see documentation for `round()`,
-#' `round_up()`, and `round_ceiling()`. These include all of the above ways of
-#' rounding. How the reconstructed values are rounded can also be calibrated by
-#' the `threshold` and `symmetric` arguments.
-#'
 #' @param x String. The reported mean or percentage value.
 #' @param n Integer. The reported sample size.
 #' @param items Numeric. The number of items composing `x`. Default is 1, the
@@ -152,7 +124,7 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
 #' @param percent Logical. Set `percent` to `TRUE` if `x` is a percentage. This
 #'   will convert it to a decimal number and adjust the decimal count (i.e.,
 #'   increase it by 2). Default is `FALSE`.
-#' @param show_rec Logical. For internal use only.  If set to `TRUE`, the output
+#' @param show_rec Logical. For internal use only. If set to `TRUE`, the output
 #'   is a matrix that also contains intermediary values from GRIM-testing. Don't
 #'   specify this manually; instead, use `show_rec` in `grim_map()`. Default is
 #'   `FALSE`.
