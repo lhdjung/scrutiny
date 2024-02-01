@@ -7,7 +7,7 @@ data_grim  <- grim_map(pigs1)
 audit_grim <- audit(data_grim)
 
 test_that("`audit()` summarizes GRIM tests accurately", {
-  expect_true(is.data.frame(audit_grim))
+  expect_s3_class(audit_grim, "data.frame")
   expect_equal(as.numeric(audit_grim$all_cases - audit_grim$incons_cases),
                length(data_grim$consistency[data_grim$consistency]))
 })

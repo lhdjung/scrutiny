@@ -1,14 +1,5 @@
 ---
-title: "Error detection in science"
-output:
-  rmarkdown::md_document:
-
-vignette: >
-  %\VignetteIndexEntry{Error detection in science}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
-  %\VignetteDepends{devtools}
-
+output: github_document
 link-citations: TRUE
 ---
 
@@ -24,20 +15,16 @@ knitr::opts_chunk$set(
   fig.asp = 7/7.5
 )
 
-# Dev only: load scrutiny from scrutiny
-devtools::load_all(".")
-
 # Determine ggplot2 theme for the session:
 ggplot2::theme_set(ggplot2::theme_minimal())
 ```
 
 <!-- badges: start -->
-
-[![R-CMD-check](https://github.com/lhdjung/scrutiny/actions/workflows/R-CMD-check.yaml/badge.svg){alt="R-CMD-check"}](https://github.com/lhdjung/scrutiny/actions/workflows/R-CMD-check.yaml) [![Codecov test coverage](https://codecov.io/gh/lhdjung/scrutiny/branch/main/graph/badge.svg)](https://app.codecov.io/gh/lhdjung/scrutiny?branch=main)
-
+[![R-CMD-check](https://github.com/lhdjung/scrutiny/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/lhdjung/scrutiny/actions/workflows/R-CMD-check.yaml)
+[![Codecov test coverage](https://codecov.io/gh/lhdjung/scrutiny/branch/main/graph/badge.svg)](https://app.codecov.io/gh/lhdjung/scrutiny?branch=main)
 <!-- badges: end -->
 
-# Error detection in science
+# scrutiny: Error detection in science
 
 The goal of scrutiny is to test published summary statistics for consistency using techniques like GRIM and to check their plausibility. The package makes these methods easy to use in a tidyverse-friendly way. It hopes to help the new field of error detection go mainstream.
 

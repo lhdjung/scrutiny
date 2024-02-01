@@ -41,8 +41,7 @@ test_that("The `*_df()` variant produces correct results", {
     dplyr::select(5) %>%
     restore_zeros_df() %>%
     dplyr::pull(1) %>%
-    is.factor() %>%
-    expect_true()
+    expect_s3_class("factor")
 })
 
 
@@ -53,24 +52,13 @@ test_that("the `check_decimals` argument works correctly", {
     dplyr::pull(1) %>%
     expect_type("double")
 
-  iris %>%
-    dplyr::mutate(Sepal.Length = trunc(Sepal.Length)) %>%
-    restore_zeros_df(check_decimals = FALSE) %>%
-    dplyr::pull(1) %>%
-    expect_warning()
-
-  iris %>%
-    dplyr::mutate(Sepal.Length = trunc(Sepal.Length)) %>%
-    restore_zeros_df(check_decimals = FALSE) %>%
-    dplyr::pull(1) %>%
-    expect_warning()
-
-  iris %>%
-    dplyr::mutate(Sepal.Length = trunc(Sepal.Length)) %>%
-    restore_zeros_df(check_decimals = FALSE) %>%
-    dplyr::pull(1) %>%
-    suppressWarnings() %>%
-    expect_type("character")
+  expect_warning(
+    out <- iris %>%
+      dplyr::mutate(Sepal.Length = trunc(Sepal.Length)) %>%
+      restore_zeros_df(check_decimals = FALSE) %>%
+      dplyr::pull(1)
+  )
+  expect_type(out, "character")
 })
 
 
