@@ -523,6 +523,72 @@ check_tibble <- function(x) {
 
 
 
+#' Check that `rounding` values for two procedures are not mixed
+#'
+#' @description In `reround()` and the many functions that call it internally,
+#'   valid specifications of the `rounding` argument include the following:
+#'
+#' - `"up_or_down"` (the default)
+#' - `"up_from_or_down_from"`
+#' - `"ceiling_or_floor"`
+#'
+#'   If `rounding` includes any of these, it must not include any other values.
+#'   `check_rounding_singular()` is called within `reround()` if `rounding` has
+#'   length > 1 and throws an error if any of these strings are part of it.
+#'
+#' @param rounding String (length > 1).
+#' @param bad String (length 1). Any of `"up_or_down"` etc.
+#' @param good1,good2 String (length 1). Two singlular rounding procedures that
+#'   are combined in `bad`, and that can instead be specified individually;
+#'   like, e.g., `rounding = c("up", "down")`.
+#'
+#' @return No return value; might throw an error.
+#'
+#' @noRd
+check_rounding_singular <- function(rounding, bad, good1, good2) {
+  if (any(bad == rounding)) {
+    cli::cli_abort(c(
+      "!" = "If `rounding` has length > 1, only single rounding procedures \\
+      are supported, such as \"{good1}\" and \"{good2}\".",
+      "x" = "`rounding` was given as \"{bad}\" plus others.",
+      "i" = "You can still concatenate multiple of them; just leave out \\
+      those with \"_or_\"."
+    ))
+  }
+}
+
+
+
+#' Check whether a rounding threshold was specified
+#'
+#' @description `check_threshold_specified()` is called within curly braces
+#'   inside of the switch statement in `reconstruct_rounded_numbers_scalar()` if
+#'   `rounding` includes `"_from"` and therefore requires specification of a
+#'   threshold.
+#'
+#'   It should always be followed by the respective rounding function.
+#'
+#' @param rounding_threshold
+#'
+#' @return No return value; might throw an error.
+#'
+#' @noRd
+check_threshold_specified <- function(threshold) {
+  if (threshold == 5) {
+    cli::cli_abort(c(
+      "You need to specify `threshold`.",
+      "x" = "If `rounding` is \"up_from\", \"down_from\", or \\
+      \"up_from_or_down_from\", set `threshold` to a number \\
+      other than 5. The `x` argument will then be rounded up or down from \\
+      that number.",
+      "i" = "To round up or down from 5, just set `rounding` to \\
+      \"up\", \"down\", or \"up_or_down\" instead."
+    ))
+  }
+}
+
+
+
 #' Split into groups
 #'
 #' Split up a vector `x` into groups that each consist of a number of elements
@@ -754,7 +820,7 @@ is_even <- function(x) {
 #'   function, i.e., `disperse()` or `disperse_total()`: Their reasons for
 #'   requiring a length-1 `n` differ from each other.
 #'
-#' @return No return value; might throw error.
+#' @return No return value; might throw an error.
 #'
 #' @noRd
 check_length_disperse_n <- function(n, msg_single) {
@@ -1422,9 +1488,9 @@ trunc_reverse <- function(x) {
 #' @param data Data frame.
 #' @param selection Tidyselect specification to select the columns from `data`
 #'   to operate on. It is spliced into `dplyr::across()`.
-#' @param total Logical. Should a `.total` column summarize across all values in
-#'   `data`, regardless of their original columns? If so, `.total` will be the
-#'   last row of the output tibble.
+#' @param total Logical. Should there be a `.total` row that summarizes across
+#'   all values in `data`, regardless of their original columns? If `TRUE`,
+#'   `.total` will be the last row of the output tibble. Default is `FALSE`.
 #'
 #' @return Tibble with summary statistics.
 #'
@@ -1489,15 +1555,18 @@ audit_summary_stats <- function(data, selection, total = FALSE) {
 
 #' List of minimal-distance functions for `audit_seq()`
 #'
-#' @description These functions are mapped in one particular place within
-#'   `audit_seq()` and shouldn't really be used elsewhere.
+#' @description The functions collected in `list_min_distance_functions` are
+#'   mapped in one particular place within `audit_seq()` and shouldn't really be
+#'   used elsewhere.
 #'
-#'   Instead of being anonymous functions, they are stored in a list here for
-#'   greater efficiency -- in terms of both speed and memory.
+#'   Instead of being individually defined as named functions or being used as
+#'   anonymous functions directly inside of `audit_seq()`, they are stored in a
+#'   list for greater efficiency -- in terms of both speed and memory.
 #'
 #'   The `x` parameter in all three functions is an integer vector measuring the
-#'   number of steps between inconsistent reported values and their consistent
-#'   neighbors. The notion of "steps" is the same as in, e.g., `grim_map_seq()`.
+#'   number of dispersion steps between inconsistent reported values and their
+#'   consistent neighbors. The notion of "steps" is the same as in, e.g.,
+#'   `grim_map_seq()`.
 #'
 #' @return List of three functions.
 #'

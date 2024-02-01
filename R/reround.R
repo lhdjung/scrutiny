@@ -1,26 +1,10 @@
 
-# Helper functions; not exported ------------------------------------------
-
-check_rounding_singular <- function(rounding, bad, good_1, good_2) {
-  if (any(bad == rounding)) {
-    cli::cli_abort(c(
-      "!" = "If `rounding` has length > 1, only single rounding procedures \\
-      are supported, such as \"{good_1}\" and \"{good_2}\".",
-      "x" = "`rounding` was given as \"{bad}\" plus others.",
-      "i" = "You can still concatenate multiple of them; just leave out \\
-      those with \"_or_\"."
-    ))
-  }
-}
-
-
 # # Full example inputs:
 # x <- 65.3488492
 # digits <- 2
 # rounding <- "up_or_down"
 # threshold <- 5
 # symmetric <- FALSE
-
 
 reconstruct_rounded_numbers_scalar <- function(x, digits, rounding,
                                                threshold, symmetric) {
@@ -30,10 +14,16 @@ reconstruct_rounded_numbers_scalar <- function(x, digits, rounding,
       round_up(x, digits, symmetric),
       round_down(x, digits, symmetric)
     ),
-    "up_from_or_down_from" = c(
-      round_up_from(x, digits, threshold, symmetric),
-      round_down_from(x, digits, threshold, symmetric)
-    ),
+    # Throw error if `rounding` was set to `"up_from_or_down_from"` -- which
+    # requires `threshold` to be set to some number -- but `threshold` was not,
+    # in fact, specified as anything other than its default, `5`:
+    "up_from_or_down_from" = {
+      check_threshold_specified(threshold)
+      c(
+        round_up_from(x, digits, threshold, symmetric),
+        round_down_from(x, digits, threshold, symmetric)
+      )
+    },
     "ceiling_or_floor" = c(
       round_ceiling(x, digits),
       round_floor(x, digits)
@@ -41,8 +31,15 @@ reconstruct_rounded_numbers_scalar <- function(x, digits, rounding,
     "even" = round(x, digits),
     "up" = round_up(x, digits, symmetric),
     "down" = round_down(x, digits, symmetric),
-    "up_from" = round_up_from(x, digits, threshold, symmetric),
-    "down_from" = round_down_from(x, digits, threshold, symmetric),
+    # The next two are checked like `"up_from_or_down_from"` above:
+    "up_from" = {
+      check_threshold_specified(threshold)
+      round_up_from(x, digits, threshold, symmetric)
+    },
+    "down_from" = {
+      check_threshold_specified(threshold)
+      round_down_from(x, digits, threshold, symmetric)
+    },
     "ceiling" = round_ceiling(x, digits),
     "floor" = round_floor(x, digits),
     "trunc" = round_trunc(x, digits),
@@ -112,69 +109,25 @@ reconstruct_rounded_numbers <- Vectorize(reconstruct_rounded_numbers_scalar,
 reround <- function(x, digits = 0L, rounding = "up_or_down",
                     threshold = 5, symmetric = FALSE) {
 
-  # Checks ---
-
   # For calls with multiple rounding procedures, each individual procedure needs
-  # to be singular; i.e., `rounding` can either be (1) a string of length 1
-  # indicating two procedures, such as `"up_or_down"`; or (2) a string of any
-  # length with values such as `"up"` or `"even"`, but not `"up_or_down"`:
+  # to be singular; i.e., `rounding` can either be (1) a string vector of length
+  # 1 indicating two procedures, such as `"up_or_down"`; or (2) a string vector
+  # of any length with values such as `"up"` or `"even"`, but not
+  # `"up_or_down"`:
   if (length(rounding) > 1L) {
     check_rounding_singular(rounding, "up_or_down", "up", "down")
     check_rounding_singular(rounding, "up_from_or_down_from", "up_from", "down_from")
     check_rounding_singular(rounding, "ceiling_or_floor", "ceiling", "floor")
-  }
-
-  # Throw an error if the lengths of the first two arguments are inconsistent:
-  if (length(x) > 1L &&
-      length(rounding) > 1L &&
-      length(x) != length(rounding)) {
-    cli::cli_abort(c(
-      "!" = "`x` and `rounding` must have the same length \\
+    # Throw an error if the lengths of the first two arguments are inconsistent:
+    if (length(x) > 1L && length(x) != length(rounding)) {
+      cli::cli_abort(c(
+        "!" = "`x` and `rounding` must have the same length \\
       unless either has length 1.",
       "i" = "`x` has length {length(x)}.",
       "i" = "`rounding` has length {length(rounding)}."
-    ))
-  }
-
-  # Throw error if `rounding` was set to either "up_from", "down_from", or
-  # `"up_from_or_down_from"` -- which require `threshold` to be set to some
-  # number -- but `threshold` was not, in fact, set to any number:
-  if (
-    any(rounding %in% c("up_from", "down_from", "up_from_or_down_from")) &&
-    missing(threshold)
-  ) {
-    cli::cli_abort(c(
-      "`threshold` must be specified.",
-      "i" = "If `rounding` is set to \"up_from\", \"down_from\", or \\
-      \"up_from_or_down_from\", set `threshold` to the number \\
-      from which the reconstructed values should then be rounded up or down, \\
-      respectively.",
-      "i" = "If that number is 5, you can simply set `rounding` to \\
-      \"up\", \"down\", or \"up_or_down\" instead."
-    ))
-  } else if (length(rounding) > 1L) {
-    # Throw error if an "_or_" rounding specification is one of multiple
-    # strings that have been supplied to `rounding`:
-    length_2ers <- c("up_or_down", "up_from_or_down_from", "ceiling_or_floor")
-    if (any(length_2ers %in% rounding)) {
-      offenders <- length_2ers[length_2ers %in% rounding]
-      msg_no_other <- glue::glue("If `rounding` includes \"{offenders[1L]}\", \\
-      there can be no other `rounding` values.")
-      if (length(offenders) > 1L) {
-        offenders[-1L] <- paste0("\"", offenders[-1L], "\"")
-        msg_no_other <- paste(
-          msg_no_other, "This also applies to {offenders[-1L]}."
-        )
-      }
-      cli::cli_abort(c(
-        "!" = msg_no_other,
-        "x" = "`rounding` has length {length(rounding)}."
       ))
     }
   }
-
-
-  # Main part ---
 
   # Go through the rounding options and, once the correct option (as per
   # `rounding`) has been found, proceed as described in the `Details` section of
