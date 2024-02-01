@@ -27,18 +27,27 @@
 #     !stringr::str_detect(filename, "rivets"),
 #     !stringr::str_detect(filename, "debug"),
 #     !stringr::str_detect(filename, "import-reexport"),
-#     !stringr::str_detect(filename, "debug"),
 #     !stringr::str_detect(filename, "utils-pipe"),
 #     !stringr::str_detect(filename, "utils-tidy-eval"),
 #     !stringr::str_detect(filename, "scrutiny-package"),
 #     !stringr::str_detect(filename, "Rprofile"),
 #   ) %>%
-#   dplyr::mutate(total = loc + blank_lines + comment_lines) %>%
+#   # dplyr::mutate(total = loc + blank_lines + comment_lines) %>%
 #   dplyr::mutate(
+#     total = loc + blank_lines + comment_lines,
 #     filename_short = stringr::str_remove(filename, path),
 #     filename_short = stringr::str_remove(filename_short, ".R$")
 #   ) %>%
-#   dplyr::relocate(filename_short, .after = "filename")
+#   dplyr::relocate(filename_short, .after = "filename") %>%
+#   dplyr::mutate(filename = NULL) %>%
+#   dplyr::mutate(
+#     type = dplyr::case_when(
+#       stringr::str_detect(filename_short, "grim|debit|consistency") ~ "consistency_test",
+#       stringr::str_detect(filename_short, "round") ~ "rounding",
+#       .default = "other"
+#     ), .after = filename_short
+#   )
+#
 #
 # df_files
 #
@@ -60,16 +69,21 @@
 #
 # ggplot2::theme_set(ggplot2::theme_minimal())
 #
+# # This plot is meant to be viewed in fullscreen, or else the labels won't be
+# # legible:
 # ggplot2::ggplot(df_files, ggplot2::aes(
 #   x = forcats::fct_reorder(filename_short, loc, .desc = TRUE),
 #   y = loc
 # )) +
 #   ggplot2::geom_col(fill = "royalblue1", alpha = 0.8) +
+#   ggplot2::geom_text(
+#     ggplot2::aes(label = loc), nudge_y = 10, size = 2.5
+#   ) +
 #   ggplot2::labs(
 #     x = "File name (.R)",
 #     y = "Lines of code"
 #   ) +
-#   ggplot2::scale_y_continuous(expand = ggplot2::expansion(add = c(0.1, 0.1))) +
+#   ggplot2::scale_y_continuous(expand = ggplot2::expansion(add = c(0.1, 20))) +
 #   ggplot2::theme(
 #     axis.text.x = ggplot2::element_text(angle = 45, hjust = 0.95),
 #     panel.grid.minor = ggplot2::element_blank(),
