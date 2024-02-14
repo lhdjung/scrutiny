@@ -115,12 +115,10 @@ Collate:
     'utils-tidy-eval.R'
     'write-doc-audit.R'
 Suggests: 
-    covr,
-    devtools,
     knitr,
+    pkgload,
     rmarkdown,
-    roxygen2,
-    testthat (>= 3.0.0),
+    testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Depends: 
     R (>= 3.4.0)

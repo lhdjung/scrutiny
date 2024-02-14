@@ -50,7 +50,7 @@ df2_rows_1_3_expected <- tibble::tibble(
   ),
   case = rep(rep(1:2, 2), each = 12L),
   dir = factor(rep(c("forth", "back"), each = 24L), levels = c("forth", "back")),
-) |>
+) %>%
   structure(
     class = c(
       "scr_map_total_n", "scr_grim_map", "scr_rounding_up_or_down", "tbl_df", "tbl",
@@ -67,8 +67,8 @@ df2_tested <- df2 %>% grim_map_total_n(dispersion = 0:5)
 
 
 test_that("The output is a tibble", {
-  df1_tested %>% tibble::is_tibble() %>% expect_true()
-  df2_tested %>% tibble::is_tibble() %>% expect_true()
+  expect_s3_class(df1_tested, "tbl_df")
+  expect_s3_class(df2_tested, "tbl_df")
 })
 
 test_that("It has correct dimensions", {
@@ -88,8 +88,8 @@ colnames_exp <- c(
 
 
 test_that("It has correct column names", {
-  df1_tested %>% colnames() %>% expect_equal(colnames_exp)
-  df2_tested %>% colnames() %>% expect_equal(colnames_exp)
+  df1_tested %>% expect_named(colnames_exp)
+  df2_tested %>% expect_named(colnames_exp)
 })
 
 

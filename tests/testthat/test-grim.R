@@ -7,8 +7,8 @@ test_that("A numeric argument for `x` leads to failure", {
 
 
 test_that("Return values are Boolean", {
-  expect_true(is.logical(grim("5.19", 28)))
-  expect_true(is.logical(grim("0.00", 100)))
+  expect_type(grim("5.19", 28), "logical")
+  expect_type(grim("0.00", 100), "logical")
 })
 
 
@@ -78,14 +78,10 @@ test_that("Correct values are returned (`percent` argument)", {
 
 vec <- seq_endpoint(5, 5.99)
 
-vec_all_right_name <- vec %>%
-  grim(28) %>%
-  hasName(vec) %>%
-  all()
 
 
 test_that("The `x` vector reappears as the names of the return values", {
-  vec_all_right_name %>% expect_true()
+  expect_named(grim(vec, 28), vec)
 })
 
 
@@ -106,7 +102,7 @@ x <- rnorm(x_length, 50, 20) %>%
 
 
 test_that("There are as many outputs as inputs", {
-  grim(x, 50) %>% length() %>% expect_equal(x_length)
+  grim(x, 50) %>% expect_length(x_length)
 })
 
 

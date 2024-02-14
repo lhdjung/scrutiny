@@ -3,12 +3,11 @@
 df1 <- disperse(n = 20, dispersion = 0:5)
 
 test_that("The function returns a tibble", {
-  df1 %>% tibble::is_tibble() %>% expect_true()
+  df1 %>% expect_s3_class("tbl_df")
 })
 
 test_that("It has the right dimensions", {
-  df1 %>% nrow() %>% expect_equal(12)
-  df1 %>% ncol() %>% expect_equal(2)
+  df1 %>% dim() %>% expect_equal(c(12, 2))
 })
 
 test_that("It starts with the right values", {

@@ -5,11 +5,11 @@ df1_tested <- debit_map(df1)
 
 
 test_that("the output is a tibble", {
-  df1_tested %>% tibble::is_tibble() %>% expect_true()
+  df1_tested %>% expect_s3_class("tbl_df")
 })
 
 test_that("values are correctly tested for DEBIT-consistency", {
-  df1_tested$consistency[df1_tested$consistency] %>% length() %>% expect_equal(6)
+  df1_tested$consistency[df1_tested$consistency] %>% expect_length(6L)
 })
 
 test_that("`show_rec` controls the number of columns", {

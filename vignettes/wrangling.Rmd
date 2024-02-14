@@ -5,7 +5,6 @@ vignette: >
   %\VignetteIndexEntry{Data wrangling}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-  %\VignetteDepends{devtools}
 ---
 
 ```{r, include = FALSE}
@@ -13,11 +12,6 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
-```
-
-```{r include=FALSE}
-# Dev only: load scrutiny from within scrutiny
-devtools::load_all(".")
 ```
 
 ```{r setup, message=FALSE}
@@ -60,7 +54,7 @@ Perhaps not all R users know that RStudio features an option for multiple cursor
 You should then get something like this:
 
 ```{r}
-flights1 <- tribble(
+flights1 <- tibble::tribble(
   ~x,
 "8.97",
 "2.61",
@@ -76,7 +70,7 @@ All that's missing is the sample size. Add it either via another `tribble()` col
 
 ```{r}
 flights1 <- flights1 %>% 
-  mutate(n = 28)
+  dplyr::mutate(n = 28)
 
 flights1
 ```
@@ -117,7 +111,7 @@ vec %>%
 A convenient way to restore trailing zeros in a data frame is `restore_zeros_df()`. By default, it operates on all columns that are coercible to numeric (factors don't count):
 
 ```{r}
-iris <- as_tibble(iris)
+iris <- tibble::as_tibble(iris)
 iris %>% 
   restore_zeros_df(width = 3)
 ```
@@ -136,7 +130,7 @@ iris %>%
 With summary data copied or extracted from PDF (see above), you might encounter values presented like `5.22 (0.73)`. Instead of manually teasing them apart, call `split_by_parens()`:
 
 ```{r}
-flights2 <- tribble(
+flights2 <- tibble::tribble(
   ~drone,           ~selfpilot,
   "0.09 (0.21)",    "0.19 (0.13)",
   "0.19 (0.28)",    "0.53 (0.10)",

@@ -4,5 +4,5 @@ plot <- pigs1 %>%
   grim_plot()
 
 test_that("`grim_plot()` returns a ggplot object", {
-  plot %>% inherits("ggplot") %>% expect_true()
+  plot %>% expect_s3_class("ggplot")
 })
