@@ -29,7 +29,7 @@ articles:
   navbar: Infrastructure
   contents:
   - rounding-options
-  - rounding
+  - rounding-in-detail
   - infrastructure
   - consistency-tests
   - wrangling
@@ -96,7 +96,6 @@ reference:
 - subtitle: Rounding
   desc: Reconstruct rounding procedures
 - contents:
-  - rounding-options
   - round_up
   - round_down
   - round_up_from
