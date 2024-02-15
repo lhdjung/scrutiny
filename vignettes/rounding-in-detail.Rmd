@@ -86,6 +86,20 @@ round_down_from(x = 4.28, digits = 1, threshold = 9)
 round_down_from(x = 4.28, digits = 1, threshold = 1)
 ```
 
+Rounding up implements this formula:
+
+$$
+\frac{\lfloor x(10^d) +1 - \frac{t}{10} \rfloor}{10^d}
+$$
+
+where $x$ is the number to be rounded, $d$ is the number of decimal places to which $x$ should be rounded, and $t$ is the threshold for rounding up (e.g., $t = 5$ for rounding up from 5). Note that $\lfloor n \rfloor$ floors a number $n$, and $\lceil n \rceil$ ceils it.
+
+Rounding down works accordingly:
+
+$$
+\frac{\lceil x(10^d) -1 - \frac{t}{10} \rceil}{10^d}
+$$
+
 ### To even (base R)
 
 Like Python's [`round()`](https://docs.python.org/3/library/functions.html#round) function, R's `base::round()` doesn't round up or down, or use any other procedure based solely on the truncated part of the number. Instead, `round()` strives to round to the next even number. This is also called "banker's rounding", and it follows a technical standard, [IEEE 754](https://en.m.wikipedia.org/wiki/IEEE_754#Roundings_to_nearest).
