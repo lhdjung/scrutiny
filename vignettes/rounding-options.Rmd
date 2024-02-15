@@ -18,25 +18,27 @@ Many scrutiny functions have a `rounding` argument that controls how numbers are
 
 ## In scrutiny
 
-These options return two rounded numbers for each input number:
+These options return two rounded numbers for each input number. In consistency tests, this means counting a value set as consistent if the reported number matches either of the two rounded reconstructed numbers.
 
 -   `"up_or_down"` (the default): one number rounded up from 5, one down from 5; in this order.
--   `"up_from_or_down_from"`: one number rounded up, one down, but not from 5. Instead, specify `threshold` as the number from where the input should be rounded.
+-   `"up_from_or_down_from"`: one number rounded up, one down --- but not from 5. Instead, specify `threshold` as the number from which the input should be rounded.
 -   `"ceiling_or_floor"`: one number ceiled, one floored.
 
-Only one rounded number per input:
+By contrast, these options only return one rounded number per input:
 
--   `"even"` rounds to the next even number, using base R's own `round()`.
--   `"up"` or `"down"` rounds from 5. (Note that SAS, SPSS, Stata, Matlab, and Excel round `"up"` from 5, whereas Python rounds `"down"` from 5.)
--   `"up_from"` or `"down_from"` some other number, which then must be specified via the `threshold` argument.
+-   `"even"` rounds to the next even number, using base R's own `round()`. See note below.
+-   `"up"` or `"down"` rounds in the specified direction, starting at 5.
+-   `"up_from"` or `"down_from"` rounds in the specified direction, starting at some number other than 5. Specify this number via the `threshold` argument.
 -   `"ceiling"` or `"floor"` always rounds to the next higher or lower decimal place, respectively.
 -   `"trunc"` and `"anti_trunc"` always round towards zero or away from it.
 
 ## Rounding at 5 in other software
 
-When encountering a tie at 5, how do these technologies round?
+If the decimal portion to be cut off by rounding is 5, how do these technologies round?
 
--   [SPSS](https://sr.ipsosinteractive.com/SPSSMR/Reporter/doc/en/help/ref_rounding.htm) rounds up.
+-   [Python](https://docs.python.org/3/library/functions.html#round)'s standard rounding function rounds to even.
+
+-   [SPSS](https://sr.ipsosinteractive.com/SPSSMR/Reporter/doc/en/help/ref_rounding.htm) rounds to even by default, but users may choose to round up instead.
 
 -   [Matlab](https://de.mathworks.com/help/matlab/ref/round.html) rounds away from zero by default (i.e., it rounds up if the input is positive). However, other rounding procedures can be chosen.
 
@@ -44,4 +46,10 @@ When encountering a tie at 5, how do these technologies round?
 
 -   [Stata](https://www.stata.com/manuals13/m-5trunc.pdf) seemingly rounds to even, but the documentation is not very explicit.
 
--   In [Excel](https://support.microsoft.com/en-us/office/round-a-number-f82b440b-689d-4221-b21e-38da99d33435), `ROUND()` rounds up, `ROUNDUP()` ceils the number, and `ROUNDDOWN()` floors it.
+-   In [Excel](https://support.microsoft.com/en-us/office/round-a-number-f82b440b-689d-4221-b21e-38da99d33435), `ROUND()` rounds up from 5, `ROUNDUP()` ceils the number, and `ROUNDDOWN()` floors it.[^1]
+
+[^1]: Excel's naming is inconsistent with scrutiny's usage. For instance, `ROUNDUP()` *always* rounds to the higher number, which is called ceiling in scrutiny (and in more common parlance). However, scrutiny's notion of `"up"` relies on a shared understanding with the user that numbers will only be rounded up from 5, not from any lower value; likewise with `"down"`. This is arguably suboptimal: compare `scrutiny::round_up()` to the more explicit naming of `janitor::round_half_up()`.
+
+## Note on rounding to even
+
+Rounding to the next even number is not reliable. The fundamental facts of floating-point computation imply that results may differ in unpredictable ways. See this [explanation of `base::round()`](https://lhdjung.github.io/scrutiny/articles/rounding.html#to-even-base-r), or a [more general article](https://docs.python.org/3/tutorial/floatingpoint.html#tut-fp-issues) about the limits of floating-point arithmetic.

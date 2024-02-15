@@ -50,7 +50,7 @@ The two remaining arguments are mostly forgettable: They only concern obscure ca
 
 ### Up and down
 
-`round_up()` does what most people think of as rounding. If the decimal portion to be cut off by rounding is 5 or greater, it rounds up. Otherwise, it rounds down. SAS, SPSS, Stata, Matlab, and Excel use this procedure.
+`round_up()` does what most people think of as rounding. If the decimal portion to be cut off by rounding is 5 or greater, it rounds up. Otherwise, it rounds down.
 
 ```{r}
 round_up(x = 1.24, digits = 1)
@@ -88,7 +88,7 @@ round_down_from(x = 4.28, digits = 1, threshold = 1)
 
 ### To even (base R)
 
-Like Python's [`round()`](https://python-reference.readthedocs.io/en/latest/docs/functions/round.html) function, R's `base::round()` doesn't round up or down, or use any other procedure based solely on the truncated part of the number. Instead, `round()` strives to round to the next even number. This is also called "banker's rounding", and it follows a technical standard, [IEEE 754](https://en.m.wikipedia.org/wiki/IEEE_754#Roundings_to_nearest).
+Like Python's [`round()`](https://docs.python.org/3/library/functions.html#round) function, R's `base::round()` doesn't round up or down, or use any other procedure based solely on the truncated part of the number. Instead, `round()` strives to round to the next even number. This is also called "banker's rounding", and it follows a technical standard, [IEEE 754](https://en.m.wikipedia.org/wiki/IEEE_754#Roundings_to_nearest).
 
 Realizing that `round()` works in a highly unintuitive way sometimes leads to consternation. Why can't we just round like we learned in school, that is, up from 5? The reason seems to be bias. Because 5 is right in between two whole numbers, any procedure that rounds 5 in some predetermined direction introduces a bias toward that direction. Rounding up from 5 is therefore biased upward, and rounding down from 5 is biased downward.
 
@@ -130,6 +130,7 @@ even2 <- round(vec2)
 vec1
 up2
 down2
+
 even2  # No symmetry here...
 
 mean(vec2)
