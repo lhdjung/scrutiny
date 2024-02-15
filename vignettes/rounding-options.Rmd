@@ -52,4 +52,4 @@ If the decimal portion to be cut off by rounding is 5, how do these technologies
 
 ## Note on rounding to even
 
-Rounding to the next even number is not reliable. The fundamental facts of floating-point computation imply that results may differ in unpredictable ways. See this [explanation of `base::round()`](https://lhdjung.github.io/scrutiny/articles/rounding.html#to-even-base-r), or a [more general article](https://docs.python.org/3/tutorial/floatingpoint.html#tut-fp-issues) about the limits of floating-point arithmetic.
+Rounding to the next even number is not reliable. The fundamental facts of floating-point computation imply that results may vary in unpredictable ways. See this [explanation of `base::round()`](https://lhdjung.github.io/scrutiny/articles/rounding.html#to-even-base-r), or a [more general article](https://docs.python.org/3/tutorial/floatingpoint.html#tut-fp-issues) about the limits of floating-point arithmetic.

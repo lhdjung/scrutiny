@@ -18,19 +18,19 @@ knitr::opts_chunk$set(
 library(scrutiny)
 ```
 
-Large parts of scrutiny are about rounding. This topic is more diverse and variegated than one might think. "Rounding" is often taken to simply mean rounding up from 5, and although that's wrong, it doesn't make much of a difference most of the time. Where it does matter is in *reconstructing* the rounding procedures that others used, claim to have used, or are alleged to have used. In short, rounding and all its details matter for error detection.
+Large parts of scrutiny are about rounding. This topic is more diverse and variegated than one might think. "Rounding" is often taken to simply mean rounding up from 5, and although that's wrong, it doesn't make much of a difference most of the time.
 
-This vignette covers scrutiny's infrastructure for reconstructing rounding procedures and results from summary statistics. Doing so is essential for the package: It is a precondition for translating assumptions about the processes behind published summary data into a few simple, higher-level function calls. Some of the functions presented here might be useful beyond the package, as well. Feel free to skip the more theoretical parts if your focus is on the code.
+One place where it does matter is in *reconstructing* the rounding procedures that others used, claim to have used, or are alleged to have used. In short, rounding and all its details matter for error detection.
+
+This vignette goes into depth on scrutiny's infrastructure for reconstructing rounding procedures and results from summary statistics. All of that is essential for the package: it is a precondition for translating assumptions about the processes behind published summary data into a few simple, higher-level function calls. Some of the functions presented here might be useful beyond the package, as well.
+
+Feel free to skip the more theoretical parts if your focus is on the code. See `vignette("rounding-options")` for a list of possible values of the `rounding` argument in scrutiny functions.
 
 ## Overview
 
-Base R's `round()` function is surprisingly sophisticated, which distinguishes it from the very simple ways in which decimal numbers are normally rounded --- most of the time, rounding up from 5. For this very reason, however, it can't be used to reconstruct the rounding procedures of other software programs. This is the job of scrutiny's rounding functions.
+Base R's `round()` function is surprisingly sophisticated. This distinguishes it from simpler rounding procedures, such as rounding up from 5. For this very reason, however, it can't be used to reconstruct the rounding procedures of other software programs. This is the job of scrutiny's rounding functions.
 
-First, I will present `reround()`, a general interface to reconstructing rounded numbers, before going through the individual rounding functions. I will add some comments on these.
-
-I will also discuss `unround()`, which works the reverse way: It takes a rounded number and reconstructs the bounds of the original number, taking details about the assumed rounding procedure into account.
-
-Finally, I will take a closer look at bias from rounding raw numbers.
+First, I will present `reround()`, a general interface to reconstructing rounded numbers, before going through the individual rounding functions. I will also discuss `unround()`, which works the reverse way: It takes a rounded number and reconstructs the bounds of the original number, taking details about the assumed rounding procedure into account. Finally, I will take a closer look at bias from rounding raw numbers.
 
 ## Reconstruct rounded numbers with `reround()`
 
