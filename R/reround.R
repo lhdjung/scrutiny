@@ -47,7 +47,7 @@ reconstruct_rounded_numbers_scalar <- function(x, digits, rounding,
     cli::cli_abort(c(
       "`rounding` must be one of the designated string values.",
       "x" = "It was given as {wrong_spec_string(rounding)}.",
-      "i" = "See documentation for `grim()`, section `Rounding`."
+      "i" = "See `vignette(\"rounding-options\")`."
     ))
   )
 }
@@ -84,9 +84,8 @@ reconstruct_rounded_numbers <- Vectorize(reconstruct_rounded_numbers_scalar,
 #'   (i.e., mean or percentage within `grim()`, or standard deviation within
 #'   `debit()`).
 #' @param rounding String. The rounding method that is supposed to have been
-#'   used originally. See documentation for `grim()`, section `Rounding`.
-#'   Default is `"up_or_down"`, which returns two values: `x` rounded up *and*
-#'   down.
+#'   used originally. See `vignette("rounding-options")`. Default is
+#'   `"up_or_down"`, which returns two values: `x` rounded up *and* down.
 #' @param threshold Integer. If `rounding` is set to `"up_from"`, `"down_from"`,
 #'   or `"up_from_or_down_from"`, `threshold` must be set to the number from
 #'   which the reconstructed values should then be rounded up or down. Otherwise

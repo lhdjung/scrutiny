@@ -105,9 +105,8 @@ with \code{digits} and \code{rounding}.
 
 With \code{grim_map()}'s default for \code{rounding}, \code{"up_or_down"}, strikingly few
 values are flagged as inconsistent for sample sizes 40 and 80 (or 4 and 8).
-This effect disappears if \code{rounding} is set to any other value. For a list
-of values that \code{rounding} can take, see documentation for \code{grim()}, section
-\code{Rounding}.
+This effect disappears if \code{rounding} is set to any other value (see
+\code{vignette("rounding-options")}).
 
 The 4/8 leniency effect arises because accepting values rounded either up
 or down is more careful and conservative than any other rounding procedure.

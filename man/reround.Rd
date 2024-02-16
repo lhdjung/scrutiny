@@ -20,9 +20,8 @@ reround(
 \code{debit()}).}
 
 \item{rounding}{String. The rounding method that is supposed to have been
-used originally. See documentation for \code{grim()}, section \code{Rounding}.
-Default is \code{"up_or_down"}, which returns two values: \code{x} rounded up \emph{and}
-down.}
+used originally. See \code{vignette("rounding-options")}. Default is
+\code{"up_or_down"}, which returns two values: \code{x} rounded up \emph{and} down.}
 
 \item{threshold}{Integer. If \code{rounding} is set to \code{"up_from"}, \code{"down_from"},
 or \code{"up_from_or_down_from"}, \code{threshold} must be set to the number from

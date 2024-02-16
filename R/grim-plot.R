@@ -44,9 +44,8 @@
 #'
 #'   With `grim_map()`'s default for `rounding`, `"up_or_down"`, strikingly few
 #'   values are flagged as inconsistent for sample sizes 40 and 80 (or 4 and 8).
-#'   This effect disappears if `rounding` is set to any other value. For a list
-#'   of values that `rounding` can take, see documentation for `grim()`, section
-#'   `Rounding`.
+#'   This effect disappears if `rounding` is set to any other value (see
+#'   `vignette("rounding-options")`).
 #'
 #'   The 4/8 leniency effect arises because accepting values rounded either up
 #'   or down is more careful and conservative than any other rounding procedure.
