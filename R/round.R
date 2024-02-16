@@ -114,6 +114,10 @@ round_up_from <- function(x, digits = 0L, threshold, symmetric = FALSE) {
 #' @rdname rounding-common
 #' @export
 
+# Note that this implementation is slightly different from the formula for
+# rounding down in the "Rounding in detail" article. However, this is only for
+# performance reasons, and the results are equivalent.
+
 round_down_from <- function(x, digits = 0L, threshold, symmetric = FALSE) {
 
   p10 <- 10 ^ digits

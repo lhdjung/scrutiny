@@ -94,10 +94,10 @@ $$
 
 where $x$ is the number to be rounded, $d$ is the number of decimal places to which $x$ should be rounded, and $t$ is the threshold for rounding up (e.g., $t = 5$ for rounding up from 5). Note that $\lfloor n \rfloor$ floors a number $n$, and $\lceil n \rceil$ ceils it.
 
-Rounding down works accordingly:
+Rounding down works accordingly. Note that $+$ and $-$ are reversed here:
 
 $$
-\frac{\lceil x(10^d) -1 - \frac{t}{10} \rceil}{10^d}
+\frac{\lceil x(10^d) - 1 + \frac{t}{10} \rceil}{10^d}
 $$
 
 ### To even (base R)
