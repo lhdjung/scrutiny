@@ -26,8 +26,7 @@ distribution. Currently, only the default, \code{"mean_n"}, is supported.}
 
 \item{rounding}{String. Rounding method or methods to be used for
 reconstructing the SD values to which \code{sd} will be compared. Default is
-\code{"up_or_down"} (from 5). For more options, see documentation for \code{grim()},
-section Details.}
+\code{"up_or_down"} (from 5). See \code{vignette("rounding-options")}.}
 
 \item{threshold}{Integer. If \code{rounding} is set to \code{"up_from"}, \code{"down_from"},
 or \code{"up_from_or_down_from"}, set \code{threshold} to the number from which the

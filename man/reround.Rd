@@ -52,8 +52,8 @@ reconstruction of statistical analyses.
 }
 \details{
 \code{reround()} internally calls the appropriate rounding function(s)
-determined by the \code{rounding} argument. See documentation for \code{grim()},
-section \code{Rounding}, for a complete list of values that \code{rounding} can take.
+determined by the \code{rounding} argument. See \code{vignette("rounding-options")}
+for a complete list of values that \code{rounding} can take.
 
 For the nine rounding functions themselves, see documentation at
 \code{round_up()}, \code{round_ceiling()}, and \code{base::round()}.

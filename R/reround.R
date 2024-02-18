@@ -73,8 +73,8 @@ reconstruct_rounded_numbers <- Vectorize(reconstruct_rounded_numbers_scalar,
 #'
 
 #' @details `reround()` internally calls the appropriate rounding function(s)
-#'   determined by the `rounding` argument. See documentation for `grim()`,
-#'   section `Rounding`, for a complete list of values that `rounding` can take.
+#'   determined by the `rounding` argument. See `vignette("rounding-options")`
+#'   for a complete list of values that `rounding` can take.
 #'
 #'   For the nine rounding functions themselves, see documentation at
 #'   `round_up()`, `round_ceiling()`, and `base::round()`.

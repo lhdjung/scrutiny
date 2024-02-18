@@ -62,9 +62,7 @@ https://rpubs.com/maechler/Rounding). In the present version of R (4.0.0 or
 later), \code{base::round()} works fine, and the functions presented here are
 not meant to replace it. Their main purpose as helpers within scrutiny is
 to reconstruct the computations of researchers who might have used
-different software. For example, SAS, SPSS, Stata, Matlab, and Excel round
-up from 5, whereas Python rounds down from 5. Other use cases might
-possibly include journal requirements.
+different software. See \code{vignette("rounding-options")}.
 }
 \examples{
 # Both `round_up()` and `round_down()` work like

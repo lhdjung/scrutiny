@@ -28,9 +28,7 @@
 #'   later), `base::round()` works fine, and the functions presented here are
 #'   not meant to replace it. Their main purpose as helpers within scrutiny is
 #'   to reconstruct the computations of researchers who might have used
-#'   different software. For example, SAS, SPSS, Stata, Matlab, and Excel round
-#'   up from 5, whereas Python rounds down from 5. Other use cases might
-#'   possibly include journal requirements.
+#'   different software. See `vignette("rounding-options")`.
 #'
 #' @param x Numeric. The decimal number to round.
 #' @param digits Integer. Number of digits to round `x` to. Default is `0`.

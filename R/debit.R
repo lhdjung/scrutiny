@@ -36,8 +36,7 @@ debit_scalar <- function(x, sd, n,
 #'   distribution. Currently, only the default, `"mean_n"`, is supported.
 #' @param rounding String. Rounding method or methods to be used for
 #'   reconstructing the SD values to which `sd` will be compared. Default is
-#'   `"up_or_down"` (from 5). For more options, see documentation for `grim()`,
-#'   section Details.
+#'   `"up_or_down"` (from 5). See `vignette("rounding-options")`.
 #' @param threshold Integer. If `rounding` is set to `"up_from"`, `"down_from"`,
 #'   or `"up_from_or_down_from"`, set `threshold` to the number from which the
 #'   reconstructed values should then be rounded up or down. Otherwise

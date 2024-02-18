@@ -19,7 +19,7 @@ rounding_bias(
 \item{digits}{Integer. Number of decimal digits to which \code{x} will be rounded.}
 
 \item{rounding}{String. Rounding procedure that will be applied to \code{x}. See
-documentation for \code{grim()}, section \code{Rounding}. Default is \code{"up"}.}
+\code{vignette("rounding-options")}. Default is \code{"up"}.}
 
 \item{threshold, symmetric}{Further arguments passed down to \code{reround()}.}
 
