@@ -5,6 +5,7 @@ vignette: >
   %\VignetteIndexEntry{Rounding in detail}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+bibliography: references.bib
 ---
 
 ```{r, include = FALSE}
@@ -173,6 +174,22 @@ We usually think that rounding rules are all about breaking a tie that occurs at
 This seems better than going with mathematical intuitions that may not always correspond to the way computers actually deal with these issues. R has been using the present solution since version 4.0.0.
 
 `base::round()` can seem like a black box, but it seems unbiased in the long run. I recommend using `round()` for original work, even though it is quite different from other rounding procedures --- and therefore unsuitable for reconstructing them. Instead, we need something like scrutiny's `round_*()` functions.
+
+### IEEE 754 rounding standard
+
+`base::round()` and some of scrutiny's rounding functions correspond to the IEEE 754 rounding standard (IEEE 2019, pp. 27f.; the [Wikipedia page](https://en.m.wikipedia.org/wiki/IEEE_754#Rounding_rules) is more accessible). IEEE 754 defines standards for floating-point operations, which includes rounding.
+
+This table shows how `base::round()` and scrutiny correspond to IEEE 754:
+
+| Function                             | IEEE 754 attribute    |
+|--------------------------------------|-----------------------|
+| `base::round()`                      | *roundTiesToEven*     |
+| `round_up()` with `symmetric = TRUE` | *roundTiesToAway*     |
+| `round_ceiling()`                    | *roundTowardPositive* |
+| `round_floor()`                      | *roundTowardNegative* |
+| `round_trunc()`                      | *roundTowardZero*     |
+
+Admittedly, scrutiny's rounding functions were written without this standard in mind. That is why their names don't match those of the IEEE rounding procedures (or "rounding-direction attributes"), and why one of them requires the optional `symmetric` argument to meet the standard. A more straightforward mapping might be more desirable, and future breaking changes in a major version of scrutiny are not out of the question. However, other considerations apply, as well.
 
 ## Reconstruct rounding bounds with `unround()`
 
@@ -420,3 +437,9 @@ ggplot2::ggplot(df_new, ggplot2::aes(x = decimal_digits, y = bias, fill = roundi
 ```
 
 In sum, the function allows users to quantify the degree to which rounding biases a distribution, so that they can assess the relative merits of different rounding procedures. This is partly to sensitize readers to potential bias in edge cases, but also to enable them to make informed rounding decisions on their own.
+
+### Citation dummy {style="display: none;"}
+
+*(Here is an extra section. Its display is suppressed via the CSS element `display: none;` because its only purpose is to generate the citation @ieee2019 --- I want to style the citation in the text above more flexibly than the format allows (without parentheses) but still get the reference pasted at the bottom.)*
+
+# References
