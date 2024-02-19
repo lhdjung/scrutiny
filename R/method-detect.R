@@ -17,7 +17,6 @@ audit.scr_dup_detect <- function(data) {
 
   # After saving the number of its rows, `data` is no longer needed:
   orig_nrow <- nrow(data)
-  rm(data)
 
   # Tidying to long format makes the table more manageable. Then, group the
   # table by the original terms, count duplicates, fashion it a little, and

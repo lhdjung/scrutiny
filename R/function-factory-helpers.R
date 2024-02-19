@@ -359,48 +359,45 @@ absorb_other_args <- function(fun, reported) {
 #'
 #' @noRd
 check_args_disabled <- function(args_disabled) {
-
-  # Enforce argument disabling via `args_disabled`:
-  if (!is.null(args_disabled)) {
-    arg_names_caller_call <- rlang::frame_call(frame = parent.frame())
-    arg_names_caller_call <- names(arg_names_caller_call)
-    offenders <- args_disabled[args_disabled %in% arg_names_caller_call]
-    if (length(offenders) > 0L) {
-      fun_name <- name_caller_call(n = 2L)
-      fun_name_bare <- name_caller_call(wrap = FALSE)
-      fun_name_bare <- as.character(fun_name_bare)
-      package_name <- utils::getAnywhere(fun_name_bare)$where
-      package_name <- as.character(package_name[1L])
-      package_name <- sub("package:", "", package_name)
-      if (length(offenders) > 3L) {
-        offenders <- offenders[1:3]
-        msg_among_others <- ", among others"
-      } else {
-        msg_among_others <- ""
-      }
-      if (length(offenders) > 1L) {
-        msg_arg_s <- "Arguments"
-        msg_is_are <- "are"
-      } else {
-        msg_arg_s <- "Argument"
-        msg_is_are <- "is"
-      }
-      offenders <- wrap_in_backticks(offenders)
-      cli::cli_abort(c(
-        "{msg_arg_s} {offenders} {msg_is_are} \\
+  if (is.null(args_disabled)) {
+    return(NULL)
+  }
+  arg_names_caller_call <- rlang::frame_call(frame = parent.frame())
+  arg_names_caller_call <- names(arg_names_caller_call)
+  offenders <- args_disabled[args_disabled %in% arg_names_caller_call]
+  if (length(offenders) > 0L) {
+    fun_name <- name_caller_call(n = 2L)
+    fun_name_bare <- name_caller_call(wrap = FALSE)
+    fun_name_bare <- as.character(fun_name_bare)
+    package_name <- utils::getAnywhere(fun_name_bare)$where
+    package_name <- as.character(package_name[1L])
+    package_name <- sub("package:", "", package_name)
+    if (length(offenders) > 3L) {
+      offenders <- offenders[1:3]
+      msg_among_others <- ", among others"
+    } else {
+      msg_among_others <- ""
+    }
+    if (length(offenders) > 1L) {
+      msg_arg_s <- "Arguments"
+      msg_is_are <- "are"
+    } else {
+      msg_arg_s <- "Argument"
+      msg_is_are <- "is"
+    }
+    offenders <- wrap_in_backticks(offenders)
+    cli::cli_abort(c(
+      "{msg_arg_s} {offenders} {msg_is_are} \\
           disabled in {fun_name}{msg_among_others}.",
-        "i" = "This is by design. When {fun_name} was created \\
+      "i" = "This is by design. When {fun_name} was created \\
           within {package_name} using `scrutiny::function_map()`, \\
           this function factory's `.args_disabled` argument was \\
           specified so as to include {offenders}.",
-        "i" = "The purpose is to prevent hidden errors that \\
+      "i" = "The purpose is to prevent hidden errors that \\
           might otherwise arise due to certain arguments not \\
           working properly within `scrutiny::function_map()`."
-      ))
-    }
-    rm(arg_names_caller_call, offenders)
+    ))
   }
-
 }
 
 

@@ -265,12 +265,6 @@ restore_zeros_df <- function(data, cols = everything(),
     )
   }
 
-  # Save memory by removing objects that are no longer needed:
-  rm(
-    cols, names_num_cols, names_wrong_cols, names_cols_select,
-    selection2, selection3
-  )
-
   # By default, a columns is selected if and only if it's numeric-like.
   # Additional constrains might come via `selection2` or `selection3` (see
   # `cols_to_select` above; by default, only `selection2` takes effect). The

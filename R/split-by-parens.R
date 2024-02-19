@@ -178,9 +178,6 @@ split_by_parens <- function(data, cols = everything(), check_sep = TRUE,
   names_neutral_cols <- names_data[!names_data %in% names(cols_to_select)]
   neutral_cols <- dplyr::select(data, all_of(names_neutral_cols))
 
-  # Save memory by removing objects that are no longer needed:
-  rm(data, selection2, cols_to_select, endings)
-
   # By default, the original columns are dropped. If the user disabled this by
   # setting `keep` to `TRUE`, `transform` can't also be `TRUE` because this
   # would likely lead to incommensurable data frame dimensions:

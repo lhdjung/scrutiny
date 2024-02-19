@@ -139,9 +139,6 @@ function_map <- function(.fun, .reported, .name_test,
     ))
   }
 
-  # Garbage collection, 1/2:
-  rm(offenders)
-
   code_key_arg_checks <- paste0("!missing(", .reported, ")", collapse = " || ")
   code_key_arg_checks <- rlang::expr({
     if (`!!`(rlang::parse_expr(code_key_arg_checks))) {
@@ -274,10 +271,10 @@ function_map <- function(.fun, .reported, .name_test,
 
   # --- End of the factory-made function, `fn_out()` ---
 
-  # Garbage collection, 2/2:
+  # Garbage collection:
   rm(
     fun_name, code_key_arg_checks, code_rounding_class, code_col_control,
-    all_classes
+    all_classes, offenders
   )
 
   # Insert parameters named after the key columns into `fn_out()`, with `NULL`

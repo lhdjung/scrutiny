@@ -94,8 +94,6 @@ debit_table <- function(x, sd, n,
   sd_incl_lower <- sd_unrounded$incl_lower
   sd_incl_upper <- sd_unrounded$incl_upper
 
-  rm(x_unrounded, sd_unrounded)
-
   # Reconstruct the original SD:
   sd_rec_lower <- reconstruct_sd(formula, x_lower, n)  # ADD `group_0, group_1` TO SUPPORT OTHER FORMULAS
   sd_rec_upper <- reconstruct_sd(formula, x_upper, n)  # ADD `group_0, group_1` TO SUPPORT OTHER FORMULAS

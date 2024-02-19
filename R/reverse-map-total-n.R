@@ -83,7 +83,6 @@ reverse_map_total_n <- function(data) {
   data_reported_2 <- data2[, colnames_reported]
 
   n <- data2$n
-  rm(data_reduced, data1, data2, locations1, locations2, ncol_before_n)
 
   colnames(data_reported_1) <- paste0(colnames_reported, "1")
   colnames(data_reported_2) <- paste0(colnames_reported, "2")
