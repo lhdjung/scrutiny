@@ -14,7 +14,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-
 ```{r setup}
 library(scrutiny)
 ```
@@ -36,11 +35,11 @@ pigs4 %>%
   duplicate_count()
 ```
 
-It returns a tibble (data frame) that lists each unique `value`. The tibble is ordered by the `count` of values in the input data frame, so the values that appear most often are at the top. The `locations` are the names of all the columns in which a given value appears. They are counted by `locations_n`.
+It returns a tibble (data frame) that lists each unique `value`. The tibble is ordered by the `frequency` of values in the input data frame, so the values that appear most often are at the top. The `locations` are the names of all the columns in which a given value appears. They are counted by `locations_n`.
 
-For example, `5.17` is the most frequent value in `pigs4`. It appears 3 times (`count`), namely in the `snout`, `tail`, and `wings` columns; so `locations_n` is also `3`. The next most frequent value is `4.22` which appears twice, but both of these instances are in the `snout` column, so `locations_n` is `1`.
+For example, `5.17` is the most frequent value in `pigs4`. It appears 3 times (`frequency`), namely in the `snout`, `tail`, and `wings` columns; so `locations_n` is also `3`. The next most frequent value is `4.22` which appears twice, but both of these instances are in the `snout` column, so `locations_n` is `1`.
 
-Run `audit()` after `duplicate_count()` to get summary statistics for the two numeric columns, `count` and `locations_n`:
+Run `audit()` after `duplicate_count()` to get summary statistics for the two numeric columns, `frequency` and `locations_n`:
 
 ```{r}
 pigs4 %>% 
@@ -57,7 +56,7 @@ pigs4 %>%
   duplicate_count_colpair()
 ```
 
-`x` and `y` represent all combinations of columns in `pigs4`. The `count` is the number of values that appear in both respective columns. (This is different from `duplicate_count()`, where `count` displays total frequencies.) `total_x` and `total_y` are the numbers of non-missing values in the original columns listed under `x` and `y`. Similarly, `rate_x` is the rate of `x` values that also appear in `y`, and `rate_y` is the rate of `y` values that also appear in `x`. If there are no missing values, `total_x` is the same as `total_y`, and `rate_x` is the same as `rate_y`.
+`x` and `y` represent all combinations of columns in `pigs4`. The `count` is the number of values that appear in both respective columns. `total_x` and `total_y` are the numbers of non-missing values in the original columns listed under `x` and `y`. Similarly, `rate_x` is the rate of `x` values that also appear in `y`, and `rate_y` is the rate of `y` values that also appear in `x`. If there are no missing values, `total_x` is the same as `total_y`, and `rate_x` is the same as `rate_y`.
 
 Here, `snout` and `tail` are the column pair with the most overlap: 2 out of 5 values are the same, a duplication rate of 0.4.
 

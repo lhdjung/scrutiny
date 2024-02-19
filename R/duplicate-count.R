@@ -22,10 +22,10 @@
 #'   columns. If `x` isn't named, only the first two columns appear:
 #'
 #' - `value`: All the values from `x`.
-#' - `count`: The frequency of each value in `x`, in descending order.
-#' - `locations`: The names of all columns from `x` in which `value` appears.
-#' - `locations_n`: The number of columns named in `locations`.
-
+#' - `frequency`: Absolute frequency of each value in `x`, in descending order.
+#' - `locations`: Names of all columns from `x` in which `value` appears.
+#' - `locations_n`: Number of columns named in `locations`.
+#'
 #' The tibble has the `scr_dup_count` class, which is recognized by the
 #' `audit()` generic.
 
@@ -38,7 +38,8 @@
 #' @section Summaries with `audit()`: There is an S3 method for the `audit()`
 #'   generic, so you can call `audit()` following `duplicate_count()`. It
 #'   returns a tibble with summary statistics for the two numeric columns,
-#'   `count` and `locations_n` (or only for `count`; see above).
+#'   `frequency` and `locations_n` (or, if `x` isn't named, only for
+#'   `frequency`).
 #'
 #' @seealso
 #' - `duplicate_count_colpair()` to check each combination of columns for
@@ -69,7 +70,7 @@ duplicate_count <- function(x, ignore = NULL,
                             locations_type = c("character", "list"),
                             numeric_only = deprecated()) {
 
-  locations_type <- rlang::arg_match(locations_type, c("character", "list"))
+  locations_type <- rlang::arg_match(locations_type)
 
   if (lifecycle::is_present(numeric_only)) {
     lifecycle::deprecate_warn(
@@ -114,9 +115,9 @@ duplicate_count <- function(x, ignore = NULL,
 
   out <- x$value %>%
     table() %>%
-    tibble::as_tibble(.name_repair = function(x) c("value", "count")) %>%
+    tibble::as_tibble(.name_repair = function(x) c("value", "frequency")) %>%
     dplyr::filter(!.data$value %in% ignore) %>%
-    dplyr::arrange(dplyr::desc(.data$count)) %>%
+    dplyr::arrange(dplyr::desc(.data$frequency)) %>%
     add_class("scr_dup_count")
 
   # All code below is about the `locations` and `locations_n` columns, but they
@@ -137,15 +138,20 @@ duplicate_count <- function(x, ignore = NULL,
     locations[i] <- list(temp[order(match(temp, names_orig))])
     locations_n[i] <- length(locations[[i]])
   }
-  rm(x, temp)
 
-  # By default, collapse each vector of location names into a string:
-  if (locations_type == "character") {
-    locations <- vapply(
-      locations, function(x) paste(x, collapse = ", "), character(1L),
-      USE.NAMES = FALSE
-    )
+  # The user may specify `locations_type` to remain a list:
+  if (locations_type == "list") {
+    return(dplyr::mutate(out, locations, locations_n))
   }
 
-  dplyr::mutate(out, locations, locations_n)
+  # By default (`locations_type == "character"`), collapse each list element --
+  # i.e., each vector of location names -- into a string:
+  dplyr::mutate(
+    out,
+    locations = vapply(
+      locations, function(x) paste(x, collapse = ", "),
+      character(1L), USE.NAMES = FALSE
+    ),
+    locations_n
+  )
 }

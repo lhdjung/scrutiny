@@ -29,12 +29,13 @@ If \code{x} is a data frame or another named vector, a tibble with four
 columns. If \code{x} isn't named, only the first two columns appear:
 \itemize{
 \item \code{value}: All the values from \code{x}.
-\item \code{count}: The frequency of each value in \code{x}, in descending order.
-\item \code{locations}: The names of all columns from \code{x} in which \code{value} appears.
-\item \code{locations_n}: The number of columns named in \code{locations}.
+\item \code{frequency}: Absolute frequency of each value in \code{x}, in descending order.
+\item \code{locations}: Names of all columns from \code{x} in which \code{value} appears.
+\item \code{locations_n}: Number of columns named in \code{locations}.
+}
+
 The tibble has the \code{scr_dup_count} class, which is recognized by the
 \code{audit()} generic.
-}
 }
 \description{
 \code{duplicate_count()} returns a frequency table. When searching a
@@ -56,7 +57,8 @@ for checking reported statistics.
  There is an S3 method for the \code{audit()}
 generic, so you can call \code{audit()} following \code{duplicate_count()}. It
 returns a tibble with summary statistics for the two numeric columns,
-\code{count} and \code{locations_n} (or only for \code{count}; see above).
+\code{frequency} and \code{locations_n} (or, if \code{x} isn't named, only for
+\code{frequency}).
 }
 
 \examples{
