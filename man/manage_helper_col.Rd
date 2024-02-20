@@ -19,8 +19,7 @@ already, should \code{var_arg} be added to \code{data}, bearing its proper name?
 Default is \code{TRUE}.}
 }
 \value{
-The input data frame,  \code{data}, possibly modified (see \code{affix}
-argument).
+\code{data}, possibly modified (see \code{affix} argument).
 }
 \description{
 If your consistency test mapper function supports helper

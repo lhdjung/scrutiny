@@ -150,6 +150,10 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
 #'
 #' @include utils.R decimal-places.R reround.R
 #'
+#' @rdname grim
+#'
+#' @export
+#'
 #' @importFrom magrittr %>%
 #'
 #' @references Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A
@@ -169,10 +173,6 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
 #'
 #' # With percentages instead of means -- here, 71%:
 #' grim(x = "71", n = 43, percent = TRUE)
-#'
-#' @rdname grim
-#' @export grim
-
 
 # Vectorized version:
 grim <- Vectorize(grim_scalar)

@@ -35,6 +35,9 @@
 #' @return Integer. Number of decimal places in `x`.
 #'
 #' @include utils.R
+#'
+#' @rdname decimal_places
+#' @export
 
 #' @seealso `decimal_places_df()`, which applies `decimal_places()` to all
 #'   numeric-like columns in a data frame.
@@ -60,11 +63,6 @@
 #' # but only works with a single number or string:
 #' decimal_places_scalar(x = 8.13)
 #' decimal_places_scalar(x = "5.024")
-#'
-#'
-#' @rdname decimal_places
-#' @export
-
 
 decimal_places <- function(x, sep = "\\.") {
   out <- stringr::str_split(stringr::str_trim(x), sep, 2L)

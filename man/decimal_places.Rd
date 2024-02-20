@@ -70,8 +70,6 @@ decimal_places(x = "6.0     ")
 # but only works with a single number or string:
 decimal_places_scalar(x = 8.13)
 decimal_places_scalar(x = "5.024")
-
-
 }
 \seealso{
 \code{decimal_places_df()}, which applies \code{decimal_places()} to all

@@ -197,8 +197,7 @@ check_audit_special <- function(data, name_test) {
 #'   already, should `var_arg` be added to `data`, bearing its proper name?
 #'   Default is `TRUE`.
 #'
-#' @return The input data frame,  `data`, possibly modified (see `affix`
-#'   argument).
+#' @return `data`, possibly modified (see `affix` argument).
 #'
 #' @export
 

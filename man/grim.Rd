@@ -90,7 +90,6 @@ grim(x = "2.84", n = 16, items = 2)
 
 # With percentages instead of means -- here, 71\%:
 grim(x = "71", n = 43, percent = TRUE)
-
 }
 \references{
 Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A
