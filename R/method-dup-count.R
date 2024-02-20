@@ -3,7 +3,7 @@
 #' @export
 
 audit.scr_dup_count <- function(data) {
-  if ("locations_n" %in% colnames(data)) {
+  if (any(colnames(data) == "locations_n")) {
     audit_summary_stats(data, c("frequency", "locations_n"))
   } else {
     audit_summary_stats(data, "frequency")

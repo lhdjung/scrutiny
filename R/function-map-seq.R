@@ -292,7 +292,7 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
       args_excluded <- c(reported, args_disabled)
 
       arg_list <- call_arg_list()
-      arg_list <- arg_list[!(names(arg_list)) %in% args_excluded]
+      arg_list <- arg_list[!names(arg_list) %in% args_excluded]
 
       check_mapper_input_colnames(data, reported)
       check_consistency_not_in_colnames(data, name_test)
