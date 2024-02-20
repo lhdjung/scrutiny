@@ -29,9 +29,10 @@ articles:
   navbar: Infrastructure
   contents:
   - rounding-options
-  - rounding-in-detail
+  - rounding-in-depth
+  - consistency-tests-simple
+  - consistency-tests-in-depth
   - infrastructure
-  - consistency-tests
   - wrangling
 - title: Other
   navbar: Other

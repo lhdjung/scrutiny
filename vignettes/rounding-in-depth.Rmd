@@ -1,8 +1,8 @@
 ---
-title: "Rounding in detail"
+title: "Rounding in depth"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Rounding in detail}
+  %\VignetteIndexEntry{Rounding in depth}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 bibliography: references.bib

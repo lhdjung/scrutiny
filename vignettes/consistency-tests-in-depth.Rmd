@@ -1,8 +1,8 @@
 ---
-title: "Implementing consistency tests"
+title: "Consistency tests in depth"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Implementing consistency tests}
+  %\VignetteIndexEntry{Consistency tests in depth}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
   %\VignetteDepends{pkgload}
@@ -23,11 +23,11 @@ library(scrutiny)
 
 # Introduction
 
-When implementing consistency tests in R, you shouldn't have to start from zero. This vignette introduces scrutiny's support system for writing new consistency testing functions.
+When implementing consistency tests in R, you shouldn't have to start from zero. This vignette goes into detail on scrutiny's support system for writing new consistency testing functions. For a brief presentation, see `vignette("consistency-tests-simple")`.
 
-Following the vignette will dramatically simplify the implementation of basic and advanced testing routines via function factories. It will enable you to write entire families of functions in a streamlined way: If you are familiar with any one scrutiny-style consistency test, you will immediately be able to make some sense of the other ones. This is true across all levels of consistency testing.
+Following the present vignette will dramatically simplify the implementation of basic and advanced testing routines via function factories. It will enable you to write entire families of functions in a streamlined way: If you are familiar with any one scrutiny-style consistency test, you will immediately be able to make some sense of the other ones. This is true across all levels of consistency testing.
 
-Below is an outline of these levels, and of the present vignette, with GRIM as a paradigmatic example. If a valid consistency test is newly implemented with at least the first step, I'll be happy to accept a pull request to scrutiny. This means you'll only have to implement the core test itself, without even reading the vignette any further.
+Below is an outline of these levels, and of the vignette, with GRIM as a paradigmatic example. If a valid consistency test is newly implemented with at least the first step, I'll be happy to accept a pull request to scrutiny. This means you'll only have to implement the core test itself, without even reading the vignette any further.
 
 1.  A bare-bones, non-exported (!) function for testing a single set of cases, such as `grim_scalar()`.
 
