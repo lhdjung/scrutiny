@@ -4,7 +4,7 @@
 #' @description `grimmer_map_seq()` performs GRIMMER-testing with values
 #'   surrounding the input values. This provides an easy and powerful way to
 #'   assess whether small errors in computing or reporting may be responsible
-#'   for GRIMMER-inconsistencies in published statistics.
+#'   for GRIMMER inconsistencies in published statistics.
 #'
 #'   Call `audit_seq()` on the results for summary statistics.
 #'

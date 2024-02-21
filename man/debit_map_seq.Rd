@@ -53,7 +53,7 @@ A tibble (data frame) with detailed test results.
 \description{
 \code{debit_map_seq()} applies DEBIT with values surrounding the input values.
 This provides an easy and powerful way to assess whether small errors in
-computing or reporting may be responsible for DEBIT-inconsistencies in
+computing or reporting may be responsible for DEBIT inconsistencies in
 published statistics.
 }
 \section{Summaries with \code{audit_seq()}}{
@@ -92,7 +92,7 @@ pigs3
 # Results from testing some few rows:
 out <- pigs3 \%>\%
   dplyr::slice(3:4) \%>\%
-  debit_map_seq(include_consistent = TRUE)
+  debit_map_seq()
 
 out
 

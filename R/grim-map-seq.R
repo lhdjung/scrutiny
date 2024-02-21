@@ -3,8 +3,8 @@
 #'
 #' @description `grim_map_seq()` performs GRIM-testing with values surrounding
 #'   the input values. This provides an easy and powerful way to assess whether
-#'   small errors in computing or reporting may be responsible for
-#'   GRIM-inconsistencies in published statistics.
+#'   small errors in computing or reporting may be responsible for GRIM
+#'   inconsistencies in published statistics.
 #'
 #'   Call `audit_seq()` on the results for summary statistics.
 #'
