@@ -1,10 +1,7 @@
 
-# Internal data -----------------------------------------------------------
-
-# NOTE: This file contains the code from which certain internal data are
-# generated -- data that are only directly available to the developer, not the
-# user. For now, these internal data are restricted to the background raster
-# vectors for `grim_plot()`.
+# NOTE: This file contains the source code for certain internal data. These are
+# only directly available to the developer, not the user. They form the basis
+# for the background raster vectors used within `grim_plot()`.
 
 # Code for the example datasets with `pigs` in their names is in the
 # R/data-doc.R file.
@@ -12,6 +9,21 @@
 # Some nomenclature -- `n`: sample size, `frac`: fractional portion of a mean or
 # fraction.
 
+
+
+# Preparation -------------------------------------------------------------
+
+# The script crucially relies on `purrr::cross2()`, but this function was
+# deprecated (see https://github.com/lhdjung/scrutiny/issues/53). In case the
+# installed version of purrr is so recent that `cross2()` is no longer part of
+# it, install an older version that still includes the function:
+cross2_still_in_purrr <- any(ls(asNamespace("purrr")) == "cross2")
+if (!cross2_still_in_purrr) {
+  # You may enter a more recent version if it still includes `cross2()`:
+  purrr_with_cross2 <- "1.0.2"
+  purrr_current <- packageVersion("purrr")
+  remotes::install_version("purrr", version = purrr_with_cross2)
+}
 
 # Functions for GRIM-testing corresponding to every specific rounding procedure:
 
@@ -43,12 +55,20 @@ generate_grim_raster <- function(digits, rounding, n = NULL) {
   # The sample size, `n`, should be equal to `p10` because this is the
   # right-hand limit of the y-axis, corresponding to the number of decimal
   # places:
-  if (is.null(n)) n <- p10
+  if (is.null(n)) {
+    n <- p10
+  } else {
+    cli::cli_warn(c(
+      "Typically, `n` in `generate_grim_raster()` is not \\
+      meant to be specified.",
+      "!" = "Are you sure you have an uncommon use case that requires it?"
+    ))
+  }
 
   # Produce `n` and `frac` sequences of equal length, corresponding to the x and
   # y axes later in the plot:
   frac_sequence <- seq_endpoint(from = frac_unit, to = (1 - frac_unit))
-  n_sequence <- 1:n
+  n_sequence <- seq_len(n)
 
   # Assemble the name of the `grim_*()` function that will be used as a filter
   # below. This goes by `rounding`. For example, if `rounding = even`, then
@@ -58,6 +78,7 @@ generate_grim_raster <- function(digits, rounding, n = NULL) {
   # The essential workhorse within the present function is `purrr::cross2()`,
   # which generates the combinations of GRIM-inconsistent values as determined
   # by the respective `grim_*()` filter function:
+
   raster <- purrr::cross2(frac_sequence, n_sequence, .filter = grim_filter_func)
 
   # Turn the raster from a list into a numeric vector:
@@ -72,16 +93,8 @@ generate_grim_raster <- function(digits, rounding, n = NULL) {
   frac <- parcel_nth_elements(raster, n = 2, from = 1)
 
   # Finally, return both vectors in a list:
-  return(list(n, frac))
+  list(as.integer(n), frac)
 }
-
-
-
-# # Remember:
-# grim_raster_1_up_or_down %>%
-#   parcel_nth_elements(n = 2) %>%
-#   `==`(as.numeric(grim_raster_1_up_or_down_frac))
-
 
 
 
@@ -161,8 +174,12 @@ grim_raster_2_anti_trunc_frac         <- grim_raster_2_anti_trunc[[2]]
 
 
 
+# Remember / test:
+grim_raster_1_up_or_down[[2]] == scrutiny:::grim_raster_1_up_or_down_frac
 
-# Save data:
+
+
+# Save data ---------------------------------------------------------------
 
 usethis::use_data(
 
@@ -212,4 +229,17 @@ usethis::use_data(
 
 )
 
+
+# Reminder message after running the script:
+if (cross2_still_in_purrr) {
+  cli::cli_inform(c(
+    "v" = "Installed version of purrr is fine!"
+  ))
+} else {
+  cli::cli_warn(c(
+    "!" = "Don't forget to reinstall the current version of purrr!",
+    "i" = "Installed before script was run: purrr {purrr_current}",
+    "x" = "Installed now: purrr {purrr_with_cross2}"
+  ))
+}
 
