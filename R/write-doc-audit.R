@@ -69,29 +69,29 @@ manage_var_ge_3 <- function(var_ge_3, prefix, suffix, segway = "as well as") {
 
 
 
-#' Documentation template for `audit()`
+#' Documentation template for [`audit()`]
 #'
 #' @description `write_doc_audit()` creates a roxygen2 block section to be
-#'   inserted into the documentation of a mapper function such as `grim_map()`
-#'   or `debit_map()`: functions for which there are, or should be, `audit()`
-#'   methods. The section informs users about the ways in which `audit()`
-#'   summarizes the results of the respective mapper function.
+#'   inserted into the documentation of a mapper function such as [`grim_map()`]
+#'   or [`debit_map()`]: functions for which there are, or should be,
+#'   [`audit()`] methods. The section informs users about the ways in which
+#'   [`audit()`] summarizes the results of the respective mapper function.
 #'
 #'   Copy the output from your console and paste it into the roxygen2 block of
 #'   your `*_map()` function. To preserve the numbered list structure when
 #'   indenting roxygen2 comments with `Ctrl`+`Shift`+`/`, leave empty lines
 #'   between the pasted output and the rest of the block.
 #'
-#' @param sample_output Data frame. Result of a call to `audit()` on a data
+#' @param sample_output Data frame. Result of a call to [`audit()`] on a data
 #'   frame that resulted from a call to the mapper function for which you wrote
-#'   the `audit()` method, such as `audit(grim_map(pigs1))` or
+#'   the [`audit()`] method, such as `audit(grim_map(pigs1))` or
 #'   `audit(debit_map(pigs3))`.
 #' @param name_test String (length 1). Name of the consistency test which the
 #'   mapper function applies, such as `"GRIM"` or `"DEBIT"`.
 #'
 #' @export
 #'
-#' @return A string vector formatted by `glue::glue()`.
+#' @return A string vector formatted by [`glue::glue()`].
 #'
 #' @examples
 #' # Start by running `audit()`:
@@ -175,12 +175,12 @@ write_doc_audit <- function(sample_output, name_test) {
 
 
 
-#' Documentation template for `audit_seq()`
+#' Documentation template for [`audit_seq()`]
 #'
 #' @description `write_doc_audit_seq()` creates a roxygen2 block section to be
 #'   inserted into the documentation of functions created with
-#'   `function_map_seq()`. The section informs users about the ways in which
-#'   `audit_seq()` summarizes the results of the manufactured `*_map_seq()`
+#'   [`function_map_seq()`]. The section informs users about the ways in which
+#'   [`audit_seq()`] summarizes the results of the manufactured `*_map_seq()`
 #'   function.
 #'
 #'   Copy the output from your console and paste it into the roxygen2 block of
@@ -198,9 +198,9 @@ write_doc_audit <- function(sample_output, name_test) {
 #'
 #' @export
 #'
-#' @return A string vector formatted by `glue::glue()`.
+#' @return A string vector formatted by [`glue::glue()`].
 #'
-#' @seealso The sister function `write_doc_audit_total_n()` and, for context,
+#' @seealso The sister function [`write_doc_audit_total_n()`] and, for context,
 #'   `vignette("consistency-tests")`.
 #'
 #' @examples
@@ -288,13 +288,13 @@ write_doc_audit_seq <- function(key_args, name_test) {
 
 
 
-#' Documentation template for `audit_total_n()`
+#' Documentation template for [`audit_total_n()`]
 #'
 #' @description `write_doc_audit_total_n()` creates a roxygen2 block section to
 #'   be inserted into the documentation of functions created with
-#'   `function_map_total_n()`. The section informs users about the ways in which
-#'   `audit_seq()` summarizes the results of the manufactured `*_map_total_n()`
-#'   function.
+#'   [`function_map_total_n()`]. The section informs users about the ways in
+#'   which [`audit_seq()`] summarizes the results of the manufactured
+#'   `*_map_total_n()` function.
 #'
 #'   Copy the output from your console and paste it into the roxygen2 block of
 #'   your `*_map_total_n()` function. To preserve the bullet-point structure
@@ -310,9 +310,9 @@ write_doc_audit_seq <- function(key_args, name_test) {
 #'
 #' @export
 #'
-#' @return A string vector formatted by `glue::glue()`.
+#' @return A string vector formatted by [`glue::glue()`].
 #'
-#' @seealso The sister function `write_doc_audit_seq()` and, for context,
+#' @seealso The sister function [`write_doc_audit_seq()`] and, for context,
 #'   `vignette("consistency-tests")`.
 #'
 #' @examples
@@ -416,9 +416,9 @@ write_doc_audit_total_n <- function(key_args, name_test) {
 #'
 #' @description `write_doc_factory_map_conventions()` creates a roxygen2 block
 #'   section to be inserted into the documentation of a function factory such as
-#'   `function_map_seq()` or `function_map_total_n()`. It lays out the naming
-#'   guidelines that users of your function factory should follow when creating
-#'   new manufactured functions.
+#'   [`function_map_seq()`] or [`function_map_total_n()`]. It lays out the
+#'   naming guidelines that users of your function factory should follow when
+#'   creating new manufactured functions.
 #'
 #'   Copy the output from your console and paste it into the roxygen2 block of
 #'   your function factory.
@@ -430,7 +430,7 @@ write_doc_audit_total_n <- function(key_args, name_test) {
 #'
 #' @export
 #'
-#' @return A string vector formatted by `glue::glue()`.
+#' @return A string vector formatted by [`glue::glue()`].
 #'
 #' @seealso For context, see
 #'   \href{https://lhdjung.github.io/scrutiny/articles/consistency-tests.html}{*Implementing

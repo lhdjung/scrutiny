@@ -32,7 +32,7 @@ common case.}
 \item{show_reason}{Logical. For internal use only. If set to \code{TRUE}, the
 output is a list of length-2 lists which also contain the reasons for
 inconsistencies. Don't specify this manually; instead, use \code{show_reason} in
-\code{grimmer_map()}. Default is \code{FALSE}.}
+\code{\link[=grimmer_map]{grimmer_map()}}. Default is \code{FALSE}.}
 
 \item{rounding}{String. Rounding method or methods to be used for
 reconstructing the values to which \code{x} will be compared. Default is
@@ -50,7 +50,7 @@ always equal. Default is \code{FALSE}.}
 
 \item{tolerance}{Numeric. Tolerance of comparison between \code{x} and the
 possible mean or percentage values. Default is circa 0.000000015
-(1.490116e-08), as in \code{dplyr::near()}.}
+(1.490116e-08), as in \code{\link[dplyr:near]{dplyr::near()}}.}
 }
 \value{
 Logical. \code{TRUE} if \code{x}, \code{sd}, \code{n}, and \code{items} are mutually
@@ -59,9 +59,9 @@ consistent, \code{FALSE} if not.
 \description{
 \code{grimmer()} checks if reported mean and SD values of integer
 data are mathematically consistent with the reported sample size and the
-number of items that compose the mean value. It works much like \code{grim()}.
+number of items that compose the mean value. It works much like \code{\link[=grim]{grim()}}.
 
-The function is vectorized, but it is recommended to use \code{grimmer_map()}
+The function is vectorized, but it is recommended to use \code{\link[=grimmer_map]{grimmer_map()}}
 for testing multiple cases.
 }
 \details{

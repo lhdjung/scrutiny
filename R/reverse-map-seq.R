@@ -2,9 +2,9 @@
 #' Reverse the `*_map_seq()` process
 #'
 #' @description `reverse_map_seq()` takes the output of a function created by
-#'   `function_map_seq()` and reconstructs the original data frame.
+#'   [`function_map_seq()`] and reconstructs the original data frame.
 #'
-#'   See `audit_seq()`, which takes `reverse_map_seq()` as a basis.
+#'   See [`audit_seq()`], which takes `reverse_map_seq()` as a basis.
 #'
 #' @param data Data frame that inherits the `"scr_map_seq"` class.
 #'

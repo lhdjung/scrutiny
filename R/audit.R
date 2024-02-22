@@ -2,7 +2,7 @@
 #' Summarize scrutiny objects
 #'
 #' @description `audit()` summarizes the results of scrutiny functions like
-#'   `grim_map()` that perform tests on data frames.
+#'   [`grim_map()`] that perform tests on data frames.
 #'
 #'   See below for a record of such functions. Go to the documentation of any of
 #'   them to learn about its `audit()` method.
@@ -15,17 +15,17 @@
 #'   these functions and their associated summary statistics.
 
 #' @section Run before `audit()`:
-#'   | \strong{Function}            | \strong{Class}              |
-#'   | ---                          | ---                         |
-#'   | `grim_map()`                 | `"scr_grim_map"`            |
-#'   | `grimmer_map()`              | `"scr_grimmer_map"`         |
-#'   | `debit_map()`                | `"scr_debit_map"`           |
-#'   | `duplicate_count()`          | `"scr_dup_count"`           |
-#'   | `duplicate_count_colpair()`  | `"scr_dup_count_colpair"`   |
-#'   | `duplicate_tally()`          | `"scr_dup_tally"`           |
-#'   | `duplicate_detect()`         | `"scr_dup_detect"`          |
-#'   | `audit_seq()`                | `"scr_audit_seq"`           |
-#'   | `audit_total_n()`            | `"scr_audit_total_n"`       |
+#'   | \strong{Function}              | \strong{Class}              |
+#'   | ---                            | ---                         |
+#'   | [`grim_map()`]                 | `"scr_grim_map"`            |
+#'   | [`grimmer_map()`]              | `"scr_grimmer_map"`         |
+#'   | [`debit_map()`]                | `"scr_debit_map"`           |
+#'   | [`duplicate_count()`]          | `"scr_dup_count"`           |
+#'   | [`duplicate_count_colpair()`]  | `"scr_dup_count_colpair"`   |
+#'   | [`duplicate_tally()`]          | `"scr_dup_tally"`           |
+#'   | [`duplicate_detect()`]         | `"scr_dup_detect"`          |
+#'   | [`audit_seq()`]                | `"scr_audit_seq"`           |
+#'   | [`audit_total_n()`]            | `"scr_audit_total_n"`       |
 
 #' @return A tibble (data frame) with test summary statistics.
 #' @export

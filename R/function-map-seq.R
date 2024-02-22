@@ -101,7 +101,7 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 #' Create new `*_map_seq()` functions
 #'
 #' @description `function_map_seq()` is the engine that powers functions such as
-#'   `grim_map_seq()`. It creates new, "factory-made" functions that apply
+#'   [`grim_map_seq()`]. It creates new, "factory-made" functions that apply
 #'   consistency tests such as GRIM or GRIMMER to sequences of specified
 #'   variables. The sequences are centered around the reported values of those
 #'   variables.
@@ -113,9 +113,9 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 #'
 #'   For background and more examples, see the
 #'   \href{https://lhdjung.github.io/scrutiny/articles/consistency-tests.html#sequence-mapper}{sequence
-#'   mapper section} of *Implementing consistency tests*.
+#'   mapper section} of *Consistency tests in depth*.
 #'
-#' @param .fun Function such as `grim_map()`, or one made by `function_map()`:
+#' @param .fun Function such as `grim_map()`, or one made by [`function_map()`]:
 #'   It will be used to test columns in a data frame for consistency. Test
 #'   results are logical and need to be contained in a column called
 #'   `"consistency"` that is added to the input data frame. This modified data
@@ -161,22 +161,22 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 #'   \href{https://purrr.tidyverse.org/reference/faq-adverbs-export.html}{purrr
 #'   adverbs}; see explanations there, and examples in the
 #'   \href{https://lhdjung.github.io/scrutiny/articles/consistency-tests.html#context-and-export}{export
-#'   section} of *Implementing consistency tests*.
+#'   section} of *Consistency tests in depth*.
 #'
 #'   This function is a so-called function factory: It produces other functions,
-#'   such as `grim_map_seq()`. More specifically, it is a function operator
-#'   because it also takes functions as inputs, such as `grim_map()`. See
+#'   such as [`grim_map_seq()`]. More specifically, it is a function operator
+#'   because it also takes functions as inputs, such as [`grim_map()`]. See
 #'   Wickham (2019, ch. 10-11).
 
 #' @return A function such as those below. ("Testable statistics" are variables
 #'   that can be selected via `var`, and are then varied. All variables except
 #'   for those in parentheses are selected by default.)
 #'
-#'   | \strong{Manufactured function} | \strong{Testable statistics}         | \strong{Test vignette}
-#'   | ---                            | ---                                  | ---
-#'   | `grim_map_seq()`               | `"x"`, `"n"`, (`"items"`)            | `vignette("grim")`
-#'   | `grimmer_map_seq()`            | `"x"`, `"sd"`, `"n"`, (`"items"`)    | `vignette("grimmer")`
-#'   | `debit_map_seq()`              | `"x"`, `"sd"`, `"n"`                 | `vignette("debit")`
+#'   | \strong{Manufactured function}   | \strong{Testable statistics}         | \strong{Test vignette}
+#'   | ---                              | ---                                  | ---
+#'   | [`grim_map_seq()`]               | `"x"`, `"n"`, (`"items"`)            | `vignette("grim")`
+#'   | [`grimmer_map_seq()`]            | `"x"`, `"sd"`, `"n"`, (`"items"`)    | `vignette("grimmer")`
+#'   | [`debit_map_seq()`]              | `"x"`, `"sd"`, `"n"`                 | `vignette("debit")`
 #'
 #'   The factory-made function will also have dots, `...`, to pass arguments
 #'   down to `.fun`, i.e., the basic mapper function such as `grim_map()`.

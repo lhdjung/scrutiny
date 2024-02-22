@@ -15,8 +15,8 @@
 #'   `disperse2()`, respectively.
 #'
 #'   These functions are primarily intended as helpers. They form the backbone
-#'   of `grim_map_total_n()` and all other functions created with
-#'   `function_map_total_n()`.
+#'   of [`grim_map_total_n()`] and all other functions created with
+#'   [`function_map_total_n()`].
 
 #' @param n Numeric:
 #' - In `disperse()`, single number from which to go up and down. This should be
@@ -54,8 +54,8 @@
 #'   `disperse2()`, the `n_change` strings label the lower of the input `n`
 #'   values `n1` and the higher one `n2`.
 
-#' @seealso `function_map_total_n()`, `grim_map_total_n()`,
-#'   `seq_distance_df()`
+#' @seealso [`function_map_total_n()`], [`grim_map_total_n()`], and
+#'   [`seq_distance_df()`].
 #'
 #' @include utils.R
 #'

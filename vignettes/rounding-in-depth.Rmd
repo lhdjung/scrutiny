@@ -171,7 +171,7 @@ The reason for the above behavior is that most decimal fractions can't, in fact,
 
 We usually think that rounding rules are all about breaking a tie that occurs at 5. Most floating-point numbers, however, are just somewhat less than or greater than 5. There is no tie! Consequently, Mächler says, rounding functions need to "*measure, not guess* which of the two possible decimals is closer to `x`" --- and therefore, which way to round.
 
-This seems better than going with mathematical intuitions that may not always correspond to the way computers actually deal with these issues. R has been using the present solution since version 4.0.0.
+This seems better than following mathematical intuitions that may not always correspond to the way computers actually deal with numbers. R has used the present solution since version 4.0.0.
 
 `base::round()` can seem like a black box, but it seems unbiased in the long run. I recommend using `round()` for original work, even though it is quite different from other rounding procedures --- and therefore unsuitable for reconstructing them. Instead, we need something like scrutiny's `round_*()` functions.
 

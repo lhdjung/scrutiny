@@ -24,11 +24,11 @@ distribution related to flying pigs. It can be used to demonstrate the
 functionality of \code{debit_map()} and functions building up on it.
 }
 \seealso{
-\code{pigs1} for GRIM-testing means, \code{pigs2} for GRIM-testing
-percentages, and \code{pigs4} for detecting duplicates.
+\code{pigs1} for GRIM-testing means, \code{\link{pigs2}} for GRIM-testing
+percentages, and \code{\link{pigs4}} for detecting duplicates.
 
-\code{pigs1} for GRIM-testing means, \code{pigs2} for GRIM-testing percentages
-instead of means, \code{pigs4} for detecting duplicates, and \code{pigs5} for
-GRIMMER-testing.
+\code{pigs1} for GRIM-testing means, \code{\link{pigs2}} for GRIM-testing
+percentages instead of means, \code{\link{pigs4}} for detecting duplicates, and
+\code{\link{pigs5}} for GRIMMER-testing.
 }
 \keyword{datasets}

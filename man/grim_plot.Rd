@@ -21,7 +21,7 @@ grim_plot(
 )
 }
 \arguments{
-\item{data}{Data frame. Result of a call to \code{grim_map()}.}
+\item{data}{Data frame. Result of a call to \code{\link[=grim_map]{grim_map()}}.}
 
 \item{show_data}{Logical. If set to \code{FALSE}, test results from the data are
 not displayed. Choose this if you only want to show the background raster.
@@ -63,7 +63,7 @@ A ggplot object.
 \description{
 \code{grim_plot()} visualizes summary data and their mutual GRIM
 consistency. Call this function only on a data frame that resulted from a
-call to \code{grim_map()}.
+call to \code{\link[=grim_map]{grim_map()}}.
 
 Consistent and inconsistent value pairs from the input data frame are shown
 in distinctive colors. By default, consistent value pairs are blue and
@@ -91,21 +91,21 @@ places for which the raster or gradient should be displayed.
 For 1 or 2 decimal places, the raster will be specific to the rounding
 procedure. As the raster varies by rounding procedure, it will
 automatically correspond to the \code{rounding} argument specified in the
-preceding \code{grim_map()} call. This works fast because the raster is based on
-data saved in the package itself, so these data don't need to be generated
-anew every time the function is called. Inconsistent value sets are marked
-with dark boxes. All other places in the raster denote consistent value
-sets. The raster is independent of the data -- it only follows the
-\code{rounding} specification in the \code{grim_map()} call and the \code{digits} argument
-in \code{grim_plot()}.
+preceding \code{\link[=grim_map]{grim_map()}} call. This works fast because the raster is based
+on data saved in the package itself, so these data don't need to be
+generated anew every time the function is called. Inconsistent value sets
+are marked with dark boxes. All other places in the raster denote
+consistent value sets. The raster is independent of the data -- it only
+follows the \code{rounding} specification in the \code{\link[=grim_map]{grim_map()}} call and the
+\code{digits} argument in \code{grim_plot()}.
 
 Display an "empty" plot, one without empirical test results, by setting
 \code{show_data} to \code{FALSE}. You can then control key parameters of the plot
 with \code{digits} and \code{rounding}.
 
-With \code{grim_map()}'s default for \code{rounding}, \code{"up_or_down"}, strikingly few
-values are flagged as inconsistent for sample sizes 40 and 80 (or 4 and 8).
-This effect disappears if \code{rounding} is set to any other value (see
+With \code{\link[=grim_map]{grim_map()}}'s default for \code{rounding}, \code{"up_or_down"}, strikingly
+few values are flagged as inconsistent for sample sizes 40 and 80 (or 4 and
+8). This effect disappears if \code{rounding} is set to any other value (see
 \code{vignette("rounding-options")}).
 
 The 4/8 leniency effect arises because accepting values rounded either up

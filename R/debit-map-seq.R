@@ -27,8 +27,9 @@
 #'   inconsistencies.
 #' @param ... Arguments passed down to `debit_map()`.
 
-#' @section Summaries with `audit_seq()`: You can call `audit_seq()` following
-#'   `debit_map_seq()`. It will return a data frame with these columns:
+#' @section Summaries with [`audit_seq()`]: You can call [`audit_seq()`]
+#'   following `debit_map_seq()`. It will return a data frame with these
+#'   columns:
 #'   - `x`, `sd`, and `n` are the original inputs,
 #'   tested for `consistency` here.
 #'   - `hits_total` is the total number of DEBIT-consistent value sets
@@ -37,8 +38,8 @@
 #'   found by varying `x`.
 #'   - Accordingly with `sd` and `hits_sd` as well as `n` and `hits_n`.
 #'   - (Note that any consistent reported cases will be counted by the
-#'   `hits_*` columns if both `include_reported` and `include_consistent`
-#'   are set to `TRUE`.)
+#'   `hits_*` columns if both `include_reported` and `include_consistent` are
+#'   set to `TRUE`.)
 #'   - `diff_x` reports the absolute difference between `x` and the next
 #'   consistent dispersed value (in dispersion steps, not the actual numeric
 #'   difference). `diff_x_up` and `diff_x_down` report the difference to the
@@ -46,7 +47,7 @@
 #'   - `diff_sd`, `diff_sd_up`, and `diff_sd_down` do the same for `sd`.
 #'   -  Likewise with `diff_n`, `diff_n_up`, and `diff_n_down`.
 #'
-#'   Call `audit()` following `audit_seq()` to summarize results even further.
+#'   Call [`audit()`] following `audit_seq()` to summarize results even further.
 #'   It's mostly self-explaining, but `na_count` and `na_rate` are the number
 #'   and rate of times that a difference could not be computed because of a lack
 #'   of corresponding hits within the `dispersion` range.

@@ -55,7 +55,7 @@ the input values. This provides an easy and powerful way to assess whether
 small errors in computing or reporting may be responsible for GRIM
 inconsistencies in published statistics.
 
-Call \code{audit_seq()} on the results for summary statistics.
+Call \code{\link[=audit_seq]{audit_seq()}} on the results for summary statistics.
 }
 \section{Summaries with \code{audit_seq()}}{
  You can call \code{audit_seq()} following

@@ -56,9 +56,10 @@ This provides an easy and powerful way to assess whether small errors in
 computing or reporting may be responsible for DEBIT inconsistencies in
 published statistics.
 }
-\section{Summaries with \code{audit_seq()}}{
- You can call \code{audit_seq()} following
-\code{debit_map_seq()}. It will return a data frame with these columns:
+\section{Summaries with \code{\link[=audit_seq]{audit_seq()}}}{
+ You can call \code{\link[=audit_seq]{audit_seq()}}
+following \code{debit_map_seq()}. It will return a data frame with these
+columns:
 \itemize{
 \item \code{x}, \code{sd}, and \code{n} are the original inputs,
 tested for \code{consistency} here.
@@ -68,8 +69,8 @@ found within the specified \code{dispersion} range.
 found by varying \code{x}.
 \item Accordingly with \code{sd} and \code{hits_sd} as well as \code{n} and \code{hits_n}.
 \item (Note that any consistent reported cases will be counted by the
-\verb{hits_*} columns if both \code{include_reported} and \code{include_consistent}
-are set to \code{TRUE}.)
+\verb{hits_*} columns if both \code{include_reported} and \code{include_consistent} are
+set to \code{TRUE}.)
 \item \code{diff_x} reports the absolute difference between \code{x} and the next
 consistent dispersed value (in dispersion steps, not the actual numeric
 difference). \code{diff_x_up} and \code{diff_x_down} report the difference to the
@@ -78,7 +79,7 @@ next higher or lower consistent value, respectively.
 \item Likewise with \code{diff_n}, \code{diff_n_up}, and \code{diff_n_down}.
 }
 
-Call \code{audit()} following \code{audit_seq()} to summarize results even further.
+Call \code{\link[=audit]{audit()}} following \code{audit_seq()} to summarize results even further.
 It's mostly self-explaining, but \code{na_count} and \code{na_rate} are the number
 and rate of times that a difference could not be computed because of a lack
 of corresponding hits within the \code{dispersion} range.

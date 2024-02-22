@@ -36,16 +36,19 @@ Always round up, down, toward zero, or away from it:
 \item \code{round_trunc()} always rounds toward zero.
 \item \code{round_anti_trunc()} always rounds away from zero. (\code{0} itself is
 rounded to \code{1}.)
+\item \code{anti_trunc()} does not round but otherwise works like
+\code{round_anti_trunc()}.
 }
 
-Despite not being widely used, they are featured here in case they are needed
-for reconstruction.
+Despite not being widely used, they are featured here in case they are
+needed for reconstruction.
 }
 \details{
 \code{round_ceiling()}, \code{round_floor()}, and \code{round_trunc()} generalize
-the base functions \code{ceiling()}, \code{floor()}, and \code{trunc()}, and include them
-as special cases: With the default value for \code{digits}, 0, these \verb{round_*}
-functions are equivalent to their respective base counterparts.
+the base R functions \code{\link[=ceiling]{ceiling()}}, \code{\link[=floor]{floor()}}, and \code{\link[=trunc]{trunc()}}, and
+include them as special cases: With the default value for \code{digits}, 0,
+these \verb{round_*} functions are equivalent to their respective base
+counterparts.
 
 The last \verb{round_*} function, \code{round_anti_trunc()}, generalizes another
 function presented here: \code{anti_trunc()} works like \code{trunc()} except it
@@ -56,7 +59,7 @@ to \code{trunc(x)} \code{ + 1} if \code{x} is positive, and to \code{trunc(x) - 
 negative.
 
 \code{round_anti_trunc()}, then, generalizes \code{anti_trunc()} just as
-\code{round_ceiling()} generalizes \code{ceiling()}, etc.
+\code{round_ceiling()} generalizes \code{\link[=ceiling]{ceiling()}}, etc.
 
 Moreover, \code{round_trunc()} is equivalent to \code{round_floor()} for positive
 numbers and to \code{round_ceiling()} for negative numbers. The reverse is again
@@ -79,7 +82,7 @@ round_anti_trunc(x = 8.421, digits = 2)    # 1 cut off
 round_anti_trunc(x = -8.421, digits = 2)   # 1 cut off
 }
 \seealso{
-\code{round_up()} and \code{round_down()} round up or down from 5,
-respectively. \code{round_up_from()} and \code{round_down_from()} allow users to
+\code{\link[=round_up]{round_up()}} and \code{\link[=round_down]{round_down()}} round up or down from 5,
+respectively. \code{\link[=round_up_from]{round_up_from()}} and \code{\link[=round_down_from]{round_down_from()}} allow users to
 specify custom thresholds for rounding up or down.
 }

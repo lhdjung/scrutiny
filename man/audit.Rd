@@ -14,7 +14,7 @@ A tibble (data frame) with test summary statistics.
 }
 \description{
 \code{audit()} summarizes the results of scrutiny functions like
-\code{grim_map()} that perform tests on data frames.
+\code{\link[=grim_map]{grim_map()}} that perform tests on data frames.
 
 See below for a record of such functions. Go to the documentation of any of
 them to learn about its \code{audit()} method.
@@ -28,15 +28,15 @@ these functions and their associated summary statistics.
 \section{Run before \code{audit()}}{
 \tabular{ll}{
    \strong{Function} \tab \strong{Class} \cr
-   \code{grim_map()} \tab \code{"scr_grim_map"} \cr
-   \code{grimmer_map()} \tab \code{"scr_grimmer_map"} \cr
-   \code{debit_map()} \tab \code{"scr_debit_map"} \cr
-   \code{duplicate_count()} \tab \code{"scr_dup_count"} \cr
-   \code{duplicate_count_colpair()} \tab \code{"scr_dup_count_colpair"} \cr
-   \code{duplicate_tally()} \tab \code{"scr_dup_tally"} \cr
-   \code{duplicate_detect()} \tab \code{"scr_dup_detect"} \cr
-   \code{audit_seq()} \tab \code{"scr_audit_seq"} \cr
-   \code{audit_total_n()} \tab \code{"scr_audit_total_n"} \cr
+   \code{\link[=grim_map]{grim_map()}} \tab \code{"scr_grim_map"} \cr
+   \code{\link[=grimmer_map]{grimmer_map()}} \tab \code{"scr_grimmer_map"} \cr
+   \code{\link[=debit_map]{debit_map()}} \tab \code{"scr_debit_map"} \cr
+   \code{\link[=duplicate_count]{duplicate_count()}} \tab \code{"scr_dup_count"} \cr
+   \code{\link[=duplicate_count_colpair]{duplicate_count_colpair()}} \tab \code{"scr_dup_count_colpair"} \cr
+   \code{\link[=duplicate_tally]{duplicate_tally()}} \tab \code{"scr_dup_tally"} \cr
+   \code{\link[=duplicate_detect]{duplicate_detect()}} \tab \code{"scr_dup_detect"} \cr
+   \code{\link[=audit_seq]{audit_seq()}} \tab \code{"scr_audit_seq"} \cr
+   \code{\link[=audit_total_n]{audit_total_n()}} \tab \code{"scr_audit_total_n"} \cr
 }
 }
 

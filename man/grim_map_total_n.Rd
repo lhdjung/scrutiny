@@ -42,7 +42,7 @@ of dispersed values. Default is \code{NULL}, i.e., no constant values.}
 \code{constant} column in the output tibble. If \code{NULL} (the default), \code{constant}
 will go to the right of \code{n_change}.}
 
-\item{...}{Arguments passed down to \code{grim_map()}.}
+\item{...}{Arguments passed down to \code{\link[=grim_map]{grim_map()}}.}
 }
 \value{
 A tibble with these columns:
@@ -57,7 +57,7 @@ consistent with the hypothetical \code{n} values.
 half. \code{"forth"} means that \code{x2} from the input is paired with the larger
 dispersed \code{n}, whereas \code{"back"} means that \code{x1} is paired with the larger
 dispersed \code{n}.
-\item Other columns from \code{grim_map()} are preserved.
+\item Other columns from \code{\link[=grim_map]{grim_map()}} are preserved.
 }
 }
 \description{
@@ -78,11 +78,11 @@ sizes are GRIM-consistent with the group means.
 }
 
 All of this works with one or more total sample sizes at a time. Call
-\code{audit_total_n()} for summary statistics.
+\code{\link[=audit_total_n]{audit_total_n()}} for summary statistics.
 }
-\section{Summaries with \code{audit_total_n()}}{
+\section{Summaries with \code{\link[=audit_total_n]{audit_total_n()}}}{
  You can call
-\code{audit_total_n()} following up on \code{grim_map_total_n()}
+\code{\link[=audit_total_n]{audit_total_n()}} following up on \code{\link[=grim_map_total_n]{grim_map_total_n()}}
 to get a tibble with summary statistics. It will have these columns:
 \itemize{
 \item \code{x1}, \code{x2}, and \code{n} are the original inputs.
@@ -99,7 +99,7 @@ are GRIM-consistent.
 \item \code{hit_rate} is the ratio of \code{hits_total} to \code{scenarios_total}.
 }
 
-Call \code{audit()} following \code{audit_total_n()} to summarize results
+Call \code{\link[=audit]{audit()}} following \code{\link[=audit_total_n]{audit_total_n()}} to summarize results
 even further.
 }
 
@@ -142,6 +142,6 @@ Psychology. \emph{Social Psychological and Personality Science}, 8(4), 363–369
 https://journals.sagepub.com/doi/10.1177/1948550616673876
 }
 \seealso{
-\code{function_map_total_n()}, which created the present function using
-\code{grim_map()}.
+\code{\link[=function_map_total_n]{function_map_total_n()}}, which created the present function using
+\code{\link[=grim_map]{grim_map()}}.
 }

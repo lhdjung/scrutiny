@@ -42,10 +42,10 @@ columns will be equal unless \code{NA} values are present.
 columns for duplicates. Results are presented in a tibble, ordered by the
 number of duplicates.
 }
-\section{Summaries with \code{audit()}}{
- There is an S3 method for \code{audit()}, so
-you can call \code{audit()} following \code{duplicate_count_colpair()}. It returns a
-tibble with summary statistics.
+\section{Summaries with \code{\link[=audit]{audit()}}}{
+ There is an S3 method for \code{\link[=audit]{audit()}},
+so you can call \code{\link[=audit]{audit()}} following \code{duplicate_count_colpair()}. It
+returns a tibble with summary statistics.
 }
 
 \examples{
@@ -60,10 +60,10 @@ mtcars \%>\%
 }
 \seealso{
 \itemize{
-\item \code{duplicate_count()} for a frequency table.
-\item \code{duplicate_tally()} to show instances of a value next to each instance.
-\item \code{janitor::get_dupes()} to search for duplicate rows.
-\item \code{corrr::colpair_map()}, a versatile tool for pairwise column analysis which
+\item \code{\link[=duplicate_count]{duplicate_count()}} for a frequency table.
+\item \code{\link[=duplicate_tally]{duplicate_tally()}} to show instances of a value next to each instance.
+\item \code{\link[janitor:get_dupes]{janitor::get_dupes()}} to search for duplicate rows.
+\item \code{\link[corrr:colpair_map]{corrr::colpair_map()}}, a versatile tool for pairwise column analysis which
 the present function wraps.
 }
 }

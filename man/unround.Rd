@@ -108,8 +108,8 @@ unround(x = c(3.6, "5.20", 5.174))
 }
 \seealso{
 For more about rounding \code{"up"}, \code{"down"}, or to \code{"even"}, see
-documentation for \code{round_up()}.
+\code{\link[=round_up]{round_up()}}.
 
 For more about the less likely \code{rounding} methods, \code{"ceiling"}, \code{"floor"},
-\code{"trunc"}, and \code{"anti_trunc"}, see documentation for \code{round_ceiling()}.
+\code{"trunc"}, and \code{"anti_trunc"}, see \code{\link[=round_ceiling]{round_ceiling()}}.
 }

@@ -3,7 +3,7 @@
 #'
 #' @description `grim_plot()` visualizes summary data and their mutual GRIM
 #'   consistency. Call this function only on a data frame that resulted from a
-#'   call to `grim_map()`.
+#'   call to [`grim_map()`].
 #'
 #'   Consistent and inconsistent value pairs from the input data frame are shown
 #'   in distinctive colors. By default, consistent value pairs are blue and
@@ -30,21 +30,21 @@
 #'   For 1 or 2 decimal places, the raster will be specific to the rounding
 #'   procedure. As the raster varies by rounding procedure, it will
 #'   automatically correspond to the `rounding` argument specified in the
-#'   preceding `grim_map()` call. This works fast because the raster is based on
-#'   data saved in the package itself, so these data don't need to be generated
-#'   anew every time the function is called. Inconsistent value sets are marked
-#'   with dark boxes. All other places in the raster denote consistent value
-#'   sets. The raster is independent of the data -- it only follows the
-#'   `rounding` specification in the `grim_map()` call and the `digits` argument
-#'   in `grim_plot()`.
+#'   preceding [`grim_map()`] call. This works fast because the raster is based
+#'   on data saved in the package itself, so these data don't need to be
+#'   generated anew every time the function is called. Inconsistent value sets
+#'   are marked with dark boxes. All other places in the raster denote
+#'   consistent value sets. The raster is independent of the data -- it only
+#'   follows the `rounding` specification in the [`grim_map()`] call and the
+#'   `digits` argument in `grim_plot()`.
 #'
 #'   Display an "empty" plot, one without empirical test results, by setting
 #'   `show_data` to `FALSE`. You can then control key parameters of the plot
 #'   with `digits` and `rounding`.
 #'
-#'   With `grim_map()`'s default for `rounding`, `"up_or_down"`, strikingly few
-#'   values are flagged as inconsistent for sample sizes 40 and 80 (or 4 and 8).
-#'   This effect disappears if `rounding` is set to any other value (see
+#'   With [`grim_map()`]'s default for `rounding`, `"up_or_down"`, strikingly
+#'   few values are flagged as inconsistent for sample sizes 40 and 80 (or 4 and
+#'   8). This effect disappears if `rounding` is set to any other value (see
 #'   `vignette("rounding-options")`).
 #'
 #'   The 4/8 leniency effect arises because accepting values rounded either up
@@ -52,7 +52,7 @@
 #'   In any case, `grim_plot()` doesn't cause this effect --- it only reveals
 #'   it.
 #'
-#' @param data Data frame. Result of a call to `grim_map()`.
+#' @param data Data frame. Result of a call to [`grim_map()`].
 #' @param show_data Logical. If set to `FALSE`, test results from the data are
 #'   not displayed. Choose this if you only want to show the background raster.
 #'   You can then control plot parameters directly via the `n`, `digits`, and

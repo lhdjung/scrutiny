@@ -72,7 +72,7 @@ column-identifying arguments derived from \code{.reported}.
 }
 \description{
 \code{function_map()} creates new basic mapper functions for
-consistency tests, such as \code{grim_map()} or \code{debit_map()}.
+consistency tests, such as \code{\link[=grim_map]{grim_map()}} or \code{\link[=debit_map]{debit_map()}}.
 
 For context, see \href{https://lhdjung.github.io/scrutiny/articles/consistency-tests.html#creating-basic-mappers-with-function_map}{\emph{Creating basic mappers with \code{function_map()}}}.
 }

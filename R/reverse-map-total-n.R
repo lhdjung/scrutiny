@@ -2,9 +2,9 @@
 #' Reverse the `*_map_total_n()` process
 #'
 #' @description `reverse_map_total_n()` takes the output of a function created
-#'   by `function_map_total_n()` and reconstructs the original data frame.
+#'   by [`function_map_total_n()`] and reconstructs the original data frame.
 #'
-#'   See `audit_total_n()`, which takes `reverse_map_total_n()` as a basis.
+#'   See [`audit_total_n()`], which takes `reverse_map_total_n()` as a basis.
 #'
 #' @param data Data frame that inherits the `"scr_map_total_n"` class.
 #'

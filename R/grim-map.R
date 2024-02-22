@@ -11,11 +11,11 @@
 #'   Display intermediary numbers from GRIM-testing in columns by setting
 #'   `show_rec` to `TRUE`.
 #'
-#'   For summary statistics, call `audit()` on the results.
+#'   For summary statistics, call `[audit()`] on the results.
 #'
 #' @param data Data frame with columns `x`, `n`, and optionally `items` (see
-#'   documentation for `grim()`. By default, any other columns in `data` will be
-#'   returned alongside GRIM test results (see `extra` below).
+#'   documentation for [`grim()`]. By default, any other columns in `data` will
+#'   be returned alongside GRIM test results (see `extra` below).
 #' @param items Integer. If there is no `items` column in `data`, this specifies
 #'   the number of items composing the `x` values. Default is 1, the most common
 #'   case.
@@ -35,7 +35,7 @@
 #'   contains the probability of GRIM inconsistency. This is simply the `ratio`
 #'   column censored to range between 0 and 1. Default is `FALSE`.
 #' @param rounding,threshold,symmetric,tolerance Further parameters of
-#'   GRIM-testing; see documentation for `grim()`.
+#'   GRIM-testing; see documentation for [`grim()`].
 #' @param testables_only Logical. If `testables_only` is set to `TRUE`, only
 #'   GRIM-testable cases (i.e., those with a positive GRIM ratio) are included.
 #'   Default is `FALSE`.
@@ -48,10 +48,10 @@
 #' - `x`, `n`: the inputs.
 #' - `consistency`: GRIM consistency of `x`, `n`, and `items`.
 #' - `<extra>`: any columns from `data` other than `x`, `n`, and `items`.
-#' - `ratio`: the GRIM ratio; see `grim_ratio()`.
+#' - `ratio`: the GRIM ratio; see [`grim_ratio()`].
 #'
-#' The tibble has the `scr_grim_map` class, which is recognized by the `audit()`
-#' generic.
+#'   The tibble has the `scr_grim_map` class, which is recognized by the
+#'   [`audit()`] generic.
 
 #' @section Reconstructed numbers: If `show_rec` is set to `TRUE`, the output
 #'   includes the following additional columns:
@@ -67,10 +67,9 @@
 #' is replaced by two columns that specify the rounding procedures (i.e.,
 #' `"_up"` and `"_down"`).
 
-#' @section Summaries with `audit()`: There is an S3 method for `audit()`, so
-#'   you can call `audit()` following `grim_map()` to get a summary of
-#'   `grim_map()`'s results. It is a tibble with a single row and these
-#'   columns --
+#' @section Summaries with [`audit()`]: There is an S3 method for [`audit()`],
+#'   so you can call [`audit()`] following `grim_map()` to get a summary of
+#'   `grim_map()`'s results. It is a tibble with one row and these columns --
 #'
 #' 1. `incons_cases`: number of GRIM-inconsistent value sets.
 #' 2. `all_cases`: total number of value sets.
@@ -80,7 +79,7 @@
 #' 6. `testable_cases`: number of GRIM-testable value sets (i.e., those with a
 #' positive ratio).
 #' 7. `testable_rate`: proportion of GRIM-testable value sets.
-#'
+
 #' @include audit.R grim.R manage-extra-cols.R restore-zeros.R
 
 #' @references Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A

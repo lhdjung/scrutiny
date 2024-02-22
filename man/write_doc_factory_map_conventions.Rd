@@ -18,14 +18,14 @@ after \code{function_map_}. To}
 consistency tests. Defaults are \code{"GRIM"} and \code{"GRIMMER"}, respectively.}
 }
 \value{
-A string vector formatted by \code{glue::glue()}.
+A string vector formatted by \code{\link[glue:glue]{glue::glue()}}.
 }
 \description{
 \code{write_doc_factory_map_conventions()} creates a roxygen2 block
 section to be inserted into the documentation of a function factory such as
-\code{function_map_seq()} or \code{function_map_total_n()}. It lays out the naming
-guidelines that users of your function factory should follow when creating
-new manufactured functions.
+\code{\link[=function_map_seq]{function_map_seq()}} or \code{\link[=function_map_total_n]{function_map_total_n()}}. It lays out the
+naming guidelines that users of your function factory should follow when
+creating new manufactured functions.
 
 Copy the output from your console and paste it into the roxygen2 block of
 your function factory.

@@ -4,8 +4,8 @@
 #' @description `debit_map_total_n()` extends DEBIT to cases where only group
 #'   means and standard deviations (SDs) were reported, not group sizes.
 #'
-#'   The function is analogous to `grim_map_total_n()` and
-#'   `grimmer_map_total_n()`, relying on the same infrastructure.
+#'   The function is analogous to [`grim_map_total_n()`] and
+#'   [`grimmer_map_total_n()`], relying on the same infrastructure.
 
 #' @param data Data frame with string columns `x1`, `x2`, `sd1`, and `sd2`, as
 #'   well as numeric column `n`. The first two are reported group means. `sd1`
@@ -23,7 +23,7 @@
 #' @param n_max Numeric. Maximal group size. Default is `NULL`, i.e., no
 #'   maximum.
 #' @inheritParams disperse_total
-#' @param ... Arguments passed down to `debit_map()`.
+#' @param ... Arguments passed down to [`debit_map()`].
 
 #' @include debit-map.R function-map-total-n.R
 
@@ -35,8 +35,8 @@
 #'   Heathers, J. A. J., & Brown, N. J. L. (2019). DEBIT: A Simple Consistency
 #'   Test For Binary Data. https://osf.io/5vb3u/.
 
-#' @seealso `function_map_total_n()`, which created the present function using
-#'   `debit_map()`.
+#' @seealso [`function_map_total_n()`], which created the present function using
+#'   [`debit_map()`].
 
 #' @return A tibble with these columns:
 #' - `x` and `sd`, the group-wise reported input statistics, are repeated in
@@ -52,8 +52,8 @@
 #' with the larger dispersed `n`.
 #' - Other columns from `debit_map()` are preserved.
 
-#' @section Summaries with `audit_total_n()`: You can call
-#'   `audit_total_n()` following up on `debit_map_total_n()`
+#' @section Summaries with [`audit_total_n()`]: You can call
+#'   [`audit_total_n()`] following up on `debit_map_total_n()`
 #'   to get a tibble with summary statistics. It will have these columns:
 #'  - `x1`, `x2`, `sd1`, `sd2`, and `n` are the original inputs.
 #'  - `hits_total` is the number of scenarios in which all of
@@ -68,7 +68,7 @@
 #'  are DEBIT-consistent.
 #'  - `hit_rate` is the ratio of `hits_total` to `scenarios_total`.
 #'
-#'  Call `audit()` following `audit_total_n()` to summarize results
+#'  Call [`audit()`] following [`audit_total_n()`] to summarize results
 #'  even further.
 
 #' @export

@@ -40,6 +40,6 @@ data frames (converted from matrices) do sometimes have the issue described
 above.
 }
 \seealso{
-\href{https://unheadr.liomys.mx/reference/mash_colnames.html}{\code{unheadr::mash_colnames()}},
-a more sophisticated solution to the same problem.
+\code{\link[unheadr:mash_colnames]{unheadr::mash_colnames()}}, a more sophisticated solution to the
+same problem.
 }

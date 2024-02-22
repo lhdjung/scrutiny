@@ -11,11 +11,11 @@
 #'   values to strings: In numeric values, any trailing zeros have already been
 #'   dropped, and any information about them was lost (e.g., `3.70` returns
 #'   `3.7`). Enter those values as strings instead, such as `"3.70"` instead of
-#'   `3.70`. However, you can restore lost trailing zeros with `restore_zeros()`
-#'   if the original number of decimal places is known.
+#'   `3.70`. However, you can restore lost trailing zeros with
+#'   [`restore_zeros()`] if the original number of decimal places is known.
 #'
 #'   If you need to enter many such values as strings, consider using
-#'   `tibble::tribble()` and drawing quotation marks around all values in a
+#'   [`tibble::tribble()`] and drawing quotation marks around all values in a
 #'   `tribble()` column at once via RStudio's multiple cursors.
 
 #' @details Decimal places in numeric values can't be counted accurately if the
@@ -39,7 +39,7 @@
 #' @rdname decimal_places
 #' @export
 
-#' @seealso `decimal_places_df()`, which applies `decimal_places()` to all
+#' @seealso [`decimal_places_df()`], which applies `decimal_places()` to all
 #'   numeric-like columns in a data frame.
 
 #' @examples
@@ -110,14 +110,14 @@ decimal_places_scalar <- function(x, sep = "\\.") {
 #'   Default is `everything()`, but restricted by `check_numeric_like`.
 #' @param check_numeric_like Logical. If `TRUE` (the default), the function only
 #'   operates on numeric columns and other columns coercible to numeric, as
-#'   determined by `is_numeric_like()`.
+#'   determined by [`is_numeric_like()`].
 #' @param sep Substring that separates the mantissa from the integer part.
 #'   Default is `"\\."`, which renders a decimal point.
 #'
 #' @return Data frame. The values of the selected columns are replaced by the
 #'   numbers of their decimal places.
 #'
-#' @seealso Wrapped functions: `decimal_places()`, `dplyr::across()`.
+#' @seealso Wrapped functions: [`decimal_places()`], [`dplyr::across()`].
 #'
 #' @export
 #'

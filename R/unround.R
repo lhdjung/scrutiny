@@ -125,10 +125,10 @@ rounding_bounds <- Vectorize(rounding_bounds_scalar)
 #'   `upper`, in the same order.
 #'
 #' @seealso For more about rounding `"up"`, `"down"`, or to `"even"`, see
-#'   documentation for `round_up()`.
+#'   [`round_up()`].
 #'
 #'   For more about the less likely `rounding` methods, `"ceiling"`, `"floor"`,
-#'   `"trunc"`, and `"anti_trunc"`, see documentation for `round_ceiling()`.
+#'   `"trunc"`, and `"anti_trunc"`, see [`round_ceiling()`].
 #'
 #' @include utils.R
 #'

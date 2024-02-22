@@ -3,9 +3,10 @@
 #'
 #' @description Two functions that round numbers to specific fractions, not just
 #'   to the next higher decimal level. They are inspired by
-#'   `janitor::round_to_fraction()` but feature all the options of `reround()`:
+#'   [`janitor::round_to_fraction()`] but feature all the options of
+#'   [`reround()`]:
 #'
-#'   - `reround_to_fraction()` closely follows `janitor::round_to_fraction()`
+#'   - `reround_to_fraction()` closely follows [`janitor::round_to_fraction()`]
 #'   by first rounding to fractions of a whole number, then optionally rounding
 #'   the result to a specific number of digits in the usual way.
 #'   - `reround_to_fraction_level()` rounds to the nearest fraction of a number
@@ -19,12 +20,12 @@
 #'   - In `reround_to_fraction()`: If `digits` is specified, the values
 #'   resulting from fractional rounding will subsequently be rounded to that
 #'   many decimal places. If set to `"auto"`, it internally becomes
-#'   `ceiling(log10(denominator)) + 1`, as in `janitor::round_to_fraction()`.
+#'   `ceiling(log10(denominator)) + 1`, as in [`janitor::round_to_fraction()`].
 #'   Default is `Inf`, in which case there is no subsequent rounding.
 #'   - In `reround_to_fraction_level()`: This function will round to a fraction
 #'   of the number at the decimal level specified by `digits`. Default is `0`.
 #' @param rounding,threshold,symmetric More arguments passed down to
-#'   `reround()`.
+#'   [`reround()`].
 
 #' @include utils.R
 #'
@@ -36,8 +37,8 @@
 #'
 #' @name fractional-rounding
 #'
-#' @seealso `reround()`, which the functions wrap, and
-#'   `janitor::round_to_fraction()`, part of which they copy.
+#' @seealso [`reround()`], which the functions wrap, and
+#'   [`janitor::round_to_fraction()`], part of which they copy.
 #'
 #' @examples
 #' #`reround_to_fraction()` rounds `0.4`

@@ -5,8 +5,8 @@
 #'   of mean, standard deviation, sample size, and number of items. Mapping
 #'   function for GRIMMER-testing.
 #'
-#'   For summary statistics, call `audit()` on the results. Visualize results
-#'   using `grim_plot()`, as with GRIM results.
+#'   For summary statistics, call [`audit()`] on the results. Visualize results
+#'   using [`grim_plot()`], as with GRIM results.
 #'
 #' @param data Data frame with columns `x`, `sd`, `n`, and optionally `items`
 #'   (see documentation for `grim()`). Any other columns in `data` will be
@@ -24,7 +24,7 @@
 #'   shows the reasons for inconsistencies (and `NA` for consistent values)?
 #'   Default is `FALSE`.
 #' @param rounding,threshold,symmetric,tolerance Further parameters of
-#'   GRIMMER-testing; see documentation for `grimmer()`.
+#'   GRIMMER-testing; see documentation for [`grimmer()`].
 
 #' @return A tibble with these columns --
 #' - `x`, `sd`, `n`: the inputs.
@@ -32,11 +32,11 @@
 #' - `<extra>`: any columns from `data` other than `x`, `n`, and `items`.
 #'
 #' The tibble has the `scr_grimmer_map` class, which is recognized by the
-#' `audit()` generic. It also has the `scr_grim_map` class, so it can be
-#' visualized by `grim_plot()`.
+#' [`audit()`] generic. It also has the `scr_grim_map` class, so it can be
+#' visualized by [`grim_plot()`].
 
-#' @section Summaries with `audit()`: There is an S3 method for `audit()`, so
-#'   you can call `audit()` following `grimmer_map()` to get a summary of
+#' @section Summaries with [`audit()`]: There is an S3 method for [`audit()`],
+#'   so you can call [`audit()`] following `grimmer_map()` to get a summary of
 #'   `grimmer_map()`'s results. It is a tibble with a single row and these
 #'   columns --
 #'
@@ -45,11 +45,11 @@
 #' 3. `incons_rate`: proportion of GRIMMER-inconsistent value sets.
 #' 4. `fail_grim`: number of value sets that fail the GRIM test.
 #' 5. `fail_test1`: number of value sets that fail the first GRIMMER test (sum
-#'     of squares is a whole number)
+#'     of squares is a whole number).
 #' 6. `fail_test2`: number of value sets that fail the second GRIMMER test
-#'     (matching SDs)
+#'     (matching SDs).
 #' 7. `fail_test3`: number of value sets that fail the third GRIMMER test (equal
-#'     parity)
+#'     parity).
 
 #' @include audit.R grimmer.R function-map.R
 #'

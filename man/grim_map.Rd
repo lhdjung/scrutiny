@@ -23,8 +23,8 @@ grim_map(
 }
 \arguments{
 \item{data}{Data frame with columns \code{x}, \code{n}, and optionally \code{items} (see
-documentation for \code{grim()}. By default, any other columns in \code{data} will be
-returned alongside GRIM test results (see \code{extra} below).}
+documentation for \code{\link[=grim]{grim()}}. By default, any other columns in \code{data} will
+be returned alongside GRIM test results (see \code{extra} below).}
 
 \item{items}{Integer. If there is no \code{items} column in \code{data}, this specifies
 the number of items composing the \code{x} values. Default is 1, the most common
@@ -51,7 +51,7 @@ contains the probability of GRIM inconsistency. This is simply the \code{ratio}
 column censored to range between 0 and 1. Default is \code{FALSE}.}
 
 \item{rounding, threshold, symmetric, tolerance}{Further parameters of
-GRIM-testing; see documentation for \code{grim()}.}
+GRIM-testing; see documentation for \code{\link[=grim]{grim()}}.}
 
 \item{testables_only}{Logical. If \code{testables_only} is set to \code{TRUE}, only
 GRIM-testable cases (i.e., those with a positive GRIM ratio) are included.
@@ -68,11 +68,11 @@ A tibble with these columns --
 \item \code{x}, \code{n}: the inputs.
 \item \code{consistency}: GRIM consistency of \code{x}, \code{n}, and \code{items}.
 \item \verb{<extra>}: any columns from \code{data} other than \code{x}, \code{n}, and \code{items}.
-\item \code{ratio}: the GRIM ratio; see \code{grim_ratio()}.
-}
+\item \code{ratio}: the GRIM ratio; see \code{\link[=grim_ratio]{grim_ratio()}}.
 
-The tibble has the \code{scr_grim_map} class, which is recognized by the \code{audit()}
-generic.
+The tibble has the \code{scr_grim_map} class, which is recognized by the
+\code{\link[=audit]{audit()}} generic.
+}
 }
 \description{
 Call \code{grim_map()} to GRIM-test any number of combinations of
@@ -85,7 +85,7 @@ convert \code{x} values to decimals and adjust the decimal count accordingly.
 Display intermediary numbers from GRIM-testing in columns by setting
 \code{show_rec} to \code{TRUE}.
 
-For summary statistics, call \code{audit()} on the results.
+For summary statistics, call \verb{[audit()}] on the results.
 }
 \section{Reconstructed numbers}{
  If \code{show_rec} is set to \code{TRUE}, the output
@@ -104,11 +104,10 @@ is replaced by two columns that specify the rounding procedures (i.e.,
 \code{"_up"} and \code{"_down"}).
 }
 
-\section{Summaries with \code{audit()}}{
- There is an S3 method for \code{audit()}, so
-you can call \code{audit()} following \code{grim_map()} to get a summary of
-\code{grim_map()}'s results. It is a tibble with a single row and these
-columns --
+\section{Summaries with \code{\link[=audit]{audit()}}}{
+ There is an S3 method for \code{\link[=audit]{audit()}},
+so you can call \code{\link[=audit]{audit()}} following \code{grim_map()} to get a summary of
+\code{grim_map()}'s results. It is a tibble with one row and these columns --
 \enumerate{
 \item \code{incons_cases}: number of GRIM-inconsistent value sets.
 \item \code{all_cases}: total number of value sets.

@@ -179,9 +179,9 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
 #'
 #' @description `grimmer()` checks if reported mean and SD values of integer
 #'   data are mathematically consistent with the reported sample size and the
-#'   number of items that compose the mean value. It works much like `grim()`.
+#'   number of items that compose the mean value. It works much like [`grim()`].
 #'
-#'   The function is vectorized, but it is recommended to use `grimmer_map()`
+#'   The function is vectorized, but it is recommended to use [`grimmer_map()`]
 #'   for testing multiple cases.
 #'
 #' @param x String. The reported mean value.
@@ -194,7 +194,7 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
 #' @param show_reason Logical. For internal use only. If set to `TRUE`, the
 #'   output is a list of length-2 lists which also contain the reasons for
 #'   inconsistencies. Don't specify this manually; instead, use `show_reason` in
-#'   `grimmer_map()`. Default is `FALSE`.
+#'   [`grimmer_map()`]. Default is `FALSE`.
 #'
 #' @inheritParams grim
 #'

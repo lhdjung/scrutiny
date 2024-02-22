@@ -103,16 +103,16 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
 #'   Set `percent` to `TRUE` if `x` is a percentage. This will convert `x` to a
 #'   decimal number and adjust the decimal count accordingly.
 #'
-#'   The function is vectorized, but it is recommended to use `grim_map()` for
+#'   The function is vectorized, but it is recommended to use [`grim_map()`] for
 #'   testing multiple cases.
 #'
 #' @details The `x` values need to be strings because only strings retain
 #'   trailing zeros, which are as important for the GRIM test as any other
 #'   decimal digits.
 #'
-#'   Use `restore_zeros()` on numeric values (or values that were numeric values
-#'   at some point) to easily supply the trailing zeros they might once have
-#'   had. See documentation there.
+#'   Use [`restore_zeros()`] on numeric values (or values that were numeric
+#'   values at some point) to easily supply the trailing zeros they might once
+#'   have had. See documentation there.
 #'
 #'   Browse the source code in the grim.R file. `grim()` is a vectorized version
 #'   of the internal `grim_scalar()` function found there.
@@ -126,8 +126,8 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
 #'   increase it by 2). Default is `FALSE`.
 #' @param show_rec Logical. For internal use only. If set to `TRUE`, the output
 #'   is a matrix that also contains intermediary values from GRIM-testing. Don't
-#'   specify this manually; instead, use `show_rec` in `grim_map()`. Default is
-#'   `FALSE`.
+#'   specify this manually; instead, use `show_rec` in [`grim_map()`]. Default
+#'   is `FALSE`.
 #' @param rounding String. Rounding method or methods to be used for
 #'   reconstructing the values to which `x` will be compared. Default is
 #'   `"up_or_down"` (from 5).
@@ -141,20 +141,18 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
 #'   always equal. Default is `FALSE`.
 #' @param tolerance Numeric. Tolerance of comparison between `x` and the
 #'   possible mean or percentage values. Default is circa 0.000000015
-#'   (1.490116e-08), as in `dplyr::near()`.
+#'   (1.490116e-08), as in [`dplyr::near()`].
 #'
 #' @return Logical. `TRUE` if `x`, `n`, and `items` are mutually consistent,
 #'   `FALSE` if not.
 #'
-#' @seealso `grim_map()` applies `grim()` to any number of cases at once.
+#' @seealso [`grim_map()`] applies `grim()` to any number of cases at once.
 #'
 #' @include utils.R decimal-places.R reround.R
 #'
 #' @rdname grim
 #'
 #' @export
-#'
-#' @importFrom magrittr %>%
 #'
 #' @references Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A
 #'   Simple Technique Detects Numerous Anomalies in the Reporting of Results in

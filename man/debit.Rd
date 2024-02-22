@@ -47,8 +47,8 @@ Logical. \code{TRUE} if \code{x}, \code{sd}, and \code{n} are mutually consisten
 mean and the standard deviation of binary data are given, are they
 consistent with the reported sample size?
 
-The function is vectorized, but it is recommended to use \code{debit_map()} for
-testing multiple cases.
+The function is vectorized, but it is recommended to use \code{\link[=debit_map]{debit_map()}}
+for testing multiple cases.
 }
 \examples{
 # Check single cases of binary
@@ -60,5 +60,5 @@ Heathers, James A. J., and Brown, Nicholas J. L. 2019. DEBIT: A
 Simple Consistency Test For Binary Data. https://osf.io/5vb3u/.
 }
 \seealso{
-\code{debit_map()} applies \code{debit()} to any number of cases at once.
+\code{\link[=debit_map]{debit_map()}} applies \code{debit()} to any number of cases at once.
 }

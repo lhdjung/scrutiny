@@ -27,15 +27,13 @@
 #'
 #' @include utils.R
 #'
-#' @seealso
-#' \href{https://unheadr.liomys.mx/reference/mash_colnames.html}{`unheadr::mash_colnames()`},
-#' a more sophisticated solution to the same problem.
+#' @seealso [`unheadr::mash_colnames()`], a more sophisticated solution to the
+#'   same problem.
 #'
 #' @return A tibble (data frame).
 #' @export
 
 # @examples
-
 
 row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
 

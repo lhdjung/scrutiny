@@ -13,21 +13,21 @@
 #'   point by default.
 #'
 #' `seq_endpoint_df()` and `seq_distance_df()` are variants that create a data
-#' frame. Further columns can be added as in `tibble::tibble()`. Regular
+#' frame. Further columns can be added as in [`tibble::tibble()`]. Regular
 #' arguments are the same as in the respective non-`df` function, but with a dot
 #' before each.
 
 #' @details If either `from` or `to` ends on zero, be sure to enter that value
 #'   as a string! This is crucial because trailing zeros get dropped from
 #'   numeric values. A handy way to format numeric values or number-strings
-#'   correctly is `restore_zeros()`. The output of the present functions is like
-#'   that by default (of `string_output`).
+#'   correctly is [`restore_zeros()`]. The output of the present functions is
+#'   like that by default (of `string_output`).
 #'
 #'   In `seq_endpoint()` and `seq_endpoint_df()`, the step size is determined by
 #'   `from` and `to`, whichever has more decimal places. In `seq_distance()` and
 #'   `seq_distance_df()`, it's determined by the decimal places of `from`.
 #'
-#'   These functions are scrutiny's take on `base::seq()`, and themselves
+#'   These functions are scrutiny's take on [`base::seq()`], and themselves
 #'   wrappers around it.
 #'
 #' @param from,.from Numeric (or string coercible to numeric). Starting point of
@@ -37,7 +37,7 @@
 #' @param by,.by Numeric. Only in `seq_distance()` and `seq_distance_df()`. Step
 #'   size of the sequence. If not set, inferred automatically. Default is
 #'   `NULL`.
-#' @param ... Further columns, added as in `tibble::tibble()`. Only in
+#' @param ... Further columns, added as in [`tibble::tibble()`]. Only in
 #'   `seq_endpoint_df()` and `seq_distance_df()`.
 #' @param length_out,.length_out Integer. Length of the output vector (i.e., the
 #'   number of its values). Default is `10`. Only in `seq_distance()` and
@@ -61,7 +61,7 @@
 #'
 #' @name seq-decimal
 #'
-#' @seealso `seq_disperse()` for sequences centered around the input.
+#' @seealso [`seq_disperse()`] for sequences centered around the input.
 #'
 #' @export
 #'

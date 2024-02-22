@@ -19,11 +19,11 @@ function_map_total_n(
 )
 }
 \arguments{
-\item{.fun}{Function such as \code{grim_map()}, or one made by \code{function_map()}:
-It will be used to test columns in a data frame for consistency. Test
-results are logical and need to be contained in a column called
-\code{consistency} that is added to the input data frame. This modified data
-frame is then returned by \code{.fun}.}
+\item{.fun}{Function such as \code{\link[=grim_map]{grim_map()}}, or one made by
+\code{\link[=function_map]{function_map()}}: It will be used to test columns in a data frame for
+consistency. Test results are logical and need to be contained in a column
+called \code{consistency} that is added to the input data frame. This modified
+data frame is then returned by \code{.fun}.}
 
 \item{.reported}{String. Names of the columns containing group-specific
 statistics that were reported alongside the total sample size(s). They will
@@ -45,16 +45,16 @@ manufactured function will inherit this string as an S3 class. Default is
 \code{NULL}, i.e., no extra class.}
 
 \item{.dispersion, .n_min, .n_max, .constant, .constant_index}{Arguments passed
-down to \code{disperse_total()}, using defaults from there.}
+down to \code{\link[=disperse_total]{disperse_total()}}, using defaults from there.}
 
 \item{...}{These dots must be empty.}
 }
 \value{
 A function such as these:\tabular{lll}{
    \strong{Manufactured function} \tab \strong{Reported statistics} \tab \strong{Test vignette} \cr
-   \code{grim_map_total_n()} \tab \code{"x"} \tab \code{vignette("grim")} \cr
-   \code{grimmer_map_total_n()} \tab \code{"x"}, \code{"sd"} \tab \code{vignette("grimmer")} \cr
-   \code{debit_map_total_n()} \tab \code{"x"}, \code{"sd"} \tab \code{vignette("debit")} \cr
+   \code{\link[=grim_map_total_n]{grim_map_total_n()}} \tab \code{"x"} \tab \code{vignette("grim")} \cr
+   \code{\link[=grimmer_map_total_n]{grimmer_map_total_n()}} \tab \code{"x"}, \code{"sd"} \tab \code{vignette("grimmer")} \cr
+   \code{\link[=debit_map_total_n]{debit_map_total_n()}} \tab \code{"x"}, \code{"sd"} \tab \code{vignette("debit")} \cr
 }
 
 
@@ -63,18 +63,18 @@ down to \code{.fun}, i.e., the basic mapper function.
 }
 \description{
 \code{function_map_total_n()} is the engine that powers functions
-such as \code{grim_map_total_n()}. It creates new, "factory-made" functions for
-consistency tests such as GRIM or GRIMMER. The new functions take reported
-summary statistics (e.g., means) and apply those tests in cases where only
-a total sample size is known, not group sizes.
+such as \code{\link[=grim_map_total_n]{grim_map_total_n()}}. It creates new, "factory-made" functions
+for consistency tests such as GRIM or GRIMMER. The new functions take
+reported summary statistics (e.g., means) and apply those tests in cases
+where only a total sample size is known, not group sizes.
 
-This works by making \code{disperse_total()} create multiple pairs of
+This works by making \code{\link[=disperse_total]{disperse_total()}} create multiple pairs of
 hypothetical group sizes, all of which add up to the reported total. There
 need to be exactly two groups.
 
 For background and more examples, see the
 \href{https://lhdjung.github.io/scrutiny/articles/consistency-tests.html#total-n-mapper}{total-n
-mapper section} of \emph{Implementing consistency tests}.
+mapper section} of \emph{Consistency tests in depth}.
 }
 \details{
 If functions created by \code{function_map_total_n()} are exported from
@@ -82,12 +82,12 @@ other packages, they should be written as if they were created with
 \href{https://purrr.tidyverse.org/reference/faq-adverbs-export.html}{purrr
 adverbs}; see explanations there, and examples in the
 \href{https://lhdjung.github.io/scrutiny/articles/consistency-tests.html#context-and-export}{export
-section} of \emph{Implementing consistency tests}.
+section} of \emph{Consistency tests in depth}.
 
 This function is a so-called function factory: It produces other functions,
-such as \code{grim_map_total_n()}. More specifically, it is a function operator
-because it also takes functions as inputs, such as \code{grim_map()}. See
-Wickham (2019), ch. 10-11.
+such as \code{\link[=grim_map_total_n]{grim_map_total_n()}}. More specifically, it is a function
+operator because it also takes functions as inputs, such as \code{\link[=grim_map]{grim_map()}}.
+See Wickham (2019), ch. 10-11.
 }
 \section{Conventions}{
  The name of a function manufactured with
@@ -123,5 +123,5 @@ Wickham, H. (2019). \emph{Advanced R} (Second Edition). CRC Press/Taylor and
 Francis Group. https://adv-r.hadley.nz/index.html
 }
 \seealso{
-\code{function_map_seq()}
+\code{\link[=function_map_seq]{function_map_seq()}}
 }

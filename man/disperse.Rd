@@ -84,8 +84,8 @@ even or odd, splits it up accordingly, and applies \code{disperse()} or
 \code{disperse2()}, respectively.
 
 These functions are primarily intended as helpers. They form the backbone
-of \code{grim_map_total_n()} and all other functions created with
-\code{function_map_total_n()}.
+of \code{\link[=grim_map_total_n]{grim_map_total_n()}} and all other functions created with
+\code{\link[=function_map_total_n]{function_map_total_n()}}.
 }
 \details{
 If any group size is less than \code{n_min} or greater than \code{n_max}, it
@@ -140,6 +140,6 @@ Light or Dark? Recalling Moral Behavior Changes Perception of Brightness.
 https://journals.sagepub.com/doi/10.1177/09567976211058727
 }
 \seealso{
-\code{function_map_total_n()}, \code{grim_map_total_n()},
-\code{seq_distance_df()}
+\code{\link[=function_map_total_n]{function_map_total_n()}}, \code{\link[=grim_map_total_n]{grim_map_total_n()}}, and
+\code{\link[=seq_distance_df]{seq_distance_df()}}.
 }

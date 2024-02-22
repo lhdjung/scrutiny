@@ -17,7 +17,7 @@
 #' sizes are GRIMMER-consistent with the group means.
 #'
 #' All of this works with one or more total sample sizes at a time. Call
-#' `audit_total_n()` for summary statistics.
+#' [`audit_total_n()`] for summary statistics.
 
 #' @param data Data frame with string columns `x1`, `x2`, `sd1`, and `sd2`, as
 #'   well as numeric column `n`. The first two are reported group means. `sd1`
@@ -35,7 +35,7 @@
 #' @param n_max Numeric. Maximal group size. Default is `NULL`, i.e., no
 #'   maximum.
 #' @inheritParams disperse_total
-#' @param ... Arguments passed down to `grimmer_map()`. *(NOTE: Don't use the
+#' @param ... Arguments passed down to [`grimmer_map()`]. *(NOTE: Don't use the
 #'   `items` argument. It currently contains a bug that will be fixed in the
 #'   future.)*
 
@@ -46,8 +46,8 @@
 #'   *Psychological Science*, 32(12), 2042–2043.
 #'   https://journals.sagepub.com/doi/10.1177/09567976211058727
 
-#' @seealso `function_map_total_n()`, which created the present function using
-#'   `grimmer_map()`.
+#' @seealso [`function_map_total_n()`], which created the present function using
+#'   [`grimmer_map()`].
 
 #' @return A tibble with these columns:
 #' - `x`, the group-wise reported input statistic, is repeated in row pairs.
@@ -60,10 +60,10 @@
 #' half. `"forth"` means that `x2` from the input is paired with the larger
 #' dispersed `n`, whereas `"back"` means that `x1` is paired with the larger
 #' dispersed `n`.
-#' - Other columns from `grimmer_map()` are preserved
+#' - Other columns from [`grimmer_map()`] are preserved.
 
-#' @section Summaries with `audit_total_n()`: You can call
-#'   `audit_total_n()` following up on `grimmer_map_total_n()`
+#' @section Summaries with [`audit_total_n()`]: You can call
+#'   [`audit_total_n()`] following up on `grimmer_map_total_n()`
 #'   to get a tibble with summary statistics. It will have these columns:
 #'  - `x1`, `x2`, `sd1`, `sd2`, and `n` are the original inputs.
 #'  - `hits_total` is the number of scenarios in which all of

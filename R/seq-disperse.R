@@ -7,8 +7,8 @@
 #'   values like `7.91`, `7.92`, and `7.94`, `7.95`, etc.
 #'
 #'   `seq_disperse_df()` is a variant that creates a data frame. Further columns
-#'   can be added as in `tibble::tibble()`. Regular arguments are the same as in
-#'   `seq_disperse()`, but with a dot before each.
+#'   can be added as in [`tibble::tibble()`]. Regular arguments are the same as
+#'   in `seq_disperse()`, but with a dot before each.
 #'
 #' @param from,.from Numeric (or string coercible to numeric). Starting point of
 #'   the sequence.
@@ -38,22 +38,22 @@
 #'   `"diff_var"` output column.
 #' @param track_var_change,.track_var_change `r lifecycle::badge("deprecated")`
 #'   Renamed to `track_diff_var` / `.track_diff_var`.
-#' @param ... Further columns, added as in `tibble::tibble()`. Only in
+#' @param ... Further columns, added as in [`tibble::tibble()`]. Only in
 #'   `seq_disperse_df()`.
 #'
-#' @details Unlike `seq_endpoint()` and friends, the present functions don't
+#' @details Unlike [`seq_endpoint()`] and friends, the present functions don't
 #'   necessarily return continuous or even regular sequences. The greater
 #'   flexibility is due to the `dispersion` (`.dispersion`) argument, which
 #'   takes any numeric vector. By default, however, the output sequence is
 #'   regular and continuous.
 #'
 #'   Underlying this difference is the fact that `seq_disperse()` and
-#'   `seq_disperse_df()` do not wrap around `base::seq()`, although they are
-#'   otherwise similar to `seq_endpoint()` and friends.
+#'   `seq_disperse_df()` do not wrap around [`base::seq()`], although they are
+#'   otherwise similar to [`seq_endpoint()`] and friends.
 
 #' @return
 #'   - `seq_disperse()` returns a string vector by default
-#'   (`string_output = TRUE`) and a numeric otherwise.
+#'   (`string_output = TRUE`) and a numeric vector otherwise.
 #'   - `seq_disperse_df()` returns a tibble (data frame). The sequence is stored
 #'   in the `x` column. `x` is string by default (`.string_output = TRUE`),
 #'   numeric otherwise. Other columns might have been added via the dots
@@ -62,9 +62,9 @@
 #' @export
 #'
 #' @seealso Conceptually, `seq_disperse()` is a blend of two function families:
-#'   those around `seq_endpoint()` and those around `disperse()`. The present
-#'   functions were originally conceived for `seq_disperse_df()` to be a helper
-#'   within the `function_map_seq()` implementation.
+#'   those around [`seq_endpoint()`] and those around [`disperse()`]. The
+#'   present functions were originally conceived for `seq_disperse_df()` to be a
+#'   helper within the [`function_map_seq()`] implementation.
 #'
 #' @examples
 #' # Basic usage:

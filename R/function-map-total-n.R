@@ -141,24 +141,24 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 #' Create new `*_map_total_n()` functions
 #'
 #' @description `function_map_total_n()` is the engine that powers functions
-#'   such as `grim_map_total_n()`. It creates new, "factory-made" functions for
-#'   consistency tests such as GRIM or GRIMMER. The new functions take reported
-#'   summary statistics (e.g., means) and apply those tests in cases where only
-#'   a total sample size is known, not group sizes.
+#'   such as [`grim_map_total_n()`]. It creates new, "factory-made" functions
+#'   for consistency tests such as GRIM or GRIMMER. The new functions take
+#'   reported summary statistics (e.g., means) and apply those tests in cases
+#'   where only a total sample size is known, not group sizes.
 #'
-#'   This works by making `disperse_total()` create multiple pairs of
+#'   This works by making [`disperse_total()`] create multiple pairs of
 #'   hypothetical group sizes, all of which add up to the reported total. There
 #'   need to be exactly two groups.
 #'
 #'   For background and more examples, see the
 #'   \href{https://lhdjung.github.io/scrutiny/articles/consistency-tests.html#total-n-mapper}{total-n
-#'   mapper section} of *Implementing consistency tests*.
+#'   mapper section} of *Consistency tests in depth*.
 #'
-#' @param .fun Function such as `grim_map()`, or one made by `function_map()`:
-#'   It will be used to test columns in a data frame for consistency. Test
-#'   results are logical and need to be contained in a column called
-#'   `consistency` that is added to the input data frame. This modified data
-#'   frame is then returned by `.fun`.
+#' @param .fun Function such as [`grim_map()`], or one made by
+#'   [`function_map()`]: It will be used to test columns in a data frame for
+#'   consistency. Test results are logical and need to be contained in a column
+#'   called `consistency` that is added to the input data frame. This modified
+#'   data frame is then returned by `.fun`.
 #' @param .reported String. Names of the columns containing group-specific
 #'   statistics that were reported alongside the total sample size(s). They will
 #'   be tested for consistency with the hypothetical group sizes. Examples are
@@ -172,7 +172,7 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 #'   manufactured function will inherit this string as an S3 class. Default is
 #'   `NULL`, i.e., no extra class.
 #' @param .dispersion,.n_min,.n_max,.constant,.constant_index Arguments passed
-#'   down to `disperse_total()`, using defaults from there.
+#'   down to [`disperse_total()`], using defaults from there.
 #' @param ... These dots must be empty.
 #'
 #' @inheritParams function_map
@@ -182,12 +182,12 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 #'   \href{https://purrr.tidyverse.org/reference/faq-adverbs-export.html}{purrr
 #'   adverbs}; see explanations there, and examples in the
 #'   \href{https://lhdjung.github.io/scrutiny/articles/consistency-tests.html#context-and-export}{export
-#'   section} of *Implementing consistency tests*.
+#'   section} of *Consistency tests in depth*.
 #'
 #'   This function is a so-called function factory: It produces other functions,
-#'   such as `grim_map_total_n()`. More specifically, it is a function operator
-#'   because it also takes functions as inputs, such as `grim_map()`. See
-#'   Wickham (2019), ch. 10-11.
+#'   such as [`grim_map_total_n()`]. More specifically, it is a function
+#'   operator because it also takes functions as inputs, such as [`grim_map()`].
+#'   See Wickham (2019), ch. 10-11.
 #'
 #' @references Bauer, P. J., & Francis, G. (2021). Expression of Concern: Is It
 #'   Light or Dark? Recalling Moral Behavior Changes Perception of Brightness.
@@ -199,11 +199,11 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 
 #' @return A function such as these:
 #'
-#'   | \strong{Manufactured function} | \strong{Reported statistics}  | \strong{Test vignette}
-#'   | ---                            | ---                           | ---
-#'   | `grim_map_total_n()`           | `"x"`                         | `vignette("grim")`
-#'   | `grimmer_map_total_n()`        | `"x"`, `"sd"`                 | `vignette("grimmer")`
-#'   | `debit_map_total_n()`          | `"x"`, `"sd"`                 | `vignette("debit")`
+#'   | \strong{Manufactured function}   | \strong{Reported statistics}  | \strong{Test vignette}
+#'   | ---                              | ---                           | ---
+#'   | [`grim_map_total_n()`]           | `"x"`                         | `vignette("grim")`
+#'   | [`grimmer_map_total_n()`]        | `"x"`, `"sd"`                 | `vignette("grimmer")`
+#'   | [`debit_map_total_n()`]          | `"x"`, `"sd"`                 | `vignette("debit")`
 #'
 #'   The factory-made function will also have dots, `...`, to pass arguments
 #'   down to `.fun`, i.e., the basic mapper function.
@@ -222,7 +222,7 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 #'   name. In this way, some existing classes are `scr_grim_map_total_n` and
 #'   `scr_grimmer_map_total_n`.
 
-#' @seealso `function_map_seq()`
+#' @seealso [`function_map_seq()`]
 #'
 #' @include utils.R disperse.R function-factory-helpers.R
 #'
@@ -236,7 +236,10 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 #'   .name_test = "GRIM"
 #' )
 
-
+# TODO: ADD LINKS IN THE DOCS VIA SQUARE BRACKETS! GO THROUGH THE FILES
+# ALPHABETICALLY, STARTING WITH: function-map.R ALSO CHANGE
+# `write_doc_factory_map_conventions()` TO INCLUDE BRACKETS IN THE OUTPUT, THEN
+# RE-INSERT THE OUTPUT INTO THE DOCS OF THE THREE FACTORIES!
 
 # # Full example inputs:
 #

@@ -25,7 +25,7 @@ duplicates. The dataset can be used to demonstrate the functionality of
 \verb{duplicate_*()} functions such as \code{duplicate_count()}.
 }
 \seealso{
-\code{pigs1} for GRIM-testing means, \code{pigs2} for GRIM-testing
-percentages, \code{pigs3} for using DEBIT, and \code{pigs5} for GRIMMER-testing.
+\code{pigs1} for GRIM-testing means, \code{\link{pigs2}} for GRIM-testing
+percentages, \code{\link{pigs3}} for using DEBIT, and \code{\link{pigs5}} for GRIMMER-testing.
 }
 \keyword{datasets}

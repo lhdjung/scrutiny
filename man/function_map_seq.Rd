@@ -21,7 +21,7 @@ function_map_seq(
 )
 }
 \arguments{
-\item{.fun}{Function such as \code{grim_map()}, or one made by \code{function_map()}:
+\item{.fun}{Function such as \code{grim_map()}, or one made by \code{\link[=function_map]{function_map()}}:
 It will be used to test columns in a data frame for consistency. Test
 results are logical and need to be contained in a column called
 \code{"consistency"} that is added to the input data frame. This modified data
@@ -75,9 +75,9 @@ A function such as those below. ("Testable statistics" are variables
 that can be selected via \code{var}, and are then varied. All variables except
 for those in parentheses are selected by default.)\tabular{lll}{
    \strong{Manufactured function} \tab \strong{Testable statistics} \tab \strong{Test vignette} \cr
-   \code{grim_map_seq()} \tab \code{"x"}, \code{"n"}, (\code{"items"}) \tab \code{vignette("grim")} \cr
-   \code{grimmer_map_seq()} \tab \code{"x"}, \code{"sd"}, \code{"n"}, (\code{"items"}) \tab \code{vignette("grimmer")} \cr
-   \code{debit_map_seq()} \tab \code{"x"}, \code{"sd"}, \code{"n"} \tab \code{vignette("debit")} \cr
+   \code{\link[=grim_map_seq]{grim_map_seq()}} \tab \code{"x"}, \code{"n"}, (\code{"items"}) \tab \code{vignette("grim")} \cr
+   \code{\link[=grimmer_map_seq]{grimmer_map_seq()}} \tab \code{"x"}, \code{"sd"}, \code{"n"}, (\code{"items"}) \tab \code{vignette("grimmer")} \cr
+   \code{\link[=debit_map_seq]{debit_map_seq()}} \tab \code{"x"}, \code{"sd"}, \code{"n"} \tab \code{vignette("debit")} \cr
 }
 
 
@@ -86,7 +86,7 @@ down to \code{.fun}, i.e., the basic mapper function such as \code{grim_map()}.
 }
 \description{
 \code{function_map_seq()} is the engine that powers functions such as
-\code{grim_map_seq()}. It creates new, "factory-made" functions that apply
+\code{\link[=grim_map_seq]{grim_map_seq()}}. It creates new, "factory-made" functions that apply
 consistency tests such as GRIM or GRIMMER to sequences of specified
 variables. The sequences are centered around the reported values of those
 variables.
@@ -98,7 +98,7 @@ statistics.
 
 For background and more examples, see the
 \href{https://lhdjung.github.io/scrutiny/articles/consistency-tests.html#sequence-mapper}{sequence
-mapper section} of \emph{Implementing consistency tests}.
+mapper section} of \emph{Consistency tests in depth}.
 }
 \details{
 All arguments of \code{function_map_seq()} set the defaults for the
@@ -110,11 +110,11 @@ be written as if they were created with
 \href{https://purrr.tidyverse.org/reference/faq-adverbs-export.html}{purrr
 adverbs}; see explanations there, and examples in the
 \href{https://lhdjung.github.io/scrutiny/articles/consistency-tests.html#context-and-export}{export
-section} of \emph{Implementing consistency tests}.
+section} of \emph{Consistency tests in depth}.
 
 This function is a so-called function factory: It produces other functions,
-such as \code{grim_map_seq()}. More specifically, it is a function operator
-because it also takes functions as inputs, such as \code{grim_map()}. See
+such as \code{\link[=grim_map_seq]{grim_map_seq()}}. More specifically, it is a function operator
+because it also takes functions as inputs, such as \code{\link[=grim_map]{grim_map()}}. See
 Wickham (2019, ch. 10-11).
 }
 \section{Conventions}{

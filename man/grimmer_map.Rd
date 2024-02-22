@@ -40,7 +40,7 @@ shows the reasons for inconsistencies (and \code{NA} for consistent values)?
 Default is \code{FALSE}.}
 
 \item{rounding, threshold, symmetric, tolerance}{Further parameters of
-GRIMMER-testing; see documentation for \code{grimmer()}.}
+GRIMMER-testing; see documentation for \code{\link[=grimmer]{grimmer()}}.}
 }
 \value{
 A tibble with these columns --
@@ -51,20 +51,20 @@ A tibble with these columns --
 }
 
 The tibble has the \code{scr_grimmer_map} class, which is recognized by the
-\code{audit()} generic. It also has the \code{scr_grim_map} class, so it can be
-visualized by \code{grim_plot()}.
+\code{\link[=audit]{audit()}} generic. It also has the \code{scr_grim_map} class, so it can be
+visualized by \code{\link[=grim_plot]{grim_plot()}}.
 }
 \description{
 Call \code{grimmer_map()} to GRIMMER-test any number of combinations
 of mean, standard deviation, sample size, and number of items. Mapping
 function for GRIMMER-testing.
 
-For summary statistics, call \code{audit()} on the results. Visualize results
-using \code{grim_plot()}, as with GRIM results.
+For summary statistics, call \code{\link[=audit]{audit()}} on the results. Visualize results
+using \code{\link[=grim_plot]{grim_plot()}}, as with GRIM results.
 }
-\section{Summaries with \code{audit()}}{
- There is an S3 method for \code{audit()}, so
-you can call \code{audit()} following \code{grimmer_map()} to get a summary of
+\section{Summaries with \code{\link[=audit]{audit()}}}{
+ There is an S3 method for \code{\link[=audit]{audit()}},
+so you can call \code{\link[=audit]{audit()}} following \code{grimmer_map()} to get a summary of
 \code{grimmer_map()}'s results. It is a tibble with a single row and these
 columns --
 \enumerate{
@@ -73,11 +73,11 @@ columns --
 \item \code{incons_rate}: proportion of GRIMMER-inconsistent value sets.
 \item \code{fail_grim}: number of value sets that fail the GRIM test.
 \item \code{fail_test1}: number of value sets that fail the first GRIMMER test (sum
-of squares is a whole number)
+of squares is a whole number).
 \item \code{fail_test2}: number of value sets that fail the second GRIMMER test
-(matching SDs)
+(matching SDs).
 \item \code{fail_test3}: number of value sets that fail the third GRIMMER test (equal
-parity)
+parity).
 }
 }
 

@@ -6,8 +6,8 @@
 #'   one new column to the right of each existing column.
 #'
 #'   These functions were made by `function_duplicate_cols()`:
-#'   - `duplicate_tally()`
-#'   - `duplicate_detect()`
+#'   - [`duplicate_tally()`]
+#'   - [`duplicate_detect()`]
 #'
 #' @param code_new_cols Expression which the factory-made function will evaluate
 #'   at runtime. It computes the vector that will be split into the new columns
@@ -25,7 +25,7 @@
 #'
 #' @include utils.R
 #'
-#' @return Function such as `duplicate_tally()` or `duplicate_detect()`.
+#' @return Function such as [`duplicate_tally()`] or [`duplicate_detect()`].
 #'
 #' @noRd
 
@@ -144,7 +144,8 @@ function_duplicate_cols <- function(code_new_cols, default_end, name_class,
 #' @description `r lifecycle::badge('superseded')`
 #'
 #'   `duplicate_detect()` is superseded because it's less informative than
-#'   `duplicate_tally()` and `duplicate_count()`. Use these functions instead.
+#'   [`duplicate_tally()`] and [`duplicate_count()`]. Use these functions
+#'   instead.
 #'
 #'   For every value in a vector or data frame, `duplicate_detect()` tests
 #'   whether there is at least one identical value. Test results are presented
@@ -153,7 +154,7 @@ function_duplicate_cols <- function(code_new_cols, default_end, name_class,
 #'   This function is a blunt tool designed for initial data checking. Don't put
 #'   too much weight on its results.
 #'
-#'   For summary statistics, call `audit()` on the results.
+#'   For summary statistics, call [`audit()`] on the results.
 #'
 #' @details This function is not very informative with many input values that
 #'   only have a few characters each. Many of them may have duplicates just by
@@ -177,9 +178,9 @@ function_duplicate_cols <- function(code_new_cols, default_end, name_class,
 #'   The tibble has the `scr_dup_detect` class, which is recognized by the
 #'   `audit()` generic.
 
-#' @section Summaries with `audit()`: There is an S3 method for the `audit()`
-#'   generic, so you can call `audit()` following `duplicate_detect()`. It
-#'   returns a tibble with these columns ---
+#' @section Summaries with [`audit()`]: There is an S3 method for the
+#'   [`audit()`] generic, so you can call [`audit()`] following
+#'   `duplicate_detect()`. It returns a tibble with these columns ---
 #'   - `term`: The original data frame's variables.
 #'   - `dup_count`: Number of "duplicated" values of that `term` variable: those
 #'   which have at least one duplicate anywhere in the data frame.
@@ -191,12 +192,12 @@ function_duplicate_cols <- function(code_new_cols, default_end, name_class,
 #'   `dup_rate` column.
 #'
 #' @seealso
-#'  - `duplicate_tally()` to count instances of a value instead of just stating
-#' whether it is duplicated.
-#'  - `duplicate_count()` for a frequency table.
-#'  - `duplicate_count_colpair()` to check each combination of columns for
+#'  - [`duplicate_tally()`] to count instances of a value instead of just
+#'  stating whether it is duplicated.
+#'  - [`duplicate_count()`] for a frequency table.
+#'  - [`duplicate_count_colpair()`] to check each combination of columns for
 #' duplicates.
-#'  - `janitor::get_dupes()` to search for duplicate rows.
+#'  - [`janitor::get_dupes()`] to search for duplicate rows.
 #'
 #' @include utils.R
 #'
@@ -237,7 +238,7 @@ duplicate_detect <- function_duplicate_cols(
 #'   counts how often it appears in total. Tallies are presented next to each
 #'   value.
 #'
-#'   For summary statistics, call `audit()` on the results.
+#'   For summary statistics, call [`audit()`] on the results.
 #'
 #' @param colname_end String. Name ending of the logical test result columns.
 #'   Default is `"n"`.
@@ -251,15 +252,15 @@ duplicate_detect <- function_duplicate_cols(
 #'   The tibble has the `scr_dup_detect` class, which is recognized by the
 #'   `audit()` generic.
 #'
-#' @section Summaries with `audit()`: There is an S3 method for the `audit()`
-#'   generic, so you can call `audit()` following `duplicate_tally()`. It
+#' @section Summaries with [`audit()`]: There is an S3 method for the [`audit()`]
+#'   generic, so you can call [`audit()`] following `duplicate_tally()`. It
 #'   returns a tibble with summary statistics.
 #'
 #' @seealso
-#'  - `duplicate_count()` for a frequency table.
-#'  - `duplicate_count_colpair()` to check each combination of columns for
+#'  - [`duplicate_count()`] for a frequency table.
+#'  - [`duplicate_count_colpair()`] to check each combination of columns for
 #' duplicates.
-#'  - `janitor::get_dupes()` to search for duplicate rows.
+#'  - [`janitor::get_dupes()`] to search for duplicate rows.
 #'
 #' @include utils.R
 

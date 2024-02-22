@@ -79,7 +79,6 @@ is_numeric_like(x = as.numeric(c(NA, NA, NA)))
 is_numeric_like(x = c(NA, NA, NA))
 }
 \seealso{
-The \href{https://vctrs.r-lib.org/}{vctrs} package provides a
-serious typing framework for R; quite in contrast to this rather ad-hoc and
-use case-specific function.
+The \href{https://vctrs.r-lib.org/}{vctrs} package, which provides a
+serious typing framework for R; in contrast to this rather ad-hoc function.
 }

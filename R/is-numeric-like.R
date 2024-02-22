@@ -34,9 +34,8 @@
 #'
 #' @return Logical (length 1).
 #'
-#' @seealso The \href{https://vctrs.r-lib.org/}{vctrs} package provides a
-#'   serious typing framework for R; quite in contrast to this rather ad-hoc and
-#'   use case-specific function.
+#' @seealso The \href{https://vctrs.r-lib.org/}{vctrs} package, which provides a
+#'   serious typing framework for R; in contrast to this rather ad-hoc function.
 #'
 #' @export
 #'

@@ -7,7 +7,7 @@
 #'   This function is a blunt tool designed for initial data checking. It is not
 #'   too informative if many values have few characters each.
 #'
-#'   For summary statistics, call `audit()` on the results.
+#'   For summary statistics, call [`audit()`] on the results.
 #'
 #' @param x Vector or data frame.
 #' @param ignore Optionally, a vector of values that should not be counted.
@@ -27,7 +27,7 @@
 #' - `locations_n`: Number of columns named in `locations`.
 #'
 #' The tibble has the `scr_dup_count` class, which is recognized by the
-#' `audit()` generic.
+#' [`audit()`] generic.
 
 #' @details Don't use `numeric_only`. It no longer has any effect and will be
 #'   removed in the future. The only reason for this argument was the risk of
@@ -35,17 +35,17 @@
 #'   because all values are now coerced to character, which is more appropriate
 #'   for checking reported statistics.
 
-#' @section Summaries with `audit()`: There is an S3 method for the `audit()`
-#'   generic, so you can call `audit()` following `duplicate_count()`. It
-#'   returns a tibble with summary statistics for the two numeric columns,
-#'   `frequency` and `locations_n` (or, if `x` isn't named, only for
-#'   `frequency`).
+#' @section Summaries with [`audit()`]: There is an S3 method for the
+#'   [`audit()`] generic, so you can call [`audit()`] following
+#'   `duplicate_count()`. It returns a tibble with summary statistics for the
+#'   two numeric columns, `frequency` and `locations_n` (or, if `x` isn't named,
+#'   only for `frequency`).
 #'
 #' @seealso
-#' - `duplicate_count_colpair()` to check each combination of columns for
+#' - [`duplicate_count_colpair()`] to check each combination of columns for
 #' duplicates.
-#' - `duplicate_tally()` to show instances of a value next to each instance.
-#' - `janitor::get_dupes()` to search for duplicate rows.
+#' - [`duplicate_tally()`] to show instances of a value next to each instance.
+#' - [`janitor::get_dupes()`] to search for duplicate rows.
 #'
 #' @include utils.R
 #'

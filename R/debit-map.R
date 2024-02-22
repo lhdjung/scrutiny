@@ -4,13 +4,13 @@
 #'
 #' @description Call `debit_map()` to use DEBIT on multiple combinations of
 #'   mean, standard deviation, and sample size of binary distributions. Mapping
-#'   function for `debit()`.
+#'   function for [`debit()`].
 #'
-#'   For summary statistics, call `audit()` on the results.
+#'   For summary statistics, call [`audit()`] on the results.
 #'
 #' @param data Data frame.
 #' @param x,sd,n Optionally, specify these arguments as column names in `data`.
-#' @param rounding,threshold,symmetric Arguments passed on to `debit()`, with
+#' @param rounding,threshold,symmetric Arguments passed on to [`debit()`], with
 #'   the same defaults.
 #' @param show_rec If set to `FALSE`, the resulting tibble only includes the
 #'   columns `x`, `sd`, `n`, and `consistency`. Default is `TRUE`.
@@ -24,13 +24,15 @@
 #' - `x`, `sd`, `n`: the inputs.
 #' - `consistency`: DEBIT consistency of `x`, `sd`, and `n`.
 #'
-#'  By default, the tibble also includes the rounding method, boundary values,
-#'  and information about the boundary values being inclusive or not. The tibble
-#'  has the `scr_debit_map` class, which is recognized by the `audit()` generic.
+#'   By default, the tibble also includes the rounding method, boundary values,
+#'   and information about the boundary values being inclusive or not. The
+#'   tibble has the `scr_debit_map` class, which is recognized by the `audit()`
+#'   generic.
 #'
-#' @section Summaries with `audit()`: There is an S3 method for the `audit()`
-#'   generic, so you can call `audit()` following `debit_map()`. It returns a
-#'   tibble with these columns ---
+#' @section Summaries with [`audit()`]: There is an S3 method for the
+#'   [`audit()`] generic, so you can call [`audit()`] following `debit_map()`.
+#'   It returns a tibble with these columns ---
+#'
 #' 1. `incons_cases`: the number of DEBIT-inconsistent cases.
 #' 2. `all_cases`: the total number of cases.
 #' 3. `incons_rate`: the rate of inconsistent cases.

@@ -12,8 +12,8 @@
 #' sample size.
 #' - `sd_binary_mean_n()` takes the mean and the total sample size.
 #'
-#' These functions are used as helpers inside `debit()`, and consequently
-#' `debit_map()`.
+#' These functions are used as helpers inside [`debit()`], and consequently
+#' [`debit_map()`].
 
 #' @param group_0 Integer. Cell size of the group coded as 0.
 #' @param group_1 Integer. Cell size of the group coded as 1.

@@ -13,11 +13,11 @@
 # #   rounding bounds of a reported summary statistic (such as means or standard
 # #   deviations) and corresponding test statistics (such as *t*).
 # #
-# #   It is an alternative to `rivets_plot_cols()`.
+# #   It is an alternative to [`rivets_plot_cols()`].
 # #
 # # @param values_1,values_2 Numeric or string coercible to numeric (length 3).
 # #   Each vector consists of one reported statistic plus the lower and upper
-# #   bounds of the original number, as determined by `unround()`.
+# #   bounds of the original number, as determined by [`unround()`].
 # # @param dir String (length 1). Direction on the x-axis in which the test
 # #   statistic increases. Either `"forward"`, `"backward"`, `"inward"`, or
 # #   `"outward"`.
@@ -27,7 +27,7 @@
 # # @param text_size Numeric. Base text size. Default is `12`.
 # # @param color_1,color_2 String. Line colors. Defaults are `"royalblue1"` and
 # #   `"red"`.
-# # @param tag Tag for the whole plot. Default is `waiver()`, i.e., no tag.
+# # @param tag Tag for the whole plot. Default is [`waiver()`], i.e., no tag.
 # #
 # # @return
 # # @export

@@ -3,22 +3,22 @@
 #'
 #' @description  Plot a distribution of binary data and their mutual DEBIT
 #'   consistency. Call this function only on a data frame that resulted from a
-#'   call to `debit_map()`.
+#'   call to [`debit_map()`].
 #'
 #'   Various parameters of the individual geoms can be controlled via arguments.
 #'
-#' @details The labels are created via `ggrepel::geom_text_repel()`, so the
+#' @details The labels are created via [`ggrepel::geom_text_repel()`], so the
 #'   algorithm is designed to minimize overlap with the tiles and other labels.
 #'   Yet, they don't take the DEBIT line into account, and their locations are
 #'   ultimately random. You might therefore have to resize the plot or run the
 #'   function a few times until the labels are localized in a satisfactory way.
 #'
 #'   An alternative to the present function would be an S3 method for
-#'   `ggplot2::autoplot()`. However, a standalone function such as this allows
+#'   [`ggplot2::autoplot()`]. However, a standalone function such as this allows
 #'   for customizing geom parameters and might perhaps provide better
 #'   accessibility overall.
 #'
-#' @param data Data frame. Result of a call to `debit_map()`.
+#' @param data Data frame. Result of a call to [`debit_map()`].
 #' @param show_outer_boxes Logical. Should outer tiles surround the actual data
 #'   points, making it easier to spot them and to assess their overlap? Default
 #'   is `TRUE`.
@@ -43,7 +43,7 @@
 #' @param
 #' label_alpha,label_linetype,label_size,label_linesize,label_force,label_force_pull,label_padding
 #' Parameters of the labels showing mean and SD values. Passed on to
-#' `ggrepel::geom_text_repel()`; see there for more information.
+#' [`ggrepel::geom_text_repel()`]; see there for more information.
 
 #' @include debit-map.R restore-zeros.R utils.R
 #'

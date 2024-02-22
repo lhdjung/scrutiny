@@ -2,7 +2,7 @@
 #' Create new `*_map()` functions
 #'
 #' @description `function_map()` creates new basic mapper functions for
-#'   consistency tests, such as `grim_map()` or `debit_map()`.
+#'   consistency tests, such as [`grim_map()`] or [`debit_map()`].
 #'
 #'   For context, see [*Creating basic mappers with `function_map()`*](
 #'   https://lhdjung.github.io/scrutiny/articles/consistency-tests.html#creating-basic-mappers-with-function_map

@@ -22,7 +22,7 @@
 #'   places. If such a number is known but values were not entered as strings,
 #'   trailing zeros will be lost. In this case, `restore_zeros()` or
 #'   `restore_zeros_df()` will be helpful to prepare data for consistency
-#'   testing functions such as `grim_map()` or `grimmer_map()`.
+#'   testing functions such as [`grim_map()`] or [`grimmer_map()`].
 
 #' @section Displaying decimal places: You might not see all decimal places of
 #'   numeric values in a vector, and consequently wonder if `restore_zeros()`,
@@ -54,7 +54,7 @@
 #'   `check_numeric_like`.
 #' @param check_numeric_like Logical. Only in `restore_zeros_df()`. If `TRUE`
 #'   (the default), the function will skip columns that are not numeric or
-#'   coercible to numeric, as determined by `is_numeric_like()`.
+#'   coercible to numeric, as determined by [`is_numeric_like()`].
 #' @param check_decimals Logical. Only in `restore_zeros_df()`. If set to
 #'   `TRUE`, the function will skip columns where no values have any decimal
 #'   places. Default is `FALSE`.
@@ -71,7 +71,7 @@
 #'
 #' @include utils.R
 #'
-#' @seealso Wrapped functions: `sprintf()` and `decimal_places()`.
+#' @seealso Wrapped functions: [`sprintf()`].
 #'
 #' @examples
 #' # By default, the target width is that of

@@ -35,14 +35,14 @@ fraction of \code{denominator}. Default is \code{1}.}
 \item In \code{reround_to_fraction()}: If \code{digits} is specified, the values
 resulting from fractional rounding will subsequently be rounded to that
 many decimal places. If set to \code{"auto"}, it internally becomes
-\code{ceiling(log10(denominator)) + 1}, as in \code{janitor::round_to_fraction()}.
+\code{ceiling(log10(denominator)) + 1}, as in \code{\link[janitor:round_to_fraction]{janitor::round_to_fraction()}}.
 Default is \code{Inf}, in which case there is no subsequent rounding.
 \item In \code{reround_to_fraction_level()}: This function will round to a fraction
 of the number at the decimal level specified by \code{digits}. Default is \code{0}.
 }}
 
 \item{rounding, threshold, symmetric}{More arguments passed down to
-\code{reround()}.}
+\code{\link[=reround]{reround()}}.}
 }
 \value{
 Numeric vector of the same length as \code{x} unless \code{rounding} is either
@@ -52,9 +52,10 @@ these cases, it will always have length 2.
 \description{
 Two functions that round numbers to specific fractions, not just
 to the next higher decimal level. They are inspired by
-\code{janitor::round_to_fraction()} but feature all the options of \code{reround()}:
+\code{\link[janitor:round_to_fraction]{janitor::round_to_fraction()}} but feature all the options of
+\code{\link[=reround]{reround()}}:
 \itemize{
-\item \code{reround_to_fraction()} closely follows \code{janitor::round_to_fraction()}
+\item \code{reround_to_fraction()} closely follows \code{\link[janitor:round_to_fraction]{janitor::round_to_fraction()}}
 by first rounding to fractions of a whole number, then optionally rounding
 the result to a specific number of digits in the usual way.
 \item \code{reround_to_fraction_level()} rounds to the nearest fraction of a number
@@ -92,6 +93,6 @@ reround_to_fraction_level(0.12345, denominator = 2, digits = 1)
 reround_to_fraction_level(0.12345, denominator = 2, digits = 2)
 }
 \seealso{
-\code{reround()}, which the functions wrap, and
-\code{janitor::round_to_fraction()}, part of which they copy.
+\code{\link[=reround]{reround()}}, which the functions wrap, and
+\code{\link[janitor:round_to_fraction]{janitor::round_to_fraction()}}, part of which they copy.
 }
