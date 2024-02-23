@@ -88,34 +88,6 @@ pigs5 %>%
 
 Compared to `grim_map()`, `debit_map()` is more straightforward. There is no percentage conversion or accounting for multiple scale items. The same is true when comparing the basic `grim()` and `debit()` functions. However, both implementations tap scrutiny's arsenal of rounding procedures, so that is discussed next.
 
-### Rounding
-
-The scrutiny package provides infrastructure for reconstructing rounded numbers. All of that can be commanded from within `debit()` and `debit_map()`. Several arguments allow for stating the precise way in which the original numbers have supposedly been rounded.
-
-First and foremost is the `rounding` argument. It takes a string with the rounding procedure's name, which leads to the number being rounded in either of these ways:
-
-1.  Rounded `"up"` or `"down"` from 5. Note that SAS, SPSS, Stata, Matlab, and Excel round `"up"` from 5, whereas Python rounds `"down"` from 5.
-2.  Rounded to `"even"` using base R's own `round()`.
-3.  Rounded `"up_from"` or `"down_from"` some number, which then needs to be specified via the `threshold` argument.
-4.  Given a `"ceiling"` or `"floor"` at the respective decimal place.
-5.  Rounded towards zero with `"trunc"` or away from zero with `"anti_trunc"`.
-
-The default, `"up_or_down"`, allows for numbers rounded either `"up"` or `"down"` from 5 when using DEBIT; and likewise for `"up_from_or_down_from"` and `"ceiling_or_floor"`. For more about these procedures, see documentation for `round()`, `round_up()`, and `round_ceiling()`. These include all of the above ways of rounding.
-
-Points 3 to 5 above list some quite obscure options that were only included to cover a wide spectrum of possible rounding procedures. The same is true for the `threshold` and `symmetric` arguments, so these aren't discussed here any further.
-
-By default, `debit()` and `debit_map()` accept values rounded either up or down from 5. If you have reason to impose stricter assumptions on the way `x` was rounded, specify `rounding` accordingly:
-
-```{r}
-pigs3 %>% 
-  debit_map(rounding = "up")
-
-pigs3 %>% 
-  debit_map(rounding = "even")
-```
-
-Although changing the rounding procedure didn't make any difference for the DEBIT consistency here, it is important to account for the different ways in which numbers might be rounded, if only to demonstrate that some given results are robust to those variable decisions. To err on the side of caution, the default for `rounding` is the permissive `"up_or_down"`.
-
 ## Summarizing results with `audit()`
 
 Following up on a call to `debit_map()`, the generic function `audit()` summarizes test results:

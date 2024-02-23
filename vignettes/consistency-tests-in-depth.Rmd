@@ -66,7 +66,7 @@ schlim_scalar(y = 30, n = 4)
 schlim_scalar(y = 2, n = 7)
 ```
 
-Other arguments might still be necessary, especially if your function reconstructs rounded numbers. An argument that determines how the function will round numbers should be called `rounding`. The function should then internally call `reround()`. The same goes for "unrounding" (i.e., reconstructing rounding bounds) and `unround()`. See also `vignette("rounding")`. A single-case function that performs rounding will also need a helper to count decimal places, which should be `decimal_places_scalar()`.
+Other arguments might still be necessary, especially if your function reconstructs rounded numbers. An argument that determines how the function will round numbers should be called `rounding`. The function should then internally call `reround()`. The same goes for "unrounding" (i.e., reconstructing rounding bounds) and `unround()`. See also `vignette("rounding-in-depth")`. A single-case function that performs rounding will also need a helper to count decimal places, which should be `decimal_places_scalar()`.
 
 The function's name is that of the test in lowercase, followed by `_scalar` which refers to the one-case limit. If your function happens to be applicable to multiple value sets already due to R's natural vectorization, leave out `_scalar` and skip the next section. If you're building a package, export the function. (This will rarely be the case because every single argument needs to be vectorized.)
 
