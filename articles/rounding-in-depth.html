@@ -568,36 +568,36 @@ harmless one:</p>
 <code class="sourceCode R"><span><span class="va">vec4</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">50000</span>, <span class="fl">100</span>, <span class="fl">15</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/rounding_bias.html">rounding_bias</a></span><span class="op">(</span><span class="va">vec4</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 1.237886e-05</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 9.759863e-07</span></span></code></pre></div>
 <p>What is responsible for such a difference? It seems to be (1) the
 sample size and (2) the number of decimal places to which the vector is
 rounded. The rounding method doesn’t appear to matter if numbers with
 many decimal places are rounded:</p>
 <pre><code><span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 10 × 3</span></span></span>
-<span><span class="co">#&gt;            bias decimal_digits rounding</span></span>
-<span><span class="co">#&gt;           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 0.000<span style="text-decoration: underline;">174</span>     1 up           up      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 0.000<span style="text-decoration: underline;">012</span>4    2 up           up      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 0.000<span style="text-decoration: underline;">000</span>058<span style="text-decoration: underline;">9</span> 3 up           up      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 0.000<span style="text-decoration: underline;">000</span>031<span style="text-decoration: underline;">1</span> 4 up           up      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 0.000<span style="text-decoration: underline;">000</span>014<span style="text-decoration: underline;">3</span> 5 up           up      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 0.000<span style="text-decoration: underline;">174</span>     1 even         even    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 0.000<span style="text-decoration: underline;">012</span>4    2 even         even    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 0.000<span style="text-decoration: underline;">000</span>058<span style="text-decoration: underline;">9</span> 3 even         even    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 0.000<span style="text-decoration: underline;">000</span>031<span style="text-decoration: underline;">1</span> 4 even         even    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 0.000<span style="text-decoration: underline;">000</span>014<span style="text-decoration: underline;">3</span> 5 even         even</span></span></code></pre>
+<span><span class="co">#&gt;             bias decimal_digits rounding</span></span>
+<span><span class="co">#&gt;            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 0.000<span style="text-decoration: underline;">139</span>      1 up           up      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 0.000<span style="text-decoration: underline;">000</span>976   2 up           up      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 0.000<span style="text-decoration: underline;">000</span>796   3 up           up      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 0.000<span style="text-decoration: underline;">000</span>136   4 up           up      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 0.000<span style="text-decoration: underline;">000</span>007<span style="text-decoration: underline;">01</span> 5 up           up      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 0.000<span style="text-decoration: underline;">139</span>      1 even         even    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 0.000<span style="text-decoration: underline;">000</span>976   2 even         even    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 0.000<span style="text-decoration: underline;">000</span>796   3 even         even    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 0.000<span style="text-decoration: underline;">000</span>136   4 even         even    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 0.000<span style="text-decoration: underline;">000</span>007<span style="text-decoration: underline;">01</span> 5 even         even</span></span></code></pre>
 <p><img src="rounding-in-depth_files/figure-html/unnamed-chunk-18-1.png" width="700"></p>
 <p>However, if the raw values are preliminarily rounded to 2 decimal
 places before rounding proceeds as above, the picture is different:</p>
 <pre><code><span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 10 × 3</span></span></span>
 <span><span class="co">#&gt;        bias decimal_digits rounding</span></span>
 <span><span class="co">#&gt;       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 0.005<span style="text-decoration: underline;">20</span>  1 up           up      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 0.005<span style="text-decoration: underline;">22</span>  1 up           up      </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 0        2 up           up      </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 0        3 up           up      </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 0        4 up           up      </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 0        5 up           up      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 0.000<span style="text-decoration: underline;">188</span> 1 even         even    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 0.000<span style="text-decoration: underline;">292</span> 1 even         even    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 0        2 even         even    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 0        3 even         even    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 0        4 even         even    </span></span>

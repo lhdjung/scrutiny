@@ -159,11 +159,11 @@ available via scrutiny:</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 3</span></span></span>
 <span><span class="co">#&gt;   x     sd        n</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0.94  0.25   <span style="text-decoration: underline;">1</span>000</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0.72  0.06   <span style="text-decoration: underline;">1</span>000</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 0.21  0.30   <span style="text-decoration: underline;">1</span>000</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 0.70  0.27   <span style="text-decoration: underline;">1</span>000</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 0.78  0.25   <span style="text-decoration: underline;">1</span>000</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0.82  0.10   <span style="text-decoration: underline;">1</span>000</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0.60  0.00   <span style="text-decoration: underline;">1</span>000</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 0.41  0.26   <span style="text-decoration: underline;">1</span>000</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 0.44  0.29   <span style="text-decoration: underline;">1</span>000</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 0.74  0.30   <span style="text-decoration: underline;">1</span>000</span></span></code></pre></div>
 <p>Now, simply run <code><a href="../reference/debit_map.html">debit_map()</a></code> on that data frame:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">flying_pigs</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
@@ -171,11 +171,11 @@ available via scrutiny:</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 11</span></span></span>
 <span><span class="co">#&gt;   x     sd        n consistency rounding   sd_lower sd_incl_lower sd_upper</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0.94  0.25   <span style="text-decoration: underline;">1</span>000 TRUE        up_or_down    0.245 TRUE             0.255</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0.72  0.06   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_down    0.055 TRUE             0.065</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 0.21  0.30   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_down    0.295 TRUE             0.305</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 0.70  0.27   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_down    0.265 TRUE             0.275</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 0.78  0.25   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_down    0.245 TRUE             0.255</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0.82  0.10   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_down    0.095 TRUE             0.105</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0.60  0.00   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_down   -<span style="color: #BB0000;">0.005</span> TRUE             0.005</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 0.41  0.26   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_down    0.255 TRUE             0.265</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 0.44  0.29   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_down    0.285 TRUE             0.295</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 0.74  0.30   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_down    0.295 TRUE             0.305</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 3 more variables: sd_incl_upper &lt;lgl&gt;, x_lower &lt;dbl&gt;, x_upper &lt;dbl&gt;</span></span></span></code></pre></div>
 <p>The <code>x</code>, <code>sd</code>, and <code>n</code> columns are
 the same as in the input. The main result, <code>consistency</code>, is
