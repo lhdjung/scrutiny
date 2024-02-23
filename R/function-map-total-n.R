@@ -208,19 +208,19 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 #'   The factory-made function will also have dots, `...`, to pass arguments
 #'   down to `.fun`, i.e., the basic mapper function.
 
-#' @section Conventions: The name of a function manufactured with
-#'   `function_map_total_n()` should mechanically follow from that of the input
-#'   function. For example, `grim_map_total_n()` derives from `grim_map()`. This
-#'   pattern fits best if the input function itself is named after the test it
-#'   performs on a data frame, followed by `_map`: `grim_map()` applies GRIM,
-#'   `grimmer_map()` applies GRIMMER, etc.
+#' @section Conventions: The name of a function returned by
+#'   `function_map_total_n()` should mechanically follow from that of
+#'   the input function. For example, [`grim_map_total_n()`] derives
+#'   from [`grim_map()`]. This pattern fits best if the input function itself
+#'   is named after the test it performs on a data frame, followed by `_map`:
+#'   [`grim_map()`] applies GRIM, [`grimmer_map()`] applies GRIMMER, etc.
 #'
 #'   Much the same is true for the classes of data frames returned by the
 #'   manufactured function via the `.name_class` argument of
-#'   `function_map_total_n()`. It should be the function's own name preceded by
-#'   the name of the package that contains it or by an acronym of that package's
-#'   name. In this way, some existing classes are `scr_grim_map_total_n` and
-#'   `scr_grimmer_map_total_n`.
+#'   `function_map_total_n()`. It should be the function's own name preceded
+#'   by the name of the package that contains it, or by an acronym of that
+#'   package's name. Therefore, some existing classes are
+#'   `scr_grim_map_total_n` and `scr_grimmer_map_total_n`.
 
 #' @seealso [`function_map_seq()`]
 #'

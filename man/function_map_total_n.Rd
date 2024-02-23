@@ -90,19 +90,19 @@ operator because it also takes functions as inputs, such as \code{\link[=grim_ma
 See Wickham (2019), ch. 10-11.
 }
 \section{Conventions}{
- The name of a function manufactured with
-\code{function_map_total_n()} should mechanically follow from that of the input
-function. For example, \code{grim_map_total_n()} derives from \code{grim_map()}. This
-pattern fits best if the input function itself is named after the test it
-performs on a data frame, followed by \verb{_map}: \code{grim_map()} applies GRIM,
-\code{grimmer_map()} applies GRIMMER, etc.
+ The name of a function returned by
+\code{function_map_total_n()} should mechanically follow from that of
+the input function. For example, \code{\link[=grim_map_total_n]{grim_map_total_n()}} derives
+from \code{\link[=grim_map]{grim_map()}}. This pattern fits best if the input function itself
+is named after the test it performs on a data frame, followed by \verb{_map}:
+\code{\link[=grim_map]{grim_map()}} applies GRIM, \code{\link[=grimmer_map]{grimmer_map()}} applies GRIMMER, etc.
 
 Much the same is true for the classes of data frames returned by the
 manufactured function via the \code{.name_class} argument of
-\code{function_map_total_n()}. It should be the function's own name preceded by
-the name of the package that contains it or by an acronym of that package's
-name. In this way, some existing classes are \code{scr_grim_map_total_n} and
-\code{scr_grimmer_map_total_n}.
+\code{function_map_total_n()}. It should be the function's own name preceded
+by the name of the package that contains it, or by an acronym of that
+package's name. Therefore, some existing classes are
+\code{scr_grim_map_total_n} and \code{scr_grimmer_map_total_n}.
 }
 
 \examples{

@@ -7,15 +7,22 @@
 write_doc_factory_map_conventions(
   ending,
   name_test1 = "GRIM",
-  name_test2 = "GRIMMER"
+  name_test2 = "GRIMMER",
+  scrutiny_prefix = FALSE
 )
 }
 \arguments{
 \item{ending}{String (length 1). The part of your function factory's name
 after \code{function_map_}. To}
 
-\item{name_test1, name_test2}{Strings (length 1). Plain-text names of example
-consistency tests. Defaults are \code{"GRIM"} and \code{"GRIMMER"}, respectively.}
+\item{name_test1, name_test2}{Strings (length 1 each). Plain-text names of
+example consistency tests. Defaults are \code{"GRIM"} and \code{"GRIMMER"},
+respectively.}
+
+\item{scrutiny_prefix}{Logical (length 1). Should the scrutiny functions
+mentioned in the output have a \verb{scrutiny::} namespace specification? Set
+this to \code{TRUE} if the output will go into another package's documentation.
+Default is \code{FALSE}.}
 }
 \value{
 A string vector formatted by \code{\link[glue:glue]{glue::glue()}}.

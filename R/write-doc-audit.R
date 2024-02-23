@@ -67,8 +67,6 @@ manage_var_ge_3 <- function(var_ge_3, prefix, suffix, segway = "as well as") {
 
 
 
-
-
 #' Documentation template for [`audit()`]
 #'
 #' @description `write_doc_audit()` creates a roxygen2 block section to be
@@ -209,7 +207,6 @@ write_doc_audit <- function(sample_output, name_test) {
 #'
 #' # For DEBIT and `debit_map_seq()`:
 #' write_doc_audit_seq(key_args = c("x", "sd", "n"), name_test = "DEBIT")
-
 
 write_doc_audit_seq <- function(key_args, name_test) {
 
@@ -425,8 +422,13 @@ write_doc_audit_total_n <- function(key_args, name_test) {
 #'
 #' @param ending String (length 1). The part of your function factory's name
 #'   after `function_map_`. To
-#' @param name_test1,name_test2 Strings (length 1). Plain-text names of example
-#'   consistency tests. Defaults are `"GRIM"` and `"GRIMMER"`, respectively.
+#' @param name_test1,name_test2 Strings (length 1 each). Plain-text names of
+#'   example consistency tests. Defaults are `"GRIM"` and `"GRIMMER"`,
+#'   respectively.
+#' @param scrutiny_prefix Logical (length 1). Should the scrutiny functions
+#'   mentioned in the output have a `scrutiny::` namespace specification? Set
+#'   this to `TRUE` if the output will go into another package's documentation.
+#'   Default is `FALSE`.
 #'
 #' @export
 #'
@@ -444,38 +446,61 @@ write_doc_audit_total_n <- function(key_args, name_test) {
 #' write_doc_factory_map_conventions(ending = "total_n")
 
 
-write_doc_factory_map_conventions <- function(ending, name_test1 = "GRIM",
-                                              name_test2 = "GRIMMER") {
+write_doc_factory_map_conventions <- function(ending,
+                                              name_test1 = "GRIM",
+                                              name_test2 = "GRIMMER",
+                                              scrutiny_prefix = FALSE) {
 
   # Checks ---
   check_length(ending, 1L)
   check_length(name_test1, 1L)
   check_length(name_test2, 1L)
 
+  if (ending == "") {
+    cli::cli_abort(c(
+      "Non-empty `ending` needed.",
+      "x" = "In particular, these conventions only apply to \\
+      specialized function factories, not to `function_map()`."
+    ))
+  }
+
   # Main part ---
 
-  if (ending != "") {
-    ending <- paste0("_", ending)
-  }
+  ending <- paste0("_", ending)
 
   name_test1_lower <- tolower(name_test1)
   name_test2_lower <- tolower(name_test2)
 
+  # Namespace specification:
+  scrutiny_ns <- if (scrutiny_prefix) {
+    "scrutiny::"
+  } else {
+    ""
+  }
+
+  # Prepare function and class names to be inserted below:
+  name_factory <- glue::glue("`function_map{ending}()`")
+  name_mapper_seq1 <- glue::glue("[`{scrutiny_ns}{name_test1_lower}_map{ending}()`]")
+  name_mapper_simple1 <- glue::glue("[`{scrutiny_ns}{name_test1_lower}_map()`]")
+  name_mapper_simple2 <- glue::glue("[`{scrutiny_ns}{name_test2_lower}_map()`]")
+  name_class_special1 <- glue::glue("`scr_{name_test1_lower}_map{ending}`")
+  name_class_special2 <- glue::glue("`scr_{name_test2_lower}_map{ending}`")
+
   # Return documentation section:
   glue::glue(
-    "#' @section Conventions: The name of a function manufactured with \n",
-    "#'   `function_map{ending}()` should mechanically follow from that of the input \n",
-    "#'   function. For example, `{name_test1_lower}_map{ending}()` derives from `{name_test1_lower}_map()`. \n",
-    "#'   This pattern fits best if the input function itself is named after the test \n",
-    "#'   it performs on a data frame, followed by `_map`: `{name_test1_lower}_map()` applies {name_test1}, \n",
-    "#'   `{name_test2_lower}_map()` applies {name_test2}, etc. \n",
+    "#' @section Conventions: The name of a function returned by \n",
+    "#'   {name_factory} should mechanically follow from that of \n",
+    "#'   the input function. For example, {name_mapper_seq1} derives \n",
+    "#'   from {name_mapper_simple1}. This pattern fits best if the input function itself \n",
+    "#'   is named after the test it performs on a data frame, followed by `_map`: \n",
+    "#'   {name_mapper_simple1} applies {name_test1}, {name_mapper_simple2} applies {name_test2}, etc. \n",
     "#' \n",
     "#'   Much the same is true for the classes of data frames returned by the \n",
     "#'   manufactured function via the `.name_class` argument of \n",
-    "#'   `function_map{ending}()`. It should be the function's own name preceded by \n",
-    "#'   the name of the package that contains it or by an acronym of that package's \n",
-    "#'   name. In this way, some existing classes are `scr_{name_test1_lower}_map{ending}` and \n",
-    "#'   `scr_{name_test2_lower}_map{ending}`. \n"
+    "#'   {name_factory}. It should be the function's own name preceded \n",
+    "#'   by the name of the package that contains it, or by an acronym of that \n",
+    "#'   package's name. Therefore, some existing classes are \n",
+    "#'   {name_class_special1} and {name_class_special2}. \n"
   )
 
 }

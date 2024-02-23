@@ -185,19 +185,19 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 
 #' @export
 
-#' @section Conventions: The name of a function manufactured with
-#'   `function_map_seq()` should mechanically follow from that of the input
-#'   function. For example, `grim_map_seq()` derives from `grim_map()`. This
-#'   pattern fits best if the input function itself is named after the test it
-#'   performs on a data frame, followed by `_map`: `grim_map()` applies GRIM,
-#'   `grimmer_map()` applies GRIMMER, etc.
+#' @section Conventions: The name of a function returned by
+#'   `function_map_seq()` should mechanically follow from that of
+#'   the input function. For example, [`grim_map_seq()`] derives
+#'   from [`grim_map()`]. This pattern fits best if the input function itself
+#'   is named after the test it performs on a data frame, followed by `_map`:
+#'   [`grim_map()`] applies GRIM, [`grimmer_map()`] applies GRIMMER, etc.
 #'
 #'   Much the same is true for the classes of data frames returned by the
 #'   manufactured function via the `.name_class` argument of
-#'   `function_map_seq()`. It should be the function's own name preceded by the
-#'   name of the package that contains it or by an acronym of that package's
-#'   name. In this way, some existing classes are `scr_grim_map_seq` and
-#'   `scr_grimmer_map_seq`.
+#'   `function_map_seq()`. It should be the function's own name preceded
+#'   by the name of the package that contains it, or by an acronym of that
+#'   package's name. Therefore, some existing classes are
+#'   `scr_grim_map_seq` and `scr_grimmer_map_seq`.
 
 #' @references Wickham, H. (2019). *Advanced R* (Second Edition). CRC
 #'   Press/Taylor and Francis Group. https://adv-r.hadley.nz/index.html
