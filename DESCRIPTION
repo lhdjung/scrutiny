@@ -79,6 +79,7 @@ Collate:
     'duplicate-count-colpair.R'
     'duplicate-count.R'
     'grim-granularity.R'
+    'grim-map-debug.R'
     'grim-map-seq.R'
     'grim-map-total-n.R'
     'grim-plot.R'
