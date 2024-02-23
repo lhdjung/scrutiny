@@ -8,8 +8,8 @@
 <meta name="description" content="scrutiny">
 <title>GRIMMER • scrutiny</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="GRIMMER">
 <meta property="og:description" content="scrutiny">
@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -49,10 +49,14 @@
     <h6 class="dropdown-header" data-toc-skip>Plausibility checks</h6>
     <a class="dropdown-item" href="../articles/duplicates.html">Duplication analysis</a>
     <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Quick guides</h6>
+    <a class="dropdown-item" href="../articles/rounding-options.html">Rounding options</a>
+    <a class="dropdown-item" href="../articles/consistency-tests-simple.html">Implementing your consistency test</a>
+    <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Infrastructure</h6>
+    <a class="dropdown-item" href="../articles/rounding-in-depth.html">Rounding in depth</a>
+    <a class="dropdown-item" href="../articles/consistency-tests-in-depth.html">Consistency tests in depth</a>
     <a class="dropdown-item" href="../articles/infrastructure.html">General infrastructure</a>
-    <a class="dropdown-item" href="../articles/consistency-tests.html">Implementing consistency tests</a>
-    <a class="dropdown-item" href="../articles/rounding.html">Rounding</a>
     <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Other</h6>
@@ -163,7 +167,7 @@ will only describe an easily accessible solution for a single table.</p>
 <p>Copy summary data from a PDF file and paste them into
 <code><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tibble::tribble()</a></code>, which is available via scrutiny:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">flying_pigs1</span> <span class="op">&lt;-</span> <span class="fu">tribble</span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">flying_pigs1</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
 <span>  <span class="op">~</span><span class="va">x</span>,   <span class="op">~</span><span class="va">sd</span>,</span>
 <span><span class="st">"8.9"</span>,  <span class="st">"2.81"</span>,</span>
 <span><span class="st">"2.6"</span>,  <span class="st">"2.05"</span>,</span>
@@ -173,7 +177,7 @@ will only describe an easily accessible solution for a single table.</p>
 <span><span class="st">"10.4"</span>, <span class="st">"2.53"</span>,</span>
 <span><span class="st">"7.3"</span>,  <span class="st">"3.14"</span></span>
 <span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu">mutate</span><span class="op">(</span>n <span class="op">=</span> <span class="fl">25</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">25</span><span class="op">)</span></span></code></pre></div>
 <p>Use RStudio’s multiple cursors to draw quotation marks around all the
 <code>x</code> and <code>sd</code> values, and to set commas at the end.
 See <code><a href="../articles/wrangling.html">vignette("wrangling")</a></code>, section <em>With copy and
@@ -214,7 +218,7 @@ parameter to that number. Below are hypothetical means of a three-items
 scale. With the single-item default, half of these are wrongly flagged
 as inconsistent:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">jpap_1</span> <span class="op">&lt;-</span> <span class="fu">tribble</span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">jpap_1</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
 <span>   <span class="op">~</span><span class="va">x</span>,    <span class="op">~</span><span class="va">sd</span>,</span>
 <span>  <span class="st">"5.90"</span>, <span class="st">"2.19"</span>,</span>
 <span>  <span class="st">"5.71"</span>, <span class="st">"1.42"</span>,</span>
@@ -223,7 +227,7 @@ as inconsistent:</p>
 <span>  <span class="st">"4.61"</span>, <span class="st">"1.92"</span>,</span>
 <span>  <span class="st">"5.24"</span>, <span class="st">"2.51"</span>,</span>
 <span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu">mutate</span><span class="op">(</span>n <span class="op">=</span> <span class="fl">40</span><span class="op">)</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">40</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">jpap_1</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/grimmer_map.html">grimmer_map</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># default is wrong here!</span></span>
@@ -265,7 +269,7 @@ stated:</p>
 <p>It is also possible to include an <code>items</code> column in the
 data frame instead:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">jpap_2</span> <span class="op">&lt;-</span> <span class="fu">tribble</span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">jpap_2</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
 <span>   <span class="op">~</span><span class="va">x</span>,     <span class="op">~</span><span class="va">sd</span>,    <span class="op">~</span><span class="va">items</span>,</span>
 <span>  <span class="st">"6.92"</span>,  <span class="st">"2.19"</span>,  <span class="fl">1</span>,</span>
 <span>  <span class="st">"3.48"</span>,  <span class="st">"1.42"</span>,  <span class="fl">1</span>,</span>
@@ -274,7 +278,7 @@ data frame instead:</p>
 <span>  <span class="st">"4.04"</span>,  <span class="st">"1.92"</span>,  <span class="fl">3</span>,</span>
 <span>  <span class="st">"4.50"</span>,  <span class="st">"2.51"</span>,  <span class="fl">3</span>,</span>
 <span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu">mutate</span><span class="op">(</span>n <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">jpap_2</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/grimmer_map.html">grimmer_map</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -333,7 +337,7 @@ included to cover a wide spectrum of possible rounding procedures. The
 same is true for the <code>threshold</code> and <code>symmetric</code>
 parameters, so these aren’t discussed here any further. Learn more about
 scrutiny’s infrastructure for rounding at
-<code><a href="../articles/rounding.html">vignette("rounding")</a></code>.</p>
+<code>vignette("rounding")</code>.</p>
 <p>By default, <code><a href="../reference/grimmer.html">grimmer()</a></code> and <code><a href="../reference/grimmer_map.html">grimmer_map()</a></code>
 accept values rounded either up or down from 5. If you have reason to
 impose stricter assumptions on the way <code>x</code> and
@@ -380,7 +384,7 @@ scrutiny. However, <code><a href="../reference/grim_plot.html">grim_plot()</a></
 <code><a href="../reference/grimmer_map.html">grimmer_map()</a></code> just as well as that from
 <code><a href="../reference/grim_map.html">grim_map()</a></code>:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">jpap_5</span> <span class="op">&lt;-</span> <span class="fu">tribble</span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">jpap_5</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
 <span>  <span class="op">~</span><span class="va">x</span>,      <span class="op">~</span><span class="va">sd</span>,    <span class="op">~</span><span class="va">n</span>,</span>
 <span>  <span class="st">"7.19"</span>,  <span class="st">"1.19"</span>,  <span class="fl">54</span>,</span>
 <span>  <span class="st">"4.56"</span>,  <span class="st">"2.56"</span>,  <span class="fl">66</span>,</span>
@@ -399,16 +403,17 @@ scrutiny. However, <code><a href="../reference/grim_plot.html">grim_plot()</a></
 <span>  <span class="fu"><a href="../reference/grimmer_map.html">grimmer_map</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/grim_plot.html">grim_plot</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; → Also visualizing 3 GRIMMER inconsistencies.</span></span></code></pre></div>
-<p><img src="grimmer_files/figure-html/unnamed-chunk-10-1.png" width="576"></p>
+<p><img src="grimmer_files/figure-html/unnamed-chunk-9-1.png" width="576"></p>
 <p>However, <code><a href="../reference/grim_plot.html">grim_plot()</a></code> will fail with any object not
 returned by either of these two functions:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/grim_plot.html">grim_plot</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `grim_plot()`:</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> `grim_plot()` needs GRIM or GRIMMER test results.</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> `data` is not `grim_map()` or `grimmer_map()` output.</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> `data` is not the output of `grim_map()`, `grim_map_seq()`, or</span></span>
+<span><span class="co">#&gt;   `grim_map_total_n()`; or of the respective `grimmer_*()` functions.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> The only exception is an "empty" plot that shows the background raster but no</span></span>
-<span><span class="co">#&gt;   empirical test results. Create such a plot by setting `show_data` to `FALSE`.</span></span></code></pre></div>
+<span><span class="co">#&gt;   empirical test results. Create such a plot with `show_data = FALSE`.</span></span></code></pre></div>
 <p>See the <a href="https://lhdjung.github.io/scrutiny/articles/grim.html#visualizing-results-with-grim_plot">GRIM
 vignette section</a> on <code><a href="../reference/grim_plot.html">grim_plot()</a></code> for more
 information.</p>
@@ -425,19 +430,19 @@ surrounding the reported means and sample sizes:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">out_seq1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grimmer_map_seq.html">grimmer_map_seq</a></span><span class="op">(</span><span class="va">pigs5</span><span class="op">)</span></span>
 <span><span class="va">out_seq1</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 180 × 7</span></span></span>
-<span><span class="co">#&gt;    x     sd        n consistency reason             case var  </span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 7.17  5.30     38 FALSE       GRIM inconsistent     1 x    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 7.18  5.30     38 TRUE        Passed all            1 x    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 7.19  5.30     38 FALSE       GRIM inconsistent     1 x    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 7.20  5.30     38 FALSE       GRIM inconsistent     1 x    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 7.21  5.30     38 TRUE        Passed all            1 x    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 7.23  5.30     38 FALSE       GRIM inconsistent     1 x    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 7.24  5.30     38 TRUE        Passed all            1 x    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 7.25  5.30     38 FALSE       GRIM inconsistent     1 x    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 7.26  5.30     38 TRUE        Passed all            1 x    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 7.27  5.30     38 FALSE       GRIM inconsistent     1 x    </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 180 × 8</span></span></span>
+<span><span class="co">#&gt;    x     sd        n consistency reason            diff_var  case var  </span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 7.17  5.30     38 FALSE       GRIM inconsistent       -<span style="color: #BB0000;">5</span>     1 x    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 7.18  5.30     38 TRUE        Passed all              -<span style="color: #BB0000;">4</span>     1 x    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 7.19  5.30     38 FALSE       GRIM inconsistent       -<span style="color: #BB0000;">3</span>     1 x    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 7.20  5.30     38 FALSE       GRIM inconsistent       -<span style="color: #BB0000;">2</span>     1 x    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 7.21  5.30     38 TRUE        Passed all              -<span style="color: #BB0000;">1</span>     1 x    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 7.23  5.30     38 FALSE       GRIM inconsistent        1     1 x    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 7.24  5.30     38 TRUE        Passed all               2     1 x    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 7.25  5.30     38 FALSE       GRIM inconsistent        3     1 x    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 7.26  5.30     38 TRUE        Passed all               4     1 x    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 7.27  5.30     38 FALSE       GRIM inconsistent        5     1 x    </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 170 more rows</span></span></span></code></pre></div>
 <div class="section level4">
 <h4 id="summaries-with-audit_seq">Summaries with <code>audit_seq()</code><a class="anchor" aria-label="anchor" href="#summaries-with-audit_seq"></a>
@@ -448,16 +453,16 @@ the results:</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/audit-special.html">audit_seq</a></span><span class="op">(</span><span class="va">out_seq1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 17</span></span></span>
 <span><span class="co">#&gt;   x     sd        n consistency hits_total hits_x hits_sd hits_n diff_x</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 7.22  5.30     38 FALSE                8      4       0      4      1</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 5.23  2.55     35 FALSE               16      2      10      4      3</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2.57  2.57     30 FALSE               11      1       8      2      3</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 6.77  2.18     33 FALSE                6      4       0      2      1</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 7.01  6.68     35 FALSE                4      4       0      0      1</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 3.14  5.32     33 FALSE                9      4       0      5      1</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 8 more variables: diff_x_up &lt;dbl&gt;, diff_x_down &lt;dbl&gt;, diff_sd &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   diff_sd_up &lt;dbl&gt;, diff_sd_down &lt;dbl&gt;, diff_n &lt;dbl&gt;, diff_n_up &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   diff_n_down &lt;dbl&gt;</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 8 more variables: diff_x_up &lt;int&gt;, diff_x_down &lt;int&gt;, diff_sd &lt;int&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   diff_sd_up &lt;int&gt;, diff_sd_down &lt;int&gt;, diff_n &lt;int&gt;, diff_n_up &lt;int&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   diff_n_down &lt;int&gt;</span></span></span></code></pre></div>
 <p>Here is what the output columns mean:</p>
 <ul>
 <li><p><code>x</code> and <code>n</code> are the original inputs,
@@ -481,16 +486,16 @@ longer, the number of hits tends to increase:</p>
 <span><span class="fu"><a href="../reference/audit-special.html">audit_seq</a></span><span class="op">(</span><span class="va">out_seq2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 17</span></span></span>
 <span><span class="co">#&gt;   x     sd        n consistency hits_total hits_x hits_sd hits_n diff_x</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 7.22  5.30     38 FALSE               15      8       0      7      1</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 5.23  2.55     35 FALSE               32      6      19      7      3</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2.57  2.57     30 FALSE               24      3      16      5      3</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 6.77  2.18     33 FALSE               11      7       0      4      1</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 7.01  6.68     35 FALSE                8      8       0      0      1</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 3.14  5.32     33 FALSE               14      7       0      7      1</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 8 more variables: diff_x_up &lt;dbl&gt;, diff_x_down &lt;dbl&gt;, diff_sd &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   diff_sd_up &lt;dbl&gt;, diff_sd_down &lt;dbl&gt;, diff_n &lt;dbl&gt;, diff_n_up &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   diff_n_down &lt;dbl&gt;</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 8 more variables: diff_x_up &lt;int&gt;, diff_x_down &lt;int&gt;, diff_sd &lt;int&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   diff_sd_up &lt;int&gt;, diff_sd_down &lt;int&gt;, diff_n &lt;int&gt;, diff_n_up &lt;int&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   diff_n_down &lt;int&gt;</span></span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="visualizing-grimmer-tested-sequences">Visualizing GRIMMER-tested sequences<a class="anchor" aria-label="anchor" href="#visualizing-grimmer-tested-sequences"></a>
@@ -502,7 +507,7 @@ consistent:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/grim_plot.html">grim_plot</a></span><span class="op">(</span><span class="va">out_seq1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; → Also visualizing 4 GRIMMER inconsistencies.</span></span></code></pre></div>
-<p><img src="grimmer_files/figure-html/unnamed-chunk-15-1.png" width="576"></p>
+<p><img src="grimmer_files/figure-html/unnamed-chunk-14-1.png" width="576"></p>
 <p>The crosses appear because <code><a href="../reference/grimmer_map_seq.html">grimmer_map_seq()</a></code> creates
 sequences around both <code>x</code> and <code>n</code>. Restrict this
 process to any one of these with the <code>var</code> argument:</p>
@@ -512,11 +517,11 @@ process to any one of these with the <code>var</code> argument:</p>
 <span></span>
 <span><span class="fu"><a href="../reference/grim_plot.html">grim_plot</a></span><span class="op">(</span><span class="va">out_seq1_only_x</span><span class="op">)</span></span>
 <span><span class="co">#&gt; → Also visualizing 1 GRIMMER inconsistency.</span></span></code></pre></div>
-<p><img src="grimmer_files/figure-html/unnamed-chunk-16-1.png" width="576"></p>
+<p><img src="grimmer_files/figure-html/unnamed-chunk-15-1.png" width="576"></p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/grim_plot.html">grim_plot</a></span><span class="op">(</span><span class="va">out_seq1_only_n</span><span class="op">)</span></span>
 <span><span class="co">#&gt; → Also visualizing 1 GRIMMER inconsistency.</span></span></code></pre></div>
-<p><img src="grimmer_files/figure-html/unnamed-chunk-16-2.png" width="576"></p>
+<p><img src="grimmer_files/figure-html/unnamed-chunk-15-2.png" width="576"></p>
 </div>
 </div>
 <div class="section level3">
@@ -548,7 +553,7 @@ Francis 2021)</span>.</p>
 <span><span class="va">out_total_n</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 48 × 9</span></span></span>
 <span><span class="co">#&gt;    x     sd        n n_change consistency both_consistent reason      case dir  </span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span></span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 3.43  1.09     35        0 FALSE       FALSE           GRIMMER i…     1 forth</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 5.28  2.12     35        0 FALSE       FALSE           GRIM inco…     1 forth</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 3.43  1.09     34       -<span style="color: #BB0000;">1</span> FALSE       FALSE           GRIM inco…     1 forth</span></span>
@@ -564,7 +569,7 @@ Francis 2021)</span>.</p>
 <span><span class="fu"><a href="../reference/audit-special.html">audit_total_n</a></span><span class="op">(</span><span class="va">out_total_n</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 10</span></span></span>
 <span><span class="co">#&gt;   x1    x2    sd1   sd2       n hits_total hits_forth hits_back scenarios_total</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 3.43  5.28  1.09  2.12     70          1          1         0              12</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 2.97  4.42  0.43  1.65     65          1          0         1              12</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1 more variable: hit_rate &lt;dbl&gt;</span></span></span></code></pre></div>

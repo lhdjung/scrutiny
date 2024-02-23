@@ -8,8 +8,8 @@
 <meta name="description" content="scrutiny">
 <title>DEBIT • scrutiny</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="DEBIT">
 <meta property="og:description" content="scrutiny">
@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -49,10 +49,14 @@
     <h6 class="dropdown-header" data-toc-skip>Plausibility checks</h6>
     <a class="dropdown-item" href="../articles/duplicates.html">Duplication analysis</a>
     <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Quick guides</h6>
+    <a class="dropdown-item" href="../articles/rounding-options.html">Rounding options</a>
+    <a class="dropdown-item" href="../articles/consistency-tests-simple.html">Implementing your consistency test</a>
+    <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Infrastructure</h6>
+    <a class="dropdown-item" href="../articles/rounding-in-depth.html">Rounding in depth</a>
+    <a class="dropdown-item" href="../articles/consistency-tests-in-depth.html">Consistency tests in depth</a>
     <a class="dropdown-item" href="../articles/infrastructure.html">General infrastructure</a>
-    <a class="dropdown-item" href="../articles/consistency-tests.html">Implementing consistency tests</a>
-    <a class="dropdown-item" href="../articles/rounding.html">Rounding</a>
     <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Other</h6>
@@ -144,7 +148,7 @@ on the data frame. Below are the example data from Heathers and Brown’s
 PDF file and paste them into <code><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tibble::tribble()</a></code>, which is
 available via scrutiny:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">flying_pigs</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">flying_pigs</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
 <span>    x  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">0.2</span>, <span class="fl">1</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/restore_zeros.html">restore_zeros</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>    sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">0</span>, <span class="fl">0.3</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/restore_zeros.html">restore_zeros</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>    n <span class="op">=</span> <span class="fl">1000</span></span>
@@ -155,11 +159,11 @@ available via scrutiny:</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 3</span></span></span>
 <span><span class="co">#&gt;   x     sd        n</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0.83  0.08   <span style="text-decoration: underline;">1</span>000</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0.46  0.27   <span style="text-decoration: underline;">1</span>000</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 0.88  0.13   <span style="text-decoration: underline;">1</span>000</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 0.43  0.20   <span style="text-decoration: underline;">1</span>000</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 0.38  0.25   <span style="text-decoration: underline;">1</span>000</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0.52  0.03   <span style="text-decoration: underline;">1</span>000</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0.88  0.15   <span style="text-decoration: underline;">1</span>000</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 0.57  0.02   <span style="text-decoration: underline;">1</span>000</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 0.99  0.24   <span style="text-decoration: underline;">1</span>000</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 0.47  0.26   <span style="text-decoration: underline;">1</span>000</span></span></code></pre></div>
 <p>Now, simply run <code><a href="../reference/debit_map.html">debit_map()</a></code> on that data frame:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">flying_pigs</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
@@ -167,11 +171,11 @@ available via scrutiny:</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 11</span></span></span>
 <span><span class="co">#&gt;   x     sd        n consistency rounding   sd_lower sd_incl_lower sd_upper</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0.83  0.08   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_down    0.075 TRUE             0.085</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0.46  0.27   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_down    0.265 TRUE             0.275</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 0.88  0.13   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_down    0.125 TRUE             0.135</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 0.43  0.20   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_down    0.195 TRUE             0.205</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 0.38  0.25   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_down    0.245 TRUE             0.255</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0.52  0.03   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_down    0.025 TRUE             0.035</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0.88  0.15   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_down    0.145 TRUE             0.155</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 0.57  0.02   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_down    0.015 TRUE             0.025</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 0.99  0.24   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_down    0.235 TRUE             0.245</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 0.47  0.26   <span style="text-decoration: underline;">1</span>000 FALSE       up_or_down    0.255 TRUE             0.265</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 3 more variables: sd_incl_upper &lt;lgl&gt;, x_lower &lt;dbl&gt;, x_upper &lt;dbl&gt;</span></span></span></code></pre></div>
 <p>The <code>x</code>, <code>sd</code>, and <code>n</code> columns are
 the same as in the input. The main result, <code>consistency</code>, is
@@ -225,7 +229,7 @@ are such data, and fail if they are not:</p>
 <span></span>
 <span><span class="va">pigs5</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/debit_map.html">debit_map</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `check_debit_inputs()` at scrutiny/R/debit-table.R:48:2:</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `check_debit_inputs()`:</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> DEBIT only works with binary summary data.</span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Binary mean (`x`) values must range from 0 to 1.</span></span>
 <span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> 11 out of 12 `x` values are not in that range, starting with 7.22, 4.74, and</span></span>
@@ -358,7 +362,7 @@ output. It will fail otherwise.</p>
 <span><span class="va">pigs3</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/debit_map.html">debit_map</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/debit_plot.html">debit_plot</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="debit_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
+<p><img src="debit_files/figure-html/unnamed-chunk-9-1.png" width="700"></p>
 <p>DEBIT-consistent value pairs are blue, inconsistent ones red. The
 black arc is the DEBIT line: Given the sample size, the pairs of mean
 and SD values are DEBIT-consistent if and only if they cross this line.
@@ -375,10 +379,10 @@ this:</p>
 <code class="sourceCode R"><span><span class="va">pigs3</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/debit_map.html">debit_map</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/debit_plot.html">debit_plot</a></span><span class="op">(</span>show_outer_boxes <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="debit_files/figure-html/unnamed-chunk-11-1.png" width="700"></p>
+<p><img src="debit_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
 <p>Color settings and other ggplot2-typical options are available via
 arguments, as are settings handed down to
-<code><a href="https://rdrr.io/pkg/ggrepel/man/geom_text_repel.html" class="external-link">ggrepel::geom_text_repel()</a></code>, which creates the labels. For
+<code><a href="https://ggrepel.slowkow.com/reference/geom_text_repel.html" class="external-link">ggrepel::geom_text_repel()</a></code>, which creates the labels. For
 more, see <code><a href="../reference/debit_plot.html">debit_plot()</a></code>’s documentation.</p>
 </div>
 <div class="section level3">
@@ -393,7 +397,7 @@ surrounding the reported means, SDs, and sample sizes:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">out_seq1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/debit_map_seq.html">debit_map_seq</a></span><span class="op">(</span><span class="va">pigs3</span><span class="op">)</span></span>
 <span><span class="va">out_seq1</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 30 × 13</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 30 × 14</span></span></span>
 <span><span class="co">#&gt;    x     sd        n consistency rounding   sd_lower sd_incl_lower sd_upper</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 0.14  0.35   <span style="text-decoration: underline;">1</span>683 TRUE        up_or_down    0.345 TRUE             0.355</span></span>
@@ -407,8 +411,8 @@ surrounding the reported means, SDs, and sample sizes:</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 0.23  0.35   <span style="text-decoration: underline;">1</span>683 FALSE       up_or_down    0.345 TRUE             0.355</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 0.24  0.35   <span style="text-decoration: underline;">1</span>683 FALSE       up_or_down    0.345 TRUE             0.355</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 20 more rows</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 5 more variables: sd_incl_upper &lt;lgl&gt;, x_lower &lt;dbl&gt;, x_upper &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   case &lt;int&gt;, var &lt;chr&gt;</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 6 more variables: sd_incl_upper &lt;lgl&gt;, x_lower &lt;dbl&gt;, x_upper &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   diff_var &lt;int&gt;, case &lt;int&gt;, var &lt;chr&gt;</span></span></span></code></pre></div>
 <div class="section level4">
 <h4 id="summaries-with-audit_seq">Summaries with <code>audit_seq()</code><a class="anchor" aria-label="anchor" href="#summaries-with-audit_seq"></a>
 </h4>
@@ -418,11 +422,11 @@ the results:</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/audit-special.html">audit_seq</a></span><span class="op">(</span><span class="va">out_seq1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 17</span></span></span>
 <span><span class="co">#&gt;   x     sd        n consistency hits_total hits_x hits_sd hits_n diff_x</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0.19  0.35   <span style="text-decoration: underline;">1</span>683 FALSE                4      2       2      0      4</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 8 more variables: diff_x_up &lt;dbl&gt;, diff_x_down &lt;dbl&gt;, diff_sd &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   diff_sd_up &lt;dbl&gt;, diff_sd_down &lt;dbl&gt;, diff_n &lt;dbl&gt;, diff_n_up &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   diff_n_down &lt;dbl&gt;</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 8 more variables: diff_x_up &lt;int&gt;, diff_x_down &lt;int&gt;, diff_sd &lt;int&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   diff_sd_up &lt;int&gt;, diff_sd_down &lt;int&gt;, diff_n &lt;int&gt;, diff_n_up &lt;int&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   diff_n_down &lt;int&gt;</span></span></span></code></pre></div>
 <p>Here is what the output columns mean:</p>
 <ul>
 <li><p><code>x</code>, <code>sd</code>, and <code>n</code> are the
@@ -448,17 +452,17 @@ longer, the number of hits tends to increase:</p>
 <span><span class="fu"><a href="../reference/audit-special.html">audit_seq</a></span><span class="op">(</span><span class="va">out_seq2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 7 × 17</span></span></span>
 <span><span class="co">#&gt;   x     sd        n consistency hits_total hits_x hits_sd hits_n diff_x</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0.53  0.50   <span style="text-decoration: underline;">1</span>683 TRUE                25     11       0     14      1</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0.44  0.50   <span style="text-decoration: underline;">1</span>683 TRUE                22      8       0     14      1</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 0.77  0.42   <span style="text-decoration: underline;">1</span>683 TRUE                16      2       0     14      1</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 0.19  0.35   <span style="text-decoration: underline;">1</span>683 FALSE                4      2       2      0      4</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 0.34  0.47   <span style="text-decoration: underline;">1</span>683 TRUE                17      2       1     14      1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 0.93  0.25   <span style="text-decoration: underline;">1</span>683 TRUE                16      2       1     14     <span style="color: #BB0000;">NA</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 0.93  0.25   <span style="text-decoration: underline;">1</span>683 TRUE                16      2       1     14      1</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 0.12  0.33   <span style="text-decoration: underline;">1</span>683 TRUE                16      1       1     14      1</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 8 more variables: diff_x_up &lt;dbl&gt;, diff_x_down &lt;dbl&gt;, diff_sd &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   diff_sd_up &lt;dbl&gt;, diff_sd_down &lt;dbl&gt;, diff_n &lt;dbl&gt;, diff_n_up &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   diff_n_down &lt;dbl&gt;</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 8 more variables: diff_x_up &lt;int&gt;, diff_x_down &lt;int&gt;, diff_sd &lt;int&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   diff_sd_up &lt;int&gt;, diff_sd_down &lt;int&gt;, diff_n &lt;int&gt;, diff_n_up &lt;int&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   diff_n_down &lt;int&gt;</span></span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="visualizing-debit-checked-sequences">Visualizing DEBIT-checked sequences<a class="anchor" aria-label="anchor" href="#visualizing-debit-checked-sequences"></a>
@@ -497,7 +501,7 @@ process, motivated by a recent GRIM analysis <span class="citation">(Bauer and F
 <span><span class="va">out_total_n</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 48 × 15</span></span></span>
 <span><span class="co">#&gt;    x     sd        n n_change consistency both_consistent rounding   sd_lower</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 0.30  0.17     35        0 FALSE       FALSE           up_or_down    0.165</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 0.28  0.10     35        0 FALSE       FALSE           up_or_down    0.095</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 0.30  0.17     34       -<span style="color: #BB0000;">1</span> FALSE       FALSE           up_or_down    0.165</span></span>
@@ -510,12 +514,12 @@ process, motivated by a recent GRIM analysis <span class="citation">(Bauer and F
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 0.28  0.10     39        4 FALSE       FALSE           up_or_down    0.095</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 38 more rows</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 7 more variables: sd_incl_lower &lt;lgl&gt;, sd_upper &lt;dbl&gt;, sd_incl_upper &lt;lgl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   x_lower &lt;dbl&gt;, x_upper &lt;dbl&gt;, case &lt;int&gt;, dir &lt;chr&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   x_lower &lt;dbl&gt;, x_upper &lt;dbl&gt;, case &lt;int&gt;, dir &lt;fct&gt;</span></span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/audit-special.html">audit_total_n</a></span><span class="op">(</span><span class="va">out_total_n</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 10</span></span></span>
 <span><span class="co">#&gt;   x1    x2    sd1   sd2       n hits_total hits_forth hits_back scenarios_total</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0.30  0.28  0.17  0.10     70          0          0         0              12</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0.41  0.39  0.09  0.15     65          0          0         0              12</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1 more variable: hit_rate &lt;dbl&gt;</span></span></span></code></pre></div>

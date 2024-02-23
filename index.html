@@ -9,8 +9,8 @@
 ">
 <title>Error detection in science • scrutiny</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Error detection in science">
 <meta property="og:description" content="Test published summary statistics for consistency and reconstruct some of the processes which created them. The package aims to make these methods easy to use in a tidyverse-friendly way, helping the new field of error detection go mainstream.
@@ -28,7 +28,7 @@
     
     <a class="navbar-brand me-2" href="index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,10 +51,14 @@
     <h6 class="dropdown-header" data-toc-skip>Plausibility checks</h6>
     <a class="dropdown-item" href="articles/duplicates.html">Duplication analysis</a>
     <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Quick guides</h6>
+    <a class="dropdown-item" href="articles/rounding-options.html">Rounding options</a>
+    <a class="dropdown-item" href="articles/consistency-tests-simple.html">Implementing your consistency test</a>
+    <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Infrastructure</h6>
+    <a class="dropdown-item" href="articles/rounding-in-depth.html">Rounding in depth</a>
+    <a class="dropdown-item" href="articles/consistency-tests-in-depth.html">Consistency tests in depth</a>
     <a class="dropdown-item" href="articles/infrastructure.html">General infrastructure</a>
-    <a class="dropdown-item" href="articles/consistency-tests.html">Implementing consistency tests</a>
-    <a class="dropdown-item" href="articles/rounding.html">Rounding</a>
     <a class="dropdown-item" href="articles/wrangling.html">Data wrangling</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Other</h6>
@@ -84,116 +88,121 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9">
-<!-- badges: end -->
 <div class="section level1">
-<div class="page-header"><h1 id="error-detection-in-science">Error detection in science<a class="anchor" aria-label="anchor" href="#error-detection-in-science"></a>
+<div class="page-header"><h1 id="scrutiny-error-detection-in-science">scrutiny: Error detection in science<a class="anchor" aria-label="anchor" href="#scrutiny-error-detection-in-science"></a>
 </h1></div>
 <p>The goal of scrutiny is to test published summary statistics for consistency using techniques like GRIM and to check their plausibility. The package makes these methods easy to use in a tidyverse-friendly way. It hopes to help the new field of error detection go mainstream.</p>
 <p>Besides ready-made tests, scrutiny features a complete system for implementing new consistency tests. It also has duplication analysis, more general infrastructure for implementing error detection techniques, as well as specialized data wrangling functions. See the <em>Articles</em> tab for vignettes.</p>
 <p>scrutiny is a work in progress. You are welcome to contribute with pull requests. However, please <a href="https://github.com/lhdjung/scrutiny/issues" class="external-link">open an issue</a> first.</p>
 <p>Install the package from CRAN:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">"scrutiny"</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"scrutiny"</span><span class="op">)</span></span></code></pre></div>
 <p>Alternatively, install the development version from GitHub:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"lhdjung/scrutiny"</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"lhdjung/scrutiny"</span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="get-started">Get started<a class="anchor" aria-label="anchor" href="#get-started"></a>
 </h2>
 <p>Here is how to GRIM-test all values in a data frame. When using <code><a href="reference/grim_map.html">grim_map()</a></code>, the <code>consistency</code> column tells you if the means (<code>x</code>) and sample sizes (<code>n</code>) are mutually consistent.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scrutiny)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Example data:</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>pigs1</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 12 × 2</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    x         n</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    &lt;chr&gt; &lt;dbl&gt;</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  1 7.22     32</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  2 4.74     25</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  3 5.23     29</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  4 2.57     24</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  5 6.77     27</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  6 2.68     28</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  7 7.01     29</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  8 7.38     26</span></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  9 3.14     27</span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10 6.89     31</span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 11 5.00     25</span></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 12 0.24     28</span></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="co"># GRIM-testing for data frames:</span></span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="fu">grim_map</span>(pigs1)</span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 12 × 4</span></span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    x         n consistency ratio</span></span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    &lt;chr&gt; &lt;dbl&gt; &lt;lgl&gt;       &lt;dbl&gt;</span></span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  1 7.22     32 TRUE         0.68</span></span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  2 4.74     25 FALSE        0.75</span></span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  3 5.23     29 FALSE        0.71</span></span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  4 2.57     24 FALSE        0.76</span></span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  5 6.77     27 FALSE        0.73</span></span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  6 2.68     28 TRUE         0.72</span></span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  7 7.01     29 FALSE        0.71</span></span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  8 7.38     26 TRUE         0.74</span></span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  9 3.14     27 FALSE        0.73</span></span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10 6.89     31 FALSE        0.69</span></span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 11 5.00     25 TRUE         0.75</span></span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 12 0.24     28 FALSE        0.72</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lhdjung.github.io/scrutiny/">scrutiny</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Example data:</span></span>
+<span><span class="va">pigs1</span></span>
+<span><span class="co">#&gt; # A tibble: 12 × 2</span></span>
+<span><span class="co">#&gt;    x         n</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt; &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt;  1 7.22     32</span></span>
+<span><span class="co">#&gt;  2 4.74     25</span></span>
+<span><span class="co">#&gt;  3 5.23     29</span></span>
+<span><span class="co">#&gt;  4 2.57     24</span></span>
+<span><span class="co">#&gt;  5 6.77     27</span></span>
+<span><span class="co">#&gt;  6 2.68     28</span></span>
+<span><span class="co">#&gt;  7 7.01     29</span></span>
+<span><span class="co">#&gt;  8 7.38     26</span></span>
+<span><span class="co">#&gt;  9 3.14     27</span></span>
+<span><span class="co">#&gt; 10 6.89     31</span></span>
+<span><span class="co">#&gt; 11 5.00     25</span></span>
+<span><span class="co">#&gt; 12 0.24     28</span></span>
+<span></span>
+<span><span class="co"># GRIM-testing for data frames:</span></span>
+<span><span class="fu"><a href="reference/grim_map.html">grim_map</a></span><span class="op">(</span><span class="va">pigs1</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 12 × 4</span></span>
+<span><span class="co">#&gt;    x         n consistency ratio</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt; &lt;dbl&gt; &lt;lgl&gt;       &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt;  1 7.22     32 TRUE         0.68</span></span>
+<span><span class="co">#&gt;  2 4.74     25 FALSE        0.75</span></span>
+<span><span class="co">#&gt;  3 5.23     29 FALSE        0.71</span></span>
+<span><span class="co">#&gt;  4 2.57     24 FALSE        0.76</span></span>
+<span><span class="co">#&gt;  5 6.77     27 FALSE        0.73</span></span>
+<span><span class="co">#&gt;  6 2.68     28 TRUE         0.72</span></span>
+<span><span class="co">#&gt;  7 7.01     29 FALSE        0.71</span></span>
+<span><span class="co">#&gt;  8 7.38     26 TRUE         0.74</span></span>
+<span><span class="co">#&gt;  9 3.14     27 FALSE        0.73</span></span>
+<span><span class="co">#&gt; 10 6.89     31 FALSE        0.69</span></span>
+<span><span class="co">#&gt; 11 5.00     25 TRUE         0.75</span></span>
+<span><span class="co">#&gt; 12 0.24     28 FALSE        0.72</span></span></code></pre></div>
 <p>Test percentages instead of means:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>pigs2</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 6 × 2</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   x         n</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt; &lt;dbl&gt;</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 67.4    150</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 54.2    150</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 54.0    150</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 69.8    150</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5 68.1    150</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6 55.4    150</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="fu">grim_map</span>(pigs2, <span class="at">percent =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ℹ `x` converted from percentage</span></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 6 × 4</span></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   x         n consistency ratio</span></span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt; &lt;dbl&gt; &lt;lgl&gt;       &lt;dbl&gt;</span></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 0.674   150 FALSE        0.85</span></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 0.542   150 FALSE        0.85</span></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 0.540   150 TRUE         0.85</span></span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 0.698   150 FALSE        0.85</span></span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5 0.681   150 FALSE        0.85</span></span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6 0.554   150 FALSE        0.85</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pigs2</span></span>
+<span><span class="co">#&gt; # A tibble: 6 × 2</span></span>
+<span><span class="co">#&gt;   x         n</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt; &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 67.4    150</span></span>
+<span><span class="co">#&gt; 2 54.2    150</span></span>
+<span><span class="co">#&gt; 3 54.0    150</span></span>
+<span><span class="co">#&gt; 4 69.8    150</span></span>
+<span><span class="co">#&gt; 5 68.1    150</span></span>
+<span><span class="co">#&gt; 6 55.4    150</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/grim_map.html">grim_map</a></span><span class="op">(</span><span class="va">pigs2</span>, percent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ℹ `x` converted from percentage</span></span>
+<span><span class="co">#&gt; # A tibble: 6 × 4</span></span>
+<span><span class="co">#&gt;   x         n consistency ratio</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt; &lt;dbl&gt; &lt;lgl&gt;       &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 0.674   150 FALSE        0.85</span></span>
+<span><span class="co">#&gt; 2 0.542   150 FALSE        0.85</span></span>
+<span><span class="co">#&gt; 3 0.540   150 TRUE         0.85</span></span>
+<span><span class="co">#&gt; 4 0.698   150 FALSE        0.85</span></span>
+<span><span class="co">#&gt; 5 0.681   150 FALSE        0.85</span></span>
+<span><span class="co">#&gt; 6 0.554   150 FALSE        0.85</span></span></code></pre></div>
 <p>You can choose how the means are reconstructed for testing — below, rounded up from 5. When visualizing results, the plot will adjust automatically. Blue dots are consistent values, red dots are inconsistent ones:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>pigs1 <span class="sc">%&gt;%</span> </span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">grim_map</span>(<span class="at">rounding =</span> <span class="st">"up"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">grim_plot</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pigs1</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="reference/grim_map.html">grim_map</a></span><span class="op">(</span>rounding <span class="op">=</span> <span class="st">"up"</span><span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="reference/grim_plot.html">grim_plot</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-unnamed-chunk-5-1.png" width="75%"></p>
 <p>Similarly, use DEBIT to test means and standard deviations of binary data:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>pigs3</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 7 × 3</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   x     sd        n</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt; &lt;chr&gt; &lt;dbl&gt;</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 0.53  0.50   1683</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 0.44  0.50   1683</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 0.77  0.42   1683</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 0.19  0.35   1683</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5 0.34  0.47   1683</span></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6 0.93  0.25   1683</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 7 0.12  0.33   1683</span></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>pigs3 <span class="sc">%&gt;%</span> </span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">debit_map</span>()</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 7 × 11</span></span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   x     sd        n consistency rounding   sd_lower sd_incl_lower sd_upper</span></span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt; &lt;chr&gt; &lt;int&gt; &lt;lgl&gt;       &lt;chr&gt;         &lt;dbl&gt; &lt;lgl&gt;            &lt;dbl&gt;</span></span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 0.53  0.50   1683 TRUE        up_or_down    0.495 TRUE             0.505</span></span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 0.44  0.50   1683 TRUE        up_or_down    0.495 TRUE             0.505</span></span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 0.77  0.42   1683 TRUE        up_or_down    0.415 TRUE             0.425</span></span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 0.19  0.35   1683 FALSE       up_or_down    0.345 TRUE             0.355</span></span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5 0.34  0.47   1683 TRUE        up_or_down    0.465 TRUE             0.475</span></span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6 0.93  0.25   1683 TRUE        up_or_down    0.245 TRUE             0.255</span></span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 7 0.12  0.33   1683 TRUE        up_or_down    0.325 TRUE             0.335</span></span>
-<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # ℹ 3 more variables: sd_incl_upper &lt;lgl&gt;, x_lower &lt;dbl&gt;, x_upper &lt;dbl&gt;</span></span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>pigs3 <span class="sc">%&gt;%</span> </span>
-<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">debit_map</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">debit_plot</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pigs3</span></span>
+<span><span class="co">#&gt; # A tibble: 7 × 3</span></span>
+<span><span class="co">#&gt;   x     sd        n</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt; &lt;chr&gt; &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 0.53  0.50   1683</span></span>
+<span><span class="co">#&gt; 2 0.44  0.50   1683</span></span>
+<span><span class="co">#&gt; 3 0.77  0.42   1683</span></span>
+<span><span class="co">#&gt; 4 0.19  0.35   1683</span></span>
+<span><span class="co">#&gt; 5 0.34  0.47   1683</span></span>
+<span><span class="co">#&gt; 6 0.93  0.25   1683</span></span>
+<span><span class="co">#&gt; 7 0.12  0.33   1683</span></span>
+<span></span>
+<span><span class="va">pigs3</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="reference/debit_map.html">debit_map</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 7 × 11</span></span>
+<span><span class="co">#&gt;   x     sd        n consistency rounding   sd_lower sd_incl_lower sd_upper</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt; &lt;chr&gt; &lt;int&gt; &lt;lgl&gt;       &lt;chr&gt;         &lt;dbl&gt; &lt;lgl&gt;            &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 0.53  0.50   1683 TRUE        up_or_down    0.495 TRUE             0.505</span></span>
+<span><span class="co">#&gt; 2 0.44  0.50   1683 TRUE        up_or_down    0.495 TRUE             0.505</span></span>
+<span><span class="co">#&gt; 3 0.77  0.42   1683 TRUE        up_or_down    0.415 TRUE             0.425</span></span>
+<span><span class="co">#&gt; 4 0.19  0.35   1683 FALSE       up_or_down    0.345 TRUE             0.355</span></span>
+<span><span class="co">#&gt; 5 0.34  0.47   1683 TRUE        up_or_down    0.465 TRUE             0.475</span></span>
+<span><span class="co">#&gt; 6 0.93  0.25   1683 TRUE        up_or_down    0.245 TRUE             0.255</span></span>
+<span><span class="co">#&gt; 7 0.12  0.33   1683 TRUE        up_or_down    0.325 TRUE             0.335</span></span>
+<span><span class="co">#&gt; # ℹ 3 more variables: sd_incl_upper &lt;lgl&gt;, x_lower &lt;dbl&gt;, x_upper &lt;dbl&gt;</span></span>
+<span></span>
+<span><span class="va">pigs3</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="reference/debit_map.html">debit_map</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="reference/debit_plot.html">debit_plot</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-unnamed-chunk-6-1.png" width="75%"></p>
 </div>
 <div class="section level2">

@@ -3,7 +3,7 @@
 5. Otherwise, both functions work like base::round().
 round_up() and round_down() are special cases of round_up_from() and
 round_down_from(), which allow users to choose custom thresholds for
-rounding up or down, respectively."><title>Common rounding procedures — rounding-common • scrutiny</title><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous"><!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Common rounding procedures — rounding-common"><meta property="og:description" content="round_up() rounds up from 5, round_down() rounds down from
+rounding up or down, respectively."><title>Common rounding procedures — rounding-common • scrutiny</title><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous"><!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Common rounding procedures — rounding-common"><meta property="og:description" content="round_up() rounds up from 5, round_down() rounds down from
 5. Otherwise, both functions work like base::round().
 round_up() and round_down() are special cases of round_up_from() and
 round_down_from(), which allow users to choose custom thresholds for
@@ -18,7 +18,7 @@ rounding up or down, respectively."><!-- mathjax --><script src="https://cdnjs.c
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,10 +40,14 @@ rounding up or down, respectively."><!-- mathjax --><script src="https://cdnjs.c
     <h6 class="dropdown-header" data-toc-skip>Plausibility checks</h6>
     <a class="dropdown-item" href="../articles/duplicates.html">Duplication analysis</a>
     <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Quick guides</h6>
+    <a class="dropdown-item" href="../articles/rounding-options.html">Rounding options</a>
+    <a class="dropdown-item" href="../articles/consistency-tests-simple.html">Implementing your consistency test</a>
+    <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Infrastructure</h6>
+    <a class="dropdown-item" href="../articles/rounding-in-depth.html">Rounding in depth</a>
+    <a class="dropdown-item" href="../articles/consistency-tests-in-depth.html">Consistency tests in depth</a>
     <a class="dropdown-item" href="../articles/infrastructure.html">General infrastructure</a>
-    <a class="dropdown-item" href="../articles/consistency-tests.html">Implementing consistency tests</a>
-    <a class="dropdown-item" href="../articles/rounding.html">Rounding</a>
     <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Other</h6>
@@ -111,7 +115,7 @@ internal call to <code>round_down_from()</code>.</p></dd>
 
 
 <dt>symmetric</dt>
-<dd><p>Boolean. Set <code>symmetric</code> to <code>TRUE</code> if the rounding of
+<dd><p>Logical. Set <code>symmetric</code> to <code>TRUE</code> if the rounding of
 negative numbers should mirror that of positive numbers so that their
 absolute values are equal. Default is <code>FALSE</code>.</p></dd>
 
@@ -134,23 +138,21 @@ likewise with <code>round_down_from()</code>. The threshold is constant at <code
 floating-point number quirks than <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">base::round()</a></code>. Compare <code>round_down()</code>
 and <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">base::round()</a></code> in the data frame for rounding 5 created in the
 Examples section below: <code>round_down()</code> yields a continuous sequence of
-final digits from 0 to 9, whereas <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">base::round()</a></code> behaves in a way that can
-only be explained by floating point issues.</p>
+final digits from 0 to 9, whereas <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">base::round()</a></code> behaves in a way that
+can only be explained by floating point issues.</p>
 <p>However, this surprising behavior on the part of <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">base::round()</a></code> is not
 necessarily a flaw (see its documentation, or this vignette:
 https://rpubs.com/maechler/Rounding). In the present version of R (4.0.0 or
 later), <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">base::round()</a></code> works fine, and the functions presented here are
 not meant to replace it. Their main purpose as helpers within scrutiny is
 to reconstruct the computations of researchers who might have used
-different software. For example, SAS, SPSS, Stata, Matlab, and Excel round
-up from 5, whereas Python rounds down from 5. Other use cases might
-possibly include journal requirements.</p>
+different software. See <code><a href="../articles/rounding-options.html">vignette("rounding-options")</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="rounding-uncommon.html">round_ceiling()</a></code> always rounds up, <code><a href="rounding-uncommon.html">round_floor()</a></code> always rounds
-down, <code><a href="rounding-uncommon.html">round_trunc()</a></code> always rounds toward 0, and <code><a href="rounding-uncommon.html">round_anti_trunc()</a></code>
-always round away from 0.</p></div>
+    <div class="dont-index"><p><code><a href="rounding-uncommon.html">round_ceiling()</a></code> always rounds up, <code><a href="rounding-uncommon.html">round_floor()</a></code> always
+rounds down, <code><a href="rounding-uncommon.html">round_trunc()</a></code> always rounds toward 0, and
+<code><a href="rounding-uncommon.html">round_anti_trunc()</a></code> always round away from 0.</p></div>
     </div>
 
     <div class="section level2">
@@ -177,16 +179,16 @@ always round away from 0.</p></div>
 <span class="r-in"><span><span class="co"># Here is the borderline case of 5 rounded by</span></span></span>
 <span class="r-in"><span><span class="co"># `round_up()`, `round_down()`, and `base::round()`:</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">original</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>     <span class="co"># Define example values</span></span></span>
-<span class="r-in"><span>    <span class="fl">0.05</span>, <span class="fl">0.15</span>, <span class="fl">0.25</span>, <span class="fl">0.35</span>, <span class="fl">0.45</span>,</span></span>
-<span class="r-in"><span>    <span class="fl">0.55</span>, <span class="fl">0.65</span>, <span class="fl">0.75</span>, <span class="fl">0.85</span>, <span class="fl">0.95</span></span></span>
-<span class="r-in"><span>    <span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>        <span class="co"># Output table</span></span></span>
-<span class="r-in"><span>    <span class="va">original</span>,</span></span>
-<span class="r-in"><span>    round_up <span class="op">=</span> <span class="fu">round_up</span><span class="op">(</span>x <span class="op">=</span> <span class="va">original</span>, digits <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>    round_down <span class="op">=</span> <span class="fu">round_down</span><span class="op">(</span>x <span class="op">=</span> <span class="va">original</span>, digits <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>    base_round <span class="op">=</span> <span class="fu">base</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">original</span>, digits <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-in"><span>    <span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">original</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>    <span class="co"># Define example values</span></span></span>
+<span class="r-in"><span>  <span class="fl">0.05</span>, <span class="fl">0.15</span>, <span class="fl">0.25</span>, <span class="fl">0.35</span>, <span class="fl">0.45</span>,</span></span>
+<span class="r-in"><span>  <span class="fl">0.55</span>, <span class="fl">0.65</span>, <span class="fl">0.75</span>, <span class="fl">0.85</span>, <span class="fl">0.95</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>   <span class="co"># Output table</span></span></span>
+<span class="r-in"><span>  <span class="va">original</span>,</span></span>
+<span class="r-in"><span>  round_up <span class="op">=</span> <span class="fu">round_up</span><span class="op">(</span>x <span class="op">=</span> <span class="va">original</span>, digits <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  round_down <span class="op">=</span> <span class="fu">round_down</span><span class="op">(</span>x <span class="op">=</span> <span class="va">original</span>, digits <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  base_round <span class="op">=</span> <span class="fu">base</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">original</span>, digits <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 10 × 4</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    original round_up round_down base_round</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>

@@ -4,7 +4,7 @@ data are mathematically consistent with the reported sample size and the
 number of items that compose the mean value. It works much like grim().
 The function is vectorized, but it is recommended to use grimmer_map()
 for testing multiple cases."><title>The GRIMMER test (granularity-related inconsistency of means mapped to error
-repeats) — grimmer • scrutiny</title><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous"><!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="The GRIMMER test (granularity-related inconsistency of means mapped to error
+repeats) — grimmer • scrutiny</title><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous"><!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="The GRIMMER test (granularity-related inconsistency of means mapped to error
 repeats) — grimmer"><meta property="og:description" content="grimmer() checks if reported mean and SD values of integer
 data are mathematically consistent with the reported sample size and the
 number of items that compose the mean value. It works much like grim().
@@ -20,7 +20,7 @@ for testing multiple cases."><!-- mathjax --><script src="https://cdnjs.cloudfla
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,10 +42,14 @@ for testing multiple cases."><!-- mathjax --><script src="https://cdnjs.cloudfla
     <h6 class="dropdown-header" data-toc-skip>Plausibility checks</h6>
     <a class="dropdown-item" href="../articles/duplicates.html">Duplication analysis</a>
     <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Quick guides</h6>
+    <a class="dropdown-item" href="../articles/rounding-options.html">Rounding options</a>
+    <a class="dropdown-item" href="../articles/consistency-tests-simple.html">Implementing your consistency test</a>
+    <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Infrastructure</h6>
+    <a class="dropdown-item" href="../articles/rounding-in-depth.html">Rounding in depth</a>
+    <a class="dropdown-item" href="../articles/consistency-tests-in-depth.html">Consistency tests in depth</a>
     <a class="dropdown-item" href="../articles/infrastructure.html">General infrastructure</a>
-    <a class="dropdown-item" href="../articles/consistency-tests.html">Implementing consistency tests</a>
-    <a class="dropdown-item" href="../articles/rounding.html">Rounding</a>
     <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Other</h6>
@@ -122,7 +126,7 @@ common case.</p></dd>
 
 
 <dt>show_reason</dt>
-<dd><p>Boolean. For internal use only. If set to <code>TRUE</code>, the
+<dd><p>Logical. For internal use only. If set to <code>TRUE</code>, the
 output is a list of length-2 lists which also contain the reasons for
 inconsistencies. Don't specify this manually; instead, use <code>show_reason</code> in
 <code><a href="grimmer_map.html">grimmer_map()</a></code>. Default is <code>FALSE</code>.</p></dd>
@@ -142,7 +146,7 @@ argument plays no role. Default is <code>5</code>.</p></dd>
 
 
 <dt>symmetric</dt>
-<dd><p>Boolean. Set <code>symmetric</code> to <code>TRUE</code> if the rounding of
+<dd><p>Logical. Set <code>symmetric</code> to <code>TRUE</code> if the rounding of
 negative numbers with <code>"up"</code>, <code>"down"</code>, <code>"up_from"</code>, or <code>"down_from"</code>
 should mirror that of positive numbers so that their absolute values are
 always equal. Default is <code>FALSE</code>.</p></dd>
@@ -158,7 +162,7 @@ possible mean or percentage values. Default is circa 0.000000015
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>Boolean. <code>TRUE</code> if <code>x</code>, <code>sd</code>, <code>n</code>, and <code>items</code> are mutually
+<p>Logical. <code>TRUE</code> if <code>x</code>, <code>sd</code>, <code>n</code>, and <code>items</code> are mutually
 consistent, <code>FALSE</code> if not.</p>
     </div>
     <div class="section level2">
@@ -167,10 +171,10 @@ consistent, <code>FALSE</code> if not.</p>
 implementation follows Allard's (2018) refined Analytic-GRIMMER (A-GRIMMER)
 algorithm. It adapts the R function <code>aGrimmer()</code> provided by Allard and
 modifies it to accord with scrutiny's standards, as laid out in
-<code><a href="../articles/consistency-tests.html">vignette("consistency-tests")</a></code>, sections 1-2. The resulting <code>grimmer()</code>
-function, then, is a vectorized version of this basic implementation. For
-more context and variable name translations, see the top of the
-R/grimmer.R, the source file.</p>
+<code><a href="../articles/consistency-tests-in-depth.html">vignette("consistency-tests-in-depth")</a></code>, sections 1-2. The resulting
+<code>grimmer()</code> function, then, is a vectorized version of this basic
+implementation. For more context and variable name translations, see the
+top of the R/grimmer.R, the source file.</p>
 <p>The present implementation can differ from Allard's in a small number of
 cases. In most cases, this means that the original flags a value set as
 inconsistent, but scrutiny's <code>grimmer*()</code> functions don't. For details, see

@@ -4,14 +4,14 @@ goes a specified number of steps up and down from it. Step size depends on
 the number's decimal places. For example, 7.93 will be surrounded by
 values like 7.91, 7.92, and 7.94, 7.95, etc.
 seq_disperse_df() is a variant that creates a data frame. Further columns
-can be added as in tibble::tibble(). Regular arguments are the same as in
-seq_disperse(), but with a dot before each."><title>Sequence generation with dispersion at decimal level — seq_disperse • scrutiny</title><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous"><!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Sequence generation with dispersion at decimal level — seq_disperse"><meta property="og:description" content="seq_disperse() creates a sequence around a given number. It
+can be added as in tibble::tibble(). Regular arguments are the same as
+in seq_disperse(), but with a dot before each."><title>Sequence generation with dispersion at decimal level — seq_disperse • scrutiny</title><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous"><!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Sequence generation with dispersion at decimal level — seq_disperse"><meta property="og:description" content="seq_disperse() creates a sequence around a given number. It
 goes a specified number of steps up and down from it. Step size depends on
 the number's decimal places. For example, 7.93 will be surrounded by
 values like 7.91, 7.92, and 7.94, 7.95, etc.
 seq_disperse_df() is a variant that creates a data frame. Further columns
-can be added as in tibble::tibble(). Regular arguments are the same as in
-seq_disperse(), but with a dot before each."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
+can be added as in tibble::tibble(). Regular arguments are the same as
+in seq_disperse(), but with a dot before each."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]--></head><body>
@@ -22,7 +22,7 @@ seq_disperse(), but with a dot before each."><!-- mathjax --><script src="https:
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,10 +44,14 @@ seq_disperse(), but with a dot before each."><!-- mathjax --><script src="https:
     <h6 class="dropdown-header" data-toc-skip>Plausibility checks</h6>
     <a class="dropdown-item" href="../articles/duplicates.html">Duplication analysis</a>
     <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Quick guides</h6>
+    <a class="dropdown-item" href="../articles/rounding-options.html">Rounding options</a>
+    <a class="dropdown-item" href="../articles/consistency-tests-simple.html">Implementing your consistency test</a>
+    <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Infrastructure</h6>
+    <a class="dropdown-item" href="../articles/rounding-in-depth.html">Rounding in depth</a>
+    <a class="dropdown-item" href="../articles/consistency-tests-in-depth.html">Consistency tests in depth</a>
     <a class="dropdown-item" href="../articles/infrastructure.html">General infrastructure</a>
-    <a class="dropdown-item" href="../articles/consistency-tests.html">Implementing consistency tests</a>
-    <a class="dropdown-item" href="../articles/rounding.html">Rounding</a>
     <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Other</h6>
@@ -84,8 +88,8 @@ goes a specified number of steps up and down from it. Step size depends on
 the number's decimal places. For example, <code>7.93</code> will be surrounded by
 values like <code>7.91</code>, <code>7.92</code>, and <code>7.94</code>, <code>7.95</code>, etc.</p>
 <p><code>seq_disperse_df()</code> is a variant that creates a data frame. Further columns
-can be added as in <code><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble::tibble()</a></code>. Regular arguments are the same as in
-<code>seq_disperse()</code>, but with a dot before each.</p>
+can be added as in <code><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble::tibble()</a></code>. Regular arguments are the same as
+in <code>seq_disperse()</code>, but with a dot before each.</p>
     </div>
 
     <div class="section level2">
@@ -99,7 +103,8 @@ can be added as in <code><a href="https://tibble.tidyverse.org/reference/tibble.
 <span>  out_max <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  string_output <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  include_reported <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  track_var_change <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  track_diff_var <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  track_var_change <span class="op">=</span> <span class="fu">deprecated</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">seq_disperse_df</span><span class="op">(</span></span>
@@ -112,6 +117,7 @@ can be added as in <code><a href="https://tibble.tidyverse.org/reference/tibble.
 <span>  .out_max <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  .string_output <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  .include_reported <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  .track_diff_var <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  .track_var_change <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -149,23 +155,28 @@ and <code>NULL</code> for <code>out_max</code>, i.e., no maximum.</p></dd>
 
 
 <dt>string_output, .string_output</dt>
-<dd><p>Boolean or string. If <code>TRUE</code> (the
+<dd><p>Logical or string. If <code>TRUE</code> (the
 default), the output is a string vector. Decimal places are then padded
 with zeros to match <code>from</code>'s number of decimal places. <code>"auto"</code> works like
 <code>TRUE</code> if and only if <code>from</code> (<code>.from</code>) is a string.</p></dd>
 
 
 <dt>include_reported, .include_reported</dt>
-<dd><p>Boolean. Should <code>from</code> (<code>.from</code>)
+<dd><p>Logical. Should <code>from</code> (<code>.from</code>)
 itself be part of the sequence built around it? Default is <code>TRUE</code> for the
 sake of continuity, but this can be misleading if the focus is on the
 dispersed values, as opposed to the input.</p></dd>
 
 
+<dt>track_diff_var, .track_diff_var</dt>
+<dd><p>Logical. In <code>seq_disperse()</code>, ignore
+this argument. In <code>seq_disperse_df()</code>, default is <code>TRUE</code>, which creates the
+<code>"diff_var"</code> output column.</p></dd>
+
+
 <dt>track_var_change, .track_var_change</dt>
-<dd><p>Boolean. In <code>seq_disperse()</code>,
-ignore this argument. In <code>seq_disperse_df()</code>, default is <code>TRUE</code>, which
-creates the <code>"var_change"</code> output column.</p></dd>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a>
+Renamed to <code>track_diff_var</code> / <code>.track_diff_var</code>.</p></dd>
 
 
 <dt>...</dt>
@@ -178,7 +189,7 @@ creates the <code>"var_change"</code> output column.</p></dd>
     
 
 <ul><li><p><code>seq_disperse()</code> returns a string vector by default
-(<code>string_output = TRUE</code>) and a numeric otherwise.</p></li>
+(<code>string_output = TRUE</code>) and a numeric vector otherwise.</p></li>
 <li><p><code>seq_disperse_df()</code> returns a tibble (data frame). The sequence is stored
 in the <code>x</code> column. <code>x</code> is string by default (<code>.string_output = TRUE</code>),
 numeric otherwise. Other columns might have been added via the dots
@@ -198,9 +209,9 @@ otherwise similar to <code><a href="seq-decimal.html">seq_endpoint()</a></code> 
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Conceptually, <code>seq_disperse()</code> is a blend of two function families:
-those around <code><a href="seq-decimal.html">seq_endpoint()</a></code> and those around <code><a href="disperse.html">disperse()</a></code>. The present
-functions were originally conceived for <code>seq_disperse_df()</code> to be a helper
-within the <code><a href="function_map_seq.html">function_map_seq()</a></code> implementation.</p></div>
+those around <code><a href="seq-decimal.html">seq_endpoint()</a></code> and those around <code><a href="disperse.html">disperse()</a></code>. The
+present functions were originally conceived for <code>seq_disperse_df()</code> to be a
+helper within the <code><a href="function_map_seq.html">function_map_seq()</a></code> implementation.</p></div>
     </div>
 
     <div class="section level2">

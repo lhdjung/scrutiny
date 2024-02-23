@@ -10,7 +10,10 @@
     <loc>https://lhdjung.github.io/scrutiny/LICENSE.html</loc>
   </url>
   <url>
-    <loc>https://lhdjung.github.io/scrutiny/articles/consistency-tests.html</loc>
+    <loc>https://lhdjung.github.io/scrutiny/articles/consistency-tests-in-depth.html</loc>
+  </url>
+  <url>
+    <loc>https://lhdjung.github.io/scrutiny/articles/consistency-tests-simple.html</loc>
   </url>
   <url>
     <loc>https://lhdjung.github.io/scrutiny/articles/debit.html</loc>
@@ -34,7 +37,10 @@
     <loc>https://lhdjung.github.io/scrutiny/articles/related.html</loc>
   </url>
   <url>
-    <loc>https://lhdjung.github.io/scrutiny/articles/rounding.html</loc>
+    <loc>https://lhdjung.github.io/scrutiny/articles/rounding-in-depth.html</loc>
+  </url>
+  <url>
+    <loc>https://lhdjung.github.io/scrutiny/articles/rounding-options.html</loc>
   </url>
   <url>
     <loc>https://lhdjung.github.io/scrutiny/articles/wrangling.html</loc>
