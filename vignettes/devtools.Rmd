@@ -1,8 +1,8 @@
 ---
-title: "General infrastructure"
+title: "Developer tools"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{General infrastructure}
+  %\VignetteIndexEntry{Developer tools}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 bibliography: references.bib

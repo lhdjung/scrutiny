@@ -30,12 +30,12 @@ articles:
   contents:
   - rounding-options
   - consistency-tests-simple
-- title: Infrastructure
-  navbar: Infrastructure
+- title: Developer tools
+  navbar: Developer tools
   contents:
   - rounding-in-depth
   - consistency-tests-in-depth
-  - infrastructure
+  - devtools
   - wrangling
 - title: Other
   navbar: Other
@@ -87,7 +87,7 @@ reference:
 - contents:
   - audit
   - audit-special
-- title: Infrastructure
+- title: Developer tools
   desc: Helpers for implementing error detection techniques
 - subtitle: Function factories
   desc: Easily create new mapper functions for consistency tests

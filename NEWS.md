@@ -23,6 +23,7 @@ This version brings major performance improvements. Furthermore:
 -   `grim_total()`, `grim_ratio()`, and `grim_ratio_upper()` now require `x` to have length 1.
 -   The docs now link to functions when opened in RStudio, not just on the website.
 -   Accordingly, the output of `write_doc_factory_map_conventions()` now renders links. The function also has a new `scrutiny_prefix` argument for use in another package.
+-   The "Infrastructure" article was renamed to "Developer tools"; `vignette("devtools")`.
 -   Some dependencies that used to be suggested are now imported.
 
 # scrutiny 0.3.0
