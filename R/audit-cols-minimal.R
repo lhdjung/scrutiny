@@ -25,8 +25,9 @@
 #'
 #' @include mapper-function-helpers.R
 #'
-#' @seealso For context, see `vignette("consistency-tests")`. In case you don't
-#'   call `audit_cols_minimal()`, you should call [`check_audit_special()`].
+#' @seealso For context, see `vignette("consistency-tests-in-depth")`. In case
+#'   you don't call `audit_cols_minimal()`, you should call
+#'   [`check_audit_special()`].
 #'
 #' @examples
 #' # For a mapper function called `schlim_map()`

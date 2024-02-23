@@ -39,5 +39,5 @@ write_doc_audit_total_n(key_args = c("x", "sd", "n"), name_test = "DEBIT")
 }
 \seealso{
 The sister function \code{\link[=write_doc_audit_seq]{write_doc_audit_seq()}} and, for context,
-\code{vignette("consistency-tests")}.
+\code{vignette("consistency-tests-in-depth")}.
 }

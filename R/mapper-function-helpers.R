@@ -111,8 +111,8 @@ check_consistency_not_in_colnames <- function(data, name_test) {
 #'
 #' @return No return value. Might throw an error.
 #'
-#' @seealso `vignette("consistency-tests")`, for context and the "key columns"
-#'   terminology.
+#' @seealso `vignette("consistency-tests-in-depth")`, for context and the "key
+#'   columns" terminology.
 
 
 check_mapper_input_colnames <- function(data, reported, name_test) {
@@ -139,7 +139,7 @@ check_mapper_input_colnames <- function(data, reported, name_test) {
 #' @param name_test String (length 1). Short, plain-text name of the consistency
 #'   test, such as `"GRIM"`.
 #'
-#' @seealso `vignette("consistency-tests")`, for context.
+#' @seealso `vignette("consistency-tests-in-depth")`, for context.
 #'
 #' @export
 #'
@@ -187,7 +187,8 @@ check_audit_special <- function(data, name_test) {
 #'
 #'   All of this only works in mapper functions that were "handwritten" using
 #'   `function()`, as opposed to those produced by `function_map()`. See
-#'   `vignette("consistency-tests")`, section *Writing mappers manually*.
+#'   `vignette("consistency-tests-in-depth")`, section *Writing mappers
+#'   manually*.
 #'
 #' @param data The data frame that is the mapper function's first argument.
 #' @param var_arg The argument to the mapper function that has the same name as
@@ -272,7 +273,7 @@ manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
 #'
 #' @return The input data frame, `data`, possibly modified.
 #'
-#' @seealso `vignette("consistency-tests")`, for context.
+#' @seealso `vignette("consistency-tests-in-depth")`, for context.
 #'
 #' @export
 
@@ -339,7 +340,7 @@ manage_key_colnames_list_el <- function(data, key_arg) {
 #'
 #' @return Data frame. The column names are determined by `col_names`.
 #'
-#' @seealso `vignette("consistency-tests")`, for context.
+#' @seealso `vignette("consistency-tests-in-depth")`, for context.
 #'
 #' @export
 

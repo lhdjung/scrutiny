@@ -28,5 +28,5 @@ If so, the function issues a gentle alert to the user that points to
 \code{audit_seq()} or \code{audit_total_n()}, respectively.
 }
 \seealso{
-\code{vignette("consistency-tests")}, for context.
+\code{vignette("consistency-tests-in-depth")}, for context.
 }

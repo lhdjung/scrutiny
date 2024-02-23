@@ -39,9 +39,9 @@ that was produced by \code{\link[=function_map_total_n]{function_map_total_n()}}
 }
 }
 \details{
-Sections 3, 6, and 7 of \code{vignette("consistency-tests")} discuss
-which function factories produce which functions, and which of these new,
-factory-made functions return which kinds of tibbles.
+Sections 3, 6, and 7 of \code{vignette("consistency-tests-in-depth")}
+discuss which function factories produce which functions, and which of
+these new, factory-made functions return which kinds of tibbles.
 
 These tibbles are what the \verb{is_map_*()} functions test for. As an example,
 \code{\link[=function_map_seq]{function_map_seq()}} produces \code{grim_map_seq()}, and this new function
@@ -50,7 +50,7 @@ this tibble, but \code{is_map_basic_df()} and \code{is_map_total_n_df()} return
 \code{FALSE}.
 
 For an overview, see the table at the end of
-\code{vignette("consistency-tests")}.
+\code{vignette("consistency-tests-in-depth")}.
 }
 \examples{
 # Example test output:

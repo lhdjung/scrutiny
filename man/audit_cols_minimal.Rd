@@ -41,6 +41,7 @@ audit.scr_schlim_map <- function(data) {
 # with `dplyr::mutate()` or similar.
 }
 \seealso{
-For context, see \code{vignette("consistency-tests")}. In case you don't
-call \code{audit_cols_minimal()}, you should call \code{\link[=check_audit_special]{check_audit_special()}}.
+For context, see \code{vignette("consistency-tests-in-depth")}. In case
+you don't call \code{audit_cols_minimal()}, you should call
+\code{\link[=check_audit_special]{check_audit_special()}}.
 }

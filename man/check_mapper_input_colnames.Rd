@@ -31,6 +31,6 @@ mapper.
 If either check fails, the function throws an informative error.
 }
 \seealso{
-\code{vignette("consistency-tests")}, for context and the "key columns"
-terminology.
+\code{vignette("consistency-tests-in-depth")}, for context and the "key
+columns" terminology.
 }

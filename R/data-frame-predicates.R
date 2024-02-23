@@ -19,9 +19,9 @@
 #'
 #' @return Logical (length 1).
 
-#' @details Sections 3, 6, and 7 of `vignette("consistency-tests")` discuss
-#'   which function factories produce which functions, and which of these new,
-#'   factory-made functions return which kinds of tibbles.
+#' @details Sections 3, 6, and 7 of `vignette("consistency-tests-in-depth")`
+#'   discuss which function factories produce which functions, and which of
+#'   these new, factory-made functions return which kinds of tibbles.
 #'
 #'   These tibbles are what the `is_map_*()` functions test for. As an example,
 #'   [`function_map_seq()`] produces `grim_map_seq()`, and this new function
@@ -30,7 +30,7 @@
 #'   `FALSE`.
 #'
 #'   For an overview, see the table at the end of
-#'   `vignette("consistency-tests")`.
+#'   `vignette("consistency-tests-in-depth")`.
 
 #' @export
 #'

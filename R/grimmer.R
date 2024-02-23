@@ -205,10 +205,10 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
 #'   implementation follows Allard's (2018) refined Analytic-GRIMMER (A-GRIMMER)
 #'   algorithm. It adapts the R function `aGrimmer()` provided by Allard and
 #'   modifies it to accord with scrutiny's standards, as laid out in
-#'   `vignette("consistency-tests")`, sections 1-2. The resulting `grimmer()`
-#'   function, then, is a vectorized version of this basic implementation. For
-#'   more context and variable name translations, see the top of the
-#'   R/grimmer.R, the source file.
+#'   `vignette("consistency-tests-in-depth")`, sections 1-2. The resulting
+#'   `grimmer()` function, then, is a vectorized version of this basic
+#'   implementation. For more context and variable name translations, see the
+#'   top of the R/grimmer.R, the source file.
 #'
 #'   The present implementation can differ from Allard's in a small number of
 #'   cases. In most cases, this means that the original flags a value set as

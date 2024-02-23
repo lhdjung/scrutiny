@@ -199,7 +199,7 @@ write_doc_audit <- function(sample_output, name_test) {
 #' @return A string vector formatted by [`glue::glue()`].
 #'
 #' @seealso The sister function [`write_doc_audit_total_n()`] and, for context,
-#'   `vignette("consistency-tests")`.
+#'   `vignette("consistency-tests-in-depth")`.
 #'
 #' @examples
 #' # For GRIM and `grim_map_seq()`:
@@ -310,7 +310,7 @@ write_doc_audit_seq <- function(key_args, name_test) {
 #' @return A string vector formatted by [`glue::glue()`].
 #'
 #' @seealso The sister function [`write_doc_audit_seq()`] and, for context,
-#'   `vignette("consistency-tests")`.
+#'   `vignette("consistency-tests-in-depth")`.
 #'
 #' @examples
 #' # For GRIM and `grim_map_total_n()`:

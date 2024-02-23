@@ -21,7 +21,7 @@ library(scrutiny)
 
 Use scrutiny to implement new consistency tests in R. Consistency tests, such as GRIM, are procedures that check whether two or more summary values can describe the same data.
 
-This vignette shows you the minimal steps required to tap into scrutiny's framework for implementing consistency tests. The key idea is to focus on the core logic of your test and let scrutiny's functions take care of iteration. For an in-depth treatment, see `vignette("consistency-tests")`.
+This vignette shows you the minimal steps required to tap into scrutiny's framework for implementing consistency tests. The key idea is to focus on the core logic of your test and let scrutiny's functions take care of iteration. For an in-depth treatment, see `vignette("consistency-tests-in-depth")`.
 
 ## 1. Single-case 
 

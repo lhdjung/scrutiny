@@ -1146,8 +1146,8 @@ transform_split_parens <- function(data, end1, end2) {
 #' Select columns before `"consistency"`
 #'
 #' Useful helper for selecting all "tested" columns in the sense of
-#' `vignette("consistency-tests")`; i.e., those columns that factored into a
-#' consistency test applied by a mapper function like `grim_map()`.
+#' `vignette("consistency-tests-in-depth")`; i.e., those columns that factored
+#' into a consistency test applied by a mapper function like `grim_map()`.
 #'
 #' @param data Data frame resulting from a consistency test mapper function,
 #'   such as `grim_map()`.

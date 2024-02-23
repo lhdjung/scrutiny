@@ -34,5 +34,6 @@ output to that variable.
 
 All of this only works in mapper functions that were "handwritten" using
 \verb{function()}, as opposed to those produced by \code{function_map()}. See
-\code{vignette("consistency-tests")}, section \emph{Writing mappers manually}.
+\code{vignette("consistency-tests-in-depth")}, section \emph{Writing mappers
+manually}.
 }

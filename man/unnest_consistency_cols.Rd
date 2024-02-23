@@ -40,5 +40,5 @@ was created because \code{unnest_wider()} can be too slow for use as a helper
 function.
 }
 \seealso{
-\code{vignette("consistency-tests")}, for context.
+\code{vignette("consistency-tests-in-depth")}, for context.
 }
