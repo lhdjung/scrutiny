@@ -1,0 +1,140 @@
+---
+title: "Implementing your consistency test"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Implementing your consistency test}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+pkgload::load_all()
+```
+
+```{r setup}
+library(scrutiny)
+```
+
+Use scrutiny to implement new consistency tests in R. Consistency tests, such as GRIM, are procedures that check whether two or more summary values can describe the same data.
+
+This vignette shows you the minimal steps required to tap into scrutiny's framework for implementing consistency tests. The key idea is to focus on the core logic of your test and let scrutiny's functions take care of iteration. For an in-depth treatment, see `vignette("consistency-tests-in-depth")`.
+
+## 1. Single-case 
+
+Encode the logic of your test in a simple function that takes single values. It should return `TRUE` if they are consistent and `FALSE` if they are not. Its name should end on `_scalar`, which refers to its single-case nature. Here, I use a mock test without real meaning, called SCHLIM:
+
+```{r}
+schlim_scalar <- function(y, n) {
+  y <- as.numeric(y)
+  n <- as.numeric(n)
+  all(y / 3 > n)
+}
+
+schlim_scalar(y = 30, n = 4)
+schlim_scalar(y = 2, n = 7)
+```
+
+## 2. Vectorized
+
+For completeness, although it's not very important in practice --- `Vectorize()` from base R helps you turn the single-case function into a vectorized one, so that the new function's arguments can have a length greater than 1:
+
+```{r}
+schlim <- Vectorize(schlim_scalar)
+
+schlim(y = 10:15, n = 4)
+```
+
+## 3. Basic mapper
+
+Next, create a function that tests many values in a data frame, like `grim_map()` does. Its name should also end on `_map`. Use `function_map()` to get this function without much effort:
+
+```{r}
+schlim_map <- function_map(
+  .fun = schlim_scalar,
+  .reported = c("y", "n"),
+  .name_test = "SCHLIM"
+)
+
+# Example data:
+df1 <- tibble::tibble(y = 16:25, n = 3:12)
+
+schlim_map(df1)
+```
+
+## 4. `audit()` method
+
+Use scrutiny's `audit()` generic to get summary statistics. Write a new function named `audit.scr_name_map()`, where `name` is the name of your test in lower-case --- here, `schlim`.
+
+Within the function body, call `audit_cols_minimal()`. This enables you to use `audit()` following the mapper function:
+
+```{r}
+audit.scr_schlim_map <- function(data) {
+  audit_cols_minimal(data, name_test = "SCHLIM")
+}
+
+df1 %>% 
+  schlim_map() %>% 
+  audit()
+```
+
+`audit_cols_minimal()` only provides the most basic summaries. If you like, you can still add summary statistics that are more specific to your test. See, e.g., the *Summaries with `audit()`* section in `grim_map()`'s documentation.
+
+## 5. Sequence mapper
+
+This kind of mapper function tests hypothetical values around the reported ones, like `grim_map_seq()` does. Create a sequence mapper by simply calling `function_map_seq()`:
+
+```{r}
+schlim_map_seq <- function_map_seq(
+  .fun = schlim_map,
+  .reported = c("y", "n"),
+  .name_test = "SCHLIM"
+)
+
+df1 %>% 
+  schlim_map_seq()
+```
+
+Get summary statistics with `audit_seq()`:
+
+```{r}
+df1 %>% 
+  schlim_map_seq() %>% 
+  audit_seq()
+```
+
+## 6. Total-n mapper
+
+Suppose you have grouped data but no group sizes are known, only a total sample size:
+
+```{r}
+df2 <- tibble::tribble(
+  ~y1, ~y2, ~n,
+   84,  37,  29,
+   61,  55,  26
+)
+```
+
+To tackle this, create a total-n mapper that varies hypothetical group sizes:
+
+```{r}
+schlim_map_total_n <- function_map_total_n(
+  .fun = schlim_map,
+  .reported = "y",
+  .name_test = "SCHLIM"
+)
+
+df2 %>% 
+  schlim_map_total_n()
+```
+
+Get summary statistics with `audit_total_n()`:
+
+```{r}
+df2 %>% 
+  schlim_map_total_n() %>% 
+  audit_total_n()
+```

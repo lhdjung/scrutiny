@@ -1,5 +1,4 @@
 
-
 #' GRIM-test many cases at once
 #'
 #' @description Call `grim_map()` to GRIM-test any number of combinations of
@@ -12,32 +11,32 @@
 #'   Display intermediary numbers from GRIM-testing in columns by setting
 #'   `show_rec` to `TRUE`.
 #'
-#'   For summary statistics, call `audit()` on the results.
+#'   For summary statistics, call `[audit()`] on the results.
 #'
 #' @param data Data frame with columns `x`, `n`, and optionally `items` (see
-#'   documentation for `grim()`. By default, any other columns in `data` will be
-#'   returned alongside GRIM test results (see `extra` below).
+#'   documentation for [`grim()`]. By default, any other columns in `data` will
+#'   be returned alongside GRIM test results (see `extra` below).
 #' @param items Integer. If there is no `items` column in `data`, this specifies
 #'   the number of items composing the `x` values. Default is 1, the most common
 #'   case.
-#' @param merge_items Boolean. If `TRUE` (the default), there will be no `items`
+#' @param merge_items Logical. If `TRUE` (the default), there will be no `items`
 #'   column in the output. Instead, values from an `items` column or argument
 #'   will be multiplied with values in the `n` column. This does not affect
 #'   GRIM-testing.
-#' @param percent Boolean. Set `percent` to `TRUE` if the `x` values are
+#' @param percent Logical. Set `percent` to `TRUE` if the `x` values are
 #'   percentages. This will convert them to decimal numbers and adjust the
 #'   decimal count (i.e., increase it by 2). It also affects the `ratio` column.
 #'   Default is `FALSE`.
 #' @param x,n Optionally, specify these arguments as column names in `data`.
-#' @param show_rec Boolean. If set to `TRUE`, the reconstructed numbers from
+#' @param show_rec Logical. If set to `TRUE`, the reconstructed numbers from
 #'   GRIM-testing are shown as columns. See section *Reconstructed numbers*
 #'   below. Default is `FALSE`.
-#' @param show_prob Boolean. If set to `TRUE`, adds a `prob` column that
+#' @param show_prob Logical. If set to `TRUE`, adds a `prob` column that
 #'   contains the probability of GRIM inconsistency. This is simply the `ratio`
 #'   column censored to range between 0 and 1. Default is `FALSE`.
 #' @param rounding,threshold,symmetric,tolerance Further parameters of
-#'   GRIM-testing; see documentation for `grim()`.
-#' @param testables_only Boolean. If `testables_only` is set to `TRUE`, only
+#'   GRIM-testing; see documentation for [`grim()`].
+#' @param testables_only Logical. If `testables_only` is set to `TRUE`, only
 #'   GRIM-testable cases (i.e., those with a positive GRIM ratio) are included.
 #'   Default is `FALSE`.
 #' @param extra String or integer. The other column(s) from `data` to be
@@ -49,10 +48,10 @@
 #' - `x`, `n`: the inputs.
 #' - `consistency`: GRIM consistency of `x`, `n`, and `items`.
 #' - `<extra>`: any columns from `data` other than `x`, `n`, and `items`.
-#' - `ratio`: the GRIM ratio; see `grim_ratio()`.
+#' - `ratio`: the GRIM ratio; see [`grim_ratio()`].
 #'
-#' The tibble has the `scr_grim_map` class, which is recognized by the `audit()`
-#' generic.
+#'   The tibble has the `scr_grim_map` class, which is recognized by the
+#'   [`audit()`] generic.
 
 #' @section Reconstructed numbers: If `show_rec` is set to `TRUE`, the output
 #'   includes the following additional columns:
@@ -68,10 +67,9 @@
 #' is replaced by two columns that specify the rounding procedures (i.e.,
 #' `"_up"` and `"_down"`).
 
-#' @section Summaries with `audit()`: There is an S3 method for `audit()`, so
-#'   you can call `audit()` following `grim_map()` to get a summary of
-#'   `grim_map()`'s results. It is a tibble with a single row and these
-#'   columns --
+#' @section Summaries with [`audit()`]: There is an S3 method for [`audit()`],
+#'   so you can call [`audit()`] following `grim_map()` to get a summary of
+#'   `grim_map()`'s results. It is a tibble with one row and these columns --
 #'
 #' 1. `incons_cases`: number of GRIM-inconsistent value sets.
 #' 2. `all_cases`: total number of value sets.
@@ -81,7 +79,7 @@
 #' 6. `testable_cases`: number of GRIM-testable value sets (i.e., those with a
 #' positive ratio).
 #' 7. `testable_rate`: proportion of GRIM-testable value sets.
-#'
+
 #' @include audit.R grim.R manage-extra-cols.R restore-zeros.R
 
 #' @references Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A
@@ -112,11 +110,11 @@
 #'   audit()
 
 
-
 # Note: All the arguments passed on to the internal testing function
 # `grim_scalar()` are listed here as well as in the internal call to
 # `purrr::pmap_lgl(grim)` or `purrr::pmap(grim)` instead of simply being passed
 # via `...` so that starting to type them will trigger RStudio's autocomplete.
+
 
 grim_map <- function(data, items = 1, merge_items = TRUE, percent = FALSE,
                      x = NULL, n = NULL, show_rec = FALSE, show_prob = FALSE,
@@ -131,32 +129,37 @@ grim_map <- function(data, items = 1, merge_items = TRUE, percent = FALSE,
     items, percent, rounding, threshold, symmetric, tolerance
   ))
 
-  # Defuse the argument specifications that can be used to assign the roles of
-  # `x` and `n` to specific columns in case these columns don't already have
-  # those names:
-  x <- rlang::enexpr(x)
-  n <- rlang::enexpr(n)
+  # Check if the user specified the arguments named after the key columns, `x`
+  # and `n`. If so, the user-supplied value for that argument will be checked
+  # against the column names of `data`. If the value is one of those column
+  # names, that column is renamed to the respective key argument. Otherwise,
+  # there is an error.
+  if (!missing(x)) {
+    x <- rlang::enexpr(x)
+    data <- manage_key_colnames(data, x, "mean/proportion")
+  }
 
-  # Check for non-standard column names and, if present, rename them. If the
-  # respective argument was not specified as that column name, throw an error:
-  data <- manage_key_colnames(data, x, "mean/proportion")
-  data <- manage_key_colnames(data, n, "sample size")
+  if (!missing(n)) {
+    n <- rlang::enexpr(n)
+    data <- manage_key_colnames(data, n, "sample size")
+  }
+
+
+  # TODO: Optimize `grim_map()` for performance!
+
 
   # Check the column names of `data`:
   check_mapper_input_colnames(data, c("x", "n"), "GRIM")
   check_tibble(data)
-
-  # # Convert `n` to integer (mainly because of the `split_by_parens()` issue,
-  # # which would leave `n` as a string vector):
-  # data$n <- as.integer(data$n)
 
   data <- manage_helper_col(data = data, var_arg = items, default = 1)
 
   # Create `other_cols`, which contains all extra columns from `data` (i.e.,
   # those which play no role in the GRIM test), and run it through a specified
   # helper function:
-  other_cols <- dplyr::select(data, -x, -n, -items)
-  other_cols <- manage_extra_cols(data, extra, other_cols)
+  other_cols <- manage_extra_cols(
+    data, extra, dplyr::select(data, -x, -n, -items)
+  )
 
   # Prepare a data frame for the GRIM computations below (steps 4 and 5):
   data_x_n_items <- dplyr::select(data, x, n, items)
@@ -228,37 +231,29 @@ grim_map <- function(data, items = 1, merge_items = TRUE, percent = FALSE,
     name2 <- "rec_sum"
     name3 <- "rec_x_upper"
     name4 <- "rec_x_lower"
-
     length_2ers <- c("up_or_down", "up_from_or_down_from", "ceiling_or_floor")
     if (any(rounding %in% length_2ers)) {
-
       rounding_split <- rounding %>%
         stringr::str_split("_or_") %>%
-        unlist()
-
+        unlist(use.names = FALSE)
       # These names are for the long version only; the short version has
       # different names 5 and 6, and it has no names 7 and 8 at all:
-      name5 <- paste0("rec_x_upper_rounded_", rounding_split[1])
-      name6 <- paste0("rec_x_upper_rounded_", rounding_split[2])
-      name7 <- paste0("rec_x_lower_rounded_", rounding_split[1])
-      name8 <- paste0("rec_x_lower_rounded_", rounding_split[2])
-
+      name5 <- paste0("rec_x_upper_rounded_", rounding_split[1L])
+      name6 <- paste0("rec_x_upper_rounded_", rounding_split[2L])
+      name7 <- paste0("rec_x_lower_rounded_", rounding_split[1L])
+      name8 <- paste0("rec_x_lower_rounded_", rounding_split[2L])
       col_names <- c(
         name1, name2, name3, name4,
         name5, name6, name7, name8
       )
-
     } else {
-
       # The alternative names 5 and 6 for the short version:
       name5 <- "rec_x_upper_rounded"
       name6 <- "rec_x_lower_rounded"
-
       col_names <- c(
         name1, name2, name3, name4,
         name5, name6  # no 7 and 8 here!
       )
-
     }
 
     results <- results %>%
@@ -283,7 +278,7 @@ grim_map <- function(data, items = 1, merge_items = TRUE, percent = FALSE,
       )
   }
 
-  # Add the "scr_grim_map" class that `audit()` will take as a shibboleth:
+  # Add the "scr_grim_map" class that `audit()` will recognize:
   results <- results %>%
     add_class(c("scr_grim_map", glue::glue("scr_rounding_{rounding}")))
 

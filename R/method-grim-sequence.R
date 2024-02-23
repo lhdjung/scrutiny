@@ -4,7 +4,7 @@
 
 explain_seq_test_ranking <- function(x, scr_func_info) {
 
-  if (!any("lead_lag" == colnames(x))) {
+  if (!any(colnames(x) == "lead_lag")) {
     x$lead_lag <- NA
   }
 
@@ -57,20 +57,20 @@ explain_seq_test_ranking <- function(x, scr_func_info) {
                              {scr_func_info} data frame. \n")
     } else if (l_cons == 2L) {
       msg_cons <- glue::glue("There are 2 consistent value sets, in rows \\
-                             number {cons[1]} and {cons[2]} of {df_info}.")
+                             number {cons[1L]} and {cons[2L]} of {df_info}.")
       msg_lead <- glue::glue("The consistent sets {lead_lag_info} the \\
-                             inconsistent ones by {lead[1]} and {lead[2]} \\
+                             inconsistent ones by {lead[1L]} and {lead[2L]} \\
                              places, respectively, in the {scr_func_info} \\
                              data frame. \n")
     } else {
       msg_cons <- glue::glue("There are {l_cons} consistent value sets, \\
-                             starting with row number {cons[1]} in \\
+                             starting with row number {cons[1L]} in \\
                              {df_info}.")
       msg_lead <- glue::glue("The consistent sets {lead_lag_info} the \\
                              inconsistent ones by numbers of places from \\
-                             {lead[1]} to {lead[l_lead]} in the \\
+                             {lead[1L]} to {lead[l_lead]} in the \\
                              {scr_func_info} data frame. \n")
-    }  # used to have: min(lead[tail(lead, 1)])
+    }
     msg_incons <- "All other value sets are inconsistent."
     cli::cli_inform(c(
       "Explanation: ",
@@ -81,7 +81,6 @@ explain_seq_test_ranking <- function(x, scr_func_info) {
   }
 
 }
-
 
 
 
@@ -111,7 +110,7 @@ explain_seq_test_ranking <- function(x, scr_func_info) {
 
 seq_test_ranking <- function(x, explain = TRUE) {
 
-  if (!any("consistency" == colnames(x))) {
+  if (!any(colnames(x) == "consistency")) {
     cli::cli_abort(c(
       "Column `consistency` is missing.",
       "i" = "Only run `seq_test_ranking()` on the output of a \\
@@ -149,10 +148,10 @@ seq_test_ranking <- function(x, explain = TRUE) {
   out <- add_class(out, "seq_test_ranking")
 
   class_is_scr_map_class <-
-    stringr::str_detect(class(x), "scr_") &
-    stringr::str_detect(class(x), "_map")
+    stringr::str_detect(class(x), "^scr_") &
+    stringr::str_detect(class(x), "_map$")
   scr_func_info <- class(x)[class_is_scr_map_class]
-  scr_func_info <- stringr::str_remove(scr_func_info, "scr_")
+  scr_func_info <- stringr::str_remove(scr_func_info, "^scr_")
   scr_func_info <- paste0("`", scr_func_info, "()`")
 
   if (inherits(x, "scr_seq_test")) {
@@ -177,5 +176,3 @@ seq_test_ranking <- function(x, explain = TRUE) {
   }
 
 }
-
-

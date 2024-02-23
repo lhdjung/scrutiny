@@ -3,31 +3,31 @@
 #'
 #' @description  Plot a distribution of binary data and their mutual DEBIT
 #'   consistency. Call this function only on a data frame that resulted from a
-#'   call to `debit_map()`.
+#'   call to [`debit_map()`].
 #'
 #'   Various parameters of the individual geoms can be controlled via arguments.
 #'
-#' @details The labels are created via `ggrepel::geom_text_repel()`, so the
+#' @details The labels are created via [`ggrepel::geom_text_repel()`], so the
 #'   algorithm is designed to minimize overlap with the tiles and other labels.
 #'   Yet, they don't take the DEBIT line into account, and their locations are
 #'   ultimately random. You might therefore have to resize the plot or run the
 #'   function a few times until the labels are localized in a satisfactory way.
 #'
 #'   An alternative to the present function would be an S3 method for
-#'   `ggplot2::autoplot()`. However, a standalone function such as this allows
+#'   [`ggplot2::autoplot()`]. However, a standalone function such as this allows
 #'   for customizing geom parameters and might perhaps provide better
 #'   accessibility overall.
 #'
-#' @param data Data frame. Result of a call to `debit_map()`.
-#' @param show_outer_boxes Boolean. Should outer tiles surround the actual data
+#' @param data Data frame. Result of a call to [`debit_map()`].
+#' @param show_outer_boxes Logical. Should outer tiles surround the actual data
 #'   points, making it easier to spot them and to assess their overlap? Default
 #'   is `TRUE`.
-#' @param show_labels Boolean. Should the data points have labels (of the form
+#' @param show_labels Logical. Should the data points have labels (of the form
 #'   "mean; SD")? Default is `TRUE`.
-#' @param show_full_scale Boolean. Should the plot be fixed to full scale,
+#' @param show_full_scale Logical. Should the plot be fixed to full scale,
 #'   showing the entire consistency line independently of the data? Default is
 #'   `TRUE`.
-#' @param show_theme_other Boolean. Should the theme be modified in a way
+#' @param show_theme_other Logical. Should the theme be modified in a way
 #'   fitting the plot structure? Default is `TRUE`.
 #' @param color_cons,color_incons Strings. Colors of the geoms representing
 #'   consistent and inconsistent values, respectively.
@@ -43,7 +43,7 @@
 #' @param
 #' label_alpha,label_linetype,label_size,label_linesize,label_force,label_force_pull,label_padding
 #' Parameters of the labels showing mean and SD values. Passed on to
-#' `ggrepel::geom_text_repel()`; see there for more information.
+#' [`ggrepel::geom_text_repel()`]; see there for more information.
 
 #' @include debit-map.R restore-zeros.R utils.R
 #'
@@ -118,9 +118,6 @@ debit_plot <- function(data,
 
   tile_height <- sd_upper - sd_lower + tile_width_offset
   tile_width <- x_upper - x_lower + tile_height_offset
-
-  #  max_y <- max(sd_upper) + tile_width_offset
-  #  min_y <- min(sd_lower) - tile_width_offset
 
   color_by_consistency <- dplyr::if_else(
     consistency, color_cons, color_incons

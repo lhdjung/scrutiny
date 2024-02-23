@@ -33,20 +33,20 @@ debit_plot(
 )
 }
 \arguments{
-\item{data}{Data frame. Result of a call to \code{debit_map()}.}
+\item{data}{Data frame. Result of a call to \code{\link[=debit_map]{debit_map()}}.}
 
-\item{show_outer_boxes}{Boolean. Should outer tiles surround the actual data
+\item{show_outer_boxes}{Logical. Should outer tiles surround the actual data
 points, making it easier to spot them and to assess their overlap? Default
 is \code{TRUE}.}
 
-\item{show_labels}{Boolean. Should the data points have labels (of the form
+\item{show_labels}{Logical. Should the data points have labels (of the form
 "mean; SD")? Default is \code{TRUE}.}
 
-\item{show_full_scale}{Boolean. Should the plot be fixed to full scale,
+\item{show_full_scale}{Logical. Should the plot be fixed to full scale,
 showing the entire consistency line independently of the data? Default is
 \code{TRUE}.}
 
-\item{show_theme_other}{Boolean. Should the theme be modified in a way
+\item{show_theme_other}{Logical. Should the theme be modified in a way
 fitting the plot structure? Default is \code{TRUE}.}
 
 \item{color_cons, color_incons}{Strings. Colors of the geoms representing
@@ -63,7 +63,7 @@ this particular geom.)}
 to the distance from the rectangles within.}
 
 \item{label_alpha, label_linetype, label_size, label_linesize, label_force, label_force_pull, label_padding}{Parameters of the labels showing mean and SD values. Passed on to
-\code{ggrepel::geom_text_repel()}; see there for more information.}
+\code{\link[ggrepel:geom_text_repel]{ggrepel::geom_text_repel()}}; see there for more information.}
 }
 \value{
 A ggplot object.
@@ -71,19 +71,19 @@ A ggplot object.
 \description{
 Plot a distribution of binary data and their mutual DEBIT
 consistency. Call this function only on a data frame that resulted from a
-call to \code{debit_map()}.
+call to \code{\link[=debit_map]{debit_map()}}.
 
 Various parameters of the individual geoms can be controlled via arguments.
 }
 \details{
-The labels are created via \code{ggrepel::geom_text_repel()}, so the
+The labels are created via \code{\link[ggrepel:geom_text_repel]{ggrepel::geom_text_repel()}}, so the
 algorithm is designed to minimize overlap with the tiles and other labels.
 Yet, they don't take the DEBIT line into account, and their locations are
 ultimately random. You might therefore have to resize the plot or run the
 function a few times until the labels are localized in a satisfactory way.
 
 An alternative to the present function would be an S3 method for
-\code{ggplot2::autoplot()}. However, a standalone function such as this allows
+\code{\link[ggplot2:autoplot]{ggplot2::autoplot()}}. However, a standalone function such as this allows
 for customizing geom parameters and might perhaps provide better
 accessibility overall.
 }

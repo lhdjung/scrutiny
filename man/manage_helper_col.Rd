@@ -14,13 +14,12 @@ the helper column you want to manage.}
 
 \item{default}{The default for the argument that was specified in \code{var_arg}.}
 
-\item{affix}{Boolean (length 1). If \code{data} doesn't include the helper column
+\item{affix}{Logical (length 1). If \code{data} doesn't include the helper column
 already, should \code{var_arg} be added to \code{data}, bearing its proper name?
 Default is \code{TRUE}.}
 }
 \value{
-The input data frame,  \code{data}, possibly modified (see \code{affix}
-argument).
+\code{data}, possibly modified (see \code{affix} argument).
 }
 \description{
 If your consistency test mapper function supports helper
@@ -35,5 +34,6 @@ output to that variable.
 
 All of this only works in mapper functions that were "handwritten" using
 \verb{function()}, as opposed to those produced by \code{function_map()}. See
-\code{vignette("consistency-tests")}, section \emph{Writing mappers manually}.
+\code{vignette("consistency-tests-in-depth")}, section \emph{Writing mappers
+manually}.
 }

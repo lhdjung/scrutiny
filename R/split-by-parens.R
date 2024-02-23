@@ -15,11 +15,11 @@
 #' @param cols Select columns from `data` using
 #'   \href{https://tidyselect.r-lib.org/reference/language.html}{tidyselect}.
 #'   Default is `everything()`, which selects all columns that pass `check_sep`.
-#' @param check_sep Boolean. If `TRUE` (the default), columns are excluded if
+#' @param check_sep Logical. If `TRUE` (the default), columns are excluded if
 #'   they don't contain the `sep` elements.
-#' @param keep Boolean. If set to `TRUE`, the originally selected columns that
+#' @param keep Logical. If set to `TRUE`, the originally selected columns that
 #'   were split by the function also appear in the output. Default is `FALSE`.
-#' @param transform Boolean. If set to `TRUE`, the output will be pivoted to be
+#' @param transform Logical. If set to `TRUE`, the output will be pivoted to be
 #'   better suitable for typical follow-up tasks. Default is `FALSE`.
 #' @param sep String. What to split by. Either `"parens"`, `"brackets"`, or
 #'   `"braces"`; or a length-2 vector of custom separators (see Examples).
@@ -33,12 +33,12 @@
 #' @return Data frame.
 
 #' @seealso
-#'  - `before_parens()` and `inside_parens()` take a string vector and extract
-#'  values from the respective position.
-#'  - `dplyr::across()` powers the application of the two above functions within
-#'  `split_by_parens()`, including the creation of new columns.
-#'  - `tidyr::separate()` is a more general function, but it does not recognize
-#'  closing elements such as closed parentheses.
+#'  - [`before_parens()`] and [`inside_parens()`] take a string vector and
+#' extract values from the respective position.
+#'  - [`dplyr::across()`] powers the application of the two above functions
+#' within split_by_parens()`, including the creation of new columns.
+#'  - [`tidyr::separate_wider_delim()`] is a more general function, but it does
+#'  not recognize closing elements such as closed parentheses.
 
 #' @export
 #'
@@ -130,7 +130,7 @@ split_by_parens <- function(data, cols = everything(), check_sep = TRUE,
     dplyr::select(
       function(x) {
         sep_in_order <- translate_length1_sep_keywords(sep)
-        sep_in_order <- paste0(sep_in_order[1], "[^)]*", sep_in_order[2])
+        sep_in_order <- paste0(sep_in_order[1L], "[^)]*", sep_in_order[2L])
         x %>%
           stringr::str_detect(sep_in_order) %>%
           all()
@@ -178,9 +178,6 @@ split_by_parens <- function(data, cols = everything(), check_sep = TRUE,
   names_neutral_cols <- names_data[!names_data %in% names(cols_to_select)]
   neutral_cols <- dplyr::select(data, all_of(names_neutral_cols))
 
-  # Save memory by removing objects that are no longer needed:
-  rm(data, selection2, cols_to_select, endings)
-
   # By default, the original columns are dropped. If the user disabled this by
   # setting `keep` to `TRUE`, `transform` can't also be `TRUE` because this
   # would likely lead to incommensurable data frame dimensions:
@@ -225,7 +222,7 @@ split_by_parens <- function(data, cols = everything(), check_sep = TRUE,
       "i" = "This concerns {names_neutral_cols}."
     ))
   }
-  transform_split_parens(out, end1, end2)
 
+  transform_split_parens(out, end1, end2)
 }
 

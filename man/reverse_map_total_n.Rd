@@ -15,9 +15,9 @@ The reconstructed tibble (data frame) which a factory-made
 }
 \description{
 \code{reverse_map_total_n()} takes the output of a function created
-by \code{function_map_total_n()} and reconstructs the original data frame.
+by \code{\link[=function_map_total_n]{function_map_total_n()}} and reconstructs the original data frame.
 
-See \code{audit_total_n()}, which takes \code{reverse_map_total_n()} as a basis.
+See \code{\link[=audit_total_n]{audit_total_n()}}, which takes \code{reverse_map_total_n()} as a basis.
 }
 \examples{
 # Originally reported summary data...

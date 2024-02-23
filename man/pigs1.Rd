@@ -19,15 +19,15 @@ A tibble (data frame).
 }
 \description{
 A fictional dataset with means and sample sizes of flying pigs. It can be
-used to demonstrate the functionality of \code{grim_map()} and functions building
-up on it.
+used to demonstrate the functionality of \code{\link[=grim_map]{grim_map()}} and functions
+building up on it.
 }
 \seealso{
-\code{pigs2} for GRIM-testing percentages instead of means, \code{pigs3} for
-DEBIT-testing, and \code{pigs4} for detecting duplicates.
+\code{\link{pigs2}} for GRIM-testing percentages instead of means, \code{\link{pigs3}}
+for DEBIT-testing, and \code{\link{pigs4}} for detecting duplicates.
 
-\code{pigs2} for GRIM-testing percentages instead of means, \code{pigs3} for
-DEBIT-testing, \code{pigs4} for detecting duplicates, and \code{pigs5} for
+\code{\link{pigs2}} for GRIM-testing percentages instead of means, \code{\link{pigs3}}
+for DEBIT-testing, \code{\link{pigs4}} for detecting duplicates, and \code{\link{pigs5}} for
 GRIMMER-testing.
 }
 \keyword{datasets}

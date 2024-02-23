@@ -41,8 +41,8 @@ sample size.
 \item \code{sd_binary_mean_n()} takes the mean and the total sample size.
 }
 
-These functions are used as helpers inside \code{debit()}, and consequently
-\code{debit_map()}.
+These functions are used as helpers inside \code{\link[=debit]{debit()}}, and consequently
+\code{\link[=debit_map]{debit_map()}}.
 }
 \examples{
 # If 127 values are coded as 0 and 153 as 1...

@@ -26,7 +26,7 @@ Threshold for rounding up or down, respectively. Value is \code{5} in
 \code{round_up()}'s internal call to \code{round_up_from()} and in \code{round_down()}'s
 internal call to \code{round_down_from()}.}
 
-\item{symmetric}{Boolean. Set \code{symmetric} to \code{TRUE} if the rounding of
+\item{symmetric}{Logical. Set \code{symmetric} to \code{TRUE} if the rounding of
 negative numbers should mirror that of positive numbers so that their
 absolute values are equal. Default is \code{FALSE}.}
 }
@@ -35,14 +35,14 @@ Numeric. \code{x} rounded to \code{digits}.
 }
 \description{
 \code{round_up()} rounds up from 5, \code{round_down()} rounds down from
-5. Otherwise, both functions work like \code{base::round()}.
+5. Otherwise, both functions work like \code{\link[base:Round]{base::round()}}.
 
 \code{round_up()} and \code{round_down()} are special cases of \code{round_up_from()} and
 \code{round_down_from()}, which allow users to choose custom thresholds for
 rounding up or down, respectively.
 }
 \details{
-These functions differ from \code{base::round()} mainly insofar as the
+These functions differ from \code{\link[base:Round]{base::round()}} mainly insofar as the
 decision about rounding 5 up or down is not based on the integer portion of
 \code{x} (i.e., no "rounding to even"). Instead, in \code{round_up_from()}, that
 decision is determined by the \code{threshold} argument for rounding up, and
@@ -50,21 +50,19 @@ likewise with \code{round_down_from()}. The threshold is constant at \code{5} fo
 \code{round_up()} and \code{round_down()}.
 
 As a result, these functions are more predictable and less prone to
-floating-point number quirks than \code{base::round()}. Compare \code{round_down()}
-and \code{base::round()} in the data frame for rounding 5 created in the
+floating-point number quirks than \code{\link[base:Round]{base::round()}}. Compare \code{round_down()}
+and \code{\link[base:Round]{base::round()}} in the data frame for rounding 5 created in the
 Examples section below: \code{round_down()} yields a continuous sequence of
-final digits from 0 to 9, whereas \code{base::round()} behaves in a way that can
-only be explained by floating point issues.
+final digits from 0 to 9, whereas \code{\link[base:Round]{base::round()}} behaves in a way that
+can only be explained by floating point issues.
 
-However, this surprising behavior on the part of \code{base::round()} is not
+However, this surprising behavior on the part of \code{\link[base:Round]{base::round()}} is not
 necessarily a flaw (see its documentation, or this vignette:
 https://rpubs.com/maechler/Rounding). In the present version of R (4.0.0 or
-later), \code{base::round()} works fine, and the functions presented here are
+later), \code{\link[base:Round]{base::round()}} works fine, and the functions presented here are
 not meant to replace it. Their main purpose as helpers within scrutiny is
 to reconstruct the computations of researchers who might have used
-different software. For example, SAS, SPSS, Stata, Matlab, and Excel round
-up from 5, whereas Python rounds down from 5. Other use cases might
-possibly include journal requirements.
+different software. See \code{vignette("rounding-options")}.
 }
 \examples{
 # Both `round_up()` and `round_down()` work like
@@ -83,23 +81,23 @@ base::round(x = 7.584, digits = 2)     # 4 cut off
 # Here is the borderline case of 5 rounded by
 # `round_up()`, `round_down()`, and `base::round()`:
 
-original <- c(     # Define example values
-    0.05, 0.15, 0.25, 0.35, 0.45,
-    0.55, 0.65, 0.75, 0.85, 0.95
-    )
-tibble::tibble(        # Output table
-    original,
-    round_up = round_up(x = original, digits = 1),
-    round_down = round_down(x = original, digits = 1),
-    base_round = base::round(x = original, digits = 1)
-    )
+original <- c(    # Define example values
+  0.05, 0.15, 0.25, 0.35, 0.45,
+  0.55, 0.65, 0.75, 0.85, 0.95
+)
+tibble::tibble(   # Output table
+  original,
+  round_up = round_up(x = original, digits = 1),
+  round_down = round_down(x = original, digits = 1),
+  base_round = base::round(x = original, digits = 1)
+)
 
 # (Note: Defining `original` as `seq(0.05:0.95, by = 0.1)`
 # would lead to wrong results unless `original` is rounded
 # to 2 or so digits before it's rounded to 1.)
 }
 \seealso{
-\code{round_ceiling()} always rounds up, \code{round_floor()} always rounds
-down, \code{round_trunc()} always rounds toward 0, and \code{round_anti_trunc()}
-always round away from 0.
+\code{\link[=round_ceiling]{round_ceiling()}} always rounds up, \code{\link[=round_floor]{round_floor()}} always
+rounds down, \code{\link[=round_trunc]{round_trunc()}} always rounds toward 0, and
+\code{\link[=round_anti_trunc]{round_anti_trunc()}} always round away from 0.
 }

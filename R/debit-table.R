@@ -94,8 +94,6 @@ debit_table <- function(x, sd, n,
   sd_incl_lower <- sd_unrounded$incl_lower
   sd_incl_upper <- sd_unrounded$incl_upper
 
-  rm(x_unrounded, sd_unrounded)
-
   # Reconstruct the original SD:
   sd_rec_lower <- reconstruct_sd(formula, x_lower, n)  # ADD `group_0, group_1` TO SUPPORT OTHER FORMULAS
   sd_rec_upper <- reconstruct_sd(formula, x_upper, n)  # ADD `group_0, group_1` TO SUPPORT OTHER FORMULAS
@@ -145,9 +143,8 @@ debit_table <- function(x, sd, n,
   # `n` is always a whole number, so it's good to convert it to integer:
   n <- as.integer(n)
 
-
   # Finally, return the results, with or without the reconstructed numbers
-  # (rounding method, boundary values, and Boolean information about the
+  # (rounding method, boundary values, and logical information about the
   # boundary values being inclusive or not):
   if (show_rec) {
     tibble::tibble(

@@ -12,7 +12,7 @@ duplicate_detect(x, ignore = NULL, colname_end = "dup", numeric_only)
 \item{ignore}{Optionally, a vector of values that should not be checked. In
 the test result columns, they will be marked \code{NA}.}
 
-\item{colname_end}{String. Name ending of the Boolean test result columns.
+\item{colname_end}{String. Name ending of the logical test result columns.
 Default is \code{"dup"}.}
 
 \item{numeric_only}{[\link{Deprecated}] No longer used: All values are coerced to
@@ -29,7 +29,8 @@ The tibble has the \code{scr_dup_detect} class, which is recognized by the
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#superseded}{\figure{lifecycle-superseded.svg}{options: alt='[Superseded]'}}}{\strong{[Superseded]}}
 
 \code{duplicate_detect()} is superseded because it's less informative than
-\code{duplicate_tally()} and \code{duplicate_count()}. Use these functions instead.
+\code{\link[=duplicate_tally]{duplicate_tally()}} and \code{\link[=duplicate_count]{duplicate_count()}}. Use these functions
+instead.
 
 For every value in a vector or data frame, \code{duplicate_detect()} tests
 whether there is at least one identical value. Test results are presented
@@ -38,7 +39,7 @@ next to every value.
 This function is a blunt tool designed for initial data checking. Don't put
 too much weight on its results.
 
-For summary statistics, call \code{audit()} on the results.
+For summary statistics, call \code{\link[=audit]{audit()}} on the results.
 }
 \details{
 This function is not very informative with many input values that
@@ -49,10 +50,10 @@ duplicates.
 In general, the fewer values and the more characters per value, the more
 significant the results.
 }
-\section{Summaries with \code{audit()}}{
- There is an S3 method for the \code{audit()}
-generic, so you can call \code{audit()} following \code{duplicate_detect()}. It
-returns a tibble with these columns ---
+\section{Summaries with \code{\link[=audit]{audit()}}}{
+ There is an S3 method for the
+\code{\link[=audit]{audit()}} generic, so you can call \code{\link[=audit]{audit()}} following
+\code{duplicate_detect()}. It returns a tibble with these columns ---
 \itemize{
 \item \code{term}: The original data frame's variables.
 \item \code{dup_count}: Number of "duplicated" values of that \code{term} variable: those
@@ -84,11 +85,11 @@ pigs4 \%>\%
 }
 \seealso{
 \itemize{
-\item \code{duplicate_tally()} to count instances of a value instead of just stating
-whether it is duplicated.
-\item \code{duplicate_count()} for a frequency table.
-\item \code{duplicate_count_colpair()} to check each combination of columns for
+\item \code{\link[=duplicate_tally]{duplicate_tally()}} to count instances of a value instead of just
+stating whether it is duplicated.
+\item \code{\link[=duplicate_count]{duplicate_count()}} for a frequency table.
+\item \code{\link[=duplicate_count_colpair]{duplicate_count_colpair()}} to check each combination of columns for
 duplicates.
-\item \code{janitor::get_dupes()} to search for duplicate rows.
+\item \code{\link[janitor:get_dupes]{janitor::get_dupes()}} to search for duplicate rows.
 }
 }

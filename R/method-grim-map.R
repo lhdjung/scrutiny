@@ -2,7 +2,6 @@
 #' @include audit.R grim-map.R
 #' @export
 
-
 audit.scr_grim_map <- function(data) {
 
   # Compute the summary values of interest ---
@@ -19,7 +18,7 @@ audit.scr_grim_map <- function(data) {
 
   # 5. the ratio of the proportion of GRIM-inconsistent cases to the average of
   # GRIM ratios:
-  incons_rate <- out[[3]]
+  incons_rate <- out[[3L]]
   incons_to_ratio <- incons_rate / mean_grim_ratio
 
   # 6. the number of GRIM-testable cases:
@@ -28,7 +27,7 @@ audit.scr_grim_map <- function(data) {
     nrow()
 
   # 7. the proportion of GRIM-testable cases:
-  all_cases <- out[[2]]
+  all_cases <- out[[2L]]
   testable_rate <- testable_cases / all_cases
 
   # Finally, collect all of these values in a resulting tibble --
@@ -36,4 +35,3 @@ audit.scr_grim_map <- function(data) {
     out, mean_grim_ratio, incons_to_ratio, testable_cases, testable_rate
   )
 }
-

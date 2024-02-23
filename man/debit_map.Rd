@@ -21,7 +21,7 @@ debit_map(
 
 \item{x, sd, n}{Optionally, specify these arguments as column names in \code{data}.}
 
-\item{rounding, threshold, symmetric}{Arguments passed on to \code{debit()}, with
+\item{rounding, threshold, symmetric}{Arguments passed on to \code{\link[=debit]{debit()}}, with
 the same defaults.}
 
 \item{show_rec}{If set to \code{FALSE}, the resulting tibble only includes the
@@ -34,24 +34,24 @@ A tibble with (at least) these columns --
 \itemize{
 \item \code{x}, \code{sd}, \code{n}: the inputs.
 \item \code{consistency}: DEBIT consistency of \code{x}, \code{sd}, and \code{n}.
-}
 
 By default, the tibble also includes the rounding method, boundary values,
-and Boolean information about the boundary values being inclusive or not.
-The tibble has the \code{scr_debit_map} class, which is recognized by the
-\code{audit()} generic.
+and information about the boundary values being inclusive or not. The
+tibble has the \code{scr_debit_map} class, which is recognized by the \code{audit()}
+generic.
+}
 }
 \description{
 Call \code{debit_map()} to use DEBIT on multiple combinations of
 mean, standard deviation, and sample size of binary distributions. Mapping
-function for \code{debit()}.
+function for \code{\link[=debit]{debit()}}.
 
-For summary statistics, call \code{audit()} on the results.
+For summary statistics, call \code{\link[=audit]{audit()}} on the results.
 }
-\section{Summaries with \code{audit()}}{
- There is an S3 method for the \code{audit()}
-generic, so you can call \code{audit()} following \code{debit_map()}. It returns a
-tibble with these columns ---
+\section{Summaries with \code{\link[=audit]{audit()}}}{
+ There is an S3 method for the
+\code{\link[=audit]{audit()}} generic, so you can call \code{\link[=audit]{audit()}} following \code{debit_map()}.
+It returns a tibble with these columns ---
 \enumerate{
 \item \code{incons_cases}: the number of DEBIT-inconsistent cases.
 \item \code{all_cases}: the total number of cases.

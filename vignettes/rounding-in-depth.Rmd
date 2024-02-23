@@ -1,10 +1,11 @@
 ---
-title: "Rounding"
+title: "Rounding in depth"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Rounding}
+  %\VignetteIndexEntry{Rounding in depth}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+bibliography: references.bib
 ---
 
 ```{r, include = FALSE}
@@ -14,28 +15,23 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r include=FALSE}
-# Dev only: load scrutiny from within scrutiny
-devtools::load_all(".")
-```
-
 ```{r setup, message=FALSE}
 library(scrutiny)
 ```
 
-Large parts of scrutiny are about rounding. This topic is more diverse and variegated than one might think. "Rounding" is often taken to simply mean rounding up from 5, and although that's wrong, it doesn't make much of a difference most of the time. Where it does matter is in *reconstructing* the rounding procedures that others used, claim to have used, or are alleged to have used. In short, rounding and all its details matter for error detection.
+Large parts of scrutiny are about rounding. This topic is more diverse and variegated than one might think. "Rounding" is often taken to simply mean rounding up from 5, and although that's wrong, it doesn't make much of a difference most of the time.
 
-This vignette covers scrutiny's infrastructure for reconstructing rounding procedures and results from summary statistics. Doing so is essential for the package: It is a precondition for translating assumptions about the processes behind published summary data into a few simple, higher-level function calls. Some of the functions presented here might be useful beyond the package, as well. Feel free to skip the more theoretical parts if your focus is on the code.
+One place where it does matter is in *reconstructing* the rounding procedures that others used, claim to have used, or are alleged to have used. In short, rounding and all its details matter for error detection.
+
+This vignette goes into depth on scrutiny's infrastructure for reconstructing rounding procedures and results from summary statistics. All of that is essential for the package: it is a precondition for translating assumptions about the processes behind published summary data into a few simple, higher-level function calls. Some of the functions presented here might be useful beyond the package, as well.
+
+Feel free to skip the more theoretical parts if your focus is on the code. See `vignette("rounding-options")` for a list of possible values of the `rounding` argument in scrutiny functions.
 
 ## Overview
 
-Base R's `round()` function is surprisingly sophisticated, which distinguishes it from the very simple ways in which decimal numbers are normally rounded --- most of the time, rounding up from 5. For this very reason, however, it can't be used to reconstruct the rounding procedures of other software programs. This is the job of scrutiny's rounding functions.
+Base R's `round()` function is surprisingly sophisticated. This distinguishes it from simpler rounding procedures, such as rounding up from 5. For this very reason, however, it can't be used to reconstruct the rounding procedures of other software programs. This is the job of scrutiny's rounding functions.
 
-First, I will present `reround()`, a general interface to reconstructing rounded numbers, before going through the individual rounding functions. I will add some comments on these.
-
-I will also discuss `unround()`, which works the reverse way: It takes a rounded number and reconstructs the bounds of the original number, taking details about the assumed rounding procedure into account.
-
-Finally, I will take a closer look at bias from rounding raw numbers.
+First, I will present `reround()`, a general interface to reconstructing rounded numbers, before going through the individual rounding functions. I will also discuss `unround()`, which works the reverse way: It takes a rounded number and reconstructs the bounds of the original number, taking details about the assumed rounding procedure into account. Finally, I will take a closer look at bias from rounding raw numbers.
 
 ## Reconstruct rounded numbers with `reround()`
 
@@ -55,7 +51,7 @@ The two remaining arguments are mostly forgettable: They only concern obscure ca
 
 ### Up and down
 
-`round_up()` does what most people think of as rounding. If the decimal portion to be cut off by rounding is 5 or greater, it rounds up. Otherwise, it rounds down. SAS, SPSS, Stata, Matlab, and Excel use this procedure.
+`round_up()` does what most people think of as rounding. If the decimal portion to be cut off by rounding is 5 or greater, it rounds up. Otherwise, it rounds down.
 
 ```{r}
 round_up(x = 1.24, digits = 1)
@@ -91,9 +87,23 @@ round_down_from(x = 4.28, digits = 1, threshold = 9)
 round_down_from(x = 4.28, digits = 1, threshold = 1)
 ```
 
+Rounding up implements this formula:
+
+$$
+\frac{\lfloor x(10^d) +1 - \frac{t}{10} \rfloor}{10^d}
+$$
+
+where $x$ is the number to be rounded, $d$ is the number of decimal places to which $x$ should be rounded, and $t$ is the threshold for rounding up (e.g., $t = 5$ for rounding up from 5). Note that $\lfloor n \rfloor$ floors a number $n$, and $\lceil n \rceil$ ceils it.
+
+Rounding down works accordingly. Note that $+$ and $-$ are reversed here:
+
+$$
+\frac{\lceil x(10^d) - 1 + \frac{t}{10} \rceil}{10^d}
+$$
+
 ### To even (base R)
 
-Like Python's [`round()`](https://python-reference.readthedocs.io/en/latest/docs/functions/round.html) function, R's `base::round()` doesn't round up or down, or use any other procedure based solely on the truncated part of the number. Instead, `round()` strives to round to the next even number. This is also called "banker's rounding", and it follows a technical standard, [IEEE 754](https://en.m.wikipedia.org/wiki/IEEE_754#Roundings_to_nearest).
+Like Python's [`round()`](https://docs.python.org/3/library/functions.html#round) function, R's `base::round()` doesn't round up or down, or use any other procedure based solely on the truncated part of the number. Instead, `round()` strives to round to the next even number. This is also called "banker's rounding", and it follows a technical standard, [IEEE 754](https://en.m.wikipedia.org/wiki/IEEE_754#Roundings_to_nearest).
 
 Realizing that `round()` works in a highly unintuitive way sometimes leads to consternation. Why can't we just round like we learned in school, that is, up from 5? The reason seems to be bias. Because 5 is right in between two whole numbers, any procedure that rounds 5 in some predetermined direction introduces a bias toward that direction. Rounding up from 5 is therefore biased upward, and rounding down from 5 is biased downward.
 
@@ -135,6 +145,7 @@ even2 <- round(vec2)
 vec1
 up2
 down2
+
 even2  # No symmetry here...
 
 mean(vec2)
@@ -160,9 +171,25 @@ The reason for the above behavior is that most decimal fractions can't, in fact,
 
 We usually think that rounding rules are all about breaking a tie that occurs at 5. Most floating-point numbers, however, are just somewhat less than or greater than 5. There is no tie! Consequently, Mächler says, rounding functions need to "*measure, not guess* which of the two possible decimals is closer to `x`" --- and therefore, which way to round.
 
-This seems better than going with mathematical intuitions that may not always correspond to the way computers actually deal with these issues. R has been using the present solution since version 4.0.0.
+This seems better than following mathematical intuitions that may not always correspond to the way computers actually deal with numbers. R has used the present solution since version 4.0.0.
 
 `base::round()` can seem like a black box, but it seems unbiased in the long run. I recommend using `round()` for original work, even though it is quite different from other rounding procedures --- and therefore unsuitable for reconstructing them. Instead, we need something like scrutiny's `round_*()` functions.
+
+### IEEE 754 rounding standard
+
+`base::round()` and some of scrutiny's rounding functions correspond to the IEEE 754 rounding standard (IEEE 2019, pp. 27f.; the [Wikipedia page](https://en.m.wikipedia.org/wiki/IEEE_754#Rounding_rules) is more accessible). IEEE 754 defines standards for floating-point operations, which includes rounding.
+
+This table shows how `base::round()` and scrutiny correspond to IEEE 754:
+
+| Function                             | IEEE 754 attribute    |
+|--------------------------------------|-----------------------|
+| `base::round()`                      | *roundTiesToEven*     |
+| `round_up()` with `symmetric = TRUE` | *roundTiesToAway*     |
+| `round_ceiling()`                    | *roundTowardPositive* |
+| `round_floor()`                      | *roundTowardNegative* |
+| `round_trunc()`                      | *roundTowardZero*     |
+
+Admittedly, scrutiny's rounding functions were written without this standard in mind. That is why their names don't match those of the IEEE rounding procedures (or "rounding-direction attributes"), and why one of them requires the optional `symmetric` argument to meet the standard. A more straightforward mapping might be more desirable, and future breaking changes in a major version of scrutiny are not out of the question. However, other considerations apply, as well.
 
 ## Reconstruct rounding bounds with `unround()`
 
@@ -410,3 +437,9 @@ ggplot2::ggplot(df_new, ggplot2::aes(x = decimal_digits, y = bias, fill = roundi
 ```
 
 In sum, the function allows users to quantify the degree to which rounding biases a distribution, so that they can assess the relative merits of different rounding procedures. This is partly to sensitize readers to potential bias in edge cases, but also to enable them to make informed rounding decisions on their own.
+
+### Citation dummy {style="display: none;"}
+
+*(Here is an extra section. Its display is suppressed via the CSS element `display: none;` because its only purpose is to generate the citation @ieee2019 --- I want to style the citation in the text above more flexibly than the format allows (without parentheses) but still get the reference pasted at the bottom.)*
+
+# References

@@ -26,21 +26,20 @@ distribution. Currently, only the default, \code{"mean_n"}, is supported.}
 
 \item{rounding}{String. Rounding method or methods to be used for
 reconstructing the SD values to which \code{sd} will be compared. Default is
-\code{"up_or_down"} (from 5). For more options, see documentation for \code{grim()},
-section Details.}
+\code{"up_or_down"} (from 5). See \code{vignette("rounding-options")}.}
 
 \item{threshold}{Integer. If \code{rounding} is set to \code{"up_from"}, \code{"down_from"},
 or \code{"up_from_or_down_from"}, set \code{threshold} to the number from which the
 reconstructed values should then be rounded up or down. Otherwise
 irrelevant. Default is \code{5}.}
 
-\item{symmetric}{Boolean. Set \code{symmetric} to \code{TRUE} if the rounding of
+\item{symmetric}{Logical. Set \code{symmetric} to \code{TRUE} if the rounding of
 negative numbers with \code{"up"}, \code{"down"}, \code{"up_from"}, or \code{"down_from"}
 should mirror that of positive numbers so that their absolute values are
 always equal. Default is \code{FALSE}.}
 }
 \value{
-Boolean. \code{TRUE} if \code{x}, \code{sd}, and \code{n} are mutually consistent,
+Logical. \code{TRUE} if \code{x}, \code{sd}, and \code{n} are mutually consistent,
 \code{FALSE} if not.
 }
 \description{
@@ -48,8 +47,8 @@ Boolean. \code{TRUE} if \code{x}, \code{sd}, and \code{n} are mutually consisten
 mean and the standard deviation of binary data are given, are they
 consistent with the reported sample size?
 
-The function is vectorized, but it is recommended to use \code{debit_map()} for
-testing multiple cases.
+The function is vectorized, but it is recommended to use \code{\link[=debit_map]{debit_map()}}
+for testing multiple cases.
 }
 \examples{
 # Check single cases of binary
@@ -61,5 +60,5 @@ Heathers, James A. J., and Brown, Nicholas J. L. 2019. DEBIT: A
 Simple Consistency Test For Binary Data. https://osf.io/5vb3u/.
 }
 \seealso{
-\code{debit_map()} applies \code{debit()} to any number of cases at once.
+\code{\link[=debit_map]{debit_map()}} applies \code{debit()} to any number of cases at once.
 }

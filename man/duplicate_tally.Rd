@@ -12,7 +12,7 @@ duplicate_tally(x, ignore = NULL, colname_end = "n")
 \item{ignore}{Optionally, a vector of values that should not be checked. In
 the test result columns, they will be marked \code{NA}.}
 
-\item{colname_end}{String. Name ending of the Boolean test result columns.
+\item{colname_end}{String. Name ending of the logical test result columns.
 Default is \code{"n"}.}
 }
 \value{
@@ -27,7 +27,7 @@ For every value in a vector or data frame, \code{duplicate_tally()}
 counts how often it appears in total. Tallies are presented next to each
 value.
 
-For summary statistics, call \code{audit()} on the results.
+For summary statistics, call \code{\link[=audit]{audit()}} on the results.
 }
 \details{
 This function is not very informative with many input values that
@@ -38,9 +38,9 @@ duplicates.
 In general, the fewer values and the more characters per value, the more
 significant the results.
 }
-\section{Summaries with \code{audit()}}{
- There is an S3 method for the \code{audit()}
-generic, so you can call \code{audit()} following \code{duplicate_tally()}. It
+\section{Summaries with \code{\link[=audit]{audit()}}}{
+ There is an S3 method for the \code{\link[=audit]{audit()}}
+generic, so you can call \code{\link[=audit]{audit()}} following \code{duplicate_tally()}. It
 returns a tibble with summary statistics.
 }
 
@@ -62,9 +62,9 @@ pigs4 \%>\%
 }
 \seealso{
 \itemize{
-\item \code{duplicate_count()} for a frequency table.
-\item \code{duplicate_count_colpair()} to check each combination of columns for
+\item \code{\link[=duplicate_count]{duplicate_count()}} for a frequency table.
+\item \code{\link[=duplicate_count_colpair]{duplicate_count_colpair()}} to check each combination of columns for
 duplicates.
-\item \code{janitor::get_dupes()} to search for duplicate rows.
+\item \code{\link[janitor:get_dupes]{janitor::get_dupes()}} to search for duplicate rows.
 }
 }

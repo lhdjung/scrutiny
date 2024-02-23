@@ -31,7 +31,7 @@
 # #
 # # @param values_1,values_2 Numeric or string coercible to numeric (length 3).
 # #   Each vector consists of one reported statistic plus the lower and upper
-# #   bounds of the original number, as determined by `unround()`.
+# #   bounds of the original number, as determined by [`unround()`].
 # # @param dir String (length 1). Direction on the x-axis in which the test
 # #   statistic increases. Either `"forward"`, `"backward"`, `"inward"`, or
 # #   `"outward"`.
@@ -42,7 +42,7 @@
 # # @param text_size Numeric. Base text size. Default is `12`.
 # # @param color_1,color_2 String. Line colors. Defaults are `"royalblue1"` and
 # #   `"red"`.
-# # @param tag Tag for the whole plot. Default is `waiver()`, i.e., no tag.
+# # @param tag Tag for the whole plot. Default is [`waiver()`], i.e., no tag.
 # #
 # # @return
 # # @export
@@ -166,19 +166,19 @@
 #   label_less <- "≤"
 #
 #   labels_numbers_1_new <- paste(
-#     labels_numbers[1],
+#     labels_numbers[1L],
 #     label_less,
-#     labels_numbers[2],
+#     labels_numbers[2L],
 #     label_less,
-#     labels_numbers[3]
+#     labels_numbers[3L]
 #   )
 #
 #   labels_numbers_2_new <- paste(
-#     labels_numbers[4],
+#     labels_numbers[4L],
 #     label_less,
-#     labels_numbers[5],
+#     labels_numbers[5L],
 #     label_less,
-#     labels_numbers[6]
+#     labels_numbers[6L]
 #   )
 #
 #   # labels_numbers_new <-
@@ -319,8 +319,8 @@
 #     plot_1 <- plot_1 + ggplot2::labs(x = NULL)
 #     plot_2 <- plot_2 + ggplot2::labs(x = NULL)
 #   } else {
-#     plot_1 <- plot_1 + ggplot2::labs(x = label_x_axis[2])
-#     plot_2 <- plot_2 + ggplot2::labs(x = label_x_axis[1])
+#     plot_1 <- plot_1 + ggplot2::labs(x = label_x_axis[2L])
+#     plot_2 <- plot_2 + ggplot2::labs(x = label_x_axis[1L])
 #   }
 #
 #

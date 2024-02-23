@@ -22,7 +22,7 @@
 #'   places. If such a number is known but values were not entered as strings,
 #'   trailing zeros will be lost. In this case, `restore_zeros()` or
 #'   `restore_zeros_df()` will be helpful to prepare data for consistency
-#'   testing functions such as `grim_map()` or `grimmer_map()`.
+#'   testing functions such as [`grim_map()`] or [`grimmer_map()`].
 
 #' @section Displaying decimal places: You might not see all decimal places of
 #'   numeric values in a vector, and consequently wonder if `restore_zeros()`,
@@ -52,10 +52,10 @@
 #'   \href{https://tidyselect.r-lib.org/reference/language.html}{tidyselect}.
 #'   Default is `everything()`, which selects all columns that pass the test of
 #'   `check_numeric_like`.
-#' @param check_numeric_like Boolean. Only in `restore_zeros_df()`. If `TRUE`
+#' @param check_numeric_like Logical. Only in `restore_zeros_df()`. If `TRUE`
 #'   (the default), the function will skip columns that are not numeric or
-#'   coercible to numeric, as determined by `is_numeric_like()`.
-#' @param check_decimals Boolean. Only in `restore_zeros_df()`. If set to
+#'   coercible to numeric, as determined by [`is_numeric_like()`].
+#' @param check_decimals Logical. Only in `restore_zeros_df()`. If set to
 #'   `TRUE`, the function will skip columns where no values have any decimal
 #'   places. Default is `FALSE`.
 #' @param ... Only in `restore_zeros_df()`. These dots must be empty.
@@ -71,7 +71,7 @@
 #'
 #' @include utils.R
 #'
-#' @seealso Wrapped functions: `sprintf()` and `decimal_places()`.
+#' @seealso Wrapped functions: [`sprintf()`].
 #'
 #' @examples
 #' # By default, the target width is that of
@@ -121,11 +121,9 @@ restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in,
   # accordance with the `width` argument, the default of which, `NULL`, makes
   # the function go by the maximal length of already-present mantissas:
   if (is.null(width)) {
-
     # Count characters of the mantissa part:
     parts <- stringr::str_split_fixed(x, sep_in, n = 2L)
-    width_mantissa <- stringr::str_length(parts[, 2])
-
+    width_mantissa <- stringr::str_length(parts[, 2L])
     # Throw a warning if `x` can't be formatted with the given arguments:
     if (length(x) == 1L) {
       cli::cli_warn(c(
@@ -142,13 +140,10 @@ restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in,
         to which `x` values should be padded."
       ))
     }
-
     # The number of decimal places to which `x` values will be padded with zeros
     # is determined by the number of characters in the longest mantissa...
     width_target <- max(width_mantissa, na.rm = TRUE)
-
   } else {
-
     # ... unless the user manually specified that target number via `width`:
     width_target <- width
   }
@@ -198,8 +193,6 @@ restore_zeros_df <- function(data, cols = everything(),
         within `restore_zeros()`."
       )
     )
-    # # If `sep` is specified, `sep_in` must take on its role:
-    # sep_in <- sep
   }
 
   # Check whether the user specified any "old" arguments: those starting on a
@@ -271,12 +264,6 @@ restore_zeros_df <- function(data, cols = everything(),
       msg_it_they = c("It isn't", "They aren't")
     )
   }
-
-  # Save memory by removing objects that are no longer needed:
-  rm(
-    cols, names_num_cols, names_wrong_cols, names_cols_select,
-    selection2, selection3
-  )
 
   # By default, a columns is selected if and only if it's numeric-like.
   # Additional constrains might come via `selection2` or `selection3` (see

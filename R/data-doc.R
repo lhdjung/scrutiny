@@ -4,8 +4,8 @@
 #' Means and sample sizes for GRIM-testing
 #'
 #' A fictional dataset with means and sample sizes of flying pigs. It can be
-#' used to demonstrate the functionality of `grim_map()` and functions building
-#' up on it.
+#' used to demonstrate the functionality of [`grim_map()`] and functions
+#' building up on it.
 
 #' @include utils.R grim-map.R seq-decimal.R
 #'
@@ -17,11 +17,11 @@
 
 #' @return A tibble (data frame).
 #'
-#' @seealso `pigs2` for GRIM-testing percentages instead of means, `pigs3` for
-#'   DEBIT-testing, and `pigs4` for detecting duplicates.
+#' @seealso [`pigs2`] for GRIM-testing percentages instead of means, [`pigs3`]
+#'   for DEBIT-testing, and [`pigs4`] for detecting duplicates.
 #'
-#' @seealso `pigs2` for GRIM-testing percentages instead of means, `pigs3` for
-#'   DEBIT-testing, `pigs4` for detecting duplicates, and `pigs5` for
+#' @seealso [`pigs2`] for GRIM-testing percentages instead of means, [`pigs3`]
+#'   for DEBIT-testing, [`pigs4`] for detecting duplicates, and [`pigs5`] for
 #'   GRIMMER-testing.
 #'
 "pigs1"
@@ -44,11 +44,11 @@
 
 #' @return A tibble (data frame).
 #'
-#' @seealso `pigs1` for GRIM-testing means instead of percentages, `pigs3` for
-#'   DEBIT-testing, and `pigs4` for detecting duplicates.
+#' @seealso `pigs1` for GRIM-testing means instead of percentages, [`pigs3`] for
+#'   DEBIT-testing, and [`pigs4`] for detecting duplicates.
 #'
-#' @seealso `pigs1` for GRIM-testing means, `pigs3` for DEBIT-testing, `pigs4`
-#'   for detecting duplicates, and `pigs5` for GRIMMER-testing.
+#' @seealso `pigs1` for GRIM-testing means, [`pigs3`] for DEBIT-testing,
+#'   [`pigs4`] for detecting duplicates, and [`pigs5`] for GRIMMER-testing.
 #'
 "pigs2"
 
@@ -71,12 +71,12 @@
 
 #' @return A tibble (data frame).
 #'
-#' @seealso `pigs1` for GRIM-testing means, `pigs2` for GRIM-testing
-#'   percentages, and `pigs4` for detecting duplicates.
+#' @seealso `pigs1` for GRIM-testing means, [`pigs2`] for GRIM-testing
+#'   percentages, and [`pigs4`] for detecting duplicates.
 #'
-#' @seealso `pigs1` for GRIM-testing means, `pigs2` for GRIM-testing percentages
-#'   instead of means, `pigs4` for detecting duplicates, and `pigs5` for
-#'   GRIMMER-testing.
+#' @seealso `pigs1` for GRIM-testing means, [`pigs2`] for GRIM-testing
+#'   percentages instead of means, [`pigs4`] for detecting duplicates, and
+#'   [`pigs5`] for GRIMMER-testing.
 #'
 "pigs3"
 
@@ -100,8 +100,8 @@
 
 #' @return A tibble (data frame).
 #'
-#' @seealso `pigs1` for GRIM-testing means, `pigs2` for GRIM-testing
-#'   percentages, `pigs3` for using DEBIT, and `pigs5` for GRIMMER-testing.
+#' @seealso `pigs1` for GRIM-testing means, [`pigs2`] for GRIM-testing
+#'   percentages, [`pigs3`] for using DEBIT, and [`pigs5`] for GRIMMER-testing.
 #'
 "pigs4"
 
@@ -124,9 +124,9 @@
 
 #' @return A tibble (data frame).
 #'
-#' @seealso `pigs1` for (only) GRIM-testing the same means as here, `pigs2` for
-#'   GRIM-testing percentages instead of means, `pigs3` for DEBIT-testing, and
-#'   `pigs4` for detecting duplicates.
+#' @seealso `pigs1` for (only) GRIM-testing the same means as here, [`pigs2`]
+#'   for GRIM-testing percentages instead of means, [`pigs3`] for DEBIT-testing,
+#'   and [`pigs4`] for detecting duplicates.
 #'
 "pigs5"
 

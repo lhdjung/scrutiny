@@ -1,50 +1,14 @@
 
-# Helper functions to be mapped in the other helper functions below...
-min_distance_abs_scalar <- function(x) {
-  if (any(!is.numeric(x))) {
-    return(NA_real_)
-  }
-  min(abs(x))
-}
-
-min_distance_pos_scalar <- function(x) {
-  if (any(!is.numeric(x))) {
-    return(NA_real_)
-  }
-  min(x[x > 0])
-}
-
-min_distance_neg_scalar <- function(x) {
-  if (any(!is.numeric(x))) {
-    return(NA_real_)
-  }
-  max(x[x < 0])
-}
-
-# ...namely these ones:
-# min_distance_abs <- function(x) purrr::map_dbl(x, min_distance_abs_scalar)
-# min_distance_pos <- function(x) purrr::map_dbl(x, min_distance_pos_scalar)
-# min_distance_neg <- function(x) purrr::map_dbl(x, min_distance_neg_scalar)
-
-min_distance_abs <- function(x) vapply(x, min_distance_abs_scalar, double(1L))
-min_distance_pos <- function(x) vapply(x, min_distance_pos_scalar, double(1L))
-min_distance_neg <- function(x) vapply(x, min_distance_neg_scalar, double(1L))
-
-
-
-# # Example data:
-# data <- grim_map_seq(pigs1)
-
-
-
 #' Reverse the `*_map_seq()` process
 #'
 #' @description `reverse_map_seq()` takes the output of a function created by
-#'   `function_map_seq()` and reconstructs the original data frame.
+#'   [`function_map_seq()`] and reconstructs the original data frame.
 #'
-#'   See `audit_seq()`, which takes `reverse_map_seq()` as a basis.
+#'   See [`audit_seq()`], which takes `reverse_map_seq()` as a basis.
 #'
 #' @param data Data frame that inherits the `"scr_map_seq"` class.
+#'
+#' @include utils.R
 #'
 #' @export
 #'
@@ -75,6 +39,8 @@ reverse_map_seq <- function(data) {
     ))
   }
 
+  check_dispersion_linear(data)
+
   var <- data %>%
     select_tested_cols() %>%
     colnames()
@@ -90,7 +56,7 @@ reverse_map_seq <- function(data) {
     data_var <- data_var[var_unique]  # order by `var`
     if (length(unique(data$var)) < length(data_var)) {
       length_diff <- length(data_var) - length(unique(data$var))
-      data_var_fill <- rep(data_var[1], length_diff)
+      data_var_fill <- rep(data_var[1L], length_diff)
       data_var <- append(data_var, data_var_fill)
       data_var <- Filter(length, data_var)
     }
@@ -106,7 +72,7 @@ reverse_map_seq <- function(data) {
   data_index_case <- data_nested %>%
     dplyr::mutate(
       scr_index_case = list(data[var]),
-      scr_index_case = list(index_case_interpolate(scr_index_case[[1]]))
+      scr_index_case = list(index_case_interpolate(scr_index_case[[1L]]))
     ) %>%
     dplyr::ungroup() %>%
     dplyr::select(var, scr_index_case)
@@ -120,5 +86,4 @@ reverse_map_seq <- function(data) {
     tidyr::unnest(cols = everything()) %>%
     tidyr::unnest(cols = everything()) # yes, this is weird
 }
-
 

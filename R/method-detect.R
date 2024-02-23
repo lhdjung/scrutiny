@@ -2,10 +2,9 @@
 #' @include audit.R duplicate-detect.R grim-map.R
 #' @export
 
-
 audit.scr_dup_detect <- function(data) {
 
-  # Select the Boolean test columns (i.e., every second column):
+  # Select the logical test columns (i.e., every second column):
   data_dup <- data[is_even(seq_len(ncol(data)))]
 
   # Extract original term names:
@@ -13,12 +12,11 @@ audit.scr_dup_detect <- function(data) {
     dplyr::select(-names(data_dup)) %>%
     names()
 
-  # Boolean columns get original term names (the "_dup" would be redundant):
+  # Logical columns get original term names (the "_dup" would be redundant):
   names(data_dup) <- orig_names
 
   # After saving the number of its rows, `data` is no longer needed:
   orig_nrow <- nrow(data)
-  rm(data)
 
   # Tidying to long format makes the table more manageable. Then, group the
   # table by the original terms, count duplicates, fashion it a little, and
@@ -45,4 +43,3 @@ audit.scr_dup_detect <- function(data) {
     total_count = sum(out$total_count), dup_rate = .data$dup_count / .data$total_count
   )
 }
-

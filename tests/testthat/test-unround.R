@@ -4,12 +4,12 @@ df1 <- unround(c(3.6, "5.20", 5.174)) %>%
 
 
 test_that("The output is a tibble", {
-  df1 %>% tibble::is_tibble() %>% expect_true()
+
+  df1 %>% expect_s3_class("tbl_df")
 })
 
 test_that("It has correct dimensions", {
-  df1 %>% nrow() %>% expect_equal(3)
-  df1 %>% ncol() %>% expect_equal(7)
+  df1 %>% dim() %>% expect_equal(c(3, 7))
 })
 
 

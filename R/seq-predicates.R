@@ -1,5 +1,4 @@
 
-
 # Helpers for `function_map_seq()` as well as its assorted `reverse_*()` and
 # `summarize_*()` functions:
 
@@ -20,7 +19,7 @@ index_seq <- function(x) {
     x <- as.numeric(x)
   }
   x_seq <- seq_along(x)
-  x_seq <- x[x_seq] - x[x_seq + 1]
+  x_seq <- x[x_seq] - x[x_seq + 1L]
   abs(x_seq[!is.na(x_seq)])
 }
 
@@ -35,8 +34,8 @@ is_linear <- function(x, tolerance) {
 
 
 is_seq_ascending_basic <- function(x) {
-  for (i in 1:(length(x) - 1L)) {
-    if (x[i + 1] <= x[i]) {
+  for (i in 1L:(length(x) - 1L)) {
+    if (x[i + 1L] <= x[i]) {
       return(FALSE)
     }
   }
@@ -45,8 +44,8 @@ is_seq_ascending_basic <- function(x) {
 
 
 is_seq_descending_basic <- function(x) {
-  for (i in 1:(length(x) - 1L)) {
-    if (x[i + 1] >= x[i]) {
+  for (i in 1L:(length(x) - 1L)) {
+    if (x[i + 1L] >= x[i]) {
       return(FALSE)
     }
   }
@@ -87,7 +86,7 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
     return(FALSE)
   }
 
-  if (length(x) == 1) {
+  if (length(x) == 1L) {
     return(TRUE)
   }
 
@@ -98,8 +97,8 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
     # These two `while`-loops remove all `NA` values from the start and the end
     # of `x` because `NA`s at these particular locations have no bearing on
     # whether or not `x` might represent a linear sequence:
-    while (is.na(x[1])) {
-      x <- x[-1]
+    while (is.na(x[1L])) {
+      x <- x[-1L]
     }
     while (is.na(x[length(x)])) {
       x <- x[-length(x)]
@@ -112,7 +111,7 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
     if (!is.null(test_special) && test_special == "dispersed") {
       diff_central_index <-
         !dplyr::near(args_other$from, x[index_central(x)], tolerance)
-      one_sided_na <- (!is.na(x_orig[1])) || (!is.na(x_orig[length(x_orig)]))
+      one_sided_na <- (!is.na(x_orig[1L])) || (!is.na(x_orig[length(x_orig)]))
       if (is_even(length(x)) || diff_central_index || one_sided_na) {
         return(FALSE)
       }
@@ -132,10 +131,8 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
         while (is.na(x[i + index_upper])) {
           index_upper <- index_upper + 1L
         }
-
         seq_start <- x[i - index_lower]
         seq_end   <- x[i + index_upper]
-
         step <- step_size(c(seq_start, seq_end))
 
         # Descending sequences require a negative step size:
@@ -149,7 +146,7 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
         # Remove the first and the last element because these correspond to the
         # two next surrounding non-`NA` numbers rather than to the `NA`
         # subsequence, and therefore should not replace any `NA`s:
-        seq_replacement <- seq_replacement[-1]
+        seq_replacement <- seq_replacement[-1L]
         seq_replacement <- seq_replacement[-length(seq_replacement)]
 
         if (test_linear) {
@@ -178,7 +175,6 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
 
       } # End of the `is.na(x[i])` condition
     }   # End of the for loop
-
   }     # End of the `x_has_na` condition
 
   # If desired, test `x` -- as passed to the function or as partly reconstructed
@@ -215,20 +211,7 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
     TRUE
   }
 
-  # if (pass_test) {
-  #
-  #   if (x_has_na) {
-  #     return(NA)
-  #   } else {
-  #     return(TRUE)
-  #   }
-  #
-  # } else {
-  #   return(FALSE)
-  # }
-
 }
-
 
 
 
@@ -255,13 +238,13 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
 #' @param from Numeric or coercible to numeric. Only in `is_seq_dispersed()`. It
 #'   will test whether `from` is at the center of `x`, and if every pair of
 #'   other values is equidistant to it.
-#' @param test_linear Boolean. In functions other than `is_seq_linear()`, should
+#' @param test_linear Logical. In functions other than `is_seq_linear()`, should
 #'   `x` also be tested for linearity? Default is `TRUE`.
 #' @param tolerance Numeric. Tolerance of comparison between numbers when
 #'   testing. Default is circa 0.000000015 (1.490116e-08), as in
 #'   `dplyr::near()`.
 
-#' @return A single Boolean value. If `x` contains at least one `NA` element,
+#' @return A single logical value. If `x` contains at least one `NA` element,
 #'   the functions return either `NA` or `FALSE`:
 #'   - If all elements of `x` are `NA`, the functions return `NA`.
 #'   - If some but not all elements are `NA`, they check if `x` *might* be a
@@ -269,7 +252,7 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
 #'   sequence after the `NA`s were replaced by appropriate values? If so, they
 #'   return `NA`; otherwise, they return `FALSE`.
 
-#' @seealso `validate::is_linear_sequence()`, which is much like
+#' @seealso [`validate::is_linear_sequence()`], which is much like
 #'   `is_seq_linear()` but more permissive with `NA` values. It comes with some
 #'   additional features, such as support for date-times.
 
@@ -352,7 +335,6 @@ is_seq_dispersed <- function(x, from, test_linear = TRUE,
 
 
 
-
 # Helper, not exported:
 is_seq_dispersed_basic <- function(x, from,
                                    tolerance = .Machine$double.eps^0.5) {
@@ -383,13 +365,11 @@ is_seq_dispersed_basic <- function(x, from,
     return(FALSE)
   }
 
-  dispersion_minus <- from - x[1:(index_central_x - 1L)]
+  dispersion_minus <- from - x[1L:(index_central_x - 1L)]
   dispersion_plus  <- from + x[(index_central_x + 1L):length(x)]
 
   from_reconstructed <- (dispersion_plus - rev(dispersion_minus)) / 2
 
   all(dplyr::near(from, from_reconstructed, tolerance))
 }
-
-
 

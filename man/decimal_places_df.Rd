@@ -18,9 +18,9 @@ decimal_places_df(
 \href{https://tidyselect.r-lib.org/reference/language.html}{tidyselect}.
 Default is \code{everything()}, but restricted by \code{check_numeric_like}.}
 
-\item{check_numeric_like}{Boolean. If \code{TRUE} (the default), the function only
+\item{check_numeric_like}{Logical. If \code{TRUE} (the default), the function only
 operates on numeric columns and other columns coercible to numeric, as
-determined by \code{is_numeric_like()}.}
+determined by \code{\link[=is_numeric_like]{is_numeric_like()}}.}
 
 \item{sep}{Substring that separates the mantissa from the integer part.
 Default is \code{"\\\\."}, which renders a decimal point.}
@@ -50,5 +50,5 @@ iris \%>\%
   decimal_places_df(cols = starts_with("Sepal"))
 }
 \seealso{
-Wrapped functions: \code{decimal_places()}, \code{dplyr::across()}.
+Wrapped functions: \code{\link[=decimal_places]{decimal_places()}}, \code{\link[dplyr:across]{dplyr::across()}}.
 }

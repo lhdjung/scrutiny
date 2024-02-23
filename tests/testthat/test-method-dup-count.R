@@ -2,7 +2,7 @@
 # Expected output ---------------------------------------------------------
 
 iris_exp <- tibble::tibble(
-  term = c("count", "locations_n"),
+  term = c("frequency", "locations_n"),
   mean = c(9.74025974025974, 1.636363636363636464566),
   sd = c(9.917292973974667802395, 0.5106520833593400920947),
   median = c(7, 2),
@@ -13,7 +13,7 @@ iris_exp <- tibble::tibble(
 )
 
 mtcars_exp <- tibble::tibble(
-  term = c("count", "locations_n"),
+  term = c("frequency", "locations_n"),
   mean = c(2.227848101265822666761, 1.082278481012658222227),
   sd = c(4.980086119759305596233, 0.3379441380253598303796),
   median = c(1, 1),
@@ -26,7 +26,7 @@ mtcars_exp <- tibble::tibble(
 nums <- c(1:10, 3:7, 9)
 
 nums_exp <- tibble::tibble(
-  term = "count",
+  term = "frequency",
   mean = 1.6,
   sd = 0.5163977794943221955037,
   median = 2,

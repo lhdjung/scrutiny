@@ -1,5 +1,4 @@
 
-
 #' Test for subsets, supersets, and equal sets
 #'
 #' @description Predicate functions that take a vector and test whether it has
@@ -51,7 +50,7 @@
 #'   contain; in the `*_vecs()` functions, any number of vectors the elements of
 #'   which `x` might contain.
 #'
-#' @return A single Boolean value. `TRUE` if the respective test was passed,
+#' @return A single logical value. `TRUE` if the respective test was passed,
 #'   `FALSE` otherwise.
 #'
 #' @include utils.R
@@ -193,7 +192,6 @@ is_proper_superset_of_vals <- function(x, ...) {
 
 
 
-
 # With multiple arguments that might contain values -----------------------
 
 # Note: The helper function `straighten_out()` can be found in the utils.R file.
@@ -243,5 +241,4 @@ is_proper_superset_of_vecs <- function(x, ...) {
   y <- straighten_out(...)
   is_proper_superset_of(x, y)
 }
-
 

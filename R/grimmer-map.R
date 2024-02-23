@@ -5,8 +5,8 @@
 #'   of mean, standard deviation, sample size, and number of items. Mapping
 #'   function for GRIMMER-testing.
 #'
-#'   For summary statistics, call `audit()` on the results. Visualize results
-#'   using `grim_plot()`, as with GRIM results.
+#'   For summary statistics, call [`audit()`] on the results. Visualize results
+#'   using [`grim_plot()`], as with GRIM results.
 #'
 #' @param data Data frame with columns `x`, `sd`, `n`, and optionally `items`
 #'   (see documentation for `grim()`). Any other columns in `data` will be
@@ -15,16 +15,16 @@
 #'   bug that will be fixed in the future.)* Integer. If there is no `items`
 #'   column in `data`, this specifies the number of items composing the `x` and
 #'   `sd` values. Default is 1, the most common case.
-#' @param merge_items Boolean. If `TRUE` (the default), there will be no `items`
+#' @param merge_items Logical. If `TRUE` (the default), there will be no `items`
 #'   column in the output. Instead, values from an `items` column or argument
 #'   will be multiplied with values in the `n` column. This does not affect
 #'   GRIM- or GRIMMER-testing.
 #' @param x,sd,n Optionally, specify these arguments as column names in `data`.
-#' @param show_reason Boolean (length 1). Should there be a `reason` column that
+#' @param show_reason Logical (length 1). Should there be a `reason` column that
 #'   shows the reasons for inconsistencies (and `NA` for consistent values)?
 #'   Default is `FALSE`.
 #' @param rounding,threshold,symmetric,tolerance Further parameters of
-#'   GRIMMER-testing; see documentation for `grimmer()`.
+#'   GRIMMER-testing; see documentation for [`grimmer()`].
 
 #' @return A tibble with these columns --
 #' - `x`, `sd`, `n`: the inputs.
@@ -32,11 +32,11 @@
 #' - `<extra>`: any columns from `data` other than `x`, `n`, and `items`.
 #'
 #' The tibble has the `scr_grimmer_map` class, which is recognized by the
-#' `audit()` generic. It also has the `scr_grim_map` class, so it can be
-#' visualized by `grim_plot()`.
+#' [`audit()`] generic. It also has the `scr_grim_map` class, so it can be
+#' visualized by [`grim_plot()`].
 
-#' @section Summaries with `audit()`: There is an S3 method for `audit()`, so
-#'   you can call `audit()` following `grimmer_map()` to get a summary of
+#' @section Summaries with [`audit()`]: There is an S3 method for [`audit()`],
+#'   so you can call [`audit()`] following `grimmer_map()` to get a summary of
 #'   `grimmer_map()`'s results. It is a tibble with a single row and these
 #'   columns --
 #'
@@ -45,11 +45,11 @@
 #' 3. `incons_rate`: proportion of GRIMMER-inconsistent value sets.
 #' 4. `fail_grim`: number of value sets that fail the GRIM test.
 #' 5. `fail_test1`: number of value sets that fail the first GRIMMER test (sum
-#'     of squares is a whole number)
+#'     of squares is a whole number).
 #' 6. `fail_test2`: number of value sets that fail the second GRIMMER test
-#'     (matching SDs)
+#'     (matching SDs).
 #' 7. `fail_test3`: number of value sets that fail the third GRIMMER test (equal
-#'     parity)
+#'     parity).
 
 #' @include audit.R grimmer.R function-map.R
 #'
@@ -85,20 +85,26 @@ grimmer_map <- function(data, items = 1, merge_items = TRUE,
                         threshold = 5, symmetric = FALSE,
                         tolerance = .Machine$double.eps^0.5) {
 
+  if (!missing(x)) {
+    x <- rlang::enexpr(x)
+    data <- manage_key_colnames(data, x, "mean")
+  }
+
+  if (!missing(sd)) {
+    sd <- rlang::enexpr(sd)
+    data <- manage_key_colnames(data, sd, "standard deviation")
+  }
+
+  if (!missing(n)) {
+    n <- rlang::enexpr(n)
+    data <- manage_key_colnames(data, n, "sample size")
+  }
+
   check_mapper_input_colnames(data, c("x", "sd", "n"), "GRIMMER")
 
-  # Defuse the argument specifications that can be used to assign the roles of
-  # `x`, `sd`, and `n` to specific columns in case these columns don't already
-  # have those names:
-  x  <- rlang::enexpr(x)
-  sd <- rlang::enexpr(sd)
-  n  <- rlang::enexpr(n)
-
-  # Check for non-standard column names and, if present, rename them. If the
-  # respective argument was not specified as that column name, throw an error:
-  data <- manage_key_colnames(data, x,  "mean/proportion")
-  data <- manage_key_colnames(data, sd, "standard deviation")
-  data <- manage_key_colnames(data, n,  "sample size")
+  # TODO: REWRITE `grimmer_map()` USING `function_map()`! THAT IS, DEVELOP
+  # `function_map()` SO THAT IT CAN HANDLE ALL THE FUNCTIONALITY THAT THIS
+  # REQUIRES! BUT FIRST, WRITE TEST FOR `grimmer_map()`!
 
   check_mapper_input_colnames(data, c("x", "n"), "GRIM")
   check_tibble(data)

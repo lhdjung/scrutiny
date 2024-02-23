@@ -6,7 +6,7 @@ plot1 <- pigs3 %>%
 
 
 test_that("`debit_plot()` returns a ggplot object", {
-  plot1 %>% ggplot2::is.ggplot() %>% expect_true()
+  plot1 %>%  expect_s3_class("ggplot")
 })
 
 test_that("The S3 inheritance check works correctly", {

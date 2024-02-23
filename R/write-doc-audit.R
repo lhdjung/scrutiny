@@ -4,11 +4,11 @@ manage_key_args <- function(key_args) {
   key_args_bt <- wrap_in_backticks(key_args) # function from utils.R
   vars <- commas_and(key_args_bt)    # function from utils.R
 
-  arg1 <- key_args[1]
-  arg2 <- key_args[2]
+  arg1 <- key_args[1L]
+  arg2 <- key_args[2L]
 
-  arg1_bt <- key_args_bt[1]
-  arg2_bt <- key_args_bt[2]
+  arg1_bt <- key_args_bt[1L]
+  arg2_bt <- key_args_bt[2L]
 
   if (length(key_args) == 2L) {
     var_ge_3 <- ""
@@ -50,7 +50,7 @@ manage_var_ge_3 <- function(var_ge_3, prefix, suffix, segway = "as well as") {
     } else {
       var_ge_3_line <- glue::glue("`{var_ge_3}` and `{prefix}{var_ge_3}{suffix}`")
       var_ge_3_line_without_last <- paste(
-        var_ge_3_line[1:(length(var_ge_3_line) - 1L)],
+        var_ge_3_line[1L:(length(var_ge_3_line) - 1L)],
         collapse = "; "
       )
       var_ge_3_line <- glue::glue(
@@ -67,31 +67,29 @@ manage_var_ge_3 <- function(var_ge_3, prefix, suffix, segway = "as well as") {
 
 
 
-
-
-#' Documentation template for `audit()`
+#' Documentation template for [`audit()`]
 #'
 #' @description `write_doc_audit()` creates a roxygen2 block section to be
-#'   inserted into the documentation of a mapper function such as `grim_map()`
-#'   or `debit_map()`: functions for which there are, or should be, `audit()`
-#'   methods. The section informs users about the ways in which `audit()`
-#'   summarizes the results of the respective mapper function.
+#'   inserted into the documentation of a mapper function such as [`grim_map()`]
+#'   or [`debit_map()`]: functions for which there are, or should be,
+#'   [`audit()`] methods. The section informs users about the ways in which
+#'   [`audit()`] summarizes the results of the respective mapper function.
 #'
 #'   Copy the output from your console and paste it into the roxygen2 block of
 #'   your `*_map()` function. To preserve the numbered list structure when
 #'   indenting roxygen2 comments with `Ctrl`+`Shift`+`/`, leave empty lines
 #'   between the pasted output and the rest of the block.
 #'
-#' @param sample_output Data frame. Result of a call to `audit()` on a data
+#' @param sample_output Data frame. Result of a call to [`audit()`] on a data
 #'   frame that resulted from a call to the mapper function for which you wrote
-#'   the `audit()` method, such as `audit(grim_map(pigs1))` or
+#'   the [`audit()`] method, such as `audit(grim_map(pigs1))` or
 #'   `audit(debit_map(pigs3))`.
 #' @param name_test String (length 1). Name of the consistency test which the
 #'   mapper function applies, such as `"GRIM"` or `"DEBIT"`.
 #'
 #' @export
 #'
-#' @return A string vector formatted by `glue::glue()`.
+#' @return A string vector formatted by [`glue::glue()`].
 #'
 #' @examples
 #' # Start by running `audit()`:
@@ -175,13 +173,12 @@ write_doc_audit <- function(sample_output, name_test) {
 
 
 
-
-#' Documentation template for `audit_seq()`
+#' Documentation template for [`audit_seq()`]
 #'
 #' @description `write_doc_audit_seq()` creates a roxygen2 block section to be
 #'   inserted into the documentation of functions created with
-#'   `function_map_seq()`. The section informs users about the ways in which
-#'   `audit_seq()` summarizes the results of the manufactured `*_map_seq()`
+#'   [`function_map_seq()`]. The section informs users about the ways in which
+#'   [`audit_seq()`] summarizes the results of the manufactured `*_map_seq()`
 #'   function.
 #'
 #'   Copy the output from your console and paste it into the roxygen2 block of
@@ -199,10 +196,10 @@ write_doc_audit <- function(sample_output, name_test) {
 #'
 #' @export
 #'
-#' @return A string vector formatted by `glue::glue()`.
+#' @return A string vector formatted by [`glue::glue()`].
 #'
-#' @seealso The sister function `write_doc_audit_total_n()` and, for context,
-#'   `vignette("consistency-tests")`.
+#' @seealso The sister function [`write_doc_audit_total_n()`] and, for context,
+#'   `vignette("consistency-tests-in-depth")`.
 #'
 #' @examples
 #' # For GRIM and `grim_map_seq()`:
@@ -211,19 +208,18 @@ write_doc_audit <- function(sample_output, name_test) {
 #' # For DEBIT and `debit_map_seq()`:
 #' write_doc_audit_seq(key_args = c("x", "sd", "n"), name_test = "DEBIT")
 
-
 write_doc_audit_seq <- function(key_args, name_test) {
 
   check_length(name_test, 1L)
 
   key_args_list <- manage_key_args(key_args)
 
-  arg1 <- key_args_list[1]
-  arg2 <- key_args_list[2]
-  arg1_bt <- key_args_list[3]
-  arg2_bt <- key_args_list[4]
-  vars <- key_args_list[5]
-  var_ge_3 <- key_args_list[6][[1]]
+  arg1 <- key_args_list[1L]
+  arg2 <- key_args_list[2L]
+  arg1_bt <- key_args_list[3L]
+  arg2_bt <- key_args_list[4L]
+  vars <- key_args_list[5L]
+  var_ge_3 <- key_args_list[6L][[1L]]
 
   var_ge_3_line_hits <- manage_var_ge_3(
     var_ge_3, prefix = "hits", suffix = "", segway = "as well as"
@@ -289,15 +285,13 @@ write_doc_audit_seq <- function(key_args, name_test) {
 
 
 
-
-
-#' Documentation template for `audit_total_n()`
+#' Documentation template for [`audit_total_n()`]
 #'
 #' @description `write_doc_audit_total_n()` creates a roxygen2 block section to
 #'   be inserted into the documentation of functions created with
-#'   `function_map_total_n()`. The section informs users about the ways in which
-#'   `audit_seq()` summarizes the results of the manufactured `*_map_total_n()`
-#'   function.
+#'   [`function_map_total_n()`]. The section informs users about the ways in
+#'   which [`audit_seq()`] summarizes the results of the manufactured
+#'   `*_map_total_n()` function.
 #'
 #'   Copy the output from your console and paste it into the roxygen2 block of
 #'   your `*_map_total_n()` function. To preserve the bullet-point structure
@@ -313,10 +307,10 @@ write_doc_audit_seq <- function(key_args, name_test) {
 #'
 #' @export
 #'
-#' @return A string vector formatted by `glue::glue()`.
+#' @return A string vector formatted by [`glue::glue()`].
 #'
-#' @seealso The sister function `write_doc_audit_seq()` and, for context,
-#'   `vignette("consistency-tests")`.
+#' @seealso The sister function [`write_doc_audit_seq()`] and, for context,
+#'   `vignette("consistency-tests-in-depth")`.
 #'
 #' @examples
 #' # For GRIM and `grim_map_total_n()`:
@@ -415,28 +409,30 @@ write_doc_audit_total_n <- function(key_args, name_test) {
 
 
 
-
-
-
 #' Documentation template for function factory conventions
 #'
 #' @description `write_doc_factory_map_conventions()` creates a roxygen2 block
 #'   section to be inserted into the documentation of a function factory such as
-#'   `function_map_seq()` or `function_map_total_n()`. It lays out the naming
-#'   guidelines that users of your function factory should follow when creating
-#'   new manufactured functions.
+#'   [`function_map_seq()`] or [`function_map_total_n()`]. It lays out the
+#'   naming guidelines that users of your function factory should follow when
+#'   creating new manufactured functions.
 #'
 #'   Copy the output from your console and paste it into the roxygen2 block of
 #'   your function factory.
 #'
 #' @param ending String (length 1). The part of your function factory's name
 #'   after `function_map_`. To
-#' @param name_test1,name_test2 Strings (length 1). Plain-text names of example
-#'   consistency tests. Defaults are `"GRIM"` and `"GRIMMER"`, respectively.
+#' @param name_test1,name_test2 Strings (length 1 each). Plain-text names of
+#'   example consistency tests. Defaults are `"GRIM"` and `"GRIMMER"`,
+#'   respectively.
+#' @param scrutiny_prefix Logical (length 1). Should the scrutiny functions
+#'   mentioned in the output have a `scrutiny::` namespace specification? Set
+#'   this to `TRUE` if the output will go into another package's documentation.
+#'   Default is `FALSE`.
 #'
 #' @export
 #'
-#' @return A string vector formatted by `glue::glue()`.
+#' @return A string vector formatted by [`glue::glue()`].
 #'
 #' @seealso For context, see
 #'   \href{https://lhdjung.github.io/scrutiny/articles/consistency-tests.html}{*Implementing
@@ -450,38 +446,62 @@ write_doc_audit_total_n <- function(key_args, name_test) {
 #' write_doc_factory_map_conventions(ending = "total_n")
 
 
-write_doc_factory_map_conventions <- function(ending, name_test1 = "GRIM",
-                                              name_test2 = "GRIMMER") {
+write_doc_factory_map_conventions <- function(ending,
+                                              name_test1 = "GRIM",
+                                              name_test2 = "GRIMMER",
+                                              scrutiny_prefix = FALSE) {
 
   # Checks ---
   check_length(ending, 1L)
   check_length(name_test1, 1L)
   check_length(name_test2, 1L)
 
+  if (ending == "") {
+    cli::cli_abort(c(
+      "Non-empty `ending` needed.",
+      "x" = "In particular, these conventions only apply to \\
+      specialized function factories, not to `function_map()`."
+    ))
+  }
+
   # Main part ---
 
-  if (ending != "") {
-    ending <- paste0("_", ending)
-  }
+  ending <- paste0("_", ending)
 
   name_test1_lower <- tolower(name_test1)
   name_test2_lower <- tolower(name_test2)
 
+  # Namespace specification:
+  scrutiny_ns <- if (scrutiny_prefix) {
+    "scrutiny::"
+  } else {
+    ""
+  }
+
+  # Prepare function and class names to be inserted below:
+  name_factory <- glue::glue("`function_map{ending}()`")
+  name_mapper_seq1 <- glue::glue("[`{scrutiny_ns}{name_test1_lower}_map{ending}()`]")
+  name_mapper_simple1 <- glue::glue("[`{scrutiny_ns}{name_test1_lower}_map()`]")
+  name_mapper_simple2 <- glue::glue("[`{scrutiny_ns}{name_test2_lower}_map()`]")
+  name_class_special1 <- glue::glue("`scr_{name_test1_lower}_map{ending}`")
+  name_class_special2 <- glue::glue("`scr_{name_test2_lower}_map{ending}`")
+
   # Return documentation section:
   glue::glue(
-    "#' @section Conventions: The name of a function manufactured with \n",
-    "#'   `function_map{ending}()` should mechanically follow from that of the input \n",
-    "#'   function. For example, `{name_test1_lower}_map{ending}()` derives from `{name_test1_lower}_map()`. \n",
-    "#'   This pattern fits best if the input function itself is named after the test \n",
-    "#'   it performs on a data frame, followed by `_map`: `{name_test1_lower}_map()` applies {name_test1}, \n",
-    "#'   `{name_test2_lower}_map()` applies {name_test2}, etc. \n",
+    "#' @section Conventions: The name of a function returned by \n",
+    "#'   {name_factory} should mechanically follow from that of \n",
+    "#'   the input function. For example, {name_mapper_seq1} derives \n",
+    "#'   from {name_mapper_simple1}. This pattern fits best if the input function itself \n",
+    "#'   is named after the test it performs on a data frame, followed by `_map`: \n",
+    "#'   {name_mapper_simple1} applies {name_test1}, {name_mapper_simple2} applies {name_test2}, etc. \n",
     "#' \n",
     "#'   Much the same is true for the classes of data frames returned by the \n",
     "#'   manufactured function via the `.name_class` argument of \n",
-    "#'   `function_map{ending}()`. It should be the function's own name preceded by \n",
-    "#'   the name of the package that contains it or by an acronym of that package's \n",
-    "#'   name. In this way, some existing classes are `scr_{name_test1_lower}_map{ending}` and \n",
-    "#'   `scr_{name_test2_lower}_map{ending}`. \n"
+    "#'   {name_factory}. It should be the function's own name preceded \n",
+    "#'   by the name of the package that contains it, or by an acronym of that \n",
+    "#'   package's name. Therefore, some existing classes are \n",
+    "#'   {name_class_special1} and {name_class_special2}. \n"
   )
+
 }
 

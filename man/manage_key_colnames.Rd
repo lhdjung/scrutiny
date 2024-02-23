@@ -37,5 +37,5 @@ e.g.,\code{data <- manage_key_colnames(data, x, "mean/proportion")} and \code{da
 }
 }
 \seealso{
-\code{vignette("consistency-tests")}, for context.
+\code{vignette("consistency-tests-in-depth")}, for context.
 }

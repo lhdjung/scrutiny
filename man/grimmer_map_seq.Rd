@@ -19,7 +19,7 @@ grimmer_map_seq(
 )
 }
 \arguments{
-\item{data}{A data frame that \code{grimmer_map()} could take.}
+\item{data}{A data frame that \code{\link[=grimmer_map]{grimmer_map()}} could take.}
 
 \item{x, sd, n}{Optionally, specify these arguments as column names in \code{data}.}
 
@@ -36,16 +36,16 @@ not below \code{out_min} or above \code{out_max}. Defaults are \code{"auto"} for
 \code{out_min}, i.e., a minimum of one decimal unit above zero; and \code{NULL} for
 \code{out_max}, i.e., no maximum.}
 
-\item{include_reported}{Boolean. Should the reported values themselves be
+\item{include_reported}{Logical. Should the reported values themselves be
 included in the sequences originating from them? Default is \code{FALSE} because
 this might be redundant and bias the results.}
 
-\item{include_consistent}{Boolean. Should the function also process
+\item{include_consistent}{Logical. Should the function also process
 consistent cases (from among those reported), not just inconsistent ones?
 Default is \code{FALSE} because the focus should be on clarifying
 inconsistencies.}
 
-\item{...}{Arguments passed down to \code{grimmer_map()}. \emph{(NOTE: Don't use the
+\item{...}{Arguments passed down to \code{\link[=grimmer_map]{grimmer_map()}}. \emph{(NOTE: Don't use the
 \code{items} argument. It currently contains a bug that will be fixed in the
 future.)}}
 }
@@ -56,13 +56,14 @@ A tibble (data frame) with detailed test results.
 \code{grimmer_map_seq()} performs GRIMMER-testing with values
 surrounding the input values. This provides an easy and powerful way to
 assess whether small errors in computing or reporting may be responsible
-for GRIMMER-inconsistencies in published statistics.
+for GRIMMER inconsistencies in published statistics.
 
-Call \code{audit_seq()} on the results for summary statistics.
+Call \code{\link[=audit_seq]{audit_seq()}} on the results for summary statistics.
 }
-\section{Summaries with \code{audit_seq()}}{
- You can call \code{audit_seq()} following
-\code{grimmer_map_seq()}. It will return a data frame with these columns:
+\section{Summaries with \code{\link[=audit_seq]{audit_seq()}}}{
+ You can call \code{\link[=audit_seq]{audit_seq()}}
+following \code{grimmer_map_seq()}. It will return a data frame with these
+columns:
 \itemize{
 \item \code{x}, \code{sd}, and \code{n} are the original inputs,
 tested for \code{consistency} here.
@@ -72,8 +73,8 @@ found within the specified \code{dispersion} range.
 found by varying \code{x}.
 \item Accordingly with \code{sd} and \code{hits_sd} as well as \code{n} and \code{hits_n}.
 \item (Note that any consistent reported cases will be counted by the
-\verb{hits_*} columns if both \code{include_reported} and \code{include_consistent}
-are set to \code{TRUE}.)
+\verb{hits_*} columns if both \code{include_reported} and \code{include_consistent} are
+set to \code{TRUE}.)
 \item \code{diff_x} reports the absolute difference between \code{x} and the next
 consistent dispersed value (in dispersion steps, not the actual numeric
 difference). \code{diff_x_up} and \code{diff_x_down} report the difference to the
@@ -82,10 +83,10 @@ next higher or lower consistent value, respectively.
 \item Likewise with \code{diff_n}, \code{diff_n_up}, and \code{diff_n_down}.
 }
 
-Call \code{audit()} following \code{audit_seq()} to summarize results even further.
-It's mostly self-explaining, but \code{na_count} and \code{na_rate} are the number
-and rate of times that a difference could not be computed because of a lack
-of corresponding hits within the \code{dispersion} range.
+Call \code{\link[=audit]{audit()}} following \code{\link[=audit_seq]{audit_seq()}} to summarize results even
+further. It's mostly self-explaining, but \code{na_count} and \code{na_rate} are the
+number and rate of times that a difference could not be computed because of
+a lack of corresponding hits within the \code{dispersion} range.
 }
 
 \examples{

@@ -7,25 +7,32 @@
 write_doc_factory_map_conventions(
   ending,
   name_test1 = "GRIM",
-  name_test2 = "GRIMMER"
+  name_test2 = "GRIMMER",
+  scrutiny_prefix = FALSE
 )
 }
 \arguments{
 \item{ending}{String (length 1). The part of your function factory's name
 after \code{function_map_}. To}
 
-\item{name_test1, name_test2}{Strings (length 1). Plain-text names of example
-consistency tests. Defaults are \code{"GRIM"} and \code{"GRIMMER"}, respectively.}
+\item{name_test1, name_test2}{Strings (length 1 each). Plain-text names of
+example consistency tests. Defaults are \code{"GRIM"} and \code{"GRIMMER"},
+respectively.}
+
+\item{scrutiny_prefix}{Logical (length 1). Should the scrutiny functions
+mentioned in the output have a \verb{scrutiny::} namespace specification? Set
+this to \code{TRUE} if the output will go into another package's documentation.
+Default is \code{FALSE}.}
 }
 \value{
-A string vector formatted by \code{glue::glue()}.
+A string vector formatted by \code{\link[glue:glue]{glue::glue()}}.
 }
 \description{
 \code{write_doc_factory_map_conventions()} creates a roxygen2 block
 section to be inserted into the documentation of a function factory such as
-\code{function_map_seq()} or \code{function_map_total_n()}. It lays out the naming
-guidelines that users of your function factory should follow when creating
-new manufactured functions.
+\code{\link[=function_map_seq]{function_map_seq()}} or \code{\link[=function_map_total_n]{function_map_total_n()}}. It lays out the
+naming guidelines that users of your function factory should follow when
+creating new manufactured functions.
 
 Copy the output from your console and paste it into the roxygen2 block of
 your function factory.

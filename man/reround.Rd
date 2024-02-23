@@ -16,20 +16,19 @@ reround(
 \item{x}{Numeric. Vector of possibly original values.}
 
 \item{digits}{Integer. Number of decimal places in the reported key values
-(i.e., mean or percentage within \code{grim()}, or standard deviation within
-\code{debit()}).}
+(i.e., mean or percentage within \code{\link[=grim]{grim()}}, or standard deviation within
+\code{\link[=grimmer]{grimmer()}}).}
 
 \item{rounding}{String. The rounding method that is supposed to have been
-used originally. See documentation for \code{grim()}, section \code{Rounding}.
-Default is \code{"up_or_down"}, which returns two values: \code{x} rounded up \emph{and}
-down.}
+used originally. See \code{vignette("rounding-options")}. Default is
+\code{"up_or_down"}, which returns two values: \code{x} rounded up \emph{and} down.}
 
 \item{threshold}{Integer. If \code{rounding} is set to \code{"up_from"}, \code{"down_from"},
 or \code{"up_from_or_down_from"}, \code{threshold} must be set to the number from
 which the reconstructed values should then be rounded up or down. Otherwise
 irrelevant. Default is \code{5}.}
 
-\item{symmetric}{Boolean. Set \code{symmetric} to \code{TRUE} if the rounding of
+\item{symmetric}{Logical. Set \code{symmetric} to \code{TRUE} if the rounding of
 negative numbers with \code{"up_or_down"}, \code{"up"}, \code{"down"},
 \code{"up_from_or_down_from"}, \code{"up_from"}, or \code{"down_from"} should mirror that
 of positive numbers so that their absolute values are always equal.
@@ -47,15 +46,15 @@ to have been rounded originally, in the process that generated the reported
 values.
 
 This function provides an interface to all of scrutiny's rounding functions
-as well as \code{base::round()}. It is used as a helper within \code{grim()} and
-\code{debit()}, and it might find use in other places for consistency testing or
-reconstruction of statistical analyses.
+as well as \code{\link[base:Round]{base::round()}}. It is used as a helper within \code{\link[=grim]{grim()}},
+\code{\link[=grimmer]{grimmer()}}, and \code{\link[=debit]{debit()}}; and it might find use in other places for
+consistency testing or reconstruction of statistical analyses.
 }
 \details{
 \code{reround()} internally calls the appropriate rounding function(s)
-determined by the \code{rounding} argument. See documentation for \code{grim()},
-section \code{Rounding}, for a complete list of values that \code{rounding} can take.
+determined by the \code{rounding} argument. See \code{vignette("rounding-options")}
+for a complete list of values that \code{rounding} can take.
 
-For the nine rounding functions themselves, see documentation at
-\code{round_up()}, \code{round_ceiling()}, and \code{base::round()}.
+For the specific rounding functions themselves, see documentation at
+\code{\link[=round_up]{round_up()}}, \code{\link[=round_ceiling]{round_ceiling()}}, and \code{\link[base:Round]{base::round()}}.
 }

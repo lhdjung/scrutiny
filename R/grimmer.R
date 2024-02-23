@@ -1,5 +1,4 @@
 
-
 # Introductory notes ------------------------------------------------------
 
 # Analytic-GRIMMER (A-GRIMMER) was developed by Aurélien Allard
@@ -7,10 +6,9 @@
 # His original algorithm received some modifications here, for three reasons:
 # First, tapping scrutiny's infrastructure for implementing error detection
 # techniques; for example, functions like `reround()` and
-# `decimal_places_scalar()`. Second, changing the return value to Boolean, which
+# `decimal_places_scalar()`. Second, changing the return value to logical, which
 # is the expected output from the basic implementation of any consistency test
 # within scrutiny. Third, adjusting variable names to the tidyverse style guide.
-
 
 
 # Translation of variable names -------------------------------------------
@@ -35,7 +33,6 @@
 # Third_Test         --> pass_test3
 
 
-
 # # Example inputs:
 # n <- 40
 # mean <- 1.03
@@ -47,7 +44,6 @@
 # tolerance <- .Machine$double.eps^0.5
 # decimals_mean <- 2
 # decimals_SD <- 2
-
 
 
 # Implementation ----------------------------------------------------------
@@ -178,15 +174,14 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
 
 
 
-
 #' The GRIMMER test (granularity-related inconsistency of means mapped to error
 #' repeats)
 #'
 #' @description `grimmer()` checks if reported mean and SD values of integer
 #'   data are mathematically consistent with the reported sample size and the
-#'   number of items that compose the mean value. It works much like `grim()`.
+#'   number of items that compose the mean value. It works much like [`grim()`].
 #'
-#'   The function is vectorized, but it is recommended to use `grimmer_map()`
+#'   The function is vectorized, but it is recommended to use [`grimmer_map()`]
 #'   for testing multiple cases.
 #'
 #' @param x String. The reported mean value.
@@ -196,24 +191,24 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
 #'   bug that will be fixed in the future.)* Integer. The
 #'   number of items composing the `x` and `sd` values. Default is 1, the most
 #'   common case.
-#' @param show_reason Boolean. For internal use only. If set to `TRUE`, the
+#' @param show_reason Logical. For internal use only. If set to `TRUE`, the
 #'   output is a list of length-2 lists which also contain the reasons for
 #'   inconsistencies. Don't specify this manually; instead, use `show_reason` in
-#'   `grimmer_map()`. Default is `FALSE`.
+#'   [`grimmer_map()`]. Default is `FALSE`.
 #'
 #' @inheritParams grim
 #'
-#' @return Boolean. `TRUE` if `x`, `sd`, `n`, and `items` are mutually
+#' @return Logical. `TRUE` if `x`, `sd`, `n`, and `items` are mutually
 #'   consistent, `FALSE` if not.
 
 #' @details GRIMMER was originally devised by Anaya (2016). The present
 #'   implementation follows Allard's (2018) refined Analytic-GRIMMER (A-GRIMMER)
 #'   algorithm. It adapts the R function `aGrimmer()` provided by Allard and
 #'   modifies it to accord with scrutiny's standards, as laid out in
-#'   `vignette("consistency-tests")`, sections 1-2. The resulting `grimmer()`
-#'   function, then, is a vectorized version of this basic implementation. For
-#'   more context and variable name translations, see the top of the
-#'   R/grimmer.R, the source file.
+#'   `vignette("consistency-tests-in-depth")`, sections 1-2. The resulting
+#'   `grimmer()` function, then, is a vectorized version of this basic
+#'   implementation. For more context and variable name translations, see the
+#'   top of the R/grimmer.R, the source file.
 #'
 #'   The present implementation can differ from Allard's in a small number of
 #'   cases. In most cases, this means that the original flags a value set as

@@ -1,6 +1,6 @@
 Package: scrutiny
 Title: Error Detection in Science
-Version: 0.3.0
+Version: 0.3.0.9000
 Authors@R: c(
     person(given = "Lukas",
            family = "Jung",
@@ -21,18 +21,24 @@ License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 Imports: 
     cli,
+    corrr,
     dplyr,
+    ggplot2,
+    ggrepel,
     glue,
     lifecycle,
     magrittr,
     methods,
     purrr,
     rlang (>= 1.0.2),
+    stats,
     stringr,
-    tibble
+    tibble,
+    tidyr,
+    tidyselect
 Collate: 
     'is-numeric-like.R'
     'import-reexport.R'
@@ -63,6 +69,7 @@ Collate:
     'grim-map.R'
     'data-doc.R'
     'data-frame-predicates.R'
+    'seq-predicates.R'
     'function-map-seq.R'
     'debit-map-seq.R'
     'disperse.R'
@@ -71,7 +78,6 @@ Collate:
     'debit-plot.R'
     'duplicate-count-colpair.R'
     'duplicate-count.R'
-    'grim-explain.R'
     'grim-granularity.R'
     'grim-map-seq.R'
     'grim-map-total-n.R'
@@ -103,27 +109,16 @@ Collate:
     'scrutiny-package.R'
     'seq-disperse.R'
     'seq-length.R'
-    'seq-predicates.R'
     'split-by-parens.R'
     'subset-superset.R'
     'utils-pipe.R'
     'utils-tidy-eval.R'
     'write-doc-audit.R'
 Suggests: 
-    corrr,
-    covr,
-    devtools,
-    ellipsis,
-    ggplot2,
-    ggrepel,
-    janitor,
     knitr,
+    pkgload,
     rmarkdown,
-    roxygen2,
-    stats,
-    testthat (>= 3.0.0),
-    tidyr,
-    tidyselect
+    testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Depends: 
     R (>= 3.4.0)

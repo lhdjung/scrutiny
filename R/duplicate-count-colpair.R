@@ -24,7 +24,7 @@ dup_count_pairwise <- function(x, y) {
 #' @param data Data frame.
 #' @param ignore Optionally, a vector of values that should not be checked for
 #'   duplicates.
-#' @param show_rates Boolean. If `TRUE` (the default), adds columns `rate_x` and
+#' @param show_rates Logical. If `TRUE` (the default), adds columns `rate_x` and
 #'   `rate_y`. See value section. Set `show_rates` to `FALSE` for higher
 #'   performance.
 #' @param na.rm [[Deprecated]] Missing values are never counted in any case.
@@ -40,19 +40,19 @@ dup_count_pairwise <- function(x, y) {
 #'   `count / total_x`. Likewise with `total_y` and `rate_y`. The two `rate_*`
 #'   columns will be equal unless `NA` values are present.
 
-#' @section Summaries with `audit()`: There is an S3 method for `audit()`, so
-#'   you can call `audit()` following `duplicate_count_colpair()`. It returns a
-#'   tibble with summary statistics.
+#' @section Summaries with [`audit()`]: There is an S3 method for [`audit()`],
+#'   so you can call [`audit()`] following `duplicate_count_colpair()`. It
+#'   returns a tibble with summary statistics.
 #'
 #' @export
 #'
 #' @include utils.R
 #'
 #' @seealso
-#' - `duplicate_count()` for a frequency table.
-#' - `duplicate_tally()` to show instances of a value next to each instance.
-#' - `janitor::get_dupes()` to search for duplicate rows.
-#' - `corrr::colpair_map()`, a versatile tool for pairwise column analysis which
+#' - [`duplicate_count()`] for a frequency table.
+#' - [`duplicate_tally()`] to show instances of a value next to each instance.
+#' - [`janitor::get_dupes()`] to search for duplicate rows.
+#' - [`corrr::colpair_map()`], a versatile tool for pairwise column analysis which
 #' the present function wraps.
 #'
 #' @examples
@@ -66,7 +66,7 @@ dup_count_pairwise <- function(x, y) {
 #'   audit()
 
 
-# # Example input:
+# # Full example input:
 # data <- df <- tibble::tibble(
 #   a = c(1, 2, 3, NA, 5), b = c(NA, 3L, 4L, 5L, 6L), c = c(3L, 4L, NA, NA, NA)
 # )
@@ -112,7 +112,7 @@ duplicate_count_colpair <- function(data, ignore = NULL, show_rates = TRUE,
     return(out)
   }
 
-  total_values <- vapply(data, function(x) length(x[[1L]]), 1L)
+  total_values <- vapply(data, function(x) length(x[[1L]]), integer(1L))
 
   dplyr::mutate(
     out,

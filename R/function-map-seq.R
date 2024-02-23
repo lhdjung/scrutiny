@@ -1,5 +1,5 @@
 
-#' @include function-factory-helpers.R
+#' @include function-factory-helpers.R seq-predicates.R
 
 # Background on helpers and implementation: Unlike `function_map_total_n()`, the
 # main function here -- `function_map_seq()` -- is not based on `disperse()` or
@@ -11,6 +11,9 @@
 # function that would perform dispersion while still producing linear output. I
 # wrote `seq_disperse()` and `seq_disperse_df()`, and I applied the latter
 # within the internal helper function factory below, `function_map_seq_proto()`.
+# Later on, I wrote `seq_disperse_df_internal()` as a lightweight internal
+# helper to replace `seq_disperse_df()` within `function_map_seq_proto()` in
+# order to improve performance.
 
 
 function_map_seq_proto <- function(.fun = fun, .var = var,
@@ -24,77 +27,69 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
            out_min = .out_min, out_max = .out_max,
            include_reported = .include_reported, ...) {
 
-    # Extract the vector from the `data` column specified as `var`:
-    data_var <- data[var][[1]]
-
-    list_var_and_var_change <- purrr::map(
-      data_var,
-      seq_disperse_df,
-      .dispersion = dispersion,
-      .offset_from = 0,
-      .out_min = out_min,
-      .out_max = out_max,
-      .string_output = "auto",
-      .include_reported = include_reported,
-      ...
-    )
-
-    # TO DO: INSERT `list_var_change` INTO THE OUTPUT
-    list_var <- purrr::map(list_var_and_var_change, `[`, 1)
-    # list_var_change <- purrr::map(list_var_and_var_change, `[`, 2)
-
-    # nrow_list_var <- purrr::map_int(list_var, nrow)
-    nrow_list_var <- vapply(list_var, nrow, 1L)
-
-    ncol_index_var <- match(var, colnames(data))
-    ncol_before_consistency <- match("consistency", colnames(data)) - 1L
-
-    cols_for_testing <- data[, 1:ncol_before_consistency]
-    cols_for_testing_names_without_var <-
-      colnames(cols_for_testing)[colnames(cols_for_testing) != var]
-
-    # Short for "columns except (for the) last (one)":
-    cols_el <- seq_along(cols_for_testing_names_without_var)
-
-    data_list_without_var <- dplyr::mutate(
-      data[cols_for_testing_names_without_var],
-      nrow_list_var,
-      dplyr::across(
-        .cols = {{ cols_el }},
-        .fns = function(x) purrr::map2(x, nrow_list_var, rep)
-      ),
-      nrow_list_var = NULL
-    )
-
-    # Prepare the data frames for testing:
-    data_list_for_testing <- data_list_without_var %>%
-      dplyr::mutate(
-        {{ var }} := purrr::map(list_var, dplyr::pull),
-        .before = all_of(ncol_index_var)
-      ) %>%
-      split_into_rows() %>%
-      purrr::map(
-        tibble::as_tibble,
-        .name_repair = function(x) colnames(cols_for_testing)
+    # Extract the vector from the `data` column specified as `var`, then apply
+    # the data-frame-level dispersion function to get a list of data frames with
+    # dispersed `var` sequences; one per inconsistent value set:
+    df_var <- data[var][[1L]] %>%
+      lapply(
+        seq_disperse_df_internal,
+        .dispersion = dispersion,
+        .offset_from = 0,
+        .out_min = out_min,
+        .out_max = out_max,
+        .string_output = "auto",
+        .include_reported = include_reported,
+        .track_diff_var = TRUE
       )
 
-    # Apply the testing function, `fun`, to all data frames in the list:
-    data_list_tested <- data_list_for_testing %>%
-      purrr::map(fun, ...)
+    if (length(df_var) == 0L) {
+      return(NULL)
+    }
 
-    # TODO: After some time, replace the superseded `purrr::flatten_int()` by
-    # `purrr::list_c()`. -- Mark the original case (i.e., row in `data`, the
-    # input data frame).
-    case <- data_list_tested %>%
-      vapply(nrow, 1L) %>%
-      purrr::map2(seq_along(data_list_tested), ., rep) %>%
-      purrr::flatten_int()
+    nrow_list_var <- vapply(df_var, nrow, integer(1L), USE.NAMES = FALSE)
+    nrow_data_seq <- seq_along(nrow_list_var)
 
-    # Combine all output data frames to one. As each of them represents one row
-    # of the input data frame -- one "case" -- distinguish them by `case`:
-    data_list_tested %>%
-      dplyr::bind_rows() %>%
-      dplyr::mutate(case)
+    # Combine the list elements to one single data frame with `var`,
+    # `diff_var`, and `case`:
+    df_var <- dplyr::bind_rows(df_var)
+
+    cols_for_testing_names <-
+      colnames(data)[1L:match("consistency", colnames(data)) - 1L]
+
+    cols_for_testing_names_without_var <-
+      cols_for_testing_names[cols_for_testing_names != var]
+
+    cols_except_last <- seq_along(cols_for_testing_names_without_var)
+
+    # Repeat the vector(s) non-tested key argument names so that they are just
+    # as long as the dispersed `var` sequences -- and hence fit together as rows
+    # of the same data frame. This returns list-columns, which are immediately
+    # unnested. Next, the dispersed `var` sequences are added at the appropriate
+    # position, so that the key columns are in the same order as in `data`.
+    # These key columns with partially dispersed values are then tested for
+    # consistency using `fun()`. Finally, the last columns are added:
+    # `diff_var`, which captures the distance between the reported and the
+    # original values in `var`; and `case`, which records the row number of the
+    # reported `var` value in `data`.
+    data[cols_for_testing_names_without_var] %>%
+      dplyr::mutate(dplyr::across(
+        .cols = {{ cols_except_last }},
+        .fns = function(x) purrr::map2(x, nrow_list_var, rep)
+      )) %>%
+      tidyr::unnest_longer(col = everything()) %>%
+      dplyr::mutate(
+        {{ var }} := df_var[[1L]],
+        .before = all_of(match(var, colnames(data)))
+      ) %>%
+      fun(...) %>%
+      dplyr::mutate(
+        diff_var = df_var$diff_var,
+        case = unlist(
+          purrr::map2(nrow_data_seq, nrow_list_var, rep),
+          use.names = FALSE
+        )
+      )
+
   }
 
   # --- End of the manufactured helper (!) function ---
@@ -103,11 +98,10 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 
 
 
-
 #' Create new `*_map_seq()` functions
 #'
 #' @description `function_map_seq()` is the engine that powers functions such as
-#'   `grim_map_seq()`. It creates new, "factory-made" functions that apply
+#'   [`grim_map_seq()`]. It creates new, "factory-made" functions that apply
 #'   consistency tests such as GRIM or GRIMMER to sequences of specified
 #'   variables. The sequences are centered around the reported values of those
 #'   variables.
@@ -119,12 +113,13 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 #'
 #'   For background and more examples, see the
 #'   \href{https://lhdjung.github.io/scrutiny/articles/consistency-tests.html#sequence-mapper}{sequence
-#'   mapper section} of *Implementing consistency tests*.
+#'   mapper section} of *Consistency tests in depth*.
 #'
-#' @param .fun Function such as `grim_map()`: It will be used to test columns in
-#'   a data frame for consistency. Test results are Boolean and need to be
-#'   contained in a column called `"consistency"` that is added to the input
-#'   data frame. This modified data frame is then returned by `.fun`.
+#' @param .fun Function such as `grim_map()`, or one made by [`function_map()`]:
+#'   It will be used to test columns in a data frame for consistency. Test
+#'   results are logical and need to be contained in a column called
+#'   `"consistency"` that is added to the input data frame. This modified data
+#'   frame is then returned by `.fun`.
 #' @param .var String. Variables that will be dispersed by the manufactured
 #'   function. Defaults to `.reported`.
 #' @param .reported String. All variables the manufactured function can disperse
@@ -146,14 +141,16 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 #'   output will be restricted so that it's not below `.out_min` or above
 #'   `.out_max`. Defaults are `"auto"` for `.out_min`, i.e., a minimum of one
 #'   decimal unit above zero; and `NULL` for `.out_max`, i.e., no maximum.
-#' @param .include_reported Boolean. Should the reported values themselves be
+#' @param .include_reported Logical. Should the reported values themselves be
 #'   included in the sequences originating from them? Default is `FALSE` because
 #'   this might be redundant and bias the results.
-#' @param .include_consistent Boolean. Should the function also process
+#' @param .include_consistent Logical. Should the function also process
 #'   consistent cases (from among those reported), not just inconsistent ones?
 #'   Default is `FALSE` because the focus should be on clarifying
 #'   inconsistencies.
 #' @param ... These dots must be empty.
+#'
+#' @inheritParams function_map
 #'
 #' @details All arguments of `function_map_seq()` set the defaults for the
 #'   arguments in the manufactured function. They can still be specified
@@ -164,22 +161,22 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 #'   \href{https://purrr.tidyverse.org/reference/faq-adverbs-export.html}{purrr
 #'   adverbs}; see explanations there, and examples in the
 #'   \href{https://lhdjung.github.io/scrutiny/articles/consistency-tests.html#context-and-export}{export
-#'   section} of *Implementing consistency tests*.
+#'   section} of *Consistency tests in depth*.
 #'
 #'   This function is a so-called function factory: It produces other functions,
-#'   such as `grim_map_seq()`. More specifically, it is a function operator
-#'   because it also takes functions as inputs, such as `grim_map()`. See
+#'   such as [`grim_map_seq()`]. More specifically, it is a function operator
+#'   because it also takes functions as inputs, such as [`grim_map()`]. See
 #'   Wickham (2019, ch. 10-11).
 
 #' @return A function such as those below. ("Testable statistics" are variables
 #'   that can be selected via `var`, and are then varied. All variables except
 #'   for those in parentheses are selected by default.)
 #'
-#'   | \strong{Manufactured function} | \strong{Testable statistics}         | \strong{Test vignette}
-#'   | ---                            | ---                                  | ---
-#'   | `grim_map_seq()`               | `"x"`, `"n"`, (`"items"`)            | `vignette("grim")`
-#'   | `grimmer_map_seq()`            | `"x"`, `"sd"`, `"n"`, (`"items"`)    | `vignette("grimmer")`
-#'   | `debit_map_seq()`              | `"x"`, `"sd"`, `"n"`                 | `vignette("debit")`
+#'   | \strong{Manufactured function}   | \strong{Testable statistics}         | \strong{Test vignette}
+#'   | ---                              | ---                                  | ---
+#'   | [`grim_map_seq()`]               | `"x"`, `"n"`, (`"items"`)            | `vignette("grim")`
+#'   | [`grimmer_map_seq()`]            | `"x"`, `"sd"`, `"n"`, (`"items"`)    | `vignette("grimmer")`
+#'   | [`debit_map_seq()`]              | `"x"`, `"sd"`, `"n"`                 | `vignette("debit")`
 #'
 #'   The factory-made function will also have dots, `...`, to pass arguments
 #'   down to `.fun`, i.e., the basic mapper function such as `grim_map()`.
@@ -188,19 +185,19 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 
 #' @export
 
-#' @section Conventions: The name of a function manufactured with
-#'   `function_map_seq()` should mechanically follow from that of the input
-#'   function. For example, `grim_map_seq()` derives from `grim_map()`. This
-#'   pattern fits best if the input function itself is named after the test it
-#'   performs on a data frame, followed by `_map`: `grim_map()` applies GRIM,
-#'   `grimmer_map()` applies GRIMMER, etc.
+#' @section Conventions: The name of a function returned by
+#'   `function_map_seq()` should mechanically follow from that of
+#'   the input function. For example, [`grim_map_seq()`] derives
+#'   from [`grim_map()`]. This pattern fits best if the input function itself
+#'   is named after the test it performs on a data frame, followed by `_map`:
+#'   [`grim_map()`] applies GRIM, [`grimmer_map()`] applies GRIMMER, etc.
 #'
 #'   Much the same is true for the classes of data frames returned by the
 #'   manufactured function via the `.name_class` argument of
-#'   `function_map_seq()`. It should be the function's own name preceded by the
-#'   name of the package that contains it or by an acronym of that package's
-#'   name. In this way, some existing classes are `scr_grim_map_seq` and
-#'   `scr_grimmer_map_seq`.
+#'   `function_map_seq()`. It should be the function's own name preceded
+#'   by the name of the package that contains it, or by an acronym of that
+#'   package's name. Therefore, some existing classes are
+#'   `scr_grim_map_seq` and `scr_grimmer_map_seq`.
 
 #' @references Wickham, H. (2019). *Advanced R* (Second Edition). CRC
 #'   Press/Taylor and Francis Group. https://adv-r.hadley.nz/index.html
@@ -213,9 +210,11 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 #'   .name_test = "GRIM",
 #' )
 
-# For example inputs, see: grim-map-seq.R
+
+# For full example inputs (and connected unit tests), see: grim-map-seq.R
 
 function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
+                             .name_key_result = "consistency",
                              .name_class = NULL, .args_disabled = NULL,
                              .dispersion = 1:5,
                              .out_min = "auto", .out_max = NULL,
@@ -226,6 +225,7 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
   force(.var)
   force(.reported)
   force(.name_test)
+  force(.name_key_result)
   force(.name_class)
   force(.args_disabled)
   force(.dispersion)
@@ -241,6 +241,25 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
   check_args_disabled_unnamed(.args_disabled)
 
   name_fun <- deparse(substitute(.fun))
+
+  # Prepare some code to be inserted into the body of the factory-made function.
+  # If one of the key (reported) arguments is `n`, this will be whole numbers,
+  # so they should be coerced to integer for better representation in an app.
+  # However, if there is no such `n` argument, the code should not assume there
+  # is, which would lead to an error.
+  code_bind_cols <- if (any(.reported == "n")) {
+    rlang::expr({
+      out <- out %>%
+        dplyr::bind_rows() %>%
+        dplyr::mutate(var, n = as.integer(n))
+    })
+  } else {
+    rlang::expr({
+      out <- out %>%
+        dplyr::bind_rows() %>%
+        dplyr::mutate(var)
+    })
+  }
 
 
   # --- Start of the manufactured function, `fn_out()` ---
@@ -273,7 +292,7 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
       args_excluded <- c(reported, args_disabled)
 
       arg_list <- call_arg_list()
-      arg_list <- arg_list[!(names(arg_list)) %in% args_excluded]
+      arg_list <- arg_list[!names(arg_list) %in% args_excluded]
 
       check_mapper_input_colnames(data, reported)
       check_consistency_not_in_colnames(data, name_test)
@@ -311,34 +330,37 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
       # all cases reported in `data`, or at least the inconsistent ones:
       out <- purrr::map(var, ~ map_seq_proto(data = data, var = .x))
 
+      # Remove list-elements that are `NULL`, then check for an early return:
+      out[vapply(out, is.null, logical(1L))] <- NULL
+      if (length(out) == 0L) {
+        msg_setting <- if (interactive()) {
+          "`include_consistent = TRUE`"
+        } else {
+          "unchecking \"Inconsistent cases only\""
+        }
+        cli::cli_warn(c(
+          "!" = "No inconsistent cases to disperse from.",
+          "i" = "Try {msg_setting} to disperse from consistent cases, as well."
+        ))
+        return(tibble::tibble())
+      }
+
       # Repeat the `var` strings so that they form a vector of the length that is
       # the row number of `out`, and that can therefore be added to `out`:
-      nrow_out <- vapply(out, nrow, 1L)
+      nrow_out <- vapply(out, nrow, integer(1L), USE.NAMES = FALSE)
       var <- var %>%
         purrr::map2(nrow_out, rep) %>%
-        purrr::flatten_chr()
-
-      # if ("rounding" %in% names(formals(fun))) {
-      #   rounding <- formals(fun)$rounding
-      #   rounding <- paste0("scr_rounding_", rounding)
-      # } else {
-      #   rounding <- NULL
-      # }
-
-
-      # data_sample <- data[var]
-      # data_sample <- fun(data_sample[1, ], ...)
-
+        unlist(use.names = FALSE)
 
       # For better output, `out` should be a single data frame; and for
-      # identifying the origin of individual rows, `var` is added:
-      out <- out %>%
-        dplyr::bind_rows() %>%
-        dplyr::mutate(var)
+      # identifying the origin of individual rows, `var` is added. See above.
+      `!!!`(code_bind_cols)
 
-      # # These are the classes added by `fun()` that have not yet been added to
-      # # `out`, necessarily:
-      # classes_fun <- class(data)[!class(data) %in% class(out)]
+      class_dispersion_ascending <- if (is_seq_ascending(dispersion)) {
+        NULL
+      } else {
+        "scr_map_seq_disp_nonlinear"
+      }
 
       # Create classes that will identify `out` as output of the specific
       # manufactured function:
@@ -346,7 +368,8 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
         "scr_map_seq",
         # rounding,
         # classes_fun,
-        paste0("scr_", tolower(name_test), "_map_seq")
+        paste0("scr_", tolower(name_test), "_map_seq"),
+        class_dispersion_ascending
       )
 
       out <- add_class(out, classes_seq)
@@ -356,11 +379,11 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
       # must be done by hand:
       dots <- rlang::enexprs(...)
       if (length(dots$rounding) > 0L) {
-        class(out)[stringr::str_detect(class(out), "scr_rounding_")] <-
+        class(out)[stringr::str_detect(class(out), "^scr_rounding_")] <-
           paste0("scr_rounding_", dots$rounding)
       }
 
-      out
+      `!!!`(write_code_col_key_result(.name_key_result))
     }),
     env = rlang::env()
   )

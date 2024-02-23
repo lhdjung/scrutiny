@@ -41,11 +41,11 @@ mistake spaces for decimal places.
 values to strings: In numeric values, any trailing zeros have already been
 dropped, and any information about them was lost (e.g., \code{3.70} returns
 \code{3.7}). Enter those values as strings instead, such as \code{"3.70"} instead of
-\code{3.70}. However, you can restore lost trailing zeros with \code{restore_zeros()}
-if the original number of decimal places is known.
+\code{3.70}. However, you can restore lost trailing zeros with
+\code{\link[=restore_zeros]{restore_zeros()}} if the original number of decimal places is known.
 
 If you need to enter many such values as strings, consider using
-\code{tibble::tribble()} and drawing quotation marks around all values in a
+\code{\link[tibble:tribble]{tibble::tribble()}} and drawing quotation marks around all values in a
 \code{tribble()} column at once via RStudio's multiple cursors.
 }
 
@@ -70,10 +70,8 @@ decimal_places(x = "6.0     ")
 # but only works with a single number or string:
 decimal_places_scalar(x = 8.13)
 decimal_places_scalar(x = "5.024")
-
-
 }
 \seealso{
-\code{decimal_places_df()}, which applies \code{decimal_places()} to all
+\code{\link[=decimal_places_df]{decimal_places_df()}}, which applies \code{decimal_places()} to all
 numeric-like columns in a data frame.
 }

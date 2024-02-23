@@ -14,7 +14,8 @@ seq_disperse(
   out_max = NULL,
   string_output = TRUE,
   include_reported = TRUE,
-  track_var_change = FALSE
+  track_diff_var = FALSE,
+  track_var_change = deprecated()
 )
 
 seq_disperse_df(
@@ -27,6 +28,7 @@ seq_disperse_df(
   .out_max = NULL,
   .string_output = TRUE,
   .include_reported = TRUE,
+  .track_diff_var = FALSE,
   .track_var_change = FALSE
 )
 }
@@ -51,27 +53,30 @@ restricted so that it's not below \code{out_min} or above \code{out_max}. Defaul
 are \code{"auto"} for \code{out_min}, i.e., a minimum of one decimal unit above zero;
 and \code{NULL} for \code{out_max}, i.e., no maximum.}
 
-\item{string_output, .string_output}{Boolean or string. If \code{TRUE} (the
+\item{string_output, .string_output}{Logical or string. If \code{TRUE} (the
 default), the output is a string vector. Decimal places are then padded
 with zeros to match \code{from}'s number of decimal places. \code{"auto"} works like
 \code{TRUE} if and only if \code{from} (\code{.from}) is a string.}
 
-\item{include_reported, .include_reported}{Boolean. Should \code{from} (\code{.from})
+\item{include_reported, .include_reported}{Logical. Should \code{from} (\code{.from})
 itself be part of the sequence built around it? Default is \code{TRUE} for the
 sake of continuity, but this can be misleading if the focus is on the
 dispersed values, as opposed to the input.}
 
-\item{track_var_change, .track_var_change}{Boolean. In \code{seq_disperse()},
-ignore this argument. In \code{seq_disperse_df()}, default is \code{TRUE}, which
-creates the \code{"var_change"} output column.}
+\item{track_diff_var, .track_diff_var}{Logical. In \code{seq_disperse()}, ignore
+this argument. In \code{seq_disperse_df()}, default is \code{TRUE}, which creates the
+\code{"diff_var"} output column.}
 
-\item{...}{Further columns, added as in \code{tibble::tibble()}. Only in
+\item{track_var_change, .track_var_change}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+Renamed to \code{track_diff_var} / \code{.track_diff_var}.}
+
+\item{...}{Further columns, added as in \code{\link[tibble:tibble]{tibble::tibble()}}. Only in
 \code{seq_disperse_df()}.}
 }
 \value{
 \itemize{
 \item \code{seq_disperse()} returns a string vector by default
-(\code{string_output = TRUE}) and a numeric otherwise.
+(\code{string_output = TRUE}) and a numeric vector otherwise.
 \item \code{seq_disperse_df()} returns a tibble (data frame). The sequence is stored
 in the \code{x} column. \code{x} is string by default (\code{.string_output = TRUE}),
 numeric otherwise. Other columns might have been added via the dots
@@ -85,19 +90,19 @@ the number's decimal places. For example, \code{7.93} will be surrounded by
 values like \code{7.91}, \code{7.92}, and \code{7.94}, \code{7.95}, etc.
 
 \code{seq_disperse_df()} is a variant that creates a data frame. Further columns
-can be added as in \code{tibble::tibble()}. Regular arguments are the same as in
-\code{seq_disperse()}, but with a dot before each.
+can be added as in \code{\link[tibble:tibble]{tibble::tibble()}}. Regular arguments are the same as
+in \code{seq_disperse()}, but with a dot before each.
 }
 \details{
-Unlike \code{seq_endpoint()} and friends, the present functions don't
+Unlike \code{\link[=seq_endpoint]{seq_endpoint()}} and friends, the present functions don't
 necessarily return continuous or even regular sequences. The greater
 flexibility is due to the \code{dispersion} (\code{.dispersion}) argument, which
 takes any numeric vector. By default, however, the output sequence is
 regular and continuous.
 
 Underlying this difference is the fact that \code{seq_disperse()} and
-\code{seq_disperse_df()} do not wrap around \code{base::seq()}, although they are
-otherwise similar to \code{seq_endpoint()} and friends.
+\code{seq_disperse_df()} do not wrap around \code{\link[base:seq]{base::seq()}}, although they are
+otherwise similar to \code{\link[=seq_endpoint]{seq_endpoint()}} and friends.
 }
 \examples{
 # Basic usage:
@@ -125,7 +130,7 @@ seq_disperse_df(.from = 4.02, n = 45)
 }
 \seealso{
 Conceptually, \code{seq_disperse()} is a blend of two function families:
-those around \code{seq_endpoint()} and those around \code{disperse()}. The present
-functions were originally conceived for \code{seq_disperse_df()} to be a helper
-within the \code{function_map_seq()} implementation.
+those around \code{\link[=seq_endpoint]{seq_endpoint()}} and those around \code{\link[=disperse]{disperse()}}. The
+present functions were originally conceived for \code{seq_disperse_df()} to be a
+helper within the \code{\link[=function_map_seq]{function_map_seq()}} implementation.
 }

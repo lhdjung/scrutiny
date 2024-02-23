@@ -1,5 +1,4 @@
 
-
 #' Compute rounding bias
 #'
 #' @description Rounding often leads to bias, such that the mean of a rounded
@@ -9,16 +8,16 @@
 #' @details Bias is calculated by subtracting the original vector, `x`, from a
 #'   vector rounded in the specified way.
 #'
-#'   The function passes all arguments except for `mean` down to `reround()`.
+#'   The function passes all arguments except for `mean` down to [`reround()`].
 #'   Other than there, however, `rounding` is `"up"` by default, and it can't be
 #'   set to `"up_or_down"`, `"up_from_or_down_from"`, or`"ceiling_or_floor"`.
 #'
 #' @param x Numeric or string coercible to numeric.
 #' @param digits Integer. Number of decimal digits to which `x` will be rounded.
 #' @param rounding String. Rounding procedure that will be applied to `x`. See
-#'   documentation for `grim()`, section `Rounding`. Default is `"up"`.
-#' @param threshold,symmetric Further arguments passed down to `reround()`.
-#' @param mean Boolean. If `TRUE` (the default), the mean total of bias will be
+#'   `vignette("rounding-options")`. Default is `"up"`.
+#' @param threshold,symmetric Further arguments passed down to [`reround()`].
+#' @param mean Logical. If `TRUE` (the default), the mean total of bias will be
 #'   returned. Set `mean` to `FALSE` to get a vector of individual biases the
 #'   length of `x`.
 #'
@@ -71,7 +70,6 @@ rounding_bias <- function(x, digits, rounding = "up", threshold = 5,
 }
 
 
-
 # # Proof that it works (this is for a previous version that didn't compute the
 # # mean but only subtracted `x` from `x_rounded`) --
 #
@@ -85,5 +83,4 @@ rounding_bias <- function(x, digits, rounding = "up", threshold = 5,
 # dplyr::near(
 #   (reround(x, digits, rounding, threshold) - rounding_bias(x, 1)), x
 # )
-
 

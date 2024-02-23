@@ -17,26 +17,24 @@ df1_grim <- grim_map(df1)
 
 
 test_that("A tibble is returned", {
-  df1_grim %>% is.data.frame()    %>% expect_true()
-  df1_grim %>% inherits("tbl_df") %>% expect_true()
-  df1_grim %>% inherits("tbl")    %>% expect_true()
+  expect_s3_class(df1_grim, c("tbl_df", "tbl", "data.frame"))
 })
 
 
 
 test_that("It has the correct function-general class", {
-  expect_true(inherits(df1_grim, "scr_grim_map"))
+  expect_s3_class(df1_grim, "scr_grim_map")
 })
 
 test_that("It has the correct rounding-specific class", {
-  df1_grim_up_or_down       %>% inherits("scr_rounding_up_or_down")       %>% expect_true()
-  df1_grim_up               %>% inherits("scr_rounding_up")               %>% expect_true()
-  df1_grim_down             %>% inherits("scr_rounding_down")             %>% expect_true()
-  df1_grim_ceiling_or_floor %>% inherits("scr_rounding_ceiling_or_floor") %>% expect_true()
-  df1_grim_ceiling          %>% inherits("scr_rounding_ceiling")          %>% expect_true()
-  df1_grim_floor            %>% inherits("scr_rounding_floor")            %>% expect_true()
-  df1_grim_trunc            %>% inherits("scr_rounding_trunc")            %>% expect_true()
-  df1_grim_anti_trunc       %>% inherits("scr_rounding_anti_trunc")       %>% expect_true()
+  df1_grim_up_or_down       %>% expect_s3_class("scr_rounding_up_or_down")
+  df1_grim_up               %>% expect_s3_class("scr_rounding_up")
+  df1_grim_down             %>% expect_s3_class("scr_rounding_down")
+  df1_grim_ceiling_or_floor %>% expect_s3_class("scr_rounding_ceiling_or_floor")
+  df1_grim_ceiling          %>% expect_s3_class("scr_rounding_ceiling")
+  df1_grim_floor            %>% expect_s3_class("scr_rounding_floor")
+  df1_grim_trunc            %>% expect_s3_class("scr_rounding_trunc")
+  df1_grim_anti_trunc       %>% expect_s3_class("scr_rounding_anti_trunc")
 })
 
 
@@ -159,7 +157,7 @@ df7 <- df1 %>%
 
 
 test_that("`show_prob` adds a `prob` column", {
-  "prob" %in% colnames(df7) %>% expect_true()
+  expect_contains(colnames(df7), "prob")
 })
 
 

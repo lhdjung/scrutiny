@@ -25,12 +25,17 @@ articles:
   navbar: Plausibility checks
   contents:
   - duplicates
+- title: Quick guides
+  navbar: Quick guides
+  contents:
+  - rounding-options
+  - consistency-tests-simple
 - title: Infrastructure
   navbar: Infrastructure
   contents:
+  - rounding-in-depth
+  - consistency-tests-in-depth
   - infrastructure
-  - consistency-tests
-  - rounding
   - wrangling
 - title: Other
   navbar: Other

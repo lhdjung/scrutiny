@@ -15,18 +15,18 @@ inside_parens(string, sep = "parens")
 
 \item{sep}{String. What to split by. Either \code{"parens"}, \code{"brackets"},
 \code{"braces"}, or a length-2 vector of custom separators. See examples for
-\code{split_by_parens()}. Default is \code{"parens"}.}
+\code{\link[=split_by_parens]{split_by_parens()}}. Default is \code{"parens"}.}
 }
 \value{
 String vector of the same length as \code{string}. The part of \code{string}
 before or inside \code{sep}, respectively.
 }
 \description{
-Two functions that extract substrings from before or inside
-parentheses, or similar separators like brackets or curly braces:
-\code{before_parens()} and \code{inside_parens()}.
+\code{before_parens()} and \code{inside_parens()} extract substrings from
+before or inside parentheses, or similar separators like brackets or curly
+braces.
 
-See \code{split_by_parens()} to split some or all columns in a data frame into
+See \code{\link[=split_by_parens]{split_by_parens()}} to split some or all columns in a data frame into
 both parts.
 }
 \examples{

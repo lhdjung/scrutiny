@@ -7,7 +7,7 @@
 #'   This function is a blunt tool designed for initial data checking. It is not
 #'   too informative if many values have few characters each.
 #'
-#'   For summary statistics, call `audit()` on the results.
+#'   For summary statistics, call [`audit()`] on the results.
 #'
 #' @param x Vector or data frame.
 #' @param ignore Optionally, a vector of values that should not be counted.
@@ -22,12 +22,12 @@
 #'   columns. If `x` isn't named, only the first two columns appear:
 #'
 #' - `value`: All the values from `x`.
-#' - `count`: The frequency of each value in `x`, in descending order.
-#' - `locations`: The names of all columns from `x` in which `value` appears.
-#' - `locations_n`: The number of columns named in `locations`.
-
+#' - `frequency`: Absolute frequency of each value in `x`, in descending order.
+#' - `locations`: Names of all columns from `x` in which `value` appears.
+#' - `locations_n`: Number of columns named in `locations`.
+#'
 #' The tibble has the `scr_dup_count` class, which is recognized by the
-#' `audit()` generic.
+#' [`audit()`] generic.
 
 #' @details Don't use `numeric_only`. It no longer has any effect and will be
 #'   removed in the future. The only reason for this argument was the risk of
@@ -35,16 +35,17 @@
 #'   because all values are now coerced to character, which is more appropriate
 #'   for checking reported statistics.
 
-#' @section Summaries with `audit()`: There is an S3 method for the `audit()`
-#'   generic, so you can call `audit()` following `duplicate_count()`. It
-#'   returns a tibble with summary statistics for the two numeric columns,
-#'   `count` and `locations_n` (or only for `count`; see above).
+#' @section Summaries with [`audit()`]: There is an S3 method for the
+#'   [`audit()`] generic, so you can call [`audit()`] following
+#'   `duplicate_count()`. It returns a tibble with summary statistics for the
+#'   two numeric columns, `frequency` and `locations_n` (or, if `x` isn't named,
+#'   only for `frequency`).
 #'
 #' @seealso
-#' - `duplicate_count_colpair()` to check each combination of columns for
+#' - [`duplicate_count_colpair()`] to check each combination of columns for
 #' duplicates.
-#' - `duplicate_tally()` to show instances of a value next to each instance.
-#' - `janitor::get_dupes()` to search for duplicate rows.
+#' - [`duplicate_tally()`] to show instances of a value next to each instance.
+#' - [`janitor::get_dupes()`] to search for duplicate rows.
 #'
 #' @include utils.R
 #'
@@ -69,7 +70,7 @@ duplicate_count <- function(x, ignore = NULL,
                             locations_type = c("character", "list"),
                             numeric_only = deprecated()) {
 
-  locations_type <- rlang::arg_match(locations_type, c("character", "list"))
+  locations_type <- rlang::arg_match(locations_type)
 
   if (lifecycle::is_present(numeric_only)) {
     lifecycle::deprecate_warn(
@@ -114,9 +115,9 @@ duplicate_count <- function(x, ignore = NULL,
 
   out <- x$value %>%
     table() %>%
-    tibble::as_tibble(.name_repair = function(x) c("value", "count")) %>%
+    tibble::as_tibble(.name_repair = function(x) c("value", "frequency")) %>%
     dplyr::filter(!.data$value %in% ignore) %>%
-    dplyr::arrange(dplyr::desc(.data$count)) %>%
+    dplyr::arrange(dplyr::desc(.data$frequency)) %>%
     add_class("scr_dup_count")
 
   # All code below is about the `locations` and `locations_n` columns, but they
@@ -133,18 +134,24 @@ duplicate_count <- function(x, ignore = NULL,
   locations <- vector("list", nrow(out))
   locations_n <- integer(nrow(out))
   for (i in seq_along(locations)) {
-    locs <- unique(x[x$value == out$value[i], ]$name)
-    locations[i] <- list(locs[order(match(locs, names_orig))])
+    temp <- unique(x[x$value == out$value[i], ]$name)
+    locations[i] <- list(temp[order(match(temp, names_orig))])
     locations_n[i] <- length(locations[[i]])
   }
-  rm(x)
 
-  # By default, collapse each vector of location names into a string:
-  if (locations_type == "character") {
-    locations <- vapply(
-      locations, function(x) paste(x, collapse = ", "), character(1L)
-    )
+  # The user may specify `locations_type` to remain a list:
+  if (locations_type == "list") {
+    return(dplyr::mutate(out, locations, locations_n))
   }
 
-  dplyr::mutate(out, locations, locations_n)
+  # By default (`locations_type == "character"`), collapse each list element --
+  # i.e., each vector of location names -- into a string:
+  dplyr::mutate(
+    out,
+    locations = vapply(
+      locations, function(x) paste(x, collapse = ", "),
+      character(1L), USE.NAMES = FALSE
+    ),
+    locations_n
+  )
 }

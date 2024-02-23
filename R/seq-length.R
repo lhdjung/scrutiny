@@ -96,7 +96,7 @@ seq_length <- function(x, value) {
   }
 
   # Descending sequences have a reverse step size and direction:
-  if (length(x) > 1 && x[1] > x[2]) {
+  if (length(x) > 1 && x[1L] > x[2L]) {
     by <- -step_size(x)
     dir <- -1
   } else {
@@ -105,7 +105,7 @@ seq_length <- function(x, value) {
   }
 
   if (diff < 0L) {
-    return(x[1:(length(x) - abs(diff))])
+    return(x[1L:(length(x) - abs(diff))])
   }
 
   extension <- seq_distance(
@@ -126,12 +126,10 @@ seq_length <- function(x, value) {
 
 
 
-
 #' @rdname seq_length
 #' @export
 
 `seq_length<-` <- function(x, value) {
   seq_length(x, value)
 }
-
 

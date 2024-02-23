@@ -47,7 +47,7 @@ of dispersed values. Default is \code{NULL}, i.e., no constant values.}
 \code{constant} column in the output tibble. If \code{NULL} (the default), \code{constant}
 will go to the right of \code{n_change}.}
 
-\item{...}{Arguments passed down to \code{debit_map()}.}
+\item{...}{Arguments passed down to \code{\link[=debit_map]{debit_map()}}.}
 }
 \value{
 A tibble with these columns:
@@ -70,12 +70,12 @@ with the larger dispersed \code{n}.
 \code{debit_map_total_n()} extends DEBIT to cases where only group
 means and standard deviations (SDs) were reported, not group sizes.
 
-The function is analogous to \code{grim_map_total_n()} and
-\code{grimmer_map_total_n()}, relying on the same infrastructure.
+The function is analogous to \code{\link[=grim_map_total_n]{grim_map_total_n()}} and
+\code{\link[=grimmer_map_total_n]{grimmer_map_total_n()}}, relying on the same infrastructure.
 }
-\section{Summaries with \code{audit_total_n()}}{
+\section{Summaries with \code{\link[=audit_total_n]{audit_total_n()}}}{
  You can call
-\code{audit_total_n()} following up on \code{debit_map_total_n()}
+\code{\link[=audit_total_n]{audit_total_n()}} following up on \code{debit_map_total_n()}
 to get a tibble with summary statistics. It will have these columns:
 \itemize{
 \item \code{x1}, \code{x2}, \code{sd1}, \code{sd2}, and \code{n} are the original inputs.
@@ -92,7 +92,7 @@ are DEBIT-consistent.
 \item \code{hit_rate} is the ratio of \code{hits_total} to \code{scenarios_total}.
 }
 
-Call \code{audit()} following \code{audit_total_n()} to summarize results
+Call \code{\link[=audit]{audit()}} following \code{\link[=audit_total_n]{audit_total_n()}} to summarize results
 even further.
 }
 
@@ -117,6 +117,6 @@ Heathers, J. A. J., & Brown, N. J. L. (2019). DEBIT: A Simple Consistency
 Test For Binary Data. https://osf.io/5vb3u/.
 }
 \seealso{
-\code{function_map_total_n()}, which created the present function using
-\code{debit_map()}.
+\code{\link[=function_map_total_n]{function_map_total_n()}}, which created the present function using
+\code{\link[=debit_map]{debit_map()}}.
 }

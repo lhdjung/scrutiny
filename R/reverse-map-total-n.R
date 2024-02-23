@@ -2,9 +2,9 @@
 #' Reverse the `*_map_total_n()` process
 #'
 #' @description `reverse_map_total_n()` takes the output of a function created
-#'   by `function_map_total_n()` and reconstructs the original data frame.
+#'   by [`function_map_total_n()`] and reconstructs the original data frame.
 #'
-#'   See `audit_total_n()`, which takes `reverse_map_total_n()` as a basis.
+#'   See [`audit_total_n()`], which takes `reverse_map_total_n()` as a basis.
 #'
 #' @param data Data frame that inherits the `"scr_map_total_n"` class.
 #'
@@ -52,7 +52,7 @@ reverse_map_total_n <- function(data) {
     rep(each = 2L) %>%
     is_even()
 
-  # Negate the evenness and convert the results from Boolean to numeric, which
+  # Negate the evenness and convert the results from logical to numeric, which
   # returns `0` as a correction for even original `n` values because they don't
   # need to be corrected, and `1` for odd original `n` values, because these
   # ones do need a correction:
@@ -67,8 +67,8 @@ reverse_map_total_n <- function(data) {
 
   nrow_data_reduced <- nrow(data_reduced)
 
-  locations1 <- seq(from = 1, to = nrow_data_reduced - 1, by = 2)
-  locations2 <- seq(from = 2, to = nrow_data_reduced,     by = 2)
+  locations1 <- seq(from = 1, to = nrow_data_reduced - 1L, by = 2)
+  locations2 <- seq(from = 2, to = nrow_data_reduced,      by = 2)
 
   data1 <- data_reduced %>% dplyr::slice(locations1)
   data2 <- data_reduced %>% dplyr::slice(locations2)
@@ -77,13 +77,12 @@ reverse_map_total_n <- function(data) {
   # dispersed from the reported statistics):
   ncol_before_n <- match("n", colnames(data)) - 1L
 
-  colnames_reported <- colnames(data_reduced)[1:ncol_before_n]
+  colnames_reported <- colnames(data_reduced)[1L:ncol_before_n]
 
   data_reported_1 <- data1[, colnames_reported]
   data_reported_2 <- data2[, colnames_reported]
 
   n <- data2$n
-  rm(data_reduced, data1, data2, locations1, locations2, ncol_before_n)
 
   colnames(data_reported_1) <- paste0(colnames_reported, "1")
   colnames(data_reported_2) <- paste0(colnames_reported, "2")

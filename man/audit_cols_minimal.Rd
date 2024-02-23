@@ -7,7 +7,7 @@
 audit_cols_minimal(data, name_test)
 }
 \arguments{
-\item{data}{Data frame returned by a mapper function, such as\code{grim_map()}.}
+\item{data}{Data frame returned by a mapper function, such as \code{\link[=grim_map]{grim_map()}}.}
 
 \item{name_test}{String (length 1). Short, plain-text name of the consistency
 test, such as \code{"GRIM"}. Only needed for a potential alert.}
@@ -16,8 +16,8 @@ test, such as \code{"GRIM"}. Only needed for a potential alert.}
 A tibble (data frame) with the columns listed above.
 }
 \description{
-Call \code{audit_cols_minimal()} within your \code{audit()} methods for
-the output of consistency test mapper functions such as \code{grim_map()}. It
+Call \code{audit_cols_minimal()} within your \code{\link[=audit]{audit()}} methods for
+the output of consistency test mapper functions such as \code{\link[=grim_map]{grim_map()}}. It
 will create a tibble with the three minimal, required columns:
 \enumerate{
 \item \code{incons_cases} counts the inconsistent cases, i.e., the number of rows
@@ -41,6 +41,7 @@ audit.scr_schlim_map <- function(data) {
 # with `dplyr::mutate()` or similar.
 }
 \seealso{
-For context, see \code{vignette("consistency-tests")}. In case you don't
-call \code{audit_cols_minimal()}, you should call \code{check_audit_special()}.
+For context, see \code{vignette("consistency-tests-in-depth")}. In case
+you don't call \code{audit_cols_minimal()}, you should call
+\code{\link[=check_audit_special]{check_audit_special()}}.
 }

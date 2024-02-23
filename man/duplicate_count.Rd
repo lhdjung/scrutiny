@@ -29,12 +29,13 @@ If \code{x} is a data frame or another named vector, a tibble with four
 columns. If \code{x} isn't named, only the first two columns appear:
 \itemize{
 \item \code{value}: All the values from \code{x}.
-\item \code{count}: The frequency of each value in \code{x}, in descending order.
-\item \code{locations}: The names of all columns from \code{x} in which \code{value} appears.
-\item \code{locations_n}: The number of columns named in \code{locations}.
-The tibble has the \code{scr_dup_count} class, which is recognized by the
-\code{audit()} generic.
+\item \code{frequency}: Absolute frequency of each value in \code{x}, in descending order.
+\item \code{locations}: Names of all columns from \code{x} in which \code{value} appears.
+\item \code{locations_n}: Number of columns named in \code{locations}.
 }
+
+The tibble has the \code{scr_dup_count} class, which is recognized by the
+\code{\link[=audit]{audit()}} generic.
 }
 \description{
 \code{duplicate_count()} returns a frequency table. When searching a
@@ -43,7 +44,7 @@ data frame, it includes values from all columns for each frequency count.
 This function is a blunt tool designed for initial data checking. It is not
 too informative if many values have few characters each.
 
-For summary statistics, call \code{audit()} on the results.
+For summary statistics, call \code{\link[=audit]{audit()}} on the results.
 }
 \details{
 Don't use \code{numeric_only}. It no longer has any effect and will be
@@ -52,11 +53,12 @@ errors introduced by coercing values to numeric. This is no longer an issue
 because all values are now coerced to character, which is more appropriate
 for checking reported statistics.
 }
-\section{Summaries with \code{audit()}}{
- There is an S3 method for the \code{audit()}
-generic, so you can call \code{audit()} following \code{duplicate_count()}. It
-returns a tibble with summary statistics for the two numeric columns,
-\code{count} and \code{locations_n} (or only for \code{count}; see above).
+\section{Summaries with \code{\link[=audit]{audit()}}}{
+ There is an S3 method for the
+\code{\link[=audit]{audit()}} generic, so you can call \code{\link[=audit]{audit()}} following
+\code{duplicate_count()}. It returns a tibble with summary statistics for the
+two numeric columns, \code{frequency} and \code{locations_n} (or, if \code{x} isn't named,
+only for \code{frequency}).
 }
 
 \examples{
@@ -75,9 +77,9 @@ iris \%>\%
 }
 \seealso{
 \itemize{
-\item \code{duplicate_count_colpair()} to check each combination of columns for
+\item \code{\link[=duplicate_count_colpair]{duplicate_count_colpair()}} to check each combination of columns for
 duplicates.
-\item \code{duplicate_tally()} to show instances of a value next to each instance.
-\item \code{janitor::get_dupes()} to search for duplicate rows.
+\item \code{\link[=duplicate_tally]{duplicate_tally()}} to show instances of a value next to each instance.
+\item \code{\link[janitor:get_dupes]{janitor::get_dupes()}} to search for duplicate rows.
 }
 }

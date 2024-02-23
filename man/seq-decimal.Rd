@@ -53,7 +53,7 @@ decimal digit. Default is \code{0}.}
 endpoint will be offset by that many units on the level of the last decimal
 digit. Default is \code{0}. Only in \code{seq_endpoint()} and \code{seq_endpoint_df()}.}
 
-\item{string_output, .string_output}{Boolean or string. If \code{TRUE} (the
+\item{string_output, .string_output}{Logical or string. If \code{TRUE} (the
 default), the output is a string vector. Decimal places are then padded
 with zeros to match \code{from}'s (or \code{to}'s) number of decimal places. \code{"auto"}
 works like \code{TRUE} if and only if \code{from} (\code{.from}) is a string.}
@@ -69,7 +69,7 @@ number of its values). Default is \code{10}. Only in \code{seq_distance()} and
 \item{dir, .dir}{Integer. If set to \code{-1}, the sequence goes backward. Default
 is \code{1}. Only in \code{seq_distance()} and \code{seq_distance_df()}.}
 
-\item{...}{Further columns, added as in \code{tibble::tibble()}. Only in
+\item{...}{Further columns, added as in \code{\link[tibble:tibble]{tibble::tibble()}}. Only in
 \code{seq_endpoint_df()} and \code{seq_distance_df()}.}
 }
 \value{
@@ -89,7 +89,7 @@ point by default.
 }
 
 \code{seq_endpoint_df()} and \code{seq_distance_df()} are variants that create a data
-frame. Further columns can be added as in \code{tibble::tibble()}. Regular
+frame. Further columns can be added as in \code{\link[tibble:tibble]{tibble::tibble()}}. Regular
 arguments are the same as in the respective non-\code{df} function, but with a dot
 before each.
 }
@@ -97,14 +97,14 @@ before each.
 If either \code{from} or \code{to} ends on zero, be sure to enter that value
 as a string! This is crucial because trailing zeros get dropped from
 numeric values. A handy way to format numeric values or number-strings
-correctly is \code{restore_zeros()}. The output of the present functions is like
-that by default (of \code{string_output}).
+correctly is \code{\link[=restore_zeros]{restore_zeros()}}. The output of the present functions is
+like that by default (of \code{string_output}).
 
 In \code{seq_endpoint()} and \code{seq_endpoint_df()}, the step size is determined by
 \code{from} and \code{to}, whichever has more decimal places. In \code{seq_distance()} and
 \code{seq_distance_df()}, it's determined by the decimal places of \code{from}.
 
-These functions are scrutiny's take on \code{base::seq()}, and themselves
+These functions are scrutiny's take on \code{\link[base:seq]{base::seq()}}, and themselves
 wrappers around it.
 }
 \examples{
@@ -135,5 +135,5 @@ seq_endpoint_df(.from = 4.7, .to = 5, n = 20)
 seq_distance_df(.from = 0.43, .length_out = 5, sd = 0.08)
 }
 \seealso{
-\code{seq_disperse()} for sequences centered around the input.
+\code{\link[=seq_disperse]{seq_disperse()}} for sequences centered around the input.
 }

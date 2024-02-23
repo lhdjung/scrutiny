@@ -23,13 +23,13 @@ split_by_parens(
 \href{https://tidyselect.r-lib.org/reference/language.html}{tidyselect}.
 Default is \code{everything()}, which selects all columns that pass \code{check_sep}.}
 
-\item{check_sep}{Boolean. If \code{TRUE} (the default), columns are excluded if
+\item{check_sep}{Logical. If \code{TRUE} (the default), columns are excluded if
 they don't contain the \code{sep} elements.}
 
-\item{keep}{Boolean. If set to \code{TRUE}, the originally selected columns that
+\item{keep}{Logical. If set to \code{TRUE}, the originally selected columns that
 were split by the function also appear in the output. Default is \code{FALSE}.}
 
-\item{transform}{Boolean. If set to \code{TRUE}, the output will be pivoted to be
+\item{transform}{Logical. If set to \code{TRUE}, the output will be pivoted to be
 better suitable for typical follow-up tasks. Default is \code{FALSE}.}
 
 \item{sep}{String. What to split by. Either \code{"parens"}, \code{"brackets"}, or
@@ -120,11 +120,11 @@ df3 \%>\%
 }
 \seealso{
 \itemize{
-\item \code{before_parens()} and \code{inside_parens()} take a string vector and extract
-values from the respective position.
-\item \code{dplyr::across()} powers the application of the two above functions within
-\code{split_by_parens()}, including the creation of new columns.
-\item \code{tidyr::separate()} is a more general function, but it does not recognize
-closing elements such as closed parentheses.
+\item \code{\link[=before_parens]{before_parens()}} and \code{\link[=inside_parens]{inside_parens()}} take a string vector and
+extract values from the respective position.
+\item \code{\link[dplyr:across]{dplyr::across()}} powers the application of the two above functions
+within split_by_parens()`, including the creation of new columns.
+\item \code{\link[tidyr:separate_wider_delim]{tidyr::separate_wider_delim()}} is a more general function, but it does
+not recognize closing elements such as closed parentheses.
 }
 }

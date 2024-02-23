@@ -1,5 +1,4 @@
 
-
 #' Standard deviation of binary data
 #'
 #' @description Compute the sample SD of binary data (i.e., only 0 and 1 values)
@@ -13,8 +12,8 @@
 #' sample size.
 #' - `sd_binary_mean_n()` takes the mean and the total sample size.
 #'
-#' These functions are used as helpers inside `debit()`, and consequently
-#' `debit_map()`.
+#' These functions are used as helpers inside [`debit()`], and consequently
+#' [`debit_map()`].
 
 #' @param group_0 Integer. Cell size of the group coded as 0.
 #' @param group_1 Integer. Cell size of the group coded as 1.
@@ -56,7 +55,6 @@
 
 sd_binary_groups <- function(group_0, group_1) {
   n <- group_0 + group_1
-
   suppressWarnings(sqrt((n / (n - 1)) * ((group_0 * group_1) / (n ^ 2))))
 }
 
@@ -69,7 +67,6 @@ sd_binary_groups <- function(group_0, group_1) {
 
 sd_binary_0_n <- function(group_0, n) {
   group_1 <- n - group_0
-
   suppressWarnings(sqrt((n / (n - 1)) * ((group_0 * group_1) / (n ^ 2))))
 }
 
@@ -82,7 +79,6 @@ sd_binary_0_n <- function(group_0, n) {
 
 sd_binary_1_n <- function(group_1, n) {
   group_0 <- n - group_1
-
   suppressWarnings(sqrt((n / (n - 1)) * ((group_0 * group_1) / (n ^ 2))))
 }
 
@@ -94,8 +90,6 @@ sd_binary_1_n <- function(group_1, n) {
 #' @export
 
 sd_binary_mean_n <- function(mean, n) {
-
   suppressWarnings(sqrt((n / (n - 1)) * (mean * (1 - mean))))
 }
-
 

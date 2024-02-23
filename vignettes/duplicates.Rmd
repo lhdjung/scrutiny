@@ -14,24 +14,19 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r include=FALSE}
-# Dev only: load scrutiny from within scrutiny
-devtools::load_all(".")
-```
-
 ```{r setup}
 library(scrutiny)
 ```
 
-You can use scrutiny to analyze duplicate values in data. Duplications can go a long way in assessing the reliability of published research.
+You can use scrutiny to detect duplicate values in any dataset. Duplicates can go a long way in assessing the reliability of published research.
 
-This vignette walks you through scrutiny's tools for finding, counting, and summarizing duplications. It uses the `pigs4` dataset as a simple example:
+This vignette walks you through scrutiny's tools for detecting, counting, and summarizing duplicates. It uses the `pigs4` dataset as a simple example:
 
 ```{r}
 pigs4
 ```
 
-## Ranked counting with `duplicate_count()`
+## Frequency tabulation with `duplicate_count()`
 
 A good first step is to create a frequency table. To do so, use `duplicate_count()`:
 
@@ -40,9 +35,11 @@ pigs4 %>%
   duplicate_count()
 ```
 
-It returns a tibble (data frame) that lists all unique `value`s. It is ordered by the `count` of values in the input data frame, so the values that appear most often are at the top. The `locations` are the names of the column or columns in which a given value appears. They are counted by `locations_n`.
+It returns a tibble (data frame) that lists each unique `value`. The tibble is ordered by the `frequency` of values in the input data frame, so the values that appear most often are at the top. The `locations` are the names of all the columns in which a given value appears. They are counted by `locations_n`.
 
-For larger datasets, summary statistics can be helpful. Just run `audit()` after `duplicate_count()`:
+For example, `5.17` is the most frequent value in `pigs4`. It appears 3 times (`frequency`), namely in the `snout`, `tail`, and `wings` columns; so `locations_n` is also `3`. The next most frequent value is `4.22` which appears twice, but both of these instances are in the `snout` column, so `locations_n` is `1`.
+
+Run `audit()` after `duplicate_count()` to get summary statistics for the two numeric columns, `frequency` and `locations_n`:
 
 ```{r}
 pigs4 %>% 
@@ -59,11 +56,11 @@ pigs4 %>%
   duplicate_count_colpair()
 ```
 
-`x` and `y` represent all combinations of columns in `pigs4`. The `count` is the number of values that appear in both respective columns. This is different from `duplicate_count()`, where `count` displays total frequencies.
+`x` and `y` represent all combinations of columns in `pigs4`. The `count` is the number of values that appear in both respective columns. `total_x` and `total_y` are the numbers of non-missing values in the original columns listed under `x` and `y`. Similarly, `rate_x` is the rate of `x` values that also appear in `y`, and `rate_y` is the rate of `y` values that also appear in `x`. If there are no missing values, `total_x` is the same as `total_y`, and `rate_x` is the same as `rate_y`.
 
-`snout` and `tail` are the column pair with the most overlap: 2 out of 5 values are the same, a rate of 0.4. If there are no missing values, `total_x` and `total_y` are the same. The same applies to `rate_x` and `rate_y`.
+Here, `snout` and `tail` are the column pair with the most overlap: 2 out of 5 values are the same, a duplication rate of 0.4.
 
-Again, you can get summary statistics with `audit()`:
+Again, you can call `audit()` for summary statistics:
 
 ```{r}
 pigs4 %>% 
@@ -73,7 +70,7 @@ pigs4 %>%
 
 ## Counting by observation with `duplicate_tally()`
 
-Unlike the other two functions, `duplicate_tally()` preserves the structure of the original data frame. It adds an `_n` column next to each original column. The newly added columns count how often each value appears in the data frame as a whole:
+Unlike the other two functions, `duplicate_tally()` largely preserves the structure of the original data frame. It only adds a column ending on `_n` next to each original column. The new columns count how often the values to their left appear in the data frame as a whole:
 
 ```{r}
 pigs4 %>% 
@@ -82,7 +79,7 @@ pigs4 %>%
 
 In `snout`, for example, `4.22` appears twice, so its entries in `snout_n` are `2`. But likewise, `8.13` appears in both `snout` and `tail`, so both observations are marked `2` in the `_n` columns.
 
-When following `duplicate_tally()` up with `audit()`, it shows summary statistics for each `_n` column. The last row summarizes all of these columns together.
+When following up `duplicate_tally()` with `audit()`, it shows summary statistics for each `_n` column. The last row summarizes all of these columns together:
 
 ```{r}
 pigs4 %>% 

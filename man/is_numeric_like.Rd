@@ -10,20 +10,20 @@ is_numeric_like(x)
 \item{x}{Object to be tested.}
 }
 \value{
-Boolean (length 1).
+Logical (length 1).
 }
 \description{
 \code{is_numeric_like()} tests whether an object is "coercible to
 numeric" by the particular standards of scrutiny. This means:
 \itemize{
 \item Integer and double vectors are \code{TRUE}.
-\item Booleans are \code{FALSE}, as are non-vector objects.
+\item Logical vectors are \code{FALSE}, as are non-vector objects.
 \item Other vectors (most likely strings) are \code{TRUE} if all their non-\code{NA}
 values can be coerced to non-\code{NA} numeric values, and \code{FALSE} otherwise.
 \item Factors are first coerced to string, then tested.
 \item Lists are tested like atomic vectors unless any of their elements have
 length greater 1, in which case they are always \code{FALSE}.
-\item If all values are non-numeric, non-Boolean \code{NA}, the output is also \code{NA}.
+\item If all values are non-numeric, non-logical \code{NA}, the output is also \code{NA}.
 }
 
 See details for discussion.
@@ -34,11 +34,11 @@ strings that can be coerced to numeric without introducing new \code{NA}s. This
 is a matter of displaying data in a certain way, as opposed to their
 storage mode.
 
-\code{is_numeric_like()} returns \code{FALSE} for Booleans simply because these are
-displayed as words, not as numbers, and the usual coercion rules would be
-misleading in this context. Likewise, the function treats factors like
-strings because that is how they are displayed: the fact that factors are
-stored as integers is irrelevant.
+\code{is_numeric_like()} returns \code{FALSE} for logical vectors simply because
+these are displayed as strings, not as numbers, and the usual coercion
+rules would be misleading in this context. Likewise, the function treats
+factors like strings because that is how they are displayed: the fact that
+factors are stored as integers is irrelevant.
 
 Why store numbers as strings or factors? Only these data types can preserve
 trailing zeros, and only if the data were originally entered as strings.
@@ -49,7 +49,7 @@ See \code{vignette("wrangling")}, section \emph{Trailing zeros}.
 is_numeric_like(x = 1:5)
 is_numeric_like(x = 2.47)
 
-# Booleans are always `FALSE`:
+# Logical vectors are always `FALSE`:
 is_numeric_like(x = c(TRUE, FALSE))
 
 # Strings are `TRUE` if all of their non-`NA`
@@ -61,7 +61,7 @@ is_numeric_like(x = c("42", "xyz", NA))
 # Factors are treated like their
 # string equivalents:
 is_numeric_like(x = as.factor(c("42", "0.7", NA)))
-is_numeric_like(x = as.factor(c("42", "0.7", NA)))
+is_numeric_like(x = as.factor(c("42", "xyz", NA)))
 
 # Lists behave like atomic vectors if all of their
 # elements have length 1...
@@ -74,12 +74,11 @@ is_numeric_like(x = list("42", "0.7", NA, c(1, 2, 3)))
 # If all values are `NA`, so is the output...
 is_numeric_like(x = as.character(c(NA, NA, NA)))
 
-# ...unless the `NA`s are numeric or Boolean:
+# ...unless the `NA`s are numeric or logical:
 is_numeric_like(x = as.numeric(c(NA, NA, NA)))
 is_numeric_like(x = c(NA, NA, NA))
 }
 \seealso{
-The \href{https://vctrs.r-lib.org/}{vctrs} package provides a
-serious typing framework for R; quite in contrast to this rather ad-hoc and
-use case-specific function.
+The \href{https://vctrs.r-lib.org/}{vctrs} package, which provides a
+serious typing framework for R; in contrast to this rather ad-hoc function.
 }

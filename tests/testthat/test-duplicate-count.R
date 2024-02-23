@@ -12,7 +12,7 @@ iris_exp <- tibble::tibble(
     "5.3", "6.6", "6.8", "7.2", "7", "7.1", "7.3", "7.4", "7.6", "7.9", "0.5",
     "0.6"
   ),
-  count = rep(
+  frequency = rep(
     c(
       50L, 29L, 27L, 25L, 21L, 20L, 17L, 14L, 13L, 12L, 11L, 10L,
       9L, 8L, 7L, 6L, 5L, 4L, 3L, 1L
@@ -86,7 +86,7 @@ mtcars_exp <- tibble::tibble(
     "17.05", "17.4", "17.42", "17.6", "17.82", "17.98", "18", "18.3", "18.52",
     "18.6", "18.61", "19.44", "19.47", "19.9", "20", "20.01", "20.22", "22.9"
   ),
-  count = rep(
+  frequency = rep(
     c(37L, 34L, 33L, 19L, 15L, 10L, 8L, 5L, 3L, 2L, 1L),
     rep(c(1L, 8L, 25L, 117L), c(8L, 1L, 1L, 1L))
   ),
@@ -121,7 +121,7 @@ iris_exp_ignore <- tibble::tibble(
     "3.6", "3.9", "4.2", "0.1", "6.2", "7.7", "3.7", "4.1", "1.1", "4.3", "5.3",
     "6.6", "6.8", "7.2", "7", "7.1", "7.3", "7.4", "7.6", "7.9", "0.5", "0.6"
   ),
-  count = rep(
+  frequency = rep(
     c(
       50L, 29L, 25L, 21L, 20L, 17L, 14L, 13L, 12L, 11L, 10L, 9L,
       8L, 7L, 6L, 5L, 4L, 3L, 1L
@@ -194,7 +194,7 @@ mtcars_exp_ignore <- tibble::tibble(
     "17.05", "17.4", "17.42", "17.6", "17.82", "17.98", "18", "18.3", "18.52",
     "18.6", "18.61", "19.44", "19.47", "19.9", "20", "20.01", "20.22", "22.9"
   ),
-  count = rep(
+  frequency = rep(
     c(37L, 34L, 33L, 19L, 15L, 10L, 8L, 3L, 2L, 1L),
     rep(c(1L, 8L, 25L, 117L), c(7L, 1L, 1L, 1L))
   ),
@@ -220,7 +220,7 @@ mtcars_exp_ignore <- tibble::tibble(
 
 vec_unnamed_exp <- tibble::tibble(
   value = c("3", "4", "5", "6", "7", "1", "2", "8", "9", "10"),
-  count = rep(2:1, each = 5L),
+  frequency = rep(2:1, each = 5L),
 ) %>%
   structure(class = c("scr_dup_count", "tbl_df", "tbl", "data.frame"))
 

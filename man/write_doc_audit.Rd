@@ -2,28 +2,28 @@
 % Please edit documentation in R/write-doc-audit.R
 \name{write_doc_audit}
 \alias{write_doc_audit}
-\title{Documentation template for \code{audit()}}
+\title{Documentation template for \code{\link[=audit]{audit()}}}
 \usage{
 write_doc_audit(sample_output, name_test)
 }
 \arguments{
-\item{sample_output}{Data frame. Result of a call to \code{audit()} on a data
+\item{sample_output}{Data frame. Result of a call to \code{\link[=audit]{audit()}} on a data
 frame that resulted from a call to the mapper function for which you wrote
-the \code{audit()} method, such as \code{audit(grim_map(pigs1))} or
+the \code{\link[=audit]{audit()}} method, such as \code{audit(grim_map(pigs1))} or
 \code{audit(debit_map(pigs3))}.}
 
 \item{name_test}{String (length 1). Name of the consistency test which the
 mapper function applies, such as \code{"GRIM"} or \code{"DEBIT"}.}
 }
 \value{
-A string vector formatted by \code{glue::glue()}.
+A string vector formatted by \code{\link[glue:glue]{glue::glue()}}.
 }
 \description{
 \code{write_doc_audit()} creates a roxygen2 block section to be
-inserted into the documentation of a mapper function such as \code{grim_map()}
-or \code{debit_map()}: functions for which there are, or should be, \code{audit()}
-methods. The section informs users about the ways in which \code{audit()}
-summarizes the results of the respective mapper function.
+inserted into the documentation of a mapper function such as \code{\link[=grim_map]{grim_map()}}
+or \code{\link[=debit_map]{debit_map()}}: functions for which there are, or should be,
+\code{\link[=audit]{audit()}} methods. The section informs users about the ways in which
+\code{\link[=audit]{audit()}} summarizes the results of the respective mapper function.
 
 Copy the output from your console and paste it into the roxygen2 block of
 your \verb{*_map()} function. To preserve the numbered list structure when

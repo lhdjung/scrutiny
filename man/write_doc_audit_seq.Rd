@@ -2,7 +2,7 @@
 % Please edit documentation in R/write-doc-audit.R
 \name{write_doc_audit_seq}
 \alias{write_doc_audit_seq}
-\title{Documentation template for \code{audit_seq()}}
+\title{Documentation template for \code{\link[=audit_seq]{audit_seq()}}}
 \usage{
 write_doc_audit_seq(key_args, name_test)
 }
@@ -15,13 +15,13 @@ have the same order as in that function's output.}
 \verb{*_map_seq()} function applies, such as \code{"GRIM"}.}
 }
 \value{
-A string vector formatted by \code{glue::glue()}.
+A string vector formatted by \code{\link[glue:glue]{glue::glue()}}.
 }
 \description{
 \code{write_doc_audit_seq()} creates a roxygen2 block section to be
 inserted into the documentation of functions created with
-\code{function_map_seq()}. The section informs users about the ways in which
-\code{audit_seq()} summarizes the results of the manufactured \verb{*_map_seq()}
+\code{\link[=function_map_seq]{function_map_seq()}}. The section informs users about the ways in which
+\code{\link[=audit_seq]{audit_seq()}} summarizes the results of the manufactured \verb{*_map_seq()}
 function.
 
 Copy the output from your console and paste it into the roxygen2 block of
@@ -37,6 +37,6 @@ write_doc_audit_seq(key_args = c("x", "n"), name_test = "GRIM")
 write_doc_audit_seq(key_args = c("x", "sd", "n"), name_test = "DEBIT")
 }
 \seealso{
-The sister function \code{write_doc_audit_total_n()} and, for context,
-\code{vignette("consistency-tests")}.
+The sister function \code{\link[=write_doc_audit_total_n]{write_doc_audit_total_n()}} and, for context,
+\code{vignette("consistency-tests-in-depth")}.
 }

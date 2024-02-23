@@ -60,7 +60,7 @@ contain; in the \verb{*_vecs()} functions, any number of vectors the elements of
 which \code{x} might contain.}
 }
 \value{
-A single Boolean value. \code{TRUE} if the respective test was passed,
+A single logical value. \code{TRUE} if the respective test was passed,
 \code{FALSE} otherwise.
 }
 \description{

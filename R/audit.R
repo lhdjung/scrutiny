@@ -2,26 +2,30 @@
 #' Summarize scrutiny objects
 #'
 #' @description `audit()` summarizes the results of scrutiny functions like
-#'   `grim_map()` that perform tests on data frames.
+#'   [`grim_map()`] that perform tests on data frames.
 #'
 #'   See below for a record of such functions. Go to the documentation of any of
 #'   them to learn about its `audit()` method.
 
 #' @param data A data frame that inherits one of the classes named below.
 
-#' @details `audit()` is an S3 generic.
+#' @details `audit()` is an S3 generic. It looks up the (invisible) scrutiny
+#'   class of a tibble returned by any function named below. You don't need to
+#'   deal with the classes directly. Behind the scenes, they mediate between
+#'   these functions and their associated summary statistics.
 
-#' @section Before `audit()`:
-#'   | \strong{Function}            | \strong{Class}              |
-#'   | ---                          | ---                         |
-#'   | `grim_map()`                 | `"scr_grim_map"`            |
-#'   | `grimmer_map()`              | `"scr_grimmer_map"`         |
-#'   | `debit_map()`                | `"scr_debit_map"`           |
-#'   | `duplicate_count()`          | `"scr_dup_count"`           |
-#'   | `duplicate_count_colpair()`  | `"scr_dup_count_colpair"`   |
-#'   | `duplicate_detect()`         | `"scr_dup_detect"`          |
-#'   | `audit_seq()`                | `"scr_audit_seq"`           |
-#'   | `audit_total_n()`            | `"scr_audit_total_n"`       |
+#' @section Run before `audit()`:
+#'   | \strong{Function}              | \strong{Class}              |
+#'   | ---                            | ---                         |
+#'   | [`grim_map()`]                 | `"scr_grim_map"`            |
+#'   | [`grimmer_map()`]              | `"scr_grimmer_map"`         |
+#'   | [`debit_map()`]                | `"scr_debit_map"`           |
+#'   | [`duplicate_count()`]          | `"scr_dup_count"`           |
+#'   | [`duplicate_count_colpair()`]  | `"scr_dup_count_colpair"`   |
+#'   | [`duplicate_tally()`]          | `"scr_dup_tally"`           |
+#'   | [`duplicate_detect()`]         | `"scr_dup_detect"`          |
+#'   | [`audit_seq()`]                | `"scr_audit_seq"`           |
+#'   | [`audit_total_n()`]            | `"scr_audit_total_n"`       |
 
 #' @return A tibble (data frame) with test summary statistics.
 #' @export
@@ -34,9 +38,8 @@
 #'
 #' # For duplicate detection:
 #' pigs4 %>%
-#'   duplicate_detect() %>%
+#'   duplicate_count() %>%
 #'   audit()
-
 
 audit <- function(data) {
   UseMethod("audit")
@@ -110,6 +113,8 @@ audit_list <- function(data) {
 
 #' @return A tibble (data frame) with test summary statistics.
 #'
+#' @include utils.R
+#'
 #' @export
 #'
 #' @examples
@@ -134,26 +139,28 @@ audit_seq <- function(data) {
     ))
   }
 
+  check_dispersion_linear(data)
+
   df_list <- split(data, data$case)
 
   df_list_hits <- df_list %>%
     purrr::map(dplyr::filter, consistency)
 
   hits_total <- df_list_hits %>%
-    vapply(nrow, 1L) %>%
+    vapply(nrow, integer(1L), USE.NAMES = FALSE) %>%
     unname()
 
   hits_positions <- df_list %>%
     purrr::map(function(x) which(x$consistency))
 
   if (is.null(dim(data))) {
-    fun <- class(data)[stringr::str_detect(class(data), "_map_seq")]
+    fun <- class(data)[stringr::str_detect(class(data), "_map_seq$")]
     fun <- fun[fun != "scr_map_seq"]
-    fun <- stringr::str_remove(fun, "scr_")
+    fun <- stringr::str_remove(fun, "^scr_")
     fun <- eval(rlang::parse_expr(fun))
     msg_error <-
       c("!" = "No values could be tested.")
-    if (any("items" == names(formals(fun)))) {
+    if (any(names(formals(fun)) == "items")) {
       fun_name <- deparse(substitute(fun))
       msg_items <- c(
         "x" = "Did you specify the `items` argument in {fun_name} \\
@@ -164,15 +171,15 @@ audit_seq <- function(data) {
     cli::cli_abort(msg_error)
   }
 
-  var_names <- unique(df_list[[1]]$var)
+  var_names <- unique(df_list[[1L]]$var)
 
   # Define some helper functions to be mapped below:
   index_hit_distance <- function(df, var_order = var_names) {
-    df_by_var <- split(df, df$var)
-    out <- purrr::map(df_by_var, index_case_diff)
-    out <- purrr::map(out, function(x) x[x$consistency, ])
-    out <- out[order(var_order)]
-    purrr::map(out, function(x) x$index_diff)
+    out <- df %>%
+      split(df$var) %>%
+      purrr::map(function(x) x[x$consistency, ])
+    out[order(var_order)] %>%
+      purrr::map(function(x) x$diff_var)
   }
 
   length_unless_na <- function(x) {
@@ -196,36 +203,34 @@ audit_seq <- function(data) {
     dplyr::mutate(dplyr::across(
       .cols = everything(),
       .fns = function(x) {
-        vapply(x, length_unless_na, integer(1L))
+        vapply(x, length_unless_na, integer(1L), USE.NAMES = FALSE)
       },
       .names = "hits_{.col}"
-    )) %>%
-    dplyr::select(-all_of(colnames(df_nested))) %>%
+    ), .keep = "none") %>%
     tidyr::unnest(cols = everything())
 
+  # Go to utils.R to see the `list_min_distance_functions` object.
   cols_diff <- df_nested %>%
     dplyr::mutate(dplyr::across(
       .cols = everything(),
-      .fns = list(min_distance_abs, min_distance_pos, min_distance_neg),
+      .fns = list_min_distance_functions,
       .names = "diff_{.col}{fun_names}"
-    )) %>%
-    dplyr::select(-(seq_along(var_names))) %>%
+    ), .keep = "none") %>%
     dplyr::mutate(dplyr::across(
       .cols = everything(),
       .fns = function(x) {
         x[is.infinite(x)] <- NA
-        x
+        as.integer(x)
       }
     )) %>%
     suppressWarnings()
 
   dc <- class(data)
-  rounding <- dc[stringr::str_detect(dc, "scr_rounding_")]
-  rounding <- stringr::str_remove(rounding, "scr_rounding_")
+  rounding <- dc[stringr::str_detect(dc, "^scr_rounding_")]
+  rounding <- stringr::str_remove(rounding, "^scr_rounding_")
 
-  fun_test <-
-    dc[stringr::str_detect(dc, "^scr_") & stringr::str_detect(dc, "_map$")]
-  fun_test <- stringr::str_remove(fun_test, "scr_")
+  fun_test <- dc[stringr::str_detect(dc, "^scr_.*map$")]
+  fun_test <- stringr::str_remove(fun_test, "^scr_")
   fun_test <- rlang::eval_bare(rlang::parse_expr(fun_test))
 
   data_rev <- reverse_map_seq(data)
@@ -276,7 +281,7 @@ audit_total_n <- function(data) {
     purrr::map(dplyr::filter, both_consistent)
 
   map_nrow_half <- function(x) {
-    vapply(x, nrow, 1L) / 2L
+    vapply(x, nrow, integer(1L), USE.NAMES = FALSE) / 2L
   }
 
   hits_forth <- df_list_hits %>%
@@ -294,7 +299,11 @@ audit_total_n <- function(data) {
   data %>%
     reverse_map_total_n() %>%
     dplyr::mutate(
-      hits_total, hits_forth, hits_back, scenarios_total, hit_rate
+      hits_total, hits_forth, hits_back, scenarios_total, hit_rate,
+      dplyr::across(
+        .cols = c("n", starts_with("hits"), "scenarios_total"),
+        .fns  = as.integer
+      )
     ) %>%
     add_class("scr_audit_total_n")
 }

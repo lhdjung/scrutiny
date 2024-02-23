@@ -51,11 +51,11 @@ of \code{x}.}
 Default is \code{everything()}, which selects all columns that pass the test of
 \code{check_numeric_like}.}
 
-\item{check_numeric_like}{Boolean. Only in \code{restore_zeros_df()}. If \code{TRUE}
+\item{check_numeric_like}{Logical. Only in \code{restore_zeros_df()}. If \code{TRUE}
 (the default), the function will skip columns that are not numeric or
-coercible to numeric, as determined by \code{is_numeric_like()}.}
+coercible to numeric, as determined by \code{\link[=is_numeric_like]{is_numeric_like()}}.}
 
-\item{check_decimals}{Boolean. Only in \code{restore_zeros_df()}. If set to
+\item{check_decimals}{Logical. Only in \code{restore_zeros_df()}. If set to
 \code{TRUE}, the function will skip columns where no values have any decimal
 places. Default is \code{FALSE}.}
 
@@ -93,7 +93,7 @@ as means or percentages are often reported to the same number of decimal
 places. If such a number is known but values were not entered as strings,
 trailing zeros will be lost. In this case, \code{restore_zeros()} or
 \code{restore_zeros_df()} will be helpful to prepare data for consistency
-testing functions such as \code{grim_map()} or \code{grimmer_map()}.
+testing functions such as \code{\link[=grim_map]{grim_map()}} or \code{\link[=grimmer_map]{grimmer_map()}}.
 }
 \section{Displaying decimal places}{
  You might not see all decimal places of
@@ -131,5 +131,5 @@ iris \%>\%
   restore_zeros_df(starts_with("Sepal"), width = 3)
 }
 \seealso{
-Wrapped functions: \code{sprintf()} and \code{decimal_places()}.
+Wrapped functions: \code{\link[=sprintf]{sprintf()}}.
 }

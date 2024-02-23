@@ -29,10 +29,10 @@ bug that will be fixed in the future.)} Integer. The
 number of items composing the \code{x} and \code{sd} values. Default is 1, the most
 common case.}
 
-\item{show_reason}{Boolean. For internal use only. If set to \code{TRUE}, the
+\item{show_reason}{Logical. For internal use only. If set to \code{TRUE}, the
 output is a list of length-2 lists which also contain the reasons for
 inconsistencies. Don't specify this manually; instead, use \code{show_reason} in
-\code{grimmer_map()}. Default is \code{FALSE}.}
+\code{\link[=grimmer_map]{grimmer_map()}}. Default is \code{FALSE}.}
 
 \item{rounding}{String. Rounding method or methods to be used for
 reconstructing the values to which \code{x} will be compared. Default is
@@ -43,25 +43,25 @@ or \code{"up_from_or_down_from"}, set \code{threshold} to the number from which 
 reconstructed values should then be rounded up or down. Otherwise, this
 argument plays no role. Default is \code{5}.}
 
-\item{symmetric}{Boolean. Set \code{symmetric} to \code{TRUE} if the rounding of
+\item{symmetric}{Logical. Set \code{symmetric} to \code{TRUE} if the rounding of
 negative numbers with \code{"up"}, \code{"down"}, \code{"up_from"}, or \code{"down_from"}
 should mirror that of positive numbers so that their absolute values are
 always equal. Default is \code{FALSE}.}
 
 \item{tolerance}{Numeric. Tolerance of comparison between \code{x} and the
 possible mean or percentage values. Default is circa 0.000000015
-(1.490116e-08), as in \code{dplyr::near()}.}
+(1.490116e-08), as in \code{\link[dplyr:near]{dplyr::near()}}.}
 }
 \value{
-Boolean. \code{TRUE} if \code{x}, \code{sd}, \code{n}, and \code{items} are mutually
+Logical. \code{TRUE} if \code{x}, \code{sd}, \code{n}, and \code{items} are mutually
 consistent, \code{FALSE} if not.
 }
 \description{
 \code{grimmer()} checks if reported mean and SD values of integer
 data are mathematically consistent with the reported sample size and the
-number of items that compose the mean value. It works much like \code{grim()}.
+number of items that compose the mean value. It works much like \code{\link[=grim]{grim()}}.
 
-The function is vectorized, but it is recommended to use \code{grimmer_map()}
+The function is vectorized, but it is recommended to use \code{\link[=grimmer_map]{grimmer_map()}}
 for testing multiple cases.
 }
 \details{
@@ -69,10 +69,10 @@ GRIMMER was originally devised by Anaya (2016). The present
 implementation follows Allard's (2018) refined Analytic-GRIMMER (A-GRIMMER)
 algorithm. It adapts the R function \code{aGrimmer()} provided by Allard and
 modifies it to accord with scrutiny's standards, as laid out in
-\code{vignette("consistency-tests")}, sections 1-2. The resulting \code{grimmer()}
-function, then, is a vectorized version of this basic implementation. For
-more context and variable name translations, see the top of the
-R/grimmer.R, the source file.
+\code{vignette("consistency-tests-in-depth")}, sections 1-2. The resulting
+\code{grimmer()} function, then, is a vectorized version of this basic
+implementation. For more context and variable name translations, see the
+top of the R/grimmer.R, the source file.
 
 The present implementation can differ from Allard's in a small number of
 cases. In most cases, this means that the original flags a value set as

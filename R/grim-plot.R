@@ -1,10 +1,9 @@
 
-
 #' Visualize GRIM test results
 #'
 #' @description `grim_plot()` visualizes summary data and their mutual GRIM
 #'   consistency. Call this function only on a data frame that resulted from a
-#'   call to `grim_map()`.
+#'   call to [`grim_map()`].
 #'
 #'   Consistent and inconsistent value pairs from the input data frame are shown
 #'   in distinctive colors. By default, consistent value pairs are blue and
@@ -31,35 +30,34 @@
 #'   For 1 or 2 decimal places, the raster will be specific to the rounding
 #'   procedure. As the raster varies by rounding procedure, it will
 #'   automatically correspond to the `rounding` argument specified in the
-#'   preceding `grim_map()` call. This works fast because the raster is based on
-#'   data saved in the package itself, so these data don't need to be generated
-#'   anew every time the function is called. Inconsistent value sets are marked
-#'   with dark boxes. All other places in the raster denote consistent value
-#'   sets. The raster is independent of the data -- it only follows the
-#'   `rounding` specification in the `grim_map()` call and the `digits` argument
-#'   in `grim_plot()`.
+#'   preceding [`grim_map()`] call. This works fast because the raster is based
+#'   on data saved in the package itself, so these data don't need to be
+#'   generated anew every time the function is called. Inconsistent value sets
+#'   are marked with dark boxes. All other places in the raster denote
+#'   consistent value sets. The raster is independent of the data -- it only
+#'   follows the `rounding` specification in the [`grim_map()`] call and the
+#'   `digits` argument in `grim_plot()`.
 #'
 #'   Display an "empty" plot, one without empirical test results, by setting
 #'   `show_data` to `FALSE`. You can then control key parameters of the plot
 #'   with `digits` and `rounding`.
 #'
-#'   With `grim_map()`'s default for `rounding`, `"up_or_down"`, strikingly few
-#'   values are flagged as inconsistent for sample sizes 40 and 80 (or 4 and 8).
-#'   This effect disappears if `rounding` is set to any other value. For a list
-#'   of values that `rounding` can take, see documentation for `grim()`, section
-#'   `Rounding`.
+#'   With [`grim_map()`]'s default for `rounding`, `"up_or_down"`, strikingly
+#'   few values are flagged as inconsistent for sample sizes 40 and 80 (or 4 and
+#'   8). This effect disappears if `rounding` is set to any other value (see
+#'   `vignette("rounding-options")`).
 #'
 #'   The 4/8 leniency effect arises because accepting values rounded either up
 #'   or down is more careful and conservative than any other rounding procedure.
 #'   In any case, `grim_plot()` doesn't cause this effect --- it only reveals
 #'   it.
 #'
-#' @param data Data frame. Result of a call to `grim_map()`.
-#' @param show_data Boolean. If set to `FALSE`, test results from the data are
+#' @param data Data frame. Result of a call to [`grim_map()`].
+#' @param show_data Logical. If set to `FALSE`, test results from the data are
 #'   not displayed. Choose this if you only want to show the background raster.
 #'   You can then control plot parameters directly via the `n`, `digits`, and
 #'   `rounding` arguments. Default is `TRUE`.
-#' @param show_gradient Boolean. If the number of decimal places is 3 or
+#' @param show_gradient Logical. If the number of decimal places is 3 or
 #'   greater, should a gradient be shown to signal the overall probability of
 #'   GRIM inconsistency? Default is `TRUE`.
 #' @param digits Integer. Number of decimal places for which the background
@@ -73,7 +71,7 @@
 #' @param rounding String. Only relevant if `show_data` is set to `FALSE`. The
 #'   plot will then be constructed as it would be for data rounded in this
 #'   particular way. Default is `"up_or_down"`.
-#' @param show_raster Boolean. If `TRUE` (the default), the plot has a
+#' @param show_raster Logical. If `TRUE` (the default), the plot has a
 #'   background raster.
 #' @param color_cons,color_incons Strings. Fill colors of the consistent and
 #'   inconsistent scatter points. Defaults are `"royalblue1"` (consistent) and
@@ -140,30 +138,31 @@ grim_plot <- function(data = NULL,
     # Issue an alert if any GRIMMER inconsistencies were found in `data`:
     if (inherits_grimmer) {
       reason <- data$reason[!is.na(data$reason)]
-      grimmer_cases <- stringr::str_detect(reason, "GRIMMER")
-      grimmer_cases <- length(grimmer_cases[grimmer_cases])
-      if (grimmer_cases > 0L) {
-        if (grimmer_cases == 1L) {
+      n_grimmer_cases <- stringr::str_detect(reason, "GRIMMER")
+      n_grimmer_cases <- length(which(n_grimmer_cases))
+      if (n_grimmer_cases > 0L) {
+        if (n_grimmer_cases == 1L) {
           msg_case_s <- "case was"
           msg_incons <- "inconsistency"
         } else {
           msg_case_s <- "cases were"
           msg_incons <- "inconsistencies"
         }
-        if (grimmer_cases < length(reason)) {
+        if (n_grimmer_cases < length(reason)) {
           msg_viz <- "Also visualizing"
         } else {
           msg_viz <- "Visualizing"
         }
-        cli::cli_alert("{msg_viz} {grimmer_cases} GRIMMER {msg_incons}.")
+        cli::cli_alert("{msg_viz} {n_grimmer_cases} GRIMMER {msg_incons}.")
       }
     } else if (show_data) {
       cli::cli_abort(c(
         "!" = "`grim_plot()` needs GRIM or GRIMMER test results.",
-        "x" = "`data` is not `grim_map()` or `grimmer_map()` output.",
+        "x" = "`data` is not the output of `grim_map()`, `grim_map_seq()`, \\
+        or `grim_map_total_n()`; or of the respective `grimmer_*()` functions.",
         "i" = "The only exception is an \"empty\" plot that shows the \\
         background raster but no empirical test results. Create such a plot \\
-        by setting `show_data` to `FALSE`."
+        with `show_data = FALSE`."
       ))
     }
   }
@@ -171,17 +170,17 @@ grim_plot <- function(data = NULL,
   # Warn the user who passed suitable data to `grim_plot()` but also set
   # `show_data` to `FALSE`, thereby defeating the data's purpose here:
   if (!show_data && any(inherits_grim, inherits_grimmer)) {
-    if (inherits_grimmer) {
-      msg_grimmer <- " and GRIMMER"
+    msg_grimmer <- if (inherits_grimmer) {
+      " and GRIMMER"
     } else {
-      msg_grimmer <- ""
+      ""
     }
     cli::cli_warn(c(
       "Test results are not visualized.",
       "!" = "You set `show_data` to `FALSE`, but still passed \\
       GRIM{msg_grimmer} test results to `grim_plot()`.",
-      ">" = "Only the background raster or gradient will be shown, not the \\
-        tested data."
+      "!" = "Only the background raster or gradient will be shown, not the \\
+      tested data."
     ))
   }
 
@@ -219,7 +218,7 @@ grim_plot <- function(data = NULL,
     digits_x <- decimal_places(data$x)    # used to be wrapped in `max()`
 
     if (show_raster) {
-      if (!all(digits_x[1] == digits_x)) {
+      if (!all(digits_x[1L] == digits_x)) {
         means_percentages <- dplyr::if_else(
           inherits(data, "scr_percent_true"),
           "Percentages",
@@ -254,7 +253,7 @@ grim_plot <- function(data = NULL,
     # number of decimal places. Therefore, `digits` can now be determined
     # simply by taking the first element; or indeed any other element there
     # might be:
-    digits <- digits_x[1]
+    digits <- digits_x[1L]
 
   }
 
@@ -281,15 +280,14 @@ grim_plot <- function(data = NULL,
       # Check the way `x` values were rounded in the preceding `grim_map()` call
       # to prepare selecting the plot background raster:
       dc <- class(data)
-      rounding_id <- dc[stringr::str_detect(dc, "scr_rounding_")]
-      rounding_id <- stringr::str_remove(rounding_id, "scr_rounding_")
+      rounding_id <- dc[stringr::str_detect(dc, "^scr_rounding_")]
+      rounding_id <- stringr::str_remove(rounding_id, "^scr_rounding_")
 
       # Throw error if the specified rounding option is one of the few for which
       # no raster is available:
-      rounding_is_bad <- any(
+      if (any(
         rounding_id == c("up_from", "down_from", "up_from_or_down_from")
-      )
-      if (rounding_is_bad) {
+      )) {
         cli::cli_abort(c(
           "No background raster available for `rounding = {rounding_id}`",
           "i" = "Use a different `rounding` specification within the \\
@@ -344,11 +342,11 @@ grim_plot <- function(data = NULL,
   # If `percent = TRUE` in the underlying `grim_map()` call, the y-axis label is
   # automatically adjusted to reflect the fact that the fractional values are
   # percentages (converted to decimal numbers), not means:
-  mean_percent_label <- dplyr::if_else(
-    inherits(data, "scr_percent_true"),
-    "% (as decimal)",
+  mean_percent_label <- if (inherits(data, "scr_percent_true")) {
+    "% (as decimal)"
+  } else {
     "mean"
-  )
+  }
 
   # Automatically color the boxes of value pairs by whether they are
   # GRIM-consistent or not:
@@ -363,9 +361,7 @@ grim_plot <- function(data = NULL,
 
   # Background raster / gradient:
   if (show_raster) {
-
     # With 1 or 2 digits, the function provides a background raster...
-
       p <- ggplot2::ggplot(data = df_plot) +
         ggplot2::geom_tile(mapping = ggplot2::aes(
           x = .data$raster_n,
@@ -376,20 +372,14 @@ grim_plot <- function(data = NULL,
           panel.background = ggplot2::element_rect(fill = "white", colour = NA),
           panel.grid = ggplot2::element_blank()
         )
-
-
       # ... but with more decimal places, individual boxes would be too small to
       # display, so we need a gradient instead to simply show the overall trend.
       # Boxes are still added pro forma; the call to `geom_tile()` is the same
       # as above (except for the `alpha` and `fill` specifications):
-
       if (digits > 2L) {
-
         if (show_gradient) {
-
           gradient <-
             grDevices::colorRampPalette(c(raster_color, "white"))(10000)
-
           p <- p +
             ggplot2::geom_tile(data = df_plot, mapping = ggplot2::aes(
               x = .data$raster_n,
@@ -400,23 +390,17 @@ grim_plot <- function(data = NULL,
               width  = grid::unit(1, "npc"),
               height = grid::unit(1, "npc")
             ))
-
         }
-
         # Keep the y-axis ranging from 0 to 1, even with the gradient in place:
         p <- p +
           ggplot2::scale_y_continuous(
             expand = ggplot2::expansion(add = c(0, 0.01)),
             limits = c(0, 1)
           )
-
       }
-
   }
 
-
   if (show_data) {
-
     if (utils::packageVersion("ggplot2") >= "3.4") {
       p <- p +
         ggplot2::geom_tile(
@@ -450,12 +434,9 @@ grim_plot <- function(data = NULL,
           height = (frac_unit * tile_size) / 2
         )
     }
-
   }
 
-
   if (!(digits > 2L)) {
-
     # Further specifications:
     p <- p +
       ggplot2::theme(
@@ -466,7 +447,6 @@ grim_plot <- function(data = NULL,
         expand = ggplot2::expansion(add = c(0.01, 0)),
         limits = c(0, 1)
       )
-
     # Make the exact x-axis scale specification dependent on whether the plot
     # will (by default) show a raster...
     p <- p +
@@ -474,10 +454,7 @@ grim_plot <- function(data = NULL,
         breaks = seq(from = 0, to = n, by = (n / 5)),
         expand = ggplot2::expansion(mult = c(0, 0.01))
       )
-
-
   } else {
-
     # ...or a gradient, in which case we need the x-axis must be forced to
     # run from 0 to 1 using `limits = c(0, n)`, which is omitted above to remove
     # the space between the raster and the y-axis:
@@ -487,10 +464,7 @@ grim_plot <- function(data = NULL,
         expand = ggplot2::expansion(mult = c(0, 0.01)),
         limits = c(0, n)
       )
-
   }
-
-
 
   # Finally, return the plot with axis labels, suppressing unnecessary ggplot2
   # warnings:
@@ -498,10 +472,9 @@ grim_plot <- function(data = NULL,
     p +
       ggplot2::labs(
         x = "Sample size",
-        y = glue::glue("Fractional portion of {mean_percent_label}")
+        y = paste("Fractional portion of", mean_percent_label)
       )
   ))
 
 }
-
 

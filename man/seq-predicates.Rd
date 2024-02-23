@@ -29,7 +29,7 @@ is_seq_dispersed(
 testing. Default is circa 0.000000015 (1.490116e-08), as in
 \code{dplyr::near()}.}
 
-\item{test_linear}{Boolean. In functions other than \code{is_seq_linear()}, should
+\item{test_linear}{Logical. In functions other than \code{is_seq_linear()}, should
 \code{x} also be tested for linearity? Default is \code{TRUE}.}
 
 \item{from}{Numeric or coercible to numeric. Only in \code{is_seq_dispersed()}. It
@@ -37,7 +37,7 @@ will test whether \code{from} is at the center of \code{x}, and if every pair of
 other values is equidistant to it.}
 }
 \value{
-A single Boolean value. If \code{x} contains at least one \code{NA} element,
+A single logical value. If \code{x} contains at least one \code{NA} element,
 the functions return either \code{NA} or \code{FALSE}:
 \itemize{
 \item If all elements of \code{x} are \code{NA}, the functions return \code{NA}.
@@ -92,7 +92,7 @@ is_seq_descending(x = c(9, 15, 3), test_linear = FALSE)
 is_seq_dispersed(1:10, from = 5, test_linear = FALSE)
 }
 \seealso{
-\code{validate::is_linear_sequence()}, which is much like
+\code{\link[validate:is_linear_sequence]{validate::is_linear_sequence()}}, which is much like
 \code{is_seq_linear()} but more permissive with \code{NA} values. It comes with some
 additional features, such as support for date-times.
 }

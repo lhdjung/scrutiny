@@ -5,7 +5,6 @@ vignette: >
   %\VignetteIndexEntry{General infrastructure}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-  %\VignetteDepends{devtools}
 bibliography: references.bib
 ---
 
@@ -16,10 +15,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r include=FALSE}
-# Dev only: load scrutiny from within scrutiny
-devtools::load_all(".")
-```
 
 ```{r setup, message=FALSE}
 library(scrutiny)

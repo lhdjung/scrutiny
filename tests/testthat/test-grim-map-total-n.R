@@ -25,41 +25,31 @@ df2_rows_1_3_expected <- tibble::tibble(
     "2.97", "4.42", "2.97"
   ),
   n = rep(
-    c(45, 45, 44, 46, 43, 47, 42, 48, 41, 49, 40, 50, 51, 52, 50, 53, 49, 54, 48, 55, 47, 56, 46, 57),
+    c(45L, 45L, 44L, 46L, 43L, 47L, 42L, 48L, 41L, 49L, 40L, 50L,
+      51L, 52L, 50L, 53L, 49L, 54L, 48L, 55L, 47L, 56L, 46L, 57L),
     2
   ),
-  n_change = rep(c(0, 0, -1, 1, -2, 2, -3, 3, -4, 4, -5, 5), 4),
+  n_change = rep(c(0L, 0L, -1L, 1L, -2L, 2L, -3L, 3L, -4L, 4L, -5L, 5L), 4),
   consistency = rep(
-    c(
-      FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE,
+    c(FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE,
       TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE,
-      TRUE, FALSE, TRUE, FALSE
-    ),
-    c(
-      2L, 2L, 1L, 2L, 3L, 2L, 1L, 1L, 1L, 1L, 3L, 1L, 3L, 1L, 3L,
-      3L, 3L, 2L, 3L, 1L, 3L, 1L, 5L
-    )
+      TRUE, FALSE, TRUE, FALSE),
+    c(2L, 2L, 1L, 2L, 3L, 2L, 1L, 1L, 1L, 1L, 3L, 1L, 3L, 1L, 3L,
+      3L, 3L, 2L, 3L, 1L, 3L, 1L, 5L)
   ),
-  both_consistent = c(
-    "1" = FALSE, "1" = FALSE, "2" = TRUE, "2" = TRUE, "3" = FALSE,
-    "3" = FALSE, "4" = FALSE, "4" = FALSE, "5" = FALSE, "5" = FALSE,
-    "6" = TRUE, "6" = TRUE, "7" = FALSE, "7" = FALSE, "8" = FALSE,
-    "8" = FALSE, "9" = FALSE, "9" = FALSE, "10" = FALSE, "10" = FALSE,
-    "11" = FALSE, "11" = FALSE, "12" = FALSE, "12" = FALSE, "1" = FALSE,
-    "1" = FALSE, "2" = FALSE, "2" = FALSE, "3" = TRUE, "3" = TRUE,
-    "4" = FALSE, "4" = FALSE, "5" = FALSE, "5" = FALSE, "6" = FALSE,
-    "6" = FALSE, "7" = FALSE, "7" = FALSE, "8" = FALSE, "8" = FALSE,
-    "9" = FALSE, "9" = FALSE, "10" = FALSE, "10" = FALSE, "11" = FALSE,
-    "11" = FALSE, "12" = FALSE, "12" = FALSE
+  both_consistent = rep(
+    c(FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE),
+    c(2L, 2L, 6L, 2L, 16L, 2L, 18L)
   ),
   ratio = rep(
     c(
       0.55, 0.55, 0.56, 0.54, 0.57, 0.53, 0.58, 0.52, 0.59, 0.51, 0.6, 0.5, 0.49,
       0.48, 0.5, 0.47, 0.51, 0.46, 0.52, 0.45, 0.53, 0.44, 0.54, 0.43
-    ), 2
+    ),
+    2
   ),
   case = rep(rep(1:2, 2), each = 12L),
-  dir = rep(c("forth", "back"), each = 24L),
+  dir = factor(rep(c("forth", "back"), each = 24L), levels = c("forth", "back")),
 ) %>%
   structure(
     class = c(
@@ -77,8 +67,8 @@ df2_tested <- df2 %>% grim_map_total_n(dispersion = 0:5)
 
 
 test_that("The output is a tibble", {
-  df1_tested %>% tibble::is_tibble() %>% expect_true()
-  df2_tested %>% tibble::is_tibble() %>% expect_true()
+  expect_s3_class(df1_tested, "tbl_df")
+  expect_s3_class(df2_tested, "tbl_df")
 })
 
 test_that("It has correct dimensions", {
@@ -98,8 +88,8 @@ colnames_exp <- c(
 
 
 test_that("It has correct column names", {
-  df1_tested %>% colnames() %>% expect_equal(colnames_exp)
-  df2_tested %>% colnames() %>% expect_equal(colnames_exp)
+  df1_tested %>% expect_named(colnames_exp)
+  df2_tested %>% expect_named(colnames_exp)
 })
 
 

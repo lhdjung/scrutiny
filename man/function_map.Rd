@@ -8,6 +8,7 @@ function_map(
   .fun,
   .reported,
   .name_test,
+  .name_key_result = "consistency",
   .name_class = NULL,
   .args_disabled = NULL,
   .col_names = NULL,
@@ -18,14 +19,17 @@ function_map(
 }
 \arguments{
 \item{.fun}{Single-case consistency testing function that will be applied to
-each row in a data frame, such as the (non-exported) scrutiny functions
-\code{grim_scalar()} and \code{debit_scalar()}. It must return a Boolean value of
-length 1, i.e., \code{TRUE} or \code{FALSE}.}
+each row in a data frame. The function must return a single logical value,
+i.e., \code{TRUE}, \code{FALSE}, or \code{NA}.}
 
 \item{.reported}{String. Names of the columns to be tested.}
 
 \item{.name_test}{String (length 1). Plain-text name of the consistency test,
 such as \code{"GRIM"}.}
+
+\item{.name_key_result}{(Experimental) Optionally, a single string that will
+be the name of the key result column in the output. Default is
+\code{"consistency"}.}
 
 \item{.name_class}{String. Optionally, one or more classes to be added to the
 output data frame. Default is \code{NULL}, i.e., no extra class (but see
@@ -41,7 +45,7 @@ of additional columns that are derived from the \verb{*_scalar()} function.
 Requires \code{.col_control} and \code{.col_filler} specifications.}
 
 \item{.col_control}{(Experimental) Optionally, a single string with the name
-of the \verb{*_scalar()} function's Boolean argument that controls if the
+of the \verb{*_scalar()} function's logical argument that controls if the
 columns named in \code{.col_names} will be displayed.}
 
 \item{.col_filler}{(Experimental) Optionally, a vector specifying the values
@@ -68,17 +72,16 @@ column-identifying arguments derived from \code{.reported}.
 }
 \description{
 \code{function_map()} creates new basic mapper functions for
-consistency tests, such as \code{grim_map()} or \code{debit_map()}.
+consistency tests, such as \code{\link[=grim_map]{grim_map()}} or \code{\link[=debit_map]{debit_map()}}.
 
-For context, see \code{vignette("consistency-tests")}, section \emph{Creating basic
-mappers with \code{function_map()}}.
+For context, see \href{https://lhdjung.github.io/scrutiny/articles/consistency-tests.html#creating-basic-mappers-with-function_map}{\emph{Creating basic mappers with \code{function_map()}}}.
 }
 \details{
 The output tibble returned by the factory-made function will inherit
 one or two classes independently of the \code{.name_class} argument:
 \itemize{
 \item It will inherit a class named \code{"scr_{tolower(.name_test)}_map"}; for
-example, \code{"scr_grim_map"} if \code{.name_test} is \code{"GRIM"}.
+example, the class is \code{"scr_grim_map"} if \code{.name_test} is \code{"GRIM"}.
 \item If a \code{rounding} argument is specified via \code{...}, or else if \code{.fun} has a
 \code{rounding} argument with a default, the output tibble will inherit a class
 named \code{"scr_rounding_{rounding}"}; for example,
@@ -87,7 +90,7 @@ named \code{"scr_rounding_{rounding}"}; for example,
 }
 \section{Value returned by the factory-made function}{
  A tibble that includes
-\code{"consistency"}: a Boolean column showing whether the values to its left
+\code{"consistency"}: a logical column showing whether the values to its left
 are mutually consistent (\code{TRUE}) or not (\code{FALSE}).
 }
 

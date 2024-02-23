@@ -3,34 +3,34 @@
 #'
 #' @description
 #' - `is_map_df()` tests whether an object is the output of a scrutiny-style
-#' mapper function for consistency tests, like `grim_map()`. These mapper
-#' functions also include those produced by `function_map()`,
-#' `function_map_seq()`, and `function_map_total_n()`.
+#' mapper function for consistency tests, like [`grim_map()`]. These mapper
+#' functions also include those produced by [`function_map()`],
+#' [`function_map_seq()`], and [`function_map_total_n()`].
 #' - `is_map_basic_df()` is a variant of `is_map_df()` that tests whether an
 #' object is the output of a "basic" mapper function. This includes functions
-#' like `grim_map()` and those produced by `function_map()`, but not those
-#' produced by `function_map_seq()` or `function_map_total_n()`.
+#' like `grim_map()` and those produced by [`function_map()`], but not those
+#' produced by [`function_map_seq()`] or [`function_map_total_n()`].
 #' - `is_map_seq_df()` tests whether an object is the output of a function that
-#' was produced by `function_map_seq()`.
+#' was produced by [`function_map_seq()`].
 #' - `is_map_total_n_df()` tests whether an object is the output of a function
-#' that was produced by `function_map_total_n()`.
+#' that was produced by [`function_map_total_n()`].
 #'
 #' @param x Object to be tested.
 #'
-#' @return Boolean (length 1).
+#' @return Logical (length 1).
 
-#' @details Sections 3, 6, and 7 of `vignette("consistency-tests")` discuss
-#'   which function factories produce which functions, and which of these new,
-#'   factory-made functions return which kinds of tibbles.
+#' @details Sections 3, 6, and 7 of `vignette("consistency-tests-in-depth")`
+#'   discuss which function factories produce which functions, and which of
+#'   these new, factory-made functions return which kinds of tibbles.
 #'
 #'   These tibbles are what the `is_map_*()` functions test for. As an example,
-#'   `function_map_seq()` produces `grim_map_seq()`, and this new function
+#'   [`function_map_seq()`] produces `grim_map_seq()`, and this new function
 #'   returns a tibble. `is_map_df()` and `is_map_seq_df()` return `TRUE` for
 #'   this tibble, but `is_map_basic_df()` and `is_map_total_n_df()` return
 #'   `FALSE`.
 #'
 #'   For an overview, see the table at the end of
-#'   `vignette("consistency-tests")`.
+#'   `vignette("consistency-tests-in-depth")`.
 
 #' @export
 #'

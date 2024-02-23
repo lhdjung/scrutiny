@@ -7,7 +7,7 @@ ranking <- seq_distance_df("5.37", n = 40) %>%
 
 
 test_that("The function returns a tibble", {
-  ranking %>% tibble::is_tibble() %>% expect_true()
+  ranking %>% expect_s3_class("tbl_df")
 })
 
 test_that("Dimensions are correct", {

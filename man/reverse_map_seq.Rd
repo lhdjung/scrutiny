@@ -15,9 +15,9 @@ The reconstructed tibble (data frame) which a factory-made
 }
 \description{
 \code{reverse_map_seq()} takes the output of a function created by
-\code{function_map_seq()} and reconstructs the original data frame.
+\code{\link[=function_map_seq]{function_map_seq()}} and reconstructs the original data frame.
 
-See \code{audit_seq()}, which takes \code{reverse_map_seq()} as a basis.
+See \code{\link[=audit_seq]{audit_seq()}}, which takes \code{reverse_map_seq()} as a basis.
 }
 \examples{
 # Originally reported summary data...

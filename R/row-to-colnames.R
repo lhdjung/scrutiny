@@ -22,20 +22,18 @@
 #'   column name will be that many row values pasted together. `collapse`, then,
 #'   is the substring between two former row values in the final column names.
 #'   Default is `" "` (a space).
-#' @param drop Boolean. If `TRUE` (the default), the rows specified with `row`
+#' @param drop Logical. If `TRUE` (the default), the rows specified with `row`
 #'   are removed.
 #'
 #' @include utils.R
 #'
-#' @seealso
-#' \href{https://unheadr.liomys.mx/reference/mash_colnames.html}{`unheadr::mash_colnames()`},
-#' a more sophisticated solution to the same problem.
+#' @seealso [`unheadr::mash_colnames()`], a more sophisticated solution to the
+#'   same problem.
 #'
 #' @return A tibble (data frame).
 #' @export
 
 # @examples
-
 
 row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
 
@@ -76,8 +74,7 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
   correct <- data[row, ]
   correct <- rbind(colnames(data), correct)
   correct <- purrr::map(correct, function(x) x[!is.na(x)])
-
-  correct <- purrr::map(correct, utils::tail, (length(correct[[1]]) - 1L))
+  correct <- purrr::map(correct, utils::tail, (length(correct[[1L]]) - 1L))
 
   # If multiple rows were specified that way, the resulting vector must be
   # pasted to one single string per column to restore the correct column names:

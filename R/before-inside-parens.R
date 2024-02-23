@@ -35,12 +35,12 @@ translate_length1_sep_keywords <- function(sep) {
 
 # Warning thrown within tidyselect-supporting functions:
 warn_wrong_columns_selected <- function(names_wrong_cols,
-                                           msg_exclusion, msg_reason,
-                                           msg_it_they = c("It doesn't", "They don't")) {
+                                        msg_exclusion, msg_reason,
+                                        msg_it_they = c("It doesn't", "They don't")) {
   if (length(names_wrong_cols) == 1L) {
     msg_col_cols <- "1 column"
-    msg_it_they <- msg_it_they[1]
-    msg_exclusion <- msg_exclusion[1]
+    msg_it_they <- msg_it_they[1L]
+    msg_exclusion <- msg_exclusion[1L]
   } else {
     msg_col_cols <- paste0(length(names_wrong_cols), " columns")
     msg_it_they <- msg_it_they[max(1, length(msg_it_they))]
@@ -58,7 +58,7 @@ warn_wrong_columns_selected <- function(names_wrong_cols,
 message_sep_if_cols_excluded <- function(sep) {
   if (length(sep) == 2L) {
     msg_seps <- wrap_in_quotes(sep)
-    glue::glue("{msg_seps[1]} and {msg_seps[2]}")
+    glue::glue("{msg_seps[1L]} and {msg_seps[2L]}")
   } else if (sep == "parens") {
     "i.e., parentheses"
   } else if (sep == "brackets") {
@@ -72,20 +72,19 @@ message_sep_if_cols_excluded <- function(sep) {
 proto_split_parens <- function(string, sep = "parens") {
 
   if (length(sep) == 2L) {
-    sep_open  <- sep[1]
-    sep_close <- sep[2]
+    sep_open  <- sep[1L]
+    sep_close <- sep[2L]
   } else {
     separators <- translate_length1_sep_keywords(sep)
-    sep_open   <- separators[1]
-    sep_close  <- separators[2]
+    sep_open   <- separators[1L]
+    sep_close  <- separators[2L]
   }
 
   out <- stringr::str_split(string, sep_open)
-  out <- unlist(out)
+  out <- unlist(out, use.names = FALSE)
   out <- sub(paste0(sep_close, ".*"), "", out)
 
   divisor <- length(out) / length(string)
-
   split(out, ceiling(seq_along(out) / divisor))
 }
 
@@ -95,17 +94,17 @@ proto_split_parens <- function(string, sep = "parens") {
 
 #' Extract substrings from before and inside parentheses
 #'
-#' @description Two functions that extract substrings from before or inside
-#'   parentheses, or similar separators like brackets or curly braces:
-#'   `before_parens()` and `inside_parens()`.
+#' @description `before_parens()` and `inside_parens()` extract substrings from
+#'   before or inside parentheses, or similar separators like brackets or curly
+#'   braces.
 #'
-#'   See `split_by_parens()` to split some or all columns in a data frame into
+#'   See [`split_by_parens()`] to split some or all columns in a data frame into
 #'   both parts.
 #'
 #' @param string Vector of strings with parentheses or similar.
 #' @param sep String. What to split by. Either `"parens"`, `"brackets"`,
 #'   `"braces"`, or a length-2 vector of custom separators. See examples for
-#'   `split_by_parens()`. Default is `"parens"`.
+#'   [`split_by_parens()`]. Default is `"parens"`.
 #'
 #' @export
 #'
@@ -129,7 +128,7 @@ proto_split_parens <- function(string, sep = "parens") {
 before_parens <- function(string, sep = "parens") {
   check_length_parens_sep(sep)
   out <- proto_split_parens(string, sep)
-  out <- vapply(out, function(x) x[1], character(1L))
+  out <- vapply(out, function(x) x[1L], character(1L), USE.NAMES = FALSE)
   stringr::str_trim(out)
 }
 
@@ -142,7 +141,7 @@ inside_parens <- function(string, sep = "parens") {
   check_length_parens_sep(sep)
 
   if (length(sep) == 2L) {
-    sep_close <- sep[2]
+    sep_close <- sep[2L]
   } else {
     if (any(sep == c("parens", "(", "\\("))) {
       sep_close <- "\\)"
@@ -154,7 +153,7 @@ inside_parens <- function(string, sep = "parens") {
   }
 
   out <- proto_split_parens(string, sep)
-  out <- vapply(out, function(x) x[2], "", USE.NAMES = FALSE)
+  out <- vapply(out, function(x) x[2L], "", USE.NAMES = FALSE)
   sub(paste0(sep_close, ".*"), "", out)
 }
 

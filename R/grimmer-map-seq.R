@@ -4,11 +4,11 @@
 #' @description `grimmer_map_seq()` performs GRIMMER-testing with values
 #'   surrounding the input values. This provides an easy and powerful way to
 #'   assess whether small errors in computing or reporting may be responsible
-#'   for GRIMMER-inconsistencies in published statistics.
+#'   for GRIMMER inconsistencies in published statistics.
 #'
-#'   Call `audit_seq()` on the results for summary statistics.
+#'   Call [`audit_seq()`] on the results for summary statistics.
 #'
-#' @param data A data frame that `grimmer_map()` could take.
+#' @param data A data frame that [`grimmer_map()`] could take.
 #' @param x,sd,n Optionally, specify these arguments as column names in `data`.
 #' @param var String. Names of the columns that will be dispersed. Default is
 #'   `c("x", "sd", "n")`.
@@ -20,21 +20,22 @@
 #'   not below `out_min` or above `out_max`. Defaults are `"auto"` for
 #'   `out_min`, i.e., a minimum of one decimal unit above zero; and `NULL` for
 #'   `out_max`, i.e., no maximum.
-#' @param include_reported Boolean. Should the reported values themselves be
+#' @param include_reported Logical. Should the reported values themselves be
 #'   included in the sequences originating from them? Default is `FALSE` because
 #'   this might be redundant and bias the results.
-#' @param include_consistent Boolean. Should the function also process
+#' @param include_consistent Logical. Should the function also process
 #'   consistent cases (from among those reported), not just inconsistent ones?
 #'   Default is `FALSE` because the focus should be on clarifying
 #'   inconsistencies.
-#' @param ... Arguments passed down to `grimmer_map()`. *(NOTE: Don't use the
+#' @param ... Arguments passed down to [`grimmer_map()`]. *(NOTE: Don't use the
 #'   `items` argument. It currently contains a bug that will be fixed in the
 #'   future.)*
 
 #' @return A tibble (data frame) with detailed test results.
 
-#' @section Summaries with `audit_seq()`: You can call `audit_seq()` following
-#'   `grimmer_map_seq()`. It will return a data frame with these columns:
+#' @section Summaries with [`audit_seq()`]: You can call [`audit_seq()`]
+#'   following `grimmer_map_seq()`. It will return a data frame with these
+#'   columns:
 #'   - `x`, `sd`, and `n` are the original inputs,
 #'   tested for `consistency` here.
 #'   - `hits_total` is the total number of GRIMMER-consistent value sets
@@ -43,8 +44,8 @@
 #'   found by varying `x`.
 #'   - Accordingly with `sd` and `hits_sd` as well as `n` and `hits_n`.
 #'   - (Note that any consistent reported cases will be counted by the
-#'   `hits_*` columns if both `include_reported` and `include_consistent`
-#'   are set to `TRUE`.)
+#'   `hits_*` columns if both `include_reported` and `include_consistent` are
+#'   set to `TRUE`.)
 #'   - `diff_x` reports the absolute difference between `x` and the next
 #'   consistent dispersed value (in dispersion steps, not the actual numeric
 #'   difference). `diff_x_up` and `diff_x_down` report the difference to the
@@ -52,10 +53,10 @@
 #'   - `diff_sd`, `diff_sd_up`, and `diff_sd_down` do the same for `sd`.
 #'   -  Likewise with `diff_n`, `diff_n_up`, and `diff_n_down`.
 #'
-#'   Call `audit()` following `audit_seq()` to summarize results even further.
-#'   It's mostly self-explaining, but `na_count` and `na_rate` are the number
-#'   and rate of times that a difference could not be computed because of a lack
-#'   of corresponding hits within the `dispersion` range.
+#'   Call [`audit()`] following [`audit_seq()`] to summarize results even
+#'   further. It's mostly self-explaining, but `na_count` and `na_rate` are the
+#'   number and rate of times that a difference could not be computed because of
+#'   a lack of corresponding hits within the `dispersion` range.
 
 #' @include grimmer-map.R
 

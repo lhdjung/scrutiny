@@ -10,7 +10,8 @@ utils::globalVariables(c(
   "sd_incl_lower", "sd_upper", "sd_incl_upper", "x_lower", "x_upper",
   "dupe_count", "fun_name",
   # Added after rewriting the function factories using `rlang::new_function()`:
-  "!!", "constant", "constant_index", "include_consistent", "n_max", "n_min",
+  "!!", "!!!", "constant", "constant_index", "include_consistent",
+  "n_min", "n_max",
   # Added for `function_duplicate_cols()`, which uses `rlang::new_function()`:
   "colname_end", "ignore", "numeric_only"
 ))
@@ -89,10 +90,9 @@ integer_places <- function(x) {
   x %>%
     stringr::str_trim() %>%
     stringr::str_split_fixed("\\.", n = 2L) %>%
-    .[, 1] %>%
+    .[, 1L] %>%
     stringr::str_length()
 }
-
 
 
 
@@ -126,6 +126,7 @@ an_a <- function(x) {
 }
 
 
+
 #' Prefix an object's type with "an" or "a"
 #'
 #' This uses `an_a()` to prepend the type of `x` with "an" or "a". Because the
@@ -149,17 +150,28 @@ an_a_type <- function(x) {
 
 
 
-#' Check if numbers are whole
+#' Check whether numbers are whole
 #'
-#' This function was adapted from the examples of `?is.integer()`, where it's
-#' called `is.wholenumber()`. To test if R itself considers a vector
-#' integer-like, use `rlang::is_integerish()` instead.
+#' @description For each element of a numeric vector `x`, `is_whole_number()`
+#'   checks whether that element is a whole number.
+#'
+#'   This is not the same as the integer data type, so doubles and integers are
+#'   tested the same way. See the note in `?integer`. To test if R itself
+#'   considers a vector integer-like, use `rlang::is_integerish()` instead.
 #'
 #' @param x Numeric.
-#' @param tolerance Numeric. The default is close to `1 / (10 ^ 8)`, which is
-#'   reasonable but still user-imposed.
+#' @param tolerance Numeric. Any difference between `x` and a truncated version
+#'   of `x` less than `tolerance` (in the absolute value) will be ignored. The
+#'   default is close to `1 / (10 ^ 8)`. This avoids errors due to spurious
+#'   precision in floating-point arithmetic.
 #'
-#' @return Boolean vector of length `length(x)`.
+#' @return Logical vector of the same length as `x`.
+#'
+#' @details This function was adapted (with naming modifications) from the
+#'   examples of `?integer`, where a very similar function is called
+#'   `is.wholenumber()`.
+#'
+#' @author R Core Team, Lukas Jung
 #'
 #' @noRd
 is_whole_number <- function(x, tolerance = .Machine$double.eps^0.5) {
@@ -168,7 +180,7 @@ is_whole_number <- function(x, tolerance = .Machine$double.eps^0.5) {
 
 
 
-#' Subset every `n`th element from a vector `x`:
+#' Subset every `n`th element
 #'
 #' @param x Vector from which the `n`th element should be subsetted.
 #' @param n Numeric. Distance between two consecutive elements that will be
@@ -213,7 +225,6 @@ parcel_nth_elements <- function(x, n, from = 1L) {
 #' @noRd
 remove_equivalent_rows <- function(data) {
   data_array <- apply(data, 1L, sort)
-
   data[!duplicated(data_array, MARGIN = 2L), ]
 }
 
@@ -232,7 +243,7 @@ reverse_column_order <- function(data) {
   }
   # Don't mind sequence linting here; the early return above takes care of the
   # empty edge case already!
-  col_numbers_reversed <- ncol(data):1
+  col_numbers_reversed <- ncol(data):1L
   data[, order(col_numbers_reversed)]
 }
 
@@ -262,9 +273,13 @@ censor <- function(x, left, right) {
 
 #' Conveniently add classes to an object
 #'
+#' `add_class()` is pipeable, unlike the replacement function it wraps.
+#'
 #' @param x Some object. In scrutiny, always a tibble.
-#' @param new_class String. One or more classes that will be prepended to the
-#'   classes of `x`.
+#' @param new_class String. One or more classes that will be added to the
+#'   `class(x)` attribute. They are prepended before the classes of `x`, so that
+#'   subclasses that are added later take precedence over existing -- and more
+#'   generic -- base classes.
 #'
 #' @return `x` but with new classes.
 #'
@@ -275,7 +290,7 @@ add_class <- function(x, new_class) {
 
 
 
-#' Check if lengths are congruent
+#' Check whether lengths are congruent
 #'
 #' `check_lengths_congruent()` is called within a function `f()` and takes a
 #' list of arguments to `f()` supplied by the user (`var_list`). It checks if
@@ -292,9 +307,9 @@ add_class <- function(x, new_class) {
 #'
 #' @param var_list List of variables that were passed to the enclosing function
 #'   as arguments.
-#' @param error Boolean (length 1). Should an error be thrown if lengths are not
+#' @param error Logical (length 1). Should an error be thrown if lengths are not
 #'   congruent? Default is `TRUE`.
-#' @param warn Boolean (length 1). If no error is thrown, should a warning be
+#' @param warn Logical (length 1). If no error is thrown, should a warning be
 #'   issued if appropriate (see description)? Default is `TRUE`.
 #'
 #' @return No return value; might throw error or warning.
@@ -302,12 +317,12 @@ add_class <- function(x, new_class) {
 #' @noRd
 check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
   var_names <- rlang::enexprs(var_list)
-  var_lengths <- vapply(var_list, length, integer(1L))
+  var_lengths <- vapply(var_list, length, integer(1L), USE.NAMES = FALSE)
   var_list_gt1 <- var_list[var_lengths > 1L]
 
   # Condition of checking for error and warning:
   if (length(var_list_gt1) > 1L) {
-    var_names <- var_names[[1]][-1]
+    var_names <- var_names[[1L]][-1L]
     var_names <- as.character(var_names)
     var_names_gt1 <- var_names[var_lengths > 1L]
     vnames_gt1_all <- var_names_gt1   # for the warning
@@ -321,15 +336,12 @@ check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
     # filtered out from `var_list_gt1` right above):
     if (error && (length(var_list_gt1) > 1L)) {
 
-      x <- var_list_gt1[[1]]
-      y <- var_list_gt1[[2]]
-      x_name <- var_names_gt1[[1]]
-      y_name <- var_names_gt1[[2]]
+      x <- var_list_gt1[[1L]]
+      y <- var_list_gt1[[2L]]
+      x_name <- var_names_gt1[[1L]]
+      y_name <- var_names_gt1[[2L]]
 
       residues_names <- var_names[!var_names %in% c(x_name, y_name)]
-
-      # msg_need <-
-      #   "Both need to have the same length unless either has length 1."
 
       msg_error <- c(
         "`{x_name}` and `{y_name}` must have the same length \\
@@ -344,31 +356,18 @@ check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
         msg_error <- append(
           msg_error, c("i" = "This also applies to {residues_names}.")
         )
-
-        # msg_need <- paste(
-        #   msg_need,
-        #   "This also applies to {residues_names}."
-        # )
       }
 
       # Throw error:
       cli::cli_abort(msg_error)
-
-      # cli::cli_abort(c(
-      #   "`{x_name}` and `{y_name}` must have the same length \\
-      #   unless either has length 1.",
-      #   "x" = "`{x_name}` has length {length(x)}.",
-      #   "x" = "`{y_name}` has length {length(y)}.",
-      #   "!" = msg_need
-      # ))
     }
 
     # Warning condition, triggered if more than one element of `var_list` has
     # length > 1, it's the same length for all (hence no error), and the `warn`
     # argument is `TRUE` (the default):
     if (warn) {
-      x_name <- vnames_gt1_all[[1]]
-      y_name <- vnames_gt1_all[[2]]
+      x_name <- vnames_gt1_all[[1L]]
+      y_name <- vnames_gt1_all[[2L]]
 
       l_vnames <- length(vnames_gt1_all)
 
@@ -510,7 +509,7 @@ check_class <- function(x, cl) {
 #'
 #' @param x A user-supplied data frame.
 #'
-#' @return Boolean (length 1).
+#' @return Logical (length 1).
 #'
 #' @noRd
 check_tibble <- function(x) {
@@ -518,6 +517,72 @@ check_tibble <- function(x) {
     cli::cli_abort(c(
       "!" = "`data` must be a tibble.",
       "i" = "Convert it with `tibble::as_tibble()`."
+    ))
+  }
+}
+
+
+
+#' Check that `rounding` values for two procedures are not mixed
+#'
+#' @description In `reround()` and the many functions that call it internally,
+#'   valid specifications of the `rounding` argument include the following:
+#'
+#' - `"up_or_down"` (the default)
+#' - `"up_from_or_down_from"`
+#' - `"ceiling_or_floor"`
+#'
+#'   If `rounding` includes any of these, it must not include any other values.
+#'   `check_rounding_singular()` is called within `reround()` if `rounding` has
+#'   length > 1 and throws an error if any of these strings are part of it.
+#'
+#' @param rounding String (length > 1).
+#' @param bad String (length 1). Any of `"up_or_down"` etc.
+#' @param good1,good2 String (length 1). Two singlular rounding procedures that
+#'   are combined in `bad`, and that can instead be specified individually;
+#'   like, e.g., `rounding = c("up", "down")`.
+#'
+#' @return No return value; might throw an error.
+#'
+#' @noRd
+check_rounding_singular <- function(rounding, bad, good1, good2) {
+  if (any(bad == rounding)) {
+    cli::cli_abort(c(
+      "!" = "If `rounding` has length > 1, only single rounding procedures \\
+      are supported, such as \"{good1}\" and \"{good2}\".",
+      "x" = "`rounding` was given as \"{bad}\" plus others.",
+      "i" = "You can still concatenate multiple of them; just leave out \\
+      those with \"_or_\"."
+    ))
+  }
+}
+
+
+
+#' Check whether a rounding threshold was specified
+#'
+#' @description `check_threshold_specified()` is called within curly braces
+#'   inside of the switch statement in `reconstruct_rounded_numbers_scalar()` if
+#'   `rounding` includes `"_from"` and therefore requires specification of a
+#'   threshold.
+#'
+#'   It should always be followed by the respective rounding function.
+#'
+#' @param rounding_threshold
+#'
+#' @return No return value; might throw an error.
+#'
+#' @noRd
+check_threshold_specified <- function(threshold) {
+  if (threshold == 5) {
+    cli::cli_abort(c(
+      "You need to specify `threshold`.",
+      "x" = "If `rounding` is \"up_from\", \"down_from\", or \\
+      \"up_from_or_down_from\", set `threshold` to a number \\
+      other than 5. The `x` argument will then be rounded up or down from \\
+      that number.",
+      "i" = "To round up or down from 5, just set `rounding` to \\
+      \"up\", \"down\", or \"up_or_down\" instead."
     ))
   }
 }
@@ -631,7 +696,7 @@ step_size <- function(x) {
 #'   output of the calling `seq_*()` function.
 #' @param from Numeric (or string coercible to numeric). Argument of the calling
 #'   function. The `out` sequence was generated starting from this point.
-#' @param string_output Boolean (or a string that says `"auto"`).
+#' @param string_output Logical (or a string that says `"auto"`).
 #' @param digits Numeric. Number of digits to which `out` will be padded if it's
 #'   coerced to string.
 #'
@@ -656,9 +721,9 @@ manage_string_output_seq <- function(out, from, string_output, digits) {
       "x" = "It is {string_output}."
     ))
   } else if (string_output) {
-    out <- restore_zeros(out, width = digits)
+    return(restore_zeros(out, width = digits))
   } else if (typeof(from) != "character") {
-    out <- methods::as(out, typeof(from))
+    return(methods::as(out, typeof(from)))
   }
   out
 }
@@ -731,7 +796,7 @@ check_non_negative <- function(x) {
 #'
 #' @param x Numeric.
 #'
-#' @return Boolean vector of length `length(x)`.
+#' @return Logical vector of length `length(x)`.
 #'
 #' @noRd
 is_even <- function(x) {
@@ -755,14 +820,14 @@ is_even <- function(x) {
 #'   function, i.e., `disperse()` or `disperse_total()`: Their reasons for
 #'   requiring a length-1 `n` differ from each other.
 #'
-#' @return No return value; might throw error.
+#' @return No return value; might throw an error.
 #'
 #' @noRd
 check_length_disperse_n <- function(n, msg_single) {
   if (length(n) != 1L) {
     if (length(n) == 2L) {
       msg_single <- paste(
-        msg_single, "Did you mean to call `disperse2(n = c({n[1]}, {n[2]}))`?"
+        msg_single, "Did you mean to call `disperse2(n = c({n[1L]}, {n[2L]}))`?"
       )
     }
     cli::cli_abort(c(
@@ -828,7 +893,7 @@ check_type_numeric_like <- function(x) {
 #'   size.
 #'
 #' @param x Numeric (or coercible to numeric).
-#' @param index_case_only Boolean. If `TRUE` (the default), only the
+#' @param index_case_only Logical. If `TRUE` (the default), only the
 #'   reconstructed index case is returned. If `FALSE`, the entire `x` sequence
 #'   is returned, with the index case inserted at the center.
 #' @param index_itself If set to `TRUE`, the index of the "index case" is
@@ -862,12 +927,12 @@ index_case_interpolate <- function(x, index_case_only = TRUE,
     return(index_target)
   }
 
-  index_case <- x[index_target] + x[index_target + 1]
+  index_case <- x[index_target] + x[index_target + 1L]
   index_case <- index_case / 2
   index_case <- methods::as(index_case, typeof(x_orig))
 
   if (is.character(index_case)) {
-    x_orig_around_target <- c(x_orig[index_target], x_orig[index_target + 1])
+    x_orig_around_target <- c(x_orig[index_target], x_orig[index_target + 1L])
     dp_orig <- max(decimal_places(x_orig_around_target))
     index_case <- restore_zeros(index_case, width = dp_orig)
   }
@@ -886,38 +951,6 @@ index_case_interpolate <- function(x, index_case_only = TRUE,
     out
   }
 
-}
-
-
-
-#' Compute difference to index case in `audit_seq()`
-#'
-#' @description Mapped within `audit_seq()`, this helper wraps
-#'   `index_case_interpolate()` to calculate the difference between an index
-#'   case and the next consistent value within a dispersed sequence.
-#'
-#'   The function should likely not be used in any other context.
-#'
-#' @param data Data frame created as an intermediate product within
-#'   `audit_seq()`.
-#'
-#' @return Data frame.
-#'
-#' @noRd
-index_case_diff <- function(data) {
-  var <- data$var[[1]]
-  data_var <- data[var][[1]]
-  index <- index_case_interpolate(data_var, index_itself = TRUE)
-  index_diff <- seq_len(nrow(data)) - index
-
-  if (is_even(length(index_diff))) {
-    index_diff[index_diff < 1] <-
-      index_diff[index_diff < 1] - 1
-  }
-
-  index_diff <- as.integer(index_diff)
-
-  dplyr::mutate(data, index_diff)
 }
 
 
@@ -1113,8 +1146,8 @@ transform_split_parens <- function(data, end1, end2) {
 #' Select columns before `"consistency"`
 #'
 #' Useful helper for selecting all "tested" columns in the sense of
-#' `vignette("consistency-tests")`; i.e., those columns that factored into a
-#' consistency test applied by a mapper function like `grim_map()`.
+#' `vignette("consistency-tests-in-depth")`; i.e., those columns that factored
+#' into a consistency test applied by a mapper function like `grim_map()`.
 #'
 #' @param data Data frame resulting from a consistency test mapper function,
 #'   such as `grim_map()`.
@@ -1127,7 +1160,7 @@ transform_split_parens <- function(data, end1, end2) {
 #' @noRd
 select_tested_cols <- function(data, before = "consistency") {
   index_last_key_col <- match(before, colnames(data)) - 1L
-  data[1:index_last_key_col]
+  data[1L:index_last_key_col]
 }
 
 
@@ -1148,7 +1181,7 @@ select_tested_cols <- function(data, before = "consistency") {
 #' @noRd
 get_rounding_class <- function(x) {
   x_cl <- class(x)
-  x_cl[stringr::str_detect(x_cl, "scr_rounding_")]
+  x_cl[stringr::str_detect(x_cl, "^scr_rounding_")]
 }
 
 
@@ -1168,7 +1201,7 @@ get_rounding_class <- function(x) {
 #' @noRd
 get_rounding_class_arg <- function(x) {
   out <- get_rounding_class(x)
-  stringr::str_remove(out, "scr_rounding_")
+  stringr::str_remove(out, "^scr_rounding_")
 }
 
 
@@ -1252,7 +1285,7 @@ wrap_in_quotes_or_backticks <- function(x) {
 #'
 #' @param x,y Two objects to be compared.
 #'
-#' @return Boolean (length 1).
+#' @return Logical (length 1).
 #'
 #' @details Since `near()` is vectorized and `identical()` is not, their results
 #'   are not on par with each other, so `near()` must be wrapped in `all()`,
@@ -1285,19 +1318,13 @@ drop_cols_with <- function(data, drop_with) {
 
 
 
-# Get the name of a function that is being called. By default (`n = 1`), that's
-# the function within which `name_caller_call()` is called. Also by default
-# (`wrap = TRUE`), the name is coerced to string, suffixed with parentheses, and
-# wrapped in backticks. Example: f --> `f()`
-
-
 #' Get name of function being called
 #'
 #' Returns the name of the function within which `name_caller_call()` is called
 #' (by default of `n`).
 #'
 #' @param n The number of callers to go back. See `?rlang::caller_call()`.
-#' @param wrap Boolean. If `TRUE` (the default), the output is wrapped into
+#' @param wrap Logical. If `TRUE` (the default), the output is wrapped into
 #'   backticks and appended with `()`.
 #'
 #' @return String (length 1).
@@ -1305,12 +1332,13 @@ drop_cols_with <- function(data, drop_with) {
 #' @noRd
 name_caller_call <- function(n = 1L, wrap = TRUE) {
   name <- rlang::caller_call(n = n)
-  name <- name[[1]]
+  name <- name[[1L]]
   if (wrap) {
     name <- paste0("`", name, "()`")
   }
   name
 }
+
 
 
 # "Dust" variables were used by Nick Brown and later by Lukas Wallrich in
@@ -1460,9 +1488,9 @@ trunc_reverse <- function(x) {
 #' @param data Data frame.
 #' @param selection Tidyselect specification to select the columns from `data`
 #'   to operate on. It is spliced into `dplyr::across()`.
-#' @param total Boolean. Should a `.total` column summarize across all values in
-#'   `data`, regardless of their original columns? If so, `.total` will be the
-#'   last row of the output tibble.
+#' @param total Logical. Should there be a `.total` row that summarizes across
+#'   all values in `data`, regardless of their original columns? If `TRUE`,
+#'   `.total` will be the last row of the output tibble. Default is `FALSE`.
 #'
 #' @return Tibble with summary statistics.
 #'
@@ -1521,5 +1549,142 @@ audit_summary_stats <- function(data, selection, total = FALSE) {
     dplyr::mutate("term" = names(out), .before = 1L) %>%
     dplyr::bind_rows(total_summary) %>%
     dplyr::mutate(na_rate = na_count / nrow(data), .after = "na_rate")
+}
+
+
+
+#' List of minimal-distance functions for `audit_seq()`
+#'
+#' @description The functions collected in `list_min_distance_functions` are
+#'   mapped in one particular place within `audit_seq()` and shouldn't really be
+#'   used elsewhere.
+#'
+#'   Instead of being individually defined as named functions or being used as
+#'   anonymous functions directly inside of `audit_seq()`, they are stored in a
+#'   list for greater efficiency -- in terms of both speed and memory.
+#'
+#'   The `x` parameter in all three functions is an integer vector measuring the
+#'   number of dispersion steps between inconsistent reported values and their
+#'   consistent neighbors. The notion of "steps" is the same as in, e.g.,
+#'   `grim_map_seq()`.
+#'
+#' @return List of three functions.
+#'
+#' @noRd
+list_min_distance_functions <- list(
+  # Absolute distance:
+  function(x) {
+    vapply(
+      x, function(x) {
+        if (any(!is.numeric(x))) {
+          return(NA_real_)
+        }
+        min(abs(x), na.rm = TRUE)
+      },
+      numeric(1L), USE.NAMES = FALSE
+    )
+  },
+  # Positive distance:
+  function(x) {
+    vapply(
+      x, function(x) {
+        if (any(!is.numeric(x))) {
+          return(NA_real_)
+        }
+        min(x[x > 0L], na.rm = TRUE)
+      },
+      numeric(1L), USE.NAMES = FALSE
+    )
+  },
+  # Negative distance:
+  function(x) {
+    vapply(
+      x, function(x) {
+        if (any(!is.numeric(x))) {
+          return(NA_real_)
+        }
+        max(x[x < 0L], na.rm = TRUE)
+      },
+      numeric(1L), USE.NAMES = FALSE
+    )
+  }
+)
+
+
+
+#' Check for linearly increasing dispersion in sequence mapper output
+#'
+#' @description This throws an error if a data frame returned by a sequence
+#'   mapper (i.e., a function such as `grim_map_seq()`) was computed with the
+#'   `dispersion` argument of that sequence mapper specified as anything other
+#'   than a linearly increasing sequence.
+#'
+#'   For example, the default `1:5` is linearly increasing, but `5:1` and `c(3,
+#'   7, 2)` are not.
+#'
+#' @param data Data frame returned by a function made by `function_map_seq()`.
+#'
+#' @return No return value; might throw an error.
+#'
+#' @noRd
+check_dispersion_linear <- function(data) {
+  if (inherits(data, "scr_map_seq_disp_nonlinear")) {
+    name_mapper <- class(data)[grepl("_map_seq$", class(data))]
+    name_mapper <- name_mapper[name_mapper != "scr_map_seq"]
+    name_mapper <- sub("scr_*", "", name_mapper)
+    cli::cli_abort(c(
+      "Invalid for data with this dispersion.",
+      "!" = "`audit_seq()` is only applicable if `dispersion` \\
+      in `{name_mapper}()` is a linearly increasing sequence.",
+      "i" = "This limitation may be removed in a future version of scrutiny."
+    ))
+  }
+}
+
+
+
+#' Generate code to process the `"consistency"` column
+#'
+#' @description Call `write_code_col_key_result()` within a function factory
+#'   such as `function_map()`. It returns an expression to be unquoted at the
+#'   end of the factory-made function's body using ``!!!`()`.
+#'
+#'   This will insert code into the body that may process the `"consistency"`
+#'   column of the output data frame, `out`, in one or both of these two ways:
+#'
+#'   - If the `name_key_result` argument is not the default `"consistency"`, the
+#'   column will be renamed accordingly. This makes sense when applying tests
+#'   that are not consistency tests. (As of now, these other procedures also
+#'   need to return logical values.)
+#'   - If the column is still a list, it is transformed into a logical vector
+#'   using `unlist()`.
+#'
+#' @param name_key_result String (length 1). The `.name_key_result` argument of
+#'   the function factory, passed to the present function.
+#'
+#' @return Expression.
+#'
+#' @noRd
+write_code_col_key_result <- function(name_key_result = "consistency") {
+  # Enable renaming the `"consistency"` column for binary procedures that are
+  # not consistency tests:
+  code_rename <- if (name_key_result == "consistency") {
+    NULL
+  } else {
+    rlang::expr({
+      out <- dplyr::rename(out, `!!`(name_key_result) := consistency)
+    })
+  }
+  # Generate code to process the (possibly renamed) key result column:
+  rlang::expr({
+    `!!!`(code_rename)
+    if (!is.list(out$`!!`(name_key_result))) {
+      return(out)
+    }
+    `$<-`(
+      out, `!!`(name_key_result),
+      unlist(out$`!!`(name_key_result), use.names = FALSE)
+    )
+  })
 }
 

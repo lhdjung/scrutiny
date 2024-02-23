@@ -1,5 +1,4 @@
 
-
 # Internal helpers; not exported ------------------------------------------
 
 check_key_args_in_colnames <- function(data, reported) {
@@ -41,19 +40,19 @@ check_consistency_not_in_colnames <- function(data, name_test) {
     class_seq     <- dc[stringr::str_detect(dc, "_map_seq$")]
     class_total_n <- dc[stringr::str_detect(dc, "_map_total_n$")]
     if (length(class_basic) > 0L) {
-      fun_name_basic <- stringr::str_remove(class_basic, "scr_")
+      fun_name_basic <- stringr::str_remove(class_basic, "^scr_")
     } else {
       fun_name_basic <- NULL
     }
     if (length(class_seq) > 0L) {
       fun_name_basic <- NULL
-      fun_name_seq <- stringr::str_remove(class_seq, "scr_")
+      fun_name_seq <- stringr::str_remove(class_seq, "^scr_")
     } else {
       fun_name_seq <- NULL
     }
     if (length(class_total_n) > 0L) {
       fun_name_basic <- NULL
-      fun_name_total_n <- stringr::str_remove(class_total_n, "scr_")
+      fun_name_total_n <- stringr::str_remove(class_total_n, "^scr_")
     } else {
       fun_name_total_n <- NULL
     }
@@ -64,9 +63,9 @@ check_consistency_not_in_colnames <- function(data, name_test) {
     if (length(fun_name_all) == 0L) {
       fun_name_all <- ""
     }
-    if (stringr::str_detect(fun_name_all, "_seq")) {
+    if (stringr::str_detect(fun_name_all, "_seq$")) {
       msg_special <- "sequence "
-    } else if (stringr::str_detect(fun_name_all, "_total_n")) {
+    } else if (stringr::str_detect(fun_name_all, "_total_n$")) {
       msg_special <- "total-n "
     } else {
       msg_special <- ""
@@ -85,8 +84,6 @@ check_consistency_not_in_colnames <- function(data, name_test) {
     ))
   }
 }
-
-
 
 
 
@@ -114,15 +111,14 @@ check_consistency_not_in_colnames <- function(data, name_test) {
 #'
 #' @return No return value. Might throw an error.
 #'
-#' @seealso `vignette("consistency-tests")`, for context and the "key columns"
-#'   terminology.
+#' @seealso `vignette("consistency-tests-in-depth")`, for context and the "key
+#'   columns" terminology.
 
 
 check_mapper_input_colnames <- function(data, reported, name_test) {
   check_key_args_in_colnames(data, reported)
   check_consistency_not_in_colnames(data, name_test)
 }
-
 
 
 
@@ -143,7 +139,7 @@ check_mapper_input_colnames <- function(data, reported, name_test) {
 #' @param name_test String (length 1). Short, plain-text name of the consistency
 #'   test, such as `"GRIM"`.
 #'
-#' @seealso `vignette("consistency-tests")`, for context.
+#' @seealso `vignette("consistency-tests-in-depth")`, for context.
 #'
 #' @export
 #'
@@ -177,8 +173,6 @@ check_audit_special <- function(data, name_test) {
 
 
 
-
-
 #' Helper column operations
 #'
 #' @description If your consistency test mapper function supports helper
@@ -193,18 +187,18 @@ check_audit_special <- function(data, name_test) {
 #'
 #'   All of this only works in mapper functions that were "handwritten" using
 #'   `function()`, as opposed to those produced by `function_map()`. See
-#'   `vignette("consistency-tests")`, section *Writing mappers manually*.
+#'   `vignette("consistency-tests-in-depth")`, section *Writing mappers
+#'   manually*.
 #'
 #' @param data The data frame that is the mapper function's first argument.
 #' @param var_arg The argument to the mapper function that has the same name as
 #'   the helper column you want to manage.
 #' @param default The default for the argument that was specified in `var_arg`.
-#' @param affix Boolean (length 1). If `data` doesn't include the helper column
+#' @param affix Logical (length 1). If `data` doesn't include the helper column
 #'   already, should `var_arg` be added to `data`, bearing its proper name?
 #'   Default is `TRUE`.
 #'
-#' @return The input data frame,  `data`, possibly modified (see `affix`
-#'   argument).
+#' @return `data`, possibly modified (see `affix` argument).
 #'
 #' @export
 
@@ -279,7 +273,7 @@ manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
 #'
 #' @return The input data frame, `data`, possibly modified.
 #'
-#' @seealso `vignette("consistency-tests")`, for context.
+#' @seealso `vignette("consistency-tests-in-depth")`, for context.
 #'
 #' @export
 
@@ -334,7 +328,7 @@ manage_key_colnames_list_el <- function(data, key_arg) {
 #'   `col`.
 #' @param col_names String vector of new names for the unnested columns. It
 #'   should start with the same string that was given for `col`.
-#' @param index Boolean. Should the list-column be indexed into? Default is
+#' @param index Logical. Should the list-column be indexed into? Default is
 #'   `FALSE`.
 #' @param col String (length 1). Name of the list-column within `results` to
 #'   operate on. Default is `"consistency"`.
@@ -346,7 +340,7 @@ manage_key_colnames_list_el <- function(data, key_arg) {
 #'
 #' @return Data frame. The column names are determined by `col_names`.
 #'
-#' @seealso `vignette("consistency-tests")`, for context.
+#' @seealso `vignette("consistency-tests-in-depth")`, for context.
 #'
 #' @export
 
@@ -357,11 +351,13 @@ unnest_consistency_cols <- function(results, col_names, index = FALSE,
   # The difference between the two conditions lies only in the
   # `purrr::map_depth()` call:
   if (index) {
-    consistency_list <- results[col][[1]] %>%
+    consistency_list <- results[col][[1L]] %>%
       purrr::map_depth(.depth = 2L, .f =  `[`, 1) %>%
-      purrr::map(unlist)
+      purrr::map(function(x) unlist(x, use.names = FALSE))
   } else {
-    consistency_list <- purrr::map(results[col][[1]], unlist)
+    consistency_list <- purrr::map(
+      results[col][[1L]], function(x) unlist(x, use.names = FALSE)
+    )
   }
 
   consistency_df <- consistency_list %>%

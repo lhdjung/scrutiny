@@ -24,14 +24,14 @@ grim(
 \item{items}{Numeric. The number of items composing \code{x}. Default is 1, the
 most common case.}
 
-\item{percent}{Boolean. Set \code{percent} to \code{TRUE} if \code{x} is a percentage. This
+\item{percent}{Logical. Set \code{percent} to \code{TRUE} if \code{x} is a percentage. This
 will convert it to a decimal number and adjust the decimal count (i.e.,
 increase it by 2). Default is \code{FALSE}.}
 
-\item{show_rec}{Boolean. For internal use only.  If set to \code{TRUE}, the output
+\item{show_rec}{Logical. For internal use only. If set to \code{TRUE}, the output
 is a matrix that also contains intermediary values from GRIM-testing. Don't
-specify this manually; instead, use \code{show_rec} in \code{grim_map()}. Default is
-\code{FALSE}.}
+specify this manually; instead, use \code{show_rec} in \code{\link[=grim_map]{grim_map()}}. Default
+is \code{FALSE}.}
 
 \item{rounding}{String. Rounding method or methods to be used for
 reconstructing the values to which \code{x} will be compared. Default is
@@ -42,17 +42,17 @@ or \code{"up_from_or_down_from"}, set \code{threshold} to the number from which 
 reconstructed values should then be rounded up or down. Otherwise, this
 argument plays no role. Default is \code{5}.}
 
-\item{symmetric}{Boolean. Set \code{symmetric} to \code{TRUE} if the rounding of
+\item{symmetric}{Logical. Set \code{symmetric} to \code{TRUE} if the rounding of
 negative numbers with \code{"up"}, \code{"down"}, \code{"up_from"}, or \code{"down_from"}
 should mirror that of positive numbers so that their absolute values are
 always equal. Default is \code{FALSE}.}
 
 \item{tolerance}{Numeric. Tolerance of comparison between \code{x} and the
 possible mean or percentage values. Default is circa 0.000000015
-(1.490116e-08), as in \code{dplyr::near()}.}
+(1.490116e-08), as in \code{\link[dplyr:near]{dplyr::near()}}.}
 }
 \value{
-Boolean. \code{TRUE} if \code{x}, \code{n}, and \code{items} are mutually consistent,
+Logical. \code{TRUE} if \code{x}, \code{n}, and \code{items} are mutually consistent,
 \code{FALSE} if not.
 }
 \description{
@@ -63,7 +63,7 @@ items that compose the mean value.
 Set \code{percent} to \code{TRUE} if \code{x} is a percentage. This will convert \code{x} to a
 decimal number and adjust the decimal count accordingly.
 
-The function is vectorized, but it is recommended to use \code{grim_map()} for
+The function is vectorized, but it is recommended to use \code{\link[=grim_map]{grim_map()}} for
 testing multiple cases.
 }
 \details{
@@ -71,43 +71,13 @@ The \code{x} values need to be strings because only strings retain
 trailing zeros, which are as important for the GRIM test as any other
 decimal digits.
 
-Use \code{restore_zeros()} on numeric values (or values that were numeric values
-at some point) to easily supply the trailing zeros they might once have
-had. See documentation there.
+Use \code{\link[=restore_zeros]{restore_zeros()}} on numeric values (or values that were numeric
+values at some point) to easily supply the trailing zeros they might once
+have had. See documentation there.
 
 Browse the source code in the grim.R file. \code{grim()} is a vectorized version
 of the internal \code{grim_scalar()} function found there.
 }
-\section{Rounding}{
- Here are the options for the \code{rounding} argument.
-Reconstructed mean or percentage values can be rounded in either of these
-ways:
-\itemize{
-\item Rounded to \code{"even"} using base R's own \code{round()}.
-\item Rounded \code{"up"} or \code{"down"} from 5. (Note that SAS, SPSS, Stata, Matlab,
-and Excel round \code{"up"} from 5, whereas Python rounds \code{"down"} from 5.)
-\item Rounded \code{"up_from"} or \code{"down_from"} some number, which then must be
-specified via the \code{threshold} argument.
-\item Given a \code{"ceiling"} or \code{"floor"} at the respective decimal place.
-\item Rounded towards zero with \code{"trunc"} or away from zero with
-\code{"anti_trunc"}.
-The default, \code{"up_or_down"}, allows for numbers rounded either \code{"up"} or
-\code{"down"} from 5 when GRIM-testing; and likewise for \code{"up_from_or_down_from"}
-and \code{"ceiling_or_floor"}.
-}
-
-With \code{rounding = "up_or_down"}, if \code{n} is 40 or 80 and \code{x} has two decimal
-places, very few values will test as inconsistent; but note that many will be
-with either of \code{rounding = "up"} and \code{rounding = "down"}, or indeed with any
-other rounding method. This is part of a more general pattern: \code{n} is 400 or
-800 and \code{x} has three decimal places, etc.
-
-For more information about these methods, see documentation for \code{round()},
-\code{round_up()}, and \code{round_ceiling()}. These include all of the above ways of
-rounding. How the reconstructed values are rounded can also be calibrated by
-the \code{threshold} and \code{symmetric} arguments.
-}
-
 \examples{
 # A mean of 5.19 is not consistent with a sample size of 28:
 grim(x = "5.19", n = 28)    # `x` in quotes!
@@ -120,7 +90,6 @@ grim(x = "2.84", n = 16, items = 2)
 
 # With percentages instead of means -- here, 71\%:
 grim(x = "71", n = 43, percent = TRUE)
-
 }
 \references{
 Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A
@@ -129,5 +98,5 @@ Psychology. \emph{Social Psychological and Personality Science}, 8(4), 363–369
 https://journals.sagepub.com/doi/10.1177/1948550616673876
 }
 \seealso{
-\code{grim_map()} applies \code{grim()} to any number of cases at once.
+\code{\link[=grim_map]{grim_map()}} applies \code{grim()} to any number of cases at once.
 }
