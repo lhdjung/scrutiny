@@ -62,7 +62,7 @@ also test for linearity, like \code{is_seq_linear()}.
 }
 
 \code{NA} elements of \code{x} are handled in a nuanced way. See \emph{Value} section below
-and the examples in \code{vignette("infrastructure")}, section \emph{NA handling}.
+and the examples in \code{vignette("devtools")}, section \emph{NA handling}.
 }
 \examples{
 # These are linear sequences...

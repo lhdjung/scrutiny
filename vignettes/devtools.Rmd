@@ -1,8 +1,8 @@
 ---
-title: "General infrastructure"
+title: "Developer tools"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{General infrastructure}
+  %\VignetteIndexEntry{Developer tools}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 bibliography: references.bib
@@ -15,14 +15,13 @@ knitr::opts_chunk$set(
 )
 ```
 
-
 ```{r setup, message=FALSE}
 library(scrutiny)
 ```
 
 The implementation of error detection techniques in scrutiny rests on a foundation of specialized helper functions. Some of these are exported because they might be helpful in error detection more broadly, or perhaps even in other contexts.
 
-This vignette provides an overview of scrutiny's miscellaneous infrastructure for implementing error detection techniques. For more specific articles, see `vignette("rounding")` or `vignette("consistency-tests")`.
+This vignette provides an overview of scrutiny's miscellaneous infrastructure for implementing error detection techniques. For more specific articles, see `vignette("rounding-in-depth")` or `vignette("consistency-tests-simple")`.
 
 ## Count decimal places
 

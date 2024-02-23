@@ -1,6 +1,6 @@
 Package: scrutiny
 Title: Error Detection in Science
-Version: 0.3.0.9000
+Version: 0.4.0
 Authors@R: c(
     person(given = "Lukas",
            family = "Jung",
@@ -79,6 +79,7 @@ Collate:
     'duplicate-count-colpair.R'
     'duplicate-count.R'
     'grim-granularity.R'
+    'grim-map-debug.R'
     'grim-map-seq.R'
     'grim-map-total-n.R'
     'grim-plot.R'

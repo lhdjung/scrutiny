@@ -1,4 +1,4 @@
-# scrutiny (development version)
+# scrutiny 0.4.0
 
 This version brings major performance improvements. Furthermore:
 
@@ -11,6 +11,7 @@ This version brings major performance improvements. Furthermore:
 ## New features
 
 -   A new vignette lists the options for specifying the `rounding` argument that many scrutiny functions have: `vignette("rounding-options")`.
+-   Another new vignette shows the minimal steps to implement a consistency test using scrutiny: `vignette("consistency-tests-simple")`.
 -   The output of `grim_map_seq()`, `grimmer_map_seq()`, `debit_map_seq()` and any other function made by `function_map_seq()` now has a `diff_var` column that tracks the difference between the dispersed variable (see the `var` column) and the reported value. Following the `diff_*` columns in the output of `audit_seq()`, this is the number of dispersion steps, not the actual numeric difference.
 -   The same `diff_*` columns are now integer, not double.
 -   `function_map()`, `function_map_seq()`, and `function_map_total_n()` have a new `.name_key_result` argument that controls the name of the key result column in the output of the factory-made function. This is `"consistency"` by default, but other names will fit better for other kinds of tests. (The results of these tests must still be logical values.)
@@ -20,6 +21,9 @@ This version brings major performance improvements. Furthermore:
 -   In `duplicate_count()`, the `count` column in the output tibble was renamed to `frequency`. This makes for a more streamlined frequency table and removes an ambiguity with `duplicate_count_colpair()`, where the `count` output column means something different.
 -   In `seq_disperse()` and `seq_disperse_df()`, the `track_var_change` / `.track_var_change` argument was renamed to `track_diff_var` / `.track_diff_var`. The arguments with the old names are still present for now but will be removed in a future version. Also, the unit of these values is now dispersion steps, for consistency with `grim_map_seq()` etc. as well as `audit_seq()`.
 -   `grim_total()`, `grim_ratio()`, and `grim_ratio_upper()` now require `x` to have length 1.
+-   The docs now link to functions when opened in RStudio, not just on the website.
+-   Accordingly, the output of `write_doc_factory_map_conventions()` now renders links. The function also has a new `scrutiny_prefix` argument for use in another package.
+-   The "Infrastructure" article was renamed to "Developer tools"; `vignette("devtools")`.
 -   Some dependencies that used to be suggested are now imported.
 
 # scrutiny 0.3.0
