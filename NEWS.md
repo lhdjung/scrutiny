@@ -1,4 +1,4 @@
-# scrutiny (development version)
+# scrutiny 0.4.0
 
 This version brings major performance improvements. Furthermore:
 
