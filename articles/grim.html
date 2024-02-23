@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,10 +53,10 @@
     <a class="dropdown-item" href="../articles/rounding-options.html">Rounding options</a>
     <a class="dropdown-item" href="../articles/consistency-tests-simple.html">Implementing your consistency test</a>
     <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>Infrastructure</h6>
+    <h6 class="dropdown-header" data-toc-skip>Developer tools</h6>
     <a class="dropdown-item" href="../articles/rounding-in-depth.html">Rounding in depth</a>
     <a class="dropdown-item" href="../articles/consistency-tests-in-depth.html">Consistency tests in depth</a>
-    <a class="dropdown-item" href="../articles/infrastructure.html">General infrastructure</a>
+    <a class="dropdown-item" href="../articles/devtools.html">Developer tools</a>
     <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Other</h6>
@@ -353,95 +353,13 @@ by Brown and Heathers (2017). The <code>rec_*</code> columns were
 inspired by <span class="citation">Bauer and Francis (2021)</span>’s
 Table 1 but present values in slightly different ways.</p>
 </div>
-<div class="section level4">
-<h4 id="rounding">Rounding<a class="anchor" aria-label="anchor" href="#rounding"></a>
-</h4>
-<p>The scrutiny package provides infrastructure for reconstructing
-rounded numbers. All of that can be commanded from within
-<code><a href="../reference/grim.html">grim()</a></code> and <code><a href="../reference/grim_map.html">grim_map()</a></code>. Several parameters
-allow for stating the precise way in which the original numbers have
-supposedly been rounded.</p>
-<p>First and foremost is <code>rounding</code>. It takes a string with
-the rounding procedure’s name, which leads to the number being rounded
-in either of these ways:</p>
-<ol style="list-style-type: decimal">
-<li>Rounded <code>"up"</code> or <code>"down"</code> from 5. Note that
-SAS, SPSS, Stata, Matlab, and Excel round <code>"up"</code> from 5,
-whereas Python used to round <code>"down"</code> from 5.</li>
-<li>Rounded to <code>"even"</code> using base R’s own
-<code><a href="https://rdrr.io/r/base/Round.html" class="external-link">round()</a></code>.</li>
-<li>Rounded <code>"up_from"</code> or <code>"down_from"</code> some
-number, which then needs to be specified via the <code>threshold</code>
-parameter.</li>
-<li>Given a <code>"ceiling"</code> or <code>"floor"</code> at the
-respective decimal place.</li>
-<li>Rounded towards zero with <code>"trunc"</code> or away from zero
-with <code>"anti_trunc"</code>.</li>
-</ol>
-<p>The default, <code>"up_or_down"</code>, allows for numbers rounded
-either <code>"up"</code> or <code>"down"</code> from 5 when
-GRIM-testing; and likewise for <code>"up_from_or_down_from"</code> and
-<code>"ceiling_or_floor"</code>. For more about these procedures, see
-documentation for <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">round()</a></code>, <code><a href="../reference/rounding-common.html">round_up()</a></code>, and
-<code><a href="../reference/rounding-uncommon.html">round_ceiling()</a></code>. These include all of the above ways of
-rounding.</p>
-<p>Points 3 to 5 above list some quite obscure options that were only
-included to cover a wide spectrum of possible rounding procedures. The
-same is true for the <code>threshold</code> and <code>symmetric</code>
-parameters, so these aren’t discussed here any further. Learn more about
-scrutiny’s infrastructure for rounding at
-<code>vignette("rounding")</code>.</p>
-<p>By default, <code><a href="../reference/grim.html">grim()</a></code> and <code><a href="../reference/grim_map.html">grim_map()</a></code> accept
-values rounded either up or down from 5. If you have reason to impose
-stricter assumptions on the way <code>x</code> was rounded, specify
-<code>rounding</code> accordingly:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">jpap_4</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
-<span>    <span class="op">~</span><span class="va">x</span>,     <span class="op">~</span><span class="va">n</span>,</span>
-<span>    <span class="st">"2.02"</span>,  <span class="fl">80</span>,</span>
-<span>    <span class="st">"2.03"</span>,  <span class="fl">80</span>,</span>
-<span>    <span class="st">"2.04"</span>,  <span class="fl">80</span>,</span>
-<span>    <span class="st">"2.05"</span>,  <span class="fl">80</span>,</span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">jpap_4</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="../reference/grim_map.html">grim_map</a></span><span class="op">(</span>rounding <span class="op">=</span> <span class="st">"up"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 4</span></span></span>
-<span><span class="co">#&gt;   x         n consistency ratio</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 2.02     80 FALSE         0.2</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 2.03     80 TRUE          0.2</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2.04     80 TRUE          0.2</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 2.05     80 TRUE          0.2</span></span>
-<span></span>
-<span><span class="va">jpap_4</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="../reference/grim_map.html">grim_map</a></span><span class="op">(</span>rounding <span class="op">=</span> <span class="st">"down"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 4</span></span></span>
-<span><span class="co">#&gt;   x         n consistency ratio</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 2.02     80 TRUE          0.2</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 2.03     80 FALSE         0.2</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2.04     80 TRUE          0.2</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 2.05     80 TRUE          0.2</span></span></code></pre></div>
-<p>Rounding up and down leads to precisely opposite results for the
-first two cases, although it agrees on the latter two. Even this example
-is cherry-picked: Sample sizes of 80 are highly unusual because, for
-most other <code>n</code> values, those two rounding procedures agree in
-the vast majority of cases. See section <em>Visualizing results with
-<code><a href="../reference/grim_plot.html">grim_plot()</a></code></em> on this issue.</p>
-<p>It might still be important to account for the different ways in
-which numbers can be rounded, if only to demonstrate that some given
-results are robust to those variable decisions. To err on the side of
-caution, the default for <code>rounding</code> is the permissive
-<code>"up_or_down"</code>.</p>
-</div>
 </div>
 <div class="section level3">
 <h3 id="summarizing-results-with-audit">Summarizing results with <code>audit()</code><a class="anchor" aria-label="anchor" href="#summarizing-results-with-audit"></a>
 </h3>
 <p>Following up on a call to <code><a href="../reference/grim_map.html">grim_map()</a></code>, the generic
 function <code><a href="../reference/audit.html">audit()</a></code> summarizes GRIM test results:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">flying_pigs1</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/grim_map.html">grim_map</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/audit.html">audit</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
@@ -471,7 +389,7 @@ sets.</p></li>
 </h3>
 <p>There is a specialized visualization function for GRIM test results,
 <code><a href="../reference/grim_plot.html">grim_plot()</a></code>:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">jpap_5</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
 <span>  <span class="op">~</span><span class="va">x</span>,        <span class="op">~</span><span class="va">n</span>,</span>
 <span>  <span class="st">"7.19"</span>,    <span class="fl">28</span>,</span>
@@ -490,10 +408,10 @@ sets.</p></li>
 <span><span class="va">jpap_5</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/grim_map.html">grim_map</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/grim_plot.html">grim_plot</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="grim_files/figure-html/unnamed-chunk-12-1.png" width="576"></p>
+<p><img src="grim_files/figure-html/unnamed-chunk-11-1.png" width="576"></p>
 <p><code><a href="../reference/grim_plot.html">grim_plot()</a></code> can only be called on
 <code><a href="../reference/grim_map.html">grim_map()</a></code>’s output. It will fail otherwise:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/grim_plot.html">grim_plot</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `grim_plot()`:</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> `grim_plot()` needs GRIM or GRIMMER test results.</span></span>
@@ -518,11 +436,11 @@ values rounded either up <em>or</em> down from 5. If a different
 <code>rounding</code> specification is chosen in the
 <code><a href="../reference/grim_map.html">grim_map()</a></code> call, the plot raster will adjust automatically
 (although it will often be the same as before):</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">jpap_5</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/grim_map.html">grim_map</a></span><span class="op">(</span>rounding <span class="op">=</span> <span class="st">"ceiling"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/grim_plot.html">grim_plot</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="grim_files/figure-html/unnamed-chunk-14-1.png" width="576"></p>
+<p><img src="grim_files/figure-html/unnamed-chunk-13-1.png" width="576"></p>
 <p>All <code>rounding</code> values other than <code>up_from</code>,
 <code>down_from</code>, and <code>up_from_or_down_from</code> are
 supported.</p>
@@ -540,7 +458,7 @@ in out example <code>pigs1</code> data. You might wonder whether they
 are due to small reporting or computing errors.</p>
 <p>Use <code><a href="../reference/grim_map_seq.html">grim_map_seq()</a></code> to GRIM-test the values surrounding
 the reported means and sample sizes:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">out_seq1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grim_map_seq.html">grim_map_seq</a></span><span class="op">(</span><span class="va">pigs1</span><span class="op">)</span></span>
 <span><span class="va">out_seq1</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 160 × 7</span></span></span>
@@ -562,7 +480,7 @@ the reported means and sample sizes:</p>
 </h4>
 <p>As this output is a little unwieldy, run <code><a href="../reference/audit-special.html">audit_seq()</a></code> on
 the results:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/audit-special.html">audit_seq</a></span><span class="op">(</span><span class="va">out_seq1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 8 × 12</span></span></span>
 <span><span class="co">#&gt;   x         n consistency hits_total hits_x hits_n diff_x diff_x_up diff_x_down</span></span>
@@ -594,7 +512,7 @@ lower consistent value, respectively.</p></li>
 <p>The default for <code>dispersion</code> is <code>1:5</code>, for five
 steps up and down. When the <code>dispersion</code> sequence gets
 longer, the number of hits tends to increase:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">out_seq2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grim_map_seq.html">grim_map_seq</a></span><span class="op">(</span><span class="va">pigs1</span>, dispersion <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/audit-special.html">audit_seq</a></span><span class="op">(</span><span class="va">out_seq2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 8 × 12</span></span></span>
@@ -616,21 +534,21 @@ longer, the number of hits tends to increase:</p>
 <p>It’s curious what happens when we plot the output of
 <code><a href="../reference/grim_map_seq.html">grim_map_seq()</a></code>. Like regular GRIM plots, however, it does
 give us a sense of how many tested values are consistent:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/grim_plot.html">grim_plot</a></span><span class="op">(</span><span class="va">out_seq1</span><span class="op">)</span></span></code></pre></div>
-<p><img src="grim_files/figure-html/unnamed-chunk-18-1.png" width="576"></p>
+<p><img src="grim_files/figure-html/unnamed-chunk-17-1.png" width="576"></p>
 <p>The crosses appear because <code><a href="../reference/grim_map_seq.html">grim_map_seq()</a></code> creates
 sequences around both <code>x</code> and <code>n</code>. Restrict this
 process to any one of these with the <code>var</code> argument:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">out_seq1_only_x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grim_map_seq.html">grim_map_seq</a></span><span class="op">(</span><span class="va">pigs1</span>, var <span class="op">=</span> <span class="st">"x"</span><span class="op">)</span></span>
 <span><span class="va">out_seq1_only_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grim_map_seq.html">grim_map_seq</a></span><span class="op">(</span><span class="va">pigs1</span>, var <span class="op">=</span> <span class="st">"n"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/grim_plot.html">grim_plot</a></span><span class="op">(</span><span class="va">out_seq1_only_x</span><span class="op">)</span></span></code></pre></div>
-<p><img src="grim_files/figure-html/unnamed-chunk-19-1.png" width="576"></p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<p><img src="grim_files/figure-html/unnamed-chunk-18-1.png" width="576"></p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/grim_plot.html">grim_plot</a></span><span class="op">(</span><span class="va">out_seq1_only_n</span><span class="op">)</span></span></code></pre></div>
-<p><img src="grim_files/figure-html/unnamed-chunk-19-2.png" width="576"></p>
+<p><img src="grim_files/figure-html/unnamed-chunk-18-2.png" width="576"></p>
 </div>
 </div>
 <div class="section level3">
@@ -670,7 +588,7 @@ with 5.3.</p>
 <code><a href="../reference/audit-special.html">audit_total_n()</a></code> for summarizing the results. It will find
 two further plausible scenarios in which both means are consistent; more
 on that below.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>x1 <span class="op">=</span> <span class="st">"4.71"</span>, x2 <span class="op">=</span> <span class="st">"5.3"</span>, n <span class="op">=</span> <span class="fl">40</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Detailed results:</span></span>
@@ -752,7 +670,7 @@ approaching 1. Its upper bound will be 0.9 if <span class="math inline">\(D = 1\
 <p><code><a href="../reference/grim-stats.html">grim_ratio()</a></code> takes the arguments <code>x</code>,
 <code>n</code>, <code>items</code>, and <code>percent</code> as in
 <code><a href="../reference/grim.html">grim()</a></code> and <code><a href="../reference/grim_map.html">grim_map()</a></code>:</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/grim-stats.html">grim_ratio</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">1.42</span>, n <span class="op">=</span> <span class="fl">72</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.28</span></span>
 <span></span>
@@ -770,7 +688,7 @@ approaching 1. Its upper bound will be 0.9 if <span class="math inline">\(D = 1\
 <span><span class="co">#&gt; [1] 0.9999</span></span></code></pre></div>
 <p>In addition, <code><a href="../reference/grim-stats.html">grim_total()</a></code> takes the same arguments but
 returns only the numerator of the above formula:</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/grim-stats.html">grim_total</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">1.42</span>, n <span class="op">=</span> <span class="fl">72</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 28</span></span>
 <span></span>
@@ -821,7 +739,7 @@ all of these values into the above formula returns</p>
 conversely, consistent in about 70%.</p>
 <p>Here is the same in code (assuming an arbitrary mean with two decimal
 places):</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/grim-stats.html">grim_ratio</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">0.99</span>, n <span class="op">=</span> <span class="fl">70</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.3</span></span></code></pre></div>
 <p>Thus, all I did regarding the GRIM ratio was to make the general
@@ -857,20 +775,20 @@ L = \frac{1}{NG}
 </h5>
 <p>Suppose you have an ordinal distribution with 80 observations and
 five items. To get its granularity, run this:</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/grim_granularity.html">grim_granularity</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">80</span>, items <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.003125</span></span></code></pre></div>
 <p>Now, imagine a distribution with 50 observations and a granularity of
 0.01. To get the number of its items (actual or effective), use this
 code:</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/grim_granularity.html">grim_items</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">50</span>, gran <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 2</span></span></code></pre></div>
 <p>As the number of items itself has a granularity of 1, a call to
 <code><a href="../reference/grim_granularity.html">grim_items()</a></code> that doesn’t return whole numbers indicates a
 problem in earlier computations. A warning to that effect will be
 displayed:</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/grim_granularity.html">grim_items</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">50</span>, <span class="fl">65</span>, <span class="fl">93</span><span class="op">)</span>, gran <span class="op">=</span> <span class="fl">0.02</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: 2 out of 3 item counts aren't whole numbers.</span></span>
 <span><span class="co">#&gt; → This concerns `0.769` and `0.538`.</span></span>

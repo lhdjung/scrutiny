@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,10 +36,10 @@
     <a class="dropdown-item" href="../articles/rounding-options.html">Rounding options</a>
     <a class="dropdown-item" href="../articles/consistency-tests-simple.html">Implementing your consistency test</a>
     <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>Infrastructure</h6>
+    <h6 class="dropdown-header" data-toc-skip>Developer tools</h6>
     <a class="dropdown-item" href="../articles/rounding-in-depth.html">Rounding in depth</a>
     <a class="dropdown-item" href="../articles/consistency-tests-in-depth.html">Consistency tests in depth</a>
-    <a class="dropdown-item" href="../articles/infrastructure.html">General infrastructure</a>
+    <a class="dropdown-item" href="../articles/devtools.html">Developer tools</a>
     <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Other</h6>
@@ -70,28 +70,32 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="scrutiny-development-version">scrutiny (development version)<a class="anchor" aria-label="anchor" href="#scrutiny-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.4.0" id="scrutiny-040">scrutiny 0.4.0<a class="anchor" aria-label="anchor" href="#scrutiny-040"></a></h2>
 <p>This version brings major performance improvements. Furthermore:</p>
 <div class="section level3">
-<h3 id="bugfixes-development-version">Bugfixes<a class="anchor" aria-label="anchor" href="#bugfixes-development-version"></a></h3>
+<h3 id="bugfixes-0-4-0">Bugfixes<a class="anchor" aria-label="anchor" href="#bugfixes-0-4-0"></a></h3>
 <ul><li>Fixed a bug in <code><a href="../reference/audit-special.html">audit_seq()</a></code>: If the <code>dispersion</code> argument in the preceding call to a function like <code><a href="../reference/grim_map_seq.html">grim_map_seq()</a></code> was specified as something other than a linearly increasing sequence, the <code>"diff_*"</code> columns in the data frames returned by <code><a href="../reference/audit-special.html">audit_seq()</a></code> may have contained incorrect values.</li>
 <li>Similarly, <code><a href="../reference/audit-special.html">audit_seq()</a></code> and <code><a href="../reference/reverse_map_seq.html">reverse_map_seq()</a></code> used to reconstruct the reported values incorrectly if the <code>dispersion</code> default was overridden as described above. At least for now, the issue is handled by throwing an error if these functions operate on data frames that are the result of specifying <code>dispersion</code> as something other than a linearly increasing sequence.</li>
 <li>Fixed a bug that incorrectly threw an error in <code><a href="../reference/grim_map_seq.html">grim_map_seq()</a></code>, other functions made by <code><a href="../reference/function_map_seq.html">function_map_seq()</a></code>, as well as <code><a href="../reference/seq_disperse.html">seq_disperse()</a></code> and <code><a href="../reference/seq_disperse.html">seq_disperse_df()</a></code> if an input value was so close to <code>out_min</code> or <code>out_max</code> that the output sequence would be shorter than implied by <code>dispersion</code> / <code>.dispersion</code> , and if <code>track_var_change</code> / <code>.track_var_change</code> (see below) was <code>TRUE</code>. Again, note that the bug only occurred if an error was thrown.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
+<h3 id="new-features-0-4-0">New features<a class="anchor" aria-label="anchor" href="#new-features-0-4-0"></a></h3>
 <ul><li>A new vignette lists the options for specifying the <code>rounding</code> argument that many scrutiny functions have: <code><a href="../articles/rounding-options.html">vignette("rounding-options")</a></code>.</li>
+<li>Another new vignette shows the minimal steps to implement a consistency test using scrutiny: <code><a href="../articles/consistency-tests-simple.html">vignette("consistency-tests-simple")</a></code>.</li>
 <li>The output of <code><a href="../reference/grim_map_seq.html">grim_map_seq()</a></code>, <code><a href="../reference/grimmer_map_seq.html">grimmer_map_seq()</a></code>, <code><a href="../reference/debit_map_seq.html">debit_map_seq()</a></code> and any other function made by <code><a href="../reference/function_map_seq.html">function_map_seq()</a></code> now has a <code>diff_var</code> column that tracks the difference between the dispersed variable (see the <code>var</code> column) and the reported value. Following the <code>diff_*</code> columns in the output of <code><a href="../reference/audit-special.html">audit_seq()</a></code>, this is the number of dispersion steps, not the actual numeric difference.</li>
 <li>The same <code>diff_*</code> columns are now integer, not double.</li>
 <li>
 <code><a href="../reference/function_map.html">function_map()</a></code>, <code><a href="../reference/function_map_seq.html">function_map_seq()</a></code>, and <code><a href="../reference/function_map_total_n.html">function_map_total_n()</a></code> have a new <code>.name_key_result</code> argument that controls the name of the key result column in the output of the factory-made function. This is <code>"consistency"</code> by default, but other names will fit better for other kinds of tests. (The results of these tests must still be logical values.)</li>
 </ul></div>
 <div class="section level3">
-<h3 id="minor-changes-development-version">Minor changes<a class="anchor" aria-label="anchor" href="#minor-changes-development-version"></a></h3>
+<h3 id="minor-changes-0-4-0">Minor changes<a class="anchor" aria-label="anchor" href="#minor-changes-0-4-0"></a></h3>
 <ul><li>In <code><a href="../reference/duplicate_count.html">duplicate_count()</a></code>, the <code>count</code> column in the output tibble was renamed to <code>frequency</code>. This makes for a more streamlined frequency table and removes an ambiguity with <code><a href="../reference/duplicate_count_colpair.html">duplicate_count_colpair()</a></code>, where the <code>count</code> output column means something different.</li>
 <li>In <code><a href="../reference/seq_disperse.html">seq_disperse()</a></code> and <code><a href="../reference/seq_disperse.html">seq_disperse_df()</a></code>, the <code>track_var_change</code> / <code>.track_var_change</code> argument was renamed to <code>track_diff_var</code> / <code>.track_diff_var</code>. The arguments with the old names are still present for now but will be removed in a future version. Also, the unit of these values is now dispersion steps, for consistency with <code><a href="../reference/grim_map_seq.html">grim_map_seq()</a></code> etc. as well as <code><a href="../reference/audit-special.html">audit_seq()</a></code>.</li>
 <li>
 <code><a href="../reference/grim-stats.html">grim_total()</a></code>, <code><a href="../reference/grim-stats.html">grim_ratio()</a></code>, and <code><a href="../reference/grim-stats.html">grim_ratio_upper()</a></code> now require <code>x</code> to have length 1.</li>
+<li>The docs now link to functions when opened in RStudio, not just on the website.</li>
+<li>Accordingly, the output of <code><a href="../reference/write_doc_factory_map_conventions.html">write_doc_factory_map_conventions()</a></code> now renders links. The function also has a new <code>scrutiny_prefix</code> argument for use in another package.</li>
+<li>The “Infrastructure” article was renamed to “Developer tools”; <code><a href="../articles/devtools.html">vignette("devtools")</a></code>.</li>
 <li>Some dependencies that used to be suggested are now imported.</li>
 </ul></div>
 </div>

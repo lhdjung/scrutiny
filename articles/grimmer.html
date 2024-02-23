@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,10 +53,10 @@
     <a class="dropdown-item" href="../articles/rounding-options.html">Rounding options</a>
     <a class="dropdown-item" href="../articles/consistency-tests-simple.html">Implementing your consistency test</a>
     <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>Infrastructure</h6>
+    <h6 class="dropdown-header" data-toc-skip>Developer tools</h6>
     <a class="dropdown-item" href="../articles/rounding-in-depth.html">Rounding in depth</a>
     <a class="dropdown-item" href="../articles/consistency-tests-in-depth.html">Consistency tests in depth</a>
-    <a class="dropdown-item" href="../articles/infrastructure.html">General infrastructure</a>
+    <a class="dropdown-item" href="../articles/devtools.html">Developer tools</a>
     <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Other</h6>
@@ -299,55 +299,6 @@ data frame instead:</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 2.61  2.43     60 FALSE       GRIM inconsistent</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 4.04  1.92     90 TRUE        Passed all       </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 4.50  2.51     90 TRUE        Passed all</span></span></code></pre></div>
-</div>
-<div class="section level4">
-<h4 id="rounding">Rounding<a class="anchor" aria-label="anchor" href="#rounding"></a>
-</h4>
-<p>The scrutiny package provides infrastructure for reconstructing
-rounded numbers. All of that can be commanded from within
-<code><a href="../reference/grimmer.html">grimmer()</a></code> and <code><a href="../reference/grimmer_map.html">grimmer_map()</a></code>. Several
-parameters allow for stating the precise way in which the original
-numbers have supposedly been rounded.</p>
-<p>First and foremost is <code>rounding</code>. It takes a string with
-the rounding procedure’s name, which leads to the number being rounded
-in either of these ways:</p>
-<ol style="list-style-type: decimal">
-<li>Rounded <code>"up"</code> or <code>"down"</code> from 5. Note that
-SAS, SPSS, Stata, Matlab, and Excel round <code>"up"</code> from 5,
-whereas Python used to round <code>"down"</code> from 5.</li>
-<li>Rounded to <code>"even"</code> using base R’s own
-<code><a href="https://rdrr.io/r/base/Round.html" class="external-link">round()</a></code>.</li>
-<li>Rounded <code>"up_from"</code> or <code>"down_from"</code> some
-number, which then needs to be specified via the <code>threshold</code>
-parameter.</li>
-<li>Given a <code>"ceiling"</code> or <code>"floor"</code> at the
-respective decimal place.</li>
-<li>Rounded towards zero with <code>"trunc"</code> or away from zero
-with <code>"anti_trunc"</code>.</li>
-</ol>
-<p>The default, <code>"up_or_down"</code>, allows for numbers rounded
-either <code>"up"</code> or <code>"down"</code> from 5 when
-GRIMMER-testing; and likewise for <code>"up_from_or_down_from"</code>
-and <code>"ceiling_or_floor"</code>. For more about these procedures,
-see documentation for <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">round()</a></code>, <code><a href="../reference/rounding-common.html">round_up()</a></code>, and
-<code><a href="../reference/rounding-uncommon.html">round_ceiling()</a></code>. These include all of the above ways of
-rounding.</p>
-<p>Points 3 to 5 above list some quite obscure options that were only
-included to cover a wide spectrum of possible rounding procedures. The
-same is true for the <code>threshold</code> and <code>symmetric</code>
-parameters, so these aren’t discussed here any further. Learn more about
-scrutiny’s infrastructure for rounding at
-<code>vignette("rounding")</code>.</p>
-<p>By default, <code><a href="../reference/grimmer.html">grimmer()</a></code> and <code><a href="../reference/grimmer_map.html">grimmer_map()</a></code>
-accept values rounded either up or down from 5. If you have reason to
-impose stricter assumptions on the way <code>x</code> and
-<code>sd</code> were rounded, specify <code>rounding</code>
-accordingly.</p>
-<p>It might still be important to account for the different ways in
-which numbers can be rounded, if only to demonstrate that some given
-results are robust to those variable decisions. To err on the side of
-caution, the default for <code>rounding</code> is the permissive
-<code>"up_or_down"</code>.</p>
 </div>
 </div>
 <div class="section level3">

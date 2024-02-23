@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,10 +53,10 @@
     <a class="dropdown-item" href="../articles/rounding-options.html">Rounding options</a>
     <a class="dropdown-item" href="../articles/consistency-tests-simple.html">Implementing your consistency test</a>
     <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>Infrastructure</h6>
+    <h6 class="dropdown-header" data-toc-skip>Developer tools</h6>
     <a class="dropdown-item" href="../articles/rounding-in-depth.html">Rounding in depth</a>
     <a class="dropdown-item" href="../articles/consistency-tests-in-depth.html">Consistency tests in depth</a>
-    <a class="dropdown-item" href="../articles/infrastructure.html">General infrastructure</a>
+    <a class="dropdown-item" href="../articles/devtools.html">Developer tools</a>
     <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Other</h6>
@@ -180,10 +180,10 @@ reconstructs rounded numbers. An argument that determines how the
 function will round numbers should be called <code>rounding</code>. The
 function should then internally call <code><a href="../reference/reround.html">reround()</a></code>. The same
 goes for “unrounding” (i.e., reconstructing rounding bounds) and
-<code><a href="../reference/unround.html">unround()</a></code>. See also <code>vignette("rounding")</code>. A
-single-case function that performs rounding will also need a helper to
-count decimal places, which should be
-<code><a href="../reference/decimal_places.html">decimal_places_scalar()</a></code>.</p>
+<code><a href="../reference/unround.html">unround()</a></code>. See also
+<code><a href="../articles/rounding-in-depth.html">vignette("rounding-in-depth")</a></code>. A single-case function that
+performs rounding will also need a helper to count decimal places, which
+should be <code><a href="../reference/decimal_places.html">decimal_places_scalar()</a></code>.</p>
 <p>The function’s name is that of the test in lowercase, followed by
 <code>_scalar</code> which refers to the one-case limit. If your
 function happens to be applicable to multiple value sets already due to

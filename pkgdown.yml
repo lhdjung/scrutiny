@@ -5,15 +5,15 @@ articles:
   consistency-tests-in-depth: consistency-tests-in-depth.html
   consistency-tests-simple: consistency-tests-simple.html
   debit: debit.html
+  devtools: devtools.html
   duplicates: duplicates.html
   grim: grim.html
   grimmer: grimmer.html
-  infrastructure: infrastructure.html
   related: related.html
   rounding-in-depth: rounding-in-depth.html
   rounding-options: rounding-options.html
   wrangling: wrangling.html
-last_built: 2024-02-23T22:34Z
+last_built: 2024-02-23T23:38Z
 urls:
   reference: https://lhdjung.github.io/scrutiny/reference
   article: https://lhdjung.github.io/scrutiny/articles
