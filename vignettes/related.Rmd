@@ -32,6 +32,8 @@ Please contact me if you know about relevant software that isn't listed here (em
 
     -   [jfa](https://koenderks.github.io/jfa/index.html) by Koen Derks offers a full statistical auditing suite (including Benford analysis).
 
+-   The Rust crate [SeaCanal](https://github.com/saghm/sea-canal#how-does-seacanal-work) analyzes numeric sequences, uncovering patterns of operations that might have generated them.
+
 -   Emerging from the Pruitt investigations, there is now R software for analyzing sequences:
 
     -   The package [twopointzerothree](https://github.com/Sorbus-torminalis/twopointzerothree/) (by an anonymous developer) checks data for sequences of perfectly correlated numbers. These numbers are either duplicates of each other or they are duplicates offset by some constant amount; hence the name.
