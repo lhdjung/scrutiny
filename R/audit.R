@@ -150,9 +150,6 @@ audit_seq <- function(data) {
     vapply(nrow, integer(1L), USE.NAMES = FALSE) %>%
     unname()
 
-  hits_positions <- df_list %>%
-    purrr::map(function(x) which(x$consistency))
-
   if (is.null(dim(data))) {
     fun <- class(data)[stringr::str_detect(class(data), "_map_seq$")]
     fun <- fun[fun != "scr_map_seq"]
