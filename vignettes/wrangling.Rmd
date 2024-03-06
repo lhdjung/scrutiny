@@ -158,18 +158,18 @@ flights2 %>%
   debit_map()
 ```
 
-If your strings look like `"2.65 [0.27]"`, specify the `.sep` argument as `"brackets"`. Likewise for `"2.65 {0.27}"` and `.sep = "braces"`. What about other separators, as in `"2.65 <0.27>"`? Specify `.sep` as those two substrings, like `.sep = c("<", ">")`. In all of these cases, the output will be the same as the default would be if the strings were like `"2.65 (0.27)"`.
+If your strings look like `"2.65 [0.27]"`, specify the `sep` argument as `"brackets"`. Likewise for `"2.65 {0.27}"` and `sep = "braces"`. What about other separators, as in `"2.65 <0.27>"`? Specify `sep` as those two substrings, like `sep = c("<", ">")`. In all of these cases, the output will be the same as the default would be if the strings were like `"2.65 (0.27)"`.
 
 ### Column name suffixes
 
-The defaults for column name suffixes are (1) `"x"` for the part before the parentheses and (2) `"sd"` for the part inside of them. However, this won't fit for all data presented like `5.22 (0.73)`. Override the defaults by specifying `.col1` and/or `.col2`:
+The defaults for column name suffixes are (1) `"x"` for the part before the parentheses and (2) `"sd"` for the part inside of them. However, this won't fit for all data presented like `5.22 (0.73)`. Override the defaults by specifying `col1` and/or `col2`:
 
 ```{r}
 flights2 %>% 
   split_by_parens(end1 = "beta", end2 = "se")
 ```
 
-These suffixes become column names if `.transform` is set to `TRUE`:
+These suffixes become column names if `transform` is set to `TRUE`:
 
 ```{r}
 flights2 %>% 
