@@ -8,7 +8,8 @@
 # techniques; for example, functions like `reround()` and
 # `decimal_places_scalar()`. Second, changing the return value to logical, which
 # is the expected output from the basic implementation of any consistency test
-# within scrutiny. Third, adjusting variable names to the tidyverse style guide.
+# within scrutiny. Third, adjusting variable names to the tidyverse style guide
+# and scrutiny's domain-specific conventions.
 
 
 # Translation of variable names -------------------------------------------
@@ -21,6 +22,8 @@
 # SD                 --> sd
 # decimals_mean      --> digits_x  (argument removed; counting internally)
 # decimals_SD        --> digits_sd (argument removed; counting internally)
+# realmean           --> x_real
+# realsum            --> sum_real
 # Lsigma             --> sd_lower
 # Usigma             --> sd_upper
 # Lowerbound         --> sum_squares_lower
@@ -28,6 +31,7 @@
 # Possible_Integers  --> integers_possible
 # Predicted_Variance --> var_predicted
 # Predicted_SD       --> sd_predicted
+# Matches_Oddness    --> matches_parity
 # FirstTest          --> pass_test1
 # Matches_SD         --> matches_sd (to which a `pass_test2` object was added)
 # Third_Test         --> pass_test3
@@ -70,24 +74,23 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
   x  <- as.numeric(x)
   sd <- as.numeric(sd)
 
-  n_orig <- n
-  n <- n * items
+  n_items <- n * items
 
-  sum <- x*n
-  realsum <- round(sum)
-  real_x <- realsum/n
+  sum <- x * n_items
+  sum_real <- round(sum)
+  x_real <- sum_real / n_items
 
 
   # GRIM test. It says `x_orig` because the `x` object has been coerced from
-  # character to numeric, but the original string is needed here. Likewise, it
-  # says `n_orig` because the `n` object has been multiplied by `items`, so if
-  # `items` is not zero, taking `n` here would lead to wrong results:
-  grim_consistency <- grim_scalar(
-    x = x_orig, n = n_orig, items = items, rounding = rounding,
+  # character to numeric, but `grim_scalar()` needs the original number-string.
+  # Similarly, since this function also gets `items` passed down, it needs the
+  # original `n`, not `n_items`.
+  pass_grim <- grim_scalar(
+    x = x_orig, n = n, items = items, rounding = rounding,
     threshold = threshold, symmetric = symmetric, tolerance = tolerance
   )
 
-  if (!grim_consistency) {
+  if (!pass_grim) {
     if (show_reason) {
       return(list(FALSE, "GRIM inconsistent"))
     }
@@ -107,10 +110,10 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
   sd_upper <- sd + p10_frac
 
   # Sum of squares bounds, lower and upper:
-  sum_squares_lower <- (n - 1) * sd_lower ^ 2 + n * real_x ^ 2
-  sum_squares_upper <- (n - 1) * sd_upper ^ 2 + n * real_x ^ 2
+  sum_squares_lower <- (n - 1) * sd_lower ^ 2 + n * x_real ^ 2
+  sum_squares_upper <- (n - 1) * sd_upper ^ 2 + n * x_real ^ 2
 
-  pass_test1 <- !ceiling(sum_squares_lower) > floor(sum_squares_upper)
+  pass_test1 <- ceiling(sum_squares_lower) <= floor(sum_squares_upper)
 
   if (!pass_test1) {
     if (show_reason) {
@@ -124,7 +127,7 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
   integers_possible <- ceiling(sum_squares_lower):floor(sum_squares_upper)
 
   # Create the predicted variance and SD:
-  var_predicted <- (integers_possible - n * real_x ^ 2) / (n - 1)
+  var_predicted <- (integers_possible - n * x_real ^ 2) / (n - 1)
   sd_predicted <- sqrt(var_predicted)
 
   # Reconstruct the SD:
@@ -152,10 +155,10 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
 
   # Determine if any integer between the lower and upper bounds has the correct
   # parity (the property of being even or odd):
-  parity_realsum <- realsum %% 2
+  parity_sum_real <- sum_real %% 2
   parity_integers_possible <- integers_possible %% 2
 
-  matches_parity <- parity_realsum == parity_integers_possible
+  matches_parity <- parity_sum_real == parity_integers_possible
 
   pass_test3 <- any(matches_sd & matches_parity)
 
@@ -167,9 +170,10 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
   }
 
   if (show_reason) {
-    return(list(TRUE, "Passed all"))
+    list(TRUE, "Passed all")
+  } else {
+    TRUE
   }
-  return(TRUE)
 }
 
 
