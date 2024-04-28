@@ -1248,9 +1248,10 @@ wrap_in_quotes <- function(x) {
 #' @noRd
 wrap_in_quotes_if_string <- function(x) {
   if (is.character(x)) {
-    x <- paste0("\"", x, "\"")
+    paste0("\"", x, "\"")
+  } else {
+    x
   }
-  x
 }
 
 
@@ -1268,11 +1269,10 @@ wrap_in_quotes_if_string <- function(x) {
 #' @noRd
 wrap_in_quotes_or_backticks <- function(x) {
   if (is.character(x)) {
-    x <- paste0("\"", x, "\"")
+    paste0("\"", x, "\"")
   } else {
-    x <- paste0("`", x, "`")
+    paste0("`", x, "`")
   }
-  x
 }
 
 
