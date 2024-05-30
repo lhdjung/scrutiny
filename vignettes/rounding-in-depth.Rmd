@@ -142,7 +142,7 @@ up2 <- round_up(vec2)
 down2 <- round_down(vec2)
 even2 <- round(vec2)
 
-vec1
+vec2
 up2
 down2
 
