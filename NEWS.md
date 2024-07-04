@@ -2,6 +2,7 @@
 
 ## Minor changes
 
+-   The package is now licensed under the MIT license.
 -   In `grim_items()`, the `tolerance` argument was deprecated. It no longer has any effect and will be removed in a future version.
 
 # scrutiny 0.4.0

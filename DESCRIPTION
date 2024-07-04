@@ -17,7 +17,7 @@ Description: Test published summary statistics for consistency
     Heathers and Brown, 2019, <https://osf.io/5vb3u/>).
     The package also provides infrastructure for implementing new
     error detection techniques.
-License: GPL (>= 3)
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
