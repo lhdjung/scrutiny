@@ -152,30 +152,20 @@ an_a_type <- function(x) {
 
 #' Check whether numbers are whole
 #'
-#' @description For each element of a numeric vector `x`, `is_whole_number()`
-#'   checks whether that element is a whole number.
+#' @description For each element of a numeric vector, `is_whole_number()` checks
+#'   whether that element is a whole number.
 #'
 #'   This is not the same as the integer data type, so doubles and integers are
 #'   tested the same way. See the note in `?integer`. To test if R itself
 #'   considers a vector integer-like, use `rlang::is_integerish()` instead.
 #'
 #' @param x Numeric.
-#' @param tolerance Numeric. Any difference between `x` and a truncated version
-#'   of `x` less than `tolerance` (in the absolute value) will be ignored. The
-#'   default is close to `1 / (10 ^ 8)`. This avoids errors due to spurious
-#'   precision in floating-point arithmetic.
 #'
 #' @return Logical vector of the same length as `x`.
 #'
-#' @details This function was adapted (with naming modifications) from the
-#'   examples of `?integer`, where a very similar function is called
-#'   `is.wholenumber()`.
-#'
-#' @author R Core Team, Lukas Jung
-#'
 #' @noRd
-is_whole_number <- function(x, tolerance = .Machine$double.eps^0.5) {
-  abs(x - round(x)) < tolerance
+is_whole_number <- function(x) {
+  x == floor(x)
 }
 
 
