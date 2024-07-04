@@ -7,7 +7,7 @@
 \usage{
 grim_granularity(n, items = 1)
 
-grim_items(n, gran, tolerance = .Machine$double.eps^0.5)
+grim_items(n, gran, tolerance = deprecated())
 }
 \arguments{
 \item{n}{Numeric. Sample size.}
@@ -17,9 +17,8 @@ which will hold for most non-Likert scales.}
 
 \item{gran}{Numeric. Granularity.}
 
-\item{tolerance}{Numeric. In \code{grim_items()}, \code{tolerance} is the maximal
-amount by which results may differ from being whole numbers. If they exceed
-that amount, a warning will be shown.}
+\item{tolerance}{[\link{Deprecated}] This is no longer needed, and no longer has
+any effect. It will be removed in a future version.}
 }
 \value{
 Numeric. Granularity or number of items.
@@ -38,9 +37,7 @@ the underlying formula is the same (and it's very simple). However, for
 clarity, they are presented as distinct.
 
 The output of \code{grim_items()} should be whole numbers, because scale items
-have a granularity of 1. If they differ from the next whole number by more
-than a numeric \code{tolerance} (which is determined by the argument by that
-name), a warning will be shown.
+have a granularity of 1.
 
 It would be wrong to determine a scale's granularity from the minimal
 distance between two values in a given distribution. This would only

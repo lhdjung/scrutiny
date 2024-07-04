@@ -1,3 +1,9 @@
+# scrutiny 0.4.1
+
+## Minor changes
+
+-   In `grim_items()`, the `tolerance` argument was deprecated. It no longer has any effect and will be removed in a future version.
+
 # scrutiny 0.4.0
 
 This version brings major performance improvements. Furthermore:

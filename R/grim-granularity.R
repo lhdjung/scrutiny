@@ -14,9 +14,7 @@
 #'   clarity, they are presented as distinct.
 #'
 #'   The output of `grim_items()` should be whole numbers, because scale items
-#'   have a granularity of 1. If they differ from the next whole number by more
-#'   than a numeric `tolerance` (which is determined by the argument by that
-#'   name), a warning will be shown.
+#'   have a granularity of 1.
 #'
 #'   It would be wrong to determine a scale's granularity from the minimal
 #'   distance between two values in a given distribution. This would only
@@ -28,9 +26,8 @@
 #' @param items Numeric. Number of items composing the scale. Default is 1,
 #'   which will hold for most non-Likert scales.
 #' @param gran Numeric. Granularity.
-#' @param tolerance Numeric. In `grim_items()`, `tolerance` is the maximal
-#'   amount by which results may differ from being whole numbers. If they exceed
-#'   that amount, a warning will be shown.
+#' @param tolerance [[Deprecated]] This is no longer needed, and no longer has
+#'   any effect. It will be removed in a future version.
 #'
 #' @include utils.R
 #'
@@ -61,16 +58,25 @@
 
 
 grim_granularity <- function(n, items = 1) {
-  return(1 / (n * items))
+  1 / (n * items)
 }
 
 
 #' @rdname grim_granularity
 #' @export
 
-grim_items <- function(n, gran, tolerance = .Machine$double.eps^0.5) {
+grim_items <- function(n, gran, tolerance = deprecated()) {
+
+  if (lifecycle::is_present(tolerance)) {
+    lifecycle::deprecate_warn(
+      when = "0.4.1",
+      what = "grim_items(tolerance)",
+      details = "It is no longer needed, and no longer has any effect."
+    )
+  }
+
   out <- 1 / (n * gran)
-  out_is_whole <- is_whole_number(out, tolerance = tolerance)
+  out_is_whole <- is_whole_number(out)
 
   if (all(out_is_whole)) {
     return(out)
