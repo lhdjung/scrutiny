@@ -164,8 +164,8 @@ an_a_type <- function(x) {
 #' @return Logical vector of the same length as `x`.
 #'
 #' @noRd
-is_whole_number <- function(x) {
-  x == floor(x)
+is_whole_number <- function(x, tolerance = .Machine$double.eps^0.5) {
+  dplyr::near(x, floor(x), tol = tolerance)
 }
 
 

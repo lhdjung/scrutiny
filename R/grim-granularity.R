@@ -26,8 +26,10 @@
 #' @param items Numeric. Number of items composing the scale. Default is 1,
 #'   which will hold for most non-Likert scales.
 #' @param gran Numeric. Granularity.
-#' @param tolerance [[Deprecated]] This is no longer needed, and no longer has
-#'   any effect. It will be removed in a future version.
+#' @param tolerance Numeric. Any difference between `x` and a truncated version
+#'   of `x` less than `tolerance` (in the absolute value) will be ignored. The
+#'   default is close to `1 / (10 ^ 8)`. This avoids errors due to spurious
+#'   precision in floating-point arithmetic.
 #'
 #' @include utils.R
 #'
@@ -65,18 +67,10 @@ grim_granularity <- function(n, items = 1) {
 #' @rdname grim_granularity
 #' @export
 
-grim_items <- function(n, gran, tolerance = deprecated()) {
-
-  if (lifecycle::is_present(tolerance)) {
-    lifecycle::deprecate_warn(
-      when = "0.4.1",
-      what = "grim_items(tolerance)",
-      details = "It is no longer needed, and no longer has any effect."
-    )
-  }
+grim_items <- function(n, gran, tolerance = .Machine$double.eps^0.5) {
 
   out <- 1 / (n * gran)
-  out_is_whole <- is_whole_number(out)
+  out_is_whole <- is_whole_number(out, tolerance)
 
   if (all(out_is_whole)) {
     return(out)

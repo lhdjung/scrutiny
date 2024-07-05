@@ -7,7 +7,7 @@
 \usage{
 grim_granularity(n, items = 1)
 
-grim_items(n, gran, tolerance = deprecated())
+grim_items(n, gran, tolerance = .Machine$double.eps^0.5)
 }
 \arguments{
 \item{n}{Numeric. Sample size.}
@@ -17,8 +17,10 @@ which will hold for most non-Likert scales.}
 
 \item{gran}{Numeric. Granularity.}
 
-\item{tolerance}{[\link{Deprecated}] This is no longer needed, and no longer has
-any effect. It will be removed in a future version.}
+\item{tolerance}{Numeric. Any difference between \code{x} and a truncated version
+of \code{x} less than \code{tolerance} (in the absolute value) will be ignored. The
+default is close to \code{1 / (10 ^ 8)}. This avoids errors due to spurious
+precision in floating-point arithmetic.}
 }
 \value{
 Numeric. Granularity or number of items.
