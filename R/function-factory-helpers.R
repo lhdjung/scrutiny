@@ -293,51 +293,6 @@ absorb_key_args <- function(data, reported, key_cols_call) {
 
 
 
-#' Absorb other arguments (not used)
-#'
-#' `absorb_other_args()` is intended to work like `absorb_key_args()`, but for
-#' any other arguments, and it must be reassigned to `fun`, not to `data`.
-#'
-#' The function is not currently used because I'm now very skeptical of its
-#' utility and even its reliability. It relies on a style of function
-#' manipulation that might just be too intricate to use in practice.
-#'
-#' I originally aimed for `absorb_other_args()` to replace the dots on one level
-#' of function calls, thereby enabling their use on another level, but this
-#' solution turned out to have been somewhat overengineered.
-#'
-#' @param fun Function to be applied.
-#' @param reported String. Names of the key arguments.
-#'
-#' @return Function `fun` with modified arguments.
-#'
-#' @noRd
-absorb_other_args <- function(fun, reported) {
-
-  args_excluded <- c("data", "...", reported)
-
-  arg_list <- formals(fun)
-  arg_list <- arg_list[!(names(arg_list)) %in% args_excluded]
-
-  # Capture any arguments specified by the user of the factory-made function:
-  call_args <- as.list(rlang::caller_call())
-  call_args <- call_args[names(call_args) != ""]
-
-  # Prioritize mapper function defaults before scalar defaults...
-  args_default <- formals(fun)[names(formals(fun)) %in% names(arg_list)]
-  args_default <- names(args_default)
-
-  formals(fun)[args_default] <- arg_list[args_default]
-
-  # ... and user-specified arguments before mapper defaults:
-  formals(fun)[names(formals(fun)) %in% names(call_args)] <-
-    call_args[names(call_args) %in% names(formals(fun))]
-
-  return(fun)
-}
-
-
-
 #' Check that disabled arguments are not specified
 #'
 #' If the user of the function factory specified its `.args_disabled` argument,

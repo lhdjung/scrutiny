@@ -187,39 +187,6 @@ parcel_nth_elements <- function(x, n, from = 1L) {
 
 
 
-#' Drop rows with equivalent values, regardless of their order
-#'
-#' This function differs from `dplyr::distinct()` mainly insofar as it doesn't
-#' take the order of values within a row into account. Thus, it only checks
-#' which values are present in a row how many times; hence "equivalent" (see
-#' example below the function).
-#'
-#' @param data Data frame.
-#'
-#' @return Data frame. Each row is now unique.
-#'
-#' @examples
-#' df <- tibble::tribble(
-#'   ~a, ~b, ~c,
-#'   1, 2, 2,
-#'   2, 1, 2,
-#'   1, 2, 3
-#' )
-#'
-#' No two rows are identical here, so `dplyr::distinct()` preserves all of them.
-#' However, `remove_equivalent_rows()` cuts the second row. That is because the
-#' first two rows contain all the same values. They only differ in terms of the
-#' order of values, which the function ignores.
-#' remove_equivalent_rows(df)
-#'
-#' @noRd
-remove_equivalent_rows <- function(data) {
-  data_array <- apply(data, 1L, sort)
-  data[!duplicated(data_array, MARGIN = 2L), ]
-}
-
-
-
 #' Switch back and front columns
 #'
 #' @param data Data frame
@@ -632,28 +599,15 @@ split_into_rows <- function(data) {
 
 
 
-#' Step size (stride) of a single decimal number
-#'
-#' Computes the smallest possible difference between two numbers on the lowest
-#' decimal level of `x`.
-#'
-#' @param x Numeric (or string coercible to numeric).
-#'
-#' @return Numeric.
-#'
-#' @noRd
-step_size_scalar <- function(x) {
-  digits <- decimal_places_scalar(x)
-  1 / (10 ^ digits)
-}
-
-
-
 #' Lowest step size (stride) of decimal numbers
 #'
-#' Like `step_size_scalar()` above, but `x` can have any length. The function
-#' will compute the step size of the one element of `x` with the most decimal
-#' numbers.
+#' Computes the smallest possible difference between two numbers on the lowest
+#' decimal level of `x`. This goes by the one element of `x` with the most
+#' decimal numbers.
+#'
+#' For example, if `x` is `c(7, 3.5, 8.27)`, the greatest number of decimal
+#' places is 2, and the smallest possible difference on the level of two decimal
+#' places is `0.01`, so this value is returned.
 #'
 #' @param x Numeric (or string coercible to numeric).
 #'
@@ -1149,49 +1103,8 @@ transform_split_parens <- function(data, end1, end2) {
 #'
 #' @noRd
 select_tested_cols <- function(data, before = "consistency") {
-  index_last_key_col <- match(before, colnames(data)) - 1L
-  data[1L:index_last_key_col]
-}
-
-
-
-#' Extract rounding class from an object
-#'
-#' @description In scrutiny, information about the rounding method used to
-#'   compute some or all values in a tibble is conveyed via a class which starts
-#'   on `"scr_rounding_"` and which is inherited by that tibble.
-#'
-#'   This function extracts any such rounding classes from `x`. If it returns
-#'   multiple classes, something went wrong with `x` earlier on.
-#'
-#' @param x Any object, but typically a tibble.
-#'
-#' @return String. Should be length 1, or else there is a problem.
-#'
-#' @noRd
-get_rounding_class <- function(x) {
-  x_cl <- class(x)
-  x_cl[stringr::str_detect(x_cl, "^scr_rounding_")]
-}
-
-
-
-#' Extract bare rounding string
-#'
-#' Wrapper around `get_rounding_class()` that removes the `"scr_rounding_"`
-#' prefix from its output. This might be useful for re-processing the original
-#' `rounding` argument's value in `reround()` or in a function that calls
-#' `reround()` internally. Not currently used.
-#'
-#' @param x Any object, but typically a tibble.
-#'
-#' @return String. Should be length 1, or else there is a problem. See
-#'   `get_rounding_class()`.
-#'
-#' @noRd
-get_rounding_class_arg <- function(x) {
-  out <- get_rounding_class(x)
-  stringr::str_remove(out, "^scr_rounding_")
+  index_last_tested_col <- match(before, colnames(data)) - 1L
+  data[1L:index_last_tested_col]
 }
 
 
@@ -1222,26 +1135,6 @@ wrap_in_backticks <- function(x) {
 #' @noRd
 wrap_in_quotes <- function(x) {
   paste0("\"", x, "\"")
-}
-
-
-
-#' Wrap into quotation marks if string
-#'
-#' For error messages and similar. `x` is returned unchanged unless it's a
-#' string, in which case it's treated as in `wrap_in_quotes()`.
-#'
-#' @param x Any object.
-#'
-#' @return String of length `length(x)`.
-#'
-#' @noRd
-wrap_in_quotes_if_string <- function(x) {
-  if (is.character(x)) {
-    paste0("\"", x, "\"")
-  } else {
-    x
-  }
 }
 
 
@@ -1288,22 +1181,6 @@ about_equal <- function(x, y) {
   } else {
     identical(x, y)
   }
-}
-
-
-
-#' Drop all columns with specific string in name
-#'
-#' All column with names that include `drop_with` are removed.
-#'
-#' @param data Data frame.
-#' @param drop_with String (length 1).
-#'
-#' @return Data frame.
-#'
-#' @noRd
-drop_cols_with <- function(data, drop_with) {
-  data[!stringr::str_detect(names(data), drop_with)]
 }
 
 
