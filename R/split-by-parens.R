@@ -36,7 +36,7 @@
 #'  - [`before_parens()`] and [`inside_parens()`] take a string vector and
 #' extract values from the respective position.
 #'  - [`dplyr::across()`] powers the application of the two above functions
-#' within split_by_parens()`, including the creation of new columns.
+#' within `split_by_parens()`, including the creation of new columns.
 #'  - [`tidyr::separate_wider_delim()`] is a more general function, but it does
 #'  not recognize closing elements such as closed parentheses.
 

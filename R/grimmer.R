@@ -24,6 +24,7 @@
 # decimals_SD        --> digits_sd (argument removed; counting internally)
 # realmean           --> x_real
 # realsum            --> sum_real
+# effective_n        --> n_items
 # Lsigma             --> sd_lower
 # Usigma             --> sd_upper
 # Lowerbound         --> sum_squares_lower
@@ -60,13 +61,13 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
   check_type(x,  "character")
   check_type(sd, "character")
 
-  # A provisional solution:
-  if (items != 1) {
-    cli::cli_warn(c(
-      "The `items` argument in GRIMMER functions doesn't currently \
-      work the way it should."
-    ))
-  }
+  # # A provisional solution:
+  # if (items != 1) {
+  #   cli::cli_warn(c(
+  #     "The `items` argument in GRIMMER functions doesn't currently \
+  #     work the way it should."
+  #   ))
+  # }
 
   digits_sd <- decimal_places_scalar(sd)
 
@@ -110,8 +111,8 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
   sd_upper <- sd + p10_frac
 
   # Sum of squares bounds, lower and upper:
-  sum_squares_lower <- (n - 1) * sd_lower ^ 2 + n * x_real ^ 2
-  sum_squares_upper <- (n - 1) * sd_upper ^ 2 + n * x_real ^ 2
+  sum_squares_lower <- ((n - 1) * sd_lower ^ 2 + n * x_real) * items ^ 2
+  sum_squares_upper <- ((n - 1) * sd_upper ^ 2 + n * x_real) * items ^ 2
 
   pass_test1 <- ceiling(sum_squares_lower) <= floor(sum_squares_upper)
 
@@ -127,7 +128,8 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
   integers_possible <- ceiling(sum_squares_lower):floor(sum_squares_upper)
 
   # Create the predicted variance and SD:
-  var_predicted <- (integers_possible - n * x_real ^ 2) / (n - 1)
+  var_predicted <- (integers_possible / items ^ 2 - n * x_real ^ 2) / (n - 1)
+  return(var_predicted)
   sd_predicted <- sqrt(var_predicted)
 
   # Reconstruct the SD:

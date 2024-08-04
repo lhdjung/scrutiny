@@ -24,14 +24,12 @@ index_seq <- function(x) {
 }
 
 
-
-is_linear <- function(x, tolerance) {
-  x_seq <- index_seq(x)
-  x_seq <- dplyr::near(x_seq, min(x_seq), tol = tolerance)
-  all(x_seq)
+is_seq_linear_basic <- function(x) {
+  if (length(x) < 3L) {
+    return(TRUE)
+  }
+  norm_diff <- x[2L] - x[1L]
 }
-
-
 
 is_seq_ascending_basic <- function(x) {
   for (i in 1L:(length(x) - 1L)) {
@@ -53,6 +51,14 @@ is_seq_descending_basic <- function(x) {
 }
 
 
+# # Test with:
+# x <- c(2, 3, 5, 7, NA)
+# tolerance <- .Machine$double.eps^0.5
+# test_linear <- FALSE
+# test_special <- "dispersed"
+# min_length <- 3L
+# args_other <- list(from = 5)
+
 
 # Non-exported workhorse API of all the sequence predicates:
 is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
@@ -69,13 +75,6 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
     if (is_even(length(x))) {
       return(FALSE)
     }
-    # Save the unmodified `x` for a test that is conducted if `x` contains one
-    # or more `NA` elements:
-    x_orig <- x
-  }
-
-  if (all(is.na(x))) {
-    return(NA)
   }
 
   if (!is_numeric_like(x)) {
@@ -90,29 +89,57 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
     return(TRUE)
   }
 
-  x_has_na <- any(is.na(x))
+  x_has_na <- anyNA(x)
 
   if (x_has_na) {
 
-    # These two `while`-loops remove all `NA` values from the start and the end
-    # of `x` because `NA`s at these particular locations have no bearing on
-    # whether or not `x` might represent a linear sequence:
-    while (is.na(x[1L])) {
-      x <- x[-1L]
+    # Save the unmodified `x` for a test that is conducted if `x` contains one
+    # or more `NA` elements:
+    x_orig <- x
+    n_x_orig <- length(x)
+
+    not_na <- which(!is.na(x))
+
+    # Need at least three known values:
+    if (length(not_na) < 3L) {
+      return(NA)
     }
-    while (is.na(x[length(x)])) {
-      x <- x[-length(x)]
-    }
+
+    # Indices of `NA`s at the start and end of `x`:
+    na_start <- seq_len(not_na[1L] - 1L)
+    na_end   <- (not_na[length(not_na)] + 1L):n_x_orig
+
+    # Remove all `NA` values from the start and the end of `x` because `NA`s at
+    # these particular locations cannot disprove that `x` is the kind of
+    # sequence of interest. (They do mean that it cannot be proven, so the
+    # function will return either `NA` or `FALSE`, depending on other factors.)
+    x <- x[not_na[1L]:not_na[length(not_na)]]
 
     # If the removal of leading and / or trailing `NA` elements in `x` caused
     # the central value to shift, or if only one side from among left and right
     # had any `NA` values, the original `x` was not symmetrically grouped around
     # that value, and hence not a dispersed sequence:
     if (!is.null(test_special) && test_special == "dispersed") {
-      diff_central_index <-
-        !dplyr::near(args_other$from, x[index_central(x)], tolerance)
-      one_sided_na <- (!is.na(x_orig[1L])) || (!is.na(x_orig[length(x_orig)]))
-      if (is_even(length(x)) || diff_central_index || one_sided_na) {
+      # if (
+      #   is_even(length(x)) ||
+      #   !dplyr::near(args_other$from, x[index_central(x)], tolerance) ||
+      #   (!is.na(x_orig[1L]) || !is.na(x_orig[length(x_orig)]))
+      # )
+      # diff_central_index <-
+      #   !dplyr::near(args_other$from, x[index_central(x)], tolerance)
+      # if (diff_central_index) {
+      #   print("Yep, `diff_central_index`")
+      #   print(paste("`args_other$from`: ", args_other$from))
+      #   print(paste("`x[index_central(x)]`: ", x[index_central(x)]))
+      # }
+      # one_sided_na <- is.na(x_orig[1L]) != is.na(x_orig[length(x_orig)])
+
+      # TODO: FIGURE OUT HOW TO CAPTURE CENTRAL INDEX SHIFT WITHOUT TREATING
+      # `NA` LIKE A KNOWN VALUE. FOR EXAMPLE, THIS SHOULD RETURN `NA`, NOT
+      # `FALSE`:
+      # is_seq_dispersed(x = c(2, 3, 5, 7, NA), from = 5, test_linear = FALSE)
+      if (is_even(n_x_orig)) {  #  diff_central_index || one_sided_na
+        print("It happened here")
         return(FALSE)
       }
     }
@@ -156,7 +183,8 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
           # elements, which invariably means that the numbers surrounding the
           # `NA`s are too far spaced out for there to be a linear sequence. In
           # either case...
-          seq_replacement_has_wrong_length <- length(seq_replacement) == 0L ||
+          seq_replacement_has_wrong_length <-
+            length(seq_replacement) == 0L ||
             length(seq_replacement) > length(index_lower:index_upper)
 
           # ...an error is thrown:
@@ -181,13 +209,10 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
   # in the for loop above -- for linearity:
   if (test_linear) {
     x_seq <- index_seq(x)
-    x_seq <- dplyr::near(x_seq, min(x_seq), tol = tolerance)
-    pass_test <- all(x_seq)
-    if (!pass_test) {
+    pass_test_linear <- all(dplyr::near(x_seq, min(x_seq), tol = tolerance))
+    if (!pass_test_linear) {
       return(FALSE)
     }
-  } else {
-    pass_test <- TRUE
   }
 
   # Interface for the special variant functions:
@@ -197,12 +222,13 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
       "ascending"  = is_seq_ascending_basic(x),
       "descending" = is_seq_descending_basic(x),
       "dispersed"  = is_seq_dispersed_basic(x, args_other$from, tolerance)
+      # TODO: MAKE THIS "DISPERSED" TEST ABLE TO ASSUME THAT `NA`S IN `x_orig`
+      # ARE ACTUALLY DISPERSED VALUES! MAYBE USE `index_central()`'S INTERNAL
+      # LOGIC AND BUILD UP ON IT.
     )
-    pass_test <- pass_test && pass_test_special
-  }
-
-  if (!pass_test) {
-    return(FALSE)
+    if (!pass_test_special) {
+      return(FALSE)
+    }
   }
 
   if (x_has_na) {

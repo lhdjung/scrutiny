@@ -1,14 +1,18 @@
 
 # Helper functions used in the grimmer-replace-names.R file. As part of the
-# special-scripts/ directory, they are NOT part of the built scrutiny package
-# (see https://r-pkgs.org/structure.html#sec-rbuildignore).
+# special-scripts/ directory listed in .Rbuildignore, they are NOT part of the
+# built package. See: https://r-pkgs.org/structure.html#sec-rbuildignore
 
-# These functions are taken from an MIT-licensed repo
-# (https://github.com/lhdjung/lukas_jung_blog/blob/master/posts/replace-in-file/index.qmd).
+# These functions are taken from an MIT-licensed repo:
+# https://github.com/lhdjung/lukas_jung_blog/blob/master/posts/replace-in-file/index.qmd
 
 
-replace_in_file <- function(path, pattern, replacement, whole_word = TRUE,
-                            ignore_case = FALSE, fixed = FALSE,
+replace_in_file <- function(path,
+                            pattern,
+                            replacement,
+                            whole_word = TRUE,
+                            ignore_case = FALSE,
+                            fixed = FALSE,
                             use_bytes = FALSE) {
   # Read the content of the file into a variable:
   file_content_old <- readLines(path)
@@ -34,9 +38,14 @@ replace_in_file <- function(path, pattern, replacement, whole_word = TRUE,
 # Function that goes to the file at `path` and takes `df_names` as a lookup
 # table to replace the values in the `col_pattern` column by those in
 # `col_replacement`:
-replace_from_df <- function(path, df_names, col_pattern, col_replacement,
-                            whole_word = TRUE, ignore_case = FALSE,
-                            fixed = FALSE, use_bytes = FALSE) {
+replace_from_df <- function(path,
+                            df_names,
+                            col_pattern,
+                            col_replacement,
+                            whole_word = TRUE,
+                            ignore_case = FALSE,
+                            fixed = FALSE,
+                            use_bytes = FALSE) {
   if (!all(c(col_pattern, col_replacement) %in% colnames(df_names))) {
     stop("`col_pattern` and `col_replacement` must be column names of `df_names`.")
   }

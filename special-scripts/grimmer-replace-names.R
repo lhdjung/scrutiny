@@ -39,7 +39,7 @@ grimmer_names <- tibble::tribble(
 replace_from_df(
   path = "R/grimmer-rsprite2.R",
   df_names = grimmer_names,
-  col_pattern = "scrutiny",
-  col_replacement = "rsprite2"
+  col_pattern = "rsprite2",
+  col_replacement = "scrutiny"
 )
 

@@ -236,10 +236,6 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 #'   .name_test = "GRIM"
 #' )
 
-# TODO: ADD LINKS IN THE DOCS VIA SQUARE BRACKETS! GO THROUGH THE FILES
-# ALPHABETICALLY, STARTING WITH: function-map.R ALSO CHANGE
-# `write_doc_factory_map_conventions()` TO INCLUDE BRACKETS IN THE OUTPUT, THEN
-# RE-INSERT THE OUTPUT INTO THE DOCS OF THE THREE FACTORIES!
 
 # # Full example inputs:
 #

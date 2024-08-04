@@ -123,7 +123,7 @@ df3 \%>\%
 \item \code{\link[=before_parens]{before_parens()}} and \code{\link[=inside_parens]{inside_parens()}} take a string vector and
 extract values from the respective position.
 \item \code{\link[dplyr:across]{dplyr::across()}} powers the application of the two above functions
-within split_by_parens()`, including the creation of new columns.
+within \code{split_by_parens()}, including the creation of new columns.
 \item \code{\link[tidyr:separate_wider_delim]{tidyr::separate_wider_delim()}} is a more general function, but it does
 not recognize closing elements such as closed parentheses.
 }
