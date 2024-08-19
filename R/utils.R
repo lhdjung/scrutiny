@@ -1661,29 +1661,32 @@ check_dispersion_linear <- function(data) {
 #'
 #' @param name_key_result String (length 1). The `.name_key_result` argument of
 #'   the function factory, passed to the present function.
+#' @param name_data Expression. It must contain the name of the data frame
+#'   operated on. To construct it, use `rlang::expr()`.
 #'
 #' @return Expression.
 #'
 #' @noRd
-write_code_col_key_result <- function(name_key_result = "consistency") {
+write_code_col_key_result <- function(name_key_result = "consistency",
+                                      name_data = rlang::expr(out)) {
   # Enable renaming the `"consistency"` column for binary procedures that are
   # not consistency tests:
   code_rename <- if (name_key_result == "consistency") {
     NULL
   } else {
     rlang::expr({
-      out <- dplyr::rename(out, `!!`(name_key_result) := consistency)
+      `!!`(name_data) <- dplyr::rename(out, `!!`(name_key_result) := consistency)
     })
   }
   # Generate code to process the (possibly renamed) key result column:
   rlang::expr({
     `!!!`(code_rename)
-    if (!is.list(out$`!!`(name_key_result))) {
-      return(out)
+    if (!is.list(`!!`(name_data)$`!!`(name_key_result))) {
+      return(`!!`(name_data))
     }
     `$<-`(
-      out, `!!`(name_key_result),
-      unlist(out$`!!`(name_key_result), use.names = FALSE)
+      `!!`(name_data), `!!`(name_key_result),
+      unlist(`!!`(name_data)$`!!`(name_key_result), use.names = FALSE)
     )
   })
 }

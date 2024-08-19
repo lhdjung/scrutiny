@@ -142,9 +142,11 @@ function_map <- function(.fun, .reported, .name_test,
   code_key_arg_checks <- paste0("!missing(", .reported, ")", collapse = " || ")
   code_key_arg_checks <- rlang::expr({
     if (`!!`(rlang::parse_expr(code_key_arg_checks))) {
-      data <- absorb_key_args(data, `!!`(.reported))
+      data <- scrutiny::absorb_key_args(data, `!!`(.reported))
     }
   })
+
+  all_classes <- c(paste0("scr_", tolower(.name_test), "_map"), .name_class)
 
   code_rounding_class <-
     if (any(names(formals(.fun)) == "rounding")) {
@@ -188,26 +190,25 @@ function_map <- function(.fun, .reported, .name_test,
     check_length(.col_filler, 1L)
 
     # Prepare the code that will be inserted into the factory-made function to
-    # unnest the columns that should be named using `.col_names`:
+    # unnest the columns that should be named using `.col_names`:1
     code_col_control <- rlang::expr({
-      if (!all(vapply(consistency, length, integer(1L)) == 1L)) {
-        extend_if_length1 <- function(x, value_if_length1) {
-          if (length(x) == 1L) list(list(x, value_if_length1)) else x
-        }
-        out$consistency <- purrr::map(
-          out$consistency, extend_if_length1,
-          value_if_length1 = `!!`(.col_filler)
-        )
-        out <- unnest_consistency_cols(
-          out, col_names = c("consistency", `!!!`(.col_names)), index = FALSE
-        )
-      } else {
+      if (all(vapply(consistency, length, integer(1L)) == 1L)) {
         out <- tidyr::unnest(out, cols = consistency)
+      } else {
+        out$consistency <- lapply(
+          out$consistency,
+          function(x) {
+            if (length(x) == 1L) list(list(x, `!!`(.col_filler))) else x
+          }
+        )
+        out <- scrutiny::unnest_consistency_cols(
+          results = out,
+          col_names = c("consistency", `!!!`(.col_names)),
+          index = FALSE
+        )
       }
     })
   }
-
-  all_classes <- c(paste0("scr_", tolower(.name_test), "_map"), .name_class)
 
 
   # --- Start of the factory-made function, `fn_out()` ---
@@ -219,6 +220,10 @@ function_map <- function(.fun, .reported, .name_test,
       fun <- `!!`(.fun)
       name_class <- `!!`(.name_class)
 
+      add_class <- function(x, new_class) {
+        `class<-`(x, value = c(new_class, class(x)))
+      }
+
       # # Manage key columns in `data`, renaming missing columns using the
       # values of key arguments, if necessary:
       `!!!`(code_key_arg_checks)
@@ -229,29 +234,43 @@ function_map <- function(.fun, .reported, .name_test,
       check_args_disabled(`!!`(.args_disabled))
       check_factory_dots(fun, `!!`(fun_name), ...)
       check_mapper_input_colnames(data, `!!`(.reported), `!!`(.name_test))
-      check_tibble(data)
+
+      if (!tibble::is_tibble(data)) {
+        cli::cli_abort(c(
+          "!" = "`data` must be a tibble.",
+          "i" = "Convert it with `tibble::as_tibble()`."
+        ))
+      }
 
 
       # Main part ---
 
-      # Divide the data into tested and non-tested columns, going by the key
-      # column names expected from the `reported` argument:
-      data_tested <- data[, `!!`(.reported)]
-      data_non_tested <- data[!colnames(data) %in% `!!`(.reported)]
-
-      # Test for consistency:
-      consistency <- purrr::pmap(data_tested, fun, ...)
+      # # Divide the data into tested and non-tested columns, going by the key
+      # # column names expected from the `reported` argument:
+      # data_tested <- data[, `!!`(.reported)]
+      # data_non_tested <- data[!colnames(data) %in% `!!`(.reported)]
 
       # Support rounding classes:
       `!!!`(code_rounding_class)
 
-      # Following scrutiny's requirements for mapper functions, `"consistency"`
-      # goes immediately to the right of the key columns (which here are
-      # identical to the tested columns). Any other columns from the input go to
-      # the right of `"consistency"`:
-      out <-
-        tibble::tibble(data_tested, consistency, data_non_tested) %>%
-        add_class(c(`!!`(all_classes), rounding_class))
+      # Test for consistency:
+      data <- data %>%
+        dplyr::mutate(
+          consistency = purrr::pmap(list(`!!!`(.reported)), fun, ...),
+          .after = `!!`(.reported[length(.reported)])
+        ) %>%
+        dplyr::relocate(`!!!`(.reported), consistency) %>%
+        add_class(name_class)
+
+      # consistency <- purrr::pmap(data[, `!!`(.reported)], fun, ...)
+
+      # # Following scrutiny's requirements for mapper functions, `"consistency"`
+      # # goes immediately to the right of the key columns (which here are
+      # # identical to the tested columns). Any other columns from the input go to
+      # # the right of `"consistency"`:
+      # out <-
+      #   tibble::tibble(data_tested, consistency, data_non_tested) %>%
+      #   add_class(c(`!!`(all_classes), rounding_class))
 
       # The idea here is that `.col_control` might have been specified as a
       # string that is the name of a logical argument which controls whether or
@@ -264,7 +283,11 @@ function_map <- function(.fun, .reported, .name_test,
       # Unquote-splice the code that finalizes `out`. This includes unnesting if
       # the `"consistency"` column has been a list, and renaming it if
       # `.name_key_result` was specified:
-      `!!!`(write_code_col_key_result(.name_key_result))
+      `!!!`(write_code_col_key_result(
+        .name_key_result,
+        name_data = rlang::expr(data)
+      ))
+
     })
   )
 
