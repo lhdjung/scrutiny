@@ -297,7 +297,13 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
 
       check_mapper_input_colnames(data, reported)
       check_consistency_not_in_colnames(data, name_test)
-      check_tibble(data)
+
+      if (!tibble::is_tibble(data)) {
+        cli::cli_abort(c(
+          "!" = "`data` must be a tibble.",
+          "i" = "Convert it with `tibble::as_tibble()`."
+        ))
+      }
 
       # First, basic testing with the `*_map()` function:
       data <- fun(data, ...)
