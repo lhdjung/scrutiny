@@ -1,17 +1,23 @@
 
 #' Possible GRIM inconsistencies
 #'
-#' @description Even without GRIM-testing, means / proportions and sample sizes
-#'   of granular distributions entail some key data:
+#' @description These functions compute statistics related to GRIM-testing. In
+#'   general, `grim_probability()` is the most useful of them, and it is
+#'   responsible for the `probability` column in a data frame returned by
+#'   [`grim_map()`].
 #'
-#'   - `grim_total()` returns the absolute number of GRIM-inconsistencies that
-#'   are possible given the mean or percentage's number of decimal places (`D`)
-#'   and the corresponding sample size.
-#'   - `grim_ratio()` returns a proportion that is normalized by `10^D`, and
-#'   therefore comparable across mean or percentage values reported to varying
-#'   `D`.
+#'   - `grim_probability()` returns the probability that a mean or percentage
+#'   that is random except for the number of its decimal places is inconsistent
+#'   with the sample size.
+#'   - `grim_ratio()` is equal to `grim_probability()` unless `grim_ratio()` is
+#'   negative, which can occur if the sample size is very large. Strictly
+#'   speaking, this is more informative than `grim_probability()`, but it is
+#'   harder to interpret.
 #'   - `grim_ratio_upper()` returns the upper bound of `grim_ratio()` for a
-#'   given `D`.
+#'   given number of decimal places.
+#'   - `grim_total()` returns the absolute number of GRIM-inconsistencies that
+#'   are possible given the mean or percentage's number of decimal places and
+#'   the corresponding sample size.
 #'
 #'   For discussion, see `vignette("grim")`, section *GRIM statistics*.
 
@@ -27,11 +33,12 @@
 #'   proportion of 100 rather than 1. The functions will then account for this
 #'   fact through increasing the decimal count by 2. Default is `FALSE`.
 
-#' @seealso `grim()` for the GRIM test itself; as well as `grim_map()` for
+#' @seealso [`grim()`] for the GRIM test itself; as well as [`grim_map()`] for
 #'   applying it to many cases at once.
 #'
-#' @return Integer or double. The number or proportion of possible GRIM
-#'   inconsistencies.
+#' @return Integer or double. The number of possible GRIM inconsistencies, or
+#'   their probability for a random mean or percentage with a given number of
+#'   decimal places.
 #'
 #' @references Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A
 #'   Simple Technique Detects Numerous Anomalies in the Reporting of Results in
@@ -44,43 +51,36 @@
 #'
 #' @examples
 #' # Many value sets are inconsistent here:
-#' grim_total(x = "83.29", n = 21)
-#' grim_ratio(x = "83.29", n = 21)
+#' grim_total(x = 83.29, n = 21)
+#' grim_probability(x = 83.29, n = 21)
 #'
 #' # No sets are inconsistent in this case...
-#' grim_total(x = "5.14", n = 83)
-#' grim_ratio(x = "5.14", n = 83)
+#' grim_total(x = 5.14, n = 83)
+#' grim_probability(x = 5.14, n = 83)
 #'
 #' # ... but most would be if `x` was a percentage:
-#' grim_total(x = "5.14", n = 83, percent = TRUE)
-#' grim_ratio(x = "5.14", n = 83, percent = TRUE)
-
-
-
-# Absolute ----------------------------------------------------------------
-
-#' @rdname grim-stats
-#' @export
-
-grim_total <- function(x, n, items = 1, percent = FALSE) {
-  digits <- decimal_places_scalar(x)
-  if (percent) digits <- digits + 2L
-  p10 <- 10 ^ digits
-  as.integer(p10 - (n * items))
-}
+#' grim_total(x = 5.14, n = 83, percent = TRUE)
+#' grim_probability(x = 5.14, n = 83, percent = TRUE)
 
 
 
 # Relative ----------------------------------------------------------------
 
+grim_probability <- function(x, n, items = 1, percent = FALSE) {
+  digits <- decimal_places_scalar(x)
+  if (percent) digits <- digits + 2L
+  p10 <- 10 ^ digits
+  max(0, (p10 - n * items) / p10)
+}
+
+
 #' @rdname grim-stats
 #' @export
-
 grim_ratio <- function(x, n, items = 1, percent = FALSE) {
   digits <- decimal_places_scalar(x)
   if (percent) digits <- digits + 2L
   p10 <- 10 ^ digits
-  (p10 - (n * items)) / p10
+  (p10 - n * items) / p10
 }
 
 
@@ -89,5 +89,17 @@ grim_ratio <- function(x, n, items = 1, percent = FALSE) {
 
 grim_ratio_upper <- function(x, percent = FALSE) {
   grim_ratio(x = x, n = 1, items = 1, percent = percent)
+}
+
+
+# Absolute ----------------------------------------------------------------
+
+#' @rdname grim-stats
+#' @export
+grim_total <- function(x, n, items = 1, percent = FALSE) {
+  digits <- decimal_places_scalar(x)
+  if (percent) digits <- digits + 2L
+  p10 <- 10 ^ digits
+  as.integer(p10 - (n * items))
 }
 
