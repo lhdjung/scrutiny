@@ -278,7 +278,7 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
 #'   sequence after the `NA`s were replaced by appropriate values? If so, they
 #'   return `NA`; otherwise, they return `FALSE`.
 
-#' @seealso [`validate::is_linear_sequence()`], which is much like
+#' @seealso `validate::is_linear_sequence()`, which is much like
 #'   `is_seq_linear()` but more permissive with `NA` values. It comes with some
 #'   additional features, such as support for date-times.
 

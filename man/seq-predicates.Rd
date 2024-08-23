@@ -92,7 +92,7 @@ is_seq_descending(x = c(9, 15, 3), test_linear = FALSE)
 is_seq_dispersed(1:10, from = 5, test_linear = FALSE)
 }
 \seealso{
-\code{\link[validate:is_linear_sequence]{validate::is_linear_sequence()}}, which is much like
+\code{validate::is_linear_sequence()}, which is much like
 \code{is_seq_linear()} but more permissive with \code{NA} values. It comes with some
 additional features, such as support for date-times.
 }

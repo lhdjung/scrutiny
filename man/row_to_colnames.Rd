@@ -40,6 +40,6 @@ data frames (converted from matrices) do sometimes have the issue described
 above.
 }
 \seealso{
-\code{\link[unheadr:mash_colnames]{unheadr::mash_colnames()}}, a more sophisticated solution to the
+\code{unheadr::mash_colnames()}, a more sophisticated solution to the
 same problem.
 }
