@@ -6,9 +6,10 @@
 #'   responsible for the `probability` column in a data frame returned by
 #'   [`grim_map()`].
 #'
-#'   - `grim_probability()` returns the probability that a mean or percentage
-#'   that is random except for the number of its decimal places is inconsistent
-#'   with the sample size.
+#'   - `grim_probability()` returns the probability that a reported mean or
+#'   percentage of integer data that is random except for the number of its
+#'   decimal places is inconsistent with the reported sample size. For example,
+#'   the mean 1.23 is treated like any other mean with two decimal places.
 #'   - `grim_ratio()` is equal to `grim_probability()` unless `grim_ratio()` is
 #'   negative, which can occur if the sample size is very large. Strictly
 #'   speaking, this is more informative than `grim_probability()`, but it is

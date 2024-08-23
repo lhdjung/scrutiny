@@ -11,7 +11,7 @@
 #'   Display intermediary numbers from GRIM-testing in columns by setting
 #'   `show_rec` to `TRUE`.
 #'
-#'   For summary statistics, call `[audit()`] on the results.
+#'   For summary statistics, call [`audit()`] on the results.
 #'
 #' @param data Data frame with columns `x`, `n`, and optionally `items` (see
 #'   documentation for [`grim()`]. By default, any other columns in `data` will
@@ -31,9 +31,9 @@
 #' @param show_rec Logical. If set to `TRUE`, the reconstructed numbers from
 #'   GRIM-testing are shown as columns. See section *Reconstructed numbers*
 #'   below. Default is `FALSE`.
-#' @param show_prob Logical. If set to `TRUE`, adds a `prob` column that
-#'   contains the probability of GRIM inconsistency. This is simply the `ratio`
-#'   column censored to range between 0 and 1. Default is `FALSE`.
+#' @param show_prob `r lifecycle::badge("deprecated")` Logical. No longer
+#'   supported: now, there is always a `probability` column. (It replaces the
+#'   earlier `ratio` column.)
 #' @param rounding,threshold,symmetric,tolerance Further parameters of
 #'   GRIM-testing; see documentation for [`grim()`].
 #' @param testables_only Logical. If `testables_only` is set to `TRUE`, only
@@ -47,8 +47,9 @@
 #' @return A tibble with these columns --
 #' - `x`, `n`: the inputs.
 #' - `consistency`: GRIM consistency of `x`, `n`, and `items`.
+#' - `probability`: the probability of GRIM inconsistency; see
+#' [`grim_probability()`].
 #' - `<extra>`: any columns from `data` other than `x`, `n`, and `items`.
-#' - `ratio`: the GRIM ratio; see [`grim_ratio()`].
 #'
 #'   The tibble has the `scr_grim_map` class, which is recognized by the
 #'   [`audit()`] generic.
@@ -74,10 +75,10 @@
 #' 1. `incons_cases`: number of GRIM-inconsistent value sets.
 #' 2. `all_cases`: total number of value sets.
 #' 3. `incons_rate`: proportion of GRIM-inconsistent value sets.
-#' 4. `mean_grim_ratio`: average of GRIM ratios.
-#' 5. `incons_to_ratio`: ratio of `incons_rate` to `mean_grim_ratio`.
+#' 4. `mean_grim_prob`: average probability of GRIM inconsistency.
+#' 5. `incons_to_prob`: ratio of `incons_rate` to `mean_grim_prob`.
 #' 6. `testable_cases`: number of GRIM-testable value sets (i.e., those with a
-#' positive ratio).
+#' positive `probability`).
 #' 7. `testable_rate`: proportion of GRIM-testable value sets.
 
 #' @include audit.R grim.R manage-extra-cols.R restore-zeros.R
@@ -117,7 +118,8 @@
 
 
 grim_map <- function(data, items = 1, merge_items = TRUE, percent = FALSE,
-                     x = NULL, n = NULL, show_rec = FALSE, show_prob = FALSE,
+                     x = NULL, n = NULL, show_rec = FALSE,
+                     show_prob = deprecated(),
                      rounding = "up_or_down", threshold = 5,
                      symmetric = FALSE, tolerance = .Machine$double.eps^0.5,
                      testables_only = FALSE, extra = Inf) {
@@ -128,6 +130,19 @@ grim_map <- function(data, items = 1, merge_items = TRUE, percent = FALSE,
   check_lengths_congruent(list(
     items, percent, rounding, threshold, symmetric, tolerance
   ))
+
+  # Warn if the user specified a deprecated argument:
+  if (lifecycle::is_present(show_prob)) {
+    lifecycle::deprecate_warn(
+      when = "0.5.0",
+      what = "grim_map(show_prob)",
+      details = c(
+        "The \"probability\" column has replaced the \\
+        \"ratio\" column, so now it is always displayed, \\
+        and `show_prob` no longer has any effect."
+      )
+    )
+  }
 
   # Check if the user specified the arguments named after the key columns, `x`
   # and `n`. If so, the user-supplied value for that argument will be checked
@@ -202,9 +217,13 @@ grim_map <- function(data, items = 1, merge_items = TRUE, percent = FALSE,
     )
   }
 
-  # 5.: Compute the GRIM ratios for all of the same value sets via
-  # `grim_ratio()`, which also gets the `percent` argument passed on to:
-  ratio <- purrr::pmap_dbl(data_x_n_items, grim_ratio, percent = percent)
+  # 5.: Compute the GRIM probabilities for all of the same value sets via
+  # `grim_probability()`, which also gets the `percent` argument passed on to:
+  probability <- purrr::pmap_dbl(
+    .l = data_x_n_items,
+    .f = grim_probability,
+    percent = percent
+  )
 
   # 6.-?: Any number of other columns from `data` (via the `other_cols` object).
 
@@ -212,11 +231,11 @@ grim_map <- function(data, items = 1, merge_items = TRUE, percent = FALSE,
   # Create a tibble with results that also includes extra columns from the input
   # data frame (`other_cols`) unless the `extra` argument has been set to 0 --
   if (is.null(extra)) {
-    # (Number:)               1  2       3         4
-    results <- tibble::tibble(x, n, consistency, ratio)
+    # (Number:)               1  2       3            4
+    results <- tibble::tibble(x, n, consistency, probability)
   } else {
-    # (Number:)               1  2       3         4       5(-?)
-    results <- tibble::tibble(x, n, consistency, ratio, other_cols)
+    # (Number:)               1  2       3            4          5(-?)
+    results <- tibble::tibble(x, n, consistency, probability, other_cols)
   }
 
   # In case the user had set `show_rec` to `TRUE` for displaying the
@@ -257,63 +276,44 @@ grim_map <- function(data, items = 1, merge_items = TRUE, percent = FALSE,
     }
 
     results <- results %>%
-      unnest_consistency_cols(col_names, index = TRUE)
-
-    # The minus-1 operation balances the temporary removal of `"consistency"`
-    # that occurred within `unnest_consistency_cols()`:
-    index_consistency <- match("consistency", colnames(results)) - 1L
-
-    results <- results %>%
-      dplyr::relocate(ratio, .after = index_consistency + length(col_names))
+      unnest_consistency_cols(col_names, index = TRUE) %>%
+      dplyr::relocate(probability, .after = consistency)
   }
 
-
-  # If demanded via the `show_prob` argument, add a column that displays the
-  # probability of GRIM inconsistency. This is simply the GRIM ratio
-  # left-censored at zero, i.e., with negative values set to zero:
-  if (show_prob) {
-    results <- results %>%
-      tibble::add_column(
-        prob = dplyr::if_else(ratio < 0, 0, ratio), .after = "ratio"
-      )
-  }
-
-  # Add the "scr_grim_map" class that `audit()` will recognize:
-  results <- results %>%
-    add_class(c("scr_grim_map", glue::glue("scr_rounding_{rounding}")))
+  # Prepare to add the "scr_grim_map" class that `audit()` will recognize, as
+  # well as a class that is informative about the rounding procedure used for
+  # reconstructing `x`:
+  classes_to_add <- c("scr_grim_map", paste0("scr_rounding_", rounding))
 
   # Mediate between `seq_endpoint_df()` or `seq_distance_df()`, on the one hand,
   # and `seq_test_ranking()`, on the other:
   if (inherits(data, "scr_seq_df")) {
-    results <- results %>%
-      add_class("scr_seq_test")
+    classes_to_add <- c("scr_seq_test", classes_to_add)
   }
+
+  class(results) <- c(classes_to_add, class(results))
 
   # If `x` is a percentage, divide it by 100 to adjust its value. The resulting
   # decimal numbers will then be the values actually used in GRIM-testing; i.e.,
   # within `grim_scalar()`. Also, issue an alert to the user about the
   # percentage conversion:
   if (percent) {
-    dp_original <- decimal_places(results$x)
-    results$x <- as.numeric(results$x) / 100
+    digits_original <- decimal_places(results$x)
 
+    results$x <- as.numeric(results$x) / 100
     results$x <- results$x %>%
-      restore_zeros(width = (dp_original + 2L)) %>%
+      restore_zeros(width = digits_original + 2L) %>%
       suppressWarnings()
 
-    results <- results %>%
-      add_class("scr_percent_true")
-
-    cli::cli_alert_info(
-      "`x` converted from percentage"
-    )
+    class(results) <- c("scr_percent_true", class(results))
+    cli::cli_alert_info("`x` converted from percentage")
   }
 
   # Finally, return either all of the results or only the GRIM-testable ones:
   if (testables_only) {
-    return(dplyr::filter(results, ratio > 0))
+    dplyr::filter(results, probability > 0)
   } else {
-    return(results)
+    results
   }
 
 }

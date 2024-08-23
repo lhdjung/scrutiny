@@ -11,19 +11,19 @@ audit.scr_grim_map <- function(data) {
   # 3. the proportion of GRIM-inconsistent cases:
   out <- audit_cols_minimal(data, "GRIM")
 
-  # 4. the average of GRIM ratios:
-  mean_grim_ratio <- data %>%
-    dplyr::summarise(mean_grim_ratio = mean(.data$ratio)) %>%
+  # 4. the average of GRIM probabilitys:
+  mean_grim_prob <- data %>%
+    dplyr::summarise(mean_grim_prob = mean(.data$probability)) %>%
     as.numeric()
 
   # 5. the ratio of the proportion of GRIM-inconsistent cases to the average of
-  # GRIM ratios:
+  # GRIM probabilities:
   incons_rate <- out[[3L]]
-  incons_to_ratio <- incons_rate / mean_grim_ratio
+  incons_to_prob <- incons_rate / mean_grim_prob
 
   # 6. the number of GRIM-testable cases:
   testable_cases <- data %>%
-    dplyr::filter(.data$ratio > 0) %>%
+    dplyr::filter(.data$probability > 0) %>%
     nrow()
 
   # 7. the proportion of GRIM-testable cases:
@@ -32,6 +32,6 @@ audit.scr_grim_map <- function(data) {
 
   # Finally, collect all of these values in a resulting tibble --
   tibble::tibble(
-    out, mean_grim_ratio, incons_to_ratio, testable_cases, testable_rate
+    out, mean_grim_prob, incons_to_prob, testable_cases, testable_rate
   )
 }

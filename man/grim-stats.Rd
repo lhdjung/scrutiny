@@ -43,9 +43,10 @@ general, \code{grim_probability()} is the most useful of them, and it is
 responsible for the \code{probability} column in a data frame returned by
 \code{\link[=grim_map]{grim_map()}}.
 \itemize{
-\item \code{grim_probability()} returns the probability that a mean or percentage
-that is random except for the number of its decimal places is inconsistent
-with the sample size.
+\item \code{grim_probability()} returns the probability that a reported mean or
+percentage of integer data that is random except for the number of its
+decimal places is inconsistent with the reported sample size. For example,
+the mean 1.23 is treated like any other mean with two decimal places.
 \item \code{grim_ratio()} is equal to \code{grim_probability()} unless \code{grim_ratio()} is
 negative, which can occur if the sample size is very large. Strictly
 speaking, this is more informative than \code{grim_probability()}, but it is
