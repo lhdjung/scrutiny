@@ -7,11 +7,10 @@
 grim_ratio_upper(x, percent = FALSE)
 }
 \arguments{
-\item{x}{String or numeric (length 1). Mean or percentage value computed from
-data with integer units (e.g., mean scores on a Likert scale or percentage
-of study participants in some condition). \emph{Note}: Numeric inputs don't
-include trailing zeros, but these are important for GRIM functions. See
-documentation for \code{grim()}.}
+\item{x}{String (length 1). Mean or percentage value computed from data with
+integer units, e.g., mean scores on a Likert scale or percentage of study
+participants in some condition. It has to be string to capture any trailing
+zeros.}
 
 \item{percent}{Logical. Set \code{percent} to \code{TRUE} if \code{x} is expressed as a
 proportion of 100 rather than 1. The functions will then account for this

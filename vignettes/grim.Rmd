@@ -36,7 +36,7 @@ This vignette covers scrutiny's implementation of the GRIM test. It has the foll
 
 4.  The visualization function `grim_plot()`.
 
-5.  Statistical benchmarks, such as granularity and the GRIM ratio.
+5.  Statistical benchmarks, such as granularity and the probability of GRIM inconsistency.
 
 ## Basic GRIM testing
 
@@ -80,7 +80,7 @@ Now, simply run `grim_map()` on that data frame:
 grim_map(flying_pigs1)
 ```
 
-The `x` and `n` columns are the same as in the input. By default, the number of `items` composing the mean is assumed to be 1. The main result, `consistency`, is the GRIM consistency of the former three columns. On the `ratio` column, see section *The GRIM ratio*.
+The `x` and `n` columns are the same as in the input. By default, the number of `items` composing the mean is assumed to be 1. The main result, `consistency`, is the GRIM consistency of the former three columns. On the `probability` column, see section *The probability of GRIM inconsistency*.
 
 ### Scale items
 
@@ -195,11 +195,11 @@ These columns are ---
 
 3.  `incons_rate`: proportion of GRIM-inconsistent value sets.
 
-4.  `mean_grim_ratio`: average of GRIM ratios.
+4.  `mean_grim_prob`: average probability of GRIM inconsistency.
 
-5.  `incons_to_ratio`: ratio of `incons_rate` to `mean_ratio`.
+5.  `incons_to_prob`: ratio of `incons_rate` to `mean_grim_prob`.
 
-6.  `testable_cases`: number of GRIM-testable value sets (i.e., those with a positive ratio).
+6.  `testable_cases`: number of GRIM-testable value sets (i.e., those with a positive probability).
 
 7.  `testable_rate`: proportion of GRIM-testable value sets.
 
@@ -238,7 +238,7 @@ With its unusual optics, this plot will probably not fit everyone's taste. The r
 
 The plot is strictly based on the laws governing GRIM. Its background raster shows all consistent (light) and inconsistent (dark) value pairs for two decimal places. Empirical values are shown in blue if consistent and red if inconsistent. Color settings and other ggplot2-typical options are available via arguments. Read about them at `grim_plot()`'s documentation.
 
-You might notice the light vertical lines at $N = 40$ and $N = 80$: Few values are flagged as inconsistent here. This reflects `grim_map()`'s charitable default of accepting values rounded either up *or* down from 5. If a different `rounding` specification is chosen in the `grim_map()` call, the plot raster will adjust automatically (although it will often be the same as before):
+You might notice the light vertical lines at $n = 40$ and $n = 80$: Few values are flagged as inconsistent here. This reflects `grim_map()`'s charitable default of accepting values rounded either up *or* down from 5. If a different `rounding` specification is chosen in the `grim_map()` call, the plot raster will adjust automatically (although it will often be the same as before):
 
 ```{r, fig.width=6, fig.height=5.5}
 jpap_5 %>% 
@@ -348,26 +348,26 @@ This example only features one case --- the `df` tibble has just a single row. I
 The `probability` column in a tibble returned by `grim_map()` is the probability of GRIM inconsistency, i.e.:
 
 $$
-p = max(0, \frac{10^d - nl}{10^d})
+P = max(0, \frac{10^D - NL}{10^D})
 $$
 
-where $d$ is the number of decimal places in $x$ (the mean or proportion), $n$ is the sample size, and $l$ is the number of scale items.
+where $D$ is the number of decimal places in $X$ (the mean or proportion), $N$ is the sample size, and $L$ is the number of scale items. The fraction will never be greater than 1, and the $max()$ function limits it at 0.
 
-Consider a mean $x$ that was ostensibly derived from integer data. It has $d$ decimal places, but is otherwise random: the integer part is irrelevant in any case, and the exact digits that occupy the $d$ decimal places are ignored. $p$, then, is the probability that $x$ is GRIM-inconsistent. Naturally, $p$ is also the proportion of inconsistent value sets with $d$ decimal places, a sample size of $n$, and $l$ scale items.
+Consider a mean $X$ that was ostensibly derived from integer data. It has $D$ decimal places, but is otherwise random: the integer part is irrelevant in any case, and the exact digits that occupy the $D$ decimal places are ignored. $P$, then, is the probability that $X$ is GRIM-inconsistent. Naturally, $P$ is also the proportion of inconsistent value sets with $D$ decimal places, a sample size of $N$, and $L$ scale items.
 
-In real-world scenarios, one would not usually assume $x$ to be random at the outset of an investigation, but this can be interesting as a contrasting assumption. If a study has many GRIM-inconsistent value sets with very high probabilities of inconsistency, it may suggest that the anomalies are not explained by small deviations from true values (although `grim_map_seq()` is more informative on this point). Rather, such a finding could raise concerns that these statistics did not come about as part of a regular research process.
+In real-world scenarios, one would not usually assume $X$ to be random at the outset of an investigation, but this can be interesting as a contrasting assumption. If a study has many GRIM-inconsistent value sets with very high probabilities of inconsistency, it may suggest that the anomalies are not explained by small deviations from true values (although `grim_map_seq()` is more informative on this point). Rather, such a finding could raise concerns that these statistics did not come about as part of a regular research process.
 
 #### Functions
 
-`grim_probability()` takes the arguments `x`, `n`, `items`, and `percent` as in `grim()` and `grim_map()`:
+`grim_probability()` takes the arguments `x`, `n`, `items`, and `percent` as in `grim()` and `grim_map()`. As before, `x` must be a string to capture any trailing zeros:
 
 ```{r}
-grim_probability(x = 1.42, n = 72)
+grim_probability(x = "1.40", n = 72)
 
-grim_probability(x = 5.93, n = 80, items = 3)
+grim_probability(x = "5.93", n = 80, items = 3)
 
 # Enter `x` as a string to preserve trailing zeros:
-grim_probability(x = "84.20", n = 40, percent = TRUE)
+grim_probability(x = "84.27", n = 40, percent = TRUE)
 ```
 
 `grim_map()` displays a `probability` column that shows the probability of GRIM inconsistency. It is derived using `grim_probability()`.
@@ -375,16 +375,18 @@ grim_probability(x = "84.20", n = 40, percent = TRUE)
 In addition, `grim_total()` takes the same arguments but returns only the numerator of the fraction in the above formula:
 
 ```{r}
-grim_total(x = 1.42, n = 72)
+grim_total(x = "1.40", n = 72)
 
-grim_total(x = 5.93, n = 80, items = 3)
+grim_total(x = "5.93", n = 80, items = 3)
 
-grim_total(x = "84.20", n = 40, percent = TRUE)  # Enter `x` as string to preserve trailing zero
+grim_total(x = "84.27", n = 40, percent = TRUE)  # Enter `x` as string to preserve trailing zero
 ```
+
+The result is the total number of GRIM-inconsistent value sets with the given parameters. However, this is generally less useful than `grim_probability()`: the result is only comparable across different numbers of decimal places when normalized by $10^D$.
 
 #### Origins
 
-The formula for the probability of GRIM inconsistency is arguably implicit in Brown and Heathers' (2017) paper on GRIM. The numerator is a transformation of the formula presented on p. 364, and the authors discuss a common special case of the probability on p. 367:
+The formula for the probability of GRIM inconsistency is arguably implicit in Brown and Heathers' (2017) paper on GRIM. The numerator is a transformation of the formula presented on p. 364, and the authors discuss a common special case of the probability (interpreted as a proportion) on p. 367:
 
 > With reporting to two decimal places, for a sample size $N < 100$ [and a single item], a random mean value will be consistent in approximately $N$% of cases.
 
@@ -399,7 +401,7 @@ so that a random mean will be inconsistent in about 30% of cases and, conversely
 Here is the same in code (assuming an arbitrary mean with two decimal places):
 
 ```{r}
-grim_probability(x = 0.99, n = 70)
+grim_probability(x = "0.99", n = 70)
 ```
 
 ### Granularity and scale items
@@ -408,18 +410,18 @@ The granularity of a non-continuous distribution is the minimal amount by which 
 
 #### Formulas
 
-The granularity ($g$) formula is
+The granularity ($G$) formula is
 
 $$
-g = \frac{1}{nl}
+G = \frac{1}{NL}
 $$
 
-where $n$ is the sample size and $l$ is the number of items.
+where $N$ is the sample size and $L$ is the number of items.
 
 The scale items formula is the converse:
 
 $$
-l = \frac{1}{ng}
+L = \frac{1}{NG}
 $$
 
 #### Functions

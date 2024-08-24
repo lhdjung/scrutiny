@@ -20,11 +20,10 @@
 #'
 #'   For discussion, see `vignette("grim")`, section *GRIM statistics*.
 
-#' @param x String or numeric (length 1). Mean or percentage value computed from
-#'   data with integer units (e.g., mean scores on a Likert scale or percentage
-#'   of study participants in some condition). *Note*: Numeric inputs don't
-#'   include trailing zeros, but these are important for GRIM functions. See
-#'   documentation for `grim()`.
+#' @param x String (length 1). Mean or percentage value computed from data with
+#'   integer units, e.g., mean scores on a Likert scale or percentage of study
+#'   participants in some condition. It has to be string to capture any trailing
+#'   zeros.
 #' @param n Integer. Sample size corresponding to `x`.
 #' @param items Integer. Number of items composing the mean or percentage value
 #'   in question. Default is `1`.
@@ -66,16 +65,27 @@
 # Relative ----------------------------------------------------------------
 
 grim_probability <- function(x, n, items = 1, percent = FALSE) {
+  # Manual check (instead of calling `check_type()`) for performance; this
+  # function will run a great deal:
+  if (!is.character(x)) {
+    cli::cli_abort(c(
+      "!" = "`x` must be of type character.",
+      "x" = "It is {an_a_type(x)}."
+    ))
+  }
   digits <- decimal_places_scalar(x)
   if (percent) digits <- digits + 2L
   p10 <- 10 ^ digits
-  max(0, (p10 - n * items) / p10)
+  out <- (p10 - n * items) / p10
+  dplyr::if_else(out < 0, 0, out)
 }
+
 
 
 #' @rdname grim-stats
 #' @export
 grim_ratio <- function(x, n, items = 1, percent = FALSE) {
+  check_type(x, "character")
   digits <- decimal_places_scalar(x)
   if (percent) digits <- digits + 2L
   p10 <- 10 ^ digits
@@ -88,6 +98,7 @@ grim_ratio <- function(x, n, items = 1, percent = FALSE) {
 #' @rdname grim-stats
 #' @export
 grim_total <- function(x, n, items = 1, percent = FALSE) {
+  check_type(x, "character")
   digits <- decimal_places_scalar(x)
   if (percent) digits <- digits + 2L
   p10 <- 10 ^ digits
@@ -118,6 +129,7 @@ grim_ratio_upper <- function(x, percent = FALSE) {
     what = "grim_ratio_upper()",
     details = "It will be removed in a future version."
   )
+  check_type(x, "character")
   grim_ratio(x = x, n = 1, items = 1, percent = percent)
 }
 

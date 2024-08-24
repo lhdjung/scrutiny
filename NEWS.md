@@ -10,7 +10,9 @@ The package is now released under the MIT license.
 
     -   Conceptually, it is much easier to interpret: it is the probability that a reported mean or percentage of integer data that has a specific number of decimal places but is otherwise random is GRIM-inconsistent with the reported sample size.
 
-        For example, `grim_probability(1.23, 40)` returns `0.6`, just as it would for any other mean with two decimal places. This means that a randomly chosen mean with two decimal places, ostensibly derived from integer data, has a 0.6 probability of being GRIM-inconsistent with the reported sample size.
+        For example, `probability` is `0.6` for a mean of `1.23` and a sample size of `40`. The same is true for any other mean with two decimal places. Thus, a randomly chosen mean with two decimal places, ostensibly derived from integer data, has a 0.6 probability of being GRIM-inconsistent with the reported sample size.
+
+-   In `grim_ratio()`, `grim_ratio_upper()`, and `grim_total()`, the `x` argument must now be a string. This is consistent with `grim_map()`, `unround()`, etc.; and it prevents erroneous results that could previously occur by omitting trailing zeros.
 
 ## New features
 

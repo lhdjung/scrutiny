@@ -24,7 +24,7 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
   # As trailing zeros matter for the GRIM test, `x` must be a string:
   if (!is.character(x)) {
     cli::cli_abort(c(
-      "!" = "`x` must be a string.",
+      "!" = "`x` must be of type character.",
       "x" = "It is {an_a_type(x)}."
     ))
   }
