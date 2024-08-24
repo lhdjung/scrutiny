@@ -4,7 +4,7 @@
 \alias{duplicate_detect}
 \title{Detect duplicate values}
 \usage{
-duplicate_detect(x, ignore = NULL, colname_end = "dup", numeric_only)
+duplicate_detect(x, ignore = NULL, colname_end = "dup")
 }
 \arguments{
 \item{x}{Vector or data frame.}
@@ -14,9 +14,6 @@ the test result columns, they will be marked \code{NA}.}
 
 \item{colname_end}{String. Name ending of the logical test result columns.
 Default is \code{"dup"}.}
-
-\item{numeric_only}{[\link{Deprecated}] No longer used: All values are coerced to
-character.}
 }
 \value{
 A tibble (data frame). It has all the columns from \code{x}, and to each

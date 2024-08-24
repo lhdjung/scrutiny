@@ -15,8 +15,6 @@
 #'   `"list"`, each `locations` value is a vector of column names, which is
 #'   better for further programming. By default (`"character"`), the column
 #'   names are pasted into a string, which is more readable.
-#' @param numeric_only [[Deprecated]] No longer used: All values are coerced to
-#'   character.
 
 #' @return If `x` is a data frame or another named vector, a tibble with four
 #'   columns. If `x` isn't named, only the first two columns appear:
@@ -28,12 +26,6 @@
 #'
 #' The tibble has the `scr_dup_count` class, which is recognized by the
 #' [`audit()`] generic.
-
-#' @details Don't use `numeric_only`. It no longer has any effect and will be
-#'   removed in the future. The only reason for this argument was the risk of
-#'   errors introduced by coercing values to numeric. This is no longer an issue
-#'   because all values are now coerced to character, which is more appropriate
-#'   for checking reported statistics.
 
 #' @section Summaries with [`audit()`]: There is an S3 method for the
 #'   [`audit()`] generic, so you can call [`audit()`] following
@@ -67,19 +59,9 @@
 
 
 duplicate_count <- function(x, ignore = NULL,
-                            locations_type = c("character", "list"),
-                            numeric_only = deprecated()) {
+                            locations_type = c("character", "list")) {
 
   locations_type <- rlang::arg_match(locations_type)
-
-  if (lifecycle::is_present(numeric_only)) {
-    lifecycle::deprecate_warn(
-      when = "0.3.0",
-      what = "duplicate_count(numeric_only)",
-      details = "It no longer has any effect because all input \
-      values are now coerced to character strings."
-    )
-  }
 
   # Convert `x` to a data frame if needed (`x_was_named` will also be checked
   # further below):

@@ -4,12 +4,7 @@
 \alias{duplicate_count}
 \title{Count duplicate values}
 \usage{
-duplicate_count(
-  x,
-  ignore = NULL,
-  locations_type = c("character", "list"),
-  numeric_only = deprecated()
-)
+duplicate_count(x, ignore = NULL, locations_type = c("character", "list"))
 }
 \arguments{
 \item{x}{Vector or data frame.}
@@ -20,9 +15,6 @@ duplicate_count(
 \code{"list"}, each \code{locations} value is a vector of column names, which is
 better for further programming. By default (\code{"character"}), the column
 names are pasted into a string, which is more readable.}
-
-\item{numeric_only}{[\link{Deprecated}] No longer used: All values are coerced to
-character.}
 }
 \value{
 If \code{x} is a data frame or another named vector, a tibble with four
@@ -45,13 +37,6 @@ This function is a blunt tool designed for initial data checking. It is not
 too informative if many values have few characters each.
 
 For summary statistics, call \code{\link[=audit]{audit()}} on the results.
-}
-\details{
-Don't use \code{numeric_only}. It no longer has any effect and will be
-removed in the future. The only reason for this argument was the risk of
-errors introduced by coercing values to numeric. This is no longer an issue
-because all values are now coerced to character, which is more appropriate
-for checking reported statistics.
 }
 \section{Summaries with \code{\link[=audit]{audit()}}}{
  There is an S3 method for the
