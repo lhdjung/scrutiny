@@ -38,6 +38,8 @@ All of these had been deprecated since scrutiny 0.3.0:
 
 -   The `numeric_only` argument in `duplicate_count()` and `duplicate_detect()` was removed.
 
+-   The `na.rm` argument in `duplicate_count_colpair()` was removed.
+
 # scrutiny 0.4.0
 
 This version brings major performance improvements. Furthermore:

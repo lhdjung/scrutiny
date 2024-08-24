@@ -27,7 +27,6 @@ dup_count_pairwise <- function(x, y) {
 #' @param show_rates Logical. If `TRUE` (the default), adds columns `rate_x` and
 #'   `rate_y`. See value section. Set `show_rates` to `FALSE` for higher
 #'   performance.
-#' @param na.rm [[Deprecated]] Missing values are never counted in any case.
 
 #' @return A tibble (data frame) with these columns –
 #' - `x` and `y`: Each line contains a unique combination of `data`'s columns,
@@ -70,21 +69,11 @@ dup_count_pairwise <- function(x, y) {
 # data <- df <- tibble::tibble(
 #   a = c(1, 2, 3, NA, 5), b = c(NA, 3L, 4L, 5L, 6L), c = c(3L, 4L, NA, NA, NA)
 # )
-# na.rm <- TRUE
 # ignore <- 3
 # show_rates <- TRUE
 
 
-duplicate_count_colpair <- function(data, ignore = NULL, show_rates = TRUE,
-                                    na.rm = deprecated()) {
-
-  if (lifecycle::is_present(na.rm)) {
-    lifecycle::deprecate_warn(
-      when = "0.3.0",
-      what = "duplicate_count_colpair(na.rm)",
-      details = "Missing values are never counted, so `na.rm` has no effect."
-    )
-  }
+duplicate_count_colpair <- function(data, ignore = NULL, show_rates = TRUE) {
 
   if (!is.data.frame(data)) {
     cli::cli_abort("`data` must be a data frame.")

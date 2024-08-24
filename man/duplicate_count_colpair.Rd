@@ -4,12 +4,7 @@
 \alias{duplicate_count_colpair}
 \title{Count duplicate values by column}
 \usage{
-duplicate_count_colpair(
-  data,
-  ignore = NULL,
-  show_rates = TRUE,
-  na.rm = deprecated()
-)
+duplicate_count_colpair(data, ignore = NULL, show_rates = TRUE)
 }
 \arguments{
 \item{data}{Data frame.}
@@ -20,8 +15,6 @@ duplicates.}
 \item{show_rates}{Logical. If \code{TRUE} (the default), adds columns \code{rate_x} and
 \code{rate_y}. See value section. Set \code{show_rates} to \code{FALSE} for higher
 performance.}
-
-\item{na.rm}{[\link{Deprecated}] Missing values are never counted in any case.}
 }
 \value{
 A tibble (data frame) with these columns –
