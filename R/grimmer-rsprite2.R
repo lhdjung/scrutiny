@@ -4,54 +4,54 @@
 # However, it only contains two functions from the original file.
 
 # The idea is to take them as a basis for revamping scrutiny's implementation of
-# GRIMMER, notably fixing the `n_items` argument.
+# GRIMMER, notably fixing the `items` argument.
 
 # TODO: run the grimmer-replace-names.R script on the copy.
 
 # # All the variable names:
-# GRIMMER_test
-# mean
-# SD
-# n_obs
+# grimmer_scalar
+# x
+# sd
+# n
+# items
+# digits_x
+# digits_sd
+# x_real
+# sum_real
 # n_items
-# decimals_mean
-# decimals_SD
-# realmean
-# realsum
-# effective_n
-# Lsigma
-# Usigma
-# Lowerbound
-# Upperbound
-# possible_integers
-# Predicted_Variance
-# Predicted_SD
-# Matches_Oddness
-# FirstTest
-# Matches_SD
-# Third_Test
+# sd_lower
+# sd_upper
+# sum_squares_lower
+# sum_squares_upper
+# integers_possible
+# var_predicted
+# sd_predicted
+# matches_parity
+# pass_test1
+# matches_sd
+# pass_test3
 
 
 # Helper function ---------------------------------------------------------
 
-# Determine minimum and maximum SDs for given scale ranges, N, and mean.
-.sd_limits <- function(n_obs, mean, min_val, max_val, sd_prec = NULL, n_items = 1) {
+# Determine minimum and maximum SDs for given scale ranges, N, and x.
+sd_bounds_measure <- function(n, x, min_val, max_val, sd_prec = NULL, items = 1) {
 
   if (is.null(sd_prec)) {
-    sd_prec <- max(nchar(sub("^[0-9]*", "", mean)) - 1, 0)
+    sd_prec <- max(nchar(sub("^[0-9]*", "", x)) - 1, 0)
   }
 
   result <- c(-Inf, Inf)
 
-  aMax <- min_val                                # "aMax" means "value of a to produce the max SD"
-  aMin <- floor(mean*n_items)/n_items
+  aMax <- min_val                                # "aMax" means "value of a to produce the max sd"
+  aMin <- floor(x*items)/items
   bMax <- max(max_val, min_val + 1, aMin + 1)   # sanity check (just max_val would normally be ok)
-  bMin <- aMin + 1/n_items
-  total <- round(mean * n_obs * n_items)/n_items
+  bMin <- aMin + 1/items
+  total <- round(x * n * items)/items
 
   poss_values <- max_val
-  for (i in seq_len(n_items)) {
-    poss_values <- c(poss_values, min_val:(max_val-1) + (1 / n_items) * (i - 1))
+  for (i in seq_len(items)) {
+    poss_values <- c(poss_values, min_val:(max_val-1) + (1 / items) * (i - 1))
   }
   poss_values <- sort(poss_values)
 
@@ -62,19 +62,19 @@
     m <- abm[3]
 
 
-    k <- round((total - (n_obs * b)) / (a - b))
-    k <- min(max(k, 1), n_obs - 1)               # ensure there is at least one of each of two numbers
-    vec <- c(rep(a, k), rep(b, n_obs - k))
+    k <- round((total - (n * b)) / (a - b))
+    k <- min(max(k, 1), n - 1)               # ensure there is at least one of each of two numbers
+    vec <- c(rep(a, k), rep(b, n - k))
     diff <- sum(vec) - total
 
     if ((diff < 0)) {
-      vec <- c(rep(a, k - 1), a + abs(diff), rep(b, n_obs - k))
+      vec <- c(rep(a, k - 1), a + abs(diff), rep(b, n - k))
     }
     else if ((diff > 0)) {
-      vec <- c(rep(a, k), b - diff, rep(b, n_obs - k - 1))
+      vec <- c(rep(a, k), b - diff, rep(b, n - k - 1))
     }
 
-    if (round(mean(vec), sd_prec) != round(mean, sd_prec) | !all(floor(vec*10e9) %in% floor(poss_values*10e9))) {
+    if (round(x(vec), sd_prec) != round(x, sd_prec) | !all(floor(vec*10e9) %in% floor(poss_values*10e9))) {
       stop("Error in calculating range of possible standard deviations")
     }
 
@@ -88,9 +88,9 @@
 
 # Main function -----------------------------------------------------------
 
-GRIMMER_test <- function(mean, sd, n_obs, m_prec = NULL, sd_prec = NULL, n_items = 1, min_val = NULL, max_val = NULL) {
+grimmer_scalar <- function(x, sd, n, m_prec = NULL, sd_prec = NULL, items = 1, min_val = NULL, max_val = NULL) {
   if (is.null(m_prec)) {
-    m_prec <- max(nchar(sub("^[0-9]*", "", mean)) - 1, 0)
+    m_prec <- max(nchar(sub("^[0-9]*", "", x)) - 1, 0)
   }
 
   if (is.null(sd_prec)) {
@@ -99,27 +99,27 @@ GRIMMER_test <- function(mean, sd, n_obs, m_prec = NULL, sd_prec = NULL, n_items
 
   assert_count(m_prec)
   assert_count(sd_prec)
-  assert_count(n_obs)
-  assert_count(n_items)
-  assert_number(mean)
+  assert_count(n)
+  assert_count(items)
+  assert_number(x)
   assert_number(sd)
 
-  effective_n = n_obs * n_items
+  n_items = n * items
 
-  # Applies the GRIM test, and computes the possible mean.
-  sum <- mean * effective_n
-  realsum <- round(sum)
-  realmean <- realsum / effective_n
+  # Applies the GRIM test, and computes the possible x.
+  sum <- x * n_items
+  sum_real <- round(sum)
+  x_real <- sum_real / n_items
 
-  #Checks whether mean and SD are within possible range
+  #Checks whether x and sd are within possible range
   if (!is.null(min_val) & !is.null(max_val)) {
-    if (mean < min_val | mean > max_val) {
-      warning("The mean must be between the scale minimum and maximum")
+    if (x < min_val | x > max_val) {
+      warning("The x must be between the scale minimum and maximum")
       return(FALSE)
     }
-    sd_limits <- .sd_limits(n_obs, mean, min_val, max_val, sd_prec, n_items)
-    if (sd < sd_limits[1] | sd > sd_limits[2]) {
-      warning("Given the scale minimum and maximum, the standard deviation has to be between ", sd_limits[1], " and ", sd_limits[2], ".")
+    sd_bounds <- sd_bounds_measure(n, x, min_val, max_val, sd_prec, items)
+    if (sd < sd_bounds[1] | sd > sd_bounds[2]) {
+      warning("Given the scale minimum and maximum, the standard deviation has to be between ", sd_bounds[1], " and ", sd_bounds[2], ".")
       return(FALSE)
     }
   }
@@ -140,10 +140,10 @@ GRIMMER_test <- function(mean, sd, n_obs, m_prec = NULL, sd_prec = NULL, n_items
     return(number_rounded)
   }
 
-  # Applies the GRIM test, to see whether the reconstituted mean is the same as the reported mean (with both down and up rounding)
+  # Applies the GRIM test, to see whether the reconstituted x is the same as the reported x (with both down and up rounding)
 
-  consistent_down <- round_down(number = realmean, decimals = m_prec) == mean
-  consistent_up <- round_up(number = realmean, decimals = m_prec) == mean
+  consistent_down <- round_down(number = x_real, decimals = m_prec) == x
+  consistent_up <- round_up(number = x_real, decimals = m_prec) == x
 
   if (!consistent_down & !consistent_up) {
     warning("GRIM inconsistent - so GRIMMER test cannot be run. See ?GRIM_test")
@@ -152,13 +152,13 @@ GRIMMER_test <- function(mean, sd, n_obs, m_prec = NULL, sd_prec = NULL, n_items
 
   # Computes the lower and upper bounds for the sd.
 
-  Lsigma <- ifelse(sd < 5 / (10^(sd_prec+1)), 0, sd - 5 / (10^(sd_prec+1)))
-  Usigma <- sd + 5 / (10^(sd_prec+1))
+  sd_lower <- ifelse(sd < 5 / (10^(sd_prec+1)), 0, sd - 5 / (10^(sd_prec+1)))
+  sd_upper <- sd + 5 / (10^(sd_prec+1))
 
   # Computes the lower and upper bounds for the sum of squares of items.
 
-  lower_bound <- ((n_obs - 1) * Lsigma^2 + n_obs * realmean^2)*n_items^2
-  upper_bound <- ((n_obs - 1) * Usigma^2 + n_obs * realmean^2)*n_items^2
+  lower_bound <- ((n - 1) * sd_lower^2 + n * x_real^2)*items^2
+  upper_bound <- ((n - 1) * sd_upper^2 + n * x_real^2)*items^2
 
   # Checks that there is at least an integer between the lower and upperbound
 
@@ -168,28 +168,28 @@ GRIMMER_test <- function(mean, sd, n_obs, m_prec = NULL, sd_prec = NULL, n_items
 
   # Takes a vector of all the integers between the lowerbound and upperbound
 
-  possible_integers <- ceiling(lower_bound):floor(upper_bound)
+  integers_possible <- ceiling(lower_bound):floor(upper_bound)
 
   # Creates the predicted variance and sd
 
-  Predicted_Variance <- (possible_integers/n_items^2 - n_obs * realmean^2) / (n_obs - 1)
-  Predicted_SD <- sqrt(Predicted_Variance)
+  var_predicted <- (integers_possible/items^2 - n * x_real^2) / (n - 1)
+  sd_predicted <- sqrt(var_predicted)
 
-  # Computes whether one Predicted_SD matches the SD (trying to round both down and up)
+  # Computes whether one sd_predicted matches the sd (trying to round both down and up)
 
-  Rounded_SD_down <- round_down(Predicted_SD, sd_prec)
-  Rounded_SD_up <- round_up(Predicted_SD, sd_prec)
+  sd_rounded_down <- round_down(sd_predicted, sd_prec)
+  sd_rounded_up <- round_up(sd_predicted, sd_prec)
 
-  Matches_SD <- Rounded_SD_down == sd | Rounded_SD_up == sd
+  matches_sd <- sd_rounded_down == sd | sd_rounded_up == sd
 
-  if (!any(Matches_SD)) {
+  if (!any(matches_sd)) {
     return(FALSE)
   }
 
-  # Computes whether there is an integer of the correct oddness between the lower and upper bounds.
-  oddness <- realsum %% 2
-  Matches_Oddness <- possible_integers %% 2 == oddness
-  return(any(Matches_SD & Matches_Oddness))
+  # Computes whether there is an integer of the correct parity between the lower and upper bounds.
+  parity <- sum_real %% 2
+  matches_parity <- integers_possible %% 2 == parity
+  return(any(matches_sd & matches_parity))
 
   return(TRUE)
 }

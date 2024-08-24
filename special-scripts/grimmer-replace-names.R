@@ -1,14 +1,37 @@
 
+# NOTE: All variables that should be renamed in scrutiny's version of GRIMMER
+# need to be entered here!
+
+# -- Variables that can't be replaced targeting whole words only, such as any
+# that include dots, need to be entered in `grimmer_names_whole_word_false`.
+# -- All other variables need to be entered in `grimmer_names`.
+
+
 # Load helper functions:
 source("special-scripts/replace-in-file.R")
 
-# All variables that should be renamed in scrutiny's version of GRIMMER need to
-# be entered here!
+
+# Dots don't count toward words, so the script needs this extra table with names
+# that include dots. `replace_from_df()` will then run on it with `whole_word =
+# FALSE`. Note the "\\." escape sequence!
+grimmer_names_whole_word_false <- tibble::tribble(
+  ~rsprite2,             ~scrutiny,
+  "\\.sd_limits",        "sd_bounds_measure"
+)
+
+replace_from_df(
+  path = "R/grimmer-rsprite2.R",
+  df_names = grimmer_names_whole_word_false,
+  col_pattern = "rsprite2",
+  col_replacement = "scrutiny",
+  whole_word = FALSE
+)
+
+
 grimmer_names <- tibble::tribble(
   ~rsprite2,             ~scrutiny,
-  # --- Functions ---
+  # --- Function ---
   "GRIMMER_test",        "grimmer_scalar",
-  ".sd_limits",          "sd_bounds_measure",
   # --- Arguments ---
   # (Note that some arguments from `rsprite2::GRIMMER_test()` are missing in
   # scrutiny's adapted version, and vice versa.)
@@ -38,7 +61,6 @@ grimmer_names <- tibble::tribble(
   "Matches_SD",          "matches_sd",
   "Third_Test",          "pass_test3",
 )
-
 
 # Replace the rsprite2 variable names by those of scrutiny:
 replace_from_df(
