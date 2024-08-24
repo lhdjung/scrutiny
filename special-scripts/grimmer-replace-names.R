@@ -10,6 +10,9 @@
 # Load helper functions:
 source("special-scripts/replace-in-file.R")
 
+# File where variable names should be replaced:
+path_file <- "R/grimmer-rsprite2.R"
+
 
 # Dots don't count toward words, so the script needs this extra table with names
 # that include dots. `replace_from_df()` will then run on it with `whole_word =
@@ -20,7 +23,7 @@ grimmer_names_whole_word_false <- tibble::tribble(
 )
 
 replace_from_df(
-  path = "R/grimmer-rsprite2.R",
+  path = path_file,
   df_names = grimmer_names_whole_word_false,
   col_pattern = "rsprite2",
   col_replacement = "scrutiny",
@@ -64,7 +67,7 @@ grimmer_names <- tibble::tribble(
 
 # Replace the rsprite2 variable names by those of scrutiny:
 replace_from_df(
-  path = "R/grimmer-rsprite2.R",
+  path = path_file,
   df_names = grimmer_names,
   col_pattern = "rsprite2",
   col_replacement = "scrutiny"
