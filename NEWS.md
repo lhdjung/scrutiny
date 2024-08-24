@@ -1,8 +1,40 @@
-# scrutiny 0.4.1
+# scrutiny 0.5.0
 
-## Minor changes
+The package is now released under the MIT license.
 
--   The package is now licensed under the MIT license.
+## Breaking changes
+
+-   The `ratio` column in the output of `grim_map()` and `grim_map_seq()` was replaced by a `probability` column. This means:
+
+    -   Numerically, the only difference is that `probability` is zero whenever `ratio` was negative.
+
+    -   Conceptually, it is much easier to interpret: it is the probability that a reported mean or percentage of integer data that has a specific number of decimal places but is otherwise random is GRIM-inconsistent with the reported sample size.
+
+        For example, `grim_probability(1.23, 40)` returns `0.6`, just as it would for any other mean with two decimal places. This means that a randomly chosen mean with two decimal places, ostensibly derived from integer data, has a 0.6 probability of being GRIM-inconsistent with the reported sample size.
+
+## New features
+
+-   The `probability` column (see above) is created by a new function, `grim_probability()`.
+
+## Lifecycle updates
+
+### Deprecated
+
+-   As a consequence of the above, the `show_prob` argument of `grim_map()` is now deprecated and will be removed in a future version. It no longer has any effect.
+
+-   `grim_ratio_upper()` is deprecated and will be removed in a future version. It no longer seems very interesting (and likely never was), especially now that the GRIM ratio in general has taken a backseat.
+
+-   All 15 (!) functions around `is_subset_of()` are deprecated and will be removed in a future version. In truth, they were always poorly written and widely out of scope for scrutiny.
+
+### Removed
+
+All of these had been deprecated since scrutiny 0.3.0:
+
+-   `audit_list()` was removed.
+
+-   The `sep` argument in `restore_zeros()` and `restore_zeros_df()` was removed.
+
+-   The `numeric_only` argument in `duplicate_count()` and `duplicate_detect()` was removed.
 
 # scrutiny 0.4.0
 
