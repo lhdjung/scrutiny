@@ -6,8 +6,9 @@ source("special-scripts/replace-in-file.R")
 # be entered here!
 grimmer_names <- tibble::tribble(
   ~rsprite2,             ~scrutiny,
-  # --- Function ---
+  # --- Functions ---
   "GRIMMER_test",        "grimmer_scalar",
+  ".sd_limits",          "sd_bounds_measure",
   # --- Arguments ---
   # (Note that some arguments from `rsprite2::GRIMMER_test()` are missing in
   # scrutiny's adapted version, and vice versa.)
@@ -20,6 +21,7 @@ grimmer_names <- tibble::tribble(
   "decimals_SD",         "digits_sd",
   "realmean",            "x_real",
   "realsum",             "sum_real",
+  "sd_limits",           "sd_bounds",
   "effective_n",         "n_items",
   "Lsigma",              "sd_lower",
   "Usigma",              "sd_upper",
@@ -28,8 +30,11 @@ grimmer_names <- tibble::tribble(
   "possible_integers",   "integers_possible",
   "Predicted_Variance",  "var_predicted",
   "Predicted_SD",        "sd_predicted",
+  "oddness",             "parity",
   "Matches_Oddness",     "matches_parity",
   "FirstTest",           "pass_test1",
+  "Rounded_SD_down",     "sd_rounded_down",
+  "Rounded_SD_up",       "sd_rounded_up",
   "Matches_SD",          "matches_sd",
   "Third_Test",          "pass_test3",
 )

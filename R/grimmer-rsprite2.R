@@ -1,12 +1,12 @@
 
 # NOTE: This file was taken from the rsprite2 package
 # (https://github.com/LukasWallrich/rsprite2/blob/master/R/core-functions.R).
-# However, it only contains the `.sd_limits()` and `grimmer_scalar()` functions
-# from the original file.
+# However, it only contains two functions from the original file.
 
 # The idea is to take them as a basis for revamping scrutiny's implementation of
-# GRIMMER, notably fixing the `n_items` argument. TODO: run the
-# grimmer-replace-names.R script on the copy.
+# GRIMMER, notably fixing the `n_items` argument.
+
+# TODO: run the grimmer-replace-names.R script on the copy.
 
 # # All the variable names:
 # GRIMMER_test
