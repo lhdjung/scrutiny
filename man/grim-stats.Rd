@@ -4,15 +4,12 @@
 \alias{grim-stats}
 \alias{grim_probability}
 \alias{grim_ratio}
-\alias{grim_ratio_upper}
 \alias{grim_total}
 \title{Possible GRIM inconsistencies}
 \usage{
 grim_probability(x, n, items = 1, percent = FALSE)
 
 grim_ratio(x, n, items = 1, percent = FALSE)
-
-grim_ratio_upper(x, percent = FALSE)
 
 grim_total(x, n, items = 1, percent = FALSE)
 }
@@ -51,8 +48,6 @@ the mean 1.23 is treated like any other mean with two decimal places.
 negative, which can occur if the sample size is very large. Strictly
 speaking, this is more informative than \code{grim_probability()}, but it is
 harder to interpret.
-\item \code{grim_ratio_upper()} returns the upper bound of \code{grim_ratio()} for a
-given number of decimal places.
 \item \code{grim_total()} returns the absolute number of GRIM-inconsistencies that
 are possible given the mean or percentage's number of decimal places and
 the corresponding sample size.

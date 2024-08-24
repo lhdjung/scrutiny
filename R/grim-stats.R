@@ -14,8 +14,6 @@
 #'   negative, which can occur if the sample size is very large. Strictly
 #'   speaking, this is more informative than `grim_probability()`, but it is
 #'   harder to interpret.
-#'   - `grim_ratio_upper()` returns the upper bound of `grim_ratio()` for a
-#'   given number of decimal places.
 #'   - `grim_total()` returns the absolute number of GRIM-inconsistencies that
 #'   are possible given the mean or percentage's number of decimal places and
 #'   the corresponding sample size.
@@ -85,14 +83,6 @@ grim_ratio <- function(x, n, items = 1, percent = FALSE) {
 }
 
 
-#' @rdname grim-stats
-#' @export
-
-grim_ratio_upper <- function(x, percent = FALSE) {
-  grim_ratio(x = x, n = 1, items = 1, percent = percent)
-}
-
-
 # Absolute ----------------------------------------------------------------
 
 #' @rdname grim-stats
@@ -102,5 +92,32 @@ grim_total <- function(x, n, items = 1, percent = FALSE) {
   if (percent) digits <- digits + 2L
   p10 <- 10 ^ digits
   as.integer(p10 - (n * items))
+}
+
+
+
+#' Upper bound for the GRIM ratio
+#'
+#' @description `r lifecycle::badge("deprecated")`
+#'
+#'   `grim_ratio_upper()` is deprecated because it no longer seems very
+#'   meaningful. It will be removed in a future version.
+#'
+#'   See [`grim_probability()`] for a more interesting measure.
+#'
+#' @inheritParams grim-stats
+#'
+#' @keywords internal
+#'
+#' @return Numeric.
+#'
+#' @export
+grim_ratio_upper <- function(x, percent = FALSE) {
+  lifecycle::deprecate_warn(
+    when = "0.5.0",
+    what = "grim_ratio_upper()",
+    details = "It will be removed in a future version."
+  )
+  grim_ratio(x = x, n = 1, items = 1, percent = percent)
 }
 
