@@ -19,9 +19,6 @@
 #'   newly created columns.
 #' @param name_class String. Name of the class which the factory-made function
 #'   will add to the tibble that it returns.
-#' @param include_numeric_only_arg Logical. Should the factory-made function
-#'   have the deprecated `numeric_only = TRUE` argument? Only for compatibility
-#'   with older versions of scrutiny (i.e., before 0.3.0). Default is `FALSE`.
 #'
 #' @include utils.R
 #'
