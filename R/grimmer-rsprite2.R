@@ -97,13 +97,6 @@ grimmer_scalar <- function(x, sd, n, m_prec = NULL, sd_prec = NULL, items = 1, m
     sd_prec <- max(nchar(sub("^[0-9]*", "", sd)) - 1, 0)
   }
 
-  assert_count(m_prec)
-  assert_count(sd_prec)
-  assert_count(n)
-  assert_count(items)
-  assert_number(x)
-  assert_number(sd)
-
   n_items = n * items
 
   # Applies the GRIM test, and computes the possible x.
