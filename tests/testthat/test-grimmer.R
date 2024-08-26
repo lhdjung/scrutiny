@@ -197,14 +197,15 @@ test_that("the two functions disagree on less than 3 percent of cases", {
 
 # New implementation from rsprite2 ----------------------------------------
 
-# test_that("GRIMMER works", {
-#   expect_true(grimmer_scalar(5.21, 1.6, 28))
-#   expect_false(grimmer_scalar(3.44, 2.47, 18))
-# })
-#
-# test_that("sd_bounds_measure works", {
-#   expect_equal(c(.45, 3.03), sd_bounds_measure(n = 5, x = 4.2, min_val = 1, max_val = 7, sd_prec = 2))
-#   expect_equal(c(.27, 3.03), sd_bounds_measure(n = 5, x = 4.2, min_val = 1, max_val = 7, sd_prec = 2, items = 2))
-#   expect_equal(c(0, 0), sd_bounds_measure(n = 100, x = 1, min_val = 1, max_val = 7))
-# })
+test_that("GRIMMER works", {
+  expect_true(grimmer_scalar(5.21, 1.6, 28))
+  expect_false(grimmer_scalar(3.44, 2.47, 18))
+})
+
+test_that("sd_bounds_measure works", {
+  expect_equal(c(.45, 3.03), sd_bounds_measure(n = 5, x = 4.2, min_val = 1, max_val = 7, sd_prec = 2))
+  expect_equal(c(.27, 3.03), sd_bounds_measure(n = 5, x = 4.2, min_val = 1, max_val = 7, sd_prec = 2, items = 2))
+  expect_equal(c(0, 0), sd_bounds_measure(n = 100, x = 1, min_val = 1, max_val = 7))
+})
+
 
