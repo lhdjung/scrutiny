@@ -15,15 +15,14 @@ consistency using techniques like GRIM and to check their plausibility.
 The package makes these methods easy to use in a tidyverse-friendly way.
 It hopes to help the new field of error detection go mainstream.
 
+You can use the most important parts in the [Error
+detection](https://errors.shinyapps.io/scrutiny) Shiny app instead.
+
 Besides ready-made tests, scrutiny features a complete system for
 implementing new consistency tests. It also has duplication analysis,
 more general infrastructure for implementing error detection techniques,
 as well as specialized data wrangling functions. See the *Articles* tab
 for vignettes.
-
-scrutiny is a work in progress. You are welcome to contribute with pull
-requests. However, please [open an
-issue](https://github.com/lhdjung/scrutiny/issues) first.
 
 Install the package from CRAN:
 
