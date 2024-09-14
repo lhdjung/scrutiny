@@ -39,16 +39,17 @@
 
 
 # # Example inputs:
+# x <- "1.03"
+# sd <- "0.41"
 # n <- 40
-# mean <- 1.03
-# SD <- 0.41
 # items <- 1
+# show_reason <- TRUE
 # rounding <- "up_or_down"
 # threshold <- 5
 # symmetric <- FALSE
 # tolerance <- .Machine$double.eps^0.5
-# decimals_mean <- 2
-# decimals_SD <- 2
+# # decimals_mean <- 2
+# # decimals_SD <- 2
 
 
 # Implementation ----------------------------------------------------------
@@ -98,7 +99,7 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
     return(FALSE)
   }
 
-  p10 <- 10 ^ digits_sd
+  p10 <- 10 ^ (digits_sd + 1)
   p10_frac <- 5 / p10
 
   # SD bounds, lower and upper:
@@ -111,8 +112,8 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
   sd_upper <- sd + p10_frac
 
   # Sum of squares bounds, lower and upper:
-  sum_squares_lower <- ((n - 1) * sd_lower ^ 2 + n * x_real) * items ^ 2
-  sum_squares_upper <- ((n - 1) * sd_upper ^ 2 + n * x_real) * items ^ 2
+  sum_squares_lower <- ((n - 1) * sd_lower ^ 2 + n * x_real ^ 2) * items ^ 2
+  sum_squares_upper <- ((n - 1) * sd_upper ^ 2 + n * x_real ^ 2) * items ^ 2
 
   pass_test1 <- ceiling(sum_squares_lower) <= floor(sum_squares_upper)
 
@@ -129,7 +130,6 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
 
   # Create the predicted variance and SD:
   var_predicted <- (integers_possible / items ^ 2 - n * x_real ^ 2) / (n - 1)
-  return(var_predicted)
   sd_predicted <- sqrt(var_predicted)
 
   # Reconstruct the SD:
@@ -141,9 +141,9 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
     symmetric = symmetric
   )
 
-  # Introduce some numeric tolerance to the SD values before comparing them:
-  sd <- dustify(sd)
-  sd_rec_rounded <- dustify(sd_rec_rounded)
+  # # Introduce some numeric tolerance to the SD values before comparing them:
+  # sd <- dustify(sd)
+  # sd_rec_rounded <- dustify(sd_rec_rounded)
 
   matches_sd <- dplyr::near(sd, sd_rec_rounded, tol = tolerance)
   pass_test2 <- any(matches_sd[!is.na(matches_sd)])
@@ -161,7 +161,6 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
   parity_integers_possible <- integers_possible %% 2
 
   matches_parity <- parity_sum_real == parity_integers_possible
-
   pass_test3 <- any(matches_sd & matches_parity)
 
   if (!pass_test3) {
@@ -171,11 +170,13 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
     return(FALSE)
   }
 
+  # All the tests were passed, so the inputs are GRIMMER-consistent:
   if (show_reason) {
     list(TRUE, "Passed all")
   } else {
     TRUE
   }
+
 }
 
 
