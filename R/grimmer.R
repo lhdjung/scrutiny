@@ -38,7 +38,7 @@
 # Third_Test         --> pass_test3
 
 
-# # Example inputs:
+# # Example inputs 1:
 # x <- "1.03"
 # sd <- "0.41"
 # n <- 40
@@ -50,6 +50,37 @@
 # tolerance <- .Machine$double.eps^0.5
 # # decimals_mean <- 2
 # # decimals_SD <- 2
+
+
+# # Example inputs 2:
+# # (actually derived from this distribution: c(1, 1, 2, 3, 3, 4, 4, 4, 4, 5))
+# x <- "3.10"
+# sd <- "1.37"
+# n <- 10
+# items <- 1
+# show_reason <- TRUE
+# rounding <- "up_or_down"
+# threshold <- 5
+# symmetric <- FALSE
+# tolerance <- .Machine$double.eps^0.5
+# # decimals_mean <- 2
+# # decimals_SD <- 2
+
+
+# # Example inputs 3:
+# # (edge case from `pigs5`)
+# x <- "2.57"
+# sd <- "2.57"
+# n <- 30
+# items <- 1
+# show_reason <- TRUE
+# rounding <- "up_or_down"
+# threshold <- 5
+# symmetric <- FALSE
+# tolerance <- .Machine$double.eps^0.5
+# # decimals_mean <- 2
+# # decimals_SD <- 2
+
 
 
 # Implementation ----------------------------------------------------------
@@ -83,7 +114,7 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
   x_real <- sum_real / n_items
 
 
-  # GRIM test. It says `x_orig` because the `x` object has been coerced from
+  # GRIM TEST: It says `x_orig` because the `x` object has been coerced from
   # character to numeric, but `grim_scalar()` needs the original number-string.
   # Similarly, since this function also gets `items` passed down, it needs the
   # original `n`, not `n_items`.
@@ -115,6 +146,16 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
   sum_squares_lower <- ((n - 1) * sd_lower ^ 2 + n * x_real ^ 2) * items ^ 2
   sum_squares_upper <- ((n - 1) * sd_upper ^ 2 + n * x_real ^ 2) * items ^ 2
 
+  # TEST 1: Check that there is at least one integer between the lower and upper
+  # bounds (of the reconstructed sum of squares of the -- most likely unknown --
+  # values for which `x` was reported as a mean). Ceiling the lower bound and
+  # flooring the upper bound determines whether there are any integers between
+  # the two. For example:
+  # -- If `sum_squares_lower` is 112.869 and `sum_squares_upper` is 113.1156,
+  # `ceiling(sum_squares_lower)` and `floor(sum_squares_upper)` both return
+  # `113`, so there is an integer between them, and `<=` returns `TRUE`.
+  # -- TODO: add an example where there is no integer in between; and thus,
+  # `pass_test1` is `FALSE`.
   pass_test1 <- ceiling(sum_squares_lower) <= floor(sum_squares_upper)
 
   if (!pass_test1) {
@@ -141,11 +182,23 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
     symmetric = symmetric
   )
 
-  # # Introduce some numeric tolerance to the SD values before comparing them:
-  # sd <- dustify(sd)
-  # sd_rec_rounded <- dustify(sd_rec_rounded)
+  # Introduce a small numeric tolerance to the reported and reconstructed SD
+  # values before comparing them. This helps avoid false-negative results of the
+  # comparison (i.e., treating equal values as unequal) that might occur due to
+  # spurious precision in floating-point numbers.
+  sd <- dustify(sd)
+  sd_rec_rounded <- dustify(sd_rec_rounded)
 
-  matches_sd <- dplyr::near(sd, sd_rec_rounded, tol = tolerance)
+  # Check the reported SD for near-equality with the reconstructed SD values;
+  # i.e., equality within a very small tolerance. This test is applied via
+  # `purrr::map_lgl()` because `dustify()` doubled the length of both vectors.
+  matches_sd <- purrr::map_lgl(
+    .x = sd,
+    .f = function(x) any(dplyr::near(x, sd_rec_rounded, tol = tolerance))
+  )
+
+  # TEST 2: If none of the reconstructed SDs matches the reported one, the
+  # inputs are GRIMMER-inconsistent.
   pass_test2 <- any(matches_sd[!is.na(matches_sd)])
 
   if (!pass_test2) {
@@ -155,13 +208,18 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
     return(FALSE)
   }
 
-  # Determine if any integer between the lower and upper bounds has the correct
-  # parity (the property of being even or odd):
-  parity_sum_real <- sum_real %% 2
-  parity_integers_possible <- integers_possible %% 2
+  # Determine if any integer between the lower and upper bounds has the same
+  # parity (i.e., the property of being even or odd) as the reconstructed sum:
+  matches_parity <- sum_real %% 2 == integers_possible %% 2
 
-  matches_parity <- parity_sum_real == parity_integers_possible
-  pass_test3 <- any(matches_sd & matches_parity)
+  matches_sd_and_parity <- purrr::map_lgl(
+    .x = matches_parity,
+    .f = function(x) any(x & matches_sd)
+  )
+
+  # TEST 3: At least one none of the reconstructed SDs has to match the reported
+  # one, and the corresponding reconstructed sums have to match in parity.
+  pass_test3 <- any(matches_sd_and_parity)
 
   if (!pass_test3) {
     if (show_reason) {
@@ -170,7 +228,8 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
     return(FALSE)
   }
 
-  # All the tests were passed, so the inputs are GRIMMER-consistent:
+  # All the tests were passed if the algorithm reaches this point, so the inputs
+  # are GRIMMER-consistent:
   if (show_reason) {
     list(TRUE, "Passed all")
   } else {

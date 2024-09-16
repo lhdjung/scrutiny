@@ -79,6 +79,19 @@
 #'   audit()
 
 
+# data <- pigs5
+# items <- 1
+# merge_items <- TRUE
+# x <- NULL
+# sd <- NULL
+# n <- NULL
+# show_reason <- TRUE
+# rounding <- "up_or_down"
+# threshold <- 5
+# symmetric <- FALSE
+# tolerance <- .Machine$double.eps^0.5
+
+
 grimmer_map <- function(data, items = 1, merge_items = TRUE,
                         x = NULL, sd = NULL, n = NULL,
                         show_reason = TRUE, rounding = "up_or_down",
