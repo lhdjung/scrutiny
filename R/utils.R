@@ -6,7 +6,7 @@ utils::globalVariables(c(
   "frac", "distance", "both_consistent", "fun", "var", "dispersion", "out_min",
   "out_max", "include_reported", "n", "times", "value", "name", "setNames",
   "rounding", "case", "n_sum", "consistency", "ratio", "scr_index_case",
-  "dust", "starts_with", "value_duplicated", "variable", "sd_lower",
+  "starts_with", "value_duplicated", "variable", "sd_lower",
   "sd_incl_lower", "sd_upper", "sd_incl_upper", "x_lower", "x_upper",
   "dupe_count", "fun_name",
   # Added after rewriting the function factories using `rlang::new_function()`:
@@ -1208,19 +1208,14 @@ name_caller_call <- function(n = 1L, wrap = TRUE) {
 
 
 
-# "Dust" variables were used by Nick Brown and later by Lukas Wallrich in
-# rsprite2. They get rid of spurious precision in reconstructed decimal numbers:
-dust <- 1e-12
-
-
-
 #' Subtle variations to numbers
 #'
-#' @description Reduplicate a numeric vector, subtly varying it below and above
-#'   the original. This avoids issues of spurious precision in floating-point
-#'   arithmetic.
+#' @description Reduplicate a numeric vector, varying it below and above the
+#'   original by a very small number (`1e-12`). This avoids issues of spurious
+#'   precision in floating-point arithmetic.
 #'
-#'   The difference is the global variable `dust`.
+#'   Similar "dust" values were previously used by Nick Brown, and later by
+#'   Lukas Wallrich in rsprite2.
 #'
 #' @param x Numeric.
 #'
@@ -1229,11 +1224,11 @@ dust <- 1e-12
 #' @details The idea is to catch very minor variation from `x` introduced by
 #'   spurious precision in floating point numbers, so that such purely
 #'   accidental deviations don't lead to false assertions of substantively
-#'   important numeric difference when there is none.
+#'   important numeric difference.
 #'
 #' @noRd
 dustify <- function(x) {
-  c(x - dust, x + dust)
+  c(x - 1e-12, x + 1e-12)
 }
 
 
