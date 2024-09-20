@@ -56,16 +56,16 @@ For discussion, see \code{vignette("grim")}, section \emph{GRIM statistics}.
 }
 \examples{
 # Many value sets are inconsistent here:
-grim_total(x = 83.29, n = 21)
-grim_probability(x = 83.29, n = 21)
+grim_probability(x = "83.29", n = 21)
+grim_total(x = "83.29", n = 21)
 
 # No sets are inconsistent in this case...
-grim_total(x = 5.14, n = 83)
-grim_probability(x = 5.14, n = 83)
+grim_probability(x = "5.14", n = 83)
+grim_total(x = "5.14", n = 83)
 
 # ... but most would be if `x` was a percentage:
-grim_total(x = 5.14, n = 83, percent = TRUE)
-grim_probability(x = 5.14, n = 83, percent = TRUE)
+grim_probability(x = "5.14", n = 83, percent = TRUE)
+grim_total(x = "5.14", n = 83, percent = TRUE)
 }
 \references{
 Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A

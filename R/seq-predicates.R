@@ -51,8 +51,8 @@ is_seq_descending_basic <- function(x) {
 }
 
 
-# # Test with:
-# x <- c(2, 3, 5, 7, NA)
+# # Test interactively:
+# x <- c(NA, NA, 3:7)
 # tolerance <- .Machine$double.eps^0.5
 # test_linear <- FALSE
 # test_special <- "dispersed"
@@ -105,9 +105,12 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
       return(NA)
     }
 
-    # Indices of `NA`s at the start and end of `x`:
-    na_start <- seq_len(not_na[1L] - 1L)
-    na_end   <- (not_na[length(not_na)] + 1L):n_x_orig
+    # # Indices of `NA`s at the start and end of `x`:
+    # na_start <- seq_len(not_na[1L] - 1L)
+    # na_end   <- (not_na[length(not_na)] + 1L):n_x_orig
+
+    na_start <- seq_len(match(FALSE,     is.na(x_orig))  - 1L)
+    na_end   <- seq_len(match(FALSE, rev(is.na(x_orig))) - 1L)
 
     # Remove all `NA` values from the start and the end of `x` because `NA`s at
     # these particular locations cannot disprove that `x` is the kind of
@@ -120,26 +123,7 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
     # had any `NA` values, the original `x` was not symmetrically grouped around
     # that value, and hence not a dispersed sequence:
     if (!is.null(test_special) && test_special == "dispersed") {
-      # if (
-      #   is_even(length(x)) ||
-      #   !dplyr::near(args_other$from, x[index_central(x)], tolerance) ||
-      #   (!is.na(x_orig[1L]) || !is.na(x_orig[length(x_orig)]))
-      # )
-      # diff_central_index <-
-      #   !dplyr::near(args_other$from, x[index_central(x)], tolerance)
-      # if (diff_central_index) {
-      #   print("Yep, `diff_central_index`")
-      #   print(paste("`args_other$from`: ", args_other$from))
-      #   print(paste("`x[index_central(x)]`: ", x[index_central(x)]))
-      # }
-      # one_sided_na <- is.na(x_orig[1L]) != is.na(x_orig[length(x_orig)])
-
-      # TODO: FIGURE OUT HOW TO CAPTURE CENTRAL INDEX SHIFT WITHOUT TREATING
-      # `NA` LIKE A KNOWN VALUE. FOR EXAMPLE, THIS SHOULD RETURN `NA`, NOT
-      # `FALSE`:
-      # is_seq_dispersed(x = c(2, 3, 5, 7, NA), from = 5, test_linear = FALSE)
-      if (is_even(n_x_orig)) {  #  diff_central_index || one_sided_na
-        print("It happened here")
+      if (length(na_start) != length(na_end)) {
         return(FALSE)
       }
     }
