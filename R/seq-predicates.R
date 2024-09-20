@@ -28,7 +28,17 @@ is_seq_linear_basic <- function(x) {
   if (length(x) < 3L) {
     return(TRUE)
   }
-  norm_diff <- x[2L] - x[1L]
+  # As the difference between each successive pair of values must be equal for
+  # `x` to be a linear sequence, we can take the first pairwise difference and
+  # test each other difference for equality with it. If any comparison turns out
+  # unequal, `x` is not a linear sequence.
+  diff_first <- x[2L] - x[1L]
+  for (i in 3L:length(x)) {
+    if (x[i] - x[i - 1L] != diff_first) {
+      return(FALSE)
+    }
+  }
+  TRUE
 }
 
 is_seq_ascending_basic <- function(x) {
@@ -51,8 +61,8 @@ is_seq_descending_basic <- function(x) {
 }
 
 
-# # Test interactively:
-# x <- c(NA, NA, 3:7)
+# # Test `is_seq_dispersed()` -- not the basic function! -- interactively:
+# x <- c(NA, 3:6, NA, NA)
 # tolerance <- .Machine$double.eps^0.5
 # test_linear <- FALSE
 # test_special <- "dispersed"
@@ -106,11 +116,11 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
     }
 
     # # Indices of `NA`s at the start and end of `x`:
-    # na_start <- seq_len(not_na[1L] - 1L)
-    # na_end   <- (not_na[length(not_na)] + 1L):n_x_orig
+    # n_na_start <- seq_len(not_na[1L] - 1L)
+    # n_na_end   <- (not_na[length(not_na)] + 1L):n_x_orig
 
-    na_start <- seq_len(match(FALSE,     is.na(x_orig))  - 1L)
-    na_end   <- seq_len(match(FALSE, rev(is.na(x_orig))) - 1L)
+    n_na_start <- match(FALSE,     is.na(x_orig))  - 1L
+    n_na_end   <- match(FALSE, rev(is.na(x_orig))) - 1L
 
     # Remove all `NA` values from the start and the end of `x` because `NA`s at
     # these particular locations cannot disprove that `x` is the kind of
@@ -118,14 +128,37 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
     # function will return either `NA` or `FALSE`, depending on other factors.)
     x <- x[not_na[1L]:not_na[length(not_na)]]
 
+    if (test_linear && !is_seq_linear_basic(x)) {
+      return(FALSE)
+    }
+
     # If the removal of leading and / or trailing `NA` elements in `x` caused
     # the central value to shift, or if only one side from among left and right
-    # had any `NA` values, the original `x` was not symmetrically grouped around
-    # that value, and hence not a dispersed sequence:
-    if (!is.null(test_special) && test_special == "dispersed") {
-      if (length(na_start) != length(na_end)) {
-        return(FALSE)
+    # had any `NA` values, the original `x` might not have been symmetrically
+    # grouped around that value, and hence not a dispersed sequence. It depends
+    # on whether it could potentially be dispersed, assuming values consistent
+    # with this idea that are imputed for the `NA`s here.
+    if (
+      !is.null(test_special) &&
+      test_special == "dispersed" &&
+      n_na_start != n_na_end
+    ) {
+      unit <- x[2] - x[1]
+
+      # Impute sequences of regularly spaces values that the `NA`s might stand
+      # for, so that the input could potentially be dispersed around
+      # `args_other$from`...
+      seq_na_start <- seq(x[1],         length.out = n_na_start, by = -unit) - 1
+      seq_na_end   <- seq(x[length(x)], length.out = n_na_end,   by =  unit) + 1
+
+      seq_imputed <- c(rev(seq_na_start), x, seq_na_end)
+
+      # ...assuming the overall (partly imputed) sequence is still dispersed
+      # around that value:
+      if (is_seq_dispersed(seq_imputed, from = args_other$from)) {
+        return(NA)
       }
+      return(FALSE)
     }
 
     # Used within the for loop below to check whether the step size must be
