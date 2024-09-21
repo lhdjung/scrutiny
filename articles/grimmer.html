@@ -5,83 +5,68 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="description" content="scrutiny">
 <title>GRIMMER • scrutiny</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="GRIMMER">
-<meta property="og:description" content="scrutiny">
-<!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
-<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-<![endif]-->
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="GRIMMER">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
-    
 
-    <nav class="navbar fixed-top navbar-dark navbar-expand-lg bg-primary"><div class="container">
-    
+
+    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
     <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
-    
+
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item">
-  <a class="nav-link" href="../reference/index.html">Reference</a>
-</li>
+<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item dropdown">
-  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
-  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <h6 class="dropdown-header" data-toc-skip>Consistency tests</h6>
-    <a class="dropdown-item" href="../articles/grim.html">GRIM</a>
-    <a class="dropdown-item" href="../articles/grimmer.html">GRIMMER</a>
-    <a class="dropdown-item" href="../articles/debit.html">DEBIT</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>Plausibility checks</h6>
-    <a class="dropdown-item" href="../articles/duplicates.html">Duplication analysis</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>Quick guides</h6>
-    <a class="dropdown-item" href="../articles/rounding-options.html">Rounding options</a>
-    <a class="dropdown-item" href="../articles/consistency-tests-simple.html">Implementing your consistency test</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>Developer tools</h6>
-    <a class="dropdown-item" href="../articles/rounding-in-depth.html">Rounding in depth</a>
-    <a class="dropdown-item" href="../articles/consistency-tests-in-depth.html">Consistency tests in depth</a>
-    <a class="dropdown-item" href="../articles/devtools.html">Developer tools</a>
-    <a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>Other</h6>
-    <a class="dropdown-item" href="../articles/related.html">Related software</a>
-  </div>
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
+<li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Consistency tests</h6></li>
+    <li><a class="dropdown-item" href="../articles/grim.html">GRIM</a></li>
+    <li><a class="dropdown-item" href="../articles/grimmer.html">GRIMMER</a></li>
+    <li><a class="dropdown-item" href="../articles/debit.html">DEBIT</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Plausibility checks</h6></li>
+    <li><a class="dropdown-item" href="../articles/duplicates.html">Duplication analysis</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Quick guides</h6></li>
+    <li><a class="dropdown-item" href="../articles/rounding-options.html">Rounding options</a></li>
+    <li><a class="dropdown-item" href="../articles/consistency-tests-simple.html">Implementing your consistency test</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Developer tools</h6></li>
+    <li><a class="dropdown-item" href="../articles/rounding-in-depth.html">Rounding in depth</a></li>
+    <li><a class="dropdown-item" href="../articles/consistency-tests-in-depth.html">Consistency tests in depth</a></li>
+    <li><a class="dropdown-item" href="../articles/devtools.html">Developer tools</a></li>
+    <li><a class="dropdown-item" href="../articles/wrangling.html">Data wrangling</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Other</h6></li>
+    <li><a class="dropdown-item" href="../articles/related.html">Related software</a></li>
+  </ul>
 </li>
-<li class="nav-item">
-  <a class="nav-link" href="../news/index.html">Changelog</a>
-</li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
-<form class="form-inline my-2 my-lg-0" role="search">
-        <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off">
-</form>
-
-      <ul class="navbar-nav">
-<li class="nav-item">
-  <a class="external-link nav-link" href="https://github.com/lhdjung/scrutiny/" aria-label="github">
-    <span class="fab fa fab fa-github fa-lg"></span>
-     
-  </a>
-</li>
+<ul class="navbar-nav">
+<li class="nav-item"><form class="form-inline" role="search">
+ <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
+</form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/lhdjung/scrutiny/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
-    
+
   </div>
 </nav><div class="container template-article">
 
@@ -90,10 +75,11 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="" class="logo" alt=""><h1>GRIMMER</h1>
+
+      <h1>GRIMMER</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/lhdjung/scrutiny/blob/HEAD/vignettes/grimmer.Rmd" class="external-link"><code>vignettes/grimmer.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/lhdjung/scrutiny/blob/main/vignettes/grimmer.Rmd" class="external-link"><code>vignettes/grimmer.Rmd</code></a></small>
       <div class="d-none name"><code>grimmer.Rmd</code></div>
     </div>
 
@@ -168,16 +154,15 @@ will only describe an easily accessible solution for a single table.</p>
 <code><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tibble::tribble()</a></code>, which is available via scrutiny:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">flying_pigs1</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
-<span>  <span class="op">~</span><span class="va">x</span>,   <span class="op">~</span><span class="va">sd</span>,</span>
-<span><span class="st">"8.9"</span>,  <span class="st">"2.81"</span>,</span>
-<span><span class="st">"2.6"</span>,  <span class="st">"2.05"</span>,</span>
-<span><span class="st">"7.2"</span>,  <span class="st">"2.89"</span>,</span>
-<span><span class="st">"3.6"</span>,  <span class="st">"3.11"</span>,</span>
-<span><span class="st">"9.2"</span>,  <span class="st">"7.13"</span>,</span>
-<span><span class="st">"10.4"</span>, <span class="st">"2.53"</span>,</span>
-<span><span class="st">"7.3"</span>,  <span class="st">"3.14"</span></span>
-<span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">25</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="op">~</span><span class="va">x</span>,   <span class="op">~</span><span class="va">sd</span>,    <span class="op">~</span><span class="va">n</span>,</span>
+<span><span class="st">"8.9"</span>,  <span class="st">"2.81"</span>,  <span class="fl">25</span>,</span>
+<span><span class="st">"2.6"</span>,  <span class="st">"2.05"</span>,  <span class="fl">25</span>,</span>
+<span><span class="st">"7.2"</span>,  <span class="st">"2.89"</span>,  <span class="fl">25</span>,</span>
+<span><span class="st">"3.6"</span>,  <span class="st">"3.11"</span>,  <span class="fl">25</span>,</span>
+<span><span class="st">"9.2"</span>,  <span class="st">"7.13"</span>,  <span class="fl">25</span>,</span>
+<span><span class="st">"10.4"</span>, <span class="st">"2.53"</span>,  <span class="fl">25</span>,</span>
+<span><span class="st">"7.3"</span>,  <span class="st">"3.14"</span>,  <span class="fl">25</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p>Use RStudio’s multiple cursors to draw quotation marks around all the
 <code>x</code> and <code>sd</code> values, and to set commas at the end.
 See <code><a href="../articles/wrangling.html">vignette("wrangling")</a></code>, section <em>With copy and
@@ -189,9 +174,9 @@ paste</em>, if you are not sure how to do that.</p>
 <span><span class="co">#&gt;   x     sd        n consistency reason                       </span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                        </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 8.9   2.81     25 FALSE       GRIMMER inconsistent (test 3)</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 2.6   2.05     25 TRUE        Passed all                   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 2.6   2.05     25 FALSE       GRIMMER inconsistent (test 3)</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 7.2   2.89     25 TRUE        Passed all                   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 3.6   3.11     25 FALSE       GRIMMER inconsistent (test 3)</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 3.6   3.11     25 TRUE        Passed all                   </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 9.2   7.13     25 TRUE        Passed all                   </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 10.4  2.53     25 TRUE        Passed all                   </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 7.3   3.14     25 TRUE        Passed all</span></span></code></pre></div>
@@ -206,30 +191,36 @@ separate tests: the three GRIMMER tests by <span class="citation">Allard
 values passed GRIM as well as the first two GRIMMER tests, but failed
 the third one. All consistent value sets are marked as
 <code>"Passed all"</code> in the <code>"reason"</code> column.</p>
+<p>Here is a quick reference for the three GRIMMER tests. See <span class="citation">Allard (2018)</span> for an explanation.</p>
+<ol style="list-style-type: decimal">
+<li>The reconstructed sum of squared observations must be a whole
+number.</li>
+<li>The reconstructed SD must match the reported one.</li>
+<li>The parity of the reconstructed sum of squared observations must
+match the parity of the reconstructed sum of integers of which the
+reported means are fractions; i.e., either both are even or both are
+odd.</li>
+</ol>
 </div>
 <div class="section level4">
 <h4 id="scale-items">Scale items<a class="anchor" aria-label="anchor" href="#scale-items"></a>
 </h4>
-<p><strong>NOTE: Don’t use the <code>items</code> argument. It currently
-contains a bug that will be fixed in scrutiny’s next CRAN
-release.</strong></p>
 <p>If a mean is composed of multiple items, set the <code>items</code>
 parameter to that number. Below are hypothetical means of a three-items
 scale. With the single-item default, half of these are wrongly flagged
-as inconsistent:</p>
+as GRIM-inconsistent (true GRIMMER example below):</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">jpap_1</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
-<span>   <span class="op">~</span><span class="va">x</span>,    <span class="op">~</span><span class="va">sd</span>,</span>
-<span>  <span class="st">"5.90"</span>, <span class="st">"2.19"</span>,</span>
-<span>  <span class="st">"5.71"</span>, <span class="st">"1.42"</span>,</span>
-<span>  <span class="st">"3.50"</span>, <span class="st">"1.81"</span>,</span>
-<span>  <span class="st">"3.82"</span>, <span class="st">"2.43"</span>,</span>
-<span>  <span class="st">"4.61"</span>, <span class="st">"1.92"</span>,</span>
-<span>  <span class="st">"5.24"</span>, <span class="st">"2.51"</span>,</span>
-<span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">40</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">flying_pigs2</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
+<span>   <span class="op">~</span><span class="va">x</span>,    <span class="op">~</span><span class="va">sd</span>,    <span class="op">~</span><span class="va">n</span>,</span>
+<span>  <span class="st">"5.90"</span>, <span class="st">"2.19"</span>,  <span class="fl">40</span>,</span>
+<span>  <span class="st">"5.71"</span>, <span class="st">"1.42"</span>,  <span class="fl">40</span>,</span>
+<span>  <span class="st">"3.50"</span>, <span class="st">"1.81"</span>,  <span class="fl">40</span>,</span>
+<span>  <span class="st">"3.82"</span>, <span class="st">"2.43"</span>,  <span class="fl">40</span>,</span>
+<span>  <span class="st">"4.61"</span>, <span class="st">"1.92"</span>,  <span class="fl">40</span>,</span>
+<span>  <span class="st">"5.24"</span>, <span class="st">"2.51"</span>,  <span class="fl">40</span></span>
+<span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">jpap_1</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span><span class="va">flying_pigs2</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/grimmer_map.html">grimmer_map</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># default is wrong here!</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 5</span></span></span>
 <span><span class="co">#&gt;   x     sd        n consistency reason           </span></span>
@@ -243,20 +234,8 @@ as inconsistent:</p>
 <p>Yet, all of them are consistent if the correct number of items is
 stated:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">jpap_1</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<code class="sourceCode R"><span><span class="va">flying_pigs2</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/grimmer_map.html">grimmer_map</a></span><span class="op">(</span>items <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: The `items` argument in GRIMMER functions doesn't currently work the way it</span></span>
-<span><span class="co">#&gt; should.</span></span>
-<span><span class="co">#&gt; The `items` argument in GRIMMER functions doesn't currently work the way it</span></span>
-<span><span class="co">#&gt; should.</span></span>
-<span><span class="co">#&gt; The `items` argument in GRIMMER functions doesn't currently work the way it</span></span>
-<span><span class="co">#&gt; should.</span></span>
-<span><span class="co">#&gt; The `items` argument in GRIMMER functions doesn't currently work the way it</span></span>
-<span><span class="co">#&gt; should.</span></span>
-<span><span class="co">#&gt; The `items` argument in GRIMMER functions doesn't currently work the way it</span></span>
-<span><span class="co">#&gt; should.</span></span>
-<span><span class="co">#&gt; The `items` argument in GRIMMER functions doesn't currently work the way it</span></span>
-<span><span class="co">#&gt; should.</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 5</span></span></span>
 <span><span class="co">#&gt;   x     sd        n consistency reason    </span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     </span></span>
@@ -267,29 +246,21 @@ stated:</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 4.61  1.92    120 TRUE        Passed all</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 5.24  2.51    120 TRUE        Passed all</span></span></code></pre></div>
 <p>It is also possible to include an <code>items</code> column in the
-data frame instead:</p>
+data frame instead. This is helpful if the rows have different numbers
+of items:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">jpap_2</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
-<span>   <span class="op">~</span><span class="va">x</span>,     <span class="op">~</span><span class="va">sd</span>,    <span class="op">~</span><span class="va">items</span>,</span>
-<span>  <span class="st">"6.92"</span>,  <span class="st">"2.19"</span>,  <span class="fl">1</span>,</span>
-<span>  <span class="st">"3.48"</span>,  <span class="st">"1.42"</span>,  <span class="fl">1</span>,</span>
-<span>  <span class="st">"1.59"</span>,  <span class="st">"1.81"</span>,  <span class="fl">2</span>,</span>
-<span>  <span class="st">"2.61"</span>,  <span class="st">"2.43"</span>,  <span class="fl">2</span>,</span>
-<span>  <span class="st">"4.04"</span>,  <span class="st">"1.92"</span>,  <span class="fl">3</span>,</span>
-<span>  <span class="st">"4.50"</span>,  <span class="st">"2.51"</span>,  <span class="fl">3</span>,</span>
-<span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">flying_pigs3</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
+<span>   <span class="op">~</span><span class="va">x</span>,     <span class="op">~</span><span class="va">sd</span>,    <span class="op">~</span><span class="va">n</span>,  <span class="op">~</span><span class="va">items</span>,</span>
+<span>  <span class="st">"6.92"</span>,  <span class="st">"2.19"</span>,  <span class="fl">30</span>,  <span class="fl">1</span>,</span>
+<span>  <span class="st">"3.48"</span>,  <span class="st">"1.42"</span>,  <span class="fl">30</span>,  <span class="fl">1</span>,</span>
+<span>  <span class="st">"1.59"</span>,  <span class="st">"1.81"</span>,  <span class="fl">30</span>,  <span class="fl">2</span>,</span>
+<span>  <span class="st">"2.61"</span>,  <span class="st">"2.43"</span>,  <span class="fl">30</span>,  <span class="fl">2</span>,</span>
+<span>  <span class="st">"4.04"</span>,  <span class="st">"1.92"</span>,  <span class="fl">30</span>,  <span class="fl">3</span>,</span>
+<span>  <span class="st">"4.50"</span>,  <span class="st">"2.51"</span>,  <span class="fl">30</span>,  <span class="fl">3</span>,</span>
+<span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">jpap_2</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span><span class="va">flying_pigs3</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/grimmer_map.html">grimmer_map</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: The `items` argument in GRIMMER functions doesn't currently work the way it</span></span>
-<span><span class="co">#&gt; should.</span></span>
-<span><span class="co">#&gt; The `items` argument in GRIMMER functions doesn't currently work the way it</span></span>
-<span><span class="co">#&gt; should.</span></span>
-<span><span class="co">#&gt; The `items` argument in GRIMMER functions doesn't currently work the way it</span></span>
-<span><span class="co">#&gt; should.</span></span>
-<span><span class="co">#&gt; The `items` argument in GRIMMER functions doesn't currently work the way it</span></span>
-<span><span class="co">#&gt; should.</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 5</span></span></span>
 <span><span class="co">#&gt;   x     sd        n consistency reason           </span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            </span></span>
@@ -299,6 +270,26 @@ data frame instead:</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 2.61  2.43     60 FALSE       GRIM inconsistent</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 4.04  1.92     90 TRUE        Passed all       </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 4.50  2.51     90 TRUE        Passed all</span></span></code></pre></div>
+<p>The <code>items</code> values are multiplied by the <code>n</code>
+values. By default, the product is shown as <code>n</code> in the output
+(<code>merge_items = TRUE</code>), but overriding this default won’t
+affect the test results.</p>
+<p>However, if we remove the <code>items</code> column, crucial
+information is missing. As a consequence, the last two values are
+wrongly flagged as inconsistent, one of them by GRIMMER:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">flying_pigs3</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="va">items</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>    <span class="fu"><a href="../reference/grimmer_map.html">grimmer_map</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 5</span></span></span>
+<span><span class="co">#&gt;   x     sd        n consistency reason                       </span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 6.92  2.19     30 FALSE       GRIM inconsistent            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 3.48  1.42     30 FALSE       GRIM inconsistent            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 1.59  1.81     30 FALSE       GRIM inconsistent            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 2.61  2.43     30 FALSE       GRIM inconsistent            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 4.04  1.92     30 FALSE       GRIM inconsistent            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 4.50  2.51     30 FALSE       GRIMMER inconsistent (test 3)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level3">
@@ -306,7 +297,7 @@ data frame instead:</p>
 </h3>
 <p>Following up on a call to <code><a href="../reference/grimmer_map.html">grimmer_map()</a></code>, the generic
 function <code><a href="../reference/audit.html">audit()</a></code> summarizes GRIMMER test results:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">flying_pigs1</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/grimmer_map.html">grimmer_map</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/audit.html">audit</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -323,8 +314,8 @@ sets.</p></li>
 value sets.</p></li>
 <li><p><code>fail_grim</code>, <code>fail_test1</code>,
 <code>fail_test2</code>, <code>fail_test3</code>: number of value sets
-failing the GRIM test or one of the three GRIMMER tests,
-respectively.</p></li>
+failing the GRIM test or one of the three GRIMMER tests, respectively
+(see Allard 2018).</p></li>
 </ol>
 </div>
 <div class="section level3">
@@ -334,8 +325,8 @@ respectively.</p></li>
 scrutiny. However, <code><a href="../reference/grim_plot.html">grim_plot()</a></code> will accept the output of
 <code><a href="../reference/grimmer_map.html">grimmer_map()</a></code> just as well as that from
 <code><a href="../reference/grim_map.html">grim_map()</a></code>:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">jpap_5</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">flying_pigs4</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
 <span>  <span class="op">~</span><span class="va">x</span>,      <span class="op">~</span><span class="va">sd</span>,    <span class="op">~</span><span class="va">n</span>,</span>
 <span>  <span class="st">"7.19"</span>,  <span class="st">"1.19"</span>,  <span class="fl">54</span>,</span>
 <span>  <span class="st">"4.56"</span>,  <span class="st">"2.56"</span>,  <span class="fl">66</span>,</span>
@@ -350,14 +341,14 @@ scrutiny. However, <code><a href="../reference/grim_plot.html">grim_plot()</a></
 <span><span class="op">)</span></span>
 <span></span>
 <span></span>
-<span><span class="va">jpap_5</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span><span class="va">flying_pigs4</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/grimmer_map.html">grimmer_map</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/grim_plot.html">grim_plot</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; → Also visualizing 3 GRIMMER inconsistencies.</span></span></code></pre></div>
-<p><img src="grimmer_files/figure-html/unnamed-chunk-9-1.png" width="576"></p>
+<span><span class="co">#&gt; → Also visualizing 2 GRIMMER inconsistencies.</span></span></code></pre></div>
+<p><img src="grimmer_files/figure-html/unnamed-chunk-10-1.png" width="576"></p>
 <p>However, <code><a href="../reference/grim_plot.html">grim_plot()</a></code> will fail with any object not
 returned by either of these two functions:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/grim_plot.html">grim_plot</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `grim_plot()`:</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> `grim_plot()` needs GRIM or GRIMMER test results.</span></span>
@@ -378,10 +369,10 @@ as in out example <code>pigs5</code> data. You might wonder whether they
 are due to small reporting or computing errors.</p>
 <p>Use <code><a href="../reference/grimmer_map_seq.html">grimmer_map_seq()</a></code> to GRIMMER-test the values
 surrounding the reported means and sample sizes:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">out_seq1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grimmer_map_seq.html">grimmer_map_seq</a></span><span class="op">(</span><span class="va">pigs5</span><span class="op">)</span></span>
 <span><span class="va">out_seq1</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 180 × 8</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 150 × 8</span></span></span>
 <span><span class="co">#&gt;    x     sd        n consistency reason            diff_var  case var  </span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 7.17  5.30     38 FALSE       GRIM inconsistent       -<span style="color: #BB0000;">5</span>     1 x    </span></span>
@@ -394,23 +385,22 @@ surrounding the reported means and sample sizes:</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 7.25  5.30     38 FALSE       GRIM inconsistent        3     1 x    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 7.26  5.30     38 TRUE        Passed all               4     1 x    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 7.27  5.30     38 FALSE       GRIM inconsistent        5     1 x    </span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 170 more rows</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 140 more rows</span></span></span></code></pre></div>
 <div class="section level4">
 <h4 id="summaries-with-audit_seq">Summaries with <code>audit_seq()</code><a class="anchor" aria-label="anchor" href="#summaries-with-audit_seq"></a>
 </h4>
 <p>As this output is a little unwieldy, run <code><a href="../reference/audit-special.html">audit_seq()</a></code> on
 the results:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/audit-special.html">audit_seq</a></span><span class="op">(</span><span class="va">out_seq1</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 17</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 17</span></span></span>
 <span><span class="co">#&gt;   x     sd        n consistency hits_total hits_x hits_sd hits_n diff_x</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 7.22  5.30     38 FALSE                8      4       0      4      1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 5.23  2.55     35 FALSE               16      2      10      4      3</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2.57  2.57     30 FALSE               11      1       8      2      3</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 6.77  2.18     33 FALSE                6      4       0      2      1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 7.01  6.68     35 FALSE                4      4       0      0      1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 3.14  5.32     33 FALSE                9      4       0      5      1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 5.23  2.55     35 FALSE               15      2      10      3      3</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 6.77  2.18     33 FALSE                5      3       0      2      1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 7.01  6.68     35 FALSE                4      4       0      0      1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 3.14  5.32     33 FALSE                9      4       0      5      1</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 8 more variables: diff_x_up &lt;int&gt;, diff_x_down &lt;int&gt;, diff_sd &lt;int&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   diff_sd_up &lt;int&gt;, diff_sd_down &lt;int&gt;, diff_n &lt;int&gt;, diff_n_up &lt;int&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   diff_n_down &lt;int&gt;</span></span></span></code></pre></div>
@@ -432,18 +422,17 @@ lower consistent value, respectively.</p></li>
 <p>The default for <code>dispersion</code> is <code>1:5</code>, for five
 steps up and down. When the <code>dispersion</code> sequence gets
 longer, the number of hits tends to increase:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">out_seq2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grimmer_map_seq.html">grimmer_map_seq</a></span><span class="op">(</span><span class="va">pigs5</span>, dispersion <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/audit-special.html">audit_seq</a></span><span class="op">(</span><span class="va">out_seq2</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 17</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 17</span></span></span>
 <span><span class="co">#&gt;   x     sd        n consistency hits_total hits_x hits_sd hits_n diff_x</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 7.22  5.30     38 FALSE               15      8       0      7      1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 5.23  2.55     35 FALSE               32      6      19      7      3</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2.57  2.57     30 FALSE               24      3      16      5      3</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 6.77  2.18     33 FALSE               11      7       0      4      1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 7.01  6.68     35 FALSE                8      8       0      0      1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 3.14  5.32     33 FALSE               14      7       0      7      1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 5.23  2.55     35 FALSE               30      6      18      6      3</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 6.77  2.18     33 FALSE               10      4       0      6      1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 7.01  6.68     35 FALSE                8      8       0      0      1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 3.14  5.32     33 FALSE               14      7       0      7      1</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 8 more variables: diff_x_up &lt;int&gt;, diff_x_down &lt;int&gt;, diff_sd &lt;int&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   diff_sd_up &lt;int&gt;, diff_sd_down &lt;int&gt;, diff_n &lt;int&gt;, diff_n_up &lt;int&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   diff_n_down &lt;int&gt;</span></span></span></code></pre></div>
@@ -455,24 +444,24 @@ longer, the number of hits tends to increase:</p>
 <code><a href="../reference/grimmer_map_seq.html">grimmer_map_seq()</a></code>. Like regular GRIM or GRIMMER plots,
 however, it does give us a sense of how many tested values are
 consistent:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/grim_plot.html">grim_plot</a></span><span class="op">(</span><span class="va">out_seq1</span><span class="op">)</span></span>
-<span><span class="co">#&gt; → Also visualizing 4 GRIMMER inconsistencies.</span></span></code></pre></div>
-<p><img src="grimmer_files/figure-html/unnamed-chunk-14-1.png" width="576"></p>
+<span><span class="co">#&gt; → Also visualizing 3 GRIMMER inconsistencies.</span></span></code></pre></div>
+<p><img src="grimmer_files/figure-html/unnamed-chunk-15-1.png" width="576"></p>
 <p>The crosses appear because <code><a href="../reference/grimmer_map_seq.html">grimmer_map_seq()</a></code> creates
 sequences around both <code>x</code> and <code>n</code>. Restrict this
 process to any one of these with the <code>var</code> argument:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">out_seq1_only_x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grimmer_map_seq.html">grimmer_map_seq</a></span><span class="op">(</span><span class="va">pigs5</span>, var <span class="op">=</span> <span class="st">"x"</span><span class="op">)</span></span>
 <span><span class="va">out_seq1_only_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grimmer_map_seq.html">grimmer_map_seq</a></span><span class="op">(</span><span class="va">pigs5</span>, var <span class="op">=</span> <span class="st">"n"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/grim_plot.html">grim_plot</a></span><span class="op">(</span><span class="va">out_seq1_only_x</span><span class="op">)</span></span>
 <span><span class="co">#&gt; → Also visualizing 1 GRIMMER inconsistency.</span></span></code></pre></div>
-<p><img src="grimmer_files/figure-html/unnamed-chunk-15-1.png" width="576"></p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<p><img src="grimmer_files/figure-html/unnamed-chunk-16-1.png" width="576"></p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/grim_plot.html">grim_plot</a></span><span class="op">(</span><span class="va">out_seq1_only_n</span><span class="op">)</span></span>
-<span><span class="co">#&gt; → Also visualizing 1 GRIMMER inconsistency.</span></span></code></pre></div>
-<p><img src="grimmer_files/figure-html/unnamed-chunk-15-2.png" width="576"></p>
+<span><span class="co">#&gt; → Also visualizing 2 GRIMMER inconsistencies.</span></span></code></pre></div>
+<p><img src="grimmer_files/figure-html/unnamed-chunk-16-2.png" width="576"></p>
 </div>
 </div>
 <div class="section level3">
@@ -493,22 +482,22 @@ consistent with the reported group means.
 motivated by a recent GRIM analysis <span class="citation">(Bauer and
 Francis 2021)</span>.</p>
 <p>Here is an example:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">jpap_6</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">flying_pigs5</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
 <span>    <span class="op">~</span><span class="va">x1</span>,    <span class="op">~</span><span class="va">x2</span>,    <span class="op">~</span><span class="va">sd1</span>,   <span class="op">~</span><span class="va">sd2</span>,   <span class="op">~</span><span class="va">n</span>,</span>
 <span>    <span class="st">"3.43"</span>, <span class="st">"5.28"</span>, <span class="st">"1.09"</span>, <span class="st">"2.12"</span>, <span class="fl">70</span>,</span>
 <span>    <span class="st">"2.97"</span>, <span class="st">"4.42"</span>, <span class="st">"0.43"</span>, <span class="st">"1.65"</span>, <span class="fl">65</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">out_total_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grimmer_map_total_n.html">grimmer_map_total_n</a></span><span class="op">(</span><span class="va">jpap_6</span><span class="op">)</span></span>
+<span><span class="va">out_total_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grimmer_map_total_n.html">grimmer_map_total_n</a></span><span class="op">(</span><span class="va">flying_pigs5</span><span class="op">)</span></span>
 <span><span class="va">out_total_n</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 48 × 9</span></span></span>
 <span><span class="co">#&gt;    x     sd        n n_change consistency both_consistent reason      case dir  </span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 3.43  1.09     35        0 FALSE       FALSE           GRIMMER i…     1 forth</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 3.43  1.09     35        0 TRUE        FALSE           Passed all     1 forth</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 5.28  2.12     35        0 FALSE       FALSE           GRIM inco…     1 forth</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 3.43  1.09     34       -<span style="color: #BB0000;">1</span> FALSE       FALSE           GRIM inco…     1 forth</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 5.28  2.12     36        1 FALSE       FALSE           GRIMMER i…     1 forth</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 5.28  2.12     36        1 TRUE        FALSE           Passed all     1 forth</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 3.43  1.09     33       -<span style="color: #BB0000;">2</span> FALSE       FALSE           GRIM inco…     1 forth</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 5.28  2.12     37        2 FALSE       FALSE           GRIM inco…     1 forth</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 3.43  1.09     32       -<span style="color: #BB0000;">3</span> FALSE       FALSE           GRIM inco…     1 forth</span></span>
@@ -521,8 +510,8 @@ Francis 2021)</span>.</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 10</span></span></span>
 <span><span class="co">#&gt;   x1    x2    sd1   sd2       n hits_total hits_forth hits_back scenarios_total</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 3.43  5.28  1.09  2.12     70          1          1         0              12</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 2.97  4.42  0.43  1.65     65          1          0         1              12</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 3.43  5.28  1.09  2.12     70          0          0         0              12</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 2.97  4.42  0.43  1.65     65          0          0         0              12</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1 more variable: hit_rate &lt;dbl&gt;</span></span></span></code></pre></div>
 <p>See the GRIM vignette, section <em>Handling unknown group sizes with
 <code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code></em>, for a more comprehensive case
@@ -533,7 +522,7 @@ study. It uses <code><a href="../reference/grim_map_total_n.html">grim_map_total
 <div class="section level2">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
 <div id="ref-allard2018" class="csl-entry">
 Allard, Aurélien. 2018. <span>“Analytic-GRIMMER: A New Way of Testing
 the Possibility of Standard Deviations.”</span> <a href="https://aurelienallard.netlify.app/post/anaytic-grimmer-possibility-standard-deviations/" class="external-link">https://aurelienallard.netlify.app/post/anaytic-grimmer-possibility-standard-deviations/</a>.
@@ -560,28 +549,26 @@ Psychological and Personality Science</em> 8 (4): 363–69.
 </div>
 </div>
 </div>
-  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
 </div>
 
 
 
     <footer><div class="pkgdown-footer-left">
-  <p></p>
-<p>Developed by Lukas Jung.</p>
+  <p>Developed by Lukas Jung.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
     </footer>
 </div>
 
-  
 
-  
+
+
 
   </body>
 </html>

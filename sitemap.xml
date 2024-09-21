@@ -1,264 +1,91 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/404.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/CODE_OF_CONDUCT.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/LICENSE.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/articles/consistency-tests-in-depth.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/articles/consistency-tests-simple.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/articles/debit.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/articles/devtools.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/articles/duplicates.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/articles/grim.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/articles/grimmer.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/articles/related.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/articles/rounding-in-depth.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/articles/rounding-options.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/articles/wrangling.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/index.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/news/index.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/audit-special.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/audit.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/audit_cols_minimal.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/audit_list.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/check_audit_special.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/check_mapper_input_colnames.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/data-frame-predicates.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/debit.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/debit_map.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/debit_map_seq.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/debit_map_total_n.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/debit_plot.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/decimal_places.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/decimal_places_df.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/disperse.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/duplicate_count.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/duplicate_count_colpair.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/duplicate_detect.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/duplicate_tally.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/fractional-rounding.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/function_map.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/function_map_seq.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/function_map_total_n.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/grim-stats.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/grim.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/grim_granularity.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/grim_map.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/grim_map_seq.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/grim_map_total_n.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/grim_plot.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/grimmer.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/grimmer_map.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/grimmer_map_seq.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/grimmer_map_total_n.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/is_numeric_like.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/manage_helper_col.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/manage_key_colnames.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/parens-extractors.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/pigs1.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/pigs2.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/pigs3.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/pigs4.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/pigs5.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/pipe.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/reround.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/restore_zeros.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/reverse_map_seq.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/reverse_map_total_n.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/rounding-common.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/rounding-uncommon.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/rounding_bias.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/row_to_colnames.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/scrutiny-package.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/sd-binary.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/seq-decimal.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/seq-predicates.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/seq_disperse.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/seq_length.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/seq_test_ranking.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/split_by_parens.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/subset-superset.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/tidyeval.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/unnest_consistency_cols.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/unround.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/write_doc_audit.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/write_doc_audit_seq.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/write_doc_audit_total_n.html</loc>
-  </url>
-  <url>
-    <loc>https://lhdjung.github.io/scrutiny/reference/write_doc_factory_map_conventions.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://lhdjung.github.io/scrutiny/404.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/CODE_OF_CONDUCT.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/LICENSE-text.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/LICENSE.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/articles/consistency-tests-in-depth.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/articles/consistency-tests-simple.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/articles/debit.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/articles/devtools.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/articles/duplicates.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/articles/grim.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/articles/grimmer.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/articles/index.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/articles/related.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/articles/rounding-in-depth.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/articles/rounding-options.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/articles/wrangling.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/authors.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/index.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/news/index.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/audit-special.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/audit.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/audit_cols_minimal.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/check_audit_special.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/check_mapper_input_colnames.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/data-frame-predicates.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/debit.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/debit_map.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/debit_map_seq.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/debit_map_total_n.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/debit_plot.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/decimal_places.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/decimal_places_df.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/disperse.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/duplicate_count.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/duplicate_count_colpair.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/duplicate_detect.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/duplicate_tally.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/fractional-rounding.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/function_map.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/function_map_seq.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/function_map_total_n.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/grim-stats.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/grim.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/grim_granularity.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/grim_map.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/grim_map_seq.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/grim_map_total_n.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/grim_plot.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/grim_ratio_upper.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/grimmer.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/grimmer_map.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/grimmer_map_seq.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/grimmer_map_total_n.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/index.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/is_numeric_like.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/manage_helper_col.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/manage_key_colnames.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/parens-extractors.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/pigs1.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/pigs2.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/pigs3.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/pigs4.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/pigs5.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/pipe.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/reround.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/restore_zeros.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/reverse_map_seq.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/reverse_map_total_n.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/rounding-common.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/rounding-uncommon.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/rounding_bias.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/row_to_colnames.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/scrutiny-package.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/sd-binary.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/seq-decimal.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/seq-predicates.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/seq_disperse.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/seq_length.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/seq_test_ranking.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/split_by_parens.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/subset-superset.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/tidyeval.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/unnest_consistency_cols.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/unround.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/write_doc_audit.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/write_doc_audit_seq.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/write_doc_audit_total_n.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/write_doc_factory_map_conventions.html</loc></url>
 </urlset>
+
