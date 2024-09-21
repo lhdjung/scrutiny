@@ -44,7 +44,7 @@ Logical. \code{TRUE} if \code{x}, \code{sd}, and \code{n} are mutually consisten
 }
 \description{
 \code{debit()} tests summaries of binary data for consistency: If the
-mean and the standard deviation of binary data are given, are they
+mean and the sample standard deviation of binary data are given, are they
 consistent with the reported sample size?
 
 The function is vectorized, but it is recommended to use \code{\link[=debit_map]{debit_map()}}

@@ -23,7 +23,7 @@ knitr::opts_chunk$set(
 library(scrutiny)
 ```
 
-The descriptive binary test, or DEBIT, checks whether the reported mean, standard deviation (SD), and sample size of binary data are mutually consistent [@heathers_debit_2019]. Like GRIM, it tests if a given set of summary data can describe the same distribution.
+The descriptive binary test, or DEBIT, checks whether the reported mean, sample standard deviation (SD), and sample size of binary data are mutually consistent [@heathers_debit_2019]. Like GRIM, it tests if a given set of summary data can describe the same distribution.
 
 This vignette covers scrutiny's implementation of DEBIT:
 
@@ -41,6 +41,8 @@ debit(x = "0.35", sd = "0.18", n = 20)
 ```
 
 As in `grim()`, the mean needs to be a string. (The same is true for the SD.) That is because strings preserve trailing zeros, which can be crucial for DEBIT. Numeric values don't, and even converting them to strings won't help. A workaround for larger numbers of such values, `restore_zeros()`, is discussed in the *Data wrangling* vignette.
+
+Note that the SD is always assumed to be the sample SD, not the population SD. In some rare cases, this might possibly explain apparent inconsistencies.
 
 `debit()` has some further arguments, but all of them can be used from within `debit_map()`. Since `debit_map()` is the more useful function in practice, the other arguments will be discussed in that context.
 

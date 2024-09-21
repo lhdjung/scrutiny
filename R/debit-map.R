@@ -3,8 +3,8 @@
 #' Apply DEBIT to many cases
 #'
 #' @description Call `debit_map()` to use DEBIT on multiple combinations of
-#'   mean, standard deviation, and sample size of binary distributions. Mapping
-#'   function for [`debit()`].
+#'   mean, sample standard deviation, and sample size of binary distributions.
+#'   Mapping function for [`debit()`].
 #'
 #'   For summary statistics, call [`audit()`] on the results.
 #'
