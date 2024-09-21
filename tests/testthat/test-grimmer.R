@@ -149,13 +149,13 @@ GRIMMER_test <- function(mean, sd, n_obs, m_prec = NULL, sd_prec = NULL, n_items
   consistent_up <- round_up(number = realmean, decimals = m_prec) == mean
 
   if (!consistent_down & !consistent_up) {
-    # IN SCRUTINY: outcommented the below warning that was thrown when the
-    # inputs were GRIM-inconsistent. I think one inconsistency should
-    # (essentially) be treated like any other, and such a warning is not
-    # desirable when testing. It can be incommented to check when this function
-    # thinks the inputs are GRIM-inconsistent!
+    # IN SCRUTINY: outcommented the below warning (and turned it into a message)
+    # that was thrown when the inputs were GRIM-inconsistent. I think one
+    # inconsistency should (essentially) be treated like any other, and such a
+    # warning is not desirable when testing. It can be incommented to check when
+    # this function thinks the inputs are GRIM-inconsistent!
 
-    # warning("GRIM inconsistent - so GRIMMER test cannot be run. See ?GRIM_test")
+    # message("GRIM inconsistent - so GRIMMER test cannot be run. See ?GRIM_test")
     return(FALSE)
   }
 
@@ -172,6 +172,8 @@ GRIMMER_test <- function(mean, sd, n_obs, m_prec = NULL, sd_prec = NULL, n_items
   # Checks that there is at least an integer between the lower and upperbound
 
   if (ceiling(lower_bound) > floor(upper_bound)) {
+    # # IN SCRUTINY: added message
+    # message("Failed test 1")
     return(FALSE)
   }
 
@@ -192,13 +194,20 @@ GRIMMER_test <- function(mean, sd, n_obs, m_prec = NULL, sd_prec = NULL, n_items
   Matches_SD <- Rounded_SD_down == sd | Rounded_SD_up == sd
 
   if (!any(Matches_SD)) {
+    # # IN SCRUTINY: added message
+    # message("Failed test 2")
     return(FALSE)
   }
 
   # Computes whether there is an integer of the correct oddness between the lower and upper bounds.
   oddness <- realsum %% 2
   Matches_Oddness <- possible_integers %% 2 == oddness
-  return(any(Matches_SD & Matches_Oddness))
+
+  if (!any(Matches_SD & Matches_Oddness)) {
+    # # IN SCRUTINY: added message
+    # message("Failed test 3")
+    return(FALSE)
+  }
 
   return(TRUE)
 }
@@ -260,8 +269,18 @@ df1 <- df1 %>%
 
 # Apply both functions, modified and original, to data frames containing the
 # same data but (possibly) different column names:
+
+start1 <- Sys.time()
 out1 <- purrr::pmap_lgl(df1, grimmer_scalar)
+end1 <- Sys.time()
+diff1 <- difftime(end1, start1, units = "secs")
+message("\nApplying `grimmer_scalar()` took:\n", round(diff1, 2), " seconds\n")
+
+start2 <- Sys.time()
 out2 <- purrr::pmap_chr(df2, aGrimmer)
+end2 <- Sys.time()
+diff2 <- difftime(end2, start2, units = "secs")
+message("Applying `aGrimmer()` took:\n", round(diff2, 2), " seconds\n")
 
 # Convert the original function's string output to logical so that it will be
 # comparable to scrutiny-style Boolean output:
@@ -283,6 +302,8 @@ df_disagree
 disagree_rate <- nrow(df_disagree) / nrow(df_out)
 
 disagree_rate
+
+message("The rate of disagreement between implementations is ", round(disagree_rate, 2))
 
 
 df_disagree_out1_true <- df_disagree %>%
@@ -330,25 +351,25 @@ c(n = "40", x = "519.93", sd = "207.97", out1 = "TRUE", out2 = "FALSE", digits_s
 
 # Here they are in tibble form. Run `GRIMMER_test()` on them and see whether
 # this is all due to GRIM's 40/80 leniency!
-df_disagree_all <- tibble::tribble(
-  ~n,   ~x,       ~sd,
-  "40", "16.03",  "6.41",
-  "40", "64.73",  "25.89",
-  "80", "64.73",  "25.89",
-  "80", "32.68",  "13.07",
-  "40", "64.27",  "25.71",
-  "80", "16.22",  "6.49",
-  "40", "256.03", "102.41",
-  "40", "519.93", "207.97"
+df_disagree_all <- tibble::tibble(
+  n = c(40, 40, 80, 80, 40, 80, 40, 40, 40, 40, 80, 40, 40, 40),
+  x = c(
+    "16.03", "64.73", "64.73", "32.68", "64.27", "16.22", "256.03", "519.93",
+    "32.32", "256.03", "512.33", "512.93", "513.07", "518.93"
+  ),
+  sd = c(
+    "6.41", "25.89", "25.89", "13.07", "25.71", "6.49", "102.41", "207.97",
+    "12.93", "102.41", "204.93", "205.17", "205.23", "207.57"
+  ),
 ) %>%
   dplyr::relocate(x, sd, n) %>%
   dplyr::mutate(n = as.numeric(n))
 
-# # See if there are warnings about GRIM (!) when mapping `GRIMMER_test()`:
-# df_disagree_all %>%
-#   dplyr::rename(mean = x, n_obs = n) %>%
-#   dplyr::mutate(mean = as.numeric(mean), sd = as.numeric(sd)) %>%
-#   purrr::pmap(GRIMMER_test)
+# See if there are warnings about GRIM (!) when mapping `GRIMMER_test()`:
+df_disagree_all %>%
+  dplyr::rename(mean = x, n_obs = n) %>%
+  dplyr::mutate(mean = as.numeric(mean), sd = as.numeric(sd)) %>%
+  purrr::pmap(GRIMMER_test)
 
 
 
