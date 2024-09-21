@@ -40,7 +40,7 @@ If the decimal portion to be cut off by rounding is 5, how do these technologies
 
 -   [SPSS](https://sr.ipsosinteractive.com/SPSSMR/Reporter/doc/en/help/ref_rounding.htm) rounds to even by default, but users may choose to round up instead.
 
--   [Matlab](https://de.mathworks.com/help/matlab/ref/round.html) rounds away from zero by default (i.e., it rounds up if the input is positive). However, other rounding procedures can be chosen.
+-   Matlab rounds away from zero by default (i.e., it rounds up if the input is positive). However, other rounding procedures can be chosen.
 
 -   In [SAS](https://documentation.sas.com/doc/en/pgmsascdc/9.4_3.5/lefunctionsref/p0tj6cmga7p8qln1ejh6ebevm0c9.htm), `ROUND()` rounds up, and `ROUNDE()` rounds to even. Both have a small tolerance. `ROUNDZ()` rounds to even without a tolerance.
 

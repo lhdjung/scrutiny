@@ -66,20 +66,20 @@ pigs1
 # GRIM-testing for data frames:
 grim_map(pigs1)
 #> # A tibble: 12 × 4
-#>    x         n consistency ratio
-#>    <chr> <dbl> <lgl>       <dbl>
-#>  1 7.22     32 TRUE         0.68
-#>  2 4.74     25 FALSE        0.75
-#>  3 5.23     29 FALSE        0.71
-#>  4 2.57     24 FALSE        0.76
-#>  5 6.77     27 FALSE        0.73
-#>  6 2.68     28 TRUE         0.72
-#>  7 7.01     29 FALSE        0.71
-#>  8 7.38     26 TRUE         0.74
-#>  9 3.14     27 FALSE        0.73
-#> 10 6.89     31 FALSE        0.69
-#> 11 5.00     25 TRUE         0.75
-#> 12 0.24     28 FALSE        0.72
+#>    x         n consistency probability
+#>    <chr> <dbl> <lgl>             <dbl>
+#>  1 7.22     32 TRUE               0.68
+#>  2 4.74     25 FALSE              0.75
+#>  3 5.23     29 FALSE              0.71
+#>  4 2.57     24 FALSE              0.76
+#>  5 6.77     27 FALSE              0.73
+#>  6 2.68     28 TRUE               0.72
+#>  7 7.01     29 FALSE              0.71
+#>  8 7.38     26 TRUE               0.74
+#>  9 3.14     27 FALSE              0.73
+#> 10 6.89     31 FALSE              0.69
+#> 11 5.00     25 TRUE               0.75
+#> 12 0.24     28 FALSE              0.72
 ```
 
 Test percentages instead of means:
@@ -99,14 +99,14 @@ pigs2
 grim_map(pigs2, percent = TRUE)
 #> ℹ `x` converted from percentage
 #> # A tibble: 6 × 4
-#>   x         n consistency ratio
-#>   <chr> <dbl> <lgl>       <dbl>
-#> 1 0.674   150 FALSE        0.85
-#> 2 0.542   150 FALSE        0.85
-#> 3 0.540   150 TRUE         0.85
-#> 4 0.698   150 FALSE        0.85
-#> 5 0.681   150 FALSE        0.85
-#> 6 0.554   150 FALSE        0.85
+#>   x         n consistency probability
+#>   <chr> <dbl> <lgl>             <dbl>
+#> 1 0.674   150 FALSE              0.85
+#> 2 0.542   150 FALSE              0.85
+#> 3 0.540   150 TRUE               0.85
+#> 4 0.698   150 FALSE              0.85
+#> 5 0.681   150 FALSE              0.85
+#> 6 0.554   150 FALSE              0.85
 ```
 
 You can choose how the means are reconstructed for testing — below,
