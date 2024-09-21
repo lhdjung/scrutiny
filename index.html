@@ -24,7 +24,7 @@
 
     <a class="navbar-brand me-2" href="index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -116,20 +116,20 @@
 <span><span class="co"># GRIM-testing for data frames:</span></span>
 <span><span class="fu"><a href="reference/grim_map.html">grim_map</a></span><span class="op">(</span><span class="va">pigs1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 12 × 4</span></span>
-<span><span class="co">#&gt;    x         n consistency ratio</span></span>
-<span><span class="co">#&gt;    &lt;chr&gt; &lt;dbl&gt; &lt;lgl&gt;       &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt;  1 7.22     32 TRUE         0.68</span></span>
-<span><span class="co">#&gt;  2 4.74     25 FALSE        0.75</span></span>
-<span><span class="co">#&gt;  3 5.23     29 FALSE        0.71</span></span>
-<span><span class="co">#&gt;  4 2.57     24 FALSE        0.76</span></span>
-<span><span class="co">#&gt;  5 6.77     27 FALSE        0.73</span></span>
-<span><span class="co">#&gt;  6 2.68     28 TRUE         0.72</span></span>
-<span><span class="co">#&gt;  7 7.01     29 FALSE        0.71</span></span>
-<span><span class="co">#&gt;  8 7.38     26 TRUE         0.74</span></span>
-<span><span class="co">#&gt;  9 3.14     27 FALSE        0.73</span></span>
-<span><span class="co">#&gt; 10 6.89     31 FALSE        0.69</span></span>
-<span><span class="co">#&gt; 11 5.00     25 TRUE         0.75</span></span>
-<span><span class="co">#&gt; 12 0.24     28 FALSE        0.72</span></span></code></pre></div>
+<span><span class="co">#&gt;    x         n consistency probability</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt; &lt;dbl&gt; &lt;lgl&gt;             &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt;  1 7.22     32 TRUE               0.68</span></span>
+<span><span class="co">#&gt;  2 4.74     25 FALSE              0.75</span></span>
+<span><span class="co">#&gt;  3 5.23     29 FALSE              0.71</span></span>
+<span><span class="co">#&gt;  4 2.57     24 FALSE              0.76</span></span>
+<span><span class="co">#&gt;  5 6.77     27 FALSE              0.73</span></span>
+<span><span class="co">#&gt;  6 2.68     28 TRUE               0.72</span></span>
+<span><span class="co">#&gt;  7 7.01     29 FALSE              0.71</span></span>
+<span><span class="co">#&gt;  8 7.38     26 TRUE               0.74</span></span>
+<span><span class="co">#&gt;  9 3.14     27 FALSE              0.73</span></span>
+<span><span class="co">#&gt; 10 6.89     31 FALSE              0.69</span></span>
+<span><span class="co">#&gt; 11 5.00     25 TRUE               0.75</span></span>
+<span><span class="co">#&gt; 12 0.24     28 FALSE              0.72</span></span></code></pre></div>
 <p>Test percentages instead of means:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pigs2</span></span>
@@ -146,14 +146,14 @@
 <span><span class="fu"><a href="reference/grim_map.html">grim_map</a></span><span class="op">(</span><span class="va">pigs2</span>, percent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ `x` converted from percentage</span></span>
 <span><span class="co">#&gt; # A tibble: 6 × 4</span></span>
-<span><span class="co">#&gt;   x         n consistency ratio</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt; &lt;dbl&gt; &lt;lgl&gt;       &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 0.674   150 FALSE        0.85</span></span>
-<span><span class="co">#&gt; 2 0.542   150 FALSE        0.85</span></span>
-<span><span class="co">#&gt; 3 0.540   150 TRUE         0.85</span></span>
-<span><span class="co">#&gt; 4 0.698   150 FALSE        0.85</span></span>
-<span><span class="co">#&gt; 5 0.681   150 FALSE        0.85</span></span>
-<span><span class="co">#&gt; 6 0.554   150 FALSE        0.85</span></span></code></pre></div>
+<span><span class="co">#&gt;   x         n consistency probability</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt; &lt;dbl&gt; &lt;lgl&gt;             &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 0.674   150 FALSE              0.85</span></span>
+<span><span class="co">#&gt; 2 0.542   150 FALSE              0.85</span></span>
+<span><span class="co">#&gt; 3 0.540   150 TRUE               0.85</span></span>
+<span><span class="co">#&gt; 4 0.698   150 FALSE              0.85</span></span>
+<span><span class="co">#&gt; 5 0.681   150 FALSE              0.85</span></span>
+<span><span class="co">#&gt; 6 0.554   150 FALSE              0.85</span></span></code></pre></div>
 <p>You can choose how the means are reconstructed for testing — below, rounded up from 5. When visualizing results, the plot will adjust automatically. Blue dots are consistent values, red dots are inconsistent ones:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pigs1</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span> </span>
