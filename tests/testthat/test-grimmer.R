@@ -274,13 +274,13 @@ start1 <- Sys.time()
 out1 <- purrr::pmap_lgl(df1, grimmer_scalar)
 end1 <- Sys.time()
 diff1 <- difftime(end1, start1, units = "secs")
-message("\nApplying `grimmer_scalar()` took:\n", round(diff1, 2), " seconds\n")
+# message("\nApplying `grimmer_scalar()` took:\n", round(diff1, 2), " seconds\n")
 
 start2 <- Sys.time()
 out2 <- purrr::pmap_chr(df2, aGrimmer)
 end2 <- Sys.time()
 diff2 <- difftime(end2, start2, units = "secs")
-message("Applying `aGrimmer()` took:\n", round(diff2, 2), " seconds\n")
+# message("Applying `aGrimmer()` took:\n", round(diff2, 2), " seconds\n")
 
 # Convert the original function's string output to logical so that it will be
 # comparable to scrutiny-style Boolean output:
@@ -303,7 +303,7 @@ disagree_rate <- nrow(df_disagree) / nrow(df_out)
 
 disagree_rate
 
-message("The rate of disagreement between implementations is ", round(disagree_rate, 2))
+# message("The rate of disagreement between implementations is ", round(disagree_rate, 2))
 
 
 df_disagree_out1_true <- df_disagree %>%

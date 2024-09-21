@@ -27,11 +27,10 @@
 #'   consistent cases (from among those reported), not just inconsistent ones?
 #'   Default is `FALSE` because the focus should be on clarifying
 #'   inconsistencies.
-#' @param ... Arguments passed down to [`grimmer_map()`]. *(NOTE: Don't use the
-#'   `items` argument. It currently contains a bug that will be fixed in the
-#'   future.)*
+#' @param ... Arguments passed down to [`grimmer_map()`].
 
-#' @return A tibble (data frame) with detailed test results.
+#' @return A tibble (data frame) with detailed test results. See
+#' [`grimmer_map()`] for an explanation of the `reason` column.
 
 #' @section Summaries with [`audit_seq()`]: You can call [`audit_seq()`]
 #'   following `grimmer_map_seq()`. It will return a data frame with these

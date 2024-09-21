@@ -739,6 +739,18 @@ GRIM_test <- function(mean, n_obs, m_prec = NULL, n_items = 1, return_values = F
 # ToDos:
 # - add return_values argument to return possible SDs
 
+
+# # Example inputs:
+# mean    <- 1.03
+# sd      <- 0.41
+# n_obs   <- 40
+# n_items <- 1
+# m_prec  <- 2
+# sd_prec <- 2
+# min_val <- NULL
+# max_val <- NULL
+
+
 GRIMMER_test <- function(mean, sd, n_obs, m_prec = NULL, sd_prec = NULL, n_items = 1, min_val = NULL, max_val = NULL) {
   if (is.null(m_prec)) {
     m_prec <- max(nchar(sub("^[0-9]*", "", mean)) - 1, 0)
@@ -748,12 +760,13 @@ GRIMMER_test <- function(mean, sd, n_obs, m_prec = NULL, sd_prec = NULL, n_items
     sd_prec <- max(nchar(sub("^[0-9]*", "", sd)) - 1, 0)
   }
 
-  assert_count(m_prec)
-  assert_count(sd_prec)
-  assert_count(n_obs)
-  assert_count(n_items)
-  assert_number(mean)
-  assert_number(sd)
+  # IN SCRUTINY: specified checkmate namespace
+  checkmate::assert_count(m_prec)
+  checkmate::assert_count(sd_prec)
+  checkmate::assert_count(n_obs)
+  checkmate::assert_count(n_items)
+  checkmate::assert_number(mean)
+  checkmate::assert_number(sd)
 
   effective_n = n_obs * n_items
 

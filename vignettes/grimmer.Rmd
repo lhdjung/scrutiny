@@ -20,7 +20,6 @@ pkgload::load_all()
 library(scrutiny)
 ```
 
-
 Granularity-related inconsistency of means mapped to error repeats, or GRIMMER, is a test for the mathematical consistency of reported means or proportions with the corresponding standard deviations (SDs) and sample sizes [@anaya2016b; @allard2018].
 
 GRIMMER builds up on GRIM [@brown_grim_2017]. Indeed, the elegant Analytic-GRIMMER algorithm [@allard2018] implemented here tests for GRIM-consistency before conducting its own unique tests.
@@ -61,16 +60,15 @@ Copy summary data from a PDF file and paste them into `tibble::tribble()`, which
 
 ```{r}
 flying_pigs1 <- tibble::tribble(
-  ~x,   ~sd,
-"8.9",  "2.81",
-"2.6",  "2.05",
-"7.2",  "2.89",
-"3.6",  "3.11",
-"9.2",  "7.13",
-"10.4", "2.53",
-"7.3",  "3.14"
-) %>% 
-  dplyr::mutate(n = 25)
+  ~x,   ~sd,    ~n,
+"8.9",  "2.81",  25,
+"2.6",  "2.05",  25,
+"7.2",  "2.89",  25,
+"3.6",  "3.11",  25,
+"9.2",  "7.13",  25,
+"10.4", "2.53",  25,
+"7.3",  "3.14",  25
+)
 ```
 
 Use RStudio's multiple cursors to draw quotation marks around all the `x` and `sd` values, and to set commas at the end. See `vignette("wrangling")`, section *With copy and paste*, if you are not sure how to do that.
@@ -85,51 +83,63 @@ The `x` and `n` columns are the same as in the input. By default, the number of 
 
 The `reason` column says why a set of values was inconsistent. To be GRIMMER-consistent, a value set needs to pass four separate tests: the three GRIMMER tests by @allard2018 and the more basic GRIM test. Here, the two inconsistent values passed GRIM as well as the first two GRIMMER tests, but failed the third one. All consistent value sets are marked as `"Passed all"` in the `"reason"` column.
 
+Here is a quick reference for the three GRIMMER tests. See @allard2018 for an explanation.
+
+1.  The reconstructed sum of squared observations must be a whole number.
+2.  The reconstructed SD must match the reported one.
+3.  The parity of the reconstructed sum of squared observations must match the parity of the reconstructed sum of integers of which the reported means are fractions; i.e., either both are even or both are odd.
+
 ### Scale items
 
-**NOTE: Don't use the `items` argument. It currently contains a bug that will be fixed in scrutiny's next CRAN release.**
-
-If a mean is composed of multiple items, set the `items` parameter to that number. Below are hypothetical means of a three-items scale. With the single-item default, half of these are wrongly flagged as inconsistent:
+If a mean is composed of multiple items, set the `items` parameter to that number. Below are hypothetical means of a three-items scale. With the single-item default, half of these are wrongly flagged as GRIM-inconsistent (true GRIMMER example below):
 
 ```{r, error=TRUE}
-jpap_1 <- tibble::tribble(
-   ~x,    ~sd,
-  "5.90", "2.19",
-  "5.71", "1.42",
-  "3.50", "1.81",
-  "3.82", "2.43",
-  "4.61", "1.92",
-  "5.24", "2.51",
-) %>% 
-  dplyr::mutate(n = 40)
+flying_pigs2 <- tibble::tribble(
+   ~x,    ~sd,    ~n,
+  "5.90", "2.19",  40,
+  "5.71", "1.42",  40,
+  "3.50", "1.81",  40,
+  "3.82", "2.43",  40,
+  "4.61", "1.92",  40,
+  "5.24", "2.51",  40
+)
 
-jpap_1 %>% 
+flying_pigs2 %>% 
   grimmer_map()  # default is wrong here!
 ```
 
 Yet, all of them are consistent if the correct number of items is stated:
 
 ```{r, error=TRUE}
-jpap_1 %>% 
+flying_pigs2 %>% 
   grimmer_map(items = 3)
 ```
 
-It is also possible to include an `items` column in the data frame instead:
+It is also possible to include an `items` column in the data frame instead. This is helpful if the rows have different numbers of items:
 
 ```{r, error=TRUE}
-jpap_2 <- tibble::tribble(
-   ~x,     ~sd,    ~items,
-  "6.92",  "2.19",  1,
-  "3.48",  "1.42",  1,
-  "1.59",  "1.81",  2,
-  "2.61",  "2.43",  2,
-  "4.04",  "1.92",  3,
-  "4.50",  "2.51",  3,
-) %>% 
-  dplyr::mutate(n = 30)
+flying_pigs3 <- tibble::tribble(
+   ~x,     ~sd,    ~n,  ~items,
+  "6.92",  "2.19",  30,  1,
+  "3.48",  "1.42",  30,  1,
+  "1.59",  "1.81",  30,  2,
+  "2.61",  "2.43",  30,  2,
+  "4.04",  "1.92",  30,  3,
+  "4.50",  "2.51",  30,  3,
+)
 
-jpap_2 %>% 
+flying_pigs3 %>% 
   grimmer_map()
+```
+
+The `items` values are multiplied by the `n` values. By default, the product is shown as `n` in the output (`merge_items = TRUE`), but overriding this default won't affect the test results.
+
+However, if we remove the `items` column, crucial information is missing. As a consequence, the last two values are wrongly flagged as inconsistent, one of them by GRIMMER:
+
+```{r}
+flying_pigs3 %>%
+    dplyr::select(-items) %>% 
+    grimmer_map()
 ```
 
 ## Summarizing results with `audit()`
@@ -150,14 +160,14 @@ These columns are ---
 
 3.  `incons_rate`: proportion of GRIMMER-inconsistent value sets.
 
-4.  `fail_grim`, `fail_test1`, `fail_test2`, `fail_test3`: number of value sets failing the GRIM test or one of the three GRIMMER tests, respectively.
+4.  `fail_grim`, `fail_test1`, `fail_test2`, `fail_test3`: number of value sets failing the GRIM test or one of the three GRIMMER tests, respectively (see Allard 2018).
 
 ## Visualizing results with `grim_plot()`
 
 GRIMMER does not currently have a dedicated visualization function in scrutiny. However, `grim_plot()` will accept the output of `grimmer_map()` just as well as that from `grim_map()`:
 
 ```{r, fig.width=6, fig.height=5.5}
-jpap_5 <- tibble::tribble(
+flying_pigs4 <- tibble::tribble(
   ~x,      ~sd,    ~n,
   "7.19",  "1.19",  54,
   "4.56",  "2.56",  66,
@@ -172,7 +182,7 @@ jpap_5 <- tibble::tribble(
 )
 
 
-jpap_5 %>% 
+flying_pigs4 %>% 
   grimmer_map() %>% 
   grim_plot()
 ```
@@ -248,13 +258,13 @@ Unfortunately, some studies that report group averages don't report the correspo
 Here is an example:
 
 ```{r}
-jpap_6 <- tibble::tribble(
+flying_pigs5 <- tibble::tribble(
     ~x1,    ~x2,    ~sd1,   ~sd2,   ~n,
     "3.43", "5.28", "1.09", "2.12", 70,
     "2.97", "4.42", "0.43", "1.65", 65
 )
 
-out_total_n <- grimmer_map_total_n(jpap_6)
+out_total_n <- grimmer_map_total_n(flying_pigs5)
 out_total_n
 
 audit_total_n(out_total_n)

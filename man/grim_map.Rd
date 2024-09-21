@@ -32,8 +32,8 @@ case.}
 
 \item{merge_items}{Logical. If \code{TRUE} (the default), there will be no \code{items}
 column in the output. Instead, values from an \code{items} column or argument
-will be multiplied with values in the \code{n} column. This does not affect
-GRIM-testing.}
+will be multiplied with values in the \code{n} column. This is only for
+presentation and does not affect test results.}
 
 \item{percent}{Logical. Set \code{percent} to \code{TRUE} if the \code{x} values are
 percentages. This will convert them to decimal numbers and adjust the

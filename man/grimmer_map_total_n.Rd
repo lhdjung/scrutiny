@@ -47,9 +47,7 @@ of dispersed values. Default is \code{NULL}, i.e., no constant values.}
 \code{constant} column in the output tibble. If \code{NULL} (the default), \code{constant}
 will go to the right of \code{n_change}.}
 
-\item{...}{Arguments passed down to \code{\link[=grimmer_map]{grimmer_map()}}. \emph{(NOTE: Don't use the
-\code{items} argument. It currently contains a bug that will be fixed in the
-future.)}}
+\item{...}{Arguments passed down to \code{\link[=grimmer_map]{grimmer_map()}}.}
 }
 \value{
 A tibble with these columns:
@@ -64,7 +62,8 @@ consistent with the hypothetical \code{n} values.
 half. \code{"forth"} means that \code{x2} from the input is paired with the larger
 dispersed \code{n}, whereas \code{"back"} means that \code{x1} is paired with the larger
 dispersed \code{n}.
-\item Other columns from \code{\link[=grimmer_map]{grimmer_map()}} are preserved.
+\item Other columns from \code{\link[=grimmer_map]{grimmer_map()}} are preserved. See there for an
+explanation of the \code{reason} column.
 }
 }
 \description{
