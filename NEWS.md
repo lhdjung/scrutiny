@@ -1,3 +1,45 @@
+# scrutiny 0.5.0
+
+The package is now released under the MIT license.
+
+## Breaking changes
+
+-   The `ratio` column in the output of `grim_map()` and `grim_map_seq()` was replaced by a `probability` column. This means:
+
+    -   Numerically, the only difference is that `probability` is zero whenever `ratio` was negative.
+
+    -   Conceptually, it is much easier to interpret: it is the probability that a reported mean or percentage of integer data that has a specific number of decimal places but is otherwise random is GRIM-inconsistent with the reported sample size.
+
+        For example, `probability` is `0.6` for a mean of `1.23` and a sample size of `40`. The same is true for any other mean with two decimal places. Thus, a randomly chosen mean with two decimal places, ostensibly derived from integer data, has a 0.6 probability of being GRIM-inconsistent with the reported sample size.
+
+-   In the functions around `grim_ratio()`, the `x` argument must now be a string. This is consistent with `grim_map()`, `unround()`, etc.; and it prevents erroneous results that could previously occur by omitting trailing zeros.
+
+## New features
+
+-   The `probability` column (see above) is created by a new function, `grim_probability()`.
+
+## Lifecycle updates
+
+### Deprecated
+
+-   As a consequence of the above, the `show_prob` argument of `grim_map()` is now deprecated and will be removed in a future version. It no longer has any effect.
+
+-   `grim_ratio_upper()` is deprecated and will be removed in a future version. It no longer seems very interesting (and likely never was), especially now that the GRIM ratio in general has taken a backseat.
+
+-   All 15 (!) functions around `is_subset_of()` are deprecated and will be removed in a future version. In truth, they were always poorly written and widely out of scope for scrutiny.
+
+### Removed
+
+All of these had been deprecated since scrutiny 0.3.0:
+
+-   `audit_list()` was removed.
+
+-   The `sep` argument in `restore_zeros()` and `restore_zeros_df()` was removed.
+
+-   The `numeric_only` argument in `duplicate_count()` and `duplicate_detect()` was removed.
+
+-   The `na.rm` argument in `duplicate_count_colpair()` was removed.
+
 # scrutiny 0.4.0
 
 This version brings major performance improvements. Furthermore:

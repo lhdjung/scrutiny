@@ -91,19 +91,7 @@ test_that("`parcel_nth_elements()` returns correct values", {
 
 df_test <- tibble::tibble(
   a = c(1, 2, 3, 1, 2, 3),
-  b = c(1, 2, 3, 1, 2, 3)
-) %>%
-  remove_equivalent_rows()
-
-df_expected_1 <- tibble::tibble(
-  a = 1:3,
-  b = 1:3
 )
-
-test_that("`remove_equivalent_rows()` returns correct values", {
-  df_test %>% expect_equal(df_expected_1)
-})
-
 
 
 df_test_2 <- tibble::tibble(

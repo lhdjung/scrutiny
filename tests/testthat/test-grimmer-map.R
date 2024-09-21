@@ -17,15 +17,11 @@ pigs5_exp <- tibble::tibble(
     "4.18", "2.18", "6.43"
   ),
   n = c(38, 31, 35, 30, 33, 34, 35, 32, 33, 37, 31, 34),
-  consistency = c(
-    FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE, TRUE, FALSE,
-    TRUE, TRUE, TRUE
-  ),
+  consistency = c(FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, TRUE, TRUE),
   reason = c(
     "GRIM inconsistent", "Passed all", "GRIMMER inconsistent (test 3)",
-    "GRIMMER inconsistent (test 3)", "GRIM inconsistent", "Passed all",
-    "GRIM inconsistent", "Passed all", "GRIM inconsistent", "Passed all",
-    "Passed all", "Passed all"
+    "Passed all", "GRIM inconsistent", "Passed all", "GRIM inconsistent",
+    "Passed all", "GRIM inconsistent", "Passed all", "Passed all", "Passed all"
   ),
 ) %>%
   structure(

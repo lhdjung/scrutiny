@@ -17,11 +17,11 @@ Description: Test published summary statistics for consistency
     Heathers and Brown, 2019, <https://osf.io/5vb3u/>).
     The package also provides infrastructure for implementing new
     error detection techniques.
-License: GPL (>= 3)
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Imports: 
     cli,
     corrr,
@@ -33,7 +33,7 @@ Imports:
     magrittr,
     methods,
     purrr,
-    rlang (>= 1.0.2),
+    rlang (>= 1.1.0),
     stats,
     stringr,
     tibble,
@@ -80,12 +80,16 @@ Collate:
     'duplicate-count.R'
     'grim-granularity.R'
     'grim-map-debug.R'
+    'grim-map-seq-debug.R'
     'grim-map-seq.R'
     'grim-map-total-n.R'
     'grim-plot.R'
     'grim-stats.R'
     'grimmer-map-seq.R'
     'grimmer-map-total-n.R'
+    'grimmer-rsprite2.R'
+    'import-standalone-obj-type.R'
+    'import-standalone-types-check.R'
     'metadata.R'
     'method-audit-seq.R'
     'method-audit-total-n.R'

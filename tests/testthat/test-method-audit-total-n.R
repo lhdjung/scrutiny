@@ -32,13 +32,13 @@ df1_grim_exp <- tibble::tibble(
 
 df1_grimmer_exp <- tibble::tibble(
   term = c("hits_total", "hits_forth", "hits_back", "scenarios_total", "hit_rate"),
-  mean = c(1, 0.5, 0.5, 12, 0.0833333333333333287074),
-  sd = c(0, 0.7071067811865475727373, 0.7071067811865475727373, 0, 0),
-  median = c(1, 0.5, 0.5, 12, 0.0833333333333333287074),
-  min = c(1, 0, 0, 12, 0.0833333333333333287074),
-  max = c(1, 1, 1, 12, 0.0833333333333333287074),
+  mean = c(0, 0, 0, 12, 0),
+  sd = numeric(5),
+  median = c(0, 0, 0, 12, 0),
+  min = c(0, 0, 0, 12, 0),
+  max = c(0, 0, 0, 12, 0),
   na_count = numeric(5),
-  na_rate = numeric(5)
+  na_rate = numeric(5),
 )
 
 df2_debit_exp <- tibble::tibble(

@@ -12,7 +12,7 @@ grim_map(
   x = NULL,
   n = NULL,
   show_rec = FALSE,
-  show_prob = FALSE,
+  show_prob = deprecated(),
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
@@ -46,9 +46,9 @@ Default is \code{FALSE}.}
 GRIM-testing are shown as columns. See section \emph{Reconstructed numbers}
 below. Default is \code{FALSE}.}
 
-\item{show_prob}{Logical. If set to \code{TRUE}, adds a \code{prob} column that
-contains the probability of GRIM inconsistency. This is simply the \code{ratio}
-column censored to range between 0 and 1. Default is \code{FALSE}.}
+\item{show_prob}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Logical. No longer
+supported: now, there is always a \code{probability} column. (It replaces the
+earlier \code{ratio} column.)}
 
 \item{rounding, threshold, symmetric, tolerance}{Further parameters of
 GRIM-testing; see documentation for \code{\link[=grim]{grim()}}.}
@@ -67,8 +67,9 @@ A tibble with these columns --
 \itemize{
 \item \code{x}, \code{n}: the inputs.
 \item \code{consistency}: GRIM consistency of \code{x}, \code{n}, and \code{items}.
+\item \code{probability}: the probability of GRIM inconsistency; see
+\code{\link[=grim_probability]{grim_probability()}}.
 \item \verb{<extra>}: any columns from \code{data} other than \code{x}, \code{n}, and \code{items}.
-\item \code{ratio}: the GRIM ratio; see \code{\link[=grim_ratio]{grim_ratio()}}.
 
 The tibble has the \code{scr_grim_map} class, which is recognized by the
 \code{\link[=audit]{audit()}} generic.
@@ -85,7 +86,7 @@ convert \code{x} values to decimals and adjust the decimal count accordingly.
 Display intermediary numbers from GRIM-testing in columns by setting
 \code{show_rec} to \code{TRUE}.
 
-For summary statistics, call \verb{[audit()}] on the results.
+For summary statistics, call \code{\link[=audit]{audit()}} on the results.
 }
 \section{Reconstructed numbers}{
  If \code{show_rec} is set to \code{TRUE}, the output
@@ -112,10 +113,10 @@ so you can call \code{\link[=audit]{audit()}} following \code{grim_map()} to get
 \item \code{incons_cases}: number of GRIM-inconsistent value sets.
 \item \code{all_cases}: total number of value sets.
 \item \code{incons_rate}: proportion of GRIM-inconsistent value sets.
-\item \code{mean_grim_ratio}: average of GRIM ratios.
-\item \code{incons_to_ratio}: ratio of \code{incons_rate} to \code{mean_grim_ratio}.
+\item \code{mean_grim_prob}: average probability of GRIM inconsistency.
+\item \code{incons_to_prob}: ratio of \code{incons_rate} to \code{mean_grim_prob}.
 \item \code{testable_cases}: number of GRIM-testable value sets (i.e., those with a
-positive ratio).
+positive \code{probability}).
 \item \code{testable_rate}: proportion of GRIM-testable value sets.
 }
 }

@@ -56,6 +56,7 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
     cols_for_testing_names <-
       colnames(data)[1L:match("consistency", colnames(data)) - 1L]
 
+    # Isolate the columns to be tested that are not the current `var` object:
     cols_for_testing_names_without_var <-
       cols_for_testing_names[cols_for_testing_names != var]
 
@@ -314,7 +315,8 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
         var <- reported
       }
 
-      # Create the lower-level testing function via an internal function factory:
+      # Create the lower-level testing function via an internal function
+      # factory:
       map_seq_proto <- function_map_seq_proto(
         .fun = fun,
         .name_test = name_test,
@@ -326,8 +328,8 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
         ...
       )
 
-      # Apply the lower-level function to all user-supplied variables (`var`) and
-      # all cases reported in `data`, or at least the inconsistent ones:
+      # Apply the lower-level function to all user-supplied variables (`var`)
+      # and all cases reported in `data`, or at least the inconsistent ones:
       out <- purrr::map(var, ~ map_seq_proto(data = data, var = .x))
 
       # Remove list-elements that are `NULL`, then check for an early return:
@@ -345,8 +347,8 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
         return(tibble::tibble())
       }
 
-      # Repeat the `var` strings so that they form a vector of the length that is
-      # the row number of `out`, and that can therefore be added to `out`:
+      # Repeat the `var` strings so that they form a vector of the length that
+      # is the row number of `out`, and that can therefore be added to `out`:
       nrow_out <- vapply(out, nrow, integer(1L), USE.NAMES = FALSE)
       var <- var %>%
         purrr::map2(nrow_out, rep) %>%
@@ -374,9 +376,9 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
 
       out <- add_class(out, classes_seq)
 
-      # Make sure the "rounding class" (i.e., `"scr_rounding_*"`) has the correct
-      # value. As this is not naturally guaranteed as in `*_map()` functions, it
-      # must be done by hand:
+      # Make sure the "rounding class" (i.e., `"scr_rounding_*"`) has the
+      # correct value. As this is not naturally guaranteed as in `*_map()`
+      # functions, it must be done by hand:
       dots <- rlang::enexprs(...)
       if (length(dots$rounding) > 0L) {
         class(out)[stringr::str_detect(class(out), "^scr_rounding_")] <-

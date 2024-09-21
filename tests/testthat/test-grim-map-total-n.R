@@ -25,23 +25,25 @@ df2_rows_1_3_expected <- tibble::tibble(
     "2.97", "4.42", "2.97"
   ),
   n = rep(
-    c(45L, 45L, 44L, 46L, 43L, 47L, 42L, 48L, 41L, 49L, 40L, 50L,
-      51L, 52L, 50L, 53L, 49L, 54L, 48L, 55L, 47L, 56L, 46L, 57L),
+    c(
+      45L, 45L, 44L, 46L, 43L, 47L, 42L, 48L, 41L, 49L, 40L, 50L, 51L, 52L, 50L,
+      53L, 49L, 54L, 48L, 55L, 47L, 56L, 46L, 57L
+    ),
     2
   ),
   n_change = rep(c(0L, 0L, -1L, 1L, -2L, 2L, -3L, 3L, -4L, 4L, -5L, 5L), 4),
   consistency = rep(
-    c(FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE,
-      TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE,
-      TRUE, FALSE, TRUE, FALSE),
-    c(2L, 2L, 1L, 2L, 3L, 2L, 1L, 1L, 1L, 1L, 3L, 1L, 3L, 1L, 3L,
-      3L, 3L, 2L, 3L, 1L, 3L, 1L, 5L)
+    c(
+      FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE,
+      FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE
+    ),
+    c(2L, 2L, 1L, 2L, 3L, 2L, 1L, 1L, 1L, 1L, 3L, 1L, 3L, 1L, 3L, 3L, 3L, 2L, 3L, 1L, 3L, 1L, 5L)
   ),
   both_consistent = rep(
     c(FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE),
     c(2L, 2L, 6L, 2L, 16L, 2L, 18L)
   ),
-  ratio = rep(
+  probability = rep(
     c(
       0.55, 0.55, 0.56, 0.54, 0.57, 0.53, 0.58, 0.52, 0.59, 0.51, 0.6, 0.5, 0.49,
       0.48, 0.5, 0.47, 0.51, 0.46, 0.52, 0.45, 0.53, 0.44, 0.54, 0.43
@@ -83,7 +85,7 @@ test_that("It has correct values", {
 
 
 colnames_exp <- c(
-  "x", "n", "n_change", "consistency", "both_consistent", "ratio", "case", "dir"
+  "x", "n", "n_change", "consistency", "both_consistent", "probability", "case", "dir"
 )
 
 

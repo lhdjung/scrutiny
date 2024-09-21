@@ -6,7 +6,7 @@ utils::globalVariables(c(
   "frac", "distance", "both_consistent", "fun", "var", "dispersion", "out_min",
   "out_max", "include_reported", "n", "times", "value", "name", "setNames",
   "rounding", "case", "n_sum", "consistency", "ratio", "scr_index_case",
-  "dust", "starts_with", "value_duplicated", "variable", "sd_lower",
+  "starts_with", "value_duplicated", "variable", "sd_lower",
   "sd_incl_lower", "sd_upper", "sd_incl_upper", "x_lower", "x_upper",
   "dupe_count", "fun_name",
   # Added after rewriting the function factories using `rlang::new_function()`:
@@ -152,30 +152,20 @@ an_a_type <- function(x) {
 
 #' Check whether numbers are whole
 #'
-#' @description For each element of a numeric vector `x`, `is_whole_number()`
-#'   checks whether that element is a whole number.
+#' @description For each element of a numeric vector, `is_whole_number()` checks
+#'   whether that element is a whole number.
 #'
 #'   This is not the same as the integer data type, so doubles and integers are
 #'   tested the same way. See the note in `?integer`. To test if R itself
 #'   considers a vector integer-like, use `rlang::is_integerish()` instead.
 #'
 #' @param x Numeric.
-#' @param tolerance Numeric. Any difference between `x` and a truncated version
-#'   of `x` less than `tolerance` (in the absolute value) will be ignored. The
-#'   default is close to `1 / (10 ^ 8)`. This avoids errors due to spurious
-#'   precision in floating-point arithmetic.
 #'
 #' @return Logical vector of the same length as `x`.
 #'
-#' @details This function was adapted (with naming modifications) from the
-#'   examples of `?integer`, where a very similar function is called
-#'   `is.wholenumber()`.
-#'
-#' @author R Core Team, Lukas Jung
-#'
 #' @noRd
 is_whole_number <- function(x, tolerance = .Machine$double.eps^0.5) {
-  abs(x - round(x)) < tolerance
+  dplyr::near(x, floor(x), tol = tolerance)
 }
 
 
@@ -193,39 +183,6 @@ is_whole_number <- function(x, tolerance = .Machine$double.eps^0.5) {
 #' @noRd
 parcel_nth_elements <- function(x, n, from = 1L) {
   x[seq(from = from, to = length(x), by = n)]
-}
-
-
-
-#' Drop rows with equivalent values, regardless of their order
-#'
-#' This function differs from `dplyr::distinct()` mainly insofar as it doesn't
-#' take the order of values within a row into account. Thus, it only checks
-#' which values are present in a row how many times; hence "equivalent" (see
-#' example below the function).
-#'
-#' @param data Data frame.
-#'
-#' @return Data frame. Each row is now unique.
-#'
-#' @examples
-#' df <- tibble::tribble(
-#'   ~a, ~b, ~c,
-#'   1, 2, 2,
-#'   2, 1, 2,
-#'   1, 2, 3
-#' )
-#'
-#' No two rows are identical here, so `dplyr::distinct()` preserves all of them.
-#' However, `remove_equivalent_rows()` cuts the second row. That is because the
-#' first two rows contain all the same values. They only differ in terms of the
-#' order of values, which the function ignores.
-#' remove_equivalent_rows(df)
-#'
-#' @noRd
-remove_equivalent_rows <- function(data) {
-  data_array <- apply(data, 1L, sort)
-  data[!duplicated(data_array, MARGIN = 2L), ]
 }
 
 
@@ -642,28 +599,15 @@ split_into_rows <- function(data) {
 
 
 
-#' Step size (stride) of a single decimal number
-#'
-#' Computes the smallest possible difference between two numbers on the lowest
-#' decimal level of `x`.
-#'
-#' @param x Numeric (or string coercible to numeric).
-#'
-#' @return Numeric.
-#'
-#' @noRd
-step_size_scalar <- function(x) {
-  digits <- decimal_places_scalar(x)
-  1 / (10 ^ digits)
-}
-
-
-
 #' Lowest step size (stride) of decimal numbers
 #'
-#' Like `step_size_scalar()` above, but `x` can have any length. The function
-#' will compute the step size of the one element of `x` with the most decimal
-#' numbers.
+#' Computes the smallest possible difference between two numbers on the lowest
+#' decimal level of `x`. This goes by the one element of `x` with the most
+#' decimal numbers.
+#'
+#' For example, if `x` is `c(7, 3.5, 8.27)`, the greatest number of decimal
+#' places is 2, and the smallest possible difference on the level of two decimal
+#' places is `0.01`, so this value is returned.
 #'
 #' @param x Numeric (or string coercible to numeric).
 #'
@@ -1159,49 +1103,8 @@ transform_split_parens <- function(data, end1, end2) {
 #'
 #' @noRd
 select_tested_cols <- function(data, before = "consistency") {
-  index_last_key_col <- match(before, colnames(data)) - 1L
-  data[1L:index_last_key_col]
-}
-
-
-
-#' Extract rounding class from an object
-#'
-#' @description In scrutiny, information about the rounding method used to
-#'   compute some or all values in a tibble is conveyed via a class which starts
-#'   on `"scr_rounding_"` and which is inherited by that tibble.
-#'
-#'   This function extracts any such rounding classes from `x`. If it returns
-#'   multiple classes, something went wrong with `x` earlier on.
-#'
-#' @param x Any object, but typically a tibble.
-#'
-#' @return String. Should be length 1, or else there is a problem.
-#'
-#' @noRd
-get_rounding_class <- function(x) {
-  x_cl <- class(x)
-  x_cl[stringr::str_detect(x_cl, "^scr_rounding_")]
-}
-
-
-
-#' Extract bare rounding string
-#'
-#' Wrapper around `get_rounding_class()` that removes the `"scr_rounding_"`
-#' prefix from its output. This might be useful for re-processing the original
-#' `rounding` argument's value in `reround()` or in a function that calls
-#' `reround()` internally. Not currently used.
-#'
-#' @param x Any object, but typically a tibble.
-#'
-#' @return String. Should be length 1, or else there is a problem. See
-#'   `get_rounding_class()`.
-#'
-#' @noRd
-get_rounding_class_arg <- function(x) {
-  out <- get_rounding_class(x)
-  stringr::str_remove(out, "^scr_rounding_")
+  index_last_tested_col <- match(before, colnames(data)) - 1L
+  data[1L:index_last_tested_col]
 }
 
 
@@ -1236,25 +1139,6 @@ wrap_in_quotes <- function(x) {
 
 
 
-#' Wrap into quotation marks if string
-#'
-#' For error messages and similar. `x` is returned unchanged unless it's a
-#' string, in which case it's treated as in `wrap_in_quotes()`.
-#'
-#' @param x Any object.
-#'
-#' @return String of length `length(x)`.
-#'
-#' @noRd
-wrap_in_quotes_if_string <- function(x) {
-  if (is.character(x)) {
-    x <- paste0("\"", x, "\"")
-  }
-  x
-}
-
-
-
 #' Wrap into quotation marks if string, else in backticks
 #'
 #' For error messages and similar. Like `wrap_in_quotes_if_string()` except a
@@ -1268,11 +1152,10 @@ wrap_in_quotes_if_string <- function(x) {
 #' @noRd
 wrap_in_quotes_or_backticks <- function(x) {
   if (is.character(x)) {
-    x <- paste0("\"", x, "\"")
+    paste0("\"", x, "\"")
   } else {
-    x <- paste0("`", x, "`")
+    paste0("`", x, "`")
   }
-  x
 }
 
 
@@ -1302,22 +1185,6 @@ about_equal <- function(x, y) {
 
 
 
-#' Drop all columns with specific string in name
-#'
-#' All column with names that include `drop_with` are removed.
-#'
-#' @param data Data frame.
-#' @param drop_with String (length 1).
-#'
-#' @return Data frame.
-#'
-#' @noRd
-drop_cols_with <- function(data, drop_with) {
-  data[!stringr::str_detect(names(data), drop_with)]
-}
-
-
-
 #' Get name of function being called
 #'
 #' Returns the name of the function within which `name_caller_call()` is called
@@ -1341,19 +1208,14 @@ name_caller_call <- function(n = 1L, wrap = TRUE) {
 
 
 
-# "Dust" variables were used by Nick Brown and later by Lukas Wallrich in
-# rsprite2. They get rid of spurious precision in reconstructed decimal numbers:
-dust <- 1e-12
-
-
-
 #' Subtle variations to numbers
 #'
-#' @description Reduplicate a numeric vector, subtly varying it below and above
-#'   the original. This avoids issues of spurious precision in floating-point
-#'   arithmetic.
+#' @description Reduplicate a numeric vector, varying it below and above the
+#'   original by a very small number (`1e-12`). This avoids issues of spurious
+#'   precision in floating-point arithmetic.
 #'
-#'   The difference is the global variable `dust`.
+#'   Similar "dust" values were previously used by Nick Brown, and later by
+#'   Lukas Wallrich in rsprite2.
 #'
 #' @param x Numeric.
 #'
@@ -1362,11 +1224,11 @@ dust <- 1e-12
 #' @details The idea is to catch very minor variation from `x` introduced by
 #'   spurious precision in floating point numbers, so that such purely
 #'   accidental deviations don't lead to false assertions of substantively
-#'   important numeric difference when there is none.
+#'   important numeric difference.
 #'
 #' @noRd
 dustify <- function(x) {
-  c(x - dust, x + dust)
+  c(x - 1e-12, x + 1e-12)
 }
 
 

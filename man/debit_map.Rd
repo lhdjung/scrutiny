@@ -43,8 +43,8 @@ generic.
 }
 \description{
 Call \code{debit_map()} to use DEBIT on multiple combinations of
-mean, standard deviation, and sample size of binary distributions. Mapping
-function for \code{\link[=debit]{debit()}}.
+mean, sample standard deviation, and sample size of binary distributions.
+Mapping function for \code{\link[=debit]{debit()}}.
 
 For summary statistics, call \code{\link[=audit]{audit()}} on the results.
 }

@@ -2,23 +2,22 @@
 % Please edit documentation in R/grim-stats.R
 \name{grim-stats}
 \alias{grim-stats}
-\alias{grim_total}
+\alias{grim_probability}
 \alias{grim_ratio}
-\alias{grim_ratio_upper}
+\alias{grim_total}
 \title{Possible GRIM inconsistencies}
 \usage{
-grim_total(x, n, items = 1, percent = FALSE)
+grim_probability(x, n, items = 1, percent = FALSE)
 
 grim_ratio(x, n, items = 1, percent = FALSE)
 
-grim_ratio_upper(x, percent = FALSE)
+grim_total(x, n, items = 1, percent = FALSE)
 }
 \arguments{
-\item{x}{String or numeric (length 1). Mean or percentage value computed from
-data with integer units (e.g., mean scores on a Likert scale or percentage
-of study participants in some condition). \emph{Note}: Numeric inputs don't
-include trailing zeros, but these are important for GRIM functions. See
-documentation for \code{grim()}.}
+\item{x}{String (length 1). Mean or percentage value computed from data with
+integer units, e.g., mean scores on a Likert scale or percentage of study
+participants in some condition. It has to be string to capture any trailing
+zeros.}
 
 \item{n}{Integer. Sample size corresponding to \code{x}.}
 
@@ -30,37 +29,43 @@ proportion of 100 rather than 1. The functions will then account for this
 fact through increasing the decimal count by 2. Default is \code{FALSE}.}
 }
 \value{
-Integer or double. The number or proportion of possible GRIM
-inconsistencies.
+Integer or double. The number of possible GRIM inconsistencies, or
+their probability for a random mean or percentage with a given number of
+decimal places.
 }
 \description{
-Even without GRIM-testing, means / proportions and sample sizes
-of granular distributions entail some key data:
+These functions compute statistics related to GRIM-testing. In
+general, \code{grim_probability()} is the most useful of them, and it is
+responsible for the \code{probability} column in a data frame returned by
+\code{\link[=grim_map]{grim_map()}}.
 \itemize{
+\item \code{grim_probability()} returns the probability that a reported mean or
+percentage of integer data that is random except for the number of its
+decimal places is inconsistent with the reported sample size. For example,
+the mean 1.23 is treated like any other mean with two decimal places.
+\item \code{grim_ratio()} is equal to \code{grim_probability()} unless \code{grim_ratio()} is
+negative, which can occur if the sample size is very large. Strictly
+speaking, this is more informative than \code{grim_probability()}, but it is
+harder to interpret.
 \item \code{grim_total()} returns the absolute number of GRIM-inconsistencies that
-are possible given the mean or percentage's number of decimal places (\code{D})
-and the corresponding sample size.
-\item \code{grim_ratio()} returns a proportion that is normalized by \code{10^D}, and
-therefore comparable across mean or percentage values reported to varying
-\code{D}.
-\item \code{grim_ratio_upper()} returns the upper bound of \code{grim_ratio()} for a
-given \code{D}.
+are possible given the mean or percentage's number of decimal places and
+the corresponding sample size.
 }
 
 For discussion, see \code{vignette("grim")}, section \emph{GRIM statistics}.
 }
 \examples{
 # Many value sets are inconsistent here:
+grim_probability(x = "83.29", n = 21)
 grim_total(x = "83.29", n = 21)
-grim_ratio(x = "83.29", n = 21)
 
 # No sets are inconsistent in this case...
+grim_probability(x = "5.14", n = 83)
 grim_total(x = "5.14", n = 83)
-grim_ratio(x = "5.14", n = 83)
 
 # ... but most would be if `x` was a percentage:
+grim_probability(x = "5.14", n = 83, percent = TRUE)
 grim_total(x = "5.14", n = 83, percent = TRUE)
-grim_ratio(x = "5.14", n = 83, percent = TRUE)
 }
 \references{
 Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A
@@ -69,6 +74,6 @@ Psychology. \emph{Social Psychological and Personality Science}, 8(4), 363–369
 https://journals.sagepub.com/doi/10.1177/1948550616673876
 }
 \seealso{
-\code{grim()} for the GRIM test itself; as well as \code{grim_map()} for
+\code{\link[=grim]{grim()}} for the GRIM test itself; as well as \code{\link[=grim_map]{grim_map()}} for
 applying it to many cases at once.
 }

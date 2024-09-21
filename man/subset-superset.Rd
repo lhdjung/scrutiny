@@ -64,9 +64,16 @@ A single logical value. \code{TRUE} if the respective test was passed,
 \code{FALSE} otherwise.
 }
 \description{
-Predicate functions that take a vector and test whether it has
-some particular relation to another vector. That second vector is entered
-in either of three ways --
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
+All of these functions are deprecated and will be removed in a future
+version. They are a poor fit for the problem they try to solve, and they
+are far out of scope for the package.
+\subsection{Original documentation}{
+
+Predicate functions that take a vector and test whether it has some
+particular relation to another vector. That second vector is entered in
+either of three ways --
 
 \strong{Enter it directly (basic functions):}
 
@@ -94,6 +101,7 @@ Each \verb{is_subset*()} function has an \verb{is_proper_subset*()} variant. The
 variants also test whether the sets are unequal, so that \code{x} is a subset of
 \code{y} but \code{y} is not a subset of \code{x}. The same applies to \verb{is_superset*()}
 functions and their \verb{is_proper_superset*()} variants.
+}
 }
 \details{
 The \verb{*_vals()} variants are meant for flexible, interactive
@@ -143,3 +151,4 @@ abc \%>\% is_subset_of_vals("a", "b", "c", "d", "e")
 
 # (... and likewise for supersets and equal sets.)
 }
+\keyword{internal}

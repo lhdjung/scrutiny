@@ -47,39 +47,6 @@ audit <- function(data) {
 
 
 
-#' Summaries in list form
-#' @description `r lifecycle::badge("deprecated")`
-#'
-#'   `audit_list()` is deprecated. Use `audit()` instead.
-#'
-#'   It was meant to be used when `audit()` would have returned tibbles that
-#'   were too wide to be read. However, the output format for `audit()` has now
-#'   been overhauled, there is no longer a need for `audit_list()`.
-#'
-#' @return Named list of `audit()`'s results.
-#'
-#' @keywords internal
-#'
-#' @export
-#'
-#' @examples
-#' # Only use `audit()` instead:
-#' pigs1 %>%
-#'   grim_map() %>%
-#'   audit()
-
-
-audit_list <- function(data) {
-  lifecycle::deprecate_warn(
-    when = "0.3.0",
-    what = "audit_list()",
-    with = "audit()"
-  )
-  as.list(audit(data))
-}
-
-
-
 #' Summarize output of sequence mappers and total-n mappers
 #'
 #' @description `audit_seq()` and `audit_total_n()` summarize the results of
@@ -149,9 +116,6 @@ audit_seq <- function(data) {
   hits_total <- df_list_hits %>%
     vapply(nrow, integer(1L), USE.NAMES = FALSE) %>%
     unname()
-
-  hits_positions <- df_list %>%
-    purrr::map(function(x) which(x$consistency))
 
   if (is.null(dim(data))) {
     fun <- class(data)[stringr::str_detect(class(data), "_map_seq$")]

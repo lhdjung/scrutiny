@@ -1,9 +1,17 @@
 
 #' Test for subsets, supersets, and equal sets
 #'
-#' @description Predicate functions that take a vector and test whether it has
-#'   some particular relation to another vector. That second vector is entered
-#'   in either of three ways --
+#' @description `r lifecycle::badge("deprecated")`
+#'
+#'   All of these functions are deprecated and will be removed in a future
+#'   version. They are a poor fit for the problem they try to solve, and they
+#'   are far out of scope for the package.
+#'
+#'   ## Original documentation
+#'
+#'   Predicate functions that take a vector and test whether it has some
+#'   particular relation to another vector. That second vector is entered in
+#'   either of three ways --
 #'
 #'   \strong{Enter it directly (basic functions):}
 #'
@@ -57,6 +65,8 @@
 #'
 #' @export
 #'
+#' @keywords internal
+#'
 #' @name subset-superset
 #'
 #' @examples
@@ -103,6 +113,11 @@
 #' @export
 
 is_subset_of <- function(x, y) {
+  lifecycle::deprecate_warn(
+    when = "0.5.0",
+    what = "is_subset_of()",
+    details = "It will be removed in a future version."
+  )
   x_rest <- x[!x %in% y]
   length(x_rest) == 0L
 }
@@ -112,6 +127,11 @@ is_subset_of <- function(x, y) {
 #' @export
 
 is_superset_of <- function(x, y) {
+  lifecycle::deprecate_warn(
+    when = "0.5.0",
+    what = "is_superset_of()",
+    details = "It will be removed in a future version."
+  )
   y_rest <- y[!y %in% x]
   length(y_rest) == 0L
 }
@@ -121,6 +141,11 @@ is_superset_of <- function(x, y) {
 #' @export
 
 is_equal_set <- function(x, y) {
+  lifecycle::deprecate_warn(
+    when = "0.5.0",
+    what = "is_equal_set()",
+    details = "It will be removed in a future version."
+  )
   is_subset_of(x, y) && is_superset_of(x, y)
 }
 
@@ -129,6 +154,11 @@ is_equal_set <- function(x, y) {
 #' @export
 
 is_proper_subset_of <- function(x, y) {
+  lifecycle::deprecate_warn(
+    when = "0.5.0",
+    what = "is_proper_subset_of()",
+    details = "It will be removed in a future version."
+  )
   is_subset_of(x, y) && !is_superset_of(x, y)
 }
 
@@ -137,6 +167,11 @@ is_proper_subset_of <- function(x, y) {
 #' @export
 
 is_proper_superset_of <- function(x, y) {
+  lifecycle::deprecate_warn(
+    when = "0.5.0",
+    what = "is_proper_superset_of()",
+    details = "It will be removed in a future version."
+  )
   is_superset_of(x, y) && !is_subset_of(x, y)
 }
 
@@ -148,6 +183,11 @@ is_proper_superset_of <- function(x, y) {
 #' @export
 
 is_subset_of_vals <- function(x, ...) {
+  lifecycle::deprecate_warn(
+    when = "0.5.0",
+    what = "is_subset_of_vals()",
+    details = "It will be removed in a future version."
+  )
   y <- rlang::enexprs(...)
   is_subset_of(x, y)
 }
@@ -158,6 +198,11 @@ is_subset_of_vals <- function(x, ...) {
 #' @export
 
 is_superset_of_vals <- function(x, ...) {
+  lifecycle::deprecate_warn(
+    when = "0.5.0",
+    what = "is_superset_of_vals()",
+    details = "It will be removed in a future version."
+  )
   y <- rlang::enexprs(...)
   is_superset_of(x, y)
 }
@@ -168,6 +213,11 @@ is_superset_of_vals <- function(x, ...) {
 #' @export
 
 is_equal_set_vals <- function(x, ...) {
+  lifecycle::deprecate_warn(
+    when = "0.5.0",
+    what = "is_equal_set_vals()",
+    details = "It will be removed in a future version."
+  )
   y <- rlang::enexprs(...)
   is_equal_set(x, y)
 }
@@ -177,6 +227,11 @@ is_equal_set_vals <- function(x, ...) {
 #' @export
 
 is_proper_subset_of_vals <- function(x, ...) {
+  lifecycle::deprecate_warn(
+    when = "0.5.0",
+    what = "is_proper_subset_of_vals()",
+    details = "It will be removed in a future version."
+  )
   y <- rlang::enexprs(...)
   is_proper_subset_of(x, y)
 }
@@ -186,6 +241,11 @@ is_proper_subset_of_vals <- function(x, ...) {
 #' @export
 
 is_proper_superset_of_vals <- function(x, ...) {
+  lifecycle::deprecate_warn(
+    when = "0.5.0",
+    what = "is_proper_superset_of_vals()",
+    details = "It will be removed in a future version."
+  )
   y <- rlang::enexprs(...)
   is_proper_superset_of(x, y)
 }
@@ -200,6 +260,11 @@ is_proper_superset_of_vals <- function(x, ...) {
 #' @export
 
 is_subset_of_vecs <- function(x, ...) {
+  lifecycle::deprecate_warn(
+    when = "0.5.0",
+    what = "is_subset_of_vecs()",
+    details = "It will be removed in a future version."
+  )
   y <- straighten_out(...)
   is_subset_of(x, y)
 }
@@ -210,6 +275,11 @@ is_subset_of_vecs <- function(x, ...) {
 #' @export
 
 is_superset_of_vecs <- function(x, ...) {
+  lifecycle::deprecate_warn(
+    when = "0.5.0",
+    what = "is_superset_of_vecs()",
+    details = "It will be removed in a future version."
+  )
   y <- straighten_out(...)
   is_superset_of(x, y)
 }
@@ -220,6 +290,11 @@ is_superset_of_vecs <- function(x, ...) {
 #' @export
 
 is_equal_set_vecs <- function(x, ...) {
+  lifecycle::deprecate_warn(
+    when = "0.5.0",
+    what = "is_equal_set_vecs()",
+    details = "It will be removed in a future version."
+  )
   y <- straighten_out(...)
   is_equal_set(x, y)
 }
@@ -229,6 +304,11 @@ is_equal_set_vecs <- function(x, ...) {
 #' @export
 
 is_proper_subset_of_vecs <- function(x, ...) {
+  lifecycle::deprecate_warn(
+    when = "0.5.0",
+    what = "is_proper_subset_of_vecs()",
+    details = "It will be removed in a future version."
+  )
   y <- straighten_out(...)
   is_proper_subset_of(x, y)
 }
@@ -238,6 +318,11 @@ is_proper_subset_of_vecs <- function(x, ...) {
 #' @export
 
 is_proper_superset_of_vecs <- function(x, ...) {
+  lifecycle::deprecate_warn(
+    when = "0.5.0",
+    what = "is_proper_superset_of_vecs()",
+    details = "It will be removed in a future version."
+  )
   y <- straighten_out(...)
   is_proper_superset_of(x, y)
 }

@@ -17,9 +17,10 @@ which will hold for most non-Likert scales.}
 
 \item{gran}{Numeric. Granularity.}
 
-\item{tolerance}{Numeric. In \code{grim_items()}, \code{tolerance} is the maximal
-amount by which results may differ from being whole numbers. If they exceed
-that amount, a warning will be shown.}
+\item{tolerance}{Numeric. Any difference between \code{x} and a truncated version
+of \code{x} less than \code{tolerance} (in the absolute value) will be ignored. The
+default is close to \code{1 / (10 ^ 8)}. This avoids errors due to spurious
+precision in floating-point arithmetic.}
 }
 \value{
 Numeric. Granularity or number of items.
@@ -38,9 +39,7 @@ the underlying formula is the same (and it's very simple). However, for
 clarity, they are presented as distinct.
 
 The output of \code{grim_items()} should be whole numbers, because scale items
-have a granularity of 1. If they differ from the next whole number by more
-than a numeric \code{tolerance} (which is determined by the argument by that
-name), a warning will be shown.
+have a granularity of 1.
 
 It would be wrong to determine a scale's granularity from the minimal
 distance between two values in a given distribution. This would only

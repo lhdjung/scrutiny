@@ -20,7 +20,6 @@ knitr::opts_chunk$set(
 pkgload::load_all()
 ```
 
-
 ```{r setup, message=FALSE}
 library(scrutiny)
 ```
@@ -37,7 +36,7 @@ This vignette covers scrutiny's implementation of the GRIM test. It has the foll
 
 4.  The visualization function `grim_plot()`.
 
-5.  Statistical benchmarks, such as granularity and the GRIM ratio.
+5.  Statistical benchmarks, such as granularity and the probability of GRIM inconsistency.
 
 ## Basic GRIM testing
 
@@ -81,7 +80,7 @@ Now, simply run `grim_map()` on that data frame:
 grim_map(flying_pigs1)
 ```
 
-The `x` and `n` columns are the same as in the input. By default, the number of `items` composing the mean is assumed to be 1. The main result, `consistency`, is the GRIM consistency of the former three columns. On the `ratio` column, see section *The GRIM ratio*.
+The `x` and `n` columns are the same as in the input. By default, the number of `items` composing the mean is assumed to be 1. The main result, `consistency`, is the GRIM consistency of the former three columns. On the `probability` column, see section *The probability of GRIM inconsistency*.
 
 ### Scale items
 
@@ -196,11 +195,11 @@ These columns are ---
 
 3.  `incons_rate`: proportion of GRIM-inconsistent value sets.
 
-4.  `mean_grim_ratio`: average of GRIM ratios.
+4.  `mean_grim_prob`: average probability of GRIM inconsistency.
 
-5.  `incons_to_ratio`: ratio of `incons_rate` to `mean_ratio`.
+5.  `incons_to_prob`: ratio of `incons_rate` to `mean_grim_prob`.
 
-6.  `testable_cases`: number of GRIM-testable value sets (i.e., those with a positive ratio).
+6.  `testable_cases`: number of GRIM-testable value sets (i.e., those with a positive probability).
 
 7.  `testable_rate`: proportion of GRIM-testable value sets.
 
@@ -239,7 +238,7 @@ With its unusual optics, this plot will probably not fit everyone's taste. The r
 
 The plot is strictly based on the laws governing GRIM. Its background raster shows all consistent (light) and inconsistent (dark) value pairs for two decimal places. Empirical values are shown in blue if consistent and red if inconsistent. Color settings and other ggplot2-typical options are available via arguments. Read about them at `grim_plot()`'s documentation.
 
-You might notice the light vertical lines at $N = 40$ and $N = 80$: Few values are flagged as inconsistent here. This reflects `grim_map()`'s charitable default of accepting values rounded either up *or* down from 5. If a different `rounding` specification is chosen in the `grim_map()` call, the plot raster will adjust automatically (although it will often be the same as before):
+You might notice the light vertical lines at $n = 40$ and $n = 80$: Few values are flagged as inconsistent here. This reflects `grim_map()`'s charitable default of accepting values rounded either up *or* down from 5. If a different `rounding` specification is chosen in the `grim_map()` call, the plot raster will adjust automatically (although it will often be the same as before):
 
 ```{r, fig.width=6, fig.height=5.5}
 jpap_5 %>% 
@@ -342,63 +341,59 @@ This example only features one case --- the `df` tibble has just a single row. I
 
 ## GRIM statistics
 
-### The GRIM ratio
+### The probability of GRIM inconsistency
 
-#### Formula
+#### General description
 
-The `ratio` column in a tibble returned by `grim_map()` is the "GRIM ratio", i.e.:
+The `probability` column in a tibble returned by `grim_map()` is the probability of GRIM inconsistency, i.e.:
 
 $$
-\frac{10^D - NL}{10^D}
+P = max(0, \frac{10^D - NL}{10^D})
 $$
 
-where $D$ is the number of decimal places in `x` (the mean or proportion), $N$ is the sample size, and $L$ is the number of scale items. Because $N, L \geq 1$, the GRIM ratio ranges from $-\infty$ to $1 - \frac{1}{10^D}$, asymptotically approaching 1. Its upper bound will be 0.9 if $D = 1$ and 0.99 if $D = 2$, etc.
+where $D$ is the number of decimal places in $X$ (the mean or proportion), $N$ is the sample size, and $L$ is the number of scale items. The fraction will never be greater than 1, and the $max()$ function limits it at 0.
+
+Consider a mean $X$ that was ostensibly derived from integer data. It has $D$ decimal places, but is otherwise random: the integer part is irrelevant in any case, and the exact digits that occupy the $D$ decimal places are ignored. $P$, then, is the probability that $X$ is GRIM-inconsistent. Naturally, $P$ is also the proportion of inconsistent value sets with $D$ decimal places, a sample size of $N$, and $L$ scale items.
+
+In real-world scenarios, one would not usually assume $X$ to be random at the outset of an investigation, but this can be interesting as a contrasting assumption. If a study has many GRIM-inconsistent value sets with very high probabilities of inconsistency, it may suggest that the anomalies are not explained by small deviations from true values (although `grim_map_seq()` is more informative on this point). Rather, such a finding could raise concerns that these statistics did not come about as part of a regular research process.
 
 #### Functions
 
-`grim_ratio()` takes the arguments `x`, `n`, `items`, and `percent` as in `grim()` and `grim_map()`:
+`grim_probability()` takes the arguments `x`, `n`, `items`, and `percent` as in `grim()` and `grim_map()`. As before, `x` must be a string to capture any trailing zeros:
 
 ```{r}
-grim_ratio(x = 1.42, n = 72)
+grim_probability(x = "1.40", n = 72)
 
-grim_ratio(x = 5.93, n = 80, items = 3)
+grim_probability(x = "5.93", n = 80, items = 3)
 
 # Enter `x` as a string to preserve trailing zeros:
-grim_ratio(x = "84.20", n = 40, percent = TRUE)
-
-# Upper bounds:
-grim_ratio_upper(x = 1.42)
-grim_ratio_upper(x = "84.20", percent = TRUE)
+grim_probability(x = "84.27", n = 40, percent = TRUE)
 ```
 
-In addition, `grim_total()` takes the same arguments but returns only the numerator of the above formula:
+`grim_map()` displays a `probability` column that shows the probability of GRIM inconsistency. It is derived using `grim_probability()`.
+
+In addition, `grim_total()` takes the same arguments but returns only the numerator of the fraction in the above formula:
 
 ```{r}
-grim_total(x = 1.42, n = 72)
+grim_total(x = "1.40", n = 72)
 
-grim_total(x = 5.93, n = 80, items = 3)
+grim_total(x = "5.93", n = 80, items = 3)
 
-grim_total(x = "84.20", n = 40, percent = TRUE)  # Enter `x` as string to preserve trailing zero
+grim_total(x = "84.27", n = 40, percent = TRUE)  # Enter `x` as string to preserve trailing zero
 ```
 
-If `grim_map()`'s `prob` argument is set to `TRUE`, it adds a `prob` column that shows the probability of GRIM inconsistency. `prob` is derived from left-censoring the `ratio` column at 0, so it is equal to `ratio` if and only if $0 \leq ratio$. If $ratio < 0$, then $prob = 0$. (The GRIM ratio cannot be 1 or greater.)
-
-#### Interpretation
-
-If the GRIM ratio is non-negative, it can be interpreted as the proportion of inconsistent value sets corresponding to a given set of parameters. This is also the probability that a randomly chosen mean is GRIM-inconsistent. If the ratio is negative, the probability is 0.
-
-Similarly, if the `grim_total()` value is non-negative, it can be interpreted as the total number of GRIM inconsistencies corresponding to a given set of parameters. If it is negative, that total is 0.
+The result is the total number of GRIM-inconsistent value sets with the given parameters. However, this is generally less useful than `grim_probability()`: the result is only comparable across different numbers of decimal places when normalized by $10^D$.
 
 #### Origins
 
-Although the term "GRIM ratio" is new, the formula is arguably implicit in Brown and Heathers' (2017) paper on GRIM. The numerator is a transformation of the formula presented on p. 364, and the authors discuss a common special case of the ratio (interpreted as a proportion) on p. 367:
+The formula for the probability of GRIM inconsistency is arguably implicit in Brown and Heathers' (2017) paper on GRIM. The numerator is a transformation of the formula presented on p. 364, and the authors discuss a common special case of the probability (interpreted as a proportion) on p. 367:
 
 > With reporting to two decimal places, for a sample size $N < 100$ [and a single item], a random mean value will be consistent in approximately $N$% of cases.
 
 Assuming $N = 70$ and inserting all of these values into the above formula returns
 
 $$
-\frac{10^2-70×1}{10^2} = 0.3
+max(0, \frac{10^2-70×1}{10^2}) = 0.3
 $$
 
 so that a random mean will be inconsistent in about 30% of cases and, conversely, consistent in about 70%.
@@ -406,10 +401,8 @@ so that a random mean will be inconsistent in about 30% of cases and, conversely
 Here is the same in code (assuming an arbitrary mean with two decimal places):
 
 ```{r}
-grim_ratio(x = 0.99, n = 70)
+grim_probability(x = "0.99", n = 70)
 ```
-
-Thus, all I did regarding the GRIM ratio was to make the general formula explicit and give it a name. Researchers may judge for themselves how useful it is for further analyses.
 
 ### Granularity and scale items
 

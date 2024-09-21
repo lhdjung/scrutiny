@@ -44,8 +44,6 @@
 #' @param sep_out Substring that will be returned in the output to separate the
 #'   mantissa from the integer part. By default, `sep_out` is the same as
 #'   `sep_in`.
-#' @param sep [[Deprecated]] Use `sep_in`, not `sep`. If `sep` is specified
-#'   nonetheless, `sep_in` takes on `sep`'s value.
 #' @param data Data frame or matrix. Only in `restore_zeros_df()`, and instead
 #'   of `x`.
 #' @param cols Only in `restore_zeros_df()`. Select columns from `data` using
@@ -97,25 +95,11 @@
 #'   restore_zeros_df(starts_with("Sepal"), width = 3)
 
 
-restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in,
-                          sep = deprecated()) {
+restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in) {
 
   # Make sure no whitespace (from values that already were strings) is factored
   # into the count:
   x <- stringr::str_trim(x)
-
-  if (lifecycle::is_present(sep)) {
-    lifecycle::deprecate_warn(
-      when = "0.1.1",
-      what = "restore_zeros(sep)",
-      details = c(
-        "`sep` was replaced by `sep_in`, which now conflicts with it.",
-        "If `sep` is still specified, `sep_in` takes on its value."
-      )
-    )
-    # If `sep` is specified, `sep_in` must take on its role:
-    sep_in <- sep
-  }
 
   # Determine the maximal width to which the mantissas should be padded in
   # accordance with the `width` argument, the default of which, `NULL`, makes
@@ -181,19 +165,7 @@ restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in,
 restore_zeros_df <- function(data, cols = everything(),
                              check_numeric_like = TRUE, check_decimals = FALSE,
                              width = NULL, sep_in = "\\.", sep_out = NULL,
-                             sep = deprecated(), ...) {
-
-  if (lifecycle::is_present(sep)) {
-    lifecycle::deprecate_warn(
-      when = "0.3.0",
-      what = "restore_zeros_df(sep)",
-      details = c(
-        "`sep` was replaced by `sep_in`, which now conflicts with it.",
-        "If `sep` is still specified, `sep_in` takes on its value \
-        within `restore_zeros()`."
-      )
-    )
-  }
+                             ...) {
 
   # Check whether the user specified any "old" arguments: those starting on a
   # dot. This check is now the only remaining purpose of the `...` dots because

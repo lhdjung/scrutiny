@@ -11,6 +11,22 @@ check_length_parens_sep <- function(sep) {
 }
 
 
+
+#' Match the `sep` keyword to actual separators
+#'
+#' @description `translate_length1_sep_keywords()` is called within
+#'   `split_by_parens()` to replace the legal keywords `"parens"`, `"brackets"`,
+#'   or `"braces"` to the characters they describe.
+#'
+#'   A length-2 `sep` object is returned as it is because it is meant to contain
+#'   actual (custom) separators, not a keyword. If `sep` is neither length 2 nor
+#'   any of the keywords from above, an error is thrown.
+#'
+#' @param sep String (length 1 or 2).
+#'
+#' @return String (length 1 or 2).
+#'
+#' @noRd
 translate_length1_sep_keywords <- function(sep) {
   check_length_parens_sep(sep)
   if (length(sep) == 2L) {

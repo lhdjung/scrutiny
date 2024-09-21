@@ -19,9 +19,6 @@
 #'   newly created columns.
 #' @param name_class String. Name of the class which the factory-made function
 #'   will add to the tibble that it returns.
-#' @param include_numeric_only_arg Logical. Should the factory-made function
-#'   have the deprecated `numeric_only = TRUE` argument? Only for compatibility
-#'   with older versions of scrutiny (i.e., before 0.3.0). Default is `FALSE`.
 #'
 #' @include utils.R
 #'
@@ -30,37 +27,18 @@
 #' @noRd
 
 
-function_duplicate_cols <- function(code_new_cols, default_end, name_class,
-                                    include_numeric_only_arg = FALSE) {
+function_duplicate_cols <- function(code_new_cols, default_end, name_class) {
 
   code_new_cols <- rlang::enexpr(code_new_cols)
-
-  if (include_numeric_only_arg) {
-    numeric_only_arg <- list(numeric_only = deprecated())
-    numeric_only_check <- rlang::expr({
-      if (lifecycle::is_present(numeric_only)) {
-        lifecycle::deprecate_warn(
-          when = "0.3.0",
-          what = paste0(name_caller_call(), "(numeric_only)"),
-          details = "It no longer has any effect because all input \
-          values are now coerced to character strings."
-        )
-      }
-    })
-  } else {
-    numeric_only_arg <- NULL
-    numeric_only_check <- NULL
-  }
 
 
   # --- Start of the manufactured function ---
 
   rlang::new_function(
     args = rlang::pairlist2(
-      x =, ignore = NULL, colname_end = default_end, !!!numeric_only_arg
+      x =, ignore = NULL, colname_end = default_end
     ),
     body = rlang::expr({
-      `!!`(numeric_only_check)
 
       # Type checking:
       if (!rlang::is_vector(x)) {
@@ -169,8 +147,6 @@ function_duplicate_cols <- function(code_new_cols, default_end, name_class,
 #'   the test result columns, they will be marked `NA`.
 #' @param colname_end String. Name ending of the logical test result columns.
 #'   Default is `"dup"`.
-#' @param numeric_only [[Deprecated]] No longer used: All values are coerced to
-#'   character.
 
 #' @return A tibble (data frame). It has all the columns from `x`, and to each
 #'   of these columns' right, the corresponding test result column.
@@ -224,8 +200,7 @@ duplicate_detect <- function_duplicate_cols(
   # input values, both from the start forward and from the end backward:
   code_new_cols = duplicated(x) | duplicated(x, fromLast = TRUE),
   default_end = "dup",
-  name_class = "scr_dup_detect",
-  include_numeric_only_arg = TRUE
+  name_class = "scr_dup_detect"
 )
 
 

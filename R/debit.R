@@ -23,7 +23,7 @@ debit_scalar <- function(x, sd, n,
 #' The DEBIT (descriptive binary) test
 #'
 #' @description `debit()` tests summaries of binary data for consistency: If the
-#'   mean and the standard deviation of binary data are given, are they
+#'   mean and the sample standard deviation of binary data are given, are they
 #'   consistent with the reported sample size?
 #'
 #'   The function is vectorized, but it is recommended to use [`debit_map()`]

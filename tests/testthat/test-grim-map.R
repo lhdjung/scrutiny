@@ -41,10 +41,10 @@ test_that("It has the correct rounding-specific class", {
 t <- TRUE
 f <- FALSE
 
-cns_exp <- c(t, f, f, f, f, t, f, t, f, f, t, f)
+consistency_exp <- c(t, f, f, f, f, t, f, t, f, f, t, f)
 
 test_that("`consistency` has the correct values", {
-  df1_grim$consistency %>% expect_equal(cns_exp)
+  df1_grim$consistency %>% expect_equal(consistency_exp)
 })
 
 
@@ -52,14 +52,11 @@ test_that("`consistency` has the correct values", {
 df2 <- df1 %>%
   dplyr::mutate(n = n * 100)
 
-df2_grim <- grim_map(df2, show_prob = TRUE)
+df2_grim <- grim_map(df2)
 
-test_that("`prob` is zero if `ratio` is negative", {
-  (df2_grim$prob == 0) %>% all() %>% expect_true()
-})
-
-test_that("`prob` is greater than `ratio` if `ratio` is negative", {
-  (df2_grim$prob > df2_grim$ratio) %>% all() %>% expect_true()
+# Comparison with what `grim_ratio()` would return -- it can be negative:
+test_that("`probability` is zero if `ratio` would be negative", {
+  (df2_grim$probability == 0) %>% all() %>% expect_true()
 })
 
 
@@ -80,23 +77,18 @@ df3_percent_true <- grim_map(df3, percent = TRUE, show_rec = TRUE) %>%
 
 df3_percent_false <- grim_map(df3, show_rec = TRUE)
 
-all_percent_ratios_greater <-
-  (df3_percent_true$ratio > df3_percent_false$ratio) %>%
-  all()
+percent_probabilities_greater <-
+  df3_percent_true$probability > df3_percent_false$probability
 
 test_that(
-  "The GRIM ratio is always greater with `percent = TRUE` than without it", {
-    all_percent_ratios_greater %>% expect_true()
+  "The probability of GRIM inconsistency is always greater
+  with `percent = TRUE` than without it", {
+    percent_probabilities_greater %>% all() %>% expect_true()
 })
 
 
 df3_true_accord <- df3_percent_true %>%
-  dplyr::select(1, 3, 7:10) %>%
-  # dplyr::select(
-  #   x, consistency,
-  #   rec_x_upper_rounded_up, rec_x_upper_rounded_down,
-  #   rec_x_lower_rounded_up, rec_x_lower_rounded_down
-  # ) %>%
+  dplyr::select(1, 3, 7:11) %>%
   dplyr::mutate(accord = dplyr::if_else(
       consistency,
       any(dplyr::near(
@@ -152,21 +144,10 @@ test_that("`x` and `n` make the specified columns take on these roles", {
 })
 
 
-df7 <- df1 %>%
-  grim_map(show_prob = TRUE)
+# `df7` was omitted
 
-
-test_that("`show_prob` adds a `prob` column", {
-  expect_contains(colnames(df7), "prob")
-})
-
-
-prob <- df7$prob
-ratio_censored <- dplyr::if_else(df7$ratio < 0, 0, df7$ratio)
-
-test_that("the probability of GRIM-inconsisteny is equal to the
-          non-negative GRIM ratio", {
-  prob %>% expect_equal(ratio_censored)
+test_that("a `probability` column is naturally present", {
+  df1_grim %>% colnames() %>% expect_contains("probability")
 })
 
 

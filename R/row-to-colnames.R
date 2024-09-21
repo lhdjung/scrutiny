@@ -27,7 +27,7 @@
 #'
 #' @include utils.R
 #'
-#' @seealso [`unheadr::mash_colnames()`], a more sophisticated solution to the
+#' @seealso `unheadr::mash_colnames()`, a more sophisticated solution to the
 #'   same problem.
 #'
 #' @return A tibble (data frame).

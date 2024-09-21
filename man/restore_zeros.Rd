@@ -5,13 +5,7 @@
 \alias{restore_zeros_df}
 \title{Restore trailing zeros}
 \usage{
-restore_zeros(
-  x,
-  width = NULL,
-  sep_in = "\\\\.",
-  sep_out = sep_in,
-  sep = deprecated()
-)
+restore_zeros(x, width = NULL, sep_in = "\\\\.", sep_out = sep_in)
 
 restore_zeros_df(
   data,
@@ -21,7 +15,6 @@ restore_zeros_df(
   width = NULL,
   sep_in = "\\\\.",
   sep_out = NULL,
-  sep = deprecated(),
   ...
 )
 }
@@ -39,9 +32,6 @@ part. Default is \code{"\\\\."}, which renders a decimal point.}
 \item{sep_out}{Substring that will be returned in the output to separate the
 mantissa from the integer part. By default, \code{sep_out} is the same as
 \code{sep_in}.}
-
-\item{sep}{[\link{Deprecated}] Use \code{sep_in}, not \code{sep}. If \code{sep} is specified
-nonetheless, \code{sep_in} takes on \code{sep}'s value.}
 
 \item{data}{Data frame or matrix. Only in \code{restore_zeros_df()}, and instead
 of \code{x}.}

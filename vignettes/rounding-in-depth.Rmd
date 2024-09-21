@@ -142,7 +142,7 @@ up2 <- round_up(vec2)
 down2 <- round_down(vec2)
 even2 <- round(vec2)
 
-vec1
+vec2
 up2
 down2
 
@@ -167,7 +167,7 @@ mean(round(vec3, 1))
 
 Sometimes `round()` behaves just as it should, but at other times, results can be hard to explain. Martin Mächler, who wrote the present version of `round()`, [describes the issue](https://rpubs.com/maechler/Rounding) about as follows:
 
-The reason for the above behavior is that most decimal fractions can't, in fact, be represented as double precision numbers. Even seemingly "clean" numbers with only a few decimal places come with a long invisible mantissa, and are therefore closer to one side or the other.
+The reason for the above behavior is that most decimal fractions can't, in fact, be represented as double precision numbers. Even seemingly "clean" numbers with only a few decimal places come with a long invisible mantissa, and are therefore closer to one side or the other. (To see this clearly, try entering a few decimal numbers on [Float Exposed](https://float.exposed).)
 
 We usually think that rounding rules are all about breaking a tie that occurs at 5. Most floating-point numbers, however, are just somewhat less than or greater than 5. There is no tie! Consequently, Mächler says, rounding functions need to "*measure, not guess* which of the two possible decimals is closer to `x`" --- and therefore, which way to round.
 
