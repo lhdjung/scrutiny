@@ -3,13 +3,16 @@
 
 # Analytic-GRIMMER (A-GRIMMER) was developed by Aurélien Allard
 # (https://aurelienallard.netlify.app/post/anaytic-grimmer-possibility-standard-deviations/).
-# His original algorithm received some modifications here, for three reasons:
-# First, tapping scrutiny's infrastructure for implementing error detection
+# His original algorithm received some modifications here, for these reasons:
+# -- Tapping scrutiny's infrastructure for implementing error detection
 # techniques; for example, functions like `reround()` and
-# `decimal_places_scalar()`. Second, changing the return value to logical, which
-# is the expected output from the basic implementation of any consistency test
-# within scrutiny. Third, adjusting variable names to the tidyverse style guide
-# and scrutiny's domain-specific conventions.
+# `decimal_places_scalar()`.
+# -- Changing the return value to logical, which is the expected output from the
+# basic implementation of any consistency test within scrutiny.
+# -- Adjusting variable names to the tidyverse style guide and scrutiny's
+# domain-specific conventions.
+# -- Adding support for multi-item scales (see `items` argument) via
+# `rsprite2::GRIMMER_test()`.
 
 
 # Translation of variable names -------------------------------------------
@@ -253,14 +256,12 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
 #' @param x String. The reported mean value.
 #' @param sd String. The reported standard deviation.
 #' @param n Integer. The reported sample size.
-#' @param items *(NOTE: Don't use the `items` argument. It currently contains a
-#'   bug that will be fixed in the future.)* Integer. The
-#'   number of items composing the `x` and `sd` values. Default is 1, the most
-#'   common case.
+#' @param items Integer. The number of items composing the `x` and `sd` values.
+#'   Default is `1`, the most common case.
 #' @param show_reason Logical. For internal use only. If set to `TRUE`, the
 #'   output is a list of length-2 lists which also contain the reasons for
 #'   inconsistencies. Don't specify this manually; instead, use `show_reason` in
-#'   [`grimmer_map()`]. Default is `FALSE`.
+#'   [`grimmer_map()`]. See there for explanation. Default is `FALSE`.
 #'
 #' @inheritParams grim
 #'
@@ -268,18 +269,18 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
 #'   consistent, `FALSE` if not.
 
 #' @details GRIMMER was originally devised by Anaya (2016). The present
-#'   implementation follows Allard's (2018) refined Analytic-GRIMMER (A-GRIMMER)
-#'   algorithm. It adapts the R function `aGrimmer()` provided by Allard and
-#'   modifies it to accord with scrutiny's standards, as laid out in
-#'   `vignette("consistency-tests-in-depth")`, sections 1-2. The resulting
-#'   `grimmer()` function, then, is a vectorized version of this basic
-#'   implementation. For more context and variable name translations, see the
-#'   top of the R/grimmer.R, the source file.
+#'   implementation follows Allard's (2018) refined Analytic-GRIMMER algorithm.
+#'   It uses a variant of Analytic-GRIMMER first implemented in
+#'   \href{https://lukaswallrich.github.io/rsprite2/reference/GRIMMER_test.html}{`rsprite2::GRIMMER_test()`}
+#'   that can be applied to multi-item scales.
 #'
-#'   The present implementation can differ from Allard's in a small number of
-#'   cases. In most cases, this means that the original flags a value set as
-#'   inconsistent, but scrutiny's `grimmer*()` functions don't. For details, see
-#'   the end of tests/testthat/test-grimmer.R, the `grimmer()` test file.
+#'   The scrutiny version embeds GRIMMER in the broader system of consistency
+#'   testing, as laid out in
+#'   \href{https://lhdjung.github.io/scrutiny/articles/consistency-tests-in-depth.html}{*Consistency
+#'   tests in depth*}. The `grimmer()` function
+#'   is a vectorized (multiple-case) version of this basic implementation. For
+#'   more context and variable name translations, see the top of the R/grimmer.R
+#'   source file.
 
 #' @references Allard, A. (2018). Analytic-GRIMMER: a new way of testing the
 #'   possibility of standard deviations.

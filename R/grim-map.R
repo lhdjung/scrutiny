@@ -21,8 +21,8 @@
 #'   case.
 #' @param merge_items Logical. If `TRUE` (the default), there will be no `items`
 #'   column in the output. Instead, values from an `items` column or argument
-#'   will be multiplied with values in the `n` column. This does not affect
-#'   GRIM-testing.
+#'   will be multiplied with values in the `n` column. This is only for
+#'   presentation and does not affect test results.
 #' @param percent Logical. Set `percent` to `TRUE` if the `x` values are
 #'   percentages. This will convert them to decimal numbers and adjust the
 #'   decimal count (i.e., increase it by 2). It also affects the `ratio` column.

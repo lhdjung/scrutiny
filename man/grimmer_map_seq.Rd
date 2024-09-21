@@ -45,12 +45,11 @@ consistent cases (from among those reported), not just inconsistent ones?
 Default is \code{FALSE} because the focus should be on clarifying
 inconsistencies.}
 
-\item{...}{Arguments passed down to \code{\link[=grimmer_map]{grimmer_map()}}. \emph{(NOTE: Don't use the
-\code{items} argument. It currently contains a bug that will be fixed in the
-future.)}}
+\item{...}{Arguments passed down to \code{\link[=grimmer_map]{grimmer_map()}}.}
 }
 \value{
-A tibble (data frame) with detailed test results.
+A tibble (data frame) with detailed test results. See
+\code{\link[=grimmer_map]{grimmer_map()}} for an explanation of the \code{reason} column.
 }
 \description{
 \code{grimmer_map_seq()} performs GRIMMER-testing with values

@@ -35,9 +35,7 @@
 #' @param n_max Numeric. Maximal group size. Default is `NULL`, i.e., no
 #'   maximum.
 #' @inheritParams disperse_total
-#' @param ... Arguments passed down to [`grimmer_map()`]. *(NOTE: Don't use the
-#'   `items` argument. It currently contains a bug that will be fixed in the
-#'   future.)*
+#' @param ... Arguments passed down to [`grimmer_map()`].
 
 #' @include function-map-total-n.R
 #'
@@ -60,7 +58,8 @@
 #' half. `"forth"` means that `x2` from the input is paired with the larger
 #' dispersed `n`, whereas `"back"` means that `x1` is paired with the larger
 #' dispersed `n`.
-#' - Other columns from [`grimmer_map()`] are preserved.
+#' - Other columns from [`grimmer_map()`] are preserved. See there for an
+#' explanation of the `reason` column.
 
 #' @section Summaries with [`audit_total_n()`]: You can call
 #'   [`audit_total_n()`] following up on `grimmer_map_total_n()`

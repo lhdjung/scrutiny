@@ -24,15 +24,13 @@ grimmer(
 
 \item{n}{Integer. The reported sample size.}
 
-\item{items}{\emph{(NOTE: Don't use the \code{items} argument. It currently contains a
-bug that will be fixed in the future.)} Integer. The
-number of items composing the \code{x} and \code{sd} values. Default is 1, the most
-common case.}
+\item{items}{Integer. The number of items composing the \code{x} and \code{sd} values.
+Default is \code{1}, the most common case.}
 
 \item{show_reason}{Logical. For internal use only. If set to \code{TRUE}, the
 output is a list of length-2 lists which also contain the reasons for
 inconsistencies. Don't specify this manually; instead, use \code{show_reason} in
-\code{\link[=grimmer_map]{grimmer_map()}}. Default is \code{FALSE}.}
+\code{\link[=grimmer_map]{grimmer_map()}}. See there for explanation. Default is \code{FALSE}.}
 
 \item{rounding}{String. Rounding method or methods to be used for
 reconstructing the values to which \code{x} will be compared. Default is
@@ -66,18 +64,18 @@ for testing multiple cases.
 }
 \details{
 GRIMMER was originally devised by Anaya (2016). The present
-implementation follows Allard's (2018) refined Analytic-GRIMMER (A-GRIMMER)
-algorithm. It adapts the R function \code{aGrimmer()} provided by Allard and
-modifies it to accord with scrutiny's standards, as laid out in
-\code{vignette("consistency-tests-in-depth")}, sections 1-2. The resulting
-\code{grimmer()} function, then, is a vectorized version of this basic
-implementation. For more context and variable name translations, see the
-top of the R/grimmer.R, the source file.
+implementation follows Allard's (2018) refined Analytic-GRIMMER algorithm.
+It uses a variant of Analytic-GRIMMER first implemented in
+\href{https://lukaswallrich.github.io/rsprite2/reference/GRIMMER_test.html}{\code{rsprite2::GRIMMER_test()}}
+that can be applied to multi-item scales.
 
-The present implementation can differ from Allard's in a small number of
-cases. In most cases, this means that the original flags a value set as
-inconsistent, but scrutiny's \verb{grimmer*()} functions don't. For details, see
-the end of tests/testthat/test-grimmer.R, the \code{grimmer()} test file.
+The scrutiny version embeds GRIMMER in the broader system of consistency
+testing, as laid out in
+\href{https://lhdjung.github.io/scrutiny/articles/consistency-tests-in-depth.html}{\emph{Consistency
+tests in depth}}. The \code{grimmer()} function
+is a vectorized (multiple-case) version of this basic implementation. For
+more context and variable name translations, see the top of the R/grimmer.R
+source file.
 }
 \examples{
 # A mean of 5.23 is not consistent with an SD of 2.55
