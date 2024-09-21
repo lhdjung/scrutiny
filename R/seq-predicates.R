@@ -61,13 +61,13 @@ is_seq_descending_basic <- function(x) {
 }
 
 
-# # Test `is_seq_dispersed()` -- not the basic function! -- interactively:
-# x <- c(NA, 3:6, NA, NA)
+# # Test any of the sequence functions interactively:
+# x <- c(1, 2, NA, 4)
 # tolerance <- .Machine$double.eps^0.5
-# test_linear <- FALSE
-# test_special <- "dispersed"
-# min_length <- 3L
-# args_other <- list(from = 5)
+# test_linear <- TRUE
+# test_special <- NULL
+# min_length <- NULL
+# args_other <- NULL
 
 
 # Non-exported workhorse API of all the sequence predicates:
@@ -128,7 +128,7 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
     # function will return either `NA` or `FALSE`, depending on other factors.)
     x <- x[not_na[1L]:not_na[length(not_na)]]
 
-    if (test_linear && !is_seq_linear_basic(x)) {
+    if (test_linear && !anyNA(x) && !is_seq_linear_basic(x)) {
       return(FALSE)
     }
 
