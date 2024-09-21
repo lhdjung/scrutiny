@@ -88,8 +88,6 @@ Collate:
     'grimmer-map-seq.R'
     'grimmer-map-total-n.R'
     'grimmer-rsprite2.R'
-    'import-standalone-obj-type.R'
-    'import-standalone-types-check.R'
     'metadata.R'
     'method-audit-seq.R'
     'method-audit-total-n.R'
