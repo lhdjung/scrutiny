@@ -1,3 +1,5 @@
+# scrutiny (development version)
+
 # scrutiny 0.5.0
 
 The package is now released under the MIT license.
