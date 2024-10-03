@@ -1527,25 +1527,37 @@ check_dispersion_linear <- function(data) {
 #' @return Expression.
 #'
 #' @noRd
-write_code_col_key_result <- function(name_key_result = "consistency") {
+write_code_col_key_result <- function(name_key_result = "consistency",
+                                      name_data = rlang::expr(out)) {
   # Enable renaming the `"consistency"` column for binary procedures that are
   # not consistency tests:
   code_rename <- if (name_key_result == "consistency") {
     NULL
   } else {
     rlang::expr({
-      out <- dplyr::rename(out, `!!`(name_key_result) := consistency)
+      `!!`(name_data) <- dplyr::rename(
+        `!!`(name_data),
+        `!!`(name_key_result) := consistency
+      )
     })
   }
+  # Prepare defused expressions that are more simple to splice into the code
+  # further below:
+  data_dollar_result <- paste0(name_data, "$", name_key_result)
+  condition_not_list <- paste0("!is.list(", data_dollar_result, ")")
+  # Convert the strings to expressions:
+  condition_not_list <- rlang::parse_expr(condition_not_list)
+  data_dollar_result <- rlang::parse_expr(data_dollar_result)
   # Generate code to process the (possibly renamed) key result column:
   rlang::expr({
     `!!!`(code_rename)
-    if (!is.list(out$`!!`(name_key_result))) {
-      return(out)
+    # Used to be: (!is.list(`!!`(name_data)$`!!`(name_key_result)))
+    if (`!!`(condition_not_list)) {
+      return(`!!`(name_data))
     }
     `$<-`(
-      out, `!!`(name_key_result),
-      unlist(out$`!!`(name_key_result), use.names = FALSE)
+      `!!`(name_data), `!!`(name_key_result),
+      unlist(`!!`(data_dollar_result), use.names = FALSE)
     )
   })
 }
