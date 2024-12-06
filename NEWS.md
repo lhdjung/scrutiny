@@ -1,5 +1,13 @@
 # scrutiny (development version)
 
+## Bugfixes
+
+-   `restore_zeros()` no longer truncates decimal numbers if `width` is specified but some elements of `x` have more decimal places than that. For example, in earlier versions, `restore_zeros(c(0.12, 0.123, 0.1234), width = 2)` would have returned `c("0.120", "0.123", "0.123")`: it silently cut off the `4` from the last value. An error is nowthrown in such cases.
+
+-   Also, `restore_zeros()` now checks that `width` is a single, whole number.
+
+-   `restore_zeros_df()` has the same fixes as above.
+
 # scrutiny 0.5.0
 
 The package is now released under the MIT license.

@@ -101,13 +101,14 @@ restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in) {
   # into the count:
   x <- stringr::str_trim(x)
 
+  # Count characters of the mantissa part:
+  parts <- stringr::str_split_fixed(x, sep_in, n = 2L)
+  width_mantissa <- stringr::str_length(parts[, 2L])
+
   # Determine the maximal width to which the mantissas should be padded in
   # accordance with the `width` argument, the default of which, `NULL`, makes
   # the function go by the maximal length of already-present mantissas:
   if (is.null(width)) {
-    # Count characters of the mantissa part:
-    parts <- stringr::str_split_fixed(x, sep_in, n = 2L)
-    width_mantissa <- stringr::str_length(parts[, 2L])
     # Throw a warning if `x` can't be formatted with the given arguments:
     if (length(x) == 1L) {
       cli::cli_warn(c(
@@ -127,8 +128,23 @@ restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in) {
     # The number of decimal places to which `x` values will be padded with zeros
     # is determined by the number of characters in the longest mantissa...
     width_target <- max(width_mantissa, na.rm = TRUE)
+    # ... unless the user manually specified that target number via `width`.
+    # This is an error if `width` is not a single integer-ish number...
+  } else if (length(width) != 1L || !all(is_whole_number(width))) {
+    cli::cli_abort(c(
+      "`width` must be a single, whole number.",
+      "x" = "It is {width}."
+    ))
+    # ... or if any `x` elements have more decimal places than `width` allows:
+  } else if (any(width_mantissa > width)) {
+    offenders <- x[width_mantissa > width]
+    cli::cli_abort(c(
+      "Some decimal parts cut short by `width` setting.",
+      "x" = "`width` was set to {width}.",
+      "i" = "Values with more than {width} decimal place{?s}:",
+      "i" = "{offenders}"
+    ))
   } else {
-    # ... unless the user manually specified that target number via `width`:
     width_target <- width
   }
 
