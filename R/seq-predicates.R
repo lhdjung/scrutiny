@@ -70,6 +70,16 @@ is_seq_descending_basic <- function(x) {
 # args_other <- NULL
 
 
+
+# # Example input for dispersed sequences:
+# x <- c(45, NA, 47, 48, 49, 50, 51, 52, 53, 54, NA)
+# tolerance <- .Machine$double.eps^0.5
+# test_linear <- TRUE
+# test_special <- "dispersed"
+# min_length <- 3L
+# args_other <- list(from = 50)
+
+
 # Non-exported workhorse API of all the sequence predicates:
 is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
                          test_linear = TRUE, test_special = NULL,
@@ -128,6 +138,8 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
     # function will return either `NA` or `FALSE`, depending on other factors.)
     x <- x[not_na[1L]:not_na[length(not_na)]]
 
+    # Test separate from `x_has_na`: it checks whether there are `NA`s that are
+    # not at the start or end of `x`.
     if (test_linear && !anyNA(x) && !is_seq_linear_basic(x)) {
       return(FALSE)
     }
@@ -140,24 +152,72 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
     # with this idea that are imputed for the `NA`s here.
     if (
       !is.null(test_special) &&
-      test_special == "dispersed" &&
-      n_na_start != n_na_end
+      test_special == "dispersed"  # &&
+      # n_na_start != n_na_end
     ) {
-      unit <- x[2] - x[1]
+      # # unit <- x[2] - x[1]
+      # unit <- (x[not_na[2]] - x[not_na[1]]) / (not_na[2] - not_na[1])
+      #
+      # diffs_all <- diff(x[not_na]) / diff(not_na)
+      #
+      # indices_na <- which(is.na(x))
+      #
+      # for (i in indices_na) {
+      #   if (i == 1L) {}
+      # }
+      #
+      # # Impute sequences of regularly spaced values that the `NA`s might stand
+      # # for, so that the input could potentially be dispersed around
+      # # `args_other$from`...
+      # seq_na_start <- seq(x[1],         length.out = n_na_start, by = -unit) - 1
+      # seq_na_end   <- seq(x[length(x)], length.out = n_na_end,   by =  unit) + 1
+      #
+      # seq_imputed <- c(rev(seq_na_start), x, seq_na_end)
+#
+#       x_filled <- fill_linear_sequence(x)
+#
+#       if (is.null(x_filled)) {
+#         if (test_linear) {
+#           return(FALSE)
+#         }
+#       }
 
-      # Impute sequences of regularly spaces values that the `NA`s might stand
-      # for, so that the input could potentially be dispersed around
-      # `args_other$from`...
-      seq_na_start <- seq(x[1],         length.out = n_na_start, by = -unit) - 1
-      seq_na_end   <- seq(x[length(x)], length.out = n_na_end,   by =  unit) + 1
+      x_central <- x_orig[index_central(x_orig)]
 
-      seq_imputed <- c(rev(seq_na_start), x, seq_na_end)
-
-      # ...assuming the overall (partly imputed) sequence is still dispersed
-      # around that value:
-      if (is_seq_dispersed(seq_imputed, from = args_other$from)) {
-        return(NA)
+      if (!is.na(x_central) && x_central != args_other$from) {
+        return(FALSE)
       }
+
+      diffs_all <- diff(x[not_na]) / diff(not_na)
+
+      diffs_are_equal <- abs(diffs_all - diffs_all[1]) < tolerance
+
+      # # Test with:
+      # c(NA, 3:7, NA) %>% is_seq_dispersed(from = 5, test_linear = FALSE)
+
+      if (!all(vapply(diffs_are_equal[!is.na(diffs_are_equal)], isTRUE, logical(1)))) {
+        print(paste0("`diffs_are_equal`: ", paste0(diffs_are_equal, collapse = ", ")))
+        print(paste0("`x[not_na]`: ", paste0(x[not_na], collapse = ", ")))
+        print(paste0("`diff(not_na)`: ", paste0(diff(not_na), collapse = ", ")))
+        message("Yes, returned here")
+        return(FALSE)
+      }
+
+      # # if (anyNA(diffs_are_equal)) {
+      # #   return(NA)
+      # # }
+      #
+      # if (!all(diffs_are_equal)) {
+      #   return(FALSE)
+      # }
+
+      # # ...assuming the overall (partly imputed) sequence is still dispersed
+      # # around that value:
+      # if (is_seq_dispersed_basic(x_filled, from = args_other$from)) {
+      #   return(NA)
+      # }
+
+      print("Returned here")
       return(FALSE)
     }
 
@@ -377,6 +437,13 @@ is_seq_dispersed <- function(x, from, test_linear = TRUE,
 }
 
 
+# x <- 50 %>%
+#   seq_disperse() %>%
+#   as.numeric()
+# x[2] <- NA
+# x[length(x)] <- NA
+# from <- 50
+# tolerance <- .Machine$double.eps^0.5
 
 # Helper, not exported:
 is_seq_dispersed_basic <- function(x, from,
@@ -414,5 +481,35 @@ is_seq_dispersed_basic <- function(x, from,
   from_reconstructed <- (dispersion_plus - rev(dispersion_minus)) / 2
 
   all(dplyr::near(from, from_reconstructed, tolerance))
+}
+
+
+# Helper, not exported:
+fill_linear_sequence <- function(x) {
+  # Find positions of non-NA values
+  known_pos <- which(!is.na(x))
+
+  # Need at least 2 known values to determine a linear sequence
+  if (length(known_pos) < 2) {
+    stop("At least 2 non-NA values are required")
+  }
+
+  # Calculate differences between consecutive known values
+  diffs <- diff(x[known_pos]) / diff(known_pos)
+
+  # Check if differences are constant (within floating point tolerance)
+  if (!all(abs(diffs - diffs[1]) < .Machine$double.eps ^ 0.5)) {
+    return(NULL)
+  }
+
+  # Calculate the common difference
+  d <- diffs[1]
+
+  # Calculate the first value based on the sequence
+  first_known <- x[known_pos[1]]
+  start_value <- first_known - (known_pos[1] - 1) * d
+
+  # Generate the complete sequence
+  seq(from = start_value, by = d, length.out = length(x))
 }
 

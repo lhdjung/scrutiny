@@ -124,7 +124,7 @@ function_map <- function(.fun, .reported, .name_test,
   # Check that all `.reported` values are names of arguments in `.fun`:
   offenders <- .reported[!.reported %in% names(formals(.fun))]
   if (length(offenders) > 0L) {
-    offenders <- wrap_in_backticks(offenders)
+    offenders <- paste0("`", offenders, "`")
     if (length(offenders) == 1L) {
       msg_arg <- "argument"
       msg_it_they <- "It was"
@@ -230,9 +230,9 @@ function_map <- function(.fun, .reported, .name_test,
 
       # Checks ---
 
-      check_args_disabled(`!!`(.args_disabled))
-      check_factory_dots(fun, `!!`(fun_name), ...)
-      check_mapper_input_colnames(data, `!!`(.reported), `!!`(.name_test))
+      scrutiny::check_args_disabled(`!!`(.args_disabled))
+      scrutiny::check_factory_dots(fun, `!!`(fun_name), ...)
+      scrutiny::check_mapper_input_colnames(data, `!!`(.reported), `!!`(.name_test))
 
       if (!tibble::is_tibble(data)) {
         cli::cli_abort(c(

@@ -77,9 +77,9 @@ pigs4 %>%
     duplicate_tally()
 ```
 
-In `snout`, for example, `4.22` appears twice, so its entries in `snout_n` are `2`. But likewise, `8.13` appears in both `snout` and `tail`, so both observations are marked `2` in the `_n` columns.
+For example, `4.22` appears twice in `snout` but not in any other column, so the corresponding entries in `snout_n` are `2`. Compare this to `8.13`, which appears once in `snout` and once in `tail` (but not in `wings`), so both observations are marked `2` in the `_n` columns.
 
-When following up `duplicate_tally()` with `audit()`, it shows summary statistics for each `_n` column. The last row summarizes all of these columns together:
+When following up `duplicate_tally()` with `audit()`, it shows summary statistics for each `_n` column. The last row summarizes all of these columns together, with `"term"` saying `".total"`:
 
 ```{r}
 pigs4 %>% 

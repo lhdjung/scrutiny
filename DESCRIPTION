@@ -99,6 +99,7 @@ Collate:
     'method-grim-sequence.R'
     'method-grimmer-map.R'
     'method-tally.R'
+    'odds-ratio-map.R'
     'reround-to-fraction.R'
     'reverse-map-seq.R'
     'reverse-map-total-n.R'

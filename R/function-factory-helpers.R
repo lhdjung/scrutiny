@@ -137,14 +137,14 @@ check_factory_key_args_names <- function(key_cols_missing,
 #'
 #' @return No return value; might throw an error.
 #'
-#' @noRd
+#' @export
 check_factory_dots <- function(fun, fun_name_scalar, ...) {
   dots <- rlang::enexprs(...)
   dots_names <- names(dots)
   offenders <- dots_names[!dots_names %in% names(formals(fun))]
   if (length(offenders) > 0L) {
     fun_name_mapper <- name_caller_call(n = 2L)
-    offenders <- wrap_in_backticks(offenders)
+    offenders <- paste0("`", offenders, "`")
     if (length(offenders) == 1L) {
       msg_arg <- "argument"
       msg_it_they <- "It's not an"
@@ -312,7 +312,11 @@ absorb_key_args <- function(data, reported, key_cols_call) {
 #'
 #' @return No return value; might throw an error.
 #'
-#' @noRd
+#' @export
+#'
+#' @examples
+#' check_args_disabled(c("disabled1", "disabled2"))
+
 check_args_disabled <- function(args_disabled) {
   if (is.null(args_disabled)) {
     return(NULL)
