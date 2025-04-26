@@ -327,7 +327,12 @@ function_map_total_n <- function(.fun, .reported, .name_test,
       # function only checks the remaining point, using an internal helper:
       check_consistency_not_in_colnames(data, name_test)
 
-      check_tibble(data)
+      if (!tibble::is_tibble(data)) {
+        cli::cli_abort(c(
+          "!" = "`data` must be a tibble.",
+          "i" = "Convert it with `tibble::as_tibble()`."
+        ))
+      }
 
       # Make sure that the `n` column is present...
       if (!any(colnames(data) == "n")) {
@@ -498,7 +503,9 @@ function_map_total_n <- function(.fun, .reported, .name_test,
       # within `disperse_total()`:
       if (!is.null(constant) && !is.null(constant_index)) {
 
-        check_length(constant_index, 1L)
+        if (length(constant_index) != 1L) {
+          cli::cli_abort("`.constant_index` must have length 1.")
+        }
 
         if (is.null(names(constant))) {
           constant_ref <- "constant"
@@ -507,7 +514,9 @@ function_map_total_n <- function(.fun, .reported, .name_test,
         }
 
         out <- dplyr::relocate(
-          out, all_of(constant_ref), .before = constant_index
+          out,
+          all_of(constant_ref),
+          .before = constant_index
         )
       }
 

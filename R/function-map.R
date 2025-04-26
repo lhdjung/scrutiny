@@ -241,6 +241,13 @@ function_map <- function(.fun, .reported, .name_test,
         ))
       }
 
+      if (!tibble::is_tibble(data)) {
+        cli::cli_abort(c(
+          "!" = "`data` must be a tibble.",
+          "i" = "Convert it with `tibble::as_tibble()`."
+        ))
+      }
+
 
       # Main part ---
 
