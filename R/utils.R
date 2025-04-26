@@ -1523,6 +1523,8 @@ check_dispersion_linear <- function(data) {
 #'
 #' @param name_key_result String (length 1). The `.name_key_result` argument of
 #'   the function factory, passed to the present function.
+#' @param name_data Expression. It must contain the name of the data frame
+#'   operated on. To construct it, use `rlang::expr()`.
 #'
 #' @return Expression.
 #'
@@ -1551,7 +1553,7 @@ write_code_col_key_result <- function(name_key_result = "consistency",
   # Generate code to process the (possibly renamed) key result column:
   rlang::expr({
     `!!!`(code_rename)
-    # Used to be: (!is.list(`!!`(name_data)$`!!`(name_key_result)))
+    # Use the pre-computed condition expression
     if (`!!`(condition_not_list)) {
       return(`!!`(name_data))
     }
