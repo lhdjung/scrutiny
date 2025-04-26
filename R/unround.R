@@ -5,7 +5,7 @@ rounding_bounds_scalar <- function(rounding, x_num, d_var, d) {
 
   # Manage the two rounding procedures that depend on the sign of the input
   # number, rounding with truncation and "anti-truncation":
-  if (any(rounding == c("trunc", "anti_trunc"))) {
+  if (any(rounding %in% c("trunc", "anti_trunc"))) {
     rounding_orig <- rounding
     if (x_num > 0) {
       rounding <- "trunc_x_greater"

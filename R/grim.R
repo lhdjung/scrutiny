@@ -73,7 +73,7 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
   } else {
     consistency <- grain_is_x
     length_2ers <- c("up_or_down", "up_from_or_down_from", "ceiling_or_floor")
-    if (any(length_2ers == rounding)) {
+    if (any(length_2ers %in% rounding)) {
       # Skipping those values that are identical to the selected ones apart from
       # `dust` addition or subtraction via `dustify()`:
       return(list(

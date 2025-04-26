@@ -503,7 +503,7 @@ check_tibble <- function(x) {
 #'
 #' @noRd
 check_rounding_singular <- function(rounding, bad, good1, good2) {
-  if (any(bad == rounding)) {
+  if (any(bad %in% rounding)) {
     cli::cli_abort(c(
       "!" = "If `rounding` has length > 1, only single rounding procedures \\
       are supported, such as \"{good1}\" and \"{good2}\".",

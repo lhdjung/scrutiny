@@ -189,7 +189,7 @@ function_map <- function(.fun, .reported, .name_test,
     check_length(.col_filler, 1L)
 
     # Prepare the code that will be inserted into the factory-made function to
-    # unnest the columns that should be named using `.col_names`:
+    # unnest the columns that should be named using `.col_names`:1
     code_col_control <- rlang::expr({
       if (all(vapply(consistency, length, integer(1L)) == 1L)) {
         out <- tidyr::unnest(out, cols = consistency)
@@ -241,14 +241,7 @@ function_map <- function(.fun, .reported, .name_test,
         ))
       }
 
-      if (!tibble::is_tibble(data)) {
-        cli::cli_abort(c(
-          "!" = "`data` must be a tibble.",
-          "i" = "Convert it with `tibble::as_tibble()`."
-        ))
-      }
-
-
+      
       # Main part ---
 
       # # Divide the data into tested and non-tested columns, going by the key
