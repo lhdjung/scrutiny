@@ -130,6 +130,22 @@ debit_table <- function(x, sd, n,
   sd_rec_both_test <- dustify(sd_rec_both)
   sd_upper_test    <- dustify(sd_upper)
 
+
+  # # Part of the old version of `debit_table()`; before Nico's fix. Incomment
+  # # this part and outcomment the new one below it to run the simulations in:
+  # # special-scripts/debit-problem-analysis.R
+
+  # if (sd_incl_lower && sd_incl_upper) {
+  #   consistency <- any(sd_lower_test <= sd_rec_both_test) && any(sd_rec_both_test <= sd_upper_test)
+  # } else if (sd_incl_lower && !sd_incl_upper) {
+  #   consistency <- any(sd_lower_test <= sd_rec_both_test) && any(sd_rec_both_test  < sd_upper_test)
+  # } else if (!sd_incl_lower && sd_incl_upper) {
+  #   consistency <- any(sd_lower_test < sd_rec_both_test)  && any(sd_rec_both_test <= sd_upper_test)
+  # } else {
+  #   consistency <- any(sd_lower_test < sd_rec_both_test)  && any(sd_rec_both_test  < sd_upper_test)
+  # }
+
+  # New version, fixed by Nico:
   if (sd_incl_lower && sd_incl_upper) {
     consistency <- any(outer(sd_lower_test, sd_rec_both_test, "<=")) && any(outer(sd_rec_both_test, sd_upper_test, "<="))
   } else if (sd_incl_lower && !sd_incl_upper) {
