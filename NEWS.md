@@ -4,7 +4,7 @@
 
 -   Fixed a bug in the DEBIT functions that could sometimes have resulted in `consistency` being `FALSE` when it should have been `TRUE` (thanks to \@nrposner, #75). However, this seems to be a rare issue, and DEBIT is not widely used in any case.
 
--   Fixed a bug that could theoretically lead `grim()`, but not `grim_map()` or other GRIM functions, to throw a warning and possibly even return incorrect results (also \@nrposner, #75). However, this is even less realistic than the previous bug.
+-   Fixed a bug that could theoretically lead `grim()`, `grim_map()`, `grim_map_seq()`, and `grim_map_total_n()` to throw a warning and possibly even return incorrect results (also \@nrposner, #75). However, this is even less realistic than the previous bug.
 
 -   `restore_zeros()` now checks `width` more strictly:
 
