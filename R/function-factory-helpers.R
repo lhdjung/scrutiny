@@ -242,10 +242,12 @@ insert_key_args <- function(fun, reported, insert_after = 1L) {
 #' @param key_cols_call User-provided arguments named after one or more key
 #'   columns.
 #'
+#' @export
+#'
 #' @return Data frame `data`, possibly with one or more columns renamed.
 #'   Remember reassigning the value to `data`!
 #'
-#' @noRd
+#' @examples
 absorb_key_args <- function(data, reported, key_cols_call) {
 
   key_cols_missing <- reported[!reported %in% colnames(data)]

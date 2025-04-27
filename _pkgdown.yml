@@ -99,6 +99,7 @@ reference:
   - reverse_map_total_n
   - check_args_disabled
   - check_factory_dots
+  - absorb_key_args
 - subtitle: Rounding
   desc: Reconstruct rounding procedures
 - contents:
