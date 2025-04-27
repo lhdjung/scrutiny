@@ -23,8 +23,9 @@ restore_zeros_df(
 might have lost trailing zeros.}
 
 \item{width}{Integer. Number of decimal places the mantissas should have,
-including the restored zeros. Default is \code{NULL}, in which case the number
-of characters in the longest mantissa will be used instead.}
+including the restored zeros. If specified, \code{width} needs to be length 1 or
+the same length as \code{x}. Default is \code{NULL}, in which case the number of
+characters in the longest mantissa will be used instead.}
 
 \item{sep_in}{Substring that separates the input's mantissa from its integer
 part. Default is \code{"\\\\."}, which renders a decimal point.}

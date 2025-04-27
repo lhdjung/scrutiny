@@ -2,9 +2,10 @@
 
 ## Bugfixes
 
--   `restore_zeros()` no longer truncates decimal numbers if `width` is specified but some elements of `x` have more decimal places than that. For example, in earlier versions, `restore_zeros(c(0.12, 0.123, 0.1234), width = 2)` would have returned `c("0.120", "0.123", "0.123")`: it silently cut off the `4` from the last value. An error is now thrown in such cases.
+-   `restore_zeros()` now checks `width` more strictly:
 
--   Also, `restore_zeros()` now checks that `width` is a single, whole number.
+    -   It no longer truncates decimal numbers if `width` is specified but some elements of `x` have more decimal places than that. For example, in earlier versions, `restore_zeros(c(0.12, 0.123, 0.1234), width = 2)` would have returned `c("0.120", "0.123", "0.123")`: it silently cut off the `4` from the last value. An error is now thrown in such cases.
+    -   Also, `width` is now checked to be either a single whole number or a vector of whole numbers with the same length as `x`.
 
 -   `restore_zeros_df()` has the same fixes as above.
 

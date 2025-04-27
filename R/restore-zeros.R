@@ -37,8 +37,9 @@
 #' @param x Numeric (or string coercible to numeric). Vector of numbers that
 #'   might have lost trailing zeros.
 #' @param width Integer. Number of decimal places the mantissas should have,
-#'   including the restored zeros. Default is `NULL`, in which case the number
-#'   of characters in the longest mantissa will be used instead.
+#'   including the restored zeros. If specified, `width` needs to be length 1 or
+#'   the same length as `x`. Default is `NULL`, in which case the number of
+#'   characters in the longest mantissa will be used instead.
 #' @param sep_in Substring that separates the input's mantissa from its integer
 #'   part. Default is `"\\."`, which renders a decimal point.
 #' @param sep_out Substring that will be returned in the output to separate the
@@ -129,10 +130,15 @@ restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in) {
     # is determined by the number of characters in the longest mantissa...
     width_target <- max(width_mantissa, na.rm = TRUE)
     # ... unless the user manually specified that target number via `width`.
-    # This is an error if `width` is not a single integer-ish number...
-  } else if (length(width) != 1L || !all(is_whole_number(width))) {
+    # This is an error if `width` is not a single integer-ish number or a vector
+    # of such numbers with the same length as `x`...
+  } else if (
+    !any(c(1L, length(x)) == length(width)) ||
+    !all(is_whole_number(width))
+  ) {
     cli::cli_abort(c(
-      "`width` must be a single, whole number.",
+      "`width` must be a single, whole number \
+      (or a vector of whole numbers with the same length as `x`).",
       "x" = "It is {width}."
     ))
     # ... or if any `x` elements have more decimal places than `width` allows:
