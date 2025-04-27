@@ -23,6 +23,7 @@ Useful links:
 Other contributors:
 \itemize{
   \item Aurélien Allard [contributor]
+  \item Nicolas Roman Posner [contributor]
 }
 
 }

@@ -8,6 +8,9 @@ Authors@R: c(
            email = "jung-lukas@gmx.net"),
     person(given = "Aurélien",
            family = "Allard",
+           role = c("ctb")),
+    person(given = "Nicolas Roman",
+           family = "Posner",
            role = c("ctb"))
   )
 Maintainer: Lukas Jung <jung-lukas@gmx.net>
