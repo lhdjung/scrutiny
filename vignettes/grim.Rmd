@@ -252,7 +252,7 @@ Speed is not much of a concern here because all the rasters are based on data al
 
 ## Testing numeric sequences with `grim_map_seq()`
 
-GRIM analysts might be interested in a mean or percentage value's numeric neighborhood. Suppose you found multiple GRIM inconsistencies as in out example `pigs1` data. You might wonder whether they are due to small reporting or computing errors.
+GRIM analysts might be interested in a mean or percentage value's numeric neighborhood. Suppose you found multiple GRIM inconsistencies as in our example `pigs1` data. You might wonder whether they are due to small reporting or computing errors.
 
 Use `grim_map_seq()` to GRIM-test the values surrounding the reported means and sample sizes:
 
@@ -426,10 +426,10 @@ $$
 
 #### Functions
 
-Suppose you have an ordinal distribution with 80 observations and five items. To get its granularity, run this:
+Consider an ordinal distribution with 80 observations and five items. To get its granularity, run this:
 
 ```{r}
-grim_granularity(n = 80, items = 4)
+grim_granularity(n = 80, items = 5)
 ```
 
 Now, imagine a distribution with 50 observations and a granularity of 0.01. To get the number of its items (actual or effective), use this code:

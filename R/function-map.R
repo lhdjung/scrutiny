@@ -124,7 +124,7 @@ function_map <- function(.fun, .reported, .name_test,
   # Check that all `.reported` values are names of arguments in `.fun`:
   offenders <- .reported[!.reported %in% names(formals(.fun))]
   if (length(offenders) > 0L) {
-    offenders <- wrap_in_backticks(offenders)
+    offenders <- paste0("`", offenders, "`")
     if (length(offenders) == 1L) {
       msg_arg <- "argument"
       msg_it_they <- "It was"
@@ -158,7 +158,6 @@ function_map <- function(.fun, .reported, .name_test,
           rounding_class <- formals(fun)$rounding
         }
         rounding_class <- paste0("scr_rounding_", rounding_class)
-        name_class <- c(name_class, rounding_class)
       })
     } else {
       rlang::expr({
@@ -231,9 +230,9 @@ function_map <- function(.fun, .reported, .name_test,
 
       # Checks ---
 
-      check_args_disabled(`!!`(.args_disabled))
-      check_factory_dots(fun, `!!`(fun_name), ...)
-      check_mapper_input_colnames(data, `!!`(.reported), `!!`(.name_test))
+      scrutiny::check_args_disabled(`!!`(.args_disabled))
+      scrutiny::check_factory_dots(fun, `!!`(fun_name), ...)
+      scrutiny::check_mapper_input_colnames(data, `!!`(.reported), `!!`(.name_test))
 
       if (!tibble::is_tibble(data)) {
         cli::cli_abort(c(
@@ -242,7 +241,7 @@ function_map <- function(.fun, .reported, .name_test,
         ))
       }
 
-
+      
       # Main part ---
 
       # # Divide the data into tested and non-tested columns, going by the key
@@ -253,14 +252,16 @@ function_map <- function(.fun, .reported, .name_test,
       # Support rounding classes:
       `!!!`(code_rounding_class)
 
+      all_classes <- c(`!!`(all_classes), rounding_class)
+
       # Test for consistency:
       data <- data %>%
         dplyr::mutate(
-          consistency = purrr::pmap(list(`!!!`(.reported)), fun, ...),
+          consistency = purrr::pmap(data[c(`!!!`(.reported))], fun, ...),
           .after = `!!`(.reported[length(.reported)])
         ) %>%
         dplyr::relocate(`!!!`(.reported), consistency) %>%
-        add_class(name_class)
+        add_class(all_classes)
 
       # consistency <- purrr::pmap(data[, `!!`(.reported)], fun, ...)
 
@@ -284,7 +285,7 @@ function_map <- function(.fun, .reported, .name_test,
       # the `"consistency"` column has been a list, and renaming it if
       # `.name_key_result` was specified:
       `!!!`(write_code_col_key_result(
-        .name_key_result,
+        name_key_result = .name_key_result,
         name_data = rlang::expr(data)
       ))
 

@@ -138,9 +138,9 @@ test_that("`is_seq_dispersed()` passes its special tests, returning `TRUE`", {
 
 
 test_that("`is_seq_dispersed()` passes its special tests, returning `NA`", {
-  c(NA, 3:7, NA)         %>% is_seq_dispersed(from = 5, test_linear = f) %>% is.na() %>% expect_true()
-  c(NA, NA, 3:7, NA, NA) %>% is_seq_dispersed(from = 5, test_linear = f) %>% is.na() %>% expect_true()
-  c(NA, 3:6, NA, NA)     %>% is_seq_dispersed(from = 5, test_linear = f) %>% is.na() %>% expect_true()
+  c(NA, 3:7, NA)         %>% is_seq_dispersed(from = 5, test_linear = f) %>% expect_na()
+  c(NA, NA, 3:7, NA, NA) %>% is_seq_dispersed(from = 5, test_linear = f) %>% expect_na()
+  c(NA, 3:6, NA, NA)     %>% is_seq_dispersed(from = 5, test_linear = f) %>% expect_na()
 })
 
 

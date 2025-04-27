@@ -1537,18 +1537,29 @@ write_code_col_key_result <- function(name_key_result = "consistency",
     NULL
   } else {
     rlang::expr({
-      `!!`(name_data) <- dplyr::rename(out, `!!`(name_key_result) := consistency)
+      `!!`(name_data) <- dplyr::rename(
+        `!!`(name_data),
+        `!!`(name_key_result) := consistency
+      )
     })
   }
+  # Prepare defused expressions that are more simple to splice into the code
+  # further below:
+  data_dollar_result <- paste0(name_data, "$", name_key_result)
+  condition_not_list <- paste0("!is.list(", data_dollar_result, ")")
+  # Convert the strings to expressions:
+  condition_not_list <- rlang::parse_expr(condition_not_list)
+  data_dollar_result <- rlang::parse_expr(data_dollar_result)
   # Generate code to process the (possibly renamed) key result column:
   rlang::expr({
     `!!!`(code_rename)
-    if (!is.list(`!!`(name_data)$`!!`(name_key_result))) {
+    # Use the pre-computed condition expression
+    if (`!!`(condition_not_list)) {
       return(`!!`(name_data))
     }
     `$<-`(
       `!!`(name_data), `!!`(name_key_result),
-      unlist(`!!`(name_data)$`!!`(name_key_result), use.names = FALSE)
+      unlist(`!!`(data_dollar_result), use.names = FALSE)
     )
   })
 }
