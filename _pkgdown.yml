@@ -97,6 +97,8 @@ reference:
   - function_map_total_n
   - reverse_map_seq
   - reverse_map_total_n
+  - check_args_disabled
+  - check_factory_dots
 - subtitle: Rounding
   desc: Reconstruct rounding procedures
 - contents:
