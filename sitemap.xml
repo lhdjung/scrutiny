@@ -18,10 +18,13 @@
 <url><loc>https://lhdjung.github.io/scrutiny/authors.html</loc></url>
 <url><loc>https://lhdjung.github.io/scrutiny/index.html</loc></url>
 <url><loc>https://lhdjung.github.io/scrutiny/news/index.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/absorb_key_args.html</loc></url>
 <url><loc>https://lhdjung.github.io/scrutiny/reference/audit-special.html</loc></url>
 <url><loc>https://lhdjung.github.io/scrutiny/reference/audit.html</loc></url>
 <url><loc>https://lhdjung.github.io/scrutiny/reference/audit_cols_minimal.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/check_args_disabled.html</loc></url>
 <url><loc>https://lhdjung.github.io/scrutiny/reference/check_audit_special.html</loc></url>
+<url><loc>https://lhdjung.github.io/scrutiny/reference/check_factory_dots.html</loc></url>
 <url><loc>https://lhdjung.github.io/scrutiny/reference/check_mapper_input_colnames.html</loc></url>
 <url><loc>https://lhdjung.github.io/scrutiny/reference/data-frame-predicates.html</loc></url>
 <url><loc>https://lhdjung.github.io/scrutiny/reference/debit.html</loc></url>

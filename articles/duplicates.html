@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -213,15 +213,16 @@ frame as a whole:</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 4.22        2 5.17       3 4.40        1</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 4.22        2 7.57       1 5.92        1</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 5.17        3 8.13       2 5.17        3</span></span></code></pre></div>
-<p>In <code>snout</code>, for example, <code>4.22</code> appears twice,
-so its entries in <code>snout_n</code> are <code>2</code>. But likewise,
-<code>8.13</code> appears in both <code>snout</code> and
-<code>tail</code>, so both observations are marked <code>2</code> in the
-<code>_n</code> columns.</p>
+<p>For example, <code>4.22</code> appears twice in <code>snout</code>
+but not in any other column, so the corresponding entries in
+<code>snout_n</code> are <code>2</code>. Compare this to
+<code>8.13</code>, which appears once in <code>snout</code> and once in
+<code>tail</code> (but not in <code>wings</code>), so both observations
+are marked <code>2</code> in the <code>_n</code> columns.</p>
 <p>When following up <code><a href="../reference/duplicate_tally.html">duplicate_tally()</a></code> with
 <code><a href="../reference/audit.html">audit()</a></code>, it shows summary statistics for each
 <code>_n</code> column. The last row summarizes all of these columns
-together:</p>
+together, with <code>"term"</code> saying <code>".total"</code>:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pigs4</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>    <span class="fu"><a href="../reference/duplicate_tally.html">duplicate_tally</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
@@ -245,7 +246,7 @@ together:</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
 </div>
 
     </footer>

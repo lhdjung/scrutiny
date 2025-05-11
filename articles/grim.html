@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -444,7 +444,7 @@ is called. See R/data-gen.R for the way they were generated.</p>
 </h3>
 <p>GRIM analysts might be interested in a mean or percentage value’s
 numeric neighborhood. Suppose you found multiple GRIM inconsistencies as
-in out example <code>pigs1</code> data. You might wonder whether they
+in our example <code>pigs1</code> data. You might wonder whether they
 are due to small reporting or computing errors.</p>
 <p>Use <code><a href="../reference/grim_map_seq.html">grim_map_seq()</a></code> to GRIM-test the values surrounding
 the reported means and sample sizes:</p>
@@ -790,11 +790,11 @@ L = \frac{1}{NG}
 <div class="section level5">
 <h5 id="functions-1">Functions<a class="anchor" aria-label="anchor" href="#functions-1"></a>
 </h5>
-<p>Suppose you have an ordinal distribution with 80 observations and
-five items. To get its granularity, run this:</p>
+<p>Consider an ordinal distribution with 80 observations and five items.
+To get its granularity, run this:</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/grim_granularity.html">grim_granularity</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">80</span>, items <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.003125</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/grim_granularity.html">grim_granularity</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">80</span>, items <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 0.0025</span></span></code></pre></div>
 <p>Now, imagine a distribution with 50 observations and a granularity of
 0.01. To get the number of its items (actual or effective), use this
 code:</p>
@@ -848,7 +848,7 @@ Psychological and Personality Science</em> 8 (4): 363–69.
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
 </div>
 
     </footer>

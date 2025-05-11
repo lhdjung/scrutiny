@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -328,7 +328,7 @@ the actual columns:</p>
 via arguments, there will be a precise error:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">schlim_map</span><span class="op">(</span><span class="va">df2</span>, y <span class="op">=</span> <span class="va">foo</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `check_factory_key_args_names()` at scrutiny/R/function-factory-helpers.R:274:3:</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `check_factory_key_args_names()` at scrutiny/R/function-factory-helpers.R:276:3:</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Column `n` is missing from `data`.</span></span>
 <span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> It should be a column of the input data frame.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Alternatively, specify the `n` argument of `schlim_map()` as the name of the</span></span>
@@ -336,7 +336,7 @@ via arguments, there will be a precise error:</p>
 <span></span>
 <span><span class="co"># With a wrong identification:</span></span>
 <span><span class="fu">schlim_map</span><span class="op">(</span><span class="va">df2</span>, n <span class="op">=</span> <span class="va">mike</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `check_factory_key_args_values()` at scrutiny/R/function-factory-helpers.R:273:3:</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `check_factory_key_args_values()` at scrutiny/R/function-factory-helpers.R:275:3:</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> `mike` is not a column name of `data`.</span></span>
 <span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> The `n` argument of `schlim_map()` was specified as `mike`, but there is no</span></span>
 <span><span class="co">#&gt;   column in `data` called `mike`.</span></span></code></pre></div>
@@ -532,10 +532,10 @@ respectively. If either of these functions is called within the mapper,
 it needs to be followed by <code><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">dplyr::ungroup()</a></code> at some
 point.</p>
 <p>The columns of the input data frame are organized like this:</p>
-<p><img src="images%2Fconsistency_test_columns_input-01.png" width="585"></p>
+<p><img src="images/consistency_test_columns_input-01.png" width="585"></p>
 <p>By contrast, the columns of the output data frame are organized like
 this:</p>
-<p><img src="images%2Fconsistency_test_columns_output-01.png" width="585"></p>
+<p><img src="images/consistency_test_columns_output-01.png" width="585"></p>
 </div>
 <div class="section level4">
 <h4 id="practical-steps">Practical steps<a class="anchor" aria-label="anchor" href="#practical-steps"></a>
@@ -1199,7 +1199,7 @@ with just a few lines of easy to write code.</p>
 <p>Below is their function family tree. Fields with bold margins are
 function factories. Arrows passing through them indicate that a new
 function is generated on the basis of an earlier one.</p>
-<p><img src="images%2Fscrutiny_mappers_schlim.png"></p>
+<p><img src="images/scrutiny_mappers_schlim.png"></p>
 <p>Here is an overview of scrutiny’s function factories:</p>
 <table class="table">
 <colgroup>
@@ -1288,7 +1288,7 @@ O’Reilly.
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
 </div>
 
     </footer>
