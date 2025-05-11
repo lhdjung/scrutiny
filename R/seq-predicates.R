@@ -147,78 +147,14 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
     # If the removal of leading and / or trailing `NA` elements in `x` caused
     # the central value to shift, or if only one side from among left and right
     # had any `NA` values, the original `x` might not have been symmetrically
-    # grouped around that value, and hence not a dispersed sequence. It depends
-    # on whether it could potentially be dispersed, assuming values consistent
-    # with this idea that are imputed for the `NA`s here.
-    if (
-      !is.null(test_special) &&
-      test_special == "dispersed"  # &&
-      # n_na_start != n_na_end
-    ) {
-      # # unit <- x[2] - x[1]
-      # unit <- (x[not_na[2]] - x[not_na[1]]) / (not_na[2] - not_na[1])
-      #
-      # diffs_all <- diff(x[not_na]) / diff(not_na)
-      #
-      # indices_na <- which(is.na(x))
-      #
-      # for (i in indices_na) {
-      #   if (i == 1L) {}
-      # }
-      #
-      # # Impute sequences of regularly spaced values that the `NA`s might stand
-      # # for, so that the input could potentially be dispersed around
-      # # `args_other$from`...
-      # seq_na_start <- seq(x[1],         length.out = n_na_start, by = -unit) - 1
-      # seq_na_end   <- seq(x[length(x)], length.out = n_na_end,   by =  unit) + 1
-      #
-      # seq_imputed <- c(rev(seq_na_start), x, seq_na_end)
-#
-#       x_filled <- fill_linear_sequence(x)
-#
-#       if (is.null(x_filled)) {
-#         if (test_linear) {
-#           return(FALSE)
-#         }
-#       }
-
+    # grouped around that value, and hence not a dispersed sequence. Otherwise,
+    # the `NA`s leave it open and the result is unknown, i.e., `NA`.
+    if (!is.null(test_special) && test_special == "dispersed") {
       x_central <- x_orig[index_central(x_orig)]
-
       if (!is.na(x_central) && x_central != args_other$from) {
         return(FALSE)
       }
-
-      diffs_all <- diff(x[not_na]) / diff(not_na)
-
-      diffs_are_equal <- abs(diffs_all - diffs_all[1]) < tolerance
-
-      # # Test with:
-      # c(NA, 3:7, NA) %>% is_seq_dispersed(from = 5, test_linear = FALSE)
-
-      if (!all(vapply(diffs_are_equal[!is.na(diffs_are_equal)], isTRUE, logical(1)))) {
-        print(paste0("`diffs_are_equal`: ", paste0(diffs_are_equal, collapse = ", ")))
-        print(paste0("`x[not_na]`: ", paste0(x[not_na], collapse = ", ")))
-        print(paste0("`diff(not_na)`: ", paste0(diff(not_na), collapse = ", ")))
-        message("Yes, returned here")
-        return(FALSE)
-      }
-
-      # # if (anyNA(diffs_are_equal)) {
-      # #   return(NA)
-      # # }
-      #
-      # if (!all(diffs_are_equal)) {
-      #   return(FALSE)
-      # }
-
-      # # ...assuming the overall (partly imputed) sequence is still dispersed
-      # # around that value:
-      # if (is_seq_dispersed_basic(x_filled, from = args_other$from)) {
-      #   return(NA)
-      # }
-
-      print("Returned here")
-      return(FALSE)
+      return(NA)
     }
 
     # Used within the for loop below to check whether the step size must be

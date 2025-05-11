@@ -13,6 +13,8 @@
 
 -   `restore_zeros_df()` has the same fixes as above.
 
+-   `is_seq_dispersed()` now works correctly if `NA` values are present.
+
 # scrutiny 0.5.0
 
 The package is now released under the MIT license.
