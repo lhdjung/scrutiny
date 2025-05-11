@@ -18,6 +18,13 @@ test_that("The total number of characters checks out", {
   (stringr::str_length(numbers) - 5) %>% expect_equal(integer_places(numbers))
 })
 
+test_that("`width` is checked correctly", {
+  1:5 %>% restore_zeros(width = 1)   %>% expect_no_error()
+  1:5 %>% restore_zeros(width = 1:5) %>% expect_no_error()
+  1:5 %>% restore_zeros(width = 1:2) %>% expect_error()
+  1:5 %>% restore_zeros(width = 1.2) %>% expect_error()
+})
+
 
 test_that("The `*_df()` variant produces correct results", {
   iris %>% restore_zeros_df() %>% expect_no_error()
@@ -62,7 +69,7 @@ test_that("the `check_decimals` argument works correctly", {
 })
 
 
-test_that("", {
+test_that("invalid arguments in `restore_zeros_df()` are caught", {
   iris %>% restore_zeros_df(.check_decimals = TRUE) %>% expect_error()
   iris %>% restore_zeros_df(wooh = TRUE) %>% expect_error()
 })

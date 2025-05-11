@@ -8,6 +8,9 @@ Authors@R: c(
            email = "jung-lukas@gmx.net"),
     person(given = "Aurélien",
            family = "Allard",
+           role = c("ctb")),
+    person(given = "Nicolas Roman",
+           family = "Posner",
            role = c("ctb"))
   )
 Maintainer: Lukas Jung <jung-lukas@gmx.net>
@@ -21,7 +24,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Imports: 
     cli,
     corrr,
