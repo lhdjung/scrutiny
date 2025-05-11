@@ -44,15 +44,15 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
   n_items <- n * items
   rec_sum <- x_num * n_items
 
-  # Now, reconstruct the possible mean or percentage values (or "grains"),
+  # Now, reconstruct the possible mean or percentage values (or "granules"),
   # controlling for small differences introduced by spurious precision:
   rec_x_upper <- dustify(ceiling(rec_sum) / n_items)
   rec_x_lower <- dustify(floor(rec_sum) / n_items)
 
-  # Round these "grains" using an internal helper function that also gets the
+  # Round these "granules" using an internal helper function that also gets the
   # number of decimal places as well as the `rounding`, `threshold`, and
   # `symmetric` arguments passed down to:
-  grains_rounded <- reround(
+  granules_rounded <- reround(
     x         = c(rec_x_upper, rec_x_lower),
     digits    = digits,
     rounding  = rounding,
@@ -61,34 +61,46 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
   )
 
   # Test if the reported mean or percentage is near-identical to either of the
-  # two possible reconstructed values (the "grains"). The default for the
+  # two possible reconstructed values (the "granules"). The default for the
   # `tolerance` argument -- tolerance of comparison between the reported and
   # reconstructed values -- that comes into play here is the same as in
   # `dplyr::near()` itself, i.e., circa 0.000000015:
-  grain_is_x <- any(dplyr::near(grains_rounded, x_num, tol = tolerance))
+  consistency <- any(dplyr::near(granules_rounded, x_num, tol = tolerance))
 
+  # Check if any of these two comparisons returned `TRUE`:
   if (!show_rec) {
-    # Check if any of these two comparisons returned `TRUE`:
-    return(grain_is_x)
-  } else {
-    consistency <- grain_is_x
-    length_2ers <- c("up_or_down", "up_from_or_down_from", "ceiling_or_floor")
-    if (any(length_2ers %in% rounding)) {
-      # Skipping those values that are identical to the selected ones apart from
-      # `dust` addition or subtraction via `dustify()`:
-      return(list(
-        consistency, rec_sum, rec_x_upper, rec_x_lower,
-        grains_rounded[1L], grains_rounded[2L],
-        grains_rounded[5L], grains_rounded[6L]
-      ))
-    } else {
-      # Skipping as above:
-      return(list(
-        consistency, rec_sum, rec_x_upper, rec_x_lower,
-        grains_rounded[1L], grains_rounded[3L]
-      ))
-    }
+    return(consistency)
   }
+
+  length_2ers <- c("up_or_down", "up_from_or_down_from", "ceiling_or_floor")
+
+  granules_rounded_subset <- if (any(length_2ers %in% rounding)) {
+    # Skipping those values that are identical to the selected ones apart from
+    # `dust` addition or subtraction via `dustify()`:
+    list(
+      granules_rounded[1L],
+      granules_rounded[2L],
+      granules_rounded[5L],
+      granules_rounded[6L]
+    )
+  } else {
+    # Skipping as above:
+    list(
+      granules_rounded[1L],
+      granules_rounded[3L]
+    )
+  }
+
+  # Return a final combined list
+  c(
+    list(
+      consistency,
+      rec_sum,
+      rec_x_upper,
+      rec_x_lower
+    ),
+    granules_rounded_subset
+  )
 
 }
 
