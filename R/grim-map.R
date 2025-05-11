@@ -227,16 +227,23 @@ grim_map <- function(data, items = 1, merge_items = TRUE, percent = FALSE,
 
   # 6.-?: Any number of other columns from `data` (via the `other_cols` object).
 
-
   # Create a tibble with results that also includes extra columns from the input
   # data frame (`other_cols`) unless the `extra` argument has been set to 0 --
-  if (is.null(extra)) {
-    # (Number:)               1  2       3            4
-    results <- tibble::tibble(x, n, consistency, probability)
-  } else {
-    # (Number:)               1  2       3            4          5(-?)
-    results <- tibble::tibble(x, n, consistency, probability, other_cols)
+  results <- tibble::new_tibble(
+    x = list(
+      x = x,
+      n = n,
+      consistency = consistency,
+      probability = probability
+    ),
+    nrow = length(consistency),
+    class = NULL
+  )
+
+  if (!is.null(extra)) {
+    results <- dplyr::mutate(results, other_cols)
   }
+
 
   # In case the user had set `show_rec` to `TRUE` for displaying the
   # reconstructed values from `grim_scalar()`'s internal computations, these

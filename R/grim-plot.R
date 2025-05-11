@@ -209,8 +209,16 @@ grim_plot <- function(data = NULL,
   # must completely bypass the `data` argument. It does so via creating a
   # dummy object by that name:
   if (!show_data) {
-    data <- tibble::tibble(x = "0.00", n = 1, items = 1, consistency = TRUE) %>%
-      add_class(paste0("scr_rounding_", rounding))
+    data <- tibble::new_tibble(
+      x = list(
+        x = "0.00",
+        n = 1,
+        items = 1,
+        consistency = TRUE
+      ),
+      nrow = 1L,
+      class = paste0("scr_rounding_", rounding)
+    )
   }
 
 
@@ -322,9 +330,13 @@ grim_plot <- function(data = NULL,
     }
 
     # This data frame will be used for the raster when building the plot:
-    df_plot <- tibble::tibble(
-      raster_n = as.numeric(raster_n),
-      raster_frac = as.numeric(raster_frac)
+    df_plot <- tibble::new_tibble(
+      x = list(
+        raster_n = as.numeric(raster_n),
+        raster_frac = as.numeric(raster_frac)
+      ),
+      nrow = length(raster_n),
+      class = NULL
     )
 
   }

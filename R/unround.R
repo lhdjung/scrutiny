@@ -215,18 +215,22 @@ unround <- function(x, rounding = "up_or_down", threshold = 5, digits = NULL) {
   sign_lower <- as.character(bounds[3L, ]) # lower bound inclusive (`"<="`)?
   sign_upper <- as.character(bounds[4L, ]) # upper bound inclusive (`"<="`)?
 
-  tibble::tibble(
-    # Display the range with its appropriate signs:
-    range = paste0(
-      lower, " ", sign_lower, " x(", x, ") ", sign_upper, " ", upper
+  # Return a tibble that dispalys the range with its appropriate signs and
+  # includes all the results that constitute the range
+  tibble::new_tibble(
+    x = list(
+      range = paste0(
+        lower, " ", sign_lower, " x(", x, ") ", sign_upper, " ", upper
+      ),
+      rounding = rounding,
+      lower = lower,
+      incl_lower = sign_lower == "<=",
+      x = x,
+      incl_upper = sign_upper == "<=",
+      upper = upper
     ),
-    rounding,
-    lower,
-    incl_lower = sign_lower == "<=",
-    x,
-    incl_upper = sign_upper == "<=",
-    upper
+    nrow = length(x),
+    class = NULL
   )
-
 }
 

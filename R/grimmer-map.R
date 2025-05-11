@@ -163,8 +163,16 @@ grimmer_map <- function(data, items = 1, merge_items = TRUE,
     )
   }
 
-  out <- tibble::tibble(x = data$x, sd = data$sd, n, consistency) %>%
-    add_class(c("scr_grimmer_map", paste0("scr_rounding_", rounding)))
+  out <- tibble::new_tibble(
+    x = list(
+      x = data$x,
+      sd = data$sd,
+      n = n,
+      consistency = consistency
+    ),
+    nrow = length(consistency),
+    class = c("scr_grimmer_map", paste0("scr_rounding_", rounding))
+  )
 
   if (show_reason) {
     unnest_consistency_cols(
