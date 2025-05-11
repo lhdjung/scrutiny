@@ -301,15 +301,6 @@ manage_key_colnames <- function(data, arg, description = NULL) {
 
 
 
-manage_key_colnames_list_el <- function(data, key_arg) {
-  if (is.null(key_arg)) {
-    data
-  } else {
-    dplyr::rename(data, {{ names(key_arg) }} := key_arg)
-  }
-}
-
-
 
 
 #' Unnest a test result column

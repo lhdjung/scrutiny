@@ -420,32 +420,3 @@ is_seq_dispersed_basic <- function(x, from,
 }
 
 
-# Helper, not exported:
-fill_linear_sequence <- function(x) {
-  # Find positions of non-NA values
-  known_pos <- which(!is.na(x))
-
-  # Need at least 2 known values to determine a linear sequence
-  if (length(known_pos) < 2) {
-    stop("At least 2 non-NA values are required")
-  }
-
-  # Calculate differences between consecutive known values
-  diffs <- diff(x[known_pos]) / diff(known_pos)
-
-  # Check if differences are constant (within floating point tolerance)
-  if (!all(abs(diffs - diffs[1]) < .Machine$double.eps ^ 0.5)) {
-    return(NULL)
-  }
-
-  # Calculate the common difference
-  d <- diffs[1]
-
-  # Calculate the first value based on the sequence
-  first_known <- x[known_pos[1]]
-  start_value <- first_known - (known_pos[1] - 1) * d
-
-  # Generate the complete sequence
-  seq(from = start_value, by = d, length.out = length(x))
-}
-
