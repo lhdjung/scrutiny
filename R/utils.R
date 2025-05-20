@@ -13,7 +13,9 @@ utils::globalVariables(c(
   "!!", "!!!", "constant", "constant_index", "include_consistent",
   "n_min", "n_max",
   # Added for `function_duplicate_cols()`, which uses `rlang::new_function()`:
-  "colname_end", "ignore", "numeric_only"
+  "colname_end", "ignore", "numeric_only",
+  # Added for `write_code_col_key_result()`:
+  "!!<-"
 ))
 
 
@@ -1491,8 +1493,17 @@ check_dispersion_linear <- function(data) {
 #' @return Expression.
 #'
 #' @noRd
+
+# ❯ checking R code for possible problems ... NOTE
+# write_code_col_key_result: no visible binding for global variable ‘out’
+# write_code_col_key_result: no visible global function definition for
+# ‘!!<-’
+# Undefined global functions or variables:
+#   !!<- out
+
 write_code_col_key_result <- function(name_key_result = "consistency",
-                                      name_data = rlang::expr(out)) {
+                                      name_data = rlang::expr(out),
+                                      out = NULL) {
   # Enable renaming the `"consistency"` column for binary procedures that are
   # not consistency tests:
   code_rename <- if (name_key_result == "consistency") {
