@@ -1,9 +1,7 @@
-
 #' @include debit-map.R
 #' @export
 
 audit.scr_debit_map <- function(data) {
-
   # Compute the summary values of interest --
 
   # 1. the number of DEBIT-inconsistent cases;

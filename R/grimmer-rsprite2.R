@@ -1,4 +1,3 @@
-
 # NOTE: This file was taken from the rsprite2 package
 # (https://github.com/LukasWallrich/rsprite2/blob/master/R/core-functions.R).
 # However, it only contains two functions from the original file.
@@ -28,7 +27,6 @@
 # pass_test1
 # matches_sd
 # pass_test3
-
 
 # Helper function ---------------------------------------------------------
 
@@ -81,8 +79,6 @@
 #
 #   return(result)
 # }
-
-
 
 # Main function -----------------------------------------------------------
 

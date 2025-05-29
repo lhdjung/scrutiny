@@ -1,4 +1,3 @@
-
 #' Vary hypothetical group sizes
 #'
 #' @description Some published studies only report a total sample size but no
@@ -101,17 +100,20 @@
 #' )
 #' disperse_total(37, constant = df_constant)
 
-
 # Basic function for halves of even totals --------------------------------
 
-disperse <- function(n, dispersion = 0:5, n_min = 1L, n_max = NULL,
-                     constant = NULL, constant_index = NULL) {
-
+disperse <- function(
+  n,
+  dispersion = 0:5,
+  n_min = 1L,
+  n_max = NULL,
+  constant = NULL,
+  constant_index = NULL
+) {
   # Checks ---
 
   check_length_disperse_n(n, "It must have length 1.")
   check_non_negative(dispersion)
-
 
   # Main part ---
 
@@ -139,7 +141,7 @@ disperse <- function(n, dispersion = 0:5, n_min = 1L, n_max = NULL,
   }
 
   n_minus <- n - dispersion
-  n_plus  <- n + dispersion
+  n_plus <- n + dispersion
 
   minus_plus_df <- tibble::tibble(n_minus, n_plus)
 
@@ -179,12 +181,13 @@ disperse <- function(n, dispersion = 0:5, n_min = 1L, n_max = NULL,
         length(names(constant)) == length(constant)
       if (constant_is_named_list) {
         constant <- tibble::as_tibble(
-          constant, .name_repair = function(x) names(constant)
+          constant,
+          .name_repair = function(x) names(constant)
         )
       } else {
         constant <- tibble::as_tibble(constant, .name_repair = function(x) {
-            paste0("constant", seq_along(constant))
-          })
+          paste0("constant", seq_along(constant))
+        })
       }
     } else {
       constant <- repeat_constant(constant, out)
@@ -202,15 +205,19 @@ disperse <- function(n, dispersion = 0:5, n_min = 1L, n_max = NULL,
 }
 
 
-
 # Variant for halves of odd totals ----------------------------------------
 
 #' @rdname disperse
 #' @export
 
-disperse2 <- function(n, dispersion = 0:5, n_min = 1L, n_max = NULL,
-                      constant = NULL, constant_index = NULL) {
-
+disperse2 <- function(
+  n,
+  dispersion = 0:5,
+  n_min = 1L,
+  n_max = NULL,
+  constant = NULL,
+  constant_index = NULL
+) {
   # Checks ---
 
   check_length(n, 2L)
@@ -223,14 +230,16 @@ disperse2 <- function(n, dispersion = 0:5, n_min = 1L, n_max = NULL,
     ))
   }
 
-
   # Main part ---
 
   # Take the mean of the two `n` values and disperse from there:
   out <- disperse(
-    n = mean(n), constant = constant, constant_index = constant_index,
+    n = mean(n),
+    constant = constant,
+    constant_index = constant_index,
     dispersion = dispersion,
-    n_min = n_min, n_max = n_max
+    n_min = n_min,
+    n_max = n_max
   )
 
   # Determine which row numbers in the output tibble have an `n` that must
@@ -250,22 +259,26 @@ disperse2 <- function(n, dispersion = 0:5, n_min = 1L, n_max = NULL,
 }
 
 
-
 # Variant for totals; with even / odd splitting ---------------------------
 
 #' @rdname disperse
 #' @export
 
-disperse_total <- function(n, dispersion = 0:5, n_min = 1L, n_max = NULL,
-                           constant = NULL, constant_index = NULL) {
-
+disperse_total <- function(
+  n,
+  dispersion = 0:5,
+  n_min = 1L,
+  n_max = NULL,
+  constant = NULL,
+  constant_index = NULL
+) {
   # Checks ---
 
   check_length_disperse_n(
-    n, "It must have length 1; `n` is supposed \\
+    n,
+    "It must have length 1; `n` is supposed \\
     to be a *single*, total sample size."
   )
-
 
   # Main part ---
 
@@ -275,17 +288,22 @@ disperse_total <- function(n, dispersion = 0:5, n_min = 1L, n_max = NULL,
   # call `disperse()`; if `n` is odd, call `disperse2()`:
   if (is_even(n)) {
     disperse(
-      n = n_half, dispersion = dispersion, n_min = n_min, n_max = n_max,
-      constant = constant, constant_index = constant_index
+      n = n_half,
+      dispersion = dispersion,
+      n_min = n_min,
+      n_max = n_max,
+      constant = constant,
+      constant_index = constant_index
     )
   } else {
     # Determine the two whole numbers closest to half of the odd `n`:
     disperse2(
-      n = c(n_half - 0.5, n_half + 0.5), dispersion = dispersion,
-      n_min = n_min, n_max = n_max, constant = constant,
+      n = c(n_half - 0.5, n_half + 0.5),
+      dispersion = dispersion,
+      n_min = n_min,
+      n_max = n_max,
+      constant = constant,
       constant_index = constant_index
     )
   }
-
 }
-

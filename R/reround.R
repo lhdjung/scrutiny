@@ -1,4 +1,3 @@
-
 # # Full example inputs:
 # x <- 65.3488492
 # digits <- 2
@@ -6,8 +5,13 @@
 # threshold <- 5
 # symmetric <- FALSE
 
-reconstruct_rounded_numbers_scalar <- function(x, digits, rounding,
-                                               threshold, symmetric) {
+reconstruct_rounded_numbers_scalar <- function(
+  x,
+  digits,
+  rounding,
+  threshold,
+  symmetric
+) {
   switch(
     rounding,
     "up_or_down" = c(
@@ -53,10 +57,10 @@ reconstruct_rounded_numbers_scalar <- function(x, digits, rounding,
 }
 
 
-
-reconstruct_rounded_numbers <- Vectorize(reconstruct_rounded_numbers_scalar,
-                                         USE.NAMES = FALSE)
-
+reconstruct_rounded_numbers <- Vectorize(
+  reconstruct_rounded_numbers_scalar,
+  USE.NAMES = FALSE
+)
 
 
 #' General interface to reconstructing rounded numbers
@@ -104,10 +108,13 @@ reconstruct_rounded_numbers <- Vectorize(reconstruct_rounded_numbers_scalar,
 #'   is `"up_or_down"`, `"up_from_or_down_from"`, or`"ceiling_or_floor"`, in
 #'   which case it has length 2.)
 
-
-reround <- function(x, digits = 0L, rounding = "up_or_down",
-                    threshold = 5, symmetric = FALSE) {
-
+reround <- function(
+  x,
+  digits = 0L,
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE
+) {
   # For calls with multiple rounding procedures, each individual procedure needs
   # to be singular; i.e., `rounding` can either be (1) a string vector of length
   # 1 indicating two procedures, such as `"up_or_down"`; or (2) a string vector
@@ -115,15 +122,20 @@ reround <- function(x, digits = 0L, rounding = "up_or_down",
   # `"up_or_down"`:
   if (length(rounding) > 1L) {
     check_rounding_singular(rounding, "up_or_down", "up", "down")
-    check_rounding_singular(rounding, "up_from_or_down_from", "up_from", "down_from")
+    check_rounding_singular(
+      rounding,
+      "up_from_or_down_from",
+      "up_from",
+      "down_from"
+    )
     check_rounding_singular(rounding, "ceiling_or_floor", "ceiling", "floor")
     # Throw an error if the lengths of the first two arguments are inconsistent:
     if (length(x) > 1L && length(x) != length(rounding)) {
       cli::cli_abort(c(
         "!" = "`x` and `rounding` must have the same length \\
       unless either has length 1.",
-      "i" = "`x` has length {length(x)}.",
-      "i" = "`rounding` has length {length(rounding)}."
+        "i" = "`x` has length {length(x)}.",
+        "i" = "`rounding` has length {length(rounding)}."
       ))
     }
   }
@@ -137,6 +149,4 @@ reround <- function(x, digits = 0L, rounding = "up_or_down",
     reconstruct_rounded_numbers(x, digits, rounding, threshold, symmetric),
     NULL
   )
-
 }
-

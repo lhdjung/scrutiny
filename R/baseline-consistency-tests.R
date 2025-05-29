@@ -1,13 +1,10 @@
-
 # NOTE: This file contains some tests that will likely be part of the next minor
 # version, i.e., scrutiny 0.3.0. I'm putting them on hold for now because some
 # questions about numeric tolerance have yet to be answered.
 
-
 # @include function-map.R
 # @include function-map-seq.R
 # @include function-map-total-n.R
-
 
 # Basic functions ---------------------------------------------------------
 
@@ -57,7 +54,6 @@
 #   dplyr::near(sum(summands), total, tol = tolerance)
 # }
 
-
 # Basic mappers -----------------------------------------------------------
 
 # check_percentage_map <- function_map(
@@ -66,8 +62,6 @@
 #   .name_test = "percentage"
 # )
 
-
-
 # Sequence mappers --------------------------------------------------------
 
 # check_percentage_map_seq <- function_map_seq(
@@ -75,7 +69,6 @@
 #   .reported = c("absolute", "percentage", "total"),
 #   .name_test = "percentage"
 # )
-
 
 # (No total-n mappers here; they don't seem useful for these tests.)
 

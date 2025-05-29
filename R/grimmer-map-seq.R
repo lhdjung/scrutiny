@@ -1,4 +1,3 @@
-
 #' GRIMMER-testing with dispersed inputs
 #'
 #' @description `grimmer_map_seq()` performs GRIMMER-testing with values
@@ -74,7 +73,6 @@
 #' # can be more important than the raw results:
 #' out %>%
 #'   audit_seq()
-
 
 grimmer_map_seq <- function_map_seq(
   .fun = grimmer_map,

@@ -1,4 +1,3 @@
-
 #' Summarize scrutiny objects
 #'
 #' @description `audit()` summarizes the results of scrutiny functions like
@@ -44,7 +43,6 @@
 audit <- function(data) {
   UseMethod("audit")
 }
-
 
 
 #' Summarize output of sequence mappers and total-n mappers
@@ -95,9 +93,7 @@ audit <- function(data) {
 #' # `audit_total_n()` with `audit()`:
 #' audit(out)
 
-
 audit_seq <- function(data) {
-
   if (!inherits(data, "scr_map_seq")) {
     cli::cli_abort(c(
       "Invalid `data` argument.",
@@ -164,22 +160,28 @@ audit_seq <- function(data) {
     tidyr::unnest_wider(col = distance)
 
   cols_hits <- df_nested %>%
-    dplyr::mutate(dplyr::across(
-      .cols = everything(),
-      .fns = function(x) {
-        vapply(x, length_unless_na, integer(1L), USE.NAMES = FALSE)
-      },
-      .names = "hits_{.col}"
-    ), .keep = "none") %>%
+    dplyr::mutate(
+      dplyr::across(
+        .cols = everything(),
+        .fns = function(x) {
+          vapply(x, length_unless_na, integer(1L), USE.NAMES = FALSE)
+        },
+        .names = "hits_{.col}"
+      ),
+      .keep = "none"
+    ) %>%
     tidyr::unnest(cols = everything())
 
   # Go to utils.R to see the `list_min_distance_functions` object.
   cols_diff <- df_nested %>%
-    dplyr::mutate(dplyr::across(
-      .cols = everything(),
-      .fns = list_min_distance_functions,
-      .names = "diff_{.col}{fun_names}"
-    ), .keep = "none") %>%
+    dplyr::mutate(
+      dplyr::across(
+        .cols = everything(),
+        .fns = list_min_distance_functions,
+        .names = "diff_{.col}{fun_names}"
+      ),
+      .keep = "none"
+    ) %>%
     dplyr::mutate(dplyr::across(
       .cols = everything(),
       .fns = function(x) {
@@ -207,15 +209,21 @@ audit_seq <- function(data) {
 
   consistency <- data_rev_tested$consistency
 
-  cols_hits <- dplyr::mutate(cols_hits, dplyr::across(
-    .cols = where(is.character),
-    .fns = as.numeric
-  ))
+  cols_hits <- dplyr::mutate(
+    cols_hits,
+    dplyr::across(
+      .cols = where(is.character),
+      .fns = as.numeric
+    )
+  )
 
-  cols_diff <- dplyr::mutate(cols_diff, dplyr::across(
-    .cols = where(is.character),
-    .fns = as.numeric
-  ))
+  cols_diff <- dplyr::mutate(
+    cols_diff,
+    dplyr::across(
+      .cols = where(is.character),
+      .fns = as.numeric
+    )
+  )
 
   data_rev %>%
     dplyr::mutate(consistency, hits_total) %>%
@@ -224,13 +232,10 @@ audit_seq <- function(data) {
 }
 
 
-
-
 #' @rdname audit-special
 #' @export
 
 audit_total_n <- function(data) {
-
   if (!inherits(data, "scr_map_total_n")) {
     cli::cli_abort(c(
       "Invalid `data` argument.",
@@ -263,12 +268,15 @@ audit_total_n <- function(data) {
   data %>%
     reverse_map_total_n() %>%
     dplyr::mutate(
-      hits_total, hits_forth, hits_back, scenarios_total, hit_rate,
+      hits_total,
+      hits_forth,
+      hits_back,
+      scenarios_total,
+      hit_rate,
       dplyr::across(
         .cols = c("n", starts_with("hits"), "scenarios_total"),
-        .fns  = as.integer
+        .fns = as.integer
       )
     ) %>%
     add_class("scr_audit_total_n")
 }
-

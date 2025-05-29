@@ -1,8 +1,7 @@
-
 # Helper; not exported:
 manage_key_args <- function(key_args) {
   key_args_bt <- wrap_in_backticks(key_args) # function from utils.R
-  vars <- commas_and(key_args_bt)    # function from utils.R
+  vars <- commas_and(key_args_bt) # function from utils.R
 
   arg1 <- key_args[1L]
   arg2 <- key_args[2L]
@@ -14,7 +13,7 @@ manage_key_args <- function(key_args) {
     var_ge_3 <- ""
     var_ge_3_line <- ""
   } else {
-    var_ge_3 <- key_args[-(1:2)]  # used to be: `key_args_bt[-(1:2)]`
+    var_ge_3 <- key_args[-(1:2)] # used to be: `key_args_bt[-(1:2)]`
     var_ge_3_line <- "#'   - Accordingly for {commas_and(var_ge_3)}."
   }
 
@@ -22,10 +21,8 @@ manage_key_args <- function(key_args) {
 }
 
 
-
 # Helper; not exported:
 manage_var_ge_3 <- function(var_ge_3, prefix, suffix, segway = "as well as") {
-
   for (i in seq_along(prefix)) {
     if (prefix[i] != "") {
       prefix[i] <- paste0(prefix[i], "_")
@@ -38,17 +35,18 @@ manage_var_ge_3 <- function(var_ge_3, prefix, suffix, segway = "as well as") {
     }
   }
 
-
   if (all(var_ge_3 != "")) {
     if (length(var_ge_3) == 1L) {
       var_ge_3_line <- glue::glue(
-        "`{prefix}{var_ge_3}{suffix}`"  # used to have: `hits_{var_ge_3}`
+        "`{prefix}{var_ge_3}{suffix}`" # used to have: `hits_{var_ge_3}`
       )
       var_ge_3_line <- commas_and(var_ge_3_line)
       var_ge_3_line <- paste(wrap_in_backticks(var_ge_3), "and", var_ge_3_line)
       var_ge_3_line <- paste(segway, var_ge_3_line)
     } else {
-      var_ge_3_line <- glue::glue("`{var_ge_3}` and `{prefix}{var_ge_3}{suffix}`")
+      var_ge_3_line <- glue::glue(
+        "`{var_ge_3}` and `{prefix}{var_ge_3}{suffix}`"
+      )
       var_ge_3_line_without_last <- paste(
         var_ge_3_line[1L:(length(var_ge_3_line) - 1L)],
         collapse = "; "
@@ -64,7 +62,6 @@ manage_var_ge_3 <- function(var_ge_3, prefix, suffix, segway = "as well as") {
 
   return(var_ge_3_line)
 }
-
 
 
 #' Documentation template for [`audit()`]
@@ -105,9 +102,7 @@ manage_var_ge_3 <- function(var_ge_3, prefix, suffix, segway = "as well as") {
 #' # Documenting the `audit()` method for `debit_map()`:
 #' write_doc_audit(sample_output = out_debit, name_test = "DEBIT")
 
-
 write_doc_audit <- function(sample_output, name_test) {
-
   check_class(sample_output, "data.frame")
   check_class(sample_output, "tbl_df")
   check_length(name_test, 1L)
@@ -172,7 +167,6 @@ write_doc_audit <- function(sample_output, name_test) {
 }
 
 
-
 #' Documentation template for [`audit_seq()`]
 #'
 #' @description `write_doc_audit_seq()` creates a roxygen2 block section to be
@@ -209,7 +203,6 @@ write_doc_audit <- function(sample_output, name_test) {
 #' write_doc_audit_seq(key_args = c("x", "sd", "n"), name_test = "DEBIT")
 
 write_doc_audit_seq <- function(key_args, name_test) {
-
   check_length(name_test, 1L)
 
   key_args_list <- manage_key_args(key_args)
@@ -222,7 +215,10 @@ write_doc_audit_seq <- function(key_args, name_test) {
   var_ge_3 <- key_args_list[6L][[1L]]
 
   var_ge_3_line_hits <- manage_var_ge_3(
-    var_ge_3, prefix = "hits", suffix = "", segway = "as well as"
+    var_ge_3,
+    prefix = "hits",
+    suffix = "",
+    segway = "as well as"
   )
 
   if (var_ge_3_line_hits != "") {
@@ -234,7 +230,7 @@ write_doc_audit_seq <- function(key_args, name_test) {
 
   semicolons_as_well_as <- function(x) {
     x[-length(x)] <- paste0(x[-length(x)], "; ")
-    x[length(x)]  <- paste0("as well as ", x[length(x)])
+    x[length(x)] <- paste0("as well as ", x[length(x)])
     stringr::str_flatten(x)
   }
 
@@ -242,8 +238,15 @@ write_doc_audit_seq <- function(key_args, name_test) {
     var_ge_3_line_diff <- ""
   } else {
     var_ge_3_line_diff <- purrr::map(var_ge_3, function(x) paste0("diff_", x))
-    var_ge_3_line_diff <- purrr::map(var_ge_3_line_diff, paste0, c("", "_up", "_down"))
-    var_ge_3_line_diff <- purrr::map(var_ge_3_line_diff, list(wrap_in_backticks, commas_and))
+    var_ge_3_line_diff <- purrr::map(
+      var_ge_3_line_diff,
+      paste0,
+      c("", "_up", "_down")
+    )
+    var_ge_3_line_diff <- purrr::map(
+      var_ge_3_line_diff,
+      list(wrap_in_backticks, commas_and)
+    )
     if (all(length(var_ge_3) > 1L)) {
       var_ge_3_line_diff <- semicolons_as_well_as(var_ge_3_line_diff)
     }
@@ -254,7 +257,10 @@ write_doc_audit_seq <- function(key_args, name_test) {
     "#'   - `diff_{arg2}`, `diff_{arg2}_up`, and `diff_{arg2}_down` do the same for {arg2_bt}. \n"
 
   if (var_ge_3_line_diff != "") {
-    var_ge_3_line_diff_all <- paste0(var_ge_3_line_diff_all, "#'   - {var_ge_3_line_diff} \n")
+    var_ge_3_line_diff_all <- paste0(
+      var_ge_3_line_diff_all,
+      "#'   - {var_ge_3_line_diff} \n"
+    )
   }
 
   glue::glue(
@@ -282,7 +288,6 @@ write_doc_audit_seq <- function(key_args, name_test) {
     "#'   of corresponding hits within the `dispersion` range. \n"
   )
 }
-
 
 
 #' Documentation template for [`audit_total_n()`]
@@ -319,9 +324,7 @@ write_doc_audit_seq <- function(key_args, name_test) {
 #' # For DEBIT and `debit_map_total_n()`:
 #' write_doc_audit_total_n(key_args = c("x", "sd", "n"), name_test = "DEBIT")
 
-
 write_doc_audit_total_n <- function(key_args, name_test) {
-
   # Checks ---
 
   check_length(name_test, 1L)
@@ -341,7 +344,6 @@ write_doc_audit_total_n <- function(key_args, name_test) {
     ))
   }
 
-
   # Main part ---
 
   key_args_num <- key_args[-length(key_args)]
@@ -353,7 +355,7 @@ write_doc_audit_total_n <- function(key_args, name_test) {
   key_args_num1 <- key_args_num[stringr::str_detect(key_args_num, "1")]
   key_args_num2 <- key_args_num[stringr::str_detect(key_args_num, "2")]
 
-  key_args_num_commas  <- commas_and(key_args_num)
+  key_args_num_commas <- commas_and(key_args_num)
   key_args_num1_commas <- commas_and(key_args_num1)
   key_args_num2_commas <- commas_and(key_args_num2)
 
@@ -383,7 +385,6 @@ write_doc_audit_total_n <- function(key_args, name_test) {
     and_as_well_as <- "as well as"
   }
 
-
   # Return documentation section:
   glue::glue(
     "#' @section Summaries with `audit_total_n()`: You can call \n",
@@ -406,7 +407,6 @@ write_doc_audit_total_n <- function(key_args, name_test) {
     "#'  even further. \n"
   )
 }
-
 
 
 #' Documentation template for function factory conventions
@@ -445,12 +445,12 @@ write_doc_audit_total_n <- function(key_args, name_test) {
 #' # For `function_map_total_n()`:
 #' write_doc_factory_map_conventions(ending = "total_n")
 
-
-write_doc_factory_map_conventions <- function(ending,
-                                              name_test1 = "GRIM",
-                                              name_test2 = "GRIMMER",
-                                              scrutiny_prefix = FALSE) {
-
+write_doc_factory_map_conventions <- function(
+  ending,
+  name_test1 = "GRIM",
+  name_test2 = "GRIMMER",
+  scrutiny_prefix = FALSE
+) {
   # Checks ---
   check_length(ending, 1L)
   check_length(name_test1, 1L)
@@ -480,7 +480,9 @@ write_doc_factory_map_conventions <- function(ending,
 
   # Prepare function and class names to be inserted below:
   name_factory <- glue::glue("`function_map{ending}()`")
-  name_mapper_seq1 <- glue::glue("[`{scrutiny_ns}{name_test1_lower}_map{ending}()`]")
+  name_mapper_seq1 <- glue::glue(
+    "[`{scrutiny_ns}{name_test1_lower}_map{ending}()`]"
+  )
   name_mapper_simple1 <- glue::glue("[`{scrutiny_ns}{name_test1_lower}_map()`]")
   name_mapper_simple2 <- glue::glue("[`{scrutiny_ns}{name_test2_lower}_map()`]")
   name_class_special1 <- glue::glue("`scr_{name_test1_lower}_map{ending}`")
@@ -502,6 +504,4 @@ write_doc_factory_map_conventions <- function(ending,
     "#'   package's name. Therefore, some existing classes are \n",
     "#'   {name_class_special1} and {name_class_special2}. \n"
   )
-
 }
-

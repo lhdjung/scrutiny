@@ -1,9 +1,7 @@
-
 # Non-exported helper function that, by default, shows a message when the
 # results of the main function (at the bottom) are returned:
 
 explain_seq_test_ranking <- function(x, scr_func_info) {
-
   if (!any(colnames(x) == "lead_lag")) {
     x$lead_lag <- NA
   }
@@ -50,26 +48,38 @@ explain_seq_test_ranking <- function(x, scr_func_info) {
     ))
   } else {
     if (l_cons == 1L) {
-      msg_cons <- glue::glue("There is only 1 consistent value set. It's \\
-                             in row number {cons} of {df_info}.")
-      msg_lead <- glue::glue("The consistent value set {lead_lag_info} the \\
+      msg_cons <- glue::glue(
+        "There is only 1 consistent value set. It's \\
+                             in row number {cons} of {df_info}."
+      )
+      msg_lead <- glue::glue(
+        "The consistent value set {lead_lag_info} the \\
                              first inconsistent one by {lead} places in the \\
-                             {scr_func_info} data frame. \n")
+                             {scr_func_info} data frame. \n"
+      )
     } else if (l_cons == 2L) {
-      msg_cons <- glue::glue("There are 2 consistent value sets, in rows \\
-                             number {cons[1L]} and {cons[2L]} of {df_info}.")
-      msg_lead <- glue::glue("The consistent sets {lead_lag_info} the \\
+      msg_cons <- glue::glue(
+        "There are 2 consistent value sets, in rows \\
+                             number {cons[1L]} and {cons[2L]} of {df_info}."
+      )
+      msg_lead <- glue::glue(
+        "The consistent sets {lead_lag_info} the \\
                              inconsistent ones by {lead[1L]} and {lead[2L]} \\
                              places, respectively, in the {scr_func_info} \\
-                             data frame. \n")
+                             data frame. \n"
+      )
     } else {
-      msg_cons <- glue::glue("There are {l_cons} consistent value sets, \\
+      msg_cons <- glue::glue(
+        "There are {l_cons} consistent value sets, \\
                              starting with row number {cons[1L]} in \\
-                             {df_info}.")
-      msg_lead <- glue::glue("The consistent sets {lead_lag_info} the \\
+                             {df_info}."
+      )
+      msg_lead <- glue::glue(
+        "The consistent sets {lead_lag_info} the \\
                              inconsistent ones by numbers of places from \\
                              {lead[1L]} to {lead[l_lead]} in the \\
-                             {scr_func_info} data frame. \n")
+                             {scr_func_info} data frame. \n"
+      )
     }
     msg_incons <- "All other value sets are inconsistent."
     cli::cli_inform(c(
@@ -79,9 +89,7 @@ explain_seq_test_ranking <- function(x, scr_func_info) {
       "i" = msg_lead
     ))
   }
-
 }
-
 
 
 #' Rank sequence test results
@@ -107,9 +115,7 @@ explain_seq_test_ranking <- function(x, scr_func_info) {
 #'   grim_map() %>%
 #'   seq_test_ranking()
 
-
 seq_test_ranking <- function(x, explain = TRUE) {
-
   if (!any(colnames(x) == "consistency")) {
     cli::cli_abort(c(
       "Column `consistency` is missing.",
@@ -174,5 +180,4 @@ seq_test_ranking <- function(x, explain = TRUE) {
     ))
     out
   }
-
 }

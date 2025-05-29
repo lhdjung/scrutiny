@@ -1,4 +1,3 @@
-
 #' Turn row values into column names
 #'
 #' @description Data frames sometimes have wrong column names, while the correct
@@ -36,7 +35,6 @@
 # @examples
 
 row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
-
   # Initial checks ---
 
   if (!is.data.frame(data)) {
@@ -66,7 +64,6 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
     ))
   }
 
-
   # Get correct column names ---
 
   # Restore the vector of correct column names by the values stored in the one
@@ -81,7 +78,6 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
   if (length(row) > 1L) {
     correct <- purrr::map(correct, paste0, collapse = collapse)
   }
-
 
   # Subsequent checks ---
 
@@ -100,7 +96,6 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
     ))
   }
 
-
   # Final correction and return ---
 
   # Reinstate the correct column names:
@@ -113,6 +108,4 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
   } else {
     return(data)
   }
-
 }
-

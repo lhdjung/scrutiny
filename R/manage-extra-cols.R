@@ -1,6 +1,4 @@
-
 manage_extra_cols <- function(data, extra, other_cols) {
-
   # Throw error if `extra` is a wrong string; i.e., if there is no extra column
   # by that name in `data`:
   if (!all(extra %in% colnames(data)) && is.character(extra)) {
@@ -18,8 +16,9 @@ manage_extra_cols <- function(data, extra, other_cols) {
   # Throw error if `extra` is a wrong number; i.e., if that given number is
   # larger than the actual number of extra columns:
   if (
-    !is.infinite(extra) && is.numeric(extra) &&
-    any(c(extra, length(extra)) > length(other_cols))
+    !is.infinite(extra) &&
+      is.numeric(extra) &&
+      any(c(extra, length(extra)) > length(other_cols))
   ) {
     # Prepare error message:
     if (length(other_cols) == 0L) {
@@ -33,8 +32,8 @@ manage_extra_cols <- function(data, extra, other_cols) {
     }
     if (length(extra) == 1L) {
       cli::cli_abort(c(
-      "`extra` was specified as `{extra}`, for extra column number {extra}.",
-      "x" = "This number is too high -- {msg_n_cols} in `data`."
+        "`extra` was specified as `{extra}`, for extra column number {extra}.",
+        "x" = "This number is too high -- {msg_n_cols} in `data`."
       ))
     } else {
       if (length(other_cols) < extra[1L]) {
@@ -43,8 +42,8 @@ manage_extra_cols <- function(data, extra, other_cols) {
         msg_num_length <- "That last number is"
       }
       cli::cli_abort(c(
-      "`extra` was specified as `{rlang::enexprs(extra)}`.",
-      "x" = "{msg_num_length} too high -- {msg_n_cols} in `data`."
+        "`extra` was specified as `{rlang::enexprs(extra)}`.",
+        "x" = "{msg_num_length} too high -- {msg_n_cols} in `data`."
       ))
     }
   }
@@ -55,6 +54,4 @@ manage_extra_cols <- function(data, extra, other_cols) {
   } else {
     return(other_cols)
   }
-
 }
-

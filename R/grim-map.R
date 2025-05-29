@@ -1,4 +1,3 @@
-
 #' GRIM-test many cases at once
 #'
 #' @description Call `grim_map()` to GRIM-test any number of combinations of
@@ -110,25 +109,37 @@
 #'   grim_map() %>%
 #'   audit()
 
-
 # Note: All the arguments passed on to the internal testing function
 # `grim_scalar()` are listed here as well as in the internal call to
 # `purrr::pmap_lgl(grim)` or `purrr::pmap(grim)` instead of simply being passed
 # via `...` so that starting to type them will trigger RStudio's autocomplete.
 
-
-grim_map <- function(data, items = 1, merge_items = TRUE, percent = FALSE,
-                     x = NULL, n = NULL, show_rec = FALSE,
-                     show_prob = deprecated(),
-                     rounding = "up_or_down", threshold = 5,
-                     symmetric = FALSE, tolerance = .Machine$double.eps^0.5,
-                     testables_only = FALSE, extra = Inf) {
-
+grim_map <- function(
+  data,
+  items = 1,
+  merge_items = TRUE,
+  percent = FALSE,
+  x = NULL,
+  n = NULL,
+  show_rec = FALSE,
+  show_prob = deprecated(),
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE,
+  tolerance = .Machine$double.eps^0.5,
+  testables_only = FALSE,
+  extra = Inf
+) {
   # If any two arguments called right below are length > 1, they need to have
   # the same length. Otherwise, the call will fail. But even so, there will be a
   # warning that values will get paired:
   check_lengths_congruent(list(
-    items, percent, rounding, threshold, symmetric, tolerance
+    items,
+    percent,
+    rounding,
+    threshold,
+    symmetric,
+    tolerance
   ))
 
   # Warn if the user specified a deprecated argument:
@@ -159,9 +170,7 @@ grim_map <- function(data, items = 1, merge_items = TRUE, percent = FALSE,
     data <- manage_key_colnames(data, n, "sample size")
   }
 
-
   # TODO: Optimize `grim_map()` for performance!
-
 
   # Check the column names of `data`:
   check_mapper_input_colnames(data, c("x", "n"), "GRIM")
@@ -173,12 +182,13 @@ grim_map <- function(data, items = 1, merge_items = TRUE, percent = FALSE,
   # those which play no role in the GRIM test), and run it through a specified
   # helper function:
   other_cols <- manage_extra_cols(
-    data, extra, dplyr::select(data, -x, -n, -items)
+    data,
+    extra,
+    dplyr::select(data, -x, -n, -items)
   )
 
   # Prepare a data frame for the GRIM computations below (steps 4 and 5):
   data_x_n_items <- dplyr::select(data, x, n, items)
-
 
   # Create the columns of the resulting tibble --
 
@@ -203,16 +213,24 @@ grim_map <- function(data, items = 1, merge_items = TRUE, percent = FALSE,
   # only returns a logical value whereas the latter returns a list:
   if (show_rec) {
     consistency <- purrr::pmap(
-      data_x_n_items, grim_scalar, percent = percent,
-      show_rec = show_rec, rounding = rounding,
-      threshold = threshold, symmetric = symmetric,
+      data_x_n_items,
+      grim_scalar,
+      percent = percent,
+      show_rec = show_rec,
+      rounding = rounding,
+      threshold = threshold,
+      symmetric = symmetric,
       tolerance = tolerance
     )
   } else {
     consistency <- purrr::pmap_lgl(
-      data_x_n_items, grim_scalar, percent = percent,
-      show_rec = show_rec, rounding = rounding,
-      threshold = threshold, symmetric = symmetric,
+      data_x_n_items,
+      grim_scalar,
+      percent = percent,
+      show_rec = show_rec,
+      rounding = rounding,
+      threshold = threshold,
+      symmetric = symmetric,
       tolerance = tolerance
     )
   }
@@ -244,7 +262,6 @@ grim_map <- function(data, items = 1, merge_items = TRUE, percent = FALSE,
     results <- dplyr::mutate(results, other_cols)
   }
 
-
   # In case the user had set `show_rec` to `TRUE` for displaying the
   # reconstructed values from `grim_scalar()`'s internal computations, these
   # were stored in `consistency` until now. The `consistency` column, then, is a
@@ -269,16 +286,26 @@ grim_map <- function(data, items = 1, merge_items = TRUE, percent = FALSE,
       name7 <- paste0("rec_x_lower_rounded_", rounding_split[1L])
       name8 <- paste0("rec_x_lower_rounded_", rounding_split[2L])
       col_names <- c(
-        name1, name2, name3, name4,
-        name5, name6, name7, name8
+        name1,
+        name2,
+        name3,
+        name4,
+        name5,
+        name6,
+        name7,
+        name8
       )
     } else {
       # The alternative names 5 and 6 for the short version:
       name5 <- "rec_x_upper_rounded"
       name6 <- "rec_x_lower_rounded"
       col_names <- c(
-        name1, name2, name3, name4,
-        name5, name6  # no 7 and 8 here!
+        name1,
+        name2,
+        name3,
+        name4,
+        name5,
+        name6 # no 7 and 8 here!
       )
     }
 
@@ -322,6 +349,4 @@ grim_map <- function(data, items = 1, merge_items = TRUE, percent = FALSE,
   } else {
     results
   }
-
 }
-

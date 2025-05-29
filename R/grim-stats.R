@@ -1,4 +1,3 @@
-
 #' Possible GRIM inconsistencies
 #'
 #' @description These functions compute statistics related to GRIM-testing. In
@@ -60,8 +59,6 @@
 #' grim_probability(x = "5.14", n = 83, percent = TRUE)
 #' grim_total(x = "5.14", n = 83, percent = TRUE)
 
-
-
 # Relative ----------------------------------------------------------------
 
 grim_probability <- function(x, n, items = 1, percent = FALSE) {
@@ -75,11 +72,10 @@ grim_probability <- function(x, n, items = 1, percent = FALSE) {
   }
   digits <- decimal_places_scalar(x)
   if (percent) digits <- digits + 2L
-  p10 <- 10 ^ digits
+  p10 <- 10^digits
   out <- (p10 - n * items) / p10
   dplyr::if_else(out < 0, 0, out)
 }
-
 
 
 #' @rdname grim-stats
@@ -88,7 +84,7 @@ grim_ratio <- function(x, n, items = 1, percent = FALSE) {
   check_type(x, "character")
   digits <- decimal_places_scalar(x)
   if (percent) digits <- digits + 2L
-  p10 <- 10 ^ digits
+  p10 <- 10^digits
   (p10 - n * items) / p10
 }
 
@@ -101,10 +97,9 @@ grim_total <- function(x, n, items = 1, percent = FALSE) {
   check_type(x, "character")
   digits <- decimal_places_scalar(x)
   if (percent) digits <- digits + 2L
-  p10 <- 10 ^ digits
+  p10 <- 10^digits
   as.integer(p10 - (n * items))
 }
-
 
 
 #' Upper bound for the GRIM ratio
@@ -132,4 +127,3 @@ grim_ratio_upper <- function(x, percent = FALSE) {
   check_type(x, "character")
   grim_ratio(x = x, n = 1, items = 1, percent = percent)
 }
-

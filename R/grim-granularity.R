@@ -1,5 +1,3 @@
-
-
 #' Granularity of non-continuous scales
 #'
 #' @description `grim_granularity()` computes the minimal difference between two
@@ -58,7 +56,6 @@
 #' # because items can only be whole numbers:
 #' grim_items(n = c(10, 15, 20), gran = 0.5)
 
-
 grim_granularity <- function(n, items = 1) {
   1 / (n * items)
 }
@@ -68,7 +65,6 @@ grim_granularity <- function(n, items = 1) {
 #' @export
 
 grim_items <- function(n, gran, tolerance = .Machine$double.eps^0.5) {
-
   out <- 1 / (n * gran)
   out_is_whole <- is_whole_number(out, tolerance)
 
@@ -84,7 +80,10 @@ grim_items <- function(n, gran, tolerance = .Machine$double.eps^0.5) {
     number_numbers <- "isn't a whole number"
   } else {
     item_items <- paste(
-      length(offenders), "out of", length(out), "item counts"
+      length(offenders),
+      "out of",
+      length(out),
+      "item counts"
     )
     number_numbers <- "aren't whole numbers"
   }
@@ -98,5 +97,3 @@ grim_items <- function(n, gran, tolerance = .Machine$double.eps^0.5) {
 
   out
 }
-
-

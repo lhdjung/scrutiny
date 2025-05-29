@@ -1,4 +1,3 @@
-
 #' Count decimal places
 #'
 #' @description `decimal_places()` counts the decimal places in a numeric
@@ -68,7 +67,9 @@ decimal_places <- function(x, sep = "\\.") {
   out <- stringr::str_split(stringr::str_trim(x), sep, 2L)
   out <- purrr::modify_if(out, !is.na(out), stringr::str_length)
   out <- purrr::modify_if(
-    out, function(x) length(x) == 1L && !is.na(x), function(x) 0L
+    out,
+    function(x) length(x) == 1L && !is.na(x),
+    function(x) 0L
   )
 
   as.integer(unlist(
@@ -76,7 +77,6 @@ decimal_places <- function(x, sep = "\\.") {
     use.names = FALSE
   ))
 }
-
 
 
 #' @rdname decimal_places
@@ -89,7 +89,8 @@ decimal_places_scalar <- function(x, sep = "\\.") {
     return(NA_integer_)
   }
   out <- stringr::str_length(stringr::str_extract(
-    x, paste0("(?<=", sep, ")\\d+")
+    x,
+    paste0("(?<=", sep, ")\\d+")
   ))
   if (is.na(out)) {
     0L
@@ -137,8 +138,12 @@ decimal_places_scalar <- function(x, sep = "\\.") {
 #' iris %>%
 #'   decimal_places_df(cols = starts_with("Sepal"))
 
-decimal_places_df <- function(data, cols = everything(),
-                              check_numeric_like = TRUE, sep = "\\.") {
+decimal_places_df <- function(
+  data,
+  cols = everything(),
+  check_numeric_like = TRUE,
+  sep = "\\."
+) {
   if (check_numeric_like) {
     selection2 <- rlang::expr(where(is_numeric_like))
   } else {
@@ -166,10 +171,11 @@ decimal_places_df <- function(data, cols = everything(),
     )
   }
 
-  dplyr::mutate(data, dplyr::across(
-    .cols = {{ cols }} & !!selection2,
-    .fns  = function(x) decimal_places(x = x, sep = sep)
-  ))
-
+  dplyr::mutate(
+    data,
+    dplyr::across(
+      .cols = {{ cols }} & !!selection2,
+      .fns = function(x) decimal_places(x = x, sep = sep)
+    )
+  )
 }
-

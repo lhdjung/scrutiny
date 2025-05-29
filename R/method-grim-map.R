@@ -1,9 +1,7 @@
-
 #' @include audit.R grim-map.R
 #' @export
 
 audit.scr_grim_map <- function(data) {
-
   # Compute the summary values of interest ---
 
   # 1. the number of GRIM-inconsistent cases;
@@ -33,16 +31,15 @@ audit.scr_grim_map <- function(data) {
   # Finally, collect all of these values in a resulting tibble --
   tibble::new_tibble(
     x = list(
-      incons_cases   = out$incons_cases,
-      all_cases      = out$all_cases,
-      incons_rate    = out$incons_rate,
+      incons_cases = out$incons_cases,
+      all_cases = out$all_cases,
+      incons_rate = out$incons_rate,
       mean_grim_prob = mean_grim_prob,
       incons_to_prob = incons_to_prob,
       testable_cases = testable_cases,
-      testable_rate  = testable_rate
+      testable_rate = testable_rate
     ),
     nrow = 1L,
     class = NULL
   )
 }
-

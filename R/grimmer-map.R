@@ -1,4 +1,3 @@
-
 #' GRIMMER-test many cases at once
 #'
 #' @description Call `grimmer_map()` to GRIMMER-test any number of combinations
@@ -105,13 +104,19 @@
 # symmetric <- FALSE
 # tolerance <- .Machine$double.eps^0.5
 
-
-grimmer_map <- function(data, items = 1, merge_items = TRUE,
-                        x = NULL, sd = NULL, n = NULL,
-                        show_reason = TRUE, rounding = "up_or_down",
-                        threshold = 5, symmetric = FALSE,
-                        tolerance = .Machine$double.eps^0.5) {
-
+grimmer_map <- function(
+  data,
+  items = 1,
+  merge_items = TRUE,
+  x = NULL,
+  sd = NULL,
+  n = NULL,
+  show_reason = TRUE,
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE,
+  tolerance = .Machine$double.eps^0.5
+) {
   if (!missing(x)) {
     x <- rlang::enexpr(x)
     data <- manage_key_colnames(data, x, "mean")
@@ -140,7 +145,6 @@ grimmer_map <- function(data, items = 1, merge_items = TRUE,
 
   data_x_sd_n_items <- data[c("x", "sd", "n", "items")]
 
-
   x <- data$x
 
   if (merge_items) {
@@ -151,14 +155,22 @@ grimmer_map <- function(data, items = 1, merge_items = TRUE,
 
   if (show_reason) {
     consistency <- purrr::pmap(
-      data_x_sd_n_items, grimmer_scalar, show_reason = show_reason,
-      rounding = rounding, threshold = threshold, symmetric = symmetric,
+      data_x_sd_n_items,
+      grimmer_scalar,
+      show_reason = show_reason,
+      rounding = rounding,
+      threshold = threshold,
+      symmetric = symmetric,
       tolerance = tolerance
     )
   } else {
     consistency <- purrr::pmap_lgl(
-      data_x_sd_n_items, grimmer_scalar, show_reason = show_reason,
-      rounding = rounding, threshold = threshold, symmetric = symmetric,
+      data_x_sd_n_items,
+      grimmer_scalar,
+      show_reason = show_reason,
+      rounding = rounding,
+      threshold = threshold,
+      symmetric = symmetric,
       tolerance = tolerance
     )
   }
@@ -176,15 +188,14 @@ grimmer_map <- function(data, items = 1, merge_items = TRUE,
 
   if (show_reason) {
     unnest_consistency_cols(
-      out, col_names = c("consistency", "reason"), index = FALSE
+      out,
+      col_names = c("consistency", "reason"),
+      index = FALSE
     )
   } else {
     out
   }
-
 }
-
-
 
 # # Alternative version of `grimmer_map()`, using experimental functionality
 # from `function_map()`:
@@ -202,6 +213,3 @@ grimmer_map <- function(data, items = 1, merge_items = TRUE,
 #     symmetric = FALSE, tolerance = .Machine$double.eps^0.5
 #   )
 # )
-
-
-

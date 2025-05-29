@@ -1,4 +1,3 @@
-
 # For each element of `x`, this helper determines if that element is also to be
 # found in `y`. Then, it counts the number of times for which this test returned
 # `TRUE`, i.e., the number of elements of `x` that are also elements of `y`.
@@ -9,10 +8,12 @@
 
 dup_count_pairwise <- function(x, y) {
   length(which(vapply(
-    x[1L][[1L]], function(e1, e2) any(e1 == e2), logical(1L), y[1L][[1L]]
+    x[1L][[1L]],
+    function(e1, e2) any(e1 == e2),
+    logical(1L),
+    y[1L][[1L]]
   )))
 }
-
 
 
 #' Count duplicate values by column
@@ -64,7 +65,6 @@ dup_count_pairwise <- function(x, y) {
 #'   duplicate_count_colpair() %>%
 #'   audit()
 
-
 # # Full example input:
 # data <- df <- tibble::tibble(
 #   a = c(1, 2, 3, NA, 5), b = c(NA, 3L, 4L, 5L, 6L), c = c(3L, 4L, NA, NA, NA)
@@ -72,9 +72,7 @@ dup_count_pairwise <- function(x, y) {
 # ignore <- 3
 # show_rates <- TRUE
 
-
 duplicate_count_colpair <- function(data, ignore = NULL, show_rates = TRUE) {
-
   if (!is.data.frame(data)) {
     cli::cli_abort("`data` must be a data frame.")
   } else if (!tibble::is_tibble(data) || !rlang::is_named(data)) {
@@ -107,8 +105,7 @@ duplicate_count_colpair <- function(data, ignore = NULL, show_rates = TRUE) {
     out,
     total_x = unname(total_values[.data$x]),
     total_y = unname(total_values[.data$y]),
-    rate_x  = .data$count / .data$total_x,
-    rate_y  = .data$count / .data$total_y
+    rate_x = .data$count / .data$total_x,
+    rate_y = .data$count / .data$total_y
   )
 }
-

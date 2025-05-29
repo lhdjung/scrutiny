@@ -1,4 +1,3 @@
-
 #' Visualize DEBIT results
 #'
 #' @description  Plot a distribution of binary data and their mutual DEBIT
@@ -61,35 +60,33 @@
 #'   debit_map() %>%
 #'   debit_plot()
 
-
-
-debit_plot <- function(data,
-                       show_outer_boxes = TRUE,
-                       show_labels = TRUE,
-                       show_full_scale = TRUE,
-                       show_theme_other = TRUE,
-                       color_cons = "royalblue1",
-                       color_incons = "red",
-                       line_alpha = 1,
-                       line_color = "black",
-                       line_linetype = 1,
-                       line_width = 0.5,
-                       line_size = 0.5,
-                       rect_alpha = 1,
-                       tile_alpha = 0.15,
-                       tile_height_offset = 0.025,
-                       tile_width_offset = 0.025,
-                       tile_height_min = 0.0375,
-                       tile_width_min = 0.0385,
-                       label_alpha = 0.5,
-                       label_linetype = 3,
-                       label_size = 3.5,
-                       label_linesize = 0.75,
-                       label_force = 175,
-                       label_force_pull = 0.75,
-                       label_padding = 0.5) {
-
-
+debit_plot <- function(
+  data,
+  show_outer_boxes = TRUE,
+  show_labels = TRUE,
+  show_full_scale = TRUE,
+  show_theme_other = TRUE,
+  color_cons = "royalblue1",
+  color_incons = "red",
+  line_alpha = 1,
+  line_color = "black",
+  line_linetype = 1,
+  line_width = 0.5,
+  line_size = 0.5,
+  rect_alpha = 1,
+  tile_alpha = 0.15,
+  tile_height_offset = 0.025,
+  tile_width_offset = 0.025,
+  tile_height_min = 0.0375,
+  tile_width_min = 0.0385,
+  label_alpha = 0.5,
+  label_linetype = 3,
+  label_size = 3.5,
+  label_linesize = 0.75,
+  label_force = 175,
+  label_force_pull = 0.75,
+  label_padding = 0.5
+) {
   # Checks ---
 
   if (!inherits(data, "scr_debit_map")) {
@@ -98,7 +95,6 @@ debit_plot <- function(data,
       "x" = "`data` is not `debit_map()` output."
     ))
   }
-
 
   # Preparations ---
 
@@ -120,17 +116,21 @@ debit_plot <- function(data,
   tile_width <- x_upper - x_lower + tile_height_offset
 
   color_by_consistency <- dplyr::if_else(
-    consistency, color_cons, color_incons
+    consistency,
+    color_cons,
+    color_incons
   )
-
 
   # The plot itself ---
 
-  p <- ggplot2::ggplot(data = data, ggplot2::aes(
-    x     = {{ x_num }},
-    y     = {{ sd_num }},
-    label = {{ value_labels }}
-  ))
+  p <- ggplot2::ggplot(
+    data = data,
+    ggplot2::aes(
+      x = {{ x_num }},
+      y = {{ sd_num }},
+      label = {{ value_labels }}
+    )
+  )
 
   # DEBIT line:
   draw_debit_line <- function(.x = x, .n = n, .label = p$label) {
@@ -164,8 +164,10 @@ debit_plot <- function(data,
   # Inner tiles that should cross the consistency line:
   p <- p +
     ggplot2::geom_rect(
-      xmin = x_lower, xmax = x_upper,
-      ymin = sd_lower, ymax = sd_upper,
+      xmin = x_lower,
+      xmax = x_upper,
+      ymin = sd_lower,
+      ymax = sd_upper,
       color = color_by_consistency,
       fill = color_by_consistency,
       alpha = rect_alpha
@@ -178,7 +180,8 @@ debit_plot <- function(data,
       ggplot2::geom_tile(
         height = max(tile_height, tile_height_min),
         width = max(tile_width, tile_width_min),
-        fill = color_by_consistency, alpha = tile_alpha
+        fill = color_by_consistency,
+        alpha = tile_alpha
       )
   }
 
@@ -202,13 +205,16 @@ debit_plot <- function(data,
   if (show_full_scale) {
     p <- p +
       ggplot2::scale_x_continuous(
-        breaks = seq(0, 1, 0.1), limits = c(0, 1)
-      ) +  # might or might not change: , limits = c(0, 1)
+        breaks = seq(0, 1, 0.1),
+        limits = c(0, 1)
+      ) + # might or might not change: , limits = c(0, 1)
       ggplot2::scale_y_continuous(
         breaks = seq(0, (max(sd_upper) + tile_width_offset), 0.05),
-        limits = c(min(sd_lower) - tile_width_offset,
-                   max((max(sd_upper) + tile_width_offset), 0.5))
-      )  # used to be 0.005
+        limits = c(
+          min(sd_lower) - tile_width_offset,
+          max((max(sd_upper) + tile_width_offset), 0.5)
+        )
+      ) # used to be 0.005
   }
 
   # Axis labels:
@@ -228,5 +234,3 @@ debit_plot <- function(data,
   # Finally, return the plot while suppressing unnecessary ggplot2 warnings:
   suppressWarnings(print(p))
 }
-
-

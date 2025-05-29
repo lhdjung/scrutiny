@@ -1,9 +1,7 @@
-
 #' @include audit.R duplicate-detect.R grim-map.R
 #' @export
 
 audit.scr_dup_detect <- function(data) {
-
   # Select the logical test columns (i.e., every second column):
   data_dup <- data[is_even(seq_len(ncol(data)))]
 
@@ -23,8 +21,8 @@ audit.scr_dup_detect <- function(data) {
   # compute the duplicate rate:
   out <- data_dup %>%
     tidyr::pivot_longer(
-      cols      = dplyr::everything(),
-      names_to  = "term",
+      cols = dplyr::everything(),
+      names_to = "term",
       values_to = "value_duplicated"
     ) %>%
     dplyr::group_by(.data$term) %>%
@@ -39,7 +37,10 @@ audit.scr_dup_detect <- function(data) {
     )
 
   dplyr::add_row(
-    out, term = ".total", dup_count = sum(out$dup_count),
-    total_count = sum(out$total_count), dup_rate = .data$dup_count / .data$total_count
+    out,
+    term = ".total",
+    dup_count = sum(out$dup_count),
+    total_count = sum(out$total_count),
+    dup_rate = .data$dup_count / .data$total_count
   )
 }

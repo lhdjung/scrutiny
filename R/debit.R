@@ -1,23 +1,30 @@
-
 # Single-case helper function, not exported but used within both `debit()` and
 # `debit_map()`:
-debit_scalar <- function(x, sd, n,
-                         formula = "mean_n", rounding = "up_or_down",
-                         threshold = 5, symmetric = FALSE) {
-
-  check_type(x,  "character")
+debit_scalar <- function(
+  x,
+  sd,
+  n,
+  formula = "mean_n",
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE
+) {
+  check_type(x, "character")
   check_type(sd, "character")
   check_debit_inputs_all(x, sd)
 
   out <- debit_table(
-    x = x, sd = sd, n = n,
-    formula = formula, rounding = rounding,
-    threshold = threshold, symmetric = symmetric
+    x = x,
+    sd = sd,
+    n = n,
+    formula = formula,
+    rounding = rounding,
+    threshold = threshold,
+    symmetric = symmetric
   )
 
   return(out$consistency)
 }
-
 
 
 #' The DEBIT (descriptive binary) test
@@ -63,6 +70,4 @@ debit_scalar <- function(x, sd, n,
 #' # summary data:
 #' debit(x = "0.36", sd = "0.11", n = 20)
 
-
 debit <- Vectorize(debit_scalar)
-

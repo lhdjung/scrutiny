@@ -1,4 +1,3 @@
-
 #' Generalized rounding to the nearest fraction of a specified denominator
 #'
 #' @description Two functions that round numbers to specific fractions, not just
@@ -69,22 +68,29 @@
 #' reround_to_fraction_level(0.12345, denominator = 2, digits = 1)
 #' reround_to_fraction_level(0.12345, denominator = 2, digits = 2)
 
-
 #' @rdname fractional-rounding
 #' @export
 
-
-reround_to_fraction <- function(x = NULL, denominator = 1, digits = Inf,
-                                rounding = "up_or_down", threshold = 5,
-                                symmetric = FALSE) {
-
+reround_to_fraction <- function(
+  x = NULL,
+  denominator = 1,
+  digits = Inf,
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE
+) {
   # Checks ---
 
   # If any two arguments called right below are length > 1, they need to have
   # the same length. Otherwise, the call will fail. But even so, there will be a
   # warning that values will get paired:
   check_lengths_congruent(list(
-    x, denominator, digits, rounding, threshold, symmetric
+    x,
+    denominator,
+    digits,
+    rounding,
+    threshold,
+    symmetric
   ))
 
   # Check whether `denominator` values are >= 1:
@@ -115,13 +121,15 @@ reround_to_fraction <- function(x = NULL, denominator = 1, digits = Inf,
     rounding <- c("ceiling", "floor")
   }
 
-
   # Main part ---
 
   # Calculate the key result, going by the denominator:
   out <- reround(
-    x = x * denominator, digits = 0L, rounding = rounding,
-    threshold = threshold, symmetric = symmetric
+    x = x * denominator,
+    digits = 0L,
+    rounding = rounding,
+    threshold = threshold,
+    symmetric = symmetric
   )
   out <- out / denominator
 
@@ -138,7 +146,10 @@ reround_to_fraction <- function(x = NULL, denominator = 1, digits = Inf,
 
   if (!all(mask_inf_digits)) {
     out[!mask_inf_digits] <- reround(
-      out, digits = digits, rounding = rounding, threshold = threshold,
+      out,
+      digits = digits,
+      rounding = rounding,
+      threshold = threshold,
       symmetric = symmetric
     )
   }
@@ -147,21 +158,29 @@ reround_to_fraction <- function(x = NULL, denominator = 1, digits = Inf,
 }
 
 
-
 #' @rdname fractional-rounding
 #' @export
 
-reround_to_fraction_level <- function(x = NULL, denominator = 1, digits = 0L,
-                                      rounding = "up_or_down", threshold = 5,
-                                      symmetric = FALSE) {
-
+reround_to_fraction_level <- function(
+  x = NULL,
+  denominator = 1,
+  digits = 0L,
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE
+) {
   # Checks ---
 
   # If any two arguments called right below are length > 1, they need to have
   # the same length. Otherwise, the call will fail. But even so, there will be a
   # warning that values will get paired:
   check_lengths_congruent(list(
-    x, denominator, digits, rounding, threshold, symmetric
+    x,
+    denominator,
+    digits,
+    rounding,
+    threshold,
+    symmetric
   ))
 
   if (any(denominator < 1)) {
@@ -199,17 +218,17 @@ reround_to_fraction_level <- function(x = NULL, denominator = 1, digits = 0L,
     rounding <- c("ceiling", "floor")
   }
 
-
   # Main part ---
 
   # Calculate the key result, going by the denominator:
   out <- reround(
-    x = x * denominator, digits = digits, rounding = rounding,
-    threshold = threshold, symmetric = symmetric
+    x = x * denominator,
+    digits = digits,
+    rounding = rounding,
+    threshold = threshold,
+    symmetric = symmetric
   )
 
   # Divide by the denominator, then return the result:
   out / denominator
 }
-
-

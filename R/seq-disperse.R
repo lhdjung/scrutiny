@@ -1,4 +1,3 @@
-
 #' Sequence generation with dispersion at decimal level
 #'
 #' @description `seq_disperse()` creates a sequence around a given number. It
@@ -90,13 +89,18 @@
 #' # columns added as in `tibble::tibble()`:
 #' seq_disperse_df(.from = 4.02, n = 45)
 
-
-seq_disperse <- function(from, by = NULL, dispersion = 1:5, offset_from = 0L,
-                         out_min = "auto", out_max = NULL,
-                         string_output = TRUE, include_reported = TRUE,
-                         track_diff_var = FALSE,
-                         track_var_change = deprecated()) {
-
+seq_disperse <- function(
+  from,
+  by = NULL,
+  dispersion = 1:5,
+  offset_from = 0L,
+  out_min = "auto",
+  out_max = NULL,
+  string_output = TRUE,
+  include_reported = TRUE,
+  track_diff_var = FALSE,
+  track_var_change = deprecated()
+) {
   # Checks ---
 
   # Any sequence can only proceed from a single number (for multiple numbers,
@@ -115,7 +119,6 @@ seq_disperse <- function(from, by = NULL, dispersion = 1:5, offset_from = 0L,
     track_diff_var <- track_var_change
   }
 
-
   # Main part ---
 
   # If the step size by which the sequence progresses (`by`) was not manually
@@ -123,7 +126,7 @@ seq_disperse <- function(from, by = NULL, dispersion = 1:5, offset_from = 0L,
   # `from`:
   if (is.null(by)) {
     digits <- decimal_places_scalar(from)
-    by <- 1 / (10 ^ digits)
+    by <- 1 / (10^digits)
   } else {
     check_length(by, 1L)
     check_type(by, c("integer", "double"))
@@ -131,7 +134,7 @@ seq_disperse <- function(from, by = NULL, dispersion = 1:5, offset_from = 0L,
   }
 
   disp_minus <- dispersion * by
-  disp_plus  <- disp_minus
+  disp_plus <- disp_minus
 
   from_orig_type <- typeof(from)
   from <- as.numeric(from)
@@ -191,8 +194,10 @@ seq_disperse <- function(from, by = NULL, dispersion = 1:5, offset_from = 0L,
   # decimal places that also determined the unit of increments at the start of
   # the function:
   out <- manage_string_output_seq(
-    out = out, from = methods::as(from, from_orig_type),
-    string_output = string_output, digits = digits
+    out = out,
+    from = methods::as(from, from_orig_type),
+    string_output = string_output,
+    digits = digits
   )
 
   # All the rest is only for creating and appending a sequence of dispersion
@@ -218,17 +223,22 @@ seq_disperse <- function(from, by = NULL, dispersion = 1:5, offset_from = 0L,
 }
 
 
-
 #' @rdname seq_disperse
 #' @export
 
-seq_disperse_df <- function(.from, .by = NULL, ...,
-                            .dispersion = 1:5, .offset_from = 0L,
-                            .out_min = "auto", .out_max = NULL,
-                            .string_output = TRUE, .include_reported = TRUE,
-                            .track_diff_var = FALSE,
-                            .track_var_change = FALSE) {
-
+seq_disperse_df <- function(
+  .from,
+  .by = NULL,
+  ...,
+  .dispersion = 1:5,
+  .offset_from = 0L,
+  .out_min = "auto",
+  .out_max = NULL,
+  .string_output = TRUE,
+  .include_reported = TRUE,
+  .track_diff_var = FALSE,
+  .track_var_change = FALSE
+) {
   further_cols <- rlang::enexprs(...)
 
   if (!missing(.track_var_change)) {
@@ -243,9 +253,14 @@ seq_disperse_df <- function(.from, .by = NULL, ...,
   }
 
   out_basic_fun <- seq_disperse(
-    from = .from, by = .by, dispersion = .dispersion,
-    offset_from = .offset_from, out_min = .out_min, out_max = .out_max,
-    string_output = .string_output, include_reported = .include_reported,
+    from = .from,
+    by = .by,
+    dispersion = .dispersion,
+    offset_from = .offset_from,
+    out_min = .out_min,
+    out_max = .out_max,
+    string_output = .string_output,
+    include_reported = .include_reported,
     track_diff_var = .track_diff_var
   )
 
@@ -265,7 +280,6 @@ seq_disperse_df <- function(.from, .by = NULL, ...,
 }
 
 
-
 #' Helper function for dispersed sequence generation
 #'
 #' @description `seq_disperse_df_internal()` is a lightweight version of
@@ -277,21 +291,29 @@ seq_disperse_df <- function(.from, .by = NULL, ...,
 #'
 #' @noRd
 
-seq_disperse_df_internal <- function(.from, .by = NULL,
-                                     .dispersion = 1:5, .offset_from = 0L,
-                                     .out_min = "auto", .out_max = NULL,
-                                     .string_output = TRUE,
-                                     .include_reported = TRUE,
-                                     .track_diff_var = TRUE) {
-
+seq_disperse_df_internal <- function(
+  .from,
+  .by = NULL,
+  .dispersion = 1:5,
+  .offset_from = 0L,
+  .out_min = "auto",
+  .out_max = NULL,
+  .string_output = TRUE,
+  .include_reported = TRUE,
+  .track_diff_var = TRUE
+) {
   tibble::as_tibble(
     seq_disperse(
-      from = .from, by = .by, dispersion = .dispersion,
-      offset_from = .offset_from, out_min = .out_min, out_max = .out_max,
-      string_output = .string_output, include_reported = .include_reported,
+      from = .from,
+      by = .by,
+      dispersion = .dispersion,
+      offset_from = .offset_from,
+      out_min = .out_min,
+      out_max = .out_max,
+      string_output = .string_output,
+      include_reported = .include_reported,
       track_diff_var = .track_diff_var
     ),
     .name_repair = function(x) c("x", "diff_var")
   )
 }
-

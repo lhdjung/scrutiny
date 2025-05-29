@@ -1,4 +1,3 @@
-
 #' GRIMMER-testing with hypothetical group sizes
 #'
 #' @description When reporting group means, some published studies only report
@@ -115,10 +114,8 @@
 #'   grimmer_map_total_n(dispersion = 0:10) %>%
 #'   audit_total_n()
 
-
 grimmer_map_total_n <- function_map_total_n(
   .fun = grimmer_map,
   .reported = c("x", "sd"),
   .name_test = "GRIMMER"
 )
-

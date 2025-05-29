@@ -1,4 +1,3 @@
-
 #' Compute minimal `audit()` summaries
 #'
 #' @description Call `audit_cols_minimal()` within your [`audit()`] methods for
@@ -40,9 +39,7 @@
 #' # If you like, add other summary columns
 #' # with `dplyr::mutate()` or similar.
 
-
 audit_cols_minimal <- function(data, name_test) {
-
   # Checks ---
 
   if (!is.data.frame(data)) {
@@ -50,7 +47,6 @@ audit_cols_minimal <- function(data, name_test) {
   }
 
   check_audit_special(data, name_test)
-
 
   # Compute the summary values of interest ---
 
@@ -74,5 +70,3 @@ audit_cols_minimal <- function(data, name_test) {
     class = NULL
   )
 }
-
-

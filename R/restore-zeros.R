@@ -1,4 +1,3 @@
-
 #' Restore trailing zeros
 #'
 #' @description `restore_zeros()` takes a vector with values that might have
@@ -95,9 +94,7 @@
 #' iris %>%
 #'   restore_zeros_df(starts_with("Sepal"), width = 3)
 
-
 restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in) {
-
   # Make sure no whitespace (from values that already were strings) is factored
   # into the count:
   x <- stringr::str_trim(x)
@@ -134,7 +131,7 @@ restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in) {
     # of such numbers with the same length as `x`...
   } else if (
     !any(c(1L, length(x)) == length(width)) ||
-    !all(is_whole_number(width))
+      !all(is_whole_number(width))
   ) {
     cli::cli_abort(c(
       "`width` must be a single, whole number \
@@ -177,26 +174,38 @@ restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in) {
   } else {
     stringr::str_replace(out, "\\.", sep_out)
   }
-
 }
 
 
 #' @rdname restore_zeros
 #' @export
 
-restore_zeros_df <- function(data, cols = everything(),
-                             check_numeric_like = TRUE, check_decimals = FALSE,
-                             width = NULL, sep_in = "\\.", sep_out = NULL,
-                             ...) {
-
+restore_zeros_df <- function(
+  data,
+  cols = everything(),
+  check_numeric_like = TRUE,
+  check_decimals = FALSE,
+  width = NULL,
+  sep_in = "\\.",
+  sep_out = NULL,
+  ...
+) {
   # Check whether the user specified any "old" arguments: those starting on a
   # dot. This check is now the only remaining purpose of the `...` dots because
   # these are no longer meant to be used. Any other arguments passed through
   # them should still lead to an error:
   check_new_args_without_dots(
-    data, dots = rlang::enquos(...), old_args = c(
-      ".data", ".check_decimals", ".width", ".sep_in", ".sep_out", ".sep"
-    ), name_fn = "restore_zeros_df"
+    data,
+    dots = rlang::enquos(...),
+    old_args = c(
+      ".data",
+      ".check_decimals",
+      ".width",
+      ".sep_in",
+      ".sep_out",
+      ".sep"
+    ),
+    name_fn = "restore_zeros_df"
   )
 
   # Check that `data` is a data frame or matrix:
@@ -231,8 +240,7 @@ restore_zeros_df <- function(data, cols = everything(),
   if (check_decimals) {
     selection3 <- rlang::expr(where(function(x, sep = "\\.") {
       !is_numeric_like(x) || !all(decimal_places(x, sep = sep_in) == 0L)
-    }
-    ))
+    }))
   } else {
     # ... the new variable is set up to be evaluated as `everything()`, which is
     # an identity element of the `&` operator in tidyselect:
@@ -264,15 +272,18 @@ restore_zeros_df <- function(data, cols = everything(),
   # `cols_to_select` above; by default, only `selection2` takes effect). The
   # `.fns` argument uses an anonymous function to pass on all the named
   # arguments to `restore_zeros()`:
-  dplyr::mutate(data, dplyr::across(
-    .cols = all_of(cols_to_select),
-    .fns = function(data_dummy) {
-      restore_zeros(
-        x = data_dummy, width = width,
-        sep_in = sep_in, sep_out = sep_out
-      )
-    }
-  ))
-
+  dplyr::mutate(
+    data,
+    dplyr::across(
+      .cols = all_of(cols_to_select),
+      .fns = function(data_dummy) {
+        restore_zeros(
+          x = data_dummy,
+          width = width,
+          sep_in = sep_in,
+          sep_out = sep_out
+        )
+      }
+    )
+  )
 }
-

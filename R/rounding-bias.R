@@ -1,4 +1,3 @@
-
 #' Compute rounding bias
 #'
 #' @description Rounding often leads to bias, such that the mean of a rounded
@@ -43,19 +42,26 @@
 #' # ...or rounding to even with `base::round()`:
 #' rounding_bias(x = vec, digits = 1, rounding = "even")
 
-
-rounding_bias <- function(x, digits, rounding = "up", threshold = 5,
-                          symmetric = FALSE, mean = TRUE) {
-
+rounding_bias <- function(
+  x,
+  digits,
+  rounding = "up",
+  threshold = 5,
+  symmetric = FALSE,
+  mean = TRUE
+) {
   # Checks ---
 
   # If any two arguments called right below are length > 1, they need to have
   # the same length. Otherwise, the call will fail. But even so, there will be a
   # warning that values will get paired:
   check_lengths_congruent(list(
-    x, digits, rounding, threshold, symmetric
-))
-
+    x,
+    digits,
+    rounding,
+    threshold,
+    symmetric
+  ))
 
   # Main part ---
 
@@ -66,9 +72,7 @@ rounding_bias <- function(x, digits, rounding = "up", threshold = 5,
   } else {
     bias
   }
-
 }
-
 
 # # Proof that it works (this is for a previous version that didn't compute the
 # # mean but only subtracted `x` from `x_rounded`) --
@@ -83,4 +87,3 @@ rounding_bias <- function(x, digits, rounding = "up", threshold = 5,
 # dplyr::near(
 #   (reround(x, digits, rounding, threshold) - rounding_bias(x, 1)), x
 # )
-

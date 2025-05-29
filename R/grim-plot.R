@@ -1,4 +1,3 @@
-
 #' Visualize GRIM test results
 #'
 #' @description `grim_plot()` visualizes summary data and their mutual GRIM
@@ -113,25 +112,24 @@
 #'   grim_map(percent = TRUE) %>%
 #'   grim_plot()
 
-
-grim_plot <- function(data = NULL,
-                      show_data = TRUE,
-                      show_raster = TRUE,
-                      show_gradient = TRUE,
-                      n = NULL,
-                      digits = NULL,
-                      rounding = "up_or_down",
-                      color_cons = "royalblue1",
-                      color_incons = "red",
-                      tile_alpha = 1,
-                      tile_size = 1.5,
-                      raster_alpha = 1,
-                      raster_color = "grey75") {
-
-
+grim_plot <- function(
+  data = NULL,
+  show_data = TRUE,
+  show_raster = TRUE,
+  show_gradient = TRUE,
+  n = NULL,
+  digits = NULL,
+  rounding = "up_or_down",
+  color_cons = "royalblue1",
+  color_incons = "red",
+  tile_alpha = 1,
+  tile_size = 1.5,
+  raster_alpha = 1,
+  raster_color = "grey75"
+) {
   # Checks ----
 
-  inherits_grim    <- inherits(data, "scr_grim_map")
+  inherits_grim <- inherits(data, "scr_grim_map")
   inherits_grimmer <- inherits(data, "scr_grimmer_map")
 
   if (!inherits_grim) {
@@ -201,7 +199,6 @@ grim_plot <- function(data = NULL,
     }
   }
 
-
   # Transformations ----
 
   # In case the user set `show_data` to `FALSE`, a plot without empirical test
@@ -221,9 +218,8 @@ grim_plot <- function(data = NULL,
     )
   }
 
-
   if (is.null(digits)) {
-    digits_x <- decimal_places(data$x)    # used to be wrapped in `max()`
+    digits_x <- decimal_places(data$x) # used to be wrapped in `max()`
 
     if (show_raster) {
       if (!all(digits_x[1L] == digits_x)) {
@@ -262,15 +258,13 @@ grim_plot <- function(data = NULL,
     # simply by taking the first element; or indeed any other element there
     # might be:
     digits <- digits_x[1L]
-
   }
 
   data$x <- as.numeric(data$x)
 
-
   # Preparations ----
 
-  p10 <- 10 ^ digits
+  p10 <- 10^digits
 
   if (is.null(n)) {
     n <- p10
@@ -280,11 +274,9 @@ grim_plot <- function(data = NULL,
 
   # By default, a background raster is displayed in the plot:
   if (show_raster) {
-
     # For 1 or 2 decimal places, the function selects the appropriate raster
     # from among those saved within the package itself:
     if (!(digits > 2L)) {
-
       # Check the way `x` values were rounded in the preceding `grim_map()` call
       # to prepare selecting the plot background raster:
       dc <- class(data)
@@ -293,9 +285,11 @@ grim_plot <- function(data = NULL,
 
       # Throw error if the specified rounding option is one of the few for which
       # no raster is available:
-      if (any(
-        rounding_id == c("up_from", "down_from", "up_from_or_down_from")
-      )) {
+      if (
+        any(
+          rounding_id == c("up_from", "down_from", "up_from_or_down_from")
+        )
+      ) {
         cli::cli_abort(c(
           "No background raster available for `rounding = {rounding_id}`",
           "i" = "Use a different `rounding` specification within the \\
@@ -309,24 +303,21 @@ grim_plot <- function(data = NULL,
       # proportion (`raster_frac`, y-axis) from the information provided by the
       # number of decimal places and the previously specified rounding
       # procedure. First, create two strings by those names...
-      raster_n    <- glue::glue("grim_raster_{digits}_{rounding_id}_n")
+      raster_n <- glue::glue("grim_raster_{digits}_{rounding_id}_n")
       raster_frac <- glue::glue("grim_raster_{digits}_{rounding_id}_frac")
 
       # ...and second, parse and evaluate these strings, so that R will identify
       # the raster component object by the respective name from among the files
       # saved within R/sysdata.R:
-      raster_n    <- eval(rlang::parse_expr(raster_n))
+      raster_n <- eval(rlang::parse_expr(raster_n))
       raster_frac <- eval(rlang::parse_expr(raster_frac))
-
     } else {
-
       # For any number of decimal places greater than 2, these two objects are
       # assigned the value of zero. This is only pro forma. We still need
       # `raster_n` and `raster_frac` because they are referenced several times
       # further down to build the plot:
-      raster_n    <- 0
+      raster_n <- 0
       raster_frac <- 0
-
     }
 
     # This data frame will be used for the raster when building the plot:
@@ -338,7 +329,6 @@ grim_plot <- function(data = NULL,
       nrow = length(raster_n),
       class = NULL
     )
-
   }
 
   # Reduce `x` to its fractional portion:
@@ -368,48 +358,54 @@ grim_plot <- function(data = NULL,
     color_incons
   )
 
-
   # The plot itself ----
 
   # Background raster / gradient:
   if (show_raster) {
     # With 1 or 2 digits, the function provides a background raster...
-      p <- ggplot2::ggplot(data = df_plot) +
-        ggplot2::geom_tile(mapping = ggplot2::aes(
+    p <- ggplot2::ggplot(data = df_plot) +
+      ggplot2::geom_tile(
+        mapping = ggplot2::aes(
           x = .data$raster_n,
           y = .data$raster_frac
-        ), alpha = raster_alpha, fill = raster_color) +
-        ggplot2::theme(
-          panel.border = ggplot2::element_rect(fill = NA, colour = "grey50"),
-          panel.background = ggplot2::element_rect(fill = "white", colour = NA),
-          panel.grid = ggplot2::element_blank()
-        )
-      # ... but with more decimal places, individual boxes would be too small to
-      # display, so we need a gradient instead to simply show the overall trend.
-      # Boxes are still added pro forma; the call to `geom_tile()` is the same
-      # as above (except for the `alpha` and `fill` specifications):
-      if (digits > 2L) {
-        if (show_gradient) {
-          gradient <-
-            grDevices::colorRampPalette(c(raster_color, "white"))(10000)
-          p <- p +
-            ggplot2::geom_tile(data = df_plot, mapping = ggplot2::aes(
+        ),
+        alpha = raster_alpha,
+        fill = raster_color
+      ) +
+      ggplot2::theme(
+        panel.border = ggplot2::element_rect(fill = NA, colour = "grey50"),
+        panel.background = ggplot2::element_rect(fill = "white", colour = NA),
+        panel.grid = ggplot2::element_blank()
+      )
+    # ... but with more decimal places, individual boxes would be too small to
+    # display, so we need a gradient instead to simply show the overall trend.
+    # Boxes are still added pro forma; the call to `geom_tile()` is the same
+    # as above (except for the `alpha` and `fill` specifications):
+    if (digits > 2L) {
+      if (show_gradient) {
+        gradient <-
+          grDevices::colorRampPalette(c(raster_color, "white"))(10000)
+        p <- p +
+          ggplot2::geom_tile(
+            data = df_plot,
+            mapping = ggplot2::aes(
               x = .data$raster_n,
               y = .data$raster_frac
-            )) +
-            ggplot2::annotation_custom(grid::rasterGrob(
-              t(gradient),
-              width  = grid::unit(1, "npc"),
-              height = grid::unit(1, "npc")
-            ))
-        }
-        # Keep the y-axis ranging from 0 to 1, even with the gradient in place:
-        p <- p +
-          ggplot2::scale_y_continuous(
-            expand = ggplot2::expansion(add = c(0, 0.01)),
-            limits = c(0, 1)
-          )
+            )
+          ) +
+          ggplot2::annotation_custom(grid::rasterGrob(
+            t(gradient),
+            width = grid::unit(1, "npc"),
+            height = grid::unit(1, "npc")
+          ))
       }
+      # Keep the y-axis ranging from 0 to 1, even with the gradient in place:
+      p <- p +
+        ggplot2::scale_y_continuous(
+          expand = ggplot2::expansion(add = c(0, 0.01)),
+          limits = c(0, 1)
+        )
+    }
   }
 
   if (show_data) {
@@ -487,6 +483,4 @@ grim_plot <- function(data = NULL,
         y = paste("Fractional portion of", mean_percent_label)
       )
   ))
-
 }
-

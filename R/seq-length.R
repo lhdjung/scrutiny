@@ -1,4 +1,3 @@
-
 #' Set sequence length
 #'
 #' @description `seq_length()` seamlessly extends or shortens a linear
@@ -55,9 +54,7 @@
 #' seq_length(x) <- 2
 #' x
 
-
 seq_length <- function(x, value) {
-
   check_type_numeric_like(x)
   x_is_linear <- is_seq_linear(x)
 
@@ -110,7 +107,9 @@ seq_length <- function(x, value) {
 
   extension <- seq_distance(
     from = as.numeric(x[length(x)]) + by,
-    by = by, length_out = diff, dir = dir,
+    by = by,
+    length_out = diff,
+    dir = dir,
     string_output = is.character(x)
   )
 
@@ -121,9 +120,7 @@ seq_length <- function(x, value) {
   } else {
     methods::as(out, typeof(x))
   }
-
 }
-
 
 
 #' @rdname seq_length
@@ -132,4 +129,3 @@ seq_length <- function(x, value) {
 `seq_length<-` <- function(x, value) {
   seq_length(x, value)
 }
-

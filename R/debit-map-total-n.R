@@ -1,4 +1,3 @@
-
 #' Use DEBIT with hypothetical group sizes
 #'
 #' @description `debit_map_total_n()` extends DEBIT to cases where only group
@@ -84,10 +83,8 @@
 #'
 #' debit_map_total_n(df)
 
-
 debit_map_total_n <- function_map_total_n(
   .fun = debit_map,
   .reported = c("x", "sd"),
   .name_test = "DEBIT"
 )
-

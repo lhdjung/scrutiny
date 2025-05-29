@@ -1,4 +1,3 @@
-
 # # Full example inputs:
 # x         <- "5.19"
 # n         <- 40
@@ -10,14 +9,19 @@
 # symmetric <- FALSE
 # tolerance <- .Machine$double.eps^0.5
 
-
 # Single-case function; not exported but used as a basis for the vectorized
 # `grim()` as well as within `grim_map()`:
-grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
-                        rounding = "up_or_down", threshold = 5,
-                        symmetric = FALSE,
-                        tolerance = .Machine$double.eps^0.5) {
-
+grim_scalar <- function(
+  x,
+  n,
+  items = 1,
+  percent = FALSE,
+  show_rec = FALSE,
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE,
+  tolerance = .Machine$double.eps^0.5
+) {
   check_type(items, c("double", "integer"))
   check_type(percent, "logical")
 
@@ -53,9 +57,9 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
   # number of decimal places as well as the `rounding`, `threshold`, and
   # `symmetric` arguments passed down to:
   granules_rounded <- reround(
-    x         = c(rec_x_upper, rec_x_lower),
-    digits    = digits,
-    rounding  = rounding,
+    x = c(rec_x_upper, rec_x_lower),
+    digits = digits,
+    rounding = rounding,
     threshold = threshold,
     symmetric = symmetric
   )
@@ -101,9 +105,7 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
     ),
     granules_rounded_subset
   )
-
 }
-
 
 
 #' The GRIM test (granularity-related inconsistency of means)
@@ -186,4 +188,3 @@ grim_scalar <- function(x, n, items = 1, percent = FALSE, show_rec = FALSE,
 
 # Vectorized version:
 grim <- Vectorize(grim_scalar)
-

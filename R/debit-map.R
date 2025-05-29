@@ -1,5 +1,3 @@
-
-
 #' Apply DEBIT to many cases
 #'
 #' @description Call `debit_map()` to use DEBIT on multiple combinations of
@@ -61,11 +59,17 @@
 #'   debit_map() %>%
 #'   audit()
 
-
-debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
-                      rounding = "up_or_down", threshold = 5,
-                      symmetric = FALSE, show_rec = TRUE, extra = Inf) {
-
+debit_map <- function(
+  data,
+  x = NULL,
+  sd = NULL,
+  n = NULL,
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE,
+  show_rec = TRUE,
+  extra = Inf
+) {
   # If any two arguments called right below are length > 1, they need to have
   # the same length. Otherwise, the call will fail. But even so, there will be a
   # warning that values will get paired:
@@ -90,9 +94,9 @@ debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
   check_mapper_input_colnames(data, c("x", "sd", "n"), "DEBIT")
   check_tibble(data)
 
-  x_spec  <- x
+  x_spec <- x
   sd_spec <- sd
-  n_spec  <- n
+  n_spec <- n
 
   # Provide a way to specify the mean (`x`) column from within a function call
   # even if the column in question is not named `x`:
@@ -103,26 +107,26 @@ debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
 
   # Same with the `sd` column...
   if (!is.null(sd)) {
-    sd_orig <- sd  # rlang::expr_text(sd)
+    sd_orig <- sd # rlang::expr_text(sd)
     data <- dplyr::mutate(data, sd = {{ sd }})
   }
 
   # ... and with the sample size (`n`) column:
   if (!is.null(n)) {
-    n_orig <- n  # rlang::expr_text(n)
+    n_orig <- n # rlang::expr_text(n)
     data <- dplyr::mutate(data, n = {{ n }})
   }
 
   # Turn `x` and `sd` into the `data` columns by those names to make them more
   # easy to work with:
-  x  <- data$x
+  x <- data$x
   sd <- data$sd
 
   # With the reported means and standard deviations (`x` and `sd`) now being
   # columns in `data` (if they weren't before), some checks are in order. These
   # use internal helper functions from the utils.R file. First, since trailing
   # zeros matter for DEBIT, make sure both vectors are strings...
-  if (!is.null(x))  check_type(x,  "character")
+  if (!is.null(x)) check_type(x, "character")
   if (!is.null(sd)) check_type(sd, "character")
 
   # ...and second, check whether they range from 0 to 1:
@@ -151,7 +155,8 @@ debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
     dplyr::select(sd, x, n) %>%
     purrr::pmap_dfr(
       debit_table,
-      rounding = rounding, threshold = threshold,
+      rounding = rounding,
+      threshold = threshold,
       symmetric = symmetric
     )
 
@@ -161,30 +166,42 @@ debit_map <- function(data, x = NULL, sd = NULL, n = NULL,
   if (show_rec) {
     out <- results %>%
       dplyr::mutate(
-        x = x, n = n, consistency = consistency
+        x = x,
+        n = n,
+        consistency = consistency
       ) %>%
       dplyr::select(
-        x, sd, n, consistency, rounding,
-        sd_lower, sd_incl_lower, sd_upper,
-        sd_incl_upper, x_lower, x_upper
+        x,
+        sd,
+        n,
+        consistency,
+        rounding,
+        sd_lower,
+        sd_incl_lower,
+        sd_upper,
+        sd_incl_upper,
+        x_lower,
+        x_upper
       )
   } else {
     out <- results %>%
       dplyr::mutate(
-        sd = sd, x = x, n = n, consistency = consistency
+        sd = sd,
+        x = x,
+        n = n,
+        consistency = consistency
       ) %>%
       dplyr::select(x, sd, n, consistency)
   }
 
   if (length(extra_cols) > 0L) out <- dplyr::mutate(out, extra_cols)
 
-  if (!is.null(x_spec))  out <- dplyr::select(out, -all_of(x_orig))
+  if (!is.null(x_spec)) out <- dplyr::select(out, -all_of(x_orig))
   if (!is.null(sd_spec)) out <- dplyr::select(out, -all_of(sd_orig))
-  if (!is.null(n_spec))  out <- dplyr::select(out, -all_of(n_orig))
+  if (!is.null(n_spec)) out <- dplyr::select(out, -all_of(n_orig))
 
   rounding_class <- glue::glue("scr_rounding_{rounding}")
   out <- add_class(out, c("scr_debit_map", rounding_class))
 
   return(out)
 }
-

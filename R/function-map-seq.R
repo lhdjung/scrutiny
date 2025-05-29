@@ -1,4 +1,3 @@
-
 #' @include function-factory-helpers.R seq-predicates.R
 
 # Background on helpers and implementation: Unlike `function_map_total_n()`, the
@@ -15,18 +14,27 @@
 # helper to replace `seq_disperse_df()` within `function_map_seq_proto()` in
 # order to improve performance.
 
-
-function_map_seq_proto <- function(.fun = fun, .var = var,
-                                   .dispersion = dispersion,
-                                   .out_min = out_min, .out_max = out_max,
-                                   .include_reported = include_reported, ...) {
-
+function_map_seq_proto <- function(
+  .fun = fun,
+  .var = var,
+  .dispersion = dispersion,
+  .out_min = out_min,
+  .out_max = out_max,
+  .include_reported = include_reported,
+  ...
+) {
   # --- Start of the manufactured helper (!) function ---
 
-  function(data, fun = .fun, var = .var, dispersion = .dispersion,
-           out_min = .out_min, out_max = .out_max,
-           include_reported = .include_reported, ...) {
-
+  function(
+    data,
+    fun = .fun,
+    var = .var,
+    dispersion = .dispersion,
+    out_min = .out_min,
+    out_max = .out_max,
+    include_reported = .include_reported,
+    ...
+  ) {
     # Extract the vector from the `data` column specified as `var`, then apply
     # the data-frame-level dispersion function to get a list of data frames with
     # dispersed `var` sequences; one per inconsistent value set:
@@ -90,13 +98,10 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
           use.names = FALSE
         )
       )
-
   }
 
   # --- End of the manufactured helper (!) function ---
-
 }
-
 
 
 #' Create new `*_map_seq()` functions
@@ -211,17 +216,23 @@ function_map_seq_proto <- function(.fun = fun, .var = var,
 #'   .name_test = "GRIM",
 #' )
 
-
 # For full example inputs (and connected unit tests), see: grim-map-seq.R
 
-function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
-                             .name_key_result = "consistency",
-                             .name_class = NULL, .args_disabled = NULL,
-                             .dispersion = 1:5,
-                             .out_min = "auto", .out_max = NULL,
-                             .include_reported = FALSE,
-                             .include_consistent = FALSE, ...) {
-
+function_map_seq <- function(
+  .fun,
+  .var = Inf,
+  .reported,
+  .name_test,
+  .name_key_result = "consistency",
+  .name_class = NULL,
+  .args_disabled = NULL,
+  .dispersion = 1:5,
+  .out_min = "auto",
+  .out_max = NULL,
+  .include_reported = FALSE,
+  .include_consistent = FALSE,
+  ...
+) {
   force(.fun)
   force(.var)
   force(.reported)
@@ -262,7 +273,6 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
     })
   }
 
-
   # --- Start of the manufactured function, `fn_out()` ---
 
   fn_out <- rlang::new_function(
@@ -277,14 +287,12 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
       ... =
     ),
     body = rlang::expr({
-
       name_test <- `!!`(.name_test)
       name_fun <- `!!`(name_fun)
       reported <- `!!`(.reported)
       name_class <- `!!`(.name_class)
       args_disabled <- `!!`(.args_disabled)
       fun <- `!!`(.fun)
-
 
       data <- absorb_key_args(data, reported)
 
@@ -396,7 +404,6 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
     env = rlang::env()
   )
 
-
   # --- End of the manufactured function, `fn_out()` ---
 
   # Insert parameters named after the key columns into `fn_out()`, with `NULL`
@@ -406,4 +413,3 @@ function_map_seq <- function(.fun, .var = Inf, .reported, .name_test,
   # the non-quoted names of the columns meant to fulfill these roles:
   insert_key_args(fn_out, .reported)
 }
-

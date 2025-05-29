@@ -1,4 +1,3 @@
-
 #' Create new `*_map()` functions
 #'
 #' @description `function_map()` creates new basic mapper functions for
@@ -86,7 +85,6 @@
 #' # Call the "factory-made" function:
 #' schlim_map(df1)
 
-
 # # Example run:
 # grim_map2 <- function_map(
 #   .fun = grim_scalar,
@@ -97,12 +95,18 @@
 #   .col_filler = NA
 # )
 
-
-function_map <- function(.fun, .reported, .name_test,
-                         .name_key_result = "consistency", .name_class = NULL,
-                         .args_disabled = NULL, .col_names = NULL,
-                         .col_control = NULL, .col_filler = NULL, ...) {
-
+function_map <- function(
+  .fun,
+  .reported,
+  .name_test,
+  .name_key_result = "consistency",
+  .name_class = NULL,
+  .args_disabled = NULL,
+  .col_names = NULL,
+  .col_control = NULL,
+  .col_filler = NULL,
+  ...
+) {
   force(.fun)
   force(.reported)
   force(.name_test)
@@ -209,13 +213,11 @@ function_map <- function(.fun, .reported, .name_test,
     })
   }
 
-
   # --- Start of the factory-made function, `fn_out()` ---
 
   fn_out <- rlang::new_function(
     args = rlang::pairlist2(data = , ... = ),
     body = rlang::expr({
-
       fun <- `!!`(.fun)
       name_class <- `!!`(.name_class)
 
@@ -227,12 +229,15 @@ function_map <- function(.fun, .reported, .name_test,
       # values of key arguments, if necessary:
       `!!!`(code_key_arg_checks)
 
-
       # Checks ---
 
       scrutiny::check_args_disabled(`!!`(.args_disabled))
       scrutiny::check_factory_dots(fun, `!!`(fun_name), ...)
-      scrutiny::check_mapper_input_colnames(data, `!!`(.reported), `!!`(.name_test))
+      scrutiny::check_mapper_input_colnames(
+        data,
+        `!!`(.reported),
+        `!!`(.name_test)
+      )
 
       if (!tibble::is_tibble(data)) {
         cli::cli_abort(c(
@@ -241,7 +246,6 @@ function_map <- function(.fun, .reported, .name_test,
         ))
       }
 
-      
       # Main part ---
 
       # # Divide the data into tested and non-tested columns, going by the key
@@ -288,17 +292,19 @@ function_map <- function(.fun, .reported, .name_test,
         name_key_result = .name_key_result,
         name_data = rlang::expr(data)
       ))
-
     })
   )
-
 
   # --- End of the factory-made function, `fn_out()` ---
 
   # Garbage collection:
   rm(
-    fun_name, code_key_arg_checks, code_rounding_class, code_col_control,
-    all_classes, offenders
+    fun_name,
+    code_key_arg_checks,
+    code_rounding_class,
+    code_col_control,
+    all_classes,
+    offenders
   )
 
   # Insert parameters named after the key columns into `fn_out()`, with `NULL`
@@ -308,4 +314,3 @@ function_map <- function(.fun, .reported, .name_test,
   # the non-quoted names of the columns meant to fulfill these roles:
   insert_key_args(fun = fn_out, reported = .reported)
 }
-

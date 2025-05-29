@@ -1,4 +1,3 @@
-
 #' Reverse the `*_map_total_n()` process
 #'
 #' @description `reverse_map_total_n()` takes the output of a function created
@@ -29,9 +28,7 @@
 #' # ...and faithfully reconstructed:
 #' reverse_map_total_n(out)
 
-
 reverse_map_total_n <- function(data) {
-
   if (!inherits(data, "scr_map_total_n")) {
     cli::cli_abort(c(
       "!" = "`data` must be the output of \\
@@ -61,14 +58,15 @@ reverse_map_total_n <- function(data) {
   data_reduced <- data_reduced %>%
     dplyr::ungroup() %>%
     dplyr::mutate(
-      n_was_odd, .after = n,
+      n_was_odd,
+      .after = n,
       n = (2 * n) - n_was_odd
     )
 
   nrow_data_reduced <- nrow(data_reduced)
 
   locations1 <- seq(from = 1, to = nrow_data_reduced - 1L, by = 2)
-  locations2 <- seq(from = 2, to = nrow_data_reduced,      by = 2)
+  locations2 <- seq(from = 2, to = nrow_data_reduced, by = 2)
 
   data1 <- data_reduced %>% dplyr::slice(locations1)
   data2 <- data_reduced %>% dplyr::slice(locations2)
@@ -95,4 +93,3 @@ reverse_map_total_n <- function(data) {
     dplyr::relocate(all_of(colnames_in_order)) %>%
     dplyr::mutate(n)
 }
-

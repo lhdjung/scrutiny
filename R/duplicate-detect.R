@@ -1,4 +1,3 @@
-
 #' New duplicate analysis functions
 #'
 #' @description `function_duplicate_cols()` is an internal (non-exported)
@@ -26,20 +25,18 @@
 #'
 #' @noRd
 
-
 function_duplicate_cols <- function(code_new_cols, default_end, name_class) {
-
   code_new_cols <- rlang::enexpr(code_new_cols)
-
 
   # --- Start of the manufactured function ---
 
   rlang::new_function(
     args = rlang::pairlist2(
-      x =, ignore = NULL, colname_end = default_end
+      x = ,
+      ignore = NULL,
+      colname_end = default_end
     ),
     body = rlang::expr({
-
       # Type checking:
       if (!rlang::is_vector(x)) {
         cli::cli_abort(c(
@@ -52,7 +49,8 @@ function_duplicate_cols <- function(code_new_cols, default_end, name_class) {
       x_was_named <- rlang::is_named(x)
       if (!x_was_named || !is.data.frame(x)) {
         x <- tibble::as_tibble(
-          x, .name_repair = if (x_was_named) {
+          x,
+          .name_repair = if (x_was_named) {
             function(x) x
           } else if (is.atomic(x) || length(x) == 1L) {
             function(x) "value"
@@ -110,9 +108,7 @@ function_duplicate_cols <- function(code_new_cols, default_end, name_class) {
   )
 
   # --- End of the manufactured function ---
-
 }
-
 
 
 # duplicate_detect() ------------------------------------------------------
@@ -204,7 +200,6 @@ duplicate_detect <- function_duplicate_cols(
 )
 
 
-
 # duplicate_tally() -------------------------------------------------------
 
 #' Count duplicates at each observation
@@ -269,4 +264,3 @@ duplicate_tally <- function_duplicate_cols(
   default_end = "n",
   name_class = "scr_dup_tally"
 )
-

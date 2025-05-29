@@ -1,4 +1,3 @@
-
 #' Sequence generation at decimal level
 #'
 #' @description Functions that provide a smooth interface to generating
@@ -92,27 +91,30 @@
 #' seq_endpoint_df(.from = 4.7, .to = 5, n = 20)
 #' seq_distance_df(.from = 0.43, .length_out = 5, sd = 0.08)
 
-
 #' @rdname seq-decimal
 #' @export
 
-seq_endpoint <- function(from, to, offset_from = 0L, offset_to = 0L,
-                         string_output = TRUE) {
-
+seq_endpoint <- function(
+  from,
+  to,
+  offset_from = 0L,
+  offset_to = 0L,
+  string_output = TRUE
+) {
   # A number's neighborhood depends on how many decimal places the number has.
   # Therefore, in this function, the step size (`by`) can't be manually chosen
   # as in `seq()`. Instead, it's determined by whichever extreme (starting point
   # or endpoint) has more decimal places:
   digits <- max(decimal_places_scalar(from), decimal_places_scalar(to))
-  by <- 1 / (10 ^ digits)
+  by <- 1 / (10^digits)
 
   from_orig <- from
-  to_orig   <- to
+  to_orig <- to
 
   # After that, trailing zeros can safely be dropped because `from` and `to` are
   # only relevant in terms of their numeric values:
   from <- as.numeric(from)
-  to   <- as.numeric(to)
+  to <- as.numeric(to)
 
   # The starting point and/or the endpoint might be offset by some non-zero
   # number of incremental steps. First, the starting point...
@@ -148,25 +150,31 @@ seq_endpoint <- function(from, to, offset_from = 0L, offset_to = 0L,
   # restoring trailing zeros to the same number of decimal places that also
   # determined the unit of increments at the start of the function:
   manage_string_output_seq(
-    out = out, from = from, string_output = string_output, digits = digits
+    out = out,
+    from = from,
+    string_output = string_output,
+    digits = digits
   )
-
 }
-
 
 
 #' @rdname seq-decimal
 #' @export
 
-seq_distance <- function(from, by = NULL, length_out = 10L, dir = 1,
-                         offset_from = 0L, string_output = TRUE) {
-
+seq_distance <- function(
+  from,
+  by = NULL,
+  length_out = 10L,
+  dir = 1,
+  offset_from = 0L,
+  string_output = TRUE
+) {
   # If the step size by which the sequence progresses (`by`) was not manually
   # chosen as in `seq()`, it is determined by the number of decimal places in
   # `from`:
   if (is.null(by)) {
     digits <- decimal_places_scalar(from)
-    by <- 1 / (10 ^ digits)
+    by <- 1 / (10^digits)
   } else {
     check_length(by, 1L)
     check_type(by, c("integer", "double"))
@@ -220,22 +228,31 @@ seq_distance <- function(from, by = NULL, length_out = 10L, dir = 1,
   # restoring trailing zeros to the same number of decimal places that also
   # determined the unit of increments at the start of the function:
   manage_string_output_seq(
-    out = out, from = from, string_output = string_output, digits = digits
+    out = out,
+    from = from,
+    string_output = string_output,
+    digits = digits
   )
 }
-
 
 
 #' @rdname seq-decimal
 #' @export
 
-seq_endpoint_df <- function(.from, .to, ..., .offset_from = 0L, .offset_to = 0L,
-                            .string_output = TRUE) {
-
+seq_endpoint_df <- function(
+  .from,
+  .to,
+  ...,
+  .offset_from = 0L,
+  .offset_to = 0L,
+  .string_output = TRUE
+) {
   # Call the basic function to generate the sequence:
   x <- seq_endpoint(
-    from = .from, to = .to,
-    offset_from = .offset_from, offset_to = .offset_to,
+    from = .from,
+    to = .to,
+    offset_from = .offset_from,
+    offset_to = .offset_to,
     string_output = .string_output
   )
 
@@ -256,17 +273,25 @@ seq_endpoint_df <- function(.from, .to, ..., .offset_from = 0L, .offset_to = 0L,
 }
 
 
-
 #' @rdname seq-decimal
 #' @export
 
-seq_distance_df <- function(.from, .by = NULL, ..., .length_out = 10L, .dir = 1,
-                            .offset_from = 0L, .string_output = TRUE) {
-
+seq_distance_df <- function(
+  .from,
+  .by = NULL,
+  ...,
+  .length_out = 10L,
+  .dir = 1,
+  .offset_from = 0L,
+  .string_output = TRUE
+) {
   # Call the basic function to generate the sequence:
   x <- seq_distance(
-    from = .from, by = .by, length_out = .length_out,
-    dir = .dir, offset_from = .offset_from,
+    from = .from,
+    by = .by,
+    length_out = .length_out,
+    dir = .dir,
+    offset_from = .offset_from,
     string_output = .string_output
   )
 
@@ -285,4 +310,3 @@ seq_distance_df <- function(.from, .by = NULL, ..., .length_out = 10L, .dir = 1,
 
   add_class(out, "scr_seq_df")
 }
-

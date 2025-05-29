@@ -1,4 +1,3 @@
-
 #' Split columns by parentheses, brackets, braces, or similar
 #'
 #' @description Summary statistics are often presented like `"2.65 (0.27)"`.
@@ -105,17 +104,24 @@
 #' df3 %>%
 #'   split_by_parens(sep = c("<", ">"))
 
-
-split_by_parens <- function(data, cols = everything(), check_sep = TRUE,
-                            keep = FALSE, transform = FALSE, sep = "parens",
-                            end1 = "x", end2 = "sd", ...) {
-
+split_by_parens <- function(
+  data,
+  cols = everything(),
+  check_sep = TRUE,
+  keep = FALSE,
+  transform = FALSE,
+  sep = "parens",
+  end1 = "x",
+  end2 = "sd",
+  ...
+) {
   # Check whether the user specified any "old" arguments: those starting on a
   # dot. This check is now the only remaining purpose of the `...` dots because
   # these are no longer meant to be used. Any other arguments passed through
   # them should still lead to an error:
   check_new_args_without_dots(
-    data, dots = rlang::enquos(...),
+    data,
+    dots = rlang::enquos(...),
     old_args = c(".data", ".keep", ".transform", ".sep", ".col1", ".col2"),
     name_fn = "split_by_parens"
   )
@@ -157,14 +163,18 @@ split_by_parens <- function(data, cols = everything(), check_sep = TRUE,
   # Apply the extractor functions `before_parens()` and `inside_parens()` to all
   # selected columns from `data` (see above), going by `sep`, which is
   # `"parens"` by default and will thus look for parentheses:
-  out <- suppressWarnings(dplyr::mutate(data, dplyr::across(
-    .cols = all_of(cols_to_select),
-    .fns = list(
-      function(x) before_parens(string = x, sep = sep),
-      function(x) inside_parens(string = x, sep = sep)
+  out <- suppressWarnings(dplyr::mutate(
+    data,
+    dplyr::across(
+      .cols = all_of(cols_to_select),
+      .fns = list(
+        function(x) before_parens(string = x, sep = sep),
+        function(x) inside_parens(string = x, sep = sep)
+      ),
+      .names = "{.col}_{endings}"
     ),
-    .names = "{.col}_{endings}"
-  ), .before = 1L))
+    .before = 1L
+  ))
 
   # The output is meant to have the same class as the input. Since `out` is not
   # a tibble, coerce it to a tibble if and only if `data` is:
@@ -225,4 +235,3 @@ split_by_parens <- function(data, cols = everything(), check_sep = TRUE,
 
   transform_split_parens(out, end1, end2)
 }
-

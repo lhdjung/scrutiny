@@ -1,4 +1,3 @@
-
 #' Reverse the `*_map_seq()` process
 #'
 #' @description `reverse_map_seq()` takes the output of a function created by
@@ -25,9 +24,7 @@
 #' # ...and faithfully reconstructed:
 #' reverse_map_seq(out)
 
-
 reverse_map_seq <- function(data) {
-
   # Check that `data` is a tibble returned by a function that had been
   # manufactured using `function_map_seq()`:
   if (!inherits(data, "scr_map_seq")) {
@@ -53,7 +50,7 @@ reverse_map_seq <- function(data) {
     names(data_var) <- c(var_unique, "scr_split_dummy")
   } else {
     data_var <- split(data, list(data$var))
-    data_var <- data_var[var_unique]  # order by `var`
+    data_var <- data_var[var_unique] # order by `var`
     if (length(unique(data$var)) < length(data_var)) {
       length_diff <- length(data_var) - length(unique(data$var))
       data_var_fill <- rep(data_var[1L], length_diff)
@@ -79,11 +76,10 @@ reverse_map_seq <- function(data) {
 
   data_index_case %>%
     tidyr::pivot_wider(
-      names_from  = var,
+      names_from = var,
       values_from = scr_index_case,
-      values_fn   = list
+      values_fn = list
     ) %>%
     tidyr::unnest(cols = everything()) %>%
     tidyr::unnest(cols = everything()) # yes, this is weird
 }
-

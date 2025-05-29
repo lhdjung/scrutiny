@@ -1,8 +1,6 @@
-
 # Helper function used in the main function `unround()` via a vectorized version
 # right below:
 rounding_bounds_scalar <- function(rounding, x_num, d_var, d) {
-
   # Manage the two rounding procedures that depend on the sign of the input
   # number, rounding with truncation and "anti-truncation":
   if (any(rounding %in% c("trunc", "anti_trunc"))) {
@@ -19,25 +17,27 @@ rounding_bounds_scalar <- function(rounding, x_num, d_var, d) {
       rounding <- paste0("anti_", rounding)
     }
 
-    return(switch(rounding,    #     (1)              (2)               (3)    (4)
-        "trunc_x_greater"      = list(x_num,           x_num + (2 * d), "<=",  "<"),
-        "trunc_x_less"         = list(x_num - (2 * d), x_num,           "<",  "<="),
-        "trunc_x_is_0"         = list(x_num - (2 * d), x_num + (2 * d), "<",   "<"),
-        "anti_trunc_x_greater" = list(x_num - (2 * d), x_num,           "<=",  "<"),
-        "anti_trunc_x_less"    = list(x_num,           x_num + (2 * d), "<=",  "<"),
-        "anti_trunc_x_is_0"    = list(NA,        NA,        NA,   NA)
+    return(switch(
+      rounding, #     (1)              (2)               (3)    (4)
+      "trunc_x_greater" = list(x_num, x_num + (2 * d), "<=", "<"),
+      "trunc_x_less" = list(x_num - (2 * d), x_num, "<", "<="),
+      "trunc_x_is_0" = list(x_num - (2 * d), x_num + (2 * d), "<", "<"),
+      "anti_trunc_x_greater" = list(x_num - (2 * d), x_num, "<=", "<"),
+      "anti_trunc_x_less" = list(x_num, x_num + (2 * d), "<=", "<"),
+      "anti_trunc_x_is_0" = list(NA, NA, NA, NA)
     ))
   }
 
   # This switch-statement is evaluated for all other rounding procedures:
-  switch(rounding,   #     (1)              (2)               (3)   (4)
-        "up_or_down" = list(x_num - d_var,   x_num + d_var,   "<=", "<="),
-        "up"         = list(x_num - d_var,   x_num + d_var,   "<=",  "<"),
-        "down"       = list(x_num - d_var,   x_num + d_var,   "<",  "<="),
-        "even"       = list(x_num - d,       x_num + d,       "<",   "<"),
-        "ceiling"    = list(x_num - (2 * d), x_num,           "<",  "<="),
-        "floor"      = list(x_num,           x_num + (2 * d), "<=",  "<"),
-        "error_trigger"
+  switch(
+    rounding, #     (1)              (2)               (3)   (4)
+    "up_or_down" = list(x_num - d_var, x_num + d_var, "<=", "<="),
+    "up" = list(x_num - d_var, x_num + d_var, "<=", "<"),
+    "down" = list(x_num - d_var, x_num + d_var, "<", "<="),
+    "even" = list(x_num - d, x_num + d, "<", "<"),
+    "ceiling" = list(x_num - (2 * d), x_num, "<", "<="),
+    "floor" = list(x_num, x_num + (2 * d), "<=", "<"),
+    "error_trigger"
   )
 }
 
@@ -46,7 +46,6 @@ rounding_bounds_scalar <- function(rounding, x_num, d_var, d) {
 # vectorized: It takes arguments of length > 1. Therefore, `rounding_bounds()`
 # is created as a vectorized version of `rounding_bounds_scalar()`:
 rounding_bounds <- Vectorize(rounding_bounds_scalar)
-
 
 
 #' Reconstruct rounding bounds
@@ -153,16 +152,13 @@ rounding_bounds <- Vectorize(rounding_bounds_scalar)
 #' # multiple rows in the output data frame:
 #' unround(x = c(3.6, "5.20", 5.174))
 
-
 # # Full example inputs:
 # x <- "2.37"
 # rounding <- "up_or_down"
 # threshold <- 5
 # digits <- NULL
 
-
 unround <- function(x, rounding = "up_or_down", threshold = 5, digits = NULL) {
-
   # If any two arguments called right below are length > 1, they need to have
   # the same length. Otherwise, the call will fail. But even so, there will be a
   # warning that values will get paired:
@@ -185,7 +181,7 @@ unround <- function(x, rounding = "up_or_down", threshold = 5, digits = NULL) {
   # Determine the difference between the rounded number and the boundary values.
   # That difference is variable when rounding up or down, because in that case,
   # it depends on the value of `threshold`:
-  p10 <- 10 ^ (digits + 1L)
+  p10 <- 10^(digits + 1L)
   d <- 5 / p10
   d_var <- threshold / p10
 
@@ -196,7 +192,10 @@ unround <- function(x, rounding = "up_or_down", threshold = 5, digits = NULL) {
   # or not, going by the `rounding` argument. In order to vectorize `rounding`,
   # the helper function at the top of the present file is called:
   bounds <- rounding_bounds(
-    rounding = rounding, x_num = x_num, d_var = d_var, d = d
+    rounding = rounding,
+    x_num = x_num,
+    d_var = d_var,
+    d = d
   )
 
   # Throw error if `rounding` was not specified in a valid way:
@@ -210,8 +209,8 @@ unround <- function(x, rounding = "up_or_down", threshold = 5, digits = NULL) {
   }
 
   # Split the `bounds` list up into its four component vectors:
-  lower      <-   as.numeric(bounds[1L, ]) # lower bound
-  upper      <-   as.numeric(bounds[2L, ]) # upper bound
+  lower <- as.numeric(bounds[1L, ]) # lower bound
+  upper <- as.numeric(bounds[2L, ]) # upper bound
   sign_lower <- as.character(bounds[3L, ]) # lower bound inclusive (`"<="`)?
   sign_upper <- as.character(bounds[4L, ]) # upper bound inclusive (`"<="`)?
 
@@ -220,7 +219,15 @@ unround <- function(x, rounding = "up_or_down", threshold = 5, digits = NULL) {
   tibble::new_tibble(
     x = list(
       range = paste0(
-        lower, " ", sign_lower, " x(", x, ") ", sign_upper, " ", upper
+        lower,
+        " ",
+        sign_lower,
+        " x(",
+        x,
+        ") ",
+        sign_upper,
+        " ",
+        upper
       ),
       rounding = rounding,
       lower = lower,
@@ -233,4 +240,3 @@ unround <- function(x, rounding = "up_or_down", threshold = 5, digits = NULL) {
     class = NULL
   )
 }
-

@@ -1,4 +1,3 @@
-
 #' Common rounding procedures
 #'
 #' @description `round_up()` rounds up from 5, `round_down()` rounds down from
@@ -82,29 +81,25 @@
 #' # would lead to wrong results unless `original` is rounded
 #' # to 2 or so digits before it's rounded to 1.)
 
-
 # Round up from some threshold -----------------------------------------------
 
 #' @rdname rounding-common
 #' @export
 
 round_up_from <- function(x, digits = 0L, threshold, symmetric = FALSE) {
-
-  p10 <- 10 ^ digits
+  p10 <- 10^digits
   threshold <- threshold - .Machine$double.eps^0.5
 
   if (symmetric) {
     dplyr::if_else(
       x < 0,
-      - (floor(abs(x) * p10 + (1 - (threshold / 10))) / p10),
-         floor(    x  * p10 + (1 - (threshold / 10))) / p10
+      -(floor(abs(x) * p10 + (1 - (threshold / 10))) / p10),
+      floor(x * p10 + (1 - (threshold / 10))) / p10
     )
   } else {
     floor(x * p10 + (1 - (threshold / 10))) / p10
   }
-
 }
-
 
 
 # Round down from some threshold ---------------------------------------------
@@ -117,20 +112,18 @@ round_up_from <- function(x, digits = 0L, threshold, symmetric = FALSE) {
 # performance reasons, and the results are equivalent.
 
 round_down_from <- function(x, digits = 0L, threshold, symmetric = FALSE) {
-
-  p10 <- 10 ^ digits
+  p10 <- 10^digits
   threshold <- threshold - .Machine$double.eps^0.5
 
   if (symmetric) {
     dplyr::if_else(
       x < 0,
-      - (ceiling(abs(x) * p10 - (1 - (threshold / 10))) / p10),
-         ceiling(    x  * p10 - (1 - (threshold / 10))) / p10
+      -(ceiling(abs(x) * p10 - (1 - (threshold / 10))) / p10),
+      ceiling(x * p10 - (1 - (threshold / 10))) / p10
     )
   } else {
     ceiling(x * p10 - (1 - (threshold / 10))) / p10
   }
-
 }
 
 
@@ -149,7 +142,6 @@ round_up <- function(x, digits = 0L, symmetric = FALSE) {
 }
 
 
-
 # Round down from 5 ----------------------------------------------------------
 
 # Here, we want `x` to be rounded down if the part of the decimal portion to be
@@ -163,4 +155,3 @@ round_up <- function(x, digits = 0L, symmetric = FALSE) {
 round_down <- function(x, digits = 0L, symmetric = FALSE) {
   round_down_from(x = x, digits = digits, threshold = 5, symmetric = symmetric)
 }
-

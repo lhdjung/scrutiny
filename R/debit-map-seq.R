@@ -1,4 +1,3 @@
-
 #' Using DEBIT with dispersed inputs
 #'
 #' `debit_map_seq()` applies DEBIT with values surrounding the input values.
@@ -75,10 +74,8 @@
 #' out %>%
 #'   audit_seq()
 
-
 debit_map_seq <- function_map_seq(
   .fun = debit_map,
   .reported = c("x", "sd", "n"),
   .name_test = "DEBIT",
 )
-

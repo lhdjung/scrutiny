@@ -1,27 +1,63 @@
-
 #' @include import-reexport.R is-numeric-like.R
 
 utils::globalVariables(c(
-  ".", "where", "desc", "all_of", "contains", "everything", "x", "items",
-  "frac", "distance", "both_consistent", "fun", "var", "dispersion", "out_min",
-  "out_max", "include_reported", "n", "times", "value", "name", "setNames",
-  "rounding", "case", "n_sum", "consistency", "ratio", "scr_index_case",
-  "starts_with", "value_duplicated", "variable", "sd_lower",
-  "sd_incl_lower", "sd_upper", "sd_incl_upper", "x_lower", "x_upper",
-  "dupe_count", "fun_name",
+  ".",
+  "where",
+  "desc",
+  "all_of",
+  "contains",
+  "everything",
+  "x",
+  "items",
+  "frac",
+  "distance",
+  "both_consistent",
+  "fun",
+  "var",
+  "dispersion",
+  "out_min",
+  "out_max",
+  "include_reported",
+  "n",
+  "times",
+  "value",
+  "name",
+  "setNames",
+  "rounding",
+  "case",
+  "n_sum",
+  "consistency",
+  "ratio",
+  "scr_index_case",
+  "starts_with",
+  "value_duplicated",
+  "variable",
+  "sd_lower",
+  "sd_incl_lower",
+  "sd_upper",
+  "sd_incl_upper",
+  "x_lower",
+  "x_upper",
+  "dupe_count",
+  "fun_name",
   # Added after rewriting the function factories using `rlang::new_function()`:
-  "!!", "!!!", "constant", "constant_index", "include_consistent",
-  "n_min", "n_max",
+  "!!",
+  "!!!",
+  "constant",
+  "constant_index",
+  "include_consistent",
+  "n_min",
+  "n_max",
   # Added for `function_duplicate_cols()`, which uses `rlang::new_function()`:
-  "colname_end", "ignore", "numeric_only",
+  "colname_end",
+  "ignore",
+  "numeric_only",
   # Added for `write_code_col_key_result()`:
   "!!<-"
 ))
 
 
-
 # Do NOT export any of these! ---------------------------------------------
-
 
 #' Mark a string as wrong
 #'
@@ -38,7 +74,6 @@ wrong_spec_string <- function(x) {
     paste0("`", x, "` (not a string)")
   }
 }
-
 
 
 #' DEBIT helper for SD reconstruction
@@ -77,7 +112,6 @@ reconstruct_sd_scalar <- function(formula, x, n, group_0, group_1) {
 reconstruct_sd <- Vectorize(reconstruct_sd_scalar, USE.NAMES = FALSE)
 
 
-
 #' Count integer places
 #'
 #' Used in unit testing. Analogous to `decimal_places()`.
@@ -97,7 +131,6 @@ integer_places <- function(x) {
 }
 
 
-
 #' Collect dots-arguments in a list
 #'
 #' A helper for tidy evaluation used within `is_subset_of_vecs()` and friends
@@ -114,7 +147,6 @@ straighten_out <- function(...) {
 }
 
 
-
 #' Write "an" or "a", depending on the next word
 #'
 #' @param x String. A string value that ends on a vowel letter returns `"an"`;
@@ -126,7 +158,6 @@ straighten_out <- function(...) {
 an_a <- function(x) {
   dplyr::if_else(stringr::str_detect(x, "^[aeiou]"), "an", "a")
 }
-
 
 
 #' Prefix an object's type with "an" or "a"
@@ -151,7 +182,6 @@ an_a_type <- function(x) {
 }
 
 
-
 #' Check whether numbers are whole
 #'
 #' @description For each element of a numeric vector, `is_whole_number()` checks
@@ -171,7 +201,6 @@ is_whole_number <- function(x, tolerance = .Machine$double.eps^0.5) {
 }
 
 
-
 #' Subset every `n`th element
 #'
 #' @param x Vector from which the `n`th element should be subsetted.
@@ -186,7 +215,6 @@ is_whole_number <- function(x, tolerance = .Machine$double.eps^0.5) {
 parcel_nth_elements <- function(x, n, from = 1L) {
   x[seq(from = from, to = length(x), by = n)]
 }
-
 
 
 #' Switch back and front columns
@@ -207,7 +235,6 @@ reverse_column_order <- function(data) {
 }
 
 
-
 #' Conveniently add classes to an object
 #'
 #' `add_class()` is pipeable, unlike the replacement function it wraps.
@@ -224,7 +251,6 @@ reverse_column_order <- function(data) {
 add_class <- function(x, new_class) {
   `class<-`(x, value = c(new_class, class(x)))
 }
-
 
 
 #' Check whether lengths are congruent
@@ -262,7 +288,7 @@ check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
     var_names <- var_names[[1L]][-1L]
     var_names <- as.character(var_names)
     var_names_gt1 <- var_names[var_lengths > 1L]
-    vnames_gt1_all <- var_names_gt1   # for the warning
+    vnames_gt1_all <- var_names_gt1 # for the warning
 
     length_dup <- duplicated(var_lengths)
     var_list_gt1 <- var_list_gt1[!length_dup]
@@ -272,7 +298,6 @@ check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
     # with a unique length greater than one (the duplicated lengths were
     # filtered out from `var_list_gt1` right above):
     if (error && (length(var_list_gt1) > 1L)) {
-
       x <- var_list_gt1[[1L]]
       y <- var_list_gt1[[2L]]
       x_name <- var_names_gt1[[1L]]
@@ -291,7 +316,8 @@ check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
       if (length(residues_names) > 0L) {
         residues_names <- paste0("`", residues_names, "`")
         msg_error <- append(
-          msg_error, c("i" = "This also applies to {residues_names}.")
+          msg_error,
+          c("i" = "This also applies to {residues_names}.")
         )
       }
 
@@ -337,7 +363,6 @@ check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
 }
 
 
-
 #' Check length
 #'
 #' Make sure a vector `x` has length `l`, otherwise throw an informative error.
@@ -359,7 +384,6 @@ check_length <- function(x, l) {
     ))
   }
 }
-
 
 
 #' Check length (with `NULL`-related message)
@@ -384,7 +408,6 @@ check_length_or_null <- function(x, l) {
     ))
   }
 }
-
 
 
 #' Check type
@@ -415,7 +438,6 @@ check_type <- function(x, t) {
 }
 
 
-
 #' Check class
 #'
 #' Much the same as `check_length()` or `check_type()`, but for classes. An
@@ -439,7 +461,6 @@ check_class <- function(x, cl) {
 }
 
 
-
 #' Check whether an object is a tibble
 #'
 #' Note: This assumes the name of `x` within the user-calles function is `data`.
@@ -457,7 +478,6 @@ check_tibble <- function(x) {
     ))
   }
 }
-
 
 
 #' Check that `rounding` values for two procedures are not mixed
@@ -495,7 +515,6 @@ check_rounding_singular <- function(rounding, bad, good1, good2) {
 }
 
 
-
 #' Check whether a rounding threshold was specified
 #'
 #' @description `check_threshold_specified()` is called within curly braces
@@ -523,7 +542,6 @@ check_threshold_specified <- function(threshold) {
     ))
   }
 }
-
 
 
 #' Split into groups
@@ -578,7 +596,6 @@ split_into_rows <- function(data) {
 }
 
 
-
 #' Lowest step size (stride) of decimal numbers
 #'
 #' Computes the smallest possible difference between two numbers on the lowest
@@ -596,9 +613,8 @@ split_into_rows <- function(data) {
 #' @noRd
 step_size <- function(x) {
   digits <- max(decimal_places(x))
-  1 / (10 ^ digits)
+  1 / (10^digits)
 }
-
 
 
 #' Sequence typing helper
@@ -653,7 +669,6 @@ manage_string_output_seq <- function(out, from, string_output, digits) {
 }
 
 
-
 #' Paste and enumerate with commas and `"and"`
 #'
 #' - If `x` is length 1, it is returned unchanged.
@@ -684,7 +699,6 @@ commas_and <- function(x) {
 }
 
 
-
 #' Check that no element of a numeric vector is negative
 #'
 #' Throws error if any element of `x` is less than 0.
@@ -713,7 +727,6 @@ check_non_negative <- function(x) {
 }
 
 
-
 #' Test for even parity
 #'
 #' `TRUE` for every even element of `x`, `FALSE` for every odd one.
@@ -726,7 +739,6 @@ check_non_negative <- function(x) {
 is_even <- function(x) {
   x %% 2 == 0
 }
-
 
 
 #' Check for length-1 sample size in dispersion functions
@@ -751,7 +763,8 @@ check_length_disperse_n <- function(n, msg_single) {
   if (length(n) != 1L) {
     if (length(n) == 2L) {
       msg_single <- paste(
-        msg_single, "Did you mean to call `disperse2(n = c({n[1L]}, {n[2L]}))`?"
+        msg_single,
+        "Did you mean to call `disperse2(n = c({n[1L]}, {n[2L]}))`?"
       )
     }
     cli::cli_abort(c(
@@ -761,7 +774,6 @@ check_length_disperse_n <- function(n, msg_single) {
     ))
   }
 }
-
 
 
 #' Check if a vector is numeric or coercible to numeric
@@ -802,7 +814,6 @@ check_type_numeric_like <- function(x) {
 }
 
 
-
 #' Interpolate the index case
 #'
 #' @description This function expects an `x` vector like the one described
@@ -826,8 +837,11 @@ check_type_numeric_like <- function(x) {
 #' @return Numeric (or string coercible to numeric).
 #'
 #' @noRd
-index_case_interpolate <- function(x, index_case_only = TRUE,
-                                   index_itself = FALSE) {
+index_case_interpolate <- function(
+  x,
+  index_case_only = TRUE,
+  index_itself = FALSE
+) {
   x_orig <- x
   x <- as.numeric(x)
 
@@ -874,9 +888,7 @@ index_case_interpolate <- function(x, index_case_only = TRUE,
   } else {
     out
   }
-
 }
-
 
 
 #' Compute central index
@@ -889,7 +901,6 @@ index_case_interpolate <- function(x, index_case_only = TRUE,
 index_central <- function(x) {
   ((length(x) - 1) / 2) + 1
 }
-
 
 
 #' Check for arguments with or via dots
@@ -921,7 +932,6 @@ index_central <- function(x) {
 #'
 #' @noRd
 check_new_args_without_dots <- function(data, dots, old_args, name_fn) {
-
   if (length(dots) == 0L) {
     return(invisible(NULL))
   }
@@ -959,8 +969,10 @@ check_new_args_without_dots <- function(data, dots, old_args, name_fn) {
     }
     msg_new_args <- stringr::str_remove(offenders2, ".")
 
-    if (name_fn == "split_by_parens" &&
-        any(c("col1", "col2") %in% msg_new_args)) {
+    if (
+      name_fn == "split_by_parens" &&
+        any(c("col1", "col2") %in% msg_new_args)
+    ) {
       msg_new_args[msg_new_args == "col1"] <- "end1"
       msg_new_args[msg_new_args == "col2"] <- "end2"
       msg_switch_end <- " Note the shift from `col*` to `end*`."
@@ -1006,7 +1018,6 @@ check_new_args_without_dots <- function(data, dots, old_args, name_fn) {
 }
 
 
-
 #' Transformation helper for `split_by_parens()`
 #'
 #' @description Only called within `split_by_parens()`, and only if the latter
@@ -1029,7 +1040,6 @@ check_new_args_without_dots <- function(data, dots, old_args, name_fn) {
 #'
 #' @noRd
 transform_split_parens <- function(data, end1, end2) {
-
   uscore_end1 <- paste0("_", end1)
   uscore_end2 <- paste0("_", end2)
 
@@ -1066,7 +1076,6 @@ transform_split_parens <- function(data, end1, end2) {
 }
 
 
-
 #' Select columns before `"consistency"`
 #'
 #' Useful helper for selecting all "tested" columns in the sense of
@@ -1088,7 +1097,6 @@ select_tested_cols <- function(data, before = "consistency") {
 }
 
 
-
 #' Wrap into backticks
 #'
 #' For error messages and similar.
@@ -1103,7 +1111,6 @@ wrap_in_backticks <- function(x) {
 }
 
 
-
 #' Wrap into quotation marks
 #'
 #' For error messages and similar.
@@ -1116,7 +1123,6 @@ wrap_in_backticks <- function(x) {
 wrap_in_quotes <- function(x) {
   paste0("\"", x, "\"")
 }
-
 
 
 #' Wrap into quotation marks if string, else in backticks
@@ -1137,7 +1143,6 @@ wrap_in_quotes_or_backticks <- function(x) {
     paste0("`", x, "`")
   }
 }
-
 
 
 #' Test numbers for near-equality, other objects for identity
@@ -1164,7 +1169,6 @@ about_equal <- function(x, y) {
 }
 
 
-
 #' Get name of function being called
 #'
 #' Returns the name of the function within which `name_caller_call()` is called
@@ -1185,7 +1189,6 @@ name_caller_call <- function(n = 1L, wrap = TRUE) {
   }
   name
 }
-
 
 
 #' Subtle variations to numbers
@@ -1212,7 +1215,6 @@ dustify <- function(x) {
 }
 
 
-
 #' Check for ggplot2 versions
 #'
 #' These two functions negotiate a breaking change in ggplot2 since version
@@ -1235,11 +1237,11 @@ dustify <- function(x) {
 #'
 #' @noRd
 check_ggplot2_size <- function(arg_old, default_old) {
-
   if (arg_old != default_old) {
     msg1 <- paste0(
       "That's because your ggplot2 version is >= 3.4.0 (actually, ",
-      utils::packageVersion("ggplot2"), ")."
+      utils::packageVersion("ggplot2"),
+      ")."
     )
     msg2 <- paste(
       "In ggplot2, the `size` aesthetic has been deprecated since",
@@ -1253,16 +1255,15 @@ check_ggplot2_size <- function(arg_old, default_old) {
       "i" = msg3
     ))
   }
-
 }
 
 
 check_ggplot2_linewidth <- function(arg_new, default_new) {
-
   if (arg_new != default_new) {
     msg1 <- paste0(
       "That's because your ggplot2 version is < 3.4.0 (actually, ",
-      utils::packageVersion("ggplot2"), ")."
+      utils::packageVersion("ggplot2"),
+      ")."
     )
     msg2 <- paste(
       "In ggplot2, the `size` aesthetic has been deprecated since",
@@ -1277,9 +1278,7 @@ check_ggplot2_linewidth <- function(arg_new, default_new) {
       "i" = msg3
     ))
   }
-
 }
-
 
 
 #' Remove the integer part, keeping the decimal part
@@ -1298,7 +1297,6 @@ check_ggplot2_linewidth <- function(arg_new, default_new) {
 trunc_reverse <- function(x) {
   x - trunc(x)
 }
-
 
 
 #' Conventional summary statistics for `audit()` methods
@@ -1322,7 +1320,6 @@ trunc_reverse <- function(x) {
 #'
 #' @noRd
 audit_summary_stats <- function(data, selection, total = FALSE) {
-
   selection <- rlang::enexprs(selection)
 
   if (total && any(".total" == colnames(data))) {
@@ -1339,18 +1336,21 @@ audit_summary_stats <- function(data, selection, total = FALSE) {
     length(x[is.na(x)])
   }
 
-  fun_names <- c(  "mean",      "sd",      "median", "min", "max", "na_count")
-  funs      <- list(mean, stats::sd, stats::median,   min,   max,   na_count)
+  fun_names <- c("mean", "sd", "median", "min", "max", "na_count")
+  funs <- list(mean, stats::sd, stats::median, min, max, na_count)
 
   out <- tibble::tibble()
 
   # Applying each summarizing function individually, compute the output tibble
   # row by row:
   for (i in seq_along(funs)) {
-    temp <- dplyr::summarise(data, dplyr::across(
-      .cols = c(!!!selection),
-      .fns  = function(x) funs[[i]](x, na.rm = TRUE)
-    ))
+    temp <- dplyr::summarise(
+      data,
+      dplyr::across(
+        .cols = c(!!!selection),
+        .fns = function(x) funs[[i]](x, na.rm = TRUE)
+      )
+    )
     out <- dplyr::bind_rows(out, temp)
   }
 
@@ -1378,7 +1378,6 @@ audit_summary_stats <- function(data, selection, total = FALSE) {
 }
 
 
-
 #' List of minimal-distance functions for `audit_seq()`
 #'
 #' @description The functions collected in `list_min_distance_functions` are
@@ -1401,41 +1400,46 @@ list_min_distance_functions <- list(
   # Absolute distance:
   function(x) {
     vapply(
-      x, function(x) {
+      x,
+      function(x) {
         if (any(!is.numeric(x))) {
           return(NA_real_)
         }
         min(abs(x), na.rm = TRUE)
       },
-      numeric(1L), USE.NAMES = FALSE
+      numeric(1L),
+      USE.NAMES = FALSE
     )
   },
   # Positive distance:
   function(x) {
     vapply(
-      x, function(x) {
+      x,
+      function(x) {
         if (any(!is.numeric(x))) {
           return(NA_real_)
         }
         min(x[x > 0L], na.rm = TRUE)
       },
-      numeric(1L), USE.NAMES = FALSE
+      numeric(1L),
+      USE.NAMES = FALSE
     )
   },
   # Negative distance:
   function(x) {
     vapply(
-      x, function(x) {
+      x,
+      function(x) {
         if (any(!is.numeric(x))) {
           return(NA_real_)
         }
         max(x[x < 0L], na.rm = TRUE)
       },
-      numeric(1L), USE.NAMES = FALSE
+      numeric(1L),
+      USE.NAMES = FALSE
     )
   }
 )
-
 
 
 #' Check for linearly increasing dispersion in sequence mapper output
@@ -1466,7 +1470,6 @@ check_dispersion_linear <- function(data) {
     ))
   }
 }
-
 
 
 #' Generate code to process the `"consistency"` column
@@ -1501,9 +1504,11 @@ check_dispersion_linear <- function(data) {
 # Undefined global functions or variables:
 #   !!<- out
 
-write_code_col_key_result <- function(name_key_result = "consistency",
-                                      name_data = rlang::expr(out),
-                                      out = NULL) {
+write_code_col_key_result <- function(
+  name_key_result = "consistency",
+  name_data = rlang::expr(out),
+  out = NULL
+) {
   # Enable renaming the `"consistency"` column for binary procedures that are
   # not consistency tests:
   code_rename <- if (name_key_result == "consistency") {
@@ -1531,9 +1536,9 @@ write_code_col_key_result <- function(name_key_result = "consistency",
       return(`!!`(name_data))
     }
     `$<-`(
-      `!!`(name_data), `!!`(name_key_result),
+      `!!`(name_data),
+      `!!`(name_key_result),
       unlist(`!!`(data_dollar_result), use.names = FALSE)
     )
   })
 }
-

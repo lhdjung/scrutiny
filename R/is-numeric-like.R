@@ -1,4 +1,3 @@
-
 #' Test whether a vector is numeric or coercible to numeric
 #'
 #' @description `is_numeric_like()` tests whether an object is "coercible to
@@ -73,17 +72,20 @@
 #' is_numeric_like(x = as.numeric(c(NA, NA, NA)))
 #' is_numeric_like(x = c(NA, NA, NA))
 
-
 is_numeric_like <- function(x) {
   if (is.numeric(x)) {
     return(TRUE)
   }
   if (
     is.logical(x) ||
-    !rlang::is_vector(x) ||
-    is.list(x) && !all(vapply(
-      x, function(x) length(x) == 1L, logical(1L), USE.NAMES = FALSE
-    ))
+      !rlang::is_vector(x) ||
+      is.list(x) &&
+        !all(vapply(
+          x,
+          function(x) length(x) == 1L,
+          logical(1L),
+          USE.NAMES = FALSE
+        ))
   ) {
     return(FALSE)
   }
@@ -97,4 +99,3 @@ is_numeric_like <- function(x) {
   x <- suppressWarnings(as.numeric(x))
   !any(is.na(x))
 }
-

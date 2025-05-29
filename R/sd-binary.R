@@ -1,4 +1,3 @@
-
 #' Standard deviation of binary data
 #'
 #' @description Compute the sample SD of binary data (i.e., only 0 and 1 values)
@@ -47,17 +46,14 @@
 #' # large number of decimal places:
 #' sd_binary_mean_n(mean = 0.5464286, n = 280)
 
-
-
 # From both groups --------------------------------------------------------
 
 #' @rdname sd-binary
 
 sd_binary_groups <- function(group_0, group_1) {
   n <- group_0 + group_1
-  suppressWarnings(sqrt((n / (n - 1)) * ((group_0 * group_1) / (n ^ 2))))
+  suppressWarnings(sqrt((n / (n - 1)) * ((group_0 * group_1) / (n^2))))
 }
-
 
 
 # From subgroup coded as 0 and sample size --------------------------------
@@ -67,9 +63,8 @@ sd_binary_groups <- function(group_0, group_1) {
 
 sd_binary_0_n <- function(group_0, n) {
   group_1 <- n - group_0
-  suppressWarnings(sqrt((n / (n - 1)) * ((group_0 * group_1) / (n ^ 2))))
+  suppressWarnings(sqrt((n / (n - 1)) * ((group_0 * group_1) / (n^2))))
 }
-
 
 
 # From subgroup coded as 1 and sample size --------------------------------
@@ -79,9 +74,8 @@ sd_binary_0_n <- function(group_0, n) {
 
 sd_binary_1_n <- function(group_1, n) {
   group_0 <- n - group_1
-  suppressWarnings(sqrt((n / (n - 1)) * ((group_0 * group_1) / (n ^ 2))))
+  suppressWarnings(sqrt((n / (n - 1)) * ((group_0 * group_1) / (n^2))))
 }
-
 
 
 # From mean and sample size -----------------------------------------------
@@ -92,4 +86,3 @@ sd_binary_1_n <- function(group_1, n) {
 sd_binary_mean_n <- function(mean, n) {
   suppressWarnings(sqrt((n / (n - 1)) * (mean * (1 - mean))))
 }
-

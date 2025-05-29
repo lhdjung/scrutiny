@@ -1,4 +1,3 @@
-
 #' Count duplicate values
 #'
 #' @description `duplicate_count()` returns a frequency table. When searching a
@@ -57,10 +56,11 @@
 #' iris %>%
 #'   duplicate_count(ignore = c("setosa", "versicolor", "virginica"))
 
-
-duplicate_count <- function(x, ignore = NULL,
-                            locations_type = c("character", "list")) {
-
+duplicate_count <- function(
+  x,
+  ignore = NULL,
+  locations_type = c("character", "list")
+) {
   locations_type <- rlang::arg_match(locations_type)
 
   # Convert `x` to a data frame if needed (`x_was_named` will also be checked
@@ -68,7 +68,8 @@ duplicate_count <- function(x, ignore = NULL,
   x_was_named <- rlang::is_named(x)
   if (!x_was_named || !is.data.frame(x)) {
     x <- tibble::as_tibble(
-      x, .name_repair = if (x_was_named) {
+      x,
+      .name_repair = if (x_was_named) {
         function(x) x
       } else {
         function(x) paste0("col", seq_along(x))
@@ -131,8 +132,10 @@ duplicate_count <- function(x, ignore = NULL,
   dplyr::mutate(
     out,
     locations = vapply(
-      locations, function(x) paste(x, collapse = ", "),
-      character(1L), USE.NAMES = FALSE
+      locations,
+      function(x) paste(x, collapse = ", "),
+      character(1L),
+      USE.NAMES = FALSE
     ),
     locations_n
   )

@@ -1,4 +1,3 @@
-
 #' GRIM-testing with dispersed inputs
 #'
 #' @description `grim_map_seq()` performs GRIM-testing with values surrounding
@@ -72,7 +71,6 @@
 #' out %>%
 #'   audit_seq()
 
-
 # # Example input (for manual testing):
 #
 # data <- pigs1
@@ -91,7 +89,6 @@
 # args_disabled <- NULL
 # reported <- c("x", "n")
 # fun <- grim_map
-
 
 grim_map_seq <- function_map_seq(
   .fun = grim_map,

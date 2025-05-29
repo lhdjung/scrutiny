@@ -1,4 +1,3 @@
-
 # Helpers (not exported) --------------------------------------------------
 
 check_length_parens_sep <- function(sep) {
@@ -9,7 +8,6 @@ check_length_parens_sep <- function(sep) {
     ))
   }
 }
-
 
 
 #' Match the `sep` keyword to actual separators
@@ -50,9 +48,12 @@ translate_length1_sep_keywords <- function(sep) {
 
 
 # Warning thrown within tidyselect-supporting functions:
-warn_wrong_columns_selected <- function(names_wrong_cols,
-                                        msg_exclusion, msg_reason,
-                                        msg_it_they = c("It doesn't", "They don't")) {
+warn_wrong_columns_selected <- function(
+  names_wrong_cols,
+  msg_exclusion,
+  msg_reason,
+  msg_it_they = c("It doesn't", "They don't")
+) {
   if (length(names_wrong_cols) == 1L) {
     msg_col_cols <- "1 column"
     msg_it_they <- msg_it_they[1L]
@@ -86,14 +87,13 @@ message_sep_if_cols_excluded <- function(sep) {
 
 
 proto_split_parens <- function(string, sep = "parens") {
-
   if (length(sep) == 2L) {
-    sep_open  <- sep[1L]
+    sep_open <- sep[1L]
     sep_close <- sep[2L]
   } else {
     separators <- translate_length1_sep_keywords(sep)
-    sep_open   <- separators[1L]
-    sep_close  <- separators[2L]
+    sep_open <- separators[1L]
+    sep_close <- separators[2L]
   }
 
   out <- stringr::str_split(string, sep_open)
@@ -103,7 +103,6 @@ proto_split_parens <- function(string, sep = "parens") {
   divisor <- length(out) / length(string)
   split(out, ceiling(seq_along(out) / divisor))
 }
-
 
 
 # Main functions ----------------------------------------------------------
@@ -140,7 +139,6 @@ proto_split_parens <- function(string, sep = "parens") {
 #'
 #' inside_parens(string = x)
 
-
 before_parens <- function(string, sep = "parens") {
   check_length_parens_sep(sep)
   out <- proto_split_parens(string, sep)
@@ -153,7 +151,6 @@ before_parens <- function(string, sep = "parens") {
 #' @export
 
 inside_parens <- function(string, sep = "parens") {
-
   check_length_parens_sep(sep)
 
   if (length(sep) == 2L) {
@@ -172,4 +169,3 @@ inside_parens <- function(string, sep = "parens") {
   out <- vapply(out, function(x) x[2L], "", USE.NAMES = FALSE)
   sub(paste0(sep_close, ".*"), "", out)
 }
-

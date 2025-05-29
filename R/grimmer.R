@@ -1,4 +1,3 @@
-
 # Introductory notes ------------------------------------------------------
 
 # Analytic-GRIMMER (A-GRIMMER) was developed by Aurélien Allard
@@ -13,7 +12,6 @@
 # domain-specific conventions.
 # -- Adding support for multi-item scales (see `items` argument) via
 # `rsprite2::GRIMMER_test()`.
-
 
 # Translation of variable names -------------------------------------------
 
@@ -40,7 +38,6 @@
 # Matches_SD         --> matches_sd (to which a `pass_test2` object was added)
 # Third_Test         --> pass_test3
 
-
 # # Example inputs 1:
 # x <- "1.03"
 # sd <- "0.41"
@@ -53,7 +50,6 @@
 # tolerance <- .Machine$double.eps^0.5
 # # decimals_mean <- 2
 # # decimals_SD <- 2
-
 
 # # Example inputs 2:
 # # (actually derived from this distribution: c(1, 1, 2, 3, 3, 4, 4, 4, 4, 5))
@@ -69,7 +65,6 @@
 # # decimals_mean <- 2
 # # decimals_SD <- 2
 
-
 # # Example inputs 3:
 # # (edge case from `pigs5`)
 # x <- "2.57"
@@ -84,16 +79,20 @@
 # # decimals_mean <- 2
 # # decimals_SD <- 2
 
-
-
 # Implementation ----------------------------------------------------------
 
-grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
-                           rounding = "up_or_down",
-                           threshold = 5, symmetric = FALSE,
-                           tolerance = .Machine$double.eps^0.5) {
-
-  check_type(x,  "character")
+grimmer_scalar <- function(
+  x,
+  sd,
+  n,
+  items = 1,
+  show_reason = FALSE,
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE,
+  tolerance = .Machine$double.eps^0.5
+) {
+  check_type(x, "character")
   check_type(sd, "character")
 
   # # A provisional solution:
@@ -107,7 +106,7 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
   digits_sd <- decimal_places_scalar(sd)
 
   x_orig <- x
-  x  <- as.numeric(x)
+  x <- as.numeric(x)
   sd <- as.numeric(sd)
 
   n_items <- n * items
@@ -116,14 +115,18 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
   sum_real <- round(sum)
   x_real <- sum_real / n_items
 
-
   # GRIM TEST: It says `x_orig` because the `x` object has been coerced from
   # character to numeric, but `grim_scalar()` needs the original number-string.
   # Similarly, since this function also gets `items` passed down, it needs the
   # original `n`, not `n_items`.
   pass_grim <- grim_scalar(
-    x = x_orig, n = n, items = items, rounding = rounding,
-    threshold = threshold, symmetric = symmetric, tolerance = tolerance
+    x = x_orig,
+    n = n,
+    items = items,
+    rounding = rounding,
+    threshold = threshold,
+    symmetric = symmetric,
+    tolerance = tolerance
   )
 
   if (!pass_grim) {
@@ -133,7 +136,7 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
     return(FALSE)
   }
 
-  p10 <- 10 ^ (digits_sd + 1)
+  p10 <- 10^(digits_sd + 1)
   p10_frac <- 5 / p10
 
   # SD bounds, lower and upper:
@@ -146,8 +149,8 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
   sd_upper <- sd + p10_frac
 
   # Sum of squares bounds, lower and upper:
-  sum_squares_lower <- ((n - 1) * sd_lower ^ 2 + n * x_real ^ 2) * items ^ 2
-  sum_squares_upper <- ((n - 1) * sd_upper ^ 2 + n * x_real ^ 2) * items ^ 2
+  sum_squares_lower <- ((n - 1) * sd_lower^2 + n * x_real^2) * items^2
+  sum_squares_upper <- ((n - 1) * sd_upper^2 + n * x_real^2) * items^2
 
   # TEST 1: Check that there is at least one integer between the lower and upper
   # bounds (of the reconstructed sum of squares of the -- most likely unknown --
@@ -173,14 +176,14 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
   integers_possible <- ceiling(sum_squares_lower):floor(sum_squares_upper)
 
   # Create the predicted variance and SD:
-  var_predicted <- (integers_possible / items ^ 2 - n * x_real ^ 2) / (n - 1)
+  var_predicted <- (integers_possible / items^2 - n * x_real^2) / (n - 1)
   sd_predicted <- sqrt(var_predicted)
 
   # Reconstruct the SD:
   sd_rec_rounded <- reround(
-    x         = sd_predicted,
-    digits    = digits_sd,
-    rounding  = rounding,
+    x = sd_predicted,
+    digits = digits_sd,
+    rounding = rounding,
     threshold = threshold,
     symmetric = symmetric
   )
@@ -238,9 +241,7 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
   } else {
     TRUE
   }
-
 }
-
 
 
 #' The GRIMMER test (granularity-related inconsistency of means mapped to error
@@ -304,6 +305,4 @@ grimmer_scalar <- function(x, sd, n, items = 1, show_reason = FALSE,
 #' # For a scale composed of two items:
 #' grimmer(x = "2.74", sd = "0.96", n = 63, items = 2)
 
-
 grimmer <- Vectorize(grimmer_scalar)
-

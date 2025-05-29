@@ -1,4 +1,3 @@
-
 # Documenting exported data -----------------------------------------------
 
 #' Means and sample sizes for GRIM-testing
@@ -27,7 +26,6 @@
 "pigs1"
 
 
-
 #' Percentages and sample sizes for GRIM-testing
 #'
 #' A fictional dataset with percentages and sample sizes of flying pigs. It can
@@ -51,7 +49,6 @@
 #'   [`pigs4`] for detecting duplicates, and [`pigs5`] for GRIMMER-testing.
 #'
 "pigs2"
-
 
 
 #' Binary means and standard deviations for using DEBIT
@@ -81,7 +78,6 @@
 "pigs3"
 
 
-
 #' Data with duplications
 #'
 #' A fictional dataset with observations of flying pigs. It contains multiple
@@ -104,7 +100,6 @@
 #'   percentages, [`pigs3`] for using DEBIT, and [`pigs5`] for GRIMMER-testing.
 #'
 "pigs4"
-
 
 
 #' Means, SDs, and sample sizes for GRIMMER-testing
@@ -130,11 +125,7 @@
 #'
 "pigs5"
 
-
-
-
 # # Code for creating the data (normally outcommented) --------------------
-
 
 # # GRIM for means:
 # pigs1 <- tibble::tribble(
@@ -218,4 +209,3 @@
 #   pigs5,
 #   overwrite = TRUE
 # )
-

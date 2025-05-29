@@ -1,4 +1,3 @@
-
 #' Uncommon rounding procedures
 #'
 #' @description Always round up, down, toward zero, or away from it:
@@ -68,18 +67,15 @@
 #' round_anti_trunc(x = 8.421, digits = 2)    # 1 cut off
 #' round_anti_trunc(x = -8.421, digits = 2)   # 1 cut off
 
-
-
 # Always round up ------------------------------------------------------------
 
 #' @rdname rounding-uncommon
 #' @export
 
 round_ceiling <- function(x, digits = 0L) {
-  p10 <- 10 ^ digits
+  p10 <- 10^digits
   ceiling(x * p10) / p10
 }
-
 
 
 # Always round down ----------------------------------------------------------
@@ -88,10 +84,9 @@ round_ceiling <- function(x, digits = 0L) {
 #' @export
 
 round_floor <- function(x, digits = 0L) {
-  p10 <- 10 ^ digits
+  p10 <- 10^digits
   floor(x * p10) / p10
 }
-
 
 
 # Always round toward zero ---------------------------------------------------
@@ -100,7 +95,7 @@ round_floor <- function(x, digits = 0L) {
 #' @export
 
 round_trunc <- function(x, digits = 0L) {
-  p10 <- 10 ^ digits
+  p10 <- 10^digits
 
   # For symmetry between positive and negative numbers, use the absolute value:
   core <- trunc(abs(x) * p10) / p10
@@ -112,14 +107,12 @@ round_trunc <- function(x, digits = 0L) {
 }
 
 
-
 # Interlude: "anti-truncate" a number ----------------------------------------
 
 #' @rdname rounding-uncommon
 #' @export
 
 anti_trunc <- function(x) {
-
   # For symmetry between positive and negative numbers, use the absolute value:
   core <- trunc(abs(x)) + 1
   # (Note that an equivalent formula would be `ceiling(abs(x))`.
@@ -132,14 +125,12 @@ anti_trunc <- function(x) {
 }
 
 
-
 # Always round away from zero ------------------------------------------------
 
 #' @rdname rounding-uncommon
 #' @export
 
 round_anti_trunc <- function(x, digits = 0L) {
-  p10 <- 10 ^ digits
+  p10 <- 10^digits
   anti_trunc(x * p10) / p10
 }
-

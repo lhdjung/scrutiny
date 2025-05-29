@@ -1,4 +1,3 @@
-
 #' Test for subsets, supersets, and equal sets
 #'
 #' @description `r lifecycle::badge("deprecated")`
@@ -105,8 +104,6 @@
 #'
 #' # (... and likewise for supersets and equal sets.)
 
-
-
 # Basic two-vector functions ----------------------------------------------
 
 #' @rdname subset-superset
@@ -176,7 +173,6 @@ is_proper_superset_of <- function(x, y) {
 }
 
 
-
 # With multiple arguments treated as values -------------------------------
 
 #' @rdname subset-superset
@@ -193,7 +189,6 @@ is_subset_of_vals <- function(x, ...) {
 }
 
 
-
 #' @rdname subset-superset
 #' @export
 
@@ -206,7 +201,6 @@ is_superset_of_vals <- function(x, ...) {
   y <- rlang::enexprs(...)
   is_superset_of(x, y)
 }
-
 
 
 #' @rdname subset-superset
@@ -251,7 +245,6 @@ is_proper_superset_of_vals <- function(x, ...) {
 }
 
 
-
 # With multiple arguments that might contain values -----------------------
 
 # Note: The helper function `straighten_out()` can be found in the utils.R file.
@@ -270,7 +263,6 @@ is_subset_of_vecs <- function(x, ...) {
 }
 
 
-
 #' @rdname subset-superset
 #' @export
 
@@ -283,7 +275,6 @@ is_superset_of_vecs <- function(x, ...) {
   y <- straighten_out(...)
   is_superset_of(x, y)
 }
-
 
 
 #' @rdname subset-superset
@@ -326,4 +317,3 @@ is_proper_superset_of_vecs <- function(x, ...) {
   y <- straighten_out(...)
   is_proper_superset_of(x, y)
 }
-

@@ -1,4 +1,3 @@
-
 #' Check that key columns perfectly map onto their identifiers
 #'
 #' Two helpers only called within `absorb_key_args()` to check the validity of
@@ -22,7 +21,6 @@
 #'
 #' @noRd
 check_factory_key_args_values <- function(data, key_cols_call) {
-
   offenders <- key_cols_call[!key_cols_call %in% colnames(data)]
 
   # Error condition -- one or more key arguments have been specified with values
@@ -58,7 +56,8 @@ check_factory_key_args_values <- function(data, key_cols_call) {
         msg_col <- "columns"
       }
       msg_error <- append(
-        msg_error, c(
+        msg_error,
+        c(
           "x" = "Same with the {offenders_names[-1L]} {msg_arg_s}: \\
           `data` doesn't contain {msg_a}{offenders[-1L]} {msg_col}."
         )
@@ -68,14 +67,13 @@ check_factory_key_args_values <- function(data, key_cols_call) {
     # Throw the actual error:
     cli::cli_abort(msg_error)
   }
-
 }
 
 
-
-check_factory_key_args_names <- function(key_cols_missing,
-                                         key_cols_call_names) {
-
+check_factory_key_args_names <- function(
+  key_cols_missing,
+  key_cols_call_names
+) {
   offenders <- key_cols_missing
   offenders <- offenders[!offenders %in% key_cols_call_names]
 
@@ -116,9 +114,7 @@ check_factory_key_args_names <- function(key_cols_missing,
           {msg_argument} of {msg_fun_name} as {msg_names}."
     ))
   }
-
 }
-
 
 
 #' Check that no dots-argument is misspelled
@@ -161,7 +157,6 @@ check_factory_dots <- function(fun, fun_name_scalar, ...) {
 }
 
 
-
 #' Get an `arg_list` object
 #'
 #' That is, a named list of arguments passed by the user who called the function
@@ -174,7 +169,6 @@ call_arg_list <- function() {
   out <- as.list(rlang::caller_call())
   out[-(1:2)]
 }
-
 
 
 #' Insert key arguments into the factory-made function
@@ -210,11 +204,14 @@ call_arg_list <- function() {
 #'
 #' @noRd
 insert_key_args <- function(fun, reported, insert_after = 1L) {
-  `formals<-`(fun, value = append(
-    formals(fun),
-    `names<-`(rep(list(NULL), times = length(reported)), value = reported),
-    after = insert_after
-  ))
+  `formals<-`(
+    fun,
+    value = append(
+      formals(fun),
+      `names<-`(rep(list(NULL), times = length(reported)), value = reported),
+      after = insert_after
+    )
+  )
 }
 
 # # Better readable version:
@@ -224,8 +221,6 @@ insert_key_args <- function(fun, reported, insert_after = 1L) {
 #   formals(fun) <- append(formals(fun), key_args, after = insert_after)
 #   fun
 # }
-
-
 
 #' Absorb key arguments from the user's call
 #'
@@ -253,7 +248,6 @@ insert_key_args <- function(fun, reported, insert_after = 1L) {
 #' data <- grim_map(pigs1)
 #' data <- absorb_key_args(data, c("x", "n"))
 absorb_key_args <- function(data, reported, key_cols_call) {
-
   key_cols_missing <- reported[!reported %in% colnames(data)]
   key_cols_missing <- as.character(key_cols_missing)
 
@@ -296,7 +290,6 @@ absorb_key_args <- function(data, reported, key_cols_call) {
   data <- dplyr::bind_cols(data_renamed, data_not_renamed)
   return(data)
 }
-
 
 
 #' Check that disabled arguments are not specified
@@ -366,7 +359,6 @@ check_args_disabled <- function(args_disabled) {
 }
 
 
-
 #' Check that the vector of disabled arguments is unnamed
 #'
 #' `check_args_disabled_unnamed()` is a companion to `check_args_disabled()`. It
@@ -397,7 +389,6 @@ check_args_disabled_unnamed <- function(args_disabled) {
     ))
   }
 }
-
 
 
 #' Inheritance tests
@@ -441,8 +432,12 @@ check_args_disabled_unnamed <- function(args_disabled) {
 #' - For `inherits_class_with()`, a length-1 logical vector.
 #'
 #' @noRd
-class_with <- function(data, contains, all_classes = FALSE,
-                       order_decreasing = TRUE) {
+class_with <- function(
+  data,
+  contains,
+  all_classes = FALSE,
+  order_decreasing = TRUE
+) {
   cd <- class(data)
 
   if (all_classes) {
@@ -463,7 +458,6 @@ class_with <- function(data, contains, all_classes = FALSE,
 
   # Outer loop:
   for (i in seq_along(contains)) {
-
     # Inner loop:
     for (j in seq_along(cd)) {
       cd_contains_string <- stringr::str_detect(cd[j], contains[i])
@@ -472,7 +466,6 @@ class_with <- function(data, contains, all_classes = FALSE,
       }
     }
     # End of inner loop
-
   }
   # End of outer loop
 
@@ -480,12 +473,17 @@ class_with <- function(data, contains, all_classes = FALSE,
 }
 
 
-
-inherits_class_with <- function(data, contains, all_classes = FALSE,
-                                order_decreasing = TRUE) {
+inherits_class_with <- function(
+  data,
+  contains,
+  all_classes = FALSE,
+  order_decreasing = TRUE
+) {
   length(class_with(
-    data = data, contains = contains, all_classes = all_classes,
+    data = data,
+    contains = contains,
+    all_classes = all_classes,
     order_decreasing = order_decreasing
-  )) > 0L
+  )) >
+    0L
 }
-

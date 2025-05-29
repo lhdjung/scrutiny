@@ -1,11 +1,13 @@
-
 #' @export
 
 audit.scr_grimmer_map <- function(data) {
   out <- audit_cols_minimal(data, "GRIMMER")
   if (any(colnames(data) == "reason")) {
     reason <- data$reason[!is.na(data$reason)]
-    fail_grim  <- length(reason[stringr::str_detect(reason, "GRIM inconsistent")])
+    fail_grim <- length(reason[stringr::str_detect(
+      reason,
+      "GRIM inconsistent"
+    )])
     fail_test1 <- length(reason[stringr::str_detect(reason, "test 1")])
     fail_test2 <- length(reason[stringr::str_detect(reason, "test 2")])
     fail_test3 <- length(reason[stringr::str_detect(reason, "test 3")])

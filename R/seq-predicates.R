@@ -1,4 +1,3 @@
-
 # Helpers for `function_map_seq()` as well as its assorted `reverse_*()` and
 # `summarize_*()` functions:
 
@@ -69,8 +68,6 @@ is_seq_descending_basic <- function(x) {
 # min_length <- NULL
 # args_other <- NULL
 
-
-
 # # Example input for dispersed sequences:
 # x <- c(45, NA, 47, 48, 49, 50, 51, 52, 53, 54, NA)
 # tolerance <- .Machine$double.eps^0.5
@@ -79,12 +76,15 @@ is_seq_descending_basic <- function(x) {
 # min_length <- 3L
 # args_other <- list(from = 50)
 
-
 # Non-exported workhorse API of all the sequence predicates:
-is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
-                         test_linear = TRUE, test_special = NULL,
-                         min_length = NULL, args_other = NULL) {
-
+is_seq_basic <- function(
+  x,
+  tolerance = .Machine$double.eps^0.5,
+  test_linear = TRUE,
+  test_special = NULL,
+  min_length = NULL,
+  args_other = NULL
+) {
   if (!is.null(test_special) && test_special == "dispersed") {
     # Without the `force()` call, the function may return `FALSE` early, even if
     # `from` was not supplied:
@@ -112,7 +112,6 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
   x_has_na <- anyNA(x)
 
   if (x_has_na) {
-
     # Save the unmodified `x` for a test that is conducted if `x` contains one
     # or more `NA` elements:
     x_orig <- x
@@ -129,8 +128,8 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
     # n_na_start <- seq_len(not_na[1L] - 1L)
     # n_na_end   <- (not_na[length(not_na)] + 1L):n_x_orig
 
-    n_na_start <- match(FALSE,     is.na(x_orig))  - 1L
-    n_na_end   <- match(FALSE, rev(is.na(x_orig))) - 1L
+    n_na_start <- match(FALSE, is.na(x_orig)) - 1L
+    n_na_end <- match(FALSE, rev(is.na(x_orig))) - 1L
 
     # Remove all `NA` values from the start and the end of `x` because `NA`s at
     # these particular locations cannot disprove that `x` is the kind of
@@ -172,7 +171,7 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
           index_upper <- index_upper + 1L
         }
         seq_start <- x[i - index_lower]
-        seq_end   <- x[i + index_upper]
+        seq_end <- x[i + index_upper]
         step <- step_size(c(seq_start, seq_end))
 
         # Descending sequences require a negative step size:
@@ -213,10 +212,9 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
         suppressWarnings(
           x[i + ((index_lower:index_upper) - 1L)] <- seq_replacement
         )
-
       } # End of the `is.na(x[i])` condition
-    }   # End of the for loop
-  }     # End of the `x_has_na` condition
+    } # End of the for loop
+  } # End of the `x_has_na` condition
 
   # If desired, test `x` -- as passed to the function or as partly reconstructed
   # in the for loop above -- for linearity:
@@ -232,9 +230,9 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
   if (!is.null(test_special)) {
     pass_test_special <- switch(
       test_special,
-      "ascending"  = is_seq_ascending_basic(x),
+      "ascending" = is_seq_ascending_basic(x),
       "descending" = is_seq_descending_basic(x),
-      "dispersed"  = is_seq_dispersed_basic(x, args_other$from, tolerance)
+      "dispersed" = is_seq_dispersed_basic(x, args_other$from, tolerance)
       # TODO: MAKE THIS "DISPERSED" TEST ABLE TO ASSUME THAT `NA`S IN `x_orig`
       # ARE ACTUALLY DISPERSED VALUES! MAYBE USE `index_central()`'S INTERNAL
       # LOGIC AND BUILD UP ON IT.
@@ -249,9 +247,7 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
   } else {
     TRUE
   }
-
 }
-
 
 
 #' Is a vector a certain kind of sequence?
@@ -326,8 +322,6 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
 #' is_seq_descending(x = c(9, 15, 3), test_linear = FALSE)
 #' is_seq_dispersed(1:10, from = 5, test_linear = FALSE)
 
-
-
 #' @rdname seq-predicates
 #' @export
 
@@ -336,38 +330,57 @@ is_seq_linear <- function(x, tolerance = .Machine$double.eps^0.5) {
 }
 
 
-
 #' @rdname seq-predicates
 #' @export
 
-is_seq_ascending <- function(x, test_linear = TRUE,
-                             tolerance = .Machine$double.eps^0.5) {
+is_seq_ascending <- function(
+  x,
+  test_linear = TRUE,
+  tolerance = .Machine$double.eps^0.5
+) {
   is_seq_basic(
-    x, tolerance, test_linear, test_special = "ascending", min_length = 2L
+    x,
+    tolerance,
+    test_linear,
+    test_special = "ascending",
+    min_length = 2L
   )
 }
 
 
-
 #' @rdname seq-predicates
 #' @export
 
-is_seq_descending <- function(x, test_linear = TRUE,
-                              tolerance = .Machine$double.eps^0.5) {
+is_seq_descending <- function(
+  x,
+  test_linear = TRUE,
+  tolerance = .Machine$double.eps^0.5
+) {
   is_seq_basic(
-    x, tolerance, test_linear, test_special = "descending", min_length = 2L
+    x,
+    tolerance,
+    test_linear,
+    test_special = "descending",
+    min_length = 2L
   )
 }
 
 
-
 #' @rdname seq-predicates
 #' @export
 
-is_seq_dispersed <- function(x, from, test_linear = TRUE,
-                             tolerance = .Machine$double.eps^0.5) {
+is_seq_dispersed <- function(
+  x,
+  from,
+  test_linear = TRUE,
+  tolerance = .Machine$double.eps^0.5
+) {
   is_seq_basic(
-    x, tolerance, test_linear, test_special = "dispersed", min_length = 3L,
+    x,
+    tolerance,
+    test_linear,
+    test_special = "dispersed",
+    min_length = 3L,
     args_other = list(from = from)
   )
 }
@@ -382,9 +395,11 @@ is_seq_dispersed <- function(x, from, test_linear = TRUE,
 # tolerance <- .Machine$double.eps^0.5
 
 # Helper, not exported:
-is_seq_dispersed_basic <- function(x, from,
-                                   tolerance = .Machine$double.eps^0.5) {
-
+is_seq_dispersed_basic <- function(
+  x,
+  from,
+  tolerance = .Machine$double.eps^0.5
+) {
   if (is_even(length(x))) {
     return(FALSE)
   }
@@ -412,11 +427,9 @@ is_seq_dispersed_basic <- function(x, from,
   }
 
   dispersion_minus <- from - x[1L:(index_central_x - 1L)]
-  dispersion_plus  <- from + x[(index_central_x + 1L):length(x)]
+  dispersion_plus <- from + x[(index_central_x + 1L):length(x)]
 
   from_reconstructed <- (dispersion_plus - rev(dispersion_minus)) / 2
 
   all(dplyr::near(from, from_reconstructed, tolerance))
 }
-
-

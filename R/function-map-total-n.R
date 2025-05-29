@@ -1,4 +1,3 @@
-
 # Helper function used within `function_map_total_n_proto()` below; not
 # exported:
 mutate_both_consistent <- function(data) {
@@ -9,7 +8,6 @@ mutate_both_consistent <- function(data) {
 
   dplyr::mutate(data, both_consistent, .after = "consistency")
 }
-
 
 
 # # Example for `reported` and `data`:
@@ -41,26 +39,40 @@ mutate_both_consistent <- function(data) {
 #   disperse(20)[1:8, ]
 # )
 
-
 # Used within `function_map_total_n()`:
-function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
-                                       .dispersion = 0:5,
-                                       .n_min = 1L, .n_max = NULL,
-                                       .constant = NULL, ...) {
-
-  function(data, fun = .fun, reported = .reported,
-           reported_orig = .reported_orig, dir = .dir,
-           dispersion = .dispersion,
-           n_min = .n_min, n_max = .n_max,
-           constant = .constant, ...) {
-
+function_map_total_n_proto <- function(
+  .fun,
+  .reported,
+  .reported_orig,
+  .dir,
+  .dispersion = 0:5,
+  .n_min = 1L,
+  .n_max = NULL,
+  .constant = NULL,
+  ...
+) {
+  function(
+    data,
+    fun = .fun,
+    reported = .reported,
+    reported_orig = .reported_orig,
+    dir = .dir,
+    dispersion = .dispersion,
+    n_min = .n_min,
+    n_max = .n_max,
+    constant = .constant,
+    ...
+  ) {
     reported_n_cols <- ncol(reported)
     reported_n_vars <- reported_n_cols / 2
 
     df_list <- data %>%
       dplyr::select(n) %>%
       purrr::pmap(
-        disperse_total, dispersion = dispersion, n_min = n_min, n_max = n_max,
+        disperse_total,
+        dispersion = dispersion,
+        n_min = n_min,
+        n_max = n_max,
         constant = constant
       )
 
@@ -75,21 +87,24 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
       tibble::tibble(.name_repair = function(x) "reported") %>%
       dplyr::mutate(
         df_list,
-        times    = df_list_nrow / 2,
+        times = df_list_nrow / 2,
         reported = purrr::map2(
-          reported, times, function(x, y) purrr::map2(x, y, rep)
+          reported,
+          times,
+          function(x, y) purrr::map2(x, y, rep)
         )
       ) %>%
       tidyr::unnest_wider(reported) %>%
       dplyr::rename_with(
-        .fn   = function(x) reported_orig,
+        .fn = function(x) reported_orig,
         .cols = 1L:dplyr::all_of(reported_n_vars)
       ) %>%
       dplyr::mutate(
         dplyr::across(
           .cols = 1L:dplyr::all_of(reported_n_vars),
-          .fns  = function(x) purrr::map(x, tibble::as_tibble)
-        ), times = NULL
+          .fns = function(x) purrr::map(x, tibble::as_tibble)
+        ),
+        times = NULL
       )
 
     # Rename the tibbles nested within the list-columns using the original names
@@ -100,9 +115,9 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
       tidyr::pivot_longer(cols = everything()) %>%
       dplyr::mutate(value = purrr::map2(value, name, setNames)) %>%
       tidyr::pivot_wider(
-        names_from  = name,
+        names_from = name,
         values_from = value,
-        values_fn   = list
+        values_fn = list
       ) %>%
       tidyr::unnest(cols = everything())
 
@@ -132,10 +147,7 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
   }
 
   # -- End of the manufactured function --
-
 }
-
-
 
 
 #' Create new `*_map_total_n()` functions
@@ -236,7 +248,6 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 #'   .name_test = "GRIM"
 #' )
 
-
 # # Full example inputs:
 #
 # data <- tibble::tribble(
@@ -253,15 +264,19 @@ function_map_total_n_proto <- function(.fun, .reported, .reported_orig, .dir,
 # n_min <- 1
 # n_max <- NULL
 
-
-function_map_total_n <- function(.fun, .reported, .name_test,
-                                 .name_key_result = "consistency",
-                                 .name_class = NULL,
-                                 .dispersion = 0:5,
-                                 .n_min = 1L, .n_max = NULL,
-                                 .constant = NULL,
-                                 .constant_index = NULL, ...) {
-
+function_map_total_n <- function(
+  .fun,
+  .reported,
+  .name_test,
+  .name_key_result = "consistency",
+  .name_class = NULL,
+  .dispersion = 0:5,
+  .n_min = 1L,
+  .n_max = NULL,
+  .constant = NULL,
+  .constant_index = NULL,
+  ...
+) {
   force(.fun)
   force(.reported)
   force(.name_test)
@@ -293,7 +308,6 @@ function_map_total_n <- function(.fun, .reported, .name_test,
   reported_reduplicated <- rep(.reported, each = 2L)
   reported_reduplicated <- paste0(reported_reduplicated, c("1", "2"))
 
-
   # --- Start of the manufactured function, `fn_out()` ---
 
   fn_out <- rlang::new_function(
@@ -307,7 +321,6 @@ function_map_total_n <- function(.fun, .reported, .name_test,
       ... =
     ),
     body = rlang::expr({
-
       name_test <- `!!`(.name_test)
       name_fun <- `!!`(name_fun)
       name_class <- `!!`(.name_class)
@@ -316,7 +329,6 @@ function_map_total_n <- function(.fun, .reported, .name_test,
       fun <- `!!`(.fun)
 
       data <- absorb_key_args(data, reported_reduplicated)
-
 
       # Checks ---
 
@@ -365,11 +377,10 @@ function_map_total_n <- function(.fun, .reported, .name_test,
         ))
       }
 
-
       # Main part ---
 
       data_forth <- data
-      data_back  <- data
+      data_back <- data
 
       reported_orig <- reported
 
@@ -441,9 +452,12 @@ function_map_total_n <- function(.fun, .reported, .name_test,
       # `disperse_total` and `fun` (the test-specific mapping function, such as
       # `grim_map`) to `data_forth` and `data_back`:
       map_total_n_proto <- function_map_total_n_proto(
-        .fun = fun, .reported = cols_expected_forth,
-        .reported_orig = reported_orig, .dispersion = dispersion,
-        .n_min = n_min, .n_max = n_max,
+        .fun = fun,
+        .reported = cols_expected_forth,
+        .reported_orig = reported_orig,
+        .dispersion = dispersion,
+        .n_min = n_min,
+        .n_max = n_max,
         .constant = constant,
         ...
       )
@@ -451,20 +465,26 @@ function_map_total_n <- function(.fun, .reported, .name_test,
       # Now, call the manufactured function on both tibbles. First the
       # original...
       out_forth <- map_total_n_proto(
-        data = data_forth, reported = cols_expected_forth,
-        reported_orig = reported_orig, dir = factor("forth", levels = "forth"),
+        data = data_forth,
+        reported = cols_expected_forth,
+        reported_orig = reported_orig,
+        dir = factor("forth", levels = "forth"),
         dispersion = dispersion,
-        n_min = n_min, n_max = n_max,
+        n_min = n_min,
+        n_max = n_max,
         constant = constant,
         ...
       )
 
       # ...and second, the one with reversed index name portions:
-      out_back  <- map_total_n_proto(
-        data = data_back, reported = cols_expected_back,
-        reported_orig = reported_orig, dir = factor("back", levels = "back"),
+      out_back <- map_total_n_proto(
+        data = data_back,
+        reported = cols_expected_back,
+        reported_orig = reported_orig,
+        dir = factor("back", levels = "back"),
         dispersion = dispersion,
-        n_min = n_min, n_max = n_max,
+        n_min = n_min,
+        n_max = n_max,
         constant = constant,
         ...
       )
@@ -475,7 +495,7 @@ function_map_total_n <- function(.fun, .reported, .name_test,
       # error message, then, would at least clarify the source of the problem:
       if (!all(colnames(out_forth) == colnames(out_back))) {
         names_out_forth <- wrap_in_backticks(colnames(out_forth))
-        names_out_back  <- wrap_in_backticks(colnames(out_back))
+        names_out_back <- wrap_in_backticks(colnames(out_back))
         cli::cli_abort(c(
           "Column names returned by calls to the helper function \\
           `scrutiny:::function_map_total_n_proto()` are not identical.",
@@ -502,7 +522,6 @@ function_map_total_n <- function(.fun, .reported, .name_test,
       # tibble. Therefore, `constant_index` must play itself out here, not
       # within `disperse_total()`:
       if (!is.null(constant) && !is.null(constant_index)) {
-
         if (length(constant_index) != 1L) {
           cli::cli_abort("`.constant_index` must have length 1.")
         }
@@ -530,7 +549,6 @@ function_map_total_n <- function(.fun, .reported, .name_test,
     }),
     env = rlang::caller_env()
   )
-
 
   # --- End of the manufactured function, `fn_out()` ---
 

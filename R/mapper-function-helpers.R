@@ -1,4 +1,3 @@
-
 # Internal helpers; not exported ------------------------------------------
 
 check_key_args_in_colnames <- function(data, reported) {
@@ -36,8 +35,8 @@ check_key_args_in_colnames <- function(data, reported) {
 check_consistency_not_in_colnames <- function(data, name_test) {
   if (any("consistency" == colnames(data))) {
     dc <- class(data)
-    class_basic   <- dc[stringr::str_detect(dc, "_map$")]
-    class_seq     <- dc[stringr::str_detect(dc, "_map_seq$")]
+    class_basic <- dc[stringr::str_detect(dc, "_map$")]
+    class_seq <- dc[stringr::str_detect(dc, "_map_seq$")]
     class_total_n <- dc[stringr::str_detect(dc, "_map_total_n$")]
     if (length(class_basic) > 0L) {
       fun_name_basic <- stringr::str_remove(class_basic, "^scr_")
@@ -86,7 +85,6 @@ check_consistency_not_in_colnames <- function(data, name_test) {
 }
 
 
-
 #' Check that a mapper's input has correct column names
 #'
 #' @description When called within a consistency test mapper function,
@@ -114,12 +112,10 @@ check_consistency_not_in_colnames <- function(data, name_test) {
 #' @seealso `vignette("consistency-tests-in-depth")`, for context and the "key
 #'   columns" terminology.
 
-
 check_mapper_input_colnames <- function(data, reported, name_test) {
   check_key_args_in_colnames(data, reported)
   check_consistency_not_in_colnames(data, name_test)
 }
-
 
 
 #' Alert user if more specific `audit_*()` summaries are available
@@ -145,12 +141,10 @@ check_mapper_input_colnames <- function(data, reported, name_test) {
 #'
 #' @return No return value. Might print an alert.
 
-
 check_audit_special <- function(data, name_test) {
-
   class_name_root <- paste0("scr_", tolower(name_test), "_map_")
 
-  class_seq     <- paste0(class_name_root, "seq")
+  class_seq <- paste0(class_name_root, "seq")
   class_total_n <- paste0(class_name_root, "total_n")
 
   # If `data` is the output of a function like `grim_map_seq()`, point the user
@@ -168,9 +162,7 @@ check_audit_special <- function(data, name_test) {
       "More specialized {name_test} summaries available with `audit_total_n()`."
     )
   }
-
 }
-
 
 
 #' Helper column operations
@@ -202,9 +194,7 @@ check_audit_special <- function(data, name_test) {
 #'
 #' @export
 
-
 manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
-
   # Retrieve the variable's name:
   var_name <- deparse(substitute(var_arg))
 
@@ -221,9 +211,9 @@ manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
       data_name <- wrap_in_backticks(data_name)
       var_name_as_arg <- wrap_in_backticks(var_name)
       var_name <- wrap_in_quotes(var_name)
-      var_arg  <- wrap_in_quotes_or_backticks(var_arg)
+      var_arg <- wrap_in_quotes_or_backticks(var_arg)
       fun_name <- name_caller_call(n = 2L)
-      default  <- wrap_in_quotes_or_backticks(default)
+      default <- wrap_in_quotes_or_backticks(default)
       cli::cli_abort(c(
         "Column {var_name} already in {data_name}.",
         "x" = "The {var_name_as_arg} argument in {fun_name} \\
@@ -239,9 +229,6 @@ manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
 
   data
 }
-
-
-
 
 
 #' Enable name-independent key column identification
@@ -277,7 +264,6 @@ manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
 #'
 #' @export
 
-
 manage_key_colnames <- function(data, arg, description = NULL) {
   arg_name <- deparse(substitute(arg))
   if (!is.null(arg)) {
@@ -298,9 +284,6 @@ manage_key_colnames <- function(data, arg, description = NULL) {
   }
   data
 }
-
-
-
 
 
 #' Unnest a test result column
@@ -335,19 +318,22 @@ manage_key_colnames <- function(data, arg, description = NULL) {
 #'
 #' @export
 
-
-unnest_consistency_cols <- function(results, col_names, index = FALSE,
-                                    col = "consistency") {
-
+unnest_consistency_cols <- function(
+  results,
+  col_names,
+  index = FALSE,
+  col = "consistency"
+) {
   # The difference between the two conditions lies only in the
   # `purrr::map_depth()` call:
   if (index) {
     consistency_list <- results[col][[1L]] %>%
-      purrr::map_depth(.depth = 2L, .f =  `[`, 1) %>%
+      purrr::map_depth(.depth = 2L, .f = `[`, 1) %>%
       purrr::map(function(x) unlist(x, use.names = FALSE))
   } else {
     consistency_list <- purrr::map(
-      results[col][[1L]], function(x) unlist(x, use.names = FALSE)
+      results[col][[1L]],
+      function(x) unlist(x, use.names = FALSE)
     )
   }
 
@@ -362,7 +348,6 @@ unnest_consistency_cols <- function(results, col_names, index = FALSE,
   colnames(consistency_df) <- col_names
 
   results %>%
-    dplyr::select(- {{ col }}) %>%
+    dplyr::select(-{{ col }}) %>%
     dplyr::bind_cols(consistency_df)
 }
-
