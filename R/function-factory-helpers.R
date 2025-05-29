@@ -248,6 +248,10 @@ insert_key_args <- function(fun, reported, insert_after = 1L) {
 #'   Remember reassigning the value to `data`!
 #'
 #' @examples
+#' # Not really a meaningful example -- need to use
+#' # the function in very specific places
+#' data <- grim_map(pigs1)
+#' data <- absorb_key_args(data, c("x", "n"))
 absorb_key_args <- function(data, reported, key_cols_call) {
 
   key_cols_missing <- reported[!reported %in% colnames(data)]

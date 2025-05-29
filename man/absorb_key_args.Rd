@@ -28,3 +28,9 @@ transforms \code{data}, not \code{fun}, and should be reassigned to \code{data}.
 It renames key columns that have non-standard names, following user-supplied
 directions via the arguments automatically inserted below the function.
 }
+\examples{
+# Not really a meaningful example -- need to use
+# the function in very specific places
+data <- grim_map(pigs1)
+data <- absorb_key_args(data, c("x", "n"))
+}
