@@ -220,8 +220,7 @@ debit_plot <- function(data,
     p <- p +
       ggplot2::theme_update() +
       ggplot2::theme(
-        panel.grid.minor = ggplot2::element_blank(),
-        axis.ticks.y = ggplot2::element_line(seq(0, 0.5, 0.1))
+        panel.grid.minor = ggplot2::element_blank()
       )
   }
 
