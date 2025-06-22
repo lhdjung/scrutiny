@@ -481,6 +481,7 @@ grim_plot <- function(
       ggplot2::labs(
         x = "Sample size",
         y = paste("Fractional portion of", mean_percent_label)
-      )
+      ) +
+      ggplot2::theme(aspect.ratio = 1)
   ))
 }
