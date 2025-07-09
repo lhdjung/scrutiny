@@ -22,6 +22,20 @@ Please contact me if you know about relevant software that isn't listed here (em
 
 -   James Heathers' [SPRITE](https://peerj.com/preprints/26968v1/) algorithm reconstructs possible distributions of raw data from summary statistics. James also wrote a [light introduction](https://medium.com/hackernoon/introducing-sprite-and-the-case-of-the-carthorse-child-58683c2bfeb) to SPRITE. For R users, it was implemented in [rsprite2](https://lukaswallrich.github.io/rsprite2/) by Lukas Wallrich, building up on code by Nick Brown. Jordan Anaya developed a [Python-based SPRITE app](http://www.prepubmed.org/sprite/).
 
+-   The [unsum](https://lhdjung.github.io/unsum/) package implements CLOSURE, a technique by Nathanael Larigaldie that generalizes SPRITE to find all possible samples, not just a few. It is extremely fast because the core algorithm is written in Rust, which makes CLOSURE suitable even for moderately large samples.
+
+-   Ian Hussey's raft of checks for summary statistics:
+
+    -   TIDES, an [R package](https://github.com/ianhussey/tides) and a [Shiny app](https://errors.shinyapps.io/TIDES/) for a consistency test of summary statistics of data with a known minimum and maximum (e.g., Likert scales, or where the empirical min and max is known or can be well estimated). TIDES also assesses the magnitude of variability given the scale bounds.
+
+    -   The [ANCHOR app](https://errors.shinyapps.io/ANCHOR/) to check for consistency between the whole sample and its subgroups.
+
+    -   The [PORT app](https://errors.shinyapps.io/PORT/) to test correlation tables for consistency.
+
+-   The [ellipse of insignificance app](https://drg85.shinyapps.io/EOIROAR/) by David Robert Grimes tests the robustness of dichotomous outcome trials.
+
+-   [ScrutiPy](https://github.com/nrposner/scrutipy) by Nicolas Roman Posner provides a Python interface to some of scrutiny's functionality. It also features CLOSURE and is mostly implemented in Rust.
+
 -   The R package [validate](https://cran.r-project.org/package=validate) by Mark P.J. van der Loo provides numerous tools for data checking.
 
 -   The delta-F test for linearity, a.k.a. the "Förster test", was implemented in Dale J. Barr's R package [forsterUVA](https://github.com/dalejbarr/forsterUVA).
@@ -31,6 +45,8 @@ Please contact me if you know about relevant software that isn't listed here (em
     -   [benford.analysis](https://github.com/carloscinelli/benford.analysis) by Carlos Cinelli contains various sophisticated tools for inspecting data using the Benford distribution.
 
     -   [jfa](https://koenderks.github.io/jfa/index.html) by Koen Derks offers a full statistical auditing suite (including Benford analysis).
+
+-   [XLTest](http://www.sysmod.com/xltest/index.htm) is a tool for auditing Excel files (but it is not free).
 
 -   The Rust crate [SeaCanal](https://github.com/saghm/sea-canal#how-does-seacanal-work) analyzes numeric sequences, uncovering patterns of operations that might have generated them.
 
