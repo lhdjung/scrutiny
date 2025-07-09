@@ -8,12 +8,12 @@
 
 -   Compatibility with ggplot2 4.0.0 was ensured (\@teunbrand, #78).
 
--   `restore_zeros()` now checks `width` more strictly:
+-   `restore_zeros()` now handles `width` more safely:
 
-    -   It no longer truncates decimal numbers if `width` is specified but some elements of `x` have more decimal places than that. For example, in earlier versions, `restore_zeros(c(0.12, 0.123, 0.1234), width = 2)` would have returned `c("0.120", "0.123", "0.123")`: it silently cut off the `4` from the last value. An error is now thrown in such cases.
+    -   It no longer truncates decimal numbers if `width` is specified but some elements of `x` have more decimal places than that. For example, in earlier versions, `restore_zeros(c(0.12, 0.123, 0.1234), width = 2)` would have returned `c("0.120", "0.123", "0.123")`: it silently cut off the `4` from the last value. An error is now thrown in such cases by default of the new `check_width` argument.
     -   Also, `width` is now checked to be either a single whole number or a vector of whole numbers with the same length as `x`.
 
--   `restore_zeros_df()` has the same fixes as above.
+-   `restore_zeros_df()` has the same changes as above.
 
 -   `is_seq_dispersed()` now works correctly if `NA` values are present.
 

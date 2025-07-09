@@ -5,7 +5,13 @@
 \alias{restore_zeros_df}
 \title{Restore trailing zeros}
 \usage{
-restore_zeros(x, width = NULL, sep_in = "\\\\.", sep_out = sep_in)
+restore_zeros(
+  x,
+  width = NULL,
+  sep_in = "\\\\.",
+  sep_out = sep_in,
+  check_width = c("capped", "never")
+)
 
 restore_zeros_df(
   data,
@@ -15,6 +21,7 @@ restore_zeros_df(
   width = NULL,
   sep_in = "\\\\.",
   sep_out = NULL,
+  check_width = c("capped", "never"),
   ...
 )
 }
@@ -33,6 +40,11 @@ part. Default is \code{"\\\\."}, which renders a decimal point.}
 \item{sep_out}{Substring that will be returned in the output to separate the
 mantissa from the integer part. By default, \code{sep_out} is the same as
 \code{sep_in}.}
+
+\item{check_width}{String (length 1). What to do if \code{width} was specified but
+some values in \code{x} have more decimal places (e.g., \verb{x = 0.123, width = 2})?
+The default, \code{"capped"}, is to throw an error. Use \code{check_width = "never"}
+to avoid this.}
 
 \item{data}{Data frame or matrix. Only in \code{restore_zeros_df()}, and instead
 of \code{x}.}

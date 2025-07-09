@@ -44,6 +44,10 @@
 #' @param sep_out Substring that will be returned in the output to separate the
 #'   mantissa from the integer part. By default, `sep_out` is the same as
 #'   `sep_in`.
+#' @param check_width String (length 1). What to do if `width` was specified but
+#'   some values in `x` have more decimal places (e.g., `x = 0.123, width = 2`)?
+#'   The default, `"capped"`, is to throw an error. Use `check_width = "never"`
+#'   to avoid this.
 #' @param data Data frame or matrix. Only in `restore_zeros_df()`, and instead
 #'   of `x`.
 #' @param cols Only in `restore_zeros_df()`. Select columns from `data` using
@@ -94,7 +98,20 @@
 #' iris %>%
 #'   restore_zeros_df(starts_with("Sepal"), width = 3)
 
-restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in) {
+# x <- c(0.12, 0.123, 0.1234)
+# width <- 2
+# sep_in <- "\\."
+# sep_out <- sep_in
+
+restore_zeros <- function(
+  x,
+  width = NULL,
+  sep_in = "\\.",
+  sep_out = sep_in,
+  check_width = c("capped", "never")
+) {
+  check_width <- rlang::arg_match(check_width)
+
   # Make sure no whitespace (from values that already were strings) is factored
   # into the count:
   x <- stringr::str_trim(x)
@@ -130,8 +147,7 @@ restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in) {
     # This is an error if `width` is not a single integer-ish number or a vector
     # of such numbers with the same length as `x`...
   } else if (
-    !any(c(1L, length(x)) == length(width)) ||
-      !all(is_whole_number(width))
+    !any(c(1L, length(x)) == length(width)) || !all(is_whole_number(width))
   ) {
     cli::cli_abort(c(
       "`width` must be a single, whole number \
@@ -139,13 +155,14 @@ restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in) {
       "x" = "It is {width}."
     ))
     # ... or if any `x` elements have more decimal places than `width` allows:
-  } else if (any(width_mantissa > width)) {
+  } else if (check_width == "capped" && any(width_mantissa > width)) {
     offenders <- x[width_mantissa > width]
     cli::cli_abort(c(
-      "Some decimal parts cut short by `width` setting.",
+      "Some values have more decimal places than `width` foresees.",
       "x" = "`width` was set to {width}.",
       "i" = "Values with more than {width} decimal place{?s}:",
-      "i" = "{offenders}"
+      "i" = "{offenders}",
+      ">" = "Avoid this error with `check_width = \"never\"`."
     ))
   } else {
     width_target <- width
@@ -163,7 +180,14 @@ restore_zeros <- function(x, width = NULL, sep_in = "\\.", sep_out = sep_in) {
   out_format <- paste0("%.", width_target, "f")
 
   # Pad `x` with the correct amount of trailing zeros:
-  out <- sprintf(out_format, as.numeric(x))
+
+  # out <- sprintf(out_format, as.numeric(x))
+
+  out <- dplyr::if_else(
+    width_mantissa < width_target,
+    sprintf(out_format, as.numeric(x)),
+    x
+  )
 
   # By default, the separator in the output vector should be a decimal point,
   # but it might have been overridden -- either directly via `sep_out` or
@@ -188,6 +212,7 @@ restore_zeros_df <- function(
   width = NULL,
   sep_in = "\\.",
   sep_out = NULL,
+  check_width = c("capped", "never"),
   ...
 ) {
   # Check whether the user specified any "old" arguments: those starting on a
@@ -281,7 +306,8 @@ restore_zeros_df <- function(
           x = data_dummy,
           width = width,
           sep_in = sep_in,
-          sep_out = sep_out
+          sep_out = sep_out,
+          check_width = check_width
         )
       }
     )

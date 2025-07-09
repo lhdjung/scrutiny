@@ -25,6 +25,11 @@ test_that("`width` is checked correctly", {
   1:5 %>% restore_zeros(width = 1.2) %>% expect_error()
 })
 
+test_that("`check_width` works correctly", {
+  c(0.12, 0.123, 0.1234) %>% restore_zeros(width = 2) %>% expect_error()
+  c(0.12, 0.123, 0.1234) %>% restore_zeros(width = 2, check_width = "never") %>% expect_no_error()
+})
+
 
 test_that("The `*_df()` variant produces correct results", {
   iris %>% restore_zeros_df() %>% expect_no_error()
