@@ -6,6 +6,8 @@
 
 -   Fixed a bug that could theoretically lead `grim()`, `grim_map()`, `grim_map_seq()`, and `grim_map_total_n()` to throw a warning and possibly even return incorrect results (also \@nrposner, #75). However, this is even less realistic than the previous bug.
 
+-   Compatibility with ggplot2 4.0.0 was ensured (\@teunbrand, #78).
+
 -   `restore_zeros()` now checks `width` more strictly:
 
     -   It no longer truncates decimal numbers if `width` is specified but some elements of `x` have more decimal places than that. For example, in earlier versions, `restore_zeros(c(0.12, 0.123, 0.1234), width = 2)` would have returned `c("0.120", "0.123", "0.123")`: it silently cut off the `4` from the last value. An error is now thrown in such cases.
@@ -14,6 +16,20 @@
 -   `restore_zeros_df()` has the same fixes as above.
 
 -   `is_seq_dispersed()` now works correctly if `NA` values are present.
+
+## Breaking changes
+
+-   In `grim_plot()`, the aspect ratio was set to 1, so the plot is always square now. This is more pleasant to the eye given the background raster. To get the old behavior back, add `ggplot2::theme(aspect.ratio = NULL)` to the plot. You could also choose some ratio other than `NULL`, of course.
+
+## Minor improvements
+
+-   "Related software" (under "Articles" in the header) now has some new entries.
+
+-   GRIMMER documentation was improved (#66).
+
+## Lifecycle updates
+
+Currently none, but note that all functions and arguments that were deprecated in scrutiny 0.5.0 will be removed in the next major or minor version.
 
 # scrutiny 0.5.0
 
