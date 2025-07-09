@@ -369,6 +369,11 @@ check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
 check_length <- function(x, l, allow_null = FALSE) {
   if (length(x) != l) {
     name <- deparse(substitute(x))
+
+    if (allow_null && is.null(x)) {
+      return(invisible(NULL))
+    }
+
     null_qualifier <- if (allow_null) {
       " unless it's `NULL`"
     } else {
