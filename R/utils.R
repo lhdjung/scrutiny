@@ -97,38 +97,22 @@ reconstruct_sd_scalar <- function(formula, x, n, group_0, group_1) {
   } else if (formula == "groups") {
     sd_rec <- sd_binary_groups(group_0 = group_0, group_1 = group_1)
   } else {
-    cli::cli_abort(c(
-      "!" = "`formula` must be \"mean_n\", \"0_n\", \"1_n\", or \\
+    cli::cli_abort(
+      message = c(
+        "!" = "`formula` must be \"mean_n\", \"0_n\", \"1_n\", or \\
       \"groups\".",
-      "x" = "It is {wrong_spec_string(formula)}."
-    ))
+        "x" = "It is {wrong_spec_string(formula)}."
+      ),
+      call = rlang::caller_env()
+    )
   }
 
-  return(sd_rec)
+  sd_rec
 }
 
 
 # Vectorized version of `reconstruct_sd_scalar()`:
 reconstruct_sd <- Vectorize(reconstruct_sd_scalar, USE.NAMES = FALSE)
-
-
-#' Count integer places
-#'
-#' Used in unit testing. Analogous to `decimal_places()`.
-#'
-#' @param x Numeric (or string that can be coerced to numeric). Object with
-#'   integer places to count.
-#'
-#' @return Integer.
-#'
-#' @noRd
-integer_places <- function(x) {
-  x %>%
-    stringr::str_trim() %>%
-    stringr::str_split_fixed("\\.", n = 2L) %>%
-    .[, 1L] %>%
-    stringr::str_length()
-}
 
 
 #' Collect dots-arguments in a list
@@ -156,7 +140,11 @@ straighten_out <- function(...) {
 #'
 #' @noRd
 an_a <- function(x) {
-  dplyr::if_else(stringr::str_detect(x, "^[aeiou]"), "an", "a")
+  dplyr::if_else(
+    stringr::str_detect(x, "^[aeiou]"),
+    "an",
+    "a"
+  )
 }
 
 
@@ -173,11 +161,13 @@ an_a <- function(x) {
 #' @noRd
 an_a_type <- function(x) {
   type <- typeof(x)
+
   if (type == "double") {
     type <- "double (numeric value)"
   } else if (type == "character") {
     type <- "string"
   }
+
   paste(an_a(typeof(x)), type)
 }
 
@@ -228,6 +218,7 @@ reverse_column_order <- function(data) {
   if (ncol(data) == 0L) {
     return(data)
   }
+
   # Don't mind sequence linting here; the early return above takes care of the
   # empty edge case already!
   col_numbers_reversed <- ncol(data):1L
@@ -322,7 +313,7 @@ check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
       }
 
       # Throw error:
-      cli::cli_abort(msg_error)
+      cli::cli_abort(msg_error, call = rlang::caller_env())
     }
 
     # Warning condition, triggered if more than one element of `var_list` has
@@ -375,37 +366,22 @@ check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
 #' @return No return value; might throw error.
 #'
 #' @noRd
-check_length <- function(x, l) {
+check_length <- function(x, l, allow_null = FALSE) {
   if (length(x) != l) {
     name <- deparse(substitute(x))
-    cli::cli_abort(c(
-      "!" = "`{name}` must have length {l}.",
-      "x" = "It has length {length(x)}."
-    ))
-  }
-}
+    null_qualifier <- if (allow_null) {
+      " unless it's `NULL`"
+    } else {
+      NULL
+    }
 
-
-#' Check length (with `NULL`-related message)
-#'
-#' Same as `check_length()` except the error message says that `x` might be
-#' `NULL` instead of a vector of length `l`. However, the function doesn't check
-#' this, so it should only be called in a context when this condition was
-#' checked already.
-#'
-#' @param x Vector.
-#' @param l Numeric. Length that `x` should have.
-#'
-#' @return No return value; might throw error.
-#'
-#' @noRd
-check_length_or_null <- function(x, l) {
-  if (length(x) != l) {
-    name <- deparse(substitute(x))
-    cli::cli_abort(c(
-      "!" = "`{name}` must have length {l} unless it's `NULL`.",
-      "x" = "It has length {length(x)}."
-    ))
+    cli::cli_abort(
+      message = c(
+        "!" = "`{name}` must have length {l}{null_qualifier}.",
+        "x" = "It has length {length(x)}."
+      ),
+      call = rlang::caller_env()
+    )
   }
 }
 
@@ -430,10 +406,14 @@ check_type <- function(x, t) {
     } else {
       msg_object <- "be one of these types:"
     }
-    cli::cli_abort(c(
-      "!" = "`{msg_name}` must {msg_object} {t}.",
-      "x" = "It is {an_a_type(x)}."
-    ))
+
+    cli::cli_abort(
+      message = c(
+        "!" = "`{msg_name}` must {msg_object} {t}.",
+        "x" = "It is {an_a_type(x)}."
+      ),
+      call = rlang::caller_env()
+    )
   }
 }
 
@@ -453,10 +433,14 @@ check_type <- function(x, t) {
 check_class <- function(x, cl) {
   if (!inherits(x, cl)) {
     msg_name <- deparse(substitute(x))
-    cli::cli_abort(c(
-      "!" = "`{msg_name}` must inherit class \"{cl}\".",
-      "x" = "It doesn't."
-    ))
+
+    cli::cli_abort(
+      message = c(
+        "!" = "`{msg_name}` must inherit class \"{cl}\".",
+        "x" = "It doesn't."
+      ),
+      call = rlang::caller_env()
+    )
   }
 }
 
@@ -472,10 +456,13 @@ check_class <- function(x, cl) {
 #' @noRd
 check_tibble <- function(x) {
   if (!tibble::is_tibble(x)) {
-    cli::cli_abort(c(
-      "!" = "`data` must be a tibble.",
-      "i" = "Convert it with `tibble::as_tibble()`."
-    ))
+    cli::cli_abort(
+      message = c(
+        "!" = "`data` must be a tibble.",
+        "i" = "Convert it with `tibble::as_tibble()`."
+      ),
+      call = rlang::caller_env()
+    )
   }
 }
 
@@ -504,13 +491,16 @@ check_tibble <- function(x) {
 #' @noRd
 check_rounding_singular <- function(rounding, bad, good1, good2) {
   if (any(bad %in% rounding)) {
-    cli::cli_abort(c(
-      "!" = "If `rounding` has length > 1, only single rounding procedures \\
-      are supported, such as \"{good1}\" and \"{good2}\".",
-      "x" = "`rounding` was given as \"{bad}\" plus others.",
-      "i" = "You can still concatenate multiple of them; just leave out \\
-      those with \"_or_\"."
-    ))
+    cli::cli_abort(
+      message = c(
+        "!" = "If `rounding` has length > 1, only single rounding procedures \\
+        are supported, such as \"{good1}\" and \"{good2}\".",
+        "x" = "`rounding` was given as \"{bad}\" plus others.",
+        "i" = "You can still concatenate multiple of them; just leave out \\
+        those with \"_or_\"."
+      ),
+      call = rlang::caller_env()
+    )
   }
 }
 
@@ -531,15 +521,18 @@ check_rounding_singular <- function(rounding, bad, good1, good2) {
 #' @noRd
 check_threshold_specified <- function(threshold) {
   if (threshold == 5) {
-    cli::cli_abort(c(
-      "You need to specify `threshold`.",
-      "x" = "If `rounding` is \"up_from\", \"down_from\", or \\
-      \"up_from_or_down_from\", set `threshold` to a number \\
-      other than 5. The `x` argument will then be rounded up or down from \\
-      that number.",
-      "i" = "To round up or down from 5, just set `rounding` to \\
-      \"up\", \"down\", or \"up_or_down\" instead."
-    ))
+    cli::cli_abort(
+      message = c(
+        "You need to specify `threshold`.",
+        "x" = "If `rounding` is \"up_from\", \"down_from\", or \\
+        \"up_from_or_down_from\", set `threshold` to a number \\
+        other than 5. The `x` argument will then be rounded up or down from \\
+        that number.",
+        "i" = "To round up or down from 5, just set `rounding` to \\
+        \"up\", \"down\", or \"up_or_down\" instead."
+      ),
+      call = rlang::caller_env()
+    )
   }
 }
 
@@ -563,10 +556,13 @@ split_into_groups <- function(x, group_size) {
 
   if (remainder != 0L) {
     if (!is_whole_number(group_size)) {
-      cli::cli_abort(c(
-        "!" = "`group_size` must be a whole number.",
-        "x" = "It is `{group_size}`."
-      ))
+      cli::cli_abort(
+        message = c(
+          "!" = "`group_size` must be a whole number.",
+          "x" = "It is `{group_size}`."
+        ),
+        call = rlang::caller_env()
+      )
     }
     name_x <- deparse(substitute(x))
     msg_el <- if (remainder == 1L) "element" else "elements"
@@ -656,10 +652,13 @@ manage_string_output_seq <- function(out, from, string_output, digits) {
     } else {
       string_output <- paste0("`", string_output, "`")
     }
-    cli::cli_abort(c(
-      "!" = "`string_output` must be logical or \"auto\".",
-      "x" = "It is {string_output}."
-    ))
+    cli::cli_abort(
+      message = c(
+        "!" = "`string_output` must be logical or \"auto\".",
+        "x" = "It is {string_output}."
+      ),
+      call = rlang::caller_env()
+    )
   } else if (string_output) {
     return(restore_zeros(out, width = digits))
   } else if (typeof(from) != "character") {
@@ -687,6 +686,7 @@ commas_and <- function(x) {
   if (length(x) == 1L) {
     return(x)
   }
+
   if (length(x) == 2L) {
     collapse <- " "
     and <- " and "
@@ -694,8 +694,10 @@ commas_and <- function(x) {
     collapse <- ", "
     and <- ", and "
   }
-  out <- stringr::str_flatten(x[-length(x)], collapse = collapse)
-  paste0(out, and, x[length(x)])
+
+  x[-length(x)] %>%
+    stringr::str_flatten(collapse = collapse) %>%
+    paste0(and, x[length(x)])
 }
 
 
@@ -710,6 +712,7 @@ commas_and <- function(x) {
 #' @noRd
 check_non_negative <- function(x) {
   offenders <- x[x < 0]
+
   if (length(offenders) > 0L) {
     if (length(offenders) > 3L) {
       offenders <- offenders[1:3]
@@ -717,12 +720,17 @@ check_non_negative <- function(x) {
     } else {
       msg_among_others <- ""
     }
+
     offenders <- paste0("`", offenders, "`")
     name <- deparse(substitute(x))
-    cli::cli_abort(c(
-      "!" = "`{name}` can't be negative.",
-      "x" = "It contains {offenders}{msg_among_others}."
-    ))
+
+    cli::cli_abort(
+      message = c(
+        "!" = "`{name}` can't be negative.",
+        "x" = "It contains {offenders}{msg_among_others}."
+      ),
+      call = rlang::caller_env()
+    )
   }
 }
 
@@ -767,11 +775,15 @@ check_length_disperse_n <- function(n, msg_single) {
         "Did you mean to call `disperse2(n = c({n[1L]}, {n[2L]}))`?"
       )
     }
-    cli::cli_abort(c(
-      "`n` has length {length(n)}.",
-      "x" = msg_single,
-      "i" = "See documentation under `?disperse`."
-    ))
+
+    cli::cli_abort(
+      message = c(
+        "`n` has length {length(n)}.",
+        "x" = msg_single,
+        "i" = "See documentation under `?disperse`."
+      ),
+      call = rlang::caller_env()
+    )
   }
 }
 
@@ -789,8 +801,10 @@ check_length_disperse_n <- function(n, msg_single) {
 check_type_numeric_like <- function(x) {
   if (isFALSE(is_numeric_like(x))) {
     name <- deparse(substitute(x))
+
     if (rlang::is_vector(x)) {
       length_non_na <- length(x[!is.na(x)])
+
       if (length_non_na == 1L) {
         msg_values <- "a non-`NA` value"
         msg_elements <- "element"
@@ -798,17 +812,24 @@ check_type_numeric_like <- function(x) {
         msg_values <- "non-`NA` values"
         msg_elements <- "elements"
       }
-      cli::cli_abort(c(
-        "!" = "`{name}` must be numeric or coercible to numeric.",
-        "i" = "(This means that converting it to numeric \\
+
+      cli::cli_abort(
+        message = c(
+          "!" = "`{name}` must be numeric or coercible to numeric.",
+          "i" = "(This means that converting it to numeric \\
         must return {msg_values} for its {length_non_na} \\
         non-`NA` {msg_elements}.)"
-      ))
+        ),
+        call = rlang::caller_env()
+      )
     } else {
-      cli::cli_abort(c(
-        "!" = "`{name}` must be numeric or coercible to numeric.",
-        "x" = "It is {an_a_type(x)}."
-      ))
+      cli::cli_abort(
+        message = c(
+          "!" = "`{name}` must be numeric or coercible to numeric.",
+          "x" = "It is {an_a_type(x)}."
+        ),
+        call = rlang::caller_env()
+      )
     }
   }
 }
@@ -947,12 +968,15 @@ check_new_args_without_dots <- function(data, dots, old_args, name_fn) {
       msg_cols <- stringr::str_flatten(as.character(offenders1), ", ")
       msg_cols <- paste0("c(", msg_cols, ")")
     }
-    cli::cli_abort(c(
-      "!" = "`{name_fn}()` no longer uses the dots, `...`, \\
+    cli::cli_abort(
+      message = c(
+        "!" = "`{name_fn}()` no longer uses the dots, `...`, \\
       for column selection.",
-      "i" = "Use the `cols` argument instead, like `cols = {msg_cols}`.",
-      "*" = "Apologies for the inconvenience."
-    ))
+        "i" = "Use the `cols` argument instead, like `cols = {msg_cols}`.",
+        "*" = "Apologies for the inconvenience."
+      ),
+      call = rlang::caller_env()
+    )
   }
 
   arg_names <- names(rlang::caller_call())
@@ -981,11 +1005,14 @@ check_new_args_without_dots <- function(data, dots, old_args, name_fn) {
     }
     msg_new_args <- wrap_in_backticks(msg_new_args)
     offenders2 <- wrap_in_backticks(offenders2)
-    cli::cli_abort(c(
-      "!" = "In `{name_fn}()`, {offenders2} {msg_was_were} \\
-      renamed to {msg_new_args} (without {msg_dot_dots}).{msg_switch_end}",
-      "*" = "Apologies for the inconvenience."
-    ))
+    cli::cli_abort(
+      message = c(
+        "!" = "In `{name_fn}()`, {offenders2} {msg_was_were} \\
+        renamed to {msg_new_args} (without {msg_dot_dots}).{msg_switch_end}",
+        "*" = "Apologies for the inconvenience."
+      ),
+      call = rlang::caller_env()
+    )
   }
 
   if (name_fn == "split_by_parens") {
@@ -1004,12 +1031,15 @@ check_new_args_without_dots <- function(data, dots, old_args, name_fn) {
       msg_new_args <- stringr::str_replace(offenders3, "col", "end")
       msg_new_args <- wrap_in_backticks(msg_new_args)
       offenders3 <- wrap_in_backticks(offenders3)
-      cli::cli_abort(c(
-        "!" = "{offenders3} {msg_no_args} of `{name_fn}()`.",
-        "i" = "You're right not to use {msg_offenders_old} anymore \\
-        ({msg_dot_dots}), but also note that it says {msg_new_args} now.",
-        "*" = "Apologies for the inconvenience."
-      ))
+      cli::cli_abort(
+        message = c(
+          "!" = "{offenders3} {msg_no_args} of `{name_fn}()`.",
+          "i" = "You're right not to use {msg_offenders_old} anymore \\
+          ({msg_dot_dots}), but also note that it says {msg_new_args} now.",
+          "*" = "Apologies for the inconvenience."
+        ),
+        call = rlang::caller_env()
+      )
     }
   }
 
@@ -1184,9 +1214,11 @@ about_equal <- function(x, y) {
 name_caller_call <- function(n = 1L, wrap = TRUE) {
   name <- rlang::caller_call(n = n)
   name <- name[[1L]]
+
   if (wrap) {
     name <- paste0("`", name, "()`")
   }
+
   name
 }
 
@@ -1238,64 +1270,60 @@ dustify <- function(x) {
 #' @noRd
 check_ggplot2_size <- function(arg_old, default_old) {
   if (arg_old != default_old) {
+
     msg1 <- paste0(
       "That's because your ggplot2 version is >= 3.4.0 (actually, ",
       utils::packageVersion("ggplot2"),
       ")."
     )
+
     msg2 <- paste(
       "In ggplot2, the `size` aesthetic has been deprecated since",
       "version 3.4.0."
     )
+
     msg3 <- "See https://www.tidyverse.org/blog/2022/11/ggplot2-3-4-0/#hello-linewidth"
-    cli::cli_abort(c(
-      paste0("`", arg_old, "` is deprecated for you."),
-      "x" = msg1,
-      "i" = msg2,
-      "i" = msg3
-    ))
+
+    cli::cli_abort(
+      message = c(
+        paste0("`", arg_old, "` is deprecated for you."),
+        "x" = msg1,
+        "i" = msg2,
+        "i" = msg3
+      ),
+      call = rlang::caller_env()
+    )
   }
 }
 
 
 check_ggplot2_linewidth <- function(arg_new, default_new) {
   if (arg_new != default_new) {
+
     msg1 <- paste0(
       "That's because your ggplot2 version is < 3.4.0 (actually, ",
       utils::packageVersion("ggplot2"),
       ")."
     )
+
     msg2 <- paste(
       "In ggplot2, the `size` aesthetic has been deprecated since",
       "version 3.4.0. The `linewidth` aesthetic is used as a replacement,",
       "but it's not accessible for versions lower than 3.4.0."
     )
+
     msg3 <- "See https://www.tidyverse.org/blog/2022/11/ggplot2-3-4-0/#hello-linewidth"
-    cli::cli_abort(c(
-      paste0("You can't use `", arg_new, "`."),
-      "x" = msg1,
-      "i" = msg2,
-      "i" = msg3
-    ))
+
+    cli::cli_abort(
+      message = c(
+        paste0("You can't use `", arg_new, "`."),
+        "x" = msg1,
+        "i" = msg2,
+        "i" = msg3
+      ),
+      call = rlang::caller_env()
+    )
   }
-}
-
-
-#' Remove the integer part, keeping the decimal part
-#'
-#' `trunc_reverse()` reduces a number to its decimal portion. It is the opposite
-#' of `trunc()`: Whereas `trunc(3.45)` returns `3,` `trunc_reverse(3.45)`
-#' returns `0.45`.
-#'
-#' This is used in some unit tests.
-#'
-#' @param x Decimal number.
-#'
-#' @return Decimal part of `x`.
-#'
-#' @noRd
-trunc_reverse <- function(x) {
-  x - trunc(x)
 }
 
 
@@ -1323,11 +1351,14 @@ audit_summary_stats <- function(data, selection, total = FALSE) {
   selection <- rlang::enexprs(selection)
 
   if (total && any(".total" == colnames(data))) {
-    cli::cli_abort(c(
-      "`.total` can't be a column name.",
-      "!" = "Please rename the `.total` column, then try again.",
-      "i" = "You could use `dplyr::rename()` for this."
-    ))
+    cli::cli_abort(
+      message = c(
+        "`.total` can't be a column name.",
+        "!" = "Please rename the `.total` column, then try again.",
+        "i" = "You could use `dplyr::rename()` for this."
+      ),
+      call = rlang::caller_env()
+    )
   }
 
   # The dots are merely pro forma; their purpose is to swallow up the `na.rm =
@@ -1397,6 +1428,7 @@ audit_summary_stats <- function(data, selection, total = FALSE) {
 #'
 #' @noRd
 list_min_distance_functions <- list(
+
   # Absolute distance:
   function(x) {
     vapply(
@@ -1411,6 +1443,7 @@ list_min_distance_functions <- list(
       USE.NAMES = FALSE
     )
   },
+
   # Positive distance:
   function(x) {
     vapply(
@@ -1425,6 +1458,7 @@ list_min_distance_functions <- list(
       USE.NAMES = FALSE
     )
   },
+
   # Negative distance:
   function(x) {
     vapply(
@@ -1462,12 +1496,16 @@ check_dispersion_linear <- function(data) {
     name_mapper <- class(data)[grepl("_map_seq$", class(data))]
     name_mapper <- name_mapper[name_mapper != "scr_map_seq"]
     name_mapper <- sub("scr_*", "", name_mapper)
-    cli::cli_abort(c(
-      "Invalid for data with this dispersion.",
-      "!" = "`audit_seq()` is only applicable if `dispersion` \\
+
+    cli::cli_abort(
+      message = c(
+        "Invalid for data with this dispersion.",
+        "!" = "`audit_seq()` is only applicable if `dispersion` \\
       in `{name_mapper}()` is a linearly increasing sequence.",
-      "i" = "This limitation may be removed in a future version of scrutiny."
-    ))
+        "i" = "This limitation may be removed in a future version of scrutiny."
+      ),
+      call = rlang::caller_env()
+    )
   }
 }
 
@@ -1521,20 +1559,25 @@ write_code_col_key_result <- function(
       )
     })
   }
+
   # Prepare defused expressions that are more simple to splice into the code
   # further below:
   data_dollar_result <- paste0(name_data, "$", name_key_result)
   condition_not_list <- paste0("!is.list(", data_dollar_result, ")")
+
   # Convert the strings to expressions:
   condition_not_list <- rlang::parse_expr(condition_not_list)
   data_dollar_result <- rlang::parse_expr(data_dollar_result)
+
   # Generate code to process the (possibly renamed) key result column:
   rlang::expr({
     `!!!`(code_rename)
+
     # Use the pre-computed condition expression
     if (`!!`(condition_not_list)) {
       return(`!!`(name_data))
     }
+
     `$<-`(
       `!!`(name_data),
       `!!`(name_key_result),

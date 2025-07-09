@@ -168,9 +168,9 @@ disperse <- function(
     repeat_constant <- function(constant, out, list_input = FALSE) {
       if (list_input) {
         constant_list_element <- constant
-        check_length_or_null(constant_list_element, 2L)
+        check_length(constant_list_element, 2L, allow_null = TRUE)
       } else {
-        check_length_or_null(constant, 2L)
+        check_length(constant, 2L, allow_null = TRUE)
       }
       rep(constant, times = nrow(out) / 2L)
     }
