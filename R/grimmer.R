@@ -79,6 +79,19 @@
 # # decimals_mean <- 2
 # # decimals_SD <- 2
 
+# # Example inputs 4:
+# # (edge case with bug in scrutiny <= 0.5.0):
+# x <- "4.67"
+# sd <- "0.00"
+# n <- 2
+# items <- 3
+# show_reason <- FALSE
+# rounding <- "up_or_down"
+# threshold <- 5
+# symmetric <- FALSE
+# tolerance <- .Machine$double.eps^0.5
+
+
 # Implementation ----------------------------------------------------------
 
 grimmer_scalar <- function(
@@ -152,6 +165,10 @@ grimmer_scalar <- function(
   sum_squares_lower <- ((n - 1) * sd_lower^2 + n * x_real^2) * items^2
   sum_squares_upper <- ((n - 1) * sd_upper^2 + n * x_real^2) * items^2
 
+  # Correct for floating-point error:
+  sum_squares_lower <- round(sum_squares_lower, 12)
+  sum_squares_upper <- round(sum_squares_upper, 12)
+
   # TEST 1: Check that there is at least one integer between the lower and upper
   # bounds (of the reconstructed sum of squares of the -- most likely unknown --
   # values for which `x` was reported as a mean). Ceiling the lower bound and
@@ -175,8 +192,13 @@ grimmer_scalar <- function(
   # of the sum of squares:
   integers_possible <- ceiling(sum_squares_lower):floor(sum_squares_upper)
 
-  # Create the predicted variance and SD:
+  # Create the predicted variance, then limit it at zero to avoid floating-point
+  # errors with negative numbers that are just slightly below zero. (Variance,
+  # of course, can never be negative.)
   var_predicted <- (integers_possible / items^2 - n * x_real^2) / (n - 1)
+  var_predicted <- round(var_predicted, 12)
+
+  # Derive the predicted SD:
   sd_predicted <- sqrt(var_predicted)
 
   # Reconstruct the SD:
