@@ -67,12 +67,12 @@ schlim_map(df1)
 
 ## 4. `audit()` method
 
-Use scrutiny's `audit()` generic to get summary statistics. Write a new function named `audit.scr_name_map()`, where `name` is the name of your test in lower-case --- here, `schlim`.
+Use scrutiny's `audit()` generic to get summary statistics. Write a new function named `audit.scrutiny_name_map()`, where `name` is the name of your test in lower-case --- here, `schlim`.
 
 Within the function body, call `audit_cols_minimal()`. This enables you to use `audit()` following the mapper function:
 
 ```{r}
-audit.scr_schlim_map <- function(data) {
+audit.scrutiny_schlim_map <- function(data) {
   audit_cols_minimal(data, name_test = "SCHLIM")
 }
 

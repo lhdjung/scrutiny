@@ -64,7 +64,7 @@ iris_exp <- tibble::tibble(
     )
   ),
 ) %>%
-  structure(class = c("scr_dup_count", "tbl_df", "tbl", "data.frame"))
+  structure(class = c("scrutiny_dup_count", "tbl_df", "tbl", "data.frame"))
 
 
 mtcars_exp <- tibble::tibble(
@@ -108,7 +108,7 @@ mtcars_exp <- tibble::tibble(
     c(1L, 3L, 1L, 1L, 1L, 6L, 1L, 4L, 2L, 14L, 1L, 123L)
   ),
 ) %>%
-  structure(class = c("scr_dup_count", "tbl_df", "tbl", "data.frame"))
+  structure(class = c("scrutiny_dup_count", "tbl_df", "tbl", "data.frame"))
 
 
 iris_exp_ignore <- tibble::tibble(
@@ -172,7 +172,7 @@ iris_exp_ignore <- tibble::tibble(
     )
   ),
 ) %>%
-  structure(class = c("scr_dup_count", "tbl_df", "tbl", "data.frame"))
+  structure(class = c("scrutiny_dup_count", "tbl_df", "tbl", "data.frame"))
 
 
 mtcars_exp_ignore <- tibble::tibble(
@@ -215,14 +215,14 @@ mtcars_exp_ignore <- tibble::tibble(
     c(1L, 3L, 1L, 1L, 1L, 5L, 1L, 4L, 2L, 14L, 1L, 123L)
   ),
 ) %>%
-  structure(class = c("scr_dup_count", "tbl_df", "tbl", "data.frame"))
+  structure(class = c("scrutiny_dup_count", "tbl_df", "tbl", "data.frame"))
 
 
 vec_unnamed_exp <- tibble::tibble(
   value = c("3", "4", "5", "6", "7", "1", "2", "8", "9", "10"),
   frequency = rep(2:1, each = 5L),
 ) %>%
-  structure(class = c("scr_dup_count", "tbl_df", "tbl", "data.frame"))
+  structure(class = c("scrutiny_dup_count", "tbl_df", "tbl", "data.frame"))
 
 
 # Testing -----------------------------------------------------------------

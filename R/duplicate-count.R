@@ -23,7 +23,7 @@
 #' - `locations`: Names of all columns from `x` in which `value` appears.
 #' - `locations_n`: Number of columns named in `locations`.
 #'
-#' The tibble has the `scr_dup_count` class, which is recognized by the
+#' The tibble has the `scrutiny_dup_count` class, which is recognized by the
 #' [`audit()`] generic.
 
 #' @section Summaries with [`audit()`]: There is an S3 method for the
@@ -101,7 +101,7 @@ duplicate_count <- function(
     tibble::as_tibble(.name_repair = function(x) c("value", "frequency")) %>%
     dplyr::filter(!.data$value %in% ignore) %>%
     dplyr::arrange(dplyr::desc(.data$frequency)) %>%
-    add_class("scr_dup_count")
+    add_class("scrutiny_dup_count")
 
   # All code below is about the `locations` and `locations_n` columns, but they
   # are only meant for data frames and other named vectors. If the `x` input was

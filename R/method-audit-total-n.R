@@ -1,7 +1,7 @@
 #' @include mapper-function-helpers.R
 #' @export
 
-audit.scr_audit_total_n <- function(data) {
+audit.scrutiny_audit_total_n <- function(data) {
   audit_summary_stats(
     data,
     selection = c(

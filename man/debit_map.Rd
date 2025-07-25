@@ -37,7 +37,7 @@ A tibble with (at least) these columns --
 
 By default, the tibble also includes the rounding method, boundary values,
 and information about the boundary values being inclusive or not. The
-tibble has the \code{scr_debit_map} class, which is recognized by the \code{audit()}
+tibble has the \code{scrutiny_debit_map} class, which is recognized by the \code{audit()}
 generic.
 }
 }

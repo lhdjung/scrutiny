@@ -39,19 +39,19 @@ check_consistency_not_in_colnames <- function(data, name_test) {
     class_seq <- dc[stringr::str_detect(dc, "_map_seq$")]
     class_total_n <- dc[stringr::str_detect(dc, "_map_total_n$")]
     if (length(class_basic) > 0L) {
-      fun_name_basic <- stringr::str_remove(class_basic, "^scr_")
+      fun_name_basic <- stringr::str_remove(class_basic, "^scrutiny_")
     } else {
       fun_name_basic <- NULL
     }
     if (length(class_seq) > 0L) {
       fun_name_basic <- NULL
-      fun_name_seq <- stringr::str_remove(class_seq, "^scr_")
+      fun_name_seq <- stringr::str_remove(class_seq, "^scrutiny_")
     } else {
       fun_name_seq <- NULL
     }
     if (length(class_total_n) > 0L) {
       fun_name_basic <- NULL
-      fun_name_total_n <- stringr::str_remove(class_total_n, "^scr_")
+      fun_name_total_n <- stringr::str_remove(class_total_n, "^scrutiny_")
     } else {
       fun_name_total_n <- NULL
     }
@@ -124,7 +124,7 @@ check_mapper_input_colnames <- function(data, reported, name_test) {
 #'   `audit_cols_minimal()`.)
 #'
 #'   Call `check_audit_special()` within an `audit()` method for a consistency
-#'   test mapper function, such as `audit.scr_grim_map()`. It checks if the
+#'   test mapper function, such as `audit.scrutiny_grim_map()`. It checks if the
 #'   input data frame was the product of a function produced by
 #'   `function_map_seq()` or `function_map_total_n()`.
 #'
@@ -142,7 +142,7 @@ check_mapper_input_colnames <- function(data, reported, name_test) {
 #' @return No return value. Might print an alert.
 
 check_audit_special <- function(data, name_test) {
-  class_name_root <- paste0("scr_", tolower(name_test), "_map_")
+  class_name_root <- paste0("scrutiny_", tolower(name_test), "_map_")
 
   class_seq <- paste0(class_name_root, "seq")
   class_total_n <- paste0(class_name_root, "total_n")
@@ -267,7 +267,7 @@ manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
 manage_key_colnames <- function(data, arg, description = NULL) {
   arg_name <- deparse(substitute(arg))
   if (!is.null(arg)) {
-    # data <- dplyr::rename(data, "scr_temp_placeholder" := arg)  # {{ arg_name }} := arg
+    # data <- dplyr::rename(data, "scrutiny_temp_placeholder" := arg)  # {{ arg_name }} := arg
     data <- dplyr::rename(data, {{ arg_name }} := all_of(arg))
   } else if (!any(arg_name == colnames(data))) {
     if (is.null(description)) {

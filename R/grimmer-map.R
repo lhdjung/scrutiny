@@ -37,8 +37,8 @@
 #'    parity of the reconstructed sum of integers of which the reported means
 #'    are fractions; i.e., either both are even or both are odd.
 #'
-#' The tibble has the `scr_grimmer_map` class, which is recognized by the
-#' [`audit()`] generic. It also has the `scr_grim_map` class, so it can be
+#' The tibble has the `scrutiny_grimmer_map` class, which is recognized by the
+#' [`audit()`] generic. It also has the `scrutiny_grim_map` class, so it can be
 #' visualized by [`grim_plot()`].
 
 #' @section Summaries with [`audit()`]: There is an S3 method for [`audit()`],
@@ -183,7 +183,7 @@ grimmer_map <- function(
       consistency = consistency
     ),
     nrow = length(consistency),
-    class = c("scr_grimmer_map", paste0("scr_rounding_", rounding))
+    class = c("scrutiny_grimmer_map", paste0("scrutiny_rounding_", rounding))
   )
 
   if (show_reason) {
@@ -200,7 +200,7 @@ grimmer_map <- function(
 # # Alternative version of `grimmer_map()`, using experimental functionality
 # from `function_map()`:
 #
-# # The `.name_class = "scr_grim_map"` specification has the purpose of allowing
+# # The `.name_class = "scrutiny_grim_map"` specification has the purpose of allowing
 # # GRIMMER results to be visualized by `grim_plot()`:
 # grimmer_map_alt <- function_map(
 #   .fun = grimmer_scalar,

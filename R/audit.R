@@ -16,15 +16,15 @@
 #' @section Run before `audit()`:
 #'   | \strong{Function}              | \strong{Class}              |
 #'   | ---                            | ---                         |
-#'   | [`grim_map()`]                 | `"scr_grim_map"`            |
-#'   | [`grimmer_map()`]              | `"scr_grimmer_map"`         |
-#'   | [`debit_map()`]                | `"scr_debit_map"`           |
-#'   | [`duplicate_count()`]          | `"scr_dup_count"`           |
-#'   | [`duplicate_count_colpair()`]  | `"scr_dup_count_colpair"`   |
-#'   | [`duplicate_tally()`]          | `"scr_dup_tally"`           |
-#'   | [`duplicate_detect()`]         | `"scr_dup_detect"`          |
-#'   | [`audit_seq()`]                | `"scr_audit_seq"`           |
-#'   | [`audit_total_n()`]            | `"scr_audit_total_n"`       |
+#'   | [`grim_map()`]                 | `"scrutiny_grim_map"`            |
+#'   | [`grimmer_map()`]              | `"scrutiny_grimmer_map"`         |
+#'   | [`debit_map()`]                | `"scrutiny_debit_map"`           |
+#'   | [`duplicate_count()`]          | `"scrutiny_dup_count"`           |
+#'   | [`duplicate_count_colpair()`]  | `"scrutiny_dup_count_colpair"`   |
+#'   | [`duplicate_tally()`]          | `"scrutiny_dup_tally"`           |
+#'   | [`duplicate_detect()`]         | `"scrutiny_dup_detect"`          |
+#'   | [`audit_seq()`]                | `"scrutiny_audit_seq"`           |
+#'   | [`audit_total_n()`]            | `"scrutiny_audit_total_n"`       |
 
 #' @return A tibble (data frame) with test summary statistics.
 #' @export
@@ -65,16 +65,16 @@ audit <- function(data) {
 #' @section Before `audit_seq()`:
 #'   | \strong{Function}            | \strong{Class}              |
 #'   | ---                          | ---                         |
-#'   | `grim_map_seq()`             | `"scr_grim_map_seq"`        |
-#'   | `grimmer_map_seq()`          | `"scr_grimmer_map_seq"`     |
-#'   | `debit_map_seq()`            | `"scr_debit_map_seq"`       |
+#'   | `grim_map_seq()`             | `"scrutiny_grim_map_seq"`        |
+#'   | `grimmer_map_seq()`          | `"scrutiny_grimmer_map_seq"`     |
+#'   | `debit_map_seq()`            | `"scrutiny_debit_map_seq"`       |
 
 #' @section Before `audit_total_n()`:
 #'   | \strong{Function}            | \strong{Class}              |
 #'   | ---                          | ---                         |
-#'   | `grim_map_total_n()`         | `"scr_grim_map_total_n"`    |
-#'   | `grimmer_map_total_n()`      | `"scr_grimmer_map_total_n"` |
-#'   | `debit_map_total_n()`        | `"scr_debit_map_total_n"`   |
+#'   | `grim_map_total_n()`         | `"scrutiny_grim_map_total_n"`    |
+#'   | `grimmer_map_total_n()`      | `"scrutiny_grimmer_map_total_n"` |
+#'   | `debit_map_total_n()`        | `"scrutiny_debit_map_total_n"`   |
 
 #' @return A tibble (data frame) with test summary statistics.
 #'
@@ -94,7 +94,7 @@ audit <- function(data) {
 #' audit(out)
 
 audit_seq <- function(data) {
-  if (!inherits(data, "scr_map_seq")) {
+  if (!inherits(data, "scrutiny_map_seq")) {
     cli::cli_abort(c(
       "Invalid `data` argument.",
       "!" = "It must be the output of a `*_map_seq()` function, \\
@@ -115,8 +115,8 @@ audit_seq <- function(data) {
 
   if (is.null(dim(data))) {
     fun <- class(data)[stringr::str_detect(class(data), "_map_seq$")]
-    fun <- fun[fun != "scr_map_seq"]
-    fun <- stringr::str_remove(fun, "^scr_")
+    fun <- fun[fun != "scrutiny_map_seq"]
+    fun <- stringr::str_remove(fun, "^scrutiny_")
     fun <- eval(rlang::parse_expr(fun))
     msg_error <-
       c("!" = "No values could be tested.")
@@ -192,11 +192,11 @@ audit_seq <- function(data) {
     suppressWarnings()
 
   dc <- class(data)
-  rounding <- dc[stringr::str_detect(dc, "^scr_rounding_")]
-  rounding <- stringr::str_remove(rounding, "^scr_rounding_")
+  rounding <- dc[stringr::str_detect(dc, "^scrutiny_rounding_")]
+  rounding <- stringr::str_remove(rounding, "^scrutiny_rounding_")
 
-  fun_test <- dc[stringr::str_detect(dc, "^scr_.*map$")]
-  fun_test <- stringr::str_remove(fun_test, "^scr_")
+  fun_test <- dc[stringr::str_detect(dc, "^scrutiny_.*map$")]
+  fun_test <- stringr::str_remove(fun_test, "^scrutiny_")
   fun_test <- rlang::eval_bare(rlang::parse_expr(fun_test))
 
   data_rev <- reverse_map_seq(data)
@@ -228,7 +228,7 @@ audit_seq <- function(data) {
   data_rev %>%
     dplyr::mutate(consistency, hits_total) %>%
     dplyr::bind_cols(cols_hits, cols_diff) %>%
-    add_class("scr_audit_seq")
+    add_class("scrutiny_audit_seq")
 }
 
 
@@ -236,7 +236,7 @@ audit_seq <- function(data) {
 #' @export
 
 audit_total_n <- function(data) {
-  if (!inherits(data, "scr_map_total_n")) {
+  if (!inherits(data, "scrutiny_map_total_n")) {
     cli::cli_abort(c(
       "Invalid `data` argument.",
       "!" = "It must be the output of a `*_map_total_n()` function, \\
@@ -278,5 +278,5 @@ audit_total_n <- function(data) {
         .fns = as.integer
       )
     ) %>%
-    add_class("scr_audit_total_n")
+    add_class("scrutiny_audit_total_n")
 }

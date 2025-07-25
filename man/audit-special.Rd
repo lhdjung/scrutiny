@@ -32,18 +32,18 @@ All functions named below that end on \verb{_seq} were made by
 \section{Before \code{audit_seq()}}{
 \tabular{ll}{
    \strong{Function} \tab \strong{Class} \cr
-   \code{grim_map_seq()} \tab \code{"scr_grim_map_seq"} \cr
-   \code{grimmer_map_seq()} \tab \code{"scr_grimmer_map_seq"} \cr
-   \code{debit_map_seq()} \tab \code{"scr_debit_map_seq"} \cr
+   \code{grim_map_seq()} \tab \code{"scrutiny_grim_map_seq"} \cr
+   \code{grimmer_map_seq()} \tab \code{"scrutiny_grimmer_map_seq"} \cr
+   \code{debit_map_seq()} \tab \code{"scrutiny_debit_map_seq"} \cr
 }
 }
 
 \section{Before \code{audit_total_n()}}{
 \tabular{ll}{
    \strong{Function} \tab \strong{Class} \cr
-   \code{grim_map_total_n()} \tab \code{"scr_grim_map_total_n"} \cr
-   \code{grimmer_map_total_n()} \tab \code{"scr_grimmer_map_total_n"} \cr
-   \code{debit_map_total_n()} \tab \code{"scr_debit_map_total_n"} \cr
+   \code{grim_map_total_n()} \tab \code{"scrutiny_grim_map_total_n"} \cr
+   \code{grimmer_map_total_n()} \tab \code{"scrutiny_grimmer_map_total_n"} \cr
+   \code{debit_map_total_n()} \tab \code{"scrutiny_debit_map_total_n"} \cr
 }
 }
 

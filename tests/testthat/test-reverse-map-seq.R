@@ -20,7 +20,7 @@ schlim_map <- function(data) {
   n <- data$n
   consistency <- purrr::map2_lgl(y, n, schlim_scalar)
   out <- tibble::tibble(y, n, consistency)
-  out <- add_class(out, "scr_schlim_map")  # See section "S3 classes" below
+  out <- add_class(out, "scrutiny_schlim_map")  # See section "S3 classes" below
   out
 }
 
@@ -28,7 +28,7 @@ schlim_map_seq <- function_map_seq(
   .fun = schlim_map,
   .reported = c("y", "n"),
   .name_test = "SCHLIM",
-  .name_class = "scr_schlim_map_seq"
+  .name_class = "scrutiny_schlim_map_seq"
 )
 
 

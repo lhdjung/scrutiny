@@ -1,7 +1,7 @@
 #' @include audit.R grim-map.R
 #' @export
 
-audit.scr_grim_map <- function(data) {
+audit.scrutiny_grim_map <- function(data) {
   # Compute the summary values of interest ---
 
   # 1. the number of GRIM-inconsistent cases;

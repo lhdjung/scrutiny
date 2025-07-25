@@ -5,7 +5,7 @@
 #'
 #'   See [`audit_total_n()`], which takes `reverse_map_total_n()` as a basis.
 #'
-#' @param data Data frame that inherits the `"scr_map_total_n"` class.
+#' @param data Data frame that inherits the `"scrutiny_map_total_n"` class.
 #'
 #' @return The reconstructed tibble (data frame) which a factory-made
 #'   `*_map_total_n()` function took as its `data` argument.
@@ -29,7 +29,7 @@
 #' reverse_map_total_n(out)
 
 reverse_map_total_n <- function(data) {
-  if (!inherits(data, "scr_map_total_n")) {
+  if (!inherits(data, "scrutiny_map_total_n")) {
     cli::cli_abort(c(
       "!" = "`data` must be the output of \\
       a function like `grim_map_total_n()`.",

@@ -1,15 +1,15 @@
 #' Remove scrutiny classes
 #'
 #' Strip any and all scrutiny classes from `x`: those classes that start on
-#' `"scr_"`. The function's name follows `base::unclass()`.
+#' `"scrutiny_"`. The function's name follows `base::unclass()`.
 #'
 #' @param x Any object, but typically a tibble.
 #'
-#' @return `x`, but without `"scr_"` classes.
+#' @return `x`, but without `"scrutiny_"` classes.
 #'
 #' @noRd
 unclass_scr <- function(x) {
-  class(x) <- class(x)[!stringr::str_detect(class(x), "^scr_")]
+  class(x) <- class(x)[!stringr::str_detect(class(x), "^scrutiny_")]
   x
 }
 

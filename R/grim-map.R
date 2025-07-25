@@ -50,7 +50,7 @@
 #' [`grim_probability()`].
 #' - `<extra>`: any columns from `data` other than `x`, `n`, and `items`.
 #'
-#'   The tibble has the `scr_grim_map` class, which is recognized by the
+#'   The tibble has the `scrutiny_grim_map` class, which is recognized by the
 #'   [`audit()`] generic.
 
 #' @section Reconstructed numbers: If `show_rec` is set to `TRUE`, the output
@@ -314,15 +314,15 @@ grim_map <- function(
       dplyr::relocate(probability, .after = consistency)
   }
 
-  # Prepare to add the "scr_grim_map" class that `audit()` will recognize, as
+  # Prepare to add the "scrutiny_grim_map" class that `audit()` will recognize, as
   # well as a class that is informative about the rounding procedure used for
   # reconstructing `x`:
-  classes_to_add <- c("scr_grim_map", paste0("scr_rounding_", rounding))
+  classes_to_add <- c("scrutiny_grim_map", paste0("scrutiny_rounding_", rounding))
 
   # Mediate between `seq_endpoint_df()` or `seq_distance_df()`, on the one hand,
   # and `seq_test_ranking()`, on the other:
-  if (inherits(data, "scr_seq_df")) {
-    classes_to_add <- c("scr_seq_test", classes_to_add)
+  if (inherits(data, "scrutiny_seq_df")) {
+    classes_to_add <- c("scrutiny_seq_test", classes_to_add)
   }
 
   class(results) <- c(classes_to_add, class(results))
@@ -339,7 +339,7 @@ grim_map <- function(
       restore_zeros(width = digits_original + 2L) %>%
       suppressWarnings()
 
-    class(results) <- c("scr_percent_true", class(results))
+    class(results) <- c("scrutiny_percent_true", class(results))
     cli::cli_alert_info("`x` converted from percentage")
   }
 

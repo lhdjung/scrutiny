@@ -162,7 +162,7 @@ disperse <- function(
 
   out <- out %>%
     reverse_column_order() %>%
-    add_class("scr_disperse")
+    add_class("scrutiny_disperse")
 
   if (!is.null(constant)) {
     repeat_constant <- function(constant, out, list_input = FALSE) {

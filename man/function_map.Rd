@@ -80,12 +80,12 @@ For context, see \href{https://lhdjung.github.io/scrutiny/articles/consistency-t
 The output tibble returned by the factory-made function will inherit
 one or two classes independently of the \code{.name_class} argument:
 \itemize{
-\item It will inherit a class named \code{"scr_{tolower(.name_test)}_map"}; for
-example, the class is \code{"scr_grim_map"} if \code{.name_test} is \code{"GRIM"}.
+\item It will inherit a class named \code{"scrutiny_{tolower(.name_test)}_map"}; for
+example, the class is \code{"scrutiny_grim_map"} if \code{.name_test} is \code{"GRIM"}.
 \item If a \code{rounding} argument is specified via \code{...}, or else if \code{.fun} has a
 \code{rounding} argument with a default, the output tibble will inherit a class
-named \code{"scr_rounding_{rounding}"}; for example,
-\code{"scr_rounding_up_or_down"}.
+named \code{"scrutiny_rounding_{rounding}"}; for example,
+\code{"scrutiny_rounding_up_or_down"}.
 }
 }
 \section{Value returned by the factory-made function}{

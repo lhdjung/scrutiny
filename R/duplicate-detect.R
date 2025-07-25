@@ -94,7 +94,7 @@ function_duplicate_cols <- function(code_new_cols, default_end, name_class) {
       # two-column tibble and rearrange it into one of the same shape as the
       # original data frame, but with every test value accompanied by its
       # corresponding logical value to the right, as above. Also, add the
-      # "scr_dup_detect" class added, which is recognized by the `audit()`
+      # "scrutiny_dup_detect" class added, which is recognized by the `audit()`
       # generic:
       x %>%
         tibble::tibble(new_cols) %>%
@@ -147,7 +147,7 @@ function_duplicate_cols <- function(code_new_cols, default_end, name_class) {
 #' @return A tibble (data frame). It has all the columns from `x`, and to each
 #'   of these columns' right, the corresponding test result column.
 #'
-#'   The tibble has the `scr_dup_detect` class, which is recognized by the
+#'   The tibble has the `scrutiny_dup_detect` class, which is recognized by the
 #'   `audit()` generic.
 
 #' @section Summaries with [`audit()`]: There is an S3 method for the
@@ -196,7 +196,7 @@ duplicate_detect <- function_duplicate_cols(
   # input values, both from the start forward and from the end backward:
   code_new_cols = duplicated(x) | duplicated(x, fromLast = TRUE),
   default_end = "dup",
-  name_class = "scr_dup_detect"
+  name_class = "scrutiny_dup_detect"
 )
 
 
@@ -219,7 +219,7 @@ duplicate_detect <- function_duplicate_cols(
 #' @return A tibble (data frame). It has all the columns from `x`, and to each
 #'   of these columns' right, the corresponding tally column.
 #'
-#'   The tibble has the `scr_dup_detect` class, which is recognized by the
+#'   The tibble has the `scrutiny_dup_detect` class, which is recognized by the
 #'   `audit()` generic.
 #'
 #' @section Summaries with [`audit()`]: There is an S3 method for the [`audit()`]
@@ -262,5 +262,5 @@ duplicate_tally <- function_duplicate_cols(
     new_cols
   },
   default_end = "n",
-  name_class = "scr_dup_tally"
+  name_class = "scrutiny_dup_tally"
 )

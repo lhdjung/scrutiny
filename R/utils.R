@@ -28,7 +28,7 @@ utils::globalVariables(c(
   "n_sum",
   "consistency",
   "ratio",
-  "scr_index_case",
+  "scrutiny_index_case",
   "starts_with",
   "value_duplicated",
   "variable",
@@ -1497,10 +1497,10 @@ list_min_distance_functions <- list(
 #'
 #' @noRd
 check_dispersion_linear <- function(data) {
-  if (inherits(data, "scr_map_seq_disp_nonlinear")) {
+  if (inherits(data, "scrutiny_map_seq_disp_nonlinear")) {
     name_mapper <- class(data)[grepl("_map_seq$", class(data))]
-    name_mapper <- name_mapper[name_mapper != "scr_map_seq"]
-    name_mapper <- sub("scr_*", "", name_mapper)
+    name_mapper <- name_mapper[name_mapper != "scrutiny_map_seq"]
+    name_mapper <- sub("scrutiny_*", "", name_mapper)
 
     cli::cli_abort(
       message = c(

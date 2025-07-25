@@ -102,7 +102,7 @@ manufactured function via the \code{.name_class} argument of
 \code{function_map_total_n()}. It should be the function's own name preceded
 by the name of the package that contains it, or by an acronym of that
 package's name. Therefore, some existing classes are
-\code{scr_grim_map_total_n} and \code{scr_grimmer_map_total_n}.
+\code{scrutiny_grim_map_total_n} and \code{scrutiny_grimmer_map_total_n}.
 }
 
 \examples{

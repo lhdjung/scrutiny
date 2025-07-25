@@ -20,7 +20,7 @@ No return value. Might print an alert.
 \code{audit_cols_minimal()}.)
 
 Call \code{check_audit_special()} within an \code{audit()} method for a consistency
-test mapper function, such as \code{audit.scr_grim_map()}. It checks if the
+test mapper function, such as \code{audit.scrutiny_grim_map()}. It checks if the
 input data frame was the product of a function produced by
 \code{function_map_seq()} or \code{function_map_total_n()}.
 

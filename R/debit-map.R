@@ -24,7 +24,7 @@
 #'
 #'   By default, the tibble also includes the rounding method, boundary values,
 #'   and information about the boundary values being inclusive or not. The
-#'   tibble has the `scr_debit_map` class, which is recognized by the `audit()`
+#'   tibble has the `scrutiny_debit_map` class, which is recognized by the `audit()`
 #'   generic.
 #'
 #' @section Summaries with [`audit()`]: There is an S3 method for the
@@ -200,8 +200,8 @@ debit_map <- function(
   if (!is.null(sd_spec)) out <- dplyr::select(out, -all_of(sd_orig))
   if (!is.null(n_spec)) out <- dplyr::select(out, -all_of(n_orig))
 
-  rounding_class <- glue::glue("scr_rounding_{rounding}")
-  out <- add_class(out, c("scr_debit_map", rounding_class))
+  rounding_class <- glue::glue("scrutiny_rounding_{rounding}")
+  out <- add_class(out, c("scrutiny_debit_map", rounding_class))
 
   return(out)
 }

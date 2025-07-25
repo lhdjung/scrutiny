@@ -485,8 +485,8 @@ write_doc_factory_map_conventions <- function(
   )
   name_mapper_simple1 <- glue::glue("[`{scrutiny_ns}{name_test1_lower}_map()`]")
   name_mapper_simple2 <- glue::glue("[`{scrutiny_ns}{name_test2_lower}_map()`]")
-  name_class_special1 <- glue::glue("`scr_{name_test1_lower}_map{ending}`")
-  name_class_special2 <- glue::glue("`scr_{name_test2_lower}_map{ending}`")
+  name_class_special1 <- glue::glue("`scrutiny_{name_test1_lower}_map{ending}`")
+  name_class_special2 <- glue::glue("`scrutiny_{name_test2_lower}_map{ending}`")
 
   # Return documentation section:
   glue::glue(

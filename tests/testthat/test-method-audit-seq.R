@@ -15,7 +15,7 @@ grim_exp <- tibble::tibble(
   diff_n_up = c(2, 1),
   diff_n_down = c(-2, -3),
 ) %>%
-  structure(class = c("scr_audit_seq", "tbl_df", "tbl", "data.frame"))
+  structure(class = c("scrutiny_audit_seq", "tbl_df", "tbl", "data.frame"))
 
 grimmer_exp <- tibble::tibble(
   x = c("7.22", "5.23"),
@@ -36,7 +36,7 @@ grimmer_exp <- tibble::tibble(
   diff_n_up = c(2L, 4L),
   diff_n_down = c(-1L, -4L),
 ) %>%
-  structure(class = c("scr_audit_seq", "tbl_df", "tbl", "data.frame"))
+  structure(class = c("scrutiny_audit_seq", "tbl_df", "tbl", "data.frame"))
 
 debit_exp <- tibble::tibble(
   x = "0.19",
@@ -57,7 +57,7 @@ debit_exp <- tibble::tibble(
   diff_n_up = NA_real_,
   diff_n_down = NA_real_,
 ) %>%
-  structure(class = c("scr_audit_seq", "tbl_df", "tbl", "data.frame"))
+  structure(class = c("scrutiny_audit_seq", "tbl_df", "tbl", "data.frame"))
 
 
 # Testing -----------------------------------------------------------------

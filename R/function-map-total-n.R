@@ -232,7 +232,7 @@ function_map_total_n_proto <- function(
 #'   `function_map_total_n()`. It should be the function's own name preceded
 #'   by the name of the package that contains it, or by an acronym of that
 #'   package's name. Therefore, some existing classes are
-#'   `scr_grim_map_total_n` and `scr_grimmer_map_total_n`.
+#'   `scrutiny_grim_map_total_n` and `scrutiny_grimmer_map_total_n`.
 
 #' @seealso [`function_map_seq()`]
 #'
@@ -418,7 +418,7 @@ function_map_total_n <- function(
       }
 
       # Switch `"1"` and `"2"` in the relevant column names of `data`:
-      temp <- "_scr_names_temp_placeholder"
+      temp <- "_scrutiny_names_temp_placeholder"
       cols_expected_back <- cols_expected_forth %>%
         stringr::str_replace("1", temp) %>%
         stringr::str_replace("2", "1") %>%
@@ -511,7 +511,7 @@ function_map_total_n <- function(
 
       # Combine the two sets of results into one final tibble:
       out <- dplyr::bind_rows(out_forth, out_back)
-      out <- add_class(out, "scr_map_total_n")
+      out <- add_class(out, "scrutiny_map_total_n")
 
       # This is a hack, but it works. Its solves the following problem:
       # `constant_index` is meant to work within the `disperse_total()` tibble,

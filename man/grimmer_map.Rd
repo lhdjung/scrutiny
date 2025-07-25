@@ -61,8 +61,8 @@ parity of the reconstructed sum of integers of which the reported means
 are fractions; i.e., either both are even or both are odd.
 }
 
-The tibble has the \code{scr_grimmer_map} class, which is recognized by the
-\code{\link[=audit]{audit()}} generic. It also has the \code{scr_grim_map} class, so it can be
+The tibble has the \code{scrutiny_grimmer_map} class, which is recognized by the
+\code{\link[=audit]{audit()}} generic. It also has the \code{scrutiny_grim_map} class, so it can be
 visualized by \code{\link[=grim_plot]{grim_plot()}}.
 }
 \description{

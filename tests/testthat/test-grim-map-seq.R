@@ -75,7 +75,7 @@ pigs1_exp <- tibble::tibble(
 ) %>%
   structure(
     class = c(
-      "scr_map_seq", "scr_grim_map_seq", "scr_grim_map", "scr_rounding_up_or_down",
+      "scrutiny_map_seq", "scrutiny_grim_map_seq", "scrutiny_grim_map", "scrutiny_rounding_up_or_down",
       "tbl_df", "tbl", "data.frame"
     )
   )
@@ -131,7 +131,7 @@ pigs2_exp <- tibble::tibble(
 ) %>%
   structure(
     class = c(
-      "scr_map_seq", "scr_grim_map_seq", "scr_grim_map", "scr_rounding_up_or_down",
+      "scrutiny_map_seq", "scrutiny_grim_map_seq", "scrutiny_grim_map", "scrutiny_rounding_up_or_down",
       "tbl_df", "tbl", "data.frame"
     )
   )
@@ -206,7 +206,7 @@ pigs1_include_reported_exp <- tibble::tibble(
 ) %>%
   structure(
     class = c(
-      "scr_map_seq", "scr_grim_map_seq", "scr_grim_map", "scr_rounding_up_or_down",
+      "scrutiny_map_seq", "scrutiny_grim_map_seq", "scrutiny_grim_map", "scrutiny_rounding_up_or_down",
       "tbl_df", "tbl", "data.frame"
     )
   )

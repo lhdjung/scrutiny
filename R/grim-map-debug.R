@@ -100,10 +100,10 @@
 #   } else {
 #     rounding_class <- formals(fun)$rounding
 #   }
-#   rounding_class <- paste0("scr_rounding_", rounding_class)
+#   rounding_class <- paste0("scrutiny_rounding_", rounding_class)
 #   name_class <- c(name_class, rounding_class)
 #   out <- tibble::tibble(data_tested, consistency, data_non_tested) %>%
-#     add_class(c("scr_grim_map", rounding_class))
+#     add_class(c("scrutiny_grim_map", rounding_class))
 #   if (!all(vapply(consistency, length, integer(1L)) == 1L)) {
 #     extend_if_length1 <- function(x, value_if_length1) {
 #       if (length(x) == 1L)

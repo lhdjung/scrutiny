@@ -25,7 +25,7 @@ pigs5_exp <- tibble::tibble(
   ),
 ) %>%
   structure(
-    class = c("scr_grimmer_map", "scr_rounding_up_or_down", "tbl_df", "tbl", "data.frame")
+    class = c("scrutiny_grimmer_map", "scrutiny_rounding_up_or_down", "tbl_df", "tbl", "data.frame")
   )
 
 

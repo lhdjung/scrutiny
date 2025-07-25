@@ -29,6 +29,8 @@
 
 -   GRIMMER documentation was improved (#66).
 
+-   Internally, the `scr_` prefix used for S3-based operations such as method dispatch was replaced by `scrutiny_` throughout the package for greater clarity and better disambiguation (#39). This change will be invisible to any users who have not previously looked into scrutiny's S3 features.
+
 ## Lifecycle updates
 
 Currently none, but note that all functions and arguments that were deprecated in scrutiny 0.5.0 will be removed in the next major or minor version.

@@ -19,7 +19,7 @@
 #   ),
 #   row.names = c(NA, -3L),
 #   class = c(
-#     "scr_percentage_map", "scr_rounding_up_or_down",
+#     "scrutiny_percentage_map", "scrutiny_rounding_up_or_down",
 #     "tbl_df", "tbl", "data.frame"
 #   )
 # )

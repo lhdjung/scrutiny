@@ -269,7 +269,7 @@ seq_endpoint_df <- function(
     out <- tibble::tibble(x)
   }
 
-  add_class(out, "scr_seq_df")
+  add_class(out, "scrutiny_seq_df")
 }
 
 
@@ -308,5 +308,5 @@ seq_distance_df <- function(
     out <- tibble::tibble(x)
   }
 
-  add_class(out, "scr_seq_df")
+  add_class(out, "scrutiny_seq_df")
 }

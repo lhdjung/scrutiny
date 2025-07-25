@@ -19,7 +19,7 @@ Default is \code{"n"}.}
 A tibble (data frame). It has all the columns from \code{x}, and to each
 of these columns' right, the corresponding tally column.
 
-The tibble has the \code{scr_dup_detect} class, which is recognized by the
+The tibble has the \code{scrutiny_dup_detect} class, which is recognized by the
 \code{audit()} generic.
 }
 \description{

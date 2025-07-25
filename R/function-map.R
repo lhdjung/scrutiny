@@ -36,12 +36,12 @@
 
 #' @details The output tibble returned by the factory-made function will inherit
 #'   one or two classes independently of the `.name_class` argument:
-#' - It will inherit a class named `"scr_{tolower(.name_test)}_map"`; for
-#'   example, the class is `"scr_grim_map"` if `.name_test` is `"GRIM"`.
+#' - It will inherit a class named `"scrutiny_{tolower(.name_test)}_map"`; for
+#'   example, the class is `"scrutiny_grim_map"` if `.name_test` is `"GRIM"`.
 #' - If a `rounding` argument is specified via `...`, or else if `.fun` has a
 #'   `rounding` argument with a default, the output tibble will inherit a class
-#'   named `"scr_rounding_{rounding}"`; for example,
-#'   `"scr_rounding_up_or_down"`.
+#'   named `"scrutiny_rounding_{rounding}"`; for example,
+#'   `"scrutiny_rounding_up_or_down"`.
 
 #' @return A factory-made function with these arguments:
 #' - `data`: Data frame with all the columns named in `.reported`. It must
@@ -150,7 +150,7 @@ function_map <- function(
     }
   })
 
-  all_classes <- c(paste0("scr_", tolower(.name_test), "_map"), .name_class)
+  all_classes <- c(paste0("scrutiny_", tolower(.name_test), "_map"), .name_class)
 
   code_rounding_class <-
     if (any(names(formals(.fun)) == "rounding")) {
@@ -161,7 +161,7 @@ function_map <- function(
         } else {
           rounding_class <- formals(fun)$rounding
         }
-        rounding_class <- paste0("scr_rounding_", rounding_class)
+        rounding_class <- paste0("scrutiny_rounding_", rounding_class)
       })
     } else {
       rlang::expr({

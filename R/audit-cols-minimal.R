@@ -31,8 +31,8 @@
 #' @examples
 #' # For a mapper function called `schlim_map()`
 #' # that applies a test called SCHLIM and returns
-#' # a data frame with the `"scr_schlim_map"` class:
-#' audit.scr_schlim_map <- function(data) {
+#' # a data frame with the `"scrutiny_schlim_map"` class:
+#' audit.scrutiny_schlim_map <- function(data) {
 #'   audit_cols_minimal(data, name_test = "SCHLIM")
 #' }
 #'

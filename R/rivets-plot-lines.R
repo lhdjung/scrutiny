@@ -225,7 +225,7 @@
 #
 # # (4) As an alternative to a standalone function, write a generic function for
 # # which the present visualization would then be a method for a class such as
-# # `scr_rivets_t_test`. Afterwards, add patchwork to Suggests in DESCRIPTION.
+# # `scrutiny_rivets_t_test`. Afterwards, add patchwork to Suggests in DESCRIPTION.
 #
 #
 #

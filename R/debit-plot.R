@@ -89,7 +89,7 @@ debit_plot <- function(
 ) {
   # Checks ---
 
-  if (!inherits(data, "scr_debit_map")) {
+  if (!inherits(data, "scrutiny_debit_map")) {
     cli::cli_abort(c(
       "!" = "`debit_plot()` only works with DEBIT results.",
       "x" = "`data` is not `debit_map()` output."

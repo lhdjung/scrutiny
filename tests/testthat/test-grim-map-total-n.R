@@ -55,7 +55,7 @@ df2_rows_1_3_expected <- tibble::tibble(
 ) %>%
   structure(
     class = c(
-      "scr_map_total_n", "scr_grim_map", "scr_rounding_up_or_down", "tbl_df", "tbl",
+      "scrutiny_map_total_n", "scrutiny_grim_map", "scrutiny_rounding_up_or_down", "tbl_df", "tbl",
       "data.frame"
     )
   )

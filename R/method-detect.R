@@ -1,7 +1,7 @@
 #' @include audit.R duplicate-detect.R grim-map.R
 #' @export
 
-audit.scr_dup_detect <- function(data) {
+audit.scrutiny_dup_detect <- function(data) {
   # Select the logical test columns (i.e., every second column):
   data_dup <- data[is_even(seq_len(ncol(data)))]
 

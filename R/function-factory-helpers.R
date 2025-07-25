@@ -412,7 +412,7 @@ check_args_disabled_unnamed <- function(args_disabled) {
 #'   tested, etc.
 #'
 #'   All of this makes sense because scrutiny's classes differ in complexity
-#'   (e.g., `"scr_grim_map_seq"` versus `"scr_map_seq"`), and the purpose here
+#'   (e.g., `"scrutiny_grim_map_seq"` versus `"scrutiny_map_seq"`), and the purpose here
 #'   is to find the most complex class with the earliest in line of the
 #'   `contains` strings. The latter should be ordered in descending order of
 #'   desirability, so that the most "desired" string comes first.

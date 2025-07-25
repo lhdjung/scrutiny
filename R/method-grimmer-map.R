@@ -1,6 +1,6 @@
 #' @export
 
-audit.scr_grimmer_map <- function(data) {
+audit.scrutiny_grimmer_map <- function(data) {
   out <- audit_cols_minimal(data, "GRIMMER")
   if (any(colnames(data) == "reason")) {
     reason <- data$reason[!is.na(data$reason)]

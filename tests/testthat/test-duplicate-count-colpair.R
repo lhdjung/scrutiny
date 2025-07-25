@@ -53,7 +53,7 @@ df1_exp <- tibble::tibble(
     rep(c(2L, 1L, 2L, 45L), c(1L, 6L, 1L, 1L))
   ),
 ) %>%
-  structure(class = c("scr_dup_count_colpair", "tbl_df", "tbl", "data.frame"))
+  structure(class = c("scrutiny_dup_count_colpair", "tbl_df", "tbl", "data.frame"))
 
 
 df2_exp <- tibble::tibble(
@@ -65,7 +65,7 @@ df2_exp <- tibble::tibble(
   rate_x = c(0.6, 0.2, 0.2),
   rate_y = c(0.6, 0.3333333333333333148296, 0.3333333333333333148296),
 ) %>%
-  structure(class = c("scr_dup_count_colpair", "tbl_df", "tbl", "data.frame"))
+  structure(class = c("scrutiny_dup_count_colpair", "tbl_df", "tbl", "data.frame"))
 
 df2_ignore_exp <- tibble::tibble(
   x = c("a", "a", "b"),
@@ -76,7 +76,7 @@ df2_ignore_exp <- tibble::tibble(
   rate_x = c(0.5, 0.25, 0.25),
   rate_y = c(0.5, 0.3333333333333333148296, 0.3333333333333333148296),
 ) %>%
-  structure(class = c("scr_dup_count_colpair", "tbl_df", "tbl", "data.frame"))
+  structure(class = c("scrutiny_dup_count_colpair", "tbl_df", "tbl", "data.frame"))
 
 df3_exp <- tibble::tibble(
   x = c("a", "b", "a"),
@@ -87,7 +87,7 @@ df3_exp <- tibble::tibble(
   rate_x = c(0.5, 0.5, 0.25),
   rate_y = c(0.5, 1, 0.5),
 ) %>%
-  structure(class = c("scr_dup_count_colpair", "tbl_df", "tbl", "data.frame"))
+  structure(class = c("scrutiny_dup_count_colpair", "tbl_df", "tbl", "data.frame"))
 
 
 # Testing -----------------------------------------------------------------

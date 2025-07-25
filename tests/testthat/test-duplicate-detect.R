@@ -9,7 +9,7 @@ pigs4_exp <- tibble::tibble(
   wings = c("6.09", "8.27", "4.40", "5.92", "5.17"),
   wings_dup = rep(c(FALSE, TRUE), c(4L, 1L)),
 ) %>%
-  structure(class = c("scr_dup_detect", "tbl_df", "tbl", "data.frame"))
+  structure(class = c("scrutiny_dup_detect", "tbl_df", "tbl", "data.frame"))
 
 pigs4_missings <- pigs4
 pigs4_missings[3, 1] <- NA
@@ -23,7 +23,7 @@ pigs4_missings_exp <- tibble::tibble(
   wings = c("6.09", "8.27", "4.40", "5.92", "5.17"),
   wings_dup = rep(c(FALSE, TRUE), c(4L, 1L)),
 ) %>%
-  structure(class = c("scr_dup_detect", "tbl_df", "tbl", "data.frame"))
+  structure(class = c("scrutiny_dup_detect", "tbl_df", "tbl", "data.frame"))
 
 
 # Testing -----------------------------------------------------------------

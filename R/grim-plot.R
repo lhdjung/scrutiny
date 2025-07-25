@@ -129,8 +129,8 @@ grim_plot <- function(
 ) {
   # Checks ----
 
-  inherits_grim <- inherits(data, "scr_grim_map")
-  inherits_grimmer <- inherits(data, "scr_grimmer_map")
+  inherits_grim <- inherits(data, "scrutiny_grim_map")
+  inherits_grimmer <- inherits(data, "scrutiny_grimmer_map")
 
   if (!inherits_grim) {
     # Issue an alert if any GRIMMER inconsistencies were found in `data`:
@@ -214,7 +214,7 @@ grim_plot <- function(
         consistency = TRUE
       ),
       nrow = 1L,
-      class = paste0("scr_rounding_", rounding)
+      class = paste0("scrutiny_rounding_", rounding)
     )
   }
 
@@ -224,7 +224,7 @@ grim_plot <- function(
     if (show_raster) {
       if (!all(digits_x[1L] == digits_x)) {
         means_percentages <- dplyr::if_else(
-          inherits(data, "scr_percent_true"),
+          inherits(data, "scrutiny_percent_true"),
           "Percentages",
           "Means"
         )
@@ -280,8 +280,8 @@ grim_plot <- function(
       # Check the way `x` values were rounded in the preceding `grim_map()` call
       # to prepare selecting the plot background raster:
       dc <- class(data)
-      rounding_id <- dc[stringr::str_detect(dc, "^scr_rounding_")]
-      rounding_id <- stringr::str_remove(rounding_id, "^scr_rounding_")
+      rounding_id <- dc[stringr::str_detect(dc, "^scrutiny_rounding_")]
+      rounding_id <- stringr::str_remove(rounding_id, "^scrutiny_rounding_")
 
       # Throw error if the specified rounding option is one of the few for which
       # no raster is available:
@@ -344,7 +344,7 @@ grim_plot <- function(
   # If `percent = TRUE` in the underlying `grim_map()` call, the y-axis label is
   # automatically adjusted to reflect the fact that the fractional values are
   # percentages (converted to decimal numbers), not means:
-  mean_percent_label <- if (inherits(data, "scr_percent_true")) {
+  mean_percent_label <- if (inherits(data, "scrutiny_percent_true")) {
     "% (as decimal)"
   } else {
     "mean"

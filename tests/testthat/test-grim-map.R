@@ -23,18 +23,18 @@ test_that("A tibble is returned", {
 
 
 test_that("It has the correct function-general class", {
-  expect_s3_class(df1_grim, "scr_grim_map")
+  expect_s3_class(df1_grim, "scrutiny_grim_map")
 })
 
 test_that("It has the correct rounding-specific class", {
-  df1_grim_up_or_down       %>% expect_s3_class("scr_rounding_up_or_down")
-  df1_grim_up               %>% expect_s3_class("scr_rounding_up")
-  df1_grim_down             %>% expect_s3_class("scr_rounding_down")
-  df1_grim_ceiling_or_floor %>% expect_s3_class("scr_rounding_ceiling_or_floor")
-  df1_grim_ceiling          %>% expect_s3_class("scr_rounding_ceiling")
-  df1_grim_floor            %>% expect_s3_class("scr_rounding_floor")
-  df1_grim_trunc            %>% expect_s3_class("scr_rounding_trunc")
-  df1_grim_anti_trunc       %>% expect_s3_class("scr_rounding_anti_trunc")
+  df1_grim_up_or_down       %>% expect_s3_class("scrutiny_rounding_up_or_down")
+  df1_grim_up               %>% expect_s3_class("scrutiny_rounding_up")
+  df1_grim_down             %>% expect_s3_class("scrutiny_rounding_down")
+  df1_grim_ceiling_or_floor %>% expect_s3_class("scrutiny_rounding_ceiling_or_floor")
+  df1_grim_ceiling          %>% expect_s3_class("scrutiny_rounding_ceiling")
+  df1_grim_floor            %>% expect_s3_class("scrutiny_rounding_floor")
+  df1_grim_trunc            %>% expect_s3_class("scrutiny_rounding_trunc")
+  df1_grim_anti_trunc       %>% expect_s3_class("scrutiny_rounding_anti_trunc")
 })
 
 

@@ -89,18 +89,18 @@ function(
   class_dispersion_ascending <- if (is_seq_ascending(dispersion)) {
     NULL
   } else {
-    "scr_map_seq_disp_nonlinear"
+    "scrutiny_map_seq_disp_nonlinear"
   }
   classes_seq <- c(
-    "scr_map_seq",
-    paste0("scr_", tolower(name_test), "_map_seq"),
+    "scrutiny_map_seq",
+    paste0("scrutiny_", tolower(name_test), "_map_seq"),
     class_dispersion_ascending
   )
   out <- add_class(out, classes_seq)
   dots <- rlang::enexprs(...)
   if (length(dots$rounding) > 0L) {
-    class(out)[stringr::str_detect(class(out), "^scr_rounding_")] <- paste0(
-      "scr_rounding_",
+    class(out)[stringr::str_detect(class(out), "^scrutiny_rounding_")] <- paste0(
+      "scrutiny_rounding_",
       dots$rounding
     )
   }

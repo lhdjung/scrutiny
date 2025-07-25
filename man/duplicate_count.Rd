@@ -26,7 +26,7 @@ columns. If \code{x} isn't named, only the first two columns appear:
 \item \code{locations_n}: Number of columns named in \code{locations}.
 }
 
-The tibble has the \code{scr_dup_count} class, which is recognized by the
+The tibble has the \code{scrutiny_dup_count} class, which is recognized by the
 \code{\link[=audit]{audit()}} generic.
 }
 \description{

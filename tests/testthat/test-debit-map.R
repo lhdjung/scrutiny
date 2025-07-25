@@ -38,7 +38,7 @@ df1_expected <- tibble::tibble(
   x_upper = c(0.535, 0.445, 0.775, 0.195, 0.3450000000000000288658, 0.935, 0.125),
 ) %>%
   structure(
-    class = c("scr_debit_map", "scr_rounding_up_or_down", "tbl_df", "tbl", "data.frame")
+    class = c("scrutiny_debit_map", "scrutiny_rounding_up_or_down", "tbl_df", "tbl", "data.frame")
   )
 
 test_that("`debit_map()` has correct output", {

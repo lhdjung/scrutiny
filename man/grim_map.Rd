@@ -71,7 +71,7 @@ A tibble with these columns --
 \code{\link[=grim_probability]{grim_probability()}}.
 \item \verb{<extra>}: any columns from \code{data} other than \code{x}, \code{n}, and \code{items}.
 
-The tibble has the \code{scr_grim_map} class, which is recognized by the
+The tibble has the \code{scrutiny_grim_map} class, which is recognized by the
 \code{\link[=audit]{audit()}} generic.
 }
 }

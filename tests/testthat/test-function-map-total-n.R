@@ -35,7 +35,7 @@ schlim_map_total_n <- function_map_total_n(
   .fun = schlim_map,
   .reported = "y",
   .name_test = "SCHLIM",
-  .name_class = "scr_schlim_map_total_n"
+  .name_class = "scrutiny_schlim_map_total_n"
 )
 
 

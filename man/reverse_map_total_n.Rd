@@ -7,7 +7,7 @@
 reverse_map_total_n(data)
 }
 \arguments{
-\item{data}{Data frame that inherits the \code{"scr_map_total_n"} class.}
+\item{data}{Data frame that inherits the \code{"scrutiny_map_total_n"} class.}
 }
 \value{
 The reconstructed tibble (data frame) which a factory-made

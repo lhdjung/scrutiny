@@ -203,7 +203,7 @@ function_map_seq_proto <- function(
 #'   `function_map_seq()`. It should be the function's own name preceded
 #'   by the name of the package that contains it, or by an acronym of that
 #'   package's name. Therefore, some existing classes are
-#'   `scr_grim_map_seq` and `scr_grimmer_map_seq`.
+#'   `scrutiny_grim_map_seq` and `scrutiny_grimmer_map_seq`.
 
 #' @references Wickham, H. (2019). *Advanced R* (Second Edition). CRC
 #'   Press/Taylor and Francis Group. https://adv-r.hadley.nz/index.html
@@ -375,28 +375,28 @@ function_map_seq <- function(
       class_dispersion_ascending <- if (is_seq_ascending(dispersion)) {
         NULL
       } else {
-        "scr_map_seq_disp_nonlinear"
+        "scrutiny_map_seq_disp_nonlinear"
       }
 
       # Create classes that will identify `out` as output of the specific
       # manufactured function:
       classes_seq <- c(
-        "scr_map_seq",
+        "scrutiny_map_seq",
         # rounding,
         # classes_fun,
-        paste0("scr_", tolower(name_test), "_map_seq"),
+        paste0("scrutiny_", tolower(name_test), "_map_seq"),
         class_dispersion_ascending
       )
 
       out <- add_class(out, classes_seq)
 
-      # Make sure the "rounding class" (i.e., `"scr_rounding_*"`) has the
+      # Make sure the "rounding class" (i.e., `"scrutiny_rounding_*"`) has the
       # correct value. As this is not naturally guaranteed as in `*_map()`
       # functions, it must be done by hand:
       dots <- rlang::enexprs(...)
       if (length(dots$rounding) > 0L) {
-        class(out)[stringr::str_detect(class(out), "^scr_rounding_")] <-
-          paste0("scr_rounding_", dots$rounding)
+        class(out)[stringr::str_detect(class(out), "^scrutiny_rounding_")] <-
+          paste0("scrutiny_rounding_", dots$rounding)
       }
 
       `!!!`(write_code_col_key_result(.name_key_result))

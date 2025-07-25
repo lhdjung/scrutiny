@@ -93,7 +93,7 @@ duplicate_count_colpair <- function(data, ignore = NULL, show_rates = TRUE) {
     corrr::stretch(na.rm = TRUE, remove.dups = FALSE) %>%
     dplyr::arrange(dplyr::desc(.data$r)) %>%
     dplyr::rename(count = "r") %>%
-    add_class("scr_dup_count_colpair")
+    add_class("scrutiny_dup_count_colpair")
 
   if (!show_rates) {
     return(out)

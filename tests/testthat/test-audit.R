@@ -52,7 +52,7 @@ data_seq_grim_different_dispersion1 <- tibble::tibble(
   diff_n_up = 9L,
   diff_n_down = NA_integer_,
 ) %>%
-  structure(class = c("scr_audit_seq", "tbl_df", "tbl", "data.frame"))
+  structure(class = c("scrutiny_audit_seq", "tbl_df", "tbl", "data.frame"))
 
 data_seq_grim_different_dispersion2 <- tibble::tibble(
   x = "5.23",
@@ -68,7 +68,7 @@ data_seq_grim_different_dispersion2 <- tibble::tibble(
   diff_n_up = NA_integer_,
   diff_n_down = -3L,
 ) %>%
-  structure(class = c("scr_audit_seq", "tbl_df", "tbl", "data.frame"))
+  structure(class = c("scrutiny_audit_seq", "tbl_df", "tbl", "data.frame"))
 
 data_incons <- pigs1 %>%
   grim_map() %>%

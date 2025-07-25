@@ -70,7 +70,7 @@ df_grim3 <- tibble::tibble(
   ),
 ) %>%
   structure(
-    class = c("scr_grim_map", "scr_rounding_up_or_down", "tbl_df", "tbl", "data.frame")
+    class = c("scrutiny_grim_map", "scrutiny_rounding_up_or_down", "tbl_df", "tbl", "data.frame")
   )
 
 

@@ -28,15 +28,15 @@ these functions and their associated summary statistics.
 \section{Run before \code{audit()}}{
 \tabular{ll}{
    \strong{Function} \tab \strong{Class} \cr
-   \code{\link[=grim_map]{grim_map()}} \tab \code{"scr_grim_map"} \cr
-   \code{\link[=grimmer_map]{grimmer_map()}} \tab \code{"scr_grimmer_map"} \cr
-   \code{\link[=debit_map]{debit_map()}} \tab \code{"scr_debit_map"} \cr
-   \code{\link[=duplicate_count]{duplicate_count()}} \tab \code{"scr_dup_count"} \cr
-   \code{\link[=duplicate_count_colpair]{duplicate_count_colpair()}} \tab \code{"scr_dup_count_colpair"} \cr
-   \code{\link[=duplicate_tally]{duplicate_tally()}} \tab \code{"scr_dup_tally"} \cr
-   \code{\link[=duplicate_detect]{duplicate_detect()}} \tab \code{"scr_dup_detect"} \cr
-   \code{\link[=audit_seq]{audit_seq()}} \tab \code{"scr_audit_seq"} \cr
-   \code{\link[=audit_total_n]{audit_total_n()}} \tab \code{"scr_audit_total_n"} \cr
+   \code{\link[=grim_map]{grim_map()}} \tab \code{"scrutiny_grim_map"} \cr
+   \code{\link[=grimmer_map]{grimmer_map()}} \tab \code{"scrutiny_grimmer_map"} \cr
+   \code{\link[=debit_map]{debit_map()}} \tab \code{"scrutiny_debit_map"} \cr
+   \code{\link[=duplicate_count]{duplicate_count()}} \tab \code{"scrutiny_dup_count"} \cr
+   \code{\link[=duplicate_count_colpair]{duplicate_count_colpair()}} \tab \code{"scrutiny_dup_count_colpair"} \cr
+   \code{\link[=duplicate_tally]{duplicate_tally()}} \tab \code{"scrutiny_dup_tally"} \cr
+   \code{\link[=duplicate_detect]{duplicate_detect()}} \tab \code{"scrutiny_dup_detect"} \cr
+   \code{\link[=audit_seq]{audit_seq()}} \tab \code{"scrutiny_audit_seq"} \cr
+   \code{\link[=audit_total_n]{audit_total_n()}} \tab \code{"scrutiny_audit_total_n"} \cr
 }
 }
 

@@ -5,7 +5,7 @@
 #'
 #'   See [`audit_seq()`], which takes `reverse_map_seq()` as a basis.
 #'
-#' @param data Data frame that inherits the `"scr_map_seq"` class.
+#' @param data Data frame that inherits the `"scrutiny_map_seq"` class.
 #'
 #' @include utils.R
 #'
@@ -27,7 +27,7 @@
 reverse_map_seq <- function(data) {
   # Check that `data` is a tibble returned by a function that had been
   # manufactured using `function_map_seq()`:
-  if (!inherits(data, "scr_map_seq")) {
+  if (!inherits(data, "scrutiny_map_seq")) {
     cli::cli_abort(c(
       "!" = "`data` must be the output of \\
       a function like `grim_map_seq()`.",
@@ -47,7 +47,7 @@ reverse_map_seq <- function(data) {
   if (length(var_unique) == 1L) {
     data_var <- list(data)
     data_var <- append(data_var, data_var)
-    names(data_var) <- c(var_unique, "scr_split_dummy")
+    names(data_var) <- c(var_unique, "scrutiny_split_dummy")
   } else {
     data_var <- split(data, list(data$var))
     data_var <- data_var[var_unique] # order by `var`
@@ -68,16 +68,16 @@ reverse_map_seq <- function(data) {
 
   data_index_case <- data_nested %>%
     dplyr::mutate(
-      scr_index_case = list(data[var]),
-      scr_index_case = list(index_case_interpolate(scr_index_case[[1L]]))
+      scrutiny_index_case = list(data[var]),
+      scrutiny_index_case = list(index_case_interpolate(scrutiny_index_case[[1L]]))
     ) %>%
     dplyr::ungroup() %>%
-    dplyr::select(var, scr_index_case)
+    dplyr::select(var, scrutiny_index_case)
 
   data_index_case %>%
     tidyr::pivot_wider(
       names_from = var,
-      values_from = scr_index_case,
+      values_from = scrutiny_index_case,
       values_fn = list
     ) %>%
     tidyr::unnest(cols = everything()) %>%

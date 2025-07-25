@@ -7,7 +7,7 @@
 reverse_map_seq(data)
 }
 \arguments{
-\item{data}{Data frame that inherits the \code{"scr_map_seq"} class.}
+\item{data}{Data frame that inherits the \code{"scrutiny_map_seq"} class.}
 }
 \value{
 The reconstructed tibble (data frame) which a factory-made

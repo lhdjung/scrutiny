@@ -203,9 +203,9 @@ The (only) requirements for a basic mapping function are:
 
 5.  The output data frame also includes a logical column named `"consistency"`. It contains the results of the consistency test, as determined by the respective `*_scalar()` function. In each row, `"consistency"` is `TRUE` if the values to its left are mutually consistent, and `FALSE` if they aren't. This column is placed immediately to the right of the group of key (and, potentially, helper) columns.
 
-6.  If the underlying single-case function performs rounding or unrounding, it should internally call `reround()` and/or `unround()`, respectively. The output data frame of the mapper function will then inherit an S3 class (see section *S3 classes* below) such as `"scr_rounding_up_or_down"`: It consists of `"scr_rounding_"` followed by the rounding specification, e.g., `"up_or_down"`. The latter should also be the default rounding and unrounding specification. This specification can be supplied by the user via an argument called `rounding`, which is then passed down to the single-case function. If `reround()` is called within the mapper, all of its arguments need to be passed down from the mapper, which itself has all of the same arguments, with the same defaults. The same applies to `unround()`.
+6.  If the underlying single-case function performs rounding or unrounding, it should internally call `reround()` and/or `unround()`, respectively. The output data frame of the mapper function will then inherit an S3 class (see section *S3 classes* below) such as `"scrutiny_rounding_up_or_down"`: It consists of `"scrutiny_rounding_"` followed by the rounding specification, e.g., `"up_or_down"`. The latter should also be the default rounding and unrounding specification. This specification can be supplied by the user via an argument called `rounding`, which is then passed down to the single-case function. If `reround()` is called within the mapper, all of its arguments need to be passed down from the mapper, which itself has all of the same arguments, with the same defaults. The same applies to `unround()`.
 
-7.  The output data frame inherits an S3 class that starts on `"scr_"` (short for scrutiny), followed by the name of the mapper function. For example, the output of `grim_map()` inherits the `"scr_grim_map"` class. The `"scr_"` prefix is necessary for some follow-up computations introduced below, so it should be used even within functions that are not part of scrutiny. Any other classes added to the output data frame should also start on `"scr_"`. None of them should end on `"_map"`.
+7.  The output data frame inherits an S3 class that starts on `"scrutiny_"` (short for scrutiny), followed by the name of the mapper function. For example, the output of `grim_map()` inherits the `"scrutiny_grim_map"` class. The `"scrutiny_"` prefix is necessary for some follow-up computations introduced below, so it should be used even within functions that are not part of scrutiny. Any other classes added to the output data frame should also start on `"scrutiny_"`. None of them should end on `"_map"`.
 
 ### Implications
 
@@ -221,7 +221,7 @@ The output data frame may or may not contain non-tested columns from the input. 
 
 If the number of key columns plus the number of helper columns in the output is $k$, the index of `"consistency"` is $k+1$.
 
-Besides the `"scr_*_map"` class, the output data frame may inherit any number of other classes added within the mapper, so long as they start on `"scr_"` but don't end on `"_map"`. It can't inherit the `"grouped_df"` or `"rowwise_df"` classes added by `dplyr::group_by()` and `dplyr::rowwise()`, respectively. If either of these functions is called within the mapper, it needs to be followed by `dplyr::ungroup()` at some point.
+Besides the `"scrutiny_*_map"` class, the output data frame may inherit any number of other classes added within the mapper, so long as they start on `"scrutiny_"` but don't end on `"_map"`. It can't inherit the `"grouped_df"` or `"rowwise_df"` classes added by `dplyr::group_by()` and `dplyr::rowwise()`, respectively. If either of these functions is called within the mapper, it needs to be followed by `dplyr::ungroup()` at some point.
 
 ```{r eval=FALSE, include=FALSE}
 # NOTE: The two diagrams below should have width 585 and a locked aspect ratio.
@@ -254,7 +254,7 @@ schlim_map_alt1 <- function(data, ...) {
     n = data$n,
     consistency = purrr::pmap_lgl(data, schlim_scalar, ...)
   ) %>% 
-    add_class("scr_schlim_map")  # See section "S3 classes" below
+    add_class("scrutiny_schlim_map")  # See section "S3 classes" below
 }
 ```
 
@@ -268,7 +268,7 @@ schlim_map_alt2 <- function(data, ...) {
     dplyr::mutate(consistency = schlim_scalar(y, n, ...)) %>% 
     dplyr::ungroup() %>% 
     dplyr::relocate(y, n, consistency) %>% 
-    add_class("scr_schlim_map")  # See section "S3 classes" below
+    add_class("scrutiny_schlim_map")  # See section "S3 classes" below
 }
 ```
 
@@ -323,7 +323,7 @@ When directly looking for internal helpers in scrutiny's source code, start at t
 
 `audit()` is an S3 generic for summarizing scrutiny's test result data frames, especially those of mapper functions such as `grim_map()`. It should always return descriptive statistics but nothing else. Every mapper function should have its corresponding `audit()` method.
 
-This is an aspect of object-oriented programming (OOP), but scrutiny's use of OOP is simple even by the low standards of R. Your mapper function's output already inherits a specific class, such as `"scr_grim_map"`, `"scr_grimmer_map"`, or `"scr_debit_map"`. In `schlim_map()`, we added the `"scr_schlim_map"` class in addition to existing classes:
+This is an aspect of object-oriented programming (OOP), but scrutiny's use of OOP is simple even by the low standards of R. Your mapper function's output already inherits a specific class, such as `"scrutiny_grim_map"`, `"scrutiny_grimmer_map"`, or `"scrutiny_debit_map"`. In `schlim_map()`, we added the `"scrutiny_schlim_map"` class in addition to existing classes:
 
 ```{r}
 df1_tested <- schlim_map(df1)
@@ -351,7 +351,7 @@ Your `audit()` method is simply a function named `audit` plus a dot and your spe
 ```{r, error=TRUE}
 # The `name_test` argument is only for the alert
 # that might be issued by `check_audit_special()`:
-audit.scr_schlim_map <- function(data) {
+audit.scrutiny_schlim_map <- function(data) {
   audit_cols_minimal(data, name_test = "SCHLIM")
 }
 
@@ -395,7 +395,7 @@ As a result, the rules below are admittedly somewhat less important. If you viol
 
 1.  All visualization functions should be based on ggplot2. They should follow its developers' general advice on [using ggplot2 in packages](https://ggplot2.tidyverse.org/articles/ggplot2-in-packages.html). Visualization functions don't need to implement any newly created layers, such as geoms or themes. Indeed, neither of the two existing visualization functions relies on any new layers.
 2.  The visualization function's name should be that of the test itself (in lowercase), followed by `_plot`. Naturally, this doesn't apply to methods for generic functions like `plot()` or `ggplot2::autoplot()`.
-3.  Its first argument, `data`, is a data frame that is the result of a call to the respective mapper function, such as `grim_map()` or `debit_map()`. The visualization function makes sure this is true by checking that `data` inherits the special class added within the mapper, such as `"scr_grim_map"` or `"scr_debit_map"`. If `data` fails this check, the function throws an error.
+3.  Its first argument, `data`, is a data frame that is the result of a call to the respective mapper function, such as `grim_map()` or `debit_map()`. The visualization function makes sure this is true by checking that `data` inherits the special class added within the mapper, such as `"scrutiny_grim_map"` or `"scrutiny_debit_map"`. If `data` fails this check, the function throws an error.
 4.  The function should display consistent and inconsistent value sets. The color defaults should be `"royalblue1"` for consistent value sets and `"red"` for inconsistent ones. The user can override these defaults via two arguments named `color_cons` for consistent value sets and `color_incons` for inconsistent ones.
 5.  If certain layers are optional rather than essential to the plot, their display can be controlled via logical arguments that start on `show_`. Examples are `show_data` in `grim_plot()` or `show_outer_boxes` in `debit_plot()`. Only arguments of this kind should start on `show_`. They should have defaults (which will usually be `TRUE`, but this is not a requirement).
 
