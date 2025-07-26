@@ -247,11 +247,18 @@ manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
 #'   2. Within the mapper, capture the user input by quoting it using
 #'   `rlang::enexpr()`. Reassign these values to the argument variables; e.g.,
 #'   `x <- rlang::enexpr(x)` and `n <- rlang::enexpr(n)`.
-
-#'   3. For every such argument, call `manage_key_colnames()` and reassign its
-#'   value to the input data frame variable, adding a short description;
-#'   e.g.,`data <- manage_key_colnames(data, x, "mean/proportion")` and `data <-
-#'   manage_key_colnames(data, n, "sample size")`.
+#'
+#'   3. For every such argument, use `missing()` to check whether it was
+#'   specified. If and only if it was, call `manage_key_colnames()` and reassign
+#'   its value to the input data frame variable, adding a short description;
+#'   like this:
+#'
+#' \preformatted{
+#'   if (!missing(x)) {
+#'     x <- rlang::enexpr(x)
+#'     data <- manage_key_colnames(data, x, "mean/proportion")
+#'   }
+#' }
 #'
 #' @param data The mapper function's input data frame.
 #' @param arg Symbol. The quoted input variable, captured by `rlang::enexpr()`.
@@ -266,23 +273,28 @@ manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
 
 manage_key_colnames <- function(data, arg, description = NULL) {
   arg_name <- deparse(substitute(arg))
-  if (!is.null(arg)) {
-    # data <- dplyr::rename(data, "scrutiny_temp_placeholder" := arg)  # {{ arg_name }} := arg
-    data <- dplyr::rename(data, {{ arg_name }} := all_of(arg))
-  } else if (!any(arg_name == colnames(data))) {
-    if (is.null(description)) {
-      msg_this_col <- "One"
-    } else {
-      msg_this_col <- paste("The ", description)
-    }
-    cli::cli_abort(c(
-      "Column `{arg_name}` missing.",
-      "i" = "{msg_this_col} column in `data` must be named \\
+
+  if (is.null(arg)) {
+    # Throw an error if the argument name is not found among the column names
+    if (!(arg_name %in% colnames(data))) {
+      msg_this_col <- if (is.null(description)) {
+        "One"
+      } else {
+        paste("The ", description)
+      }
+      cli::cli_abort(c(
+        "Column `{arg_name}` missing.",
+        "i" = "{msg_this_col} column in `data` must be named \\
       `{arg_name}`. Alternatively, specify the `{arg_name}` argument \\
       as the name of that column."
-    ))
+      ))
+    }
+    # Otherwise, there are no columns to rename
+    return(data)
   }
-  data
+
+  # Splice `arg_name`, the target new column name, into dplyr's renaming syntax
+  dplyr::rename(data, {{ arg_name }} := all_of(arg))
 }
 
 

@@ -123,7 +123,7 @@ As you can see, `function_map()` is not a helper used inside other functions whe
 
 To export a function manufactured this way from your own package, make sure to follow [this purrr FAQ](https://purrr.tidyverse.org/reference/faq-adverbs-export.html). (Incredible as it sounds, scrutiny will then take on the role of purrr.) Your version should look about like this:
 
-```r
+``` r
 schlim_map <- function(...) "dummy"
 
 .onLoad <- function(lib, pkg) {
@@ -197,15 +197,17 @@ The (only) requirements for a basic mapping function are:
 
 2.  Its first argument, `data`, is a tibble (data frame) that contains the key columns of the respective consistency test. Other columns are permitted. The mapper's user never needs to include helper columns and can always replace them by specifying arguments by the same names as those columns. If the user specifies such an argument but the input data frame contains a column by the same name, the function throws an error. No column of the input data frame should be named `"consistency"`.
 
-3.  Its return value is a tibble data frame that contains all of the key input columns. The types of these columns are the same as in the input data frame. They are the first (i.e., leftmost) columns in the output, even if the input isn't ordered this way. If any of these columns are modified within the mapping function, the output should include the modified columns, not the original ones. Examples can be effects of helper columns, but also the change displayed by the `"x"` column in the output of `grim_map(percent = TRUE)`. The output must test `TRUE` with `is_map_df()` and `is_map_basic_df()`, but `FALSE` with the other two `is_map_*()` functions.
+3.  Its return value is a tibble (data frame) that contains all of the key input columns. The types of these columns are the same as in the input data frame. They are the first (i.e., leftmost) columns in the output, even if the input isn't ordered this way. If any of these columns are modified within the mapping function, the output should include the modified columns, not the original ones. Examples can be effects of helper columns, but also the change displayed by the `"x"` column in the output of `grim_map(percent = TRUE)`. The output must test `TRUE` with `is_map_df()` and `is_map_basic_df()`, but `FALSE` with the other two `is_map_*()` functions.
 
-4.  Helper columns should be included in the output unless they transform one or more key columns. In this case, representing them in the output would be confusing because their effects have already played out via the transformed key column(s). For every helper column that performs such transformations, the mapper should have a logical argument, `TRUE` by default, that determines whether or not the helper column transforms those key column(s). If `TRUE`, the helper column does but is not included in the output itself. If `FALSE`, the helper column is included but no transformation takes place. The name of this logical argument should start on `merge_`, followed by the name of the helper column in question. An example for all of that is the optional `items` column in `grim_map()`'s input data frame, together with this function's `items` and `merge_items` arguments. To work with helper columns, call `manage_helper_col()` within the mapper.
+4.  There can be no arguments named like the key arguments unless they follow the `manage_key_colnames()` system; see there.
 
-5.  The output data frame also includes a logical column named `"consistency"`. It contains the results of the consistency test, as determined by the respective `*_scalar()` function. In each row, `"consistency"` is `TRUE` if the values to its left are mutually consistent, and `FALSE` if they aren't. This column is placed immediately to the right of the group of key (and, potentially, helper) columns.
+5.  Helper columns should be included in the output unless they transform one or more key columns. In this case, representing them in the output would be confusing because their effects have already played out via the transformed key column(s). For every helper column that performs such transformations, the mapper should have a logical argument, `TRUE` by default, that determines whether or not the helper column transforms those key column(s). If `TRUE`, the helper column does but is not included in the output itself. If `FALSE`, the helper column is included but no transformation takes place. The name of this logical argument should start on `merge_`, followed by the name of the helper column in question. An example for all of that is the optional `items` column in `grim_map()`'s input data frame, together with this function's `items` and `merge_items` arguments. To work with helper columns, call `manage_helper_col()` within the mapper.
 
-6.  If the underlying single-case function performs rounding or unrounding, it should internally call `reround()` and/or `unround()`, respectively. The output data frame of the mapper function will then inherit an S3 class (see section *S3 classes* below) such as `"scrutiny_rounding_up_or_down"`: It consists of `"scrutiny_rounding_"` followed by the rounding specification, e.g., `"up_or_down"`. The latter should also be the default rounding and unrounding specification. This specification can be supplied by the user via an argument called `rounding`, which is then passed down to the single-case function. If `reround()` is called within the mapper, all of its arguments need to be passed down from the mapper, which itself has all of the same arguments, with the same defaults. The same applies to `unround()`.
+6.  The output data frame also includes a logical column named `"consistency"`. It contains the results of the consistency test, as determined by the respective `*_scalar()` function. In each row, `"consistency"` is `TRUE` if the values to its left are mutually consistent, and `FALSE` if they aren't. This column is placed immediately to the right of the group of key (and, potentially, helper) columns.
 
-7.  The output data frame inherits an S3 class that starts on `"scrutiny_"` (short for scrutiny), followed by the name of the mapper function. For example, the output of `grim_map()` inherits the `"scrutiny_grim_map"` class. The `"scrutiny_"` prefix is necessary for some follow-up computations introduced below, so it should be used even within functions that are not part of scrutiny. Any other classes added to the output data frame should also start on `"scrutiny_"`. None of them should end on `"_map"`.
+7.  If the underlying single-case function performs rounding or unrounding, it should internally call `reround()` and/or `unround()`, respectively. The output data frame of the mapper function will then inherit an S3 class (see section *S3 classes* below) such as `"scrutiny_rounding_up_or_down"`: It consists of `"scrutiny_rounding_"` followed by the rounding specification, e.g., `"up_or_down"`. The latter should also be the default rounding and unrounding specification. This specification can be supplied by the user via an argument called `rounding`, which is then passed down to the single-case function. If `reround()` is called within the mapper, all of its arguments need to be passed down from the mapper, which itself has all of the same arguments, with the same defaults. The same applies to `unround()`.
+
+8.  The output data frame inherits an S3 class that starts on `"scrutiny_"`, followed by the name of the mapper function. For example, the output of `grim_map()` inherits the `"scrutiny_grim_map"` class. The `"scrutiny_"` prefix is necessary for some follow-up computations introduced below, so it should be used even within functions that are not part of scrutiny. Any other classes added to the output data frame should also start on `"scrutiny_"`. None of them should end on `"_map"`.
 
 ### Implications
 
@@ -213,7 +215,7 @@ Some implications of these requirements, and of the fact that the design space f
 
 Anything that factors into the consistency test other than tested columns needs to be conveyed to the mapper function via arguments. An example is the `rounding` argument in `grim_map()`. Mapper functions don't need to allow for helper columns.
 
-The input data frame is not necessarily a tibble, but the output data frame is. The input data frame never contains a column named `"consistency"`, but the output data frame always does.
+The input and output data frames are tibbles. The input data frame never contains a column named `"consistency"`, but the output data frame always does.
 
 Key columns may or may not be modified by helper columns and/or by arguments. The number of key columns doesn't change between the input and output data frames.
 
@@ -249,6 +251,7 @@ Apply the `*_scalar()` function to the input data frame using `purrr::pmap_lgl()
 ```{r}
 schlim_map_alt1 <- function(data, ...) {
   scrutiny::check_mapper_input_colnames(data, c("y", "n"), "SCHLIM")
+  
   tibble::tibble(
     y = data$y,
     n = data$n,
@@ -263,6 +266,7 @@ Alternatively, you might call `dplyr::rowwise()` and directly mutate `"consisten
 ```{r}
 schlim_map_alt2 <- function(data, ...) {
   scrutiny::check_mapper_input_colnames(data, c("y", "n"), "SCHLIM")
+  
   data %>% 
     dplyr::rowwise() %>% 
     dplyr::mutate(consistency = schlim_scalar(y, n, ...)) %>% 
@@ -304,16 +308,17 @@ You can access the classes that an object carries --- or "inherits" --- by calli
 ```{r}
 some_object <- tibble::tibble(x = 5)
 some_object <- add_class(some_object, "dummy class")
+
 class(some_object)
 ```
+
+If you have an eye on performance, consider building a data frame using `tibble::new_tibble()` with the `class` argument instead of `add_class()`. However, this requires you to write code that determines the number of rows in advance, so make sure you really know what you are doing.
 
 ### Internal helpers
 
 Within scrutiny, many functions that are exported for users internally call helper functions that are not, such as `add_class()`. You might be writing your own function following the design of an exported scrutiny function, but suddenly you can't access an unknown function that you seem to need!
 
-If you'd like to employ such an internal helper for yourself, specify its namespace with three colons, like `scrutiny:::add_class`. However, you should only use this trick to copy and paste the helper's source code into your own source code. (That's why I left out the parentheses --- return the function itself.) Never rely on calling a function with `:::`, because these internals are not actually meant for users. They can easily shift and vanish without notice.
-
-If you develop your own package, see [this blogpost](https://www.tidyverse.org/blog/2022/09/playing-on-the-same-team-as-your-dependecy/) by Thomas Lin Pedersen for more information on using internal code from other packages. In particular, package developers should mind licenses when copying code from scrutiny because scrutiny is GPL-3 licensed.
+If you'd like to employ such an internal helper for yourself, specify its namespace with three colons, like `scrutiny:::add_class`. However, you should only use this trick to copy and paste the helper's source code into your own source code. (That's why I left out the parentheses --- return the function itself.) Never rely on calling a function with `:::`, because these internals are not actually meant for users. They can easily shift and vanish without notice. See [this blogpost](https://www.tidyverse.org/blog/2022/09/playing-on-the-same-team-as-your-dependecy/) by Thomas Lin Pedersen for more information on using internal code from other packages.
 
 When directly looking for internal helpers in scrutiny's source code, start at the [utils.R](https://github.com/lhdjung/scrutiny/blob/main/R/utils.R) file. Most helpers can be found there, and every helper in utils.R is documented.
 
@@ -581,12 +586,13 @@ Below is their function family tree. Fields with bold margins are function facto
 
 Here is an overview of scrutiny's function factories:
 
-| Output function type | Section here | Function factory         | GRIM example function | Predicate function    |
+| Output function type | Section here | Function factory | GRIM example function | Predicate function |
 |---------------|---------------|---------------|---------------|---------------|
-| Basic mapper         | 3            | `function_map()`         | `grim_map()`          | `is_map_basic_df()`   |
-| Sequence mapper      | 6            | `function_map_seq()`     | `grim_map_seq()`      | `is_map_seq_df()`     |
-| Total-n mapper       | 7            | `function_map_total_n()` | `grim_map_total_n()`  | `is_map_total_n_df()` |
+| Basic mapper | 3 | `function_map()` | `grim_map()` | `is_map_basic_df()` |
+| Sequence mapper | 6 | `function_map_seq()` | `grim_map_seq()` | `is_map_seq_df()` |
+| Total-n mapper | 7 | `function_map_total_n()` | `grim_map_total_n()` | `is_map_total_n_df()` |
 
 Predicate functions are those that return `TRUE` for the data frames returned by the factory-made functions. The more general `is_map_df()` returns `TRUE` for all those data frames. As explained in section 3, `grim_map()` was written "by hand" rather than produced by `function_map()`, but such a factory-made function would be equivalent except for some additional columns in the output.
 
 # References
+

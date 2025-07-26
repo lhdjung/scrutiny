@@ -31,9 +31,17 @@ columns. They should be \code{NULL} by default; e.g., \verb{x = NULL, n = NULL}.
 \item Within the mapper, capture the user input by quoting it using
 \code{rlang::enexpr()}. Reassign these values to the argument variables; e.g.,
 \code{x <- rlang::enexpr(x)} and \code{n <- rlang::enexpr(n)}.
-\item For every such argument, call \code{manage_key_colnames()} and reassign its
-value to the input data frame variable, adding a short description;
-e.g.,\code{data <- manage_key_colnames(data, x, "mean/proportion")} and \code{data <-   manage_key_colnames(data, n, "sample size")}.
+\item For every such argument, use \code{missing()} to check whether it was
+specified. If and only if it was, call \code{manage_key_colnames()} and reassign
+its value to the input data frame variable, adding a short description;
+like this:
+}
+
+\preformatted{
+  if (!missing(x)) {
+    x <- rlang::enexpr(x)
+    data <- manage_key_colnames(data, x, "mean/proportion")
+  }
 }
 }
 \seealso{

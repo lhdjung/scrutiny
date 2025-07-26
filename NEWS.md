@@ -6,7 +6,7 @@
 
 -   Fixed a bug that could theoretically lead `grim()`, `grim_map()`, `grim_map_seq()`, and `grim_map_total_n()` to throw a warning and possibly even return incorrect results (also \@nrposner, #75). However, this is even less realistic than the previous bug.
 
--   Fixed a floating-point bug in the GRIMMER implementation, thanks to Aurélien Allard. It could treat some consistent value sets as inconsistent because of spurious precision in decimal numbers, at least in some edge cases with multi-item scales.
+-   Fixed a floating-point bug in the GRIMMER implementation, thanks to Aurélien Allard. It could treat some consistent value sets as inconsistent because of spurious precision in decimal numbers, at least in some edge cases with multi-item scales. This affected `grimmer()`, `grimmer_map()`, etc.
 
 -   Compatibility with ggplot2 4.0.0 was ensured (\@teunbrand, #78).
 
@@ -26,6 +26,8 @@
 ## Minor improvements
 
 -   "Related software" (under "Articles" in the header) now has some new entries.
+
+-   The development-focused article "Consistency tests in depth" was updated (#74).
 
 -   GRIMMER documentation was improved (#66).
 
