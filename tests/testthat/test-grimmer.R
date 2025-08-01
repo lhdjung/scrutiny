@@ -333,10 +333,19 @@ test_that("the two functions disagree on less than 3 percent of cases", {
 
 # Resolve disagreements ---------------------------------------------------
 
-# TODO: resolve disagreements between the implementations! Here are the only
-# disagreements that occurred in hundreds of thousands of simulated test cases:
+# TODO discuss internally -- after testing 75k cases (ten times more than
+# usual), the cases below were the only cases of disagreement (`df_disagree`).
 # (Note that `out1` is the result of `grimmer_scalar()`, and `out2` of
 # `aGrimmer()`. Most important is that `n` is always 40 or 80!)
+tibble::tibble(
+  n = rep(c(40, 80), c(6L, 1L)),
+  x = c("4.02", "32.43", "512.57", "515.57", "517.57", "519.57", "521.67"),
+  sd = c("1.61", "12.97", "205.03", "206.23", "207.03", "207.83", "208.67"),
+  out1 = TRUE,
+  out2 = FALSE,
+  digits_sd = 2L,
+)
+
 c(n = "40", x = "16.03",  sd = "6.41",   out1 = "TRUE", out2 = "FALSE", digits_sd = "2")
 c(n = "40", x = "64.73",  sd = "25.89",  out1 = "TRUE", out2 = "FALSE", digits_sd = "2")
 c(n = "80", x = "64.73",  sd = "25.89",  out1 = "TRUE", out2 = "FALSE", digits_sd = "2")

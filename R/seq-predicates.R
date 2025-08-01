@@ -233,9 +233,6 @@ is_seq_basic <- function(
       "ascending" = is_seq_ascending_basic(x),
       "descending" = is_seq_descending_basic(x),
       "dispersed" = is_seq_dispersed_basic(x, args_other$from, tolerance)
-      # TODO: MAKE THIS "DISPERSED" TEST ABLE TO ASSUME THAT `NA`S IN `x_orig`
-      # ARE ACTUALLY DISPERSED VALUES! MAYBE USE `index_central()`'S INTERNAL
-      # LOGIC AND BUILD UP ON IT.
     )
     if (!pass_test_special) {
       return(FALSE)

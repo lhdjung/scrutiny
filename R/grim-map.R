@@ -170,8 +170,6 @@ grim_map <- function(
     data <- manage_key_colnames(data, n, "sample size")
   }
 
-  # TODO: Optimize `grim_map()` for performance!
-
   # Check the column names of `data`:
   check_mapper_input_colnames(data, c("x", "n"), "GRIM")
   check_tibble(data)

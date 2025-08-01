@@ -136,7 +136,7 @@ grimmer_map <- function(
 
   # TODO: REWRITE `grimmer_map()` USING `function_map()`! THAT IS, DEVELOP
   # `function_map()` SO THAT IT CAN HANDLE ALL THE FUNCTIONALITY THAT THIS
-  # REQUIRES! BUT FIRST, WRITE TEST FOR `grimmer_map()`!
+  # REQUIRES!
 
   check_mapper_input_colnames(data, c("x", "n"), "GRIM")
   check_tibble(data)
