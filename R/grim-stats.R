@@ -70,7 +70,9 @@ grim_probability <- function(x, n, digits_x, items = 1, percent = FALSE) {
       "x" = "It is {an_a_type(x)}."
     ))
   }
-  if (percent) digits_x <- digits_x + 2L
+  if (percent) {
+    digits_x <- digits_x + 2L
+  }
   p10 <- 10^digits_x
   out <- (p10 - n * items) / p10
   dplyr::if_else(out < 0, 0, out)
@@ -81,7 +83,9 @@ grim_probability <- function(x, n, digits_x, items = 1, percent = FALSE) {
 #' @export
 grim_ratio <- function(x, n, digits_x, items = 1, percent = FALSE) {
   check_type(x, "character")
-  if (percent) digits_x <- digits_x + 2L
+  if (percent) {
+    digits_x <- digits_x + 2L
+  }
   p10 <- 10^digits_x
   (p10 - n * items) / p10
 }
@@ -93,8 +97,9 @@ grim_ratio <- function(x, n, digits_x, items = 1, percent = FALSE) {
 #' @export
 grim_total <- function(x, n, digits_x, items = 1, percent = FALSE) {
   check_type(x, "character")
-  if (percent) digits_x <- digits_x + 2L
+  if (percent) {
+    digits_x <- digits_x + 2L
+  }
   p10 <- 10^digits_x
   as.integer(p10 - (n * items))
 }
-

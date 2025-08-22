@@ -91,7 +91,6 @@
 # symmetric <- FALSE
 # tolerance <- .Machine$double.eps^0.5
 
-
 # Implementation ----------------------------------------------------------
 
 grimmer_scalar <- function(

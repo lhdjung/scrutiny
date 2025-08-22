@@ -150,7 +150,10 @@ function_map <- function(
     }
   })
 
-  all_classes <- c(paste0("scrutiny_", tolower(.name_test), "_map"), .name_class)
+  all_classes <- c(
+    paste0("scrutiny_", tolower(.name_test), "_map"),
+    .name_class
+  )
 
   code_rounding_class <-
     if (any(names(formals(.fun)) == "rounding")) {

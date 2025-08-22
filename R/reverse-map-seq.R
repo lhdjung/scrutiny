@@ -69,7 +69,9 @@ reverse_map_seq <- function(data) {
   data_index_case <- data_nested %>%
     dplyr::mutate(
       scrutiny_index_case = list(data[var]),
-      scrutiny_index_case = list(index_case_interpolate(scrutiny_index_case[[1L]]))
+      scrutiny_index_case = list(
+        index_case_interpolate(scrutiny_index_case[[1L]])
+      )
     ) %>%
     dplyr::ungroup() %>%
     dplyr::select(var, scrutiny_index_case)

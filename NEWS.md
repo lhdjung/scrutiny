@@ -16,6 +16,8 @@
 
 -   GRIMMER documentation was improved (#66).
 
+-   Source code is now formatted using [Air](https://posit-dev.github.io/air/).
+
 -   Internally, the `scr_` prefix used for S3-based operations such as method dispatch was replaced by `scrutiny_` throughout the package for greater clarity and better disambiguation (#39). This change will be invisible to any users who have not previously looked into scrutiny's S3 features.
 
 ## Lifecycle updates

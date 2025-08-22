@@ -99,7 +99,10 @@ function(
   out <- add_class(out, classes_seq)
   dots <- rlang::enexprs(...)
   if (length(dots$rounding) > 0L) {
-    class(out)[stringr::str_detect(class(out), "^scrutiny_rounding_")] <- paste0(
+    class(out)[stringr::str_detect(
+      class(out),
+      "^scrutiny_rounding_"
+    )] <- paste0(
       "scrutiny_rounding_",
       dots$rounding
     )

@@ -298,7 +298,10 @@ grim_map <- function(
   # Prepare to add the "scrutiny_grim_map" class that `audit()` will recognize, as
   # well as a class that is informative about the rounding procedure used for
   # reconstructing `x`:
-  classes_to_add <- c("scrutiny_grim_map", paste0("scrutiny_rounding_", rounding))
+  classes_to_add <- c(
+    "scrutiny_grim_map",
+    paste0("scrutiny_rounding_", rounding)
+  )
 
   # Mediate between `seq_endpoint_df()` or `seq_distance_df()`, on the one hand,
   # and `seq_test_ranking()`, on the other:

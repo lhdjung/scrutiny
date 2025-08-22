@@ -126,8 +126,12 @@ debit_map <- function(
   # columns in `data` (if they weren't before), some checks are in order. These
   # use internal helper functions from the utils.R file. First, since trailing
   # zeros matter for DEBIT, make sure both vectors are strings...
-  if (!is.null(x)) check_type(x, "character")
-  if (!is.null(sd)) check_type(sd, "character")
+  if (!is.null(x)) {
+    check_type(x, "character")
+  }
+  if (!is.null(sd)) {
+    check_type(sd, "character")
+  }
 
   # ...and second, check whether they range from 0 to 1:
   check_debit_inputs_all(x, sd)
@@ -194,11 +198,19 @@ debit_map <- function(
       dplyr::select(x, sd, n, consistency)
   }
 
-  if (length(extra_cols) > 0L) out <- dplyr::mutate(out, extra_cols)
+  if (length(extra_cols) > 0L) {
+    out <- dplyr::mutate(out, extra_cols)
+  }
 
-  if (!is.null(x_spec)) out <- dplyr::select(out, -all_of(x_orig))
-  if (!is.null(sd_spec)) out <- dplyr::select(out, -all_of(sd_orig))
-  if (!is.null(n_spec)) out <- dplyr::select(out, -all_of(n_orig))
+  if (!is.null(x_spec)) {
+    out <- dplyr::select(out, -all_of(x_orig))
+  }
+  if (!is.null(sd_spec)) {
+    out <- dplyr::select(out, -all_of(sd_orig))
+  }
+  if (!is.null(n_spec)) {
+    out <- dplyr::select(out, -all_of(n_orig))
+  }
 
   rounding_class <- glue::glue("scrutiny_rounding_{rounding}")
   out <- add_class(out, c("scrutiny_debit_map", rounding_class))

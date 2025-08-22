@@ -193,8 +193,8 @@ error_digits_flawed <- function(digits, name_digits_arg, n) {
 check_newly_numeric <- function(x, digits) {
   if (
     !is.numeric(digits) ||
-    length(digits) != 1L ||
-    !is_whole_number(digits)
+      length(digits) != 1L ||
+      !is_whole_number(digits)
   ) {
     name <- deparse(substitute(digits))
     error_digits_flawed(digits, name, 4)
