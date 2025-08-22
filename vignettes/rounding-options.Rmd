@@ -36,11 +36,11 @@ By contrast, these options only return one rounded number per input:
 
 If the decimal portion to be cut off by rounding is 5, how do these technologies round?
 
--   [Python](https://docs.python.org/3/library/functions.html#round)'s standard rounding function rounds to even.
+-   [Python](https://docs.python.org/3/library/functions.html#round)'s standard `round()` function rounds to even.
 
--   [SPSS](https://sr.ipsosinteractive.com/SPSSMR/Reporter/doc/en/help/ref_rounding.htm) rounds to even by default, but users may choose to round up instead.
+-   [SPSS](https://public.dhe.ibm.com/software/analytics/spss/documentation/statistics/24.0/en/client/Manuals/IBM_SPSS_Statistics_Command_Syntax_Reference.pdf) has an `RND()` function that rounds numbers ending in .5 away from zero.
 
--   Matlab rounds away from zero by default (i.e., it rounds up if the input is positive). However, other rounding procedures can be chosen.
+-   Matlab rounds numbers ending in .5 away from zero by default. However, other rounding procedures can be chosen.
 
 -   In [SAS](https://documentation.sas.com/doc/en/pgmsascdc/9.4_3.5/lefunctionsref/p0tj6cmga7p8qln1ejh6ebevm0c9.htm), `ROUND()` rounds up, and `ROUNDE()` rounds to even. Both have a small tolerance. `ROUNDZ()` rounds to even without a tolerance.
 
