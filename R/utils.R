@@ -8,7 +8,7 @@ utils::globalVariables(c(
   "rounding", "case", "n_sum", "consistency", "ratio", "scr_index_case",
   "starts_with", "value_duplicated", "variable", "sd_lower",
   "sd_incl_lower", "sd_upper", "sd_incl_upper", "x_lower", "x_upper",
-  "dupe_count", "fun_name",
+  "dupe_count", "fun_name", "!!<-",
   # Added after rewriting the function factories using `rlang::new_function()`:
   "!!", "!!!", "constant", "constant_index", "include_consistent",
   "n_min", "n_max",
@@ -1529,8 +1529,19 @@ check_dispersion_linear <- function(data) {
 #' @return Expression.
 #'
 #' @noRd
-write_code_col_key_result <- function(name_key_result = "consistency",
-                                      name_data = rlang::expr(out)) {
+
+# ❯ checking R code for possible problems ... NOTE
+# write_code_col_key_result: no visible binding for global variable ‘out’
+# write_code_col_key_result: no visible global function definition for
+# ‘!!<-’
+# Undefined global functions or variables:
+#   !!<- out
+
+write_code_col_key_result <- function(
+    name_key_result = "consistency",
+    name_data = rlang::expr(out),
+    out = NULL
+) {
   # Enable renaming the `"consistency"` column for binary procedures that are
   # not consistency tests:
   code_rename <- if (name_key_result == "consistency") {
@@ -1543,24 +1554,29 @@ write_code_col_key_result <- function(name_key_result = "consistency",
       )
     })
   }
+
   # Prepare defused expressions that are more simple to splice into the code
   # further below:
   data_dollar_result <- paste0(name_data, "$", name_key_result)
   condition_not_list <- paste0("!is.list(", data_dollar_result, ")")
+
   # Convert the strings to expressions:
   condition_not_list <- rlang::parse_expr(condition_not_list)
   data_dollar_result <- rlang::parse_expr(data_dollar_result)
+
   # Generate code to process the (possibly renamed) key result column:
   rlang::expr({
     `!!!`(code_rename)
+
     # Use the pre-computed condition expression
     if (`!!`(condition_not_list)) {
       return(`!!`(name_data))
     }
+
     `$<-`(
-      `!!`(name_data), `!!`(name_key_result),
+      `!!`(name_data),
+      `!!`(name_key_result),
       unlist(`!!`(data_dollar_result), use.names = FALSE)
     )
   })
 }
-
