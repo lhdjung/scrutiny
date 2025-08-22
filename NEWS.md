@@ -20,7 +20,9 @@
 
 ## Lifecycle updates
 
-Currently none, but note that all functions and arguments that were deprecated in scrutiny 0.5.0 will be removed in the next major or minor version.
+All of these had been deprecated since scrutiny 0.5.0:
+
+-   The 15 functions around `is_subset_of()` were removed.
 
 # scrutiny 0.5.0
 

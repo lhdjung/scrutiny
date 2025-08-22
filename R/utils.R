@@ -115,22 +115,6 @@ reconstruct_sd_scalar <- function(formula, x, n, group_0, group_1) {
 reconstruct_sd <- Vectorize(reconstruct_sd_scalar, USE.NAMES = FALSE)
 
 
-#' Collect dots-arguments in a list
-#'
-#' A helper for tidy evaluation used within `is_subset_of_vecs()` and friends
-#' (i.e., other functions documented on that page).
-#'
-#' @param ... Any number of values.
-#'
-#' @return List.
-#'
-#' @noRd
-straighten_out <- function(...) {
-  y <- rlang::enexprs(...)
-  purrr::flatten(purrr::map(y, rlang::eval_bare))
-}
-
-
 #' Write "an" or "a", depending on the next word
 #'
 #' @param x String. A string value that ends on a vowel letter returns `"an"`;

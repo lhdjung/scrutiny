@@ -21,9 +21,6 @@
 #'
 #' @return Numeric. Sample standard deviation.
 #'
-#' @seealso `is_subset_of_vals(x, 0, 1)` checks whether `x` (a list or atomic
-#'   vector) contains nothing but binary numbers.
-#'
 #' @export
 #'
 #' @name sd-binary

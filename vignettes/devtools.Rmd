@@ -266,12 +266,4 @@ disperse_total(n = 70)
 disperse_total(n = 83)
 ```
 
-## Test for subsets, supersets, and equal sets
-
-Starting with `is_subset_of()`, scrutiny features a distinctive family of predicate functions that test whether one vector `x` is a subset of another vector `y`, whether `x` is a superset of `y` (i.e. the reverse of a subset), or whether `x` and `y` are equal sets.
-
-As a teaser: These functions are divided into three subgroups based on the way the second vector, `y`, is constituted. For example, you might test if `x` is a subset of multiple other vectors taken together, or a superset of a vector `y` that consists of multiple values entered along with `x`.
-
-Functions from this family are not currently used as helpers inside other scrutiny functions, but that may well change. Use elsewhere is also conceivable.
-
 # References

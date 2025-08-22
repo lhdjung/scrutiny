@@ -117,7 +117,6 @@ Collate:
     'seq-disperse.R'
     'seq-length.R'
     'split-by-parens.R'
-    'subset-superset.R'
     'utils-pipe.R'
     'utils-tidy-eval.R'
     'write-doc-audit.R'

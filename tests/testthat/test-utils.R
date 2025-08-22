@@ -44,13 +44,6 @@ test_that("`integer_places()` returns correct values", {
 })
 
 
-test_that("`straighten_out()` returns correct values", {
-  straighten_out(1, 2, 3)           %>% expect_equal(list(1, 2, 3))
-  straighten_out("a", "b", "c")     %>% expect_equal(list("a", "b", "c"))
-  straighten_out(TRUE, FALSE, TRUE) %>% expect_equal(list(TRUE, FALSE, TRUE))
-})
-
-
 
 test_that("`an_a()` returns correct values", {
   an_a("start") %>% expect_equal("a")
