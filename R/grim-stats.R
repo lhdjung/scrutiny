@@ -98,29 +98,3 @@ grim_total <- function(x, n, digits_x, items = 1, percent = FALSE) {
   as.integer(p10 - (n * items))
 }
 
-
-#' Upper bound for the GRIM ratio
-#'
-#' @description `r lifecycle::badge("deprecated")`
-#'
-#'   `grim_ratio_upper()` is deprecated because it no longer seems very
-#'   meaningful. It will be removed in a future version.
-#'
-#'   See [`grim_probability()`] for a more interesting measure.
-#'
-#' @inheritParams grim-stats
-#'
-#' @keywords internal
-#'
-#' @return Numeric.
-#'
-#' @export
-grim_ratio_upper <- function(x, digits_x, percent = FALSE) {
-  lifecycle::deprecate_warn(
-    when = "0.5.0",
-    what = "grim_ratio_upper()",
-    details = "It will be removed in a future version."
-  )
-  check_type(x, "character")
-  grim_ratio(x = x, n = 1, digits_x = digits_x, items = 1, percent = percent)
-}
