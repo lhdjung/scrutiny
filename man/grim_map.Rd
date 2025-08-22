@@ -12,7 +12,6 @@ grim_map(
   x = NULL,
   n = NULL,
   show_rec = FALSE,
-  show_prob = deprecated(),
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
@@ -45,10 +44,6 @@ Default is \code{FALSE}.}
 \item{show_rec}{Logical. If set to \code{TRUE}, the reconstructed numbers from
 GRIM-testing are shown as columns. See section \emph{Reconstructed numbers}
 below. Default is \code{FALSE}.}
-
-\item{show_prob}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Logical. No longer
-supported: now, there is always a \code{probability} column. (It replaces the
-earlier \code{ratio} column.)}
 
 \item{rounding, threshold, symmetric, tolerance}{Further parameters of
 GRIM-testing; see documentation for \code{\link[=grim]{grim()}}.}

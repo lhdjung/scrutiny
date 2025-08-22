@@ -20,7 +20,11 @@
 
 ## Lifecycle updates
 
+### Removed
+
 All of these had been deprecated since scrutiny 0.5.0:
+
+-   The `show_prob` argument of `grim_map()` was removed.
 
 -   `grim_ratio_upper()` was removed.
 

@@ -35,7 +35,7 @@
 
 # # Used to have this instead of `@param ...`:
 # @param
-# items,percent,show_rec,show_prob,rounding,threshold,symmetric,tolerance,extra
+# items,percent,show_rec,rounding,threshold,symmetric,tolerance,extra
 # Arguments passed down to `grim_map()` via `...` (the dots).
 
 #' @include function-map-total-n.R

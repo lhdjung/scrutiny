@@ -30,9 +30,6 @@
 #' @param show_rec Logical. If set to `TRUE`, the reconstructed numbers from
 #'   GRIM-testing are shown as columns. See section *Reconstructed numbers*
 #'   below. Default is `FALSE`.
-#' @param show_prob `r lifecycle::badge("deprecated")` Logical. No longer
-#'   supported: now, there is always a `probability` column. (It replaces the
-#'   earlier `ratio` column.)
 #' @param rounding,threshold,symmetric,tolerance Further parameters of
 #'   GRIM-testing; see documentation for [`grim()`].
 #' @param testables_only Logical. If `testables_only` is set to `TRUE`, only
@@ -122,7 +119,6 @@ grim_map <- function(
   x = NULL,
   n = NULL,
   show_rec = FALSE,
-  show_prob = deprecated(),
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
@@ -141,19 +137,6 @@ grim_map <- function(
     symmetric,
     tolerance
   ))
-
-  # Warn if the user specified a deprecated argument:
-  if (lifecycle::is_present(show_prob)) {
-    lifecycle::deprecate_warn(
-      when = "0.5.0",
-      what = "grim_map(show_prob)",
-      details = c(
-        "The \"probability\" column has replaced the \\
-        \"ratio\" column, so now it is always displayed, \\
-        and `show_prob` no longer has any effect."
-      )
-    )
-  }
 
   # Check if the user specified the arguments named after the key columns, `x`
   # and `n`. If so, the user-supplied value for that argument will be checked
