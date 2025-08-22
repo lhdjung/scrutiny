@@ -135,13 +135,12 @@ towards zero or away from it.</li>
 technologies round?</p>
 <ul>
 <li><p><a href="https://docs.python.org/3/library/functions.html#round" class="external-link">Python</a>’s
-standard rounding function rounds to even.</p></li>
-<li><p><a href="https://sr.ipsosinteractive.com/SPSSMR/Reporter/doc/en/help/ref_rounding.htm" class="external-link">SPSS</a>
-rounds to even by default, but users may choose to round up
-instead.</p></li>
-<li><p>Matlab rounds away from zero by default (i.e., it rounds up if
-the input is positive). However, other rounding procedures can be
-chosen.</p></li>
+standard <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">round()</a></code> function rounds to even.</p></li>
+<li><p><a href="https://public.dhe.ibm.com/software/analytics/spss/documentation/statistics/24.0/en/client/Manuals/IBM_SPSS_Statistics_Command_Syntax_Reference.pdf" class="external-link">SPSS</a>
+has an <code>RND()</code> function that rounds numbers ending in .5 away
+from zero.</p></li>
+<li><p>Matlab rounds numbers ending in .5 away from zero by default.
+However, other rounding procedures can be chosen.</p></li>
 <li><p>In <a href="https://documentation.sas.com/doc/en/pgmsascdc/9.4_3.5/lefunctionsref/p0tj6cmga7p8qln1ejh6ebevm0c9.htm" class="external-link">SAS</a>,
 <code>ROUND()</code> rounds up, and <code>ROUNDE()</code> rounds to
 even. Both have a small tolerance. <code>ROUNDZ()</code> rounds to even
