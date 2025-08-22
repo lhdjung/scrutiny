@@ -7,6 +7,7 @@
 grim(
   x,
   n,
+  digits_x,
   items = 1,
   percent = FALSE,
   show_rec = FALSE,

@@ -6,6 +6,8 @@
 \usage{
 grimmer_map(
   data,
+  digits_x,
+  digits_sd,
   items = 1,
   merge_items = TRUE,
   x = NULL,

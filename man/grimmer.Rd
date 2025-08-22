@@ -9,6 +9,8 @@ grimmer(
   x,
   sd,
   n,
+  digits_x,
+  digits_sd,
   items = 1,
   show_reason = FALSE,
   rounding = "up_or_down",

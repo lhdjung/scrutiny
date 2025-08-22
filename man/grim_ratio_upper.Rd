@@ -4,7 +4,7 @@
 \alias{grim_ratio_upper}
 \title{Upper bound for the GRIM ratio}
 \usage{
-grim_ratio_upper(x, percent = FALSE)
+grim_ratio_upper(x, digits_x, percent = FALSE)
 }
 \arguments{
 \item{x}{String (length 1). Mean or percentage value computed from data with

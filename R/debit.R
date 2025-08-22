@@ -4,19 +4,21 @@ debit_scalar <- function(
   x,
   sd,
   n,
+  digits_x,
+  digits_sd,
   formula = "mean_n",
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE
 ) {
-  check_type(x, "character")
-  check_type(sd, "character")
   check_debit_inputs_all(x, sd)
 
   out <- debit_table(
     x = x,
     sd = sd,
     n = n,
+    digits_x = digits_x,
+    digits_sd = digits_sd,
     formula = formula,
     rounding = rounding,
     threshold = threshold,

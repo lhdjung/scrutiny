@@ -61,7 +61,7 @@
 
 # Relative ----------------------------------------------------------------
 
-grim_probability <- function(x, n, items = 1, percent = FALSE) {
+grim_probability <- function(x, n, digits_x, items = 1, percent = FALSE) {
   # Manual check (instead of calling `check_type()`) for performance; this
   # function will run a great deal:
   if (!is.character(x)) {
@@ -70,9 +70,8 @@ grim_probability <- function(x, n, items = 1, percent = FALSE) {
       "x" = "It is {an_a_type(x)}."
     ))
   }
-  digits <- decimal_places_scalar(x)
-  if (percent) digits <- digits + 2L
-  p10 <- 10^digits
+  if (percent) digits_x <- digits_x + 2L
+  p10 <- 10^digits_x
   out <- (p10 - n * items) / p10
   dplyr::if_else(out < 0, 0, out)
 }
@@ -80,11 +79,10 @@ grim_probability <- function(x, n, items = 1, percent = FALSE) {
 
 #' @rdname grim-stats
 #' @export
-grim_ratio <- function(x, n, items = 1, percent = FALSE) {
+grim_ratio <- function(x, n, digits_x, items = 1, percent = FALSE) {
   check_type(x, "character")
-  digits <- decimal_places_scalar(x)
-  if (percent) digits <- digits + 2L
-  p10 <- 10^digits
+  if (percent) digits_x <- digits_x + 2L
+  p10 <- 10^digits_x
   (p10 - n * items) / p10
 }
 
@@ -93,11 +91,10 @@ grim_ratio <- function(x, n, items = 1, percent = FALSE) {
 
 #' @rdname grim-stats
 #' @export
-grim_total <- function(x, n, items = 1, percent = FALSE) {
+grim_total <- function(x, n, digits_x, items = 1, percent = FALSE) {
   check_type(x, "character")
-  digits <- decimal_places_scalar(x)
-  if (percent) digits <- digits + 2L
-  p10 <- 10^digits
+  if (percent) digits_x <- digits_x + 2L
+  p10 <- 10^digits_x
   as.integer(p10 - (n * items))
 }
 
@@ -118,12 +115,12 @@ grim_total <- function(x, n, items = 1, percent = FALSE) {
 #' @return Numeric.
 #'
 #' @export
-grim_ratio_upper <- function(x, percent = FALSE) {
+grim_ratio_upper <- function(x, digits_x, percent = FALSE) {
   lifecycle::deprecate_warn(
     when = "0.5.0",
     what = "grim_ratio_upper()",
     details = "It will be removed in a future version."
   )
   check_type(x, "character")
-  grim_ratio(x = x, n = 1, items = 1, percent = percent)
+  grim_ratio(x = x, n = 1, digits_x = digits_x, items = 1, percent = percent)
 }

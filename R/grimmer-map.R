@@ -106,6 +106,8 @@
 
 grimmer_map <- function(
   data,
+  digits_x,
+  digits_sd,
   items = 1,
   merge_items = TRUE,
   x = NULL,
@@ -117,6 +119,14 @@ grimmer_map <- function(
   symmetric = FALSE,
   tolerance = .Machine$double.eps^0.5
 ) {
+  if (missing(digits_x)) {
+    error_digits_missing(x)
+  }
+
+  if (missing(digits_sd)) {
+    error_digits_missing(sd)
+  }
+
   if (!missing(x)) {
     x <- rlang::enexpr(x)
     data <- manage_key_colnames(data, x, "mean")
@@ -157,6 +167,8 @@ grimmer_map <- function(
     consistency <- purrr::pmap(
       data_x_sd_n_items,
       grimmer_scalar,
+      digits_x = digits_x,
+      digits_sd = digits_sd,
       show_reason = show_reason,
       rounding = rounding,
       threshold = threshold,
@@ -167,6 +179,8 @@ grimmer_map <- function(
     consistency <- purrr::pmap_lgl(
       data_x_sd_n_items,
       grimmer_scalar,
+      digits_x = digits_x,
+      digits_sd = digits_sd,
       show_reason = show_reason,
       rounding = rounding,
       threshold = threshold,

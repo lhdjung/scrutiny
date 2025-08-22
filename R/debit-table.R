@@ -17,8 +17,9 @@ check_debit_inputs <- function(input, type, symbol) {
       msg_is_are <- "are"
     }
 
+    offenders_all <- offenders
+
     if (length(offenders) > 3L) {
-      offenders_all <- offenders
       offenders <- offenders[1:3]
       msg_offenders <- ", starting with"
     } else {
@@ -53,6 +54,8 @@ debit_table <- function(
   x,
   sd,
   n,
+  digits_x,
+  digits_sd,
   group_0 = NA,
   group_1 = NA,
   formula = "mean_n",
@@ -61,6 +64,14 @@ debit_table <- function(
   symmetric = FALSE,
   show_rec = TRUE
 ) {
+  if (missing(digits_x)) {
+    error_digits_missing(x)
+  }
+
+  if (missing(digits_sd)) {
+    error_digits_missing(sd)
+  }
+
   # Count decimal places of the standard deviation (SD) and the distribution
   # mean, both as reported:
   digits_x <- decimal_places_scalar(x)

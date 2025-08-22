@@ -7,11 +7,11 @@
 \alias{grim_total}
 \title{Possible GRIM inconsistencies}
 \usage{
-grim_probability(x, n, items = 1, percent = FALSE)
+grim_probability(x, n, digits_x, items = 1, percent = FALSE)
 
-grim_ratio(x, n, items = 1, percent = FALSE)
+grim_ratio(x, n, digits_x, items = 1, percent = FALSE)
 
-grim_total(x, n, items = 1, percent = FALSE)
+grim_total(x, n, digits_x, items = 1, percent = FALSE)
 }
 \arguments{
 \item{x}{String (length 1). Mean or percentage value computed from data with

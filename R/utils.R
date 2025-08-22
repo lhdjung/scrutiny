@@ -191,6 +191,194 @@ is_whole_number <- function(x, tolerance = .Machine$double.eps^0.5) {
 }
 
 
+error_digits_flawed <- function(digits, name_digits_arg, n) {
+  check_length(digits, 1)
+
+  # name <- deparse(substitute(digits))
+
+  cli::cli_abort(
+    message = c(
+      "`{name_digits_arg}` must be a single, whole number.",
+      "x" = "It is actually: {digits}"
+    ),
+    call = rlang::caller_env(n)
+  )
+}
+
+
+check_newly_numeric <- function(x, digits) {
+  if (
+    !is.numeric(digits) ||
+    length(digits) != 1L ||
+    !is_whole_number(digits)
+  ) {
+    name <- deparse(substitute(digits))
+    error_digits_flawed(digits, name, 4)
+  }
+
+  if (is.numeric(x) && digits >= decimal_places_scalar(x)) {
+    return(invisible(NULL))
+  }
+
+  # check_digits(digits)
+
+  # For error messages: number of frames to go up the call stack. This makes
+  # sure it will say, e.g., "Error in `grim()`" instead of "Error in
+  # `check_newly_numeric()`".
+  n <- 3
+
+  # Record the names of the key argument passed down here (likely the mean or
+  # SD) and the calling function
+  name_x <- deparse(substitute(x))
+  name_fn <- caller_fn_name(n) #as.character(rlang::caller_call(n)[[1]])
+
+  if (!is.numeric(x)) {
+    lifecycle::deprecate_stop(
+      when = "1.0.0",
+      what = paste0(
+        "scrutiny::",
+        name_fn,
+        "(",
+        name_x,
+        " = 'must be numeric')"
+      ),
+      details = c(
+        paste0(
+          "Use `digits_",
+          name_x,
+          "`to specify the number of decimal places."
+        ),
+        "This is to ensure a correct number of decimal places. \
+        Apologies for the inconvenience."
+      ),
+      env = rlang::caller_env(n)
+    )
+  }
+
+  # In the remaining case, `digits_*` is not large enough for the number of
+  # decimal places that already exist in `x`
+  name_digits_arg <- paste0("digits_", name_x)
+  digits_in_x <- decimal_places_scalar(x)
+
+  cli::cli_abort(
+    message = c(
+      "More decimal places than specified digits.",
+      "!" = "Number of digits specified via `{name_digits_arg}` \
+      must not be less than the number of decimal places in `{name_x}`.",
+      "x" = "`{name_digits_arg}` is {digits}.",
+      "x" = "`{name_x}` is {x}, so it has {digits_in_x} decimal place{?s}."
+    ),
+    call = rlang::caller_env(n)
+  )
+}
+
+
+caller_fn_name <- function(n = 1) {
+  as.character(rlang::caller_call(n + 1)[[1]])
+}
+
+
+#' Error if a `digits_*` argument is missing
+#'
+#' Since scrutiny 1.0.0, key arguments of functions related to consistency tests
+#' -- `grim*()`, `grimmer*`, and `debit*()` -- that were previously strings no
+#' longer are. These arguments are `x` and `sd` (for GRIM functions, only `x`).
+#'
+#' Instead, the number of decimal places of the respective statistics is
+#' conveyed through the new integer arguments `digits_x` and `digits_sd`. As
+#' most users will not be familiar with them initially, they will inevitably
+#' encounter errors when they call the functions in question without specifying
+#' the new arguments.
+#'
+#' In these cases, `error_digits_missing()` is called to give a more helpful and
+#' bespoke error message than the generic `argument "digits_x" is missing, with
+#' no default`. In scrutiny code, the usage pattern should always be:
+#'
+#' ```
+#' if (missing(digits_x)) {
+#'   error_digits_missing(x)
+#' }
+#' ```
+#'
+#' @param x
+#'
+#' @returns No return value; will throw an error.
+#'
+#' @noRd
+error_digits_missing <- function(x) {
+  n <- 3
+
+  name_x <- deparse(substitute(x))
+
+  name_digits_arg <- paste0("digits_", name_x)
+  name_fn <- caller_fn_name(n)
+
+  if (length(name_fn) == 0) {
+    name_fn <- caller_fn_name(1)
+  }
+
+  # Adjustment to the special structure of the DEBIT implementation
+  if (length(name_fn) > 1 || any(name_fn == "mapply")) {
+    n <- n + 1
+    name_fn <- caller_fn_name(n)
+  }
+
+  print(paste("name_fn is:", name_fn))
+
+  # Prepare message with changelog URL to be shown after the error
+  on.exit(cli::cli_text(paste0(
+    "For more information, visit ",
+    cli::style_italic(
+      "{.href [scrutiny's changelog]",
+      "(https://lhdjung.github.io/scrutiny/news/index.html)}"
+    ),
+    "."
+  )))
+
+  # If the error occurred in a GRIMMER or DEBIT function, include `sd` and
+  # `digits_sd` arguments in the example call because they are required there.
+  if (grepl("(grimmer|debit)", name_fn)) {
+    part_sd <- ", sd = 0.62"
+    part_digits_sd <- ", digits_sd = 2"
+  } else {
+    part_sd <- NULL
+    part_digits_sd <- NULL
+  }
+
+  # If the user called a mapper function (such as `grim_map()`), the example
+  # should construct a data frame rather than accepting the value directly
+  if (grepl("_map", name_fn)) {
+    n <- 1
+    part_tibble_open <- "tibble::tibble("
+    part_tibble_close <- ")"
+  } else {
+    part_tibble_open <- NULL
+    part_tibble_close <- NULL
+  }
+
+  # In case the key argument is still a string, tell the user this changed
+  msg_key_arg <- if (is.character(x)) {
+    paste0(", so please specify `", name_x, "` as a number, not a string")
+  } else {
+    NULL
+  }
+
+  cli::cli_abort(
+    message = c(
+      "Need to specify `{name_digits_arg}` to state the number of \
+      decimal places in `{name_x}`.",
+      "i" = "For example, with 1.40 (two decimal places): \
+      `{name_fn}({part_tibble_open}x = 1.4{part_sd}, n = 29, \
+      {name_digits_arg} = 2{part_digits_sd}){part_tibble_close}`",
+      "i" = "This was introduced in scrutiny 1.0.0 to ensure the number \
+      of decimal places is stated correctly.",
+      "i" = "It replaces the quotes around `{name_x}`{msg_key_arg}."
+    ),
+    call = rlang::caller_env(n)
+  )
+}
+
+
 #' Subset every `n`th element
 #'
 #' @param x Vector from which the `n`th element should be subsetted.
@@ -1275,7 +1463,6 @@ dustify <- function(x) {
 #' @noRd
 check_ggplot2_size <- function(arg_old, default_old) {
   if (arg_old != default_old) {
-
     msg1 <- paste0(
       "That's because your ggplot2 version is >= 3.4.0 (actually, ",
       utils::packageVersion("ggplot2"),
@@ -1304,7 +1491,6 @@ check_ggplot2_size <- function(arg_old, default_old) {
 
 check_ggplot2_linewidth <- function(arg_new, default_new) {
   if (arg_new != default_new) {
-
     msg1 <- paste0(
       "That's because your ggplot2 version is < 3.4.0 (actually, ",
       utils::packageVersion("ggplot2"),
@@ -1433,7 +1619,6 @@ audit_summary_stats <- function(data, selection, total = FALSE) {
 #'
 #' @noRd
 list_min_distance_functions <- list(
-
   # Absolute distance:
   function(x) {
     vapply(

@@ -14,6 +14,7 @@
 grim_scalar <- function(
   x,
   n,
+  digits_x,
   items = 1,
   percent = FALSE,
   show_rec = FALSE,
@@ -25,23 +26,22 @@ grim_scalar <- function(
   check_type(items, c("double", "integer"))
   check_type(percent, "logical")
 
-  # As trailing zeros matter for the GRIM test, `x` must be a string:
-  if (!is.character(x)) {
-    cli::cli_abort(c(
-      "!" = "`x` must be of type character.",
-      "x" = "It is {an_a_type(x)}."
-    ))
+  if (missing(digits_x)) {
+    error_digits_missing(x)
   }
 
-  # Define key values from arguments:
+  # TODO: IMPLEMENT THE `digits_x` ARGUMENT HERE AND IN GRIMMER! (GRIMMER WILL
+  # ALSO NEED `digits_sd`.)
+  # check_digits(digits_x)
+  check_newly_numeric(x, digits_x)
+
   x_num <- as.numeric(x)
-  digits <- decimal_places_scalar(x)
 
   # The `percent` argument allows for easy conversion of percentages to decimal
   # numbers:
   if (percent) {
     x_num <- x_num / 100
-    digits <- digits + 2L
+    digits_x <- digits_x + 2L
   }
 
   # Prepare further objects for reconstructing the original values:
@@ -58,7 +58,7 @@ grim_scalar <- function(
   # `symmetric` arguments passed down to:
   granules_rounded <- reround(
     x = c(rec_x_upper, rec_x_lower),
-    digits = digits,
+    digits = digits_x,
     rounding = rounding,
     threshold = threshold,
     symmetric = symmetric

@@ -98,6 +98,8 @@ grimmer_scalar <- function(
   x,
   sd,
   n,
+  digits_x,
+  digits_sd,
   items = 1,
   show_reason = FALSE,
   rounding = "up_or_down",
@@ -105,8 +107,18 @@ grimmer_scalar <- function(
   symmetric = FALSE,
   tolerance = .Machine$double.eps^0.5
 ) {
-  check_type(x, "character")
-  check_type(sd, "character")
+  check_type(items, c("double", "integer"))
+
+  if (missing(digits_x)) {
+    error_digits_missing(x)
+  }
+
+  if (missing(digits_sd)) {
+    error_digits_missing(sd)
+  }
+
+  check_newly_numeric(x, digits_x)
+  check_newly_numeric(sd, digits_sd)
 
   # # A provisional solution:
   # if (items != 1) {
@@ -135,6 +147,7 @@ grimmer_scalar <- function(
   pass_grim <- grim_scalar(
     x = x_orig,
     n = n,
+    digits_x = digits_x,
     items = items,
     rounding = rounding,
     threshold = threshold,

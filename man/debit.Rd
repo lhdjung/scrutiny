@@ -8,6 +8,8 @@ debit(
   x,
   sd,
   n,
+  digits_x,
+  digits_sd,
   formula = "mean_n",
   rounding = "up_or_down",
   threshold = 5,
