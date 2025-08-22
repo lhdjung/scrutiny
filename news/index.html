@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">scrutiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,11 +57,12 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="scrutiny-development-version">scrutiny (development version)<a class="anchor" aria-label="anchor" href="#scrutiny-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.6.0" id="scrutiny-060">scrutiny 0.6.0<a class="anchor" aria-label="anchor" href="#scrutiny-060"></a></h2>
 <div class="section level3">
-<h3 id="bugfixes-development-version">Bugfixes<a class="anchor" aria-label="anchor" href="#bugfixes-development-version"></a></h3>
+<h3 id="bugfixes-0-6-0">Bugfixes<a class="anchor" aria-label="anchor" href="#bugfixes-0-6-0"></a></h3>
 <ul><li><p>Fixed a bug in the DEBIT functions that could sometimes have resulted in <code>consistency</code> being <code>FALSE</code> when it should have been <code>TRUE</code> (thanks to <a href="https://github.com/nrposner" class="external-link">@nrposner</a>, <a href="https://github.com/lhdjung/scrutiny/issues/75" class="external-link">#75</a>). However, this seems to be a rare issue, and DEBIT is not widely used in any case.</p></li>
 <li><p>Fixed a bug that could theoretically lead <code><a href="../reference/grim.html">grim()</a></code>, <code><a href="../reference/grim_map.html">grim_map()</a></code>, <code><a href="../reference/grim_map_seq.html">grim_map_seq()</a></code>, and <code><a href="../reference/grim_map_total_n.html">grim_map_total_n()</a></code> to throw a warning and possibly even return incorrect results (also <a href="https://github.com/nrposner" class="external-link">@nrposner</a>, <a href="https://github.com/lhdjung/scrutiny/issues/75" class="external-link">#75</a>). However, this is even less realistic than the previous bug.</p></li>
+<li><p>Compatibility with ggplot2 4.0.0 was ensured (<a href="https://github.com/teunbrand" class="external-link">@teunbrand</a>, <a href="https://github.com/lhdjung/scrutiny/issues/78" class="external-link">#78</a>).</p></li>
 <li>
 <p><code><a href="../reference/restore_zeros.html">restore_zeros()</a></code> now checks <code>width</code> more strictly:</p>
 <ul><li>It no longer truncates decimal numbers if <code>width</code> is specified but some elements of <code>x</code> have more decimal places than that. For example, in earlier versions, <code>restore_zeros(c(0.12, 0.123, 0.1234), width = 2)</code> would have returned <code>c("0.120", "0.123", "0.123")</code>: it silently cut off the <code>4</code> from the last value. An error is now thrown in such cases.</li>
