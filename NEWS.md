@@ -17,6 +17,10 @@
 
 -   `is_seq_dispersed()` now works correctly if `NA` values are present.
 
+## Lifecycle updates
+
+Currently none. However, the next major or minor version will introduce breaking changes, removals (as announced in scrutiny 0.5.0 below), and possibly more deprecations.
+
 # scrutiny 0.5.0
 
 The package is now released under the MIT license.
