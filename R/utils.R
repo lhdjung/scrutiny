@@ -307,8 +307,6 @@ error_digits_missing <- function(x) {
     name_fn <- caller_fn_name(n)
   }
 
-  print(paste("name_fn is:", name_fn))
-
   # Prepare message with changelog URL to be shown after the error
   on.exit(cli::cli_text(paste0(
     "For more information, visit ",
