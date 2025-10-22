@@ -91,6 +91,85 @@
 # symmetric <- FALSE
 # tolerance <- .Machine$double.eps^0.5
 
+# # Example inputs 5 (by Nathanael):
+# x <- 2.1
+# sd <- 0.4
+# n <- 17
+# digits_x <- 1
+# digits_sd <- 1
+# items <- 1
+# show_reason <- TRUE
+# rounding <- "up_or_down"
+# threshold <- 5
+# symmetric <- FALSE
+# tolerance <- .Machine$double.eps^0.5
+
+# Helper function ---------------------------------------------------------
+
+# Find all GRIM-consistent sums for a given mean value. This is needed for the
+# parity check in test 3, because the simple `round(mean * n)` approach may
+# miss valid sums when rounding modes other than standard rounding are used.
+grim_consistent_sums <- function(
+  x,
+  n,
+  digits_x,
+  items = 1,
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE,
+  tolerance = .Machine$double.eps^0.5
+) {
+  x_num <- as.numeric(x)
+  n_items <- n * items
+  rec_sum <- x_num * n_items
+
+  # Get the two boundary sums
+  rec_sum_lower <- floor(rec_sum)
+  rec_sum_upper <- ceiling(rec_sum)
+
+  # Get possible means from these sums. Note that `dustify()` returns two values
+  # per input element; one with a minuscule number subtracted, one with that
+  # number added. This is to avoid spurious precision bugs in floating-point
+  # arithmetic.
+  rec_x_lower <- dustify(rec_sum_lower / n_items)
+  rec_x_upper <- dustify(rec_sum_upper / n_items)
+
+  # Round these means using the specified rounding details
+  granules_rounded <- reround(
+    x = c(rec_x_lower, rec_x_upper),
+    digits = digits_x,
+    rounding = rounding,
+    threshold = threshold,
+    symmetric = symmetric
+  )
+
+  # Check which reconstructed means match the reported mean
+  matches_reported <- dplyr::near(granules_rounded, x_num, tol = tolerance)
+
+  # Count the combinations of sum bounds (`rec_x_upper` and `rec_x_lower`) and
+  # rounding procedures (two by default: `"up_or_down"`). The number of granules
+  # is divided by 2 to cancel out the duplicating effect of `dustify()`.
+  n_rounding_modes <- length(granules_rounded) / 2
+
+  # Initialize; this will be extended by any consistent sums
+  out <- integer(0)
+
+  # Check for matches with the lower-bound reconstructed sum. If found, include
+  # this reconstructed sum in the output.
+  if (any(matches_reported[seq_len(n_rounding_modes)])) {
+    out <- c(out, rec_sum_lower)
+  }
+
+  # Same for upper-bound reconstructed sum
+  if (any(matches_reported[(n_rounding_modes + 1):length(matches_reported)])) {
+    out <- c(out, rec_sum_upper)
+  }
+
+  # Remove duplicate sums because they would be redundant, then return
+  unique(out)
+}
+
+
 # Implementation ----------------------------------------------------------
 
 grimmer_scalar <- function(
@@ -231,13 +310,18 @@ grimmer_scalar <- function(
 
   # Check the reported SD for near-equality with the reconstructed SD values;
   # i.e., equality within a very small tolerance. This test is applied via
-  # `purrr::map_lgl()` because `dustify()` doubled the length of both vectors.
+  # `purrr::map_lgl()` because `reround()` returns two values per element of
+  # `sd` by default, so `sd_rec_rounded` will be twice as long as `sd`.
   matches_sd <- purrr::map_lgl(
     .x = sd,
-    .f = function(x) any(dplyr::near(x, sd_rec_rounded, tol = tolerance))
+    .f = function(sd_with_dust) {
+      sd_with_dust %>%
+        dplyr::near(sd_rec_rounded, tol = tolerance) %>%
+        any()
+    }
   )
 
-  # TEST 2: If none of the reconstructed SDs matches the reported one, the
+  # TEST 2: If none of the reconstructed SDs matches_reported the reported one, the
   # inputs are GRIMMER-inconsistent.
   pass_test2 <- any(matches_sd[!is.na(matches_sd)])
 
@@ -249,17 +333,39 @@ grimmer_scalar <- function(
   }
 
   # Determine if any integer between the lower and upper bounds has the same
-  # parity (i.e., the property of being even or odd) as the reconstructed sum:
-  matches_parity <- sum_real %% 2 == integers_possible %% 2
+  # parity (i.e., the property of being even or odd) as the reconstructed sum.
+  #
+  # IMPORTANT: We need to check parity against ALL GRIM-consistent sums, not just
+  # sum_real. This is because when rounding modes like "up_or_down" are used,
+  # multiple sums may be consistent with the reported mean, and using only
+  # sum_real (from round()) may miss valid cases. See GitHub issue #XX.
 
-  matches_sd_and_parity <- purrr::map_lgl(
-    .x = matches_parity,
-    .f = function(x) any(x & matches_sd)
+  # Get all sums that are GRIM-consistent with the reported mean
+  consistent_sums <- grim_consistent_sums(
+    x = x_orig,
+    n = n,
+    digits_x = digits_x,
+    items = items,
+    rounding = rounding,
+    threshold = threshold,
+    symmetric = symmetric,
+    tolerance = tolerance
   )
 
-  # TEST 3: At least one none of the reconstructed SDs has to match the reported
-  # one, and the corresponding reconstructed sums have to match in parity.
-  pass_test3 <- any(matches_sd_and_parity)
+  # For each GRIM-consistent sum, check if any of the sum_of_squares candidates
+  # (integers_possible) have matching parity AND produce a matching SD
+  pass_test3 <- FALSE
+  for (possible_sum in consistent_sums) {
+    matches_parity <- possible_sum %% 2 == integers_possible %% 2
+    matches_sd_and_parity <- purrr::map_lgl(
+      .x = matches_parity,
+      .f = function(x) any(x & matches_sd)
+    )
+    if (any(matches_sd_and_parity)) {
+      pass_test3 <- TRUE
+      break
+    }
+  }
 
   if (!pass_test3) {
     if (show_reason) {

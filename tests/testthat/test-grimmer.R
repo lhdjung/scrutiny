@@ -259,8 +259,10 @@ as_logical_consistency <- function(x) {
 names(df1) <- c("n", "x", "sd")
 df1 <- df1 %>%
   dplyr::mutate(
-    x  = restore_zeros(x, width = 2),
-    sd = restore_zeros(sd, width = 2)
+    x  = as.numeric(restore_zeros(x, width = 2)),
+    sd = as.numeric(restore_zeros(sd, width = 2)),
+    digits_x = 2L,
+    digits_sd = 2L
   )
 
 
@@ -385,39 +387,39 @@ df_disagree_all %>%
 # New implementation from rsprite2 ----------------------------------------
 
 test_that("GRIMMER works correctly by default", {
-  expect_true(grimmer_scalar("5.21", "1.6", 28))
-  expect_false(grimmer_scalar("3.44", "2.47", 18))
+  grimmer_scalar(5.21, 1.6, 28, digits_x = 2, digits_sd = 1) %>% expect_true()
+  grimmer_scalar(3.44, 2.47, 18, digits_x = 2, digits_sd = 2) %>% expect_false()
 })
 
 test_that("GRIMMER works correctly when compared to the rsprite2 implementation", {
-  grimmer_scalar("1.2", "0.3",  57) %>% expect_equal(GRIMMER_test(1.2, 0.3,  57))
-  grimmer_scalar("8.3", "7.5", 103) %>% expect_equal(GRIMMER_test(8.3, 7.5, 103))
+  grimmer_scalar(1.2, 0.3,  57, digits_x = 1, digits_sd = 1) %>% expect_equal(GRIMMER_test(1.2, 0.3,  57))
+  grimmer_scalar(8.3, 7.5, 103, digits_x = 1, digits_sd = 1) %>% expect_equal(GRIMMER_test(8.3, 7.5, 103))
 
   # Dealing with test-3 inconsistencies:
-  grimmer_scalar("5.23", "2.55", 35)  %>% expect_equal(GRIMMER_test(5.23, 2.55, 35))
-  grimmer_scalar("5.23", "2.55", 127) %>% expect_equal(GRIMMER_test(5.23, 2.55, 127))
-  grimmer_scalar("5.2" , "2.5" , 35)  %>% expect_equal(GRIMMER_test(5.2 , 2.5 , 35))
+  grimmer_scalar(5.23, 2.55, 35, digits_x = 2, digits_sd = 2)  %>% expect_equal(GRIMMER_test(5.23, 2.55, 35))
+  grimmer_scalar(5.23, 2.55, 127, digits_x = 2, digits_sd = 2) %>% expect_equal(GRIMMER_test(5.23, 2.55, 127))
+  grimmer_scalar(5.2 , 2.5 , 35, digits_x = 1, digits_sd = 1)  %>% expect_equal(GRIMMER_test(5.2 , 2.5 , 35))
 
   # This value set is from `pigs5`. It used to be flagged as a test-3
   # inconsistency by `grimmer_scalar()`, but it is consistent according to both
   # the new version and rsprite2:
-  grimmer_scalar("2.57", "2.57", 30) %>% expect_equal(GRIMMER_test(2.57, 2.57, 30))
+  grimmer_scalar(2.57, 2.57, 30, digits_x = 2, digits_sd = 2) %>% expect_equal(GRIMMER_test(2.57, 2.57, 30))
 
   # Some finer variations:
-  grimmer_scalar("3.756", "4.485", 89) %>% expect_equal(GRIMMER_test(3.756, 4.485, 89))
-  grimmer_scalar("3.756", "4.485", 12) %>% expect_equal(GRIMMER_test(3.756, 4.485, 12))
-  grimmer_scalar("3.75",  "4.48",  12) %>% expect_equal(GRIMMER_test(3.75, 4.48, 12))
-  grimmer_scalar("3.75",  "4.48",  89) %>% expect_equal(GRIMMER_test(3.75, 4.48, 89))
+  grimmer_scalar(3.756, 4.485, 89, digits_x = 3, digits_sd = 3) %>% expect_equal(GRIMMER_test(3.756, 4.485, 89))
+  grimmer_scalar(3.756, 4.485, 12, digits_x = 3, digits_sd = 3) %>% expect_equal(GRIMMER_test(3.756, 4.485, 12))
+  grimmer_scalar(3.75,  4.48,  12, digits_x = 2, digits_sd = 2) %>% expect_equal(GRIMMER_test(3.75, 4.48, 12))
+  grimmer_scalar(3.75,  4.48,  89, digits_x = 2, digits_sd = 2) %>% expect_equal(GRIMMER_test(3.75, 4.48, 89))
 })
 
 test_that("GRIMMER works correctly with `items = 2`", {
-  grimmer_scalar("5.21", "1.60", 28, items = 2) %>% expect_equal(GRIMMER_test(5.21, 1.6 , 28, n_items = 2))
-  grimmer_scalar("3.44", "2.47", 18, items = 2) %>% expect_equal(GRIMMER_test(3.44, 2.47, 18, n_items = 2))
+  grimmer_scalar(5.21, 1.60, 28, digits_x = 2, digits_sd = 2, items = 2) %>% expect_equal(GRIMMER_test(5.21, 1.6 , 28, n_items = 2))
+  grimmer_scalar(3.44, 2.47, 18, digits_x = 2, digits_sd = 2, items = 2) %>% expect_equal(GRIMMER_test(3.44, 2.47, 18, n_items = 2))
 })
 
 test_that("GRIMMER works correctly with `items = 3`", {
-  grimmer_scalar("5.21", "1.60", 28, items = 3) %>% expect_equal(GRIMMER_test(5.21, 1.6 , 28, n_items = 3))
-  grimmer_scalar("3.44", "2.47", 18, items = 3) %>% expect_equal(GRIMMER_test(3.44, 2.47, 18, n_items = 3))
+  grimmer_scalar(5.21, 1.60, 28, digits_x = 2, digits_sd = 2, items = 3) %>% expect_equal(GRIMMER_test(5.21, 1.6 , 28, n_items = 3))
+  grimmer_scalar(3.44, 2.47, 18, digits_x = 2, digits_sd = 2, items = 3) %>% expect_equal(GRIMMER_test(3.44, 2.47, 18, n_items = 3))
 })
 
 
