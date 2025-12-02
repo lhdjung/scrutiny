@@ -1,3 +1,17 @@
+# scrutiny 0.6.1
+
+This is a fix for compatibility with testthat 3.3.0. Also:
+
+## Bugfixes
+
+-   Fixed a bug in `grimmer_map_total_n()`, `debit_map_total_n()`, and the underlying `function_map_total_n()` (#81). This could also have lead to incorrect results, but only in total-N mapper functions with two or more key arguments beyond `n`, so the bug never affected `grim_map_total_n()`.
+
+-   Added a warning whenever GRIMMER runs. I recently learned about a bug that can lead to false positives in test 3 of the current GRIMMER implementation; see #80. The bug will be fixed in the next version of scrutiny (and the warning will be removed).
+
+## Minor changes
+
+-   Updated the ["Related software"](https://lhdjung.github.io/scrutiny/articles/related.html) article to reflect recent additions to the forensic metascience toolkit. Now, it also attempts to roughly categorize tools by usage.
+
 # scrutiny 0.6.0
 
 ## Bugfixes
