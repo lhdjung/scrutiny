@@ -415,8 +415,12 @@ function_map_total_n <- function(.fun, .reported, .name_test,
 
       # Bring the names with switched index portions back into the `data_back`
       # tibble (because all of this switching is only for `data_back`):
-      names(data_back)[names(data_back) %in% cols_expected_back] <-
-        cols_expected_back
+      # Use name-based mapping instead of positional assignment to handle
+      # columns in any order:
+      name_mapping <- setNames(cols_expected_back, cols_expected_forth)
+      cols_to_rename <- names(data_back) %in% names(name_mapping)
+      names(data_back)[cols_to_rename] <-
+        name_mapping[names(data_back)[cols_to_rename]]
 
       # Needed below for ordering:
       cols_forth_order <- cols_expected_forth
