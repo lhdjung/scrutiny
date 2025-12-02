@@ -103,7 +103,7 @@ $$
 
 ### To even (base R)
 
-Like Python's [`round()`](https://docs.python.org/3/library/functions.html#round) function, R's `base::round()` doesn't round up or down, or use any other procedure based solely on the truncated part of the number. Instead, `round()` strives to round to the next even number. This is also called "banker's rounding", and it follows a technical standard, [IEEE 754](https://en.m.wikipedia.org/wiki/IEEE_754#Roundings_to_nearest).
+Like Python's [`round()`](https://docs.python.org/3/library/functions.html#round) function, R's `base::round()` doesn't round up or down, or use any other procedure based solely on the truncated part of the number. Instead, `round()` strives to round to the next even number. This is also called "banker's rounding", and it follows a technical standard, [IEEE 754](https://en.wikipedia.org/wiki/IEEE_754#Roundings_to_nearest).
 
 Realizing that `round()` works in a highly unintuitive way sometimes leads to consternation. Why can't we just round like we learned in school, that is, up from 5? The reason seems to be bias. Because 5 is right in between two whole numbers, any procedure that rounds 5 in some predetermined direction introduces a bias toward that direction. Rounding up from 5 is therefore biased upward, and rounding down from 5 is biased downward.
 
@@ -177,7 +177,7 @@ This seems better than following mathematical intuitions that may not always cor
 
 ### IEEE 754 rounding standard
 
-`base::round()` and some of scrutiny's rounding functions correspond to the IEEE 754 rounding standard (IEEE 2019, pp. 27f.; the [Wikipedia page](https://en.m.wikipedia.org/wiki/IEEE_754#Rounding_rules) is more accessible). IEEE 754 defines standards for floating-point operations, which includes rounding.
+`base::round()` and some of scrutiny's rounding functions correspond to the IEEE 754 rounding standard (IEEE 2019, pp. 27f.; the [Wikipedia page](https://en.wikipedia.org/wiki/IEEE_754#Rounding_rules) is more accessible). IEEE 754 defines standards for floating-point operations, which includes rounding.
 
 This table shows how `base::round()` and scrutiny correspond to IEEE 754:
 

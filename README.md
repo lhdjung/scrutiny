@@ -1,5 +1,6 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/lhdjung/scrutiny/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/lhdjung/scrutiny/actions/workflows/R-CMD-check.yaml)
@@ -171,11 +172,9 @@ pigs3 %>%
 
 — van der Zee et al. (2017, pp. 8-9)
 
-> (…) [data
-> thugs](https://jamesheathers.medium.com/hugs-shrugs-and-data-thugs-663858757c4a)
-> (…) demand data and if they do not receive it, they contact editors
-> and universities and threaten to write blogs and tweets about the
-> errors uncovered.
+> (…) data thugs (…) demand data and if they do not receive it, they
+> contact editors and universities and threaten to write blogs and
+> tweets about the errors uncovered.
 
 — Eric A. Stewart (six retractions; quoted in Pickett 2020, p. 178)
 

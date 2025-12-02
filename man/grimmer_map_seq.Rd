@@ -94,7 +94,10 @@ a lack of corresponding hits within the \code{dispersion} range.
 pigs5
 
 # All the results:
-out <- grimmer_map_seq(pigs5, include_consistent = TRUE)
+out <- pigs5 \%>\%
+  dplyr::slice(1:3) \%>\%
+  grimmer_map_seq(include_consistent = TRUE)
+
 out
 
 # Case-wise summaries with `audit_seq()`
