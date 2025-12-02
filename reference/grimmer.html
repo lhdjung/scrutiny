@@ -177,17 +177,38 @@ https://peerj.com/preprints/2400v1/</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># A mean of 5.23 is not consistent with an SD of 2.55</span></span></span>
 <span class="r-in"><span><span class="co"># and a sample size of 35:</span></span></span>
 <span class="r-in"><span><span class="fu">grimmer</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"5.23"</span>, sd <span class="op">=</span> <span class="st">"2.55"</span>, n <span class="op">=</span> <span class="fl">35</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  5.23 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> FALSE </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># However, mean and SD are consistent with a</span></span></span>
 <span class="r-in"><span><span class="co"># sample size of 31:</span></span></span>
 <span class="r-in"><span><span class="fu">grimmer</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"5.23"</span>, sd <span class="op">=</span> <span class="st">"2.55"</span>, n <span class="op">=</span> <span class="fl">31</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5.23 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> TRUE </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># For a scale composed of two items:</span></span></span>
 <span class="r-in"><span><span class="fu">grimmer</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"2.74"</span>, sd <span class="op">=</span> <span class="st">"0.96"</span>, n <span class="op">=</span> <span class="fl">63</span>, items <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2.74 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> TRUE </span>
 </code></pre></div>
@@ -201,7 +222,7 @@ https://peerj.com/preprints/2400v1/</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

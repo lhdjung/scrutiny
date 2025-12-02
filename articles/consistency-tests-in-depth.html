@@ -656,7 +656,7 @@ source code into your own source code. (That’s why I left out the
 parentheses — return the function itself.) Never rely on calling a
 function with <code>:::</code>, because these internals are not actually
 meant for users. They can easily shift and vanish without notice.</p>
-<p>If you develop your own package, see <a href="https://www.tidyverse.org/blog/2022/09/playing-on-the-same-team-as-your-dependecy/" class="external-link">this
+<p>If you develop your own package, see <a href="https://tidyverse.org/blog/2022/09/playing-on-the-same-team-as-your-dependecy/" class="external-link">this
 blogpost</a> by Thomas Lin Pedersen for more information on using
 internal code from other packages. In particular, package developers
 should mind licenses when copying code from scrutiny because scrutiny is
@@ -757,6 +757,90 @@ called <em>Summaries with <code><a href="../reference/audit.html">audit()</a></c
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">audit_grim</span>    <span class="op">&lt;-</span> <span class="fu"><a href="../reference/audit.html">audit</a></span><span class="op">(</span><span class="fu"><a href="../reference/grim_map.html">grim_map</a></span><span class="op">(</span><span class="va">pigs1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">audit_grimmer</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/audit.html">audit</a></span><span class="op">(</span><span class="fu"><a href="../reference/grimmer_map.html">grimmer_map</a></span><span class="op">(</span><span class="va">pigs5</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: False-positive GRIMMER results possible.</span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span></span>
+<span><span class="co">#&gt;   care. (The first two tests and GRIM are not affected.)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span></span>
+<span><span class="co">#&gt; False-positive GRIMMER results possible.</span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span></span>
+<span><span class="co">#&gt;   care. (The first two tests and GRIM are not affected.)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span></span>
+<span><span class="co">#&gt; False-positive GRIMMER results possible.</span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span></span>
+<span><span class="co">#&gt;   care. (The first two tests and GRIM are not affected.)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span></span>
+<span><span class="co">#&gt; False-positive GRIMMER results possible.</span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span></span>
+<span><span class="co">#&gt;   care. (The first two tests and GRIM are not affected.)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span></span>
+<span><span class="co">#&gt; False-positive GRIMMER results possible.</span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span></span>
+<span><span class="co">#&gt;   care. (The first two tests and GRIM are not affected.)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span></span>
+<span><span class="co">#&gt; False-positive GRIMMER results possible.</span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span></span>
+<span><span class="co">#&gt;   care. (The first two tests and GRIM are not affected.)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span></span>
+<span><span class="co">#&gt; False-positive GRIMMER results possible.</span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span></span>
+<span><span class="co">#&gt;   care. (The first two tests and GRIM are not affected.)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span></span>
+<span><span class="co">#&gt; False-positive GRIMMER results possible.</span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span></span>
+<span><span class="co">#&gt;   care. (The first two tests and GRIM are not affected.)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span></span>
+<span><span class="co">#&gt; False-positive GRIMMER results possible.</span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span></span>
+<span><span class="co">#&gt;   care. (The first two tests and GRIM are not affected.)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span></span>
+<span><span class="co">#&gt; False-positive GRIMMER results possible.</span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span></span>
+<span><span class="co">#&gt;   care. (The first two tests and GRIM are not affected.)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span></span>
+<span><span class="co">#&gt; False-positive GRIMMER results possible.</span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span></span>
+<span><span class="co">#&gt;   care. (The first two tests and GRIM are not affected.)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span></span>
+<span><span class="co">#&gt; False-positive GRIMMER results possible.</span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span></span>
+<span><span class="co">#&gt;   care. (The first two tests and GRIM are not affected.)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/write_doc_audit.html">write_doc_audit</a></span><span class="op">(</span>sample_output <span class="op">=</span> <span class="va">audit_grim</span>,  name_test <span class="op">=</span> <span class="st">"GRIM"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; #' @section Summaries with `audit()`: There is an S3 method for `audit()`, so </span></span>
@@ -1288,7 +1372,7 @@ O’Reilly.
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

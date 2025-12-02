@@ -191,9 +191,663 @@ a lack of corresponding hits within the <code>dispersion</code> range.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">12</span> 0.24  6.43     34</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># All the results:</span></span></span>
-<span class="r-in"><span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu">grimmer_map_seq</span><span class="op">(</span><span class="va">pigs5</span>, include_consistent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">out</span> <span class="op">&lt;-</span> <span class="va">pigs5</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+<span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+<span class="r-in"><span>  <span class="fu">grimmer_map_seq</span><span class="op">(</span>include_consistent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">out</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 360 × 8</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 90 × 8</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    x     sd        n consistency reason            diff_var  case var  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> 7.17  5.30     38 FALSE       GRIM inconsistent       -<span style="color: #BB0000;">5</span>     1 x    </span>
@@ -206,27 +860,39 @@ a lack of corresponding hits within the <code>dispersion</code> range.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> 7.25  5.30     38 FALSE       GRIM inconsistent        3     1 x    </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> 7.26  5.30     38 TRUE        Passed all               4     1 x    </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> 7.27  5.30     38 FALSE       GRIM inconsistent        5     1 x    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 350 more rows</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 80 more rows</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Case-wise summaries with `audit_seq()`</span></span></span>
 <span class="r-in"><span><span class="co"># can be more important than the raw results:</span></span></span>
 <span class="r-in"><span><span class="va">out</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="audit-special.html">audit_seq</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 12 × 17</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    x     sd        n consistency hits_total hits_x hits_sd hits_n diff_x</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> 7.22  5.30     38 FALSE                8      4       0      4      1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> 4.74  6.55     31 TRUE                15      2      10      3      3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> 5.23  2.55     35 FALSE               15      2      10      3      3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> 2.57  2.57     30 TRUE                11      2       7      2      3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> 6.77  2.18     33 FALSE                5      3       0      2      1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> 2.68  2.59     34 TRUE                13      2       8      3      3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> 7.01  6.68     35 FALSE                4      4       0      0      1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> 7.38  3.65     32 TRUE                16      3      10      3      1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> 3.14  5.32     33 FALSE                9      4       0      5      1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> 6.89  4.18     37 TRUE                16      3      10      3      3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">11</span> 5.00  2.18     31 TRUE                15      2       6      7      3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">12</span> 0.24  6.43     34 TRUE                17      3      10      4      2</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>False-positive GRIMMER results possible.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> I became aware of a bug in the `grimmer*()` functions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> GRIMMER's test 3 can flag consistent values as inconsistent.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> For now, please use `show_reason = TRUE` and interpret results of test 3 with</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   care. (The first two tests and GRIM are not affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The next version of scrutiny will provide a fix. Many apologies.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> For more information, see <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/lhdjung/scrutiny/issues/80&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 3 × 17</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   x     sd        n consistency hits_total hits_x hits_sd hits_n diff_x</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 7.22  5.30     38 FALSE                8      4       0      4      1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> 4.74  6.55     31 TRUE                15      2      10      3      3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> 5.23  2.55     35 FALSE               15      2      10      3      3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 8 more variables: diff_x_up &lt;int&gt;, diff_x_down &lt;int&gt;, diff_sd &lt;int&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   diff_sd_up &lt;int&gt;, diff_sd_down &lt;int&gt;, diff_n &lt;int&gt;, diff_n_up &lt;int&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   diff_n_down &lt;int&gt;</span></span>
@@ -241,7 +907,7 @@ a lack of corresponding hits within the <code>dispersion</code> range.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

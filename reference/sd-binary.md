@@ -1,0 +1,86 @@
+# Standard deviation of binary data
+
+Compute the sample SD of binary data (i.e., only 0 and 1 values) in
+either of four ways, each based on different inputs:
+
+- `sd_binary_groups()` takes the cell sizes of both groups, those coded
+  as 0 and those coded as 1.
+
+- `sd_binary_0_n()` takes the cell size of the group coded as 0 and the
+  total sample size.
+
+- `sd_binary_1_n()` takes the cell size of the group coded as 1 and the
+  total sample size.
+
+- `sd_binary_mean_n()` takes the mean and the total sample size.
+
+These functions are used as helpers inside
+[`debit()`](https://lhdjung.github.io/scrutiny/reference/debit.md), and
+consequently
+[`debit_map()`](https://lhdjung.github.io/scrutiny/reference/debit_map.md).
+
+## Usage
+
+``` r
+sd_binary_groups(group_0, group_1)
+
+sd_binary_0_n(group_0, n)
+
+sd_binary_1_n(group_1, n)
+
+sd_binary_mean_n(mean, n)
+```
+
+## Arguments
+
+- group_0:
+
+  Integer. Cell size of the group coded as 0.
+
+- group_1:
+
+  Integer. Cell size of the group coded as 1.
+
+- n:
+
+  Integer. Total sample size.
+
+- mean:
+
+  Numeric. Mean of the binary data.
+
+## Value
+
+Numeric. Sample standard deviation.
+
+## References
+
+Heathers, James A. J., and Brown, Nicholas J. L. 2019. DEBIT: A Simple
+Consistency Test For Binary Data. https://osf.io/5vb3u/.
+
+## See also
+
+`is_subset_of_vals(x, 0, 1)` checks whether `x` (a list or atomic
+vector) contains nothing but binary numbers.
+
+## Examples
+
+``` r
+# If 127 values are coded as 0 and 153 as 1...
+sd_binary_groups(group_0 = 127, group_1 = 153)
+#> [1] 0.4987311
+
+# ...so that n = 280:
+sd_binary_0_n(group_0 = 127, n = 280)
+#> [1] 0.4987311
+sd_binary_1_n(group_1 = 153, n = 280)
+#> [1] 0.4987311
+
+# If only the mean and total sample size are
+# given, or these are more convenient to use,
+# they still lead to the same result as above
+# if the mean is given with a sufficiently
+# large number of decimal places:
+sd_binary_mean_n(mean = 0.5464286, n = 280)
+#> [1] 0.4987311
+```

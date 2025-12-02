@@ -90,6 +90,13 @@ presents broadly similar packages and apps, with no claim to
 completeness.</p>
 <p>Please contact me if you know about relevant software that isn’t
 listed here (email: jung-lukas@gmx.net).</p>
+<p>The tools are heuristically categorized in terms of how much they
+have been used in the course of error detection.</p>
+<div class="section level2">
+<h2 id="established-methods">Established methods<a class="anchor" aria-label="anchor" href="#established-methods"></a>
+</h2>
+<p><em>Techniques that come up often in discussions of error
+checking.</em></p>
 <ul>
 <li><p>For good reason, <a href="https://michelenuijten.shinyapps.io/statcheck-web/" class="external-link">statcheck</a>
 by Sacha Epskamp and Michèle Nuijten is the best-known error detection
@@ -101,10 +108,56 @@ amounts</a> of published articles. Steve Haroz built a <a href="https://stevehar
 edition</a> of the statcheck web app.</p></li>
 <li><p>James Heathers’ <a href="https://peerj.com/preprints/26968v1/" class="external-link">SPRITE</a> algorithm
 reconstructs possible distributions of raw data from summary statistics.
-James also wrote a <a href="https://medium.com/hackernoon/introducing-sprite-and-the-case-of-the-carthorse-child-58683c2bfeb" class="external-link">light
-introduction</a> to SPRITE. For R users, it was implemented in <a href="https://lukaswallrich.github.io/rsprite2/" class="external-link">rsprite2</a> by Lukas
+For R users, it was implemented in <a href="https://lukaswallrich.github.io/rsprite2/" class="external-link">rsprite2</a> by Lukas
 Wallrich, building up on code by Nick Brown. Jordan Anaya developed a <a href="http://www.prepubmed.org/sprite/" class="external-link">Python-based SPRITE
 app</a>.</p></li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="up-and-coming">Up and coming<a class="anchor" aria-label="anchor" href="#up-and-coming"></a>
+</h2>
+<p><em>Recent and ongoing development in forensic metascience
+methods.</em></p>
+<ul>
+<li><p>The <a href="https://lhdjung.github.io/unsum/" class="external-link">unsum</a> package
+implements CLOSURE, a technique by Nathanael Larigaldie that generalizes
+SPRITE to find all possible samples, not just a few. It is extremely
+fast because the core algorithm is written in Rust, which makes CLOSURE
+suitable even for moderately large samples.</p></li>
+<li>
+<p>Ian Hussey’s raft of checks for summary statistics:</p>
+<ul>
+<li><p>TIDES, an <a href="https://github.com/ianhussey/tides" class="external-link">R
+package</a> and a <a href="https://errors.shinyapps.io/TIDES/" class="external-link">Shiny
+app</a> for a consistency test of summary statistics of data with a
+known minimum and maximum (e.g., Likert scales, or where the empirical
+min and max is known or can be well estimated). TIDES also assesses the
+magnitude of variability given the scale bounds.</p></li>
+<li><p>The <a href="https://errors.shinyapps.io/ANCHOR/" class="external-link">ANCHOR app</a>
+to check for consistency between the whole sample and its
+subgroups.</p></li>
+<li><p>The <a href="https://errors.shinyapps.io/PORT/" class="external-link">PORT app</a> to
+test correlation tables for consistency.</p></li>
+</ul>
+</li>
+<li><p>The <a href="https://drg85.shinyapps.io/EOIROAR/" class="external-link">ellipse of
+insignificance app</a> by David Robert Grimes tests the robustness of
+dichotomous outcome trials.</p></li>
+<li><p><a href="https://github.com/nrposner/scrutipy" class="external-link">ScrutiPy</a> by
+Nicolas Roman Posner provides a Python interface to some of scrutiny’s
+functionality. It also features CLOSURE and methods to recalculate
+confusion matrices. Like unsum, it relies on Rust implementations, so it
+runs very fast.</p></li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="possibly-helpful">Possibly helpful<a class="anchor" aria-label="anchor" href="#possibly-helpful"></a>
+</h2>
+<p><em>These software projects are less well known and have not been
+widely employed; at least not in forensic metascience. They are listed
+here because they might have some potential for error checking. However,
+their forensic utility has not been thoroughly examined.</em></p>
+<ul>
 <li><p>The R package <a href="https://cran.r-project.org/package=validate" class="external-link">validate</a> by Mark
 P.J. van der Loo provides numerous tools for data checking.</p></li>
 <li><p>The delta-F test for linearity, a.k.a. the “Förster test”, was
@@ -122,6 +175,8 @@ Koen Derks offers a full statistical auditing suite (including Benford
 analysis).</p></li>
 </ul>
 </li>
+<li><p><a href="http://www.sysmod.com/xltest/index.htm" class="external-link">XLTest</a> is a
+tool for auditing Excel files (but it is not free).</p></li>
 <li><p>The Rust crate <a href="https://github.com/saghm/sea-canal#how-does-seacanal-work" class="external-link">SeaCanal</a>
 analyzes numeric sequences, uncovering patterns of operations that might
 have generated them.</p></li>
@@ -138,7 +193,10 @@ name.</p></li>
 app by Anne Rutten detects repetitions in sequences.</p></li>
 </ul>
 </li>
-</ul></main>
+</ul>
+</div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 
@@ -148,7 +206,7 @@ app by Anne Rutten detects repetitions in sequences.</p></li>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>
