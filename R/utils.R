@@ -190,7 +190,11 @@ error_digits_flawed <- function(digits, name_digits_arg, n) {
 }
 
 
-check_newly_numeric <- function(x, digits) {
+check_newly_numeric <- function(
+  x,
+  digits,
+  caller_type = c("basic", "mapper", "sequence_mapper")
+) {
   if (
     !is.numeric(digits) ||
       length(digits) != 1L ||
@@ -204,35 +208,44 @@ check_newly_numeric <- function(x, digits) {
     return(invisible(NULL))
   }
 
-  # check_digits(digits)
+  caller_type <- rlang::arg_match(caller_type)
+
+  # Is any function on the call stack a mapper, such as `grim_map()`?
+  callers_all <- caller_fn_names_all()
+  caller_is_mapper <- any(stringr::str_detect(callers_all, "_map"))
 
   # For error messages: number of frames to go up the call stack. This makes
   # sure it will say, e.g., "Error in `grim()`" instead of "Error in
   # `check_newly_numeric()`".
-  n <- 3
+  n <- if (caller_is_mapper) 4 else 3
 
   # Record the names of the key argument passed down here (likely the mean or
   # SD) and the calling function
   name_x <- deparse(substitute(x))
-  name_fn <- caller_fn_name(n) #as.character(rlang::caller_call(n)[[1]])
+  name_fn <- paste0("scrutiny::", caller_fn_name(n))
 
   if (!is.numeric(x)) {
+    # If the user called a mapper function, the error message should talk about
+    # columns because mappers operate on data frames. Otherwise, it should
+    # mention arguments.
+    msg_what <- if (caller_is_mapper) {
+      I(paste0("Using string `", name_x, "` columns in `", name_fn, "()`"))
+    } else {
+      paste0(name_fn, "(", name_x, " = 'must be numeric')")
+    }
+
+    msg_digits_name <- paste0(
+      "Instead, use `digits_",
+      name_x,
+      " `to specify the number of decimal places."
+    )
+
     lifecycle::deprecate_stop(
       when = "1.0.0",
-      what = paste0(
-        "scrutiny::",
-        name_fn,
-        "(",
-        name_x,
-        " = 'must be numeric')"
-      ),
+      what = msg_what,
       details = c(
-        paste0(
-          "Use `digits_",
-          name_x,
-          "`to specify the number of decimal places."
-        ),
-        "This is to ensure a correct number of decimal places. \
+        msg_digits_name,
+        "This is to ensure a correct number of decimal places.
         Apologies for the inconvenience."
       ),
       env = rlang::caller_env(n)
@@ -259,6 +272,38 @@ check_newly_numeric <- function(x, digits) {
 
 caller_fn_name <- function(n = 1) {
   as.character(rlang::caller_call(n + 1)[[1]])
+}
+
+
+# List all functions on the call stack and return them in a string vector
+caller_fn_names_all <- function() {
+  # Get the full call stack
+  calls <- sys.calls()
+
+  # Remove the call to caller_fn_names_all itself (last element)
+  if (length(calls) > 0) {
+    calls <- calls[-length(calls)]
+  }
+
+  # Extract function names from each call
+  fn_names <- sapply(calls, function(call) {
+    # Get the first element of the call (the function)
+    fn <- call[[1]]
+
+    # Convert to character and extract the name
+    if (is.name(fn)) {
+      as.character(fn)
+    } else if (is.call(fn)) {
+      # Handle cases like pkg::fn or obj$method
+      deparse(fn)[1]
+    } else {
+      # For anonymous functions or other cases
+      "<anonymous>"
+    }
+  })
+
+  # Reverse to get immediate caller first
+  rev(fn_names)
 }
 
 

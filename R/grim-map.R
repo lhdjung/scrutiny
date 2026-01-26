@@ -113,6 +113,7 @@
 
 grim_map <- function(
   data,
+  digits_x,
   items = 1,
   merge_items = TRUE,
   percent = FALSE,
@@ -196,6 +197,7 @@ grim_map <- function(
     consistency <- purrr::pmap(
       data_x_n_items,
       grim_scalar,
+      digits_x = digits_x,
       percent = percent,
       show_rec = show_rec,
       rounding = rounding,
@@ -207,6 +209,7 @@ grim_map <- function(
     consistency <- purrr::pmap_lgl(
       data_x_n_items,
       grim_scalar,
+      digits_x = digits_x,
       percent = percent,
       show_rec = show_rec,
       rounding = rounding,
@@ -221,6 +224,7 @@ grim_map <- function(
   probability <- purrr::pmap_dbl(
     .l = data_x_n_items,
     .f = grim_probability,
+    digits_x = digits_x,
     percent = percent
   )
 
