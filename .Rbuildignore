@@ -19,3 +19,5 @@ R\.Rproj$
 .Rprofile$
 .Rprofile\.R$
 ^special-scripts$
+^[.]?air[.]toml$
+^\.vscode$
