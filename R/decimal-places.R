@@ -64,18 +64,20 @@
 #' decimal_places_scalar(x = "5.024")
 
 decimal_places <- function(x, sep = "\\.") {
-  out <- stringr::str_split(stringr::str_trim(x), sep, 2L)
-  out <- purrr::modify_if(out, !is.na(out), stringr::str_length)
-  out <- purrr::modify_if(
-    out,
-    function(x) length(x) == 1L && !is.na(x),
-    function(x) 0L
+  pieces <- stringr::str_split(stringr::str_trim(x), sep, n = 2L)
+  vapply(
+    pieces,
+    function(p) {
+      if (anyNA(p)) {
+        NA_integer_
+      } else if (length(p) == 1L) {
+        0L
+      } else {
+        stringr::str_length(p[[2L]])
+      }
+    },
+    integer(1L)
   )
-
-  as.integer(unlist(
-    purrr::map_if(out, function(x) length(x) > 1L, `[`, 2L),
-    use.names = FALSE
-  ))
 }
 
 
@@ -88,14 +90,13 @@ decimal_places_scalar <- function(x, sep = "\\.") {
   if (is.na(x)) {
     return(NA_integer_)
   }
-  out <- stringr::str_length(stringr::str_extract(
-    x,
-    paste0("(?<=", sep, ")\\d+")
-  ))
-  if (is.na(out)) {
+
+  hit <- regmatches(x, regexpr(paste0("(?<=", sep, ")\\d+"), x, perl = TRUE))
+
+  if (length(hit) == 0L) {
     0L
   } else {
-    out
+    nchar(hit)
   }
 }
 

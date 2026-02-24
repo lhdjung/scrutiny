@@ -1,4 +1,3 @@
-
 # Long vectors with decimal numbers:
 x1 <- iris$Petal.Length
 x2 <- mtcars$qsec
@@ -13,7 +12,7 @@ x6_digits <- rnorm(10000, 6, 3) %>%
 x6 <- rnorm(10000, 100, 15) %>%
   round(x6_digits)
 
-
+# fmt: skip
 out_expected_x1 <- c(
   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
   1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1,
@@ -27,12 +26,14 @@ out_expected_x1 <- c(
   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1
 )
 
+# fmt: skip
 out_expected_x2 <- c(
   2, 2, 2, 2, 2, 2, 2, 0, 1, 1, 1, 1, 1, 0, 2,
   2, 2, 2, 2, 1, 2, 2, 1, 2, 2, 1, 1, 1, 1, 1,
   1, 1
 )
 
+# fmt: skip
 out_expected_x3 <- c(
   6, 6, 6, 6, 6, 5, 5, 6, 6, 6, 6, 5, 6, 6, 6,
   6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
@@ -63,6 +64,7 @@ out_expected_x3 <- c(
   6, 6, 6, 6, 6, 6, 6, 6, 6, 6
 )
 
+# fmt: skip
 out_expected_x4 <- c(
   1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
   1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1,
@@ -77,6 +79,7 @@ out_expected_x4 <- c(
   1, 0, 1
 )
 
+# fmt: skip
 out_expected_x5 <- c(
   3, 3, 3, 3, 3, 3, 3, 3, 2, 3, 3, 3, 3, 3, 3,
   3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2,
@@ -100,8 +103,10 @@ test_that("`decimal_places()` counts accurately", {
   x3 %>% decimal_places() %>% expect_equal(out_expected_x3)
   x4 %>% decimal_places() %>% expect_equal(out_expected_x4)
   x5 %>% decimal_places() %>% expect_equal(out_expected_x5)
-})
 
+  # With `NA` element
+  c(2.4, 63, NA, 5.34) %>% decimal_places() %>% expect_equal(c(1L, 0L, NA, 2L))
+})
 
 
 out_scalar_x1 <- x1 %>% purrr::map_int(decimal_places_scalar)
@@ -122,12 +127,11 @@ test_that("Both functions return the same count for each individual number", {
 })
 
 
-
 test_that("`decimal_places_scalar()` conditions work as expected", {
   25  %>% decimal_places_scalar() %>% expect_identical(0L)
   2.7 %>% decimal_places_scalar() %>% expect_identical(1L)
   NA  %>% decimal_places_scalar() %>% expect_identical(NA_integer_)
-  NA  %>% decimal_places_scalar() %>% expect_na()
+  NA  %>% decimal_places_scalar() %>% is.na() %>% expect_true()
 })
 
 
@@ -151,5 +155,3 @@ test_that("`decimal_places_df()` throws a warning if and only if it should", {
   iris %>% decimal_places_df(check_numeric_like = FALSE) %>% expect_warning()
   iris %>% dplyr::select(1:4) %>% decimal_places_df(check_numeric_like = FALSE) %>% expect_no_warning()
 })
-
-
