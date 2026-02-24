@@ -62,14 +62,6 @@
 # Relative ----------------------------------------------------------------
 
 grim_probability <- function(x, n, digits_x, items = 1, percent = FALSE) {
-  # Manual check (instead of calling `check_type()`) for performance; this
-  # function will run a great deal:
-  if (!is.character(x)) {
-    cli::cli_abort(c(
-      "!" = "`x` must be of type character.",
-      "x" = "It is {an_a_type(x)}."
-    ))
-  }
   if (percent) {
     digits_x <- digits_x + 2L
   }
@@ -82,7 +74,6 @@ grim_probability <- function(x, n, digits_x, items = 1, percent = FALSE) {
 #' @rdname grim-stats
 #' @export
 grim_ratio <- function(x, n, digits_x, items = 1, percent = FALSE) {
-  check_type(x, "character")
   if (percent) {
     digits_x <- digits_x + 2L
   }
@@ -96,7 +87,6 @@ grim_ratio <- function(x, n, digits_x, items = 1, percent = FALSE) {
 #' @rdname grim-stats
 #' @export
 grim_total <- function(x, n, digits_x, items = 1, percent = FALSE) {
-  check_type(x, "character")
   if (percent) {
     digits_x <- digits_x + 2L
   }
