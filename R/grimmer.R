@@ -23,8 +23,8 @@
 # SD                 --> sd
 # decimals_mean      --> digits_x  (argument removed; counting internally)
 # decimals_SD        --> digits_sd (argument removed; counting internally)
-# realmean           --> x_real
-# realsum            --> sum_real
+# realmean           --> x_real    (computed per candidate sum inside loop)
+# realsum            --> s         (loop variable over consistent_sums)
 # effective_n        --> n_items
 # Lsigma             --> sd_lower
 # Usigma             --> sd_upper
@@ -34,9 +34,9 @@
 # Predicted_Variance --> var_predicted
 # Predicted_SD       --> sd_predicted
 # Matches_Oddness    --> matches_parity
-# FirstTest          --> pass_test1
+# FirstTest          --> pass_test1 (evaluated per candidate sum inside loop)
 # Matches_SD         --> matches_sd (to which a `pass_test2` object was added)
-# Third_Test         --> pass_test3
+# Third_Test         --> pass_test3 (evaluated per candidate sum inside loop)
 
 # # Example inputs 1:
 # x <- "1.03"
@@ -104,73 +104,9 @@
 # symmetric <- FALSE
 # tolerance <- .Machine$double.eps^0.5
 
-# Helper function ---------------------------------------------------------
-
-# Find all GRIM-consistent sums for a given mean value. This is needed for the
-# parity check in test 3, because the simple `round(mean * n)` approach may
-# miss valid sums when rounding modes other than standard rounding are used.
-grim_consistent_sums <- function(
-  x,
-  n,
-  digits_x,
-  items = 1,
-  rounding = "up_or_down",
-  threshold = 5,
-  symmetric = FALSE,
-  tolerance = .Machine$double.eps^0.5
-) {
-  x_num <- as.numeric(x)
-  n_items <- n * items
-  rec_sum <- x_num * n_items
-
-  # Get the two boundary sums
-  rec_sum_lower <- floor(rec_sum)
-  rec_sum_upper <- ceiling(rec_sum)
-
-  # Get possible means from these sums. Note that `dustify()` returns two values
-  # per input element; one with a minuscule number subtracted, one with that
-  # number added. This is to avoid spurious precision bugs in floating-point
-  # arithmetic.
-  rec_x_lower <- dustify(rec_sum_lower / n_items)
-  rec_x_upper <- dustify(rec_sum_upper / n_items)
-
-  # Round these means using the specified rounding details
-  granules_rounded <- reround(
-    x = c(rec_x_lower, rec_x_upper),
-    digits = digits_x,
-    rounding = rounding,
-    threshold = threshold,
-    symmetric = symmetric
-  )
-
-  # Check which reconstructed means match the reported mean
-  matches_reported <- dplyr::near(granules_rounded, x_num, tol = tolerance)
-
-  # Count the combinations of sum bounds (`rec_x_upper` and `rec_x_lower`) and
-  # rounding procedures (two by default: `"up_or_down"`). The number of granules
-  # is divided by 2 to cancel out the duplicating effect of `dustify()`.
-  n_rounding_modes <- length(granules_rounded) / 2
-
-  # Initialize; this will be extended by any consistent sums
-  out <- integer(0)
-
-  # Check for matches with the lower-bound reconstructed sum. If found, include
-  # this reconstructed sum in the output.
-  if (any(matches_reported[seq_len(n_rounding_modes)])) {
-    out <- c(out, rec_sum_lower)
-  }
-
-  # Same for upper-bound reconstructed sum
-  if (any(matches_reported[(n_rounding_modes + 1):length(matches_reported)])) {
-    out <- c(out, rec_sum_upper)
-  }
-
-  # Remove duplicate sums because they would be redundant, then return
-  unique(out)
-}
-
-
 # Implementation ----------------------------------------------------------
+
+# TODO: CHECK NEW GRIMMER VERSION USING claude --resume 6cd92dd9-1cd0-4b37-9638-6c55ccdaefa4
 
 grimmer_scalar <- function(
   x,
@@ -198,25 +134,11 @@ grimmer_scalar <- function(
   check_newly_numeric(x, digits_x)
   check_newly_numeric(sd, digits_sd)
 
-  # # A provisional solution:
-  # if (items != 1) {
-  #   cli::cli_warn(c(
-  #     "The `items` argument in GRIMMER functions doesn't currently \
-  #     work the way it should."
-  #   ))
-  # }
-
-  digits_sd <- decimal_places_scalar(sd)
-
   x_orig <- x
   x <- as.numeric(x)
   sd <- as.numeric(sd)
 
   n_items <- n * items
-
-  sum <- x * n_items
-  sum_real <- round(sum)
-  x_real <- sum_real / n_items
 
   # GRIM TEST: It says `x_orig` because the `x` object has been coerced from
   # character to numeric, but `grim_scalar()` needs the original number-string.
@@ -240,147 +162,166 @@ grimmer_scalar <- function(
     return(FALSE)
   }
 
-  p10 <- 10^(digits_sd + 1)
-  p10_frac <- 5 / p10
+  # SD bounds via unround(): handles all rounding modes and their boundary
+  # inclusion correctly, unlike the earlier hardcoded `5 / 10^(digits_sd + 1)`
+  # approach which was only exact for "up_or_down" with threshold = 5.
+  sd_bounds <- unround(
+    sd,
+    rounding = rounding,
+    threshold = threshold,
+    digits = digits_sd
+  )
 
-  # SD bounds, lower and upper:
-  if (sd < p10_frac) {
-    sd_lower <- 0
+  sd_lower <- max(0, sd_bounds$lower) # SD cannot be negative
+  sd_upper <- sd_bounds$upper
+
+  # Pre-compute dustified SD once, before the loop over candidate sums.
+  sd_dusty <- dustify(sd)
+
+  # Enumerate all integer sums consistent with the reported mean by computing
+  # the mean's rounding interval via `unround()` and mapping it to sum space.
+  # This replaces the earlier `round(mean * n)` approach, which only ever
+  # produced a single candidate sum and could miss the other when two
+  # consecutive integers both round to the reported mean. It also handles all
+  # rounding modes and uses ceiling/floor instead of round(), avoiding
+  # banker's-rounding edge cases at the boundaries.
+  x_bounds <- unround(
+    x_orig,
+    rounding = rounding,
+    threshold = threshold,
+    digits = digits_x
+  )
+
+  sum_lo <- if (x_bounds$incl_lower) {
+    ceiling(x_bounds$lower * n_items)
   } else {
-    sd_lower <- sd - p10_frac
+    floor(x_bounds$lower * n_items) + 1L
   }
 
-  sd_upper <- sd + p10_frac
-
-  # Sum of squares bounds, lower and upper:
-  sum_squares_lower <- ((n - 1) * sd_lower^2 + n * x_real^2) * items^2
-  sum_squares_upper <- ((n - 1) * sd_upper^2 + n * x_real^2) * items^2
-
-  # Correct for floating-point error:
-  sum_squares_lower <- round(sum_squares_lower, 12)
-  sum_squares_upper <- round(sum_squares_upper, 12)
-
-  # TEST 1: Check that there is at least one integer between the lower and upper
-  # bounds (of the reconstructed sum of squares of the -- most likely unknown --
-  # values for which `x` was reported as a mean). Ceiling the lower bound and
-  # flooring the upper bound determines whether there are any integers between
-  # the two. For example:
-  # -- If `sum_squares_lower` is 112.869 and `sum_squares_upper` is 113.1156,
-  # `ceiling(sum_squares_lower)` and `floor(sum_squares_upper)` both return
-  # `113`, so there is an integer between them, and `<=` returns `TRUE`.
-  # -- TODO: add an example where there is no integer in between; and thus,
-  # `pass_test1` is `FALSE`.
-  pass_test1 <- ceiling(sum_squares_lower) <= floor(sum_squares_upper)
-
-  if (!pass_test1) {
-    if (show_reason) {
-      return(list(FALSE, "GRIMMER inconsistent (test 1)"))
-    }
-    return(FALSE)
+  sum_hi <- if (x_bounds$incl_upper) {
+    floor(x_bounds$upper * n_items)
+  } else {
+    ceiling(x_bounds$upper * n_items) - 1L
   }
 
-  # Create a vector of all possible integers between the lower and upper bounds
-  # of the sum of squares:
-  integers_possible <- ceiling(sum_squares_lower):floor(sum_squares_upper)
+  consistent_sums <- sum_lo:sum_hi
 
-  # Create the predicted variance, then limit it at zero to avoid floating-point
-  # errors with negative numbers that are just slightly below zero. (Variance,
-  # of course, can never be negative.)
-  var_predicted <- (integers_possible / items^2 - n * x_real^2) / (n - 1)
-  var_predicted <- round(var_predicted, 12)
+  # Loop over all candidate sums, running all three GRIMMER tests for each.
+  # Each candidate corresponds to one possible integer sum of the original data
+  # that is consistent with the reported mean. We return TRUE as soon as one
+  # candidate passes all three tests. For show_reason, we track the furthest
+  # test any candidate has reached before failing:
+  # -- 0: all candidates failed test 1 (report test 1 failure)
+  # -- 1: some candidate passed test 1 but not test 2 (report test 2 failure)
+  # -- 2: some candidate passed tests 1 and 2 but not test 3 (report test 3 failure)
+  furthest_test_passed <- 0L
 
-  # Derive the predicted SD:
-  sd_predicted <- sqrt(var_predicted)
+  for (s in consistent_sums) {
+    x_real <- s / n_items
 
-  # Reconstruct the SD:
-  sd_rec_rounded <- reround(
-    x = sd_predicted,
-    digits = digits_sd,
-    rounding = rounding,
-    threshold = threshold,
-    symmetric = symmetric
-  )
+    # Sum of squares bounds, lower and upper:
+    sum_squares_lower <- ((n - 1) * sd_lower^2 + n * x_real^2) * items^2
+    sum_squares_upper <- ((n - 1) * sd_upper^2 + n * x_real^2) * items^2
 
-  # Introduce a small numeric tolerance to the reported and reconstructed SD
-  # values before comparing them. This helps avoid false-negative results of the
-  # comparison (i.e., treating equal values as unequal) that might occur due to
-  # spurious precision in floating-point numbers.
-  sd <- dustify(sd)
-  sd_rec_rounded <- dustify(sd_rec_rounded)
+    # Correct for floating-point error:
+    sum_squares_lower <- round(sum_squares_lower, 12)
+    sum_squares_upper <- round(sum_squares_upper, 12)
 
-  # Check the reported SD for near-equality with the reconstructed SD values;
-  # i.e., equality within a very small tolerance. This test is applied via
-  # `purrr::map_lgl()` because `reround()` returns two values per element of
-  # `sd` by default, so `sd_rec_rounded` will be twice as long as `sd`.
-  matches_sd <- purrr::map_lgl(
-    .x = sd,
-    .f = function(sd_with_dust) {
-      sd_with_dust %>%
-        dplyr::near(sd_rec_rounded, tol = tolerance) %>%
-        any()
+    # TEST 1: Check that there is at least one integer between the lower and
+    # upper bounds (of the reconstructed sum of squares of the -- most likely
+    # unknown -- values for which `x` was reported as a mean). Ceiling the
+    # lower bound and flooring the upper bound determines whether there are any
+    # integers between the two. For example:
+    # -- If `sum_squares_lower` is 112.869 and `sum_squares_upper` is 113.1156,
+    # `ceiling(sum_squares_lower)` and `floor(sum_squares_upper)` both return
+    # `113`, so there is an integer between them, and `<=` returns `TRUE`.
+    if (ceiling(sum_squares_lower) > floor(sum_squares_upper)) {
+      next
     }
-  )
 
-  # TEST 2: If none of the reconstructed SDs matches_reported the reported one, the
-  # inputs are GRIMMER-inconsistent.
-  pass_test2 <- any(matches_sd[!is.na(matches_sd)])
+    furthest_test_passed <- max(furthest_test_passed, 1L)
 
-  if (!pass_test2) {
-    if (show_reason) {
-      return(list(FALSE, "GRIMMER inconsistent (test 2)"))
+    # Create a vector of all possible integers between the lower and upper
+    # bounds of the sum of squares:
+    integers_possible <- ceiling(sum_squares_lower):floor(sum_squares_upper)
+
+    # Create the predicted variance. Floating-point arithmetic can produce very
+    # slightly negative values here; those lead to NaN from sqrt(), which is
+    # then filtered out by the !is.na() guard in test 2. (Variance cannot be
+    # negative.)
+    var_predicted <- (integers_possible / items^2 - n * x_real^2) / (n - 1)
+    var_predicted <- round(var_predicted, 12)
+
+    # Derive the predicted SD:
+    sd_predicted <- sqrt(var_predicted)
+
+    # Reconstruct the SD:
+    sd_rec_rounded <- reround(
+      x = sd_predicted,
+      digits = digits_sd,
+      rounding = rounding,
+      threshold = threshold,
+      symmetric = symmetric
+    )
+
+    # Introduce a small numeric tolerance to the reconstructed SD values to
+    # avoid false-negative comparisons due to spurious floating-point precision.
+    sd_rec_dusty <- dustify(sd_rec_rounded)
+
+    # Check the reported SD for near-equality with the reconstructed SD values;
+    # i.e., equality within a very small tolerance. This test is applied via
+    # `purrr::map_lgl()` because `reround()` returns two values per element of
+    # `sd` by default, so `sd_rec_dusty` will be twice as long as `sd_dusty`.
+    matches_sd <- purrr::map_lgl(
+      .x = sd_dusty,
+      .f = function(sd_with_dust) {
+        sd_with_dust %>%
+          dplyr::near(sd_rec_dusty, tol = tolerance) %>%
+          any()
+      }
+    )
+
+    # TEST 2: If none of the reconstructed SDs matches the reported one, this
+    # candidate sum is not viable.
+    if (!any(matches_sd[!is.na(matches_sd)])) {
+      next
     }
-    return(FALSE)
-  }
 
-  # Determine if any integer between the lower and upper bounds has the same
-  # parity (i.e., the property of being even or odd) as the reconstructed sum.
-  #
-  # IMPORTANT: We need to check parity against ALL GRIM-consistent sums, not just
-  # sum_real. This is because when rounding modes like "up_or_down" are used,
-  # multiple sums may be consistent with the reported mean, and using only
-  # sum_real (from round()) may miss valid cases. See GitHub issue #XX.
+    furthest_test_passed <- max(furthest_test_passed, 2L)
 
-  # Get all sums that are GRIM-consistent with the reported mean
-  consistent_sums <- grim_consistent_sums(
-    x = x_orig,
-    n = n,
-    digits_x = digits_x,
-    items = items,
-    rounding = rounding,
-    threshold = threshold,
-    symmetric = symmetric,
-    tolerance = tolerance
-  )
-
-  # For each GRIM-consistent sum, check if any of the sum_of_squares candidates
-  # (integers_possible) have matching parity AND produce a matching SD
-  pass_test3 <- FALSE
-  for (possible_sum in consistent_sums) {
-    matches_parity <- possible_sum %% 2 == integers_possible %% 2
+    matches_parity <- s %% 2 == integers_possible %% 2
     matches_sd_and_parity <- purrr::map_lgl(
       .x = matches_parity,
-      .f = function(x) any(x & matches_sd)
+      .f = function(p) any(p & matches_sd)
     )
-    if (any(matches_sd_and_parity)) {
-      pass_test3 <- TRUE
-      break
-    }
-  }
 
-  if (!pass_test3) {
+    # TEST 3: Determine if any integer between the lower and upper bounds has
+    # the same parity (i.e., the property of being even or odd) as s, the
+    # candidate sum
+    if (!any(matches_sd_and_parity)) {
+      next
+    }
+
+    # All three tests passed for this candidate sum
     if (show_reason) {
-      return(list(FALSE, "GRIMMER inconsistent (test 3)"))
+      return(list(TRUE, "Passed all"))
     }
-    return(FALSE)
+    return(TRUE)
   }
 
-  # All the tests were passed if the algorithm reaches this point, so the inputs
-  # are GRIMMER-consistent:
+  # No candidate sum passed all three tests.
   if (show_reason) {
-    list(TRUE, "Passed all")
-  } else {
-    TRUE
+    reason <- switch(
+      as.character(furthest_test_passed),
+      "0" = "GRIMMER inconsistent (test 1)",
+      "1" = "GRIMMER inconsistent (test 2)",
+      "2" = "GRIMMER inconsistent (test 3)",
+      cli::cli_abort("Internal error: Invalid `furthest_test_passed` value.")
+    )
+    return(list(FALSE, reason))
   }
+
+  FALSE
 }
 
 
