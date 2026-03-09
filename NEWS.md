@@ -1,4 +1,6 @@
-# scrutiny (development version)
+# scrutiny 0.6.2
+
+# scrutiny 0.6.1
 
 ## Bugfixes
 

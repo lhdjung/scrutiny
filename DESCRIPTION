@@ -1,6 +1,6 @@
 Package: scrutiny
 Title: Error Detection in Science
-Version: 0.5.0.9000
+Version: 0.6.2
 Authors@R: c(
     person(given = "Lukas",
            family = "Jung",
@@ -24,7 +24,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Imports: 
     cli,
     corrr,
@@ -120,7 +120,7 @@ Collate:
     'utils-pipe.R'
     'utils-tidy-eval.R'
     'write-doc-audit.R'
-Suggests: 
+Suggests:
     knitr,
     pkgload,
     rmarkdown,
