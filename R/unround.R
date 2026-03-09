@@ -17,26 +17,28 @@ rounding_bounds_scalar <- function(rounding, x_num, d_var, d) {
       rounding <- paste0("anti_", rounding)
     }
 
+    # fmt: skip
     return(switch(
-      rounding, #     (1)              (2)               (3)    (4)
-      "trunc_x_greater" = list(x_num, x_num + (2 * d), "<=", "<"),
-      "trunc_x_less" = list(x_num - (2 * d), x_num, "<", "<="),
-      "trunc_x_is_0" = list(x_num - (2 * d), x_num + (2 * d), "<", "<"),
-      "anti_trunc_x_greater" = list(x_num - (2 * d), x_num, "<=", "<"),
-      "anti_trunc_x_less" = list(x_num, x_num + (2 * d), "<=", "<"),
-      "anti_trunc_x_is_0" = list(NA, NA, NA, NA)
+      rounding,              #     (1)              (2)               (3)    (4)
+      "trunc_x_greater"      = list(x_num,           x_num + (2 * d), "<=", "<"),
+      "trunc_x_less"         = list(x_num - (2 * d), x_num,           "<", "<="),
+      "trunc_x_is_0"         = list(x_num - (2 * d), x_num + (2 * d), "<",  "<"),
+      "anti_trunc_x_greater" = list(x_num - (2 * d), x_num,           "<=", "<"),
+      "anti_trunc_x_less"    = list(x_num,           x_num + (2 * d), "<=", "<"),
+      "anti_trunc_x_is_0"    = list(NA,              NA,               NA,   NA)
     ))
   }
 
   # This switch-statement is evaluated for all other rounding procedures:
+  # fmt: skip
   switch(
-    rounding, #     (1)              (2)               (3)   (4)
-    "up_or_down" = list(x_num - d_var, x_num + d_var, "<=", "<="),
-    "up" = list(x_num - d_var, x_num + d_var, "<=", "<"),
-    "down" = list(x_num - d_var, x_num + d_var, "<", "<="),
-    "even" = list(x_num - d, x_num + d, "<", "<"),
-    "ceiling" = list(x_num - (2 * d), x_num, "<", "<="),
-    "floor" = list(x_num, x_num + (2 * d), "<=", "<"),
+    rounding,    #     (1)              (2)               (3)   (4)
+    "up_or_down" = list(x_num - d_var,   x_num + d_var,   "<=", "<="),
+    "up"         = list(x_num - d_var,   x_num + d_var,   "<=",  "<"),
+    "down"       = list(x_num - d_var,   x_num + d_var,   "<",  "<="),
+    "even"       = list(x_num - d,       x_num + d,       "<",   "<"),
+    "ceiling"    = list(x_num - (2 * d), x_num,           "<",  "<="),
+    "floor"      = list(x_num,           x_num + (2 * d), "<=",  "<"),
     "error_trigger"
   )
 }
@@ -214,20 +216,13 @@ unround <- function(x, rounding = "up_or_down", threshold = 5, digits = NULL) {
   sign_lower <- as.character(bounds[3L, ]) # lower bound inclusive (`"<="`)?
   sign_upper <- as.character(bounds[4L, ]) # upper bound inclusive (`"<="`)?
 
-  # Return a tibble that dispalys the range with its appropriate signs and
+  # Return a tibble that displays the range with its appropriate signs and
   # includes all the results that constitute the range
   tibble::new_tibble(
-    x = list(
+    list(
+      # fmt: skip
       range = paste0(
-        lower,
-        " ",
-        sign_lower,
-        " x(",
-        x,
-        ") ",
-        sign_upper,
-        " ",
-        upper
+        lower, " ", sign_lower, " x(", x, ") ", sign_upper, " ", upper
       ),
       rounding = rounding,
       lower = lower,
