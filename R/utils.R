@@ -1343,7 +1343,10 @@ transform_split_parens <- function(data, end1, end2) {
 #' @noRd
 select_tested_cols <- function(data, before = "consistency") {
   index_last_tested_col <- match(before, colnames(data)) - 1L
-  data[1L:index_last_tested_col]
+  cols <- data[1L:index_last_tested_col]
+  # Exclude digits_* columns: they are metadata added by *_map_seq() and must
+  # not be treated as key test variables (e.g. by reverse_map_seq()):
+  cols[!grepl("^digits_", colnames(cols))]
 }
 
 

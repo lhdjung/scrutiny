@@ -223,6 +223,38 @@ grim_plot <- function(
 
     if (show_raster) {
       if (!all(digits_x[1L] == digits_x)) {
+        # If the data carries a digits_x column (added by *_map_seq() functions),
+        # automatically produce one plot per distinct non-zero decimal count:
+        if ("digits_x" %in% colnames(data)) {
+          unique_digits <- sort(unique(data$digits_x))
+          unique_digits <- unique_digits[unique_digits != 0L]
+          plots <- lapply(unique_digits, function(d) {
+            grim_plot(
+              data[data$digits_x == d, ],
+              show_data = show_data,
+              show_raster = show_raster,
+              show_gradient = show_gradient,
+              n = n,
+              digits = d,
+              rounding = rounding,
+              color_cons = color_cons,
+              color_incons = color_incons,
+              tile_alpha = tile_alpha,
+              tile_size = tile_size,
+              raster_alpha = raster_alpha,
+              raster_color = raster_color
+            )
+          })
+          names(plots) <- paste0("digits_", unique_digits)
+          if (length(plots) > 1L) {
+            cli::cli_alert_success(
+              "Created {length(plots)} GRIM plots, one for each number of \\
+              decimal places: {unique_digits}."
+            )
+          }
+          return(invisible(plots))
+        }
+
         means_percentages <- dplyr::if_else(
           inherits(data, "scrutiny_percent_true"),
           "Percentages",

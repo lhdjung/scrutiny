@@ -201,11 +201,22 @@ audit_seq <- function(data) {
 
   data_rev <- reverse_map_seq(data)
 
+  # Collect any digits_* values from the output so they can be forwarded to
+  # fun_test(). The *_map_seq() output carries one digits_* column per non-n
+  # reported variable (e.g. digits_x for GRIM, digits_x + digits_sd for
+  # GRIMMER). Each such column is constant within a case, so the first value is
+  # sufficient. The names match the required argument names of fun_test():
+  digits_cols <- grep("^digits_", colnames(data), value = TRUE)
+  digits_args <- lapply(
+    setNames(digits_cols, digits_cols),
+    function(col) data[[col]][[1L]]
+  )
+
+  fun_test_args <- c(list(data_rev), digits_args)
   if (length(rounding) > 0L) {
-    data_rev_tested <- fun_test(data_rev, rounding = rounding)
-  } else {
-    data_rev_tested <- fun_test(data_rev)
+    fun_test_args$rounding <- rounding
   }
+  data_rev_tested <- do.call(fun_test, fun_test_args)
 
   consistency <- data_rev_tested$consistency
 

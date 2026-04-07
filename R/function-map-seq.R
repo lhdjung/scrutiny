@@ -273,11 +273,25 @@ function_map_seq <- function(
     })
   }
 
+  # Determine which digits_* arguments to expose in the manufactured function.
+  # Only those corresponding to non-n reported variables AND present as explicit
+  # formals of .fun are added (e.g. digits_x for grim_map, digits_x +
+  # digits_sd for grimmer_map, none for debit_map):
+  digits_args_names <- intersect(
+    paste0("digits_", .reported[.reported != "n"]),
+    names(formals(.fun))
+  )
+  digits_pairlist_entries <- setNames(
+    replicate(length(digits_args_names), NULL, simplify = FALSE),
+    digits_args_names
+  )
+
   # --- Start of the manufactured function, `fn_out()` ---
 
   fn_out <- rlang::new_function(
     args = rlang::pairlist2(
       data = ,
+      !!!digits_pairlist_entries,
       var = .var,
       dispersion = .dispersion,
       out_min = .out_min,
@@ -298,6 +312,14 @@ function_map_seq <- function(
 
       check_factory_dots(fun, name_fun, ...)
 
+      # Collect explicitly supplied `digits_*` values while dropping `NULL`
+      # defaults so they can be forwarded to `fun()` alongside any extra `...`
+      # arguments:
+      .digits_vals <- Filter(
+        Negate(is.null),
+        mget(`!!`(digits_args_names), envir = environment())
+      )
+
       args_excluded <- c(reported, args_disabled)
 
       arg_list <- call_arg_list()
@@ -314,7 +336,7 @@ function_map_seq <- function(
       }
 
       # First, basic testing with the `*_map()` function:
-      data <- fun(data, ...)
+      data <- do.call(fun, c(list(data), .digits_vals, list(...)))
 
       # Remove consistent cases from `data` if only the inconsistent ones are of
       # interest (the default). The "filtering" code below is equivalent to
@@ -342,9 +364,18 @@ function_map_seq <- function(
         ...
       )
 
+      # Combine `digits_*` values with any extra ... arguments so both are
+      # forwarded to `map_seq_proto()`, and from there to `fun()`:
+      .fun_args <- c(.digits_vals, list(...))
+
       # Apply the lower-level function to all user-supplied variables (`var`)
       # and all cases reported in `data`, or at least the inconsistent ones:
-      out <- purrr::map(var, ~ map_seq_proto(data = data, var = .x))
+      out <- purrr::map(
+        var,
+        function(.x) {
+          do.call(map_seq_proto, c(list(data = data, var = .x), .fun_args))
+        }
+      )
 
       # Remove list-elements that are `NULL`, then check for an early return:
       out[vapply(out, is.null, logical(1L))] <- NULL
@@ -371,6 +402,19 @@ function_map_seq <- function(
       # For better output, `out` should be a single data frame; and for
       # identifying the origin of individual rows, `var` is added. See above.
       `!!!`(code_bind_cols)
+
+      # Add a digits_* column for each non-n reported variable so that
+      # downstream functions (e.g. grim_plot()) can split on decimal-place
+      # groups without losing track of which rows belong together:
+      .digits_col_names <- paste0("digits_", reported[reported != "n"])
+      for (.vn in reported[reported != "n"]) {
+        out[[paste0("digits_", .vn)]] <- decimal_places(out[[.vn]])
+      }
+      out <- dplyr::relocate(
+        out,
+        dplyr::all_of(.digits_col_names),
+        .before = "consistency"
+      )
 
       class_dispersion_ascending <- if (is_seq_ascending(dispersion)) {
         NULL
