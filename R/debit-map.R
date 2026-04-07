@@ -61,6 +61,8 @@
 
 debit_map <- function(
   data,
+  digits_x,
+  digits_sd,
   x = NULL,
   sd = NULL,
   n = NULL,
@@ -122,18 +124,15 @@ debit_map <- function(
   x <- data$x
   sd <- data$sd
 
-  # With the reported means and standard deviations (`x` and `sd`) now being
-  # columns in `data` (if they weren't before), some checks are in order. These
-  # use internal helper functions from the utils.R file. First, since trailing
-  # zeros matter for DEBIT, make sure both vectors are strings...
-  if (!is.null(x)) {
-    check_type(x, "character")
-  }
-  if (!is.null(sd)) {
-    check_type(sd, "character")
+  if (missing(digits_x)) {
+    error_digits_missing(x)
   }
 
-  # ...and second, check whether they range from 0 to 1:
+  if (missing(digits_sd)) {
+    error_digits_missing(sd)
+  }
+
+  # Check whether x and sd range from 0 to 1:
   check_debit_inputs_all(x, sd)
 
   # Create `other_cols`, which contains any and all extra columns from `data`
@@ -159,6 +158,8 @@ debit_map <- function(
     dplyr::select(sd, x, n) %>%
     purrr::pmap_dfr(
       debit_table,
+      digits_x = digits_x,
+      digits_sd = digits_sd,
       rounding = rounding,
       threshold = threshold,
       symmetric = symmetric
@@ -169,11 +170,7 @@ debit_map <- function(
   # boundary values being inclusive or not):
   if (show_rec) {
     out <- results %>%
-      dplyr::mutate(
-        x = x,
-        n = n,
-        consistency = consistency
-      ) %>%
+      dplyr::mutate(n = n, consistency = consistency) %>%
       dplyr::select(
         x,
         sd,
@@ -189,12 +186,7 @@ debit_map <- function(
       )
   } else {
     out <- results %>%
-      dplyr::mutate(
-        sd = sd,
-        x = x,
-        n = n,
-        consistency = consistency
-      ) %>%
+      dplyr::mutate(n = n, consistency = consistency) %>%
       dplyr::select(x, sd, n, consistency)
   }
 

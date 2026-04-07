@@ -72,18 +72,15 @@ debit_table <- function(
     error_digits_missing(sd)
   }
 
-  # Count decimal places of the standard deviation (SD) and the distribution
-  # mean, both as reported:
-  digits_x <- decimal_places_scalar(x)
-  digits_sd <- decimal_places_scalar(sd)
+  # Build character representations for use with `unround()` and for output.
+  # For character inputs, use them as-is (trailing zeros preserved). For numeric
+  # inputs, format to the specified number of decimal places:
+  x_chr  <- if (is.character(x)) x else format(x,  nsmall = digits_x,  scientific = FALSE)
+  sd_chr <- if (is.character(sd)) sd else format(sd, nsmall = digits_sd, scientific = FALSE)
 
-  sd_chr <- sd
-  x_chr <- x
-
-  # Coerce the values reported for SD and average to numeric (because they were
-  # given as strings):
-  x <- as.numeric(x)
-  sd <- as.numeric(sd)
+  # Coerce the values reported for SD and average to numeric:
+  x  <- as.numeric(x_chr)
+  sd <- as.numeric(sd_chr)
 
   # Recover lower and upper bounds for the original mean and SD values using
   # `unround()`, going by the reported value each time and defining values out
@@ -168,8 +165,8 @@ debit_table <- function(
   # boundary values being inclusive or not):
   if (show_rec) {
     tibble::tibble(
-      sd = sd_chr,
-      x = x_chr,
+      sd = sd,
+      x = x,
       n,
       consistency,
       rounding,
@@ -183,6 +180,6 @@ debit_table <- function(
       x_incl_upper
     )
   } else {
-    tibble::tibble(sd = sd_chr, x = x_chr, n, consistency)
+    tibble::tibble(sd = sd, x = x, n, consistency)
   }
 }
