@@ -320,13 +320,6 @@ grim_map <- function(
   # within `grim_scalar()`. Also, issue an alert to the user about the
   # percentage conversion:
   if (percent) {
-    digits_original <- decimal_places(results$x)
-
-    results$x <- as.numeric(results$x) / 100
-    results$x <- results$x %>%
-      restore_zeros(width = digits_original + 2L) %>%
-      suppressWarnings()
-
     class(results) <- c("scrutiny_percent_true", class(results))
     cli::cli_alert_info("`x` converted from percentage")
   }

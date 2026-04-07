@@ -405,10 +405,19 @@ function_map_seq <- function(
 
       # Add a digits_* column for each non-n reported variable so that
       # downstream functions (e.g. grim_plot()) can split on decimal-place
-      # groups without losing track of which rows belong together:
+      # groups without losing track of which rows belong together.
+      # Use the explicitly-provided digits_* value if available; otherwise
+      # fall back to decimal_places() on the output column. (The fallback is
+      # unreliable for numeric columns with trailing zeros, which is why
+      # the digits_* arguments exist in the first place.)
       .digits_col_names <- paste0("digits_", reported[reported != "n"])
       for (.vn in reported[reported != "n"]) {
-        out[[paste0("digits_", .vn)]] <- decimal_places(out[[.vn]])
+        .digits_arg <- paste0("digits_", .vn)
+        out[[.digits_arg]] <- if (!is.null(.digits_vals[[.digits_arg]])) {
+          .digits_vals[[.digits_arg]]
+        } else {
+          decimal_places(out[[.vn]])
+        }
       }
       out <- dplyr::relocate(
         out,
