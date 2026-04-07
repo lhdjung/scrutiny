@@ -8,9 +8,9 @@
 A tibble (data frame) with 5 rows and 3 columns, describing various
 body measures of the fictional pigs. The columns are:
 \describe{
-\item{snout}{String. Snout width.}
-\item{tail}{String. Tail length.}
-\item{wings}{String. Wingspan.}
+\item{snout}{Numeric. Snout width.}
+\item{tail}{Numeric. Tail length.}
+\item{wings}{Numeric. Wingspan.}
 }
 }
 \usage{

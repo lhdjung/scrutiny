@@ -7,7 +7,7 @@
 \format{
 A tibble (data frame) with 6 rows and 2 columns. The columns are:
 \describe{
-\item{x}{String. Percentages.}
+\item{x}{Numeric. Percentages.}
 \item{n}{Numeric. Sample sizes.}
 }
 }

@@ -7,8 +7,8 @@
 \format{
 A tibble (data frame) with 12 rows and 3 columns. The columns are:
 \describe{
-\item{x}{String. Means.}
-\item{sd}{String. Standard deviations.}
+\item{x}{Numeric. Means.}
+\item{sd}{Numeric. Standard deviations.}
 \item{n}{Numeric. Sample sizes.}
 }
 }

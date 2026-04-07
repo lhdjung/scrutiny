@@ -7,7 +7,7 @@
 \format{
 A tibble (data frame) with 12 rows and 2 columns. The columns are:
 \describe{
-\item{x}{String. Means.}
+\item{x}{Numeric. Means.}
 \item{n}{Numeric. Sample sizes.}
 }
 }
