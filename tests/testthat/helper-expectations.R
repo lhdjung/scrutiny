@@ -10,7 +10,7 @@ expect_na <- function(object) {
   } else if (!is_na) {
     paste(act$lab, "must be `NA`.")
   } else {
-    NULL
+    "object is NA as expected"
   }
 
   act$is_na <- is_na

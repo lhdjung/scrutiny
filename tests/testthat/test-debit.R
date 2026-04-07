@@ -11,7 +11,7 @@
 
 
 
-out <- purrr::pmap_lgl(pigs3, debit)
+out <- purrr::pmap_lgl(pigs3, debit, digits_x = 2, digits_sd = 2)
 out_expected <- c(TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE)
 
 test_that("bla", {

@@ -6,7 +6,7 @@ pigs4_exp <- tibble::tibble(
   snout_dup = rep(c(FALSE, TRUE), c(1L, 4L)),
   tail = c("6.88", "7.33", "5.17", "7.57", "8.13"),
   tail_dup = c(FALSE, FALSE, TRUE, FALSE, TRUE),
-  wings = c("6.09", "8.27", "4.40", "5.92", "5.17"),
+  wings = c("6.09", "8.27", "4.4", "5.92", "5.17"),
   wings_dup = rep(c(FALSE, TRUE), c(4L, 1L)),
 ) %>%
   structure(class = c("scrutiny_dup_detect", "tbl_df", "tbl", "data.frame"))
@@ -20,7 +20,7 @@ pigs4_missings_exp <- tibble::tibble(
   snout_dup = c(FALSE, FALSE, NA, FALSE, TRUE),
   tail = c("6.88", "7.33", "5.17", "7.57", NA),
   tail_dup = c(FALSE, FALSE, TRUE, FALSE, NA),
-  wings = c("6.09", "8.27", "4.40", "5.92", "5.17"),
+  wings = c("6.09", "8.27", "4.4", "5.92", "5.17"),
   wings_dup = rep(c(FALSE, TRUE), c(4L, 1L)),
 ) %>%
   structure(class = c("scrutiny_dup_detect", "tbl_df", "tbl", "data.frame"))

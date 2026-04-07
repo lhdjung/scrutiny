@@ -1,15 +1,15 @@
 
 
 df1 <- tibble::tibble(
-  x1 = runif(50, 2, 8)   %>% round(2) %>% restore_zeros(2),
-  x2 = runif(50, 2, 8)   %>% round(2) %>% restore_zeros(2),
+  x1 = runif(50, 2, 8)   %>% round(2),
+  x2 = runif(50, 2, 8)   %>% round(2),
   n  = runif(50, 50, 80) %>% round()
 )
 
 df2 <- tibble::tribble(
-  ~x1,    ~x2,   ~n,
-  "3.43", "5.28", 90,
-  "2.97", "4.42", 103
+  ~x1,  ~x2,   ~n,
+  3.43, 5.28,   90,
+  2.97, 4.42,  103
 )
 
 
@@ -17,12 +17,12 @@ df2 <- tibble::tribble(
 
 df2_rows_1_3_expected <- tibble::tibble(
   x = c(
-    "3.43", "5.28", "3.43", "5.28", "3.43", "5.28", "3.43", "5.28", "3.43",
-    "5.28", "3.43", "5.28", "2.97", "4.42", "2.97", "4.42", "2.97", "4.42",
-    "2.97", "4.42", "2.97", "4.42", "2.97", "4.42", "5.28", "3.43", "5.28",
-    "3.43", "5.28", "3.43", "5.28", "3.43", "5.28", "3.43", "5.28", "3.43",
-    "4.42", "2.97", "4.42", "2.97", "4.42", "2.97", "4.42", "2.97", "4.42",
-    "2.97", "4.42", "2.97"
+    3.43, 5.28, 3.43, 5.28, 3.43, 5.28, 3.43, 5.28, 3.43,
+    5.28, 3.43, 5.28, 2.97, 4.42, 2.97, 4.42, 2.97, 4.42,
+    2.97, 4.42, 2.97, 4.42, 2.97, 4.42, 5.28, 3.43, 5.28,
+    3.43, 5.28, 3.43, 5.28, 3.43, 5.28, 3.43, 5.28, 3.43,
+    4.42, 2.97, 4.42, 2.97, 4.42, 2.97, 4.42, 2.97, 4.42,
+    2.97, 4.42, 2.97
   ),
   n = rep(
     c(
@@ -64,8 +64,8 @@ df2_rows_1_3_expected <- tibble::tibble(
 
 # The function itself -----------------------------------------------------
 
-df1_tested <- df1 %>% grim_map_total_n(dispersion = 0:5)
-df2_tested <- df2 %>% grim_map_total_n(dispersion = 0:5)
+df1_tested <- df1 %>% grim_map_total_n(digits_x = 2, dispersion = 0:5)
+df2_tested <- df2 %>% grim_map_total_n(digits_x = 2, dispersion = 0:5)
 
 
 test_that("The output is a tibble", {
@@ -80,7 +80,7 @@ test_that("It has correct dimensions", {
 
 test_that("It has correct values", {
   # This doesn't work with `df1`; its values are randomly generated!
-  df2 %>% grim_map_total_n() %>% expect_equal(df2_rows_1_3_expected)
+  df2 %>% grim_map_total_n(digits_x = 2) %>% expect_equal(df2_rows_1_3_expected)
 })
 
 

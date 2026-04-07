@@ -2,15 +2,15 @@
 # Example data ------------------------------------------------------------
 
 df1 <- tibble::tribble(
-  ~x1,    ~x2,    ~sd1,   ~sd2,   ~n,
-  "3.43", "5.28", "1.09", "2.12", 70,
-  "2.97", "4.42", "0.43", "1.65", 65
+  ~x1,  ~x2,   ~sd1,  ~sd2,  ~n,
+  3.43, 5.28,  1.09,  2.12,  70,
+  2.97, 4.42,  0.43,  1.65,  65
 )
 
 df2 <- tibble::tribble(
-  ~x1,    ~x2,    ~sd1,   ~sd2,   ~n,
-  "0.30", "0.28", "0.17", "0.10", 70,
-  "0.41", "0.39", "0.09", "0.15", 65
+  ~x1,  ~x2,   ~sd1,  ~sd2,  ~n,
+  0.30, 0.28,  0.17,  0.10,  70,
+  0.41, 0.39,  0.09,  0.15,  65
 )
 
 
@@ -56,8 +56,8 @@ df2_debit_exp <- tibble::tibble(
 # Testing -----------------------------------------------------------------
 
 test_that("`audit()` for `audit_total_n()` works correctly", {
-  df1 %>% grim_map_total_n()    %>% audit_total_n() %>% audit() %>% expect_equal(df1_grim_exp)
-  df1 %>% grimmer_map_total_n() %>% audit_total_n() %>% audit() %>% expect_equal(df1_grimmer_exp)
-  df2 %>% debit_map_total_n()   %>% audit_total_n() %>% audit() %>% expect_equal(df2_debit_exp)
+  df1 %>% grim_map_total_n(digits_x = 2)                    %>% audit_total_n() %>% audit() %>% expect_equal(df1_grim_exp)
+  df1 %>% grimmer_map_total_n(digits_x = 2, digits_sd = 2)  %>% audit_total_n() %>% audit() %>% expect_equal(df1_grimmer_exp)
+  df2 %>% debit_map_total_n(digits_x = 2, digits_sd = 2)    %>% audit_total_n() %>% audit() %>% expect_equal(df2_debit_exp)
 })
 

@@ -1,13 +1,13 @@
 
 test_that("the predicates return the expected output", {
   # Example test output:
-  df1 <- grim_map(pigs1)
-  df2 <- grim_map_seq(pigs1)
+  df1 <- grim_map(pigs1, digits_x = 2)
+  df2 <- grim_map_seq(pigs1, digits_x = 2)
   df3 <- grim_map_total_n(tibble::tribble(
-    ~x1,    ~x2,   ~n,
-    "3.43", "5.28", 90,
-    "2.97", "4.42", 103
-  ))
+    ~x1,   ~x2,   ~n,
+    3.43,  5.28,   90,
+    2.97,  4.42,  103
+  ), digits_x = 2)
 
   # All three tibbles are mapper output:
   is_map_df(df1) %>% expect_true()

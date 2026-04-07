@@ -39,11 +39,11 @@ df_schlim_rec <- df_schlim %>%
   reverse_map_seq()
 
 df_grim_rec <- df_grim %>%
-  grim_map_seq(include_consistent = TRUE) %>%
+  grim_map_seq(digits_x = 2, include_consistent = TRUE) %>%
   reverse_map_seq()
 
 df_debit_rec <- df_debit %>%
-  debit_map_seq(include_consistent = TRUE) %>%
+  debit_map_seq(digits_x = 2, digits_sd = 2, include_consistent = TRUE) %>%
   reverse_map_seq()
 
 

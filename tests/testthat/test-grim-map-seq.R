@@ -1,28 +1,29 @@
 
 # Expected output ---------------------------------------------------------
 
-# These expected outputs were created using `constructive::construct()`:
+# These expected outputs were created using `constructive::construct()`,
+# then updated for the numeric x API (digits_x argument added in scrutiny 1.0.0):
 
 pigs1_exp <- tibble::tibble(
   x = c(
-    "4.69", "4.70", "4.71", "4.72", "4.73", "4.75", "4.76", "4.77", "4.78",
-    "4.79", "5.18", "5.19", "5.20", "5.21", "5.22", "5.24", "5.25", "5.26",
-    "5.27", "5.28", "2.52", "2.53", "2.54", "2.55", "2.56", "2.58", "2.59",
-    "2.60", "2.61", "2.62", "6.72", "6.73", "6.74", "6.75", "6.76", "6.78",
-    "6.79", "6.80", "6.81", "6.82", "6.96", "6.97", "6.98", "6.99", "7.00",
-    "7.02", "7.03", "7.04", "7.05", "7.06", "3.09", "3.10", "3.11", "3.12",
-    "3.13", "3.15", "3.16", "3.17", "3.18", "3.19", "6.84", "6.85", "6.86",
-    "6.87", "6.88", "6.90", "6.91", "6.92", "6.93", "6.94", "0.19", "0.20",
-    "0.21", "0.22", "0.23", "0.25", "0.26", "0.27", "0.28", "0.29", "4.74",
-    "4.74", "4.74", "4.74", "4.74", "4.74", "4.74", "4.74", "4.74", "4.74",
-    "5.23", "5.23", "5.23", "5.23", "5.23", "5.23", "5.23", "5.23", "5.23",
-    "5.23", "2.57", "2.57", "2.57", "2.57", "2.57", "2.57", "2.57", "2.57",
-    "2.57", "2.57", "6.77", "6.77", "6.77", "6.77", "6.77", "6.77", "6.77",
-    "6.77", "6.77", "6.77", "7.01", "7.01", "7.01", "7.01", "7.01", "7.01",
-    "7.01", "7.01", "7.01", "7.01", "3.14", "3.14", "3.14", "3.14", "3.14",
-    "3.14", "3.14", "3.14", "3.14", "3.14", "6.89", "6.89", "6.89", "6.89",
-    "6.89", "6.89", "6.89", "6.89", "6.89", "6.89", "0.24", "0.24", "0.24",
-    "0.24", "0.24", "0.24", "0.24", "0.24", "0.24", "0.24"
+    4.69, 4.70, 4.71, 4.72, 4.73, 4.75, 4.76, 4.77, 4.78,
+    4.79, 5.18, 5.19, 5.20, 5.21, 5.22, 5.24, 5.25, 5.26,
+    5.27, 5.28, 2.52, 2.53, 2.54, 2.55, 2.56, 2.58, 2.59,
+    2.60, 2.61, 2.62, 6.72, 6.73, 6.74, 6.75, 6.76, 6.78,
+    6.79, 6.80, 6.81, 6.82, 6.96, 6.97, 6.98, 6.99, 7.00,
+    7.02, 7.03, 7.04, 7.05, 7.06, 3.09, 3.10, 3.11, 3.12,
+    3.13, 3.15, 3.16, 3.17, 3.18, 3.19, 6.84, 6.85, 6.86,
+    6.87, 6.88, 6.90, 6.91, 6.92, 6.93, 6.94, 0.19, 0.20,
+    0.21, 0.22, 0.23, 0.25, 0.26, 0.27, 0.28, 0.29, 4.74,
+    4.74, 4.74, 4.74, 4.74, 4.74, 4.74, 4.74, 4.74, 4.74,
+    5.23, 5.23, 5.23, 5.23, 5.23, 5.23, 5.23, 5.23, 5.23,
+    5.23, 2.57, 2.57, 2.57, 2.57, 2.57, 2.57, 2.57, 2.57,
+    2.57, 2.57, 6.77, 6.77, 6.77, 6.77, 6.77, 6.77, 6.77,
+    6.77, 6.77, 6.77, 7.01, 7.01, 7.01, 7.01, 7.01, 7.01,
+    7.01, 7.01, 7.01, 7.01, 3.14, 3.14, 3.14, 3.14, 3.14,
+    3.14, 3.14, 3.14, 3.14, 3.14, 6.89, 6.89, 6.89, 6.89,
+    6.89, 6.89, 6.89, 6.89, 6.89, 6.89, 0.24, 0.24, 0.24,
+    0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24
   ),
   n = c(
     25L, 25L, 25L, 25L, 25L, 25L, 25L, 25L, 25L, 25L, 29L, 29L, 29L, 29L, 29L,
@@ -37,6 +38,7 @@ pigs1_exp <- tibble::tibble(
     28L, 29L, 30L, 31L, 32L, 26L, 27L, 28L, 29L, 30L, 32L, 33L, 34L, 35L, 36L,
     23L, 24L, 25L, 26L, 27L, 29L, 30L, 31L, 32L, 33L
   ),
+  digits_x = rep(2L, 160L),
   consistency = c(
     FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE,
     FALSE, FALSE, TRUE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE,
@@ -81,21 +83,21 @@ pigs1_exp <- tibble::tibble(
   )
 
 
+# Note: x values are on the original percentage scale (e.g. 66.9 not 0.669)
+# because percent=TRUE no longer divides x by 100 in the output.
 pigs2_exp <- tibble::tibble(
   x = c(
-    "0.669", "0.670", "0.671", "0.672", "0.673", "0.675", "0.676", "0.677",
-    "0.678", "0.679", "0.537", "0.538", "0.539", "0.540", "0.541", "0.543",
-    "0.544", "0.545", "0.546", "0.547", "0.693", "0.694", "0.695", "0.696",
-    "0.697", "0.699", "0.700", "0.701", "0.702", "0.703", "0.676", "0.677",
-    "0.678", "0.679", "0.680", "0.682", "0.683", "0.684", "0.685", "0.686",
-    "0.549", "0.550", "0.551", "0.552", "0.553", "0.555", "0.556", "0.557",
-    "0.558", "0.559", "0.674", "0.674", "0.674", "0.674", "0.674", "0.674",
-    "0.674", "0.674", "0.674", "0.674", "0.542", "0.542", "0.542", "0.542",
-    "0.542", "0.542", "0.542", "0.542", "0.542", "0.542", "0.698", "0.698",
-    "0.698", "0.698", "0.698", "0.698", "0.698", "0.698", "0.698", "0.698",
-    "0.681", "0.681", "0.681", "0.681", "0.681", "0.681", "0.681", "0.681",
-    "0.681", "0.681", "0.554", "0.554", "0.554", "0.554", "0.554", "0.554",
-    "0.554", "0.554", "0.554", "0.554"
+    66.9, 67.0, 67.1, 67.2, 67.3, 67.5, 67.6, 67.7, 67.8,
+    67.9, 53.7, 53.8, 53.9, 54.0, 54.1, 54.3, 54.4, 54.5,
+    54.6, 54.7, 69.3, 69.4, 69.5, 69.6, 69.7, 69.9, 70.0,
+    70.1, 70.2, 70.3, 67.6, 67.7, 67.8, 67.9, 68.0, 68.2,
+    68.3, 68.4, 68.5, 68.6, 54.9, 55.0, 55.1, 55.2, 55.3,
+    55.5, 55.6, 55.7, 55.8, 55.9, 67.4, 67.4, 67.4, 67.4,
+    67.4, 67.4, 67.4, 67.4, 67.4, 67.4, 54.2, 54.2, 54.2,
+    54.2, 54.2, 54.2, 54.2, 54.2, 54.2, 54.2, 69.8, 69.8,
+    69.8, 69.8, 69.8, 69.8, 69.8, 69.8, 69.8, 69.8, 68.1,
+    68.1, 68.1, 68.1, 68.1, 68.1, 68.1, 68.1, 68.1, 68.1,
+    55.4, 55.4, 55.4, 55.4, 55.4, 55.4, 55.4, 55.4, 55.4, 55.4
   ),
   n = c(
     150L, 150L, 150L, 150L, 150L, 150L, 150L, 150L, 150L, 150L, 150L, 150L, 150L,
@@ -107,12 +109,18 @@ pigs2_exp <- tibble::tibble(
     154L, 155L, 145L, 146L, 147L, 148L, 149L, 151L, 152L, 153L, 154L, 155L, 145L,
     146L, 147L, 148L, 149L, 151L, 152L, 153L, 154L, 155L
   ),
-  consistency = rep(
-    c(
-      FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE,
-      FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE
-    ),
-    c(4L, 1L, 8L, 1L, 5L, 2L, 5L, 1L, 7L, 1L, 9L, 1L, 22L, 1L, 1L, 1L, 4L, 1L, 18L, 1L, 6L)
+  digits_x = rep(1L, 100L),
+  consistency = c(
+    FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE,
+    FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE,
+    TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE,
+    FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE,
+    FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE,
+    FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+    FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, TRUE,
+    FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE,
+    FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+    FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE
   ),
   probability = c(
     0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85,
@@ -131,7 +139,8 @@ pigs2_exp <- tibble::tibble(
 ) %>%
   structure(
     class = c(
-      "scrutiny_map_seq", "scrutiny_grim_map_seq", "scrutiny_grim_map", "scrutiny_rounding_up_or_down",
+      "scrutiny_map_seq", "scrutiny_grim_map_seq", "scrutiny_percent_true",
+      "scrutiny_grim_map", "scrutiny_rounding_up_or_down",
       "tbl_df", "tbl", "data.frame"
     )
   )
@@ -139,26 +148,26 @@ pigs2_exp <- tibble::tibble(
 
 pigs1_include_reported_exp <- tibble::tibble(
   x = c(
-    "4.69", "4.70", "4.71", "4.72", "4.73", "4.74", "4.75", "4.76", "4.77",
-    "4.78", "4.79", "5.18", "5.19", "5.20", "5.21", "5.22", "5.23", "5.24",
-    "5.25", "5.26", "5.27", "5.28", "2.52", "2.53", "2.54", "2.55", "2.56",
-    "2.57", "2.58", "2.59", "2.60", "2.61", "2.62", "6.72", "6.73", "6.74",
-    "6.75", "6.76", "6.77", "6.78", "6.79", "6.80", "6.81", "6.82", "6.96",
-    "6.97", "6.98", "6.99", "7.00", "7.01", "7.02", "7.03", "7.04", "7.05",
-    "7.06", "3.09", "3.10", "3.11", "3.12", "3.13", "3.14", "3.15", "3.16",
-    "3.17", "3.18", "3.19", "6.84", "6.85", "6.86", "6.87", "6.88", "6.89",
-    "6.90", "6.91", "6.92", "6.93", "6.94", "0.19", "0.20", "0.21", "0.22",
-    "0.23", "0.24", "0.25", "0.26", "0.27", "0.28", "0.29", "4.74", "4.74",
-    "4.74", "4.74", "4.74", "4.74", "4.74", "4.74", "4.74", "4.74", "4.74",
-    "5.23", "5.23", "5.23", "5.23", "5.23", "5.23", "5.23", "5.23", "5.23",
-    "5.23", "5.23", "2.57", "2.57", "2.57", "2.57", "2.57", "2.57", "2.57",
-    "2.57", "2.57", "2.57", "2.57", "6.77", "6.77", "6.77", "6.77", "6.77",
-    "6.77", "6.77", "6.77", "6.77", "6.77", "6.77", "7.01", "7.01", "7.01",
-    "7.01", "7.01", "7.01", "7.01", "7.01", "7.01", "7.01", "7.01", "3.14",
-    "3.14", "3.14", "3.14", "3.14", "3.14", "3.14", "3.14", "3.14", "3.14",
-    "3.14", "6.89", "6.89", "6.89", "6.89", "6.89", "6.89", "6.89", "6.89",
-    "6.89", "6.89", "6.89", "0.24", "0.24", "0.24", "0.24", "0.24", "0.24",
-    "0.24", "0.24", "0.24", "0.24", "0.24"
+    4.69, 4.70, 4.71, 4.72, 4.73, 4.74, 4.75, 4.76, 4.77,
+    4.78, 4.79, 5.18, 5.19, 5.20, 5.21, 5.22, 5.23, 5.24,
+    5.25, 5.26, 5.27, 5.28, 2.52, 2.53, 2.54, 2.55, 2.56,
+    2.57, 2.58, 2.59, 2.60, 2.61, 2.62, 6.72, 6.73, 6.74,
+    6.75, 6.76, 6.77, 6.78, 6.79, 6.80, 6.81, 6.82, 6.96,
+    6.97, 6.98, 6.99, 7.00, 7.01, 7.02, 7.03, 7.04, 7.05,
+    7.06, 3.09, 3.10, 3.11, 3.12, 3.13, 3.14, 3.15, 3.16,
+    3.17, 3.18, 3.19, 6.84, 6.85, 6.86, 6.87, 6.88, 6.89,
+    6.90, 6.91, 6.92, 6.93, 6.94, 0.19, 0.20, 0.21, 0.22,
+    0.23, 0.24, 0.25, 0.26, 0.27, 0.28, 0.29, 4.74, 4.74,
+    4.74, 4.74, 4.74, 4.74, 4.74, 4.74, 4.74, 4.74, 4.74,
+    5.23, 5.23, 5.23, 5.23, 5.23, 5.23, 5.23, 5.23, 5.23,
+    5.23, 5.23, 2.57, 2.57, 2.57, 2.57, 2.57, 2.57, 2.57,
+    2.57, 2.57, 2.57, 2.57, 6.77, 6.77, 6.77, 6.77, 6.77,
+    6.77, 6.77, 6.77, 6.77, 6.77, 6.77, 7.01, 7.01, 7.01,
+    7.01, 7.01, 7.01, 7.01, 7.01, 7.01, 7.01, 7.01, 3.14,
+    3.14, 3.14, 3.14, 3.14, 3.14, 3.14, 3.14, 3.14, 3.14,
+    3.14, 6.89, 6.89, 6.89, 6.89, 6.89, 6.89, 6.89, 6.89,
+    6.89, 6.89, 6.89, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24,
+    0.24, 0.24, 0.24, 0.24, 0.24
   ),
   n = c(
     25L, 25L, 25L, 25L, 25L, 25L, 25L, 25L, 25L, 25L, 25L, 29L, 29L, 29L, 29L,
@@ -174,15 +183,24 @@ pigs1_include_reported_exp <- tibble::tibble(
     29L, 30L, 31L, 32L, 26L, 27L, 28L, 29L, 30L, 31L, 32L, 33L, 34L, 35L, 36L,
     23L, 24L, 25L, 26L, 27L, 28L, 29L, 30L, 31L, 32L, 33L
   ),
-  consistency = rep(
-    rep(c(FALSE, TRUE), 40),
-    c(
-      3L, 1L, 3L, 1L, 6L, 1L, 2L, 1L, 3L, 1L, 2L, 1L, 3L, 1L, 3L, 1L, 2L, 1L, 3L,
-      1L, 2L, 1L, 2L, 1L, 2L, 1L, 2L, 1L, 5L, 1L, 3L, 1L, 3L, 2L, 2L, 1L, 2L, 1L,
-      3L, 1L, 2L, 1L, 3L, 1L, 3L, 1L, 3L, 1L, 3L, 1L, 5L, 1L, 3L, 2L, 5L, 1L, 1L,
-      1L, 4L, 1L, 1L, 1L, 3L, 1L, 3L, 2L, 12L, 1L, 5L, 2L, 4L, 2L, 6L, 2L, 2L, 1L,
-      3L, 1L, 3L, 1L
-    )
+  digits_x = rep(2L, 176L),
+  consistency = c(
+    FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE,
+    FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE,
+    FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE,
+    FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE,
+    FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE,
+    FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE,
+    TRUE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE,
+    FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE,
+    FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE,
+    FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE,
+    FALSE, FALSE, TRUE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE,
+    TRUE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE,
+    FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+    TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE,
+    FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE,
+    FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE
   ),
   probability = c(
     0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.71, 0.71,
@@ -216,8 +234,39 @@ pigs1_include_reported_exp <- tibble::tibble(
 # Testing -----------------------------------------------------------------
 
 test_that("`grim_map_seq()` works correctly", {
-  pigs1 %>% grim_map_seq() %>% expect_equal(pigs1_exp)
-  pigs2 %>% grim_map_seq(percent = TRUE) %>% suppressMessages() %>% expect_equal(pigs2_exp)
-  pigs1 %>% grim_map_seq(include_reported = TRUE) %>% expect_equal(pigs1_include_reported_exp)
+  pigs1 %>% grim_map_seq(digits_x = 2) %>% expect_equal(pigs1_exp)
+  pigs2 %>% grim_map_seq(digits_x = 1, percent = TRUE) %>%
+    suppressMessages() %>% expect_equal(pigs2_exp)
+  pigs1 %>% grim_map_seq(digits_x = 2, include_reported = TRUE) %>%
+    expect_equal(pigs1_include_reported_exp)
 })
 
+
+test_that("`grim_map_seq()` output has correct structure", {
+  expect_s3_class(pigs1_exp, "scrutiny_grim_map_seq")
+  expect_s3_class(pigs1_exp, "scrutiny_grim_map")
+  expect_named(pigs1_exp, c("x", "n", "digits_x", "consistency", "probability", "diff_var", "case", "var"))
+  # 8 inconsistent cases in pigs1, 10 dispersions each for x and n = 160 rows
+  expect_equal(nrow(pigs1_exp), 160L)
+  # digits_x should be uniformly 2
+  expect_equal(unique(pigs1_exp$digits_x), 2L)
+  # x values should be numeric
+  expect_type(pigs1_exp$x, "double")
+})
+
+
+test_that("`grim_map_seq()` with percent=TRUE has correct structure", {
+  expect_s3_class(pigs2_exp, "scrutiny_grim_map_seq")
+  expect_named(pigs2_exp, c("x", "n", "digits_x", "consistency", "probability", "diff_var", "case", "var"))
+  # 5 inconsistent cases in pigs2, 10 dispersions each for x and n = 100 rows
+  expect_equal(nrow(pigs2_exp), 100L)
+  # digits_x should be uniformly 1
+  expect_equal(unique(pigs2_exp$digits_x), 1L)
+  # x values should be original percentage scale, not divided by 100
+  expect_true(all(pigs2_exp$x > 1))
+})
+
+
+test_that("`grim_map_seq()` with include_reported=TRUE adds one row per case", {
+  expect_equal(nrow(pigs1_include_reported_exp), 176L)
+})

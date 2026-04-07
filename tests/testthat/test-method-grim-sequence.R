@@ -1,7 +1,7 @@
 
 
-ranking <- seq_distance_df("5.37", n = 40) %>%
-  grim_map() %>%
+ranking <- seq_distance_df(5.37, n = 40, .string_output = FALSE) %>%
+  grim_map(digits_x = 2) %>%
   seq_test_ranking() %>%
   suppressMessages()
 

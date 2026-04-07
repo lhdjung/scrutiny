@@ -3,7 +3,7 @@
 
 
 # `audit()` for GRIM
-data_grim  <- grim_map(pigs1)
+data_grim  <- grim_map(pigs1, digits_x = 2)
 audit_grim <- audit(data_grim)
 
 test_that("`audit()` summarizes GRIM tests accurately", {
@@ -15,7 +15,7 @@ test_that("`audit()` summarizes GRIM tests accurately", {
 
 
 # `audit()` for DEBIT
-data_debit  <- debit_map(pigs3)
+data_debit  <- debit_map(pigs3, digits_x = 2, digits_sd = 2)
 audit_debit <- audit(data_debit)
 
 test_that("`audit()` summarizes DEBIT tests accurately", {
@@ -28,9 +28,9 @@ test_that("`audit()` summarizes DEBIT tests accurately", {
 
 # `audit_seq()` -----------------------------------------------------------
 
-data_grim_seq  <- grim_map_seq(pigs1)
-data_grimmer_seq <- grimmer_map_seq(pigs5)
-data_debit_seq <- debit_map_seq(pigs3)
+data_grim_seq  <- grim_map_seq(pigs1, digits_x = 2)
+data_grimmer_seq <- grimmer_map_seq(pigs5, digits_x = 2, digits_sd = 2)
+data_debit_seq <- debit_map_seq(pigs3, digits_x = 2, digits_sd = 2)
 
 # The scrutiny class is removed for the GRIM tibble because the latter is tested
 # as an example for equality with tibbles that don't have that class:
@@ -39,7 +39,7 @@ audit_seq_grimmer <- data_grimmer_seq %>% audit_seq()
 audit_seq_debit   <- data_debit_seq   %>% audit_seq()
 
 data_seq_grim_different_dispersion1 <- tibble::tibble(
-  x = "4.74",
+  x = 4.74,
   n = 25L,
   consistency = FALSE,
   hits_total = 1L,
@@ -55,7 +55,7 @@ data_seq_grim_different_dispersion1 <- tibble::tibble(
   structure(class = c("scrutiny_audit_seq", "tbl_df", "tbl", "data.frame"))
 
 data_seq_grim_different_dispersion2 <- tibble::tibble(
-  x = "5.23",
+  x = 5.23,
   n = 29L,
   consistency = FALSE,
   hits_total = 3L,
@@ -71,7 +71,7 @@ data_seq_grim_different_dispersion2 <- tibble::tibble(
   structure(class = c("scrutiny_audit_seq", "tbl_df", "tbl", "data.frame"))
 
 data_incons <- pigs1 %>%
-  grim_map() %>%
+  grim_map(digits_x = 2) %>%
   dplyr::filter(!consistency) %>%
   unclass_scr()
 
@@ -107,12 +107,12 @@ test_that("the `hits_total` column correctly sums up
 test_that("changing `dispersion` in the sequence mapper is
           correctly captured by `audit_seq()`", {
   pigs1[1:2, ] %>%
-    grim_map_seq(dispersion = c(7, 8, 9)) %>%
+    grim_map_seq(digits_x = 2, dispersion = c(7, 8, 9)) %>%
     audit_seq() %>%
     expect_equal(data_seq_grim_different_dispersion1)
 
-  tibble::tibble(x = "5.23", n = 29) %>%
-    grim_map_seq(dispersion = c(3, 5, 7)) %>%
+  tibble::tibble(x = 5.23, n = 29) %>%
+    grim_map_seq(digits_x = 2, dispersion = c(3, 5, 7)) %>%
     audit_seq() %>%
     expect_equal(data_seq_grim_different_dispersion2)
 })
