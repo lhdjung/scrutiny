@@ -54,38 +54,60 @@ grim_scalar <- function(
   # are not supported by it, so their bounds are computed as the union of their
   # two constituent methods:
   if (rounding == "ceiling_or_floor") {
-    b_ceil  <- unround(x_num, "ceiling", threshold = threshold, digits = digits_x)
-    b_floor <- unround(x_num, "floor",   threshold = threshold, digits = digits_x)
-    lower <- min(b_ceil$lower,  b_floor$lower)
+    b_ceil <- unround(
+      x_num,
+      "ceiling",
+      threshold = threshold,
+      digits = digits_x
+    )
+    b_floor <- unround(x_num, "floor", threshold = threshold, digits = digits_x)
+    lower <- min(b_ceil$lower, b_floor$lower)
     upper <- max(b_ceil$upper, b_floor$upper)
   } else if (rounding %in% c("up_from", "down_from", "up_from_or_down_from")) {
     p10_plus1 <- 10^(digits_x + 1L)
-    up_lower   <- x_num - (10 - threshold) / p10_plus1
-    up_upper   <- x_num + threshold / p10_plus1
+    up_lower <- x_num - (10 - threshold) / p10_plus1
+    up_upper <- x_num + threshold / p10_plus1
     down_lower <- x_num - threshold / p10_plus1
     down_upper <- x_num + (10 - threshold) / p10_plus1
     if (rounding == "up_from") {
-      lower <- up_lower; upper <- up_upper
+      lower <- up_lower
+      upper <- up_upper
     } else if (rounding == "down_from") {
-      lower <- down_lower; upper <- down_upper
+      lower <- down_lower
+      upper <- down_upper
     } else {
       lower <- min(up_lower, down_lower)
       upper <- max(up_upper, down_upper)
     }
   } else {
-    bounds <- unround(x_num, rounding = rounding, threshold = threshold, digits = digits_x)
+    bounds <- unround(
+      x_num,
+      rounding = rounding,
+      threshold = threshold,
+      digits = digits_x
+    )
     lower <- bounds$lower
     upper <- bounds$upper
   }
 
   # A granule is consistent if it lies within the bounds -- i.e., if it is a
   # value that, when rounded to digits_x decimal places, gives x_num. Tolerance
-  # handles floating-point imprecision near the boundary:
+  # handles floating-point imprecision near the boundary.
+  #
+  # "up" rounding has an exclusive upper bound: a value that is exactly at the
+  # midpoint rounds up (away from x), not to x. "down" rounding has an exclusive
+  # lower bound for the same reason. For all other rounding methods the bounds
+  # are treated as inclusive:
+  # fmt: skip
   granule_in_bounds <- function(g) {
-    g >= lower - tolerance && g <= upper + tolerance
+    lower_ok <- if (rounding == "down") g > lower else g >= lower - tolerance
+    upper_ok <- if (rounding == "up")   g < upper else g <= upper + tolerance
+    lower_ok && upper_ok
   }
 
-  consistency <- granule_in_bounds(rec_x_upper) || granule_in_bounds(rec_x_lower)
+  consistency <-
+    granule_in_bounds(rec_x_upper) ||
+    granule_in_bounds(rec_x_lower)
 
   if (!show_rec) {
     return(consistency)
