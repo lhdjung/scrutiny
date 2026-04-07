@@ -295,7 +295,7 @@ grim_map <- function(
     }
 
     results <- results %>%
-      unnest_consistency_cols(col_names, index = TRUE) %>%
+      unnest_consistency_cols(col_names, index = FALSE) %>%
       dplyr::relocate(probability, .after = consistency)
   }
 

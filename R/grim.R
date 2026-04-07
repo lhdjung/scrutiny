@@ -30,9 +30,6 @@ grim_scalar <- function(
     error_digits_missing(x)
   }
 
-  # TODO: IMPLEMENT THE `digits_x` ARGUMENT HERE AND IN GRIMMER! (GRIMMER WILL
-  # ALSO NEED `digits_sd`.)
-  # check_digits(digits_x)
   check_newly_numeric(x, digits_x)
 
   x_num <- as.numeric(x)
@@ -48,14 +45,55 @@ grim_scalar <- function(
   n_items <- n * items
   rec_sum <- x_num * n_items
 
-  # Now, reconstruct the possible mean or percentage values (or "granules"),
-  # controlling for small differences introduced by spurious precision:
-  rec_x_upper <- dustify(ceiling(rec_sum) / n_items)
-  rec_x_lower <- dustify(floor(rec_sum) / n_items)
+  # Reconstruct the possible mean or percentage values ("granules"):
+  rec_x_upper <- ceiling(rec_sum) / n_items
+  rec_x_lower <- floor(rec_sum) / n_items
 
-  # Round these "granules" using an internal helper function that also gets the
-  # number of decimal places as well as the `rounding`, `threshold`, and
-  # `symmetric` arguments passed down to:
+  # Determine the range of values that would round to x_num at digits_x decimal
+  # places. unround() handles most rounding methods; the two compound methods
+  # are not supported by it, so their bounds are computed as the union of their
+  # two constituent methods:
+  if (rounding == "ceiling_or_floor") {
+    b_ceil  <- unround(x_num, "ceiling", threshold = threshold, digits = digits_x)
+    b_floor <- unround(x_num, "floor",   threshold = threshold, digits = digits_x)
+    lower <- min(b_ceil$lower,  b_floor$lower)
+    upper <- max(b_ceil$upper, b_floor$upper)
+  } else if (rounding %in% c("up_from", "down_from", "up_from_or_down_from")) {
+    p10_plus1 <- 10^(digits_x + 1L)
+    up_lower   <- x_num - (10 - threshold) / p10_plus1
+    up_upper   <- x_num + threshold / p10_plus1
+    down_lower <- x_num - threshold / p10_plus1
+    down_upper <- x_num + (10 - threshold) / p10_plus1
+    if (rounding == "up_from") {
+      lower <- up_lower; upper <- up_upper
+    } else if (rounding == "down_from") {
+      lower <- down_lower; upper <- down_upper
+    } else {
+      lower <- min(up_lower, down_lower)
+      upper <- max(up_upper, down_upper)
+    }
+  } else {
+    bounds <- unround(x_num, rounding = rounding, threshold = threshold, digits = digits_x)
+    lower <- bounds$lower
+    upper <- bounds$upper
+  }
+
+  # A granule is consistent if it lies within the bounds -- i.e., if it is a
+  # value that, when rounded to digits_x decimal places, gives x_num. Tolerance
+  # handles floating-point imprecision near the boundary:
+  granule_in_bounds <- function(g) {
+    g >= lower - tolerance && g <= upper + tolerance
+  }
+
+  consistency <- granule_in_bounds(rec_x_upper) || granule_in_bounds(rec_x_lower)
+
+  if (!show_rec) {
+    return(consistency)
+  }
+
+  length_2ers <- c("up_or_down", "up_from_or_down_from", "ceiling_or_floor")
+
+  # Round the granules for display in the reconstructed-values columns:
   granules_rounded <- reround(
     x = c(rec_x_upper, rec_x_lower),
     digits = digits_x,
@@ -64,34 +102,19 @@ grim_scalar <- function(
     symmetric = symmetric
   )
 
-  # Test if the reported mean or percentage is near-identical to either of the
-  # two possible reconstructed values (the "granules"). The default for the
-  # `tolerance` argument -- tolerance of comparison between the reported and
-  # reconstructed values -- that comes into play here is the same as in
-  # `dplyr::near()` itself, i.e., circa 0.000000015:
-  consistency <- any(dplyr::near(granules_rounded, x_num, tol = tolerance))
-
-  # Check if any of these two comparisons returned `TRUE`:
-  if (!show_rec) {
-    return(consistency)
-  }
-
-  length_2ers <- c("up_or_down", "up_from_or_down_from", "ceiling_or_floor")
-
   granules_rounded_subset <- if (any(length_2ers %in% rounding)) {
-    # Skipping those values that are identical to the selected ones apart from
-    # `dust` addition or subtraction via `dustify()`:
+    # Two rounding variants per granule (e.g., "up" and "down"):
     list(
       granules_rounded[1L],
       granules_rounded[2L],
-      granules_rounded[5L],
-      granules_rounded[6L]
+      granules_rounded[3L],
+      granules_rounded[4L]
     )
   } else {
-    # Skipping as above:
+    # One rounding variant per granule:
     list(
       granules_rounded[1L],
-      granules_rounded[3L]
+      granules_rounded[2L]
     )
   }
 
