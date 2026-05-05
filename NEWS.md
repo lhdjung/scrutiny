@@ -1,5 +1,13 @@
 # scrutiny 0.6.2
 
+## Bugfixes
+
+- Fixed an error in the GRIM rounding-boundary logic for `rounding = "up"` and `rounding = "down"`. For `"up"` rounding, the upper boundary is exclusive (a value exactly at the midpoint rounds *away* from the reported mean, not toward it), but the old implementation treated it as inclusive. This could cause `grim()` and `grim_map()` to return `TRUE` for value sets that are actually inconsistent.
+
+- `debit_map()` now returns `x` and `sd` as numeric columns, not as strings. This matches `grim_map()`.
+
+- Fixed a pre-existing compatibility issue in `debit_plot()` where a theme element was out of date with recent ggplot2 versions.
+
 # scrutiny 0.6.1
 
 ## Bugfixes

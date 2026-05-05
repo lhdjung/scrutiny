@@ -21,3 +21,5 @@ R\.Rproj$
 ^special-scripts$
 ^[.]?air[.]toml$
 ^\.vscode$
+^\.positai$
+^\.claude$
