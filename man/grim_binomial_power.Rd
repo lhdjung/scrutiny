@@ -36,9 +36,14 @@ Numeric (length 1). The probability of rejecting the null hypothesis
 when the alternative is true.
 }
 \description{
-Compute the statistical power of \code{\link[=grim_binomial]{grim_binomial()}} for given
-parameters. Use this to judge whether the test is informative for a
-particular dataset before interpreting its p-value.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
+This approach has not been extensively tested, and I am not yet confident
+in it. Use with care.
+
+Compute the statistical power of \code{\link[=grim_binomial]{grim_binomial()}} for given parameters.
+Use this to judge whether the test is informative for a particular dataset
+before interpreting its p-value.
 }
 \examples{
 # 10 means, N ~ 50 with 2 decimal places, 90\% truly consistent:

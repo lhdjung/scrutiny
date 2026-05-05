@@ -51,6 +51,7 @@ Collate:
     'audit.R'
     'baseline-consistency-tests.R'
     'before-inside-parens.R'
+    'binomial.R'
     'function-factory-helpers.R'
     'round-ceil-floor.R'
     'round.R'

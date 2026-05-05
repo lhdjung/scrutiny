@@ -26,8 +26,13 @@ rate), \code{statistic} (number of consistent cases), \code{p.value}, \code{para
 (total number of cases), \code{conf.level}, \code{method}, and \code{alternative}.
 }
 \description{
-Given the output of \code{\link[=grim_map]{grim_map()}} or similar, \code{grim_binomial()}
-tests whether the rate of GRIM-consistent value sets is above chance.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
+This approach has not been extensively tested, and I am not yet confident
+in it. Use with care.
+
+Given the output of \code{\link[=grim_map]{grim_map()}} or similar, \code{grim_binomial()} tests
+whether the rate of GRIM-consistent value sets is above chance.
 
 Consistency represents "success", and the null hypothesis corresponds to
 random decimal digits for the means (or other fractions, such as
@@ -49,14 +54,13 @@ As any correct value set is GRIM-consistent, the key question is whether a
 collection of them can be sufficiently distinguished from random. In this
 way, even if some value sets are inconsistent, there may still be a trend
 towards consistency because correct value sets would bias the distribution
-in this direction.
+in this way.
 
 However, it is hard to see how \emph{fewer} value sets should be consistent than
 expected at random. This suggests a one-tailed test.
 }
 \examples{
-library(scrutiny)
 pigs1 \%>\%
-  grim_map() \%>\%
+  grim_map(digits_x = 2) \%>\%
   grim_binomial()
 }
