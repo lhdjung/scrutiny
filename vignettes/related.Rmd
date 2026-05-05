@@ -46,6 +46,8 @@ Please contact me if you know about relevant software that isn't listed here (em
 
     -   [jfa](https://koenderks.github.io/jfa/index.html) by Koen Derks offers a full statistical auditing suite (including Benford analysis).
 
+-   [tidychain](https://usrbinr.codeberg.page/tidychain/) by Alejandro Hagan is an R package for "calcChain" Excel analysis, as it was used by Data Colada's investigation into the work of Francesca Gino.
+
 -   [XLTest](http://www.sysmod.com/xltest/index.htm) is a tool for auditing Excel files (but it is not free).
 
 -   The Rust crate [SeaCanal](https://github.com/saghm/sea-canal#how-does-seacanal-work) analyzes numeric sequences, uncovering patterns of operations that might have generated them.
