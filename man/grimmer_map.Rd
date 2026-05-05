@@ -110,11 +110,11 @@ pigs5
 # the values to its left are GRIMMER-consistent.
 # If they aren't, the `reason` column says why:
 pigs5 \%>\%
-  grimmer_map()
+  grimmer_map(digits_x = 2, digits_sd = 2)
 
 # Get summaries with `audit()`:
 pigs5 \%>\%
-  grimmer_map() \%>\%
+  grimmer_map(digits_x = 2, digits_sd = 2) \%>\%
   audit()
 }
 \references{

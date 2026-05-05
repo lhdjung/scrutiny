@@ -8,6 +8,7 @@ grim_map_seq(
   data,
   x = NULL,
   n = NULL,
+  digits_x = NULL,
   var = Inf,
   dispersion = 1:5,
   out_min = "auto",

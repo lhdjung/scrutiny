@@ -9,6 +9,8 @@ grimmer_map_seq(
   x = NULL,
   sd = NULL,
   n = NULL,
+  digits_x = NULL,
+  digits_sd = NULL,
   var = Inf,
   dispersion = 1:5,
   out_min = "auto",

@@ -6,6 +6,7 @@
 \usage{
 grim_map(
   data,
+  digits_x,
   items = 1,
   merge_items = TRUE,
   percent = FALSE,
@@ -124,16 +125,16 @@ pigs1
 # whether the values to its left
 # are GRIM-consistent:
 pigs1 \%>\%
-  grim_map()
+  grim_map(digits_x = 2)
 
 # Display intermediary numbers from
 # GRIM-testing with `show_rec = TRUE`:
 pigs1 \%>\%
-  grim_map(show_rec = TRUE)
+  grim_map(digits_x = 2, show_rec = TRUE)
 
 # Get summaries with `audit()`:
 pigs1 \%>\%
-  grim_map() \%>\%
+  grim_map(digits_x = 2) \%>\%
   audit()
 }
 \references{

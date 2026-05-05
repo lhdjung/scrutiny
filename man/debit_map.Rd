@@ -6,6 +6,8 @@
 \usage{
 debit_map(
   data,
+  digits_x,
+  digits_sd,
   x = NULL,
   sd = NULL,
   n = NULL,
@@ -71,11 +73,11 @@ pigs3
 # whether the values to its left
 # are DEBIT-consistent:
 pigs3 \%>\%
-  debit_map()
+  debit_map(digits_x = 2, digits_sd = 2)
 
 # Get test summaries with `audit()`:
 pigs3 \%>\%
-  debit_map() \%>\%
+  debit_map(digits_x = 2, digits_sd = 2) \%>\%
   audit()
 }
 \references{
