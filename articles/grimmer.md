@@ -1,6 +1,7 @@
 # GRIMMER
 
 ``` r
+
 library(scrutiny)
 ```
 
@@ -52,6 +53,7 @@ To test if a reported mean of 7.3 on a granular scale is
 GRIMMER-consistent with an SD of 2.51 and a sample size of 12, run this:
 
 ``` r
+
 grimmer(x = "7.3", sd = "2.51", n = 12)
 #> Warning: False-positive GRIMMER results possible.
 #> ! I became aware of a bug in the `grimmer*()` functions.
@@ -99,6 +101,7 @@ Copy summary data from a PDF file and paste them into
 which is available via scrutiny:
 
 ``` r
+
 flying_pigs1 <- tibble::tribble(
   ~x,   ~sd,    ~n,
 "8.9",  "2.81",  25,
@@ -121,6 +124,7 @@ Now, simply run
 on that data frame:
 
 ``` r
+
 grimmer_map(flying_pigs1)
 #> Warning: False-positive GRIMMER results possible.
 #> ! I became aware of a bug in the `grimmer*()` functions.
@@ -214,6 +218,7 @@ the single-item default, half of these are wrongly flagged as
 GRIM-inconsistent (true GRIMMER example below):
 
 ``` r
+
 flying_pigs2 <- tibble::tribble(
    ~x,    ~sd,    ~n,
   "5.90", "2.19",  40,
@@ -283,6 +288,7 @@ Yet, all of them are consistent if the correct number of items is
 stated:
 
 ``` r
+
 flying_pigs2 %>% 
   grimmer_map(items = 3)
 #> Warning: False-positive GRIMMER results possible.
@@ -342,6 +348,7 @@ It is also possible to include an `items` column in the data frame
 instead. This is helpful if the rows have different numbers of items:
 
 ``` r
+
 flying_pigs3 <- tibble::tribble(
    ~x,     ~sd,    ~n,  ~items,
   "6.92",  "2.19",  30,  1,
@@ -416,6 +423,7 @@ missing. As a consequence, the last two values are wrongly flagged as
 inconsistent, one of them by GRIMMER:
 
 ``` r
+
 flying_pigs3 %>%
     dplyr::select(-items) %>% 
     grimmer_map()
@@ -481,6 +489,7 @@ the generic function
 summarizes GRIMMER test results:
 
 ``` r
+
 flying_pigs1 %>% 
   grimmer_map() %>% 
   audit()
@@ -562,6 +571,7 @@ just as well as that from
 [`grim_map()`](https://lhdjung.github.io/scrutiny/reference/grim_map.md):
 
 ``` r
+
 flying_pigs4 <- tibble::tribble(
   ~x,      ~sd,    ~n,
   "7.19",  "1.19",  54,
@@ -660,6 +670,7 @@ However,
 will fail with any object not returned by either of these two functions:
 
 ``` r
+
 grim_plot(mtcars)
 #> Error in `grim_plot()`:
 #> ! `grim_plot()` needs GRIM or GRIMMER test results.
@@ -688,6 +699,7 @@ to GRIMMER-test the values surrounding the reported means and sample
 sizes:
 
 ``` r
+
 out_seq1 <- grimmer_map_seq(pigs5)
 #> Warning: False-positive GRIMMER results possible.
 #> ! I became aware of a bug in the `grimmer*()` functions.
@@ -1847,6 +1859,7 @@ As this output is a little unwieldy, run
 on the results:
 
 ``` r
+
 audit_seq(out_seq1)
 #> Warning: False-positive GRIMMER results possible.
 #> ! I became aware of a bug in the `grimmer*()` functions.
@@ -1916,6 +1929,7 @@ the `dispersion` sequence gets longer, the number of hits tends to
 increase:
 
 ``` r
+
 out_seq2 <- grimmer_map_seq(pigs5, dispersion = 1:10)
 #> Warning: False-positive GRIMMER results possible.
 #> ! I became aware of a bug in the `grimmer*()` functions.
@@ -4158,6 +4172,7 @@ Like regular GRIM or GRIMMER plots, however, it does give us a sense of
 how many tested values are consistent:
 
 ``` r
+
 grim_plot(out_seq1)
 #> → Also visualizing 3 GRIMMER inconsistencies.
 ```
@@ -4170,6 +4185,7 @@ creates sequences around both `x` and `n`. Restrict this process to any
 one of these with the `var` argument:
 
 ``` r
+
 out_seq1_only_x <- grimmer_map_seq(pigs5, var = "x")
 #> Warning: False-positive GRIMMER results possible.
 #> ! I became aware of a bug in the `grimmer*()` functions.
@@ -5048,6 +5064,7 @@ grim_plot(out_seq1_only_x)
 ![](grimmer_files/figure-html/unnamed-chunk-16-1.png)
 
 ``` r
+
 grim_plot(out_seq1_only_n)
 #> → Also visualizing 2 GRIMMER inconsistencies.
 ```
@@ -5072,6 +5089,7 @@ and Francis 2021).
 Here is an example:
 
 ``` r
+
 flying_pigs5 <- tibble::tribble(
     ~x1,    ~x2,    ~sd1,   ~sd2,   ~n,
     "3.43", "5.28", "1.09", "2.12", 70,
@@ -5450,12 +5468,12 @@ but only for GRIM.
 
 ## References
 
-Allard, Aurélien. 2018. “Analytic-GRIMMER: A New Way of Testing the
-Possibility of Standard Deviations.”
+Allard, Aurélien. 2018. *Analytic-GRIMMER: A New Way of Testing the
+Possibility of Standard Deviations*.
 <https://aurelienallard.netlify.app/post/anaytic-grimmer-possibility-standard-deviations/>.
 
-Anaya, Jordan. 2016. “The GRIMMER Test: A Method for Testing the
-Validity of Reported Measures of Variability.”
+Anaya, Jordan. 2016. *The GRIMMER Test: A Method for Testing the
+Validity of Reported Measures of Variability*.
 
 Bauer, Patricia J., and Gregory Francis. 2021. “Expression of Concern:
 Is It Light or Dark? Recalling Moral Behavior Changes Perception of

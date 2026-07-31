@@ -1,6 +1,7 @@
 # DEBIT
 
 ``` r
+
 library(scrutiny)
 ```
 
@@ -31,6 +32,7 @@ an SD of 0.18, and a sample size of 20. To test their consistency, run
 this:
 
 ``` r
+
 debit(x = "0.35", sd = "0.18", n = 20)
 #>  0.35 
 #> FALSE
@@ -70,6 +72,7 @@ PDF file and paste them into
 which is available via scrutiny:
 
 ``` r
+
 flying_pigs <- tibble::tibble(
     x  = runif(5, 0.2, 1) %>% round(2) %>% restore_zeros(),
     sd = runif(5, 0, 0.3) %>% round(2) %>% restore_zeros(),
@@ -93,6 +96,7 @@ Now, simply run
 on that data frame:
 
 ``` r
+
 flying_pigs %>% 
   debit_map()
 #> # A tibble: 5 × 11
@@ -111,6 +115,7 @@ result, `consistency`, is the DEBIT consistency of the former three
 columns.
 
 ``` r
+
 pigs3  # data saved within the package
 #> # A tibble: 7 × 3
 #>   x     sd        n
@@ -144,6 +149,7 @@ DEBIT only makes sense with binary means and SDs. Both
 check if the inputs are such data, and fail if they are not:
 
 ``` r
+
 pigs5  # no binary means / SDs!
 #> # A tibble: 12 × 3
 #>    x     sd        n
@@ -189,6 +195,7 @@ the generic function
 summarizes test results:
 
 ``` r
+
 pigs3 %>% 
   debit_map() %>% 
   audit()
@@ -216,6 +223,7 @@ Only run it on
 output. It will fail otherwise.
 
 ``` r
+
 # Determine plot theme for the remaining session:
 ggplot2::theme_minimal(base_size = 12) %>% 
   ggplot2::theme_set()
@@ -243,6 +251,7 @@ However, if outer boxes are not desired, they can be turned off like
 this:
 
 ``` r
+
 pigs3 %>% 
   debit_map() %>% 
   debit_plot(show_outer_boxes = FALSE)
@@ -270,6 +279,7 @@ to use DEBIT for the values surrounding the reported means, SDs, and
 sample sizes:
 
 ``` r
+
 out_seq1 <- debit_map_seq(pigs3)
 out_seq1
 #> # A tibble: 30 × 14
@@ -297,6 +307,7 @@ As this output is a little unwieldy, run
 on the results:
 
 ``` r
+
 audit_seq(out_seq1)
 #> # A tibble: 1 × 17
 #>   x     sd        n consistency hits_total hits_x hits_sd hits_n diff_x
@@ -328,6 +339,7 @@ the `dispersion` sequence gets longer, the number of hits tends to
 increase:
 
 ``` r
+
 out_seq2 <- debit_map_seq(pigs3, dispersion = 1:7, include_consistent = TRUE)
 audit_seq(out_seq2)
 #> # A tibble: 7 × 17
@@ -373,6 +385,7 @@ and Francis 2021).
 Here is an example:
 
 ``` r
+
 out_total_n <- tibble::tribble(
   ~x1,     ~x2,   ~sd1,   ~sd2,  ~n,
   "0.30", "0.28", "0.17", "0.10", 70,
@@ -421,5 +434,5 @@ Bauer, Patricia J., and Gregory Francis. 2021. “Expression of Concern:
 Is It Light or Dark? Recalling Moral Behavior Changes Perception of
 Brightness.” *Psychological Science* 32 (12): 2042–43.
 
-Heathers, James A. J., and Nicholas J. L. Brown. 2019. “DEBIT: A Simple
-Consistency Test For Binary Data.” <https://osf.io/5vb3u/>.
+Heathers, James A. J., and Nicholas J. L. Brown. 2019. *DEBIT: A Simple
+Consistency Test For Binary Data*. <https://osf.io/5vb3u/>.

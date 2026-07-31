@@ -1,6 +1,7 @@
 # Consistency tests in depth
 
 ``` r
+
 library(scrutiny)
 ```
 
@@ -86,6 +87,7 @@ The function returns a logical value of length 1: It’s `TRUE` if the
 inputs are mutually consistent, and `FALSE` if they aren’t.
 
 ``` r
+
  schlim_scalar <- function(y, n) {
    y <- as.numeric(y)
    n <- as.numeric(n)
@@ -129,6 +131,7 @@ itself, which is also the name of the single-case function without
 `_scalar`:
 
 ``` r
+
 schlim <- Vectorize(schlim_scalar)
 
 schlim(y = 10:15, n = 4)
@@ -169,6 +172,7 @@ You will have no such troubles with
 [`function_map()`](https://lhdjung.github.io/scrutiny/reference/function_map.md):
 
 ``` r
+
 schlim_map <- function_map(
   .fun = schlim_scalar,
   .reported = c("y", "n"),
@@ -224,6 +228,7 @@ FAQ](https://purrr.tidyverse.org/reference/faq-adverbs-export.html).
 Your version should look about like this:
 
 ``` r
+
 schlim_map <- function(...) "dummy"
 
 .onLoad <- function(lib, pkg) {
@@ -244,6 +249,7 @@ names as the `.reported` values. Instead, you can specify the arguments
 by those names as the names of the actual columns:
 
 ``` r
+
 df2 <- df1
 names(df2) <- c("foo", "bar")
 
@@ -282,6 +288,7 @@ If any columns are neither present in the data frame nor identified via
 arguments, there will be a precise error:
 
 ``` r
+
 schlim_map(df2, y = foo)
 #> Error in `check_factory_key_args_names()` at scrutiny/R/function-factory-helpers.R:279:3:
 #> ! Column `n` is missing from `data`.
@@ -502,7 +509,7 @@ output.) Any such non-tested, non-`"consistency"` columns go to the
 right of `"consistency"`.
 
 If the number of key columns plus the number of helper columns in the
-output is $k$, the index of `"consistency"` is $k + 1$.
+output is $`k`$, the index of `"consistency"` is $`k+1`$.
 
 Besides the `"scr_*_map"` class, the output data frame may inherit any
 number of other classes added within the mapper, so long as they start
@@ -537,6 +544,7 @@ Apply the `*_scalar()` function to the input data frame using
 [`purrr::pmap_lgl()`](https://purrr.tidyverse.org/reference/pmap.html):
 
 ``` r
+
 schlim_map_alt1 <- function(data, ...) {
   scrutiny::check_mapper_input_colnames(data, c("y", "n"), "SCHLIM")
   tibble::tibble(
@@ -556,6 +564,7 @@ because
 is quite slow.
 
 ``` r
+
 schlim_map_alt2 <- function(data, ...) {
   scrutiny::check_mapper_input_colnames(data, c("y", "n"), "SCHLIM")
   data %>% 
@@ -576,6 +585,7 @@ which grants the user more flexibility in naming key columns.
 Both approaches should lead to the same results:
 
 ``` r
+
 schlim_map_alt1(df1)
 #> # A tibble: 10 × 3
 #>        y     n consistency
@@ -632,6 +642,7 @@ is the output data frame, and `new_class` is a string vector.
 existing classes of `x`.
 
 ``` r
+
 add_class <- function(x, new_class) {
   class(x) <- c(new_class, class(x))
   x
@@ -642,6 +653,7 @@ You can access the classes that an object carries — or “inherits” — by
 calling [`class()`](https://rdrr.io/r/base/class.html):
 
 ``` r
+
 some_object <- tibble::tibble(x = 5)
 some_object <- add_class(some_object, "dummy class")
 class(some_object)
@@ -697,6 +709,7 @@ function’s output already inherits a specific class, such as
 existing classes:
 
 ``` r
+
 df1_tested <- schlim_map(df1)
 class(df1_tested)
 #> [1] "scr_schlim_map" "tbl_df"         "tbl"            "data.frame"
@@ -744,6 +757,7 @@ call
 in your method.
 
 ``` r
+
 # The `name_test` argument is only for the alert
 # that might be issued by `check_audit_special()`:
 audit.scr_schlim_map <- function(data) {
@@ -759,7 +773,8 @@ audit(df1_tested)
 
 # This doesn't work because no method was defined:
 audit(iris)
-#> Error in UseMethod("audit"): no applicable method for 'audit' applied to an object of class "data.frame"
+#> Error in `UseMethod()`:
+#> ! no applicable method for 'audit' applied to an object of class "data.frame"
 ```
 
 You can still add other summary columns to the tibble returned by
@@ -778,6 +793,7 @@ Create it with
 [`write_doc_audit()`](https://lhdjung.github.io/scrutiny/reference/write_doc_audit.md):
 
 ``` r
+
 audit_grim    <- audit(grim_map(pigs1))
 audit_grimmer <- audit(grimmer_map(pigs5))
 #> Warning: False-positive GRIMMER results possible.
@@ -1013,6 +1029,7 @@ themselves were written in a very simple way. Here are the ones for
 GRIM, GRIMMER, and DEBIT:
 
 ``` r
+
 grim_map_seq <- function_map_seq(
   .fun = grim_map,
   .reported = c("x", "n"),
@@ -1046,6 +1063,7 @@ the requirements for mapper functions laid out in section 3.
 Let’s write a sequence mapper for SCHLIM:
 
 ``` r
+
 schlim_map_seq <- function_map_seq(
   .fun = schlim_map,
   .reported = c("y", "n"),
@@ -1090,6 +1108,7 @@ light on inconsistencies in reported statistics. Override the default
 with `include_consistent = TRUE`:
 
 ``` r
+
 df1 %>% 
   schlim_map_seq(include_consistent = TRUE) %>% 
   audit_seq()
@@ -1180,6 +1199,7 @@ creating a manufactured `*_total_n()` function is very easy. Just let
 the function factory do the work for you:
 
 ``` r
+
 grim_map_total_n <- function_map_total_n(
   .fun = grim_map,
   .reported = "x",  # don't include `n` here
@@ -1202,6 +1222,7 @@ debit_map_total_n <- function_map_total_n(
 To drive this point home, let’s do the same with SCHLIM:
 
 ``` r
+
 schlim_map_total_n <- function_map_total_n(
   .fun = schlim_map,
   .reported = "y",
@@ -1322,6 +1343,7 @@ and
 but with the output omitted to save space:
 
 ``` r
+
 write_doc_audit_seq(key_args = c("x", "n"), name_test = "GRIM")
 write_doc_audit_seq(key_args = c("x", "sd", "n"), name_test = "GRIMMER")
 write_doc_audit_seq(key_args = c("x", "sd", "n"), name_test = "DEBIT")
@@ -1346,6 +1368,7 @@ and
 [`debit_map_total_n()`](https://lhdjung.github.io/scrutiny/reference/debit_map_total_n.md):
 
 ``` r
+
 write_doc_audit_total_n(key_args = c("x", "n"), name_test = "GRIM")
 write_doc_audit_total_n(key_args = c("x", "sd", "n"), name_test = "GRIMMER")
 write_doc_audit_total_n(key_args = c("x", "sd", "n"), name_test = "DEBIT")
@@ -1385,11 +1408,11 @@ function is generated on the basis of an earlier one.
 
 Here is an overview of scrutiny’s function factories:
 
-| Output function type | Section here | Function factory                                                                                 | GRIM example function                                                                    | Predicate function                                                                             |
-|----------------------|--------------|--------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------|
-| Basic mapper         | 3            | [`function_map()`](https://lhdjung.github.io/scrutiny/reference/function_map.md)                 | [`grim_map()`](https://lhdjung.github.io/scrutiny/reference/grim_map.md)                 | [`is_map_basic_df()`](https://lhdjung.github.io/scrutiny/reference/data-frame-predicates.md)   |
-| Sequence mapper      | 6            | [`function_map_seq()`](https://lhdjung.github.io/scrutiny/reference/function_map_seq.md)         | [`grim_map_seq()`](https://lhdjung.github.io/scrutiny/reference/grim_map_seq.md)         | [`is_map_seq_df()`](https://lhdjung.github.io/scrutiny/reference/data-frame-predicates.md)     |
-| Total-n mapper       | 7            | [`function_map_total_n()`](https://lhdjung.github.io/scrutiny/reference/function_map_total_n.md) | [`grim_map_total_n()`](https://lhdjung.github.io/scrutiny/reference/grim_map_total_n.md) | [`is_map_total_n_df()`](https://lhdjung.github.io/scrutiny/reference/data-frame-predicates.md) |
+| Output function type | Section here | Function factory | GRIM example function | Predicate function |
+|----|----|----|----|----|
+| Basic mapper | 3 | [`function_map()`](https://lhdjung.github.io/scrutiny/reference/function_map.md) | [`grim_map()`](https://lhdjung.github.io/scrutiny/reference/grim_map.md) | [`is_map_basic_df()`](https://lhdjung.github.io/scrutiny/reference/data-frame-predicates.md) |
+| Sequence mapper | 6 | [`function_map_seq()`](https://lhdjung.github.io/scrutiny/reference/function_map_seq.md) | [`grim_map_seq()`](https://lhdjung.github.io/scrutiny/reference/grim_map_seq.md) | [`is_map_seq_df()`](https://lhdjung.github.io/scrutiny/reference/data-frame-predicates.md) |
+| Total-n mapper | 7 | [`function_map_total_n()`](https://lhdjung.github.io/scrutiny/reference/function_map_total_n.md) | [`grim_map_total_n()`](https://lhdjung.github.io/scrutiny/reference/grim_map_total_n.md) | [`is_map_total_n_df()`](https://lhdjung.github.io/scrutiny/reference/data-frame-predicates.md) |
 
 Predicate functions are those that return `TRUE` for the data frames
 returned by the factory-made functions. The more general
@@ -1412,8 +1435,8 @@ Simple Technique Detects Numerous Anomalies in the Reporting of Results
 in Psychology.” *Social Psychological and Personality Science* 8 (4):
 363–69.
 
-Wickham, Hadley. 2019. *Advanced r*. Second edition. Boca Raton: CRC
-Press/Taylor; Francis Group.
+Wickham, Hadley. 2019. *Advanced r*. Second edition. CRC Press/Taylor;
+Francis Group.
 
 Wickham, Hadley, and Jennifer Bryan. 2023. *R Packages: Organize, Test,
-Document, and Share Your Code*. Second edition. Beijing: O’Reilly.
+Document, and Share Your Code*. Second edition. O’Reilly.

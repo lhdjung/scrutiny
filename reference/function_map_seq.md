@@ -117,12 +117,12 @@ A function such as those below. ("Testable statistics" are variables
 that can be selected via `var`, and are then varied. All variables
 except for those in parentheses are selected by default.)
 
-|                                                                                        |                                   |                                                                                 |
-|----------------------------------------------------------------------------------------|-----------------------------------|---------------------------------------------------------------------------------|
-| **Manufactured function**                                                              | **Testable statistics**           | **Test vignette**                                                               |
-| [`grim_map_seq()`](https://lhdjung.github.io/scrutiny/reference/grim_map_seq.md)       | `"x"`, `"n"`, (`"items"`)         | [`vignette("grim")`](https://lhdjung.github.io/scrutiny/articles/grim.md)       |
+|  |  |  |
+|----|----|----|
+| **Manufactured function** | **Testable statistics** | **Test vignette** |
+| [`grim_map_seq()`](https://lhdjung.github.io/scrutiny/reference/grim_map_seq.md) | `"x"`, `"n"`, (`"items"`) | [`vignette("grim")`](https://lhdjung.github.io/scrutiny/articles/grim.md) |
 | [`grimmer_map_seq()`](https://lhdjung.github.io/scrutiny/reference/grimmer_map_seq.md) | `"x"`, `"sd"`, `"n"`, (`"items"`) | [`vignette("grimmer")`](https://lhdjung.github.io/scrutiny/articles/grimmer.md) |
-| [`debit_map_seq()`](https://lhdjung.github.io/scrutiny/reference/debit_map_seq.md)     | `"x"`, `"sd"`, `"n"`              | [`vignette("debit")`](https://lhdjung.github.io/scrutiny/articles/debit.md)     |
+| [`debit_map_seq()`](https://lhdjung.github.io/scrutiny/reference/debit_map_seq.md) | `"x"`, `"sd"`, `"n"` | [`vignette("debit")`](https://lhdjung.github.io/scrutiny/articles/debit.md) |
 
 The factory-made function will also have dots, `...`, to pass arguments
 down to `.fun`, i.e., the basic mapper function such as

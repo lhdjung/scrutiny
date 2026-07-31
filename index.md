@@ -17,12 +17,14 @@ for vignettes.
 Install the package from CRAN:
 
 ``` r
+
 install.packages("scrutiny")
 ```
 
 Alternatively, install the development version from GitHub:
 
 ``` r
+
 remotes::install_github("lhdjung/scrutiny")
 ```
 
@@ -34,6 +36,7 @@ the `consistency` column tells you if the means (`x`) and sample sizes
 (`n`) are mutually consistent.
 
 ``` r
+
 library(scrutiny)
 
 # Example data:
@@ -76,6 +79,7 @@ grim_map(pigs1)
 Test percentages instead of means:
 
 ``` r
+
 pigs2
 #> # A tibble: 6 × 2
 #>   x         n
@@ -106,6 +110,7 @@ automatically. Blue dots are consistent values, red dots are
 inconsistent ones:
 
 ``` r
+
 pigs1 %>% 
   grim_map(rounding = "up") %>% 
   grim_plot()
@@ -117,6 +122,7 @@ Similarly, use DEBIT to test means and standard deviations of binary
 data:
 
 ``` r
+
 pigs3
 #> # A tibble: 7 × 3
 #>   x     sd        n

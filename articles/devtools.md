@@ -1,6 +1,7 @@
 # Developer tools
 
 ``` r
+
 library(scrutiny)
 ```
 
@@ -26,6 +27,7 @@ decimal point or some other separator. Both functions also take strings.
 is vectorized:
 
 ``` r
+
 decimal_places("2.80")
 #> [1] 2
 
@@ -49,6 +51,7 @@ detection context because trailing zeros can be crucial here. Numeric
 values drop trailing zeros, whereas strings preserve them:
 
 ``` r
+
 decimal_places(7.200)
 #> [1] 1
 
@@ -75,6 +78,7 @@ Suppose all of the following numbers originally had one decimal place,
 but some no longer do:
 
 ``` r
+
 vec2 <- c(4, 6.9, 5, 4.2, 4.8, 7, 4)
 
 vec2 %>% 
@@ -86,6 +90,7 @@ Now, get them back with
 [`restore_zeros()`](https://lhdjung.github.io/scrutiny/reference/restore_zeros.md):
 
 ``` r
+
 vec2 %>% 
   restore_zeros()
 #> [1] "4.0" "6.9" "5.0" "4.2" "4.8" "7.0" "4.0"
@@ -103,6 +108,7 @@ itself have lost decimal places. Specify the `width` argument to
 explicitly state the desired mantissa length:
 
 ``` r
+
 vec2 %>% 
   restore_zeros(width = 2)
 #> [1] "4.00" "6.90" "5.00" "4.20" "4.80" "7.00" "4.00"
@@ -166,6 +172,7 @@ Call
 to bridge two numbers at the correct decimal level:
 
 ``` r
+
 seq_endpoint(from = 4.1, to = 6)
 #>  [1] "4.1" "4.2" "4.3" "4.4" "4.5" "4.6" "4.7" "4.8" "4.9" "5.0" "5.1" "5.2"
 #> [13] "5.3" "5.4" "5.5" "5.6" "5.7" "5.8" "5.9" "6.0"
@@ -179,6 +186,7 @@ Call
 to get a sequence of desired length:
 
 ``` r
+
 seq_distance(from = 4.1, length_out = 3)
 #> [1] "4.1" "4.2" "4.3"
 
@@ -192,6 +200,7 @@ Finally, call
 to construct a sequence around `from`:
 
 ``` r
+
 seq_disperse(from = 4.1, dispersion = 1:3)
 #> [1] "3.8" "3.9" "4.0" "4.1" "4.2" "4.3" "4.4"
 
@@ -218,6 +227,7 @@ returns `TRUE` if the difference between all neighboring values is the
 same:
 
 ``` r
+
 is_seq_linear(x = 8:15)
 #> [1] TRUE
 is_seq_linear(x = c(8:15, 16))
@@ -230,6 +240,7 @@ is_seq_linear(x = c(8:15, 17))
 tests whether that difference is always positive…
 
 ``` r
+
 is_seq_ascending(x = 8:15)
 #> [1] TRUE
 is_seq_ascending(x = 15:8)
@@ -247,6 +258,7 @@ is_seq_ascending(x = c(8:15, 17), test_linear = FALSE)
 tests whether it is always negative:
 
 ``` r
+
 is_seq_descending(x = 8:15)
 #> [1] FALSE
 is_seq_descending(x = 15:8)
@@ -263,6 +275,7 @@ is_seq_descending(x = c(15:8, 2), test_linear = FALSE)
 tests whether the vector is grouped around its `from` argument:
 
 ``` r
+
 is_seq_dispersed(x = 3:7, from = 2)
 #> [1] FALSE
 
@@ -292,6 +305,7 @@ sequence in question.
 In these examples, it is genuinely unclear whether `x` is linear:
 
 ``` r
+
 is_seq_linear(x = c(1, 2, NA, 4))
 #> [1] NA
 is_seq_linear(x = c(1, 2, NA, NA, NA, 6))
@@ -301,6 +315,7 @@ is_seq_linear(x = c(1, 2, NA, NA, NA, 6))
 Linearity thus depends on the unknown, missing value behind `NA`:
 
 ``` r
+
 is_seq_linear(x = c(1, 2, 3, 4))
 #> [1] TRUE
 is_seq_linear(x = c(1, 2, 7, 4))
@@ -318,6 +333,7 @@ elements. In such cases, scrutiny’s `is_seq_*()` functions will always
 return `FALSE`:
 
 ``` r
+
 is_seq_linear(x = c(1, 2, NA, 10))
 #> [1] FALSE
 is_seq_linear(x = c(1, 2, NA, NA, NA, 10))
@@ -340,6 +356,7 @@ Leading and trailing `NA`s are mostly ignored when determining whether
 `x` *might* be the kind of sequence in question:
 
 ``` r
+
 is_seq_linear(x = c(NA, NA, 1, 2, 3, 4, NA))
 #> [1] NA
 is_seq_linear(x = c(NA, NA, 1, 2, NA, 4, NA))
@@ -351,6 +368,7 @@ The only exception,
 is particularly sensitive to `NA` values:
 
 ``` r
+
 # `TRUE` because `x` is symmetrically dispersed
 # from 5 and contains no `NA` values:
 is_seq_dispersed(x = c(3:7), from = 5)
@@ -393,6 +411,7 @@ but I recommend simply using the higher-level
 Here are two basic examples:
 
 ``` r
+
 # With an even total...
 disperse_total(n = 70)
 #> # A tibble: 12 × 2
@@ -451,5 +470,5 @@ also conceivable.
 
 ## References
 
-Wickham, Hadley. 2019. *Advanced r*. Second edition. Boca Raton: CRC
-Press/Taylor; Francis Group.
+Wickham, Hadley. 2019. *Advanced r*. Second edition. CRC Press/Taylor;
+Francis Group.

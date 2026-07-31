@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Consistency tests in depth • scrutiny</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Consistency tests in depth">
 </head>
@@ -741,7 +741,8 @@ with the three required columns. If you don’t use
 <span></span>
 <span><span class="co"># This doesn't work because no method was defined:</span></span>
 <span><span class="fu"><a href="../reference/audit.html">audit</a></span><span class="op">(</span><span class="va">iris</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Error in UseMethod("audit"): no applicable method for 'audit' applied to an object of class "data.frame"</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `UseMethod()`:</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> no applicable method for 'audit' applied to an object of class "data.frame"</span></span></code></pre></div>
 <p>You can still add other summary columns to the tibble returned by
 <code><a href="../reference/audit_cols_minimal.html">audit_cols_minimal()</a></code>. Use <code><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">dplyr::mutate()</a></code> or
 similar.</p>
@@ -1335,7 +1336,7 @@ columns in the output.</p>
 <div class="section level2">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-bauer_expression_2021" class="csl-entry">
 Bauer, Patricia J., and Gregory Francis. 2021. <span>“Expression of
 <span>Concern</span>: <span>Is</span> <span>It</span> <span>Light</span>
@@ -1351,13 +1352,12 @@ Results in Psychology.”</span> <em>Social Psychological and Personality
 Science</em> 8 (4): 363–69.
 </div>
 <div id="ref-wickham2019" class="csl-entry">
-Wickham, Hadley. 2019. <em>Advanced r</em>. Second edition. Boca Raton:
-CRC Press/Taylor; Francis Group.
+Wickham, Hadley. 2019. <em>Advanced r</em>. Second edition. CRC
+Press/Taylor; Francis Group.
 </div>
 <div id="ref-wickham2023" class="csl-entry">
 Wickham, Hadley, and Jennifer Bryan. 2023. <em>R Packages: Organize,
-Test, Document, and Share Your Code</em>. Second edition. Beijing:
-O’Reilly.
+Test, Document, and Share Your Code</em>. Second edition. O’Reilly.
 </div>
 </div>
 </div>
@@ -1372,7 +1372,7 @@ O’Reilly.
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

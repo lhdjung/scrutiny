@@ -72,6 +72,19 @@ statistics.
 # Basic usage:
 mtcars %>%
   duplicate_count_colpair()
+#> Warning: There was 1 warning in `dplyr::summarise()`.
+#> ℹ In argument: `dplyr::across(...)`.
+#> Caused by warning:
+#> ! The `...` argument of `across()` is deprecated as of dplyr 1.1.0.
+#> Supply arguments directly to `.fns` through an anonymous function instead.
+#> 
+#>   # Previously
+#>   across(a:b, mean, na.rm = TRUE)
+#> 
+#>   # Now
+#>   across(a:b, \(x) mean(x, na.rm = TRUE))
+#> ℹ The deprecated feature was likely used in the corrr package.
+#>   Please report the issue at <https://github.com/tidymodels/corrr/issues>.
 #> # A tibble: 55 × 7
 #>    x     y     count total_x total_y rate_x rate_y
 #>    <chr> <chr> <int>   <int>   <int>  <dbl>  <dbl>

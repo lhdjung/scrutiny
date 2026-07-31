@@ -34,21 +34,21 @@ All that end on `_total_n` were made by
 
 ## Before `audit_seq()`
 
-|                                                                                        |                         |
-|----------------------------------------------------------------------------------------|-------------------------|
-| **Function**                                                                           | **Class**               |
-| [`grim_map_seq()`](https://lhdjung.github.io/scrutiny/reference/grim_map_seq.md)       | `"scr_grim_map_seq"`    |
+|  |  |
+|----|----|
+| **Function** | **Class** |
+| [`grim_map_seq()`](https://lhdjung.github.io/scrutiny/reference/grim_map_seq.md) | `"scr_grim_map_seq"` |
 | [`grimmer_map_seq()`](https://lhdjung.github.io/scrutiny/reference/grimmer_map_seq.md) | `"scr_grimmer_map_seq"` |
-| [`debit_map_seq()`](https://lhdjung.github.io/scrutiny/reference/debit_map_seq.md)     | `"scr_debit_map_seq"`   |
+| [`debit_map_seq()`](https://lhdjung.github.io/scrutiny/reference/debit_map_seq.md) | `"scr_debit_map_seq"` |
 
 ## Before `audit_total_n()`
 
-|                                                                                                |                             |
-|------------------------------------------------------------------------------------------------|-----------------------------|
-| **Function**                                                                                   | **Class**                   |
-| [`grim_map_total_n()`](https://lhdjung.github.io/scrutiny/reference/grim_map_total_n.md)       | `"scr_grim_map_total_n"`    |
+|  |  |
+|----|----|
+| **Function** | **Class** |
+| [`grim_map_total_n()`](https://lhdjung.github.io/scrutiny/reference/grim_map_total_n.md) | `"scr_grim_map_total_n"` |
 | [`grimmer_map_total_n()`](https://lhdjung.github.io/scrutiny/reference/grimmer_map_total_n.md) | `"scr_grimmer_map_total_n"` |
-| [`debit_map_total_n()`](https://lhdjung.github.io/scrutiny/reference/debit_map_total_n.md)     | `"scr_debit_map_total_n"`   |
+| [`debit_map_total_n()`](https://lhdjung.github.io/scrutiny/reference/debit_map_total_n.md) | `"scr_debit_map_total_n"` |
 
 ## Examples
 

@@ -87,12 +87,12 @@ function_map_total_n(
 
 A function such as these:
 
-|                                                                                                |                         |                                                                                 |
-|------------------------------------------------------------------------------------------------|-------------------------|---------------------------------------------------------------------------------|
-| **Manufactured function**                                                                      | **Reported statistics** | **Test vignette**                                                               |
-| [`grim_map_total_n()`](https://lhdjung.github.io/scrutiny/reference/grim_map_total_n.md)       | `"x"`                   | [`vignette("grim")`](https://lhdjung.github.io/scrutiny/articles/grim.md)       |
-| [`grimmer_map_total_n()`](https://lhdjung.github.io/scrutiny/reference/grimmer_map_total_n.md) | `"x"`, `"sd"`           | [`vignette("grimmer")`](https://lhdjung.github.io/scrutiny/articles/grimmer.md) |
-| [`debit_map_total_n()`](https://lhdjung.github.io/scrutiny/reference/debit_map_total_n.md)     | `"x"`, `"sd"`           | [`vignette("debit")`](https://lhdjung.github.io/scrutiny/articles/debit.md)     |
+|  |  |  |
+|----|----|----|
+| **Manufactured function** | **Reported statistics** | **Test vignette** |
+| [`grim_map_total_n()`](https://lhdjung.github.io/scrutiny/reference/grim_map_total_n.md) | `"x"` | [`vignette("grim")`](https://lhdjung.github.io/scrutiny/articles/grim.md) |
+| [`grimmer_map_total_n()`](https://lhdjung.github.io/scrutiny/reference/grimmer_map_total_n.md) | `"x"`, `"sd"` | [`vignette("grimmer")`](https://lhdjung.github.io/scrutiny/articles/grimmer.md) |
+| [`debit_map_total_n()`](https://lhdjung.github.io/scrutiny/reference/debit_map_total_n.md) | `"x"`, `"sd"` | [`vignette("debit")`](https://lhdjung.github.io/scrutiny/articles/debit.md) |
 
 The factory-made function will also have dots, `...`, to pass arguments
 down to `.fun`, i.e., the basic mapper function.

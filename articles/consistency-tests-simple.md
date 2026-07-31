@@ -1,6 +1,7 @@
 # Implementing your consistency test
 
 ``` r
+
 library(scrutiny)
 ```
 
@@ -23,6 +24,7 @@ single-case nature. Here, I use a mock test without real meaning, called
 SCHLIM:
 
 ``` r
+
 schlim_scalar <- function(y, n) {
   y <- as.numeric(y)
   n <- as.numeric(n)
@@ -43,6 +45,7 @@ you turn the single-case function into a vectorized one, so that the new
 function’s arguments can have a length greater than 1:
 
 ``` r
+
 schlim <- Vectorize(schlim_scalar)
 
 schlim(y = 10:15, n = 4)
@@ -58,6 +61,7 @@ does. Its name should also end on `_map`. Use
 to get this function without much effort:
 
 ``` r
+
 schlim_map <- function_map(
   .fun = schlim_scalar,
   .reported = c("y", "n"),
@@ -98,6 +102,7 @@ This enables you to use
 following the mapper function:
 
 ``` r
+
 audit.scr_schlim_map <- function(data) {
   audit_cols_minimal(data, name_test = "SCHLIM")
 }
@@ -129,6 +134,7 @@ does. Create a sequence mapper by simply calling
 [`function_map_seq()`](https://lhdjung.github.io/scrutiny/reference/function_map_seq.md):
 
 ``` r
+
 schlim_map_seq <- function_map_seq(
   .fun = schlim_map,
   .reported = c("y", "n"),
@@ -157,6 +163,7 @@ Get summary statistics with
 [`audit_seq()`](https://lhdjung.github.io/scrutiny/reference/audit-special.md):
 
 ``` r
+
 df1 %>% 
   schlim_map_seq() %>% 
   audit_seq()
@@ -178,6 +185,7 @@ Suppose you have grouped data but no group sizes are known, only a total
 sample size:
 
 ``` r
+
 df2 <- tibble::tribble(
   ~y1, ~y2, ~n,
    84,  37,  29,
@@ -189,6 +197,7 @@ To tackle this, create a total-n mapper that varies hypothetical group
 sizes:
 
 ``` r
+
 schlim_map_total_n <- function_map_total_n(
   .fun = schlim_map,
   .reported = "y",
@@ -217,6 +226,7 @@ Get summary statistics with
 [`audit_total_n()`](https://lhdjung.github.io/scrutiny/reference/audit-special.md):
 
 ``` r
+
 df2 %>% 
   schlim_map_total_n() %>% 
   audit_total_n()

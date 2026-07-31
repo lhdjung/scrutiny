@@ -1,6 +1,7 @@
 # Duplication analysis
 
 ``` r
+
 library(scrutiny)
 ```
 
@@ -13,6 +14,7 @@ counting, and summarizing duplicates. It uses the `pigs4` dataset as a
 simple example:
 
 ``` r
+
 pigs4
 #> # A tibble: 5 × 3
 #>   snout tail  wings
@@ -30,6 +32,7 @@ A good first step is to create a frequency table. To do so, use
 [`duplicate_count()`](https://lhdjung.github.io/scrutiny/reference/duplicate_count.md):
 
 ``` r
+
 pigs4 %>% 
   duplicate_count()
 #> # A tibble: 11 × 4
@@ -67,6 +70,7 @@ to get summary statistics for the two numeric columns, `frequency` and
 `locations_n`:
 
 ``` r
+
 pigs4 %>% 
     duplicate_count() %>% 
     audit()
@@ -84,8 +88,22 @@ Sometimes, a sequence of data may be repeated in multiple columns.
 helps find such cases:
 
 ``` r
+
 pigs4 %>% 
   duplicate_count_colpair()
+#> Warning: There was 1 warning in `dplyr::summarise()`.
+#> ℹ In argument: `dplyr::across(...)`.
+#> Caused by warning:
+#> ! The `...` argument of `across()` is deprecated as of dplyr 1.1.0.
+#> Supply arguments directly to `.fns` through an anonymous function instead.
+#> 
+#>   # Previously
+#>   across(a:b, mean, na.rm = TRUE)
+#> 
+#>   # Now
+#>   across(a:b, \(x) mean(x, na.rm = TRUE))
+#> ℹ The deprecated feature was likely used in the corrr package.
+#>   Please report the issue at <https://github.com/tidymodels/corrr/issues>.
 #> # A tibble: 3 × 7
 #>   x     y     count total_x total_y rate_x rate_y
 #>   <chr> <chr> <int>   <int>   <int>  <dbl>  <dbl>
@@ -111,6 +129,7 @@ Again, you can call
 summary statistics:
 
 ``` r
+
 pigs4 %>% 
   duplicate_count_colpair() %>% 
   audit()
@@ -134,6 +153,7 @@ count how often the values to their left appear in the data frame as a
 whole:
 
 ``` r
+
 pigs4 %>% 
     duplicate_tally()
 #> # A tibble: 5 × 6
@@ -159,6 +179,7 @@ summarizes all of these columns together, with `"term"` saying
 `".total"`:
 
 ``` r
+
 pigs4 %>% 
     duplicate_tally() %>% 
     audit()

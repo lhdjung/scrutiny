@@ -2,6 +2,8 @@
 
 ## scrutiny 0.6.1
 
+CRAN release: 2025-12-02
+
 This is a fix for compatibility with testthat 3.3.0. Also:
 
 ### Bugfixes

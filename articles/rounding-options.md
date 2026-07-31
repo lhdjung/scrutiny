@@ -56,7 +56,7 @@ technologies round?
 - In
   [Excel](https://support.microsoft.com/en-us/office/round-a-number-f82b440b-689d-4221-b21e-38da99d33435),
   `ROUND()` rounds up from 5, `ROUNDUP()` ceils the number, and
-  `ROUNDDOWN()` floors it.[¹](#fn1)
+  `ROUNDDOWN()` floors it.[^1]
 
 ## Note on rounding to even
 
@@ -68,11 +68,9 @@ or a [more general
 article](https://docs.python.org/3/tutorial/floatingpoint.html#tut-fp-issues)
 about the limits of floating-point arithmetic.
 
-------------------------------------------------------------------------
-
-1.  Excel’s naming is inconsistent with scrutiny’s usage. For instance,
-    `ROUNDUP()` *always* rounds to the higher number, which is called
-    ceiling in scrutiny (and in more common parlance). However,
+[^1]: Excel’s naming is inconsistent with scrutiny’s usage. For
+    instance, `ROUNDUP()` *always* rounds to the higher number, which is
+    called ceiling in scrutiny (and in more common parlance). However,
     scrutiny’s notion of `"up"` relies on a shared understanding with
     the user that numbers will only be rounded up from 5, not from any
     lower value; likewise with `"down"`. This is arguably suboptimal:

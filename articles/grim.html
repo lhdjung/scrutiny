@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>GRIM • scrutiny</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="GRIM">
 </head>
@@ -395,7 +395,7 @@ sets.</p></li>
 <span><span class="va">jpap_5</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/grim_map.html">grim_map</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/grim_plot.html">grim_plot</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="grim_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" width="576"></p>
+<p><img src="grim_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" alt="" width="576"></p>
 <p><code><a href="../reference/grim_plot.html">grim_plot()</a></code> can only be called on
 <code><a href="../reference/grim_map.html">grim_map()</a></code>’s output. It will fail otherwise:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
@@ -430,7 +430,7 @@ before):</p>
 <code class="sourceCode R"><span><span class="va">jpap_5</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/grim_map.html">grim_map</a></span><span class="op">(</span>rounding <span class="op">=</span> <span class="st">"ceiling"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/grim_plot.html">grim_plot</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="grim_files/figure-html/unnamed-chunk-13-1.png" class="r-plt" width="576"></p>
+<p><img src="grim_files/figure-html/unnamed-chunk-13-1.png" class="r-plt" alt="" width="576"></p>
 <p>All <code>rounding</code> values other than <code>up_from</code>,
 <code>down_from</code>, and <code>up_from_or_down_from</code> are
 supported.</p>
@@ -526,7 +526,7 @@ longer, the number of hits tends to increase:</p>
 give us a sense of how many tested values are consistent:</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/grim_plot.html">grim_plot</a></span><span class="op">(</span><span class="va">out_seq1</span><span class="op">)</span></span></code></pre></div>
-<p><img src="grim_files/figure-html/unnamed-chunk-17-1.png" class="r-plt" width="576"></p>
+<p><img src="grim_files/figure-html/unnamed-chunk-17-1.png" class="r-plt" alt="" width="576"></p>
 <p>The crosses appear because <code><a href="../reference/grim_map_seq.html">grim_map_seq()</a></code> creates
 sequences around both <code>x</code> and <code>n</code>. Restrict this
 process to any one of these with the <code>var</code> argument:</p>
@@ -535,10 +535,10 @@ process to any one of these with the <code>var</code> argument:</p>
 <span><span class="va">out_seq1_only_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grim_map_seq.html">grim_map_seq</a></span><span class="op">(</span><span class="va">pigs1</span>, var <span class="op">=</span> <span class="st">"n"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/grim_plot.html">grim_plot</a></span><span class="op">(</span><span class="va">out_seq1_only_x</span><span class="op">)</span></span></code></pre></div>
-<p><img src="grim_files/figure-html/unnamed-chunk-18-1.png" class="r-plt" width="576"></p>
+<p><img src="grim_files/figure-html/unnamed-chunk-18-1.png" class="r-plt" alt="" width="576"></p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/grim_plot.html">grim_plot</a></span><span class="op">(</span><span class="va">out_seq1_only_n</span><span class="op">)</span></span></code></pre></div>
-<p><img src="grim_files/figure-html/unnamed-chunk-18-2.png" class="r-plt" width="576"></p>
+<p><img src="grim_files/figure-html/unnamed-chunk-18-2.png" class="r-plt" alt="" width="576"></p>
 </div>
 </div>
 <div class="section level3">
@@ -646,7 +646,7 @@ each of them. See the <em>Examples</em> section of
 <p>The <code>probability</code> column in a tibble returned by
 <code><a href="../reference/grim_map.html">grim_map()</a></code> is the probability of GRIM inconsistency,
 i.e.:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>=</mo><mi>m</mi><mi>a</mi><mi>x</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mfrac><mrow><msup><mn>10</mn><mi>D</mi></msup><mo>−</mo><mi>N</mi><mi>L</mi></mrow><msup><mn>10</mn><mi>D</mi></msup></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>=</mo><mi>m</mi><mi>a</mi><mi>x</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mfrac><mrow><msup><mn>10</mn><mi>D</mi></msup><mo>−</mo><mi>N</mi><mi>L</mi></mrow><msup><mn>10</mn><mi>D</mi></msup></mfrac><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
 P = max(0, \frac{10^D - NL}{10^D})
 </annotation></semantics></math></p>
 <p>where
@@ -659,7 +659,7 @@ is the sample size, and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>L</mi><annotation encoding="application/x-tex">L</annotation></semantics></math>
 is the number of scale items. The fraction will never be greater than 1,
 and the
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mi>a</mi><mi>x</mi><mrow><mo stretchy="true" form="prefix">(</mo><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">max()</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mi>a</mi><mi>x</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">max()</annotation></semantics></math>
 function limits it at 0.</p>
 <p>Consider a mean
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
@@ -748,7 +748,7 @@ of cases.</p>
 <p>Assuming
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>=</mo><mn>70</mn></mrow><annotation encoding="application/x-tex">N = 70</annotation></semantics></math>
 and inserting all of these values into the above formula returns</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mi>a</mi><mi>x</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mfrac><mrow><msup><mn>10</mn><mn>2</mn></msup><mo>−</mo><mn>70</mn><mo>×</mo><mn>1</mn></mrow><msup><mn>10</mn><mn>2</mn></msup></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mn>0.3</mn></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mi>a</mi><mi>x</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mfrac><mrow><msup><mn>10</mn><mn>2</mn></msup><mo>−</mo><mn>70</mn><mo>×</mo><mn>1</mn></mrow><msup><mn>10</mn><mn>2</mn></msup></mfrac><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.3</mn></mrow><annotation encoding="application/x-tex">
 max(0, \frac{10^2-70×1}{10^2}) = 0.3
 </annotation></semantics></math></p>
 <p>so that a random mean will be inconsistent in about 30% of cases and,
@@ -818,7 +818,7 @@ displayed:</p>
 <div class="section level2">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-bauer_expression_2021" class="csl-entry">
 Bauer, Patricia J., and Gregory Francis. 2021. <span>“Expression of
 <span>Concern</span>: <span>Is</span> <span>It</span> <span>Light</span>
@@ -848,7 +848,7 @@ Psychological and Personality Science</em> 8 (4): 363–69.
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

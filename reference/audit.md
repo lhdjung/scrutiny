@@ -32,18 +32,18 @@ functions and their associated summary statistics.
 
 ## Run before `audit()`
 
-|                                                                                                        |                           |
-|--------------------------------------------------------------------------------------------------------|---------------------------|
-| **Function**                                                                                           | **Class**                 |
-| [`grim_map()`](https://lhdjung.github.io/scrutiny/reference/grim_map.md)                               | `"scr_grim_map"`          |
-| [`grimmer_map()`](https://lhdjung.github.io/scrutiny/reference/grimmer_map.md)                         | `"scr_grimmer_map"`       |
-| [`debit_map()`](https://lhdjung.github.io/scrutiny/reference/debit_map.md)                             | `"scr_debit_map"`         |
-| [`duplicate_count()`](https://lhdjung.github.io/scrutiny/reference/duplicate_count.md)                 | `"scr_dup_count"`         |
+|  |  |
+|----|----|
+| **Function** | **Class** |
+| [`grim_map()`](https://lhdjung.github.io/scrutiny/reference/grim_map.md) | `"scr_grim_map"` |
+| [`grimmer_map()`](https://lhdjung.github.io/scrutiny/reference/grimmer_map.md) | `"scr_grimmer_map"` |
+| [`debit_map()`](https://lhdjung.github.io/scrutiny/reference/debit_map.md) | `"scr_debit_map"` |
+| [`duplicate_count()`](https://lhdjung.github.io/scrutiny/reference/duplicate_count.md) | `"scr_dup_count"` |
 | [`duplicate_count_colpair()`](https://lhdjung.github.io/scrutiny/reference/duplicate_count_colpair.md) | `"scr_dup_count_colpair"` |
-| [`duplicate_tally()`](https://lhdjung.github.io/scrutiny/reference/duplicate_tally.md)                 | `"scr_dup_tally"`         |
-| [`duplicate_detect()`](https://lhdjung.github.io/scrutiny/reference/duplicate_detect.md)               | `"scr_dup_detect"`        |
-| [`audit_seq()`](https://lhdjung.github.io/scrutiny/reference/audit-special.md)                         | `"scr_audit_seq"`         |
-| [`audit_total_n()`](https://lhdjung.github.io/scrutiny/reference/audit-special.md)                     | `"scr_audit_total_n"`     |
+| [`duplicate_tally()`](https://lhdjung.github.io/scrutiny/reference/duplicate_tally.md) | `"scr_dup_tally"` |
+| [`duplicate_detect()`](https://lhdjung.github.io/scrutiny/reference/duplicate_detect.md) | `"scr_dup_detect"` |
+| [`audit_seq()`](https://lhdjung.github.io/scrutiny/reference/audit-special.md) | `"scr_audit_seq"` |
+| [`audit_total_n()`](https://lhdjung.github.io/scrutiny/reference/audit-special.md) | `"scr_audit_total_n"` |
 
 ## Examples
 

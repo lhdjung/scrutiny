@@ -1,6 +1,7 @@
 # GRIM
 
 ``` r
+
 library(scrutiny)
 ```
 
@@ -42,6 +43,7 @@ To test if a reported mean of 5.27 on a granular scale is
 GRIM-consistent with a sample size of 43, run this:
 
 ``` r
+
 grim(x = "5.27", n = 43)
 #>  5.27 
 #> FALSE
@@ -82,6 +84,7 @@ Copy summary data from a PDF file and paste them into
 which is available via scrutiny:
 
 ``` r
+
 flying_pigs1 <- tibble::tribble(
   ~x,
 "8.97",
@@ -105,6 +108,7 @@ Now, simply run
 on that data frame:
 
 ``` r
+
 grim_map(flying_pigs1)
 #> # A tibble: 7 × 4
 #>   x         n consistency probability
@@ -132,6 +136,7 @@ the single-item default, half of these are wrongly flagged as
 inconsistent:
 
 ``` r
+
 jpap_1 <- tibble::tribble(
    ~x,
   "5.90",
@@ -160,6 +165,7 @@ Yet, all of them are consistent if the correct number of items is
 stated:
 
 ``` r
+
 jpap_1 %>% 
   grim_map(items = 3)
 #> # A tibble: 6 × 4
@@ -177,6 +183,7 @@ It is also possible to include an `items` column in the data frame
 instead:
 
 ``` r
+
 jpap_2 <- tibble::tribble(
    ~x,    ~items,
   "6.92",  1,
@@ -218,6 +225,7 @@ values by 100 and increases the decimal count by two, so that
 percentages can be tested just like means:
 
 ``` r
+
 jpap_3 <- tibble::tribble(
   ~x,     ~n,
   "32.5",  438,
@@ -245,6 +253,7 @@ during GRIM-testing to be displayed in the output. They will be columns
 prefixed with `rec_`:
 
 ``` r
+
 pigs1 %>% 
   grim_map(show_rec = TRUE) %>% 
   dplyr::select(4:8)   # output cut down for printing
@@ -305,6 +314,7 @@ the generic function
 summarizes GRIM test results:
 
 ``` r
+
 flying_pigs1 %>% 
   grim_map() %>% 
   audit() %>% 
@@ -338,6 +348,7 @@ There is a specialized visualization function for GRIM test results,
 [`grim_plot()`](https://lhdjung.github.io/scrutiny/reference/grim_plot.md):
 
 ``` r
+
 jpap_5 <- tibble::tribble(
   ~x,        ~n,
   "7.19",    28,
@@ -366,6 +377,7 @@ can only be called on
 output. It will fail otherwise:
 
 ``` r
+
 grim_plot(mtcars)
 #> Error in `grim_plot()`:
 #> ! `grim_plot()` needs GRIM or GRIMMER test results.
@@ -389,8 +401,8 @@ options are available via arguments. Read about them at
 [`grim_plot()`](https://lhdjung.github.io/scrutiny/reference/grim_plot.md)’s
 documentation.
 
-You might notice the light vertical lines at $n = 40$ and $n = 80$: Few
-values are flagged as inconsistent here. This reflects
+You might notice the light vertical lines at $`n = 40`$ and $`n = 80`$:
+Few values are flagged as inconsistent here. This reflects
 [`grim_map()`](https://lhdjung.github.io/scrutiny/reference/grim_map.md)’s
 charitable default of accepting values rounded either up *or* down from
 5. If a different `rounding` specification is chosen in the
@@ -399,6 +411,7 @@ call, the plot raster will adjust automatically (although it will often
 be the same as before):
 
 ``` r
+
 jpap_5 %>% 
   grim_map(rounding = "ceiling") %>% 
   grim_plot()
@@ -427,6 +440,7 @@ Use
 to GRIM-test the values surrounding the reported means and sample sizes:
 
 ``` r
+
 out_seq1 <- grim_map_seq(pigs1)
 out_seq1
 #> # A tibble: 160 × 7
@@ -452,6 +466,7 @@ As this output is a little unwieldy, run
 on the results:
 
 ``` r
+
 audit_seq(out_seq1)
 #> # A tibble: 8 × 12
 #>   x         n consistency hits_total hits_x hits_n diff_x diff_x_up diff_x_down
@@ -487,6 +502,7 @@ the `dispersion` sequence gets longer, the number of hits tends to
 increase:
 
 ``` r
+
 out_seq2 <- grim_map_seq(pigs1, dispersion = 1:10)
 audit_seq(out_seq2)
 #> # A tibble: 8 × 12
@@ -511,6 +527,7 @@ Like regular GRIM plots, however, it does give us a sense of how many
 tested values are consistent:
 
 ``` r
+
 grim_plot(out_seq1)
 ```
 
@@ -522,6 +539,7 @@ creates sequences around both `x` and `n`. Restrict this process to any
 one of these with the `var` argument:
 
 ``` r
+
 out_seq1_only_x <- grim_map_seq(pigs1, var = "x")
 out_seq1_only_n <- grim_map_seq(pigs1, var = "n")
 
@@ -531,6 +549,7 @@ grim_plot(out_seq1_only_x)
 ![](grim_files/figure-html/unnamed-chunk-18-1.png)
 
 ``` r
+
 grim_plot(out_seq1_only_n)
 ```
 
@@ -574,6 +593,7 @@ for summarizing the results. It will find two further plausible
 scenarios in which both means are consistent; more on that below.
 
 ``` r
+
 df <- tibble::tibble(x1 = "4.71", x2 = "5.3", n = 40)
 
 # Detailed results:
@@ -643,22 +663,24 @@ The `probability` column in a tibble returned by
 [`grim_map()`](https://lhdjung.github.io/scrutiny/reference/grim_map.md)
 is the probability of GRIM inconsistency, i.e.:
 
-$$P = max\left( 0,\frac{10^{D} - NL}{10^{D}} \right)$$
+``` math
+P = max(0, \frac{10^D - NL}{10^D})
+```
 
-where $D$ is the number of decimal places in $X$ (the mean or
-proportion), $N$ is the sample size, and $L$ is the number of scale
-items. The fraction will never be greater than 1, and the $max{()}$
+where $`D`$ is the number of decimal places in $`X`$ (the mean or
+proportion), $`N`$ is the sample size, and $`L`$ is the number of scale
+items. The fraction will never be greater than 1, and the $`max()`$
 function limits it at 0.
 
-Consider a mean $X$ that was ostensibly derived from integer data. It
-has $D$ decimal places, but is otherwise random: the integer part is
-irrelevant in any case, and the exact digits that occupy the $D$ decimal
-places are ignored. $P$, then, is the probability that $X$ is
-GRIM-inconsistent. Naturally, $P$ is also the proportion of inconsistent
-value sets with $D$ decimal places, a sample size of $N$, and $L$ scale
-items.
+Consider a mean $`X`$ that was ostensibly derived from integer data. It
+has $`D`$ decimal places, but is otherwise random: the integer part is
+irrelevant in any case, and the exact digits that occupy the $`D`$
+decimal places are ignored. $`P`$, then, is the probability that $`X`$
+is GRIM-inconsistent. Naturally, $`P`$ is also the proportion of
+inconsistent value sets with $`D`$ decimal places, a sample size of
+$`N`$, and $`L`$ scale items.
 
-In real-world scenarios, one would not usually assume $X$ to be random
+In real-world scenarios, one would not usually assume $`X`$ to be random
 at the outset of an investigation, but this can be interesting as a
 contrasting assumption. If a study has many GRIM-inconsistent value sets
 with very high probabilities of inconsistency, it may suggest that the
@@ -678,6 +700,7 @@ takes the arguments `x`, `n`, `items`, and `percent` as in
 As before, `x` must be a string to capture any trailing zeros:
 
 ``` r
+
 grim_probability(x = "1.40", n = 72)
 #> [1] 0.28
 
@@ -700,6 +723,7 @@ takes the same arguments but returns only the numerator of the fraction
 in the above formula:
 
 ``` r
+
 grim_total(x = "1.40", n = 72)
 #> [1] 28
 
@@ -714,7 +738,7 @@ The result is the total number of GRIM-inconsistent value sets with the
 given parameters. However, this is generally less useful than
 [`grim_probability()`](https://lhdjung.github.io/scrutiny/reference/grim-stats.md):
 the result is only comparable across different numbers of decimal places
-when normalized by $10^{D}$.
+when normalized by $`10^D`$.
 
 ##### Origins
 
@@ -724,14 +748,16 @@ transformation of the formula presented on p. 364, and the authors
 discuss a common special case of the probability (interpreted as a
 proportion) on p. 367:
 
-> With reporting to two decimal places, for a sample size $N < 100$
+> With reporting to two decimal places, for a sample size $`N < 100`$
 > \[and a single item\], a random mean value will be consistent in
-> approximately $N$% of cases.
+> approximately $`N`$% of cases.
 
-Assuming $N = 70$ and inserting all of these values into the above
+Assuming $`N = 70`$ and inserting all of these values into the above
 formula returns
 
-$$max\left( 0,\frac{10^{2} - 70 \times 1}{10^{2}} \right) = 0.3$$
+``` math
+max(0, \frac{10^2-70×1}{10^2}) = 0.3
+```
 
 so that a random mean will be inconsistent in about 30% of cases and,
 conversely, consistent in about 70%.
@@ -740,6 +766,7 @@ Here is the same in code (assuming an arbitrary mean with two decimal
 places):
 
 ``` r
+
 grim_probability(x = "0.99", n = 70)
 #> [1] 0.3
 ```
@@ -754,15 +781,19 @@ and granularity.
 
 ##### Formulas
 
-The granularity ($G$) formula is
+The granularity ($`G`$) formula is
 
-$$G = \frac{1}{NL}$$
+``` math
+G = \frac{1}{NL}
+```
 
-where $N$ is the sample size and $L$ is the number of items.
+where $`N`$ is the sample size and $`L`$ is the number of items.
 
 The scale items formula is the converse:
 
-$$L = \frac{1}{NG}$$
+``` math
+L = \frac{1}{NG}
+```
 
 ##### Functions
 
@@ -770,6 +801,7 @@ Consider an ordinal distribution with 80 observations and five items. To
 get its granularity, run this:
 
 ``` r
+
 grim_granularity(n = 80, items = 5)
 #> [1] 0.0025
 ```
@@ -779,6 +811,7 @@ Now, imagine a distribution with 50 observations and a granularity of
 code:
 
 ``` r
+
 grim_items(n = 50, gran = 0.01)
 #> [1] 2
 ```
@@ -789,6 +822,7 @@ that doesn’t return whole numbers indicates a problem in earlier
 computations. A warning to that effect will be displayed:
 
 ``` r
+
 grim_items(n = c(50, 65, 93), gran = 0.02)
 #> Warning: 2 out of 3 item counts aren't whole numbers.
 #> → This concerns `0.769` and `0.538`.

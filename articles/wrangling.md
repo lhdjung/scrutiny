@@ -1,6 +1,7 @@
 # Data wrangling
 
 ``` r
+
 library(scrutiny)
 ```
 
@@ -71,6 +72,7 @@ the present context:
 You should then get something like this:
 
 ``` r
+
 flights1 <- tibble::tribble(
   ~x,
 "8.97",
@@ -89,6 +91,7 @@ All that’s missing is the sample size. Add it either via another
 which also comes with scrutiny:
 
 ``` r
+
 flights1 <- flights1 %>% 
   dplyr::mutate(n = 28)
 
@@ -114,6 +117,7 @@ to format them correctly. Suppose all of the following numbers
 originally had one decimal place, but some no longer do:
 
 ``` r
+
 vec <- c(4, 6.9, 5, 4.2, 4.8, 7, 4)
 
 vec %>% 
@@ -125,6 +129,7 @@ Now, get them back with
 [`restore_zeros()`](https://lhdjung.github.io/scrutiny/reference/restore_zeros.md):
 
 ``` r
+
 vec %>% 
   restore_zeros()
 #> [1] "4.0" "6.9" "5.0" "4.2" "4.8" "7.0" "4.0"
@@ -142,6 +147,7 @@ itself have lost decimal places. Specify the `width` argument to
 explicitly state the desired mantissa length:
 
 ``` r
+
 vec %>% 
   restore_zeros(width = 2)
 #> [1] "4.00" "6.90" "5.00" "4.20" "4.80" "7.00" "4.00"
@@ -158,6 +164,7 @@ By default, it operates on all columns that are coercible to numeric
 (factors don’t count):
 
 ``` r
+
 iris <- tibble::as_tibble(iris)
 iris %>% 
   restore_zeros_df(width = 3)
@@ -181,6 +188,7 @@ Specify columns mostly like you would in
 [`dplyr::select()`](https://dplyr.tidyverse.org/reference/select.html):
 
 ``` r
+
 iris %>% 
   restore_zeros_df(starts_with("Sepal"), width = 3)
 #> # A tibble: 150 × 5
@@ -209,6 +217,7 @@ teasing them apart, call
 [`split_by_parens()`](https://lhdjung.github.io/scrutiny/reference/split_by_parens.md):
 
 ``` r
+
 flights2 <- tibble::tribble(
   ~drone,           ~selfpilot,
   "0.09 (0.21)",    "0.19 (0.13)",
@@ -231,6 +240,7 @@ flights2 %>%
 Optionally, transform these values into a more useful format:
 
 ``` r
+
 flights2 %>% 
   split_by_parens(transform = TRUE)
 #> # A tibble: 8 × 3
@@ -252,6 +262,7 @@ almost right away (supposing you deal with binary distributions’ means
 and standard deviations):
 
 ``` r
+
 flights2 %>% 
   split_by_parens(transform = TRUE) %>% 
   dplyr::mutate(n = 80) %>% 
@@ -286,6 +297,7 @@ this won’t fit for all data presented like `5.22 (0.73)`. Override the
 defaults by specifying `col1` and/or `col2`:
 
 ``` r
+
 flights2 %>% 
   split_by_parens(end1 = "beta", end2 = "se")
 #> # A tibble: 4 × 4
@@ -300,6 +312,7 @@ flights2 %>%
 These suffixes become column names if `transform` is set to `TRUE`:
 
 ``` r
+
 flights2 %>% 
   split_by_parens(end1 = "beta", end2 = "se", transform = TRUE)
 #> # A tibble: 8 × 3
@@ -321,6 +334,7 @@ There also are specific functions for extracting the parts of the
 individual string vectors before or inside the parentheses:
 
 ``` r
+
 flights3 <- flights2 %>% 
   dplyr::pull(selfpilot)
 
@@ -347,6 +361,7 @@ I will first simulate the problem. `x` and `n` should be column names,
 but instead they are values in the first row:
 
 ``` r
+
 flights1_with_issues <- flights1 %>% 
     dplyr::mutate(n = as.character(n)) %>% 
     tibble::add_row(x = "x", n = "n", .before = 1)
@@ -380,6 +395,7 @@ place.
 With the above example:
 
 ``` r
+
 flights1_with_issues %>% 
   row_to_colnames()
 #> # A tibble: 7 × 2

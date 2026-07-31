@@ -1,6 +1,7 @@
 # Rounding in depth
 
 ``` r
+
 library(scrutiny)
 ```
 
@@ -65,6 +66,7 @@ Here is an example for a
 call:
 
 ``` r
+
 reround(x = c(5.812, 7.249), digits = 2, rounding = "up")
 #> [1] 5.81 7.25
 ```
@@ -84,6 +86,7 @@ cut off by rounding is 5 or greater, it rounds up. Otherwise, it rounds
 down.
 
 ``` r
+
 round_up(x = 1.24, digits = 1)
 #> [1] 1.2
 
@@ -99,6 +102,7 @@ Rounding up from 5 is actually a special case of
 which can take any numeric threshold, not just 5:
 
 ``` r
+
 round_up_from(x = 4.28, digits = 1, threshold = 9)
 #> [1] 4.2
 
@@ -114,6 +118,7 @@ The arguments are the same as in
 [`round_up()`](https://lhdjung.github.io/scrutiny/reference/rounding-common.md):
 
 ``` r
+
 round_down(x = 1.24, digits = 1)
 #> [1] 1.2
 
@@ -129,6 +134,7 @@ then, is just the reverse of
 [`round_up_from()`](https://lhdjung.github.io/scrutiny/reference/rounding-common.md):
 
 ``` r
+
 round_down_from(x = 4.28, digits = 1, threshold = 9)
 #> [1] 4.3
 
@@ -138,17 +144,22 @@ round_down_from(x = 4.28, digits = 1, threshold = 1)
 
 Rounding up implements this formula:
 
-$$\frac{\lfloor x\left( 10^{d} \right) + 1 - \frac{t}{10}\rfloor}{10^{d}}$$
+``` math
+\frac{\lfloor x(10^d) +1 - \frac{t}{10} \rfloor}{10^d}
+```
 
-where $x$ is the number to be rounded, $d$ is the number of decimal
-places to which $x$ should be rounded, and $t$ is the threshold for
-rounding up (e.g., $t = 5$ for rounding up from 5). Note that
-$\lfloor n\rfloor$ floors a number $n$, and $\lceil n\rceil$ ceils it.
+where $`x`$ is the number to be rounded, $`d`$ is the number of decimal
+places to which $`x`$ should be rounded, and $`t`$ is the threshold for
+rounding up (e.g., $`t = 5`$ for rounding up from 5). Note that
+$`\lfloor n \rfloor`$ floors a number $`n`$, and $`\lceil n \rceil`$
+ceils it.
 
-Rounding down works accordingly. Note that $+$ and $-$ are reversed
+Rounding down works accordingly. Note that $`+`$ and $`-`$ are reversed
 here:
 
-$$\frac{\lceil x\left( 10^{d} \right) - 1 + \frac{t}{10}\rceil}{10^{d}}$$
+``` math
+\frac{\lceil x(10^d) - 1 + \frac{t}{10} \rceil}{10^d}
+```
 
 #### To even (base R)
 
@@ -183,6 +194,7 @@ Here is a case in which it works out, whereas the bias of rounding up or
 down is fully apparent:
 
 ``` r
+
 vec1 <- seq(from = 0.5, to = 9.5)
 up1 <- round_up(vec1)
 down1 <- round_down(vec1)
@@ -218,6 +230,7 @@ from [`round()`](https://rdrr.io/r/base/Round.html) that first seem
 bizarre, or at least unpredictable. Consider:
 
 ``` r
+
 vec2 <- seq(from = 4.5, to = 10.5)
 
 up2 <- round_up(vec2)
@@ -301,13 +314,13 @@ This table shows how
 [`base::round()`](https://rdrr.io/r/base/Round.html) and scrutiny
 correspond to IEEE 754:
 
-| Function                                                                                                | IEEE 754 attribute    |
-|---------------------------------------------------------------------------------------------------------|-----------------------|
-| [`base::round()`](https://rdrr.io/r/base/Round.html)                                                    | *roundTiesToEven*     |
-| [`round_up()`](https://lhdjung.github.io/scrutiny/reference/rounding-common.md) with `symmetric = TRUE` | *roundTiesToAway*     |
-| [`round_ceiling()`](https://lhdjung.github.io/scrutiny/reference/rounding-uncommon.md)                  | *roundTowardPositive* |
-| [`round_floor()`](https://lhdjung.github.io/scrutiny/reference/rounding-uncommon.md)                    | *roundTowardNegative* |
-| [`round_trunc()`](https://lhdjung.github.io/scrutiny/reference/rounding-uncommon.md)                    | *roundTowardZero*     |
+| Function | IEEE 754 attribute |
+|----|----|
+| [`base::round()`](https://rdrr.io/r/base/Round.html) | *roundTiesToEven* |
+| [`round_up()`](https://lhdjung.github.io/scrutiny/reference/rounding-common.md) with `symmetric = TRUE` | *roundTiesToAway* |
+| [`round_ceiling()`](https://lhdjung.github.io/scrutiny/reference/rounding-uncommon.md) | *roundTowardPositive* |
+| [`round_floor()`](https://lhdjung.github.io/scrutiny/reference/rounding-uncommon.md) | *roundTowardNegative* |
+| [`round_trunc()`](https://lhdjung.github.io/scrutiny/reference/rounding-uncommon.md) | *roundTowardZero* |
 
 Admittedly, scrutiny’s rounding functions were written without this
 standard in mind. That is why their names don’t match those of the IEEE
@@ -341,6 +354,7 @@ The default rounding procedure for
 is `"up_or_down"`:
 
 ``` r
+
 unround(x = "8.0")
 #> # A tibble: 1 × 7
 #>   range                  rounding   lower incl_lower x     incl_upper upper
@@ -369,6 +383,7 @@ always operates on the appropriate decimal level. This creates a need to
 take trailing zeros into account, which is why `x` needs to be a string:
 
 ``` r
+
 unround(x = "3.50", rounding = "up")
 #> # A tibble: 1 × 7
 #>   range                    rounding lower incl_lower x     incl_upper upper
@@ -395,6 +410,7 @@ to the higher-level function.)
 The following call returns the exact same tibble as above:
 
 ``` r
+
 unround(x = 3.5, digits = 2, rounding = "up")
 #> # A tibble: 1 × 7
 #>   range                   rounding lower incl_lower     x incl_upper upper
@@ -406,6 +422,7 @@ Since `x` is vectorized, you might test several reported numbers at
 once:
 
 ``` r
+
 vec2 <- c(2, 3.1, 3.5) %>% 
   restore_zeros()
 
@@ -431,6 +448,7 @@ and
 [`reround_to_fraction_level()`](https://lhdjung.github.io/scrutiny/reference/fractional-rounding.md):
 
 ``` r
+
 reround_to_fraction(x = 0.4, denominator = 2, rounding = "up")
 #> [1] 0.5
 ```
@@ -450,6 +468,7 @@ rounds to the nearest fraction at the decimal level specified via its
 `digits` argument:
 
 ``` r
+
 reround_to_fraction_level(
   x = 0.777, denominator = 5, digits = 0, rounding = "down"
 )
@@ -491,12 +510,15 @@ only makes sense with single rounding procedures.
 In general, bias due to rounding is computed by subtracting the original
 distribution from the rounded one:
 
-$$bias = x_{rounded} - x$$
+``` math
+bias = x_{rounded} - x
+```
 
 By default, the mean is computed to reduce the bias to a single data
 point:
 
 ``` r
+
 vec3 <- seq(from = 0.6, to = 0.7, by = 0.01)
 
 vec3
@@ -519,6 +541,7 @@ Set `mean` to `FALSE` to return the whole vector of individual biases
 instead:
 
 ``` r
+
 rounding_bias(x = vec3, digits = 0, rounding = "up", mean = FALSE)
 #>  [1] 0.40 0.39 0.38 0.37 0.36 0.35 0.34 0.33 0.32 0.31 0.30
 ```
@@ -527,6 +550,7 @@ Admittedly, this example is somewhat overdramatic. Here is a rather
 harmless one:
 
 ``` r
+
 vec4 <- rnorm(50000, 100, 15)
 
 rounding_bias(vec4, digits = 2)
@@ -589,5 +613,5 @@ the reference pasted at the bottom.)*
 
 ## References
 
-IEEE. 2019. “IEEE Standard for Floating-Point Arithmetic.”
+IEEE. 2019. *IEEE Standard for Floating-Point Arithmetic*.
 <https://doi.org/10.1109/IEEESTD.2019.8766229>.

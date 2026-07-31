@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Rounding in depth • scrutiny</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Rounding in depth">
 </head>
@@ -194,7 +194,7 @@ arguments are the same as in <code><a href="../reference/rounding-common.html">r
 <span><span class="fu"><a href="../reference/rounding-common.html">round_down_from</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">4.28</span>, digits <span class="op">=</span> <span class="fl">1</span>, threshold <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 4.2</span></span></code></pre></div>
 <p>Rounding up implements this formula:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac><mrow><mo stretchy="false" form="prefix">⌊</mo><mi>x</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mn>10</mn><mi>d</mi></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mn>1</mn><mo>−</mo><mfrac><mi>t</mi><mn>10</mn></mfrac><mo stretchy="false" form="postfix">⌋</mo></mrow><msup><mn>10</mn><mi>d</mi></msup></mfrac><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac><mrow><mo stretchy="false" form="prefix">⌊</mo><mi>x</mi><mo stretchy="false" form="prefix">(</mo><msup><mn>10</mn><mi>d</mi></msup><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>1</mn><mo>−</mo><mfrac><mi>t</mi><mn>10</mn></mfrac><mo stretchy="false" form="postfix">⌋</mo></mrow><msup><mn>10</mn><mi>d</mi></msup></mfrac><annotation encoding="application/x-tex">
 \frac{\lfloor x(10^d) +1 - \frac{t}{10} \rfloor}{10^d}
 </annotation></semantics></math></p>
 <p>where
@@ -215,11 +215,11 @@ and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⌈</mo><mi>n</mi><mo stretchy="false" form="postfix">⌉</mo></mrow><annotation encoding="application/x-tex">\lceil n \rceil</annotation></semantics></math>
 ceils it.</p>
 <p>Rounding down works accordingly. Note that
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>+</mo><annotation encoding="application/x-tex">+</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>+</mi><annotation encoding="application/x-tex">+</annotation></semantics></math>
 and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>−</mo><annotation encoding="application/x-tex">-</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>−</mi><annotation encoding="application/x-tex">-</annotation></semantics></math>
 are reversed here:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac><mrow><mo stretchy="false" form="prefix">⌈</mo><mi>x</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mn>10</mn><mi>d</mi></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mn>1</mn><mo>+</mo><mfrac><mi>t</mi><mn>10</mn></mfrac><mo stretchy="false" form="postfix">⌉</mo></mrow><msup><mn>10</mn><mi>d</mi></msup></mfrac><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac><mrow><mo stretchy="false" form="prefix">⌈</mo><mi>x</mi><mo stretchy="false" form="prefix">(</mo><msup><mn>10</mn><mi>d</mi></msup><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mn>1</mn><mo>+</mo><mfrac><mi>t</mi><mn>10</mn></mfrac><mo stretchy="false" form="postfix">⌉</mo></mrow><msup><mn>10</mn><mi>d</mi></msup></mfrac><annotation encoding="application/x-tex">
 \frac{\lceil x(10^d) - 1 + \frac{t}{10} \rceil}{10^d}
 </annotation></semantics></math></p>
 </div>
@@ -585,7 +585,7 @@ many decimal places are rounded:</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 0.000<span style="text-decoration: underline;">001</span>17    3 even         even    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 0.000<span style="text-decoration: underline;">000</span>059<span style="text-decoration: underline;">6</span>  4 even         even    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 0.000<span style="text-decoration: underline;">000</span>003<span style="text-decoration: underline;">42</span> 5 even         even</span></span></code></pre>
-<p><img src="rounding-in-depth_files/figure-html/unnamed-chunk-18-1.png" class="r-plt" width="700"></p>
+<p><img src="rounding-in-depth_files/figure-html/unnamed-chunk-18-1.png" class="r-plt" alt="" width="700"></p>
 <p>However, if the raw values are preliminarily rounded to 2 decimal
 places before rounding proceeds as above, the picture is different:</p>
 <pre><code><span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 10 × 3</span></span></span>
@@ -601,7 +601,7 @@ places before rounding proceeds as above, the picture is different:</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 0         3 even         even    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 0         4 even         even    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 0         5 even         even</span></span></code></pre>
-<p><img src="rounding-in-depth_files/figure-html/unnamed-chunk-19-1.png" class="r-plt" width="700"></p>
+<p><img src="rounding-in-depth_files/figure-html/unnamed-chunk-19-1.png" class="r-plt" alt="" width="700"></p>
 <p>In sum, the function allows users to quantify the degree to which
 rounding biases a distribution, so that they can assess the relative
 merits of different rounding procedures. This is partly to sensitize
@@ -621,10 +621,9 @@ bottom.)</em></p>
 <div class="section level2">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-ieee2019" class="csl-entry">
-IEEE. 2019. <span>“IEEE Standard for Floating-Point Arithmetic.”</span>
-<a href="https://doi.org/10.1109/IEEESTD.2019.8766229" class="external-link">https://doi.org/10.1109/IEEESTD.2019.8766229</a>.
+IEEE. 2019. <em>IEEE Standard for Floating-Point Arithmetic</em>. <a href="https://doi.org/10.1109/IEEESTD.2019.8766229" class="external-link">https://doi.org/10.1109/IEEESTD.2019.8766229</a>.
 </div>
 </div>
 </div>
@@ -639,7 +638,7 @@ IEEE. 2019. <span>“IEEE Standard for Floating-Point Arithmetic.”</span>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>
