@@ -13,6 +13,7 @@
 
 - `threshold` no longer affects `grim()` and `grimmer()` for `rounding = "up_or_down"`, `"up"`, and `"down"`. Those methods round from a fixed 5, as `round_up()` and `round_down()` do, and the documentation already described `threshold` as applying to the `"*_from"` methods only. Passing it alongside `"up"` used to silently move the bounds, producing verdicts that no rounding function in the package would agree with.
 
+- `grimmer()` now accepts `rounding = "ceiling_or_floor"`, `"up_from"`, `"down_from"`, and `"up_from_or_down_from"`. These used to throw an error, because the SD bounds came from `unround()`, which does not know these methods, even though `grim()` and `reround()` both do.
 
 - `round_ceiling()`, `round_floor()`, `round_trunc()`, and `round_anti_trunc()` no longer move a number a whole step because of floating-point error. Shifting a number by `digits` decimal places is inexact -- e.g., `0.28 * 100` is 28.000000000000004 -- so `round_ceiling(0.28, 2)` returned 0.29, and `round_floor(0.29, 2)` returned 0.28. These functions now apply the same tolerance that `round_up_from()` and `round_down_from()` already used.
 

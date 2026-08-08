@@ -532,6 +532,36 @@ test_that("GRIMMER never flags an actual two-value dataset (#86)", {
   expect_equal(false_flags, 0L)
 })
 
+# Rounding methods ----------------------------------------------------------
+
+test_that("GRIMMER supports the compound rounding methods", {
+  # These used to abort, because `unround()` -- which supplied the SD bounds --
+  # does not know them, even though `grim()` and `reround()` both do.
+  for (rounding in c("ceiling_or_floor", "up_from_or_down_from")) {
+    grimmer(
+      x = 5.23, sd = 2.55, n = 31, digits_x = 2, digits_sd = 2,
+      rounding = rounding, threshold = 3
+    ) %>%
+      expect_type("logical")
+  }
+})
+
+
+test_that("`symmetric` is passed on to the GRIM stage", {
+  # `grimmer()` runs `grim()` first, so a mean that `symmetric` rules out must
+  # make GRIMMER inconsistent as well:
+  expect_false(
+    grim(-0.07, n = 40, digits_x = 2, rounding = "up", symmetric = TRUE)
+  )
+  expect_false(
+    grimmer(
+      x = -0.07, sd = 0.1, n = 40, digits_x = 2, digits_sd = 1,
+      rounding = "up", symmetric = TRUE
+    )
+  )
+})
+
+
 # test_that("sd_bounds_measure works", {
 #   expect_equal(c(.45, 3.03), sd_bounds_measure(n = 5, x = 4.2, min_val = 1, max_val = 7, sd_prec = 2))
 #   expect_equal(c(.27, 3.03), sd_bounds_measure(n = 5, x = 4.2, min_val = 1, max_val = 7, sd_prec = 2, items = 2))

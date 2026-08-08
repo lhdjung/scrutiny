@@ -182,9 +182,32 @@ grimmer_scalar <- function(
   # threshold = 5.
   sd_bounds <- bound_numerators(
     x_num = sd,
-    digits = digits_    sd,
+    digits = digits_sd,
     rounding = rounding,
     threshold = threshold,
+symmetric = symmetric
+  )
+
+  # The only rounding method with undefined bounds is `"anti_trunc"`, and only
+  # at zero, which it can never produce. Consistency is then undecidable, just
+  # as it is for `grim_scalar()` in the same situation:
+  if (is.null(sd_bounds)) {
+    if (show_reason) {
+      return(list(NA, "SD rounding bounds undefined"))
+    }
+    return(NA)
+  }
+
+  sd_num_lower <- sd_bounds$lower
+  sd_incl_lower <- sd_bounds$incl_lower
+
+  # An SD cannot be negative, so a negative lower bound is really a bound of
+  # zero -- and that one is attainable, hence inclusive:
+  if (sd_num_lower < 0) {
+    sd_num_lower <- 0
+    sd_incl_lower <- TRUE
+  }
+
   # The `(n - 1) * sd^2 * items^2` part of the sum of squares does not depend on
   # the candidate sum, so both bounds of it are computed once, here:
   term_lower <- sd_square_term(sd_num_lower, n, items, sd_bounds$denom)
