@@ -9,3 +9,5 @@ docs
 /Meta/
 .positai
 .claude/*
+Rplots.pdf
+tests/testthat/Rplots.pdf
