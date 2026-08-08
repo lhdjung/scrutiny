@@ -165,3 +165,68 @@ test_that("GRIM agrees with the rounding functions themselves", {
     )
   }
 })
+
+
+# `symmetric` rounding ----------------------------------------------------
+
+test_that("`symmetric` is honored by the consistency decision", {
+  # The only granule around `-0.07 * 40` is `-3 / 40`, i.e. -0.075, which sits
+  # exactly on a rounding bound. Without `symmetric`, `round_up()` shifts it
+  # towards `+Inf` and it becomes -0.07; with `symmetric`, it mirrors the
+  # rounding of 0.075 and becomes -0.08 instead.
+  expect_equal(round_up(-0.075, 2, symmetric = FALSE), -0.07)
+  expect_equal(round_up(-0.075, 2, symmetric = TRUE), -0.08)
+
+  expect_true(
+    grim(-0.07, n = 40, digits_x = 2, rounding = "up", symmetric = FALSE)
+  )
+  expect_false(
+    grim(-0.07, n = 40, digits_x = 2, rounding = "up", symmetric = TRUE)
+  )
+
+  # Mirrored the other way around: with `symmetric`, `"down"` is what keeps
+  # -0.075 at -0.07.
+  expect_false(
+    grim(-0.07, n = 40, digits_x = 2, rounding = "down", symmetric = FALSE)
+  )
+  expect_true(
+    grim(-0.07, n = 40, digits_x = 2, rounding = "down", symmetric = TRUE)
+  )
+
+  # Positive values are unaffected:
+  for (rounding in c("up", "down", "up_or_down")) {
+    x <- seq(0, 100) / 100
+    expect_equal(
+      unname(grim(x, 40, digits_x = 2, rounding = rounding, symmetric = TRUE)),
+      unname(grim(x, 40, digits_x = 2, rounding = rounding, symmetric = FALSE))
+    )
+  }
+})
+
+
+test_that("`symmetric` GRIM agrees with the rounding functions themselves", {
+  oracle_symmetric <- function(x, n, digits, rounding) {
+    sums <- seq(floor(x * n) - 3, ceiling(x * n) + 3)
+    rounded <- reround(
+      sums / n,
+      digits = digits,
+      rounding = rounding,
+      symmetric = TRUE
+    )
+    any(abs(rounded - x) < 1e-11, na.rm = TRUE)
+  }
+
+  for (rounding in c("up_or_down", "up", "down")) {
+    for (n in c(4, 20, 40, 80, 160)) {
+      x <- c(seq(-50, 50) / 100)
+      expect_equal(
+        unname(grim(
+          x, n,
+          digits_x = 2, rounding = rounding, symmetric = TRUE
+        )),
+        vapply(x, oracle_symmetric, logical(1), n, 2, rounding),
+        info = paste0("n = ", n, ", rounding = ", rounding)
+      )
+    }
+  }
+})

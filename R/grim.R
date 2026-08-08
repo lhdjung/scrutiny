@@ -55,7 +55,8 @@ grim_scalar <- function(
     n_items = n_items,
     digits = digits_x,
     rounding = rounding,
-    threshold = threshold
+    threshold = threshold,
+    symmetric = symmetric
   )
 
   # `x` is GRIM-consistent if at least one integer sum falls into that range.

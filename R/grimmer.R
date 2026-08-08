@@ -205,7 +205,8 @@ grimmer_scalar <- function(
     n_items = n_items,
     digits = digits_x,
     rounding = rounding,
-    threshold = threshold
+    threshold = threshold,
+    symmetric = symmetric
   )
 
   consistent_sums <- sums_consistent[1L]:sums_consistent[2L]
