@@ -461,6 +461,77 @@ test_that("GRIMMER checks SD-match and parity against the same candidate sum of 
     expect_true()
 })
 
+
+# Issue #86 -----------------------------------------------------------------
+
+# The candidate-sum range used to be derived from floating-point products such
+# as `floor(upper_bound * n)`. Where the product was mathematically an exact
+# integer, its `double` representation could land on either side of it, so a
+# legitimate sum was dropped or a phantom sum admitted. See
+# https://github.com/lhdjung/scrutiny/issues/86.
+
+test_that("GRIMMER does not flag values that real datasets produce (#86)", {
+  # 7 ones and 193 zeros: mean 0.035 (reported as 0.03 or 0.04), SD 0.1842409
+  # (reported as 0.18). The only viable sum of squares is 7, and it used to be
+  # dropped because `unround(0.03)$upper * 200` is 6.9999999999999991 rather
+  # than the exact 7 it is mathematically.
+  witness <- c(rep(1, 7), rep(0, 193))
+  expect_equal(mean(witness), 0.035)
+  expect_equal(round(stats::sd(witness), 2), 0.18)
+
+  grimmer(x = 0.03, sd = 0.18, n = 200, digits_x = 2, digits_sd = 2) %>%
+    expect_true()
+  grimmer(x = 0.04, sd = 0.18, n = 200, digits_x = 2, digits_sd = 2) %>%
+    expect_true()
+  grimmer(x = 0.04, sd = 0.18, n = 200, digits_x = 2, digits_sd = 2, rounding = "up") %>%
+    expect_true()
+})
+
+
+test_that("GRIMMER admits no phantom candidate sums (#86)", {
+  # The admissible sum range here is just {11}: a sum of 12 would mean a mean of
+  # 0.075, which rounds up to 0.08 rather than 0.07. But `unround(0.07,
+  # "up")$upper * 160` is 12.000000000000002, so 12 used to slip past the
+  # exclusive upper bound and supply a parity-matching sum of squares. Note that
+  # `grim()` itself passes here, so the GRIM gate cannot catch this.
+  grim(x = 0.07, n = 160, digits_x = 2, rounding = "up") %>%
+    expect_true()
+  grimmer(x = 0.07, sd = 0.08, n = 160, digits_x = 2, digits_sd = 2, rounding = "up") %>%
+    expect_false()
+})
+
+
+test_that("GRIMMER never flags an actual two-value dataset (#86)", {
+  # Every dataset below is real, so GRIMMER must not flag its rounded mean and
+  # SD. The `n` values are the boundary-dense ones, i.e. those where a candidate
+  # sum can fall exactly on a rounding bound.
+  false_flags <- 0L
+
+  for (rounding in c("up_or_down", "up")) {
+    for (n in c(20, 40, 80, 200, 400)) {
+      for (a in 0:n) {
+        values <- c(rep(1, a), rep(0, n - a))
+        sd_value <- stats::sd(values)
+        x <- reround(mean(values), digits = 2, rounding = rounding)[1L]
+        sd_rounded <- reround(sd_value, digits = 2, rounding = rounding)[1L]
+        consistent <- grimmer(
+          x = x,
+          sd = sd_rounded,
+          n = n,
+          digits_x = 2,
+          digits_sd = 2,
+          rounding = rounding
+        )
+        if (!isTRUE(consistent)) {
+          false_flags <- false_flags + 1L
+        }
+      }
+    }
+  }
+
+  expect_equal(false_flags, 0L)
+})
+
 # test_that("sd_bounds_measure works", {
 #   expect_equal(c(.45, 3.03), sd_bounds_measure(n = 5, x = 4.2, min_val = 1, max_val = 7, sd_prec = 2))
 #   expect_equal(c(.27, 3.03), sd_bounds_measure(n = 5, x = 4.2, min_val = 1, max_val = 7, sd_prec = 2, items = 2))

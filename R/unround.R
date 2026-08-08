@@ -50,6 +50,168 @@ rounding_bounds_scalar <- function(rounding, x_num, d_var, d) {
 rounding_bounds <- Vectorize(rounding_bounds_scalar)
 
 
+# Exact candidate-sum arithmetic ------------------------------------------
+
+# GRIM and GRIMMER both need the set of integer sums `s` for which `s / n_items`
+# would have been rounded to the reported mean. Deriving that set from
+# floating-point products such as `floor(upper * n_items)` is unsafe: if such a
+# product is mathematically an exact integer, its `double` representation can
+# fall on either side of it, so a legitimate sum may be silently dropped or a
+# phantom sum admitted. Either way, the verdict flips. See:
+# https://github.com/lhdjung/scrutiny/issues/86
+#
+# The functions below therefore derive the range in integer arithmetic. Every
+# bound that `unround()` can return is `x` plus a whole number of units of `1 /
+# 10^(digits + 1)`, and `x` itself is a whole number of such units because it
+# has `digits` decimal places. Both bounds hence have exact integer numerators
+# over `10^(digits + 1)`, and comparing `s / n_items` to `numerator / 10^(digits
+# + 1)` becomes a comparison between the integers `s * 10^(digits + 1)` and
+# `n_items * numerator`.
+
+# `floor_div()` and `ceiling_div()` divide `a` by `b` (with `b > 0`) and round
+# the result towards `-Inf` and `+Inf`, respectively. Unlike `floor(a / b)` and
+# `ceiling(a / b)`, they are exact for integer-valued `a` and `b`: the quotient
+# `a / b` may land on the wrong side of an integer, so the candidate result is
+# checked by multiplying it back out, which is exact in double precision. The
+# error in `a / b` is far below 1, so a single correction step suffices.
+
+floor_div <- function(a, b) {
+  q <- floor(a / b)
+  if (q * b > a) {
+    q - 1
+  } else if ((q + 1) * b <= a) {
+    q + 1
+  } else {
+    q
+  }
+}
+
+ceiling_div <- function(a, b) {
+  -floor_div(-a, b)
+}
+
+
+# Integer offsets of the lower and upper rounding bounds from `x_num`, measured
+# in units of `1 / 10^(digits + 1)`, plus the inclusivity of each bound. This is
+# the exact-arithmetic counterpart of `rounding_bounds_scalar()` at the top of
+# this file. The offsets follow the same table (see the `Rounding` section of
+# `unround()`'s documentation), extended by the three compound rounding methods
+# that `unround()` doesn't support: their bounds are the union of the bounds of
+# the two constituent methods, and since both constituents include `x_num`
+# itself, that union is again a single interval.
+#
+# Inclusivity, on the other hand, follows the rule that GRIM has always used:
+# `"up"` excludes its upper bound (a value exactly at the midpoint rounds up,
+# i.e. away from `x_num`), `"down"` excludes its lower bound, and every other
+# method treats both bounds as inclusive. Several of those others do have an
+# exclusive bound of their own -- `"ceiling"`, `"floor"`, `"trunc"`, and
+# `"anti_trunc"` on one side, `"up_from"` and `"down_from"` like `"up"` and
+# `"down"` -- and `"even"` has one that is unpredictable because `base::round()`
+# breaks midpoint ties by the parity of the preceding digit. Tightening these is
+# a separate question from the exact arithmetic below, which is why the existing
+# lenient behavior is kept for now.
+#
+# Returns a list of four elements -- lower offset, upper offset, `incl_lower`,
+# `incl_upper` -- or `NULL` if `rounding` is not a known method.
+
+rounding_offsets <- function(rounding, threshold, x_num) {
+  # Rounding with truncation and "anti-truncation" depends on the sign of the
+  # input number:
+  if (rounding == "trunc") {
+    offsets <- if (x_num > 0) {
+      list(0, 10)
+    } else if (x_num < 0) {
+      list(-10, 0)
+    } else {
+      list(-10, 10)
+    }
+  } else if (rounding == "anti_trunc") {
+    offsets <- if (x_num > 0) {
+      list(-10, 0)
+    } else if (x_num < 0) {
+      list(0, 10)
+    } else {
+      # `anti_trunc` is undefined for zero, just as in `unround()`:
+      list(NA, NA)
+    }
+  } else {
+    # fmt: skip
+    offsets <- switch(
+      rounding,              #     lower                             upper
+      "up_or_down"           = list(-threshold,                      threshold),
+      "up"                   = list(-threshold,                      threshold),
+      "down"                 = list(-threshold,                      threshold),
+      "even"                 = list(-5,                              5),
+      "ceiling"              = list(-10,                             0),
+      "floor"                = list(0,                               10),
+      "ceiling_or_floor"     = list(-10,                             10),
+      "up_from"              = list(threshold - 10,                  threshold),
+      "down_from"            = list(-threshold,                      10 - threshold),
+      "up_from_or_down_from" = list(min(threshold - 10, -threshold), max(threshold, 10 - threshold)),
+      return(NULL)
+    )
+  }
+
+  c(offsets, list(rounding != "down", rounding != "up"))
+}
+
+
+# Range of integer sums `s` for which `s / n_items` lies within the rounding
+# bounds of `x_num`, which has `digits` decimal places. Returns a length-2
+# numeric vector, `c(lower, upper)`; if the first element is greater than the
+# second, no consistent sum exists. Both elements are `NA` if the rounding
+# bounds are undefined (as with `"anti_trunc"` and a zero `x_num`).
+
+sum_range <- function(x_num, n_items, digits, rounding, threshold) {
+  offsets <- rounding_offsets(rounding, threshold, x_num)
+
+  if (is.null(offsets)) {
+    cli::cli_abort(c(
+      "`rounding` must be one of the designated string values.",
+      "x" = "It is {wrong_spec_string(rounding)}.",
+      "i" = "See `vignette(\"rounding-options\")`."
+    ))
+  }
+
+  if (anyNA(offsets) || !is.finite(n_items) || n_items <= 0) {
+    return(c(NA_real_, NA_real_))
+  }
+
+  # `threshold` is documented as an integer but not enforced to be one. If it is
+  # fractional, the offsets are scaled up by a power of ten (along with the
+  # denominator) until they are whole numbers again. If no such power is found
+  # within a sensible range, the arithmetic below silently degrades to the
+  # floating-point behavior of earlier scrutiny versions, which is no worse than
+  # the status quo:
+  bounds <- c(offsets[[1L]], offsets[[2L]])
+  scale <- 1
+  while (scale < 1e6 && any(bounds * scale != round(bounds * scale))) {
+    scale <- scale * 10
+  }
+  bounds <- bounds * scale
+
+  # Common denominator of both bounds, and the numerators over it:
+  denom <- 10^(digits + 1L) * scale
+  x_shifted <- round(x_num * denom)
+  num_lower <- x_shifted + bounds[1L]
+  num_upper <- x_shifted + bounds[2L]
+
+  # `s / n_items >= num_lower / denom`  <==>  `s * denom >= n_items * num_lower`
+  lower <- ceiling_div(n_items * num_lower, denom)
+  if (!offsets[[3L]] && lower * denom == n_items * num_lower) {
+    lower <- lower + 1
+  }
+
+  # `s / n_items <= num_upper / denom`  <==>  `s * denom <= n_items * num_upper`
+  upper <- floor_div(n_items * num_upper, denom)
+  if (!offsets[[4L]] && upper * denom == n_items * num_upper) {
+    upper <- upper - 1
+  }
+
+  c(lower, upper)
+}
+
+
 #' Reconstruct rounding bounds
 #'
 #' @description `unround()` takes a rounded number and returns the range of the

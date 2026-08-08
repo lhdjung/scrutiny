@@ -45,73 +45,38 @@ grim_scalar <- function(
   n_items <- n * items
   rec_sum <- x_num * n_items
 
-  # Reconstruct the possible mean or percentage values ("granules"):
-  rec_x_upper <- ceiling(rec_sum) / n_items
-  rec_x_lower <- floor(rec_sum) / n_items
+  # Determine the range of integer sums whose mean would have been reported as
+  # `x_num` at `digits_x` decimal places. `sum_range()` derives it in exact
+  # integer arithmetic, so that a sum which sits mathematically right on a
+  # rounding boundary is included or excluded as the rounding method demands,
+  # rather than as floating-point representation error happens to dictate:
+  sums_consistent <- sum_range(
+    x_num = x_num,
+    n_items = n_items,
+    digits = digits_x,
+    rounding = rounding,
+    threshold = threshold
+  )
 
-  # Determine the range of values that would round to x_num at digits_x decimal
-  # places. unround() handles most rounding methods; the two compound methods
-  # are not supported by it, so their bounds are computed as the union of their
-  # two constituent methods:
-  if (rounding == "ceiling_or_floor") {
-    b_ceil <- unround(
-      x_num,
-      "ceiling",
-      threshold = threshold,
-      digits = digits_x
-    )
-    b_floor <- unround(x_num, "floor", threshold = threshold, digits = digits_x)
-    lower <- min(b_ceil$lower, b_floor$lower)
-    upper <- max(b_ceil$upper, b_floor$upper)
-  } else if (rounding %in% c("up_from", "down_from", "up_from_or_down_from")) {
-    p10_plus1 <- 10^(digits_x + 1L)
-    up_lower <- x_num - (10 - threshold) / p10_plus1
-    up_upper <- x_num + threshold / p10_plus1
-    down_lower <- x_num - threshold / p10_plus1
-    down_upper <- x_num + (10 - threshold) / p10_plus1
-    if (rounding == "up_from") {
-      lower <- up_lower
-      upper <- up_upper
-    } else if (rounding == "down_from") {
-      lower <- down_lower
-      upper <- down_upper
-    } else {
-      lower <- min(up_lower, down_lower)
-      upper <- max(up_upper, down_upper)
-    }
-  } else {
-    bounds <- unround(
-      x_num,
-      rounding = rounding,
-      threshold = threshold,
-      digits = digits_x
-    )
-    lower <- bounds$lower
-    upper <- bounds$upper
-  }
-
-  # A granule is consistent if it lies within the bounds -- i.e., if it is a
-  # value that, when rounded to digits_x decimal places, gives x_num. Tolerance
-  # handles floating-point imprecision near the boundary.
-  #
-  # "up" rounding has an exclusive upper bound: a value that is exactly at the
-  # midpoint rounds up (away from x), not to x. "down" rounding has an exclusive
-  # lower bound for the same reason. For all other rounding methods the bounds
-  # are treated as inclusive:
-  # fmt: skip
-  granule_in_bounds <- function(g) {
-    lower_ok <- if (rounding == "down") g > lower else g >= lower - tolerance
-    upper_ok <- if (rounding == "up")   g < upper else g <= upper + tolerance
-    lower_ok && upper_ok
-  }
-
-  consistency <-
-    granule_in_bounds(rec_x_upper) ||
-    granule_in_bounds(rec_x_lower)
+  # `x` is GRIM-consistent if at least one integer sum falls into that range.
+  # (Checking the range for integers is equivalent to the classic formulation in
+  # terms of the two granules below: whenever the range is wide enough to
+  # contain an integer at all, it also contains one of the two integers closest
+  # to `rec_sum`, because those are at most 0.5 away from its center.)
+  consistency <- sums_consistent[1L] <= sums_consistent[2L]
 
   if (!show_rec) {
     return(consistency)
   }
+
+  # Reconstruct the possible mean or percentage values ("granules"). These are
+  # `floor(rec_sum) / n_items` and `ceiling(rec_sum) / n_items`, but computed
+  # via exact division so that an `rec_sum` which is mathematically an integer
+  # is not floored or ceilinged to its neighbor by floating-point error:
+  denom <- 10^(digits_x + 1L)
+  rec_sum_num <- round(x_num * denom) * n_items
+  rec_x_upper <- ceiling_div(rec_sum_num, denom) / n_items
+  rec_x_lower <- floor_div(rec_sum_num, denom) / n_items
 
   length_2ers <- c("up_or_down", "up_from_or_down_from", "ceiling_or_floor")
 
@@ -176,31 +141,31 @@ grim_scalar <- function(
 #'   Browse the source code in the grim.R file. `grim()` is a vectorized version
 #'   of the internal `grim_scalar()` function found there.
 #'
-#' @param x String. The reported mean or percentage value.
-#' @param n Integer. The reported sample size.
-#' @param items Numeric. The number of items composing `x`. Default is 1, the
-#'   most common case.
-#' @param percent Logical. Set `percent` to `TRUE` if `x` is a percentage. This
-#'   will convert it to a decimal number and adjust the decimal count (i.e.,
-#'   increase it by 2). Default is `FALSE`.
-#' @param show_rec Logical. For internal use only. If set to `TRUE`, the output
-#'   is a matrix that also contains intermediary values from GRIM-testing. Don't
-#'   specify this manually; instead, use `show_rec` in [`grim_map()`]. Default
-#'   is `FALSE`.
-#' @param rounding String. Rounding method or methods to be used for
-#'   reconstructing the values to which `x` will be compared. Default is
-#'   `"up_or_down"` (from 5).
-#' @param threshold Numeric. If `rounding` is set to `"up_from"`, `"down_from"`,
-#'   or `"up_from_or_down_from"`, set `threshold` to the number from which the
-#'   reconstructed values should then be rounded up or down. Otherwise, this
-#'   argument plays no role. Default is `5`.
-#' @param symmetric Logical. Set `symmetric` to `TRUE` if the rounding of
-#'   negative numbers with `"up"`, `"down"`, `"up_from"`, or `"down_from"`
+#'   `grim()` decides which reconstructed means are consistent with `x` using
+#'   exact integer arithmetic, so `tolerance` has no effect on its results. The
+#'   argument is retained because [`grimmer()`] and [`debit()`] inherit it and
+#'   do use it.
+#'
+#' @param x String. The reported mean or percentage value. @param n Integer. The
+#' reported sample size. @param items Numeric. The number of items composing
+#' `x`. Default is 1, the most common case. @param percent Logical. Set
+#'   `percent` to `TRUE` if `x` is a percentage. This will convert it to a
+#' decimal number and adjust the decimal count (i.e., increase it by 2). Default
+#'   is `FALSE`. @param show_rec Logical. For internal use only. If set to
+#'   `TRUE`, the output is a matrix that also contains intermediary values from
+#' GRIM-testing. Don't specify this manually; instead, use `show_rec` in
+#'   [`grim_map()`]. Default is `FALSE`. @param rounding String. Rounding method
+#'   or methods to be used for reconstructing the values to which `x` will be
+#'   compared. Default is `"up_or_down"` (from 5). @param threshold Numeric. If
+#' `rounding` is set to `"up_from"`, `"down_from"`, or `"up_from_or_down_from"`,
+#'   set `threshold` to the number from which the reconstructed values should
+#'   then be rounded up or down. Otherwise, this argument plays no role. Default
+#' is `5`. @param symmetric Logical. Set `symmetric` to `TRUE` if the rounding
+#'   of negative numbers with `"up"`, `"down"`, `"up_from"`, or `"down_from"`
 #'   should mirror that of positive numbers so that their absolute values are
-#'   always equal. Default is `FALSE`.
-#' @param tolerance Numeric. Tolerance of comparison between `x` and the
-#'   possible mean or percentage values. Default is circa 0.000000015
-#'   (1.490116e-08), as in [`dplyr::near()`].
+#'   always equal. Default is `FALSE`. @param tolerance Numeric. Tolerance of
+#' comparison between `x` and the possible mean or percentage values. Default is
+#'   circa 0.000000015 (1.490116e-08), as in [`dplyr::near()`].
 #'
 #' @return Logical. `TRUE` if `x`, `n`, and `items` are mutually consistent,
 #'   `FALSE` if not.

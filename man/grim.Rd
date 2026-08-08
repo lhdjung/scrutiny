@@ -18,39 +18,26 @@ grim(
 )
 }
 \arguments{
-\item{x}{String. The reported mean or percentage value.}
-
-\item{n}{Integer. The reported sample size.}
-
-\item{items}{Numeric. The number of items composing \code{x}. Default is 1, the
-most common case.}
-
-\item{percent}{Logical. Set \code{percent} to \code{TRUE} if \code{x} is a percentage. This
-will convert it to a decimal number and adjust the decimal count (i.e.,
-increase it by 2). Default is \code{FALSE}.}
-
-\item{show_rec}{Logical. For internal use only. If set to \code{TRUE}, the output
-is a matrix that also contains intermediary values from GRIM-testing. Don't
-specify this manually; instead, use \code{show_rec} in \code{\link[=grim_map]{grim_map()}}. Default
-is \code{FALSE}.}
-
-\item{rounding}{String. Rounding method or methods to be used for
-reconstructing the values to which \code{x} will be compared. Default is
-\code{"up_or_down"} (from 5).}
-
-\item{threshold}{Numeric. If \code{rounding} is set to \code{"up_from"}, \code{"down_from"},
-or \code{"up_from_or_down_from"}, set \code{threshold} to the number from which the
-reconstructed values should then be rounded up or down. Otherwise, this
-argument plays no role. Default is \code{5}.}
-
-\item{symmetric}{Logical. Set \code{symmetric} to \code{TRUE} if the rounding of
-negative numbers with \code{"up"}, \code{"down"}, \code{"up_from"}, or \code{"down_from"}
+\item{x}{String. The reported mean or percentage value. @param n Integer. The
+reported sample size. @param items Numeric. The number of items composing
+\code{x}. Default is 1, the most common case. @param percent Logical. Set
+\code{percent} to \code{TRUE} if \code{x} is a percentage. This will convert it to a
+decimal number and adjust the decimal count (i.e., increase it by 2). Default
+is \code{FALSE}. @param show_rec Logical. For internal use only. If set to
+\code{TRUE}, the output is a matrix that also contains intermediary values from
+GRIM-testing. Don't specify this manually; instead, use \code{show_rec} in
+\code{\link[=grim_map]{grim_map()}}. Default is \code{FALSE}. @param rounding String. Rounding method
+or methods to be used for reconstructing the values to which \code{x} will be
+compared. Default is \code{"up_or_down"} (from 5). @param threshold Numeric. If
+\code{rounding} is set to \code{"up_from"}, \code{"down_from"}, or \code{"up_from_or_down_from"},
+set \code{threshold} to the number from which the reconstructed values should
+then be rounded up or down. Otherwise, this argument plays no role. Default
+is \code{5}. @param symmetric Logical. Set \code{symmetric} to \code{TRUE} if the rounding
+of negative numbers with \code{"up"}, \code{"down"}, \code{"up_from"}, or \code{"down_from"}
 should mirror that of positive numbers so that their absolute values are
-always equal. Default is \code{FALSE}.}
-
-\item{tolerance}{Numeric. Tolerance of comparison between \code{x} and the
-possible mean or percentage values. Default is circa 0.000000015
-(1.490116e-08), as in \code{\link[dplyr:near]{dplyr::near()}}.}
+always equal. Default is \code{FALSE}. @param tolerance Numeric. Tolerance of
+comparison between \code{x} and the possible mean or percentage values. Default is
+circa 0.000000015 (1.490116e-08), as in \code{\link[dplyr:near]{dplyr::near()}}.}
 }
 \value{
 Logical. \code{TRUE} if \code{x}, \code{n}, and \code{items} are mutually consistent,
@@ -78,6 +65,11 @@ have had. See documentation there.
 
 Browse the source code in the grim.R file. \code{grim()} is a vectorized version
 of the internal \code{grim_scalar()} function found there.
+
+\code{grim()} decides which reconstructed means are consistent with \code{x} using
+exact integer arithmetic, so \code{tolerance} has no effect on its results. The
+argument is retained because \code{\link[=grimmer]{grimmer()}} and \code{\link[=debit]{debit()}} inherit it and
+do use it.
 }
 \examples{
 # A mean of 5.19 is not consistent with a sample size of 28:

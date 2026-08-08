@@ -191,33 +191,25 @@ grimmer_scalar <- function(
   # Pre-compute dustified SD once, before the loop over candidate sums.
   sd_dusty <- dustify(sd)
 
-  # Enumerate all integer sums consistent with the reported mean by computing
-  # the mean's rounding interval via `unround()` and mapping it to sum space.
-  # This replaces the earlier `round(mean * n)` approach, which only ever
-  # produced a single candidate sum and could miss the other when two
-  # consecutive integers both round to the reported mean. It also handles all
-  # rounding modes and uses ceiling/floor instead of round(), avoiding
-  # banker's-rounding edge cases at the boundaries.
-  x_bounds <- unround(
-    x_orig,
+  # Enumerate all integer sums consistent with the reported mean by mapping the
+  # mean's rounding interval into sum space. This replaces the earlier
+  # `round(mean * n)` approach, which only ever produced a single candidate sum
+  # and could miss the other when two consecutive integers both round to the
+  # reported mean. `sum_range()` is the same helper that `grim_scalar()` uses,
+  # so the two functions always agree on which sums are admissible, and it
+  # works in exact integer arithmetic: deriving the range from floating-point
+  # products like `floor(x_bounds$upper * n_items)` could drop a legitimate sum
+  # or admit a phantom one whenever the product was mathematically an exact
+  # integer (#86).
+  sums_consistent <- sum_range(
+    x_num = x,
+    n_items = n_items,
+    digits = digits_x,
     rounding = rounding,
-    threshold = threshold,
-    digits = digits_x
+    threshold = threshold
   )
 
-  sum_lo <- if (x_bounds$incl_lower) {
-    ceiling(x_bounds$lower * n_items)
-  } else {
-    floor(x_bounds$lower * n_items) + 1L
-  }
-
-  sum_hi <- if (x_bounds$incl_upper) {
-    floor(x_bounds$upper * n_items)
-  } else {
-    ceiling(x_bounds$upper * n_items) - 1L
-  }
-
-  consistent_sums <- sum_lo:sum_hi
+  consistent_sums <- sums_consistent[1L]:sums_consistent[2L]
 
   # Loop over all candidate sums, running all three GRIMMER tests for each.
   # Each candidate corresponds to one possible integer sum of the original data

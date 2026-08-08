@@ -101,3 +101,67 @@ test_that("There are as many outputs as inputs", {
 })
 
 
+# Exact arithmetic at the rounding boundary (#86) -------------------------
+
+# In all of these, the only candidate granule sits mathematically *exactly* on
+# the exclusive upper bound of `rounding = "up"`, so it must be rejected. The
+# granule and the bound are different floating-point representations of the
+# same real number, which used to make the strict comparison `granule < bound`
+# wrongly return `TRUE`.
+
+test_that("granules exactly on the exclusive `\"up\"` bound are rejected", {
+  # 3 / 40 is 0.075, which rounds up to 0.08, not to 0.07:
+  expect_false(grim(x = 0.07, n = 40, digits_x = 2, rounding = "up"))
+  expect_false(grim(x = 0.17, n = 40, digits_x = 2, rounding = "up"))
+  expect_false(grim(x = 0.07, n = 80, digits_x = 2, rounding = "up"))
+  # Mirrored case with a negative mean:
+  expect_false(grim(x = -0.03, n = 40, digits_x = 2, rounding = "up"))
+  expect_false(grim(x = -0.03, n = 80, digits_x = 2, rounding = "up"))
+  # Three-decimal variant: 47 / 400 is 0.1175, which rounds up to 0.118:
+  expect_false(grim(x = 0.117, n = 400, digits_x = 3, rounding = "up"))
+  expect_false(grim(x = 0.117, n = 800, digits_x = 3, rounding = "up"))
+})
+
+
+test_that("granules exactly on an inclusive bound are accepted", {
+  # The same granules as above, but now with rounding methods for which the
+  # bound they sit on is inclusive:
+  expect_true(grim(x = 0.07, n = 40, digits_x = 2, rounding = "up_or_down"))
+  # Under `"down"` it is the *lower* bound that is exclusive, so the granule
+  # 3 / 40 = 0.075 now sits on the inclusive upper bound of 0.07:
+  expect_true(grim(x = 0.07, n = 40, digits_x = 2, rounding = "down"))
+  expect_true(grim(x = -0.03, n = 40, digits_x = 2, rounding = "up_or_down"))
+  expect_true(grim(x = 0.117, n = 400, digits_x = 3, rounding = "up_or_down"))
+})
+
+
+test_that("GRIM agrees with the rounding functions themselves", {
+  # An independent oracle: enumerate the integer sums around `x * n` directly,
+  # then ask the actual rounding functions whether the resulting granule rounds
+  # back to `x`. GRIM must agree on every case.
+  oracle <- function(x, n, digits, rounding) {
+    sums <- seq(floor(x * n) - 2, ceiling(x * n) + 2)
+    rounded <- reround(sums / n, digits = digits, rounding = rounding)
+    any(abs(rounded - x) < 1e-9)
+  }
+
+  # `n` values that are multiples of 40 (2 decimal places) or of 4 (1 decimal
+  # place) are those where granules can fall exactly on a rounding boundary:
+  cases <- expand.grid(
+    digits = 1:2,
+    n = c(4, 8, 20, 40, 64, 80, 160, 200, 400),
+    rounding = c("up_or_down", "up", "down"),
+    stringsAsFactors = FALSE
+  )
+
+  for (i in seq_len(nrow(cases))) {
+    digits <- cases$digits[i]
+    n <- cases$n[i]
+    rounding <- cases$rounding[i]
+    x <- seq(0, 10^digits) / 10^digits
+    expect_equal(
+      unname(grim(x, n, digits_x = digits, rounding = rounding)),
+      vapply(x, oracle, logical(1), n, digits, rounding)
+    )
+  }
+})

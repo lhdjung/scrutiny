@@ -33,24 +33,6 @@ Default is \code{1}, the most common case.}
 output is a list of length-2 lists which also contain the reasons for
 inconsistencies. Don't specify this manually; instead, use \code{show_reason} in
 \code{\link[=grimmer_map]{grimmer_map()}}. See there for explanation. Default is \code{FALSE}.}
-
-\item{rounding}{String. Rounding method or methods to be used for
-reconstructing the values to which \code{x} will be compared. Default is
-\code{"up_or_down"} (from 5).}
-
-\item{threshold}{Numeric. If \code{rounding} is set to \code{"up_from"}, \code{"down_from"},
-or \code{"up_from_or_down_from"}, set \code{threshold} to the number from which the
-reconstructed values should then be rounded up or down. Otherwise, this
-argument plays no role. Default is \code{5}.}
-
-\item{symmetric}{Logical. Set \code{symmetric} to \code{TRUE} if the rounding of
-negative numbers with \code{"up"}, \code{"down"}, \code{"up_from"}, or \code{"down_from"}
-should mirror that of positive numbers so that their absolute values are
-always equal. Default is \code{FALSE}.}
-
-\item{tolerance}{Numeric. Tolerance of comparison between \code{x} and the
-possible mean or percentage values. Default is circa 0.000000015
-(1.490116e-08), as in \code{\link[dplyr:near]{dplyr::near()}}.}
 }
 \value{
 Logical. \code{TRUE} if \code{x}, \code{sd}, \code{n}, and \code{items} are mutually

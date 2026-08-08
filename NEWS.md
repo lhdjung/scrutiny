@@ -6,6 +6,8 @@
 
 - Fixed a bug in GRIMMER that could occur when using the non-default `rounding = "up"` or `"down"` options in cases with three or more candidate sums of squares. In these situations, the checks for the reconstructed SD matching the reported SD and for the sum of squares having the same parity as the sum could be satisfied by different candidate sums instead of the same one, producing false-negative consistency results (i.e., wrongly letting inconsistent value sets pass). Thanks to Ian Hussey (#85).
 
+- GRIM and GRIMMER now derive the set of candidate sums in exact integer arithmetic. Both used to compare quantities against the rounding bounds in floating point, which failed whenever a candidate sat exactly on a bound. In such cases, the two sides of the comparison were different floating-point representations of the same real number. This corrupted verdicts in both directions. `grim()` could therefore pass unattainable means, and `grimmer()` could both pass values with no valid sum of squares and flag mean-SD combinations that could be produced by real data sets. For instance, `grimmer(x = 0.03, sd = 0.18, n = 200)` was reported as inconsistent although the dataset with seven 1s and 193 0s has exactly these values. Thanks to Ian Hussey (#86).
+
 - `debit_map()` now returns `x` and `sd` as numeric columns, not as strings. This matches `grim_map()`.
 
 - Fixed a pre-existing compatibility issue in `debit_plot()` where a theme element was out of date with recent ggplot2 versions.
