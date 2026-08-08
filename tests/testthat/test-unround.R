@@ -109,3 +109,22 @@ test_that("Wrong `rounding` specifications return the string (list)
 })
 
 
+
+
+test_that("`\"anti_trunc\"` bounds match `round_anti_trunc()`", {
+  # `round_anti_trunc()` always rounds away from zero, so for a positive `x`,
+  # the bound it can be reached from is the lower one, and for a negative `x`,
+  # the upper one. The negative case used to carry the signs of the positive
+  # one.
+  bounds_positive <- unround("0.70", rounding = "anti_trunc")
+  expect_true(bounds_positive$incl_lower)
+  expect_false(bounds_positive$incl_upper)
+  expect_equal(round_anti_trunc(bounds_positive$lower, 1), 0.7)
+  expect_false(round_anti_trunc(bounds_positive$upper, 1) == 0.7)
+
+  bounds_negative <- unround("-0.70", rounding = "anti_trunc")
+  expect_false(bounds_negative$incl_lower)
+  expect_true(bounds_negative$incl_upper)
+  expect_equal(round_anti_trunc(bounds_negative$upper, 1), -0.7)
+  expect_false(round_anti_trunc(bounds_negative$lower, 1) == -0.7)
+})
