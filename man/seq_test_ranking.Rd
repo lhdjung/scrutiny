@@ -27,6 +27,7 @@ warning if it's not correct.
 }
 \examples{
 seq_distance_df(.from = "0.00", n = 50) \%>\%
-  grim_map() \%>\%
+  dplyr::mutate(x = as.numeric(x)) \%>\%
+  grim_map(digits_x = 2) \%>\%
   seq_test_ranking()
 }

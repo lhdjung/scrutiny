@@ -21,6 +21,15 @@ debit_map(
 \arguments{
 \item{data}{Data frame.}
 
+\item{digits_x}{Integer. The number of decimal places in \code{x}, including
+trailing zeros. There is no default because it cannot be inferred from a
+numeric \code{x}, which has no trailing zeros: both \code{1.4} and \code{1.40} are the
+number \code{1.4}, but only the latter has \code{digits_x = 2}.}
+
+\item{digits_sd}{Integer. The number of decimal places in \code{sd}, including
+trailing zeros. As with \code{digits_x}, there is no default, because trailing
+zeros don't survive in a numeric value.}
+
 \item{x, sd, n}{Optionally, specify these arguments as column names in \code{data}.}
 
 \item{rounding, threshold, symmetric}{Arguments passed on to \code{\link[=debit]{debit()}}, with

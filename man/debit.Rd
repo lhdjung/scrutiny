@@ -23,6 +23,15 @@ debit(
 
 \item{n}{Integer. Total sample size.}
 
+\item{digits_x}{Integer. The number of decimal places in \code{x}, including
+trailing zeros. There is no default because it cannot be inferred from a
+numeric \code{x}, which has no trailing zeros: both \code{1.4} and \code{1.40} are the
+number \code{1.4}, but only the latter has \code{digits_x = 2}.}
+
+\item{digits_sd}{Integer. The number of decimal places in \code{sd}, including
+trailing zeros. As with \code{digits_x}, there is no default, because trailing
+zeros don't survive in a numeric value.}
+
 \item{formula}{String. Formula used to compute the SD of the binary
 distribution. Currently, only the default, \code{"mean_n"}, is supported.}
 
@@ -55,7 +64,7 @@ for testing multiple cases.
 \examples{
 # Check single cases of binary
 # summary data:
-debit(x = "0.36", sd = "0.11", n = 20)
+debit(x = 0.36, sd = 0.11, n = 20, digits_x = 2, digits_sd = 2)
 }
 \references{
 Heathers, James A. J., and Brown, Nicholas J. L. 2019. DEBIT: A

@@ -76,8 +76,8 @@ rounded. Set \code{rounding} to the rounding method that hypothetically lead to
    \code{"trunc"} (positive \code{x}) \tab \code{lower = x < upper} \cr
    \code{"trunc"} (negative \code{x}) \tab \code{lower < x = upper} \cr
    \code{"trunc"} (zero \code{x}) \tab \verb{lower < x < upper} \cr
-   \code{"anti_trunc"} (positive \code{x}) \tab \code{lower < x = upper} \cr
-   \code{"anti_trunc"} (negative \code{x}) \tab \code{lower = x < upper} \cr
+   \code{"anti_trunc"} (positive \code{x}) \tab \code{lower = x < upper} \cr
+   \code{"anti_trunc"} (negative \code{x}) \tab \code{lower < x = upper} \cr
    \code{"anti_trunc"} (zero \code{x}) \tab (undefined; \code{NA}) \cr
 }
 

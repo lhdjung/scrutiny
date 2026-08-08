@@ -22,14 +22,14 @@ See \code{\link[=audit_total_n]{audit_total_n()}}, which takes \code{reverse_map
 \examples{
 # Originally reported summary data...
 df <- tibble::tribble(
-  ~x1,    ~x2,   ~n,
-  "3.43", "5.28", 90,
-  "2.97", "4.42", 103
+  ~x1,  ~x2,  ~n,
+  3.43, 5.28, 90,
+  2.97, 4.42, 103
 )
 df
 
 # ...GRIM-tested with dispersed `n` values...
-out <- grim_map_total_n(df)
+out <- grim_map_total_n(df, digits_x = 2)
 out
 
 # ...and faithfully reconstructed:

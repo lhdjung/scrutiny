@@ -25,6 +25,15 @@ debit_map_seq(
 
 \item{x, sd, n}{Optionally, specify column names in \code{data} as these arguments.}
 
+\item{digits_x}{Integer. The number of decimal places in \code{x}, including
+trailing zeros. There is no default because it cannot be inferred from a
+numeric \code{x}, which has no trailing zeros: both \code{1.4} and \code{1.40} are the
+number \code{1.4}, but only the latter has \code{digits_x = 2}.}
+
+\item{digits_sd}{Integer. The number of decimal places in \code{sd}, including
+trailing zeros. As with \code{digits_x}, there is no default, because trailing
+zeros don't survive in a numeric value.}
+
 \item{var}{String. Names of the columns that will be dispersed. Default is
 \code{c("x", "sd", "n")}.}
 
@@ -95,7 +104,7 @@ pigs3
 # Results from testing some few rows:
 out <- pigs3 \%>\%
   dplyr::slice(3:4) \%>\%
-  debit_map_seq()
+  debit_map_seq(digits_x = 2, digits_sd = 2)
 
 out
 

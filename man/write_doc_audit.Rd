@@ -32,8 +32,8 @@ between the pasted output and the rest of the block.
 }
 \examples{
 # Start by running `audit()`:
-out_grim  <- audit(grim_map(pigs1))
-out_debit <- audit(debit_map(pigs3))
+out_grim  <- audit(grim_map(pigs1, digits_x = 2))
+out_debit <- audit(debit_map(pigs3, digits_x = 2, digits_sd = 2))
 
 out_grim
 out_debit

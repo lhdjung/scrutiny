@@ -109,13 +109,13 @@ are GRIMMER-consistent.
 \examples{
 # Run `grimmer_map_total_n()` on data like these:
 df <- tibble::tribble(
-  ~x1,    ~x2,    ~sd1,   ~sd2,   ~n,
-  "3.43", "5.28", "1.09", "2.12", 70,
-  "2.97", "4.42", "0.43", "1.65", 65
+  ~x1,  ~x2,  ~sd1, ~sd2, ~n,
+  3.43, 5.28, 1.09, 2.12, 70,
+  2.97, 4.42, 0.43, 1.65, 65
 )
 df
 
-grimmer_map_total_n(df)
+grimmer_map_total_n(df, digits_x = 2, digits_sd = 2)
 
 # `audit_total_n()` summaries can be more important than
 # the detailed results themselves.
@@ -123,14 +123,14 @@ grimmer_map_total_n(df)
 # which both divergent `n` values are GRIMMER-consistent
 # with the `x*` values when paired with them both ways:
 df \%>\%
-  grimmer_map_total_n() \%>\%
+  grimmer_map_total_n(digits_x = 2, digits_sd = 2) \%>\%
   audit_total_n()
 
 # By default (`dispersion = 0:5`), the function goes
 # five steps up and down from `n`. If this sequence
 # gets longer, the number of hits tends to increase:
 df \%>\%
-  grimmer_map_total_n(dispersion = 0:10) \%>\%
+  grimmer_map_total_n(digits_x = 2, digits_sd = 2, dispersion = 0:10) \%>\%
   audit_total_n()
 }
 \references{

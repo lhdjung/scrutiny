@@ -54,12 +54,12 @@ For an overview, see the table at the end of
 }
 \examples{
 # Example test output:
-df1 <- grim_map(pigs1)
-df2 <- grim_map_seq(pigs1)
-df3 <- grim_map_total_n(tibble::tribble(
-  ~x1,    ~x2,   ~n,
-  "3.43", "5.28", 90,
-  "2.97", "4.42", 103
+df1 <- grim_map(pigs1, digits_x = 2)
+df2 <- grim_map_seq(pigs1, digits_x = 2)
+df3 <- grim_map_total_n(digits_x = 2, tibble::tribble(
+  ~x1,  ~x2,  ~n,
+  3.43, 5.28, 90,
+  2.97, 4.42, 103
 ))
 
 # All three tibbles are mapper output:

@@ -21,6 +21,11 @@ zeros.}
 
 \item{n}{Integer. Sample size corresponding to \code{x}.}
 
+\item{digits_x}{Integer. The number of decimal places in \code{x}, including
+trailing zeros. There is no default because it cannot be inferred from a
+numeric \code{x}, which has no trailing zeros: both \code{1.4} and \code{1.40} are the
+number \code{1.4}, but only the latter has \code{digits_x = 2}.}
+
 \item{items}{Integer. Number of items composing the mean or percentage value
 in question. Default is \code{1}.}
 
@@ -56,16 +61,16 @@ For discussion, see \code{vignette("grim")}, section \emph{GRIM statistics}.
 }
 \examples{
 # Many value sets are inconsistent here:
-grim_probability(x = "83.29", n = 21)
-grim_total(x = "83.29", n = 21)
+grim_probability(x = 83.29, n = 21, digits_x = 2)
+grim_total(x = 83.29, n = 21, digits_x = 2)
 
 # No sets are inconsistent in this case...
-grim_probability(x = "5.14", n = 83)
-grim_total(x = "5.14", n = 83)
+grim_probability(x = 5.14, n = 83, digits_x = 2)
+grim_total(x = 5.14, n = 83, digits_x = 2)
 
 # ... but most would be if `x` was a percentage:
-grim_probability(x = "5.14", n = 83, percent = TRUE)
-grim_total(x = "5.14", n = 83, percent = TRUE)
+grim_probability(x = 5.14, n = 83, digits_x = 2, percent = TRUE)
+grim_total(x = 5.14, n = 83, digits_x = 2, percent = TRUE)
 }
 \references{
 Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A

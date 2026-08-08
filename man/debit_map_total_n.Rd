@@ -105,7 +105,7 @@ df <- tibble::tribble(
 )
 df
 
-debit_map_total_n(df)
+debit_map_total_n(df, digits_x = 2, digits_sd = 2)
 }
 \references{
 Bauer, P. J., & Francis, G. (2021). Expression of Concern: Is It

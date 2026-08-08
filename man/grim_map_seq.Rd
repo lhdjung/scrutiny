@@ -23,6 +23,11 @@ grim_map_seq(
 
 \item{x, n}{Optionally, specify these arguments as column names in \code{data}.}
 
+\item{digits_x}{Integer. The number of decimal places in \code{x}, including
+trailing zeros. There is no default because it cannot be inferred from a
+numeric \code{x}, which has no trailing zeros: both \code{1.4} and \code{1.40} are the
+number \code{1.4}, but only the latter has \code{digits_x = 2}.}
+
 \item{var}{String. Names of the columns that will be dispersed. Default is
 \code{c("x", "n")}.}
 
@@ -91,7 +96,7 @@ of corresponding hits within the \code{dispersion} range.
 pigs1
 
 # All the results:
-out <- grim_map_seq(pigs1, include_consistent = TRUE)
+out <- grim_map_seq(pigs1, digits_x = 2, include_consistent = TRUE)
 out
 
 # Case-wise summaries with `audit_seq()`
