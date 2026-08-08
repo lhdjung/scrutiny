@@ -93,24 +93,26 @@
 #' @export
 #'
 #' @examples
-#' # Call `grim_plot()` following `grim_map()`:
+#' # Call `grim_plot()` following `grim_map()`. Pass `digits` along, because
+#' # `pigs1` contains 5.00, whose trailing zeros are gone from the numeric
+#' # column, so the decimal count cannot be read back off the data:
 #' pigs1 %>%
-#'   grim_map() %>%
-#'   grim_plot()
+#'   grim_map(digits_x = 2) %>%
+#'   grim_plot(digits = 2)
 #'
 #' # If you change the rounding procedure
 #' # in `grim_map()`, the plot will
 #' # follow automatically if there is
 #' # a difference:
 #' pigs1 %>%
-#'   grim_map(rounding = "ceiling") %>%
-#'   grim_plot()
+#'   grim_map(digits_x = 2, rounding = "ceiling") %>%
+#'   grim_plot(digits = 2)
 #'
 #' # For percentages, the y-axis
 #' # label also changes automatically:
 #' pigs2 %>%
-#'   grim_map(percent = TRUE) %>%
-#'   grim_plot()
+#'   grim_map(digits_x = 1, percent = TRUE) %>%
+#'   grim_plot(digits = 1)
 
 grim_plot <- function(
   data = NULL,

@@ -19,7 +19,7 @@
 #' pigs1
 #'
 #' # ...GRIM-tested with varying inputs...
-#' out <- grim_map_seq(pigs1, include_consistent = TRUE)
+#' out <- grim_map_seq(pigs1, digits_x = 2, include_consistent = TRUE)
 #'
 #' # ...and faithfully reconstructed:
 #' reverse_map_seq(out)

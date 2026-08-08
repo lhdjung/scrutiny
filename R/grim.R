@@ -60,10 +60,11 @@ grim_scalar <- function(
   )
 
   # `x` is GRIM-consistent if at least one integer sum falls into that range.
-  # (Checking the range for integers is equivalent to the classic formulation in
-  # terms of the two granules below: whenever the range is wide enough to
-  # contain an integer at all, it also contains one of the two integers closest
-  # to `rec_sum`, because those are at most 0.5 away from its center.)
+  # (For every rounding method that maps `x_num` to itself -- i.e. all of them
+  # except `"anti_trunc"` -- this is equivalent to the classic formulation in
+  # terms of the two granules below: the range then contains `rec_sum`, so
+  # whenever it is wide enough to contain an integer at all, it also contains
+  # one of the two integers closest to `rec_sum`.)
   consistency <- sums_consistent[1L] <= sums_consistent[2L]
 
   if (!show_rec) {
@@ -131,13 +132,11 @@ grim_scalar <- function(
 #'   The function is vectorized, but it is recommended to use [`grim_map()`] for
 #'   testing multiple cases.
 #'
-#' @details The `x` values need to be strings because only strings retain
-#'   trailing zeros, which are as important for the GRIM test as any other
-#'   decimal digits.
-#'
-#'   Use [`restore_zeros()`] on numeric values (or values that were numeric
-#'   values at some point) to easily supply the trailing zeros they might once
-#'   have had. See documentation there.
+#' @details `digits_x` needs to be specified because trailing zeros are as
+#'   important for the GRIM test as any other decimal digits, and numeric values
+#'   don't retain them: `1.40` is stored as the number `1.4`. State the number
+#'   of decimal places that `x` was reported with, not the number that happen to
+#'   survive in the numeric value.
 #'
 #'   Browse the source code in the grim.R file. `grim()` is a vectorized version
 #'   of the internal `grim_scalar()` function found there.
@@ -195,16 +194,16 @@ grim_scalar <- function(
 #'
 #' @examples
 #' # A mean of 5.19 is not consistent with a sample size of 28:
-#' grim(x = "5.19", n = 28)    # `x` in quotes!
+#' grim(x = 5.19, n = 28, digits_x = 2)
 #'
 #' # However, it is consistent with a sample size of 32:
-#' grim(x = "5.19", n = 32)
+#' grim(x = 5.19, n = 32, digits_x = 2)
 #'
 #' # For a scale composed of two items:
-#' grim(x = "2.84", n = 16, items = 2)
+#' grim(x = 2.84, n = 16, digits_x = 2, items = 2)
 #'
 #' # With percentages instead of means -- here, 71%:
-#' grim(x = "71", n = 43, percent = TRUE)
+#' grim(x = 71, n = 43, digits_x = 0, percent = TRUE)
 
 # Vectorized version:
 grim <- Vectorize(grim_scalar)

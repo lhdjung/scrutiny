@@ -8,6 +8,10 @@
 #'   Call [`audit_seq()`] on the results for summary statistics.
 #'
 #' @param data A data frame that `grim_map()` could take.
+#' @param digits_x Integer. The number of decimal places in `x`, including
+#'   trailing zeros. There is no default because it cannot be inferred from a
+#'   numeric `x`, which has no trailing zeros: both `1.4` and `1.40` are the
+#'   number `1.4`, but only the latter has `digits_x = 2`.
 #' @param x,n Optionally, specify these arguments as column names in `data`.
 #' @param var String. Names of the columns that will be dispersed. Default is
 #'   `c("x", "n")`.
@@ -63,7 +67,7 @@
 #' pigs1
 #'
 #' # All the results:
-#' out <- grim_map_seq(pigs1, include_consistent = TRUE)
+#' out <- grim_map_seq(pigs1, digits_x = 2, include_consistent = TRUE)
 #' out
 #'
 #' # Case-wise summaries with `audit_seq()`

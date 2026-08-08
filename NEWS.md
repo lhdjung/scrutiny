@@ -23,6 +23,11 @@
 
 - Fixed a pre-existing compatibility issue in `debit_plot()` where a theme element was out of date with recent ggplot2 versions.
 
+## Documentation
+
+- The `digits_x` and `digits_sd` arguments introduced in 1.0.0 are now documented, and all examples were updated to the numeric `x` and `sd` values that the mappers have taken since then. Many of them still passed strings and omitted the `digits_*` arguments, and so failed to run.
+
+
 # scrutiny 0.6.1
 
 ## Bugfixes

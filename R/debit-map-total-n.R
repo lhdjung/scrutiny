@@ -81,7 +81,7 @@
 #' )
 #' df
 #'
-#' debit_map_total_n(df)
+#' debit_map_total_n(df, digits_x = 2, digits_sd = 2)
 
 debit_map_total_n <- function_map_total_n(
   .fun = debit_map,

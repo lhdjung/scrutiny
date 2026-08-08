@@ -32,7 +32,7 @@
 #' @examples
 #' # For basic GRIM-testing:
 #' pigs1 %>%
-#'   grim_map() %>%
+#'   grim_map(digits_x = 2) %>%
 #'   audit()
 #'
 #' # For duplicate detection:
@@ -85,7 +85,7 @@ audit <- function(data) {
 #' @examples
 #' # For GRIM-testing with dispersed inputs:
 #' out <- pigs1 %>%
-#'   grim_map_seq() %>%
+#'   grim_map_seq(digits_x = 2) %>%
 #'   audit_seq()
 #' out
 #'

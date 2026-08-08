@@ -57,7 +57,7 @@
 #' # Run `debit_plot()` on the output
 #' # of `debit_map()`:
 #' pigs3 %>%
-#'   debit_map() %>%
+#'   debit_map(digits_x = 2, digits_sd = 2) %>%
 #'   debit_plot()
 
 debit_plot <- function(

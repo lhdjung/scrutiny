@@ -112,7 +112,8 @@ explain_seq_test_ranking <- function(x, scrutiny_func_info) {
 #'
 #' @examples
 #' seq_distance_df(.from = "0.00", n = 50) %>%
-#'   grim_map() %>%
+#'   dplyr::mutate(x = as.numeric(x)) %>%
+#'   grim_map(digits_x = 2) %>%
 #'   seq_test_ranking()
 
 seq_test_ranking <- function(x, explain = TRUE) {

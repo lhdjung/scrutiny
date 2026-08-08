@@ -90,8 +90,8 @@ manage_var_ge_3 <- function(var_ge_3, prefix, suffix, segway = "as well as") {
 #'
 #' @examples
 #' # Start by running `audit()`:
-#' out_grim  <- audit(grim_map(pigs1))
-#' out_debit <- audit(debit_map(pigs3))
+#' out_grim  <- audit(grim_map(pigs1, digits_x = 2))
+#' out_debit <- audit(debit_map(pigs3, digits_x = 2, digits_sd = 2))
 #'
 #' out_grim
 #' out_debit
