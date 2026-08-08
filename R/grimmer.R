@@ -119,8 +119,6 @@
 
 # Implementation ----------------------------------------------------------
 
-# TODO: CHECK NEW GRIMMER VERSION USING claude --resume 6cd92dd9-1cd0-4b37-9638-6c55ccdaefa4
-
 grimmer_scalar <- function(
   x,
   sd,
@@ -185,7 +183,7 @@ grimmer_scalar <- function(
     digits = digits_sd,
     rounding = rounding,
     threshold = threshold,
-symmetric = symmetric
+    symmetric = symmetric
   )
 
   # The only rounding method with undefined bounds is `"anti_trunc"`, and only
@@ -245,25 +243,26 @@ symmetric = symmetric
   furthest_test_passed <- 0L
 
   for (s in consistent_sums) {
-    x_real <- s / n_items
-
-    # Sum of squares bounds, lower and upper:
-    sum_squares_lower <- ((n - 1) * sd_lower^2 + n * x_real^2) * items^2
-    sum_squares_upper <- ((n - 1) * sd_upper^2 + n * x_real^2) * items^2
-
-    # Correct for floating-point error:
-    sum_squares_lower <- round(sum_squares_lower, 12)
-    sum_squares_upper <- round(sum_squares_upper, 12)
-
     # TEST 1: Check that there is at least one integer between the lower and
     # upper bounds (of the reconstructed sum of squares of the -- most likely
-    # unknown -- values for which `x` was reported as a mean). Ceiling the
-    # lower bound and flooring the upper bound determines whether there are any
-    # integers between the two. For example:
-    # -- If `sum_squares_lower` is 112.869 and `sum_squares_upper` is 113.1156,
-    # `ceiling(sum_squares_lower)` and `floor(sum_squares_upper)` both return
-    # `113`, so there is an integer between them, and `<=` returns `TRUE`.
-    if (ceiling(sum_squares_lower) > floor(sum_squares_upper)) {
+    # unknown -- values for which `x` was reported as a mean). Like the mean's
+    # candidate sums above, these bounds are derived in exact integer
+    # arithmetic: `round(sum_squares_lower, 12)` used to stand in for that, but
+    # it cannot repair anything once the sum of squares exceeds about 1000,
+    # because the spacing between neighboring doubles is larger than 1e-12 from
+    # there on. A bound that is mathematically an exact integer was then
+    # ceilinged to the next one up, dropping the only viable sum of squares
+    # (#86).
+    sum_squares <- sum_squares_range(
+      s = s,
+      n = n,
+      term_lower = term_lower,
+      term_upper = term_upper,
+      incl_lower = sd_incl_lower,
+      incl_upper = sd_bounds$incl_upper
+    )
+
+    if (sum_squares[1L] > sum_squares[2L]) {
       next
     }
 
@@ -271,14 +270,17 @@ symmetric = symmetric
 
     # Create a vector of all possible integers between the lower and upper
     # bounds of the sum of squares:
-    integers_possible <- ceiling(sum_squares_lower):floor(sum_squares_upper)
+    integers_possible <- sum_squares[1L]:sum_squares[2L]
 
-    # Create the predicted variance. Floating-point arithmetic can produce very
-    # slightly negative values here; those lead to NaN from sqrt(), which is
-    # then filtered out by the !is.na() guard in test 2. (Variance cannot be
-    # negative.)
-    var_predicted <- (integers_possible / items^2 - n * x_real^2) / (n - 1)
-    var_predicted <- round(var_predicted, 12)
+    # Create the predicted variance. Subtracting `s^2 / n` from the integer sum
+    # of squares directly is much better conditioned than the equivalent
+    # `integers_possible / items^2 - n * (s / n_items)^2`, which cancels two
+    # large, nearly equal floating-point numbers:
+    var_predicted <- (integers_possible - s^2 / n) / (items^2 * (n - 1))
+
+    # The bounds above guarantee `var_predicted >= sd_lower^2 >= 0`, so anything
+    # negative here is floating-point noise from that division:
+    var_predicted <- pmax(var_predicted, 0)
 
     # Derive the predicted SD:
     sd_predicted <- sqrt(var_predicted)
@@ -305,7 +307,9 @@ symmetric = symmetric
     reps <- length(sd_rec_rounded) / length(integers_possible)
 
     # Check the reported SD for near-equality with the reconstructed SD values,
-    # separately for each candidate integer:
+    # separately for each candidate integer. The comparison goes through
+    # `dplyr::near()` rather than `==` to absorb spurious floating-point
+    # precision in the reconstructed values:
     matches_sd <- vapply(
       seq_along(integers_possible),
       function(i) {
@@ -315,20 +319,10 @@ symmetric = symmetric
         # `(i - 1) * reps + 1`, and runs for `reps` values, i.e., up to `i *
         # reps`.
         block <- ((i - 1L) * reps + 1L):(i * reps)
-        # Introduce a small numeric tolerance to the reconstructed SD values to
-        # avoid false-negative comparisons due to spurious floating-point
-        # precision:
-        sd_rec_dusty_i <- dustify(sd_rec_rounded[block])
-        matches <- vapply(
-          sd_dusty,
-          function(sd_with_dust) {
-            sd_with_dust %>%
-              dplyr::near(sd_rec_dusty_i, tol = tolerance) %>%
-              any()
-          },
-          logical(1)
+        any(
+          dplyr::near(sd_rec_rounded[block], sd, tol = tolerance),
+          na.rm = TRUE
         )
-        any(matches[!is.na(matches)])
       },
       logical(1)
     )
