@@ -67,6 +67,10 @@
 #' round_anti_trunc(x = 8.421, digits = 2)    # 1 cut off
 #' round_anti_trunc(x = -8.421, digits = 2)   # 1 cut off
 
+# The functions below nudge the shifted value by `rounding_tolerance` (see
+# utils.R) before rounding it, so that floating-point representation error
+# cannot move a number a whole step.
+
 # Always round up ------------------------------------------------------------
 
 #' @rdname rounding-uncommon
@@ -74,7 +78,7 @@
 
 round_ceiling <- function(x, digits = 0L) {
   p10 <- 10^digits
-  ceiling(x * p10) / p10
+  ceiling(x * p10 - rounding_tolerance) / p10
 }
 
 
@@ -85,7 +89,7 @@ round_ceiling <- function(x, digits = 0L) {
 
 round_floor <- function(x, digits = 0L) {
   p10 <- 10^digits
-  floor(x * p10) / p10
+  floor(x * p10 + rounding_tolerance) / p10
 }
 
 
@@ -97,8 +101,10 @@ round_floor <- function(x, digits = 0L) {
 round_trunc <- function(x, digits = 0L) {
   p10 <- 10^digits
 
-  # For symmetry between positive and negative numbers, use the absolute value:
-  core <- trunc(abs(x) * p10) / p10
+  # For symmetry between positive and negative numbers, use the absolute value.
+  # Truncation rounds toward zero, so the tolerance is added, just as in
+  # `round_floor()`:
+  core <- trunc(abs(x) * p10 + rounding_tolerance) / p10
 
   # If `x` is negative, its truncated version should be negative or zero.
   # Therefore, in this case, the function returns the negative of `core`, the
@@ -113,8 +119,11 @@ round_trunc <- function(x, digits = 0L) {
 #' @export
 
 anti_trunc <- function(x) {
-  # For symmetry between positive and negative numbers, use the absolute value:
-  core <- trunc(abs(x)) + 1
+  # For symmetry between positive and negative numbers, use the absolute value.
+  # `trunc()` is nudged as in `round_trunc()` so that an `x` which is only just
+  # below a whole number by representation error still counts as that number,
+  # and is therefore taken one step further away from zero, not two:
+  core <- trunc(abs(x) + rounding_tolerance) + 1
   # (Note that an equivalent formula would be `ceiling(abs(x))`.
 
   # If `x` is negative, its "anti-truncated" version should also be negative.

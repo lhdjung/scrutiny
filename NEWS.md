@@ -10,6 +10,7 @@
 
 - GRIMMER now derives the bounds of the sum of squares in exact integer arithmetic as well, not just the candidate sums. The previous `round(sum_squares_lower, 12)` correction could not repair floating-point error once the sum of squares exceeded about 1000, because two neighboring doubles are more than 1e-12 apart from there on. A bound that was mathematically an exact integer could then be ceilinged to the next one up, dropping the only viable sum of squares and flagging real data. For instance, `grimmer(x = 7.67, sd = 0, n = 2, items = 3, digits_x = 2, digits_sd = 2)` was reported as inconsistent although two subjects with three items each, all summing to 23, have exactly these values.
 
+- `round_ceiling()`, `round_floor()`, `round_trunc()`, and `round_anti_trunc()` no longer move a number a whole step because of floating-point error. Shifting a number by `digits` decimal places is inexact -- e.g., `0.28 * 100` is 28.000000000000004 -- so `round_ceiling(0.28, 2)` returned 0.29, and `round_floor(0.29, 2)` returned 0.28. These functions now apply the same tolerance that `round_up_from()` and `round_down_from()` already used.
 
 - `debit_map()` now returns `x` and `sd` as numeric columns, not as strings. This matches `grim_map()`.
 

@@ -65,3 +65,31 @@ test_that("`round_down_from()` works correctly", {
     x_down %>% trunc_reverse() %>% round_down_from(2, threshold = 8)
   )
 })
+
+
+# Exact decimal boundaries ------------------------------------------------
+
+# Shifting a number by `digits` decimal places is inexact: `0.28 * 100` is
+# 28.000000000000004, and `0.29 * 100` is 28.999999999999996. Rounding the
+# shifted value away from the number it stands for would move it a whole step.
+
+test_that("`round_ceiling()` and `round_floor()` are exact at whole steps", {
+  x <- seq(0, 1000) / 100
+
+  expect_equal(round_ceiling(x, 2), x)
+  expect_equal(round_floor(x, 2), x)
+  expect_equal(round_trunc(x, 2), x)
+  expect_equal(round_trunc(-x, 2), -x)
+
+  # A value one unit below `x` anti-truncates to `x`, and `x` itself to one
+  # unit above it:
+  expect_equal(round_anti_trunc(x[-1] - 0.01, 2), x[-1])
+
+  # The individual cases that used to fail:
+  expect_equal(round_ceiling(0.28, 2), 0.28)
+  expect_equal(round_floor(0.29, 2), 0.29)
+
+  # Values genuinely inside a step still move to its edge:
+  expect_equal(round_ceiling(0.281, 2), 0.29)
+  expect_equal(round_floor(0.289, 2), 0.28)
+})

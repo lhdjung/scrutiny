@@ -1470,6 +1470,19 @@ dustify <- function(x) {
 }
 
 
+# Shifting a number by `digits` decimal places is not exact in floating point:
+# `0.28 * 100` is 28.000000000000004, and `0.29 * 100` is 28.999999999999996.
+# Rounding the shifted value away from the number it is meant to be would then
+# move it a whole step -- `ceiling(0.28 * 100) / 100` would be 0.29 rather than
+# 0.28. The rounding functions in round-ceil-floor.R therefore nudge the shifted
+# value by this tolerance before rounding it, in the same spirit as the
+# `threshold` adjustment in `round_up_from()` and `round_down_from()`. It is far
+# smaller than any difference a reported value could meaningfully express, so it
+# only ever absorbs representation error.
+
+rounding_tolerance <- .Machine$double.eps^0.5 / 10
+
+
 #' Check for ggplot2 versions
 #'
 #' These two functions negotiate a breaking change in ggplot2 since version
