@@ -20,11 +20,20 @@ grimmer(
 )
 }
 \arguments{
-\item{x}{String. The reported mean value.}
+\item{x}{Numeric. The reported mean value.}
 
-\item{sd}{String. The reported standard deviation.}
+\item{sd}{Numeric. The reported standard deviation.}
 
 \item{n}{Integer. The reported sample size.}
+
+\item{digits_x}{Integer. The number of decimal places in \code{x}, including
+trailing zeros. There is no default because it cannot be inferred from a
+numeric \code{x}, which has no trailing zeros: both \code{1.4} and \code{1.40} are the
+number \code{1.4}, but only the latter has \code{digits_x = 2}.}
+
+\item{digits_sd}{Integer. The number of decimal places in \code{sd}, including
+trailing zeros. As with \code{digits_x}, there is no default, because trailing
+zeros don't survive in a numeric value.}
 
 \item{items}{Integer. The number of items composing the \code{x} and \code{sd} values.
 Default is \code{1}, the most common case.}
@@ -33,6 +42,24 @@ Default is \code{1}, the most common case.}
 output is a list of length-2 lists which also contain the reasons for
 inconsistencies. Don't specify this manually; instead, use \code{show_reason} in
 \code{\link[=grimmer_map]{grimmer_map()}}. See there for explanation. Default is \code{FALSE}.}
+
+\item{rounding}{String. Rounding method or methods to be used for
+reconstructing the values to which \code{x} will be compared. Default is
+\code{"up_or_down"} (from 5).}
+
+\item{threshold}{Numeric. If \code{rounding} is set to \code{"up_from"}, \code{"down_from"},
+or \code{"up_from_or_down_from"}, set \code{threshold} to the number from which the
+reconstructed values should then be rounded up or down. Otherwise, this
+argument plays no role. Default is \code{5}.}
+
+\item{symmetric}{Logical. Set \code{symmetric} to \code{TRUE} if the rounding of
+negative numbers with \code{"up"}, \code{"down"}, \code{"up_from"}, or \code{"down_from"}
+should mirror that of positive numbers so that their absolute values are
+always equal. Default is \code{FALSE}.}
+
+\item{tolerance}{Numeric. Tolerance of comparison between \code{x} and the
+possible mean or percentage values. Default is circa 0.000000015
+(1.490116e-08), as in \code{\link[dplyr:near]{dplyr::near()}}.}
 }
 \value{
 Logical. \code{TRUE} if \code{x}, \code{sd}, \code{n}, and \code{items} are mutually
@@ -64,14 +91,14 @@ source file.
 \examples{
 # A mean of 5.23 is not consistent with an SD of 2.55
 # and a sample size of 35:
-grimmer(x = "5.23", sd = "2.55", n = 35)
+grimmer(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2)
 
 # However, mean and SD are consistent with a
 # sample size of 31:
-grimmer(x = "5.23", sd = "2.55", n = 31)
+grimmer(x = 5.23, sd = 2.55, n = 31, digits_x = 2, digits_sd = 2)
 
 # For a scale composed of two items:
-grimmer(x = "2.74", sd = "0.96", n = 63, items = 2)
+grimmer(x = 2.74, sd = 0.96, n = 63, digits_x = 2, digits_sd = 2, items = 2)
 }
 \references{
 Allard, A. (2018). Analytic-GRIMMER: a new way of testing the

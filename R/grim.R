@@ -146,26 +146,35 @@ grim_scalar <- function(
 #'   argument is retained because [`grimmer()`] and [`debit()`] inherit it and
 #'   do use it.
 #'
-#' @param x String. The reported mean or percentage value. @param n Integer. The
-#' reported sample size. @param items Numeric. The number of items composing
-#' `x`. Default is 1, the most common case. @param percent Logical. Set
-#'   `percent` to `TRUE` if `x` is a percentage. This will convert it to a
-#' decimal number and adjust the decimal count (i.e., increase it by 2). Default
-#'   is `FALSE`. @param show_rec Logical. For internal use only. If set to
-#'   `TRUE`, the output is a matrix that also contains intermediary values from
-#' GRIM-testing. Don't specify this manually; instead, use `show_rec` in
-#'   [`grim_map()`]. Default is `FALSE`. @param rounding String. Rounding method
-#'   or methods to be used for reconstructing the values to which `x` will be
-#'   compared. Default is `"up_or_down"` (from 5). @param threshold Numeric. If
-#' `rounding` is set to `"up_from"`, `"down_from"`, or `"up_from_or_down_from"`,
-#'   set `threshold` to the number from which the reconstructed values should
-#'   then be rounded up or down. Otherwise, this argument plays no role. Default
-#' is `5`. @param symmetric Logical. Set `symmetric` to `TRUE` if the rounding
-#'   of negative numbers with `"up"`, `"down"`, `"up_from"`, or `"down_from"`
+#' @param x Numeric. The reported mean or percentage value.
+#' @param n Integer. The reported sample size.
+#' @param digits_x Integer. The number of decimal places in `x`, including
+#'   trailing zeros. There is no default because it cannot be inferred from a
+#'   numeric `x`, which has no trailing zeros: both `1.4` and `1.40` are the
+#'   number `1.4`, but only the latter has `digits_x = 2`.
+#' @param items Numeric. The number of items composing `x`. Default is 1, the
+#'   most common case.
+#' @param percent Logical. Set `percent` to `TRUE` if `x` is a percentage. This
+#'   will convert it to a decimal number and adjust the decimal count (i.e.,
+#'   increase it by 2). Default is `FALSE`.
+#' @param show_rec Logical. For internal use only. If set to `TRUE`, the output
+#'   is a matrix that also contains intermediary values from GRIM-testing. Don't
+#'   specify this manually; instead, use `show_rec` in [`grim_map()`]. Default
+#'   is `FALSE`.
+#' @param rounding String. Rounding method or methods to be used for
+#'   reconstructing the values to which `x` will be compared. Default is
+#'   `"up_or_down"` (from 5).
+#' @param threshold Numeric. If `rounding` is set to `"up_from"`, `"down_from"`,
+#'   or `"up_from_or_down_from"`, set `threshold` to the number from which the
+#'   reconstructed values should then be rounded up or down. Otherwise, this
+#'   argument plays no role. Default is `5`.
+#' @param symmetric Logical. Set `symmetric` to `TRUE` if the rounding of
+#'   negative numbers with `"up"`, `"down"`, `"up_from"`, or `"down_from"`
 #'   should mirror that of positive numbers so that their absolute values are
-#'   always equal. Default is `FALSE`. @param tolerance Numeric. Tolerance of
-#' comparison between `x` and the possible mean or percentage values. Default is
-#'   circa 0.000000015 (1.490116e-08), as in [`dplyr::near()`].
+#'   always equal. Default is `FALSE`.
+#' @param tolerance Numeric. Tolerance of comparison between `x` and the
+#'   possible mean or percentage values. Default is circa 0.000000015
+#'   (1.490116e-08), as in [`dplyr::near()`].
 #'
 #' @return Logical. `TRUE` if `x`, `n`, and `items` are mutually consistent,
 #'   `FALSE` if not.
