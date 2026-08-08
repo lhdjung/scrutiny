@@ -175,21 +175,20 @@ grimmer_scalar <- function(
     return(FALSE)
   }
 
-  # SD bounds via unround(): handles all rounding modes and their boundary
-  # inclusion correctly, unlike the earlier hardcoded `5 / 10^(digits_sd + 1)`
-  # approach which was only exact for "up_or_down" with threshold = 5.
-  sd_bounds <- unround(
-    sd,
+  # SD bounds as exact integer numerators over a common denominator, the same
+  # way `sum_range()` derives the mean's bounds. This handles all rounding
+  # modes and their boundary inclusion, unlike the earlier hardcoded `5 /
+  # 10^(digits_sd + 1)` approach which was only exact for "up_or_down" with
+  # threshold = 5.
+  sd_bounds <- bound_numerators(
+    x_num = sd,
+    digits = digits_    sd,
     rounding = rounding,
     threshold = threshold,
-    digits = digits_sd
-  )
-
-  sd_lower <- max(0, sd_bounds$lower) # SD cannot be negative
-  sd_upper <- sd_bounds$upper
-
-  # Pre-compute dustified SD once, before the loop over candidate sums.
-  sd_dusty <- dustify(sd)
+  # The `(n - 1) * sd^2 * items^2` part of the sum of squares does not depend on
+  # the candidate sum, so both bounds of it are computed once, here:
+  term_lower <- sd_square_term(sd_num_lower, n, items, sd_bounds$denom)
+  term_upper <- sd_square_term(sd_bounds$upper, n, items, sd_bounds$denom)
 
   # Enumerate all integer sums consistent with the reported mean by mapping the
   # mean's rounding interval into sum space. This replaces the earlier

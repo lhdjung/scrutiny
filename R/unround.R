@@ -68,6 +68,14 @@ rounding_bounds <- Vectorize(rounding_bounds_scalar)
 # + 1)` becomes a comparison between the integers `s * 10^(digits + 1)` and
 # `n_items * numerator`.
 
+# All of this is exact only as long as every integer involved stays below
+# `2^53`, the point up to which doubles represent integers without loss. The
+# products formed below are on the order of `n * 10^(2 * digits)`, so the limit
+# is far out of reach for the sample sizes and decimal counts that consistency
+# testing deals with. Beyond it, the arithmetic silently degrades to the
+# floating-point behavior of earlier scrutiny versions, which is no worse than
+# the status quo.
+
 # `floor_div()` and `ceiling_div()` divide `a` by `b` (with `b > 0`) and round
 # the result towards `-Inf` and `+Inf`, respectively. Unlike `floor(a / b)` and
 # `ceiling(a / b)`, they are exact for integer-valued `a` and `b`: the quotient
@@ -88,6 +96,29 @@ floor_div <- function(a, b) {
 
 ceiling_div <- function(a, b) {
   -floor_div(-a, b)
+}
+
+
+# `floor_frac_sum()` is the same idea for a sum of two fractions, `a1 / b1 + a2
+# / b2` (with `b1` and `b2` positive integers). It returns the floor of that sum
+# along with a flag for whether the sum is an integer, which is what the callers
+# need in order to honor an exclusive bound.
+#
+# The obvious route -- putting both fractions over `b1 * b2` -- would multiply
+# each numerator by the other denominator and overflow the exact range far
+# sooner than necessary. Splitting each fraction into its integer part and its
+# remainder first keeps every product below `2 * b1 * b2` instead.
+
+floor_frac_sum <- function(a1, b1, a2, b2) {
+  q1 <- floor_div(a1, b1)
+  q2 <- floor_div(a2, b2)
+  # Both remainders are non-negative and smaller than their own denominator, so
+  # the combined numerator below stays under `2 * b1 * b2`:
+  num <- (a1 - q1 * b1) * b2 + (a2 - q2 * b2) * b1
+  den <- b1 * b2
+  # The fractional parts sum to less than 2, so this carry is 0 or 1:
+  carry <- floor_div(num, den)
+  list(floor = q1 + q2 + carry, exact = num == carry * den)
 }
 
 
@@ -198,7 +229,62 @@ sum_range <- function(x_num, n_items, digits, rounding, threshold) {
 
   # `s / n_items >= num_lower / denom`  <==>  `s * denom >= n_items * num_lower`
   lower <- ceiling_div(n_items * num_lower, denom)
-  if (!offsets[[3L]] && lower * denom == n_items * num_lower) {
+  if (!bounds$incl_upper && upper * denom == n_items * bounds$upper) {
+    upper <- upper - 1
+  }
+
+  c(lower, upper)
+}
+
+
+# GRIMMER's counterpart to `sum_range()`. For a given candidate sum `s`, this is
+# the range of integer sums of squares that the reported SD admits. The sum of
+# squares of the item-level values is
+#
+#   ((n - 1) * sd^2 + n * (s / (n * items))^2) * items^2
+#     == (n - 1) * sd^2 * items^2 + s^2 / n
+#
+# and with `sd` given as `num / denom`, both terms are exact rationals. The
+# first one does not depend on `s`, so `sd_square_term()` pre-computes it once
+# per SD bound, outside the loop over candidate sums, splitting it into an
+# integer part and a proper fraction to keep the products small.
+#
+# Returns a list of the integer part and the numerator and denominator of the
+# remaining fraction.
+
+sd_square_term <- function(num, n, items, denom) {
+  # `sd^2 * items^2` as a fraction over `denom^2`:
+  numerator <- num^2 * items^2
+  denom_sq <- denom^2
+  whole <- floor_div(numerator, denom_sq)
+  list(
+    int = (n - 1) * whole,
+    num = (n - 1) * (numerator - whole * denom_sq),
+    den = denom_sq
+  )
+}
+
+
+# Range of integer sums of squares consistent with candidate sum `s`, given the
+# pre-computed SD terms from `sd_square_term()`. Returns a length-2 numeric
+# vector; if the first element is greater than the second, no sum of squares
+# fits, and the candidate sum fails GRIMMER's first test.
+
+sum_squares_range <- function(
+  s,
+  n,
+  term_lower,
+  term_upper,
+  incl_lower,
+  incl_upper
+) {
+  s_squared <- s^2
+
+  # The lower bound is its own ceiling if it is an integer, and the next integer
+  # up otherwise -- or in either case the next integer up if it is excluded:
+  low <- floor_frac_sum(term_lower$num, term_lower$den, s_squared, n)
+  lower <- term_lower$int + low$floor
+  if (!low$exact || !incl_lower) {
     lower <- lower + 1
   }
 
