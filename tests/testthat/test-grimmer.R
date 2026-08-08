@@ -532,6 +532,80 @@ test_that("GRIMMER never flags an actual two-value dataset (#86)", {
   expect_equal(false_flags, 0L)
 })
 
+# Exact sum-of-squares arithmetic (#86) -------------------------------------
+
+test_that("GRIMMER derives the sum-of-squares bounds exactly", {
+  # Two subjects, three items each, every item sum 23: subject scores are
+  # 23 / 3 = 7.667, so the mean is 7.67 and the SD is 0.00. The exact sum of
+  # squares is 2 * 23^2 = 1058, but it used to compute as 1058.0000000000002
+  # and get ceilinged to 1059, above the upper bound of 1058 -- so the only
+  # viable sum of squares was dropped and this real data set was flagged.
+  # `round(sum_squares_lower, 12)` could not repair that: past about 1000, two
+  # neighboring doubles are already more than 1e-12 apart.
+  witness <- c(23, 23)
+  expect_equal(round(mean(witness / 3), 2), 7.67)
+  expect_equal(stats::sd(witness / 3), 0)
+
+  grimmer(
+    x = 7.67, sd = 0, n = 2, items = 3, digits_x = 2, digits_sd = 2
+  ) %>%
+    expect_true()
+
+  # Same mechanism at a range of magnitudes, all of them real data sets with
+  # zero variance -- the case where the lower bound lands exactly on an
+  # integer:
+  false_flags <- 0L
+
+  for (items in 2:6) {
+    for (n in c(2, 3, 5, 10, 37)) {
+      for (item_sum in c(23, 25, 28, 106, 400, 631, 1000, 2317)) {
+        x <- reround(item_sum / items, digits = 2)[1L]
+        consistent <- grimmer(
+          x = x,
+          sd = 0,
+          n = n,
+          items = items,
+          digits_x = 2,
+          digits_sd = 2
+        )
+        if (!isTRUE(consistent)) {
+          false_flags <- false_flags + 1L
+        }
+      }
+    }
+  }
+
+  expect_equal(false_flags, 0L)
+})
+
+
+test_that("GRIMMER never flags a real multi-item data set", {
+  set.seed(1234)
+  false_flags <- 0L
+
+  for (trial in 1:400) {
+    items <- sample(2:6, 1)
+    n <- sample(2:40, 1)
+    values <- sample(0:sample(c(3, 9, 60, 200), 1), n * items, replace = TRUE)
+    scores <- colSums(matrix(values, nrow = items)) / items
+    sd_value <- stats::sd(scores)
+    consistent <- grimmer(
+      x = reround(mean(scores), digits = 2)[1L],
+      sd = reround(sd_value, digits = 2)[1L],
+      n = n,
+      items = items,
+      digits_x = 2,
+      digits_sd = 2
+    )
+    if (!isTRUE(consistent)) {
+      false_flags <- false_flags + 1L
+    }
+  }
+
+  expect_equal(false_flags, 0L)
+})
+
+
 # Rounding methods ----------------------------------------------------------
 
 test_that("GRIMMER supports the compound rounding methods", {
