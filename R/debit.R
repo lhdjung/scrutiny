@@ -40,6 +40,13 @@ debit_scalar <- function(
 #'
 #' @param x String. Mean of a binary distribution.
 #' @param sd String. Sample standard deviation of a binary distribution.
+#' @param digits_x Integer. The number of decimal places in `x`, including
+#'   trailing zeros. There is no default because it cannot be inferred from a
+#'   numeric `x`, which has no trailing zeros: both `1.4` and `1.40` are the
+#'   number `1.4`, but only the latter has `digits_x = 2`.
+#' @param digits_sd Integer. The number of decimal places in `sd`, including
+#'   trailing zeros. As with `digits_x`, there is no default, because trailing
+#'   zeros don't survive in a numeric value.
 #' @param n Integer. Total sample size.
 #' @param formula String. Formula used to compute the SD of the binary
 #'   distribution. Currently, only the default, `"mean_n"`, is supported.
@@ -70,6 +77,6 @@ debit_scalar <- function(
 #' @examples
 #' # Check single cases of binary
 #' # summary data:
-#' debit(x = "0.36", sd = "0.11", n = 20)
+#' debit(x = 0.36, sd = 0.11, n = 20, digits_x = 2, digits_sd = 2)
 
 debit <- Vectorize(debit_scalar)

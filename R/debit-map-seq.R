@@ -6,6 +6,13 @@
 #' published statistics.
 #'
 #' @param data A data frame that `debit_map()` could take.
+#' @param digits_x Integer. The number of decimal places in `x`, including
+#'   trailing zeros. There is no default because it cannot be inferred from a
+#'   numeric `x`, which has no trailing zeros: both `1.4` and `1.40` are the
+#'   number `1.4`, but only the latter has `digits_x = 2`.
+#' @param digits_sd Integer. The number of decimal places in `sd`, including
+#'   trailing zeros. As with `digits_x`, there is no default, because trailing
+#'   zeros don't survive in a numeric value.
 #' @param x,sd,n Optionally, specify column names in `data` as these arguments.
 #' @param var String. Names of the columns that will be dispersed. Default is
 #'   `c("x", "sd", "n")`.
@@ -65,7 +72,7 @@
 #' # Results from testing some few rows:
 #' out <- pigs3 %>%
 #'   dplyr::slice(3:4) %>%
-#'   debit_map_seq()
+#'   debit_map_seq(digits_x = 2, digits_sd = 2)
 #'
 #' out
 #'

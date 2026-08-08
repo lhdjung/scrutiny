@@ -23,6 +23,10 @@
 #'   integer units, e.g., mean scores on a Likert scale or percentage of study
 #'   participants in some condition. It has to be string to capture any trailing
 #'   zeros.
+#' @param digits_x Integer. The number of decimal places in `x`, including
+#'   trailing zeros. There is no default because it cannot be inferred from a
+#'   numeric `x`, which has no trailing zeros: both `1.4` and `1.40` are the
+#'   number `1.4`, but only the latter has `digits_x = 2`.
 #' @param n Integer. Sample size corresponding to `x`.
 #' @param items Integer. Number of items composing the mean or percentage value
 #'   in question. Default is `1`.
@@ -48,16 +52,16 @@
 #'
 #' @examples
 #' # Many value sets are inconsistent here:
-#' grim_probability(x = "83.29", n = 21)
-#' grim_total(x = "83.29", n = 21)
+#' grim_probability(x = 83.29, n = 21, digits_x = 2)
+#' grim_total(x = 83.29, n = 21, digits_x = 2)
 #'
 #' # No sets are inconsistent in this case...
-#' grim_probability(x = "5.14", n = 83)
-#' grim_total(x = "5.14", n = 83)
+#' grim_probability(x = 5.14, n = 83, digits_x = 2)
+#' grim_total(x = 5.14, n = 83, digits_x = 2)
 #'
 #' # ... but most would be if `x` was a percentage:
-#' grim_probability(x = "5.14", n = 83, percent = TRUE)
-#' grim_total(x = "5.14", n = 83, percent = TRUE)
+#' grim_probability(x = 5.14, n = 83, digits_x = 2, percent = TRUE)
+#' grim_total(x = 5.14, n = 83, digits_x = 2, percent = TRUE)
 
 # Relative ----------------------------------------------------------------
 

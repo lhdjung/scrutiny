@@ -26,6 +26,10 @@
 #'   percentages. This will convert them to decimal numbers and adjust the
 #'   decimal count (i.e., increase it by 2). It also affects the `ratio` column.
 #'   Default is `FALSE`.
+#' @param digits_x Integer. The number of decimal places in `x`, including
+#'   trailing zeros. There is no default because it cannot be inferred from a
+#'   numeric `x`, which has no trailing zeros: both `1.4` and `1.40` are the
+#'   number `1.4`, but only the latter has `digits_x = 2`.
 #' @param x,n Optionally, specify these arguments as column names in `data`.
 #' @param show_rec Logical. If set to `TRUE`, the reconstructed numbers from
 #'   GRIM-testing are shown as columns. See section *Reconstructed numbers*
@@ -251,8 +255,8 @@ grim_map <- function(
   # reconstructed values from `grim_scalar()`'s internal computations, these
   # were stored in `consistency` until now. The `consistency` column, then, is a
   # list-column of 6 or 8 values per cell, depending on `rounding`. These
-  # numbers are now unnested (i.e., turned into their own columns) and
-  # given their respective proper names:
+  # numbers are now unnested (i.e., turned into their own columns) and given
+  # their respective proper names:
   if (show_rec) {
     # The first four names are common to both the short and the long version:
     name1 <- "consistency"

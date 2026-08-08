@@ -7,6 +7,13 @@
 #'   For summary statistics, call [`audit()`] on the results.
 #'
 #' @param data Data frame.
+#' @param digits_x Integer. The number of decimal places in `x`, including
+#'   trailing zeros. There is no default because it cannot be inferred from a
+#'   numeric `x`, which has no trailing zeros: both `1.4` and `1.40` are the
+#'   number `1.4`, but only the latter has `digits_x = 2`.
+#' @param digits_sd Integer. The number of decimal places in `sd`, including
+#'   trailing zeros. As with `digits_x`, there is no default, because trailing
+#'   zeros don't survive in a numeric value.
 #' @param x,sd,n Optionally, specify these arguments as column names in `data`.
 #' @param rounding,threshold,symmetric Arguments passed on to [`debit()`], with
 #'   the same defaults.
