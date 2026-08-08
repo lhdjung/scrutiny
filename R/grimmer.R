@@ -104,6 +104,19 @@
 # symmetric <- FALSE
 # tolerance <- .Machine$double.eps^0.5
 
+# # To reproduce issue #85
+# x <- 0.11
+# sd <- 0.87
+# n <- 64
+# digits_x <- 2
+# digits_sd <- 2
+# items <- 1
+# show_reason <- FALSE
+# rounding <- "up"
+# threshold <- 5
+# symmetric <- FALSE
+# tolerance <- .Machine$double.eps^0.5
+
 # Implementation ----------------------------------------------------------
 
 # TODO: CHECK NEW GRIMMER VERSION USING claude --resume 6cd92dd9-1cd0-4b37-9638-6c55ccdaefa4
@@ -264,40 +277,62 @@ grimmer_scalar <- function(
       symmetric = symmetric
     )
 
-    # Introduce a small numeric tolerance to the reconstructed SD values to
-    # avoid false-negative comparisons due to spurious floating-point precision.
-    sd_rec_dusty <- dustify(sd_rec_rounded)
+    # `reround()` returns one value per element of `sd_predicted` for
+    # deterministic rounding methods, but two interleaved values (rounded up and
+    # down) per element for "up_or_down" and similar methods -- i.e.,
+    # `sd_rec_rounded` is `[up(cand_1), down(cand_1), up(cand_2), ...]`. `reps`
+    # recovers the block size so each candidate integer's own reconstructed
+    # SD(s) can be checked against the reported SD, instead of pooling all
+    # candidates' reconstructed SDs together. The latter behavior used to be a
+    # bug that let a match for one candidate and a parity match for a
+    # *different* candidate combine into a false pass, see:
+    # https://github.com/lhdjung/scrutiny/issues/85
+    reps <- length(sd_rec_rounded) / length(integers_possible)
 
-    # Check the reported SD for near-equality with the reconstructed SD values;
-    # i.e., equality within a very small tolerance. This test is applied via
-    # `purrr::map_lgl()` because `reround()` returns two values per element of
-    # `sd` by default, so `sd_rec_dusty` will be twice as long as `sd_dusty`.
-    matches_sd <- purrr::map_lgl(
-      .x = sd_dusty,
-      .f = function(sd_with_dust) {
-        sd_with_dust %>%
-          dplyr::near(sd_rec_dusty, tol = tolerance) %>%
-          any()
-      }
+    # Check the reported SD for near-equality with the reconstructed SD values,
+    # separately for each candidate integer:
+    matches_sd <- vapply(
+      seq_along(integers_possible),
+      function(i) {
+        # `sd_rec_rounded` is `reps` values per candidate, laid out back to back
+        # (candidate 1's `reps` values, then candidate 2's, etc.), so candidate
+        # `i`'s block starts right after candidate `i - 1`'s block ends, i.e. at
+        # `(i - 1) * reps + 1`, and runs for `reps` values, i.e., up to `i *
+        # reps`.
+        block <- ((i - 1L) * reps + 1L):(i * reps)
+        # Introduce a small numeric tolerance to the reconstructed SD values to
+        # avoid false-negative comparisons due to spurious floating-point
+        # precision:
+        sd_rec_dusty_i <- dustify(sd_rec_rounded[block])
+        matches <- vapply(
+          sd_dusty,
+          function(sd_with_dust) {
+            sd_with_dust %>%
+              dplyr::near(sd_rec_dusty_i, tol = tolerance) %>%
+              any()
+          },
+          logical(1)
+        )
+        any(matches[!is.na(matches)])
+      },
+      logical(1)
     )
 
     # TEST 2: If none of the reconstructed SDs matches the reported one, this
     # candidate sum is not viable.
-    if (!any(matches_sd[!is.na(matches_sd)])) {
+    if (!any(matches_sd)) {
       next
     }
 
     furthest_test_passed <- max(furthest_test_passed, 2L)
 
-    matches_parity <- s %% 2 == integers_possible %% 2
-    matches_sd_and_parity <- purrr::map_lgl(
-      .x = matches_parity,
-      .f = function(p) any(p & matches_sd)
-    )
-
     # TEST 3: Determine if any integer between the lower and upper bounds has
-    # the same parity (i.e., the property of being even or odd) as s, the
-    # candidate sum
+    # both a matching reconstructed SD (`matches_sd`) and the same parity (i.e.,
+    # the property of being even or odd) as s, the candidate sum -- both
+    # conditions checked against the *same* candidate integer.
+    matches_parity <- s %% 2 == integers_possible %% 2
+    matches_sd_and_parity <- matches_sd & matches_parity
+
     if (!any(matches_sd_and_parity)) {
       next
     }

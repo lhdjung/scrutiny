@@ -4,6 +4,8 @@
 
 - Fixed an error in the GRIM rounding-boundary logic for `rounding = "up"` and `rounding = "down"`. For `"up"` rounding, the upper boundary is exclusive (a value exactly at the midpoint rounds *away* from the reported mean, not toward it), but the old implementation treated it as inclusive. This could cause `grim()` and `grim_map()` to return `TRUE` for value sets that are actually inconsistent.
 
+- Fixed a bug in GRIMMER that could occur when using the non-default `rounding = "up"` or `"down"` options in cases with three or more candidate sums of squares. In these situations, the checks for the reconstructed SD matching the reported SD and for the sum of squares having the same parity as the sum could be satisfied by different candidate sums instead of the same one, producing false-negative consistency results (i.e., wrongly letting inconsistent value sets pass). Thanks to Ian Hussey (#85).
+
 - `debit_map()` now returns `x` and `sd` as numeric columns, not as strings. This matches `grim_map()`.
 
 - Fixed a pre-existing compatibility issue in `debit_plot()` where a theme element was out of date with recent ggplot2 versions.

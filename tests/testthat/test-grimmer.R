@@ -423,6 +423,43 @@ test_that("GRIMMER works correctly with `items = 3`", {
 })
 
 
+# Issue #85 -----------------------------------------------------------------
+
+test_that("GRIMMER checks SD-match and parity against the same candidate sum of squares (#85)", {
+  # With 3+ candidate sums of squares, one candidate could satisfy the SD-match
+  # test and a *different* candidate could satisfy the parity test, which used
+  # to make `grimmer()` return `TRUE` even though no single candidate passed
+  # both. This only affects `rounding = "up"`/`"down"`; see
+  # https://github.com/lhdjung/scrutiny/issues/85.
+  grimmer(x = 0.11, sd = 0.87, n = 64, digits_x = 2, digits_sd = 2, rounding = "up") %>%
+    expect_false()
+
+  cases <- tibble::tribble(
+    ~x,   ~sd,  ~n,
+    0.00, 0.62, 129,
+    0.11, 0.87, 64,
+    0.14, 1.12, 64,
+    0.17, 1.37, 64,
+    0.48, 0.37, 256,
+    0.52, 0.37, 256,
+    0.83, 1.37, 64,
+    0.86, 1.12, 64,
+    0.89, 0.87, 64,
+    1.00, 0.62, 129
+  )
+
+  result_false <- cases %>%
+    purrr::pmap_lgl(function(x, sd, n) {
+    grimmer(x = x, sd = sd, n = n, digits_x = 2, digits_sd = 2, rounding = "up")
+  })
+
+  expect_false(any(result_false))
+
+  # The same value is genuinely GRIMMER-consistent under "up_or_down", where a
+  # third candidate integer for the sum of squares is not at stake:
+  grimmer(x = 0.11, sd = 0.87, n = 64, digits_x = 2, digits_sd = 2, rounding = "up_or_down") |> 
+    expect_true()
+})
 
 # test_that("sd_bounds_measure works", {
 #   expect_equal(c(.45, 3.03), sd_bounds_measure(n = 5, x = 4.2, min_val = 1, max_val = 7, sd_prec = 2))
