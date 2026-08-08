@@ -24,7 +24,7 @@ rounding_bounds_scalar <- function(rounding, x_num, d_var, d) {
       "trunc_x_less"         = list(x_num - (2 * d), x_num,           "<", "<="),
       "trunc_x_is_0"         = list(x_num - (2 * d), x_num + (2 * d), "<",  "<"),
       "anti_trunc_x_greater" = list(x_num - (2 * d), x_num,           "<=", "<"),
-      "anti_trunc_x_less"    = list(x_num,           x_num + (2 * d), "<=", "<"),
+      "anti_trunc_x_less"    = list(x_num,           x_num + (2 * d), "<",  "<="),
       "anti_trunc_x_is_0"    = list(NA,              NA,               NA,   NA)
     ))
   }
@@ -131,70 +131,125 @@ floor_frac_sum <- function(a1, b1, a2, b2) {
 # the two constituent methods, and since both constituents include `x_num`
 # itself, that union is again a single interval.
 #
-# Inclusivity, on the other hand, follows the rule that GRIM has always used:
-# `"up"` excludes its upper bound (a value exactly at the midpoint rounds up,
-# i.e. away from `x_num`), `"down"` excludes its lower bound, and every other
-# method treats both bounds as inclusive. Several of those others do have an
-# exclusive bound of their own -- `"ceiling"`, `"floor"`, `"trunc"`, and
-# `"anti_trunc"` on one side, `"up_from"` and `"down_from"` like `"up"` and
-# `"down"` -- and `"even"` has one that is unpredictable because `base::round()`
-# breaks midpoint ties by the parity of the preceding digit. Tightening these is
-# a separate question from the exact arithmetic below, which is why the existing
-# lenient behavior is kept for now.
+# Each bound is inclusive or exclusive exactly as the corresponding rounding
+# function in reround.R behaves at that bound -- e.g. `"up"` excludes its upper
+# bound because a value at the midpoint rounds up, i.e. away from `x_num`, and
+# `"ceiling"` excludes its lower bound because a value there ceilings to
+# `x_num - 1` unit.
+#
+# `"even"` is the one method whose bounds cannot be pinned down: `base::round()`
+# breaks midpoint ties by the parity of the preceding digit, and whether a tie
+# occurs at all depends on the binary representation of the value. Both of its
+# bounds are therefore treated as inclusive, which can only make a consistency
+# test too permissive, never too strict -- the safe direction for an
+# error-detection tool.
+#
+# `threshold` deliberately plays no role for `"up_or_down"`, `"up"`, and
+# `"down"`, matching `round_up()` and `round_down()`, which round from a fixed
+# 5. The `"*_from"` methods are the parameterized ones.
 #
 # Returns a list of four elements -- lower offset, upper offset, `incl_lower`,
 # `incl_upper` -- or `NULL` if `rounding` is not a known method.
 
-rounding_offsets <- function(rounding, threshold, x_num) {
+rounding_offsets <- function(rounding, threshold, x_num, symmetric = FALSE) {
+  # With `symmetric`, the rounding of a negative number mirrors that of its
+  # absolute value, which is precisely what the opposite method does to a
+  # negative number anyway. Swapping the method here is therefore enough:
+  if (symmetric && x_num < 0) {
+    # fmt: skip
+    rounding <- switch(
+      rounding,
+      "up"        = "down",
+      "down"      = "up",
+      "up_from"   = "down_from",
+      "down_from" = "up_from",
+      rounding
+    )
+  }
+
   # Rounding with truncation and "anti-truncation" depends on the sign of the
   # input number:
+  # fmt: skip
   if (rounding == "trunc") {
     offsets <- if (x_num > 0) {
-      list(0, 10)
+      list(0,   10,  TRUE,  FALSE)
     } else if (x_num < 0) {
-      list(-10, 0)
+      list(-10, 0,   FALSE, TRUE)
     } else {
-      list(-10, 10)
+      list(-10, 10,  FALSE, FALSE)
     }
   } else if (rounding == "anti_trunc") {
     offsets <- if (x_num > 0) {
-      list(-10, 0)
+      list(-10, 0,   TRUE,  FALSE)
     } else if (x_num < 0) {
-      list(0, 10)
+      list(0,   10,  FALSE, TRUE)
     } else {
       # `anti_trunc` is undefined for zero, just as in `unround()`:
-      list(NA, NA)
+      list(NA, NA, NA, NA)
     }
+  } else if (rounding == "up_from_or_down_from") {
+    # The union of the two constituent intervals. Which one supplies each
+    # endpoint -- and hence whether that endpoint is inclusive -- depends on
+    # `threshold`; on a tie, the inclusive constituent wins:
+    lower_up   <- threshold - 10
+    lower_down <- -threshold
+    upper_up   <- threshold
+    upper_down <- 10 - threshold
+    offsets <- list(
+      min(lower_up, lower_down),
+      max(upper_up, upper_down),
+      lower_up <= lower_down,   # `"up_from"` includes its lower bound
+      upper_down >= upper_up    # `"down_from"` includes its upper bound
+    )
   } else {
     # fmt: skip
     offsets <- switch(
-      rounding,              #     lower                             upper
-      "up_or_down"           = list(-threshold,                      threshold),
-      "up"                   = list(-threshold,                      threshold),
-      "down"                 = list(-threshold,                      threshold),
-      "even"                 = list(-5,                              5),
-      "ceiling"              = list(-10,                             0),
-      "floor"                = list(0,                               10),
-      "ceiling_or_floor"     = list(-10,                             10),
-      "up_from"              = list(threshold - 10,                  threshold),
-      "down_from"            = list(-threshold,                      10 - threshold),
-      "up_from_or_down_from" = list(min(threshold - 10, -threshold), max(threshold, 10 - threshold)),
+      rounding,              #     lower            upper           incl_lower  incl_upper
+      "up_or_down"           = list(-5,             5,              TRUE,       TRUE),
+      "up"                   = list(-5,             5,              TRUE,       FALSE),
+      "down"                 = list(-5,             5,              FALSE,      TRUE),
+      "even"                 = list(-5,             5,              TRUE,       TRUE),
+      "ceiling"              = list(-10,            0,              FALSE,      TRUE),
+      "floor"                = list(0,              10,             TRUE,       FALSE),
+      "ceiling_or_floor"     = list(-10,            10,             FALSE,      FALSE),
+      "up_from"              = list(threshold - 10, threshold,      TRUE,       FALSE),
+      "down_from"            = list(-threshold,     10 - threshold, FALSE,      TRUE),
       return(NULL)
     )
   }
 
-  c(offsets, list(rounding != "down", rounding != "up"))
+  # At zero, the mirroring happens inside the interval rather than beside it:
+  # the negative half of the interval is the reflection of the positive half, so
+  # both ends behave like the upper end does for a positive number.
+  # fmt: skip
+  if (
+    symmetric &&
+      x_num == 0 &&
+      rounding %in% c(
+        "up_or_down", "up", "down",
+        "up_from_or_down_from", "up_from", "down_from"
+      )
+  ) {
+    offsets[[1L]] <- -offsets[[2L]]
+    offsets[[3L]] <- offsets[[4L]]
+  }
+
+  offsets
 }
 
 
-# Range of integer sums `s` for which `s / n_items` lies within the rounding
-# bounds of `x_num`, which has `digits` decimal places. Returns a length-2
-# numeric vector, `c(lower, upper)`; if the first element is greater than the
-# second, no consistent sum exists. Both elements are `NA` if the rounding
-# bounds are undefined (as with `"anti_trunc"` and a zero `x_num`).
+# Integer numerators of the two rounding bounds of `x_num` over a common
+# denominator, plus the inclusivity of each bound. Every bound that
+# `rounding_offsets()` can produce is `x_num` plus a whole number of units of `1
+# / 10^(digits + 1)`, and `x_num` itself is a whole number of such units because
+# it has `digits` decimal places -- so both bounds have exact integer numerators
+# over `10^(digits + 1)`.
+#
+# Returns `NULL` if the bounds are undefined (as with `"anti_trunc"` and a zero
+# `x_num`), and throws an error if `rounding` is not a known method.
 
-sum_range <- function(x_num, n_items, digits, rounding, threshold) {
-  offsets <- rounding_offsets(rounding, threshold, x_num)
+bound_numerators <- function(x_num, digits, rounding, threshold, symmetric) {
+  offsets <- rounding_offsets(rounding, threshold, x_num, symmetric)
 
   if (is.null(offsets)) {
     cli::cli_abort(c(
@@ -204,16 +259,15 @@ sum_range <- function(x_num, n_items, digits, rounding, threshold) {
     ))
   }
 
-  if (anyNA(offsets) || !is.finite(n_items) || n_items <= 0) {
-    return(c(NA_real_, NA_real_))
+  if (anyNA(offsets)) {
+    return(NULL)
   }
 
   # `threshold` is documented as an integer but not enforced to be one. If it is
   # fractional, the offsets are scaled up by a power of ten (along with the
   # denominator) until they are whole numbers again. If no such power is found
-  # within a sensible range, the arithmetic below silently degrades to the
-  # floating-point behavior of earlier scrutiny versions, which is no worse than
-  # the status quo:
+  # within a sensible range, the arithmetic downstream silently degrades to
+  # floating point:
   bounds <- c(offsets[[1L]], offsets[[2L]])
   scale <- 1
   while (scale < 1e6 && any(bounds * scale != round(bounds * scale))) {
@@ -221,14 +275,62 @@ sum_range <- function(x_num, n_items, digits, rounding, threshold) {
   }
   bounds <- bounds * scale
 
-  # Common denominator of both bounds, and the numerators over it:
   denom <- 10^(digits + 1L) * scale
   x_shifted <- round(x_num * denom)
-  num_lower <- x_shifted + bounds[1L]
-  num_upper <- x_shifted + bounds[2L]
 
-  # `s / n_items >= num_lower / denom`  <==>  `s * denom >= n_items * num_lower`
-  lower <- ceiling_div(n_items * num_lower, denom)
+  lower <- x_shifted + bounds[1L]
+  upper <- x_shifted + bounds[2L]
+  incl_lower <- offsets[[3L]]
+  incl_upper <- offsets[[4L]]
+
+  # `anti_trunc()` sends zero away from zero in the positive direction, so a
+  # negative `x_num` whose upper bound is exactly zero cannot claim it: zero
+  # anti-truncates to `+1` unit, not to `-1` unit. This is the one bound that
+  # does not follow from the sign of `x_num` alone.
+  if (rounding == "anti_trunc" && x_num < 0 && upper == 0) {
+    incl_upper <- FALSE
+  }
+
+  list(
+    lower = lower,
+    upper = upper,
+    denom = denom,
+    incl_lower = incl_lower,
+    incl_upper = incl_upper
+  )
+}
+
+
+# Range of integer sums `s` for which `s / n_items` lies within the rounding
+# bounds of `x_num`, which has `digits` decimal places. Returns a length-2
+# numeric vector, `c(lower, upper)`; if the first element is greater than the
+# second, no consistent sum exists. Both elements are `NA` if the rounding
+# bounds are undefined (as with `"anti_trunc"` and a zero `x_num`).
+
+sum_range <- function(
+  x_num,
+  n_items,
+  digits,
+  rounding,
+  threshold,
+  symmetric = FALSE
+) {
+  bounds <- bound_numerators(x_num, digits, rounding, threshold, symmetric)
+
+  if (is.null(bounds) || !is.finite(n_items) || n_items <= 0) {
+    return(c(NA_real_, NA_real_))
+  }
+
+  denom <- bounds$denom
+
+  # `s / n_items >= lower / denom`  <==>  `s * denom >= n_items * lower`
+  lower <- ceiling_div(n_items * bounds$lower, denom)
+  if (!bounds$incl_lower && lower * denom == n_items * bounds$lower) {
+    lower <- lower + 1
+  }
+
+  # `s / n_items <= upper / denom`  <==>  `s * denom <= n_items * upper`
+  upper <- floor_div(n_items * bounds$upper, denom)
   if (!bounds$incl_upper && upper * denom == n_items * bounds$upper) {
     upper <- upper - 1
   }
@@ -288,9 +390,9 @@ sum_squares_range <- function(
     lower <- lower + 1
   }
 
-  # `s / n_items <= num_upper / denom`  <==>  `s * denom <= n_items * num_upper`
-  upper <- floor_div(n_items * num_upper, denom)
-  if (!offsets[[4L]] && upper * denom == n_items * num_upper) {
+  high <- floor_frac_sum(term_upper$num, term_upper$den, s_squared, n)
+  upper <- term_upper$int + high$floor
+  if (high$exact && !incl_upper) {
     upper <- upper - 1
   }
 
@@ -346,8 +448,8 @@ sum_squares_range <- function(
 #'   | `"trunc"` (positive `x`)               | `lower = x < upper`          |
 #'   | `"trunc"` (negative `x`)               | `lower < x = upper`          |
 #'   | `"trunc"` (zero `x`)                   | `lower < x < upper`          |
-#'   | `"anti_trunc"` (positive `x`)          | `lower < x = upper`          |
-#'   | `"anti_trunc"` (negative `x`)          | `lower = x < upper`          |
+#'   | `"anti_trunc"` (positive `x`)          | `lower = x < upper`          |
+#'   | `"anti_trunc"` (negative `x`)          | `lower < x = upper`          |
 #'   | `"anti_trunc"` (zero `x`)              | (undefined; `NA`)            |
 #'
 #' Base R's own `round()` (R version >= 4.0.0), referenced by `rounding =

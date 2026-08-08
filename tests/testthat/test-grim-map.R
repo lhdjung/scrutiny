@@ -1,16 +1,18 @@
-
-
 df1 <- pigs1
 
-df1_grim_up_or_down       <- grim_map(df1, digits_x = 2, rounding = "up_or_down")
-df1_grim_up               <- grim_map(df1, digits_x = 2, rounding = "up")
-df1_grim_down             <- grim_map(df1, digits_x = 2, rounding = "down")
-df1_grim_even             <- grim_map(df1, digits_x = 2, rounding = "even")
-df1_grim_ceiling_or_floor <- grim_map(df1, digits_x = 2, rounding = "ceiling_or_floor")
-df1_grim_ceiling          <- grim_map(df1, digits_x = 2, rounding = "ceiling")
-df1_grim_floor            <- grim_map(df1, digits_x = 2, rounding = "floor")
-df1_grim_trunc            <- grim_map(df1, digits_x = 2, rounding = "trunc")
-df1_grim_anti_trunc       <- grim_map(df1, digits_x = 2, rounding = "anti_trunc")
+df1_grim_up_or_down <- grim_map(df1, digits_x = 2, rounding = "up_or_down")
+df1_grim_up <- grim_map(df1, digits_x = 2, rounding = "up")
+df1_grim_down <- grim_map(df1, digits_x = 2, rounding = "down")
+df1_grim_even <- grim_map(df1, digits_x = 2, rounding = "even")
+df1_grim_ceiling_or_floor <- grim_map(
+  df1,
+  digits_x = 2,
+  rounding = "ceiling_or_floor"
+)
+df1_grim_ceiling <- grim_map(df1, digits_x = 2, rounding = "ceiling")
+df1_grim_floor <- grim_map(df1, digits_x = 2, rounding = "floor")
+df1_grim_trunc <- grim_map(df1, digits_x = 2, rounding = "trunc")
+df1_grim_anti_trunc <- grim_map(df1, digits_x = 2, rounding = "anti_trunc")
 
 
 df1_grim <- grim_map(df1, digits_x = 2)
@@ -19,7 +21,6 @@ df1_grim <- grim_map(df1, digits_x = 2)
 test_that("A tibble is returned", {
   expect_s3_class(df1_grim, c("tbl_df", "tbl", "data.frame"))
 })
-
 
 
 test_that("It has the correct function-general class", {
@@ -48,7 +49,6 @@ test_that("`consistency` has the correct values", {
 })
 
 
-
 df2 <- df1 %>%
   dplyr::mutate(n = n * 100)
 
@@ -58,7 +58,6 @@ df2_grim <- grim_map(df2, digits_x = 2)
 test_that("`probability` is zero if `ratio` would be negative", {
   (df2_grim$probability == 0) %>% all() %>% expect_true()
 })
-
 
 
 x <- rnorm(500, 65, 15) %>%
@@ -71,7 +70,12 @@ n <- rnorm(500, 50, 20) %>%
 
 df3 <- tibble::tibble(x, n)
 
-df3_percent_true <- grim_map(df3, digits_x = 0, percent = TRUE, show_rec = TRUE) %>%
+df3_percent_true <- grim_map(
+  df3,
+  digits_x = 0,
+  percent = TRUE,
+  show_rec = TRUE
+) %>%
   suppressMessages()
 
 df3_percent_false <- grim_map(df3, digits_x = 0, show_rec = TRUE)
@@ -88,15 +92,21 @@ test_that(
 
 df3_true_accord <- df3_percent_true %>%
   dplyr::select(1, 3, 7:11) %>%
-  dplyr::mutate(accord = dplyr::if_else(
+  dplyr::mutate(
+    accord = dplyr::if_else(
       consistency,
       any(dplyr::near(
-        as.numeric(x) / 100, c(
-        rec_x_upper_rounded_up, rec_x_upper_rounded_down,
-        rec_x_lower_rounded_up, rec_x_lower_rounded_down
-      ))),
+        as.numeric(x) / 100,
+        c(
+          rec_x_upper_rounded_up,
+          rec_x_upper_rounded_down,
+          rec_x_lower_rounded_up,
+          rec_x_lower_rounded_down
+        )
+      )),
       FALSE
-    ))
+    )
+  )
 
 accord <- all(df3_true_accord$consistency == df3_true_accord$accord)
 
@@ -107,7 +117,6 @@ test_that(glue::glue(
 ), {
   accord %>% expect_true()
 })
-
 
 
 df4 <- df1 %>%
@@ -127,7 +136,6 @@ df5 <- df1 %>%
 test_that("`show_rec` increases the number of columns correctly", {
   df5 %>% ncol() %>% expect_equal(11)
 })
-
 
 
 df6 <- df1 %>%
@@ -150,32 +158,71 @@ test_that("a `probability` column is naturally present", {
 })
 
 
-
 df8 <- tibble::tibble(
   x = df1$x,
   n40 = 40,
   n80 = 80
 )
 
-df8_n40_grim_up_or_down       <- grim_map(df8, digits_x = 2, n = n40, rounding = "up_or_down")
-df8_n40_grim_up               <- grim_map(df8, digits_x = 2, n = n40, rounding = "up")
-df8_n40_grim_down             <- grim_map(df8, digits_x = 2, n = n40, rounding = "down")
-df8_n40_grim_even             <- grim_map(df8, digits_x = 2, n = n40, rounding = "even")
-df8_n40_grim_ceiling_or_floor <- grim_map(df8, digits_x = 2, n = n40, rounding = "ceiling_or_floor")
-df8_n40_grim_ceiling          <- grim_map(df8, digits_x = 2, n = n40, rounding = "ceiling")
-df8_n40_grim_floor            <- grim_map(df8, digits_x = 2, n = n40, rounding = "floor")
-df8_n40_grim_trunc            <- grim_map(df8, digits_x = 2, n = n40, rounding = "trunc")
-df8_n40_grim_anti_trunc       <- grim_map(df8, digits_x = 2, n = n40, rounding = "anti_trunc")
+df8_n40_grim_up_or_down <- grim_map(
+  df8,
+  digits_x = 2,
+  n = n40,
+  rounding = "up_or_down"
+)
+df8_n40_grim_up <- grim_map(df8, digits_x = 2, n = n40, rounding = "up")
+df8_n40_grim_down <- grim_map(df8, digits_x = 2, n = n40, rounding = "down")
+df8_n40_grim_even <- grim_map(df8, digits_x = 2, n = n40, rounding = "even")
+df8_n40_grim_ceiling_or_floor <- grim_map(
+  df8,
+  digits_x = 2,
+  n = n40,
+  rounding = "ceiling_or_floor"
+)
+df8_n40_grim_ceiling <- grim_map(
+  df8,
+  digits_x = 2,
+  n = n40,
+  rounding = "ceiling"
+)
+df8_n40_grim_floor <- grim_map(df8, digits_x = 2, n = n40, rounding = "floor")
+df8_n40_grim_trunc <- grim_map(df8, digits_x = 2, n = n40, rounding = "trunc")
+df8_n40_grim_anti_trunc <- grim_map(
+  df8,
+  digits_x = 2,
+  n = n40,
+  rounding = "anti_trunc"
+)
 
-df8_n80_grim_up_or_down       <- grim_map(df8, digits_x = 2, n = n80, rounding = "up_or_down")
-df8_n80_grim_up               <- grim_map(df8, digits_x = 2, n = n80, rounding = "up")
-df8_n80_grim_down             <- grim_map(df8, digits_x = 2, n = n80, rounding = "down")
-df8_n80_grim_even             <- grim_map(df8, digits_x = 2, n = n80, rounding = "even")
-df8_n80_grim_ceiling_or_floor <- grim_map(df8, digits_x = 2, n = n80, rounding = "ceiling_or_floor")
-df8_n80_grim_ceiling          <- grim_map(df8, digits_x = 2, n = n80, rounding = "ceiling")
-df8_n80_grim_floor            <- grim_map(df8, digits_x = 2, n = n80, rounding = "floor")
-df8_n80_grim_trunc            <- grim_map(df8, digits_x = 2, n = n80, rounding = "trunc")
-df8_n80_grim_anti_trunc       <- grim_map(df8, digits_x = 2, n = n80, rounding = "anti_trunc")
+df8_n80_grim_up_or_down <- grim_map(
+  df8,
+  digits_x = 2,
+  n = n80,
+  rounding = "up_or_down"
+)
+df8_n80_grim_up <- grim_map(df8, digits_x = 2, n = n80, rounding = "up")
+df8_n80_grim_down <- grim_map(df8, digits_x = 2, n = n80, rounding = "down")
+df8_n80_grim_even <- grim_map(df8, digits_x = 2, n = n80, rounding = "even")
+df8_n80_grim_ceiling_or_floor <- grim_map(
+  df8,
+  digits_x = 2,
+  n = n80,
+  rounding = "ceiling_or_floor"
+)
+df8_n80_grim_ceiling <- grim_map(
+  df8,
+  digits_x = 2,
+  n = n80,
+  rounding = "ceiling"
+)
+df8_n80_grim_floor <- grim_map(df8, digits_x = 2, n = n80, rounding = "floor")
+df8_n80_grim_trunc <- grim_map(df8, digits_x = 2, n = n80, rounding = "trunc")
+df8_n80_grim_anti_trunc <- grim_map(
+  df8,
+  digits_x = 2,
+  n = n80,
+  rounding = "anti_trunc"
+)
 
 
 # Function for creating expected logical vectors. Make a list with
@@ -183,6 +230,11 @@ df8_n80_grim_anti_trunc       <- grim_map(df8, digits_x = 2, n = n80, rounding =
 # `purrr::map(format_consistency_results)` on that list. Copy the resulting
 # vectors into the matrix-like scheme below. When finished, do the same with the
 # `n80` objects.
+#
+# Note that this only records what GRIM currently returns. The independent check
+# is the test further below, which asks the rounding functions themselves
+# whether a granule rounds back to the reported mean. Regenerate these vectors
+# only once that test passes.
 format_consistency_results <- function(df) {
   out <- df$consistency %>%
     purrr::map_chr(paste0, ", ") %>%
@@ -199,15 +251,15 @@ t <- TRUE
 f <- FALSE
 
 
-df8_n40_grim_up_or_down_exp       <- c(t, f, t, t, t, t, f, t, f, f, t, f)
-df8_n40_grim_up_exp               <- c(f, f, t, f, f, t, f, t, f, f, t, f)
-df8_n40_grim_down_exp             <- c(t, f, f, t, t, f, f, f, f, f, t, f)
-df8_n40_grim_even_exp             <- c(t, f, t, t, t, t, f, t, f, f, t, f)
-df8_n40_grim_ceiling_or_floor_exp <- c(t, t, t, t, t, t, t, t, t, t, t, t)
-df8_n40_grim_ceiling_exp          <- c(f, f, t, f, f, t, t, t, f, f, t, f)
-df8_n40_grim_floor_exp            <- c(t, t, f, t, t, f, f, f, t, t, t, t)
-df8_n40_grim_trunc_exp            <- c(t, t, f, t, t, f, f, f, t, t, t, t)
-df8_n40_grim_anti_trunc_exp       <- c(f, f, t, f, f, t, t, t, f, f, t, f)
+df8_n40_grim_up_or_down_exp <- c(t, f, t, t, t, t, f, t, f, f, t, f)
+df8_n40_grim_up_exp <- c(f, f, t, f, f, t, f, t, f, f, t, f)
+df8_n40_grim_down_exp <- c(t, f, f, t, t, f, f, f, f, f, t, f)
+df8_n40_grim_even_exp <- c(t, f, t, t, t, t, f, t, f, f, t, f)
+df8_n40_grim_ceiling_or_floor_exp <- c(t, f, t, t, t, t, f, t, f, f, t, f)
+df8_n40_grim_ceiling_exp <- c(f, f, t, f, f, t, f, t, f, f, t, f)
+df8_n40_grim_floor_exp <- c(t, f, f, t, t, f, f, f, f, f, t, f)
+df8_n40_grim_trunc_exp <- c(t, f, f, t, t, f, f, f, f, f, t, f)
+df8_n40_grim_anti_trunc_exp <- c(f, f, t, f, f, t, t, t, f, f, f, f)
 
 
 test_that("rounding specifications lead to the expected consistency
@@ -224,15 +276,15 @@ test_that("rounding specifications lead to the expected consistency
 })
 
 
-df8_n80_grim_up_or_down_exp       <- c(t, t, t, t, t, t, t, t, t, t, t, t)
-df8_n80_grim_up_exp               <- c(f, t, t, f, f, t, t, t, t, t, t, t)
-df8_n80_grim_down_exp             <- c(t, t, f, t, t, f, t, f, t, t, t, t)
-df8_n80_grim_even_exp             <- c(t, t, t, t, t, t, t, t, t, t, t, t)
+df8_n80_grim_up_or_down_exp <- c(t, t, t, t, t, t, t, t, t, t, t, t)
+df8_n80_grim_up_exp <- c(f, t, t, f, f, t, t, t, t, t, t, t)
+df8_n80_grim_down_exp <- c(t, t, f, t, t, f, t, f, t, t, t, t)
+df8_n80_grim_even_exp <- c(t, t, t, t, t, t, t, t, t, t, t, t)
 df8_n80_grim_ceiling_or_floor_exp <- c(t, t, t, t, t, t, t, t, t, t, t, t)
-df8_n80_grim_ceiling_exp          <- c(t, t, t, t, t, t, t, t, t, t, t, t)
-df8_n80_grim_floor_exp            <- c(t, t, t, t, t, t, t, t, t, t, t, t)
-df8_n80_grim_trunc_exp            <- c(t, t, t, t, t, t, t, t, t, t, t, t)
-df8_n80_grim_anti_trunc_exp       <- c(t, t, t, t, t, t, t, t, t, t, t, t)
+df8_n80_grim_ceiling_exp <- c(t, t, t, t, t, t, f, t, t, t, t, t)
+df8_n80_grim_floor_exp <- c(t, f, t, t, t, t, t, t, f, f, t, f)
+df8_n80_grim_trunc_exp <- c(t, f, t, t, t, t, t, t, f, f, t, f)
+df8_n80_grim_anti_trunc_exp <- c(t, t, t, t, t, t, t, t, t, t, f, t)
 
 
 test_that("rounding specifications lead to the expected consistency
@@ -248,6 +300,88 @@ test_that("rounding specifications lead to the expected consistency
   df8_n80_grim_anti_trunc       $consistency %>% expect_equal(df8_n80_grim_anti_trunc_exp       )
 })
 
+
+# The expectations above only record what GRIM returns. This one derives the
+# truth independently: it enumerates the integer sums around `x * n` and asks
+# the rounding functions themselves whether the resulting granule rounds back to
+# `x`. GRIM must agree for every rounding method whose bounds are predictable.
+#
+# `"even"` is not among them. `base::round()` breaks midpoint ties by the parity
+# of the preceding digit, and whether a tie occurs at all depends on the binary
+# representation of the value, so GRIM treats both of its bounds as inclusive.
+# That can only make GRIM too permissive, never too strict, which is the safe
+# direction for an error-detection tool -- hence the one-sided expectation.
+
+grim_rounds_back <- function(x, n, digits, rounding, threshold = 5) {
+  # Wide enough to cover the whole rounding interval in sum space, plus slack:
+  width <- ceiling(n * 10^-digits) + 3
+  sums <- seq(floor(x * n) - width, ceiling(x * n) + width)
+  granules_rounded <- suppressWarnings(reround(
+    sums / n,
+    digits = digits,
+    rounding = rounding,
+    threshold = threshold
+  ))
+  any(abs(granules_rounded - x) < 1e-11, na.rm = TRUE)
+}
+
+test_that("GRIM agrees with the rounding functions themselves", {
+  predictable <- c(
+    "up_or_down", "up", "down", "ceiling_or_floor",
+    "ceiling", "floor", "trunc", "anti_trunc"
+  )
+
+  for (n in c(40, 80)) {
+    for (rounding in predictable) {
+      consistency <- grim_map(
+        tibble::tibble(x = df1$x, n = n),
+        digits_x = 2,
+        rounding = rounding
+      )$consistency
+      expect_equal(
+        consistency,
+        vapply(df1$x, grim_rounds_back, logical(1), n, 2, rounding),
+        info = paste0("n = ", n, ", rounding = ", rounding)
+      )
+    }
+
+    # `"even"` may only err on the permissive side:
+    consistency_even <- grim_map(
+      tibble::tibble(x = df1$x, n = n),
+      digits_x = 2,
+      rounding = "even"
+    )$consistency
+    rounds_back_even <- vapply(
+      df1$x, grim_rounds_back, logical(1), n, 2, "even"
+    )
+    expect_true(all(consistency_even[rounds_back_even]))
+  }
+})
+
+
+test_that("GRIM agrees with the rounding functions for `\"*_from\"` methods", {
+  for (n in c(40, 80)) {
+    for (rounding in c("up_from", "down_from", "up_from_or_down_from")) {
+      for (threshold in c(1, 3, 7, 9)) {
+        consistency <- grim_map(
+          tibble::tibble(x = df1$x, n = n),
+          digits_x = 2,
+          rounding = rounding,
+          threshold = threshold
+        )$consistency
+        expect_equal(
+          consistency,
+          vapply(
+            df1$x, grim_rounds_back, logical(1), n, 2, rounding, threshold
+          ),
+          info = paste0(
+            "n = ", n, ", rounding = ", rounding, ", threshold = ", threshold
+          )
+        )
+      }
+    }
+  }
+})
 
 
 df9_up_1 <- grim_map(df1, digits_x = 2, rounding = "up_from", threshold = 1)
@@ -272,8 +406,6 @@ test_that("the maximum of `threshold` yields expected results", {
   df9_down_1$consistency %>% expect_equal(df9_down_1_exp)
   df9_down_9$consistency %>% expect_equal(df9_down_9_exp)
 })
-
-
 
 
 # Errors ------------------------------------------------------------------
@@ -311,5 +443,3 @@ df13_exp <- grim_map(df1, digits_x = 2)
 test_that("`extra = 0` drops all extra columns", {
   df13 %>% grim_map(digits_x = 2, extra = 0) %>% expect_equal(df13_exp)
 })
-
-
