@@ -1,5 +1,3 @@
-
-
 test_that("`digits_x` missing leads to failure", {
   expect_error(grim(2.65, 30))
   expect_error(grim(924, 0))
@@ -79,11 +77,9 @@ test_that("Correct values are returned (`percent` argument)", {
 vec <- as.numeric(seq_endpoint(5, 5.99))
 
 
-
 test_that("The number of outputs matches the number of inputs", {
   expect_length(grim(vec, 28, digits_x = 2), length(vec))
 })
-
 
 
 # Example vectors for the test below:
@@ -229,4 +225,34 @@ test_that("`symmetric` GRIM agrees with the rounding functions themselves", {
       )
     }
   }
+})
+
+
+# `threshold` scope -------------------------------------------------------
+
+test_that("`threshold` does not affect the non-`\"*_from\"` methods", {
+  # `round_up()` and `round_down()` round from a fixed 5, so `threshold` must
+  # not move GRIM's bounds for the methods that use them. The `"*_from"`
+  # methods are the parameterized ones.
+  x <- seq(0, 100) / 100
+
+  for (rounding in c("up_or_down", "up", "down")) {
+    baseline <- grim(x, 40, digits_x = 2, rounding = rounding)
+    for (threshold in c(1, 3, 7, 9)) {
+      expect_equal(
+        unname(grim(
+          x, 40,
+          digits_x = 2, rounding = rounding, threshold = threshold
+        )),
+        unname(baseline),
+        info = paste0("rounding = ", rounding, ", threshold = ", threshold)
+      )
+    }
+  }
+
+  # By contrast, `"up_from"` does respond to it:
+  expect_false(identical(
+    unname(grim(x, 40, digits_x = 2, rounding = "up_from", threshold = 1)),
+    unname(grim(x, 40, digits_x = 2, rounding = "up_from", threshold = 9))
+  ))
 })
