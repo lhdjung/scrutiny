@@ -90,6 +90,7 @@ duplicate_count_colpair <- function(data, ignore = NULL, show_rates = TRUE) {
   out <- data %>%
     corrr::colpair_map(dup_count_pairwise) %>%
     corrr::shave() %>%
+    suppressWarnings() %>%
     corrr::stretch(na.rm = TRUE, remove.dups = FALSE) %>%
     dplyr::arrange(dplyr::desc(.data$r)) %>%
     dplyr::rename(count = "r") %>%
