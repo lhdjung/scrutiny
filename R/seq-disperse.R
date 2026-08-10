@@ -139,6 +139,14 @@ seq_disperse <- function(
   from_orig_type <- typeof(from)
   from <- as.numeric(from)
 
+  # The sequence is meant to proceed on the decimal level of `by` (or of `from`,
+  # if `by` was specified with fewer decimal places). Floating-point arithmetic
+  # does not respect that level: with `from` at `3.14` and `dispersion` going up
+  # to `305`, `from - (305 * 0.01)` is `0.0899999999999999`, not `0.09`. Every
+  # value derived from `from`, `by`, and `dispersion` is therefore rounded back
+  # to `digits_out` before it is compared to the limits or returned:
+  digits_out <- max(digits, decimal_places_scalar(from))
+
   # Filter the `dispersion` vector -- and the `disp_minus` vector derived from
   # it -- from values that fall outside of the range specified by `out_min` at
   # the lower end:
@@ -154,7 +162,8 @@ seq_disperse <- function(
     if (out_min == "auto") {
       out_min <- by
     }
-    is_within_range_lower <- (from - disp_minus) >= out_min
+
+    is_within_range_lower <- round(from - disp_minus, digits_out) >= out_min
     disp_minus_represent <- dispersion[is_within_range_lower]
     disp_minus <- disp_minus[is_within_range_lower]
   }
@@ -169,13 +178,13 @@ seq_disperse <- function(
         "x" = "It has length {length(out_max)}."
       ))
     }
-    is_within_range_upper <- (from + disp_plus) <= out_max
+    is_within_range_upper <- round(from + disp_plus, digits_out) <= out_max
     disp_plus_represent <- dispersion[is_within_range_upper]
     disp_plus <- disp_plus[is_within_range_upper]
   }
 
   if (offset_from != 0L) {
-    from <- from + (by * offset_from)
+    from <- round(from + (by * offset_from), digits_out)
   }
 
   disp_zero <- if (include_reported) {
@@ -186,7 +195,10 @@ seq_disperse <- function(
 
   # Create sequences that are dispersed upward and downward, starting at `from`.
   # If this very value is meant to be included, it is positioned in between:
-  out <- append(rev(from - disp_minus), c(disp_zero, from + disp_plus))
+  out <- append(
+    rev(round(from - disp_minus, digits_out)),
+    c(disp_zero, round(from + disp_plus, digits_out))
+  )
 
   # Following user preferences, do or don't convert the output to string.
   # However, the default (`string_output == "auto"`) is to decide this by the

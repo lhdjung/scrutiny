@@ -270,3 +270,21 @@ test_that("`grim_map_seq()` with percent=TRUE has correct structure", {
 test_that("`grim_map_seq()` with include_reported=TRUE adds one row per case", {
   expect_equal(nrow(pigs1_include_reported_exp), 176L)
 })
+
+
+# Large `dispersion` values used to push the dispersed `x` sequences off their
+# decimal level via floating-point error, which then made `grim_map()` reject
+# them as having more decimal places than `digits_x` allows. See issue #83.
+test_that("`grim_map_seq()` handles large `dispersion` values", {
+  out <- grim_map_seq(pigs5, digits_x = 2, dispersion = 1:305)
+  expect_s3_class(out, "scrutiny_grim_map_seq")
+  expect_equal(max(decimal_places(out$x)), 2L)
+  expect_true(all(out$digits_x == 2L))
+
+  # The one extra step must not change anything about the shorter sequence:
+  out_304 <- grim_map_seq(pigs5, digits_x = 2, dispersion = 1:304)
+  expect_equal(
+    out[out$diff_var %in% out_304$diff_var, ],
+    out_304[out_304$diff_var %in% out$diff_var, ]
+  )
+})

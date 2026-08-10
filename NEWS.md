@@ -25,6 +25,8 @@
 - `debit_map()` now returns `x` and `sd` as numeric columns, not as strings. This matches `grim_map()`.
 
 - Fixed a pre-existing compatibility issue in `debit_plot()` where a theme element was out of date with recent ggplot2 versions.
+- `seq_disperse()` and `seq_disperse_df()` now keep their sequences on the decimal level given by `by` (or, if `by` is not specified, by `from`). Each value used to be computed in plain floating-point arithmetic, so a long enough `dispersion` vector introduced spurious decimal places: `3.14 - (305 * 0.01)` is `0.0899999999999999`, not `0.09`. This made the sequence mappers fail once `dispersion` reached 305, since the dispersed values then had more decimal places than `digits_x` allowed. The same error could also drop a value that sat exactly on `out_min` or `out_max` (#83).
+
 
 ## Documentation
 
