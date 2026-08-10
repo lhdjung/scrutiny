@@ -225,28 +225,6 @@ df8_n80_grim_anti_trunc <- grim_map(
 )
 
 
-# Function for creating expected logical vectors. Make a list with
-# `df8_n40_grim_up_or_down` and all other like it (with `n40`), then run
-# `purrr::map(format_consistency_results)` on that list. Copy the resulting
-# vectors into the matrix-like scheme below. When finished, do the same with the
-# `n80` objects.
-#
-# Note that this only records what GRIM currently returns. The independent check
-# is the test further below, which asks the rounding functions themselves
-# whether a granule rounds back to the reported mean. Regenerate these vectors
-# only once that test passes.
-format_consistency_results <- function(df) {
-  out <- df$consistency %>%
-    purrr::map_chr(paste0, ", ") %>%
-    stringr::str_flatten() %>%
-    stringr::str_remove(", $") %>%
-    stringr::str_replace_all("TRUE", "t") %>%
-    stringr::str_replace_all("FALSE", "f")
-
-  paste0("c(", out, ")")
-}
-
-
 t <- TRUE
 f <- FALSE
 

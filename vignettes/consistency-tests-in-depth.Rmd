@@ -59,11 +59,11 @@ The first function is the most important one. It contains the core implementatio
 This function takes two or more arguments of length 1 that are meant to be tested for consistency with each other. Typically, they will be coercible to numeric. This means they either are numeric themselves or they are strings that can be converted to numbers (see `is_numeric_like()`). The function returns a logical value of length 1: It's `TRUE` if the inputs are mutually consistent, and `FALSE` if they aren't.
 
 ```{r}
- schlim_scalar <- function(y, n) {
-   y <- as.numeric(y)
-   n <- as.numeric(n)
-   all(y / 3 > n)
- }
+schlim_scalar <- function(y, n) {
+  y <- as.numeric(y)
+  n <- as.numeric(n)
+  all(y / 3 > n)
+}
 
 schlim_scalar(y = 30, n = 4)
 schlim_scalar(y = 2, n = 7)
@@ -244,7 +244,9 @@ By contrast, the columns of the output data frame are organized like this:
 
 ```{r include=FALSE}
 # Just internally, so that the function source code below works:
-add_class <- scrutiny:::add_class
+add_class <- function(x, new_class) {
+  `class<-`(x, value = c(new_class, class(x)))
+}
 ```
 
 How to actually write mapper functions? Again, I recommend `function_map()`. The two functions created below are very similar but don't have as many options. Of course, you can manually add code for any options you like so long as the requirements above are still met.
@@ -254,13 +256,13 @@ Apply the `*_scalar()` function to the input data frame using `purrr::pmap_lgl()
 ```{r}
 schlim_map_alt1 <- function(data, ...) {
   scrutiny::check_mapper_input_colnames(data, c("y", "n"), "SCHLIM")
-  
+
   tibble::tibble(
     y = data$y,
     n = data$n,
     consistency = purrr::pmap_lgl(data, schlim_scalar, ...)
-  ) %>% 
-    add_class("scrutiny_schlim_map")  # See section "S3 classes" below
+  ) %>%
+    add_class("scrutiny_schlim_map") # See section "S3 classes" below
 }
 ```
 
@@ -269,13 +271,13 @@ Alternatively, you might call `dplyr::rowwise()` and directly mutate `"consisten
 ```{r}
 schlim_map_alt2 <- function(data, ...) {
   scrutiny::check_mapper_input_colnames(data, c("y", "n"), "SCHLIM")
-  
-  data %>% 
-    dplyr::rowwise() %>% 
-    dplyr::mutate(consistency = schlim_scalar(y, n, ...)) %>% 
-    dplyr::ungroup() %>% 
-    dplyr::relocate(y, n, consistency) %>% 
-    add_class("scrutiny_schlim_map")  # See section "S3 classes" below
+
+  data %>%
+    dplyr::rowwise() %>%
+    dplyr::mutate(consistency = schlim_scalar(y, n, ...)) %>%
+    dplyr::ungroup() %>%
+    dplyr::relocate(y, n, consistency) %>%
+    add_class("scrutiny_schlim_map") # See section "S3 classes" below
 }
 ```
 
@@ -377,10 +379,10 @@ You can still add other summary columns to the tibble returned by `audit_cols_mi
 Each `audit()` method should be documented on the same page as its respective mapper function. It should have its own section called *Summaries with `audit()`*. Create it with `write_doc_audit()`:
 
 ```{r}
-audit_grim    <- audit(grim_map(pigs1, digits_x = 2))
+audit_grim <- audit(grim_map(pigs1, digits_x = 2))
 audit_grimmer <- audit(grimmer_map(pigs5, digits_x = 2, digits_sd = 2))
 
-write_doc_audit(sample_output = audit_grim,  name_test = "GRIM")
+write_doc_audit(sample_output = audit_grim, name_test = "GRIM")
 
 write_doc_audit(sample_output = audit_grimmer, name_test = "GRIMMER")
 ```
@@ -465,8 +467,8 @@ audit_seq(out_seq)
 By default, a `*_map_seq()` function only creates sequences around inconsistent input values. That's because its primary purpose is to shed light on inconsistencies in reported statistics. Override the default with `include_consistent = TRUE`:
 
 ```{r}
-df1 %>% 
-  schlim_map_seq(include_consistent = TRUE) %>% 
+df1 %>%
+  schlim_map_seq(include_consistent = TRUE) %>%
   audit_seq()
 
 # Compare with the original values:
@@ -492,19 +494,19 @@ As with `function_map_seq()`, creating a manufactured `*_total_n()` function is 
 ```{r, eval=FALSE}
 grim_map_total_n <- function_map_total_n(
   .fun = grim_map,
-  .reported = "x",  # don't include `n` here
+  .reported = "x", # don't include `n` here
   .name_test = "GRIM"
 )
 
 grimmer_map_total_n <- function_map_total_n(
   .fun = grimmer_map,
-  .reported = c("x", "sd"),  # don't include `n` here
+  .reported = c("x", "sd"), # don't include `n` here
   .name_test = "GRIMMER"
 )
 
 debit_map_total_n <- function_map_total_n(
   .fun = debit_map,
-  .reported = c("x", "sd"),  # don't include `n` here
+  .reported = c("x", "sd"), # don't include `n` here
   .name_test = "DEBIT"
 )
 ```
@@ -520,9 +522,9 @@ schlim_map_total_n <- function_map_total_n(
 
 # Example data:
 df_groups_schlim <- tibble::tribble(
-  ~y1, ~y2, ~n,
-   84,  37,  29,
-   61,  55,  26
+  ~y1 , ~y2 , ~n ,
+   84 ,  37 , 29 ,
+   61 ,  55 , 26
 )
 
 # Test dispersed sequences:
