@@ -28,11 +28,14 @@ returned alongside GRIMMER test results.}
 \item{digits_x}{Integer. The number of decimal places in \code{x}, including
 trailing zeros. There is no default because it cannot be inferred from a
 numeric \code{x}, which has no trailing zeros: both \code{1.4} and \code{1.40} are the
-number \code{1.4}, but only the latter has \code{digits_x = 2}.}
+number \code{1.4}, but only the latter has \code{digits_x = 2}. Use a single number
+if the whole column was reported with the same number of decimal places,
+or one number per row of \code{data} if it varies.}
 
 \item{digits_sd}{Integer. The number of decimal places in \code{sd}, including
 trailing zeros. As with \code{digits_x}, there is no default, because trailing
-zeros don't survive in a numeric value.}
+zeros don't survive in a numeric value, and it may have one value per row
+of \code{data}.}
 
 \item{items}{Integer. If there is no \code{items} column in \code{data}, this specifies
 the number of items composing the \code{x} and \code{sd} values. Default is \code{1}, the

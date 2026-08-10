@@ -29,7 +29,9 @@ be returned alongside GRIM test results (see \code{extra} below).}
 \item{digits_x}{Integer. The number of decimal places in \code{x}, including
 trailing zeros. There is no default because it cannot be inferred from a
 numeric \code{x}, which has no trailing zeros: both \code{1.4} and \code{1.40} are the
-number \code{1.4}, but only the latter has \code{digits_x = 2}.}
+number \code{1.4}, but only the latter has \code{digits_x = 2}. Use a single number
+if the whole column was reported with the same number of decimal places,
+or one number per row of \code{data} if it varies.}
 
 \item{items}{Integer. If there is no \code{items} column in \code{data}, this specifies
 the number of items composing the \code{x} values. Default is 1, the most common
