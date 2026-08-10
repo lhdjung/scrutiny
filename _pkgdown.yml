@@ -57,6 +57,8 @@ reference:
   - grim_total
   - grim_granularity
   - grim_items
+  - grim_binomial
+  - grim_binomial_power
 - subtitle: GRIMMER
   desc: Test reported means and standard deviations for numerical consistency with
     reported sample sizes
