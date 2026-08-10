@@ -102,7 +102,7 @@ reround_to_fraction <- function(
     ))
   }
 
-  if (any(!is.infinite(digits))) {
+  if (!all(is.infinite(digits))) {
     digits_numeric <- digits[!is.infinite(digits)]
     if (!all(is_whole_number(digits_numeric))) {
       cli::cli_abort(c(
@@ -199,7 +199,7 @@ reround_to_fraction_level <- function(
   }
 
   # Check whether `digit` values are whole numbers:
-  if (any(!is.infinite(digits))) {
+  if (!all(is.infinite(digits))) {
     digits_numeric <- digits[!is.infinite(digits)]
     if (!all(is_whole_number(digits_numeric))) {
       cli::cli_abort(c(

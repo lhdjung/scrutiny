@@ -198,7 +198,7 @@ function_map <- function(
     # Prepare the code that will be inserted into the factory-made function to
     # unnest the columns that should be named using `.col_names`:1
     code_col_control <- rlang::expr({
-      if (all(vapply(consistency, length, integer(1L)) == 1L)) {
+      if (all(lengths(consistency) == 1L)) {
         out <- tidyr::unnest(out, cols = consistency)
       } else {
         out$consistency <- lapply(

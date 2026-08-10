@@ -55,7 +55,7 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
     ))
   }
 
-  if (any(!is_whole_number(row))) {
+  if (!all(is_whole_number(row))) {
     offenders <- row[!is_whole_number(row)]
     offenders <- wrap_in_backticks(offenders)
     cli::cli_abort(c(

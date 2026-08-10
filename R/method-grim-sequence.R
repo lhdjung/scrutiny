@@ -127,8 +127,8 @@ seq_test_ranking <- function(x, explain = TRUE) {
     ))
   }
 
-  consistent <- which(x$consistency == TRUE)
-  inconsistent <- which(x$consistency == FALSE)
+  consistent <- which(x$consistency)
+  inconsistent <- which(!x$consistency)
 
   l_cons <- length(consistent)
   l_incons <- length(inconsistent)

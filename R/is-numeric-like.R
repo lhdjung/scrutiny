@@ -97,5 +97,5 @@ is_numeric_like <- function(x) {
     return(NA)
   }
   x <- suppressWarnings(as.numeric(x))
-  !any(is.na(x))
+  !anyNA(x)
 }

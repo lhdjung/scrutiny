@@ -310,7 +310,7 @@ grim_plot <- function(
   if (show_raster) {
     # For 1 or 2 decimal places, the function selects the appropriate raster
     # from among those saved within the package itself:
-    if (!(digits > 2L)) {
+    if (digits <= 2L) {
       # Check the way `x` values were rounded in the preceding `grim_map()` call
       # to prepare selecting the plot background raster:
       dc <- class(data)
@@ -478,7 +478,7 @@ grim_plot <- function(
     }
   }
 
-  if (!(digits > 2L)) {
+  if (digits <= 2L) {
     # Further specifications:
     p <- p +
       ggplot2::theme(

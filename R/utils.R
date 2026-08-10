@@ -544,7 +544,7 @@ add_class <- function(x, new_class) {
 #' @noRd
 check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
   var_names <- rlang::enexprs(var_list)
-  var_lengths <- vapply(var_list, length, integer(1L), USE.NAMES = FALSE)
+  var_lengths <- lengths(var_list)
   var_list_gt1 <- var_list[var_lengths > 1L]
 
   # Condition of checking for error and warning:
@@ -1733,7 +1733,7 @@ list_min_distance_functions <- list(
     vapply(
       x,
       function(x) {
-        if (any(!is.numeric(x))) {
+        if (!all(is.numeric(x))) {
           return(NA_real_)
         }
         min(abs(x), na.rm = TRUE)
@@ -1748,7 +1748,7 @@ list_min_distance_functions <- list(
     vapply(
       x,
       function(x) {
-        if (any(!is.numeric(x))) {
+        if (!all(is.numeric(x))) {
           return(NA_real_)
         }
         min(x[x > 0L], na.rm = TRUE)
@@ -1763,7 +1763,7 @@ list_min_distance_functions <- list(
     vapply(
       x,
       function(x) {
-        if (any(!is.numeric(x))) {
+        if (!all(is.numeric(x))) {
           return(NA_real_)
         }
         max(x[x < 0L], na.rm = TRUE)
