@@ -17,6 +17,9 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+# Print enough significant digits that values like `10.46` are not
+# abbreviated to `10.5` in the output tibbles:
+options(pillar.sigfig = 4)
 pkgload::load_all()
 ```
 
@@ -45,10 +48,10 @@ This vignette covers scrutiny's implementation of the GRIM test. It has the foll
 To test if a reported mean of 5.27 on a granular scale is GRIM-consistent with a sample size of 43, run this:
 
 ```{r}
-grim(x = "5.27", n = 43)
+grim(x = 5.27, n = 43, digits_x = 2)
 ```
 
-Note that `x`, the reported mean, needs to be a string. The reason is that strings preserve trailing zeros, which can be crucial for GRIM-testing. Numeric values don't, and even converting them to strings won't help. A workaround for larger numbers of such values, `restore_zeros()`, is discussed in `vignette("wrangling")`.
+Note `digits_x`, the number of decimal places in the reported mean. You always need to state it, and it needs to be correct: the number of decimal places is crucial for GRIM-testing, but a numeric value doesn't preserve it. A mean reported as 5.30 is stored as `5.3`, so scrutiny cannot tell it apart from a mean that really was reported as 5.3. Only you can, which is why `digits_x` has no default.
 
 `grim()` has some further parameters, but all of them can be used from within `grim_map()`. The other parameters will be discussed in that context because `grim_map()` is often the more useful function in practice. Furthermore, although `grim()` is vectorized, `grim_map()` is more safe and convenient for testing multiple combinations of means/proportions and sample sizes.
 
@@ -60,24 +63,24 @@ Copy summary data from a PDF file and paste them into `tibble::tribble()`, which
 
 ```{r}
 flying_pigs1 <- tibble::tribble(
-  ~x,
-"8.97",
-"2.61",
-"7.26",
-"3.64",
-"9.26",
-"10.46",
-"7.39"
-) %>% 
+  ~x    ,
+   8.97 ,
+   2.61 ,
+   7.26 ,
+   3.64 ,
+   9.26 ,
+  10.46 ,
+   7.39
+) %>%
   dplyr::mutate(n = 28)
 ```
 
-Use RStudio's multiple cursors to draw quotation marks around all the `x` values, and to set commas at the end. See `vignette("wrangling")`, section *With copy and paste*, if you are not sure how to do that.
+Use RStudio's multiple cursors to set commas at the end of all the `x` values. See `vignette("wrangling")`, section *With copy and paste*, if you are not sure how to do that.
 
-Now, simply run `grim_map()` on that data frame:
+Now, run `grim_map()` on that data frame, stating that the means were reported with two decimal places:
 
 ```{r, error=TRUE}
-grim_map(flying_pigs1)
+grim_map(flying_pigs1, digits_x = 2)
 ```
 
 The `x` and `n` columns are the same as in the input. By default, the number of `items` composing the mean is assumed to be 1. The main result, `consistency`, is the GRIM consistency of the former three columns. On the `probability` column, see section *The probability of GRIM inconsistency*.
@@ -88,43 +91,45 @@ If a mean is composed of multiple items, set the `items` parameter to that numbe
 
 ```{r, error=TRUE}
 jpap_1 <- tibble::tribble(
-   ~x,
-  "5.90",
-  "5.71",
-  "3.50",
-  "3.82",
-  "4.61",
-  "5.24",
-) %>% 
+  ~x   ,
+  5.90 ,
+  5.71 ,
+  3.50 ,
+  3.82 ,
+  4.61 ,
+  5.24 ,
+) %>%
   dplyr::mutate(n = 40)
 
-jpap_1 %>% 
-  grim_map()  # default is wrong here!
+jpap_1 %>%
+  grim_map(digits_x = 2) # default `items` is wrong here!
 ```
+
+(Note that `5.90` and `3.50` are stored as `5.9` and `3.5`. Their trailing zeros are gone from the data, but `digits_x = 2` states that they were reported, so they are tested as two-decimal values all the same.)
 
 Yet, all of them are consistent if the correct number of items is stated:
 
 ```{r, error=TRUE}
-jpap_1 %>% 
-  grim_map(items = 3)
+jpap_1 %>%
+  grim_map(digits_x = 2, items = 3)
 ```
 
 It is also possible to include an `items` column in the data frame instead:
 
 ```{r, error=TRUE}
 jpap_2 <- tibble::tribble(
-   ~x,    ~items,
-  "6.92",  1,
-  "3.48",  1,
-  "1.59",  2,
-  "2.61",  2,
-  "4.04",  3,
-  "4.50",  3,
-) %>% 
+  ~x   , ~items ,
+  6.92 ,      1 ,
+  3.48 ,      1 ,
+  1.59 ,      2 ,
+  2.61 ,      2 ,
+  4.04 ,      3 ,
+  4.50 ,      3 ,
+) %>%
   mutate(n = 30)
 
-jpap_2 %>% 
-  grim_map()
+jpap_2 %>%
+  grim_map(digits_x = 2)
 ```
 
 ### Percentage conversion
@@ -135,25 +140,27 @@ Both `grim()` and `grim_map()` have a `percent` parameter which, if set to `TRUE
 
 ```{r}
 jpap_3 <- tibble::tribble(
-  ~x,     ~n,
-  "32.5",  438,
-  "35.6",  455,
-  "21.7",  501,
-  "39.3",  516,
+  ~x   , ~n  ,
+  32.5 , 438 ,
+  35.6 , 455 ,
+  21.7 , 501 ,
+  39.3 , 516 ,
 )
 
-jpap_3 %>% 
-  grim_map(percent = TRUE)
+jpap_3 %>%
+  grim_map(digits_x = 1, percent = TRUE)
 ```
+
+Here, `digits_x` is 1 because the percentages were reported with a single decimal place. The `percent = TRUE` conversion adds the two "free" decimal places on top of it.
 
 ### Reconstructed values
 
 Set `show_rec` to `TRUE` if you want the values that were reconstructed during GRIM-testing to be displayed in the output. They will be columns prefixed with `rec_`:
 
 ```{r}
-pigs1 %>% 
-  grim_map(show_rec = TRUE) %>% 
-  dplyr::select(4:8)   # output cut down for printing
+pigs1 %>%
+  grim_map(digits_x = 2, show_rec = TRUE) %>%
+  dplyr::select(4:8) # output cut down for printing
 ```
 
 The additional columns are ---
@@ -181,10 +188,10 @@ Internally, GRIM-consistency is determined by whether or not a stated `x` value 
 Following up on a call to `grim_map()`, the generic function `audit()` summarizes GRIM test results:
 
 ```{r}
-flying_pigs1 %>% 
-  grim_map() %>% 
-  audit() %>% 
-  dplyr::select(1:5)   # output cut down for printing
+flying_pigs1 %>%
+  grim_map(digits_x = 2) %>%
+  audit() %>%
+  dplyr::select(1:5) # output cut down for printing
 ```
 
 These columns are ---
@@ -209,22 +216,22 @@ There is a specialized visualization function for GRIM test results, `grim_plot(
 
 ```{r, error=TRUE, fig.width=6, fig.height=5.5}
 jpap_5 <- tibble::tribble(
-  ~x,        ~n,
-  "7.19",    28,
-  "4.56",    34,
-  "0.42",    27,
-  "1.31",    25,
-  "3.48",    34,
-  "4.27",    29,
-  "6.21",    30,
-  "3.11",    18,
-  "5.39",    36,
-  "5.66",    18,
+  ~x   , ~n ,
+  7.19 , 28 ,
+  4.56 , 34 ,
+  0.42 , 27 ,
+  1.31 , 25 ,
+  3.48 , 34 ,
+  4.27 , 29 ,
+  6.21 , 30 ,
+  3.11 , 18 ,
+  5.39 , 36 ,
+  5.66 , 18 ,
 )
 
 
-jpap_5 %>% 
-  grim_map() %>% 
+jpap_5 %>%
+  grim_map(digits_x = 2) %>%
   grim_plot()
 ```
 
@@ -241,8 +248,8 @@ The plot is strictly based on the laws governing GRIM. Its background raster sho
 You might notice the light vertical lines at $n = 40$ and $n = 80$: Few values are flagged as inconsistent here. This reflects `grim_map()`'s charitable default of accepting values rounded either up *or* down from 5. If a different `rounding` specification is chosen in the `grim_map()` call, the plot raster will adjust automatically (although it will often be the same as before):
 
 ```{r, fig.width=6, fig.height=5.5}
-jpap_5 %>% 
-  grim_map(rounding = "ceiling") %>% 
+jpap_5 %>%
+  grim_map(digits_x = 2, rounding = "ceiling") %>%
   grim_plot()
 ```
 
@@ -257,7 +264,7 @@ GRIM analysts might be interested in a mean or percentage value's numeric neighb
 Use `grim_map_seq()` to GRIM-test the values surrounding the reported means and sample sizes:
 
 ```{r}
-out_seq1 <- grim_map_seq(pigs1)
+out_seq1 <- grim_map_seq(pigs1, digits_x = 2)
 out_seq1
 ```
 
@@ -282,7 +289,7 @@ Here is what the output columns mean:
 The default for `dispersion` is `1:5`, for five steps up and down. When the `dispersion` sequence gets longer, the number of hits tends to increase:
 
 ```{r}
-out_seq2 <- grim_map_seq(pigs1, dispersion = 1:10)
+out_seq2 <- grim_map_seq(pigs1, digits_x = 2, dispersion = 1:10)
 audit_seq(out_seq2)
 ```
 
@@ -297,8 +304,8 @@ grim_plot(out_seq1)
 The crosses appear because `grim_map_seq()` creates sequences around both `x` and `n`. Restrict this process to any one of these with the `var` argument:
 
 ```{r, fig.width=6, fig.height=5.5}
-out_seq1_only_x <- grim_map_seq(pigs1, var = "x")
-out_seq1_only_n <- grim_map_seq(pigs1, var = "n")
+out_seq1_only_x <- grim_map_seq(pigs1, digits_x = 2, var = "x")
+out_seq1_only_n <- grim_map_seq(pigs1, digits_x = 2, var = "n")
 
 grim_plot(out_seq1_only_x)
 grim_plot(out_seq1_only_n)
@@ -319,10 +326,10 @@ More precisely, they went from a 20/20 group split to a 19/21 split, then to an 
 Instead of going about this manually, call `grim_map_total_n()`, followed by `audit_total_n()` for summarizing the results. It will find two further plausible scenarios in which both means are consistent; more on that below.
 
 ```{r}
-df <- tibble::tibble(x1 = "4.71", x2 = "5.3", n = 40)
+df <- tibble::tibble(x1 = 4.71, x2 = 5.3, n = 40)
 
 # Detailed results:
-df_tested <- grim_map_total_n(df)
+df_tested <- grim_map_total_n(df, digits_x = c(2, 1))
 df_tested
 
 # Summary:
@@ -330,6 +337,8 @@ audit_total_n(df_tested)
 ```
 
 Each "hit" is a scenario in which both `x1` and `x2` are GRIM-consistent with one of the two hypothetical group sizes. By default (`dispersion = 0:5`), the function goes five steps up and down from `n`.
+
+Note the `digits_x = c(2, 1)`: the two means were reported with different numbers of decimal places --- 4.71 with two, 5.3 with one. In a total-n mapper, a length-2 `digits_x` states the number of decimal places for `x1` and `x2` in that order. This matters here: testing 5.3 as if it were "5.30" would be a stricter test than the one Bauer and Francis conducted, and it would miss two of the three scenarios below. A single number applies to both groups.
 
 ### Testing both ways
 
@@ -359,15 +368,14 @@ In real-world scenarios, one would not usually assume $X$ to be random at the ou
 
 #### Functions
 
-`grim_probability()` takes the arguments `x`, `n`, `items`, and `percent` as in `grim()` and `grim_map()`. As before, `x` must be a string to capture any trailing zeros:
+`grim_probability()` takes the arguments `x`, `n`, `digits_x`, `items`, and `percent` as in `grim()` and `grim_map()`. As before, `digits_x` captures any trailing zeros:
 
 ```{r}
-grim_probability(x = "1.40", n = 72)
+grim_probability(x = 1.40, n = 72, digits_x = 2)
 
-grim_probability(x = "5.93", n = 80, items = 3)
+grim_probability(x = 5.93, n = 80, digits_x = 2, items = 3)
 
-# Enter `x` as a string to preserve trailing zeros:
-grim_probability(x = "84.27", n = 40, percent = TRUE)
+grim_probability(x = 84.27, n = 40, digits_x = 2, percent = TRUE)
 ```
 
 `grim_map()` displays a `probability` column that shows the probability of GRIM inconsistency. It is derived using `grim_probability()`.
@@ -375,11 +383,11 @@ grim_probability(x = "84.27", n = 40, percent = TRUE)
 In addition, `grim_total()` takes the same arguments but returns only the numerator of the fraction in the above formula:
 
 ```{r}
-grim_total(x = "1.40", n = 72)
+grim_total(x = 1.40, n = 72, digits_x = 2)
 
-grim_total(x = "5.93", n = 80, items = 3)
+grim_total(x = 5.93, n = 80, digits_x = 2, items = 3)
 
-grim_total(x = "84.27", n = 40, percent = TRUE)  # Enter `x` as string to preserve trailing zero
+grim_total(x = 84.27, n = 40, digits_x = 2, percent = TRUE)
 ```
 
 The result is the total number of GRIM-inconsistent value sets with the given parameters. However, this is generally less useful than `grim_probability()`: the result is only comparable across different numbers of decimal places when normalized by $10^D$.
@@ -401,7 +409,7 @@ so that a random mean will be inconsistent in about 30% of cases and, conversely
 Here is the same in code (assuming an arbitrary mean with two decimal places):
 
 ```{r}
-grim_probability(x = "0.99", n = 70)
+grim_probability(x = 0.99, n = 70, digits_x = 2)
 ```
 
 ### Granularity and scale items

@@ -12,6 +12,9 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+# Print enough significant digits that values like `10.46` are not
+# abbreviated to `10.5` in the output tibbles:
+options(pillar.sigfig = 4)
 ```
 
 ```{r setup, message=FALSE}
@@ -26,9 +29,11 @@ This vignette shows how to save your time preparing data for error detection. It
 
 ### Motivation
 
-One particular challenge when looking for numeric irregularities using R is that numbers often have to be treated as strings. The reason is that numeric values don't preserve any trailing zeros. This is a major problem because trailing zeros are as important to, e.g., GRIM or DEBIT as any other trailing digits would be.
+One particular challenge when looking for numeric irregularities using R is that numeric values don't preserve trailing zeros. A mean reported as 5.30 is stored as `5.3`, and nothing in the data says which one it was. However, trailing zeros are as important to GRIM, GRIMMER, and DEBIT as any other trailing digits would be.
 
-The only solution I know of is to work with strings --- namely, strings that can be converted to non-`NA` numeric values. I will discuss two ways to work with them: (1) directly entering or importing numbers as strings, and (2) restoring trailing zeros.
+scrutiny's consistency tests solve this by asking you to state the number of decimal places explicitly: `grim_map()` has a `digits_x` argument, and `grimmer_map()` and `debit_map()` have `digits_x` and `digits_sd`. None of them has a default, so you can't forget. Values themselves stay numeric.
+
+You may still want the trailing zeros back in the values --- for display, for export, or for a function outside of scrutiny that expects strings. That is what `restore_zeros()` is for, and it is covered below.
 
 ### Enter numbers as strings
 
@@ -49,27 +54,29 @@ Perhaps not all R users know that RStudio features an option for multiple cursor
 1.  Copy a column of numbers from PDF, pressing and holding `Alt` on Windows or `option` on Mac. (This works at least in Adobe Acrobat.)
 2.  Paste it into a `tribble()` call as below.
 3.  Pressing and holding `Alt`/`option`, select all the copied numbers.
-4.  Enter quotation marks and, for `tribble()`'s syntax, a comma.
+4.  Enter a comma at the end of each, for `tribble()`'s syntax.
 
 You should then get something like this:
 
 ```{r}
 flights1 <- tibble::tribble(
-  ~x,
-"8.97",
-"2.61",
-"7.26",
-"3.64",
-"9.26",
-"10.46",
-"7.39",
+  ~x    ,
+   8.97 ,
+   2.61 ,
+   7.26 ,
+   3.64 ,
+   9.26 ,
+  10.46 ,
+   7.39 ,
 )
 ```
+
+Take note of how many decimal places the numbers had in the PDF --- here, two. You will need that number for `digits_x` when you call `grim_map()`, and the data itself can no longer tell you.
 
 All that's missing is the sample size. Add it either via another `tribble()` column as above or via `dplyr::mutate()`, which also comes with scrutiny:
 
 ```{r}
-flights1 <- flights1 %>% 
+flights1 <- flights1 %>%
   dplyr::mutate(n = 28)
 
 flights1
@@ -77,34 +84,34 @@ flights1
 
 ### Restore trailing zeros
 
-When dealing with numbers that used to have trailing zeros but lost them from being registered as numeric, call `restore_zeros()` to format them correctly. Suppose all of the following numbers originally had one decimal place, but some no longer do:
+When you need the trailing zeros back in the values themselves --- not just stated via `digits_x` --- call `restore_zeros()`. It returns strings. Suppose all of the following numbers originally had one decimal place, but some no longer do:
 
 ```{r}
 vec <- c(4, 6.9, 5, 4.2, 4.8, 7, 4)
 
-vec %>% 
+vec %>%
   decimal_places()
 ```
 
 Now, get them back with `restore_zeros()`:
 
 ```{r}
-vec %>% 
+vec %>%
   restore_zeros()
 
-vec %>% 
-  restore_zeros() %>% 
+vec %>%
+  restore_zeros() %>%
   decimal_places()
 ```
 
 This uses the default of going by the longest mantissa and padding the other strings with decimal zeros until they have that many decimal places. However, this is just a heuristic: The longest mantissa might itself have lost decimal places. Specify the `width` argument to explicitly state the desired mantissa length:
 
 ```{r}
-vec %>% 
+vec %>%
   restore_zeros(width = 2)
 
-vec %>% 
-  restore_zeros(width = 2) %>% 
+vec %>%
+  restore_zeros(width = 2) %>%
   decimal_places()
 ```
 
@@ -112,14 +119,14 @@ A convenient way to restore trailing zeros in a data frame is `restore_zeros_df(
 
 ```{r}
 iris <- tibble::as_tibble(iris)
-iris %>% 
+iris %>%
   restore_zeros_df(width = 3)
 ```
 
 Specify columns mostly like you would in `dplyr::select()`:
 
 ```{r}
-iris %>% 
+iris %>%
   restore_zeros_df(starts_with("Sepal"), width = 3)
 ```
 
@@ -131,31 +138,37 @@ With summary data copied or extracted from PDF (see above), you might encounter 
 
 ```{r}
 flights2 <- tibble::tribble(
-  ~drone,           ~selfpilot,
-  "0.09 (0.21)",    "0.19 (0.13)",
-  "0.19 (0.28)",    "0.53 (0.10)",
-  "0.62 (0.16)",    "0.50 (0.11)",
-  "0.15 (0.35)",    "0.57 (0.16)",
+  ~drone        , ~selfpilot    ,
+  "0.09 (0.21)" , "0.19 (0.13)" ,
+  "0.19 (0.28)" , "0.53 (0.10)" ,
+  "0.62 (0.16)" , "0.50 (0.11)" ,
+  "0.15 (0.35)" , "0.57 (0.16)" ,
 )
 
-flights2 %>% 
+flights2 %>%
   split_by_parens()
 ```
 
 Optionally, transform these values into a more useful format:
 
 ```{r}
-flights2 %>% 
+flights2 %>%
   split_by_parens(transform = TRUE)
 ```
 
-From here, you can call `debit_map()` almost right away (supposing you deal with binary distributions' means and standard deviations):
+From here, you can call `debit_map()` almost right away (supposing you deal with binary distributions' means and standard deviations). The `x` and `sd` columns are strings because they were extracted from strings, so convert them to numeric first. They still have their trailing zeros at this point, which makes `decimal_places()` a reliable way to determine `digits_x` and `digits_sd`:
 
 ```{r}
-flights2 %>% 
-  split_by_parens(transform = TRUE) %>% 
-  dplyr::mutate(n = 80) %>% 
-  debit_map()
+flights2_split <- flights2 %>%
+  split_by_parens(transform = TRUE) %>%
+  dplyr::mutate(n = 80)
+
+digits <- max(decimal_places(flights2_split$x))
+digits
+
+flights2_split %>%
+  dplyr::mutate(x = as.numeric(x), sd = as.numeric(sd)) %>%
+  debit_map(digits_x = digits, digits_sd = digits)
 ```
 
 If your strings look like `"2.65 [0.27]"`, specify the `sep` argument as `"brackets"`. Likewise for `"2.65 {0.27}"` and `sep = "braces"`. What about other separators, as in `"2.65 <0.27>"`? Specify `sep` as those two substrings, like `sep = c("<", ">")`. In all of these cases, the output will be the same as the default would be if the strings were like `"2.65 (0.27)"`.
@@ -165,16 +178,15 @@ If your strings look like `"2.65 [0.27]"`, specify the `sep` argument as `"brack
 The defaults for column name suffixes are (1) `"x"` for the part before the parentheses and (2) `"sd"` for the part inside of them. However, this won't fit for all data presented like `5.22 (0.73)`. Override the defaults by specifying `col1` and/or `col2`:
 
 ```{r}
-flights2 %>% 
+flights2 %>%
   split_by_parens(end1 = "beta", end2 = "se")
 ```
 
 These suffixes become column names if `transform` is set to `TRUE`:
 
 ```{r}
-flights2 %>% 
+flights2 %>%
   split_by_parens(end1 = "beta", end2 = "se", transform = TRUE)
-
 ```
 
 ### Extract substrings from `before_parens()` and `inside_parens()`
@@ -182,15 +194,15 @@ flights2 %>%
 There also are specific functions for extracting the parts of the individual string vectors before or inside the parentheses:
 
 ```{r}
-flights3 <- flights2 %>% 
+flights3 <- flights2 %>%
   dplyr::pull(selfpilot)
 
 flights3
 
-flights3 %>% 
+flights3 %>%
   before_parens()
 
-flights3 %>% 
+flights3 %>%
   inside_parens()
 ```
 
@@ -201,9 +213,9 @@ When extracting tables from PDF with tabulizer, you might get data frames (conve
 I will first simulate the problem. `x` and `n` should be column names, but instead they are values in the first row:
 
 ```{r}
-flights1_with_issues <- flights1 %>% 
-    dplyr::mutate(n = as.character(n)) %>% 
-    tibble::add_row(x = "x", n = "n", .before = 1)
+flights1_with_issues <- flights1 %>%
+  dplyr::mutate(x = as.character(x), n = as.character(n)) %>%
+  tibble::add_row(x = "x", n = "n", .before = 1)
 
 colnames(flights1_with_issues) <- c("Var1", "Var2")
 
@@ -215,7 +227,7 @@ To remedy the issue, call `row_to_colnames()` on the data frame. It will replace
 With the above example:
 
 ```{r}
-flights1_with_issues %>% 
+flights1_with_issues %>%
   row_to_colnames()
 ```
 
