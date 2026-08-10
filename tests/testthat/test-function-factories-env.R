@@ -87,23 +87,17 @@ test_that("factory-made functions work outside of scrutiny's scope", {
 # argument, so the mapper rejected its own output.
 test_that("`*_map_seq()` only adds `digits_*` columns its mapper accepts", {
   # As in the *Consistency tests in depth* vignette: the basic mapper comes from
-  # `function_map()`, so its output carries the class that `audit_seq()` goes by.
-  # `audit_seq()` recovers the mapper by evaluating the name from that class, so
-  # the mapper has to be reachable from scrutiny's namespace -- which is where a
-  # user's own mapper would be, in the global environment.
-  assign(
-    "schlim_map",
-    function_map(
-      .fun = schlim_scalar,
-      .reported = c("y", "n"),
-      .name_test = "SCHLIM"
-    ),
-    envir = globalenv()
+  # `function_map()`, so its output carries the class that `audit_seq()` goes
+  # by. `audit_seq()` recovers the mapper by that name, looking it up in the
+  # environment it was called from -- here, this test block.
+  schlim_map <- function_map(
+    .fun = schlim_scalar,
+    .reported = c("y", "n"),
+    .name_test = "SCHLIM"
   )
-  on.exit(rm("schlim_map", envir = globalenv()), add = TRUE)
 
   schlim_map_seq <- function_map_seq(
-    .fun = get("schlim_map", envir = globalenv()),
+    .fun = schlim_map,
     .reported = c("y", "n"),
     .name_test = "SCHLIM"
   )
@@ -122,4 +116,54 @@ test_that("`*_map_seq()` only adds `digits_*` columns its mapper accepts", {
       grimmer_map_seq(pigs5, digits_x = 2, digits_sd = 2, dispersion = 1)
     ))
   )
+})
+
+
+# `audit_seq()` recovers the mapper that produced its input by the name implied
+# by a class such as `"scrutiny_schlim_map"`. It used to evaluate that name from
+# inside itself, so the lookup ran through scrutiny's namespace, and a user's
+# own mapper was only found if it lived in the global environment.
+test_that("`audit_seq()` finds the mapper in the environment it was called from", {
+  # Local to this function, so neither scrutiny's namespace nor the global
+  # environment has any path to it:
+  make_out_seq <- function() {
+    schlim_map <- function_map(
+      .fun = schlim_scalar,
+      .reported = c("y", "n"),
+      .name_test = "SCHLIM"
+    )
+    schlim_map_seq <- function_map_seq(
+      .fun = schlim_map,
+      .reported = c("y", "n"),
+      .name_test = "SCHLIM"
+    )
+    out <- schlim_map_seq(tibble::tibble(y = 16:25, n = 3:12))
+    audit_seq(out)
+  }
+
+  expect_false(exists("schlim_map", envir = globalenv(), inherits = FALSE))
+  expect_no_error(make_out_seq())
+})
+
+
+test_that("`audit_seq()` finds scrutiny's own mappers from a foreign caller", {
+  # Standing in for a caller that has no path to scrutiny, as when `audit_seq()`
+  # is called via `scrutiny::audit_seq()`. The mapper is then found in
+  # scrutiny's namespace, the fallback:
+  foreign <- new.env(parent = baseenv())
+  assign("audit_seq", audit_seq, envir = foreign)
+  assign("out", grim_map_seq(pigs1, digits_x = 2), envir = foreign)
+
+  expect_equal(
+    evalq(audit_seq(out), envir = foreign),
+    audit_seq(grim_map_seq(pigs1, digits_x = 2))
+  )
+})
+
+
+test_that("`audit_seq()` errors informatively if the mapper can't be found", {
+  out <- grim_map_seq(pigs1, digits_x = 2)
+  class(out)[class(out) == "scrutiny_grim_map"] <- "scrutiny_nonexistent_map"
+
+  expect_error(audit_seq(out), "Can't find the function `nonexistent_map\\(\\)`")
 })

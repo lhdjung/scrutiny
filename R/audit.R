@@ -94,6 +94,10 @@ audit <- function(data) {
 #' audit(out)
 
 audit_seq <- function(data) {
+  # Functions recovered by name from `data`'s classes are looked up here, in the
+  # environment from which `audit_seq()` was called. See `find_fun_by_name()`.
+  env_caller <- rlang::caller_env()
+
   if (!inherits(data, "scrutiny_map_seq")) {
     cli::cli_abort(c(
       "Invalid `data` argument.",
@@ -114,16 +118,15 @@ audit_seq <- function(data) {
     unname()
 
   if (is.null(dim(data))) {
-    fun <- class(data)[stringr::str_detect(class(data), "_map_seq$")]
-    fun <- fun[fun != "scrutiny_map_seq"]
-    fun <- stringr::str_remove(fun, "^scrutiny_")
-    fun <- eval(rlang::parse_expr(fun))
+    fun_name <- class(data)[stringr::str_detect(class(data), "_map_seq$")]
+    fun_name <- fun_name[fun_name != "scrutiny_map_seq"]
+    fun_name <- stringr::str_remove(fun_name, "^scrutiny_")
+    fun <- find_fun_by_name(fun_name, env_caller)
     msg_error <-
       c("!" = "No values could be tested.")
     if (any(names(formals(fun)) == "items")) {
-      fun_name <- deparse(substitute(fun))
       msg_items <- c(
-        "x" = "Did you specify the `items` argument in {fun_name} \\
+        "x" = "Did you specify the `items` argument in `{fun_name}()` \\
         as an unreasonably large number?"
       )
       msg_error <- append(msg_error, msg_items)
@@ -195,9 +198,9 @@ audit_seq <- function(data) {
   rounding <- dc[stringr::str_detect(dc, "^scrutiny_rounding_")]
   rounding <- stringr::str_remove(rounding, "^scrutiny_rounding_")
 
-  fun_test <- dc[stringr::str_detect(dc, "^scrutiny_.*map$")]
-  fun_test <- stringr::str_remove(fun_test, "^scrutiny_")
-  fun_test <- rlang::eval_bare(rlang::parse_expr(fun_test))
+  fun_test_name <- dc[stringr::str_detect(dc, "^scrutiny_.*map$")]
+  fun_test_name <- stringr::str_remove(fun_test_name, "^scrutiny_")
+  fun_test <- find_fun_by_name(fun_test_name, env_caller)
 
   data_rev <- reverse_map_seq(data)
 
@@ -290,4 +293,35 @@ audit_total_n <- function(data) {
       )
     ) %>%
     add_class("scrutiny_audit_total_n")
+}
+
+
+# `audit_seq()` needs to call the mapper that produced its input, but all it has
+# to go by is the mapper's name, recovered from a class such as
+# `"scrutiny_grim_map"`. Evaluating that name from inside `audit_seq()` would
+# search scrutiny's namespace, so a user's own mapper was only ever found if it
+# happened to live in the global environment. Searching `env` -- the environment
+# from which `audit_seq()` was called -- finds mappers wherever they are
+# defined: in another package's namespace, in a local scope, or in a test block.
+# scrutiny's own namespace is the fallback for callers that can't see scrutiny,
+# as when `audit_seq()` is called via `scrutiny::`.
+
+find_fun_by_name <- function(name, env) {
+  fun <- get0(name, envir = env, mode = "function")
+
+  if (is.null(fun)) {
+    fun <- get0(name, envir = asNamespace("scrutiny"), mode = "function")
+  }
+
+  if (is.null(fun)) {
+    cli::cli_abort(c(
+      "Can't find the function `{name}()`.",
+      "x" = "`data` has the {.cls scrutiny_{name}} class, so it should have \\
+      been created by `{name}()`.",
+      "i" = "Make sure `{name}()` can be found from where you call \\
+      `audit_seq()`."
+    ))
+  }
+
+  fun
 }

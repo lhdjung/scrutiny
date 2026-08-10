@@ -38,6 +38,8 @@
 
 - The errors about missing or misspecified `digits_x` and `digits_sd` arguments now name the function the user actually called, in all of the functions that throw them. The name used to be derived by counting frames up the call stack, which only held for the plain mappers: `Vectorize()` inserts `do.call()` and `mapply()` frames, purrr inserts several of its own, and factory-made functions invoke `fun` as a function object, so that frame carries no name at all. In the worst cases the message was replaced by an internal error -- `debit_map_seq(pigs3)` reported `cannot coerce type 'closure' to vector of type 'character'`, and calling a mapper as `scrutiny::grim_map()` produced `` `what` must be a single string `` -- instead of the guidance the message exists to give. The name is now resolved by finding the outermost consistency test function on the call stack, so sequence and total-n mappers name themselves rather than the basic mapper they call internally.
 
+- `audit_seq()` now finds the mapper that produced its input wherever that mapper is defined. A name that cannot be resolved at all now raises a message saying so.
+
 - Functions made by `function_map_total_n()` now work when they are created outside of scrutiny, e.g., in another package. Their bodies call scrutiny-internal helpers such as `absorb_key_args()`, but the factory used to enclose them in the caller's environment, which has no path to those helpers. They are now enclosed in an environment inheriting from scrutiny's namespace, as those made by `function_map()` and `function_map_seq()` already were (#69).
 
 ## Documentation
