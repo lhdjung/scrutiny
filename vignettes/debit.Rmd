@@ -68,7 +68,7 @@ flying_pigs
 Now, run `debit_map()` on that data frame. Both means and SDs were rounded to two decimal places, so both `digits_x` and `digits_sd` are 2:
 
 ```{r}
-flying_pigs %>%
+flying_pigs |>
   debit_map(digits_x = 2, digits_sd = 2)
 ```
 
@@ -77,7 +77,7 @@ The `x`, `sd`, and `n` columns are the same as in the input. The main result, `c
 ```{r, error=TRUE}
 pigs3 # data saved within the package
 
-pigs3 %>%
+pigs3 |>
   debit_map(digits_x = 2, digits_sd = 2)
 ```
 
@@ -86,7 +86,7 @@ DEBIT only makes sense with binary means and SDs. Both `debit()` and `debit_map(
 ```{r, error=TRUE}
 pigs5 # no binary means / SDs!
 
-pigs5 %>%
+pigs5 |>
   debit_map(digits_x = 2, digits_sd = 2)
 ```
 
@@ -97,8 +97,8 @@ Compared to `grim_map()`, `debit_map()` is more straightforward. There is no per
 Following up on a call to `debit_map()`, the generic function `audit()` summarizes test results:
 
 ```{r}
-pigs3 %>%
-  debit_map(digits_x = 2, digits_sd = 2) %>%
+pigs3 |>
+  debit_map(digits_x = 2, digits_sd = 2) |>
   audit()
 ```
 
@@ -117,11 +117,11 @@ There is a specialized visualization function for DEBIT results, `debit_plot()`.
 
 ```{r}
 # Determine plot theme for the remaining session:
-ggplot2::theme_minimal(base_size = 12) %>%
+ggplot2::theme_minimal(base_size = 12) |>
   ggplot2::theme_set()
 
-pigs3 %>%
-  debit_map(digits_x = 2, digits_sd = 2) %>%
+pigs3 |>
+  debit_map(digits_x = 2, digits_sd = 2) |>
   debit_plot()
 ```
 
@@ -132,8 +132,8 @@ Except for the colors, inner boxes must look exactly like they do here: Their si
 However, if outer boxes are not desired, they can be turned off like this:
 
 ```{r}
-pigs3 %>%
-  debit_map(digits_x = 2, digits_sd = 2) %>%
+pigs3 |>
+  debit_map(digits_x = 2, digits_sd = 2) |>
   debit_plot(show_outer_boxes = FALSE)
 ```
 

@@ -20,8 +20,8 @@
 # # the package's current source code or because their code is part of a standard
 # # suite that was automatically generated ba a workflow package; e.g.,
 # # "utils-pipe".
-# df_files <- path %>%
-#   cloc::cloc_by_file() %>%
+# df_files <- path |>
+#   cloc::cloc_by_file() |>
 #   dplyr::filter(
 #     language != "SUM",
 #     !stringr::str_detect(filename, "rivets"),
@@ -31,15 +31,15 @@
 #     !stringr::str_detect(filename, "utils-tidy-eval"),
 #     !stringr::str_detect(filename, "scrutiny-package"),
 #     !stringr::str_detect(filename, "Rprofile"),
-#   ) %>%
-#   # dplyr::mutate(total = loc + blank_lines + comment_lines) %>%
+#   ) |>
+#   # dplyr::mutate(total = loc + blank_lines + comment_lines) |>
 #   dplyr::mutate(
 #     total = loc + blank_lines + comment_lines,
 #     filename_short = stringr::str_remove(filename, path),
 #     filename_short = stringr::str_remove(filename_short, ".R$")
-#   ) %>%
-#   dplyr::relocate(filename_short, .after = "filename") %>%
-#   dplyr::mutate(filename = NULL) %>%
+#   ) |>
+#   dplyr::relocate(filename_short, .after = "filename") |>
+#   dplyr::mutate(filename = NULL) |>
 #   dplyr::mutate(
 #     type = dplyr::case_when(
 #       stringr::str_detect(filename_short, "grim|debit|consistency") ~ "consistency_test",
@@ -55,7 +55,7 @@
 # # superfluous because the last line of `df_files` (removed by the
 # # `dplyr::filter(language != "SUM")` call above) contains the sums already.
 # # Extract its statistics of interest with: `df_files[nrow(df_files), 4:6]`
-# df_files_summary <- df_files %>%
+# df_files_summary <- df_files |>
 #   dplyr::summarise(dplyr::across(
 #     .cols = where(scrutiny::is_numeric_like),
 #     .fns = sum

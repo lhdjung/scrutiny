@@ -34,13 +34,13 @@ decimal_places("2.80")
 
 decimal_places(c(55.1, 6.493, 8))
 
-vec1 <- iris %>% 
-  dplyr::slice(1:10) %>% 
+vec1 <- iris |> 
+  dplyr::slice(1:10) |> 
   dplyr::pull(Sepal.Length)
 
 vec1
 
-vec1 %>% 
+vec1 |> 
   decimal_places()
 ```
 
@@ -63,29 +63,29 @@ Suppose all of the following numbers originally had one decimal place, but some 
 ```{r}
 vec2 <- c(4, 6.9, 5, 4.2, 4.8, 7, 4)
 
-vec2 %>% 
+vec2 |> 
   decimal_places()
 ```
 
 Now, get them back with `restore_zeros()`:
 
 ```{r}
-vec2 %>% 
+vec2 |> 
   restore_zeros()
 
-vec2 %>% 
-  restore_zeros() %>% 
+vec2 |> 
+  restore_zeros() |> 
   decimal_places()
 ```
 
 This uses the default of going by the longest mantissa and padding the other strings with decimal zeros until they have that many decimal places. However, this is just a heuristic: The longest mantissa might itself have lost decimal places. Specify the `width` argument to explicitly state the desired mantissa length:
 
 ```{r}
-vec2 %>% 
+vec2 |> 
   restore_zeros(width = 2)
 
-vec2 %>% 
-  restore_zeros(width = 2) %>% 
+vec2 |> 
+  restore_zeros(width = 2) |> 
   decimal_places()
 ```
 

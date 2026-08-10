@@ -52,24 +52,24 @@
 #' )
 #'
 #' # Basic usage:
-#' df1 %>%
+#' df1 |>
 #'   split_by_parens()
 #'
 #' # Name specific columns with `cols` to only split those:
-#' df1 %>%
+#' df1 |>
 #'   split_by_parens(cols = drone)
 #'
 #' # Pivot the data into a longer format
 #' # by setting `transform` to `TRUE`:
-#' df1 %>%
+#' df1 |>
 #'   split_by_parens(transform = TRUE)
 #'
 #' # Choose different column names or
 #' # name suffixes with `end1` and `end2`:
-#' df1 %>%
+#' df1 |>
 #'   split_by_parens(end1 = "beta", end2 = "se")
 #'
-#' df1 %>%
+#' df1 |>
 #'   split_by_parens(
 #'     transform = TRUE,
 #'     end1 = "beta", end2 = "se"
@@ -85,7 +85,7 @@
 #' )
 #'
 #' # ... specify `sep`:
-#' df2 %>%
+#' df2 |>
 #'   split_by_parens(sep = "brackets")
 #'
 #' # (Accordingly with `{}` and `"braces"`.)
@@ -101,7 +101,7 @@
 #'
 #' # ... `sep` should be a length-2 vector
 #' # that contains the separating elements:
-#' df3 %>%
+#' df3 |>
 #'   split_by_parens(sep = c("<", ">"))
 
 split_by_parens <- function(
@@ -132,16 +132,16 @@ split_by_parens <- function(
 
   # Determine which columns have suitable values with regards to the `sep`
   # elements and capture their names:
-  names_of_cols_with_seps <- data %>%
+  names_of_cols_with_seps <- data |>
     dplyr::select(
       function(x) {
         sep_in_order <- translate_length1_sep_keywords(sep)
         sep_in_order <- paste0(sep_in_order[1L], "[^)]*", sep_in_order[2L])
-        x %>%
-          stringr::str_detect(sep_in_order) %>%
+        x |>
+          stringr::str_detect(sep_in_order) |>
           all()
       }
-    ) %>%
+    ) |>
     colnames()
 
   # By default, take care that only those columns which contain the `sep`

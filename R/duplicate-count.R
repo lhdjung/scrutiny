@@ -44,16 +44,16 @@
 #'
 #' @examples
 #' # Count duplicate values...
-#' iris %>%
+#' iris |>
 #'   duplicate_count()
 #'
 #' # ...and compute summaries:
-#' iris %>%
-#'   duplicate_count() %>%
+#' iris |>
+#'   duplicate_count() |>
 #'   audit()
 #'
 #' # Any values can be ignored:
-#' iris %>%
+#' iris |>
 #'   duplicate_count(ignore = c("setosa", "versicolor", "virginica"))
 
 duplicate_count <- function(
@@ -81,13 +81,13 @@ duplicate_count <- function(
 
   names_orig <- colnames(x)
 
-  x <- x %>%
-    dplyr::mutate(dplyr::across(everything(), as.factor)) %>%
+  x <- x |>
+    dplyr::mutate(dplyr::across(everything(), as.factor)) |>
     tidyr::pivot_longer(
       cols = everything(),
       names_to = "name",
       values_to = "value"
-    ) %>%
+    ) |>
     dplyr::mutate("name" = as.factor(.data$name))
 
   if (is.null(ignore)) {
@@ -96,11 +96,11 @@ duplicate_count <- function(
     x <- dplyr::filter(x, !is.na(.data$value) & !.data$value %in% ignore)
   }
 
-  out <- x$value %>%
-    table() %>%
-    tibble::as_tibble(.name_repair = function(x) c("value", "frequency")) %>%
-    dplyr::filter(!.data$value %in% ignore) %>%
-    dplyr::arrange(dplyr::desc(.data$frequency)) %>%
+  out <- x$value |>
+    table() |>
+    tibble::as_tibble(.name_repair = function(x) c("value", "frequency")) |>
+    dplyr::filter(!.data$value %in% ignore) |>
+    dplyr::arrange(dplyr::desc(.data$frequency)) |>
     add_class("scrutiny_dup_count")
 
   # All code below is about the `locations` and `locations_n` columns, but they

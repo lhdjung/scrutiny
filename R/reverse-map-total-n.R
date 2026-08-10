@@ -39,14 +39,14 @@ reverse_map_total_n <- function(data) {
   }
 
   # Take the first row of each original-`n` block:
-  data_reduced <- data %>%
-    dplyr::group_by(case) %>%
+  data_reduced <- data |>
+    dplyr::group_by(case) |>
     dplyr::slice(1:2)
 
-  n_was_even <- data_reduced %>%
-    dplyr::summarise(n_sum = sum(n)) %>%
-    dplyr::pull(n_sum) %>%
-    rep(each = 2L) %>%
+  n_was_even <- data_reduced |>
+    dplyr::summarise(n_sum = sum(n)) |>
+    dplyr::pull(n_sum) |>
+    rep(each = 2L) |>
     is_even()
 
   # Negate the evenness and convert the results from logical to numeric, which
@@ -55,8 +55,8 @@ reverse_map_total_n <- function(data) {
   # ones do need a correction:
   n_was_odd <- as.numeric(!n_was_even)
 
-  data_reduced <- data_reduced %>%
-    dplyr::ungroup() %>%
+  data_reduced <- data_reduced |>
+    dplyr::ungroup() |>
     dplyr::mutate(
       n_was_odd,
       .after = n,
@@ -68,8 +68,8 @@ reverse_map_total_n <- function(data) {
   locations1 <- seq(from = 1, to = nrow_data_reduced - 1L, by = 2)
   locations2 <- seq(from = 2, to = nrow_data_reduced, by = 2)
 
-  data1 <- data_reduced %>% dplyr::slice(locations1)
-  data2 <- data_reduced %>% dplyr::slice(locations2)
+  data1 <- data_reduced |> dplyr::slice(locations1)
+  data2 <- data_reduced |> dplyr::slice(locations2)
 
   # Number of columns before `n` (i.e., the columns with hypothetical values
   # dispersed from the reported statistics):
@@ -85,11 +85,11 @@ reverse_map_total_n <- function(data) {
   colnames(data_reported_1) <- paste0(colnames_reported, "1")
   colnames(data_reported_2) <- paste0(colnames_reported, "2")
 
-  colnames_in_order <- colnames_reported %>%
-    rep(each = 2L) %>%
+  colnames_in_order <- colnames_reported |>
+    rep(each = 2L) |>
     paste0(c("1", "2"))
 
-  dplyr::bind_cols(data_reported_1, data_reported_2) %>%
-    dplyr::relocate(all_of(colnames_in_order)) %>%
+  dplyr::bind_cols(data_reported_1, data_reported_2) |>
+    dplyr::relocate(all_of(colnames_in_order)) |>
     dplyr::mutate(n)
 }

@@ -49,8 +49,8 @@ All functions named below that end on \verb{_seq} were made by
 
 \examples{
 # For GRIM-testing with dispersed inputs:
-out <- pigs1 \%>\%
-  grim_map_seq(digits_x = 2) \%>\%
+out <- pigs1 |>
+  grim_map_seq(digits_x = 2) |>
   audit_seq()
 out
 

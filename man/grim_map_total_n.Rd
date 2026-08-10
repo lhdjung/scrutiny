@@ -119,15 +119,15 @@ grim_map_total_n(df, digits_x = 2)
 # The `hits_total` column shows all scenarios in
 # which both divergent `n` values are GRIM-consistent
 # with the `x*` values when paired with them both ways:
-df \%>\%
-  grim_map_total_n(digits_x = 2) \%>\%
+df |>
+  grim_map_total_n(digits_x = 2) |>
   audit_total_n()
 
 # By default (`dispersion = 0:5`), the function goes
 # five steps up and down from `n`. If this sequence
 # gets longer, the number of hits tends to increase:
-df \%>\%
-  grim_map_total_n(digits_x = 2, dispersion = 0:10) \%>\%
+df |>
+  grim_map_total_n(digits_x = 2, dispersion = 0:10) |>
   audit_total_n()
 }
 \references{

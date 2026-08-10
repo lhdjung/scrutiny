@@ -76,8 +76,8 @@ audit.scrutiny_schlim_map <- function(data) {
   audit_cols_minimal(data, name_test = "SCHLIM")
 }
 
-df1 %>% 
-  schlim_map() %>% 
+df1 |> 
+  schlim_map() |> 
   audit()
 ```
 
@@ -94,15 +94,15 @@ schlim_map_seq <- function_map_seq(
   .name_test = "SCHLIM"
 )
 
-df1 %>% 
+df1 |> 
   schlim_map_seq()
 ```
 
 Get summary statistics with `audit_seq()`:
 
 ```{r}
-df1 %>% 
-  schlim_map_seq() %>% 
+df1 |> 
+  schlim_map_seq() |> 
   audit_seq()
 ```
 
@@ -127,14 +127,14 @@ schlim_map_total_n <- function_map_total_n(
   .name_test = "SCHLIM"
 )
 
-df2 %>% 
+df2 |> 
   schlim_map_total_n()
 ```
 
 Get summary statistics with `audit_total_n()`:
 
 ```{r}
-df2 %>% 
-  schlim_map_total_n() %>% 
+df2 |> 
+  schlim_map_total_n() |> 
   audit_total_n()
 ```

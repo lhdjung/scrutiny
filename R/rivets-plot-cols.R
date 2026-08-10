@@ -153,12 +153,12 @@
 #   side <- c(1, 1, 1, 2, 2, 2)  # c(rep("left", 3), rep("right", 3))
 #
 #
-#   # labels_numbers_1_new <- labels_numbers[1:3] %>%
-#   #   restore_zeros() %>%
+#   # labels_numbers_1_new <- labels_numbers[1:3] |>
+#   #   restore_zeros() |>
 #   #   stringr::str_flatten(" ")
 #
-#   # labels_numbers_2_new <- labels_numbers[4:6] %>%
-#   #   restore_zeros() %>%
+#   # labels_numbers_2_new <- labels_numbers[4:6] |>
+#   #   restore_zeros() |>
 #   #   stringr::str_flatten(" ")
 #
 #   labels_numbers <- restore_zeros(labels_numbers)

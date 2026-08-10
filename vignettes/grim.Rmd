@@ -71,7 +71,7 @@ flying_pigs1 <- tibble::tribble(
    9.26 ,
   10.46 ,
    7.39
-) %>%
+) |>
   dplyr::mutate(n = 28)
 ```
 
@@ -98,10 +98,10 @@ jpap_1 <- tibble::tribble(
   3.82 ,
   4.61 ,
   5.24 ,
-) %>%
+) |>
   dplyr::mutate(n = 40)
 
-jpap_1 %>%
+jpap_1 |>
   grim_map(digits_x = 2) # default `items` is wrong here!
 ```
 
@@ -110,7 +110,7 @@ jpap_1 %>%
 Yet, all of them are consistent if the correct number of items is stated:
 
 ```{r, error=TRUE}
-jpap_1 %>%
+jpap_1 |>
   grim_map(digits_x = 2, items = 3)
 ```
 
@@ -125,10 +125,10 @@ jpap_2 <- tibble::tribble(
   2.61 ,      2 ,
   4.04 ,      3 ,
   4.50 ,      3 ,
-) %>%
+) |>
   mutate(n = 30)
 
-jpap_2 %>%
+jpap_2 |>
   grim_map(digits_x = 2)
 ```
 
@@ -147,7 +147,7 @@ jpap_3 <- tibble::tribble(
   39.3 , 516 ,
 )
 
-jpap_3 %>%
+jpap_3 |>
   grim_map(digits_x = 1, percent = TRUE)
 ```
 
@@ -158,8 +158,8 @@ Here, `digits_x` is 1 because the percentages were reported with a single decima
 Set `show_rec` to `TRUE` if you want the values that were reconstructed during GRIM-testing to be displayed in the output. They will be columns prefixed with `rec_`:
 
 ```{r}
-pigs1 %>%
-  grim_map(digits_x = 2, show_rec = TRUE) %>%
+pigs1 |>
+  grim_map(digits_x = 2, show_rec = TRUE) |>
   dplyr::select(4:8) # output cut down for printing
 ```
 
@@ -188,9 +188,9 @@ Internally, GRIM-consistency is determined by whether or not a stated `x` value 
 Following up on a call to `grim_map()`, the generic function `audit()` summarizes GRIM test results:
 
 ```{r}
-flying_pigs1 %>%
-  grim_map(digits_x = 2) %>%
-  audit() %>%
+flying_pigs1 |>
+  grim_map(digits_x = 2) |>
+  audit() |>
   dplyr::select(1:5) # output cut down for printing
 ```
 
@@ -230,8 +230,8 @@ jpap_5 <- tibble::tribble(
 )
 
 
-jpap_5 %>%
-  grim_map(digits_x = 2) %>%
+jpap_5 |>
+  grim_map(digits_x = 2) |>
   grim_plot()
 ```
 
@@ -248,8 +248,8 @@ The plot is strictly based on the laws governing GRIM. Its background raster sho
 You might notice the light vertical lines at $n = 40$ and $n = 80$: Few values are flagged as inconsistent here. This reflects `grim_map()`'s charitable default of accepting values rounded either up *or* down from 5. If a different `rounding` specification is chosen in the `grim_map()` call, the plot raster will adjust automatically (although it will often be the same as before):
 
 ```{r, fig.width=6, fig.height=5.5}
-jpap_5 %>%
-  grim_map(digits_x = 2, rounding = "ceiling") %>%
+jpap_5 |>
+  grim_map(digits_x = 2, rounding = "ceiling") |>
   grim_plot()
 ```
 

@@ -2,8 +2,8 @@
 
 check_debit_inputs <- function(input, type, symbol) {
   # For all input values, check if they are between 0 and 1:
-  input_in_range <- input %>%
-    as.numeric() %>%
+  input_in_range <- input |>
+    as.numeric() |>
     dplyr::between(0, 1)
 
   # If at least one of the values is outside of that range, this will lead to an
@@ -75,11 +75,19 @@ debit_table <- function(
   # Build character representations for use with `unround()` and for output.
   # For character inputs, use them as-is (trailing zeros preserved). For numeric
   # inputs, format to the specified number of decimal places:
-  x_chr  <- if (is.character(x)) x else format(x,  nsmall = digits_x,  scientific = FALSE)
-  sd_chr <- if (is.character(sd)) sd else format(sd, nsmall = digits_sd, scientific = FALSE)
+  x_chr <- if (is.character(x)) {
+    x
+  } else {
+    format(x, nsmall = digits_x, scientific = FALSE)
+  }
+  sd_chr <- if (is.character(sd)) {
+    sd
+  } else {
+    format(sd, nsmall = digits_sd, scientific = FALSE)
+  }
 
   # Coerce the values reported for SD and average to numeric:
-  x  <- as.numeric(x_chr)
+  x <- as.numeric(x_chr)
   sd <- as.numeric(sd_chr)
 
   # Recover lower and upper bounds for the original mean and SD values using

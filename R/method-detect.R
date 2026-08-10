@@ -6,8 +6,8 @@ audit.scrutiny_dup_detect <- function(data) {
   data_dup <- data[is_even(seq_len(ncol(data)))]
 
   # Extract original term names:
-  orig_names <- data %>%
-    dplyr::select(-names(data_dup)) %>%
+  orig_names <- data |>
+    dplyr::select(-names(data_dup)) |>
     names()
 
   # Logical columns get original term names (the "_dup" would be redundant):
@@ -19,18 +19,18 @@ audit.scrutiny_dup_detect <- function(data) {
   # Tidying to long format makes the table more manageable. Then, group the
   # table by the original terms, count duplicates, fashion it a little, and
   # compute the duplicate rate:
-  out <- data_dup %>%
+  out <- data_dup |>
     tidyr::pivot_longer(
       cols = dplyr::everything(),
       names_to = "term",
       values_to = "value_duplicated"
-    ) %>%
-    dplyr::group_by(.data$term) %>%
-    dplyr::count(.data$value_duplicated) %>%
-    dplyr::ungroup() %>%
-    dplyr::filter(.data$value_duplicated) %>%
-    dplyr::select("term", "n") %>%
-    dplyr::rename(dup_count = n) %>%
+    ) |>
+    dplyr::group_by(.data$term) |>
+    dplyr::count(.data$value_duplicated) |>
+    dplyr::ungroup() |>
+    dplyr::filter(.data$value_duplicated) |>
+    dplyr::select("term", "n") |>
+    dplyr::rename(dup_count = n) |>
     dplyr::mutate(
       total_count = orig_nrow,
       dup_rate = .data$dup_count / orig_nrow

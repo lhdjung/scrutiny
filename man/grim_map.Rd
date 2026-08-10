@@ -131,17 +131,17 @@ pigs1
 # The `consistency` column shows
 # whether the values to its left
 # are GRIM-consistent:
-pigs1 \%>\%
+pigs1 |>
   grim_map(digits_x = 2)
 
 # Display intermediary numbers from
 # GRIM-testing with `show_rec = TRUE`:
-pigs1 \%>\%
+pigs1 |>
   grim_map(digits_x = 2, show_rec = TRUE)
 
 # Get summaries with `audit()`:
-pigs1 \%>\%
-  grim_map(digits_x = 2) \%>\%
+pigs1 |>
+  grim_map(digits_x = 2) |>
   audit()
 }
 \references{

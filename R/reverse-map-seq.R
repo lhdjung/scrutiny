@@ -38,8 +38,8 @@ reverse_map_seq <- function(data) {
 
   check_dispersion_linear(data)
 
-  var <- data %>%
-    select_tested_cols() %>%
+  var <- data |>
+    select_tested_cols() |>
     colnames()
 
   var_unique <- var
@@ -59,29 +59,29 @@ reverse_map_seq <- function(data) {
     }
   }
 
-  data_nested <- data %>%
-    dplyr::nest_by(case, var) %>%
+  data_nested <- data |>
+    dplyr::nest_by(case, var) |>
     dplyr::arrange(var)
 
   data_nested <- split(data_nested, data_nested$var)[var]
   data_nested <- dplyr::bind_rows(data_nested)
 
-  data_index_case <- data_nested %>%
+  data_index_case <- data_nested |>
     dplyr::mutate(
       scrutiny_index_case = list(data[var]),
       scrutiny_index_case = list(
         index_case_interpolate(scrutiny_index_case[[1L]])
       )
-    ) %>%
-    dplyr::ungroup() %>%
+    ) |>
+    dplyr::ungroup() |>
     dplyr::select(var, scrutiny_index_case)
 
-  data_index_case %>%
+  data_index_case |>
     tidyr::pivot_wider(
       names_from = var,
       values_from = scrutiny_index_case,
       values_fn = list
-    ) %>%
-    tidyr::unnest(cols = everything()) %>%
+    ) |>
+    tidyr::unnest(cols = everything()) |>
     tidyr::unnest(cols = everything()) # yes, this is weird
 }

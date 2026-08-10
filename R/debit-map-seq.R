@@ -70,15 +70,15 @@
 #' pigs3
 #'
 #' # Results from testing some few rows:
-#' out <- pigs3 %>%
-#'   dplyr::slice(3:4) %>%
+#' out <- pigs3 |>
+#'   dplyr::slice(3:4) |>
 #'   debit_map_seq(digits_x = 2, digits_sd = 2)
 #'
 #' out
 #'
 #' # Case-wise summaries with `audit_seq()`
 #' # can be more important than the raw results:
-#' out %>%
+#' out |>
 #'   audit_seq()
 
 debit_map_seq <- function_map_seq(

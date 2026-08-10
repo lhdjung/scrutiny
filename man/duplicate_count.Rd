@@ -48,16 +48,16 @@ only for \code{frequency}).
 
 \examples{
 # Count duplicate values...
-iris \%>\%
+iris |>
   duplicate_count()
 
 # ...and compute summaries:
-iris \%>\%
-  duplicate_count() \%>\%
+iris |>
+  duplicate_count() |>
   audit()
 
 # Any values can be ignored:
-iris \%>\%
+iris |>
   duplicate_count(ignore = c("setosa", "versicolor", "virginica"))
 }
 \seealso{

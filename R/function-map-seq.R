@@ -49,7 +49,7 @@ function_map_seq_proto <- function(
     # Extract the vector from the `data` column specified as `var`, then apply
     # the data-frame-level dispersion function to get a list of data frames with
     # dispersed `var` sequences; one per inconsistent value set:
-    df_var <- data[var][[1L]] %>%
+    df_var <- data[var][[1L]] |>
       lapply(
         seq_disperse_df_internal,
         .by = .by_var,
@@ -92,17 +92,17 @@ function_map_seq_proto <- function(
     # `diff_var`, which captures the distance between the reported and the
     # original values in `var`; and `case`, which records the row number of the
     # reported `var` value in `data`.
-    data[cols_for_testing_names_without_var] %>%
+    data[cols_for_testing_names_without_var] |>
       dplyr::mutate(dplyr::across(
         .cols = {{ cols_except_last }},
         .fns = function(x) purrr::map2(x, nrow_list_var, rep)
-      )) %>%
-      tidyr::unnest_longer(col = everything()) %>%
+      )) |>
+      tidyr::unnest_longer(col = everything()) |>
       dplyr::mutate(
         {{ var }} := df_var[[1L]],
         .before = all_of(match(var, colnames(data)))
-      ) %>%
-      fun(...) %>%
+      ) |>
+      fun(...) |>
       dplyr::mutate(
         diff_var = df_var$diff_var,
         case = unlist(
@@ -273,14 +273,14 @@ function_map_seq <- function(
   # is, which would lead to an error.
   code_bind_cols <- if (any(.reported == "n")) {
     rlang::expr({
-      out <- out %>%
-        dplyr::bind_rows() %>%
+      out <- out |>
+        dplyr::bind_rows() |>
         dplyr::mutate(var, n = as.integer(n))
     })
   } else {
     rlang::expr({
-      out <- out %>%
-        dplyr::bind_rows() %>%
+      out <- out |>
+        dplyr::bind_rows() |>
         dplyr::mutate(var)
     })
   }
@@ -427,8 +427,8 @@ function_map_seq <- function(
       # Repeat the `var` strings so that they form a vector of the length that
       # is the row number of `out`, and that can therefore be added to `out`:
       nrow_out <- vapply(out, nrow, integer(1L), USE.NAMES = FALSE)
-      var <- var %>%
-        purrr::map2(nrow_out, rep) %>%
+      var <- var |>
+        purrr::map2(nrow_out, rep) |>
         unlist(use.names = FALSE)
 
       # For better output, `out` should be a single data frame; and for

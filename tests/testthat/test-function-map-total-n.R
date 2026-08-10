@@ -1,15 +1,14 @@
-
-
 df1 <- tibble::tibble(
   y1 = 16:25,
   y2 = 26:35,
-  n  = seq(from = 12, to = 21, by = 1)
+  n = seq(from = 12, to = 21, by = 1)
 )
 
 
 # First, create a mock consistency test, called SCHLIM. It's analogous to GRIM
 # as implemented in scrutiny, which is also true for the function names:
-schlim_scalar <- function(y, n) {   # Note: `grim_scalar()` is not exported
+schlim_scalar <- function(y, n) {
+  # Note: `grim_scalar()` is not exported
   if (y / 3 > n) {
     return(TRUE)
   } else {
@@ -46,27 +45,27 @@ df1_tested <- schlim_map_total_n(df1)
 # Conduct tests:
 test_that("The manufactured function's output
           has the correct dimensions", {
-  df1_tested %>% dim() %>% expect_equal(c(240, 7))
+  df1_tested |> dim() |> expect_equal(c(240, 7))
 })
 
 
-df1_tested_forth <- df1_tested %>% dplyr::filter(dir == "forth")
-df1_tested_back  <- df1_tested %>% dplyr::filter(dir == "back")
+df1_tested_forth <- df1_tested |> dplyr::filter(dir == "forth")
+df1_tested_back <- df1_tested |> dplyr::filter(dir == "back")
 
-df1_tested_case1 <- df1_tested %>% dplyr::filter(case == 1)
-df1_tested_case2 <- df1_tested %>% dplyr::filter(case == 2)
-df1_tested_case3 <- df1_tested %>% dplyr::filter(case == 3)
+df1_tested_case1 <- df1_tested |> dplyr::filter(case == 1)
+df1_tested_case2 <- df1_tested |> dplyr::filter(case == 2)
+df1_tested_case3 <- df1_tested |> dplyr::filter(case == 3)
 
 
 test_that("It has the correct dimensions when split by `dir`", {
-  df1_tested_forth %>% dim() %>% expect_equal(c(120, 7))
-  df1_tested_back  %>% dim() %>% expect_equal(c(120, 7))
+  df1_tested_forth |> dim() |> expect_equal(c(120, 7))
+  df1_tested_back  |> dim() |> expect_equal(c(120, 7))
 })
 
 test_that("It has the correct dimensions when split by `case`", {
-  df1_tested_case1 %>% dim() %>% expect_equal(c(24, 7))
-  df1_tested_case2 %>% dim() %>% expect_equal(c(24, 7))
-  df1_tested_case3 %>% dim() %>% expect_equal(c(24, 7))
+  df1_tested_case1 |> dim() |> expect_equal(c(24, 7))
+  df1_tested_case2 |> dim() |> expect_equal(c(24, 7))
+  df1_tested_case3 |> dim() |> expect_equal(c(24, 7))
 })
 
 
@@ -78,11 +77,7 @@ t <- TRUE
 vals_exp_consistency <- c(f, t, t, t, t, t)
 
 test_that("Judging by a small sample, it has correct values", {
-  df1_tested$y[1:6] %>% expect_equal(vals_exp_y)
-  df1_tested$n[1:6] %>% expect_equal(vals_exp_n)
-  df1_tested$consistency[1:6] %>% expect_equal(vals_exp_consistency)
+  df1_tested$y[1:6] |> expect_equal(vals_exp_y)
+  df1_tested$n[1:6] |> expect_equal(vals_exp_n)
+  df1_tested$consistency[1:6] |> expect_equal(vals_exp_consistency)
 })
-
-
-
-

@@ -69,12 +69,12 @@ function_duplicate_cols <- function(code_new_cols, default_end, name_class) {
       # Create a reference vector with all values from `x` so that they can be
       # tested against. To make all values fit together, they are coerced to
       # character strings:
-      x <- x %>%
+      x <- x |>
         tidyr::pivot_longer(
           cols = everything(),
           values_transform = as.character,
           cols_vary = "slowest"
-        ) %>%
+        ) |>
         dplyr::pull(.data$value)
 
       new_cols <- `!!`(code_new_cols)
@@ -96,13 +96,13 @@ function_duplicate_cols <- function(code_new_cols, default_end, name_class) {
       # corresponding logical value to the right, as above. Also, add the
       # "scrutiny_dup_detect" class added, which is recognized by the `audit()`
       # generic:
-      x %>%
-        tibble::tibble(new_cols) %>%
-        split(ceiling(seq_along(x) / nrow_original)) %>%
+      x |>
+        tibble::tibble(new_cols) |>
+        split(ceiling(seq_along(x) / nrow_original)) |>
         dplyr::bind_cols(.name_repair = function(x) {
           colnames_test <- paste0(colnames_original, "_", colname_end)
           as.vector(rbind(colnames_original, colnames_test))
-        }) %>%
+        }) |>
         add_class(`!!`(name_class))
     })
   )
@@ -183,12 +183,12 @@ function_duplicate_cols <- function(code_new_cols, default_end, name_class) {
 #' duplicate_detect(x = pigs4$snout)
 #'
 #' # Summary statistics with `audit()`:
-#' pigs4 %>%
-#'   duplicate_detect() %>%
+#' pigs4 |>
+#'   duplicate_detect() |>
 #'   audit()
 #'
 #' # Any values can be ignored:
-#' pigs4 %>%
+#' pigs4 |>
 #'   duplicate_detect(ignore = c(8.131, 7.574))
 
 duplicate_detect <- function_duplicate_cols(
@@ -244,12 +244,12 @@ duplicate_detect <- function_duplicate_cols(
 #' duplicate_tally(x = pigs4$snout)
 #'
 #' # Summary statistics with `audit()`:
-#' pigs4 %>%
-#'   duplicate_tally() %>%
+#' pigs4 |>
+#'   duplicate_tally() |>
 #'   audit()
 #'
 #' # Any values can be ignored:
-#' pigs4 %>%
+#' pigs4 |>
 #'   duplicate_tally(ignore = c(8.131, 7.574))
 
 duplicate_tally <- function_duplicate_cols(

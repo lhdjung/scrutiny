@@ -26,8 +26,8 @@ The function checks the provenance of the test results and throws a
 warning if it's not correct.
 }
 \examples{
-seq_distance_df(.from = "0.00", n = 50) \%>\%
-  dplyr::mutate(x = as.numeric(x)) \%>\%
-  grim_map(digits_x = 2) \%>\%
+seq_distance_df(.from = "0.00", n = 50) |>
+  dplyr::mutate(x = as.numeric(x)) |>
+  grim_map(digits_x = 2) |>
   seq_test_ranking()
 }

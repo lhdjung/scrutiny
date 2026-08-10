@@ -10,18 +10,18 @@ audit.scrutiny_debit_map <- function(data) {
   out <- audit_cols_minimal(data, "DEBIT")
 
   # 4. the mean `x` value:
-  mean_x <- data$x %>%
-    as.numeric() %>%
+  mean_x <- data$x |>
+    as.numeric() |>
     mean()
 
   # 5. the mean `sd` value:
-  mean_sd <- data$sd %>%
-    as.numeric() %>%
+  mean_sd <- data$sd |>
+    as.numeric() |>
     mean()
 
   # 6. the number of distinct `n` values:
-  distinct_n <- data$n %>%
-    unique() %>%
+  distinct_n <- data$n |>
+    unique() |>
     length()
 
   # Finally, collect all of these values in a resulting tibble --

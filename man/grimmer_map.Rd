@@ -121,12 +121,12 @@ pigs5
 # The `consistency` column shows whether
 # the values to its left are GRIMMER-consistent.
 # If they aren't, the `reason` column says why:
-pigs5 \%>\%
+pigs5 |>
   grimmer_map(digits_x = 2, digits_sd = 2)
 
 # Get summaries with `audit()`:
-pigs5 \%>\%
-  grimmer_map(digits_x = 2, digits_sd = 2) \%>\%
+pigs5 |>
+  grimmer_map(digits_x = 2, digits_sd = 2) |>
   audit()
 }
 \references{

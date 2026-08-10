@@ -339,8 +339,8 @@ unnest_consistency_cols <- function(
   # The difference between the two conditions lies only in the
   # `purrr::map_depth()` call:
   if (index) {
-    consistency_list <- results[col][[1L]] %>%
-      purrr::map_depth(.depth = 2L, .f = `[`, 1) %>%
+    consistency_list <- results[col][[1L]] |>
+      purrr::map_depth(.depth = 2L, .f = `[`, 1) |>
       purrr::map(function(x) unlist(x, use.names = FALSE))
   } else {
     consistency_list <- purrr::map(
@@ -349,17 +349,17 @@ unnest_consistency_cols <- function(
     )
   }
 
-  consistency_df <- consistency_list %>%
-    tibble::as_tibble(.name_repair = "minimal") %>%
-    t() %>%
+  consistency_df <- consistency_list |>
+    tibble::as_tibble(.name_repair = "minimal") |>
+    t() |>
     tibble::as_tibble(.name_repair = function(x) {
       paste0("V", seq_along(col_names))
-    }) %>%
+    }) |>
     dplyr::mutate("V1" = as.logical(.data$V1))
 
   colnames(consistency_df) <- col_names
 
-  results %>%
-    dplyr::select(-{{ col }}) %>%
+  results |>
+    dplyr::select(-{{ col }}) |>
     dplyr::bind_cols(consistency_df)
 }

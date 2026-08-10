@@ -262,12 +262,12 @@ function_map <- function(
       all_classes <- c(`!!`(all_classes), rounding_class)
 
       # Test for consistency:
-      data <- data %>%
+      data <- data |>
         dplyr::mutate(
           consistency = purrr::pmap(data[c(`!!!`(.reported))], fun, ...),
           .after = `!!`(.reported[length(.reported)])
-        ) %>%
-        dplyr::relocate(`!!!`(.reported), consistency) %>%
+        ) |>
+        dplyr::relocate(`!!!`(.reported), consistency) |>
         add_class(all_classes)
 
       # consistency <- purrr::pmap(data[, `!!`(.reported)], fun, ...)
@@ -277,7 +277,7 @@ function_map <- function(
       # # identical to the tested columns). Any other columns from the input go to
       # # the right of `"consistency"`:
       # out <-
-      #   tibble::tibble(data_tested, consistency, data_non_tested) %>%
+      #   tibble::tibble(data_tested, consistency, data_non_tested) |>
       #   add_class(c(`!!`(all_classes), rounding_class))
 
       # The idea here is that `.col_control` might have been specified as a

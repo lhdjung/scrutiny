@@ -1,9 +1,9 @@
 # Helper function used within `function_map_total_n_proto()` below; not
 # exported:
 mutate_both_consistent <- function(data) {
-  both_consistent <- data$consistency %>%
-    split_into_groups(group_size = 2) %>%
-    vapply(all, logical(1L), USE.NAMES = FALSE) %>%
+  both_consistent <- data$consistency |>
+    split_into_groups(group_size = 2) |>
+    vapply(all, logical(1L), USE.NAMES = FALSE) |>
     rep(each = 2L)
 
   dplyr::mutate(data, both_consistent, .after = "consistency")
@@ -18,7 +18,7 @@ mutate_both_consistent <- function(data) {
 #   sd2 = c("0.18", "0.30", "0.28")
 # )
 #
-# data <- reported %>%
+# data <- reported |>
 #   dplyr::mutate(n = c(90, 103, 84))
 #
 # dir <- "forth"
@@ -66,8 +66,8 @@ function_map_total_n_proto <- function(
     reported_n_cols <- ncol(reported)
     reported_n_vars <- reported_n_cols / 2
 
-    df_list <- data %>%
-      dplyr::select(n) %>%
+    df_list <- data |>
+      dplyr::select(n) |>
       purrr::pmap(
         disperse_total,
         dispersion = dispersion,
@@ -81,10 +81,10 @@ function_map_total_n_proto <- function(
     df_list_nrow <- vapply(df_list, nrow, integer(1L), USE.NAMES = FALSE)
     df_list_n_groups <- length(df_list_nrow)
 
-    out_df_nested <- reported %>%
-      split_into_rows() %>%
-      purrr::map(split_into_groups, group_size = 2) %>%
-      tibble::tibble(.name_repair = function(x) "reported") %>%
+    out_df_nested <- reported |>
+      split_into_rows() |>
+      purrr::map(split_into_groups, group_size = 2) |>
+      tibble::tibble(.name_repair = function(x) "reported") |>
       dplyr::mutate(
         df_list,
         times = df_list_nrow / 2,
@@ -93,12 +93,12 @@ function_map_total_n_proto <- function(
           times,
           function(x, y) purrr::map2(x, y, rep)
         )
-      ) %>%
-      tidyr::unnest_wider(reported) %>%
+      ) |>
+      tidyr::unnest_wider(reported) |>
       dplyr::rename_with(
         .fn = function(x) reported_orig,
         .cols = 1L:dplyr::all_of(reported_n_vars)
-      ) %>%
+      ) |>
       dplyr::mutate(
         dplyr::across(
           .cols = 1L:dplyr::all_of(reported_n_vars),
@@ -111,21 +111,21 @@ function_map_total_n_proto <- function(
     # of the reported variables (e.g., `c("x", "sd")`) so that it's clear what
     # those values represent:
     out_df_nested[1L:reported_n_vars] <-
-      out_df_nested[1L:reported_n_vars] %>%
-      tidyr::pivot_longer(cols = everything()) %>%
-      dplyr::mutate(value = purrr::map2(value, name, setNames)) %>%
+      out_df_nested[1L:reported_n_vars] |>
+      tidyr::pivot_longer(cols = everything()) |>
+      dplyr::mutate(value = purrr::map2(value, name, setNames)) |>
       tidyr::pivot_wider(
         names_from = name,
         values_from = value,
         values_fn = list
-      ) %>%
+      ) |>
       tidyr::unnest(cols = everything())
 
     # This references the rows in the `reported` data frame to which the various
     # scenarios belong. In other words, `case` is identical to the respective
     # row number in `reported`:
-    case <- df_list_nrow %>%
-      purrr::map2(1L:df_list_n_groups, ., rep) %>%
+    case <- 1L:df_list_n_groups |>
+      purrr::map2(df_list_nrow, rep) |>
       purrr::flatten_int()
 
     out_df <- tidyr::unnest(out_df_nested, cols = everything())
@@ -170,9 +170,9 @@ function_map_total_n_proto <- function(
       out_df <- dplyr::mutate(out_df, n_change)
     }
 
-    out_df <- out_df %>%
-      mutate_both_consistent() %>%
-      dplyr::mutate(case, dir, n = as.integer(n)) %>%
+    out_df <- out_df |>
+      mutate_both_consistent() |>
+      dplyr::mutate(case, dir, n = as.integer(n)) |>
       dplyr::relocate(n_change, .after = n)
 
     return(out_df)
@@ -451,9 +451,9 @@ function_map_total_n <- function(
 
       # Switch `"1"` and `"2"` in the relevant column names of `data`:
       temp <- "_scrutiny_names_temp_placeholder"
-      cols_expected_back <- cols_expected_forth %>%
-        stringr::str_replace("1", temp) %>%
-        stringr::str_replace("2", "1") %>%
+      cols_expected_back <- cols_expected_forth |>
+        stringr::str_replace("1", temp) |>
+        stringr::str_replace("2", "1") |>
         stringr::str_replace(temp, "2")
 
       # Bring the names with switched index portions back into the `data_back`
@@ -469,15 +469,15 @@ function_map_total_n <- function(
       # `data_forth`), but the columns themselves -- the values -- have switched
       # positions. This goes by `cols_forth_order` because that's what will lead
       # to column names identical to those in `data_forth`:
-      data_back <- data_back %>%
+      data_back <- data_back |>
         dplyr::relocate(all_of(cols_forth_order))
 
       # Isolate the expected columns:
-      cols_expected_forth <- data_forth %>%
+      cols_expected_forth <- data_forth |>
         dplyr::select(all_of(cols_expected_forth))
 
-      cols_expected_back <- data_back %>%
-        dplyr::select(all_of(cols_expected_back)) %>%
+      cols_expected_back <- data_back |>
+        dplyr::select(all_of(cols_expected_back)) |>
         dplyr::relocate(all_of(cols_forth_order))
 
       # Generate the lower-level "proto" function that will apply

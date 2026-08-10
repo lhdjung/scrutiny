@@ -198,12 +198,12 @@
 # # # to argument vectors [BETTER NOT]:
 # # string <- "(((sd1 ^ 2) * (n1 - 1)) + ((sd2 ^ 2) * (n2 - 1))) / (n1 + n2 - 2)"
 # #
-# # arguments <- string %>%
-# #   stringr::str_replace_all("[:punct:]|[:symbol:]", " ") %>%
-# #   stringr::str_remove_all(" [:digit:]") %>%
-# #   stringr::str_remove_all("^[:digit:]|$[:digit:]") %>%
-# #   stringr::str_squish() %>%
-# #   stringr::str_split(" ") %>%
+# # arguments <- string |>
+# #   stringr::str_replace_all("[:punct:]|[:symbol:]", " ") |>
+# #   stringr::str_remove_all(" [:digit:]") |>
+# #   stringr::str_remove_all("^[:digit:]|$[:digit:]") |>
+# #   stringr::str_squish() |>
+# #   stringr::str_split(" ") |>
 # #   unlist()
 #
 #

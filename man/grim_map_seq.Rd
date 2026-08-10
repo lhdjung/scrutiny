@@ -101,6 +101,6 @@ out
 
 # Case-wise summaries with `audit_seq()`
 # can be more important than the raw results:
-out \%>\%
+out |>
   audit_seq()
 }

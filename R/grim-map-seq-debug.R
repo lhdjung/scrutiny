@@ -84,8 +84,8 @@ function(
     return(tibble::tibble())
   }
   nrow_out <- vapply(out, nrow, integer(1L), USE.NAMES = FALSE)
-  var <- var %>% purrr::map2(nrow_out, rep) %>% unlist(use.names = FALSE)
-  out <- out %>% dplyr::bind_rows() %>% dplyr::mutate(var, n = as.integer(n))
+  var <- var |> purrr::map2(nrow_out, rep) |> unlist(use.names = FALSE)
+  out <- out |> dplyr::bind_rows() |> dplyr::mutate(var, n = as.integer(n))
   class_dispersion_ascending <- if (is_seq_ascending(dispersion)) {
     NULL
   } else {

@@ -125,18 +125,18 @@ decimal_places_scalar <- function(x, sep = "\\.") {
 #'
 #' @examples
 #' # Coerce all columns to string:
-#' iris <- iris %>%
-#'   tibble::as_tibble() %>%
+#' iris <- iris |>
+#'   tibble::as_tibble() |>
 #'   dplyr::mutate(across(everything(), as.character))
 #'
 #' # The function will operate on all
 #' # numeric-like columns but not on `"Species"`:
-#' iris %>%
+#' iris |>
 #'   decimal_places_df()
 #'
 #' # Operate on some select columns only
 #' # (from among the numeric-like columns):
-#' iris %>%
+#' iris |>
 #'   decimal_places_df(cols = starts_with("Sepal"))
 
 decimal_places_df <- function(
@@ -151,8 +151,8 @@ decimal_places_df <- function(
     selection2 <- rlang::expr(dplyr::everything())
   }
 
-  names_of_numeric_like_cols <- data %>%
-    dplyr::select(where(is_numeric_like)) %>%
+  names_of_numeric_like_cols <- data |>
+    dplyr::select(where(is_numeric_like)) |>
     colnames()
 
   data_names <- colnames(data)

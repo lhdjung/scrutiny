@@ -43,12 +43,12 @@ returns a tibble with summary statistics.
 
 \examples{
 # Basic usage:
-mtcars \%>\%
+mtcars |>
   duplicate_count_colpair()
 
 # Summaries with `audit()`:
-mtcars \%>\%
-  duplicate_count_colpair() \%>\%
+mtcars |>
+  duplicate_count_colpair() |>
   audit()
 }
 \seealso{

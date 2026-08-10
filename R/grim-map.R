@@ -99,17 +99,17 @@
 #' # The `consistency` column shows
 #' # whether the values to its left
 #' # are GRIM-consistent:
-#' pigs1 %>%
+#' pigs1 |>
 #'   grim_map(digits_x = 2)
 #'
 #' # Display intermediary numbers from
 #' # GRIM-testing with `show_rec = TRUE`:
-#' pigs1 %>%
+#' pigs1 |>
 #'   grim_map(digits_x = 2, show_rec = TRUE)
 #'
 #' # Get summaries with `audit()`:
-#' pigs1 %>%
-#'   grim_map(digits_x = 2) %>%
+#' pigs1 |>
+#'   grim_map(digits_x = 2) |>
 #'   audit()
 
 # Note: All the arguments passed on to the internal testing function
@@ -274,8 +274,8 @@ grim_map <- function(
     name4 <- "rec_x_lower"
     length_2ers <- c("up_or_down", "up_from_or_down_from", "ceiling_or_floor")
     if (any(rounding %in% length_2ers)) {
-      rounding_split <- rounding %>%
-        stringr::str_split("_or_") %>%
+      rounding_split <- rounding |>
+        stringr::str_split("_or_") |>
         unlist(use.names = FALSE)
       # These names are for the long version only; the short version has
       # different names 5 and 6, and it has no names 7 and 8 at all:
@@ -307,8 +307,8 @@ grim_map <- function(
       )
     }
 
-    results <- results %>%
-      unnest_consistency_cols(col_names, index = FALSE) %>%
+    results <- results |>
+      unnest_consistency_cols(col_names, index = FALSE) |>
       dplyr::relocate(probability, .after = consistency)
   }
 

@@ -383,8 +383,8 @@ is_seq_dispersed <- function(
 }
 
 
-# x <- 50 %>%
-#   seq_disperse() %>%
+# x <- 50 |>
+#   seq_disperse() |>
 #   as.numeric()
 # x[2] <- NA
 # x[length(x)] <- NA

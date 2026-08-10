@@ -113,9 +113,9 @@ write_doc_audit <- function(sample_output, name_test) {
       to a scrutiny-style mapper function, such as `grim_map()`.",
       "i" = "(These outputs always have at least three columns.)",
       "i" = "Create it like this:",
-      "pigs1 %>%
-           grim_map() %>%
-           audit() %>%
+      "pigs1 |>
+           grim_map() |>
+           audit() |>
            write_doc_audit(name_test = \"GRIM\")"
     ))
   }
@@ -347,9 +347,9 @@ write_doc_audit_total_n <- function(key_args, name_test) {
   # Main part ---
 
   key_args_num <- key_args[-length(key_args)]
-  key_args_num <- key_args_num %>%
-    rep(each = 2) %>%
-    paste0(c("1", "2")) %>%
+  key_args_num <- key_args_num |>
+    rep(each = 2) |>
+    paste0(c("1", "2")) |>
     wrap_in_backticks()
 
   key_args_num1 <- key_args_num[stringr::str_detect(key_args_num, "1")]

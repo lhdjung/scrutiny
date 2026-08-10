@@ -1,4 +1,3 @@
-
 # Use `cross2_custom()` in data-gen.R to generate GRIM rasters after any change
 # in the `grim_scalar()` implementation. This requires `.vary` to be its
 # default, `"fastest"`.
@@ -13,10 +12,8 @@
 # temporarily reinstalling an older version of purrr. This plan is outlined at:
 # https://github.com/lhdjung/scrutiny/issues/53
 
-
 # Basic function
-cross_custom <- function(.l, .filter = NULL,
-                         .vary = c("fastest", "slowest")) {
+cross_custom <- function(.l, .filter = NULL, .vary = c("fastest", "slowest")) {
   out <- vctrs::vec_expand_grid(!!!.l, .vary = .vary)
   if (is.null(.filter)) {
     return(as.list(out))
@@ -26,16 +23,22 @@ cross_custom <- function(.l, .filter = NULL,
       "i" = "(Also, it needs to return a single logical value.)"
     ))
   }
-  out %>%
-    dplyr::filter(!.filter(.x, .y)) %>%
+  out |>
+    dplyr::filter(!.filter(.x, .y)) |>
     as.list()
 }
 
 # Special cases
 
-cross2_custom <- function(.x, .y, .filter = NULL,
-                          .vary = c("fastest", "slowest")) {
+cross2_custom <- function(
+  .x,
+  .y,
+  .filter = NULL,
+  .vary = c("fastest", "slowest")
+) {
   cross_custom(
-    list(.x = .x, .y = .y), .filter = .filter, .vary = .vary
+    list(.x = .x, .y = .y),
+    .filter = .filter,
+    .vary = .vary
   )
 }

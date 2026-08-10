@@ -76,7 +76,7 @@ Take note of how many decimal places the numbers had in the PDF --- here, two. Y
 All that's missing is the sample size. Add it either via another `tribble()` column as above or via `dplyr::mutate()`, which also comes with scrutiny:
 
 ```{r}
-flights1 <- flights1 %>%
+flights1 <- flights1 |>
   dplyr::mutate(n = 28)
 
 flights1
@@ -89,29 +89,29 @@ When you need the trailing zeros back in the values themselves --- not just stat
 ```{r}
 vec <- c(4, 6.9, 5, 4.2, 4.8, 7, 4)
 
-vec %>%
+vec |>
   decimal_places()
 ```
 
 Now, get them back with `restore_zeros()`:
 
 ```{r}
-vec %>%
+vec |>
   restore_zeros()
 
-vec %>%
-  restore_zeros() %>%
+vec |>
+  restore_zeros() |>
   decimal_places()
 ```
 
 This uses the default of going by the longest mantissa and padding the other strings with decimal zeros until they have that many decimal places. However, this is just a heuristic: The longest mantissa might itself have lost decimal places. Specify the `width` argument to explicitly state the desired mantissa length:
 
 ```{r}
-vec %>%
+vec |>
   restore_zeros(width = 2)
 
-vec %>%
-  restore_zeros(width = 2) %>%
+vec |>
+  restore_zeros(width = 2) |>
   decimal_places()
 ```
 
@@ -119,14 +119,14 @@ A convenient way to restore trailing zeros in a data frame is `restore_zeros_df(
 
 ```{r}
 iris <- tibble::as_tibble(iris)
-iris %>%
+iris |>
   restore_zeros_df(width = 3)
 ```
 
 Specify columns mostly like you would in `dplyr::select()`:
 
 ```{r}
-iris %>%
+iris |>
   restore_zeros_df(starts_with("Sepal"), width = 3)
 ```
 
@@ -145,29 +145,29 @@ flights2 <- tibble::tribble(
   "0.15 (0.35)" , "0.57 (0.16)" ,
 )
 
-flights2 %>%
+flights2 |>
   split_by_parens()
 ```
 
 Optionally, transform these values into a more useful format:
 
 ```{r}
-flights2 %>%
+flights2 |>
   split_by_parens(transform = TRUE)
 ```
 
 From here, you can call `debit_map()` almost right away (supposing you deal with binary distributions' means and standard deviations). The `x` and `sd` columns are strings because they were extracted from strings, so convert them to numeric first. They still have their trailing zeros at this point, which makes `decimal_places()` a reliable way to determine `digits_x` and `digits_sd`:
 
 ```{r}
-flights2_split <- flights2 %>%
-  split_by_parens(transform = TRUE) %>%
+flights2_split <- flights2 |>
+  split_by_parens(transform = TRUE) |>
   dplyr::mutate(n = 80)
 
 digits <- max(decimal_places(flights2_split$x))
 digits
 
-flights2_split %>%
-  dplyr::mutate(x = as.numeric(x), sd = as.numeric(sd)) %>%
+flights2_split |>
+  dplyr::mutate(x = as.numeric(x), sd = as.numeric(sd)) |>
   debit_map(digits_x = digits, digits_sd = digits)
 ```
 
@@ -178,14 +178,14 @@ If your strings look like `"2.65 [0.27]"`, specify the `sep` argument as `"brack
 The defaults for column name suffixes are (1) `"x"` for the part before the parentheses and (2) `"sd"` for the part inside of them. However, this won't fit for all data presented like `5.22 (0.73)`. Override the defaults by specifying `col1` and/or `col2`:
 
 ```{r}
-flights2 %>%
+flights2 |>
   split_by_parens(end1 = "beta", end2 = "se")
 ```
 
 These suffixes become column names if `transform` is set to `TRUE`:
 
 ```{r}
-flights2 %>%
+flights2 |>
   split_by_parens(end1 = "beta", end2 = "se", transform = TRUE)
 ```
 
@@ -194,15 +194,15 @@ flights2 %>%
 There also are specific functions for extracting the parts of the individual string vectors before or inside the parentheses:
 
 ```{r}
-flights3 <- flights2 %>%
+flights3 <- flights2 |>
   dplyr::pull(selfpilot)
 
 flights3
 
-flights3 %>%
+flights3 |>
   before_parens()
 
-flights3 %>%
+flights3 |>
   inside_parens()
 ```
 
@@ -213,8 +213,8 @@ When extracting tables from PDF with tabulizer, you might get data frames (conve
 I will first simulate the problem. `x` and `n` should be column names, but instead they are values in the first row:
 
 ```{r}
-flights1_with_issues <- flights1 %>%
-  dplyr::mutate(x = as.character(x), n = as.character(n)) %>%
+flights1_with_issues <- flights1 |>
+  dplyr::mutate(x = as.character(x), n = as.character(n)) |>
   tibble::add_row(x = "x", n = "n", .before = 1)
 
 colnames(flights1_with_issues) <- c("Var1", "Var2")
@@ -227,7 +227,7 @@ To remedy the issue, call `row_to_colnames()` on the data frame. It will replace
 With the above example:
 
 ```{r}
-flights1_with_issues %>%
+flights1_with_issues |>
   row_to_colnames()
 ```
 

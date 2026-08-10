@@ -69,27 +69,27 @@ with_track_diff_var <- list(
 # Testing -----------------------------------------------------------------
 
 test_that("it works with the defaults", {
-  seq_disperse(25)        %>% expect_equal(basic1_exp)
-  seq_disperse_df(25)     %>% expect_equal(basic1_df_exp)
-  seq_disperse("4.56")    %>% expect_equal(basic2_exp)
-  seq_disperse_df("4.56") %>% expect_equal(basic2_df_exp)
+  seq_disperse(25)        |> expect_equal(basic1_exp)
+  seq_disperse_df(25)     |> expect_equal(basic1_df_exp)
+  seq_disperse("4.56")    |> expect_equal(basic2_exp)
+  seq_disperse_df("4.56") |> expect_equal(basic2_df_exp)
 })
 
 test_that("it works when overriding some of the defaults", {
   seq_disperse(
     75, out_max = 77,
     include_reported = FALSE, track_diff_var = TRUE
-  ) %>%
+  ) |>
     expect_equal(with_out_max_exp)
   seq_disperse_df(
     75, .out_max = 77,
     .include_reported = FALSE, .track_diff_var = TRUE
-  ) %>%
+  ) |>
     expect_equal(with_out_max_df_exp)
   seq_disperse(
     from = 0.6, dispersion = c(3, 5, 6),
     track_diff_var = TRUE, include_reported = FALSE
-  ) %>%
+  ) |>
     expect_equal(with_track_diff_var)
 })
 
@@ -101,21 +101,21 @@ test_that("long dispersion sequences stay on their decimal level", {
   seq_disperse(
     from = 3.14, dispersion = 1:305,
     string_output = FALSE, include_reported = FALSE
-  ) %>%
-    decimal_places() %>%
-    max() %>%
+  ) |>
+    decimal_places() |>
+    max() |>
     expect_equal(2L)
 
   seq_disperse(
     from = 3.14, dispersion = 305,
     string_output = FALSE, include_reported = FALSE
-  ) %>%
+  ) |>
     expect_equal(c(0.09, 6.19))
 
   # Same for a manually specified `by` with fewer decimal places than `from`:
   seq_disperse(
     from = 3.14, by = 0.1, dispersion = 31, out_min = NULL,
     string_output = FALSE, include_reported = FALSE
-  ) %>%
+  ) |>
     expect_equal(c(0.04, 6.24))
 })

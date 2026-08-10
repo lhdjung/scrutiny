@@ -31,13 +31,13 @@
 #'
 #' @examples
 #' # For basic GRIM-testing:
-#' pigs1 %>%
-#'   grim_map(digits_x = 2) %>%
+#' pigs1 |>
+#'   grim_map(digits_x = 2) |>
 #'   audit()
 #'
 #' # For duplicate detection:
-#' pigs4 %>%
-#'   duplicate_count() %>%
+#' pigs4 |>
+#'   duplicate_count() |>
 #'   audit()
 
 audit <- function(data) {
@@ -84,8 +84,8 @@ audit <- function(data) {
 #'
 #' @examples
 #' # For GRIM-testing with dispersed inputs:
-#' out <- pigs1 %>%
-#'   grim_map_seq(digits_x = 2) %>%
+#' out <- pigs1 |>
+#'   grim_map_seq(digits_x = 2) |>
 #'   audit_seq()
 #' out
 #'
@@ -110,11 +110,11 @@ audit_seq <- function(data) {
 
   df_list <- split(data, data$case)
 
-  df_list_hits <- df_list %>%
+  df_list_hits <- df_list |>
     purrr::map(dplyr::filter, consistency)
 
-  hits_total <- df_list_hits %>%
-    vapply(nrow, integer(1L), USE.NAMES = FALSE) %>%
+  hits_total <- df_list_hits |>
+    vapply(nrow, integer(1L), USE.NAMES = FALSE) |>
     unname()
 
   if (is.null(dim(data))) {
@@ -138,10 +138,10 @@ audit_seq <- function(data) {
 
   # Define some helper functions to be mapped below:
   index_hit_distance <- function(df, var_order = var_names) {
-    out <- df %>%
-      split(df$var) %>%
+    out <- df |>
+      split(df$var) |>
       purrr::map(function(x) x[x$consistency, ])
-    out[order(var_order)] %>%
+    out[order(var_order)] |>
       purrr::map(function(x) x$diff_var)
   }
 
@@ -157,12 +157,12 @@ audit_seq <- function(data) {
   fun_names <- c("", "_up", "_down")
   fun_names <- rep(fun_names, length(var_names))
 
-  df_nested <- df_list %>%
-    purrr::map(index_hit_distance) %>%
-    tibble::tibble(.name_repair = function(x) "distance") %>%
+  df_nested <- df_list |>
+    purrr::map(index_hit_distance) |>
+    tibble::tibble(.name_repair = function(x) "distance") |>
     tidyr::unnest_wider(col = distance)
 
-  cols_hits <- df_nested %>%
+  cols_hits <- df_nested |>
     dplyr::mutate(
       dplyr::across(
         .cols = everything(),
@@ -172,11 +172,11 @@ audit_seq <- function(data) {
         .names = "hits_{.col}"
       ),
       .keep = "none"
-    ) %>%
+    ) |>
     tidyr::unnest(cols = everything())
 
   # Go to utils.R to see the `list_min_distance_functions` object.
-  cols_diff <- df_nested %>%
+  cols_diff <- df_nested |>
     dplyr::mutate(
       dplyr::across(
         .cols = everything(),
@@ -184,14 +184,14 @@ audit_seq <- function(data) {
         .names = "diff_{.col}{fun_names}"
       ),
       .keep = "none"
-    ) %>%
+    ) |>
     dplyr::mutate(dplyr::across(
       .cols = everything(),
       .fns = function(x) {
         x[is.infinite(x)] <- NA
         as.integer(x)
       }
-    )) %>%
+    )) |>
     suppressWarnings()
 
   dc <- class(data)
@@ -239,9 +239,9 @@ audit_seq <- function(data) {
     )
   )
 
-  data_rev %>%
-    dplyr::mutate(consistency, hits_total) %>%
-    dplyr::bind_cols(cols_hits, cols_diff) %>%
+  data_rev |>
+    dplyr::mutate(consistency, hits_total) |>
+    dplyr::bind_cols(cols_hits, cols_diff) |>
     add_class("scrutiny_audit_seq")
 }
 
@@ -260,27 +260,27 @@ audit_total_n <- function(data) {
 
   df_list <- split(data, data$case)
 
-  df_list_hits <- df_list %>%
+  df_list_hits <- df_list |>
     purrr::map(dplyr::filter, both_consistent)
 
   map_nrow_half <- function(x) {
     vapply(x, nrow, integer(1L), USE.NAMES = FALSE) / 2L
   }
 
-  hits_forth <- df_list_hits %>%
-    purrr::map(dplyr::filter, dir == "forth") %>%
+  hits_forth <- df_list_hits |>
+    purrr::map(dplyr::filter, dir == "forth") |>
     map_nrow_half()
 
-  hits_back <- df_list_hits %>%
-    purrr::map(dplyr::filter, dir == "back") %>%
+  hits_back <- df_list_hits |>
+    purrr::map(dplyr::filter, dir == "back") |>
     map_nrow_half()
 
   hits_total <- hits_forth + hits_back
   scenarios_total <- map_nrow_half(df_list)
   hit_rate <- hits_total / scenarios_total
 
-  data %>%
-    reverse_map_total_n() %>%
+  data |>
+    reverse_map_total_n() |>
     dplyr::mutate(
       hits_total,
       hits_forth,
@@ -291,7 +291,7 @@ audit_total_n <- function(data) {
         .cols = c("n", starts_with("hits"), "scenarios_total"),
         .fns = as.integer
       )
-    ) %>%
+    ) |>
     add_class("scrutiny_audit_total_n")
 }
 

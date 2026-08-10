@@ -60,7 +60,7 @@ However, it is hard to see how \emph{fewer} value sets should be consistent than
 expected at random. This suggests a one-tailed test.
 }
 \examples{
-pigs1 \%>\%
-  grim_map(digits_x = 2) \%>\%
+pigs1 |>
+  grim_map(digits_x = 2) |>
   grim_binomial()
 }

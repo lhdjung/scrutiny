@@ -261,7 +261,7 @@ schlim_map_alt1 <- function(data, ...) {
     y = data$y,
     n = data$n,
     consistency = purrr::pmap_lgl(data, schlim_scalar, ...)
-  ) %>%
+  ) |>
     add_class("scrutiny_schlim_map") # See section "S3 classes" below
 }
 ```
@@ -272,11 +272,11 @@ Alternatively, you might call `dplyr::rowwise()` and directly mutate `"consisten
 schlim_map_alt2 <- function(data, ...) {
   scrutiny::check_mapper_input_colnames(data, c("y", "n"), "SCHLIM")
 
-  data %>%
-    dplyr::rowwise() %>%
-    dplyr::mutate(consistency = schlim_scalar(y, n, ...)) %>%
-    dplyr::ungroup() %>%
-    dplyr::relocate(y, n, consistency) %>%
+  data |>
+    dplyr::rowwise() |>
+    dplyr::mutate(consistency = schlim_scalar(y, n, ...)) |>
+    dplyr::ungroup() |>
+    dplyr::relocate(y, n, consistency) |>
     add_class("scrutiny_schlim_map") # See section "S3 classes" below
 }
 ```
@@ -467,8 +467,8 @@ audit_seq(out_seq)
 By default, a `*_map_seq()` function only creates sequences around inconsistent input values. That's because its primary purpose is to shed light on inconsistencies in reported statistics. Override the default with `include_consistent = TRUE`:
 
 ```{r}
-df1 %>%
-  schlim_map_seq(include_consistent = TRUE) %>%
+df1 |>
+  schlim_map_seq(include_consistent = TRUE) |>
   audit_seq()
 
 # Compare with the original values:

@@ -46,12 +46,11 @@ censor <- function(x, left, right) {
 #'
 #' @noRd
 integer_places <- function(x) {
-  x %>%
-    stringr::str_trim() %>%
-    stringr::str_split_fixed("\\.", n = 2L) %>%
-    # TODO: Refactor before switching to base pipe!
-    .[, 1L] %>%
-    stringr::str_length()
+  out <- x |>
+    stringr::str_trim() |>
+    stringr::str_split_fixed("\\.", n = 2L)
+
+  stringr::str_length(out[, 1L])
 }
 
 
@@ -71,4 +70,3 @@ integer_places <- function(x) {
 trunc_reverse <- function(x) {
   x - trunc(x)
 }
-

@@ -1,4 +1,3 @@
-
 # Expected output ---------------------------------------------------------
 
 grim_exp <- tibble::tibble(
@@ -14,7 +13,7 @@ grim_exp <- tibble::tibble(
   diff_n = c(2, 1),
   diff_n_up = c(2, 1),
   diff_n_down = c(-2, -3),
-) %>%
+) |>
   structure(class = c("scrutiny_audit_seq", "tbl_df", "tbl", "data.frame"))
 
 grimmer_exp <- tibble::tibble(
@@ -35,7 +34,7 @@ grimmer_exp <- tibble::tibble(
   diff_n = c(1L, 4L),
   diff_n_up = c(2L, 4L),
   diff_n_down = c(-1L, -4L),
-) %>%
+) |>
   structure(class = c("scrutiny_audit_seq", "tbl_df", "tbl", "data.frame"))
 
 debit_exp <- tibble::tibble(
@@ -56,15 +55,14 @@ debit_exp <- tibble::tibble(
   diff_n = NA_real_,
   diff_n_up = NA_real_,
   diff_n_down = NA_real_,
-) %>%
+) |>
   structure(class = c("scrutiny_audit_seq", "tbl_df", "tbl", "data.frame"))
 
 
 # Testing -----------------------------------------------------------------
 
 test_that("`audit()` for `audit_seq()` works correctly", {
-  pigs1[1:3, ] %>% grim_map_seq(digits_x = 2)                    %>% audit_seq() %>% expect_equal(grim_exp)
-  pigs5[1:3, ] %>% grimmer_map_seq(digits_x = 2, digits_sd = 2)  %>% audit_seq() %>% expect_equal(grimmer_exp)
-  pigs3[4, ]   %>% debit_map_seq(digits_x = 2, digits_sd = 2)    %>% audit_seq() %>% expect_equal(debit_exp)
+  pigs1[1:3, ] |> grim_map_seq(digits_x = 2)                    |> audit_seq() |> expect_equal(grim_exp)
+  pigs5[1:3, ] |> grimmer_map_seq(digits_x = 2, digits_sd = 2)  |> audit_seq() |> expect_equal(grimmer_exp)
+  pigs3[4, ]   |> debit_map_seq(digits_x = 2, digits_sd = 2)    |> audit_seq() |> expect_equal(debit_exp)
 })
-

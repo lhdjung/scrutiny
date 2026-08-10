@@ -973,8 +973,8 @@ commas_and <- function(x) {
     and <- ", and "
   }
 
-  x[-length(x)] %>%
-    stringr::str_flatten(collapse = collapse) %>%
+  x[-length(x)] |>
+    stringr::str_flatten(collapse = collapse) |>
     paste0(and, x[length(x)])
 }
 
@@ -1351,26 +1351,26 @@ transform_split_parens <- function(data, end1, end2) {
   uscore_end1 <- paste0("_", end1)
   uscore_end2 <- paste0("_", end2)
 
-  cols_1 <- data %>%
-    dplyr::select(contains(uscore_end1)) %>%
+  cols_1 <- data |>
+    dplyr::select(contains(uscore_end1)) |>
     tidyr::pivot_longer(
       cols = everything(),
       names_to = ".origin",
       values_to = end1
     )
 
-  cols_1 <- cols_1 %>%
+  cols_1 <- cols_1 |>
     dplyr::mutate(key = seq_len(nrow(cols_1)))
 
-  cols_2 <- data %>%
-    dplyr::select(contains(uscore_end2)) %>%
+  cols_2 <- data |>
+    dplyr::select(contains(uscore_end2)) |>
     tidyr::pivot_longer(
       cols = everything(),
       names_to = ".origin_2",
       values_to = end2
     )
 
-  cols_2 <- cols_2 %>%
+  cols_2 <- cols_2 |>
     dplyr::mutate(key = seq_len(nrow(cols_2)))
 
   out <- dplyr::left_join(cols_1, cols_2, by = "key")
@@ -1378,8 +1378,8 @@ transform_split_parens <- function(data, end1, end2) {
   out$key <- NULL
   out$.origin_2 <- NULL
 
-  out %>%
-    dplyr::mutate(.origin = stringr::str_remove(.data$.origin, uscore_end1)) %>%
+  out |>
+    dplyr::mutate(.origin = stringr::str_remove(.data$.origin, uscore_end1)) |>
     dplyr::arrange(.data$.origin)
 }
 
@@ -1687,9 +1687,9 @@ audit_summary_stats <- function(data, selection, total = FALSE) {
 
   if (total) {
     total_summary <- vector("list", length(funs))
-    values_all <- data %>%
-      dplyr::select(c(!!!selection)) %>%
-      tidyr::pivot_longer(dplyr::everything()) %>%
+    values_all <- data |>
+      dplyr::select(c(!!!selection)) |>
+      tidyr::pivot_longer(dplyr::everything()) |>
       dplyr::pull("value")
     for (i in seq_along(funs)) {
       total_summary[[i]] <- funs[[i]](values_all, na.rm = TRUE)
@@ -1700,11 +1700,11 @@ audit_summary_stats <- function(data, selection, total = FALSE) {
     total_summary <- NULL
   }
 
-  out %>%
-    t() %>%
-    tibble::as_tibble(.name_repair = function(x) fun_names) %>%
-    dplyr::mutate("term" = names(out), .before = 1L) %>%
-    dplyr::bind_rows(total_summary) %>%
+  out |>
+    t() |>
+    tibble::as_tibble(.name_repair = function(x) fun_names) |>
+    dplyr::mutate("term" = names(out), .before = 1L) |>
+    dplyr::bind_rows(total_summary) |>
     dplyr::mutate(na_rate = na_count / nrow(data), .after = "na_rate")
 }
 

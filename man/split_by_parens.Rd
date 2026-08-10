@@ -66,24 +66,24 @@ df1 <- tibble::tribble(
 )
 
 # Basic usage:
-df1 \%>\%
+df1 |>
   split_by_parens()
 
 # Name specific columns with `cols` to only split those:
-df1 \%>\%
+df1 |>
   split_by_parens(cols = drone)
 
 # Pivot the data into a longer format
 # by setting `transform` to `TRUE`:
-df1 \%>\%
+df1 |>
   split_by_parens(transform = TRUE)
 
 # Choose different column names or
 # name suffixes with `end1` and `end2`:
-df1 \%>\%
+df1 |>
   split_by_parens(end1 = "beta", end2 = "se")
 
-df1 \%>\%
+df1 |>
   split_by_parens(
     transform = TRUE,
     end1 = "beta", end2 = "se"
@@ -99,7 +99,7 @@ df2 <- tibble::tribble(
 )
 
 # ... specify `sep`:
-df2 \%>\%
+df2 |>
   split_by_parens(sep = "brackets")
 
 # (Accordingly with `{}` and `"braces"`.)
@@ -115,7 +115,7 @@ df3 <- tibble::tribble(
 
 # ... `sep` should be a length-2 vector
 # that contains the separating elements:
-df3 \%>\%
+df3 |>
   split_by_parens(sep = c("<", ">"))
 }
 \seealso{

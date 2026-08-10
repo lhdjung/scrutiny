@@ -1,5 +1,9 @@
 # scrutiny 0.6.2
 
+## Breaking changes
+
+- scrutiny now uses the base pipe `|>` instead of the magrittr pipe `%>%`, so `%>%` is no longer exported.
+
 ## Bugfixes
 
 - Fixed an error in the GRIM rounding-boundary logic for `rounding = "up"` and `rounding = "down"`. For `"up"` rounding, the upper boundary is exclusive (a value exactly at the midpoint rounds *away* from the reported mean, not toward it), but the old implementation treated it as inclusive. This could cause `grim()` and `grim_map()` to return `TRUE` for value sets that are actually inconsistent.
@@ -41,6 +45,10 @@
 - `audit_seq()` now finds the mapper that produced its input wherever that mapper is defined. A name that cannot be resolved at all now raises a message saying so.
 
 - Functions made by `function_map_total_n()` now work when they are created outside of scrutiny, e.g., in another package. Their bodies call scrutiny-internal helpers such as `absorb_key_args()`, but the factory used to enclose them in the caller's environment, which has no path to those helpers. They are now enclosed in an environment inheriting from scrutiny's namespace, as those made by `function_map()` and `function_map_seq()` already were (#69).
+
+## Lifycycle updates
+
+- scrutiny now requires R >= 4.1.0, as do recent versions of tidyverse packages. This is because the package now uses the base pipe `|>`, but also to avoid any incompatibilities with older versions of R.
 
 ## Documentation
 

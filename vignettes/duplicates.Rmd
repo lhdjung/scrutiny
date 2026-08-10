@@ -31,7 +31,7 @@ pigs4
 A good first step is to create a frequency table. To do so, use `duplicate_count()`:
 
 ```{r}
-pigs4 %>% 
+pigs4 |> 
   duplicate_count()
 ```
 
@@ -42,8 +42,8 @@ For example, `5.17` is the most frequent value in `pigs4`. It appears 3 times (`
 Run `audit()` after `duplicate_count()` to get summary statistics for the two numeric columns, `frequency` and `locations_n`:
 
 ```{r}
-pigs4 %>% 
-    duplicate_count() %>% 
+pigs4 |> 
+    duplicate_count() |> 
     audit()
 ```
 
@@ -52,7 +52,7 @@ pigs4 %>%
 Sometimes, a sequence of data may be repeated in multiple columns. `duplicate_count_colpair()` helps find such cases:
 
 ```{r}
-pigs4 %>% 
+pigs4 |> 
   duplicate_count_colpair()
 ```
 
@@ -63,8 +63,8 @@ Here, `snout` and `tail` are the column pair with the most overlap: 2 out of 5 v
 Again, you can call `audit()` for summary statistics:
 
 ```{r}
-pigs4 %>% 
-  duplicate_count_colpair() %>% 
+pigs4 |> 
+  duplicate_count_colpair() |> 
   audit()
 ```
 
@@ -73,7 +73,7 @@ pigs4 %>%
 Unlike the other two functions, `duplicate_tally()` largely preserves the structure of the original data frame. It only adds a column ending on `_n` next to each original column. The new columns count how often the values to their left appear in the data frame as a whole:
 
 ```{r}
-pigs4 %>% 
+pigs4 |> 
     duplicate_tally()
 ```
 
@@ -82,7 +82,7 @@ For example, `4.22` appears twice in `snout` but not in any other column, so the
 When following up `duplicate_tally()` with `audit()`, it shows summary statistics for each `_n` column. The last row summarizes all of these columns together, with `"term"` saying `".total"`:
 
 ```{r}
-pigs4 %>% 
-    duplicate_tally() %>% 
+pigs4 |> 
+    duplicate_tally() |> 
     audit()
 ```

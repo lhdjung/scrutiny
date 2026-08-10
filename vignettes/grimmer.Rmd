@@ -107,7 +107,7 @@ flying_pigs2 <- tibble::tribble(
   5.24,  2.51,  40
 )
 
-flying_pigs2 %>% 
+flying_pigs2 |> 
   grimmer_map(digits_x = 2, digits_sd = 2)  # default `items` is wrong here!
 ```
 
@@ -116,7 +116,7 @@ flying_pigs2 %>%
 Yet, all of them are consistent if the correct number of items is stated:
 
 ```{r, error=TRUE}
-flying_pigs2 %>% 
+flying_pigs2 |> 
   grimmer_map(digits_x = 2, digits_sd = 2, items = 3)
 ```
 
@@ -133,7 +133,7 @@ flying_pigs3 <- tibble::tribble(
   4.50,  2.51,  30,   3,
 )
 
-flying_pigs3 %>% 
+flying_pigs3 |> 
   grimmer_map(digits_x = 2, digits_sd = 2)
 ```
 
@@ -142,8 +142,8 @@ The `items` values are multiplied by the `n` values. By default, the product is 
 However, if we remove the `items` column, crucial information is missing. As a consequence, the last two values are wrongly flagged as inconsistent, one of them by GRIMMER:
 
 ```{r}
-flying_pigs3 %>%
-    dplyr::select(-items) %>% 
+flying_pigs3 |>
+    dplyr::select(-items) |> 
     grimmer_map(digits_x = 2, digits_sd = 2)
 ```
 
@@ -152,8 +152,8 @@ flying_pigs3 %>%
 Following up on a call to `grimmer_map()`, the generic function `audit()` summarizes GRIMMER test results:
 
 ```{r}
-flying_pigs1 %>% 
-  grimmer_map(digits_x = 1, digits_sd = 2) %>% 
+flying_pigs1 |> 
+  grimmer_map(digits_x = 1, digits_sd = 2) |> 
   audit()
 ```
 
@@ -187,8 +187,8 @@ flying_pigs4 <- tibble::tribble(
 )
 
 
-flying_pigs4 %>% 
-  grimmer_map(digits_x = 2, digits_sd = 2) %>% 
+flying_pigs4 |> 
+  grimmer_map(digits_x = 2, digits_sd = 2) |> 
   grim_plot()
 ```
 

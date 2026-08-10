@@ -35,18 +35,18 @@ By default, it operates on all columns that are coercible to numeric.
 }
 \examples{
 # Coerce all columns to string:
-iris <- iris \%>\%
-  tibble::as_tibble() \%>\%
+iris <- iris |>
+  tibble::as_tibble() |>
   dplyr::mutate(across(everything(), as.character))
 
 # The function will operate on all
 # numeric-like columns but not on `"Species"`:
-iris \%>\%
+iris |>
   decimal_places_df()
 
 # Operate on some select columns only
 # (from among the numeric-like columns):
-iris \%>\%
+iris |>
   decimal_places_df(cols = starts_with("Sepal"))
 }
 \seealso{

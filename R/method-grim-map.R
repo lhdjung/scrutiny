@@ -10,8 +10,8 @@ audit.scrutiny_grim_map <- function(data) {
   out <- audit_cols_minimal(data, "GRIM")
 
   # 4. the average of GRIM probabilitys:
-  mean_grim_prob <- data %>%
-    dplyr::summarise(mean_grim_prob = mean(.data$probability)) %>%
+  mean_grim_prob <- data |>
+    dplyr::summarise(mean_grim_prob = mean(.data$probability)) |>
     as.numeric()
 
   # 5. the ratio of the proportion of GRIM-inconsistent cases to the average of
@@ -20,8 +20,8 @@ audit.scrutiny_grim_map <- function(data) {
   incons_to_prob <- incons_rate / mean_grim_prob
 
   # 6. the number of GRIM-testable cases:
-  testable_cases <- data %>%
-    dplyr::filter(.data$probability > 0) %>%
+  testable_cases <- data |>
+    dplyr::filter(.data$probability > 0) |>
     nrow()
 
   # 7. the proportion of GRIM-testable cases:

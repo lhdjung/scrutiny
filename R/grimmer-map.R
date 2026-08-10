@@ -93,12 +93,12 @@
 #' # The `consistency` column shows whether
 #' # the values to its left are GRIMMER-consistent.
 #' # If they aren't, the `reason` column says why:
-#' pigs5 %>%
+#' pigs5 |>
 #'   grimmer_map(digits_x = 2, digits_sd = 2)
 #'
 #' # Get summaries with `audit()`:
-#' pigs5 %>%
-#'   grimmer_map(digits_x = 2, digits_sd = 2) %>%
+#' pigs5 |>
+#'   grimmer_map(digits_x = 2, digits_sd = 2) |>
 #'   audit()
 
 # # Test interactively:
@@ -169,7 +169,9 @@ grimmer_map <- function(
   data_x_sd_n_items <- data[c("x", "sd", "n", "items")]
   data_x_sd_n_items$digits_x <- recycle_digits(digits_x, nrow(data), "digits_x")
   data_x_sd_n_items$digits_sd <- recycle_digits(
-    digits_sd, nrow(data), "digits_sd"
+    digits_sd,
+    nrow(data),
+    "digits_sd"
   )
 
   x <- data$x

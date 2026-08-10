@@ -49,8 +49,8 @@
 #' @export
 #'
 #' @examples
-#' pigs1 %>%
-#'   grim_map(digits_x = 2) %>%
+#' pigs1 |>
+#'   grim_map(digits_x = 2) |>
 #'   grim_binomial()
 
 grim_binomial <- function(

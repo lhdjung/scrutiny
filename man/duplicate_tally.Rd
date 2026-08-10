@@ -52,12 +52,12 @@ duplicate_tally(x = pigs4)
 duplicate_tally(x = pigs4$snout)
 
 # Summary statistics with `audit()`:
-pigs4 \%>\%
-  duplicate_tally() \%>\%
+pigs4 |>
+  duplicate_tally() |>
   audit()
 
 # Any values can be ignored:
-pigs4 \%>\%
+pigs4 |>
   duplicate_tally(ignore = c(8.131, 7.574))
 }
 \seealso{

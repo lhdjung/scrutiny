@@ -72,12 +72,12 @@ duplicate_detect(x = pigs4)
 duplicate_detect(x = pigs4$snout)
 
 # Summary statistics with `audit()`:
-pigs4 \%>\%
-  duplicate_detect() \%>\%
+pigs4 |>
+  duplicate_detect() |>
   audit()
 
 # Any values can be ignored:
-pigs4 \%>\%
+pigs4 |>
   duplicate_detect(ignore = c(8.131, 7.574))
 }
 \seealso{

@@ -61,12 +61,12 @@
 #' # The `consistency` column shows
 #' # whether the values to its left
 #' # are DEBIT-consistent:
-#' pigs3 %>%
+#' pigs3 |>
 #'   debit_map(digits_x = 2, digits_sd = 2)
 #'
 #' # Get test summaries with `audit()`:
-#' pigs3 %>%
-#'   debit_map(digits_x = 2, digits_sd = 2) %>%
+#' pigs3 |>
+#'   debit_map(digits_x = 2, digits_sd = 2) |>
 #'   audit()
 
 debit_map <- function(
@@ -148,7 +148,7 @@ debit_map <- function(
   # Create `other_cols`, which contains any and all extra columns from `data`
   # (i.e., those which play no role in DEBIT):
   if (ncol(data) > 3L) {
-    other_cols <- data %>%
+    other_cols <- data |>
       dplyr::select(-x, -sd, -n)
   } else {
     other_cols <- NULL
@@ -171,7 +171,7 @@ debit_map <- function(
   data_sd_x_n$digits_x <- recycle_digits(digits_x, nrow(data), "digits_x")
   data_sd_x_n$digits_sd <- recycle_digits(digits_sd, nrow(data), "digits_sd")
 
-  results <- data_sd_x_n %>%
+  results <- data_sd_x_n |>
     purrr::pmap_dfr(
       debit_table,
       rounding = rounding,
@@ -183,8 +183,8 @@ debit_map <- function(
   # (rounding method, boundary values, and Logical information about the
   # boundary values being inclusive or not):
   if (show_rec) {
-    out <- results %>%
-      dplyr::mutate(n = n, consistency = consistency) %>%
+    out <- results |>
+      dplyr::mutate(n = n, consistency = consistency) |>
       dplyr::select(
         x,
         sd,
@@ -199,8 +199,8 @@ debit_map <- function(
         x_upper
       )
   } else {
-    out <- results %>%
-      dplyr::mutate(n = n, consistency = consistency) %>%
+    out <- results |>
+      dplyr::mutate(n = n, consistency = consistency) |>
       dplyr::select(x, sd, n, consistency)
   }
 

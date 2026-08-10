@@ -57,12 +57,12 @@ dup_count_pairwise <- function(x, y) {
 #'
 #' @examples
 #' # Basic usage:
-#' mtcars %>%
+#' mtcars |>
 #'   duplicate_count_colpair()
 #'
 #' # Summaries with `audit()`:
-#' mtcars %>%
-#'   duplicate_count_colpair() %>%
+#' mtcars |>
+#'   duplicate_count_colpair() |>
 #'   audit()
 
 # # Full example input:
@@ -83,17 +83,17 @@ duplicate_count_colpair <- function(data, ignore = NULL, show_rates = TRUE) {
     data <- lapply(data, function(x) x[!x %in% ignore])
   }
 
-  data <- data %>%
-    lapply(function(x) list(x[!is.na(x)])) %>%
+  data <- data |>
+    lapply(function(x) list(x[!is.na(x)])) |>
     tibble::as_tibble()
 
-  out <- data %>%
-    corrr::colpair_map(dup_count_pairwise) %>%
-    corrr::shave() %>%
-    suppressWarnings() %>%
-    corrr::stretch(na.rm = TRUE, remove.dups = FALSE) %>%
-    dplyr::arrange(dplyr::desc(.data$r)) %>%
-    dplyr::rename(count = "r") %>%
+  out <- data |>
+    corrr::colpair_map(dup_count_pairwise) |>
+    corrr::shave() |>
+    suppressWarnings() |>
+    corrr::stretch(na.rm = TRUE, remove.dups = FALSE) |>
+    dplyr::arrange(dplyr::desc(.data$r)) |>
+    dplyr::rename(count = "r") |>
     add_class("scrutiny_dup_count_colpair")
 
   if (!show_rates) {

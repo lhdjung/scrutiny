@@ -145,7 +145,7 @@ disperse <- function(
 
   minus_plus_df <- tibble::tibble(n_minus, n_plus)
 
-  out <- minus_plus_df %>%
+  out <- minus_plus_df |>
     tidyr::pivot_longer(
       cols = everything(),
       names_to = "n_change",
@@ -160,8 +160,8 @@ disperse <- function(
     out$n_change <- round(out$n_change, digits)
   }
 
-  out <- out %>%
-    reverse_column_order() %>%
+  out <- out |>
+    reverse_column_order() |>
     add_class("scrutiny_disperse")
 
   if (!is.null(constant)) {
@@ -245,14 +245,14 @@ disperse2 <- function(
   # Determine which row numbers in the output tibble have an `n` that must
   # be increased or decreased (using an internal helper function from utils.R):
   seq_rows <- seq_len(nrow(out))
-  locations1 <- seq_rows %>% parcel_nth_elements(n = 2, from = 1L)
-  locations2 <- seq_rows %>% parcel_nth_elements(n = 2, from = 2L)
+  locations1 <- seq_rows |> parcel_nth_elements(n = 2, from = 1L)
+  locations2 <- seq_rows |> parcel_nth_elements(n = 2, from = 2L)
 
   # Increase or decrease the dispersed values so that the lower values decrease
   # from the first of the two `n` values, the higher values increase from the
   # second one, and both interleaved sequences proceed by increments of 1:
-  out$n <- out$n %>% purrr::modify_at(locations1, `-`, 0.5)
-  out$n <- out$n %>% purrr::modify_at(locations2, `+`, 0.5)
+  out$n <- out$n |> purrr::modify_at(locations1, `-`, 0.5)
+  out$n <- out$n |> purrr::modify_at(locations2, `+`, 0.5)
 
   # Return the resulting tibble:
   out

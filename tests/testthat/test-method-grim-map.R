@@ -1,12 +1,10 @@
-
-
-audit_pigs1 <- pigs1 %>%
-  grim_map(digits_x = 2) %>%
+audit_pigs1 <- pigs1 |>
+  grim_map(digits_x = 2) |>
   audit()
 
-audit_pigs2 <- pigs2 %>%
-  grim_map(digits_x = 1, percent = TRUE) %>%
-  suppressMessages() %>%
+audit_pigs2 <- pigs2 |>
+  grim_map(digits_x = 1, percent = TRUE) |>
+  suppressMessages() |>
   audit()
 
 audit_pigs1_exp <- tibble::tibble(
@@ -31,8 +29,6 @@ audit_pigs2_exp <- tibble::tibble(
 
 
 test_that("`audit()` works correctly for `grim_map()` output", {
-  audit_pigs1 %>% expect_equal(audit_pigs1_exp)
-  audit_pigs2 %>% expect_equal(audit_pigs2_exp)
+  audit_pigs1 |> expect_equal(audit_pigs1_exp)
+  audit_pigs2 |> expect_equal(audit_pigs2_exp)
 })
-
-

@@ -31,7 +31,7 @@
 #'   For a vector `x`, you can count the characters of the longest mantissa from
 #'   among its values like this:
 #'
-#'   `x %>% decimal_places() %>% max()`
+#'   `x |> decimal_places() |> max()`
 #'
 #' @param x Numeric (or string coercible to numeric). Vector of numbers that
 #'   might have lost trailing zeros.
@@ -79,11 +79,11 @@
 #' # By default, the target width is that of
 #' # the longest mantissa:
 #' vec <- c(212, 75.38, 4.9625)
-#' vec %>%
+#' vec |>
 #'   restore_zeros()
 #'
 #' # Alternatively, supply a number via `width`:
-#' vec %>%
+#' vec |>
 #'   restore_zeros(width = 6)
 #'
 #' # For better printing:
@@ -91,11 +91,11 @@
 #'
 #' # Apply `restore_zeros()` to all numeric
 #' # columns, but not to the factor column:
-#' iris %>%
+#' iris |>
 #'   restore_zeros_df()
 #'
 #' # Select columns as in `dplyr::select()`:
-#' iris %>%
+#' iris |>
 #'   restore_zeros_df(starts_with("Sepal"), width = 3)
 
 # x <- c(0.12, 0.123, 0.1234)
@@ -247,8 +247,8 @@ restore_zeros_df <- function(
   }
 
   # Names of selection-suitable columns:
-  names_num_cols <- data %>%
-    dplyr::select(where(is_numeric_like)) %>%
+  names_num_cols <- data |>
+    dplyr::select(where(is_numeric_like)) |>
     colnames()
 
   # By default, selection is restricted to columns that are numeric or coercible

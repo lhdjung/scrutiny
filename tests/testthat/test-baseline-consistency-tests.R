@@ -26,8 +26,8 @@
 #
 #
 # test_that("`is_percentage_of_map()` works correctly", {
-#   df1 %>% is_percentage_of_map() %>% expect_equal(df1_tested_exp)
-#   df2 %>% is_percentage_of_map() %>% identical(df1_tested_exp) %>% expect_false()
-#   df1[2:3] %>% expect_equal(df2[2:3])
+#   df1 |> is_percentage_of_map() |> expect_equal(df1_tested_exp)
+#   df2 |> is_percentage_of_map() |> identical(df1_tested_exp) |> expect_false()
+#   df1[2:3] |> expect_equal(df2[2:3])
 # })
 #

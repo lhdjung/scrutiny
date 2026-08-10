@@ -28,14 +28,14 @@ test_that("It has the correct function-general class", {
 })
 
 test_that("It has the correct rounding-specific class", {
-  df1_grim_up_or_down       %>% expect_s3_class("scrutiny_rounding_up_or_down")
-  df1_grim_up               %>% expect_s3_class("scrutiny_rounding_up")
-  df1_grim_down             %>% expect_s3_class("scrutiny_rounding_down")
-  df1_grim_ceiling_or_floor %>% expect_s3_class("scrutiny_rounding_ceiling_or_floor")
-  df1_grim_ceiling          %>% expect_s3_class("scrutiny_rounding_ceiling")
-  df1_grim_floor            %>% expect_s3_class("scrutiny_rounding_floor")
-  df1_grim_trunc            %>% expect_s3_class("scrutiny_rounding_trunc")
-  df1_grim_anti_trunc       %>% expect_s3_class("scrutiny_rounding_anti_trunc")
+  df1_grim_up_or_down       |> expect_s3_class("scrutiny_rounding_up_or_down")
+  df1_grim_up               |> expect_s3_class("scrutiny_rounding_up")
+  df1_grim_down             |> expect_s3_class("scrutiny_rounding_down")
+  df1_grim_ceiling_or_floor |> expect_s3_class("scrutiny_rounding_ceiling_or_floor")
+  df1_grim_ceiling          |> expect_s3_class("scrutiny_rounding_ceiling")
+  df1_grim_floor            |> expect_s3_class("scrutiny_rounding_floor")
+  df1_grim_trunc            |> expect_s3_class("scrutiny_rounding_trunc")
+  df1_grim_anti_trunc       |> expect_s3_class("scrutiny_rounding_anti_trunc")
 })
 
 
@@ -45,27 +45,27 @@ f <- FALSE
 consistency_exp <- c(t, f, f, f, f, t, f, t, f, f, t, f)
 
 test_that("`consistency` has the correct values", {
-  df1_grim$consistency %>% expect_equal(consistency_exp)
+  df1_grim$consistency |> expect_equal(consistency_exp)
 })
 
 
-df2 <- df1 %>%
+df2 <- df1 |>
   dplyr::mutate(n = n * 100)
 
 df2_grim <- grim_map(df2, digits_x = 2)
 
 # Comparison with what `grim_ratio()` would return -- it can be negative:
 test_that("`probability` is zero if `ratio` would be negative", {
-  (df2_grim$probability == 0) %>% all() %>% expect_true()
+  (df2_grim$probability == 0) |> all() |> expect_true()
 })
 
 
-x <- rnorm(500, 65, 15) %>%
-  censor(30, 90) %>%
+x <- rnorm(500, 65, 15) |>
+  censor(30, 90) |>
   round()
 
-n <- rnorm(500, 50, 20) %>%
-  censor(20, 90) %>%
+n <- rnorm(500, 50, 20) |>
+  censor(20, 90) |>
   round()
 
 df3 <- tibble::tibble(x, n)
@@ -75,7 +75,7 @@ df3_percent_true <- grim_map(
   digits_x = 0,
   percent = TRUE,
   show_rec = TRUE
-) %>%
+) |>
   suppressMessages()
 
 df3_percent_false <- grim_map(df3, digits_x = 0, show_rec = TRUE)
@@ -86,12 +86,12 @@ percent_probabilities_greater <-
 test_that(
   "The probability of GRIM inconsistency is always greater
   with `percent = TRUE` than without it", {
-    percent_probabilities_greater %>% all() %>% expect_true()
+    percent_probabilities_greater |> all() |> expect_true()
 })
 
 
-df3_true_accord <- df3_percent_true %>%
-  dplyr::select(1, 3, 7:11) %>%
+df3_true_accord <- df3_percent_true |>
+  dplyr::select(1, 3, 7:11) |>
   dplyr::mutate(
     accord = dplyr::if_else(
       consistency,
@@ -115,46 +115,46 @@ test_that(glue::glue(
   "The stated consistency accords with what can be reconstructed \\
   from the numbers presented"
 ), {
-  accord %>% expect_true()
+  accord |> expect_true()
 })
 
 
-df4 <- df1 %>%
+df4 <- df1 |>
   grim_map(digits_x = 2, items = 2)
 
 df4_cons_true <- df4$consistency[df4$consistency]
 
 test_that("", {
-  df4_cons_true %>% expect_length(6)
+  df4_cons_true |> expect_length(6)
 })
 
 
-df5 <- df1 %>%
+df5 <- df1 |>
   grim_map(digits_x = 2, show_rec = TRUE)
 
 
 test_that("`show_rec` increases the number of columns correctly", {
-  df5 %>% ncol() %>% expect_equal(11)
+  df5 |> ncol() |> expect_equal(11)
 })
 
 
-df6 <- df1 %>%
+df6 <- df1 |>
   dplyr::rename(Mean = x, Sample_Size = n)
 
-df6_grim <- df6 %>%
-  grim_map(digits_x = 2, x = Mean, n = Sample_Size) %>%
+df6_grim <- df6 |>
+  grim_map(digits_x = 2, x = Mean, n = Sample_Size) |>
   dplyr::mutate(Mean = NULL, Sample_Size = NULL)
 
 
 test_that("`x` and `n` make the specified columns take on these roles", {
-  df6_grim %>% expect_equal(df1_grim)
+  df6_grim |> expect_equal(df1_grim)
 })
 
 
 # `df7` was omitted
 
 test_that("a `probability` column is naturally present", {
-  df1_grim %>% colnames() %>% expect_contains("probability")
+  df1_grim |> colnames() |> expect_contains("probability")
 })
 
 
@@ -242,15 +242,15 @@ df8_n40_grim_anti_trunc_exp <- c(f, f, t, f, f, t, t, t, f, f, f, f)
 
 test_that("rounding specifications lead to the expected consistency
           results in the corner case of n = 40", {
-  df8_n40_grim_up_or_down       $consistency %>% expect_equal(df8_n40_grim_up_or_down_exp       )
-  df8_n40_grim_up               $consistency %>% expect_equal(df8_n40_grim_up_exp               )
-  df8_n40_grim_down             $consistency %>% expect_equal(df8_n40_grim_down_exp             )
-  df8_n40_grim_even             $consistency %>% expect_equal(df8_n40_grim_even_exp             )
-  df8_n40_grim_ceiling_or_floor $consistency %>% expect_equal(df8_n40_grim_ceiling_or_floor_exp )
-  df8_n40_grim_ceiling          $consistency %>% expect_equal(df8_n40_grim_ceiling_exp          )
-  df8_n40_grim_floor            $consistency %>% expect_equal(df8_n40_grim_floor_exp            )
-  df8_n40_grim_trunc            $consistency %>% expect_equal(df8_n40_grim_trunc_exp            )
-  df8_n40_grim_anti_trunc       $consistency %>% expect_equal(df8_n40_grim_anti_trunc_exp       )
+  df8_n40_grim_up_or_down       $consistency |> expect_equal(df8_n40_grim_up_or_down_exp       )
+  df8_n40_grim_up               $consistency |> expect_equal(df8_n40_grim_up_exp               )
+  df8_n40_grim_down             $consistency |> expect_equal(df8_n40_grim_down_exp             )
+  df8_n40_grim_even             $consistency |> expect_equal(df8_n40_grim_even_exp             )
+  df8_n40_grim_ceiling_or_floor $consistency |> expect_equal(df8_n40_grim_ceiling_or_floor_exp )
+  df8_n40_grim_ceiling          $consistency |> expect_equal(df8_n40_grim_ceiling_exp          )
+  df8_n40_grim_floor            $consistency |> expect_equal(df8_n40_grim_floor_exp            )
+  df8_n40_grim_trunc            $consistency |> expect_equal(df8_n40_grim_trunc_exp            )
+  df8_n40_grim_anti_trunc       $consistency |> expect_equal(df8_n40_grim_anti_trunc_exp       )
 })
 
 
@@ -267,15 +267,15 @@ df8_n80_grim_anti_trunc_exp <- c(t, t, t, t, t, t, t, t, t, t, f, t)
 
 test_that("rounding specifications lead to the expected consistency
           results in the corner case of n = 80", {
-  df8_n80_grim_up_or_down       $consistency %>% expect_equal(df8_n80_grim_up_or_down_exp       )
-  df8_n80_grim_up               $consistency %>% expect_equal(df8_n80_grim_up_exp               )
-  df8_n80_grim_down             $consistency %>% expect_equal(df8_n80_grim_down_exp             )
-  df8_n80_grim_even             $consistency %>% expect_equal(df8_n80_grim_even_exp             )
-  df8_n80_grim_ceiling_or_floor $consistency %>% expect_equal(df8_n80_grim_ceiling_or_floor_exp )
-  df8_n80_grim_ceiling          $consistency %>% expect_equal(df8_n80_grim_ceiling_exp          )
-  df8_n80_grim_floor            $consistency %>% expect_equal(df8_n80_grim_floor_exp            )
-  df8_n80_grim_trunc            $consistency %>% expect_equal(df8_n80_grim_trunc_exp            )
-  df8_n80_grim_anti_trunc       $consistency %>% expect_equal(df8_n80_grim_anti_trunc_exp       )
+  df8_n80_grim_up_or_down       $consistency |> expect_equal(df8_n80_grim_up_or_down_exp       )
+  df8_n80_grim_up               $consistency |> expect_equal(df8_n80_grim_up_exp               )
+  df8_n80_grim_down             $consistency |> expect_equal(df8_n80_grim_down_exp             )
+  df8_n80_grim_even             $consistency |> expect_equal(df8_n80_grim_even_exp             )
+  df8_n80_grim_ceiling_or_floor $consistency |> expect_equal(df8_n80_grim_ceiling_or_floor_exp )
+  df8_n80_grim_ceiling          $consistency |> expect_equal(df8_n80_grim_ceiling_exp          )
+  df8_n80_grim_floor            $consistency |> expect_equal(df8_n80_grim_floor_exp            )
+  df8_n80_grim_trunc            $consistency |> expect_equal(df8_n80_grim_trunc_exp            )
+  df8_n80_grim_anti_trunc       $consistency |> expect_equal(df8_n80_grim_anti_trunc_exp       )
 })
 
 
@@ -369,8 +369,8 @@ df9_up_1_exp <- c(t, f, f, f, f, t, f, f, f, f, t, f)
 df9_up_9_exp <- c(f, f, f, f, t, f, f, t, t, f, t, f)
 
 test_that("the minimum of `threshold` yields expected results", {
-  df9_up_1$consistency %>% expect_equal(df9_up_1_exp)
-  df9_up_9$consistency %>% expect_equal(df9_up_9_exp)
+  df9_up_1$consistency |> expect_equal(df9_up_1_exp)
+  df9_up_9$consistency |> expect_equal(df9_up_9_exp)
 })
 
 
@@ -381,22 +381,22 @@ df9_down_1_exp <- c(f, f, f, f, t, f, f, t, t, f, t, f)
 df9_down_9_exp <- c(t, f, f, f, f, t, f, f, f, f, t, f)
 
 test_that("the maximum of `threshold` yields expected results", {
-  df9_down_1$consistency %>% expect_equal(df9_down_1_exp)
-  df9_down_9$consistency %>% expect_equal(df9_down_9_exp)
+  df9_down_1$consistency |> expect_equal(df9_down_1_exp)
+  df9_down_9$consistency |> expect_equal(df9_down_9_exp)
 })
 
 
 # Errors ------------------------------------------------------------------
 
-df10 <- df1 %>%
+df10 <- df1 |>
   dplyr::mutate(items = 2)
 
-df11 <- df1 %>%
+df11 <- df1 |>
   dplyr::rename(Snout = x)
 
 df11_exp <- grim_map(df1, digits_x = 2)
 
-df12 <- df1 %>%
+df12 <- df1 |>
   dplyr::rename(Sample_Size = n)
 
 df12_exp <- grim_map(df1, digits_x = 2)
@@ -404,20 +404,20 @@ df12_exp <- grim_map(df1, digits_x = 2)
 
 test_that("expectations related to various individual
           error messages hold", {
-  df1  %>% grim_map(digits_x = 2, items = 1:3) %>% expect_error()
-  df10 %>% grim_map(digits_x = 2, items = 3) %>% expect_error()
-  df11 %>% grim_map(digits_x = 2, x = Snout) %>% expect_equal(df11_exp)
-  df11 %>% grim_map(digits_x = 2, x = Mouth) %>% expect_error()
-  df12 %>% grim_map(digits_x = 2, n = Sample_Size) %>% expect_equal(df12_exp)
-  df12 %>% grim_map(digits_x = 2, n = Count_Pigs) %>% expect_error()
+  df1  |> grim_map(digits_x = 2, items = 1:3) |> expect_error()
+  df10 |> grim_map(digits_x = 2, items = 3) |> expect_error()
+  df11 |> grim_map(digits_x = 2, x = Snout) |> expect_equal(df11_exp)
+  df11 |> grim_map(digits_x = 2, x = Mouth) |> expect_error()
+  df12 |> grim_map(digits_x = 2, n = Sample_Size) |> expect_equal(df12_exp)
+  df12 |> grim_map(digits_x = 2, n = Count_Pigs) |> expect_error()
 })
 
 
-df13 <- df1 %>%
+df13 <- df1 |>
   dplyr::mutate(girth = 30, mirth = 50, birth = 70)
 
 df13_exp <- grim_map(df1, digits_x = 2)
 
 test_that("`extra = 0` drops all extra columns", {
-  df13 %>% grim_map(digits_x = 2, extra = 0) %>% expect_equal(df13_exp)
+  df13 |> grim_map(digits_x = 2, extra = 0) |> expect_equal(df13_exp)
 })

@@ -1,5 +1,3 @@
-
-
 # Define example data -----------------------------------------------------
 
 df_schlim <- tibble::tibble(y = 16:100, n = 3:87)
@@ -20,7 +18,7 @@ schlim_map <- function(data) {
   n <- data$n
   consistency <- purrr::map2_lgl(y, n, schlim_scalar)
   out <- tibble::tibble(y, n, consistency)
-  out <- add_class(out, "scrutiny_schlim_map")  # See section "S3 classes" below
+  out <- add_class(out, "scrutiny_schlim_map") # See section "S3 classes" below
   out
 }
 
@@ -34,31 +32,29 @@ schlim_map_seq <- function_map_seq(
 
 # Apply the reversal ------------------------------------------------------
 
-df_schlim_rec <- df_schlim %>%
-  schlim_map_seq(include_consistent = TRUE) %>%
+df_schlim_rec <- df_schlim |>
+  schlim_map_seq(include_consistent = TRUE) |>
   reverse_map_seq()
 
-df_grim_rec <- df_grim %>%
-  grim_map_seq(digits_x = 2, include_consistent = TRUE) %>%
+df_grim_rec <- df_grim |>
+  grim_map_seq(digits_x = 2, include_consistent = TRUE) |>
   reverse_map_seq()
 
-df_debit_rec <- df_debit %>%
-  debit_map_seq(digits_x = 2, digits_sd = 2, include_consistent = TRUE) %>%
+df_debit_rec <- df_debit |>
+  debit_map_seq(digits_x = 2, digits_sd = 2, include_consistent = TRUE) |>
   reverse_map_seq()
 
 
 # Test for equality with the original -------------------------------------
 
 test_that("It works with SCHLIM (toy test)", {
-  df_schlim %>% expect_equal(df_schlim_rec)
+  df_schlim |> expect_equal(df_schlim_rec)
 })
 
 test_that("It works with GRIM", {
-  df_grim %>% expect_equal(df_grim_rec)
+  df_grim |> expect_equal(df_grim_rec)
 })
 
 test_that("It works with DEBIT", {
-  df_debit %>% expect_equal(df_debit_rec)
+  df_debit |> expect_equal(df_debit_rec)
 })
-
-

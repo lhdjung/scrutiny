@@ -1,4 +1,3 @@
-
 test_that("the predicates return the expected output", {
   # Example test output:
   df1 <- grim_map(pigs1, digits_x = 2)
@@ -10,26 +9,25 @@ test_that("the predicates return the expected output", {
   ), digits_x = 2)
 
   # All three tibbles are mapper output:
-  is_map_df(df1) %>% expect_true()
-  is_map_df(df2) %>% expect_true()
-  is_map_df(df3) %>% expect_true()
+  is_map_df(df1) |> expect_true()
+  is_map_df(df2) |> expect_true()
+  is_map_df(df3) |> expect_true()
 
   # However, only `df1` is the output of a
   # basic mapper...
-  is_map_basic_df(df1) %>% expect_true()
-  is_map_basic_df(df2) %>% expect_false()
-  is_map_basic_df(df3) %>% expect_false()
+  is_map_basic_df(df1) |> expect_true()
+  is_map_basic_df(df2) |> expect_false()
+  is_map_basic_df(df3) |> expect_false()
 
   # ...only `df2` is the output of a
   # sequence mapper...
-  is_map_seq_df(df1) %>% expect_false()
-  is_map_seq_df(df2) %>% expect_true()
-  is_map_seq_df(df3) %>% expect_false()
+  is_map_seq_df(df1) |> expect_false()
+  is_map_seq_df(df2) |> expect_true()
+  is_map_seq_df(df3) |> expect_false()
 
   # ...and only `df3` is the output of a
   # total-n mapper:
-  is_map_total_n_df(df1) %>% expect_false()
-  is_map_total_n_df(df2) %>% expect_false()
-  is_map_total_n_df(df3) %>% expect_true()
+  is_map_total_n_df(df1) |> expect_false()
+  is_map_total_n_df(df2) |> expect_false()
+  is_map_total_n_df(df3) |> expect_true()
 })
-

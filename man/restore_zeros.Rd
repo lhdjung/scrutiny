@@ -107,18 +107,18 @@ numbers, unlike stored numbers, are often rounded.
 For a vector \code{x}, you can count the characters of the longest mantissa from
 among its values like this:
 
-\code{x \%>\% decimal_places() \%>\% max()}
+\code{x |> decimal_places() |> max()}
 }
 
 \examples{
 # By default, the target width is that of
 # the longest mantissa:
 vec <- c(212, 75.38, 4.9625)
-vec \%>\%
+vec |>
   restore_zeros()
 
 # Alternatively, supply a number via `width`:
-vec \%>\%
+vec |>
   restore_zeros(width = 6)
 
 # For better printing:
@@ -126,11 +126,11 @@ iris <- tibble::as_tibble(iris)
 
 # Apply `restore_zeros()` to all numeric
 # columns, but not to the factor column:
-iris \%>\%
+iris |>
   restore_zeros_df()
 
 # Select columns as in `dplyr::select()`:
-iris \%>\%
+iris |>
   restore_zeros_df(starts_with("Sepal"), width = 3)
 }
 \seealso{

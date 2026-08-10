@@ -1,9 +1,7 @@
-
 # `audit()` ---------------------------------------------------------------
 
-
 # `audit()` for GRIM
-data_grim  <- grim_map(pigs1, digits_x = 2)
+data_grim <- grim_map(pigs1, digits_x = 2)
 audit_grim <- audit(data_grim)
 
 test_that("`audit()` summarizes GRIM tests accurately", {
@@ -13,9 +11,8 @@ test_that("`audit()` summarizes GRIM tests accurately", {
 })
 
 
-
 # `audit()` for DEBIT
-data_debit  <- debit_map(pigs3, digits_x = 2, digits_sd = 2)
+data_debit <- debit_map(pigs3, digits_x = 2, digits_sd = 2)
 audit_debit <- audit(data_debit)
 
 test_that("`audit()` summarizes DEBIT tests accurately", {
@@ -25,18 +22,17 @@ test_that("`audit()` summarizes DEBIT tests accurately", {
 })
 
 
-
 # `audit_seq()` -----------------------------------------------------------
 
-data_grim_seq  <- grim_map_seq(pigs1, digits_x = 2)
+data_grim_seq <- grim_map_seq(pigs1, digits_x = 2)
 data_grimmer_seq <- grimmer_map_seq(pigs5, digits_x = 2, digits_sd = 2)
 data_debit_seq <- debit_map_seq(pigs3, digits_x = 2, digits_sd = 2)
 
 # The scrutiny class is removed for the GRIM tibble because the latter is tested
 # as an example for equality with tibbles that don't have that class:
-audit_seq_grim    <- data_grim_seq    %>% audit_seq() %>% unclass_scr()
-audit_seq_grimmer <- data_grimmer_seq %>% audit_seq()
-audit_seq_debit   <- data_debit_seq   %>% audit_seq()
+audit_seq_grim <- data_grim_seq |> audit_seq() |> unclass_scr()
+audit_seq_grimmer <- data_grimmer_seq |> audit_seq()
+audit_seq_debit <- data_debit_seq |> audit_seq()
 
 data_seq_grim_different_dispersion1 <- tibble::tibble(
   x = 4.74,
@@ -51,7 +47,7 @@ data_seq_grim_different_dispersion1 <- tibble::tibble(
   diff_n = 9L,
   diff_n_up = 9L,
   diff_n_down = NA_integer_,
-) %>%
+) |>
   structure(class = c("scrutiny_audit_seq", "tbl_df", "tbl", "data.frame"))
 
 data_seq_grim_different_dispersion2 <- tibble::tibble(
@@ -67,30 +63,30 @@ data_seq_grim_different_dispersion2 <- tibble::tibble(
   diff_n = 3L,
   diff_n_up = NA_integer_,
   diff_n_down = -3L,
-) %>%
+) |>
   structure(class = c("scrutiny_audit_seq", "tbl_df", "tbl", "data.frame"))
 
-data_incons <- pigs1 %>%
-  grim_map(digits_x = 2) %>%
-  dplyr::filter(!consistency) %>%
+data_incons <- pigs1 |>
+  grim_map(digits_x = 2) |>
+  dplyr::filter(!consistency) |>
   unclass_scr()
 
 
 test_that("`audit_seq()` has correct output", {
-  audit_seq_grim %>% dim() %>% expect_equal(c(8, 12))
-  audit_seq_grim[1:3] %>% expect_equal(data_incons[1:3])
-  audit_seq_grim[[4]] %>% expect_equal(c(4, 6, 6, 7, 3, 6, 8, 6))
-  audit_seq_grim[[5]] %>% expect_equal(c(2, 3, 3, 3, 3, 3, 4, 3))
-  audit_seq_grim[[6]] %>% expect_equal(c(2, 3, 3, 4, 0, 3, 4, 3))
-  audit_seq_grim[[7]] %>% expect_equal(c(2, 1, 1, 1, 1, 1, 1, 1))
+  audit_seq_grim |> dim() |> expect_equal(c(8, 12))
+  audit_seq_grim[1:3] |> expect_equal(data_incons[1:3])
+  audit_seq_grim[[4]] |> expect_equal(c(4, 6, 6, 7, 3, 6, 8, 6))
+  audit_seq_grim[[5]] |> expect_equal(c(2, 3, 3, 3, 3, 3, 4, 3))
+  audit_seq_grim[[6]] |> expect_equal(c(2, 3, 3, 4, 0, 3, 4, 3))
+  audit_seq_grim[[7]] |> expect_equal(c(2, 1, 1, 1, 1, 1, 1, 1))
 })
 
 
 hits_total_is_correct <- function(audit_seq_output) {
-  expected <- audit_seq_output %>%
-    dplyr::rowwise() %>%
-    dplyr::select(starts_with("hits"), -hits_total) %>%
-    dplyr::mutate(hits_total_expected = sum(dplyr::c_across(everything()))) %>%
+  expected <- audit_seq_output |>
+    dplyr::rowwise() |>
+    dplyr::select(starts_with("hits"), -hits_total) |>
+    dplyr::mutate(hits_total_expected = sum(dplyr::c_across(everything()))) |>
     dplyr::pull(hits_total_expected)
   all(expected == audit_seq_output$hits_total)
 }
@@ -98,22 +94,21 @@ hits_total_is_correct <- function(audit_seq_output) {
 
 test_that("the `hits_total` column correctly sums up
           the other `hits_` columns", {
-  audit_seq_grim    %>% hits_total_is_correct() %>% expect_true()
-  audit_seq_grimmer %>% hits_total_is_correct() %>% expect_true()
-  audit_seq_debit   %>% hits_total_is_correct() %>% expect_true()
+  audit_seq_grim    |> hits_total_is_correct() |> expect_true()
+  audit_seq_grimmer |> hits_total_is_correct() |> expect_true()
+  audit_seq_debit   |> hits_total_is_correct() |> expect_true()
 })
 
 
 test_that("changing `dispersion` in the sequence mapper is
           correctly captured by `audit_seq()`", {
-  pigs1[1:2, ] %>%
-    grim_map_seq(digits_x = 2, dispersion = c(7, 8, 9)) %>%
-    audit_seq() %>%
+  pigs1[1:2, ] |>
+    grim_map_seq(digits_x = 2, dispersion = c(7, 8, 9)) |>
+    audit_seq() |>
     expect_equal(data_seq_grim_different_dispersion1)
 
-  tibble::tibble(x = 5.23, n = 29) %>%
-    grim_map_seq(digits_x = 2, dispersion = c(3, 5, 7)) %>%
-    audit_seq() %>%
+  tibble::tibble(x = 5.23, n = 29) |>
+    grim_map_seq(digits_x = 2, dispersion = c(3, 5, 7)) |>
+    audit_seq() |>
     expect_equal(data_seq_grim_different_dispersion2)
 })
-

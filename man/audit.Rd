@@ -42,12 +42,12 @@ these functions and their associated summary statistics.
 
 \examples{
 # For basic GRIM-testing:
-pigs1 \%>\%
-  grim_map(digits_x = 2) \%>\%
+pigs1 |>
+  grim_map(digits_x = 2) |>
   audit()
 
 # For duplicate detection:
-pigs4 \%>\%
-  duplicate_count() \%>\%
+pigs4 |>
+  duplicate_count() |>
   audit()
 }
