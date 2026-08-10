@@ -100,14 +100,18 @@ df_grim3 <- tibble::tibble(
 
 # Running old and new (= manufactured) functions --------------------------
 
-out_grim_old1 <- grim_map(df_grim1, digits_x = 2)[1:3]
-out_debit_old1 <- debit_map(df_debit1, digits_x = 2, digits_sd = 2)[1:4]
+out_grim_old1 <- grim_map(df_grim1, digits_x = 2) |>
+  dplyr::select(x, n, consistency)
+out_debit_old1 <- debit_map(df_debit1, digits_x = 2, digits_sd = 2) |>
+  dplyr::select(x, sd, n, consistency)
 
 out_grim_new1 <- grim_map_alt(df_grim1, digits_x = 2)
 out_debit_new1 <- debit_map_alt(df_debit1, digits_x = 2, digits_sd = 2)
 
-out_grim_old2 <- grim_map(df_grim2, digits_x = 2)[1:3]
-out_debit_old2 <- debit_map(df_debit2, digits_x = 2, digits_sd = 2)[1:4]
+out_grim_old2 <- grim_map(df_grim2, digits_x = 2) |>
+  dplyr::select(x, n, consistency)
+out_debit_old2 <- debit_map(df_debit2, digits_x = 2, digits_sd = 2) |>
+  dplyr::select(x, sd, n, consistency)
 
 out_grim_new2 <- grim_map_alt(df_grim2, digits_x = 2)
 out_debit_new2 <- debit_map_alt(df_debit2, digits_x = 2, digits_sd = 2)

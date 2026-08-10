@@ -30,6 +30,8 @@
 
 #' @return A tibble with (at least) these columns --
 #' - `x`, `sd`, `n`: the inputs.
+#' - `digits_x`, `digits_sd`: the number of decimal places in `x` and `sd`, as
+#'   given by `digits_x` and `digits_sd`.
 #' - `consistency`: DEBIT consistency of `x`, `sd`, and `n`.
 #'
 #'   By default, the tibble also includes the rounding method, boundary values,
@@ -182,13 +184,23 @@ debit_map <- function(
   # Finally, return the results, with or without the intermediary values
   # (rounding method, boundary values, and Logical information about the
   # boundary values being inclusive or not):
+  digits_x_col <- data_sd_x_n$digits_x
+  digits_sd_col <- data_sd_x_n$digits_sd
+
   if (show_rec) {
     out <- results |>
-      dplyr::mutate(n = n, consistency = consistency) |>
+      dplyr::mutate(
+        n = n,
+        digits_x = digits_x_col,
+        digits_sd = digits_sd_col,
+        consistency = consistency
+      ) |>
       dplyr::select(
         x,
         sd,
         n,
+        digits_x,
+        digits_sd,
         consistency,
         rounding,
         sd_lower,
@@ -200,8 +212,13 @@ debit_map <- function(
       )
   } else {
     out <- results |>
-      dplyr::mutate(n = n, consistency = consistency) |>
-      dplyr::select(x, sd, n, consistency)
+      dplyr::mutate(
+        n = n,
+        digits_x = digits_x_col,
+        digits_sd = digits_sd_col,
+        consistency = consistency
+      ) |>
+      dplyr::select(x, sd, n, digits_x, digits_sd, consistency)
   }
 
   if (length(extra_cols) > 0L) {

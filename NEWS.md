@@ -4,6 +4,12 @@
 
 - scrutiny now uses the base pipe `|>` instead of the magrittr pipe `%>%`, so `%>%` is no longer exported.
 
+- `grim_map()`, `grimmer_map()`, and `debit_map()` now carry the `digits_x` (and, for GRIMMER and DEBIT, `digits_sd`) they were given forward into a `digits_x` / `digits_sd` output column. The same is true of `*_map_total_n()`.
+
+- `grim_plot()` now reads this column instead of guessing the decimal count from the numeric `x` column via `decimal_places()`, which was unreliable because a numeric value cannot carry trailing zeros: `5.00` reads back as 0 decimal places, not 2.
+
+- `grim_plot()` now has a `split_by_digits` argument (default is `FALSE`) to optionally return a list of plots instead; one plot per distinct number of decimal places.
+
 ## Bugfixes
 
 - Fixed an error in the GRIM rounding-boundary logic for `rounding = "up"` and `rounding = "down"`. For `"up"` rounding, the upper boundary is exclusive (a value exactly at the midpoint rounds *away* from the reported mean, not toward it), but the old implementation treated it as inclusive. This could cause `grim()` and `grim_map()` to return `TRUE` for value sets that are actually inconsistent.

@@ -59,6 +59,8 @@ GRIMMER testing; see documentation for \code{\link[=grimmer]{grimmer()}}.}
 A tibble with these columns --
 \itemize{
 \item \code{x}, \code{sd}, \code{n}: the inputs.
+\item \code{digits_x}, \code{digits_sd}: the number of decimal places in \code{x} and \code{sd}, as
+given by \code{digits_x} and \code{digits_sd}.
 \item \code{consistency}: GRIMMER consistency of \code{x}, \code{n}, and \code{items}.
 \item \code{reason}: If consistent, \code{"Passed all"}. If inconsistent, it says which
 test was failed (see below).

@@ -48,6 +48,7 @@
 
 #' @return A tibble with these columns --
 #' - `x`, `n`: the inputs.
+#' - `digits_x`: the number of decimal places in `x`, as given by `digits_x`.
 #' - `consistency`: GRIM consistency of `x`, `n`, and `items`.
 #' - `probability`: the probability of GRIM inconsistency; see
 #' [`grim_probability()`].
@@ -249,6 +250,7 @@ grim_map <- function(
     x = list(
       x = x,
       n = n,
+      digits_x = data_x_n_items$digits_x,
       consistency = consistency,
       probability = probability
     ),

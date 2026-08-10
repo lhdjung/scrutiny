@@ -59,9 +59,12 @@
 #' @param show_gradient Logical. If the number of decimal places is 3 or
 #'   greater, should a gradient be shown to signal the overall probability of
 #'   GRIM inconsistency? Default is `TRUE`.
+#' @param split_by_digits Logical (length 1). Set to `TRUE` to create a separate
+#'   plot for each number of decimal places, stored in a named list, instead of
+#'   throwing an error. Default is `FALSE`.
 #' @param digits Integer. Number of decimal places for which the background
-#'   raster will be generated. Default is `NULL`, in which case the greatest
-#'   number of decimal places from the means or proportions is used.
+#'   raster will be generated. Default is `NULL`, in which case this is inferred
+#'   automatically.
 #' @param n Integer. Maximal value on the x-axis. Default is `NULL`, in which
 #'   case `n` becomes `10 ^ digits` (e.g., `100` if `digits` is `2`).
 #' @param digits Integer. Only relevant if `show_data` is set to `FALSE`. The
@@ -93,12 +96,12 @@
 #' @export
 #'
 #' @examples
-#' # Call `grim_plot()` following `grim_map()`. Pass `digits` along, because
-#' # `pigs1` contains 5.00, whose trailing zeros are gone from the numeric
-#' # column, so the decimal count cannot be read back off the data:
+#' # Call `grim_plot()` following `grim_map()`. No need to pass `digits`
+#' # along: `grim_map()` stores the `digits_x` it was given in a `digits_x`
+#' # column, and `grim_plot()` reads the decimal count from there:
 #' pigs1 |>
 #'   grim_map(digits_x = 2) |>
-#'   grim_plot(digits = 2)
+#'   grim_plot()
 #'
 #' # If you change the rounding procedure
 #' # in `grim_map()`, the plot will
@@ -106,19 +109,20 @@
 #' # a difference:
 #' pigs1 |>
 #'   grim_map(digits_x = 2, rounding = "ceiling") |>
-#'   grim_plot(digits = 2)
+#'   grim_plot()
 #'
 #' # For percentages, the y-axis
 #' # label also changes automatically:
 #' pigs2 |>
 #'   grim_map(digits_x = 1, percent = TRUE) |>
-#'   grim_plot(digits = 1)
+#'   grim_plot()
 
 grim_plot <- function(
   data = NULL,
   show_data = TRUE,
   show_raster = TRUE,
   show_gradient = TRUE,
+  split_by_digits = FALSE,
   n = NULL,
   digits = NULL,
   rounding = "up_or_down",
@@ -221,13 +225,29 @@ grim_plot <- function(
   }
 
   if (is.null(digits)) {
-    digits_x <- decimal_places(data$x) # used to be wrapped in `max()`
+    # `grim_map()`, `grimmer_map()`, and their `_map_seq()` / `_map_total_n()`
+    # counterparts all store the number of decimal places given via
+    # `digits_x` in a `digits_x` column. That's a reliable source of the
+    # decimal count, whereas `decimal_places()` on the numeric `x` column
+    # itself is not: a numeric value cannot carry trailing zeros, so `5.00`
+    # reads back as 0 decimal places, not 2. Only fall back to guessing from
+    # `x` if there is no `digits_x` column to begin with, e.g. because `data`
+    # was constructed by hand.
+    has_digits_x_col <- "digits_x" %in% colnames(data)
+
+    digits_x <- if (has_digits_x_col) {
+      data$digits_x
+    } else {
+      decimal_places(data$x) # used to be wrapped in `max()`
+    }
 
     if (show_raster) {
       if (!all(digits_x[1L] == digits_x)) {
-        # If the data carries a digits_x column (added by *_map_seq() functions),
-        # automatically produce one plot per distinct non-zero decimal count:
-        if ("digits_x" %in% colnames(data)) {
+        # A single call to `grim_plot()` always returns one plot, so a
+        # genuine mix of decimal places is an error by default. Users can opt
+        # into one plot per distinct decimal count via `split_by_digits`,
+        # which requires a `digits_x` column to split on:
+        if (split_by_digits && has_digits_x_col) {
           unique_digits <- sort(unique(data$digits_x))
           unique_digits <- unique_digits[unique_digits != 0L]
           plots <- lapply(unique_digits, function(d) {
@@ -269,6 +289,16 @@ grim_plot <- function(
         } else {
           dp_unique_presented <- sort(dp_unique)[1:3]
           msg_starting_with <- ", starting with"
+        }
+
+        if (has_digits_x_col) {
+          cli::cli_abort(c(
+            "{means_percentages} have {length(dp_unique)} different \\
+            numbers of decimal places{msg_starting_with} \\
+            {dp_unique_presented}.",
+            "i" = "Set `split_by_digits = TRUE` to get one plot per \\
+            distinct number of decimal places instead of an error."
+          ))
         }
 
         cli::cli_abort(c(

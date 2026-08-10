@@ -47,6 +47,8 @@ columns \code{x}, \code{sd}, \code{n}, and \code{consistency}. Default is \code{
 A tibble with (at least) these columns --
 \itemize{
 \item \code{x}, \code{sd}, \code{n}: the inputs.
+\item \code{digits_x}, \code{digits_sd}: the number of decimal places in \code{x} and \code{sd}, as
+given by \code{digits_x} and \code{digits_sd}.
 \item \code{consistency}: DEBIT consistency of \code{x}, \code{sd}, and \code{n}.
 
 By default, the tibble also includes the rounding method, boundary values,

@@ -11,8 +11,8 @@ test_that("values are correctly tested for DEBIT-consistency", {
 })
 
 test_that("`show_rec` controls the number of columns", {
-  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, show_rec = TRUE ) |> ncol() |> expect_equal(11)
-  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, show_rec = FALSE) |> ncol() |> expect_equal(4)
+  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, show_rec = TRUE ) |> ncol() |> expect_equal(13)
+  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, show_rec = FALSE) |> ncol() |> expect_equal(6)
 })
 
 
@@ -26,6 +26,8 @@ df1_expected <- tibble::tibble(
   x = c(0.53, 0.44, 0.77, 0.19, 0.34, 0.93, 0.12),
   sd = c(0.50, 0.50, 0.42, 0.35, 0.47, 0.25, 0.33),
   n = rep(1683L, 7L),
+  digits_x = rep(2, 7L),
+  digits_sd = rep(2, 7L),
   consistency = rep(c(TRUE, FALSE, TRUE), c(3L, 1L, 3L)),
   rounding = rep("up_or_down", 7L),
   sd_lower = c(

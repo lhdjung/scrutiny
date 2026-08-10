@@ -9,6 +9,7 @@ grim_plot(
   show_data = TRUE,
   show_raster = TRUE,
   show_gradient = TRUE,
+  split_by_digits = FALSE,
   n = NULL,
   digits = NULL,
   rounding = "up_or_down",
@@ -34,6 +35,10 @@ background raster.}
 \item{show_gradient}{Logical. If the number of decimal places is 3 or
 greater, should a gradient be shown to signal the overall probability of
 GRIM inconsistency? Default is \code{TRUE}.}
+
+\item{split_by_digits}{Logical (length 1). Set to \code{TRUE} to create a separate
+plot for each number of decimal places, stored in a named list, instead of
+throwing an error. Default is \code{FALSE}.}
 
 \item{n}{Integer. Maximal value on the x-axis. Default is \code{NULL}, in which
 case \code{n} becomes \code{10 ^ digits} (e.g., \code{100} if \code{digits} is \code{2}).}
@@ -115,12 +120,12 @@ it.
 }
 
 \examples{
-# Call `grim_plot()` following `grim_map()`. Pass `digits` along, because
-# `pigs1` contains 5.00, whose trailing zeros are gone from the numeric
-# column, so the decimal count cannot be read back off the data:
+# Call `grim_plot()` following `grim_map()`. No need to pass `digits`
+# along: `grim_map()` stores the `digits_x` it was given in a `digits_x`
+# column, and `grim_plot()` reads the decimal count from there:
 pigs1 |>
   grim_map(digits_x = 2) |>
-  grim_plot(digits = 2)
+  grim_plot()
 
 # If you change the rounding procedure
 # in `grim_map()`, the plot will
@@ -128,13 +133,13 @@ pigs1 |>
 # a difference:
 pigs1 |>
   grim_map(digits_x = 2, rounding = "ceiling") |>
-  grim_plot(digits = 2)
+  grim_plot()
 
 # For percentages, the y-axis
 # label also changes automatically:
 pigs2 |>
   grim_map(digits_x = 1, percent = TRUE) |>
-  grim_plot(digits = 1)
+  grim_plot()
 }
 \references{
 Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A

@@ -69,6 +69,7 @@ return none of them, set \code{extra} to 0.}
 A tibble with these columns --
 \itemize{
 \item \code{x}, \code{n}: the inputs.
+\item \code{digits_x}: the number of decimal places in \code{x}, as given by \code{digits_x}.
 \item \code{consistency}: GRIM consistency of \code{x}, \code{n}, and \code{items}.
 \item \code{probability}: the probability of GRIM inconsistency; see
 \code{\link[=grim_probability]{grim_probability()}}.

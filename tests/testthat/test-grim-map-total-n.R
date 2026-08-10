@@ -4,6 +4,7 @@ df1 <- tibble::tibble(
   n = runif(50, 50, 80) |> round()
 )
 
+# fmt: skip
 df2 <- tibble::tribble(
   ~x1  , ~x2  , ~n  ,
   3.43 , 5.28 ,  90 ,
@@ -94,6 +95,7 @@ df2_rows_1_3_expected <- tibble::tibble(
     2
   ),
   n_change = rep(c(0L, 0L, -1L, 1L, -2L, 2L, -3L, 3L, -4L, 4L, -5L, 5L), 4),
+  digits_x = rep(2, 48L),
   consistency = rep(
     c(
       FALSE,
@@ -209,8 +211,8 @@ test_that("The output is a tibble", {
 })
 
 test_that("It has correct dimensions", {
-  df1_tested |> dim() |> expect_equal(c(1200, 8))
-  df2_tested |> dim() |> expect_equal(c(  48, 8))
+  df1_tested |> dim() |> expect_equal(c(1200, 9))
+  df2_tested |> dim() |> expect_equal(c(  48, 9))
 })
 
 test_that("It has correct values", {
@@ -223,6 +225,7 @@ colnames_exp <- c(
   "x",
   "n",
   "n_change",
+  "digits_x",
   "consistency",
   "both_consistent",
   "probability",

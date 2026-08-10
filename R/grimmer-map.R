@@ -33,6 +33,8 @@
 
 #' @return A tibble with these columns --
 #' - `x`, `sd`, `n`: the inputs.
+#' - `digits_x`, `digits_sd`: the number of decimal places in `x` and `sd`, as
+#'   given by `digits_x` and `digits_sd`.
 #' - `consistency`: GRIMMER consistency of `x`, `n`, and `items`.
 #' - `reason`: If consistent, `"Passed all"`. If inconsistent, it says which
 #'   test was failed (see below).
@@ -209,6 +211,8 @@ grimmer_map <- function(
       x = data$x,
       sd = data$sd,
       n = n,
+      digits_x = data_x_sd_n_items$digits_x,
+      digits_sd = data_x_sd_n_items$digits_sd,
       consistency = consistency
     ),
     nrow = length(consistency),

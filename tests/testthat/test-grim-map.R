@@ -91,7 +91,14 @@ test_that(
 
 
 df3_true_accord <- df3_percent_true |>
-  dplyr::select(1, 3, 7:11) |>
+  dplyr::select(
+    x,
+    consistency,
+    rec_x_upper_rounded_up,
+    rec_x_upper_rounded_down,
+    rec_x_lower_rounded_up,
+    rec_x_lower_rounded_down
+  ) |>
   dplyr::mutate(
     accord = dplyr::if_else(
       consistency,
@@ -134,7 +141,7 @@ df5 <- df1 |>
 
 
 test_that("`show_rec` increases the number of columns correctly", {
-  df5 |> ncol() |> expect_equal(11)
+  df5 |> ncol() |> expect_equal(12)
 })
 
 

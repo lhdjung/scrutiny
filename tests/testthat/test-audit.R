@@ -69,12 +69,13 @@ data_seq_grim_different_dispersion2 <- tibble::tibble(
 data_incons <- pigs1 |>
   grim_map(digits_x = 2) |>
   dplyr::filter(!consistency) |>
+  dplyr::select(x, n, consistency) |>
   unclass_scr()
 
 
 test_that("`audit_seq()` has correct output", {
   audit_seq_grim |> dim() |> expect_equal(c(8, 12))
-  audit_seq_grim[1:3] |> expect_equal(data_incons[1:3])
+  audit_seq_grim[1:3] |> expect_equal(data_incons)
   audit_seq_grim[[4]] |> expect_equal(c(4, 6, 6, 7, 3, 6, 8, 6))
   audit_seq_grim[[5]] |> expect_equal(c(2, 3, 3, 3, 3, 3, 4, 3))
   audit_seq_grim[[6]] |> expect_equal(c(2, 3, 3, 4, 0, 3, 4, 3))
