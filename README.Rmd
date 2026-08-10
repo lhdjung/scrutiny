@@ -4,6 +4,9 @@ link-citations: TRUE
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+<!-- Knit with devtools::build_readme(), not rmarkdown::render() or the -->
+<!-- "Knit" button -- those load the installed package, not the current -->
+<!-- source, and can silently render stale/incorrect output. -->
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
@@ -12,7 +15,7 @@ knitr::opts_chunk$set(
   fig.path = "man/figures/README-",
   out.width = "75%",
   fig.width = 6,
-  fig.asp = 7/7.5
+  fig.asp = 7 / 7.5
 )
 
 # Determine ggplot2 theme for the session:
@@ -56,7 +59,7 @@ library(scrutiny)
 pigs1
 
 # GRIM-testing for data frames:
-grim_map(pigs1)
+grim_map(pigs1, digits_x = 2)
 ```
 
 Test percentages instead of means:
@@ -64,14 +67,14 @@ Test percentages instead of means:
 ```{r}
 pigs2
 
-grim_map(pigs2, percent = TRUE)
+grim_map(pigs2, digits_x = 2, percent = TRUE)
 ```
 
 You can choose how the means are reconstructed for testing --- below, rounded up from 5. When visualizing results, the plot will adjust automatically. Blue dots are consistent values, red dots are inconsistent ones:
 
 ```{r}
-pigs1 %>% 
-  grim_map(rounding = "up") %>% 
+pigs1 |>
+  grim_map(rounding = "up", digits_x = 2) |>
   grim_plot()
 ```
 
@@ -80,11 +83,11 @@ Similarly, use DEBIT to test means and standard deviations of binary data:
 ```{r}
 pigs3
 
-pigs3 %>% 
-  debit_map()
+pigs3 |>
+  debit_map(digits_x = 2, digits_sd = 2)
 
-pigs3 %>% 
-  debit_map() %>% 
+pigs3 |>
+  debit_map(digits_x = 2, digits_sd = 2) |>
   debit_plot()
 ```
 

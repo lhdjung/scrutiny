@@ -1,5 +1,12 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+
+<!-- Knit with devtools::build_readme(), not rmarkdown::render() or the -->
+
+<!-- "Knit" button -- those load the installed package, not the current -->
+
+<!-- source, and can silently render stale/incorrect output. -->
+
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/lhdjung/scrutiny/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/lhdjung/scrutiny/actions/workflows/R-CMD-check.yaml)
@@ -48,38 +55,38 @@ library(scrutiny)
 # Example data:
 pigs1
 #> # A tibble: 12 × 2
-#>    x         n
-#>    <chr> <dbl>
-#>  1 7.22     32
-#>  2 4.74     25
-#>  3 5.23     29
-#>  4 2.57     24
-#>  5 6.77     27
-#>  6 2.68     28
-#>  7 7.01     29
-#>  8 7.38     26
-#>  9 3.14     27
-#> 10 6.89     31
-#> 11 5.00     25
-#> 12 0.24     28
+#>        x     n
+#>    <dbl> <dbl>
+#>  1  7.22    32
+#>  2  4.74    25
+#>  3  5.23    29
+#>  4  2.57    24
+#>  5  6.77    27
+#>  6  2.68    28
+#>  7  7.01    29
+#>  8  7.38    26
+#>  9  3.14    27
+#> 10  6.89    31
+#> 11  5       25
+#> 12  0.24    28
 
 # GRIM-testing for data frames:
-grim_map(pigs1)
-#> # A tibble: 12 × 4
-#>    x         n consistency probability
-#>    <chr> <dbl> <lgl>             <dbl>
-#>  1 7.22     32 TRUE               0.68
-#>  2 4.74     25 FALSE              0.75
-#>  3 5.23     29 FALSE              0.71
-#>  4 2.57     24 FALSE              0.76
-#>  5 6.77     27 FALSE              0.73
-#>  6 2.68     28 TRUE               0.72
-#>  7 7.01     29 FALSE              0.71
-#>  8 7.38     26 TRUE               0.74
-#>  9 3.14     27 FALSE              0.73
-#> 10 6.89     31 FALSE              0.69
-#> 11 5.00     25 TRUE               0.75
-#> 12 0.24     28 FALSE              0.72
+grim_map(pigs1, digits_x = 2)
+#> # A tibble: 12 × 5
+#>        x     n digits_x consistency probability
+#>    <dbl> <dbl>    <dbl> <lgl>             <dbl>
+#>  1  7.22    32        2 TRUE               0.68
+#>  2  4.74    25        2 FALSE              0.75
+#>  3  5.23    29        2 FALSE              0.71
+#>  4  2.57    24        2 FALSE              0.76
+#>  5  6.77    27        2 FALSE              0.73
+#>  6  2.68    28        2 TRUE               0.72
+#>  7  7.01    29        2 FALSE              0.71
+#>  8  7.38    26        2 TRUE               0.74
+#>  9  3.14    27        2 FALSE              0.73
+#> 10  6.89    31        2 FALSE              0.69
+#> 11  5       25        2 TRUE               0.75
+#> 12  0.24    28        2 FALSE              0.72
 ```
 
 Test percentages instead of means:
@@ -87,26 +94,26 @@ Test percentages instead of means:
 ``` r
 pigs2
 #> # A tibble: 6 × 2
-#>   x         n
-#>   <chr> <dbl>
-#> 1 67.4    150
-#> 2 54.2    150
-#> 3 54.0    150
-#> 4 69.8    150
-#> 5 68.1    150
-#> 6 55.4    150
+#>       x     n
+#>   <dbl> <dbl>
+#> 1  67.4   150
+#> 2  54.2   150
+#> 3  54     150
+#> 4  69.8   150
+#> 5  68.1   150
+#> 6  55.4   150
 
-grim_map(pigs2, percent = TRUE)
+grim_map(pigs2, digits_x = 2, percent = TRUE)
 #> ℹ `x` converted from percentage
-#> # A tibble: 6 × 4
-#>   x         n consistency probability
-#>   <chr> <dbl> <lgl>             <dbl>
-#> 1 0.674   150 FALSE              0.85
-#> 2 0.542   150 FALSE              0.85
-#> 3 0.540   150 TRUE               0.85
-#> 4 0.698   150 FALSE              0.85
-#> 5 0.681   150 FALSE              0.85
-#> 6 0.554   150 FALSE              0.85
+#> # A tibble: 6 × 5
+#>       x     n digits_x consistency probability
+#>   <dbl> <dbl>    <dbl> <lgl>             <dbl>
+#> 1  67.4   150        2 FALSE             0.985
+#> 2  54.2   150        2 FALSE             0.985
+#> 3  54     150        2 TRUE              0.985
+#> 4  69.8   150        2 FALSE             0.985
+#> 5  68.1   150        2 FALSE             0.985
+#> 6  55.4   150        2 FALSE             0.985
 ```
 
 You can choose how the means are reconstructed for testing — below,
@@ -115,12 +122,12 @@ automatically. Blue dots are consistent values, red dots are
 inconsistent ones:
 
 ``` r
-pigs1 %>% 
-  grim_map(rounding = "up") %>% 
+pigs1 |>
+  grim_map(rounding = "up", digits_x = 2) |>
   grim_plot()
 ```
 
-<img src="man/figures/README-unnamed-chunk-5-1.png" width="75%" />
+<img src="man/figures/README-unnamed-chunk-5-1.png" alt="" width="75%" />
 
 Similarly, use DEBIT to test means and standard deviations of binary
 data:
@@ -128,36 +135,37 @@ data:
 ``` r
 pigs3
 #> # A tibble: 7 × 3
-#>   x     sd        n
-#>   <chr> <chr> <dbl>
-#> 1 0.53  0.50   1683
-#> 2 0.44  0.50   1683
-#> 3 0.77  0.42   1683
-#> 4 0.19  0.35   1683
-#> 5 0.34  0.47   1683
-#> 6 0.93  0.25   1683
-#> 7 0.12  0.33   1683
+#>       x    sd     n
+#>   <dbl> <dbl> <dbl>
+#> 1  0.53  0.5   1683
+#> 2  0.44  0.5   1683
+#> 3  0.77  0.42  1683
+#> 4  0.19  0.35  1683
+#> 5  0.34  0.47  1683
+#> 6  0.93  0.25  1683
+#> 7  0.12  0.33  1683
 
-pigs3 %>% 
-  debit_map()
-#> # A tibble: 7 × 11
-#>   x     sd        n consistency rounding   sd_lower sd_incl_lower sd_upper
-#>   <chr> <chr> <int> <lgl>       <chr>         <dbl> <lgl>            <dbl>
-#> 1 0.53  0.50   1683 TRUE        up_or_down    0.495 TRUE             0.505
-#> 2 0.44  0.50   1683 TRUE        up_or_down    0.495 TRUE             0.505
-#> 3 0.77  0.42   1683 TRUE        up_or_down    0.415 TRUE             0.425
-#> 4 0.19  0.35   1683 FALSE       up_or_down    0.345 TRUE             0.355
-#> 5 0.34  0.47   1683 TRUE        up_or_down    0.465 TRUE             0.475
-#> 6 0.93  0.25   1683 TRUE        up_or_down    0.245 TRUE             0.255
-#> 7 0.12  0.33   1683 TRUE        up_or_down    0.325 TRUE             0.335
-#> # ℹ 3 more variables: sd_incl_upper <lgl>, x_lower <dbl>, x_upper <dbl>
+pigs3 |>
+  debit_map(digits_x = 2, digits_sd = 2)
+#> # A tibble: 7 × 13
+#>       x    sd     n digits_x digits_sd consistency rounding   sd_lower
+#>   <dbl> <dbl> <int>    <dbl>     <dbl> <lgl>       <chr>         <dbl>
+#> 1  0.53  0.5   1683        2         2 TRUE        up_or_down    0.495
+#> 2  0.44  0.5   1683        2         2 TRUE        up_or_down    0.495
+#> 3  0.77  0.42  1683        2         2 TRUE        up_or_down    0.415
+#> 4  0.19  0.35  1683        2         2 FALSE       up_or_down    0.345
+#> 5  0.34  0.47  1683        2         2 TRUE        up_or_down    0.465
+#> 6  0.93  0.25  1683        2         2 TRUE        up_or_down    0.245
+#> 7  0.12  0.33  1683        2         2 TRUE        up_or_down    0.325
+#> # ℹ 5 more variables: sd_incl_lower <lgl>, sd_upper <dbl>, sd_incl_upper <lgl>,
+#> #   x_lower <dbl>, x_upper <dbl>
 
-pigs3 %>% 
-  debit_map() %>% 
+pigs3 |>
+  debit_map(digits_x = 2, digits_sd = 2) |>
   debit_plot()
 ```
 
-<img src="man/figures/README-unnamed-chunk-6-1.png" width="75%" />
+<img src="man/figures/README-unnamed-chunk-6-1.png" alt="" width="75%" />
 
 ## Guiding ideas
 
