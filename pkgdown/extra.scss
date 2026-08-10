@@ -1,0 +1,16 @@
+// Put the package logo to the left of the title on the home page,
+// instead of pkgdown's default small right-floated logo.
+.template-home {
+  .page-header {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-top: 3rem;
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  img.logo {
+    float: none;
+    margin-left: 0;
+  }
+}

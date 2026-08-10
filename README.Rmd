@@ -28,7 +28,7 @@ ggplot2::theme_set(ggplot2::theme_minimal())
 
 <!-- badges: end -->
 
-# scrutiny: Error detection in science
+# <a href="https://lhdjung.github.io/scrutiny/"><img src="man/figures/logo.png" align="left" height="150" alt="scrutiny website" /></a> scrutiny
 
 The goal of scrutiny is to test published summary statistics for consistency using techniques like GRIM and to check their plausibility. The package makes these methods easy to use in a tidyverse-friendly way. It hopes to help the new field of error detection go mainstream.
 

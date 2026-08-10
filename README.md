@@ -15,7 +15,7 @@ coverage](https://codecov.io/gh/lhdjung/scrutiny/branch/main/graph/badge.svg)](h
 
 <!-- badges: end -->
 
-# scrutiny: Error detection in science
+# <a href="https://lhdjung.github.io/scrutiny/"><img src="man/figures/logo.png" align="left" height="150" alt="scrutiny website" /></a> scrutiny
 
 The goal of scrutiny is to test published summary statistics for
 consistency using techniques like GRIM and to check their plausibility.
