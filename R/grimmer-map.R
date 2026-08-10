@@ -38,7 +38,7 @@
 #' - `consistency`: GRIMMER consistency of `x`, `n`, and `items`.
 #' - `reason`: If consistent, `"Passed all"`. If inconsistent, it says which
 #'   test was failed (see below).
-#' - `<extra>`: any columns from `data` other than `x`, `n`, and `items`.
+#' - `<extra>`: any columns from `data` other than `x`, `sd`, `n`, and `items`.
 #'
 #' The `reason` columns refers to GRIM and the three GRIMMER tests (Allard
 #' 2018). Briefly, these are:
@@ -50,8 +50,8 @@
 #'    are fractions; i.e., either both are even or both are odd.
 #'
 #' The tibble has the `scrutiny_grimmer_map` class, which is recognized by the
-#' [`audit()`] generic. It also has the `scrutiny_grim_map` class, so it can be
-#' visualized by [`grim_plot()`].
+#' [`audit()`] generic. [`grim_plot()`] recognizes it as well, so GRIMMER
+#' results can be visualized just like GRIM results.
 
 #' @section Summaries with [`audit()`]: There is an S3 method for [`audit()`],
 #'   so you can call [`audit()`] following `grimmer_map()` to get a summary of
@@ -220,14 +220,33 @@ grimmer_map <- function(
   )
 
   if (show_reason) {
-    unnest_consistency_cols(
+    out <- unnest_consistency_cols(
       out,
       col_names = c("consistency", "reason"),
       index = FALSE
     )
-  } else {
-    out
   }
+
+  # Columns of `data` that play no role in GRIMMER-testing are returned
+  # alongside the test results, as in `grim_map()` and `debit_map()`. Following
+  # scrutiny's convention for mappers, they go to the right of the key result
+  # columns.
+  #
+  # Any column that `out` already has is skipped rather than appended. Important
+  # if the input is itself mapper output: `function_map_seq_proto()` hands
+  # `fun()` every column to the left of `"consistency"`, which includes
+  # `digits_x` and `digits_sd`, and a second copy of those would be
+  # name-repaired to `digits_x...4` and then forwarded back as a bogus argument.
+  # `items` is excluded because it is either represented in `n` via
+  # `merge_items` or was added by `manage_helper_col()` from the eponymous
+  # argument:
+  other_cols <- data[!colnames(data) %in% c(colnames(out), "items")]
+
+  if (ncol(other_cols) > 0L) {
+    out <- dplyr::bind_cols(out, other_cols)
+  }
+
+  out
 }
 
 # # Alternative version of `grimmer_map()`, using experimental functionality

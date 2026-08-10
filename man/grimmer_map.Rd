@@ -64,7 +64,7 @@ given by \code{digits_x} and \code{digits_sd}.
 \item \code{consistency}: GRIMMER consistency of \code{x}, \code{n}, and \code{items}.
 \item \code{reason}: If consistent, \code{"Passed all"}. If inconsistent, it says which
 test was failed (see below).
-\item \verb{<extra>}: any columns from \code{data} other than \code{x}, \code{n}, and \code{items}.
+\item \verb{<extra>}: any columns from \code{data} other than \code{x}, \code{sd}, \code{n}, and \code{items}.
 }
 
 The \code{reason} columns refers to GRIM and the three GRIMMER tests (Allard
@@ -78,8 +78,8 @@ are fractions; i.e., either both are even or both are odd.
 }
 
 The tibble has the \code{scrutiny_grimmer_map} class, which is recognized by the
-\code{\link[=audit]{audit()}} generic. It also has the \code{scrutiny_grim_map} class, so it can be
-visualized by \code{\link[=grim_plot]{grim_plot()}}.
+\code{\link[=audit]{audit()}} generic. \code{\link[=grim_plot]{grim_plot()}} recognizes it as well, so GRIMMER
+results can be visualized just like GRIM results.
 }
 \description{
 Call \code{grimmer_map()} to GRIMMER-test any number of combinations

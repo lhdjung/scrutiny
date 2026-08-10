@@ -62,3 +62,38 @@ test_that("`grimmer_map()` works correctly with columns renamed", {
   pigs5_renamed |> grimmer_map(digits_x = 2, digits_sd = 2, x = q, sd = w, n = e) |>
     expect_equal(pigs5_exp)
 })
+
+test_that("`grimmer_map()` returns other columns from `data`", {
+  pigs5_extra <- pigs5 |>
+    dplyr::mutate(study = seq_len(nrow(pigs5)), note = "hi")
+  out <- pigs5_extra |> grimmer_map(digits_x = 2, digits_sd = 2)
+  # The extra columns come along, to the right of the key result columns...
+  out |> colnames() |> expect_equal(c(colnames(pigs5_exp), "study", "note"))
+  out$study |> expect_equal(pigs5_extra$study)
+  out$note  |> expect_equal(pigs5_extra$note)
+  # ...and the test results themselves are unaffected:
+  out[colnames(pigs5_exp)] |> expect_equal(pigs5_exp)
+})
+
+test_that("`grimmer_map()` doesn't duplicate `digits_*` columns from `data`", {
+  # `function_map_seq_proto()` hands the mapper every column to the left of
+  # `"consistency"`, which includes `digits_x` and `digits_sd`. A second copy
+  # would be name-repaired and then forwarded back as a bogus argument.
+  pigs5[1:3, ] |>
+    dplyr::mutate(digits_x = 2, digits_sd = 2) |>
+    grimmer_map(digits_x = 2, digits_sd = 2) |>
+    colnames() |>
+    expect_equal(c(
+      "x", "sd", "n", "digits_x", "digits_sd", "consistency", "reason"
+    ))
+})
+
+test_that("`grimmer_map()` returns other columns with `show_reason = FALSE`", {
+  pigs5 |>
+    dplyr::mutate(study = seq_len(nrow(pigs5))) |>
+    grimmer_map(digits_x = 2, digits_sd = 2, show_reason = FALSE) |>
+    colnames() |>
+    expect_equal(c(
+      "x", "sd", "n", "digits_x", "digits_sd", "consistency", "study"
+    ))
+})
