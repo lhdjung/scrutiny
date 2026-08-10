@@ -108,29 +108,6 @@ debit_map <- function(
   check_mapper_input_colnames(data, c("x", "sd", "n"), "DEBIT")
   check_tibble(data)
 
-  x_spec <- x
-  sd_spec <- sd
-  n_spec <- n
-
-  # Provide a way to specify the mean (`x`) column from within a function call
-  # even if the column in question is not named `x`:
-  if (!is.null(x)) {
-    x_orig <- x
-    data <- dplyr::mutate(data, x = {{ x }})
-  }
-
-  # Same with the `sd` column...
-  if (!is.null(sd)) {
-    sd_orig <- sd # rlang::expr_text(sd)
-    data <- dplyr::mutate(data, sd = {{ sd }})
-  }
-
-  # ... and with the sample size (`n`) column:
-  if (!is.null(n)) {
-    n_orig <- n # rlang::expr_text(n)
-    data <- dplyr::mutate(data, n = {{ n }})
-  }
-
   # Turn `x` and `sd` into the `data` columns by those names to make them more
   # easy to work with:
   x <- data$x
@@ -223,16 +200,6 @@ debit_map <- function(
 
   if (length(extra_cols) > 0L) {
     out <- dplyr::mutate(out, extra_cols)
-  }
-
-  if (!is.null(x_spec)) {
-    out <- dplyr::select(out, -all_of(x_orig))
-  }
-  if (!is.null(sd_spec)) {
-    out <- dplyr::select(out, -all_of(sd_orig))
-  }
-  if (!is.null(n_spec)) {
-    out <- dplyr::select(out, -all_of(n_orig))
   }
 
   rounding_class <- glue::glue("scrutiny_rounding_{rounding}")

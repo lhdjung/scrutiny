@@ -16,6 +16,15 @@ test_that("`show_rec` controls the number of columns", {
 })
 
 
+test_that("key columns can be identified by other names", {
+  df1_renamed <- df1 |>
+    dplyr::rename(mean_col = x, sd_col = sd, n_col = n)
+  df1_renamed |>
+    debit_map(digits_x = 2, digits_sd = 2, x = mean_col, sd = sd_col, n = n_col) |>
+    expect_equal(df1_tested)
+})
+
+
 test_that("an error is thrown if `extra` is misspecified", {
   pigs3 |> debit_map(digits_x = 2, digits_sd = 2, extra = blubb)   |> expect_error()
   pigs3 |> debit_map(digits_x = 2, digits_sd = 2, extra = "blubb") |> expect_error()
