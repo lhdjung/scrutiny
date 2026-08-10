@@ -57,11 +57,10 @@ If you want to test more than a handful of cases, the recommended way is to ente
 
 ```{r}
 flying_pigs <- tibble::tibble(
-    x  = runif(5, 0.2, 1) %>% round(2),
-    sd = runif(5, 0, 0.3) %>% round(2),
-    n = 1000
+  x = c(0.4, 0.62, 0.95, 0.38, 0.96),
+  sd = c(0.21, 0.13, 0.16, 0.29, 0.13),
+  n = 1000,
 )
-
 
 flying_pigs
 ```
@@ -69,25 +68,25 @@ flying_pigs
 Now, run `debit_map()` on that data frame. Both means and SDs were rounded to two decimal places, so both `digits_x` and `digits_sd` are 2:
 
 ```{r}
-flying_pigs %>% 
+flying_pigs %>%
   debit_map(digits_x = 2, digits_sd = 2)
 ```
 
 The `x`, `sd`, and `n` columns are the same as in the input. The main result, `consistency`, is the DEBIT consistency of the former three columns.
 
 ```{r, error=TRUE}
-pigs3  # data saved within the package
+pigs3 # data saved within the package
 
-pigs3 %>% 
+pigs3 %>%
   debit_map(digits_x = 2, digits_sd = 2)
 ```
 
 DEBIT only makes sense with binary means and SDs. Both `debit()` and `debit_map()` check if the inputs are such data, and fail if they are not:
 
 ```{r, error=TRUE}
-pigs5  # no binary means / SDs!
+pigs5 # no binary means / SDs!
 
-pigs5 %>% 
+pigs5 %>%
   debit_map(digits_x = 2, digits_sd = 2)
 ```
 
@@ -98,8 +97,8 @@ Compared to `grim_map()`, `debit_map()` is more straightforward. There is no per
 Following up on a call to `debit_map()`, the generic function `audit()` summarizes test results:
 
 ```{r}
-pigs3 %>% 
-  debit_map(digits_x = 2, digits_sd = 2) %>% 
+pigs3 %>%
+  debit_map(digits_x = 2, digits_sd = 2) %>%
   audit()
 ```
 
@@ -118,11 +117,11 @@ There is a specialized visualization function for DEBIT results, `debit_plot()`.
 
 ```{r}
 # Determine plot theme for the remaining session:
-ggplot2::theme_minimal(base_size = 12) %>% 
+ggplot2::theme_minimal(base_size = 12) %>%
   ggplot2::theme_set()
 
-pigs3 %>% 
-  debit_map(digits_x = 2, digits_sd = 2) %>% 
+pigs3 %>%
+  debit_map(digits_x = 2, digits_sd = 2) %>%
   debit_plot()
 ```
 
@@ -133,8 +132,8 @@ Except for the colors, inner boxes must look exactly like they do here: Their si
 However, if outer boxes are not desired, they can be turned off like this:
 
 ```{r}
-pigs3 %>% 
-  debit_map(digits_x = 2, digits_sd = 2) %>% 
+pigs3 %>%
+  debit_map(digits_x = 2, digits_sd = 2) %>%
   debit_plot(show_outer_boxes = FALSE)
 ```
 
@@ -173,8 +172,11 @@ The default for `dispersion` is `1:5`, for five steps up and down. When the `dis
 
 ```{r}
 out_seq2 <- debit_map_seq(
-  pigs3, digits_x = 2, digits_sd = 2,
-  dispersion = 1:7, include_consistent = TRUE
+  pigs3,
+  digits_x = 2,
+  digits_sd = 2,
+  dispersion = 1:7,
+  include_consistent = TRUE
 )
 audit_seq(out_seq2)
 ```
@@ -193,9 +195,9 @@ Here is an example:
 
 ```{r}
 out_total_n <- tibble::tribble(
-  ~x1,   ~x2,   ~sd1,  ~sd2,  ~n,
-  0.30,  0.28,  0.17,  0.10,  70,
-  0.41,  0.39,  0.09,  0.15,  65
+  ~x1  , ~x2  , ~sd1 , ~sd2 , ~n ,
+  0.30 , 0.28 , 0.17 , 0.10 , 70 ,
+  0.41 , 0.39 , 0.09 , 0.15 , 65
 )
 
 out_total_n <- debit_map_total_n(out_total_n, digits_x = 2, digits_sd = 2)
