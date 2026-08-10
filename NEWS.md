@@ -41,6 +41,12 @@
   - It now treats `rounding = "even"` now treated as inclusive because the bounds cannot be mechanically determined, and widening the range is safer.
   - It now reports the correct boundary inclusion for `rounding = "anti_trunc"` and a negative `x`. The bounds were right, but they carried the inequation signs of the positive case: since anti-truncation rounds away from zero, it is the upper bound that a negative `x` can be reached from, not the lower one.
 
+- `debit()` and `debit_map()` now reconstruct their boundary values the same way as `grim()` and `grimmer()`. DEBIT therefore inherits every fix listed above for `unround()`:
+  - It now accepts `rounding = "ceiling_or_floor"`, `"up_from"`, `"down_from"`, and `"up_from_or_down_from"`. These used to throw an error although `debit_map()`'s documentation said that `rounding` is passed on to `debit()`.
+  - `threshold` no longer moves the bounds for `rounding = "up_or_down"`, `"up"`, and `"down"`, which round from a fixed 5.
+  - `symmetric` now also applies to the reconstruction of the bounds, not just to the re-rounding of the reconstructed SD. DEBIT used to unround asymmetrically and re-round symmetrically within the same call.
+  - The reconstructed SD is now compared to the reported SD's range in exact integer arithmetic. DEBIT was the last test to compare bounds in floating point, with a fudge of ±1e-12 in either direction. That fudge also defeated the exclusive bounds of `rounding = "ceiling"`, `"floor"`, `"trunc"`, and the others listed above: a reconstructed SD sitting exactly on such a bound was accepted although the rounding method in question would have carried it away from the reported SD. Some value sets that DEBIT used to pass under these rounding methods are therefore reported as inconsistent now.
+
 - `debit_map()` now returns `x` and `sd` as numeric columns, not as strings. This matches `grim_map()`.
 
 - Fixed a pre-existing compatibility issue in `debit_plot()` where a theme element was out of date with recent ggplot2 versions.
@@ -62,6 +68,14 @@
 - Functions made by `function_map_total_n()` now work when they are created outside of scrutiny, e.g., in another package. Their bodies call scrutiny-internal helpers such as `absorb_key_args()`, but the factory used to enclose them in the caller's environment, which has no path to those helpers. They are now enclosed in an environment inheriting from scrutiny's namespace, as those made by `function_map()` and `function_map_seq()` already were (#69).
 
 ## Lifycycle updates
+
+- `function_map()` can now do everything that the mappers it creates need, which is why `grimmer_map()` and `debit_map()` are made by it (see above). The factory-made function now has a real argument for every argument of the `*_scalar()` function, with the same default, instead of taking them via the dots. Along with that, the factory gained these arguments:
+  - `.args_by_row`, for arguments that may have one value per row of `data`, such as `digits_x`. They become columns of the output.
+  - `.args_defaults`, for arguments the mapper should have a different default for than the `*_scalar()` function itself.
+  - `.cols_helper` and `.cols_helper_merge`, for arguments that may also be given as columns of `data`, such as `items`.
+  - `.col_names`, which replaces the non-functional argument of the same name (see below). It names the columns that the `*_scalar()` function's values unpack into when it is asked to show them, as with `show_rec` or `show_reason`.
+
+- `function_map()`'s experimental `.col_control` and `.col_filler` arguments are gone, and `.col_names` works differently, as described above. The three of them were documented as a way to turn additional values from a `*_scalar()` function into columns, but the code they generated addressed variables that the manufactured function does not have, so any use of them failed. `.col_control` was checked and then never referenced at all.
 
 - scrutiny now requires R >= 4.1.0, as do recent versions of tidyverse packages. This is because the package now uses the base pipe `|>`, but also to avoid any incompatibilities with older versions of R.
 

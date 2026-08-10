@@ -6,20 +6,24 @@
 \usage{
 debit_map(
   data,
-  digits_x,
-  digits_sd,
   x = NULL,
   sd = NULL,
   n = NULL,
+  digits_x,
+  digits_sd,
+  formula = "mean_n",
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
   show_rec = TRUE,
-  extra = Inf
+  extra = Inf,
+  ...
 )
 }
 \arguments{
 \item{data}{Data frame.}
+
+\item{x, sd, n}{Optionally, specify these arguments as column names in \code{data}.}
 
 \item{digits_x}{Integer. The number of decimal places in \code{x}, including
 trailing zeros. There is no default because it cannot be inferred from a
@@ -33,15 +37,19 @@ trailing zeros. As with \code{digits_x}, there is no default, because trailing
 zeros don't survive in a numeric value, and it may have one value per row
 of \code{data}.}
 
-\item{x, sd, n}{Optionally, specify these arguments as column names in \code{data}.}
-
-\item{rounding, threshold, symmetric}{Arguments passed on to \code{\link[=debit]{debit()}}, with
-the same defaults.}
+\item{formula, rounding, threshold, symmetric}{Further parameters of DEBIT
+testing; see documentation for \code{\link[=debit]{debit()}}.}
 
 \item{show_rec}{If set to \code{FALSE}, the resulting tibble only includes the
-columns \code{x}, \code{sd}, \code{n}, and \code{consistency}. Default is \code{TRUE}.}
+columns \code{x}, \code{sd}, \code{n}, \code{digits_x}, \code{digits_sd}, and \code{consistency}. Default
+is \code{TRUE}.}
 
-\item{extra}{Not currently used.}
+\item{extra}{String or integer. The other column(s) from \code{data} to be
+returned in the output tibble alongside test results, referenced by their
+name(s) or number(s). Default is \code{Inf}, which returns all columns. To
+return none of them, set \code{extra} to 0.}
+
+\item{...}{Arguments passed down to \code{\link[=debit]{debit()}}.}
 }
 \value{
 A tibble with (at least) these columns --

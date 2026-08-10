@@ -19,8 +19,8 @@ debit_map_total_n(
 )
 }
 \arguments{
-\item{data}{Data frame with string columns \code{x1}, \code{x2}, \code{sd1}, and \code{sd2}, as
-well as numeric column \code{n}. The first two are reported group means. \code{sd1}
+\item{data}{Data frame with numeric columns \code{x1}, \code{x2}, \code{sd1}, \code{sd2}, and
+\code{n}. The first two are reported group means. \code{sd1}
 and \code{sd2} are reported group SDs. \code{n} is the reported total sample size. It
 is not very important whether a value is in \code{x1} or in \code{x2} because, after
 the first round of tests, the function switches roles between \code{x1} and
@@ -100,8 +100,8 @@ even further.
 # Run `debit_map_total_n()` on data like these:
 df <- tibble::tribble(
   ~x1,  ~x2,  ~sd1,  ~sd2,  ~n,
-  "0.30", "0.28", "0.17", "0.10", 70,
-  "0.41", "0.39", "0.09", "0.15", 65
+  0.30, 0.28, 0.17, 0.10, 70,
+  0.41, 0.39, 0.09, 0.15, 65
 )
 df
 

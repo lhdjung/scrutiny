@@ -1,5 +1,71 @@
-# Single-case helper function, not exported but used within both `debit()` and
-# `debit_map()`:
+# Helpers to check input ranges (not exported) ----------------------------
+
+check_debit_inputs <- function(input, type, symbol) {
+  # For all input values, check if they are between 0 and 1:
+  input_in_range <- input |>
+    as.numeric() |>
+    dplyr::between(0, 1)
+
+  # If at least one of the values is outside of that range, this will lead to an
+  # error. First, the error message is prepared...
+  offenders <- input[!input_in_range]
+
+  if (length(offenders) > 0L) {
+    if (length(offenders) == 1L) {
+      msg_is_are <- "is"
+    } else {
+      msg_is_are <- "are"
+    }
+
+    offenders_all <- offenders
+
+    if (length(offenders) > 3L) {
+      offenders <- offenders[1:3]
+      msg_offenders <- ", starting with"
+    } else {
+      msg_offenders <- ":"
+    }
+
+    # ...and second, the actual error is thrown:
+    cli::cli_abort(c(
+      "!" = "DEBIT only works with binary summary data.",
+      "!" = "Binary {type} (`{symbol}`) values must range from 0 to 1.",
+      "x" = "{length(offenders_all)} out of {length(input)} \\
+      `{symbol}` values {msg_is_are} not in that \\
+      range{msg_offenders} {offenders}."
+    ))
+  }
+}
+
+
+# Building up on the above, the following function is used within
+# `debit_scalar()` to check the numeric range of its `x` and `sd` inputs:
+check_debit_inputs_all <- function(x, sd) {
+  check_debit_inputs(input = x, type = "mean", symbol = "x")
+  check_debit_inputs(input = sd, type = "standard deviation", symbol = "sd")
+}
+
+
+# Single-case implementation ----------------------------------------------
+
+# Not exported, but used as a basis for the vectorized `debit()` as well as
+# within `debit_map()`.
+#
+# DEBIT asks whether the SD that follows from the reported mean of binary data
+# can be rounded to the reported SD. Both reported values stand for a range of
+# original values, so the test reconstructs the SD at each bound of the mean's
+# range, rounds the results the same way the reported SD was presumably rounded,
+# and checks whether the reported SD's own range is met.
+#
+# `bound_numerators()` supplies both ranges. It is the same helper that
+# `grim_scalar()` and `grimmer_scalar()` derive their candidate ranges from, so
+# all three tests agree on the bounds of a rounded number, on which rounding
+# methods exist, and on what `threshold` and `symmetric` mean. It expresses each
+# bound as an exact integer numerator over a common denominator, which is what
+# allows the comparison below to be exact rather than tolerance-based.
+
+#' @include utils.R sd-binary.R round.R unround.R reround.R
+
 debit_scalar <- function(
   x,
   sd,
@@ -9,23 +75,125 @@ debit_scalar <- function(
   formula = "mean_n",
   rounding = "up_or_down",
   threshold = 5,
-  symmetric = FALSE
+  symmetric = FALSE,
+  show_rec = FALSE
 ) {
+  if (missing(digits_x)) {
+    error_digits_missing(x)
+  }
+
+  if (missing(digits_sd)) {
+    error_digits_missing(sd)
+  }
+
+  # The same input validation that `grim_scalar()` and `grimmer_scalar()` run.
+  # DEBIT used to accept strings here because it counted decimal places itself;
+  # it now takes them from `digits_x` and `digits_sd`, as the other tests do:
+  check_newly_numeric(x, digits_x)
+  check_newly_numeric(sd, digits_sd)
+
+  # Check whether `x` and `sd` range from 0 to 1:
   check_debit_inputs_all(x, sd)
 
-  out <- debit_table(
-    x = x,
-    sd = sd,
-    n = n,
-    digits_x = digits_x,
-    digits_sd = digits_sd,
-    formula = formula,
+  x_num <- as.numeric(x)
+  sd_num <- as.numeric(sd)
+
+  bounds_x <- bound_numerators(
+    x_num = x_num,
+    digits = digits_x,
     rounding = rounding,
     threshold = threshold,
     symmetric = symmetric
   )
 
-  return(out$consistency)
+  bounds_sd <- bound_numerators(
+    x_num = sd_num,
+    digits = digits_sd,
+    rounding = rounding,
+    threshold = threshold,
+    symmetric = symmetric
+  )
+
+  # The only rounding method with undefined bounds is `"anti_trunc"`, and only
+  # at zero. Consistency is then undecidable, just as it is for `grim_scalar()`
+  # and `grimmer_scalar()` in the same situation:
+  if (is.null(bounds_x) || is.null(bounds_sd)) {
+    if (!show_rec) {
+      return(NA)
+    }
+    return(list(
+      NA,
+      rounding,
+      NA_real_,
+      NA,
+      NA_real_,
+      NA,
+      NA_real_,
+      NA_real_
+    ))
+  }
+
+  x_lower <- bounds_x$lower / bounds_x$denom
+  x_upper <- bounds_x$upper / bounds_x$denom
+  sd_lower <- bounds_sd$lower / bounds_sd$denom
+  sd_upper <- bounds_sd$upper / bounds_sd$denom
+
+  # Reconstruct the SD from each bound of the mean... (`group_0` and `group_1`
+  # would have to be passed on here to support formulas other than "mean_n")
+  sd_rec <- reconstruct_sd(formula, c(x_lower, x_upper), n)
+
+  # ...and round it the same way the reported SD was presumably rounded, to the
+  # same number of decimal places:
+  sd_rec <- reround(
+    x = sd_rec,
+    digits = digits_sd,
+    rounding = rounding,
+    threshold = threshold,
+    symmetric = symmetric
+  )
+
+  # Test whether the reconstructed SD values meet the range of the reported SD.
+  # `reround()` returned values on the `digits_sd` decimal grid, so multiplying
+  # them by the bounds' denominator and rounding to the nearest integer recovers
+  # their exact numerators over that same denominator: the comparison below is
+  # therefore between integers. This replaces the `dustify()` fudge of +/-1e-12
+  # that DEBIT used to compare bounds with -- the last floating-point comparison
+  # of this kind in the package (#86).
+  num_rec <- round(sd_rec * bounds_sd$denom)
+
+  above_lower <- if (bounds_sd$incl_lower) {
+    num_rec >= bounds_sd$lower
+  } else {
+    num_rec > bounds_sd$lower
+  }
+
+  below_upper <- if (bounds_sd$incl_upper) {
+    num_rec <= bounds_sd$upper
+  } else {
+    num_rec < bounds_sd$upper
+  }
+
+  # As before, the two conditions need not be met by the same reconstructed
+  # value: if one of them is below the reported SD's range and another one is
+  # above it, some mean in between the bounds reconstructs into that range.
+  consistency <- any(above_lower) && any(below_upper)
+
+  if (!show_rec) {
+    return(consistency)
+  }
+
+  # The reconstructed numbers, in the order of the output columns of
+  # `debit_map()`:
+  list(
+    consistency,
+    rounding,
+    sd_lower,
+    bounds_sd$incl_lower,
+    sd_upper,
+    bounds_sd$incl_upper,
+    x_lower,
+    x_upper
+  )
 }
 
 
@@ -38,8 +206,8 @@ debit_scalar <- function(
 #'   The function is vectorized, but it is recommended to use [`debit_map()`]
 #'   for testing multiple cases.
 #'
-#' @param x String. Mean of a binary distribution.
-#' @param sd String. Sample standard deviation of a binary distribution.
+#' @param x Numeric. Mean of a binary distribution.
+#' @param sd Numeric. Sample standard deviation of a binary distribution.
 #' @param digits_x Integer. The number of decimal places in `x`, including
 #'   trailing zeros. There is no default because it cannot be inferred from a
 #'   numeric `x`, which has no trailing zeros: both `1.4` and `1.40` are the
@@ -61,9 +229,11 @@ debit_scalar <- function(
 #'   negative numbers with `"up"`, `"down"`, `"up_from"`, or `"down_from"`
 #'   should mirror that of positive numbers so that their absolute values are
 #'   always equal. Default is `FALSE`.
+#' @param show_rec Logical. For internal use only. If set to `TRUE`, the output
+#'   is a list that also contains the reconstructed boundary values. Don't
+#'   specify this manually; instead, use `show_rec` in [`debit_map()`]. Default
+#'   is `FALSE`.
 
-#' @include debit-table.R
-#'
 #' @export
 #'
 #' @return Logical. `TRUE` if `x`, `sd`, and `n` are mutually consistent,

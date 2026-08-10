@@ -13,13 +13,14 @@ debit(
   formula = "mean_n",
   rounding = "up_or_down",
   threshold = 5,
-  symmetric = FALSE
+  symmetric = FALSE,
+  show_rec = FALSE
 )
 }
 \arguments{
-\item{x}{String. Mean of a binary distribution.}
+\item{x}{Numeric. Mean of a binary distribution.}
 
-\item{sd}{String. Sample standard deviation of a binary distribution.}
+\item{sd}{Numeric. Sample standard deviation of a binary distribution.}
 
 \item{n}{Integer. Total sample size.}
 
@@ -48,6 +49,11 @@ irrelevant. Default is \code{5}.}
 negative numbers with \code{"up"}, \code{"down"}, \code{"up_from"}, or \code{"down_from"}
 should mirror that of positive numbers so that their absolute values are
 always equal. Default is \code{FALSE}.}
+
+\item{show_rec}{Logical. For internal use only. If set to \code{TRUE}, the output
+is a list that also contains the reconstructed boundary values. Don't
+specify this manually; instead, use \code{show_rec} in \code{\link[=debit_map]{debit_map()}}. Default
+is \code{FALSE}.}
 }
 \value{
 Logical. \code{TRUE} if \code{x}, \code{sd}, and \code{n} are mutually consistent,

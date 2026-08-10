@@ -6,8 +6,8 @@
 #'   The function is analogous to [`grim_map_total_n()`] and
 #'   [`grimmer_map_total_n()`], relying on the same infrastructure.
 
-#' @param data Data frame with string columns `x1`, `x2`, `sd1`, and `sd2`, as
-#'   well as numeric column `n`. The first two are reported group means. `sd1`
+#' @param data Data frame with numeric columns `x1`, `x2`, `sd1`, `sd2`, and
+#'   `n`. The first two are reported group means. `sd1`
 #'   and `sd2` are reported group SDs. `n` is the reported total sample size. It
 #'   is not very important whether a value is in `x1` or in `x2` because, after
 #'   the first round of tests, the function switches roles between `x1` and
@@ -76,8 +76,8 @@
 #' # Run `debit_map_total_n()` on data like these:
 #' df <- tibble::tribble(
 #'   ~x1,  ~x2,  ~sd1,  ~sd2,  ~n,
-#'   "0.30", "0.28", "0.17", "0.10", 70,
-#'   "0.41", "0.39", "0.09", "0.15", 65
+#'   0.30, 0.28, 0.17, 0.10, 70,
+#'   0.41, 0.39, 0.09, 0.15, 65
 #' )
 #' df
 #'
