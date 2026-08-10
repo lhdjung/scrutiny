@@ -10,10 +10,13 @@
 #' @param digits_x Integer. The number of decimal places in `x`, including
 #'   trailing zeros. There is no default because it cannot be inferred from a
 #'   numeric `x`, which has no trailing zeros: both `1.4` and `1.40` are the
-#'   number `1.4`, but only the latter has `digits_x = 2`.
+#'   number `1.4`, but only the latter has `digits_x = 2`. Use a single number
+#'   if the whole column was reported with the same number of decimal places,
+#'   or one number per row of `data` if it varies.
 #' @param digits_sd Integer. The number of decimal places in `sd`, including
 #'   trailing zeros. As with `digits_x`, there is no default, because trailing
-#'   zeros don't survive in a numeric value.
+#'   zeros don't survive in a numeric value, and it may have one value per row
+#'   of `data`.
 #' @param x,sd,n Optionally, specify these arguments as column names in `data`.
 #' @param rounding,threshold,symmetric Arguments passed on to [`debit()`], with
 #'   the same defaults.
@@ -161,12 +164,16 @@ debit_map <- function(
   n <- data$n
 
   # Compute the DEBIT results and construct the resulting tibble:
-  results <- data %>%
-    dplyr::select(sd, x, n) %>%
+  # The `digits_*` values ride along as columns so that `purrr::pmap_dfr()`
+  # hands each row its own: a single number applies to the whole column, but
+  # the decimal places may also vary from row to row.
+  data_sd_x_n <- dplyr::select(data, sd, x, n)
+  data_sd_x_n$digits_x <- recycle_digits(digits_x, nrow(data), "digits_x")
+  data_sd_x_n$digits_sd <- recycle_digits(digits_sd, nrow(data), "digits_sd")
+
+  results <- data_sd_x_n %>%
     purrr::pmap_dfr(
       debit_table,
-      digits_x = digits_x,
-      digits_sd = digits_sd,
       rounding = rounding,
       threshold = threshold,
       symmetric = symmetric

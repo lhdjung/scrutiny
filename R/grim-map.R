@@ -29,7 +29,9 @@
 #' @param digits_x Integer. The number of decimal places in `x`, including
 #'   trailing zeros. There is no default because it cannot be inferred from a
 #'   numeric `x`, which has no trailing zeros: both `1.4` and `1.40` are the
-#'   number `1.4`, but only the latter has `digits_x = 2`.
+#'   number `1.4`, but only the latter has `digits_x = 2`. Use a single number
+#'   if the whole column was reported with the same number of decimal places,
+#'   or one number per row of `data` if it varies.
 #' @param x,n Optionally, specify these arguments as column names in `data`.
 #' @param show_rec Logical. If set to `TRUE`, the reconstructed numbers from
 #'   GRIM-testing are shown as columns. See section *Reconstructed numbers*
@@ -131,6 +133,12 @@ grim_map <- function(
   testables_only = FALSE,
   extra = Inf
 ) {
+  # `digits_x` is forced further below, so the bespoke error has to come first.
+  # Otherwise the user would get R's generic "argument is missing" message.
+  if (missing(digits_x)) {
+    error_digits_missing(x)
+  }
+
   # If any two arguments called right below are length > 1, they need to have
   # the same length. Otherwise, the call will fail. But even so, there will be a
   # warning that values will get paired:
@@ -173,8 +181,12 @@ grim_map <- function(
     dplyr::select(data, -x, -n, -items)
   )
 
-  # Prepare a data frame for the GRIM computations below (steps 4 and 5):
+  # Prepare a data frame for the GRIM computations below (steps 4 and 5). The
+  # `digits_x` values ride along as a column so that `purrr::pmap()` hands each
+  # row its own: a single number applies to the whole column, but the decimal
+  # places may also vary from row to row.
   data_x_n_items <- dplyr::select(data, x, n, items)
+  data_x_n_items$digits_x <- recycle_digits(digits_x, nrow(data), "digits_x")
 
   # Create the columns of the resulting tibble --
 
@@ -201,7 +213,6 @@ grim_map <- function(
     consistency <- purrr::pmap(
       data_x_n_items,
       grim_scalar,
-      digits_x = digits_x,
       percent = percent,
       show_rec = show_rec,
       rounding = rounding,
@@ -213,7 +224,6 @@ grim_map <- function(
     consistency <- purrr::pmap_lgl(
       data_x_n_items,
       grim_scalar,
-      digits_x = digits_x,
       percent = percent,
       show_rec = show_rec,
       rounding = rounding,
@@ -228,7 +238,6 @@ grim_map <- function(
   probability <- purrr::pmap_dbl(
     .l = data_x_n_items,
     .f = grim_probability,
-    digits_x = digits_x,
     percent = percent
   )
 
