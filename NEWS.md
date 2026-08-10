@@ -30,7 +30,11 @@
 
 - `round_ceiling()`, `round_floor()`, `round_trunc()`, and `round_anti_trunc()` no longer move a number a whole step because of floating-point error. Shifting a number by `digits` decimal places is inexact -- e.g., `0.28 * 100` is 28.000000000000004 -- so `round_ceiling(0.28, 2)` returned 0.29, and `round_floor(0.29, 2)` returned 0.28. These functions now apply the same tolerance that `round_up_from()` and `round_down_from()` already used.
 
-- `unround()` now reports the correct boundary inclusion for `rounding = "anti_trunc"` and a negative `x`. The bounds were right, but they carried the inequation signs of the positive case: since anti-truncation rounds away from zero, it is the upper bound that a negative `x` can be reached from, not the lower one.
+- `unround()` received many fixes:
+  - It now handles `threshold` consistently by no longer contradicting itself by implicitly using a fixed threshold of 5 in, e.g., `round_up()`.
+  - It now has a `symmetric` argument, which can influence unrounding behavior.
+  - It now treats `rounding = "even"` now treated as inclusive because the bounds cannot be mechanically determined, and widening the range is safer.
+  - It now reports the correct boundary inclusion for `rounding = "anti_trunc"` and a negative `x`. The bounds were right, but they carried the inequation signs of the positive case: since anti-truncation rounds away from zero, it is the upper bound that a negative `x` can be reached from, not the lower one.
 
 - `debit_map()` now returns `x` and `sd` as numeric columns, not as strings. This matches `grim_map()`.
 

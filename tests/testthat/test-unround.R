@@ -64,51 +64,84 @@ test_that("", {
 })
 
 
-rbs_up_or_down <- rounding_bounds_scalar("up_or_down", 8.2, 0.05, 0.5)
-rbs_up <- rounding_bounds_scalar("up", 8.2, 0.05, 0.5)
-rbs_down <- rounding_bounds_scalar("down", 8.2, 0.05, 0.5)
-rbs_even <- rounding_bounds_scalar("even", 8.2, 0.05, 0.5)
-rbs_ceiling <- rounding_bounds_scalar("ceiling", 8.2, 0.05, 0.5)
-rbs_floor <- rounding_bounds_scalar("floor", 8.2, 0.05, 0.5)
-rbs_trunc <- rounding_bounds_scalar("trunc", 8.2, 0.05, 0.5)
-rbs_anti_trunc <- rounding_bounds_scalar("anti_trunc", 8.2, 0.05, 0.05)
-rbs_error <- rounding_bounds_scalar("doesn't exist", 6, 6, 6)
-
-rbs_types_exp <- c("double", "double", "character", "character")
-
-
-test_that("The list returned by `rounding_bounds_scalar()`
-          has correct types", {
-  rbs_up_or_down |> purrr::map_chr(typeof) |> expect_equal(rbs_types_exp)
-  rbs_up         |> purrr::map_chr(typeof) |> expect_equal(rbs_types_exp)
-  rbs_down       |> purrr::map_chr(typeof) |> expect_equal(rbs_types_exp)
-  rbs_even       |> purrr::map_chr(typeof) |> expect_equal(rbs_types_exp)
-  rbs_ceiling    |> purrr::map_chr(typeof) |> expect_equal(rbs_types_exp)
-  rbs_floor      |> purrr::map_chr(typeof) |> expect_equal(rbs_types_exp)
-  rbs_trunc      |> purrr::map_chr(typeof) |> expect_equal(rbs_types_exp)
-  rbs_anti_trunc |> purrr::map_chr(typeof) |> expect_equal(rbs_types_exp)
+test_that("A vector-valued `digits` yields a well-formed tibble", {
+  # The row count used to be taken from `length(x)` while the columns took
+  # whatever length `paste0()` recycling produced, so this was a tibble
+  # claiming one row but holding five-element columns.
+  df3 |> nrow() |> expect_equal(5L)
+  df3 |> vapply(length, integer(1L)) |> unname() |> expect_equal(rep(5L, 7L))
+  df3 |> as.data.frame() |> nrow() |> expect_equal(5L)
 })
 
 
-test_that("The list has correct values", {
-  rbs_up_or_down |> expect_equal(list(8.15, 8.25, "<=", "<="))
-  rbs_up         |> expect_equal(list(8.15, 8.25, "<=", "<" ))
-  rbs_down       |> expect_equal(list(8.15, 8.25, "<" , "<="))
-  rbs_even       |> expect_equal(list(7.7 , 8.7 , "<" , "<" ))
-  rbs_ceiling    |> expect_equal(list(7.2 , 8.2 , "<" , "<="))
-  rbs_floor      |> expect_equal(list(8.2 , 9.2 , "<=", "<" ))
-  rbs_trunc      |> expect_equal(list(8.2 , 9.2 , "<=", "<" ))
-  rbs_anti_trunc |> expect_equal(list(8.1 , 8.2 , "<=",  "<"))
+# `unround()` is the inverse of `reround()`: a value just inside the
+# reconstructed range must round back to `x`, and a value just outside it must
+# not. This is the property that matters, and it ties the bounds to the
+# rounding functions they claim to invert.
+test_that("`unround()` bounds agree with the rounding they invert", {
+  # `eps` is far below the granularity of the bounds (0.001 here) but far above
+  # the dust that `round_up_from()` and friends subtract from `threshold`:
+  eps <- 1e-6
+  methods <- c(
+    "up_or_down", "up", "down", "ceiling", "floor",
+    "trunc", "anti_trunc", "up_from", "down_from"
+  )
+  for (m in methods) {
+    bounds <- unround("0.53", rounding = m, threshold = 6)
+    rounds_to_x <- function(value) {
+      any(dplyr::near(
+        reround(value, digits = 2, rounding = m, threshold = 6),
+        0.53
+      ))
+    }
+    expect_true(rounds_to_x(bounds$lower + eps), label = paste(m, "inside lower"))
+    expect_true(rounds_to_x(bounds$upper - eps), label = paste(m, "inside upper"))
+    expect_false(rounds_to_x(bounds$lower - eps), label = paste(m, "beyond lower"))
+    expect_false(rounds_to_x(bounds$upper + eps), label = paste(m, "beyond upper"))
+  }
 })
 
 
-test_that("", {
-  rounding_bounds |> expect_type("closure")
+test_that("`unround()` supports the same rounding methods as GRIM", {
+  # These four used to throw an error, so `debit_map()` rejected rounding
+  # methods that `grim()` accepted.
+  for (m in c(
+    "up_from", "down_from", "up_from_or_down_from", "ceiling_or_floor"
+  )) {
+    unround("0.53", rounding = m, threshold = 6) |>
+      nrow() |>
+      expect_equal(1L)
+  }
 })
 
-test_that("Wrong `rounding` specifications return the string (list)
-          that will trigger an error within `unround()", {
-  rbs_error |> expect_setequal("error_trigger")
+
+test_that("`threshold` only affects the `*_from` rounding methods", {
+  # `round_up()` and `round_down()` round from a fixed 5, so reconstructing
+  # their bounds must not depend on `threshold`. `unround()` used to widen the
+  # range anyway, reconstructing a rounding that never happens.
+  for (m in c("up_or_down", "up", "down")) {
+    from_5 <- unround("0.53", rounding = m, threshold = 5)
+    from_6 <- unround("0.53", rounding = m, threshold = 6)
+    expect_equal(from_5$lower, from_6$lower)
+    expect_equal(from_5$upper, from_6$upper)
+    expect_equal(from_5$lower, 0.525)
+    expect_equal(from_5$upper, 0.535)
+  }
+  # ...whereas the parameterized methods do respond to it:
+  unround("0.53", rounding = "up_from", threshold = 6)$lower |>
+    expect_equal(0.526)
+})
+
+
+test_that("`symmetric` mirrors the bounds of a negative `x`", {
+  plain <- unround("-0.53", rounding = "up", symmetric = FALSE)
+  mirrored <- unround("-0.53", rounding = "up", symmetric = TRUE)
+  # With `symmetric`, rounding a negative number mirrors its absolute value,
+  # so the inclusive end swaps:
+  expect_true(plain$incl_lower)
+  expect_false(plain$incl_upper)
+  expect_false(mirrored$incl_lower)
+  expect_true(mirrored$incl_upper)
 })
 
 
