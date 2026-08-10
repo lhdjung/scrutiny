@@ -11,16 +11,20 @@ function_map(
   .name_key_result = "consistency",
   .name_class = NULL,
   .args_disabled = NULL,
+  .args_by_row = NULL,
+  .args_defaults = NULL,
+  .cols_helper = NULL,
+  .cols_helper_merge = NULL,
   .col_names = NULL,
-  .col_control = NULL,
-  .col_filler = NULL,
+  .arg_extra = FALSE,
   ...
 )
 }
 \arguments{
 \item{.fun}{Single-case consistency testing function that will be applied to
-each row in a data frame. The function must return a single logical value,
-i.e., \code{TRUE}, \code{FALSE}, or \code{NA}.}
+each row in a data frame. It must return a single logical value, i.e.,
+\code{TRUE}, \code{FALSE}, or \code{NA} -- or, if \code{.col_names} is specified, a list of
+values with the key result first.}
 
 \item{.reported}{String. Names of the columns to be tested.}
 
@@ -38,19 +42,41 @@ output data frame. Default is \code{NULL}, i.e., no extra class (but see
 \item{.args_disabled}{Optionally, a string vector with names of arguments of
 the \verb{*_scalar()} function that don't work with the factory-made function.
 If the user  tries to specify these arguments, an informative error will be
-thrown.}
+thrown. These arguments are not added to the factory-made function.}
 
-\item{.col_names}{(Experimental) Optionally, a string vector with the names
-of additional columns that are derived from the \verb{*_scalar()} function.
-Requires \code{.col_control} and \code{.col_filler} specifications.}
+\item{.args_by_row}{Optionally, a string vector with names of arguments of
+the \verb{*_scalar()} function that may vary from row to row, such as
+\code{"digits_x"}. The factory-made function then accepts either a single value
+or one value per row of \code{data} for each of them, and returns them as
+columns of the output. All other arguments apply to the whole call.}
 
-\item{.col_control}{(Experimental) Optionally, a single string with the name
-of the \verb{*_scalar()} function's logical argument that controls if the
-columns named in \code{.col_names} will be displayed.}
+\item{.args_defaults}{Optionally, a named list with defaults for arguments
+of the \verb{*_scalar()} function that should differ from the defaults of that
+function itself, such as \code{list(show_reason = TRUE)}.}
 
-\item{.col_filler}{(Experimental) Optionally, a vector specifying the values
-of \code{.col_names} columns in rows where the \verb{*_scalar()} function only
-returned the \code{consistency} value.}
+\item{.cols_helper}{Optionally, a string vector with names of arguments of
+the \verb{*_scalar()} function that may also be given as columns of \code{data}, such
+as \code{"items"}. See \code{\link[=manage_helper_col]{manage_helper_col()}}.}
+
+\item{.cols_helper_merge}{Optionally, a named string vector that pairs
+\code{.cols_helper} names with the names of the \code{.reported} columns they are
+multiplied into for the output, such as \code{c(items = "n")}. Such a helper
+column is not returned by itself. This is presentation only; it does not
+affect test results.}
+
+\item{.col_names}{Optionally, a string vector with the names of the columns
+that the \verb{*_scalar()} function returns when asked to show its reconstructed
+values. The name of the key result column must come first. Whether the
+\verb{*_scalar()} function returns a single value or the full list is up to the
+user of the factory-made function, who controls it via an argument such as
+\code{show_rec}; both cases are handled.}
+
+\item{.arg_extra}{Logical. Should the factory-made function have an \code{extra}
+argument for selecting the columns from \code{data} that are returned alongside
+the test results? Default is \code{FALSE}, in which case all of them are
+returned. This only exists to support the deprecated \code{extra} argument of
+\code{\link[=grim_map]{grim_map()}} and \code{\link[=debit_map]{debit_map()}}; don't use it in new mappers. Use
+\code{dplyr::select()} on the output instead.}
 
 \item{...}{These dots must be empty.}
 }
@@ -63,35 +89,38 @@ permitted.
 \item Arguments named after the \code{.reported} values. They can be specified as the
 names of \code{data} columns so that the function will rename that column using
 the \code{.reported} name.
-\item \code{reported}, \code{fun}, \code{name_class}: Same as when calling \code{function_map()} but
-spelled without dots. You can override these defaults when calling the
-factory-made function.
-\item \code{...}: Arguments passed down to \code{.fun}. This does not include the
-column-identifying arguments derived from \code{.reported}.
+\item Arguments named after those of \code{.fun}, with the same defaults; see
+\emph{Details}.
+\item \code{...}: Arguments passed down to \code{.fun}.
 }
 }
 \description{
 \code{function_map()} creates new basic mapper functions for
-consistency tests, such as \code{\link[=grim_map]{grim_map()}} or \code{\link[=debit_map]{debit_map()}}.
+consistency tests, such as \code{\link[=grimmer_map]{grimmer_map()}} or \code{\link[=debit_map]{debit_map()}}.
 
 For context, see \href{https://lhdjung.github.io/scrutiny/articles/consistency-tests.html#creating-basic-mappers-with-function_map}{\emph{Creating basic mappers with \code{function_map()}}}.
 }
 \details{
-The output tibble returned by the factory-made function will inherit
-one or two classes independently of the \code{.name_class} argument:
+The factory-made function has an argument for every argument of
+\code{.fun} that is not named in \code{.reported} or \code{.args_disabled}, with the same
+default. Values supplied to them are passed on to \code{.fun}.
+
+The output tibble returned by the factory-made function will inherit one or
+two classes independently of the \code{.name_class} argument:
 \itemize{
 \item It will inherit a class named \code{"scrutiny_{tolower(.name_test)}_map"}; for
 example, the class is \code{"scrutiny_grim_map"} if \code{.name_test} is \code{"GRIM"}.
-\item If a \code{rounding} argument is specified via \code{...}, or else if \code{.fun} has a
-\code{rounding} argument with a default, the output tibble will inherit a class
+\item If \code{.fun} has a \code{rounding} argument, the output tibble will inherit a class
 named \code{"scrutiny_rounding_{rounding}"}; for example,
 \code{"scrutiny_rounding_up_or_down"}.
 }
 }
 \section{Value returned by the factory-made function}{
- A tibble that includes
-\code{"consistency"}: a logical column showing whether the values to its left
-are mutually consistent (\code{TRUE}) or not (\code{FALSE}).
+ A tibble with the
+\code{.reported} columns, any \code{.args_by_row} columns, and \code{"consistency"}: a
+logical column showing whether the values to its left are mutually
+consistent (\code{TRUE}) or not (\code{FALSE}). Any other columns of \code{data} follow to
+the right.
 }
 
 \examples{

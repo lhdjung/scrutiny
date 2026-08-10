@@ -3,6 +3,11 @@
 ## Breaking changes
 
 - scrutiny now uses the base pipe `|>` instead of the magrittr pipe `%>%`, so `%>%` is no longer exported.
+- `grimmer_map()` and `debit_map()` are now created by `function_map()` instead of being written by hand. Their output is unchanged, except as noted below, but they gained the remaining arguments of `grimmer()` and `debit()` -- e.g., `debit_map()` now has a `formula` argument -- and lost these:
+  - `grimmer_map()` no longer has `merge_items`. Setting it to `FALSE` packed `n` and `items` into a single data-frame column, which every function downstream of the mapper takes to be a numeric vector. The default behavior, multiplying `items` into `n` for the output, is now the only one.
+  - `debit_map()` no longer accepts strings for `x` and `sd`, as `grim_map()` and `grimmer_map()` already didn't. Use numbers and state the decimal places with `digits_x` and `digits_sd`. DEBIT used to count them itself.
+
+- The `n` column returned by `grimmer_map()` and `debit_map()` is now an integer column if all of its values are whole numbers, which sample sizes are. `function_map_seq()` output already followed this convention.
 
 - `grim_map()`, `grimmer_map()`, and `debit_map()` now carry the `digits_x` (and, for GRIMMER and DEBIT, `digits_sd`) they were given forward into a `digits_x` / `digits_sd` output column. The same is true of `*_map_total_n()`.
 

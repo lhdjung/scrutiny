@@ -1,5 +1,36 @@
 # Internal helpers; not exported ------------------------------------------
 
+#' Split a list of per-row results into columns
+#'
+#' A `*_scalar()` function that has been asked to show its reconstructed values
+#' returns one list per row. `split_result_cols()` turns a list of such lists
+#' into a named list of columns, ready to be used as tibble columns.
+#'
+#' Unlike `unnest_consistency_cols()`, this preserves the type of every column:
+#' it collects each result across rows before unlisting, so a logical column
+#' stays logical even if the row next to it is a string. (The exported function
+#' unlists row-wise, which coerces every value in a row to the most general type
+#' among them.)
+#'
+#' @param results List of lists; one inner list per row, all of the same length
+#'   as `col_names`.
+#' @param col_names String vector of names for the resulting columns.
+#'
+#' @return Named list of vectors, each as long as `results`.
+#'
+#' @noRd
+split_result_cols <- function(results, col_names) {
+  out <- lapply(
+    seq_along(col_names),
+    function(i) {
+      unlist(lapply(results, function(x) x[[i]]), use.names = FALSE)
+    }
+  )
+  names(out) <- col_names
+  out
+}
+
+
 check_key_args_in_colnames <- function(data, reported) {
   offenders <- reported[!reported %in% colnames(data)]
   if (length(offenders) > 0L) {

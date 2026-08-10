@@ -157,6 +157,98 @@ check_factory_dots <- function(fun, fun_name_scalar, ...) {
 }
 
 
+#' Check that an argument names arguments of `.fun`
+#'
+#' Several arguments of `function_map()` -- `.reported`, `.args_by_row`, and
+#' `.cols_helper` -- are string vectors that must name arguments of the
+#' `*_scalar()` function passed as `.fun`. `check_factory_arg_names()` enforces
+#' this in the factory's entry area, where the user of the factory can still be
+#' told which of their specifications is at fault.
+#'
+#' @param names String. The values given for `arg_name`.
+#' @param formals_fun Pairlist. The formal arguments of `.fun`.
+#' @param fun_name String (length 1). Name of `.fun`.
+#' @param arg_name String (length 1). Name of the function factory's argument
+#'   that `names` was given for, such as `".reported"`.
+#'
+#' @return No return value; might throw an error.
+#'
+#' @noRd
+check_factory_arg_names <- function(names, formals_fun, fun_name, arg_name) {
+  offenders <- names[!names %in% names(formals_fun)]
+
+  if (length(offenders) == 0L) {
+    return(invisible(NULL))
+  }
+
+  offenders <- wrap_in_backticks(offenders)
+
+  if (length(offenders) == 1L) {
+    msg_arg <- "argument"
+    msg_it_they <- "It was"
+  } else {
+    msg_arg <- "arguments"
+    msg_it_they <- "They were"
+  }
+
+  cli::cli_abort(c(
+    "Function `{fun_name}()` lacks {msg_arg} {offenders}.",
+    "i" = "{msg_it_they} given as `{arg_name}` in the \\
+    `function_map()` call, where `.fun` was specified as `{fun_name}`."
+  ))
+}
+
+
+#' Turn a mapper's test results into output columns
+#'
+#' A `*_scalar()` function returns a single value per row, or -- if it was told
+#' to show its reconstructed values, as via `show_rec` -- a list of values per
+#' row. `write_result_cols()` covers both cases, and is called within
+#' factory-made mapper functions.
+#'
+#' @param results List with one element per row of the mapper's input data
+#'   frame, as returned by `purrr::pmap()`.
+#' @param col_names String vector with the names of the columns that the
+#'   `*_scalar()` function's list of values unpacks into, key result first. It
+#'   is the `.col_names` argument of `function_map()`, and may be `NULL`.
+#'
+#' @return Named list of columns.
+#'
+#' @noRd
+write_result_cols <- function(results, col_names) {
+  lengths_results <- lengths(results)
+
+  # The regular case: one value per row, so the key result column is all there
+  # is:
+  if (all(lengths_results == 1L)) {
+    out <- list(unlist(results, use.names = FALSE))
+    names(out) <- if (is.null(col_names)) "consistency" else col_names[1L]
+    return(out)
+  }
+
+  # Without `.col_names`, there is nothing to unpack into, so the values stay in
+  # a list-column, as before:
+  if (is.null(col_names)) {
+    return(list(consistency = results))
+  }
+
+  offenders <- unique(lengths_results[lengths_results != length(col_names)])
+
+  if (length(offenders) > 0L) {
+    cli::cli_abort(c(
+      "The consistency test function returned {offenders[1L]} value{?s} \\
+      for at least one row.",
+      "x" = "It must return either a single value or one value per \\
+      `.col_names` name, of which there are {length(col_names)}.",
+      "i" = "`.col_names` is an argument of `function_map()`, specified \\
+      when the present function was created."
+    ))
+  }
+
+  split_result_cols(results, col_names)
+}
+
+
 #' Get an `arg_list` object
 #'
 #' That is, a named list of arguments passed by the user who called the function

@@ -6,24 +6,26 @@
 \usage{
 grimmer_map(
   data,
-  digits_x,
-  digits_sd,
-  items = 1,
-  merge_items = TRUE,
   x = NULL,
   sd = NULL,
   n = NULL,
+  digits_x,
+  digits_sd,
+  items = 1,
   show_reason = TRUE,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  tolerance = .Machine$double.eps^0.5
+  tolerance = .Machine$double.eps^0.5,
+  ...
 )
 }
 \arguments{
 \item{data}{Data frame with columns \code{x}, \code{sd}, \code{n}, and optionally \code{items}
 (see documentation for \code{grim()}). Any other columns in \code{data} will be
 returned alongside GRIMMER test results.}
+
+\item{x, sd, n}{Optionally, specify these arguments as column names in \code{data}.}
 
 \item{digits_x}{Integer. The number of decimal places in \code{x}, including
 trailing zeros. There is no default because it cannot be inferred from a
@@ -41,19 +43,14 @@ of \code{data}.}
 the number of items composing the \code{x} and \code{sd} values. Default is \code{1}, the
 most common case.}
 
-\item{merge_items}{Logical. If \code{TRUE} (the default), there will be no \code{items}
-column in the output. Instead, values from an \code{items} column or argument
-will be multiplied with values in the \code{n} column. This is only for
-presentation and does not affect test results.}
-
-\item{x, sd, n}{Optionally, specify these arguments as column names in \code{data}.}
-
 \item{show_reason}{Logical (length 1). Should there be a \code{reason} column that
 shows the reasons for inconsistencies and \code{"Passed all"} for consistent
-values? Default is \code{FALSE}. See below for reference.}
+values? Default is \code{TRUE}. See below for reference.}
 
 \item{rounding, threshold, symmetric, tolerance}{Further parameters of
 GRIMMER testing; see documentation for \code{\link[=grimmer]{grimmer()}}.}
+
+\item{...}{Arguments passed down to \code{\link[=grimmer]{grimmer()}}.}
 }
 \value{
 A tibble with these columns --

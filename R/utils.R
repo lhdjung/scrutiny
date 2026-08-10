@@ -407,7 +407,7 @@ error_digits_missing <- function(x) {
 
   # The example below should show the call the user actually made, so it needs
   # the outermost consistency test function on the stack -- e.g. `debit()`
-  # rather than the `debit_table()` that `Vectorize()` led here from:
+  # rather than the `debit_scalar()` that `Vectorize()` led here from:
   caller <- caller_test_fn()
   name_fn <- caller$name
 
@@ -425,7 +425,12 @@ error_digits_missing <- function(x) {
   # `digits_sd` arguments in the example call because they are required there.
   if (grepl("(grimmer|debit)", name_fn)) {
     part_sd <- ", sd = 0.62"
-    part_digits_sd <- ", digits_sd = 2"
+    # ...but not twice if `digits_sd` is the argument that is missing:
+    part_digits_sd <- if (name_digits_arg == "digits_sd") {
+      NULL
+    } else {
+      ", digits_sd = 2"
+    }
   } else {
     part_sd <- NULL
     part_digits_sd <- NULL

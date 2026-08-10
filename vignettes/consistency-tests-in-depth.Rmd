@@ -162,17 +162,13 @@ schlim_map(df2, n = mike)
 
 ### Drawbacks
 
-If `function_map()` is so helpful, why would you ever not use it? There are four reasons:
+If `function_map()` is so helpful, why would you ever not use it? There are two reasons:
 
 -   Functions produced by `function_map()` don't have any tailor-made checks, messages, or transformations for any specific consistency test. (They do have some more general checks and error messages.)
 
--   They only have limited capabilities to create columns internally other than `"consistency"`: Values in such columns need to be produced by the basic `*_scalar()` function. (This might replace tailor-made functionality for creating the `reason` column in the output of the handwritten `grimmer_map()`, but it is currently experimental.)
+-   Any column other than `"consistency"` needs to be produced by the basic `*_scalar()` function, and to be named in the factory's `.col_names` argument. A column that is computed from the input values in some other way, such as the `probability` column in `grim_map()`'s output, has no place to come from.
 
--   They don't support helper columns (see *Terminology* below).
-
--   Finally, when calling such a manufactured function, any test-specific arguments the user might specify via `…` (the dots) won't trigger RStudio's autocomplete. This is not as dangerous as in some other functions that use the dots because, when calling a function produced by `function_map()`, misspelled argument names always throw an error.
-
-`grim_map()`, `grimmer_map()`, and `debit_map()` were all "handwritten" for flexibility with columns beyond `"consistency"`. For example, the `show_rec` argument in `grim_map()` or the `ratio` column in the function's output would not have been possible with `function_map()`. However, such issues don't affect the `"consistency"` results, and simply going with `function_map()` might often be the better option. If that's what you choose to do, skip right to section 4.
+`grimmer_map()` and `debit_map()` are made by `function_map()`, including their `reason` and `show_rec` columns and the `items` helper column. `grim_map()` is still "handwritten" because of that `probability` column, which does not come from `grim_scalar()`. Simply going with `function_map()` might often be the better option. If that's what you choose to do, skip right to section 4.
 
 ## Writing mappers manually
 
@@ -295,7 +291,7 @@ schlim_map_alt2(df1)
 
 You should let `function_map()` produce an equivalent function to make sure that it returns the same output as your handwritten one. To compare the two output data frames, don't just eyeball them. Use `waldo::compare()` or, if you already run tests with testthat, `expect_equal()`.
 
-If your handwritten mapper creates new columns beyond `"consistency"`, you'll have to remove them from the output first. Don't use helper columns when testing because `function_map()` can't handle them.
+If your handwritten mapper creates new columns beyond `"consistency"` without deriving them from the `*_scalar()` function, you'll have to remove them from the output first.
 
 ### S3 classes
 

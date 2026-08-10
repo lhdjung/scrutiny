@@ -26,10 +26,10 @@
 #' @param x,sd,n Optionally, specify these arguments as column names in `data`.
 #' @param show_reason Logical (length 1). Should there be a `reason` column that
 #'   shows the reasons for inconsistencies and `"Passed all"` for consistent
-#'   values? Default is `FALSE`. See below for reference.
+#'   values? Default is `TRUE`. See below for reference.
 #' @param rounding,threshold,symmetric,tolerance Further parameters of
 #'   GRIMMER testing; see documentation for [`grimmer()`].
-#' @inheritParams grim_map
+#' @param ... Arguments passed down to [`grimmer()`].
 
 #' @return A tibble with these columns --
 #' - `x`, `sd`, `n`: the inputs.
@@ -103,165 +103,15 @@
 #'   grimmer_map(digits_x = 2, digits_sd = 2) |>
 #'   audit()
 
-# # Test interactively:
-# data <- pigs5
-# items <- 1
-# merge_items <- TRUE
-# x <- NULL
-# sd <- NULL
-# n <- NULL
-# show_reason <- TRUE
-# rounding <- "up_or_down"
-# threshold <- 5
-# symmetric <- FALSE
-# tolerance <- .Machine$double.eps^0.5
-
-grimmer_map <- function(
-  data,
-  digits_x,
-  digits_sd,
-  items = 1,
-  merge_items = TRUE,
-  x = NULL,
-  sd = NULL,
-  n = NULL,
-  show_reason = TRUE,
-  rounding = "up_or_down",
-  threshold = 5,
-  symmetric = FALSE,
-  tolerance = .Machine$double.eps^0.5
-) {
-  if (missing(digits_x)) {
-    error_digits_missing(x)
-  }
-
-  if (missing(digits_sd)) {
-    error_digits_missing(sd)
-  }
-
-  if (!missing(x)) {
-    x <- rlang::enexpr(x)
-    data <- manage_key_colnames(data, x, "mean")
-  }
-
-  if (!missing(sd)) {
-    sd <- rlang::enexpr(sd)
-    data <- manage_key_colnames(data, sd, "standard deviation")
-  }
-
-  if (!missing(n)) {
-    n <- rlang::enexpr(n)
-    data <- manage_key_colnames(data, n, "sample size")
-  }
-
-  check_mapper_input_colnames(data, c("x", "sd", "n"), "GRIMMER")
-
-  # TODO: REWRITE `grimmer_map()` USING `function_map()`! THAT IS, DEVELOP
-  # `function_map()` SO THAT IT CAN HANDLE ALL THE FUNCTIONALITY THAT THIS
-  # REQUIRES!
-
-  check_mapper_input_colnames(data, c("x", "n"), "GRIM")
-  check_tibble(data)
-
-  data <- manage_helper_col(data = data, var_arg = items, default = 1)
-
-  # The `digits_*` values ride along as columns so that `purrr::pmap()` hands
-  # each row its own: a single number applies to the whole column, but the
-  # decimal places may also vary from row to row.
-  data_x_sd_n_items <- data[c("x", "sd", "n", "items")]
-  data_x_sd_n_items$digits_x <- recycle_digits(digits_x, nrow(data), "digits_x")
-  data_x_sd_n_items$digits_sd <- recycle_digits(
-    digits_sd,
-    nrow(data),
-    "digits_sd"
-  )
-
-  x <- data$x
-
-  if (merge_items) {
-    n <- data$n * data$items
-  } else {
-    n <- tibble::tibble(n = data$n, items = data$items)
-  }
-
-  if (show_reason) {
-    consistency <- purrr::pmap(
-      data_x_sd_n_items,
-      grimmer_scalar,
-      show_reason = show_reason,
-      rounding = rounding,
-      threshold = threshold,
-      symmetric = symmetric,
-      tolerance = tolerance
-    )
-  } else {
-    consistency <- purrr::pmap_lgl(
-      data_x_sd_n_items,
-      grimmer_scalar,
-      show_reason = show_reason,
-      rounding = rounding,
-      threshold = threshold,
-      symmetric = symmetric,
-      tolerance = tolerance
-    )
-  }
-
-  out <- tibble::new_tibble(
-    x = list(
-      x = data$x,
-      sd = data$sd,
-      n = n,
-      digits_x = data_x_sd_n_items$digits_x,
-      digits_sd = data_x_sd_n_items$digits_sd,
-      consistency = consistency
-    ),
-    nrow = length(consistency),
-    class = c("scrutiny_grimmer_map", paste0("scrutiny_rounding_", rounding))
-  )
-
-  if (show_reason) {
-    out <- unnest_consistency_cols(
-      out,
-      col_names = c("consistency", "reason"),
-      index = FALSE
-    )
-  }
-
-  # Columns of `data` that play no role in GRIMMER-testing are returned
-  # alongside the test results, as in `grim_map()` and `debit_map()`. Following
-  # scrutiny's convention for mappers, they go to the right of the key result
-  # columns.
-  #
-  # Any column that `out` already has is skipped rather than appended. Important
-  # if the input is itself mapper output: `function_map_seq_proto()` hands
-  # `fun()` every column to the left of `"consistency"`, which includes
-  # `digits_x` and `digits_sd`, and a second copy of those would be
-  # name-repaired to `digits_x...4` and then forwarded back as a bogus argument.
-  # `items` is excluded because it is either represented in `n` via
-  # `merge_items` or was added by `manage_helper_col()` from the eponymous
-  # argument:
-  other_cols <- data[!colnames(data) %in% c(colnames(out), "items")]
-
-  if (ncol(other_cols) > 0L) {
-    out <- dplyr::bind_cols(out, other_cols)
-  }
-
-  out
-}
-
-# # Alternative version of `grimmer_map()`, using experimental functionality
-# from `function_map()`:
-#
-# # The `.name_class = "scrutiny_grim_map"` specification has the purpose of allowing
-# # GRIMMER results to be visualized by `grim_plot()`:
-# grimmer_map_alt <- function_map(
-#   .fun = grimmer_scalar,
-#   .reported = c("x", "sd", "n"),
-#   .name_test = "GRIMMER",
-#   .col_names = "reason",
-#   .col_filler = "Passed all",
-#   .arg_list = list(
-#     show_reason = TRUE, rounding = "up_or_down", threshold = 5,
-#     symmetric = FALSE, tolerance = .Machine$double.eps^0.5
-#   )
-# )
+grimmer_map <- function_map(
+  .fun = grimmer_scalar,
+  .reported = c("x", "sd", "n"),
+  .name_test = "GRIMMER",
+  .args_by_row = c("digits_x", "digits_sd"),
+  # Unlike `grimmer()`, the mapper shows the reasons for inconsistencies by
+  # default -- they fit into a column, and `audit()` counts them:
+  .args_defaults = list(show_reason = TRUE),
+  .cols_helper = "items",
+  .cols_helper_merge = c(items = "n"),
+  .col_names = c("consistency", "reason")
+)
