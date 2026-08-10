@@ -132,7 +132,39 @@ function_map_total_n_proto <- function(
     n_change <- out_df$n_change
     colnames(out_df)[seq_along(reported_orig)] <- reported_orig
 
-    out_df <- fun(out_df, ...)
+    # A `digits_*` argument may name one value per group: `digits_x = c(2, 1)`
+    # if `x1` was reported with two decimal places and `x2` with one. `out_df`
+    # lists the two groups in alternating rows, so such a vector is recycled
+    # across it, giving `fun()` one value per row. In the `"back"` direction the
+    # groups are paired the other way round, so the digits are swapped along
+    # with them. A single `digits_*` value needs none of this.
+    dots <- list(...)
+    names_dots <- names(dots)
+    if (is.null(names_dots)) {
+      names_dots <- rep("", length(dots))
+    }
+    for (i in which(startsWith(names_dots, "digits_"))) {
+      if (length(dots[[i]]) > 1L) {
+        digits_i <- dots[[i]]
+        if (length(digits_i) != 2L) {
+          cli::cli_abort(c(
+            "`{names_dots[i]}` must have length 1 or 2.",
+            "x" = "It has length {length(digits_i)}.",
+            "i" = "There are two groups, so a length-2 vector states the \\
+            number of decimal places for each of them. A single number \\
+            applies to both.",
+            "i" = "The two values apply to every row of `data`; the groups \\
+            can't have different numbers of decimal places per row."
+          ))
+        }
+        if (as.character(dir) == "back") {
+          digits_i <- rev(digits_i)
+        }
+        dots[[i]] <- rep(digits_i, length.out = nrow(out_df))
+      }
+    }
+
+    out_df <- do.call(fun, c(list(out_df), dots))
 
     if (!any("n_change" == colnames(out_df))) {
       out_df <- dplyr::mutate(out_df, n_change)
@@ -547,7 +579,13 @@ function_map_total_n <- function(
 
       `!!!`(write_code_col_key_result(.name_key_result))
     }),
-    env = rlang::caller_env()
+    # The body calls scrutiny-internal helpers such as `absorb_key_args()`, so
+    # the manufactured function must be enclosed in an environment that
+    # ultimately inherits from scrutiny's namespace. `rlang::env()` creates a
+    # child of the present execution environment, which does inherit from it.
+    # (The caller's environment would not: a factory-made function exported
+    # from another package would then fail to find those helpers.)
+    env = rlang::env()
   )
 
   # --- End of the manufactured function, `fn_out()` ---

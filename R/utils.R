@@ -175,6 +175,41 @@ is_whole_number <- function(x, tolerance = .Machine$double.eps^0.5) {
 }
 
 
+#' Bring a `digits_*` argument to one value per row
+#'
+#' A `digits_*` argument may be a single number, in which case every value in
+#' the column was reported with that many decimal places; or one number per row
+#' of `data`, for columns where the number of decimal places varies. Mappers
+#' pass the result on to their `*_scalar()` function row by row.
+#'
+#' @param digits The `digits_x` or `digits_sd` argument, as given by the user.
+#' @param n_rows Number of rows in `data`.
+#' @param name_digits_arg String (length 1). Name of the argument, for errors.
+#'
+#' @returns Numeric vector of length `n_rows`.
+#'
+#' @noRd
+recycle_digits <- function(digits, n_rows, name_digits_arg) {
+  if (length(digits) == 1L) {
+    rep(digits, n_rows)
+  } else if (length(digits) == n_rows) {
+    digits
+  } else {
+    cli::cli_abort(
+      message = c(
+        "`{name_digits_arg}` must have length 1 or the number of rows \\
+      in `data`.",
+        "x" = "It has length {length(digits)}, but `data` has \\
+      {n_rows} row{?s}.",
+        "i" = "Use a single number if all values in the column were reported \\
+      with the same number of decimal places."
+      ),
+      call = rlang::caller_env(2)
+    )
+  }
+}
+
+
 error_digits_flawed <- function(digits, name_digits_arg, n) {
   check_length(digits, 1)
 
@@ -210,19 +245,19 @@ check_newly_numeric <- function(
 
   caller_type <- rlang::arg_match(caller_type)
 
-  # Is any function on the call stack a mapper, such as `grim_map()`?
-  callers_all <- caller_fn_names_all()
-  caller_is_mapper <- any(stringr::str_detect(callers_all, "_map"))
+  # The function the user called, e.g. `grim_map()` rather than the
+  # `grim_scalar()` that `purrr::pmap()` led here from. Errors are attributed to
+  # its frame so that they say "Error in `grim_map()`":
+  caller <- caller_test_fn()
 
-  # For error messages: number of frames to go up the call stack. This makes
-  # sure it will say, e.g., "Error in `grim()`" instead of "Error in
-  # `check_newly_numeric()`".
-  n <- if (caller_is_mapper) 4 else 3
+  # Is that function a mapper, such as `grim_map()`? Mappers operate on data
+  # frames, so their messages should talk about columns, not arguments.
+  caller_is_mapper <- stringr::str_detect(caller$name, "_map")
 
   # Record the names of the key argument passed down here (likely the mean or
   # SD) and the calling function
   name_x <- deparse(substitute(x))
-  name_fn <- paste0("scrutiny::", caller_fn_name(n))
+  name_fn <- paste0("scrutiny::", caller$name)
 
   if (!is.numeric(x)) {
     # If the user called a mapper function, the error message should talk about
@@ -248,7 +283,7 @@ check_newly_numeric <- function(
         "This is to ensure a correct number of decimal places.
         Apologies for the inconvenience."
       ),
-      env = rlang::caller_env(n)
+      env = caller$frame
     )
   }
 
@@ -265,45 +300,77 @@ check_newly_numeric <- function(
       "x" = "`{name_digits_arg}` is {digits}.",
       "x" = "`{name_x}` is {x}, so it has {digits_in_x} decimal place{?s}."
     ),
-    call = rlang::caller_env(n)
+    call = caller$frame
   )
 }
 
 
-caller_fn_name <- function(n = 1) {
-  as.character(rlang::caller_call(n + 1)[[1]])
+# Name of the function that a call invokes, as a single string; `""` if it
+# can't be determined. The head of a call is not always a symbol: it can be a
+# namespace-qualified call such as `scrutiny::grim_map`, or the function object
+# itself, which is how factory-made functions invoke `fun` via `do.call()`.
+# Passing either of those to `as.character()` returns a vector of the wrong
+# length or throws an error, so each case is handled separately here.
+fn_name_from_call <- function(call) {
+  if (!is.call(call)) {
+    return("")
+  }
+  fn <- call[[1L]]
+  if (is.name(fn)) {
+    as.character(fn)
+  } else if (rlang::is_call(fn, c("::", ":::"))) {
+    # Just the name, not `pkg::name`: callers add the namespace where they want
+    # it, and the bare name is what the checks below match against.
+    as.character(fn[[3L]])
+  } else if (is.call(fn)) {
+    # Something else with a callable head, e.g. `obj$method`
+    deparse(fn)[1L]
+  } else {
+    # A function object carries no name of its own
+    ""
+  }
 }
 
 
-# List all functions on the call stack and return them in a string vector
-caller_fn_names_all <- function() {
-  # Get the full call stack
-  calls <- sys.calls()
+# The user-facing consistency test functions: `grim()`, `grim_map()`,
+# `grimmer_map_seq()`, `debit_map_total_n()`, and so on.
+pattern_name_test_fn <- "^(grim|grimmer|debit)"
 
-  # Remove the call to caller_fn_names_all itself (last element)
-  if (length(calls) > 0) {
-    calls <- calls[-length(calls)]
+
+# Find the outermost consistency test function on the call stack: the one the
+# user actually called. Error messages about missing or flawed `digits_*`
+# arguments should name that function and be attributed to its call.
+#
+# Counting frames is not a viable alternative. How many frames separate a
+# `*_scalar()` function from the call the user typed depends on whether a
+# mapper, a `Vectorize()` wrapper (which adds `do.call()` and `mapply()`), or a
+# factory-made function sits in between -- and factory-made functions invoke
+# `fun` as a function object, so that frame carries no name at all.
+#
+# Returns a list with the function's `name` and its `frame`. If no such function
+# is on the stack, the frame that called `caller_test_fn()` stands in for it.
+# That should not happen: this is only called from the two checks below, and
+# those are only called from consistency test functions.
+caller_test_fn <- function() {
+  calls <- sys.calls()
+  names_fn <- vapply(calls, fn_name_from_call, character(1L), USE.NAMES = FALSE)
+  is_test_fn <- stringr::str_detect(names_fn, pattern_name_test_fn)
+
+  index <- if (any(is_test_fn)) {
+    # `sys.calls()` runs from the outermost frame inward, so the first match is
+    # the outermost one -- e.g. `grim_map_seq()` rather than the `grim_map()`
+    # that it calls internally:
+    which(is_test_fn)[1L]
+  } else {
+    # The last call is `caller_test_fn()` itself, so this is its caller:
+    length(calls) - 1L
   }
 
-  # Extract function names from each call
-  fn_names <- sapply(calls, function(call) {
-    # Get the first element of the call (the function)
-    fn <- call[[1]]
+  if (index < 1L) {
+    return(list(name = "", frame = globalenv()))
+  }
 
-    # Convert to character and extract the name
-    if (is.name(fn)) {
-      as.character(fn)
-    } else if (is.call(fn)) {
-      # Handle cases like pkg::fn or obj$method
-      deparse(fn)[1]
-    } else {
-      # For anonymous functions or other cases
-      "<anonymous>"
-    }
-  })
-
-  # Reverse to get immediate caller first
-  rev(fn_names)
+  list(name = names_fn[index], frame = sys.frames()[[index]])
 }
 
 
@@ -335,22 +402,14 @@ caller_fn_names_all <- function() {
 #'
 #' @noRd
 error_digits_missing <- function(x) {
-  n <- 3
-
   name_x <- deparse(substitute(x))
-
   name_digits_arg <- paste0("digits_", name_x)
-  name_fn <- caller_fn_name(n)
 
-  if (length(name_fn) == 0) {
-    name_fn <- caller_fn_name(1)
-  }
-
-  # Adjustment to the special structure of the DEBIT implementation
-  if (length(name_fn) > 1 || any(name_fn == "mapply")) {
-    n <- n + 1
-    name_fn <- caller_fn_name(n)
-  }
+  # The example below should show the call the user actually made, so it needs
+  # the outermost consistency test function on the stack -- e.g. `debit()`
+  # rather than the `debit_table()` that `Vectorize()` led here from:
+  caller <- caller_test_fn()
+  name_fn <- caller$name
 
   # Prepare message with changelog URL to be shown after the error
   on.exit(cli::cli_text(paste0(
@@ -375,7 +434,6 @@ error_digits_missing <- function(x) {
   # If the user called a mapper function (such as `grim_map()`), the example
   # should construct a data frame rather than accepting the value directly
   if (grepl("_map", name_fn)) {
-    n <- 1
     part_tibble_open <- "tibble::tibble("
     part_tibble_close <- ")"
   } else {
@@ -395,13 +453,13 @@ error_digits_missing <- function(x) {
       "Need to specify `{name_digits_arg}` to state the number of \
       decimal places in `{name_x}`.",
       "i" = "For example, with 1.40 (two decimal places): \
-      `{name_fn}({part_tibble_open}x = 1.4{part_sd}, n = 29, \
-      {name_digits_arg} = 2{part_digits_sd}){part_tibble_close}`",
+      `{name_fn}({part_tibble_open}x = 1.4{part_sd}, n = 29{part_tibble_close}, \
+      {name_digits_arg} = 2{part_digits_sd})`",
       "i" = "This was introduced in scrutiny 1.0.0 to ensure the number \
       of decimal places is stated correctly.",
       "i" = "It replaces the quotes around `{name_x}`{msg_key_arg}."
     ),
-    call = rlang::caller_env(n)
+    call = caller$frame
   )
 }
 
@@ -1435,8 +1493,16 @@ about_equal <- function(x, y) {
 #'
 #' @noRd
 name_caller_call <- function(n = 1L, wrap = TRUE) {
-  name <- rlang::caller_call(n = n)
-  name <- name[[1L]]
+  name <- fn_name_from_call(rlang::caller_call(n = n))
+
+  # The caller may have been invoked as a function object rather than by name,
+  # as when `audit_seq()` applies a factory-made function via `do.call()`. There
+  # is then no name to report, so a description stands in for one -- without
+  # backticks, because it is not code. Taking `name[[1L]]` as-is used to throw
+  # here ("cannot coerce type 'closure'").
+  if (!nzchar(name)) {
+    return("the function")
+  }
 
   if (wrap) {
     name <- paste0("`", name, "()`")

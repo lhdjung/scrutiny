@@ -295,7 +295,13 @@ function_map <- function(
         name_key_result = .name_key_result,
         name_data = rlang::expr(data)
       ))
-    })
+    }),
+    # As in `function_map_seq()` and `function_map_total_n()`: the body relies
+    # on scrutiny helpers, so the manufactured function is enclosed in a child
+    # of the present execution environment, which inherits from scrutiny's
+    # namespace. Never use the caller's environment here -- a factory-made
+    # function exported from another package would then fail to find them.
+    env = rlang::env()
   )
 
   # --- End of the factory-made function, `fn_out()` ---

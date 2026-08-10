@@ -35,12 +35,24 @@ function_map_seq_proto <- function(
     include_reported = .include_reported,
     ...
   ) {
+    # The step size has to come from the caller's `digits_*` argument for the
+    # current `var`, not from the values themselves. A mean reported as 5.30 is
+    # stored as `5.3`, so `seq_disperse()`'s default would step by 0.1 instead
+    # of 0.01 -- and it would do so only for the rows that lost a trailing zero,
+    # giving different step sizes within a single call. There is no `digits_n`,
+    # so dispersing `n` keeps the default (whole numbers).
+    .by_var <- list(...)[[paste0("digits_", var)]]
+    if (!is.null(.by_var)) {
+      .by_var <- 1 / (10^.by_var)
+    }
+
     # Extract the vector from the `data` column specified as `var`, then apply
     # the data-frame-level dispersion function to get a list of data frames with
     # dispersed `var` sequences; one per inconsistent value set:
     df_var <- data[var][[1L]] %>%
       lapply(
         seq_disperse_df_internal,
+        .by = .by_var,
         .dispersion = dispersion,
         .offset_from = 0,
         .out_min = out_min,
@@ -320,6 +332,26 @@ function_map_seq <- function(
         mget(`!!`(digits_args_names), envir = environment())
       )
 
+      # Unlike the basic and total-n mappers, sequence mappers need a single
+      # `digits_*` value per column: it sets the decimal level that each value
+      # is dispersed on, it has to survive the filtering of consistent cases,
+      # and it becomes a `digits_*` output column. Rather than let a vector
+      # produce a confusing error further down, reject it here.
+      for (.digits_name in names(.digits_vals)) {
+        .digits_length <- length(.digits_vals[[.digits_name]])
+        if (.digits_length > 1L) {
+          cli::cli_abort(c(
+            "`{(.digits_name)}` must be a single number here.",
+            "x" = "It has length {(.digits_length)}.",
+            "i" = "Sequence mappers disperse every value on the decimal level \\
+            given by `{(.digits_name)}`, so it has to be the same for the whole \\
+            column.",
+            "i" = "Basic mappers such as `{name_fun}()` do accept one value \\
+            per row."
+          ))
+        }
+      }
+
       args_excluded <- c(reported, args_disabled)
 
       arg_list <- call_arg_list()
@@ -403,20 +435,26 @@ function_map_seq <- function(
       # identifying the origin of individual rows, `var` is added. See above.
       `!!!`(code_bind_cols)
 
-      # Add a digits_* column for each non-n reported variable so that
-      # downstream functions (e.g. grim_plot()) can split on decimal-place
-      # groups without losing track of which rows belong together.
-      # Use the explicitly-provided digits_* value if available; otherwise
-      # fall back to decimal_places() on the output column. (The fallback is
-      # unreliable for numeric columns with trailing zeros, which is why
-      # the digits_* arguments exist in the first place.)
-      .digits_col_names <- paste0("digits_", reported[reported != "n"])
-      for (.vn in reported[reported != "n"]) {
-        .digits_arg <- paste0("digits_", .vn)
+      # Add a digits_* column for each reported variable that `fun()` has a
+      # digits_* argument for, so that downstream functions (e.g. grim_plot())
+      # can split on decimal-place groups without losing track of which rows
+      # belong together. Use the explicitly-provided digits_* value if
+      # available; otherwise fall back to decimal_places() on the output
+      # column. (The fallback is unreliable for numeric columns with trailing
+      # zeros, which is why the digits_* arguments exist in the first place.)
+      #
+      # Only variables that `fun()` accepts a digits_* argument for get a
+      # column. `audit_seq()` forwards every digits_* column in the output back
+      # to `fun()` as an argument, so a column that `fun()` has no argument for
+      # would make it reject its own output.
+      .digits_col_names <- `!!`(digits_args_names)
+      .digits_var_names <- `!!`(sub("^digits_", "", digits_args_names))
+      for (.i in seq_along(.digits_col_names)) {
+        .digits_arg <- .digits_col_names[.i]
         out[[.digits_arg]] <- if (!is.null(.digits_vals[[.digits_arg]])) {
           .digits_vals[[.digits_arg]]
         } else {
-          decimal_places(out[[.vn]])
+          decimal_places(out[[.digits_var_names[.i]]])
         }
       }
       out <- dplyr::relocate(
@@ -454,6 +492,10 @@ function_map_seq <- function(
 
       `!!!`(write_code_col_key_result(.name_key_result))
     }),
+    # The body calls scrutiny-internal helpers such as `absorb_key_args()` and
+    # `function_map_seq_proto()`, so the manufactured function must be enclosed
+    # in an environment that inherits from scrutiny's namespace. `rlang::env()`
+    # creates a child of the present execution environment, which does.
     env = rlang::env()
   )
 

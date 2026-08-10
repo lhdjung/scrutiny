@@ -27,6 +27,7 @@
 - Fixed a pre-existing compatibility issue in `debit_plot()` where a theme element was out of date with recent ggplot2 versions.
 - `seq_disperse()` and `seq_disperse_df()` now keep their sequences on the decimal level given by `by` (or, if `by` is not specified, by `from`). Each value used to be computed in plain floating-point arithmetic, so a long enough `dispersion` vector introduced spurious decimal places: `3.14 - (305 * 0.01)` is `0.0899999999999999`, not `0.09`. This made the sequence mappers fail once `dispersion` reached 305, since the dispersed values then had more decimal places than `digits_x` allowed. The same error could also drop a value that sat exactly on `out_min` or `out_max` (#83).
 
+- Functions made by `function_map_total_n()` now work when they are created outside of scrutiny, e.g., in another package. Their bodies call scrutiny-internal helpers such as `absorb_key_args()`, but the factory used to enclose them in the caller's environment, which has no path to those helpers. They are now enclosed in an environment inheriting from scrutiny's namespace, as those made by `function_map()` and `function_map_seq()` already were (#69).
 
 ## Documentation
 
