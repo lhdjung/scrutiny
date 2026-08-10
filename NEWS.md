@@ -1,4 +1,4 @@
-# scrutiny 0.6.2
+# scrutiny 1.0.0
 
 ## Breaking changes
 
