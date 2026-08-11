@@ -137,7 +137,7 @@ flying_pigs3 |>
   grimmer_map(digits_x = 2, digits_sd = 2)
 ```
 
-The `items` values are multiplied by the `n` values. By default, the product is shown as `n` in the output (`merge_items = TRUE`), but overriding this default won't affect the test results.
+The `items` values are multiplied by the `n` values, and the product is shown as `n` in the output. This is only for presentation; it doesn't affect the test results.
 
 However, if we remove the `items` column, crucial information is missing. As a consequence, the last two values are wrongly flagged as inconsistent, one of them by GRIMMER:
 

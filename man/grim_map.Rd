@@ -6,25 +6,25 @@
 \usage{
 grim_map(
   data,
-  digits_x,
-  items = 1,
-  merge_items = TRUE,
-  percent = FALSE,
   x = NULL,
   n = NULL,
+  digits_x,
+  items = 1,
+  percent = FALSE,
   show_rec = FALSE,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
   tolerance = .Machine$double.eps^0.5,
-  testables_only = FALSE,
-  extra = Inf
+  ...
 )
 }
 \arguments{
 \item{data}{Data frame with columns \code{x}, \code{n}, and optionally \code{items} (see
-documentation for \code{\link[=grim]{grim()}}. By default, any other columns in \code{data} will
-be returned alongside GRIM test results (see \code{extra} below).}
+documentation for \code{\link[=grim]{grim()}}). Any other columns in \code{data} will be returned
+alongside GRIM test results.}
+
+\item{x, n}{Optionally, specify these arguments as column names in \code{data}.}
 
 \item{digits_x}{Integer. The number of decimal places in \code{x}, including
 trailing zeros. There is no default because it cannot be inferred from a
@@ -35,19 +35,14 @@ or one number per row of \code{data} if it varies.}
 
 \item{items}{Integer. If there is no \code{items} column in \code{data}, this specifies
 the number of items composing the \code{x} values. Default is 1, the most common
-case.}
-
-\item{merge_items}{Logical. If \code{TRUE} (the default), there will be no \code{items}
-column in the output. Instead, values from an \code{items} column or argument
-will be multiplied with values in the \code{n} column. This is only for
-presentation and does not affect test results.}
+case. Values from an \code{items} column or argument are multiplied with those
+in the \code{n} column, so there is no \code{items} column in the output. This is
+only for presentation and does not affect test results.}
 
 \item{percent}{Logical. Set \code{percent} to \code{TRUE} if the \code{x} values are
-percentages. This will convert them to decimal numbers and adjust the
-decimal count (i.e., increase it by 2). It also affects the \code{ratio} column.
-Default is \code{FALSE}.}
-
-\item{x, n}{Optionally, specify these arguments as column names in \code{data}.}
+percentages. This will convert them to decimal numbers for testing and
+adjust the decimal count (i.e., increase it by 2). It also affects the
+\code{probability} column. Default is \code{FALSE}.}
 
 \item{show_rec}{Logical. If set to \code{TRUE}, the reconstructed numbers from
 GRIM-testing are shown as columns. See section \emph{Reconstructed numbers}
@@ -56,14 +51,7 @@ below. Default is \code{FALSE}.}
 \item{rounding, threshold, symmetric, tolerance}{Further parameters of
 GRIM-testing; see documentation for \code{\link[=grim]{grim()}}.}
 
-\item{testables_only}{Logical. If \code{testables_only} is set to \code{TRUE}, only
-GRIM-testable cases (i.e., those with a positive GRIM ratio) are included.
-Default is \code{FALSE}.}
-
-\item{extra}{String or integer. The other column(s) from \code{data} to be
-returned in the output tibble alongside test results, referenced by their
-name(s) or number(s). Default is \code{Inf}, which returns all columns. To
-return none of them, set \code{extra} to 0.}
+\item{...}{Arguments passed down to \code{\link[=grim]{grim()}}.}
 }
 \value{
 A tibble with these columns --
@@ -94,19 +82,21 @@ For summary statistics, call \code{\link[=audit]{audit()}} on the results.
 }
 \section{Reconstructed numbers}{
  If \code{show_rec} is set to \code{TRUE}, the output
-includes the following additional columns:
+includes the following additional columns, the same ones for every rounding
+method:
 \itemize{
-\item \code{rec_sum}: the sum total from which the mean or proportion was ostensibly
-derived.
-\item \code{rec_x_upper}: the upper reconstructed \code{x} value.
-\item \code{rec_x_lower}: the lower reconstructed \code{x} value.
-\item \code{rec_x_upper_rounded}: the rounded \code{rec_x_upper} value.
-\item \code{rec_x_lower_rounded}: the rounded \code{rec_x_lower} value.
+\item \code{rec_sum}: the unrounded product of \code{x} and \code{n} (times \code{items}). The sum
+total of integer data is a whole number, so this is generally not one.
+\item \code{sum_lower}, \code{sum_upper}: the least and the greatest whole-number sum total
+that would have been reported as \code{x}. These are the numbers that decide the
+test: \code{x} is GRIM-consistent exactly if \code{sum_lower} is not greater than
+\code{sum_upper}, i.e., if at least one whole number falls between them. If it
+is inconsistent, the gap between the two says how far off the reported
+values are.
+\item \code{rec_x_upper}, \code{rec_x_lower}: the two reconstructed \code{x} values ("granules")
+closest to \code{x} -- \code{rec_sum} rounded up and down, divided by \code{n} (times
+\code{items}).
 }
-
-With the default for \code{rounding}, \code{"up_or_down"}, each of the last two columns
-is replaced by two columns that specify the rounding procedures (i.e.,
-\code{"_up"} and \code{"_down"}).
 }
 
 \section{Summaries with \code{\link[=audit]{audit()}}}{

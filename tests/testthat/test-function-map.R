@@ -1,14 +1,10 @@
 # Manufactured functions --------------------------------------------------
 
-# These two work, which is awesome! However, they can't be used as a basis for
-# the respective `*_plot()` function because they lack a rounding class. This
-# points at a way forward: (1) organize the rounding class stuff in a dedicated
-# function which might even be exported; (2) call that function within
-# `function_map()`
-
-# I now solved it differently, at least for GRIM. This one works as a plot
-# basis, but DEBIT doesn't because it doesn't create any of the extra columns
-# that `debit_map()` does.
+# Stripped-down versions of the real mappers: same `.fun` and `.reported`, but
+# none of the arguments that give the real ones their extra columns. They exist
+# to check that the factory's core -- key columns, renaming, the key result
+# column, the rounding class -- is what the real mappers get from it, and that
+# the extras really are extras.
 
 grim_map_alt <- function_map(
   .fun = grim_scalar,
@@ -282,4 +278,82 @@ test_that("wrong argument names throw an error at factory time", {
     .cols_helper = "widgets"
   ) |>
     expect_error()
+
+  function_map(
+    .fun = grim_scalar,
+    .reported = c("x", "n"),
+    .name_test = "GRIM",
+    .name_class_flags = c(percentage = "scrutiny_percent_true")
+  ) |>
+    expect_error()
+
+  function_map(
+    .fun = grim_scalar,
+    .reported = c("x", "n"),
+    .name_test = "GRIM",
+    .cols_derived = list(probability = "grim_probability")
+  ) |>
+    expect_error()
+
+  function_map(
+    .fun = grim_scalar,
+    .reported = c("x", "n"),
+    .name_test = "GRIM",
+    .cols_derived = list(grim_probability)
+  ) |>
+    expect_error()
+})
+
+
+test_that("`.cols_derived` computes columns the test function never returns", {
+  # `probability` comes from `grim_probability()`, not from `grim_scalar()`:
+  out <- grim_map(pigs1, digits_x = 2)
+  out$probability |> expect_equal(grim_probability(pigs1$x, pigs1$n, 2))
+  # It follows the key result column, ahead of the `.col_names` columns:
+  out |>
+    colnames() |>
+    expect_equal(c("x", "n", "digits_x", "consistency", "probability"))
+  grim_map(pigs1, digits_x = 2, show_rec = TRUE) |>
+    colnames() |>
+    expect_equal(c(
+      "x", "n", "digits_x", "consistency", "probability",
+      "rec_sum", "sum_lower", "sum_upper", "rec_x_upper", "rec_x_lower"
+    ))
+
+  # The derived function only gets the arguments it has formals for.
+  # `grim_probability()` has no `rounding`, but `grim_scalar()` does, and
+  # `items` and `percent` must reach it:
+  grim_map(pigs1, digits_x = 2, rounding = "ceiling")$probability |>
+    expect_equal(out$probability)
+  grim_map(pigs1, digits_x = 2, items = 2)$probability |>
+    expect_equal(grim_probability(pigs1$x, pigs1$n, 2, items = 2))
+  grim_map(pigs2, digits_x = 1, percent = TRUE)$probability |>
+    expect_equal(grim_probability(pigs2$x, pigs2$n, 1, percent = TRUE))
+})
+
+
+test_that("`.name_class_flags` adds a class when the argument is `TRUE`", {
+  grim_map(pigs2, digits_x = 1, percent = TRUE) |>
+    expect_s3_class("scrutiny_percent_true")
+  grim_map(pigs2, digits_x = 3) |>
+    inherits("scrutiny_percent_true") |>
+    expect_false()
+})
+
+
+test_that("a mapper called on a 0-row data frame returns a valid tibble", {
+  for (out in list(
+    grim_map(pigs1[0L, ], digits_x = 2),
+    grimmer_map(pigs5[0L, ], digits_x = 2, digits_sd = 2),
+    debit_map(pigs3[0L, ], digits_x = 2, digits_sd = 2)
+  )) {
+    out |> nrow() |> expect_equal(0L)
+    # The key result column is present and is a real column, not `NULL`. It
+    # used to be the latter, so `ncol()` counted a column that `colnames()` did
+    # not name:
+    out |> colnames() |> expect_contains("consistency")
+    out |> ncol() |> expect_equal(length(colnames(out)))
+    out$consistency |> expect_type("logical")
+    out |> audit() |> nrow() |> expect_equal(1L)
+  }
 })

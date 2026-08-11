@@ -155,33 +155,31 @@ Here, `digits_x` is 1 because the percentages were reported with a single decima
 
 ### Reconstructed values
 
-Set `show_rec` to `TRUE` if you want the values that were reconstructed during GRIM-testing to be displayed in the output. They will be columns prefixed with `rec_`:
+Set `show_rec` to `TRUE` if you want the values that were reconstructed during GRIM-testing to be displayed in the output:
 
 ```{r}
 pigs1 |>
   grim_map(digits_x = 2, show_rec = TRUE) |>
-  dplyr::select(4:8) # output cut down for printing
+  dplyr::select(4:10) # output cut down for printing
 ```
 
 The additional columns are ---
 
--   `rec_sum`: the sum total from which the mean or proportion was ostensibly derived.
+-   `rec_sum`: the unrounded product of `x` and `n` (times `items`). The sum total of integer data is a whole number, so this is generally not one.
+
+-   `sum_lower`: the least whole-number sum total that would have been reported as `x`.
+
+-   `sum_upper`: the greatest such sum total.
 
 -   `rec_x_upper`: the upper reconstructed `x` value.
 
 -   `rec_x_lower`: the lower reconstructed `x` value.
 
--   `rec_x_upper_rounded_up`: the `rec_x_upper` value rounded up.
+`sum_lower` and `sum_upper` are the numbers that decide the test. A value set is GRIM-consistent exactly if at least one whole number lies between them --- i.e., if `sum_lower` is not greater than `sum_upper`. For an inconsistent value set the range is empty, and the gap says how far off the reported numbers are: `sum_lower` of 146 and `sum_upper` of 145 means "you would need a sum total of at least 146 but at most 145".
 
--   `rec_x_upper_rounded_down`: the `rec_x_upper` value rounded down.
+`rec_x_upper` and `rec_x_lower` are the two reconstructed means closest to `x` --- the "granules" that the GRIM story is usually told in terms of, following the charitable and conservative protocol outlined by Brown and Heathers (2017). They are `rec_sum` rounded up and down, divided by `n` (times `items`), and they don't depend on `rounding`. The `rec_*` columns were inspired by @bauer_expression_2021's Table 1 but present values in slightly different ways.
 
--   `rec_x_lower_rounded_up`: the `rec_x_lower` value rounded up.
-
--   `rec_x_lower_rounded_down`: the `rec_x_lower` value rounded down.
-
-The last four columns depend on `rounding`. Here, they follow the default `"up_or_down"`, leading to two columns for each of `rec_x_upper` and `rec_x_lower`. With a singular `rounding` procedure, such as `"up"`, there would only be one column each, and thus, two in total. The difference between these numbers is not greatly important, however, because rounding up and down mostly delivers the same results.
-
-Internally, GRIM-consistency is determined by whether or not a stated `x` value is near-identical to either `rec_x_upper_rounded` or `rec_x_lower_rounded`. This algorithm follows the charitable and conservative protocol outlined by Brown and Heathers (2017). The `rec_*` columns were inspired by @bauer_expression_2021's Table 1 but present values in slightly different ways.
+Up to scrutiny 1.0.0, `show_rec` displayed the two granules re-rounded instead of the sum range, in four columns for `"up_or_down"` and the other combined rounding methods and two for the rest. This could contradict the `consistency` column it was meant to explain. All five columns above are now present for every rounding method.
 
 ## Summarizing results with `audit()`
 

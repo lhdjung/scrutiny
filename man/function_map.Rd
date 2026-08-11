@@ -16,7 +16,8 @@ function_map(
   .cols_helper = NULL,
   .cols_helper_merge = NULL,
   .col_names = NULL,
-  .arg_extra = FALSE,
+  .cols_derived = NULL,
+  .name_class_flags = NULL,
   ...
 )
 }
@@ -69,14 +70,23 @@ that the \verb{*_scalar()} function returns when asked to show its reconstructed
 values. The name of the key result column must come first. Whether the
 \verb{*_scalar()} function returns a single value or the full list is up to the
 user of the factory-made function, who controls it via an argument such as
-\code{show_rec}; both cases are handled.}
+\code{show_rec}; both cases are handled. If \code{data} has no rows, only the key
+result column is created, because there is no result to read the shape of
+the output off.}
 
-\item{.arg_extra}{Logical. Should the factory-made function have an \code{extra}
-argument for selecting the columns from \code{data} that are returned alongside
-the test results? Default is \code{FALSE}, in which case all of them are
-returned. This only exists to support the deprecated \code{extra} argument of
-\code{\link[=grim_map]{grim_map()}} and \code{\link[=debit_map]{debit_map()}}; don't use it in new mappers. Use
-\code{dplyr::select()} on the output instead.}
+\item{.cols_derived}{Optionally, a named list of functions that compute
+further columns which the \verb{*_scalar()} function does not return, such as
+\code{list(probability = grim_probability)}. Each of them is applied to the same
+per-row input as the \verb{*_scalar()} function, but only gets those arguments
+that it has formals for. The columns follow the key result column in the
+output.}
+
+\item{.name_class_flags}{Optionally, a named string vector that pairs the
+name of a logical argument of the \verb{*_scalar()} function with a class to be
+added to the output whenever that argument is \code{TRUE}, such as
+\code{c(percent = "scrutiny_percent_true")}. Use it for arguments that change
+what the numbers in the output mean, so that functions downstream of the
+mapper can tell.}
 
 \item{...}{These dots must be empty.}
 }
@@ -119,8 +129,9 @@ named \code{"scrutiny_rounding_{rounding}"}; for example,
  A tibble with the
 \code{.reported} columns, any \code{.args_by_row} columns, and \code{"consistency"}: a
 logical column showing whether the values to its left are mutually
-consistent (\code{TRUE}) or not (\code{FALSE}). Any other columns of \code{data} follow to
-the right.
+consistent (\code{TRUE}) or not (\code{FALSE}). Any \code{.cols_derived} columns, any
+columns from \code{.col_names}, and any other columns of \code{data} follow to the
+right, in that order.
 }
 
 \examples{

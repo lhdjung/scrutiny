@@ -90,39 +90,85 @@ test_that(
 })
 
 
-df3_true_accord <- df3_percent_true |>
-  dplyr::select(
-    x,
-    consistency,
-    rec_x_upper_rounded_up,
-    rec_x_upper_rounded_down,
-    rec_x_lower_rounded_up,
-    rec_x_lower_rounded_down
-  ) |>
-  dplyr::mutate(
-    accord = dplyr::if_else(
-      consistency,
-      any(dplyr::near(
-        as.numeric(x) / 100,
-        c(
-          rec_x_upper_rounded_up,
-          rec_x_upper_rounded_down,
-          rec_x_lower_rounded_up,
-          rec_x_lower_rounded_down
-        )
-      )),
-      FALSE
+# The stated consistency must accord with what can be reconstructed from the
+# numbers presented -- for every row and every rounding method.
+#
+# The version of this test up to scrutiny 1.0.0 was weaker than it looked. It
+# only exercised the default rounding, and its `any()` collapsed the whole
+# column to one scalar instead of testing row by row. It could not have caught
+# what it was written to catch: with `rounding = "anti_trunc"`, the `rec_`
+# columns of the day displayed a reconstruction implying inconsistency while
+# `consistency` was `TRUE`. Those columns were re-rounded granules, a second
+# derivation of the verdict that had drifted away from the verdict itself. They
+# are now the sum range that decides it, so the two cannot come apart.
+
+rounding_methods_predictable <- c(
+  "up_or_down",
+  "up",
+  "down",
+  "ceiling_or_floor",
+  "ceiling",
+  "floor",
+  "trunc",
+  "anti_trunc"
+)
+
+# `"even"` is not predictable in this sense; see the comment further below.
+rounding_methods <- c(rounding_methods_predictable, "even")
+
+
+test_that("`consistency` accords with the displayed sum range, row by row", {
+  for (rounding in rounding_methods) {
+    out <- grim_map(df3, digits_x = 0, show_rec = TRUE, rounding = rounding) |>
+      suppressMessages()
+    expect_equal(
+      out$consistency,
+      out$sum_lower <= out$sum_upper,
+      info = paste0("rounding = ", rounding)
     )
-  )
+  }
+})
 
-accord <- all(df3_true_accord$consistency == df3_true_accord$accord)
+
+# Does a given sum total reconstruct the reported `x`? For the "_or_" methods,
+# `reround()` returns one value per rounding variant, and either of them may hit
+# `x`, hence `any()`:
+sum_rounds_back <- function(sum_total, x, n, digits, rounding) {
+  granules <- suppressWarnings(reround(
+    sum_total / n,
+    digits = digits,
+    rounding = rounding
+  ))
+  any(abs(granules - x) < 1e-11, na.rm = TRUE)
+}
 
 
-test_that(glue::glue(
-  "The stated consistency accords with what can be reconstructed \\
-  from the numbers presented"
-), {
-  accord |> expect_true()
+test_that("the displayed sum range is exactly the range of admissible sums", {
+  for (rounding in rounding_methods_predictable) {
+    out <- grim_map(df1, digits_x = 2, show_rec = TRUE, rounding = rounding)
+    for (i in seq_len(nrow(out))) {
+      info <- paste0("rounding = ", rounding, ", row = ", i)
+      # Every sum inside the range reconstructs `x`, so the range is not too
+      # wide. The range is empty for an inconsistent row, and `seq()` would
+      # then count downwards, so it is only walked if it has any members:
+      if (out$sum_lower[i] <= out$sum_upper[i]) {
+        for (sum_total in seq(out$sum_lower[i], out$sum_upper[i])) {
+          expect_true(
+            sum_rounds_back(sum_total, out$x[i], out$n[i], 2, rounding),
+            info = info
+          )
+        }
+      }
+      # Neither sum just outside the range does, so it is not too narrow. For an
+      # empty range these are the two integers that straddle it:
+      for (sum_total in c(out$sum_lower[i] - 1L, out$sum_upper[i] + 1L)) {
+        expect_false(
+          sum_rounds_back(sum_total, out$x[i], out$n[i], 2, rounding),
+          info = info
+        )
+      }
+    }
+  }
 })
 
 
@@ -141,7 +187,13 @@ df5 <- df1 |>
 
 
 test_that("`show_rec` increases the number of columns correctly", {
-  df5 |> ncol() |> expect_equal(12)
+  # The same five columns for every rounding method, unlike up to scrutiny
+  # 1.0.0, where `"up_or_down"` and the other "_or_" methods added seven:
+  df5 |> ncol() |> expect_equal(10)
+  df1 |>
+    grim_map(digits_x = 2, show_rec = TRUE, rounding = "ceiling") |>
+    ncol() |>
+    expect_equal(10)
 })
 
 
@@ -423,8 +475,18 @@ test_that("expectations related to various individual
 df13 <- df1 |>
   dplyr::mutate(girth = 30, mirth = 50, birth = 70)
 
-df13_exp <- grim_map(df1, digits_x = 2)
+test_that("other columns of `data` come along, to the right of the results", {
+  out <- df13 |> grim_map(digits_x = 2)
+  out |> colnames() |> expect_equal(c(
+    "x", "n", "digits_x", "consistency", "probability",
+    "girth", "mirth", "birth"
+  ))
+  out$girth |> expect_equal(df13$girth)
+  out$mirth |> expect_equal(df13$mirth)
+  out$birth |> expect_equal(df13$birth)
+})
 
-test_that("`extra = 0` drops all extra columns", {
-  df13 |> grim_map(digits_x = 2, extra = 0) |> expect_equal(df13_exp)
+
+test_that("`extra` is gone; use `dplyr::select()` on the output instead", {
+  df13 |> grim_map(digits_x = 2, extra = 0) |> expect_error()
 })

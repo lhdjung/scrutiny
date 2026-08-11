@@ -216,6 +216,17 @@ check_factory_arg_names <- function(names, formals_fun, fun_name, arg_name) {
 #'
 #' @noRd
 write_result_cols <- function(results, col_names) {
+  # With no rows to test, there is no result to read the output's shape off, so
+  # only the key result column is created -- the one column that is present
+  # whatever the `*_scalar()` function was told to show. Without this,
+  # `unlist()` below returns `NULL`, and the tibble ends up counting a column
+  # that it doesn't have:
+  if (length(results) == 0L) {
+    out <- list(logical(0L))
+    names(out) <- if (is.null(col_names)) "consistency" else col_names[1L]
+    return(out)
+  }
+
   lengths_results <- lengths(results)
 
   # The regular case: one value per row, so the key result column is all there

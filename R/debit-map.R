@@ -23,10 +23,6 @@
 #'   is `TRUE`.
 #' @param formula,rounding,threshold,symmetric Further parameters of DEBIT
 #'   testing; see documentation for [`debit()`].
-#' @param extra String or integer. The other column(s) from `data` to be
-#'   returned in the output tibble alongside test results, referenced by their
-#'   name(s) or number(s). Default is `Inf`, which returns all columns. To
-#'   return none of them, set `extra` to 0.
 #' @param ... Arguments passed down to [`debit()`].
 #'
 #' @importFrom rlang .data
@@ -92,6 +88,5 @@ debit_map <- function_map(
     "sd_incl_upper",
     "x_lower",
     "x_upper"
-  ),
-  .arg_extra = TRUE
+  )
 )

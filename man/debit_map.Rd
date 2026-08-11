@@ -16,7 +16,6 @@ debit_map(
   threshold = 5,
   symmetric = FALSE,
   show_rec = TRUE,
-  extra = Inf,
   ...
 )
 }
@@ -43,11 +42,6 @@ testing; see documentation for \code{\link[=debit]{debit()}}.}
 \item{show_rec}{If set to \code{FALSE}, the resulting tibble only includes the
 columns \code{x}, \code{sd}, \code{n}, \code{digits_x}, \code{digits_sd}, and \code{consistency}. Default
 is \code{TRUE}.}
-
-\item{extra}{String or integer. The other column(s) from \code{data} to be
-returned in the output tibble alongside test results, referenced by their
-name(s) or number(s). Default is \code{Inf}, which returns all columns. To
-return none of them, set \code{extra} to 0.}
 
 \item{...}{Arguments passed down to \code{\link[=debit]{debit()}}.}
 }

@@ -3,11 +3,16 @@
 ## Breaking changes
 
 - scrutiny now uses the base pipe `|>` instead of the magrittr pipe `%>%`, so `%>%` is no longer exported.
-- `grimmer_map()` and `debit_map()` are now created by `function_map()` instead of being written by hand. Their output is unchanged, except as noted below, but they gained the remaining arguments of `grimmer()` and `debit()` -- e.g., `debit_map()` now has a `formula` argument -- and lost these:
-  - `grimmer_map()` no longer has `merge_items`. Setting it to `FALSE` packed `n` and `items` into a single data-frame column, which every function downstream of the mapper takes to be a numeric vector. The default behavior, multiplying `items` into `n` for the output, is now the only one.
+- `grim_map()`, `grimmer_map()`, and `debit_map()` are now created by `function_map()` instead of being written by hand. Their output is unchanged, except as noted below, but they gained the remaining arguments of `grim()`, `grimmer()`, and `debit()` -- e.g., `debit_map()` now has a `formula` argument -- and lost these:
+  - `grim_map()` and `grimmer_map()` no longer have `merge_items`. Setting it to `FALSE` packed `n` and `items` into a single data-frame column, which every function downstream of the mapper takes to be a numeric vector. The default behavior, multiplying `items` into `n` for the output, is now the only one.
+  - `grim_map()` and `debit_map()` no longer have `extra`. It selected which of the other columns of `data` come along, and all three mappers now return all of them. `dplyr::select()` does the same job on the output, with tidyselect, and `grimmer_map()` never had the argument in the first place.
+  - `grim_map()` no longer has `testables_only`. Use `dplyr::filter(probability > 0)` on the output instead.
+  - `grim_map()` no longer reports "`x` converted from percentage" when `percent` is `TRUE`. The conversion is what the user asked for by setting the argument, and the message fired once per dispersed value inside `grim_map_seq()`.
   - `debit_map()` no longer accepts strings for `x` and `sd`, as `grim_map()` and `grimmer_map()` already didn't. Use numbers and state the decimal places with `digits_x` and `digits_sd`. DEBIT used to count them itself.
 
-- The `n` column returned by `grimmer_map()` and `debit_map()` is now an integer column if all of its values are whole numbers, which sample sizes are. `function_map_seq()` output already followed this convention.
+- `grim_map(show_rec = TRUE)` now returns the same five columns for every rounding method: `rec_sum`, `sum_lower`, `sum_upper`, `rec_x_upper`, and `rec_x_lower`. The `rec_x_*_rounded*` columns are gone -- four of them for `rounding = "up_or_down"`, `"up_from_or_down_from"`, and `"ceiling_or_floor"`, two for the other methods. They displayed the two reconstructed means re-rounded, which was how GRIM decided consistency before the test moved to exact integer arithmetic in this release. Since the verdict no longer comes from those numbers, they had become a second, parallel reconstruction that could contradict the `consistency` column they were meant to explain: `grim_map(tibble::tibble(x = 2, n = 127), digits_x = 2, rounding = "anti_trunc", show_rec = TRUE)` reported `TRUE` while displaying granules that round to 2.01, and the sum that actually decided the verdict appeared nowhere in the output. The new `sum_lower` and `sum_upper` columns are that deciding range: the least and the greatest whole-number sum total that would have been reported as `x`. A value set is consistent exactly if `sum_lower` is not greater than `sum_upper`, so display and verdict cannot come apart, and the gap between the two says how far off an inconsistent value set is.
+
+- The `n` column returned by `grim_map()`, `grimmer_map()`, and `debit_map()` is now an integer column if all of its values are whole numbers, which sample sizes are. `function_map_seq()` output already followed this convention.
 
 - `grim_map()`, `grimmer_map()`, and `debit_map()` now carry the `digits_x` (and, for GRIMMER and DEBIT, `digits_sd`) they were given forward into a `digits_x` / `digits_sd` output column. The same is true of `*_map_total_n()`.
 
@@ -47,6 +52,8 @@
   - `symmetric` now also applies to the reconstruction of the bounds, not just to the re-rounding of the reconstructed SD. DEBIT used to unround asymmetrically and re-round symmetrically within the same call.
   - The reconstructed SD is now compared to the reported SD's range in exact integer arithmetic. DEBIT was the last test to compare bounds in floating point, with a fudge of ±1e-12 in either direction. That fudge also defeated the exclusive bounds of `rounding = "ceiling"`, `"floor"`, `"trunc"`, and the others listed above: a reconstructed SD sitting exactly on such a bound was accepted although the rounding method in question would have carried it away from the reported SD. Some value sets that DEBIT used to pass under these rounding methods are therefore reported as inconsistent now.
 
+- Mapper functions made by `function_map()` no longer return a corrupt tibble when `data` has no rows. The `consistency` column was `NULL`, but the tibble still counted it among its columns.
+
 - `debit_map()` now returns `x` and `sd` as numeric columns, not as strings. This matches `grim_map()`.
 
 - Fixed a pre-existing compatibility issue in `debit_plot()` where a theme element was out of date with recent ggplot2 versions.
@@ -69,11 +76,13 @@
 
 ## Lifycycle updates
 
-- `function_map()` can now do everything that the mappers it creates need, which is why `grimmer_map()` and `debit_map()` are made by it (see above). The factory-made function now has a real argument for every argument of the `*_scalar()` function, with the same default, instead of taking them via the dots. Along with that, the factory gained these arguments:
+- `function_map()` can now do everything that the mappers it creates need, which is why all three of `grim_map()`, `grimmer_map()`, and `debit_map()` are made by it (see above). The factory-made function now has a real argument for every argument of the `*_scalar()` function, with the same default, instead of taking them via the dots. Along with that, the factory gained these arguments:
   - `.args_by_row`, for arguments that may have one value per row of `data`, such as `digits_x`. They become columns of the output.
   - `.args_defaults`, for arguments the mapper should have a different default for than the `*_scalar()` function itself.
   - `.cols_helper` and `.cols_helper_merge`, for arguments that may also be given as columns of `data`, such as `items`.
   - `.col_names`, which replaces the non-functional argument of the same name (see below). It names the columns that the `*_scalar()` function's values unpack into when it is asked to show them, as with `show_rec` or `show_reason`.
+  - `.cols_derived`, for columns that the `*_scalar()` function does not return at all but that are computed from the same per-row input, such as `probability` in `grim_map()`, which comes from `grim_probability()`.
+  - `.name_class_flags`, for logical arguments that change what the numbers in the output mean and that functions downstream of the mapper therefore need to know about, such as `percent` in `grim_map()`, which `grim_plot()` reads off the `scrutiny_percent_true` class.
 
 - `function_map()`'s experimental `.col_control` and `.col_filler` arguments are gone, and `.col_names` works differently, as described above. The three of them were documented as a way to turn additional values from a `*_scalar()` function into columns, but the code they generated addressed variables that the manufactured function does not have, so any use of them failed. `.col_control` was checked and then never referenced at all.
 

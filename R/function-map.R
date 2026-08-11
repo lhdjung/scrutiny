@@ -45,13 +45,21 @@
 #'   values. The name of the key result column must come first. Whether the
 #'   `*_scalar()` function returns a single value or the full list is up to the
 #'   user of the factory-made function, who controls it via an argument such as
-#'   `show_rec`; both cases are handled.
-#' @param .arg_extra Logical. Should the factory-made function have an `extra`
-#'   argument for selecting the columns from `data` that are returned alongside
-#'   the test results? Default is `FALSE`, in which case all of them are
-#'   returned. This only exists to support the deprecated `extra` argument of
-#'   [`grim_map()`] and [`debit_map()`]; don't use it in new mappers. Use
-#'   `dplyr::select()` on the output instead.
+#'   `show_rec`; both cases are handled. If `data` has no rows, only the key
+#'   result column is created, because there is no result to read the shape of
+#'   the output off.
+#' @param .cols_derived Optionally, a named list of functions that compute
+#'   further columns which the `*_scalar()` function does not return, such as
+#'   `list(probability = grim_probability)`. Each of them is applied to the same
+#'   per-row input as the `*_scalar()` function, but only gets those arguments
+#'   that it has formals for. The columns follow the key result column in the
+#'   output.
+#' @param .name_class_flags Optionally, a named string vector that pairs the
+#'   name of a logical argument of the `*_scalar()` function with a class to be
+#'   added to the output whenever that argument is `TRUE`, such as
+#'   `c(percent = "scrutiny_percent_true")`. Use it for arguments that change
+#'   what the numbers in the output mean, so that functions downstream of the
+#'   mapper can tell.
 #' @param ... These dots must be empty.
 
 #' @details The factory-made function has an argument for every argument of
@@ -80,8 +88,9 @@
 #' @section Value returned by the factory-made function: A tibble with the
 #'   `.reported` columns, any `.args_by_row` columns, and `"consistency"`: a
 #'   logical column showing whether the values to its left are mutually
-#'   consistent (`TRUE`) or not (`FALSE`). Any other columns of `data` follow to
-#'   the right.
+#'   consistent (`TRUE`) or not (`FALSE`). Any `.cols_derived` columns, any
+#'   columns from `.col_names`, and any other columns of `data` follow to the
+#'   right, in that order.
 
 #' @include grim.R debit.R function-factory-helpers.R
 
@@ -120,7 +129,8 @@ function_map <- function(
   .cols_helper = NULL,
   .cols_helper_merge = NULL,
   .col_names = NULL,
-  .arg_extra = FALSE,
+  .cols_derived = NULL,
+  .name_class_flags = NULL,
   ...
 ) {
   force(.fun)
@@ -134,7 +144,8 @@ function_map <- function(
   force(.cols_helper)
   force(.cols_helper_merge)
   force(.col_names)
-  force(.arg_extra)
+  force(.cols_derived)
+  force(.name_class_flags)
 
   # Checks ---
 
@@ -156,6 +167,27 @@ function_map <- function(
     fun_name,
     ".args_defaults"
   )
+  check_factory_arg_names(
+    names(.name_class_flags),
+    formals_fun,
+    fun_name,
+    ".name_class_flags"
+  )
+
+  if (length(.cols_derived) > 0L && !rlang::is_named(.cols_derived)) {
+    cli::cli_abort(
+      "`.cols_derived` must be a named list: each name becomes a column name."
+    )
+  }
+
+  if (!all(vapply(.cols_derived, is.function, logical(1L)))) {
+    cli::cli_abort(c(
+      "Every element of `.cols_derived` must be a function.",
+      "x" = "{wrap_in_backticks(names(.cols_derived)[
+      !vapply(.cols_derived, is.function, logical(1L))
+      ])} {?is/are} not."
+    ))
+  }
 
   if (!all(names(.cols_helper_merge) %in% .cols_helper)) {
     cli::cli_abort(c(
@@ -246,16 +278,19 @@ function_map <- function(
     list(rlang::expr(rounding_class <- NULL))
   }
 
-  # Parsed from a string, like the key-argument checks above: `extra` is a
-  # formal of the factory-made function only, and R CMD check would flag it as a
-  # global variable if it appeared as a symbol in the factory's own body.
-  code_extra_cols <- if (.arg_extra) {
-    list(rlang::parse_expr(
-      "other_cols <- manage_extra_cols(data, extra, other_cols)"
-    ))
-  } else {
-    NULL
-  }
+  # One class per flag argument that is `TRUE`, such as `percent` in
+  # `grim_map()`. As with the helper columns above, the argument has to be
+  # spliced in as a symbol:
+  code_class_flags <- lapply(
+    names(.name_class_flags),
+    function(name) {
+      rlang::expr(
+        if (isTRUE(`!!`(as.name(name)))) {
+          all_classes <- c(`!!`(.name_class_flags[[name]]), all_classes)
+        }
+      )
+    }
+  )
 
   # --- Start of the factory-made function, `fn_out()` ---
 
@@ -263,7 +298,6 @@ function_map <- function(
     args = rlang::pairlist2(
       data = ,
       !!!formals_promoted,
-      !!!(if (.arg_extra) list(extra = Inf) else NULL),
       ... =
     ),
     body = rlang::expr({
@@ -275,6 +309,7 @@ function_map <- function(
       args_required <- `!!`(args_required)
       col_names <- `!!`(.col_names)
       helper_merge <- `!!`(.cols_helper_merge)
+      cols_derived_funs <- `!!`(.cols_derived)
 
       add_class <- function(x, new_class) {
         `class<-`(x, value = c(new_class, class(x)))
@@ -401,6 +436,38 @@ function_map <- function(
       # unpacked into the columns named in `col_names`:
       cols_result <- write_result_cols(results, col_names)
 
+      # Columns that are not part of `fun()`'s return value but are computed
+      # from the same per-row input, such as `probability` in `grim_map()`. Each
+      # function only gets those arguments that it has formals for, so it needs
+      # to know nothing about the test around it:
+      cols_derived <- list()
+
+      for (.name in names(cols_derived_funs)) {
+        .fun_derived <- cols_derived_funs[[.name]]
+        .args_names_derived <- names(formals(.fun_derived))
+        .vals_derived <- do.call(
+          purrr::pmap,
+          c(
+            list(
+              cols_tested[intersect(names(cols_tested), .args_names_derived)],
+              .fun_derived
+            ),
+            .args_const_vals[
+              intersect(names(.args_const_vals), .args_names_derived)
+            ]
+          )
+        )
+        cols_derived[[.name]] <- if (length(.vals_derived) == 0L) {
+          numeric(0L)
+        } else {
+          unlist(.vals_derived, use.names = FALSE)
+        }
+      }
+
+      # The derived columns follow the key result column, ahead of any columns
+      # unpacked from `col_names`:
+      cols_result <- c(cols_result[1L], cols_derived, cols_result[-1L])
+
       # Any columns of `data` that play no role in the test are returned
       # alongside the results. Columns that the output has already -- e.g., a
       # `digits_x` column in the output of a mapper that is tested again -- are
@@ -415,8 +482,6 @@ function_map <- function(
             args_helper
           )
       ]
-
-      `!!!`(code_extra_cols)
 
       out <- tibble::new_tibble(
         c(cols_key, cols_by_row, cols_result, as.list(other_cols)),
@@ -434,6 +499,9 @@ function_map <- function(
       if (inherits(data, "scrutiny_seq_df")) {
         all_classes <- c("scrutiny_seq_test", all_classes)
       }
+
+      # One class per flag argument that is set, such as `percent`:
+      `!!!`(code_class_flags)
 
       out <- add_class(out, all_classes)
 
@@ -464,7 +532,7 @@ function_map <- function(
     code_cols_helper,
     code_check_lengths,
     code_rounding_class,
-    code_extra_cols,
+    code_class_flags,
     all_classes
   )
 
