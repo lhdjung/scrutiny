@@ -90,6 +90,31 @@ test_that(
 })
 
 
+test_that("`percent = TRUE` leaves the granules on the scale of `x`", {
+  # Up to scrutiny 1.0.0, these were the decimal numbers that GRIM converts `x`
+  # to internally, so they could not be read against the `x` column they are
+  # documented as bracketing:
+  expect_true(all(df3_percent_true$rec_x_lower <= df3_percent_true$x))
+  expect_true(all(df3_percent_true$rec_x_upper >= df3_percent_true$x))
+
+  # `grim_values()` returns its values on that same scale, so a consistent case
+  # must be bracketed by the two granules there as well:
+  out <- grim_map(
+    tibble::tibble(x = c(71, 84), n = c(25L, 25L)),
+    digits_x = 0,
+    percent = TRUE,
+    show_rec = TRUE
+  )
+  out$rec_x_lower |> expect_equal(c(68, 84))
+  out$rec_x_upper |> expect_equal(c(72, 84))
+  grim_values(84, 25, digits_x = 0, percent = TRUE)[[1L]] |> expect_equal(84)
+
+  # The sums are not converted: they count the underlying data either way.
+  out$sum_lower |> expect_equal(c(18, 21))
+  out$sum_upper |> expect_equal(c(17, 21))
+})
+
+
 # The stated consistency must accord with what can be reconstructed from the
 # numbers presented -- for every row and every rounding method.
 #

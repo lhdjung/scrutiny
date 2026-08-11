@@ -65,6 +65,10 @@
 #' - `rec_x_upper`, `rec_x_lower`: the two reconstructed `x` values ("granules")
 #'   closest to `x` -- `rec_sum` rounded up and down, divided by `n` (times
 #'   `items`).
+#'
+#'   With `percent = TRUE`, the last two are percentages, like `x` itself, so
+#'   that they can be read against it. The first three are not: a sum total of
+#'   the underlying data is what it is, whichever scale the mean is reported on.
 
 #' @section Summaries with [`audit()`]: There is an S3 method for [`audit()`],
 #'   so you can call [`audit()`] following `grim_map()` to get a summary of

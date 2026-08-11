@@ -179,6 +179,8 @@ The additional columns are ---
 
 `rec_x_upper` and `rec_x_lower` are the two reconstructed means closest to `x` --- the "granules" that the GRIM story is usually told in terms of, following the charitable and conservative protocol outlined by Brown and Heathers (2017). They are `rec_sum` rounded up and down, divided by `n` (times `items`), and they don't depend on `rounding`. The `rec_*` columns were inspired by @bauer_expression_2021's Table 1 but present values in slightly different ways.
 
+With `percent = TRUE`, these two columns are percentages, just like `x` and just like the values returned by `grim_values()`, so that all of them can be read against each other. The three sum columns are not: a sum total of the underlying data is the same number whichever scale the mean is reported on.
+
 Up to scrutiny 1.0.0, `show_rec` displayed the two granules re-rounded instead of the sum range, in four columns for `"up_or_down"` and the other combined rounding methods and two for the rest. This could contradict the `consistency` column it was meant to explain. All five columns above are now present for every rounding method.
 
 ### Achievable means

@@ -79,8 +79,22 @@ grim_scalar <- function(
   # `rec_sum` and `n_items` alone -- not on the rounding method:
   denom <- 10^(digits_x + 1L)
   rec_sum_num <- round(x_num * denom) * n_items
-  rec_x_upper <- ceiling_div(rec_sum_num, denom) / n_items
-  rec_x_lower <- floor_div(rec_sum_num, denom) / n_items
+
+  # These two are meant to be read against `x`, so they are returned on the
+  # scale of `x` -- percentages if `x` is a percentage, not the decimal numbers
+  # GRIM works with internally. `grim_values()` and `grim_closest()` return
+  # their values on that scale for the same reason. `rec_sum`, `sum_lower`, and
+  # `sum_upper` are not converted: they are sums of the underlying data, which
+  # `percent` does not change, and the two bounds are the whole numbers that
+  # `rec_sum` is compared against.
+  #
+  # The factor multiplies the integer sum rather than the quotient, so that the
+  # granule is still the result of a single division. Converting afterwards
+  # would round twice, and a granule that is mathematically equal to `x` could
+  # come out a hair above or below it.
+  scale_x <- if (percent) 100 else 1
+  rec_x_upper <- ceiling_div(rec_sum_num, denom) * scale_x / n_items
+  rec_x_lower <- floor_div(rec_sum_num, denom) * scale_x / n_items
 
   # Return the same six values for every rounding method. `sum_lower` and
   # `sum_upper` are the numbers that actually decided `consistency` above: the
