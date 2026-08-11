@@ -58,7 +58,8 @@ A tibble with these columns --
 \itemize{
 \item \code{x}, \code{n}: the inputs.
 \item \code{digits_x}: the number of decimal places in \code{x}, as given by \code{digits_x}.
-\item \code{consistency}: GRIM consistency of \code{x}, \code{n}, and \code{items}.
+\item \code{consistency}: GRIM consistency of \code{x}, \code{n}, and \code{items}. \code{NA} for a case
+that cannot be decided, such as one with a missing value.
 \item \code{probability}: the probability of GRIM inconsistency; see
 \code{\link[=grim_probability]{grim_probability()}}.
 \item \verb{<extra>}: any columns from \code{data} other than \code{x}, \code{n}, and \code{items}.
@@ -96,6 +97,11 @@ values are.
 \item \code{rec_x_upper}, \code{rec_x_lower}: the two reconstructed \code{x} values ("granules")
 closest to \code{x} -- \code{rec_sum} rounded up and down, divided by \code{n} (times
 \code{items}).
+
+With \code{percent = TRUE}, the last two are percentages, like \code{x} itself, so
+that they can be read against it. The first three are not: a sum total of
+the underlying data is what it is, whichever scale the mean is reported
+on.
 }
 }
 

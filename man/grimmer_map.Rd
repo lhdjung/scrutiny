@@ -58,7 +58,8 @@ A tibble with these columns --
 \item \code{x}, \code{sd}, \code{n}: the inputs.
 \item \code{digits_x}, \code{digits_sd}: the number of decimal places in \code{x} and \code{sd}, as
 given by \code{digits_x} and \code{digits_sd}.
-\item \code{consistency}: GRIMMER consistency of \code{x}, \code{n}, and \code{items}.
+\item \code{consistency}: GRIMMER consistency of \code{x}, \code{n}, and \code{items}. \code{NA} for a
+case that cannot be decided, such as one with a missing value.
 \item \code{reason}: If consistent, \code{"Passed all"}. If inconsistent, it says which
 test was failed (see below).
 \item \verb{<extra>}: any columns from \code{data} other than \code{x}, \code{sd}, \code{n}, and \code{items}.

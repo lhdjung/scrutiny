@@ -21,8 +21,10 @@ the output of consistency test mapper functions such as \code{\link[=grim_map]{g
 will create a tibble with the three minimal, required columns:
 \enumerate{
 \item \code{incons_cases} counts the inconsistent cases, i.e., the number of rows
-in the mapper's output where \code{"consistency"} is \code{FALSE}.
-\item \code{all_cases} is the total number of rows in the mapper's output.
+in the mapper's output where \code{"consistency"} is \code{FALSE}. A case the test
+could not decide is \code{NA} there, and it is not counted as inconsistent.
+\item \code{all_cases} is the total number of rows in the mapper's output,
+including any undecidable ones.
 \item \code{incons_rate} is the ratio of \code{incons_cases} to \code{all_cases}.
 }
 

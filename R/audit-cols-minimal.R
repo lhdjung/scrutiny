@@ -5,9 +5,11 @@
 #'   will create a tibble with the three minimal, required columns:
 #'
 #'   1. `incons_cases` counts the inconsistent cases, i.e., the number of rows
-#'   in the mapper's output where `"consistency"` is `FALSE`.
+#'   in the mapper's output where `"consistency"` is `FALSE`. A case the test
+#'   could not decide is `NA` there, and it is not counted as inconsistent.
 #'
-#'   2. `all_cases` is the total number of rows in the mapper's output.
+#'   2. `all_cases` is the total number of rows in the mapper's output,
+#'   including any undecidable ones.
 #'
 #'   3. `incons_rate` is the ratio of `incons_cases` to `all_cases`.
 #'
@@ -50,8 +52,12 @@ audit_cols_minimal <- function(data, name_test) {
 
   # Compute the summary values of interest ---
 
-  # 1. the number of inconsistent cases:
-  incons_cases <- nrow(data[!data$consistency, ])
+  # 1. the number of inconsistent cases. `consistency` is `NA` where the test
+  # could not decide the case -- a missing value in a key column, or rounding
+  # bounds that are undefined for the given method. Such a case is not an
+  # inconsistent one, and counting it as one used to overstate `incons_cases`:
+  # indexing rows by `NA` returns a row of `NA`s rather than no row at all:
+  incons_cases <- sum(!data$consistency, na.rm = TRUE)
 
   # 2. the total number of cases:
   all_cases <- nrow(data)
