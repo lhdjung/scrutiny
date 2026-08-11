@@ -239,6 +239,14 @@ check_newly_numeric <- function(
     error_digits_flawed(digits, name, 4)
   }
 
+  # A missing value has no decimal places to count, so there is nothing here to
+  # be inconsistent with `digits`. It is not an input error, either: it is an
+  # undecidable case, and the test functions return `NA` for it. Without this
+  # branch, the comparison below is `NA` and the `if ()` fails outright:
+  if (is.na(x)) {
+    return(invisible(NULL))
+  }
+
   if (is.numeric(x) && digits >= decimal_places_scalar(x)) {
     return(invisible(NULL))
   }

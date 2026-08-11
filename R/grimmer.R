@@ -149,6 +149,17 @@ grimmer_scalar <- function(
   x <- as.numeric(x)
   sd <- as.numeric(sd)
 
+  # A missing value makes the test undecidable, just like the undefined rounding
+  # bounds below. It has to be caught before the GRIM test rather than after it,
+  # because `grim_scalar()` returns `NA` for it and the branch on that result
+  # would fail on a missing value:
+  if (is.na(x) || is.na(sd) || is.na(n)) {
+    if (show_reason) {
+      return(list(NA, "Missing value"))
+    }
+    return(NA)
+  }
+
   n_items <- n * items
 
   # GRIM TEST: It says `x_orig` because the `x` object has been coerced from

@@ -33,7 +33,8 @@
 #' - `x`, `sd`, `n`: the inputs.
 #' - `digits_x`, `digits_sd`: the number of decimal places in `x` and `sd`, as
 #'   given by `digits_x` and `digits_sd`.
-#' - `consistency`: DEBIT consistency of `x`, `sd`, and `n`.
+#' - `consistency`: DEBIT consistency of `x`, `sd`, and `n`. `NA` for a case
+#'   that cannot be decided, such as one with a missing value.
 #'
 #'   By default, the tibble also includes the rounding method, boundary values,
 #'   and information about the boundary values being inclusive or not. The

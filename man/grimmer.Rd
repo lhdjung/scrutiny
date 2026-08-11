@@ -63,7 +63,8 @@ possible mean or percentage values. Default is circa 0.000000015
 }
 \value{
 Logical. \code{TRUE} if \code{x}, \code{sd}, \code{n}, and \code{items} are mutually
-consistent, \code{FALSE} if not.
+consistent, \code{FALSE} if not, and \code{NA} if the case cannot be decided: if any
+of the values is missing, or if the rounding bounds are undefined.
 }
 \description{
 \code{grimmer()} checks if reported mean and SD values of integer

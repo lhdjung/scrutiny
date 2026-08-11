@@ -41,7 +41,8 @@
 #' @return A tibble with these columns --
 #' - `x`, `n`: the inputs.
 #' - `digits_x`: the number of decimal places in `x`, as given by `digits_x`.
-#' - `consistency`: GRIM consistency of `x`, `n`, and `items`.
+#' - `consistency`: GRIM consistency of `x`, `n`, and `items`. `NA` for a case
+#'   that cannot be decided, such as one with a missing value.
 #' - `probability`: the probability of GRIM inconsistency; see
 #' [`grim_probability()`].
 #' - `<extra>`: any columns from `data` other than `x`, `n`, and `items`.

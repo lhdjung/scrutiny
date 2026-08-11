@@ -54,6 +54,8 @@
 
 - Mapper functions made by `function_map()` no longer return a corrupt tibble when `data` has no rows. The `consistency` column was `NULL`, but the tibble still counted it among its columns.
 
+- A missing value in a key column no longer aborts the tests. `grim()`, `grimmer()`, `debit()`, and their mappers return `NA` for such a case, as they already did for a case whose rounding bounds are undefined. They used to fail from inside an input check with `missing value where TRUE/FALSE needed`, which named neither the column nor the row and read like an internal error rather than like something about the data. Since a mapper tests a whole data frame at once, a single missing value made the other rows untestable too. DEBIT additionally reported a missing value as being outside the range from 0 to 1, because `dplyr::between()` returns `NA` for it. `grimmer_map()` gives such a case the reason `"Missing value"`.
+
 - `debit_map()` now returns `x` and `sd` as numeric columns, not as strings. This matches `grim_map()`.
 
 - Fixed a pre-existing compatibility issue in `debit_plot()` where a theme element was out of date with recent ggplot2 versions.

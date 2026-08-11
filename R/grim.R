@@ -162,7 +162,9 @@ grim_scalar <- function(
 #'   (1.490116e-08), as in [`dplyr::near()`].
 #'
 #' @return Logical. `TRUE` if `x`, `n`, and `items` are mutually consistent,
-#'   `FALSE` if not.
+#'   `FALSE` if not, and `NA` if the case cannot be decided: if any of the
+#'   values is missing, or if the rounding bounds are undefined, which only
+#'   `rounding = "anti_trunc"` at zero is.
 #'
 #' @seealso [`grim_map()`] applies `grim()` to any number of cases at once.
 #'

@@ -111,6 +111,24 @@ debit_scalar <- function(
   x_num <- as.numeric(x)
   sd_num <- as.numeric(sd)
 
+  # A missing value makes the test undecidable, and it is returned in the same
+  # shape as the undefined-bounds case below:
+  if (anyNA(c(x_num, sd_num, n))) {
+    if (!show_rec) {
+      return(NA)
+    }
+    return(list(
+      NA,
+      rounding,
+      NA_real_,
+      NA,
+      NA_real_,
+      NA,
+      NA_real_,
+      NA_real_
+    ))
+  }
+
   bounds_x <- bound_numerators(
     x_num = x_num,
     digits = digits_x,
@@ -250,7 +268,8 @@ debit_scalar <- function(
 #' @export
 #'
 #' @return Logical. `TRUE` if `x`, `sd`, and `n` are mutually consistent,
-#'   `FALSE` if not.
+#'   `FALSE` if not, and `NA` if the case cannot be decided: if any of the
+#'   values is missing, or if the rounding bounds are undefined.
 #'
 #' @seealso [`debit_map()`] applies `debit()` to any number of cases at once.
 #'

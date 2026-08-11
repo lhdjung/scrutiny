@@ -33,6 +33,12 @@
 
 floor_div <- function(a, b) {
   q <- floor(a / b)
+  # A missing value has no floor to correct, and the comparisons below would
+  # fail on it rather than pass it on. Every caller propagates `NA` from here up
+  # to the verdict, which is what an undecidable value set should get:
+  if (is.na(q)) {
+    return(q)
+  }
   if (q * b > a) {
     q - 1
   } else if ((q + 1) * b <= a) {
