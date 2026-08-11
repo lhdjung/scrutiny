@@ -126,7 +126,7 @@ function_map_total_n_proto <- function(
     # row number in `reported`:
     case <- 1L:df_list_n_groups |>
       purrr::map2(df_list_nrow, rep) |>
-      purrr::flatten_int()
+      purrr::list_c(ptype = integer())
 
     out_df <- tidyr::unnest(out_df_nested, cols = everything())
     n_change <- out_df$n_change

@@ -96,6 +96,8 @@
 
 - scrutiny now requires R >= 4.1.0, as do recent versions of tidyverse packages. This is because the package now uses the base pipe `|>`, but also to avoid any incompatibilities with older versions of R.
 
+- scrutiny now requires purrr >= 1.0.0, which was released in 2022 (#87).
+
 ## Documentation
 
 - The `digits_x` and `digits_sd` arguments introduced in 1.0.0 are now documented, and all examples were updated to the numeric `x` and `sd` values that the mappers have taken since then. Many of them still passed strings and omitted the `digits_*` arguments, and so failed to run.

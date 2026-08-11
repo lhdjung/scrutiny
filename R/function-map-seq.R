@@ -69,9 +69,9 @@ function_map_seq_proto <- function(
     nrow_list_var <- vapply(df_var, nrow, integer(1L), USE.NAMES = FALSE)
     nrow_data_seq <- seq_along(nrow_list_var)
 
-    # Combine the list elements to one single data frame with `var`,
-    # `diff_var`, and `case`:
-    df_var <- dplyr::bind_rows(df_var)
+    # Combine the list elements to one single data frame with `var`, `diff_var`,
+    # and `case`:
+    df_var <- purrr::list_rbind(df_var)
 
     cols_for_testing_names <-
       colnames(data)[1L:match("consistency", colnames(data)) - 1L]
@@ -105,9 +105,9 @@ function_map_seq_proto <- function(
       fun(...) |>
       dplyr::mutate(
         diff_var = df_var$diff_var,
-        case = unlist(
+        case = purrr::list_c(
           purrr::map2(nrow_data_seq, nrow_list_var, rep),
-          use.names = FALSE
+          ptype = integer()
         )
       )
   }
@@ -274,13 +274,13 @@ function_map_seq <- function(
   code_bind_cols <- if (any(.reported == "n")) {
     rlang::expr({
       out <- out |>
-        dplyr::bind_rows() |>
+        purrr::list_rbind() |>
         dplyr::mutate(var, n = as.integer(n))
     })
   } else {
     rlang::expr({
       out <- out |>
-        dplyr::bind_rows() |>
+        purrr::list_rbind() |>
         dplyr::mutate(var)
     })
   }
@@ -425,7 +425,7 @@ function_map_seq <- function(
       nrow_out <- vapply(out, nrow, integer(1L), USE.NAMES = FALSE)
       var <- var |>
         purrr::map2(nrow_out, rep) |>
-        unlist(use.names = FALSE)
+        purrr::list_c(ptype = character())
 
       # For better output, `out` should be a single data frame; and for
       # identifying the origin of individual rows, `var` is added. See above.

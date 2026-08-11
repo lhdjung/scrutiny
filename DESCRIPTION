@@ -34,7 +34,7 @@ Imports:
     glue,
     lifecycle,
     methods,
-    purrr,
+    purrr (>= 1.0.0),
     rlang (>= 1.1.0),
     stats,
     stringr,

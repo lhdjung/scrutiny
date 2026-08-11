@@ -387,7 +387,9 @@ absorb_key_args <- function(data, reported, key_cols_call) {
     data[name_missing]
   }
 
-  data_renamed <- purrr::pmap_dfc(df_colnames, replace_colname)
+  data_renamed <- df_colnames |>
+    purrr::pmap(replace_colname) |>
+    purrr::list_cbind()
   data_not_renamed <- data[!colnames(data) %in% key_cols_call]
 
   data <- dplyr::bind_cols(data_renamed, data_not_renamed)

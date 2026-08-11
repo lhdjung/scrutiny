@@ -64,7 +64,7 @@ reverse_map_seq <- function(data) {
     dplyr::arrange(var)
 
   data_nested <- split(data_nested, data_nested$var)[var]
-  data_nested <- dplyr::bind_rows(data_nested)
+  data_nested <- purrr::list_rbind(data_nested)
 
   data_index_case <- data_nested |>
     dplyr::mutate(
