@@ -6,11 +6,11 @@
 \usage{
 debit_map(
   data,
+  digits_x,
+  digits_sd,
   x = NULL,
   sd = NULL,
   n = NULL,
-  digits_x,
-  digits_sd,
   formula = "mean_n",
   rounding = "up_or_down",
   threshold = 5,
@@ -21,8 +21,6 @@ debit_map(
 }
 \arguments{
 \item{data}{Data frame.}
-
-\item{x, sd, n}{Optionally, specify these arguments as column names in \code{data}.}
 
 \item{digits_x}{Integer. The number of decimal places in \code{x}, including
 trailing zeros. There is no default because it cannot be inferred from a
@@ -35,6 +33,8 @@ or one number per row of \code{data} if it varies.}
 trailing zeros. As with \code{digits_x}, there is no default, because trailing
 zeros don't survive in a numeric value, and it may have one value per row
 of \code{data}.}
+
+\item{x, sd, n}{Optionally, specify these arguments as column names in \code{data}.}
 
 \item{formula, rounding, threshold, symmetric}{Further parameters of DEBIT
 testing; see documentation for \code{\link[=debit]{debit()}}.}

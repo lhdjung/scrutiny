@@ -737,16 +737,27 @@ check_class <- function(x, cl) {
 #' @return Logical (length 1).
 #'
 #' @noRd
-check_tibble <- function(x) {
-  if (!tibble::is_tibble(x)) {
-    cli::cli_abort(
-      message = c(
-        "!" = "`data` must be a tibble.",
-        "i" = "Convert it with `tibble::as_tibble()`."
-      ),
-      call = rlang::caller_env()
-    )
+check_tibble <- function(data) {
+  if (tibble::is_tibble(data)) {
+    return(invisible(NULL))
   }
+
+  msg_what_it_is <- if (is.data.frame(data)) {
+    c("i" = "Convert it with `tibble::as_tibble()`.")
+  } else if (is.function(data)) {
+    c(
+      "x" = "It is {.obj_type_friendly {data}}.",
+      "i" = "Is there a variable called `data`? If not, R falls back to the \\
+      `data()` function, which is what happened here."
+    )
+  } else {
+    c("x" = "It is {.obj_type_friendly {data}}.")
+  }
+
+  cli::cli_abort(
+    message = c("!" = "`data` must be a tibble.", msg_what_it_is),
+    call = rlang::caller_env()
+  )
 }
 
 

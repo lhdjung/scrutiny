@@ -6,9 +6,9 @@
 \usage{
 grim_map_seq(
   data,
+  digits_x = NULL,
   x = NULL,
   n = NULL,
-  digits_x = NULL,
   var = Inf,
   dispersion = 1:5,
   out_min = "auto",
@@ -21,12 +21,12 @@ grim_map_seq(
 \arguments{
 \item{data}{A data frame that \code{grim_map()} could take.}
 
-\item{x, n}{Optionally, specify these arguments as column names in \code{data}.}
-
 \item{digits_x}{Integer. The number of decimal places in \code{x}, including
 trailing zeros. There is no default because it cannot be inferred from a
 numeric \code{x}, which has no trailing zeros: both \code{1.4} and \code{1.40} are the
 number \code{1.4}, but only the latter has \code{digits_x = 2}.}
+
+\item{x, n}{Optionally, specify these arguments as column names in \code{data}.}
 
 \item{var}{String. Names of the columns that will be dispersed. Default is
 \code{c("x", "n")}.}

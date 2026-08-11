@@ -232,6 +232,17 @@ function_map <- function(
   args_helper <- intersect(args_promoted, .cols_helper)
   args_const <- setdiff(args_promoted, c(args_by_row, args_helper))
 
+  # The arguments that may vary by row -- in practice, the `digits_*` arguments
+  # -- come first, immediately after `data` and ahead of the key arguments
+  # inserted at the very end. They have no defaults and have to be specified in
+  # every call, so they belong next to the other argument that does, and their
+  # position is the same across all mappers. This must happen after
+  # `args_required` is derived above, which pairs `formals_promoted` with
+  # `args_promoted` by position:
+  formals_promoted <- formals_promoted[
+    c(args_by_row, setdiff(names(formals_promoted), args_by_row))
+  ]
+
   code_key_arg_checks <- paste0("!missing(", .reported, ")", collapse = " || ")
   code_key_arg_checks <- rlang::expr({
     if (`!!`(rlang::parse_expr(code_key_arg_checks))) {
@@ -315,11 +326,14 @@ function_map <- function(
         `class<-`(x, value = c(new_class, class(x)))
       }
 
+      # Checks ---
+
+      # What `data` is comes first, before anything reads columns off it:
+      check_tibble(data)
+
       # Manage key columns in `data`, renaming missing columns using the values
       # of key arguments, if necessary:
       `!!!`(code_key_arg_checks)
-
-      # Checks ---
 
       scrutiny::check_args_disabled(`!!`(.args_disabled))
       scrutiny::check_factory_dots(fun, `!!`(fun_name), ...)
@@ -328,13 +342,6 @@ function_map <- function(
         `!!`(.reported),
         `!!`(.name_test)
       )
-
-      if (!tibble::is_tibble(data)) {
-        cli::cli_abort(c(
-          "!" = "`data` must be a tibble.",
-          "i" = "Convert it with `tibble::as_tibble()`."
-        ))
-      }
 
       `!!!`(code_check_lengths)
 
@@ -540,6 +547,11 @@ function_map <- function(
   # as the default for each. The key columns need to be present in the input
   # data frame. They are expected to have the names specified in `.reported`. If
   # they don't, however, the user can simply specify the key column arguments as
-  # the non-quoted names of the columns meant to fulfill these roles:
-  insert_key_args(fun = fn_out, reported = .reported)
+  # the non-quoted names of the columns meant to fulfill these roles. They go
+  # after `data` and the by-row arguments moved next to it above:
+  insert_key_args(
+    fun = fn_out,
+    reported = .reported,
+    insert_after = 1L + length(args_by_row)
+  )
 }

@@ -360,6 +360,9 @@ function_map_total_n <- function(
       reported_reduplicated <- `!!`(reported_reduplicated)
       fun <- `!!`(.fun)
 
+      # What `data` is comes first, before anything reads columns off it:
+      check_tibble(data)
+
       data <- absorb_key_args(data, reported_reduplicated)
 
       # Checks ---
@@ -370,13 +373,6 @@ function_map_total_n <- function(
       # `check_mapper_input_colnames()` is not applicable to `data`, so the
       # function only checks the remaining point, using an internal helper:
       check_consistency_not_in_colnames(data, name_test)
-
-      if (!tibble::is_tibble(data)) {
-        cli::cli_abort(c(
-          "!" = "`data` must be a tibble.",
-          "i" = "Convert it with `tibble::as_tibble()`."
-        ))
-      }
 
       # Make sure that the `n` column is present...
       if (!any(colnames(data) == "n")) {

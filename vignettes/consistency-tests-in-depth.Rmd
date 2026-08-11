@@ -120,6 +120,8 @@ These are the most important arguments:
 
 -   `.name_test` simply names the consistency test.
 
+`function_map()` does not assume a particular number of key columns, but the number of columns must be fixed when the factory runs.
+
 ### Context and export
 
 As you can see, `function_map()` is not a helper used inside other functions when creating them with `function()` --- instead, it takes the place of `function()` itself. This makes it a so-called function factory, or more precisely, a [function operator](https://adv-r.hadley.nz/function-operators.html) [@wickham2019]. You already met `base::Vectorize()` in section 2, which is also a function operator, but a more general and straightforward one.

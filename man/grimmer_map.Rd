@@ -6,11 +6,11 @@
 \usage{
 grimmer_map(
   data,
+  digits_x,
+  digits_sd,
   x = NULL,
   sd = NULL,
   n = NULL,
-  digits_x,
-  digits_sd,
   items = 1,
   show_reason = TRUE,
   rounding = "up_or_down",
@@ -25,8 +25,6 @@ grimmer_map(
 (see documentation for \code{grim()}). Any other columns in \code{data} will be
 returned alongside GRIMMER test results.}
 
-\item{x, sd, n}{Optionally, specify these arguments as column names in \code{data}.}
-
 \item{digits_x}{Integer. The number of decimal places in \code{x}, including
 trailing zeros. There is no default because it cannot be inferred from a
 numeric \code{x}, which has no trailing zeros: both \code{1.4} and \code{1.40} are the
@@ -38,6 +36,8 @@ or one number per row of \code{data} if it varies.}
 trailing zeros. As with \code{digits_x}, there is no default, because trailing
 zeros don't survive in a numeric value, and it may have one value per row
 of \code{data}.}
+
+\item{x, sd, n}{Optionally, specify these arguments as column names in \code{data}.}
 
 \item{items}{Integer. If there is no \code{items} column in \code{data}, this specifies
 the number of items composing the \code{x} and \code{sd} values. Default is \code{1}, the

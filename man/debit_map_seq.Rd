@@ -6,11 +6,11 @@
 \usage{
 debit_map_seq(
   data,
+  digits_x = NULL,
+  digits_sd = NULL,
   x = NULL,
   sd = NULL,
   n = NULL,
-  digits_x = NULL,
-  digits_sd = NULL,
   var = Inf,
   dispersion = 1:5,
   out_min = "auto",
@@ -23,8 +23,6 @@ debit_map_seq(
 \arguments{
 \item{data}{A data frame that \code{debit_map()} could take.}
 
-\item{x, sd, n}{Optionally, specify column names in \code{data} as these arguments.}
-
 \item{digits_x}{Integer. The number of decimal places in \code{x}, including
 trailing zeros. There is no default because it cannot be inferred from a
 numeric \code{x}, which has no trailing zeros: both \code{1.4} and \code{1.40} are the
@@ -33,6 +31,8 @@ number \code{1.4}, but only the latter has \code{digits_x = 2}.}
 \item{digits_sd}{Integer. The number of decimal places in \code{sd}, including
 trailing zeros. As with \code{digits_x}, there is no default, because trailing
 zeros don't survive in a numeric value.}
+
+\item{x, sd, n}{Optionally, specify column names in \code{data} as these arguments.}
 
 \item{var}{String. Names of the columns that will be dispersed. Default is
 \code{c("x", "sd", "n")}.}

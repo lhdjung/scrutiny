@@ -6,9 +6,9 @@
 \usage{
 grim_map(
   data,
+  digits_x,
   x = NULL,
   n = NULL,
-  digits_x,
   items = 1,
   percent = FALSE,
   show_rec = FALSE,
@@ -24,14 +24,14 @@ grim_map(
 documentation for \code{\link[=grim]{grim()}}). Any other columns in \code{data} will be returned
 alongside GRIM test results.}
 
-\item{x, n}{Optionally, specify these arguments as column names in \code{data}.}
-
 \item{digits_x}{Integer. The number of decimal places in \code{x}, including
 trailing zeros. There is no default because it cannot be inferred from a
 numeric \code{x}, which has no trailing zeros: both \code{1.4} and \code{1.40} are the
 number \code{1.4}, but only the latter has \code{digits_x = 2}. Use a single number
 if the whole column was reported with the same number of decimal places,
 or one number per row of \code{data} if it varies.}
+
+\item{x, n}{Optionally, specify these arguments as column names in \code{data}.}
 
 \item{items}{Integer. If there is no \code{items} column in \code{data}, this specifies
 the number of items composing the \code{x} values. Default is 1, the most common

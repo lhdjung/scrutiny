@@ -320,6 +320,9 @@ function_map_seq <- function(
       args_disabled <- `!!`(.args_disabled)
       fun <- `!!`(.fun)
 
+      # What `data` is comes first, before anything reads columns off it:
+      check_tibble(data)
+
       data <- absorb_key_args(data, reported)
 
       check_factory_dots(fun, name_fun, ...)
@@ -359,13 +362,6 @@ function_map_seq <- function(
 
       check_mapper_input_colnames(data, reported)
       check_consistency_not_in_colnames(data, name_test)
-
-      if (!tibble::is_tibble(data)) {
-        cli::cli_abort(c(
-          "!" = "`data` must be a tibble.",
-          "i" = "Convert it with `tibble::as_tibble()`."
-        ))
-      }
 
       # First, basic testing with the `*_map()` function:
       data <- do.call(fun, c(list(data), .digits_vals, list(...)))
@@ -505,6 +501,13 @@ function_map_seq <- function(
   # as the default for each. The key columns need to be present in the input
   # data frame. They are expected to have the names specified in `.reported`. If
   # they don't, however, the user can simply specify the key column arguments as
-  # the non-quoted names of the columns meant to fulfill these roles:
-  insert_key_args(fn_out, .reported)
+  # the non-quoted names of the columns meant to fulfill these roles. They go
+  # after the `digits_*` arguments, which are spliced in right after `data`, so
+  # that the sequence mapper's signature starts the same way as the basic
+  # mapper's:
+  insert_key_args(
+    fn_out,
+    .reported,
+    insert_after = 1L + length(digits_args_names)
+  )
 }

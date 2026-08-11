@@ -249,6 +249,23 @@ test_that("arguments of the test function become real arguments", {
 })
 
 
+test_that("the `digits_*` arguments come right after `data`", {
+  # They have no defaults and must be given in every call, so they sit next to
+  # the other argument that must, ahead of the key arguments -- and in the same
+  # position in every mapper, basic and sequence alike:
+  names(formals(grim_map))[1:2] |> expect_equal(c("data", "digits_x"))
+  names(formals(grimmer_map))[1:3] |>
+    expect_equal(c("data", "digits_x", "digits_sd"))
+  names(formals(debit_map))[1:3] |>
+    expect_equal(c("data", "digits_x", "digits_sd"))
+  names(formals(grim_map_seq))[1:2] |> expect_equal(c("data", "digits_x"))
+  names(formals(grimmer_map_seq))[1:3] |>
+    expect_equal(c("data", "digits_x", "digits_sd"))
+  names(formals(debit_map_seq))[1:3] |>
+    expect_equal(c("data", "digits_x", "digits_sd"))
+})
+
+
 test_that("the sequence mappers still find their `digits_*` arguments", {
   # `function_map_seq()` and `function_map_total_n()` derive these from the
   # basic mapper's formals. If a `digits_*` argument were only in the mapper's
@@ -259,6 +276,40 @@ test_that("the sequence mappers still find their `digits_*` arguments", {
   names(formals(debit_map_seq)) |> expect_contains("digits_x")
   names(formals(debit_map_seq)) |> expect_contains("digits_sd")
   names(formals(grim_map_seq)) |> expect_contains("digits_x")
+})
+
+
+test_that("`.reported` may name any number of key columns", {
+  # Nothing in the factory hardcodes the number of key columns: GRIM has two,
+  # GRIMMER and DEBIT have three, and a test with more works the same way. The
+  # number has to be known when the factory runs, not when the mapper is
+  # called (#42).
+  quadrant_scalar <- function(a, b, c, d, tolerance = 0) {
+    abs((a + b) - (c + d)) <= tolerance
+  }
+
+  quadrant_map <- function_map(
+    .fun = quadrant_scalar,
+    .reported = c("a", "b", "c", "d"),
+    .name_test = "QUADRANT"
+  )
+
+  names(formals(quadrant_map)) |>
+    expect_equal(c("data", "a", "b", "c", "d", "tolerance", "..."))
+
+  df <- tibble::tibble(a = 1:3, b = 4:6, c = c(5L, 7L, 9L), d = c(0L, 0L, 1L))
+  out <- quadrant_map(df)
+  out |> expect_s3_class("scrutiny_quadrant_map")
+  out$consistency |> expect_equal(c(TRUE, TRUE, FALSE))
+  out |> colnames() |> expect_equal(c("a", "b", "c", "d", "consistency"))
+
+  # Key-column renaming covers all four of them:
+  df_renamed <- dplyr::rename(df, alpha = a, delta = d)
+  quadrant_map(df_renamed, a = alpha, d = delta) |> expect_equal(out)
+  quadrant_map(df_renamed, a = alpha) |> expect_error()
+
+  # And so does the arity-agnostic column check:
+  quadrant_map(dplyr::select(df, -d)) |> expect_error()
 })
 
 
@@ -356,4 +407,49 @@ test_that("a mapper called on a 0-row data frame returns a valid tibble", {
     out$consistency |> expect_type("logical")
     out |> audit() |> nrow() |> expect_equal(1L)
   }
+})
+
+
+test_that("`data` must be a tibble, and that is checked first of all", {
+  # Anything other than a tibble is rejected before the mapper reads a single
+  # column name -- including a `data.frame`, which is never admitted even for
+  # the length of one more check. Only the wording of the error depends on what
+  # the object turned out to be.
+  for (mapper in list(
+    function(d) grim_map(d, digits_x = 2),
+    function(d) grimmer_map(d, digits_x = 2, digits_sd = 2),
+    function(d) debit_map(d, digits_x = 2, digits_sd = 2),
+    function(d) grim_map_seq(d, digits_x = 2),
+    function(d) grim_map_total_n(d, digits_x = 2)
+  )) {
+    mapper(as.data.frame(pigs1)) |> expect_error("must be a tibble")
+    mapper(as.matrix(pigs1)) |> expect_error("must be a tibble")
+    mapper(1:10) |> expect_error("must be a tibble")
+    mapper(NULL) |> expect_error("must be a tibble")
+  }
+
+  # A `data.frame` gets the conversion hint...
+  grim_map(as.data.frame(pigs1), digits_x = 2) |>
+    expect_error("as_tibble")
+  # ...and everything else is named for what it is:
+  grim_map(1:10, digits_x = 2) |> expect_error("integer vector")
+
+  # The most confusing case is an undefined `data`, which R resolves to
+  # `utils::data()`. Nothing in this file defines a `data` object, so the calls
+  # below really do hit that function. This used to be reported as the key
+  # columns missing from `data`, which blamed the user's data for what was
+  # really the wrong object:
+  grim_map(data, digits_x = 2) |> expect_error("must be a tibble")
+  grim_map(data, digits_x = 2) |> expect_error("`data\\(\\)` function")
+  grimmer_map(data, digits_x = 2, digits_sd = 2) |>
+    expect_error("`data\\(\\)` function")
+  debit_map(data, digits_x = 2, digits_sd = 2) |>
+    expect_error("`data\\(\\)` function")
+  grim_map_seq(data, digits_x = 2) |> expect_error("`data\\(\\)` function")
+  grim_map_total_n(data, digits_x = 2) |> expect_error("`data\\(\\)` function")
+
+  # A tibble that really is missing the key columns still gets the column
+  # error, not the type error:
+  grim_map(tibble::tibble(a = 1, b = 2), digits_x = 2) |>
+    expect_error("must be in `data`")
 })
