@@ -35,9 +35,9 @@ will convert it to a decimal number and adjust the decimal count (i.e.,
 increase it by 2). Default is \code{FALSE}.}
 
 \item{show_rec}{Logical. For internal use only. If set to \code{TRUE}, the output
-is a matrix that also contains intermediary values from GRIM-testing. Don't
-specify this manually; instead, use \code{show_rec} in \code{\link[=grim_map]{grim_map()}}. Default
-is \code{FALSE}.}
+is a list that also contains the reconstructed values from GRIM-testing.
+Don't specify this manually; instead, use \code{show_rec} in \code{\link[=grim_map]{grim_map()}}.
+Default is \code{FALSE}.}
 
 \item{rounding}{String. Rounding method or methods to be used for
 reconstructing the values to which \code{x} will be compared. Default is

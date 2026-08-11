@@ -74,48 +74,33 @@ grim_scalar <- function(
   # Reconstruct the possible mean or percentage values ("granules"). These are
   # `floor(rec_sum) / n_items` and `ceiling(rec_sum) / n_items`, but computed
   # via exact division so that an `rec_sum` which is mathematically an integer
-  # is not floored or ceilinged to its neighbor by floating-point error:
+  # is not floored or ceilinged to its neighbor by floating-point error. They
+  # are the values GRIM is classically taught in terms of, and they depend on
+  # `rec_sum` and `n_items` alone -- not on the rounding method:
   denom <- 10^(digits_x + 1L)
   rec_sum_num <- round(x_num * denom) * n_items
   rec_x_upper <- ceiling_div(rec_sum_num, denom) / n_items
   rec_x_lower <- floor_div(rec_sum_num, denom) / n_items
 
-  length_2ers <- c("up_or_down", "up_from_or_down_from", "ceiling_or_floor")
-
-  # Round the granules for display in the reconstructed-values columns:
-  granules_rounded <- reround(
-    x = c(rec_x_upper, rec_x_lower),
-    digits = digits_x,
-    rounding = rounding,
-    threshold = threshold,
-    symmetric = symmetric
-  )
-
-  granules_rounded_subset <- if (any(length_2ers %in% rounding)) {
-    # Two rounding variants per granule (e.g., "up" and "down"):
-    list(
-      granules_rounded[1L],
-      granules_rounded[2L],
-      granules_rounded[3L],
-      granules_rounded[4L]
-    )
-  } else {
-    # One rounding variant per granule:
-    list(
-      granules_rounded[1L],
-      granules_rounded[2L]
-    )
-  }
-
-  # Return a final combined list
-  c(
-    list(
-      consistency,
-      rec_sum,
-      rec_x_upper,
-      rec_x_lower
-    ),
-    granules_rounded_subset
+  # Return the same six values for every rounding method. `sum_lower` and
+  # `sum_upper` are the numbers that actually decided `consistency` above: the
+  # least and the greatest integer sum that would have been reported as `x`.
+  # They also say how far off an inconsistent value set is, because the range is
+  # empty exactly if the set is inconsistent.
+  #
+  # Up to scrutiny 1.0.0, the display was granule-based instead: the two
+  # granules, re-rounded, in four columns for the "_or_" rounding methods and
+  # two for the others. That was a second, parallel derivation of the verdict,
+  # left behind when the verdict itself moved to exact integer arithmetic, and
+  # for `rounding = "anti_trunc"` it could contradict the `consistency` column
+  # it was meant to explain. The deciding numbers cannot contradict it.
+  list(
+    consistency,
+    rec_sum,
+    sums_consistent[1L],
+    sums_consistent[2L],
+    rec_x_upper,
+    rec_x_lower
   )
 }
 
@@ -158,9 +143,9 @@ grim_scalar <- function(
 #'   will convert it to a decimal number and adjust the decimal count (i.e.,
 #'   increase it by 2). Default is `FALSE`.
 #' @param show_rec Logical. For internal use only. If set to `TRUE`, the output
-#'   is a matrix that also contains intermediary values from GRIM-testing. Don't
-#'   specify this manually; instead, use `show_rec` in [`grim_map()`]. Default
-#'   is `FALSE`.
+#'   is a list that also contains the reconstructed values from GRIM-testing.
+#'   Don't specify this manually; instead, use `show_rec` in [`grim_map()`].
+#'   Default is `FALSE`.
 #' @param rounding String. Rounding method or methods to be used for
 #'   reconstructing the values to which `x` will be compared. Default is
 #'   `"up_or_down"` (from 5).
