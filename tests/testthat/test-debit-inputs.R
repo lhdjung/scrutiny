@@ -1,5 +1,5 @@
-# NOTE: The tests for `debit_table()` are implicitly included in
-# test-debit-map.R, so the present file only tests the checks.
+# NOTE: `debit_scalar()` is tested in test-debit.R and test-debit-map.R, so the
+# present file only tests the input-range checks.
 
 x1 <- pigs3$x
 x2 <- pigs3$sd
