@@ -51,7 +51,8 @@ A tibble with (at least) these columns --
 \item \code{x}, \code{sd}, \code{n}: the inputs.
 \item \code{digits_x}, \code{digits_sd}: the number of decimal places in \code{x} and \code{sd}, as
 given by \code{digits_x} and \code{digits_sd}.
-\item \code{consistency}: DEBIT consistency of \code{x}, \code{sd}, and \code{n}.
+\item \code{consistency}: DEBIT consistency of \code{x}, \code{sd}, and \code{n}. \code{NA} for a case
+that cannot be decided, such as one with a missing value.
 
 By default, the tibble also includes the rounding method, boundary values,
 and information about the boundary values being inclusive or not. The

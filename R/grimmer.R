@@ -406,7 +406,8 @@ grimmer_scalar <- function(
 #' @inheritParams grim
 #'
 #' @return Logical. `TRUE` if `x`, `sd`, `n`, and `items` are mutually
-#'   consistent, `FALSE` if not.
+#'   consistent, `FALSE` if not, and `NA` if the case cannot be decided: if any
+#'   of the values is missing, or if the rounding bounds are undefined.
 
 #' @details GRIMMER was originally devised by Anaya (2016). The present
 #'   implementation follows Allard's (2018) refined Analytic-GRIMMER algorithm.

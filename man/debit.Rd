@@ -57,7 +57,8 @@ is \code{FALSE}.}
 }
 \value{
 Logical. \code{TRUE} if \code{x}, \code{sd}, and \code{n} are mutually consistent,
-\code{FALSE} if not.
+\code{FALSE} if not, and \code{NA} if the case cannot be decided: if any of the
+values is missing, or if the rounding bounds are undefined.
 }
 \description{
 \code{debit()} tests summaries of binary data for consistency: If the

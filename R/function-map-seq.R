@@ -368,9 +368,13 @@ function_map_seq <- function(
 
       # Remove consistent cases from `data` if only the inconsistent ones are of
       # interest (the default). The "filtering" code below is equivalent to
-      # `dplyr::filter(data, !consistency)`, but much faster.
+      # `dplyr::filter(data, !consistency)`, but much faster. `which()` is what
+      # makes it equivalent: a case the test could not decide is `NA` here, and
+      # indexing rows by `NA` would return a row of `NA`s -- a case to disperse
+      # values around that has no values to disperse. It is dropped instead,
+      # just like a consistent one, since it is not an inconsistent case.
       if (!include_consistent) {
-        data <- data[!data$consistency, ]
+        data <- data[which(!data$consistency), ]
       }
 
       # As `var` is `Inf` by default, it must be referred to the names of

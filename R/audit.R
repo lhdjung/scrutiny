@@ -140,7 +140,9 @@ audit_seq <- function(data) {
   index_hit_distance <- function(df, var_order = var_names) {
     out <- df |>
       split(df$var) |>
-      purrr::map(function(x) x[x$consistency, ])
+      # `which()` for the same reason as in the `dplyr::filter()` call above,
+      # which drops undecidable cases rather than counting them as hits:
+      purrr::map(function(x) x[which(x$consistency), ])
     out[order(var_order)] |>
       purrr::map(function(x) x$diff_var)
   }
