@@ -7,10 +7,23 @@ check_debit_inputs <- function(input, type, symbol) {
     dplyr::between(0, 1)
 
   # If at least one of the values is outside of that range, this will lead to an
-  # error. First, the error message is prepared...
-  offenders <- input[!input_in_range]
+  # error. First, the error message is prepared... Missing values are not
+  # offenders: they are undecidable, not out of range, and the test functions
+  # return `NA` for them.
+  offenders <- input[!is.na(input_in_range) & !input_in_range]
 
   if (length(offenders) > 0L) {
+    # Since the check moved into `debit_scalar()`, it most often runs on a
+    # single value, one row at a time. Counting offenders out of a total is then
+    # vestigial -- the value itself is the whole message:
+    if (length(input) == 1L) {
+      cli::cli_abort(c(
+        "!" = "DEBIT only works with binary summary data.",
+        "!" = "Binary {type} (`{symbol}`) values must range from 0 to 1.",
+        "x" = "`{symbol}` is {offenders}."
+      ))
+    }
+
     if (length(offenders) == 1L) {
       msg_is_are <- "is"
     } else {
