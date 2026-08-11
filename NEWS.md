@@ -74,6 +74,10 @@
 
 - Functions made by `function_map_total_n()` now work when they are created outside of scrutiny, e.g., in another package. Their bodies call scrutiny-internal helpers such as `absorb_key_args()`, but the factory used to enclose them in the caller's environment, which has no path to those helpers. They are now enclosed in an environment inheriting from scrutiny's namespace, as those made by `function_map()` and `function_map_seq()` already were (#69).
 
+## New features
+
+- New functions `grim_values()` and `grim_closest()` reconstruct the mean or percentage values that integer data of the reported sample size could actually have produced. `grim_values()` returns every achievable value that would have been reported as `x`, and is empty if `x` is GRIM-inconsistent with `n`; `grim_closest()` returns the single achievable value nearest to `x`, whether or not it is consistent. Like `grim()`, both are vectorized and derive their values in closed form and in exact integer arithmetic. Their goal is similar to `rsprite2::GRIM_test(return_values = TRUE)` (#62).
+
 ## Lifycycle updates
 
 - `function_map()` can now do everything that the mappers it creates need, which is why all three of `grim_map()`, `grimmer_map()`, and `debit_map()` are made by it (see above). The factory-made function now has a real argument for every argument of the `*_scalar()` function, with the same default, instead of taking them via the dots. Along with that, the factory gained these arguments:

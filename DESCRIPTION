@@ -86,6 +86,7 @@ Collate:
     'grim-map-seq.R'
     'grim-map-total-n.R'
     'grim-plot.R'
+    'grim-values.R'
     'grimmer-map-seq.R'
     'grimmer-map-total-n.R'
     'grimmer-rsprite2.R'

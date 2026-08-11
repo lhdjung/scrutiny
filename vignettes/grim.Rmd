@@ -181,6 +181,39 @@ The additional columns are ---
 
 Up to scrutiny 1.0.0, `show_rec` displayed the two granules re-rounded instead of the sum range, in four columns for `"up_or_down"` and the other combined rounding methods and two for the rest. This could contradict the `consistency` column it was meant to explain. All five columns above are now present for every rounding method.
 
+### Achievable means
+
+The sum range says how many means the reported mean could have stood for. If you want the means themselves, call `grim_values()`. It divides each whole number in that range by the sample size, so it returns the values that integer data of this size could actually have produced and that would have been reported as `x`:
+
+```{r}
+grim_values(x = 5.19, n = 32, digits_x = 2)
+
+grim_values(x = 5.19, n = 300, digits_x = 2)
+```
+
+A GRIM-inconsistent value set has none of them, and the result is empty:
+
+```{r}
+grim_values(x = 5.19, n = 28, digits_x = 2)
+```
+
+`grim_closest()` answers the complementary question --- what value could have been reported instead? It returns the achievable mean nearest to `x`, whether or not `x` is consistent:
+
+```{r}
+grim_closest(x = 5.19, n = 28, digits_x = 2)
+```
+
+A sample of 28 cannot have a mean of 5.19, but it can have one of 5.178571, which would have been reported as 5.18.
+
+Both functions are vectorized, like `grim()`. Because a reported mean can stand for any number of achievable ones, `grim_values()` returns a list, with one element per value set --- which makes it easy to add as a list-column:
+
+```{r}
+pigs1 |>
+  dplyr::mutate(values = grim_values(x, n, digits_x = 2))
+```
+
+Caveat: The number of achievable means grows uncontrollably once `n` (times `items`) reaches `10^digits_x`, which is exactly the point where GRIM stops being informative and the `probability` column is 0. This is also why they are not part of `grim_map()`'s output. If they were, mapping a large table in that case would produce hundreds of thousands of numbers that carry no information. `grim_closest()` is cheap there, since it never enumerates the set.
+
 ## Summarizing results with `audit()`
 
 Following up on a call to `grim_map()`, the generic function `audit()` summarizes GRIM test results:
