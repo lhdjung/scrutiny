@@ -103,9 +103,22 @@ floor_frac_sum <- function(a1, b1, a2, b2) {
 # 5. The `"*_from"` methods are the parameterized ones.
 #
 # Returns a list of four elements -- lower offset, upper offset, `incl_lower`,
-# `incl_upper` -- or `NULL` if `rounding` is not a known method.
+# `incl_upper` -- all four of them `NA` if `x_num` is missing, or `NULL` if
+# `rounding` is not a known method.
 
 rounding_offsets <- function(rounding, threshold, x_num, symmetric = FALSE) {
+  # A missing value has no sign, and the branches below need one: `"trunc"` and
+  # `"anti_trunc"` have different bounds on either side of zero, and `symmetric`
+  # mirrors the methods it applies to. Standing in a positive number keeps
+  # `rounding` validated the way it is for any other value -- an unknown method
+  # is an input error whatever `x_num` is -- and the offsets it yields are
+  # discarded at the end. A missing value is undecidable, not a value whose
+  # bounds are known:
+  x_missing <- is.na(x_num)
+  if (x_missing) {
+    x_num <- 1
+  }
+
   # With `symmetric`, the rounding of a negative number mirrors that of its
   # absolute value, which is precisely what the opposite method does to a
   # negative number anyway. Swapping the method here is therefore enough:
@@ -188,6 +201,12 @@ rounding_offsets <- function(rounding, threshold, x_num, symmetric = FALSE) {
   ) {
     offsets[[1L]] <- -offsets[[2L]]
     offsets[[3L]] <- offsets[[4L]]
+  }
+
+  if (x_missing) {
+    # `bound_numerators()` turns these into `NULL`, which every caller already
+    # reports as an undecidable case:
+    return(list(NA, NA, NA, NA))
   }
 
   offsets

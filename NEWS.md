@@ -58,6 +58,8 @@
 
 - A missing value in a key column no longer aborts the tests. `grim()`, `grimmer()`, `debit()`, and their mappers return `NA` for such a case, as they already did for a case whose rounding bounds are undefined. They used to fail from inside an input check with `missing value where TRUE/FALSE needed`, which named neither the column nor the row and read like an internal error rather than like something about the data. Since a mapper tests a whole data frame at once, a single missing value made the other rows untestable too. DEBIT additionally reported a missing value as being outside the range from 0 to 1, because `dplyr::between()` returns `NA` for it. `grimmer_map()` gives such a case the reason `"Missing value"`.
 
+- An undecidable case is now `NA` under every rounding method, not just under the default one. `grim()` derived its bounds from the sign of `x`, which a missing value does not have, so `rounding = "trunc"`, `rounding = "anti_trunc"`, and `symmetric = TRUE` still aborted with `missing value where TRUE/FALSE needed` -- as did `grim_map()`, `grim_values()`, `grim_closest()`, and `unround()` with those settings. An unknown `rounding` string is still an input error, whether or not `x` is missing.
+
 - `audit()` no longer counts an undecidable case as an inconsistent one. `incons_cases` is the number of rows where `consistency` is `FALSE`, as documented, but it was derived by indexing rows with `!consistency`, and indexing by `NA` returns a row of `NA`s rather than no row at all. The same phantom row could reach `*_map_seq()`, which dispersed values around a case that has no values, and `audit_seq()`, which counted it as a hit.
 
 - `debit_map()` now returns `x` and `sd` as numeric columns, not as strings. This matches `grim_map()`.

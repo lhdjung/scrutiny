@@ -34,6 +34,50 @@ test_that("the single-case functions return `NA` for a missing value", {
 })
 
 
+test_that("a missing value is `NA` under every rounding method", {
+  # The bounds of `"trunc"` and `"anti_trunc"` depend on the sign of `x`, and
+  # `symmetric` mirrors the methods it applies to -- and a missing value has no
+  # sign. Every one of these used to abort with "missing value where TRUE/FALSE
+  # needed", the very error this behavior was meant to replace, and a mapper
+  # then failed for the whole data frame over a single missing value.
+
+  # fmt: skip
+  roundings <- c(
+    "up_or_down", "up", "down", "even", "ceiling", "floor",
+    "ceiling_or_floor", "trunc", "anti_trunc"
+  )
+  for (rounding in roundings) {
+    for (symmetric in c(FALSE, TRUE)) {
+      info <- paste0("rounding = ", rounding, ", symmetric = ", symmetric)
+      expect_na(grim(NA, 28, digits_x = 2, rounding = rounding, symmetric = symmetric))
+      expect_na(grim(5.19, NA, digits_x = 2, rounding = rounding, symmetric = symmetric))
+      expect_equal(
+        grim_map(df_grim, digits_x = 2, rounding = rounding, symmetric = symmetric)$consistency,
+        c(grim(5.19, 28, digits_x = 2, rounding = rounding, symmetric = symmetric), NA, NA),
+        info = info
+      )
+      expect_na(
+        grim_values(NA, 28, digits_x = 2, rounding = rounding, symmetric = symmetric)[[1L]]
+      )
+      expect_na(
+        grim_closest(NA, 28, digits_x = 2, rounding = rounding, symmetric = symmetric)
+      )
+      expect_na(
+        unround(NA_real_, digits = 2, rounding = rounding, symmetric = symmetric)$lower
+      )
+    }
+  }
+})
+
+
+test_that("a missing value does not excuse an unknown `rounding`", {
+  # An undecidable case is still no reason to accept a rounding method that does
+  # not exist -- that is an input error whatever `x` is:
+  grim(NA, 28, digits_x = 2, rounding = "nonsense") |> expect_error()
+  unround(NA_real_, digits = 2, rounding = "nonsense") |> expect_error()
+})
+
+
 test_that("they are still vectorized over the other values", {
   grim(c(5.19, NA), c(28, 28), digits_x = 2) |>
     expect_equal(c(FALSE, NA))
