@@ -6,7 +6,7 @@
 \usage{
 function_map(
   .fun,
-  .reported,
+  .reported = NULL,
   .name_test,
   .name_key_result = "consistency",
   .name_class = NULL,
@@ -18,6 +18,7 @@ function_map(
   .col_names = NULL,
   .cols_derived = NULL,
   .name_class_flags = NULL,
+  .reported_variadic = NULL,
   ...
 )
 }
@@ -27,7 +28,8 @@ each row in a data frame. It must return a single logical value, i.e.,
 \code{TRUE}, \code{FALSE}, or \code{NA} -- or, if \code{.col_names} is specified, a list of
 values with the key result first.}
 
-\item{.reported}{String. Names of the columns to be tested.}
+\item{.reported}{String. Names of the columns to be tested. May be \code{NULL} if
+\code{.reported_variadic} is specified.}
 
 \item{.name_test}{String (length 1). Plain-text name of the consistency test,
 such as \code{"GRIM"}.}
@@ -88,6 +90,13 @@ added to the output whenever that argument is \code{TRUE}, such as
 what the numbers in the output mean, so that functions downstream of the
 mapper can tell.}
 
+\item{.reported_variadic}{Optionally, a single string naming an argument of
+\code{.fun} that takes all the values of one row at once, as a vector. The
+factory-made function then has an argument by that name which selects any
+number of columns using tidyselect syntax, so that how many columns are
+tested is up to the caller rather than fixed when the factory runs. It has
+no default and must be specified in every call. See \emph{Details}.}
+
 \item{...}{These dots must be empty.}
 }
 \value{
@@ -99,6 +108,9 @@ permitted.
 \item Arguments named after the \code{.reported} values. They can be specified as the
 names of \code{data} columns so that the function will rename that column using
 the \code{.reported} name.
+\item If \code{.reported_variadic} was specified, an argument by that name. It selects
+any number of columns of \code{data} using tidyselect syntax, and has no
+default.
 \item Arguments named after those of \code{.fun}, with the same defaults; see
 \emph{Details}.
 \item \code{...}: Arguments passed down to \code{.fun}.
@@ -112,8 +124,44 @@ For context, see \href{https://lhdjung.github.io/scrutiny/articles/consistency-t
 }
 \details{
 The factory-made function has an argument for every argument of
-\code{.fun} that is not named in \code{.reported} or \code{.args_disabled}, with the same
-default. Values supplied to them are passed on to \code{.fun}.
+\code{.fun} that is not named in \code{.reported}, \code{.reported_variadic}, or
+\code{.args_disabled}, with the same default. Values supplied to them are passed
+on to \code{.fun}.
+
+Nothing here assumes a particular number of key columns, but that number is
+normally fixed when the factory runs: GRIM has two, GRIMMER and DEBIT have
+three. \code{.reported_variadic} is for the other case, where the number is a
+property of the caller's data -- as with a test that checks whether the
+values in any number of columns add up to the value in one specific other
+column. Its \code{.fun} takes those values as a single vector argument instead
+of one argument per column, and the factory-made function selects the
+columns with tidyselect:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{sum_check_scalar <- function(parts, total, tolerance = 0) \{
+  abs(sum(parts) - total) <= tolerance
+\}
+
+sum_check_map <- function_map(
+  .fun = sum_check_scalar,
+  .reported = "total",
+  .reported_variadic = "parts",
+  .name_test = "SUMCHECK"
+)
+
+sum_check_map(data, parts = starts_with("item"))
+}\if{html}{\out{</div>}}
+
+Selection helpers such as \code{starts_with()} are available inside that
+argument whether or not tidyselect is attached. The selection must not be
+empty, and it must not include a column that has a role in the test
+already -- a key column or a helper column -- because such a column would
+be tested twice over and returned twice.
+
+The selected columns are returned as themselves, so the output is as
+rectangular as any other mapper's. What varies is only how many columns go
+into each test. Such a mapper is basic-tier only: \code{\link[=function_map_seq]{function_map_seq()}}
+and \code{\link[=function_map_total_n]{function_map_total_n()}} derive their own arguments from \code{.reported},
+which says nothing about the variadic columns.
 
 The output tibble returned by the factory-made function will inherit one or
 two classes independently of the \code{.name_class} argument:
@@ -126,10 +174,11 @@ named \code{"scrutiny_rounding_{rounding}"}; for example,
 }
 }
 \section{Value returned by the factory-made function}{
- A tibble with the
-\code{.reported} columns, any \code{.args_by_row} columns, and \code{"consistency"}: a
-logical column showing whether the values to its left are mutually
-consistent (\code{TRUE}) or not (\code{FALSE}). Any \code{.cols_derived} columns, any
+ A tibble with any
+\code{.reported_variadic} columns, the \code{.reported} columns, any \code{.args_by_row}
+columns, and \code{"consistency"}: a logical column showing whether the values
+to its left are mutually consistent (\code{TRUE}) or not (\code{FALSE}). Any
+\code{.cols_derived} columns, any
 columns from \code{.col_names}, and any other columns of \code{data} follow to the
 right, in that order.
 }
@@ -154,4 +203,29 @@ df1 <- tibble::tibble(y = 16:25, n = 3:12)
 
 # Call the "factory-made" function:
 schlim_map(df1)
+
+# A test over any number of columns, decided by the data rather than by the
+# factory call: do the parts add up to the total? The `*_scalar()` function
+# takes the parts as one vector...
+sum_check_scalar <- function(parts, total, tolerance = 0) {
+  abs(sum(parts) - total) <= tolerance
+}
+
+# ...which `.reported_variadic` names:
+sum_check_map <- function_map(
+  .fun = sum_check_scalar,
+  .reported = "total",
+  .reported_variadic = "parts",
+  .name_test = "SUMCHECK"
+)
+
+df2 <- tibble::tibble(
+  item_1 = c(10, 20, 30),
+  item_2 = c(5, 5, 5),
+  item_3 = c(1, 2, 3),
+  total  = c(16, 27, 40)
+)
+
+# The `parts` argument selects columns with tidyselect syntax:
+sum_check_map(df2, parts = starts_with("item"))
 }

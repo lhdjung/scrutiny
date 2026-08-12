@@ -120,7 +120,7 @@ These are the most important arguments:
 
 -   `.name_test` simply names the consistency test.
 
-`function_map()` does not assume a particular number of key columns, but the number of columns must be fixed when the factory runs.
+`function_map()` does not assume a particular number of key columns. GRIM has two, GRIMMER and DEBIT have three, and a test with five would work the same way. Normally that number is fixed when the factory runs; see *A variable number of key columns* below for the other case.
 
 ### Context and export
 
@@ -161,6 +161,52 @@ schlim_map(df2, y = foo)
 # With a wrong identification:
 schlim_map(df2, n = mike)
 ```
+
+### A variable number of key columns
+
+Some tests don't have a fixed set of key columns at all. Think of a test that checks whether the values in any number of columns add up to the value in one specific other column: how many columns go into each check is a property of the data being checked, not of the test.
+
+Write the `*_scalar()` function so that it takes those values as a single vector argument, and name that argument in `.reported_variadic`:
+
+```{r}
+sum_check_scalar <- function(parts, total, tolerance = 0) {
+  abs(sum(parts) - total) <= tolerance
+}
+
+sum_check_map <- function_map(
+  .fun = sum_check_scalar,
+  .reported = "total",
+  .reported_variadic = "parts",
+  .name_test = "SUMCHECK"
+)
+```
+
+The manufactured function then has a `parts` argument that selects columns using [tidyselect](https://tidyselect.r-lib.org/) syntax, alongside the ordinary `total` key argument:
+
+```{r}
+df3 <- tibble::tibble(
+  item_1 = c(10, 20, 30),
+  item_2 = c(5, 5, 5),
+  item_3 = c(1, 2, 3),
+  total  = c(16, 27, 40)
+)
+
+sum_check_map(df3, parts = c(item_1, item_2, item_3))
+
+sum_check_map(df3, parts = starts_with("item"), tolerance = 3)
+```
+
+A few things to know about this mode:
+
+-   The selected columns are returned as themselves, so the output is as rectangular as any other mapper's. Only the number of columns that go into each single test varies.
+
+-   The variadic argument has no default and must be specified in every call. Testing all the remaining columns by default would quietly draw in any column that happens to be there for some other reason, such as an identifier.
+
+-   The selection must not be empty, and it must not include a column that has a role in the test already --- a key column or a helper column. So `parts = everything()` is an error; write `parts = !total` instead.
+
+-   `.reported` may be `NULL` if every key column is variadic.
+
+-   Such a mapper is basic-tier only. `function_map_seq()` and `function_map_total_n()` derive their own arguments from `.reported`, which says nothing about the variadic columns.
 
 ### Drawbacks
 

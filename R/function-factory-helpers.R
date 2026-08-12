@@ -301,29 +301,122 @@ call_arg_list <- function() {
 #' @param insert_after Integer. Index of the existing formal argument of `fun`
 #'   after which the key arguments will be inserted. Default is `1L`. For
 #'   convention's sake, this should hardly be changed.
+#' @param variadic String (length 1) or `NULL`, the default. Optionally, the
+#'   name of a variadic key argument, which is inserted ahead of the `reported`
+#'   ones and with no default rather than with `NULL`: it takes a tidyselect
+#'   expression, and there is no set of columns that could be guessed at.
 #'
 #' @return Function `fun` with new arguments, named after `reported`, with
 #'   `NULL` as the default for each.
 #'
 #' @noRd
-insert_key_args <- function(fun, reported, insert_after = 1L) {
+insert_key_args <- function(fun, reported, insert_after = 1L, variadic = NULL) {
+  key_args <- rep(list(NULL), times = length(reported))
+  names(key_args) <- reported
+
+  if (!is.null(variadic)) {
+    # The empty symbol is what a formal without a default has; see `alist()`:
+    key_args <- c(`names<-`(list(rlang::missing_arg()), variadic), key_args)
+  }
+
   `formals<-`(
     fun,
-    value = append(
-      formals(fun),
-      `names<-`(rep(list(NULL), times = length(reported)), value = reported),
-      after = insert_after
-    )
+    value = append(formals(fun), key_args, after = insert_after)
   )
 }
 
-# # Better readable version:
-# insert_key_args <- function(fun, reported, insert_after = 1L) {
-#   key_args <- rep(list(NULL), times = length(reported))
-#   names(key_args) <- reported
-#   formals(fun) <- append(formals(fun), key_args, after = insert_after)
-#   fun
-# }
+
+#' Check that a variadic key argument was specified
+#'
+#' A factory-made function with a `.reported_variadic` argument has one formal
+#' that takes a tidyselect expression, and that formal has no default: which
+#' columns are tested is a property of the caller's data, so there is nothing
+#' the factory could have guessed at. `check_variadic_arg()` turns the empty
+#' quosure that results from leaving it out into a message that says so.
+#'
+#' @param quo Quosure captured from the variadic argument.
+#' @param name String (length 1). Name of that argument.
+#'
+#' @return No return value; might throw an error.
+#'
+#' @noRd
+check_variadic_arg <- function(quo, name) {
+  if (rlang::quo_is_missing(quo)) {
+    fun_name <- name_caller_call(n = 2L)
+    cli::cli_abort(c(
+      "The `{name}` argument of {fun_name} must be specified.",
+      "x" = "It has no default: which columns are tested is up to the data, \\
+      and testing all the remaining ones by default would quietly draw in \\
+      any column that is not a key column for some other reason.",
+      "i" = "Select them using tidyselect syntax, as in \\
+      `{name} = c(a, b, c)` or `{name} = starts_with(\"item\")`."
+    ))
+  }
+}
+
+
+#' Check what a variadic key argument selected
+#'
+#' `tidyselect::eval_select()` guarantees that the selected columns exist, but
+#' not that they are usable as variadic key columns. Two ways they may not be:
+#'
+#' - The selection is empty, which leaves the test function with no values.
+#'   `purrr::pmap()` would report this as a recycling failure over a variable
+#'   the caller has never heard of.
+#' - The selection overlaps the columns that already have a role in the test.
+#'   Such a column would be both tested as one of many values and used in its
+#'   own right, and it would appear twice in the output, giving a tibble with
+#'   duplicate column names.
+#'
+#' @param index Integer. Column positions, as returned by
+#'   `tidyselect::eval_select()`.
+#' @param data The mapper's input data frame.
+#' @param spoken_for String. Names of the columns that have a role already:
+#'   the key columns and any helper columns.
+#' @param name String (length 1). Name of the variadic argument.
+#'
+#' @return No return value; might throw an error.
+#'
+#' @noRd
+check_variadic_cols <- function(index, data, spoken_for, name) {
+  fun_name <- name_caller_call(n = 2L)
+
+  if (length(index) == 0L) {
+    cli::cli_abort(c(
+      "The `{name}` argument of {fun_name} selected no columns.",
+      "x" = "There would be no values to test."
+    ))
+  }
+
+  offenders <- intersect(colnames(data)[index], spoken_for)
+
+  if (length(offenders) == 0L) {
+    return(invisible(NULL))
+  }
+
+  name_first <- offenders[1L]
+  offenders <- wrap_in_backticks(offenders)
+
+  if (length(offenders) == 1L) {
+    msg_that_column <- "That column has"
+    msg_subject <- "it"
+    msg_object <- "it"
+    msg_one <- "one"
+  } else {
+    msg_that_column <- "Those columns have"
+    msg_subject <- "they"
+    msg_object <- "them"
+    msg_one <- "some"
+  }
+
+  cli::cli_abort(c(
+    "The `{name}` argument of {fun_name} selected {offenders}.",
+    "x" = "{msg_that_column} a role in the test already, so {msg_subject} \\
+    cannot also be tested as {msg_one} of the `{name}` values.",
+    "i" = "Exclude {msg_object} from the selection, as in \\
+    `{name} = !{name_first}`."
+  ))
+}
 
 #' Absorb key arguments from the user's call
 #'

@@ -11,7 +11,14 @@
 #'   each row in a data frame. It must return a single logical value, i.e.,
 #'   `TRUE`, `FALSE`, or `NA` -- or, if `.col_names` is specified, a list of
 #'   values with the key result first.
-#' @param .reported String. Names of the columns to be tested.
+#' @param .reported String. Names of the columns to be tested. May be `NULL` if
+#'   `.reported_variadic` is specified.
+#' @param .reported_variadic Optionally, a single string naming an argument of
+#'   `.fun` that takes all the values of one row at once, as a vector. The
+#'   factory-made function then has an argument by that name which selects any
+#'   number of columns using tidyselect syntax, so that how many columns are
+#'   tested is up to the caller rather than fixed when the factory runs. It has
+#'   no default and must be specified in every call. See *Details*.
 #' @param .name_test String (length 1). Plain-text name of the consistency test,
 #'   such as `"GRIM"`.
 #' @param .name_key_result (Experimental) Optionally, a single string that will
@@ -63,8 +70,45 @@
 #' @param ... These dots must be empty.
 
 #' @details The factory-made function has an argument for every argument of
-#'   `.fun` that is not named in `.reported` or `.args_disabled`, with the same
-#'   default. Values supplied to them are passed on to `.fun`.
+#'   `.fun` that is not named in `.reported`, `.reported_variadic`, or
+#'   `.args_disabled`, with the same default. Values supplied to them are passed
+#'   on to `.fun`.
+#'
+#'   Nothing here assumes a particular number of key columns, but that number is
+#'   normally fixed when the factory runs: GRIM has two, GRIMMER and DEBIT have
+#'   three. `.reported_variadic` is for the other case, where the number is a
+#'   property of the caller's data -- as with a test that checks whether the
+#'   values in any number of columns add up to the value in one specific other
+#'   column. Its `.fun` takes those values as a single vector argument instead
+#'   of one argument per column, and the factory-made function selects the
+#'   columns with tidyselect:
+#'
+#'   ```
+#'   sum_check_scalar <- function(parts, total, tolerance = 0) {
+#'     abs(sum(parts) - total) <= tolerance
+#'   }
+#'
+#'   sum_check_map <- function_map(
+#'     .fun = sum_check_scalar,
+#'     .reported = "total",
+#'     .reported_variadic = "parts",
+#'     .name_test = "SUMCHECK"
+#'   )
+#'
+#'   sum_check_map(data, parts = starts_with("item"))
+#'   ```
+#'
+#'   Selection helpers such as `starts_with()` are available inside that
+#'   argument whether or not tidyselect is attached. The selection must not be
+#'   empty, and it must not include a column that has a role in the test
+#'   already -- a key column or a helper column -- because such a column would
+#'   be tested twice over and returned twice.
+#'
+#'   The selected columns are returned as themselves, so the output is as
+#'   rectangular as any other mapper's. What varies is only how many columns go
+#'   into each test. Such a mapper is basic-tier only: [`function_map_seq()`]
+#'   and [`function_map_total_n()`] derive their own arguments from `.reported`,
+#'   which says nothing about the variadic columns.
 #'
 #'   The output tibble returned by the factory-made function will inherit one or
 #'   two classes independently of the `.name_class` argument:
@@ -81,14 +125,18 @@
 #' - Arguments named after the `.reported` values. They can be specified as the
 #'   names of `data` columns so that the function will rename that column using
 #'   the `.reported` name.
+#' - If `.reported_variadic` was specified, an argument by that name. It selects
+#'   any number of columns of `data` using tidyselect syntax, and has no
+#'   default.
 #' - Arguments named after those of `.fun`, with the same defaults; see
 #'   *Details*.
 #' - `...`: Arguments passed down to `.fun`.
 
-#' @section Value returned by the factory-made function: A tibble with the
-#'   `.reported` columns, any `.args_by_row` columns, and `"consistency"`: a
-#'   logical column showing whether the values to its left are mutually
-#'   consistent (`TRUE`) or not (`FALSE`). Any `.cols_derived` columns, any
+#' @section Value returned by the factory-made function: A tibble with any
+#'   `.reported_variadic` columns, the `.reported` columns, any `.args_by_row`
+#'   columns, and `"consistency"`: a logical column showing whether the values
+#'   to its left are mutually consistent (`TRUE`) or not (`FALSE`). Any
+#'   `.cols_derived` columns, any
 #'   columns from `.col_names`, and any other columns of `data` follow to the
 #'   right, in that order.
 
@@ -116,10 +164,35 @@
 #'
 #' # Call the "factory-made" function:
 #' schlim_map(df1)
+#'
+#' # A test over any number of columns, decided by the data rather than by the
+#' # factory call: do the parts add up to the total? The `*_scalar()` function
+#' # takes the parts as one vector...
+#' sum_check_scalar <- function(parts, total, tolerance = 0) {
+#'   abs(sum(parts) - total) <= tolerance
+#' }
+#'
+#' # ...which `.reported_variadic` names:
+#' sum_check_map <- function_map(
+#'   .fun = sum_check_scalar,
+#'   .reported = "total",
+#'   .reported_variadic = "parts",
+#'   .name_test = "SUMCHECK"
+#' )
+#'
+#' df2 <- tibble::tibble(
+#'   item_1 = c(10, 20, 30),
+#'   item_2 = c(5, 5, 5),
+#'   item_3 = c(1, 2, 3),
+#'   total  = c(16, 27, 40)
+#' )
+#'
+#' # The `parts` argument selects columns with tidyselect syntax:
+#' sum_check_map(df2, parts = starts_with("item"))
 
 function_map <- function(
   .fun,
-  .reported,
+  .reported = NULL,
   .name_test,
   .name_key_result = "consistency",
   .name_class = NULL,
@@ -131,11 +204,16 @@ function_map <- function(
   .col_names = NULL,
   .cols_derived = NULL,
   .name_class_flags = NULL,
+  # Last among the named arguments, rather than next to `.reported` where it
+  # belongs by meaning, so that adding it does not shift what any existing
+  # positional call means. The documentation groups the two together anyway:
+  .reported_variadic = NULL,
   ...
 ) {
   force(.fun)
   force(.reported)
   force(.name_test)
+  force(.reported_variadic)
   force(.name_class)
   force(.name_key_result)
   force(.args_disabled)
@@ -159,6 +237,12 @@ function_map <- function(
   # Check that all values of the arguments that name arguments of `.fun` really
   # do name arguments of `.fun`:
   check_factory_arg_names(.reported, formals_fun, fun_name, ".reported")
+  check_factory_arg_names(
+    .reported_variadic,
+    formals_fun,
+    fun_name,
+    ".reported_variadic"
+  )
   check_factory_arg_names(.args_by_row, formals_fun, fun_name, ".args_by_row")
   check_factory_arg_names(.cols_helper, formals_fun, fun_name, ".cols_helper")
   check_factory_arg_names(
@@ -173,6 +257,24 @@ function_map <- function(
     fun_name,
     ".name_class_flags"
   )
+
+  if (!is.null(.reported_variadic)) {
+    check_length(.reported_variadic, 1L)
+    if (any(.reported_variadic == .reported)) {
+      cli::cli_abort(c(
+        "`.reported_variadic` must not also be a `.reported` value.",
+        "x" = "{wrap_in_backticks(.reported_variadic)} is both.",
+        "i" = "A key argument of `{fun_name}()` either takes the values of \\
+        one column or the values of any number of them, not both."
+      ))
+    }
+  } else if (length(.reported) == 0L) {
+    cli::cli_abort(c(
+      "`.reported` must name at least one column.",
+      "i" = "Unless `.reported_variadic` is specified, in which case the \\
+      columns it selects are the only key columns."
+    ))
+  }
 
   if (length(.cols_derived) > 0L && !rlang::is_named(.cols_derived)) {
     cli::cli_abort(
@@ -211,7 +313,7 @@ function_map <- function(
   # meant to be unavailable:
   args_promoted <- setdiff(
     names(formals_fun),
-    c(.reported, .args_disabled, "...")
+    c(.reported, .reported_variadic, .args_disabled, "...")
   )
 
   # Three groups among them: arguments that may vary by row and hence ride along
@@ -243,12 +345,46 @@ function_map <- function(
     c(args_by_row, setdiff(names(formals_promoted), args_by_row))
   ]
 
-  code_key_arg_checks <- paste0("!missing(", .reported, ")", collapse = " || ")
-  code_key_arg_checks <- rlang::expr({
-    if (`!!`(rlang::parse_expr(code_key_arg_checks))) {
-      data <- scrutiny::absorb_key_args(data, `!!`(.reported))
-    }
-  })
+  # With variadic key columns, `.reported` may name no column at all, and there
+  # is then nothing to rename:
+  code_key_arg_checks <- if (length(.reported) > 0L) {
+    code_missing <- paste0("!missing(", .reported, ")", collapse = " || ")
+    list(rlang::expr({
+      if (`!!`(rlang::parse_expr(code_missing))) {
+        data <- scrutiny::absorb_key_args(data, `!!`(.reported))
+      }
+    }))
+  } else {
+    list()
+  }
+
+  # The variadic key columns are chosen by the user's tidyselect expression at
+  # call time, so they need no renaming mechanism and no check for their
+  # presence: `tidyselect::eval_select()` does both jobs. As with the helper
+  # columns below, the argument has to be spliced in as a symbol -- here so
+  # that `rlang::enquo()` can capture the expression instead of evaluating it.
+  code_variadic <- if (is.null(.reported_variadic)) {
+    list()
+  } else {
+    list(rlang::expr({
+      quo_variadic <- rlang::enquo(`!!`(as.name(.reported_variadic)))
+      check_variadic_arg(quo_variadic, `!!`(.reported_variadic))
+      index_variadic <- tidyselect::eval_select(quo_variadic, data)
+      check_variadic_cols(
+        index = index_variadic,
+        data = data,
+        spoken_for = c(`!!`(.reported), args_helper),
+        name = `!!`(.reported_variadic)
+      )
+      cols_variadic <- as.list(data)[index_variadic]
+      # `eval_select()` may rename the columns it selects, so the names under
+      # which the output carries them are not necessarily the names they have
+      # in `data`. Both are needed: the new ones for the output, the old ones
+      # to keep the columns from being returned a second time:
+      names_variadic <- colnames(data)[index_variadic]
+      names(cols_variadic) <- names(index_variadic)
+    }))
+  }
 
   # `manage_helper_col()` takes the name of the helper column from the
   # expression it was given, so the argument has to be spliced in as a symbol:
@@ -314,6 +450,7 @@ function_map <- function(
     body = rlang::expr({
       fun <- `!!`(.fun)
       reported <- `!!`(.reported)
+      reported_variadic <- `!!`(.reported_variadic)
       args_by_row <- `!!`(args_by_row)
       args_helper <- `!!`(args_helper)
       args_const <- `!!`(args_const)
@@ -343,6 +480,13 @@ function_map <- function(
         `!!`(.name_test)
       )
 
+      # Resolve the variadic key columns, if there are any. This comes after
+      # the renaming above, so that a tidyselect expression sees the same
+      # column names as the rest of the function:
+      cols_variadic <- list()
+      names_variadic <- character(0L)
+      `!!!`(code_variadic)
+
       `!!!`(code_check_lengths)
 
       # Add a column for every helper argument that `data` doesn't have one for
@@ -369,6 +513,19 @@ function_map <- function(
       # then any helper columns, then one column per argument that may vary by
       # row (recycled to the number of rows if it is a single value):
       cols_tested <- as.list(data[reported])
+
+      # A variadic key argument gets all of a row's values at once, so its
+      # "column" is a list with one vector per row. `fun()` has a single
+      # argument for it, whatever the number of columns behind it:
+      if (!is.null(reported_variadic)) {
+        cols_tested <- c(
+          rlang::set_names(
+            list(purrr::pmap(cols_variadic, function(...) c(...))),
+            reported_variadic
+          ),
+          cols_tested
+        )
+      }
 
       for (.name in args_helper) {
         cols_tested[[.name]] <- data[[.name]]
@@ -413,8 +570,11 @@ function_map <- function(
       )
 
       # The key columns of the output, with any helper columns either multiplied
-      # into the key column they belong to or returned in their own right:
-      cols_key <- as.list(data[reported])
+      # into the key column they belong to or returned in their own right. The
+      # variadic columns are returned as themselves, so the output is as
+      # rectangular as any other mapper's -- only the number of columns that go
+      # into each test varies:
+      cols_key <- c(cols_variadic, as.list(data[reported]))
 
       for (.name in args_helper) {
         .merge_into <- helper_merge[[.name]]
@@ -486,6 +646,7 @@ function_map <- function(
             names(cols_by_row),
             names(cols_result),
             reported,
+            names_variadic,
             args_helper
           )
       ]
@@ -536,6 +697,7 @@ function_map <- function(
     formals_fun,
     formals_promoted,
     code_key_arg_checks,
+    code_variadic,
     code_cols_helper,
     code_check_lengths,
     code_rounding_class,
@@ -548,10 +710,13 @@ function_map <- function(
   # data frame. They are expected to have the names specified in `.reported`. If
   # they don't, however, the user can simply specify the key column arguments as
   # the non-quoted names of the columns meant to fulfill these roles. They go
-  # after `data` and the by-row arguments moved next to it above:
+  # after `data` and the by-row arguments moved next to it above, led by the
+  # variadic key argument if there is one -- which has no default at all,
+  # because guessing which columns to test would silently test the wrong ones:
   insert_key_args(
     fun = fn_out,
     reported = .reported,
-    insert_after = 1L + length(args_by_row)
+    insert_after = 1L + length(args_by_row),
+    variadic = .reported_variadic
   )
 }

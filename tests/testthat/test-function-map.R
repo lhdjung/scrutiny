@@ -313,6 +313,174 @@ test_that("`.reported` may name any number of key columns", {
 })
 
 
+test_that("`.reported_variadic` decides the number of key columns at call time", {
+  # The other case of #42: a test over "any number of columns", where how many
+  # there are is a property of the caller's data rather than of the factory
+  # call. Its `.fun` takes them as one vector argument.
+  sum_check_scalar <- function(parts, total, tolerance = 0) {
+    abs(sum(parts) - total) <= tolerance
+  }
+
+  sum_check_map <- function_map(
+    .fun = sum_check_scalar,
+    .reported = "total",
+    .reported_variadic = "parts",
+    .name_test = "SUMCHECK"
+  )
+
+  # The variadic argument comes ahead of the fixed key arguments, and it has no
+  # default, unlike them:
+  names(formals(sum_check_map)) |>
+    expect_equal(c("data", "parts", "total", "tolerance", "..."))
+  formals(sum_check_map)$parts |> rlang::is_missing() |> expect_true()
+
+  df <- tibble::tibble(
+    item_1 = c(10, 20, 30),
+    item_2 = c(5, 5, 5),
+    item_3 = c(1, 2, 3),
+    total = c(16, 27, 40),
+    note = c("a", "b", "c")
+  )
+
+  out <- sum_check_map(df, parts = c(item_1, item_2, item_3))
+  out |> expect_s3_class("scrutiny_sumcheck_map")
+  out$consistency |> expect_equal(c(TRUE, TRUE, FALSE))
+
+  # The selected columns are returned as themselves, so the output is as
+  # rectangular as any other mapper's:
+  out |>
+    colnames() |>
+    expect_equal(c("item_1", "item_2", "item_3", "total", "consistency", "note"))
+
+  # Any tidyselect expression will do, and the number of columns it picks is
+  # the number of values that each test gets:
+  sum_check_map(df, parts = starts_with("item")) |>
+    expect_equal(out)
+  sum_check_map(df, parts = c(item_1, item_2))$consistency |>
+    expect_equal(c(FALSE, FALSE, FALSE))
+  sum_check_map(df, parts = c(item_1, item_2), tolerance = 100)$consistency |>
+    expect_equal(c(TRUE, TRUE, TRUE))
+
+  # A column that the selection leaves out is an ordinary other column:
+  sum_check_map(df, parts = c(item_1, item_2)) |>
+    colnames() |>
+    expect_contains("item_3")
+
+  # The fixed key column still supports renaming, and 0 rows still work:
+  df_renamed <- dplyr::rename(df, sum_col = total)
+  sum_check_map(df_renamed, parts = starts_with("item"), total = sum_col) |>
+    expect_equal(out)
+  sum_check_map(df[0L, ], parts = starts_with("item")) |>
+    nrow() |>
+    expect_equal(0L)
+})
+
+
+test_that("a variadic key argument must be specified, and must select real columns", {
+  sum_check_scalar <- function(parts, total) sum(parts) == total
+  sum_check_map <- function_map(
+    .fun = sum_check_scalar,
+    .reported = "total",
+    .reported_variadic = "parts",
+    .name_test = "SUMCHECK"
+  )
+  df <- tibble::tibble(a = 1, b = 2, total = 3)
+
+  # No default: guessing the columns would quietly test the wrong ones.
+  sum_check_map(df) |> expect_error("must be specified")
+  sum_check_map(df, parts = c(a, nonexistent)) |> expect_error("doesn't exist")
+
+  # An empty selection leaves the test function with no values. Without this
+  # check, `purrr::pmap()` reports a recycling failure over a variable the
+  # caller has never heard of:
+  sum_check_map(df, parts = c()) |> expect_error("selected no columns")
+
+  # A column that has a role already cannot also be tested as one of many
+  # values: it would appear twice in the output, giving a tibble with
+  # duplicate column names.
+  sum_check_map(df, parts = c(a, total)) |> expect_error("role in the test")
+  sum_check_map(df, parts = everything()) |> expect_error("role in the test")
+  sum_check_map(df, parts = !total) |> expect_no_error()
+
+  # Helper columns count as spoken for, too:
+  helper_scalar <- function(parts, total, items = 1) sum(parts) == total * items
+  helper_map <- function_map(
+    .fun = helper_scalar,
+    .reported = "total",
+    .reported_variadic = "parts",
+    .name_test = "SUMCHECK",
+    .cols_helper = "items"
+  )
+  df_items <- tibble::tibble(a = 1, b = 2, total = 3, items = 1)
+  helper_map(df_items, parts = everything()) |> expect_error("role in the test")
+  helper_map(df_items, parts = c(a, b))$consistency |> expect_true()
+})
+
+
+test_that("`.reported` may be empty if `.reported_variadic` is not", {
+  all_equal_scalar <- function(values) length(unique(values)) == 1L
+  all_equal_map <- function_map(
+    .fun = all_equal_scalar,
+    .reported_variadic = "values",
+    .name_test = "ALLEQUAL"
+  )
+  names(formals(all_equal_map)) |> expect_equal(c("data", "values", "..."))
+
+  df <- tibble::tibble(a = c(1, 2), b = c(1, 3), c = c(1, 3), id = c("x", "y"))
+  out <- all_equal_map(df, values = c(a, b, c))
+  out$consistency |> expect_equal(c(TRUE, FALSE))
+  out |> colnames() |> expect_equal(c("a", "b", "c", "consistency", "id"))
+
+  # But one of the two must be there:
+  function_map(.fun = all_equal_scalar, .name_test = "ALLEQUAL") |>
+    expect_error("at least one column")
+})
+
+
+test_that("`.reported_variadic` composes with the factory's other arguments", {
+  sum_check_scalar <- function(parts, total, digits_total, show_rec = FALSE) {
+    gap <- sum(parts) - total
+    consistency <- abs(gap) < 10^-digits_total
+    if (show_rec) list(consistency, sum(parts), gap) else consistency
+  }
+  count_parts <- function(parts) length(parts)
+
+  sum_check_map <- function_map(
+    .fun = sum_check_scalar,
+    .reported = "total",
+    .reported_variadic = "parts",
+    .name_test = "SUMCHECK",
+    .args_by_row = "digits_total",
+    .args_defaults = list(show_rec = TRUE),
+    .col_names = c("consistency", "rec_sum", "gap"),
+    .cols_derived = list(n_parts = count_parts)
+  )
+
+  # The by-row arguments still come first, ahead of the key arguments:
+  names(formals(sum_check_map))[1:4] |>
+    expect_equal(c("data", "digits_total", "parts", "total"))
+
+  df <- tibble::tibble(
+    i1 = c(1.5, 2.5),
+    i2 = c(2.5, 2.5),
+    total = c(4.0, 5.5)
+  )
+  out <- sum_check_map(df, digits_total = 1, parts = c(i1, i2))
+  out |>
+    colnames() |>
+    expect_equal(c(
+      "i1", "i2", "total", "digits_total",
+      "consistency", "n_parts", "rec_sum", "gap"
+    ))
+  out$consistency |> expect_equal(c(TRUE, FALSE))
+  out$rec_sum |> expect_equal(c(4, 5))
+  # `.cols_derived` gets the row's values as one vector, like the test itself:
+  out$n_parts |> expect_equal(c(2L, 2L))
+  sum_check_map(df, digits_total = c(1, 2), parts = c(i1, i2))$digits_total |>
+    expect_equal(c(1, 2))
+})
+
+
 test_that("wrong argument names throw an error at factory time", {
   function_map(
     .fun = grim_scalar,
@@ -353,6 +521,24 @@ test_that("wrong argument names throw an error at factory time", {
     .cols_derived = list(grim_probability)
   ) |>
     expect_error()
+
+  function_map(
+    .fun = grim_scalar,
+    .reported = c("x", "n"),
+    .name_test = "GRIM",
+    .reported_variadic = "values"
+  ) |>
+    expect_error()
+
+  # A key argument takes either one column's values or those of any number of
+  # columns, not both:
+  function_map(
+    .fun = grim_scalar,
+    .reported = c("x", "n"),
+    .name_test = "GRIM",
+    .reported_variadic = "x"
+  ) |>
+    expect_error("must not also be")
 })
 
 
