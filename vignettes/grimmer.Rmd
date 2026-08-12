@@ -63,14 +63,14 @@ Copy summary data from a PDF file and paste them into `tibble::tribble()`, which
 
 ```{r}
 flying_pigs1 <- tibble::tribble(
-  ~x,   ~sd,   ~n,
-  8.9,   2.81,  25,
-  2.6,   2.05,  25,
-  7.2,   2.89,  25,
-  3.6,   3.11,  25,
-  9.2,   7.13,  25,
-  10.4,  2.53,  25,
-  7.3,   3.14,  25
+  ~x   , ~sd  , ~n ,
+   8.9 , 2.81 , 25 ,
+   2.6 , 2.05 , 25 ,
+   7.2 , 2.89 , 25 ,
+   3.6 , 3.11 , 25 ,
+   9.2 , 7.13 , 25 ,
+  10.4 , 2.53 , 25 ,
+   7.3 , 3.14 , 25
 )
 ```
 
@@ -88,7 +88,7 @@ The `reason` column says why a set of values was inconsistent. To be GRIMMER-con
 
 Here is a quick reference for the three GRIMMER tests. See @allard2018 for an explanation.
 
-1.  The reconstructed sum of squared observations must be a whole number.
+1.  The reconstructed sum of squared observations must be an integer.
 2.  The reconstructed SD must match the reported one.
 3.  The parity of the reconstructed sum of squared observations must match the parity of the reconstructed sum of integers of which the reported means are fractions; i.e., either both are even or both are odd.
 
@@ -98,17 +98,17 @@ If a mean is composed of multiple items, set the `items` parameter to that numbe
 
 ```{r, error=TRUE}
 flying_pigs2 <- tibble::tribble(
-   ~x,   ~sd,   ~n,
-  5.90,  2.19,  40,
-  5.71,  1.42,  40,
-  3.50,  1.81,  40,
-  3.82,  2.43,  40,
-  4.61,  1.92,  40,
-  5.24,  2.51,  40
+  ~x   , ~sd  , ~n ,
+  5.90 , 2.19 , 40 ,
+  5.71 , 1.42 , 40 ,
+  3.50 , 1.81 , 40 ,
+  3.82 , 2.43 , 40 ,
+  4.61 , 1.92 , 40 ,
+  5.24 , 2.51 , 40
 )
 
-flying_pigs2 |> 
-  grimmer_map(digits_x = 2, digits_sd = 2)  # default `items` is wrong here!
+flying_pigs2 |>
+  grimmer_map(digits_x = 2, digits_sd = 2) # default `items` is wrong here!
 ```
 
 (Note that `5.90` and `3.50` are stored as `5.9` and `3.5`. Their trailing zeros are gone from the data, but `digits_x = 2` states that they were reported, so they are tested as two-decimal values all the same.)
@@ -116,7 +116,7 @@ flying_pigs2 |>
 Yet, all of them are consistent if the correct number of items is stated:
 
 ```{r, error=TRUE}
-flying_pigs2 |> 
+flying_pigs2 |>
   grimmer_map(digits_x = 2, digits_sd = 2, items = 3)
 ```
 
@@ -124,16 +124,16 @@ It is also possible to include an `items` column in the data frame instead. This
 
 ```{r, error=TRUE}
 flying_pigs3 <- tibble::tribble(
-   ~x,   ~sd,   ~n,  ~items,
-  6.92,  2.19,  30,   1,
-  3.48,  1.42,  30,   1,
-  1.59,  1.81,  30,   2,
-  2.61,  2.43,  30,   2,
-  4.04,  1.92,  30,   3,
-  4.50,  2.51,  30,   3,
+  ~x   , ~sd  , ~n , ~items ,
+  6.92 , 2.19 , 30 ,      1 ,
+  3.48 , 1.42 , 30 ,      1 ,
+  1.59 , 1.81 , 30 ,      2 ,
+  2.61 , 2.43 , 30 ,      2 ,
+  4.04 , 1.92 , 30 ,      3 ,
+  4.50 , 2.51 , 30 ,      3 ,
 )
 
-flying_pigs3 |> 
+flying_pigs3 |>
   grimmer_map(digits_x = 2, digits_sd = 2)
 ```
 
@@ -143,17 +143,48 @@ However, if we remove the `items` column, crucial information is missing. As a c
 
 ```{r}
 flying_pigs3 |>
-    dplyr::select(-items) |> 
-    grimmer_map(digits_x = 2, digits_sd = 2)
+  dplyr::select(-items) |>
+  grimmer_map(digits_x = 2, digits_sd = 2)
 ```
+
+### Scale bounds
+
+GRIMMER assumes that the values behind a mean and an SD are integers. Often we know more than that: responses on a five-point Likert scale are integers *between 1 and 5*. State that range with `min_val` and `max_val`, and GRIMMER will also check whether values from it could have produced the reported statistics at all.
+
+A range caps how far the values can spread out around their mean --- and therefore how large the SD can be:
+
+```{r}
+flying_pigs5 <- tibble::tribble(
+  ~x   , ~sd  , ~n ,
+  3.00 , 1.45 , 20 ,
+  3.00 , 2.08 , 20 ,
+  1.00 , 0.32 , 20 ,
+  7.20 , 1.11 , 20
+)
+
+flying_pigs5 |>
+  grimmer_map(digits_x = 2, digits_sd = 2, min_val = 1, max_val = 5)
+```
+
+All four rows are GRIMMER-consistent for unbounded integers. On a scale from 1 to 5, however:
+
+- An SD of 2.08 is out of reach at a mean of 3. The most extreme such sample --- ten 1s and ten 5s --- has an SD of only `r round(sd(c(rep(1, 10), rep(5, 10))), 2)`.
+- A mean of exactly 1 forces every single value to be 1, so the SD has to be 0.
+- A mean of 7.20 is not on the scale in the first place.
+
+Both bounds refer to a single response, so they don't depend on `items`: for a five-point scale, `min_val` is 1 and `max_val` is 5 whether the mean was composed of one item or of ten. They have to be specified together, because a single bound places no limit on the SD.
+
+Scale bounds can only turn a `TRUE` verdict into `FALSE`, never the other way around. Like GRIMMER's other tests, the condition they add is necessary but not sufficient: a value set that passes it may still be impossible.
+
+This is the least of what a known scale range implies, and it is in scrutiny because it costs GRIMMER one comparison per candidate sum. The [strait](https://github.com/ianhussey/strait) package is devoted to the subject and goes much further --- bounds sharpened by attained extremes, by response granularity, or by a reported Cronbach's alpha, and an exact decision procedure that is sufficient as well as necessary.
 
 ## Summarizing results with `audit()`
 
 Following up on a call to `grimmer_map()`, the generic function `audit()` summarizes GRIMMER test results:
 
 ```{r}
-flying_pigs1 |> 
-  grimmer_map(digits_x = 1, digits_sd = 2) |> 
+flying_pigs1 |>
+  grimmer_map(digits_x = 1, digits_sd = 2) |>
   audit()
 ```
 
@@ -167,28 +198,30 @@ These columns are ---
 
 4.  `fail_grim`, `fail_test1`, `fail_test2`, `fail_test3`: number of value sets failing the GRIM test or one of the three GRIMMER tests, respectively (see Allard 2018).
 
+5.  `fail_scale`: number of value sets that are inconsistent with the scale bounds given by `min_val` and `max_val`. Zero if these were not specified.
+
 ## Visualizing results with `grim_plot()`
 
 GRIMMER does not currently have a dedicated visualization function in scrutiny. However, `grim_plot()` will accept the output of `grimmer_map()` just as well as that from `grim_map()`:
 
 ```{r, fig.width=6, fig.height=5.5}
 flying_pigs4 <- tibble::tribble(
-  ~x,    ~sd,   ~n,
-  7.19,   1.19,  54,
-  4.56,   2.56,  66,
-  0.42,   1.29,  59,
-  1.31,   3.50,  57,
-  3.48,   3.65,  66,
-  4.27,   2.86,  61,
-  6.21,   2.15,  62,
-  3.11,   3.17,  50,
-  5.39,   2.37,  68,
-  5.66,   1.11,  44,
+  ~x   , ~sd  , ~n ,
+  7.19 , 1.19 , 54 ,
+  4.56 , 2.56 , 66 ,
+  0.42 , 1.29 , 59 ,
+  1.31 , 3.50 , 57 ,
+  3.48 , 3.65 , 66 ,
+  4.27 , 2.86 , 61 ,
+  6.21 , 2.15 , 62 ,
+  3.11 , 3.17 , 50 ,
+  5.39 , 2.37 , 68 ,
+  5.66 , 1.11 , 44 ,
 )
 
 
-flying_pigs4 |> 
-  grimmer_map(digits_x = 2, digits_sd = 2) |> 
+flying_pigs4 |>
+  grimmer_map(digits_x = 2, digits_sd = 2) |>
   grim_plot()
 ```
 
@@ -232,7 +265,12 @@ Here is what the output columns mean:
 The default for `dispersion` is `1:5`, for five steps up and down. When the `dispersion` sequence gets longer, the number of hits tends to increase:
 
 ```{r}
-out_seq2 <- grimmer_map_seq(pigs5, digits_x = 2, digits_sd = 2, dispersion = 1:10)
+out_seq2 <- grimmer_map_seq(
+  pigs5,
+  digits_x = 2,
+  digits_sd = 2,
+  dispersion = 1:10
+)
 audit_seq(out_seq2)
 ```
 
@@ -247,8 +285,18 @@ grim_plot(out_seq1)
 The crosses appear because `grimmer_map_seq()` creates sequences around both `x` and `n`. Restrict this process to any one of these with the `var` argument:
 
 ```{r, fig.width=6, fig.height=5.5}
-out_seq1_only_x <- grimmer_map_seq(pigs5, digits_x = 2, digits_sd = 2, var = "x")
-out_seq1_only_n <- grimmer_map_seq(pigs5, digits_x = 2, digits_sd = 2, var = "n")
+out_seq1_only_x <- grimmer_map_seq(
+  pigs5,
+  digits_x = 2,
+  digits_sd = 2,
+  var = "x"
+)
+out_seq1_only_n <- grimmer_map_seq(
+  pigs5,
+  digits_x = 2,
+  digits_sd = 2,
+  var = "n"
+)
 
 grim_plot(out_seq1_only_x)
 grim_plot(out_seq1_only_n)
@@ -264,9 +312,9 @@ Here is an example:
 
 ```{r}
 flying_pigs5 <- tibble::tribble(
-   ~x1,   ~x2,   ~sd1,  ~sd2,  ~n,
-   3.43,  5.28,  1.09,  2.12,  70,
-   2.97,  4.42,  0.43,  1.65,  65
+  ~x1  , ~x2  , ~sd1 , ~sd2 , ~n ,
+  3.43 , 5.28 , 1.09 , 2.12 , 70 ,
+  2.97 , 4.42 , 0.43 , 1.65 , 65
 )
 
 out_total_n <- grimmer_map_total_n(flying_pigs5, digits_x = 2, digits_sd = 2)

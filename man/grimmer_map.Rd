@@ -12,6 +12,8 @@ grimmer_map(
   sd = NULL,
   n = NULL,
   items = 1,
+  min_val = NULL,
+  max_val = NULL,
   show_reason = TRUE,
   rounding = "up_or_down",
   threshold = 5,
@@ -42,6 +44,13 @@ of \code{data}.}
 \item{items}{Integer. If there is no \code{items} column in \code{data}, this specifies
 the number of items composing the \code{x} and \code{sd} values. Default is \code{1}, the
 most common case.}
+
+\item{min_val, max_val}{Integer. Optionally, the minimum and maximum value
+that an individual response could take, as with the endpoints of a Likert
+scale. If both are specified, GRIMMER also tests whether values within that
+range could have spread out far enough to produce the reported \code{sd}, and
+whether \code{x} is on the scale at all. See the \emph{Scale bounds} section in
+\code{\link[=grimmer]{grimmer()}}. Both default to \code{NULL}, i.e., an unbounded scale.}
 
 \item{show_reason}{Logical (length 1). Should there be a \code{reason} column that
 shows the reasons for inconsistencies and \code{"Passed all"} for consistent
@@ -75,6 +84,10 @@ parity of the reconstructed sum of integers of which the reported means
 are fractions; i.e., either both are even or both are odd.
 }
 
+If \code{min_val} and \code{max_val} are specified, two further reasons can appear:
+\code{"Mean out of scale range"} for an \code{x} outside of the scale, and \code{"GRIMMER inconsistent (scale range)"} for a value set whose \code{sd} no sample within the
+scale could have produced.
+
 The tibble has the \code{scrutiny_grimmer_map} class, which is recognized by the
 \code{\link[=audit]{audit()}} generic. \code{\link[=grim_plot]{grim_plot()}} recognizes it as well, so GRIMMER
 results can be visualized just like GRIM results.
@@ -101,6 +114,9 @@ columns --
 below).
 \item \code{fail_test2}: number of value sets that fail the second GRIMMER test.
 \item \code{fail_test3}: number of value sets that fail the third GRIMMER test.
+\item \code{fail_scale}: number of value sets that are inconsistent with the scale
+bounds given by \code{min_val} and \code{max_val}. Zero if these were not
+specified.
 }
 
 The \code{reason} columns refers to the three GRIMMER tests (see Allard 2018).

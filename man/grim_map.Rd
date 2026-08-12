@@ -100,8 +100,7 @@ closest to \code{x} -- \code{rec_sum} rounded up and down, divided by \code{n} (
 
 With \code{percent = TRUE}, the last two are percentages, like \code{x} itself, so
 that they can be read against it. The first three are not: a sum total of
-the underlying data is what it is, whichever scale the mean is reported
-on.
+the underlying data is what it is, whichever scale the mean is reported on.
 }
 }
 

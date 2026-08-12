@@ -119,6 +119,52 @@
 
 # Implementation ----------------------------------------------------------
 
+# Validate the optional bounds of the scale that `x` and `sd` were measured on,
+# and report whether they were given at all. They only make sense as a pair:
+# with just one of them, the values could still spread out without limit in the
+# other direction, so nothing would follow about the SD.
+
+check_scale_bounds <- function(min_val, max_val) {
+  if (is.null(min_val) && is.null(max_val)) {
+    return(FALSE)
+  }
+
+  if (is.null(min_val) || is.null(max_val)) {
+    name_missing <- if (is.null(min_val)) "min_val" else "max_val"
+    name_given <- if (is.null(min_val)) "max_val" else "min_val"
+    cli::cli_abort(c(
+      "`min_val` and `max_val` must be specified together.",
+      "x" = "`{name_given}` was specified, but `{name_missing}` was not.",
+      "i" = "A single bound doesn't limit how far the values can spread out \\
+      around their mean, so it says nothing about the standard deviation."
+    ))
+  }
+
+  check_type(min_val, c("double", "integer"))
+  check_type(max_val, c("double", "integer"))
+  check_length(min_val, 1L)
+  check_length(max_val, 1L)
+
+  if (!is_whole_number(min_val) || !is_whole_number(max_val)) {
+    cli::cli_abort(c(
+      "`min_val` and `max_val` must be whole numbers.",
+      "x" = "They are {min_val} and {max_val}.",
+      "i" = "GRIMMER assumes that the individual values are whole numbers, \\
+      so the bounds of the scale they were measured on are, as well."
+    ))
+  }
+
+  if (min_val >= max_val) {
+    cli::cli_abort(c(
+      "`max_val` must be greater than `min_val`.",
+      "x" = "`min_val` is {min_val} and `max_val` is {max_val}."
+    ))
+  }
+
+  TRUE
+}
+
+
 grimmer_scalar <- function(
   x,
   sd,
@@ -126,6 +172,8 @@ grimmer_scalar <- function(
   digits_x,
   digits_sd,
   items = 1,
+  min_val = NULL,
+  max_val = NULL,
   show_reason = FALSE,
   rounding = "up_or_down",
   threshold = 5,
@@ -133,6 +181,7 @@ grimmer_scalar <- function(
   tolerance = .Machine$double.eps^0.5
 ) {
   check_type(items, c("double", "integer"))
+  has_scale <- check_scale_bounds(min_val, max_val)
 
   if (missing(digits_x)) {
     error_digits_missing(x)
@@ -158,6 +207,15 @@ grimmer_scalar <- function(
       return(list(NA, "Missing value"))
     }
     return(NA)
+  }
+
+  # With the scale's bounds known, a mean outside of them is inconsistent
+  # before any reconstruction: no set of values within the range has it.
+  if (has_scale && (x < min_val || x > max_val)) {
+    if (show_reason) {
+      return(list(FALSE, "Mean out of scale range"))
+    }
+    return(FALSE)
   }
 
   n_items <- n * items
@@ -253,6 +311,16 @@ grimmer_scalar <- function(
   # -- 2: some candidate passed tests 1 and 2 but not test 3 (report test 3 failure)
   furthest_test_passed <- 0L
 
+  # Whether the scale's bounds are what ruled a candidate sum out. This only
+  # affects the reason given for an inconsistency, not the verdict:
+  blocked_by_scale <- FALSE
+
+  # The values that are summed and squared below are the `n` respondents'
+  # whole-number totals across all items, so the scale's bounds apply to them
+  # multiplied by the number of items:
+  totals_lower <- min_val * items
+  totals_upper <- max_val * items
+
   for (s in consistent_sums) {
     # TEST 1: Check that there is at least one integer between the lower and
     # upper bounds (of the reconstructed sum of squares of the -- most likely
@@ -272,6 +340,32 @@ grimmer_scalar <- function(
       incl_lower = sd_incl_lower,
       incl_upper = sd_bounds$incl_upper
     )
+
+    # If the scale's bounds are known, the values are not merely whole numbers
+    # but whole numbers within a fixed range, which caps how far they can
+    # spread out around their mean -- and hence how large the sum of squares
+    # can get. Lowering the ceiling of the range that the reported SD admits is
+    # all that has to happen here: every test below operates on that range.
+    if (has_scale) {
+      sum_squares_ceiling <- sum_squares_scale_max(
+        s = s,
+        n = n,
+        val_lower = totals_lower,
+        val_upper = totals_upper
+      )
+      if (is.null(sum_squares_ceiling)) {
+        # No set of values within the scale's range adds up to this candidate
+        # sum, so it is out of reach whatever the SD is:
+        blocked_by_scale <- TRUE
+        next
+      }
+      if (sum_squares_ceiling < sum_squares[2L]) {
+        # Only a ceiling that actually bites can be the reason for a failure:
+        sum_squares[2L] <- sum_squares_ceiling
+        blocked_by_scale <- blocked_by_scale ||
+          sum_squares[1L] > sum_squares[2L]
+      }
+    }
 
     if (sum_squares[1L] > sum_squares[2L]) {
       next
@@ -366,6 +460,12 @@ grimmer_scalar <- function(
 
   # No candidate sum passed all three tests.
   if (show_reason) {
+    # The scale's bounds are reported in their own right, but only if no
+    # candidate sum got past the first test without them. Otherwise the tests
+    # below are the more specific reason:
+    if (furthest_test_passed == 0L && blocked_by_scale) {
+      return(list(FALSE, "GRIMMER inconsistent (scale range)"))
+    }
     reason <- switch(
       as.character(furthest_test_passed),
       "0" = "GRIMMER inconsistent (test 1)",
@@ -398,6 +498,12 @@ grimmer_scalar <- function(
 #'   zeros don't survive in a numeric value.
 #' @param items Integer. The number of items composing the `x` and `sd` values.
 #'   Default is `1`, the most common case.
+#' @param min_val,max_val Integer. Optionally, the minimum and maximum value
+#'   that an individual response could take, as with the endpoints of a Likert
+#'   scale. If both are specified, GRIMMER also tests whether values within
+#'   that range could have produced the reported `x` and `sd` in the first
+#'   place. Both default to `NULL`, i.e., an unbounded scale. See *Scale
+#'   bounds* below.
 #' @param show_reason Logical. For internal use only. If set to `TRUE`, the
 #'   output is a list of length-2 lists which also contain the reasons for
 #'   inconsistencies. Don't specify this manually; instead, use `show_reason` in
@@ -411,9 +517,10 @@ grimmer_scalar <- function(
 
 #' @details GRIMMER was originally devised by Anaya (2016). The present
 #'   implementation follows Allard's (2018) refined Analytic-GRIMMER algorithm.
-#'   It uses a variant of Analytic-GRIMMER first implemented in
+#'   It uses a variant of Analytic-GRIMMER also implemented in
 #'   \href{https://lukaswallrich.github.io/rsprite2/reference/GRIMMER_test.html}{`rsprite2::GRIMMER_test()`}
-#'   that can be applied to multi-item scales.
+#'   that can be applied to multi-item scales and oiptionally takes scale ranges
+#'   into account.
 #'
 #'   The scrutiny version embeds GRIMMER in the broader system of consistency
 #'   testing, as laid out in
@@ -423,6 +530,34 @@ grimmer_scalar <- function(
 #'   more context and variable name translations, see the top of the R/grimmer.R
 #'   source file.
 
+#' @section Scale bounds: GRIMMER assumes that the individual values behind `x`
+#'   and `sd` are whole numbers. If they were also confined to a fixed range --
+#'   the endpoints of a Likert scale, say -- state that range using `min_val`
+#'   and `max_val`. The test then knows how far the values could spread out
+#'   around their mean at most, which rules out standard deviations that are
+#'   possible on an unbounded scale. A reported `x` outside of the range is
+#'   inconsistent by itself.
+#'
+#'   Both bounds refer to a single response, so they don't depend on `items`:
+#'   for a five-point scale, `min_val` is `1` and `max_val` is `5` whether the
+#'   mean was composed of one item or of ten. They must be specified together,
+#'   because a single bound places no limit on the standard deviation.
+#'
+#'   Scale bounds can only turn a `TRUE` verdict into `FALSE`, never the other
+#'   way around. Like GRIMMER's other tests, the condition they add is
+#'   necessary but not sufficient, so a value set that passes it may still be
+#'   impossible.
+#'
+#'   This is the least of what a known scale range implies, and it is here
+#'   because it costs GRIMMER one comparison per candidate sum. The
+#'   \href{https://github.com/ianhussey/strait}{strait} package is devoted to
+#'   the subject and goes much further: bounds sharpened by attained extremes,
+#'   by response granularity, or by a reported Cronbach's alpha
+#'   (`strait::sd_bounds()`), and an exact decision procedure that is
+#'   sufficient as well as necessary (`strait::brimmest()`). For the
+#'   simulation-based SPRITE technique, see
+#'   \href{https://lukaswallrich.github.io/rsprite2/}{rsprite2}.
+
 #' @references Allard, A. (2018). Analytic-GRIMMER: a new way of testing the
 #'   possibility of standard deviations.
 #'   https://aurelienallard.netlify.app/post/anaytic-grimmer-possibility-standard-deviations/
@@ -430,6 +565,12 @@ grimmer_scalar <- function(
 #'   Anaya, J. (2016). The GRIMMER test: A method for testing the validity of
 #'   reported measures of variability. *PeerJ Preprints.*
 #'   https://peerj.com/preprints/2400v1/
+#'
+#'   Mestdagh, M., Pe, M., Pestman, W., Verdonck, S., Kuppens, P., &
+#'   Tuerlinckx, F. (2018). Sidelining the mean: The relative variability index
+#'   as a generic mean-corrected variability measure for bounded variables.
+#'   *Psychological Methods*, 23(4), 690-707.
+#'   https://doi.org/10.1037/met0000153
 
 #' @export
 #'
@@ -444,5 +585,15 @@ grimmer_scalar <- function(
 #'
 #' # For a scale composed of two items:
 #' grimmer(x = 2.74, sd = 0.96, n = 63, digits_x = 2, digits_sd = 2, items = 2)
+#'
+#' # A mean of 3.00 with an SD of 2.08 is possible for 20 whole numbers...
+#' grimmer(x = 3.00, sd = 2.08, n = 20, digits_x = 2, digits_sd = 2)
+#'
+#' # ...but not if they were responses on a scale from 1 to 5. Even the most
+#' # extreme such sample, ten 1s and ten 5s, has an SD of only 2.05:
+#' grimmer(
+#'   x = 3.00, sd = 2.08, n = 20, digits_x = 2, digits_sd = 2,
+#'   min_val = 1, max_val = 5
+#' )
 
 grimmer <- Vectorize(grimmer_scalar)

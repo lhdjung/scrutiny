@@ -12,6 +12,8 @@ grimmer(
   digits_x,
   digits_sd,
   items = 1,
+  min_val = NULL,
+  max_val = NULL,
   show_reason = FALSE,
   rounding = "up_or_down",
   threshold = 5,
@@ -37,6 +39,13 @@ zeros don't survive in a numeric value.}
 
 \item{items}{Integer. The number of items composing the \code{x} and \code{sd} values.
 Default is \code{1}, the most common case.}
+
+\item{min_val, max_val}{Integer. Optionally, the minimum and maximum value
+that an individual response could take, as with the endpoints of a Likert
+scale. If both are specified, GRIMMER also tests whether values within
+that range could have produced the reported \code{x} and \code{sd} in the first
+place. Both default to \code{NULL}, i.e., an unbounded scale. See \emph{Scale
+bounds} below.}
 
 \item{show_reason}{Logical. For internal use only. If set to \code{TRUE}, the
 output is a list of length-2 lists which also contain the reasons for
@@ -77,9 +86,10 @@ for testing multiple cases.
 \details{
 GRIMMER was originally devised by Anaya (2016). The present
 implementation follows Allard's (2018) refined Analytic-GRIMMER algorithm.
-It uses a variant of Analytic-GRIMMER first implemented in
+It uses a variant of Analytic-GRIMMER also implemented in
 \href{https://lukaswallrich.github.io/rsprite2/reference/GRIMMER_test.html}{\code{rsprite2::GRIMMER_test()}}
-that can be applied to multi-item scales.
+that can be applied to multi-item scales and oiptionally takes scale ranges
+into account.
 
 The scrutiny version embeds GRIMMER in the broader system of consistency
 testing, as laid out in
@@ -89,6 +99,36 @@ is a vectorized (multiple-case) version of this basic implementation. For
 more context and variable name translations, see the top of the R/grimmer.R
 source file.
 }
+\section{Scale bounds}{
+ GRIMMER assumes that the individual values behind \code{x}
+and \code{sd} are whole numbers. If they were also confined to a fixed range --
+the endpoints of a Likert scale, say -- state that range using \code{min_val}
+and \code{max_val}. The test then knows how far the values could spread out
+around their mean at most, which rules out standard deviations that are
+possible on an unbounded scale. A reported \code{x} outside of the range is
+inconsistent by itself.
+
+Both bounds refer to a single response, so they don't depend on \code{items}:
+for a five-point scale, \code{min_val} is \code{1} and \code{max_val} is \code{5} whether the
+mean was composed of one item or of ten. They must be specified together,
+because a single bound places no limit on the standard deviation.
+
+Scale bounds can only turn a \code{TRUE} verdict into \code{FALSE}, never the other
+way around. Like GRIMMER's other tests, the condition they add is
+necessary but not sufficient, so a value set that passes it may still be
+impossible.
+
+This is the least of what a known scale range implies, and it is here
+because it costs GRIMMER one comparison per candidate sum. The
+\href{https://github.com/ianhussey/strait}{strait} package is devoted to
+the subject and goes much further: bounds sharpened by attained extremes,
+by response granularity, or by a reported Cronbach's alpha
+(\code{strait::sd_bounds()}), and an exact decision procedure that is
+sufficient as well as necessary (\code{strait::brimmest()}). For the
+simulation-based SPRITE technique, see
+\href{https://lukaswallrich.github.io/rsprite2/}{rsprite2}.
+}
+
 \examples{
 # A mean of 5.23 is not consistent with an SD of 2.55
 # and a sample size of 35:
@@ -100,6 +140,16 @@ grimmer(x = 5.23, sd = 2.55, n = 31, digits_x = 2, digits_sd = 2)
 
 # For a scale composed of two items:
 grimmer(x = 2.74, sd = 0.96, n = 63, digits_x = 2, digits_sd = 2, items = 2)
+
+# A mean of 3.00 with an SD of 2.08 is possible for 20 whole numbers...
+grimmer(x = 3.00, sd = 2.08, n = 20, digits_x = 2, digits_sd = 2)
+
+# ...but not if they were responses on a scale from 1 to 5. Even the most
+# extreme such sample, ten 1s and ten 5s, has an SD of only 2.05:
+grimmer(
+  x = 3.00, sd = 2.08, n = 20, digits_x = 2, digits_sd = 2,
+  min_val = 1, max_val = 5
+)
 }
 \references{
 Allard, A. (2018). Analytic-GRIMMER: a new way of testing the
@@ -109,4 +159,10 @@ https://aurelienallard.netlify.app/post/anaytic-grimmer-possibility-standard-dev
 Anaya, J. (2016). The GRIMMER test: A method for testing the validity of
 reported measures of variability. \emph{PeerJ Preprints.}
 https://peerj.com/preprints/2400v1/
+
+Mestdagh, M., Pe, M., Pestman, W., Verdonck, S., Kuppens, P., &
+Tuerlinckx, F. (2018). Sidelining the mean: The relative variability index
+as a generic mean-corrected variability measure for bounded variables.
+\emph{Psychological Methods}, 23(4), 690-707.
+https://doi.org/10.1037/met0000153
 }

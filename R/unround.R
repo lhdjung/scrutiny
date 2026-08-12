@@ -356,6 +356,61 @@ sum_squares_range <- function(
 }
 
 
+# What a scale with known bounds adds to GRIMMER, where `sum_squares_range()`
+# gives what the reported SD admits. The values summed and squared are the `n`
+# whole-number totals of the individual respondents, each of them between
+# `val_lower` and `val_upper` (i.e., between the scale's minimum and maximum,
+# multiplied by the number of items), adding up to the candidate sum `s`. This
+# is the greatest sum of squares they can have: the values are as far apart as
+# the scale allows, so `k` of them sit at its maximum and the rest at its
+# minimum, with at most one value in between to absorb what `s` leaves over.
+#
+# In SD space this is the sharp mean-conditional ceiling that Mestdagh et al.
+# (2018) call "Structure S"; `strait::sd_bounds()` has it as
+# `sd_max_structure_s()`, along with several bounds that scrutiny does not
+# derive. Here it stays in sum-of-squares space, where GRIMMER already works and
+# the arithmetic is exact.
+#
+# Returns `NULL` if no set of `n` values within the range adds up to `s` at all,
+# in which case the candidate sum is out of reach whatever the SD is.
+#
+# The bound is exact, but the condition it yields is necessary rather than
+# sufficient: not every sum of squares below it is attainable. With `n = 3`
+# values from 0 to 10 that add up to 10, the ceiling is 100, yet 40 is out of
+# reach. Like GRIMMER's other tests, it can therefore only move a verdict from
+# `TRUE` to `FALSE` -- the safe direction for error detection. For a decision
+# procedure that is also sufficient, see `strait::brimmest()`.
+#
+# There is a matching floor -- the least sum of squares that `n` whole numbers
+# adding up to `s` can have, i.e. the values as equal as possible. It is
+# deliberately not applied here, because it does not depend on the scale at all:
+# the near-equal values always lie inside the range, since their mean does.
+# Applying it would tighten GRIMMER for every caller, including those who say
+# nothing about a scale, which is a separate decision from this one.
+
+sum_squares_scale_max <- function(s, n, val_lower, val_upper) {
+  if (s < n * val_lower || s > n * val_upper) {
+    return(NULL)
+  }
+
+  span <- val_upper - val_lower
+
+  # A scale with a single possible value leaves nothing to spread out:
+  if (span == 0) {
+    return(n * val_lower^2)
+  }
+
+  k <- floor_div(s - n * val_lower, span)
+  rest <- (s - n * val_lower) - k * span
+
+  if (rest == 0) {
+    k * val_upper^2 + (n - k) * val_lower^2
+  } else {
+    k * val_upper^2 + (val_lower + rest)^2 + (n - k - 1) * val_lower^2
+  }
+}
+
+
 #' Reconstruct rounding bounds
 #'
 #' @description `unround()` takes a rounded number and returns the range of the

@@ -23,6 +23,12 @@
 #'   trailing zeros. As with `digits_x`, there is no default, because trailing
 #'   zeros don't survive in a numeric value, and it may have one value per row
 #'   of `data`.
+#' @param min_val,max_val Integer. Optionally, the minimum and maximum value
+#'   that an individual response could take, as with the endpoints of a Likert
+#'   scale. If both are specified, GRIMMER also tests whether values within that
+#'   range could have spread out far enough to produce the reported `sd`, and
+#'   whether `x` is on the scale at all. See the *Scale bounds* section in
+#'   [`grimmer()`]. Both default to `NULL`, i.e., an unbounded scale.
 #' @param x,sd,n Optionally, specify these arguments as column names in `data`.
 #' @param show_reason Logical (length 1). Should there be a `reason` column that
 #'   shows the reasons for inconsistencies and `"Passed all"` for consistent
@@ -50,6 +56,11 @@
 #'    parity of the reconstructed sum of integers of which the reported means
 #'    are fractions; i.e., either both are even or both are odd.
 #'
+#' If `min_val` and `max_val` are specified, two further reasons can appear:
+#' `"Mean out of scale range"` for an `x` outside of the scale, and `"GRIMMER
+#' inconsistent (scale range)"` for a value set whose `sd` no sample within the
+#' scale could have produced.
+#'
 #' The tibble has the `scrutiny_grimmer_map` class, which is recognized by the
 #' [`audit()`] generic. [`grim_plot()`] recognizes it as well, so GRIMMER
 #' results can be visualized just like GRIM results.
@@ -67,6 +78,9 @@
 #'     below).
 #' 6. `fail_test2`: number of value sets that fail the second GRIMMER test.
 #' 7. `fail_test3`: number of value sets that fail the third GRIMMER test.
+#' 8. `fail_scale`: number of value sets that are inconsistent with the scale
+#'     bounds given by `min_val` and `max_val`. Zero if these were not
+#'     specified.
 #'
 #' The `reason` columns refers to the three GRIMMER tests (see Allard 2018).
 #' These are:

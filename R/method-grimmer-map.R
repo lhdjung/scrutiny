@@ -11,7 +11,16 @@ audit.scrutiny_grimmer_map <- function(data) {
     fail_test1 <- length(reason[stringr::str_detect(reason, "test 1")])
     fail_test2 <- length(reason[stringr::str_detect(reason, "test 2")])
     fail_test3 <- length(reason[stringr::str_detect(reason, "test 3")])
-    out <- dplyr::mutate(out, fail_grim, fail_test1, fail_test2, fail_test3)
+    # Zero unless `min_val` and `max_val` were specified:
+    fail_scale <- length(reason[stringr::str_detect(reason, "scale range")])
+    out <- dplyr::mutate(
+      out,
+      fail_grim,
+      fail_test1,
+      fail_test2,
+      fail_test3,
+      fail_scale
+    )
   } else {
     cli::cli_alert(
       "In `grimmer_map()`, set `show_reason` to `TRUE` so that \\
