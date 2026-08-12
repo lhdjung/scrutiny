@@ -193,7 +193,7 @@ grim_closest_scalar <- function(
 #'
 #' @include grim.R unround.R
 #'
-#' @rdname grim-values
+#' @rdname grim_values
 #'
 #' @export
 #'
@@ -223,6 +223,6 @@ grim_closest_scalar <- function(
 grim_values <- Vectorize(grim_values_scalar, SIMPLIFY = FALSE)
 
 
-#' @rdname grim-values
+#' @rdname grim_values
 #' @export
 grim_closest <- Vectorize(grim_closest_scalar)
