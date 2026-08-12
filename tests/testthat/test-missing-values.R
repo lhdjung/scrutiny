@@ -179,8 +179,10 @@ test_that("the sequence mappers drop undecidable cases", {
 
 
 test_that("a missing `digits_*` argument still errors, and so do bad values", {
-  grim_map(df_grim) |> expect_error()
-  grim(NA, 28) |> expect_error()
+  # `suppressMessages()` mutes the changelog hint that `error_digits_missing()`
+  # prints via `on.exit()` as it unwinds:
+  suppressMessages(grim_map(df_grim)) |> expect_error()
+  suppressMessages(grim(NA, 28)) |> expect_error()
   # `NA` is undecidable, but a mismatched `digits_x` is still an input error:
   grim(5.19, 28, digits_x = 1) |> expect_error()
 })

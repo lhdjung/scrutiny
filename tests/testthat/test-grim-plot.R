@@ -21,7 +21,9 @@ test_that("`grim_plot()` errors by default on mixed `digits_x`", {
 })
 
 test_that("`split_by_digits = TRUE` returns one plot per decimal count", {
-  plots <- mixed_digits |> grim_plot(split_by_digits = TRUE)
+  # `suppressMessages()` mutes the success alert that `grim_plot()` prints when
+  # it made more than one plot:
+  plots <- suppressMessages(mixed_digits |> grim_plot(split_by_digits = TRUE))
   plots |> expect_type("list")
   plots |> names() |> expect_equal(c("digits_1", "digits_2"))
   plots[[1]] |> expect_s3_class("ggplot")

@@ -1,6 +1,8 @@
 test_that("`digits_x` missing leads to failure", {
-  expect_error(grim(2.65, 30))
-  expect_error(grim(924, 0))
+  # `suppressMessages()` mutes the changelog hint that `error_digits_missing()`
+  # prints via `on.exit()` as it unwinds:
+  expect_error(suppressMessages(grim(2.65, 30)))
+  expect_error(suppressMessages(grim(924, 0)))
 })
 
 

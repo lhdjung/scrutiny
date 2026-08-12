@@ -591,7 +591,9 @@ test_that("a mapper called on a 0-row data frame returns a valid tibble", {
     out |> colnames() |> expect_contains("consistency")
     out |> ncol() |> expect_equal(length(colnames(out)))
     out$consistency |> expect_type("logical")
-    out |> audit() |> nrow() |> expect_equal(1L)
+    # `suppressMessages()` mutes the hint that `audit.scrutiny_grimmer_map()`
+    # prints when there is no `reason` column, as here with `show_reason` unset:
+    suppressMessages(audit(out)) |> nrow() |> expect_equal(1L)
   }
 })
 

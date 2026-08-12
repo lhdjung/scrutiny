@@ -11,9 +11,12 @@ df_grim <- tibble::tibble(x = 4.11, n = 40)
 df_grimmer <- tibble::tibble(x = 5.23, sd = 2.55, n = 35)
 df_debit <- tibble::tibble(x = 0.35, sd = 0.18, n = 20)
 
-# Extract the error message from `expr` as a single string:
+# Extract the error message from `expr` as a single string.
+# `error_digits_missing()` also prints a changelog hint via `on.exit()` as it
+# unwinds, which is a `message` condition and would otherwise clutter test
+# output:
 msg_error <- function(expr) {
-  conditionMessage(tryCatch(expr, error = function(e) e))
+  conditionMessage(suppressMessages(tryCatch(expr, error = function(e) e)))
 }
 
 

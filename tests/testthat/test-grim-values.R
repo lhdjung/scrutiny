@@ -104,6 +104,8 @@ test_that("undecidable cases give `NA`", {
 
 
 test_that("`digits_x` is required, with the bespoke error message", {
-  grim_values(5.19, 28) |> expect_error("digits_x")
-  grim_closest(5.19, 28) |> expect_error("digits_x")
+  # `suppressMessages()` mutes the changelog hint that `error_digits_missing()`
+  # prints via `on.exit()` as it unwinds:
+  suppressMessages(grim_values(5.19, 28)) |> expect_error("digits_x")
+  suppressMessages(grim_closest(5.19, 28)) |> expect_error("digits_x")
 })
