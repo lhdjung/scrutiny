@@ -92,8 +92,10 @@ total of integer data is a whole number, so this is generally not one.
 that would have been reported as \code{x}. These are the numbers that decide the
 test: \code{x} is GRIM-consistent exactly if \code{sum_lower} is not greater than
 \code{sum_upper}, i.e., if at least one whole number falls between them. If it
-is inconsistent, the gap between the two says how far off the reported
-values are.
+is inconsistent, the two are the whole numbers that straddle \code{rec_sum}, so
+\code{sum_lower} is always \code{sum_upper + 1}: the gap does not measure how far off
+the reported values are. Compare \code{x} to \code{rec_x_lower} and \code{rec_x_upper}
+for that.
 \item \code{rec_x_upper}, \code{rec_x_lower}: the two reconstructed \code{x} values ("granules")
 closest to \code{x} -- \code{rec_sum} rounded up and down, divided by \code{n} (times
 \code{items}).

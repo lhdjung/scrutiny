@@ -60,8 +60,10 @@
 #'   that would have been reported as `x`. These are the numbers that decide the
 #'   test: `x` is GRIM-consistent exactly if `sum_lower` is not greater than
 #'   `sum_upper`, i.e., if at least one whole number falls between them. If it
-#'   is inconsistent, the gap between the two says how far off the reported
-#'   values are.
+#'   is inconsistent, the two are the whole numbers that straddle `rec_sum`, so
+#'   `sum_lower` is always `sum_upper + 1`: the gap does not measure how far off
+#'   the reported values are. Compare `x` to `rec_x_lower` and `rec_x_upper`
+#'   for that.
 #' - `rec_x_upper`, `rec_x_lower`: the two reconstructed `x` values ("granules")
 #'   closest to `x` -- `rec_sum` rounded up and down, divided by `n` (times
 #'   `items`).

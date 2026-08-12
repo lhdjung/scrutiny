@@ -98,9 +98,12 @@ grim_scalar <- function(
 
   # Return the same six values for every rounding method. `sum_lower` and
   # `sum_upper` are the numbers that actually decided `consistency` above: the
-  # least and the greatest integer sum that would have been reported as `x`.
-  # They also say how far off an inconsistent value set is, because the range is
-  # empty exactly if the set is inconsistent.
+  # least and the greatest integer sum that would have been reported as `x`. The
+  # range is empty exactly if the value set is inconsistent, and then it is
+  # empty by exactly one: the two are the integers that straddle `rec_sum`, so
+  # `sum_lower` is `sum_upper + 1`. The gap is therefore never a measure of how
+  # far off the value set is -- what says that is where `rec_sum` falls relative
+  # to the range, i.e. `x` against `rec_x_lower` and `rec_x_upper`.
   #
   # Up to scrutiny 1.0.0, the display was granule-based instead: the two
   # granules, re-rounded, in four columns for the "_or_" rounding methods and
