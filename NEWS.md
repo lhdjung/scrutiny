@@ -60,6 +60,8 @@
 
 - An undecidable case is now `NA` under every rounding method, not just under the default one. `grim()` derived its bounds from the sign of `x`, which a missing value does not have, so `rounding = "trunc"`, `rounding = "anti_trunc"`, and `symmetric = TRUE` still aborted with `missing value where TRUE/FALSE needed` -- as did `grim_map()`, `grim_values()`, `grim_closest()`, and `unround()` with those settings. An unknown `rounding` string is still an input error, whether or not `x` is missing.
 
+- `grimmer()` and `grimmer_map()` no longer abort when GRIM itself is undecidable, which happens with `rounding = "anti_trunc"` at a mean of zero and with a non-positive `n`. GRIMMER branched on the GRIM verdict without allowing for `NA`, and failed with `missing value where TRUE/FALSE needed`. It now returns `NA`, as its documentation says it does for undefined rounding bounds, and `grimmer_map(show_reason = TRUE)` gives the reason `"GRIM undecidable"`.
+
 - `audit()` no longer counts an undecidable case as an inconsistent one. `incons_cases` is the number of rows where `consistency` is `FALSE`, as documented, but it was derived by indexing rows with `!consistency`, and indexing by `NA` returns a row of `NA`s rather than no row at all. The same phantom row could reach `*_map_seq()`, which dispersed values around a case that has no values, and `audit_seq()`, which counted it as a hit.
 
 - `debit_map()` now returns `x` and `sd` as numeric columns, not as strings. This matches `grim_map()`.

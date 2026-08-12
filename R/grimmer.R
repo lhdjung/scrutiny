@@ -235,6 +235,18 @@ grimmer_scalar <- function(
     tolerance = tolerance
   )
 
+  # GRIM itself can be undecidable -- with `rounding = "anti_trunc"` at a mean
+  # of zero, or with a non-positive `n` -- and then so is GRIMMER, which builds
+  # on it. The missing-value guard above catches only the other route to an `NA`
+  # verdict, so this one has to be here rather than folded into it, and it has
+  # to precede the branch below, which would fail on an `NA`:
+  if (is.na(pass_grim)) {
+    if (show_reason) {
+      return(list(NA, "GRIM undecidable"))
+    }
+    return(NA)
+  }
+
   if (!pass_grim) {
     if (show_reason) {
       return(list(FALSE, "GRIM inconsistent"))

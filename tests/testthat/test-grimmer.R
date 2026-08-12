@@ -735,6 +735,38 @@ test_that("`symmetric` is passed on to the GRIM stage", {
   )
 })
 
+
+test_that("GRIMMER returns `NA` where GRIM itself is undecidable", {
+  # GRIMMER runs GRIM first and branches on its verdict, which is `NA` where the
+  # mean's rounding bounds are undefined -- `"anti_trunc"` is the one method
+  # with none at zero -- and where `n` leaves nothing to test. The branch used
+  # to fail on the `NA` with "missing value where TRUE/FALSE needed" instead of
+  # passing it on. `debit()` has the same test.
+  expect_na(grim(0, n = 40, digits_x = 2, rounding = "anti_trunc"))
+  expect_na(
+    grimmer(
+      x = 0, sd = 0.41, n = 40, digits_x = 2, digits_sd = 2,
+      rounding = "anti_trunc"
+    )
+  )
+  expect_na(grimmer(x = 1.03, sd = 0.41, n = 0, digits_x = 2, digits_sd = 2))
+
+  # The reason names the stage the case got stuck at, the way the reason for an
+  # undecidable SD does. It must not read as a GRIM *inconsistency*, which
+  # `audit()` counts by matching that string:
+  out <- grimmer_map(
+    tibble::tibble(x = c(0, 1.03), sd = c(0.41, 0.41), n = c(40L, 40L)),
+    digits_x = 2,
+    digits_sd = 2,
+    rounding = "anti_trunc",
+    show_reason = TRUE
+  )
+  out$consistency |> expect_equal(c(NA, FALSE))
+  out$reason[1L] |> expect_equal("GRIM undecidable")
+  audit(out)$fail_grim |> expect_equal(0L)
+  audit(out)$incons_cases |> expect_equal(1L)
+})
+
 # Scale bounds ------------------------------------------------------------
 
 test_that("`min_val` and `max_val` must be specified together and be valid", {
