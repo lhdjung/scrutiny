@@ -16,7 +16,6 @@ debit_plot(
   line_color = "black",
   line_linetype = 1,
   line_width = 0.5,
-  line_size = 0.5,
   rect_alpha = 1,
   tile_alpha = 0.15,
   tile_height_offset = 0.025,
@@ -52,7 +51,7 @@ fitting the plot structure? Default is \code{TRUE}.}
 \item{color_cons, color_incons}{Strings. Colors of the geoms representing
 consistent and inconsistent values, respectively.}
 
-\item{line_alpha, line_color, line_linetype, line_width, line_size}{Parameters of
+\item{line_alpha, line_color, line_linetype, line_width}{Parameters of
 the curved DEBIT line.}
 
 \item{rect_alpha}{Parameter of the DEBIT rectangles. (Due to the nature of

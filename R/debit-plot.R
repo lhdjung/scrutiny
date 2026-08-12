@@ -33,7 +33,7 @@
 #' @param rect_alpha Parameter of the DEBIT rectangles. (Due to the nature of
 #'   the data mapping, there can be no leeway regarding the shape or size of
 #'   this particular geom.)
-#' @param line_alpha,line_color,line_linetype,line_width,line_size Parameters of
+#' @param line_alpha,line_color,line_linetype,line_width Parameters of
 #'   the curved DEBIT line.
 #' @param
 #' tile_alpha,tile_height_offset,tile_width_offset,tile_height_min,tile_width_min
@@ -72,7 +72,6 @@ debit_plot <- function(
   line_color = "black",
   line_linetype = 1,
   line_width = 0.5,
-  line_size = 0.5,
   rect_alpha = 1,
   tile_alpha = 0.15,
   tile_height_offset = 0.025,
@@ -137,29 +136,15 @@ debit_plot <- function(
     suppressWarnings(sqrt((.n / (.n - 1)) * (.x * (1 - .x))))
   }
 
-  if (utils::packageVersion("ggplot2") >= "3.4") {
-    check_ggplot2_size(line_size, 0.5)
-    p <- p +
-      ggplot2::geom_function(
-        fun = draw_debit_line,
-        alpha = line_alpha,
-        color = line_color,
-        linetype = line_linetype,
-        linewidth = line_width,
-        na.rm = TRUE
-      )
-  } else {
-    check_ggplot2_linewidth(line_width, 0.5)
-    p <- p +
-      ggplot2::geom_function(
-        fun = draw_debit_line,
-        alpha = line_alpha,
-        color = line_color,
-        linetype = line_linetype,
-        size = line_size,
-        na.rm = TRUE
-      )
-  }
+  p <- p +
+    ggplot2::geom_function(
+      fun = draw_debit_line,
+      alpha = line_alpha,
+      color = line_color,
+      linetype = line_linetype,
+      linewidth = line_width,
+      na.rm = TRUE
+    )
 
   # Inner tiles that should cross the consistency line:
   p <- p +

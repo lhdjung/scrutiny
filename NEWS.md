@@ -16,6 +16,8 @@
 
 - The `n` column returned by `grim_map()`, `grimmer_map()`, and `debit_map()` is now an integer column if all of its values are whole numbers, which sample sizes are. `function_map_seq()` output already followed this convention.
 
+- `debit_plot()` no longer has a `line_size` argument. It is no longer needed because the function always draws the DEBIT line via the `linewidth`.
+
 - `grim_map()`, `grimmer_map()`, and `debit_map()` now carry the `digits_x` (and, for GRIMMER and DEBIT, `digits_sd`) they were given forward into a `digits_x` / `digits_sd` output column. The same is true of `*_map_total_n()`.
 
 - `grim_plot()` now reads this column instead of guessing the decimal count from the numeric `x` column via `decimal_places()`, which was unreliable because a numeric value cannot carry trailing zeros: `5.00` reads back as 0 decimal places, not 2.
@@ -106,7 +108,7 @@
 
 - scrutiny now requires R >= 4.1.0, as do recent versions of tidyverse packages. This is because the package now uses the base pipe `|>`, but also to avoid any incompatibilities with older versions of R.
 
-- scrutiny now requires purrr >= 1.0.0, which was released in 2022 (#87).
+- scrutiny now requires purrr >= 1.0.0 (#87) and ggplot2 >= 3.4.0, both released in November 2022.
 
 ## Documentation
 
