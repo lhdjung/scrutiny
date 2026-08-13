@@ -20,9 +20,13 @@ helper).}
 \item{rounding}{String. Rounding method presumably used to create \code{x}.
 Default is \code{"up_or_down"}. For more, see section \code{Rounding}.}
 
-\item{threshold}{Integer. Number from which to round up or down, for the
-\code{"up_from"}, \code{"down_from"}, and \code{"up_from_or_down_from"} methods. Other
-rounding methods are not affected. Default is \code{5}.}
+\item{threshold}{Numeric. The point within a step at which rounding switches
+direction, in tenths of a step, for the \code{"up_from"}, \code{"down_from"}, and
+\code{"up_from_or_down_from"} methods; it must be greater than \code{0} and less than
+\code{10}. Other rounding methods are not affected. Default is \code{5}, which makes
+those three methods the same as \code{"up"}, \code{"down"}, and \code{"up_or_down"}. See
+\code{\link[=round_up_from]{round_up_from()}}, which spells out how \code{round_down_from()} mirrors the
+threshold.}
 
 \item{digits}{Integer. This argument is meant to make \code{unround()} more
 efficient to use as a helper function so that it doesn't need to
@@ -33,7 +37,9 @@ must be a string.}
 \item{symmetric}{Logical. Set \code{symmetric} to \code{TRUE} if the rounding of
 negative numbers with \code{"up"}, \code{"down"}, \code{"up_from"}, or \code{"down_from"}
 mirrored that of positive numbers, so that their absolute values were
-always equal. Default is \code{FALSE}.}
+always equal. Default is \code{FALSE}. It only ever affects ties in negative
+numbers, but \code{TRUE} is what reconstructs Excel, SAS, SPSS, and Matlab; see
+\code{vignette("rounding-options")}.}
 }
 \value{
 A tibble with seven columns: \code{range}, \code{rounding}, \code{lower},

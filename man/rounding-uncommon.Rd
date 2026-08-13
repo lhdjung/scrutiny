@@ -22,7 +22,9 @@ round_anti_trunc(x, digits = 0L)
 \arguments{
 \item{x}{Numeric. The decimal number to round.}
 
-\item{digits}{Integer. Number of digits to round \code{x} to. Default is \code{0}.}
+\item{digits}{Integer. Number of digits to round \code{x} to. Default is \code{0}.
+Negative values round to powers of ten: \code{round_ceiling(1250, digits = -2)}
+is \code{1300}.}
 }
 \value{
 Numeric. \code{x} rounded to \code{digits} (except for \code{anti_trunc()}, which
@@ -34,8 +36,12 @@ Always round up, down, toward zero, or away from it:
 \item \code{round_ceiling()} always rounds up.
 \item \code{round_floor()} always rounds down.
 \item \code{round_trunc()} always rounds toward zero.
-\item \code{round_anti_trunc()} always rounds away from zero. (\code{0} itself is
-rounded to \code{1}.)
+\item \code{round_anti_trunc()} always rounds away from zero. Note that "always"
+is meant strictly: a value already sitting on the rounding grid is moved
+one step further away all the same, so \code{round_anti_trunc(8.42, digits =   2)} is \code{8.43}, and \code{0} itself is rounded to \code{1}. Excel's \code{ROUNDUP()},
+Java's \code{RoundingMode.UP}, and Python's \code{decimal.ROUND_UP} round away from
+zero in the weaker sense that leaves such a value where it is. Use
+\code{"ceiling_or_floor"} for a range that safely contains those.
 \item \code{anti_trunc()} does not round but otherwise works like
 \code{round_anti_trunc()}.
 }
@@ -65,6 +71,13 @@ Moreover, \code{round_trunc()} is equivalent to \code{round_floor()} for positiv
 numbers and to \code{round_ceiling()} for negative numbers. The reverse is again
 true for \code{round_anti_trunc()}: It is equivalent to \code{round_ceiling()} for
 positive numbers and to \code{round_floor()} for negative numbers.
+
+Like \code{\link[=round_up]{round_up()}} and the other functions on that page, all of these
+nudge the value by about \code{1.5e-9} before rounding it, so that
+floating-point representation error cannot move a number a whole step:
+\code{0.28 * 100} is stored as \code{28.000000000000004}, and \code{round_ceiling(0.28, 2)} is \code{0.28} rather than \code{0.29} because of the nudge. See the
+\verb{Floating-point tolerance} section of \code{\link[=round_up]{round_up()}} for the details and
+for the range of magnitudes in which it holds.
 }
 \examples{
 # Always round up:

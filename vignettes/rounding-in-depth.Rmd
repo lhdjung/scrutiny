@@ -45,7 +45,7 @@ Here is an example for a `reround()` call:
 reround(x = c(5.812, 7.249), digits = 2, rounding = "up")
 ```
 
-The two remaining arguments are mostly forgettable: They only concern obscure cases of rounding with a threshold other than 5 (`threshold`) and rounding such that the absolute values of positive and negative numbers are the same (`symmetric`). Ignore them otherwise.
+The two remaining arguments are `threshold`, which concerns the obscure case of rounding from a number other than 5, and `symmetric`, which decides how ties in negative numbers are broken. `symmetric` is not obscure: with `symmetric = TRUE`, a negative number is rounded like its absolute value, which is what Excel, SPSS, SAS, and Matlab all do. If your data contain negative values and you commit to a single rounding direction, this is the setting that separates those programs from Stata and from "school math read literally on the number line". See `vignette("rounding-options")`.
 
 ## Rounding procedures in detail
 
@@ -79,7 +79,7 @@ round_down(x = 1.25, digits = 1)
 round_down(x = 1.25)  # default for `digits` is 0
 ```
 
-`round_down_from()`, then, is just the reverse of `round_up_from()`:
+`round_down_from()`, then, is just the reverse of `round_up_from()` --- and the reversal applies to the threshold, too. Note how the results below are the opposite way around from those above:
 
 ```{r}
 round_down_from(x = 4.28, digits = 1, threshold = 9)
@@ -87,10 +87,12 @@ round_down_from(x = 4.28, digits = 1, threshold = 9)
 round_down_from(x = 4.28, digits = 1, threshold = 1)
 ```
 
+`round_up_from()` rounds up when the part cut off by rounding is at least $t$ tenths of a step. `round_down_from()` rounds *down* when that part is at most $10 - t$ tenths of a step. The two switch direction at the same point only when $t = 5$, which is the value that `round_up()` and `round_down()` use --- so the difference never shows up unless you set `threshold` yourself.
+
 Rounding up implements this formula:
 
 $$
-\frac{\lfloor x(10^d) +1 - \frac{t}{10} \rfloor}{10^d}
+\frac{\lfloor x(10^d) +1 - \frac{t}{10} + \epsilon \rfloor}{10^d}
 $$
 
 where $x$ is the number to be rounded, $d$ is the number of decimal places to which $x$ should be rounded, and $t$ is the threshold for rounding up (e.g., $t = 5$ for rounding up from 5). Note that $\lfloor n \rfloor$ floors a number $n$, and $\lceil n \rceil$ ceils it.
@@ -98,8 +100,10 @@ where $x$ is the number to be rounded, $d$ is the number of decimal places to wh
 Rounding down works accordingly. Note that $+$ and $-$ are reversed here:
 
 $$
-\frac{\lceil x(10^d) - 1 + \frac{t}{10} \rceil}{10^d}
+\frac{\lceil x(10^d) - 1 + \frac{t}{10} - \epsilon \rceil}{10^d}
 $$
+
+The $\epsilon$ in both formulas is a fixed tolerance of about $1.5 \times 10^{-9}$. It is there because shifting $x$ by $d$ decimal places is not exact: $0.145 \times 100$ is stored as $14.499999999999998$, a hair below the tie it is meant to be, and rounding that shifted value directly would move $0.145$ a whole step in the wrong direction. The same tolerance is applied by every other `round_*()` function, and `unround()` reports bounds that assume it, so a number and its reconstructed range always agree. See the `Floating-point tolerance` section of `round_up()`.
 
 ### To even (base R)
 
@@ -173,7 +177,9 @@ We usually think that rounding rules are all about breaking a tie that occurs at
 
 This seems better than following mathematical intuitions that may not always correspond to the way computers actually deal with numbers. R has used the present solution since version 4.0.0.
 
-`base::round()` can seem like a black box, but it seems unbiased in the long run. I recommend using `round()` for original work, even though it is quite different from other rounding procedures --- and therefore unsuitable for reconstructing them. Instead, we need something like scrutiny's `round_*()` functions.
+`base::round()` can seem like a black box, but it seems unbiased in the long run. I recommend using `round()` for original work.
+
+It is worth being precise about what this does and does not mean for reconstruction, because the two claims are easy to run together. `base::round()` *is* the right reconstruction of software that rounds binary doubles to even --- R itself, Python, NumPy --- and `rounding = "even"` reaches it. What is unsuitable is the reverse: predicting `round()`'s output from the decimal you see written down, since most decimals are not exactly representable and so are not really ties at all. Reconstructing the many programs that do round from the decimal 5 is the job of scrutiny's other `round_*()` functions. See `vignette("rounding-options")`, which states this once and lists which program falls on which side.
 
 ### IEEE 754 rounding standard
 

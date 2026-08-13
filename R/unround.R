@@ -119,6 +119,14 @@ rounding_offsets <- function(rounding, threshold, x_num, symmetric = FALSE) {
     x_num <- 1
   }
 
+  # The parameterized methods are the ones that `threshold` applies to, so they
+  # are the ones that validate it -- as in `reround()`, and for the same reason:
+  # a threshold outside `(0, 10)` makes one of the two directions unreachable,
+  # and the offsets below would encode that silently:
+  if (rounding %in% c("up_from", "down_from", "up_from_or_down_from")) {
+    check_threshold_valid(threshold)
+  }
+
   # With `symmetric`, the rounding of a negative number mirrors that of its
   # absolute value, which is precisely what the opposite method does to a
   # negative number anyway. Swapping the method here is therefore enough:
@@ -509,9 +517,13 @@ sum_squares_scale_max <- function(s, n, val_lower, val_upper) {
 #'   helper).
 #' @param rounding String. Rounding method presumably used to create `x`.
 #'   Default is `"up_or_down"`. For more, see section `Rounding`.
-#' @param threshold Integer. Number from which to round up or down, for the
-#'   `"up_from"`, `"down_from"`, and `"up_from_or_down_from"` methods. Other
-#'   rounding methods are not affected. Default is `5`.
+#' @param threshold Numeric. The point within a step at which rounding switches
+#'   direction, in tenths of a step, for the `"up_from"`, `"down_from"`, and
+#'   `"up_from_or_down_from"` methods; it must be greater than `0` and less than
+#'   `10`. Other rounding methods are not affected. Default is `5`, which makes
+#'   those three methods the same as `"up"`, `"down"`, and `"up_or_down"`. See
+#'   [`round_up_from()`], which spells out how `round_down_from()` mirrors the
+#'   threshold.
 #' @param digits Integer. This argument is meant to make `unround()` more
 #'   efficient to use as a helper function so that it doesn't need to
 #'   redundantly count decimal places. Don't specify it otherwise. Default is
@@ -520,7 +532,9 @@ sum_squares_scale_max <- function(s, n, val_lower, val_upper) {
 #' @param symmetric Logical. Set `symmetric` to `TRUE` if the rounding of
 #'   negative numbers with `"up"`, `"down"`, `"up_from"`, or `"down_from"`
 #'   mirrored that of positive numbers, so that their absolute values were
-#'   always equal. Default is `FALSE`.
+#'   always equal. Default is `FALSE`. It only ever affects ties in negative
+#'   numbers, but `TRUE` is what reconstructs Excel, SAS, SPSS, and Matlab; see
+#'   `vignette("rounding-options")`.
 #'
 #' @return A tibble with seven columns: `range`, `rounding`, `lower`,
 #'   `incl_lower`, `x`, `incl_upper`, and `upper`. The `range` column is a handy

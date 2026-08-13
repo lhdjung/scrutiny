@@ -4,8 +4,13 @@
 #'   - `round_ceiling()` always rounds up.
 #'   - `round_floor()` always rounds down.
 #'   - `round_trunc()` always rounds toward zero.
-#'   - `round_anti_trunc()` always rounds away from zero. (`0` itself is
-#'   rounded to `1`.)
+#'   - `round_anti_trunc()` always rounds away from zero. Note that "always"
+#'   is meant strictly: a value already sitting on the rounding grid is moved
+#'   one step further away all the same, so `round_anti_trunc(8.42, digits =
+#'   2)` is `8.43`, and `0` itself is rounded to `1`. Excel's `ROUNDUP()`,
+#'   Java's `RoundingMode.UP`, and Python's `decimal.ROUND_UP` round away from
+#'   zero in the weaker sense that leaves such a value where it is. Use
+#'   `"ceiling_or_floor"` for a range that safely contains those.
 #'   - `anti_trunc()` does not round but otherwise works like
 #'   `round_anti_trunc()`.
 #'
@@ -34,8 +39,18 @@
 #'   true for `round_anti_trunc()`: It is equivalent to `round_ceiling()` for
 #'   positive numbers and to `round_floor()` for negative numbers.
 #'
+#'   Like [`round_up()`] and the other functions on that page, all of these
+#'   nudge the value by about `1.5e-9` before rounding it, so that
+#'   floating-point representation error cannot move a number a whole step:
+#'   `0.28 * 100` is stored as `28.000000000000004`, and `round_ceiling(0.28,
+#'   2)` is `0.28` rather than `0.29` because of the nudge. See the
+#'   `Floating-point tolerance` section of [`round_up()`] for the details and
+#'   for the range of magnitudes in which it holds.
+#'
 #' @param x Numeric. The decimal number to round.
 #' @param digits Integer. Number of digits to round `x` to. Default is `0`.
+#'   Negative values round to powers of ten: `round_ceiling(1250, digits = -2)`
+#'   is `1300`.
 #'
 #' @return Numeric. `x` rounded to `digits` (except for `anti_trunc()`, which
 #'   has no `digits` argument).
@@ -106,10 +121,8 @@ round_trunc <- function(x, digits = 0L) {
   # `round_floor()`:
   core <- trunc(abs(x) * p10 + rounding_tolerance) / p10
 
-  # If `x` is negative, its truncated version should be negative or zero.
-  # Therefore, in this case, the function returns the negative of `core`, the
-  # absolute value; otherwise it simply returns `core` itself:
-  dplyr::if_else(x < 0, -core, core)
+  # If `x` is negative, its truncated version should be negative or zero:
+  restore_sign(core, x)
 }
 
 
@@ -124,13 +137,24 @@ anti_trunc <- function(x) {
   # below a whole number by representation error still counts as that number,
   # and is therefore taken one step further away from zero, not two:
   core <- trunc(abs(x) + rounding_tolerance) + 1
-  # (Note that an equivalent formula would be `ceiling(abs(x))`.
 
-  # If `x` is negative, its "anti-truncated" version should also be negative.
-  # Therefore, in this case, the function returns the negative of the
-  # anti-truncated absolute value of `x`, called `core`; otherwise it simply
-  # returns `core` itself:
-  dplyr::if_else(x < 0, -core, core)
+  # Note that `ceiling(abs(x))` is *not* an equivalent formula, although a
+  # comment here used to say it was. The two agree everywhere except on whole
+  # numbers, which is precisely where the choice is made: `ceiling(abs(3))` is
+  # 3, whereas the formula above sends 3 one step further away from zero, to 4.
+  # The "always move" reading is the one this package has always implemented,
+  # and the one `rounding_offsets()` encodes -- which is why it has to declare
+  # zero undefined, since zero has no direction to move in.
+  #
+  # Real "round away from zero" implementations -- Excel's and Google Sheets'
+  # `ROUNDUP()`, Java's `RoundingMode.UP`, Python's `decimal.ROUND_UP` -- all
+  # take the `ceiling(abs(x))` reading instead: a value already sitting on the
+  # rounding grid stays where it is, and zero rounds to zero. So this is the
+  # variant with no known software behind it. See the assessment in
+  # special-scripts/rounding-functions-assessment.md, section 7.
+
+  # If `x` is negative, its "anti-truncated" version should also be negative:
+  restore_sign(core, x)
 }
 
 

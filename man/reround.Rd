@@ -23,21 +23,33 @@ reround(
 used originally. See \code{vignette("rounding-options")}. Default is
 \code{"up_or_down"}, which returns two values: \code{x} rounded up \emph{and} down.}
 
-\item{threshold}{Integer. If \code{rounding} is set to \code{"up_from"}, \code{"down_from"},
-or \code{"up_from_or_down_from"}, \code{threshold} must be set to the number from
-which the reconstructed values should then be rounded up or down. Otherwise
-irrelevant. Default is \code{5}.}
+\item{threshold}{Numeric. If \code{rounding} is set to \code{"up_from"}, \code{"down_from"},
+or \code{"up_from_or_down_from"}, \code{threshold} is the point within a step at
+which rounding switches direction, in tenths of a step; it must be greater
+than \code{0} and less than \code{10}. Otherwise irrelevant. Default is \code{5}, which
+makes those three methods the same as \code{"up"}, \code{"down"}, and \code{"up_or_down"}.
+See \code{\link[=round_up_from]{round_up_from()}}, which spells out how \code{round_down_from()} mirrors
+the threshold.}
 
 \item{symmetric}{Logical. Set \code{symmetric} to \code{TRUE} if the rounding of
 negative numbers with \code{"up_or_down"}, \code{"up"}, \code{"down"},
 \code{"up_from_or_down_from"}, \code{"up_from"}, or \code{"down_from"} should mirror that
 of positive numbers so that their absolute values are always equal.
-Otherwise irrelevant. Default is \code{FALSE}.}
+Otherwise irrelevant. Default is \code{FALSE}. It only ever affects ties in
+negative numbers, but \code{TRUE} is what reconstructs Excel, SAS, SPSS, and
+Matlab; see \code{vignette("rounding-options")}.}
 }
 \value{
-Numeric vector of length 1 or 2. (It has length 1 unless \code{rounding}
-is \code{"up_or_down"}, \code{"up_from_or_down_from"}, or\code{"ceiling_or_floor"}, in
-which case it has length 2.)
+Numeric. One value per element of \code{x} -- except for the three
+compound methods \code{"up_or_down"}, \code{"up_from_or_down_from"}, and
+\code{"ceiling_or_floor"}, which return \emph{two} values per element of \code{x}: the
+result of each of their two constituent procedures.
+
+The two values of a compound method stay next to each other, so the return
+value is \code{c(up_1, down_1, up_2, down_2, ...)} and has length \code{2 * length(x)}. Take care not to pool the pairs across elements of \code{x}: matches
+found in different pairs did not come from the same original value. (This
+was the cause of a false-pass bug in \code{grimmer()}; see
+\url{https://github.com/lhdjung/scrutiny/issues/85}.)
 }
 \description{
 \code{reround()} takes one or more intermediate reconstructed values

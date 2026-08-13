@@ -102,6 +102,122 @@ test_that("`unround()` bounds agree with the rounding they invert", {
 })
 
 
+# The same property, swept across the whole input space instead of the single
+# point above.
+#
+# The package holds two independent encodings of every rounding procedure: the
+# forward `round_*()` functions dispatched by `reround()`, which `grimmer()` and
+# `debit()` still run on directly, and the inverse `rounding_offsets()` /
+# `bound_numerators()` in unround.R, which is what GRIM, GRIMMER, and DEBIT
+# derive their candidate ranges from. If the two ever drift apart -- an offset
+# table edit, a tolerance change in a forward function -- a consistency test
+# would compare a value rounded by one convention against bounds derived from
+# the other, and verdicts could flip with nothing to catch it.
+#
+# The sweep covers every rounding method, the sign of `x`, `symmetric`, several
+# decimal counts, and several thresholds, and it checks the *inclusivity* of
+# each bound as well as its position: a value exactly on an inclusive bound must
+# round back to `x`, and one exactly on an exclusive bound must not. That last
+# pair is what the tolerance in the forward functions exists for, so it also
+# pins the tolerance to the bounds.
+
+test_that("`unround()` bounds agree with the rounding they invert (sweep)", {
+  methods <- c(
+    "up_or_down", "up", "down", "even", "ceiling", "floor", "ceiling_or_floor",
+    "trunc", "anti_trunc", "up_from", "down_from", "up_from_or_down_from"
+  )
+  # `"even"` is the one method whose bounds cannot be pinned down, since
+  # `base::round()` breaks ties by the parity of the binary double. Both of its
+  # bounds are deliberately reported as inclusive, which can only widen the
+  # range, so only the "inside rounds back" half of the property applies to it:
+  methods_exact <- setdiff(methods, "even")
+
+  n_checked <- 0L
+
+  for (digits in c(0L, 1L, 2L)) {
+    unit <- 10^-digits
+    # A grid step is `unit`, and the bounds sit on the `unit / 10` grid, so this
+    # is far below any bound spacing and far above `rounding_tolerance`:
+    eps <- unit / 1000
+
+    for (x_num in c(0, 1, -1, 3, -3, 253, -253) * unit) {
+      x_str <- formatC(x_num, format = "f", digits = digits)
+      for (symmetric in c(FALSE, TRUE)) {
+        for (threshold in c(3, 5, 6)) {
+          for (m in methods) {
+            bounds <- unround(
+              x_str,
+              rounding = m,
+              threshold = threshold,
+              digits = digits,
+              symmetric = symmetric
+            )
+            # `"anti_trunc"` at zero is undefined, and `unround()` says so:
+            if (is.na(bounds$lower)) {
+              expect_equal(m, "anti_trunc")
+              expect_equal(x_num, 0)
+              next
+            }
+            rounds_to_x <- function(value) {
+              any(dplyr::near(
+                reround(
+                  value,
+                  digits = digits,
+                  rounding = m,
+                  threshold = threshold,
+                  symmetric = symmetric
+                ),
+                x_num
+              ))
+            }
+            label <- paste(
+              m, "| x =", x_str, "| digits =", digits,
+              "| symmetric =", symmetric, "| threshold =", threshold
+            )
+            n_checked <- n_checked + 1L
+
+            # Position of the bounds:
+            expect_true(
+              rounds_to_x(bounds$lower + eps),
+              label = paste(label, "- inside lower")
+            )
+            expect_true(
+              rounds_to_x(bounds$upper - eps),
+              label = paste(label, "- inside upper")
+            )
+            expect_false(
+              rounds_to_x(bounds$lower - eps),
+              label = paste(label, "- beyond lower")
+            )
+            expect_false(
+              rounds_to_x(bounds$upper + eps),
+              label = paste(label, "- beyond upper")
+            )
+
+            # Inclusivity of the bounds:
+            if (m %in% methods_exact) {
+              expect_equal(
+                rounds_to_x(bounds$lower),
+                bounds$incl_lower,
+                label = paste(label, "- on lower")
+              )
+              expect_equal(
+                rounds_to_x(bounds$upper),
+                bounds$incl_upper,
+                label = paste(label, "- on upper")
+              )
+            }
+          }
+        }
+      }
+    }
+  }
+
+  # Guard against the loops silently collapsing to nothing:
+  expect_gt(n_checked, 700L)
+})
+
+
 test_that("`unround()` supports the same rounding methods as GRIM", {
   # These four used to throw an error, so `debit_map()` rejected rounding
   # methods that `grim()` accepted.

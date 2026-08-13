@@ -5,6 +5,30 @@
 # threshold <- 5
 # symmetric <- FALSE
 
+# The three compound rounding methods return two values per input value, and
+# they return them interleaved: `c(up_1, down_1, up_2, down_2, ...)`, so that
+# each input value's own pair of results stays together. `grimmer_scalar()`
+# relies on this layout to keep the candidates apart -- pooling them across
+# candidates was the false-pass bug #85.
+#
+# Interleaving is what `Vectorize()` produced anyway, one column of the result
+# matrix per input value; doing it explicitly is what lets
+# `reconstruct_rounded_numbers_scalar()` take a whole vector at once (see
+# `reround()` below).
+
+interleave_pair <- function(first, second) {
+  out <- rep_len(NA_real_, length(first) + length(second))
+  out[c(TRUE, FALSE)] <- first
+  out[c(FALSE, TRUE)] <- second
+  out
+}
+
+
+# Despite the name, this is vectorized over `x` and `digits` -- every rounding
+# function it dispatches to is. It is scalar in `rounding`, `threshold`, and
+# `symmetric`, which is why `reround()` still vectorizes it for the rare call
+# that varies those.
+
 reconstruct_rounded_numbers_scalar <- function(
   x,
   digits,
@@ -14,34 +38,32 @@ reconstruct_rounded_numbers_scalar <- function(
 ) {
   switch(
     rounding,
-    "up_or_down" = c(
+    "up_or_down" = interleave_pair(
       round_up(x, digits, symmetric),
       round_down(x, digits, symmetric)
     ),
-    # Throw error if `rounding` was set to `"up_from_or_down_from"` -- which
-    # requires `threshold` to be set to some number -- but `threshold` was not,
-    # in fact, specified as anything other than its default, `5`:
     "up_from_or_down_from" = {
-      check_threshold_specified(threshold)
-      c(
+      check_threshold_valid(threshold)
+      interleave_pair(
         round_up_from(x, digits, threshold, symmetric),
         round_down_from(x, digits, threshold, symmetric)
       )
     },
-    "ceiling_or_floor" = c(
+    "ceiling_or_floor" = interleave_pair(
       round_ceiling(x, digits),
       round_floor(x, digits)
     ),
     "even" = round(x, digits),
     "up" = round_up(x, digits, symmetric),
     "down" = round_down(x, digits, symmetric),
-    # The next two are checked like `"up_from_or_down_from"` above:
+    # The `"*_from"` methods are the ones that `threshold` applies to, so they
+    # are the ones that validate it:
     "up_from" = {
-      check_threshold_specified(threshold)
+      check_threshold_valid(threshold)
       round_up_from(x, digits, threshold, symmetric)
     },
     "down_from" = {
-      check_threshold_specified(threshold)
+      check_threshold_valid(threshold)
       round_down_from(x, digits, threshold, symmetric)
     },
     "ceiling" = round_ceiling(x, digits),
@@ -90,23 +112,36 @@ reconstruct_rounded_numbers <- Vectorize(
 #' @param rounding String. The rounding method that is supposed to have been
 #'   used originally. See `vignette("rounding-options")`. Default is
 #'   `"up_or_down"`, which returns two values: `x` rounded up *and* down.
-#' @param threshold Integer. If `rounding` is set to `"up_from"`, `"down_from"`,
-#'   or `"up_from_or_down_from"`, `threshold` must be set to the number from
-#'   which the reconstructed values should then be rounded up or down. Otherwise
-#'   irrelevant. Default is `5`.
+#' @param threshold Numeric. If `rounding` is set to `"up_from"`, `"down_from"`,
+#'   or `"up_from_or_down_from"`, `threshold` is the point within a step at
+#'   which rounding switches direction, in tenths of a step; it must be greater
+#'   than `0` and less than `10`. Otherwise irrelevant. Default is `5`, which
+#'   makes those three methods the same as `"up"`, `"down"`, and `"up_or_down"`.
+#'   See [`round_up_from()`], which spells out how `round_down_from()` mirrors
+#'   the threshold.
 #' @param symmetric Logical. Set `symmetric` to `TRUE` if the rounding of
 #'   negative numbers with `"up_or_down"`, `"up"`, `"down"`,
 #'   `"up_from_or_down_from"`, `"up_from"`, or `"down_from"` should mirror that
 #'   of positive numbers so that their absolute values are always equal.
-#'   Otherwise irrelevant. Default is `FALSE`.
+#'   Otherwise irrelevant. Default is `FALSE`. It only ever affects ties in
+#'   negative numbers, but `TRUE` is what reconstructs Excel, SAS, SPSS, and
+#'   Matlab; see `vignette("rounding-options")`.
 #'
 #' @include utils.R round.R round-ceil-floor.R
 #'
 #' @export
 #'
-#' @return Numeric vector of length 1 or 2. (It has length 1 unless `rounding`
-#'   is `"up_or_down"`, `"up_from_or_down_from"`, or`"ceiling_or_floor"`, in
-#'   which case it has length 2.)
+#' @return Numeric. One value per element of `x` -- except for the three
+#'   compound methods `"up_or_down"`, `"up_from_or_down_from"`, and
+#'   `"ceiling_or_floor"`, which return *two* values per element of `x`: the
+#'   result of each of their two constituent procedures.
+#'
+#'   The two values of a compound method stay next to each other, so the return
+#'   value is `c(up_1, down_1, up_2, down_2, ...)` and has length `2 *
+#'   length(x)`. Take care not to pool the pairs across elements of `x`: matches
+#'   found in different pairs did not come from the same original value. (This
+#'   was the cause of a false-pass bug in `grimmer()`; see
+#'   <https://github.com/lhdjung/scrutiny/issues/85>.)
 
 reround <- function(
   x,
@@ -115,6 +150,28 @@ reround <- function(
   threshold = 5,
   symmetric = FALSE
 ) {
+  # The overwhelmingly common case is a single rounding procedure applied to a
+  # whole vector of values -- that is what every consistency test does, once per
+  # candidate value per row. Every `round_*()` function is natively vectorized,
+  # so only the dispatch below has to be scalar, and it can be done once instead
+  # of once per element:
+  if (
+    length(rounding) == 1L &&
+      length(threshold) == 1L &&
+      length(symmetric) == 1L
+  ) {
+    return(`attributes<-`(
+      reconstruct_rounded_numbers_scalar(
+        x,
+        digits,
+        rounding,
+        threshold,
+        symmetric
+      ),
+      NULL
+    ))
+  }
+
   # For calls with multiple rounding procedures, each individual procedure needs
   # to be singular; i.e., `rounding` can either be (1) a string vector of length
   # 1 indicating two procedures, such as `"up_or_down"`; or (2) a string vector

@@ -29,15 +29,73 @@
 #'   to reconstruct the computations of researchers who might have used
 #'   different software. See `vignette("rounding-options")`.
 #'
+#' @section Negative numbers: `symmetric` decides how ties in negative numbers
+#'   are broken, and it decides nothing else: every other value has a single
+#'   nearest neighbor, which all of these functions round to.
+#'
+#'   By default (`symmetric = FALSE`), `round_up()` moves a tie to the higher
+#'   number on the number line, so `round_up(-2.5)` is `-2`, and `round_down()`
+#'   moves it to the lower one, so `round_down(-2.5)` is `-3`. This is what
+#'   Java's `Math.round()` does.
+#'
+#'   With `symmetric = TRUE`, a negative number is rounded like its absolute
+#'   value, so `round_up(-2.5, symmetric = TRUE)` is `-3`. **This is the
+#'   setting that reconstructs Excel, SAS, SPSS, and Matlab**, all of which move
+#'   a tie away from zero, as does `janitor::round_half_up()`. In IEEE 754
+#'   terms, it is *roundTiesToAway*.
+#'
+#'   Data with negative values -- difference scores, z-scores, effect sizes --
+#'   is therefore the case in which `symmetric` is not a technicality. See
+#'   `vignette("rounding-options")` for which setting matches which program.
+#'   (The package-wide default, `rounding = "up_or_down"`, spans the results of
+#'   both settings, so `symmetric` cannot change a consistency verdict unless
+#'   you commit to a single direction.)
+#'
+#' @section Floating-point tolerance: Shifting a number by `digits` decimal
+#'   places is not exact: `0.145 * 100` is stored as `14.499999999999998`, just
+#'   below the tie it is meant to be. Rounding that shifted value directly would
+#'   move `0.145` a whole step in the wrong direction.
+#'
+#'   All of these functions therefore nudge the shifted value by about `1.5e-9`
+#'   before rounding it, so that `round_up(0.145, 2)` is `0.15`, as it would be
+#'   in the software whose output is being reconstructed. Values within roughly
+#'   `1e-9` below a rounding boundary are thereby treated as sitting *on* it.
+#'   [`unround()`] reports bounds that assume exactly this, which is why a
+#'   number and its reconstructed range always agree.
+#'
+#'   The nudge is a fixed amount, whereas representation error grows with the
+#'   magnitude of `x * 10^digits`. Up to about `1e7` for that product -- far
+#'   beyond any reported mean, SD, or percentage -- the nudge dominates by
+#'   orders of magnitude. Past it, a value sitting exactly on a boundary may go
+#'   either way.
+#'
+#'   This differs from `janitor::round_half_up()`, which adds its tolerance to
+#'   the value rather than to the boundary, and from [`base::round()`], which
+#'   measures which neighbor is closer instead of nudging at all.
+#'
 #' @param x Numeric. The decimal number to round.
 #' @param digits Integer. Number of digits to round `x` to. Default is `0`.
-#' @param threshold Integer. Only in `round_up_from()` and `round_down_from()`.
-#'   Threshold for rounding up or down, respectively. Value is `5` in
-#'   `round_up()`'s internal call to `round_up_from()` and in `round_down()`'s
-#'   internal call to `round_down_from()`.
+#'   Negative values round to powers of ten: `round_up(1250, digits = -2)` is
+#'   `1300`, which reconstructs values reported as "rounded to the nearest
+#'   hundred".
+#' @param threshold Numeric. Only in `round_up_from()` and `round_down_from()`.
+#'   The point within a step at which rounding switches direction, in tenths of
+#'   a step, so it must be greater than `0` and less than `10`.
+#'
+#'   `round_up_from()` rounds up when the part cut off by rounding is at least
+#'   `threshold` tenths of a step. `round_down_from()` is its mirror image, and
+#'   the mirroring covers `threshold` as well: it rounds *down* when the cut-off
+#'   part is at most `10 - threshold` tenths of a step. Put differently,
+#'   `round_down_from(x, threshold = t)` switches direction at the same point as
+#'   `round_up_from(x, threshold = 10 - t)`, and differs from it only in sending
+#'   a value sitting exactly on that point down rather than up.
+#'
+#'   The two coincide at `5`, the value that `round_up()` and `round_down()`
+#'   use, so the distinction only matters for other thresholds.
 #' @param symmetric Logical. Set `symmetric` to `TRUE` if the rounding of
 #'   negative numbers should mirror that of positive numbers so that their
-#'   absolute values are equal. Default is `FALSE`.
+#'   absolute values are equal. Only affects ties, and only in negative numbers.
+#'   Default is `FALSE`. See the `Negative numbers` section.
 #'
 #' @return Numeric. `x` rounded to `digits`.
 #'
@@ -77,9 +135,19 @@
 #'   base_round = base::round(x = original, digits = 1)
 #' )
 #'
-#' # (Note: Defining `original` as `seq(0.05:0.95, by = 0.1)`
-#' # would lead to wrong results unless `original` is rounded
-#' # to 2 or so digits before it's rounded to 1.)
+#'
+#' # Ties in negative numbers go up on the number line
+#' # by default, and away from zero with `symmetric`:
+#'
+#' round_up(x = -2.5)                     # Java's `Math.round()`
+#' round_up(x = -2.5, symmetric = TRUE)   # Excel, SAS, SPSS, Matlab
+#'
+#'
+#' # A custom threshold moves the point at which
+#' # rounding switches direction:
+#'
+#' round_up_from(x = 4.28, digits = 1, threshold = 9)   # 8 < 9, so down
+#' round_up_from(x = 4.28, digits = 1, threshold = 1)   # 8 >= 1, so up
 
 # Round up from some threshold -----------------------------------------------
 
@@ -88,16 +156,14 @@
 
 round_up_from <- function(x, digits = 0L, threshold, symmetric = FALSE) {
   p10 <- 10^digits
-  threshold <- threshold - .Machine$double.eps^0.5
+  offset <- tie_offset(threshold)
 
   if (symmetric) {
-    dplyr::if_else(
-      x < 0,
-      -(floor(abs(x) * p10 + (1 - (threshold / 10))) / p10),
-      floor(x * p10 + (1 - (threshold / 10))) / p10
-    )
+    # For a non-negative `x`, `abs(x)` is `x`, so this is the same rounding;
+    # for a negative one, it is the mirror image of the rounding of `-x`:
+    restore_sign(floor(abs(x) * p10 + offset) / p10, x)
   } else {
-    floor(x * p10 + (1 - (threshold / 10))) / p10
+    floor(x * p10 + offset) / p10
   }
 }
 
@@ -113,16 +179,13 @@ round_up_from <- function(x, digits = 0L, threshold, symmetric = FALSE) {
 
 round_down_from <- function(x, digits = 0L, threshold, symmetric = FALSE) {
   p10 <- 10^digits
-  threshold <- threshold - .Machine$double.eps^0.5
+  offset <- tie_offset(threshold)
 
   if (symmetric) {
-    dplyr::if_else(
-      x < 0,
-      -(ceiling(abs(x) * p10 - (1 - (threshold / 10))) / p10),
-      ceiling(x * p10 - (1 - (threshold / 10))) / p10
-    )
+    # See the comment in `round_up_from()`:
+    restore_sign(ceiling(abs(x) * p10 - offset) / p10, x)
   } else {
-    ceiling(x * p10 - (1 - (threshold / 10))) / p10
+    ceiling(x * p10 - offset) / p10
   }
 }
 
@@ -148,6 +211,11 @@ round_up <- function(x, digits = 0L, symmetric = FALSE) {
 # cut off by rounding is 5 or less. However, if that part is greater than 5, `x`
 # should instead be rounded up. The `threshold` for rounding down is therefore
 # set to 5.
+#
+# Note that `round_down_from()` mirrors `threshold` along with everything else:
+# it rounds down when the cut-off part is at most `10 - threshold` tenths of a
+# step, not at most `threshold` tenths. At the 5 used here the two readings
+# coincide, which is why nothing inside the package depends on the difference.
 
 #' @rdname rounding-common
 #' @export

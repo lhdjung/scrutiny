@@ -807,31 +807,48 @@ check_rounding_singular <- function(rounding, bad, good1, good2) {
 }
 
 
-#' Check whether a rounding threshold was specified
+#' Check that a rounding threshold is usable
 #'
-#' @description `check_threshold_specified()` is called within curly braces
-#'   inside of the switch statement in `reconstruct_rounded_numbers_scalar()` if
-#'   `rounding` includes `"_from"` and therefore requires specification of a
-#'   threshold.
+#' @description `check_threshold_valid()` is called within curly braces inside
+#'   of the switch statement in `reconstruct_rounded_numbers_scalar()`, and from
+#'   `rounding_offsets()`, if `rounding` includes `"_from"` and therefore
+#'   depends on `threshold`.
 #'
-#'   It should always be followed by the respective rounding function.
+#'   A threshold is the point within a step at which rounding switches
+#'   direction, so it has to lie strictly inside the step: at `0` or `10`, one
+#'   of the two directions can never be taken, which silently turns the method
+#'   into `"ceiling"`-like or `"floor"`-like behavior.
 #'
-#' @param rounding_threshold
+#'   Up to scrutiny 1.0.0, the check here was a different one: it threw an error
+#'   if `threshold` was `5`, on the theory that a threshold of `5` must be the
+#'   argument's default value showing through, and that the user meant to
+#'   specify something else. That conflated "unspecified" with "specified as
+#'   5" -- any caller computing a threshold and passing it on failed spuriously
+#'   at exactly the most common value -- and `"up_from"` with a threshold of `5`
+#'   is simply `"up"`, which is a correct answer rather than an error.
+#'
+#' @param threshold The `threshold` argument of the calling function.
 #'
 #' @return No return value; might throw an error.
 #'
 #' @noRd
-check_threshold_specified <- function(threshold) {
-  if (threshold == 5) {
+check_threshold_valid <- function(threshold) {
+  if (
+    length(threshold) != 1L ||
+      !is.numeric(threshold) ||
+      !is.finite(threshold) ||
+      threshold <= 0 ||
+      threshold >= 10
+  ) {
     cli::cli_abort(
       message = c(
-        "You need to specify `threshold`.",
-        "x" = "If `rounding` is \"up_from\", \"down_from\", or \\
-        \"up_from_or_down_from\", set `threshold` to a number \\
-        other than 5. The `x` argument will then be rounded up or down from \\
-        that number.",
-        "i" = "To round up or down from 5, just set `rounding` to \\
-        \"up\", \"down\", or \"up_or_down\" instead."
+        "`threshold` must be a single number greater than 0 and less than 10.",
+        "x" = "It is {wrong_spec_string(threshold)}.",
+        "i" = "It is the point within a step at which rounding switches \\
+        direction, so both directions have to remain possible.",
+        "i" = "With `rounding` set to \"up_from\", \"down_from\", or \\
+        \"up_from_or_down_from\", `x` is rounded up or down from `threshold` \\
+        instead of from 5."
       ),
       call = rlang::caller_env()
     )
@@ -1564,13 +1581,55 @@ dustify <- function(x) {
 # `0.28 * 100` is 28.000000000000004, and `0.29 * 100` is 28.999999999999996.
 # Rounding the shifted value away from the number it is meant to be would then
 # move it a whole step -- `ceiling(0.28 * 100) / 100` would be 0.29 rather than
-# 0.28. The rounding functions in round-ceil-floor.R therefore nudge the shifted
-# value by this tolerance before rounding it, in the same spirit as the
-# `threshold` adjustment in `round_up_from()` and `round_down_from()`. It is far
-# smaller than any difference a reported value could meaningfully express, so it
-# only ever absorbs representation error.
+# 0.28. Every rounding function in round.R and round-ceil-floor.R therefore
+# nudges the shifted value by this tolerance before rounding it: the `round_*()`
+# functions of round-ceil-floor.R add or subtract it directly, and
+# `round_up_from()` and `round_down_from()` fold it into `tie_offset()`. It is
+# far smaller than any difference a reported value could meaningfully express,
+# so it only ever absorbs representation error.
+#
+# `unround()` reports bounds that assume exactly this tolerance, and the
+# property test in test-unround.R checks that the two agree, so all three files
+# have to stay with the one constant.
+#
+# The tolerance is absolute, so it has a domain of validity: representation
+# error in `x * 10^digits` grows with the magnitude of that product (roughly
+# `|x| * 10^digits * 2.2e-16`), whereas the nudge is fixed. Up to about
+# `|x * 10^digits| = 1e7` the nudge dominates by orders of magnitude; far beyond
+# that, a value sitting exactly on a rounding boundary may go either way. Means,
+# SDs, and percentages with a few decimal places are nowhere near that.
 
 rounding_tolerance <- .Machine$double.eps^0.5 / 10
+
+
+# `round_up_from()` and `round_down_from()` both shift the scaled value so that
+# `floor()` or `ceiling()` cuts it at `threshold` rather than at 5, and both
+# nudge it by `rounding_tolerance` beforehand. This is the amount they add or
+# subtract.
+#
+# Up to scrutiny 1.0.0 the nudge was written there as `threshold -
+# .Machine$double.eps^0.5`, which the `/ 10` below turns into the very same
+# additive `rounding_tolerance`. That equality was load-bearing -- `unround()`
+# reports bounds that assume one shared tolerance -- but nowhere stated.
+
+tie_offset <- function(threshold) {
+  1 - (threshold / 10) + rounding_tolerance
+}
+
+
+# Give `value` -- typically derived from `abs(x)` -- the sign of `x`, so that
+# rounding a negative number mirrors the rounding of its absolute value. Zero
+# and positive values keep `value` as it is; `NA` and `NaN` pass through.
+#
+# `dplyr::if_else()` would say the same thing, but these are the package's
+# innermost primitives: `round_trunc()`, `anti_trunc()`, and the `symmetric`
+# branches of `round_up_from()` and `round_down_from()` run once per candidate
+# value inside GRIMMER's loop over sums of squares, which the seq mappers
+# multiply by hundreds of rows.
+
+restore_sign <- function(value, x) {
+  value * (1 - 2 * (x < 0))
+}
 
 
 #' Conventional summary statistics for `audit()` methods

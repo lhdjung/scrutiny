@@ -86,6 +86,20 @@
 
 - Functions made by `function_map_total_n()` now work when they are created outside of scrutiny, e.g., in another package. Their bodies call scrutiny-internal helpers such as `absorb_key_args()`, but the factory used to enclose them in the caller's environment, which has no path to those helpers. They are now enclosed in an environment inheriting from scrutiny's namespace, as those made by `function_map()` and `function_map_seq()` already were (#69).
 
+## Minor improvements
+
+- `reround()` no longer dispatches on `rounding` once per element of `x`. Every `round_*()` function is natively vectorized, so a single rounding procedure -- which is what every consistency test uses, once per candidate value per row -- is now dispatched once for the whole vector instead of going through `Vectorize()`. On a vector of 1000 values this is about 200 times faster. The output is unchanged, including the interleaved `c(up_1, down_1, up_2, down_2, ...)` layout of the compound methods, and calls that vary `rounding`, `threshold`, or `symmetric` across elements still take the old path.
+
+- `reround()`'s `@return` documentation now describes what the function actually returns. It said "numeric vector of length 1 or 2", which is only true for a single input value: for a vector `x` and a compound rounding method, the result is `2 * length(x)` values. It also spells out the layout and warns against pooling the pairs across elements of `x`, which was the cause of the false-pass bug #85.
+
+- `reround()` and `unround()` now reject a `threshold` outside of the interval it has to lie in. It is the point within a step at which rounding switches direction, so at `0` or `10` one of the two directions can never be taken, which silently turns `"up_from"` or `"down_from"` into ceiling-like or floor-like behavior. Non-numeric, missing, and non-scalar values are rejected as well; fractional thresholds inside the interval keep working.
+
+- Conversely, `threshold = 5` is no longer an error for `rounding = "up_from"`, `"down_from"`, and `"up_from_or_down_from"`. The check that fired there took a threshold of `5` to be the argument's default value showing through rather than a deliberate specification, so any caller that computed a threshold and passed it on failed spuriously at exactly the most common value. `"up_from"` with a threshold of `5` is simply `"up"`, which is a correct answer rather than an error.
+
+- The floating-point tolerance is now expressed through the single `rounding_tolerance` constant in every rounding function. `round_up_from()` and `round_down_from()` used to subtract `.Machine$double.eps^0.5` from `threshold`, which the `/ 10` in their formula turns into the very same additive nudge that `round_ceiling()` and friends apply directly. That equality was load-bearing -- `unround()`'s bounds assume one shared tolerance -- and nowhere stated. Results are unchanged.
+
+- `round_trunc()` and `anti_trunc()` no longer call `dplyr::if_else()` to restore the sign of a value derived from `abs(x)`, nor do the `symmetric` branches of `round_up_from()` and `round_down_from()`. These are the package's innermost primitives, running once per candidate value inside GRIMMER's loop. The one behavioral difference is that a `NaN` input now yields `NaN` rather than `NA`, as it does in `base::round()`.
+
 ## New features
 
 - `function_map()` has a new `.reported_variadic` argument for tests whose number of key columns is a property of the data rather than of the factory call -- as with a test that checks whether the values in any number of columns add up to the value in one specific other column. It names an argument of the `*_scalar()` function that takes a whole row's values as a single vector; the factory-made function then has an argument by that name which selects any number of columns with tidyselect syntax. The selected columns are returned as themselves, so the output stays as rectangular as any other mapper's, and `.reported` may be `NULL` if every key column is variadic. Such a mapper is basic-tier only, because `function_map_seq()` and `function_map_total_n()` derive their own arguments from `.reported` (#42).
@@ -111,6 +125,24 @@
 - scrutiny now requires purrr >= 1.0.0 (#87) and ggplot2 >= 3.4.0, both released in November 2022.
 
 ## Documentation
+
+- `vignette("rounding-options")` now maps each program to the `rounding` string *and* the `symmetric` setting that reconstructs it, instead of only describing what each program does and leaving the translation to the reader. It also leads with the point that was previously only implicit: for consistency testing you usually don't need to identify the software at all, because the default `"up_or_down"` spans every way of breaking a tie at 5, and committing to a single procedure only ever makes a test stricter.
+
+- Two claims in that vignette's software section were wrong, and both are corrected:
+  - Stata was described as "seemingly rounds to even, but the documentation is not very explicit". Its manual is in fact explicit, and says the opposite: "For values of `x` exactly at midpoints [...] `x` is always rounded up to the larger value. For example, `round(4.5)` is 5 and `round(-4.5)` is −4." That is rounding toward `+Inf`, i.e. scrutiny's `"up"` with the default `symmetric = FALSE` -- and Stata is the only program in the table for which that default is right.
+  - SPSS was described as rounding to even by default. The cited source was a page for SPSS MR / Reporter, a different product. SPSS Statistics' `RND()` rounds ties away from zero, i.e. `"up"` with `symmetric = TRUE`, and exposes its rounding fuzz as a user setting (`SET FUZZBITS`).
+
+- The vignette also notes that Excel's and Google Sheets' `ROUNDUP()` rounds *away from zero* rather than toward `+Inf`, so it is not scrutiny's `"ceiling"` for negative numbers, and that `ROUNDDOWN()` is `"trunc"` rather than `"floor"`. The footnote that discussed Excel's naming previously equated `ROUNDUP()` with ceiling.
+
+- `symmetric` is documented as what it is: the axis that separates Excel, SPSS, SAS, and Matlab from Stata and from Java-style rounding on any data containing negative values. `round_up()` has a new `Negative numbers` section, and `vignette("rounding-in-depth")` no longer calls the argument "mostly forgettable".
+
+- The floating-point tolerance that every `round_*()` function applies -- a nudge of about `1.5e-9`, so that `round_up(0.145, 2)` is `0.15` even though `0.145 * 100` is stored as `14.499999999999998` -- is now documented, in a new `Floating-point tolerance` section of `round_up()`, along with the range of magnitudes over which it is guaranteed to dominate representation error. The formulas in `vignette("rounding-in-depth")` now include it, so that they match the implementation. `unround()` reports bounds that assume this tolerance, which is why a number and its reconstructed range always agree.
+
+- `round_down_from()`'s `threshold` is documented correctly. It mirrors `round_up_from()`'s threshold along with everything else: `round_down_from()` rounds *down* when the part cut off by rounding is at most `10 - threshold` tenths of a step, so it switches direction at the same point as `round_up_from(threshold = 10 - t)` and differs from it only in sending a value sitting exactly on that point down rather than up. The two readings coincide at the threshold of 5 that `round_up()` and `round_down()` use, which is why nothing in the package depended on the difference. The Rd previously described the argument as the "threshold for rounding up or down, respectively", which suggests the other reading.
+
+- Both vignettes and the Rd of `round_up()` now agree on `base::round()`: it is the right reconstruction of software that rounds binary doubles to even (R, Python, NumPy), and what is unreliable is predicting its output from the decimal display of a number. The three used to state this differently enough that a reader consulting only one of them came away with a different belief.
+
+- Negative values of `digits` are documented: `round_up(1250, digits = -2)` is `1300`, which reconstructs values reported as rounded to the nearest hundred.
 
 - The `digits_x` and `digits_sd` arguments introduced in 1.0.0 are now documented, and all examples were updated to the numeric `x` and `sd` values that the mappers have taken since then. Many of them still passed strings and omitted the `digits_*` arguments, and so failed to run.
 

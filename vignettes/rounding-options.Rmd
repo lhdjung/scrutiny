@@ -14,7 +14,21 @@ knitr::opts_chunk$set(
 )
 ```
 
-Many scrutiny functions have a `rounding` argument that controls how numbers are rounded. Specify `rounding` as any of the strings below.
+```{r setup, message=FALSE}
+library(scrutiny)
+```
+
+Many scrutiny functions have a `rounding` argument that controls how numbers are assumed to have been rounded. Specify `rounding` as any of the strings below.
+
+## Start here: you usually don't need to know
+
+For consistency testing, **the default is almost always the right choice**, and identifying the software behind a paper is usually unnecessary.
+
+`rounding = "up_or_down"` counts a value set as consistent if the reported number matches *either* of the two results. Its range therefore spans every way of breaking a tie at 5 --- up, down, to even, away from zero, toward zero --- so it cannot reject a value set on the grounds of a tie-breaking rule you guessed wrong. `rounding = "ceiling_or_floor"` is wider still and covers every rounding procedure whatsoever, including truncation and custom thresholds.
+
+Committing to a single procedure (`"up"`, `"down"`, `"even"`, `"trunc"`, ...) only ever makes a test **stricter**. That is worth doing when you have positive evidence about how the numbers were produced --- and it is a way to get a false positive when you don't. If in doubt, leave `rounding` alone.
+
+The rest of this vignette is for the case where you do have such evidence.
 
 ## In scrutiny
 
@@ -26,30 +40,78 @@ These options return two rounded numbers for each input number. In consistency t
 
 By contrast, these options only return one rounded number per input:
 
--   `"even"` rounds to the next even number, using base R's own `round()`. See note below.
+-   `"even"` rounds to the next even number, using base R's own `round()`. See the note below.
 -   `"up"` or `"down"` rounds in the specified direction, starting at 5.
 -   `"up_from"` or `"down_from"` rounds in the specified direction, starting at some number other than 5. Specify this number via the `threshold` argument.
 -   `"ceiling"` or `"floor"` always rounds to the next higher or lower decimal place, respectively.
 -   `"trunc"` and `"anti_trunc"` always round towards zero or away from it.
 
+Two arguments modify these procedures:
+
+-   `symmetric` decides how ties in **negative** numbers are broken. It is not a technicality --- see the next section.
+-   `threshold` moves the point at which `"up_from"` and `"down_from"` switch direction. See `round_up_from()`.
+
+## Negative numbers: `symmetric`
+
+`symmetric` matters whenever your data contain negative values: difference scores, z-scores, effect sizes, temperature scales.
+
+By default (`symmetric = FALSE`), scrutiny reads "up" and "down" on the number line, so a negative tie goes up toward zero:
+
+```{r}
+round_up(-2.5)
+round_down(-2.5)
+```
+
+With `symmetric = TRUE`, a negative number is rounded like its absolute value, so a tie moves *away* from zero:
+
+```{r}
+round_up(-2.5, symmetric = TRUE)
+round_down(-2.5, symmetric = TRUE)
+```
+
+**Most statistical software does the second thing.** Excel, SPSS, SAS, and Matlab all round `-2.5` to `-3`; in IEEE 754 terms this is *roundTiesToAway*. Stata is the exception --- see the table below. So if you set `rounding` to a single direction on data with negative values, you almost always want `symmetric = TRUE` as well.
+
+This only ever affects ties, and only in negative numbers. And note that under the default `rounding = "up_or_down"`, the range spans both settings, so `symmetric` cannot change a verdict there.
+
 ## Rounding at 5 in other software
 
-If the decimal portion to be cut off by rounding is 5, how do these technologies round?
+If the part cut off by rounding is exactly 5, how do these programs round --- and which scrutiny settings reconstruct them?
 
--   [Python](https://docs.python.org/3/library/functions.html#round)'s standard rounding function rounds to even.
+| Software | Function | `rounding` | `symmetric` | Note |
+|:---|:---|:---|:---|:---|
+| Excel | `ROUND()` | `"up"` | `TRUE` | [Absolute value is rounded, then the sign is reapplied](https://support.microsoft.com/en-us/office/round-a-number-f82b440b-689d-4221-b21e-38da99d33435) |
+| Excel | `ROUNDUP()` | (see below) | --- | Away from zero, *not* ceiling |
+| Excel | `ROUNDDOWN()` | `"trunc"` | --- | Toward zero |
+| Google Sheets | `ROUND()`, `ROUNDUP()`, `ROUNDDOWN()` | as Excel | as Excel | Follows Excel |
+| SPSS | [`RND()`](https://www.ibm.com/docs/en/spss-statistics/latest?topic=expressions-arithmetic-functions) | `"up"` | `TRUE` | Ties away from zero; the fuzz is user-settable (`SET FUZZBITS`) |
+| SPSS | `TRUNC()` | `"trunc"` | --- | |
+| SAS | [`ROUND()`](https://documentation.sas.com/doc/en/pgmsascdc/9.4_3.5/lefunctionsref/p0tj6cmga7p8qln1ejh6ebevm0c9.htm) | `"up"` | `TRUE` | "Rounds up the absolute value and restores the original sign", with fuzzing |
+| SAS | `ROUNDE()`, `ROUNDZ()` | `"even"` | --- | `ROUNDE()` fuzzes, `ROUNDZ()` does not |
+| Matlab | [`round()`](https://www.mathworks.com/help/matlab/ref/double.round.html) | `"up"` | `TRUE` | "Rounds away from zero to the nearest integer with larger magnitude"; a `TieBreaker` option overrides this |
+| Stata | [`round()`](https://www.stata.com/manuals/fnmathematicalfunctions.pdf) | `"up"` | `FALSE` | "x is always rounded up to the larger value \[...\] `round(-4.5)` is −4" |
+| R (>= 4.0.0) | [`round()`](https://rpubs.com/maechler/Rounding) | `"even"` | --- | Measures which neighbor is closer on the binary double |
+| Python | [`round()`](https://docs.python.org/3/library/functions.html#round) | `"even"` | --- | Same idea as R |
+| Python | [`decimal`](https://docs.python.org/3/library/decimal.html) `ROUND_HALF_UP` | `"up"` | `TRUE` | In this vocabulary, "up" means away from zero |
+| NumPy | [`np.round()`](https://numpy.org/doc/stable/reference/generated/numpy.round.html) | `"even"` | --- | |
 
--   [SPSS](https://sr.ipsosinteractive.com/SPSSMR/Reporter/doc/en/help/ref_rounding.htm) rounds to even by default, but users may choose to round up instead.
+Three things this table is worth reading for:
 
--   Matlab rounds away from zero by default (i.e., it rounds up if the input is positive). However, other rounding procedures can be chosen.
+**Stata is the odd one out.** Its manual is explicit that ties go to the larger value on the *number line*, so `round(4.5)` is 5 and `round(-4.5)` is −4. That is scrutiny's default, `symmetric = FALSE`. Every other program in the table mirrors negatives instead.
 
--   In [SAS](https://documentation.sas.com/doc/en/pgmsascdc/9.4_3.5/lefunctionsref/p0tj6cmga7p8qln1ejh6ebevm0c9.htm), `ROUND()` rounds up, and `ROUNDE()` rounds to even. Both have a small tolerance. `ROUNDZ()` rounds to even without a tolerance.
+**"Rounding up" means two different things.** Excel's `ROUNDUP()` and Google Sheets' `ROUNDUP()` round *away from zero*: `ROUNDUP(-3.14159, 1)` is `-3.2`. That is not scrutiny's `"ceiling"`, which would give `-3.1`. For positive numbers the two coincide, which is why the confusion survives so easily. The same holds in reverse for `ROUNDDOWN()`, which is scrutiny's `"trunc"`, not `"floor"`.
 
--   [Stata](https://www.stata.com/manuals13/m-5trunc.pdf) seemingly rounds to even, but the documentation is not very explicit.
+scrutiny's `"anti_trunc"` is the closest match to `ROUNDUP()`, but it is not an exact one: it moves a value away from zero even when that value already sits on the rounding grid, so `round_anti_trunc(8.42, digits = 2)` is `8.43` where Excel's `ROUNDUP(8.42, 2)` is `8.42`. Use `"ceiling_or_floor"` if you need a range that safely contains `ROUNDUP()`.
 
--   In [Excel](https://support.microsoft.com/en-us/office/round-a-number-f82b440b-689d-4221-b21e-38da99d33435), `ROUND()` rounds up from 5, `ROUNDUP()` ceils the number, and `ROUNDDOWN()` floors it.[^1]
-
-[^1]: Excel's naming is inconsistent with scrutiny's usage. For instance, `ROUNDUP()` *always* rounds to the higher number, which is called ceiling in scrutiny (and in more common parlance). However, scrutiny's notion of `"up"` relies on a shared understanding with the user that numbers will only be rounded up from 5, not from any lower value; likewise with `"down"`. This is arguably suboptimal: compare `scrutiny::round_up()` to the more explicit naming of `janitor::round_half_up()`.
+**Several programs fuzz, and so does scrutiny.** SAS's `ROUND()` performs "extra computations, called fuzzing, to try to make the result agree with decimal arithmetic", and SPSS exposes the same idea as a user setting. scrutiny's rounding functions do this too, nudging a value by about `1.5e-9` so that `round_up(0.145, 2)` is `0.15` rather than `0.14`. This is deliberate: the software being reconstructed displayed `0.145` from the very same inexact double. See the `Floating-point tolerance` section of `round_up()`.
 
 ## Note on rounding to even
 
-Rounding to the next even number is not reliable. The fundamental facts of floating-point computation imply that results may vary in unpredictable ways. See this [explanation of `base::round()`](https://lhdjung.github.io/scrutiny/articles/rounding-in-depth.html#to-even-base-r), or a [more general article](https://docs.python.org/3/tutorial/floatingpoint.html#tut-fp-issues) about the limits of floating-point arithmetic.
+`rounding = "even"` calls base R's `round()`, and that is the *correct* reconstruction of R, Python, and NumPy: those systems break ties by the parity question as measured on the binary double, which is exactly what `round()` does.
+
+What is unreliable is *predicting* the result from the decimal you see. Most decimal fractions have no exact binary representation, so a number that looks like a tie usually isn't one, and which way it goes depends on invisible mantissa digits. See this [explanation of `base::round()`](https://lhdjung.github.io/scrutiny/articles/rounding-in-depth.html#to-even-base-r), or a [more general article](https://docs.python.org/3/tutorial/floatingpoint.html#tut-fp-issues) about the limits of floating-point arithmetic.
+
+For consistency testing this is handled rather than guessed: with `rounding = "even"`, `unround()` and the tests treat **both** bounds as inclusive, which can only widen a reconstructed range, never narrow it. Being too permissive is the safe direction for error detection.
+
+## A note on scrutiny's names
+
+scrutiny's `"up"` means *half*-up: numbers are rounded up only from 5, not from any lower value. In Excel and in ordinary speech, "rounding up" means what scrutiny calls `"ceiling"`. `janitor::round_half_up()` is a more explicit precedent, and the mismatch is a known wart --- for now, read `"up"` and `"down"` as short for "up from 5" and "down from 5".

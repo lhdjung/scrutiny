@@ -19,16 +19,30 @@ round_down(x, digits = 0L, symmetric = FALSE)
 \arguments{
 \item{x}{Numeric. The decimal number to round.}
 
-\item{digits}{Integer. Number of digits to round \code{x} to. Default is \code{0}.}
+\item{digits}{Integer. Number of digits to round \code{x} to. Default is \code{0}.
+Negative values round to powers of ten: \code{round_up(1250, digits = -2)} is
+\code{1300}, which reconstructs values reported as "rounded to the nearest
+hundred".}
 
-\item{threshold}{Integer. Only in \code{round_up_from()} and \code{round_down_from()}.
-Threshold for rounding up or down, respectively. Value is \code{5} in
-\code{round_up()}'s internal call to \code{round_up_from()} and in \code{round_down()}'s
-internal call to \code{round_down_from()}.}
+\item{threshold}{Numeric. Only in \code{round_up_from()} and \code{round_down_from()}.
+The point within a step at which rounding switches direction, in tenths of
+a step, so it must be greater than \code{0} and less than \code{10}.
+
+\code{round_up_from()} rounds up when the part cut off by rounding is at least
+\code{threshold} tenths of a step. \code{round_down_from()} is its mirror image, and
+the mirroring covers \code{threshold} as well: it rounds \emph{down} when the cut-off
+part is at most \code{10 - threshold} tenths of a step. Put differently,
+\code{round_down_from(x, threshold = t)} switches direction at the same point as
+\code{round_up_from(x, threshold = 10 - t)}, and differs from it only in sending
+a value sitting exactly on that point down rather than up.
+
+The two coincide at \code{5}, the value that \code{round_up()} and \code{round_down()}
+use, so the distinction only matters for other thresholds.}
 
 \item{symmetric}{Logical. Set \code{symmetric} to \code{TRUE} if the rounding of
 negative numbers should mirror that of positive numbers so that their
-absolute values are equal. Default is \code{FALSE}.}
+absolute values are equal. Only affects ties, and only in negative numbers.
+Default is \code{FALSE}. See the \verb{Negative numbers} section.}
 }
 \value{
 Numeric. \code{x} rounded to \code{digits}.
@@ -64,6 +78,54 @@ not meant to replace it. Their main purpose as helpers within scrutiny is
 to reconstruct the computations of researchers who might have used
 different software. See \code{vignette("rounding-options")}.
 }
+\section{Negative numbers}{
+ \code{symmetric} decides how ties in negative numbers
+are broken, and it decides nothing else: every other value has a single
+nearest neighbor, which all of these functions round to.
+
+By default (\code{symmetric = FALSE}), \code{round_up()} moves a tie to the higher
+number on the number line, so \code{round_up(-2.5)} is \code{-2}, and \code{round_down()}
+moves it to the lower one, so \code{round_down(-2.5)} is \code{-3}. This is what
+Java's \code{Math.round()} does.
+
+With \code{symmetric = TRUE}, a negative number is rounded like its absolute
+value, so \code{round_up(-2.5, symmetric = TRUE)} is \code{-3}. \strong{This is the
+setting that reconstructs Excel, SAS, SPSS, and Matlab}, all of which move
+a tie away from zero, as does \code{janitor::round_half_up()}. In IEEE 754
+terms, it is \emph{roundTiesToAway}.
+
+Data with negative values -- difference scores, z-scores, effect sizes --
+is therefore the case in which \code{symmetric} is not a technicality. See
+\code{vignette("rounding-options")} for which setting matches which program.
+(The package-wide default, \code{rounding = "up_or_down"}, spans the results of
+both settings, so \code{symmetric} cannot change a consistency verdict unless
+you commit to a single direction.)
+}
+
+\section{Floating-point tolerance}{
+ Shifting a number by \code{digits} decimal
+places is not exact: \code{0.145 * 100} is stored as \code{14.499999999999998}, just
+below the tie it is meant to be. Rounding that shifted value directly would
+move \code{0.145} a whole step in the wrong direction.
+
+All of these functions therefore nudge the shifted value by about \code{1.5e-9}
+before rounding it, so that \code{round_up(0.145, 2)} is \code{0.15}, as it would be
+in the software whose output is being reconstructed. Values within roughly
+\code{1e-9} below a rounding boundary are thereby treated as sitting \emph{on} it.
+\code{\link[=unround]{unround()}} reports bounds that assume exactly this, which is why a
+number and its reconstructed range always agree.
+
+The nudge is a fixed amount, whereas representation error grows with the
+magnitude of \code{x * 10^digits}. Up to about \code{1e7} for that product -- far
+beyond any reported mean, SD, or percentage -- the nudge dominates by
+orders of magnitude. Past it, a value sitting exactly on a boundary may go
+either way.
+
+This differs from \code{janitor::round_half_up()}, which adds its tolerance to
+the value rather than to the boundary, and from \code{\link[base:Round]{base::round()}}, which
+measures which neighbor is closer instead of nudging at all.
+}
+
 \examples{
 # Both `round_up()` and `round_down()` work like
 # `base::round()` unless the closest digit to be
@@ -92,9 +154,19 @@ tibble::tibble(   # Output table
   base_round = base::round(x = original, digits = 1)
 )
 
-# (Note: Defining `original` as `seq(0.05:0.95, by = 0.1)`
-# would lead to wrong results unless `original` is rounded
-# to 2 or so digits before it's rounded to 1.)
+
+# Ties in negative numbers go up on the number line
+# by default, and away from zero with `symmetric`:
+
+round_up(x = -2.5)                     # Java's `Math.round()`
+round_up(x = -2.5, symmetric = TRUE)   # Excel, SAS, SPSS, Matlab
+
+
+# A custom threshold moves the point at which
+# rounding switches direction:
+
+round_up_from(x = 4.28, digits = 1, threshold = 9)   # 8 < 9, so down
+round_up_from(x = 4.28, digits = 1, threshold = 1)   # 8 >= 1, so up
 }
 \seealso{
 \code{\link[=round_ceiling]{round_ceiling()}} always rounds up, \code{\link[=round_floor]{round_floor()}} always
