@@ -166,12 +166,22 @@ an_a_type <- function(x) {
 #'   considers a vector integer-like, use `rlang::is_integerish()` instead.
 #'
 #' @param x Numeric.
+#' @param tolerance Numeric. Any difference between `x` and the whole number
+#'   nearest to it that is less than `tolerance` (in the absolute value) will be
+#'   ignored. The default is close to `1 / (10 ^ 8)`. This avoids errors due to
+#'   spurious precision in floating-point arithmetic.
 #'
 #' @return Logical vector of the same length as `x`.
 #'
+#' @details This function was adapted (with naming modifications) from the
+#'   examples of `?integer`, where a very similar function is called
+#'   `is.wholenumber()`.
+#'
+#' @author R Core Team, Lukas Jung
+#'
 #' @noRd
 is_whole_number <- function(x, tolerance = .Machine$double.eps^0.5) {
-  dplyr::near(x, floor(x), tol = tolerance)
+  abs(x - round(x)) < tolerance
 }
 
 
