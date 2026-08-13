@@ -175,9 +175,9 @@ The additional columns are ---
 
 -   `rec_x_lower`: the lower reconstructed `x` value.
 
-`sum_lower` and `sum_upper` are the numbers that decide the test. A value set is GRIM-consistent exactly if at least one whole number lies between them --- i.e., if `sum_lower` is not greater than `sum_upper`. For an inconsistent value set the range is empty: `sum_lower` of 146 and `sum_upper` of 145 means "you would need a sum total of at least 146 but at most 145". The two are always the whole numbers on either side of `rec_sum`, so an empty range is empty by exactly one, and its width says nothing about how far off the reported numbers are. For that, compare `x` to `rec_x_lower` and `rec_x_upper`.
+`sum_lower` and `sum_upper` are the numbers that decide the test. A value set is GRIM-consistent exactly if at least one whole number lies between them, i.e., if `sum_lower` is not greater than `sum_upper`. For an inconsistent value set the range is empty: `sum_lower` of 146 and `sum_upper` of 145 means "you would need a sum total of at least 146 but at most 145". The two are always the whole numbers on either side of `rec_sum`, so an empty range is empty by exactly one, and its width says nothing about how far off the reported numbers are. For that, compare `x` to `rec_x_lower` and `rec_x_upper`.
 
-`rec_x_upper` and `rec_x_lower` are the two reconstructed means closest to `x` --- the "granules" that the GRIM story is usually told in terms of, following the charitable and conservative protocol outlined by Brown and Heathers (2017). They are `rec_sum` rounded up and down, divided by `n` (times `items`), and they don't depend on `rounding`. The `rec_*` columns were inspired by @bauer_expression_2021's Table 1 but present values in slightly different ways.
+`rec_x_upper` and `rec_x_lower` are the two reconstructed means closest to `x`, i.e., the "granules" of the GRIM test, following the charitable and conservative protocol outlined by Brown and Heathers (2017). They are `rec_sum` rounded up and down, divided by `n` (times `items`), and they don't depend on `rounding`. The `rec_*` columns were inspired by @bauer_expression_2021's Table 1 but present values in slightly different ways.
 
 With `percent = TRUE`, these two columns are percentages, just like `x` and just like the values returned by `grim_values()`, so that all of them can be read against each other. The three sum columns are not: a sum total of the underlying data is the same number whichever scale the mean is reported on.
 
@@ -199,7 +199,7 @@ A GRIM-inconsistent value set has none of them, and the result is empty:
 grim_values(x = 5.19, n = 28, digits_x = 2)
 ```
 
-`grim_closest()` answers the complementary question --- what value could have been reported instead? It returns the achievable mean nearest to `x`, whether or not `x` is consistent:
+`grim_closest()` answers the complementary question: What value could have been reported instead? It returns the achievable mean nearest to `x`, whether or not `x` is consistent:
 
 ```{r}
 grim_closest(x = 5.19, n = 28, digits_x = 2)
@@ -207,7 +207,7 @@ grim_closest(x = 5.19, n = 28, digits_x = 2)
 
 A sample of 28 cannot have a mean of 5.19, but it can have one of 5.178571, which would have been reported as 5.18.
 
-Both functions are vectorized, like `grim()`. Because a reported mean can stand for any number of achievable ones, `grim_values()` returns a list, with one element per value set --- which makes it easy to add as a list-column:
+Both functions are vectorized, like `grim()`. Because a reported mean can stand for any number of achievable ones, `grim_values()` returns a list, with one element per value set. That makes it easy to add as a list-column:
 
 ```{r}
 pigs1 |>

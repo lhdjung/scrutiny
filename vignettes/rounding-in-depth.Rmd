@@ -58,7 +58,7 @@ round_up(x = 1.24, digits = 1)
 
 round_up(x = 1.25, digits = 1)
 
-round_up(x = 1.25)  # default for `digits` is 0
+round_up(x = 1.25) # default for `digits` is 0
 ```
 
 Rounding up from 5 is actually a special case of `round_up_from()`, which can take any numeric threshold, not just 5:
@@ -76,7 +76,7 @@ round_down(x = 1.24, digits = 1)
 
 round_down(x = 1.25, digits = 1)
 
-round_down(x = 1.25)  # default for `digits` is 0
+round_down(x = 1.25) # default for `digits` is 0
 ```
 
 `round_down_from()`, then, is just the reverse of `round_up_from()` --- and the reversal applies to the threshold, too. Note how the results below are the opposite way around from those above:
@@ -150,17 +150,25 @@ vec2
 up2
 down2
 
-even2  # No symmetry here...
+even2 # No symmetry here...
 
 mean(vec2)
 mean(up2)
 mean(down2)
-mean(even2)  # ... and the mean is slightly biased downward!
+mean(even2) # ... and the mean is slightly biased downward!
 
 
 vec3 <- c(
-  1.05, 1.15, 1.25, 1.35, 1.45,
-  1.55, 1.65, 1.75, 1.85, 1.95
+  1.05,
+  1.15,
+  1.25,
+  1.35,
+  1.45,
+  1.55,
+  1.65,
+  1.75,
+  1.85,
+  1.95
 )
 
 # No bias here, though:
@@ -179,7 +187,7 @@ This seems better than following mathematical intuitions that may not always cor
 
 `base::round()` can seem like a black box, but it seems unbiased in the long run. I recommend using `round()` for original work.
 
-It is worth being precise about what this does and does not mean for reconstruction, because the two claims are easy to run together. `base::round()` *is* the right reconstruction of software that rounds binary doubles to even --- R itself, Python, NumPy --- and `rounding = "even"` reaches it. What is unsuitable is the reverse: predicting `round()`'s output from the decimal you see written down, since most decimals are not exactly representable and so are not really ties at all. Reconstructing the many programs that do round from the decimal 5 is the job of scrutiny's other `round_*()` functions. See `vignette("rounding-options")`, which states this once and lists which program falls on which side.
+For reconstruction, two claims about `round()` are easy to run together. `base::round()` is the right way to reconstruct software that rounds binary doubles to even, such as R itself, Python, and NumPy. This is what `rounding = "even"` does. What is unsuitable is the reverse: Predicting `round()`'s output from the decimal you see written down, since most decimals are not exactly representable and so are not really ties at all. Reconstructing the many programs that do round from the decimal 5 is the job of scrutiny's other `round_*()` functions. See `vignette("rounding-options")`, which lists which program falls on which side.
 
 ### IEEE 754 rounding standard
 
@@ -238,12 +246,12 @@ unround(x = 3.5, digits = 2, rounding = "up")
 Since `x` is vectorized, you might test several reported numbers at once:
 
 ```{r}
-vec2 <- c(2, 3.1, 3.5) |> 
+vec2 <- c(2, 3.1, 3.5) |>
   restore_zeros()
 
-vec2   # `restore_zeros()` returns "2.0" for 2
+vec2 # `restore_zeros()` returns "2.0" for 2
 
-vec2 |> 
+vec2 |>
   unround(rounding = "even")
 ```
 
@@ -261,13 +269,22 @@ What's more, `reround_to_fraction_level()` rounds to the nearest fraction at the
 
 ```{r}
 reround_to_fraction_level(
-  x = 0.777, denominator = 5, digits = 0, rounding = "down"
+  x = 0.777,
+  denominator = 5,
+  digits = 0,
+  rounding = "down"
 )
 reround_to_fraction_level(
-  x = 0.777, denominator = 5, digits = 1, rounding = "down"
+  x = 0.777,
+  denominator = 5,
+  digits = 1,
+  rounding = "down"
 )
 reround_to_fraction_level(
-  x = 0.777, denominator = 5, digits = 2, rounding = "down"
+  x = 0.777,
+  denominator = 5,
+  digits = 2,
+  rounding = "down"
 )
 ```
 
@@ -319,11 +336,11 @@ rounding_bias(vec4, digits = 2)
 What is responsible for such a difference? It seems to be (1) the sample size and (2) the number of decimal places to which the vector is rounded. The rounding method doesn't appear to matter if numbers with many decimal places are rounded:
 
 ```{r echo=FALSE}
-up_1   <- rounding_bias(vec4, digits = 1, rounding = "up")
-up_2   <- rounding_bias(vec4, digits = 2, rounding = "up")
-up_3   <- rounding_bias(vec4, digits = 3, rounding = "up")
-up_4   <- rounding_bias(vec4, digits = 4, rounding = "up")
-up_5   <- rounding_bias(vec4, digits = 5, rounding = "up")
+up_1 <- rounding_bias(vec4, digits = 1, rounding = "up")
+up_2 <- rounding_bias(vec4, digits = 2, rounding = "up")
+up_3 <- rounding_bias(vec4, digits = 3, rounding = "up")
+up_4 <- rounding_bias(vec4, digits = 4, rounding = "up")
+up_5 <- rounding_bias(vec4, digits = 5, rounding = "up")
 
 even_1 <- rounding_bias(vec4, digits = 1, rounding = "even")
 even_2 <- rounding_bias(vec4, digits = 2, rounding = "even")
@@ -333,8 +350,16 @@ even_5 <- rounding_bias(vec4, digits = 5, rounding = "even")
 
 
 bias <- abs(c(
-  up_1, up_2, up_3, up_4, up_5,
-  even_1, even_2, even_3, even_4, even_5
+  up_1,
+  up_2,
+  up_3,
+  up_4,
+  up_5,
+  even_1,
+  even_2,
+  even_3,
+  even_4,
+  even_5
 ))
 
 decimal_digits <- rep(1:5, 2)
@@ -347,7 +372,7 @@ df <- tibble::tibble(bias, decimal_digits, rounding)
 # Display simulated data:
 df
 
-df <- df |> 
+df <- df |>
   dplyr::mutate(
     rounding = paste0("(", rounding, ")"),
     decimal_digits = paste(c(1:5, 1:5), rounding)
@@ -359,20 +384,23 @@ df <- df |>
 
 # Set ggplot2 theme for the remaining part of the session:
 ggplot2::theme_minimal(base_size = 12) %+replace%
-    ggplot2::theme(
+  ggplot2::theme(
     panel.grid.major.x = ggplot2::element_blank(),
     panel.grid.minor.x = ggplot2::element_blank(),
     legend.position = "none"
-  ) |> 
+  ) |>
   ggplot2::theme_set()
 
 # Visualize:
-ggplot2::ggplot(df, ggplot2::aes(x = decimal_digits, y = bias,
-                                 fill = rounding)) +
+ggplot2::ggplot(
+  df,
+  ggplot2::aes(x = decimal_digits, y = bias, fill = rounding)
+) +
   ggplot2::geom_col(ggplot2::aes(fill = rounding)) +
-  ggplot2::scale_y_continuous(expand = ggplot2::expansion(add = c(0, 0))
-                              # labels = scales::comma
-                              ) +
+  ggplot2::scale_y_continuous(
+    expand = ggplot2::expansion(add = c(0, 0))
+    # labels = scales::comma
+  ) +
   ggplot2::scale_fill_discrete(name = "Rounding") +
   ggplot2::labs(
     x = "Decimal places (rounding procedure)",
@@ -380,7 +408,6 @@ ggplot2::ggplot(df, ggplot2::aes(x = decimal_digits, y = bias,
     title = "Directly from random numbers",
     subtitle = "Raw \"data\" mostly have 12 or 13 decimal places "
   )
-
 ```
 
 However, if the raw values are preliminarily rounded to 2 decimal places before rounding proceeds as above, the picture is different:
@@ -388,11 +415,11 @@ However, if the raw values are preliminarily rounded to 2 decimal places before 
 ```{r echo=FALSE}
 vec5 <- round(vec4, 2)
 
-up_1   <- rounding_bias(vec5, digits = 1, rounding = "up")
-up_2   <- rounding_bias(vec5, digits = 2, rounding = "up")
-up_3   <- rounding_bias(vec5, digits = 3, rounding = "up")
-up_4   <- rounding_bias(vec5, digits = 4, rounding = "up")
-up_5   <- rounding_bias(vec5, digits = 5, rounding = "up")
+up_1 <- rounding_bias(vec5, digits = 1, rounding = "up")
+up_2 <- rounding_bias(vec5, digits = 2, rounding = "up")
+up_3 <- rounding_bias(vec5, digits = 3, rounding = "up")
+up_4 <- rounding_bias(vec5, digits = 4, rounding = "up")
+up_5 <- rounding_bias(vec5, digits = 5, rounding = "up")
 
 even_1 <- rounding_bias(vec5, digits = 1, rounding = "even")
 even_2 <- rounding_bias(vec5, digits = 2, rounding = "even")
@@ -401,8 +428,16 @@ even_4 <- rounding_bias(vec5, digits = 4, rounding = "even")
 even_5 <- rounding_bias(vec5, digits = 5, rounding = "even")
 
 bias <- abs(c(
-  up_1, up_2, up_3, up_4, up_5,
-  even_1, even_2, even_3, even_4, even_5
+  up_1,
+  up_2,
+  up_3,
+  up_4,
+  up_5,
+  even_1,
+  even_2,
+  even_3,
+  even_4,
+  even_5
 ))
 
 decimal_digits <- rep(1:5, 2)
@@ -415,7 +450,7 @@ df_new <- tibble::tibble(bias, decimal_digits, rounding)
 # Display simulated data:
 df_new
 
-df_new <- df_new |> 
+df_new <- df_new |>
   dplyr::mutate(
     rounding = paste0("(", rounding, ")"),
     decimal_digits = paste(c(1:5, 1:5), rounding)
@@ -424,7 +459,10 @@ df_new <- df_new |>
   )
 
 # Visualize:
-ggplot2::ggplot(df_new, ggplot2::aes(x = decimal_digits, y = bias, fill = rounding)) +
+ggplot2::ggplot(
+  df_new,
+  ggplot2::aes(x = decimal_digits, y = bias, fill = rounding)
+) +
   ggplot2::geom_col(ggplot2::aes(fill = rounding)) +
   ggplot2::scale_y_continuous(expand = ggplot2::expansion(add = c(0, 0))) +
   ggplot2::scale_fill_discrete(name = "Rounding") +
@@ -439,7 +477,6 @@ ggplot2::ggplot(df_new, ggplot2::aes(x = decimal_digits, y = bias, fill = roundi
     y = "Mean absolute bias",
     title = "After previous rounding to 2 decimal places"
   )
-
 ```
 
 In sum, the function allows users to quantify the degree to which rounding biases a distribution, so that they can assess the relative merits of different rounding procedures. This is partly to sensitize readers to potential bias in edge cases, but also to enable them to make informed rounding decisions on their own.

@@ -14,9 +14,8 @@
 #'
 #' @details For non-negative numbers, `round_ties_up()` and `round_ties_away()`
 #'   are the same function, as are `round_ties_down()` and `round_ties_zero()`.
-#'   The names only come apart below zero, which is exactly where the choice of
-#'   procedure is easy to get wrong -- see the `Negative numbers` section of
-#'   [`round_up()`].
+#'   The names only differ for negative numbers differ below zero. See the
+#'   `Negative numbers` section of [`round_up()`].
 #'
 #'   `round_ties_away()` is IEEE 754's *roundTiesToAway*, and the procedure that
 #'   Excel's `ROUND()`, SPSS's `RND()`, SAS's `ROUND()`, Matlab's `round()`, and

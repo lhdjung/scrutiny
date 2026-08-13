@@ -39,13 +39,13 @@
 #'   Java's `Math.round()` does.
 #'
 #'   With `symmetric = TRUE`, a negative number is rounded like its absolute
-#'   value, so `round_up(-2.5, symmetric = TRUE)` is `-3`. **This is the
-#'   setting that reconstructs Excel, SAS, SPSS, and Matlab**, all of which move
-#'   a tie away from zero, as does `janitor::round_half_up()`. In IEEE 754
-#'   terms, it is *roundTiesToAway*.
+#'   value, so `round_up(-2.5, symmetric = TRUE)` is `-3`. This is the setting
+#'   that reconstructs Excel, SAS, SPSS, and Matlab, all of which move a tie
+#'   away from zero, as does `janitor::round_half_up()`. In IEEE 754 terms, it
+#'   is *roundTiesToAway*.
 #'
-#'   Data with negative values -- difference scores, z-scores, effect sizes --
-#'   is therefore the case in which `symmetric` is not a technicality. See
+#'   So `symmetric` matters whenever the data contain negative values, as with
+#'   difference scores, z-scores, or effect sizes. See
 #'   `vignette("rounding-options")` for which setting matches which program.
 #'   (The package-wide default, `rounding = "up_or_down"`, spans the results of
 #'   both settings, so `symmetric` cannot change a consistency verdict unless

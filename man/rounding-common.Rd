@@ -89,13 +89,13 @@ moves it to the lower one, so \code{round_down(-2.5)} is \code{-3}. This is what
 Java's \code{Math.round()} does.
 
 With \code{symmetric = TRUE}, a negative number is rounded like its absolute
-value, so \code{round_up(-2.5, symmetric = TRUE)} is \code{-3}. \strong{This is the
-setting that reconstructs Excel, SAS, SPSS, and Matlab}, all of which move
-a tie away from zero, as does \code{janitor::round_half_up()}. In IEEE 754
-terms, it is \emph{roundTiesToAway}.
+value, so \code{round_up(-2.5, symmetric = TRUE)} is \code{-3}. This is the setting
+that reconstructs Excel, SAS, SPSS, and Matlab, all of which move a tie
+away from zero, as does \code{janitor::round_half_up()}. In IEEE 754 terms, it
+is \emph{roundTiesToAway}.
 
-Data with negative values -- difference scores, z-scores, effect sizes --
-is therefore the case in which \code{symmetric} is not a technicality. See
+So \code{symmetric} matters whenever the data contain negative values, as with
+difference scores, z-scores, or effect sizes. See
 \code{vignette("rounding-options")} for which setting matches which program.
 (The package-wide default, \code{rounding = "up_or_down"}, spans the results of
 both settings, so \code{symmetric} cannot change a consistency verdict unless

@@ -42,9 +42,8 @@ spelling you prefer; the results are identical.
 \details{
 For non-negative numbers, \code{round_ties_up()} and \code{round_ties_away()}
 are the same function, as are \code{round_ties_down()} and \code{round_ties_zero()}.
-The names only come apart below zero, which is exactly where the choice of
-procedure is easy to get wrong -- see the \verb{Negative numbers} section of
-\code{\link[=round_up]{round_up()}}.
+The names only differ for negative numbers differ below zero. See the
+\verb{Negative numbers} section of \code{\link[=round_up]{round_up()}}.
 
 \code{round_ties_away()} is IEEE 754's \emph{roundTiesToAway}, and the procedure that
 Excel's \code{ROUND()}, SPSS's \code{RND()}, SAS's \code{ROUND()}, Matlab's \code{round()}, and

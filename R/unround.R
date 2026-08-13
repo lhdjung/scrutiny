@@ -121,8 +121,8 @@ rounding_offsets <- function(rounding, threshold, x_num, symmetric = FALSE) {
 
   # A `"ties_*"` string names a complete tie-breaking procedure, so it stands in
   # for a `rounding` and a `symmetric` together. `reround()` resolves it through
-  # the same table, which is what keeps the bounds below in step with the
-  # rounding functions they invert:
+  # the same table, so the bounds below stay in step with the rounding functions
+  # they invert:
   spec <- resolve_ties_rounding(rounding, symmetric)
   rounding <- spec$rounding
   symmetric <- spec$symmetric
@@ -525,7 +525,7 @@ sum_squares_scale_max <- function(s, n, val_lower, val_upper) {
 #' midpoint ties by the parity of the preceding digit, and whether a tie occurs
 #' at all depends on the binary representation of the value. Both bounds are
 #' therefore reported as inclusive, which can only make a reconstructed range
-#' too wide, never too narrow -- the safe direction for error detection.
+#' too wide, never too narrow. That is the safe direction for error detection.
 
 #' @param x String or numeric. Rounded number. `x` must be a string unless
 #'   `digits` is specified (most likely by a function that uses `unround()` as a

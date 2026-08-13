@@ -79,12 +79,12 @@ therefore the whole numbers in the range that \code{\link[=grim_map]{grim_map()}
 
 There are \code{sum_upper - sum_lower + 1} of them, or none if \code{x} is
 inconsistent. The count grows without bound once \code{n * items} reaches
-\code{10^digits_x}, which is exactly where GRIM stops being informative and
+\code{10^digits_x}, the point where GRIM stops being informative and
 \code{\link[=grim_probability]{grim_probability()}} returns 0. \code{grim_closest()} is cheap in that
 regime, \code{grim_values()} is not.
 
-With \code{percent} set to \code{TRUE}, the values are returned on the scale of \code{x}
--- as percentages, not as decimal numbers -- so that they can be read
+With \code{percent} set to \code{TRUE}, the values are returned on the scale of \code{x},
+as percentages rather than as decimal numbers, so that they can be read
 against it directly.
 }
 \examples{

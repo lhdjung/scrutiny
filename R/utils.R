@@ -790,13 +790,13 @@ check_tibble <- function(data) {
 #'   of the two directions can never be taken, which silently turns the method
 #'   into `"ceiling"`-like or `"floor"`-like behavior.
 #'
-#'   Up to scrutiny 1.0.0, the check here was a different one: it threw an error
-#'   if `threshold` was `5`, on the theory that a threshold of `5` must be the
-#'   argument's default value showing through, and that the user meant to
-#'   specify something else. That conflated "unspecified" with "specified as
-#'   5" -- any caller computing a threshold and passing it on failed spuriously
-#'   at exactly the most common value -- and `"up_from"` with a threshold of `5`
-#'   is simply `"up"`, which is a correct answer rather than an error.
+#'   Before scrutiny 1.0.0, the check here was a different one: it threw an
+#'   error if `threshold` was `5`, on the theory that a threshold of `5` must be
+#'   the argument's default value showing through, and that the user meant to
+#'   specify something else. That conflated "unspecified" with "specified as 5"
+#'   -- any caller computing a threshold and passing it on failed spuriously at
+#'   exactly the most common value -- and `"up_from"` with a threshold of `5` is
+#'   simply `"up"`, which is a correct answer rather than an error.
 #'
 #' @param threshold The `threshold` argument of the calling function.
 #'
@@ -1578,10 +1578,11 @@ rounding_tolerance <- .Machine$double.eps^0.5 / 10
 # nudge it by `rounding_tolerance` beforehand. This is the amount they add or
 # subtract.
 #
-# Up to scrutiny 1.0.0 the nudge was written there as `threshold -
+# Before scrutiny 1.0.0 the nudge was written there as `threshold -
 # .Machine$double.eps^0.5`, which the `/ 10` below turns into the very same
-# additive `rounding_tolerance`. That equality was load-bearing -- `unround()`
-# reports bounds that assume one shared tolerance -- but nowhere stated.
+# additive `rounding_tolerance`. Everything depended on that equality, since
+# `unround()` reports bounds that assume one shared tolerance, but it was not
+# stated anywhere.
 
 tie_offset <- function(threshold) {
   1 - (threshold / 10) + rounding_tolerance
@@ -1591,8 +1592,8 @@ tie_offset <- function(threshold) {
 # The `"ties_*"` rounding strings each name a complete tie-breaking procedure,
 # so one of them says by itself what `rounding` plus `symmetric` says together.
 # `reround()` and `rounding_offsets()` both resolve them through this one table,
-# which is what keeps the forward functions and the bounds from disagreeing
-# about what a name means.
+# so the forward functions and the bounds can't come to disagree about what a
+# name means.
 #
 # `symmetric` is deliberately not consulted for them. The procedure is already
 # fully determined by the name, and a `"ties_away"` that a separate argument

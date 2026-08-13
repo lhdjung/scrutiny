@@ -20,15 +20,13 @@ library(scrutiny)
 
 Many scrutiny functions have a `rounding` argument that controls how numbers are assumed to have been rounded. Specify `rounding` as any of the strings below.
 
-## Start here: you usually don't need to know
+## Which option to choose
 
-For consistency testing, **the default is almost always the right choice**, and identifying the software behind a paper is usually unnecessary.
+For consistency testing, the default is almost always the right choice, and there is usually no need to identify the software behind a paper.
 
-`rounding = "up_or_down"` counts a value set as consistent if the reported number matches *either* of the two results. Its range therefore spans every way of breaking a tie at 5 --- up, down, to even, away from zero, toward zero --- so it cannot reject a value set on the grounds of a tie-breaking rule you guessed wrong. `rounding = "ceiling_or_floor"` is wider still and covers every rounding procedure whatsoever, including truncation and custom thresholds.
+`rounding = "up_or_down"` counts a value set as consistent if the reported number matches either of the two results. Its range therefore spans every way of breaking a tie at 5: up, down, to even, away from zero, toward zero. It cannot reject a value set because you guessed the tie-breaking rule wrong. `rounding = "ceiling_or_floor"` is wider still and covers every rounding procedure whatsoever, including truncation and custom thresholds.
 
-Committing to a single procedure (`"up"`, `"down"`, `"even"`, `"trunc"`, ...) only ever makes a test **stricter**. That is worth doing when you have positive evidence about how the numbers were produced --- and it is a way to get a false positive when you don't. If in doubt, leave `rounding` alone.
-
-The rest of this vignette is for the case where you do have such evidence.
+Committing to a single procedure (`"up"`, `"down"`, `"even"`, `"trunc"`, ...) only ever makes a test stricter. That is worth doing if you have positive evidence about how the numbers were produced. Without such evidence, it is a good way to get a false positive, so if in doubt, leave `rounding` alone.
 
 ## In scrutiny
 
@@ -48,7 +46,7 @@ By contrast, these options only return one rounded number per input:
 
 Two arguments modify these procedures:
 
--   `symmetric` decides how ties in **negative** numbers are broken. It is not a technicality --- see the next section.
+-   `symmetric` decides how ties in negative numbers are broken. The next section says why that matters.
 -   `threshold` moves the point at which `"up_from"` and `"down_from"` switch direction. See `round_up_from()`.
 
 Finally, four options name a complete tie-breaking procedure, so that `symmetric` does not have to be given separately (and is ignored if it is):
@@ -56,7 +54,7 @@ Finally, four options name a complete tie-breaking procedure, so that `symmetric
 -   `"ties_up"` sends a tie to the higher number, `"ties_down"` to the lower one.
 -   `"ties_away"` sends a tie away from zero, `"ties_zero"` toward it.
 
-`"ties_up"` is `"up"` with `symmetric = FALSE`; `"ties_away"` is `"up"` with `symmetric = TRUE`. They exist because that translation is easy to get backwards, and because "up" means away from zero in Excel, Java, and Python --- but on the number line in scrutiny. The matching functions are `round_ties_up()`, `round_ties_down()`, `round_ties_away()`, and `round_ties_zero()`.
+`"ties_up"` is `"up"` with `symmetric = FALSE`; `"ties_away"` is `"up"` with `symmetric = TRUE`. They exist because that translation is easy to get backwards, and because "up" means away from zero in Excel, Java, and Python, but on the number line in scrutiny. The matching functions are `round_ties_up()`, `round_ties_down()`, `round_ties_away()`, and `round_ties_zero()`.
 
 ## Negative numbers: `symmetric`
 
@@ -76,7 +74,7 @@ round_up(-2.5, symmetric = TRUE)
 round_down(-2.5, symmetric = TRUE)
 ```
 
-**Most statistical software does the second thing.** Excel, SPSS, SAS, and Matlab all round `-2.5` to `-3`; in IEEE 754 terms this is *roundTiesToAway*. Stata is the exception --- see the table below. So if you set `rounding` to a single direction on data with negative values, you almost always want `symmetric = TRUE` as well.
+Most statistical software does the second thing. Excel, SPSS, SAS, and Matlab all round `-2.5` to `-3`; in IEEE 754 terms, this is *roundTiesToAway*. Stata is the exception, as the table below shows. So if you set `rounding` to a single direction on data with negative values, you almost always want `symmetric = TRUE` as well.
 
 If you would rather not have to remember which way round that is, say it directly:
 
@@ -85,11 +83,11 @@ round_ties_away(-2.5)   # Excel, SPSS, SAS, Matlab
 round_ties_up(-2.5)     # Stata
 ```
 
-This only ever affects ties, and only in negative numbers. And note that under the default `rounding = "up_or_down"`, the range spans both settings, so `symmetric` cannot change a verdict there.
+This only ever affects ties, and only in negative numbers. Note also that under the default `rounding = "up_or_down"`, the range spans both settings, so `symmetric` cannot change a verdict there.
 
 ## Rounding at 5 in other software
 
-If the part cut off by rounding is exactly 5, how do these programs round --- and which scrutiny settings reconstruct them?
+If the part cut off by rounding is exactly 5, how do these programs round, and which scrutiny settings reconstruct them?
 
 The `rounding` and `symmetric` columns are one way to say it; the `"ties_*"` equivalent is in brackets.
 
@@ -110,28 +108,28 @@ The `rounding` and `symmetric` columns are one way to say it; the `"ties_*"` equ
 | Python | [`decimal`](https://docs.python.org/3/library/decimal.html) `ROUND_HALF_UP` | `"up"` (`"ties_away"`) | `TRUE` | In this vocabulary, "up" means away from zero |
 | NumPy | [`np.round()`](https://numpy.org/doc/stable/reference/generated/numpy.round.html) | `"even"` | --- | |
 
-Three things this table is worth reading for:
+A few points in the table are worth spelling out.
 
-**Stata is the odd one out.** Its manual is explicit that ties go to the larger value on the *number line*, so `round(4.5)` is 5 and `round(-4.5)` is −4. That is scrutiny's default, `symmetric = FALSE`. Every other program in the table mirrors negatives instead.
+Stata is the odd one out. Its manual is explicit that ties go to the larger value on the *number line*, so `round(4.5)` is 5 and `round(-4.5)` is −4. That is scrutiny's default, `symmetric = FALSE`. Every other program in the table mirrors negatives instead.
 
-**"Rounding up" means two different things.** Excel's `ROUNDUP()` and Google Sheets' `ROUNDUP()` round *away from zero*: `ROUNDUP(-3.14159, 1)` is `-3.2`. That is not scrutiny's `"ceiling"`, which would give `-3.1`. For positive numbers the two coincide, which is why the confusion survives so easily. The same holds in reverse for `ROUNDDOWN()`, which is scrutiny's `"trunc"`, not `"floor"`.
+"Rounding up" also means two different things. Excel's `ROUNDUP()` and Google Sheets' `ROUNDUP()` round *away from zero*: `ROUNDUP(-3.14159, 1)` is `-3.2`. That is not scrutiny's `"ceiling"`, which would give `-3.1`. For positive numbers the two coincide, which is how the confusion survives. The same holds in reverse for `ROUNDDOWN()`, which is scrutiny's `"trunc"`, not `"floor"`.
 
-scrutiny's `"anti_trunc"` is `ROUNDUP()`, and `"trunc"` is `ROUNDDOWN()`. The same pair appears as Java's `RoundingMode.UP` and `DOWN`, and as Python's `decimal.ROUND_UP` and `ROUND_DOWN`. Up to scrutiny 1.0.0 the match was inexact --- `round_anti_trunc()` moved a value away from zero even when it already sat on the rounding grid, so `round_anti_trunc(8.42, digits = 2)` was `8.43` where `ROUNDUP(8.42, 2)` is `8.42` --- but it no longer is.
+So scrutiny's `"anti_trunc"` is `ROUNDUP()`, and `"trunc"` is `ROUNDDOWN()`. The same pair appears as Java's `RoundingMode.UP` and `DOWN`, and as Python's `decimal.ROUND_UP` and `ROUND_DOWN`. Up to scrutiny 1.0.0 the match was inexact, because `round_anti_trunc()` moved a value away from zero even when it already sat on the rounding grid: `round_anti_trunc(8.42, digits = 2)` was `8.43` where `ROUNDUP(8.42, 2)` is `8.42`. It is exact now.
 
-**Several programs fuzz, and so does scrutiny.** SAS's `ROUND()` performs "extra computations, called fuzzing, to try to make the result agree with decimal arithmetic", and SPSS exposes the same idea as a user setting. scrutiny's rounding functions do this too, nudging a value by about `1.5e-9` so that `round_up(0.145, 2)` is `0.15` rather than `0.14`. This is deliberate: the software being reconstructed displayed `0.145` from the very same inexact double. See the `Floating-point tolerance` section of `round_up()`.
+Several programs fuzz, and so does scrutiny. SAS's `ROUND()` performs "extra computations, called fuzzing, to try to make the result agree with decimal arithmetic", and SPSS exposes the same idea as a user setting. scrutiny's rounding functions do this too, nudging a value by about `1.5e-9` so that `round_up(0.145, 2)` is `0.15` rather than `0.14`. That is deliberate: the software being reconstructed displayed `0.145` from the very same inexact double. See the `Floating-point tolerance` section of `round_up()`.
 
 ## Note on rounding to even
 
-`rounding = "even"` calls base R's `round()`, and that is the *correct* reconstruction of R, Python, and NumPy: those systems break ties by the parity question as measured on the binary double, which is exactly what `round()` does.
+`rounding = "even"` calls base R's `round()`, and that is the *correct* reconstruction of R, Python, and NumPy: those systems break ties by parity as measured on the binary double, which is what `round()` does.
 
 What is unreliable is *predicting* the result from the decimal you see. Most decimal fractions have no exact binary representation, so a number that looks like a tie usually isn't one, and which way it goes depends on invisible mantissa digits. See this [explanation of `base::round()`](https://lhdjung.github.io/scrutiny/articles/rounding-in-depth.html#to-even-base-r), or a [more general article](https://docs.python.org/3/tutorial/floatingpoint.html#tut-fp-issues) about the limits of floating-point arithmetic.
 
-For consistency testing this is handled rather than guessed: with `rounding = "even"`, `unround()` and the tests treat **both** bounds as inclusive, which can only widen a reconstructed range, never narrow it. Being too permissive is the safe direction for error detection.
+For consistency testing, this is handled rather than guessed. With `rounding = "even"`, `unround()` and the tests treat both bounds as inclusive, which can only widen a reconstructed range, never narrow it. Being too permissive is the safe direction for error detection.
 
 ## A note on scrutiny's names
 
 scrutiny's `"up"` means *half*-up: numbers are rounded up only from 5, not from any lower value. In Excel and in ordinary speech, "rounding up" means what scrutiny calls `"ceiling"`. Read `"up"` and `"down"` as short for "up from 5" and "down from 5".
 
-The `"ties_*"` options and the `round_ties_*()` functions were added because of this. They are not a rename: `round_up()` and the `"up"` string keep working exactly as before, and neither is deprecated. What the new names buy is that the procedure is stated rather than implied.
+The `"ties_*"` options and the `round_ties_*()` functions were added because of this. They are not a rename: `round_up()` and the `"up"` string keep working exactly as before, and neither is deprecated. The new names simply state the procedure instead of implying it.
 
-A note on why they are not called `round_half_up()` and friends, which would be the obvious choice given `janitor::round_half_up()`. That function is *roundTiesToAway* --- `janitor::round_half_up(-2.5)` is `-3` --- so a scrutiny function of the same name meaning ties-toward-`+Inf` would take the same arguments and give the opposite answer, with the attach order of `library()` deciding silently which one ran. Nor is janitor an outlier: in Java's `RoundingMode.HALF_UP`, Python's `decimal.ROUND_HALF_UP`, and .NET's `MidpointRounding.AwayFromZero`, "half up" already means away from zero, because "up" in that vocabulary means away from zero. `"ties_away"` says which one it is in any of these vocabularies.
+Why are they not called `round_half_up()` and friends, which would be the obvious choice given `janitor::round_half_up()`? That function is *roundTiesToAway* (`janitor::round_half_up(-2.5)` is `-3`), so a scrutiny function of the same name meaning ties toward `+Inf` would take the same arguments and give the opposite answer, with the attach order of `library()` deciding silently which one ran. And janitor is not unusual here: in Java's `RoundingMode.HALF_UP`, Python's `decimal.ROUND_HALF_UP`, and .NET's `MidpointRounding.AwayFromZero`, "half up" already means away from zero, because "up" in that vocabulary means away from zero. `"ties_away"` says which one it is in any of these vocabularies.

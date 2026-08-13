@@ -159,12 +159,12 @@ grim_closest_scalar <- function(
 #'
 #'   There are `sum_upper - sum_lower + 1` of them, or none if `x` is
 #'   inconsistent. The count grows without bound once `n * items` reaches
-#'   `10^digits_x`, which is exactly where GRIM stops being informative and
+#'   `10^digits_x`, the point where GRIM stops being informative and
 #'   [`grim_probability()`] returns 0. `grim_closest()` is cheap in that
 #'   regime, `grim_values()` is not.
 #'
-#'   With `percent` set to `TRUE`, the values are returned on the scale of `x`
-#'   -- as percentages, not as decimal numbers -- so that they can be read
+#'   With `percent` set to `TRUE`, the values are returned on the scale of `x`,
+#'   as percentages rather than as decimal numbers, so that they can be read
 #'   against it directly.
 #'
 #' @param x Numeric. The reported mean or percentage value.

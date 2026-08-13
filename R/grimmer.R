@@ -531,7 +531,7 @@ grimmer_scalar <- function(
 #'   implementation follows Allard's (2018) refined Analytic-GRIMMER algorithm.
 #'   It uses a variant of Analytic-GRIMMER also implemented in
 #'   \href{https://lukaswallrich.github.io/rsprite2/reference/GRIMMER_test.html}{`rsprite2::GRIMMER_test()`}
-#'   that can be applied to multi-item scales and oiptionally takes scale ranges
+#'   that can be applied to multi-item scales and optionally takes scale ranges
 #'   into account.
 #'
 #'   The scrutiny version embeds GRIMMER in the broader system of consistency

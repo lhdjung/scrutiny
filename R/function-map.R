@@ -321,9 +321,9 @@ function_map <- function(
   # columns of `data` in the first place; and plain arguments that apply to the
   # whole call: Arguments of `.fun` that have no default of their own must reach
   # it as missing, so that its own error message is shown rather than a generic
-  # one. All others are passed on explicitly, which is what makes
-  # `.args_defaults` work: `.fun` would otherwise apply its own default to an
-  # argument that the factory-made function has a different default for.
+  # one. All others are passed on explicitly, and that is what `.args_defaults`
+  # needs: `.fun` would otherwise apply its own default to an argument that the
+  # factory-made function has a different default for.
   formals_promoted <- formals_fun[args_promoted]
   formals_promoted[names(.args_defaults)] <- .args_defaults
   args_required <- args_promoted[

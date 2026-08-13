@@ -12,7 +12,7 @@
 # candidates was the false-pass bug #85.
 #
 # Interleaving is what `Vectorize()` produced anyway, one column of the result
-# matrix per input value; doing it explicitly is what lets
+# matrix per input value. Doing it explicitly lets
 # `reconstruct_rounded_numbers_scalar()` take a whole vector at once (see
 # `reround()` below).
 

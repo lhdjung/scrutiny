@@ -129,7 +129,7 @@ boundary values are really inclusive is hard to predict: \code{round()} breaks
 midpoint ties by the parity of the preceding digit, and whether a tie occurs
 at all depends on the binary representation of the value. Both bounds are
 therefore reported as inclusive, which can only make a reconstructed range
-too wide, never too narrow -- the safe direction for error detection.
+too wide, never too narrow. That is the safe direction for error detection.
 }
 
 \examples{
