@@ -23,9 +23,6 @@
 #   too permissive, so the oracle would report a disagreement that is a design
 #   decision, not an error. See the comment on `rounding_offsets()`.
 #
-# - `rounding = "anti_trunc"` at a mean of zero, where the bounds are undefined
-#   and every test returns `NA`.
-#
 # Each combination of parameters is tested with a single call per function and a
 # handful of expectations on whole columns, rather than one call and a dozen
 # expectations per value set. The oracle is the slow part -- it walks the range
@@ -87,9 +84,8 @@ oracle_verdicts <- function(
 }
 
 
-# `threshold` is only meaningful for the three `"*_from"` methods, and
-# `reround()` rejects the default of 5 for them, pointing to the plain methods
-# instead. Every other method ignores it, so it is not varied for them:
+# `threshold` is only meaningful for the three `"*_from"` methods. Every other
+# method ignores it, so it is not varied for them:
 grim_oracle_grid <- function() {
   # fmt: skip
   methods_fixed <- c(
@@ -136,13 +132,8 @@ test_grim_oracle <- function(x, n, digits_x, items, percent, symmetric) {
       ", symmetric = ", symmetric
     )
 
-    # The bounds are undefined at zero under this method, so the value set is
-    # undecidable rather than testable against the oracle:
-    keep <- rounding != "anti_trunc" | x != 0
-    data_i <- data[keep, ]
-
     out <- grim_map(
-      data_i,
+      data,
       digits_x = digits_x,
       items = items,
       percent = percent,
@@ -154,8 +145,8 @@ test_grim_oracle <- function(x, n, digits_x, items, percent, symmetric) {
       suppressMessages()
 
     values <- grim_values(
-      x[keep],
-      n[keep],
+      x,
+      n,
       digits_x = digits_x,
       items = items,
       percent = percent,
@@ -164,8 +155,8 @@ test_grim_oracle <- function(x, n, digits_x, items, percent, symmetric) {
       symmetric = symmetric
     )
     closest <- grim_closest(
-      x[keep],
-      n[keep],
+      x,
+      n,
       digits_x = digits_x,
       items = items,
       percent = percent,
@@ -185,8 +176,8 @@ test_grim_oracle <- function(x, n, digits_x, items, percent, symmetric) {
         oracle_verdicts(
           lower = lower[j],
           upper = upper[j],
-          x_num = x_num[keep][j],
-          n_items = n_items[keep][j],
+          x_num = x_num[j],
+          n_items = n_items[j],
           digits = digits_num,
           rounding = rounding,
           threshold = threshold,
@@ -219,15 +210,15 @@ test_grim_oracle <- function(x, n, digits_x, items, percent, symmetric) {
 
     # `rec_sum` is a sum of the underlying data, so `percent` leaves it alone;
     # the granules are read against `x`, so they follow its scale:
-    expect_equal(out$rec_sum, x_num[keep] * n_items[keep], info = info)
+    expect_equal(out$rec_sum, x_num * n_items, info = info)
     expect_equal(
       out$rec_x_lower,
-      floor(x_num[keep] * n_items[keep] + 1e-9) * scale_x / n_items[keep],
+      floor(x_num * n_items + 1e-9) * scale_x / n_items,
       info = info
     )
     expect_equal(
       out$rec_x_upper,
-      ceiling(x_num[keep] * n_items[keep] - 1e-9) * scale_x / n_items[keep],
+      ceiling(x_num * n_items - 1e-9) * scale_x / n_items,
       info = info
     )
 
@@ -235,7 +226,7 @@ test_grim_oracle <- function(x, n, digits_x, items, percent, symmetric) {
     # items`, and there are none at all if the value set is inconsistent:
     achievable <- lapply(seq_len(nrow(out)), function(j) {
       if (consistency[j]) {
-        seq(lower[j], upper[j]) * scale_x / n_items[keep][j]
+        seq(lower[j], upper[j]) * scale_x / n_items[j]
       } else {
         numeric(0L)
       }
@@ -249,7 +240,7 @@ test_grim_oracle <- function(x, n, digits_x, items, percent, symmetric) {
       if (consistency[j]) {
         achievable[[j]]
       } else {
-        c(upper[j], lower[j]) * scale_x / n_items[keep][j]
+        c(upper[j], lower[j]) * scale_x / n_items[j]
       }
     })
     is_reachable <- purrr::map2_lgl(
@@ -259,10 +250,10 @@ test_grim_oracle <- function(x, n, digits_x, items, percent, symmetric) {
     )
     expect_true(all(is_reachable), info = info)
     expect_equal(
-      abs(closest - x[keep]),
+      abs(closest - x),
       vapply(
         seq_along(reachable),
-        function(j) min(abs(reachable[[j]] - x[keep][j])),
+        function(j) min(abs(reachable[[j]] - x[j])),
         numeric(1L)
       ),
       info = info
@@ -272,8 +263,9 @@ test_grim_oracle <- function(x, n, digits_x, items, percent, symmetric) {
 
 
 # `-0.1` and `0.1` are the means whose rounding bounds reach exactly zero at one
-# decimal place, which is the one bound that does not follow from the sign of
-# `x` alone -- see the `"anti_trunc"` correction in `bound_numerators()`:
+# decimal place, and `0` is where `"trunc"` and `"anti_trunc"` part company most
+# sharply -- the widest range of any method for the first, a single point for
+# the second:
 x_oracle <- c(-2.5, -0.71, -0.1, 0, 0.1, 0.24, 1.99, 4.2, 5.19)
 
 # A bound lands exactly on a whole-number sum total -- where its inclusivity is

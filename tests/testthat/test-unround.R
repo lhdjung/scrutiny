@@ -152,12 +152,6 @@ test_that("`unround()` bounds agree with the rounding they invert (sweep)", {
               digits = digits,
               symmetric = symmetric
             )
-            # `"anti_trunc"` at zero is undefined, and `unround()` says so:
-            if (is.na(bounds$lower)) {
-              expect_equal(m, "anti_trunc")
-              expect_equal(x_num, 0)
-              next
-            }
             rounds_to_x <- function(value) {
               any(dplyr::near(
                 reround(
@@ -175,6 +169,26 @@ test_that("`unround()` bounds agree with the rounding they invert (sweep)", {
               "| symmetric =", symmetric, "| threshold =", threshold
             )
             n_checked <- n_checked + 1L
+
+            # `"anti_trunc"` at zero is the one degenerate range: every non-zero
+            # value is taken away from zero, so the only value reported as zero
+            # is zero itself. There is no "just inside" to check, and both
+            # bounds are the point itself:
+            if (bounds$lower == bounds$upper) {
+              expect_equal(m, "anti_trunc")
+              expect_equal(x_num, 0)
+              expect_true(rounds_to_x(x_num), label = paste(label, "- at point"))
+              expect_true(bounds$incl_lower && bounds$incl_upper)
+              expect_false(
+                rounds_to_x(x_num + eps),
+                label = paste(label, "- beyond upper")
+              )
+              expect_false(
+                rounds_to_x(x_num - eps),
+                label = paste(label, "- beyond lower")
+              )
+              next
+            }
 
             # Position of the bounds:
             expect_true(
@@ -262,19 +276,44 @@ test_that("`symmetric` mirrors the bounds of a negative `x`", {
 
 
 test_that("`\"anti_trunc\"` bounds match `round_anti_trunc()`", {
-  # `round_anti_trunc()` always rounds away from zero, so for a positive `x`,
-  # the bound it can be reached from is the lower one, and for a negative `x`,
-  # the upper one. The negative case used to carry the signs of the positive
-  # one.
-  bounds_positive <- unround("0.70", rounding = "anti_trunc")
-  expect_true(bounds_positive$incl_lower)
-  expect_false(bounds_positive$incl_upper)
-  expect_equal(round_anti_trunc(bounds_positive$lower, 1), 0.7)
-  expect_false(round_anti_trunc(bounds_positive$upper, 1) == 0.7)
+  # `round_anti_trunc()` rounds away from zero, leaving a value that already
+  # sits on the rounding grid where it is. So it is `round_ceiling()` above
+  # zero, which reaches `x` from below and includes `x` itself...
+  # (`x` is given with one decimal place, and re-rounded to one, so that the
+  # bounds and the rounding are on the same grid. It used to be given as "0.70",
+  # i.e. unrounded at two decimal places and then re-rounded at one.)
+  bounds_positive <- unround("0.7", rounding = "anti_trunc")
+  expect_false(bounds_positive$incl_lower)
+  expect_true(bounds_positive$incl_upper)
+  expect_equal(round_anti_trunc(bounds_positive$upper, 1), 0.7)
+  expect_false(round_anti_trunc(bounds_positive$lower, 1) == 0.7)
 
-  bounds_negative <- unround("-0.70", rounding = "anti_trunc")
-  expect_false(bounds_negative$incl_lower)
-  expect_true(bounds_negative$incl_upper)
-  expect_equal(round_anti_trunc(bounds_negative$upper, 1), -0.7)
-  expect_false(round_anti_trunc(bounds_negative$lower, 1) == -0.7)
+  # ...and `round_floor()` below zero, which reaches it from above:
+  bounds_negative <- unround("-0.7", rounding = "anti_trunc")
+  expect_true(bounds_negative$incl_lower)
+  expect_false(bounds_negative$incl_upper)
+  expect_equal(round_anti_trunc(bounds_negative$lower, 1), -0.7)
+  expect_false(round_anti_trunc(bounds_negative$upper, 1) == -0.7)
+})
+
+
+test_that("`\"anti_trunc\"` at zero is a single point, not an undefined range", {
+  # Every non-zero value is taken away from zero to the next step out, so the
+  # only value that would be reported as zero is zero itself. Up to scrutiny
+  # 1.0.0, `anti_trunc()` sent zero itself away from zero as well -- to `+1`
+  # unit, an arbitrary sign choice -- and the bounds here were `NA` in
+  # consequence.
+  bounds <- unround("0.00", rounding = "anti_trunc")
+  expect_equal(bounds$lower, 0)
+  expect_equal(bounds$upper, 0)
+  expect_true(bounds$incl_lower)
+  expect_true(bounds$incl_upper)
+  expect_equal(round_anti_trunc(0, 2), 0)
+  expect_false(round_anti_trunc(0.001, 2) == 0)
+  expect_false(round_anti_trunc(-0.001, 2) == 0)
+
+  # It follows that a mean of zero pins the sum to exactly zero, so GRIM is
+  # decidable there rather than `NA`, and consistent only for all-zero data:
+  expect_true(grim(0, n = 40, digits_x = 2, rounding = "anti_trunc"))
+  expect_false(grim(0.01, n = 40, digits_x = 2, rounding = "anti_trunc"))
 })

@@ -169,7 +169,11 @@ round_up_from(x = 4.28, digits = 1, threshold = 9)   # 8 < 9, so down
 round_up_from(x = 4.28, digits = 1, threshold = 1)   # 8 >= 1, so up
 }
 \seealso{
-\code{\link[=round_ceiling]{round_ceiling()}} always rounds up, \code{\link[=round_floor]{round_floor()}} always
-rounds down, \code{\link[=round_trunc]{round_trunc()}} always rounds toward 0, and
-\code{\link[=round_anti_trunc]{round_anti_trunc()}} always round away from 0.
+\code{\link[=round_ties_up]{round_ties_up()}} and friends are these same four procedures
+under names that say which is which, so that \code{symmetric} need not be
+spelled out separately.
+
+\code{\link[=round_ceiling]{round_ceiling()}} always rounds up, \code{\link[=round_floor]{round_floor()}} always rounds down,
+\code{\link[=round_trunc]{round_trunc()}} always rounds toward 0, and \code{\link[=round_anti_trunc]{round_anti_trunc()}} always
+rounds away from 0.
 }

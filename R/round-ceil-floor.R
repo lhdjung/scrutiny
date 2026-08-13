@@ -4,13 +4,10 @@
 #'   - `round_ceiling()` always rounds up.
 #'   - `round_floor()` always rounds down.
 #'   - `round_trunc()` always rounds toward zero.
-#'   - `round_anti_trunc()` always rounds away from zero. Note that "always"
-#'   is meant strictly: a value already sitting on the rounding grid is moved
-#'   one step further away all the same, so `round_anti_trunc(8.42, digits =
-#'   2)` is `8.43`, and `0` itself is rounded to `1`. Excel's `ROUNDUP()`,
-#'   Java's `RoundingMode.UP`, and Python's `decimal.ROUND_UP` round away from
-#'   zero in the weaker sense that leaves such a value where it is. Use
-#'   `"ceiling_or_floor"` for a range that safely contains those.
+#'   - `round_anti_trunc()` always rounds away from zero. A value that already
+#'   sits on the rounding grid stays where it is, and `0` stays `0`. This is
+#'   what Excel's and Google Sheets' `ROUNDUP()`, Java's `RoundingMode.UP`, and
+#'   Python's `decimal.ROUND_UP` do.
 #'   - `anti_trunc()` does not round but otherwise works like
 #'   `round_anti_trunc()`.
 #'
@@ -28,8 +25,7 @@
 #'   moves away from 0, rather than towards it. That is, whereas `trunc()`
 #'   minimizes the absolute value of `x` (as compared to the other rounding
 #'   functions), `anti_trunc()` maximizes it. `anti_trunc(x)` is therefore equal
-#'   to `trunc(x)` ` + 1` if `x` is positive, and to `trunc(x) - 1` if `x` is
-#'   negative.
+#'   to `ceiling(x)` if `x` is positive, and to `floor(x)` if `x` is negative.
 #'
 #'   `round_anti_trunc()`, then, generalizes `anti_trunc()` just as
 #'   `round_ceiling()` generalizes [`ceiling()`], etc.
@@ -37,7 +33,8 @@
 #'   Moreover, `round_trunc()` is equivalent to `round_floor()` for positive
 #'   numbers and to `round_ceiling()` for negative numbers. The reverse is again
 #'   true for `round_anti_trunc()`: It is equivalent to `round_ceiling()` for
-#'   positive numbers and to `round_floor()` for negative numbers.
+#'   positive numbers and to `round_floor()` for negative numbers. The two of
+#'   them partition every value between them, with `0` going to both.
 #'
 #'   Like [`round_up()`] and the other functions on that page, all of these
 #'   nudge the value by about `1.5e-9` before rounding it, so that
@@ -133,25 +130,20 @@ round_trunc <- function(x, digits = 0L) {
 
 anti_trunc <- function(x) {
   # For symmetry between positive and negative numbers, use the absolute value.
-  # `trunc()` is nudged as in `round_trunc()` so that an `x` which is only just
-  # below a whole number by representation error still counts as that number,
-  # and is therefore taken one step further away from zero, not two:
-  core <- trunc(abs(x) + rounding_tolerance) + 1
+  # The tolerance is subtracted, just as in `round_ceiling()`: an `x` which is
+  # only just above a whole number by representation error should still count as
+  # that number rather than be taken a whole step further out.
+  core <- ceiling(abs(x) - rounding_tolerance)
 
-  # Note that `ceiling(abs(x))` is *not* an equivalent formula, although a
-  # comment here used to say it was. The two agree everywhere except on whole
-  # numbers, which is precisely where the choice is made: `ceiling(abs(3))` is
-  # 3, whereas the formula above sends 3 one step further away from zero, to 4.
-  # The "always move" reading is the one this package has always implemented,
-  # and the one `rounding_offsets()` encodes -- which is why it has to declare
-  # zero undefined, since zero has no direction to move in.
-  #
-  # Real "round away from zero" implementations -- Excel's and Google Sheets'
-  # `ROUNDUP()`, Java's `RoundingMode.UP`, Python's `decimal.ROUND_UP` -- all
-  # take the `ceiling(abs(x))` reading instead: a value already sitting on the
-  # rounding grid stays where it is, and zero rounds to zero. So this is the
-  # variant with no known software behind it. See the assessment in
-  # special-scripts/rounding-functions-assessment.md, section 7.
+  # Up to scrutiny 1.0.0 this was `trunc(abs(x)) + 1`, which moves a value one
+  # step away from zero even when it already sits on a whole number, so
+  # `anti_trunc(3)` was 4 and `anti_trunc(0)` was 1. (A comment here claimed the
+  # two formulas were equivalent; they agree everywhere except on whole numbers,
+  # which is precisely where the choice lies.) No software rounds that way.
+  # Excel's and Google Sheets' `ROUNDUP()`, Java's `RoundingMode.UP`, and
+  # Python's `decimal.ROUND_UP` all round away from zero in the weaker sense
+  # implemented here, where a value on the rounding grid stays put and zero
+  # stays zero. `rounding_offsets()` encodes the same reading.
 
   # If `x` is negative, its "anti-truncated" version should also be negative:
   restore_sign(core, x)

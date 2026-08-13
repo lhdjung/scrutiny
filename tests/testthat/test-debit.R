@@ -118,14 +118,24 @@ test_that("`show_rec` returns the reconstructed values", {
 
 
 test_that("`debit()` returns `NA` where the bounds are undefined", {
-  # `anti_trunc` is the one rounding method with no bounds at zero:
+  # A missing value has no bounds to derive. (This used to be tested with
+  # `rounding = "anti_trunc"` at a mean of zero, which had no bounds either
+  # until `anti_trunc()` stopped sending zero away from zero.)
   debit(
-    x = 0,
+    x = NA,
     sd = 0.50,
     n = 1683,
     digits_x = 2,
-    digits_sd = 2,
-    rounding = "anti_trunc"
+    digits_sd = 2
+  ) |>
+    expect_na()
+
+  debit(
+    x = 0.30,
+    sd = NA,
+    n = 1683,
+    digits_x = 2,
+    digits_sd = 2
   ) |>
     expect_na()
 })

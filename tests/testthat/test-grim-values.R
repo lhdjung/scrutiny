@@ -95,11 +95,24 @@ test_that("`items` multiplies into the sample size", {
 
 
 test_that("undecidable cases give `NA`", {
-  # `rounding = "anti_trunc"` has no defined bounds at zero, as in `grim()`:
+  # A missing mean has no bounds to derive, as in `grim()`. (This used to be
+  # tested with `rounding = "anti_trunc"` at a mean of zero, which had no
+  # defined bounds either until `anti_trunc()` stopped sending zero away from
+  # zero.)
+  grim_values(NA, 40, digits_x = 2)[[1L]] |>
+    expect_equal(NA_real_)
+  grim_closest(NA, 40, digits_x = 2) |>
+    expect_equal(NA_real_)
+})
+
+
+test_that("`rounding = \"anti_trunc\"` at a mean of zero is decidable", {
+  # Every non-zero value is taken away from zero, so a mean reported as 0.00
+  # pins the sum to exactly 0 -- attainable only by all-zero data:
   grim_values(0, 40, digits_x = 2, rounding = "anti_trunc")[[1L]] |>
-    expect_equal(NA_real_)
+    expect_equal(0)
   grim_closest(0, 40, digits_x = 2, rounding = "anti_trunc") |>
-    expect_equal(NA_real_)
+    expect_equal(0)
 })
 
 

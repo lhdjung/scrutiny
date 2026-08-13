@@ -567,7 +567,16 @@ check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
     var_names_gt1 <- var_names[var_lengths > 1L]
     vnames_gt1_all <- var_names_gt1 # for the warning
 
-    length_dup <- duplicated(var_lengths)
+    # Two arguments of the same length are congruent, so only one of each
+    # distinct length needs to survive into the error condition below. The
+    # duplicates have to be found among the lengths greater than 1, not among
+    # all of them: `duplicated(var_lengths)` is as long as `var_list`, and
+    # indexing the shorter `var_list_gt1` with it dropped whichever elements
+    # happened to line up with a repeated length-1 argument -- usually none of
+    # them, so the deduplication did nothing at all. Two arguments that were
+    # both length 2 then counted as two distinct lengths and raised an error
+    # about having to be the same length, which they already were.
+    length_dup <- duplicated(var_lengths[var_lengths > 1L])
     var_list_gt1 <- var_list_gt1[!length_dup]
     var_names_gt1 <- var_names_gt1[!length_dup]
 
@@ -766,44 +775,6 @@ check_tibble <- function(data) {
     message = c("!" = "`data` must be a tibble.", msg_what_it_is),
     call = rlang::caller_env()
   )
-}
-
-
-#' Check that `rounding` values for two procedures are not mixed
-#'
-#' @description In `reround()` and the many functions that call it internally,
-#'   valid specifications of the `rounding` argument include the following:
-#'
-#' - `"up_or_down"` (the default)
-#' - `"up_from_or_down_from"`
-#' - `"ceiling_or_floor"`
-#'
-#'   If `rounding` includes any of these, it must not include any other values.
-#'   `check_rounding_singular()` is called within `reround()` if `rounding` has
-#'   length > 1 and throws an error if any of these strings are part of it.
-#'
-#' @param rounding String (length > 1).
-#' @param bad String (length 1). Any of `"up_or_down"` etc.
-#' @param good1,good2 String (length 1). Two singlular rounding procedures that
-#'   are combined in `bad`, and that can instead be specified individually;
-#'   like, e.g., `rounding = c("up", "down")`.
-#'
-#' @return No return value; might throw an error.
-#'
-#' @noRd
-check_rounding_singular <- function(rounding, bad, good1, good2) {
-  if (any(bad %in% rounding)) {
-    cli::cli_abort(
-      message = c(
-        "!" = "If `rounding` has length > 1, only single rounding procedures \\
-        are supported, such as \"{good1}\" and \"{good2}\".",
-        "x" = "`rounding` was given as \"{bad}\" plus others.",
-        "i" = "You can still concatenate multiple of them; just leave out \\
-        those with \"_or_\"."
-      ),
-      call = rlang::caller_env()
-    )
-  }
 }
 
 
@@ -1614,6 +1585,54 @@ rounding_tolerance <- .Machine$double.eps^0.5 / 10
 
 tie_offset <- function(threshold) {
   1 - (threshold / 10) + rounding_tolerance
+}
+
+
+# The `"ties_*"` rounding strings each name a complete tie-breaking procedure,
+# so one of them says by itself what `rounding` plus `symmetric` says together.
+# `reround()` and `rounding_offsets()` both resolve them through this one table,
+# which is what keeps the forward functions and the bounds from disagreeing
+# about what a name means.
+#
+# `symmetric` is deliberately not consulted for them. The procedure is already
+# fully determined by the name, and a `"ties_away"` that a separate argument
+# could turn into something else would defeat the point of naming it.
+
+# fmt: skip
+ties_methods <- list(
+  ties_up   = list(rounding = "up",   symmetric = FALSE),  # toward +Inf
+  ties_down = list(rounding = "down", symmetric = FALSE),  # toward -Inf
+  ties_away = list(rounding = "up",   symmetric = TRUE),   # roundTiesToAway
+  ties_zero = list(rounding = "down", symmetric = TRUE)    # toward zero
+)
+
+# The two procedures that a compound rounding method is made of, or the method
+# itself if it is not a compound one. `reround()` returns one value per input
+# value for a single procedure and two -- interleaved -- for a compound one, so
+# a caller that wants to keep working on each of those branches separately needs
+# to know which procedure produced it.
+
+rounding_constituents <- function(rounding) {
+  # fmt: skip
+  switch(
+    rounding,
+    "up_or_down"           = c("up", "down"),
+    "up_from_or_down_from" = c("up_from", "down_from"),
+    "ceiling_or_floor"     = c("ceiling", "floor"),
+    rounding
+  )
+}
+
+
+resolve_ties_rounding <- function(rounding, symmetric) {
+  # `[[` on a list matches exactly, so a `rounding` of "up" is not caught by
+  # "ties_up" here:
+  spec <- ties_methods[[rounding]]
+  if (is.null(spec)) {
+    list(rounding = rounding, symmetric = symmetric)
+  } else {
+    spec
+  }
 }
 
 

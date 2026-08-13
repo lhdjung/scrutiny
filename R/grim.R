@@ -60,11 +60,10 @@ grim_scalar <- function(
   )
 
   # `x` is GRIM-consistent if at least one integer sum falls into that range.
-  # (For every rounding method that maps `x_num` to itself -- i.e. all of them
-  # except `"anti_trunc"` -- this is equivalent to the classic formulation in
-  # terms of the two granules below: the range then contains `rec_sum`, so
-  # whenever it is wide enough to contain an integer at all, it also contains
-  # one of the two integers closest to `rec_sum`.)
+  # (Every rounding method maps `x_num` to itself, so this is equivalent to the
+  # classic formulation in terms of the two granules below: the range contains
+  # `rec_sum`, so whenever it is wide enough to contain an integer at all, it
+  # also contains one of the two integers closest to `rec_sum`.)
   consistency <- sums_consistent[1L] <= sums_consistent[2L]
 
   if (!show_rec) {
@@ -109,8 +108,9 @@ grim_scalar <- function(
   # granules, re-rounded, in four columns for the "_or_" rounding methods and
   # two for the others. That was a second, parallel derivation of the verdict,
   # left behind when the verdict itself moved to exact integer arithmetic, and
-  # for `rounding = "anti_trunc"` it could contradict the `consistency` column
-  # it was meant to explain. The deciding numbers cannot contradict it.
+  # under the `rounding = "anti_trunc"` of the time it could contradict the
+  # `consistency` column it was meant to explain. The deciding numbers cannot
+  # contradict it.
   list(
     consistency,
     rec_sum,
@@ -180,8 +180,7 @@ grim_scalar <- function(
 #'
 #' @return Logical. `TRUE` if `x`, `n`, and `items` are mutually consistent,
 #'   `FALSE` if not, and `NA` if the case cannot be decided: if any of the
-#'   values is missing, or if the rounding bounds are undefined, which only
-#'   `rounding = "anti_trunc"` at zero is.
+#'   values is missing, or if `n` leaves nothing to test.
 #'
 #' @seealso [`grim_map()`] applies `grim()` to any number of cases at once.
 #'

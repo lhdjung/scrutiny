@@ -67,8 +67,8 @@ grim_values_scalar <- function(
   )
   sums <- parts$sums
 
-  # The bounds are undefined -- as with `rounding = "anti_trunc"` at zero -- so
-  # consistency is undecidable, and so is the set of achievable means:
+  # The bounds are undefined -- as with a missing `x` -- so consistency is
+  # undecidable, and so is the set of achievable means:
   if (anyNA(sums)) {
     return(NA_real_)
   }

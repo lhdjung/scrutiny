@@ -119,6 +119,14 @@ rounding_offsets <- function(rounding, threshold, x_num, symmetric = FALSE) {
     x_num <- 1
   }
 
+  # A `"ties_*"` string names a complete tie-breaking procedure, so it stands in
+  # for a `rounding` and a `symmetric` together. `reround()` resolves it through
+  # the same table, which is what keeps the bounds below in step with the
+  # rounding functions they invert:
+  spec <- resolve_ties_rounding(rounding, symmetric)
+  rounding <- spec$rounding
+  symmetric <- spec$symmetric
+
   # The parameterized methods are the ones that `threshold` applies to, so they
   # are the ones that validate it -- as in `reround()`, and for the same reason:
   # a threshold outside `(0, 10)` makes one of the two directions unreachable,
@@ -155,13 +163,18 @@ rounding_offsets <- function(rounding, threshold, x_num, symmetric = FALSE) {
       list(-10, 10,  FALSE, FALSE)
     }
   } else if (rounding == "anti_trunc") {
+    # `anti_trunc()` is `round_ceiling()` above zero and `round_floor()` below
+    # it, so it takes those bounds. At zero it is neither: every non-zero value,
+    # however small, is taken away from zero to the next step out, so the only
+    # value reported as zero is zero itself. That degenerate range is a real
+    # answer rather than a missing one -- a mean reported as 0.00 under this
+    # method really does pin the sum to exactly 0.
     offsets <- if (x_num > 0) {
-      list(-10, 0,   TRUE,  FALSE)
+      list(-10, 0,   FALSE, TRUE)
     } else if (x_num < 0) {
-      list(0,   10,  FALSE, TRUE)
+      list(0,   10,  TRUE,  FALSE)
     } else {
-      # `anti_trunc` is undefined for zero, just as in `unround()`:
-      list(NA, NA, NA, NA)
+      list(0,   0,   TRUE,  TRUE)
     }
   } else if (rounding == "up_from_or_down_from") {
     # The union of the two constituent intervals. Which one supplies each
@@ -228,8 +241,8 @@ rounding_offsets <- function(rounding, threshold, x_num, symmetric = FALSE) {
 # it has `digits` decimal places -- so both bounds have exact integer numerators
 # over `10^(digits + 1)`.
 #
-# Returns `NULL` if the bounds are undefined (as with `"anti_trunc"` and a zero
-# `x_num`), and throws an error if `rounding` is not a known method.
+# Returns `NULL` if the bounds are undefined, which now happens only for a
+# missing `x_num`, and throws an error if `rounding` is not a known method.
 
 bound_numerators <- function(x_num, digits, rounding, threshold, symmetric) {
   offsets <- rounding_offsets(rounding, threshold, x_num, symmetric)
@@ -266,14 +279,6 @@ bound_numerators <- function(x_num, digits, rounding, threshold, symmetric) {
   incl_lower <- offsets[[3L]]
   incl_upper <- offsets[[4L]]
 
-  # `anti_trunc()` sends zero away from zero in the positive direction, so a
-  # negative `x_num` whose upper bound is exactly zero cannot claim it: zero
-  # anti-truncates to `+1` unit, not to `-1` unit. This is the one bound that
-  # does not follow from the sign of `x_num` alone.
-  if (rounding == "anti_trunc" && x_num < 0 && upper == 0) {
-    incl_upper <- FALSE
-  }
-
   list(
     lower = lower,
     upper = upper,
@@ -288,7 +293,7 @@ bound_numerators <- function(x_num, digits, rounding, threshold, symmetric) {
 # bounds of `x_num`, which has `digits` decimal places. Returns a length-2
 # numeric vector, `c(lower, upper)`; if the first element is greater than the
 # second, no consistent sum exists. Both elements are `NA` if the rounding
-# bounds are undefined (as with `"anti_trunc"` and a zero `x_num`).
+# bounds are undefined, i.e. if `x_num` is missing.
 
 sum_range <- function(
   x_num,
@@ -478,8 +483,12 @@ sum_squares_scale_max <- function(s, n, val_lower, val_upper) {
 #'   | \strong{Value of `rounding`}           | \strong{Corresponding range} |
 #'   | ---                                    | ---                          |
 #'   | `"up_or_down"` (default)               | `lower <= x <= upper`        |
-#'   | `"up"`                                 | `lower <= x < upper`         |
-#'   | `"down"`                               | `lower < x <= upper`         |
+#'   | `"up"`, `"ties_up"`                    | `lower <= x < upper`         |
+#'   | `"down"`, `"ties_down"`                | `lower < x <= upper`         |
+#'   | `"ties_away"` (positive `x`)           | `lower <= x < upper`         |
+#'   | `"ties_away"` (negative `x`)           | `lower < x <= upper`         |
+#'   | `"ties_zero"` (positive `x`)           | `lower < x <= upper`         |
+#'   | `"ties_zero"` (negative `x`)           | `lower <= x < upper`         |
 #'   | `"even"`                               | `lower <= x <= upper`        |
 #'   | `"ceiling"`                            | `lower < x = upper`          |
 #'   | `"floor"`                              | `lower = x < upper`          |
@@ -487,9 +496,9 @@ sum_squares_scale_max <- function(s, n, val_lower, val_upper) {
 #'   | `"trunc"` (positive `x`)               | `lower = x < upper`          |
 #'   | `"trunc"` (negative `x`)               | `lower < x = upper`          |
 #'   | `"trunc"` (zero `x`)                   | `lower < x < upper`          |
-#'   | `"anti_trunc"` (positive `x`)          | `lower = x < upper`          |
-#'   | `"anti_trunc"` (negative `x`)          | `lower < x = upper`          |
-#'   | `"anti_trunc"` (zero `x`)              | (undefined; `NA`)            |
+#'   | `"anti_trunc"` (positive `x`)          | `lower < x = upper`          |
+#'   | `"anti_trunc"` (negative `x`)          | `lower = x < upper`          |
+#'   | `"anti_trunc"` (zero `x`)              | `lower = x = upper` (all `0`)|
 #'   | `"up_from"`                            | `lower <= x < upper`         |
 #'   | `"down_from"`                          | `lower < x <= upper`         |
 #'   | `"up_from_or_down_from"`               | (depends on `threshold`)     |
@@ -498,6 +507,12 @@ sum_squares_scale_max <- function(s, n, val_lower, val_upper) {
 #'   [`grimmer()`] use to derive their candidate ranges, so `unround()` accepts
 #'   exactly the rounding methods those tests do, and `threshold` and
 #'   `symmetric` mean the same thing everywhere.
+#'
+#'   The four `"ties_*"` methods each name a complete tie-breaking procedure,
+#'   so they say by themselves what `rounding` and `symmetric` say together:
+#'   `"ties_up"` is `"up"` with `symmetric = FALSE`, `"ties_away"` is `"up"`
+#'   with `symmetric = TRUE`, and likewise for `"ties_down"` and `"ties_zero"`.
+#'   `symmetric` is not consulted for them. See [`round_ties_up()`].
 #'
 #'   Note that `threshold` applies only to `"up_from"`, `"down_from"`, and
 #'   `"up_from_or_down_from"`. The plain `"up"`, `"down"`, and `"up_or_down"`
@@ -644,8 +659,8 @@ unround <- function(
     )
   })
 
-  # `bound_numerators()` returns `NULL` where the bounds are undefined, as with
-  # `"anti_trunc"` and a zero `x`:
+  # `bound_numerators()` returns `NULL` where the bounds are undefined, which is
+  # the case for a missing `x`:
   extract <- function(name, na_value) {
     vapply(
       bounds,

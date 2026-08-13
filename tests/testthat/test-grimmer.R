@@ -738,27 +738,27 @@ test_that("`symmetric` is passed on to the GRIM stage", {
 
 test_that("GRIMMER returns `NA` where GRIM itself is undecidable", {
   # GRIMMER runs GRIM first and branches on its verdict, which is `NA` where the
-  # mean's rounding bounds are undefined -- `"anti_trunc"` is the one method
-  # with none at zero -- and where `n` leaves nothing to test. The branch used
-  # to fail on the `NA` with "missing value where TRUE/FALSE needed" instead of
-  # passing it on. `debit()` has the same test.
-  expect_na(grim(0, n = 40, digits_x = 2, rounding = "anti_trunc"))
+  # mean's rounding bounds are undefined -- as with a missing mean -- and where
+  # `n` leaves nothing to test. The branch used to fail on the `NA` with
+  # "missing value where TRUE/FALSE needed" instead of passing it on. `debit()`
+  # has the same test. (Until `anti_trunc()` stopped sending zero away from
+  # zero, `rounding = "anti_trunc"` at a mean of zero was a second such case.)
+  expect_na(grim(NA, n = 40, digits_x = 2))
   expect_na(
-    grimmer(
-      x = 0, sd = 0.41, n = 40, digits_x = 2, digits_sd = 2,
-      rounding = "anti_trunc"
-    )
+    grimmer(x = NA, sd = 0.41, n = 40, digits_x = 2, digits_sd = 2)
   )
   expect_na(grimmer(x = 1.03, sd = 0.41, n = 0, digits_x = 2, digits_sd = 2))
 
   # The reason names the stage the case got stuck at, the way the reason for an
   # undecidable SD does. It must not read as a GRIM *inconsistency*, which
   # `audit()` counts by matching that string:
+  # (A missing `x` would be reported as `"Missing value"` by the mapper, which
+  # screens for missingness ahead of the test, so the vehicle here is an `n`
+  # that leaves nothing to test.)
   out <- grimmer_map(
-    tibble::tibble(x = c(0, 1.03), sd = c(0.41, 0.41), n = c(40L, 40L)),
+    tibble::tibble(x = c(1.03, 1.03), sd = c(0.41, 0.41), n = c(0L, 40L)),
     digits_x = 2,
     digits_sd = 2,
-    rounding = "anti_trunc",
     show_reason = TRUE
   )
   out$consistency |> expect_equal(c(NA, FALSE))

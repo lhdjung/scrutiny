@@ -145,9 +145,9 @@ debit_scalar <- function(
     symmetric = symmetric
   )
 
-  # The only rounding method with undefined bounds is `"anti_trunc"`, and only
-  # at zero. Consistency is then undecidable, just as it is for `grim_scalar()`
-  # and `grimmer_scalar()` in the same situation:
+  # The bounds are undefined for a missing value, and consistency is then
+  # undecidable, just as it is for `grim_scalar()` and `grimmer_scalar()` in the
+  # same situation:
   if (is.null(bounds_x) || is.null(bounds_sd)) {
     if (!show_rec) {
       return(NA)

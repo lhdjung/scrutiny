@@ -218,3 +218,40 @@ test_that("`check_type()` throws an error if the type is wrong", {
   norberts |> check_type("integer")   |> expect_error()
   nikes    |> check_type("logical")   |> expect_error()
 })
+
+
+# `check_lengths_congruent()` ---------------------------------------------
+
+test_that("`check_lengths_congruent()` accepts arguments of equal length", {
+  # Two arguments of the same length are congruent -- that is the whole point of
+  # the check -- so they warn about being paired but must not error. Up to
+  # scrutiny 1.0.0 they did error whenever a length-1 argument sat between them
+  # in the list, because the deduplication of lengths was indexed by the lengths
+  # of *all* arguments rather than of those longer than 1, and so silently did
+  # nothing. `reround_to_fraction(c(0.4, 0.6), denominator = 2, digits = c(1,
+  # 2))` hit exactly that.
+  a2 <- 1:2
+  b2 <- 3:4
+  s1 <- 1
+
+  expect_no_error(check_lengths_congruent(list(a2, b2, s1)) |> suppressWarnings())
+  expect_no_error(
+    check_lengths_congruent(list(a2, s1, b2, s1, s1)) |> suppressWarnings()
+  )
+  expect_no_condition(check_lengths_congruent(list(a2, s1, s1)))
+  expect_no_condition(check_lengths_congruent(list(s1, s1, s1)))
+
+  # The pairing warning still fires for the congruent case:
+  expect_warning(check_lengths_congruent(list(a2, b2)))
+})
+
+test_that("`check_lengths_congruent()` rejects genuinely unequal lengths", {
+  a2 <- 1:2
+  b2 <- 3:4
+  c3 <- 1:3
+
+  expect_error(check_lengths_congruent(list(a2, c3)))
+  expect_error(check_lengths_congruent(list(a2, 1, c3, 1)))
+  # ...and it names the pair that actually disagrees, not the congruent one:
+  expect_error(check_lengths_congruent(list(a2, b2, c3)), regexp = "c3")
+})

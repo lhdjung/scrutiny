@@ -51,6 +51,13 @@ Two arguments modify these procedures:
 -   `symmetric` decides how ties in **negative** numbers are broken. It is not a technicality --- see the next section.
 -   `threshold` moves the point at which `"up_from"` and `"down_from"` switch direction. See `round_up_from()`.
 
+Finally, four options name a complete tie-breaking procedure, so that `symmetric` does not have to be given separately (and is ignored if it is):
+
+-   `"ties_up"` sends a tie to the higher number, `"ties_down"` to the lower one.
+-   `"ties_away"` sends a tie away from zero, `"ties_zero"` toward it.
+
+`"ties_up"` is `"up"` with `symmetric = FALSE`; `"ties_away"` is `"up"` with `symmetric = TRUE`. They exist because that translation is easy to get backwards, and because "up" means away from zero in Excel, Java, and Python --- but on the number line in scrutiny. The matching functions are `round_ties_up()`, `round_ties_down()`, `round_ties_away()`, and `round_ties_zero()`.
+
 ## Negative numbers: `symmetric`
 
 `symmetric` matters whenever your data contain negative values: difference scores, z-scores, effect sizes, temperature scales.
@@ -71,27 +78,36 @@ round_down(-2.5, symmetric = TRUE)
 
 **Most statistical software does the second thing.** Excel, SPSS, SAS, and Matlab all round `-2.5` to `-3`; in IEEE 754 terms this is *roundTiesToAway*. Stata is the exception --- see the table below. So if you set `rounding` to a single direction on data with negative values, you almost always want `symmetric = TRUE` as well.
 
+If you would rather not have to remember which way round that is, say it directly:
+
+```{r}
+round_ties_away(-2.5)   # Excel, SPSS, SAS, Matlab
+round_ties_up(-2.5)     # Stata
+```
+
 This only ever affects ties, and only in negative numbers. And note that under the default `rounding = "up_or_down"`, the range spans both settings, so `symmetric` cannot change a verdict there.
 
 ## Rounding at 5 in other software
 
 If the part cut off by rounding is exactly 5, how do these programs round --- and which scrutiny settings reconstruct them?
 
+The `rounding` and `symmetric` columns are one way to say it; the `"ties_*"` equivalent is in brackets.
+
 | Software | Function | `rounding` | `symmetric` | Note |
 |:---|:---|:---|:---|:---|
-| Excel | `ROUND()` | `"up"` | `TRUE` | [Absolute value is rounded, then the sign is reapplied](https://support.microsoft.com/en-us/office/round-a-number-f82b440b-689d-4221-b21e-38da99d33435) |
-| Excel | `ROUNDUP()` | (see below) | --- | Away from zero, *not* ceiling |
+| Excel | `ROUND()` | `"up"` (`"ties_away"`) | `TRUE` | [Absolute value is rounded, then the sign is reapplied](https://support.microsoft.com/en-us/office/round-a-number-f82b440b-689d-4221-b21e-38da99d33435) |
+| Excel | `ROUNDUP()` | `"anti_trunc"` | --- | Away from zero, *not* ceiling |
 | Excel | `ROUNDDOWN()` | `"trunc"` | --- | Toward zero |
 | Google Sheets | `ROUND()`, `ROUNDUP()`, `ROUNDDOWN()` | as Excel | as Excel | Follows Excel |
-| SPSS | [`RND()`](https://www.ibm.com/docs/en/spss-statistics/latest?topic=expressions-arithmetic-functions) | `"up"` | `TRUE` | Ties away from zero; the fuzz is user-settable (`SET FUZZBITS`) |
+| SPSS | [`RND()`](https://www.ibm.com/docs/en/spss-statistics/latest?topic=expressions-arithmetic-functions) | `"up"` (`"ties_away"`) | `TRUE` | Ties away from zero; the fuzz is user-settable (`SET FUZZBITS`) |
 | SPSS | `TRUNC()` | `"trunc"` | --- | |
-| SAS | [`ROUND()`](https://documentation.sas.com/doc/en/pgmsascdc/9.4_3.5/lefunctionsref/p0tj6cmga7p8qln1ejh6ebevm0c9.htm) | `"up"` | `TRUE` | "Rounds up the absolute value and restores the original sign", with fuzzing |
+| SAS | [`ROUND()`](https://documentation.sas.com/doc/en/pgmsascdc/9.4_3.5/lefunctionsref/p0tj6cmga7p8qln1ejh6ebevm0c9.htm) | `"up"` (`"ties_away"`) | `TRUE` | "Rounds up the absolute value and restores the original sign", with fuzzing |
 | SAS | `ROUNDE()`, `ROUNDZ()` | `"even"` | --- | `ROUNDE()` fuzzes, `ROUNDZ()` does not |
-| Matlab | [`round()`](https://www.mathworks.com/help/matlab/ref/double.round.html) | `"up"` | `TRUE` | "Rounds away from zero to the nearest integer with larger magnitude"; a `TieBreaker` option overrides this |
-| Stata | [`round()`](https://www.stata.com/manuals/fnmathematicalfunctions.pdf) | `"up"` | `FALSE` | "x is always rounded up to the larger value \[...\] `round(-4.5)` is −4" |
+| Matlab | [`round()`](https://www.mathworks.com/help/matlab/ref/double.round.html) | `"up"` (`"ties_away"`) | `TRUE` | "Rounds away from zero to the nearest integer with larger magnitude"; a `TieBreaker` option overrides this |
+| Stata | [`round()`](https://www.stata.com/manuals/fnmathematicalfunctions.pdf) | `"up"` (`"ties_up"`) | `FALSE` | "x is always rounded up to the larger value \[...\] `round(-4.5)` is −4" |
 | R (>= 4.0.0) | [`round()`](https://rpubs.com/maechler/Rounding) | `"even"` | --- | Measures which neighbor is closer on the binary double |
 | Python | [`round()`](https://docs.python.org/3/library/functions.html#round) | `"even"` | --- | Same idea as R |
-| Python | [`decimal`](https://docs.python.org/3/library/decimal.html) `ROUND_HALF_UP` | `"up"` | `TRUE` | In this vocabulary, "up" means away from zero |
+| Python | [`decimal`](https://docs.python.org/3/library/decimal.html) `ROUND_HALF_UP` | `"up"` (`"ties_away"`) | `TRUE` | In this vocabulary, "up" means away from zero |
 | NumPy | [`np.round()`](https://numpy.org/doc/stable/reference/generated/numpy.round.html) | `"even"` | --- | |
 
 Three things this table is worth reading for:
@@ -100,7 +116,7 @@ Three things this table is worth reading for:
 
 **"Rounding up" means two different things.** Excel's `ROUNDUP()` and Google Sheets' `ROUNDUP()` round *away from zero*: `ROUNDUP(-3.14159, 1)` is `-3.2`. That is not scrutiny's `"ceiling"`, which would give `-3.1`. For positive numbers the two coincide, which is why the confusion survives so easily. The same holds in reverse for `ROUNDDOWN()`, which is scrutiny's `"trunc"`, not `"floor"`.
 
-scrutiny's `"anti_trunc"` is the closest match to `ROUNDUP()`, but it is not an exact one: it moves a value away from zero even when that value already sits on the rounding grid, so `round_anti_trunc(8.42, digits = 2)` is `8.43` where Excel's `ROUNDUP(8.42, 2)` is `8.42`. Use `"ceiling_or_floor"` if you need a range that safely contains `ROUNDUP()`.
+scrutiny's `"anti_trunc"` is `ROUNDUP()`, and `"trunc"` is `ROUNDDOWN()`. The same pair appears as Java's `RoundingMode.UP` and `DOWN`, and as Python's `decimal.ROUND_UP` and `ROUND_DOWN`. Up to scrutiny 1.0.0 the match was inexact --- `round_anti_trunc()` moved a value away from zero even when it already sat on the rounding grid, so `round_anti_trunc(8.42, digits = 2)` was `8.43` where `ROUNDUP(8.42, 2)` is `8.42` --- but it no longer is.
 
 **Several programs fuzz, and so does scrutiny.** SAS's `ROUND()` performs "extra computations, called fuzzing, to try to make the result agree with decimal arithmetic", and SPSS exposes the same idea as a user setting. scrutiny's rounding functions do this too, nudging a value by about `1.5e-9` so that `round_up(0.145, 2)` is `0.15` rather than `0.14`. This is deliberate: the software being reconstructed displayed `0.145` from the very same inexact double. See the `Floating-point tolerance` section of `round_up()`.
 
@@ -114,4 +130,8 @@ For consistency testing this is handled rather than guessed: with `rounding = "e
 
 ## A note on scrutiny's names
 
-scrutiny's `"up"` means *half*-up: numbers are rounded up only from 5, not from any lower value. In Excel and in ordinary speech, "rounding up" means what scrutiny calls `"ceiling"`. `janitor::round_half_up()` is a more explicit precedent, and the mismatch is a known wart --- for now, read `"up"` and `"down"` as short for "up from 5" and "down from 5".
+scrutiny's `"up"` means *half*-up: numbers are rounded up only from 5, not from any lower value. In Excel and in ordinary speech, "rounding up" means what scrutiny calls `"ceiling"`. Read `"up"` and `"down"` as short for "up from 5" and "down from 5".
+
+The `"ties_*"` options and the `round_ties_*()` functions were added because of this. They are not a rename: `round_up()` and the `"up"` string keep working exactly as before, and neither is deprecated. What the new names buy is that the procedure is stated rather than implied.
+
+A note on why they are not called `round_half_up()` and friends, which would be the obvious choice given `janitor::round_half_up()`. That function is *roundTiesToAway* --- `janitor::round_half_up(-2.5)` is `-3` --- so a scrutiny function of the same name meaning ties-toward-`+Inf` would take the same arguments and give the opposite answer, with the attach order of `library()` deciding silently which one ran. Nor is janitor an outlier: in Java's `RoundingMode.HALF_UP`, Python's `decimal.ROUND_HALF_UP`, and .NET's `MidpointRounding.AwayFromZero`, "half up" already means away from zero, because "up" in that vocabulary means away from zero. `"ties_away"` says which one it is in any of these vocabularies.

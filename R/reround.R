@@ -26,8 +26,8 @@ interleave_pair <- function(first, second) {
 
 # Despite the name, this is vectorized over `x` and `digits` -- every rounding
 # function it dispatches to is. It is scalar in `rounding`, `threshold`, and
-# `symmetric`, which is why `reround()` still vectorizes it for the rare call
-# that varies those.
+# `symmetric`, which `reround()` enforces before calling it. The name is a
+# leftover from when `reround()` wrapped it in `Vectorize()`.
 
 reconstruct_rounded_numbers_scalar <- function(
   x,
@@ -77,12 +77,6 @@ reconstruct_rounded_numbers_scalar <- function(
     ))
   )
 }
-
-
-reconstruct_rounded_numbers <- Vectorize(
-  reconstruct_rounded_numbers_scalar,
-  USE.NAMES = FALSE
-)
 
 
 #' General interface to reconstructing rounded numbers
@@ -150,60 +144,46 @@ reround <- function(
   threshold = 5,
   symmetric = FALSE
 ) {
-  # The overwhelmingly common case is a single rounding procedure applied to a
-  # whole vector of values -- that is what every consistency test does, once per
-  # candidate value per row. Every `round_*()` function is natively vectorized,
-  # so only the dispatch below has to be scalar, and it can be done once instead
-  # of once per element:
+  # The last three arguments describe one rounding procedure; `x` is the vector.
+  # Up to scrutiny 1.0.0 they could each be vectors of their own, which meant
+  # dispatching once per element of `x` through `Vectorize()`, plus a set of
+  # checks -- `check_rounding_singular()` and a length-congruence check -- for
+  # the ways in which such a call can be malformed. No consistency test ever
+  # made one, and pairing values with procedures by position is confusing enough
+  # that `unround()`, which keeps that behavior for its display use case, warns
+  # about it in its own documentation:
   if (
-    length(rounding) == 1L &&
-      length(threshold) == 1L &&
-      length(symmetric) == 1L
+    length(rounding) != 1L ||
+      length(threshold) != 1L ||
+      length(symmetric) != 1L
   ) {
-    return(`attributes<-`(
-      reconstruct_rounded_numbers_scalar(
-        x,
-        digits,
-        rounding,
-        threshold,
-        symmetric
-      ),
-      NULL
+    cli::cli_abort(c(
+      "`rounding`, `threshold`, and `symmetric` must each have length 1.",
+      "x" = "They have lengths {length(rounding)}, {length(threshold)}, \\
+      and {length(symmetric)}.",
+      "i" = "They describe a single rounding procedure, which is then applied \\
+      to all of `x`.",
+      "i" = "To compare procedures, call `reround()` once per procedure. \\
+      `unround()` is vectorized over `rounding` if you need the bounds."
     ))
   }
 
-  # For calls with multiple rounding procedures, each individual procedure needs
-  # to be singular; i.e., `rounding` can either be (1) a string vector of length
-  # 1 indicating two procedures, such as `"up_or_down"`; or (2) a string vector
-  # of any length with values such as `"up"` or `"even"`, but not
-  # `"up_or_down"`:
-  if (length(rounding) > 1L) {
-    check_rounding_singular(rounding, "up_or_down", "up", "down")
-    check_rounding_singular(
-      rounding,
-      "up_from_or_down_from",
-      "up_from",
-      "down_from"
-    )
-    check_rounding_singular(rounding, "ceiling_or_floor", "ceiling", "floor")
-    # Throw an error if the lengths of the first two arguments are inconsistent:
-    if (length(x) > 1L && length(x) != length(rounding)) {
-      cli::cli_abort(c(
-        "!" = "`x` and `rounding` must have the same length \\
-      unless either has length 1.",
-        "i" = "`x` has length {length(x)}.",
-        "i" = "`rounding` has length {length(rounding)}."
-      ))
-    }
-  }
+  # A `"ties_*"` string names a complete procedure, so it stands in for a
+  # `rounding` and a `symmetric` together. `rounding_offsets()` resolves it
+  # through the same table:
+  spec <- resolve_ties_rounding(rounding, symmetric)
 
-  # Go through the rounding options and, once the correct option (as per
-  # `rounding`) has been found, proceed as described in the `Details` section of
-  # the documentation. To vectorize the arguments, this is done via the helper
-  # function at the top of the present file. Finally, attributes are removed.
-  # This is because the helper returns a matrix structure.
+  # Every `round_*()` function is natively vectorized, so only the dispatch is
+  # scalar, and it happens once for the whole of `x`. Attributes are dropped so
+  # that the return value is a bare numeric vector whatever `x` carried:
   `attributes<-`(
-    reconstruct_rounded_numbers(x, digits, rounding, threshold, symmetric),
+    reconstruct_rounded_numbers_scalar(
+      x,
+      digits,
+      spec$rounding,
+      threshold,
+      spec$symmetric
+    ),
     NULL
   )
 }

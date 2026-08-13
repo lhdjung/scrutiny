@@ -347,6 +347,14 @@ grim_plot <- function(
       rounding_id <- dc[stringr::str_detect(dc, "^scrutiny_rounding_")]
       rounding_id <- stringr::str_remove(rounding_id, "^scrutiny_rounding_")
 
+      # The rasters are precomputed under the names of the `rounding` methods
+      # that existed when they were generated, so the `"ties_*"` methods have to
+      # be resolved back to those. The plot's y-axis is the fractional part of a
+      # mean, which is never negative, and `symmetric` only ever affects
+      # negative numbers -- so `"ties_away"` and `"ties_up"` really do share the
+      # `"up"` raster here, and `"ties_zero"` and `"ties_down"` the `"down"` one:
+      rounding_id <- resolve_ties_rounding(rounding_id, FALSE)$rounding
+
       # Throw error if the specified rounding option is one of the few for which
       # no raster is available:
       if (

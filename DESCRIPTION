@@ -108,6 +108,7 @@ Collate:
     'rivets-plot-lines.R'
     'rivets-t-test.R'
     'rivets_new.R'
+    'round-ties.R'
     'rounding-bias.R'
     'row-to-colnames.R'
     'scrutiny-package.R'

@@ -36,12 +36,10 @@ Always round up, down, toward zero, or away from it:
 \item \code{round_ceiling()} always rounds up.
 \item \code{round_floor()} always rounds down.
 \item \code{round_trunc()} always rounds toward zero.
-\item \code{round_anti_trunc()} always rounds away from zero. Note that "always"
-is meant strictly: a value already sitting on the rounding grid is moved
-one step further away all the same, so \code{round_anti_trunc(8.42, digits =   2)} is \code{8.43}, and \code{0} itself is rounded to \code{1}. Excel's \code{ROUNDUP()},
-Java's \code{RoundingMode.UP}, and Python's \code{decimal.ROUND_UP} round away from
-zero in the weaker sense that leaves such a value where it is. Use
-\code{"ceiling_or_floor"} for a range that safely contains those.
+\item \code{round_anti_trunc()} always rounds away from zero. A value that already
+sits on the rounding grid stays where it is, and \code{0} stays \code{0}. This is
+what Excel's and Google Sheets' \code{ROUNDUP()}, Java's \code{RoundingMode.UP}, and
+Python's \code{decimal.ROUND_UP} do.
 \item \code{anti_trunc()} does not round but otherwise works like
 \code{round_anti_trunc()}.
 }
@@ -61,8 +59,7 @@ function presented here: \code{anti_trunc()} works like \code{trunc()} except it
 moves away from 0, rather than towards it. That is, whereas \code{trunc()}
 minimizes the absolute value of \code{x} (as compared to the other rounding
 functions), \code{anti_trunc()} maximizes it. \code{anti_trunc(x)} is therefore equal
-to \code{trunc(x)} \code{ + 1} if \code{x} is positive, and to \code{trunc(x) - 1} if \code{x} is
-negative.
+to \code{ceiling(x)} if \code{x} is positive, and to \code{floor(x)} if \code{x} is negative.
 
 \code{round_anti_trunc()}, then, generalizes \code{anti_trunc()} just as
 \code{round_ceiling()} generalizes \code{\link[=ceiling]{ceiling()}}, etc.
@@ -70,7 +67,8 @@ negative.
 Moreover, \code{round_trunc()} is equivalent to \code{round_floor()} for positive
 numbers and to \code{round_ceiling()} for negative numbers. The reverse is again
 true for \code{round_anti_trunc()}: It is equivalent to \code{round_ceiling()} for
-positive numbers and to \code{round_floor()} for negative numbers.
+positive numbers and to \code{round_floor()} for negative numbers. The two of
+them partition every value between them, with \code{0} going to both.
 
 Like \code{\link[=round_up]{round_up()}} and the other functions on that page, all of these
 nudge the value by about \code{1.5e-9} before rounding it, so that

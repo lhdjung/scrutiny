@@ -103,9 +103,13 @@
 #'
 #' @name rounding-common
 #'
-#' @seealso [`round_ceiling()`] always rounds up, [`round_floor()`] always
-#'   rounds down, [`round_trunc()`] always rounds toward 0, and
-#'   [`round_anti_trunc()`] always round away from 0.
+#' @seealso [`round_ties_up()`] and friends are these same four procedures
+#'   under names that say which is which, so that `symmetric` need not be
+#'   spelled out separately.
+#'
+#'   [`round_ceiling()`] always rounds up, [`round_floor()`] always rounds down,
+#'   [`round_trunc()`] always rounds toward 0, and [`round_anti_trunc()`] always
+#'   rounds away from 0.
 #'
 #' @examples
 #' # Both `round_up()` and `round_down()` work like

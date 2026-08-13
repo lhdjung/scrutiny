@@ -321,7 +321,11 @@ df8_n40_grim_ceiling_or_floor_exp <- c(t, f, t, t, t, t, f, t, f, f, t, f)
 df8_n40_grim_ceiling_exp <- c(f, f, t, f, f, t, f, t, f, f, t, f)
 df8_n40_grim_floor_exp <- c(t, f, f, t, t, f, f, f, f, f, t, f)
 df8_n40_grim_trunc_exp <- c(t, f, f, t, t, f, f, f, f, f, t, f)
-df8_n40_grim_anti_trunc_exp <- c(f, f, t, f, f, t, t, t, f, f, f, f)
+# Every `x` in `pigs1` is positive, and `round_anti_trunc()` is
+# `round_ceiling()` above zero, so the two must agree here. (Until
+# `anti_trunc()` stopped sending a value that is already on the rounding
+# grid one step further out, they came apart.)
+df8_n40_grim_anti_trunc_exp <- df8_n40_grim_ceiling_exp
 
 
 test_that("rounding specifications lead to the expected consistency
@@ -346,7 +350,11 @@ df8_n80_grim_ceiling_or_floor_exp <- c(t, t, t, t, t, t, t, t, t, t, t, t)
 df8_n80_grim_ceiling_exp <- c(t, t, t, t, t, t, f, t, t, t, t, t)
 df8_n80_grim_floor_exp <- c(t, f, t, t, t, t, t, t, f, f, t, f)
 df8_n80_grim_trunc_exp <- c(t, f, t, t, t, t, t, t, f, f, t, f)
-df8_n80_grim_anti_trunc_exp <- c(t, t, t, t, t, t, t, t, t, t, f, t)
+# Every `x` in `pigs1` is positive, and `round_anti_trunc()` is
+# `round_ceiling()` above zero, so the two must agree here. (Until
+# `anti_trunc()` stopped sending a value that is already on the rounding
+# grid one step further out, they came apart.)
+df8_n80_grim_anti_trunc_exp <- df8_n80_grim_ceiling_exp
 
 
 test_that("rounding specifications lead to the expected consistency

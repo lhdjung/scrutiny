@@ -28,9 +28,19 @@
 
 #' @include utils.R
 #'
-#' @return Numeric vector of the same length as `x` unless `rounding` is either
-#'   of `"up_or_down"`, `"up_from_or_down_from"`, and `"ceiling_or_floor"`. In
-#'   these cases, it will always have length 2.
+#' @return Numeric vector of the same length as `x`, except for the three
+#'   compound rounding methods `"up_or_down"`, `"up_from_or_down_from"`, and
+#'   `"ceiling_or_floor"`, which return two values per element of `x` -- the
+#'   result of each of their two constituent procedures -- so that the return
+#'   value has length `2 * length(x)`. As in [`reround()`], the two values of a
+#'   compound method stay next to each other.
+#'
+#'   (The length was previously documented as "always 2" for the compound
+#'   methods, which held only for an `x` of length 1. For a longer `x`, the two
+#'   procedures used to be *paired* with the elements of `x` instead of both
+#'   being applied to each of them, so `reround_to_fraction(c(0.4, 0.6),
+#'   denominator = 2)` returned two values, the first rounded up and the second
+#'   down. It now returns all four.)
 #'
 #' @export
 #'
@@ -102,23 +112,35 @@ reround_to_fraction <- function(
     ))
   }
 
+
+  # The compound methods used to be expanded into their two constituents here,
+  # because `reround()` took a vector of procedures and paired them with `x`.
+  # It no longer does -- it takes one procedure and applies it to all of `x` --
+  # and it has handled the compound strings itself all along, returning the two
+  # results per input value interleaved. Expanding them here now errors, and
+  # never did work for an `x` longer than 1 anyway: a length-2 `rounding` and a
+  # longer `x` failed the length-congruence check that `reround()` used to run.
+
+  # The `auto` option for `digits` is the same as in
+  # `janitor::round_to_fraction()`. It has to be resolved before the check
+  # below, which is numeric: `is.infinite("auto")` is `FALSE`, so the string
+  # went straight into `is_whole_number()` and failed there with "non-numeric
+  # argument to mathematical function". `reround_to_fraction_level()` has
+  # always had these two in this order.
+  if (identical(digits, "auto")) {
+    digits <- ceiling(log10(denominator)) + 1L
+  }
+
+  # Check whether `digits` values are whole numbers:
   if (!all(is.infinite(digits))) {
     digits_numeric <- digits[!is.infinite(digits)]
     if (!all(is_whole_number(digits_numeric))) {
       cli::cli_abort(c(
-        "!" = "Each `digit` value must be a whole number.",
+        "!" = "Each `digits` value must be a whole number.",
         "x" = "`digits` was given as \\
         {digits_numeric[!is_whole_number(digits_numeric)]}."
       ))
     }
-  }
-
-  if (any(rounding == "up_or_down")) {
-    rounding <- c("up", "down")
-  } else if (any(rounding == "up_from_or_down_from")) {
-    rounding <- c("up_from", "down_from")
-  } else if (any(rounding == "ceiling_or_floor")) {
-    rounding <- c("ceiling", "floor")
   }
 
   # Main part ---
@@ -133,25 +155,39 @@ reround_to_fraction <- function(
   )
   out <- out / denominator
 
-  # The `auto` option for `digits` is the same as in
-  # `janitor::round_to_fraction()`:
-  if (identical(digits, "auto")) {
-    digits <- ceiling(log10(denominator)) + 1L
-  }
-
   # Round all resulting values for which a number of digits has been specified
   # to that number of digits. This also proceeds as in `round_to_fraction()`,
-  # except for the rounding function and its arguments:
-  mask_inf_digits <- is.infinite(digits)
+  # except for the rounding function and its arguments.
+  #
+  # Two things complicate it. A compound rounding method leaves two values per
+  # input value in `out`, interleaved, so `digits` -- which has one value per
+  # input value -- has to be spread over them to line up. And each of the two
+  # branches has to stay on its own procedure here, so that the value rounded up
+  # in the step above goes on being rounded up and the one rounded down goes on
+  # being rounded down. Re-applying the compound method itself would instead
+  # double the values a second time.
+  if (!all(is.infinite(digits))) {
+    procedures <- rounding_constituents(rounding)
+    n_branches <- length(procedures)
 
-  if (!all(mask_inf_digits)) {
-    out[!mask_inf_digits] <- reround(
-      out,
-      digits = digits,
-      rounding = rounding,
-      threshold = threshold,
-      symmetric = symmetric
+    digits <- rep(
+      rep_len(digits, length(out) %/% n_branches),
+      each = n_branches
     )
+    branch <- rep_len(seq_len(n_branches), length(out))
+
+    for (b in seq_len(n_branches)) {
+      i <- which(branch == b & !is.infinite(digits))
+      if (length(i) > 0L) {
+        out[i] <- reround(
+          x = out[i],
+          digits = digits[i],
+          rounding = procedures[b],
+          threshold = threshold,
+          symmetric = symmetric
+        )
+      }
+    }
   }
 
   out
@@ -210,13 +246,13 @@ reround_to_fraction_level <- function(
     }
   }
 
-  if (any(rounding == "up_or_down")) {
-    rounding <- c("up", "down")
-  } else if (any(rounding == "up_from_or_down_from")) {
-    rounding <- c("up_from", "down_from")
-  } else if (any(rounding == "ceiling_or_floor")) {
-    rounding <- c("ceiling", "floor")
-  }
+  # The compound methods used to be expanded into their two constituents here,
+  # because `reround()` took a vector of procedures and paired them with `x`.
+  # It no longer does -- it takes one procedure and applies it to all of `x` --
+  # and it has handled the compound strings itself all along, returning the two
+  # results per input value interleaved. Expanding them here now errors, and
+  # never did work for an `x` longer than 1 anyway: a length-2 `rounding` and a
+  # longer `x` failed the length-congruence check that `reround()` used to run.
 
   # Main part ---
 

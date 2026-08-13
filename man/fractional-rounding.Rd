@@ -45,9 +45,18 @@ of the number at the decimal level specified by \code{digits}. Default is \code{
 \code{\link[=reround]{reround()}}.}
 }
 \value{
-Numeric vector of the same length as \code{x} unless \code{rounding} is either
-of \code{"up_or_down"}, \code{"up_from_or_down_from"}, and \code{"ceiling_or_floor"}. In
-these cases, it will always have length 2.
+Numeric vector of the same length as \code{x}, except for the three
+compound rounding methods \code{"up_or_down"}, \code{"up_from_or_down_from"}, and
+\code{"ceiling_or_floor"}, which return two values per element of \code{x} -- the
+result of each of their two constituent procedures -- so that the return
+value has length \code{2 * length(x)}. As in \code{\link[=reround]{reround()}}, the two values of a
+compound method stay next to each other.
+
+(The length was previously documented as "always 2" for the compound
+methods, which held only for an \code{x} of length 1. For a longer \code{x}, the two
+procedures used to be \emph{paired} with the elements of \code{x} instead of both
+being applied to each of them, so \code{reround_to_fraction(c(0.4, 0.6), denominator = 2)} returned two values, the first rounded up and the second
+down. It now returns all four.)
 }
 \description{
 Two functions that round numbers to specific fractions, not just

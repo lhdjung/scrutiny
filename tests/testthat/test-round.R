@@ -204,9 +204,12 @@ test_that("`round_ceiling()` and `round_floor()` are exact at whole steps", {
   expect_equal(round_trunc(x, 2), x)
   expect_equal(round_trunc(-x, 2), -x)
 
-  # A value one unit below `x` anti-truncates to `x`, and `x` itself to one
-  # unit above it:
-  expect_equal(round_anti_trunc(x[-1] - 0.01, 2), x[-1])
+  # `round_anti_trunc()` leaves a value that is already on the grid where it is,
+  # and takes anything else to the next step away from zero:
+  expect_equal(round_anti_trunc(x, 2), x)
+  expect_equal(round_anti_trunc(-x, 2), -x)
+  expect_equal(round_anti_trunc(x[-1] - 0.005, 2), x[-1])
+  expect_equal(round_anti_trunc(-(x[-1] - 0.005), 2), -x[-1])
 
   # The individual cases that used to fail:
   expect_equal(round_ceiling(0.28, 2), 0.28)
@@ -234,4 +237,85 @@ test_that("all rounding functions share the same tolerance", {
   expect_equal(round_up(0.145, 2), 0.15)
   expect_equal(round_down(0.145, 2), 0.14)
   expect_equal(round_ceiling(0.145 - 0.005, 2), 0.14)
+})
+
+
+# Tie procedures named directly -------------------------------------------
+
+# `round_ties_*()` are the four combinations of `round_up()` / `round_down()`
+# with `symmetric`, under names that say which procedure they are. The point of
+# having them is that the translation is easy to get backwards, so the tests
+# below pin both halves: the equivalence, and the behavior itself.
+
+test_that("`round_ties_*()` are the `symmetric` combinations of up and down", {
+  x <- c(mid, -mid, seq(-999, 999) / 100, seq(-20, 20) / 8)
+  for (digits in 0:2) {
+    expect_equal(
+      round_ties_up(x, digits),
+      round_up(x, digits, symmetric = FALSE)
+    )
+    expect_equal(
+      round_ties_down(x, digits),
+      round_down(x, digits, symmetric = FALSE)
+    )
+    expect_equal(
+      round_ties_away(x, digits),
+      round_up(x, digits, symmetric = TRUE)
+    )
+    expect_equal(
+      round_ties_zero(x, digits),
+      round_down(x, digits, symmetric = TRUE)
+    )
+  }
+})
+
+test_that("`round_ties_*()` break ties as their names say", {
+  # Hand-computed, not taken from any scrutiny function:
+  expect_equal(round_ties_up(c(-2.5, -0.5, 0.5, 2.5)), c(-2, 0, 1, 3))
+  expect_equal(round_ties_down(c(-2.5, -0.5, 0.5, 2.5)), c(-3, -1, 0, 2))
+  expect_equal(round_ties_away(c(-2.5, -0.5, 0.5, 2.5)), c(-3, -1, 1, 3))
+  expect_equal(round_ties_zero(c(-2.5, -0.5, 0.5, 2.5)), c(-2, 0, 0, 2))
+
+  # Above zero, the two pairs collapse into each other:
+  expect_equal(round_ties_up(mid, 1), round_ties_away(mid, 1))
+  expect_equal(round_ties_down(mid, 1), round_ties_zero(mid, 1))
+})
+
+test_that("the `\"ties_*\"` strings mean the same as the functions", {
+  x <- c(mid, -mid, seq(-500, 500) / 100)
+  expect_equal(reround(x, 1, "ties_up"), round_ties_up(x, 1))
+  expect_equal(reround(x, 1, "ties_down"), round_ties_down(x, 1))
+  expect_equal(reround(x, 1, "ties_away"), round_ties_away(x, 1))
+  expect_equal(reround(x, 1, "ties_zero"), round_ties_zero(x, 1))
+})
+
+test_that("`symmetric` is ignored for the `\"ties_*\"` strings", {
+  # Each of them names a complete procedure, so a separate argument must not be
+  # able to turn it into a different one:
+  x <- c(mid, -mid)
+  for (symmetric in c(FALSE, TRUE)) {
+    expect_equal(
+      reround(x, 1, "ties_away", symmetric = symmetric),
+      round_ties_away(x, 1)
+    )
+    expect_equal(
+      reround(x, 1, "ties_up", symmetric = symmetric),
+      round_ties_up(x, 1)
+    )
+  }
+})
+
+test_that("`reround()` takes one rounding procedure, not a vector of them", {
+  # Vectorized `rounding`, `threshold`, and `symmetric` are gone: they describe
+  # a single procedure, and `x` is the vector. `unround()` keeps the behavior
+  # for its display use case.
+  expect_error(reround(c(1.5, 2.5), 0, c("up", "down")))
+  expect_error(reround(1.5, 0, "up_from", threshold = c(3, 7)))
+  expect_error(reround(1.5, 0, "up", symmetric = c(TRUE, FALSE)))
+  # (`unround()` warns about the pairing, which is the documented behavior.)
+  unround(c("1.5", "2.5"), rounding = c("up", "down")) |>
+    suppressWarnings() |>
+    suppressMessages() |>
+    nrow() |>
+    expect_equal(2L)
 })

@@ -235,9 +235,9 @@ grimmer_scalar <- function(
     tolerance = tolerance
   )
 
-  # GRIM itself can be undecidable -- with `rounding = "anti_trunc"` at a mean
-  # of zero, or with a non-positive `n` -- and then so is GRIMMER, which builds
-  # on it. The missing-value guard above catches only the other route to an `NA`
+  # GRIM itself can be undecidable -- with a non-positive `n` -- and then so is
+  # GRIMMER, which builds on it. The missing-value guard above catches only the
+  # other route to an `NA`
   # verdict, so this one has to be here rather than folded into it, and it has
   # to precede the branch below, which would fail on an `NA`:
   if (is.na(pass_grim)) {
@@ -267,9 +267,9 @@ grimmer_scalar <- function(
     symmetric = symmetric
   )
 
-  # The only rounding method with undefined bounds is `"anti_trunc"`, and only
-  # at zero, which it can never produce. Consistency is then undecidable, just
-  # as it is for `grim_scalar()` in the same situation:
+  # The bounds are undefined for a missing SD, which the guard above has already
+  # caught, so this is a belt-and-braces check on the same contract that
+  # `grim_scalar()` honors: no bounds, no verdict.
   if (is.null(sd_bounds)) {
     if (show_reason) {
       return(list(NA, "SD rounding bounds undefined"))
