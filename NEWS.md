@@ -32,6 +32,8 @@
 
 - `audit_seq()` now re-tests the reconstructed data with the same arguments as the original `*_map_seq()` call. Arguments that change verdicts but leave no trace in the output columns -- `percent`, `threshold`, `symmetric`, GRIMMER's `min_val` and `max_val` -- used to be silently dropped, which could flip the `consistency` column of the summary. The mapper output now records the replayable arguments in an attribute; for older output without it, `audit_seq()` falls back to the `digits_*` columns and the rounding class, as before.
 
+- `rounding_bias()` again throws an error for the compound rounding methods `"up_or_down"`, `"up_from_or_down_from"`, and `"ceiling_or_floor"`, as documented. The check had been lost, and since these methods return two rounded values per input value, the function silently returned twice as many "biases" as inputs (with `mean = FALSE`) or their meaningless average (by default).
+
 
 - `round_anti_trunc()` and `anti_trunc()` no longer move a value that already sits on the rounding grid one step further away from zero. `round_anti_trunc(8.42, digits = 2)` is now `8.42` rather than `8.43`, and `anti_trunc(0)` is `0` rather than `1`. The old behavior had no software behind it: Excel's and Google Sheets' `ROUNDUP()`, Java's `RoundingMode.UP`, and Python's `decimal.ROUND_UP` all round away from zero in the sense implemented now, where a value on the grid stays put.
 

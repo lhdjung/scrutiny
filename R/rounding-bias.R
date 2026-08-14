@@ -9,7 +9,9 @@
 #'
 #'   The function passes all arguments except for `mean` down to [`reround()`].
 #'   Other than there, however, `rounding` is `"up"` by default, and it can't be
-#'   set to `"up_or_down"`, `"up_from_or_down_from"`, or`"ceiling_or_floor"`.
+#'   set to `"up_or_down"`, `"up_from_or_down_from"`, or `"ceiling_or_floor"`:
+#'   these compound methods return two rounded values per input value, so no
+#'   single bias is defined for them.
 #'
 #' @param x Numeric or string coercible to numeric.
 #' @param digits Integer. Number of decimal digits to which `x` will be rounded.
@@ -62,6 +64,21 @@ rounding_bias <- function(
     threshold,
     symmetric
   ))
+
+  # A compound method makes `reround()` return two values per input value, so
+  # the subtraction below would recycle `x` across them and return twice as many
+  # "biases" as there are inputs, all of them meaningless.
+  if (
+    any(rounding == c("up_or_down", "up_from_or_down_from", "ceiling_or_floor"))
+  ) {
+    cli::cli_abort(c(
+      "`rounding` must be a single rounding procedure.",
+      "x" = "It is {wrong_spec_string(rounding)}.",
+      "i" = "The compound methods \"up_or_down\", \"up_from_or_down_from\", \\
+      and \"ceiling_or_floor\" each return two rounded values per input \\
+      value, so no single bias is defined for them."
+    ))
+  }
 
   # Main part ---
 
