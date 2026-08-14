@@ -32,6 +32,8 @@ Imports:
     ggplot2 (>= 3.4.0),
     ggrepel,
     glue,
+    grDevices,
+    grid,
     lifecycle,
     methods,
     purrr (>= 1.0.0),
@@ -40,7 +42,8 @@ Imports:
     stringr,
     tibble,
     tidyr,
-    tidyselect
+    tidyselect,
+    utils
 Collate: 
     'is-numeric-like.R'
     'import-reexport.R'
