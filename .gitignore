@@ -11,3 +11,5 @@ docs
 .claude/*
 Rplots.pdf
 tests/testthat/Rplots.pdf
+/.quarto/
+**/*.quarto_ipynb

@@ -23,3 +23,4 @@ R\.Rproj$
 ^\.vscode$
 ^\.positai$
 ^\.claude$
+^Rplots\.pdf$
