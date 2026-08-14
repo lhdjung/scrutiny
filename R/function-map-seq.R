@@ -368,8 +368,12 @@ function_map_seq <- function(
         }
       }
 
-      check_mapper_input_colnames(data, reported)
-      check_consistency_not_in_colnames(data, name_test)
+      # `name_test` is not optional: `check_mapper_input_colnames()` passes it
+      # on to `check_consistency_not_in_colnames()`, which names the test in its
+      # message. Leaving it out here made a `data` that already has a
+      # `consistency` column fail with cli's "Could not evaluate cli `{}`
+      # expression: `name_test`" instead of the message that says what is wrong.
+      check_mapper_input_colnames(data, reported, name_test)
 
       # First, basic testing with the `*_map()` function:
       data <- do.call(fun, c(list(data), .digits_vals, list(...)))
@@ -500,11 +504,13 @@ function_map_seq <- function(
       # `rlang::enexprs(...)`: the class string needs the argument's *value*.
       # (Capturing the expression only ever worked because the dots promises had
       # already been forced further up; `rounding = some_variable` would
-      # otherwise have pasted the variable's name into the class.)
+      # otherwise have pasted the variable's name into the class.) `[[` rather
+      # than `$`: the latter matches partially on a list, so an argument named
+      # `rounding_something` would have been read as `rounding`.
       dots <- list(...)
-      if (length(dots$rounding) > 0L) {
+      if (length(dots[["rounding"]]) > 0L) {
         class(out)[stringr::str_detect(class(out), "^scrutiny_rounding_")] <-
-          paste0("scrutiny_rounding_", dots$rounding)
+          paste0("scrutiny_rounding_", dots[["rounding"]])
       }
 
       # Record the arguments that reproduce the test, so that `audit_seq()` can

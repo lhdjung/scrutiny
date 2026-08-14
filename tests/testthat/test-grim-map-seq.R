@@ -1914,3 +1914,19 @@ test_that("`grim_map_seq()` applies `items` only once", {
   expect_equal(out_items$n, out_merged$n)
   expect_equal(out_items$consistency, out_merged$consistency)
 })
+
+
+test_that("sequence mappers name the test when `data` already has results", {
+  # `check_mapper_input_colnames()` passes `name_test` on to the check that
+  # produces this message. Leaving it out made cli fail on the missing argument
+  # instead, so the user saw "Could not evaluate cli `{}` expression".
+  data_tested <- grim_map(pigs1[1:3, ], digits_x = 2)
+  grim_map_seq(data_tested, digits_x = 2) |>
+    expect_error(regexp = "already includes a \"consistency\" column")
+  grimmer_map_seq(
+    grimmer_map(pigs5[1:3, ], digits_x = 2, digits_sd = 2),
+    digits_x = 2,
+    digits_sd = 2
+  ) |>
+    expect_error(regexp = "already includes a \"consistency\" column")
+})
