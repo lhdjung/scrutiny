@@ -126,7 +126,12 @@ audit_seq <- function(data) {
       # `which()` for the same reason as in the `dplyr::filter()` call above,
       # which drops undecidable cases rather than counting them as hits:
       purrr::map(function(x) x[which(x$consistency), ])
-    out[order(var_order)] |>
+    # `split()` returns its groups in alphabetical order, and the columns should
+    # follow the order of `var` instead. The permutation that undoes a sort is
+    # `rank()`, not `order()`: the two are inverses of each other, and they
+    # agree only up to three variables that happen not to form a cycle -- with
+    # `var = c("sd", "x", "n")` the columns came out in yet a third order.
+    out[rank(var_order)] |>
       purrr::map(function(x) x$diff_var)
   }
 

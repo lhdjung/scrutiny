@@ -139,3 +139,26 @@ test_that("changing `dispersion` in the sequence mapper is
     audit_seq() |>
     expect_equal(data_seq_grim_different_dispersion2)
 })
+
+
+test_that("`audit_seq()` orders its columns by `var`", {
+  # `split()` sorts its groups alphabetically, and undoing that sort takes
+  # `rank()`, not `order()`. The two are inverses of each other and agree only
+  # up to three variables that don't form a cycle.
+  out <- pigs5[1:3, ] |>
+    grimmer_map_seq(digits_x = 2, digits_sd = 2, var = c("sd", "x", "n")) |>
+    audit_seq()
+  grep("^hits_", colnames(out), value = TRUE) |>
+    expect_equal(c("hits_total", "hits_sd", "hits_x", "hits_n"))
+})
+
+
+test_that("`audit_seq()` results don't depend on the order of `var`", {
+  a <- pigs5[1:3, ] |>
+    grimmer_map_seq(digits_x = 2, digits_sd = 2) |>
+    audit_seq()
+  b <- pigs5[1:3, ] |>
+    grimmer_map_seq(digits_x = 2, digits_sd = 2, var = c("n", "x", "sd")) |>
+    audit_seq()
+  a[, sort(colnames(a))] |> expect_equal(b[, sort(colnames(b))])
+})
