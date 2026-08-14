@@ -453,8 +453,15 @@ function_map_total_n <- function(
         stringr::str_replace(temp, "2")
 
       # Bring the names with switched index portions back into the `data_back`
-      # tibble (because all of this switching is only for `data_back`):
-      names(data_back)[names(data_back) %in% cols_expected_back] <-
+      # tibble (because all of this switching is only for `data_back`). The
+      # renaming pairs each column with its counterpart by matching names, not
+      # by position: `cols_expected_forth` and `cols_expected_back` run in
+      # parallel, so the column named `cols_expected_forth[i]` becomes
+      # `cols_expected_back[i]` wherever it sits in `data`. (Assigning into the
+      # positions of a `%in%` subset, as before, silently skipped the swap
+      # whenever the key columns of `data` were not in the exact `x1, x2, sd1,
+      # sd2, ...` order.)
+      names(data_back)[match(cols_expected_forth, names(data_back))] <-
         cols_expected_back
 
       # Needed below for ordering:

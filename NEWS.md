@@ -26,6 +26,8 @@
 
 ## Bugfixes
 
+- `*_map_total_n()` functions now swap the two groups correctly whatever the column order of `data`. The swap that produces the `"back"` direction used to be silently skipped unless the key columns appeared in the exact `x1, x2, sd1, sd2, ...` order, in which case the `"back"` half of the output was a duplicate of the `"forth"` half labeled `"back"` -- and `audit_total_n()`'s `hits_back` counts were wrong accordingly.
+
 - `round_anti_trunc()` and `anti_trunc()` no longer move a value that already sits on the rounding grid one step further away from zero. `round_anti_trunc(8.42, digits = 2)` is now `8.42` rather than `8.43`, and `anti_trunc(0)` is `0` rather than `1`. The old behavior had no software behind it: Excel's and Google Sheets' `ROUNDUP()`, Java's `RoundingMode.UP`, and Python's `decimal.ROUND_UP` all round away from zero in the sense implemented now, where a value on the grid stays put.
 
   As a consequence, `rounding = "anti_trunc"` now agrees with `ROUNDUP()` for every value rather than for every non-grid value, so consistency verdicts under it can change. Also, `unround()` at zero returns a range instead of `NA`: since every non-zero value is taken away from zero, the only value that would be reported as zero is zero itself, so the range is the single point `0 <= x <= 0`. A mean reported as `0.00` therefore pins the sum to exactly `0`, and GRIM, GRIMMER, and DEBIT are decidable there rather than `NA`. Finally, no rounding method has undefined bounds any more; the only undecidable cases left are missing values and an `n` that leaves nothing to test.

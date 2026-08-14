@@ -81,3 +81,20 @@ test_that("Judging by a small sample, it has correct values", {
   df1_tested$n[1:6] |> expect_equal(vals_exp_n)
   df1_tested$consistency[1:6] |> expect_equal(vals_exp_consistency)
 })
+
+
+test_that("the column order of `data` makes no difference", {
+  # The key columns in reverse order. The "back" direction swaps the `y1` and
+  # `y2` values by renaming and reordering columns, and the swap used to be
+  # silently skipped -- returning "forth" results labeled "back" -- whenever
+  # the key columns were not in the exact `y1, y2` order:
+  df1_reversed <- df1[c("y2", "y1", "n")]
+  expect_identical(schlim_map_total_n(df1_reversed), df1_tested)
+})
+
+test_that("the \"back\" direction really swaps the group pairings", {
+  # `y1` values reappear as `y` in the "back" half's even rows (group 2), and
+  # `y2` values in its odd rows (group 1) -- the reverse of "forth":
+  expect_identical(unique(df1_tested_back$y[c(TRUE, FALSE)]), df1$y2)
+  expect_identical(unique(df1_tested_back$y[c(FALSE, TRUE)]), df1$y1)
+})
