@@ -14,10 +14,10 @@ grim_ratio(x, n, digits_x, items = 1, percent = FALSE)
 grim_total(x, n, digits_x, items = 1, percent = FALSE)
 }
 \arguments{
-\item{x}{String (length 1). Mean or percentage value computed from data with
-integer units, e.g., mean scores on a Likert scale or percentage of study
-participants in some condition. It has to be string to capture any trailing
-zeros.}
+\item{x}{Numeric. Mean or percentage value computed from data with integer
+units, e.g., mean scores on a Likert scale or percentage of study
+participants in some condition. Only the number of decimal places matters;
+see \code{digits_x}. The argument exists for compatibility with \code{\link[=grim]{grim()}}.}
 
 \item{n}{Integer. Sample size corresponding to \code{x}.}
 

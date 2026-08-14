@@ -19,10 +19,10 @@
 #'
 #'   For discussion, see `vignette("grim")`, section *GRIM statistics*.
 
-#' @param x String (length 1). Mean or percentage value computed from data with
-#'   integer units, e.g., mean scores on a Likert scale or percentage of study
-#'   participants in some condition. It has to be string to capture any trailing
-#'   zeros.
+#' @param x Numeric. Mean or percentage value computed from data with integer
+#'   units, e.g., mean scores on a Likert scale or percentage of study
+#'   participants in some condition. Only the number of decimal places matters;
+#'   see `digits_x`. The argument exists for compatibility with [`grim()`].
 #' @param digits_x Integer. The number of decimal places in `x`, including
 #'   trailing zeros. There is no default because it cannot be inferred from a
 #'   numeric `x`, which has no trailing zeros: both `1.4` and `1.40` are the
