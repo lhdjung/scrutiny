@@ -117,23 +117,6 @@ audit_seq <- function(data) {
     vapply(nrow, integer(1L), USE.NAMES = FALSE) |>
     unname()
 
-  if (is.null(dim(data))) {
-    fun_name <- class(data)[stringr::str_detect(class(data), "_map_seq$")]
-    fun_name <- fun_name[fun_name != "scrutiny_map_seq"]
-    fun_name <- stringr::str_remove(fun_name, "^scrutiny_")
-    fun <- find_fun_by_name(fun_name, env_caller)
-    msg_error <-
-      c("!" = "No values could be tested.")
-    if (any(names(formals(fun)) == "items")) {
-      msg_items <- c(
-        "x" = "Did you specify the `items` argument in `{fun_name}()` \\
-        as an unreasonably large number?"
-      )
-      msg_error <- append(msg_error, msg_items)
-    }
-    cli::cli_abort(msg_error)
-  }
-
   var_names <- unique(df_list[[1L]]$var)
 
   # Define some helper functions to be mapped below:
@@ -221,17 +204,17 @@ audit_seq <- function(data) {
     # columns and the rounding class are the settings that the output itself
     # records. Each `digits_*` column is constant, so the first value is
     # sufficient; the names match the argument names of `fun_test()`:
-  digits_cols <- grep("^digits_", colnames(data), value = TRUE)
+    digits_cols <- grep("^digits_", colnames(data), value = TRUE)
     args_replay <- lapply(
-    setNames(digits_cols, digits_cols),
-    function(col) data[[col]][[1L]]
-  )
-
-  fun_test_args <- c(list(data_rev), digits_args)
-  if (length(rounding) > 0L) {
-    fun_test_args$rounding <- rounding
+      setNames(digits_cols, digits_cols),
+      function(col) data[[col]][[1L]]
+    )
+    if (length(rounding) > 0L) {
+      args_replay$rounding <- rounding
+    }
   }
-  data_rev_tested <- do.call(fun_test, fun_test_args)
+
+  data_rev_tested <- do.call(fun_test, c(list(data_rev), args_replay))
 
   consistency <- data_rev_tested$consistency
 
