@@ -74,7 +74,7 @@ function_map_seq_proto <- function(
     df_var <- purrr::list_rbind(df_var)
 
     cols_for_testing_names <-
-      colnames(data)[1L:match("consistency", colnames(data)) - 1L]
+      colnames(data)[seq_len(match("consistency", colnames(data)) - 1L)]
 
     # Isolate the columns to be tested that are not the current `var` object:
     cols_for_testing_names_without_var <-
@@ -368,11 +368,6 @@ function_map_seq <- function(
         }
       }
 
-      args_excluded <- c(reported, args_disabled)
-
-      arg_list <- call_arg_list()
-      arg_list <- arg_list[!names(arg_list) %in% args_excluded]
-
       check_mapper_input_colnames(data, reported)
       check_consistency_not_in_colnames(data, name_test)
 
@@ -501,8 +496,12 @@ function_map_seq <- function(
 
       # Make sure the "rounding class" (i.e., `"scrutiny_rounding_*"`) has the
       # correct value. As this is not naturally guaranteed as in `*_map()`
-      # functions, it must be done by hand:
-      dots <- rlang::enexprs(...)
+      # functions, it must be done by hand. `list(...)` rather than
+      # `rlang::enexprs(...)`: the class string needs the argument's *value*.
+      # (Capturing the expression only ever worked because the dots promises had
+      # already been forced further up; `rounding = some_variable` would
+      # otherwise have pasted the variable's name into the class.)
+      dots <- list(...)
       if (length(dots$rounding) > 0L) {
         class(out)[stringr::str_detect(class(out), "^scrutiny_rounding_")] <-
           paste0("scrutiny_rounding_", dots$rounding)
