@@ -332,6 +332,12 @@ function_map_seq <- function(
 
       data <- absorb_key_args(data, reported)
 
+      # Throw an error if the user specified an argument that `.args_disabled`
+      # ruled out when the present function was created. (The check used to be
+      # missing here -- unlike in `function_map()` -- so disabled arguments were
+      # silently passed on to `fun()`.)
+      check_args_disabled(args_disabled)
+
       check_factory_dots(fun, name_fun, ...)
 
       # Collect explicitly supplied `digits_*` values while dropping `NULL`

@@ -34,6 +34,7 @@
 
 - `rounding_bias()` again throws an error for the compound rounding methods `"up_or_down"`, `"up_from_or_down_from"`, and `"ceiling_or_floor"`, as documented. The check had been lost, and since these methods return two rounded values per input value, the function silently returned twice as many "biases" as inputs (with `mean = FALSE`) or their meaningless average (by default).
 
+- `function_map_seq()` now enforces its `.args_disabled` argument. It was documented to make the factory-made function throw an error when a disabled argument is specified, but no check ever ran, so such arguments were silently passed on.
 
 - `round_anti_trunc()` and `anti_trunc()` no longer move a value that already sits on the rounding grid one step further away from zero. `round_anti_trunc(8.42, digits = 2)` is now `8.42` rather than `8.43`, and `anti_trunc(0)` is `0` rather than `1`. The old behavior had no software behind it: Excel's and Google Sheets' `ROUNDUP()`, Java's `RoundingMode.UP`, and Python's `decimal.ROUND_UP` all round away from zero in the sense implemented now, where a value on the grid stays put.
 
