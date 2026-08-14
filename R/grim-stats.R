@@ -95,5 +95,16 @@ grim_total <- function(x, n, digits_x, items = 1, percent = FALSE) {
     digits_x <- digits_x + 2L
   }
   p10 <- 10^digits_x
-  as.integer(p10 - (n * items))
+  out <- p10 - (n * items)
+
+  # The count is a whole number, and integer is the better representation for it
+  # -- but only while it fits. Beyond `.Machine$integer.max`, which `digits_x =
+  # 10` already exceeds, `as.integer()` returns `NA` with a warning, so the
+  # count of possible inconsistencies came out as no count at all. The double is
+  # exact far past that point:
+  if (all(is.na(out) | abs(out) <= .Machine$integer.max)) {
+    out <- as.integer(out)
+  }
+
+  out
 }

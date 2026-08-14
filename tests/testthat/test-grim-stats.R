@@ -55,3 +55,12 @@ test_that("all functions error if `digits_x` is missing", {
   grim_ratio(5.30, 20)       |> expect_error()
   grim_total(5.30, 20:30)    |> expect_error()
 })
+
+
+test_that("`grim_total()` doesn't overflow the integer range", {
+  # `as.integer(1e10)` is `NA` with a warning, so the count of possible
+  # inconsistencies used to come out as no count at all.
+  grim_total(5.30, 40, digits_x = 10) |> expect_equal(1e10 - 40)
+  grim_total(5.30, 40, digits_x = 10) |> expect_no_warning()
+  grim_total(5.30, 40, digits_x = 2)  |> expect_type("integer")
+})
