@@ -65,45 +65,41 @@ check_key_args_in_colnames <- function(data, reported) {
 
 check_consistency_not_in_colnames <- function(data, name_test) {
   if (any("consistency" == colnames(data))) {
+    # If `data` carries a scrutiny mapper class, name the mapper that most
+    # likely produced it. The most specific tier wins: a `*_map_seq()` output
+    # also inherits the basic `*_map` class, but it was the sequence mapper that
+    # the user called. Generic infrastructure classes such as
+    # `"scrutiny_map_seq"` carry no function name and are filtered out.
     dc <- class(data)
     class_basic <- dc[stringr::str_detect(dc, "_map$")]
     class_seq <- dc[stringr::str_detect(dc, "_map_seq$")]
     class_total_n <- dc[stringr::str_detect(dc, "_map_total_n$")]
-    if (length(class_basic) > 0L) {
-      fun_name_basic <- stringr::str_remove(class_basic, "^scrutiny_")
+    class_best <- if (length(class_seq) > 0L) {
+      class_seq
+    } else if (length(class_total_n) > 0L) {
+      class_total_n
     } else {
-      fun_name_basic <- NULL
+      class_basic
     }
-    if (length(class_seq) > 0L) {
-      fun_name_basic <- NULL
-      fun_name_seq <- stringr::str_remove(class_seq, "^scrutiny_")
-    } else {
-      fun_name_seq <- NULL
+    fun_name_all <- stringr::str_remove(class_best, "^scrutiny_")
+    fun_name_all <- fun_name_all[!fun_name_all %in% c("map_seq", "map_total_n")]
+    # Guard against multiple matches, which have no single function to name:
+    if (length(fun_name_all) != 1L) {
+      fun_name_all <- character(0L)
     }
-    if (length(class_total_n) > 0L) {
-      fun_name_basic <- NULL
-      fun_name_total_n <- stringr::str_remove(class_total_n, "^scrutiny_")
-    } else {
-      fun_name_total_n <- NULL
-    }
-    non_fun_name_classes <- c("map_seq", "map_total_n")
-    fun_name_all <- c(fun_name_basic, fun_name_seq, fun_name_total_n)
-    fun_name_all <- fun_name_all[!fun_name_all %in% non_fun_name_classes]
-    fun_name_all <- fun_name_all[length(fun_name_all) > 0L]
-    if (length(fun_name_all) == 0L) {
-      fun_name_all <- ""
-    }
-    if (stringr::str_detect(fun_name_all, "_seq$")) {
+    if (length(fun_name_all) == 1L && grepl("_seq$", fun_name_all)) {
       msg_special <- "sequence "
-    } else if (stringr::str_detect(fun_name_all, "_total_n$")) {
+    } else if (length(fun_name_all) == 1L && grepl("_total_n$", fun_name_all)) {
       msg_special <- "total-n "
     } else {
       msg_special <- ""
     }
-    if (length(fun_name_all) > 0L) {
-      msg_fun_name <- paste0(", `", fun_name_all, "()`,")
+    # Without a function name, the message simply omits it. (It used to render
+    # an empty name as "`()`".)
+    msg_fun_name <- if (length(fun_name_all) == 1L) {
+      paste0(", `", fun_name_all, "()`,")
     } else {
-      msg_fun_name <- ""
+      ""
     }
     cli::cli_abort(c(
       "`data` already includes a \"consistency\" column.",
