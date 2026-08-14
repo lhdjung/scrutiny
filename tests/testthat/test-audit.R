@@ -101,6 +101,32 @@ test_that("the `hits_total` column correctly sums up
 })
 
 
+test_that("`audit_seq()` replays the original call's test arguments
+          when re-testing the reconstructed data", {
+  # 71% of 43 participants is GRIM-inconsistent. `percent` changes the verdict
+  # but leaves no trace in the output columns, so it used to be dropped by
+  # `audit_seq()`, whose `consistency` column then wrongly said `TRUE`:
+  tibble::tibble(x = 71, n = 43) |>
+    grim_map_seq(digits_x = 0, percent = TRUE, include_consistent = TRUE) |>
+    audit_seq() |>
+    dplyr::pull(consistency) |>
+    expect_false()
+
+  # Same for `threshold`: 0.24 with `n = 21` is consistent when rounding up
+  # from 5 but not when rounding up from 9:
+  tibble::tibble(x = 0.24, n = 21) |>
+    grim_map_seq(
+      digits_x = 2,
+      rounding = "up_from",
+      threshold = 9,
+      include_consistent = TRUE
+    ) |>
+    audit_seq() |>
+    dplyr::pull(consistency) |>
+    expect_false()
+})
+
+
 test_that("changing `dispersion` in the sequence mapper is
           correctly captured by `audit_seq()`", {
   pigs1[1:2, ] |>

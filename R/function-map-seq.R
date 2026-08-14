@@ -502,6 +502,12 @@ function_map_seq <- function(
           paste0("scrutiny_rounding_", dots$rounding)
       }
 
+      # Record the arguments that reproduce the test, so that `audit_seq()` can
+      # re-run `fun()` on reconstructed data with the very same settings --
+      # including those that leave no trace in the output columns, such as
+      # `percent`, `threshold`, `symmetric`, or GRIMMER's scale bounds:
+      attr(out, "scrutiny_fun_args") <- .fun_args
+
       `!!!`(write_code_col_key_result(.name_key_result))
     }),
     # The body calls scrutiny-internal helpers such as `absorb_key_args()` and
