@@ -24,7 +24,7 @@ of flying pigs. It can be used to demonstrate the functionality of
 \code{grimmer_map()} and functions building up on it.
 }
 \seealso{
-\code{pigs1} for (only) GRIM-testing the same means as here, \code{\link{pigs2}}
+\code{\link{pigs1}} for (only) GRIM-testing the same means as here, \code{\link{pigs2}}
 for GRIM-testing percentages instead of means, \code{\link{pigs3}} for DEBIT-testing,
 and \code{\link{pigs4}} for detecting duplicates.
 }

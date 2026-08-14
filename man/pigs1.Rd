@@ -24,9 +24,6 @@ building up on it.
 }
 \seealso{
 \code{\link{pigs2}} for GRIM-testing percentages instead of means, \code{\link{pigs3}}
-for DEBIT-testing, and \code{\link{pigs4}} for detecting duplicates.
-
-\code{\link{pigs2}} for GRIM-testing percentages instead of means, \code{\link{pigs3}}
 for DEBIT-testing, \code{\link{pigs4}} for detecting duplicates, and \code{\link{pigs5}} for
 GRIMMER-testing.
 }

@@ -17,9 +17,6 @@
 #' @return A tibble (data frame).
 #'
 #' @seealso [`pigs2`] for GRIM-testing percentages instead of means, [`pigs3`]
-#'   for DEBIT-testing, and [`pigs4`] for detecting duplicates.
-#'
-#' @seealso [`pigs2`] for GRIM-testing percentages instead of means, [`pigs3`]
 #'   for DEBIT-testing, [`pigs4`] for detecting duplicates, and [`pigs5`] for
 #'   GRIMMER-testing.
 #'
@@ -42,11 +39,9 @@
 
 #' @return A tibble (data frame).
 #'
-#' @seealso `pigs1` for GRIM-testing means instead of percentages, [`pigs3`] for
-#'   DEBIT-testing, and [`pigs4`] for detecting duplicates.
-#'
-#' @seealso `pigs1` for GRIM-testing means, [`pigs3`] for DEBIT-testing,
-#'   [`pigs4`] for detecting duplicates, and [`pigs5`] for GRIMMER-testing.
+#' @seealso [`pigs1`] for GRIM-testing means instead of percentages, [`pigs3`]
+#'   for DEBIT-testing, [`pigs4`] for detecting duplicates, and [`pigs5`] for
+#'   GRIMMER-testing.
 #'
 "pigs2"
 
@@ -68,10 +63,7 @@
 
 #' @return A tibble (data frame).
 #'
-#' @seealso `pigs1` for GRIM-testing means, [`pigs2`] for GRIM-testing
-#'   percentages, and [`pigs4`] for detecting duplicates.
-#'
-#' @seealso `pigs1` for GRIM-testing means, [`pigs2`] for GRIM-testing
+#' @seealso [`pigs1`] for GRIM-testing means, [`pigs2`] for GRIM-testing
 #'   percentages instead of means, [`pigs4`] for detecting duplicates, and
 #'   [`pigs5`] for GRIMMER-testing.
 #'
@@ -96,7 +88,7 @@
 
 #' @return A tibble (data frame).
 #'
-#' @seealso `pigs1` for GRIM-testing means, [`pigs2`] for GRIM-testing
+#' @seealso [`pigs1`] for GRIM-testing means, [`pigs2`] for GRIM-testing
 #'   percentages, [`pigs3`] for using DEBIT, and [`pigs5`] for GRIMMER-testing.
 #'
 "pigs4"
@@ -119,7 +111,7 @@
 
 #' @return A tibble (data frame).
 #'
-#' @seealso `pigs1` for (only) GRIM-testing the same means as here, [`pigs2`]
+#' @seealso [`pigs1`] for (only) GRIM-testing the same means as here, [`pigs2`]
 #'   for GRIM-testing percentages instead of means, [`pigs3`] for DEBIT-testing,
 #'   and [`pigs4`] for detecting duplicates.
 #'
