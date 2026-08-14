@@ -317,3 +317,22 @@ test_that("`\"anti_trunc\"` at zero is a single point, not an undefined range", 
   expect_true(grim(0, n = 40, digits_x = 2, rounding = "anti_trunc"))
   expect_false(grim(0.01, n = 40, digits_x = 2, rounding = "anti_trunc"))
 })
+
+
+test_that("`unround()` checks the lengths of all its vectorized arguments", {
+  # `digits` used to be recycled against `x` without a word, so the extra `x`
+  # values silently got the wrong number of decimal places -- and hence the
+  # wrong bounds.
+  unround(c("1.0", "2.00", "3.000"), digits = c(1, 2)) |> expect_error()
+  unround(c("1.0", "2.00"), threshold = c(4, 5, 6))    |> expect_error()
+  unround(c("1.0", "2.00"), symmetric = c(TRUE, FALSE, TRUE)) |> expect_error()
+  # A length-1 argument is still recycled, as is one of matching length:
+  unround(c("1.0", "2.00"), digits = c(1, 2)) |> expect_no_error()
+  unround(c("1.0", "2.00"))                   |> expect_no_error()
+})
+
+
+test_that("counted decimal places are not confused by a shorter `digits`", {
+  out <- unround(c("1.0", "2.00", "3.000"))
+  out$upper |> expect_equal(c(1.05, 2.005, 3.0005))
+})

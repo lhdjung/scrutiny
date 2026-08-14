@@ -603,6 +603,18 @@ unround <- function(
   # warning that values will get paired:
   check_lengths_congruent(list(x, rounding))
 
+  # The other arguments are vectorized as well, and they need the same length
+  # check: with only `x` and `rounding` checked, a `digits` that was shorter
+  # than `x` was recycled without a word, and the extra `x` values silently got
+  # the wrong number of decimal places -- and hence the wrong bounds. They get
+  # no pairing warning, though. One `digits` value per `x` value is the ordinary
+  # way to call the function from a helper, not the confusing pairing of numbers
+  # with rounding methods that the warning above is about.
+  check_lengths_congruent(
+    list(x, rounding, digits, threshold, symmetric),
+    warn = FALSE
+  )
+
   # The number of decimal places might be given from within another function via
   # the `digits` argument. Otherwise -- if `digits` is not specified, and
   # therefore `NULL` -- the `x` argument must be a string so that decimal places
