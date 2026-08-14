@@ -63,13 +63,11 @@
 #'   plot for each number of decimal places, stored in a named list, instead of
 #'   throwing an error. Default is `FALSE`.
 #' @param digits Integer. Number of decimal places for which the background
-#'   raster will be generated. Default is `NULL`, in which case this is inferred
-#'   automatically.
+#'   raster will be generated. Default is `NULL`, in which case it is read from
+#'   the `digits_x` column of `data` (or, failing that, inferred from the `x`
+#'   values).
 #' @param n Integer. Maximal value on the x-axis. Default is `NULL`, in which
 #'   case `n` becomes `10 ^ digits` (e.g., `100` if `digits` is `2`).
-#' @param digits Integer. Only relevant if `show_data` is set to `FALSE`. The
-#'   plot will then be constructed as it would be for data where all `x` values
-#'   have this many decimal places. Default is `2`.
 #' @param rounding String. Only relevant if `show_data` is set to `FALSE`. The
 #'   plot will then be constructed as it would be for data rounded in this
 #'   particular way. Default is `"up_or_down"`.
@@ -91,7 +89,10 @@
 #'   Psychology. *Social Psychological and Personality Science*, 8(4), 363–369.
 #'   https://journals.sagepub.com/doi/10.1177/1948550616673876
 
-#' @return A ggplot object.
+#' @return A ggplot object -- except with `split_by_digits = TRUE`, which
+#'   invisibly returns a named list of ggplot objects, one per distinct
+#'   non-zero number of decimal places (e.g., `list(digits_1 = ..., digits_2 =
+#'   ...)`), and prints each of them.
 
 #' @export
 #'

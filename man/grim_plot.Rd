@@ -43,9 +43,10 @@ throwing an error. Default is \code{FALSE}.}
 \item{n}{Integer. Maximal value on the x-axis. Default is \code{NULL}, in which
 case \code{n} becomes \code{10 ^ digits} (e.g., \code{100} if \code{digits} is \code{2}).}
 
-\item{digits}{Integer. Only relevant if \code{show_data} is set to \code{FALSE}. The
-plot will then be constructed as it would be for data where all \code{x} values
-have this many decimal places. Default is \code{2}.}
+\item{digits}{Integer. Number of decimal places for which the background
+raster will be generated. Default is \code{NULL}, in which case it is read from
+the \code{digits_x} column of \code{data} (or, failing that, inferred from the \code{x}
+values).}
 
 \item{rounding}{String. Only relevant if \code{show_data} is set to \code{FALSE}. The
 plot will then be constructed as it would be for data rounded in this
@@ -63,7 +64,9 @@ of the background raster: opacity and fill color. Defaults are \code{1} and
 \code{"grey75"}.}
 }
 \value{
-A ggplot object.
+A ggplot object -- except with \code{split_by_digits = TRUE}, which
+invisibly returns a named list of ggplot objects, one per distinct
+non-zero number of decimal places (e.g., \code{list(digits_1 = ..., digits_2 = ...)}), and prints each of them.
 }
 \description{
 \code{grim_plot()} visualizes summary data and their mutual GRIM
