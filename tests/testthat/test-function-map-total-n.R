@@ -98,3 +98,32 @@ test_that("the \"back\" direction really swaps the group pairings", {
   expect_identical(unique(df1_tested_back$y[c(TRUE, FALSE)]), df1$y2)
   expect_identical(unique(df1_tested_back$y[c(FALSE, TRUE)]), df1$y1)
 })
+
+
+test_that("group suffixes are swapped even if the statistic's name has digits", {
+  # The swap used to run `stringr::str_replace()` on the whole column name, so
+  # it hit the wrong character as soon as the reported statistic was called
+  # something like "t1", whose columns are `t11` and `t12`.
+  t1_scalar <- function(t1, n, digits_t1) {
+    abs(t1 * n - round(t1 * n)) < 10^-digits_t1
+  }
+  t1_map <- function_map(
+    .fun = t1_scalar,
+    .reported = c("t1", "n"),
+    .args_by_row = "digits_t1",
+    .name_test = "T1"
+  )
+  t1_map_total_n <- function_map_total_n(
+    .fun = t1_map,
+    .reported = "t1",
+    .name_test = "T1"
+  )
+  out <- t1_map_total_n(
+    tibble::tibble(t11 = 0.5, t12 = 0.25, n = 8),
+    digits_t1 = 2
+  )
+  # In the "back" direction the two reported values change places, so the first
+  # row of that half must carry `t12`'s value:
+  out$t1[out$dir == "forth"][1L] |> expect_equal(0.5)
+  out$t1[out$dir == "back"][1L]  |> expect_equal(0.25)
+})

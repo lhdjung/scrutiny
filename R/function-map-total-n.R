@@ -445,12 +445,16 @@ function_map_total_n <- function(
         ))
       }
 
-      # Switch `"1"` and `"2"` in the relevant column names of `data`:
-      temp <- "_scrutiny_names_temp_placeholder"
-      cols_expected_back <- cols_expected_forth |>
-        stringr::str_replace("1", temp) |>
-        stringr::str_replace("2", "1") |>
-        stringr::str_replace(temp, "2")
+      # Switch `"1"` and `"2"` in the relevant column names of `data`. The
+      # suffix is the last character of each name, and it is built by pasting it
+      # onto the `reported` name, so it is swapped the same way -- by pasting
+      # the other one on. Replacing the character `"1"` wherever it occurred in
+      # the name, as before, hit the wrong one as soon as a reported statistic
+      # was called something like `"t1"`, whose columns are `t11` and `t12`.
+      cols_expected_back <- paste0(
+        rep(reported, each = 2L),
+        c("2", "1")
+      )
 
       # Bring the names with switched index portions back into the `data_back`
       # tibble (because all of this switching is only for `data_back`). The
