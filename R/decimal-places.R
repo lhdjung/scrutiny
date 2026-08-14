@@ -64,8 +64,21 @@
 #' decimal_places_scalar(x = "5.024")
 
 decimal_places <- function(x, sep = "\\.") {
-  pieces <- stringr::str_split(stringr::str_trim(x), sep, n = 2L)
-  vapply(
+  x <- stringr::str_trim(x)
+
+  # Scientific notation moves the decimal point, so the digits after `sep` are
+  # not the decimal places of the number: `1e-05` has five of them and none
+  # after a point, `1.5e3` has none and one after the point. R writes numerics
+  # that way by itself -- `as.character(0.0001)` is `"1e-04"` -- so this is not
+  # only about strings the user typed. The exponent is split off here and
+  # applied to the count below:
+  exponent <- suppressWarnings(as.integer(
+    stringr::str_match(x, "[eE]([+-]?[0-9]+)$")[, 2L]
+  ))
+  x <- stringr::str_remove(x, "[eE][+-]?[0-9]+$")
+
+  pieces <- stringr::str_split(x, sep, n = 2L)
+  out <- vapply(
     pieces,
     function(p) {
       if (anyNA(p)) {
@@ -78,6 +91,13 @@ decimal_places <- function(x, sep = "\\.") {
     },
     integer(1L)
   )
+
+  # A value without an exponent is shifted by nothing, and a positive exponent
+  # can only cancel decimal places, never create negative ones:
+  exponent[is.na(exponent)] <- 0L
+  out <- out - exponent
+  out[!is.na(out) & out < 0L] <- 0L
+  out
 }
 
 
@@ -91,13 +111,30 @@ decimal_places_scalar <- function(x, sep = "\\.") {
     return(NA_integer_)
   }
 
+  x <- as.character(x)
+
+  # See the comment in `decimal_places()`: an exponent shifts the decimal point,
+  # so it has to be split off before the digits after `sep` are counted. This is
+  # what makes `decimal_places_scalar(1e-04)` 4 rather than 0, and hence what
+  # keeps the step size in `seq_disperse()` and friends on the intended decimal
+  # level for values that R writes in scientific notation:
+  exponent <- 0L
+  hit_exponent <- regmatches(x, regexpr("[eE][+-]?[0-9]+$", x))
+
+  if (length(hit_exponent) > 0L) {
+    exponent <- as.integer(sub("^[eE]", "", hit_exponent))
+    x <- sub("[eE][+-]?[0-9]+$", "", x)
+  }
+
   hit <- regmatches(x, regexpr(paste0("(?<=", sep, ")\\d+"), x, perl = TRUE))
 
-  if (length(hit) == 0L) {
+  out <- if (length(hit) == 0L) {
     0L
   } else {
     nchar(hit)
   }
+
+  max(out - exponent, 0L)
 }
 
 

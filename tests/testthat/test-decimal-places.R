@@ -155,3 +155,45 @@ test_that("`decimal_places_df()` throws a warning if and only if it should", {
   iris |> decimal_places_df(check_numeric_like = FALSE) |> expect_warning()
   iris |> dplyr::select(1:4) |> decimal_places_df(check_numeric_like = FALSE) |> expect_no_warning()
 })
+
+
+# Scientific notation -----------------------------------------------------
+
+# R writes small and large numbers in scientific notation by itself:
+# `as.character(0.0001)` is `"1e-04"`. The digits after the decimal point are
+# then not the decimal places of the number, so the exponent has to be applied.
+
+test_that("`decimal_places()` accounts for the exponent", {
+  decimal_places(c("1e-5", "1.5e3", "1e+05", "2.75e-2")) |>
+    expect_equal(c(5L, 0L, 0L, 4L))
+  decimal_places(c(1e-5, 1e-4, 1e5)) |> expect_equal(c(5L, 4L, 0L))
+})
+
+
+test_that("`decimal_places_scalar()` accounts for the exponent", {
+  vapply(
+    list("1e-5", "1.5e3", "1e+05", "2.75e-2", 1e-5, 1e-4, 1e5),
+    decimal_places_scalar,
+    integer(1L)
+  ) |>
+    expect_equal(c(5L, 0L, 0L, 4L, 5L, 4L, 0L))
+})
+
+
+test_that("the two functions agree on ordinary numbers", {
+  values <- c("1.0", "1", "-2.750", "3.", "7.3900", "0.05")
+  decimal_places(values) |>
+    expect_equal(vapply(values, decimal_places_scalar, integer(1L), USE.NAMES = FALSE))
+})
+
+
+test_that("sequence functions step on the right decimal level below 0.001", {
+  # `decimal_places_scalar()` sets the step size in all of these. When it read
+  # `1e-04` as having no decimal places, they stepped by whole numbers instead.
+  seq_endpoint(from = 0.0001, to = 0.0005) |>
+    expect_equal(c("0.0001", "0.0002", "0.0003", "0.0004", "0.0005"))
+  seq_disperse(from = 7.22, by = 1e-4, dispersion = 1:2) |>
+    expect_equal(c("7.2198", "7.2199", "7.2200", "7.2201", "7.2202"))
+  seq_distance(from = 0.0001, length_out = 3L) |>
+    expect_equal(c("0.0001", "0.0002", "0.0003"))
+})
