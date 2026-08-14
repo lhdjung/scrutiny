@@ -124,7 +124,8 @@ test_that("`unround()` bounds agree with the rounding they invert", {
 test_that("`unround()` bounds agree with the rounding they invert (sweep)", {
   methods <- c(
     "up_or_down", "up", "down", "even", "ceiling", "floor", "ceiling_or_floor",
-    "trunc", "anti_trunc", "up_from", "down_from", "up_from_or_down_from"
+    "trunc", "anti_trunc", "up_from", "down_from", "up_from_or_down_from",
+    "ties_up", "ties_down", "ties_away", "ties_zero"
   )
   # `"even"` is the one method whose bounds cannot be pinned down, since
   # `base::round()` breaks ties by the parity of the binary double. Both of its

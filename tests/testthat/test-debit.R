@@ -181,3 +181,54 @@ test_that("`debit_map()` reports no negative SD bound and no mean out of range",
   (out$x_lower  >= 0)  |> all() |> expect_true()
   (out$x_upper  <= 1)  |> all() |> expect_true()
 })
+
+
+# A brute-force oracle. Every split of `n` observations into zeros and ones is a
+# real binary sample, so the mean and SD it produces -- rounded the way a paper
+# would report them -- must be accepted by DEBIT. This is the direction that can
+# be checked exhaustively: DEBIT's conditions are necessary, not sufficient, so
+# a `TRUE` verdict does not imply that a sample exists, but a `FALSE` one for a
+# sample that does exist is an outright error. It is what caught the means of
+# exactly 0 and 1, where the SD is undefined at the rounding bounds.
+
+test_that("DEBIT never rejects a real binary sample", {
+  n_checked <- 0L
+
+  for (n in c(5L, 8L, 20L, 37L)) {
+    for (digits in 2:3) {
+      # `k` ones and `n - k` zeros, for every `k`:
+      k <- 0:n
+      means <- reround(k / n, digits, "up_or_down")
+      sds <- reround(
+        sd_binary_0_n(group_0 = n - k, n = n), digits, "up_or_down"
+      )
+
+      # `reround()` with a compound method returns both variants per input,
+      # interleaved, and either is a way the value could have been reported:
+      for (i in seq_along(k)) {
+        pair <- c(2L * i - 1L, 2L * i)
+        for (x in unique(means[pair])) {
+          for (sd in unique(sds[pair])) {
+            if (is.na(sd)) {
+              next
+            }
+            n_checked <- n_checked + 1L
+            expect_true(
+              isTRUE(debit(
+                x = x, sd = sd, n = n,
+                digits_x = digits, digits_sd = digits
+              )),
+              label = paste0(
+                "x = ", x, ", sd = ", sd, ", n = ", n, ", digits = ", digits,
+                " comes from ", k[i], " ones and ", n - k[i], " zeros, so DEBIT"
+              )
+            )
+          }
+        }
+      }
+    }
+  }
+
+  # Guard against the loops silently collapsing to nothing (152 as written):
+  expect_gt(n_checked, 100L)
+})

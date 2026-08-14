@@ -16,12 +16,14 @@
 # `symmetric`, `items`, `percent`, and negative means -- and checks not just the
 # verdict but the numbers the verdict is made of: `sum_lower` and `sum_upper`,
 # the granules, and the values that `grim_values()` and `grim_closest()` derive
-# from the same range. Two combinations are left out on purpose:
+# from the same range. One method is left out of the equality check on purpose:
 #
 # - `rounding = "even"`, whose bounds are deliberately treated as inclusive
 #   although `base::round()` may not include them. The tests are then knowingly
 #   too permissive, so the oracle would report a disagreement that is a design
-#   decision, not an error. See the comment on `rounding_offsets()`.
+#   decision, not an error. See the comment on `rounding_offsets()`. It is not
+#   left untested, though: the last test below checks the half of the property
+#   that must hold for it, which is that it is never too *strict*.
 #
 # Each combination of parameters is tested with a single call per function and a
 # handful of expectations on whole columns, rather than one call and a dozen
@@ -90,7 +92,7 @@ grim_oracle_grid <- function() {
   # fmt: skip
   methods_fixed <- c(
     "up_or_down", "up", "down", "ceiling", "floor", "ceiling_or_floor",
-    "trunc", "anti_trunc"
+    "trunc", "anti_trunc", "ties_up", "ties_down", "ties_away", "ties_zero"
   )
   methods_threshold <- c("up_from", "down_from", "up_from_or_down_from")
   rbind(
@@ -321,4 +323,71 @@ test_that("GRIM agrees with the oracle for percentages", {
       symmetric = FALSE
     )
   }
+})
+
+
+# `"even"` is the one method whose bounds cannot be pinned down, because
+# `base::round()` breaks a tie by the parity of the binary double rather than by
+# a rule on the decimal value. `rounding_offsets()` therefore reports both of
+# its bounds as inclusive, which can only ever widen the range. That makes the
+# equality above inapplicable, but it leaves the half that must still hold: a
+# value set that `base::round()` really can produce must never be called
+# inconsistent. Being too permissive is the safe direction for an
+# error-detection tool; being too strict would be a false accusation.
+
+test_that("`\"even\"` is never too strict, only ever too permissive", {
+  # Its own grid: the disagreements live where a granule falls exactly on a
+  # rounding boundary, which for `base::round()` means a sample size of 4, 8 or
+  # 40 and a mean whose last digit makes `x * n` land on a half. The grid of the
+  # tests above contains no such case, so reusing it would leave the
+  # over-permissive direction unexercised.
+  n_permissive <- 0L
+  n_reachable <- 0L
+
+  for (digits_x in 1:2) {
+    unit <- 10^-digits_x
+    grid <- tidyr::expand_grid(
+      x = round(seq(-30, 30) * unit, digits_x),
+      n = c(4L, 8L, 20L, 40L)
+    )
+    verdict <- grim(grid$x, grid$n, digits_x = digits_x, rounding = "even")
+
+    for (i in seq_len(nrow(grid))) {
+      # Every candidate sum total around `x * n`, asked of `base::round()`
+      # itself through `reround()` rather than of the offsets table:
+      sums <- seq(floor(grid$x[i] * grid$n[i]) - 3L, ceiling(grid$x[i] * grid$n[i]) + 3L)
+      reachable <- any(sums_round_back(
+        sums,
+        x_num = grid$x[i],
+        n_items = grid$n[i],
+        digits = digits_x,
+        rounding = "even",
+        threshold = 5,
+        symmetric = FALSE
+      ))
+
+      if (reachable) {
+        n_reachable <- n_reachable + 1L
+        # The direction that matters: no false negatives, ever.
+        expect_true(
+          isTRUE(verdict[[i]]),
+          label = paste0(
+            "x = ", grid$x[i], ", n = ", grid$n[i], ", digits_x = ", digits_x,
+            " is reachable but GRIM says ", verdict[[i]]
+          )
+        )
+      } else if (isTRUE(verdict[[i]])) {
+        n_permissive <- n_permissive + 1L
+      }
+    }
+  }
+
+  # Guard against a vacuous pass: the sweep has to contain reachable cases for
+  # the expectation above to have meant anything.
+  expect_gt(n_reachable, 50L)
+
+  # And the documented over-permissiveness is real, not hypothetical. If this
+  # ever drops to zero, `"even"` has become exact and the carve-out above can
+  # go.
+  expect_gt(n_permissive, 0L)
 })

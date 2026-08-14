@@ -920,3 +920,115 @@ test_that("`grimmer_map()` passes the scale bounds down and `audit()` counts", {
   grimmer_map(df, digits_x = 2, digits_sd = 2) |> audit() |> _$fail_scale |>
     expect_equal(0L)
 })
+
+
+# A brute-force oracle, complementing the random trials above. Those sample 400
+# data sets at larger `n`; this one enumerates *every* multiset of `n` whole
+# numbers for small `n`, so nothing in that space can hide. GRIMMER's conditions
+# are necessary but not sufficient, so only this direction can be checked: every
+# (mean, SD) pair that a real sample produces must pass.
+
+grimmer_multisets <- function(n, vals) {
+  # Every multiset of size `n` from `vals`, as columns:
+  idx <- utils::combn(length(vals) + n - 1L, n)
+  apply(idx, 2L, function(k) vals[k - seq_len(n) + 1L])
+}
+
+
+grimmer_reported_pairs <- function(m, digits, rounding, items) {
+  xs <- reround(colMeans(m) / items, digits, rounding)
+  ss <- reround(apply(m, 2L, stats::sd) / items, digits, rounding)
+  # A compound `rounding` returns both variants per sample, interleaved, and
+  # either is a way the value could have been reported:
+  reps <- length(xs) / ncol(m)
+  out <- list()
+  for (i in seq_len(ncol(m))) {
+    pair <- ((i - 1L) * reps + 1L):(i * reps)
+    for (a in unique(xs[pair])) {
+      for (b in unique(ss[pair])) {
+        out[[length(out) + 1L]] <- c(a, b)
+      }
+    }
+  }
+  unique(do.call(rbind, out))
+}
+
+
+test_that("GRIMMER never rejects an enumerable sample", {
+  n_checked <- 0L
+
+  for (n in 3:6) {
+    for (digits in 1:2) {
+      pairs <- grimmer_reported_pairs(
+        grimmer_multisets(n, 0:5), digits, "up_or_down", items = 1
+      )
+      verdict <- mapply(
+        function(x, sd) {
+          grimmer(
+            x = x, sd = sd, n = n,
+            digits_x = digits, digits_sd = digits
+          )
+        },
+        pairs[, 1L],
+        pairs[, 2L]
+      )
+      n_checked <- n_checked + length(verdict)
+      false_negatives <- which(!verdict %in% TRUE)
+      expect_equal(
+        length(false_negatives),
+        0L,
+        info = paste0(
+          "n = ", n, ", digits = ", digits, " -- pairs: ",
+          toString(utils::head(paste0(
+            "(", pairs[false_negatives, 1L], ", ", pairs[false_negatives, 2L], ")"
+          ), 5L))
+        )
+      )
+    }
+  }
+
+  # Guard against the loops silently collapsing to nothing:
+  expect_gt(n_checked, 500L)
+})
+
+
+test_that("GRIMMER never rejects an enumerable multi-item sample", {
+  # `items = 2` halves the granularity of both the mean and the SD, which is
+  # where the item multiplication in the sum-of-squares stage has to keep up:
+  pairs <- grimmer_reported_pairs(
+    grimmer_multisets(4L, 0:6), digits = 2, rounding = "up_or_down", items = 2
+  )
+  verdict <- mapply(
+    function(x, sd) {
+      grimmer(
+        x = x, sd = sd, n = 4L, items = 2,
+        digits_x = 2, digits_sd = 2
+      )
+    },
+    pairs[, 1L],
+    pairs[, 2L]
+  )
+  expect_equal(sum(!verdict %in% TRUE), 0L)
+  expect_gt(length(verdict), 100L)
+})
+
+
+test_that("GRIMMER never rejects an enumerable sample within scale bounds", {
+  # Scale bounds may only ever rule cases *out*, so a sample that really lies
+  # within `min_val` and `max_val` must survive them:
+  pairs <- grimmer_reported_pairs(
+    grimmer_multisets(5L, 0:5), digits = 2, rounding = "up_or_down", items = 1
+  )
+  verdict <- mapply(
+    function(x, sd) {
+      grimmer(
+        x = x, sd = sd, n = 5L,
+        digits_x = 2, digits_sd = 2, min_val = 0, max_val = 5
+      )
+    },
+    pairs[, 1L],
+    pairs[, 2L]
+  )
+  expect_equal(sum(!verdict %in% TRUE), 0L)
+  expect_gt(length(verdict), 100L)
+})
