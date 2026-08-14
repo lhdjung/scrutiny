@@ -14,7 +14,7 @@
 #'
 #' @details For non-negative numbers, `round_ties_up()` and `round_ties_away()`
 #'   are the same function, as are `round_ties_down()` and `round_ties_zero()`.
-#'   The names only differ for negative numbers differ below zero. See the
+#'   The pairs only differ for numbers below zero. See the
 #'   `Negative numbers` section of [`round_up()`].
 #'
 #'   `round_ties_away()` is IEEE 754's *roundTiesToAway*, and the procedure that

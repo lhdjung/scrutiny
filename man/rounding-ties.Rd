@@ -42,7 +42,7 @@ spelling you prefer; the results are identical.
 \details{
 For non-negative numbers, \code{round_ties_up()} and \code{round_ties_away()}
 are the same function, as are \code{round_ties_down()} and \code{round_ties_zero()}.
-The names only differ for negative numbers differ below zero. See the
+The pairs only differ for numbers below zero. See the
 \verb{Negative numbers} section of \code{\link[=round_up]{round_up()}}.
 
 \code{round_ties_away()} is IEEE 754's \emph{roundTiesToAway}, and the procedure that

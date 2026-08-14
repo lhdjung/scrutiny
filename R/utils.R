@@ -290,7 +290,7 @@ check_newly_numeric <- function(
     msg_digits_name <- paste0(
       "Instead, use `digits_",
       name_x,
-      " `to specify the number of decimal places."
+      "` to specify the number of decimal places."
     )
 
     lifecycle::deprecate_stop(
