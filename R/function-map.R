@@ -713,10 +713,20 @@ function_map <- function(
   # after `data` and the by-row arguments moved next to it above, led by the
   # variadic key argument if there is one -- which has no default at all,
   # because guessing which columns to test would silently test the wrong ones:
-  insert_key_args(
+  fn_out <- insert_key_args(
     fun = fn_out,
     reported = .reported,
     insert_after = 1L + length(args_by_row),
     variadic = .reported_variadic
   )
+
+  # Record the helper-column arguments (such as `items`) as metadata on the
+  # manufactured function. A helper argument's effect is baked into the mapper's
+  # output -- `items`, for one, is multiplied into the `n` column -- so code
+  # that re-runs the mapper on data derived from its own output must not pass
+  # such an argument a second time. `function_map_seq()` consults this attribute
+  # when it re-tests dispersed values:
+  attr(fn_out, "scrutiny_args_helper") <- args_helper
+
+  fn_out
 }

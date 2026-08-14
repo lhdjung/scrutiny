@@ -266,6 +266,13 @@ function_map_seq <- function(
 
   name_fun <- deparse(substitute(.fun))
 
+  # Helper-column arguments of `.fun`, such as `items` in `grim_map()`. Their
+  # effect is baked into the mapper's output -- `items` is multiplied into the
+  # `n` column -- so the re-tests of dispersed values below must not apply them
+  # a second time. `function_map()` records them on the mappers it creates; a
+  # handwritten mapper has nothing to record, and the attribute is `NULL`:
+  args_helper_fun <- attr(.fun, "scrutiny_args_helper", exact = TRUE)
+
   # Prepare some code to be inserted into the body of the factory-made function.
   # If one of the key (reported) arguments is `n`, this will be whole numbers,
   # so they should be coerced to integer for better representation in an app.
@@ -396,9 +403,14 @@ function_map_seq <- function(
         ...
       )
 
-      # Combine `digits_*` values with any extra ... arguments so both are
-      # forwarded to `map_seq_proto()`, and from there to `fun()`:
+      # Combine `digits_*` values with any extra `...` arguments so both are
+      # forwarded to `map_seq_proto()`, and from there to `fun()`. Helper
+      # arguments such as `items` are dropped: their effect is already baked
+      # into the `data` that the values are dispersed from -- the initial
+      # `fun()` call above multiplied `items` into the `n` column -- so passing
+      # them on to the re-tests would apply them twice over:
       .fun_args <- c(.digits_vals, list(...))
+      .fun_args <- .fun_args[!names(.fun_args) %in% `!!`(args_helper_fun)]
 
       # Apply the lower-level function to all user-supplied variables (`var`)
       # and all cases reported in `data`, or at least the inconsistent ones:

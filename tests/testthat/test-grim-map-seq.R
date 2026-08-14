@@ -1888,3 +1888,25 @@ test_that("`grim_map_seq()` handles large `dispersion` values", {
     out_304[out_304$diff_var %in% out$diff_var, ]
   )
 })
+
+
+# The initial `grim_map()` call multiplies `items` into the `n` column, so the
+# internal re-tests of dispersed values receive data whose `n` is already
+# merged. Forwarding `items` to them as well used to multiply it in a second
+# time, testing (and displaying) `n * items^2` instead of `n * items`.
+test_that("`grim_map_seq()` applies `items` only once", {
+  out_items <- tibble::tibble(x = 2.84, n = 16) |>
+    grim_map_seq(
+      digits_x = 2,
+      items = 2,
+      include_consistent = TRUE,
+      dispersion = 1:2
+    )
+
+  # The same data with `n` pre-merged (16 * 2 = 32) and `items` left at 1:
+  out_merged <- tibble::tibble(x = 2.84, n = 32) |>
+    grim_map_seq(digits_x = 2, include_consistent = TRUE, dispersion = 1:2)
+
+  expect_equal(out_items$n, out_merged$n)
+  expect_equal(out_items$consistency, out_merged$consistency)
+})
