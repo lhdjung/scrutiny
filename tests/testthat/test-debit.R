@@ -147,3 +147,37 @@ test_that("`debit()` still checks the range of its inputs", {
   debit(x = 0.5, sd = 1.5, n = 100, digits_x = 2, digits_sd = 2) |>
     expect_error()
 })
+
+
+# Boundary means ----------------------------------------------------------
+
+# A mean of binary data cannot lie outside of 0 and 1, but its rounding bounds
+# can. `sd_binary_mean_n()` returns `NaN` for such a bound, which used to make
+# the verdict undecidable for a mean reported as 0.00 or 1.00 -- even though
+# both are perfectly consistent: every value is 0, or every value is 1, and the
+# SD is 0 either way.
+
+test_that("DEBIT decides means of exactly 0 and 1", {
+  debit(x = 0, sd = 0, n = 50, digits_x = 2, digits_sd = 2) |> expect_true()
+  debit(x = 1, sd = 0, n = 50, digits_x = 2, digits_sd = 2) |> expect_true()
+  debit(x = 0, sd = 0, n = 5, digits_x = 3, digits_sd = 3) |> expect_true()
+  debit(x = 1, sd = 0, n = 5, digits_x = 3, digits_sd = 3) |> expect_true()
+})
+
+
+test_that("DEBIT still rejects impossible SDs at those means", {
+  debit(x = 0, sd = 0.5, n = 50, digits_x = 2, digits_sd = 2) |> expect_false()
+  debit(x = 1, sd = 0.5, n = 50, digits_x = 2, digits_sd = 2) |> expect_false()
+})
+
+
+test_that("`debit_map()` reports no negative SD bound and no mean out of range", {
+  out <- debit_map(
+    tibble::tibble(x = c(0, 1), sd = c(0, 0), n = c(50L, 50L)),
+    digits_x = 2,
+    digits_sd = 2
+  )
+  (out$sd_lower >= 0)  |> all() |> expect_true()
+  (out$x_lower  >= 0)  |> all() |> expect_true()
+  (out$x_upper  <= 1)  |> all() |> expect_true()
+})

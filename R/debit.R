@@ -164,8 +164,25 @@ debit_scalar <- function(
     ))
   }
 
-  x_lower <- bounds_x$lower / bounds_x$denom
-  x_upper <- bounds_x$upper / bounds_x$denom
+  # A mean of binary data cannot lie outside of 0 and 1, so neither can the
+  # original value behind a reported one, however the rounding bounds fall. Both
+  # bounds are therefore clamped to that range, which only ever narrows it.
+  # Without this, a mean reported as 0.00 or 1.00 had a bound just outside the
+  # range, `sd_binary_mean_n()` returned `NaN` for it, and the comparison below
+  # was undecidable: `debit(x = 0, sd = 0, n = 50)` was `NA` although the value
+  # set is perfectly consistent -- every value is 0, so the SD is 0.
+  x_lower <- max(bounds_x$lower / bounds_x$denom, 0)
+  x_upper <- min(bounds_x$upper / bounds_x$denom, 1)
+
+  # An SD cannot be negative, so a negative lower bound is really a bound of
+  # zero -- and that one is attainable, hence inclusive. This is what
+  # `grimmer_scalar()` does with the same bounds; DEBIT used to report the
+  # negative number instead, in the `sd_lower` output column of `debit_map()`:
+  if (bounds_sd$lower < 0) {
+    bounds_sd$lower <- 0
+    bounds_sd$incl_lower <- TRUE
+  }
+
   sd_lower <- bounds_sd$lower / bounds_sd$denom
   sd_upper <- bounds_sd$upper / bounds_sd$denom
 
