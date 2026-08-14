@@ -33,6 +33,12 @@
 #'
 #' @return Integer. Number of decimal places in `x`.
 #'
+#' @details Both functions count the run of digits that immediately follows the
+#'   first `sep`, after removing surrounding whitespace and applying any
+#'   exponent: `"5.30%"` has two decimal places, and `"1e-5"` has five. They
+#'   always agree with each other; `decimal_places_scalar()` is the faster one,
+#'   and `decimal_places()` is the one that takes a vector.
+#'
 #' @include utils.R
 #'
 #' @rdname decimal_places
@@ -77,20 +83,21 @@ decimal_places <- function(x, sep = "\\.") {
   ))
   x <- stringr::str_remove(x, "[eE][+-]?[0-9]+$")
 
-  pieces <- stringr::str_split(x, sep, n = 2L)
-  out <- vapply(
-    pieces,
-    function(p) {
-      if (anyNA(p)) {
-        NA_integer_
-      } else if (length(p) == 1L) {
-        0L
-      } else {
-        stringr::str_length(p[[2L]])
-      }
-    },
-    integer(1L)
-  )
+  # Only the run of digits that immediately follows the separator counts, not
+  # every character after it: `"5.30%"` has two decimal places, not three, and
+  # `"1.2.3"` has one, not three. This is the same rule that
+  # `decimal_places_scalar()` applies, and the two are checked against each
+  # other over a generated corpus in `test-decimal-places.R`. For a
+  # well-formed number the two rules agree anyway, because every character of
+  # its mantissa is a digit. `str_split_fixed()` returns an empty mantissa
+  # where there is no separator, and `regexpr()` counts the digit run for the
+  # whole vector in one pass:
+  mantissa <- stringr::str_split_fixed(x, sep, n = 2L)[, 2L]
+  out <- attr(regexpr("^[0-9]*", mantissa), "match.length")
+
+  # `str_split_fixed()` gives a missing value an empty mantissa rather than a
+  # missing one, so it would otherwise count as zero decimal places:
+  out[is.na(x)] <- NA_integer_
 
   # A value without an exponent is shifted by nothing, and a positive exponent
   # can only cancel decimal places, never create negative ones:
@@ -111,7 +118,12 @@ decimal_places_scalar <- function(x, sep = "\\.") {
     return(NA_integer_)
   }
 
-  x <- as.character(x)
+  # Whitespace must go before anything else is read off the string, exactly as
+  # in `decimal_places()`: the exponent is matched at the end of the string, so
+  # a single trailing space used to hide it and `"1.5e3 "` came out as 1 rather
+  # than 0. Only a string the user typed can carry whitespace -- and only that
+  # case pays for `trimws()` -- because `as.character()` never produces any:
+  x <- if (is.character(x)) trimws(x) else as.character(x)
 
   # See the comment in `decimal_places()`: an exponent shifts the decimal point,
   # so it has to be split off before the digits after `sep` are counted. This is

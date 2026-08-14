@@ -35,6 +35,12 @@ numbers need to be \emph{entered} in quotes.)
 
 The functions ignore any whitespace at the end of a string, so they won't
 mistake spaces for decimal places.
+
+Both functions count the run of digits that immediately follows the
+first \code{sep}, after removing surrounding whitespace and applying any
+exponent: \code{"5.30\%"} has two decimal places, and \code{"1e-5"} has five. They
+always agree with each other; \code{decimal_places_scalar()} is the faster one,
+and \code{decimal_places()} is the one that takes a vector.
 }
 \section{Trailing zeros}{
  If trailing zeros matter, don't convert numeric

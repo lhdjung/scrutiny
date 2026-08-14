@@ -187,6 +187,64 @@ test_that("the two functions agree on ordinary numbers", {
 })
 
 
+# The two functions are separate implementations of one rule -- trim, split off
+# a trailing exponent, count the run of digits right after the first separator,
+# subtract the exponent, floor at zero -- because neither can be expressed in
+# terms of the other without a large cost: the scalar one runs once per row via
+# `check_newly_numeric()`, and the vectorized one runs over whole columns. What
+# keeps them from drifting apart is this corpus, not their similarity. It has to
+# include padded and malformed strings, since clean numbers are exactly where
+# they never disagreed.
+
+test_that("the two functions agree over a generated corpus", {
+  signs <- c("", "-", "+")
+  ints <- c("0", "1", "42", "")
+  mantissas <- c("", ".0", ".5", ".00", ".750", ".0001")
+  exponents <- c("", "e3", "e-3", "E+05", "e-10", "e0")
+  pads <- c("", " ", "  ", "\t")
+
+  values <- as.vector(outer(
+    outer(paste0(rep(signs, each = length(ints)), ints), mantissas, paste0),
+    exponents,
+    paste0
+  ))
+  values <- as.vector(outer(paste0(pads, values), pads, paste0))
+
+  # Malformed input has to agree too, and it is where they used to differ:
+  values <- c(
+    values,
+    "5.30%", "1.5abc", "1.2.3", "3.7,", "1.50a", "1.5e", "e5",
+    "Inf", "NaN", "NA", "", " ", NA_character_
+  )
+
+  from_scalar <- vapply(
+    values, decimal_places_scalar, integer(1L), USE.NAMES = FALSE
+  )
+  decimal_places(values) |> expect_equal(from_scalar)
+
+  # Not a vacuous comparison -- the corpus has to exercise the whole range:
+  expect_gt(length(unique(from_scalar[!is.na(from_scalar)])), 5L)
+  expect_true(anyNA(from_scalar))
+})
+
+
+test_that("only the digit run after the separator counts", {
+  # Not every character after it: `str_length()` on the mantissa used to make
+  # `"5.30%"` three decimal places and `"1.2.3"` three.
+  decimal_places(c("5.30%", "1.5abc", "1.2.3", "3.7,")) |>
+    expect_equal(c(2L, 1L, 1L, 1L))
+})
+
+
+test_that("both functions trim whitespace before reading the exponent", {
+  # The exponent is matched at the end of the string, so a trailing space used
+  # to hide it from `decimal_places_scalar()`.
+  decimal_places_scalar("1.5e3 ") |> expect_equal(0L)
+  decimal_places_scalar("  2.75e-2  ") |> expect_equal(4L)
+  decimal_places("1.5e3 ") |> expect_equal(0L)
+})
+
+
 test_that("sequence functions step on the right decimal level below 0.001", {
   # `decimal_places_scalar()` sets the step size in all of these. When it read
   # `1e-04` as having no decimal places, they stepped by whole numbers instead.
