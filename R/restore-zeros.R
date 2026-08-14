@@ -189,6 +189,13 @@ restore_zeros <- function(
     x
   )
 
+  # A missing value has no trailing zeros to restore, and it should stay missing
+  # rather than become the string `"NA"`. It takes this branch because
+  # `stringr::str_split_fixed()` returns an empty mantissa for it, which counts
+  # as fewer decimal places than the target, and `sprintf()` then formats the
+  # missing value as the four characters that spell it out:
+  out[is.na(x)] <- NA_character_
+
   # By default, the separator in the output vector should be a decimal point,
   # but it might have been overridden -- either directly via `sep_out` or
   # indirectly via `sep_in` (because the default for `sep_out` is `sep_in`). If
