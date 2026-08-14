@@ -34,9 +34,9 @@ proportion of 100 rather than 1. The functions will then account for this
 fact through increasing the decimal count by 2. Default is \code{FALSE}.}
 }
 \value{
-Integer or double. The number of possible GRIM inconsistencies, or
-their probability for a random mean or percentage with a given number of
-decimal places.
+Double. The number of possible GRIM inconsistencies, or their
+probability for a random mean or percentage with a given number of decimal
+places.
 }
 \description{
 These functions compute statistics related to GRIM-testing. In

@@ -37,9 +37,9 @@
 #' @seealso [`grim()`] for the GRIM test itself; as well as [`grim_map()`] for
 #'   applying it to many cases at once.
 #'
-#' @return Integer or double. The number of possible GRIM inconsistencies, or
-#'   their probability for a random mean or percentage with a given number of
-#'   decimal places.
+#' @return Double. The number of possible GRIM inconsistencies, or their
+#'   probability for a random mean or percentage with a given number of decimal
+#'   places.
 #'
 #' @references Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A
 #'   Simple Technique Detects Numerous Anomalies in the Reporting of Results in
@@ -95,16 +95,16 @@ grim_total <- function(x, n, digits_x, items = 1, percent = FALSE) {
     digits_x <- digits_x + 2L
   }
   p10 <- 10^digits_x
-  out <- p10 - (n * items)
 
-  # The count is a whole number, and integer is the better representation for it
-  # -- but only while it fits. Beyond `.Machine$integer.max`, which `digits_x =
-  # 10` already exceeds, `as.integer()` returns `NA` with a warning, so the
-  # count of possible inconsistencies came out as no count at all. The double is
-  # exact far past that point:
-  if (all(is.na(out) | abs(out) <= .Machine$integer.max)) {
-    out <- as.integer(out)
-  }
-
-  out
+  # Double, always. The count is a whole number, so integer looks like the
+  # better representation for it, but it cannot be integer consistently: the
+  # count goes past `.Machine$integer.max` from `digits_x = 10` on (or from 8
+  # with `percent = TRUE`), where `as.integer()` gives `NA` and a warning.
+  # Coercing only while the value fits would make the return type depend on the
+  # values -- and, since a vector has one type, on the largest element of the
+  # call, so `grim_total(digits_x = c(2, 10))` would return both counts as
+  # doubles while `digits_x = 2` alone returned an integer. A double is exact up
+  # to 2^53, which is far past anything GRIM can produce, and `10^digits_x` is
+  # one already, so the subtraction below is where the type is settled:
+  p10 - (n * items)
 }

@@ -62,5 +62,14 @@ test_that("`grim_total()` doesn't overflow the integer range", {
   # inconsistencies used to come out as no count at all.
   grim_total(5.30, 40, digits_x = 10) |> expect_equal(1e10 - 40)
   grim_total(5.30, 40, digits_x = 10) |> expect_no_warning()
-  grim_total(5.30, 40, digits_x = 2)  |> expect_type("integer")
+})
+
+
+test_that("`grim_total()` returns a double whatever the count", {
+  # The type must not depend on how large the count happens to be, or on which
+  # element of a vectorized call is the largest.
+  grim_total(5.30, 40, digits_x = 2)  |> expect_type("double")
+  grim_total(5.30, 40, digits_x = 10) |> expect_type("double")
+  grim_total(5.30, 40, digits_x = c(2, 10)) |> expect_type("double")
+  grim_total(5.30, 40, digits_x = 8, percent = TRUE) |> expect_type("double")
 })
