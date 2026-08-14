@@ -100,6 +100,22 @@
 
 - Functions made by `function_map_total_n()` now work when they are created outside of scrutiny, e.g., in another package. Their bodies call scrutiny-internal helpers such as `absorb_key_args()`, but the factory used to enclose them in the caller's environment, which has no path to those helpers. They are now enclosed in an environment inheriting from scrutiny's namespace, as those made by `function_map()` and `function_map_seq()` already were (#69).
 
+- `debit()` and `debit_map()` now decide a mean of exactly 0 or exactly 1. Both are perfectly consistent -- every value is 0, or every value is 1, and the SD is 0 either way -- but their rounding bounds reach outside of 0 and 1, where the SD of binary data is undefined. `sd_binary_mean_n()` returned `NaN` for such a bound, and the comparison against the reported SD came out as `NA`, so `debit(x = 0, sd = 0, n = 50, digits_x = 2, digits_sd = 2)` was undecidable rather than `TRUE`. The mean's bounds are now clamped to the range that a mean of binary data can occupy, which only ever narrows them. Relatedly, `debit_map()`'s `sd_lower` column no longer reports a negative standard deviation: a negative lower bound is now treated as a bound of zero, as it already was in `grimmer()`.
+
+- `decimal_places()` and `decimal_places_scalar()` now account for scientific notation, which moves the decimal point: `1e-05` has five decimal places and `1.5e3` has none, where both used to be counted by the digits after the point alone (0 and 3). R writes numerics that way by itself -- `as.character(0.0001)` is `"1e-04"` -- so this was not only about strings the user typed. The step size of `seq_disperse()`, `seq_endpoint()`, and `seq_distance()` comes from this count, so those functions were silently wrong below `0.001`: `seq_endpoint(from = 0.0001, to = 0.0005)` returned a single value, and `seq_disperse(from = 7.22, by = 1e-4)` threw an error from `restore_zeros()`.
+
+- `unround()` now checks the lengths of all its vectorized arguments against each other, not just `x` and `rounding`. A `digits` shorter than `x` used to be recycled without a word, so the extra `x` values were unrounded at the wrong number of decimal places: `unround(c("1.0", "2.00", "3.000"), digits = c(1, 2))` reported the bounds of `3.000` as those of a value with one decimal place. One `digits` value per `x` value raises no pairing warning; that warning is still about `x` and `rounding` alone.
+
+- `restore_zeros()` now returns `NA` for a missing value rather than the string `"NA"`. `stringr::str_split_fixed()` gives `NA` an empty mantissa, which counts as fewer decimal places than the target, so `sprintf()` formatted the missing value into the four characters that spell it out.
+
+- `grim_total()` no longer returns `NA` when the number of possible inconsistencies exceeds the integer range, as it does from `digits_x = 10` on. The result was coerced to integer unconditionally, and `as.integer(1e10)` is `NA` with a warning. It stays an integer wherever it fits.
+
+- Sequence mappers such as `grim_map_seq()` now give their own error message when `data` already has a `consistency` column. The check that produces it was called without the name of the test, so cli failed on the missing argument and reported "Could not evaluate cli `{}` expression: `name_test`" instead of saying what was wrong.
+
+- `*_map_total_n()` functions now swap the two groups correctly when the reported statistic's own name contains a digit. The `"1"` and `"2"` suffixes were swapped by replacing those characters anywhere in the column name, which hit the wrong one for a statistic called, say, `t1`, whose columns are `t11` and `t12`.
+
+- `audit_seq()` now orders its `hits_*` and `diff_*` columns by `var`. Undoing the alphabetical order that `split()` imposes takes `rank()`, not `order()`; the two are inverses of each other and agree only up to three variables that don't form a cycle. The column *names* always tracked their values, so no summary was ever wrong -- only the order in which the columns appeared.
+
 ## Minor improvements
 
 - `reround_to_fraction(digits = "auto")` no longer errors with "non-numeric argument to mathematical function". The function validated `digits` as a integer before resolving `"auto"` into one, and `is.infinite("auto")` is `FALSE`, so the string went straight into `is_whole_number()`. `reround_to_fraction_level()` has always had the two steps in the right order.
@@ -123,6 +139,8 @@
 - The floating-point tolerance is now expressed through the single `rounding_tolerance` constant in every rounding function. `round_up_from()` and `round_down_from()` used to subtract `.Machine$double.eps^0.5` from `threshold`, which the `/ 10` in their formula turns into the very same additive nudge that `round_ceiling()` and friends apply directly. That equality was important because `unround()`'s bounds assume one shared tolerance, but this was not stated anywhere. Results are unchanged.
 
 - `round_trunc()` and `anti_trunc()` no longer call `dplyr::if_else()` to restore the sign of a value derived from `abs(x)`, nor do the `symmetric` branches of `round_up_from()` and `round_down_from()`. These are the package's innermost primitives, running once per candidate value inside GRIMMER's loop. The one behavioral difference is that a `NaN` input now yields `NaN` rather than `NA`, as it does in `base::round()`.
+
+- `grDevices`, `grid`, and `utils` are now declared in `Imports`. All three are used with `::` -- `grim_plot()` builds its gradient with the first two, and `check_args_disabled()` looks up a package name with the third -- but only the packages they are used alongside were declared.
 
 ## New features
 
@@ -179,6 +197,8 @@
 - The `digits_x` and `digits_sd` arguments introduced in 1.0.0 are now documented, and all examples were updated to the numeric `x` and `sd` values that the mappers have taken since then. Many of them still passed strings and omitted the `digits_*` arguments, and so failed to run.
 
 - `grim_plot()`'s examples now pass `digits` explicitly. `grim_plot()` reads the decimal count off the `x` column unless told otherwise, and a numeric column cannot carry trailing zeros: `pigs1` contains 5.00, which reads back as zero decimal places rather than two.
+
+- The example datasets no longer show two "See Also" paragraphs each. When `pigs5` was added, its entry was appended in a second `@seealso` block instead of the existing one, and roxygen2 merges the two, so `?pigs1`, `?pigs2`, and `?pigs3` each printed the same list twice over -- once without `pigs5` and once with it. References to `pigs1` are now links, as the references to the other four datasets already were.
 
 # scrutiny 0.6.1
 
