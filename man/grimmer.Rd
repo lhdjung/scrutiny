@@ -14,7 +14,6 @@ grimmer(
   items = 1,
   min_val = NULL,
   max_val = NULL,
-  show_reason = FALSE,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
@@ -46,11 +45,6 @@ scale. If both are specified, GRIMMER also tests whether values within
 that range could have produced the reported \code{x} and \code{sd} in the first
 place. Both default to \code{NULL}, i.e., an unbounded scale. See \emph{Scale
 bounds} below.}
-
-\item{show_reason}{Logical. For internal use only. If set to \code{TRUE}, the
-output is a list of length-2 lists which also contain the reasons for
-inconsistencies. Don't specify this manually; instead, use \code{show_reason} in
-\code{\link[=grimmer_map]{grimmer_map()}}. See there for explanation. Default is \code{FALSE}.}
 
 \item{rounding}{String. Rounding method or methods to be used for
 reconstructing the values to which \code{x} will be compared. Default is
@@ -87,6 +81,11 @@ number of items that compose the mean value. It works much like \code{\link[=gri
 
 The function is vectorized, but it is recommended to use \code{\link[=grimmer_map]{grimmer_map()}}
 for testing multiple cases.
+
+\code{x}, \code{sd}, \code{n}, \code{digits_x}, \code{digits_sd}, and \code{items} are vectorized: they
+may have any length, and shorter ones are recycled to the length of the
+longest, as long as they have length 1. All other arguments describe the
+test as a whole and must have length 1.
 }
 \details{
 GRIMMER was originally devised by Anaya (2016). The present

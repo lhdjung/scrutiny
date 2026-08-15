@@ -22,24 +22,25 @@ grim_scalar <- function(
   threshold = 5,
   symmetric = FALSE,
   # `lifecycle::deprecated()`, not the bare `deprecated()` that the import
-  # provides: this default is copied into the formals of `grim()` by
-  # `Vectorize()` and into every mapper's by `function_map()`, and R CMD check
-  # reads it there, outside the namespace that resolves the bare name.
+  # provides: this default is copied into every mapper's formals by
+  # `function_map()`, and R CMD check reads it there, outside the namespace that
+  # resolves the bare name. `grim()` states it in its own signature.
   tolerance = lifecycle::deprecated()
 ) {
-  # GRIM decides which sums are consistent in exact integer arithmetic, so
-  # there is no floating-point comparison for a tolerance to loosen. The
-  # argument was retained "because `grimmer()` and `debit()` inherit it and do
-  # use it", which is only half true: `grimmer()` does, `debit()` never had it
-  # and does not need it either. So this is an argument that does nothing, in
-  # the one function of the three whose result it cannot change.
+  # GRIM decides which sums are consistent in exact integer arithmetic, so there
+  # is no floating-point comparison for a tolerance to loosen. The argument was
+  # retained "because `grimmer()` and `debit()` inherit it and do use it", which
+  # is only half true: `grimmer()` does, `debit()` never had it and does not
+  # need it either. So this is an argument that does nothing, in the one
+  # function of the three whose result it cannot change.
   if (lifecycle::is_present(tolerance)) {
     # `user_env` is given explicitly because this function is never called
-    # directly by the user: `grim()` is `Vectorize(grim_scalar)`, and
-    # `grim_map()` reaches it through `purrr::pmap()`. Left to infer the caller,
-    # lifecycle finds a scrutiny frame either way and appends "The deprecated
-    # feature was likely used in the scrutiny package. Please report the issue"
-    # -- sending the user to the issue tracker for their own argument.
+    # directly by the user: `grim()` forwards to it through `vectorize_test()`,
+    # and `grim_map()` reaches it through `purrr::pmap()`. Left to infer the
+    # caller, lifecycle finds a scrutiny frame either way and appends "The
+    # deprecated feature was likely used in the scrutiny package. Please report
+    # the issue" -- sending the user to the issue tracker for their own
+    # argument.
     lifecycle::deprecate_warn(
       when = "1.0.0",
       what = "grim(tolerance)",
@@ -181,6 +182,11 @@ grim_scalar <- function(
 #'   Browse the source code in the grim.R file. `grim()` is a vectorized version
 #'   of the internal `grim_scalar()` function found there.
 #'
+#'   `x`, `n`, `digits_x`, and `items` are vectorized: they may have any length,
+#'   and shorter ones are recycled to the length of the longest, as long as they
+#'   have length 1. All other arguments describe the test as a whole and must
+#'   have length 1.
+#'
 #'   `grim()` decides which reconstructed means are consistent with `x` using
 #'   exact integer arithmetic, so there is no floating-point comparison for a
 #'   `tolerance` to loosen. The argument is deprecated for that reason.
@@ -199,10 +205,6 @@ grim_scalar <- function(
 #' @param percent Logical. Set `percent` to `TRUE` if `x` is a percentage. This
 #'   will convert it to a decimal number and adjust the decimal count (i.e.,
 #'   increase it by 2). Default is `FALSE`.
-#' @param show_rec Logical. For internal use only. If set to `TRUE`, the output
-#'   is a list that also contains the reconstructed values from GRIM-testing.
-#'   Don't specify this manually; instead, use `show_rec` in [`grim_map()`].
-#'   Default is `FALSE`.
 #' @param rounding String. Rounding method or methods to be used for
 #'   reconstructing the values to which `x` will be compared. Default is
 #'   `"up_or_down"` (from 5).
@@ -250,5 +252,22 @@ grim_scalar <- function(
 #' # With percentages instead of means -- here, 71%:
 #' grim(x = 71, n = 43, digits_x = 0, percent = TRUE)
 
-# Vectorized version:
-grim <- Vectorize(grim_scalar)
+# Vectorized version. The signature mirrors `grim_scalar()`'s minus `show_rec`,
+# which only the mapper tier has any use for; see `vectorize_test()`:
+grim <- function(
+  x,
+  n,
+  digits_x,
+  items = 1,
+  percent = FALSE,
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE,
+  tolerance = lifecycle::deprecated()
+) {
+  vectorize_test(
+    .fun = grim_scalar,
+    .frame = environment(),
+    .along = c("x", "n", "digits_x", "items")
+  )
+}

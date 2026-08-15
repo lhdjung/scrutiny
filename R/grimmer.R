@@ -534,6 +534,11 @@ grimmer_scalar <- function(
 #'   The function is vectorized, but it is recommended to use [`grimmer_map()`]
 #'   for testing multiple cases.
 #'
+#'   `x`, `sd`, `n`, `digits_x`, `digits_sd`, and `items` are vectorized: they
+#'   may have any length, and shorter ones are recycled to the length of the
+#'   longest, as long as they have length 1. All other arguments describe the
+#'   test as a whole and must have length 1.
+#'
 #' @param x Numeric. The reported mean value.
 #' @param sd Numeric. The reported standard deviation.
 #' @param n Integer. The reported sample size.
@@ -548,10 +553,6 @@ grimmer_scalar <- function(
 #'   that range could have produced the reported `x` and `sd` in the first
 #'   place. Both default to `NULL`, i.e., an unbounded scale. See *Scale
 #'   bounds* below.
-#' @param show_reason Logical. For internal use only. If set to `TRUE`, the
-#'   output is a list of length-2 lists which also contain the reasons for
-#'   inconsistencies. Don't specify this manually; instead, use `show_reason` in
-#'   [`grimmer_map()`]. See there for explanation. Default is `FALSE`.
 #' @param tolerance Numeric. Tolerance of the comparison between the reported
 #'   `sd` and the reconstructed SDs, via [`dplyr::near()`]. Default is circa
 #'   0.000000015 (1.490116e-08). This is documented here rather than inherited
@@ -648,4 +649,26 @@ grimmer_scalar <- function(
 #'   min_val = 1, max_val = 5
 #' )
 
-grimmer <- Vectorize(grimmer_scalar)
+# Vectorized version. The signature mirrors `grimmer_scalar()`'s minus
+# `show_reason`, which only the mapper tier has any use for; see
+# `vectorize_test()`:
+grimmer <- function(
+  x,
+  sd,
+  n,
+  digits_x,
+  digits_sd,
+  items = 1,
+  min_val = NULL,
+  max_val = NULL,
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE,
+  tolerance = .Machine$double.eps^0.5
+) {
+  vectorize_test(
+    .fun = grimmer_scalar,
+    .frame = environment(),
+    .along = c("x", "sd", "n", "digits_x", "digits_sd", "items")
+  )
+}

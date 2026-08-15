@@ -319,6 +319,11 @@ debit_scalar <- function(
 #'   The function is vectorized, but it is recommended to use [`debit_map()`]
 #'   for testing multiple cases.
 #'
+#'   `x`, `sd`, `n`, `digits_x`, and `digits_sd` are vectorized: they may have
+#'   any length, and shorter ones are recycled to the length of the longest, as
+#'   long as they have length 1. All other arguments describe the test as a
+#'   whole and must have length 1.
+#'
 #' @param x Numeric. Mean of a binary distribution.
 #' @param sd Numeric. Sample standard deviation of a binary distribution.
 #' @param digits_x Integer. The number of decimal places in `x`, including
@@ -342,10 +347,6 @@ debit_scalar <- function(
 #'   negative numbers with `"up"`, `"down"`, `"up_from"`, or `"down_from"`
 #'   should mirror that of positive numbers so that their absolute values are
 #'   always equal. Default is `FALSE`.
-#' @param show_rec Logical. For internal use only. If set to `TRUE`, the output
-#'   is a list that also contains the reconstructed boundary values. Don't
-#'   specify this manually; instead, use `show_rec` in [`debit_map()`]. Default
-#'   is `FALSE`.
 
 #' @export
 #'
@@ -365,4 +366,22 @@ debit_scalar <- function(
 #' # summary data:
 #' debit(x = 0.36, sd = 0.11, n = 20, digits_x = 2, digits_sd = 2)
 
-debit <- Vectorize(debit_scalar)
+# Vectorized version. The signature mirrors `debit_scalar()`'s minus `show_rec`,
+# which only the mapper tier has any use for; see `vectorize_test()`:
+debit <- function(
+  x,
+  sd,
+  n,
+  digits_x,
+  digits_sd,
+  formula = "mean_n",
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE
+) {
+  vectorize_test(
+    .fun = debit_scalar,
+    .frame = environment(),
+    .along = c("x", "sd", "n", "digits_x", "digits_sd")
+  )
+}

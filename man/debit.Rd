@@ -13,8 +13,7 @@ debit(
   formula = "mean_n",
   rounding = "up_or_down",
   threshold = 5,
-  symmetric = FALSE,
-  show_rec = FALSE
+  symmetric = FALSE
 )
 }
 \arguments{
@@ -49,11 +48,6 @@ irrelevant. Default is \code{5}.}
 negative numbers with \code{"up"}, \code{"down"}, \code{"up_from"}, or \code{"down_from"}
 should mirror that of positive numbers so that their absolute values are
 always equal. Default is \code{FALSE}.}
-
-\item{show_rec}{Logical. For internal use only. If set to \code{TRUE}, the output
-is a list that also contains the reconstructed boundary values. Don't
-specify this manually; instead, use \code{show_rec} in \code{\link[=debit_map]{debit_map()}}. Default
-is \code{FALSE}.}
 }
 \value{
 Logical. \code{TRUE} if \code{x}, \code{sd}, and \code{n} are mutually consistent,
@@ -69,6 +63,11 @@ consistent with the reported sample size?
 
 The function is vectorized, but it is recommended to use \code{\link[=debit_map]{debit_map()}}
 for testing multiple cases.
+
+\code{x}, \code{sd}, \code{n}, \code{digits_x}, and \code{digits_sd} are vectorized: they may have
+any length, and shorter ones are recycled to the length of the longest, as
+long as they have length 1. All other arguments describe the test as a
+whole and must have length 1.
 }
 \examples{
 # Check single cases of binary

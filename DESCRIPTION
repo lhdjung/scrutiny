@@ -112,6 +112,7 @@ Collate:
     'seq-length.R'
     'split-by-parens.R'
     'utils-tidy-eval.R'
+    'vectorize-test.R'
     'write-doc-audit.R'
 Suggests:
     knitr,

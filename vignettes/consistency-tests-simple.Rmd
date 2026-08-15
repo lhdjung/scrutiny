@@ -48,6 +48,8 @@ schlim <- Vectorize(schlim_scalar)
 schlim(y = 10:15, n = 4)
 ```
 
+This works as long as every argument of the single-case function makes sense to loop over, and the function always returns a single value. If either is not true --- as with `grim_scalar()`, whose `show_rec` argument only `grim_map()` has any use for --- write the signature out instead. See `vignette("consistency-tests-in-depth")`, section 2.
+
 ## 3. Basic mapper
 
 Next, create a function that tests many values in a data frame, like `grim_map()` does. Its name should also end on `_map`. Use `function_map()` to get this function without much effort:

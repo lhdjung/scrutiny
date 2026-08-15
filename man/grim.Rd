@@ -10,7 +10,6 @@ grim(
   digits_x,
   items = 1,
   percent = FALSE,
-  show_rec = FALSE,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
@@ -33,11 +32,6 @@ most common case.}
 \item{percent}{Logical. Set \code{percent} to \code{TRUE} if \code{x} is a percentage. This
 will convert it to a decimal number and adjust the decimal count (i.e.,
 increase it by 2). Default is \code{FALSE}.}
-
-\item{show_rec}{Logical. For internal use only. If set to \code{TRUE}, the output
-is a list that also contains the reconstructed values from GRIM-testing.
-Don't specify this manually; instead, use \code{show_rec} in \code{\link[=grim_map]{grim_map()}}.
-Default is \code{FALSE}.}
 
 \item{rounding}{String. Rounding method or methods to be used for
 reconstructing the values to which \code{x} will be compared. Default is
@@ -84,6 +78,11 @@ survive in the numeric value.
 
 Browse the source code in the grim.R file. \code{grim()} is a vectorized version
 of the internal \code{grim_scalar()} function found there.
+
+\code{x}, \code{n}, \code{digits_x}, and \code{items} are vectorized: they may have any length,
+and shorter ones are recycled to the length of the longest, as long as they
+have length 1. All other arguments describe the test as a whole and must
+have length 1.
 
 \code{grim()} decides which reconstructed means are consistent with \code{x} using
 exact integer arithmetic, so there is no floating-point comparison for a

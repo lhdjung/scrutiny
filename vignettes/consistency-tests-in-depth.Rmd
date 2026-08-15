@@ -83,7 +83,11 @@ schlim <- Vectorize(schlim_scalar)
 schlim(y = 10:15, n = 4)
 ```
 
-Functions created this way can be useful for quick testing, but they won't be used in the remaining part of the vignette. That's because functions like `schlim()` are not great to build upon --- unlike mapper functions, which will be discussed next.
+One caveat: `Vectorize()` copies *all* of the single-case function's formals, and it loops over all of them. If your function has an argument that only the mapper should ever set --- like `show_rec` in `grim_scalar()`, which makes it return its reconstructed values for `function_map()` to unpack into columns --- that argument ends up in the vectorized function's signature as well, where it has no business being. It is also the one argument that can make the function return something other than a single logical value, and `Vectorize()` turns that into a matrix. For the same reason, an argument like `rounding` gets looped over along with the values, so that one call can ask for two rounding methods at once.
+
+scrutiny's own `grim()`, `grimmer()`, and `debit()` used to be made with `Vectorize()` and no longer are, for exactly these reasons. If your single-case function has such an argument, write the signature out and loop yourself.
+
+Either way, functions created here won't be used in the remaining part of the vignette. That's because functions like `schlim()` are not great to build upon --- unlike mapper functions, which will be discussed next.
 
 # 3. Basic mapper
 
