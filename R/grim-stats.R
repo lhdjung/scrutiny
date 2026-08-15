@@ -71,7 +71,15 @@ grim_probability <- function(x, n, digits_x, items = 1, percent = FALSE) {
   }
   p10 <- 10^digits_x
   out <- (p10 - n * items) / p10
-  dplyr::if_else(out < 0, 0, out)
+  out <- dplyr::if_else(out < 0, 0, out)
+
+  # A probability cannot exceed 1, and the formula above returns more than 1
+  # whenever `n * items` is negative. That is not a case with a very high
+  # probability of inconsistency -- it is a case with nothing to test, which is
+  # exactly what `grim()` returns `NA` for. Reporting `1.03` next to a verdict of
+  # `NA`, as the `probability` column of `grim_map()` used to, states two
+  # incompatible things about one row. `grim_ratio()` is the unclamped one:
+  dplyr::if_else(n * items > 0, out, NA_real_)
 }
 
 

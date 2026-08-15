@@ -73,3 +73,19 @@ test_that("`grim_total()` returns a double whatever the count", {
   grim_total(5.30, 40, digits_x = c(2, 10)) |> expect_type("double")
   grim_total(5.30, 40, digits_x = 8, percent = TRUE) |> expect_type("double")
 })
+
+
+test_that("`grim_probability()` is a probability", {
+  # A non-positive `n` leaves nothing to test, which `grim()` reports as `NA`.
+  # The formula returned 1 or more there, so the `probability` column of
+  # `grim_map()` used to state a probability of 1.03 next to a verdict of `NA`.
+  grim_probability(5.19, n = 0, digits_x = 2) |> expect_na()
+  grim_probability(5.19, n = -3, digits_x = 2) |> expect_na()
+  grim_map(tibble::tibble(x = 5.19, n = -3L), digits_x = 2)$probability |>
+    expect_na()
+  # Ordinary cases are untouched, and never above 1 or below 0:
+  grim_probability(5.19, n = 28, digits_x = 2) |> expect_equal(0.72)
+  grim_probability(5.19, n = 200, digits_x = 2) |> expect_equal(0)
+  # `grim_ratio()` is the unclamped one and keeps saying so:
+  grim_ratio(5.19, n = 200, digits_x = 2) |> expect_equal(-1)
+})
