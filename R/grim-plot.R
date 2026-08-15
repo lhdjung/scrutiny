@@ -105,10 +105,15 @@
 #'   Psychology. *Social Psychological and Personality Science*, 8(4), 363–369.
 #'   https://journals.sagepub.com/doi/10.1177/1948550616673876
 
-#' @return A ggplot object -- except with `split_by_digits = TRUE`, which
-#'   invisibly returns a named list of ggplot objects, one per distinct
-#'   non-zero number of decimal places (e.g., `list(digits_1 = ..., digits_2 =
-#'   ...)`), and prints each of them.
+#' @return A ggplot object, returned the ordinary way: at the console,
+#'   auto-printing draws it, and it can be added to, saved, or composed with
+#'   other plots without a stray canvas appearing.
+#'
+#'   The exception is `split_by_digits = TRUE`, which returns a named list of
+#'   ggplot objects, one per distinct non-zero number of decimal places (e.g.,
+#'   `list(digits_1 = ..., digits_2 = ...)`). A list is not something
+#'   auto-printing can draw, so that branch prints each plot itself and returns
+#'   the list invisibly.
 
 #' @export
 #'
@@ -254,6 +259,32 @@ grim_plot <- function(
     ))
   }
 
+  # A tile's color comes from the `consistency` column, so a case the test
+  # could not decide has no color to be drawn in and ggplot2 drops it. It used
+  # to do so on its own, with the bare "Removed 1 row containing missing
+  # values" -- which names neither the column nor the reason. Dropping the rows
+  # here is the same outcome, said out loud:
+  if (show_data && any(is.na(data$consistency))) {
+    n_undecided <- sum(is.na(data$consistency))
+    if (n_undecided == nrow(data)) {
+      cli::cli_abort(c(
+        "No value set in `data` could be decided.",
+        "x" = "All {nrow(data)} `consistency` value{?s} {?is/are} `NA`.",
+        "i" = "A tile is colored by its verdict, so there is nothing to draw.",
+        "i" = "Set `show_data = FALSE` for the background raster on its own."
+      ))
+    }
+    cli::cli_warn(c(
+      "!" = "Dropping {n_undecided} undecidable value set{?s} \\
+      from the plot.",
+      "i" = "Their `consistency` is `NA`, and a tile is colored by its \\
+      verdict, so they cannot be drawn.",
+      "i" = "The remaining {nrow(data) - n_undecided} value set{?s} \\
+      {?is/are} plotted."
+    ))
+    data <- data[!is.na(data$consistency), ]
+  }
+
   if (is.null(digits)) {
     # `grim_map()`, `grimmer_map()`, and their `_map_seq()` / `_map_total_n()`
     # counterparts all store the number of decimal places given via `digits_x`
@@ -279,7 +310,35 @@ grim_plot <- function(
         # a `digits_x` column to split on:
         if (split_by_digits && has_digits_x_col) {
           unique_digits <- sort(unique(data$digits_x))
+
+          # A mean reported with no decimal places has a fractional portion of
+          # zero by construction, so its group would be a single line of tiles
+          # along the x-axis against a raster that says nothing about it. Those
+          # rows are left out -- but silently, up to now, so the returned list
+          # simply had one group fewer than the data did and the success
+          # message counted only the plots that were made:
+          n_dropped <- sum(data$digits_x == 0L)
           unique_digits <- unique_digits[unique_digits != 0L]
+
+          if (length(unique_digits) == 0L) {
+            cli::cli_abort(c(
+              "Every value set in `data` has `digits_x = 0`.",
+              "i" = "A mean reported with no decimal places has a fractional \\
+              portion of zero, so there is no GRIM plot to split by decimal \\
+              places.",
+              "i" = "Set `digits` explicitly if you want a plot anyway."
+            ))
+          }
+
+          if (n_dropped > 0L) {
+            cli::cli_warn(c(
+              "!" = "Leaving out {n_dropped} value set{?s} with \\
+              `digits_x = 0`.",
+              "i" = "A mean reported with no decimal places has a fractional \\
+              portion of zero, so the background raster says nothing about it."
+            ))
+          }
+
           plots <- lapply(unique_digits, function(d) {
             grim_plot(
               data[data$digits_x == d, ],
@@ -298,6 +357,13 @@ grim_plot <- function(
             )
           })
           names(plots) <- paste0("digits_", unique_digits)
+          # This branch returns a list, which auto-printing would render as a
+          # list rather than draw. The plots are printed here so that the
+          # branch still shows them; the single-plot return below is a plain
+          # ggplot object and needs no help:
+          for (p_split in plots) {
+            print(p_split)
+          }
           if (length(plots) > 1L) {
             cli::cli_alert_success(
               "Created {length(plots)} GRIM plots, one for each number of \\
@@ -351,6 +417,39 @@ grim_plot <- function(
     # number of decimal places. Therefore, `digits` can now be determined simply
     # by taking the first element; or indeed any other element there might be:
     digits <- digits_x[1L]
+  }
+
+  # `percent = TRUE` in the `grim_map()` call means `x` is a proportion of 100,
+  # and `grim_scalar()` tests it by dividing it by 100 and raising its decimal
+  # count by 2. The plot has to make the same move, for the same reason: the
+  # raster is indexed by the granularity of the value that was tested. Without
+  # it, a percentage reported as `67.4` was drawn at a fractional portion of
+  # `0.4` against the raster for one decimal place, while the verdict coloring
+  # that tile had been reached at three -- so the background contradicted the
+  # dots in front of it. The y-axis label has said "% (as decimal)" all along;
+  # this is what makes that true. `digits` given by the caller is the decimal
+  # count of the percentage as reported, exactly like `digits_x`.
+  is_percent <- inherits(data, "scrutiny_percent_true")
+
+  if (is_percent) {
+    digits <- digits + 2L
+    data$x <- as.numeric(data$x) / 100
+  }
+
+  # The y-axis is the fractional portion of the mean, which is zero for every
+  # value reported with no decimal places at all -- there is no plot to be had.
+  # There is no background raster for it either: the precomputed rasters cover
+  # one and two decimal places, and the lookup by name used to fail with R's
+  # own "object 'grim_raster_0_up_or_down_n' not found". The `split_by_digits`
+  # branch above leaves such rows out for the same reason.
+  if (digits < 1L) {
+    cli::cli_abort(c(
+      "`digits` must be at least 1, but it is {digits}.",
+      "i" = "The y-axis is the fractional portion of the mean, which is zero \\
+      for a mean reported with no decimal places.",
+      "i" = "With `percent = TRUE` in the `grim_map()` call, a whole-number \\
+      percentage does have a fractional portion as a decimal number."
+    ))
   }
 
   data$x <- as.numeric(data$x)
@@ -465,7 +564,7 @@ grim_plot <- function(
   # If `percent = TRUE` in the underlying `grim_map()` call, the y-axis label is
   # automatically adjusted to reflect the fact that the fractional values are
   # percentages (converted to decimal numbers), not means:
-  mean_percent_label <- if (inherits(data, "scrutiny_percent_true")) {
+  mean_percent_label <- if (is_percent) {
     "% (as decimal)"
   } else {
     "mean"
@@ -595,18 +694,26 @@ grim_plot <- function(
       ggplot2::coord_cartesian(xlim = c(0, n), ylim = c(0, 1))
   }
 
-  # Finally, return the plot with axis labels. This used to be wrapped in
-  # `suppressWarnings()`, which hid every warning the plot could raise --
-  # including a live ggplot2 deprecation and, worse, "Removed N rows containing
-  # missing values", the one message that says data did not make it onto the
-  # canvas. The guards at the top of this function now rule out the cases that
-  # produced such warnings, so there is nothing left to suppress:
-  print(
-    p +
-      ggplot2::labs(
-        x = "Sample size",
-        y = paste("Fractional portion of", mean_percent_label)
-      ) +
-      ggplot2::theme(aspect.ratio = 1)
-  )
+  # Finally, return the plot with axis labels.
+  #
+  # It is returned, not printed. `grim_plot()` used to end on `print()` and
+  # return the object invisibly, so `p <- grim_plot(g)` drew a plot the caller
+  # had not asked for, `grim_plot(g) + labs(...)` drew two, and composing with
+  # patchwork or cowplot always left a stray canvas. Auto-printing draws it at
+  # the console either way, and `debit_plot()` has always worked like this. The
+  # one place a `print()` is still needed is the `split_by_digits` branch,
+  # which returns a list.
+  #
+  # The `print()` used to be wrapped in `suppressWarnings()`, which hid every
+  # warning the plot could raise -- including a live ggplot2 deprecation and,
+  # worse, "Removed N rows containing missing values", the one message that
+  # says data did not make it onto the canvas. The guards at the top of this
+  # function report those cases themselves now, in terms of the value sets
+  # rather than the geometry.
+  p +
+    ggplot2::labs(
+      x = "Sample size",
+      y = paste("Fractional portion of", mean_percent_label)
+    ) +
+    ggplot2::theme(aspect.ratio = 1)
 }

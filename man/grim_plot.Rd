@@ -64,9 +64,15 @@ of the background raster: opacity and fill color. Defaults are \code{1} and
 \code{"grey75"}.}
 }
 \value{
-A ggplot object -- except with \code{split_by_digits = TRUE}, which
-invisibly returns a named list of ggplot objects, one per distinct
-non-zero number of decimal places (e.g., \code{list(digits_1 = ..., digits_2 = ...)}), and prints each of them.
+A ggplot object, returned the ordinary way: at the console,
+auto-printing draws it, and it can be added to, saved, or composed with
+other plots without a stray canvas appearing.
+
+The exception is \code{split_by_digits = TRUE}, which returns a named list of
+ggplot objects, one per distinct non-zero number of decimal places (e.g.,
+\code{list(digits_1 = ..., digits_2 = ...)}). A list is not something
+auto-printing can draw, so that branch prints each plot itself and returns
+the list invisibly.
 }
 \description{
 \code{grim_plot()} visualizes summary data and their mutual GRIM
