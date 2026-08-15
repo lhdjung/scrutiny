@@ -337,3 +337,15 @@ test_that("counted decimal places are not confused by a shorter `digits`", {
   out <- unround(c("1.0", "2.00", "3.000"))
   out$upper |> expect_equal(c(1.05, 2.005, 3.0005))
 })
+
+
+test_that("zero-length input returns zero rows", {
+  # Recycling stops at zero. Taking the maximum of all argument lengths let the
+  # length-1 defaults set the row count, so an empty `x` produced one row of
+  # missing values -- a phantom result in the middle of a pipeline.
+  unround(character(0)) |> nrow() |> expect_equal(0L)
+  unround(numeric(0), digits = 2) |> nrow() |> expect_equal(0L)
+  unround("5.19", digits = integer(0)) |> nrow() |> expect_equal(0L)
+  # A scalar `x` is unaffected:
+  unround("5.19") |> nrow() |> expect_equal(1L)
+})

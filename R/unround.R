@@ -639,13 +639,21 @@ unround <- function(
   # tibble kept the length of `x` as its row count while its columns took
   # whatever length `paste0()` recycling produced, which could yield a malformed
   # tibble.)
-  n_out <- max(
+  lengths_in <- c(
     length(x_num),
     length(rounding),
     length(digits),
     length(threshold),
     length(symmetric)
   )
+
+  # Recycling stops at zero: if any argument is empty, there is no complete
+  # combination to describe, so the output has no rows. Taking the maximum alone
+  # ignored the empty argument and let the length-1 defaults set the row count,
+  # so `unround(character(0))` returned one row of missing values -- a phantom
+  # result where an empty input should pass through as an empty output:
+  n_out <- if (any(lengths_in == 0L)) 0L else max(lengths_in)
+
   recycle <- function(value) rep_len(value, n_out)
   x_out <- recycle(x)
   x_num <- recycle(x_num)
