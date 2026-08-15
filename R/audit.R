@@ -108,10 +108,19 @@ audit_seq <- function(data) {
 
   check_dispersion_linear(data)
 
+  # `function_map_seq()` records the name of the key result column, which is
+  # `"consistency"` unless the mapper was created with a different
+  # `.name_key_result`. Subsetting `data` drops the attribute, and every mapper
+  # that keeps the default name is unaffected by the fallback:
+  name_key_result <- attr(data, "scrutiny_name_key_result", exact = TRUE)
+  if (is.null(name_key_result)) {
+    name_key_result <- "consistency"
+  }
+
   df_list <- split(data, data$case)
 
   df_list_hits <- df_list |>
-    purrr::map(dplyr::filter, consistency)
+    purrr::map(function(x) x[which(x[[name_key_result]]), ])
 
   hits_total <- df_list_hits |>
     vapply(nrow, integer(1L), USE.NAMES = FALSE) |>
@@ -125,7 +134,7 @@ audit_seq <- function(data) {
       split(df$var) |>
       # `which()` for the same reason as in the `dplyr::filter()` call above,
       # which drops undecidable cases rather than counting them as hits:
-      purrr::map(function(x) x[which(x$consistency), ])
+      purrr::map(function(x) x[which(x[[name_key_result]]), ])
     # `split()` returns its groups in alphabetical order, and the columns should
     # follow the order of `var` instead. The permutation that undoes a sort is
     # `rank()`, not `order()`: the two are inverses of each other, and they
@@ -221,7 +230,7 @@ audit_seq <- function(data) {
 
   data_rev_tested <- do.call(fun_test, c(list(data_rev), args_replay))
 
-  consistency <- data_rev_tested$consistency
+  consistency <- data_rev_tested[[name_key_result]]
 
   cols_hits <- dplyr::mutate(
     cols_hits,
@@ -240,7 +249,7 @@ audit_seq <- function(data) {
   )
 
   data_rev |>
-    dplyr::mutate(consistency, hits_total) |>
+    dplyr::mutate("{name_key_result}" := consistency, hits_total) |>
     dplyr::bind_cols(cols_hits, cols_diff) |>
     add_class("scrutiny_audit_seq")
 }

@@ -70,3 +70,34 @@ integer_places <- function(x) {
 trunc_reverse <- function(x) {
   x - trunc(x)
 }
+
+
+#' Catch an error condition
+#'
+#' `rlang::catch_cnd()` returns whatever condition is signaled first, and cli
+#' signals a `cli_message` of its own while formatting, so it tends to return
+#' that instead of the error. This catches the error and nothing else.
+#'
+#' @param expr Expression that is expected to throw an error.
+#'
+#' @return The error condition object.
+#'
+#' @noRd
+tryCatch_error <- function(expr) {
+  tryCatch(expr, error = function(e) e)
+}
+
+
+#' An error's message as one plain string
+#'
+#' For assertions about what a message does *not* say, which testthat's
+#' `expect_error()` has no form for.
+#'
+#' @param err Error condition object, from `tryCatch_error()`.
+#'
+#' @return String (length 1), without ANSI escapes.
+#'
+#' @noRd
+error_message_full <- function(err) {
+  cli::ansi_strip(paste(conditionMessage(err), collapse = " "))
+}

@@ -190,6 +190,7 @@ df2_rows_1_3_expected <- tibble::tibble(
   structure(
     class = c(
       "scrutiny_map_total_n",
+      "scrutiny_grim_map_total_n",
       "scrutiny_grim_map",
       "scrutiny_rounding_up_or_down",
       "tbl_df",

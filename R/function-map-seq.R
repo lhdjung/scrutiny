@@ -21,6 +21,7 @@ function_map_seq_proto <- function(
   .out_min = out_min,
   .out_max = out_max,
   .include_reported = include_reported,
+  .name_key_result = "consistency",
   ...
 ) {
   # --- Start of the manufactured helper (!) function ---
@@ -33,6 +34,7 @@ function_map_seq_proto <- function(
     out_min = .out_min,
     out_max = .out_max,
     include_reported = .include_reported,
+    name_key_result = .name_key_result,
     ...
   ) {
     # The step size has to come from the caller's `digits_*` argument for the
@@ -73,8 +75,11 @@ function_map_seq_proto <- function(
     # and `case`:
     df_var <- purrr::list_rbind(df_var)
 
+    # Everything to the left of the key result column is input to the test; the
+    # column is named `"consistency"` unless the mapper was created with a
+    # different `.name_key_result`:
     cols_for_testing_names <-
-      colnames(data)[seq_len(match("consistency", colnames(data)) - 1L)]
+      colnames(data)[seq_len(match(name_key_result, colnames(data)) - 1L)]
 
     # Isolate the columns to be tested that are not the current `var` object:
     cols_for_testing_names_without_var <-
@@ -135,9 +140,9 @@ function_map_seq_proto <- function(
 #'
 #' @param .fun Function such as `grim_map()`, or one made by [`function_map()`]:
 #'   It will be used to test columns in a data frame for consistency. Test
-#'   results are logical and need to be contained in a column called
-#'   `"consistency"` that is added to the input data frame. This modified data
-#'   frame is then returned by `.fun`.
+#'   results are logical and need to be contained in a column named by
+#'   `.name_key_result` -- `"consistency"` by default -- that is added to the
+#'   input data frame. This modified data frame is then returned by `.fun`.
 #' @param .var String. Variables that will be dispersed by the manufactured
 #'   function. Defaults to `.reported`.
 #' @param .reported String. All variables the manufactured function can disperse
@@ -145,6 +150,10 @@ function_map_seq_proto <- function(
 #' @param .name_test String (length 1). The name of the consistency test, such
 #'   as `"GRIM"`, to be optionally shown in a message when using the
 #'   manufactured function.
+#' @param .name_key_result (Experimental) Optionally, a single string that will
+#'   be the name of the key result column in the output. Default is
+#'   `"consistency"`. It must be the same string that `.fun` was created with:
+#'   the manufactured function reads `.fun`'s results off a column of that name.
 #' @param .name_class String. If specified, the tibbles returned by the
 #'   manufactured function will inherit this string as an S3 class. Default is
 #'   `NULL`, i.e., no extra class.
@@ -180,8 +189,6 @@ function_map_seq_proto <- function(
 #'   Default is `FALSE` because the focus should be on clarifying
 #'   inconsistencies.
 #' @param ... These dots must be empty.
-#'
-#' @inheritParams function_map
 #'
 #' @details All arguments of `function_map_seq()` set the defaults for the
 #'   arguments in the manufactured function. They can still be specified
@@ -298,7 +305,7 @@ function_map_seq <- function(
     rlang::expr({
       out <- out |>
         purrr::list_rbind() |>
-        dplyr::mutate(var, n = as.integer(n))
+        dplyr::mutate(var, n = as_integer_if_lossless(n))
     })
   } else {
     rlang::expr({
@@ -340,6 +347,7 @@ function_map_seq <- function(
       name_fun <- `!!`(name_fun)
       reported <- `!!`(.reported)
       name_class <- `!!`(.name_class)
+      name_key_result <- `!!`(.name_key_result)
       args_disabled <- `!!`(.args_disabled)
       fun <- `!!`(.fun)
 
@@ -389,10 +397,17 @@ function_map_seq <- function(
       # message. Leaving it out here made a `data` that already has a
       # `consistency` column fail with cli's "Could not evaluate cli `{}`
       # expression: `name_test`" instead of the message that says what is wrong.
-      check_mapper_input_colnames(data, reported, name_test)
+      check_mapper_input_colnames(data, reported, name_test, name_key_result)
 
       # First, basic testing with the `*_map()` function:
       data <- do.call(fun, c(list(data), .digits_vals, list(...)))
+
+      # Everything below reads the key result column off `fun()`'s output by
+      # name, so the two factories have to agree on what it is called. They
+      # only do if the mapper and the sequence mapper were created with the
+      # same `.name_key_result`; catch a mismatch here rather than let it
+      # surface as an obscure `NULL` further down:
+      check_key_result_col(data, name_key_result, name_fun)
 
       # Remove consistent cases from `data` if only the inconsistent ones are of
       # interest (the default). The "filtering" code below is equivalent to
@@ -402,7 +417,7 @@ function_map_seq <- function(
       # values around that has no values to disperse. It is dropped instead,
       # just like a consistent one, since it is not an inconsistent case.
       if (!include_consistent) {
-        data <- data[which(!data$consistency), ]
+        data <- data[which(!data[[name_key_result]]), ]
       }
 
       # As `var` is `Inf` by default, it must be referred to the names of
@@ -421,6 +436,7 @@ function_map_seq <- function(
         .out_min = out_min,
         .out_max = out_max,
         .include_reported = include_reported,
+        .name_key_result = name_key_result,
         ...
       )
 
@@ -518,7 +534,7 @@ function_map_seq <- function(
       out <- dplyr::relocate(
         out,
         dplyr::all_of(.digits_col_names),
-        .before = "consistency"
+        .before = dplyr::all_of(name_key_result)
       )
 
       class_dispersion_ascending <- if (is_seq_ascending(dispersion)) {
@@ -560,7 +576,16 @@ function_map_seq <- function(
       # `percent`, `threshold`, `symmetric`, or GRIMMER's scale bounds:
       attr(out, "scrutiny_fun_args") <- .fun_args
 
-      `!!!`(write_code_col_key_result(.name_key_result))
+      # `audit_seq()` reads the test results off a column of `out`, so it needs
+      # the column's name for the same reason this factory does -- and it has no
+      # other way to learn it. It falls back to `"consistency"` if subsetting
+      # drops the attribute, which is right for every mapper that did not
+      # override the name:
+      attr(out, "scrutiny_name_key_result") <- name_key_result
+
+      # `rename = FALSE`: `fun()` already named the column, so only the
+      # list-column-to-logical half of this code applies here.
+      `!!!`(write_code_col_key_result(.name_key_result, rename = FALSE))
     }),
     # The body calls scrutiny-internal helpers such as `absorb_key_args()` and
     # `function_map_seq_proto()`, so the manufactured function must be enclosed

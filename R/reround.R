@@ -152,21 +152,7 @@ reround <- function(
   # made one, and pairing values with procedures by position is confusing enough
   # that `unround()`, which keeps that behavior for its display use case, warns
   # about it in its own documentation:
-  if (
-    length(rounding) != 1L ||
-      length(threshold) != 1L ||
-      length(symmetric) != 1L
-  ) {
-    cli::cli_abort(c(
-      "`rounding`, `threshold`, and `symmetric` must each have length 1.",
-      "x" = "They have lengths {length(rounding)}, {length(threshold)}, \\
-      and {length(symmetric)}.",
-      "i" = "They describe a single rounding procedure, which is then applied \\
-      to all of `x`.",
-      "i" = "To compare procedures, call `reround()` once per procedure. \\
-      `unround()` is vectorized over `rounding` if you need the bounds."
-    ))
-  }
+  check_rounding_spec_singular(rounding, threshold, symmetric)
 
   # A `"ties_*"` string names a complete procedure, so it stands in for a
   # `rounding` and a `symmetric` together. `rounding_offsets()` resolves it

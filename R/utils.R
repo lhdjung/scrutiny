@@ -185,6 +185,120 @@ is_whole_number <- function(x, tolerance = .Machine$double.eps^0.5) {
 }
 
 
+#' Refuse an enumeration that would not fit in memory
+#'
+#' @description GRIMMER decides a case by enumerating every integer sum that
+#'   the reported mean admits, and, for each of those, every integer sum of
+#'   squares that the reported SD admits. Both ranges grow linearly with `n`:
+#'   at `n = 1e7` the test takes about a second, at `n = 1e8` about eleven, and
+#'   at `n = 3e9` it exhausts memory with nothing to show for it. There is no
+#'   warning on the way -- `a:b` simply allocates.
+#'
+#'   No published summary statistic looks like this, so the limit is far above
+#'   anything the test will meet in practice. It exists so that a typo in an
+#'   `n` ends in a message rather than a hung session.
+#'
+#' @param bounds Numeric (length 2). The `c(lower, upper)` of the range about
+#'   to be materialized. An empty range (lower above upper) is fine: nothing
+#'   gets allocated for it.
+#' @param what String (length 1). What is being enumerated, for the message.
+#' @param n Numeric (length 1). The sample size, for the message.
+#' @param limit Numeric (length 1). The largest range the function will admit.
+#'
+#' @return No return value. Might throw an error.
+#'
+#' @noRd
+check_enumeration_size <- function(bounds, what, n, limit = 1e6) {
+  size <- bounds[2L] - bounds[1L] + 1
+  if (isTRUE(size > limit)) {
+    cli::cli_abort(c(
+      "`n` is too large for GRIMMER to enumerate.",
+      "x" = "With `n = {n}`, there are {round(size)} {what}.",
+      "i" = "The test works by checking each of them in turn, so it would \\
+      allocate a vector of that length -- and one more per candidate sum.",
+      "i" = "The limit is {limit}. GRIMMER is a test for reported summary \\
+      statistics, and no sample of this size is one."
+    ))
+  }
+}
+
+
+#' Can a value set be decided at all, going by `n` and `items`?
+#'
+#' @description All three consistency tests reason about integer data: GRIM
+#'   about the integer sum behind a reported mean, GRIMMER about that sum and
+#'   the integer sum of squares behind a reported SD, DEBIT about a count of
+#'   ones among `n` binary values. A sample size or item count that is not a
+#'   positive whole number describes no such data set, so there is nothing for
+#'   the test to be consistent or inconsistent *with*.
+#'
+#'   Before scrutiny 1.0.0 these inputs produced verdicts. `grim(x = 5.19, n =
+#'   20.5, digits_x = 2)` was `FALSE`, `grimmer(..., items = 1.5)` was `TRUE`,
+#'   and `debit(x = 0.5, sd = 0.5, n = -5, ...)` was `FALSE` -- none of them a
+#'   verdict about anything. `NA` says what is actually the case: the test
+#'   cannot decide.
+#'
+#' @param n Numeric (length 1). The reported sample size.
+#' @param items Numeric (length 1). The number of items composing `x`. DEBIT
+#'   has no such argument and leaves it at the default.
+#' @param min_n Numeric (length 1). The smallest `n` the test can work with.
+#'   `1` for GRIM: the mean of a single value is that value. `2` for GRIMMER
+#'   and DEBIT, which reconstruct a *sample* SD and so divide by `n - 1`. At `n
+#'   = 1` that is a division by zero, and both tests used to reach a verdict
+#'   through it -- GRIMMER a `NaN` that `na.rm = TRUE` swallowed, DEBIT an
+#'   `Inf` that compared as "above the upper bound".
+#'
+#' @return Logical vector, recycled to the length of the longer of `n` and
+#'   `items`: `TRUE` where the test can decide the case, `FALSE` where it
+#'   cannot. Never `NA` -- a missing `n` or `items` is itself undecidable,
+#'   which is what every test already reports for it. The `*_scalar()`
+#'   functions call this on single values; `grim_probability()` on columns.
+#'
+#' @noRd
+is_decidable_n_items <- function(n, items = 1, min_n = 1) {
+  # `is.finite()` is `FALSE` for `NA`, `NaN`, and both infinities, and `FALSE &
+  # NA` is `FALSE`, so the result is never missing however the comparisons
+  # further right turn out:
+  is.finite(n) &
+    is.finite(items) &
+    n >= min_n &
+    items > 0 &
+    is_whole_number(n) &
+    is_whole_number(items)
+}
+
+
+#' Coerce a sample-size column to integer, but only if that is lossless
+#'
+#' @description A sample size is always a whole number, so mappers store the `n`
+#'   column as integer: it is the more faithful representation, and it displays
+#'   without a decimal point.
+#'
+#'   The coercion has to be conditional, though. `as.integer()` turns anything
+#'   beyond `.Machine$integer.max` into `NA` with nothing but a base-R warning,
+#'   and an `NA` in `n` next to a non-`NA` verdict is self-contradictory output:
+#'   the verdict was computed from the real value before the coercion destroyed
+#'   it. So the coercion is skipped whenever any value is fractional or too
+#'   large, and the column stays double.
+#'
+#' @param n Numeric vector; the `n` column.
+#'
+#' @return `n`, as integer if every value is a whole number within integer
+#'   range, and unchanged otherwise.
+#'
+#' @noRd
+as_integer_if_lossless <- function(n) {
+  if (
+    all(is_whole_number(n) | is.na(n)) &&
+      all(abs(n) <= .Machine$integer.max, na.rm = TRUE)
+  ) {
+    as.integer(n)
+  } else {
+    n
+  }
+}
+
+
 #' Bring a `digits_*` argument to one value per row
 #'
 #' A `digits_*` argument may be a single number, in which case every value in
@@ -1535,30 +1649,6 @@ name_caller_call <- function(n = 1L, wrap = TRUE) {
 }
 
 
-#' Subtle variations to numbers
-#'
-#' @description Reduplicate a numeric vector, varying it below and above the
-#'   original by a very small number (`1e-12`). This avoids issues of spurious
-#'   precision in floating-point arithmetic.
-#'
-#'   Similar "dust" values were previously used by Nick Brown, and later by
-#'   Lukas Wallrich in rsprite2.
-#'
-#' @param x Numeric.
-#'
-#' @return Numeric vector of length `2 * length(x)`.
-#'
-#' @details The idea is to catch very minor variation from `x` introduced by
-#'   spurious precision in floating point numbers, so that such purely
-#'   accidental deviations don't lead to false assertions of substantively
-#'   important numeric difference.
-#'
-#' @noRd
-dustify <- function(x) {
-  c(x - 1e-12, x + 1e-12)
-}
-
-
 # Shifting a number by `digits` decimal places is not exact in floating point:
 # `0.28 * 100` is 28.000000000000004, and `0.29 * 100` is 28.999999999999996.
 # Rounding the shifted value away from the number it is meant to be would then
@@ -1633,6 +1723,40 @@ rounding_constituents <- function(rounding) {
     "ceiling_or_floor"     = c("ceiling", "floor"),
     rounding
   )
+}
+
+
+# `rounding`, `threshold`, and `symmetric` describe one rounding procedure, so
+# each of them has to be a single value; only `x` is a vector. `reround()` calls
+# this before dispatching, and `rounding_offsets()` before deriving the bounds,
+# which between them covers every path a consistency test can take -- including
+# the mappers, which used to pass a vector straight down to a `*_scalar()`
+# function and let R's own error surface from deep inside it ("'length = 2' in
+# coercion to 'logical(1)'").
+#
+# `unround()` is the one exception, and it makes its own arrangements: it is
+# documented as vectorized over `rounding` and recycles all four arguments to a
+# common length before calling `rounding_offsets()` once per element.
+
+check_rounding_spec_singular <- function(rounding, threshold, symmetric) {
+  if (
+    length(rounding) != 1L ||
+      length(threshold) != 1L ||
+      length(symmetric) != 1L
+  ) {
+    cli::cli_abort(
+      c(
+        "`rounding`, `threshold`, and `symmetric` must each have length 1.",
+        "x" = "They have lengths {length(rounding)}, {length(threshold)}, \\
+        and {length(symmetric)}.",
+        "i" = "They describe a single rounding procedure, which is then \\
+        applied to all values.",
+        "i" = "To compare procedures, test once per procedure. `unround()` \\
+        is vectorized over `rounding` if you need the bounds."
+      ),
+      call = rlang::caller_env()
+    )
+  }
 }
 
 
@@ -1959,6 +2083,11 @@ check_dispersion_linear <- function(data) {
 #'   the function factory, passed to the present function.
 #' @param name_data Expression. It must contain the name of the data frame
 #'   operated on. To construct it, use `rlang::expr()`.
+#' @param rename Logical (length 1). Should the code rename a `"consistency"`
+#'   column to `name_key_result`? `TRUE` in `function_map()`, which is where the
+#'   column is created. `FALSE` in the seq and total-n factories: these build on
+#'   a basic mapper's output, so the column arrives already carrying its final
+#'   name, and only the `unlist()` half of the generated code is wanted.
 #'
 #' @return Expression.
 #'
@@ -1974,11 +2103,12 @@ check_dispersion_linear <- function(data) {
 write_code_col_key_result <- function(
   name_key_result = "consistency",
   name_data = rlang::expr(out),
-  out = NULL
+  out = NULL,
+  rename = TRUE
 ) {
   # Enable renaming the `"consistency"` column for binary procedures that are
   # not consistency tests:
-  code_rename <- if (name_key_result == "consistency") {
+  code_rename <- if (!rename || name_key_result == "consistency") {
     NULL
   } else {
     rlang::expr({

@@ -63,8 +63,12 @@ check_key_args_in_colnames <- function(data, reported) {
 }
 
 
-check_consistency_not_in_colnames <- function(data, name_test) {
-  if (any("consistency" == colnames(data))) {
+check_consistency_not_in_colnames <- function(
+  data,
+  name_test,
+  name_key_result = "consistency"
+) {
+  if (any(name_key_result == colnames(data))) {
     # If `data` carries a scrutiny mapper class, name the mapper that most
     # likely produced it. The most specific tier wins: a `*_map_seq()` output
     # also inherits the basic `*_map` class, but it was the sequence mapper that
@@ -102,7 +106,7 @@ check_consistency_not_in_colnames <- function(data, name_test) {
       ""
     }
     cli::cli_abort(c(
-      "`data` already includes a \"consistency\" column.",
+      "`data` already includes a \"{name_key_result}\" column.",
       "x" = "This shouldn't be the case before {name_test}-testing.",
       "i" = "Did you use the output of a consistency test \\
       {msg_special}mapper function for {name_test}{msg_fun_name} \\
@@ -120,7 +124,8 @@ check_consistency_not_in_colnames <- function(data, name_test) {
 
 #'  - They include all the key columns corresponding to the test applied by the
 #'  mapper.
-#'  - They don't already include `"consistency"`.
+#'  - They don't already include the name of the results column,
+#'  `"consistency"` by default.
 #'
 #'   If either check fails, the function throws an informative error.
 
@@ -129,6 +134,9 @@ check_consistency_not_in_colnames <- function(data, name_test) {
 #'   have, such as `c("x", "n")` for `grim_map()`.
 #' @param name_test String (length 1). Short, plain-text name of the consistency
 #'   test that the mapper function applies, such as `"GRIM"`.
+#' @param name_key_result String (length 1). Name of the column that the mapper
+#'   will add for its test results, i.e., the `.name_key_result` argument of the
+#'   function factory that created it. Default is `"consistency"`.
 #'
 #' @include utils.R
 #'
@@ -139,9 +147,46 @@ check_consistency_not_in_colnames <- function(data, name_test) {
 #' @seealso `vignette("consistency-tests-in-depth")`, for context and the "key
 #'   columns" terminology.
 
-check_mapper_input_colnames <- function(data, reported, name_test) {
+check_mapper_input_colnames <- function(
+  data,
+  reported,
+  name_test,
+  name_key_result = "consistency"
+) {
   check_key_args_in_colnames(data, reported)
-  check_consistency_not_in_colnames(data, name_test)
+  check_consistency_not_in_colnames(data, name_test, name_key_result)
+}
+
+
+#' Check that a mapper returned the key result column that was expected
+#'
+#' @description The seq and total-n factories build on a basic mapper's output,
+#'   and they read its test results off a column they know only by name. That
+#'   name is each factory's `.name_key_result`, so the two have to agree: a
+#'   mapper created with `.name_key_result = "verdict"` must be wrapped by a
+#'   sequence mapper created the same way.
+#'
+#'   When they disagree, the column lookup returns `NULL` and fails much later
+#'   with an error from base R that says nothing about the cause. This check
+#'   turns that into a message naming both the column that is missing and the
+#'   argument that decides it.
+#'
+#' @param data Data frame returned by the basic mapper, `fun()`.
+#' @param name_key_result String (length 1). The expected column name.
+#' @param name_fun String (length 1). Name of the basic mapper, for the message.
+#'
+#' @return No return value. Might throw an error.
+#'
+#' @noRd
+check_key_result_col <- function(data, name_key_result, name_fun) {
+  if (!any(name_key_result == colnames(data))) {
+    cli::cli_abort(c(
+      "`{name_fun}()` did not return a \"{name_key_result}\" column.",
+      "x" = "Its results columns are {wrap_in_backticks(colnames(data))}.",
+      "i" = "The two functions must have been created with the same \\
+      `.name_key_result` value."
+    ))
+  }
 }
 
 

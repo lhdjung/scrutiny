@@ -22,8 +22,8 @@ function_map_total_n(
 \item{.fun}{Function such as \code{\link[=grim_map]{grim_map()}}, or one made by
 \code{\link[=function_map]{function_map()}}: It will be used to test columns in a data frame for
 consistency. Test results are logical and need to be contained in a column
-called \code{consistency} that is added to the input data frame. This modified
-data frame is then returned by \code{.fun}.}
+named by \code{.name_key_result} -- \code{consistency} by default -- that is added to
+the input data frame. This modified data frame is then returned by \code{.fun}.}
 
 \item{.reported}{String. Names of the columns containing group-specific
 statistics that were reported alongside the total sample size(s). They will
@@ -38,7 +38,8 @@ manufactured function.}
 
 \item{.name_key_result}{(Experimental) Optionally, a single string that will
 be the name of the key result column in the output. Default is
-\code{"consistency"}.}
+\code{"consistency"}. It must be the same string that \code{.fun} was created with:
+the manufactured function reads \code{.fun}'s results off a column of that name.}
 
 \item{.name_class}{String. If specified, the tibbles returned by the
 manufactured function will inherit this string as an S3 class. Default is

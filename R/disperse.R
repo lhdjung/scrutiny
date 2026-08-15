@@ -217,7 +217,19 @@ disperse <- function(
     out <- dplyr::mutate(out, constant, .before = constant_index)
   }
 
-  out$n_change <- as.integer(out$n_change)
+  # A sample size is a whole number, and the mappers that these tibbles feed
+  # into store it as integer for that reason. The dispersion helpers returned
+  # doubles, so `n` changed type on the way in and back out again -- and a
+  # column that prints as `20` in one function and `20.0` in the next is the
+  # kind of difference that only shows up in a comparison. `disperse2()` and
+  # `disperse_total()` build on this function and inherit the coercion.
+  #
+  # It is conditional for the same reason as in the mappers: `as.integer()`
+  # turns anything past `.Machine$integer.max` into `NA`. A half-integer `n`,
+  # which `disperse2()` passes in, also keeps the column double -- although
+  # `disperse2()` corrects the halves before returning.
+  out$n <- as_integer_if_lossless(out$n)
+  out$n_change <- as_integer_if_lossless(out$n_change)
   out
 }
 
@@ -270,6 +282,11 @@ disperse2 <- function(
   # second one, and both interleaved sequences proceed by increments of 1:
   out$n <- out$n |> purrr::modify_at(locations1, `-`, 0.5)
   out$n <- out$n |> purrr::modify_at(locations2, `+`, 0.5)
+
+  # `disperse()` dispersed from a half-integer, so it left `n` as a double.
+  # Adding and subtracting the halves above lands every value back on a whole
+  # number, which is what the column should say it holds:
+  out$n <- as_integer_if_lossless(out$n)
 
   # Return the resulting tibble:
   out

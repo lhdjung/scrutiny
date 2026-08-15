@@ -641,3 +641,89 @@ test_that("`data` must be a tibble, and that is checked first of all", {
   grim_map(tibble::tibble(a = 1, b = 2), digits_x = 2) |>
     expect_error("must be in `data`")
 })
+
+
+test_that("an `n` too large for integer keeps its value", {
+  # `as.integer()` turns anything beyond `.Machine$integer.max` into `NA` with
+  # nothing but a base-R warning. The verdict is computed from the real `n`
+  # before that, so the row came out saying `n = NA` and `consistency = TRUE`
+  # at once -- while a missing `n` yields an `NA` verdict everywhere else.
+  df <- tibble::tibble(x = c(5.19, 5.19), n = c(28, 3e9))
+  out <- expect_no_warning(grim_map(df, digits_x = 2))
+  out$n |> expect_equal(c(28, 3e9))
+  out$n |> expect_type("double")
+  out$consistency |> expect_equal(c(FALSE, TRUE))
+
+  # Within integer range, `n` is still integer, which is what makes it print
+  # without a decimal point:
+  grim_map(pigs1, digits_x = 2)$n |> expect_type("integer")
+  grim_map_seq(pigs1, digits_x = 2)$n |> expect_type("integer")
+  grim_map_total_n(
+    tibble::tibble(x1 = 4.52, x2 = 5.23, n = 40L),
+    digits_x = 2
+  )$n |>
+    expect_type("integer")
+
+  # The seq and total-n tiers coerce their own `n` columns, and they need the
+  # same guard:
+  df_seq <- tibble::tibble(x = 5.19, n = 3e9)
+  out_seq <- expect_no_warning(
+    grim_map_seq(df_seq, digits_x = 2, var = "x", include_consistent = TRUE)
+  )
+  out_seq$n |> unique() |> expect_equal(3e9)
+  expect_no_warning(grim_map_total_n(
+    tibble::tibble(x1 = 4.52, x2 = 5.23, n = 6e9),
+    digits_x = 2,
+    dispersion = 0:1
+  ))
+})
+
+
+test_that("vector-valued `rounding` and `symmetric` are rejected clearly", {
+  # These describe one rounding procedure, so `reround()` has always required
+  # length 1. The mappers passed them straight down to the `*_scalar()`
+  # function, where R's own errors surfaced instead ("no such index at level
+  # 1", "'length = 2' in coercion to 'logical(1)'"). The check now sits in
+  # `rounding_offsets()`, which every one of the three tests reaches:
+  for (mapper in list(
+    function(...) grim_map(pigs1, digits_x = 2, ...),
+    function(...) grimmer_map(pigs5, digits_x = 2, digits_sd = 2, ...),
+    function(...) debit_map(pigs3, digits_x = 2, digits_sd = 2, ...),
+    function(...) grim_map_seq(pigs1, digits_x = 2, ...),
+    function(...) grim_map_total_n(
+      tibble::tibble(x1 = 4.52, x2 = 5.23, n = 40L), digits_x = 2, ...
+    )
+  )) {
+    mapper(rounding = c("up", "down")) |> expect_error("must each have length")
+    mapper(symmetric = c(TRUE, FALSE)) |> expect_error("must each have length")
+  }
+
+  # `reround()` and `unround()` are unaffected: the first has always had the
+  # check, and the second is documented as vectorized over `rounding`.
+  reround(1.234, 2, rounding = c("up", "down")) |>
+    expect_error("must each have length")
+  unround("1.2", rounding = c("up", "down")) |>
+    nrow() |>
+    expect_equal(2L)
+})
+
+
+test_that("a mapper's argument errors are not wrapped in `pmap()` context", {
+  # Anything wrong with the arguments themselves fails on the first row just as
+  # it would on any other, so the mapper applies the test to that row on its
+  # own first. `purrr::pmap()`'s "i In index: 1." context would only obscure
+  # the message. This used to happen for a missing required argument but not
+  # for a bad `rounding` string:
+  err <- tryCatch_error(grim_map(pigs1, digits_x = 2, rounding = "nonsense"))
+  expect_s3_class(err, "error")
+  msg <- error_message_full(err)
+  expect_match(msg, "designated string values")
+  expect_false(grepl("In index", msg, fixed = TRUE))
+
+  # Same for the missing-argument case, which is what the pre-application was
+  # originally added for:
+  err <- tryCatch_error(grim_map(pigs1))
+  msg <- error_message_full(err)
+  expect_match(msg, "digits_x")
+  expect_false(grepl("In index", msg, fixed = TRUE))
+})

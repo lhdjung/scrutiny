@@ -6,6 +6,8 @@
 \usage{
 grimmer_map_total_n(
   data,
+  digits_x = NULL,
+  digits_sd = NULL,
   x1 = NULL,
   x2 = NULL,
   sd1 = NULL,
@@ -27,6 +29,17 @@ the first round of tests, the function switches roles between \code{x1} and
 \code{x2}, and reports the outcomes both ways. The same applies to \code{sd1} and
 \code{sd2}. However, do make sure the \verb{x*} and \verb{sd*} values are paired
 accurately, as reported.}
+
+\item{digits_x}{Integer. The number of decimal places in \code{x1} and \code{x2},
+including trailing zeros. There is no default because it cannot be
+inferred from a numeric value, which has no trailing zeros: both \code{1.4} and
+\code{1.40} are the number \code{1.4}, but only the latter has \code{digits_x = 2}. Use a
+single number if both groups were reported with the same number of decimal
+places, or two numbers -- one for \code{x1}, one for \code{x2} -- if they differ.}
+
+\item{digits_sd}{Integer. The number of decimal places in \code{sd1} and \code{sd2}.
+As with \code{digits_x}, there is no default, because trailing zeros don't
+survive in a numeric value, and it may have one value per group.}
 
 \item{x1, x2, sd1, sd2}{Optionally, specify these arguments as column names in
 \code{data}.}

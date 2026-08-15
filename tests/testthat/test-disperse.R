@@ -37,3 +37,26 @@ test_that("`n` and `n_change` agree", {
   out <- disperse(n = 10)
   (out$n - 10L) |> expect_equal(out$n_change)
 })
+
+
+test_that("`n` is integer, as it is in the mappers", {
+  # The mappers store `n` as integer because a sample size is a whole number.
+  # The dispersion helpers that feed them, and the reverse function that reads
+  # their output back, returned doubles -- so the column changed type on the
+  # way in and back out again.
+  disperse(20)$n |> expect_type("integer")
+  disperse2(c(25, 26))$n |> expect_type("integer")
+  disperse_total(40)$n |> expect_type("integer")
+  disperse_total(51)$n |> expect_type("integer")
+  disperse(20)$n_change |> expect_type("integer")
+
+  reverse_map_total_n(
+    grim_map_total_n(tibble::tibble(x1 = 4.52, x2 = 5.23, n = 40L),
+                     digits_x = 2)
+  )$n |>
+    expect_type("integer")
+
+  # The values themselves are unchanged:
+  disperse(20)$n |> expect_equal(c(20L, 20L, 19L, 21L, 18L, 22L, 17L, 23L,
+                                   16L, 24L, 15L, 25L))
+})

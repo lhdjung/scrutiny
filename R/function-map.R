@@ -477,7 +477,8 @@ function_map <- function(
       scrutiny::check_mapper_input_colnames(
         data,
         `!!`(.reported),
-        `!!`(.name_test)
+        `!!`(.name_test),
+        `!!`(.name_key_result)
       )
 
       # Resolve the variadic key columns, if there are any. This comes after
@@ -543,12 +544,27 @@ function_map <- function(
 
       .args_const_vals <- .args_vals[intersect(args_const, names(.args_vals))]
 
-      # If an argument that `fun()` requires was not supplied, apply `fun()` to
-      # the first row on its own. The error that `fun()` throws about the
-      # missing argument -- e.g., the bespoke message about `digits_x` -- is far
-      # more helpful on its own than wrapped into the indexed-error context that
-      # `purrr::pmap()` would add to it:
-      if (!all(args_required %in% names(.args_vals)) && nrow(data) > 0L) {
+      # Apply `fun()` to the first row on its own before mapping over all of
+      # them. Anything wrong with the arguments themselves -- a missing
+      # `digits_x`, an unknown `rounding` string, a `symmetric` of length 2 --
+      # fails on the first row just as it would on any other, and the error the
+      # test function throws is far more helpful on its own than wrapped into
+      # the indexed-error context that `purrr::pmap()` would add to it ("i In
+      # index: 1."). It used to run only for missing required arguments, so a
+      # bad `rounding` still came out wrapped.
+      #
+      # The result is discarded; the row is tested again below. That is one
+      # extra scalar call per mapper call, next to one per row.
+      #
+      # Conditions other than errors are deliberately *not* muffled here.
+      # Muffling looks right -- the row is about to be tested again, so why
+      # report anything twice -- but a warning that fires only once is then
+      # lost for good: `lifecycle::deprecate_warn()` records that it has warned
+      # before the muffle discards the warning, so `grim_map(tolerance = ...)`
+      # went through in complete silence. Nothing on the scalar test path warns
+      # per row today, so there is nothing to duplicate; if something ever
+      # does, being told twice about the first row beats not being told at all.
+      if (nrow(data) > 0L) {
         do.call(
           fun,
           c(
@@ -587,11 +603,8 @@ function_map <- function(
 
       # `n` is a sample size, so it is always a whole number. Coercing it to
       # integer makes for better representation, as in `function_map_seq()`:
-      if (
-        !is.null(cols_key[["n"]]) &&
-          all(is_whole_number(cols_key[["n"]]) | is.na(cols_key[["n"]]))
-      ) {
-        cols_key[["n"]] <- as.integer(cols_key[["n"]])
+      if (!is.null(cols_key[["n"]])) {
+        cols_key[["n"]] <- as_integer_if_lossless(cols_key[["n"]])
       }
 
       cols_by_row <- cols_tested[args_by_row[

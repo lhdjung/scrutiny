@@ -80,7 +80,11 @@ reverse_map_total_n <- function(data) {
   data_reported_1 <- data1[, colnames_reported]
   data_reported_2 <- data2[, colnames_reported]
 
-  n <- data2$n
+  # `(2 * n) - n_was_odd` above is double arithmetic, so the reconstructed
+  # total came back as a double although the mapper's `n` column is integer and
+  # the `n` the user originally passed in most likely was too. This is the same
+  # coercion the mappers and the dispersion helpers apply:
+  n <- as_integer_if_lossless(data2$n)
 
   colnames(data_reported_1) <- paste0(colnames_reported, "1")
   colnames(data_reported_2) <- paste0(colnames_reported, "2")

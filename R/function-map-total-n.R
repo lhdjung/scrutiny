@@ -1,12 +1,12 @@
 # Helper function used within `function_map_total_n_proto()` below; not
 # exported:
-mutate_both_consistent <- function(data) {
-  both_consistent <- data$consistency |>
+mutate_both_consistent <- function(data, name_key_result = "consistency") {
+  both_consistent <- data[[name_key_result]] |>
     split_into_groups(group_size = 2) |>
     vapply(all, logical(1L), USE.NAMES = FALSE) |>
     rep(each = 2L)
 
-  dplyr::mutate(data, both_consistent, .after = "consistency")
+  dplyr::mutate(data, both_consistent, .after = dplyr::all_of(name_key_result))
 }
 
 
@@ -49,11 +49,14 @@ function_map_total_n_proto <- function(
   .n_min = 1L,
   .n_max = NULL,
   .constant = NULL,
+  .name_key_result = "consistency",
+  .name_fun = "the mapper",
   ...
 ) {
   function(
     data,
     fun = .fun,
+    name_fun = .name_fun,
     reported = .reported,
     reported_orig = .reported_orig,
     dir = .dir,
@@ -61,6 +64,7 @@ function_map_total_n_proto <- function(
     n_min = .n_min,
     n_max = .n_max,
     constant = .constant,
+    name_key_result = .name_key_result,
     ...
   ) {
     reported_n_cols <- ncol(reported)
@@ -166,13 +170,15 @@ function_map_total_n_proto <- function(
 
     out_df <- do.call(fun, c(list(out_df), dots))
 
+    check_key_result_col(out_df, name_key_result, name_fun)
+
     if (!any("n_change" == colnames(out_df))) {
       out_df <- dplyr::mutate(out_df, n_change)
     }
 
     out_df <- out_df |>
-      mutate_both_consistent() |>
-      dplyr::mutate(case, dir, n = as.integer(n)) |>
+      mutate_both_consistent(name_key_result) |>
+      dplyr::mutate(case, dir, n = as_integer_if_lossless(n)) |>
       dplyr::relocate(n_change, .after = n)
 
     return(out_df)
@@ -201,8 +207,8 @@ function_map_total_n_proto <- function(
 #' @param .fun Function such as [`grim_map()`], or one made by
 #'   [`function_map()`]: It will be used to test columns in a data frame for
 #'   consistency. Test results are logical and need to be contained in a column
-#'   called `consistency` that is added to the input data frame. This modified
-#'   data frame is then returned by `.fun`.
+#'   named by `.name_key_result` -- `consistency` by default -- that is added to
+#'   the input data frame. This modified data frame is then returned by `.fun`.
 #' @param .reported String. Names of the columns containing group-specific
 #'   statistics that were reported alongside the total sample size(s). They will
 #'   be tested for consistency with the hypothetical group sizes. Examples are
@@ -212,14 +218,16 @@ function_map_total_n_proto <- function(
 #' @param .name_test String (length 1). The name of the consistency test, such
 #'   as `"GRIM"`, to be optionally shown in a message when using the
 #'   manufactured function.
+#' @param .name_key_result (Experimental) Optionally, a single string that will
+#'   be the name of the key result column in the output. Default is
+#'   `"consistency"`. It must be the same string that `.fun` was created with:
+#'   the manufactured function reads `.fun`'s results off a column of that name.
 #' @param .name_class String. If specified, the tibbles returned by the
 #'   manufactured function will inherit this string as an S3 class. Default is
 #'   `NULL`, i.e., no extra class.
 #' @param .dispersion,.n_min,.n_max,.constant,.constant_index Arguments passed
 #'   down to [`disperse_total()`], using defaults from there.
 #' @param ... These dots must be empty.
-#'
-#' @inheritParams function_map
 #'
 #' @details If functions created by `function_map_total_n()` are exported from
 #'   other packages, they should be written as if they were created with
@@ -340,11 +348,28 @@ function_map_total_n <- function(
   reported_reduplicated <- rep(.reported, each = 2L)
   reported_reduplicated <- paste0(reported_reduplicated, c("1", "2"))
 
+  # Which `digits_*` arguments to expose as real formals, the way
+  # `function_map_seq()` does. They used to reach the total-n mappers through
+  # the dots only: that works, and the missing-argument error is still the
+  # bespoke one, but the argument was invisible to `formals()`, to
+  # tab-completion, and to the argument list in the rendered help page --
+  # despite having no default and being required in every call. `.reported`
+  # never contains `"n"` here, so there is nothing to filter out of it:
+  digits_args_names <- intersect(
+    paste0("digits_", .reported),
+    names(formals(.fun))
+  )
+  digits_pairlist_entries <- setNames(
+    replicate(length(digits_args_names), NULL, simplify = FALSE),
+    digits_args_names
+  )
+
   # --- Start of the manufactured function, `fn_out()` ---
 
   fn_out <- rlang::new_function(
     args = rlang::pairlist2(
       data = ,
+      !!!digits_pairlist_entries,
       dispersion = .dispersion,
       n_min = .n_min,
       n_max = .n_max,
@@ -356,6 +381,7 @@ function_map_total_n <- function(
       name_test <- `!!`(.name_test)
       name_fun <- `!!`(name_fun)
       name_class <- `!!`(.name_class)
+      name_key_result <- `!!`(.name_key_result)
       reported <- `!!`(.reported)
       reported_reduplicated <- `!!`(reported_reduplicated)
       fun <- `!!`(.fun)
@@ -369,10 +395,20 @@ function_map_total_n <- function(
 
       check_factory_dots(fun, name_fun, ...)
 
+      # Collect the `digits_*` values that the caller actually supplied,
+      # dropping the `NULL` defaults so that `fun()` still sees an omitted one
+      # as missing and throws its own bespoke error about it. Everything below
+      # forwards `.fun_args` where it used to forward the dots alone:
+      .digits_vals <- Filter(
+        Negate(is.null),
+        mget(`!!`(digits_args_names), envir = environment())
+      )
+      .fun_args <- c(.digits_vals, list(...))
+
       # The usual key argument check conducted by
       # `check_mapper_input_colnames()` is not applicable to `data`, so the
       # function only checks the remaining point, using an internal helper:
-      check_consistency_not_in_colnames(data, name_test)
+      check_consistency_not_in_colnames(data, name_test, name_key_result)
 
       # Make sure that the `n` column is present...
       if (!any(colnames(data) == "n")) {
@@ -490,42 +526,59 @@ function_map_total_n <- function(
       # Generate the lower-level "proto" function that will apply
       # `disperse_total` and `fun` (the test-specific mapping function, such as
       # `grim_map`) to `data_forth` and `data_back`:
-      map_total_n_proto <- function_map_total_n_proto(
-        .fun = fun,
-        .reported = cols_expected_forth,
-        .reported_orig = reported_orig,
-        .dispersion = dispersion,
-        .n_min = n_min,
-        .n_max = n_max,
-        .constant = constant,
-        ...
+      map_total_n_proto <- do.call(
+        function_map_total_n_proto,
+        c(
+          list(
+            .fun = fun,
+            .reported = cols_expected_forth,
+            .reported_orig = reported_orig,
+            .dispersion = dispersion,
+            .n_min = n_min,
+            .n_max = n_max,
+            .constant = constant,
+            .name_key_result = name_key_result,
+            .name_fun = name_fun
+          ),
+          .fun_args
+        )
       )
 
       # Now, call the manufactured function on both tibbles. First the
       # original...
-      out_forth <- map_total_n_proto(
-        data = data_forth,
-        reported = cols_expected_forth,
-        reported_orig = reported_orig,
-        dir = factor("forth", levels = "forth"),
-        dispersion = dispersion,
-        n_min = n_min,
-        n_max = n_max,
-        constant = constant,
-        ...
+      out_forth <- do.call(
+        map_total_n_proto,
+        c(
+          list(
+            data = data_forth,
+            reported = cols_expected_forth,
+            reported_orig = reported_orig,
+            dir = factor("forth", levels = "forth"),
+            dispersion = dispersion,
+            n_min = n_min,
+            n_max = n_max,
+            constant = constant
+          ),
+          .fun_args
+        )
       )
 
       # ...and second, the one with reversed index name portions:
-      out_back <- map_total_n_proto(
-        data = data_back,
-        reported = cols_expected_back,
-        reported_orig = reported_orig,
-        dir = factor("back", levels = "back"),
-        dispersion = dispersion,
-        n_min = n_min,
-        n_max = n_max,
-        constant = constant,
-        ...
+      out_back <- do.call(
+        map_total_n_proto,
+        c(
+          list(
+            data = data_back,
+            reported = cols_expected_back,
+            reported_orig = reported_orig,
+            dir = factor("back", levels = "back"),
+            dispersion = dispersion,
+            n_min = n_min,
+            n_max = n_max,
+            constant = constant
+          ),
+          .fun_args
+        )
       )
 
       # In case of an internal error with these functions themselves due to
@@ -550,7 +603,19 @@ function_map_total_n <- function(
 
       # Combine the two sets of results into one final tibble:
       out <- dplyr::bind_rows(out_forth, out_back)
-      out <- add_class(out, "scrutiny_map_total_n")
+
+      # `audit_total_n()` dispatches on the generic class, but the test-specific
+      # one is what lets users write their own S3 methods for the output of one
+      # particular mapper -- the same way `function_map_seq()` has always
+      # allowed. Without it, the total-n tier was the only one of the three that
+      # could not be dispatched on by test:
+      out <- add_class(
+        out,
+        c(
+          "scrutiny_map_total_n",
+          paste0("scrutiny_", tolower(name_test), "_map_total_n")
+        )
+      )
 
       # This is a hack, but it works. Its solves the following problem:
       # `constant_index` is meant to work within the `disperse_total()` tibble,
@@ -584,7 +649,9 @@ function_map_total_n <- function(
         out <- add_class(out, name_class)
       }
 
-      `!!!`(write_code_col_key_result(.name_key_result))
+      # `rename = FALSE`: `fun()` already named the column, so only the
+      # list-column-to-logical half of this code applies here.
+      `!!!`(write_code_col_key_result(.name_key_result, rename = FALSE))
     }),
     # The body calls scrutiny-internal helpers such as `absorb_key_args()`, so
     # the manufactured function must be enclosed in an environment that
@@ -603,5 +670,11 @@ function_map_total_n <- function(
   # Duplicate the names of the statistics reported pairwise with one total `n`
   # per pair. Paste `"1"` and `"2"` at the ends of these names, then add them to
   # the list of arguments of the manufactured function:
-  insert_key_args(fn_out, reported_reduplicated)
+  # They go after the `digits_*` arguments, which are spliced in right after
+  # `data`, so that all three mapper tiers start their signature the same way.
+  insert_key_args(
+    fn_out,
+    reported_reduplicated,
+    insert_after = 1L + length(digits_args_names)
+  )
 }

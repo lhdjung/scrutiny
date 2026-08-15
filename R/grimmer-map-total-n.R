@@ -26,6 +26,15 @@
 #'   `x2`, and reports the outcomes both ways. The same applies to `sd1` and
 #'   `sd2`. However, do make sure the `x*` and `sd*` values are paired
 #'   accurately, as reported.
+#' @param digits_x Integer. The number of decimal places in `x1` and `x2`,
+#'   including trailing zeros. There is no default because it cannot be
+#'   inferred from a numeric value, which has no trailing zeros: both `1.4` and
+#'   `1.40` are the number `1.4`, but only the latter has `digits_x = 2`. Use a
+#'   single number if both groups were reported with the same number of decimal
+#'   places, or two numbers -- one for `x1`, one for `x2` -- if they differ.
+#' @param digits_sd Integer. The number of decimal places in `sd1` and `sd2`.
+#'   As with `digits_x`, there is no default, because trailing zeros don't
+#'   survive in a numeric value, and it may have one value per group.
 #' @param x1,x2,sd1,sd2 Optionally, specify these arguments as column names in
 #'   `data`.
 #' @param dispersion Numeric. Steps up and down from half the `n` values.

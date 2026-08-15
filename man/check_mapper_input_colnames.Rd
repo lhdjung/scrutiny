@@ -4,7 +4,12 @@
 \alias{check_mapper_input_colnames}
 \title{Check that a mapper's input has correct column names}
 \usage{
-check_mapper_input_colnames(data, reported, name_test)
+check_mapper_input_colnames(
+  data,
+  reported,
+  name_test,
+  name_key_result = "consistency"
+)
 }
 \arguments{
 \item{data}{Data frame. Input to the mapper function.}
@@ -14,6 +19,10 @@ have, such as \code{c("x", "n")} for \code{grim_map()}.}
 
 \item{name_test}{String (length 1). Short, plain-text name of the consistency
 test that the mapper function applies, such as \code{"GRIM"}.}
+
+\item{name_key_result}{String (length 1). Name of the column that the mapper
+will add for its test results, i.e., the \code{.name_key_result} argument of the
+function factory that created it. Default is \code{"consistency"}.}
 }
 \value{
 No return value. Might throw an error.
@@ -25,7 +34,8 @@ correct column names:
 \itemize{
 \item They include all the key columns corresponding to the test applied by the
 mapper.
-\item They don't already include \code{"consistency"}.
+\item They don't already include the name of the results column,
+\code{"consistency"} by default.
 }
 
 If either check fails, the function throws an informative error.

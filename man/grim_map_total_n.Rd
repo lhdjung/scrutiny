@@ -6,6 +6,7 @@
 \usage{
 grim_map_total_n(
   data,
+  digits_x = NULL,
   x1 = NULL,
   x2 = NULL,
   dispersion = 0:5,
@@ -23,6 +24,13 @@ sizes, and \code{n} is the total sample size. It is not very important whether a
 value is in \code{x1} or in \code{x2} because, after the first round of tests, the
 function switches roles between \code{x1} and \code{x2}, and reports the outcomes
 both ways.}
+
+\item{digits_x}{Integer. The number of decimal places in \code{x1} and \code{x2},
+including trailing zeros. There is no default because it cannot be
+inferred from a numeric value, which has no trailing zeros: both \code{1.4} and
+\code{1.40} are the number \code{1.4}, but only the latter has \code{digits_x = 2}. Use a
+single number if both groups were reported with the same number of decimal
+places, or two numbers -- one for \code{x1}, one for \code{x2} -- if they differ.}
 
 \item{x1, x2}{Optionally, specify these arguments as column names in \code{data}.}
 

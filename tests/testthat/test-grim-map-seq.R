@@ -660,6 +660,7 @@ pigs1_exp <- tibble::tibble(
   structure(
     # The arguments that reproduce the test; `audit_seq()` replays them:
     scrutiny_fun_args = list(digits_x = 2),
+    scrutiny_name_key_result = "consistency",
     class = c(
       "scrutiny_map_seq",
       "scrutiny_grim_map_seq",
@@ -1090,6 +1091,7 @@ pigs2_exp <- tibble::tibble(
 ) |>
   structure(
     scrutiny_fun_args = list(digits_x = 1, percent = TRUE),
+    scrutiny_name_key_result = "consistency",
     class = c(
       "scrutiny_map_seq",
       "scrutiny_grim_map_seq",
@@ -1823,6 +1825,7 @@ pigs1_include_reported_exp <- tibble::tibble(
 ) |>
   structure(
     scrutiny_fun_args = list(digits_x = 2),
+    scrutiny_name_key_result = "consistency",
     class = c(
       "scrutiny_map_seq",
       "scrutiny_grim_map_seq",

@@ -38,8 +38,16 @@ reverse_map_seq <- function(data) {
 
   check_dispersion_linear(data)
 
+  # The tested columns are those left of the key result column, which the
+  # sequence mapper records by name because `.name_key_result` may have renamed
+  # it. Absent the attribute -- e.g. after subsetting -- it is `"consistency"`:
+  name_key_result <- attr(data, "scrutiny_name_key_result", exact = TRUE)
+  if (is.null(name_key_result)) {
+    name_key_result <- "consistency"
+  }
+
   var <- data |>
-    select_tested_cols() |>
+    select_tested_cols(before = name_key_result) |>
     colnames()
 
   var_unique <- var

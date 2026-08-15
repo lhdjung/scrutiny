@@ -107,6 +107,8 @@ floor_frac_sum <- function(a1, b1, a2, b2) {
 # `rounding` is not a known method.
 
 rounding_offsets <- function(rounding, threshold, x_num, symmetric = FALSE) {
+  check_rounding_spec_singular(rounding, threshold, symmetric)
+
   # A missing value has no sign, and the branches below need one: `"trunc"` and
   # `"anti_trunc"` have different bounds on either side of zero, and `symmetric`
   # mirrors the methods it applies to. Standing in a positive number keeps
