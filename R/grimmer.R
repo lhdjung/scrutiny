@@ -218,12 +218,33 @@ grimmer_scalar <- function(
     return(FALSE)
   }
 
+  # GRIMMER inherits GRIM's requirement that `n` and `items` be positive whole
+  # numbers, and adds one of its own: it reconstructs a *sample* SD, so it
+  # divides by `n - 1`. At `n = 1` that is a division by zero. The result was a
+  # `NaN` that `dplyr::near()` turned into `NA` and `na.rm = TRUE` then
+  # swallowed, so `grimmer(x = 5, sd = 0, n = 1, ...)` came out `FALSE` -- a
+  # verdict reached by accident rather than by reasoning. The parity test
+  # (`s %% 2 == integers_possible %% 2`) says nothing about fractional data
+  # either.
+  if (!is_decidable_n_items(n, items, min_n = 2)) {
+    if (show_reason) {
+      return(list(NA, "No testable value set"))
+    }
+    return(NA)
+  }
+
   n_items <- n * items
 
   # GRIM TEST: It says `x_orig` because the `x` object has been coerced from
   # character to numeric, but `grim_scalar()` needs the original number-string.
   # Similarly, since this function also gets `items` passed down, it needs the
   # original `n`, not `n_items`.
+  #
+  # `tolerance` is deliberately not passed on: it is deprecated in `grim()`,
+  # which compares exact integers, and forwarding it here would fire that
+  # deprecation warning for every `grimmer()` call. GRIMMER's own use of it,
+  # in the `dplyr::near()` comparison of reconstructed SDs further down, is
+  # unaffected.
   pass_grim <- grim_scalar(
     x = x_orig,
     n = n,
@@ -231,15 +252,14 @@ grimmer_scalar <- function(
     items = items,
     rounding = rounding,
     threshold = threshold,
-    symmetric = symmetric,
-    tolerance = tolerance
+    symmetric = symmetric
   )
 
-  # GRIM itself can be undecidable -- with a non-positive `n` -- and then so is
-  # GRIMMER, which builds on it. The missing-value guard above catches only the
-  # other route to an `NA`
-  # verdict, so this one has to be here rather than folded into it, and it has
-  # to precede the branch below, which would fail on an `NA`:
+  # GRIM itself can be undecidable, and then so is GRIMMER, which builds on it.
+  # The two guards above rule out every case where that happens today -- a
+  # missing value, and an `n` or `items` that GRIM cannot work with either --
+  # so this is belt and braces on the contract that no verdict follows from an
+  # `NA`. It has to precede the branch below, which would fail on one:
   if (is.na(pass_grim)) {
     if (show_reason) {
       return(list(NA, "GRIM undecidable"))
@@ -309,6 +329,12 @@ grimmer_scalar <- function(
     rounding = rounding,
     threshold = threshold,
     symmetric = symmetric
+  )
+
+  check_enumeration_size(
+    sums_consistent,
+    what = "integer sums consistent with the reported mean",
+    n = n
   )
 
   consistent_sums <- sums_consistent[1L]:sums_consistent[2L]
@@ -387,6 +413,12 @@ grimmer_scalar <- function(
 
     # Create a vector of all possible integers between the lower and upper
     # bounds of the sum of squares:
+    check_enumeration_size(
+      sum_squares,
+      what = "integer sums of squares consistent with the reported SD",
+      n = n
+    )
+
     integers_possible <- sum_squares[1L]:sum_squares[2L]
 
     # Create the predicted variance. Subtracting `s^2 / n` from the integer sum
@@ -520,12 +552,20 @@ grimmer_scalar <- function(
 #'   output is a list of length-2 lists which also contain the reasons for
 #'   inconsistencies. Don't specify this manually; instead, use `show_reason` in
 #'   [`grimmer_map()`]. See there for explanation. Default is `FALSE`.
+#' @param tolerance Numeric. Tolerance of the comparison between the reported
+#'   `sd` and the reconstructed SDs, via [`dplyr::near()`]. Default is circa
+#'   0.000000015 (1.490116e-08). This is documented here rather than inherited
+#'   from [`grim()`], where the argument is deprecated: GRIM compares exact
+#'   integers and has nothing for a tolerance to loosen, whereas GRIMMER
+#'   reconstructs SDs in floating point and does.
 #'
 #' @inheritParams grim
 #'
 #' @return Logical. `TRUE` if `x`, `sd`, `n`, and `items` are mutually
 #'   consistent, `FALSE` if not, and `NA` if the case cannot be decided: if any
-#'   of the values is missing, or if the rounding bounds are undefined.
+#'   of the values is missing, if the rounding bounds are undefined, if `items`
+#'   is not a positive whole number, or if `n` is not a whole number greater
+#'   than `1`. GRIMMER reconstructs a *sample* SD, so it divides by `n - 1`.
 
 #' @details GRIMMER was originally devised by Anaya (2016). The present
 #'   implementation follows Allard's (2018) refined Analytic-GRIMMER algorithm.

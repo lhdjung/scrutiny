@@ -14,7 +14,7 @@ grim(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  tolerance = .Machine$double.eps^0.5
+  tolerance = lifecycle::deprecated()
 )
 }
 \arguments{
@@ -53,14 +53,16 @@ negative numbers with \code{"up"}, \code{"down"}, \code{"up_from"}, or \code{"do
 should mirror that of positive numbers so that their absolute values are
 always equal. Default is \code{FALSE}.}
 
-\item{tolerance}{Numeric. Tolerance of comparison between \code{x} and the
-possible mean or percentage values. Default is circa 0.000000015
-(1.490116e-08), as in \code{\link[dplyr:near]{dplyr::near()}}.}
+\item{tolerance}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} GRIM compares exact
+integers, so this never had an effect on its results. See \emph{Details}.}
 }
 \value{
 Logical. \code{TRUE} if \code{x}, \code{n}, and \code{items} are mutually consistent,
 \code{FALSE} if not, and \code{NA} if the case cannot be decided: if any of the
-values is missing, or if \code{n} leaves nothing to test.
+values is missing, or if \code{n} or \code{items} is not a positive whole number.
+GRIM asks which integer sums of \code{n * items} integer values have a mean
+that would be reported as \code{x}, and a fractional or non-positive \code{n} or
+\code{items} describes no such data set.
 }
 \description{
 \code{grim()} checks if a reported mean value of integer data is
@@ -84,9 +86,11 @@ Browse the source code in the grim.R file. \code{grim()} is a vectorized version
 of the internal \code{grim_scalar()} function found there.
 
 \code{grim()} decides which reconstructed means are consistent with \code{x} using
-exact integer arithmetic, so \code{tolerance} has no effect on its results. The
-argument is retained because \code{\link[=grimmer]{grimmer()}} and \code{\link[=debit]{debit()}} inherit it and
-do use it.
+exact integer arithmetic, so there is no floating-point comparison for a
+\code{tolerance} to loosen. The argument is deprecated for that reason.
+\code{\link[=grimmer]{grimmer()}} does compare reconstructed SDs with \code{\link[dplyr:near]{dplyr::near()}} and
+still takes it; \code{\link[=debit]{debit()}} compares exact integers, like \code{grim()}, and
+never had it.
 }
 \examples{
 # A mean of 5.19 is not consistent with a sample size of 28:

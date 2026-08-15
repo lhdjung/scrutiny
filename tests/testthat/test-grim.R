@@ -258,3 +258,41 @@ test_that("`threshold` does not affect the non-`\"*_from\"` methods", {
     unname(grim(x, 40, digits_x = 2, rounding = "up_from", threshold = 9))
   ))
 })
+
+
+test_that("`grim(tolerance = )` is deprecated", {
+  # GRIM compares exact integers, so the argument never had an effect on its
+  # results. It was kept "because `grimmer()` and `debit()` inherit it and do
+  # use it" -- but `debit()` never had it.
+  lifecycle::expect_deprecated(grim(x = 5.19, n = 28, digits_x = 2,
+                                    tolerance = 1e-6))
+  # The mapper reaches `grim_scalar()` once per row, and testthat sets
+  # lifecycle's verbosity so that every one of those warns rather than only the
+  # first; the outer `suppressWarnings()` mops up the repeats:
+  suppressWarnings(
+    expect_warning(
+      grim_map(pigs1, digits_x = 2, tolerance = 1e-6),
+      "deprecated"
+    )
+  )
+
+  # The verdict is the same either way:
+  suppressWarnings(
+    grim(x = 5.19, n = 28, digits_x = 2, tolerance = 1e-6)
+  ) |>
+    expect_equal(grim(x = 5.19, n = 28, digits_x = 2))
+
+  # Not specifying it is silent, and `grimmer()` -- which calls `grim_scalar()`
+  # internally and does use a tolerance of its own -- must not trip it either:
+  expect_no_condition(grim(x = 5.19, n = 28, digits_x = 2))
+  expect_no_condition(
+    grimmer(x = 5.19, sd = 0.5, n = 28, digits_x = 2, digits_sd = 2)
+  )
+  expect_no_condition(
+    grimmer(x = 5.19, sd = 0.5, n = 28, digits_x = 2, digits_sd = 2,
+            tolerance = 1e-6)
+  )
+
+  # `debit()` has no such argument at all:
+  expect_false("tolerance" %in% names(formals(debit)))
+})

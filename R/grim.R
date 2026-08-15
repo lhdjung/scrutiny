@@ -21,8 +21,34 @@ grim_scalar <- function(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  tolerance = .Machine$double.eps^0.5
+  # `lifecycle::deprecated()`, not the bare `deprecated()` that the import
+  # provides: this default is copied into the formals of `grim()` by
+  # `Vectorize()` and into every mapper's by `function_map()`, and R CMD check
+  # reads it there, outside the namespace that resolves the bare name.
+  tolerance = lifecycle::deprecated()
 ) {
+  # GRIM decides which sums are consistent in exact integer arithmetic, so
+  # there is no floating-point comparison for a tolerance to loosen. The
+  # argument was retained "because `grimmer()` and `debit()` inherit it and do
+  # use it", which is only half true: `grimmer()` does, `debit()` never had it
+  # and does not need it either. So this is an argument that does nothing, in
+  # the one function of the three whose result it cannot change.
+  if (lifecycle::is_present(tolerance)) {
+    # `user_env` is given explicitly because this function is never called
+    # directly by the user: `grim()` is `Vectorize(grim_scalar)`, and
+    # `grim_map()` reaches it through `purrr::pmap()`. Left to infer the caller,
+    # lifecycle finds a scrutiny frame either way and appends "The deprecated
+    # feature was likely used in the scrutiny package. Please report the issue"
+    # -- sending the user to the issue tracker for their own argument.
+    lifecycle::deprecate_warn(
+      when = "1.0.0",
+      what = "grim(tolerance)",
+      details = "GRIM compares exact integers, so `tolerance` has no effect \\
+      on its results. `grimmer()` still takes it, and uses it.",
+      user_env = globalenv()
+    )
+  }
+
   check_type(items, c("double", "integer"))
   check_type(percent, "logical")
 
@@ -39,6 +65,18 @@ grim_scalar <- function(
   if (percent) {
     x_num <- x_num / 100
     digits_x <- digits_x + 2L
+  }
+
+  # GRIM asks which integer sums of `n * items` integer values have a mean that
+  # would be reported as `x`. A fractional or non-positive `n` or `items`
+  # describes no such data set, so there is nothing to be consistent with, and
+  # the case is undecidable rather than inconsistent. It used to get a verdict:
+  # `grim(x = 5.19, n = 20.5, digits_x = 2)` was `FALSE`.
+  if (!is_decidable_n_items(n, items)) {
+    if (!show_rec) {
+      return(NA)
+    }
+    return(list(NA, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
   }
 
   # Prepare further objects for reconstructing the original values:
@@ -144,9 +182,11 @@ grim_scalar <- function(
 #'   of the internal `grim_scalar()` function found there.
 #'
 #'   `grim()` decides which reconstructed means are consistent with `x` using
-#'   exact integer arithmetic, so `tolerance` has no effect on its results. The
-#'   argument is retained because [`grimmer()`] and [`debit()`] inherit it and
-#'   do use it.
+#'   exact integer arithmetic, so there is no floating-point comparison for a
+#'   `tolerance` to loosen. The argument is deprecated for that reason.
+#'   [`grimmer()`] does compare reconstructed SDs with [`dplyr::near()`] and
+#'   still takes it; [`debit()`] compares exact integers, like `grim()`, and
+#'   never had it.
 #'
 #' @param x Numeric. The reported mean or percentage value.
 #' @param n Integer. The reported sample size.
@@ -174,13 +214,15 @@ grim_scalar <- function(
 #'   negative numbers with `"up"`, `"down"`, `"up_from"`, or `"down_from"`
 #'   should mirror that of positive numbers so that their absolute values are
 #'   always equal. Default is `FALSE`.
-#' @param tolerance Numeric. Tolerance of comparison between `x` and the
-#'   possible mean or percentage values. Default is circa 0.000000015
-#'   (1.490116e-08), as in [`dplyr::near()`].
+#' @param tolerance `r lifecycle::badge("deprecated")` GRIM compares exact
+#'   integers, so this never had an effect on its results. See *Details*.
 #'
 #' @return Logical. `TRUE` if `x`, `n`, and `items` are mutually consistent,
 #'   `FALSE` if not, and `NA` if the case cannot be decided: if any of the
-#'   values is missing, or if `n` leaves nothing to test.
+#'   values is missing, or if `n` or `items` is not a positive whole number.
+#'   GRIM asks which integer sums of `n * items` integer values have a mean
+#'   that would be reported as `x`, and a fractional or non-positive `n` or
+#'   `items` describes no such data set.
 #'
 #' @seealso [`grim_map()`] applies `grim()` to any number of cases at once.
 #'

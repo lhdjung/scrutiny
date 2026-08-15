@@ -78,8 +78,11 @@ grim_probability <- function(x, n, digits_x, items = 1, percent = FALSE) {
   # probability of inconsistency -- it is a case with nothing to test, which is
   # exactly what `grim()` returns `NA` for. Reporting `1.03` next to a verdict of
   # `NA`, as the `probability` column of `grim_map()` used to, states two
-  # incompatible things about one row. `grim_ratio()` is the unclamped one:
-  dplyr::if_else(n * items > 0, out, NA_real_)
+  # incompatible things about one row. The condition is the same one `grim()`
+  # itself decides by, so a fractional `n` or `items` is `NA` here too rather
+  # than a probability about a data set that cannot exist. `grim_ratio()` is
+  # the unclamped one, and it reports the raw formula whatever the inputs:
+  dplyr::if_else(is_decidable_n_items(n, items), out, NA_real_)
 }
 
 

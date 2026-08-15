@@ -762,7 +762,7 @@ test_that("GRIMMER returns `NA` where GRIM itself is undecidable", {
     show_reason = TRUE
   )
   out$consistency |> expect_equal(c(NA, FALSE))
-  out$reason[1L] |> expect_equal("GRIM undecidable")
+  out$reason[1L] |> expect_equal("No testable value set")
   audit(out)$fail_grim |> expect_equal(0L)
   audit(out)$incons_cases |> expect_equal(1L)
 })
@@ -1031,4 +1031,21 @@ test_that("GRIMMER never rejects an enumerable sample within scale bounds", {
   )
   expect_equal(sum(!verdict %in% TRUE), 0L)
   expect_gt(length(verdict), 100L)
+})
+
+
+test_that("an `n` too large to enumerate is an error, not a hang", {
+  # GRIMMER enumerates every integer sum the reported mean admits, and for each
+  # of those every integer sum of squares the reported SD admits. Both ranges
+  # grow linearly with `n`: `a:b` simply allocated, so `n = 3e9` exhausted
+  # memory with no warning on the way.
+  grimmer(x = 5.19, sd = 2.5, n = 3e9, digits_x = 2, digits_sd = 2) |>
+    expect_error("too large for GRIMMER to enumerate")
+  grimmer(x = 5.19, sd = 2.5, n = 1e8, digits_x = 2, digits_sd = 2) |>
+    expect_error("too large for GRIMMER to enumerate")
+
+  # The limit is far above anything a published summary statistic looks like,
+  # so a large but plausible `n` still goes through:
+  grimmer(x = 5.19, sd = 2.5, n = 1e6, digits_x = 2, digits_sd = 2) |>
+    expect_type("logical")
 })

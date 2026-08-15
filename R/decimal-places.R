@@ -70,6 +70,21 @@
 #' decimal_places_scalar(x = "5.024")
 
 decimal_places <- function(x, sep = "\\.") {
+  # `NaN` and the infinities have no decimal places in any meaningful sense,
+  # and `NaN` is a missing value everywhere else in the package -- `is.na(NaN)`
+  # is `TRUE`. They used to be counted as zero, because `str_trim()` turns them
+  # into the strings `"NaN"` and `"Inf"`, which have no separator and hence no
+  # digits after one; only a literal `NA` survived the coercion as `NA`. The
+  # test below runs on the input rather than on the trimmed strings, so that a
+  # numeric vector is decided by `is.finite()`; a character vector can only be
+  # matched against the tokens, since `as.numeric()` would also swallow strings
+  # like `"5.30%"`, whose two decimal places are the documented answer.
+  non_finite <- if (is.numeric(x)) {
+    !is.finite(x)
+  } else {
+    is.na(x) | grepl("^[+-]?(Inf|NaN)$", trimws(x))
+  }
+
   x <- stringr::str_trim(x)
 
   # Scientific notation moves the decimal point, so the digits after `sep` are
@@ -97,13 +112,14 @@ decimal_places <- function(x, sep = "\\.") {
 
   # `str_split_fixed()` gives a missing value an empty mantissa rather than a
   # missing one, so it would otherwise count as zero decimal places:
-  out[is.na(x)] <- NA_integer_
+  out[non_finite] <- NA_integer_
 
   # A value without an exponent is shifted by nothing, and a positive exponent
   # can only cancel decimal places, never create negative ones:
   exponent[is.na(exponent)] <- 0L
   out <- out - exponent
   out[!is.na(out) & out < 0L] <- 0L
+  out[non_finite] <- NA_integer_
   out
 }
 
@@ -118,12 +134,22 @@ decimal_places_scalar <- function(x, sep = "\\.") {
     return(NA_integer_)
   }
 
+  # As in `decimal_places()`, which this must agree with: an infinity has no
+  # decimal places to count, and `NaN` is caught by the `is.na()` above.
+  if (is.numeric(x) && !is.finite(x)) {
+    return(NA_integer_)
+  }
+
   # Whitespace must go before anything else is read off the string, exactly as
   # in `decimal_places()`: the exponent is matched at the end of the string, so
   # a single trailing space used to hide it and `"1.5e3 "` came out as 1 rather
   # than 0. Only a string the user typed can carry whitespace -- and only that
   # case pays for `trimws()` -- because `as.character()` never produces any:
   x <- if (is.character(x)) trimws(x) else as.character(x)
+
+  if (grepl("^[+-]?(Inf|NaN)$", x)) {
+    return(NA_integer_)
+  }
 
   # See the comment in `decimal_places()`: an exponent shifts the decimal point,
   # so it has to be split off before the digits after `sep` are counted. This is

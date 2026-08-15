@@ -194,3 +194,89 @@ test_that("DEBIT tells a missing value from an out-of-range one", {
   debit(NA, 0.50, 1683, digits_x = 2, digits_sd = 2) |> expect_na()
   debit(1.53, 0.50, 1683, digits_x = 2, digits_sd = 2) |> expect_error()
 })
+
+
+# Undecidable input -------------------------------------------------------
+
+test_that("the three tests agree on what input is undecidable", {
+  # All three reason about integer data, so a fractional or non-positive `n` or
+  # `items` describes no data set at all -- there is nothing for the test to be
+  # consistent or inconsistent *with*. They used to return verdicts anyway.
+
+  # GRIM: `n` and `items` must be positive whole numbers. `n = 1` is fine, the
+  # mean of a single value being that value.
+  expect_na(grim(x = 5.19, n = 20.5, digits_x = 2))
+  expect_na(grim(x = 5.19, n = 20, digits_x = 2, items = 1.5))
+  expect_na(grim(x = 5.19, n = 0, digits_x = 2))
+  expect_na(grim(x = 5.19, n = -5, digits_x = 2))
+  expect_na(grim(x = 5.19, n = Inf, digits_x = 2))
+  grim(x = 5, n = 1, digits_x = 0) |> expect_true()
+
+  # GRIMMER and DEBIT reconstruct a *sample* SD, so they divide by `n - 1` and
+  # need an `n` of at least 2. At `n = 1`, GRIMMER used to reach `FALSE`
+  # through a `NaN` that `na.rm = TRUE` swallowed, and DEBIT through an `Inf`
+  # that compared as "above the upper bound".
+  expect_na(grimmer(x = 5, sd = 0, n = 1, digits_x = 2, digits_sd = 2))
+  expect_na(grimmer(x = 3, sd = 1, n = 20.5, digits_x = 2, digits_sd = 2))
+  expect_na(
+    grimmer(x = 3, sd = 1, n = 20, digits_x = 2, digits_sd = 2, items = 1.5)
+  )
+  expect_na(grimmer(x = 3, sd = 1, n = 0, digits_x = 2, digits_sd = 2))
+
+  expect_na(debit(x = 0.5, sd = 0.5, n = 1, digits_x = 2, digits_sd = 2))
+  expect_na(debit(x = 0.5, sd = 0.5, n = 0, digits_x = 2, digits_sd = 2))
+  expect_na(debit(x = 0.5, sd = 0.5, n = -5, digits_x = 2, digits_sd = 2))
+  expect_na(debit(x = 0.5, sd = 0.5, n = 20.5, digits_x = 2, digits_sd = 2))
+  # A real `n` still gets a real verdict:
+  debit(x = 0.5, sd = 0.5, n = 20, digits_x = 2, digits_sd = 2) |>
+    expect_false()
+  debit(x = 0.36, sd = 0.11, n = 20, digits_x = 2, digits_sd = 2) |>
+    expect_type("logical")
+})
+
+
+test_that("undecidable input gives `NA` in the mappers, too", {
+  out <- grim_map(tibble::tibble(x = 5.19, n = 20.5, items = 1.5), digits_x = 2)
+  out$consistency |> expect_na()
+  # `probability` used to report a number next to an `NA` verdict, which states
+  # two incompatible things about one row:
+  out$probability |> expect_na()
+
+  # The reconstructed values of `show_rec` are `NA` throughout, rather than the
+  # `NaN`s that an `n` of zero produced:
+  out_rec <- grim_map(
+    tibble::tibble(x = 5.19, n = 0L),
+    digits_x = 2,
+    show_rec = TRUE
+  )
+  out_rec$consistency |> expect_na()
+  for (col in c(
+    "rec_sum", "sum_lower", "sum_upper", "rec_x_upper", "rec_x_lower"
+  )) {
+    out_rec[[col]] |> expect_na()
+  }
+
+  out_debit <- debit_map(
+    tibble::tibble(x = 0.5, sd = 0.5, n = 1L),
+    digits_x = 2,
+    digits_sd = 2
+  )
+  out_debit$consistency |> expect_na()
+
+  out_grimmer <- grimmer_map(
+    tibble::tibble(x = 5, sd = 0, n = 1L),
+    digits_x = 2,
+    digits_sd = 2,
+    show_reason = TRUE
+  )
+  out_grimmer$consistency |> expect_na()
+  out_grimmer$reason |> expect_equal("No testable value set")
+})
+
+
+test_that("`grim_ratio()` stays unclamped and unguarded", {
+  # It is documented as the raw formula, and `grim_probability()` is the one
+  # that reports an undecidable case as `NA`:
+  grim_ratio(x = 5.19, n = 20.5, digits_x = 2) |> expect_equal((100 - 20.5) / 100)
+  grim_probability(x = 5.19, n = 20.5, digits_x = 2) |> expect_na()
+})

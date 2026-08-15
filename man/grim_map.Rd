@@ -15,7 +15,7 @@ grim_map(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  tolerance = .Machine$double.eps^0.5,
+  tolerance = lifecycle::deprecated(),
   ...
 )
 }
@@ -48,8 +48,11 @@ adjust the decimal count (i.e., increase it by 2). It also affects the
 GRIM-testing are shown as columns. See section \emph{Reconstructed numbers}
 below. Default is \code{FALSE}.}
 
-\item{rounding, threshold, symmetric, tolerance}{Further parameters of
-GRIM-testing; see documentation for \code{\link[=grim]{grim()}}.}
+\item{rounding, threshold, symmetric}{Further parameters of GRIM-testing; see
+documentation for \code{\link[=grim]{grim()}}.}
+
+\item{tolerance}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} GRIM compares exact
+integers, so this never had an effect on its results. See \code{\link[=grim]{grim()}}.}
 
 \item{...}{Arguments passed down to \code{\link[=grim]{grim()}}.}
 }

@@ -146,6 +146,30 @@ debit_scalar <- function(
     ))
   }
 
+  # DEBIT reconstructs the *sample* SD of `n` binary values, so it divides by
+  # `n - 1`. `n` has to be a whole number greater than 1 for that to describe
+  # anything. It used to return a verdict regardless: at `n = 1`,
+  # `sd_binary_mean_n()` returned `Inf`, which compared as "above the upper
+  # bound" and yielded `FALSE`; at `n = 0` the factor `n / (n - 1)` was `0`, so
+  # the reconstructed SD was `0`, again `FALSE`. Both are noise presented as
+  # evidence. `grim_scalar()` and `grimmer_scalar()` have always reported an
+  # untestable `n` as undecidable, and DEBIT now agrees with them:
+  if (!is_decidable_n_items(n, min_n = 2)) {
+    if (!show_rec) {
+      return(NA)
+    }
+    return(list(
+      NA,
+      rounding,
+      NA_real_,
+      NA,
+      NA_real_,
+      NA,
+      NA_real_,
+      NA_real_
+    ))
+  }
+
   bounds_x <- bound_numerators(
     x_num = x_num,
     digits = digits_x,
@@ -327,7 +351,9 @@ debit_scalar <- function(
 #'
 #' @return Logical. `TRUE` if `x`, `sd`, and `n` are mutually consistent,
 #'   `FALSE` if not, and `NA` if the case cannot be decided: if any of the
-#'   values is missing, or if the rounding bounds are undefined.
+#'   values is missing, if the rounding bounds are undefined, or if `n` is not
+#'   a whole number greater than `1`. DEBIT reconstructs the *sample* SD of `n`
+#'   binary values, so it divides by `n - 1`.
 #'
 #' @seealso [`debit_map()`] applies `debit()` to any number of cases at once.
 #'

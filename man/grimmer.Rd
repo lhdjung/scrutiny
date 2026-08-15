@@ -66,14 +66,19 @@ negative numbers with \code{"up"}, \code{"down"}, \code{"up_from"}, or \code{"do
 should mirror that of positive numbers so that their absolute values are
 always equal. Default is \code{FALSE}.}
 
-\item{tolerance}{Numeric. Tolerance of comparison between \code{x} and the
-possible mean or percentage values. Default is circa 0.000000015
-(1.490116e-08), as in \code{\link[dplyr:near]{dplyr::near()}}.}
+\item{tolerance}{Numeric. Tolerance of the comparison between the reported
+\code{sd} and the reconstructed SDs, via \code{\link[dplyr:near]{dplyr::near()}}. Default is circa
+0.000000015 (1.490116e-08). This is documented here rather than inherited
+from \code{\link[=grim]{grim()}}, where the argument is deprecated: GRIM compares exact
+integers and has nothing for a tolerance to loosen, whereas GRIMMER
+reconstructs SDs in floating point and does.}
 }
 \value{
 Logical. \code{TRUE} if \code{x}, \code{sd}, \code{n}, and \code{items} are mutually
 consistent, \code{FALSE} if not, and \code{NA} if the case cannot be decided: if any
-of the values is missing, or if the rounding bounds are undefined.
+of the values is missing, if the rounding bounds are undefined, if \code{items}
+is not a positive whole number, or if \code{n} is not a whole number greater
+than \code{1}. GRIMMER reconstructs a \emph{sample} SD, so it divides by \code{n - 1}.
 }
 \description{
 \code{grimmer()} checks if reported mean and SD values of integer

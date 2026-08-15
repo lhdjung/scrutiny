@@ -58,7 +58,9 @@ is \code{FALSE}.}
 \value{
 Logical. \code{TRUE} if \code{x}, \code{sd}, and \code{n} are mutually consistent,
 \code{FALSE} if not, and \code{NA} if the case cannot be decided: if any of the
-values is missing, or if the rounding bounds are undefined.
+values is missing, if the rounding bounds are undefined, or if \code{n} is not
+a whole number greater than \code{1}. DEBIT reconstructs the \emph{sample} SD of \code{n}
+binary values, so it divides by \code{n - 1}.
 }
 \description{
 \code{debit()} tests summaries of binary data for consistency: If the

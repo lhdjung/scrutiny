@@ -255,3 +255,28 @@ test_that("sequence functions step on the right decimal level below 0.001", {
   seq_distance(from = 0.0001, length_out = 3L) |>
     expect_equal(c("0.0001", "0.0002", "0.0003"))
 })
+
+
+test_that("non-finite values have no decimal places", {
+  # `NaN` is a missing value everywhere else in the package -- `is.na(NaN)` is
+  # `TRUE` -- so counting it as zero decimal places while counting a literal
+  # `NA` as `NA` was inconsistent. An infinity has no decimal places in any
+  # meaningful sense either. Both used to come out as `0`, because the string
+  # they are coerced to has no decimal point.
+  decimal_places(c(Inf, -Inf, NaN, NA)) |>
+    expect_equal(rep(NA_integer_, 4L))
+  decimal_places(c("Inf", "-Inf", "NaN", NA_character_, "  NaN  ")) |>
+    expect_equal(rep(NA_integer_, 5L))
+
+  # The scalar version agrees, as it must:
+  for (value in list(Inf, -Inf, NaN, NA, "Inf", "-Inf", "NaN")) {
+    decimal_places_scalar(value) |> expect_equal(NA_integer_)
+  }
+
+  # Ordinary values are untouched, including the documented odd ones:
+  input <- c("2.851", "5.30%", "1e-5", "3.70", "  6.0   ")
+  expected <- c(3L, 2L, 5L, 2L, 1L)
+  decimal_places(input) |> expect_equal(expected)
+  vapply(input, decimal_places_scalar, integer(1L), USE.NAMES = FALSE) |>
+    expect_equal(expected)
+})

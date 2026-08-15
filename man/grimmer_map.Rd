@@ -57,7 +57,9 @@ shows the reasons for inconsistencies and \code{"Passed all"} for consistent
 values? Default is \code{TRUE}. See below for reference.}
 
 \item{rounding, threshold, symmetric, tolerance}{Further parameters of
-GRIMMER testing; see documentation for \code{\link[=grimmer]{grimmer()}}.}
+GRIMMER testing; see documentation for \code{\link[=grimmer]{grimmer()}}. Note that
+\code{tolerance} is a real argument here, unlike in \code{\link[=grim_map]{grim_map()}}, where it is
+deprecated.}
 
 \item{...}{Arguments passed down to \code{\link[=grimmer]{grimmer()}}.}
 }

@@ -34,7 +34,9 @@
 #'   shows the reasons for inconsistencies and `"Passed all"` for consistent
 #'   values? Default is `TRUE`. See below for reference.
 #' @param rounding,threshold,symmetric,tolerance Further parameters of
-#'   GRIMMER testing; see documentation for [`grimmer()`].
+#'   GRIMMER testing; see documentation for [`grimmer()`]. Note that
+#'   `tolerance` is a real argument here, unlike in [`grim_map()`], where it is
+#'   deprecated.
 #' @param ... Arguments passed down to [`grimmer()`].
 
 #' @return A tibble with these columns --

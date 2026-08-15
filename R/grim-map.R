@@ -34,8 +34,10 @@
 #' @param show_rec Logical. If set to `TRUE`, the reconstructed numbers from
 #'   GRIM-testing are shown as columns. See section *Reconstructed numbers*
 #'   below. Default is `FALSE`.
-#' @param rounding,threshold,symmetric,tolerance Further parameters of
-#'   GRIM-testing; see documentation for [`grim()`].
+#' @param rounding,threshold,symmetric Further parameters of GRIM-testing; see
+#'   documentation for [`grim()`].
+#' @param tolerance `r lifecycle::badge("deprecated")` GRIM compares exact
+#'   integers, so this never had an effect on its results. See [`grim()`].
 #' @param ... Arguments passed down to [`grim()`].
 
 #' @return A tibble with these columns --
