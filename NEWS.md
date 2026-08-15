@@ -26,6 +26,42 @@
 
 ## Bugfixes
 
+- `debit()` and `debit_map()` no longer flag consistent binary data with a mean reported as `0.50`. DEBIT reconstructs the SD at the bounds of the mean's rounding interval and concludes from those two values that every SD in between is reachable, which needs the reconstruction to be monotonic in the mean. It is not: `sd_binary_mean_n()` is a downward parabola peaking at a mean of 0.5, so an interval containing 0.5 reaches SDs *above* both of its endpoints -- and for a mean of exactly `0.50` the interval is symmetric around the peak, both endpoints give the same SD, and the whole attainable band collapsed to a single point. `debit(x = 0.50, sd = 0.503, n = 100, digits_x = 2, digits_sd = 3)` was `FALSE` for 50 ones and 50 zeros. The peak is now evaluated as well wherever it falls inside the interval. The error only ever turned `TRUE` into `FALSE`, so no value set that used to pass now fails.
+
+- `*_map_seq()` functions no longer cut the dispersion of a value variable short at one decimal unit above zero. `out_min = "auto"` was written for `n`, which cannot go below 1, but it applied to every dispersed variable alike. For a negative reported mean it removed the entire lower half of the sequence, and `0` -- a legal mean, SD, and proportion -- was out of reach everywhere. `"auto"` is now resolved per variable through the new `.var_bounds` argument of `function_map_seq()`: `n` keeps a minimum of 1 whether it is declared or not, a GRIMMER `sd` gets one of 0, DEBIT's `x` and `sd` are confined to `[0, 1]`, and a mean is unbounded. `.out_max` now defaults to `"auto"` as well, for the same reason.
+
+  This also fixes `debit_map_seq()` failing outright -- with DEBIT's "values must range from 0 to 1" error -- whenever a reported `x` or `sd` sat close enough to `0` or `1` for the dispersion to cross it.
+
+- `reverse_map_seq()`, and hence `audit_seq()`, now recover the reported values exactly. They used to infer them from the *shape* of the dispersed sequence: the midpoint of its gap, or its median if it had none. That is only valid for a complete sequence, and once `out_min` or `out_max` had truncated one side of it, the gap disappeared along with the values below it and the median branch returned a plausible but wrong number. `reverse_map_seq()` on `grim_map_seq()` output for a reported mean of `-2.51` gave `-2.48`, and `audit_seq()` re-tested that and reported the opposite consistency verdict. The reported value is now computed from the `diff_var` column, which records how many steps each row sits from it.
+
+- `audit()` on `grim_map()` output no longer returns `NA` for `mean_grim_prob` and `incons_to_prob` when any case is undecidable. A missing `n` has no GRIM probability, and one such row used to erase those two summaries for the whole table, although `audit_cols_minimal()` had always excluded undecidable cases from its own counts. The same applies to `mean_x` and `mean_sd` in `audit()` on `debit_map()` output.
+
+- `grim_probability()` no longer returns a "probability" greater than 1. A non-positive `n` leaves nothing to test, which `grim()` reports as `NA`; the formula returned `1.03` for `n = -3`, so `grim_map()` displayed that next to a verdict of `NA`. It now returns `NA` there. `grim_ratio()` is unchanged -- it is documented as the unclamped one.
+
+- `grim_plot()` no longer drops value sets whose mean has a fractional portion of exactly 0, such as `5.00`. The y-axis bounds were scale limits, which discard a tile as soon as one of its edges falls outside, and a tile centered on 0 reaches half its height below the axis. They are now coordinate limits, which clip instead of discarding. `pigs1` contains such a value, so the plot in the package's own examples had been showing eleven of its twelve value sets.
+
+- `grim_plot()` no longer suppresses every warning raised while drawing. That had hidden the dropped rows above, along with a live deprecation warning for ggplot2's `size` aesthetic.
+
+- `grim_plot()` draws its data with a single `geom_tile()` call, using `linewidth`. It used to pick between two calls at run time on `utils::packageVersion("ggplot2") >= "3.4"`, the release that renamed `size` to `linewidth` for lines. `DESCRIPTION` has required `ggplot2 (>= 3.4.0)` ever since, so the test could only come out `TRUE` and the `size` branch was unreachable.
+
+- `grim_plot(show_raster = FALSE)` works again. The plot object was only created inside the branch that draws the raster, so the documented argument failed with "object 'p' not found" as soon as the data layer was added.
+
+- `grim_plot()` now plots negative means, at the fractional portion of their absolute value: a mean of `-2.51` is drawn at `0.51`, in the same place as `2.51`. GRIM's granularity is symmetric around zero, since the achievable means of `n` integers are `k / n` for every whole number `k` whatever its sign. Such a value used to have a negative fractional portion, fall outside the y-axis, and be dropped without a word. See the new `Negative means` section of `?grim_plot`, which also explains the one thing the sign still affects: for a one-directional `rounding` method, the background raster behind a negative value is the one for the mirrored method. The tile's color is unaffected -- it comes from the `consistency` column, which was computed for the value as reported.
+
+- `grim_plot()` now explains itself instead of failing from the middle. A zero-row `data` -- an ordinary result of `dplyr::filter()` -- used to raise R's own "missing value where TRUE/FALSE needed".
+
+- `round_up_from()` and `round_down_from()` now validate `threshold`, as `reround()`, `unround()`, and the bounds machinery already did. `round_up_from(4.28, 1, threshold = 0)` used to return `4.3`, silently rounding like `round_ceiling()`, and a negative threshold was accepted too.
+
+- `unround()` returns a zero-row tibble for a zero-length `x`, rather than one row of missing values. Recycling now stops at zero instead of letting the length-1 defaults set the row count.
+
+- `disperse()` rejects a fractional `dispersion` instead of mangling its output. The `n_change` column was truncated toward zero, so `disperse(n = 10, dispersion = c(0.5, 1.5))` reported changes of `0` and `1` for group sizes of `9.5` and `8.5`.
+
+- `seq_disperse()` no longer repeats the value it disperses from when `dispersion` contains a `0`. A step of zero is that value itself, once in each direction, on top of whatever `include_reported` adds. `grim_map_seq(dispersion = c(0, 1, 2))` returned the reported case twice, and `audit_seq()` counted it twice.
+
+- `debit()` now rejects a `formula` other than `"mean_n"` with an explanation. The other formulas need a group size that DEBIT is not given, so they used to reach `reconstruct_sd()` and fail there with R's own "argument "group_0" is missing", about an argument the user never saw. The documentation already said that only `"mean_n"` is supported.
+
+- `*_map_seq()` functions now name the R argument, `include_consistent`, when there are no inconsistent cases to disperse from. The message named it only in interactive sessions and otherwise told the user to untick a checkbox in the scrutiny Shiny app -- so scripts, R Markdown documents, and test runs, which are exactly the contexts with no checkbox on screen, got the checkbox message.
+
 - `*_map_total_n()` functions now swap the two groups correctly whatever the column order of `data`. The swap that produces the `"back"` direction used to be silently skipped unless the key columns appeared in the exact `x1, x2, sd1, sd2, ...` order, in which case the `"back"` half of the output was a duplicate of the `"forth"` half labeled `"back"` -- and `audit_total_n()`'s `hits_back` counts were wrong accordingly.
 
 - `*_map_seq()` functions now apply `items` only once. The initial test multiplies `items` into the `n` column, so the internal re-tests of dispersed values receive data whose `n` is already merged; forwarding `items` to them as well used to multiply it in a second time, so dispersed values were tested against `n * items^2`.
@@ -152,7 +188,7 @@
 
   They are deliberately not called `round_half_up()` and friends. `janitor::round_half_up()` is *roundTiesToAway* (`janitor::round_half_up(-2.5)` is `-3`), so a scrutiny function of that name meaning ties toward `+Inf` would take the same arguments and give the opposite answer, with `library()` attach order deciding silently which one ran. And janitor is not an outlier: in Java's `RoundingMode.HALF_UP`, Python's `decimal.ROUND_HALF_UP`, and .NET's `MidpointRounding.AwayFromZero`, "half up" already means away from zero.
 
-  `reround()` and `rounding_offsets()` resolve the new strings through one shared table, so the rounding functions and the bounds cannot come to disagree about what a name means. `grim_plot()` maps them onto the background raster they share with `"up"` and `"down"`, which is exact, because the plot's axis is the fractional part of a mean and `symmetric` only ever affects negative numbers.
+  `reround()` and `rounding_offsets()` resolve the new strings through one shared table, so the rounding functions and the bounds cannot come to disagree about what a name means. `grim_plot()` maps them onto the background raster they share with `"up"` and `"down"`. That is exact for a non-negative mean; for a negative one the raster is the mirrored method's, as the `Negative means` section of `?grim_plot` explains.
 
 - `function_map()` has a new `.reported_variadic` argument for tests whose number of key columns is a property of the data rather than of the factory call, as with a test that checks whether the values in any number of columns add up to the value in one specific other column. It names an argument of the `*_scalar()` function that takes a whole row's values as a single vector; the factory-made function then has an argument by that name which selects any number of columns with tidyselect syntax. The selected columns are returned as themselves, so the output stays as rectangular as any other mapper's, and `.reported` may be `NULL` if every key column is variadic. Such a mapper is basic-tier only, because `function_map_seq()` and `function_map_total_n()` derive their own arguments from `.reported` (#42).
 
