@@ -27,3 +27,6 @@ R\.Rproj$
 ^cache$
 ^vignettes/.*\.tex$
 ^vignettes/.*\.synctex\.gz$
+^vignettes/.*\.pdf$
+^\.DS_Store$
+^.*/\.DS_Store$

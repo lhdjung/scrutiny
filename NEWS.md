@@ -24,6 +24,8 @@
 
 - `grim_plot()` now has a `split_by_digits` argument (default is `FALSE`) to optionally return a list of plots instead; one plot per distinct number of decimal places.
 
+- `grim_plot()` returns its plot instead of printing it and returning invisibly. At the console, auto-printing draws it either way, but `p <- grim_plot(g)` used to draw a plot the caller had not asked for, `grim_plot(g) + ggplot2::labs(...)` drew two, and composing with patchwork or cowplot always left a stray canvas. `debit_plot()` has always returned its object normally. The one exception is `split_by_digits = TRUE`, which returns a list -- something auto-printing cannot draw -- so that branch still prints each plot itself.
+
 ## Bugfixes
 
 - `debit()` and `debit_map()` no longer flag consistent binary data with a mean reported as `0.50`. DEBIT reconstructs the SD at the bounds of the mean's rounding interval and concludes from those two values that every SD in between is reachable, which needs the reconstruction to be monotonic in the mean. It is not: `sd_binary_mean_n()` is a downward parabola peaking at a mean of 0.5, so an interval containing 0.5 reaches SDs *above* both of its endpoints -- and for a mean of exactly `0.50` the interval is symmetric around the peak, both endpoints give the same SD, and the whole attainable band collapsed to a single point. `debit(x = 0.50, sd = 0.503, n = 100, digits_x = 2, digits_sd = 3)` was `FALSE` for 50 ones and 50 zeros. The peak is now evaluated as well wherever it falls inside the interval. The error only ever turned `TRUE` into `FALSE`, so no value set that used to pass now fails.
@@ -154,6 +156,28 @@
 
 - `audit_seq()` now orders its `hits_*` and `diff_*` columns by `var`. Undoing the alphabetical order that `split()` imposes takes `rank()`, not `order()`; the two are inverses of each other and agree only up to three variables that don't form a cycle. The column *names* always tracked their values, so no summary was ever wrong -- only the order in which the columns appeared.
 
+- The mappers no longer turn an `n` beyond `.Machine$integer.max` into `NA`. They coerce the `n` column to integer, which is the faithful representation of a sample size, but `as.integer()` discards anything that does not fit and says so only through a bare base-R warning. The verdict had been computed from the real value before that, so `grim_map(tibble::tibble(x = c(5.19, 5.19), n = c(28, 3e9)), digits_x = 2)` returned a row reading `n = NA` and `consistency = TRUE` at once -- while a missing `n` yields an `NA` verdict everywhere else in the package. The coercion now runs only where it is lossless, in all three mapper tiers and in `disperse()` and friends.
+
+- `.name_key_result` now works in `function_map_seq()` and `function_map_total_n()`, not only in `function_map()`. It is documented for all three, but the other two hard-coded the string `"consistency"` in every place they read the test results, so a mapper created with, say, `.name_key_result = "verdict"` failed with base R's "invalid argument type" or "first argument must be a vector" as soon as it was wrapped in a sequence or total-n mapper. `audit_seq()` and `reverse_map_seq()` read the name off a new attribute of the mapper output. A mapper and its sequence or total-n mapper have to be created with the same value; a mismatch now says so instead of failing further down.
+
+- `grim_map_total_n()`, `grimmer_map_total_n()`, and `debit_map_total_n()` now add the test-specific classes `"scrutiny_grim_map_total_n"`, `"scrutiny_grimmer_map_total_n"`, and `"scrutiny_debit_map_total_n"` that `?audit-special` documents. None of them was ever set: only the generic `"scrutiny_map_total_n"` was, so the total-n tier was the one tier of the three whose output could not be dispatched on by test. The sequence tier has always set its counterpart.
+
+- The mappers now reject a `rounding` or `symmetric` of length greater than 1 with the same message `reround()` gives. These describe a single rounding procedure, but the mappers passed them straight down to the `*_scalar()` function, where R's own errors surfaced instead: "no such index at level 1" for `rounding`, and "'length = 2' in coercion to 'logical(1)'" for `symmetric`. The check now sits in `rounding_offsets()`, which is on every one of the three tests' paths. `unround()` is unaffected -- it is documented as vectorized over `rounding`.
+
+- Any error about a mapper's arguments now comes out without `purrr::pmap()`'s "In index: 1." wrapper. The mappers apply the test to the first row on its own before mapping over all of them, which had been done for a missing required argument such as `digits_x` but not for anything else, so an invalid `rounding` string arrived wrapped in the indexed-error context.
+
+- GRIM, GRIMMER, and DEBIT now agree on which value sets they cannot decide, and report all of them as `NA`. Every one of the three reasons from integer data, so a fractional or non-positive `n` or `items` describes no data set for the test to be consistent or inconsistent *with* -- and GRIMMER and DEBIT reconstruct a *sample* SD, so they divide by `n - 1` and need an `n` of at least 2. Each test used to make its own arrangements and none covered all of these: `grim(x = 5.19, n = 20.5, digits_x = 2)` was `FALSE`, `grimmer(x = 3, sd = 1, n = 20, items = 1.5, ...)` was `TRUE`, `grimmer(x = 5, sd = 0, n = 1, ...)` was `FALSE` by way of a `NaN` that `na.rm = TRUE` swallowed, and `debit()` validated `n` not at all, returning `FALSE` at `n = 1` from an `Inf` and at `n = 0` from a reconstructed SD of zero. `grim_probability()` uses the same condition, so the `probability` column can no longer report a number next to an `NA` verdict.
+
+- `grimmer()` no longer hangs or exhausts memory on an enormous `n`. It decides a case by enumerating every integer sum the reported mean admits and, for each of those, every integer sum of squares the reported SD admits; both ranges grow linearly with `n`, and `a:b` simply allocates. `n = 1e8` took about eleven seconds and `n = 3e9` did not finish. Beyond a limit far above any published summary statistic, the function now says what it would have had to allocate and why.
+
+- `decimal_places()` and `decimal_places_scalar()` now return `NA` for `NaN` and the infinities rather than `0`. `NaN` is a missing value everywhere else in the package -- `is.na(NaN)` is `TRUE` -- so counting it as zero decimal places while counting a literal `NA` as `NA` was inconsistent, and an infinity has no decimal places in any meaningful sense either. Both used to be coerced to the strings `"NaN"` and `"Inf"`, which have no decimal point and hence no digits after one.
+
+- `grim_plot()` now says when it leaves value sets out, instead of letting ggplot2 drop them with "Removed N rows containing missing values", which names neither the column nor the reason. A tile is colored by its `consistency`, so an undecidable case has no color to be drawn in; those rows are dropped with a warning naming the count, and if *no* case can be decided that is an error. The same applies to the `digits_x = 0` rows that `split_by_digits = TRUE` leaves out: a mean reported with no decimal places has a fractional portion of zero, so there is no plot for it, and the success message used to count only the plots that were made.
+
+- `grim_plot()` on `grim_map(percent = TRUE)` output now plots percentages on the grid they were tested on. The test divides `x` by 100 and raises its decimal count by 2; the plot did neither, so a percentage reported as `67.4` was drawn at a fractional portion of `0.4` against the raster for one decimal place, while the verdict coloring that tile had been reached at three. The y-axis label has said "% (as decimal)" all along.
+
+- `grim_plot()` explains a `digits_x` of `0` instead of failing on the raster lookup. The precomputed rasters cover one and two decimal places, so a whole-number mean used to produce R's own "object 'grim_raster_0_up_or_down_n' not found". A whole-number *percentage* is unaffected, since the conversion above gives it two decimal places.
+
 ## Minor improvements
 
 - `reround_to_fraction(digits = "auto")` no longer errors with "non-numeric argument to mathematical function". The function validated `digits` as a integer before resolving `"auto"` into one, and `is.infinite("auto")` is `FALSE`, so the string went straight into `is_whole_number()`. `reround_to_fraction_level()` has always had the two steps in the right order.
@@ -179,6 +203,14 @@
 - `round_trunc()` and `anti_trunc()` no longer call `dplyr::if_else()` to restore the sign of a value derived from `abs(x)`, nor do the `symmetric` branches of `round_up_from()` and `round_down_from()`. These are the package's innermost primitives, running once per candidate value inside GRIMMER's loop. The one behavioral difference is that a `NaN` input now yields `NaN` rather than `NA`, as it does in `base::round()`.
 
 - `grDevices`, `grid`, and `utils` are now declared in `Imports`. All three are used with `::` -- `grim_plot()` builds its gradient with the first two, and `check_args_disabled()` looks up a package name with the third -- but only the packages they are used alongside were declared.
+
+- `digits_x` and `digits_sd` are now real arguments of `grim_map_total_n()`, `grimmer_map_total_n()`, and `debit_map_total_n()`, in the same position as in the other two mapper tiers: right after `data`, ahead of the key column arguments. They used to reach the total-n mappers through the dots only. That worked, and omitting one still gave the bespoke error, but an argument with no default that is required in every call was invisible to `formals()`, to tab-completion, and to the argument list in the rendered help page.
+
+- The `n` column is now an integer column throughout, including in `disperse()`, `disperse2()`, `disperse_total()`, and `reverse_map_total_n()`. The mappers coerce it because a sample size is a whole number; the dispersion helpers that feed them and the reverse function that reads their output back returned doubles, so the column changed type on the way in and back out again.
+
+- 1,513 lines of fully commented-out code -- about 9% of the package's R source -- have left `R/`. Seven files in the `Collate` field had no live line in them: six moved to `special-scripts/dormant/`, which is not part of the built package, and `R/grimmer-rsprite2.R`, a verbatim copy of rsprite2 code kept as a reference for a revamp that has since happened, was removed (it is still in git history, and the fuller original is under `special-scripts/`). The unused internal helper `dustify()` is gone as well; its last caller was DEBIT's boundary comparison, which this release replaced with exact integer arithmetic.
+
+- The two PDFs under `vignettes/` no longer go into the source tarball. `.Rbuildignore` excluded the `.tex` files they are compiled from, and their `.synctex.gz` files, but not the 266 KB of output itself -- which had no `.Rmd` to register it as a vignette.
 
 ## New features
 
@@ -211,6 +243,8 @@
 - scrutiny now requires R >= 4.1.0, as do recent versions of tidyverse packages. This is because the package now uses the base pipe `|>`, but also to avoid any incompatibilities with older versions of R.
 
 - scrutiny now requires purrr >= 1.0.0 (#87) and ggplot2 >= 3.4.0, both released in November 2022.
+
+- `grim(tolerance = )` is deprecated, and so is the argument in `grim_map()` and the mappers built on it. GRIM decides which reconstructed means are consistent in exact integer arithmetic, so there is no floating-point comparison for a tolerance to loosen -- the documentation already said the argument has no effect. It was kept "because `grimmer()` and `debit()` inherit it and do use it", which is only half true: `grimmer()` compares reconstructed SDs with `dplyr::near()` and still takes it, but `debit()` compares exact integers, like `grim()`, and never had the argument at all.
 
 ## Documentation
 
