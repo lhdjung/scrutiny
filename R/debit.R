@@ -91,6 +91,23 @@ debit_scalar <- function(
   symmetric = FALSE,
   show_rec = FALSE
 ) {
+  # `reconstruct_sd()` supports four formulas, but three of them need `group_0`
+  # or `group_1`, which DEBIT does not have: it works from the reported mean and
+  # sample size. Passing one of them used to reach `reconstruct_sd_scalar()` and
+  # fail there with R's own "argument "group_0" is missing" -- an error the
+  # package didn't write, about an argument the user never saw:
+  if (!identical(formula, "mean_n")) {
+    cli::cli_abort(c(
+      "`formula` must be \"mean_n\".",
+      "x" = "It is {wrong_spec_string(formula)}.",
+      "i" = "DEBIT reconstructs the SD from the reported mean and sample \\
+      size. The other formulas that `reconstruct_sd()` knows need the size \\
+      of one of the two groups, which DEBIT is not given.",
+      "i" = "The argument is kept for the case that such data become \\
+      available to the test."
+    ))
+  }
+
   if (missing(digits_x)) {
     error_digits_missing(x)
   }
@@ -186,9 +203,31 @@ debit_scalar <- function(
   sd_lower <- bounds_sd$lower / bounds_sd$denom
   sd_upper <- bounds_sd$upper / bounds_sd$denom
 
-  # Reconstruct the SD from each bound of the mean... (`group_0` and `group_1`
+  # The means at which the SD is reconstructed. The two bounds are the obvious
+  # candidates, but they are not enough by themselves: the verdict below reasons
+  # from the reconstructed values at these means to every mean in between, and
+  # that step needs the reconstruction to be monotonic in the mean.
+  #
+  # It isn't. `sd_binary_mean_n()` is `sqrt((n / (n - 1)) * mean * (1 - mean))`,
+  # a downward parabola with its maximum at a mean of 0.5, so an interval that
+  # contains 0.5 reaches SDs *above* both of its endpoints. For a mean reported
+  # as exactly 0.50 the interval is symmetric around 0.5, both endpoints give
+  # the same SD, and the whole attainable band collapses to a single point --
+  # which is how `debit(x = 0.50, sd = 0.503, n = 100, digits_x = 2, digits_sd =
+  # 3)` came to be `FALSE` for 50 ones and 50 zeros.
+  #
+  # The peak is the only interior extremum, so adding it where it falls inside
+  # the interval makes these means span the entire attainable range again, and
+  # the intermediate-value step below is sound:
+  x_eval <- c(x_lower, x_upper)
+
+  if (x_lower <= 0.5 && 0.5 <= x_upper) {
+    x_eval <- c(x_eval, 0.5)
+  }
+
+  # Reconstruct the SD from each of those means... (`group_0` and `group_1`
   # would have to be passed on here to support formulas other than "mean_n")
-  sd_rec <- reconstruct_sd(formula, c(x_lower, x_upper), n)
+  sd_rec <- reconstruct_sd(formula, x_eval, n)
 
   # ...and round it the same way the reported SD was presumably rounded, to the
   # same number of decimal places:
@@ -221,9 +260,11 @@ debit_scalar <- function(
     num_rec < bounds_sd$upper
   }
 
-  # As before, the two conditions need not be met by the same reconstructed
-  # value: if one of them is below the reported SD's range and another one is
-  # above it, some mean in between the bounds reconstructs into that range.
+  # The two conditions need not be met by the same reconstructed value: if one
+  # of them is below the reported SD's range and another one is above it, some
+  # mean in between reconstructs into that range. This is an intermediate-value
+  # argument, and it holds because `x_eval` above spans the attainable range of
+  # reconstructed SDs -- which is why the peak had to be added to it.
   consistency <- any(above_lower) && any(below_upper)
 
   if (!show_rec) {

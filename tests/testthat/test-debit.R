@@ -232,3 +232,50 @@ test_that("DEBIT never rejects a real binary sample", {
   # Guard against the loops silently collapsing to nothing (152 as written):
   expect_gt(n_checked, 100L)
 })
+
+
+# The reconstructed SD is not monotonic in the mean: `sd_binary_mean_n()` is a
+# downward parabola peaking at a mean of 0.5. DEBIT used to evaluate it only at
+# the two bounds of the mean's rounding interval and reason from there to every
+# mean in between, which is an intermediate-value argument that monotonicity
+# would be needed for. An interval containing 0.5 reaches SDs above both of its
+# endpoints, and every one of them was invisible to the test.
+
+test_that("DEBIT accepts real binary data with a mean reported as 0.50", {
+  # 50 ones and 50 zeros: mean 0.5, SD 0.5025189, i.e. 0.503 at three decimal
+  # places. There is nothing wrong with this data set.
+  debit(x = 0.50, sd = 0.503, n = 100, digits_x = 2, digits_sd = 3) |>
+    expect_true()
+})
+
+test_that("DEBIT accepts every real binary data set reported as a mean of 0.50", {
+  # Enumerate the actual data sets: `k` ones out of `n`, keeping those whose
+  # mean would have been reported as 0.50 at two decimal places.
+  cases <- purrr::map(10:250, function(n) {
+    k <- 0:n
+    k <- k[abs((k / n) - 0.5) <= 0.005]
+    sd_true <- sd_binary_mean_n(k / n, n)
+    tibble::tibble(
+      n = n,
+      sd_rep = c(round_up(sd_true, 3L), round_down(sd_true, 3L))
+    )
+  })
+  cases <- purrr::list_rbind(cases)
+  cases <- dplyr::distinct(cases)
+
+  out <- purrr::pmap_lgl(
+    list(cases$sd_rep, cases$n),
+    function(sd_rep, n) {
+      debit(x = 0.50, sd = sd_rep, n = n, digits_x = 2, digits_sd = 3)
+    }
+  )
+
+  out |> all() |> expect_true()
+})
+
+test_that("`formula` other than \"mean_n\" is an error, not a missing argument", {
+  debit(0.35, 0.48, 100, digits_x = 2, digits_sd = 2, formula = "0_n") |>
+    expect_error("must be \"mean_n\"")
+  debit(0.35, 0.48, 100, digits_x = 2, digits_sd = 2, formula = "groups") |>
+    expect_error("must be \"mean_n\"")
+})
