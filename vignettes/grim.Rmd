@@ -33,7 +33,7 @@ This vignette covers scrutiny's implementation of the GRIM test. It has the foll
 
 1.  The basic `grim()` function and a specialized mapping function, `grim_map()`.
 
-2.  Testing sequences of means or proportions.
+2.  Testing the values around reported means or proportions.
 
 3.  The `audit()` method for summarizing `grim_map()`'s results.
 
@@ -290,7 +290,7 @@ All `rounding` values other than `up_from`, `down_from`, and `up_from_or_down_fr
 
 Speed is not much of a concern here because all the rasters are based on data already stored within the package (in [R/sysdata.rda](https://github.com/lhdjung/scrutiny/blob/main/R/sysdata.rda)), so they don't need to be generated on the spot every time the function is called. See R/data-gen.R for the way they were generated.
 
-## Testing numeric sequences with `grim_map_seq()`
+## Testing the values around the reported ones with `grim_map_seq()`
 
 GRIM analysts might be interested in a mean or percentage value's numeric neighborhood. Suppose you found multiple GRIM inconsistencies as in our example `pigs1` data. You might wonder whether they are due to small reporting or computing errors.
 
@@ -326,7 +326,7 @@ out_seq2 <- grim_map_seq(pigs1, digits_x = 2, dispersion = 1:10)
 audit_seq(out_seq2)
 ```
 
-### Visualizing GRIM-tested sequences
+### Visualizing the tested values
 
 It's curious what happens when we plot the output of `grim_map_seq()`. Like regular GRIM plots, however, it does give us a sense of how many tested values are consistent:
 

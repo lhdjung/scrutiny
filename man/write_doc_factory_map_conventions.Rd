@@ -46,6 +46,6 @@ write_doc_factory_map_conventions(ending = "total_n")
 }
 \seealso{
 For context, see
-\href{https://lhdjung.github.io/scrutiny/articles/consistency-tests.html}{\emph{Implementing
-consistency tests}}.
+\href{https://lhdjung.github.io/scrutiny/articles/consistency-tests-in-depth.html}{\emph{Consistency
+tests in depth}}.
 }

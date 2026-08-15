@@ -4,7 +4,7 @@
 #'   consistency tests, such as [`grimmer_map()`] or [`debit_map()`].
 #'
 #'   For context, see [*Creating basic mappers with `function_map()`*](
-#'   https://lhdjung.github.io/scrutiny/articles/consistency-tests.html#creating-basic-mappers-with-function_map
+#'   https://lhdjung.github.io/scrutiny/articles/consistency-tests-in-depth.html#creating-basic-mappers-with-function_map
 #'   ).
 #'
 #' @param .fun Single-case consistency testing function that will be applied to

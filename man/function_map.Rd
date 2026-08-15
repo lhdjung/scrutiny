@@ -120,7 +120,7 @@ default.
 \code{function_map()} creates new basic mapper functions for
 consistency tests, such as \code{\link[=grimmer_map]{grimmer_map()}} or \code{\link[=debit_map]{debit_map()}}.
 
-For context, see \href{https://lhdjung.github.io/scrutiny/articles/consistency-tests.html#creating-basic-mappers-with-function_map}{\emph{Creating basic mappers with \code{function_map()}}}.
+For context, see \href{https://lhdjung.github.io/scrutiny/articles/consistency-tests-in-depth.html#creating-basic-mappers-with-function_map}{\emph{Creating basic mappers with \code{function_map()}}}.
 }
 \details{
 The factory-made function has an argument for every argument of

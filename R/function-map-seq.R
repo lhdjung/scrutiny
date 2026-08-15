@@ -135,7 +135,7 @@ function_map_seq_proto <- function(
 #'   statistics.
 #'
 #'   For background and more examples, see the
-#'   \href{https://lhdjung.github.io/scrutiny/articles/consistency-tests.html#sequence-mapper}{sequence
+#'   \href{https://lhdjung.github.io/scrutiny/articles/consistency-tests-in-depth.html#sequence-mapper}{sequence
 #'   mapper section} of *Consistency tests in depth*.
 #'
 #' @param .fun Function such as `grim_map()`, or one made by [`function_map()`]:
@@ -198,7 +198,7 @@ function_map_seq_proto <- function(
 #'   be written as if they were created with
 #'   \href{https://purrr.tidyverse.org/reference/faq-adverbs-export.html}{purrr
 #'   adverbs}; see explanations there, and examples in the
-#'   \href{https://lhdjung.github.io/scrutiny/articles/consistency-tests.html#context-and-export}{export
+#'   \href{https://lhdjung.github.io/scrutiny/articles/consistency-tests-in-depth.html#context-and-export}{export
 #'   section} of *Consistency tests in depth*.
 #'
 #'   This function is a so-called function factory: It produces other functions,
@@ -223,7 +223,17 @@ function_map_seq_proto <- function(
 
 #' @export
 
-#' @section Conventions: The name of a function returned by
+#' @section Conventions: The `seq` in `*_map_seq()` is short for the sequences
+#'   of candidate values that the manufactured function tests. It builds them
+#'   with [`seq_disperse()`]'s internal counterpart, one variable at a time:
+#'   each variable in `.var` is dispersed around its own reported value while
+#'   the others stay as reported. This is what sets these functions apart from
+#'   the `*_map_total_n()` family, which also disperses but varies a pair of
+#'   group sizes jointly under a fixed total. It is also why plotting the
+#'   output of [`grim_map_seq()`] draws a cross for each reported value set: the
+#'   arms are the sequences, and they meet where the reported values are.
+#'
+#'   The name of a function returned by
 #'   `function_map_seq()` should mechanically follow from that of
 #'   the input function. For example, [`grim_map_seq()`] derives
 #'   from [`grim_map()`]. This pattern fits best if the input function itself

@@ -113,7 +113,7 @@ computing or reporting may be responsible for inconsistencies in published
 statistics.
 
 For background and more examples, see the
-\href{https://lhdjung.github.io/scrutiny/articles/consistency-tests.html#sequence-mapper}{sequence
+\href{https://lhdjung.github.io/scrutiny/articles/consistency-tests-in-depth.html#sequence-mapper}{sequence
 mapper section} of \emph{Consistency tests in depth}.
 }
 \details{
@@ -125,7 +125,7 @@ If functions created this way are exported from other packages, they should
 be written as if they were created with
 \href{https://purrr.tidyverse.org/reference/faq-adverbs-export.html}{purrr
 adverbs}; see explanations there, and examples in the
-\href{https://lhdjung.github.io/scrutiny/articles/consistency-tests.html#context-and-export}{export
+\href{https://lhdjung.github.io/scrutiny/articles/consistency-tests-in-depth.html#context-and-export}{export
 section} of \emph{Consistency tests in depth}.
 
 This function is a so-called function factory: It produces other functions,
@@ -134,7 +134,17 @@ because it also takes functions as inputs, such as \code{\link[=grim_map]{grim_m
 Wickham (2019, ch. 10-11).
 }
 \section{Conventions}{
- The name of a function returned by
+ The \code{seq} in \verb{*_map_seq()} is short for the sequences
+of candidate values that the manufactured function tests. It builds them
+with \code{\link[=seq_disperse]{seq_disperse()}}'s internal counterpart, one variable at a time:
+each variable in \code{.var} is dispersed around its own reported value while
+the others stay as reported. This is what sets these functions apart from
+the \verb{*_map_total_n()} family, which also disperses but varies a pair of
+group sizes jointly under a fixed total. It is also why plotting the
+output of \code{\link[=grim_map_seq]{grim_map_seq()}} draws a cross for each reported value set: the
+arms are the sequences, and they meet where the reported values are.
+
+The name of a function returned by
 \code{function_map_seq()} should mechanically follow from that of
 the input function. For example, \code{\link[=grim_map_seq]{grim_map_seq()}} derives
 from \code{\link[=grim_map]{grim_map()}}. This pattern fits best if the input function itself

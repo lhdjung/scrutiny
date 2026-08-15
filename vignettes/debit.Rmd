@@ -139,9 +139,9 @@ pigs3 |>
 
 Color settings and other ggplot2-typical options are available via arguments, as are settings handed down to `ggrepel::geom_text_repel()`, which creates the labels. For more, see `debit_plot()`'s documentation.
 
-## Testing numeric sequences with `debit_map_seq()`
+## Testing the values around the reported ones with `debit_map_seq()`
 
-DEBIT analysts might be interested in a mean or percentage value's numeric neighborhood. Suppose you found DEBIT inconsistencies, as in out example `pigs3` data. You might wonder whether they are due to small reporting or computing errors.
+DEBIT analysts might be interested in a mean or percentage value's numeric neighborhood. Suppose you found DEBIT inconsistencies, as in our example `pigs3` data. You might wonder whether they are due to small reporting or computing errors.
 
 Use `debit_map_seq()` to use DEBIT for the values surrounding the reported means, SDs, and sample sizes:
 
@@ -181,7 +181,7 @@ out_seq2 <- debit_map_seq(
 audit_seq(out_seq2)
 ```
 
-### Visualizing DEBIT-checked sequences
+### Visualizing the tested values
 
 Although it is possible in principle to visualize results of `debit_map_seq()` using `debit_plot()`, it's not recommended because the results don't currently look great. This issue might be fixed in a future version of `debit_plot()`.
 

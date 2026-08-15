@@ -51,8 +51,8 @@ vectorize_test <- function(.fun, .frame, .along) {
   # have to invent. That covers three cases with one rule: `digits_x` and
   # `digits_sd`, which must reach `.fun` as missing so that
   # `error_digits_missing()` fires instead of R's generic message; the ordinary
-  # defaults; and `tolerance`, whose `lifecycle::deprecated()` default is
-  # itself a missing-argument sentinel that must not be forced.
+  # defaults; and `tolerance`, whose `lifecycle::deprecated()` default is itself
+  # a missing-argument sentinel that must not be forced.
   #
   # `missing()` is asked about each formal in turn, evaluated in the wrapper's
   # frame. `match.call()` on the wrapper's call would answer the same question
@@ -78,11 +78,11 @@ vectorize_test <- function(.fun, .frame, .along) {
   names_scalar <- args_supplied[!args_supplied %in% .along]
 
   # Arguments that say *how* to test rather than *what* to test describe the
-  # call as a whole: one call cannot use two rounding methods, and `x` is
-  # either a percentage or it isn't. `Vectorize()` looped over them along with
-  # everything else, so `grim(x = c(5.19, 5.19), n = 28, digits_x = 2,
-  # rounding = c("up", "down"))` returned one verdict per rounding method.
-  # `reround()` has treated them as scalar throughout.
+  # call as a whole: one call cannot use two rounding methods, and `x` is either
+  # a percentage or it isn't. `Vectorize()` looped over them along with
+  # everything else, so `grim(x = c(5.19, 5.19), n = 28, digits_x = 2, rounding
+  # = c("up", "down"))` returned one verdict per rounding method. `reround()`
+  # has treated them as scalar throughout.
   for (name in names_scalar) {
     value <- vals[[name]]
     # `NULL` is a value some of them take: GRIMMER's `min_val` and `max_val`

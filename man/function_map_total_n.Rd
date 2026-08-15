@@ -74,7 +74,7 @@ hypothetical group sizes, all of which add up to the reported total. There
 need to be exactly two groups.
 
 For background and more examples, see the
-\href{https://lhdjung.github.io/scrutiny/articles/consistency-tests.html#total-n-mapper}{total-n
+\href{https://lhdjung.github.io/scrutiny/articles/consistency-tests-in-depth.html#total-n-mapper}{total-n
 mapper section} of \emph{Consistency tests in depth}.
 }
 \details{
@@ -82,7 +82,7 @@ If functions created by \code{function_map_total_n()} are exported from
 other packages, they should be written as if they were created with
 \href{https://purrr.tidyverse.org/reference/faq-adverbs-export.html}{purrr
 adverbs}; see explanations there, and examples in the
-\href{https://lhdjung.github.io/scrutiny/articles/consistency-tests.html#context-and-export}{export
+\href{https://lhdjung.github.io/scrutiny/articles/consistency-tests-in-depth.html#context-and-export}{export
 section} of \emph{Consistency tests in depth}.
 
 This function is a so-called function factory: It produces other functions,

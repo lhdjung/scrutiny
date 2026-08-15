@@ -37,7 +37,7 @@ The vignette has the following sections --- to get started, though, you only nee
 
 3.  The visualization function `grim_plot()`, which also works for GRIMMER.
 
-4.  Testing numeric sequences with `grimmer_map_seq()`.
+4.  Testing the values around the reported ones with `grimmer_map_seq()`.
 
 5.  Handling unknown group sizes with `grimmer_map_total_n()`.
 
@@ -233,9 +233,9 @@ grim_plot(mtcars)
 
 See the [GRIM vignette section](https://lhdjung.github.io/scrutiny/articles/grim.html#visualizing-results-with-grim_plot) on `grim_plot()` for more information.
 
-## Testing numeric sequences with `grimmer_map_seq()`
+## Testing the values around the reported ones with `grimmer_map_seq()`
 
-GRIMMER analysts might be interested in a mean or percentage value's numeric neighborhood. Suppose you found multiple GRIMMER inconsistencies as in out example `pigs5` data. You might wonder whether they are due to small reporting or computing errors.
+GRIMMER analysts might be interested in a mean or percentage value's numeric neighborhood. Suppose you found multiple GRIMMER inconsistencies as in our example `pigs5` data. You might wonder whether they are due to small reporting or computing errors.
 
 Use `grimmer_map_seq()` to GRIMMER-test the values surrounding the reported means and sample sizes:
 
@@ -274,7 +274,7 @@ out_seq2 <- grimmer_map_seq(
 audit_seq(out_seq2)
 ```
 
-### Visualizing GRIMMER-tested sequences
+### Visualizing the tested values
 
 It's curious what happens when we plot the output of `grimmer_map_seq()`. Like regular GRIM or GRIMMER plots, however, it does give us a sense of how many tested values are consistent:
 

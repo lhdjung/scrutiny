@@ -435,8 +435,8 @@ write_doc_audit_total_n <- function(key_args, name_test) {
 #' @return A string vector formatted by [`glue::glue()`].
 #'
 #' @seealso For context, see
-#'   \href{https://lhdjung.github.io/scrutiny/articles/consistency-tests.html}{*Implementing
-#'   consistency tests*}.
+#'   \href{https://lhdjung.github.io/scrutiny/articles/consistency-tests-in-depth.html}{*Consistency
+#'   tests in depth*}.
 #'
 #' @examples
 #' # For `function_map_seq()`:
