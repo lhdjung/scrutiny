@@ -37,17 +37,6 @@ You may still want the trailing zeros back in the values --- for display, for ex
 
 ### Enter numbers as strings
 
-#### Automated
-
-Several R packages help to extract tables from PDF. I recommend tabulizer (not currently on CRAN; see [installation notes](https://stackoverflow.com/questions/70036429/having-issues-installing-tabulizer-package-in-r)). There are also the [pdftables](https://expersso.r-universe.dev/pdftables#) and [pdftools](https://ropensci.r-universe.dev/pdftools#) packages.
-
-Using tabulizer requires Java to be installed. When it works well, tabulizer is a great tool for importing tables quickly and efficiently. It automatically captures values as strings, so trailing zeros are treated just like other digits.
-
-However, tabulizer might sometimes struggle, especially with older PDF files. That is most likely the fault of the PDF format itself because it has no inbuilt support for tables, so any effort to extract them faces serious ambiguities. (See below, *Replace column names by row values*, for a solution to one such issue.)
-
-If there are many tables in multiple files formatted in the same way, it can be useful to check if tabulizer reliably and accurately captures them. If it doesn't, you might have to use copy and paste.
-
-#### With copy and paste
 
 Perhaps not all R users know that RStudio features an option for multiple cursors. These are especially useful in conjunction with `tibble::tribble()`, which is available via scrutiny. Here's how to use multiple cursors in the present context:
 
