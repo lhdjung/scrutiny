@@ -74,7 +74,7 @@ pigs1
 grim_map(pigs1, digits_x = 2)
 #> # A tibble: 12 × 5
 #>        x     n digits_x consistency probability
-#>    <dbl> <dbl>    <dbl> <lgl>             <dbl>
+#>    <dbl> <int>    <dbl> <lgl>             <dbl>
 #>  1  7.22    32        2 TRUE               0.68
 #>  2  4.74    25        2 FALSE              0.75
 #>  3  5.23    29        2 FALSE              0.71
@@ -104,10 +104,9 @@ pigs2
 #> 6  55.4   150
 
 grim_map(pigs2, digits_x = 2, percent = TRUE)
-#> ℹ `x` converted from percentage
 #> # A tibble: 6 × 5
 #>       x     n digits_x consistency probability
-#>   <dbl> <dbl>    <dbl> <lgl>             <dbl>
+#>   <dbl> <int>    <dbl> <lgl>             <dbl>
 #> 1  67.4   150        2 FALSE             0.985
 #> 2  54.2   150        2 FALSE             0.985
 #> 3  54     150        2 TRUE              0.985

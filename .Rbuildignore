@@ -24,3 +24,6 @@ R\.Rproj$
 ^\.positai$
 ^\.claude$
 ^Rplots\.pdf$
+^cache$
+^vignettes/.*\.tex$
+^vignettes/.*\.synctex\.gz$

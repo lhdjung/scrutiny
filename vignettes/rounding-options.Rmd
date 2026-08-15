@@ -93,7 +93,7 @@ The `rounding` and `symmetric` columns are one way to say it; the `"ties_*"` equ
 
 | Software | Function | `rounding` | `symmetric` | Note |
 |:---|:---|:---|:---|:---|
-| Excel | `ROUND()` | `"up"` (`"ties_away"`) | `TRUE` | [Absolute value is rounded, then the sign is reapplied](https://support.microsoft.com/en-us/office/round-a-number-f82b440b-689d-4221-b21e-38da99d33435) |
+| Excel | `ROUND()` | `"up"` (`"ties_away"`) | `TRUE` | [Absolute value is rounded, then the sign is reapplied](https://support.microsoft.com/en-US/Excel/round-a-number) |
 | Excel | `ROUNDUP()` | `"anti_trunc"` | --- | Away from zero, *not* ceiling |
 | Excel | `ROUNDDOWN()` | `"trunc"` | --- | Toward zero |
 | Google Sheets | `ROUND()`, `ROUNDUP()`, `ROUNDDOWN()` | as Excel | as Excel | Follows Excel |
