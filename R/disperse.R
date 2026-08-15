@@ -115,6 +115,23 @@ disperse <- function(
   check_length_disperse_n(n, "It must have length 1.")
   check_non_negative(dispersion)
 
+  # `dispersion` counts whole units away from `n`, and `n` is a group size. A
+  # fractional step has no meaning here, and it used to be accepted and then
+  # quietly mangled: `n` moved by the fractional amount while `n_change` was
+  # truncated toward zero by the `as.integer()` at the end of this function, so
+  # `disperse(n = 10, dispersion = c(0.5, 1.5))` reported changes of 0 and 1 for
+  # values of 9.5 and 8.5.
+  if (!all(is_whole_number(dispersion))) {
+    offenders <- dispersion[!is_whole_number(dispersion)]
+    cli::cli_abort(c(
+      "`dispersion` must be whole numbers.",
+      "x" = "It has {length(offenders)} value{?s} that {?is/are} not: \\
+      {offenders}.",
+      "i" = "Each value is a number of units by which the group sizes are \\
+      moved apart, and a group has a whole number of members."
+    ))
+  }
+
   # Main part ---
 
   # (Note: The checks below count towards to the main part because they may lead

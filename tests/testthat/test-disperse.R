@@ -24,3 +24,16 @@ df2 <- disperse(0, dispersion = 0:5, n_min = 1)
 test_that("`n_min` controls the dimensions correctly", {
   df2 |> dim() |> expect_equal(c(0, 2))
 })
+
+
+test_that("`dispersion` must consist of whole numbers", {
+  # `n_change` used to be truncated toward zero by `as.integer()`, so a
+  # fractional step left `n` and `n_change` describing different things.
+  disperse(n = 10, dispersion = c(0.5, 1.5)) |> expect_error("whole numbers")
+  disperse(n = 10, dispersion = 1.5) |> expect_error("whole numbers")
+})
+
+test_that("`n` and `n_change` agree", {
+  out <- disperse(n = 10)
+  (out$n - 10L) |> expect_equal(out$n_change)
+})
