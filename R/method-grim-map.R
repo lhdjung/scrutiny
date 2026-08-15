@@ -9,9 +9,13 @@ audit.scrutiny_grim_map <- function(data) {
   # 3. the proportion of GRIM-inconsistent cases:
   out <- audit_cols_minimal(data, "GRIM")
 
-  # 4. the average of GRIM probabilitys:
+  # 4. the average of GRIM probabilities. `na.rm` for the same reason that
+  # `audit_cols_minimal()` counts inconsistencies with it: a case the test could
+  # not decide -- a missing `n`, say -- has no probability either, and one such
+  # row used to turn this average, and `incons_to_prob` below, into `NA` for the
+  # whole table:
   mean_grim_prob <- data |>
-    dplyr::summarise(mean_grim_prob = mean(.data$probability)) |>
+    dplyr::summarise(mean_grim_prob = mean(.data$probability, na.rm = TRUE)) |>
     as.numeric()
 
   # 5. the ratio of the proportion of GRIM-inconsistent cases to the average of

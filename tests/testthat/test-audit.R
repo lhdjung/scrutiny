@@ -162,3 +162,35 @@ test_that("`audit_seq()` results don't depend on the order of `var`", {
     audit_seq()
   a[, sort(colnames(a))] |> expect_equal(b[, sort(colnames(b))])
 })
+
+
+# `audit_cols_minimal()` has always counted inconsistencies with `na.rm`,
+# because a case the test could not decide is not an inconsistent one. The
+# summaries built on top of it did not, so a single missing `n` turned
+# `mean_grim_prob` -- and `incons_to_prob`, derived from it -- into `NA` for
+# the whole table.
+
+test_that("`audit()` summarizes the decidable cases despite an undecidable one", {
+  out <- grim_map(
+    tibble::tibble(x = c(7.22, 5.19), n = c(38, NA)),
+    digits_x = 2
+  ) |>
+    audit()
+
+  out$mean_grim_prob |> is.na() |> expect_false()
+  out$incons_to_prob |> is.na() |> expect_false()
+  out$all_cases |> expect_equal(2L)
+  out$incons_cases |> expect_equal(1L)
+})
+
+test_that("`audit()` on DEBIT output ignores missing values in its means", {
+  out <- debit_map(
+    tibble::tibble(x = c(0.53, NA), sd = c(0.5, 0.5), n = c(1683L, 1683L)),
+    digits_x = 2,
+    digits_sd = 2
+  ) |>
+    audit()
+
+  out$mean_x |> is.na() |> expect_false()
+  out$mean_x |> expect_equal(0.53)
+})
