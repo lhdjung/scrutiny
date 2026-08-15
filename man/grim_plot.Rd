@@ -122,6 +122,24 @@ In any case, \code{grim_plot()} doesn't cause this effect --- it only reveals
 it.
 }
 
+\section{Negative means}{
+ The y-axis is the fractional portion of the
+\emph{absolute value} of \code{x}, so a mean of \code{-2.51} is drawn at \code{0.51}, in the
+same place as \code{2.51}. GRIM's granularity is symmetric around zero -- the
+achievable means of \code{n} integers are \code{k / n} for every whole number \code{k},
+whatever its sign -- so this puts each value set at its correct point on
+the granularity grid rather than off the axis.
+
+The background raster is the one place where the sign can still matter,
+and only for the one-directional rounding methods. \code{rounding = "up"}, for
+instance, breaks a tie in a negative number toward zero rather than away
+from it (unless \code{symmetric} is \code{TRUE}), so the raster drawn for \code{"up"}
+describes the mirror image of what such a value set was tested against.
+That concerns the backdrop only: every tile is colored from the
+\code{consistency} column, which \code{\link[=grim_map]{grim_map()}} computed for the value as
+reported, sign included.
+}
+
 \examples{
 # Call `grim_plot()` following `grim_map()`. No need to pass `digits`
 # along: `grim_map()` stores the `digits_x` it was given in a `digits_x`
