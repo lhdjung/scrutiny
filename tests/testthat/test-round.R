@@ -319,3 +319,19 @@ test_that("`reround()` takes one rounding procedure, not a vector of them", {
     nrow() |>
     expect_equal(2L)
 })
+
+
+test_that("`round_up_from()` and `round_down_from()` validate `threshold`", {
+  # These are the functions that act on `threshold`, and a value outside of
+  # `(0, 10)` silently turns them into `round_ceiling()` or `round_floor()`.
+  # `reround()` and `unround()` have always checked; these two did not.
+  round_up_from(4.28, 1, threshold = 0) |> expect_error("threshold")
+  round_up_from(4.28, 1, threshold = 10) |> expect_error("threshold")
+  round_up_from(4.28, 1, threshold = -3) |> expect_error("threshold")
+  round_down_from(4.28, 1, threshold = 0) |> expect_error("threshold")
+  round_down_from(4.28, 1, threshold = 10) |> expect_error("threshold")
+  # Valid thresholds still work, and still agree with `reround()`:
+  round_up_from(4.28, 1, threshold = 9) |> expect_equal(4.2)
+  round_up_from(4.28, 1, threshold = 1) |> expect_equal(4.3)
+  round_up(4.28, 1) |> expect_equal(round_up_from(4.28, 1, threshold = 5))
+})

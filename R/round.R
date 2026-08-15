@@ -159,6 +159,12 @@
 #' @export
 
 round_up_from <- function(x, digits = 0L, threshold, symmetric = FALSE) {
+  # The same check that `reround()` and `rounding_offsets()` run. It belongs
+  # here most of all: this is the function that acts on `threshold`, and a value
+  # outside of `(0, 10)` silently turns it into `round_ceiling()` or
+  # `round_floor()` rather than rounding from a threshold at all:
+  check_threshold_valid(threshold)
+
   p10 <- 10^digits
   offset <- tie_offset(threshold)
 
@@ -182,6 +188,9 @@ round_up_from <- function(x, digits = 0L, threshold, symmetric = FALSE) {
 # performance reasons, and the results are equivalent.
 
 round_down_from <- function(x, digits = 0L, threshold, symmetric = FALSE) {
+  # See the comment in `round_up_from()`:
+  check_threshold_valid(threshold)
+
   p10 <- 10^digits
   offset <- tie_offset(threshold)
 
