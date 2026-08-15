@@ -24,6 +24,14 @@
 #'   restricted so that it's not below `out_min` or above `out_max`. Defaults
 #'   are `"auto"` for `out_min`, i.e., a minimum of one decimal unit above zero;
 #'   and `NULL` for `out_max`, i.e., no maximum.
+#'
+#'   The `"auto"` default suits a count, which cannot go below one unit, and it
+#'   is the wrong default for anything that can reach zero or go negative. A
+#'   sequence around a negative `from` loses its whole lower half to it, and `0`
+#'   is out of reach whatever `from` is. Pass `out_min = NULL` for an unbounded
+#'   quantity such as a mean, or `out_min = 0` for one that is bounded at zero,
+#'   such as a standard deviation. The `*_map_seq()` functions choose per
+#'   variable and need none of this; see `.var_bounds` in [`function_map_seq()`].
 #' @param string_output,.string_output Logical or string. If `TRUE` (the
 #'   default), the output is a string vector. Decimal places are then padded
 #'   with zeros to match `from`'s number of decimal places. `"auto"` works like
@@ -107,6 +115,15 @@ seq_disperse <- function(
   # map the function). Also, the steps away from the number can't be negative:
   check_length(from, 1L)
   check_non_negative(dispersion)
+
+  # Each value in `dispersion` is a number of steps taken both up and down from
+  # `from`, so a step of 0 is `from` itself -- twice over, once in each
+  # direction. Whether `from` belongs in its own sequence is what
+  # `include_reported` decides, so a zero step used to add it two more times:
+  # `seq_disperse(4.02, dispersion = 0)` was `c("4.02", "4.02", "4.02")`, and
+  # `grim_map_seq(dispersion = c(0, 1, 2))` returned the reported case twice,
+  # which `audit_seq()` then counted twice:
+  dispersion <- dispersion[dispersion != 0]
 
   if (!missing(track_var_change)) {
     lifecycle::deprecate_warn(

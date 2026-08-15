@@ -51,7 +51,15 @@ decimal digit. Default is \code{0}.}
 \item{out_min, .out_min, out_max, .out_max}{If specified, output will be
 restricted so that it's not below \code{out_min} or above \code{out_max}. Defaults
 are \code{"auto"} for \code{out_min}, i.e., a minimum of one decimal unit above zero;
-and \code{NULL} for \code{out_max}, i.e., no maximum.}
+and \code{NULL} for \code{out_max}, i.e., no maximum.
+
+The \code{"auto"} default suits a count, which cannot go below one unit, and it
+is the wrong default for anything that can reach zero or go negative. A
+sequence around a negative \code{from} loses its whole lower half to it, and \code{0}
+is out of reach whatever \code{from} is. Pass \code{out_min = NULL} for an unbounded
+quantity such as a mean, or \code{out_min = 0} for one that is bounded at zero,
+such as a standard deviation. The \verb{*_map_seq()} functions choose per
+variable and need none of this; see \code{.var_bounds} in \code{\link[=function_map_seq]{function_map_seq()}}.}
 
 \item{string_output, .string_output}{Logical or string. If \code{TRUE} (the
 default), the output is a string vector. Decimal places are then padded

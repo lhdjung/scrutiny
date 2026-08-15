@@ -119,3 +119,14 @@ test_that("long dispersion sequences stay on their decimal level", {
   ) |>
     expect_equal(c(0.04, 6.24))
 })
+
+
+test_that("a zero step doesn't repeat the value it disperses from", {
+  # Each value in `dispersion` is a number of steps taken both up and down, so a
+  # step of 0 used to add `from` twice on top of `include_reported`.
+  seq_disperse(from = 4.02, dispersion = 0) |> expect_equal("4.02")
+  seq_disperse(from = 4.02, dispersion = 0, include_reported = FALSE) |>
+    expect_equal(character(0))
+  seq_disperse(from = 4.02, dispersion = c(0, 1)) |>
+    expect_equal(c("4.01", "4.02", "4.03"))
+})
