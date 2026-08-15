@@ -97,3 +97,19 @@ test_that("`grimmer_map()` returns other columns with `show_reason = FALSE`", {
       "x", "sd", "n", "digits_x", "digits_sd", "consistency", "study"
     ))
 })
+
+
+# GRIMMER's SD can be 0, and the sequence mapper used to put that value out of
+# reach: `out_min = "auto"` stopped one decimal unit above zero.
+
+test_that("`grimmer_map_seq()` can disperse an SD down to zero, but no lower", {
+  out <- grimmer_map_seq(
+    tibble::tibble(x = 1.03, sd = 0.03, n = 40),
+    digits_x = 2,
+    digits_sd = 2,
+    var = "sd",
+    include_consistent = TRUE
+  )
+  min(out$sd) |> expect_equal(0)
+  any(out$sd < 0) |> expect_false()
+})

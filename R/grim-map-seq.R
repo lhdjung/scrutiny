@@ -97,5 +97,8 @@
 grim_map_seq <- function_map_seq(
   .fun = grim_map,
   .reported = c("x", "n"),
-  .name_test = "GRIM"
+  .name_test = "GRIM",
+  # A mean is not bounded in either direction -- GRIM tests negative means as
+  # readily as positive ones -- so only `n` limits the dispersion here:
+  .var_bounds = list(n = c(1, NA))
 )

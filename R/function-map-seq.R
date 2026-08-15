@@ -157,8 +157,21 @@ function_map_seq_proto <- function(
 #'   steps up and down.
 #' @param .out_min,.out_max If specified when calling a factory-made function,
 #'   output will be restricted so that it's not below `.out_min` or above
-#'   `.out_max`. Defaults are `"auto"` for `.out_min`, i.e., a minimum of one
-#'   decimal unit above zero; and `NULL` for `.out_max`, i.e., no maximum.
+#'   `.out_max`. A number applies to every dispersed variable alike, and `NULL`
+#'   removes the limit. Both default to `"auto"`, which takes the limit from
+#'   `.var_bounds` -- a different one per variable, since the variables have
+#'   different domains.
+#' @param .var_bounds Named list, or `NULL` (the default). Each element is named
+#'   after a variable in `.reported` and is a numeric vector of length 2, the
+#'   least and the greatest value that the variable can take, with `NA` for an
+#'   unbounded side. `list(n = c(1, NA), sd = c(0, NA))` says that a sample size
+#'   is at least 1 and a standard deviation at least 0, and that neither has an
+#'   upper limit. A variable that is not named here is unbounded, except for `n`,
+#'   which keeps a minimum of 1 whether it is declared or not.
+#'
+#'   These bounds only limit the dispersion. They say what values the test could
+#'   *conceivably* have been given, so that it is never handed a sample size of
+#'   0 or, for DEBIT, a proportion above 1 -- not what it will find consistent.
 #' @param .include_reported Logical. Should the reported values themselves be
 #'   included in the sequences originating from them? Default is `FALSE` because
 #'   this might be redundant and bias the results.
@@ -240,7 +253,8 @@ function_map_seq <- function(
   .args_disabled = NULL,
   .dispersion = 1:5,
   .out_min = "auto",
-  .out_max = NULL,
+  .out_max = "auto",
+  .var_bounds = NULL,
   .include_reported = FALSE,
   .include_consistent = FALSE,
   ...
@@ -255,6 +269,7 @@ function_map_seq <- function(
   force(.dispersion)
   force(.out_min)
   force(.out_max)
+  force(.var_bounds)
   force(.include_reported)
   force(.include_consistent)
 
@@ -263,6 +278,7 @@ function_map_seq <- function(
   rlang::check_dots_empty()
 
   check_args_disabled_unnamed(.args_disabled)
+  check_var_bounds(.var_bounds)
 
   name_fun <- deparse(substitute(.fun))
 
@@ -418,22 +434,47 @@ function_map_seq <- function(
       .fun_args <- .fun_args[!names(.fun_args) %in% `!!`(args_helper_fun)]
 
       # Apply the lower-level function to all user-supplied variables (`var`)
-      # and all cases reported in `data`, or at least the inconsistent ones:
+      # and all cases reported in `data`, or at least the inconsistent ones.
+      # `out_min` and `out_max` are resolved per variable: the variables being
+      # dispersed have different domains, so a single `"auto"` cannot mean the
+      # same thing for all of them. An explicit value from the caller applies to
+      # every variable, as before:
+      var_bounds <- `!!`(.var_bounds)
+
       out <- purrr::map(
         var,
         function(.x) {
-          do.call(map_seq_proto, c(list(data = data, var = .x), .fun_args))
+          .limits <- resolve_var_bounds(
+            var = .x,
+            out_min = out_min,
+            out_max = out_max,
+            var_bounds = var_bounds
+          )
+          do.call(
+            map_seq_proto,
+            c(
+              list(
+                data = data,
+                var = .x,
+                out_min = .limits$out_min,
+                out_max = .limits$out_max
+              ),
+              .fun_args
+            )
+          )
         }
       )
 
       # Remove list-elements that are `NULL`, then check for an early return:
       out[vapply(out, is.null, logical(1L))] <- NULL
       if (length(out) == 0L) {
-        msg_setting <- if (interactive()) {
-          "`include_consistent = TRUE`"
-        } else {
-          "unchecking \"Inconsistent cases only\""
-        }
+        # The message names the R argument, because this warning is issued to an
+        # R session. It used to name it only when `interactive()` was `TRUE` and
+        # otherwise tell the user to untick a checkbox in the scrutiny Shiny app
+        # -- so a script, an Rmd, or a test run, which are exactly the contexts
+        # where no checkbox is on screen, got the checkbox message. An app that
+        # wants its own wording should catch the condition and rephrase it:
+        msg_setting <- "`include_consistent = TRUE`"
         cli::cli_warn(c(
           "!" = "No inconsistent cases to disperse from.",
           "i" = "Try {msg_setting} to disperse from consistent cases, as well."

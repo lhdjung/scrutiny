@@ -1135,80 +1135,81 @@ check_type_numeric_like <- function(x) {
 }
 
 
-#' Interpolate the index case
+#' Recover the reported value a sequence was dispersed from
 #'
-#' @description This function expects an `x` vector like the one described
-#'   elsewhere for `index_seq()`, with the additional expectation that
-#'   continuous sequences have an odd length. That is because an index case
-#'   must be identified; and without a gap in the sequence, this has to be a
-#'   single median value. If the index case is missing, it is reconstructed and
-#'   returned.
+#' @description A `*_map_seq()` output records, for every dispersed row, how far
+#'   that row sits from the value it was dispersed from: `diff_var` counts the
+#'   steps, and each step is one unit of `by`. The reported value is therefore
+#'   `value - diff_var * by`, exactly, for every row of the group.
 #'
-#'   If the sequence is continuous, the index case is identical to the median,
-#'   so this metric is returned. All of that works independently of the step
-#'   size.
+#'   This replaces an earlier version that inferred the reported value from the
+#'   *shape* of the sequence -- the midpoint of its gap, or its median if it had
+#'   no gap. That inference is only valid when the sequence is complete. When
+#'   `out_min` or `out_max` truncated one side of it, the gap disappeared along
+#'   with the values below it, the median branch fired, and a plausible but wrong
+#'   value was returned: `grim_map_seq()` on a reported mean of `-2.51` came back
+#'   from `reverse_map_seq()` as `-2.48`, and `audit_seq()` then re-tested that
+#'   and reported the opposite verdict.
 #'
-#' @param x Numeric (or coercible to numeric).
-#' @param index_case_only Logical. If `TRUE` (the default), only the
-#'   reconstructed index case is returned. If `FALSE`, the entire `x` sequence
-#'   is returned, with the index case inserted at the center.
-#' @param index_itself If set to `TRUE`, the index of the "index case" is
-#'   returned, as opposed to the index case itself.
+#' @param x Numeric (or coercible to numeric). The dispersed values of one
+#'   `(case, var)` group.
+#' @param diff_var Numeric. The `diff_var` column of the same group, in steps.
+#' @param by Numeric (length 1) or `NULL`. The step size. If `NULL`, it is
+#'   inferred as the smallest distance between two neighboring values, which is
+#'   correct for any linear dispersion but needs at least two distinct values.
 #'
-#' @return Numeric (or string coercible to numeric).
+#' @return Length 1, of the same type as `x`.
 #'
 #' @noRd
-index_case_interpolate <- function(
-  x,
-  index_case_only = TRUE,
-  index_itself = FALSE
-) {
+index_case_from_diff <- function(x, diff_var, by = NULL) {
   x_orig <- x
   x <- as.numeric(x)
 
-  index_seq_x <- index_seq(x)
-  index_target <- match(max(index_seq_x), index_seq_x)
-
-  # For continuous `x` sequences, the index case is already present in the
-  # sequence as its median. It is here identified, coerced into the original
-  # type of `x`, and then returned:
-  if (is_seq_linear(x)) {
-    index_case <- stats::median(x)
-    index_case <- methods::as(index_case, typeof(x_orig))
-    if (index_itself) {
-      index_target <- match(index_case, x)
-      return(index_target)
+  # Without a step size from the caller, the sequence supplies it: the values
+  # sit on a grid of `by`, so the smallest gap between two of them is `by`
+  # itself. A single-value sequence has no such gap and nothing to go on:
+  if (is.null(by)) {
+    steps <- diff(sort(unique(x)))
+    if (length(steps) == 0L) {
+      cli::cli_abort(c(
+        "Can't recover the reported value from a single dispersed value.",
+        "i" = "The step size is not deducible from one value alone."
+      ))
     }
-    return(index_case)
+    by <- min(steps)
   }
 
-  if (index_itself) {
-    return(index_target)
+  # Rounding to the decimal level of the step undoes the representation error
+  # in the multiplication, exactly as `seq_disperse()` does when it builds the
+  # sequence in the first place:
+  digits <- max(decimal_places_scalar(by), 0L)
+  candidates <- round(x - (diff_var * by), digits)
+
+  # Every row of the group describes the same reported value from a different
+  # offset, so they must all agree. If they don't, the output was not produced
+  # by a linear dispersion around one value, and there is no reported value to
+  # recover -- better to say so than to return one of the candidates:
+  if (!all(dplyr::near(candidates, candidates[[1L]]))) {
+    cli::cli_abort(c(
+      "Can't recover the reported value: the dispersed values disagree \\
+      about it.",
+      "x" = "They imply {length(unique(candidates))} different values, \\
+      starting with {utils::head(unique(candidates), 3L)}.",
+      "i" = "Was this data frame subset or reordered after \\
+      `*_map_seq()` returned it?"
+    ))
   }
 
-  index_case <- x[index_target] + x[index_target + 1L]
-  index_case <- index_case / 2
+  index_case <- candidates[[1L]]
   index_case <- methods::as(index_case, typeof(x_orig))
 
+  # A string sequence keeps the trailing zeros that its values were written
+  # with, so the recovered value has to keep them too:
   if (is.character(index_case)) {
-    x_orig_around_target <- c(x_orig[index_target], x_orig[index_target + 1L])
-    dp_orig <- max(decimal_places(x_orig_around_target))
-    index_case <- restore_zeros(index_case, width = dp_orig)
+    index_case <- restore_zeros(index_case, width = max(decimal_places(x_orig)))
   }
 
-  if (index_case_only) {
-    return(index_case)
-  }
-
-  # The rest only gets run if the entire sequence was required:
-  out <- append(x, index_case, after = index_target)
-  out <- methods::as(out, typeof(x_orig))
-
-  if (is.character(out)) {
-    restore_zeros(out)
-  } else {
-    out
-  }
+  index_case
 }
 
 
@@ -1808,6 +1809,100 @@ list_min_distance_functions <- list(
     )
   }
 )
+
+
+#' Resolve `"auto"` dispersion limits for one variable
+#'
+#' @description A sequence mapper disperses several variables, and they do not
+#'   share a domain: a sample size cannot go below 1, a standard deviation
+#'   cannot go below 0, a binary proportion is confined to `[0, 1]`, and a mean
+#'   is not bounded at all. `out_min` and `out_max` are single arguments applied
+#'   to every variable in turn, so `"auto"` has to mean something different for
+#'   each of them.
+#'
+#'   Up to scrutiny 1.0.0, `"auto"` meant one decimal unit above zero, whatever
+#'   the variable was. That is right for `n` and wrong for the rest: it silently
+#'   removed the entire lower half of the dispersion of a negative mean, and it
+#'   put `0` -- a legal mean, SD, and proportion -- out of reach everywhere.
+#'
+#'   A variable with no declared bounds keeps a floor of 1 if it is `n`, and is
+#'   treated as unbounded otherwise.
+#'
+#' @param var String (length 1). Name of the variable being dispersed.
+#' @param out_min,out_max The mapper's arguments. Anything other than the string
+#'   `"auto"` is the caller's explicit choice and is returned unchanged.
+#' @param var_bounds Named list of length-2 numeric vectors, `c(min, max)`, with
+#'   `NA` for an unbounded side. May be `NULL`.
+#'
+#' @return List of two elements, `out_min` and `out_max`.
+#'
+#' @noRd
+resolve_var_bounds <- function(var, out_min, out_max, var_bounds = NULL) {
+  bounds <- var_bounds[[var]]
+
+  # A sample size of 0 leaves nothing to test, and a negative one is not a
+  # sample size at all. This is the one bound that holds for every consistency
+  # test, so it applies even to a mapper that declares no bounds of its own:
+  if (is.null(bounds) && var == "n") {
+    bounds <- c(1, NA)
+  }
+
+  pick <- function(side) {
+    if (is.null(bounds) || is.na(bounds[[side]])) NULL else bounds[[side]]
+  }
+
+  list(
+    out_min = if (identical(out_min, "auto")) pick(1L) else out_min,
+    out_max = if (identical(out_max, "auto")) pick(2L) else out_max
+  )
+}
+
+
+#' Check that declared variable bounds are well formed
+#'
+#' @param var_bounds The `.var_bounds` argument of a function factory.
+#'
+#' @return No return value; might throw an error.
+#'
+#' @noRd
+check_var_bounds <- function(var_bounds) {
+  if (is.null(var_bounds)) {
+    return(invisible(NULL))
+  }
+
+  if (!is.list(var_bounds) || is.null(names(var_bounds))) {
+    cli::cli_abort(c(
+      "`.var_bounds` must be a named list.",
+      "x" = "It is {an_a_type(var_bounds)}.",
+      "i" = "Name each element after a reported variable, e.g. \\
+      `list(n = c(1, NA), sd = c(0, NA))`."
+    ))
+  }
+
+  for (name in names(var_bounds)) {
+    bounds <- var_bounds[[name]]
+    if (!is.numeric(bounds) || length(bounds) != 2L) {
+      cli::cli_abort(c(
+        "`.var_bounds${name}` must be a numeric vector of length 2.",
+        "i" = "It states the least and the greatest value that `{name}` can \\
+        take, with `NA` for an unbounded side."
+      ))
+    }
+    if (
+      !is.na(bounds[[1L]]) &&
+        !is.na(bounds[[2L]]) &&
+        bounds[[1L]] > bounds[[2L]]
+    ) {
+      cli::cli_abort(c(
+        "`.var_bounds${name}` has its bounds the wrong way round.",
+        "x" = "The minimum, {bounds[[1L]]}, is greater than the maximum, \\
+        {bounds[[2L]]}."
+      ))
+    }
+  }
+
+  invisible(NULL)
+}
 
 
 #' Check for linearly increasing dispersion in sequence mapper output

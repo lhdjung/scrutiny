@@ -14,7 +14,8 @@ function_map_seq(
   .args_disabled = NULL,
   .dispersion = 1:5,
   .out_min = "auto",
-  .out_max = NULL,
+  .out_max = "auto",
+  .var_bounds = NULL,
   .include_reported = FALSE,
   .include_consistent = FALSE,
   ...
@@ -56,8 +57,22 @@ steps up and down.}
 
 \item{.out_min, .out_max}{If specified when calling a factory-made function,
 output will be restricted so that it's not below \code{.out_min} or above
-\code{.out_max}. Defaults are \code{"auto"} for \code{.out_min}, i.e., a minimum of one
-decimal unit above zero; and \code{NULL} for \code{.out_max}, i.e., no maximum.}
+\code{.out_max}. A number applies to every dispersed variable alike, and \code{NULL}
+removes the limit. Both default to \code{"auto"}, which takes the limit from
+\code{.var_bounds} -- a different one per variable, since the variables have
+different domains.}
+
+\item{.var_bounds}{Named list, or \code{NULL} (the default). Each element is named
+after a variable in \code{.reported} and is a numeric vector of length 2, the
+least and the greatest value that the variable can take, with \code{NA} for an
+unbounded side. \code{list(n = c(1, NA), sd = c(0, NA))} says that a sample size
+is at least 1 and a standard deviation at least 0, and that neither has an
+upper limit. A variable that is not named here is unbounded, except for \code{n},
+which keeps a minimum of 1 whether it is declared or not.
+
+These bounds only limit the dispersion. They say what values the test could
+\emph{conceivably} have been given, so that it is never handed a sample size of
+0 or, for DEBIT, a proportion above 1 -- not what it will find consistent.}
 
 \item{.include_reported}{Logical. Should the reported values themselves be
 included in the sequences originating from them? Default is \code{FALSE} because

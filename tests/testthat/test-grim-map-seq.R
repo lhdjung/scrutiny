@@ -1930,3 +1930,61 @@ test_that("sequence mappers name the test when `data` already has results", {
   ) |>
     expect_error(regexp = "already includes a \"consistency\" column")
 })
+
+
+# `out_min = "auto"` used to mean "one decimal unit above zero" for every
+# dispersed variable, not just for `n`. For a negative reported mean that
+# removed the entire lower half of the sequence; and since the surviving
+# sequence then had no gap where the reported value had been, the
+# shape-based reconstruction in `reverse_map_seq()` took its median and
+# returned a wrong value, which `audit_seq()` re-tested into a wrong verdict.
+
+test_that("a negative mean is dispersed in both directions", {
+  out <- grim_map_seq(
+    tibble::tibble(x = -2.51, n = 40),
+    digits_x = 2,
+    var = "x"
+  )
+  nrow(out) |> expect_equal(10L)
+  sort(out$diff_var) |> expect_equal(c(-5:-1, 1:5))
+  min(out$x) |> expect_equal(-2.56)
+  max(out$x) |> expect_equal(-2.46)
+})
+
+test_that("`reverse_map_seq()` recovers a negative reported mean", {
+  out <- grim_map_seq(tibble::tibble(x = -2.51, n = 40), digits_x = 2)
+  rev <- reverse_map_seq(out)
+  rev$x |> expect_equal(-2.51)
+  rev$n |> expect_equal(40L)
+})
+
+test_that("`audit_seq()` reports the reported values and their own verdict", {
+  out <- grim_map_seq(tibble::tibble(x = -2.51, n = 40), digits_x = 2)
+  out_audit <- audit_seq(out)
+  out_audit$x |> expect_equal(-2.51)
+  out_audit$consistency |> expect_equal(grim(-2.51, 40, digits_x = 2))
+  out_audit$consistency |> expect_false()
+})
+
+test_that("`n` keeps a floor of 1 even though the mean has none", {
+  out <- grim_map_seq(
+    tibble::tibble(x = 5.19, n = 3),
+    digits_x = 2,
+    var = "n"
+  )
+  min(out$n) |> expect_equal(1L)
+  # Nothing undecidable made it into the output:
+  out$consistency |> is.na() |> any() |> expect_false()
+})
+
+test_that("a zero step in `dispersion` doesn't duplicate the reported case", {
+  out <- grim_map_seq(
+    tibble::tibble(x = 5.19, n = 40),
+    digits_x = 2,
+    var = "x",
+    dispersion = c(0, 1, 2),
+    include_consistent = TRUE
+  )
+  anyDuplicated(out$diff_var) |> expect_equal(0L)
+  out$diff_var |> sort() |> expect_equal(c(-2L, -1L, 1L, 2L))
+})

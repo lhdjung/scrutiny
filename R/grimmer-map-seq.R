@@ -89,5 +89,8 @@
 grimmer_map_seq <- function_map_seq(
   .fun = grimmer_map,
   .reported = c("x", "sd", "n"),
-  .name_test = "GRIMMER"
+  .name_test = "GRIMMER",
+  # A standard deviation cannot be negative, but it can be `0`. The mean is
+  # unbounded, as it is for GRIM:
+  .var_bounds = list(n = c(1, NA), sd = c(0, NA))
 )

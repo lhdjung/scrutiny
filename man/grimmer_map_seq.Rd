@@ -14,7 +14,7 @@ grimmer_map_seq(
   var = Inf,
   dispersion = 1:5,
   out_min = "auto",
-  out_max = NULL,
+  out_max = "auto",
   include_reported = FALSE,
   include_consistent = FALSE,
   ...

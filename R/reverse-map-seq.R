@@ -66,11 +66,36 @@ reverse_map_seq <- function(data) {
   data_nested <- split(data_nested, data_nested$var)[var]
   data_nested <- purrr::list_rbind(data_nested)
 
+  # The step size of each variable's dispersion. For a variable with a
+  # `digits_*` column -- every variable that the mapper takes decimal places for
+  # -- it is one unit of the last decimal place, stated by the caller of the
+  # mapper rather than guessed from the values. `n` is dispersed in whole
+  # numbers. Anything else falls back to `index_case_from_diff()`'s own
+  # inference from the sequence:
+  step_by_var <- function(var_name) {
+    if (var_name == "n") {
+      return(1)
+    }
+    digits_col <- paste0("digits_", var_name)
+    if (any(digits_col == colnames(data))) {
+      return(1 / (10^data[[digits_col]][[1L]]))
+    }
+    NULL
+  }
+
+  # The reported value is recovered from `diff_var`, which records how many
+  # steps each dispersed row sits from it. That is exact whether or not the
+  # sequence is complete -- unlike inferring it from the shape of the sequence,
+  # which silently returned the wrong value once `out_min` or `out_max` had
+  # truncated one side of it:
   data_index_case <- data_nested |>
     dplyr::mutate(
-      scrutiny_index_case = list(data[var]),
       scrutiny_index_case = list(
-        index_case_interpolate(scrutiny_index_case[[1L]])
+        index_case_from_diff(
+          x = data[var][[1L]],
+          diff_var = data$diff_var,
+          by = step_by_var(var)
+        )
       )
     ) |>
     dplyr::ungroup() |>

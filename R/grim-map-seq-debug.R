@@ -72,11 +72,7 @@ function(
   out <- purrr::map(var, ~ map_seq_proto(data = data, var = .x))
   out[vapply(out, is.null, logical(1L))] <- NULL
   if (length(out) == 0L) {
-    msg_setting <- if (interactive()) {
-      "`include_consistent = TRUE`"
-    } else {
-      "unchecking \"Inconsistent cases only\""
-    }
+    msg_setting <- "`include_consistent = TRUE`"
     cli::cli_warn(c(
       `!` = "No inconsistent cases to disperse from.",
       i = "Try {msg_setting} to disperse from consistent cases, as well."

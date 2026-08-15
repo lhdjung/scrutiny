@@ -83,3 +83,29 @@ df1_expected <- tibble::tibble(
 test_that("`debit_map()` has correct output", {
   df1_tested |> expect_equal(df1_expected)
 })
+
+
+# DEBIT works on binary data, so both `x` and `sd` live in [0, 1]. `debit()`
+# rejects anything outside that range, which used to make `debit_map_seq()`
+# fail outright as soon as a reported value sat close enough to a bound for the
+# dispersion to cross it.
+
+test_that("`debit_map_seq()` doesn't disperse beyond the binary range", {
+  out_high <- debit_map_seq(
+    tibble::tibble(x = 0.98, sd = 0.14, n = 100),
+    digits_x = 2, digits_sd = 2, var = "x", include_consistent = TRUE
+  )
+  max(out_high$x) |> expect_equal(1)
+
+  out_low <- debit_map_seq(
+    tibble::tibble(x = 0.03, sd = 0.17, n = 100),
+    digits_x = 2, digits_sd = 2, var = "x", include_consistent = TRUE
+  )
+  min(out_low$x) |> expect_equal(0)
+
+  out_sd <- debit_map_seq(
+    tibble::tibble(x = 0.5, sd = 0.99, n = 100),
+    digits_x = 2, digits_sd = 2, var = "sd", include_consistent = TRUE
+  )
+  max(out_sd$sd) |> expect_equal(1)
+})
