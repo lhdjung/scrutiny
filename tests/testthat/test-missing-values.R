@@ -280,3 +280,54 @@ test_that("`grim_ratio()` stays unclamped and unguarded", {
   grim_ratio(x = 5.19, n = 20.5, digits_x = 2) |> expect_equal((100 - 20.5) / 100)
   grim_probability(x = 5.19, n = 20.5, digits_x = 2) |> expect_na()
 })
+
+
+# An infinity is undecidable for the same reasons a missing value is: no data
+# set has an infinite mean or SD, and an infinity has no decimal places to be
+# reported with, which is why `decimal_places()` returns `NA` for it. It used to
+# abort from inside `check_newly_numeric()` with "missing value where TRUE/FALSE
+# needed", exactly as a missing value did before 1.0.0.
+
+test_that("an infinite value is undecidable, not consistent", {
+  grim(Inf, 28, digits_x = 2) |> expect_na()
+  grim(-Inf, 28, digits_x = 2) |> expect_na()
+  grimmer(Inf, 0.41, 40, digits_x = 2, digits_sd = 2) |> expect_na()
+  grimmer(1.03, Inf, 40, digits_x = 2, digits_sd = 2) |> expect_na()
+
+  # DEBIT has its own, more specific answer: a binary mean or SD outside of the
+  # unit interval is an input error, and it says so rather than returning `NA`.
+  debit(Inf, 0.5, 100, digits_x = 2, digits_sd = 2) |> expect_error()
+  debit(0.53, Inf, 100, digits_x = 2, digits_sd = 2) |> expect_error()
+})
+
+
+test_that("`grimmer()` names the infinity as its reason", {
+  grimmer_map(
+    tibble::tibble(x = Inf, sd = 0.41, n = 40L),
+    digits_x = 2,
+    digits_sd = 2,
+    show_reason = TRUE
+  )$reason |>
+    expect_equal("Infinite value")
+})
+
+
+test_that("the achievable means behind an infinity are `NA`", {
+  # `seq()` used to abort with "'from' must be a finite number":
+  grim_values(Inf, 28, digits_x = 2) |> expect_na()
+  grim_closest(Inf, 28, digits_x = 2) |> expect_na()
+})
+
+
+test_that("an infinite value gives `NA` in the mappers, too", {
+  # A real value set next to the infinite one still gets a real verdict:
+  out_grim <- grim_map(tibble::tibble(x = c(5.25, Inf), n = 28L), digits_x = 2)
+  out_grim$consistency |> expect_equal(c(TRUE, NA))
+
+  out_grimmer <- grimmer_map(
+    tibble::tibble(x = c(1.03, Inf), sd = 0.41, n = 40L),
+    digits_x = 2,
+    digits_sd = 2
+  )
+  out_grimmer$consistency[2L] |> expect_na()
+})

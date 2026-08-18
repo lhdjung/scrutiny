@@ -28,15 +28,25 @@ grim_sums_scalar <- function(
 
   n_items <- n * items
 
-  list(
-    sums = sum_range(
+  # An infinite `x` is undecidable, exactly as in `grim_scalar()`: no data set
+  # has an infinite mean, and `sum_range()` would answer with an infinitely wide
+  # range that `seq()` then refuses to walk. Both callers read the sums with
+  # `anyNA()`, which is how a missing `x` arrives here as well:
+  sums <- if (is.infinite(x_num)) {
+    c(NA_real_, NA_real_)
+  } else {
+    sum_range(
       x_num = x_num,
       n_items = n_items,
       digits = digits_x,
       rounding = rounding,
       threshold = threshold,
       symmetric = symmetric
-    ),
+    )
+  }
+
+  list(
+    sums = sums,
     n_items = n_items,
     # Values are returned on the scale of `x` itself, so that they can be read
     # against it. Internally, a percentage is a decimal number:

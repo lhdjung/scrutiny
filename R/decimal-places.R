@@ -130,38 +130,46 @@ decimal_places <- function(x, sep = "\\.") {
 # Faster, single-case (scalar) function to be used as a helper within other
 # single-case functions:
 decimal_places_scalar <- function(x, sep = "\\.") {
-  if (is.na(x)) {
-    return(NA_integer_)
-  }
-
-  # As in `decimal_places()`, which this must agree with: an infinity has no
-  # decimal places to count, and `NaN` is caught by the `is.na()` above.
-  if (is.numeric(x) && !is.finite(x)) {
-    return(NA_integer_)
-  }
-
-  # Whitespace must go before anything else is read off the string, exactly as
-  # in `decimal_places()`: the exponent is matched at the end of the string, so
-  # a single trailing space used to hide it and `"1.5e3 "` came out as 1 rather
-  # than 0. Only a string the user typed can carry whitespace -- and only that
-  # case pays for `trimws()` -- because `as.character()` never produces any:
-  x <- if (is.character(x)) trimws(x) else as.character(x)
-
-  if (grepl("^[+-]?(Inf|NaN)$", x)) {
-    return(NA_integer_)
+  # The three ways of having no decimal places to count -- a missing value, an
+  # infinity, and the strings that spell one -- used to be three guards with the
+  # string conversion between them, which made every numeric value pay for a
+  # check only a string can fail. `decimal_places()` must agree with this, and
+  # does; a generated corpus in test-decimal-places.R holds them together.
+  #
+  # Whitespace has to go before anything else is read off a string: the exponent
+  # is matched at the end of it, so a single trailing space used to hide it and
+  # `"1.5e3 "` came out as 1 rather than 0. Only a string the user typed can
+  # carry any, because `as.character()` produces none.
+  if (is.character(x)) {
+    x <- trimws(x)
+    if (is.na(x) || grepl("^[+-]?(Inf|NaN)$", x)) {
+      return(NA_integer_)
+    }
+  } else {
+    # `is.finite()` is `FALSE` for `NA` and `NaN` as well as the infinities:
+    if (!is.finite(x)) {
+      return(NA_integer_)
+    }
+    x <- as.character(x)
   }
 
   # See the comment in `decimal_places()`: an exponent shifts the decimal point,
   # so it has to be split off before the digits after `sep` are counted. This is
   # what makes `decimal_places_scalar(1e-04)` 4 rather than 0, and hence what
   # keeps the step size in `seq_disperse()` and friends on the intended decimal
-  # level for values that R writes in scientific notation:
+  # level for values that R writes in scientific notation: `regexpr()` and
+  # `regmatches()` together cost about half of this function, and almost no
+  # value has an exponent at all, so a fixed-string search -- which cannot match
+  # where the pattern could not -- rules the rest out first:
   exponent <- 0L
-  hit_exponent <- regmatches(x, regexpr("[eE][+-]?[0-9]+$", x))
 
-  if (length(hit_exponent) > 0L) {
-    exponent <- as.integer(sub("^[eE]", "", hit_exponent))
-    x <- sub("[eE][+-]?[0-9]+$", "", x)
+  if (grepl("e", x, fixed = TRUE) || grepl("E", x, fixed = TRUE)) {
+    hit_exponent <- regmatches(x, regexpr("[eE][+-]?[0-9]+$", x))
+
+    if (length(hit_exponent) > 0L) {
+      exponent <- as.integer(sub("^[eE]", "", hit_exponent))
+      x <- sub("[eE][+-]?[0-9]+$", "", x)
+    }
   }
 
   hit <- regmatches(x, regexpr(paste0("(?<=", sep, ")\\d+"), x, perl = TRUE))

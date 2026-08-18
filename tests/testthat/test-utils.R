@@ -255,3 +255,97 @@ test_that("`check_lengths_congruent()` rejects genuinely unequal lengths", {
   # ...and it names the pair that actually disagrees, not the congruent one:
   expect_error(check_lengths_congruent(list(a2, b2, c3)), regexp = "c3")
 })
+
+
+# `check_newly_numeric()` decides whether `x` can be written with `digits`
+# decimal places. It used to answer by counting the decimal places in the string
+# representation of `x`, which cost three regular expressions per key value per
+# row and made it the most expensive part of a mapper call (#92). The fast path
+# added there is one-sided: `round()` settles the values that pass, and anything
+# it leaves undecided falls through to the old string comparison, so the two
+# must agree on every verdict.
+
+passes_check_newly_numeric <- function(x, digits) {
+  tryCatch(
+    {
+      check_newly_numeric(x, digits)
+      TRUE
+    },
+    condition = function(cnd) FALSE
+  )
+}
+
+
+test_that("`check_newly_numeric()` accepts a value that fits `digits`", {
+  expect_silent(check_newly_numeric(5.19, 2))
+  expect_silent(check_newly_numeric(5.19, 5))
+  expect_silent(check_newly_numeric(5, 0))
+  expect_silent(check_newly_numeric(0, 0))
+  expect_silent(check_newly_numeric(-5.19, 2))
+  # These are not the doubles for `0.3` and `0.8`, so the fast path cannot
+  # settle them; the string comparison behind it can, and does:
+  expect_silent(check_newly_numeric(0.1 + 0.2, 1))
+  expect_silent(check_newly_numeric(0.1 + 0.7, 1))
+})
+
+
+test_that("`check_newly_numeric()` rejects a value with more decimal places", {
+  expect_error(check_newly_numeric(5.195, 2))
+  expect_error(check_newly_numeric(-5.195, 2))
+  expect_error(check_newly_numeric(2.675, 2))
+  # A tiny value is not a whole number scaled up, however close to zero it is:
+  expect_error(check_newly_numeric(1e-20, 2))
+  # A negative `digits` is not a way to demand whole hundreds:
+  expect_error(check_newly_numeric(500, -2))
+})
+
+
+test_that("`check_newly_numeric()` agrees with counting decimal places", {
+  set.seed(1010)
+  x <- c(
+    0, 1, -1, 5.19, -5.19, 0.1 + 0.2, 0.1 + 0.7, 2.675, 1e-20, 1e-16, 1 / 3,
+    pi, 123456789012345.5, 1e6 + 0.5, 1e-4, 1e-5, 1e5, 8.7,
+    round(runif(30, -1e5, 1e5), 3),
+    round(runif(30, -1, 1), 7),
+    runif(15, -10, 10)
+  )
+  for (digits in 0:5) {
+    fast <- vapply(x, passes_check_newly_numeric, logical(1L), digits = digits)
+    counted <- digits >= vapply(x, decimal_places_scalar, integer(1L))
+    expect_equal(fast, counted)
+  }
+})
+
+
+# `is_decidable_n_items()` states the one condition under which a value set can
+# be decided at all, and it states it twice: with `&&` for the single values the
+# `*_scalar()` functions pass it once per row, and with `&` for the columns
+# `grim_probability()` passes it once per call. The two must not drift apart.
+
+test_that("`is_decidable_n_items()` agrees between its two paths", {
+  grid <- expand.grid(
+    n = c(28, 1, 2, 0, -5, 20.5, 28.0000000001, NA, NaN, Inf, -Inf),
+    items = c(1, 2, 3, 0, 1.5, -1, NA, Inf),
+    min_n = c(1, 2)
+  )
+  for (min_n in c(1, 2)) {
+    rows <- grid[grid$min_n == min_n, ]
+    scalar <- vapply(
+      seq_len(nrow(rows)),
+      function(i) is_decidable_n_items(rows$n[i], rows$items[i], min_n),
+      logical(1L)
+    )
+    # Vectors take the other branch, whole columns at a time:
+    vectorized <- is_decidable_n_items(rows$n, rows$items, min_n)
+    expect_identical(scalar, vectorized)
+    # Neither is ever `NA`, whatever went in:
+    expect_false(anyNA(vectorized))
+  }
+})
+
+
+test_that("`is_decidable_n_items()` recycles like the vector path", {
+  is_decidable_n_items(c(28, 20.5), 1) |> expect_identical(c(TRUE, FALSE))
+  is_decidable_n_items(28, c(1, 1.5)) |> expect_identical(c(TRUE, FALSE))
+  is_decidable_n_items(numeric(0), 1) |> expect_identical(logical(0))
+})

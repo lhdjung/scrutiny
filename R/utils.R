@@ -180,7 +180,9 @@ an_a_type <- function(x) {
 #' @author R Core Team, Lukas Jung
 #'
 #' @noRd
-is_whole_number <- function(x, tolerance = .Machine$double.eps^0.5) {
+# `is_decidable_n_items()` and `check_newly_numeric()` write this test out
+# rather than calling it, because they run once per row; keep them in step.
+is_whole_number <- function(x, tolerance = WHOLE_NUMBER_TOLERANCE) {
   abs(x - round(x)) < tolerance
 }
 
@@ -258,13 +260,43 @@ check_enumeration_size <- function(bounds, what, n, limit = 1e6) {
 is_decidable_n_items <- function(n, items = 1, min_n = 1) {
   # `is.finite()` is `FALSE` for `NA`, `NaN`, and both infinities, and `FALSE &
   # NA` is `FALSE`, so the result is never missing however the comparisons
-  # further right turn out:
+  # further right turn out. Note that `&` evaluates both of its sides, unlike
+  # `&&`: that is what makes this work on columns, and it means the guards
+  # absorb the missing values rather than preventing them.
+  #
+  # The two whole-number tests are `is_whole_number()` written out. This runs
+  # once per row in all three tests, and the two calls cost more than every
+  # comparison here put together. `WHOLE_NUMBER_TOLERANCE` is the same constant
+  # `is_whole_number()` uses, so the two cannot drift on what counts as whole;
+  # if the formula itself ever changes, this copy and the one in
+  # `check_newly_numeric()` have to change with it.
+  #
+  # The same condition appears twice below, once with `&&` and once with `&`,
+  # which is the one duplication in this function and has to be kept exact. `&&`
+  # is a special form: it neither allocates a result vector nor evaluates what
+  # it does not need, which makes the scalar version some 1.8 times faster, and
+  # that is the version the `*_scalar()` functions reach once per row. `&` is
+  # what the column version needs, and `grim_probability()` calls it once for a
+  # whole column, where looping over the scalar version would cost far more than
+  # it saves. A test in test-utils.R runs both over the same grid and requires
+  # them to agree.
+  if (length(n) == 1L && length(items) == 1L && length(min_n) == 1L) {
+    return(
+      is.finite(n) &&
+        is.finite(items) &&
+        n >= min_n &&
+        items > 0 &&
+        abs(n - round(n)) < WHOLE_NUMBER_TOLERANCE &&
+        abs(items - round(items)) < WHOLE_NUMBER_TOLERANCE
+    )
+  }
+
   is.finite(n) &
     is.finite(items) &
     n >= min_n &
     items > 0 &
-    is_whole_number(n) &
-    is_whole_number(items)
+    abs(n - round(n)) < WHOLE_NUMBER_TOLERANCE &
+    abs(items - round(items)) < WHOLE_NUMBER_TOLERANCE
 }
 
 
@@ -354,24 +386,35 @@ check_newly_numeric <- function(
   digits,
   caller_type = c("basic", "mapper", "sequence_mapper")
 ) {
+  # Inlined rather than left to `is_whole_number()`, which this runs ahead of
+  # once per key value per row: the call alone cost more than the whole check
+  # below it.
   if (
     !is.numeric(digits) ||
       length(digits) != 1L ||
-      !is_whole_number(digits)
+      digits < 0 ||
+      abs(digits - round(digits)) >= WHOLE_NUMBER_TOLERANCE
   ) {
     name <- deparse(substitute(digits))
     error_digits_flawed(digits, name, 4)
   }
 
-  # A missing value has no decimal places to count, so there is nothing here to
-  # be inconsistent with `digits`. It is not an input error, either: it is an
-  # undecidable case, and the test functions return `NA` for it. Without this
-  # branch, the comparison below is `NA` and the `if ()` fails outright:
-  if (is.na(x)) {
-    return(invisible(NULL))
-  }
-
-  if (is.numeric(x) && digits >= decimal_places_scalar(x)) {
+  # Can `x` be written with `digits` decimal places? `round()` answers that some
+  # 200 times faster than counting the decimal places in a string representation
+  # of `x`, which is what `decimal_places_scalar()` does with three regular
+  # expressions -- once per key value per row, formerly the most expensive part
+  # of a mapper call (#92). The test is one-sided, though: `0.1 + 0.2` prints as
+  # `"0.3"` without being the double for `0.3`, so whatever it leaves undecided
+  # is counted after all. `is.na(x)` has to come first, or the comparisons would
+  # be `NA` and the `if ()` would fail outright. An infinity needs no branch of
+  # its own: `round()` returns it unchanged, so it passes, which is right -- it
+  # has no decimal places to be inconsistent with `digits`, and the tests report
+  # it as undecidable.
+  if (
+    is.na(x) ||
+      (is.numeric(x) &&
+        (x == round(x, digits) || digits >= decimal_places_scalar(x)))
+  ) {
     return(invisible(NULL))
   }
 
@@ -464,11 +507,6 @@ fn_name_from_call <- function(call) {
 }
 
 
-# The user-facing consistency test functions: `grim()`, `grim_map()`,
-# `grimmer_map_seq()`, `debit_map_total_n()`, and so on.
-pattern_name_test_fn <- "^(grim|grimmer|debit)"
-
-
 # Find the outermost consistency test function on the call stack: the one the
 # user actually called. Error messages about missing or flawed `digits_*`
 # arguments should name that function and be attributed to its call.
@@ -486,7 +524,7 @@ pattern_name_test_fn <- "^(grim|grimmer|debit)"
 caller_test_fn <- function() {
   calls <- sys.calls()
   names_fn <- vapply(calls, fn_name_from_call, character(1L), USE.NAMES = FALSE)
-  is_test_fn <- stringr::str_detect(names_fn, pattern_name_test_fn)
+  is_test_fn <- stringr::str_detect(names_fn, PATTERN_NAME_TEST_FN)
 
   index <- if (any(is_test_fn)) {
     # `sys.calls()` runs from the outermost frame inward, so the first match is
@@ -1649,64 +1687,21 @@ name_caller_call <- function(n = 1L, wrap = TRUE) {
 }
 
 
-# Shifting a number by `digits` decimal places is not exact in floating point:
-# `0.28 * 100` is 28.000000000000004, and `0.29 * 100` is 28.999999999999996.
-# Rounding the shifted value away from the number it is meant to be would then
-# move it a whole step -- `ceiling(0.28 * 100) / 100` would be 0.29 rather than
-# 0.28. Every rounding function in round.R and round-ceil-floor.R therefore
-# nudges the shifted value by this tolerance before rounding it: the `round_*()`
-# functions of round-ceil-floor.R add or subtract it directly, and
-# `round_up_from()` and `round_down_from()` fold it into `tie_offset()`. It is
-# far smaller than any difference a reported value could meaningfully express,
-# so it only ever absorbs representation error.
-#
-# `unround()` reports bounds that assume exactly this tolerance, and the
-# property test in test-unround.R checks that the two agree, so all three files
-# have to stay with the one constant.
-#
-# The tolerance is absolute, so it has a domain of validity: representation
-# error in `x * 10^digits` grows with the magnitude of that product (roughly
-# `|x| * 10^digits * 2.2e-16`), whereas the nudge is fixed. Up to about
-# `|x * 10^digits| = 1e7` the nudge dominates by orders of magnitude; far beyond
-# that, a value sitting exactly on a rounding boundary may go either way. Means,
-# SDs, and percentages with a few decimal places are nowhere near that.
-
-rounding_tolerance <- .Machine$double.eps^0.5 / 10
-
-
 # `round_up_from()` and `round_down_from()` both shift the scaled value so that
 # `floor()` or `ceiling()` cuts it at `threshold` rather than at 5, and both
-# nudge it by `rounding_tolerance` beforehand. This is the amount they add or
+# nudge it by `ROUNDING_TOLERANCE` beforehand. This is the amount they add or
 # subtract.
 #
 # Before scrutiny 1.0.0 the nudge was written there as `threshold -
 # .Machine$double.eps^0.5`, which the `/ 10` below turns into the very same
-# additive `rounding_tolerance`. Everything depended on that equality, since
+# additive `ROUNDING_TOLERANCE`. Everything depended on that equality, since
 # `unround()` reports bounds that assume one shared tolerance, but it was not
 # stated anywhere.
 
 tie_offset <- function(threshold) {
-  1 - (threshold / 10) + rounding_tolerance
+  1 - (threshold / 10) + ROUNDING_TOLERANCE
 }
 
-
-# The `"ties_*"` rounding strings each name a complete tie-breaking procedure,
-# so one of them says by itself what `rounding` plus `symmetric` says together.
-# `reround()` and `rounding_offsets()` both resolve them through this one table,
-# so the forward functions and the bounds can't come to disagree about what a
-# name means.
-#
-# `symmetric` is deliberately not consulted for them. The procedure is already
-# fully determined by the name, and a `"ties_away"` that a separate argument
-# could turn into something else would defeat the point of naming it.
-
-# fmt: skip
-ties_methods <- list(
-  ties_up   = list(rounding = "up",   symmetric = FALSE),  # toward +Inf
-  ties_down = list(rounding = "down", symmetric = FALSE),  # toward -Inf
-  ties_away = list(rounding = "up",   symmetric = TRUE),   # roundTiesToAway
-  ties_zero = list(rounding = "down", symmetric = TRUE)    # toward zero
-)
 
 # The two procedures that a compound rounding method is made of, or the method
 # itself if it is not a compound one. `reround()` returns one value per input
@@ -1763,7 +1758,7 @@ check_rounding_spec_singular <- function(rounding, threshold, symmetric) {
 resolve_ties_rounding <- function(rounding, symmetric) {
   # `[[` on a list matches exactly, so a `rounding` of "up" is not caught by
   # "ties_up" here:
-  spec <- ties_methods[[rounding]]
+  spec <- TIES_METHODS[[rounding]]
   if (is.null(spec)) {
     list(rounding = rounding, symmetric = symmetric)
   } else {

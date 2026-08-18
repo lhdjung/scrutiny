@@ -138,7 +138,7 @@ test_that("`unround()` bounds agree with the rounding they invert (sweep)", {
   for (digits in c(0L, 1L, 2L)) {
     unit <- 10^-digits
     # A grid step is `unit`, and the bounds sit on the `unit / 10` grid, so this
-    # is far below any bound spacing and far above `rounding_tolerance`:
+    # is far below any bound spacing and far above `ROUNDING_TOLERANCE`:
     eps <- unit / 1000
 
     for (x_num in c(0, 1, -1, 3, -3, 253, -253) * unit) {

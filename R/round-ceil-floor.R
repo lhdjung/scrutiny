@@ -79,7 +79,7 @@
 #' round_anti_trunc(x = 8.421, digits = 2)    # 1 cut off
 #' round_anti_trunc(x = -8.421, digits = 2)   # 1 cut off
 
-# The functions below nudge the shifted value by `rounding_tolerance` (see
+# The functions below nudge the shifted value by `ROUNDING_TOLERANCE` (see
 # utils.R) before rounding it, so that floating-point representation error
 # cannot move a number a whole step.
 
@@ -90,7 +90,7 @@
 
 round_ceiling <- function(x, digits = 0L) {
   p10 <- 10^digits
-  ceiling(x * p10 - rounding_tolerance) / p10
+  ceiling(x * p10 - ROUNDING_TOLERANCE) / p10
 }
 
 
@@ -101,7 +101,7 @@ round_ceiling <- function(x, digits = 0L) {
 
 round_floor <- function(x, digits = 0L) {
   p10 <- 10^digits
-  floor(x * p10 + rounding_tolerance) / p10
+  floor(x * p10 + ROUNDING_TOLERANCE) / p10
 }
 
 
@@ -116,7 +116,7 @@ round_trunc <- function(x, digits = 0L) {
   # For symmetry between positive and negative numbers, use the absolute value.
   # Truncation rounds toward zero, so the tolerance is added, just as in
   # `round_floor()`:
-  core <- trunc(abs(x) * p10 + rounding_tolerance) / p10
+  core <- trunc(abs(x) * p10 + ROUNDING_TOLERANCE) / p10
 
   # If `x` is negative, its truncated version should be negative or zero:
   restore_sign(core, x)
@@ -133,7 +133,7 @@ anti_trunc <- function(x) {
   # The tolerance is subtracted, just as in `round_ceiling()`: an `x` which is
   # only just above a whole number by representation error should still count as
   # that number rather than be taken a whole step further out.
-  core <- ceiling(abs(x) - rounding_tolerance)
+  core <- ceiling(abs(x) - ROUNDING_TOLERANCE)
 
   # Up to scrutiny 1.0.0 this was `trunc(abs(x)) + 1`, which moves a value one
   # step away from zero even when it already sits on a whole number, so

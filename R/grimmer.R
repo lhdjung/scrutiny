@@ -209,6 +209,17 @@ grimmer_scalar <- function(
     return(NA)
   }
 
+  # An infinity is undecidable for its own reason: no data set has an infinite
+  # mean or SD, and an infinity has no decimal places to be reported with, which
+  # is why `decimal_places()` returns `NA` for it. It used to abort from inside
+  # `check_newly_numeric()` with "missing value where TRUE/FALSE needed".
+  if (is.infinite(x) || is.infinite(sd)) {
+    if (show_reason) {
+      return(list(NA, "Infinite value"))
+    }
+    return(NA)
+  }
+
   # With the scale's bounds known, a mean outside of them is inconsistent
   # before any reconstruction: no set of values within the range has it.
   if (has_scale && (x < min_val || x > max_val)) {

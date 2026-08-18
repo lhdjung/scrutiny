@@ -221,7 +221,7 @@ test_that("`round_ceiling()` and `round_floor()` are exact at whole steps", {
 })
 
 test_that("all rounding functions share the same tolerance", {
-  # `round_up_from()` and `round_down_from()` fold `rounding_tolerance` into
+  # `round_up_from()` and `round_down_from()` fold `ROUNDING_TOLERANCE` into
   # `tie_offset()`, the others add or subtract it directly. The equality was
   # implicit until scrutiny 1.0.0, when the `*_from()` functions expressed it as
   # `threshold - .Machine$double.eps^0.5` instead -- which the `/ 10` in the

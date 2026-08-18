@@ -72,8 +72,12 @@ grim_scalar <- function(
   # would be reported as `x`. A fractional or non-positive `n` or `items`
   # describes no such data set, so there is nothing to be consistent with, and
   # the case is undecidable rather than inconsistent. It used to get a verdict:
-  # `grim(x = 5.19, n = 20.5, digits_x = 2)` was `FALSE`.
-  if (!is_decidable_n_items(n, items)) {
+  # `grim(x = 5.19, n = 20.5, digits_x = 2)` was `FALSE`. An infinite `x` is
+  # undecidable for the same reason -- no data set has an infinite mean, and it
+  # has no decimal places to be reported with, which is why `decimal_places()`
+  # returns `NA` for it. It used to make the sum range infinitely wide, so that
+  # `grim(x = Inf, n = 20, digits_x = 2)` was `TRUE`.
+  if (!is_decidable_n_items(n, items) || is.infinite(x_num)) {
     if (!show_rec) {
       return(NA)
     }
