@@ -30,7 +30,7 @@ test_that("`dispersion` must consist of whole numbers", {
   # `n_change` used to be truncated toward zero by `as.integer()`, so a
   # fractional step left `n` and `n_change` describing different things.
   disperse(n = 10, dispersion = c(0.5, 1.5)) |> expect_error("whole numbers")
-  disperse(n = 10, dispersion = 1.5) |> expect_error("whole numbers")
+  disperse(n = 10, dispersion = 1.5)         |> expect_error("whole numbers")
 })
 
 test_that("`n` and `n_change` agree", {
@@ -44,11 +44,11 @@ test_that("`n` is integer, as it is in the mappers", {
   # The dispersion helpers that feed them, and the reverse function that reads
   # their output back, returned doubles -- so the column changed type on the
   # way in and back out again.
-  disperse(20)$n |> expect_type("integer")
+  disperse(20)$n         |> expect_type("integer")
   disperse2(c(25, 26))$n |> expect_type("integer")
-  disperse_total(40)$n |> expect_type("integer")
-  disperse_total(51)$n |> expect_type("integer")
-  disperse(20)$n_change |> expect_type("integer")
+  disperse_total(40)$n   |> expect_type("integer")
+  disperse_total(51)$n   |> expect_type("integer")
+  disperse(20)$n_change  |> expect_type("integer")
 
   reverse_map_total_n(
     grim_map_total_n(tibble::tibble(x1 = 4.52, x2 = 5.23, n = 40L),

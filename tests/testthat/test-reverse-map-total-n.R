@@ -1,3 +1,4 @@
+# fmt: skip
 df1 <- tibble::tribble(
   ~x1  , ~x2  , ~n  ,
   3.43 , 5.28 ,  90 ,
@@ -18,6 +19,6 @@ df2_rec <- reverse_map_total_n(df2_tested)
 
 
 test_that("The reconstructed data frames are identical to the original ones", {
-  expect_equal(df1, df1_rec)
-  expect_equal(df2, df2_rec)
+  df1 |> expect_equal(df1_rec)
+  df2 |> expect_equal(df2_rec)
 })

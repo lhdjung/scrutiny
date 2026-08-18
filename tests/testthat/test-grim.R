@@ -1,14 +1,14 @@
 test_that("`digits_x` missing leads to failure", {
   # `suppressMessages()` mutes the changelog hint that `error_digits_missing()`
   # prints via `on.exit()` as it unwinds:
-  expect_error(suppressMessages(grim(2.65, 30)))
-  expect_error(suppressMessages(grim(924, 0)))
+  2.65 |> grim(30) |> suppressMessages() |> expect_error()
+  924  |> grim(0)  |> suppressMessages() |> expect_error()
 })
 
 
 test_that("Return values are Boolean", {
-  expect_type(grim(5.19, 28, digits_x = 2), "logical")
-  expect_type(grim(0.00, 100, digits_x = 2), "logical")
+  5.19 |> grim(28, digits_x = 2)  |> expect_type("logical")
+  0.00 |> grim(100, digits_x = 2) |> expect_type("logical")
 })
 
 
@@ -80,7 +80,7 @@ vec <- as.numeric(seq_endpoint(5, 5.99))
 
 
 test_that("The number of outputs matches the number of inputs", {
-  expect_length(grim(vec, 28, digits_x = 2), length(vec))
+  vec |> grim(28, digits_x = 2) |> expect_length(length(vec))
 })
 
 
@@ -95,7 +95,7 @@ x <- rnorm(x_length, 50, 20) |>
 
 
 test_that("There are as many outputs as inputs", {
-  grim(x, 50, digits_x = 2) |> expect_length(x_length)
+  x |> grim(50, digits_x = 2) |> expect_length(x_length)
 })
 
 
@@ -109,27 +109,27 @@ test_that("There are as many outputs as inputs", {
 
 test_that("granules exactly on the exclusive `\"up\"` bound are rejected", {
   # 3 / 40 is 0.075, which rounds up to 0.08, not to 0.07:
-  expect_false(grim(x = 0.07, n = 40, digits_x = 2, rounding = "up"))
-  expect_false(grim(x = 0.17, n = 40, digits_x = 2, rounding = "up"))
-  expect_false(grim(x = 0.07, n = 80, digits_x = 2, rounding = "up"))
+  0.07 |> grim(n = 40, digits_x = 2, rounding = "up") |> expect_false()
+  0.17 |> grim(n = 40, digits_x = 2, rounding = "up") |> expect_false()
+  0.07 |> grim(n = 80, digits_x = 2, rounding = "up") |> expect_false()
   # Mirrored case with a negative mean:
-  expect_false(grim(x = -0.03, n = 40, digits_x = 2, rounding = "up"))
-  expect_false(grim(x = -0.03, n = 80, digits_x = 2, rounding = "up"))
+  -0.03 |> grim(n = 40, digits_x = 2, rounding = "up") |> expect_false()
+  -0.03 |> grim(n = 80, digits_x = 2, rounding = "up") |> expect_false()
   # Three-decimal variant: 47 / 400 is 0.1175, which rounds up to 0.118:
-  expect_false(grim(x = 0.117, n = 400, digits_x = 3, rounding = "up"))
-  expect_false(grim(x = 0.117, n = 800, digits_x = 3, rounding = "up"))
+  0.117 |> grim(n = 400, digits_x = 3, rounding = "up") |> expect_false()
+  0.117 |> grim(n = 800, digits_x = 3, rounding = "up") |> expect_false()
 })
 
 
 test_that("granules exactly on an inclusive bound are accepted", {
   # The same granules as above, but now with rounding methods for which the
   # bound they sit on is inclusive:
-  expect_true(grim(x = 0.07, n = 40, digits_x = 2, rounding = "up_or_down"))
+  0.07 |> grim(n = 40, digits_x = 2, rounding = "up_or_down") |> expect_true()
   # Under `"down"` it is the *lower* bound that is exclusive, so the granule
   # 3 / 40 = 0.075 now sits on the inclusive upper bound of 0.07:
-  expect_true(grim(x = 0.07, n = 40, digits_x = 2, rounding = "down"))
-  expect_true(grim(x = -0.03, n = 40, digits_x = 2, rounding = "up_or_down"))
-  expect_true(grim(x = 0.117, n = 400, digits_x = 3, rounding = "up_or_down"))
+  0.07 |> grim(n = 40, digits_x = 2, rounding = "down") |> expect_true()
+  -0.03 |> grim(n = 40, digits_x = 2, rounding = "up_or_down") |> expect_true()
+  0.117 |> grim(n = 400, digits_x = 3, rounding = "up_or_down") |> expect_true()
 })
 
 
@@ -172,24 +172,16 @@ test_that("`symmetric` is honored by the consistency decision", {
   # exactly on a rounding bound. Without `symmetric`, `round_up()` shifts it
   # towards `+Inf` and it becomes -0.07; with `symmetric`, it mirrors the
   # rounding of 0.075 and becomes -0.08 instead.
-  expect_equal(round_up(-0.075, 2, symmetric = FALSE), -0.07)
-  expect_equal(round_up(-0.075, 2, symmetric = TRUE), -0.08)
+  -0.075 |> round_up(2, symmetric = FALSE) |> expect_equal(-0.07)
+  -0.075 |> round_up(2, symmetric = TRUE)  |> expect_equal(-0.08)
 
-  expect_true(
-    grim(-0.07, n = 40, digits_x = 2, rounding = "up", symmetric = FALSE)
-  )
-  expect_false(
-    grim(-0.07, n = 40, digits_x = 2, rounding = "up", symmetric = TRUE)
-  )
+  -0.07 |> grim(n = 40, digits_x = 2, rounding = "up", symmetric = FALSE) |> expect_true()
+  -0.07 |> grim(n = 40, digits_x = 2, rounding = "up", symmetric = TRUE)  |> expect_false()
 
   # Mirrored the other way around: with `symmetric`, `"down"` is what keeps
   # -0.075 at -0.07.
-  expect_false(
-    grim(-0.07, n = 40, digits_x = 2, rounding = "down", symmetric = FALSE)
-  )
-  expect_true(
-    grim(-0.07, n = 40, digits_x = 2, rounding = "down", symmetric = TRUE)
-  )
+  -0.07 |> grim(n = 40, digits_x = 2, rounding = "down", symmetric = FALSE) |> expect_false()
+  -0.07 |> grim(n = 40, digits_x = 2, rounding = "down", symmetric = TRUE)  |> expect_true()
 
   # Positive values are unaffected:
   for (rounding in c("up", "down", "up_or_down")) {
@@ -264,34 +256,30 @@ test_that("`grim(tolerance = )` is deprecated", {
   # GRIM compares exact integers, so the argument never had an effect on its
   # results. It was kept "because `grimmer()` and `debit()` inherit it and do
   # use it" -- but `debit()` never had it.
-  lifecycle::expect_deprecated(grim(x = 5.19, n = 28, digits_x = 2,
-                                    tolerance = 1e-6))
+  5.19 |> grim(n = 28, digits_x = 2, tolerance = 1e-6) |> lifecycle::expect_deprecated()
   # The mapper reaches `grim_scalar()` once per row, and testthat sets
   # lifecycle's verbosity so that every one of those warns rather than only the
   # first; the outer `suppressWarnings()` mops up the repeats:
-  suppressWarnings(
-    expect_warning(
-      grim_map(pigs1, digits_x = 2, tolerance = 1e-6),
-      "deprecated"
-    )
-  )
+  pigs1 |>
+    grim_map(digits_x = 2, tolerance = 1e-6) |>
+    expect_warning("deprecated") |>
+    suppressWarnings()
 
   # The verdict is the same either way:
-  suppressWarnings(
-    grim(x = 5.19, n = 28, digits_x = 2, tolerance = 1e-6)
-  ) |>
+  5.19 |>
+    grim(n = 28, digits_x = 2, tolerance = 1e-6) |>
+    suppressWarnings() |>
     expect_equal(grim(x = 5.19, n = 28, digits_x = 2))
 
   # Not specifying it is silent, and `grimmer()` -- which calls `grim_scalar()`
   # internally and does use a tolerance of its own -- must not trip it either:
-  expect_no_condition(grim(x = 5.19, n = 28, digits_x = 2))
-  expect_no_condition(
-    grimmer(x = 5.19, sd = 0.5, n = 28, digits_x = 2, digits_sd = 2)
-  )
-  expect_no_condition(
-    grimmer(x = 5.19, sd = 0.5, n = 28, digits_x = 2, digits_sd = 2,
-            tolerance = 1e-6)
-  )
+  5.19 |> grim(n = 28, digits_x = 2) |> expect_no_condition()
+  5.19 |>
+    grimmer(sd = 0.5, n = 28, digits_x = 2, digits_sd = 2) |>
+    expect_no_condition()
+  5.19 |>
+    grimmer(sd = 0.5, n = 28, digits_x = 2, digits_sd = 2, tolerance = 1e-6) |>
+    expect_no_condition()
 
   # `debit()` has no such argument at all:
   expect_false("tolerance" %in% names(formals(debit)))

@@ -72,6 +72,7 @@ oracle_verdicts <- function(
   symmetric
 ) {
   sums <- seq(lower - 1L, upper + 1L)
+
   admissible <- sums_round_back(
     sums,
     x_num,
@@ -81,6 +82,7 @@ oracle_verdicts <- function(
     threshold,
     symmetric
   )
+
   expected <- c(FALSE, rep(TRUE, max(0L, upper - lower + 1L)), FALSE)
   identical(admissible, expected)
 }
@@ -94,7 +96,9 @@ grim_oracle_grid <- function() {
     "up_or_down", "up", "down", "ceiling", "floor", "ceiling_or_floor",
     "trunc", "anti_trunc", "ties_up", "ties_down", "ties_away", "ties_zero"
   )
+
   methods_threshold <- c("up_from", "down_from", "up_from_or_down_from")
+
   rbind(
     expand.grid(
       rounding = methods_fixed,
@@ -134,16 +138,16 @@ test_grim_oracle <- function(x, n, digits_x, items, percent, symmetric) {
       ", symmetric = ", symmetric
     )
 
-    out <- grim_map(
-      data,
-      digits_x = digits_x,
-      items = items,
-      percent = percent,
-      rounding = rounding,
-      threshold = threshold,
-      symmetric = symmetric,
-      show_rec = TRUE
-    ) |>
+    out <- data |>
+      grim_map(
+        digits_x = digits_x,
+        items = items,
+        percent = percent,
+        rounding = rounding,
+        threshold = threshold,
+        symmetric = symmetric,
+        show_rec = TRUE
+      ) |>
       suppressMessages()
 
     values <- grim_values(
@@ -172,94 +176,103 @@ test_grim_oracle <- function(x, n, digits_x, items, percent, symmetric) {
     consistency <- lower <= upper
 
     # THE ORACLE: the displayed range is exactly the range of admissible sums.
-    agrees <- vapply(
-      seq_len(nrow(out)),
-      function(j) {
-        oracle_verdicts(
-          lower = lower[j],
-          upper = upper[j],
-          x_num = x_num[j],
-          n_items = n_items[j],
-          digits = digits_num,
-          rounding = rounding,
-          threshold = threshold,
-          symmetric = symmetric
-        )
-      },
-      logical(1L)
-    )
-    expect_true(
-      all(agrees),
-      info = paste0(
-        info,
-        " -- rows: ",
-        toString(
-          which(!agrees)
-        )
+    agrees <- out |>
+      nrow() |>
+      seq_len() |>
+      vapply(
+        function(j) {
+          oracle_verdicts(
+            lower = lower[j],
+            upper = upper[j],
+            x_num = x_num[j],
+            n_items = n_items[j],
+            digits = digits_num,
+            rounding = rounding,
+            threshold = threshold,
+            symmetric = symmetric
+          )
+        },
+        logical(1L)
       )
-    )
+
+    # Now test
+    agrees |>
+      all() |>
+      expect_true(
+        info = paste0(info, " -- rows: ", toString(which(!agrees)))
+      )
 
     # The verdict is that range being non-empty, and nothing else:
-    expect_equal(out$consistency, consistency, info = info)
+    out$consistency |> expect_equal(consistency, info = info)
 
     # An empty range is empty by exactly one: `sum_lower` and `sum_upper` are
     # then the whole numbers straddling `rec_sum`. This is what keeps the gap
     # from meaning anything beyond inconsistency itself:
-    expect_true(
-      all(lower[!consistency] - upper[!consistency] == 1),
-      info = info
-    )
+    (lower[!consistency] - upper[!consistency] == 1) |>
+      all() |>
+      expect_true(info = info)
 
     # `rec_sum` is a sum of the underlying data, so `percent` leaves it alone;
     # the granules are read against `x`, so they follow its scale:
-    expect_equal(out$rec_sum, x_num * n_items, info = info)
-    expect_equal(
-      out$rec_x_lower,
-      floor(x_num * n_items + 1e-9) * scale_x / n_items,
-      info = info
-    )
-    expect_equal(
-      out$rec_x_upper,
-      ceiling(x_num * n_items - 1e-9) * scale_x / n_items,
-      info = info
-    )
+    out$rec_sum |> expect_equal(x_num * n_items, info = info)
+    out$rec_x_lower |>
+      expect_equal(
+        floor(x_num * n_items + 1e-9) * scale_x / n_items,
+        info = info
+      )
+    out$rec_x_upper |>
+      expect_equal(
+        ceiling(x_num * n_items - 1e-9) * scale_x / n_items,
+        info = info
+      )
 
     # Every achievable mean is one of the admissible sums divided by `n *
     # items`, and there are none at all if the value set is inconsistent:
-    achievable <- lapply(seq_len(nrow(out)), function(j) {
-      if (consistency[j]) {
-        seq(lower[j], upper[j]) * scale_x / n_items[j]
-      } else {
-        numeric(0L)
-      }
-    })
-    expect_equal(values, achievable, info = info)
+    achievable <- out |>
+      nrow() |>
+      seq_len() |>
+      lapply(function(j) {
+        if (consistency[j]) {
+          seq(lower[j], upper[j]) * scale_x / n_items[j]
+        } else {
+          numeric(0L)
+        }
+      })
+
+    values |>
+      expect_equal(achievable, info = info)
 
     # `grim_closest()` is one of the achievable means -- or, for an inconsistent
     # value set, one of the two straddling it -- and no other one is closer to
     # `x`:
-    reachable <- lapply(seq_len(nrow(out)), function(j) {
-      if (consistency[j]) {
-        achievable[[j]]
-      } else {
-        c(upper[j], lower[j]) * scale_x / n_items[j]
-      }
-    })
-    is_reachable <- purrr::map2_lgl(
-      reachable,
-      closest,
-      function(values_j, closest_j) any(abs(values_j - closest_j) < 1e-9)
-    )
-    expect_true(all(is_reachable), info = info)
-    expect_equal(
-      abs(closest - x),
+    reachable <- out |>
+      nrow() |>
+      seq_len() |>
+      lapply(function(j) {
+        if (consistency[j]) {
+          achievable[[j]]
+        } else {
+          c(upper[j], lower[j]) * scale_x / n_items[j]
+        }
+      })
+
+    is_reachable <- reachable |>
+      purrr::map2_lgl(
+        closest,
+        function(values_j, closest_j) any(abs(values_j - closest_j) < 1e-9)
+      )
+
+    is_reachable |>
+      all() |>
+      expect_true(info = info)
+
+    reachable |>
+      seq_along() |>
       vapply(
-        seq_along(reachable),
         function(j) min(abs(reachable[[j]] - x[j])),
         numeric(1L)
-      ),
-      info = info
-    )
+      ) |>
+      expect_equal(abs(closest - x), info = info)
   }
 }
 
@@ -356,26 +369,28 @@ test_that("`\"even\"` is never too strict, only ever too permissive", {
       # Every candidate sum total around `x * n`, asked of `base::round()`
       # itself through `reround()` rather than of the offsets table:
       sums <- seq(floor(grid$x[i] * grid$n[i]) - 3L, ceiling(grid$x[i] * grid$n[i]) + 3L)
-      reachable <- any(sums_round_back(
-        sums,
-        x_num = grid$x[i],
-        n_items = grid$n[i],
-        digits = digits_x,
-        rounding = "even",
-        threshold = 5,
-        symmetric = FALSE
-      ))
+      reachable <- sums |>
+        sums_round_back(
+          x_num = grid$x[i],
+          n_items = grid$n[i],
+          digits = digits_x,
+          rounding = "even",
+          threshold = 5,
+          symmetric = FALSE
+        ) |>
+        any()
 
       if (reachable) {
         n_reachable <- n_reachable + 1L
         # The direction that matters: no false negatives, ever.
-        expect_true(
-          isTRUE(verdict[[i]]),
-          label = paste0(
-            "x = ", grid$x[i], ", n = ", grid$n[i], ", digits_x = ", digits_x,
-            " is reachable but GRIM says ", verdict[[i]]
+        verdict[[i]] |>
+          isTRUE() |>
+          expect_true(
+            label = paste0(
+              "x = ", grid$x[i], ", n = ", grid$n[i], ", digits_x = ", digits_x,
+              " is reachable but GRIM says ", verdict[[i]]
+            )
           )
-        )
       } else if (isTRUE(verdict[[i]])) {
         n_permissive <- n_permissive + 1L
       }

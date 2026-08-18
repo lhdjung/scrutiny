@@ -53,7 +53,7 @@ inherits_from_scrutiny_ns <- function(fn) {
 
 test_that("factory-made functions are enclosed in scrutiny's namespace", {
   for (fn in fns_factory_made) {
-    expect_true(inherits_from_scrutiny_ns(fn))
+    fn |> inherits_from_scrutiny_ns() |> expect_true()
   }
 })
 
@@ -69,15 +69,14 @@ test_that("factory-made functions work outside of scrutiny's scope", {
   assign("df1", tibble::tibble(y = 16:25, n = 3:12), envir = foreign)
   assign("df2", tibble::tibble(y1 = 16:18, y2 = 26:28, n = 12:14), envir = foreign)
 
-  expect_no_error(evalq(map(df1), envir = foreign))
-  expect_no_error(evalq(map_seq(df1, dispersion = 1:2), envir = foreign))
-  expect_no_error(evalq(map_total_n(df2, dispersion = 1:2), envir = foreign))
+  # Not aligning pipes here because the lengths are too different
+  evalq(map(df1), envir = foreign) |> expect_no_error()
+  evalq(map_seq(df1, dispersion = 1:2), envir = foreign) |> expect_no_error()
+  evalq(map_total_n(df2, dispersion = 1:2), envir = foreign) |> expect_no_error()
 
   # The results must be the same as when called from within scrutiny's scope:
-  expect_equal(
-    evalq(map(df1), envir = foreign),
-    fns_factory_made$map(tibble::tibble(y = 16:25, n = 3:12))
-  )
+  evalq(map(df1), envir = foreign) |>
+    expect_equal(fns_factory_made$map(tibble::tibble(y = 16:25, n = 3:12)))
 })
 
 
@@ -105,7 +104,7 @@ test_that("`*_map_seq()` only adds `digits_*` columns its mapper accepts", {
 
   # The mapper has no `digits_y` argument, so there must be no such column:
   expect_false(any(grepl("^digits_", colnames(out))))
-  expect_no_error(audit_seq(out))
+  out |> audit_seq() |> expect_no_error()
 
   # The real mappers do have them, and must keep their columns:
   expect_true(
@@ -141,8 +140,8 @@ test_that("`audit_seq()` finds the mapper in the environment it was called from"
     audit_seq(out)
   }
 
-  expect_false(exists("schlim_map", envir = globalenv(), inherits = FALSE))
-  expect_no_error(make_out_seq())
+  "schlim_map" |> exists(envir = globalenv(), inherits = FALSE) |> expect_false()
+  make_out_seq() |> expect_no_error()
 })
 
 
@@ -154,10 +153,8 @@ test_that("`audit_seq()` finds scrutiny's own mappers from a foreign caller", {
   assign("audit_seq", audit_seq, envir = foreign)
   assign("out", grim_map_seq(pigs1, digits_x = 2), envir = foreign)
 
-  expect_equal(
-    evalq(audit_seq(out), envir = foreign),
-    audit_seq(grim_map_seq(pigs1, digits_x = 2))
-  )
+  evalq(audit_seq(out), envir = foreign) |>
+    expect_equal(audit_seq(grim_map_seq(pigs1, digits_x = 2)))
 })
 
 
@@ -165,5 +162,5 @@ test_that("`audit_seq()` errors informatively if the mapper can't be found", {
   out <- grim_map_seq(pigs1, digits_x = 2)
   class(out)[class(out) == "scrutiny_grim_map"] <- "scrutiny_nonexistent_map"
 
-  expect_error(audit_seq(out), "Can't find the function `nonexistent_map\\(\\)`")
+  out |> audit_seq() |> expect_error("Can't find the function `nonexistent_map\\(\\)`")
 })

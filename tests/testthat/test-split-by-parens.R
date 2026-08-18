@@ -1,4 +1,5 @@
 # Example data:
+# fmt: skip
 pigs <- tibble::tribble(
   ~drone        , ~selfpilot    ,
   "0.09 (0.21)" , "0.19 (0.13)" ,

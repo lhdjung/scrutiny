@@ -38,15 +38,15 @@ rounding_methods <- c(
 
 test_that("`debit()` accepts every rounding method that `grim()` accepts", {
   for (r in rounding_methods) {
-    debit(
-      x = 0.53,
-      sd = 0.50,
-      n = 1683,
-      digits_x = 2,
-      digits_sd = 2,
-      rounding = r,
-      threshold = 6
-    ) |>
+      debit(
+        x = 0.53,
+        sd = 0.50,
+        n = 1683,
+        digits_x = 2,
+        digits_sd = 2,
+        rounding = r,
+        threshold = 6
+      ) |>
       expect_type("logical")
   }
 })
@@ -82,15 +82,15 @@ test_that("`symmetric` is taken into account", {
   # `debit_scalar()` reconstructs the bounds under the same assumption that it
   # re-rounds with. It used to unround asymmetrically and re-round
   # symmetrically, because the old `unround()` had no `symmetric` argument.
-  debit(
-    x = 0.53,
-    sd = 0.50,
-    n = 1683,
-    digits_x = 2,
-    digits_sd = 2,
-    rounding = "up",
-    symmetric = TRUE
-  ) |>
+    debit(
+      x = 0.53,
+      sd = 0.50,
+      n = 1683,
+      digits_x = 2,
+      digits_sd = 2,
+      rounding = "up",
+      symmetric = TRUE
+    ) |>
     expect_type("logical")
 })
 
@@ -121,31 +121,15 @@ test_that("`debit()` returns `NA` where the bounds are undefined", {
   # A missing value has no bounds to derive. (This used to be tested with
   # `rounding = "anti_trunc"` at a mean of zero, which had no bounds either
   # until `anti_trunc()` stopped sending zero away from zero.)
-  debit(
-    x = NA,
-    sd = 0.50,
-    n = 1683,
-    digits_x = 2,
-    digits_sd = 2
-  ) |>
-    expect_na()
+  NA |> debit(sd = 0.50, n = 1683, digits_x = 2, digits_sd = 2) |> expect_na()
 
-  debit(
-    x = 0.30,
-    sd = NA,
-    n = 1683,
-    digits_x = 2,
-    digits_sd = 2
-  ) |>
-    expect_na()
+  0.30 |> debit(sd = NA, n = 1683, digits_x = 2, digits_sd = 2) |> expect_na()
 })
 
 
 test_that("`debit()` still checks the range of its inputs", {
-  debit(x = 1.5, sd = 0.5, n = 100, digits_x = 2, digits_sd = 2) |>
-    expect_error()
-  debit(x = 0.5, sd = 1.5, n = 100, digits_x = 2, digits_sd = 2) |>
-    expect_error()
+  1.5 |> debit(sd = 0.5, n = 100, digits_x = 2, digits_sd = 2) |> expect_error()
+  0.5 |> debit(sd = 1.5, n = 100, digits_x = 2, digits_sd = 2) |> expect_error()
 })
 
 
@@ -158,16 +142,16 @@ test_that("`debit()` still checks the range of its inputs", {
 # SD is 0 either way.
 
 test_that("DEBIT decides means of exactly 0 and 1", {
-  debit(x = 0, sd = 0, n = 50, digits_x = 2, digits_sd = 2) |> expect_true()
-  debit(x = 1, sd = 0, n = 50, digits_x = 2, digits_sd = 2) |> expect_true()
-  debit(x = 0, sd = 0, n = 5, digits_x = 3, digits_sd = 3) |> expect_true()
-  debit(x = 1, sd = 0, n = 5, digits_x = 3, digits_sd = 3) |> expect_true()
+  0 |> debit(sd = 0, n = 50, digits_x = 2, digits_sd = 2) |> expect_true()
+  1 |> debit(sd = 0, n = 50, digits_x = 2, digits_sd = 2) |> expect_true()
+  0 |> debit(sd = 0, n = 5, digits_x = 3, digits_sd = 3)  |> expect_true()
+  1 |> debit(sd = 0, n = 5, digits_x = 3, digits_sd = 3)  |> expect_true()
 })
 
 
 test_that("DEBIT still rejects impossible SDs at those means", {
-  debit(x = 0, sd = 0.5, n = 50, digits_x = 2, digits_sd = 2) |> expect_false()
-  debit(x = 1, sd = 0.5, n = 50, digits_x = 2, digits_sd = 2) |> expect_false()
+  0 |> debit(sd = 0.5, n = 50, digits_x = 2, digits_sd = 2) |> expect_false()
+  1 |> debit(sd = 0.5, n = 50, digits_x = 2, digits_sd = 2) |> expect_false()
 })
 
 
@@ -244,8 +228,7 @@ test_that("DEBIT never rejects a real binary sample", {
 test_that("DEBIT accepts real binary data with a mean reported as 0.50", {
   # 50 ones and 50 zeros: mean 0.5, SD 0.5025189, i.e. 0.503 at three decimal
   # places. There is nothing wrong with this data set.
-  debit(x = 0.50, sd = 0.503, n = 100, digits_x = 2, digits_sd = 3) |>
-    expect_true()
+  0.50 |> debit(sd = 0.503, n = 100, digits_x = 2, digits_sd = 3) |> expect_true()
 })
 
 test_that("DEBIT accepts every real binary data set reported as a mean of 0.50", {
@@ -274,8 +257,10 @@ test_that("DEBIT accepts every real binary data set reported as a mean of 0.50",
 })
 
 test_that("`formula` other than \"mean_n\" is an error, not a missing argument", {
-  debit(0.35, 0.48, 100, digits_x = 2, digits_sd = 2, formula = "0_n") |>
+  0.35 |>
+    debit(0.48, 100, digits_x = 2, digits_sd = 2, formula = "0_n") |>
     expect_error("must be \"mean_n\"")
-  debit(0.35, 0.48, 100, digits_x = 2, digits_sd = 2, formula = "groups") |>
+  0.35 |>
+    debit(0.48, 100, digits_x = 2, digits_sd = 2, formula = "groups") |>
     expect_error("must be \"mean_n\"")
 })

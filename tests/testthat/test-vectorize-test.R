@@ -33,13 +33,13 @@ test_that("the internal-only arguments are gone from the exported functions", {
   expect_false("show_reason" %in% names(formals(grimmer)))
   expect_false("show_rec" %in% names(formals(debit)))
 
-  expect_error(grim(x = 5.19, n = 28, digits_x = 2, show_rec = TRUE))
-  expect_error(debit(
-    x = 0.36, sd = 0.11, n = 20, digits_x = 2, digits_sd = 2, show_rec = TRUE
-  ))
-  expect_error(grimmer(
-    x = 5.23, sd = 2.55, n = 31, digits_x = 2, digits_sd = 2, show_reason = TRUE
-  ))
+  5.19 |> grim(n = 28, digits_x = 2, show_rec = TRUE) |> expect_error()
+  0.36 |>
+    debit(sd = 0.11, n = 20, digits_x = 2, digits_sd = 2, show_rec = TRUE) |>
+    expect_error()
+  5.23 |>
+    grimmer(sd = 2.55, n = 31, digits_x = 2, digits_sd = 2, show_reason = TRUE) |>
+    expect_error()
 
   # The mapper tier still has them, under its own defaults:
   expect_true("show_rec" %in% names(formals(grim_map)))
@@ -102,30 +102,20 @@ test_that("a length that cannot be recycled is an error", {
   # length was not a multiple of the shorter one. So `grim()` paired the third
   # `x` with the first `n` and reported a verdict for a value set that the
   # caller never wrote down:
-  expect_error(
-    grim(x = c(5.19, 5.18, 5.17), n = c(28, 32), digits_x = 2),
-    "recycle"
-  )
-  expect_error(
-    grimmer(
-      x = c(5.23, 5.23, 5.23), sd = c(2.55, 2.55), n = 31,
-      digits_x = 2, digits_sd = 2
-    ),
-    "recycle"
-  )
-  expect_error(
-    debit(
-      x = c(0.36, 0.36, 0.36), sd = c(0.11, 0.11), n = 20,
-      digits_x = 2, digits_sd = 2
-    ),
-    "recycle"
-  )
+  c(5.19, 5.18, 5.17) |>
+    grim(n = c(28, 32), digits_x = 2) |>
+    expect_error("recycle")
+  c(5.23, 5.23, 5.23) |>
+    grimmer(sd = c(2.55, 2.55), n = 31, digits_x = 2, digits_sd = 2) |>
+    expect_error("recycle")
+  c(0.36, 0.36, 0.36) |>
+    debit(sd = c(0.11, 0.11), n = 20, digits_x = 2, digits_sd = 2) |>
+    expect_error("recycle")
 
   # A multiple is no better than any other mismatch:
-  expect_error(
-    grim(x = c(5.19, 5.18, 5.17, 5.16), n = c(28, 32), digits_x = 2),
-    "recycle"
-  )
+  c(5.19, 5.18, 5.17, 5.16) |>
+    grim(n = c(28, 32), digits_x = 2) |>
+    expect_error("recycle")
 })
 
 
@@ -166,10 +156,9 @@ test_that("arguments that describe the test as a whole must be length 1", {
   }
 
   # The error says which arguments *are* vectorized, and points at the mapper:
-  expect_error(
-    grim(x = 5.19, n = 28, digits_x = 2, rounding = c("up", "down")),
-    "grim_map"
-  )
+  5.19 |>
+    grim(n = 28, digits_x = 2, rounding = c("up", "down")) |>
+    expect_error("grim_map")
 })
 
 
@@ -190,21 +179,18 @@ test_that("a missing `digits_*` argument still gets the bespoke error", {
   # `digits_*` argument reaches the `*_scalar()` function as missing and
   # `error_digits_missing()` fires. Passing along a value that R invented would
   # produce a verdict for decimal places nobody stated.
-  expect_error(suppressMessages(grim(x = 5.19, n = 28)), "digits_x")
-  expect_error(
-    suppressMessages(grimmer(x = 5.23, sd = 2.55, n = 31, digits_x = 2)),
-    "digits_sd"
-  )
-  expect_error(
-    suppressMessages(debit(x = 0.36, sd = 0.11, n = 20)),
-    "digits_x"
-  )
+  5.19 |> grim(n = 28) |> suppressMessages() |> expect_error("digits_x")
+  5.23 |>
+    grimmer(sd = 2.55, n = 31, digits_x = 2) |>
+    suppressMessages() |>
+    expect_error("digits_sd")
+  0.36 |> debit(sd = 0.11, n = 20) |> suppressMessages() |> expect_error("digits_x")
 
   # ...and it is raised once, not once per value set:
-  expect_error(
-    suppressMessages(grim(x = c(5.19, 5.18, 5.17), n = 28)),
-    "digits_x"
-  )
+  c(5.19, 5.18, 5.17) |>
+    grim(n = 28) |>
+    suppressMessages() |>
+    expect_error("digits_x")
 })
 
 
@@ -237,12 +223,11 @@ test_that("the wrappers work however they are called", {
 
 test_that("`grim()` and `grimmer()` still take `items`", {
   # `items` is vectorized because the mapper tier lets it be a column of `data`.
-  expect_true(grim(x = 2.84, n = 16, digits_x = 2, items = 2))
-  expect_equal(
-    grim(x = c(2.84, 2.84), n = 16, digits_x = 2, items = c(1, 2)),
-    c(
+  2.84 |> grim(n = 16, digits_x = 2, items = 2) |> expect_true()
+  c(2.84, 2.84) |>
+    grim(n = 16, digits_x = 2, items = c(1, 2)) |>
+    expect_equal(c(
       grim(x = 2.84, n = 16, digits_x = 2, items = 1),
       grim(x = 2.84, n = 16, digits_x = 2, items = 2)
-    )
-  )
+    ))
 })

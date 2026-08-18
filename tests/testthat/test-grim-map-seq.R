@@ -1853,10 +1853,13 @@ test_that("`grim_map_seq()` output has correct structure", {
   expect_s3_class(pigs1_exp, "scrutiny_grim_map_seq")
   expect_s3_class(pigs1_exp, "scrutiny_grim_map")
   expect_named(pigs1_exp, c("x", "n", "digits_x", "consistency", "probability", "diff_var", "case", "var"))
+
   # 8 inconsistent cases in pigs1, 10 dispersions each for x and n = 160 rows
   expect_equal(nrow(pigs1_exp), 160L)
+
   # digits_x should be uniformly 2
   expect_equal(unique(pigs1_exp$digits_x), 2L)
+
   # x values should be numeric
   expect_type(pigs1_exp$x, "double")
 })
@@ -1865,10 +1868,13 @@ test_that("`grim_map_seq()` output has correct structure", {
 test_that("`grim_map_seq()` with percent=TRUE has correct structure", {
   expect_s3_class(pigs2_exp, "scrutiny_grim_map_seq")
   expect_named(pigs2_exp, c("x", "n", "digits_x", "consistency", "probability", "diff_var", "case", "var"))
+
   # 5 inconsistent cases in pigs2, 10 dispersions each for x and n = 100 rows
   expect_equal(nrow(pigs2_exp), 100L)
+
   # digits_x should be uniformly 1
   expect_equal(unique(pigs2_exp$digits_x), 1L)
+
   # x values should be original percentage scale, not divided by 100
   expect_true(all(pigs2_exp$x > 1))
 })
@@ -1924,13 +1930,10 @@ test_that("sequence mappers name the test when `data` already has results", {
   # produces this message. Leaving it out made cli fail on the missing argument
   # instead, so the user saw "Could not evaluate cli `{}` expression".
   data_tested <- grim_map(pigs1[1:3, ], digits_x = 2)
-  grim_map_seq(data_tested, digits_x = 2) |>
+  data_tested |> grim_map_seq(digits_x = 2) |>
     expect_error(regexp = "already includes a \"consistency\" column")
-  grimmer_map_seq(
-    grimmer_map(pigs5[1:3, ], digits_x = 2, digits_sd = 2),
-    digits_x = 2,
-    digits_sd = 2
-  ) |>
+  grimmer_map(pigs5[1:3, ], digits_x = 2, digits_sd = 2) |>
+    grimmer_map_seq(digits_x = 2, digits_sd = 2) |>
     expect_error(regexp = "already includes a \"consistency\" column")
 })
 
@@ -1976,6 +1979,7 @@ test_that("`n` keeps a floor of 1 even though the mean has none", {
     var = "n"
   )
   min(out$n) |> expect_equal(1L)
+
   # Nothing undecidable made it into the output:
   out$consistency |> is.na() |> any() |> expect_false()
 })

@@ -3,7 +3,6 @@ df1 <- unround(c(3.6, "5.20", 5.174)) |>
 
 
 test_that("The output is a tibble", {
-
   df1 |> expect_s3_class("tbl_df")
 })
 
@@ -40,11 +39,11 @@ test_that("Its columns have the correct types", {
 
 test_that("A non-string `x` specification throws an error
           (if `digits` is `NULL`; the default)", {
-  unround(4.5) |> expect_error()
+  4.5 |> unround() |> expect_error()
 })
 
 test_that("The function throws an error if `rounding` is misspecified", {
-  unround("4.50", rounding = "doesn't exist") |> expect_error()
+  "4.50" |> unround(rounding = "doesn't exist") |> expect_error()
 })
 
 
@@ -89,10 +88,10 @@ test_that("`unround()` bounds agree with the rounding they invert", {
   for (m in methods) {
     bounds <- unround("0.53", rounding = m, threshold = 6)
     rounds_to_x <- function(value) {
-      any(dplyr::near(
-        reround(value, digits = 2, rounding = m, threshold = 6),
-        0.53
-      ))
+      value |>
+        reround(digits = 2, rounding = m, threshold = 6) |>
+        dplyr::near(0.53) |>
+        any()
     }
     expect_true(rounds_to_x(bounds$lower + eps), label = paste(m, "inside lower"))
     expect_true(rounds_to_x(bounds$upper - eps), label = paste(m, "inside upper"))
@@ -154,16 +153,15 @@ test_that("`unround()` bounds agree with the rounding they invert (sweep)", {
               symmetric = symmetric
             )
             rounds_to_x <- function(value) {
-              any(dplyr::near(
+              value |>
                 reround(
-                  value,
                   digits = digits,
                   rounding = m,
                   threshold = threshold,
                   symmetric = symmetric
-                ),
-                x_num
-              ))
+                ) |>
+                dplyr::near(x_num) |>
+                any()
             }
             label <- paste(
               m, "| x =", x_str, "| digits =", digits,
@@ -239,7 +237,8 @@ test_that("`unround()` supports the same rounding methods as GRIM", {
   for (m in c(
     "up_from", "down_from", "up_from_or_down_from", "ceiling_or_floor"
   )) {
-    unround("0.53", rounding = m, threshold = 6) |>
+    "0.53" |>
+      unround(rounding = m, threshold = 6) |>
       nrow() |>
       expect_equal(1L)
   }
@@ -324,12 +323,13 @@ test_that("`unround()` checks the lengths of all its vectorized arguments", {
   # `digits` used to be recycled against `x` without a word, so the extra `x`
   # values silently got the wrong number of decimal places -- and hence the
   # wrong bounds.
-  unround(c("1.0", "2.00", "3.000"), digits = c(1, 2)) |> expect_error()
-  unround(c("1.0", "2.00"), threshold = c(4, 5, 6))    |> expect_error()
-  unround(c("1.0", "2.00"), symmetric = c(TRUE, FALSE, TRUE)) |> expect_error()
+  # Not aligning pipes here because the lengths are too different
+  c("1.0", "2.00", "3.000") |> unround(digits = c(1, 2)) |> expect_error()
+  c("1.0", "2.00") |> unround(threshold = c(4, 5, 6)) |> expect_error()
+  c("1.0", "2.00") |> unround(symmetric = c(TRUE, FALSE, TRUE)) |> expect_error()
   # A length-1 argument is still recycled, as is one of matching length:
-  unround(c("1.0", "2.00"), digits = c(1, 2)) |> expect_no_error()
-  unround(c("1.0", "2.00"))                   |> expect_no_error()
+  c("1.0", "2.00") |> unround(digits = c(1, 2)) |> expect_no_error()
+  c("1.0", "2.00") |> unround() |> expect_no_error()
 })
 
 
@@ -343,9 +343,9 @@ test_that("zero-length input returns zero rows", {
   # Recycling stops at zero. Taking the maximum of all argument lengths let the
   # length-1 defaults set the row count, so an empty `x` produced one row of
   # missing values -- a phantom result in the middle of a pipeline.
-  unround(character(0)) |> nrow() |> expect_equal(0L)
-  unround(numeric(0), digits = 2) |> nrow() |> expect_equal(0L)
-  unround("5.19", digits = integer(0)) |> nrow() |> expect_equal(0L)
+  character(0) |> unround() |> nrow() |> expect_equal(0L)
+  numeric(0) |> unround(digits = 2) |> nrow() |> expect_equal(0L)
+  "5.19" |> unround(digits = integer(0)) |> nrow() |> expect_equal(0L)
   # A scalar `x` is unaffected:
-  unround("5.19") |> nrow() |> expect_equal(1L)
+  "5.19" |> unround() |> nrow() |> expect_equal(1L)
 })

@@ -23,6 +23,7 @@ df_debit <- tibble::tibble(
 
 
 test_that("the single-case functions return `NA` for a missing value", {
+  # Not aligning pipes here because the lengths are too different
   grim(NA, 28, digits_x = 2) |> expect_na()
   grim(5.19, NA, digits_x = 2) |> expect_na()
   grimmer(NA, 0.41, 40, digits_x = 2, digits_sd = 2) |> expect_na()
@@ -49,22 +50,19 @@ test_that("a missing value is `NA` under every rounding method", {
   for (rounding in roundings) {
     for (symmetric in c(FALSE, TRUE)) {
       info <- paste0("rounding = ", rounding, ", symmetric = ", symmetric)
-      expect_na(grim(NA, 28, digits_x = 2, rounding = rounding, symmetric = symmetric))
-      expect_na(grim(5.19, NA, digits_x = 2, rounding = rounding, symmetric = symmetric))
-      expect_equal(
-        grim_map(df_grim, digits_x = 2, rounding = rounding, symmetric = symmetric)$consistency,
-        c(grim(5.19, 28, digits_x = 2, rounding = rounding, symmetric = symmetric), NA, NA),
-        info = info
-      )
-      expect_na(
-        grim_values(NA, 28, digits_x = 2, rounding = rounding, symmetric = symmetric)[[1L]]
-      )
-      expect_na(
-        grim_closest(NA, 28, digits_x = 2, rounding = rounding, symmetric = symmetric)
-      )
-      expect_na(
-        unround(NA_real_, digits = 2, rounding = rounding, symmetric = symmetric)$lower
-      )
+      grim(NA, 28, digits_x = 2, rounding = rounding, symmetric = symmetric) |> expect_na()
+      grim(5.19, NA, digits_x = 2, rounding = rounding, symmetric = symmetric) |> expect_na()
+      grim_map(df_grim, digits_x = 2, rounding = rounding, symmetric = symmetric)$consistency |>
+        expect_equal(
+          c(grim(5.19, 28, digits_x = 2, rounding = rounding, symmetric = symmetric), NA, NA),
+          info = info
+        )
+      grim_values(NA, 28, digits_x = 2, rounding = rounding, symmetric = symmetric)[[1L]] |>
+        expect_na()
+      grim_closest(NA, 28, digits_x = 2, rounding = rounding, symmetric = symmetric) |>
+        expect_na()
+      unround(NA_real_, digits = 2, rounding = rounding, symmetric = symmetric)$lower |>
+        expect_na()
     }
   }
 })
@@ -181,8 +179,8 @@ test_that("the sequence mappers drop undecidable cases", {
 test_that("a missing `digits_*` argument still errors, and so do bad values", {
   # `suppressMessages()` mutes the changelog hint that `error_digits_missing()`
   # prints via `on.exit()` as it unwinds:
-  suppressMessages(grim_map(df_grim)) |> expect_error()
-  suppressMessages(grim(NA, 28)) |> expect_error()
+  df_grim |> grim_map() |> suppressMessages() |> expect_error()
+  grim(NA, 28) |> suppressMessages() |> expect_error()
   # `NA` is undecidable, but a mismatched `digits_x` is still an input error:
   grim(5.19, 28, digits_x = 1) |> expect_error()
 })
@@ -205,28 +203,27 @@ test_that("the three tests agree on what input is undecidable", {
 
   # GRIM: `n` and `items` must be positive whole numbers. `n = 1` is fine, the
   # mean of a single value being that value.
-  expect_na(grim(x = 5.19, n = 20.5, digits_x = 2))
-  expect_na(grim(x = 5.19, n = 20, digits_x = 2, items = 1.5))
-  expect_na(grim(x = 5.19, n = 0, digits_x = 2))
-  expect_na(grim(x = 5.19, n = -5, digits_x = 2))
-  expect_na(grim(x = 5.19, n = Inf, digits_x = 2))
+  grim(x = 5.19, n = 20.5, digits_x = 2) |> expect_na()
+  grim(x = 5.19, n = 20, digits_x = 2, items = 1.5) |> expect_na()
+  grim(x = 5.19, n = 0, digits_x = 2) |> expect_na()
+  grim(x = 5.19, n = -5, digits_x = 2) |> expect_na()
+  grim(x = 5.19, n = Inf, digits_x = 2) |> expect_na()
   grim(x = 5, n = 1, digits_x = 0) |> expect_true()
 
   # GRIMMER and DEBIT reconstruct a *sample* SD, so they divide by `n - 1` and
   # need an `n` of at least 2. At `n = 1`, GRIMMER used to reach `FALSE`
   # through a `NaN` that `na.rm = TRUE` swallowed, and DEBIT through an `Inf`
   # that compared as "above the upper bound".
-  expect_na(grimmer(x = 5, sd = 0, n = 1, digits_x = 2, digits_sd = 2))
-  expect_na(grimmer(x = 3, sd = 1, n = 20.5, digits_x = 2, digits_sd = 2))
-  expect_na(
-    grimmer(x = 3, sd = 1, n = 20, digits_x = 2, digits_sd = 2, items = 1.5)
-  )
-  expect_na(grimmer(x = 3, sd = 1, n = 0, digits_x = 2, digits_sd = 2))
+  grimmer(x = 5, sd = 0, n = 1, digits_x = 2, digits_sd = 2) |> expect_na()
+  grimmer(x = 3, sd = 1, n = 20.5, digits_x = 2, digits_sd = 2) |> expect_na()
+  grimmer(x = 3, sd = 1, n = 20, digits_x = 2, digits_sd = 2, items = 1.5) |>
+    expect_na()
+  grimmer(x = 3, sd = 1, n = 0, digits_x = 2, digits_sd = 2) |> expect_na()
 
-  expect_na(debit(x = 0.5, sd = 0.5, n = 1, digits_x = 2, digits_sd = 2))
-  expect_na(debit(x = 0.5, sd = 0.5, n = 0, digits_x = 2, digits_sd = 2))
-  expect_na(debit(x = 0.5, sd = 0.5, n = -5, digits_x = 2, digits_sd = 2))
-  expect_na(debit(x = 0.5, sd = 0.5, n = 20.5, digits_x = 2, digits_sd = 2))
+  debit(x = 0.5, sd = 0.5, n = 1, digits_x = 2, digits_sd = 2)    |> expect_na()
+  debit(x = 0.5, sd = 0.5, n = 0, digits_x = 2, digits_sd = 2)    |> expect_na()
+  debit(x = 0.5, sd = 0.5, n = -5, digits_x = 2, digits_sd = 2)   |> expect_na()
+  debit(x = 0.5, sd = 0.5, n = 20.5, digits_x = 2, digits_sd = 2) |> expect_na()
   # A real `n` still gets a real verdict:
   debit(x = 0.5, sd = 0.5, n = 20, digits_x = 2, digits_sd = 2) |>
     expect_false()

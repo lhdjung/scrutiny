@@ -487,7 +487,7 @@ df_disagree_all |>
 # New implementation from rsprite2 ----------------------------------------
 
 test_that("GRIMMER works correctly by default", {
-  grimmer_scalar(5.21, 1.6, 28, digits_x = 2, digits_sd = 1) |> expect_true()
+  grimmer_scalar(5.21, 1.6, 28, digits_x = 2, digits_sd = 1)  |> expect_true()
   grimmer_scalar(3.44, 2.47, 18, digits_x = 2, digits_sd = 2) |> expect_false()
 })
 
@@ -557,7 +557,7 @@ test_that("GRIMMER checks SD-match and parity against the same candidate sum of 
 
   # The same value is genuinely GRIMMER-consistent under "up_or_down", where a
   # third candidate integer for the sum of squares is not at stake:
-  grimmer(x = 0.11, sd = 0.87, n = 64, digits_x = 2, digits_sd = 2, rounding = "up_or_down") |> 
+  grimmer(x = 0.11, sd = 0.87, n = 64, digits_x = 2, digits_sd = 2, rounding = "up_or_down") |>
     expect_true()
 })
 
@@ -743,7 +743,7 @@ test_that("GRIMMER returns `NA` where GRIM itself is undecidable", {
   # "missing value where TRUE/FALSE needed" instead of passing it on. `debit()`
   # has the same test. (Until `anti_trunc()` stopped sending zero away from
   # zero, `rounding = "anti_trunc"` at a mean of zero was a second such case.)
-  expect_na(grim(NA, n = 40, digits_x = 2))
+  NA |> grim(n = 40, digits_x = 2) |> expect_na()
   expect_na(
     grimmer(x = NA, sd = 0.41, n = 40, digits_x = 2, digits_sd = 2)
   )
@@ -863,6 +863,7 @@ test_that("scale bounds never make GRIMMER more permissive", {
       }
     }
   }
+
   expect_equal(violations, 0L)
 })
 
@@ -907,6 +908,7 @@ test_that("`grimmer_map()` passes the scale bounds down and `audit()` counts", {
     n = c(20L, 30L, 20L)
   )
   out <- grimmer_map(df, digits_x = 2, digits_sd = 2, min_val = 1, max_val = 5)
+
   out$consistency |> expect_equal(c(FALSE, FALSE, TRUE))
   out$reason |>
     expect_equal(c(
@@ -1008,6 +1010,7 @@ test_that("GRIMMER never rejects an enumerable multi-item sample", {
     pairs[, 1L],
     pairs[, 2L]
   )
+
   expect_equal(sum(!verdict %in% TRUE), 0L)
   expect_gt(length(verdict), 100L)
 })
@@ -1029,6 +1032,7 @@ test_that("GRIMMER never rejects an enumerable sample within scale bounds", {
     pairs[, 1L],
     pairs[, 2L]
   )
+
   expect_equal(sum(!verdict %in% TRUE), 0L)
   expect_gt(length(verdict), 100L)
 })

@@ -94,8 +94,8 @@ test_that("`percent = TRUE` leaves the granules on the scale of `x`", {
   # Up to scrutiny 1.0.0, these were the decimal numbers that GRIM converts `x`
   # to internally, so they could not be read against the `x` column they are
   # documented as bracketing:
-  expect_true(all(df3_percent_true$rec_x_lower <= df3_percent_true$x))
-  expect_true(all(df3_percent_true$rec_x_upper >= df3_percent_true$x))
+  (df3_percent_true$rec_x_lower <= df3_percent_true$x) |> all() |> expect_true()
+  (df3_percent_true$rec_x_upper >= df3_percent_true$x) |> all() |> expect_true()
 
   # `grim_values()` returns its values on that same scale, so a consistent case
   # must be bracketed by the two granules there as well:
@@ -144,7 +144,8 @@ rounding_methods <- c(rounding_methods_predictable, "even")
 
 test_that("`consistency` accords with the displayed sum range, row by row", {
   for (rounding in rounding_methods) {
-    out <- grim_map(df3, digits_x = 0, show_rec = TRUE, rounding = rounding) |>
+    out <- df3 |>
+      grim_map(digits_x = 0, show_rec = TRUE, rounding = rounding) |>
       suppressMessages()
     expect_equal(
       out$consistency,
@@ -178,19 +179,17 @@ test_that("the displayed sum range is exactly the range of admissible sums", {
       # then count downwards, so it is only walked if it has any members:
       if (out$sum_lower[i] <= out$sum_upper[i]) {
         for (sum_total in seq(out$sum_lower[i], out$sum_upper[i])) {
-          expect_true(
-            sum_rounds_back(sum_total, out$x[i], out$n[i], 2, rounding),
-            info = info
-          )
+          sum_total |>
+            sum_rounds_back(out$x[i], out$n[i], 2, rounding) |>
+            expect_true(info = info)
         }
       }
       # Neither sum just outside the range does, so it is not too narrow. For an
       # empty range these are the two integers that straddle it:
       for (sum_total in c(out$sum_lower[i] - 1L, out$sum_upper[i] + 1L)) {
-        expect_false(
-          sum_rounds_back(sum_total, out$x[i], out$n[i], 2, rounding),
-          info = info
-        )
+        sum_total |>
+          sum_rounds_back(out$x[i], out$n[i], 2, rounding) |>
+          expect_false(info = info)
       }
     }
   }
@@ -421,10 +420,9 @@ test_that("GRIM agrees with the rounding functions themselves", {
       digits_x = 2,
       rounding = "even"
     )$consistency
-    rounds_back_even <- vapply(
-      df1$x, grim_rounds_back, logical(1), n, 2, "even"
-    )
-    expect_true(all(consistency_even[rounds_back_even]))
+    rounds_back_even <- df1$x |>
+      vapply(grim_rounds_back, logical(1), n, 2, "even")
+    consistency_even[rounds_back_even] |> all() |> expect_true()
   }
 })
 

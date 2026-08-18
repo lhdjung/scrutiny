@@ -40,30 +40,34 @@ test_that("`split_by_digits = TRUE` returns one plot per decimal count", {
 test_that("no data is dropped from the plot", {
   data <- grim_map(pigs1, digits_x = 2)
   layer_data <- ggplot2::ggplot_build(grim_plot(data))$data[[2L]]
-  nrow(layer_data) |> expect_equal(nrow(data))
+  layer_data |> nrow() |> expect_equal(nrow(data))
   layer_data$ymin |> is.na() |> any() |> expect_false()
   layer_data$ymax |> is.na() |> any() |> expect_false()
 })
 
 test_that("plotting raises no warnings of its own", {
-  grim_map(pigs1, digits_x = 2) |> grim_plot() |> expect_no_warning()
-  grim_map(pigs2, digits_x = 1, percent = TRUE) |>
+  pigs1 |> grim_map(digits_x = 2) |> grim_plot() |> expect_no_warning()
+  pigs2 |>
+    grim_map(digits_x = 1, percent = TRUE) |>
     grim_plot() |>
     expect_no_warning()
   # The gradient branch, for more than two decimal places:
-  grim_map(tibble::tibble(x = c(5.1234, 6.2345), n = c(40L, 50L)), digits_x = 4) |>
+  tibble::tibble(x = c(5.1234, 6.2345), n = c(40L, 50L)) |>
+    grim_map(digits_x = 4) |>
     grim_plot() |>
     expect_no_warning()
 })
 
 test_that("`show_raster = FALSE` works", {
-  grim_map(pigs1, digits_x = 2) |>
+  pigs1 |>
+    grim_map(digits_x = 2) |>
     grim_plot(show_raster = FALSE) |>
     expect_no_error()
 })
 
 test_that("undrawable input is an error with an explanation", {
-  grim_map(pigs1[0L, ], digits_x = 2) |>
+  pigs1[0L, ] |>
+    grim_map(digits_x = 2) |>
     grim_plot() |>
     expect_error("no rows")
 })
@@ -81,7 +85,7 @@ test_that("negative means are plotted at the fractional part of their absolute v
   )
   layer_data <- ggplot2::ggplot_build(grim_plot(data))$data[[2L]]
   layer_data$y |> expect_equal(c(0.22, 0.19, 0))
-  nrow(layer_data) |> expect_equal(nrow(data))
+  layer_data |> nrow() |> expect_equal(nrow(data))
   layer_data$ymin |> is.na() |> any() |> expect_false()
 })
 
@@ -94,11 +98,13 @@ test_that("a mean and its negative are drawn in the same place", {
 })
 
 test_that("negative means raise no warning, whatever the decimal count", {
-  grim_map(tibble::tibble(x = c(-7.22, -5.19), n = c(38L, 40L)), digits_x = 2) |>
+  tibble::tibble(x = c(-7.22, -5.19), n = c(38L, 40L)) |>
+    grim_map(digits_x = 2) |>
     grim_plot() |>
     expect_no_warning()
   # The gradient branch:
-  grim_map(tibble::tibble(x = -5.1234, n = 40L), digits_x = 4) |>
+  tibble::tibble(x = -5.1234, n = 40L) |>
+    grim_map(digits_x = 4) |>
     grim_plot() |>
     expect_no_warning()
 })
@@ -128,10 +134,11 @@ test_that("undecidable value sets are dropped out loud", {
   )
   expect_warning(p <- grim_plot(data), "undecidable")
   layer_data <- ggplot2::ggplot_build(p)$data[[2L]]
-  nrow(layer_data) |> expect_equal(1L)
+  layer_data |> nrow() |> expect_equal(1L)
 
   # If nothing can be decided, there is nothing to draw at all:
-  grim_map(tibble::tibble(x = 5.19, n = NA_integer_), digits_x = 2) |>
+  tibble::tibble(x = 5.19, n = NA_integer_) |>
+    grim_map(digits_x = 2) |>
     grim_plot() |>
     expect_error("could be decided")
 })
@@ -149,7 +156,7 @@ test_that("`digits_x = 0` rows are reported, not dropped in silence", {
     plots <- grim_plot(data, split_by_digits = TRUE),
     "digits_x = 0"
   )
-  names(plots) |> expect_equal("digits_2")
+  plots |> names() |> expect_equal("digits_2")
 
   # With nothing but zero-decimal means there is no plot to split at all, and
   # the raster lookup used to fail with R's own "object
@@ -175,7 +182,8 @@ test_that("percentages are plotted on the grid they were tested on", {
 
   # A whole-number percentage does have a fractional portion as a decimal, so
   # `digits_x = 0` is plottable here although it is not for a plain mean:
-  grim_map(tibble::tibble(x = 71, n = 43L), digits_x = 0, percent = TRUE) |>
+  tibble::tibble(x = 71, n = 43L) |>
+    grim_map(digits_x = 0, percent = TRUE) |>
     grim_plot() |>
     expect_s3_class("ggplot")
 })

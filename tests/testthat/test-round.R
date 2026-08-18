@@ -44,12 +44,12 @@ mid <- (seq(0, 9) * 10 + 5) / 100
 
 test_that("`round_up()` sends positive ties to the higher neighbor", {
   # 0.05 -> 0.1, 0.15 -> 0.2, ..., 0.95 -> 1.0
-  expect_equal(round_up(mid, 1), (seq(0, 9) + 1) / 10)
+  mid |> round_up(1) |> expect_equal((seq(0, 9) + 1) / 10)
 })
 
 test_that("`round_down()` sends positive ties to the lower neighbor", {
   # 0.05 -> 0.0, 0.15 -> 0.1, ..., 0.95 -> 0.9
-  expect_equal(round_down(mid, 1), seq(0, 9) / 10)
+  mid |> round_down(1) |> expect_equal(seq(0, 9) / 10)
 })
 
 test_that("`round_up()` sends ties toward `+Inf` by default", {
@@ -57,22 +57,22 @@ test_that("`round_up()` sends ties toward `+Inf` by default", {
   # the number line, a negative tie goes up just like a positive one, so -0.05
   # -> 0.0 and -0.95 -> -0.9. Excel, SAS, and Matlab do *not* do this; see the
   # test after the next one.
-  expect_equal(round_up(-mid, 1), -seq(0, 9) / 10)
+  -mid |> round_up(1) |> expect_equal(-seq(0, 9) / 10)
 })
 
 test_that("`round_down()` sends ties toward `-Inf` by default", {
-  expect_equal(round_down(-mid, 1), -(seq(0, 9) + 1) / 10)
+  -mid |> round_down(1) |> expect_equal(-(seq(0, 9) + 1) / 10)
 })
 
 test_that("`symmetric = TRUE` mirrors ties around zero", {
   # This is IEEE 754's *roundTiesToAway*, i.e. what Excel's `ROUND()`, SAS's
   # `ROUND()`, Matlab's `round()`, and `janitor::round_half_up()` do:
-  expect_equal(round_up(-mid, 1, symmetric = TRUE), -(seq(0, 9) + 1) / 10)
+  -mid |> round_up(1, symmetric = TRUE) |> expect_equal(-(seq(0, 9) + 1) / 10)
   # ...and its mirror image, ties toward zero:
-  expect_equal(round_down(-mid, 1, symmetric = TRUE), -seq(0, 9) / 10)
+  -mid |> round_down(1, symmetric = TRUE) |> expect_equal(-seq(0, 9) / 10)
   # For non-negative numbers, `symmetric` changes nothing:
-  expect_equal(round_up(mid, 1, symmetric = TRUE), round_up(mid, 1))
-  expect_equal(round_down(mid, 1, symmetric = TRUE), round_down(mid, 1))
+  mid |> round_up(1, symmetric = TRUE) |> expect_equal(round_up(mid, 1))
+  mid |> round_down(1, symmetric = TRUE) |> expect_equal(round_down(mid, 1))
 })
 
 test_that("only ties are affected by the choice of procedure", {
@@ -84,8 +84,8 @@ test_that("only ties are affected by the choice of procedure", {
   )
   non_ties <- non_ties[round(non_ties * 100) %% 5 != 0]
   for (symmetric in c(FALSE, TRUE)) {
-    expect_equal(round_up(non_ties, 1, symmetric), round(non_ties, 1))
-    expect_equal(round_down(non_ties, 1, symmetric), round(non_ties, 1))
+    non_ties |> round_up(1, symmetric)   |> expect_equal(round(non_ties, 1))
+    non_ties |> round_down(1, symmetric) |> expect_equal(round(non_ties, 1))
   }
 })
 
@@ -153,30 +153,29 @@ test_that("`round_down_from()` is `round_up_from()` with the tie reversed", {
 
 test_that("a `threshold` of 5 makes the `*_from()` functions the plain ones", {
   x <- c(mid, -mid, seq(-500, 500) / 100)
-  expect_equal(round_up_from(x, 1, threshold = 5), round_up(x, 1))
-  expect_equal(round_down_from(x, 1, threshold = 5), round_down(x, 1))
-  expect_equal(
-    round_up_from(x, 1, threshold = 5, symmetric = TRUE),
-    round_up(x, 1, symmetric = TRUE)
-  )
-  expect_equal(
-    round_down_from(x, 1, threshold = 5, symmetric = TRUE),
-    round_down(x, 1, symmetric = TRUE)
-  )
+  x |> round_up_from(1, threshold = 5) |> expect_equal(round_up(x, 1))
+  x |> round_down_from(1, threshold = 5) |> expect_equal(round_down(x, 1))
+  x |>
+    round_up_from(1, threshold = 5, symmetric = TRUE) |>
+    expect_equal(round_up(x, 1, symmetric = TRUE))
+  x |>
+    round_down_from(1, threshold = 5, symmetric = TRUE) |>
+    expect_equal(round_down(x, 1, symmetric = TRUE))
 })
 
 test_that("`threshold` is rejected outside of the interval it has to lie in", {
   # At 0 or 10, one of the two directions can never be taken, which would
   # silently turn the method into a ceiling or a floor:
-  expect_error(reround(0.5, 1, "up_from", threshold = 0))
-  expect_error(reround(0.5, 1, "up_from", threshold = 10))
-  expect_error(reround(0.5, 1, "down_from", threshold = -2))
-  expect_error(reround(0.5, 1, "up_from_or_down_from", threshold = NA))
-  expect_error(unround("0.53", rounding = "up_from", threshold = 12))
+  # Not aligning pipes here because the lengths are too different
+  0.5 |> reround(1, "up_from", threshold = 0) |> expect_error()
+  0.5 |> reround(1, "up_from", threshold = 10) |> expect_error()
+  0.5 |> reround(1, "down_from", threshold = -2) |> expect_error()
+  0.5 |> reround(1, "up_from_or_down_from", threshold = NA) |> expect_error()
+  "0.53" |> unround(rounding = "up_from", threshold = 12) |> expect_error()
   # ...whereas a fractional threshold inside it is fine. `unround()` scales the
   # bounds up until they are whole numbers again, so this also exercises the
   # rescaling loop in `bound_numerators()`:
-  expect_equal(reround(0.1445, 3, "up_from", threshold = 4.5), 0.145)
+  0.1445 |> reround(3, "up_from", threshold = 4.5) |> expect_equal(0.145)
   # `"up_from"`'s lower bound is `threshold - 10` units of 1/10^(digits + 1):
   expect_equal(
     unround("0.53", rounding = "up_from", threshold = 4.5)$lower,
@@ -186,7 +185,7 @@ test_that("`threshold` is rejected outside of the interval it has to lie in", {
   # throw an error, on the theory that it could only be the argument's default
   # value showing through -- so any caller that computed a threshold failed
   # spuriously at exactly the most common value:
-  expect_equal(reround(2.345, 2, "up_from", threshold = 5), 2.35)
+  2.345 |> reround(2, "up_from", threshold = 5) |> expect_equal(2.35)
 })
 
 
@@ -199,25 +198,25 @@ test_that("`threshold` is rejected outside of the interval it has to lie in", {
 test_that("`round_ceiling()` and `round_floor()` are exact at whole steps", {
   x <- seq(0, 1000) / 100
 
-  expect_equal(round_ceiling(x, 2), x)
-  expect_equal(round_floor(x, 2), x)
-  expect_equal(round_trunc(x, 2), x)
-  expect_equal(round_trunc(-x, 2), -x)
+  x |> round_ceiling(2) |> expect_equal(x)
+  x |> round_floor(2)   |> expect_equal(x)
+  x |> round_trunc(2)   |> expect_equal(x)
+  -x |> round_trunc(2) |> expect_equal(-x)
 
   # `round_anti_trunc()` leaves a value that is already on the grid where it is,
   # and takes anything else to the next step away from zero:
-  expect_equal(round_anti_trunc(x, 2), x)
-  expect_equal(round_anti_trunc(-x, 2), -x)
+  x |> round_anti_trunc(2) |> expect_equal(x)
+  -x |> round_anti_trunc(2) |> expect_equal(-x)
   expect_equal(round_anti_trunc(x[-1] - 0.005, 2), x[-1])
   expect_equal(round_anti_trunc(-(x[-1] - 0.005), 2), -x[-1])
 
   # The individual cases that used to fail:
-  expect_equal(round_ceiling(0.28, 2), 0.28)
-  expect_equal(round_floor(0.29, 2), 0.29)
+  0.28 |> round_ceiling(2) |> expect_equal(0.28)
+  0.29 |> round_floor(2) |> expect_equal(0.29)
 
   # Values genuinely inside a step still move to its edge:
-  expect_equal(round_ceiling(0.281, 2), 0.29)
-  expect_equal(round_floor(0.289, 2), 0.28)
+  0.281 |> round_ceiling(2) |> expect_equal(0.29)
+  0.289 |> round_floor(2) |> expect_equal(0.28)
 })
 
 test_that("all rounding functions share the same tolerance", {
@@ -234,8 +233,8 @@ test_that("all rounding functions share the same tolerance", {
   expect_equal(round_down(x + 0.005, 2), round_floor(x + 0.001, 2))
 
   # The one case in which the tolerance is visible at all, at both families:
-  expect_equal(round_up(0.145, 2), 0.15)
-  expect_equal(round_down(0.145, 2), 0.14)
+  0.145 |> round_up(2)   |> expect_equal(0.15)
+  0.145 |> round_down(2) |> expect_equal(0.14)
   expect_equal(round_ceiling(0.145 - 0.005, 2), 0.14)
 })
 
@@ -250,43 +249,31 @@ test_that("all rounding functions share the same tolerance", {
 test_that("`round_ties_*()` are the `symmetric` combinations of up and down", {
   x <- c(mid, -mid, seq(-999, 999) / 100, seq(-20, 20) / 8)
   for (digits in 0:2) {
-    expect_equal(
-      round_ties_up(x, digits),
-      round_up(x, digits, symmetric = FALSE)
-    )
-    expect_equal(
-      round_ties_down(x, digits),
-      round_down(x, digits, symmetric = FALSE)
-    )
-    expect_equal(
-      round_ties_away(x, digits),
-      round_up(x, digits, symmetric = TRUE)
-    )
-    expect_equal(
-      round_ties_zero(x, digits),
-      round_down(x, digits, symmetric = TRUE)
-    )
+    x |> round_ties_up(digits)   |> expect_equal(round_up(x, digits, symmetric = FALSE))
+    x |> round_ties_down(digits) |> expect_equal(round_down(x, digits, symmetric = FALSE))
+    x |> round_ties_away(digits) |> expect_equal(round_up(x, digits, symmetric = TRUE))
+    x |> round_ties_zero(digits) |> expect_equal(round_down(x, digits, symmetric = TRUE))
   }
 })
 
 test_that("`round_ties_*()` break ties as their names say", {
   # Hand-computed, not taken from any scrutiny function:
-  expect_equal(round_ties_up(c(-2.5, -0.5, 0.5, 2.5)), c(-2, 0, 1, 3))
-  expect_equal(round_ties_down(c(-2.5, -0.5, 0.5, 2.5)), c(-3, -1, 0, 2))
-  expect_equal(round_ties_away(c(-2.5, -0.5, 0.5, 2.5)), c(-3, -1, 1, 3))
-  expect_equal(round_ties_zero(c(-2.5, -0.5, 0.5, 2.5)), c(-2, 0, 0, 2))
+  c(-2.5, -0.5, 0.5, 2.5) |> round_ties_up()   |> expect_equal(c(-2, 0, 1, 3))
+  c(-2.5, -0.5, 0.5, 2.5) |> round_ties_down() |> expect_equal(c(-3, -1, 0, 2))
+  c(-2.5, -0.5, 0.5, 2.5) |> round_ties_away() |> expect_equal(c(-3, -1, 1, 3))
+  c(-2.5, -0.5, 0.5, 2.5) |> round_ties_zero() |> expect_equal(c(-2, 0, 0, 2))
 
   # Above zero, the two pairs collapse into each other:
-  expect_equal(round_ties_up(mid, 1), round_ties_away(mid, 1))
-  expect_equal(round_ties_down(mid, 1), round_ties_zero(mid, 1))
+  mid |> round_ties_up(1)   |> expect_equal(round_ties_away(mid, 1))
+  mid |> round_ties_down(1) |> expect_equal(round_ties_zero(mid, 1))
 })
 
 test_that("the `\"ties_*\"` strings mean the same as the functions", {
   x <- c(mid, -mid, seq(-500, 500) / 100)
-  expect_equal(reround(x, 1, "ties_up"), round_ties_up(x, 1))
-  expect_equal(reround(x, 1, "ties_down"), round_ties_down(x, 1))
-  expect_equal(reround(x, 1, "ties_away"), round_ties_away(x, 1))
-  expect_equal(reround(x, 1, "ties_zero"), round_ties_zero(x, 1))
+  x |> reround(1, "ties_up")   |> expect_equal(round_ties_up(x, 1))
+  x |> reround(1, "ties_down") |> expect_equal(round_ties_down(x, 1))
+  x |> reround(1, "ties_away") |> expect_equal(round_ties_away(x, 1))
+  x |> reround(1, "ties_zero") |> expect_equal(round_ties_zero(x, 1))
 })
 
 test_that("`symmetric` is ignored for the `\"ties_*\"` strings", {
@@ -294,14 +281,8 @@ test_that("`symmetric` is ignored for the `\"ties_*\"` strings", {
   # able to turn it into a different one:
   x <- c(mid, -mid)
   for (symmetric in c(FALSE, TRUE)) {
-    expect_equal(
-      reround(x, 1, "ties_away", symmetric = symmetric),
-      round_ties_away(x, 1)
-    )
-    expect_equal(
-      reround(x, 1, "ties_up", symmetric = symmetric),
-      round_ties_up(x, 1)
-    )
+    x |> reround(1, "ties_away", symmetric = symmetric) |> expect_equal(round_ties_away(x, 1))
+    x |> reround(1, "ties_up", symmetric = symmetric)   |> expect_equal(round_ties_up(x, 1))
   }
 })
 
@@ -309,11 +290,12 @@ test_that("`reround()` takes one rounding procedure, not a vector of them", {
   # Vectorized `rounding`, `threshold`, and `symmetric` are gone: they describe
   # a single procedure, and `x` is the vector. `unround()` keeps the behavior
   # for its display use case.
-  expect_error(reround(c(1.5, 2.5), 0, c("up", "down")))
-  expect_error(reround(1.5, 0, "up_from", threshold = c(3, 7)))
-  expect_error(reround(1.5, 0, "up", symmetric = c(TRUE, FALSE)))
+  c(1.5, 2.5) |> reround(0, c("up", "down")) |> expect_error()
+  1.5 |> reround(0, "up_from", threshold = c(3, 7)) |> expect_error()
+  1.5 |> reround(0, "up", symmetric = c(TRUE, FALSE)) |> expect_error()
   # (`unround()` warns about the pairing, which is the documented behavior.)
-  unround(c("1.5", "2.5"), rounding = c("up", "down")) |>
+  c("1.5", "2.5") |>
+    unround(rounding = c("up", "down")) |>
     suppressWarnings() |>
     suppressMessages() |>
     nrow() |>
@@ -325,13 +307,13 @@ test_that("`round_up_from()` and `round_down_from()` validate `threshold`", {
   # These are the functions that act on `threshold`, and a value outside of
   # `(0, 10)` silently turns them into `round_ceiling()` or `round_floor()`.
   # `reround()` and `unround()` have always checked; these two did not.
-  round_up_from(4.28, 1, threshold = 0) |> expect_error("threshold")
-  round_up_from(4.28, 1, threshold = 10) |> expect_error("threshold")
-  round_up_from(4.28, 1, threshold = -3) |> expect_error("threshold")
-  round_down_from(4.28, 1, threshold = 0) |> expect_error("threshold")
-  round_down_from(4.28, 1, threshold = 10) |> expect_error("threshold")
+  4.28 |> round_up_from(1, threshold = 0)    |> expect_error("threshold")
+  4.28 |> round_up_from(1, threshold = 10)   |> expect_error("threshold")
+  4.28 |> round_up_from(1, threshold = -3)   |> expect_error("threshold")
+  4.28 |> round_down_from(1, threshold = 0)  |> expect_error("threshold")
+  4.28 |> round_down_from(1, threshold = 10) |> expect_error("threshold")
   # Valid thresholds still work, and still agree with `reround()`:
-  round_up_from(4.28, 1, threshold = 9) |> expect_equal(4.2)
-  round_up_from(4.28, 1, threshold = 1) |> expect_equal(4.3)
-  round_up(4.28, 1) |> expect_equal(round_up_from(4.28, 1, threshold = 5))
+  4.28 |> round_up_from(1, threshold = 9) |> expect_equal(4.2)
+  4.28 |> round_up_from(1, threshold = 1) |> expect_equal(4.3)
+  4.28 |> round_up(1) |> expect_equal(round_up_from(4.28, 1, threshold = 5))
 })

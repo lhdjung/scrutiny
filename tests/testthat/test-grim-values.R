@@ -16,11 +16,11 @@ test_that("`grim_values()` returns the achievable means", {
 test_that("`grim_closest()` returns the achievable mean nearest to `x`", {
   # The two sums straddling an inconsistent value set are 145 and 146; 145/28
   # is the closer of the two, and it is what rsprite2 reports (as 5.18):
-  grim_closest(5.19, 28, digits_x = 2) |> expect_equal(145 / 28)
-  round(grim_closest(5.19, 28, digits_x = 2), 2) |> expect_equal(5.18)
+  5.19 |> grim_closest(28, digits_x = 2) |> expect_equal(145 / 28)
+  5.19 |> grim_closest(28, digits_x = 2) |> round(2) |> expect_equal(5.18)
   # For a consistent value set, it is one of the `grim_values()`:
-  grim_closest(5.19, 32, digits_x = 2) |> expect_equal(5.1875)
-  grim_closest(5.19, 300, digits_x = 2) |> expect_equal(5.19)
+  5.19 |> grim_closest(32, digits_x = 2) |> expect_equal(5.1875)
+  5.19 |> grim_closest(300, digits_x = 2) |> expect_equal(5.19)
 })
 
 
@@ -28,11 +28,12 @@ test_that("both functions are vectorized like `grim()`", {
   out <- grim_values(c(5.19, 5.19, 5.19), c(32, 300, 28), digits_x = 2)
   out |> expect_type("list")
   out |> expect_length(3L)
-  lengths(out) |> expect_equal(c(1L, 3L, 0L))
+  out |> lengths() |> expect_equal(c(1L, 3L, 0L))
 
-  grim_closest(c(5.19, 5.19), c(32, 28), digits_x = 2) |>
+  c(5.19, 5.19) |>
+    grim_closest(c(32, 28), digits_x = 2) |>
     expect_equal(c(5.1875, 145 / 28))
-  grim_closest(5.19, 25:30, digits_x = 2) |> expect_length(6L)
+  5.19 |> grim_closest(25:30, digits_x = 2) |> expect_length(6L)
 })
 
 
@@ -49,12 +50,9 @@ test_that("`grim_values()` agrees with `grim()` itself", {
         consistency <- grim(x, n, digits_x = 2, rounding = rounding)
         expect_equal(length(values) > 0L, consistency, info = info)
         for (value in values) {
-          expect_equal(
-            reround(value, digits = 2, rounding = rounding)[1L] |>
-              round(10L),
-            x,
-            info = info
-          )
+          reround(value, digits = 2, rounding = rounding)[1L] |>
+            round(10L) |>
+            expect_equal(x, info = info)
         }
       }
     }
@@ -66,10 +64,11 @@ test_that("`grim_values()` matches the `sum_*` columns of `grim_map()`", {
   out <- grim_map(pigs1, digits_x = 2, show_rec = TRUE)
   values <- grim_values(pigs1$x, pigs1$n, digits_x = 2)
   counts <- pmax(0L, out$sum_upper - out$sum_lower + 1L)
-  lengths(values) |> expect_equal(as.integer(counts))
+  values |> lengths() |> expect_equal(as.integer(counts))
   # `grim_closest()` is one of them wherever there are any:
   for (i in which(out$consistency)) {
-    grim_closest(pigs1$x[i], pigs1$n[i], digits_x = 2) |>
+    pigs1$x[i] |>
+      grim_closest(pigs1$n[i], digits_x = 2) |>
       expect_in(values[[i]])
   }
 })
@@ -84,7 +83,7 @@ test_that("`percent` returns values on the scale of `x`", {
   # 40% of 5 is 2 people, so this is consistent and there is one way to get
   # there. The value comes back as 40, not as 0.4:
   grim_values(40, 5, digits_x = 0, percent = TRUE)[[1L]] |> expect_equal(40)
-  grim_closest(40, 5, digits_x = 0, percent = TRUE) |> expect_equal(40)
+  40 |> grim_closest(5, digits_x = 0, percent = TRUE) |> expect_equal(40)
 })
 
 
@@ -101,8 +100,7 @@ test_that("undecidable cases give `NA`", {
   # zero.)
   grim_values(NA, 40, digits_x = 2)[[1L]] |>
     expect_equal(NA_real_)
-  grim_closest(NA, 40, digits_x = 2) |>
-    expect_equal(NA_real_)
+  NA |> grim_closest(40, digits_x = 2) |> expect_equal(NA_real_)
 })
 
 
@@ -111,7 +109,7 @@ test_that("`rounding = \"anti_trunc\"` at a mean of zero is decidable", {
   # pins the sum to exactly 0 -- attainable only by all-zero data:
   grim_values(0, 40, digits_x = 2, rounding = "anti_trunc")[[1L]] |>
     expect_equal(0)
-  grim_closest(0, 40, digits_x = 2, rounding = "anti_trunc") |>
+  0 |> grim_closest(40, digits_x = 2, rounding = "anti_trunc") |>
     expect_equal(0)
 })
 
@@ -119,6 +117,6 @@ test_that("`rounding = \"anti_trunc\"` at a mean of zero is decidable", {
 test_that("`digits_x` is required, with the bespoke error message", {
   # `suppressMessages()` mutes the changelog hint that `error_digits_missing()`
   # prints via `on.exit()` as it unwinds:
-  suppressMessages(grim_values(5.19, 28)) |> expect_error("digits_x")
-  suppressMessages(grim_closest(5.19, 28)) |> expect_error("digits_x")
+  5.19 |> grim_values(28)  |> suppressMessages() |> expect_error("digits_x")
+  5.19 |> grim_closest(28) |> suppressMessages() |> expect_error("digits_x")
 })

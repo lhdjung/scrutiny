@@ -140,7 +140,7 @@ iris <- iris |>
   dplyr::mutate(dplyr::across(everything(), as.character)) |>
   dplyr::slice(1:5)
 
-iris_counted <- decimal_places_df(iris[1:4])
+iris_counted <- iris[1:4] |> decimal_places_df()
 
 test_that("", {
   iris_counted[[1]] |> expect_equal(as.integer(c(1, 1, 1, 1, 0)))
@@ -164,25 +164,24 @@ test_that("`decimal_places_df()` throws a warning if and only if it should", {
 # then not the decimal places of the number, so the exponent has to be applied.
 
 test_that("`decimal_places()` accounts for the exponent", {
-  decimal_places(c("1e-5", "1.5e3", "1e+05", "2.75e-2")) |>
+  c("1e-5", "1.5e3", "1e+05", "2.75e-2") |>
+    decimal_places() |>
     expect_equal(c(5L, 0L, 0L, 4L))
-  decimal_places(c(1e-5, 1e-4, 1e5)) |> expect_equal(c(5L, 4L, 0L))
+  c(1e-5, 1e-4, 1e5) |> decimal_places() |> expect_equal(c(5L, 4L, 0L))
 })
 
 
 test_that("`decimal_places_scalar()` accounts for the exponent", {
-  vapply(
-    list("1e-5", "1.5e3", "1e+05", "2.75e-2", 1e-5, 1e-4, 1e5),
-    decimal_places_scalar,
-    integer(1L)
-  ) |>
+  list("1e-5", "1.5e3", "1e+05", "2.75e-2", 1e-5, 1e-4, 1e5) |>
+    vapply(decimal_places_scalar, integer(1L)) |>
     expect_equal(c(5L, 0L, 0L, 4L, 5L, 4L, 0L))
 })
 
 
 test_that("the two functions agree on ordinary numbers", {
   values <- c("1.0", "1", "-2.750", "3.", "7.3900", "0.05")
-  decimal_places(values) |>
+  values |>
+    decimal_places() |>
     expect_equal(vapply(values, decimal_places_scalar, integer(1L), USE.NAMES = FALSE))
 })
 
@@ -217,21 +216,21 @@ test_that("the two functions agree over a generated corpus", {
     "Inf", "NaN", "NA", "", " ", NA_character_
   )
 
-  from_scalar <- vapply(
-    values, decimal_places_scalar, integer(1L), USE.NAMES = FALSE
-  )
-  decimal_places(values) |> expect_equal(from_scalar)
+  from_scalar <- values |>
+    vapply(decimal_places_scalar, integer(1L), USE.NAMES = FALSE)
+  values |> decimal_places() |> expect_equal(from_scalar)
 
   # Not a vacuous comparison -- the corpus has to exercise the whole range:
-  expect_gt(length(unique(from_scalar[!is.na(from_scalar)])), 5L)
-  expect_true(anyNA(from_scalar))
+  from_scalar[!is.na(from_scalar)] |> unique() |> length() |> expect_gt(5L)
+  from_scalar |> anyNA() |> expect_true()
 })
 
 
 test_that("only the digit run after the separator counts", {
   # Not every character after it: `str_length()` on the mantissa used to make
   # `"5.30%"` three decimal places and `"1.2.3"` three.
-  decimal_places(c("5.30%", "1.5abc", "1.2.3", "3.7,")) |>
+  c("5.30%", "1.5abc", "1.2.3", "3.7,") |>
+    decimal_places() |>
     expect_equal(c(2L, 1L, 1L, 1L))
 })
 
@@ -239,9 +238,9 @@ test_that("only the digit run after the separator counts", {
 test_that("both functions trim whitespace before reading the exponent", {
   # The exponent is matched at the end of the string, so a trailing space used
   # to hide it from `decimal_places_scalar()`.
-  decimal_places_scalar("1.5e3 ") |> expect_equal(0L)
-  decimal_places_scalar("  2.75e-2  ") |> expect_equal(4L)
-  decimal_places("1.5e3 ") |> expect_equal(0L)
+  "1.5e3 " |> decimal_places_scalar() |> expect_equal(0L)
+  "  2.75e-2  " |> decimal_places_scalar() |> expect_equal(4L)
+  "1.5e3 " |> decimal_places() |> expect_equal(0L)
 })
 
 
@@ -263,20 +262,23 @@ test_that("non-finite values have no decimal places", {
   # `NA` as `NA` was inconsistent. An infinity has no decimal places in any
   # meaningful sense either. Both used to come out as `0`, because the string
   # they are coerced to has no decimal point.
-  decimal_places(c(Inf, -Inf, NaN, NA)) |>
+  c(Inf, -Inf, NaN, NA) |>
+    decimal_places() |>
     expect_equal(rep(NA_integer_, 4L))
-  decimal_places(c("Inf", "-Inf", "NaN", NA_character_, "  NaN  ")) |>
+  c("Inf", "-Inf", "NaN", NA_character_, "  NaN  ") |>
+    decimal_places() |>
     expect_equal(rep(NA_integer_, 5L))
 
   # The scalar version agrees, as it must:
   for (value in list(Inf, -Inf, NaN, NA, "Inf", "-Inf", "NaN")) {
-    decimal_places_scalar(value) |> expect_equal(NA_integer_)
+    value |> decimal_places_scalar() |> expect_equal(NA_integer_)
   }
 
   # Ordinary values are untouched, including the documented odd ones:
   input <- c("2.851", "5.30%", "1e-5", "3.70", "  6.0   ")
   expected <- c(3L, 2L, 5L, 2L, 1L)
-  decimal_places(input) |> expect_equal(expected)
-  vapply(input, decimal_places_scalar, integer(1L), USE.NAMES = FALSE) |>
+  input |> decimal_places() |> expect_equal(expected)
+  input |>
+    vapply(decimal_places_scalar, integer(1L), USE.NAMES = FALSE) |>
     expect_equal(expected)
 })

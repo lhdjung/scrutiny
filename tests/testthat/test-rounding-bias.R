@@ -29,9 +29,7 @@ test_that("`rounding_bias()` rejects compound rounding methods", {
   # defined. The check was lost for a while, and the function then silently
   # returned twice as many values as inputs (under `mean = FALSE`), or their
   # meaningless average (under the default):
-  expect_error(rounding_bias(vec, digits = 1, rounding = "up_or_down"))
-  expect_error(
-    rounding_bias(vec, digits = 1, rounding = "up_from_or_down_from")
-  )
-  expect_error(rounding_bias(vec, digits = 1, rounding = "ceiling_or_floor"))
+  vec |> rounding_bias(digits = 1, rounding = "up_or_down")           |> expect_error()
+  vec |> rounding_bias(digits = 1, rounding = "up_from_or_down_from") |> expect_error()
+  vec |> rounding_bias(digits = 1, rounding = "ceiling_or_floor")     |> expect_error()
 })

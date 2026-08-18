@@ -82,7 +82,6 @@ test_that("missing values stay missing", {
   # `stringr::str_split_fixed()` gives `NA` an empty mantissa, which counts as
   # fewer decimal places than the target, so `sprintf()` used to format the
   # missing value into the string `"NA"`.
-  restore_zeros(c(1.5, NA, 2), width = 3) |>
-    expect_equal(c("1.500", NA, "2.000"))
-  restore_zeros(c("1.5", NA), width = 2) |> expect_equal(c("1.50", NA))
+  c(1.5, NA, 2) |> restore_zeros(width = 3) |> expect_equal(c("1.500", NA, "2.000"))
+  c("1.5", NA)  |> restore_zeros(width = 2) |> expect_equal(c("1.50", NA))
 })

@@ -89,14 +89,14 @@ test_that("the column order of `data` makes no difference", {
   # silently skipped -- returning "forth" results labeled "back" -- whenever
   # the key columns were not in the exact `y1, y2` order:
   df1_reversed <- df1[c("y2", "y1", "n")]
-  expect_identical(schlim_map_total_n(df1_reversed), df1_tested)
+  df1_reversed |> schlim_map_total_n() |> expect_identical(df1_tested)
 })
 
 test_that("the \"back\" direction really swaps the group pairings", {
   # `y1` values reappear as `y` in the "back" half's even rows (group 2), and
   # `y2` values in its odd rows (group 1) -- the reverse of "forth":
-  expect_identical(unique(df1_tested_back$y[c(TRUE, FALSE)]), df1$y2)
-  expect_identical(unique(df1_tested_back$y[c(FALSE, TRUE)]), df1$y1)
+  df1_tested_back$y[c(TRUE, FALSE)] |> unique() |> expect_identical(df1$y2)
+  df1_tested_back$y[c(FALSE, TRUE)] |> unique() |> expect_identical(df1$y1)
 })
 
 
@@ -134,31 +134,19 @@ test_that("the output carries a test-specific class", {
   # the seq tier has always set its counterpart. The total-n tier only set the
   # generic `"scrutiny_map_total_n"`, so it was the one tier whose output could
   # not be dispatched on by test:
-  expect_s3_class(
-    grim_map_total_n(tibble::tibble(x1 = 4.52, x2 = 5.23, n = 40L),
-                     digits_x = 2),
-    "scrutiny_grim_map_total_n"
-  )
-  expect_s3_class(
-    grimmer_map_total_n(
-      tibble::tibble(x1 = 4.52, x2 = 5.23, sd1 = 1.36, sd2 = 1.19, n = 40L),
-      digits_x = 2, digits_sd = 2
-    ),
-    "scrutiny_grimmer_map_total_n"
-  )
-  expect_s3_class(
-    debit_map_total_n(
-      tibble::tibble(x1 = 0.30, x2 = 0.28, sd1 = 0.17, sd2 = 0.10, n = 70L),
-      digits_x = 2, digits_sd = 2
-    ),
-    "scrutiny_debit_map_total_n"
-  )
+  tibble::tibble(x1 = 4.52, x2 = 5.23, n = 40L) |>
+    grim_map_total_n(digits_x = 2) |>
+    expect_s3_class("scrutiny_grim_map_total_n")
+  tibble::tibble(x1 = 4.52, x2 = 5.23, sd1 = 1.36, sd2 = 1.19, n = 40L) |>
+    grimmer_map_total_n(digits_x = 2, digits_sd = 2) |>
+    expect_s3_class("scrutiny_grimmer_map_total_n")
+  tibble::tibble(x1 = 0.30, x2 = 0.28, sd1 = 0.17, sd2 = 0.10, n = 70L) |>
+    debit_map_total_n(digits_x = 2, digits_sd = 2) |>
+    expect_s3_class("scrutiny_debit_map_total_n")
   # The generic class that `audit_total_n()` dispatches on is still there:
-  expect_s3_class(
-    grim_map_total_n(tibble::tibble(x1 = 4.52, x2 = 5.23, n = 40L),
-                     digits_x = 2),
-    "scrutiny_map_total_n"
-  )
+  tibble::tibble(x1 = 4.52, x2 = 5.23, n = 40L) |>
+    grim_map_total_n(digits_x = 2) |>
+    expect_s3_class("scrutiny_map_total_n")
 })
 
 
@@ -182,7 +170,7 @@ test_that("`.name_key_result` renames the key result column", {
   out |> colnames() |> expect_contains(c("verdict", "both_consistent"))
   expect_false("consistency" %in% colnames(out))
   out$verdict |> expect_type("logical")
-  audit_total_n(out) |> nrow() |> expect_equal(1L)
+  out |> audit_total_n() |> nrow() |> expect_equal(1L)
 
   vermin_map_seq <- function_map_seq(
     .fun = vermin_map,
@@ -193,7 +181,7 @@ test_that("`.name_key_result` renames the key result column", {
   out_seq <- vermin_map_seq(tibble::tibble(y = 16:25, n = 3:12))
   out_seq |> colnames() |> expect_contains("verdict")
   expect_false("consistency" %in% colnames(out_seq))
-  audit_seq(out_seq) |> colnames() |> expect_contains("verdict")
+  out_seq |> audit_seq() |> colnames() |> expect_contains("verdict")
 
   # A mismatch between the two factories' `.name_key_result` values is caught
   # with a message that names the column, rather than an obscure `NULL`:
@@ -202,7 +190,8 @@ test_that("`.name_key_result` renames the key result column", {
     .reported = c("y", "n"),
     .name_test = "SCHLIM"
   )
-  mismatched(tibble::tibble(y = 16:25, n = 3:12)) |>
+  tibble::tibble(y = 16:25, n = 3:12) |>
+    mismatched() |>
     expect_error("did not return a \"consistency\" column")
 })
 
@@ -227,9 +216,8 @@ test_that("`digits_*` is a real formal of the total-n mappers", {
   )
 
   # ...and omitting it still gives the bespoke message, not a generic one:
-  grim_map_total_n(df) |> expect_error("Need to specify `digits_x`")
-  grimmer_map_total_n(
-    tibble::tibble(x1 = 4.52, x2 = 5.23, sd1 = 1.36, sd2 = 1.19, n = 40L)
-  ) |>
+  df |> grim_map_total_n() |> expect_error("Need to specify `digits_x`")
+  tibble::tibble(x1 = 4.52, x2 = 5.23, sd1 = 1.36, sd2 = 1.19, n = 40L) |>
+    grimmer_map_total_n() |>
     expect_error("Need to specify `digits_x`")
 })

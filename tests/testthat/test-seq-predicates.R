@@ -44,7 +44,7 @@ test_that("`is_seq_descending()` with the default `test_linear = TRUE`
 
 test_that("`is_seq_descending()` with the default `test_linear = TRUE`
           returns `FALSE` when it should", {
-  1                      |> is_seq_descending() |> expect_false()
+  1 |> is_seq_descending() |> expect_false()
   c(1:10, 12)  |> rev() |> is_seq_descending() |> expect_false()
   c(3, 12, 14) |> rev() |> is_seq_descending() |> expect_false()
   c(7, 2, 20)  |> rev() |> is_seq_descending() |> expect_false()

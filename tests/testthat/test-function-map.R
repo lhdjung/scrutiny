@@ -166,11 +166,10 @@ test_that("`.args_by_row` allows one value per row and returns a column", {
     .reported = c("x", "sd", "n"),
     .name_test = "GRIMMER"
   )
-  map_const(df, digits_x = 2, digits_sd = 2) |>
+  df |> map_const(digits_x = 2, digits_sd = 2) |>
     colnames() |>
     expect_equal(c("x", "sd", "n", "consistency"))
-  map_const(df, digits_x = c(2, 1), digits_sd = 2) |>
-    expect_error()
+  df |> map_const(digits_x = c(2, 1), digits_sd = 2) |> expect_error()
 
   map_by_row <- function_map(
     .fun = grimmer_scalar,
@@ -197,7 +196,7 @@ test_that("`.col_names` unpacks the test function's values, keeping types", {
 
   # The same function returns a single value per row if it is not asked to show
   # its reconstructed values, and the factory-made function copes with both:
-  debit_map(pigs3, digits_x = 2, digits_sd = 2, show_rec = FALSE) |>
+  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, show_rec = FALSE) |>
     colnames() |>
     expect_equal(c("x", "sd", "n", "digits_x", "digits_sd", "consistency"))
 })
@@ -209,7 +208,7 @@ test_that("`.cols_helper` supports helper columns", {
   # `items` may be a column of `data`...
   grimmer_map(df, digits_x = 2, digits_sd = 2)$n |> expect_equal(6L)
   # ...or an argument, but not both if they contradict each other:
-  grimmer_map(df, digits_x = 2, digits_sd = 2, items = 5) |> expect_error()
+  df |> grimmer_map(digits_x = 2, digits_sd = 2, items = 5) |> expect_error()
   grimmer_map(pigs5, digits_x = 2, digits_sd = 2, items = 2)$n |>
     expect_equal(as.integer(pigs5$n * 2))
 })
@@ -245,7 +244,7 @@ test_that("arguments of the test function become real arguments", {
     .args_disabled = "percent"
   )
   names(formals(map_disabled)) |> expect_no_match("percent")
-  map_disabled(pigs1, digits_x = 2, percent = TRUE) |> expect_error()
+  pigs1 |> map_disabled(digits_x = 2, percent = TRUE) |> expect_error()
 })
 
 
@@ -271,11 +270,11 @@ test_that("the sequence mappers still find their `digits_*` arguments", {
   # basic mapper's formals. If a `digits_*` argument were only in the mapper's
   # dots, the sequence mapper would silently lose both the argument and the
   # `digits_*` output column that `grim_plot()` reads:
-  names(formals(grimmer_map_seq)) |> expect_contains("digits_x")
-  names(formals(grimmer_map_seq)) |> expect_contains("digits_sd")
-  names(formals(debit_map_seq)) |> expect_contains("digits_x")
-  names(formals(debit_map_seq)) |> expect_contains("digits_sd")
-  names(formals(grim_map_seq)) |> expect_contains("digits_x")
+  grimmer_map_seq |> formals() |> names() |> expect_contains("digits_x")
+  grimmer_map_seq |> formals() |> names() |> expect_contains("digits_sd")
+  debit_map_seq   |> formals() |> names() |> expect_contains("digits_x")
+  debit_map_seq   |> formals() |> names() |> expect_contains("digits_sd")
+  grim_map_seq    |> formals() |> names() |> expect_contains("digits_x")
 })
 
 
@@ -294,7 +293,7 @@ test_that("`.reported` may name any number of key columns", {
     .name_test = "QUADRANT"
   )
 
-  names(formals(quadrant_map)) |>
+  quadrant_map |> formals() |> names() |>
     expect_equal(c("data", "a", "b", "c", "d", "tolerance", "..."))
 
   df <- tibble::tibble(a = 1:3, b = 4:6, c = c(5L, 7L, 9L), d = c(0L, 0L, 1L))
@@ -305,11 +304,11 @@ test_that("`.reported` may name any number of key columns", {
 
   # Key-column renaming covers all four of them:
   df_renamed <- dplyr::rename(df, alpha = a, delta = d)
-  quadrant_map(df_renamed, a = alpha, d = delta) |> expect_equal(out)
-  quadrant_map(df_renamed, a = alpha) |> expect_error()
+  df_renamed |> quadrant_map(a = alpha, d = delta) |> expect_equal(out)
+  df_renamed |> quadrant_map(a = alpha) |> expect_error()
 
   # And so does the arity-agnostic column check:
-  quadrant_map(dplyr::select(df, -d)) |> expect_error()
+  df |> dplyr::select(-d) |> quadrant_map() |> expect_error()
 })
 
 
@@ -330,7 +329,7 @@ test_that("`.reported_variadic` decides the number of key columns at call time",
 
   # The variadic argument comes ahead of the fixed key arguments, and it has no
   # default, unlike them:
-  names(formals(sum_check_map)) |>
+  sum_check_map |> formals() |> names() |>
     expect_equal(c("data", "parts", "total", "tolerance", "..."))
   formals(sum_check_map)$parts |> rlang::is_missing() |> expect_true()
 
@@ -354,7 +353,7 @@ test_that("`.reported_variadic` decides the number of key columns at call time",
 
   # Any tidyselect expression will do, and the number of columns it picks is
   # the number of values that each test gets:
-  sum_check_map(df, parts = starts_with("item")) |>
+  df |> sum_check_map(parts = starts_with("item")) |>
     expect_equal(out)
   sum_check_map(df, parts = c(item_1, item_2))$consistency |>
     expect_equal(c(FALSE, FALSE, FALSE))
@@ -362,15 +361,15 @@ test_that("`.reported_variadic` decides the number of key columns at call time",
     expect_equal(c(TRUE, TRUE, TRUE))
 
   # A column that the selection leaves out is an ordinary other column:
-  sum_check_map(df, parts = c(item_1, item_2)) |>
+  df |> sum_check_map(parts = c(item_1, item_2)) |>
     colnames() |>
     expect_contains("item_3")
 
   # The fixed key column still supports renaming, and 0 rows still work:
   df_renamed <- dplyr::rename(df, sum_col = total)
-  sum_check_map(df_renamed, parts = starts_with("item"), total = sum_col) |>
+  df_renamed |> sum_check_map(parts = starts_with("item"), total = sum_col) |>
     expect_equal(out)
-  sum_check_map(df[0L, ], parts = starts_with("item")) |>
+  df[0L, ] |> sum_check_map(parts = starts_with("item")) |>
     nrow() |>
     expect_equal(0L)
 })
@@ -387,20 +386,20 @@ test_that("a variadic key argument must be specified, and must select real colum
   df <- tibble::tibble(a = 1, b = 2, total = 3)
 
   # No default: guessing the columns would quietly test the wrong ones.
-  sum_check_map(df) |> expect_error("must be specified")
-  sum_check_map(df, parts = c(a, nonexistent)) |> expect_error("doesn't exist")
+  df |> sum_check_map() |> expect_error("must be specified")
+  df |> sum_check_map(parts = c(a, nonexistent)) |> expect_error("doesn't exist")
 
   # An empty selection leaves the test function with no values. Without this
   # check, `purrr::pmap()` reports a recycling failure over a variable the
   # caller has never heard of:
-  sum_check_map(df, parts = c()) |> expect_error("selected no columns")
+  df |> sum_check_map(parts = c()) |> expect_error("selected no columns")
 
   # A column that has a role already cannot also be tested as one of many
   # values: it would appear twice in the output, giving a tibble with
   # duplicate column names.
-  sum_check_map(df, parts = c(a, total)) |> expect_error("role in the test")
-  sum_check_map(df, parts = everything()) |> expect_error("role in the test")
-  sum_check_map(df, parts = !total) |> expect_no_error()
+  df |> sum_check_map(parts = c(a, total)) |> expect_error("role in the test")
+  df |> sum_check_map(parts = everything()) |> expect_error("role in the test")
+  df |> sum_check_map(parts = !total) |> expect_no_error()
 
   # Helper columns count as spoken for, too:
   helper_scalar <- function(parts, total, items = 1) sum(parts) == total * items
@@ -412,7 +411,7 @@ test_that("a variadic key argument must be specified, and must select real colum
     .cols_helper = "items"
   )
   df_items <- tibble::tibble(a = 1, b = 2, total = 3, items = 1)
-  helper_map(df_items, parts = everything()) |> expect_error("role in the test")
+  df_items |> helper_map(parts = everything()) |> expect_error("role in the test")
   helper_map(df_items, parts = c(a, b))$consistency |> expect_true()
 })
 
@@ -424,7 +423,7 @@ test_that("`.reported` may be empty if `.reported_variadic` is not", {
     .reported_variadic = "values",
     .name_test = "ALLEQUAL"
   )
-  names(formals(all_equal_map)) |> expect_equal(c("data", "values", "..."))
+  all_equal_map |> formals() |> names() |> expect_equal(c("data", "values", "..."))
 
   df <- tibble::tibble(a = c(1, 2), b = c(1, 3), c = c(1, 3), id = c("x", "y"))
   out <- all_equal_map(df, values = c(a, b, c))
@@ -550,7 +549,7 @@ test_that("`.cols_derived` computes columns the test function never returns", {
   out |>
     colnames() |>
     expect_equal(c("x", "n", "digits_x", "consistency", "probability"))
-  grim_map(pigs1, digits_x = 2, show_rec = TRUE) |>
+  pigs1 |> grim_map(digits_x = 2, show_rec = TRUE) |>
     colnames() |>
     expect_equal(c(
       "x", "n", "digits_x", "consistency", "probability",
@@ -570,9 +569,9 @@ test_that("`.cols_derived` computes columns the test function never returns", {
 
 
 test_that("`.name_class_flags` adds a class when the argument is `TRUE`", {
-  grim_map(pigs2, digits_x = 1, percent = TRUE) |>
+  pigs2 |> grim_map(digits_x = 1, percent = TRUE) |>
     expect_s3_class("scrutiny_percent_true")
-  grim_map(pigs2, digits_x = 3) |>
+  pigs2 |> grim_map(digits_x = 3) |>
     inherits("scrutiny_percent_true") |>
     expect_false()
 })
@@ -580,9 +579,9 @@ test_that("`.name_class_flags` adds a class when the argument is `TRUE`", {
 
 test_that("a mapper called on a 0-row data frame returns a valid tibble", {
   for (out in list(
-    grim_map(pigs1[0L, ], digits_x = 2),
-    grimmer_map(pigs5[0L, ], digits_x = 2, digits_sd = 2),
-    debit_map(pigs3[0L, ], digits_x = 2, digits_sd = 2)
+    pigs1[0L, ] |> grim_map(digits_x = 2),
+    pigs5[0L, ] |> grimmer_map(digits_x = 2, digits_sd = 2),
+    pigs3[0L, ] |> debit_map(digits_x = 2, digits_sd = 2)
   )) {
     out |> nrow() |> expect_equal(0L)
     # The key result column is present and is a real column, not `NULL`. It
@@ -593,7 +592,7 @@ test_that("a mapper called on a 0-row data frame returns a valid tibble", {
     out$consistency |> expect_type("logical")
     # `suppressMessages()` mutes the hint that `audit.scrutiny_grimmer_map()`
     # prints when there is no `reason` column, as here with `show_reason` unset:
-    suppressMessages(audit(out)) |> nrow() |> expect_equal(1L)
+    out |> audit() |> suppressMessages() |> nrow() |> expect_equal(1L)
   }
 })
 
@@ -610,31 +609,32 @@ test_that("`data` must be a tibble, and that is checked first of all", {
     function(d) grim_map_seq(d, digits_x = 2),
     function(d) grim_map_total_n(d, digits_x = 2)
   )) {
-    mapper(as.data.frame(pigs1)) |> expect_error("must be a tibble")
-    mapper(as.matrix(pigs1)) |> expect_error("must be a tibble")
-    mapper(1:10) |> expect_error("must be a tibble")
-    mapper(NULL) |> expect_error("must be a tibble")
+    # Not aligning pipes here because the lengths are too different
+    as.data.frame(pigs1) |> mapper() |> expect_error("must be a tibble")
+    as.matrix(pigs1) |> mapper() |> expect_error("must be a tibble")
+    1:10 |> mapper() |> expect_error("must be a tibble")
+    NULL |> mapper() |> expect_error("must be a tibble")
   }
 
   # A `data.frame` gets the conversion hint...
-  grim_map(as.data.frame(pigs1), digits_x = 2) |>
+  as.data.frame(pigs1) |> grim_map(digits_x = 2) |>
     expect_error("as_tibble")
   # ...and everything else is named for what it is:
-  grim_map(1:10, digits_x = 2) |> expect_error("integer vector")
+  1:10 |> grim_map(digits_x = 2) |> expect_error("integer vector")
 
   # The most confusing case is an undefined `data`, which R resolves to
   # `utils::data()`. Nothing in this file defines a `data` object, so the calls
   # below really do hit that function. This used to be reported as the key
   # columns missing from `data`, which blamed the user's data for what was
   # really the wrong object:
-  grim_map(data, digits_x = 2) |> expect_error("must be a tibble")
-  grim_map(data, digits_x = 2) |> expect_error("`data\\(\\)` function")
-  grimmer_map(data, digits_x = 2, digits_sd = 2) |>
+  data |> grim_map(digits_x = 2) |> expect_error("must be a tibble")
+  data |> grim_map(digits_x = 2) |> expect_error("`data\\(\\)` function")
+  data |> grimmer_map(digits_x = 2, digits_sd = 2) |>
     expect_error("`data\\(\\)` function")
-  debit_map(data, digits_x = 2, digits_sd = 2) |>
+  data |> debit_map(digits_x = 2, digits_sd = 2) |>
     expect_error("`data\\(\\)` function")
-  grim_map_seq(data, digits_x = 2) |> expect_error("`data\\(\\)` function")
-  grim_map_total_n(data, digits_x = 2) |> expect_error("`data\\(\\)` function")
+  data |> grim_map_seq(digits_x = 2) |> expect_error("`data\\(\\)` function")
+  data |> grim_map_total_n(digits_x = 2) |> expect_error("`data\\(\\)` function")
 
   # A tibble that really is missing the key columns still gets the column
   # error, not the type error:
@@ -649,7 +649,7 @@ test_that("an `n` too large for integer keeps its value", {
   # before that, so the row came out saying `n = NA` and `consistency = TRUE`
   # at once -- while a missing `n` yields an `NA` verdict everywhere else.
   df <- tibble::tibble(x = c(5.19, 5.19), n = c(28, 3e9))
-  out <- expect_no_warning(grim_map(df, digits_x = 2))
+  out <- df |> grim_map(digits_x = 2) |> expect_no_warning()
   out$n |> expect_equal(c(28, 3e9))
   out$n |> expect_type("double")
   out$consistency |> expect_equal(c(FALSE, TRUE))
@@ -667,15 +667,13 @@ test_that("an `n` too large for integer keeps its value", {
   # The seq and total-n tiers coerce their own `n` columns, and they need the
   # same guard:
   df_seq <- tibble::tibble(x = 5.19, n = 3e9)
-  out_seq <- expect_no_warning(
-    grim_map_seq(df_seq, digits_x = 2, var = "x", include_consistent = TRUE)
-  )
+  out_seq <- df_seq |>
+    grim_map_seq(digits_x = 2, var = "x", include_consistent = TRUE) |>
+    expect_no_warning()
   out_seq$n |> unique() |> expect_equal(3e9)
-  expect_no_warning(grim_map_total_n(
-    tibble::tibble(x1 = 4.52, x2 = 5.23, n = 6e9),
-    digits_x = 2,
-    dispersion = 0:1
-  ))
+  tibble::tibble(x1 = 4.52, x2 = 5.23, n = 6e9) |>
+    grim_map_total_n(digits_x = 2, dispersion = 0:1) |>
+    expect_no_warning()
 })
 
 
@@ -700,9 +698,9 @@ test_that("vector-valued `rounding` and `symmetric` are rejected clearly", {
 
   # `reround()` and `unround()` are unaffected: the first has always had the
   # check, and the second is documented as vectorized over `rounding`.
-  reround(1.234, 2, rounding = c("up", "down")) |>
+  1.234 |> reround(2, rounding = c("up", "down")) |>
     expect_error("must each have length")
-  unround("1.2", rounding = c("up", "down")) |>
+  "1.2" |> unround(rounding = c("up", "down")) |>
     nrow() |>
     expect_equal(2L)
 })
@@ -714,7 +712,7 @@ test_that("a mapper's argument errors are not wrapped in `pmap()` context", {
   # own first. `purrr::pmap()`'s "i In index: 1." context would only obscure
   # the message. This used to happen for a missing required argument but not
   # for a bad `rounding` string:
-  err <- tryCatch_error(grim_map(pigs1, digits_x = 2, rounding = "nonsense"))
+  err <- pigs1 |> grim_map(digits_x = 2, rounding = "nonsense") |> tryCatch_error()
   expect_s3_class(err, "error")
   msg <- error_message_full(err)
   expect_match(msg, "designated string values")
@@ -722,7 +720,7 @@ test_that("a mapper's argument errors are not wrapped in `pmap()` context", {
 
   # Same for the missing-argument case, which is what the pre-application was
   # originally added for:
-  err <- tryCatch_error(grim_map(pigs1))
+  err <- pigs1 |> grim_map() |> tryCatch_error()
   msg <- error_message_full(err)
   expect_match(msg, "digits_x")
   expect_false(grepl("In index", msg, fixed = TRUE))
