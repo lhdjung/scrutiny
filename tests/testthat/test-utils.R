@@ -7,7 +7,7 @@ test_that("The `globalVariables()` call returns these variables as strings", {
 
 
 test_that("`wrong_spec_string()` returns a string", {
-  wrong_spec_string(4) |> expect_type("character")
+  4 |> wrong_spec_string() |> expect_type("character")
 })
 
 
@@ -64,21 +64,10 @@ test_that("`is_whole_number()` returns correct values", {
   is_whole_number(75.489) |> expect_false()
 })
 
-
+# fmt: skip
 parcel_letters_expected <- c(
-  "a",
-  "c",
-  "e",
-  "g",
-  "i",
-  "k",
-  "m",
-  "o",
-  "q",
-  "s",
-  "u",
-  "w",
-  "y"
+  "a", "c", "e", "g", "i", "k", "m", "o",
+  "q", "s", "u", "w", "y"
 )
 
 test_that("`parcel_nth_elements()` returns correct values", {
@@ -147,39 +136,40 @@ nikes <- c("Air Max", "Zoom Freak", "Phantom")
 n_list <- list(numbers, nephews, norberts, nikes)
 
 test_that("`check_lengths_congruent()` throws an error when it should", {
-  check_lengths_congruent(list(numbers, nephews, norberts, nikes)) |> expect_error()
-  check_lengths_congruent(list(numbers, nephews, norberts)) |> expect_error()
-  check_lengths_congruent(list(numbers, nephews, nikes)) |> expect_error()
-  check_lengths_congruent(list(numbers, norberts, nikes)) |> expect_error()
-  check_lengths_congruent(list(nephews, norberts, nikes)) |> expect_error()
+  list(numbers, nephews, norberts, nikes) |> check_lengths_congruent() |> expect_error()
+  list(numbers, nephews, norberts)        |> check_lengths_congruent() |> expect_error()
+  list(numbers, nephews, nikes)           |> check_lengths_congruent() |> expect_error()
+  list(numbers, norberts, nikes)          |> check_lengths_congruent() |> expect_error()
+  list(nephews, norberts, nikes)          |> check_lengths_congruent() |> expect_error()
 })
 
 test_that("`check_lengths_congruent()` throws a warning when it should", {
-  check_lengths_congruent(list(nephews, nikes), warn = TRUE) |> expect_warning()
-  check_lengths_congruent(list(numbers, numbers), warn = TRUE) |> expect_warning()
-  check_lengths_congruent(list(nephews, nephews), warn = TRUE) |> expect_warning()
-  check_lengths_congruent(list(norberts, norberts), warn = TRUE) |> expect_warning()
-  check_lengths_congruent(list(nikes, nikes), warn = TRUE) |> expect_warning()
+  list(nephews, nikes)     |> check_lengths_congruent(warn = TRUE) |> expect_warning()
+  list(numbers, numbers)   |> check_lengths_congruent(warn = TRUE) |> expect_warning()
+  list(nephews, nephews)   |> check_lengths_congruent(warn = TRUE) |> expect_warning()
+  list(norberts, norberts) |> check_lengths_congruent(warn = TRUE) |> expect_warning()
+  list(nikes, nikes)       |> check_lengths_congruent(warn = TRUE) |> expect_warning()
 })
 
 
 test_that("`check_lengths_congruent()` remains silent when it should", {
-  check_lengths_congruent(list(nephews, nikes), warn = FALSE) |> expect_silent()
-  check_lengths_congruent(list(numbers, numbers), warn = FALSE) |> expect_silent()
-  check_lengths_congruent(list(nephews, nephews), warn = FALSE) |> expect_silent()
-  check_lengths_congruent(list(norberts, norberts), warn = FALSE) |> expect_silent()
-  check_lengths_congruent(list(nikes, nikes), warn = FALSE) |> expect_silent()
+  list(nephews, nikes)     |> check_lengths_congruent(warn = FALSE) |> expect_silent()
+  list(numbers, numbers)   |> check_lengths_congruent(warn = FALSE) |> expect_silent()
+  list(nephews, nephews)   |> check_lengths_congruent(warn = FALSE) |> expect_silent()
+  list(norberts, norberts) |> check_lengths_congruent(warn = FALSE) |> expect_silent()
+  list(nikes, nikes)       |> check_lengths_congruent(warn = FALSE) |> expect_silent()
 })
 
 
+# Not aligning pipes here because the lengths are too different
 test_that("`check_lengths_congruent()` remains silent when it should", {
-  check_lengths_congruent(list(nephews, nikes), warn = FALSE) |> expect_silent()
-  check_lengths_congruent(list("a", "b", c("c", "d", "e"))) |> expect_silent()
-  check_lengths_congruent(list("a", "b")) |> expect_silent()
-  check_lengths_congruent(list(1, 2, 3, 4, 5)) |> expect_silent()
-  check_lengths_congruent(list("a", "b", "c", "d", "e")) |> expect_silent()
-  check_lengths_congruent(list(1, c(1, 2), 3, 4, 5)) |> expect_silent()
-  check_lengths_congruent(list("a", c("a", "b"), "c", "d", "e")) |> expect_silent()
+  list(nephews, nikes) |> check_lengths_congruent(warn = FALSE) |> expect_silent()
+  list("a", "b", c("c", "d", "e")) |> check_lengths_congruent() |> expect_silent()
+  list("a", "b") |> check_lengths_congruent() |> expect_silent()
+  list(1, 2, 3, 4, 5) |> check_lengths_congruent() |> expect_silent()
+  list("a", "b", "c", "d", "e") |> check_lengths_congruent() |> expect_silent()
+  list(1, c(1, 2), 3, 4, 5) |> check_lengths_congruent() |> expect_silent()
+  list("a", c("a", "b"), "c", "d", "e") |> check_lengths_congruent() |> expect_silent()
 })
 
 
@@ -234,15 +224,15 @@ test_that("`check_lengths_congruent()` accepts arguments of equal length", {
   b2 <- 3:4
   s1 <- 1
 
-  expect_no_error(check_lengths_congruent(list(a2, b2, s1)) |> suppressWarnings())
-  expect_no_error(
-    check_lengths_congruent(list(a2, s1, b2, s1, s1)) |> suppressWarnings()
-  )
-  expect_no_condition(check_lengths_congruent(list(a2, s1, s1)))
-  expect_no_condition(check_lengths_congruent(list(s1, s1, s1)))
-
+  
+  list(a2, b2, s1) |> check_lengths_congruent() |> suppressWarnings() |> expect_no_error()
+  list(a2, s1, b2, s1, s1) |> check_lengths_congruent() |> suppressWarnings() |> expect_no_error()
+  
+  list(a2, s1, s1) |> check_lengths_congruent() |> expect_no_condition()
+  list(s1, s1, s1) |> check_lengths_congruent() |> expect_no_condition()
+  
   # The pairing warning still fires for the congruent case:
-  expect_warning(check_lengths_congruent(list(a2, b2)))
+  list(a2, b2) |> check_lengths_congruent() |> expect_warning()
 })
 
 test_that("`check_lengths_congruent()` rejects genuinely unequal lengths", {
@@ -250,10 +240,9 @@ test_that("`check_lengths_congruent()` rejects genuinely unequal lengths", {
   b2 <- 3:4
   c3 <- 1:3
 
-  expect_error(check_lengths_congruent(list(a2, c3)))
-  expect_error(check_lengths_congruent(list(a2, 1, c3, 1)))
-  # ...and it names the pair that actually disagrees, not the congruent one:
-  expect_error(check_lengths_congruent(list(a2, b2, c3)), regexp = "c3")
+  list(a2, c3) |> check_lengths_congruent() |> expect_error()
+  list(a2, 1, c3, 1) |> check_lengths_congruent() |> expect_error()
+  list(a2, b2, c3) |> check_lengths_congruent() |> expect_error(regexp = "c3")
 })
 
 
@@ -282,6 +271,7 @@ test_that("`check_newly_numeric()` accepts a value that fits `digits`", {
   expect_silent(check_newly_numeric(5, 0))
   expect_silent(check_newly_numeric(0, 0))
   expect_silent(check_newly_numeric(-5.19, 2))
+
   # These are not the doubles for `0.3` and `0.8`, so the fast path cannot
   # settle them; the string comparison behind it can, and does:
   expect_silent(check_newly_numeric(0.1 + 0.2, 1))
@@ -293,8 +283,10 @@ test_that("`check_newly_numeric()` rejects a value with more decimal places", {
   expect_error(check_newly_numeric(5.195, 2))
   expect_error(check_newly_numeric(-5.195, 2))
   expect_error(check_newly_numeric(2.675, 2))
+
   # A tiny value is not a whole number scaled up, however close to zero it is:
   expect_error(check_newly_numeric(1e-20, 2))
+
   # A negative `digits` is not a way to demand whole hundreds:
   expect_error(check_newly_numeric(500, -2))
 })
@@ -302,13 +294,15 @@ test_that("`check_newly_numeric()` rejects a value with more decimal places", {
 
 test_that("`check_newly_numeric()` agrees with counting decimal places", {
   set.seed(1010)
+
   x <- c(
     0, 1, -1, 5.19, -5.19, 0.1 + 0.2, 0.1 + 0.7, 2.675, 1e-20, 1e-16, 1 / 3,
     pi, 123456789012345.5, 1e6 + 0.5, 1e-4, 1e-5, 1e5, 8.7,
-    round(runif(30, -1e5, 1e5), 3),
-    round(runif(30, -1, 1), 7),
+    runif(30, -1e5, 1e5) |> round(3),
+    runif(30, -1, 1) |> round(7),
     runif(15, -10, 10)
   )
+
   for (digits in 0:5) {
     fast <- vapply(x, passes_check_newly_numeric, logical(1L), digits = digits)
     counted <- digits >= vapply(x, decimal_places_scalar, integer(1L))
@@ -328,16 +322,22 @@ test_that("`is_decidable_n_items()` agrees between its two paths", {
     items = c(1, 2, 3, 0, 1.5, -1, NA, Inf),
     min_n = c(1, 2)
   )
+
   for (min_n in c(1, 2)) {
     rows <- grid[grid$min_n == min_n, ]
-    scalar <- vapply(
-      seq_len(nrow(rows)),
-      function(i) is_decidable_n_items(rows$n[i], rows$items[i], min_n),
-      logical(1L)
-    )
+
+    scalar <- rows |> 
+      nrow() |> 
+      seq_len() |> 
+      vapply(
+        function(i) is_decidable_n_items(rows$n[i], rows$items[i], min_n),
+        logical(1L)
+      )
+
     # Vectors take the other branch, whole columns at a time:
     vectorized <- is_decidable_n_items(rows$n, rows$items, min_n)
     expect_identical(scalar, vectorized)
+
     # Neither is ever `NA`, whatever went in:
     expect_false(anyNA(vectorized))
   }
@@ -345,7 +345,7 @@ test_that("`is_decidable_n_items()` agrees between its two paths", {
 
 
 test_that("`is_decidable_n_items()` recycles like the vector path", {
-  is_decidable_n_items(c(28, 20.5), 1) |> expect_identical(c(TRUE, FALSE))
-  is_decidable_n_items(28, c(1, 1.5)) |> expect_identical(c(TRUE, FALSE))
-  is_decidable_n_items(numeric(0), 1) |> expect_identical(logical(0))
+  c(28, 20.5) |> is_decidable_n_items(1)         |> expect_identical(c(TRUE, FALSE))
+  28          |> is_decidable_n_items(c(1, 1.5)) |> expect_identical(c(TRUE, FALSE))
+  numeric(0)  |> is_decidable_n_items(1)         |> expect_identical(logical(0))
 })
