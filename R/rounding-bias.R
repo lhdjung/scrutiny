@@ -57,19 +57,25 @@ rounding_bias <- function(
   # If any two arguments called right below are length > 1, they need to have
   # the same length. Otherwise, the call will fail. But even so, there will be a
   # warning that values will get paired:
-  check_lengths_congruent(list(
-    x,
-    digits,
-    rounding,
-    threshold,
-    symmetric
-  ))
+  check_lengths_congruent(list(x, digits))
+
+  # `rounding`, `threshold`, and `symmetric` are deliberately left out. They
+  # describe one rounding procedure, and `reround()` requires each of them to
+  # have length 1, so including them here produced a warning about values
+  # "getting paired" for arguments that cannot be paired at all -- immediately
+  # followed by an error from `reround()` saying so.
 
   # A compound method makes `reround()` return two values per input value, so
   # the subtraction below would recycle `x` across them and return twice as many
   # "biases" as there are inputs, all of them meaningless.
+  # `%in%` rather than `==`: the latter compares element by element, so a
+  # `rounding` of length 2 was recycled against this length-3 vector and drew
+  # R's "longer object length is not a multiple" warning before the check below
+  # could say anything about it.
   if (
-    any(rounding == c("up_or_down", "up_from_or_down_from", "ceiling_or_floor"))
+    any(
+      rounding %in% c("up_or_down", "up_from_or_down_from", "ceiling_or_floor")
+    )
   ) {
     cli::cli_abort(c(
       "`rounding` must be a single rounding procedure.",

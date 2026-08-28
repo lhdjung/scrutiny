@@ -112,3 +112,18 @@ test_that("`digits` may have one value per element of `x`", {
   # ...as is a non-whole `digits`:
   0.4 |> reround_to_fraction(denominator = 2, digits = 1.5) |> expect_error()
 })
+
+
+test_that("no pairing warning for arguments that cannot be paired", {
+  # See the same test in test-rounding-bias.R.
+  for (f in list(reround_to_fraction, reround_to_fraction_level)) {
+    expect_warning(
+      tryCatch(
+        f(c(0.4, 0.6), denominator = 2, rounding = c("up", "down")),
+        error = function(e) NULL
+      ),
+      regexp = NA
+    )
+    expect_error(f(c(0.4, 0.6), denominator = 2, rounding = c("up", "down")))
+  }
+})

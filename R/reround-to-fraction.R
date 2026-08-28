@@ -94,14 +94,13 @@ reround_to_fraction <- function(
   # If any two arguments called right below are length > 1, they need to have
   # the same length. Otherwise, the call will fail. But even so, there will be a
   # warning that values will get paired:
-  check_lengths_congruent(list(
-    x,
-    denominator,
-    digits,
-    rounding,
-    threshold,
-    symmetric
-  ))
+  check_lengths_congruent(list(x, denominator, digits))
+
+  # `rounding`, `threshold`, and `symmetric` are deliberately left out. They
+  # describe one rounding procedure, and `reround()` requires each of them to
+  # have length 1, so including them here produced a warning about values
+  # "getting paired" for arguments that cannot be paired at all -- immediately
+  # followed by an error from `reround()` saying so.
 
   # Check whether `denominator` values are >= 1:
   if (any(denominator < 1)) {
@@ -111,7 +110,6 @@ reround_to_fraction <- function(
       "x" = "It has {value_values} {denominator[denominator < 1]}."
     ))
   }
-
 
   # The compound methods used to be expanded into their two constituents here,
   # because `reround()` took a vector of procedures and paired them with `x`.
@@ -210,14 +208,13 @@ reround_to_fraction_level <- function(
   # If any two arguments called right below are length > 1, they need to have
   # the same length. Otherwise, the call will fail. But even so, there will be a
   # warning that values will get paired:
-  check_lengths_congruent(list(
-    x,
-    denominator,
-    digits,
-    rounding,
-    threshold,
-    symmetric
-  ))
+  check_lengths_congruent(list(x, denominator, digits))
+
+  # `rounding`, `threshold`, and `symmetric` are deliberately left out. They
+  # describe one rounding procedure, and `reround()` requires each of them to
+  # have length 1, so including them here produced a warning about values
+  # "getting paired" for arguments that cannot be paired at all -- immediately
+  # followed by an error from `reround()` saying so.
 
   if (any(denominator < 1)) {
     value_values <- dplyr::if_else(length(denominator) == 1L, "value", "values")

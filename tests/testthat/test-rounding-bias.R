@@ -33,3 +33,24 @@ test_that("`rounding_bias()` rejects compound rounding methods", {
   vec |> rounding_bias(digits = 1, rounding = "up_from_or_down_from") |> expect_error()
   vec |> rounding_bias(digits = 1, rounding = "ceiling_or_floor")     |> expect_error()
 })
+
+
+test_that("no pairing warning for arguments that cannot be paired", {
+  # `rounding`, `threshold`, and `symmetric` describe one rounding procedure,
+  # and `reround()` requires each of them to have length 1. They were still
+  # being length-checked against `x` here, so a vector `rounding` first drew a
+  # warning about values "getting paired" and then errored for being unpairable.
+  expect_warning(
+    tryCatch(
+      rounding_bias(c(1.25, 2.35), digits = 1, rounding = c("up", "down")),
+      error = function(e) NULL
+    ),
+    regexp = NA
+  )
+  # The error itself is still the right one:
+  c(1.25, 2.35) |>
+    rounding_bias(digits = 1, rounding = c("up", "down")) |>
+    expect_error()
+  # `x` and `digits` are still paired, and still warn about it:
+  c(1.25, 2.35) |> rounding_bias(digits = c(1, 2)) |> expect_warning()
+})
