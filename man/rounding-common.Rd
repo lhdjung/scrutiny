@@ -28,21 +28,25 @@ hundred".}
 The point within a step at which rounding switches direction, in tenths of
 a step, so it must be greater than \code{0} and less than \code{10}.
 
-\code{round_up_from()} rounds up when the part cut off by rounding is at least
-\code{threshold} tenths of a step. \code{round_down_from()} is its mirror image, and
-the mirroring covers \code{threshold} as well: it rounds \emph{down} when the cut-off
-part is at most \code{10 - threshold} tenths of a step. Put differently,
-\code{round_down_from(x, threshold = t)} switches direction at the same point as
-\code{round_up_from(x, threshold = 10 - t)}, and differs from it only in sending
-a value sitting exactly on that point down rather than up.
+It means the same thing in both functions. \code{round_up_from()} rounds up when
+the part cut off by rounding is at least \code{threshold} tenths of a step, and
+\code{round_down_from()} rounds down when it is at most that many, so the two
+differ only in where they send a value sitting exactly on the threshold.
+\code{round_up()} and \code{round_down()} are the pair at the \code{threshold} of \code{5}.
 
-The two coincide at \code{5}, the value that \code{round_up()} and \code{round_down()}
-use, so the distinction only matters for other thresholds.}
+Up to scrutiny 1.0.0, \code{round_down_from()} was the point reflection of
+\code{round_up_from()} instead, switching direction at \code{10 - threshold}. The two
+agreed at \code{5} and nowhere else, which made
+\code{rounding = "up_from_or_down_from"} span up to 1.8 steps -- more than any
+one rounding procedure can -- and so made consistency tests under it far
+too permissive.}
 
 \item{symmetric}{Logical. Set \code{symmetric} to \code{TRUE} if the rounding of
 negative numbers should mirror that of positive numbers so that their
-absolute values are equal. Only affects ties, and only in negative numbers.
-Default is \code{FALSE}. See the \verb{Negative numbers} section.}
+absolute values are equal. Only affects negative numbers, and among those
+only values sitting on the threshold -- which, at the default \code{threshold}
+of \code{5}, means ties. Default is \code{FALSE}. See the \verb{Negative numbers}
+section.}
 }
 \value{
 Numeric. \code{x} rounded to \code{digits}.
@@ -79,9 +83,16 @@ to reconstruct the computations of researchers who might have used
 different software. See \code{vignette("rounding-options")}.
 }
 \section{Negative numbers}{
- \code{symmetric} decides how ties in negative numbers
-are broken, and it decides nothing else: every other value has a single
-nearest neighbor, which all of these functions round to.
+ \code{symmetric} mirrors the whole rounding procedure
+about zero, so a negative number is rounded like its absolute value. For
+\code{round_up()} and \code{round_down()}, whose threshold is \code{5}, that comes to
+deciding how ties in negative numbers are broken and nothing else: every
+other value has a single nearest neighbor, which both functions round to.
+
+For \code{round_up_from()} and \code{round_down_from()} with some other \code{threshold},
+it decides more than ties, because the value the procedure hesitates over
+is no longer the midpoint: \code{round_up_from(-4.28, 1, threshold = 9)} is
+\code{-4.3}, and \code{-4.2} with \code{symmetric = TRUE}.
 
 By default (\code{symmetric = FALSE}), \code{round_up()} moves a tie to the higher
 number on the number line, so \code{round_up(-2.5)} is \code{-2}, and \code{round_down()}

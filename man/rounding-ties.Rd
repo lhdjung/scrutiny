@@ -6,6 +6,7 @@
 \alias{round_ties_down}
 \alias{round_ties_away}
 \alias{round_ties_zero}
+\alias{round_ties_even}
 \title{Rounding procedures named by their tie-breaking rule}
 \usage{
 round_ties_up(x, digits = 0L)
@@ -15,6 +16,8 @@ round_ties_down(x, digits = 0L)
 round_ties_away(x, digits = 0L)
 
 round_ties_zero(x, digits = 0L)
+
+round_ties_even(x, digits = 0L)
 }
 \arguments{
 \item{x}{Numeric. The decimal number to round.}
@@ -33,11 +36,14 @@ a value exactly halfway between two such numbers:
 \item \code{round_ties_down()} sends a tie to the lower number.
 \item \code{round_ties_away()} sends a tie away from zero.
 \item \code{round_ties_zero()} sends a tie toward zero.
+\item \code{round_ties_even()} sends a tie to whichever of the two is even.
 }
 
-They are the four combinations of \code{\link[=round_up]{round_up()}} and \code{\link[=round_down]{round_down()}} with
-\code{symmetric}, under names that say which procedure they are. Use whichever
-spelling you prefer; the results are identical.
+The first four are the combinations of \code{\link[=round_up]{round_up()}} and \code{\link[=round_down]{round_down()}}
+with \code{symmetric}, under names that say which procedure they are. Use
+whichever spelling you prefer; the results are identical.
+\code{round_ties_even()} is \code{\link[base:Round]{base::round()}}, which has no such second
+spelling; it is here so that the family is complete.
 }
 \details{
 For non-negative numbers, \code{round_ties_up()} and \code{round_ties_away()}
@@ -48,9 +54,18 @@ The pairs only differ for numbers below zero. See the
 \code{round_ties_away()} is IEEE 754's \emph{roundTiesToAway}, and the procedure that
 Excel's \code{ROUND()}, SPSS's \code{RND()}, SAS's \code{ROUND()}, Matlab's \code{round()}, and
 \code{janitor::round_half_up()} all implement. \code{round_ties_up()} is what Stata's
-\code{round()} does. \code{\link[base:Round]{base::round()}} is \emph{roundTiesToEven}, reached in scrutiny
-through \code{rounding = "even"}. \code{vignette("rounding-options")} maps each
-program to a setting.
+\code{round()} does. \code{round_ties_even()} is \emph{roundTiesToEven}, the standard's
+default direction and the one R, Python, and NumPy take; it is
+\code{\link[base:Round]{base::round()}}, reached in scrutiny through \code{rounding = "even"} or
+\code{"ties_even"}. \code{vignette("rounding-options")} maps each program to a
+setting.
+
+Unlike the other four, \code{round_ties_even()} cannot be predicted from the
+decimal you see: \code{base::round()} breaks a tie by the parity of the binary
+double, and most decimal fractions are not exactly representable, so a
+number that looks like a tie usually is not one. Consistency tests handle
+that by treating both bounds of \code{rounding = "even"} as inclusive rather
+than guessing; see the \code{Rounding} section of \code{\link[=unround]{unround()}}.
 
 Note that "up" and "down" here mean up and down \emph{on the number line}, not
 the away-from-zero sense that "round up" carries in Excel and in Java's and
@@ -69,9 +84,15 @@ round_ties_down(x = c(-2.5, 2.5))
 round_ties_away(x = c(-2.5, 2.5))    # Excel, SPSS, SAS, Matlab
 round_ties_zero(x = c(-2.5, 2.5))
 
-# Each is a spelling of a `round_up()` or `round_down()` call:
+# Each of the four is a spelling of a `round_up()`
+# or `round_down()` call:
 round_ties_away(x = -2.5)
 round_up(x = -2.5, symmetric = TRUE)
+
+# `round_ties_even()` is `base::round()`, so it goes
+# by the parity of the binary double, not of the
+# decimal shown here:
+round_ties_even(x = c(0.5, 1.5, 2.5))
 }
 \seealso{
 \code{\link[=round_up]{round_up()}} for the same four procedures spelled as two functions

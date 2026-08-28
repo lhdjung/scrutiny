@@ -25,8 +25,7 @@ direction, in tenths of a step, for the \code{"up_from"}, \code{"down_from"}, an
 \code{"up_from_or_down_from"} methods; it must be greater than \code{0} and less than
 \code{10}. Other rounding methods are not affected. Default is \code{5}, which makes
 those three methods the same as \code{"up"}, \code{"down"}, and \code{"up_or_down"}. See
-\code{\link[=round_up_from]{round_up_from()}}, which spells out how \code{round_down_from()} mirrors the
-threshold.}
+\code{\link[=round_up_from]{round_up_from()}}, which spells out what it means in each direction.}
 
 \item{digits}{Integer. This argument is meant to make \code{unround()} more
 efficient to use as a helper function so that it doesn't need to
@@ -37,8 +36,9 @@ must be a string.}
 \item{symmetric}{Logical. Set \code{symmetric} to \code{TRUE} if the rounding of
 negative numbers with \code{"up"}, \code{"down"}, \code{"up_from"}, or \code{"down_from"}
 mirrored that of positive numbers, so that their absolute values were
-always equal. Default is \code{FALSE}. It only ever affects ties in negative
-numbers, but \code{TRUE} is what reconstructs Excel, SAS, SPSS, and Matlab; see
+always equal. Default is \code{FALSE}. It only ever affects negative numbers,
+and with \code{"up"} and \code{"down"} only ties among those; \code{TRUE} is what
+reconstructs Excel, SAS, SPSS, and Matlab. See
 \code{vignette("rounding-options")}.}
 }
 \value{
@@ -104,7 +104,7 @@ rounded. Set \code{rounding} to the rounding method that hypothetically lead to
    \code{"anti_trunc"} (zero \code{x}) \tab \code{lower = x = upper} (all \code{0}) \cr
    \code{"up_from"} \tab \verb{lower <= x < upper} \cr
    \code{"down_from"} \tab \verb{lower < x <= upper} \cr
-   \code{"up_from_or_down_from"} \tab (depends on \code{threshold}) \cr
+   \code{"up_from_or_down_from"} \tab \verb{lower <= x <= upper} \cr
 }
 
 
@@ -123,6 +123,12 @@ Note that \code{threshold} applies only to \code{"up_from"}, \code{"down_from"},
 \code{"up_from_or_down_from"}. The plain \code{"up"}, \code{"down"}, and \code{"up_or_down"}
 methods round from a fixed 5 -- see \code{\link[=round_up]{round_up()}} -- so their bounds do
 not depend on it.
+
+\code{threshold} moves a range but never widens it: the three \code{"*_from"} methods
+span exactly one step at every threshold, just as \code{"up"}, \code{"down"}, and
+\code{"up_or_down"} do at the 5 they are fixed to. Up to scrutiny 1.0.0 they did
+not, because \code{round_down_from()} switched direction at \code{10 - threshold}
+rather than at \code{threshold}; see that function's \code{threshold} parameter.
 
 Base R's own \code{round()} (R version >= 4.0.0), referenced by \code{rounding = "even"}, is reconstructed in the same way as \code{"up_or_down"}. Whether its
 boundary values are really inclusive is hard to predict: \code{round()} breaks

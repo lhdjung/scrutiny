@@ -28,16 +28,17 @@ or \code{"up_from_or_down_from"}, \code{threshold} is the point within a step at
 which rounding switches direction, in tenths of a step; it must be greater
 than \code{0} and less than \code{10}. Otherwise irrelevant. Default is \code{5}, which
 makes those three methods the same as \code{"up"}, \code{"down"}, and \code{"up_or_down"}.
-See \code{\link[=round_up_from]{round_up_from()}}, which spells out how \code{round_down_from()} mirrors
-the threshold.}
+\code{threshold} means the same thing in both directions, so it moves a range
+without widening it; see \code{\link[=round_up_from]{round_up_from()}}.}
 
 \item{symmetric}{Logical. Set \code{symmetric} to \code{TRUE} if the rounding of
 negative numbers with \code{"up_or_down"}, \code{"up"}, \code{"down"},
 \code{"up_from_or_down_from"}, \code{"up_from"}, or \code{"down_from"} should mirror that
 of positive numbers so that their absolute values are always equal.
-Otherwise irrelevant. Default is \code{FALSE}. It only ever affects ties in
-negative numbers, but \code{TRUE} is what reconstructs Excel, SAS, SPSS, and
-Matlab; see \code{vignette("rounding-options")}.}
+Otherwise irrelevant. Default is \code{FALSE}. It only ever affects negative
+numbers, and with \code{"up_or_down"}, \code{"up"}, and \code{"down"} only ties among
+those; \code{TRUE} is what reconstructs Excel, SAS, SPSS, and Matlab. See
+\code{vignette("rounding-options")}.}
 }
 \value{
 Numeric. One value per element of \code{x} -- except for the three
