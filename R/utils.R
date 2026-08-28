@@ -718,13 +718,23 @@ add_class <- function(x, new_class) {
 #'
 #' @noRd
 check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
-  var_names <- rlang::enexprs(var_list)
   var_lengths <- lengths(var_list)
   var_list_gt1 <- var_list[var_lengths > 1L]
 
   # Condition of checking for error and warning:
   if (length(var_list_gt1) > 1L) {
-    var_names <- var_names[[1L]][-1L]
+    # The argument names are only ever needed inside this branch, and capturing
+    # them is by far the most expensive thing the function does -- some thirty
+    # times the cost of everything else here put together. It used to be done
+    # unconditionally at the top with `rlang::enexprs()`, which every caller
+    # paid for on every call, `reround()` included, and that one is called once
+    # per candidate sum inside GRIMMER's loop.
+    #
+    # `substitute()` rather than `enexprs()` because `lengths()` above has
+    # already forced the promise, and a forced promise makes `enexprs()` return
+    # the *values* rather than the expression -- the names would be lost.
+    # `substitute()` reads `PRCODE`, which survives forcing.
+    var_names <- as.list(substitute(var_list))[-1L]
     var_names <- as.character(var_names)
     var_names_gt1 <- var_names[var_lengths > 1L]
     vnames_gt1_all <- var_names_gt1 # for the warning
