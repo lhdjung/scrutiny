@@ -963,10 +963,17 @@ check_tibble <- function(data) {
 #'   before using it, so scrutiny's own methods disagreed with each other on the
 #'   same input.
 #'
-#'   The check is not repeated in the `round_*()` primitives. Those run once per
-#'   candidate value inside GRIMMER's loop over sums of squares, and a mapper
-#'   multiplies that by the rows; `reround()` is the one place every path
-#'   passes through exactly once.
+#'   The check is not repeated in the `round_*()` primitives, which run once per
+#'   candidate value inside GRIMMER's loop over sums of squares, multiplied by
+#'   the rows of a mapper call. `reround()` is one level up from that: it is
+#'   called once per candidate sum, not once per candidate value, and it is the
+#'   one place every rounding path goes through. That is still a hot enough spot
+#'   that the check returns on its first pass over `digits` and touches `cli`
+#'   only when something is actually wrong.
+#'
+#'   The whole-number test is inlined against `WHOLE_NUMBER_TOLERANCE` rather
+#'   than calling `is_whole_number()`, as `check_newly_numeric()` does and for
+#'   the same reason.
 #'
 #'   A missing `digits` passes, so that it propagates to an `NA` result the way
 #'   a missing `x` does. An infinite one does not: it is not a decimal level,
