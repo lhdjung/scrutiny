@@ -489,7 +489,7 @@ sum_squares_scale_max <- function(s, n, val_lower, val_upper) {
 #'   | `"ties_away"` (negative `x`)           | `lower < x <= upper`         |
 #'   | `"ties_zero"` (positive `x`)           | `lower < x <= upper`         |
 #'   | `"ties_zero"` (negative `x`)           | `lower <= x < upper`         |
-#'   | `"even"`                               | `lower <= x <= upper`        |
+#'   | `"even"`, `"ties_even"`                | `lower <= x <= upper`        |
 #'   | `"ceiling"`                            | `lower < x = upper`          |
 #'   | `"floor"`                              | `lower = x < upper`          |
 #'   | `"ceiling_or_floor"`                   | `lower < x < upper`          |
@@ -508,11 +508,14 @@ sum_squares_scale_max <- function(s, n, val_lower, val_upper) {
 #'   exactly the rounding methods those tests do, and `threshold` and
 #'   `symmetric` mean the same thing everywhere.
 #'
-#'   The four `"ties_*"` methods each name a complete tie-breaking procedure,
+#'   The five `"ties_*"` methods each name a complete tie-breaking procedure,
 #'   so they say by themselves what `rounding` and `symmetric` say together:
 #'   `"ties_up"` is `"up"` with `symmetric = FALSE`, `"ties_away"` is `"up"`
 #'   with `symmetric = TRUE`, and likewise for `"ties_down"` and `"ties_zero"`.
-#'   `symmetric` is not consulted for them. See [`round_ties_up()`].
+#'   `"ties_even"` is the odd one out: it is another name for `"even"`, which no
+#'   combination of a threshold and `symmetric` produces, since parity is not a
+#'   direction. `symmetric` is not consulted for any of them. See
+#'   [`round_ties_up()`].
 #'
 #'   Note that `threshold` applies only to `"up_from"`, `"down_from"`, and
 #'   `"up_from_or_down_from"`. The plain `"up"`, `"down"`, and `"up_or_down"`

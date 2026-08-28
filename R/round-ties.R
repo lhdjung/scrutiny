@@ -53,13 +53,13 @@
 #'
 #' @name rounding-ties
 #'
-#' @seealso [`round_up()`] for the same four procedures spelled as two functions
-#'   plus a `symmetric` argument, and for the shared details on thresholds and
-#'   floating-point tolerance. [`round_ceiling()`] for procedures that ignore
-#'   which number is nearer.
+#' @seealso [`round_up()`] for the first four procedures spelled as two
+#'   functions plus a `symmetric` argument, and for the shared details on
+#'   thresholds and floating-point tolerance. [`round_ceiling()`] for procedures
+#'   that ignore which number is nearer.
 #'
 #' @examples
-#' # The four procedures agree on everything except ties:
+#' # All five agree on everything except ties:
 #' round_ties_up(x = 1.24, digits = 1)
 #' round_ties_down(x = 1.24, digits = 1)
 #'

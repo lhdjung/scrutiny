@@ -92,7 +92,7 @@ rounded. Set \code{rounding} to the rounding method that hypothetically lead to
    \code{"ties_away"} (negative \code{x}) \tab \verb{lower < x <= upper} \cr
    \code{"ties_zero"} (positive \code{x}) \tab \verb{lower < x <= upper} \cr
    \code{"ties_zero"} (negative \code{x}) \tab \verb{lower <= x < upper} \cr
-   \code{"even"} \tab \verb{lower <= x <= upper} \cr
+   \code{"even"}, \code{"ties_even"} \tab \verb{lower <= x <= upper} \cr
    \code{"ceiling"} \tab \code{lower < x = upper} \cr
    \code{"floor"} \tab \code{lower = x < upper} \cr
    \code{"ceiling_or_floor"} \tab \verb{lower < x < upper} \cr
@@ -113,11 +113,14 @@ The bounds come from the same internal machinery that \code{\link[=grim]{grim()}
 exactly the rounding methods those tests do, and \code{threshold} and
 \code{symmetric} mean the same thing everywhere.
 
-The four \code{"ties_*"} methods each name a complete tie-breaking procedure,
+The five \code{"ties_*"} methods each name a complete tie-breaking procedure,
 so they say by themselves what \code{rounding} and \code{symmetric} say together:
 \code{"ties_up"} is \code{"up"} with \code{symmetric = FALSE}, \code{"ties_away"} is \code{"up"}
 with \code{symmetric = TRUE}, and likewise for \code{"ties_down"} and \code{"ties_zero"}.
-\code{symmetric} is not consulted for them. See \code{\link[=round_ties_up]{round_ties_up()}}.
+\code{"ties_even"} is the odd one out: it is another name for \code{"even"}, which no
+combination of a threshold and \code{symmetric} produces, since parity is not a
+direction. \code{symmetric} is not consulted for any of them. See
+\code{\link[=round_ties_up]{round_ties_up()}}.
 
 Note that \code{threshold} applies only to \code{"up_from"}, \code{"down_from"}, and
 \code{"up_from_or_down_from"}. The plain \code{"up"}, \code{"down"}, and \code{"up_or_down"}

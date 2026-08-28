@@ -53,8 +53,9 @@ Finally, five options name a complete tie-breaking procedure, so that `symmetric
 
 -   `"ties_up"` sends a tie to the higher number, `"ties_down"` to the lower one.
 -   `"ties_away"` sends a tie away from zero, `"ties_zero"` toward it.
+-   `"ties_even"` sends a tie to whichever of the two is even.
 
-A fifth name, `"ties_even"`, is another spelling of `"even"`. Rounding to even is its own mirror image, so `symmetric` was never relevant to it; the name is there because *roundTiesToEven* is IEEE 754's default direction, and a family whose point is naming the tie rule should not leave out the most common rule of all.
+`"ties_even"` is the odd one out: it is another spelling of `"even"`, not of anything built from `symmetric`. Rounding to even is its own mirror image, so `symmetric` was never relevant to it; the name is there because *roundTiesToEven* is IEEE 754's default direction, and a family whose point is naming the tie rule should not leave out the most common rule of all.
 
 `"ties_up"` is `"up"` with `symmetric = FALSE`; `"ties_away"` is `"up"` with `symmetric = TRUE`. They exist because that translation is easy to get backwards, and because "up" means away from zero in Excel, Java, and Python, but on the number line in scrutiny. The matching functions are `round_ties_up()`, `round_ties_down()`, `round_ties_away()`, `round_ties_zero()`, and `round_ties_even()`.
 

@@ -124,13 +124,15 @@ test_that("`unround()` bounds agree with the rounding they invert (sweep)", {
   methods <- c(
     "up_or_down", "up", "down", "even", "ceiling", "floor", "ceiling_or_floor",
     "trunc", "anti_trunc", "up_from", "down_from", "up_from_or_down_from",
-    "ties_up", "ties_down", "ties_away", "ties_zero"
+    "ties_up", "ties_down", "ties_away", "ties_zero", "ties_even"
   )
   # `"even"` is the one method whose bounds cannot be pinned down, since
   # `base::round()` breaks ties by the parity of the binary double. Both of its
   # bounds are deliberately reported as inclusive, which can only widen the
-  # range, so only the "inside rounds back" half of the property applies to it:
-  methods_exact <- setdiff(methods, "even")
+  # range, so only the "inside rounds back" half of the property applies to it.
+  # `"ties_even"` is the same method under its other name, so it is carved out
+  # with it rather than treated as an exact one:
+  methods_exact <- setdiff(methods, c("even", "ties_even"))
 
   n_checked <- 0L
 

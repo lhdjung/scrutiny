@@ -74,7 +74,7 @@ or always toward it, regardless of ties, see \code{\link[=round_anti_trunc]{roun
 \code{\link[=round_trunc]{round_trunc()}}.
 }
 \examples{
-# The four procedures agree on everything except ties:
+# All five agree on everything except ties:
 round_ties_up(x = 1.24, digits = 1)
 round_ties_down(x = 1.24, digits = 1)
 
@@ -95,8 +95,8 @@ round_up(x = -2.5, symmetric = TRUE)
 round_ties_even(x = c(0.5, 1.5, 2.5))
 }
 \seealso{
-\code{\link[=round_up]{round_up()}} for the same four procedures spelled as two functions
-plus a \code{symmetric} argument, and for the shared details on thresholds and
-floating-point tolerance. \code{\link[=round_ceiling]{round_ceiling()}} for procedures that ignore
-which number is nearer.
+\code{\link[=round_up]{round_up()}} for the first four procedures spelled as two
+functions plus a \code{symmetric} argument, and for the shared details on
+thresholds and floating-point tolerance. \code{\link[=round_ceiling]{round_ceiling()}} for procedures
+that ignore which number is nearer.
 }

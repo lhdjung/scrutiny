@@ -18,7 +18,8 @@
 # the granules, and the values that `grim_values()` and `grim_closest()` derive
 # from the same range. One method is left out of the equality check on purpose:
 #
-# - `rounding = "even"`, whose bounds are deliberately treated as inclusive
+# - `rounding = "even"` -- and `"ties_even"`, which is the same method under
+#   its other name -- whose bounds are deliberately treated as inclusive
 #   although `base::round()` may not include them. The tests are then knowingly
 #   too permissive, so the oracle would report a disagreement that is a design
 #   decision, not an error. See the comment on `rounding_offsets()`. It is not
@@ -364,6 +365,12 @@ test_that("`\"even\"` is never too strict, only ever too permissive", {
       n = c(4L, 8L, 20L, 40L)
     )
     verdict <- grim(grid$x, grid$n, digits_x = digits_x, rounding = "even")
+
+    # `"ties_even"` is the same method under the name that says which tie rule
+    # it is, so it inherits the property below rather than needing its own
+    # oracle run. What has to hold is that the two really are one method here:
+    grim(grid$x, grid$n, digits_x = digits_x, rounding = "ties_even") |>
+      expect_equal(verdict)
 
     for (i in seq_len(nrow(grid))) {
       # Every candidate sum total around `x * n`, asked of `base::round()`
