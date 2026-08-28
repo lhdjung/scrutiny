@@ -60,9 +60,13 @@ ROUNDING_TOLERANCE <- WHOLE_NUMBER_TOLERANCE / 10
 # so the forward functions and the bounds can't come to disagree about what a
 # name means.
 #
-# `symmetric` is deliberately not consulted for them. The procedure is already
-# fully determined by the name, and a `"ties_away"` that a separate argument
-# could turn into something else would defeat the point of naming it.
+# `symmetric` is not consulted for them, and giving it is an error rather than a
+# no-op: the procedure is already fully determined by the name, so a
+# `"ties_away"` that a separate argument could turn into something else would
+# defeat the point of naming it -- but silently dropping the argument threw away
+# half of what the caller wrote, and did so in the one case where they were most
+# likely to mean it. `resolve_ties_rounding()` (`R/utils.R`) is where that is
+# decided, for the forward functions and the bounds alike.
 #
 # `"ties_even"` resolves to `"even"`, which is `base::round()`, and carries a
 # `symmetric` of `FALSE` only because the field has to say something: rounding

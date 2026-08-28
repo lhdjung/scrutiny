@@ -58,7 +58,9 @@ argument plays no role. Default is \code{5}.}
 \item{symmetric}{Logical. Set \code{symmetric} to \code{TRUE} if the rounding of
 negative numbers with \code{"up"}, \code{"down"}, \code{"up_from"}, or \code{"down_from"}
 should mirror that of positive numbers so that their absolute values are
-always equal. Default is \code{FALSE}.}
+always equal. Default is \code{FALSE}. It must not be given with any of the
+\code{"ties_*"} methods, which already name a complete tie-breaking procedure;
+see \code{\link[=reround]{reround()}}.}
 
 \item{tolerance}{Numeric. Tolerance of the comparison between the reported
 \code{sd} and the reconstructed SDs, via \code{\link[dplyr:near]{dplyr::near()}}. Default is circa

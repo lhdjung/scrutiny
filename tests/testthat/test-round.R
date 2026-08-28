@@ -304,26 +304,56 @@ test_that("`\"ties_even\"` and `\"even\"` are the same rounding method", {
     x |> reround(digits, "ties_even") |> expect_equal(reround(digits = digits, x = x, rounding = "even"))
   }
   # ...including in the bounds, which is what a consistency test reads:
-  for (symmetric in c(FALSE, TRUE)) {
-    from_even <- unround("0.53", rounding = "even", symmetric = symmetric)
-    from_ties <- unround("0.53", rounding = "ties_even", symmetric = symmetric)
-    expect_equal(from_even$lower, from_ties$lower)
-    expect_equal(from_even$upper, from_ties$upper)
-    expect_equal(from_even$incl_lower, from_ties$incl_lower)
-    expect_equal(from_even$incl_upper, from_ties$incl_upper)
-  }
-  # Rounding to even is its own mirror image, so `symmetric` cannot change it:
-  x |> reround(1, "ties_even", symmetric = TRUE) |> expect_equal(round(x, 1))
+  from_even <- unround("0.53", rounding = "even")
+  from_ties <- unround("0.53", rounding = "ties_even")
+  expect_equal(from_even$lower, from_ties$lower)
+  expect_equal(from_even$upper, from_ties$upper)
+  expect_equal(from_even$incl_lower, from_ties$incl_lower)
+  expect_equal(from_even$incl_upper, from_ties$incl_upper)
 })
 
-test_that("`symmetric` is ignored for the `\"ties_*\"` strings", {
-  # Each of them names a complete procedure, so a separate argument must not be
-  # able to turn it into a different one:
-  x <- c(mid, -mid)
-  for (symmetric in c(FALSE, TRUE)) {
-    x |> reround(1, "ties_away", symmetric = symmetric) |> expect_equal(round_ties_away(x, 1))
-    x |> reround(1, "ties_up", symmetric = symmetric)   |> expect_equal(round_ties_up(x, 1))
+# Each `"ties_*"` string names a complete procedure, so a separate argument must
+# not be able to turn it into a different one. Up to scrutiny 1.0.0 that was
+# enforced by ignoring `symmetric`, which kept the name authoritative but threw
+# away half of what the caller wrote -- and did so in the one case where they
+# were most likely to mean it, since `symmetric` is exactly the argument they
+# were told controls tie direction for negative numbers. Rejecting the
+# combination keeps the name authoritative just as well, and says which string
+# they meant.
+
+test_that("`symmetric` is rejected for the `\"ties_*\"` strings", {
+  for (rounding in names(TIES_METHODS)) {
+    -2.5 |>
+      reround(0, rounding, symmetric = TRUE) |>
+      expect_error("must not be given")
+    # The bounds side resolves the same strings through the same helper, so it
+    # has to agree -- including via a mapper, which is where a silently dropped
+    # `symmetric` used to reach a verdict:
+    "-2.5" |>
+      unround(rounding = rounding, digits = 1, symmetric = TRUE) |>
+      expect_error("must not be given")
+    tibble::tibble(x = -5.19, n = 28) |>
+      grim_map(digits_x = 2, rounding = rounding, symmetric = TRUE) |>
+      expect_error("must not be given")
   }
+})
+
+test_that("the default `symmetric` still passes, and names the alternative", {
+  # `FALSE` is the default, so it is the only thing that can mean "not given".
+  # Passing it explicitly must not error:
+  x <- c(mid, -mid)
+  x |> reround(1, "ties_away", symmetric = FALSE) |> expect_equal(round_ties_away(x, 1))
+  x |> reround(1, "ties_up", symmetric = FALSE)   |> expect_equal(round_ties_up(x, 1))
+
+  # The mirrored counterpart is named where there is one:
+  -2.5 |> reround(0, "ties_up", symmetric = TRUE)   |> expect_error("ties_away")
+  -2.5 |> reround(0, "ties_down", symmetric = TRUE) |> expect_error("ties_zero")
+
+  # ...and it is the string that does what the rejected combination looked like
+  # it was asking for. Hand-computed:
+  reround(-2.5, 0, "ties_up")   |> expect_equal(-2)
+  reround(-2.5, 0, "ties_away") |> expect_equal(-3)
+  reround(-2.5, 0, "up", symmetric = TRUE) |> expect_equal(-3)
 })
 
 test_that("`reround()` takes one rounding procedure, not a vector of them", {
@@ -344,8 +374,8 @@ test_that("`reround()` takes one rounding procedure, not a vector of them", {
 
 
 test_that("`round_up_from()` and `round_down_from()` validate `threshold`", {
-  # These are the functions that act on `threshold`, and a value outside of
-  # `(0, 10)` silently turns them into `round_ceiling()` or `round_floor()`.
+  # These are the functions that act on `threshold`, and a value outside of `(0,
+  # 10)` silently turns them into `round_ceiling()` or `round_floor()`.
   # `reround()` and `unround()` have always checked; these two did not.
   4.28 |> round_up_from(1, threshold = 0)    |> expect_error("threshold")
   4.28 |> round_up_from(1, threshold = 10)   |> expect_error("threshold")

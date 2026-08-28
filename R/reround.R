@@ -123,7 +123,13 @@ reconstruct_rounded_numbers_scalar <- function(
 #'   of positive numbers so that their absolute values are always equal.
 #'   Otherwise irrelevant. Default is `FALSE`. It only ever affects negative
 #'   numbers, and with `"up_or_down"`, `"up"`, and `"down"` only ties among
-#'   those; `TRUE` is what reconstructs Excel, SAS, SPSS, and Matlab. See
+#'   those; `TRUE` is what reconstructs Excel, SAS, SPSS, and Matlab.
+#'
+#'   It must not be given with any of the `"ties_*"` methods. Each of those
+#'   names a complete tie-breaking procedure, so it already says which way ties
+#'   go for negative numbers, and a second argument saying otherwise is an
+#'   error rather than a silent no-op: `"ties_up"` with `symmetric = TRUE` is
+#'   `"ties_away"`, and `"ties_down"` with it is `"ties_zero"`. See
 #'   `vignette("rounding-options")`.
 #'
 #' @include utils.R round.R round-ceil-floor.R

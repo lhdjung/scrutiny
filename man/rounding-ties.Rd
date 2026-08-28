@@ -44,6 +44,13 @@ with \code{symmetric}, under names that say which procedure they are. Use
 whichever spelling you prefer; the results are identical.
 \code{round_ties_even()} is \code{\link[base:Round]{base::round()}}, which has no such second
 spelling; it is here so that the family is complete.
+
+These functions take no \code{symmetric} argument, because each name already
+fixes the tie direction on both sides of zero. The matching \code{rounding}
+strings -- \code{"ties_up"} and the rest, which \code{\link[=reround]{reround()}}, \code{\link[=unround]{unround()}},
+\code{\link[=grim]{grim()}}, \code{\link[=grimmer]{grimmer()}}, and \code{\link[=debit]{debit()}} all accept -- work the same way,
+and giving \code{symmetric} alongside one of them is an error rather than a
+silent no-op.
 }
 \details{
 For non-negative numbers, \code{round_ties_up()} and \code{round_ties_away()}

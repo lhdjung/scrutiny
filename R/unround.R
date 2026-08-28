@@ -557,7 +557,12 @@ sum_squares_scale_max <- function(s, n, val_lower, val_upper) {
 #'   mirrored that of positive numbers, so that their absolute values were
 #'   always equal. Default is `FALSE`. It only ever affects negative numbers,
 #'   and with `"up"` and `"down"` only ties among those; `TRUE` is what
-#'   reconstructs Excel, SAS, SPSS, and Matlab. See
+#'   reconstructs Excel, SAS, SPSS, and Matlab.
+#'
+#'   It must not be given with any of the `"ties_*"` methods, which already
+#'   name a complete tie-breaking procedure; see [`reround()`]. Because
+#'   `rounding` is vectorized here, a single `"ties_*"` element is enough to
+#'   make a `symmetric` of `TRUE` an error for the whole call. See
 #'   `vignette("rounding-options")`.
 #'
 #' @return A tibble with seven columns: `range`, `rounding`, `lower`,

@@ -15,6 +15,13 @@
 #'   `round_ties_even()` is [`base::round()`], which has no such second
 #'   spelling; it is here so that the family is complete.
 #'
+#'   These functions take no `symmetric` argument, because each name already
+#'   fixes the tie direction on both sides of zero. The matching `rounding`
+#'   strings -- `"ties_up"` and the rest, which [`reround()`], [`unround()`],
+#'   [`grim()`], [`grimmer()`], and [`debit()`] all accept -- work the same way,
+#'   and giving `symmetric` alongside one of them is an error rather than a
+#'   silent no-op.
+#'
 #' @details For non-negative numbers, `round_ties_up()` and `round_ties_away()`
 #'   are the same function, as are `round_ties_down()` and `round_ties_zero()`.
 #'   The pairs only differ for numbers below zero. See the

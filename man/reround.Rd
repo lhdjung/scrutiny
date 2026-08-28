@@ -41,7 +41,13 @@ negative numbers with \code{"up_or_down"}, \code{"up"}, \code{"down"},
 of positive numbers so that their absolute values are always equal.
 Otherwise irrelevant. Default is \code{FALSE}. It only ever affects negative
 numbers, and with \code{"up_or_down"}, \code{"up"}, and \code{"down"} only ties among
-those; \code{TRUE} is what reconstructs Excel, SAS, SPSS, and Matlab. See
+those; \code{TRUE} is what reconstructs Excel, SAS, SPSS, and Matlab.
+
+It must not be given with any of the \code{"ties_*"} methods. Each of those
+names a complete tie-breaking procedure, so it already says which way ties
+go for negative numbers, and a second argument saying otherwise is an
+error rather than a silent no-op: \code{"ties_up"} with \code{symmetric = TRUE} is
+\code{"ties_away"}, and \code{"ties_down"} with it is \code{"ties_zero"}. See
 \code{vignette("rounding-options")}.}
 }
 \value{

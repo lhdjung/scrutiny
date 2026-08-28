@@ -115,8 +115,9 @@
 #' @name rounding-common
 #'
 #' @seealso [`round_ties_up()`] and friends are these same four procedures
-#'   under names that say which is which, so that `symmetric` need not be
-#'   spelled out separately.
+#'   under names that say which is which, so that `symmetric` need not be --
+#'   and, with the matching `rounding` strings, must not be -- spelled out
+#'   separately.
 #'
 #'   [`round_ceiling()`] always rounds up, [`round_floor()`] always rounds down,
 #'   [`round_trunc()`] always rounds toward 0, and [`round_anti_trunc()`] always

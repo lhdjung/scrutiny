@@ -49,7 +49,7 @@ Two arguments modify these procedures:
 -   `symmetric` mirrors the whole procedure about zero, which for the tie-at-5 methods comes to deciding how ties in negative numbers are broken. The next section says why that matters.
 -   `threshold` moves the point at which `"up_from"` and `"down_from"` switch direction. It means the same thing in both: `"up_from"` goes up when the part cut off by rounding is at least `threshold` tenths of a step, and `"down_from"` goes down when it is at most that many. See `round_up_from()`.
 
-Finally, five options name a complete tie-breaking procedure, so that `symmetric` does not have to be given separately (and is ignored if it is):
+Finally, five options name a complete tie-breaking procedure, so that `symmetric` does not have to be given separately --- and must not be, since the name has already settled the question it would answer:
 
 -   `"ties_up"` sends a tie to the higher number, `"ties_down"` to the lower one.
 -   `"ties_away"` sends a tie away from zero, `"ties_zero"` toward it.
@@ -58,6 +58,12 @@ Finally, five options name a complete tie-breaking procedure, so that `symmetric
 `"ties_even"` is the odd one out: it is another spelling of `"even"`, not of anything built from `symmetric`. Rounding to even is its own mirror image, so `symmetric` was never relevant to it; the name is there because *roundTiesToEven* is IEEE 754's default direction, and a family whose point is naming the tie rule should not leave out the most common rule of all.
 
 `"ties_up"` is `"up"` with `symmetric = FALSE`; `"ties_away"` is `"up"` with `symmetric = TRUE`. They exist because that translation is easy to get backwards, and because "up" means away from zero in Excel, Java, and Python, but on the number line in scrutiny. The matching functions are `round_ties_up()`, `round_ties_down()`, `round_ties_away()`, `round_ties_zero()`, and `round_ties_even()`.
+
+This is also why combining the two spellings is an error. `rounding = "ties_up", symmetric = TRUE` looks like a request for ties away from zero, but `"ties_up"` has already fixed the direction, so only half of what you wrote could take effect. Write `rounding = "ties_away"` instead --- or `rounding = "up", symmetric = TRUE`, which is the same procedure under the other spelling.
+
+```{r error=TRUE}
+reround(-2.5, digits = 0, rounding = "ties_up", symmetric = TRUE)
+```
 
 Between them, these five names and `"ceiling"`, `"floor"`, and `"trunc"` cover every rounding direction IEEE 754 defines:
 
@@ -111,7 +117,7 @@ Note also that under the default `rounding = "up_or_down"`, the range spans both
 
 If the part cut off by rounding is exactly 5, how do these programs round, and which scrutiny settings reconstruct them?
 
-The `rounding` and `symmetric` columns are one way to say it; the `"ties_*"` equivalent is in brackets.
+The `rounding` and `symmetric` columns are one way to say it; the `"ties_*"` equivalent is in brackets. Use one or the other, not both: a `"ties_*"` string takes no `symmetric`.
 
 | Software | Function | `rounding` | `symmetric` | Note |
 |:---|:---|:---|:---|:---|

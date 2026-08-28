@@ -132,6 +132,14 @@ test_grim_oracle <- function(x, n, digits_x, items, percent, symmetric) {
     rounding <- grid$rounding[i]
     threshold <- grid$threshold[i]
 
+    # A `"ties_*"` string names a complete tie-breaking procedure, so giving
+    # `symmetric` alongside one is an error rather than a no-op. The `symmetric
+    # = FALSE` pass covers those methods in full -- the name is all that decides
+    # them -- so skipping here loses no coverage:
+    if (symmetric && rounding %in% names(TIES_METHODS)) {
+      next
+    }
+
     # fmt: skip
     info <- paste0(
       "digits_x = ", digits_x, ", items = ", items, ", percent = ", percent,

@@ -1863,11 +1863,50 @@ resolve_ties_rounding <- function(rounding, symmetric) {
   # `[[` on a list matches exactly, so a `rounding` of "up" is not caught by
   # "ties_up" here:
   spec <- TIES_METHODS[[rounding]]
+
   if (is.null(spec)) {
-    list(rounding = rounding, symmetric = symmetric)
-  } else {
-    spec
+    return(list(rounding = rounding, symmetric = symmetric))
   }
+
+  # A `"ties_*"` string already fixes the tie direction in both signs, so
+  # `symmetric` has nothing left to say. Up to scrutiny 1.0.0 it was silently
+  # ignored here, which discarded half of what the caller wrote: `reround(-2.5,
+  # 0, "ties_up", symmetric = TRUE)` was `-2`, where the same request spelled
+  # `rounding = "up"` is `-3`, and a mapper carried the difference all the way
+  # to a verdict. Ignoring is not the only way to keep the name authoritative --
+  # rejecting keeps it just as well, and it names the string the caller meant.
+  #
+  # The test is on the value rather than on `missing()`: every mapper passes
+  # `symmetric` down explicitly, so its default is the only thing that says "not
+  # given". `isFALSE()` is on the cold branch of a lookup that has already
+  # happened, so the common methods pay nothing for it.
+  if (!isFALSE(symmetric)) {
+    # fmt: skip
+    msg_instead <- switch(
+      rounding,
+      "ties_up"   = "For ties away from zero, set `rounding` to \"ties_away\".",
+      "ties_down" = "For ties toward zero, set `rounding` to \"ties_zero\".",
+      "ties_away" = "\"ties_away\" is already what `symmetric = TRUE` makes \\
+        \"up\" do, so drop `symmetric`.",
+      "ties_zero" = "\"ties_zero\" is already what `symmetric = TRUE` makes \\
+        \"down\" do, so drop `symmetric`.",
+      "ties_even" = "Rounding to even is its own mirror image, so there is \\
+        no tie direction left to set. Drop `symmetric`.",
+      "Drop `symmetric`."
+    )
+    cli::cli_abort(
+      message = c(
+        "`symmetric` must not be given with `rounding = \"{rounding}\"`.",
+        "x" = "It is {symmetric}.",
+        "i" = "A \"ties_*\" string names a complete tie-breaking procedure, \\
+        so it already determines which way ties go for negative numbers.",
+        "i" = msg_instead
+      ),
+      call = rlang::caller_env()
+    )
+  }
+
+  spec
 }
 
 

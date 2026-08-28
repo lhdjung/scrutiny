@@ -38,7 +38,12 @@ negative numbers with \code{"up"}, \code{"down"}, \code{"up_from"}, or \code{"do
 mirrored that of positive numbers, so that their absolute values were
 always equal. Default is \code{FALSE}. It only ever affects negative numbers,
 and with \code{"up"} and \code{"down"} only ties among those; \code{TRUE} is what
-reconstructs Excel, SAS, SPSS, and Matlab. See
+reconstructs Excel, SAS, SPSS, and Matlab.
+
+It must not be given with any of the \code{"ties_*"} methods, which already
+name a complete tie-breaking procedure; see \code{\link[=reround]{reround()}}. Because
+\code{rounding} is vectorized here, a single \code{"ties_*"} element is enough to
+make a \code{symmetric} of \code{TRUE} an error for the whole call. See
 \code{vignette("rounding-options")}.}
 }
 \value{

@@ -147,6 +147,14 @@ test_that("`unround()` bounds agree with the rounding they invert (sweep)", {
       for (symmetric in c(FALSE, TRUE)) {
         for (threshold in c(3, 5, 6)) {
           for (m in methods) {
+            # A `"ties_*"` string names a complete procedure, so `symmetric`
+            # alongside one is an error rather than a no-op. Nothing is lost by
+            # skipping the combination: the `symmetric = FALSE` pass already
+            # covers each of those methods in full, since the name is all that
+            # decides them.
+            if (symmetric && m %in% names(TIES_METHODS)) {
+              next
+            }
             bounds <- unround(
               x_str,
               rounding = m,
@@ -410,6 +418,11 @@ test_that("no rounding method reconstructs a range wider than one step", {
 
           for (m in methods_one_step) {
             if (x_num == 0 && (m == "trunc" || (symmetric && m %in% mirrored))) {
+              next
+            }
+            # `symmetric` with a `"ties_*"` string is an error; see the sweep
+            # above:
+            if (symmetric && m %in% names(TIES_METHODS)) {
               next
             }
             bounds <- unround(
