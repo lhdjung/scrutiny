@@ -64,6 +64,12 @@ rounding_bias <- function(
   # have length 1, so including them here produced a warning about values
   # "getting paired" for arguments that cannot be paired at all -- immediately
   # followed by an error from `reround()` saying so.
+  #
+  # The pairing warning for `x` and `digits` is kept here, and deliberately not
+  # in `reround()` itself: this is a user-facing function whose whole purpose is
+  # to summarize bias over a vector, so a per-value `digits` is worth a second
+  # look, whereas `reround()` is the interface every helper in the package calls
+  # with exactly that shape.
 
   # A compound method makes `reround()` return two values per input value, so
   # the subtraction below would recycle `x` across them and return twice as many

@@ -17,7 +17,11 @@ reround(
 
 \item{digits}{Integer. Number of decimal places in the reported key values
 (i.e., mean or percentage within \code{\link[=grim]{grim()}}, or standard deviation within
-\code{\link[=grimmer]{grimmer()}}).}
+\code{\link[=grimmer]{grimmer()}}). It is the one argument that is vectorized along with \code{x},
+so it must either have the same length as \code{x} or length 1, and every value
+must be a whole number: a fractional one is not a decimal level at all,
+and would scale \code{x} by a non-power of ten. A missing value propagates to a
+missing result, as it does in \code{x}.}
 
 \item{rounding}{String. The rounding method that is supposed to have been
 used originally. See \code{vignette("rounding-options")}. Default is
