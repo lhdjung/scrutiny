@@ -110,6 +110,11 @@ reference:
   - round_down
   - round_up_from
   - round_down_from
+  - round_ties_up
+  - round_ties_down
+  - round_ties_away
+  - round_ties_zero
+  - round_ties_even
   - round_ceiling
   - round_floor
   - reround
