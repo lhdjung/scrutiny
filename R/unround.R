@@ -710,8 +710,8 @@ unround <- function(
   incl_lower <- extract("incl_lower", NA)
   incl_upper <- extract("incl_upper", NA)
 
-  sign_lower <- ifelse(incl_lower, "<=", "<")
-  sign_upper <- ifelse(incl_upper, "<=", "<")
+  sign_lower <- dplyr::if_else(incl_lower, "<=", "<")
+  sign_upper <- dplyr::if_else(incl_upper, "<=", "<")
 
   # Return a tibble that displays the range with its appropriate signs and
   # includes all the results that constitute the range

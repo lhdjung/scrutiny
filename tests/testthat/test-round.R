@@ -119,7 +119,7 @@ test_that("`round_up_from()` rounds up from `threshold`, not from 5", {
     for (base in c(0.42, 7.13, 100)) {
       expect_equal(
         round_up_from(base + cut_digit / 1000, 2, threshold = threshold),
-        base + ifelse(cut_digit >= threshold, 0.01, 0),
+        base + dplyr::if_else(cut_digit >= threshold, 0.01, 0),
         label = paste("`round_up_from()`, threshold", threshold, "at", base)
       )
     }
@@ -131,7 +131,7 @@ test_that("`round_down_from()` rounds down from `threshold`, not from 5", {
     for (base in c(0.42, 7.13, 100)) {
       expect_equal(
         round_down_from(base + cut_digit / 1000, 2, threshold = threshold),
-        base + ifelse(cut_digit > threshold, 0.01, 0),
+        base + dplyr::if_else(cut_digit > threshold, 0.01, 0),
         label = paste("`round_down_from()`, threshold", threshold, "at", base)
       )
     }
