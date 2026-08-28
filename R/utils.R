@@ -978,29 +978,40 @@ check_tibble <- function(data) {
 #'
 #' @noRd
 check_digits_whole <- function(digits) {
-  if (!is.numeric(digits)) {
+  if (is.numeric(digits)) {
+    # The normal and cheap case: one pass over `digits`, no allocation beyond
+    # it, and no `cli` fn calls. `NaN` is caught by `is.na()` and passes with
+    # the other missing values.
+    ok <-
+      is.na(digits) |
+      (is.finite(digits) & abs(digits - round(digits)) < WHOLE_NUMBER_TOLERANCE)
+
+    if (all(ok)) {
+      return(NULL)
+    }
+
+    # Failure path, where the cost no longer matters:
+    offenders <- digits[!ok]
     cli::cli_abort(
       message = c(
-        "`digits` must be a whole number.",
-        "x" = "It is {.obj_type_friendly {digits}}."
+        "`digits` must be whole numbers.",
+        "x" = "It has {length(offenders)} value{?s} that {?is/are} not: \\
+        {offenders}.",
+        "i" = "Each value is a number of decimal places, so a fractional one \\
+        would scale `x` by a non-power of ten and return a number on no \\
+        decimal grid."
       ),
       call = rlang::caller_env()
     )
   }
-  offenders <- digits[
-    !is.na(digits) & !(is.finite(digits) & is_whole_number(digits))
-  ]
-  if (length(offenders) > 0L) {
-    cli::cli_abort(
-      message = c(
-        "`digits` must be a whole number.",
-        "x" = "It is {wrong_spec_string(offenders)}.",
-        "i" = "It is a number of decimal places, so a fractional value would \\
-        scale `x` by a non-power of ten and return a number on no decimal grid."
-      ),
-      call = rlang::caller_env()
-    )
-  }
+
+  cli::cli_abort(
+    message = c(
+      "`digits` must be whole numbers.",
+      "x" = "It is {.obj_type_friendly {digits}}."
+    ),
+    call = rlang::caller_env()
+  )
 }
 
 
@@ -1037,10 +1048,15 @@ check_threshold_valid <- function(threshold) {
       threshold <= 0 ||
       threshold >= 10
   ) {
+    msg_what_it_is <- if (is.numeric(threshold) && length(threshold) == 1L) {
+      "It is {threshold}."
+    } else {
+      "It is {.obj_type_friendly {threshold}}."
+    }
     cli::cli_abort(
       message = c(
         "`threshold` must be a single number greater than 0 and less than 10.",
-        "x" = "It is {wrong_spec_string(threshold)}.",
+        "x" = msg_what_it_is,
         "i" = "It is the point within a step at which rounding switches \\
         direction, so both directions have to remain possible.",
         "i" = "With `rounding` set to \"up_from\", \"down_from\", or \\
