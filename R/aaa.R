@@ -63,13 +63,23 @@ ROUNDING_TOLERANCE <- WHOLE_NUMBER_TOLERANCE / 10
 # `symmetric` is deliberately not consulted for them. The procedure is already
 # fully determined by the name, and a `"ties_away"` that a separate argument
 # could turn into something else would defeat the point of naming it.
+#
+# `"ties_even"` resolves to `"even"`, which is `base::round()`, and carries a
+# `symmetric` of `FALSE` only because the field has to say something: rounding
+# to even is its own mirror image, so the value is never read for it. It is here
+# because *roundTiesToEven* is IEEE 754's default direction and the one R,
+# Python, and NumPy take, which made it the conspicuous absence from a family
+# whose whole point is naming the tie rule. With it, the five names in this
+# table plus `"ceiling"`, `"floor"`, and `"trunc"` cover every rounding
+# direction the standard defines.
 
 # fmt: skip
 TIES_METHODS <- list(
   ties_up   = list(rounding = "up",   symmetric = FALSE),  # toward +Inf
   ties_down = list(rounding = "down", symmetric = FALSE),  # toward -Inf
   ties_away = list(rounding = "up",   symmetric = TRUE),   # roundTiesToAway
-  ties_zero = list(rounding = "down", symmetric = TRUE)    # toward zero
+  ties_zero = list(rounding = "down", symmetric = TRUE),   # toward zero
+  ties_even = list(rounding = "even", symmetric = FALSE)   # roundTiesToEven
 )
 
 

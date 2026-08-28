@@ -246,9 +246,10 @@ test_that("all rounding functions share the same tolerance", {
 # Tie procedures named directly -------------------------------------------
 
 # `round_ties_*()` are the four combinations of `round_up()` / `round_down()`
-# with `symmetric`, under names that say which procedure they are. The point of
-# having them is that the translation is easy to get backwards, so the tests
-# below pin both halves: the equivalence, and the behavior itself.
+# with `symmetric`, under names that say which procedure they are, plus
+# `round_ties_even()`, which is `base::round()` and has no such second spelling.
+# The point of having them is that the translation is easy to get backwards, so
+# the tests below pin both halves: the equivalence, and the behavior itself.
 
 test_that("`round_ties_*()` are the `symmetric` combinations of up and down", {
   x <- c(mid, -mid, seq(-999, 999) / 100, seq(-20, 20) / 8)
@@ -278,6 +279,41 @@ test_that("the `\"ties_*\"` strings mean the same as the functions", {
   x |> reround(1, "ties_down") |> expect_equal(round_ties_down(x, 1))
   x |> reround(1, "ties_away") |> expect_equal(round_ties_away(x, 1))
   x |> reround(1, "ties_zero") |> expect_equal(round_ties_zero(x, 1))
+  x |> reround(1, "ties_even") |> expect_equal(round_ties_even(x, 1))
+})
+
+# `round_ties_even()` completes the family. *roundTiesToEven* is IEEE 754's
+# default direction and the one R, Python, and NumPy take, so it was the
+# conspicuous absence from a set of names whose whole point is naming the tie
+# rule -- reachable only as `rounding = "even"`, which does not look like a
+# member of the family it belongs to.
+
+test_that("`round_ties_even()` is `base::round()` under the family's name", {
+  x <- c(mid, -mid, seq(-999, 999) / 100, seq(-20, 20) / 8)
+  for (digits in 0:2) {
+    x |> round_ties_even(digits) |> expect_equal(round(x, digits))
+  }
+  # The tie itself, at the one place where the decimal really is a tie in
+  # binary, so that parity decides it and the result can be written down:
+  c(-2.5, -0.5, 0.5, 2.5) |> round_ties_even() |> expect_equal(c(-2, 0, 0, 2))
+})
+
+test_that("`\"ties_even\"` and `\"even\"` are the same rounding method", {
+  x <- c(mid, -mid, seq(-500, 500) / 100)
+  for (digits in 0:2) {
+    x |> reround(digits, "ties_even") |> expect_equal(reround(digits = digits, x = x, rounding = "even"))
+  }
+  # ...including in the bounds, which is what a consistency test reads:
+  for (symmetric in c(FALSE, TRUE)) {
+    from_even <- unround("0.53", rounding = "even", symmetric = symmetric)
+    from_ties <- unround("0.53", rounding = "ties_even", symmetric = symmetric)
+    expect_equal(from_even$lower, from_ties$lower)
+    expect_equal(from_even$upper, from_ties$upper)
+    expect_equal(from_even$incl_lower, from_ties$incl_lower)
+    expect_equal(from_even$incl_upper, from_ties$incl_upper)
+  }
+  # Rounding to even is its own mirror image, so `symmetric` cannot change it:
+  x |> reround(1, "ties_even", symmetric = TRUE) |> expect_equal(round(x, 1))
 })
 
 test_that("`symmetric` is ignored for the `\"ties_*\"` strings", {
