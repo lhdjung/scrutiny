@@ -552,8 +552,9 @@ sum_squares_scale_max <- function(s, n, val_lower, val_upper) {
 #' @param symmetric Logical. Set `symmetric` to `TRUE` if the rounding of
 #'   negative numbers with `"up"`, `"down"`, `"up_from"`, or `"down_from"`
 #'   mirrored that of positive numbers, so that their absolute values were
-#'   always equal. Default is `FALSE`. It only ever affects ties in negative
-#'   numbers, but `TRUE` is what reconstructs Excel, SAS, SPSS, and Matlab; see
+#'   always equal. Default is `FALSE`. It only ever affects negative numbers,
+#'   and with `"up"` and `"down"` only ties among those; `TRUE` is what
+#'   reconstructs Excel, SAS, SPSS, and Matlab. See
 #'   `vignette("rounding-options")`.
 #'
 #' @return A tibble with seven columns: `range`, `rounding`, `lower`,

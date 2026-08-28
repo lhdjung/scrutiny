@@ -117,9 +117,10 @@ reconstruct_rounded_numbers_scalar <- function(
 #'   negative numbers with `"up_or_down"`, `"up"`, `"down"`,
 #'   `"up_from_or_down_from"`, `"up_from"`, or `"down_from"` should mirror that
 #'   of positive numbers so that their absolute values are always equal.
-#'   Otherwise irrelevant. Default is `FALSE`. It only ever affects ties in
-#'   negative numbers, but `TRUE` is what reconstructs Excel, SAS, SPSS, and
-#'   Matlab; see `vignette("rounding-options")`.
+#'   Otherwise irrelevant. Default is `FALSE`. It only ever affects negative
+#'   numbers, and with `"up_or_down"`, `"up"`, and `"down"` only ties among
+#'   those; `TRUE` is what reconstructs Excel, SAS, SPSS, and Matlab. See
+#'   `vignette("rounding-options")`.
 #'
 #' @include utils.R round.R round-ceil-floor.R
 #'

@@ -29,9 +29,16 @@
 #'   to reconstruct the computations of researchers who might have used
 #'   different software. See `vignette("rounding-options")`.
 #'
-#' @section Negative numbers: `symmetric` decides how ties in negative numbers
-#'   are broken, and it decides nothing else: every other value has a single
-#'   nearest neighbor, which all of these functions round to.
+#' @section Negative numbers: `symmetric` mirrors the whole rounding procedure
+#'   about zero, so a negative number is rounded like its absolute value. For
+#'   `round_up()` and `round_down()`, whose threshold is `5`, that comes to
+#'   deciding how ties in negative numbers are broken and nothing else: every
+#'   other value has a single nearest neighbor, which both functions round to.
+#'
+#'   For `round_up_from()` and `round_down_from()` with some other `threshold`,
+#'   it decides more than ties, because the value the procedure hesitates over
+#'   is no longer the midpoint: `round_up_from(-4.28, 1, threshold = 9)` is
+#'   `-4.3`, and `-4.2` with `symmetric = TRUE`.
 #'
 #'   By default (`symmetric = FALSE`), `round_up()` moves a tie to the higher
 #'   number on the number line, so `round_up(-2.5)` is `-2`, and `round_down()`
@@ -96,8 +103,10 @@
 #'   too permissive.
 #' @param symmetric Logical. Set `symmetric` to `TRUE` if the rounding of
 #'   negative numbers should mirror that of positive numbers so that their
-#'   absolute values are equal. Only affects ties, and only in negative numbers.
-#'   Default is `FALSE`. See the `Negative numbers` section.
+#'   absolute values are equal. Only affects negative numbers, and among those
+#'   only values sitting on the threshold -- which, at the default `threshold`
+#'   of `5`, means ties. Default is `FALSE`. See the `Negative numbers`
+#'   section.
 #'
 #' @return Numeric. `x` rounded to `digits`.
 #'
