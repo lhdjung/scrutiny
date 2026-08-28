@@ -940,6 +940,60 @@ check_tibble <- function(data) {
 }
 
 
+#' Check that a number of decimal places is usable
+#'
+#' @description `check_digits_whole()` is called from `reround()`, the general
+#'   interface that every rounding method goes through.
+#'
+#'   A number of decimal places is a whole number by definition. A fractional
+#'   one scales `x` by a non-power of ten -- `10^1.5` is about 31.6 -- so the
+#'   result sits on no decimal grid at all: `reround(1.25, digits = 1.5,
+#'   rounding = "up")` used to be `1.264911`. Worse, `rounding = "even"` was
+#'   unaffected, since [`base::round()`] rounds `digits` to a whole number
+#'   before using it, so scrutiny's own methods disagreed with each other on the
+#'   same input.
+#'
+#'   The check is not repeated in the `round_*()` primitives. Those run once per
+#'   candidate value inside GRIMMER's loop over sums of squares, and a mapper
+#'   multiplies that by the rows; `reround()` is the one place every path
+#'   passes through exactly once.
+#'
+#'   A missing `digits` passes, so that it propagates to an `NA` result the way
+#'   a missing `x` does. An infinite one does not: it is not a decimal level,
+#'   and `10^Inf` would take every value to `NaN`.
+#'
+#' @param digits The `digits` argument of the calling function.
+#'
+#' @return No return value; might throw an error.
+#'
+#' @noRd
+check_digits_whole <- function(digits) {
+  if (!is.numeric(digits)) {
+    cli::cli_abort(
+      message = c(
+        "`digits` must be a whole number.",
+        "x" = "It is {.obj_type_friendly {digits}}."
+      ),
+      call = rlang::caller_env()
+    )
+  }
+  offenders <- digits[
+    !is.na(digits) & !(is.finite(digits) & is_whole_number(digits))
+  ]
+  if (length(offenders) > 0L) {
+    cli::cli_abort(
+      message = c(
+        "`digits` must be a whole number.",
+        "x" = "It is {wrong_spec_string(offenders)}.",
+        "i" = "It is a number of decimal places, so a fractional value would \\
+        scale `x` by a non-power of ten and return a number on no decimal grid."
+      ),
+      call = rlang::caller_env()
+    )
+  }
+}
+
+
 #' Check that a rounding threshold is usable
 #'
 #' @description `check_threshold_valid()` is called within curly braces inside

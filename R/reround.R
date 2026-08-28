@@ -155,6 +155,23 @@ reround <- function(
   # about it in its own documentation:
   check_rounding_spec_singular(rounding, threshold, symmetric)
 
+  # `digits`, by contrast, really is vectorized along with `x`: one number of
+  # decimal places per value. Recycling it by R's own rules passed a `digits`
+  # shorter than `x` without a word and rounded the extra values at the wrong
+  # decimal level -- the bug `unround()` was fixed for in scrutiny 1.0.0, which
+  # `reround()` never got the matching check for. No pairing warning here:
+  # unlike a rounding method, a per-value `digits` is the ordinary way to call
+  # this function from a helper.
+  check_lengths_congruent(list(x, digits), warn = FALSE)
+
+  # A fractional `digits` is not a decimal level at all. It scales `x` by a
+  # non-power of ten -- `10^1.5` is about 31.6 -- and returns a number sitting
+  # on no decimal grid, so `reround(1.25, digits = 1.5, rounding = "up")` was
+  # 1.264911. `"even"` never had the problem, because `base::round()` rounds
+  # `digits` to a whole number first, so scrutiny's own methods disagreed with
+  # each other on the same input:
+  check_digits_whole(digits)
+
   # A `"ties_*"` string names a complete procedure, so it stands in for a
   # `rounding` and a `symmetric` together. `rounding_offsets()` resolves it
   # through the same table:
