@@ -26,19 +26,19 @@ For consistency testing, the default is almost always the right choice, and ther
 
 `rounding = "up_or_down"` counts a value set as consistent if the reported number matches either of the two results. Its range therefore spans every way of breaking a tie at 5: up, down, to even, away from zero, toward zero. It cannot reject a value set because you guessed the tie-breaking rule wrong. `rounding = "ceiling_or_floor"` is wider still and covers every rounding procedure whatsoever, including truncation and custom thresholds.
 
-Committing to a single procedure (`"up"`, `"down"`, `"even"`, `"trunc"`, ...) only ever makes a test stricter. That is worth doing if you have positive evidence about how the numbers were produced. Without such evidence, it is a good way to get a false positive, so if in doubt, leave `rounding` alone.
+Committing to a single procedure (`"up"`, `"down"`, `"trunc"`, ...) only ever makes a test stricter --- `"even"` excepted, which comes to the same test as the default; see the note on rounding to even below. That is worth doing if you have positive evidence about how the numbers were produced. Without such evidence, it is a good way to get a false positive, so if in doubt, leave `rounding` alone.
 
 ## In scrutiny
 
 These options return two rounded numbers for each input number. In consistency tests, this means counting a value set as consistent if the reported number matches either of the two rounded reconstructed numbers.
 
 -   `"up_or_down"` (the default): one number rounded up from 5, one down from 5; in this order.
--   `"up_from_or_down_from"`: one number rounded up, one down --- but not from 5. Instead, specify `threshold` as the number from which the input should be rounded.
+-   `"up_from_or_down_from"`: one number rounded up, one down --- but not from 5. Instead, specify `threshold` as the number from which the input should be rounded. Like `"up_or_down"`, it spans exactly one rounding step, wherever you put the threshold.
 -   `"ceiling_or_floor"`: one number ceiled, one floored.
 
 By contrast, these options only return one rounded number per input:
 
--   `"even"` rounds to the next even number, using base R's own `round()`. See the note below.
+-   `"even"` rounds to the nearest number, breaking a tie toward the even one, using base R's own `round()`. See the note below.
 -   `"up"` or `"down"` rounds in the specified direction, starting at 5.
 -   `"up_from"` or `"down_from"` rounds in the specified direction, starting at some number other than 5. Specify this number via the `threshold` argument.
 -   `"ceiling"` or `"floor"` always rounds to the next higher or lower decimal place, respectively.
@@ -46,15 +46,29 @@ By contrast, these options only return one rounded number per input:
 
 Two arguments modify these procedures:
 
--   `symmetric` decides how ties in negative numbers are broken. The next section says why that matters.
--   `threshold` moves the point at which `"up_from"` and `"down_from"` switch direction. See `round_up_from()`.
+-   `symmetric` mirrors the whole procedure about zero, which for the tie-at-5 methods comes to deciding how ties in negative numbers are broken. The next section says why that matters.
+-   `threshold` moves the point at which `"up_from"` and `"down_from"` switch direction. It means the same thing in both: `"up_from"` goes up when the part cut off by rounding is at least `threshold` tenths of a step, and `"down_from"` goes down when it is at most that many. See `round_up_from()`.
 
-Finally, four options name a complete tie-breaking procedure, so that `symmetric` does not have to be given separately (and is ignored if it is):
+Finally, five options name a complete tie-breaking procedure, so that `symmetric` does not have to be given separately (and is ignored if it is):
 
 -   `"ties_up"` sends a tie to the higher number, `"ties_down"` to the lower one.
 -   `"ties_away"` sends a tie away from zero, `"ties_zero"` toward it.
 
-`"ties_up"` is `"up"` with `symmetric = FALSE`; `"ties_away"` is `"up"` with `symmetric = TRUE`. They exist because that translation is easy to get backwards, and because "up" means away from zero in Excel, Java, and Python, but on the number line in scrutiny. The matching functions are `round_ties_up()`, `round_ties_down()`, `round_ties_away()`, and `round_ties_zero()`.
+A fifth name, `"ties_even"`, is another spelling of `"even"`. Rounding to even is its own mirror image, so `symmetric` was never relevant to it; the name is there because *roundTiesToEven* is IEEE 754's default direction, and a family whose point is naming the tie rule should not leave out the most common rule of all.
+
+`"ties_up"` is `"up"` with `symmetric = FALSE`; `"ties_away"` is `"up"` with `symmetric = TRUE`. They exist because that translation is easy to get backwards, and because "up" means away from zero in Excel, Java, and Python, but on the number line in scrutiny. The matching functions are `round_ties_up()`, `round_ties_down()`, `round_ties_away()`, `round_ties_zero()`, and `round_ties_even()`.
+
+Between them, these five names and `"ceiling"`, `"floor"`, and `"trunc"` cover every rounding direction IEEE 754 defines:
+
+| IEEE 754 | scrutiny |
+|:---|:---|
+| *roundTiesToEven* (the standard's default) | `"even"`, `"ties_even"` |
+| *roundTiesToAway* | `"ties_away"` (`"up"` with `symmetric = TRUE`) |
+| *roundTowardPositive* | `"ceiling"` |
+| *roundTowardNegative* | `"floor"` |
+| *roundTowardZero* | `"trunc"` |
+
+The standard has no name for `"ties_up"`, `"ties_zero"`, or `"anti_trunc"`, which are Stata's, Python's `ROUND_HALF_DOWN`, and Excel's `ROUNDUP()` respectively.
 
 ## Negative numbers: `symmetric`
 
@@ -83,7 +97,14 @@ round_ties_away(-2.5)   # Excel, SPSS, SAS, Matlab
 round_ties_up(-2.5)     # Stata
 ```
 
-This only ever affects ties, and only in negative numbers. Note also that under the default `rounding = "up_or_down"`, the range spans both settings, so `symmetric` cannot change a verdict there.
+This only ever affects negative numbers. With `"up"`, `"down"`, and `"up_or_down"` it only affects ties among those, because the value those procedures hesitate over is the midpoint, which sits at the same place either way. With `"up_from"` and `"down_from"` at some `threshold` other than 5, it affects more than ties, since the point they hesitate over is no longer the midpoint:
+
+```{r}
+round_up_from(-4.28, digits = 1, threshold = 9)
+round_up_from(-4.28, digits = 1, threshold = 9, symmetric = TRUE)
+```
+
+Note also that under the default `rounding = "up_or_down"`, the range spans both settings, so `symmetric` cannot change a verdict there.
 
 ## Rounding at 5 in other software
 
@@ -125,6 +146,8 @@ Several programs fuzz, and so does scrutiny. SAS's `ROUND()` performs "extra com
 What is unreliable is *predicting* the result from the decimal you see. Most decimal fractions have no exact binary representation, so a number that looks like a tie usually isn't one, and which way it goes depends on invisible mantissa digits. See this [explanation of `base::round()`](https://lhdjung.github.io/scrutiny/articles/rounding-in-depth.html#to-even-base-r), or a [more general article](https://docs.python.org/3/tutorial/floatingpoint.html#tut-fp-issues) about the limits of floating-point arithmetic.
 
 For consistency testing, this is handled rather than guessed. With `rounding = "even"`, `unround()` and the tests treat both bounds as inclusive, which can only widen a reconstructed range, never narrow it. Being too permissive is the safe direction for error detection.
+
+One consequence is worth knowing before you reach for it. Those bounds are the *same* bounds as `"up_or_down"`'s, so `rounding = "even"` gives GRIM, GRIMMER, and DEBIT exactly the verdicts the default gives --- it is the one setting that commits to a single procedure and tightens nothing. Knowing that a paper's numbers came out of R therefore buys no extra power here. It is not a gap to be closed: the tie that would do the tightening is not knowable from the decimal on the page.
 
 ## A note on scrutiny's names
 
