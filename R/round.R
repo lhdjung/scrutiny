@@ -82,16 +82,18 @@
 #'   The point within a step at which rounding switches direction, in tenths of
 #'   a step, so it must be greater than `0` and less than `10`.
 #'
-#'   `round_up_from()` rounds up when the part cut off by rounding is at least
-#'   `threshold` tenths of a step. `round_down_from()` is its mirror image, and
-#'   the mirroring covers `threshold` as well: it rounds *down* when the cut-off
-#'   part is at most `10 - threshold` tenths of a step. Put differently,
-#'   `round_down_from(x, threshold = t)` switches direction at the same point as
-#'   `round_up_from(x, threshold = 10 - t)`, and differs from it only in sending
-#'   a value sitting exactly on that point down rather than up.
+#'   It means the same thing in both functions. `round_up_from()` rounds up when
+#'   the part cut off by rounding is at least `threshold` tenths of a step, and
+#'   `round_down_from()` rounds down when it is at most that many, so the two
+#'   differ only in where they send a value sitting exactly on the threshold.
+#'   `round_up()` and `round_down()` are the pair at the `threshold` of `5`.
 #'
-#'   The two coincide at `5`, the value that `round_up()` and `round_down()`
-#'   use, so the distinction only matters for other thresholds.
+#'   Up to scrutiny 1.0.0, `round_down_from()` was the point reflection of
+#'   `round_up_from()` instead, switching direction at `10 - threshold`. The two
+#'   agreed at `5` and nowhere else, which made
+#'   `rounding = "up_from_or_down_from"` span up to 1.8 steps -- more than any
+#'   one rounding procedure can -- and so made consistency tests under it far
+#'   too permissive.
 #' @param symmetric Logical. Set `symmetric` to `TRUE` if the rounding of
 #'   negative numbers should mirror that of positive numbers so that their
 #'   absolute values are equal. Only affects ties, and only in negative numbers.
@@ -166,7 +168,7 @@ round_up_from <- function(x, digits = 0L, threshold, symmetric = FALSE) {
   check_threshold_valid(threshold)
 
   p10 <- 10^digits
-  offset <- tie_offset(threshold)
+  offset <- tie_offset_up(threshold)
 
   if (symmetric) {
     # For a non-negative `x`, `abs(x)` is `x`, so this is the same rounding;
@@ -192,7 +194,7 @@ round_down_from <- function(x, digits = 0L, threshold, symmetric = FALSE) {
   check_threshold_valid(threshold)
 
   p10 <- 10^digits
-  offset <- tie_offset(threshold)
+  offset <- tie_offset_down(threshold)
 
   if (symmetric) {
     # See the comment in `round_up_from()`:
@@ -225,10 +227,9 @@ round_up <- function(x, digits = 0L, symmetric = FALSE) {
 # should instead be rounded up. The `threshold` for rounding down is therefore
 # set to 5.
 #
-# Note that `round_down_from()` mirrors `threshold` along with everything else:
-# it rounds down when the cut-off part is at most `10 - threshold` tenths of a
-# step, not at most `threshold` tenths. At the 5 used here the two readings
-# coincide, which is why nothing inside the package depends on the difference.
+# `round_down_from()` reads `threshold` the same way `round_up_from()` does, so
+# the two differ only in where they send a value sitting exactly on it. At the 5
+# used here, that is the tie.
 
 #' @rdname rounding-common
 #' @export

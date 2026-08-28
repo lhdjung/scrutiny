@@ -83,7 +83,11 @@ floor_frac_sum <- function(a1, b1, a2, b2) {
 # the table in the `Rounding` section of `unround()`'s documentation, extended
 # by the three compound rounding methods: their bounds are the union of the
 # bounds of the two constituent methods, and since both constituents include
-# `x_num` itself, that union is again a single interval.
+# `x_num` itself, that union is again a single interval. For `"up_or_down"` and
+# `"up_from_or_down_from"` the two constituents span the very same interval and
+# differ only in which endpoint each of them includes, so the union is that
+# interval with both endpoints included. Only `"ceiling_or_floor"` is a union of
+# two intervals that do not coincide.
 #
 # Each bound is inclusive or exclusive exactly as the corresponding rounding
 # function in reround.R behaves at that bound -- e.g. `"up"` excludes its upper
@@ -139,8 +143,15 @@ rounding_offsets <- function(rounding, threshold, x_num, symmetric = FALSE) {
 
   # With `symmetric`, the rounding of a negative number mirrors that of its
   # absolute value, which is precisely what the opposite method does to a
-  # negative number anyway. Swapping the method here is therefore enough:
+  # negative number anyway. Swapping the method here is therefore enough --
+  # except that a threshold is measured from the lower end of the step, so
+  # mirroring the step mirrors the threshold within it as well. At the `5` that
+  # `"up"` and `"down"` round from, `10 - threshold` is `threshold` again, which
+  # is why only the parameterized methods need the second line:
   if (symmetric && x_num < 0) {
+    if (rounding %in% c("up_from", "down_from", "up_from_or_down_from")) {
+      threshold <- 10 - threshold
+    }
     # fmt: skip
     rounding <- switch(
       rounding,
@@ -178,20 +189,6 @@ rounding_offsets <- function(rounding, threshold, x_num, symmetric = FALSE) {
     } else {
       list(0,   0,   TRUE,  TRUE)
     }
-  } else if (rounding == "up_from_or_down_from") {
-    # The union of the two constituent intervals. Which one supplies each
-    # endpoint -- and hence whether that endpoint is inclusive -- depends on
-    # `threshold`; on a tie, the inclusive constituent wins:
-    lower_up   <- threshold - 10
-    lower_down <- -threshold
-    upper_up   <- threshold
-    upper_down <- 10 - threshold
-    offsets <- list(
-      min(lower_up, lower_down),
-      max(upper_up, upper_down),
-      lower_up <= lower_down,   # `"up_from"` includes its lower bound
-      upper_down >= upper_up    # `"down_from"` includes its upper bound
-    )
   } else {
     # fmt: skip
     offsets <- switch(
@@ -204,7 +201,8 @@ rounding_offsets <- function(rounding, threshold, x_num, symmetric = FALSE) {
       "floor"                = list(0,              10,             TRUE,       FALSE),
       "ceiling_or_floor"     = list(-10,            10,             FALSE,      FALSE),
       "up_from"              = list(threshold - 10, threshold,      TRUE,       FALSE),
-      "down_from"            = list(-threshold,     10 - threshold, FALSE,      TRUE),
+      "down_from"            = list(threshold - 10, threshold,      FALSE,      TRUE),
+      "up_from_or_down_from" = list(threshold - 10, threshold,      TRUE,       TRUE),
       return(NULL)
     )
   }
@@ -503,7 +501,7 @@ sum_squares_scale_max <- function(s, n, val_lower, val_upper) {
 #'   | `"anti_trunc"` (zero `x`)              | `lower = x = upper` (all `0`)|
 #'   | `"up_from"`                            | `lower <= x < upper`         |
 #'   | `"down_from"`                          | `lower < x <= upper`         |
-#'   | `"up_from_or_down_from"`               | (depends on `threshold`)     |
+#'   | `"up_from_or_down_from"`               | `lower <= x <= upper`        |
 #'
 #'   The bounds come from the same internal machinery that [`grim()`] and
 #'   [`grimmer()`] use to derive their candidate ranges, so `unround()` accepts
@@ -520,6 +518,12 @@ sum_squares_scale_max <- function(s, n, val_lower, val_upper) {
 #'   `"up_from_or_down_from"`. The plain `"up"`, `"down"`, and `"up_or_down"`
 #'   methods round from a fixed 5 -- see [`round_up()`] -- so their bounds do
 #'   not depend on it.
+#'
+#'   `threshold` moves a range but never widens it: the three `"*_from"` methods
+#'   span exactly one step at every threshold, just as `"up"`, `"down"`, and
+#'   `"up_or_down"` do at the 5 they are fixed to. Up to scrutiny 1.0.0 they did
+#'   not, because `round_down_from()` switched direction at `10 - threshold`
+#'   rather than at `threshold`; see that function's `threshold` parameter.
 #'
 #' Base R's own `round()` (R version >= 4.0.0), referenced by `rounding =
 #' "even"`, is reconstructed in the same way as `"up_or_down"`. Whether its
@@ -539,8 +543,7 @@ sum_squares_scale_max <- function(s, n, val_lower, val_upper) {
 #'   `"up_from_or_down_from"` methods; it must be greater than `0` and less than
 #'   `10`. Other rounding methods are not affected. Default is `5`, which makes
 #'   those three methods the same as `"up"`, `"down"`, and `"up_or_down"`. See
-#'   [`round_up_from()`], which spells out how `round_down_from()` mirrors the
-#'   threshold.
+#'   [`round_up_from()`], which spells out what it means in each direction.
 #' @param digits Integer. This argument is meant to make `unround()` more
 #'   efficient to use as a helper function so that it doesn't need to
 #'   redundantly count decimal places. Don't specify it otherwise. Default is

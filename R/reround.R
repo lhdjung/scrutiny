@@ -111,8 +111,8 @@ reconstruct_rounded_numbers_scalar <- function(
 #'   which rounding switches direction, in tenths of a step; it must be greater
 #'   than `0` and less than `10`. Otherwise irrelevant. Default is `5`, which
 #'   makes those three methods the same as `"up"`, `"down"`, and `"up_or_down"`.
-#'   See [`round_up_from()`], which spells out how `round_down_from()` mirrors
-#'   the threshold.
+#'   `threshold` means the same thing in both directions, so it moves a range
+#'   without widening it; see [`round_up_from()`].
 #' @param symmetric Logical. Set `symmetric` to `TRUE` if the rounding of
 #'   negative numbers with `"up_or_down"`, `"up"`, `"down"`,
 #'   `"up_from_or_down_from"`, `"up_from"`, or `"down_from"` should mirror that

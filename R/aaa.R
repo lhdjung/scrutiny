@@ -35,7 +35,8 @@ WHOLE_NUMBER_TOLERANCE <- .Machine$double.eps^0.5
 # 0.28. Every rounding function in round.R and round-ceil-floor.R therefore
 # nudges the shifted value by this tolerance before rounding it: the `round_*()`
 # functions of round-ceil-floor.R add or subtract it directly, and
-# `round_up_from()` and `round_down_from()` fold it into `tie_offset()`. It is
+# `round_up_from()` and `round_down_from()` fold it into `tie_offset_up()` and
+# `tie_offset_down()`, respectively. It is
 # far smaller than any difference a reported value could meaningfully express,
 # so it only ever absorbs representation error.
 #

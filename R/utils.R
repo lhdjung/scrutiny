@@ -1689,17 +1689,34 @@ name_caller_call <- function(n = 1L, wrap = TRUE) {
 
 # `round_up_from()` and `round_down_from()` both shift the scaled value so that
 # `floor()` or `ceiling()` cuts it at `threshold` rather than at 5, and both
-# nudge it by `ROUNDING_TOLERANCE` beforehand. This is the amount they add or
-# subtract.
+# nudge it by `ROUNDING_TOLERANCE` beforehand. These are the amounts they add
+# and subtract.
 #
-# Before scrutiny 1.0.0 the nudge was written there as `threshold -
+# The two are mirror images of each other about the step, not about zero:
+# `round_up_from()` goes up when the cut-off part is at least `threshold`
+# tenths of a step, and `round_down_from()` goes down when it is at most that
+# many, so the two differ only in where a value sitting exactly on the
+# threshold goes. Both offsets are the distance from the far end of the step to
+# the threshold, measured from the end that the function's own primitive
+# (`floor()` or `ceiling()`) cuts at.
+#
+# Up to scrutiny 1.0.0 the two shared one offset, `tie_offset()`, which made
+# `round_down_from()` the point reflection of `round_up_from()` -- it switched
+# direction at `10 - threshold`. See the `threshold` parameter of
+# `round_up_from()` for why that had to go.
+#
+# Before that, the nudge was written in those functions as `threshold -
 # .Machine$double.eps^0.5`, which the `/ 10` below turns into the very same
 # additive `ROUNDING_TOLERANCE`. Everything depended on that equality, since
 # `unround()` reports bounds that assume one shared tolerance, but it was not
 # stated anywhere.
 
-tie_offset <- function(threshold) {
+tie_offset_up <- function(threshold) {
   1 - (threshold / 10) + ROUNDING_TOLERANCE
+}
+
+tie_offset_down <- function(threshold) {
+  (threshold / 10) + ROUNDING_TOLERANCE
 }
 
 

@@ -467,8 +467,12 @@ test_that("the minimum of `threshold` yields expected results", {
 df9_down_1 <- grim_map(df1, digits_x = 2, rounding = "down_from", threshold = 1)
 df9_down_9 <- grim_map(df1, digits_x = 2, rounding = "down_from", threshold = 9)
 
-df9_down_1_exp <- c(f, f, f, f, t, f, f, t, t, f, t, f)
-df9_down_9_exp <- c(t, f, f, f, f, t, f, f, f, f, t, f)
+# These two swapped in scrutiny 1.0.0, when `round_down_from()` stopped being
+# the point reflection of `round_up_from()` and started reading `threshold` the
+# same way it does. The old `"down_from"` at a threshold of 1 switched direction
+# at 9, so it is the new one at 9, and vice versa.
+df9_down_1_exp <- c(t, f, f, f, f, t, f, f, f, f, t, f)
+df9_down_9_exp <- c(f, f, f, f, t, f, f, t, t, f, t, f)
 
 test_that("the maximum of `threshold` yields expected results", {
   df9_down_1$consistency |> expect_equal(df9_down_1_exp)

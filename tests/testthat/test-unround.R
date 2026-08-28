@@ -349,3 +349,177 @@ test_that("zero-length input returns zero rows", {
   # A scalar `x` is unaffected:
   "5.19" |> unround() |> nrow() |> expect_equal(1L)
 })
+
+
+# Width of a reconstructed range -------------------------------------------
+
+# The sweep above pins the bounds to the rounding functions, but it can only
+# catch a disagreement between the two. It cannot catch the two agreeing on
+# something impossible, which is what `rounding = "up_from_or_down_from"` did up
+# to scrutiny 1.0.0: `round_down_from()` switched direction at `10 - threshold`
+# rather than at `threshold`, so the compound method's range was the union of
+# two intervals that barely overlapped, and it spanned up to 1.8 steps.
+#
+# The invariant that catches it: a rounding procedure maps every value to the
+# nearest point of the grid that its own tie rule picks out, so the set of
+# values that reach any one point is at most one step wide.
+#
+# Zero is where that stops holding, and legitimately so. A procedure whose
+# behavior depends on the sign takes one side of zero by one rule and the other
+# by the mirror-image rule, so the bin at zero is the union of two half-bins
+# that need not add up to a step:
+#
+#   - `"trunc"` at zero accepts all of `(-1, 1)`: every value between truncates
+#     to `0`. Two steps. Away from zero it takes one side alone and is one step
+#     wide like everything else.
+#   - `symmetric` mirroring at zero gives `2 * threshold / 10` steps, since a
+#     value reaches zero exactly if its absolute value does. That is one step at
+#     the `5` of `"up"`, `"down"`, and `"up_or_down"` -- which is why only the
+#     `"*_from"` methods show it -- and anything from 0.2 to 1.8 steps
+#     otherwise.
+#
+# `"ceiling_or_floor"` is two steps wide everywhere, not just at zero: its two
+# constituents lie on opposite sides of `x` at every value. All of these ranges
+# are open at both ends, since a value sitting on either bound is carried away
+# from `x`.
+#
+# The test below therefore checks the one-step bound everywhere it applies and
+# pins the exceptions to their exact widths.
+
+test_that("no rounding method reconstructs a range wider than one step", {
+  methods_one_step <- c(
+    "up_or_down", "up", "down", "even", "ceiling", "floor", "trunc",
+    "anti_trunc", "up_from", "down_from", "up_from_or_down_from",
+    "ties_up", "ties_down", "ties_away", "ties_zero", "ties_even"
+  )
+
+  for (digits in c(0L, 1L, 2L)) {
+    unit <- 10^-digits
+    for (x_num in c(0, 1, -1, 253, -253) * unit) {
+      x_str <- formatC(x_num, format = "f", digits = digits)
+      for (symmetric in c(FALSE, TRUE)) {
+        for (threshold in seq(1, 9)) {
+          # The methods whose bins at zero are two half-bins joined; see the
+          # comment above this test:
+          mirrored <- c(
+            "up_or_down", "up", "down",
+            "up_from_or_down_from", "up_from", "down_from"
+          )
+
+          for (m in methods_one_step) {
+            if (x_num == 0 && (m == "trunc" || (symmetric && m %in% mirrored))) {
+              next
+            }
+            bounds <- unround(
+              x_str,
+              rounding = m,
+              threshold = threshold,
+              digits = digits,
+              symmetric = symmetric
+            )
+            expect_lte(
+              bounds$upper - bounds$lower,
+              unit * (1 + 1e-9),
+              label = paste(
+                m, "| x =", x_str, "| digits =", digits,
+                "| symmetric =", symmetric, "| threshold =", threshold
+              )
+            )
+          }
+          # Two steps wide, open at both ends:
+          two_sided <- "ceiling_or_floor"
+          if (x_num == 0) {
+            two_sided <- c(two_sided, "trunc")
+          }
+          for (m in two_sided) {
+            wide <- unround(
+              x_str,
+              rounding = m,
+              threshold = threshold,
+              digits = digits
+            )
+            expect_equal(wide$upper - wide$lower, 2 * unit)
+            expect_false(wide$incl_lower)
+            expect_false(wide$incl_upper)
+          }
+
+          # `symmetric` at zero: `2 * threshold / 10` steps, open at both ends,
+          # with the `"*_from"` methods taking `threshold` and the other three
+          # fixed at the 5 they round from.
+          if (x_num == 0 && symmetric) {
+            for (m in mirrored) {
+              t_m <- if (endsWith(m, "_from")) threshold else 5
+              half <- unround(
+                x_str,
+                rounding = m,
+                threshold = threshold,
+                digits = digits,
+                symmetric = TRUE
+              )
+              expect_equal(
+                half$upper - half$lower,
+                2 * t_m * unit / 10,
+                label = paste(
+                  m, "at zero | symmetric | threshold =", threshold,
+                  "| digits =", digits
+                )
+              )
+              expect_equal(half$lower, -half$upper)
+              expect_equal(half$incl_lower, half$incl_upper)
+            }
+          }
+        }
+      }
+    }
+  }
+})
+
+
+test_that("the `*_from` methods only move a range, never widen it", {
+  # At every threshold, each of the three spans exactly one step, just as
+  # `"up"`, `"down"`, and `"up_or_down"` do at the 5 they are fixed to. The two
+  # constituents span the very same interval and differ only in which endpoint
+  # each includes, so their union is that interval with both ends included.
+  for (threshold in seq(1, 9)) {
+    up <- unround("5.00", rounding = "up_from", threshold = threshold)
+    down <- unround("5.00", rounding = "down_from", threshold = threshold)
+    both <- unround(
+      "5.00",
+      rounding = "up_from_or_down_from",
+      threshold = threshold
+    )
+    expect_equal(up$lower, 5 + (threshold - 10) / 1000)
+    expect_equal(up$upper, 5 + threshold / 1000)
+    expect_equal(c(down$lower, down$upper), c(up$lower, up$upper))
+    expect_equal(c(both$lower, both$upper), c(up$lower, up$upper))
+
+    expect_equal(c(up$incl_lower, up$incl_upper), c(TRUE, FALSE))
+    expect_equal(c(down$incl_lower, down$incl_upper), c(FALSE, TRUE))
+    expect_equal(c(both$incl_lower, both$incl_upper), c(TRUE, TRUE))
+  }
+})
+
+
+test_that("a threshold cannot make a consistency test decide nothing", {
+  # The practical consequence of the width invariant. With the old bounds,
+  # `grim()` under `threshold = 9` passed *every* mean at `n = 57`, because the
+  # reconstructed range was wide enough to reach a possible mean whatever the
+  # reported value was. Moving the tie point shifts the window without resizing
+  # it, so the count of consistent means does not depend on the threshold.
+  x <- as.numeric(sprintf("%.2f", seq(0, 9.99, by = 0.01)))
+  for (n in c(28, 57)) {
+    at_5 <- sum(grim(x, n, digits_x = 2, rounding = "up_or_down"))
+    for (threshold in c(1, 3, 7, 9)) {
+      expect_equal(
+        sum(grim(
+          x, n,
+          digits_x = 2,
+          rounding = "up_from_or_down_from",
+          threshold = threshold
+        )),
+        at_5,
+        label = paste("`grim()` at n =", n, "| threshold =", threshold)
+      )
+    }
+  }
+})

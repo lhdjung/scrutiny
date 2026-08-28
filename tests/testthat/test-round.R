@@ -93,11 +93,15 @@ test_that("only ties are affected by the choice of procedure", {
 # Custom thresholds -------------------------------------------------------
 
 # `round_up_from()` rounds up whenever the part cut off by rounding is at least
-# `threshold` tenths of a step. `round_down_from()` is its mirror image, and the
-# mirroring applies to `threshold` as well: it rounds *down* whenever the
-# cut-off part is at most `10 - threshold` tenths of a step. The two coincide
-# only at the threshold of 5 that `round_up()` and `round_down()` use, which is
-# why nothing so far has depended on the difference.
+# `threshold` tenths of a step, and `round_down_from()` rounds down whenever it
+# is at most that many. `threshold` therefore means the same thing in both, and
+# the two differ only in where they send a value sitting exactly on it.
+#
+# Up to scrutiny 1.0.0, `round_down_from()` was instead the point reflection of
+# `round_up_from()`, switching direction at `10 - threshold`. The two agreed at
+# the 5 that `round_up()` and `round_down()` round from and nowhere else, which
+# left `rounding = "up_from_or_down_from"` spanning up to 1.8 steps -- see the
+# width test at the bottom of this file.
 #
 # With `digits = 2` and a value carrying three decimals, the cut-off part is
 # exactly the third decimal, so the expectation can be written down digit by
@@ -122,12 +126,12 @@ test_that("`round_up_from()` rounds up from `threshold`, not from 5", {
   }
 })
 
-test_that("`round_down_from()` rounds down from `10 - threshold`", {
+test_that("`round_down_from()` rounds down from `threshold`, not from 5", {
   for (threshold in seq(1, 9)) {
     for (base in c(0.42, 7.13, 100)) {
       expect_equal(
         round_down_from(base + cut_digit / 1000, 2, threshold = threshold),
-        base + ifelse(cut_digit > 10 - threshold, 0.01, 0),
+        base + ifelse(cut_digit > threshold, 0.01, 0),
         label = paste("`round_down_from()`, threshold", threshold, "at", base)
       )
     }
@@ -135,16 +139,16 @@ test_that("`round_down_from()` rounds down from `10 - threshold`", {
 })
 
 test_that("`round_down_from()` is `round_up_from()` with the tie reversed", {
-  # The precise sense in which the two are "mirror images": they switch
-  # direction at the same point, `10 - threshold`, and differ only in which way
-  # a value sitting exactly on that point goes. Exactly on the three-decimal
-  # grid, so that the cut-off part really is the third decimal and `on_tie`
-  # below identifies it without any rounding of its own:
+  # The precise sense in which the two are a pair: they switch direction at the
+  # same point, `threshold`, and differ only in which way a value sitting
+  # exactly on that point goes. Exactly on the three-decimal grid, so that the
+  # cut-off part really is the third decimal and `on_tie` below identifies it
+  # without any rounding of its own:
   x <- seq(0, 9999) / 1000
   for (threshold in seq(1, 9)) {
     down <- round_down_from(x, 2, threshold = threshold)
-    up <- round_up_from(x, 2, threshold = 10 - threshold)
-    on_tie <- round(x * 1000) %% 10 == 10 - threshold
+    up <- round_up_from(x, 2, threshold = threshold)
+    on_tie <- round(x * 1000) %% 10 == threshold
     expect_equal(down[!on_tie], up[!on_tie])
     # On the tie itself, `"down_from"` goes down and `"up_from"` goes up:
     expect_equal(down[on_tie] + 0.01, up[on_tie])
