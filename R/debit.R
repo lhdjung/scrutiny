@@ -6,16 +6,13 @@ check_debit_inputs <- function(input, type, symbol) {
     as.numeric() |>
     dplyr::between(0, 1)
 
-  # If at least one of the values is outside of that range, this will lead to an
-  # error. First, the error message is prepared... Missing values are not
-  # offenders: they are undecidable, not out of range, and the test functions
-  # return `NA` for them.
+  # Anything outside that range is an error. Missing values are not offenders:
+  # they are undecidable, not out of range, and the tests return `NA` for them.
   offenders <- input[!is.na(input_in_range) & !input_in_range]
 
   if (length(offenders) > 0L) {
-    # Since the check moved into `debit_scalar()`, it most often runs on a
-    # single value, one row at a time. Counting offenders out of a total is then
-    # vestigial -- the value itself is the whole message:
+    # Running inside `debit_scalar()`, this usually sees a single value, where
+    # counting offenders out of a total says nothing:
     if (length(input) == 1L) {
       cli::cli_abort(c(
         "!" = "DEBIT only works with binary summary data.",
@@ -91,11 +88,10 @@ debit_scalar <- function(
   symmetric = FALSE,
   show_rec = FALSE
 ) {
-  # `reconstruct_sd()` supports four formulas, but three of them need `group_0`
-  # or `group_1`, which DEBIT does not have: it works from the reported mean and
-  # sample size. Passing one of them used to reach `reconstruct_sd_scalar()` and
-  # fail there with R's own "argument "group_0" is missing" -- an error the
-  # package didn't write, about an argument the user never saw:
+  # `reconstruct_sd()` supports four formulas, but three need `group_0` or
+  # `group_1`, which DEBIT does not have -- it works from the reported mean and
+  # sample size. Reject them here, rather than let `reconstruct_sd_scalar()`
+  # fail about an argument the user never saw:
   if (!identical(formula, "mean_n")) {
     cli::cli_abort(c(
       "`formula` must be \"mean_n\".",
@@ -147,13 +143,9 @@ debit_scalar <- function(
   }
 
   # DEBIT reconstructs the *sample* SD of `n` binary values, so it divides by
-  # `n - 1`. `n` has to be a whole number greater than 1 for that to describe
-  # anything. It used to return a verdict regardless: at `n = 1`,
-  # `sd_binary_mean_n()` returned `Inf`, which compared as "above the upper
-  # bound" and yielded `FALSE`; at `n = 0` the factor `n / (n - 1)` was `0`, so
-  # the reconstructed SD was `0`, again `FALSE`. Both are noise presented as
-  # evidence. `grim_scalar()` and `grimmer_scalar()` have always reported an
-  # untestable `n` as undecidable, and DEBIT now agrees with them:
+  # `n - 1`, and `n` has to be a whole number greater than 1 for that to
+  # describe anything. Anything else is undecidable, as in `grim_scalar()` and
+  # `grimmer_scalar()` -- not a `FALSE` reached through an `Inf` or a zero:
   if (!is_decidable_n_items(n, min_n = 2)) {
     if (!show_rec) {
       return(NA)
@@ -205,20 +197,16 @@ debit_scalar <- function(
     ))
   }
 
-  # A mean of binary data cannot lie outside of 0 and 1, so neither can the
-  # original value behind a reported one, however the rounding bounds fall. Both
-  # bounds are therefore clamped to that range, which only ever narrows it.
-  # Without this, a mean reported as 0.00 or 1.00 had a bound just outside the
-  # range, `sd_binary_mean_n()` returned `NaN` for it, and the comparison below
-  # was undecidable: `debit(x = 0, sd = 0, n = 50)` was `NA` although the value
-  # set is perfectly consistent -- every value is 0, so the SD is 0.
+  # A mean of binary data cannot lie outside 0 and 1, so neither can the
+  # original value behind a reported one, however the rounding bounds fall.
+  # Clamping only ever narrows the range. Without it, a mean reported as 0.00
+  # had a bound just outside, `sd_binary_mean_n()` gave `NaN`, and
+  # `debit(x = 0, sd = 0, n = 50)` came out `NA` -- though every value is 0.
   x_lower <- max(bounds_x$lower / bounds_x$denom, 0)
   x_upper <- min(bounds_x$upper / bounds_x$denom, 1)
 
   # An SD cannot be negative, so a negative lower bound is really a bound of
-  # zero -- and that one is attainable, hence inclusive. This is what
-  # `grimmer_scalar()` does with the same bounds; DEBIT used to report the
-  # negative number instead, in the `sd_lower` output column of `debit_map()`:
+  # zero -- attainable, hence inclusive. Same as in `grimmer_scalar()`:
   if (bounds_sd$lower < 0) {
     bounds_sd$lower <- 0
     bounds_sd$incl_lower <- TRUE
@@ -227,22 +215,15 @@ debit_scalar <- function(
   sd_lower <- bounds_sd$lower / bounds_sd$denom
   sd_upper <- bounds_sd$upper / bounds_sd$denom
 
-  # The means at which the SD is reconstructed. The two bounds are the obvious
-  # candidates, but they are not enough by themselves: the verdict below reasons
-  # from the reconstructed values at these means to every mean in between, and
-  # that step needs the reconstruction to be monotonic in the mean.
-  #
-  # It isn't. `sd_binary_mean_n()` is `sqrt((n / (n - 1)) * mean * (1 - mean))`,
-  # a downward parabola with its maximum at a mean of 0.5, so an interval that
-  # contains 0.5 reaches SDs *above* both of its endpoints. For a mean reported
-  # as exactly 0.50 the interval is symmetric around 0.5, both endpoints give
-  # the same SD, and the whole attainable band collapses to a single point --
-  # which is how `debit(x = 0.50, sd = 0.503, n = 100, digits_x = 2, digits_sd =
-  # 3)` came to be `FALSE` for 50 ones and 50 zeros.
-  #
-  # The peak is the only interior extremum, so adding it where it falls inside
-  # the interval makes these means span the entire attainable range again, and
-  # the intermediate-value step below is sound:
+  # The means at which the SD is reconstructed. The two bounds alone are not
+  # enough: the verdict below reasons from them to every mean in between, which
+  # needs the reconstruction to be monotonic in the mean -- and it isn't.
+  # `sd_binary_mean_n()` is `sqrt((n / (n - 1)) * mean * (1 - mean))`, a
+  # downward parabola peaking at a mean of 0.5, so an interval containing 0.5
+  # reaches SDs *above* both endpoints. At a mean of exactly 0.50 both endpoints
+  # even give the same SD, collapsing the attainable band to a point. The peak
+  # is the only interior extremum, so adding it where it falls inside the
+  # interval restores the span and makes the step below sound:
   x_eval <- c(x_lower, x_upper)
 
   if (x_lower <= 0.5 && 0.5 <= x_upper) {
@@ -263,13 +244,11 @@ debit_scalar <- function(
     symmetric = symmetric
   )
 
-  # Test whether the reconstructed SD values meet the range of the reported SD.
-  # `reround()` returned values on the `digits_sd` decimal grid, so multiplying
-  # them by the bounds' denominator and rounding to the nearest integer recovers
-  # their exact numerators over that same denominator: the comparison below is
-  # therefore between integers. This replaces the `dustify()` fudge of +/-1e-12
-  # that DEBIT used to compare bounds with -- the last floating-point comparison
-  # of this kind in the package (#86).
+  # Do the reconstructed SDs meet the range of the reported SD? `reround()`
+  # returned values on the `digits_sd` decimal grid, so multiplying by the
+  # bounds' denominator and rounding recovers their exact numerators over that
+  # denominator -- the comparison below is between integers, not a tolerance
+  # fudge (#86).
   num_rec <- round(sd_rec * bounds_sd$denom)
 
   above_lower <- if (bounds_sd$incl_lower) {
@@ -284,11 +263,10 @@ debit_scalar <- function(
     num_rec < bounds_sd$upper
   }
 
-  # The two conditions need not be met by the same reconstructed value: if one
-  # of them is below the reported SD's range and another one is above it, some
-  # mean in between reconstructs into that range. This is an intermediate-value
-  # argument, and it holds because `x_eval` above spans the attainable range of
-  # reconstructed SDs -- which is why the peak had to be added to it.
+  # The two conditions need not be met by the same reconstructed value: with one
+  # below the reported SD's range and another above it, some mean in between
+  # reconstructs into it. This intermediate-value argument holds because
+  # `x_eval` spans the attainable range -- hence the peak added to it.
   consistency <- any(above_lower) && any(below_upper)
 
   if (!show_rec) {
@@ -368,8 +346,8 @@ debit_scalar <- function(
 #' # summary data:
 #' debit(x = 0.36, sd = 0.11, n = 20, digits_x = 2, digits_sd = 2)
 
-# Vectorized version. The signature mirrors `debit_scalar()`'s minus `show_rec`,
-# which only the mapper tier has any use for; see `vectorize_test()`:
+# Vectorized version. The signature mirrors `debit_scalar()`'s minus `show_rec`;
+# see `vectorize_test()`:
 debit <- function(
   x,
   sd,

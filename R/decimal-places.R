@@ -70,15 +70,12 @@
 #' decimal_places_scalar(x = "5.024")
 
 decimal_places <- function(x, sep = "\\.") {
-  # `NaN` and the infinities have no decimal places in any meaningful sense,
-  # and `NaN` is a missing value everywhere else in the package -- `is.na(NaN)`
-  # is `TRUE`. They used to be counted as zero, because `str_trim()` turns them
-  # into the strings `"NaN"` and `"Inf"`, which have no separator and hence no
-  # digits after one; only a literal `NA` survived the coercion as `NA`. The
-  # test below runs on the input rather than on the trimmed strings, so that a
-  # numeric vector is decided by `is.finite()`; a character vector can only be
-  # matched against the tokens, since `as.numeric()` would also swallow strings
-  # like `"5.30%"`, whose two decimal places are the documented answer.
+  # `NaN` and the infinities have no decimal places, and `NaN` is a missing value
+  # everywhere else in the package. The test runs on the input rather than on the
+  # trimmed strings -- which would count `"NaN"` and `"Inf"` as zero -- so a
+  # numeric vector is decided by `is.finite()`. A character vector can only be
+  # matched against the tokens: `as.numeric()` would also swallow strings like
+  # `"5.30%"`, whose two decimal places are the documented answer.
   non_finite <- if (is.numeric(x)) {
     !is.finite(x)
   } else {
@@ -98,15 +95,12 @@ decimal_places <- function(x, sep = "\\.") {
   ))
   x <- stringr::str_remove(x, "[eE][+-]?[0-9]+$")
 
-  # Only the run of digits that immediately follows the separator counts, not
-  # every character after it: `"5.30%"` has two decimal places, not three, and
-  # `"1.2.3"` has one, not three. This is the same rule that
-  # `decimal_places_scalar()` applies, and the two are checked against each
-  # other over a generated corpus in `test-decimal-places.R`. For a
-  # well-formed number the two rules agree anyway, because every character of
-  # its mantissa is a digit. `str_split_fixed()` returns an empty mantissa
-  # where there is no separator, and `regexpr()` counts the digit run for the
-  # whole vector in one pass:
+  # Only the run of digits immediately after the separator counts, not every
+  # character after it: `"5.30%"` has two decimal places, `"1.2.3"` one. Same
+  # rule as in `decimal_places_scalar()`; a generated corpus in
+  # `test-decimal-places.R` holds the two together. `str_split_fixed()` gives an
+  # empty mantissa where there is no separator, and `regexpr()` counts the digit
+  # run for the whole vector in one pass:
   mantissa <- stringr::str_split_fixed(x, sep, n = 2L)[, 2L]
   out <- attr(regexpr("^[0-9]*", mantissa), "match.length")
 
@@ -131,15 +125,14 @@ decimal_places <- function(x, sep = "\\.") {
 # single-case functions:
 decimal_places_scalar <- function(x, sep = "\\.") {
   # The three ways of having no decimal places to count -- a missing value, an
-  # infinity, and the strings that spell one -- used to be three guards with the
-  # string conversion between them, which made every numeric value pay for a
-  # check only a string can fail. `decimal_places()` must agree with this, and
-  # does; a generated corpus in test-decimal-places.R holds them together.
+  # infinity, and the strings that spell one. Branching on `is.character()`
+  # keeps a numeric value from paying for a check only a string can fail.
+  # `decimal_places()` must agree with this; a generated corpus in
+  # test-decimal-places.R holds the two together.
   #
-  # Whitespace has to go before anything else is read off a string: the exponent
-  # is matched at the end of it, so a single trailing space used to hide it and
-  # `"1.5e3 "` came out as 1 rather than 0. Only a string the user typed can
-  # carry any, because `as.character()` produces none.
+  # Whitespace goes first: the exponent is matched at the end of the string, so
+  # a single trailing space hid it and `"1.5e3 "` came out as 1 rather than 0.
+  # Only a string the user typed can carry any.
   if (is.character(x)) {
     x <- trimws(x)
     if (is.na(x) || grepl("^[+-]?(Inf|NaN)$", x)) {
@@ -154,13 +147,11 @@ decimal_places_scalar <- function(x, sep = "\\.") {
   }
 
   # See the comment in `decimal_places()`: an exponent shifts the decimal point,
-  # so it has to be split off before the digits after `sep` are counted. This is
-  # what makes `decimal_places_scalar(1e-04)` 4 rather than 0, and hence what
-  # keeps the step size in `seq_disperse()` and friends on the intended decimal
-  # level for values that R writes in scientific notation: `regexpr()` and
-  # `regmatches()` together cost about half of this function, and almost no
-  # value has an exponent at all, so a fixed-string search -- which cannot match
-  # where the pattern could not -- rules the rest out first:
+  # so it is split off before the digits after `sep` are counted. That makes
+  # `decimal_places_scalar(1e-04)` 4 rather than 0, keeping `seq_disperse()` and
+  # friends on the intended decimal level. `regexpr()` and `regmatches()` cost
+  # about half of this function and almost no value has an exponent, so a
+  # fixed-string search rules the rest out first:
   exponent <- 0L
 
   if (grepl("e", x, fixed = TRUE) || grepl("E", x, fixed = TRUE)) {

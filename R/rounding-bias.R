@@ -103,16 +103,3 @@ rounding_bias <- function(
   }
 }
 
-# # Proof that it works (this is for a previous version that didn't compute the
-# # mean but only subtracted `x` from `x_rounded`) --
-#
-# # Define example vector:
-# x <- seq_distance(0.01, string_output = FALSE)
-# decimals <- 1
-# rounding <- "up"
-# threshold <- 5
-# # These are all `TRUE`, so `x` can be reconstructed from first rounding it in
-# # the specified way, then subtracting the bias:
-# dplyr::near(
-#   (reround(x, digits, rounding, threshold) - rounding_bias(x, 1)), x
-# )

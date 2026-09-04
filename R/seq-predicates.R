@@ -60,22 +60,6 @@ is_seq_descending_basic <- function(x) {
 }
 
 
-# # Test any of the sequence functions interactively:
-# x <- c(1, 2, NA, 4)
-# tolerance <- .Machine$double.eps^0.5
-# test_linear <- TRUE
-# test_special <- NULL
-# min_length <- NULL
-# args_other <- NULL
-
-# # Example input for dispersed sequences:
-# x <- c(45, NA, 47, 48, 49, 50, 51, 52, 53, 54, NA)
-# tolerance <- .Machine$double.eps^0.5
-# test_linear <- TRUE
-# test_special <- "dispersed"
-# min_length <- 3L
-# args_other <- list(from = 50)
-
 # Non-exported workhorse API of all the sequence predicates:
 is_seq_basic <- function(
   x,
@@ -123,10 +107,6 @@ is_seq_basic <- function(
     if (length(not_na) < 3L) {
       return(NA)
     }
-
-    # # Indices of `NA`s at the start and end of `x`:
-    # n_na_start <- seq_len(not_na[1L] - 1L)
-    # n_na_end   <- (not_na[length(not_na)] + 1L):n_x_orig
 
     n_na_start <- match(FALSE, is.na(x_orig)) - 1L
     n_na_end <- match(FALSE, rev(is.na(x_orig))) - 1L
@@ -382,14 +362,6 @@ is_seq_dispersed <- function(
   )
 }
 
-
-# x <- 50 |>
-#   seq_disperse() |>
-#   as.numeric()
-# x[2] <- NA
-# x[length(x)] <- NA
-# from <- 50
-# tolerance <- .Machine$double.eps^0.5
 
 # Helper, not exported:
 is_seq_dispersed_basic <- function(

@@ -1,14 +1,3 @@
-# # Full example inputs:
-# x         <- "5.19"
-# n         <- 40
-# items     <- 1
-# percent   <- FALSE
-# show_rec  <- FALSE
-# rounding  <- "up_or_down"
-# threshold <- 5
-# symmetric <- FALSE
-# tolerance <- .Machine$double.eps^0.5
-
 # Single-case function; not exported but used as a basis for the vectorized
 # `grim()` as well as within `grim_map()`:
 grim_scalar <- function(
@@ -28,19 +17,12 @@ grim_scalar <- function(
   tolerance = lifecycle::deprecated()
 ) {
   # GRIM decides which sums are consistent in exact integer arithmetic, so there
-  # is no floating-point comparison for a tolerance to loosen. The argument was
-  # retained "because `grimmer()` and `debit()` inherit it and do use it", which
-  # is only half true: `grimmer()` does, `debit()` never had it and does not
-  # need it either. So this is an argument that does nothing, in the one
-  # function of the three whose result it cannot change.
+  # is no floating-point comparison for a tolerance to loosen. `grimmer()` does
+  # use it; `debit()` never had it.
   if (lifecycle::is_present(tolerance)) {
-    # `user_env` is given explicitly because this function is never called
-    # directly by the user: `grim()` forwards to it through `vectorize_test()`,
-    # and `grim_map()` reaches it through `purrr::pmap()`. Left to infer the
-    # caller, lifecycle finds a scrutiny frame either way and appends "The
-    # deprecated feature was likely used in the scrutiny package. Please report
-    # the issue" -- sending the user to the issue tracker for their own
-    # argument.
+    # `user_env` is explicit because the user never calls this directly: left to
+    # infer the caller, lifecycle finds a scrutiny frame and tells the user to
+    # report an issue about their own argument.
     lifecycle::deprecate_warn(
       when = "1.0.0",
       what = "grim(tolerance)",
@@ -70,13 +52,10 @@ grim_scalar <- function(
 
   # GRIM asks which integer sums of `n * items` integer values have a mean that
   # would be reported as `x`. A fractional or non-positive `n` or `items`
-  # describes no such data set, so there is nothing to be consistent with, and
-  # the case is undecidable rather than inconsistent. It used to get a verdict:
-  # `grim(x = 5.19, n = 20.5, digits_x = 2)` was `FALSE`. An infinite `x` is
-  # undecidable for the same reason -- no data set has an infinite mean, and it
-  # has no decimal places to be reported with, which is why `decimal_places()`
-  # returns `NA` for it. It used to make the sum range infinitely wide, so that
-  # `grim(x = Inf, n = 20, digits_x = 2)` was `TRUE`.
+  # describes no such data set, so the case is undecidable rather than
+  # inconsistent. So is an infinite `x`: no data set has an infinite mean, and
+  # it has no decimal places to be reported with -- left to `sum_range()` it
+  # would make the range infinitely wide, i.e. consistent with everything.
   if (!is_decidable_n_items(n, items) || is.infinite(x_num)) {
     if (!show_rec) {
       return(NA)
@@ -88,11 +67,10 @@ grim_scalar <- function(
   n_items <- n * items
   rec_sum <- x_num * n_items
 
-  # Determine the range of integer sums whose mean would have been reported as
-  # `x_num` at `digits_x` decimal places. `sum_range()` derives it in exact
-  # integer arithmetic, so that a sum which sits mathematically right on a
-  # rounding boundary is included or excluded as the rounding method demands,
-  # rather than as floating-point representation error happens to dictate:
+  # The integer sums whose mean would have been reported as `x_num` at
+  # `digits_x` decimal places, in exact integer arithmetic: a sum sitting right
+  # on a rounding boundary is included or excluded as the rounding method
+  # demands, not as representation error happens to dictate.
   sums_consistent <- sum_range(
     x_num = x_num,
     n_items = n_items,
@@ -103,57 +81,39 @@ grim_scalar <- function(
   )
 
   # `x` is GRIM-consistent if at least one integer sum falls into that range.
-  # (Every rounding method maps `x_num` to itself, so this is equivalent to the
-  # classic formulation in terms of the two granules below: the range contains
-  # `rec_sum`, so whenever it is wide enough to contain an integer at all, it
-  # also contains one of the two integers closest to `rec_sum`.)
+  # Equivalent to the classic formulation via the granules below: the range
+  # contains `rec_sum`, so if it contains any integer, it contains one of the
+  # two closest to `rec_sum`.
   consistency <- sums_consistent[1L] <= sums_consistent[2L]
 
   if (!show_rec) {
     return(consistency)
   }
 
-  # Reconstruct the possible mean or percentage values ("granules"). These are
-  # `floor(rec_sum) / n_items` and `ceiling(rec_sum) / n_items`, but computed
-  # via exact division so that an `rec_sum` which is mathematically an integer
-  # is not floored or ceilinged to its neighbor by floating-point error. They
-  # are the values GRIM is classically taught in terms of, and they depend on
-  # `rec_sum` and `n_items` alone -- not on the rounding method:
+  # The possible mean or percentage values ("granules"): `floor(rec_sum)` and
+  # `ceiling(rec_sum)` over `n_items`, but via exact division so that a
+  # mathematically integral `rec_sum` is not moved to its neighbor by
+  # floating-point error. They depend on `rec_sum` and `n_items` alone, not on
+  # the rounding method:
   denom <- 10^(digits_x + 1L)
   rec_sum_num <- round(x_num * denom) * n_items
 
-  # These two are meant to be read against `x`, so they are returned on the
-  # scale of `x` -- percentages if `x` is a percentage, not the decimal numbers
-  # GRIM works with internally. `grim_values()` and `grim_closest()` return
-  # their values on that scale for the same reason. `rec_sum`, `sum_lower`, and
-  # `sum_upper` are not converted: they are sums of the underlying data, which
-  # `percent` does not change, and the two bounds are the whole numbers that
-  # `rec_sum` is compared against.
-  #
-  # The factor multiplies the integer sum rather than the quotient, so that the
-  # granule is still the result of a single division. Converting afterwards
-  # would round twice, and a granule that is mathematically equal to `x` could
-  # come out a hair above or below it.
+  # These are read against `x`, so they are returned on its scale -- percentages
+  # if `x` is one, like `grim_values()` and `grim_closest()`. `rec_sum`,
+  # `sum_lower`, and `sum_upper` are not converted: they are sums of the
+  # underlying data, which `percent` does not change. The factor multiplies the
+  # integer sum rather than the quotient, keeping the granule the result of a
+  # single division; converting afterwards would round twice.
   scale_x <- if (percent) 100 else 1
   rec_x_upper <- ceiling_div(rec_sum_num, denom) * scale_x / n_items
   rec_x_lower <- floor_div(rec_sum_num, denom) * scale_x / n_items
 
-  # Return the same six values for every rounding method. `sum_lower` and
-  # `sum_upper` are the numbers that actually decided `consistency` above: the
-  # least and the greatest integer sum that would have been reported as `x`. The
-  # range is empty exactly if the value set is inconsistent, and then it is
-  # empty by exactly one: the two are the integers that straddle `rec_sum`, so
-  # `sum_lower` is `sum_upper + 1`. The gap is therefore never a measure of how
-  # far off the value set is -- what says that is where `rec_sum` falls relative
-  # to the range, i.e. `x` against `rec_x_lower` and `rec_x_upper`.
-  #
-  # Up to scrutiny 1.0.0, the display was granule-based instead: the two
-  # granules, re-rounded, in four columns for the "_or_" rounding methods and
-  # two for the others. That was a second, parallel derivation of the verdict,
-  # left behind when the verdict itself moved to exact integer arithmetic, and
-  # under the `rounding = "anti_trunc"` of the time it could contradict the
-  # `consistency` column it was meant to explain. The deciding numbers cannot
-  # contradict it.
+  # The same six values for every rounding method. `sum_lower` and `sum_upper`
+  # are the numbers that decided `consistency` above, so the display cannot
+  # contradict the verdict -- which a separately derived, granule-based one did.
+  # An empty range means an inconsistent value set, and it is then empty by
+  # exactly one, the two bounds straddling `rec_sum`. So the gap is no measure
+  # of how far off a value set is; `x` against `rec_x_lower`/`rec_x_upper` is.
   list(
     consistency,
     rec_sum,
@@ -258,8 +218,8 @@ grim_scalar <- function(
 #' # With percentages instead of means -- here, 71%:
 #' grim(x = 71, n = 43, digits_x = 0, percent = TRUE)
 
-# Vectorized version. The signature mirrors `grim_scalar()`'s minus `show_rec`,
-# which only the mapper tier has any use for; see `vectorize_test()`:
+# Vectorized version. The signature mirrors `grim_scalar()`'s minus `show_rec`;
+# see `vectorize_test()`:
 grim <- function(
   x,
   n,

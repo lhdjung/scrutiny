@@ -226,7 +226,6 @@ write_doc_audit_seq <- function(key_args, name_test) {
   }
 
   suffix <- c("", "up", "down")
-  # var_ge_3_line_diff <- ""
 
   semicolons_as_well_as <- function(x) {
     x[-length(x)] <- paste0(x[-length(x)], "; ")

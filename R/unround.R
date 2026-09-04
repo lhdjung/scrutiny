@@ -1,41 +1,33 @@
 # Exact candidate-sum arithmetic ------------------------------------------
 
 # GRIM and GRIMMER both need the set of integer sums `s` for which `s / n_items`
-# would have been rounded to the reported mean. Deriving that set from
-# floating-point products such as `floor(upper * n_items)` is unsafe: if such a
-# product is mathematically an exact integer, its `double` representation can
-# fall on either side of it, so a legitimate sum may be silently dropped or a
-# phantom sum admitted. Either way, the verdict flips. See:
-# https://github.com/lhdjung/scrutiny/issues/86
+# would have been rounded to the reported mean. Deriving it from floating-point
+# products such as `floor(upper * n_items)` is unsafe: where such a product is
+# mathematically an exact integer, its `double` can fall on either side of it,
+# dropping a legitimate sum or admitting a phantom one, and the verdict flips
+# (#86).
 #
-# The functions below therefore derive the range in integer arithmetic. Every
-# bound that `unround()` can return is `x` plus a whole number of units of `1 /
-# 10^(digits + 1)`, and `x` itself is a whole number of such units because it
-# has `digits` decimal places. Both bounds hence have exact integer numerators
-# over `10^(digits + 1)`, and comparing `s / n_items` to `numerator / 10^(digits
-# + 1)` becomes a comparison between the integers `s * 10^(digits + 1)` and
-# `n_items * numerator`.
+# The functions below therefore work in integer arithmetic. Every bound that
+# `unround()` can return is `x` plus a whole number of units of
+# `1 / 10^(digits + 1)`, and `x` itself is such a whole number because it has
+# `digits` decimal places -- so both bounds have exact integer numerators over
+# `10^(digits + 1)`, and `s / n_items` vs. `numerator / 10^(digits + 1)` becomes
+# a comparison of the integers `s * 10^(digits + 1)` and `n_items * numerator`.
+#
+# This is exact while every integer involved stays below `2^53`. The products
+# are on the order of `n * 10^(2 * digits)`, far below it for any realistic
+# input; beyond it the arithmetic degrades to plain floating point.
 
-# All of this is exact only as long as every integer involved stays below
-# `2^53`, the point up to which doubles represent integers without loss. The
-# products formed below are on the order of `n * 10^(2 * digits)`, so the limit
-# is far out of reach for the sample sizes and decimal counts that consistency
-# testing deals with. Beyond it, the arithmetic silently degrades to the
-# floating-point behavior of earlier scrutiny versions, which is no worse than
-# the status quo.
-
-# `floor_div()` and `ceiling_div()` divide `a` by `b` (with `b > 0`) and round
-# the result towards `-Inf` and `+Inf`, respectively. Unlike `floor(a / b)` and
-# `ceiling(a / b)`, they are exact for integer-valued `a` and `b`: the quotient
-# `a / b` may land on the wrong side of an integer, so the candidate result is
-# checked by multiplying it back out, which is exact in double precision. The
-# error in `a / b` is far below 1, so a single correction step suffices.
+# `floor_div()` and `ceiling_div()` divide `a` by `b` (with `b > 0`), rounding
+# towards `-Inf` and `+Inf`. Unlike `floor(a / b)`, they are exact for
+# integer-valued `a` and `b`: the candidate result is multiplied back out, which
+# is exact in double precision. The error in `a / b` is far below 1, so one
+# correction step suffices.
 
 floor_div <- function(a, b) {
   q <- floor(a / b)
-  # A missing value has no floor to correct, and the comparisons below would
-  # fail on it rather than pass it on. Every caller propagates `NA` from here up
-  # to the verdict, which is what an undecidable value set should get:
+  # The comparisons below would fail on a missing value rather than pass it on.
+  # Every caller propagates the `NA` up to the verdict:
   if (is.na(q)) {
     return(q)
   }
@@ -53,15 +45,11 @@ ceiling_div <- function(a, b) {
 }
 
 
-# `floor_frac_sum()` is the same idea for a sum of two fractions, `a1 / b1 + a2
-# / b2` (with `b1` and `b2` positive integers). It returns the floor of that sum
-# along with a flag for whether the sum is an integer, which is what the callers
-# need in order to honor an exclusive bound.
-#
-# The obvious route -- putting both fractions over `b1 * b2` -- would multiply
-# each numerator by the other denominator and overflow the exact range far
-# sooner than necessary. Splitting each fraction into its integer part and its
-# remainder first keeps every product below `2 * b1 * b2` instead.
+# Same idea for a sum of two fractions, `a1 / b1 + a2 / b2` (`b1`, `b2` positive
+# integers): the floor of the sum, plus a flag for whether the sum is an integer,
+# which callers need to honor an exclusive bound. Splitting each fraction into
+# integer part and remainder first keeps every product below `2 * b1 * b2`;
+# putting both over `b1 * b2` directly would leave the exact range far sooner.
 
 floor_frac_sum <- function(a1, b1, a2, b2) {
   q1 <- floor_div(a1, b1)
@@ -76,78 +64,58 @@ floor_frac_sum <- function(a1, b1, a2, b2) {
 }
 
 
-# Integer offsets of the lower and upper rounding bounds from `x_num`, measured
-# in units of `1 / 10^(digits + 1)`, plus the inclusivity of each bound. This is
-# the single source of truth for rounding bounds in the package: `unround()`,
-# `grim()`, and `grimmer()` all derive their ranges from it. The offsets follow
-# the table in the `Rounding` section of `unround()`'s documentation, extended
-# by the three compound rounding methods: their bounds are the union of the
-# bounds of the two constituent methods, and since both constituents include
-# `x_num` itself, that union is again a single interval. For `"up_or_down"` and
-# `"up_from_or_down_from"` the two constituents span the very same interval and
-# differ only in which endpoint each of them includes, so the union is that
-# interval with both endpoints included. Only `"ceiling_or_floor"` is a union of
-# two intervals that do not coincide.
+# Integer offsets of the lower and upper rounding bounds from `x_num`, in units
+# of `1 / 10^(digits + 1)`, plus each bound's inclusivity. This is the single
+# source of truth for rounding bounds: `unround()`, `grim()`, and `grimmer()`
+# all derive their ranges from it. The offsets follow the table in the
+# `Rounding` section of `unround()`'s documentation, plus the compound methods,
+# whose bounds are the union of their constituents' (a single interval, since
+# both constituents include `x_num`).
 #
-# Each bound is inclusive or exclusive exactly as the corresponding rounding
-# function in reround.R behaves at that bound -- e.g. `"up"` excludes its upper
-# bound because a value at the midpoint rounds up, i.e. away from `x_num`, and
-# `"ceiling"` excludes its lower bound because a value there ceilings to `x_num
-# - 1` unit.
-#
-# `"even"` is the one method whose bounds cannot be pinned down: `base::round()`
-# breaks midpoint ties by the parity of the preceding digit, and whether a tie
-# occurs at all depends on the binary representation of the value. Both of its
-# bounds are therefore treated as inclusive, which can only make a consistency
-# test too permissive, never too strict -- the safe direction for an
-# error-detection tool.
+# Each bound is inclusive exactly as the corresponding function in reround.R
+# behaves there -- e.g. `"up"` excludes its upper bound, where a value rounds
+# away from `x_num`. `"even"` is the exception: `base::round()` breaks ties by
+# the parity of the preceding digit, and whether a tie occurs at all depends on
+# the binary representation, so both its bounds are treated as inclusive. That
+# makes a test too permissive rather than too strict -- the safe direction.
 #
 # `threshold` deliberately plays no role for `"up_or_down"`, `"up"`, and
 # `"down"`, matching `round_up()` and `round_down()`, which round from a fixed
 # 5. The `"*_from"` methods are the parameterized ones.
 #
-# Returns a list of four elements -- lower offset, upper offset, `incl_lower`,
-# `incl_upper` -- all four of them `NA` if `x_num` is missing, or `NULL` if
-# `rounding` is not a known method.
+# Returns a list of lower offset, upper offset, `incl_lower`, `incl_upper` --
+# all `NA` if `x_num` is missing, or `NULL` if `rounding` is unknown.
 
 rounding_offsets <- function(rounding, threshold, x_num, symmetric = FALSE) {
   check_rounding_spec_singular(rounding, threshold, symmetric)
 
-  # A missing value has no sign, and the branches below need one: `"trunc"` and
-  # `"anti_trunc"` have different bounds on either side of zero, and `symmetric`
-  # mirrors the methods it applies to. Standing in a positive number keeps
-  # `rounding` validated the way it is for any other value -- an unknown method
-  # is an input error whatever `x_num` is -- and the offsets it yields are
-  # discarded at the end. A missing value is undecidable, not a value whose
-  # bounds are known:
+  # The branches below need a sign, and a missing value has none. Standing in a
+  # positive number keeps `rounding` validated the way it is for any other
+  # value; the offsets it yields are discarded at the end:
   x_missing <- is.na(x_num)
   if (x_missing) {
     x_num <- 1
   }
 
-  # A `"ties_*"` string names a complete tie-breaking procedure, so it stands in
-  # for a `rounding` and a `symmetric` together. `reround()` resolves it through
-  # the same table, so the bounds below stay in step with the rounding functions
-  # they invert:
+  # A `"ties_*"` string stands in for a `rounding` and a `symmetric` together.
+  # `reround()` resolves it through the same helper, so the bounds stay in step
+  # with the rounding functions they invert:
   spec <- resolve_ties_rounding(rounding, symmetric)
   rounding <- spec$rounding
   symmetric <- spec$symmetric
 
-  # The parameterized methods are the ones that `threshold` applies to, so they
-  # are the ones that validate it -- as in `reround()`, and for the same reason:
-  # a threshold outside `(0, 10)` makes one of the two directions unreachable,
-  # and the offsets below would encode that silently:
+  # Only the parameterized methods validate `threshold`, as in `reround()`: a
+  # threshold outside `(0, 10)` makes one direction unreachable, and the offsets
+  # below would encode that silently:
   if (rounding %in% c("up_from", "down_from", "up_from_or_down_from")) {
     check_threshold_valid(threshold)
   }
 
-  # With `symmetric`, the rounding of a negative number mirrors that of its
-  # absolute value, which is precisely what the opposite method does to a
-  # negative number anyway. Swapping the method here is therefore enough --
-  # except that a threshold is measured from the lower end of the step, so
-  # mirroring the step mirrors the threshold within it as well. At the `5` that
-  # `"up"` and `"down"` round from, `10 - threshold` is `threshold` again, which
-  # is why only the parameterized methods need the second line:
+  # With `symmetric`, a negative number rounds like its absolute value -- which
+  # is what the opposite method does to it anyway, so swapping the method
+  # suffices. A threshold is measured from the lower end of the step, so
+  # mirroring the step mirrors it too; at the fixed `5` of `"up"`/`"down"`,
+  # `10 - threshold` is `threshold` again:
   if (symmetric && x_num < 0) {
     if (rounding %in% c("up_from", "down_from", "up_from_or_down_from")) {
       threshold <- 10 - threshold
@@ -163,8 +131,7 @@ rounding_offsets <- function(rounding, threshold, x_num, symmetric = FALSE) {
     )
   }
 
-  # Rounding with truncation and "anti-truncation" depends on the sign of the
-  # input number:
+  # Truncation and "anti-truncation" depend on the sign of `x_num`:
 
   # fmt: skip
   if (rounding == "trunc") {
@@ -177,11 +144,9 @@ rounding_offsets <- function(rounding, threshold, x_num, symmetric = FALSE) {
     }
   } else if (rounding == "anti_trunc") {
     # `anti_trunc()` is `round_ceiling()` above zero and `round_floor()` below
-    # it, so it takes those bounds. At zero it is neither: every non-zero value,
-    # however small, is taken away from zero to the next step out, so the only
-    # value reported as zero is zero itself. That degenerate range is a real
-    # answer rather than a missing one -- a mean reported as 0.00 under this
-    # method really does pin the sum to exactly 0.
+    # it. At zero it is neither: every non-zero value is taken away from zero,
+    # so only zero itself is reported as zero. That single-point range is a real
+    # answer, not a missing one.
     offsets <- if (x_num > 0) {
       list(-10, 0,   FALSE, TRUE)
     } else if (x_num < 0) {
@@ -207,9 +172,9 @@ rounding_offsets <- function(rounding, threshold, x_num, symmetric = FALSE) {
     )
   }
 
-  # At zero, the mirroring happens inside the interval rather than beside it:
-  # the negative half of the interval is the reflection of the positive half, so
-  # both ends behave like the upper end does for a positive number.
+  # At zero the mirroring happens inside the interval: its negative half is the
+  # reflection of its positive half, so both ends behave like the upper end
+  # does for a positive number.
 
   # fmt: skip
   if (
@@ -234,15 +199,9 @@ rounding_offsets <- function(rounding, threshold, x_num, symmetric = FALSE) {
 }
 
 
-# Integer numerators of the two rounding bounds of `x_num` over a common
-# denominator, plus the inclusivity of each bound. Every bound that
-# `rounding_offsets()` can produce is `x_num` plus a whole number of units of `1
-# / 10^(digits + 1)`, and `x_num` itself is a whole number of such units because
-# it has `digits` decimal places -- so both bounds have exact integer numerators
-# over `10^(digits + 1)`.
-#
-# Returns `NULL` if the bounds are undefined, which now happens only for a
-# missing `x_num`, and throws an error if `rounding` is not a known method.
+# Integer numerators of `x_num`'s two rounding bounds over a common denominator,
+# plus each bound's inclusivity. Returns `NULL` if the bounds are undefined,
+# which happens only for a missing `x_num`, and errors on an unknown `rounding`.
 
 bound_numerators <- function(x_num, digits, rounding, threshold, symmetric) {
   offsets <- rounding_offsets(rounding, threshold, x_num, symmetric)
@@ -259,11 +218,10 @@ bound_numerators <- function(x_num, digits, rounding, threshold, symmetric) {
     return(NULL)
   }
 
-  # `threshold` is documented as an integer but not enforced to be one. If it is
-  # fractional, the offsets are scaled up by a power of ten (along with the
-  # denominator) until they are whole numbers again. If no such power is found
-  # within a sensible range, the arithmetic downstream silently degrades to
-  # floating point:
+  # `threshold` is documented as an integer but not enforced to be one. Scale a
+  # fractional one up by a power of ten, along with the denominator, until the
+  # offsets are whole again; failing that, the arithmetic degrades to floating
+  # point:
   bounds <- c(offsets[[1L]], offsets[[2L]])
   scale <- 1
   while (scale < 1e6 && any(bounds * scale != round(bounds * scale))) {
@@ -327,20 +285,16 @@ sum_range <- function(
 }
 
 
-# GRIMMER's counterpart to `sum_range()`. For a given candidate sum `s`, this is
-# the range of integer sums of squares that the reported SD admits. The sum of
-# squares of the item-level values is
+# The sum of squares of the item-level values is
 #
-#   ((n - 1) * sd^2 + n * (s / (n * items))^2) * items^2 == (n - 1) * sd^2 *
-#     items^2 + s^2 / n
+#   ((n - 1) * sd^2 + n * (s / (n * items))^2) * items^2 ==
+#     (n - 1) * sd^2 * items^2 + s^2 / n
 #
-# and with `sd` given as `num / denom`, both terms are exact rationals. The
-# first one does not depend on `s`, so `sd_square_term()` pre-computes it once
-# per SD bound, outside the loop over candidate sums, splitting it into an
-# integer part and a proper fraction to keep the products small.
-#
-# Returns a list of the integer part and the numerator and denominator of the
-# remaining fraction.
+# and with `sd` given as `num / denom`, both terms are exact rationals. The first
+# does not depend on the candidate sum `s`, so it is pre-computed once per SD
+# bound, outside GRIMMER's loop, split into an integer part and a proper
+# fraction to keep the products small. Returns that integer part plus the
+# numerator and denominator of the fraction.
 
 sd_square_term <- function(num, n, items, denom) {
   # `sd^2 * items^2` as a fraction over `denom^2`:
@@ -370,8 +324,8 @@ sum_squares_range <- function(
 ) {
   s_squared <- s^2
 
-  # The lower bound is its own ceiling if it is an integer, and the next integer
-  # up otherwise -- or in either case the next integer up if it is excluded:
+  # An integer lower bound is its own ceiling; anything else, or an excluded
+  # bound, takes the next integer up:
   low <- floor_frac_sum(term_lower$num, term_lower$den, s_squared, n)
   lower <- term_lower$int + low$floor
   if (!low$exact || !incl_lower) {
@@ -388,37 +342,27 @@ sum_squares_range <- function(
 }
 
 
-# What a scale with known bounds adds to GRIMMER, where `sum_squares_range()`
-# gives what the reported SD admits. The values summed and squared are the `n`
-# whole-number totals of the individual respondents, each of them between
-# `val_lower` and `val_upper` (i.e., between the scale's minimum and maximum,
-# multiplied by the number of items), adding up to the candidate sum `s`. This
-# is the greatest sum of squares they can have: the values are as far apart as
-# the scale allows, so `k` of them sit at its maximum and the rest at its
-# minimum, with at most one value in between to absorb what `s` leaves over.
+# What known scale bounds add to GRIMMER, where `sum_squares_range()` gives what
+# the reported SD admits: the greatest sum of squares that `n` whole-number
+# respondent totals between `val_lower` and `val_upper` adding up to `s` can
+# have. They are as far apart as the scale allows, so `k` sit at the maximum and
+# the rest at the minimum, with at most one in between to absorb the remainder.
+# In SD space this is the mean-conditional ceiling that Mestdagh et al. (2018)
+# call "Structure S" (`strait::sd_bounds()`); here it stays in sum-of-squares
+# space, where GRIMMER already works and the arithmetic is exact.
 #
-# In SD space this is the sharp mean-conditional ceiling that Mestdagh et al.
-# (2018) call "Structure S"; `strait::sd_bounds()` has it as
-# `sd_max_structure_s()`, along with several bounds that scrutiny does not
-# derive. Here it stays in sum-of-squares space, where GRIMMER already works and
-# the arithmetic is exact.
+# Returns `NULL` if no set of `n` values within the range adds up to `s`, in
+# which case the candidate sum is out of reach whatever the SD is.
 #
-# Returns `NULL` if no set of `n` values within the range adds up to `s` at all,
-# in which case the candidate sum is out of reach whatever the SD is.
+# The bound is exact, but necessary rather than sufficient: not every sum of
+# squares below it is attainable (with `n = 3` values from 0 to 10 adding up to
+# 10, the ceiling is 100, yet 40 is out of reach). So it can only move a verdict
+# from `TRUE` to `FALSE`. For a sufficient decision procedure, see
+# `strait::brimmest()`.
 #
-# The bound is exact, but the condition it yields is necessary rather than
-# sufficient: not every sum of squares below it is attainable. With `n = 3`
-# values from 0 to 10 that add up to 10, the ceiling is 100, yet 40 is out of
-# reach. Like GRIMMER's other tests, it can therefore only move a verdict from
-# `TRUE` to `FALSE` -- the safe direction for error detection. For a decision
-# procedure that is also sufficient, see `strait::brimmest()`.
-#
-# There is a matching floor -- the least sum of squares that `n` whole numbers
-# adding up to `s` can have, i.e. the values as equal as possible. It is
-# deliberately not applied here, because it does not depend on the scale at all:
-# the near-equal values always lie inside the range, since their mean does.
-# Applying it would tighten GRIMMER for every caller, including those who say
-# nothing about a scale, which is a separate decision from this one.
+# The matching floor is deliberately not applied: it does not depend on the
+# scale at all, so it would tighten GRIMMER for every caller, including those
+# who say nothing about a scale. That is a separate decision.
 
 sum_squares_scale_max <- function(s, n, val_lower, val_upper) {
   if (s < n * val_lower || s > n * val_upper) {
@@ -599,12 +543,6 @@ sum_squares_scale_max <- function(s, n, val_lower, val_upper) {
 #' # multiple rows in the output data frame:
 #' unround(x = c(3.6, "5.20", 5.174))
 
-# # Full example inputs:
-# x <- "2.37"
-# rounding <- "up_or_down"
-# threshold <- 5
-# digits <- NULL
-
 unround <- function(
   x,
   rounding = "up_or_down",
@@ -612,27 +550,21 @@ unround <- function(
   digits = NULL,
   symmetric = FALSE
 ) {
-  # If any two arguments called right below are length > 1, they need to have
-  # the same length. Otherwise, the call will fail. But even so, there will be a
-  # warning that values will get paired:
+  # Two arguments of length > 1 must have the same length. Pairing values of `x`
+  # with values of `rounding` is confusing enough to warn about:
   check_lengths_congruent(list(x, rounding))
 
-  # The other arguments are vectorized as well, and they need the same length
-  # check: with only `x` and `rounding` checked, a `digits` that was shorter
-  # than `x` was recycled without a word, and the extra `x` values silently got
-  # the wrong number of decimal places -- and hence the wrong bounds. They get
-  # no pairing warning, though. One `digits` value per `x` value is the ordinary
-  # way to call the function from a helper, not the confusing pairing of numbers
-  # with rounding methods that the warning above is about.
+  # The other arguments need the same length check but no warning -- one
+  # `digits` per `x` is the ordinary way to call this from a helper. Unchecked,
+  # a short `digits` was recycled silently, giving the extra `x` values the
+  # wrong number of decimal places and hence the wrong bounds.
   check_lengths_congruent(
     list(x, rounding, digits, threshold, symmetric),
     warn = FALSE
   )
 
-  # The number of decimal places might be given from within another function via
-  # the `digits` argument. Otherwise -- if `digits` is not specified, and
-  # therefore `NULL` -- the `x` argument must be a string so that decimal places
-  # can be counted accurately (cf. trailing zeros), which is then done:
+  # Without `digits`, the decimal places are counted from `x`, which must then
+  # be a string so that trailing zeros survive:
   if (is.null(digits)) {
     if (!is.character(x)) {
       cli::cli_abort(c(
@@ -646,13 +578,9 @@ unround <- function(
   # The bound helpers operate on the numeric value of `x`:
   x_num <- as.numeric(x)
 
-  # Every argument is vectorized, and they may have different lengths -- a
-  # single `x` with five `digits` values is as meaningful as the reverse.
-  # Recycle them all to a common length so that each row of the output describes
-  # one complete combination. (Before this was done explicitly, the output
-  # tibble kept the length of `x` as its row count while its columns took
-  # whatever length `paste0()` recycling produced, which could yield a malformed
-  # tibble.)
+  # Recycle all arguments to a common length, so that each output row describes
+  # one complete combination. Leaving it to `paste0()` could make the columns
+  # longer than the `nrow` taken from `x`, i.e. a malformed tibble:
   lengths_in <- c(
     length(x_num),
     length(rounding),
@@ -661,11 +589,9 @@ unround <- function(
     length(symmetric)
   )
 
-  # Recycling stops at zero: if any argument is empty, there is no complete
-  # combination to describe, so the output has no rows. Taking the maximum alone
-  # ignored the empty argument and let the length-1 defaults set the row count,
-  # so `unround(character(0))` returned one row of missing values -- a phantom
-  # result where an empty input should pass through as an empty output:
+  # Recycling stops at zero: with an empty argument there is no complete
+  # combination to describe. The maximum alone let the length-1 defaults set the
+  # row count, so `unround(character(0))` returned a phantom row:
   n_out <- if (any(lengths_in == 0L)) 0L else max(lengths_in)
 
   recycle <- function(value) rep_len(value, n_out)
@@ -676,13 +602,10 @@ unround <- function(
   threshold <- recycle(threshold)
   symmetric <- recycle(symmetric)
 
-  # Determine the boundary values and whether they are inclusive, going by the
-  # `rounding` argument. `bound_numerators()` is the same helper that GRIM and
-  # GRIMMER derive their candidate ranges from, so all three tests now agree on
-  # what the bounds of a rounded number are, on which rounding methods exist,
-  # and on what `threshold` and `symmetric` mean. It expresses each bound as an
-  # exact integer numerator over a common denominator; dividing recovers the
-  # boundary value itself:
+  # The same helper GRIM and GRIMMER derive their candidate ranges from, so all
+  # three agree on the bounds, on which rounding methods exist, and on what
+  # `threshold` and `symmetric` mean. It gives each bound as an integer
+  # numerator over a common denominator; dividing recovers the value:
   bounds <- lapply(seq_len(n_out), function(i) {
     bound_numerators(
       x_num = x_num[i],
@@ -693,8 +616,7 @@ unround <- function(
     )
   })
 
-  # `bound_numerators()` returns `NULL` where the bounds are undefined, which is
-  # the case for a missing `x`:
+  # `NULL` where the bounds are undefined, i.e. for a missing `x`:
   extract <- function(name, na_value) {
     vapply(
       bounds,
@@ -713,8 +635,6 @@ unround <- function(
   sign_lower <- dplyr::if_else(incl_lower, "<=", "<")
   sign_upper <- dplyr::if_else(incl_upper, "<=", "<")
 
-  # Return a tibble that displays the range with its appropriate signs and
-  # includes all the results that constitute the range
   tibble::new_tibble(
     list(
       # fmt: skip

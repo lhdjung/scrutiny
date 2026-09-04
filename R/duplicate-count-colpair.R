@@ -65,13 +65,6 @@ dup_count_pairwise <- function(x, y) {
 #'   duplicate_count_colpair() |>
 #'   audit()
 
-# # Full example input:
-# data <- df <- tibble::tibble(
-#   a = c(1, 2, 3, NA, 5), b = c(NA, 3L, 4L, 5L, 6L), c = c(3L, 4L, NA, NA, NA)
-# )
-# ignore <- 3
-# show_rates <- TRUE
-
 duplicate_count_colpair <- function(data, ignore = NULL, show_rates = TRUE) {
   if (!is.data.frame(data)) {
     cli::cli_abort("`data` must be a data frame.")

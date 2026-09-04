@@ -10,35 +10,6 @@ mutate_both_consistent <- function(data, name_key_result = "consistency") {
 }
 
 
-# # Example for `reported` and `data`:
-# reported <- tibble(
-#   x1  = c("0.34", "0.42", "0.50"),
-#   x2  = c("0.37", "0.45", "0.53"),
-#   sd1 = c("0.21", "0.31", "0.29"),
-#   sd2 = c("0.18", "0.30", "0.28")
-# )
-#
-# data <- reported |>
-#   dplyr::mutate(n = c(90, 103, 84))
-#
-# dir <- "forth"
-# fun <- debit_map
-#
-# n <- 35
-# dispersion <- 0:5
-# reported_orig <- c("x", "sd")
-# n_min <- 1
-# n_max <- NULL
-# x1 <- NA
-# x2 <- NA
-
-# # Example for `df_list` (if needed):
-# df_list <- list(
-#   disperse(45),
-#   disperse2(c(51, 52))[1:10, ],
-#   disperse(20)[1:8, ]
-# )
-
 # Used within `function_map_total_n()`:
 function_map_total_n_proto <- function(
   .fun,
@@ -137,11 +108,10 @@ function_map_total_n_proto <- function(
     colnames(out_df)[seq_along(reported_orig)] <- reported_orig
 
     # A `digits_*` argument may name one value per group: `digits_x = c(2, 1)`
-    # if `x1` was reported with two decimal places and `x2` with one. `out_df`
-    # lists the two groups in alternating rows, so such a vector is recycled
-    # across it, giving `fun()` one value per row. In the `"back"` direction the
-    # groups are paired the other way round, so the digits are swapped along
-    # with them. A single `digits_*` value needs none of this.
+    # if `x1` has two decimal places and `x2` one. `out_df` lists the groups in
+    # alternating rows, so the vector is recycled across it, one value per row.
+    # The `"back"` direction pairs the groups the other way round, so the digits
+    # are swapped with them.
     dots <- list(...)
     names_dots <- names(dots)
     if (is.null(names_dots)) {
@@ -288,22 +258,6 @@ function_map_total_n_proto <- function(
 #'   .name_test = "GRIM"
 #' )
 
-# # Full example inputs:
-#
-# data <- tibble::tribble(
-#   ~x1,    ~ x2 ,  ~n,
-#   "3.43", "5.28", 90,
-#   "2.97", "4.42", 103,
-#   "0.54", "0.81", 76
-# )
-#
-# fun <- grim_map
-# reported <- "x"
-# name_test <- "GRIM"
-# dispersion <- 0:5
-# n_min <- 1
-# n_max <- NULL
-
 function_map_total_n <- function(
   .fun,
   .reported,
@@ -349,12 +303,10 @@ function_map_total_n <- function(
   reported_reduplicated <- paste0(reported_reduplicated, c("1", "2"))
 
   # Which `digits_*` arguments to expose as real formals, the way
-  # `function_map_seq()` does. They used to reach the total-n mappers through
-  # the dots only: that works, and the missing-argument error is still the
-  # bespoke one, but the argument was invisible to `formals()`, to
-  # tab-completion, and to the argument list in the rendered help page --
-  # despite having no default and being required in every call. `.reported`
-  # never contains `"n"` here, so there is nothing to filter out of it:
+  # `function_map_seq()` does. Through the dots they would work, but be
+  # invisible to `formals()`, to tab-completion, and to the rendered help page,
+  # despite being required in every call. `.reported` never contains `"n"` here,
+  # so there is nothing to filter out:
   digits_args_names <- intersect(
     paste0("digits_", .reported),
     names(formals(.fun))
@@ -395,10 +347,8 @@ function_map_total_n <- function(
 
       check_factory_dots(fun, name_fun, ...)
 
-      # Collect the `digits_*` values that the caller actually supplied,
-      # dropping the `NULL` defaults so that `fun()` still sees an omitted one
-      # as missing and throws its own bespoke error about it. Everything below
-      # forwards `.fun_args` where it used to forward the dots alone:
+      # Drop the `NULL` defaults, so that `fun()` sees an omitted `digits_*` as
+      # missing and throws its own bespoke error about it:
       .digits_vals <- Filter(
         Negate(is.null),
         mget(`!!`(digits_args_names), envir = environment())
@@ -482,36 +432,28 @@ function_map_total_n <- function(
       }
 
       # Switch `"1"` and `"2"` in the relevant column names of `data`. The
-      # suffix is the last character of each name, and it is built by pasting it
-      # onto the `reported` name, so it is swapped the same way -- by pasting
-      # the other one on. Replacing the character `"1"` wherever it occurred in
-      # the name, as before, hit the wrong one as soon as a reported statistic
-      # was called something like `"t1"`, whose columns are `t11` and `t12`.
+      # suffix is pasted onto the `reported` name, so it is swapped by pasting
+      # the other one on -- not by replacing the character `"1"` wherever it
+      # occurs, which hits the wrong one for a statistic called `"t1"`, whose
+      # columns are `t11` and `t12`.
       cols_expected_back <- paste0(
         rep(reported, each = 2L),
         c("2", "1")
       )
 
-      # Bring the names with switched index portions back into the `data_back`
-      # tibble (because all of this switching is only for `data_back`). The
-      # renaming pairs each column with its counterpart by matching names, not
-      # by position: `cols_expected_forth` and `cols_expected_back` run in
-      # parallel, so the column named `cols_expected_forth[i]` becomes
-      # `cols_expected_back[i]` wherever it sits in `data`. (Assigning into the
-      # positions of a `%in%` subset, as before, silently skipped the swap
-      # whenever the key columns of `data` were not in the exact `x1, x2, sd1,
-      # sd2, ...` order.)
+      # Bring the switched names back into `data_back` (the switching is only
+      # for that tibble). The renaming pairs columns by name, not by position:
+      # `cols_expected_forth[i]` becomes `cols_expected_back[i]` wherever it
+      # sits. Assigning into the positions of a `%in%` subset instead skipped
+      # the swap whenever the key columns were not in `x1, x2, sd1, sd2` order.
       names(data_back)[match(cols_expected_forth, names(data_back))] <-
         cols_expected_back
 
       # Needed below for ordering:
       cols_forth_order <- cols_expected_forth
 
-      # Complete the switching by ordering the relevant columns so that the
-      # column names are as in the original `data` (and hence, as in
-      # `data_forth`), but the columns themselves -- the values -- have switched
-      # positions. This goes by `cols_forth_order` because that's what will lead
-      # to column names identical to those in `data_forth`:
+      # Order the columns so that the names are as in `data_forth` but the
+      # values have switched positions:
       data_back <- data_back |>
         dplyr::relocate(all_of(cols_forth_order))
 
@@ -581,10 +523,9 @@ function_map_total_n <- function(
         )
       )
 
-      # In case of an internal error with these functions themselves due to
-      # inconsistent results between the two `function_map_total_n_proto()`
-      # calls right above, the user would be left completely in the dark. This
-      # error message, then, would at least clarify the source of the problem:
+      # An internal inconsistency between the two
+      # `function_map_total_n_proto()` calls above would otherwise leave the
+      # user in the dark:
       if (!all(colnames(out_forth) == colnames(out_back))) {
         names_out_forth <- wrap_in_backticks(colnames(out_forth))
         names_out_back <- wrap_in_backticks(colnames(out_back))

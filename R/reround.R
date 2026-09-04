@@ -1,20 +1,7 @@
-# # Full example inputs:
-# x <- 65.3488492
-# digits <- 2
-# rounding <- "up_or_down"
-# threshold <- 5
-# symmetric <- FALSE
-
-# The three compound rounding methods return two values per input value, and
-# they return them interleaved: `c(up_1, down_1, up_2, down_2, ...)`, so that
-# each input value's own pair of results stays together. `grimmer_scalar()`
-# relies on this layout to keep the candidates apart -- pooling them across
-# candidates was the false-pass bug #85.
-#
-# Interleaving is what `Vectorize()` produced anyway, one column of the result
-# matrix per input value. Doing it explicitly lets
-# `reconstruct_rounded_numbers_scalar()` take a whole vector at once (see
-# `reround()` below).
+# The three compound rounding methods return two values per input value,
+# interleaved as `c(up_1, down_1, up_2, down_2, ...)`, so each input's pair
+# stays together. `grimmer_scalar()` relies on that to keep its candidates
+# apart -- pooling them across candidates was the false-pass bug #85.
 
 interleave_pair <- function(first, second) {
   out <- rep_len(NA_real_, length(first) + length(second))
@@ -156,35 +143,25 @@ reround <- function(
   symmetric = FALSE
 ) {
   # The last three arguments describe one rounding procedure; `x` is the vector.
-  # Up to scrutiny 1.0.0 they could each be vectors of their own, which meant
-  # dispatching once per element of `x` through `Vectorize()`, plus a set of
-  # checks -- `check_rounding_singular()` and a length-congruence check -- for
-  # the ways in which such a call can be malformed. No consistency test ever
-  # made one, and pairing values with procedures by position is confusing enough
-  # that `unround()`, which keeps that behavior for its display use case, warns
-  # about it in its own documentation:
+  # Vectors of procedures would mean dispatching per element of `x`, and pairing
+  # values with procedures by position is confusing enough that `unround()`,
+  # which keeps that behavior for display, warns about it in its docs:
   check_rounding_spec_singular(rounding, threshold, symmetric)
 
-  # `digits`, by contrast, really is vectorized along with `x`: one number of
-  # decimal places per value. Recycling it by R's own rules passed a `digits`
-  # shorter than `x` without a word and rounded the extra values at the wrong
-  # decimal level -- the bug `unround()` was fixed for in scrutiny 1.0.0, which
-  # `reround()` never got the matching check for. No pairing warning here:
-  # unlike a rounding method, a per-value `digits` is the ordinary way to call
-  # this function from a helper.
+  # `digits` really is vectorized along with `x`: one decimal count per value.
+  # R's own recycling passed a short `digits` without a word and rounded the
+  # extra values at the wrong decimal level. No pairing warning here -- unlike a
+  # rounding method, a per-value `digits` is the ordinary way to call this.
   check_lengths_congruent(list(x, digits), warn = FALSE)
 
-  # A fractional `digits` is not a decimal level at all. It scales `x` by a
-  # non-power of ten -- `10^1.5` is about 31.6 -- and returns a number sitting
-  # on no decimal grid, so `reround(1.25, digits = 1.5, rounding = "up")` was
-  # 1.264911. `"even"` never had the problem, because `base::round()` rounds
-  # `digits` to a whole number first, so scrutiny's own methods disagreed with
-  # each other on the same input:
+  # A fractional `digits` is not a decimal level: it scales `x` by a non-power of
+  # ten (`10^1.5` is about 31.6) and returns a number on no decimal grid, so
+  # `reround(1.25, digits = 1.5, rounding = "up")` was 1.264911 while `"even"`
+  # gave the whole-number answer -- `base::round()` rounds `digits` itself.
   check_digits_whole(digits)
 
-  # A `"ties_*"` string names a complete procedure, so it stands in for a
-  # `rounding` and a `symmetric` together. `rounding_offsets()` resolves it
-  # through the same table:
+  # A `"ties_*"` string stands in for a `rounding` and a `symmetric` together.
+  # `rounding_offsets()` resolves it through the same helper:
   spec <- resolve_ties_rounding(rounding, symmetric)
 
   # Every `round_*()` function is natively vectorized, so only the dispatch is

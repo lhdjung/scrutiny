@@ -318,12 +318,11 @@ function_map <- function(
 
   # Three groups among them: arguments that may vary by row and hence ride along
   # as columns of the input to `purrr::pmap()`; arguments that may be given as
-  # columns of `data` in the first place; and plain arguments that apply to the
-  # whole call: Arguments of `.fun` that have no default of their own must reach
-  # it as missing, so that its own error message is shown rather than a generic
-  # one. All others are passed on explicitly, and that is what `.args_defaults`
-  # needs: `.fun` would otherwise apply its own default to an argument that the
-  # factory-made function has a different default for.
+  # columns of `data`; and plain arguments applying to the whole call. Those of
+  # `.fun` that have no default must reach it as missing, so that its own error
+  # message is shown rather than a generic one. All others are passed on
+  # explicitly, which is what `.args_defaults` needs -- `.fun` would otherwise
+  # apply its own default where the mapper has a different one.
   formals_promoted <- formals_fun[args_promoted]
   formals_promoted[names(.args_defaults)] <- .args_defaults
   args_required <- args_promoted[
@@ -334,13 +333,11 @@ function_map <- function(
   args_helper <- intersect(args_promoted, .cols_helper)
   args_const <- setdiff(args_promoted, c(args_by_row, args_helper))
 
-  # The arguments that may vary by row -- in practice, the `digits_*` arguments
-  # -- come first, immediately after `data` and ahead of the key arguments
-  # inserted at the very end. They have no defaults and have to be specified in
-  # every call, so they belong next to the other argument that does, and their
-  # position is the same across all mappers. This must happen after
-  # `args_required` is derived above, which pairs `formals_promoted` with
-  # `args_promoted` by position:
+  # The by-row arguments -- in practice the `digits_*` ones -- come first, right
+  # after `data`: they have no defaults, so they belong next to the other
+  # argument that must be given in every call, in the same position in every
+  # mapper. This must happen after `args_required` is derived above, which pairs
+  # `formals_promoted` with `args_promoted` by position:
   formals_promoted <- formals_promoted[
     c(args_by_row, setdiff(names(formals_promoted), args_by_row))
   ]
@@ -547,23 +544,16 @@ function_map <- function(
       # Apply `fun()` to the first row on its own before mapping over all of
       # them. Anything wrong with the arguments themselves -- a missing
       # `digits_x`, an unknown `rounding` string, a `symmetric` of length 2 --
-      # fails on the first row just as it would on any other, and the error the
-      # test function throws is far more helpful on its own than wrapped into
-      # the indexed-error context that `purrr::pmap()` would add to it ("i In
-      # index: 1."). It used to run only for missing required arguments, so a
-      # bad `rounding` still came out wrapped.
+      # fails here just as it would on any other row, and the test function's
+      # own error is far more helpful than the same error wrapped in the
+      # indexed-error context `purrr::pmap()` would add ("i In index: 1.").
+      # The result is discarded; the row is tested again below.
       #
-      # The result is discarded; the row is tested again below. That is one
-      # extra scalar call per mapper call, next to one per row.
-      #
-      # Conditions other than errors are deliberately *not* muffled here.
-      # Muffling looks right -- the row is about to be tested again, so why
-      # report anything twice -- but a warning that fires only once is then
-      # lost for good: `lifecycle::deprecate_warn()` records that it has warned
-      # before the muffle discards the warning, so `grim_map(tolerance = ...)`
-      # went through in complete silence. Nothing on the scalar test path warns
-      # per row today, so there is nothing to duplicate; if something ever
-      # does, being told twice about the first row beats not being told at all.
+      # Do *not* muffle conditions other than errors here. It looks right, since
+      # the row is about to be tested again, but a once-per-session warning is
+      # then lost for good: `lifecycle::deprecate_warn()` records that it has
+      # warned before the muffle discards the warning, so
+      # `grim_map(tolerance = ...)` went through in complete silence.
       if (nrow(data) > 0L) {
         do.call(
           fun,

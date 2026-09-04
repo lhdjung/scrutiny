@@ -246,12 +246,9 @@ grim_plot <- function(
     )
   }
 
-  # There is nothing to read a decimal count off, no raster to choose, and no
-  # data to draw. Without this, `digits` came out as `NA` further down and the
-  # first branch that tested it failed with R's own "missing value where
-  # TRUE/FALSE needed" -- a bare condition from the middle of the function,
-  # about an object the caller never named. A zero-row mapper output is an
-  # ordinary result of `dplyr::filter()`, so it is worth saying plainly:
+  # Nothing to read a decimal count off, no raster to choose, no data to draw.
+  # A zero-row mapper output is an ordinary result of `dplyr::filter()`, so say
+  # so plainly rather than let `digits` come out `NA` and fail further down:
   if (nrow(data) == 0L) {
     cli::cli_abort(c(
       "`data` has no rows, so there is nothing to plot.",
@@ -259,11 +256,9 @@ grim_plot <- function(
     ))
   }
 
-  # A tile's color comes from the `consistency` column, so a case the test
-  # could not decide has no color to be drawn in and ggplot2 drops it. It used
-  # to do so on its own, with the bare "Removed 1 row containing missing
-  # values" -- which names neither the column nor the reason. Dropping the rows
-  # here is the same outcome, said out loud:
+  # A tile's color comes from the `consistency` column, so an undecided case has
+  # no color and ggplot2 drops it. Dropping such rows here is the same outcome,
+  # but said out loud rather than as "Removed 1 row containing missing values":
   if (show_data && any(is.na(data$consistency))) {
     n_undecided <- sum(is.na(data$consistency))
     if (n_undecided == nrow(data)) {
@@ -286,14 +281,11 @@ grim_plot <- function(
   }
 
   if (is.null(digits)) {
-    # `grim_map()`, `grimmer_map()`, and their `_map_seq()` / `_map_total_n()`
-    # counterparts all store the number of decimal places given via `digits_x`
-    # in a `digits_x` column. That's a reliable source of the decimal count,
-    # whereas `decimal_places()` on the numeric `x` column itself is not: a
-    # numeric value cannot carry trailing zeros, so `5.00` reads back as 0
-    # decimal places, not 2. Only fall back to guessing from `x` if there is no
-    # `digits_x` column to begin with, e.g. because `data` was constructed by
-    # hand.
+    # Every mapper stores its `digits_x` argument in a `digits_x` column, which
+    # is a reliable source of the decimal count. `decimal_places()` on the
+    # numeric `x` column is not: trailing zeros are lost, so `5.00` reads back
+    # as 0 decimal places. Guess from `x` only if there is no such column, e.g.
+    # because `data` was built by hand.
     has_digits_x_col <- "digits_x" %in% colnames(data)
 
     digits_x <- if (has_digits_x_col) {
@@ -311,12 +303,9 @@ grim_plot <- function(
         if (split_by_digits && has_digits_x_col) {
           unique_digits <- sort(unique(data$digits_x))
 
-          # A mean reported with no decimal places has a fractional portion of
-          # zero by construction, so its group would be a single line of tiles
-          # along the x-axis against a raster that says nothing about it. Those
-          # rows are left out -- but silently, up to now, so the returned list
-          # simply had one group fewer than the data did and the success
-          # message counted only the plots that were made:
+          # A mean with no decimal places has a fractional portion of zero, so
+          # its group would be a line of tiles along the x-axis against a raster
+          # that says nothing about it. Leave those rows out, but say so:
           n_dropped <- sum(data$digits_x == 0L)
           unique_digits <- unique_digits[unique_digits != 0L]
 
@@ -357,10 +346,9 @@ grim_plot <- function(
             )
           })
           names(plots) <- paste0("digits_", unique_digits)
-          # This branch returns a list, which auto-printing would render as a
-          # list rather than draw. The plots are printed here so that the
-          # branch still shows them; the single-plot return below is a plain
-          # ggplot object and needs no help:
+          # Auto-printing would render this branch's list as a list rather than
+          # draw it, so print the plots here. The single-plot return below is a
+          # plain ggplot object and needs no help:
           for (p_split in plots) {
             print(p_split)
           }
@@ -420,15 +408,12 @@ grim_plot <- function(
   }
 
   # `percent = TRUE` in the `grim_map()` call means `x` is a proportion of 100,
-  # and `grim_scalar()` tests it by dividing it by 100 and raising its decimal
-  # count by 2. The plot has to make the same move, for the same reason: the
-  # raster is indexed by the granularity of the value that was tested. Without
-  # it, a percentage reported as `67.4` was drawn at a fractional portion of
-  # `0.4` against the raster for one decimal place, while the verdict coloring
-  # that tile had been reached at three -- so the background contradicted the
-  # dots in front of it. The y-axis label has said "% (as decimal)" all along;
-  # this is what makes that true. `digits` given by the caller is the decimal
-  # count of the percentage as reported, exactly like `digits_x`.
+  # which `grim_scalar()` tests by dividing by 100 and raising the decimal count
+  # by 2. The plot must do the same, since the raster is indexed by the
+  # granularity of the value that was tested: otherwise a percentage of `67.4`
+  # is drawn against the one-decimal raster while the verdict coloring its tile
+  # was reached at three. A `digits` given by the caller is the decimal count of
+  # the percentage as reported, exactly like `digits_x`.
   is_percent <- inherits(data, "scrutiny_percent_true")
 
   if (is_percent) {
@@ -436,12 +421,10 @@ grim_plot <- function(
     data$x <- as.numeric(data$x) / 100
   }
 
-  # The y-axis is the fractional portion of the mean, which is zero for every
-  # value reported with no decimal places at all -- there is no plot to be had.
-  # There is no background raster for it either: the precomputed rasters cover
-  # one and two decimal places, and the lookup by name used to fail with R's
-  # own "object 'grim_raster_0_up_or_down_n' not found". The `split_by_digits`
-  # branch above leaves such rows out for the same reason.
+  # The y-axis is the fractional portion of the mean, which is zero throughout
+  # for values reported with no decimal places -- no plot to be had, and no
+  # precomputed raster either. The `split_by_digits` branch above leaves such
+  # rows out for the same reason.
   if (digits < 1L) {
     cli::cli_abort(c(
       "`digits` must be at least 1, but it is {digits}.",
@@ -475,18 +458,14 @@ grim_plot <- function(
       rounding_id <- dc[stringr::str_detect(dc, "^scrutiny_rounding_")]
       rounding_id <- stringr::str_remove(rounding_id, "^scrutiny_rounding_")
 
-      # The rasters are precomputed under the names of the `rounding` methods
-      # that existed when they were generated, so the `"ties_*"` methods have to
-      # be resolved back to those. `symmetric` is passed as `FALSE` because the
+      # The rasters are precomputed under the older `rounding` names, so resolve
+      # the `"ties_*"` methods back to those. `symmetric = FALSE` because the
       # raster is drawn over a non-negative axis: `"ties_away"` and `"ties_up"`
       # share the `"up"` raster, `"ties_zero"` and `"ties_down"` the `"down"`
-      # one.
-      #
-      # For a negative `x` this is the raster of the mirrored method, since the
-      # y-axis folds such a value onto `abs(x)` while the rounding that decided
-      # its verdict did not. It is the backdrop that is mirrored, never the
-      # verdict: the tile's color comes from the `consistency` column. See the
-      # `Negative means` section of this function's documentation.
+      # one. For a negative `x` this is the mirrored method's raster, since the
+      # y-axis folds the value onto `abs(x)` while the rounding did not -- the
+      # backdrop is mirrored, never the verdict. See the `Negative means`
+      # section of this function's documentation.
       rounding_id <- resolve_ties_rounding(rounding_id, FALSE)$rounding
 
       # Throw error if the specified rounding option is one of the few for which
@@ -504,24 +483,18 @@ grim_plot <- function(
         ))
       }
 
-      # Assemble the names of the appropriate raster components for sample size
-      # (`raster_n`; x-axis) and the fractional portion of the mean or
-      # proportion (`raster_frac`, y-axis) from the information provided by the
-      # number of decimal places and the previously specified rounding
-      # procedure. First, create two strings by those names...
+      # Assemble the names of the raster components for sample size
+      # (`raster_n`, x-axis) and fractional portion (`raster_frac`, y-axis) from
+      # the decimal count and the rounding procedure. First the strings...
       raster_n <- glue::glue("grim_raster_{digits}_{rounding_id}_n")
       raster_frac <- glue::glue("grim_raster_{digits}_{rounding_id}_frac")
 
-      # ...and second, parse and evaluate these strings, so that R will identify
-      # the raster component object by the respective name from among the files
-      # saved within R/sysdata.R:
+      # ...then the objects they name, from R/sysdata.rda:
       raster_n <- eval(rlang::parse_expr(raster_n))
       raster_frac <- eval(rlang::parse_expr(raster_frac))
     } else {
-      # For any number of decimal places greater than 2, these two objects are
-      # assigned the value of zero. This is only pro forma. We still need
-      # `raster_n` and `raster_frac` because they are referenced several times
-      # further down to build the plot:
+      # Above 2 decimal places there is no raster, but the two objects are still
+      # referenced further down, so they are set pro forma:
       raster_n <- 0
       raster_frac <- 0
     }
@@ -537,21 +510,13 @@ grim_plot <- function(
     )
   }
 
-  # Reduce `x` to the fractional portion of its absolute value. The y-axis runs
-  # from 0 to 1, and `x - trunc(x)` is negative for a negative `x`, so such a
-  # value used to fall outside the axis and be dropped -- silently, because the
-  # final `print()` suppressed the warning that says so. GRIM's granularity is
-  # the same on both sides of zero: the achievable means of `n` integers are
-  # `k / n` for every whole number `k`, positive or negative alike, so `-2.51`
-  # sits on the same granularity grid as `2.51`.
-  #
-  # Only the *background raster* can come apart from this, and only for the
-  # one-directional rounding methods. `rounding = "up"`, say, takes a tie in a
-  # negative number toward zero rather than away from it (unless `symmetric`),
-  # so the raster drawn for `"up"` describes the mirror image of what a negative
-  # value set is tested against. That affects the backdrop, never the verdict:
-  # each tile is colored from the `consistency` column, which `grim_map()`
-  # computed for the value as reported, sign and all.
+  # Reduce `x` to the fractional portion of its *absolute* value: the y-axis
+  # runs from 0 to 1, and `x - trunc(x)` would put a negative `x` outside it.
+  # GRIM's granularity is the same on both sides of zero -- the achievable means
+  # of `n` integers are `k / n` for every whole number `k` -- so `-2.51` sits on
+  # the same grid as `2.51`. Only the background raster can come apart from
+  # this, and only for the one-directional rounding methods; that affects the
+  # backdrop, never the verdict, which is colored from `consistency`.
   data_emp <- data |>
     dplyr::mutate(x = abs(x) - trunc(abs(x))) |>
     dplyr::rename(frac = x)
@@ -619,20 +584,15 @@ grim_plot <- function(
             height = grid::unit(1, "npc")
           ))
       }
-      # Keep the y-axis ranging from 0 to 1, even with the gradient in place.
-      # The bound itself is set on the coordinate system further down, for the
-      # reason given there: a scale limit would discard every tile that reaches
-      # past it, including a mean whose fractional portion is exactly 0.
+      # Keep the y-axis ranging from 0 to 1 with the gradient in place. The
+      # bound itself is set on the coordinate system further down; see there.
       p <- p +
         ggplot2::scale_y_continuous(
           expand = ggplot2::expansion(add = c(0, 0.01))
         )
     }
   } else {
-    # Without a raster there is still a plot to draw the data on. `p` used to be
-    # created only inside the branch above, so `show_raster = FALSE` -- a
-    # documented argument -- failed with "object 'p' not found" as soon as the
-    # data layer was added to it:
+    # Without a raster there is still a plot to draw the data on:
     p <- ggplot2::ggplot() +
       ggplot2::theme(
         panel.border = ggplot2::element_rect(fill = NA, colour = "grey50"),
@@ -657,16 +617,12 @@ grim_plot <- function(
       )
   }
 
-  # Both axes are bounded, and the bounds are set on the coordinate system
-  # rather than on the scales. A scale limit *discards* everything outside of
-  # it, and a tile is outside as soon as one of its edges is: a mean of `5.00`
-  # has a fractional portion of exactly 0, so its tile reaches from `-0.00375`
-  # to `0.00375` and was dropped whole for falling half a tile below the axis.
-  # `pigs1` contains such a value, so the package's own example plot had been
-  # quietly showing eleven of its twelve value sets -- the warning that says so
-  # went into the `suppressWarnings()` that used to wrap the `print()` below. A
-  # coordinate limit zooms instead of discarding, so the tile is drawn and
-  # clipped at the panel edge, which is what was wanted all along.
+  # Both axes are bounded on the coordinate system rather than on the scales. A
+  # scale limit *discards* everything outside of it, and a tile is outside as
+  # soon as one edge is: a mean of `5.00` has a fractional portion of exactly 0,
+  # so its tile reaches from `-0.00375` to `0.00375` and was dropped whole. A
+  # coordinate limit zooms instead, so the tile is drawn and clipped at the
+  # panel edge.
   if (digits <= 2L) {
     p <- p +
       ggplot2::theme(
@@ -694,22 +650,12 @@ grim_plot <- function(
       ggplot2::coord_cartesian(xlim = c(0, n), ylim = c(0, 1))
   }
 
-  # Finally, return the plot with axis labels.
-  #
-  # It is returned, not printed. `grim_plot()` used to end on `print()` and
-  # return the object invisibly, so `p <- grim_plot(g)` drew a plot the caller
-  # had not asked for, `grim_plot(g) + labs(...)` drew two, and composing with
-  # patchwork or cowplot always left a stray canvas. Auto-printing draws it at
-  # the console either way, and `debit_plot()` has always worked like this. The
-  # one place a `print()` is still needed is the `split_by_digits` branch,
-  # which returns a list.
-  #
-  # The `print()` used to be wrapped in `suppressWarnings()`, which hid every
-  # warning the plot could raise -- including a live ggplot2 deprecation and,
-  # worse, "Removed N rows containing missing values", the one message that
-  # says data did not make it onto the canvas. The guards at the top of this
-  # function report those cases themselves now, in terms of the value sets
-  # rather than the geometry.
+  # Return the plot with axis labels -- returned, not printed. Auto-printing
+  # draws it at the console anyway, whereas an explicit `print()` here would
+  # draw a canvas nobody asked for whenever the result is assigned, added to, or
+  # composed. Only the `split_by_digits` branch, which returns a list, still
+  # needs one. Nor is anything suppressed: the guards at the top of this
+  # function report dropped value sets themselves.
   p +
     ggplot2::labs(
       x = "Sample size",

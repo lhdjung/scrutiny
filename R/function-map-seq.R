@@ -1,18 +1,11 @@
 #' @include function-factory-helpers.R seq-predicates.R
 
-# Background on helpers and implementation: Unlike `function_map_total_n()`, the
-# main function here -- `function_map_seq()` -- is not based on `disperse()` or
-# its derivatives. It is not based on `seq_endpoint()` or friends either, which
-# is surprising but necessary: `disperse()` is pair-based and does not construct
-# a linear sequence, whereas `seq_endpoint()` and friends lack support for
-# dispersion and would have been very cumbersome with regard to the
-# `.include_reported` argument. It became clear that I needed something new -- a
-# function that would perform dispersion while still producing linear output. I
-# wrote `seq_disperse()` and `seq_disperse_df()`, and I applied the latter
-# within the internal helper function factory below, `function_map_seq_proto()`.
-# Later on, I wrote `seq_disperse_df_internal()` as a lightweight internal
-# helper to replace `seq_disperse_df()` within `function_map_seq_proto()` in
-# order to improve performance.
+# Unlike `function_map_total_n()`, this factory is based on neither `disperse()`
+# -- which is pair-based and builds no linear sequence -- nor `seq_endpoint()`
+# and friends, which have no dispersion and would have been cumbersome with
+# `.include_reported`. It needs both at once, which is what `seq_disperse_df()`
+# does. `function_map_seq_proto()` below uses `seq_disperse_df_internal()`, a
+# lightweight version of it.
 
 function_map_seq_proto <- function(
   .fun = fun,
@@ -87,16 +80,11 @@ function_map_seq_proto <- function(
 
     cols_except_last <- seq_along(cols_for_testing_names_without_var)
 
-    # Repeat the vector(s) non-tested key argument names so that they are just
-    # as long as the dispersed `var` sequences -- and hence fit together as rows
-    # of the same data frame. This returns list-columns, which are immediately
-    # unnested. Next, the dispersed `var` sequences are added at the appropriate
-    # position, so that the key columns are in the same order as in `data`.
-    # These key columns with partially dispersed values are then tested for
-    # consistency using `fun()`. Finally, the last columns are added:
-    # `diff_var`, which captures the distance between the reported and the
-    # original values in `var`; and `case`, which records the row number of the
-    # reported `var` value in `data`.
+    # Repeat the non-tested key columns to the length of the dispersed `var`
+    # sequences (via list-columns, immediately unnested), insert the dispersed
+    # `var` at its original position, test the result with `fun()`, and add
+    # `diff_var` -- the distance from the reported value -- and `case`, the row
+    # number of the reported `var` value in `data`.
     data[cols_for_testing_names_without_var] |>
       dplyr::mutate(dplyr::across(
         .cols = {{ cols_except_last }},
@@ -306,11 +294,8 @@ function_map_seq <- function(
   # handwritten mapper has nothing to record, and the attribute is `NULL`:
   args_helper_fun <- attr(.fun, "scrutiny_args_helper", exact = TRUE)
 
-  # Prepare some code to be inserted into the body of the factory-made function.
-  # If one of the key (reported) arguments is `n`, this will be whole numbers,
-  # so they should be coerced to integer for better representation in an app.
-  # However, if there is no such `n` argument, the code should not assume there
-  # is, which would lead to an error.
+  # An `n` key column holds whole numbers, so coerce it to integer for better
+  # display. Only if there is one, though:
   code_bind_cols <- if (any(.reported == "n")) {
     rlang::expr({
       out <- out |>
@@ -325,10 +310,9 @@ function_map_seq <- function(
     })
   }
 
-  # Determine which digits_* arguments to expose in the manufactured function.
-  # Only those corresponding to non-n reported variables AND present as explicit
-  # formals of .fun are added (e.g. digits_x for grim_map, digits_x +
-  # digits_sd for grimmer_map, none for debit_map):
+  # The `digits_*` arguments to expose: those of non-`n` reported variables that
+  # are also formals of `.fun` (`digits_x` for `grim_map()`, `digits_x` and
+  # `digits_sd` for `grimmer_map()`):
   digits_args_names <- intersect(
     paste0("digits_", .reported[.reported != "n"]),
     names(formals(.fun))
@@ -366,10 +350,7 @@ function_map_seq <- function(
 
       data <- absorb_key_args(data, reported)
 
-      # Throw an error if the user specified an argument that `.args_disabled`
-      # ruled out when the present function was created. (The check used to be
-      # missing here -- unlike in `function_map()` -- so disabled arguments were
-      # silently passed on to `fun()`.)
+      # Error on an argument that `.args_disabled` ruled out at creation time:
       check_args_disabled(args_disabled)
 
       check_factory_dots(fun, name_fun, ...)
@@ -402,30 +383,23 @@ function_map_seq <- function(
         }
       }
 
-      # `name_test` is not optional: `check_mapper_input_colnames()` passes it
-      # on to `check_consistency_not_in_colnames()`, which names the test in its
-      # message. Leaving it out here made a `data` that already has a
-      # `consistency` column fail with cli's "Could not evaluate cli `{}`
-      # expression: `name_test`" instead of the message that says what is wrong.
+      # `name_test` is not optional: `check_consistency_not_in_colnames()` names
+      # the test in its message, and without it cli fails to evaluate that
+      # message instead of reporting what is wrong.
       check_mapper_input_colnames(data, reported, name_test, name_key_result)
 
       # First, basic testing with the `*_map()` function:
       data <- do.call(fun, c(list(data), .digits_vals, list(...)))
 
       # Everything below reads the key result column off `fun()`'s output by
-      # name, so the two factories have to agree on what it is called. They
-      # only do if the mapper and the sequence mapper were created with the
-      # same `.name_key_result`; catch a mismatch here rather than let it
-      # surface as an obscure `NULL` further down:
+      # name, so mapper and sequence mapper must have been created with the same
+      # `.name_key_result`. Catch a mismatch here, not as a `NULL` further down:
       check_key_result_col(data, name_key_result, name_fun)
 
-      # Remove consistent cases from `data` if only the inconsistent ones are of
-      # interest (the default). The "filtering" code below is equivalent to
-      # `dplyr::filter(data, !consistency)`, but much faster. `which()` is what
-      # makes it equivalent: a case the test could not decide is `NA` here, and
-      # indexing rows by `NA` would return a row of `NA`s -- a case to disperse
-      # values around that has no values to disperse. It is dropped instead,
-      # just like a consistent one, since it is not an inconsistent case.
+      # Equivalent to `dplyr::filter(data, !consistency)`, but much faster.
+      # `which()` is what makes it equivalent: indexing by the `NA` of an
+      # undecided case would return a row of `NA`s, with no values to disperse.
+      # It is dropped instead, not being an inconsistent case.
       if (!include_consistent) {
         data <- data[which(!data[[name_key_result]]), ]
       }
@@ -450,21 +424,17 @@ function_map_seq <- function(
         ...
       )
 
-      # Combine `digits_*` values with any extra `...` arguments so both are
-      # forwarded to `map_seq_proto()`, and from there to `fun()`. Helper
-      # arguments such as `items` are dropped: their effect is already baked
-      # into the `data` that the values are dispersed from -- the initial
-      # `fun()` call above multiplied `items` into the `n` column -- so passing
-      # them on to the re-tests would apply them twice over:
+      # Forwarded to `map_seq_proto()`, and from there to `fun()`. Helper
+      # arguments such as `items` are dropped: the initial `fun()` call above
+      # already multiplied `items` into the `n` column that the values are
+      # dispersed from, so the re-tests would apply it twice over:
       .fun_args <- c(.digits_vals, list(...))
       .fun_args <- .fun_args[!names(.fun_args) %in% `!!`(args_helper_fun)]
 
-      # Apply the lower-level function to all user-supplied variables (`var`)
-      # and all cases reported in `data`, or at least the inconsistent ones.
-      # `out_min` and `out_max` are resolved per variable: the variables being
-      # dispersed have different domains, so a single `"auto"` cannot mean the
-      # same thing for all of them. An explicit value from the caller applies to
-      # every variable, as before:
+      # Apply the lower-level function to every `var` and every case in `data`.
+      # `out_min` and `out_max` are resolved per variable, since the dispersed
+      # variables have different domains and a single `"auto"` cannot mean the
+      # same for all of them. An explicit value applies to every variable:
       var_bounds <- `!!`(.var_bounds)
 
       out <- purrr::map(
@@ -494,12 +464,9 @@ function_map_seq <- function(
       # Remove list-elements that are `NULL`, then check for an early return:
       out[vapply(out, is.null, logical(1L))] <- NULL
       if (length(out) == 0L) {
-        # The message names the R argument, because this warning is issued to an
-        # R session. It used to name it only when `interactive()` was `TRUE` and
-        # otherwise tell the user to untick a checkbox in the scrutiny Shiny app
-        # -- so a script, an Rmd, or a test run, which are exactly the contexts
-        # where no checkbox is on screen, got the checkbox message. An app that
-        # wants its own wording should catch the condition and rephrase it:
+        # The message names the R argument, because this warning is issued to
+        # an R session. An app that wants its own wording should catch the
+        # condition and rephrase it:
         msg_setting <- "`include_consistent = TRUE`"
         cli::cli_warn(c(
           "!" = "No inconsistent cases to disperse from.",
@@ -519,18 +486,15 @@ function_map_seq <- function(
       # identifying the origin of individual rows, `var` is added. See above.
       `!!!`(code_bind_cols)
 
-      # Add a digits_* column for each reported variable that `fun()` has a
-      # digits_* argument for, so that downstream functions (e.g. grim_plot())
-      # can split on decimal-place groups without losing track of which rows
-      # belong together. Use the explicitly-provided digits_* value if
-      # available; otherwise fall back to decimal_places() on the output
-      # column. (The fallback is unreliable for numeric columns with trailing
-      # zeros, which is why the digits_* arguments exist in the first place.)
+      # A `digits_*` column per reported variable that `fun()` has a `digits_*`
+      # argument for, so that `grim_plot()` and friends can split on
+      # decimal-place groups. It takes the argument's value, falling back to
+      # `decimal_places()` on the output column -- which is unreliable for lost
+      # trailing zeros, the very reason the arguments exist.
       #
-      # Only variables that `fun()` accepts a digits_* argument for get a
-      # column. `audit_seq()` forwards every digits_* column in the output back
-      # to `fun()` as an argument, so a column that `fun()` has no argument for
-      # would make it reject its own output.
+      # Only variables `fun()` has such an argument for get a column:
+      # `audit_seq()` forwards every `digits_*` column back to `fun()`, which
+      # would otherwise reject its own output.
       .digits_col_names <- `!!`(digits_args_names)
       .digits_var_names <- `!!`(sub("^digits_", "", digits_args_names))
       for (.i in seq_along(.digits_col_names)) {
@@ -565,15 +529,12 @@ function_map_seq <- function(
 
       out <- add_class(out, classes_seq)
 
-      # Make sure the "rounding class" (i.e., `"scrutiny_rounding_*"`) has the
-      # correct value. As this is not naturally guaranteed as in `*_map()`
-      # functions, it must be done by hand. `list(...)` rather than
-      # `rlang::enexprs(...)`: the class string needs the argument's *value*.
-      # (Capturing the expression only ever worked because the dots promises had
-      # already been forced further up; `rounding = some_variable` would
-      # otherwise have pasted the variable's name into the class.) `[[` rather
-      # than `$`: the latter matches partially on a list, so an argument named
-      # `rounding_something` would have been read as `rounding`.
+      # The `"scrutiny_rounding_*"` class is not guaranteed here as it is in
+      # `*_map()`, so set it by hand. `list(...)` rather than
+      # `rlang::enexprs(...)`, which would yield the argument's *expression* --
+      # pasting a variable's name into the class; and `[[` rather than `$`,
+      # which matches partially and would read `rounding_something` as
+      # `rounding`.
       dots <- list(...)
       if (length(dots[["rounding"]]) > 0L) {
         class(out)[stringr::str_detect(class(out), "^scrutiny_rounding_")] <-
@@ -586,34 +547,27 @@ function_map_seq <- function(
       # `percent`, `threshold`, `symmetric`, or GRIMMER's scale bounds:
       attr(out, "scrutiny_fun_args") <- .fun_args
 
-      # `audit_seq()` reads the test results off a column of `out`, so it needs
-      # the column's name for the same reason this factory does -- and it has no
-      # other way to learn it. It falls back to `"consistency"` if subsetting
-      # drops the attribute, which is right for every mapper that did not
-      # override the name:
+      # `audit_seq()` reads the test results off a column of `out` and has no
+      # other way to learn its name. It falls back to `"consistency"` if
+      # subsetting drops this, which is right unless the name was overridden:
       attr(out, "scrutiny_name_key_result") <- name_key_result
 
       # `rename = FALSE`: `fun()` already named the column, so only the
       # list-column-to-logical half of this code applies here.
       `!!!`(write_code_col_key_result(.name_key_result, rename = FALSE))
     }),
-    # The body calls scrutiny-internal helpers such as `absorb_key_args()` and
-    # `function_map_seq_proto()`, so the manufactured function must be enclosed
-    # in an environment that inherits from scrutiny's namespace. `rlang::env()`
-    # creates a child of the present execution environment, which does.
+    # The body calls internal helpers, so the manufactured function needs an
+    # environment inheriting from scrutiny's namespace. `rlang::env()` creates a
+    # child of the present execution environment, which does.
     env = rlang::env()
   )
 
   # --- End of the manufactured function, `fn_out()` ---
 
-  # Insert parameters named after the key columns into `fn_out()`, with `NULL`
-  # as the default for each. The key columns need to be present in the input
-  # data frame. They are expected to have the names specified in `.reported`. If
-  # they don't, however, the user can simply specify the key column arguments as
-  # the non-quoted names of the columns meant to fulfill these roles. They go
-  # after the `digits_*` arguments, which are spliced in right after `data`, so
-  # that the sequence mapper's signature starts the same way as the basic
-  # mapper's:
+  # Parameters named after the key columns, defaulting to `NULL`, so that users
+  # whose columns are not named as `.reported` says can point them at the right
+  # ones. They go after the `digits_*` arguments, so that the sequence mapper's
+  # signature starts the same way as the basic mapper's:
   insert_key_args(
     fn_out,
     .reported,

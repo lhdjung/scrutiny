@@ -258,28 +258,23 @@ check_enumeration_size <- function(bounds, what, n, limit = 1e6) {
 #'
 #' @noRd
 is_decidable_n_items <- function(n, items = 1, min_n = 1) {
-  # `is.finite()` is `FALSE` for `NA`, `NaN`, and both infinities, and `FALSE &
+  # `is.finite()` is `FALSE` for `NA`, `NaN`, and the infinities, and `FALSE &
   # NA` is `FALSE`, so the result is never missing however the comparisons
-  # further right turn out. Note that `&` evaluates both of its sides, unlike
-  # `&&`: that is what makes this work on columns, and it means the guards
-  # absorb the missing values rather than preventing them.
+  # further right turn out -- the guards absorb the missing values rather than
+  # preventing them, since `&` evaluates both sides.
   #
-  # The two whole-number tests are `is_whole_number()` written out. This runs
-  # once per row in all three tests, and the two calls cost more than every
-  # comparison here put together. `WHOLE_NUMBER_TOLERANCE` is the same constant
-  # `is_whole_number()` uses, so the two cannot drift on what counts as whole;
-  # if the formula itself ever changes, this copy and the one in
-  # `check_newly_numeric()` have to change with it.
+  # The whole-number tests are `is_whole_number()` written out; this runs once
+  # per row, and the two calls would cost more than every comparison here put
+  # together. `WHOLE_NUMBER_TOLERANCE` is the constant that function uses, so
+  # the two cannot drift; change one and change this copy and the one in
+  # `check_newly_numeric()` with it.
   #
-  # The same condition appears twice below, once with `&&` and once with `&`,
-  # which is the one duplication in this function and has to be kept exact. `&&`
-  # is a special form: it neither allocates a result vector nor evaluates what
-  # it does not need, which makes the scalar version some 1.8 times faster, and
-  # that is the version the `*_scalar()` functions reach once per row. `&` is
-  # what the column version needs, and `grim_probability()` calls it once for a
-  # whole column, where looping over the scalar version would cost far more than
-  # it saves. A test in test-utils.R runs both over the same grid and requires
-  # them to agree.
+  # The condition appears twice below, once with `&&` and once with `&`, and the
+  # two have to be kept exact. `&&` neither allocates nor evaluates what it does
+  # not need, making the scalar version some 1.8 times faster -- and that is the
+  # one the `*_scalar()` functions reach once per row. `grim_probability()`
+  # needs the column version. A test in test-utils.R runs both over the same
+  # grid and requires them to agree.
   if (length(n) == 1L && length(items) == 1L && length(min_n) == 1L) {
     return(
       is.finite(n) &&
@@ -369,7 +364,6 @@ recycle_digits <- function(digits, n_rows, name_digits_arg) {
 error_digits_flawed <- function(digits, name_digits_arg, n) {
   check_length(digits, 1)
 
-  # name <- deparse(substitute(digits))
 
   cli::cli_abort(
     message = c(
@@ -386,9 +380,8 @@ check_newly_numeric <- function(
   digits,
   caller_type = c("basic", "mapper", "sequence_mapper")
 ) {
-  # Inlined rather than left to `is_whole_number()`, which this runs ahead of
-  # once per key value per row: the call alone cost more than the whole check
-  # below it.
+  # Inlined rather than left to `is_whole_number()`: this runs once per key
+  # value per row, and the call alone cost more than the whole check below it.
   if (
     !is.numeric(digits) ||
       length(digits) != 1L ||
@@ -400,16 +393,12 @@ check_newly_numeric <- function(
   }
 
   # Can `x` be written with `digits` decimal places? `round()` answers that some
-  # 200 times faster than counting the decimal places in a string representation
-  # of `x`, which is what `decimal_places_scalar()` does with three regular
-  # expressions -- once per key value per row, formerly the most expensive part
-  # of a mapper call (#92). The test is one-sided, though: `0.1 + 0.2` prints as
-  # `"0.3"` without being the double for `0.3`, so whatever it leaves undecided
-  # is counted after all. `is.na(x)` has to come first, or the comparisons would
-  # be `NA` and the `if ()` would fail outright. An infinity needs no branch of
-  # its own: `round()` returns it unchanged, so it passes, which is right -- it
-  # has no decimal places to be inconsistent with `digits`, and the tests report
-  # it as undecidable.
+  # 200 times faster than `decimal_places_scalar()`'s regular expressions, once
+  # the most expensive part of a mapper call (#92). But it is one-sided --
+  # `0.1 + 0.2` prints as `"0.3"` without being that double -- so whatever it
+  # leaves undecided is counted after all. `is.na(x)` must come first, or the
+  # `if ()` would fail on an `NA`. An infinity passes here (`round()` returns it
+  # unchanged), which is right: the tests report it as undecidable.
   if (
     is.na(x) ||
       (is.numeric(x) &&
@@ -480,12 +469,11 @@ check_newly_numeric <- function(
 }
 
 
-# Name of the function that a call invokes, as a single string; `""` if it
-# can't be determined. The head of a call is not always a symbol: it can be a
-# namespace-qualified call such as `scrutiny::grim_map`, or the function object
-# itself, which is how factory-made functions invoke `fun` via `do.call()`.
-# Passing either of those to `as.character()` returns a vector of the wrong
-# length or throws an error, so each case is handled separately here.
+# Name of the function that a call invokes, as a single string; `""` if it can't
+# be determined. The head of a call is not always a symbol -- it can be
+# `scrutiny::grim_map`, or the function object itself, which is how
+# factory-made functions invoke `fun` via `do.call()`. `as.character()` on
+# either returns the wrong length or throws, hence the separate branches.
 fn_name_from_call <- function(call) {
   if (!is.call(call)) {
     return("")
@@ -507,20 +495,16 @@ fn_name_from_call <- function(call) {
 }
 
 
-# Find the outermost consistency test function on the call stack: the one the
-# user actually called. Error messages about missing or flawed `digits_*`
-# arguments should name that function and be attributed to its call.
+# The outermost consistency test function on the call stack: the one the user
+# actually called. Errors about missing or flawed `digits_*` arguments should
+# name it and be attributed to its call. Counting frames instead is not viable:
+# how many lie between a `*_scalar()` function and the user's call depends on
+# what sits in between, and a factory-made function invokes `fun` as an object,
+# so that frame has no name at all.
 #
-# Counting frames is not a viable alternative. How many frames separate a
-# `*_scalar()` function from the call the user typed depends on whether a
-# mapper, a `Vectorize()` wrapper (which adds `do.call()` and `mapply()`), or a
-# factory-made function sits in between -- and factory-made functions invoke
-# `fun` as a function object, so that frame carries no name at all.
-#
-# Returns a list with the function's `name` and its `frame`. If no such function
-# is on the stack, the frame that called `caller_test_fn()` stands in for it.
-# That should not happen: this is only called from the two checks below, and
-# those are only called from consistency test functions.
+# Returns the function's `name` and `frame`. If there is no such function on the
+# stack -- which should not happen, as only the two checks below call this --
+# the frame that called `caller_test_fn()` stands in.
 caller_test_fn <- function() {
   calls <- sys.calls()
   names_fn <- vapply(calls, fn_name_from_call, character(1L), USE.NAMES = FALSE)
@@ -575,9 +559,8 @@ error_digits_missing <- function(x) {
   name_x <- deparse(substitute(x))
   name_digits_arg <- paste0("digits_", name_x)
 
-  # The example below should show the call the user actually made, so it needs
-  # the outermost consistency test function on the stack -- e.g. `debit()`
-  # rather than the `debit_scalar()` that `Vectorize()` led here from:
+  # The example below should show the call the user actually made, e.g.
+  # `debit()` rather than the `debit_scalar()` that led here:
   caller <- caller_test_fn()
   name_fn <- caller$name
 
@@ -723,16 +706,13 @@ check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
 
   # Condition of checking for error and warning:
   if (length(var_list_gt1) > 1L) {
-    # The argument names are only ever needed inside this branch, and capturing
-    # them is by far the most expensive thing the function does -- some thirty
-    # times the cost of everything else here put together. It used to be done
-    # unconditionally at the top with `rlang::enexprs()`, which every caller
-    # paid for on every call, `reround()` included, and that one is called once
-    # per candidate sum inside GRIMMER's loop.
+    # Capturing the argument names is by far the most expensive thing here --
+    # some thirty times everything else put together -- and only this branch
+    # needs them. `reround()` calls this once per candidate sum inside GRIMMER's
+    # loop, so it must not happen unconditionally.
     #
-    # `substitute()` rather than `enexprs()` because `lengths()` above has
-    # already forced the promise, and a forced promise makes `enexprs()` return
-    # the *values* rather than the expression -- the names would be lost.
+    # `substitute()` rather than `enexprs()`: `lengths()` above has forced the
+    # promise, and `enexprs()` then returns the *values*, losing the names.
     # `substitute()` reads `PRCODE`, which survives forcing.
     var_names <- as.list(substitute(var_list))[-1L]
     var_names <- as.character(var_names)
@@ -740,13 +720,10 @@ check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
     vnames_gt1_all <- var_names_gt1 # for the warning
 
     # Two arguments of the same length are congruent, so only one of each
-    # distinct length needs to survive into the error condition below. The
-    # duplicates have to be found among the lengths greater than 1, not among
-    # all of them: `duplicated(var_lengths)` is as long as `var_list`, and
-    # indexing the shorter `var_list_gt1` with it dropped whichever elements
-    # happened to line up with a repeated length-1 argument -- usually none of
-    # them, so the deduplication did nothing at all. Two arguments that were
-    # both length 2 then counted as two distinct lengths and raised an error
+    # distinct length needs to reach the error condition below. Deduplicate
+    # among the lengths greater than 1, not among all of them: indexing the
+    # shorter `var_list_gt1` with `duplicated(var_lengths)` misaligned them, so
+    # two length-2 arguments counted as two distinct lengths and raised an error
     # about having to be the same length, which they already were.
     length_dup <- duplicated(var_lengths[var_lengths > 1L])
     var_list_gt1 <- var_list_gt1[!length_dup]
@@ -1759,9 +1736,8 @@ name_caller_call <- function(n = 1L, wrap = TRUE) {
 
   # The caller may have been invoked as a function object rather than by name,
   # as when `audit_seq()` applies a factory-made function via `do.call()`. There
-  # is then no name to report, so a description stands in for one -- without
-  # backticks, because it is not code. Taking `name[[1L]]` as-is used to throw
-  # here ("cannot coerce type 'closure'").
+  # is then no name to report, so a description stands in -- without backticks,
+  # because it is not code.
   if (!nzchar(name)) {
     return("the function")
   }
@@ -1774,29 +1750,19 @@ name_caller_call <- function(n = 1L, wrap = TRUE) {
 }
 
 
-# `round_up_from()` and `round_down_from()` both shift the scaled value so that
-# `floor()` or `ceiling()` cuts it at `threshold` rather than at 5, and both
-# nudge it by `ROUNDING_TOLERANCE` beforehand. These are the amounts they add
-# and subtract.
+# `round_up_from()` and `round_down_from()` shift the scaled value so that
+# `floor()` or `ceiling()` cuts it at `threshold` rather than at 5, nudged by
+# `ROUNDING_TOLERANCE`. These are the amounts they add and subtract.
 #
-# The two are mirror images of each other about the step, not about zero:
-# `round_up_from()` goes up when the cut-off part is at least `threshold`
-# tenths of a step, and `round_down_from()` goes down when it is at most that
-# many, so the two differ only in where a value sitting exactly on the
-# threshold goes. Both offsets are the distance from the far end of the step to
-# the threshold, measured from the end that the function's own primitive
-# (`floor()` or `ceiling()`) cuts at.
+# The two are mirror images about the step, not about zero: each offset is the
+# distance from the far end of the step to the threshold, measured from the end
+# that the function's own primitive cuts at. They differ only in where a value
+# sitting exactly on the threshold goes. One shared offset would make
+# `round_down_from()` the point reflection of `round_up_from()`, switching
+# direction at `10 - threshold`; see `round_up_from()`'s `threshold` parameter.
 #
-# Up to scrutiny 1.0.0 the two shared one offset, `tie_offset()`, which made
-# `round_down_from()` the point reflection of `round_up_from()` -- it switched
-# direction at `10 - threshold`. See the `threshold` parameter of
-# `round_up_from()` for why that had to go.
-#
-# Before that, the nudge was written in those functions as `threshold -
-# .Machine$double.eps^0.5`, which the `/ 10` below turns into the very same
-# additive `ROUNDING_TOLERANCE`. Everything depended on that equality, since
-# `unround()` reports bounds that assume one shared tolerance, but it was not
-# stated anywhere.
+# The `/ 10` is what makes the nudge exactly `ROUNDING_TOLERANCE`, which
+# `unround()`'s bounds assume.
 
 tie_offset_up <- function(threshold) {
   1 - (threshold / 10) + ROUNDING_TOLERANCE
@@ -1807,11 +1773,10 @@ tie_offset_down <- function(threshold) {
 }
 
 
-# The two procedures that a compound rounding method is made of, or the method
-# itself if it is not a compound one. `reround()` returns one value per input
-# value for a single procedure and two -- interleaved -- for a compound one, so
-# a caller that wants to keep working on each of those branches separately needs
-# to know which procedure produced it.
+# The two procedures a compound rounding method is made of, or the method itself
+# otherwise. `reround()` returns one value per input for a single procedure and
+# two interleaved ones for a compound one, so a caller working on the branches
+# separately needs to know which procedure produced which.
 
 rounding_constituents <- function(rounding) {
   # fmt: skip
@@ -1826,16 +1791,11 @@ rounding_constituents <- function(rounding) {
 
 
 # `rounding`, `threshold`, and `symmetric` describe one rounding procedure, so
-# each of them has to be a single value; only `x` is a vector. `reround()` calls
-# this before dispatching, and `rounding_offsets()` before deriving the bounds,
-# which between them covers every path a consistency test can take -- including
-# the mappers, which used to pass a vector straight down to a `*_scalar()`
-# function and let R's own error surface from deep inside it ("'length = 2' in
-# coercion to 'logical(1)'").
-#
-# `unround()` is the one exception, and it makes its own arrangements: it is
-# documented as vectorized over `rounding` and recycles all four arguments to a
-# common length before calling `rounding_offsets()` once per element.
+# each must be a single value; only `x` is a vector. `reround()` calls this
+# before dispatching and `rounding_offsets()` before deriving the bounds, which
+# between them covers every path a consistency test can take. `unround()` is the
+# exception: it is documented as vectorized over `rounding` and recycles all
+# four arguments before calling `rounding_offsets()` per element.
 
 check_rounding_spec_singular <- function(rounding, threshold, symmetric) {
   if (
@@ -1869,17 +1829,15 @@ resolve_ties_rounding <- function(rounding, symmetric) {
   }
 
   # A `"ties_*"` string already fixes the tie direction in both signs, so
-  # `symmetric` has nothing left to say. Up to scrutiny 1.0.0 it was silently
-  # ignored here, which discarded half of what the caller wrote: `reround(-2.5,
-  # 0, "ties_up", symmetric = TRUE)` was `-2`, where the same request spelled
-  # `rounding = "up"` is `-3`, and a mapper carried the difference all the way
-  # to a verdict. Ignoring is not the only way to keep the name authoritative --
-  # rejecting keeps it just as well, and it names the string the caller meant.
+  # `symmetric` has nothing left to say. Rejecting it keeps the name
+  # authoritative just as ignoring it did, and it names the string the caller
+  # meant -- where ignoring silently dropped half of the request:
+  # `reround(-2.5, 0, "ties_up", symmetric = TRUE)` was `-2`, but `-3` when
+  # spelled `rounding = "up"`, and a mapper carried that to a verdict.
   #
-  # The test is on the value rather than on `missing()`: every mapper passes
-  # `symmetric` down explicitly, so its default is the only thing that says "not
-  # given". `isFALSE()` is on the cold branch of a lookup that has already
-  # happened, so the common methods pay nothing for it.
+  # The test is on the value, not on `missing()`: every mapper passes
+  # `symmetric` down explicitly, so its default is the only thing that can mean
+  # "not given".
   if (!isFALSE(symmetric)) {
     # fmt: skip
     msg_instead <- switch(
@@ -1912,13 +1870,9 @@ resolve_ties_rounding <- function(rounding, symmetric) {
 
 # Give `value` -- typically derived from `abs(x)` -- the sign of `x`, so that
 # rounding a negative number mirrors the rounding of its absolute value. Zero
-# and positive values keep `value` as it is; `NA` and `NaN` pass through.
-#
-# `dplyr::if_else()` would say the same thing, but these are the package's
-# innermost primitives: `round_trunc()`, `anti_trunc()`, and the `symmetric`
-# branches of `round_up_from()` and `round_down_from()` run once per candidate
-# value inside GRIMMER's loop over sums of squares, which the seq mappers
-# multiply by hundreds of rows.
+# and positive values keep `value`; `NA` and `NaN` pass through. Written out
+# rather than via `dplyr::if_else()` because the callers are the package's
+# innermost primitives, run once per candidate value inside GRIMMER's loop.
 
 restore_sign <- function(value, x) {
   value * (1 - 2 * (x < 0))
@@ -2102,9 +2056,8 @@ list_min_distance_functions <- list(
 resolve_var_bounds <- function(var, out_min, out_max, var_bounds = NULL) {
   bounds <- var_bounds[[var]]
 
-  # A sample size of 0 leaves nothing to test, and a negative one is not a
-  # sample size at all. This is the one bound that holds for every consistency
-  # test, so it applies even to a mapper that declares no bounds of its own:
+  # The one bound that holds for every consistency test, so it applies even to a
+  # mapper that declares none of its own:
   if (is.null(bounds) && var == "n") {
     bounds <- c(1, NA)
   }

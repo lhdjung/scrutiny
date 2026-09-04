@@ -45,22 +45,19 @@ vectorize_test <- function(.fun, .frame, .along) {
   call_wrapper <- sys.call(index_wrapper)
   name_wrapper <- fn_name_from_call(call_wrapper)
 
-  # Arguments the caller left out are not forwarded at all. `.fun` then applies
-  # its own default, which is the same one the wrapper states; and where it has
-  # none, it raises its own error rather than receiving a value that R would
-  # have to invent. That covers three cases with one rule: `digits_x` and
-  # `digits_sd`, which must reach `.fun` as missing so that
-  # `error_digits_missing()` fires instead of R's generic message; the ordinary
-  # defaults; and `tolerance`, whose `lifecycle::deprecated()` default is itself
-  # a missing-argument sentinel that must not be forced.
+  # Arguments the caller left out are not forwarded at all, so `.fun` applies its
+  # own defaults -- the same ones the wrapper states -- and raises its own error
+  # where it has none. That covers three cases with one rule: `digits_x` and
+  # `digits_sd`, which must arrive missing so that `error_digits_missing()`
+  # fires; the ordinary defaults; and `tolerance`, whose
+  # `lifecycle::deprecated()` default is itself a sentinel that must not be
+  # forced.
   #
-  # `missing()` is asked about each formal in turn, evaluated in the wrapper's
-  # frame. `match.call()` on the wrapper's call would answer the same question
-  # in one step, but it cannot be trusted here: a wrapper reached through
-  # `lapply()` or `Map()` is called as `FUN(X[[i]], ...)`, and matching that
-  # call fails with "... used in a situation where it does not exist". The
-  # `missing()` calls themselves are built once per wrapper, not once per call;
-  # see `missing_arg_calls()`.
+  # `missing()` per formal, evaluated in the wrapper's frame. `match.call()`
+  # would answer in one step but cannot be trusted here: a wrapper reached
+  # through `lapply()` is called as `FUN(X[[i]], ...)`, and matching that fails
+  # with "... used in a situation where it does not exist". The calls are built
+  # once per wrapper; see `missing_arg_calls()`.
   calls_missing <- missing_arg_calls(name_wrapper, args_all)
 
   is_supplied <- !vapply(
@@ -77,12 +74,9 @@ vectorize_test <- function(.fun, .frame, .along) {
   names_along <- .along[.along %in% args_supplied]
   names_scalar <- args_supplied[!args_supplied %in% .along]
 
-  # Arguments that say *how* to test rather than *what* to test describe the
-  # call as a whole: one call cannot use two rounding methods, and `x` is either
-  # a percentage or it isn't. `Vectorize()` looped over them along with
-  # everything else, so `grim(x = c(5.19, 5.19), n = 28, digits_x = 2, rounding
-  # = c("up", "down"))` returned one verdict per rounding method. `reround()`
-  # has treated them as scalar throughout.
+  # Arguments that say *how* to test rather than *what* describe the call as a
+  # whole: one call cannot use two rounding methods, and `x` is either a
+  # percentage or it isn't. `reround()` has treated them as scalar throughout.
   for (name in names_scalar) {
     value <- vals[[name]]
     # `NULL` is a value some of them take: GRIMMER's `min_val` and `max_val`
@@ -106,11 +100,9 @@ vectorize_test <- function(.fun, .frame, .along) {
     }
   }
 
-  # A required argument was not supplied, so there is no point in working out
-  # how many times to apply the test: hand the call to `.fun` as it stands and
-  # let it raise its error. Doing so here rather than inside the loop keeps the
-  # error attributed to the wrapper the user called, and keeps it from being
-  # raised once per element.
+  # A required argument is missing, so hand the call to `.fun` as it stands and
+  # let it raise its error -- here rather than inside the loop, so that the error
+  # is attributed to the wrapper and raised once.
   for (name in args_all[!args_all %in% args_supplied]) {
     if (identical(formals_wrapper[[name]], quote(expr = ))) {
       return(do.call(.fun, vals))
@@ -134,10 +126,9 @@ vectorize_test <- function(.fun, .frame, .along) {
     vals_along[[name]] <- rep_len(vals_along[[name]], length_out)
   }
 
-  # `.mapply()` is the internal workhorse behind `mapply()`, without the
-  # argument matching and the `simplify2array()` that made a list return come
-  # back as a matrix. Recycling has already happened above, so it has nothing
-  # left to do but loop.
+  # `.mapply()` is `mapply()` without the argument matching and the
+  # `simplify2array()` that turned a list return into a matrix. Recycling has
+  # already happened above, so it has nothing to do but loop.
   results <- .mapply(.fun, vals_along, MoreArgs = vals[names_scalar])
 
   out <- unlist(results, use.names = FALSE)

@@ -98,11 +98,6 @@
 #' iris |>
 #'   restore_zeros_df(starts_with("Sepal"), width = 3)
 
-# x <- c(0.12, 0.123, 0.1234)
-# width <- 2
-# sep_in <- "\\."
-# sep_out <- sep_in
-
 restore_zeros <- function(
   x,
   width = NULL,
@@ -181,7 +176,6 @@ restore_zeros <- function(
 
   # Pad `x` with the correct amount of trailing zeros:
 
-  # out <- sprintf(out_format, as.numeric(x))
 
   out <- dplyr::if_else(
     width_mantissa < width_target,
