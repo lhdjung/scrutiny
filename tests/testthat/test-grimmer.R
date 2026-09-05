@@ -56,9 +56,9 @@ aGrimmer <- function(n, mean, SD, decimals_mean = 2, decimals_SD = 2) {
 
   #Checks that there is at least an integer between the lower and upperbound
 
-  FirstTest <- ifelse(ceiling(Lowerbound) > floor(Upperbound), FALSE, TRUE)
+  FirstTest <- ceiling(Lowerbound) <= floor(Upperbound)
 
-  if (FirstTest == FALSE) {
+  if (!FirstTest) {
     return("GRIMMER inconsistent (test 1)")
   }
 

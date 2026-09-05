@@ -41,8 +41,8 @@ test_that("no data is dropped from the plot", {
   data <- grim_map(pigs1, digits_x = 2)
   layer_data <- ggplot2::ggplot_build(grim_plot(data))$data[[2L]]
   layer_data |> nrow() |> expect_equal(nrow(data))
-  layer_data$ymin |> is.na() |> any() |> expect_false()
-  layer_data$ymax |> is.na() |> any() |> expect_false()
+  layer_data$ymin |> anyNA() |> expect_false()
+  layer_data$ymax |> anyNA() |> expect_false()
 })
 
 test_that("plotting raises no warnings of its own", {
@@ -86,7 +86,7 @@ test_that("negative means are plotted at the fractional part of their absolute v
   layer_data <- ggplot2::ggplot_build(grim_plot(data))$data[[2L]]
   layer_data$y |> expect_equal(c(0.22, 0.19, 0))
   layer_data |> nrow() |> expect_equal(nrow(data))
-  layer_data$ymin |> is.na() |> any() |> expect_false()
+  anyNA(layer_data$ymin) |> expect_false()
 })
 
 test_that("a mean and its negative are drawn in the same place", {

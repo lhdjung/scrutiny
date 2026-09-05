@@ -1981,7 +1981,7 @@ test_that("`n` keeps a floor of 1 even though the mean has none", {
   min(out$n) |> expect_equal(1L)
 
   # Nothing undecidable made it into the output:
-  out$consistency |> is.na() |> any() |> expect_false()
+  out$consistency |> anyNA() |> expect_false()
 })
 
 test_that("a zero step in `dispersion` doesn't duplicate the reported case", {

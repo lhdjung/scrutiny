@@ -259,7 +259,7 @@ grim_plot <- function(
   # A tile's color comes from the `consistency` column, so an undecided case has
   # no color and ggplot2 drops it. Dropping such rows here is the same outcome,
   # but said out loud rather than as "Removed 1 row containing missing values":
-  if (show_data && any(is.na(data$consistency))) {
+  if (show_data && anyNA(data$consistency)) {
     n_undecided <- sum(is.na(data$consistency))
     if (n_undecided == nrow(data)) {
       cli::cli_abort(c(

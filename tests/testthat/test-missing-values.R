@@ -169,8 +169,8 @@ test_that("the sequence mappers drop undecidable cases", {
     dispersion = 1:2
   )
   out$case |> unique() |> expect_equal(1L)
-  out$x |> is.na() |> any() |> expect_false()
-  out$n |> is.na() |> any() |> expect_false()
+  out$x |> anyNA() |> expect_false()
+  out$n |> anyNA() |> expect_false()
 
   audit_seq(out)$hits_total |> expect_equal(4L)
 })
