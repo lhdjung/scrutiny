@@ -468,13 +468,13 @@ grim_plot <- function(
       # section of this function's documentation.
       rounding_id <- resolve_ties_rounding(rounding_id, FALSE)$rounding
 
-      # Throw error if the specified rounding option is one of the few for which
-      # no raster is available:
-      if (
-        any(
-          rounding_id == c("up_from", "down_from", "up_from_or_down_from")
-        )
-      ) {
+      # The rasters are precomputed in data-raw/data-gen.R and stored in
+      # R/sysdata.rda, keyed by decimal count and rounding procedure. The
+      # `"up_from"` family has no key: those methods take a `threshold`, so
+      # there is no single raster to precompute.
+      df_plot <- GRIM_RASTERS[[paste(digits, rounding_id, sep = "_")]]
+
+      if (is.null(df_plot)) {
         cli::cli_abort(c(
           "No background raster available for `rounding = {rounding_id}`",
           "i" = "Use a different `rounding` specification within the \\
@@ -482,32 +482,12 @@ grim_plot <- function(
           `grim_plot()` call."
         ))
       }
-
-      # Assemble the names of the raster components for sample size
-      # (`raster_n`, x-axis) and fractional portion (`raster_frac`, y-axis) from
-      # the decimal count and the rounding procedure. First the strings...
-      raster_n <- glue::glue("grim_raster_{digits}_{rounding_id}_n")
-      raster_frac <- glue::glue("grim_raster_{digits}_{rounding_id}_frac")
-
-      # ...then the objects they name, from R/sysdata.rda:
-      raster_n <- eval(rlang::parse_expr(raster_n))
-      raster_frac <- eval(rlang::parse_expr(raster_frac))
     } else {
-      # Above 2 decimal places there is no raster, but the two objects are still
-      # referenced further down, so they are set pro forma:
-      raster_n <- 0
-      raster_frac <- 0
+      # Above 2 decimal places there is no raster -- the tiles would be too
+      # small to see, and a gradient is drawn instead further down -- but the
+      # tile layer is still added pro forma, so it needs a data frame:
+      df_plot <- TIBBLE_FRAC_N_ZERO
     }
-
-    # This data frame will be used for the raster when building the plot:
-    df_plot <- tibble::new_tibble(
-      x = list(
-        raster_n = as.numeric(raster_n),
-        raster_frac = as.numeric(raster_frac)
-      ),
-      nrow = length(raster_n),
-      class = NULL
-    )
   }
 
   # Reduce `x` to the fractional portion of its *absolute* value: the y-axis
@@ -551,8 +531,8 @@ grim_plot <- function(
     p <- ggplot2::ggplot(data = df_plot) +
       ggplot2::geom_tile(
         mapping = ggplot2::aes(
-          x = .data$raster_n,
-          y = .data$raster_frac
+          x = .data$n,
+          y = .data$frac
         ),
         alpha = raster_alpha,
         fill = raster_color
@@ -574,8 +554,8 @@ grim_plot <- function(
           ggplot2::geom_tile(
             data = df_plot,
             mapping = ggplot2::aes(
-              x = .data$raster_n,
-              y = .data$raster_frac
+              x = .data$n,
+              y = .data$frac
             )
           ) +
           ggplot2::annotation_custom(grid::rasterGrob(

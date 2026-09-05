@@ -13,3 +13,6 @@ Rplots.pdf
 tests/testthat/Rplots.pdf
 /.quarto/
 **/*.quarto_ipynb
+
+# testthat writes one reprex per failed expectation
+tests/testthat/_problems/
