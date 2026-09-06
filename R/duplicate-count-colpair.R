@@ -1,18 +1,9 @@
-# For each element of `x`, this helper determines if that element is also to be
-# found in `y`. Then, it counts the number of times for which this test returned
-# `TRUE`, i.e., the number of elements of `x` that are also elements of `y`.
-# Indexing deeply into the inputs means that it should only be used inside of
-# `duplicate_count_colpair()`, for which it is a tailor-made helper. Note that a
-# single vector is mapped -- in purrr terms, this would be `map_lgl()` as
-# opposed to `map2_lgl()`:
+# For each element of `x`, this helper counts how many are also found in `y`.
+# `%in%` and `==` coerce mixed types the same way, so this matches the
+# element-wise comparison it replaced, without the quadratic scan:
 
 dup_count_pairwise <- function(x, y) {
-  length(which(vapply(
-    x[1L][[1L]],
-    function(e1, e2) any(e1 == e2),
-    logical(1L),
-    y[1L][[1L]]
-  )))
+  sum(x %in% y)
 }
 
 
@@ -52,8 +43,7 @@ dup_count_pairwise <- function(x, y) {
 #' - [`duplicate_count()`] for a frequency table.
 #' - [`duplicate_tally()`] to show instances of a value next to each instance.
 #' - [`janitor::get_dupes()`] to search for duplicate rows.
-#' - [`corrr::colpair_map()`], a versatile tool for pairwise column analysis which
-#' the present function wraps.
+#' - [`corrr::colpair_map()`] for pairwise column analysis in general.
 #'
 #' @examples
 #' # Basic usage:
@@ -72,28 +62,42 @@ duplicate_count_colpair <- function(data, ignore = NULL, show_rates = TRUE) {
     data <- tibble::as_tibble(data)
   }
 
+  if (ncol(data) < 2L) {
+    cli::cli_abort(c(
+      "`data` must have at least two columns.",
+      "x" = "It has {ncol(data)}.",
+      "i" = "`duplicate_count_colpair()` compares columns to each other."
+    ))
+  }
+
   if (!is.null(ignore)) {
     data <- lapply(data, function(x) x[!x %in% ignore])
   }
 
-  data <- data |>
-    lapply(function(x) list(x[!is.na(x)])) |>
-    tibble::as_tibble()
+  values <- lapply(data, function(x) x[!is.na(x)])
 
-  out <- data |>
-    corrr::colpair_map(dup_count_pairwise) |>
-    corrr::shave() |>
-    suppressWarnings() |>
-    corrr::stretch(na.rm = TRUE, remove.dups = FALSE) |>
-    dplyr::arrange(dplyr::desc(.data$r)) |>
-    dplyr::rename(count = "r") |>
+  # Column-major, so each column is paired with the later ones only:
+  pairs <- utils::combn(names(values), 2L)
+
+  out <- tibble::tibble(
+    x = pairs[1L, ],
+    y = pairs[2L, ],
+    count = vapply(
+      seq_len(ncol(pairs)),
+      function(i) {
+        dup_count_pairwise(values[[pairs[1L, i]]], values[[pairs[2L, i]]])
+      },
+      integer(1L)
+    )
+  ) |>
+    dplyr::arrange(dplyr::desc(.data$count)) |>
     add_class("scrutiny_dup_count_colpair")
 
   if (!show_rates) {
     return(out)
   }
 
-  total_values <- vapply(data, function(x) length(x[[1L]]), integer(1L))
+  total_values <- lengths(values)
 
   dplyr::mutate(
     out,

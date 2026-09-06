@@ -56,7 +56,6 @@ mtcars |>
 \item \code{\link[=duplicate_count]{duplicate_count()}} for a frequency table.
 \item \code{\link[=duplicate_tally]{duplicate_tally()}} to show instances of a value next to each instance.
 \item \code{\link[janitor:get_dupes]{janitor::get_dupes()}} to search for duplicate rows.
-\item \code{\link[corrr:colpair_map]{corrr::colpair_map()}}, a versatile tool for pairwise column analysis which
-the present function wraps.
+\item \code{\link[corrr:colpair_map]{corrr::colpair_map()}} for pairwise column analysis in general.
 }
 }

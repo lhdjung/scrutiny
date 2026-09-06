@@ -27,10 +27,8 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Imports: 
     cli,
-    corrr,
     dplyr,
     ggplot2 (>= 3.4.0),
-    ggrepel,
     glue,
     grDevices,
     grid,
@@ -114,6 +112,7 @@ Collate:
     'vectorize-test.R'
     'write-doc-audit.R'
 Suggests:
+    ggrepel,
     knitr,
     pkgload,
     poibin,

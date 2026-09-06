@@ -40,6 +40,8 @@
 
 - `reround()` now rejects a fractional `digits`. A number of decimal places is a whole number, and a fractional one scaled `x` by a non-power of ten --- `10^1.5` is about 31.6 --- so the result sat on no decimal grid at all: `reround(1.25, digits = 1.5, rounding = "up")` was `1.264911`. `rounding = "even"` never had the problem, because `base::round()` rounds `digits` to a whole number before using it, so scrutiny's own rounding methods disagreed with each other on the same input. An infinite `digits` is rejected for the same reason; a missing one still propagates to a missing result.
 
+- `duplicate_count_colpair()` now requires data frames to have two or more columns. These are the only data frames for which the function makes sense.
+
 ## Bugfixes
 
 - `debit()` and `debit_map()` no longer flag consistent binary data with a mean reported as `0.50`. DEBIT reconstructs the SD at the bounds of the mean's rounding interval and concludes from those two values that every SD in between is reachable, which needs the reconstruction to be monotonic in the mean. It is not: `sd_binary_mean_n()` is a downward parabola peaking at a mean of 0.5, so an interval containing 0.5 reaches SDs *above* both of its endpoints -- and for a mean of exactly `0.50` the interval is symmetric around the peak, both endpoints give the same SD, and the whole attainable band collapsed to a single point. `debit(x = 0.50, sd = 0.503, n = 100, digits_x = 2, digits_sd = 3)` was `FALSE` for 50 ones and 50 zeros. The peak is now evaluated as well wherever it falls inside the interval. The error only ever turned `TRUE` into `FALSE`, so no value set that used to pass now fails.
@@ -265,6 +267,8 @@
 - scrutiny now requires R >= 4.1.0, as do recent versions of tidyverse packages. This is because the package now uses the base pipe `|>`, but also to avoid any incompatibilities with older versions of R.
 
 - scrutiny now requires purrr >= 1.0.0 (#87) and ggplot2 >= 3.4.0, both released in November 2022.
+
+- scrutiny no longer depends on corrr. It no longer imports ggrepel, but suggests it instead.
 
 - `grim(tolerance = )` is deprecated, and so is the argument in `grim_map()` and the mappers built on it. GRIM decides which reconstructed means are consistent in exact integer arithmetic, so there is no floating-point comparison for a tolerance to loosen -- the documentation already said the argument has no effect. It was kept "because `grimmer()` and `debit()` inherit it and do use it", which is only half true: `grimmer()` compares reconstructed SDs with `dplyr::near()` and still takes it, but `debit()` compares exact integers, like `grim()`, and never had the argument at all.
 

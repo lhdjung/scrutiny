@@ -172,6 +172,7 @@ debit_plot <- function(
 
   # Text labels (optional, default is `TRUE`):
   if (show_labels) {
+    rlang::check_installed("ggrepel", "for the labels in `debit_plot()`.")
     p <- p +
       ggrepel::geom_text_repel(
         force = label_force,
