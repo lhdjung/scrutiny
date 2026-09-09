@@ -174,12 +174,11 @@ audit_seq <- function(data) {
     ) |>
     tidyr::unnest(cols = everything())
 
-  # Go to utils.R to see the `list_min_distance_functions` object.
   cols_diff <- df_nested |>
     dplyr::mutate(
       dplyr::across(
         .cols = everything(),
-        .fns = list_min_distance_functions,
+        .fns = LIST_MIN_DISTANCE_FUNCTIONS,
         .names = "diff_{.col}{fun_names}"
       ),
       .keep = "none"

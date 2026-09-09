@@ -75,3 +75,67 @@ PATTERN_NAME_TEST_FN <- "^(grim|grimmer|debit)"
 
 # Used in `grim_plot()` if `digits > 2`
 TIBBLE_FRAC_N_ZERO <- tibble::new_tibble(list(frac = 0, n = 0L), nrow = 1L)
+
+
+# List of minimal-distance functions for `audit_seq()`
+#
+# The functions collected in `LIST_MIN_DISTANCE_FUNCTIONS` are mapped in one
+# particular place within `audit_seq()` and shouldn't really be used elsewhere.
+#
+# Instead of being individually defined as named functions or being used as
+# anonymous functions directly inside of `audit_seq()`, they are stored in a
+# list for greater efficiency -- in terms of both speed and memory.
+#
+# The `x` parameter in all three functions is an integer vector measuring the
+# number of dispersion steps between inconsistent reported values and their
+# consistent neighbors. The notion of "steps" is the same as in, e.g.,
+# `grim_map_seq()`.
+LIST_MIN_DISTANCE_FUNCTIONS <- list(
+  # Absolute distance:
+  function(x) {
+    vapply(
+      x,
+      function(x) {
+        if (all(is.numeric(x))) {
+          min(abs(x), na.rm = TRUE)
+        } else {
+          NA_real_
+        }
+      },
+      numeric(1L),
+      USE.NAMES = FALSE
+    )
+  },
+
+  # Positive distance:
+  function(x) {
+    vapply(
+      x,
+      function(x) {
+        if (all(is.numeric(x))) {
+          min(x[x > 0L], na.rm = TRUE)
+        } else {
+          NA_real_
+        }
+      },
+      numeric(1L),
+      USE.NAMES = FALSE
+    )
+  },
+
+  # Negative distance:
+  function(x) {
+    vapply(
+      x,
+      function(x) {
+        if (all(is.numeric(x))) {
+          max(x[x < 0L], na.rm = TRUE)
+        } else {
+          NA_real_
+        }
+      },
+      numeric(1L),
+      USE.NAMES = FALSE
+    )
+  }
+)
