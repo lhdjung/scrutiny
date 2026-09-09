@@ -364,7 +364,6 @@ recycle_digits <- function(digits, n_rows, name_digits_arg) {
 error_digits_flawed <- function(digits, name_digits_arg, n) {
   check_length(digits, 1)
 
-
   cli::cli_abort(
     message = c(
       "`{name_digits_arg}` must be a single, whole number.",
@@ -1913,51 +1912,45 @@ audit_summary_stats <- function(data, selection, total = FALSE) {
     )
   }
 
-  # The dots are merely pro forma; their purpose is to swallow up the `na.rm =
-  # TRUE` specification in a for loop below.
-  na_count <- function(x, ...) {
-    length(x[is.na(x)])
-  }
+  stats <- list(
+    mean = function(x) mean(x, na.rm = TRUE),
+    sd = function(x) stats::sd(x, na.rm = TRUE),
+    median = function(x) stats::median(x, na.rm = TRUE),
+    min = function(x) min(x, na.rm = TRUE),
+    max = function(x) max(x, na.rm = TRUE),
+    na_count = function(x) length(x[is.na(x)])
+  )
 
-  fun_names <- c("mean", "sd", "median", "min", "max", "na_count")
-  funs <- list(mean, stats::sd, stats::median, min, max, na_count)
-
-  out <- tibble::tibble()
-
-  # Applying each summarizing function individually, compute the output tibble
-  # row by row:
-  for (i in seq_along(funs)) {
-    temp <- dplyr::summarise(
-      data,
-      dplyr::across(
-        .cols = c(!!!selection),
-        .fns = function(x) funs[[i]](x, na.rm = TRUE)
-      )
+  # Summarize every selected column by every function in `stats`, then pivot the
+  # one wide row into one row per column of `data`. The separator is a carriage
+  # return so that `names_sep` can't be confused by an underscore in a column
+  # name or in a function name (`na_count`).
+  out <- data |>
+    dplyr::summarise(dplyr::across(
+      .cols = c(!!!selection),
+      .fns = stats,
+      .names = "{.col}\r{.fn}"
+    )) |>
+    tidyr::pivot_longer(
+      dplyr::everything(),
+      names_to = c("term", ".value"),
+      names_sep = "\r"
     )
-    out <- dplyr::bind_rows(out, temp)
-  }
 
+  # The `.total` row summarizes all selected values at once, ignoring the
+  # columns they came from:
   if (total) {
-    total_summary <- vector("list", length(funs))
     values_all <- data |>
       dplyr::select(c(!!!selection)) |>
       tidyr::pivot_longer(dplyr::everything()) |>
       dplyr::pull("value")
-    for (i in seq_along(funs)) {
-      total_summary[[i]] <- funs[[i]](values_all, na.rm = TRUE)
-    }
-    total_summary <- c(".total", total_summary)
-    names(total_summary) <- c("term", fun_names)
-  } else {
-    total_summary <- NULL
+    out <- dplyr::bind_rows(
+      out,
+      c(list(term = ".total"), purrr::map(stats, function(f) f(values_all)))
+    )
   }
 
-  out |>
-    t() |>
-    tibble::as_tibble(.name_repair = function(x) fun_names) |>
-    dplyr::mutate("term" = names(out), .before = 1L) |>
-    dplyr::bind_rows(total_summary) |>
-    dplyr::mutate(na_rate = na_count / nrow(data), .after = "na_rate")
+  dplyr::mutate(out, na_rate = na_count / nrow(data), .after = "na_rate")
 }
 
 
@@ -1985,10 +1978,11 @@ list_min_distance_functions <- list(
     vapply(
       x,
       function(x) {
-        if (!all(is.numeric(x))) {
-          return(NA_real_)
+        if (all(is.numeric(x))) {
+          min(abs(x), na.rm = TRUE)
+        } else {
+          NA_real_
         }
-        min(abs(x), na.rm = TRUE)
       },
       numeric(1L),
       USE.NAMES = FALSE
@@ -2000,10 +1994,11 @@ list_min_distance_functions <- list(
     vapply(
       x,
       function(x) {
-        if (!all(is.numeric(x))) {
-          return(NA_real_)
+        if (all(is.numeric(x))) {
+          min(x[x > 0L], na.rm = TRUE)
+        } else {
+          NA_real_
         }
-        min(x[x > 0L], na.rm = TRUE)
       },
       numeric(1L),
       USE.NAMES = FALSE
@@ -2015,10 +2010,11 @@ list_min_distance_functions <- list(
     vapply(
       x,
       function(x) {
-        if (!all(is.numeric(x))) {
-          return(NA_real_)
+        if (all(is.numeric(x))) {
+          max(x[x < 0L], na.rm = TRUE)
+        } else {
+          NA_real_
         }
-        max(x[x < 0L], na.rm = TRUE)
       },
       numeric(1L),
       USE.NAMES = FALSE

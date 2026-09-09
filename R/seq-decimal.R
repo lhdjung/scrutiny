@@ -1,3 +1,12 @@
+# Shared tail of `seq_endpoint_df()` and `seq_distance_df()`: wrap the sequence
+# in a tibble, adding whatever further columns the caller named in the dots. The
+# class only passes messages between (1) these functions, (2) the testing
+# function, and (3) `seq_test_ranking()`.
+seq_df_out <- function(x, ...) {
+  add_class(tibble::tibble(x, ...), "scrutiny_seq_df")
+}
+
+
 #' Sequence generation at decimal level
 #'
 #' @description Functions that provide a smooth interface to generating
@@ -256,20 +265,7 @@ seq_endpoint_df <- function(
     string_output = .string_output
   )
 
-  # Capture additional columns via tidy evaluation:
-  further_cols <- rlang::enexprs(...)
-
-  # Create the resulting tibble (data frame), unquoting and splicing the
-  # additional columns into it. Then, add a special class to the tibble, but
-  # only to pass messages between (1) here, (2) the testing function, and (3)
-  # `seq_test_ranking()`. Finally, return the resulting tibble:
-  if (length(further_cols) > 0L) {
-    out <- tibble::tibble(x, !!!further_cols)
-  } else {
-    out <- tibble::tibble(x)
-  }
-
-  add_class(out, "scrutiny_seq_df")
+  seq_df_out(x, ...)
 }
 
 
@@ -295,18 +291,5 @@ seq_distance_df <- function(
     string_output = .string_output
   )
 
-  # Capture additional arguments via tidy evaluation:
-  further_cols <- rlang::enexprs(...)
-
-  # Create the resulting tibble (data frame), unquoting and splicing the
-  # additional columns into it. Then, add a special class to the tibble, but
-  # only to pass messages between (1) here, (2) the testing function, and (3)
-  # `seq_test_ranking()`. Finally, return the resulting tibble:
-  if (length(further_cols) > 0L) {
-    out <- tibble::tibble(x, !!!further_cols)
-  } else {
-    out <- tibble::tibble(x)
-  }
-
-  add_class(out, "scrutiny_seq_df")
+  seq_df_out(x, ...)
 }

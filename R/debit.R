@@ -76,6 +76,19 @@ check_debit_inputs_all <- function(x, sd) {
 
 #' @include utils.R sd-binary.R round.R unround.R reround.R
 
+# Every undecidable DEBIT case returns in the same shape: a bare `NA`, or --
+# under `show_rec` -- a full row with `NA` in every reconstructed slot. The
+# three call sites are a missing value, an `n` that cannot describe a sample,
+# and undefined rounding bounds.
+debit_undecidable <- function(show_rec, rounding) {
+  if (show_rec) {
+    list(NA, rounding, NA_real_, NA, NA_real_, NA, NA_real_, NA_real_)
+  } else {
+    NA
+  }
+}
+
+
 debit_scalar <- function(
   x,
   sd,
@@ -127,19 +140,7 @@ debit_scalar <- function(
   # A missing value makes the test undecidable, and it is returned in the same
   # shape as the undefined-bounds case below:
   if (anyNA(c(x_num, sd_num, n))) {
-    if (!show_rec) {
-      return(NA)
-    }
-    return(list(
-      NA,
-      rounding,
-      NA_real_,
-      NA,
-      NA_real_,
-      NA,
-      NA_real_,
-      NA_real_
-    ))
+    return(debit_undecidable(show_rec, rounding))
   }
 
   # DEBIT reconstructs the *sample* SD of `n` binary values, so it divides by
@@ -147,19 +148,7 @@ debit_scalar <- function(
   # describe anything. Anything else is undecidable, as in `grim_scalar()` and
   # `grimmer_scalar()` -- not a `FALSE` reached through an `Inf` or a zero:
   if (!is_decidable_n_items(n, min_n = 2)) {
-    if (!show_rec) {
-      return(NA)
-    }
-    return(list(
-      NA,
-      rounding,
-      NA_real_,
-      NA,
-      NA_real_,
-      NA,
-      NA_real_,
-      NA_real_
-    ))
+    return(debit_undecidable(show_rec, rounding))
   }
 
   bounds_x <- bound_numerators(
@@ -182,19 +171,7 @@ debit_scalar <- function(
   # undecidable, just as it is for `grim_scalar()` and `grimmer_scalar()` in the
   # same situation:
   if (is.null(bounds_x) || is.null(bounds_sd)) {
-    if (!show_rec) {
-      return(NA)
-    }
-    return(list(
-      NA,
-      rounding,
-      NA_real_,
-      NA,
-      NA_real_,
-      NA,
-      NA_real_,
-      NA_real_
-    ))
+    return(debit_undecidable(show_rec, rounding))
   }
 
   # A mean of binary data cannot lie outside 0 and 1, so neither can the

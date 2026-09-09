@@ -1,3 +1,32 @@
+# Shared by `reround_to_fraction()` and `reround_to_fraction_level()`. The
+# `"auto"` option for `digits` is the same as in `janitor::round_to_fraction()`.
+# It has to be resolved before the whole-number check, which is numeric:
+# `is.infinite("auto")` is `FALSE`, so the string went straight into
+# `is_whole_number()` and failed there with "non-numeric argument to
+# mathematical function".
+resolve_digits_fraction <- function(digits, denominator) {
+  if (identical(digits, "auto")) {
+    digits <- ceiling(log10(denominator)) + 1L
+  }
+
+  if (!all(is.infinite(digits))) {
+    digits_numeric <- digits[!is.infinite(digits)]
+    if (!all(is_whole_number(digits_numeric))) {
+      cli::cli_abort(
+        c(
+          "!" = "Each `digits` value must be a whole number.",
+          "x" = "`digits` was given as \\
+          {digits_numeric[!is_whole_number(digits_numeric)]}."
+        ),
+        call = rlang::caller_env()
+      )
+    }
+  }
+
+  digits
+}
+
+
 #' Generalized rounding to the nearest fraction of a specified denominator
 #'
 #' @description Two functions that round numbers to specific fractions, not just
@@ -119,27 +148,7 @@ reround_to_fraction <- function(
   # never did work for an `x` longer than 1 anyway: a length-2 `rounding` and a
   # longer `x` failed the length-congruence check that `reround()` used to run.
 
-  # The `auto` option for `digits` is the same as in
-  # `janitor::round_to_fraction()`. It has to be resolved before the check
-  # below, which is numeric: `is.infinite("auto")` is `FALSE`, so the string
-  # went straight into `is_whole_number()` and failed there with "non-numeric
-  # argument to mathematical function". `reround_to_fraction_level()` has
-  # always had these two in this order.
-  if (identical(digits, "auto")) {
-    digits <- ceiling(log10(denominator)) + 1L
-  }
-
-  # Check whether `digits` values are whole numbers:
-  if (!all(is.infinite(digits))) {
-    digits_numeric <- digits[!is.infinite(digits)]
-    if (!all(is_whole_number(digits_numeric))) {
-      cli::cli_abort(c(
-        "!" = "Each `digits` value must be a whole number.",
-        "x" = "`digits` was given as \\
-        {digits_numeric[!is_whole_number(digits_numeric)]}."
-      ))
-    }
-  }
+  digits <- resolve_digits_fraction(digits, denominator)
 
   # Main part ---
 
@@ -225,23 +234,7 @@ reround_to_fraction_level <- function(
     ))
   }
 
-  # The `auto` option for `digits` is the same as in
-  # `janitor::round_to_fraction()`:
-  if (identical(digits, "auto")) {
-    digits <- ceiling(log10(denominator)) + 1L
-  }
-
-  # Check whether `digit` values are whole numbers:
-  if (!all(is.infinite(digits))) {
-    digits_numeric <- digits[!is.infinite(digits)]
-    if (!all(is_whole_number(digits_numeric))) {
-      cli::cli_abort(c(
-        "!" = "Each `digits` value must be a whole number.",
-        "x" = "`digits` was given as \\
-        {digits_numeric[!is_whole_number(digits_numeric)]}."
-      ))
-    }
-  }
+  digits <- resolve_digits_fraction(digits, denominator)
 
   # The compound methods used to be expanded into their two constituents here,
   # because `reround()` took a vector of procedures and paired them with `x`.

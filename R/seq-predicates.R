@@ -17,9 +17,8 @@ index_seq <- function(x) {
   if (!is.numeric(x)) {
     x <- as.numeric(x)
   }
-  x_seq <- seq_along(x)
-  x_seq <- x[x_seq] - x[x_seq + 1L]
-  abs(x_seq[!is.na(x_seq)])
+  steps <- abs(diff(x))
+  steps[!is.na(steps)]
 }
 
 
@@ -27,36 +26,19 @@ is_seq_linear_basic <- function(x) {
   if (length(x) < 3L) {
     return(TRUE)
   }
-  # As the difference between each successive pair of values must be equal for
-  # `x` to be a linear sequence, we can take the first pairwise difference and
-  # test each other difference for equality with it. If any comparison turns out
-  # unequal, `x` is not a linear sequence.
-  diff_first <- x[2L] - x[1L]
-  for (i in 3L:length(x)) {
-    if (x[i] - x[i - 1L] != diff_first) {
-      return(FALSE)
-    }
-  }
-  TRUE
+  # Every successive pair of values must differ by the same amount, so each
+  # pairwise difference must equal the first one.
+  steps <- diff(x)
+  all(steps == steps[1L])
 }
 
 is_seq_ascending_basic <- function(x) {
-  for (i in 1L:(length(x) - 1L)) {
-    if (x[i + 1L] <= x[i]) {
-      return(FALSE)
-    }
-  }
-  TRUE
+  all(diff(x) > 0)
 }
 
 
 is_seq_descending_basic <- function(x) {
-  for (i in 1L:(length(x) - 1L)) {
-    if (x[i + 1L] >= x[i]) {
-      return(FALSE)
-    }
-  }
-  TRUE
+  all(diff(x) < 0)
 }
 
 
@@ -67,12 +49,12 @@ is_seq_basic <- function(
   test_linear = TRUE,
   test_special = NULL,
   min_length = NULL,
-  args_other = NULL
+  from = NULL
 ) {
   if (!is.null(test_special) && test_special == "dispersed") {
     # Without the `force()` call, the function may return `FALSE` early, even if
     # `from` was not supplied:
-    force(args_other$from)
+    force(from)
 
     # A dispersed sequence requires one central value, so the number of elements
     # in `x` must be odd:
@@ -130,7 +112,7 @@ is_seq_basic <- function(
     # the `NA`s leave it open and the result is unknown, i.e., `NA`.
     if (!is.null(test_special) && test_special == "dispersed") {
       x_central <- x_orig[index_central(x_orig)]
-      if (!is.na(x_central) && x_central != args_other$from) {
+      if (!is.na(x_central) && x_central != from) {
         return(FALSE)
       }
       return(NA)
@@ -212,7 +194,7 @@ is_seq_basic <- function(
       test_special,
       "ascending" = is_seq_ascending_basic(x),
       "descending" = is_seq_descending_basic(x),
-      "dispersed" = is_seq_dispersed_basic(x, args_other$from, tolerance)
+      "dispersed" = is_seq_dispersed_basic(x, from, tolerance)
     )
     if (!pass_test_special) {
       return(FALSE)
@@ -358,7 +340,7 @@ is_seq_dispersed <- function(
     test_linear,
     test_special = "dispersed",
     min_length = 3L,
-    args_other = list(from = from)
+    from = from
   )
 }
 

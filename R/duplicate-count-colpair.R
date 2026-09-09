@@ -82,13 +82,18 @@ duplicate_count_colpair <- function(data, ignore = NULL, show_rates = TRUE) {
   out <- tibble::tibble(
     x = pairs[1L, ],
     y = pairs[2L, ],
-    count = vapply(
-      seq_len(ncol(pairs)),
-      function(i) {
-        dup_count_pairwise(values[[pairs[1L, i]]], values[[pairs[2L, i]]])
-      },
-      integer(1L)
-    )
+    count = pairs |>
+      ncol() |>
+      seq_len() |>
+      vapply(
+        # For each element of `x`, this function counts how many are also found in
+        # `y`. `%in%` and `==` coerce mixed types the same way, so this matches
+        # the element-wise comparison it replaced, without the quadratic scan:
+        function(i) {
+          sum(values[[pairs[1L, i]]] %in% values[[pairs[2L, i]]])
+        },
+        integer(1L)
+      )
   ) |>
     dplyr::arrange(dplyr::desc(.data$count)) |>
     add_class("scrutiny_dup_count_colpair")
