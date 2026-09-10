@@ -602,6 +602,36 @@ unround <- function(
   threshold <- recycle(threshold)
   symmetric <- recycle(symmetric)
 
+  # With `digits` given, the value of `x` must fit into it. The bounds below are
+  # `x` plus a whole number of units of the *next* decimal place, which takes
+  # `x` to be a whole number of units of `digits` itself; a value with more
+  # decimal places than that was silently rounded to `digits` and reported with
+  # its own, longer spelling: `unround(1.234, digits = 1)` gave `1.18 <=
+  # x(1.234) <= 1.28`, the bounds of nothing at all. Trailing zeros in a string
+  # are not the problem -- `"4.50"` at one decimal place is 4.5 -- so the test
+  # is the same two-step one as in `check_newly_numeric()`: `round()` decides,
+  # and the decimal count is only consulted for what it leaves open. (`round()`
+  # rejects a zero-length `digits`, hence the guard.)
+  decimals_x <- decimal_places(x_out)
+  too_many <- if (n_out == 0L) {
+    logical(0L)
+  } else {
+    !is.na(x_num) &
+      !is.na(digits) &
+      x_num != round(x_num, digits) &
+      decimals_x > digits
+  }
+  if (any(too_many)) {
+    cli::cli_abort(c(
+      "`x` has more decimal places than `digits` states.",
+      "x" = "`digits` is {utils::head(digits[too_many], 3L)} for \\
+      {utils::head(x_out[too_many], 3L)}, which {?has/have} \\
+      {utils::head(decimals_x[too_many], 3L)}.",
+      "i" = "`digits` is meant for helper use, where the decimal count is \\
+      known. Leave it `NULL` to count the decimal places from a string `x`."
+    ))
+  }
+
   # The same helper GRIM and GRIMMER derive their candidate ranges from, so all
   # three agree on the bounds, on which rounding methods exist, and on what
   # `threshold` and `symmetric` mean. It gives each bound as an integer

@@ -66,3 +66,24 @@ test_that("a fractional `digits` is rejected", {
   # A missing `digits` propagates to a missing result, as a missing `x` does:
   1.25 |> reround(digits = NA_real_, rounding = "up") |> expect_na()
 })
+
+
+# Checks on the rounding procedure ------------------------------------------
+
+test_that("`rounding` must be a string, and `symmetric` `TRUE` or `FALSE`", {
+  # `resolve_ties_rounding()` indexes a list by `rounding`, and a list indexed
+  # by a number or a `TRUE` returns an element by position: `rounding = 2` was
+  # silently `"ties_down"`, and `rounding = TRUE` was `"ties_up"`, in every
+  # function that takes the argument.
+  reround(2.5, 0, rounding = 2)             |> expect_error("must be a string")
+  reround(2.5, 0, rounding = TRUE)          |> expect_error("must be a string")
+  reround(2.5, 0, rounding = NA_character_) |> expect_error("must be a string")
+  unround("2.5", rounding = 2)              |> expect_error("must be a string")
+  grim(5.19, 28, digits_x = 2, rounding = 2) |> expect_error("must be a string")
+
+  # A `symmetric` of `NA` failed in an `if ()` with base R's message:
+  reround(-2.5, 0, "up", symmetric = NA)    |> expect_error("`TRUE` or `FALSE`")
+  reround(-2.5, 0, "up", symmetric = "yes") |> expect_error("`TRUE` or `FALSE`")
+  grim(-5.19, 28, digits_x = 2, rounding = "up", symmetric = NA) |>
+    expect_error("`TRUE` or `FALSE`")
+})

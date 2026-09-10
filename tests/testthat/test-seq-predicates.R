@@ -143,3 +143,50 @@ test_that("`is_seq_dispersed()` passes its special tests, returning `FALSE`", {
   c(3:7, NA, NA) |> is_seq_dispersed(from = 5, test_linear = f) |> expect_false()
   c(NA, NA, 3:7) |> is_seq_dispersed(from = 5, test_linear = f) |> expect_false()
 })
+
+
+# Missing values ----------------------------------------------------------
+
+test_that("gaps are judged by the step the known values imply", {
+  # The gaps used to be bridged at a step of one decimal unit, whatever the
+  # known values said, so a sequence with a step of 2 was `FALSE`:
+  c(1, NA, 5, 7)       |> is_seq_linear()     |> expect_na()
+  c(1, NA, 5, 8)       |> is_seq_linear()     |> expect_false()
+  c(2, NA, NA, 8, 10)  |> is_seq_linear()     |> expect_na()
+  c(0.1, NA, 0.5, 0.7) |> is_seq_linear()     |> expect_na()
+  c(9, NA, 5, 3)       |> is_seq_descending() |> expect_na()
+  c(3, NA, 5, 6, 7)    |> is_seq_dispersed(from = 5) |> expect_na()
+  c(3, NA, 5, 6, 8)    |> is_seq_dispersed(from = 5) |> expect_false()
+
+  # The examples from `vignette("devtools")`:
+  c(1, 2, NA, 4)             |> is_seq_linear()    |> expect_na()
+  c(1, 2, NA, NA, NA, 6)     |> is_seq_linear()    |> expect_na()
+  c(1, 2, NA, 10)            |> is_seq_linear()    |> expect_false()
+  c(1, 2, NA, NA, NA, 10)    |> is_seq_linear()    |> expect_false()
+  c(NA, NA, 1, 2, NA, 4, NA) |> is_seq_linear()    |> expect_na()
+  c(1, 2, NA, 1)             |> is_seq_ascending() |> expect_false()
+})
+
+
+# Non-numeric input -------------------------------------------------------
+
+test_that("strings and factors are tested by their numeric values", {
+  # A string vector passed `is_numeric_like()` and then failed in `diff()`; a
+  # factor was tested by its integer codes, so `factor(c(1, 2, 4))` was linear.
+  c("1", "2", "3")     |> is_seq_ascending() |> expect_true()
+  c("1", NA, "3", "4") |> is_seq_linear()    |> expect_na()
+  factor(c(1, 2, 4))   |> is_seq_linear()    |> expect_false()
+
+  # A string `from` used to be assigned to `x` by mistake:
+  c(4.9, 5.0, 5.1)       |> is_seq_dispersed(from = "5.0") |> expect_true()
+  c("4.9", "5.0", "5.1") |> is_seq_dispersed(from = 5)     |> expect_true()
+  c(4.9, 5.0, 5.1)       |> is_seq_dispersed(from = "abc") |> expect_false()
+})
+
+
+test_that("a vector of nothing but `NA` returns `NA`, whatever its type", {
+  c(NA, NA, NA)                     |> is_seq_linear()     |> expect_na()
+  c(NA_character_, NA_character_)   |> is_seq_linear()     |> expect_na()
+  c(NA, NA, NA)                     |> is_seq_ascending()  |> expect_na()
+  c(NA, NA, NA) |> is_seq_dispersed(from = 5) |> expect_na()
+})

@@ -110,9 +110,12 @@ grimmer_scalar <- function(
   x <- as.numeric(x)
   sd <- as.numeric(sd)
 
-  # Undecidable. Caught before the GRIM test below, whose `NA` result the
-  # branch on `pass_grim` could not handle:
-  if (is.na(x) || is.na(sd) || is.na(n)) {
+  # Undecidable. Caught before the GRIM test below, whose `NA` result the branch
+  # on `pass_grim` could not handle. A missing decimal count is a missing value
+  # like any other: no rounding bounds follow from it.
+  if (
+    is.na(x) || is.na(sd) || is.na(n) || is.na(digits_x) || is.na(digits_sd)
+  ) {
     if (show_reason) {
       return(list(NA, "Missing value"))
     }

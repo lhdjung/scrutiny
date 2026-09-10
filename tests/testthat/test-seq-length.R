@@ -29,3 +29,16 @@ test_that("strings are handled correctly by the replacement form", {
   seq_length(x) <- 0
   x |> expect_equal(character(0))
 })
+
+
+test_that("the sequence is extended by its own step, in its own direction", {
+  # The step used to be one unit of the last decimal place, whatever the
+  # sequence's step was, and a descending sequence was extended upward:
+  c(2, 4, 6) |> seq_length(5) |> expect_equal(c(2, 4, 6, 8, 10))
+  c(6, 4, 2) |> seq_length(5) |> expect_equal(c(6, 4, 2, 0, -2))
+  3:7        |> seq_length(8) |> expect_identical(3:10)
+  c(2, 2, 2) |> seq_length(5) |> expect_equal(rep(2, 5))
+  c("0.10", "0.20", "0.30") |>
+    seq_length(5) |>
+    expect_equal(c("0.10", "0.20", "0.30", "0.40", "0.50"))
+})

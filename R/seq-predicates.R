@@ -61,10 +61,34 @@ is_seq_basic <- function(
     if (is_even(length(x))) {
       return(FALSE)
     }
+
+    # `from` is compared to values of `x` below, so it has to be a number, as
+    # `x` is made one right after this:
+    if (!is_numeric_like(from)) {
+      return(FALSE)
+    }
+    from <- as.numeric(from)
+  }
+
+  # A vector of all `NA`s leaves the question open, whatever its type.
+  # `is_numeric_like()` is `FALSE` for a logical vector, which includes `c(NA,
+  # NA, NA)`, and `NA` for a character one, which the `if` below can't take:
+  if (length(x) > 0L && all(is.na(x))) {
+    return(NA)
   }
 
   if (!is_numeric_like(x)) {
     return(FALSE)
+  }
+
+  # Everything below is arithmetic on `x`. A string vector is admitted by the
+  # check above but failed in `diff()`, and a factor was silently tested by its
+  # integer codes, so `factor(c(1, 2, 4))` was a linear sequence:
+  if (!is.numeric(x)) {
+    if (is.factor(x)) {
+      x <- as.character(x)
+    }
+    x <- as.numeric(x)
   }
 
   if (!is.null(min_length) && length(x) < min_length) {
@@ -99,10 +123,19 @@ is_seq_basic <- function(
     # function will return either `NA` or `FALSE`, depending on other factors.)
     x <- x[not_na[1L]:not_na[length(not_na)]]
 
-    # Test separate from `x_has_na`: it checks whether there are `NA`s that are
-    # not at the start or end of `x`.
-    if (test_linear && !anyNA(x) && !is_seq_linear_basic(x)) {
-      return(FALSE)
+    # The question `vignette("devtools")` states for missing values: are the
+    # known values consistent with each other, given their index positions? For
+    # linearity, that is whether every pair of neighboring known values implies
+    # the same step per index. The gaps used to be bridged at a step of one
+    # decimal unit instead, whatever the known values said, so
+    # `c(1, NA, 5, 7)` -- linear at a step of 2 -- was `FALSE`.
+    known <- which(!is.na(x))
+
+    if (test_linear) {
+      steps <- diff(x[known]) / diff(known)
+      if (!all(dplyr::near(steps, steps[1L], tol = tolerance))) {
+        return(FALSE)
+      }
     }
 
     # If the removal of leading and / or trailing `NA` elements in `x` caused
@@ -118,64 +151,12 @@ is_seq_basic <- function(
       return(NA)
     }
 
-    # Used within the for loop below to check whether the step size must be
-    # negative:
-    x_is_descending_basic <- is_seq_descending_basic(x[!is.na(x)])
-
-    for (i in seq_along(x)) {
-      if (is.na(x[i])) {
-        index_lower <- 1L
-        index_upper <- 1L
-        while (is.na(x[i - index_lower])) {
-          index_lower <- index_lower - 1L
-        }
-        while (is.na(x[i + index_upper])) {
-          index_upper <- index_upper + 1L
-        }
-        seq_start <- x[i - index_lower]
-        seq_end <- x[i + index_upper]
-        step <- step_size(c(seq_start, seq_end))
-
-        # Descending sequences require a negative step size:
-        if (x_is_descending_basic || seq_start > seq_end) {
-          step <- -step
-        }
-
-        # Look here for `seq.default()` errors:
-        seq_replacement <- seq(from = seq_start, to = seq_end, by = step)
-
-        # Remove the first and the last element because these correspond to the
-        # two next surrounding non-`NA` numbers rather than to the `NA`
-        # subsequence, and therefore should not replace any `NA`s:
-        seq_replacement <- seq_replacement[-1L]
-        seq_replacement <- seq_replacement[-length(seq_replacement)]
-
-        if (test_linear) {
-          # In the first of these two cases, the replacement sequence is too
-          # short to bridge the `NA` subsequence. In the second case, the
-          # replacement sequence is longer than the subsequence of `NA`
-          # elements, which invariably means that the numbers surrounding the
-          # `NA`s are too far spaced out for there to be a linear sequence. In
-          # either case...
-          seq_replacement_has_wrong_length <-
-            length(seq_replacement) == 0L ||
-            length(seq_replacement) > length(index_lower:index_upper)
-
-          # ...an error is thrown:
-          if (seq_replacement_has_wrong_length) {
-            return(FALSE)
-          }
-        }
-
-        # Substitute the replacement sequence for `NA` elements. Warnings are
-        # suppressed because the lengths will only differ in an unproblematic
-        # case -- `x` is non-linear and `test_linear` is `FALSE`, i.e., the user
-        # only wants one of the special tests but not the test for linearity:
-        suppressWarnings(
-          x[i + ((index_lower:index_upper) - 1L)] <- seq_replacement
-        )
-      } # End of the `is.na(x[i])` condition
-    } # End of the for loop
+    # Fill the gaps by linear interpolation between their known neighbors, so
+    # that the special tests below see the values that a linear sequence would
+    # have there. Without `test_linear`, this is the same answer the known
+    # values give on their own -- an interpolated value never breaks a monotone
+    # run between two known ones:
+    x <- stats::approx(known, x[known], xout = seq_along(x))$y
   } # End of the `x_has_na` condition
 
   # If desired, test `x` -- as passed to the function or as partly reconstructed
@@ -355,21 +336,11 @@ is_seq_dispersed_basic <- function(
     return(FALSE)
   }
 
-  if (!is.numeric(x)) {
-    if (is_numeric_like(x)) {
-      x <- as.numeric(x)
-    } else {
-      return(FALSE)
-    }
-  }
-
-  if (!is.numeric(from)) {
-    if (is_numeric_like(from)) {
-      x <- as.numeric(from)
-    } else {
-      return(FALSE)
-    }
-  }
+  # `is_seq_basic()` has made both of these numeric by the time it calls this.
+  # (A string `from` used to be assigned to `x` here by mistake, so the call
+  # failed with "non-numeric argument to binary operator".)
+  x <- as.numeric(x)
+  from <- as.numeric(from)
 
   index_central_x <- index_central(x)
 

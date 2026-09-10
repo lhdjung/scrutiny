@@ -39,6 +39,7 @@ utils::globalVariables(c(
   "x_lower",
   "x_upper",
   "dupe_count",
+  "na_count",
   "fun_name",
   # Added after rewriting the function factories using `rlang::new_function()`:
   "!!",
@@ -381,12 +382,20 @@ check_newly_numeric <- function(
 ) {
   # Inlined rather than left to `is_whole_number()`: this runs once per key
   # value per row, and the call alone cost more than the whole check below it.
-  if (
-    !is.numeric(digits) ||
-      length(digits) != 1L ||
-      digits < 0 ||
-      abs(digits - round(digits)) >= WHOLE_NUMBER_TOLERANCE
-  ) {
+  if (length(digits) != 1L || !(is.numeric(digits) || is.na(digits))) {
+    name <- deparse(substitute(digits))
+    error_digits_flawed(digits, name, 4)
+  }
+
+  # A missing number of decimal places makes the case undecidable, like a
+  # missing `x`: the tests return `NA` for it, and a per-row `digits_*` in a
+  # mapper can be `NA` for some rows without failing the whole call. It used to
+  # reach the `if ()` below and fail there with base R's message.
+  if (is.na(digits)) {
+    return(invisible(NULL))
+  }
+
+  if (digits < 0 || abs(digits - round(digits)) >= WHOLE_NUMBER_TOLERANCE) {
     name <- deparse(substitute(digits))
     error_digits_flawed(digits, name, 4)
   }
@@ -1811,6 +1820,35 @@ check_rounding_spec_singular <- function(rounding, threshold, symmetric) {
         applied to all values.",
         "i" = "To compare procedures, test once per procedure. `unround()` \\
         is vectorized over `rounding` if you need the bounds."
+      ),
+      call = rlang::caller_env()
+    )
+  }
+
+  # The types matter as much as the lengths. `resolve_ties_rounding()` indexes
+  # `TIES_METHODS` by `rounding`, and a list indexed by a number or a `TRUE`
+  # returns an element by *position*: `rounding = 2` silently meant
+  # `"ties_down"`, and `rounding = TRUE` meant `"ties_up"`, so a typo produced a
+  # verdict under a method the caller never named. A missing string, and a
+  # `symmetric` that is `NA` or not logical at all, failed further down in an
+  # `if ()` with base R's message and no hint of which argument was at fault.
+  if (!is.character(rounding) || is.na(rounding)) {
+    cli::cli_abort(
+      c(
+        "`rounding` must be a string.",
+        "x" = "It is {.obj_type_friendly {rounding}}.",
+        "i" = "See `vignette(\"rounding-options\")` for the strings it \\
+        can take."
+      ),
+      call = rlang::caller_env()
+    )
+  }
+
+  if (!is.logical(symmetric) || is.na(symmetric)) {
+    cli::cli_abort(
+      c(
+        "`symmetric` must be `TRUE` or `FALSE`.",
+        "x" = "It is {.obj_type_friendly {symmetric}}."
       ),
       call = rlang::caller_env()
     )

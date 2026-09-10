@@ -370,10 +370,15 @@ function_map_seq <- function(
       # produce a confusing error further down, reject it here.
       for (.digits_name in names(.digits_vals)) {
         .digits_length <- length(.digits_vals[[.digits_name]])
-        if (.digits_length > 1L) {
+        if (.digits_length > 1L || anyNA(.digits_vals[[.digits_name]])) {
+          .digits_what <- if (.digits_length > 1L) {
+            paste0("has length ", .digits_length)
+          } else {
+            "is `NA`"
+          }
           cli::cli_abort(c(
             "`{(.digits_name)}` must be a single number here.",
-            "x" = "It has length {(.digits_length)}.",
+            "x" = "It {(.digits_what)}.",
             "i" = "Sequence mappers disperse every value on the decimal level \\
             given by `{(.digits_name)}`, so it has to be the same for the whole \\
             column.",

@@ -253,13 +253,15 @@ duplicate_detect <- function_duplicate_cols(
 #'   duplicate_tally(ignore = c(8.131, 7.574))
 
 duplicate_tally <- function_duplicate_cols(
-  # For each input value, count how many other instances of that value exist:
+  # For each input value, count how many instances of that value exist. The
+  # comparison used to be `x == x[i]`, which is `NA` against a missing value,
+  # and indexing by `NA` returns an element -- so every count was off by the
+  # number of missing values in `x`. `match()` pairs each value with the first
+  # of its kind and never a value with `NA`, and it is linear rather than
+  # quadratic in `length(x)`:
   code_new_cols = {
-    new_cols <- integer(length(x))
-    for (i in seq_along(new_cols)) {
-      new_cols[i] <- length(x[x == x[i]])
-    }
-    new_cols
+    first_of_kind <- match(x, x)
+    tabulate(first_of_kind, nbins = length(x))[first_of_kind]
   },
   default_end = "n",
   name_class = "scrutiny_dup_tally"

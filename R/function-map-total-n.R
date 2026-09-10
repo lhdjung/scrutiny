@@ -372,8 +372,11 @@ function_map_total_n <- function(
         ))
       }
 
-      # ...and that all of its values are whole numbers:
-      offenders <- data$n[!is_whole_number(data$n)]
+      # ...and that all of its values are whole numbers. A missing total is
+      # ruled out here as well: there is nothing to split it into, and
+      # `disperse_total()` would fail on it further down with a message about
+      # something else. (It used to be reported as a "decimal number".)
+      offenders <- data$n[is.na(data$n) | !is_whole_number(data$n)]
 
       if (length(offenders) > 0L) {
         if (length(offenders) > 3L) {
@@ -385,8 +388,8 @@ function_map_total_n <- function(
         msg_offenders <- wrap_in_backticks(offenders)
         cli::cli_abort(c(
           "`n` values must be whole numbers.",
-          "x" = "The `n` column includes decimal \\
-          numbers{msg_starting_with} {msg_offenders}.",
+          "x" = "The `n` column includes values that are \\
+          not{msg_starting_with} {msg_offenders}.",
           "i" = "They are supposed to be (total) sample sizes."
         ))
       }

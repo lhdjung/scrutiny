@@ -221,3 +221,11 @@ test_that("`digits_*` is a real formal of the total-n mappers", {
     grimmer_map_total_n() |>
     expect_error("Need to specify `digits_x`")
 })
+
+
+test_that("a missing total `n` is reported as such, not as a decimal number", {
+  list(x1 = 4.52, x2 = 5.23, n = NA) |> 
+    tibble::new_tibble(nrow = 1L) |> 
+    grim_map_total_n(digits_x = 2) |>
+    expect_error("values that are not")
+})

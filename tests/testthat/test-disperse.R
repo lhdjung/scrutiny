@@ -60,3 +60,10 @@ test_that("`n` is integer, as it is in the mappers", {
   disperse(20)$n |> expect_equal(c(20L, 20L, 19L, 21L, 18L, 22L, 17L, 23L,
                                    16L, 24L, 15L, 25L))
 })
+
+
+test_that("`disperse_total()` requires a whole-number total", {
+  # `disperse_total(7.5)` used to return group sizes of 3.25 and 4.25.
+  disperse_total(7.5) |> expect_error("whole number")
+  disperse_total(NA)  |> expect_error("whole number")
+})

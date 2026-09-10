@@ -58,3 +58,19 @@ test_that("It works with GRIM", {
 test_that("It works with DEBIT", {
   df_debit |> expect_equal(df_debit_rec)
 })
+
+
+test_that("a case whose dispersion was clipped to nothing stays aligned", {
+  # With `out_min == out_max == 25`, case 1's `x` and case 2's `n` disperse to
+  # no rows at all, so they are only on the rows of the other variable:
+  df <- tibble::tibble(x = c(25.0, 24.9, 25.2), n = c(26, 25, 30))
+  out <- grim_map_seq(
+    df, digits_x = 1, out_min = 25, out_max = 25, include_consistent = TRUE
+  )
+  expect_equal(reverse_map_seq(out), df)
+  audit <- audit_seq(out)
+  expect_equal(audit$x, df$x)
+  expect_equal(audit$n, df$n)
+  expect_equal(audit$hits_x, c(0L, 1L, 2L))
+  expect_equal(audit$hits_n, c(1L, 0L, 5L))
+})

@@ -126,22 +126,21 @@ audit_seq <- function(data) {
     vapply(nrow, integer(1L), USE.NAMES = FALSE) |>
     unname()
 
-  var_names <- unique(df_list[[1L]]$var)
+  # The output is ordered by `var`, so this is the order of the `var` argument:
+  var_names <- unique(data$var)
 
   # Define some helper functions to be mapped below:
   index_hit_distance <- function(df, var_order = var_names) {
-    out <- df |>
-      split(df$var) |>
+    # Splitting by a factor keeps the groups in the order of `var` rather than
+    # the alphabetical one, and it keeps an empty group for a variable that has
+    # no rows in this case because `out_min` or `out_max` clipped its whole
+    # dispersion. Such a group counts as zero hits, like one whose rows are all
+    # inconsistent. Without it, the columns of later variables shifted left:
+    df |>
+      split(factor(df$var, levels = var_order)) |>
       # `which()` for the same reason as in the `dplyr::filter()` call above,
       # which drops undecidable cases rather than counting them as hits:
-      purrr::map(function(x) x[which(x[[name_key_result]]), ])
-    # `split()` returns its groups in alphabetical order, and the columns should
-    # follow the order of `var` instead. The permutation that undoes a sort is
-    # `rank()`, not `order()`: the two are inverses of each other, and they
-    # agree only up to three variables that happen not to form a cycle -- with
-    # `var = c("sd", "x", "n")` the columns came out in yet a third order.
-    out[rank(var_order)] |>
-      purrr::map(function(x) x$diff_var)
+      purrr::map(function(x) x[which(x[[name_key_result]]), ]$diff_var)
   }
 
   length_unless_na <- function(x) {

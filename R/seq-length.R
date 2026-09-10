@@ -92,34 +92,29 @@ seq_length <- function(x, value) {
     return(x)
   }
 
-  # Descending sequences have a reverse step size and direction:
-  if (length(x) > 1 && x[1L] > x[2L]) {
-    by <- -step_size(x)
-    dir <- -1
-  } else {
-    by <- step_size(x)
-    dir <- 1
-  }
-
   if (diff < 0L) {
     return(x[1L:(length(x) - abs(diff))])
   }
 
-  extension <- seq_distance(
-    from = as.numeric(x[length(x)]) + by,
-    by = by,
-    length_out = diff,
-    dir = dir,
-    string_output = is.character(x)
-  )
+  # The sequence's own step, as documented -- which is the difference between
+  # two of its elements, not the unit of their last decimal place. It used to be
+  # the latter, so `seq_length(c(2, 4, 6), 5)` was `2 4 6 7 8`, and a descending
+  # sequence was extended *upward*: the sign of the step was applied once here
+  # and once more in `seq_distance()`, canceling out. A single element has no
+  # step to speak of, and keeps the old rule:
+  x_num <- as.numeric(x)
+  by <- if (length(x) > 1L) x_num[2L] - x_num[1L] else step_size(x)
 
-  out <- c(x, extension)
+  # Rounding back to the decimal level of `x` undoes floating-point error in the
+  # multiplication, as `seq_disperse()` does:
+  digits <- max(decimal_places(x))
+  extension <- round(x_num[length(x)] + by * seq_len(diff), digits)
 
-  if (is.character(out)) {
-    out
-  } else {
-    methods::as(out, typeof(x))
+  if (is.character(x)) {
+    return(c(x, restore_zeros(extension, width = digits)))
   }
+
+  methods::as(c(x, extension), typeof(x))
 }
 
 

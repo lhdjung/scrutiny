@@ -538,3 +538,15 @@ test_that("a threshold cannot make a consistency test decide nothing", {
     }
   }
 })
+
+
+test_that("`x` must fit into a given `digits`", {
+  # `unround(1.234, digits = 1)` used to give `1.18 <= x(1.234) <= 1.28`: the
+  # bounds of `x` rounded to `digits`, labeled with the unrounded `x`.
+  unround(1.234, digits = 1)   |> expect_error("more decimal places")
+  unround("1.234", digits = 2) |> expect_error("more decimal places")
+  unround(c(1.2, 1.23), digits = 2)$lower |> expect_equal(c(1.195, 1.225))
+
+  # Trailing zeros in a string are not extra decimal places of the value:
+  unround("4.50", digits = 1)$lower |> expect_equal(4.45)
+})

@@ -50,30 +50,6 @@ reverse_map_seq <- function(data) {
     select_tested_cols(before = name_key_result) |>
     colnames()
 
-  var_unique <- var
-
-  if (length(var_unique) == 1L) {
-    data_var <- list(data)
-    data_var <- append(data_var, data_var)
-    names(data_var) <- c(var_unique, "scrutiny_split_dummy")
-  } else {
-    data_var <- split(data, list(data$var))
-    data_var <- data_var[var_unique] # order by `var`
-    if (length(unique(data$var)) < length(data_var)) {
-      length_diff <- length(data_var) - length(unique(data$var))
-      data_var_fill <- rep(data_var[1L], length_diff)
-      data_var <- append(data_var, data_var_fill)
-      data_var <- Filter(length, data_var)
-    }
-  }
-
-  data_nested <- data |>
-    dplyr::nest_by(case, var) |>
-    dplyr::arrange(var)
-
-  data_nested <- split(data_nested, data_nested$var)[var]
-  data_nested <- purrr::list_rbind(data_nested)
-
   # The step size of each variable's dispersion. For a variable with a
   # `digits_*` column -- every variable that the mapper takes decimal places for
   # -- it is one unit of the last decimal place, stated by the caller of the
@@ -91,30 +67,27 @@ reverse_map_seq <- function(data) {
     NULL
   }
 
-  # The reported value is recovered from `diff_var`, which records how many
-  # steps each dispersed row sits from it. That is exact whether or not the
-  # sequence is complete -- unlike inferring it from the shape of the sequence,
-  # which silently returned the wrong value once `out_min` or `out_max` had
-  # truncated one side of it:
-  data_index_case <- data_nested |>
-    dplyr::mutate(
-      scrutiny_index_case = list(
-        index_case_from_diff(
-          x = data[var][[1L]],
-          diff_var = data$diff_var,
-          by = step_by_var(var)
-        )
-      )
-    ) |>
-    dplyr::ungroup() |>
-    dplyr::select(var, scrutiny_index_case)
+  # Every row of a case carries the reported values of all variables except the
+  # one it disperses, which sits `diff_var` steps away from its reported value.
+  # Each reported value is therefore read off the rows that leave it untouched,
+  # and only recovered from its own dispersion when there are no such rows. This
+  # keeps the cases aligned even if `out_min` or `out_max` clipped a variable's
+  # dispersion to nothing for one case: pairing the groups of each variable by
+  # position used to shift every later case's value in that column. A case
+  # without any rows at all is not in the output, as in `audit_seq()`.
+  cases <- split(data, data$case)
 
-  data_index_case |>
-    tidyr::pivot_wider(
-      names_from = var,
-      values_from = scrutiny_index_case,
-      values_fn = list
-    ) |>
-    tidyr::unnest(cols = everything()) |>
-    tidyr::unnest(cols = everything()) # yes, this is weird
+  cols <- lapply(var, function(v) {
+    by <- step_by_var(v)
+    purrr::list_c(lapply(cases, function(d) {
+      untouched <- d$var != v
+      if (any(untouched)) {
+        d[[v]][untouched][[1L]]
+      } else {
+        index_case_from_diff(x = d[[v]], diff_var = d$diff_var, by = by)
+      }
+    }))
+  })
+
+  tibble::as_tibble(rlang::set_names(cols, var))
 }

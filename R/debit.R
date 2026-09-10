@@ -1,10 +1,12 @@
 # Helpers to check input ranges (not exported) ----------------------------
 
 check_debit_inputs <- function(input, type, symbol) {
-  # For all input values, check if they are between 0 and 1:
-  input_in_range <- input |>
-    as.numeric() |>
-    dplyr::between(0, 1)
+  # For all input values, check if they are between 0 and 1. Plain comparisons
+  # rather than `dplyr::between()`: this runs twice per row on a single value,
+  # and the vctrs machinery behind `between()` was two thirds of a `debit_map()`
+  # call.
+  input_num <- as.numeric(input)
+  input_in_range <- input_num >= 0 & input_num <= 1
 
   # Anything outside that range is an error. Missing values are not offenders:
   # they are undecidable, not out of range, and the tests return `NA` for them.
@@ -138,8 +140,9 @@ debit_scalar <- function(
   sd_num <- as.numeric(sd)
 
   # A missing value makes the test undecidable, and it is returned in the same
-  # shape as the undefined-bounds case below:
-  if (anyNA(c(x_num, sd_num, n))) {
+  # shape as the undefined-bounds case below. A missing decimal count counts: no
+  # rounding bounds follow from it.
+  if (anyNA(c(x_num, sd_num, n, digits_x, digits_sd))) {
     return(debit_undecidable(show_rec, rounding))
   }
 

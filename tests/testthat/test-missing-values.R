@@ -328,3 +328,24 @@ test_that("an infinite value gives `NA` in the mappers, too", {
   )
   out_grimmer$consistency[2L] |> expect_na()
 })
+
+
+test_that("a missing `digits_*` makes a case undecidable, like a missing value", {
+  # It used to fail inside `check_newly_numeric()` with "missing value where
+  # TRUE/FALSE needed" -- from within `purrr::pmap()` in a mapper, where one row
+  # with an unknown decimal count took the whole call down.
+  grim(5.19, 28, digits_x = NA)                              |> expect_na()
+  grimmer(1.03, 0.41, 40, digits_x = 2, digits_sd = NA)      |> expect_na()
+  debit(0.53, 0.50, 1683, digits_x = NA, digits_sd = 2)      |> expect_na()
+  grim_values(5.19, 28, digits_x = NA)[[1L]]                 |> expect_na()
+  grim_closest(5.19, 28, digits_x = NA)                      |> expect_na()
+
+  out <- grim_map(tibble::tibble(x = c(5.19, 5.2), n = 28L), digits_x = c(2, NA))
+  out$consistency |> expect_equal(c(FALSE, NA))
+  out$probability |> expect_equal(c(0.72, NA))
+
+  # A sequence mapper disperses every value on one decimal level, so it needs a
+  # number there:
+  grim_map_seq(tibble::tibble(x = 5.19, n = 28L), digits_x = NA) |>
+    expect_error("single number")
+})

@@ -55,8 +55,12 @@ grim_scalar <- function(
   # describes no such data set, so the case is undecidable rather than
   # inconsistent. So is an infinite `x`: no data set has an infinite mean, and
   # it has no decimal places to be reported with -- left to `sum_range()` it
-  # would make the range infinitely wide, i.e. consistent with everything.
-  if (!is_decidable_n_items(n, items) || is.infinite(x_num)) {
+  # would make the range infinitely wide, i.e. consistent with everything. And
+  # so is a missing `digits_x`: without the decimal count there are no rounding
+  # bounds to derive.
+  if (
+    !is_decidable_n_items(n, items) || is.infinite(x_num) || is.na(digits_x)
+  ) {
     if (!show_rec) {
       return(NA)
     }

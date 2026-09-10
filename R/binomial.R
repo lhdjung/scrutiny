@@ -66,7 +66,13 @@ grim_binomial <- function(
     cli::cli_abort("`data` must be output of a GRIM mapper function.")
   }
 
-  n_consistent <- length(which(data$consistency))
+  # A value set the test could not decide -- a missing `n`, say -- has neither a
+  # verdict nor a probability. It is left out on both sides: counting it as a
+  # case while its `NA` probability went into the Poisson binomial made the
+  # p-value `NA` for the whole table:
+  data <- data[!is.na(data$consistency) & !is.na(data$probability), ]
+
+  n_consistent <- sum(data$consistency)
   n_cases <- nrow(data)
 
   # Per-row probability of consistency under the null (random decimal digits)

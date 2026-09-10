@@ -314,6 +314,18 @@ disperse_total <- function(
     to be a *single*, total sample size."
   )
 
+  # A total sample size is a whole number. Anything else used to be split into
+  # halves of halves without a word -- `disperse_total(7.5)` returned group
+  # sizes of 3.25 and 4.25 -- because the even-or-odd branch below is only
+  # exhaustive for whole numbers:
+  if (is.na(n) || !is_whole_number(n)) {
+    cli::cli_abort(c(
+      "`n` must be a whole number.",
+      "x" = "It is {n}.",
+      "i" = "It is a total sample size, to be split into two group sizes."
+    ))
+  }
+
   # Main part ---
 
   n_half <- n / 2
