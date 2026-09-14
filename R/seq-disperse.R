@@ -164,12 +164,7 @@ seq_disperse <- function(
   # to `digits_out` before it is compared to the limits or returned:
   digits_out <- max(digits, decimal_places_scalar(from))
 
-  # Filter the `dispersion` vector -- and the `disp_minus` vector derived from
-  # it -- from values that fall outside of the range specified by `out_min` at
-  # the lower end:
-  if (is.null(out_min)) {
-    disp_minus_represent <- dispersion
-  } else {
+  if (!is.null(out_min)) {
     if (length(out_min) > 1L) {
       cli::cli_abort(c(
         "!" = "`out_min` must have length 1 or to be `NULL`.",
@@ -179,30 +174,44 @@ seq_disperse <- function(
     if (out_min == "auto") {
       out_min <- by
     }
-
-    is_within_range_lower <- round(from - disp_minus, digits_out) >= out_min
-    disp_minus_represent <- dispersion[is_within_range_lower]
-    disp_minus <- disp_minus[is_within_range_lower]
   }
 
-  # Do the same but for `disp_plus` and `out_max` at the upper end:
-  if (is.null(out_max)) {
-    disp_plus_represent <- dispersion
-  } else {
-    if (length(out_max) > 1L) {
-      cli::cli_abort(c(
-        "!" = "`out_max` must have length 1 or to be `NULL`.",
-        "x" = "It has length {length(out_max)}."
-      ))
-    }
-    is_within_range_upper <- round(from + disp_plus, digits_out) <= out_max
-    disp_plus_represent <- dispersion[is_within_range_upper]
-    disp_plus <- disp_plus[is_within_range_upper]
+  if (!is.null(out_max) && length(out_max) > 1L) {
+    cli::cli_abort(c(
+      "!" = "`out_max` must have length 1 or to be `NULL`.",
+      "x" = "It has length {length(out_max)}."
+    ))
   }
 
+  # The offset moves the point the sequence is built around, so it has to be
+  # applied before the values are compared to the limits:
   if (offset_from != 0L) {
     from <- round(from + (by * offset_from), digits_out)
   }
+
+  # Drop the values that fall outside of the range specified by `out_min` and
+  # `out_max`, along with the `dispersion` steps that led to them. Both limits
+  # apply to both sides of the sequence: with `from = 30` and `out_max = 25`,
+  # the steps down from `from` land on `29`, `28`, ..., which are above the
+  # maximum just as the steps up are.
+  is_within_range <- function(x) {
+    ok <- rep(TRUE, length(x))
+    if (!is.null(out_min)) {
+      ok <- ok & x >= out_min
+    }
+    if (!is.null(out_max)) {
+      ok <- ok & x <= out_max
+    }
+    ok
+  }
+
+  is_within_range_lower <- is_within_range(round(from - disp_minus, digits_out))
+  is_within_range_upper <- is_within_range(round(from + disp_plus, digits_out))
+
+  disp_minus_represent <- dispersion[is_within_range_lower]
+  disp_minus <- disp_minus[is_within_range_lower]
+  disp_plus_represent <- dispersion[is_within_range_upper]
+  disp_plus <- disp_plus[is_within_range_upper]
 
   disp_zero <- if (include_reported) {
     from

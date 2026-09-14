@@ -102,4 +102,3 @@ rounding_bias <- function(
     bias
   }
 }
-

@@ -176,7 +176,6 @@ restore_zeros <- function(
 
   # Pad `x` with the correct amount of trailing zeros:
 
-
   out <- dplyr::if_else(
     width_mantissa < width_target,
     sprintf(out_format, as.numeric(x)),
