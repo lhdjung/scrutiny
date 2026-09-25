@@ -119,6 +119,11 @@ debit_scalar <- function(
     ))
   }
 
+  # See `grim_scalar()`:
+  if (!is.numeric(n) && !is.na(n)) {
+    check_type(n, c("double", "integer"))
+  }
+
   if (missing(digits_x)) {
     error_digits_missing(x)
   }

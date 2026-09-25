@@ -52,6 +52,14 @@
 
 - `is_map_df()`, `is_map_seq_df()`, and `is_map_total_n_df()` now only recognize scrutiny's own classes. Their patterns made the `scrutiny_` prefix optional, so any class ending in `_map`, such as `leaflet_map`, counted. `is_map_basic_df()` now recognizes the output of a mapper whose test name contains `map`, which it used to reject.
 
+- `grimmer()` no longer lets `min_val` and `max_val` decide a case whose `n` or `items` is untestable: `grimmer(6, 0, 1, 0, 0, min_val = 1, max_val = 5)` is now `NA`, not `FALSE`. A negative `sd` is now `FALSE` with the reason `"Negative SD"`, rather than being squared into a spurious test 2 failure.
+
+- `grim_values()` and `grim_closest()` now return `NA` where `grim()` does for a fractional `n` or `items`, rather than values for a data set that cannot exist.
+
+- `grim_binomial()` and `grim_binomial_power()` now error when there is nothing to test. They used to crash the R session inside poibin.
+
+- `grim()`, `grimmer()`, `debit()`, and their mappers now reject a string `n`, which used to yield an unexplained `NA` in `grim()` and a base R error in `grim_map()`. An infinite `digits_*` is rejected clearly, too.
+
 - `audit_seq()` now works on output from a single-step `dispersion`, such as `dispersion = 1`.
 
 - `seq_disperse()` and `seq_disperse_df()` now apply `out_min` and `out_max` to the whole sequence. Each limit used to be checked against one side only, the steps down against `out_min` and the steps up against `out_max`, so `seq_disperse(30, out_max = 25)` kept `26` to `29`. The limits also used to be checked before `offset_from` moved the sequence, so an offset could carry values past them. `*_map_seq()` functions inherit both fixes; with `out_min` and `out_max` set to the same value, a case above it now disperses to that one value rather than to every step down to it.

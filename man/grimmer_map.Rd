@@ -90,6 +90,9 @@ If \code{min_val} and \code{max_val} are specified, two further reasons can appe
 \code{"Mean out of scale range"} for an \code{x} outside of the scale, and \code{"GRIMMER inconsistent (scale range)"} for a value set whose \code{sd} no sample within the
 scale could have produced.
 
+A negative \code{sd} is inconsistent with the reason \code{"Negative SD"}, since no
+sample has one.
+
 The tibble has the \code{scrutiny_grimmer_map} class, which is recognized by the
 \code{\link[=audit]{audit()}} generic. \code{\link[=grim_plot]{grim_plot()}} recognizes it as well, so GRIMMER
 results can be visualized just like GRIM results.

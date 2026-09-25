@@ -17,8 +17,9 @@ grim_binomial(
 \item{alternative}{String (length 1). One of \code{"greater"}, \code{"less"}, and
 \code{"two.sided"}. Default is \code{"greater"}; see details.}
 
-\item{conf.level}{Numeric (length 1). Confidence level for the confidence
-interval in the output. Default is \code{0.95}.}
+\item{conf.level}{Numeric (length 1). Only returned as the \code{conf.level}
+column, in the style of other test tables; no confidence interval is
+computed. Default is \code{0.95}.}
 }
 \value{
 Tibble (data frame) with columns \code{estimate} (observed consistency

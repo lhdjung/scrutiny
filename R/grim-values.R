@@ -32,7 +32,11 @@ grim_sums_scalar <- function(
   # has an infinite mean, and `sum_range()` would answer with an infinitely wide
   # range that `seq()` then refuses to walk. Both callers read the sums with
   # `anyNA()`, which is how a missing `x` arrives here as well:
-  sums <- if (is.infinite(x_num) || is.na(digits_x)) {
+  # So is a sample size or item count that is no positive whole number, as in
+  # every other test (see `is_decidable_n_items()`):
+  sums <- if (
+    is.infinite(x_num) || is.na(digits_x) || !is_decidable_n_items(n, items)
+  ) {
     c(NA_real_, NA_real_)
   } else {
     sum_range(

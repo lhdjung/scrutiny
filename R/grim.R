@@ -34,6 +34,11 @@ grim_scalar <- function(
 
   check_type(items, c("double", "integer"))
   check_type(percent, "logical")
+  # A missing `n` is undecidable, but a string is a mistake: comparing it with
+  # numbers used to make the verdict an unexplained `NA`.
+  if (!is.numeric(n) && !is.na(n)) {
+    check_type(n, c("double", "integer"))
+  }
 
   if (missing(digits_x)) {
     error_digits_missing(x)

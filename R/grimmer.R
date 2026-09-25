@@ -93,6 +93,10 @@ grimmer_scalar <- function(
   tolerance = .Machine$double.eps^0.5
 ) {
   check_type(items, c("double", "integer"))
+  # See `grim_scalar()`:
+  if (!is.numeric(n) && !is.na(n)) {
+    check_type(n, c("double", "integer"))
+  }
   has_scale <- check_scale_bounds(min_val, max_val)
 
   if (missing(digits_x)) {
@@ -131,6 +135,26 @@ grimmer_scalar <- function(
     return(NA)
   }
 
+  # GRIMMER inherits GRIM's requirement that `n` and `items` be positive whole
+  # numbers, and adds `min_n = 2`: it reconstructs a *sample* SD, so it divides
+  # by `n - 1`. This comes before the scale bounds, which can only turn a `TRUE`
+  # verdict into `FALSE`, not an undecidable case into a decided one.
+  if (!is_decidable_n_items(n, items, min_n = 2)) {
+    if (show_reason) {
+      return(list(NA, "No testable value set"))
+    }
+    return(NA)
+  }
+
+  # No data set has a negative SD, so no data set has this one. Squaring it
+  # below would hide that.
+  if (sd < 0) {
+    if (show_reason) {
+      return(list(FALSE, "Negative SD"))
+    }
+    return(FALSE)
+  }
+
   # With the bounds known, a mean outside of them is inconsistent before any
   # reconstruction: no set of values within the range has it.
   if (has_scale && (x < min_val || x > max_val)) {
@@ -138,16 +162,6 @@ grimmer_scalar <- function(
       return(list(FALSE, "Mean out of scale range"))
     }
     return(FALSE)
-  }
-
-  # GRIMMER inherits GRIM's requirement that `n` and `items` be positive whole
-  # numbers, and adds `min_n = 2`: it reconstructs a *sample* SD, so it divides
-  # by `n - 1`.
-  if (!is_decidable_n_items(n, items, min_n = 2)) {
-    if (show_reason) {
-      return(list(NA, "No testable value set"))
-    }
-    return(NA)
   }
 
   n_items <- n * items

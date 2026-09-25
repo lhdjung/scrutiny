@@ -284,3 +284,12 @@ test_that("`grim(tolerance = )` is deprecated", {
   # `debit()` has no such argument at all:
   expect_false("tolerance" %in% names(formals(debit)))
 })
+
+
+test_that("a string `n` is an error, not an unexplained `NA`", {
+  expect_error(grim(5.19, "28", 2), "`n` must be one of these types")
+  tibble::tibble(x = 5.19, n = "28") |>
+    grim_map(digits_x = 2) |>
+    expect_error("`n` must be one of these types")
+  expect_true(is.na(grim(5.19, NA, 2)))
+})

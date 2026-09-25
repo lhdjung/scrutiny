@@ -1053,3 +1053,19 @@ test_that("an `n` too large to enumerate is an error, not a hang", {
   grimmer(x = 5.19, sd = 2.5, n = 1e6, digits_x = 2, digits_sd = 2) |>
     expect_type("logical")
 })
+
+
+# The scale bounds used to be checked before `n`, so they turned an undecidable
+# case into an inconsistent one.
+test_that("scale bounds don't decide a case with an untestable `n`", {
+  expect_true(is.na(grimmer(6, 0, 1, 0, 0, min_val = 1, max_val = 5)))
+  expect_true(is.na(grimmer(6, 0, 20.5, 0, 0, min_val = 1, max_val = 5)))
+})
+
+test_that("a negative SD is inconsistent, and says why", {
+  expect_false(grimmer(5, -0.5, 10, 2, 2))
+  expect_equal(
+    grimmer_scalar(5, -0.5, 10, 2, 2, show_reason = TRUE),
+    list(FALSE, "Negative SD")
+  )
+})

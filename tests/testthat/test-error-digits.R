@@ -104,3 +104,18 @@ test_that("`digits_*` below the decimal places of `x` is an error", {
     msg_error() |>
     expect_match("More decimal places than specified digits", fixed = TRUE)
 })
+
+
+test_that("an infinite `digits_*` value is rejected clearly", {
+  expect_error(grim(5.19, 28, Inf), "must be a single, whole number")
+  expect_error(grimmer(5.19, 1.2, 28, 2, Inf), "must be a single, whole number")
+})
+
+test_that("the missing-`digits_sd` example is a working call", {
+  expect_error(
+    grimmer(5.19, 1.2, 28, digits_x = 2),
+    "digits_sd = 2, digits_x = 2",
+    fixed = TRUE
+  ) |>
+    suppressMessages()
+})

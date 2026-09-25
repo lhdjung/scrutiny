@@ -120,3 +120,11 @@ test_that("`digits_x` is required, with the bespoke error message", {
   5.19 |> grim_values(28)  |> suppressMessages() |> expect_error("digits_x")
   5.19 |> grim_closest(28) |> suppressMessages() |> expect_error("digits_x")
 })
+
+
+test_that("`grim_values()` and `grim_closest()` are undecidable where `grim()` is", {
+  expect_true(is.na(grim(5.19, 20.5, 2)))
+  expect_equal(grim_values(5.19, 20.5, 2), list(NA_real_))
+  expect_equal(grim_closest(5.19, 20.5, 2), NA_real_)
+  expect_equal(grim_values(5.19, 28, 2, items = 1.5), list(NA_real_))
+})

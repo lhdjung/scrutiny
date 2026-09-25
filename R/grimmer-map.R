@@ -63,6 +63,9 @@
 #' inconsistent (scale range)"` for a value set whose `sd` no sample within the
 #' scale could have produced.
 #'
+#' A negative `sd` is inconsistent with the reason `"Negative SD"`, since no
+#' sample has one.
+#'
 #' The tibble has the `scrutiny_grimmer_map` class, which is recognized by the
 #' [`audit()`] generic. [`grim_plot()`] recognizes it as well, so GRIMMER
 #' results can be visualized just like GRIM results.

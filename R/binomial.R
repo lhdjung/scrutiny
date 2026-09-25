@@ -16,8 +16,9 @@
 #'   [`grim_map()`] or [`grim_map_seq()`].
 #' @param alternative String (length 1). One of `"greater"`, `"less"`, and
 #'   `"two.sided"`. Default is `"greater"`; see details.
-#' @param conf.level Numeric (length 1). Confidence level for the confidence
-#'   interval in the output. Default is `0.95`.
+#' @param conf.level Numeric (length 1). Only returned as the `conf.level`
+#'   column, in the style of other test tables; no confidence interval is
+#'   computed. Default is `0.95`.
 #'
 #' @details This conducts a one-tailed test by default (`alternative =
 #'   "greater"`). The idea is to assess whether more means are GRIM-consistent
@@ -74,6 +75,15 @@ grim_binomial <- function(
 
   n_consistent <- sum(data$consistency)
   n_cases <- nrow(data)
+
+  # `poibin::ppoibin()` crashes the R session when given no probabilities:
+  if (n_cases == 0L) {
+    cli::cli_abort(c(
+      "No value sets to test.",
+      "x" = "`data` has no rows with a GRIM verdict and a probability.",
+      "i" = "Rows whose consistency or probability is `NA` are left out."
+    ))
+  }
 
   # Per-row probability of consistency under the null (random decimal digits)
   pp <- 1 - data$probability
@@ -161,6 +171,14 @@ grim_binomial_power <- function(
     p0 <- rep(p0, k)
   } else {
     k <- length(p0)
+  }
+
+  # `poibin::ppoibin()` crashes the R session when given no probabilities:
+  if (length(p0) == 0L || !is_whole_number(k) || k < 1) {
+    cli::cli_abort(c(
+      "There must be at least one value set.",
+      "x" = "`k` is {k}, and `p0` has length {length(p0)}."
+    ))
   }
 
   # All possible numbers of consistent cases, from 0 to `k`

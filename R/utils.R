@@ -395,7 +395,11 @@ check_newly_numeric <- function(
     return(invisible(NULL))
   }
 
-  if (digits < 0 || abs(digits - round(digits)) >= WHOLE_NUMBER_TOLERANCE) {
+  if (
+    !is.finite(digits) ||
+      digits < 0 ||
+      abs(digits - round(digits)) >= WHOLE_NUMBER_TOLERANCE
+  ) {
     name <- deparse(substitute(digits))
     error_digits_flawed(digits, name, 4)
   }
@@ -588,7 +592,7 @@ error_digits_missing <- function(x) {
     part_sd <- ", sd = 0.62"
     # ...but not twice if `digits_sd` is the argument that is missing:
     part_digits_sd <- if (name_digits_arg == "digits_sd") {
-      NULL
+      ", digits_x = 2"
     } else {
       ", digits_sd = 2"
     }
