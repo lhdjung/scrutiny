@@ -4,15 +4,16 @@
 \alias{absorb_key_args}
 \title{Absorb key arguments from the user's call}
 \usage{
-absorb_key_args(data, reported, key_cols_call)
+absorb_key_args(data, reported, key_cols_call = NULL)
 }
 \arguments{
 \item{data}{User-supplied data frame.}
 
 \item{reported}{String. Names of the key arguments.}
 
-\item{key_cols_call}{User-provided arguments named after one or more key
-columns.}
+\item{key_cols_call}{Optionally, a named character vector that maps key
+argument names to the columns of \code{data} they stand for, such as \code{c(x = "mean")}. By default, it is read from the key arguments of the function
+that calls \code{absorb_key_args()}.}
 }
 \value{
 Data frame \code{data}, possibly with one or more columns renamed.

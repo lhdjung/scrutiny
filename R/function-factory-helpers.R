@@ -11,8 +11,10 @@
 #'   identified.
 #'
 #' @param data Data frame passed to the factory-made function.
-#' @param key_cols_call User-provided arguments named after one or more key
-#'   columns.
+#' @param key_cols_call Optionally, a named character vector that maps key
+#'   argument names to the columns of `data` they stand for, such as `c(x =
+#'   "mean")`. By default, it is read from the key arguments of the function
+#'   that calls `absorb_key_args()`.
 #' @param key_cols_missing,key_cols_call_names String. Vectors with names of the
 #'   key columns that are missing in `data` or that were provided by the user as
 #'   arguments, respectively.
@@ -447,8 +449,10 @@ check_variadic_cols <- function(index, data, spoken_for, name) {
 #'
 #' @param data User-supplied data frame.
 #' @param reported String. Names of the key arguments.
-#' @param key_cols_call User-provided arguments named after one or more key
-#'   columns.
+#' @param key_cols_call Optionally, a named character vector that maps key
+#'   argument names to the columns of `data` they stand for, such as `c(x =
+#'   "mean")`. By default, it is read from the key arguments of the function
+#'   that calls `absorb_key_args()`.
 #'
 #' @export
 #'
@@ -460,7 +464,41 @@ check_variadic_cols <- function(index, data, spoken_for, name) {
 #' # the function in very specific places
 #' data <- grim_map(pigs1, digits_x = 2)
 #' data <- absorb_key_args(data, c("x", "n"))
-absorb_key_args <- function(data, reported, key_cols_call) {
+absorb_key_args <- function(data, reported, key_cols_call = NULL) {
+  # The values of the key arguments are read in the frame of the factory-made
+  # function, not off its call: the call is `FUN(X[[i]], ...)` if the function
+  # was reached through `lapply()`, and names a variable rather than its value
+  # if it was called from within another function.
+  if (is.null(key_cols_call)) {
+    fn_caller <- rlang::caller_fn()
+    key_cols_call <- if (is.function(fn_caller)) {
+      capture_key_args(
+        data = data,
+        reported = intersect(reported, names(formals(fn_caller))),
+        env = rlang::caller_env()
+      )
+    } else {
+      character()
+    }
+  }
+
+  # A key argument pointing at the column that already has its name is a no-op:
+  key_cols_call <- key_cols_call[key_cols_call != names(key_cols_call)]
+
+  # A column by the key argument's own name would be tested instead of the one
+  # the argument points to, which is not what the user asked for:
+  key_cols_clash <- names(key_cols_call)[names(key_cols_call) %in% colnames(data)]
+  if (length(key_cols_clash) > 0L) {
+    name_arg <- key_cols_clash[[1L]]
+    name_col <- key_cols_call[[name_arg]]
+    cli::cli_abort(c(
+      "`{name_arg}` was specified as {.val {name_col}}, but `data` \\
+      already has a `{name_arg}` column.",
+      "x" = "It is unclear which of the two columns should be tested.",
+      "i" = "Rename or remove the `{name_arg}` column first."
+    ))
+  }
+
   key_cols_missing <- reported[!reported %in% colnames(data)]
   key_cols_missing <- as.character(key_cols_missing)
 
@@ -471,38 +509,63 @@ absorb_key_args <- function(data, reported, key_cols_call) {
   }
 
   names(key_cols_missing) <- key_cols_missing
-
-  # Extract the expressions supplied by the factory-made function's user as
-  # values of the arguments that are named after `reported`. Coerce them to
-  # string because they will be needed as column names:
-  key_cols_call <- as.list(rlang::caller_call())
   key_cols_call <- key_cols_call[names(key_cols_call) %in% key_cols_missing]
   key_cols_call_names <- names(key_cols_call)
-  key_cols_call <- as.character(key_cols_call)
-  names(key_cols_call) <- key_cols_call_names
 
   # Run specialized checks on the code supplied by the factory-made
   # function's user to the subsequently inserted key argument parameters:
   check_factory_key_args_values(data, key_cols_call)
   check_factory_key_args_names(key_cols_missing, key_cols_call_names)
 
-  # Gather `data` in a list along with the context about columns and column
-  # names. Map over that list to replace actual column names by the
-  # corresponding missing names for which they stand in. This produces a list of
-  # as many one-column tibbles as there are such pairs of one actual name and
-  # one required name. Bind all of them into one tibble. Finally, add those
-  # columns that were not part of the renaming, and return.
-  list(
-    data = list(data),
-    name_missing = names(key_cols_missing),
-    name_call = key_cols_call
-  ) |>
-    purrr::pmap(function(data, name_missing, name_call) {
-      colnames(data)[colnames(data) == name_call] <- name_missing
-      data[name_missing]
-    }) |>
-    purrr::list_cbind() |>
-    dplyr::bind_cols(data[!colnames(data) %in% key_cols_call])
+  # Replace the actual column names by the missing names for which they stand
+  # in, then move the renamed columns to the front, as they are key columns:
+  index <- match(key_cols_call, colnames(data))
+  colnames(data)[index] <- key_cols_call_names
+  dplyr::relocate(data, dplyr::all_of(unname(key_cols_missing)))
+}
+
+
+# Read the key arguments `reported` -- which must be arguments -- of the
+# factory-made function whose frame is `env`, as a
+# named character vector of column names. An argument that is `NULL`, i.e., not
+# specified, is left out. A bare name is taken as a column name if `data` has
+# such a column; otherwise, if it is a variable holding a string, as that
+# string. Any other expression must evaluate to a single string.
+capture_key_args <- function(data, reported, env) {
+  out <- character()
+  for (name in reported) {
+    quo <- eval(rlang::call2(rlang::enquo, rlang::sym(name)), envir = env)
+    if (rlang::quo_is_null(quo)) {
+      next
+    }
+    expr <- rlang::quo_get_expr(quo)
+    value <- if (rlang::is_symbol(expr)) {
+      value_sym <- rlang::as_string(expr)
+      value_var <- rlang::env_get(
+        rlang::quo_get_env(quo),
+        value_sym,
+        default = NULL,
+        inherit = TRUE
+      )
+      if (!any(value_sym == colnames(data)) && rlang::is_string(value_var)) {
+        value_var
+      } else {
+        value_sym
+      }
+    } else {
+      rlang::eval_tidy(quo)
+    }
+    if (!rlang::is_string(value)) {
+      cli::cli_abort(c(
+        "The `{name}` argument must be a column name.",
+        "x" = "It is {.obj_type_friendly {value}}.",
+        "i" = "Specify it as a string, like `{name} = \"my_col\"`, or as a \\
+        bare column name."
+      ))
+    }
+    out[[name]] <- value
+  }
+  out
 }
 
 

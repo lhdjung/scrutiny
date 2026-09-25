@@ -725,3 +725,24 @@ test_that("a mapper's argument errors are not wrapped in `pmap()` context", {
   expect_match(msg, "digits_x")
   expect_false(grepl("In index", msg, fixed = TRUE))
 })
+
+
+# `absorb_key_args()` used to read the key arguments off the unevaluated call,
+# where `lapply()` shows `FUN(X[[i]], ...)` and a wrapper shows a variable name.
+test_that("key arguments work when the mapper is called indirectly", {
+  d <- tibble::tibble(mean = c(5.19, 5.2), n = c(28, 30))
+  expected <- grim_map(d, digits_x = 2, x = mean)
+  expect_equal(lapply(list(d), grim_map, digits_x = 2, x = "mean")[[1L]], expected)
+  expect_equal(purrr::map(list(d), grim_map, digits_x = 2, x = "mean")[[1L]], expected)
+  wrapper <- function(data, col) grim_map(data, digits_x = 2, x = col)
+  expect_equal(wrapper(d, "mean"), expected)
+  expect_equal(grim_map_seq(d, digits_x = 2, x = mean)$x[1L], 5.14)
+})
+
+# It also ignored a key argument whenever `data` had a column of that name, and
+# tested that column instead.
+test_that("a key argument clashing with an existing column is an error", {
+  d <- tibble::tibble(x = c(1.11, 2.22), mean = c(5.19, 5.2), n = c(28, 30))
+  expect_error(grim_map(d, digits_x = 2, x = mean), "already has a `x` column")
+  expect_equal(grim_map(d, digits_x = 2, x = x), grim_map(d, digits_x = 2))
+})
