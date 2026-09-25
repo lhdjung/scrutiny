@@ -80,13 +80,15 @@ df3_percent_true <- grim_map(
 
 df3_percent_false <- grim_map(df3, digits_x = 0, show_rec = TRUE)
 
-percent_probabilities_greater <-
-  df3_percent_true$probability > df3_percent_false$probability
-
+# Two more decimal places can only rule out more values, not fewer. Not always
+# strictly more: with `n = 80`, every mean with two decimal places is consistent
+# under `"up_or_down"`, since ties are admitted toward both neighbors.
 test_that(
-  "The probability of GRIM inconsistency is always greater
+  "The probability of GRIM inconsistency is never smaller
   with `percent = TRUE` than without it", {
-    percent_probabilities_greater |> all() |> expect_true()
+    (df3_percent_true$probability >= df3_percent_false$probability) |>
+      all() |>
+      expect_true()
 })
 
 

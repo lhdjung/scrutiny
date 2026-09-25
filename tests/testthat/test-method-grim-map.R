@@ -11,8 +11,10 @@ audit_pigs1_exp <- tibble::tibble(
   incons_cases = 8L,
   all_cases = 12L,
   incons_rate = 0.6666666666666666,
-  mean_grim_prob = 0.7241666666666666,
-  incons_to_prob = 0.9205983889528193,
+  # Rows 1 and 4 have `n = 32` and `24`. Their means fall on rounding ties at
+  # some values, which `"up_or_down"` admits in both directions:
+  mean_grim_prob = 0.7175,
+  incons_to_prob = 0.9291521486643437,
   testable_cases = 12L,
   testable_rate = 1,
 )

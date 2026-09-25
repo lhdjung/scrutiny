@@ -152,35 +152,7 @@ df2_rows_1_3_expected <- tibble::tibble(
     c(FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE),
     c(2L, 2L, 6L, 2L, 16L, 2L, 18L)
   ),
-  probability = rep(
-    c(
-      0.55,
-      0.55,
-      0.56,
-      0.54,
-      0.57,
-      0.53,
-      0.58,
-      0.52,
-      0.59,
-      0.51,
-      0.6,
-      0.5,
-      0.49,
-      0.48,
-      0.5,
-      0.47,
-      0.51,
-      0.46,
-      0.52,
-      0.45,
-      0.53,
-      0.44,
-      0.54,
-      0.43
-    ),
-    2
-  ),
+  probability = grim_probability(x, n, 2),
   case = rep(rep(1:2, 2), each = 12L),
   dir = factor(
     rep(c("forth", "back"), each = 24L),

@@ -42,6 +42,8 @@
 
 - `duplicate_count_colpair()` now requires data frames to have two or more columns. These are the only data frames for which the function makes sense.
 
+- The `probability` column of `grim_map()`, and `grim_probability()` and `grim_total()` themselves, are now exact for the rounding method in use, which they take as new `rounding` and `threshold` arguments. The formula `(10^D - N * L) / 10^D` only holds for methods that map a single unrounded range one step wide to each reported value. The default, `"up_or_down"`, admits a mean on a tie toward both neighbors, so whenever `N * L / gcd(N * L, 10^D)` is even the formula overstated the probability: `n = 40` with two decimal places is `0.4`, not `0.6`. `"ceiling_or_floor"` admits a range two steps wide, which the formula ignored altogether. `grim_binomial()` builds its null from this column, so its p-values change accordingly. Both functions now also return `NA` for a missing or infinite `x`, as `grim()` does, and `grim_total()` is floored at 0.
+
 - `*_map_seq()` output now numbers each `case` by its row in the input data. It used to count only the inconsistent rows that were dispersed, so `case` could not be joined back to the data.
 
 - `*_map_seq()` functions called with `items` now return `n` as the sample size, followed by an `items` column, and disperse `n` in steps of one person. They used to disperse the product `n * items` and re-test it with `items = 1`. That was only a cosmetic problem for GRIM, but it made `grimmer_map_seq()` wrong: GRIMMER uses `n` and `items` separately, so even the reported value set could come out inconsistent in the sequence while `grimmer_map()` found it consistent.

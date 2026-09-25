@@ -7,11 +7,27 @@
 \alias{grim_total}
 \title{Possible GRIM inconsistencies}
 \usage{
-grim_probability(x, n, digits_x, items = 1, percent = FALSE)
+grim_probability(
+  x,
+  n,
+  digits_x,
+  items = 1,
+  percent = FALSE,
+  rounding = "up_or_down",
+  threshold = 5
+)
 
 grim_ratio(x, n, digits_x, items = 1, percent = FALSE)
 
-grim_total(x, n, digits_x, items = 1, percent = FALSE)
+grim_total(
+  x,
+  n,
+  digits_x,
+  items = 1,
+  percent = FALSE,
+  rounding = "up_or_down",
+  threshold = 5
+)
 }
 \arguments{
 \item{x}{Numeric. Mean or percentage value computed from data with integer
@@ -32,11 +48,21 @@ in question. Default is \code{1}.}
 \item{percent}{Logical. Set \code{percent} to \code{TRUE} if \code{x} is expressed as a
 proportion of 100 rather than 1. The functions will then account for this
 fact through increasing the decimal count by 2. Default is \code{FALSE}.}
+
+\item{rounding, threshold}{Rounding method and, for \code{"up_from"} and similar
+methods, its threshold, as in \code{\link[=grim]{grim()}}. Only in \code{grim_probability()} and
+\code{grim_total()}. Defaults are \code{"up_or_down"} and \code{5}. The count depends on
+the method: \code{"ceiling_or_floor"} admits a range two decimal units wide, so
+it rules out fewer values; \code{"up_or_down"} and other methods that admit both
+ends of their range count a mean that lands exactly on a tie toward both
+neighbors. \code{\link[=grim_map]{grim_map()}} passes its own \code{rounding} and \code{threshold} on.}
 }
 \value{
 Double. The number of possible GRIM inconsistencies, or their
 probability for a random mean or percentage with a given number of decimal
-places.
+places. \code{grim_probability()} and \code{grim_total()} return \code{NA} where \code{\link[=grim]{grim()}}
+does for lack of a decidable case: if \code{x} is missing or infinite, or if \code{n}
+or \code{items} is not a positive whole number. They are never negative.
 }
 \description{
 These functions compute statistics related to GRIM-testing. In
@@ -48,10 +74,11 @@ responsible for the \code{probability} column in a data frame returned by
 percentage of integer data that is random except for the number of its
 decimal places is inconsistent with the reported sample size. For example,
 the mean 1.23 is treated like any other mean with two decimal places.
-\item \code{grim_ratio()} is equal to \code{grim_probability()} unless \code{grim_ratio()} is
-negative, which can occur if the sample size is very large. Strictly
-speaking, this is more informative than \code{grim_probability()}, but it is
-harder to interpret.
+\item \code{grim_ratio()} is the raw formula \code{(10^digits_x - n * items) /   10^digits_x}. It equals \code{grim_probability()} for rounding methods that
+admit exactly one step, such as \code{"up"}, unless \code{grim_ratio()} is negative,
+which can occur if the sample size is very large. Strictly speaking, this
+is more informative than \code{grim_probability()}, but it is harder to
+interpret. It takes no \code{rounding} argument and does not check its input.
 \item \code{grim_total()} returns the absolute number of GRIM-inconsistencies that
 are possible given the mean or percentage's number of decimal places and
 the corresponding sample size.

@@ -556,11 +556,10 @@ test_that("`.cols_derived` computes columns the test function never returns", {
       "rec_sum", "sum_lower", "sum_upper", "rec_x_upper", "rec_x_lower"
     ))
 
-  # The derived function only gets the arguments it has formals for.
-  # `grim_probability()` has no `rounding`, but `grim_scalar()` does, and
-  # `items` and `percent` must reach it:
+  # The derived function only gets the arguments it has formals for, and
+  # `rounding`, `items`, and `percent` must reach it:
   grim_map(pigs1, digits_x = 2, rounding = "ceiling")$probability |>
-    expect_equal(out$probability)
+    expect_equal(grim_probability(pigs1$x, pigs1$n, 2, rounding = "ceiling"))
   grim_map(pigs1, digits_x = 2, items = 2)$probability |>
     expect_equal(grim_probability(pigs1$x, pigs1$n, 2, items = 2))
   grim_map(pigs2, digits_x = 1, percent = TRUE)$probability |>

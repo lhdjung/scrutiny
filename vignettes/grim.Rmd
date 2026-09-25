@@ -387,17 +387,24 @@ This example only features one case --- the `df` tibble has just a single row. I
 
 #### General description
 
-The `probability` column in a tibble returned by `grim_map()` is the probability of GRIM inconsistency, i.e.:
+The `probability` column in a tibble returned by `grim_map()` is the probability of GRIM inconsistency. Simplifying somewhat, this is
 
 $$
 P = max(0, \frac{10^D - NL}{10^D})
 $$
 
-where $D$ is the number of decimal places in $X$ (the mean or proportion), $N$ is the sample size, and $L$ is the number of scale items. The fraction will never be greater than 1, and the $max()$ function limits it at 0.
+where $D$ is the number of decimal places in the mean or proportion, $N$ is the sample size, and $L$ is the number of scale items. The fraction will never be greater than 1, and the $max()$ function gives its result a lower bound at 0.
 
-Consider a mean $X$ that was ostensibly derived from integer data. It has $D$ decimal places, but is otherwise random: the integer part is irrelevant in any case, and the exact digits that occupy the $D$ decimal places are ignored. $P$, then, is the probability that $X$ is GRIM-inconsistent. Naturally, $P$ is also the proportion of inconsistent value sets with $D$ decimal places, a sample size of $N$, and $L$ scale items.
+Consider a mean $X$ that was ostensibly derived from integer data. It has $D$ decimal places, but is otherwise random: the integer part is irrelevant in any case, and the exact digits that occupy the $D$ decimal places are ignored. $P$, then, is the probability that $X$ is GRIM-inconsistent. Naturally, $P$ is also the proportion of inconsistent value sets with $D$ decimal places, a sample size of $N$, and $L$ scale items. (Note that this description ignores specific rounding methods, as explained in the next section.)
 
 In real-world scenarios, one would not usually assume $X$ to be random at the outset of an investigation, but this can be interesting as a contrasting assumption. If a study has many GRIM-inconsistent value sets with very high probabilities of inconsistency, it may suggest that the anomalies are not explained by small deviations from true values (although `grim_map_seq()` is more informative on this point). Rather, such a finding could raise concerns that these statistics did not come about as part of a regular research process.
+
+
+#### Interactions with rounding
+
+The above formula is only exact for rounding methods that map exactly one unrounded range of width $10^{-D}$ to each reported value, such as `"up"` or `"down"`. However, even scrutiny's default `rounding` method, `"up_or_down"`, is more lenient than that: if a mean lands exactly on a tie such as 0.25, this default will check both neighboring values (0.2 and 0.3) and count the inputs as consistent if they work out with either of these. Also, `"ceiling_or_floor"` allows for a range that is twice as wide.
+
+`grim_probability()` and `grim_total()` therefore take `rounding` and `threshold` arguments, and count exactly the values that `grim()` would find inconsistent under these conditions. Tibble-level GRIM functions, such as `grim_map()`, pass their own `rounding` down to the same implementation `grim()` relies on. With `"up_or_down"`, the result differs from the formula whenever $NL / gcd(NL, 10^D)$ is even --- e.g., $N = 40$ with $D = 2$ gives $0.4$, not $0.6$, because every other one of the 40 possible means is a tie.
 
 #### Functions
 
@@ -413,7 +420,7 @@ grim_probability(x = 84.27, n = 40, digits_x = 2, percent = TRUE)
 
 `grim_map()` displays a `probability` column that shows the probability of GRIM inconsistency. It is derived using `grim_probability()`.
 
-In addition, `grim_total()` takes the same arguments but returns only the numerator of the fraction in the above formula:
+In addition, `grim_total()` takes the same arguments but returns only the numerator of the fraction, i.e., the number of inconsistent values per unit:
 
 ```{r}
 grim_total(x = 1.40, n = 72, digits_x = 2)
@@ -427,7 +434,7 @@ The result is the total number of GRIM-inconsistent value sets with the given pa
 
 #### Origins
 
-The formula for the probability of GRIM inconsistency is arguably implicit in Brown and Heathers' (2017) paper on GRIM. The numerator is a transformation of the formula presented on p. 364, and the authors discuss a common special case of the probability (interpreted as a proportion) on p. 367:
+The simplified formula for the probability of GRIM inconsistency is arguably implicit in Brown and Heathers' (2017) paper on GRIM. The numerator is a transformation of the formula presented on p. 364, and the authors discuss a common special case of the probability (interpreted as a proportion) on p. 367:
 
 > With reporting to two decimal places, for a sample size $N < 100$ [and a single item], a random mean value will be consistent in approximately $N$% of cases.
 
@@ -437,7 +444,7 @@ $$
 max(0, \frac{10^2-70×1}{10^2}) = 0.3
 $$
 
-so that a random mean will be inconsistent in about 30% of cases and, conversely, consistent in about 70%.
+so that a random mean will be inconsistent in about 30% of cases and, conversely, consistent in about 70%. Rounding is not relevant in this example if we assume standard methods.
 
 Here is the same in code (assuming an arbitrary mean with two decimal places):
 
