@@ -55,7 +55,11 @@
 #'   and rate of times that a difference could not be computed because of a lack
 #'   of corresponding hits within the `dispersion` range.
 
-#' @return A tibble (data frame) with detailed test results.
+#' @return A tibble (data frame) with detailed test results. `diff_var` is the
+#'   number of steps between the tested value and the reported one, `case` the
+#'   row number of the reported value set in `data`, and `var` the dispersed
+#'   variable. If `items` was specified, it is a column of its own, and `n` is
+#'   the sample size before multiplying the two.
 
 #' @include grim-map.R
 

@@ -46,7 +46,9 @@
 #'   `.cols_helper` names with the names of the `.reported` columns they are
 #'   multiplied into for the output, such as `c(items = "n")`. Such a helper
 #'   column is not returned by itself. This is presentation only; it does not
-#'   affect test results.
+#'   affect test results. Sequence mappers made by [`function_map_seq()`] undo
+#'   the merge, since they disperse and re-test the reported values, and return
+#'   such a helper as a column of its own.
 #' @param .col_names Optionally, a string vector with the names of the columns
 #'   that the `*_scalar()` function returns when asked to show its reconstructed
 #'   values. The name of the key result column must come first. Whether the
@@ -730,6 +732,12 @@ function_map <- function(
   # such an argument a second time. `function_map_seq()` consults this attribute
   # when it re-tests dispersed values:
   attr(fn_out, "scrutiny_args_helper") <- args_helper
+
+  # The key columns that helpers are multiplied into, such as `c(items = "n")`.
+  # A merged column is a product, and a test like GRIMMER needs its factors
+  # separately, so `function_map_seq()` has to undo the merge to re-test:
+  attr(fn_out, "scrutiny_cols_helper_merge") <-
+    .cols_helper_merge[names(.cols_helper_merge) %in% args_helper]
 
   fn_out
 }

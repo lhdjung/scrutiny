@@ -203,8 +203,8 @@ audit_seq <- function(data) {
 
   # The `*_map_seq()` output records the arguments that reproduce the test: the
   # `digits_*` values and everything the user passed through the dots, minus
-  # helper arguments such as `items`, whose effect is already baked into the key
-  # columns. Replaying them keeps the re-test below faithful to the original
+  # helper arguments such as `items`, which are columns of the output, and so of
+  # the reconstructed data. Replaying them keeps the re-test below faithful to the original
   # call. Arguments like `percent`, `threshold`, `symmetric`, or GRIMMER's scale
   # bounds change verdicts but leave no trace in the output columns, so they
   # used to be silently dropped here, which could flip `consistency`:

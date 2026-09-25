@@ -15,6 +15,7 @@ function_map_seq_proto <- function(
   .out_max = out_max,
   .include_reported = include_reported,
   .name_key_result = "consistency",
+  .helper_merge = NULL,
   ...
 ) {
   # --- Start of the manufactured helper (!) function ---
@@ -28,6 +29,8 @@ function_map_seq_proto <- function(
     out_max = .out_max,
     include_reported = .include_reported,
     name_key_result = .name_key_result,
+    helper_merge = .helper_merge,
+    cases = seq_len(nrow(data)),
     ...
   ) {
     # The step size has to come from the caller's `digits_*` argument for the
@@ -62,7 +65,6 @@ function_map_seq_proto <- function(
     }
 
     nrow_list_var <- vapply(df_var, nrow, integer(1L), USE.NAMES = FALSE)
-    nrow_data_seq <- seq_along(nrow_list_var)
 
     # Combine the list elements to one single data frame with `var`, `diff_var`,
     # and `case`:
@@ -84,8 +86,8 @@ function_map_seq_proto <- function(
     # sequences (via list-columns, immediately unnested), insert the dispersed
     # `var` at its original position, test the result with `fun()`, and add
     # `diff_var` -- the distance from the reported value -- and `case`, the row
-    # number of the reported `var` value in `data`.
-    data[cols_for_testing_names_without_var] |>
+    # number of the reported `var` value in the mapper's input.
+    data_seq <- data[cols_for_testing_names_without_var] |>
       dplyr::mutate(dplyr::across(
         .cols = {{ cols_except_last }},
         .fns = function(x) purrr::map2(x, nrow_list_var, rep)
@@ -94,15 +96,25 @@ function_map_seq_proto <- function(
       dplyr::mutate(
         {{ var }} := df_var[[1L]],
         .before = all_of(match(var, colnames(data)))
-      ) |>
-      fun(...) |>
-      dplyr::mutate(
-        diff_var = df_var$diff_var,
-        case = purrr::list_c(
-          purrr::map2(nrow_data_seq, nrow_list_var, rep),
-          ptype = integer()
-        )
       )
+
+    out <- fun(data_seq, ...)
+
+    # `fun()` multiplies helpers such as `items` into their key column, but the
+    # output must keep them apart, as they came in: `audit_seq()` re-tests it,
+    # and GRIMMER, for one, needs `n` and `items` separately.
+    for (.name in intersect(names(helper_merge), colnames(data_seq))) {
+      .target <- helper_merge[[.name]]
+      out[[.target]] <- data_seq[[.target]]
+      out[[.name]] <- data_seq[[.name]]
+      out <- dplyr::relocate(out, all_of(.name), .after = all_of(.target))
+    }
+
+    dplyr::mutate(
+      out,
+      diff_var = df_var$diff_var,
+      case = rep(as.integer(cases), nrow_list_var)
+    )
   }
 
   # --- End of the manufactured helper (!) function ---
@@ -287,12 +299,16 @@ function_map_seq <- function(
 
   name_fun <- deparse(substitute(.fun))
 
-  # Helper-column arguments of `.fun`, such as `items` in `grim_map()`. Their
-  # effect is baked into the mapper's output -- `items` is multiplied into the
-  # `n` column -- so the re-tests of dispersed values below must not apply them
-  # a second time. `function_map()` records them on the mappers it creates; a
-  # handwritten mapper has nothing to record, and the attribute is `NULL`:
+  # Helper-column arguments of `.fun`, such as `items` in `grim_map()`, and the
+  # key columns that `.fun` multiplies them into. The re-tests of dispersed
+  # values below take the helpers as columns of the data they test, so they
+  # must not also get them as arguments. `function_map()` records both on the
+  # mappers it creates; a handwritten mapper has nothing to record, and the
+  # attributes are `NULL`:
   args_helper_fun <- attr(.fun, "scrutiny_args_helper", exact = TRUE)
+  helper_merge_fun <- as.list(
+    attr(.fun, "scrutiny_cols_helper_merge", exact = TRUE)
+  )
 
   # An `n` key column holds whole numbers, so coerce it to integer for better
   # display. Only if there is one, though:
@@ -393,8 +409,38 @@ function_map_seq <- function(
       # message instead of reporting what is wrong.
       check_mapper_input_colnames(data, reported, name_test, name_key_result)
 
+      # Helpers that `fun()` multiplies into a key column, such as `items` into
+      # `n`. Their values are kept here, alongside the key column's, so that the
+      # merge can be undone below. `fun()` returns one row per row of `data`.
+      helper_merge <- `!!`(helper_merge_fun)
+      .helper_vals <- list()
+      .target_vals <- list()
+      for (.name in names(helper_merge)) {
+        .vals <- list(...)[[.name]]
+        if (is.null(.vals)) {
+          .vals <- data[[.name]]
+        }
+        if (!is.null(.vals)) {
+          .helper_vals[[.name]] <- rep_len(.vals, nrow(data))
+          .target_vals[[helper_merge[[.name]]]] <- data[[helper_merge[[.name]]]]
+        }
+      }
+
       # First, basic testing with the `*_map()` function:
       data <- do.call(fun, c(list(data), .digits_vals, list(...)))
+
+      # Undo the merge: the dispersed values are re-tested below with each
+      # helper as a column of its own, and `n` is dispersed as the sample size
+      # it is, not as its product with `items`:
+      for (.name in names(.helper_vals)) {
+        .target <- helper_merge[[.name]]
+        data[[.target]] <- .target_vals[[.target]]
+        data[[.name]] <- .helper_vals[[.name]]
+        data <- dplyr::relocate(data, all_of(.name), .after = all_of(.target))
+      }
+
+      # The row numbers of the cases, before any are filtered out:
+      .cases <- seq_len(nrow(data))
 
       # Everything below reads the key result column off `fun()`'s output by
       # name, so mapper and sequence mapper must have been created with the same
@@ -406,7 +452,8 @@ function_map_seq <- function(
       # undecided case would return a row of `NA`s, with no values to disperse.
       # It is dropped instead, not being an inconsistent case.
       if (!include_consistent) {
-        data <- data[which(!data[[name_key_result]]), ]
+        .cases <- which(!data[[name_key_result]])
+        data <- data[.cases, ]
       }
 
       # As `var` is `Inf` by default, it must be referred to the names of
@@ -426,6 +473,7 @@ function_map_seq <- function(
         .out_max = out_max,
         .include_reported = include_reported,
         .name_key_result = name_key_result,
+        .helper_merge = helper_merge,
         ...
       )
 
@@ -457,6 +505,7 @@ function_map_seq <- function(
               list(
                 data = data,
                 var = .x,
+                cases = .cases,
                 out_min = .limits$out_min,
                 out_max = .limits$out_max
               ),
@@ -516,7 +565,10 @@ function_map_seq <- function(
         .before = dplyr::all_of(name_key_result)
       )
 
-      class_dispersion_ascending <- if (is_seq_ascending(dispersion)) {
+      # A single step is trivially linear, but `is_seq_ascending()` needs two:
+      class_dispersion_ascending <- if (
+        length(dispersion) < 2L || is_seq_ascending(dispersion)
+      ) {
         NULL
       } else {
         "scrutiny_map_seq_disp_nonlinear"
@@ -561,6 +613,7 @@ function_map_seq <- function(
       # list-column-to-logical half of this code applies here.
       `!!!`(write_code_col_key_result(.name_key_result, rename = FALSE))
     }),
+
     # The body calls internal helpers, so the manufactured function needs an
     # environment inheriting from scrutiny's namespace. `rlang::env()` creates a
     # child of the present execution environment, which does.

@@ -65,7 +65,9 @@ as \code{"items"}. See \code{\link[=manage_helper_col]{manage_helper_col()}}.}
 \code{.cols_helper} names with the names of the \code{.reported} columns they are
 multiplied into for the output, such as \code{c(items = "n")}. Such a helper
 column is not returned by itself. This is presentation only; it does not
-affect test results.}
+affect test results. Sequence mappers made by \code{\link[=function_map_seq]{function_map_seq()}} undo
+the merge, since they disperse and re-test the reported values, and return
+such a helper as a column of its own.}
 
 \item{.col_names}{Optionally, a string vector with the names of the columns
 that the \verb{*_scalar()} function returns when asked to show its reconstructed

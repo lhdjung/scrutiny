@@ -53,7 +53,11 @@ inconsistencies.}
 \item{...}{Arguments passed down to \code{grim_map()}.}
 }
 \value{
-A tibble (data frame) with detailed test results.
+A tibble (data frame) with detailed test results. \code{diff_var} is the
+number of steps between the tested value and the reported one, \code{case} the
+row number of the reported value set in \code{data}, and \code{var} the dispersed
+variable. If \code{items} was specified, it is a column of its own, and \code{n} is
+the sample size before multiplying the two.
 }
 \description{
 \code{grim_map_seq()} performs GRIM-testing with values surrounding

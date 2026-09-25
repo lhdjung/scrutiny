@@ -654,7 +654,7 @@ pigs1_exp <- tibble::tibble(
     0.67
   ),
   diff_var = rep(c(-5L, -4L, -3L, -2L, -1L, 1L, 2L, 3L, 4L, 5L), 16),
-  case = rep(rep(1:8, 2), each = 10L),
+  case = rep(rep(c(2L, 3L, 4L, 5L, 7L, 9L, 10L, 12L), 2), each = 10L),
   var = rep(c("x", "n"), each = 80L),
 ) |>
   structure(
@@ -1086,7 +1086,7 @@ pigs2_exp <- tibble::tibble(
     0.845
   ),
   diff_var = rep(c(-5L, -4L, -3L, -2L, -1L, 1L, 2L, 3L, 4L, 5L), 10),
-  case = rep(rep(1:5, 2), each = 10L),
+  case = rep(rep(c(1L, 2L, 4L, 5L, 6L), 2), each = 10L),
   var = rep(c("x", "n"), each = 50L),
 ) |>
   structure(
@@ -1820,7 +1820,7 @@ pigs1_include_reported_exp <- tibble::tibble(
     0.67
   ),
   diff_var = rep(-5:5, 16),
-  case = rep(rep(1:8, 2), each = 11L),
+  case = rep(rep(c(2L, 3L, 4L, 5L, 7L, 9L, 10L, 12L), 2), each = 11L),
   var = rep(c("x", "n"), each = 88L),
 ) |>
   structure(
@@ -1903,12 +1903,13 @@ test_that("`grim_map_seq()` handles large `dispersion` values", {
 })
 
 
-# The initial `grim_map()` call multiplies `items` into the `n` column, so the
-# internal re-tests of dispersed values receive data whose `n` is already
-# merged. Forwarding `items` to them as well used to multiply it in a second
-# time, testing (and displaying) `n * items^2` instead of `n * items`.
-test_that("`grim_map_seq()` applies `items` only once", {
-  out_items <- tibble::tibble(x = 2.84, n = 16) |>
+# The initial `grim_map()` call multiplies `items` into the `n` column. That
+# product used to be what the re-tests of dispersed values received: `items` was
+# either applied a second time, testing `n * items^2`, or not at all, which
+# dispersed `n * items` in steps of 1 -- values that are no multiple of `items`.
+# Now `n` is dispersed as the sample size, and `items` is kept as a column.
+test_that("`grim_map_seq()` applies `items` exactly once", {
+  out <- tibble::tibble(x = 2.84, n = 16) |>
     grim_map_seq(
       digits_x = 2,
       items = 2,
@@ -1916,12 +1917,45 @@ test_that("`grim_map_seq()` applies `items` only once", {
       dispersion = 1:2
     )
 
-  # The same data with `n` pre-merged (16 * 2 = 32) and `items` left at 1:
-  out_merged <- tibble::tibble(x = 2.84, n = 32) |>
-    grim_map_seq(digits_x = 2, include_consistent = TRUE, dispersion = 1:2)
+  expect_equal(out$n, c(16L, 16L, 16L, 16L, 14L, 15L, 17L, 18L))
+  expect_equal(out$items, rep(2, 8))
+  expect_equal(
+    out$consistency,
+    grim(out$x, out$n, digits_x = 2, items = 2)
+  )
+})
 
-  expect_equal(out_items$n, out_merged$n)
-  expect_equal(out_items$consistency, out_merged$consistency)
+
+# GRIMMER, unlike GRIM, depends on `n` and `items` separately, so testing their
+# product with `items = 1` gave wrong verdicts -- even for the reported values.
+test_that("`grimmer_map_seq()` tests `n` and `items` separately", {
+  df <- tibble::tibble(x = 2.55, sd = 0.8, n = 10)
+  out <- grimmer_map_seq(
+    df,
+    digits_x = 2,
+    digits_sd = 2,
+    items = 2,
+    var = "sd",
+    dispersion = 1,
+    include_consistent = TRUE,
+    include_reported = TRUE
+  )
+  expect_equal(out$consistency, c(FALSE, TRUE, FALSE))
+  expect_equal(
+    out$consistency,
+    grimmer(out$x, out$sd, out$n, digits_x = 2, digits_sd = 2, items = 2)
+  )
+  expect_true(audit_seq(out)$consistency)
+})
+
+
+# `case` is the row number in the mapper's input, not among the inconsistent
+# cases that are left after filtering, so that results can be joined back.
+test_that("`case` indexes the rows of the input", {
+  d <- tibble::tibble(x = c(5.2, 5.19, 3.4, 7.15), n = c(30, 28, 20, 21))
+  out <- grim_map_seq(d, digits_x = 2, dispersion = 1)
+  expect_equal(unique(out$case), c(2L, 4L))
+  expect_equal(unique(out$x[out$var == "n"]), d$x[c(2L, 4L)])
 })
 
 

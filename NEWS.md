@@ -42,7 +42,13 @@
 
 - `duplicate_count_colpair()` now requires data frames to have two or more columns. These are the only data frames for which the function makes sense.
 
+- `*_map_seq()` output now numbers each `case` by its row in the input data. It used to count only the inconsistent rows that were dispersed, so `case` could not be joined back to the data.
+
+- `*_map_seq()` functions called with `items` now return `n` as the sample size, followed by an `items` column, and disperse `n` in steps of one person. They used to disperse the product `n * items` and re-test it with `items = 1`. That was only a cosmetic problem for GRIM, but it made `grimmer_map_seq()` wrong: GRIMMER uses `n` and `items` separately, so even the reported value set could come out inconsistent in the sequence while `grimmer_map()` found it consistent.
+
 ## Bugfixes
+
+- `audit_seq()` now works on output from a single-step `dispersion`, such as `dispersion = 1`.
 
 - `seq_disperse()` and `seq_disperse_df()` now apply `out_min` and `out_max` to the whole sequence. Each limit used to be checked against one side only, the steps down against `out_min` and the steps up against `out_max`, so `seq_disperse(30, out_max = 25)` kept `26` to `29`. The limits also used to be checked before `offset_from` moved the sequence, so an offset could carry values past them. `*_map_seq()` functions inherit both fixes; with `out_min` and `out_max` set to the same value, a case above it now disperses to that one value rather than to every step down to it.
 
