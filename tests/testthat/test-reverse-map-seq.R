@@ -71,6 +71,8 @@ test_that("a case whose dispersion was clipped to nothing stays aligned", {
   audit <- audit_seq(out)
   expect_equal(audit$x, df$x)
   expect_equal(audit$n, df$n)
-  expect_equal(audit$hits_x, c(0L, 1L, 2L))
-  expect_equal(audit$hits_n, c(1L, 0L, 5L))
+  # With both limits at 25, the only dispersed value either variable can take is
+  # 25 itself, so case 3 has one candidate per variable:
+  expect_equal(audit$hits_x, c(0L, 1L, 1L))
+  expect_equal(audit$hits_n, c(1L, 0L, 1L))
 })

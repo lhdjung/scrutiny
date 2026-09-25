@@ -130,3 +130,22 @@ test_that("a zero step doesn't repeat the value it disperses from", {
   seq_disperse(from = 4.02, dispersion = c(0, 1)) |>
     expect_equal(c("4.01", "4.02", "4.03"))
 })
+
+
+# Each limit used to be checked against one side of the sequence only: the steps
+# down against `out_min`, the steps up against `out_max`. So with `from = 30`
+# and `out_max = 25`, the steps down landed on `29`, `28`, ..., all above the
+# maximum, and all kept.
+test_that("both limits apply to both sides of the sequence", {
+  seq_disperse(30, out_max = 25, include_reported = FALSE) |>
+    expect_equal("25")
+  seq_disperse(30, out_max = 24, include_reported = FALSE) |>
+    expect_equal(character(0))
+  seq_disperse(30, out_max = 27, include_reported = FALSE) |>
+    expect_equal(c("25", "26", "27"))
+  seq_disperse(30, out_min = 33, include_reported = FALSE) |>
+    expect_equal(c("33", "34", "35"))
+  # The limits apply after the offset, since that is what moves the values:
+  seq_disperse(30, offset_from = 10, out_max = 42, include_reported = FALSE) |>
+    expect_equal(c("35", "36", "37", "38", "39", "41", "42"))
+})
