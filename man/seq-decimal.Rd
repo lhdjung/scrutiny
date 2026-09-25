@@ -60,10 +60,11 @@ works like \code{TRUE} if and only if \code{from} (\code{.from}) is a string.}
 
 \item{by, .by}{Numeric. Only in \code{seq_distance()} and \code{seq_distance_df()}. Step
 size of the sequence. If not set, inferred automatically. Default is
-\code{NULL}.}
+\code{NULL}. If set, the output has as many decimal places as \code{from} or \code{by},
+whichever has more.}
 
 \item{length_out, .length_out}{Integer. Length of the output vector (i.e., the
-number of its values). Default is \code{10}. Only in \code{seq_distance()} and
+number of its values). Must be at least 1. Default is \code{10}. Only in \code{seq_distance()} and
 \code{seq_distance_df()}.}
 
 \item{dir, .dir}{Integer. If set to \code{-1}, the sequence goes backward. Default

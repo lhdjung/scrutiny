@@ -62,6 +62,16 @@
 
 - `grim()`, `grimmer()`, `debit()`, and their mappers now reject a string `n`, which used to yield an unexplained `NA` in `grim()` and a base R error in `grim_map()`. An infinite `digits_*` is rejected clearly, too.
 
+- `reverse_map_total_n()`, and so `audit_total_n()`, now rebuild the right total `n` for any `dispersion`. They were only right if it started at 0.
+
+- `*_map_total_n()` functions and `disperse_total()` no longer fail with internal errors when the limits leave no pair of group sizes, for a total `n` below 2, or for 0-row data.
+
+- `seq_endpoint()`, `seq_distance()`, and their `*_df()` variants now round their output back to the decimal level, so that ranges crossing zero or long runs no longer fail with a spurious `width` error. `seq_distance()` with `by` now keeps the decimal places of `from`, too.
+
+- `is_seq_linear()` no longer accepts zigzags like `c(1, 2, 1)`, and `seq_length()` no longer extends them. `is_seq_ascending()`, `is_seq_descending()`, and `is_seq_dispersed()` now return `FALSE` rather than `NA` where the known values already rule the sequence out.
+
+- `seq_disperse()` and the `*_map_seq()` functions now reject a fractional `dispersion`, compare `out_min` and `out_max` as numbers even if given as strings, and no longer error if `from` has more decimal places than `by`.
+
 - `audit_seq()` now works on output from a single-step `dispersion`, such as `dispersion = 1`.
 
 - `seq_disperse()` and `seq_disperse_df()` now apply `out_min` and `out_max` to the whole sequence. Each limit used to be checked against one side only, the steps down against `out_min` and the steps up against `out_max`, so `seq_disperse(30, out_max = 25)` kept `26` to `29`. The limits also used to be checked before `offset_from` moved the sequence, so an offset could carry values past them. `*_map_seq()` functions inherit both fixes; with `out_min` and `out_max` set to the same value, a case above it now disperses to that one value rather than to every step down to it.

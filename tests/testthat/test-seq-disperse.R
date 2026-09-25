@@ -149,3 +149,16 @@ test_that("both limits apply to both sides of the sequence", {
   seq_disperse(30, offset_from = 10, out_max = 42, include_reported = FALSE) |>
     expect_equal(c("35", "36", "37", "38", "39", "41", "42"))
 })
+
+
+test_that("`seq_disperse()` checks `dispersion` and the limits", {
+  # A fractional step used to be taken and then padded off the decimal level:
+  seq_disperse(4, dispersion = 1.5) |> expect_error("whole numbers")
+  # `from` with more decimal places than `by` failed in `restore_zeros()`:
+  seq_disperse(0.35, by = 0.1, dispersion = 1:2) |>
+    expect_equal(c("0.15", "0.25", "0.35", "0.45", "0.55"))
+  # A string limit was compared as a string, so `"9" > "10"`:
+  seq_disperse(8, dispersion = 1:3, out_max = "10") |>
+    expect_equal(c("5", "6", "7", "8", "9", "10"))
+  seq_disperse(4, out_min = NA) |> expect_error("single number")
+})

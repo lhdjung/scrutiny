@@ -1,27 +1,6 @@
 # Helpers for `function_map_seq()` as well as its assorted `reverse_*()` and
 # `summarize_*()` functions:
 
-# `index_seq()` takes a vector that's (1) numeric or string coercible to
-# numeric, and (2) that is either a continuous sequence of numbers (step size:
-# 1) or that would be such a sequence if not for exactly one single missing case
-# -- not in the sense of `NA`, but a sequence of two numbers where the second is
-# the first plus 2, so that one would expect an intermediate number in the
-# middle. This number can be identified as the "index case" in an original
-# sequence that dropped it at some point.
-
-# The function returns a sequence of `1` values for a continuous sequence, and
-# such a sequence with a single `2` value strewn in for a sequence with a single
-# missing case. The `2`, if present, has the same index as the last value before
-# the index case in `x`.
-index_seq <- function(x) {
-  if (!is.numeric(x)) {
-    x <- as.numeric(x)
-  }
-  steps <- abs(diff(x))
-  steps[!is.na(steps)]
-}
-
-
 is_seq_linear_basic <- function(x) {
   if (length(x) < 3L) {
     return(TRUE)
@@ -99,23 +78,12 @@ is_seq_basic <- function(
     return(TRUE)
   }
 
-  x_has_na <- anyNA(x)
-
-  if (x_has_na) {
+  if (anyNA(x)) {
     # Save the unmodified `x` for a test that is conducted if `x` contains one
     # or more `NA` elements:
     x_orig <- x
-    n_x_orig <- length(x)
 
     not_na <- which(!is.na(x))
-
-    # Need at least three known values:
-    if (length(not_na) < 3L) {
-      return(NA)
-    }
-
-    n_na_start <- match(FALSE, is.na(x_orig)) - 1L
-    n_na_end <- match(FALSE, rev(is.na(x_orig))) - 1L
 
     # Remove all `NA` values from the start and the end of `x` because `NA`s at
     # these particular locations cannot disprove that `x` is the kind of
@@ -138,33 +106,38 @@ is_seq_basic <- function(
       }
     }
 
-    # If the removal of leading and / or trailing `NA` elements in `x` caused
-    # the central value to shift, or if only one side from among left and right
-    # had any `NA` values, the original `x` might not have been symmetrically
-    # grouped around that value, and hence not a dispersed sequence. Otherwise,
-    # the `NA`s leave it open and the result is unknown, i.e., `NA`.
-    if (!is.null(test_special) && test_special == "dispersed") {
-      x_central <- x_orig[index_central(x_orig)]
-      if (!is.na(x_central) && x_central != from) {
+    # The special tests, too, ask whether the known values already rule the
+    # sequence out. They used to return `NA` early whenever fewer than three
+    # values were known, and, for dispersion, whenever the central value was, so
+    # `c(2, NA, 1)` might have been ascending and `c(1, 2, NA, 4, 5)` might have
+    # been dispersed around `99`. A dispersed sequence has each pair of values
+    # at mirrored positions centered on `from`, which a pair with both values
+    # known can disprove; the central value is its own mirror image.
+    # Monotonicity is disproven by the known values alone, gaps and all:
+    if (!is.null(test_special)) {
+      pass_test_special <- switch(
+        test_special,
+        "ascending" = is_seq_ascending_basic(x[known]),
+        "descending" = is_seq_descending_basic(x[known]),
+        "dispersed" = {
+          centers <- (x_orig + rev(x_orig)) / 2
+          all(dplyr::near(centers[!is.na(centers)], from, tol = tolerance))
+        }
+      )
+      if (!pass_test_special) {
         return(FALSE)
       }
-      return(NA)
     }
 
-    # Fill the gaps by linear interpolation between their known neighbors, so
-    # that the special tests below see the values that a linear sequence would
-    # have there. Without `test_linear`, this is the same answer the known
-    # values give on their own -- an interpolated value never breaks a monotone
-    # run between two known ones:
-    x <- stats::approx(known, x[known], xout = seq_along(x))$y
-  } # End of the `x_has_na` condition
+    return(NA)
+  }
 
-  # If desired, test `x` -- as passed to the function or as partly reconstructed
-  # in the for loop above -- for linearity:
+  # If desired, test `x` for linearity. The steps are compared with their signs,
+  # so a zigzag like `c(1, 2, 1)` is not linear; their absolute values used to
+  # be compared, which made it so:
   if (test_linear) {
-    x_seq <- index_seq(x)
-    pass_test_linear <- all(dplyr::near(x_seq, min(x_seq), tol = tolerance))
-    if (!pass_test_linear) {
+    steps <- diff(x)
+    if (!all(dplyr::near(steps, steps[1L], tol = tolerance))) {
       return(FALSE)
     }
   }
@@ -182,11 +155,7 @@ is_seq_basic <- function(
     }
   }
 
-  if (x_has_na) {
-    NA
-  } else {
-    TRUE
-  }
+  TRUE
 }
 
 

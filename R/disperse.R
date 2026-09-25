@@ -271,17 +271,13 @@ disperse2 <- function(
     n_max = n_max
   )
 
-  # Determine which row numbers in the output tibble have an `n` that must
-  # be increased or decreased (using an internal helper function from utils.R):
-  seq_rows <- seq_len(nrow(out))
-  locations1 <- seq_rows |> parcel_nth_elements(n = 2, from = 1L)
-  locations2 <- seq_rows |> parcel_nth_elements(n = 2, from = 2L)
-
-  # Increase or decrease the dispersed values so that the lower values decrease
-  # from the first of the two `n` values, the higher values increase from the
-  # second one, and both interleaved sequences proceed by increments of 1:
-  out$n <- out$n |> purrr::modify_at(locations1, `-`, 0.5)
-  out$n <- out$n |> purrr::modify_at(locations2, `+`, 0.5)
+  # Increase or decrease the dispersed values so that the lower values (odd
+  # rows) decrease from the first of the two `n` values, the higher values (even
+  # rows) increase from the second one, and both interleaved sequences proceed
+  # by increments of 1. `rep_len()` also covers the case where `n_min` or
+  # `n_max` left no pairs at all; the row locations used to be computed by
+  # `seq(1, 0, by = 2)` there, which failed with "wrong sign in 'by' argument":
+  out$n <- out$n + rep_len(c(-0.5, 0.5), nrow(out))
 
   # `disperse()` dispersed from a half-integer, so it left `n` as a double.
   # Adding and subtracting the halves above lands every value back on a whole

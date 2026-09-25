@@ -42,3 +42,8 @@ test_that("the sequence is extended by its own step, in its own direction", {
     seq_length(5) |>
     expect_equal(c("0.10", "0.20", "0.30", "0.40", "0.50"))
 })
+
+
+test_that("`seq_length()` does not extend a zigzag", {
+  c(1, 2, 1) |> seq_length(5) |> expect_error("linear sequence")
+})

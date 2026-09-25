@@ -190,3 +190,21 @@ test_that("a vector of nothing but `NA` returns `NA`, whatever its type", {
   c(NA, NA, NA)                     |> is_seq_ascending()  |> expect_na()
   c(NA, NA, NA) |> is_seq_dispersed(from = 5) |> expect_na()
 })
+
+
+test_that("the signs of the steps count, and known values can disprove", {
+  # Absolute steps made zigzags linear:
+  c(1, 2, 1) |> is_seq_linear() |> expect_false()
+  c(5, 4, 5, 4) |> is_seq_linear() |> expect_false()
+  c(5, 4, 3) |> is_seq_linear() |> expect_true()
+  # These were `NA` although the known values already rule them out:
+  c(2, NA, 1) |> is_seq_ascending(test_linear = FALSE) |> expect_false()
+  c(1, NA, 2) |> is_seq_descending(test_linear = FALSE) |> expect_false()
+  c(1, NA, 3, 4, 100) |>
+    is_seq_dispersed(from = 3, test_linear = FALSE) |>
+    expect_false()
+  c(1, 2, NA, 4, 5) |> is_seq_dispersed(from = 99) |> expect_false()
+  # ...and these remain open:
+  c(1, NA, 2) |> is_seq_ascending(test_linear = FALSE) |> expect_na()
+  c(1, 2, NA, 4, 5) |> is_seq_dispersed(from = 3) |> expect_na()
+})

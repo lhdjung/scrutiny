@@ -38,30 +38,14 @@ reverse_map_total_n <- function(data) {
     ))
   }
 
-  # Take the first row of each original-`n` block:
+  # Take the first pair of rows of each original-`n` block. The two group sizes
+  # in any such pair add up to the reported total, whatever the dispersion step
+  # that led to them; the total used to be rebuilt as twice the second group
+  # size, which only held for a first step of `0`:
   data_reduced <- data |>
     dplyr::group_by(case) |>
-    dplyr::slice(1:2)
-
-  n_was_even <- data_reduced |>
-    dplyr::summarise(n_sum = sum(n)) |>
-    dplyr::pull(n_sum) |>
-    rep(each = 2L) |>
-    is_even()
-
-  # Negate the evenness and convert the results from logical to numeric, which
-  # returns `0` as a correction for even original `n` values because they don't
-  # need to be corrected, and `1` for odd original `n` values, because these
-  # ones do need a correction:
-  n_was_odd <- as.numeric(!n_was_even)
-
-  data_reduced <- data_reduced |>
-    dplyr::ungroup() |>
-    dplyr::mutate(
-      n_was_odd,
-      .after = n,
-      n = (2 * n) - n_was_odd
-    )
+    dplyr::slice(1:2) |>
+    dplyr::ungroup()
 
   nrow_data_reduced <- nrow(data_reduced)
 
@@ -80,11 +64,7 @@ reverse_map_total_n <- function(data) {
   data_reported_1 <- data1[, colnames_reported]
   data_reported_2 <- data2[, colnames_reported]
 
-  # `(2 * n) - n_was_odd` above is double arithmetic, so the reconstructed
-  # total came back as a double although the mapper's `n` column is integer and
-  # the `n` the user originally passed in most likely was too. This is the same
-  # coercion the mappers and the dispersion helpers apply:
-  n <- as_integer_if_lossless(data2$n)
+  n <- data1$n + data2$n
 
   colnames(data_reported_1) <- paste0(colnames_reported, "1")
   colnames(data_reported_2) <- paste0(colnames_reported, "2")

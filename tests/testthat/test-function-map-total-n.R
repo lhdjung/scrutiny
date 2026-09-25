@@ -229,3 +229,13 @@ test_that("a missing total `n` is reported as such, not as a decimal number", {
     grim_map_total_n(digits_x = 2) |>
     expect_error("values that are not")
 })
+
+
+test_that("A total below 2 and 0-row `data` get their own errors", {
+  tibble::tibble(x1 = 3.43, x2 = 3.51, n = 1) |>
+    grim_map_total_n(digits_x = 2) |>
+    expect_error("at least 2")
+  tibble::tibble(x1 = numeric(), x2 = numeric(), n = numeric()) |>
+    grim_map_total_n(digits_x = 2) |>
+    expect_error("at least one row")
+})

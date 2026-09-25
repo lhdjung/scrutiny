@@ -125,6 +125,21 @@ seq_disperse <- function(
   # which `audit_seq()` then counted twice:
   dispersion <- dispersion[dispersion != 0]
 
+  # Each value is a number of steps, so a fractional one lands off the decimal
+  # level that the output is padded to: `dispersion = 1.5` around `4` returned
+  # `"2"`, `"4"`, and `"6"`, next to steps of `-1.5` and `1.5`. `disperse()`
+  # rejects it for the same reason:
+  if (!all(is_whole_number(dispersion))) {
+    offenders <- dispersion[!is_whole_number(dispersion)]
+    cli::cli_abort(c(
+      "`dispersion` must be whole numbers.",
+      "x" = "It has {length(offenders)} value{?s} that {?is/are} not: \\
+      {offenders}.",
+      "i" = "Each value is a number of steps up and down from `from`, on \\
+      the level of its last decimal place."
+    ))
+  }
+
   if (!missing(track_var_change)) {
     lifecycle::deprecate_warn(
       when = "0.3.1",
@@ -153,34 +168,50 @@ seq_disperse <- function(
   disp_minus <- dispersion * by
   disp_plus <- disp_minus
 
-  from_orig_type <- typeof(from)
-  from <- as.numeric(from)
-
   # The sequence is meant to proceed on the decimal level of `by` (or of `from`,
   # if `by` was specified with fewer decimal places). Floating-point arithmetic
   # does not respect that level: with `from` at `3.14` and `dispersion` going up
   # to `305`, `from - (305 * 0.01)` is `0.0899999999999999`, not `0.09`. Every
   # value derived from `from`, `by`, and `dispersion` is therefore rounded back
-  # to `digits_out` before it is compared to the limits or returned:
+  # to `digits_out` before it is compared to the limits or returned. It is
+  # counted before `from` becomes a number, which would drop the trailing zero
+  # of a string like `"1.50"`:
   digits_out <- max(digits, decimal_places_scalar(from))
 
-  if (!is.null(out_min)) {
-    if (length(out_min) > 1L) {
-      cli::cli_abort(c(
-        "!" = "`out_min` must have length 1 or to be `NULL`.",
-        "x" = "It has length {length(out_min)}."
-      ))
+  from_orig_type <- typeof(from)
+  from <- as.numeric(from)
+
+  # The limits are compared to numbers, so they have to be numbers themselves. A
+  # string was compared as a string, so `out_max = "10"` ruled out `9` (it sorts
+  # after `"10"`), and a missing value failed in `if ()`:
+  check_limit <- function(limit, name, auto = FALSE) {
+    limit_num <- suppressWarnings(as.numeric(limit))
+    if (length(limit) != 1L || is.na(limit_num)) {
+      msg_auto <- if (auto) ", \"auto\"," else ""
+      msg_is <- if (length(limit) != 1L) {
+        "It has length {length(limit)}."
+      } else {
+        "It is {wrong_spec_string(limit)}."
+      }
+      cli::cli_abort(
+        c(
+          "`{name}` must be a single number{msg_auto} or `NULL`.",
+          "x" = msg_is
+        ),
+        call = rlang::caller_env()
+      )
     }
-    if (out_min == "auto") {
-      out_min <- by
-    }
+    limit_num
   }
 
-  if (!is.null(out_max) && length(out_max) > 1L) {
-    cli::cli_abort(c(
-      "!" = "`out_max` must have length 1 or to be `NULL`.",
-      "x" = "It has length {length(out_max)}."
-    ))
+  if (identical(out_min, "auto")) {
+    out_min <- by
+  }
+  if (!is.null(out_min)) {
+    out_min <- check_limit(out_min, "out_min", auto = TRUE)
+  }
+  if (!is.null(out_max)) {
+    out_max <- check_limit(out_max, "out_max")
   }
 
   # The offset moves the point the sequence is built around, so it has to be
@@ -235,7 +266,7 @@ seq_disperse <- function(
     out = out,
     from = methods::as(from, from_orig_type),
     string_output = string_output,
-    digits = digits
+    digits = digits_out
   )
 
   # All the rest is only for creating and appending a sequence of dispersion

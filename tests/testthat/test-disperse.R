@@ -67,3 +67,13 @@ test_that("`disperse_total()` requires a whole-number total", {
   disperse_total(7.5) |> expect_error("whole number")
   disperse_total(NA)  |> expect_error("whole number")
 })
+
+
+test_that("`disperse_total()` returns no rows if the limits leave no pairs", {
+  # `seq(1, 0, by = 2)` used to fail here, for an odd total only:
+  out_odd <- disperse_total(51, n_min = 30)
+  out_even <- disperse_total(50, n_min = 30)
+  out_odd |> expect_equal(out_even)
+  nrow(out_odd) |> expect_equal(0L)
+  disperse_total(1) |> nrow() |> expect_equal(0L)
+})

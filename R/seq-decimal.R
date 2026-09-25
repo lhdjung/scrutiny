@@ -44,11 +44,12 @@ seq_df_out <- function(x, ...) {
 #'   sequence. Only in `seq_endpoint()` and `seq_endpoint_df()`.
 #' @param by,.by Numeric. Only in `seq_distance()` and `seq_distance_df()`. Step
 #'   size of the sequence. If not set, inferred automatically. Default is
-#'   `NULL`.
+#'   `NULL`. If set, the output has as many decimal places as `from` or `by`,
+#'   whichever has more.
 #' @param ... Further columns, added as in [`tibble::tibble()`]. Only in
 #'   `seq_endpoint_df()` and `seq_distance_df()`.
 #' @param length_out,.length_out Integer. Length of the output vector (i.e., the
-#'   number of its values). Default is `10`. Only in `seq_distance()` and
+#'   number of its values). Must be at least 1. Default is `10`. Only in `seq_distance()` and
 #'   `seq_distance_df()`.
 #' @param dir,.dir Integer. If set to `-1`, the sequence goes backward. Default
 #'   is `1`. Only in `seq_distance()` and `seq_distance_df()`.
@@ -128,12 +129,12 @@ seq_endpoint <- function(
   # The starting point and/or the endpoint might be offset by some non-zero
   # number of incremental steps. First, the starting point...
   if (offset_from != 0L) {
-    from <- from + (by * offset_from)
+    from <- round(from + (by * offset_from), digits)
   }
 
   # ...and then, the endpoint:
   if (offset_to != 0L) {
-    to <- to + (by * offset_to)
+    to <- round(to + (by * offset_to), digits)
   }
 
   # If the endpoint is not greater than the starting point, the sequence will go
@@ -142,8 +143,11 @@ seq_endpoint <- function(
     by <- -by
   }
 
-  # Generate the sequence:
-  out <- suppressWarnings(seq(from = from, to = to, by = by))
+  # Generate the sequence. Floating-point arithmetic does not respect the
+  # decimal level of `by`: `seq(4.6, 0.1, by = -0.1)` has `0.799999999999999`
+  # in it, which `restore_zeros()` then rejected, and which compares unequal
+  # to `0.8`. Rounding back to that level fixes it, as in `seq_disperse()`:
+  out <- round(suppressWarnings(seq(from = from, to = to, by = by)), digits)
 
   # Hackish way of conveying to `manage_string_output_seq()` whether or not
   # either of `from` and `to` was specified as a string, or else as a double:
@@ -187,7 +191,22 @@ seq_distance <- function(
   } else {
     check_length(by, 1L)
     check_type(by, c("integer", "double"))
-    digits <- decimal_places_scalar(by)
+    # The sequence proceeds from `from` in steps of `by`, so it has the decimal
+    # places of either, whichever are more. Going by `by` alone,
+    # `seq_distance(1.25, by = 1)` failed, and `"1.50"` lost its trailing zero:
+    digits <- max(
+      decimal_places_scalar(from),
+      decimal_places_scalar(by)
+    )
+  }
+
+  # A sequence has at least its starting point. Anything shorter used to reach
+  # `seq()` as an endpoint on the wrong side of `from`:
+  if (length_out < 1L) {
+    cli::cli_abort(c(
+      "`length_out` must be at least 1.",
+      "x" = "It is {length_out}."
+    ))
   }
 
   # Record if `from` was specified as string; relevant for `string_output`:
@@ -200,7 +219,10 @@ seq_distance <- function(
   # The starting point might be offset by some non-zero number of incremental
   # steps (the default is 0, in which case this does nothing):
   if (offset_from != 0L) {
-    from <- from + (by * offset_from)
+    from <- round(
+      from + (by * offset_from),
+      digits
+    )
   }
 
   # The distance between the starting point and the end point follows from the
@@ -226,12 +248,17 @@ seq_distance <- function(
     ))
   }
 
-  # Generate the sequence:
-  out <- suppressWarnings(seq(from = from, to = to, by = by))
+  # Generate the sequence, rounding back to the decimal level as in
+  # `seq_endpoint()`:
+  out <- from |>
+    seq(to = to, by = by) |>
+    suppressWarnings() |>
+    round(digits)
 
   # Hackish way of conveying to `manage_string_output_seq()` whether or not
   # `from` was specified as a string:
-  from <- methods::as(from, typeof(from_orig))
+  from <- from |>
+    methods::as(typeof(from_orig))
 
   # Following user preferences, do or don't convert the output to string,
   # restoring trailing zeros to the same number of decimal places that also
