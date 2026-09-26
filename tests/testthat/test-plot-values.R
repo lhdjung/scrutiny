@@ -182,3 +182,20 @@ test_that("the comb plots raise no warnings", {
     x = 2.74, sd = 0.96, n = 63, digits_x = 2, digits_sd = 2, items = 2
   ))
 })
+
+
+test_that("non-finite or missing input is an error that names the argument", {
+  # These used to fail inside `seq()` or an `if()` with base R errors:
+  grim_plot_values(NA_real_, 20, 2) |> expect_error("`x` must be a finite")
+  grim_plot_values(Inf, 20, 2) |> expect_error("`x` must be a finite")
+  grim_plot_values(5.19, 20, NA) |> expect_error("`digits_x` must be")
+  grimmer_plot_values(NA_real_, 1.2, 20, digits_x = 2, digits_sd = 1) |>
+    expect_error("`x` must be a finite")
+  grimmer_plot_values(5.19, -1.2, 20, digits_x = 2, digits_sd = 1) |>
+    expect_error("`sd` can't be negative")
+})
+
+test_that("large `n` is not labeled in scientific notation", {
+  grim_plot_values(5.19, 100000, 2)$labels$x |>
+    expect_equal("Reported mean (n = 100000)")
+})

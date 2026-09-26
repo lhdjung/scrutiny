@@ -290,6 +290,49 @@ check_decidable_n_items <- function(
 }
 
 
+# The window around the reported value is built from it and from its decimal
+# count, so a value that is missing or infinite, or a decimal count that is not
+# a single non-negative whole number, has nothing to draw -- and would fail in
+# `seq()` with an error that names neither argument. An SD can't be negative
+# either. `name` is the argument's name: `"x"` or `"sd"`.
+check_comb_value <- function(value, digits, name, call = rlang::caller_env()) {
+  name_digits <- paste0("digits_", name)
+  if (!is.finite(value)) {
+    cli::cli_abort(
+      c(
+        "!" = "`{name}` must be a finite number.",
+        "x" = "It is `{value}`."
+      ),
+      call = call
+    )
+  }
+  if (name == "sd" && value < 0) {
+    cli::cli_abort(
+      c(
+        "!" = "`sd` can't be negative.",
+        "x" = "It is {value}."
+      ),
+      call = call
+    )
+  }
+  if (
+    length(digits) != 1L ||
+      !is.numeric(digits) ||
+      is.na(digits) ||
+      !is_whole_number(digits) ||
+      digits < 0
+  ) {
+    cli::cli_abort(
+      c(
+        "!" = "`{name_digits}` must be a single non-negative whole number.",
+        "x" = "It is `{deparse(digits)}`."
+      ),
+      call = call
+    )
+  }
+}
+
+
 #' Visualize the means that GRIM admits
 #'
 #' @description `grim_plot_values()` draws every mean (or percentage) that could
@@ -328,7 +371,11 @@ check_decidable_n_items <- function(
 #'   The strip behind the teeth is the range of unrounded means that would have
 #'   been reported as `x`, from [`unround()`]. GRIM asks whether any attainable
 #'   mean falls into it, so the reported value is consistent exactly if a tall
-#'   tooth stands within the strip.
+#'   tooth stands within the strip. With some rounding methods, such as
+#'   `"trunc"` or `"ceiling"`, one edge of the strip is not part of it: a mean
+#'   right on that edge would have been rounded to a neighbor of `x`. A tall
+#'   tooth standing exactly on such an edge therefore doesn't make `x`
+#'   consistent. [`unround()`] says which edges are included.
 #'
 #' @return A ggplot object.
 #'
@@ -368,6 +415,7 @@ grim_plot_values <- function(
   check_length(n, 1L)
   check_length(items, 1L)
   check_newly_numeric(x, digits_x)
+  check_comb_value(x, digits_x, "x")
   check_decidable_n_items(n, items, min_n = 1)
 
   x <- as.numeric(x)
@@ -423,7 +471,9 @@ grim_plot_values <- function(
     # fmt: skip
     x_label = paste0(
       if (percent) "Reported percentage" else "Reported mean",
-      " (n = ", n, if (items != 1) paste0(", items = ", items), ")"
+      " (n = ", format(n, scientific = FALSE),
+      if (items != 1) paste0(", items = ", format(items, scientific = FALSE)),
+      ")"
     ),
     color_cons = color_cons,
     color_incons = color_incons,

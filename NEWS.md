@@ -24,13 +24,15 @@
 
 - `debit_plot()` no longer has a `line_size` argument. The function now always draws the DEBIT line via `linewidth`.
 
+- `debit_plot()` no longer draws outer boxes around the DEBIT rectangles, so its `show_outer_boxes`, `tile_alpha`, `tile_height_offset`, `tile_width_offset`, `tile_height_min`, and `tile_width_min` arguments are gone. The boxes had no meaning of their own; they only helped to spot rectangles too small to see. Each rectangle is now drawn over a point at the reported mean and SD instead, which does the same job and marks an actual value.
+
 - `grim_map()`, `grimmer_map()`, and `debit_map()` now carry the `digits_x` (and, for GRIMMER and DEBIT, `digits_sd`) they were given forward into a `digits_x` / `digits_sd` output column. The same is true of `*_map_total_n()`.
 
 - `grim_plot()` now reads this column instead of guessing the decimal count from the numeric `x` column via `decimal_places()`, which was unreliable because a numeric value cannot carry trailing zeros: `5.00` reads back as 0 decimal places, not 2.
 
 - `grim_plot()` now has a `split_by_digits` argument (default is `FALSE`) to optionally return a list of plots instead; one plot per distinct number of decimal places.
 
-- `grim_plot()` returns its plot instead of printing it and returning invisibly. At the console, auto-printing draws it either way, but `p <- grim_plot(g)` used to draw a plot the caller had not asked for, `grim_plot(g) + ggplot2::labs(...)` drew two, and composing with patchwork or cowplot always left a stray canvas. `debit_plot()` has always returned its object normally. The one exception is `split_by_digits = TRUE`, which returns a list -- something auto-printing cannot draw -- so that branch still prints each plot itself.
+- `grim_plot()` returns its plot instead of printing it and returning invisibly. At the console, auto-printing draws it either way, but `p <- grim_plot(g)` used to draw a plot the caller had not asked for, `grim_plot(g) + ggplot2::labs(...)` drew two, and composing with patchwork or cowplot always left a stray canvas. `debit_plot()` now does the same; it used to print its plot too, with all warnings suppressed. The one exception is `split_by_digits = TRUE`, which returns a list -- something auto-printing cannot draw -- so that branch still prints each plot itself.
 
 - `round_down_from()` now reads `threshold` the way `round_up_from()` does. It rounds *down* when the part cut off by rounding is at most `threshold` tenths of a step, where it used to round down when that part was at most `10 - threshold` tenths --- it was the point reflection of `round_up_from()` rather than its partner at the same threshold. The two agreed at the `5` that `round_up()` and `round_down()` round from, and nowhere else, so `round_down_from(4.28, 1, threshold = 9)` was `4.3` and is now `4.2`. Anything at the default threshold is unaffected, as are `round_up_from()`, `round_up()`, `round_down()`, and every `round_ties_*()` function.
 
@@ -53,6 +55,8 @@
 - `audit()` on `duplicate_detect()` output now has a row for every column, including those without duplicates, and counts only non-missing values in `total_count`. Columns without duplicates used to be dropped, which also left them out of `.total`.
 
 - `duplicate_count_colpair()`'s `rate_y` is now the proportion of `y` values that occur in `x`, as documented. It was the count of `x` values found in `y`, divided by the number of `y` values, and could exceed 1.
+
+- `grim_plot(split_by_digits = TRUE)` now always returns a named list, even with a single number of decimal places or with `show_raster = FALSE`. Combining it with `digits` is now an error.
 
 ## Bugfixes
 
@@ -89,6 +93,12 @@
 - `rounding_bias()` now accepts strings, as documented. `round_up()`, `round_down()`, `round_up_from()`, and `round_down_from()` now reject an invalid `symmetric` with a clear message. `reround_to_fraction()` now recycles `digits` along with `x` and `denominator`, and propagates `NA`.
 
 - `before_parens()`, `inside_parens()`, and `split_by_parens()` now split each string on its own. Strings with a different number of separators than the others used to shift values into the wrong rows. Custom separators are matched literally. `split_by_parens()` also no longer errors on columns with `NA`, and with `transform = TRUE` no longer mixes up columns whose names end in the new suffixes, such as `exp_sd`.
+
+- `debit_plot()` now draws the DEBIT line for the correct `n`, where it used to recycle the `n` column along a single line. If `n` varies, it draws the lines for the smallest and largest `n` and shades the band between them, which contains the lines for all the others. Each tile now has its own size, with width and height no longer swapped. Rows with missing values are dropped with a warning instead of failing, and labels keep trailing zeros.
+
+- `grim_plot(n = ...)` now ends the x-axis at `n`, as documented.
+
+- `grim_plot_values()` and `grimmer_plot_values()` now reject missing or infinite values, a negative `sd`, and invalid `digits_*` with clear errors.
 
 - `audit()` on `duplicate_tally()` output now computes `na_rate` in the `.total` row over all values, and `audit()` on `audit_seq()` output returns `NA` rather than `Inf`, `-Inf`, and warnings for columns without values.
 

@@ -187,3 +187,23 @@ test_that("percentages are plotted on the grid they were tested on", {
     grim_plot() |>
     expect_s3_class("ggplot")
 })
+
+
+test_that("`n` sets the maximum of the x-axis", {
+  # Only the breaks used to stop at `n`; the axis still ran to 100:
+  p <- grim_plot(grim_map(pigs1, digits_x = 2), n = 50)
+  x_range <- ggplot2::ggplot_build(p)$layout$panel_params[[1L]]$x.range
+  x_range[2L] |> expect_equal(50, tolerance = 0.01)
+})
+
+test_that("`split_by_digits = TRUE` always returns a named list", {
+  # With a single decimal count or without a raster, it used to return a plain
+  # ggplot object:
+  data <- grim_map(pigs1, digits_x = 2)
+  data |> grim_plot(split_by_digits = TRUE) |> names() |> expect_equal("digits_2")
+  data |>
+    grim_plot(split_by_digits = TRUE, show_raster = FALSE) |>
+    names() |>
+    expect_equal("digits_2")
+  data |> grim_plot(split_by_digits = TRUE, digits = 2) |> expect_error("can't be combined")
+})

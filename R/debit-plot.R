@@ -7,10 +7,17 @@
 #'   Various parameters of the individual geoms can be controlled via arguments.
 #'
 #' @details The labels are created via [`ggrepel::geom_text_repel()`], so the
-#'   algorithm is designed to minimize overlap with the tiles and other labels.
+#'   algorithm is designed to minimize overlap with the data points and other labels.
 #'   Yet, they don't take the DEBIT line into account, and their locations are
 #'   ultimately random. You might therefore have to resize the plot or run the
 #'   function a few times until the labels are localized in a satisfactory way.
+#'
+#'   The DEBIT line depends on the sample size. If `n` varies in `data`, the
+#'   lines for the smallest and largest `n` are drawn, and the band between them
+#'   is shaded: it contains the lines for all the other `n` values, which would
+#'   be too close together to tell apart. Value sets that lack a verdict or bounds (i.e., have
+#'   `NA` in any of the columns needed for drawing them) are left out with a
+#'   warning.
 #'
 #'   An alternative to the present function would be an S3 method for
 #'   [`ggplot2::autoplot()`]. However, a standalone function such as this allows
@@ -18,9 +25,6 @@
 #'   accessibility overall.
 #'
 #' @param data Data frame. Result of a call to [`debit_map()`].
-#' @param show_outer_boxes Logical. Should outer tiles surround the actual data
-#'   points, making it easier to spot them and to assess their overlap? Default
-#'   is `TRUE`.
 #' @param show_labels Logical. Should the data points have labels (of the form
 #'   "mean; SD")? Default is `TRUE`.
 #' @param show_full_scale Logical. Should the plot be fixed to full scale,
@@ -32,13 +36,10 @@
 #'   consistent and inconsistent values, respectively.
 #' @param rect_alpha Parameter of the DEBIT rectangles. (Due to the nature of
 #'   the data mapping, there can be no leeway regarding the shape or size of
-#'   this particular geom.)
+#'   this particular geom.) Each rectangle is drawn over a point at the reported
+#'   mean and SD, so that rectangles too small to see still show up.
 #' @param line_alpha,line_color,line_linetype,line_width Parameters of
 #'   the curved DEBIT line.
-#' @param
-#' tile_alpha,tile_height_offset,tile_width_offset,tile_height_min,tile_width_min
-#' Parameters of the outer tiles surrounding the DEBIT rectangles. Offset refers
-#' to the distance from the rectangles within.
 #' @param
 #' label_alpha,label_linetype,label_size,label_linesize,label_force,label_force_pull,label_padding
 #' Parameters of the labels showing mean and SD values. Passed on to
@@ -46,7 +47,8 @@
 
 #' @include debit-map.R restore-zeros.R utils.R
 #'
-#' @return A ggplot object.
+#' @return A ggplot object. It is returned, not printed, so it can be assigned
+#'   or added to without drawing a plot. At the console, auto-printing draws it.
 #'
 #' @references Heathers, James A. J., and Brown, Nicholas J. L. 2019. DEBIT: A
 #'   Simple Consistency Test For Binary Data. https://osf.io/5vb3u/.
@@ -62,7 +64,6 @@
 
 debit_plot <- function(
   data,
-  show_outer_boxes = TRUE,
   show_labels = TRUE,
   show_full_scale = TRUE,
   show_theme_other = TRUE,
@@ -73,11 +74,6 @@ debit_plot <- function(
   line_linetype = 1,
   line_width = 0.5,
   rect_alpha = 1,
-  tile_alpha = 0.15,
-  tile_height_offset = 0.025,
-  tile_width_offset = 0.025,
-  tile_height_min = 0.0375,
-  tile_width_min = 0.0385,
   label_alpha = 0.5,
   label_linetype = 3,
   label_size = 3.5,
@@ -97,6 +93,40 @@ debit_plot <- function(
 
   # Preparations ---
 
+  # A value set without a verdict has no color, and one without bounds has no
+  # rectangle to draw, so ggplot2 would drop it -- or fail on the scale breaks,
+  # which are computed from the bounds. Drop such rows here, but say so:
+  cols_needed <- c(
+    "x",
+    "sd",
+    "n",
+    "consistency",
+    "sd_lower",
+    "sd_upper",
+    "x_lower",
+    "x_upper"
+  )
+
+  is_complete <- stats::complete.cases(data[cols_needed])
+
+  if (!all(is_complete)) {
+    if (!any(is_complete)) {
+      cli::cli_abort(c(
+        "!" = "No value set in `data` can be drawn.",
+        "x" = "Each of the {nrow(data)} row{?s} has a missing value in at \
+      least one of these columns: {.code {cols_needed}}."
+      ))
+    }
+
+    n_dropped <- sum(!is_complete)
+    cli::cli_warn(c(
+      "!" = "Dropping {n_dropped} value set{?s} from the plot.",
+      "i" = "{cli::qty(n_dropped)}{?It has/They have} a missing value in \
+      at least one of these columns: {.code {cols_needed}}."
+    ))
+    data <- data[is_complete, ]
+  }
+
   sd <- data$sd
   x <- data$x
   n <- data$n
@@ -109,10 +139,13 @@ debit_plot <- function(
   sd_num <- as.numeric(sd)
   x_num <- as.numeric(x)
 
+  # `x` and `sd` are numeric, so trailing zeros are lost: an SD of `0.50` would
+  # be labeled `0.5`. Restore them from the decimal counts the mapper stored:
+  if (all(c("digits_x", "digits_sd") %in% colnames(data))) {
+    x <- restore_zeros(x_num, width = data$digits_x)
+    sd <- restore_zeros(sd_num, width = data$digits_sd)
+  }
   value_labels <- paste0(x, "; ", sd)
-
-  tile_height <- sd_upper - sd_lower + tile_width_offset
-  tile_width <- x_upper - x_lower + tile_height_offset
 
   color_by_consistency <- dplyr::if_else(
     consistency,
@@ -131,22 +164,59 @@ debit_plot <- function(
     )
   )
 
-  # DEBIT line:
-  draw_debit_line <- function(.x = x, .n = n, .label = p$label) {
-    suppressWarnings(sqrt((.n / (.n - 1)) * (.x * (1 - .x))))
+  # DEBIT line: the SD of binary data as a function of their mean. It depends on
+  # `n`, and it falls as `n` rises, so the lines for all the distinct `n` values
+  # lie between those for the smallest and the largest one. For realistic sample
+  # sizes, these lines are so close that drawing each of them would blur them
+  # into one thick, uneven stroke. Instead, only the two outer lines are drawn,
+  # and the band between them is shaded. With a single `n`, both outer lines are
+  # the same, so the band is not needed. The lines don't inherit the `label`
+  # aesthetic, which they have no use for.
+
+  debit_line <- function(n_line) {
+    function(x) sqrt((n_line / (n_line - 1)) * (x * (1 - x)))
+  }
+  n_range <- range(n)
+
+  if (n_range[1] != n_range[2]) {
+    x_grid <- seq(0, 1, length.out = 201)
+    p <- p +
+      ggplot2::geom_ribbon(
+        data = tibble::tibble(
+          x = x_grid,
+          ymin = debit_line(n_range[2])(x_grid),
+          ymax = debit_line(n_range[1])(x_grid)
+        ),
+        ggplot2::aes(x = x, ymin = ymin, ymax = ymax),
+        fill = line_color,
+        alpha = line_alpha * 0.25,
+        na.rm = TRUE,
+        inherit.aes = FALSE
+      )
   }
 
-  p <- p +
-    ggplot2::geom_function(
-      fun = draw_debit_line,
-      alpha = line_alpha,
-      color = line_color,
-      linetype = line_linetype,
-      linewidth = line_width,
-      na.rm = TRUE
-    )
+  debit_lines <- unique(n_range) |>
+    lapply(function(n_line) {
+      ggplot2::geom_function(
+        fun = debit_line(n_line),
+        alpha = line_alpha,
+        color = line_color,
+        linetype = line_linetype,
+        linewidth = line_width,
+        na.rm = TRUE,
+        inherit.aes = FALSE
+      )
+    })
 
-  # Inner tiles that should cross the consistency line:
+  p <- p + debit_lines
+
+  # A point at the reported mean and SD. Unlike the rectangle drawn over it, it
+  # has a fixed size, so that a value set whose rectangle is too small to see --
+  # as with three or more decimal places -- still shows up:
+  p <- p +
+    ggplot2::geom_point(color = color_by_consistency, size = 1.5)
+
+  # Rectangles that should cross the consistency line:
   p <- p +
     ggplot2::geom_rect(
       xmin = x_lower,
@@ -157,18 +227,6 @@ debit_plot <- function(
       fill = color_by_consistency,
       alpha = rect_alpha
     )
-
-  # Outer tiles that point out where the "rectangles" are (optional, default
-  # is `TRUE`):
-  if (show_outer_boxes) {
-    p <- p +
-      ggplot2::geom_tile(
-        height = max(tile_height, tile_height_min),
-        width = max(tile_width, tile_width_min),
-        fill = color_by_consistency,
-        alpha = tile_alpha
-      )
-  }
 
   # Text labels (optional, default is `TRUE`):
   if (show_labels) {
@@ -188,6 +246,10 @@ debit_plot <- function(
   }
 
   # Scale specifications (optional, default is `TRUE`):
+  # The y-axis has some room beyond the outermost rectangles. This used to be the
+  # outer tiles' offset from the rectangles:
+  sd_margin <- 0.025
+
   if (show_full_scale) {
     p <- p +
       ggplot2::scale_x_continuous(
@@ -195,10 +257,10 @@ debit_plot <- function(
         limits = c(0, 1)
       ) + # might or might not change: , limits = c(0, 1)
       ggplot2::scale_y_continuous(
-        breaks = seq(0, (max(sd_upper) + tile_width_offset), 0.05),
+        breaks = seq(0, (max(sd_upper) + sd_margin), 0.05),
         limits = c(
-          min(sd_lower) - tile_width_offset,
-          max((max(sd_upper) + tile_width_offset), 0.5)
+          min(sd_lower) - sd_margin,
+          max((max(sd_upper) + sd_margin), 0.5)
         )
       ) # used to be 0.005
   }
@@ -217,6 +279,9 @@ debit_plot <- function(
       )
   }
 
-  # Finally, return the plot while suppressing unnecessary ggplot2 warnings:
-  suppressWarnings(print(p))
+  # Return the plot -- returned, not printed, like `grim_plot()`'s.
+  # Auto-printing draws it at the console anyway, whereas an explicit `print()`
+  # here drew a canvas whenever the result was assigned or added to. Nor are
+  # warnings suppressed: rows that can't be drawn are reported above.
+  p
 }

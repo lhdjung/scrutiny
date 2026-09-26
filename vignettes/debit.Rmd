@@ -125,17 +125,9 @@ pigs3 |>
   debit_plot()
 ```
 
-DEBIT-consistent value pairs are blue, inconsistent ones red. The black arc is the DEBIT line: Given the sample size, the pairs of mean and SD values are DEBIT-consistent if and only if they cross this line. More precisely, the inner boxes must cross the line --- the outer boxes are just pointers to the inner ones, in case these are poorly visible. They have no inherent meaning.
+DEBIT-consistent value pairs are blue, inconsistent ones red. The black arc is the DEBIT line: Given the sample size, the pairs of mean and SD values are DEBIT-consistent if and only if they cross this line. More precisely, the boxes must cross the line.
 
-Except for the colors, inner boxes must look exactly like they do here: Their sizes and shapes are completely determined by the mean and SD values. Since inner boxes cannot be enlarged at will, outer boxes might be helpful to spot them at first glance.
-
-However, if outer boxes are not desired, they can be turned off like this:
-
-```{r}
-pigs3 |>
-  debit_map(digits_x = 2, digits_sd = 2) |>
-  debit_plot(show_outer_boxes = FALSE)
-```
+Except for the colors, the boxes must look exactly like they do here: Their sizes and shapes are completely determined by the mean and SD values. With three or more decimal places, a box can be too small to see, so each one is drawn over a point at the reported mean and SD.
 
 Color settings and other ggplot2-typical options are available via arguments, as are settings handed down to `ggrepel::geom_text_repel()`, which creates the labels. For more, see `debit_plot()`'s documentation.
 

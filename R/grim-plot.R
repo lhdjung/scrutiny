@@ -77,7 +77,9 @@
 #'   GRIM inconsistency? Default is `TRUE`.
 #' @param split_by_digits Logical (length 1). Set to `TRUE` to create a separate
 #'   plot for each number of decimal places, stored in a named list, instead of
-#'   throwing an error. Default is `FALSE`.
+#'   throwing an error. The result is then a list even if all values have the
+#'   same number of decimal places. Can't be combined with `digits`. Default is
+#'   `FALSE`.
 #' @param digits Integer. Number of decimal places for which the background
 #'   raster will be generated. Default is `NULL`, in which case it is read from
 #'   the `digits_x` column of `data` (or, failing that, inferred from the `x`
@@ -214,6 +216,15 @@ grim_plot <- function(
   # because it controls the number of decimal places for which the plot will be
   # constructed:
   if (!is.null(digits)) {
+    # A list of plots split by decimal count, with the decimal count fixed for
+    # all of them, would be a contradiction:
+    if (split_by_digits) {
+      cli::cli_abort(c(
+        "!" = "`digits` and `split_by_digits = TRUE` can't be combined.",
+        "i" = "`split_by_digits` takes the decimal counts from the data, \
+        whereas `digits` sets one for the whole plot."
+      ))
+    }
     if (length(digits) != 1L) {
       cli::cli_abort(c(
         "!" = "`digits` must have length 1 (i.e., be a single number).",
@@ -294,73 +305,81 @@ grim_plot <- function(
       decimal_places(data$x) # used to be wrapped in `max()`
     }
 
+    # With `split_by_digits`, the return value is always a named list of plots,
+    # one per distinct decimal count, even if there is only one such count or no
+    # raster, so that the type of the result doesn't depend on the data:
+    if (split_by_digits) {
+      unique_digits <- sort(unique(digits_x))
+
+      # A mean with no decimal places has a fractional portion of zero, so
+      # its group would be a line of tiles along the x-axis against a raster
+      # that says nothing about it. Leave those rows out, but say so. This
+      # doesn't apply to percentages, whose decimal count is raised by 2 below:
+      if (inherits(data, "scrutiny_percent_true")) {
+        n_dropped <- 0L
+      } else {
+        n_dropped <- sum(digits_x == 0L)
+        unique_digits <- unique_digits[unique_digits != 0L]
+      }
+
+      if (length(unique_digits) == 0L) {
+        cli::cli_abort(c(
+          "Every value set in `data` has `digits_x = 0`.",
+          "i" = "A mean reported with no decimal places has a fractional \\
+          portion of zero, so there is no GRIM plot to split by decimal \\
+          places.",
+          "i" = "Set `digits` explicitly (and `split_by_digits = FALSE`) if \
+          you want a plot anyway."
+        ))
+      }
+
+      if (n_dropped > 0L) {
+        cli::cli_warn(c(
+          "!" = "Leaving out {n_dropped} value set{?s} with \\
+          `digits_x = 0`.",
+          "i" = "A mean reported with no decimal places has a fractional \\
+          portion of zero, so the background raster says nothing about it."
+        ))
+      }
+
+      plots <- lapply(unique_digits, function(d) {
+        grim_plot(
+          data[digits_x == d, ],
+          show_data = show_data,
+          show_raster = show_raster,
+          show_gradient = show_gradient,
+          n = n,
+          digits = d,
+          rounding = rounding,
+          color_cons = color_cons,
+          color_incons = color_incons,
+          tile_alpha = tile_alpha,
+          tile_size = tile_size,
+          raster_alpha = raster_alpha,
+          raster_color = raster_color
+        )
+      })
+      names(plots) <- paste0("digits_", unique_digits)
+      # Auto-printing would render this branch's list as a list rather than
+      # draw it, so print the plots here. The single-plot return below is a
+      # plain ggplot object and needs no help:
+      for (p_split in plots) {
+        print(p_split)
+      }
+      if (length(plots) > 1L) {
+        cli::cli_alert_success(
+          "Created {length(plots)} GRIM plots, one for each number of \\
+          decimal places: {unique_digits}."
+        )
+      }
+      return(invisible(plots))
+    }
+
     if (show_raster) {
       if (!all(digits_x[1L] == digits_x)) {
         # A single call to `grim_plot()` always returns one plot, so a genuine
         # mix of decimal places is an error by default. Users can opt into one
-        # plot per distinct decimal count via `split_by_digits`, which requires
-        # a `digits_x` column to split on:
-        if (split_by_digits && has_digits_x_col) {
-          unique_digits <- sort(unique(data$digits_x))
-
-          # A mean with no decimal places has a fractional portion of zero, so
-          # its group would be a line of tiles along the x-axis against a raster
-          # that says nothing about it. Leave those rows out, but say so:
-          n_dropped <- sum(data$digits_x == 0L)
-          unique_digits <- unique_digits[unique_digits != 0L]
-
-          if (length(unique_digits) == 0L) {
-            cli::cli_abort(c(
-              "Every value set in `data` has `digits_x = 0`.",
-              "i" = "A mean reported with no decimal places has a fractional \\
-              portion of zero, so there is no GRIM plot to split by decimal \\
-              places.",
-              "i" = "Set `digits` explicitly if you want a plot anyway."
-            ))
-          }
-
-          if (n_dropped > 0L) {
-            cli::cli_warn(c(
-              "!" = "Leaving out {n_dropped} value set{?s} with \\
-              `digits_x = 0`.",
-              "i" = "A mean reported with no decimal places has a fractional \\
-              portion of zero, so the background raster says nothing about it."
-            ))
-          }
-
-          plots <- lapply(unique_digits, function(d) {
-            grim_plot(
-              data[data$digits_x == d, ],
-              show_data = show_data,
-              show_raster = show_raster,
-              show_gradient = show_gradient,
-              n = n,
-              digits = d,
-              rounding = rounding,
-              color_cons = color_cons,
-              color_incons = color_incons,
-              tile_alpha = tile_alpha,
-              tile_size = tile_size,
-              raster_alpha = raster_alpha,
-              raster_color = raster_color
-            )
-          })
-          names(plots) <- paste0("digits_", unique_digits)
-          # Auto-printing would render this branch's list as a list rather than
-          # draw it, so print the plots here. The single-plot return below is a
-          # plain ggplot object and needs no help:
-          for (p_split in plots) {
-            print(p_split)
-          }
-          if (length(plots) > 1L) {
-            cli::cli_alert_success(
-              "Created {length(plots)} GRIM plots, one for each number of \\
-              decimal places: {unique_digits}."
-            )
-          }
-          return(invisible(plots))
-        }
-
+        # plot per distinct decimal count via `split_by_digits` (see above).
         means_percentages <- dplyr::if_else(
           inherits(data, "scrutiny_percent_true"),
           "Percentages",
@@ -441,7 +460,9 @@ grim_plot <- function(
 
   p10 <- 10^digits
 
-  if (is.null(n)) {
+  # Only a user-supplied `n` bounds the x-axis with a raster; see below.
+  n_given <- !is.null(n)
+  if (!n_given) {
     n <- p10
   }
 
@@ -612,13 +633,17 @@ grim_plot <- function(
         breaks = seq(from = 0, to = 1, by = max(0.2, frac_unit)),
         expand = ggplot2::expansion(add = c(0.01, 0))
       ) +
-      # No x-axis bound with a raster: it would add space between the raster and
-      # the y-axis.
+      # No lower x-axis bound with a raster: it would add space between the
+      # raster and the y-axis. The upper bound is set only if the user chose
+      # `n`; otherwise, the raster's and the data's extent is kept as it is.
       ggplot2::scale_x_continuous(
         breaks = seq(from = 0, to = n, by = (n / 5)),
         expand = ggplot2::expansion(mult = c(0, 0.01))
       ) +
-      ggplot2::coord_cartesian(ylim = c(0, 1))
+      ggplot2::coord_cartesian(
+        xlim = if (n_given) c(NA, n),
+        ylim = c(0, 1)
+      )
   } else {
     # With a gradient rather than a raster, the x-axis is bounded as well, so
     # that it runs the full width of the gradient:

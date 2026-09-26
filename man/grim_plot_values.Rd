@@ -62,7 +62,11 @@ one or two decimal places; with more, the teeth crowd together.
 The strip behind the teeth is the range of unrounded means that would have
 been reported as \code{x}, from \code{\link[=unround]{unround()}}. GRIM asks whether any attainable
 mean falls into it, so the reported value is consistent exactly if a tall
-tooth stands within the strip.
+tooth stands within the strip. With some rounding methods, such as
+\code{"trunc"} or \code{"ceiling"}, one edge of the strip is not part of it: a mean
+right on that edge would have been rounded to a neighbor of \code{x}. A tall
+tooth standing exactly on such an edge therefore doesn't make \code{x}
+consistent. \code{\link[=unround]{unround()}} says which edges are included.
 }
 \examples{
 # A mean of 5.19 is not consistent with a sample size of 28: no tall tooth

@@ -38,7 +38,9 @@ GRIM inconsistency? Default is \code{TRUE}.}
 
 \item{split_by_digits}{Logical (length 1). Set to \code{TRUE} to create a separate
 plot for each number of decimal places, stored in a named list, instead of
-throwing an error. Default is \code{FALSE}.}
+throwing an error. The result is then a list even if all values have the
+same number of decimal places. Can't be combined with \code{digits}. Default is
+\code{FALSE}.}
 
 \item{n}{Integer. Maximal value on the x-axis. Default is \code{NULL}, in which
 case \code{n} becomes \code{10 ^ digits} (e.g., \code{100} if \code{digits} is \code{2}).}

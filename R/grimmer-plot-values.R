@@ -81,6 +81,8 @@ grimmer_plot_values <- function(
   check_length(items, 1L)
   check_newly_numeric(x, digits_x)
   check_newly_numeric(sd, digits_sd)
+  check_comb_value(x, digits_x, "x")
+  check_comb_value(sd, digits_sd, "sd")
   check_decidable_n_items(n, items, min_n = 2)
   has_scale <- check_scale_bounds(min_val, max_val)
 
@@ -146,8 +148,8 @@ grimmer_plot_values <- function(
       "Reported SD (mean = ",
       formatC(x, format = "f", digits = digits_x),
       ", n = ",
-      n,
-      if (items != 1) paste0(", items = ", items),
+      format(n, scientific = FALSE),
+      if (items != 1) paste0(", items = ", format(items, scientific = FALSE)),
       if (has_scale) paste0(", scale ", min_val, "-", max_val),
       ")"
     ),
