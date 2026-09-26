@@ -8,7 +8,7 @@ decimal_places_df(
   data,
   cols = everything(),
   check_numeric_like = TRUE,
-  sep = "\\\\."
+  sep = "."
 )
 }
 \arguments{
@@ -22,8 +22,9 @@ Default is \code{everything()}, but restricted by \code{check_numeric_like}.}
 operates on numeric columns and other columns coercible to numeric, as
 determined by \code{\link[=is_numeric_like]{is_numeric_like()}}.}
 
-\item{sep}{Substring that separates the mantissa from the integer part.
-Default is \code{"\\\\."}, which renders a decimal point.}
+\item{sep}{String. The literal separator between the integer part and the
+mantissa. Default is \code{"."}. (The former default, the regular expression
+\code{"\\\\."}, is still read as a decimal point.)}
 }
 \value{
 Data frame. The values of the selected columns are replaced by the

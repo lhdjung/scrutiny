@@ -85,3 +85,22 @@ test_that("missing values stay missing", {
   c(1.5, NA, 2) |> restore_zeros(width = 3) |> expect_equal(c("1.500", NA, "2.000"))
   c("1.5", NA)  |> restore_zeros(width = 2) |> expect_equal(c("1.50", NA))
 })
+
+
+test_that("scientific notation, binary noise, and non-numbers are handled", {
+  # `as.character(0.0001)` is `"1e-04"`, whose decimals used to be counted after
+  # the point and whose zeros were appended to the exponent.
+  c(0.0001, 0.5) |> restore_zeros() |> expect_equal(c("0.0001", "0.5000"))
+  c(1.5e-5, 0.25) |> restore_zeros() |> expect_equal(c("0.000015", "0.250000"))
+  0.0001 |> restore_zeros(width = 2) |> expect_error("more decimal places")
+  # Zeros are appended literally, not formatted from the binary value:
+  0.1 |> restore_zeros(width = 20) |> expect_equal(paste0("0.1", strrep("0", 19)))
+  # A string that is not a number becomes `NA`, not the string `"NA"`:
+  c("5%", "2.25") |>
+    restore_zeros() |>
+    expect_equal(c(NA, "2.25")) |>
+    expect_warning("NAs introduced by coercion")
+  # `sep_in` is a literal string:
+  c("1.5", "2.25") |> restore_zeros(sep_in = ".") |> expect_equal(c("1.50", "2.25"))
+  c("1,5", "3") |> restore_zeros(width = 2, sep_in = ",") |> expect_equal(c("1,50", "3,00"))
+})

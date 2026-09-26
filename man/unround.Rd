@@ -15,7 +15,7 @@ unround(
 \arguments{
 \item{x}{String or numeric. Rounded number. \code{x} must be a string unless
 \code{digits} is specified (most likely by a function that uses \code{unround()} as a
-helper).}
+helper). A missing or infinite \code{x} has no bounds, so they are \code{NA}.}
 
 \item{rounding}{String. Rounding method presumably used to create \code{x}.
 Default is \code{"up_or_down"}. For more, see section \code{Rounding}.}
@@ -31,7 +31,7 @@ those three methods the same as \code{"up"}, \code{"down"}, and \code{"up_or_dow
 efficient to use as a helper function so that it doesn't need to
 redundantly count decimal places. Don't specify it otherwise. Default is
 \code{NULL}, in which case decimal places really are counted internally and \code{x}
-must be a string.}
+must be a string. Otherwise, it must be whole numbers, as in \code{\link[=reround]{reround()}}.}
 
 \item{symmetric}{Logical. Set \code{symmetric} to \code{TRUE} if the rounding of
 negative numbers with \code{"up"}, \code{"down"}, \code{"up_from"}, or \code{"down_from"}

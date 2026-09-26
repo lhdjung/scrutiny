@@ -87,3 +87,14 @@ test_that("`rounding` must be a string, and `symmetric` `TRUE` or `FALSE`", {
   grim(-5.19, 28, digits_x = 2, rounding = "up", symmetric = NA) |>
     expect_error("`TRUE` or `FALSE`")
 })
+
+
+test_that("a missing `digits` propagates, and an overflowing one is rejected", {
+  reround(1.25, NA, "up") |> expect_equal(NA_real_)
+  reround(1.25, NA_real_, "up") |> expect_equal(NA_real_)
+  # `10^400` is `Inf`, and `10^-400` is `0`, so both used to give `NaN`:
+  reround(1.25, 400, "up") |> expect_error("between -308 and 308")
+  reround(1.25, -400, "up") |> expect_error("between -308 and 308")
+  # A fractional value is reported as such, and a whole one is not among them:
+  reround(1.25, c(1.5, 400), "up") |> expect_error("not: 1.5\\.")
+})

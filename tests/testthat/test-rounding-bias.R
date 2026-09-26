@@ -54,3 +54,10 @@ test_that("no pairing warning for arguments that cannot be paired", {
   # `x` and `digits` are still paired, and still warn about it:
   c(1.25, 2.35) |> rounding_bias(digits = c(1, 2)) |> expect_warning()
 })
+
+
+test_that("`x` may be a string coercible to numeric", {
+  c("1.25", "2.35") |>
+    rounding_bias(1) |>
+    expect_equal(rounding_bias(c(1.25, 2.35), 1))
+})

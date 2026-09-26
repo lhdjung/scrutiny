@@ -28,16 +28,20 @@
 
 #' @param x Numeric (or string that can be coerced to numeric). Object with
 #'   decimal places to count.
-#' @param sep Substring that separates the mantissa from the integer part.
-#'   Default is `"\\."`, which renders a decimal point.
+#' @param sep String. The literal separator between the integer part and the
+#'   mantissa. Default is `"."`. (The former default, the regular expression
+#'   `"\\."`, is still read as a decimal point.)
 #'
 #' @return Integer. Number of decimal places in `x`.
 #'
 #' @details Both functions count the run of digits that immediately follows the
 #'   first `sep`, after removing surrounding whitespace and applying any
-#'   exponent: `"5.30%"` has two decimal places, and `"1e-5"` has five. They
-#'   always agree with each other; `decimal_places_scalar()` is the faster one,
-#'   and `decimal_places()` is the one that takes a vector.
+#'   exponent: `"5.30%"` has two decimal places, `"1e-5"` has five, and
+#'   `"1..5"` has none. The strings that [`as.numeric()`] reads as an infinity
+#'   or `NaN`, in any letter case, have `NA` decimal places, as do missing
+#'   values. The two functions always agree with each other;
+#'   `decimal_places_scalar()` is the faster one, and `decimal_places()` is the
+#'   one that takes a vector.
 #'
 #' @include utils.R
 #'
@@ -69,50 +73,55 @@
 #' decimal_places_scalar(x = 8.13)
 #' decimal_places_scalar(x = "5.024")
 
-decimal_places <- function(x, sep = "\\.") {
-  # `NaN` and the infinities have no decimal places, and `NaN` is a missing value
-  # everywhere else in the package. The test runs on the input rather than on the
-  # trimmed strings -- which would count `"NaN"` and `"Inf"` as zero -- so a
-  # numeric vector is decided by `is.finite()`. A character vector can only be
-  # matched against the tokens: `as.numeric()` would also swallow strings like
-  # `"5.30%"`, whose two decimal places are the documented answer.
-  non_finite <- if (is.numeric(x)) {
-    !is.finite(x)
-  } else {
-    is.na(x) | grepl("^[+-]?(Inf|NaN)$", trimws(x))
-  }
+decimal_places <- function(x, sep = ".") {
+  sep <- sep_literal(sep)
 
-  x <- stringr::str_trim(x)
+  # `NaN` and the infinities have no decimal places, and `NaN` is a missing value
+  # everywhere else in the package. A numeric vector is decided by `is.finite()`.
+  # A character vector can only be matched against the tokens: `as.numeric()`
+  # would also swallow strings like `"5.30%"`, whose two decimal places are the
+  # documented answer. The values decided here are blanked out, so that nothing
+  # below has to deal with a missing value:
+  if (is.numeric(x)) {
+    non_finite <- !is.finite(x)
+    x <- as.character(x)
+  } else {
+    x <- trim_space(x)
+    non_finite <- is.na(x) | is_non_finite_token(x)
+  }
+  x[non_finite] <- ""
 
   # Scientific notation moves the decimal point, so the digits after `sep` are
   # not the decimal places of the number: `1e-05` has five of them and none
   # after a point, `1.5e3` has none and one after the point. R writes numerics
   # that way by itself -- `as.character(0.0001)` is `"1e-04"` -- so this is not
   # only about strings the user typed. The exponent is split off here and
-  # applied to the count below:
-  exponent <- suppressWarnings(as.integer(
-    stringr::str_match(x, "[eE]([+-]?[0-9]+)$")[, 2L]
+  # applied to the count below. One beyond the integer range is `NA`, and so is
+  # the count:
+  pos_exponent <- regexpr("[eE][+-]?[0-9]+$", x)
+  has_exponent <- pos_exponent > 0L
+  exponent <- integer(length(x))
+  exponent[has_exponent] <- suppressWarnings(as.integer(
+    substring(x[has_exponent], pos_exponent[has_exponent] + 1L)
   ))
-  x <- stringr::str_remove(x, "[eE][+-]?[0-9]+$")
+  x[has_exponent] <- substr(
+    x[has_exponent],
+    1L,
+    pos_exponent[has_exponent] - 1L
+  )
 
-  # Only the run of digits immediately after the separator counts, not every
-  # character after it: `"5.30%"` has two decimal places, `"1.2.3"` one. Same
-  # rule as in `decimal_places_scalar()`; a generated corpus in
-  # `test-decimal-places.R` holds the two together. `str_split_fixed()` gives an
-  # empty mantissa where there is no separator, and `regexpr()` counts the digit
-  # run for the whole vector in one pass:
-  mantissa <- stringr::str_split_fixed(x, sep, n = 2L)[, 2L]
+  # Only the run of digits immediately after the first separator counts, not
+  # every character after it: `"5.30%"` has two decimal places, `"1.2.3"` one,
+  # and `"1..5"` none. Same steps as in `decimal_places_scalar()`; a generated
+  # corpus in `test-decimal-places.R` holds the two together:
+  pos_sep <- regexpr(sep, x, fixed = TRUE)
+  mantissa <- substring(x, pos_sep + nchar(sep))
+  mantissa[pos_sep < 0L] <- ""
   out <- attr(regexpr("^[0-9]*", mantissa), "match.length")
 
-  # `str_split_fixed()` gives a missing value an empty mantissa rather than a
-  # missing one, so it would otherwise count as zero decimal places:
-  out[non_finite] <- NA_integer_
-
-  # A value without an exponent is shifted by nothing, and a positive exponent
-  # can only cancel decimal places, never create negative ones:
-  exponent[is.na(exponent)] <- 0L
-  out <- out - exponent
-  out[!is.na(out) & out < 0L] <- 0L
+  # A positive exponent can only cancel decimal places, never create negative
+  # ones:
+  out <- pmax(out - exponent, 0L)
   out[non_finite] <- NA_integer_
   out
 }
@@ -123,52 +132,51 @@ decimal_places <- function(x, sep = "\\.") {
 
 # Faster, single-case (scalar) function to be used as a helper within other
 # single-case functions:
-decimal_places_scalar <- function(x, sep = "\\.") {
+decimal_places_scalar <- function(x, sep = ".") {
   # The three ways of having no decimal places to count -- a missing value, an
   # infinity, and the strings that spell one. Branching on `is.character()`
-  # keeps a numeric value from paying for a check only a string can fail.
+  # keeps a numeric value from paying for a check only a string can fail, and
+  # from being trimmed: only a string the user typed can carry whitespace.
   # `decimal_places()` must agree with this; a generated corpus in
   # test-decimal-places.R holds the two together.
-  #
-  # Whitespace goes first: the exponent is matched at the end of the string, so
-  # a single trailing space hid it and `"1.5e3 "` came out as 1 rather than 0.
-  # Only a string the user typed can carry any.
   if (is.character(x)) {
-    x <- trimws(x)
-    if (is.na(x) || grepl("^[+-]?(Inf|NaN)$", x)) {
+    x <- trim_space(x)
+    if (is.na(x) || is_non_finite_token(x)) {
       return(NA_integer_)
     }
+  } else if (is.finite(x)) {
+    x <- as.character(x)
   } else {
     # `is.finite()` is `FALSE` for `NA` and `NaN` as well as the infinities:
-    if (!is.finite(x)) {
-      return(NA_integer_)
-    }
-    x <- as.character(x)
+    return(NA_integer_)
   }
 
   # See the comment in `decimal_places()`: an exponent shifts the decimal point,
   # so it is split off before the digits after `sep` are counted. That makes
   # `decimal_places_scalar(1e-04)` 4 rather than 0, keeping `seq_disperse()` and
-  # friends on the intended decimal level. `regexpr()` and `regmatches()` cost
-  # about half of this function and almost no value has an exponent, so a
-  # fixed-string search rules the rest out first:
-  exponent <- 0L
-
+  # friends on the intended decimal level. Almost no value has an exponent, so
+  # a fixed-string search spares most of them the regular expression:
+  pos_exponent <- -1L
   if (grepl("e", x, fixed = TRUE) || grepl("E", x, fixed = TRUE)) {
-    hit_exponent <- regmatches(x, regexpr("[eE][+-]?[0-9]+$", x))
-
-    if (length(hit_exponent) > 0L) {
-      exponent <- as.integer(sub("^[eE]", "", hit_exponent))
-      x <- sub("[eE][+-]?[0-9]+$", "", x)
-    }
+    pos_exponent <- regexpr("[eE][+-]?[0-9]+$", x)
   }
 
-  hit <- regmatches(x, regexpr(paste0("(?<=", sep, ")\\d+"), x, perl = TRUE))
+  exponent <- 0L
+  if (pos_exponent > 0L) {
+    exponent <- suppressWarnings(as.integer(substring(x, pos_exponent + 1L)))
+    x <- substr(x, 1L, pos_exponent - 1L)
+  }
 
-  out <- if (length(hit) == 0L) {
+  # Only the digit run right after the *first* separator counts, as in
+  # `decimal_places()`. The separator is a literal string, so it is found
+  # without a regular expression:
+  sep <- sep_literal(sep)
+  pos_sep <- regexpr(sep, x, fixed = TRUE)
+
+  out <- if (pos_sep < 0L) {
     0L
   } else {
-    nchar(hit)
+    attr(regexpr("^[0-9]*", substring(x, pos_sep + nchar(sep))), "match.length")
   }
 
   max(out - exponent, 0L)
@@ -187,8 +195,9 @@ decimal_places_scalar <- function(x, sep = "\\.") {
 #' @param check_numeric_like Logical. If `TRUE` (the default), the function only
 #'   operates on numeric columns and other columns coercible to numeric, as
 #'   determined by [`is_numeric_like()`].
-#' @param sep Substring that separates the mantissa from the integer part.
-#'   Default is `"\\."`, which renders a decimal point.
+#' @param sep String. The literal separator between the integer part and the
+#'   mantissa. Default is `"."`. (The former default, the regular expression
+#'   `"\\."`, is still read as a decimal point.)
 #'
 #' @return Data frame. The values of the selected columns are replaced by the
 #'   numbers of their decimal places.
@@ -217,7 +226,7 @@ decimal_places_df <- function(
   data,
   cols = everything(),
   check_numeric_like = TRUE,
-  sep = "\\."
+  sep = "."
 ) {
   if (check_numeric_like) {
     selection2 <- rlang::expr(where(is_numeric_like))
@@ -253,4 +262,29 @@ decimal_places_df <- function(
       .fns = function(x) decimal_places(x = x, sep = sep)
     )
   )
+}
+
+
+# `sep` and its relatives in `restore_zeros()` are literal strings. They used to
+# be regular expressions, documented as substrings, so `sep = "."` matched any
+# character. The former default, the regex `"\\."`, is still read as a point.
+sep_literal <- function(sep) {
+  if (identical(sep, "\\.")) "." else sep
+}
+
+
+# `decimal_places()` and `decimal_places_scalar()` read strings through these
+# two, so that they cannot drift apart on which strings they count.
+#
+# PCRE's `[[:space:]]` is ASCII whitespace in any locale: exactly what
+# `as.numeric()` skips around a number, `"\v"` and `"\f"` included.
+trim_space <- function(x) {
+  gsub("^[[:space:]]+|[[:space:]]+$", "", x, perl = TRUE)
+}
+
+# The strings `as.numeric()` reads as an infinity or `NaN`, in any letter case.
+# `chartr()` folds the ASCII letters of these tokens and nothing else, so unlike
+# `tolower()` it does not depend on the locale:
+is_non_finite_token <- function(x) {
+  chartr("AFINTY", "afinty", x) %in% NON_FINITE_TOKENS
 }

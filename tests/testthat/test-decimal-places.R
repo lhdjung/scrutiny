@@ -200,7 +200,7 @@ test_that("the two functions agree over a generated corpus", {
   ints <- c("0", "1", "42", "")
   mantissas <- c("", ".0", ".5", ".00", ".750", ".0001")
   exponents <- c("", "e3", "e-3", "E+05", "e-10", "e0")
-  pads <- c("", " ", "  ", "\t")
+  pads <- c("", " ", "  ", "\t", "\f", "\v")
 
   values <- as.vector(outer(
     outer(paste0(rep(signs, each = length(ints)), ints), mantissas, paste0),
@@ -213,7 +213,11 @@ test_that("the two functions agree over a generated corpus", {
   values <- c(
     values,
     "5.30%", "1.5abc", "1.2.3", "3.7,", "1.50a", "1.5e", "e5",
-    "Inf", "NaN", "NA", "", " ", NA_character_
+    "Inf", "NaN", "NA", "", " ", NA_character_,
+    "1..5", "1.a.25", "inf", "nan", "infinity", "-INF", "+NaN",
+    # Exponents beyond the integer range, and whitespace `as.numeric()` does
+    # not skip:
+    "1e-99999999999", "1.5e99999999999", "\u00a02.50", "2.50\u00a0"
   )
 
   from_scalar <- values |>
@@ -281,4 +285,28 @@ test_that("non-finite values have no decimal places", {
   input |>
     vapply(decimal_places_scalar, integer(1L), USE.NAMES = FALSE) |>
     expect_equal(expected)
+})
+
+
+test_that("`sep` is a literal string, and only the first one counts", {
+  # `sep` used to be a regular expression, so `"."` matched any character.
+  "1.25" |> decimal_places(sep = ".") |> expect_equal(2L)
+  "1234.5" |> decimal_places_scalar(sep = ".") |> expect_equal(1L)
+  "1,25" |> decimal_places(sep = ",") |> expect_equal(2L)
+  # The former default is still read as a point:
+  "1.25" |> decimal_places(sep = "\\.") |> expect_equal(2L)
+  "1.25" |> decimal_places_scalar(sep = "\\.") |> expect_equal(2L)
+
+  # The scalar function used to count the first digit run after *any* separator,
+  # so the two disagreed on these:
+  values <- c("1..5", "1.a.25")
+  values |> decimal_places() |> expect_equal(c(0L, 0L))
+  values |>
+    vapply(decimal_places_scalar, integer(1L), USE.NAMES = FALSE) |>
+    expect_equal(c(0L, 0L))
+
+  # `as.numeric()` reads these as non-finite, whatever the case:
+  c("inf", "nan", "infinity", "-INF") |>
+    decimal_places() |>
+    expect_equal(rep(NA_integer_, 4L))
 })

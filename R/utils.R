@@ -965,8 +965,11 @@ check_tibble <- function(data) {
 #'   the same reason.
 #'
 #'   A missing `digits` passes, so that it propagates to an `NA` result the way
-#'   a missing `x` does. An infinite one does not: it is not a decimal level,
-#'   and `10^Inf` would take every value to `NaN`.
+#'   a missing `x` does -- including a plain logical `NA`, as in
+#'   `check_newly_numeric()`. An infinite one does not: it is not a decimal
+#'   level, and `10^Inf` would take every value to `NaN`. Nor does one beyond
+#'   308 in either direction, for the same reason: `10^309` is already `Inf`,
+#'   and `10^-400` is `0`.
 #'
 #' @param digits The `digits` argument of the calling function.
 #'
@@ -974,25 +977,44 @@ check_tibble <- function(data) {
 #'
 #' @noRd
 check_digits_whole <- function(digits) {
-  if (is.numeric(digits)) {
-    # The normal and cheap case: one pass over `digits`, no allocation beyond
-    # it, and no `cli` fn calls. `NaN` is caught by `is.na()` and passes with
-    # the other missing values.
-    ok <-
-      is.na(digits) |
-      (is.finite(digits) & abs(digits - round(digits)) < WHOLE_NUMBER_TOLERANCE)
-
-    if (all(ok)) {
-      return(NULL)
-    }
-
-    # Failure path, where the cost no longer matters:
-    offenders <- digits[!ok]
+  if (!is.numeric(digits) && !(is.logical(digits) && all(is.na(digits)))) {
     cli::cli_abort(
       message = c(
         "`digits` must be whole numbers.",
-        "x" = "It has {length(offenders)} value{?s} that {?is/are} not: \\
-        {offenders}.",
+        "x" = "It is {.obj_type_friendly {digits}}."
+      ),
+      call = rlang::caller_env()
+    )
+  }
+
+  # The normal and cheap case: one pass over `digits`, no allocation beyond it,
+  # and no `cli` fn calls. `NaN` is caught by `is.na()` and passes with the
+  # other missing values. 308 is the greatest power of ten a double can hold, so
+  # `10^digits` is finite and non-zero within it:
+  ok <-
+    is.na(digits) |
+    (abs(digits) <= 308 &
+      abs(digits - round(digits)) < WHOLE_NUMBER_TOLERANCE)
+
+  if (all(ok)) {
+    return(NULL)
+  }
+
+  # Failure path, where the cost no longer matters. A value fails for not being
+  # whole, or else for being out of range; the first reason is reported first.
+  # An infinity is not whole, and fails the second test only as `NA`:
+  offenders <- digits[!ok]
+  not_whole <- offenders[
+    !is.finite(offenders) |
+      abs(offenders - round(offenders)) >= WHOLE_NUMBER_TOLERANCE
+  ]
+
+  if (length(not_whole) > 0L) {
+    cli::cli_abort(
+      message = c(
+        "`digits` must be whole numbers.",
+        "x" = "It has {length(not_whole)} value{?s} that {?is/are} not: \\
+        {not_whole}.",
         "i" = "Each value is a number of decimal places, so a fractional one \\
         would scale `x` by a non-power of ten and return a number on no \\
         decimal grid."
@@ -1003,8 +1025,11 @@ check_digits_whole <- function(digits) {
 
   cli::cli_abort(
     message = c(
-      "`digits` must be whole numbers.",
-      "x" = "It is {.obj_type_friendly {digits}}."
+      "`digits` must be between -308 and 308.",
+      "x" = "It has {length(offenders)} value{?s} that {?is/are} not: \\
+      {offenders}.",
+      "i" = "Beyond that, `10^digits` is not a finite, non-zero number, so \\
+      `x` could not be scaled by it."
     ),
     call = rlang::caller_env()
   )
@@ -1849,13 +1874,7 @@ check_rounding_spec_singular <- function(rounding, threshold, symmetric) {
   }
 
   if (!is.logical(symmetric) || is.na(symmetric)) {
-    cli::cli_abort(
-      c(
-        "`symmetric` must be `TRUE` or `FALSE`.",
-        "x" = "It is {.obj_type_friendly {symmetric}}."
-      ),
-      call = rlang::caller_env()
-    )
+    abort_symmetric_invalid(symmetric, call = rlang::caller_env())
   }
 }
 

@@ -9,18 +9,19 @@ resolve_digits_fraction <- function(digits, denominator) {
     digits <- ceiling(log10(denominator)) + 1L
   }
 
-  if (!all(is.infinite(digits))) {
-    digits_numeric <- digits[!is.infinite(digits)]
-    if (!all(is_whole_number(digits_numeric))) {
-      cli::cli_abort(
-        c(
-          "!" = "Each `digits` value must be a whole number.",
-          "x" = "`digits` was given as \\
-          {digits_numeric[!is_whole_number(digits_numeric)]}."
-        ),
-        call = rlang::caller_env()
-      )
-    }
+  # A missing `digits` passes, and propagates to a missing result, as it does in
+  # `reround()`. So does an infinite one, which `reround_to_fraction()` treats
+  # as "don't round":
+  digits_finite <- digits[is.finite(digits)]
+  if (!all(is_whole_number(digits_finite))) {
+    cli::cli_abort(
+      c(
+        "!" = "Each `digits` value must be a whole number.",
+        "x" = "`digits` was given as \\
+        {digits_finite[!is_whole_number(digits_finite)]}."
+      ),
+      call = rlang::caller_env()
+    )
   }
 
   digits
@@ -131,8 +132,9 @@ reround_to_fraction <- function(
   # "getting paired" for arguments that cannot be paired at all -- immediately
   # followed by an error from `reround()` saying so.
 
-  # Check whether `denominator` values are >= 1:
-  if (any(denominator < 1)) {
+  # Check whether `denominator` values are >= 1. A missing one propagates to a
+  # missing result instead of failing this `if ()`:
+  if (any(denominator < 1, na.rm = TRUE)) {
     value_values <- dplyr::if_else(length(denominator) == 1L, "value", "values")
     cli::cli_abort(c(
       "!" = "`denominator` must be 1 or greater.",
@@ -149,6 +151,16 @@ reround_to_fraction <- function(
   # longer `x` failed the length-congruence check that `reround()` used to run.
 
   digits <- resolve_digits_fraction(digits, denominator)
+
+  # Recycle the three to a common length, as the check above allows. Left to
+  # itself, `x * denominator` recycled only those two, and `digits` was then
+  # spread over the result, so the extra values of a longer `digits` were
+  # silently dropped.
+  lengths_in <- lengths(list(x, denominator, digits))
+  n_out <- if (any(lengths_in == 0L)) 0L else max(lengths_in)
+  x <- rep_len(x, n_out)
+  denominator <- rep_len(denominator, n_out)
+  digits <- rep_len(digits, n_out)
 
   # Main part ---
 
@@ -225,7 +237,8 @@ reround_to_fraction_level <- function(
   # "getting paired" for arguments that cannot be paired at all -- immediately
   # followed by an error from `reround()` saying so.
 
-  if (any(denominator < 1)) {
+  # See the comment in `reround_to_fraction()`:
+  if (any(denominator < 1, na.rm = TRUE)) {
     value_values <- dplyr::if_else(length(denominator) == 1L, "value", "values")
     cli::cli_abort(c(
       "!" = "`denominator` must be 1 or greater.",

@@ -84,15 +84,18 @@ floor_frac_sum <- function(a1, b1, a2, b2) {
 # 5. The `"*_from"` methods are the parameterized ones.
 #
 # Returns a list of lower offset, upper offset, `incl_lower`, `incl_upper` --
-# all `NA` if `x_num` is missing, or `NULL` if `rounding` is unknown.
+# all `NA` if `x_num` is missing or infinite, or `NULL` if `rounding` is
+# unknown.
 
 rounding_offsets <- function(rounding, threshold, x_num, symmetric = FALSE) {
   check_rounding_spec_singular(rounding, threshold, symmetric)
 
   # The branches below need a sign, and a missing value has none. Standing in a
   # positive number keeps `rounding` validated the way it is for any other
-  # value; the offsets it yields are discarded at the end:
-  x_missing <- is.na(x_num)
+  # value; the offsets it yields are discarded at the end. An infinity counts as
+  # missing, as it does in the tests themselves: its "bounds" were `Inf` on both
+  # sides, which is no range at all.
+  x_missing <- !is.finite(x_num)
   if (x_missing) {
     x_num <- 1
   }
@@ -201,7 +204,8 @@ rounding_offsets <- function(rounding, threshold, x_num, symmetric = FALSE) {
 
 # Integer numerators of `x_num`'s two rounding bounds over a common denominator,
 # plus each bound's inclusivity. Returns `NULL` if the bounds are undefined,
-# which happens only for a missing `x_num`, and errors on an unknown `rounding`.
+# which happens only for a missing or infinite `x_num`, and errors on an unknown
+# `rounding`.
 
 bound_numerators <- function(x_num, digits, rounding, threshold, symmetric) {
   offsets <- rounding_offsets(rounding, threshold, x_num, symmetric)
@@ -482,7 +486,7 @@ sum_squares_scale_max <- function(s, n, val_lower, val_upper) {
 
 #' @param x String or numeric. Rounded number. `x` must be a string unless
 #'   `digits` is specified (most likely by a function that uses `unround()` as a
-#'   helper).
+#'   helper). A missing or infinite `x` has no bounds, so they are `NA`.
 #' @param rounding String. Rounding method presumably used to create `x`.
 #'   Default is `"up_or_down"`. For more, see section `Rounding`.
 #' @param threshold Numeric. The point within a step at which rounding switches
@@ -495,7 +499,7 @@ sum_squares_scale_max <- function(s, n, val_lower, val_upper) {
 #'   efficient to use as a helper function so that it doesn't need to
 #'   redundantly count decimal places. Don't specify it otherwise. Default is
 #'   `NULL`, in which case decimal places really are counted internally and `x`
-#'   must be a string.
+#'   must be a string. Otherwise, it must be whole numbers, as in [`reround()`].
 #' @param symmetric Logical. Set `symmetric` to `TRUE` if the rounding of
 #'   negative numbers with `"up"`, `"down"`, `"up_from"`, or `"down_from"`
 #'   mirrored that of positive numbers, so that their absolute values were
@@ -573,6 +577,11 @@ unround <- function(
       ))
     }
     digits <- decimal_places(x)
+  } else {
+    # The same check as in `reround()`: a fractional `digits` was accepted and
+    # gave bounds on no decimal grid, and a string failed deep inside with
+    # "non-numeric argument to mathematical function".
+    check_digits_whole(digits)
   }
 
   # The bound helpers operate on the numeric value of `x`:

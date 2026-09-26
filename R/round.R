@@ -103,10 +103,12 @@
 #'   too permissive.
 #' @param symmetric Logical. Set `symmetric` to `TRUE` if the rounding of
 #'   negative numbers should mirror that of positive numbers so that their
-#'   absolute values are equal. Only affects negative numbers, and among those
-#'   only values sitting on the threshold -- which, at the default `threshold`
-#'   of `5`, means ties. Default is `FALSE`. See the `Negative numbers`
-#'   section.
+#'   absolute values are equal. Only affects negative numbers. For
+#'   `round_up()` and `round_down()`, whose threshold is `5`, it only affects
+#'   ties among those; for `round_up_from()` and `round_down_from()` with some
+#'   other `threshold`, it affects more: `round_up_from(-4.28, 1, threshold =
+#'   9)` is `-4.3`, and `-4.2` with `symmetric = TRUE`. Default is `FALSE`. See
+#'   the `Negative numbers` section.
 #'
 #' @return Numeric. `x` rounded to `digits`.
 #'
@@ -177,6 +179,14 @@ round_up_from <- function(x, digits = 0L, threshold, symmetric = FALSE) {
   # `round_floor()` rather than rounding from a threshold at all:
   check_threshold_valid(threshold)
 
+  # A bare `if (symmetric)` failed on an `NA` or a longer vector with base R's
+  # message, and took a number or a string like `"TRUE"` as a flag. Primitives
+  # only, not `isTRUE()` and `isFALSE()`: this runs once per candidate value,
+  # and those two closures cost half again as much as the rounding itself.
+  if (!is.logical(symmetric) || length(symmetric) != 1L || is.na(symmetric)) {
+    abort_symmetric_invalid(symmetric)
+  }
+
   p10 <- 10^digits
   offset <- tie_offset_up(threshold)
 
@@ -203,11 +213,15 @@ round_down_from <- function(x, digits = 0L, threshold, symmetric = FALSE) {
   # See the comment in `round_up_from()`:
   check_threshold_valid(threshold)
 
+  if (!is.logical(symmetric) || length(symmetric) != 1L || is.na(symmetric)) {
+    abort_symmetric_invalid(symmetric)
+  }
+
   p10 <- 10^digits
   offset <- tie_offset_down(threshold)
 
+  # See the comments in `round_up_from()`:
   if (symmetric) {
-    # See the comment in `round_up_from()`:
     restore_sign(ceiling(abs(x) * p10 - offset) / p10, x)
   } else {
     ceiling(x * p10 - offset) / p10
@@ -246,4 +260,18 @@ round_up <- function(x, digits = 0L, symmetric = FALSE) {
 
 round_down <- function(x, digits = 0L, symmetric = FALSE) {
   round_down_from(x = x, digits = digits, threshold = 5, symmetric = symmetric)
+}
+
+
+# Shared by `check_rounding_spec_singular()`, which `reround()` goes through,
+# and the exported rounding functions, which don't. Each tests `symmetric`
+# inline, since this runs once per candidate value.
+abort_symmetric_invalid <- function(symmetric, call = rlang::caller_env()) {
+  cli::cli_abort(
+    c(
+      "`symmetric` must be `TRUE` or `FALSE`.",
+      "x" = "It is {.obj_type_friendly {symmetric}}."
+    ),
+    call = call
+  )
 }

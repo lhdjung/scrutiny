@@ -48,6 +48,8 @@
 
 - `*_map_seq()` functions called with `items` now return `n` as the sample size, followed by an `items` column, and disperse `n` in steps of one person. They used to disperse the product `n * items` and re-test it with `items = 1`. That was only a cosmetic problem for GRIM, but it made `grimmer_map_seq()` wrong: GRIMMER uses `n` and `items` separately, so even the reported value set could come out inconsistent in the sequence while `grimmer_map()` found it consistent.
 
+- `decimal_places()`, `decimal_places_scalar()`, `decimal_places_df()`, `restore_zeros()`, and `restore_zeros_df()` now match `sep` / `sep_in` / `sep_out` as a literal string, as documented, and their defaults are `"."` instead of `"\\."`. Passing `"."` used to be read as a regular expression matching any character. The old default is still understood.
+
 ## Bugfixes
 
 - `absorb_key_args()`, which renames key columns in every mapper (`grim_map(data, x = mean)`), now reads the key arguments' values rather than the unevaluated call. Calls through `lapply()` or `purrr::map()`, and calls from inside another function with the column name in a variable, used to fail with a misleading message. A key argument that points elsewhere while `data` already has a column of that name is now an error; the existing column used to be tested silently instead.
@@ -73,6 +75,14 @@
 - `seq_disperse()` and the `*_map_seq()` functions now reject a fractional `dispersion`, compare `out_min` and `out_max` as numbers even if given as strings, and no longer error if `from` has more decimal places than `by`.
 
 - `audit_seq()` now works on output from a single-step `dispersion`, such as `dispersion = 1`.
+
+- `restore_zeros()` now handles values that R prints in scientific notation, such as `0.0001`, which it used to truncate. It pads with literal zeros instead of `sprintf()`, which showed binary noise at high widths, and returns `NA` rather than the string `"NA"` for input it cannot read as a number.
+
+- `decimal_places()` and `decimal_places_scalar()` now agree on malformed strings like `"1..5"`, and treat `"inf"`, `"nan"`, and `"infinity"` like `"Inf"` and `"NaN"` in any case.
+
+- `reround()` now accepts a logical `NA` for `digits`, and rejects a `digits` so large that `10^digits` overflows. `unround()` now validates `digits` the same way, and treats an infinite `x` as missing.
+
+- `rounding_bias()` now accepts strings, as documented. `round_up()`, `round_down()`, `round_up_from()`, and `round_down_from()` now reject an invalid `symmetric` with a clear message. `reround_to_fraction()` now recycles `digits` along with `x` and `denominator`, and propagates `NA`.
 
 - `seq_disperse()` and `seq_disperse_df()` now apply `out_min` and `out_max` to the whole sequence. Each limit used to be checked against one side only, the steps down against `out_min` and the steps up against `out_max`, so `seq_disperse(30, out_max = 25)` kept `26` to `29`. The limits also used to be checked before `offset_from` moved the sequence, so an offset could carry values past them. `*_map_seq()` functions inherit both fixes; with `out_min` and `out_max` set to the same value, a case above it now disperses to that one value rather than to every step down to it.
 

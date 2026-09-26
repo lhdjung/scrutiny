@@ -68,6 +68,16 @@ TIES_METHODS <- list(
 )
 
 
+# The strings that `as.numeric()` reads as an infinity or `NaN`, once their
+# letters are lowercased. `decimal_places()` and `decimal_places_scalar()` give
+# them `NA` decimal places, via `is_non_finite_token()`.
+NON_FINITE_TOKENS <- c(outer(
+  c("", "+", "-"),
+  c("inf", "infinity", "nan"),
+  paste0
+))
+
+
 # The user-facing consistency test functions: `grim()`, `grim_map()`,
 # `grimmer_map_seq()`, `debit_map_total_n()`, and so on.
 

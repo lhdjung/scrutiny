@@ -43,10 +43,11 @@ too permissive.}
 
 \item{symmetric}{Logical. Set \code{symmetric} to \code{TRUE} if the rounding of
 negative numbers should mirror that of positive numbers so that their
-absolute values are equal. Only affects negative numbers, and among those
-only values sitting on the threshold -- which, at the default \code{threshold}
-of \code{5}, means ties. Default is \code{FALSE}. See the \verb{Negative numbers}
-section.}
+absolute values are equal. Only affects negative numbers. For
+\code{round_up()} and \code{round_down()}, whose threshold is \code{5}, it only affects
+ties among those; for \code{round_up_from()} and \code{round_down_from()} with some
+other \code{threshold}, it affects more: \code{round_up_from(-4.28, 1, threshold = 9)} is \code{-4.3}, and \code{-4.2} with \code{symmetric = TRUE}. Default is \code{FALSE}. See
+the \verb{Negative numbers} section.}
 }
 \value{
 Numeric. \code{x} rounded to \code{digits}.

@@ -550,3 +550,14 @@ test_that("`x` must fit into a given `digits`", {
   # Trailing zeros in a string are not extra decimal places of the value:
   unround("4.50", digits = 1)$lower |> expect_equal(4.45)
 })
+
+
+test_that("`digits` is checked, and an infinite `x` has no bounds", {
+  unround("1.25", digits = 2.5) |> expect_error("whole numbers")
+  unround("1.25", digits = "2") |> expect_error("whole numbers")
+  
+  # `Inf <= x(Inf) <= Inf` used to be the answer for a numeric infinity:
+  out <- unround(Inf, digits = 1)
+  c(out$lower, out$upper) |> expect_equal(c(NA_real_, NA_real_))
+  c(out$incl_lower, out$incl_upper) |> expect_equal(c(NA, NA))
+})

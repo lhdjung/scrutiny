@@ -34,16 +34,18 @@
 #'   `x |> decimal_places() |> max()`
 #'
 #' @param x Numeric (or string coercible to numeric). Vector of numbers that
-#'   might have lost trailing zeros.
+#'   might have lost trailing zeros. A value that is not coercible to numeric,
+#'   such as `"5%"`, is returned as `NA`.
 #' @param width Integer. Number of decimal places the mantissas should have,
 #'   including the restored zeros. If specified, `width` needs to be length 1 or
 #'   the same length as `x`. Default is `NULL`, in which case the number of
 #'   characters in the longest mantissa will be used instead.
-#' @param sep_in Substring that separates the input's mantissa from its integer
-#'   part. Default is `"\\."`, which renders a decimal point.
-#' @param sep_out Substring that will be returned in the output to separate the
-#'   mantissa from the integer part. By default, `sep_out` is the same as
-#'   `sep_in`.
+#' @param sep_in String. The literal separator between the input's integer
+#'   part and its mantissa. Default is `"."`. (The former default, the regular
+#'   expression `"\\."`, is still read as a decimal point.)
+#' @param sep_out String. The literal separator that will be returned in the
+#'   output between the integer part and the mantissa. By default, `sep_out` is
+#'   the same as `sep_in`.
 #' @param check_width String (length 1). What to do if `width` was specified but
 #'   some values in `x` have more decimal places (e.g., `x = 0.123, width = 2`)?
 #'   The default, `"capped"`, is to throw an error. Use `check_width = "never"`
@@ -101,19 +103,39 @@
 restore_zeros <- function(
   x,
   width = NULL,
-  sep_in = "\\.",
+  sep_in = ".",
   sep_out = sep_in,
   check_width = c("capped", "never")
 ) {
   check_width <- rlang::arg_match(check_width)
+  sep_in <- sep_literal(sep_in)
 
   # Make sure no whitespace (from values that already were strings) is factored
   # into the count:
   x <- stringr::str_trim(x)
 
-  # Count characters of the mantissa part:
-  parts <- stringr::str_split_fixed(x, sep_in, n = 2L)
-  width_mantissa <- stringr::str_length(parts[, 2L])
+  # From here on, the separator is a decimal point, so that `as.numeric()` can
+  # read `x`. It is put back in at the end:
+  if (sep_in != ".") {
+    x <- sub(sep_in, ".", x, fixed = TRUE)
+  }
+
+  # A value that is not a number has no zeros to restore. It becomes missing,
+  # like a missing value, rather than being padded into nonsense such as
+  # `"5%000"` -- or, as it used to, into the string `"NA"`:
+  x_num <- as.numeric(x)
+  x[is.na(x_num)] <- NA_character_
+
+  # R writes small and large numbers in scientific notation by itself --
+  # `as.character(0.0001)` is `"1e-04"` -- and zeros appended to that would
+  # multiply the value instead of padding it. Such values are written out in
+  # full, to the decimal places that `decimal_places()` reads off the exponent:
+  sci <- is.finite(x_num) & grepl("e", x, ignore.case = TRUE)
+  x[sci] <- sprintf("%.*f", decimal_places(x[sci]), x_num[sci])
+
+  # Count the decimal places. This is `NA` where there are none to count: in a
+  # missing value and in an infinity.
+  width_mantissa <- decimal_places(x)
 
   # Determine the maximal width to which the mantissas should be padded in
   # accordance with the `width` argument, the default of which, `NULL`, makes
@@ -127,7 +149,7 @@ restore_zeros <- function(
         ">" = "Specify `width` to predetermine a number of decimal places \\
         to which `x` values should be padded."
       ))
-    } else if (all(width_mantissa == 0L)) {
+    } else if (all(width_mantissa == 0L, na.rm = TRUE)) {
       cli::cli_warn(c(
         "No trailing zeros can be restored",
         "!" = "None of the {length(x)} `x` values has any decimal places.",
@@ -137,7 +159,7 @@ restore_zeros <- function(
     }
     # The number of decimal places to which `x` values will be padded with zeros
     # is determined by the number of characters in the longest mantissa...
-    width_target <- max(width_mantissa, na.rm = TRUE)
+    width_target <- max(0L, width_mantissa, na.rm = TRUE)
     # ... unless the user manually specified that target number via `width`.
     # This is an error if `width` is not a single integer-ish number or a vector
     # of such numbers with the same length as `x`...
@@ -150,8 +172,10 @@ restore_zeros <- function(
       "x" = "It is {width}."
     ))
     # ... or if any `x` elements have more decimal places than `width` allows:
-  } else if (check_width == "capped" && any(width_mantissa > width)) {
-    offenders <- x[width_mantissa > width]
+  } else if (
+    check_width == "capped" && any(width_mantissa > width, na.rm = TRUE)
+  ) {
+    offenders <- x[which(width_mantissa > width)]
     cli::cli_abort(c(
       "Some values have more decimal places than `width` foresees.",
       "x" = "`width` was set to {width}.",
@@ -163,40 +187,23 @@ restore_zeros <- function(
     width_target <- width
   }
 
-  # In `x`, if integers and mantissas are separated by something other than
-  # decimal points, these separators need to be temporarily changed to points,
-  # so that `sprintf()` will be able to operate on `x` below:
-  if (any(sep_in != "\\.")) {
-    x <- stringr::str_replace(x, sep_in, "\\.")
-  }
+  # Pad `x` with the missing number of zeros, appended literally. Formatting
+  # with `sprintf("%.*f")` instead would print the binary expansion of the
+  # value: `0.1` padded to 20 places came out as `"0.10000000000000000555"`. A
+  # whole number gets a decimal point first:
+  n_zeros <- width_target - width_mantissa
+  pad <- !is.na(n_zeros) & n_zeros > 0L
+  point <- dplyr::if_else(grepl(".", x[pad], fixed = TRUE), "", ".")
+  out <- x
+  out[pad] <- paste0(x[pad], point, strrep("0", n_zeros[pad]))
 
-  # Assemble the formatting expression, determined by `width_target` -- the
-  # desired number of decimal places to which the `x` values should be padded:
-  out_format <- paste0("%.", width_target, "f")
-
-  # Pad `x` with the correct amount of trailing zeros:
-
-  out <- dplyr::if_else(
-    width_mantissa < width_target,
-    sprintf(out_format, as.numeric(x)),
-    x
-  )
-
-  # A missing value has no trailing zeros to restore, and it should stay missing
-  # rather than become the string `"NA"`. It takes this branch because
-  # `stringr::str_split_fixed()` returns an empty mantissa for it, which counts
-  # as fewer decimal places than the target, and `sprintf()` then formats the
-  # missing value as the two characters that spell it out:
-  out[is.na(x)] <- NA_character_
-
-  # By default, the separator in the output vector should be a decimal point,
-  # but it might have been overridden -- either directly via `sep_out` or
-  # indirectly via `sep_in` (because the default for `sep_out` is `sep_in`). If
-  # so, it now takes its place again. In any case, the output is returned:
-  if (all(sep_out == "\\.")) {
+  # By default, the separator in the output vector is the same as in the input,
+  # but it might have been overridden via `sep_out`. `restore_zeros_df()` passes
+  # `NULL` for a decimal point:
+  if (is.null(sep_out) || sep_literal(sep_out) == ".") {
     out
   } else {
-    stringr::str_replace(out, "\\.", sep_out)
+    sub(".", sep_literal(sep_out), out, fixed = TRUE)
   }
 }
 
@@ -210,7 +217,7 @@ restore_zeros_df <- function(
   check_numeric_like = TRUE,
   check_decimals = FALSE,
   width = NULL,
-  sep_in = "\\.",
+  sep_in = ".",
   sep_out = NULL,
   check_width = c("capped", "never"),
   ...
@@ -263,7 +270,7 @@ restore_zeros_df <- function(
   # numeric-like column, at least one value must have at least one decimal
   # place. Otherwise...
   if (check_decimals) {
-    selection3 <- rlang::expr(where(function(x, sep = "\\.") {
+    selection3 <- rlang::expr(where(function(x) {
       !is_numeric_like(x) || !all(decimal_places(x, sep = sep_in) == 0L)
     }))
   } else {

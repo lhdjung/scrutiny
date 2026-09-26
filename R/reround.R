@@ -90,10 +90,11 @@ reconstruct_rounded_numbers_scalar <- function(
 #' @param digits Integer. Number of decimal places in the reported key values
 #'   (i.e., mean or percentage within [`grim()`], or standard deviation within
 #'   [`grimmer()`]). It is the one argument that is vectorized along with `x`,
-#'   so it must either have the same length as `x` or length 1, and every value
-#'   must be a whole number: a fractional one is not a decimal level at all,
-#'   and would scale `x` by a non-power of ten. A missing value propagates to a
-#'   missing result, as it does in `x`.
+#'   and the two are recycled to a common length by the tidyverse rules: one of
+#'   them may have length 1, and otherwise their lengths must be equal. Every
+#'   value must be a whole number: a fractional one is not a decimal level at
+#'   all, and would scale `x` by a non-power of ten. A missing value propagates
+#'   to a missing result, as it does in `x`.
 #' @param rounding String. The rounding method that is supposed to have been
 #'   used originally. See `vignette("rounding-options")`. Default is
 #'   `"up_or_down"`, which returns two values: `x` rounded up *and* down.

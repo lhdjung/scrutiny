@@ -8,7 +8,7 @@
 restore_zeros(
   x,
   width = NULL,
-  sep_in = "\\\\.",
+  sep_in = ".",
   sep_out = sep_in,
   check_width = c("capped", "never")
 )
@@ -19,7 +19,7 @@ restore_zeros_df(
   check_numeric_like = TRUE,
   check_decimals = FALSE,
   width = NULL,
-  sep_in = "\\\\.",
+  sep_in = ".",
   sep_out = NULL,
   check_width = c("capped", "never"),
   ...
@@ -27,19 +27,21 @@ restore_zeros_df(
 }
 \arguments{
 \item{x}{Numeric (or string coercible to numeric). Vector of numbers that
-might have lost trailing zeros.}
+might have lost trailing zeros. A value that is not coercible to numeric,
+such as \code{"5\%"}, is returned as \code{NA}.}
 
 \item{width}{Integer. Number of decimal places the mantissas should have,
 including the restored zeros. If specified, \code{width} needs to be length 1 or
 the same length as \code{x}. Default is \code{NULL}, in which case the number of
 characters in the longest mantissa will be used instead.}
 
-\item{sep_in}{Substring that separates the input's mantissa from its integer
-part. Default is \code{"\\\\."}, which renders a decimal point.}
+\item{sep_in}{String. The literal separator between the input's integer
+part and its mantissa. Default is \code{"."}. (The former default, the regular
+expression \code{"\\\\."}, is still read as a decimal point.)}
 
-\item{sep_out}{Substring that will be returned in the output to separate the
-mantissa from the integer part. By default, \code{sep_out} is the same as
-\code{sep_in}.}
+\item{sep_out}{String. The literal separator that will be returned in the
+output between the integer part and the mantissa. By default, \code{sep_out} is
+the same as \code{sep_in}.}
 
 \item{check_width}{String (length 1). What to do if \code{width} was specified but
 some values in \code{x} have more decimal places (e.g., \verb{x = 0.123, width = 2})?

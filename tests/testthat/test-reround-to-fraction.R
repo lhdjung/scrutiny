@@ -127,3 +127,15 @@ test_that("no pairing warning for arguments that cannot be paired", {
     expect_error(f(c(0.4, 0.6), denominator = 2, rounding = c("up", "down")))
   }
 })
+
+
+test_that("a longer `digits` is recycled with `x`, and `NA` propagates", {
+  # With `x` of length 1, the second `digits` value used to be dropped:
+  reround_to_fraction(0.3, 2, digits = c(1, Inf), rounding = "up") |>
+    expect_equal(c(0.5, 0.5))
+  reround_to_fraction(0.34, 3, digits = c(1, 2), rounding = "up") |>
+    expect_equal(c(0.3, 0.33))
+  # These used to fail with "missing value where TRUE/FALSE needed":
+  reround_to_fraction(0.3, NA, rounding = "up") |> expect_equal(NA_real_)
+  reround_to_fraction(0.3, 2, digits = NA, rounding = "up") |> expect_equal(NA_real_)
+})

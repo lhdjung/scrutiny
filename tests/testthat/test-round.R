@@ -387,3 +387,11 @@ test_that("`round_up_from()` and `round_down_from()` validate `threshold`", {
   4.28 |> round_up_from(1, threshold = 1) |> expect_equal(4.3)
   4.28 |> round_up(1) |> expect_equal(round_up_from(4.28, 1, threshold = 5))
 })
+
+
+test_that("the exported functions reject an invalid `symmetric`", {
+  # These used to fail in `if ()` with base R's messages:
+  round_up(1.25, 1, symmetric = NA) |> expect_error("`TRUE` or `FALSE`")
+  round_down(1.25, 1, symmetric = c(TRUE, FALSE)) |> expect_error("`TRUE` or `FALSE`")
+  round_up_from(1.25, 1, 5, symmetric = "yes") |> expect_error("`TRUE` or `FALSE`")
+})

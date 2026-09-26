@@ -5,16 +5,17 @@
 \alias{decimal_places_scalar}
 \title{Count decimal places}
 \usage{
-decimal_places(x, sep = "\\\\.")
+decimal_places(x, sep = ".")
 
-decimal_places_scalar(x, sep = "\\\\.")
+decimal_places_scalar(x, sep = ".")
 }
 \arguments{
 \item{x}{Numeric (or string that can be coerced to numeric). Object with
 decimal places to count.}
 
-\item{sep}{Substring that separates the mantissa from the integer part.
-Default is \code{"\\\\."}, which renders a decimal point.}
+\item{sep}{String. The literal separator between the integer part and the
+mantissa. Default is \code{"."}. (The former default, the regular expression
+\code{"\\\\."}, is still read as a decimal point.)}
 }
 \value{
 Integer. Number of decimal places in \code{x}.
@@ -38,9 +39,12 @@ mistake spaces for decimal places.
 
 Both functions count the run of digits that immediately follows the
 first \code{sep}, after removing surrounding whitespace and applying any
-exponent: \code{"5.30\%"} has two decimal places, and \code{"1e-5"} has five. They
-always agree with each other; \code{decimal_places_scalar()} is the faster one,
-and \code{decimal_places()} is the one that takes a vector.
+exponent: \code{"5.30\%"} has two decimal places, \code{"1e-5"} has five, and
+\code{"1..5"} has none. The strings that \code{\link[=as.numeric]{as.numeric()}} reads as an infinity
+or \code{NaN}, in any letter case, have \code{NA} decimal places, as do missing
+values. The two functions always agree with each other;
+\code{decimal_places_scalar()} is the faster one, and \code{decimal_places()} is the
+one that takes a vector.
 }
 \section{Trailing zeros}{
  If trailing zeros matter, don't convert numeric
