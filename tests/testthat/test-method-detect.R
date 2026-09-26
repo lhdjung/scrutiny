@@ -80,14 +80,15 @@ iris_ignore_exp <- tibble::tibble(
     ".total"
   ),
   dup_count = c(130L, 140L, 134L, 148L, 150L, 702L),
-  total_count = rep(c(150L, 750L), c(5L, 1L)),
+  # Ignored values are `NA` in the test columns, so they are not counted:
+  total_count = c(130L, 142L, 140L, 148L, 150L, 710L),
   dup_rate = c(
-    0.8666666666666666962726,
-    0.9333333333333333481363,
-    0.8933333333333333126092,
-    0.9866666666666666918317,
-    1,
-    0.936
+    130 / 130,
+    140 / 142,
+    134 / 140,
+    148 / 148,
+    150 / 150,
+    702 / 710
   ),
 )
 
@@ -107,20 +108,21 @@ mtcars_ignore_exp <- tibble::tibble(
     ".total"
   ),
   dup_count = c(32L, 21L, 14L, 9L, 20L, 20L, 17L, 14L, 6L, 32L, 7L, 192L),
-  total_count = rep(c(32L, 352L), c(11L, 1L)),
+  # Ignored values are `NA` in the test columns, so they are not counted:
+  total_count = c(32L, 21L, 14L, 32L, 32L, 20L, 32L, 30L, 32L, 32L, 32L, 309L),
   dup_rate = c(
     1,
-    0.65625,
-    0.4375,
+    1,
+    1,
     0.28125,
     0.625,
-    0.625,
+    1,
     0.53125,
-    0.4375,
+    14 / 30,
     0.1875,
     1,
     0.21875,
-    0.5454545454545454141737
+    192 / 309
   ),
 )
 
@@ -148,4 +150,22 @@ test_that("`audit()` for `duplicate_detect()` works correctly with some values i
     duplicate_detect(ignore = c(19.2, 6, 4)) |>
     audit() |>
     expect_equal(mtcars_ignore_exp)
+})
+
+test_that("every term gets a row, and `NA`s are not counted as checked", {
+  # Terms without duplicates used to be dropped, so `.total` undercounted, and
+  # `total_count` was the number of rows even where some values were `NA`:
+  tibble::tibble(
+    a = c(1, 2, NA, 4),
+    b = c(1, 5, 6, 7),
+    c = c("x", "y", "z", "w")
+  ) |>
+    duplicate_detect() |>
+    audit() |>
+    expect_equal(tibble::tibble(
+      term = c("a", "b", "c", ".total"),
+      dup_count = c(1L, 1L, 0L, 2L),
+      total_count = c(3L, 4L, 4L, 11L),
+      dup_rate = c(1 / 3, 1 / 4, 0, 2 / 11)
+    ))
 })

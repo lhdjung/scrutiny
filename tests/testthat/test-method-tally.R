@@ -106,3 +106,25 @@ test_that("`audit()` for `duplicate_tally()` works correctly", {
   iris   |> duplicate_tally() |> audit() |> expect_equal(iris_exp)
   mtcars |> duplicate_tally() |> audit() |> expect_equal(mtcars_exp)
 })
+
+test_that("`.total` has the right `na_rate`, and all-`NA` columns get `NA`s", {
+  # The `.total` row's `na_rate` used to be divided by the number of rows rather
+  # than the number of values:
+  out <- tibble::tibble(a = c(1, NA, 3, 4), b = 1:4, c = 5:8) |>
+    duplicate_tally() |>
+    audit()
+  out$na_rate |> expect_equal(c(1 / 4, 0, 0, 1 / 12))
+
+  # A column without any non-missing values has no mean, minimum, or maximum;
+  # these used to be `NaN`, `Inf`, and `-Inf` with warnings:
+  out <- c(NA, NA) |> 
+    duplicate_tally() |> 
+    audit() |> 
+    expect_no_warning()
+
+  out[c("mean", "sd", "median", "min", "max")] |> 
+    unlist() |>
+    is.na() |>
+    all() |>
+    expect_true()
+})

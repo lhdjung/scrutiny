@@ -156,12 +156,16 @@ function_duplicate_cols <- function(code_new_cols, default_end, name_class) {
 #'   - `term`: The original data frame's variables.
 #'   - `dup_count`: Number of "duplicated" values of that `term` variable: those
 #'   which have at least one duplicate anywhere in the data frame.
-#'   - `total`: Number of all non-`NA` values of that `term` variable.
-#'   - `dup_rate`: Rate of "duplicated" values of that `term` variable.
+#'   - `total_count`: Number of all values of that `term` variable that were
+#'   checked, i.e., neither `NA` nor ignored via `ignore`.
+#'   - `dup_rate`: Rate of "duplicated" values of that `term` variable, i.e.,
+#'   `dup_count / total_count`.
 #'
-#'   The final row, `.total`, summarizes across all other rows: It adds up the
-#'   `dup_count` and `total_count` columns, and calculates the mean of the
-#'   `dup_rate` column.
+#'   Every variable gets a row, even if none of its values are duplicated. The
+#'   final row, `.total`, summarizes across all other rows: It adds up the
+#'   `dup_count` and `total_count` columns, and divides the first sum by the
+#'   second. Its `dup_rate` is therefore the rate across all checked values,
+#'   not the mean of the other rows' `dup_rate` values.
 #'
 #' @seealso
 #'  - [`duplicate_tally()`] to count instances of a value instead of just
@@ -210,8 +214,8 @@ duplicate_detect <- function_duplicate_cols(
 #'
 #'   For summary statistics, call [`audit()`] on the results.
 #'
-#' @param colname_end String. Name ending of the logical test result columns.
-#'   Default is `"n"`.
+#' @param colname_end String. Name ending of the integer tally columns. Default
+#'   is `"n"`.
 #'
 #' @inheritParams duplicate_detect
 #' @inherit duplicate_detect details
@@ -219,7 +223,7 @@ duplicate_detect <- function_duplicate_cols(
 #' @return A tibble (data frame). It has all the columns from `x`, and to each
 #'   of these columns' right, the corresponding tally column.
 #'
-#'   The tibble has the `scrutiny_dup_detect` class, which is recognized by the
+#'   The tibble has the `scrutiny_dup_tally` class, which is recognized by the
 #'   `audit()` generic.
 #'
 #' @section Summaries with [`audit()`]: There is an S3 method for the [`audit()`]

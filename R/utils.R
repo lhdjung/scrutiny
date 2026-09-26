@@ -1956,13 +1956,24 @@ audit_summary_stats <- function(data, selection, total = FALSE) {
     )
   }
 
+  # Each statistic is computed on the non-missing values. A column with none has
+  # no mean, minimum, or maximum, so it gets `NA` rather than `NaN`, `Inf`, and
+  # `-Inf` with warnings. `na_rate` is part of the list so that the `.total` row
+  # divides by the number of all values, not by the number of rows:
+  on_non_na <- function(f) {
+    function(x) {
+      x <- x[!is.na(x)]
+      if (length(x) == 0L) NA else f(x)
+    }
+  }
   stats <- list(
-    mean = function(x) mean(x, na.rm = TRUE),
-    sd = function(x) stats::sd(x, na.rm = TRUE),
-    median = function(x) stats::median(x, na.rm = TRUE),
-    min = function(x) min(x, na.rm = TRUE),
-    max = function(x) max(x, na.rm = TRUE),
-    na_count = function(x) length(x[is.na(x)])
+    mean = on_non_na(mean),
+    sd = on_non_na(stats::sd),
+    median = on_non_na(stats::median),
+    min = on_non_na(min),
+    max = on_non_na(max),
+    na_count = function(x) sum(is.na(x)),
+    na_rate = function(x) mean(is.na(x))
   )
 
   # Summarize every selected column by every function in `stats`, then pivot the
@@ -1994,7 +2005,7 @@ audit_summary_stats <- function(data, selection, total = FALSE) {
     )
   }
 
-  dplyr::mutate(out, na_rate = na_count / nrow(data), .after = "na_rate")
+  out
 }
 
 

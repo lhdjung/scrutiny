@@ -128,10 +128,9 @@ df1_exp <- tibble::tibble(
     c(1, 0.84375, 0.4375, 0.40625, 0.34375, 0.09375, 0.0625, 0.03125, 0),
     rep(c(2L, 1L, 2L, 45L), c(1L, 6L, 1L, 1L))
   ),
-  rate_y = rep(
-    c(1, 0.84375, 0.4375, 0.40625, 0.34375, 0.09375, 0.0625, 0.03125, 0),
-    rep(c(2L, 1L, 2L, 45L), c(1L, 6L, 1L, 1L))
-  ),
+  # Counted from the `y` side, e.g., only 12 of the 32 `carb` values (the 4s,
+  # 6s, and 8s) are also `cyl` values:
+  rate_y = c(12, 32, 13, 7, 7, 12, 2, 2, 15, 3, rep(0, 45)) / 32,
 ) |>
   structure(
     class = c("scrutiny_dup_count_colpair", "tbl_df", "tbl", "data.frame")
@@ -188,4 +187,12 @@ test_that("`duplicate_count_colpair()` works correctly by default", {
 
 test_that("`duplicate_count_colpair()` with `ignore` works correctly", {
   df2 |> duplicate_count_colpair(ignore = 3) |> expect_equal(df2_ignore_exp)
+})
+
+test_that("`rate_y` is the proportion of `y` values duplicated in `x`", {
+  # It used to be `count / total_y`, with `count` taken from the `x` side, so
+  # it could exceed 1:
+  out <- duplicate_count_colpair(tibble::tibble(x = c(1, 1, 1, 2), y = c(1, NA, NA, NA)))
+  out$rate_x |> expect_equal(3 / 4)
+  out$rate_y |> expect_equal(1)
 })

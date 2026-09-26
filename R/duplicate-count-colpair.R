@@ -1,12 +1,3 @@
-# For each element of `x`, this helper counts how many are also found in `y`.
-# `%in%` and `==` coerce mixed types the same way, so this matches the
-# element-wise comparison it replaced, without the quadratic scan:
-
-dup_count_pairwise <- function(x, y) {
-  sum(x %in% y)
-}
-
-
 #' Count duplicate values by column
 #'
 #' `duplicate_count_colpair()` takes a data frame and checks each combination of
@@ -23,13 +14,15 @@ dup_count_pairwise <- function(x, y) {
 #' @return A tibble (data frame) with these columns –
 #' - `x` and `y`: Each line contains a unique combination of `data`'s columns,
 #'   stored in the `x` and `y` output columns.
-#' - `count`: Number of "duplicates", i.e., values that are present in both `x`
-#'   and `y`.
+#' - `count`: Number of "duplicates", i.e., values in `x` that are also present
+#'   in `y`. Missing and ignored values are not counted.
 #' - `total_x`, `total_y`, `rate_x`, and `rate_y` (added by default): `total_x`
 #'   is the number of non-missing values in the column named under `x`. Also,
 #'   `rate_x` is the proportion of `x` values that are duplicated in `y`, i.e.,
-#'   `count / total_x`. Likewise with `total_y` and `rate_y`. The two `rate_*`
-#'   columns will be equal unless `NA` values are present.
+#'   `count / total_x`. Likewise with `total_y` and `rate_y`: the proportion of
+#'   `y` values that are duplicated in `x`. This is counted from the `y` side,
+#'   so it is not `count / total_y` if a value repeats within one of the
+#'   columns.
 
 #' @section Summaries with [`audit()`]: There is an S3 method for [`audit()`],
 #'   so you can call [`audit()`] following `duplicate_count_colpair()`. It
@@ -104,11 +97,21 @@ duplicate_count_colpair <- function(data, ignore = NULL, show_rates = TRUE) {
 
   total_values <- lengths(values)
 
+  # `count` is counted from the `x` side, so the `y` side needs its own count:
+  # with `x = c(1, 1, 1)` and `y = 1`, three `x` values are duplicated in `y`,
+  # but only one `y` value is duplicated in `x`.
+  count_y <- mapply(
+    function(x, y) sum(values[[y]] %in% values[[x]]),
+    out$x,
+    out$y,
+    USE.NAMES = FALSE
+  )
+
   dplyr::mutate(
     out,
     total_x = unname(total_values[.data$x]),
     total_y = unname(total_values[.data$y]),
     rate_x = .data$count / .data$total_x,
-    rate_y = .data$count / .data$total_y
+    rate_y = count_y / .data$total_y
   )
 }

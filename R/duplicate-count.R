@@ -63,32 +63,45 @@ duplicate_count <- function(
 ) {
   locations_type <- rlang::arg_match(locations_type)
 
-  # Convert `x` to a data frame if needed (`x_was_named` will also be checked
-  # further below):
   x_was_named <- rlang::is_named(x)
-  if (!x_was_named || !is.data.frame(x)) {
-    x <- tibble::as_tibble(
-      x,
-      .name_repair = if (x_was_named) {
-        function(x) x
-      } else {
-        function(x) paste0("col", seq_along(x))
-      }
+
+  # Bring `x` into a long format with one row per value and the name of its
+  # location. The names of an atomic vector are its locations, so they go
+  # straight into the `name` column. `tibble::as_tibble()` would otherwise put
+  # all of its values into one column named `value`, and each of them would be
+  # located there. Other inputs are converted to a data frame if needed
+  # (`x_was_named` will also be checked further below), and pivoted:
+  if (x_was_named && is.atomic(x)) {
+    names_orig <- unique(names(x))
+    x <- tibble::tibble(
+      name = as.factor(names(x)),
+      value = as.factor(unname(x))
     )
-  } else if (!tibble::is_tibble(x)) {
-    x <- tibble::as_tibble(x)
+  } else {
+    if (!x_was_named || !is.data.frame(x)) {
+      x <- tibble::as_tibble(
+        x,
+        .name_repair = if (x_was_named) {
+          function(x) x
+        } else {
+          function(x) paste0("col", seq_along(x))
+        }
+      )
+    } else if (!tibble::is_tibble(x)) {
+      x <- tibble::as_tibble(x)
+    }
+
+    names_orig <- colnames(x)
+
+    x <- x |>
+      dplyr::mutate(dplyr::across(everything(), as.factor)) |>
+      tidyr::pivot_longer(
+        cols = everything(),
+        names_to = "name",
+        values_to = "value"
+      ) |>
+      dplyr::mutate("name" = as.factor(.data$name))
   }
-
-  names_orig <- colnames(x)
-
-  x <- x |>
-    dplyr::mutate(dplyr::across(everything(), as.factor)) |>
-    tidyr::pivot_longer(
-      cols = everything(),
-      names_to = "name",
-      values_to = "value"
-    ) |>
-    dplyr::mutate("name" = as.factor(.data$name))
 
   if (is.null(ignore)) {
     x <- dplyr::filter(x, !is.na(.data$value))

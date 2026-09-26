@@ -13,28 +13,18 @@ audit.scrutiny_dup_detect <- function(data) {
   # Logical columns get original term names (the "_dup" would be redundant):
   names(data_dup) <- orig_names
 
-  # After saving the number of its rows, `data` is no longer needed:
-  orig_nrow <- nrow(data)
-
-  # Tidying to long format makes the table more manageable. Then, group the
-  # table by the original terms, count duplicates, fashion it a little, and
-  # compute the duplicate rate:
-  out <- data_dup |>
-    tidyr::pivot_longer(
-      cols = dplyr::everything(),
-      names_to = "term",
-      values_to = "value_duplicated"
-    ) |>
-    dplyr::group_by(.data$term) |>
-    dplyr::count(.data$value_duplicated) |>
-    dplyr::ungroup() |>
-    dplyr::filter(.data$value_duplicated) |>
-    dplyr::select("term", "n") |>
-    dplyr::rename(dup_count = n) |>
-    dplyr::mutate(
-      total_count = orig_nrow,
-      dup_rate = .data$dup_count / orig_nrow
-    )
+  # Count per term. A value that is missing or was ignored has an `NA` test
+  # result, so it is not known to be duplicated or not; it counts toward neither
+  # `dup_count` nor `total_count`. A term without any duplicates still gets a
+  # row, with a `dup_count` of zero:
+  count_by_term <- function(f) vapply(data_dup, f, 1L, USE.NAMES = FALSE)
+  out <- tibble::tibble(
+    term = names(data_dup),
+    dup_count = count_by_term(function(x) sum(x, na.rm = TRUE)),
+    total_count = count_by_term(function(x) sum(!is.na(x))),
+    dup_rate = .data$dup_count / .data$total_count
+  ) |>
+    dplyr::arrange(.data$term)
 
   dplyr::add_row(
     out,

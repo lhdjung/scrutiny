@@ -50,6 +50,10 @@
 
 - `decimal_places()`, `decimal_places_scalar()`, `decimal_places_df()`, `restore_zeros()`, and `restore_zeros_df()` now match `sep` / `sep_in` / `sep_out` as a literal string, as documented, and their defaults are `"."` instead of `"\\."`. Passing `"."` used to be read as a regular expression matching any character. The old default is still understood.
 
+- `audit()` on `duplicate_detect()` output now has a row for every column, including those without duplicates, and counts only non-missing values in `total_count`. Columns without duplicates used to be dropped, which also left them out of `.total`.
+
+- `duplicate_count_colpair()`'s `rate_y` is now the proportion of `y` values that occur in `x`, as documented. It was the count of `x` values found in `y`, divided by the number of `y` values, and could exceed 1.
+
 ## Bugfixes
 
 - `absorb_key_args()`, which renames key columns in every mapper (`grim_map(data, x = mean)`), now reads the key arguments' values rather than the unevaluated call. Calls through `lapply()` or `purrr::map()`, and calls from inside another function with the column name in a variable, used to fail with a misleading message. A key argument that points elsewhere while `data` already has a column of that name is now an error; the existing column used to be tested silently instead.
@@ -86,7 +90,11 @@
 
 - `before_parens()`, `inside_parens()`, and `split_by_parens()` now split each string on its own. Strings with a different number of separators than the others used to shift values into the wrong rows. Custom separators are matched literally. `split_by_parens()` also no longer errors on columns with `NA`, and with `transform = TRUE` no longer mixes up columns whose names end in the new suffixes, such as `exp_sd`.
 
+- `audit()` on `duplicate_tally()` output now computes `na_rate` in the `.total` row over all values, and `audit()` on `audit_seq()` output returns `NA` rather than `Inf`, `-Inf`, and warnings for columns without values.
+
 - `row_to_colnames()` now handles `NA` header cells.
+
+- `duplicate_count()` now uses the names of a named vector as `locations`, as documented.
 
 - `seq_disperse()` and `seq_disperse_df()` now apply `out_min` and `out_max` to the whole sequence. Each limit used to be checked against one side only, the steps down against `out_min` and the steps up against `out_max`, so `seq_disperse(30, out_max = 25)` kept `26` to `29`. The limits also used to be checked before `offset_from` moved the sequence, so an offset could carry values past them. `*_map_seq()` functions inherit both fixes; with `out_min` and `out_max` set to the same value, a case above it now disperses to that one value rather than to every step down to it.
 

@@ -21,13 +21,15 @@ A tibble (data frame) with these columns –
 \itemize{
 \item \code{x} and \code{y}: Each line contains a unique combination of \code{data}'s columns,
 stored in the \code{x} and \code{y} output columns.
-\item \code{count}: Number of "duplicates", i.e., values that are present in both \code{x}
-and \code{y}.
+\item \code{count}: Number of "duplicates", i.e., values in \code{x} that are also present
+in \code{y}. Missing and ignored values are not counted.
 \item \code{total_x}, \code{total_y}, \code{rate_x}, and \code{rate_y} (added by default): \code{total_x}
 is the number of non-missing values in the column named under \code{x}. Also,
 \code{rate_x} is the proportion of \code{x} values that are duplicated in \code{y}, i.e.,
-\code{count / total_x}. Likewise with \code{total_y} and \code{rate_y}. The two \verb{rate_*}
-columns will be equal unless \code{NA} values are present.
+\code{count / total_x}. Likewise with \code{total_y} and \code{rate_y}: the proportion of
+\code{y} values that are duplicated in \code{x}. This is counted from the \code{y} side,
+so it is not \code{count / total_y} if a value repeats within one of the
+columns.
 }
 }
 \description{

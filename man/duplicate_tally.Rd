@@ -12,14 +12,14 @@ duplicate_tally(x, ignore = NULL, colname_end = "n")
 \item{ignore}{Optionally, a vector of values that should not be checked. In
 the test result columns, they will be marked \code{NA}.}
 
-\item{colname_end}{String. Name ending of the logical test result columns.
-Default is \code{"n"}.}
+\item{colname_end}{String. Name ending of the integer tally columns. Default
+is \code{"n"}.}
 }
 \value{
 A tibble (data frame). It has all the columns from \code{x}, and to each
 of these columns' right, the corresponding tally column.
 
-The tibble has the \code{scrutiny_dup_detect} class, which is recognized by the
+The tibble has the \code{scrutiny_dup_tally} class, which is recognized by the
 \code{audit()} generic.
 }
 \description{

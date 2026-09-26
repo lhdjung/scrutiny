@@ -55,13 +55,17 @@ significant the results.
 \item \code{term}: The original data frame's variables.
 \item \code{dup_count}: Number of "duplicated" values of that \code{term} variable: those
 which have at least one duplicate anywhere in the data frame.
-\item \code{total}: Number of all non-\code{NA} values of that \code{term} variable.
-\item \code{dup_rate}: Rate of "duplicated" values of that \code{term} variable.
+\item \code{total_count}: Number of all values of that \code{term} variable that were
+checked, i.e., neither \code{NA} nor ignored via \code{ignore}.
+\item \code{dup_rate}: Rate of "duplicated" values of that \code{term} variable, i.e.,
+\code{dup_count / total_count}.
 }
 
-The final row, \code{.total}, summarizes across all other rows: It adds up the
-\code{dup_count} and \code{total_count} columns, and calculates the mean of the
-\code{dup_rate} column.
+Every variable gets a row, even if none of its values are duplicated. The
+final row, \code{.total}, summarizes across all other rows: It adds up the
+\code{dup_count} and \code{total_count} columns, and divides the first sum by the
+second. Its \code{dup_rate} is therefore the rate across all checked values,
+not the mean of the other rows' \code{dup_rate} values.
 }
 
 \examples{
