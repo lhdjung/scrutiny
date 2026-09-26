@@ -15,7 +15,8 @@
 #'   \href{https://tidyselect.r-lib.org/reference/language.html}{tidyselect}.
 #'   Default is `everything()`, which selects all columns that pass `check_sep`.
 #' @param check_sep Logical. If `TRUE` (the default), columns are excluded if
-#'   they don't contain the `sep` elements.
+#'   they don't contain the `sep` elements. This is checked for every value
+#'   that is not `NA`.
 #' @param keep Logical. If set to `TRUE`, the originally selected columns that
 #'   were split by the function also appear in the output. Default is `FALSE`.
 #' @param transform Logical. If set to `TRUE`, the output will be pivoted to be
@@ -131,15 +132,20 @@ split_by_parens <- function(
   force(sep)
 
   # Determine which columns have suitable values with regards to the `sep`
-  # elements and capture their names:
+  # elements and capture their names. A column qualifies if every non-missing
+  # value has an opening `sep` element followed by a closing one:
   names_of_cols_with_seps <- data |>
     dplyr::select(
       function(x) {
-        sep_in_order <- translate_length1_sep_keywords(sep)
-        sep_in_order <- paste0(sep_in_order[1L], "[^)]*", sep_in_order[2L])
-        x |>
-          stringr::str_detect(sep_in_order) |>
-          all()
+        x <- x[!is.na(x)]
+        seps <- translate_length1_sep_keywords(sep)
+        after_open <- stringr::str_split_fixed(
+          x,
+          stringr::fixed(seps[1L]),
+          n = 2L
+        )[, 2L]
+        length(x) > 0L &&
+          all(stringr::str_detect(after_open, stringr::fixed(seps[2L])))
       }
     ) |>
     colnames()
@@ -233,5 +239,5 @@ split_by_parens <- function(
     ))
   }
 
-  transform_split_parens(out, end1, end2)
+  transform_split_parens(out, names(cols_to_select), end1, end2)
 }

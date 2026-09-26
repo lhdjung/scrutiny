@@ -1607,55 +1607,38 @@ check_new_args_without_dots <- function(data, dots, old_args, name_fn) {
 #' @description Only called within `split_by_parens()`, and only if the latter
 #'   function's `transform` argument is set to `TRUE`.
 #'
-#'   `transform_split_parens()` pivots the data into a longer format using
-#'   `tidyr::pivot_longer()`. It lumps values from all original columns into two
-#'   new columns named after the two split-column endings (`"x"` and `"sd"` by
-#'   default), but preserves the information about their origin by storing it in
-#'   a `.origin` column.
+#'   `transform_split_parens()` pivots the data into a longer format. It lumps
+#'   values from all original columns into two new columns named after the two
+#'   split-column endings (`"x"` and `"sd"` by default), but preserves the
+#'   information about their origin by storing it in a `.origin` column.
+#'
+#'   The split columns are looked up by their exact names, `{origin}_{end1}` and
+#'   `{origin}_{end2}`. Matching them by pattern instead, as with
+#'   `contains("_sd")`, also caught an original column such as `exp_sd`, and the
+#'   two sides were then joined by position, which paired values from different
+#'   columns.
 #'
 #' @param data Data frame created as an intermediate product within
 #'   `split_by_parens()`.
+#' @param origins String. Names of the original columns that were split.
+#' @param end1,end2 String. Endings of the split column names.
 
-#' @return Data frame with these columns:
+#' @return Tibble with these columns:
 #' - `.origin`: Names of the original columns of the data frame that
 #'   `split_by_parens()` took as an input.
 #' - Two columns named after the values of `split_by_parens()`'s `end1` and
 #'   `end2` arguments. Default are `"x"` and `"sd"`.
 #'
 #' @noRd
-transform_split_parens <- function(data, end1, end2) {
-  uscore_end1 <- paste0("_", end1)
-  uscore_end2 <- paste0("_", end2)
-
-  cols_1 <- data |>
-    dplyr::select(contains(uscore_end1)) |>
-    tidyr::pivot_longer(
-      cols = everything(),
-      names_to = ".origin",
-      values_to = end1
-    )
-
-  cols_1 <- cols_1 |>
-    dplyr::mutate(key = seq_len(nrow(cols_1)))
-
-  cols_2 <- data |>
-    dplyr::select(contains(uscore_end2)) |>
-    tidyr::pivot_longer(
-      cols = everything(),
-      names_to = ".origin_2",
-      values_to = end2
-    )
-
-  cols_2 <- cols_2 |>
-    dplyr::mutate(key = seq_len(nrow(cols_2)))
-
-  out <- dplyr::left_join(cols_1, cols_2, by = "key")
-
-  out$key <- NULL
-  out$.origin_2 <- NULL
-
-  out |>
-    dplyr::mutate(.origin = stringr::str_remove(.data$.origin, uscore_end1)) |>
+transform_split_parens <- function(data, origins, end1, end2) {
+  stack_cols <- function(end) {
+    unlist(data[paste0(origins, "_", end)], use.names = FALSE)
+  }
+  tibble::tibble(
+    .origin = rep(origins, each = nrow(data)),
+    !!end1 := stack_cols(end1),
+    !!end2 := stack_cols(end2)
+  ) |>
     dplyr::arrange(.data$.origin)
 }
 

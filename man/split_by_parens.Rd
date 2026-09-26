@@ -24,7 +24,8 @@ split_by_parens(
 Default is \code{everything()}, which selects all columns that pass \code{check_sep}.}
 
 \item{check_sep}{Logical. If \code{TRUE} (the default), columns are excluded if
-they don't contain the \code{sep} elements.}
+they don't contain the \code{sep} elements. This is checked for every value
+that is not \code{NA}.}
 
 \item{keep}{Logical. If set to \code{TRUE}, the originally selected columns that
 were split by the function also appear in the output. Default is \code{FALSE}.}

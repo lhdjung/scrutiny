@@ -33,6 +33,8 @@ first one). These rows are then dropped by default.
 \details{
 If multiple rows are specified, the row values for each individual
 column are pasted together. Some special characters might then be missing.
+Missing values in these rows are skipped. If all of a column's values in
+these rows are missing, the column keeps its current name.
 
 This function might be useful when importing tables from PDF, e.g. with
 \href{https://cran.r-project.org/package=tabulizer}{tabulizer}. In R, these

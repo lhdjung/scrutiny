@@ -100,3 +100,20 @@ test_that("non-`sep` columns are handled correctly with `check_sep = FALSE", {
   expect_warning(out <- split_by_parens(pigs_wider, check_sep = FALSE))
   expect_equal(ncol(out), 6L)
 })
+
+test_that("uneven separators, `NA`s, and column names ending on `end2` work", {
+  tibble::tibble(a = c("1.2 (0.3) (n = 5)", "4.5 (0.6)"), b = c("1 (2)", NA)) |>
+    split_by_parens() |>
+    expect_equal(tibble::tibble(
+      a_x = c("1.2", "4.5"), a_sd = c("0.3", "0.6"),
+      b_x = c("1", NA), b_sd = c("2", NA)
+    ))
+  
+  tibble::tibble(exp_sd = c("1 (2)", "3 (4)"), ctrl = c("5 (6)", "7 (8)")) |>
+    split_by_parens(transform = TRUE) |>
+    expect_equal(tibble::tibble(
+      .origin = c("ctrl", "ctrl", "exp_sd", "exp_sd"),
+      x = c("5", "7", "1", "3"),
+      sd = c("6", "8", "2", "4")
+    ))
+})

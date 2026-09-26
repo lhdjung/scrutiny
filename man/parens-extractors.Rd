@@ -15,11 +15,14 @@ inside_parens(string, sep = "parens")
 
 \item{sep}{String. What to split by. Either \code{"parens"}, \code{"brackets"},
 \code{"braces"}, or a length-2 vector of custom separators. See examples for
-\code{\link[=split_by_parens]{split_by_parens()}}. Default is \code{"parens"}.}
+\code{\link[=split_by_parens]{split_by_parens()}}. Default is \code{"parens"}. Custom separators are
+matched literally, not as regular expressions.}
 }
 \value{
 String vector of the same length as \code{string}. The part of \code{string}
-before or inside \code{sep}, respectively.
+before or inside the first pair of \code{sep} elements, respectively, with
+surrounding whitespace removed. If a string has no opening \code{sep} element,
+\code{before_parens()} returns all of it and \code{inside_parens()} returns \code{NA}.
 }
 \description{
 \code{before_parens()} and \code{inside_parens()} extract substrings from

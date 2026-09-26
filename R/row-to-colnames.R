@@ -8,6 +8,8 @@
 #'
 #' @details If multiple rows are specified, the row values for each individual
 #'   column are pasted together. Some special characters might then be missing.
+#'   Missing values in these rows are skipped. If all of a column's values in
+#'   these rows are missing, the column keeps its current name.
 #'
 #'   This function might be useful when importing tables from PDF, e.g. with
 #'   \href{https://cran.r-project.org/package=tabulizer}{tabulizer}. In R, these
@@ -67,17 +69,22 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
   # Get correct column names ---
 
   # Restore the vector of correct column names by the values stored in the one
-  # or more rows that were specified by the `row` argument:
-  correct <- data[row, ]
-  correct <- rbind(colnames(data), correct)
-  correct <- purrr::map(correct, function(x) x[!is.na(x)])
-  correct <- purrr::map(correct, utils::tail, (length(correct[[1L]]) - 1L))
-
-  # If multiple rows were specified that way, the resulting vector must be
-  # pasted to one single string per column to restore the correct column names:
-  if (length(row) > 1L) {
-    correct <- purrr::map(correct, paste0, collapse = collapse)
-  }
+  # or more rows that were specified by the `row` argument. For each column, its
+  # non-missing cells in these rows are pasted together. If all of them are
+  # missing, the column keeps its current name:
+  correct <- vapply(
+    seq_along(data),
+    function(i) {
+      cells <- as.character(data[[i]][row])
+      cells <- cells[!is.na(cells)]
+      if (length(cells) == 0L) {
+        colnames(data)[i]
+      } else {
+        paste(cells, collapse = collapse)
+      }
+    },
+    character(1L)
+  )
 
   # Subsequent checks ---
 
@@ -104,8 +111,8 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
   # Return the data frame. By default (`drop = TRUE`), remove the specified row
   # or rows beforehand:
   if (drop) {
-    return(data[-row, ])
+    data[-row, ]
   } else {
-    return(data)
+    data
   }
 }

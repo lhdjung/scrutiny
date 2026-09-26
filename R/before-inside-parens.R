@@ -20,9 +20,13 @@ check_length_parens_sep <- function(sep) {
 #'   actual (custom) separators, not a keyword. If `sep` is neither length 2 nor
 #'   any of the keywords from above, an error is thrown.
 #'
+#'   The separators are returned as the literal characters, not as regular
+#'   expressions: they are matched with `stringr::fixed()`, so a custom `sep`
+#'   such as `c("|", "|")` means the characters themselves.
+#'
 #' @param sep String (length 1 or 2).
 #'
-#' @return String (length 1 or 2).
+#' @return String (length 2).
 #'
 #' @noRd
 translate_length1_sep_keywords <- function(sep) {
@@ -30,11 +34,11 @@ translate_length1_sep_keywords <- function(sep) {
   if (length(sep) == 2L) {
     sep
   } else if (any(sep == c("parens", "(", "\\("))) {
-    c("\\(", "\\)")
+    c("(", ")")
   } else if (any(sep == c("brackets", "[", "\\["))) {
-    c("\\[", "\\]")
+    c("[", "]")
   } else if (any(sep == c("braces", "{", "\\{"))) {
-    c("\\{", "\\}")
+    c("{", "}")
   } else {
     cli::cli_abort(c(
       "!" = "`sep` must be either \"parens\", \"brackets\", or \\
@@ -86,22 +90,22 @@ message_sep_if_cols_excluded <- function(sep) {
 }
 
 
+# Split each string at its first opening separator, and the second part at its
+# first closing separator. Returns a character matrix with two columns: the part
+# before the opening separator, and the part between the two. Each string is
+# split on its own, so that a string with more or fewer separators than the
+# others can't shift parts into another string's row, as the former
+# `unlist()`-and-rechunk approach did. A string without an opening separator has
+# `""` as its second part, and a missing one has `NA` as its first.
 proto_split_parens <- function(string, sep = "parens") {
-  if (length(sep) == 2L) {
-    sep_open <- sep[1L]
-    sep_close <- sep[2L]
-  } else {
-    separators <- translate_length1_sep_keywords(sep)
-    sep_open <- separators[1L]
-    sep_close <- separators[2L]
-  }
-
-  out <- stringr::str_split(string, sep_open)
-  out <- unlist(out, use.names = FALSE)
-  out <- sub(paste0(sep_close, ".*"), "", out)
-
-  divisor <- length(out) / length(string)
-  split(out, ceiling(seq_along(out) / divisor))
+  sep <- translate_length1_sep_keywords(sep)
+  out <- stringr::str_split_fixed(string, stringr::fixed(sep[1L]), n = 2L)
+  out[, 2L] <- stringr::str_split_fixed(
+    out[, 2L],
+    stringr::fixed(sep[2L]),
+    n = 2L
+  )[, 1L]
+  out
 }
 
 
@@ -119,12 +123,15 @@ proto_split_parens <- function(string, sep = "parens") {
 #' @param string Vector of strings with parentheses or similar.
 #' @param sep String. What to split by. Either `"parens"`, `"brackets"`,
 #'   `"braces"`, or a length-2 vector of custom separators. See examples for
-#'   [`split_by_parens()`]. Default is `"parens"`.
+#'   [`split_by_parens()`]. Default is `"parens"`. Custom separators are
+#'   matched literally, not as regular expressions.
 #'
 #' @export
 #'
 #' @return String vector of the same length as `string`. The part of `string`
-#'   before or inside `sep`, respectively.
+#'   before or inside the first pair of `sep` elements, respectively, with
+#'   surrounding whitespace removed. If a string has no opening `sep` element,
+#'   `before_parens()` returns all of it and `inside_parens()` returns `NA`.
 #'
 #' @name parens-extractors
 #'
@@ -140,10 +147,7 @@ proto_split_parens <- function(string, sep = "parens") {
 #' inside_parens(string = x)
 
 before_parens <- function(string, sep = "parens") {
-  check_length_parens_sep(sep)
-  out <- proto_split_parens(string, sep)
-  out <- vapply(out, function(x) x[1L], character(1L), USE.NAMES = FALSE)
-  stringr::str_trim(out)
+  stringr::str_trim(proto_split_parens(string, sep)[, 1L])
 }
 
 
@@ -151,21 +155,7 @@ before_parens <- function(string, sep = "parens") {
 #' @export
 
 inside_parens <- function(string, sep = "parens") {
-  check_length_parens_sep(sep)
-
-  if (length(sep) == 2L) {
-    sep_close <- sep[2L]
-  } else {
-    if (any(sep == c("parens", "(", "\\("))) {
-      sep_close <- "\\)"
-    } else if (any(sep == c("brackets", "[", "\\["))) {
-      sep_close <- "\\]"
-    } else if (any(sep == c("braces", "{", "\\{"))) {
-      sep_close <- "\\}"
-    }
-  }
-
-  out <- proto_split_parens(string, sep)
-  out <- vapply(out, function(x) x[2L], "", USE.NAMES = FALSE)
-  sub(paste0(sep_close, ".*"), "", out)
+  out <- stringr::str_trim(proto_split_parens(string, sep)[, 2L])
+  out[out == ""] <- NA
+  out
 }

@@ -64,14 +64,25 @@ x_brackets_proto <- proto_split_parens(x_brackets, sep = "brackets")
 x_braces_proto <- proto_split_parens(x_braces, sep = "braces")
 
 
-test_that("The raw list elements all have length 2", {
-  x_parens_proto   |> purrr::map_int(length) |> expect_setequal(2)
-  x_brackets_proto |> purrr::map_int(length) |> expect_setequal(2)
-  x_braces_proto   |> purrr::map_int(length) |> expect_setequal(2)
+test_that("The raw output has one row per string and two columns", {
+  x_parens_proto   |> dim() |> expect_equal(c(length(x_parens), 2L))
+  x_brackets_proto |> dim() |> expect_equal(c(length(x_brackets), 2L))
+  x_braces_proto   |> dim() |> expect_equal(c(length(x_braces), 2L))
 })
 
 test_that("Wrong `sep` specifications trigger an error", {
   x_parens   |> proto_split_parens(sep = "briquets") |> expect_error()
   x_brackets |> proto_split_parens(sep = "briquets") |> expect_error()
   x_braces   |> proto_split_parens(sep = "briquets") |> expect_error()
+})
+
+test_that("each string is split on its own, and `sep` is matched literally", {
+  # Strings with more or fewer separators than the others used to shift parts
+  # into other strings' rows:
+  x <- c("1.5 (0.2)", "3.1", "4.2 (0.9) (n = 5)", NA)
+  x |> before_parens() |> expect_equal(c("1.5", "3.1", "4.2", NA))
+  x |> inside_parens() |> expect_equal(c("0.2", NA, "0.9", NA))
+  "2.1 ( 0.3 )" |> inside_parens() |> expect_equal("0.3")
+  "2.1 |0.3|" |> inside_parens(sep = c("|", "|")) |> expect_equal("0.3")
+  "2.1 (0.3)" |> before_parens(sep = c("(", ")")) |> expect_equal("2.1")
 })
