@@ -20,7 +20,7 @@ restore_zeros_df(
   check_decimals = FALSE,
   width = NULL,
   sep_in = ".",
-  sep_out = NULL,
+  sep_out = sep_in,
   check_width = c("capped", "never"),
   ...
 )

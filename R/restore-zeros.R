@@ -200,9 +200,8 @@ restore_zeros <- function(
   out[pad] <- paste0(x[pad], point, strrep("0", n_zeros[pad]))
 
   # By default, the separator in the output vector is the same as in the input,
-  # but it might have been overridden via `sep_out`. `restore_zeros_df()` passes
-  # `NULL` for a decimal point:
-  if (is.null(sep_out) || sep_literal(sep_out) == ".") {
+  # but it might have been overridden via `sep_out`:
+  if (sep_literal(sep_out) == ".") {
     out
   } else {
     sub(".", sep_literal(sep_out), out, fixed = TRUE)
@@ -220,7 +219,7 @@ restore_zeros_df <- function(
   check_decimals = FALSE,
   width = NULL,
   sep_in = ".",
-  sep_out = NULL,
+  sep_out = sep_in,
   check_width = c("capped", "never"),
   ...
 ) {
@@ -255,9 +254,11 @@ restore_zeros_df <- function(
     }
   }
 
-  # Names of selection-suitable columns:
+  # Names of selection-suitable columns. A column with comma decimals is only
+  # numeric-like when read with `sep_in`:
+  sep_in_literal <- sep_literal(sep_in)
   names_num_cols <- data |>
-    dplyr::select(where(is_numeric_like)) |>
+    dplyr::select(where(function(x) is_numeric_like_col(x, sep_in_literal))) |>
     colnames()
 
   # By default, selection is restricted to columns that are numeric or coercible
@@ -273,7 +274,8 @@ restore_zeros_df <- function(
   # place. Otherwise...
   if (check_decimals) {
     selection3 <- rlang::expr(where(function(x) {
-      !is_numeric_like(x) || !all(decimal_places(x, sep = sep_in) == 0L)
+      !is_numeric_like_col(x, sep_in_literal) ||
+        any(decimal_places(x, sep = sep_in) > 0L, na.rm = TRUE)
     }))
   } else {
     # ... the new variable is set up to be evaluated as `everything()`, which is
@@ -286,8 +288,9 @@ restore_zeros_df <- function(
   cols_to_select <- rlang::expr({{ cols }} & !!selection2 & !!selection3)
   cols_to_select <- tidyselect::eval_select(cols_to_select, data)
 
-  # Check whether any selected columns are not numeric-like, in which case they
-  # can't have any decimal places restored. If so...
+  # Check whether any selected columns are not numeric-like, which is only
+  # possible with `check_numeric_like = FALSE`. `restore_zeros()` replaces their
+  # non-numeric values by `NA`. If so...
   names_cols_select <- names(cols_to_select)
   names_wrong_cols <- names_cols_select[!names_cols_select %in% names_num_cols]
 
@@ -295,7 +298,10 @@ restore_zeros_df <- function(
   if (length(names_wrong_cols) > 0L) {
     warn_wrong_columns_selected(
       names_wrong_cols,
-      msg_exclusion = "didn't have any decimal places restored",
+      msg_exclusion = c(
+        "had its non-numeric values replaced by `NA`",
+        "had their non-numeric values replaced by `NA`"
+      ),
       msg_reason = "numeric-like",
       msg_it_they = c("It isn't", "They aren't")
     )

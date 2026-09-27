@@ -228,24 +228,27 @@ decimal_places_df <- function(
   check_numeric_like = TRUE,
   sep = "."
 ) {
-  if (check_numeric_like) {
-    selection2 <- rlang::expr(where(is_numeric_like))
-  } else {
-    selection2 <- rlang::expr(dplyr::everything())
-  }
+  sep_literal_value <- sep_literal(sep)
+  names_selected <- names(tidyselect::eval_select(rlang::enquo(cols), data))
 
-  names_of_numeric_like_cols <- data |>
-    dplyr::select(where(is_numeric_like)) |>
-    colnames()
+  # Only columns that `cols` selected are worth a warning:
+  is_numeric_like_selected <- vapply(
+    data[names_selected],
+    is_numeric_like_col,
+    logical(1L),
+    sep = sep_literal_value
+  )
+  names_wrong_cols <- names_selected[!is_numeric_like_selected]
 
-  data_names <- colnames(data)
-
-  if (!identical(names_of_numeric_like_cols, data_names)) {
-    names_wrong_cols <- data_names[!data_names %in% names_of_numeric_like_cols]
+  if (length(names_wrong_cols) > 0L) {
     if (check_numeric_like) {
       msg_exclusion <- paste0(c("was", "were"), " excluded")
+      names_selected <- names_selected[is_numeric_like_selected]
     } else {
-      msg_exclusion <- "didn't have any decimal places counted"
+      msg_exclusion <- c(
+        "had its decimal places counted anyway",
+        "had their decimal places counted anyway"
+      )
     }
     warn_wrong_columns_selected(
       names_wrong_cols,
@@ -258,7 +261,7 @@ decimal_places_df <- function(
   dplyr::mutate(
     data,
     dplyr::across(
-      .cols = {{ cols }} & !!selection2,
+      .cols = all_of(names_selected),
       .fns = function(x) decimal_places(x = x, sep = sep)
     )
   )

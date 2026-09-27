@@ -99,3 +99,15 @@ is_numeric_like <- function(x) {
   x <- suppressWarnings(as.numeric(x))
   !anyNA(x)
 }
+
+
+# `is_numeric_like()` for column selection in the `*_df()` functions. A column
+# of nothing but missing values is `NA` there, which `where()` can't take;
+# nothing in it contradicts a number, so it counts as numeric-like. A literal
+# decimal separator other than a point is read as one.
+is_numeric_like_col <- function(x, sep = ".") {
+  if (sep != "." && (is.character(x) || is.factor(x))) {
+    x <- sub(sep, ".", as.character(x), fixed = TRUE)
+  }
+  !isFALSE(is_numeric_like(x))
+}

@@ -60,6 +60,8 @@
 
 ## Bugfixes
 
+- `restore_zeros_df()` and `decimal_places_df()` no longer fail on a column of nothing but missing values, which `is_numeric_like()` is `NA` for. They now also read the columns with `sep_in` or `sep`, so a comma-decimal column is no longer skipped without a word. `restore_zeros_df()`'s `sep_out` now defaults to `sep_in`, as documented and as in `restore_zeros()`, rather than to a decimal point. `decimal_places_df()` no longer warns about columns that `cols` didn't select, and its warnings no longer claim that columns were left alone when `check_numeric_like = FALSE` processed them.
+
 - `seq_disperse_df()` now finds variables local to the caller when they are used in the dots. It captured the dots as expressions and evaluated them in its own frame, so `n = my_n` inside a function failed with "object 'my_n' not found". The documentation of `track_diff_var` is also corrected: it said `seq_disperse()` ignores the argument, which in fact makes it return a list.
 
 - `absorb_key_args()`, which renames key columns in every mapper (`grim_map(data, x = mean)`), now reads the key arguments' values rather than the unevaluated call. Calls through `lapply()` or `purrr::map()`, and calls from inside another function with the column name in a variable, used to fail with a misleading message. A key argument that points elsewhere while `data` already has a column of that name is now an error; the existing column used to be tested silently instead.

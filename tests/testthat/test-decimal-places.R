@@ -156,6 +156,22 @@ test_that("`decimal_places_df()` throws a warning if and only if it should", {
   iris |> dplyr::select(1:4) |> decimal_places_df(check_numeric_like = FALSE) |> expect_no_warning()
 })
 
+# The warning used to name every non-numeric-like column of `data`, whether or
+# not `cols` had selected it:
+test_that("`decimal_places_df()` only warns about selected columns", {
+  iris |> decimal_places_df(cols = Sepal.Length) |> expect_no_warning()
+  iris |> decimal_places_df(cols = Species) |> expect_warning("excluded")
+})
+
+test_that("`decimal_places_df()` handles all-`NA` and comma columns", {
+  data <- tibble::tibble(a = c("1.5", "2"), b = NA_character_, c = c("1,5", "2,25"))
+  out <- data |> decimal_places_df(cols = a:b)
+  out$a |> expect_equal(c(1L, 0L))
+  out$b |> expect_equal(c(NA_integer_, NA_integer_))
+  out <- data |> decimal_places_df(cols = c, sep = ",") |> expect_no_warning()
+  out$c |> expect_equal(c(1L, 2L))
+})
+
 
 # Scientific notation -----------------------------------------------------
 

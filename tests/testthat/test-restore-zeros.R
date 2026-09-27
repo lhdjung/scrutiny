@@ -72,6 +72,29 @@ test_that("the `check_decimals` argument works correctly", {
 })
 
 
+# `is_numeric_like()` is `NA` for a column of nothing but missing values, which
+# `where()` rejected with an error:
+test_that("`restore_zeros_df()` handles all-`NA` columns", {
+  data <- tibble::tibble(a = c("1.5", "2"), b = NA_character_)
+  out <- data |> restore_zeros_df(width = 2)
+  out$a |> expect_equal(c("1.50", "2.00"))
+  out$b |> expect_equal(c(NA_character_, NA_character_))
+  data |> restore_zeros_df(check_decimals = TRUE) |> expect_no_error()
+})
+
+# Comma columns used to fail the numeric-like check and were skipped without
+# a word, and `sep_out` defaulted to a decimal point rather than to `sep_in`:
+test_that("`restore_zeros_df()` reads and keeps `sep_in`", {
+  tibble::tibble(x = c("1,5", "2,25")) |>
+    restore_zeros_df(sep_in = ",") |>
+    dplyr::pull(x) |>
+    expect_equal(c("1,50", "2,25"))
+  tibble::tibble(x = c("1,5", "2,25")) |>
+    restore_zeros_df(sep_in = ",", sep_out = ".") |>
+    dplyr::pull(x) |>
+    expect_equal(c("1.50", "2.25"))
+})
+
 test_that("invalid arguments in `restore_zeros_df()` are caught", {
   iris |> restore_zeros_df(.check_decimals = TRUE) |> expect_error()
   iris |> restore_zeros_df(wooh = TRUE) |> expect_error()
