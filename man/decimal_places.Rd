@@ -24,8 +24,9 @@ Integer. Number of decimal places in \code{x}.
 \code{decimal_places()} counts the decimal places in a numeric
 vector, or in a string vector that can be coerced to numeric.
 
-\code{decimal_places_scalar()} is much faster but only takes a single input. It
-is useful as a helper within other single-case functions.
+\code{decimal_places_scalar()} only takes a single input. It is somewhat faster
+on one value, so it is useful as a helper within other single-case
+functions.
 }
 \details{
 Decimal places in numeric values can't be counted accurately if the
@@ -76,8 +77,8 @@ decimal_places(x = c(4.08, "4.08"))
 # Whitespace at the end of a string is not counted:
 decimal_places(x = "6.0     ")
 
-# `decimal_places_scalar()` is much faster,
-# but only works with a single number or string:
+# `decimal_places_scalar()` only works with
+# a single number or string:
 decimal_places_scalar(x = 8.13)
 decimal_places_scalar(x = "5.024")
 }

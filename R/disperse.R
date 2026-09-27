@@ -49,9 +49,9 @@
 #' @return A tibble (data frame) with these columns:
 #' - `n` includes the dispersed `n` values. Every pair of consecutive rows has
 #'   `n` values that each add up to the total.
-#' - `n_change` records how the input `n` was transformed to the output `n`. In
-#'   `disperse2()`, the `n_change` strings label the lower of the input `n`
-#'   values `n1` and the higher one `n2`.
+#' - `n_change` records how the input `n` was transformed to the output `n`:
+#'   the integer number of steps away from it, negative for the lower `n` of
+#'   each pair.
 
 #' @seealso [`function_map_total_n()`], [`grim_map_total_n()`], and
 #'   [`seq_distance_df()`].

@@ -21,7 +21,8 @@ Default is \code{" "} (a space).}
 are removed.}
 }
 \value{
-A tibble (data frame).
+\code{data} with new column names: a data frame of the same class, or a
+tibble if \code{data} was a matrix.
 }
 \description{
 Data frames sometimes have wrong column names, while the correct

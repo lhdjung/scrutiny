@@ -64,9 +64,9 @@ A tibble (data frame) with these columns:
 \itemize{
 \item \code{n} includes the dispersed \code{n} values. Every pair of consecutive rows has
 \code{n} values that each add up to the total.
-\item \code{n_change} records how the input \code{n} was transformed to the output \code{n}. In
-\code{disperse2()}, the \code{n_change} strings label the lower of the input \code{n}
-values \code{n1} and the higher one \code{n2}.
+\item \code{n_change} records how the input \code{n} was transformed to the output \code{n}:
+the integer number of steps away from it, negative for the lower \code{n} of
+each pair.
 }
 }
 \description{

@@ -31,7 +31,8 @@
 #' @seealso `unheadr::mash_colnames()`, a more sophisticated solution to the
 #'   same problem.
 #'
-#' @return A tibble (data frame).
+#' @return `data` with new column names: a data frame of the same class, or a
+#'   tibble if `data` was a matrix.
 #' @export
 
 # @examples
