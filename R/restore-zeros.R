@@ -129,9 +129,11 @@ restore_zeros <- function(
   # R writes small and large numbers in scientific notation by itself --
   # `as.character(0.0001)` is `"1e-04"` -- and zeros appended to that would
   # multiply the value instead of padding it. Such values are written out in
-  # full, to the decimal places that `decimal_places()` reads off the exponent:
-  sci <- is.finite(x_num) & grepl("e", x, ignore.case = TRUE)
-  x[sci] <- sprintf("%.*f", decimal_places(x[sci]), x_num[sci])
+  # full, to the decimal places that `decimal_places()` reads off the exponent.
+  # Other unusual spellings that `as.numeric()` accepts, such as `".5"`,
+  # `"+1.5"`, or `"0x1A"`, are written out plainly the same way:
+  rewrite <- is.finite(x_num) & !grepl("^-?[0-9]+(\\.[0-9]*)?$", x)
+  x[rewrite] <- sprintf("%.*f", decimal_places(x[rewrite]), x_num[rewrite])
 
   # Count the decimal places. This is `NA` where there are none to count: in a
   # missing value and in an infinity.

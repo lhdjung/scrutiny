@@ -104,3 +104,11 @@ test_that("scientific notation, binary noise, and non-numbers are handled", {
   c("1.5", "2.25") |> restore_zeros(sep_in = ".") |> expect_equal(c("1.50", "2.25"))
   c("1,5", "3") |> restore_zeros(width = 2, sep_in = ",") |> expect_equal(c("1,50", "3,00"))
 })
+
+
+test_that("unusual spellings of numbers are written out plainly", {
+  c(".5", "+1.5", "-.25") |>
+    restore_zeros() |>
+    expect_equal(c("0.50", "1.50", "-0.25"))
+  "0x1A" |> restore_zeros(width = 3) |> expect_equal("26.000")
+})
