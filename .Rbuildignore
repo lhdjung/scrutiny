@@ -30,3 +30,4 @@ R\.Rproj$
 ^vignettes/.*\.pdf$
 ^\.DS_Store$
 ^.*/\.DS_Store$
+^\.mailmap$

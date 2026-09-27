@@ -187,7 +187,11 @@ debit_plot <- function(
           ymin = debit_line(n_range[2])(x_grid),
           ymax = debit_line(n_range[1])(x_grid)
         ),
-        ggplot2::aes(x = x, ymin = ymin, ymax = ymax),
+        ggplot2::aes(
+          x = .data$x,
+          ymin = .data$ymin,
+          ymax = .data$ymax
+        ),
         fill = line_color,
         alpha = line_alpha * 0.25,
         na.rm = TRUE,
@@ -195,7 +199,8 @@ debit_plot <- function(
       )
   }
 
-  debit_lines <- unique(n_range) |>
+  debit_lines <- n_range |>
+    unique() |>
     lapply(function(n_line) {
       ggplot2::geom_function(
         fun = debit_line(n_line),
