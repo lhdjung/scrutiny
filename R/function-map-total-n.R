@@ -107,6 +107,15 @@ function_map_total_n_proto <- function(
     n_change <- out_df$n_change
     colnames(out_df)[seq_along(reported_orig)] <- reported_orig
 
+    # With no pair of group sizes left, the reported columns unnest as logical.
+    # Give them their input types back (`reported` has `x1, x2, sd1, ...`):
+    if (nrow(out_df) == 0L) {
+      out_df[reported_orig] <- lapply(
+        reported[seq(1L, by = 2L, length.out = reported_n_vars)],
+        function(col) col[0L]
+      )
+    }
+
     # A `digits_*` argument may name one value per group: `digits_x = c(2, 1)`
     # if `x1` has two decimal places and `x2` one. `out_df` lists the groups in
     # alternating rows, so the vector is recycled across it, one value per row.

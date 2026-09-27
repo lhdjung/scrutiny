@@ -49,8 +49,9 @@ reverse_map_total_n <- function(data) {
 
   nrow_data_reduced <- nrow(data_reduced)
 
-  locations1 <- seq(from = 1, to = nrow_data_reduced - 1L, by = 2)
-  locations2 <- seq(from = 2, to = nrow_data_reduced, by = 2)
+  # `length.out` rather than `to`, which fails for 0-row output:
+  locations1 <- seq(from = 1, by = 2, length.out = nrow_data_reduced %/% 2)
+  locations2 <- locations1 + 1
 
   data1 <- data_reduced |> dplyr::slice(locations1)
   data2 <- data_reduced |> dplyr::slice(locations2)
