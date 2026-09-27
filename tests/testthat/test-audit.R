@@ -183,6 +183,13 @@ test_that("`audit()` summarizes the decidable cases despite an undecidable one",
   out$incons_cases |> expect_equal(1L)
 })
 
+
+test_that("undecidable cases don't dilute `incons_to_prob`", {
+  df <- tibble::tibble(x = 5.19, n = c(28, 28, NA, NA))
+  audit(grim_map(df, digits_x = 2))$incons_to_prob |>
+    expect_equal(audit(grim_map(df[1:2, ], digits_x = 2))$incons_to_prob)
+})
+
 test_that("`audit()` on DEBIT output ignores missing values in its means", {
   out <- debit_map(
     tibble::tibble(x = c(0.53, NA), sd = c(0.5, 0.5), n = c(1683L, 1683L)),

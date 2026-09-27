@@ -19,9 +19,10 @@ audit.scrutiny_grim_map <- function(data) {
     as.numeric()
 
   # 5. the ratio of the proportion of GRIM-inconsistent cases to the average of
-  # GRIM probabilities:
-  incons_rate <- out[[3L]]
-  incons_to_prob <- incons_rate / mean_grim_prob
+  # GRIM probabilities. Both must be taken over the same, decidable cases:
+  decidable <- !is.na(data$consistency) & !is.na(data$probability)
+  incons_to_prob <-
+    mean(!data$consistency[decidable]) / mean(data$probability[decidable])
 
   # 6. the number of GRIM-testable cases:
   testable_cases <- data |>
