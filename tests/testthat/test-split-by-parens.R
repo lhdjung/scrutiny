@@ -117,3 +117,14 @@ test_that("uneven separators, `NA`s, and column names ending on `end2` work", {
       sd = c("6", "8", "2", "4")
     ))
 })
+
+
+# The legacy spellings of `sep`, such as `"("`, used to leave the warning
+# unfinished: "It doesn't contain the `sep` elements, ."
+test_that("the warning names the separators for every spelling of `sep`", {
+  data <- tibble::tibble(a = c("1 (2)", "3 (4)"), b = c("x", "y"))
+  for (sep in list("parens", "(", "\\(")) {
+    split_by_parens(data, sep = sep) |> expect_warning("i.e., parentheses")
+  }
+  split_by_parens(data, sep = c("<", ">")) |> expect_warning('"<" and ">"')
+})

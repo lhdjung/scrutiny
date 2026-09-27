@@ -77,15 +77,20 @@ warn_wrong_columns_selected <- function(
 
 # This one is only used within `split_by_parens()`:
 message_sep_if_cols_excluded <- function(sep) {
-  if (length(sep) == 2L) {
-    msg_seps <- wrap_in_quotes(sep)
+  # Translating first covers the legacy spellings such as `"("` as well, which
+  # used to fall through every branch and leave the message unfinished:
+  seps <- translate_length1_sep_keywords(sep)
+  name_seps <- switch(
+    paste0(seps, collapse = ""),
+    "()" = "parentheses",
+    "[]" = "square brackets",
+    "{}" = "curly braces"
+  )
+  if (is.null(name_seps)) {
+    msg_seps <- wrap_in_quotes(seps)
     glue::glue("{msg_seps[1L]} and {msg_seps[2L]}")
-  } else if (sep == "parens") {
-    "i.e., parentheses"
-  } else if (sep == "brackets") {
-    "i.e., square brackets"
-  } else if (sep == "braces") {
-    "i.e., curly braces"
+  } else {
+    paste0("i.e., ", name_seps)
   }
 }
 
