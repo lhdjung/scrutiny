@@ -1039,19 +1039,27 @@ test_that("GRIMMER never rejects an enumerable sample within scale bounds", {
 
 
 test_that("an `n` too large to enumerate is an error, not a hang", {
-  # GRIMMER enumerates every integer sum the reported mean admits, and for each
-  # of those every integer sum of squares the reported SD admits. Both ranges
-  # grow linearly with `n`: `a:b` simply allocated, so `n = 3e9` exhausted
-  # memory with no warning on the way.
   grimmer(x = 5.19, sd = 2.5, n = 3e9, digits_x = 2, digits_sd = 2) |>
-    expect_error("too large for GRIMMER to enumerate")
+    expect_error("too large for GRIMMER")
   grimmer(x = 5.19, sd = 2.5, n = 1e8, digits_x = 2, digits_sd = 2) |>
-    expect_error("too large for GRIMMER to enumerate")
+    expect_error("too large for GRIMMER")
 
   # The limit is far above anything a published summary statistic looks like,
   # so a large but plausible `n` still goes through:
   grimmer(x = 5.19, sd = 2.5, n = 1e6, digits_x = 2, digits_sd = 2) |>
     expect_type("logical")
+})
+
+
+test_that("a wide range of sums of squares is no error at a small `n`", {
+  # A large SD reported with few decimals spans millions of sums of squares.
+  # These used to trip the limit meant for a huge `n`:
+  grimmer(x = 35000.5, sd = 50000, n = 20, digits_x = 1, digits_sd = 0) |>
+    expect_true()
+  grimmer(x = 512.3, sd = 260, n = 2500, digits_x = 1, digits_sd = 0) |>
+    expect_true()
+  grimmer(x = 45000.5, sd = 12000, n = 100, digits_x = 1, digits_sd = 0) |>
+    expect_true()
 })
 
 

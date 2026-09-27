@@ -188,39 +188,28 @@ is_whole_number <- function(x, tolerance = WHOLE_NUMBER_TOLERANCE) {
 }
 
 
-#' Refuse an enumeration that would not fit in memory
+#' Refuse too many candidate sums for GRIMMER
 #'
-#' @description GRIMMER decides a case by enumerating every integer sum that
-#'   the reported mean admits, and, for each of those, every integer sum of
-#'   squares that the reported SD admits. Both ranges grow linearly with `n`:
-#'   at `n = 1e7` the test takes about a second, at `n = 1e8` about eleven, and
-#'   at `n = 3e9` it exhausts memory with nothing to show for it. There is no
-#'   warning on the way -- `a:b` simply allocates.
+#' @description `grimmer_scalar()` loops over every integer sum the reported
+#'   mean admits. There are about `n * items / 10^digits_x` of them, so a huge
+#'   `n` (e.g., a typo) would keep the loop running for a very long time. The
+#'   limit is far above any published summary statistic.
 #'
-#'   No published summary statistic looks like this, so the limit is far above
-#'   anything the test will meet in practice. It exists so that a typo in an
-#'   `n` ends in a message rather than a hung session.
-#'
-#' @param bounds Numeric (length 2). The `c(lower, upper)` of the range about
-#'   to be materialized. An empty range (lower above upper) is fine: nothing
-#'   gets allocated for it.
-#' @param what String (length 1). What is being enumerated, for the message.
-#' @param n Numeric (length 1). The sample size, for the message.
-#' @param limit Numeric (length 1). The largest range the function will admit.
+#' @param bounds Numeric (length 2). The `c(lower, upper)` of the sums.
+#' @param n,digits_x Numeric (length 1). For the message.
+#' @param limit Numeric (length 1). The largest number of sums admitted.
 #'
 #' @return No return value. Might throw an error.
 #'
 #' @noRd
-check_enumeration_size <- function(bounds, what, n, limit = 1e6) {
+check_enumeration_size <- function(bounds, n, digits_x, limit = 1e6) {
   size <- bounds[2L] - bounds[1L] + 1
   if (isTRUE(size > limit)) {
     cli::cli_abort(c(
-      "`n` is too large for GRIMMER to enumerate.",
-      "x" = "With `n = {n}`, there are {round(size)} {what}.",
-      "i" = "The test works by checking each of them in turn, so it would \\
-      allocate a vector of that length -- and one more per candidate sum.",
-      "i" = "The limit is {limit}. GRIMMER is a test for reported summary \\
-      statistics, and no sample of this size is one."
+      "`n` is too large for GRIMMER.",
+      "x" = "With `n = {n}` and `digits_x = {digits_x}`, the mean admits \
+      {round(size)} integer sums, and GRIMMER checks each of them.",
+      "i" = "The limit is {limit}."
     ))
   }
 }

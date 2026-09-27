@@ -247,11 +247,7 @@ grimmer_scalar <- function(
     symmetric = symmetric
   )
 
-  check_enumeration_size(
-    sums_consistent,
-    what = "integer sums consistent with the reported mean",
-    n = n
-  )
+  check_enumeration_size(sums_consistent, n = n, digits_x = digits_x)
 
   consistent_sums <- sums_consistent[1L]:sums_consistent[2L]
 
@@ -313,78 +309,83 @@ grimmer_scalar <- function(
 
     furthest_test_passed <- max(furthest_test_passed, 1L)
 
-    check_enumeration_size(
-      sum_squares,
-      what = "integer sums of squares consistent with the reported SD",
-      n = n
+    # The range grows with `(n - 1) * items^2 * sd`, so a large SD reported with
+    # few decimals can span millions of integers even at a small `n`. Walking it
+    # in chunks keeps memory flat, and the loop stops at the first match:
+    chunk_starts <- seq(
+      sum_squares[1L],
+      sum_squares[2L],
+      by = GRIMMER_CHUNK_SIZE
     )
 
-    integers_possible <- sum_squares[1L]:sum_squares[2L]
+    for (chunk_start in chunk_starts) {
+      integers_possible <- chunk_start:min(
+        chunk_start + GRIMMER_CHUNK_SIZE - 1,
+        sum_squares[2L]
+      )
 
-    # Subtracting `s^2 / n` from the integer sum of squares directly is much
-    # better conditioned than the equivalent
-    # `integers_possible / items^2 - n * (s / n_items)^2`, which cancels two
-    # large, nearly equal floating-point numbers:
-    var_predicted <- (integers_possible - s^2 / n) / (items^2 * (n - 1))
+      # Subtracting `s^2 / n` from the integer sum of squares directly is much
+      # better conditioned than the equivalent
+      # `integers_possible / items^2 - n * (s / n_items)^2`, which cancels two
+      # large, nearly equal floating-point numbers:
+      var_predicted <- (integers_possible - s^2 / n) / (items^2 * (n - 1))
 
-    # The bounds above guarantee `var_predicted >= sd_lower^2 >= 0`, so anything
-    # negative here is floating-point noise from that division:
-    var_predicted <- pmax(var_predicted, 0)
+      # The bounds above guarantee `var_predicted >= sd_lower^2 >= 0`, so
+      # anything negative here is floating-point noise from that division:
+      var_predicted <- pmax(var_predicted, 0)
 
-    sd_predicted <- sqrt(var_predicted)
+      sd_predicted <- sqrt(var_predicted)
 
-    sd_rec_rounded <- reround(
-      x = sd_predicted,
-      digits = digits_sd,
-      rounding = rounding,
-      threshold = threshold,
-      symmetric = symmetric
-    )
+      sd_rec_rounded <- reround(
+        x = sd_predicted,
+        digits = digits_sd,
+        rounding = rounding,
+        threshold = threshold,
+        symmetric = symmetric
+      )
 
-    # `reround()` returns one value per element of `sd_predicted` for
-    # deterministic rounding methods, but two interleaved ones for "up_or_down"
-    # and friends: `[up(cand_1), down(cand_1), up(cand_2), ...]`. `reps` is that
-    # block size, so each candidate is checked against its own reconstructed
-    # SD(s). Pooling them let a match for one candidate combine with a parity
-    # match for another into a false pass (#85).
-    reps <- length(sd_rec_rounded) / length(integers_possible)
+      # `reround()` returns one value per element of `sd_predicted` for
+      # deterministic rounding methods, but two interleaved ones for
+      # "up_or_down" and friends: `[up(cand_1), down(cand_1), up(cand_2), ...]`.
+      # `reps` is that block size, so each candidate is checked against its own
+      # reconstructed SD(s). Pooling them let a match for one candidate combine
+      # with a parity match for another into a false pass (#85).
+      reps <- length(sd_rec_rounded) / length(integers_possible)
 
-    # Near-equality of reported and reconstructed SD, per candidate integer.
-    # `dplyr::near()` rather than `==` to absorb floating-point noise:
-    matches_sd <- vapply(
-      seq_along(integers_possible),
-      function(i) {
-        block <- ((i - 1L) * reps + 1L):(i * reps)
-        any(
-          dplyr::near(sd_rec_rounded[block], sd, tol = tolerance),
-          na.rm = TRUE
-        )
-      },
-      logical(1)
-    )
+      # Near-equality of reported and reconstructed SD, per candidate integer.
+      # `dplyr::near()` rather than `==` to absorb floating-point noise:
+      matches_sd <- vapply(
+        seq_along(integers_possible),
+        function(i) {
+          block <- ((i - 1L) * reps + 1L):(i * reps)
+          any(
+            dplyr::near(sd_rec_rounded[block], sd, tol = tolerance),
+            na.rm = TRUE
+          )
+        },
+        logical(1)
+      )
 
-    # TEST 2: If none of the reconstructed SDs matches the reported one, this
-    # candidate sum is not viable.
-    if (!any(matches_sd)) {
-      next
+      # TEST 2: If none of the reconstructed SDs matches the reported one, this
+      # chunk has no viable sum of squares.
+      if (!any(matches_sd)) {
+        next
+      }
+
+      furthest_test_passed <- max(furthest_test_passed, 2L)
+
+      # TEST 3: Does any *single* integer both match the reported SD and have
+      # the same parity (even- or oddness) as the candidate sum `s`?
+      matches_parity <- s %% 2 == integers_possible %% 2
+
+      if (any(matches_sd & matches_parity)) {
+        # All three tests passed for this candidate sum
+        if (show_reason) {
+          return(list(TRUE, "Passed all"))
+        }
+        return(TRUE)
+      }
     }
-
-    furthest_test_passed <- max(furthest_test_passed, 2L)
-
-    # TEST 3: Does any *single* integer both match the reported SD and have the
-    # same parity (even- or oddness) as the candidate sum `s`?
-    matches_parity <- s %% 2 == integers_possible %% 2
-    matches_sd_and_parity <- matches_sd & matches_parity
-
-    if (!any(matches_sd_and_parity)) {
-      next
-    }
-
-    # All three tests passed for this candidate sum
-    if (show_reason) {
-      return(list(TRUE, "Passed all"))
-    }
-    return(TRUE)
   }
 
   # No candidate sum passed all three tests.
