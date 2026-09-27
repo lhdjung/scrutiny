@@ -277,10 +277,10 @@ sep_literal <- function(sep) {
 # `decimal_places()` and `decimal_places_scalar()` read strings through these
 # two, so that they cannot drift apart on which strings they count.
 #
-# PCRE's `[[:space:]]` is ASCII whitespace in any locale: exactly what
-# `as.numeric()` skips around a number, `"\v"` and `"\f"` included.
+# `\s` is ASCII whitespace, `"\v"` and `"\f"` included. `\p{Z}` adds Unicode
+# spaces such as the no-break space, common in tables copied from PDFs.
 trim_space <- function(x) {
-  gsub("^[[:space:]]+|[[:space:]]+$", "", x, perl = TRUE)
+  gsub("^[\\s\\p{Z}]+|[\\s\\p{Z}]+$", "", x, perl = TRUE)
 }
 
 # The strings `as.numeric()` reads as an infinity or `NaN`, in any letter case.

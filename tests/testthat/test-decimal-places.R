@@ -315,3 +315,12 @@ test_that("`sep` is a literal string, and only the first one counts", {
     decimal_places() |>
     expect_equal(rep(NA_integer_, 4L))
 })
+
+
+test_that("Unicode spaces around a number are trimmed", {
+  x <- c("1.5e3 ", " 2.25", "1.5 ")
+  x |> decimal_places() |> expect_equal(c(0L, 2L, 1L))
+  x |>
+    vapply(decimal_places_scalar, integer(1L), USE.NAMES = FALSE) |>
+    expect_equal(c(0L, 2L, 1L))
+})
