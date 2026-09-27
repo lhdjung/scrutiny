@@ -107,6 +107,17 @@ debit_plot <- function(
     "x_upper"
   )
 
+  # The bounds only exist in `debit_map()` output with `show_rec = TRUE`, the
+  # default. Without them, subsetting used to fail with a vctrs error:
+  cols_missing <- setdiff(cols_needed, colnames(data))
+  if (length(cols_missing) > 0L) {
+    cli::cli_abort(c(
+      "!" = "`data` lacks columns that `debit_plot()` needs.",
+      "x" = "Missing: {.code {cols_missing}}.",
+      "i" = "Call `debit_map()` with `show_rec = TRUE`, the default."
+    ))
+  }
+
   is_complete <- stats::complete.cases(data[cols_needed])
 
   if (!all(is_complete)) {

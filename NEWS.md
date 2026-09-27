@@ -60,6 +60,8 @@
 
 ## Bugfixes
 
+- `debit_plot()` now explains that it needs `debit_map()` output with `show_rec = TRUE`, the default. Without the reconstructed bounds, it used to fail with a vctrs error about columns that don't exist.
+
 - `function_map_seq()`'s `.name_class` argument now has an effect. The class was passed on to an internal helper that ignored it, so it never reached the output.
 
 - `split_by_parens()` with a legacy `sep` spelling such as `"("` no longer ends its warning about unsplit columns in "the `sep` elements, .". The separators are now named for every spelling.

@@ -91,3 +91,13 @@ test_that("the band between the DEBIT lines is clipped, not cut off", {
   anyNA(band$ymin) |> expect_false()
   anyNA(band$ymax) |> expect_false()
 })
+
+
+# Without the bounds from `show_rec = TRUE`, the plot used to fail with a vctrs
+# error about subsetting columns that don't exist:
+test_that("`debit_plot()` explains missing reconstruction columns", {
+  pigs3 |>
+    debit_map(digits_x = 2, digits_sd = 2, show_rec = FALSE) |>
+    debit_plot() |>
+    expect_error("show_rec = TRUE")
+})
