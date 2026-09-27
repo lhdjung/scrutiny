@@ -145,6 +145,20 @@ test_that("Renaming `\"consistency\"` via `.name_key_result` works", {
   out_debit_old_renamed |> expect_equal(out_debit_new_renamed)
 })
 
+test_that("a `consistency` column is not silently lost under another name", {
+  v_map <- function_map(
+    .fun = grim_scalar,
+    .reported = c("x", "n"),
+    .name_test = "VGRIM",
+    .name_key_result = "verdict",
+    .args_by_row = "digits_x"
+  )
+  pigs1[1:3, ] |>
+    dplyr::mutate(consistency = "keep me") |>
+    v_map(digits_x = 2) |>
+    expect_error("already includes a \"consistency\" column")
+})
+
 test_that("Wrong `.reported` values throw an error", {
   function_map(
     .fun = grim_scalar,

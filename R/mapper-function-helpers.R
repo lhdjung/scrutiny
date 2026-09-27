@@ -68,7 +68,10 @@ check_consistency_not_in_colnames <- function(
   name_test,
   name_key_result = "consistency"
 ) {
-  if (any(name_key_result == colnames(data))) {
+  # `function_map()` names the result column `"consistency"` before renaming
+  # it, so a column of that name would be lost, too:
+  names_taken <- intersect(c(name_key_result, "consistency"), colnames(data))
+  if (length(names_taken) > 0L) {
     # If `data` carries a scrutiny mapper class, name the mapper that most
     # likely produced it. The most specific tier wins: a `*_map_seq()` output
     # also inherits the basic `*_map` class, but it was the sequence mapper that
@@ -106,7 +109,7 @@ check_consistency_not_in_colnames <- function(
       ""
     }
     cli::cli_abort(c(
-      "`data` already includes a \"{name_key_result}\" column.",
+      "`data` already includes a \"{names_taken[1L]}\" column.",
       "x" = "This shouldn't be the case before {name_test}-testing.",
       "i" = "Did you use the output of a consistency test \\
       {msg_special}mapper function for {name_test}{msg_fun_name} \\
