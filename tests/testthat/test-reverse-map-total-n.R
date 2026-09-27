@@ -32,3 +32,13 @@ test_that("The reconstruction does not depend on the first dispersion step", {
     reverse_map_total_n() |>
     expect_equal(df)
 })
+
+
+test_that("`items` is not multiplied into the reconstructed total", {
+  df <- tibble::tibble(x1 = 3.43, x2 = 4.20, n = 71L)
+  out <- grim_map_total_n(df, digits_x = 2, items = 2)
+  out$n[1:2] |> expect_equal(c(35L, 36L))
+  out$items |> unique() |> expect_equal(2)
+  reverse_map_total_n(out) |> expect_equal(df)
+  audit_total_n(out)$n |> expect_equal(71L)
+})

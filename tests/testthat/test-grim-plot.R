@@ -207,3 +207,16 @@ test_that("`split_by_digits = TRUE` always returns a named list", {
     expect_equal("digits_2")
   data |> grim_plot(split_by_digits = TRUE, digits = 2) |> expect_error("can't be combined")
 })
+
+
+test_that("tiles sit at `n * items` when `items` is a column", {
+  out <- grim_map_seq(
+    tibble::tibble(x = 3.43, n = 71),
+    digits_x = 2,
+    items = 2,
+    include_consistent = TRUE
+  )
+  layers <- ggplot2::ggplot_build(grim_plot(out))$data
+  tiles <- layers[[length(layers)]]
+  sort(unique(tiles$x)) |> expect_equal(sort(unique(out$n * out$items)))
+})

@@ -74,6 +74,8 @@
 
 - `reverse_map_total_n()`, and so `audit_total_n()`, now rebuild the right total `n` for any `dispersion`. They were only right if it started at 0.
 
+- `*_map_total_n()` functions called with `items` now return `n` as the group size, followed by an `items` column, as `*_map_seq()` functions do. They used to return `n * items`, so `reverse_map_total_n()` and `audit_total_n()` reported that product as the total. `grim_plot()` multiplies an `items` column back into `n` to place the tiles.
+
 - `*_map_total_n()` functions and `disperse_total()` no longer fail with internal errors when the limits leave no pair of group sizes, for a total `n` below 2, or for 0-row data.
 
 - `seq_endpoint()`, `seq_distance()`, and their `*_df()` variants now round their output back to the decimal level, so that ranges crossing zero or long runs no longer fail with a spurious `width` error. `seq_distance()` with `by` now keeps the decimal places of `from`, too.

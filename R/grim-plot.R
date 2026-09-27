@@ -257,6 +257,12 @@ grim_plot <- function(
     )
   }
 
+  # The sequence and total-n mappers keep `items` apart from `n`, but GRIM's
+  # granularity is their product:
+  if ("items" %in% colnames(data)) {
+    data$n <- data$n * data$items
+  }
+
   # Nothing to read a decimal count off, no raster to choose, no data to draw.
   # A zero-row mapper output is an ordinary result of `dplyr::filter()`, so say
   # so plainly rather than let `digits` come out `NA` and fail further down:

@@ -138,9 +138,20 @@ function_map_total_n_proto <- function(
       }
     }
 
+    data_in <- out_df
     out_df <- do.call(fun, c(list(out_df), dots))
 
     check_key_result_col(out_df, name_key_result, name_fun)
+
+    # `fun()` multiplies helpers such as `items` into their key column. Undo
+    # that, as `function_map_seq()` does, so `n` remains the group size:
+    helper_merge <- attr(fun, "scrutiny_cols_helper_merge", exact = TRUE)
+    for (.name in intersect(names(helper_merge), names(dots))) {
+      .target <- helper_merge[[.name]]
+      out_df[[.target]] <- data_in[[.target]]
+      out_df[[.name]] <- rep_len(dots[[.name]], nrow(out_df))
+      out_df <- dplyr::relocate(out_df, all_of(.name), .after = all_of(.target))
+    }
 
     if (!any("n_change" == colnames(out_df))) {
       out_df <- dplyr::mutate(out_df, n_change)
