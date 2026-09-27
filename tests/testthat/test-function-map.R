@@ -754,6 +754,14 @@ test_that("key arguments work when the mapper is called indirectly", {
 
 # It also ignored a key argument whenever `data` had a column of that name, and
 # tested that column instead.
+test_that("`absorb_key_args()` reads key arguments passed through dots", {
+  df <- dplyr::rename(pigs1, mean = x)
+  my_map <- function(data, ...) absorb_key_args(data, c("x", "n"))
+  my_map(df, x = "mean") |> colnames() |> expect_equal(c("x", "n"))
+  my_map(df, x = mean) |> colnames() |> expect_equal(c("x", "n"))
+})
+
+
 test_that("a key argument clashing with an existing column is an error", {
   d <- tibble::tibble(x = c(1.11, 2.22), mean = c(5.19, 5.2), n = c(28, 30))
   expect_error(grim_map(d, digits_x = 2, x = mean), "already has a `x` column")

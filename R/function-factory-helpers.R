@@ -471,15 +471,18 @@ absorb_key_args <- function(data, reported, key_cols_call = NULL) {
   # if it was called from within another function.
   if (is.null(key_cols_call)) {
     fn_caller <- rlang::caller_fn()
-    key_cols_call <- if (is.function(fn_caller)) {
-      capture_key_args(
-        data = data,
-        reported = intersect(reported, names(formals(fn_caller))),
-        env = rlang::caller_env()
-      )
-    } else {
-      character()
+    env <- rlang::caller_env()
+    names_formals <- names(formals(fn_caller))
+    quos <- list()
+    for (name in intersect(reported, names_formals)) {
+      quos[[name]] <- eval(rlang::call2(rlang::enquo, rlang::sym(name)), env)
     }
+    # A handwritten caller may pass the key arguments on through its dots:
+    if (any(names_formals == "...")) {
+      quos_dots <- eval(quote(rlang::enquos(...)), env)
+      quos <- c(quos, quos_dots[intersect(reported, names(quos_dots))])
+    }
+    key_cols_call <- capture_key_args(data, quos)
   }
 
   # A key argument pointing at the column that already has its name is a no-op:
@@ -525,16 +528,15 @@ absorb_key_args <- function(data, reported, key_cols_call = NULL) {
 }
 
 
-# Read the key arguments `reported` -- which must be arguments -- of the
-# factory-made function whose frame is `env`, as a
-# named character vector of column names. An argument that is `NULL`, i.e., not
+# Read the key arguments, captured as named quosures, as a named character
+# vector of column names. An argument that is `NULL`, i.e., not
 # specified, is left out. A bare name is taken as a column name if `data` has
 # such a column; otherwise, if it is a variable holding a string, as that
 # string. Any other expression must evaluate to a single string.
-capture_key_args <- function(data, reported, env) {
+capture_key_args <- function(data, quos) {
   out <- character()
-  for (name in reported) {
-    quo <- eval(rlang::call2(rlang::enquo, rlang::sym(name)), envir = env)
+  for (name in names(quos)) {
+    quo <- quos[[name]]
     if (rlang::quo_is_null(quo)) {
       next
     }
