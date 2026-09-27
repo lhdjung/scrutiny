@@ -10,7 +10,31 @@
 #' @noRd
 unclass_scr <- function(x) {
   class(x) <- class(x)[!stringr::str_detect(class(x), "^scrutiny_")]
+  attr(x, "scrutiny") <- NULL
   x
+}
+
+
+# The `args` element of the `"scrutiny"` attribute of `grim_map()` output under
+# the defaults:
+grim_args_default <- list(
+  percent = FALSE,
+  show_rec = FALSE,
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE
+)
+
+
+# The whole `"scrutiny"` attribute of `grim_map_seq()` output:
+meta_seq <- function(fun_args, percent = FALSE) {
+  list(
+    args = utils::modifyList(grim_args_default, list(percent = percent)),
+    seq_test = FALSE,
+    fun_args = fun_args,
+    name_key_result = "consistency",
+    dispersion_linear = TRUE
+  )
 }
 
 

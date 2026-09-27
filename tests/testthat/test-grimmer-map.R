@@ -42,9 +42,20 @@ pigs5_exp <- tibble::tibble(
   ),
 ) |>
   structure(
+    scrutiny = list(
+      args = list(
+        min_val = NULL,
+        max_val = NULL,
+        show_reason = TRUE,
+        rounding = "up_or_down",
+        threshold = 5,
+        symmetric = FALSE,
+        tolerance = .Machine$double.eps^0.5
+      ),
+      seq_test = FALSE
+    ),
     class = c(
       "scrutiny_grimmer_map",
-      "scrutiny_rounding_up_or_down",
       "tbl_df",
       "tbl",
       "data.frame"

@@ -3,6 +3,10 @@
 ## Breaking changes
 
 - scrutiny now uses the base pipe `|>` instead of the magrittr pipe `%>%`, so `%>%` is no longer exported.
+- Classes on scrutiny output are now for S3 dispatch only. Settings of the call that functions downstream need to know about are recorded in a single list attribute, `"scrutiny"`, instead:
+  - Mapper output no longer has a `"scrutiny_rounding_*"` class, such as `"scrutiny_rounding_up_or_down"`, or the `"scrutiny_percent_true"` class. The `rounding` and `percent` arguments are recorded as part of the `args` element of the attribute, alongside every other argument that applied to the whole call.
+  - Sequence mapper output no longer has the `"scrutiny_map_seq_disp_nonlinear"` class or the `"scrutiny_fun_args"` and `"scrutiny_name_key_result"` attributes.
+  - `seq_endpoint_df()` and `seq_distance_df()` output no longer has the `"scrutiny_seq_df"` class, nor does mapper output testing it have the `"scrutiny_seq_test"` class.
 - `grim_map()`, `grimmer_map()`, and `debit_map()` are now created by `function_map()` instead of being written by hand. Their output changed as noted below, and they gained the remaining arguments of `grim()`, `grimmer()`, and `debit()` (e.g., `debit_map()` now has a `formula` argument) and lost these:
   - `grim_map()` and `grimmer_map()` no longer have `merge_items`. Setting it to `FALSE` packed `n` and `items` into a single data-frame column, which every function downstream of the mapper takes to be a numeric vector. The default behavior, multiplying `items` into `n` for the output, is now the only one.
   - `grim_map()` and `debit_map()` no longer have `extra`. It selected which of the other columns of `data` come along, and all three mappers now return all of them. `dplyr::select()` does the same job on the output, with tidyselect, and `grimmer_map()` never had the argument in the first place.
@@ -164,7 +168,7 @@
 
 - `*_map_seq()` functions now apply `items` only once. The initial test multiplies `items` into the `n` column, so the internal re-tests of dispersed values receive data whose `n` is already merged; forwarding `items` to them as well used to multiply it in a second time, so dispersed values were tested against `n * items^2`.
 
-- `audit_seq()` now re-tests the reconstructed data with the same arguments as the original `*_map_seq()` call. Arguments that change verdicts but leave no trace in the output columns -- `percent`, `threshold`, `symmetric`, GRIMMER's `min_val` and `max_val` -- used to be silently dropped, which could flip the `consistency` column of the summary. The mapper output now records the replayable arguments in an attribute; for older output without it, `audit_seq()` falls back to the `digits_*` columns and the rounding class, as before.
+- `audit_seq()` now re-tests the reconstructed data with the same arguments as the original `*_map_seq()` call. Arguments that change verdicts but leave no trace in the output columns -- `percent`, `threshold`, `symmetric`, GRIMMER's `min_val` and `max_val` -- used to be silently dropped, which could flip the `consistency` column of the summary. The mapper output now records the replayable arguments in an attribute; for output without it, `audit_seq()` falls back to the `digits_*` columns.
 
 - `rounding_bias()`, `reround_to_fraction()`, and `reround_to_fraction_level()` no longer warn that values of `x` and `rounding` "get paired". All three length-checked `rounding`, `threshold`, and `symmetric` against `x`, although `reround()` requires each of them to have length 1, so a vector `rounding` drew a warning about a pairing that cannot happen and then an error saying so. `rounding_bias()` additionally compared `rounding` to a length-3 vector of the compound method names with `==` rather than `%in%`, so a `rounding` of length 2 also drew R's "longer object length is not a multiple of shorter object length". `x` and the arguments that really are vectorized along with it are checked as before.
 
@@ -360,7 +364,6 @@
   - `.cols_helper` and `.cols_helper_merge`, for arguments that may also be given as columns of `data`, such as `items`.
   - `.col_names`, which replaces the non-functional argument of the same name (see below). It names the columns that the `*_scalar()` function's values unpack into when it is asked to show them, as with `show_rec` or `show_reason`.
   - `.cols_derived`, for columns that the `*_scalar()` function does not return at all but that are computed from the same per-row input, such as `probability` in `grim_map()`, which comes from `grim_probability()`.
-  - `.name_class_flags`, for logical arguments that change what the numbers in the output mean and that functions downstream of the mapper therefore need to know about, such as `percent` in `grim_map()`, which `grim_plot()` reads off the `scrutiny_percent_true` class.
 
 - `function_map()`'s experimental `.col_control` and `.col_filler` arguments are gone, and `.col_names` works differently, as described above. The three of them were documented as a way to turn additional values from a `*_scalar()` function into columns, but the code they generated addressed variables that the manufactured function does not have, so any use of them failed. `.col_control` was checked and then never referenced at all.
 

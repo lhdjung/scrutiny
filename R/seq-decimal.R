@@ -1,9 +1,11 @@
 # Shared tail of `seq_endpoint_df()` and `seq_distance_df()`: wrap the sequence
 # in a tibble, adding whatever further columns the caller named in the dots. The
-# class only passes messages between (1) these functions, (2) the testing
+# attribute only passes messages between (1) these functions, (2) the testing
 # function, and (3) `seq_test_ranking()`.
 seq_df_out <- function(x, ...) {
-  add_class(tibble::tibble(x, ...), "scrutiny_seq_df")
+  out <- tibble::tibble(x, ...)
+  attr(out, "scrutiny") <- list(seq_df = TRUE)
+  out
 }
 
 

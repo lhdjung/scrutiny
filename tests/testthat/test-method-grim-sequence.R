@@ -18,3 +18,14 @@ test_that("Values are correct", {
   ranking$inconsistent[1:4] |> expect_equal(c(3, 5, 8, 10))
   ranking$lead_lag[1:4]     |> expect_equal(c(2, 3, 4, 4))
 })
+
+test_that("A tested sequence is recognized as one, and other data is not", {
+  seq_distance_df(5.37, n = 40, .string_output = FALSE) |>
+    grim_map(digits_x = 2) |>
+    seq_test_ranking(explain = FALSE) |>
+    expect_no_warning()
+  pigs1 |>
+    grim_map(digits_x = 2) |>
+    seq_test_ranking() |>
+    expect_warning("really a sequence test")
+})

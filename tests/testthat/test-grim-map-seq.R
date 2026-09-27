@@ -497,14 +497,12 @@ pigs1_exp <- tibble::tibble(
   var = rep(c("x", "n"), each = 80L),
 ) |>
   structure(
-    # The arguments that reproduce the test; `audit_seq()` replays them:
-    scrutiny_fun_args = list(digits_x = 2),
-    scrutiny_name_key_result = "consistency",
+    # `fun_args` reproduces the test; `audit_seq()` replays it:
+    scrutiny = meta_seq(fun_args = list(digits_x = 2)),
     class = c(
       "scrutiny_map_seq",
       "scrutiny_grim_map_seq",
       "scrutiny_grim_map",
-      "scrutiny_rounding_up_or_down",
       "tbl_df",
       "tbl",
       "data.frame"
@@ -828,14 +826,14 @@ pigs2_exp <- tibble::tibble(
   var = rep(c("x", "n"), each = 50L),
 ) |>
   structure(
-    scrutiny_fun_args = list(digits_x = 1, percent = TRUE),
-    scrutiny_name_key_result = "consistency",
+    scrutiny = meta_seq(
+      fun_args = list(digits_x = 1, percent = TRUE),
+      percent = TRUE
+    ),
     class = c(
       "scrutiny_map_seq",
       "scrutiny_grim_map_seq",
-      "scrutiny_percent_true",
       "scrutiny_grim_map",
-      "scrutiny_rounding_up_or_down",
       "tbl_df",
       "tbl",
       "data.frame"
@@ -1385,13 +1383,11 @@ pigs1_include_reported_exp <- tibble::tibble(
   var = rep(c("x", "n"), each = 88L),
 ) |>
   structure(
-    scrutiny_fun_args = list(digits_x = 2),
-    scrutiny_name_key_result = "consistency",
+    scrutiny = meta_seq(fun_args = list(digits_x = 2)),
     class = c(
       "scrutiny_map_seq",
       "scrutiny_grim_map_seq",
       "scrutiny_grim_map",
-      "scrutiny_rounding_up_or_down",
       "tbl_df",
       "tbl",
       "data.frame"

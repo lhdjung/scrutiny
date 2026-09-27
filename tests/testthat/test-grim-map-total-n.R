@@ -160,11 +160,11 @@ df2_rows_1_3_expected <- tibble::tibble(
   ),
 ) |>
   structure(
+    scrutiny = list(args = grim_args_default, seq_test = FALSE),
     class = c(
       "scrutiny_map_total_n",
       "scrutiny_grim_map_total_n",
       "scrutiny_grim_map",
-      "scrutiny_rounding_up_or_down",
       "tbl_df",
       "tbl",
       "data.frame"

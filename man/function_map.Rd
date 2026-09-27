@@ -17,7 +17,6 @@ function_map(
   .cols_helper_merge = NULL,
   .col_names = NULL,
   .cols_derived = NULL,
-  .name_class_flags = NULL,
   .reported_variadic = NULL,
   ...
 )
@@ -84,13 +83,6 @@ further columns which the \verb{*_scalar()} function does not return, such as
 per-row input as the \verb{*_scalar()} function, but only gets those arguments
 that it has formals for. The columns follow the key result column in the
 output.}
-
-\item{.name_class_flags}{Optionally, a named string vector that pairs the
-name of a logical argument of the \verb{*_scalar()} function with a class to be
-added to the output whenever that argument is \code{TRUE}, such as
-\code{c(percent = "scrutiny_percent_true")}. Use it for arguments that change
-what the numbers in the output mean, so that functions downstream of the
-mapper can tell.}
 
 \item{.reported_variadic}{Optionally, a single string naming an argument of
 \code{.fun} that takes all the values of one row at once, as a vector. The
@@ -165,15 +157,12 @@ into each test. Such a mapper is basic-tier only: \code{\link[=function_map_seq]
 and \code{\link[=function_map_total_n]{function_map_total_n()}} derive their own arguments from \code{.reported},
 which says nothing about the variadic columns.
 
-The output tibble returned by the factory-made function will inherit one or
-two classes independently of the \code{.name_class} argument:
-\itemize{
-\item It will inherit a class named \code{"scrutiny_{tolower(.name_test)}_map"}; for
-example, the class is \code{"scrutiny_grim_map"} if \code{.name_test} is \code{"GRIM"}.
-\item If \code{.fun} has a \code{rounding} argument, the output tibble will inherit a class
-named \code{"scrutiny_rounding_{rounding}"}; for example,
-\code{"scrutiny_rounding_up_or_down"}.
-}
+The output tibble returned by the factory-made function inherits a class
+named \code{"scrutiny_{tolower(.name_test)}_map"} independently of the
+\code{.name_class} argument; for example, the class is \code{"scrutiny_grim_map"} if
+\code{.name_test} is \code{"GRIM"}. The arguments that applied to the whole call,
+such as \code{rounding}, are recorded in the \code{"scrutiny"} attribute of the
+output, as its \code{args} element, so that functions downstream can read them.
 }
 \section{Value returned by the factory-made function}{
  A tibble with any

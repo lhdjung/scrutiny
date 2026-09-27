@@ -27,15 +27,19 @@ test_that("It has the correct function-general class", {
   expect_s3_class(df1_grim, "scrutiny_grim_map")
 })
 
-test_that("It has the correct rounding-specific class", {
-  df1_grim_up_or_down       |> expect_s3_class("scrutiny_rounding_up_or_down")
-  df1_grim_up               |> expect_s3_class("scrutiny_rounding_up")
-  df1_grim_down             |> expect_s3_class("scrutiny_rounding_down")
-  df1_grim_ceiling_or_floor |> expect_s3_class("scrutiny_rounding_ceiling_or_floor")
-  df1_grim_ceiling          |> expect_s3_class("scrutiny_rounding_ceiling")
-  df1_grim_floor            |> expect_s3_class("scrutiny_rounding_floor")
-  df1_grim_trunc            |> expect_s3_class("scrutiny_rounding_trunc")
-  df1_grim_anti_trunc       |> expect_s3_class("scrutiny_rounding_anti_trunc")
+test_that("It records the rounding", {
+  rounding_of <- function(x) scrutiny_meta(x)$args$rounding
+  df1_grim_up_or_down       |> rounding_of() |> expect_equal("up_or_down")
+  df1_grim_up               |> rounding_of() |> expect_equal("up")
+  df1_grim_down             |> rounding_of() |> expect_equal("down")
+  df1_grim_ceiling_or_floor |> rounding_of() |> expect_equal("ceiling_or_floor")
+  df1_grim_ceiling          |> rounding_of() |> expect_equal("ceiling")
+  df1_grim_floor            |> rounding_of() |> expect_equal("floor")
+  df1_grim_trunc            |> rounding_of() |> expect_equal("trunc")
+  df1_grim_anti_trunc       |> rounding_of() |> expect_equal("anti_trunc")
+  # Classes are for dispatch only:
+  df1_grim_up |> class() |> grepl(pattern = "rounding") |> any() |>
+    expect_false()
 })
 
 

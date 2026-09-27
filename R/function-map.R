@@ -63,12 +63,6 @@
 #'   per-row input as the `*_scalar()` function, but only gets those arguments
 #'   that it has formals for. The columns follow the key result column in the
 #'   output.
-#' @param .name_class_flags Optionally, a named string vector that pairs the
-#'   name of a logical argument of the `*_scalar()` function with a class to be
-#'   added to the output whenever that argument is `TRUE`, such as
-#'   `c(percent = "scrutiny_percent_true")`. Use it for arguments that change
-#'   what the numbers in the output mean, so that functions downstream of the
-#'   mapper can tell.
 #' @param ... These dots must be empty.
 
 #' @details The factory-made function has an argument for every argument of
@@ -112,13 +106,12 @@
 #'   and [`function_map_total_n()`] derive their own arguments from `.reported`,
 #'   which says nothing about the variadic columns.
 #'
-#'   The output tibble returned by the factory-made function will inherit one or
-#'   two classes independently of the `.name_class` argument:
-#' - It will inherit a class named `"scrutiny_{tolower(.name_test)}_map"`; for
-#'   example, the class is `"scrutiny_grim_map"` if `.name_test` is `"GRIM"`.
-#' - If `.fun` has a `rounding` argument, the output tibble will inherit a class
-#'   named `"scrutiny_rounding_{rounding}"`; for example,
-#'   `"scrutiny_rounding_up_or_down"`.
+#'   The output tibble returned by the factory-made function inherits a class
+#'   named `"scrutiny_{tolower(.name_test)}_map"` independently of the
+#'   `.name_class` argument; for example, the class is `"scrutiny_grim_map"` if
+#'   `.name_test` is `"GRIM"`. The arguments that applied to the whole call,
+#'   such as `rounding`, are recorded in the `"scrutiny"` attribute of the
+#'   output, as its `args` element, so that functions downstream can read them.
 
 #' @return A factory-made function with these arguments:
 #' - `data`: Data frame with all the columns named in `.reported`. It must
@@ -205,7 +198,6 @@ function_map <- function(
   .cols_helper_merge = NULL,
   .col_names = NULL,
   .cols_derived = NULL,
-  .name_class_flags = NULL,
   # Last among the named arguments, rather than next to `.reported` where it
   # belongs by meaning, so that adding it does not shift what any existing
   # positional call means. The documentation groups the two together anyway:
@@ -225,7 +217,6 @@ function_map <- function(
   force(.cols_helper_merge)
   force(.col_names)
   force(.cols_derived)
-  force(.name_class_flags)
 
   # Checks ---
 
@@ -252,12 +243,6 @@ function_map <- function(
     formals_fun,
     fun_name,
     ".args_defaults"
-  )
-  check_factory_arg_names(
-    names(.name_class_flags),
-    formals_fun,
-    fun_name,
-    ".name_class_flags"
   )
 
   if (!is.null(.reported_variadic)) {
@@ -414,28 +399,6 @@ function_map <- function(
   all_classes <- c(
     paste0("scrutiny_", tolower(.name_test), "_map"),
     .name_class
-  )
-
-  code_rounding_class <- if (any(args_promoted == "rounding")) {
-    list(rlang::parse_expr(
-      "rounding_class <- paste0(\"scrutiny_rounding_\", rounding)"
-    ))
-  } else {
-    list(rlang::expr(rounding_class <- NULL))
-  }
-
-  # One class per flag argument that is `TRUE`, such as `percent` in
-  # `grim_map()`. As with the helper columns above, the argument has to be
-  # spliced in as a symbol:
-  code_class_flags <- lapply(
-    names(.name_class_flags),
-    function(name) {
-      rlang::expr(
-        if (isTRUE(`!!`(as.name(name)))) {
-          all_classes <- c(`!!`(.name_class_flags[[name]]), all_classes)
-        }
-      )
-    }
   )
 
   # --- Start of the factory-made function, `fn_out()` ---
@@ -662,21 +625,18 @@ function_map <- function(
         class = NULL
       )
 
-      # Support rounding classes:
-      `!!!`(code_rounding_class)
+      out <- add_class(out, `!!`(all_classes))
 
-      all_classes <- c(`!!`(all_classes), rounding_class)
-
-      # Mediate between `seq_endpoint_df()` or `seq_distance_df()`, on the one
-      # hand, and `seq_test_ranking()`, on the other:
-      if (inherits(data, "scrutiny_seq_df")) {
-        all_classes <- c("scrutiny_seq_test", all_classes)
-      }
-
-      # One class per flag argument that is set, such as `percent`:
-      `!!!`(code_class_flags)
-
-      out <- add_class(out, all_classes)
+      # Record the settings of this call for functions downstream, such as
+      # `rounding` and `percent`, which `grim_plot()` reads. Classes are left to
+      # dispatch. A missing value, as with the deprecated `tolerance`, is no
+      # setting. `seq_test` mediates between `seq_endpoint_df()` or
+      # `seq_distance_df()`, on the one hand, and `seq_test_ranking()`, on the
+      # other:
+      attr(out, "scrutiny") <- list(
+        args = Filter(Negate(rlang::is_missing), .args_const_vals),
+        seq_test = isTRUE(scrutiny_meta(data)$seq_df)
+      )
 
       # Unquote-splice the code that finalizes `out`. This includes unnesting if
       # the key result column has been a list, and renaming it if
@@ -705,8 +665,6 @@ function_map <- function(
     code_variadic,
     code_cols_helper,
     code_check_lengths,
-    code_rounding_class,
-    code_class_flags,
     all_classes
   )
 

@@ -71,9 +71,18 @@ df1_expected <- tibble::tibble(
   ),
 ) |>
   structure(
+    scrutiny = list(
+      args = list(
+        formula = "mean_n",
+        rounding = "up_or_down",
+        threshold = 5,
+        symmetric = FALSE,
+        show_rec = TRUE
+      ),
+      seq_test = FALSE
+    ),
     class = c(
       "scrutiny_debit_map",
-      "scrutiny_rounding_up_or_down",
       "tbl_df",
       "tbl",
       "data.frame"

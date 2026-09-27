@@ -40,8 +40,8 @@ reverse_map_seq <- function(data) {
 
   # The tested columns are those left of the key result column, which the
   # sequence mapper records by name because `.name_key_result` may have renamed
-  # it. Absent the attribute -- e.g. after subsetting -- it is `"consistency"`:
-  name_key_result <- attr(data, "scrutiny_name_key_result", exact = TRUE)
+  # it. Absent the attribute, it is `"consistency"`:
+  name_key_result <- scrutiny_meta(data)$name_key_result
   if (is.null(name_key_result)) {
     name_key_result <- "consistency"
   }

@@ -3,8 +3,9 @@
 # Stripped-down versions of the real mappers: same `.fun` and `.reported`, but
 # none of the arguments that give the real ones their extra columns. They exist
 # to check that the factory's core -- key columns, renaming, the key result
-# column, the rounding class -- is what the real mappers get from it, and that
-# the extras really are extras.
+# column -- is what the real mappers get from it, and that the extras really are
+# extras. The `"scrutiny"` attribute is ignored in the comparisons: it records
+# the arguments that applied to the whole call, and these differ by design.
 
 grim_map_alt <- function_map(
   .fun = grim_scalar,
@@ -86,7 +87,6 @@ df_grim3 <- tibble::tibble(
   structure(
     class = c(
       "scrutiny_grim_map",
-      "scrutiny_rounding_up_or_down",
       "tbl_df",
       "tbl",
       "data.frame"
@@ -131,18 +131,20 @@ out_debit_new_renamed <- debit_map_alt_renamed(
 # Testing -----------------------------------------------------------------
 
 test_that("It works for GRIM", {
-  out_grim_old1 |> expect_equal(out_grim_new1)
-  out_grim_old2 |> expect_equal(out_grim_new2)
+  out_grim_old1 |> expect_equal(out_grim_new1, ignore_attr = "scrutiny")
+  out_grim_old2 |> expect_equal(out_grim_new2, ignore_attr = "scrutiny")
 })
 
 test_that("It works for DEBIT", {
-  out_debit_old1 |> expect_equal(out_debit_new1)
-  out_debit_old2 |> expect_equal(out_debit_new2)
+  out_debit_old1 |> expect_equal(out_debit_new1, ignore_attr = "scrutiny")
+  out_debit_old2 |> expect_equal(out_debit_new2, ignore_attr = "scrutiny")
 })
 
 test_that("Renaming `\"consistency\"` via `.name_key_result` works", {
-  out_grim_old_renamed  |> expect_equal(out_grim_new_renamed)
-  out_debit_old_renamed |> expect_equal(out_debit_new_renamed)
+  out_grim_old_renamed  |>
+    expect_equal(out_grim_new_renamed, ignore_attr = "scrutiny")
+  out_debit_old_renamed |>
+    expect_equal(out_debit_new_renamed, ignore_attr = "scrutiny")
 })
 
 test_that("a `consistency` column is not silently lost under another name", {
@@ -515,14 +517,6 @@ test_that("wrong argument names throw an error at factory time", {
     .fun = grim_scalar,
     .reported = c("x", "n"),
     .name_test = "GRIM",
-    .name_class_flags = c(percentage = "scrutiny_percent_true")
-  ) |>
-    expect_error()
-
-  function_map(
-    .fun = grim_scalar,
-    .reported = c("x", "n"),
-    .name_test = "GRIM",
     .cols_derived = list(probability = "grim_probability")
   ) |>
     expect_error()
@@ -581,12 +575,27 @@ test_that("`.cols_derived` computes columns the test function never returns", {
 })
 
 
-test_that("`.name_class_flags` adds a class when the argument is `TRUE`", {
-  pigs2 |> grim_map(digits_x = 1, percent = TRUE) |>
-    expect_s3_class("scrutiny_percent_true")
-  pigs2 |> grim_map(digits_x = 3) |>
-    inherits("scrutiny_percent_true") |>
-    expect_false()
+test_that("the arguments of the whole call are recorded, with defaults", {
+  args <- pigs2 |>
+    grim_map(digits_x = 1, percent = TRUE, rounding = "ceiling") |>
+    scrutiny_meta() |>
+    getElement("args")
+  args$percent |> expect_true()
+  args$rounding |> expect_equal("ceiling")
+  args$threshold |> expect_equal(5)
+  # Per-row and helper arguments are columns, not settings of the call, and a
+  # missing value such as the deprecated `tolerance` is no setting at all:
+  names(args) |>
+    intersect(c("digits_x", "items", "tolerance")) |>
+    expect_length(0L)
+  # Settings survive verbs that keep the class:
+  pigs2 |>
+    grim_map(digits_x = 1, percent = TRUE) |>
+    dplyr::filter(consistency) |>
+    scrutiny_meta() |>
+    getElement("args") |>
+    getElement("percent") |>
+    expect_true()
 })
 
 

@@ -258,10 +258,13 @@ grim_plot <- function(
         items = 1,
         consistency = TRUE
       ),
-      nrow = 1L,
-      class = paste0("scrutiny_rounding_", rounding)
+      nrow = 1L
     )
+    attr(data, "scrutiny") <- list(args = list(rounding = rounding))
   }
+
+  # Whether `x` was tested as a percentage, as recorded by `grim_map()`:
+  is_percent <- isTRUE(scrutiny_meta(data)$args$percent)
 
   # The sequence and total-n mappers keep `items` apart from `n`, but GRIM's
   # granularity is their product:
@@ -327,7 +330,7 @@ grim_plot <- function(
       # its group would be a line of tiles along the x-axis against a raster
       # that says nothing about it. Leave those rows out, but say so. This
       # doesn't apply to percentages, whose decimal count is raised by 2 below:
-      if (inherits(data, "scrutiny_percent_true")) {
+      if (is_percent) {
         n_dropped <- 0L
       } else {
         n_dropped <- sum(digits_x == 0L)
@@ -393,7 +396,7 @@ grim_plot <- function(
         # mix of decimal places is an error by default. Users can opt into one
         # plot per distinct decimal count via `split_by_digits` (see above).
         means_percentages <- dplyr::if_else(
-          inherits(data, "scrutiny_percent_true"),
+          is_percent,
           "Percentages",
           "Means"
         )
@@ -445,8 +448,6 @@ grim_plot <- function(
   # is drawn against the one-decimal raster while the verdict coloring its tile
   # was reached at three. A `digits` given by the caller is the decimal count of
   # the percentage as reported, exactly like `digits_x`.
-  is_percent <- inherits(data, "scrutiny_percent_true")
-
   if (is_percent) {
     digits <- digits + 2L
     data$x <- as.numeric(data$x) / 100
@@ -487,9 +488,7 @@ grim_plot <- function(
     if (digits <= 2L) {
       # Check the way `x` values were rounded in the preceding `grim_map()` call
       # to prepare selecting the plot background raster:
-      dc <- class(data)
-      rounding_id <- dc[stringr::str_detect(dc, "^scrutiny_rounding_")]
-      rounding_id <- stringr::str_remove(rounding_id, "^scrutiny_rounding_")
+      rounding_id <- scrutiny_meta(data)$args$rounding
 
       # The rasters are precomputed under the older `rounding` names, so resolve
       # the `"ties_*"` methods back to those. `symmetric = FALSE` because the

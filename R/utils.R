@@ -672,6 +672,29 @@ add_class <- function(x, new_class) {
 }
 
 
+#' Read the settings a scrutiny function recorded on its output
+#'
+#' @description Classes are for dispatch only. Settings of the call that
+#'   produced a tibble, and that functions downstream need to know about, live
+#'   in a single list attribute named `"scrutiny"` instead:
+#'
+#' - `args`: the arguments that applied to a basic mapper's whole call, with
+#'   defaults resolved, such as `rounding` and `percent`.
+#' - `fun_args`, `name_key_result`, and `dispersion_linear`: set by sequence
+#'   mappers; see `function_map_seq()`.
+#' - `seq_df`: set by `seq_endpoint_df()` and `seq_distance_df()`.
+#' - `seq_test`: set by a basic mapper whose input had `seq_df`.
+#'
+#' @param x Some object. In scrutiny, always a tibble.
+#'
+#' @return The list, or `NULL` if `x` has no such attribute.
+#'
+#' @noRd
+scrutiny_meta <- function(x) {
+  attr(x, "scrutiny", exact = TRUE)
+}
+
+
 #' Check whether lengths are congruent
 #'
 #' `check_lengths_congruent()` is called within a function `f()` and takes a
@@ -2103,7 +2126,7 @@ check_var_bounds <- function(var_bounds) {
 #'
 #' @noRd
 check_dispersion_linear <- function(data) {
-  if (inherits(data, "scrutiny_map_seq_disp_nonlinear")) {
+  if (isFALSE(scrutiny_meta(data)$dispersion_linear)) {
     name_mapper <- class(data)[grepl("_map_seq$", class(data))]
     name_mapper <- name_mapper[name_mapper != "scrutiny_map_seq"]
     name_mapper <- sub("scrutiny_*", "", name_mapper)

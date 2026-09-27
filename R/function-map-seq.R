@@ -426,8 +426,11 @@ function_map_seq <- function(
         }
       }
 
-      # First, basic testing with the `*_map()` function:
+      # First, basic testing with the `*_map()` function. What it records about
+      # the call, such as `rounding` with defaults resolved, applies to the
+      # re-tests below as well, so it is passed on to the output:
       data <- do.call(fun, c(list(data), .digits_vals, list(...)))
+      .meta_fun <- scrutiny_meta(data)
 
       # Undo the merge: the dispersed values are re-tested below with each
       # helper as a column of its own, and `n` is dispersed as the sample size
@@ -563,26 +566,12 @@ function_map_seq <- function(
         .before = dplyr::all_of(name_key_result)
       )
 
-      # A single step is trivially linear, but `is_seq_ascending()` needs two:
-      class_dispersion_ascending <- if (
-        length(dispersion) < 2L || is_seq_ascending(dispersion)
-      ) {
-        NULL
-      } else {
-        "scrutiny_map_seq_disp_nonlinear"
-      }
-
       # Create classes that will identify `out` as output of the specific
       # manufactured function:
-      classes_seq <- c(
-        "scrutiny_map_seq",
-        # rounding,
-        # classes_fun,
-        paste0("scrutiny_", tolower(name_test), "_map_seq"),
-        class_dispersion_ascending
+      out <- add_class(
+        out,
+        c("scrutiny_map_seq", paste0("scrutiny_", tolower(name_test), "_map_seq"))
       )
-
-      out <- add_class(out, classes_seq)
 
       # `.name_class` used to go into the dots of `function_map_seq_proto()`,
       # which ignores them, so the class was never added:
@@ -590,28 +579,26 @@ function_map_seq <- function(
         out <- add_class(out, name_class)
       }
 
-      # The `"scrutiny_rounding_*"` class is not guaranteed here as it is in
-      # `*_map()`, so set it by hand. `list(...)` rather than
-      # `rlang::enexprs(...)`, which would yield the argument's *expression* --
-      # pasting a variable's name into the class; and `[[` rather than `$`,
-      # which matches partially and would read `rounding_something` as
-      # `rounding`.
-      dots <- list(...)
-      if (length(dots[["rounding"]]) > 0L) {
-        class(out)[stringr::str_detect(class(out), "^scrutiny_rounding_")] <-
-          paste0("scrutiny_rounding_", dots[["rounding"]])
-      }
-
-      # Record the arguments that reproduce the test, so that `audit_seq()` can
-      # re-run `fun()` on reconstructed data with the very same settings --
-      # including those that leave no trace in the output columns, such as
-      # `percent`, `threshold`, `symmetric`, or GRIMMER's scale bounds:
-      attr(out, "scrutiny_fun_args") <- .fun_args
-
-      # `audit_seq()` reads the test results off a column of `out` and has no
-      # other way to learn its name. It falls back to `"consistency"` if
-      # subsetting drops this, which is right unless the name was overridden:
-      attr(out, "scrutiny_name_key_result") <- name_key_result
+      # Settings for functions downstream: those that the initial `fun()` call
+      # recorded, such as the `rounding` that `grim_plot()` reads -- set here
+      # rather than left to survive the binding of `fun()`'s outputs above --
+      # and these:
+      # - `fun_args`: the arguments that reproduce the test, so that
+      #   `audit_seq()` can re-run `fun()` on reconstructed data with the very
+      #   same settings -- including those that leave no trace in the output
+      #   columns, such as `percent`, `threshold`, `symmetric`, or GRIMMER's
+      #   scale bounds.
+      # - `name_key_result`: `audit_seq()` reads the test results off a column
+      #   of `out` and has no other way to learn its name.
+      # - `dispersion_linear`: `audit_seq()` and `reverse_map_seq()` only work
+      #   with a linearly increasing `dispersion`. A single step is trivially
+      #   linear, but `is_seq_ascending()` needs two.
+      attr(out, "scrutiny") <- c(.meta_fun, list(
+        fun_args = .fun_args,
+        name_key_result = name_key_result,
+        dispersion_linear = length(dispersion) < 2L ||
+          is_seq_ascending(dispersion)
+      ))
 
       # `rename = FALSE`: `fun()` already named the column, so only the
       # list-column-to-logical half of this code applies here.

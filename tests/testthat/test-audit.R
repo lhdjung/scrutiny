@@ -141,6 +141,14 @@ test_that("changing `dispersion` in the sequence mapper is
 })
 
 
+test_that("`audit_seq()` rejects a `dispersion` that is not linear", {
+  seq_nonlinear <- pigs1[1:2, ] |>
+    grim_map_seq(digits_x = 2, dispersion = c(3, 1, 2))
+  seq_nonlinear |> audit_seq() |> expect_error("linearly increasing")
+  seq_nonlinear |> reverse_map_seq() |> expect_error("linearly increasing")
+})
+
+
 test_that("`audit_seq()` orders its columns by `var`", {
   # `split()` sorts its groups alphabetically, and undoing that sort takes
   # `rank()`, not `order()`. The two are inverses of each other and agree only

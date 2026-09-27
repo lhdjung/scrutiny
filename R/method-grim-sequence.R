@@ -161,7 +161,7 @@ seq_test_ranking <- function(x, explain = TRUE) {
   scrutiny_func_info <- stringr::str_remove(scrutiny_func_info, "^scrutiny_")
   scrutiny_func_info <- paste0("`", scrutiny_func_info, "()`")
 
-  if (inherits(x, "scrutiny_seq_test")) {
+  if (isTRUE(scrutiny_meta(x)$seq_test)) {
     if (explain) {
       explain_seq_test_ranking(out, scrutiny_func_info)
     }

@@ -110,9 +110,10 @@ audit_seq <- function(data) {
 
   # `function_map_seq()` records the name of the key result column, which is
   # `"consistency"` unless the mapper was created with a different
-  # `.name_key_result`. Subsetting `data` drops the attribute, and every mapper
-  # that keeps the default name is unaffected by the fallback:
-  name_key_result <- attr(data, "scrutiny_name_key_result", exact = TRUE)
+  # `.name_key_result`. Output that has lost the attribute falls back to that,
+  # and every mapper that keeps the default name is unaffected:
+  meta <- scrutiny_meta(data)
+  name_key_result <- meta$name_key_result
   if (is.null(name_key_result)) {
     name_key_result <- "consistency"
   }
@@ -192,9 +193,6 @@ audit_seq <- function(data) {
     suppressWarnings()
 
   dc <- class(data)
-  rounding <- dc[stringr::str_detect(dc, "^scrutiny_rounding_")]
-  rounding <- stringr::str_remove(rounding, "^scrutiny_rounding_")
-
   fun_test_name <- dc[stringr::str_detect(dc, "^scrutiny_.*map$")]
   fun_test_name <- stringr::str_remove(fun_test_name, "^scrutiny_")
   fun_test <- find_fun_by_name(fun_test_name, env_caller)
@@ -208,22 +206,18 @@ audit_seq <- function(data) {
   # call. Arguments like `percent`, `threshold`, `symmetric`, or GRIMMER's scale
   # bounds change verdicts but leave no trace in the output columns, so they
   # used to be silently dropped here, which could flip `consistency`:
-  args_replay <- attr(data, "scrutiny_fun_args", exact = TRUE)
+  args_replay <- meta$fun_args
 
   if (is.null(args_replay)) {
-    # Fallback for output that has lost the attribute, e.g. through subsetting
-    # or because it was created by an earlier scrutiny version: the `digits_*`
-    # columns and the rounding class are the settings that the output itself
-    # records. Each `digits_*` column is constant, so the first value is
-    # sufficient; the names match the argument names of `fun_test()`:
+    # Fallback for output that has lost the attribute, or that was created by
+    # an earlier scrutiny version: the `digits_*` columns are the settings
+    # that the output itself records. Each of them is constant, so the first
+    # value is sufficient; the names match the argument names of `fun_test()`:
     digits_cols <- grep("^digits_", colnames(data), value = TRUE)
     args_replay <- lapply(
       setNames(digits_cols, digits_cols),
       function(col) data[[col]][[1L]]
     )
-    if (length(rounding) > 0L) {
-      args_replay$rounding <- rounding
-    }
   }
 
   data_rev_tested <- do.call(fun_test, c(list(data_rev), args_replay))

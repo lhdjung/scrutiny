@@ -134,8 +134,5 @@ grim_map <- function_map(
   # `probability` is not part of `grim_scalar()`'s return value: it comes from
   # `grim_probability()`, applied to the same per-row input. Making
   # `grim_scalar()` return it as well would change what `grim()` returns:
-  .cols_derived = list(probability = grim_probability),
-  # `grim_plot()` labels the axis differently for percentages, and it reads the
-  # class rather than the argument because it only ever sees the output:
-  .name_class_flags = c(percent = "scrutiny_percent_true")
+  .cols_derived = list(probability = grim_probability)
 )
