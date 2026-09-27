@@ -115,6 +115,12 @@ consistent value sets. The raster is independent of the data -- it only
 follows the \code{rounding} specification in the \code{\link[=grim_map]{grim_map()}} call and the
 \code{digits} argument in \code{grim_plot()}.
 
+With \code{percent = TRUE} in the \code{\link[=grim_map]{grim_map()}} call, percentages are plotted
+as the proportions they were tested as, which have 2 more decimal places.
+Whole-number percentages therefore get the 2-decimal raster, and those
+with 1 or more decimal places get a gradient. The 2 are also added to a
+\code{digits} value specified here.
+
 Display an "empty" plot, one without empirical test results, by setting
 \code{show_data} to \code{FALSE}. You can then control key parameters of the plot
 with \code{digits} and \code{rounding}.

@@ -577,8 +577,11 @@ error_digits_missing <- function(x) {
 
   # If the error occurred in a GRIMMER or DEBIT function, include `sd` and
   # `digits_sd` arguments in the example call because they are required there.
+  # DEBIT's mean and SD must lie between 0 and 1:
+  is_debit <- grepl("debit", name_fn)
+  example_x <- if (is_debit) c("0.35", "0.35") else c("1.40", "1.4")
   if (grepl("(grimmer|debit)", name_fn)) {
-    part_sd <- ", sd = 0.62"
+    part_sd <- if (is_debit) ", sd = 0.48" else ", sd = 0.62"
     # ...but not twice if `digits_sd` is the argument that is missing:
     part_digits_sd <- if (name_digits_arg == "digits_sd") {
       ", digits_x = 2"
@@ -611,8 +614,9 @@ error_digits_missing <- function(x) {
     message = c(
       "Need to specify `{name_digits_arg}` to state the number of \
       decimal places in `{name_x}`.",
-      "i" = "For example, with 1.40 (two decimal places): \
-      `{name_fn}({part_tibble_open}x = 1.4{part_sd}, n = 29{part_tibble_close}, \
+      "i" = "For example, with {example_x[1]} (two decimal places): \
+      `{name_fn}({part_tibble_open}x = {example_x[2]}{part_sd}, \
+      n = 29{part_tibble_close}, \
       {name_digits_arg} = 2{part_digits_sd})`",
       "i" = "This was introduced in scrutiny 1.0.0 to ensure the number \
       of decimal places is stated correctly.",

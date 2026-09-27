@@ -80,7 +80,7 @@
 
 - `seq_endpoint()`, `seq_distance()`, and their `*_df()` variants now round their output back to the decimal level, so that ranges crossing zero or long runs no longer fail with a spurious `width` error. `seq_distance()` with `by` now keeps the decimal places of `from`, too.
 
-- `is_seq_linear()` no longer accepts zigzags like `c(1, 2, 1)`, and `seq_length()` no longer extends them. `is_seq_ascending()`, `is_seq_descending()`, and `is_seq_dispersed()` now return `FALSE` rather than `NA` where the known values already rule the sequence out.
+- `is_seq_linear()` no longer accepts zigzags like `c(1, 2, 1)`, and `seq_length()` no longer extends them. `is_seq_ascending()`, `is_seq_descending()`, and `is_seq_dispersed()` now return `FALSE` rather than `NA` in more of the cases where the known values rule the sequence out.
 
 - `seq_disperse()` and the `*_map_seq()` functions now reject a fractional `dispersion`, compare `out_min` and `out_max` as numbers even if given as strings, and no longer error if `from` has more decimal places than `by`.
 
@@ -96,7 +96,7 @@
 
 - `before_parens()`, `inside_parens()`, and `split_by_parens()` now split each string on its own. Strings with a different number of separators than the others used to shift values into the wrong rows. Custom separators are matched literally. `split_by_parens()` also no longer errors on columns with `NA`, and with `transform = TRUE` no longer mixes up columns whose names end in the new suffixes, such as `exp_sd`.
 
-- `debit_plot()` now draws the DEBIT line for the correct `n`, where it used to recycle the `n` column along a single line. If `n` varies, it draws the lines for the smallest and largest `n` and shades the band between them, which contains the lines for all the others. Each tile now has its own size, with width and height no longer swapped. Rows with missing values are dropped with a warning instead of failing, and labels keep trailing zeros.
+- `debit_plot()` now draws the DEBIT line for the correct `n`, where it used to recycle the `n` column along a single line. If `n` varies, it draws the lines for the smallest and largest `n` and shades the band between them, which contains the lines for all the others. Rows with missing values are dropped with a warning instead of failing, and labels keep trailing zeros.
 
 - `grim_plot(n = ...)` now ends the x-axis at `n`, as documented.
 
@@ -375,8 +375,6 @@
 - `symmetric` is documented as what it is: the axis that separates Excel, SPSS, SAS, and Matlab from Stata and from Java-style rounding on any data containing negative values. `round_up()` has a new `Negative numbers` section, and `vignette("rounding-in-depth")` no longer calls the argument "mostly forgettable".
 
 - Every `round_*()` function applies a floating-point tolerance of about `1.5e-9`, so that `round_up(0.145, 2)` is `0.15` even though `0.145 * 100` is stored as `14.499999999999998`. It is now documented in a new `Floating-point tolerance` section of `round_up()`, along with the range of magnitudes over which it is guaranteed to dominate representation error. The formulas in `vignette("rounding-in-depth")` now include it, so that they match the implementation. `unround()` reports bounds that assume this tolerance, which is why a number and its reconstructed range always agree.
-
-- `round_down_from()`'s `threshold` is documented correctly. It mirrors `round_up_from()`'s threshold along with everything else: `round_down_from()` rounds *down* when the part cut off by rounding is at most `10 - threshold` tenths of a step, so it switches direction at the same point as `round_up_from(threshold = 10 - t)` and differs from it only in sending a value sitting exactly on that point down rather than up. The two readings coincide at the threshold of 5 that `round_up()` and `round_down()` use, which is why nothing in the package depended on the difference. The Rd previously described the argument as the "threshold for rounding up or down, respectively", which suggests the other reading.
 
 - Both vignettes and the Rd of `round_up()` now agree on `base::round()`: it is the right reconstruction of software that rounds binary doubles to even (R, Python, NumPy), and what is unreliable is predicting its output from the decimal display of a number. The three used to state this differently enough that a reader consulting only one of them came away with a different belief.
 

@@ -20,9 +20,9 @@
 #'   with a reported `8.34`, the step size is `0.01`. Default is `1:5`, for five
 #'   steps up and down.
 #' @param out_min,out_max If specified, output will be restricted so that it's
-#'   not below `out_min` or above `out_max`. Defaults are `"auto"` for
-#'   `out_min`, i.e., a minimum of one decimal unit above zero; and `NULL` for
-#'   `out_max`, i.e., no maximum.
+#'   not below `out_min` or above `out_max`. Both default to `"auto"`, which
+#'   keeps `n` at 1 or above and leaves `x` unbounded. A number applies to
+#'   every dispersed variable, and `NULL` removes the limit.
 #' @param include_reported Logical. Should the reported values themselves be
 #'   included in the sequences originating from them? Default is `FALSE` because
 #'   this might be redundant and bias the results.

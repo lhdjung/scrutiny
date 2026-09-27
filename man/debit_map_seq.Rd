@@ -43,9 +43,9 @@ with a reported \code{8.34}, the step size is \code{0.01}. Default is \code{1:5}
 steps up and down.}
 
 \item{out_min, out_max}{If specified, output will be restricted so that it's
-not below \code{out_min} or above \code{out_max}. Defaults are \code{"auto"} for
-\code{out_min}, i.e., a minimum of one decimal unit above zero; and \code{NULL} for
-\code{out_max}, i.e., no maximum.}
+not below \code{out_min} or above \code{out_max}. Both default to \code{"auto"}, which
+keeps \code{n} at 1 or above and \code{x} and \code{sd} between 0 and 1. A number
+applies to every dispersed variable, and \code{NULL} removes the limit.}
 
 \item{include_reported}{Logical. Should the reported values themselves be
 included in the sequences originating from them? Default is \code{FALSE} because

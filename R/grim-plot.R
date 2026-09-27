@@ -37,6 +37,12 @@
 #'   follows the `rounding` specification in the [`grim_map()`] call and the
 #'   `digits` argument in `grim_plot()`.
 #'
+#'   With `percent = TRUE` in the [`grim_map()`] call, percentages are plotted
+#'   as the proportions they were tested as, which have 2 more decimal places.
+#'   Whole-number percentages therefore get the 2-decimal raster, and those
+#'   with 1 or more decimal places get a gradient. The 2 are also added to a
+#'   `digits` value specified here.
+#'
 #'   Display an "empty" plot, one without empirical test results, by setting
 #'   `show_data` to `FALSE`. You can then control key parameters of the plot
 #'   with `digits` and `rounding`.

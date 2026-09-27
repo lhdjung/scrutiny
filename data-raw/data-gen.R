@@ -6,7 +6,7 @@
 # Run this file with the package loaded (`pkgload::load_all()`), and rerun it
 # after any change to `grim_scalar()` or to the rounding functions it calls.
 #
-# Code for the example datasets with `pigs` in their names is in R/data-doc.R.
+# Code for the example datasets with `pigs` in their names is in data-raw/pigs.R.
 
 # Some nomenclature -- `n`: sample size, `frac`: fractional portion of a mean or
 # percentage.
