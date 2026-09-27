@@ -61,3 +61,11 @@ test_that("`x` may be a string coercible to numeric", {
     rounding_bias(1) |>
     expect_equal(rounding_bias(c(1.25, 2.35), 1))
 })
+
+
+test_that("a factor is read by its labels", {
+  x <- c("1.25", "2.35")
+  factor(x) |>
+    rounding_bias(1, mean = FALSE) |>
+    expect_equal(rounding_bias(x, 1, mean = FALSE))
+})

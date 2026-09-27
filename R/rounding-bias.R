@@ -96,8 +96,8 @@ rounding_bias <- function(
 
   # A string only has to stand for its number: `digits` says where to round, so
   # nothing is read off the string itself. Unconverted, it failed in the
-  # subtraction below.
-  x <- as.numeric(x)
+  # subtraction below. A factor is read by its labels, not its level codes.
+  x <- as.numeric(as.character(x))
 
   bias <- reround(x, digits, rounding, threshold, symmetric) - x
 
