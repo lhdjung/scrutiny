@@ -128,3 +128,13 @@ test_that("`.total` has the right `na_rate`, and all-`NA` columns get `NA`s", {
     all() |>
     expect_true()
 })
+
+
+test_that("summary columns stay double when every value is missing", {
+  out <- tibble::tibble(a = c(NA_real_, NA), b = c(NA_real_, NA)) |>
+    duplicate_tally() |>
+    audit()
+  for (col in c("mean", "sd", "median", "min", "max")) {
+    out[[col]] |> expect_type("double")
+  }
+})

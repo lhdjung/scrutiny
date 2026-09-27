@@ -1956,7 +1956,7 @@ audit_summary_stats <- function(data, selection, total = FALSE) {
   on_non_na <- function(f) {
     function(x) {
       x <- x[!is.na(x)]
-      if (length(x) == 0L) NA else f(x)
+      if (length(x) == 0L) NA_real_ else f(x)
     }
   }
   stats <- list(
