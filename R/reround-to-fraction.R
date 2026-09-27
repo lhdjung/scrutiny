@@ -172,7 +172,8 @@ reround_to_fraction <- function(
     threshold = threshold,
     symmetric = symmetric
   )
-  out <- out / denominator
+  # A compound method returns two values per input value, interleaved:
+  out <- out / rep(denominator, each = length(rounding_constituents(rounding)))
 
   # Round all resulting values for which a number of digits has been specified
   # to that number of digits. This also proceeds as in `round_to_fraction()`,
@@ -268,6 +269,7 @@ reround_to_fraction_level <- function(
     symmetric = symmetric
   )
 
-  # Divide by the denominator, then return the result:
-  out / denominator
+  # Divide by the denominator, then return the result. A compound method
+  # returns two values per input value, interleaved:
+  out / rep(denominator, each = length(rounding_constituents(rounding)))
 }
