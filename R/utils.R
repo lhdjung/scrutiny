@@ -565,16 +565,6 @@ error_digits_missing <- function(x) {
   caller <- caller_test_fn()
   name_fn <- caller$name
 
-  # Prepare message with changelog URL to be shown after the error
-  on.exit(cli::cli_text(paste0(
-    "For more information, visit ",
-    cli::style_italic(
-      "{.href [scrutiny's changelog]",
-      "(https://lhdjung.github.io/scrutiny/news/index.html)}"
-    ),
-    "."
-  )))
-
   # If the error occurred in a GRIMMER or DEBIT function, include `sd` and
   # `digits_sd` arguments in the example call because they are required there.
   # DEBIT's mean and SD must lie between 0 and 1:
@@ -620,7 +610,9 @@ error_digits_missing <- function(x) {
       {name_digits_arg} = 2{part_digits_sd})`",
       "i" = "This was introduced in scrutiny 1.0.0 to ensure the number \
       of decimal places is stated correctly.",
-      "i" = "It replaces the quotes around `{name_x}`{msg_key_arg}."
+      "i" = "It replaces the quotes around `{name_x}`{msg_key_arg}.",
+      "i" = "For more information, visit \\
+      {.href [scrutiny's changelog](https://lhdjung.github.io/scrutiny/news/index.html)}."
     ),
     call = caller$frame
   )
