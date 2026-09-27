@@ -466,8 +466,6 @@ function_map_seq <- function(
       # factory:
       map_seq_proto <- function_map_seq_proto(
         .fun = fun,
-        .name_test = name_test,
-        .name_class = name_class,
         .dispersion = dispersion,
         .out_min = out_min,
         .out_max = out_max,
@@ -585,6 +583,12 @@ function_map_seq <- function(
       )
 
       out <- add_class(out, classes_seq)
+
+      # `.name_class` used to go into the dots of `function_map_seq_proto()`,
+      # which ignores them, so the class was never added:
+      if (!is.null(name_class)) {
+        out <- add_class(out, name_class)
+      }
 
       # The `"scrutiny_rounding_*"` class is not guaranteed here as it is in
       # `*_map()`, so set it by hand. `list(...)` rather than

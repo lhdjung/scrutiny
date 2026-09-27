@@ -1590,3 +1590,16 @@ test_that("a zero step in `dispersion` doesn't duplicate the reported case", {
   anyDuplicated(out$diff_var) |> expect_equal(0L)
   out$diff_var |> sort() |> expect_equal(c(-2L, -1L, 1L, 2L))
 })
+
+
+# `.name_class` used to be passed into the dots of `function_map_seq_proto()`,
+# which ignores them, so the class never reached the output:
+test_that("`function_map_seq()` adds the `.name_class` class", {
+  my_map_seq <- function_map_seq(
+    .fun = grim_map,
+    .reported = c("x", "n"),
+    .name_test = "GRIM",
+    .name_class = "my_class"
+  )
+  my_map_seq(pigs1, digits_x = 2) |> expect_s3_class("my_class")
+})
