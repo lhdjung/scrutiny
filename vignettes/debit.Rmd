@@ -115,7 +115,7 @@ These columns are ---
 
 There is a specialized visualization function for DEBIT results, `debit_plot()`. Only run it on `debit_map()`'s output. It will fail otherwise.
 
-```{r}
+```{r, eval = rlang::is_installed("ggrepel")}
 # Determine plot theme for the remaining session:
 ggplot2::theme_minimal(base_size = 12) |>
   ggplot2::theme_set()

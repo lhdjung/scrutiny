@@ -55,7 +55,7 @@
 #'
 #' @export
 #'
-#' @examples
+#' @examplesIf rlang::is_installed("ggrepel")
 #' # Run `debit_plot()` on the output
 #' # of `debit_map()`:
 #' pigs3 |>

@@ -83,11 +83,13 @@ for customizing geom parameters and might perhaps provide better
 accessibility overall.
 }
 \examples{
+\dontshow{if (rlang::is_installed("ggrepel")) withAutoprint(\{ # examplesIf}
 # Run `debit_plot()` on the output
 # of `debit_map()`:
 pigs3 |>
   debit_map(digits_x = 2, digits_sd = 2) |>
   debit_plot()
+\dontshow{\}) # examplesIf}
 }
 \references{
 Heathers, James A. J., and Brown, Nicholas J. L. 2019. DEBIT: A

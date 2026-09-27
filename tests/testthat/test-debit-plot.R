@@ -1,3 +1,6 @@
+# `show_labels = TRUE`, the default, needs ggrepel:
+skip_if_not_installed("ggrepel")
+
 plot1 <- pigs3 |>
   debit_map(digits_x = 2, digits_sd = 2) |>
   debit_plot()
