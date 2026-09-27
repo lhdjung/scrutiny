@@ -262,12 +262,16 @@ debit_plot <- function(
         limits = c(0, 1)
       ) + # might or might not change: , limits = c(0, 1)
       ggplot2::scale_y_continuous(
-        breaks = seq(0, (max(sd_upper) + sd_margin), 0.05),
-        limits = c(
+        breaks = seq(0, (max(sd_upper) + sd_margin), 0.05)
+      ) +
+      # Limit the y-axis on the coordinates, not the scale: a scale limit drops
+      # every point of the band and lines that leaves it, rather than clipping.
+      ggplot2::coord_cartesian(
+        ylim = c(
           min(sd_lower) - sd_margin,
           max((max(sd_upper) + sd_margin), 0.5)
         )
-      ) # used to be 0.005
+      )
   }
 
   # Axis labels:

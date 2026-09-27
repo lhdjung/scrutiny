@@ -76,3 +76,15 @@ test_that("rectangles are sized per row, and `NA` rows are dropped out loud", {
   expect_warning(p <- debit_plot(data_na), "Dropping 1 value set")
   expect_s3_class(p, "ggplot")
 })
+
+
+test_that("the band between the DEBIT lines is clipped, not cut off", {
+  df <- tibble::tibble(x = c(0.52, 0.31), sd = c(0.50, 0.46), n = c(5, 8))
+  p <- debit_plot(
+    debit_map(df, digits_x = 2, digits_sd = 2),
+    show_labels = FALSE
+  )
+  band <- ggplot2::ggplot_build(p)$data[[1L]]
+  anyNA(band$ymin) |> expect_false()
+  anyNA(band$ymax) |> expect_false()
+})
