@@ -40,9 +40,10 @@
 #'   itself be part of the sequence built around it? Default is `TRUE` for the
 #'   sake of continuity, but this can be misleading if the focus is on the
 #'   dispersed values, as opposed to the input.
-#' @param track_diff_var,.track_diff_var Logical. In `seq_disperse()`, ignore
-#'   this argument. In `seq_disperse_df()`, default is `TRUE`, which creates the
-#'   `"diff_var"` output column.
+#' @param track_diff_var,.track_diff_var Logical. Should the number of steps
+#'   from `from` be returned as well? Default is `FALSE`. If `TRUE`,
+#'   `seq_disperse()` returns a list of the sequence and the steps, and
+#'   `seq_disperse_df()` adds them as a `diff_var` column.
 #' @param track_var_change,.track_var_change `r lifecycle::badge("deprecated")`
 #'   Renamed to `track_diff_var` / `.track_diff_var`.
 #' @param ... Further columns, added as in [`tibble::tibble()`]. Only in
@@ -60,7 +61,9 @@
 
 #' @return
 #'   - `seq_disperse()` returns a string vector by default
-#'   (`string_output = TRUE`) and a numeric vector otherwise.
+#'   (`string_output = TRUE`) and a numeric vector otherwise. With
+#'   `track_diff_var = TRUE`, it returns an unnamed list of that vector and an
+#'   integer vector of the steps from `from`.
 #'   - `seq_disperse_df()` returns a tibble (data frame). The sequence is stored
 #'   in the `x` column. `x` is string by default (`.string_output = TRUE`),
 #'   numeric otherwise. Other columns might have been added via the dots
@@ -308,8 +311,6 @@ seq_disperse_df <- function(
   .track_diff_var = FALSE,
   .track_var_change = FALSE
 ) {
-  further_cols <- rlang::enexprs(...)
-
   if (!missing(.track_var_change)) {
     lifecycle::deprecate_warn(
       when = "0.3.1",
@@ -341,11 +342,9 @@ seq_disperse_df <- function(
     diff_var <- NULL
   }
 
-  if (length(further_cols) > 0L) {
-    tibble::tibble(x, diff_var, !!!further_cols)
-  } else {
-    tibble::tibble(x, diff_var)
-  }
+  # Passing the dots on as they are, rather than as captured expressions,
+  # evaluates them where the caller wrote them, so a local variable is found:
+  tibble::tibble(x, diff_var, ...)
 }
 
 

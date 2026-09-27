@@ -93,6 +93,16 @@ test_that("it works when overriding some of the defaults", {
     expect_equal(with_track_diff_var)
 })
 
+# The dots used to be captured as expressions and evaluated inside
+# `seq_disperse_df()`, where a variable local to the caller does not exist:
+test_that("`seq_disperse_df()` evaluates the dots where they were written", {
+  add_n <- function() {
+    my_n <- 45
+    seq_disperse_df(.from = 4.02, n = my_n, .dispersion = 1)
+  }
+  add_n()$n |> expect_equal(c(45, 45, 45))
+})
+
 # The sequence must stay on the decimal level given by `by` (or, if `by` is not
 # specified, by `from`), no matter how far `dispersion` reaches. Floating-point
 # arithmetic used to break this: `3.14 - (305 * 0.01)` is `0.0899999999999999`

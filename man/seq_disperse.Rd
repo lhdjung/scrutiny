@@ -71,9 +71,10 @@ itself be part of the sequence built around it? Default is \code{TRUE} for the
 sake of continuity, but this can be misleading if the focus is on the
 dispersed values, as opposed to the input.}
 
-\item{track_diff_var, .track_diff_var}{Logical. In \code{seq_disperse()}, ignore
-this argument. In \code{seq_disperse_df()}, default is \code{TRUE}, which creates the
-\code{"diff_var"} output column.}
+\item{track_diff_var, .track_diff_var}{Logical. Should the number of steps
+from \code{from} be returned as well? Default is \code{FALSE}. If \code{TRUE},
+\code{seq_disperse()} returns a list of the sequence and the steps, and
+\code{seq_disperse_df()} adds them as a \code{diff_var} column.}
 
 \item{track_var_change, .track_var_change}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 Renamed to \code{track_diff_var} / \code{.track_diff_var}.}
@@ -84,7 +85,9 @@ Renamed to \code{track_diff_var} / \code{.track_diff_var}.}
 \value{
 \itemize{
 \item \code{seq_disperse()} returns a string vector by default
-(\code{string_output = TRUE}) and a numeric vector otherwise.
+(\code{string_output = TRUE}) and a numeric vector otherwise. With
+\code{track_diff_var = TRUE}, it returns an unnamed list of that vector and an
+integer vector of the steps from \code{from}.
 \item \code{seq_disperse_df()} returns a tibble (data frame). The sequence is stored
 in the \code{x} column. \code{x} is string by default (\code{.string_output = TRUE}),
 numeric otherwise. Other columns might have been added via the dots

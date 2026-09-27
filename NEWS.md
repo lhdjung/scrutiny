@@ -60,6 +60,8 @@
 
 ## Bugfixes
 
+- `seq_disperse_df()` now finds variables local to the caller when they are used in the dots. It captured the dots as expressions and evaluated them in its own frame, so `n = my_n` inside a function failed with "object 'my_n' not found". The documentation of `track_diff_var` is also corrected: it said `seq_disperse()` ignores the argument, which in fact makes it return a list.
+
 - `absorb_key_args()`, which renames key columns in every mapper (`grim_map(data, x = mean)`), now reads the key arguments' values rather than the unevaluated call. Calls through `lapply()` or `purrr::map()`, and calls from inside another function with the column name in a variable, used to fail with a misleading message. A key argument that points elsewhere while `data` already has a column of that name is now an error; the existing column used to be tested silently instead.
 
 - `is_map_df()`, `is_map_seq_df()`, and `is_map_total_n_df()` now only recognize scrutiny's own classes. Their patterns made the `scrutiny_` prefix optional, so any class ending in `_map`, such as `leaflet_map`, counted. `is_map_basic_df()` now recognizes the output of a mapper whose test name contains `map`, which it used to reject.
