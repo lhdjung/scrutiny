@@ -50,7 +50,7 @@
 
 - `*_map_seq()` functions called with `items` now return `n` as the sample size, followed by an `items` column, and disperse `n` in steps of one person. They used to disperse the product `n * items` and re-test it with `items = 1`. That was only a cosmetic problem for GRIM, but it made `grimmer_map_seq()` wrong: GRIMMER uses `n` and `items` separately, so even the reported value set could come out inconsistent in the sequence while `grimmer_map()` found it consistent.
 
-- `decimal_places()`, `decimal_places_scalar()`, `decimal_places_df()`, `restore_zeros()`, and `restore_zeros_df()` now match `sep` / `sep_in` / `sep_out` as a literal string, as documented, and their defaults are `"."` instead of `"\\."`. Passing `"."` used to be read as a regular expression matching any character. The old default is still understood.
+- `decimal_places()`, `decimal_places_scalar()`, `decimal_places_df()`, `restore_zeros()`, and `restore_zeros_df()` now match `sep` / `sep_in` / `sep_out` as a literal string, as documented, and their defaults are `"."` instead of `"\\."`. Passing `"."` used to be read as a regular expression matching any character. A single escaped character, such as the old default or `"\\,"`, is still understood.
 
 - `audit()` on `duplicate_detect()` output now has a row for every column, including those without duplicates, and counts only non-missing values in `total_count`. Columns without duplicates used to be dropped, which also left them out of `.total`.
 

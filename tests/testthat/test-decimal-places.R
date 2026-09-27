@@ -293,9 +293,14 @@ test_that("`sep` is a literal string, and only the first one counts", {
   "1.25" |> decimal_places(sep = ".") |> expect_equal(2L)
   "1234.5" |> decimal_places_scalar(sep = ".") |> expect_equal(1L)
   "1,25" |> decimal_places(sep = ",") |> expect_equal(2L)
-  # The former default is still read as a point:
+  # Escaped characters from the regex days, such as the former default, are
+  # still read as the character itself:
   "1.25" |> decimal_places(sep = "\\.") |> expect_equal(2L)
   "1.25" |> decimal_places_scalar(sep = "\\.") |> expect_equal(2L)
+  "1,25" |> decimal_places(sep = "\\,") |> expect_equal(2L)
+  c("1,5", "2,25") |>
+    restore_zeros(sep_in = "\\,") |>
+    expect_equal(c("1,50", "2,25"))
 
   # The scalar function used to count the first digit run after *any* separator,
   # so the two disagreed on these:

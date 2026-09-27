@@ -267,9 +267,10 @@ decimal_places_df <- function(
 
 # `sep` and its relatives in `restore_zeros()` are literal strings. They used to
 # be regular expressions, documented as substrings, so `sep = "."` matched any
-# character. The former default, the regex `"\\."`, is still read as a point.
+# character. An escaped character from those days, such as the former default
+# `"\\."` or `"\\,"`, is still read as that character.
 sep_literal <- function(sep) {
-  if (identical(sep, "\\.")) "." else sep
+  sub("^\\\\(.)$", "\\1", sep)
 }
 
 
