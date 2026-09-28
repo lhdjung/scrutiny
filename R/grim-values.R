@@ -19,7 +19,7 @@ grim_sums_scalar <- function(
 
   check_newly_numeric(x, digits_x)
 
-  x_num <- as.numeric(x)
+  x_num <- x
 
   if (percent) {
     x_num <- x_num / 100
@@ -137,7 +137,7 @@ grim_closest_scalar <- function(
     # The whole number closest to the unrounded sum total, pulled into the
     # admissible range. The endpoints come along in case `round()` lands one
     # integer off through floating-point error in the product:
-    sum_nearest <- round(as.numeric(x) * parts$n_items / parts$scale)
+    sum_nearest <- round(x * parts$n_items / parts$scale)
     unique(c(
       min(max(sum_nearest, sum1), sum2),
       sum1,
@@ -146,7 +146,7 @@ grim_closest_scalar <- function(
   }
 
   values <- sums_candidate * parts$scale / parts$n_items
-  values[which.min(abs(values - as.numeric(x)))]
+  values[which.min(abs(values - x))]
 }
 
 

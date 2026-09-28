@@ -12,14 +12,10 @@ audit.scrutiny_debit_map <- function(data) {
   # 4. the mean `x` value. `na.rm` as in `audit_cols_minimal()`: a missing value
   # makes a case undecidable, and it should not also erase the summary of the
   # cases that could be decided.
-  mean_x <- data$x |>
-    as.numeric() |>
-    mean(na.rm = TRUE)
+  mean_x <- mean(data$x, na.rm = TRUE)
 
   # 5. the mean `sd` value:
-  mean_sd <- data$sd |>
-    as.numeric() |>
-    mean(na.rm = TRUE)
+  mean_sd <- mean(data$sd, na.rm = TRUE)
 
   # 6. the number of distinct `n` values:
   distinct_n <- data$n |>

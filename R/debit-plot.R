@@ -138,8 +138,8 @@ debit_plot <- function(
     data <- data[is_complete, ]
   }
 
-  sd <- data$sd
-  x <- data$x
+  sd_num <- data$sd
+  x_num <- data$x
   n <- data$n
   consistency <- data$consistency
   sd_lower <- data$sd_lower
@@ -147,11 +147,10 @@ debit_plot <- function(
   x_lower <- data$x_lower
   x_upper <- data$x_upper
 
-  sd_num <- as.numeric(sd)
-  x_num <- as.numeric(x)
-
   # `x` and `sd` are numeric, so trailing zeros are lost: an SD of `0.50` would
   # be labeled `0.5`. Restore them from the decimal counts the mapper stored:
+  x <- x_num
+  sd <- sd_num
   if (all(c("digits_x", "digits_sd") %in% colnames(data))) {
     x <- restore_zeros(x_num, width = data$digits_x)
     sd <- restore_zeros(sd_num, width = data$digits_sd)

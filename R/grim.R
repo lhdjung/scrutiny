@@ -46,10 +46,9 @@ grim_scalar <- function(
 
   check_newly_numeric(x, digits_x)
 
-  x_num <- as.numeric(x)
-
   # The `percent` argument allows for easy conversion of percentages to decimal
-  # numbers:
+  # numbers. `x` itself stays on the reported scale for the `show_rec` values:
+  x_num <- x
   if (percent) {
     x_num <- x_num / 100
     digits_x <- digits_x + 2L

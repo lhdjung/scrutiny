@@ -86,9 +86,6 @@ grimmer_plot_values <- function(
   check_decidable_n_items(n, items, min_n = 2)
   has_scale <- check_scale_bounds(min_val, max_val)
 
-  x <- as.numeric(x)
-  sd <- as.numeric(sd)
-
   # With known bounds, the comb reaches a little past the largest SD any sample
   # on the scale can have (half of it at each end), so that the teeth the scale
   # rules out are in view. Without them, one unit around `sd`, as for a mean:

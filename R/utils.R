@@ -103,15 +103,13 @@ wrong_spec_string <- function(x) {
 #' DEBIT helper for SD reconstruction
 #'
 #' @param formula String. For now, this has to be `"mean_n"`.
-#' @param x,n String. Binary mean and sample size.
+#' @param x,n Numeric. Binary mean and sample size.
 #' @param group_0,group_1 Numeric. Number of values coded 0 and 1, respectively.
 #'
 #' @return Numeric.
 #'
 #' @noRd
 reconstruct_sd_scalar <- function(formula, x, n, group_0, group_1) {
-  x <- as.numeric(x)
-
   if (formula == "mean_n") {
     sd_rec <- sd_binary_mean_n(mean = x, n = n)
   } else if (formula == "0_n") {
@@ -1435,8 +1433,7 @@ check_type_numeric_like <- function(x) {
 #'   from `reverse_map_seq()` as `-2.48`, and `audit_seq()` then re-tested that
 #'   and reported the opposite verdict.
 #'
-#' @param x Numeric (or coercible to numeric). The dispersed values of one
-#'   `(case, var)` group.
+#' @param x Numeric. The dispersed values of one `(case, var)` group.
 #' @param diff_var Numeric. The `diff_var` column of the same group, in steps.
 #' @param by Numeric (length 1) or `NULL`. The step size. If `NULL`, it is
 #'   inferred as the smallest distance between two neighboring values, which is
@@ -1446,9 +1443,6 @@ check_type_numeric_like <- function(x) {
 #'
 #' @noRd
 index_case_from_diff <- function(x, diff_var, by = NULL) {
-  x_orig <- x
-  x <- as.numeric(x)
-
   # Without a step size from the caller, the sequence supplies it: the values
   # sit on a grid of `by`, so the smallest gap between two of them is `by`
   # itself. A single-value sequence has no such gap and nothing to go on:
@@ -1484,16 +1478,7 @@ index_case_from_diff <- function(x, diff_var, by = NULL) {
     ))
   }
 
-  index_case <- candidates[[1L]]
-  index_case <- methods::as(index_case, typeof(x_orig))
-
-  # A string sequence keeps the trailing zeros that its values were written
-  # with, so the recovered value has to keep them too:
-  if (is.character(index_case)) {
-    index_case <- restore_zeros(index_case, width = max(decimal_places(x_orig)))
-  }
-
-  index_case
+  methods::as(candidates[[1L]], typeof(x))
 }
 
 

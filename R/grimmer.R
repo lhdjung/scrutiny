@@ -110,10 +110,6 @@ grimmer_scalar <- function(
   check_newly_numeric(x, digits_x)
   check_newly_numeric(sd, digits_sd)
 
-  x_orig <- x
-  x <- as.numeric(x)
-  sd <- as.numeric(sd)
-
   # Undecidable. Caught before the GRIM test below, whose `NA` result the branch
   # on `pass_grim` could not handle. A missing decimal count is a missing value
   # like any other: no rounding bounds follow from it.
@@ -166,13 +162,12 @@ grimmer_scalar <- function(
 
   n_items <- n * items
 
-  # GRIM TEST: `x_orig` because `x` has been coerced to numeric, and the
-  # original `n` because `items` is passed down separately. `tolerance` is
-  # deliberately not passed on -- it is deprecated in `grim()`, so forwarding it
-  # would fire that warning for every `grimmer()` call. GRIMMER's own use of it
-  # below is unaffected.
+  # GRIM TEST: the original `n` because `items` is passed down separately.
+  # `tolerance` is deliberately not passed on -- it is deprecated in `grim()`, so
+  # forwarding it would fire that warning for every `grimmer()` call. GRIMMER's
+  # own use of it below is unaffected.
   pass_grim <- grim_scalar(
-    x = x_orig,
+    x = x,
     n = n,
     digits_x = digits_x,
     items = items,

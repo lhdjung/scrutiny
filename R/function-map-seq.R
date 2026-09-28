@@ -543,26 +543,20 @@ function_map_seq <- function(
 
       # A `digits_*` column per reported variable that `fun()` has a `digits_*`
       # argument for, so that `grim_plot()` and friends can split on
-      # decimal-place groups. It takes the argument's value, falling back to
-      # `decimal_places()` on the output column -- which is unreliable for lost
-      # trailing zeros, the very reason the arguments exist.
+      # decimal-place groups. It takes the argument's value. A `fun()` whose
+      # `digits_*` argument has a default may not be given one; its own output
+      # then decides whether there is such a column. Guessing the count from
+      # the numeric values would be unreliable: trailing zeros are lost.
       #
       # Only variables `fun()` has such an argument for get a column:
       # `audit_seq()` forwards every `digits_*` column back to `fun()`, which
       # would otherwise reject its own output.
-      .digits_col_names <- `!!`(digits_args_names)
-      .digits_var_names <- `!!`(sub("^digits_", "", digits_args_names))
-      for (.i in seq_along(.digits_col_names)) {
-        .digits_arg <- .digits_col_names[.i]
-        out[[.digits_arg]] <- if (!is.null(.digits_vals[[.digits_arg]])) {
-          .digits_vals[[.digits_arg]]
-        } else {
-          decimal_places(out[[.digits_var_names[.i]]])
-        }
+      for (.digits_arg in names(.digits_vals)) {
+        out[[.digits_arg]] <- .digits_vals[[.digits_arg]]
       }
       out <- dplyr::relocate(
         out,
-        dplyr::all_of(.digits_col_names),
+        dplyr::any_of(`!!`(digits_args_names)),
         .before = dplyr::all_of(name_key_result)
       )
 
@@ -570,7 +564,10 @@ function_map_seq <- function(
       # manufactured function:
       out <- add_class(
         out,
-        c("scrutiny_map_seq", paste0("scrutiny_", tolower(name_test), "_map_seq"))
+        c(
+          "scrutiny_map_seq",
+          paste0("scrutiny_", tolower(name_test), "_map_seq")
+        )
       )
 
       # `.name_class` used to go into the dots of `function_map_seq_proto()`,
@@ -593,12 +590,15 @@ function_map_seq <- function(
       # - `dispersion_linear`: `audit_seq()` and `reverse_map_seq()` only work
       #   with a linearly increasing `dispersion`. A single step is trivially
       #   linear, but `is_seq_ascending()` needs two.
-      attr(out, "scrutiny") <- c(.meta_fun, list(
-        fun_args = .fun_args,
-        name_key_result = name_key_result,
-        dispersion_linear = length(dispersion) < 2L ||
-          is_seq_ascending(dispersion)
-      ))
+      attr(out, "scrutiny") <- c(
+        .meta_fun,
+        list(
+          fun_args = .fun_args,
+          name_key_result = name_key_result,
+          dispersion_linear = length(dispersion) < 2L ||
+            is_seq_ascending(dispersion)
+        )
+      )
 
       # `rename = FALSE`: `fun()` already named the column, so only the
       # list-column-to-logical half of this code applies here.

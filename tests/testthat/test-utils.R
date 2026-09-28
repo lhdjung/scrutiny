@@ -13,7 +13,7 @@ test_that("`wrong_spec_string()` returns a string", {
 })
 
 
-sd_rec_scalar <- reconstruct_sd_scalar("mean_n", "0.3", 30, 12, 15)
+sd_rec_scalar <- reconstruct_sd_scalar("mean_n", 0.3, 30, 12, 15)
 
 test_that("`reconstruct_sd_scalar()` returns correct values", {
   sd_rec_scalar |> expect_type("double")
@@ -21,7 +21,7 @@ test_that("`reconstruct_sd_scalar()` returns correct values", {
 })
 
 
-sd_rec <- reconstruct_sd("mean_n", "0.3", 30, 12, 15)
+sd_rec <- reconstruct_sd("mean_n", 0.3, 30, 12, 15)
 
 test_that("`reconstruct_sd()` returns correct values", {
   sd_rec |> expect_type("double")

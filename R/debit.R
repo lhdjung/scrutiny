@@ -5,8 +5,7 @@ check_debit_inputs <- function(input, type, symbol) {
   # rather than `dplyr::between()`: this runs twice per row on a single value,
   # and the vctrs machinery behind `between()` was two thirds of a `debit_map()`
   # call.
-  input_num <- as.numeric(input)
-  input_in_range <- input_num >= 0 & input_num <= 1
+  input_in_range <- input >= 0 & input <= 1
 
   # Anything outside that range is an error. Missing values are not offenders:
   # they are undecidable, not out of range, and the tests return `NA` for them.
@@ -141,13 +140,10 @@ debit_scalar <- function(
   # Check whether `x` and `sd` range from 0 to 1:
   check_debit_inputs_all(x, sd)
 
-  x_num <- as.numeric(x)
-  sd_num <- as.numeric(sd)
-
   # A missing value makes the test undecidable, and it is returned in the same
   # shape as the undefined-bounds case below. A missing decimal count counts: no
   # rounding bounds follow from it.
-  if (anyNA(c(x_num, sd_num, n, digits_x, digits_sd))) {
+  if (anyNA(c(x, sd, n, digits_x, digits_sd))) {
     return(debit_undecidable(show_rec, rounding))
   }
 
@@ -160,7 +156,7 @@ debit_scalar <- function(
   }
 
   bounds_x <- bound_numerators(
-    x_num = x_num,
+    x_num = x,
     digits = digits_x,
     rounding = rounding,
     threshold = threshold,
@@ -168,7 +164,7 @@ debit_scalar <- function(
   )
 
   bounds_sd <- bound_numerators(
-    x_num = sd_num,
+    x_num = sd,
     digits = digits_sd,
     rounding = rounding,
     threshold = threshold,

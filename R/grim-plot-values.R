@@ -418,8 +418,6 @@ grim_plot_values <- function(
   check_comb_value(x, digits_x, "x")
   check_decidable_n_items(n, items, min_n = 1)
 
-  x <- as.numeric(x)
-
   # One unit around `x`, which holds about `n` attainable means. Attainable
   # percentages are `100 / n` points apart, so the window widens by that much
   # on either side (within 0 to 100), to keep the nearest ones in view:

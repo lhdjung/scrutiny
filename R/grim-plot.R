@@ -253,9 +253,10 @@ grim_plot <- function(
   if (!show_data) {
     data <- tibble::new_tibble(
       x = list(
-        x = "0.00",
+        x = 0,
         n = 1,
         items = 1,
+        digits_x = 2L,
         consistency = TRUE
       ),
       nrow = 1L
@@ -450,7 +451,7 @@ grim_plot <- function(
   # the percentage as reported, exactly like `digits_x`.
   if (is_percent) {
     digits <- digits + 2L
-    data$x <- as.numeric(data$x) / 100
+    data$x <- data$x / 100
   }
 
   # The y-axis is the fractional portion of the mean, which is zero throughout
@@ -466,8 +467,6 @@ grim_plot <- function(
       percentage does have a fractional portion as a decimal number."
     ))
   }
-
-  data$x <- as.numeric(data$x)
 
   # Preparations ----
 
