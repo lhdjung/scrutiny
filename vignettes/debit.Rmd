@@ -125,7 +125,7 @@ pigs3 |>
   debit_plot()
 ```
 
-DEBIT-consistent value pairs are blue, inconsistent ones red. The black arc is the DEBIT line: Given the sample size, the pairs of mean and SD values are DEBIT-consistent if and only if they cross this line. More precisely, the boxes must cross the line.
+DEBIT-consistent value pairs are blue, inconsistent ones red. The black arc is the DEBIT line: the SD of binary data as a function of their mean, given the sample size. The mean of $n$ binary values can only be $k / n$ for a whole number $k$, so the line is marked with points where it can actually be met. A pair of mean and SD values is DEBIT-consistent if and only if one of these points lies inside its box. (With `formula = "mean_n"`, the mean is treated as continuous, and a box only has to cross the line.)
 
 Except for the colors, the boxes must look exactly like they do here: Their sizes and shapes are completely determined by the mean and SD values. With three or more decimal places, a box can be too small to see, so each one is drawn over a point at the reported mean and SD.
 

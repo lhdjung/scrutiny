@@ -15,7 +15,16 @@
 #'   The DEBIT line depends on the sample size. If `n` varies in `data`, the
 #'   lines for the smallest and largest `n` are drawn, and the band between them
 #'   is shaded: it contains the lines for all the other `n` values, which would
-#'   be too close together to tell apart. Value sets that lack a verdict or bounds (i.e., have
+#'   be too close together to tell apart.
+#'
+#'   With `formula = "exact"`, the default of [`debit_map()`], a rectangle
+#'   crossing the line is not enough. A mean of `n` binary values is `k / n` for
+#'   a whole number `k`, and these means are marked as points on the line. A
+#'   value set is consistent if one of them lies inside its rectangle. With a
+#'   large `n`, these points are too dense to tell apart, so only those that
+#'   would not be drawn over by others are drawn, with a message.
+#'
+#'   Value sets that lack a verdict or bounds (i.e., have
 #'   `NA` in any of the columns needed for drawing them) are left out with a
 #'   warning.
 #'
@@ -91,6 +100,19 @@ debit_plot <- function(
     ))
   }
 
+  # The formula decides what the plot shows. `debit_map()` and the mappers built
+  # on it always record it, and the record survives the same dplyr verbs as the
+  # class, so data with the class but no formula were given the class by hand:
+  formula <- scrutiny_meta(data)$args$formula
+  if (!is.character(formula) || !formula %in% c("exact", "mean_n")) {
+    cli::cli_abort(c(
+      "!" = "`data` doesn't record the DEBIT `formula` it was tested with.",
+      "x" = "It has the class of `debit_map()` output, but not the \\
+      \"scrutiny\" attribute that `debit_map()` gives its output.",
+      "i" = "Plot the output of `debit_map()` itself."
+    ))
+  }
+
   # Preparations ---
 
   # A value set without a verdict has no color, and one without bounds has no
@@ -104,7 +126,9 @@ debit_plot <- function(
     "sd_lower",
     "sd_upper",
     "x_lower",
-    "x_upper"
+    "x_upper",
+    "sum_lower",
+    "sum_upper"
   )
 
   # The bounds only exist in `debit_map()` output with `show_rec = TRUE`, the
@@ -243,26 +267,9 @@ debit_plot <- function(
       alpha = rect_alpha
     )
 
-  # Text labels (optional, default is `TRUE`):
-  if (show_labels) {
-    rlang::check_installed("ggrepel", "for the labels in `debit_plot()`.")
-    p <- p +
-      ggrepel::geom_text_repel(
-        force = label_force,
-        force_pull = label_force_pull,
-        box.padding = label_padding,
-        segment.alpha = label_alpha,
-        color = color_by_consistency,
-        segment.color = color_by_consistency,
-        segment.linetype = label_linetype,
-        segment.size = label_linesize,
-        size = label_size
-      )
-  }
-
-  # Scale specifications (optional, default is `TRUE`):
-  # The y-axis has some room beyond the outermost rectangles. This used to be the
-  # outer tiles' offset from the rectangles:
+  # Scale specifications (optional, default is `TRUE`): The y-axis has some room
+  # beyond the outermost rectangles. This used to be the outer tiles' offset
+  # from the rectangles:
   sd_margin <- 0.025
 
   if (show_full_scale) {
@@ -281,6 +288,75 @@ debit_plot <- function(
           min(sd_lower) - sd_margin,
           max((max(sd_upper) + sd_margin), 0.5)
         )
+      )
+  }
+
+  # Under `formula = "exact"`, the default, a value set is consistent if the SD
+  # of some mean that `n` binary values can have, `k / n`, lies in its rectangle
+  # -- not if the line merely crosses it. Mark those means on the line, from
+  # `sum_lower` to `sum_upper` ones for each value set. This comes after the
+  # scales because thinning the marks needs the final panel.
+  if (formula == "exact") {
+    k_lower <- data$sum_lower
+    k_upper <- data$sum_upper
+    k_count <- pmax(k_upper - k_lower + 1, 0)
+
+    if (sum(k_count) <= 10000) {
+      k_by_row <- purrr::map2(k_lower, k_upper, function(k_lower, k_upper) {
+        if (k_lower > k_upper) {
+          numeric(0)
+        } else {
+          k_lower:k_upper
+        }
+      })
+    } else {
+      panel <- ggplot2::ggplot_build(p)$layout$panel_params[[1L]]
+      k_by_row <- purrr::pmap(
+        list(k_lower = k_lower, k_upper = k_upper, n = n),
+        thin_binary_means,
+        x_range = panel$x.range,
+        y_range = panel$y.range
+      )
+      n_thinned <- sum(lengths(k_by_row) < k_count)
+      if (n_thinned > 0L) {
+        cli::cli_inform(c(
+          "i" = "Marking only some of the attainable means of \\
+          {n_thinned} value set{?s}.",
+          " " = "The others would be drawn over them at this plot's \\
+          resolution, so the plot looks the same."
+        ))
+      }
+    }
+
+    k <- unlist(k_by_row)
+    n_by_k <- rep(n, lengths(k_by_row))
+
+    if (length(k) > 0L) {
+      p <- p +
+        ggplot2::geom_point(
+          data = tibble::tibble(x = k / n_by_k, y = sd_binary_1_n(k, n_by_k)),
+          ggplot2::aes(x = .data$x, y = .data$y),
+          color = line_color,
+          size = 1,
+          inherit.aes = FALSE
+        )
+    }
+  }
+
+  # Text labels (optional, default is `TRUE`):
+  if (show_labels) {
+    rlang::check_installed("ggrepel", "for the labels in `debit_plot()`.")
+    p <- p +
+      ggrepel::geom_text_repel(
+        force = label_force,
+        force_pull = label_force_pull,
+        box.padding = label_padding,
+        segment.alpha = label_alpha,
+        color = color_by_consistency,
+        segment.color = color_by_consistency,
+        segment.linetype = label_linetype,
+        segment.size = label_linesize,
+        size = label_size
       )
   }
 
@@ -303,4 +379,46 @@ debit_plot <- function(
   # here drew a canvas whenever the result was assigned or added to. Nor are
   # warnings suppressed: rows that can't be drawn are reported above.
   p
+}
+
+
+# The number of ones `k`, from `k_lower` to `k_upper`, whose means
+# `debit_plot()` marks on the DEBIT line, thinned to those that a plot can tell
+# apart. Divide the panel, which spans `x_range` and `y_range`, into a grid of
+# `resolution` cells along each axis. As `k` rises, the line enters a cell by
+# crossing a grid line, so the first `k` after some crossing is the first mark
+# in that cell, if the cell has any. Keeping only those, plus `k_lower`, keeps
+# every cell that has a mark: the plot looks the same, with a few thousand marks
+# per value set at most, rather than one for every `k`.
+thin_binary_means <- function(
+  k_lower,
+  k_upper,
+  n,
+  x_range,
+  y_range,
+  resolution = 2000
+) {
+  x_lines <- seq(x_range[1L], x_range[2L], length.out = resolution + 1)
+  y_lines <- seq(y_range[1L], y_range[2L], length.out = resolution + 1)
+
+  # The mean `k / n` crosses a vertical line once. The SD, the square root of `k
+  # * (n - k) / (n * (n - 1))`, crosses a horizontal one twice, on its way up
+  # and on its way down:
+  discriminant <- n^2 / 4 - y_lines^2 * n * (n - 1)
+  root <- sqrt(discriminant[discriminant >= 0])
+  crossings <- c(x_lines * n, n / 2 - root, n / 2 + root)
+
+  # The first mark after a crossing is `floor() + 1`. Its neighbors are added
+  # because a mark right on a grid line can fall on either side of it, as can a
+  # crossing that floating-point error moves by a hair:
+  k <- c(
+    k_lower,
+    crossings |>
+      floor() |>
+      outer(0:2, `+`)
+  )
+
+  k[k >= k_lower & k <= k_upper] |>
+    unique() |>
+    sort()
 }

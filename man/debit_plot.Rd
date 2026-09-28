@@ -73,7 +73,16 @@ function a few times until the labels are localized in a satisfactory way.
 The DEBIT line depends on the sample size. If \code{n} varies in \code{data}, the
 lines for the smallest and largest \code{n} are drawn, and the band between them
 is shaded: it contains the lines for all the other \code{n} values, which would
-be too close together to tell apart. Value sets that lack a verdict or bounds (i.e., have
+be too close together to tell apart.
+
+With \code{formula = "exact"}, the default of \code{\link[=debit_map]{debit_map()}}, a rectangle
+crossing the line is not enough. A mean of \code{n} binary values is \code{k / n} for
+a whole number \code{k}, and these means are marked as points on the line. A
+value set is consistent if one of them lies inside its rectangle. With a
+large \code{n}, these points are too dense to tell apart, so only those that
+would not be drawn over by others are drawn, with a message.
+
+Value sets that lack a verdict or bounds (i.e., have
 \code{NA} in any of the columns needed for drawing them) are left out with a
 warning.
 

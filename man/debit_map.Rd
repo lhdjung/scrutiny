@@ -55,7 +55,13 @@ given by \code{digits_x} and \code{digits_sd}.
 that cannot be decided, such as one with a missing value.
 
 By default, the tibble also includes the rounding method, boundary values,
-and information about the boundary values being inclusive or not. The
+and information about the boundary values being inclusive or not, as well
+as \code{sum_lower} and \code{sum_upper}: the least and the greatest number of ones
+among \code{n} binary values whose mean would be reported as \code{x}. With
+\code{formula = "exact"}, the default, a value set is consistent exactly if some
+\code{k} from \code{sum_lower} to \code{sum_upper} has an SD within the bounds of \code{sd},
+i.e., if \code{sd_binary_1_n(k, n)} lies between \code{sd_lower} and \code{sd_upper}. If
+\code{sum_lower} is greater than \code{sum_upper}, no such \code{k} exists. The
 tibble has the \code{scrutiny_debit_map} class, which is recognized by the \code{audit()}
 generic.
 }

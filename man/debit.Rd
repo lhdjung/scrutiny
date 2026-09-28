@@ -38,7 +38,10 @@ treats the mean as continuous, as in Heathers and Brown (2019), and
 accepts some SDs that no binary sample of size \code{n} can have. For example,
 \code{debit(0.05, 0.21, 20, 2, 2)} is \code{TRUE} under \code{"mean_n"}, but a mean of
 0.05 with \code{n = 20} can only be one 1 in 20, whose SD rounds to 0.22. The
-difference only ever turns \code{TRUE} into \code{FALSE}.}
+difference only ever turns \code{TRUE} into \code{FALSE}, with one exception: under
+\code{rounding = "even"}, an SD exactly on a tie, such as 0.25, is taken to be
+reportable both ways by \code{"exact"}, but only the way \code{\link[=round]{round()}} goes by
+\code{"mean_n"}.}
 
 \item{rounding}{String. Rounding method or methods to be used for
 reconstructing the SD values to which \code{sd} will be compared. Default is

@@ -11,7 +11,7 @@ test_that("values are correctly tested for DEBIT-consistency", {
 })
 
 test_that("`show_rec` controls the number of columns", {
-  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, show_rec = TRUE ) |> ncol() |> expect_equal(13)
+  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, show_rec = TRUE ) |> ncol() |> expect_equal(15)
   pigs3 |> debit_map(digits_x = 2, digits_sd = 2, show_rec = FALSE) |> ncol() |> expect_equal(6)
 })
 
@@ -69,6 +69,8 @@ df1_expected <- tibble::tibble(
     0.935,
     0.125
   ),
+  sum_lower = c(884, 733, 1288, 312, 564, 1557, 194),
+  sum_upper = c(900, 748, 1304, 328, 580, 1573, 210),
 ) |>
   structure(
     scrutiny = list(

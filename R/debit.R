@@ -64,9 +64,12 @@ check_debit_inputs_all <- function(x, sd) {
 #
 # DEBIT asks whether the SD that follows from the reported mean of binary data
 # can be rounded to the reported SD. Both reported values stand for a range of
-# original values, so the test reconstructs the SD at each bound of the mean's
-# range, rounds the results the same way the reported SD was presumably rounded,
-# and checks whether the reported SD's own range is met.
+# original values. Under `formula = "exact"`, the test asks whether some number
+# of ones `k` has a mean `k / n` in the mean's range and an SD in the SD's range;
+# see `binary_sd_attainable()`. Under `"mean_n"`, it treats the mean as
+# continuous, reconstructs the SD at the bounds of its range, rounds the results
+# the same way the reported SD was presumably rounded, and checks whether the
+# reported SD's own range is met.
 #
 # `bound_numerators()` supplies both ranges. It is the same helper that
 # `grim_scalar()` and `grimmer_scalar()` derive their candidate ranges from, so
@@ -83,10 +86,172 @@ check_debit_inputs_all <- function(x, sd) {
 # and undefined rounding bounds.
 debit_undecidable <- function(show_rec, rounding) {
   if (show_rec) {
-    list(NA, rounding, NA_real_, NA, NA_real_, NA, NA_real_, NA_real_)
+    list(
+      NA,
+      rounding,
+      NA_real_,
+      NA,
+      NA_real_,
+      NA,
+      NA_real_,
+      NA_real_,
+      NA_real_,
+      NA_real_
+    )
   } else {
     NA
   }
+}
+
+
+# Does a binary sample of size `n` with between `sum_lower` and `sum_upper` ones
+# have an SD within `bounds_sd`? This is the `"exact"` DEBIT test.
+#
+# The sample SD of `k` ones among `n` values is the square root of `k * (n - k)`
+# over `n * (n - 1)`, so it is enough to compare `k * (n - k)` -- the "spread"
+# below -- with the squared SD bounds. For a bound `num / denom`, the condition
+# `num / denom <= SD` is equivalent to this one:
+#
+#   num^2 * n * (n - 1) <= spread * denom^2
+#
+# It compares whole numbers, as in `sum_range()`, and it is exact while those
+# stay below `2^53`, i.e., for `n` up to about 90,000 with an SD reported to two
+# decimal places, or 9,000 with three. Beyond that, it degrades to plain
+# floating point.
+#
+# The spread is the same for `k` and `n - k`, and it rises with `k` up to half
+# of `n`, so the test needs no loop over `k`, and its cost does not grow with
+# `n`.
+binary_sd_attainable <- function(sum_lower, sum_upper, n, bounds_sd) {
+  if (sum_lower > sum_upper) {
+    return(FALSE)
+  }
+
+  # The least and the greatest spread that the reported SD admits:
+  factor_sd <- n * (n - 1)
+  denom_squared <- bounds_sd$denom^2
+  lower_scaled <- bounds_sd$lower^2 * factor_sd
+  upper_scaled <- bounds_sd$upper^2 * factor_sd
+
+  spread_min <- ceiling_div(lower_scaled, denom_squared)
+  lower_bound_hit <- spread_min * denom_squared == lower_scaled
+  if (!bounds_sd$incl_lower && lower_bound_hit) {
+    spread_min <- spread_min + 1
+  }
+
+  spread_max <- floor_div(upper_scaled, denom_squared)
+  upper_bound_hit <- spread_max * denom_squared == upper_scaled
+  if (!bounds_sd$incl_upper && upper_bound_hit) {
+    spread_max <- spread_max - 1
+  }
+
+  # Fold the range of `k` onto the lower half, `j = min(k, n - k)`, where the
+  # spread rises with `j`. Folding a range that straddles the middle gives a
+  # range that ends there:
+  half <- floor(n / 2)
+
+  if (sum_upper <= half) {
+    j_lower <- sum_lower
+    j_upper <- sum_upper
+  } else if (sum_lower >= n - half) {
+    j_lower <- n - sum_upper
+    j_upper <- n - sum_lower
+  } else {
+    j_lower <- min(sum_lower, n - sum_upper)
+    j_upper <- half
+  }
+
+  # The least `j` in that range whose spread reaches `spread_min`. It is the
+  # smaller root of the quadratic `j * (n - j) = spread_min`, rounded up. If no
+  # spread is large enough, the root is half of `n`, and `j` ends up above
+  # `j_upper`.
+  root <- (n - sqrt(max(n^2 - 4 * spread_min, 0))) / 2
+  j <- max(ceiling(root), j_lower)
+
+  # The loops below only correct floating-point error in `root`, and where the
+  # arithmetic is exact, they never run. `root` is a whole number `j` only if
+  # `spread_min` is `j * (n - j)`, and the square root is then that of a perfect
+  # square, which is exact. Any other root lies at least about `1 / (4 * n)` from
+  # the nearest whole number, much further than floating-point error moves it.
+  # Past `2^53`, the loops correct an overshoot in either direction.
+  while (j > j_lower && (j - 1) * (n - j + 1) >= spread_min) {
+    j <- j - 1
+  }
+  while (j <= j_upper && j * (n - j) < spread_min) {
+    j <- j + 1
+  }
+
+  # Every greater `j` has a greater spread, so if this one is too large, all of
+  # them are:
+  j <= j_upper && j * (n - j) <= spread_max
+}
+
+
+# The `"mean_n"` DEBIT test. It treats the mean as continuous, between `x_lower`
+# and `x_upper`, and asks whether the SD that follows from some mean in that
+# range could have been rounded to the reported SD.
+binary_sd_attainable_mean_n <- function(
+  x_lower,
+  x_upper,
+  n,
+  bounds_sd,
+  digits_sd,
+  rounding,
+  threshold,
+  symmetric
+) {
+  # The SD is reconstructed at the bounds of the mean's range. The two bounds
+  # alone are not enough: the verdict below reasons from them to every mean in
+  # between, which needs the reconstruction to be monotonic in the mean -- and
+  # it isn't. `sd_binary_mean_n()` is `sqrt((n / (n - 1)) * mean * (1 - mean))`,
+  # a downward parabola peaking at a mean of 0.5, so an interval containing 0.5
+  # reaches SDs *above* both endpoints. At a mean of exactly 0.50 both endpoints
+  # even give the same SD, collapsing the attainable band to a point. The peak
+  # is the only interior extremum, so adding it where it falls inside the
+  # interval restores the span and makes the step below sound:
+  x_eval <- c(x_lower, x_upper)
+
+  if (x_lower <= 0.5 && 0.5 <= x_upper) {
+    x_eval <- c(x_eval, 0.5)
+  }
+
+  # Reconstruct the SD from each of those means...
+  sd_rec <- sd_binary_mean_n(x_eval, n)
+
+  # ...and round it the same way the reported SD was presumably rounded, to the
+  # same number of decimal places:
+  sd_rec <- reround(
+    x = sd_rec,
+    digits = digits_sd,
+    rounding = rounding,
+    threshold = threshold,
+    symmetric = symmetric
+  )
+
+  # Do the reconstructed SDs meet the range of the reported SD? `reround()`
+  # returned values on the `digits_sd` decimal grid, so multiplying by the
+  # bounds' denominator and rounding recovers their exact numerators over that
+  # denominator -- the comparison below is between integers, not a tolerance
+  # fudge (#86).
+  num_rec <- round(sd_rec * bounds_sd$denom)
+
+  above_lower <- if (bounds_sd$incl_lower) {
+    num_rec >= bounds_sd$lower
+  } else {
+    num_rec > bounds_sd$lower
+  }
+
+  below_upper <- if (bounds_sd$incl_upper) {
+    num_rec <= bounds_sd$upper
+  } else {
+    num_rec < bounds_sd$upper
+  }
+
+  # The two conditions need not be met by the same reconstructed value: with one
+  # below the range and another above it, some mean in between reconstructs into
+  # it. This intermediate-value argument holds because `x_eval` spans the
+  # attainable range -- hence the peak added to it.
+  any(above_lower) && any(below_upper)
 }
 
 
@@ -189,94 +354,34 @@ debit_scalar <- function(
   sd_lower <- bounds_sd$lower / bounds_sd$denom
   sd_upper <- bounds_sd$upper / bounds_sd$denom
 
-  if (formula == "exact") {
-    # The mean of `n` binary values is `k / n` for a whole number `k`, so only
-    # those means can stand behind the reported one. `k / n` lies within the
-    # bounds of `x` if `k * denom` lies within `n` times their numerators, which
-    # is a comparison between whole numbers. The candidates are a step wider
-    # than needed on either side, so that floating-point error in the division
-    # cannot drop one; the exact comparison then filters them:
-    k <- seq(
-      max(floor(bounds_x$lower * n / bounds_x$denom) - 1, 0),
-      min(ceiling(bounds_x$upper * n / bounds_x$denom) + 1, n)
-    )
-    num_k <- k * bounds_x$denom
-    k <- k[
-      (if (bounds_x$incl_lower) {
-        num_k >= bounds_x$lower * n
-      } else {
-        num_k > bounds_x$lower * n
-      }) &
-        (if (bounds_x$incl_upper) {
-          num_k <= bounds_x$upper * n
-        } else {
-          num_k < bounds_x$upper * n
-        })
-    ]
-    # If no binary sample of size `n` has the reported mean, `k` is empty, and
-    # the test is `FALSE` below:
-    x_eval <- k / n
-  } else {
-    # The "mean_n" test treats the mean as continuous and reconstructs the SD at
-    # the bounds of its range. The two bounds alone are not enough: the verdict
-    # below reasons from them to every mean in between, which needs the
-    # reconstruction to be monotonic in the mean -- and it isn't.
-    # `sd_binary_mean_n()` is `sqrt((n / (n - 1)) * mean * (1 - mean))`, a
-    # downward parabola peaking at a mean of 0.5, so an interval containing 0.5
-    # reaches SDs *above* both endpoints. At a mean of exactly 0.50 both
-    # endpoints even give the same SD, collapsing the attainable band to a
-    # point. The peak is the only interior extremum, so adding it where it falls
-    # inside the interval restores the span and makes the step below sound:
-    x_eval <- c(x_lower, x_upper)
+  # The least and the greatest number of ones whose mean `k / n` would be
+  # reported as `x`: GRIM's range of sums, confined to the 0 to `n` ones that `n`
+  # binary values can have. If there is no such number, `sum_lower` is greater
+  # than `sum_upper`.
+  sums <- sum_range(x, n, digits_x, rounding, threshold, symmetric)
+  sum_lower <- max(sums[1L], 0)
+  sum_upper <- min(sums[2L], n)
 
-    if (x_lower <= 0.5 && 0.5 <= x_upper) {
-      x_eval <- c(x_eval, 0.5)
-    }
-  }
-
-  # Reconstruct the SD from each of those means...
-  sd_rec <- sd_binary_mean_n(x_eval, n)
-
-  # ...and round it the same way the reported SD was presumably rounded, to the
-  # same number of decimal places:
-  sd_rec <- reround(
-    x = sd_rec,
-    digits = digits_sd,
-    rounding = rounding,
-    threshold = threshold,
-    symmetric = symmetric
+  consistency <- switch(
+    formula,
+    "exact" = binary_sd_attainable(
+      sum_lower = sum_lower,
+      sum_upper = sum_upper,
+      n = n,
+      bounds_sd = bounds_sd
+    ),
+    "mean_n" = binary_sd_attainable_mean_n(
+      x_lower = x_lower,
+      x_upper = x_upper,
+      n = n,
+      bounds_sd = bounds_sd,
+      digits_sd = digits_sd,
+      rounding = rounding,
+      threshold = threshold,
+      symmetric = symmetric
+    ),
+    cli::cli_abort("Internal error: incorrect `formula` value \"{formula}\".")
   )
-
-  # Do the reconstructed SDs meet the range of the reported SD? `reround()`
-  # returned values on the `digits_sd` decimal grid, so multiplying by the
-  # bounds' denominator and rounding recovers their exact numerators over that
-  # denominator -- the comparison below is between integers, not a tolerance
-  # fudge (#86).
-  num_rec <- round(sd_rec * bounds_sd$denom)
-
-  above_lower <- if (bounds_sd$incl_lower) {
-    num_rec >= bounds_sd$lower
-  } else {
-    num_rec > bounds_sd$lower
-  }
-
-  below_upper <- if (bounds_sd$incl_upper) {
-    num_rec <= bounds_sd$upper
-  } else {
-    num_rec < bounds_sd$upper
-  }
-
-  # Under "exact", some attainable mean has to reconstruct into the reported
-  # SD's range by itself. Under "mean_n", the two conditions need not be met
-  # by the same reconstructed value: with one below the range and another above
-  # it, some mean in between reconstructs into it. This intermediate-value
-  # argument holds because `x_eval` spans the attainable range -- hence the peak
-  # added to it. If no mean is attainable, both tests are `FALSE`.
-  consistency <- if (formula == "exact") {
-    any(above_lower & below_upper)
-  } else {
-    any(above_lower) && any(below_upper)
-  }
 
   if (!show_rec) {
     return(consistency)
@@ -292,7 +397,9 @@ debit_scalar <- function(
     sd_upper,
     bounds_sd$incl_upper,
     x_lower,
-    x_upper
+    x_upper,
+    sum_lower,
+    sum_upper
   )
 }
 
@@ -327,7 +434,10 @@ debit_scalar <- function(
 #'   accepts some SDs that no binary sample of size `n` can have. For example,
 #'   `debit(0.05, 0.21, 20, 2, 2)` is `TRUE` under `"mean_n"`, but a mean of
 #'   0.05 with `n = 20` can only be one 1 in 20, whose SD rounds to 0.22. The
-#'   difference only ever turns `TRUE` into `FALSE`.
+#'   difference only ever turns `TRUE` into `FALSE`, with one exception: under
+#'   `rounding = "even"`, an SD exactly on a tie, such as 0.25, is taken to be
+#'   reportable both ways by `"exact"`, but only the way [`round()`] goes by
+#'   `"mean_n"`.
 #' @param rounding String. Rounding method or methods to be used for
 #'   reconstructing the SD values to which `sd` will be compared. Default is
 #'   `"up_or_down"` (from 5). See `vignette("rounding-options")`.

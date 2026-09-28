@@ -60,11 +60,11 @@ test_that("rectangles are sized per row, and `NA` rows are dropped out loud", {
   ) |>
     debit_map(digits_x = c(1, 2), digits_sd = 2)
   built <- ggplot2::ggplot_build(debit_plot(data))$data
-  rects <- built[[length(built) - 1L]]
+  rects <- built[[length(built) - 2L]]
   (rects$xmax - rects$xmin) |> expect_equal(c(0.1, 0.01))
   # Each rectangle is drawn over a point at the reported values, so that it
   # shows up even if it is too small to see:
-  points <- built[[length(built) - 2L]]
+  points <- built[[length(built) - 3L]]
   points[c("x", "y")] |> expect_equal(data.frame(x = c(.5, .35), y = c(.5, .48)))
   # Trailing zeros are restored in the labels:
   built[[length(built)]]$label |> expect_equal(c("0.5; 0.50", "0.35; 0.48"))
@@ -100,4 +100,64 @@ test_that("`debit_plot()` explains missing reconstruction columns", {
     debit_map(digits_x = 2, digits_sd = 2, show_rec = FALSE) |>
     debit_plot() |>
     expect_error("show_rec = TRUE")
+})
+
+test_that("under `formula = \"exact\"`, the attainable means are marked", {
+  # One 1 in 20 is the only binary sample with a mean reported as 0.05. Its SD,
+  # 0.2236, misses the rectangle of an SD reported as 0.21, though the line
+  # crosses it:
+  data <- tibble::tibble(x = 0.05, sd = 0.21, n = 20)
+  is_point_layer <- function(l) inherits(l$geom, "GeomPoint")
+
+  built <- data |>
+    debit_map(digits_x = 2, digits_sd = 2) |>
+    debit_plot(show_labels = FALSE) |>
+    ggplot2::ggplot_build()
+  marks <- built$data[[length(built$data)]]
+  marks[c("x", "y")] |> expect_equal(data.frame(x = 0.05, y = sqrt(0.05)))
+
+  data |>
+    debit_map(digits_x = 2, digits_sd = 2, formula = "mean_n") |>
+    debit_plot(show_labels = FALSE) |>
+    call_on(\(p) p$layers) |>
+    vapply(is_point_layer, TRUE) |>
+    sum() |>
+    expect_equal(1)
+})
+
+test_that("`debit_plot()` requires the recorded `formula`", {
+  pigs3 |>
+    debit_map(digits_x = 2, digits_sd = 2) |>
+    structure(scrutiny = NULL) |>
+    debit_plot() |>
+    expect_error("formula")
+})
+
+test_that("thinning the marks keeps every cell of the grid that has one", {
+  n <- 5e5
+  x_range <- c(-0.05, 1.05)
+  y_range <- c(-0.01, 0.73)
+  cells <- function(k) {
+    x <- floor((k / n - x_range[1]) / diff(x_range) * 2000)
+    y <- floor((sd_binary_1_n(k, n) - y_range[1]) / diff(y_range) * 2000)
+    unique(paste(x, y))
+  }
+  k_all  <- 0:n
+  k_thin <- thin_binary_means(0, n, n, x_range, y_range)
+
+  k_thin |> length() |> expect_lt(n / 20)
+  k_thin |> cells() |> sort() |> expect_equal(sort(cells(k_all)))
+  thin_binary_means(10, 9, n, x_range, y_range) |> expect_length(0)
+})
+
+test_that("`debit_plot()` says when it thins the marks", {
+  tibble::tibble(x = 0.5, sd = 0.5, n = 1e6) |>
+    debit_map(digits_x = 1, digits_sd = 1) |>
+    debit_plot(show_labels = FALSE) |>
+    expect_message("only some")
+
+  pigs3 |>
+    debit_map(digits_x = 2, digits_sd = 2) |>
+    debit_plot(show_labels = FALSE) |>
+    expect_no_message()
 })

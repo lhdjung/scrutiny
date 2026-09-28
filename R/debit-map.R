@@ -37,7 +37,13 @@
 #'   that cannot be decided, such as one with a missing value.
 #'
 #'   By default, the tibble also includes the rounding method, boundary values,
-#'   and information about the boundary values being inclusive or not. The
+#'   and information about the boundary values being inclusive or not, as well
+#'   as `sum_lower` and `sum_upper`: the least and the greatest number of ones
+#'   among `n` binary values whose mean would be reported as `x`. With
+#'   `formula = "exact"`, the default, a value set is consistent exactly if some
+#'   `k` from `sum_lower` to `sum_upper` has an SD within the bounds of `sd`,
+#'   i.e., if `sd_binary_1_n(k, n)` lies between `sd_lower` and `sd_upper`. If
+#'   `sum_lower` is greater than `sum_upper`, no such `k` exists. The
 #'   tibble has the `scrutiny_debit_map` class, which is recognized by the `audit()`
 #'   generic.
 #'
@@ -88,6 +94,8 @@ debit_map <- function_map(
     "sd_upper",
     "sd_incl_upper",
     "x_lower",
-    "x_upper"
+    "x_upper",
+    "sum_lower",
+    "sum_upper"
   )
 )
