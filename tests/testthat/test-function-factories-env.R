@@ -103,18 +103,18 @@ test_that("`*_map_seq()` only adds `digits_*` columns its mapper accepts", {
   out <- schlim_map_seq(tibble::tibble(y = 16:25, n = 3:12))
 
   # The mapper has no `digits_y` argument, so there must be no such column:
-  expect_false(any(grepl("^digits_", colnames(out))))
+  out |> colnames() |> grepl(pattern = "^digits_") |> any() |> expect_false()
   out |> audit_seq() |> expect_no_error()
 
   # The real mappers do have them, and must keep their columns:
-  expect_true(
-    "digits_x" %in% colnames(grim_map_seq(pigs1, digits_x = 2, dispersion = 1))
-  )
-  expect_true(
-    all(c("digits_x", "digits_sd") %in% colnames(
-      grimmer_map_seq(pigs5, digits_x = 2, digits_sd = 2, dispersion = 1)
-    ))
-  )
+  pigs1 |>
+    grim_map_seq(digits_x = 2, dispersion = 1) |>
+    colnames() |>
+    expect_contains("digits_x")
+  pigs5 |>
+    grimmer_map_seq(digits_x = 2, digits_sd = 2, dispersion = 1) |>
+    colnames() |>
+    expect_contains(c("digits_x", "digits_sd"))
 })
 
 

@@ -117,11 +117,12 @@ cut_digit <- seq(0, 9)
 test_that("`round_up_from()` rounds up from `threshold`, not from 5", {
   for (threshold in seq(1, 9)) {
     for (base in c(0.42, 7.13, 100)) {
-      expect_equal(
-        round_up_from(base + cut_digit / 1000, 2, threshold = threshold),
-        base + dplyr::if_else(cut_digit >= threshold, 0.01, 0),
-        label = paste("`round_up_from()`, threshold", threshold, "at", base)
-      )
+      (base + cut_digit / 1000) |>
+        round_up_from(2, threshold = threshold) |>
+        expect_equal(
+          base + dplyr::if_else(cut_digit >= threshold, 0.01, 0),
+          label = paste("`round_up_from()`, threshold", threshold, "at", base)
+        )
     }
   }
 })
@@ -129,11 +130,12 @@ test_that("`round_up_from()` rounds up from `threshold`, not from 5", {
 test_that("`round_down_from()` rounds down from `threshold`, not from 5", {
   for (threshold in seq(1, 9)) {
     for (base in c(0.42, 7.13, 100)) {
-      expect_equal(
-        round_down_from(base + cut_digit / 1000, 2, threshold = threshold),
-        base + dplyr::if_else(cut_digit > threshold, 0.01, 0),
-        label = paste("`round_down_from()`, threshold", threshold, "at", base)
-      )
+      (base + cut_digit / 1000) |>
+        round_down_from(2, threshold = threshold) |>
+        expect_equal(
+          base + dplyr::if_else(cut_digit > threshold, 0.01, 0),
+          label = paste("`round_down_from()`, threshold", threshold, "at", base)
+        )
     }
   }
 })
@@ -181,10 +183,10 @@ test_that("`threshold` is rejected outside of the interval it has to lie in", {
   # rescaling loop in `bound_numerators()`:
   0.1445 |> reround(3, "up_from", threshold = 4.5) |> expect_equal(0.145)
   # `"up_from"`'s lower bound is `threshold - 10` units of 1/10^(digits + 1):
-  expect_equal(
-    unround("0.53", rounding = "up_from", threshold = 4.5)$lower,
-    0.53 - 0.0055
-  )
+  "0.53" |>
+    unround(rounding = "up_from", threshold = 4.5) |>
+    purrr::pluck("lower") |>
+    expect_equal(0.53 - 0.0055)
   # A threshold of 5 is a valid specification, not a missing one. It used to
   # throw an error, on the theory that it could only be the argument's default
   # value showing through -- so any caller that computed a threshold failed
@@ -211,8 +213,8 @@ test_that("`round_ceiling()` and `round_floor()` are exact at whole steps", {
   # and takes anything else to the next step away from zero:
   x |> round_anti_trunc(2) |> expect_equal(x)
   -x |> round_anti_trunc(2) |> expect_equal(-x)
-  expect_equal(round_anti_trunc(x[-1] - 0.005, 2), x[-1])
-  expect_equal(round_anti_trunc(-(x[-1] - 0.005), 2), -x[-1])
+  (x[-1] - 0.005)  |> round_anti_trunc(2) |> expect_equal(x[-1])
+  -(x[-1] - 0.005) |> round_anti_trunc(2) |> expect_equal(-x[-1])
 
   # The individual cases that used to fail:
   0.28 |> round_ceiling(2) |> expect_equal(0.28)
@@ -233,13 +235,13 @@ test_that("all rounding functions share the same tolerance", {
   x <- seq(0, 1000) / 100
 
   # Ties are ties whichever way the shifted value happens to be represented:
-  expect_equal(round_up(x + 0.005, 2), round_ceiling(x + 0.001, 2))
-  expect_equal(round_down(x + 0.005, 2), round_floor(x + 0.001, 2))
+  (x + 0.005) |> round_up(2)   |> expect_equal(round_ceiling(x + 0.001, 2))
+  (x + 0.005) |> round_down(2) |> expect_equal(round_floor(x + 0.001, 2))
 
   # The one case in which the tolerance is visible at all, at both families:
   0.145 |> round_up(2)   |> expect_equal(0.15)
   0.145 |> round_down(2) |> expect_equal(0.14)
-  expect_equal(round_ceiling(0.145 - 0.005, 2), 0.14)
+  (0.145 - 0.005) |> round_ceiling(2) |> expect_equal(0.14)
 })
 
 
@@ -351,9 +353,9 @@ test_that("the default `symmetric` still passes, and names the alternative", {
 
   # ...and it is the string that does what the rejected combination looked like
   # it was asking for. Hand-computed:
-  reround(-2.5, 0, "ties_up")   |> expect_equal(-2)
-  reround(-2.5, 0, "ties_away") |> expect_equal(-3)
-  reround(-2.5, 0, "up", symmetric = TRUE) |> expect_equal(-3)
+  -2.5 |> reround(0, "ties_up")              |> expect_equal(-2)
+  -2.5 |> reround(0, "ties_away")            |> expect_equal(-3)
+  -2.5 |> reround(0, "up", symmetric = TRUE) |> expect_equal(-3)
 })
 
 test_that("`reround()` takes one rounding procedure, not a vector of them", {
@@ -391,7 +393,7 @@ test_that("`round_up_from()` and `round_down_from()` validate `threshold`", {
 
 test_that("the exported functions reject an invalid `symmetric`", {
   # These used to fail in `if ()` with base R's messages:
-  round_up(1.25, 1, symmetric = NA) |> expect_error("`TRUE` or `FALSE`")
-  round_down(1.25, 1, symmetric = c(TRUE, FALSE)) |> expect_error("`TRUE` or `FALSE`")
-  round_up_from(1.25, 1, 5, symmetric = "yes") |> expect_error("`TRUE` or `FALSE`")
+  1.25 |> round_up(1, symmetric = NA)               |> expect_error("`TRUE` or `FALSE`")
+  1.25 |> round_down(1, symmetric = c(TRUE, FALSE)) |> expect_error("`TRUE` or `FALSE`")
+  1.25 |> round_up_from(1, 5, symmetric = "yes")    |> expect_error("`TRUE` or `FALSE`")
 })

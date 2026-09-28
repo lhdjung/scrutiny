@@ -179,8 +179,8 @@ df2_tested <- df2 |> grim_map_total_n(digits_x = 2, dispersion = 0:5)
 
 
 test_that("The output is a tibble", {
-  expect_s3_class(df1_tested, "tbl_df")
-  expect_s3_class(df2_tested, "tbl_df")
+  df1_tested |> expect_s3_class("tbl_df")
+  df2_tested |> expect_s3_class("tbl_df")
 })
 
 test_that("It has correct dimensions", {

@@ -69,27 +69,30 @@ with_track_diff_var <- list(
 # Testing -----------------------------------------------------------------
 
 test_that("it works with the defaults", {
-  seq_disperse(25)        |> expect_equal(basic1_exp)
-  seq_disperse_df(25)     |> expect_equal(basic1_df_exp)
-  seq_disperse("4.56")    |> expect_equal(basic2_exp)
-  seq_disperse_df("4.56") |> expect_equal(basic2_df_exp)
+  25     |> seq_disperse()    |> expect_equal(basic1_exp)
+  25     |> seq_disperse_df() |> expect_equal(basic1_df_exp)
+  "4.56" |> seq_disperse()    |> expect_equal(basic2_exp)
+  "4.56" |> seq_disperse_df() |> expect_equal(basic2_df_exp)
 })
 
 test_that("it works when overriding some of the defaults", {
-  seq_disperse(
-    75, out_max = 77,
-    include_reported = FALSE, track_diff_var = TRUE
-  ) |>
+  75 |>
+    seq_disperse(
+      out_max = 77,
+      include_reported = FALSE, track_diff_var = TRUE
+    ) |>
     expect_equal(with_out_max_exp)
-  seq_disperse_df(
-    75, .out_max = 77,
-    .include_reported = FALSE, .track_diff_var = TRUE
-  ) |>
+  75 |>
+    seq_disperse_df(
+      .out_max = 77,
+      .include_reported = FALSE, .track_diff_var = TRUE
+    ) |>
     expect_equal(with_out_max_df_exp)
-  seq_disperse(
-    from = 0.6, dispersion = c(3, 5, 6),
-    track_diff_var = TRUE, include_reported = FALSE
-  ) |>
+  0.6 |>
+    seq_disperse(
+      dispersion = c(3, 5, 6),
+      track_diff_var = TRUE, include_reported = FALSE
+    ) |>
     expect_equal(with_track_diff_var)
 })
 
@@ -100,7 +103,7 @@ test_that("`seq_disperse_df()` evaluates the dots where they were written", {
     my_n <- 45
     seq_disperse_df(.from = 4.02, n = my_n, .dispersion = 1)
   }
-  add_n()$n |> expect_equal(c(45, 45, 45))
+  add_n() |> purrr::pluck("n") |> expect_equal(c(45, 45, 45))
 })
 
 # The sequence must stay on the decimal level given by `by` (or, if `by` is not
@@ -108,25 +111,28 @@ test_that("`seq_disperse_df()` evaluates the dots where they were written", {
 # arithmetic used to break this: `3.14 - (305 * 0.01)` is `0.0899999999999999`
 # rather than `0.09`. See issue #83.
 test_that("long dispersion sequences stay on their decimal level", {
-  seq_disperse(
-    from = 3.14, dispersion = 1:305,
-    string_output = FALSE, include_reported = FALSE
-  ) |>
+  3.14 |>
+    seq_disperse(
+      dispersion = 1:305,
+      string_output = FALSE, include_reported = FALSE
+    ) |>
     decimal_places() |>
     max() |>
     expect_equal(2L)
 
-  seq_disperse(
-    from = 3.14, dispersion = 305,
-    string_output = FALSE, include_reported = FALSE
-  ) |>
+  3.14 |>
+    seq_disperse(
+      dispersion = 305,
+      string_output = FALSE, include_reported = FALSE
+    ) |>
     expect_equal(c(0.09, 6.19))
 
   # Same for a manually specified `by` with fewer decimal places than `from`:
-  seq_disperse(
-    from = 3.14, by = 0.1, dispersion = 31, out_min = NULL,
-    string_output = FALSE, include_reported = FALSE
-  ) |>
+  3.14 |>
+    seq_disperse(
+      by = 0.1, dispersion = 31, out_min = NULL,
+      string_output = FALSE, include_reported = FALSE
+    ) |>
     expect_equal(c(0.04, 6.24))
 })
 
@@ -134,10 +140,12 @@ test_that("long dispersion sequences stay on their decimal level", {
 test_that("a zero step doesn't repeat the value it disperses from", {
   # Each value in `dispersion` is a number of steps taken both up and down, so a
   # step of 0 used to add `from` twice on top of `include_reported`.
-  seq_disperse(from = 4.02, dispersion = 0) |> expect_equal("4.02")
-  seq_disperse(from = 4.02, dispersion = 0, include_reported = FALSE) |>
+  4.02 |> seq_disperse(dispersion = 0) |> expect_equal("4.02")
+  4.02 |>
+    seq_disperse(dispersion = 0, include_reported = FALSE) |>
     expect_equal(character(0))
-  seq_disperse(from = 4.02, dispersion = c(0, 1)) |>
+  4.02 |>
+    seq_disperse(dispersion = c(0, 1)) |>
     expect_equal(c("4.01", "4.02", "4.03"))
 })
 
@@ -147,28 +155,27 @@ test_that("a zero step doesn't repeat the value it disperses from", {
 # and `out_max = 25`, the steps down landed on `29`, `28`, ..., all above the
 # maximum, and all kept.
 test_that("both limits apply to both sides of the sequence", {
-  seq_disperse(30, out_max = 25, include_reported = FALSE) |>
-    expect_equal("25")
-  seq_disperse(30, out_max = 24, include_reported = FALSE) |>
-    expect_equal(character(0))
-  seq_disperse(30, out_max = 27, include_reported = FALSE) |>
-    expect_equal(c("25", "26", "27"))
-  seq_disperse(30, out_min = 33, include_reported = FALSE) |>
-    expect_equal(c("33", "34", "35"))
+  30 |> seq_disperse(out_max = 25, include_reported = FALSE) |> expect_equal("25")
+  30 |> seq_disperse(out_max = 24, include_reported = FALSE) |> expect_equal(character(0))
+  30 |> seq_disperse(out_max = 27, include_reported = FALSE) |> expect_equal(c("25", "26", "27"))
+  30 |> seq_disperse(out_min = 33, include_reported = FALSE) |> expect_equal(c("33", "34", "35"))
   # The limits apply after the offset, since that is what moves the values:
-  seq_disperse(30, offset_from = 10, out_max = 42, include_reported = FALSE) |>
+  30 |>
+    seq_disperse(offset_from = 10, out_max = 42, include_reported = FALSE) |>
     expect_equal(c("35", "36", "37", "38", "39", "41", "42"))
 })
 
 
 test_that("`seq_disperse()` checks `dispersion` and the limits", {
   # A fractional step used to be taken and then padded off the decimal level:
-  seq_disperse(4, dispersion = 1.5) |> expect_error("whole numbers")
+  4 |> seq_disperse(dispersion = 1.5) |> expect_error("whole numbers")
   # `from` with more decimal places than `by` failed in `restore_zeros()`:
-  seq_disperse(0.35, by = 0.1, dispersion = 1:2) |>
+  0.35 |>
+    seq_disperse(by = 0.1, dispersion = 1:2) |>
     expect_equal(c("0.15", "0.25", "0.35", "0.45", "0.55"))
   # A string limit was compared as a string, so `"9" > "10"`:
-  seq_disperse(8, dispersion = 1:3, out_max = "10") |>
+  8 |>
+    seq_disperse(dispersion = 1:3, out_max = "10") |>
     expect_equal(c("5", "6", "7", "8", "9", "10"))
-  seq_disperse(4, out_min = NA) |> expect_error("single number")
+  4 |> seq_disperse(out_min = NA) |> expect_error("single number")
 })

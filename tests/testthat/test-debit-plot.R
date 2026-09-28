@@ -49,7 +49,7 @@ test_that("`debit_plot()` returns the plot instead of printing it", {
     debit_plot()
   )))
 
-  expect_s3_class(p, "ggplot")
+  p |> expect_s3_class("ggplot")
 })
 
 test_that("rectangles are sized per row, and `NA` rows are dropped out loud", {
@@ -77,7 +77,7 @@ test_that("rectangles are sized per row, and `NA` rows are dropped out loud", {
     debit_map(digits_x = 2, digits_sd = 2)
   
   expect_warning(p <- debit_plot(data_na), "Dropping 1 value set")
-  expect_s3_class(p, "ggplot")
+  p |> expect_s3_class("ggplot")
 })
 
 
@@ -88,8 +88,8 @@ test_that("the band between the DEBIT lines is clipped, not cut off", {
     show_labels = FALSE
   )
   band <- ggplot2::ggplot_build(p)$data[[1L]]
-  anyNA(band$ymin) |> expect_false()
-  anyNA(band$ymax) |> expect_false()
+  band$ymin |> anyNA() |> expect_false()
+  band$ymax |> anyNA() |> expect_false()
 })
 
 

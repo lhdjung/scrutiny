@@ -29,8 +29,8 @@ test_that("`n_min` controls the dimensions correctly", {
 test_that("`dispersion` must consist of whole numbers", {
   # `n_change` used to be truncated toward zero by `as.integer()`, so a
   # fractional step left `n` and `n_change` describing different things.
-  disperse(n = 10, dispersion = c(0.5, 1.5)) |> expect_error("whole numbers")
-  disperse(n = 10, dispersion = 1.5)         |> expect_error("whole numbers")
+  10 |> disperse(dispersion = c(0.5, 1.5)) |> expect_error("whole numbers")
+  10 |> disperse(dispersion = 1.5)         |> expect_error("whole numbers")
 })
 
 test_that("`n` and `n_change` agree", {
@@ -44,28 +44,30 @@ test_that("`n` is integer, as it is in the mappers", {
   # The dispersion helpers that feed them, and the reverse function that reads
   # their output back, returned doubles -- so the column changed type on the
   # way in and back out again.
-  disperse(20)$n         |> expect_type("integer")
-  disperse2(c(25, 26))$n |> expect_type("integer")
-  disperse_total(40)$n   |> expect_type("integer")
-  disperse_total(51)$n   |> expect_type("integer")
-  disperse(20)$n_change  |> expect_type("integer")
+  20        |> disperse()       |> purrr::pluck("n")        |> expect_type("integer")
+  c(25, 26) |> disperse2()      |> purrr::pluck("n")        |> expect_type("integer")
+  40        |> disperse_total() |> purrr::pluck("n")        |> expect_type("integer")
+  51        |> disperse_total() |> purrr::pluck("n")        |> expect_type("integer")
+  20        |> disperse()       |> purrr::pluck("n_change") |> expect_type("integer")
 
-  reverse_map_total_n(
-    grim_map_total_n(tibble::tibble(x1 = 4.52, x2 = 5.23, n = 40L),
-                     digits_x = 2)
-  )$n |>
+  tibble::tibble(x1 = 4.52, x2 = 5.23, n = 40L) |>
+    grim_map_total_n(digits_x = 2) |>
+    reverse_map_total_n() |>
+    purrr::pluck("n") |>
     expect_type("integer")
 
   # The values themselves are unchanged:
-  disperse(20)$n |> expect_equal(c(20L, 20L, 19L, 21L, 18L, 22L, 17L, 23L,
-                                   16L, 24L, 15L, 25L))
+  20 |>
+    disperse() |>
+    purrr::pluck("n") |>
+    expect_equal(c(20L, 20L, 19L, 21L, 18L, 22L, 17L, 23L, 16L, 24L, 15L, 25L))
 })
 
 
 test_that("`disperse_total()` requires a whole-number total", {
   # `disperse_total(7.5)` used to return group sizes of 3.25 and 4.25.
-  disperse_total(7.5) |> expect_error("whole number")
-  disperse_total(NA)  |> expect_error("whole number")
+  7.5 |> disperse_total() |> expect_error("whole number")
+  NA  |> disperse_total() |> expect_error("whole number")
 })
 
 
@@ -74,6 +76,6 @@ test_that("`disperse_total()` returns no rows if the limits leave no pairs", {
   out_odd <- disperse_total(51, n_min = 30)
   out_even <- disperse_total(50, n_min = 30)
   out_odd |> expect_equal(out_even)
-  nrow(out_odd) |> expect_equal(0L)
-  disperse_total(1) |> nrow() |> expect_equal(0L)
+  out_odd |> nrow() |> expect_equal(0L)
+  1 |> disperse_total() |> nrow() |> expect_equal(0L)
 })

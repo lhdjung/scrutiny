@@ -5,8 +5,9 @@ data_grim <- grim_map(pigs1, digits_x = 2)
 audit_grim <- audit(data_grim)
 
 test_that("`audit()` summarizes GRIM tests accurately", {
-  expect_s3_class(audit_grim, "data.frame")
-  as.numeric(audit_grim$all_cases - audit_grim$incons_cases) |>
+  audit_grim |> expect_s3_class("data.frame")
+  (audit_grim$all_cases - audit_grim$incons_cases) |>
+    as.numeric() |>
     expect_equal(length(data_grim$consistency[data_grim$consistency]))
 })
 
@@ -16,8 +17,8 @@ data_debit <- debit_map(pigs3, digits_x = 2, digits_sd = 2)
 audit_debit <- audit(data_debit)
 
 test_that("`audit()` summarizes DEBIT tests accurately", {
-  as.numeric(audit_debit$incons_cases) |> expect_equal(1)
-  as.numeric(audit_debit$all_cases) |> dplyr::near(7) |> expect_true()
+  audit_debit$incons_cases |> as.numeric() |> expect_equal(1)
+  audit_debit$all_cases    |> as.numeric() |> dplyr::near(7) |> expect_true()
   audit_debit$incons_rate |> round(3) |> dplyr::near(0.143) |> expect_true()
 })
 
@@ -156,7 +157,9 @@ test_that("`audit_seq()` orders its columns by `var`", {
   out <- pigs5[1:3, ] |>
     grimmer_map_seq(digits_x = 2, digits_sd = 2, var = c("sd", "x", "n")) |>
     audit_seq()
-  grep("^hits_", colnames(out), value = TRUE) |>
+  out |>
+    colnames() |>
+    grep(pattern = "^hits_", value = TRUE) |>
     expect_equal(c("hits_total", "hits_sd", "hits_x", "hits_n"))
 })
 
@@ -179,10 +182,8 @@ test_that("`audit_seq()` results don't depend on the order of `var`", {
 # the whole table.
 
 test_that("`audit()` summarizes the decidable cases despite an undecidable one", {
-  out <- grim_map(
-    tibble::tibble(x = c(7.22, 5.19), n = c(38, NA)),
-    digits_x = 2
-  ) |>
+  out <- tibble::tibble(x = c(7.22, 5.19), n = c(38, NA)) |>
+    grim_map(digits_x = 2) |>
     audit()
 
   out$mean_grim_prob |> is.na() |> expect_false()
@@ -194,16 +195,16 @@ test_that("`audit()` summarizes the decidable cases despite an undecidable one",
 
 test_that("undecidable cases don't dilute `incons_to_prob`", {
   df <- tibble::tibble(x = 5.19, n = c(28, 28, NA, NA))
-  audit(grim_map(df, digits_x = 2))$incons_to_prob |>
+  df |>
+    grim_map(digits_x = 2) |>
+    audit() |>
+    purrr::pluck("incons_to_prob") |>
     expect_equal(audit(grim_map(df[1:2, ], digits_x = 2))$incons_to_prob)
 })
 
 test_that("`audit()` on DEBIT output ignores missing values in its means", {
-  out <- debit_map(
-    tibble::tibble(x = c(0.53, NA), sd = c(0.5, 0.5), n = c(1683L, 1683L)),
-    digits_x = 2,
-    digits_sd = 2
-  ) |>
+  out <- tibble::tibble(x = c(0.53, NA), sd = c(0.5, 0.5), n = c(1683L, 1683L)) |>
+    debit_map(digits_x = 2, digits_sd = 2) |>
     audit()
 
   out$mean_x |> is.na() |> expect_false()

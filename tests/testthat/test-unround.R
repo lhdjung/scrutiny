@@ -1,4 +1,5 @@
-df1 <- unround(c(3.6, "5.20", 5.174)) |>
+df1 <- c(3.6, "5.20", 5.174) |>
+  unround() |>
   suppressMessages()
 
 
@@ -93,10 +94,10 @@ test_that("`unround()` bounds agree with the rounding they invert", {
         dplyr::near(0.53) |>
         any()
     }
-    expect_true(rounds_to_x(bounds$lower + eps), label = paste(m, "inside lower"))
-    expect_true(rounds_to_x(bounds$upper - eps), label = paste(m, "inside upper"))
-    expect_false(rounds_to_x(bounds$lower - eps), label = paste(m, "beyond lower"))
-    expect_false(rounds_to_x(bounds$upper + eps), label = paste(m, "beyond upper"))
+    (bounds$lower + eps) |> rounds_to_x() |> expect_true(label = paste(m, "inside lower"))
+    (bounds$upper - eps) |> rounds_to_x() |> expect_true(label = paste(m, "inside upper"))
+    (bounds$lower - eps) |> rounds_to_x() |> expect_false(label = paste(m, "beyond lower"))
+    (bounds$upper + eps) |> rounds_to_x() |> expect_false(label = paste(m, "beyond upper"))
   }
 })
 
@@ -186,49 +187,39 @@ test_that("`unround()` bounds agree with the rounding they invert (sweep)", {
             if (bounds$lower == bounds$upper) {
               expect_equal(m, "anti_trunc")
               expect_equal(x_num, 0)
-              expect_true(rounds_to_x(x_num), label = paste(label, "- at point"))
+              x_num |> rounds_to_x() |> expect_true(label = paste(label, "- at point"))
               expect_true(bounds$incl_lower && bounds$incl_upper)
-              expect_false(
-                rounds_to_x(x_num + eps),
-                label = paste(label, "- beyond upper")
-              )
-              expect_false(
-                rounds_to_x(x_num - eps),
-                label = paste(label, "- beyond lower")
-              )
+              (x_num + eps) |>
+                rounds_to_x() |>
+                expect_false(label = paste(label, "- beyond upper"))
+              (x_num - eps) |>
+                rounds_to_x() |>
+                expect_false(label = paste(label, "- beyond lower"))
               next
             }
 
             # Position of the bounds:
-            expect_true(
-              rounds_to_x(bounds$lower + eps),
-              label = paste(label, "- inside lower")
-            )
-            expect_true(
-              rounds_to_x(bounds$upper - eps),
-              label = paste(label, "- inside upper")
-            )
-            expect_false(
-              rounds_to_x(bounds$lower - eps),
-              label = paste(label, "- beyond lower")
-            )
-            expect_false(
-              rounds_to_x(bounds$upper + eps),
-              label = paste(label, "- beyond upper")
-            )
+            (bounds$lower + eps) |>
+              rounds_to_x() |>
+              expect_true(label = paste(label, "- inside lower"))
+            (bounds$upper - eps) |>
+              rounds_to_x() |>
+              expect_true(label = paste(label, "- inside upper"))
+            (bounds$lower - eps) |>
+              rounds_to_x() |>
+              expect_false(label = paste(label, "- beyond lower"))
+            (bounds$upper + eps) |>
+              rounds_to_x() |>
+              expect_false(label = paste(label, "- beyond upper"))
 
             # Inclusivity of the bounds:
             if (m %in% methods_exact) {
-              expect_equal(
-                rounds_to_x(bounds$lower),
-                bounds$incl_lower,
-                label = paste(label, "- on lower")
-              )
-              expect_equal(
-                rounds_to_x(bounds$upper),
-                bounds$incl_upper,
-                label = paste(label, "- on upper")
-              )
+              bounds$lower |>
+                rounds_to_x() |>
+                expect_equal(bounds$incl_lower, label = paste(label, "- on lower"))
+              bounds$upper |>
+                rounds_to_x() |>
+                expect_equal(bounds$incl_upper, label = paste(label, "- on upper"))
             }
           }
         }
@@ -268,7 +259,9 @@ test_that("`threshold` only affects the `*_from` rounding methods", {
     expect_equal(from_5$upper, 0.535)
   }
   # ...whereas the parameterized methods do respond to it:
-  unround("0.53", rounding = "up_from", threshold = 6)$lower |>
+  "0.53" |>
+    unround(rounding = "up_from", threshold = 6) |>
+    purrr::pluck("lower") |>
     expect_equal(0.526)
 })
 
@@ -295,15 +288,21 @@ test_that("`\"anti_trunc\"` bounds match `round_anti_trunc()`", {
   bounds_positive <- unround("0.7", rounding = "anti_trunc")
   expect_false(bounds_positive$incl_lower)
   expect_true(bounds_positive$incl_upper)
-  expect_equal(round_anti_trunc(bounds_positive$upper, 1), 0.7)
-  expect_false(round_anti_trunc(bounds_positive$lower, 1) == 0.7)
+  bounds_positive$upper |> round_anti_trunc(1) |> expect_equal(0.7)
+  bounds_positive$lower |>
+    round_anti_trunc(1) |>
+    call_on(\(x) x == 0.7) |>
+    expect_false()
 
   # ...and `round_floor()` below zero, which reaches it from above:
   bounds_negative <- unround("-0.7", rounding = "anti_trunc")
   expect_true(bounds_negative$incl_lower)
   expect_false(bounds_negative$incl_upper)
-  expect_equal(round_anti_trunc(bounds_negative$lower, 1), -0.7)
-  expect_false(round_anti_trunc(bounds_negative$upper, 1) == -0.7)
+  bounds_negative$lower |> round_anti_trunc(1) |> expect_equal(-0.7)
+  bounds_negative$upper |>
+    round_anti_trunc(1) |>
+    call_on(\(x) x == -0.7) |>
+    expect_false()
 })
 
 
@@ -318,14 +317,14 @@ test_that("`\"anti_trunc\"` at zero is a single point, not an undefined range", 
   expect_equal(bounds$upper, 0)
   expect_true(bounds$incl_lower)
   expect_true(bounds$incl_upper)
-  expect_equal(round_anti_trunc(0, 2), 0)
-  expect_false(round_anti_trunc(0.001, 2) == 0)
-  expect_false(round_anti_trunc(-0.001, 2) == 0)
+  0      |> round_anti_trunc(2) |> expect_equal(0)
+  0.001  |> round_anti_trunc(2) |> call_on(\(x) x == 0) |> expect_false()
+  -0.001 |> round_anti_trunc(2) |> call_on(\(x) x == 0) |> expect_false()
 
   # It follows that a mean of zero pins the sum to exactly zero, so GRIM is
   # decidable there rather than `NA`, and consistent only for all-zero data:
-  expect_true(grim(0, n = 40, digits_x = 2, rounding = "anti_trunc"))
-  expect_false(grim(0.01, n = 40, digits_x = 2, rounding = "anti_trunc"))
+  0    |> grim(n = 40, digits_x = 2, rounding = "anti_trunc") |> expect_true()
+  0.01 |> grim(n = 40, digits_x = 2, rounding = "anti_trunc") |> expect_false()
 })
 
 
@@ -525,16 +524,18 @@ test_that("a threshold cannot make a consistency test decide nothing", {
   for (n in c(28, 57)) {
     at_5 <- sum(grim(x, n, digits_x = 2, rounding = "up_or_down"))
     for (threshold in c(1, 3, 7, 9)) {
-      expect_equal(
-        sum(grim(
-          x, n,
+      x |>
+        grim(
+          n,
           digits_x = 2,
           rounding = "up_from_or_down_from",
           threshold = threshold
-        )),
-        at_5,
-        label = paste("`grim()` at n =", n, "| threshold =", threshold)
-      )
+        ) |>
+        sum() |>
+        expect_equal(
+          at_5,
+          label = paste("`grim()` at n =", n, "| threshold =", threshold)
+        )
     }
   }
 })
@@ -543,18 +544,18 @@ test_that("a threshold cannot make a consistency test decide nothing", {
 test_that("`x` must fit into a given `digits`", {
   # `unround(1.234, digits = 1)` used to give `1.18 <= x(1.234) <= 1.28`: the
   # bounds of `x` rounded to `digits`, labeled with the unrounded `x`.
-  unround(1.234, digits = 1)   |> expect_error("more decimal places")
-  unround("1.234", digits = 2) |> expect_error("more decimal places")
-  unround(c(1.2, 1.23), digits = 2)$lower |> expect_equal(c(1.195, 1.225))
+  1.234        |> unround(digits = 1) |> expect_error("more decimal places")
+  "1.234"      |> unround(digits = 2) |> expect_error("more decimal places")
+  c(1.2, 1.23) |> unround(digits = 2) |> purrr::pluck("lower") |> expect_equal(c(1.195, 1.225))
 
   # Trailing zeros in a string are not extra decimal places of the value:
-  unround("4.50", digits = 1)$lower |> expect_equal(4.45)
+  "4.50" |> unround(digits = 1) |> purrr::pluck("lower") |> expect_equal(4.45)
 })
 
 
 test_that("`digits` is checked, and an infinite `x` has no bounds", {
-  unround("1.25", digits = 2.5) |> expect_error("whole numbers")
-  unround("1.25", digits = "2") |> expect_error("whole numbers")
+  "1.25" |> unround(digits = 2.5) |> expect_error("whole numbers")
+  "1.25" |> unround(digits = "2") |> expect_error("whole numbers")
   
   # `Inf <= x(Inf) <= Inf` used to be the answer for a numeric infinity:
   out <- unround(Inf, digits = 1)

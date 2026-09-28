@@ -29,9 +29,9 @@ test_that("the internal-only arguments are gone from the exported functions", {
   # function it wraps. A user who took the invitation got an unnamed matrix of
   # lists, one column per value set, rather than the logical vector these
   # functions promise.
-  expect_false("show_rec" %in% names(formals(grim)))
-  expect_false("show_reason" %in% names(formals(grimmer)))
-  expect_false("show_rec" %in% names(formals(debit)))
+  grim    |> formals() |> rlang::has_name("show_rec")    |> expect_false()
+  grimmer |> formals() |> rlang::has_name("show_reason") |> expect_false()
+  debit   |> formals() |> rlang::has_name("show_rec")    |> expect_false()
 
   5.19 |> grim(n = 28, digits_x = 2, show_rec = TRUE) |> expect_error()
   0.36 |>
@@ -42,9 +42,9 @@ test_that("the internal-only arguments are gone from the exported functions", {
     expect_error()
 
   # The mapper tier still has them, under its own defaults:
-  expect_true("show_rec" %in% names(formals(grim_map)))
-  expect_true("show_reason" %in% names(formals(grimmer_map)))
-  expect_true("show_rec" %in% names(formals(debit_map)))
+  grim_map    |> formals() |> rlang::has_name("show_rec")    |> expect_true()
+  grimmer_map |> formals() |> rlang::has_name("show_reason") |> expect_true()
+  debit_map   |> formals() |> rlang::has_name("show_rec")    |> expect_true()
 })
 
 
@@ -54,24 +54,24 @@ test_that("the return value is a logical vector, whatever the arguments", {
     args <- args_valid[[name_fn]]
 
     out <- do.call(fn, args)
-    expect_type(out, "logical")
-    expect_length(out, 1L)
-    expect_named(out, NULL)
+    out |> expect_type("logical")
+    out |> expect_length(1L)
+    out |> expect_named(NULL)
 
     # Several value sets at once:
     args_many <- args
     args_many$x <- rep(args$x, 3L)
     out_many <- do.call(fn, args_many)
-    expect_type(out_many, "logical")
-    expect_length(out_many, 3L)
+    out_many |> expect_type("logical")
+    out_many |> expect_length(3L)
 
     # No value set at all. `Vectorize()` returned an empty *list* here, because
     # `mapply()` has nothing to simplify:
     args_none <- args
     args_none$x <- numeric(0L)
     out_none <- do.call(fn, args_none)
-    expect_type(out_none, "logical")
-    expect_length(out_none, 0L)
+    out_none |> expect_type("logical")
+    out_none |> expect_length(0L)
   }
 })
 
@@ -91,7 +91,7 @@ test_that("the key arguments are recycled against each other", {
       # `items` is not in `args_valid`, so it comes from the default:
       value <- if (is.null(args_rep[[name_arg]])) 1 else args_rep[[name_arg]]
       args_rep[[name_arg]] <- rep(value, 3L)
-      expect_equal(do.call(fn, args_rep), rep(out_1, 3L))
+      do.call(fn, args_rep) |> expect_equal(rep(out_1, 3L))
     }
   }
 })
@@ -151,7 +151,7 @@ test_that("arguments that describe the test as a whole must be length 1", {
     for (name_arg in names(args_scalar[[name_fn]])) {
       args <- args_valid[[name_fn]]
       args[[name_arg]] <- args_scalar[[name_fn]][[name_arg]]
-      expect_error(do.call(fn, args), "must be length 1")
+      do.call(fn, args) |> expect_error("must be length 1")
     }
   }
 
@@ -170,7 +170,7 @@ test_that("`NULL` still works where an argument takes it", {
     min_val = NULL, max_val = NULL
   )
   out_default <- grimmer(x = 5.23, sd = 2.55, n = 31, digits_x = 2, digits_sd = 2)
-  expect_equal(out_null, out_default)
+  out_null |> expect_equal(out_default)
 })
 
 

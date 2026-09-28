@@ -39,8 +39,8 @@ test_that("`items` is not multiplied into the reconstructed total", {
   out <- grim_map_total_n(df, digits_x = 2, items = 2)
   out$n[1:2] |> expect_equal(c(35L, 36L))
   out$items |> unique() |> expect_equal(2)
-  reverse_map_total_n(out) |> expect_equal(df)
-  audit_total_n(out)$n |> expect_equal(71L)
+  out |> reverse_map_total_n() |> expect_equal(df)
+  out |> audit_total_n() |> purrr::pluck("n") |> expect_equal(71L)
 })
 
 
@@ -52,7 +52,7 @@ test_that("0-row output is reconstructed as 0 rows, keeping column types", {
   )
   out$x |> expect_type("double")
   rec <- reverse_map_total_n(out)
-  nrow(rec) |> expect_equal(0L)
+  rec |> nrow() |> expect_equal(0L)
   rec$x1 |> expect_type("double")
-  audit_total_n(out) |> nrow() |> expect_equal(0L)
+  out |> audit_total_n() |> nrow() |> expect_equal(0L)
 })

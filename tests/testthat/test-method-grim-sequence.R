@@ -1,4 +1,5 @@
-ranking <- seq_distance_df(5.37, n = 40, .string_output = FALSE) |>
+ranking <- 5.37 |>
+  seq_distance_df(n = 40, .string_output = FALSE) |>
   grim_map(digits_x = 2) |>
   seq_test_ranking() |>
   suppressMessages()
@@ -20,7 +21,8 @@ test_that("Values are correct", {
 })
 
 test_that("A tested sequence is recognized as one, and other data is not", {
-  seq_distance_df(5.37, n = 40, .string_output = FALSE) |>
+  5.37 |>
+    seq_distance_df(n = 40, .string_output = FALSE) |>
     grim_map(digits_x = 2) |>
     seq_test_ranking(explain = FALSE) |>
     expect_no_warning()

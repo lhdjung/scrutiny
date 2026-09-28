@@ -25,7 +25,7 @@ vec1_expected <- c(f, f, t, f, f, f, t, f, f, f, t, f)
 
 
 test_that("Correct values are returned (basic)", {
-  expect_equal(vec1_tested, vec1_expected)
+  vec1_tested |> expect_equal(vec1_expected)
 })
 
 
@@ -48,8 +48,8 @@ vec3_expected <- c(t, f, t, f, t, f, t, t, t, t)
 
 
 test_that("Correct values are returned (`items` argument)", {
-  expect_equal(vec2_tested, vec2_expected)
-  expect_equal(vec3_tested, vec3_expected)
+  vec2_tested |> expect_equal(vec2_expected)
+  vec3_tested |> expect_equal(vec3_expected)
 })
 
 
@@ -71,8 +71,8 @@ vec5_expected <- c(t, f, t, f, t, f, t, f, t, f, t)
 
 
 test_that("Correct values are returned (`percent` argument)", {
-  expect_equal(vec4_tested, vec4_expected)
-  expect_equal(vec5_tested, vec5_expected)
+  vec4_tested |> expect_equal(vec4_expected)
+  vec5_tested |> expect_equal(vec5_expected)
 })
 
 
@@ -157,10 +157,10 @@ test_that("GRIM agrees with the rounding functions themselves", {
     n <- cases$n[i]
     rounding <- cases$rounding[i]
     x <- seq(0, 10^digits) / 10^digits
-    expect_equal(
-      unname(grim(x, n, digits_x = digits, rounding = rounding)),
-      vapply(x, oracle, logical(1), n, digits, rounding)
-    )
+    x |>
+      grim(n, digits_x = digits, rounding = rounding) |>
+      unname() |>
+      expect_equal(vapply(x, oracle, logical(1), n, digits, rounding))
   }
 })
 
@@ -186,10 +186,10 @@ test_that("`symmetric` is honored by the consistency decision", {
   # Positive values are unaffected:
   for (rounding in c("up", "down", "up_or_down")) {
     x <- seq(0, 100) / 100
-    expect_equal(
-      unname(grim(x, 40, digits_x = 2, rounding = rounding, symmetric = TRUE)),
-      unname(grim(x, 40, digits_x = 2, rounding = rounding, symmetric = FALSE))
-    )
+    x |>
+      grim(40, digits_x = 2, rounding = rounding, symmetric = TRUE) |>
+      unname() |>
+      expect_equal(unname(grim(x, 40, digits_x = 2, rounding = rounding, symmetric = FALSE)))
   }
 })
 
@@ -209,14 +209,13 @@ test_that("`symmetric` GRIM agrees with the rounding functions themselves", {
   for (rounding in c("up_or_down", "up", "down")) {
     for (n in c(4, 20, 40, 80, 160)) {
       x <- c(seq(-50, 50) / 100)
-      expect_equal(
-        unname(grim(
-          x, n,
-          digits_x = 2, rounding = rounding, symmetric = TRUE
-        )),
-        vapply(x, oracle_symmetric, logical(1), n, 2, rounding),
-        info = paste0("n = ", n, ", rounding = ", rounding)
-      )
+      x |>
+        grim(n, digits_x = 2, rounding = rounding, symmetric = TRUE) |>
+        unname() |>
+        expect_equal(
+          vapply(x, oracle_symmetric, logical(1), n, 2, rounding),
+          info = paste0("n = ", n, ", rounding = ", rounding)
+        )
     }
   }
 })
@@ -233,22 +232,22 @@ test_that("`threshold` does not affect the non-`\"*_from\"` methods", {
   for (rounding in c("up_or_down", "up", "down")) {
     baseline <- grim(x, 40, digits_x = 2, rounding = rounding)
     for (threshold in c(1, 3, 7, 9)) {
-      expect_equal(
-        unname(grim(
-          x, 40,
-          digits_x = 2, rounding = rounding, threshold = threshold
-        )),
-        unname(baseline),
-        info = paste0("rounding = ", rounding, ", threshold = ", threshold)
-      )
+      x |>
+        grim(40, digits_x = 2, rounding = rounding, threshold = threshold) |>
+        unname() |>
+        expect_equal(
+          unname(baseline),
+          info = paste0("rounding = ", rounding, ", threshold = ", threshold)
+        )
     }
   }
 
   # By contrast, `"up_from"` does respond to it:
-  expect_false(identical(
-    unname(grim(x, 40, digits_x = 2, rounding = "up_from", threshold = 1)),
-    unname(grim(x, 40, digits_x = 2, rounding = "up_from", threshold = 9))
-  ))
+  x |>
+    grim(40, digits_x = 2, rounding = "up_from", threshold = 1) |>
+    unname() |>
+    identical(unname(grim(x, 40, digits_x = 2, rounding = "up_from", threshold = 9))) |>
+    expect_false()
 })
 
 
@@ -282,14 +281,14 @@ test_that("`grim(tolerance = )` is deprecated", {
     expect_no_condition()
 
   # `debit()` has no such argument at all:
-  expect_false("tolerance" %in% names(formals(debit)))
+  debit |> formals() |> rlang::has_name("tolerance") |> expect_false()
 })
 
 
 test_that("a string `n` is an error, not an unexplained `NA`", {
-  expect_error(grim(5.19, "28", 2), "`n` must be one of these types")
+  5.19 |> grim("28", 2) |> expect_error("`n` must be one of these types")
   tibble::tibble(x = 5.19, n = "28") |>
     grim_map(digits_x = 2) |>
     expect_error("`n` must be one of these types")
-  expect_true(is.na(grim(5.19, NA, 2)))
+  5.19 |> grim(NA, 2) |> is.na() |> expect_true()
 })

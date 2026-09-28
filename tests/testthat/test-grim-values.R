@@ -5,11 +5,13 @@
 # arithmetic.
 
 test_that("`grim_values()` returns the achievable means", {
-  grim_values(5.19, 32, digits_x = 2)[[1L]] |> expect_equal(5.1875)
-  grim_values(5.19, 300, digits_x = 2)[[1L]] |>
+  5.19 |> grim_values(32, digits_x = 2) |> purrr::pluck(1L) |> expect_equal(5.1875)
+  5.19 |>
+    grim_values(300, digits_x = 2) |>
+    purrr::pluck(1L) |>
     expect_equal(c(1556, 1557, 1558) / 300)
   # No achievable mean at all if the value set is GRIM-inconsistent:
-  grim_values(5.19, 28, digits_x = 2)[[1L]] |> expect_equal(numeric(0L))
+  5.19 |> grim_values(28, digits_x = 2) |> purrr::pluck(1L) |> expect_equal(numeric(0L))
 })
 
 
@@ -48,9 +50,11 @@ test_that("`grim_values()` agrees with `grim()` itself", {
         )[[1L]]
         info <- paste0("x = ", x, ", n = ", n, ", rounding = ", rounding)
         consistency <- grim(x, n, digits_x = 2, rounding = rounding)
-        expect_equal(length(values) > 0L, consistency, info = info)
+        values |> length() |> call_on(\(x) x > 0L) |> expect_equal(consistency, info = info)
         for (value in values) {
-          reround(value, digits = 2, rounding = rounding)[1L] |>
+          value |>
+            reround(digits = 2, rounding = rounding) |>
+            purrr::pluck(1L) |>
             round(10L) |>
             expect_equal(x, info = info)
         }
@@ -82,13 +86,15 @@ test_that("`percent` returns values on the scale of `x`", {
   closest |> expect_lt(74)
   # 40% of 5 is 2 people, so this is consistent and there is one way to get
   # there. The value comes back as 40, not as 0.4:
-  grim_values(40, 5, digits_x = 0, percent = TRUE)[[1L]] |> expect_equal(40)
+  40 |> grim_values(5, digits_x = 0, percent = TRUE) |> purrr::pluck(1L) |> expect_equal(40)
   40 |> grim_closest(5, digits_x = 0, percent = TRUE) |> expect_equal(40)
 })
 
 
 test_that("`items` multiplies into the sample size", {
-  grim_values(2.84, 16, digits_x = 2, items = 2)[[1L]] |>
+  2.84 |>
+    grim_values(16, digits_x = 2, items = 2) |>
+    purrr::pluck(1L) |>
     expect_equal(grim_values(2.84, 32, digits_x = 2)[[1L]])
 })
 
@@ -98,8 +104,7 @@ test_that("undecidable cases give `NA`", {
   # tested with `rounding = "anti_trunc"` at a mean of zero, which had no
   # defined bounds either until `anti_trunc()` stopped sending zero away from
   # zero.)
-  grim_values(NA, 40, digits_x = 2)[[1L]] |>
-    expect_equal(NA_real_)
+  NA |> grim_values(40, digits_x = 2) |> purrr::pluck(1L) |> expect_equal(NA_real_)
   NA |> grim_closest(40, digits_x = 2) |> expect_equal(NA_real_)
 })
 
@@ -107,7 +112,9 @@ test_that("undecidable cases give `NA`", {
 test_that("`rounding = \"anti_trunc\"` at a mean of zero is decidable", {
   # Every non-zero value is taken away from zero, so a mean reported as 0.00
   # pins the sum to exactly 0 -- attainable only by all-zero data:
-  grim_values(0, 40, digits_x = 2, rounding = "anti_trunc")[[1L]] |>
+  0 |>
+    grim_values(40, digits_x = 2, rounding = "anti_trunc") |>
+    purrr::pluck(1L) |>
     expect_equal(0)
   0 |> grim_closest(40, digits_x = 2, rounding = "anti_trunc") |>
     expect_equal(0)
@@ -123,8 +130,8 @@ test_that("`digits_x` is required, with the bespoke error message", {
 
 
 test_that("`grim_values()` and `grim_closest()` are undecidable where `grim()` is", {
-  expect_true(is.na(grim(5.19, 20.5, 2)))
-  expect_equal(grim_values(5.19, 20.5, 2), list(NA_real_))
-  expect_equal(grim_closest(5.19, 20.5, 2), NA_real_)
-  expect_equal(grim_values(5.19, 28, 2, items = 1.5), list(NA_real_))
+  5.19 |> grim(20.5, 2)                     |> is.na() |> expect_true()
+  5.19 |> grim_values(20.5, 2)              |> expect_equal(list(NA_real_))
+  5.19 |> grim_closest(20.5, 2)             |> expect_equal(NA_real_)
+  5.19 |> grim_values(28, 2, items = 1.5)   |> expect_equal(list(NA_real_))
 })

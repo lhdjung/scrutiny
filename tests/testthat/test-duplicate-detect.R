@@ -38,7 +38,7 @@ test_that("`duplicate_detect()` works correctly with missings", {
 test_that("`duplicate_tally()` does not count missing values as matches", {
   # `x == x[i]` is `NA` against a missing value, and indexing by `NA` returns an
   # element, so every count was off by the number of missing values:
-  duplicate_tally(c(1, 1, NA))$value_n |> expect_equal(c(2L, 2L, NA))
+  c(1, 1, NA) |> duplicate_tally() |> purrr::pluck("value_n") |> expect_equal(c(2L, 2L, NA))
   out <- duplicate_tally(tibble::tibble(a = c(1, 2), b = c(1, NA)))
   out$a_n |> expect_equal(c(2L, 1L))
   out$b_n |> expect_equal(c(2L, NA))

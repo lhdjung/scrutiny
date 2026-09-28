@@ -67,12 +67,12 @@ test_that("a case whose dispersion was clipped to nothing stays aligned", {
   out <- grim_map_seq(
     df, digits_x = 1, out_min = 25, out_max = 25, include_consistent = TRUE
   )
-  expect_equal(reverse_map_seq(out), df)
+  out |> reverse_map_seq() |> expect_equal(df)
   audit <- audit_seq(out)
-  expect_equal(audit$x, df$x)
-  expect_equal(audit$n, df$n)
+  audit$x |> expect_equal(df$x)
+  audit$n |> expect_equal(df$n)
   # With both limits at 25, the only dispersed value either variable can take is
   # 25 itself, so case 3 has one candidate per variable:
-  expect_equal(audit$hits_x, c(0L, 1L, 1L))
-  expect_equal(audit$hits_n, c(1L, 0L, 1L))
+  audit$hits_x |> expect_equal(c(0L, 1L, 1L))
+  audit$hits_n |> expect_equal(c(1L, 0L, 1L))
 })

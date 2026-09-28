@@ -258,20 +258,23 @@ test_that("only the digit run after the separator counts", {
 test_that("both functions trim whitespace before reading the exponent", {
   # The exponent is matched at the end of the string, so a trailing space used
   # to hide it from `decimal_places_scalar()`.
-  "1.5e3 " |> decimal_places_scalar() |> expect_equal(0L)
+  "1.5e3 "      |> decimal_places_scalar() |> expect_equal(0L)
   "  2.75e-2  " |> decimal_places_scalar() |> expect_equal(4L)
-  "1.5e3 " |> decimal_places() |> expect_equal(0L)
+  "1.5e3 "      |> decimal_places()        |> expect_equal(0L)
 })
 
 
 test_that("sequence functions step on the right decimal level below 0.001", {
   # `decimal_places_scalar()` sets the step size in all of these. When it read
   # `1e-04` as having no decimal places, they stepped by whole numbers instead.
-  seq_endpoint(from = 0.0001, to = 0.0005) |>
+  0.0001 |>
+    seq_endpoint(to = 0.0005) |>
     expect_equal(c("0.0001", "0.0002", "0.0003", "0.0004", "0.0005"))
-  seq_disperse(from = 7.22, by = 1e-4, dispersion = 1:2) |>
+  7.22 |>
+    seq_disperse(by = 1e-4, dispersion = 1:2) |>
     expect_equal(c("7.2198", "7.2199", "7.2200", "7.2201", "7.2202"))
-  seq_distance(from = 0.0001, length_out = 3L) |>
+  0.0001 |>
+    seq_distance(length_out = 3L) |>
     expect_equal(c("0.0001", "0.0002", "0.0003"))
 })
 

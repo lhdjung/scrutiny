@@ -12,14 +12,14 @@ pigs_tested <- split_by_parens(pigs)
 
 
 test_that("The output is a tibble", {
-  expect_s3_class(pigs_tested, "tbl_df")
+  pigs_tested |> expect_s3_class("tbl_df")
 })
 
 
 colnames_expected <- c("drone_x", "drone_sd", "selfpilot_x", "selfpilot_sd")
 
 test_that("It has correct column names", {
-  expect_named(pigs_tested, colnames_expected)
+  pigs_tested |> expect_named(colnames_expected)
 })
 
 
@@ -93,12 +93,12 @@ pigs_wider <- pigs |> dplyr::mutate(letters = letters[1:4])
 
 test_that("non-`sep` columns are handled correctly with `check_sep = TRUE` (the default)", {
   expect_warning(out <- split_by_parens(pigs_wider))
-  expect_equal(ncol(out), 5L)
+  out |> ncol() |> expect_equal(5L)
 })
 
 test_that("non-`sep` columns are handled correctly with `check_sep = FALSE", {
   expect_warning(out <- split_by_parens(pigs_wider, check_sep = FALSE))
-  expect_equal(ncol(out), 6L)
+  out |> ncol() |> expect_equal(6L)
 })
 
 test_that("uneven separators, `NA`s, and column names ending on `end2` work", {
@@ -124,7 +124,7 @@ test_that("uneven separators, `NA`s, and column names ending on `end2` work", {
 test_that("the warning names the separators for every spelling of `sep`", {
   data <- tibble::tibble(a = c("1 (2)", "3 (4)"), b = c("x", "y"))
   for (sep in list("parens", "(", "\\(")) {
-    split_by_parens(data, sep = sep) |> expect_warning("i.e., parentheses")
+    data |> split_by_parens(sep = sep) |> expect_warning("i.e., parentheses")
   }
-  split_by_parens(data, sep = c("<", ">")) |> expect_warning('"<" and ">"')
+  data |> split_by_parens(sep = c("<", ">")) |> expect_warning('"<" and ">"')
 })

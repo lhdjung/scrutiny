@@ -96,17 +96,21 @@ df_grim3 <- tibble::tibble(
 
 # Running old and new (= manufactured) functions --------------------------
 
-out_grim_old1 <- grim_map(df_grim1, digits_x = 2) |>
+out_grim_old1 <- df_grim1 |>
+  grim_map(digits_x = 2) |>
   dplyr::select(x, n, consistency)
-out_debit_old1 <- debit_map(df_debit1, digits_x = 2, digits_sd = 2) |>
+out_debit_old1 <- df_debit1 |>
+  debit_map(digits_x = 2, digits_sd = 2) |>
   dplyr::select(x, sd, n, consistency)
 
 out_grim_new1 <- grim_map_alt(df_grim1, digits_x = 2)
 out_debit_new1 <- debit_map_alt(df_debit1, digits_x = 2, digits_sd = 2)
 
-out_grim_old2 <- grim_map(df_grim2, digits_x = 2) |>
+out_grim_old2 <- df_grim2 |>
+  grim_map(digits_x = 2) |>
   dplyr::select(x, n, consistency)
-out_debit_old2 <- debit_map(df_debit2, digits_x = 2, digits_sd = 2) |>
+out_debit_old2 <- df_debit2 |>
+  debit_map(digits_x = 2, digits_sd = 2) |>
   dplyr::select(x, sd, n, consistency)
 
 out_grim_new2 <- grim_map_alt(df_grim2, digits_x = 2)
@@ -162,11 +166,12 @@ test_that("a `consistency` column is not silently lost under another name", {
 })
 
 test_that("Wrong `.reported` values throw an error", {
-  function_map(
-    .fun = grim_scalar,
-    .reported = c("x", "success", "n"),
-    .name_test = "GRIM"
-  ) |> expect_error()
+  grim_scalar |>
+    function_map(
+      .reported = c("x", "success", "n"),
+      .name_test = "GRIM"
+    ) |>
+    expect_error()
 })
 
 
@@ -222,19 +227,26 @@ test_that("`.cols_helper` supports helper columns", {
   df <- tibble::tibble(x = 4.67, sd = 0.00, n = 2L, items = 3)
 
   # `items` may be a column of `data`...
-  grimmer_map(df, digits_x = 2, digits_sd = 2)$n |> expect_equal(6L)
+  df |>
+    grimmer_map(digits_x = 2, digits_sd = 2) |>
+    purrr::pluck("n") |>
+    expect_equal(6L)
   # ...or an argument, but not both if they contradict each other:
   df |> grimmer_map(digits_x = 2, digits_sd = 2, items = 5) |> expect_error()
-  grimmer_map(pigs5, digits_x = 2, digits_sd = 2, items = 2)$n |>
+  pigs5 |>
+    grimmer_map(digits_x = 2, digits_sd = 2, items = 2) |>
+    purrr::pluck("n") |>
     expect_equal(as.integer(pigs5$n * 2))
 })
 
 
 test_that("`.args_defaults` overrides the test function's own defaults", {
   # `grimmer_scalar()` has `show_reason = FALSE`, `grimmer_map()` has `TRUE`:
-  formals(grimmer_scalar)$show_reason |> expect_false()
-  formals(grimmer_map)$show_reason |> expect_true()
-  grimmer_map(pigs5, digits_x = 2, digits_sd = 2)$reason |>
+  grimmer_scalar |> formals() |> call_on(\(x) x$show_reason) |> expect_false()
+  grimmer_map    |> formals() |> call_on(\(x) x$show_reason) |> expect_true()
+  pigs5 |>
+    grimmer_map(digits_x = 2, digits_sd = 2) |>
+    purrr::pluck("reason") |>
     expect_type("character")
 })
 
@@ -259,7 +271,7 @@ test_that("arguments of the test function become real arguments", {
     .name_test = "GRIM",
     .args_disabled = "percent"
   )
-  names(formals(map_disabled)) |> expect_no_match("percent")
+  map_disabled |> formals() |> names() |> expect_no_match("percent")
   pigs1 |> map_disabled(digits_x = 2, percent = TRUE) |> expect_error()
 })
 
@@ -268,15 +280,17 @@ test_that("the `digits_*` arguments come right after `data`", {
   # They have no defaults and must be given in every call, so they sit next to
   # the other argument that must, ahead of the key arguments -- and in the same
   # position in every mapper, basic and sequence alike:
-  names(formals(grim_map))[1:2] |> expect_equal(c("data", "digits_x"))
-  names(formals(grimmer_map))[1:3] |>
+  grim_map        |> formals() |> names() |> head(2) |>
+    expect_equal(c("data", "digits_x"))
+  grimmer_map     |> formals() |> names() |> head(3) |>
     expect_equal(c("data", "digits_x", "digits_sd"))
-  names(formals(debit_map))[1:3] |>
+  debit_map       |> formals() |> names() |> head(3) |>
     expect_equal(c("data", "digits_x", "digits_sd"))
-  names(formals(grim_map_seq))[1:2] |> expect_equal(c("data", "digits_x"))
-  names(formals(grimmer_map_seq))[1:3] |>
+  grim_map_seq    |> formals() |> names() |> head(2) |>
+    expect_equal(c("data", "digits_x"))
+  grimmer_map_seq |> formals() |> names() |> head(3) |>
     expect_equal(c("data", "digits_x", "digits_sd"))
-  names(formals(debit_map_seq))[1:3] |>
+  debit_map_seq   |> formals() |> names() |> head(3) |>
     expect_equal(c("data", "digits_x", "digits_sd"))
 })
 
@@ -347,7 +361,11 @@ test_that("`.reported_variadic` decides the number of key columns at call time",
   # default, unlike them:
   sum_check_map |> formals() |> names() |>
     expect_equal(c("data", "parts", "total", "tolerance", "..."))
-  formals(sum_check_map)$parts |> rlang::is_missing() |> expect_true()
+  sum_check_map |>
+    formals() |>
+    call_on(\(x) x$parts) |>
+    rlang::is_missing() |>
+    expect_true()
 
   df <- tibble::tibble(
     item_1 = c(10, 20, 30),
@@ -371,9 +389,13 @@ test_that("`.reported_variadic` decides the number of key columns at call time",
   # the number of values that each test gets:
   df |> sum_check_map(parts = starts_with("item")) |>
     expect_equal(out)
-  sum_check_map(df, parts = c(item_1, item_2))$consistency |>
+  df |>
+    sum_check_map(parts = c(item_1, item_2)) |>
+    purrr::pluck("consistency") |>
     expect_equal(c(FALSE, FALSE, FALSE))
-  sum_check_map(df, parts = c(item_1, item_2), tolerance = 100)$consistency |>
+  df |>
+    sum_check_map(parts = c(item_1, item_2), tolerance = 100) |>
+    purrr::pluck("consistency") |>
     expect_equal(c(TRUE, TRUE, TRUE))
 
   # A column that the selection leaves out is an ordinary other column:
@@ -428,7 +450,10 @@ test_that("a variadic key argument must be specified, and must select real colum
   )
   df_items <- tibble::tibble(a = 1, b = 2, total = 3, items = 1)
   df_items |> helper_map(parts = everything()) |> expect_error("role in the test")
-  helper_map(df_items, parts = c(a, b))$consistency |> expect_true()
+  df_items |>
+    helper_map(parts = c(a, b)) |>
+    purrr::pluck("consistency") |>
+    expect_true()
 })
 
 
@@ -447,7 +472,8 @@ test_that("`.reported` may be empty if `.reported_variadic` is not", {
   out |> colnames() |> expect_equal(c("a", "b", "c", "consistency", "id"))
 
   # But one of the two must be there:
-  function_map(.fun = all_equal_scalar, .name_test = "ALLEQUAL") |>
+  all_equal_scalar |>
+    function_map(.name_test = "ALLEQUAL") |>
     expect_error("at least one column")
 })
 
@@ -472,7 +498,10 @@ test_that("`.reported_variadic` composes with the factory's other arguments", {
   )
 
   # The by-row arguments still come first, ahead of the key arguments:
-  names(formals(sum_check_map))[1:4] |>
+  sum_check_map |>
+    formals() |>
+    names() |>
+    head(4) |>
     expect_equal(c("data", "digits_total", "parts", "total"))
 
   df <- tibble::tibble(
@@ -491,60 +520,62 @@ test_that("`.reported_variadic` composes with the factory's other arguments", {
   out$rec_sum |> expect_equal(c(4, 5))
   # `.cols_derived` gets the row's values as one vector, like the test itself:
   out$n_parts |> expect_equal(c(2L, 2L))
-  sum_check_map(df, digits_total = c(1, 2), parts = c(i1, i2))$digits_total |>
+  df |>
+    sum_check_map(digits_total = c(1, 2), parts = c(i1, i2)) |>
+    purrr::pluck("digits_total") |>
     expect_equal(c(1, 2))
 })
 
 
 test_that("wrong argument names throw an error at factory time", {
-  function_map(
-    .fun = grim_scalar,
-    .reported = c("x", "n"),
-    .name_test = "GRIM",
-    .args_by_row = "digits_y"
-  ) |>
+  grim_scalar |>
+    function_map(
+      .reported = c("x", "n"),
+      .name_test = "GRIM",
+      .args_by_row = "digits_y"
+    ) |>
     expect_error()
 
-  function_map(
-    .fun = grim_scalar,
-    .reported = c("x", "n"),
-    .name_test = "GRIM",
-    .cols_helper = "widgets"
-  ) |>
+  grim_scalar |>
+    function_map(
+      .reported = c("x", "n"),
+      .name_test = "GRIM",
+      .cols_helper = "widgets"
+    ) |>
     expect_error()
 
-  function_map(
-    .fun = grim_scalar,
-    .reported = c("x", "n"),
-    .name_test = "GRIM",
-    .cols_derived = list(probability = "grim_probability")
-  ) |>
+  grim_scalar |>
+    function_map(
+      .reported = c("x", "n"),
+      .name_test = "GRIM",
+      .cols_derived = list(probability = "grim_probability")
+    ) |>
     expect_error()
 
-  function_map(
-    .fun = grim_scalar,
-    .reported = c("x", "n"),
-    .name_test = "GRIM",
-    .cols_derived = list(grim_probability)
-  ) |>
+  grim_scalar |>
+    function_map(
+      .reported = c("x", "n"),
+      .name_test = "GRIM",
+      .cols_derived = list(grim_probability)
+    ) |>
     expect_error()
 
-  function_map(
-    .fun = grim_scalar,
-    .reported = c("x", "n"),
-    .name_test = "GRIM",
-    .reported_variadic = "values"
-  ) |>
+  grim_scalar |>
+    function_map(
+      .reported = c("x", "n"),
+      .name_test = "GRIM",
+      .reported_variadic = "values"
+    ) |>
     expect_error()
 
   # A key argument takes either one column's values or those of any number of
   # columns, not both:
-  function_map(
-    .fun = grim_scalar,
-    .reported = c("x", "n"),
-    .name_test = "GRIM",
-    .reported_variadic = "x"
-  ) |>
+  grim_scalar |>
+    function_map(
+      .reported = c("x", "n"),
+      .name_test = "GRIM",
+      .reported_variadic = "x"
+    ) |>
     expect_error("must not also be")
 })
 
@@ -566,11 +597,17 @@ test_that("`.cols_derived` computes columns the test function never returns", {
 
   # The derived function only gets the arguments it has formals for, and
   # `rounding`, `items`, and `percent` must reach it:
-  grim_map(pigs1, digits_x = 2, rounding = "ceiling")$probability |>
+  pigs1 |>
+    grim_map(digits_x = 2, rounding = "ceiling") |>
+    purrr::pluck("probability") |>
     expect_equal(grim_probability(pigs1$x, pigs1$n, 2, rounding = "ceiling"))
-  grim_map(pigs1, digits_x = 2, items = 2)$probability |>
+  pigs1 |>
+    grim_map(digits_x = 2, items = 2) |>
+    purrr::pluck("probability") |>
     expect_equal(grim_probability(pigs1$x, pigs1$n, 2, items = 2))
-  grim_map(pigs2, digits_x = 1, percent = TRUE)$probability |>
+  pigs2 |>
+    grim_map(digits_x = 1, percent = TRUE) |>
+    purrr::pluck("probability") |>
     expect_equal(grim_probability(pigs2$x, pigs2$n, 1, percent = TRUE))
 })
 
@@ -585,7 +622,8 @@ test_that("the arguments of the whole call are recorded, with defaults", {
   args$threshold |> expect_equal(5)
   # Per-row and helper arguments are columns, not settings of the call, and a
   # missing value such as the deprecated `tolerance` is no setting at all:
-  names(args) |>
+  args |>
+    names() |>
     intersect(c("digits_x", "items", "tolerance")) |>
     expect_length(0L)
   # Settings survive verbs that keep the class:
@@ -632,14 +670,14 @@ test_that("`data` must be a tibble, and that is checked first of all", {
     function(d) grim_map_total_n(d, digits_x = 2)
   )) {
     # Not aligning pipes here because the lengths are too different
-    as.data.frame(pigs1) |> mapper() |> expect_error("must be a tibble")
-    as.matrix(pigs1) |> mapper() |> expect_error("must be a tibble")
+    pigs1 |> as.data.frame() |> mapper() |> expect_error("must be a tibble")
+    pigs1 |> as.matrix() |> mapper() |> expect_error("must be a tibble")
     1:10 |> mapper() |> expect_error("must be a tibble")
     NULL |> mapper() |> expect_error("must be a tibble")
   }
 
   # A `data.frame` gets the conversion hint...
-  as.data.frame(pigs1) |> grim_map(digits_x = 2) |>
+  pigs1 |> as.data.frame() |> grim_map(digits_x = 2) |>
     expect_error("as_tibble")
   # ...and everything else is named for what it is:
   1:10 |> grim_map(digits_x = 2) |> expect_error("integer vector")
@@ -660,7 +698,8 @@ test_that("`data` must be a tibble, and that is checked first of all", {
 
   # A tibble that really is missing the key columns still gets the column
   # error, not the type error:
-  grim_map(tibble::tibble(a = 1, b = 2), digits_x = 2) |>
+  tibble::tibble(a = 1, b = 2) |>
+    grim_map(digits_x = 2) |>
     expect_error("must be in `data`")
 })
 
@@ -678,12 +717,13 @@ test_that("an `n` too large for integer keeps its value", {
 
   # Within integer range, `n` is still integer, which is what makes it print
   # without a decimal point:
-  grim_map(pigs1, digits_x = 2)$n |> expect_type("integer")
-  grim_map_seq(pigs1, digits_x = 2)$n |> expect_type("integer")
-  grim_map_total_n(
-    tibble::tibble(x1 = 4.52, x2 = 5.23, n = 40L),
-    digits_x = 2
-  )$n |>
+  pigs1 |> grim_map(digits_x = 2)     |> purrr::pluck("n") |>
+    expect_type("integer")
+  pigs1 |> grim_map_seq(digits_x = 2) |> purrr::pluck("n") |>
+    expect_type("integer")
+  tibble::tibble(x1 = 4.52, x2 = 5.23, n = 40L) |>
+    grim_map_total_n(digits_x = 2) |>
+    purrr::pluck("n") |>
     expect_type("integer")
 
   # The seq and total-n tiers coerce their own `n` columns, and they need the
@@ -738,14 +778,14 @@ test_that("a mapper's argument errors are not wrapped in `pmap()` context", {
   expect_s3_class(err, "error")
   msg <- error_message_full(err)
   expect_match(msg, "designated string values")
-  expect_false(grepl("In index", msg, fixed = TRUE))
+  msg |> grepl(pattern = "In index", fixed = TRUE) |> expect_false()
 
   # Same for the missing-argument case, which is what the pre-application was
   # originally added for:
   err <- pigs1 |> grim_map() |> tryCatch_error()
   msg <- error_message_full(err)
   expect_match(msg, "digits_x")
-  expect_false(grepl("In index", msg, fixed = TRUE))
+  msg |> grepl(pattern = "In index", fixed = TRUE) |> expect_false()
 })
 
 
@@ -757,8 +797,11 @@ test_that("key arguments work when the mapper is called indirectly", {
   expect_equal(lapply(list(d), grim_map, digits_x = 2, x = "mean")[[1L]], expected)
   expect_equal(purrr::map(list(d), grim_map, digits_x = 2, x = "mean")[[1L]], expected)
   wrapper <- function(data, col) grim_map(data, digits_x = 2, x = col)
-  expect_equal(wrapper(d, "mean"), expected)
-  expect_equal(grim_map_seq(d, digits_x = 2, x = mean)$x[1L], 5.14)
+  d |> wrapper("mean") |> expect_equal(expected)
+  d |>
+    grim_map_seq(digits_x = 2, x = mean) |>
+    purrr::pluck("x", 1L) |>
+    expect_equal(5.14)
 })
 
 # It also ignored a key argument whenever `data` had a column of that name, and
@@ -766,13 +809,13 @@ test_that("key arguments work when the mapper is called indirectly", {
 test_that("`absorb_key_args()` reads key arguments passed through dots", {
   df <- dplyr::rename(pigs1, mean = x)
   my_map <- function(data, ...) absorb_key_args(data, c("x", "n"))
-  my_map(df, x = "mean") |> colnames() |> expect_equal(c("x", "n"))
-  my_map(df, x = mean) |> colnames() |> expect_equal(c("x", "n"))
+  df |> my_map(x = "mean") |> colnames() |> expect_equal(c("x", "n"))
+  df |> my_map(x = mean)   |> colnames() |> expect_equal(c("x", "n"))
 })
 
 
 test_that("a key argument clashing with an existing column is an error", {
   d <- tibble::tibble(x = c(1.11, 2.22), mean = c(5.19, 5.2), n = c(28, 30))
-  expect_error(grim_map(d, digits_x = 2, x = mean), "already has a `x` column")
-  expect_equal(grim_map(d, digits_x = 2, x = x), grim_map(d, digits_x = 2))
+  d |> grim_map(digits_x = 2, x = mean) |> expect_error("already has a `x` column")
+  d |> grim_map(digits_x = 2, x = x)    |> expect_equal(grim_map(d, digits_x = 2))
 })

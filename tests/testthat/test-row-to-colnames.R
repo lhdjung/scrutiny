@@ -15,8 +15,8 @@ test_that("The correct column names are back", {
 })
 
 test_that("The correct column names are no longer row values", {
-  expect_false(df_fixed[1, ][[1]] == "a")
-  expect_false(df_fixed[1, ][[2]] == "b")
+  df_fixed |> purrr::pluck(1L, 1L) |> call_on(\(x) x == "a") |> expect_false()
+  df_fixed |> purrr::pluck(2L, 1L) |> call_on(\(x) x == "b") |> expect_false()
 })
 
 test_that("missing header cells are skipped, not garbled", {

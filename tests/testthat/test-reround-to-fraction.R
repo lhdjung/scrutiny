@@ -124,28 +124,24 @@ test_that("no pairing warning for arguments that cannot be paired", {
       ),
       regexp = NA
     )
-    expect_error(f(c(0.4, 0.6), denominator = 2, rounding = c("up", "down")))
+    c(0.4, 0.6) |> f(denominator = 2, rounding = c("up", "down")) |> expect_error()
   }
 })
 
 
 test_that("a longer `digits` is recycled with `x`, and `NA` propagates", {
   # With `x` of length 1, the second `digits` value used to be dropped:
-  reround_to_fraction(0.3, 2, digits = c(1, Inf), rounding = "up") |>
-    expect_equal(c(0.5, 0.5))
-  reround_to_fraction(0.34, 3, digits = c(1, 2), rounding = "up") |>
-    expect_equal(c(0.3, 0.33))
+  0.3  |> reround_to_fraction(2, digits = c(1, Inf), rounding = "up") |> expect_equal(c(0.5, 0.5))
+  0.34 |> reround_to_fraction(3, digits = c(1, 2), rounding = "up")   |> expect_equal(c(0.3, 0.33))
   # These used to fail with "missing value where TRUE/FALSE needed":
-  reround_to_fraction(0.3, NA, rounding = "up") |> expect_equal(NA_real_)
-  reround_to_fraction(0.3, 2, digits = NA, rounding = "up") |> expect_equal(NA_real_)
+  0.3 |> reround_to_fraction(NA, rounding = "up")            |> expect_equal(NA_real_)
+  0.3 |> reround_to_fraction(2, digits = NA, rounding = "up") |> expect_equal(NA_real_)
 })
 
 
 test_that("a compound method pairs each `denominator` with its own `x`", {
   suppressWarnings({
-    reround_to_fraction(c(0.4, 0.77), c(2, 4), 1) |>
-      expect_equal(c(0.5, 0.5, 0.8, 0.7))
-    reround_to_fraction_level(c(0.44, 0.64), c(2, 4), 1) |>
-      expect_equal(c(0.45, 0.45, 0.65, 0.65))
+    c(0.4, 0.77)  |> reround_to_fraction(c(2, 4), 1)       |> expect_equal(c(0.5, 0.5, 0.8, 0.7))
+    c(0.44, 0.64) |> reround_to_fraction_level(c(2, 4), 1) |> expect_equal(c(0.45, 0.45, 0.65, 0.65))
   })
 })

@@ -8,12 +8,19 @@ numbers <- rnorm(50, 100, 30) |>
 
 
 test_that("The number of decimal places checks out", {
-  (decimal_places(numbers) == 4) |> all() |> expect_true()
+  numbers |>
+    decimal_places() |>
+    call_on(\(x) x == 4) |>
+    all() |>
+    expect_true()
 })
 
 
 test_that("The total number of characters checks out", {
-  (stringr::str_length(numbers) - 5) |> expect_equal(integer_places(numbers))
+  numbers |>
+    stringr::str_length() |>
+    call_on(\(x) x - 5) |>
+    expect_equal(integer_places(numbers))
 })
 
 test_that("`width` is checked correctly", {
@@ -68,7 +75,7 @@ test_that("the `check_decimals` argument works correctly", {
       restore_zeros_df(check_decimals = FALSE) |>
       dplyr::pull(1)
   )
-  expect_type(out, "character")
+  out |> expect_type("character")
 })
 
 

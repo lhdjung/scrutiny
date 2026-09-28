@@ -104,17 +104,17 @@ test_that("`debit_map_seq()` doesn't disperse beyond the binary range", {
     tibble::tibble(x = 0.98, sd = 0.14, n = 100),
     digits_x = 2, digits_sd = 2, var = "x", include_consistent = TRUE
   )
-  max(out_high$x) |> expect_equal(1)
+  out_high$x |> max() |> expect_equal(1)
 
   out_low <- debit_map_seq(
     tibble::tibble(x = 0.03, sd = 0.17, n = 100),
     digits_x = 2, digits_sd = 2, var = "x", include_consistent = TRUE
   )
-  min(out_low$x) |> expect_equal(0)
+  out_low$x |> min() |> expect_equal(0)
 
   out_sd <- debit_map_seq(
     tibble::tibble(x = 0.5, sd = 0.99, n = 100),
     digits_x = 2, digits_sd = 2, var = "sd", include_consistent = TRUE
   )
-  max(out_sd$sd) |> expect_equal(1)
+  out_sd$sd |> max() |> expect_equal(1)
 })

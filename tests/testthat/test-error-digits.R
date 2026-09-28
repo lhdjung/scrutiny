@@ -51,8 +51,8 @@ test_that("a missing `digits_*` argument gives the intended error", {
     df_grim |> grim_map_seq(dispersion = 1:2) |> msg_error(),
     df_debit |> debit_map_seq(dispersion = 1:2) |> msg_error()
   )) {
-    expect_match(msg, "Need to specify `digits_", fixed = TRUE)
-    expect_no_match(msg, "coerce", fixed = TRUE)
+    msg |> expect_match("Need to specify `digits_", fixed = TRUE)
+    msg |> expect_no_match("coerce", fixed = TRUE)
   }
 
   # A namespace-qualified call has a call head that is itself a call, which used
@@ -72,8 +72,8 @@ test_that("mapper examples build a data frame, basic ones do not", {
 
 test_that("GRIMMER and DEBIT examples include `sd` and `digits_sd`", {
   msg <- df_grimmer |> grimmer_map() |> msg_error()
-  expect_match(msg, "sd = 0.62", fixed = TRUE)
-  expect_match(msg, "digits_sd = 2", fixed = TRUE)
+  msg |> expect_match("sd = 0.62", fixed = TRUE)
+  msg |> expect_match("digits_sd = 2", fixed = TRUE)
 
   # GRIM has no `sd` argument, so its example must not mention one:
   df_grim |> grim_map() |> msg_error() |> expect_no_match("digits_sd", fixed = TRUE)
@@ -107,15 +107,13 @@ test_that("`digits_*` below the decimal places of `x` is an error", {
 
 
 test_that("an infinite `digits_*` value is rejected clearly", {
-  expect_error(grim(5.19, 28, Inf), "must be a single, whole number")
-  expect_error(grimmer(5.19, 1.2, 28, 2, Inf), "must be a single, whole number")
+  5.19 |> grim(28, Inf)              |> expect_error("must be a single, whole number")
+  5.19 |> grimmer(1.2, 28, 2, Inf)   |> expect_error("must be a single, whole number")
 })
 
 test_that("the missing-`digits_sd` example is a working call", {
-  expect_error(
-    grimmer(5.19, 1.2, 28, digits_x = 2),
-    "digits_sd = 2, digits_x = 2",
-    fixed = TRUE
-  ) |>
+  5.19 |>
+    grimmer(1.2, 28, digits_x = 2) |>
+    expect_error("digits_sd = 2, digits_x = 2", fixed = TRUE) |>
     suppressMessages()
 })

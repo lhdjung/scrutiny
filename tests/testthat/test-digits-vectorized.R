@@ -26,19 +26,26 @@ test_that("basic mappers take one `digits_*` value per row", {
     grim_map(df_grim[1, ], digits_x = 2)$consistency,
     grim_map(df_grim[2, ], digits_x = 1)$consistency
   )
-  expect_equal(per_row, separate)
+  per_row |> expect_equal(separate)
 
   # `0.1` at one decimal place is not the same test as `0.10` at two:
-  expect_equal(per_row, c(TRUE, TRUE))
-  grim_map(df_grim, digits_x = 2)$consistency |> expect_equal(c(TRUE, FALSE))
+  per_row |> expect_equal(c(TRUE, TRUE))
+  df_grim |>
+    grim_map(digits_x = 2) |>
+    purrr::pluck("consistency") |>
+    expect_equal(c(TRUE, FALSE))
 
-  grimmer_map(df_grimmer, digits_x = c(1, 2), digits_sd = 2)$consistency |>
+  df_grimmer |>
+    grimmer_map(digits_x = c(1, 2), digits_sd = 2) |>
+    purrr::pluck("consistency") |>
     expect_equal(c(
       grimmer_map(df_grimmer[1, ], digits_x = 1, digits_sd = 2)$consistency,
       grimmer_map(df_grimmer[2, ], digits_x = 2, digits_sd = 2)$consistency
     ))
 
-  debit_map(df_debit, digits_x = 2, digits_sd = c(2, 1))$consistency |>
+  df_debit |>
+    debit_map(digits_x = 2, digits_sd = c(2, 1)) |>
+    purrr::pluck("consistency") |>
     expect_equal(c(
       debit_map(df_debit[1, ], digits_x = 2, digits_sd = 2)$consistency,
       debit_map(df_debit[2, ], digits_x = 2, digits_sd = 1)$consistency
@@ -47,7 +54,9 @@ test_that("basic mappers take one `digits_*` value per row", {
 
 
 test_that("a single `digits_*` value still applies to the whole column", {
-  grim_map(df_grim, digits_x = 2)$consistency |>
+  df_grim |>
+    grim_map(digits_x = 2) |>
+    purrr::pluck("consistency") |>
     expect_equal(grim_map(df_grim, digits_x = c(2, 2))$consistency)
 })
 
@@ -71,13 +80,13 @@ test_that("total-n mappers take one `digits_*` value per group", {
   out <- df |> grim_map_total_n(digits_x = c(2, 1)) |> audit_total_n()
 
   # 17/23 with the original pairing, plus 19/21 and 16/24 with it reversed:
-  expect_equal(out$hits_forth, 1L)
-  expect_equal(out$hits_back, 2L)
-  expect_equal(out$hits_total, 3L)
+  out$hits_forth |> expect_equal(1L)
+  out$hits_back  |> expect_equal(2L)
+  out$hits_total |> expect_equal(3L)
 
   # Testing 5.3 as "5.30" is stricter and finds only what Bauer and Francis did:
   out_strict <- df |> grim_map_total_n(digits_x = 2) |> audit_total_n()
-  expect_equal(out_strict$hits_total, 1L)
+  out_strict$hits_total |> expect_equal(1L)
 })
 
 
@@ -107,8 +116,19 @@ test_that("`*_map_seq()` steps on the decimal level given by `digits_*`", {
 
   # Every dispersed value is one hundredth away from its neighbour:
   out_x$x |> decimal_places() |> max() |> expect_equal(2L)
-  expect_true(all(round(abs(out_x$x - rep(c(5.3, 4.71), each = 6)), 10) <= 0.03))
+
+  c(5.3, 4.71) |>
+    rep(each = 6) |>
+    call_on(\(v) out_x$x - v) |>
+    abs() |>
+    round(10) |>
+    call_on(\(x) x <= 0.03) |>
+    all() |>
+    expect_true()
 
   # `n` has no `digits_n`, so it keeps stepping by whole numbers:
-  expect_true(all(out$n[out$var == "n"] %% 1 == 0))
+  out$n[out$var == "n"] |>
+    call_on(\(x) x %% 1 == 0) |>
+    all() |>
+    expect_true()
 })

@@ -121,6 +121,6 @@ test_that("`grimmer_map_seq()` can disperse an SD down to zero, but no lower", {
     var = "sd",
     include_consistent = TRUE
   )
-  min(out$sd) |> expect_equal(0)
-  any(out$sd < 0) |> expect_false()
+  out$sd |> min() |> expect_equal(0)
+  out$sd |> call_on(\(x) x < 0) |> any() |> expect_false()
 })

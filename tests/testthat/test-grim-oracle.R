@@ -217,7 +217,8 @@ test_grim_oracle <- function(x, n, digits_x, items, percent, symmetric) {
     # An empty range is empty by exactly one: `sum_lower` and `sum_upper` are
     # then the whole numbers straddling `rec_sum`. This is what keeps the gap
     # from meaning anything beyond inconsistency itself:
-    (lower[!consistency] - upper[!consistency] == 1) |>
+    consistency |>
+      call_on(\(x) lower[!x] - upper[!x] == 1) |>
       all() |>
       expect_true(info = info)
 
@@ -377,7 +378,8 @@ test_that("`\"even\"` is never too strict, only ever too permissive", {
     # `"ties_even"` is the same method under the name that says which tie rule
     # it is, so it inherits the property below rather than needing its own
     # oracle run. What has to hold is that the two really are one method here:
-    grim(grid$x, grid$n, digits_x = digits_x, rounding = "ties_even") |>
+    grid$x |>
+      grim(grid$n, digits_x = digits_x, rounding = "ties_even") |>
       expect_equal(verdict)
 
     for (i in seq_len(nrow(grid))) {

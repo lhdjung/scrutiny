@@ -1,8 +1,10 @@
 test_that("The `globalVariables()` call returns these variables as strings", {
-  utils::globalVariables(c(
+  c(
     ".", "where", "desc", "all_of", "contains", "everything", "x", "items",
     "frac"
-  )) |> expect_type("character")
+  ) |>
+    utils::globalVariables() |>
+    expect_type("character")
 })
 
 
@@ -28,40 +30,40 @@ test_that("`reconstruct_sd()` returns correct values", {
 
 
 test_that("`integer_places()` returns correct values", {
-  integer_places(1.2)     |> expect_equal(1)
-  integer_places(11.2)    |> expect_equal(2)
-  integer_places(111.2)   |> expect_equal(3)
-  integer_places(1111.2)  |> expect_equal(4)
-  integer_places(11111.2) |> expect_equal(5)
+  1.2     |> integer_places() |> expect_equal(1)
+  11.2    |> integer_places() |> expect_equal(2)
+  111.2   |> integer_places() |> expect_equal(3)
+  1111.2  |> integer_places() |> expect_equal(4)
+  11111.2 |> integer_places() |> expect_equal(5)
 
-  integer_places(1.22222) |> expect_equal(1)
-  integer_places(11.2222) |> expect_equal(2)
-  integer_places(111.222) |> expect_equal(3)
-  integer_places(1111.22) |> expect_equal(4)
-  integer_places(11111.2) |> expect_equal(5)
+  1.22222 |> integer_places() |> expect_equal(1)
+  11.2222 |> integer_places() |> expect_equal(2)
+  111.222 |> integer_places() |> expect_equal(3)
+  1111.22 |> integer_places() |> expect_equal(4)
+  11111.2 |> integer_places() |> expect_equal(5)
 })
 
 
 test_that("`an_a()` returns correct values", {
-  an_a("start") |> expect_equal("a")
-  an_a("end")   |> expect_equal("an")
+  "start" |> an_a() |> expect_equal("a")
+  "end"   |> an_a() |> expect_equal("an")
 })
 
 
 test_that("`an_a_type()` returns correct values", {
-  an_a_type("bla") |> expect_equal("a string")
-  an_a_type(4)     |> expect_equal("a double (numeric value)")
+  "bla" |> an_a_type() |> expect_equal("a string")
+  4     |> an_a_type() |> expect_equal("a double (numeric value)")
 })
 
 
 test_that("`is_whole_number()` returns correct values", {
-  is_whole_number(1)   |> expect_true()
-  is_whole_number(985) |> expect_true()
-  is_whole_number(37)  |> expect_true()
+  1   |> is_whole_number() |> expect_true()
+  985 |> is_whole_number() |> expect_true()
+  37  |> is_whole_number() |> expect_true()
 
-  is_whole_number(0.2)    |> expect_false()
-  is_whole_number(25.05)  |> expect_false()
-  is_whole_number(75.489) |> expect_false()
+  0.2    |> is_whole_number() |> expect_false()
+  25.05  |> is_whole_number() |> expect_false()
+  75.489 |> is_whole_number() |> expect_false()
 })
 
 # fmt: skip
@@ -71,9 +73,9 @@ parcel_letters_expected <- c(
 )
 
 test_that("`parcel_nth_elements()` returns correct values", {
-  parcel_nth_elements(letters, 2) |> expect_equal(parcel_letters_expected)
-  parcel_nth_elements(1:10, 2) |> expect_equal(c(1, 3, 5, 7, 9))
-  parcel_nth_elements(1:10, 5) |> expect_equal(c(1, 6))
+  letters |> parcel_nth_elements(2) |> expect_equal(parcel_letters_expected)
+  1:10    |> parcel_nth_elements(2) |> expect_equal(c(1, 3, 5, 7, 9))
+  1:10    |> parcel_nth_elements(5) |> expect_equal(c(1, 6))
 })
 
 
@@ -174,13 +176,13 @@ test_that("`check_lengths_congruent()` remains silent when it should", {
 
 
 test_that("`check_length()` throws an error when it should", {
-  check_length(numbers, 1) |> expect_error()
-  check_length(nephews, 1) |> expect_error()
+  numbers |> check_length(1) |> expect_error()
+  nephews |> check_length(1) |> expect_error()
 })
 
 test_that("`check_length()` remains silent when it should", {
-  check_length(numbers, 5) |> expect_silent()
-  check_length(nephews, 3) |> expect_silent()
+  numbers |> check_length(5) |> expect_silent()
+  nephews |> check_length(3) |> expect_silent()
 })
 
 
@@ -266,29 +268,29 @@ passes_check_newly_numeric <- function(x, digits) {
 
 
 test_that("`check_newly_numeric()` accepts a value that fits `digits`", {
-  expect_silent(check_newly_numeric(5.19, 2))
-  expect_silent(check_newly_numeric(5.19, 5))
-  expect_silent(check_newly_numeric(5, 0))
-  expect_silent(check_newly_numeric(0, 0))
-  expect_silent(check_newly_numeric(-5.19, 2))
+  5.19  |> check_newly_numeric(2) |> expect_silent()
+  5.19  |> check_newly_numeric(5) |> expect_silent()
+  5     |> check_newly_numeric(0) |> expect_silent()
+  0     |> check_newly_numeric(0) |> expect_silent()
+  -5.19 |> check_newly_numeric(2) |> expect_silent()
 
   # These are not the doubles for `0.3` and `0.8`, so the fast path cannot
   # settle them; the string comparison behind it can, and does:
-  expect_silent(check_newly_numeric(0.1 + 0.2, 1))
-  expect_silent(check_newly_numeric(0.1 + 0.7, 1))
+  (0.1 + 0.2) |> check_newly_numeric(1) |> expect_silent()
+  (0.1 + 0.7) |> check_newly_numeric(1) |> expect_silent()
 })
 
 
 test_that("`check_newly_numeric()` rejects a value with more decimal places", {
-  expect_error(check_newly_numeric(5.195, 2))
-  expect_error(check_newly_numeric(-5.195, 2))
-  expect_error(check_newly_numeric(2.675, 2))
+  5.195  |> check_newly_numeric(2) |> expect_error()
+  -5.195 |> check_newly_numeric(2) |> expect_error()
+  2.675  |> check_newly_numeric(2) |> expect_error()
 
   # A tiny value is not a whole number scaled up, however close to zero it is:
-  expect_error(check_newly_numeric(1e-20, 2))
+  1e-20 |> check_newly_numeric(2) |> expect_error()
 
   # A negative `digits` is not a way to demand whole hundreds:
-  expect_error(check_newly_numeric(500, -2))
+  500 |> check_newly_numeric(-2) |> expect_error()
 })
 
 
@@ -339,7 +341,7 @@ test_that("`is_decidable_n_items()` agrees between its two paths", {
     expect_identical(scalar, vectorized)
 
     # Neither is ever `NA`, whatever went in:
-    expect_false(anyNA(vectorized))
+    vectorized |> anyNA() |> expect_false()
   }
 })
 

@@ -168,7 +168,7 @@ test_that("`.name_key_result` renames the key result column", {
   )
   out <- vermin_map_total_n(tibble::tibble(y1 = 16, y2 = 18, n = 20))
   out |> colnames() |> expect_contains(c("verdict", "both_consistent"))
-  expect_false("consistency" %in% colnames(out))
+  out |> rlang::has_name("consistency") |> expect_false()
   out$verdict |> expect_type("logical")
   out |> audit_total_n() |> nrow() |> expect_equal(1L)
 
@@ -180,7 +180,7 @@ test_that("`.name_key_result` renames the key result column", {
   )
   out_seq <- vermin_map_seq(tibble::tibble(y = 16:25, n = 3:12))
   out_seq |> colnames() |> expect_contains("verdict")
-  expect_false("consistency" %in% colnames(out_seq))
+  out_seq |> rlang::has_name("consistency") |> expect_false()
   out_seq |> audit_seq() |> colnames() |> expect_contains("verdict")
 
   # A mismatch between the two factories' `.name_key_result` values is caught
@@ -201,19 +201,18 @@ test_that("`digits_*` is a real formal of the total-n mappers", {
   # missing-argument error was still the bespoke one, but the argument was
   # invisible to `formals()`, to tab-completion, and to the rendered help page
   # -- despite having no default and being required in every call.
-  names(formals(grim_map_total_n))[1:3] |>
+  grim_map_total_n    |> formals() |> names() |> head(3) |>
     expect_equal(c("data", "digits_x", "x1"))
-  names(formals(grimmer_map_total_n))[1:5] |>
+  grimmer_map_total_n |> formals() |> names() |> head(5) |>
     expect_equal(c("data", "digits_x", "digits_sd", "x1", "x2"))
-  names(formals(debit_map_total_n))[1:5] |>
+  debit_map_total_n   |> formals() |> names() |> head(5) |>
     expect_equal(c("data", "digits_x", "digits_sd", "x1", "x2"))
 
   # Passing it positionally now works, as it does for the other two tiers:
   df <- tibble::tibble(x1 = 4.52, x2 = 5.23, n = 40L)
-  expect_identical(
-    grim_map_total_n(df, 2, dispersion = 0:1),
-    grim_map_total_n(df, digits_x = 2, dispersion = 0:1)
-  )
+  df |>
+    grim_map_total_n(2, dispersion = 0:1) |>
+    expect_identical(grim_map_total_n(df, digits_x = 2, dispersion = 0:1))
 
   # ...and omitting it still gives the bespoke message, not a generic one:
   df |> grim_map_total_n() |> expect_error("Need to specify `digits_x`")

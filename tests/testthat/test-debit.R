@@ -38,8 +38,8 @@ rounding_methods <- c(
 
 test_that("`debit()` accepts every rounding method that `grim()` accepts", {
   for (r in rounding_methods) {
+    0.53 |>
       debit(
-        x = 0.53,
         sd = 0.50,
         n = 1683,
         digits_x = 2,
@@ -82,8 +82,8 @@ test_that("`symmetric` is taken into account", {
   # `debit_scalar()` reconstructs the bounds under the same assumption that it
   # re-rounds with. It used to unround asymmetrically and re-round
   # symmetrically, because the old `unround()` had no `symmetric` argument.
+  0.53 |>
     debit(
-      x = 0.53,
       sd = 0.50,
       n = 1683,
       digits_x = 2,
@@ -161,9 +161,9 @@ test_that("`debit_map()` reports no negative SD bound and no mean out of range",
     digits_x = 2,
     digits_sd = 2
   )
-  (out$sd_lower >= 0)  |> all() |> expect_true()
-  (out$x_lower  >= 0)  |> all() |> expect_true()
-  (out$x_upper  <= 1)  |> all() |> expect_true()
+  out$sd_lower |> call_on(\(x) x >= 0) |> all() |> expect_true()
+  out$x_lower  |> call_on(\(x) x >= 0) |> all() |> expect_true()
+  out$x_upper  |> call_on(\(x) x <= 1) |> all() |> expect_true()
 })
 
 
@@ -197,16 +197,15 @@ test_that("DEBIT never rejects a real binary sample", {
               next
             }
             n_checked <- n_checked + 1L
-            expect_true(
-              isTRUE(debit(
-                x = x, sd = sd, n = n,
-                digits_x = digits, digits_sd = digits
-              )),
-              label = paste0(
-                "x = ", x, ", sd = ", sd, ", n = ", n, ", digits = ", digits,
-                " comes from ", k[i], " ones and ", n - k[i], " zeros, so DEBIT"
+            x |>
+              debit(sd = sd, n = n, digits_x = digits, digits_sd = digits) |>
+              isTRUE() |>
+              expect_true(
+                label = paste0(
+                  "x = ", x, ", sd = ", sd, ", n = ", n, ", digits = ", digits,
+                  " comes from ", k[i], " ones and ", n - k[i], " zeros, so DEBIT"
+                )
               )
-            )
           }
         }
       }
@@ -214,7 +213,7 @@ test_that("DEBIT never rejects a real binary sample", {
   }
 
   # Guard against the loops silently collapsing to nothing (152 as written):
-  expect_gt(n_checked, 100L)
+  n_checked |> expect_gt(100L)
 })
 
 

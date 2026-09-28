@@ -86,7 +86,7 @@ test_that("negative means are plotted at the fractional part of their absolute v
   layer_data <- ggplot2::ggplot_build(grim_plot(data))$data[[2L]]
   layer_data$y |> expect_equal(c(0.22, 0.19, 0))
   layer_data |> nrow() |> expect_equal(nrow(data))
-  anyNA(layer_data$ymin) |> expect_false()
+  layer_data$ymin |> anyNA() |> expect_false()
 })
 
 test_that("a mean and its negative are drawn in the same place", {
@@ -94,7 +94,7 @@ test_that("a mean and its negative are drawn in the same place", {
     data <- grim_map(tibble::tibble(x = x, n = 40L), digits_x = 2)
     ggplot2::ggplot_build(grim_plot(data))$data[[2L]]$y
   }
-  y_of(-2.51) |> expect_equal(y_of(2.51))
+  -2.51 |> y_of() |> expect_equal(y_of(2.51))
 })
 
 test_that("negative means raise no warning, whatever the decimal count", {
@@ -116,11 +116,14 @@ test_that("`grim_plot()` returns the plot instead of printing it", {
   # drew two. `debit_plot()` has always returned its object normally.
   data <- grim_map(pigs1, digits_x = 2)
   expect_silent(invisible(capture.output(p <- grim_plot(data))))
-  expect_s3_class(p, "ggplot")
+  p |> expect_s3_class("ggplot")
   # Visible, so auto-printing draws it at the console:
-  expect_true(withVisible(grim_plot(data))$visible)
+  data |> grim_plot() |> withVisible() |> purrr::pluck("visible") |> expect_true()
   # ...and it composes without a stray canvas:
-  expect_s3_class(grim_plot(data) + ggplot2::labs(title = "x"), "ggplot")
+  data |>
+    grim_plot() |>
+    call_on(\(p) p + ggplot2::labs(title = "x")) |>
+    expect_s3_class("ggplot")
 })
 
 
@@ -218,5 +221,5 @@ test_that("tiles sit at `n * items` when `items` is a column", {
   )
   layers <- ggplot2::ggplot_build(grim_plot(out))$data
   tiles <- layers[[length(layers)]]
-  sort(unique(tiles$x)) |> expect_equal(sort(unique(out$n * out$items)))
+  tiles$x |> unique() |> sort() |> expect_equal(sort(unique(out$n * out$items)))
 })

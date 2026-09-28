@@ -22,7 +22,7 @@ test_that("`reround()` works like each of the specific rounding functions", {
   # used to be passed here, and that R recycled a hundred times over because
   # 25000 happens to be a multiple of 250, is an error. The test means one
   # decimal level per value either way.
-  test_reround(x, rep_len(1:250, length(x))) |> expect_true()
+  x |> test_reround(rep_len(1:250, length(x))) |> expect_true()
 })
 
 
@@ -75,26 +75,27 @@ test_that("`rounding` must be a string, and `symmetric` `TRUE` or `FALSE`", {
   # by a number or a `TRUE` returns an element by position: `rounding = 2` was
   # silently `"ties_down"`, and `rounding = TRUE` was `"ties_up"`, in every
   # function that takes the argument.
-  reround(2.5, 0, rounding = 2)             |> expect_error("must be a string")
-  reround(2.5, 0, rounding = TRUE)          |> expect_error("must be a string")
-  reround(2.5, 0, rounding = NA_character_) |> expect_error("must be a string")
-  unround("2.5", rounding = 2)              |> expect_error("must be a string")
-  grim(5.19, 28, digits_x = 2, rounding = 2) |> expect_error("must be a string")
+  2.5   |> reround(0, rounding = 2)             |> expect_error("must be a string")
+  2.5   |> reround(0, rounding = TRUE)          |> expect_error("must be a string")
+  2.5   |> reround(0, rounding = NA_character_) |> expect_error("must be a string")
+  "2.5" |> unround(rounding = 2)                |> expect_error("must be a string")
+  5.19  |> grim(28, digits_x = 2, rounding = 2) |> expect_error("must be a string")
 
   # A `symmetric` of `NA` failed in an `if ()` with base R's message:
-  reround(-2.5, 0, "up", symmetric = NA)    |> expect_error("`TRUE` or `FALSE`")
-  reround(-2.5, 0, "up", symmetric = "yes") |> expect_error("`TRUE` or `FALSE`")
-  grim(-5.19, 28, digits_x = 2, rounding = "up", symmetric = NA) |>
+  -2.5 |> reround(0, "up", symmetric = NA)    |> expect_error("`TRUE` or `FALSE`")
+  -2.5 |> reround(0, "up", symmetric = "yes") |> expect_error("`TRUE` or `FALSE`")
+  -5.19 |>
+    grim(28, digits_x = 2, rounding = "up", symmetric = NA) |>
     expect_error("`TRUE` or `FALSE`")
 })
 
 
 test_that("a missing `digits` propagates, and an overflowing one is rejected", {
-  reround(1.25, NA, "up") |> expect_equal(NA_real_)
-  reround(1.25, NA_real_, "up") |> expect_equal(NA_real_)
+  1.25 |> reround(NA, "up")       |> expect_equal(NA_real_)
+  1.25 |> reround(NA_real_, "up") |> expect_equal(NA_real_)
   # `10^400` is `Inf`, and `10^-400` is `0`, so both used to give `NaN`:
-  reround(1.25, 400, "up") |> expect_error("between -308 and 308")
-  reround(1.25, -400, "up") |> expect_error("between -308 and 308")
+  1.25 |> reround(400, "up")  |> expect_error("between -308 and 308")
+  1.25 |> reround(-400, "up") |> expect_error("between -308 and 308")
   # A fractional value is reported as such, and a whole one is not among them:
-  reround(1.25, c(1.5, 400), "up") |> expect_error("not: 1.5\\.")
+  1.25 |> reround(c(1.5, 400), "up") |> expect_error("not: 1.5\\.")
 })

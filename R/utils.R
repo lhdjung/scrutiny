@@ -60,6 +60,29 @@ utils::globalVariables(c(
 
 # Do NOT export any of these! ---------------------------------------------
 
+#' Pipe helper
+#'
+#' Call a syntactically special or anonymous function, or a function factory,
+#' within a pipe workflow.
+#'
+#' @param x Any object.
+#' @param f A function that takes exactly one (required) argument.
+#'
+#' @examples
+#' # From tests/testthat/test-digits-vectorized.R
+#' out$n[out$var == "n"] |>
+#'   call_on(\(x) x %% 1 == 0) |>
+#'   all()
+#'
+#' @noRd
+call_on <- function(x, f) {
+  if (is.function(f)) {
+    f(x)
+  } else {
+    cli::cli_abort("Can only call functions.")
+  }
+}
+
 #' Mark a string as wrong
 #'
 #' @param x Object that should have been a string (it isn't; that's why the

@@ -19,12 +19,12 @@ df1_grim <- grim_map(df1, digits_x = 2)
 
 
 test_that("A tibble is returned", {
-  expect_s3_class(df1_grim, c("tbl_df", "tbl", "data.frame"))
+  df1_grim |> expect_s3_class(c("tbl_df", "tbl", "data.frame"))
 })
 
 
 test_that("It has the correct function-general class", {
-  expect_s3_class(df1_grim, "scrutiny_grim_map")
+  df1_grim |> expect_s3_class("scrutiny_grim_map")
 })
 
 test_that("It records the rounding", {
@@ -60,7 +60,7 @@ df2_grim <- grim_map(df2, digits_x = 2)
 
 # Comparison with what `grim_ratio()` would return -- it can be negative:
 test_that("`probability` is zero if `ratio` would be negative", {
-  (df2_grim$probability == 0) |> all() |> expect_true()
+  df2_grim$probability |> call_on(\(x) x == 0) |> all() |> expect_true()
 })
 
 
@@ -113,7 +113,10 @@ test_that("`percent = TRUE` leaves the granules on the scale of `x`", {
   )
   out$rec_x_lower |> expect_equal(c(68, 84))
   out$rec_x_upper |> expect_equal(c(72, 84))
-  grim_values(84, 25, digits_x = 0, percent = TRUE)[[1L]] |> expect_equal(84)
+  84 |>
+    grim_values(25, digits_x = 0, percent = TRUE) |>
+    purrr::pluck(1L) |>
+    expect_equal(84)
 
   # The sums are not converted: they count the underlying data either way.
   out$sum_lower |> expect_equal(c(18, 21))
@@ -153,11 +156,11 @@ test_that("`consistency` accords with the displayed sum range, row by row", {
     out <- df3 |>
       grim_map(digits_x = 0, show_rec = TRUE, rounding = rounding) |>
       suppressMessages()
-    expect_equal(
-      out$consistency,
-      out$sum_lower <= out$sum_upper,
-      info = paste0("rounding = ", rounding)
-    )
+    out$consistency |>
+      expect_equal(
+        out$sum_lower <= out$sum_upper,
+        info = paste0("rounding = ", rounding)
+      )
   }
 })
 
@@ -413,11 +416,11 @@ test_that("GRIM agrees with the rounding functions themselves", {
         digits_x = 2,
         rounding = rounding
       )$consistency
-      expect_equal(
-        consistency,
-        vapply(df1$x, grim_rounds_back, logical(1), n, 2, rounding),
-        info = paste0("n = ", n, ", rounding = ", rounding)
-      )
+      consistency |>
+        expect_equal(
+          vapply(df1$x, grim_rounds_back, logical(1), n, 2, rounding),
+          info = paste0("n = ", n, ", rounding = ", rounding)
+        )
     }
 
     # `"even"` may only err on the permissive side:
@@ -443,15 +446,15 @@ test_that("GRIM agrees with the rounding functions for `\"*_from\"` methods", {
           rounding = rounding,
           threshold = threshold
         )$consistency
-        expect_equal(
-          consistency,
-          vapply(
-            df1$x, grim_rounds_back, logical(1), n, 2, rounding, threshold
-          ),
-          info = paste0(
-            "n = ", n, ", rounding = ", rounding, ", threshold = ", threshold
+        consistency |>
+          expect_equal(
+            vapply(
+              df1$x, grim_rounds_back, logical(1), n, 2, rounding, threshold
+            ),
+            info = paste0(
+              "n = ", n, ", rounding = ", rounding, ", threshold = ", threshold
+            )
           )
-        )
       }
     }
   }
@@ -504,12 +507,12 @@ df12_exp <- grim_map(df1, digits_x = 2)
 
 test_that("expectations related to various individual
           error messages hold", {
-  df1  |> grim_map(digits_x = 2, items = 1:3) |> expect_error()
-  df10 |> grim_map(digits_x = 2, items = 3) |> expect_error()
-  df11 |> grim_map(digits_x = 2, x = Snout) |> expect_equal(df11_exp)
-  df11 |> grim_map(digits_x = 2, x = Mouth) |> expect_error()
+  df1  |> grim_map(digits_x = 2, items = 1:3)     |> expect_error()
+  df10 |> grim_map(digits_x = 2, items = 3)       |> expect_error()
+  df11 |> grim_map(digits_x = 2, x = Snout)       |> expect_equal(df11_exp)
+  df11 |> grim_map(digits_x = 2, x = Mouth)       |> expect_error()
   df12 |> grim_map(digits_x = 2, n = Sample_Size) |> expect_equal(df12_exp)
-  df12 |> grim_map(digits_x = 2, n = Count_Pigs) |> expect_error()
+  df12 |> grim_map(digits_x = 2, n = Count_Pigs)  |> expect_error()
 })
 
 

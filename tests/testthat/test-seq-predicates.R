@@ -53,9 +53,9 @@ test_that("`is_seq_descending()` with the default `test_linear = TRUE`
 
 test_that("`is_seq_dispersed()` with the default `test_linear = TRUE`
           returns `FALSE` when it should", {
-  seq_disperse(50)    |> is_seq_dispersed(from = 50)    |> expect_true()
-  seq_disperse(7.3)   |> is_seq_dispersed(from = 7.3)   |> expect_true()
-  seq_disperse(0.009) |> is_seq_dispersed(from = 0.009) |> expect_true()
+  50    |> seq_disperse() |> is_seq_dispersed(from = 50)    |> expect_true()
+  7.3   |> seq_disperse() |> is_seq_dispersed(from = 7.3)   |> expect_true()
+  0.009 |> seq_disperse() |> is_seq_dispersed(from = 0.009) |> expect_true()
 })
 
 
@@ -108,9 +108,9 @@ test_that("`is_seq_descending()` with `test_linear = FALSE`
 
 test_that("`is_seq_dispersed()` with `test_linear = FALSE`
           returns `FALSE` when it should", {
-  seq_disperse(50)    |> is_seq_dispersed(from = 50   , test_linear = f) |> expect_true()
-  seq_disperse(7.3)   |> is_seq_dispersed(from = 7.3  , test_linear = f) |> expect_true()
-  seq_disperse(0.009) |> is_seq_dispersed(from = 0.009, test_linear = f) |> expect_true()
+  50    |> seq_disperse() |> is_seq_dispersed(from = 50   , test_linear = f) |> expect_true()
+  7.3   |> seq_disperse() |> is_seq_dispersed(from = 7.3  , test_linear = f) |> expect_true()
+  0.009 |> seq_disperse() |> is_seq_dispersed(from = 0.009, test_linear = f) |> expect_true()
 })
 
 
@@ -194,9 +194,9 @@ test_that("a vector of nothing but `NA` returns `NA`, whatever its type", {
 
 test_that("the signs of the steps count, and known values can disprove", {
   # Absolute steps made zigzags linear:
-  c(1, 2, 1) |> is_seq_linear() |> expect_false()
+  c(1, 2, 1)    |> is_seq_linear() |> expect_false()
   c(5, 4, 5, 4) |> is_seq_linear() |> expect_false()
-  c(5, 4, 3) |> is_seq_linear() |> expect_true()
+  c(5, 4, 3)    |> is_seq_linear() |> expect_true()
   # These were `NA` although the known values already rule them out:
   c(2, NA, 1) |> is_seq_ascending(test_linear = FALSE) |> expect_false()
   c(1, NA, 2) |> is_seq_descending(test_linear = FALSE) |> expect_false()

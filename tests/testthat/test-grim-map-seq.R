@@ -1407,38 +1407,40 @@ test_that("`grim_map_seq()` works correctly", {
 
 
 test_that("`grim_map_seq()` output has correct structure", {
-  expect_s3_class(pigs1_exp, "scrutiny_grim_map_seq")
-  expect_s3_class(pigs1_exp, "scrutiny_grim_map")
-  expect_named(pigs1_exp, c("x", "n", "digits_x", "consistency", "probability", "diff_var", "case", "var"))
+  pigs1_exp |> expect_s3_class("scrutiny_grim_map_seq")
+  pigs1_exp |> expect_s3_class("scrutiny_grim_map")
+  pigs1_exp |>
+    expect_named(c("x", "n", "digits_x", "consistency", "probability", "diff_var", "case", "var"))
 
   # 8 inconsistent cases in pigs1, 10 dispersions each for x and n = 160 rows
-  expect_equal(nrow(pigs1_exp), 160L)
+  pigs1_exp |> nrow() |> expect_equal(160L)
 
   # digits_x should be uniformly 2
-  expect_equal(unique(pigs1_exp$digits_x), 2L)
+  pigs1_exp$digits_x |> unique() |> expect_equal(2L)
 
   # x values should be numeric
-  expect_type(pigs1_exp$x, "double")
+  pigs1_exp$x |> expect_type("double")
 })
 
 
 test_that("`grim_map_seq()` with percent=TRUE has correct structure", {
-  expect_s3_class(pigs2_exp, "scrutiny_grim_map_seq")
-  expect_named(pigs2_exp, c("x", "n", "digits_x", "consistency", "probability", "diff_var", "case", "var"))
+  pigs2_exp |> expect_s3_class("scrutiny_grim_map_seq")
+  pigs2_exp |>
+    expect_named(c("x", "n", "digits_x", "consistency", "probability", "diff_var", "case", "var"))
 
   # 5 inconsistent cases in pigs2, 10 dispersions each for x and n = 100 rows
-  expect_equal(nrow(pigs2_exp), 100L)
+  pigs2_exp |> nrow() |> expect_equal(100L)
 
   # digits_x should be uniformly 1
-  expect_equal(unique(pigs2_exp$digits_x), 1L)
+  pigs2_exp$digits_x |> unique() |> expect_equal(1L)
 
   # x values should be original percentage scale, not divided by 100
-  expect_true(all(pigs2_exp$x > 1))
+  pigs2_exp$x |> call_on(\(x) x > 1) |> all() |> expect_true()
 })
 
 
 test_that("`grim_map_seq()` with include_reported=TRUE adds one row per case", {
-  expect_equal(nrow(pigs1_include_reported_exp), 176L)
+  pigs1_include_reported_exp |> nrow() |> expect_equal(176L)
 })
 
 
@@ -1447,16 +1449,14 @@ test_that("`grim_map_seq()` with include_reported=TRUE adds one row per case", {
 # them as having more decimal places than `digits_x` allows. See issue #83.
 test_that("`grim_map_seq()` handles large `dispersion` values", {
   out <- grim_map_seq(pigs5, digits_x = 2, dispersion = 1:305)
-  expect_s3_class(out, "scrutiny_grim_map_seq")
-  expect_equal(max(decimal_places(out$x)), 2L)
-  expect_true(all(out$digits_x == 2L))
+  out |> expect_s3_class("scrutiny_grim_map_seq")
+  out$x |> decimal_places() |> max() |> expect_equal(2L)
+  out$digits_x |> call_on(\(x) x == 2L) |> all() |> expect_true()
 
   # The one extra step must not change anything about the shorter sequence:
   out_304 <- grim_map_seq(pigs5, digits_x = 2, dispersion = 1:304)
-  expect_equal(
-    out[out$diff_var %in% out_304$diff_var, ],
-    out_304[out_304$diff_var %in% out$diff_var, ]
-  )
+  out[out$diff_var %in% out_304$diff_var, ] |>
+    expect_equal(out_304[out_304$diff_var %in% out$diff_var, ])
 })
 
 
@@ -1474,12 +1474,10 @@ test_that("`grim_map_seq()` applies `items` exactly once", {
       dispersion = 1:2
     )
 
-  expect_equal(out$n, c(16L, 16L, 16L, 16L, 14L, 15L, 17L, 18L))
-  expect_equal(out$items, rep(2, 8))
-  expect_equal(
-    out$consistency,
-    grim(out$x, out$n, digits_x = 2, items = 2)
-  )
+  out$n     |> expect_equal(c(16L, 16L, 16L, 16L, 14L, 15L, 17L, 18L))
+  out$items |> expect_equal(rep(2, 8))
+  out$consistency |>
+    expect_equal(grim(out$x, out$n, digits_x = 2, items = 2))
 })
 
 
@@ -1497,12 +1495,10 @@ test_that("`grimmer_map_seq()` tests `n` and `items` separately", {
     include_consistent = TRUE,
     include_reported = TRUE
   )
-  expect_equal(out$consistency, c(FALSE, TRUE, FALSE))
-  expect_equal(
-    out$consistency,
-    grimmer(out$x, out$sd, out$n, digits_x = 2, digits_sd = 2, items = 2)
-  )
-  expect_true(audit_seq(out)$consistency)
+  out$consistency |> expect_equal(c(FALSE, TRUE, FALSE))
+  out$consistency |>
+    expect_equal(grimmer(out$x, out$sd, out$n, digits_x = 2, digits_sd = 2, items = 2))
+  out |> audit_seq() |> purrr::pluck("consistency") |> expect_true()
 })
 
 
@@ -1511,8 +1507,8 @@ test_that("`grimmer_map_seq()` tests `n` and `items` separately", {
 test_that("`case` indexes the rows of the input", {
   d <- tibble::tibble(x = c(5.2, 5.19, 3.4, 7.15), n = c(30, 28, 20, 21))
   out <- grim_map_seq(d, digits_x = 2, dispersion = 1)
-  expect_equal(unique(out$case), c(2L, 4L))
-  expect_equal(unique(out$x[out$var == "n"]), d$x[c(2L, 4L)])
+  out$case              |> unique() |> expect_equal(c(2L, 4L))
+  out$x[out$var == "n"] |> unique() |> expect_equal(d$x[c(2L, 4L)])
 })
 
 
@@ -1523,7 +1519,8 @@ test_that("sequence mappers name the test when `data` already has results", {
   data_tested <- grim_map(pigs1[1:3, ], digits_x = 2)
   data_tested |> grim_map_seq(digits_x = 2) |>
     expect_error(regexp = "already includes a \"consistency\" column")
-  grimmer_map(pigs5[1:3, ], digits_x = 2, digits_sd = 2) |>
+  pigs5[1:3, ] |>
+    grimmer_map(digits_x = 2, digits_sd = 2) |>
     grimmer_map_seq(digits_x = 2, digits_sd = 2) |>
     expect_error(regexp = "already includes a \"consistency\" column")
 })
@@ -1542,10 +1539,10 @@ test_that("a negative mean is dispersed in both directions", {
     digits_x = 2,
     var = "x"
   )
-  nrow(out) |> expect_equal(10L)
-  sort(out$diff_var) |> expect_equal(c(-5:-1, 1:5))
-  min(out$x) |> expect_equal(-2.56)
-  max(out$x) |> expect_equal(-2.46)
+  out          |> nrow() |> expect_equal(10L)
+  out$diff_var |> sort() |> expect_equal(c(-5:-1, 1:5))
+  out$x        |> min()  |> expect_equal(-2.56)
+  out$x        |> max()  |> expect_equal(-2.46)
 })
 
 test_that("`reverse_map_seq()` recovers a negative reported mean", {
@@ -1569,7 +1566,7 @@ test_that("`n` keeps a floor of 1 even though the mean has none", {
     digits_x = 2,
     var = "n"
   )
-  min(out$n) |> expect_equal(1L)
+  out$n |> min() |> expect_equal(1L)
 
   # Nothing undecidable made it into the output:
   out$consistency |> anyNA() |> expect_false()
@@ -1583,7 +1580,7 @@ test_that("a zero step in `dispersion` doesn't duplicate the reported case", {
     dispersion = c(0, 1, 2),
     include_consistent = TRUE
   )
-  anyDuplicated(out$diff_var) |> expect_equal(0L)
+  out$diff_var |> anyDuplicated() |> expect_equal(0L)
   out$diff_var |> sort() |> expect_equal(c(-2L, -1L, 1L, 2L))
 })
 
@@ -1597,5 +1594,5 @@ test_that("`function_map_seq()` adds the `.name_class` class", {
     .name_test = "GRIM",
     .name_class = "my_class"
   )
-  my_map_seq(pigs1, digits_x = 2) |> expect_s3_class("my_class")
+  pigs1 |> my_map_seq(digits_x = 2) |> expect_s3_class("my_class")
 })

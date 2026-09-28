@@ -7,20 +7,22 @@ test_that("`rounding_bias()` computes the mean bias by default", {
   # only tie is at 0.05:
   bias_up <- rounding_bias(vec, digits = 1)
   bias_down <- rounding_bias(vec, digits = 1, rounding = "down")
-  expect_true(bias_up > 0)
-  expect_true(bias_down < 0)
-  expect_equal(bias_up, -bias_down)
+  bias_up   |> expect_gt(0)
+  bias_down |> expect_lt(0)
+  bias_up |> expect_equal(-bias_down)
 })
 
 
 test_that("`rounding_bias(mean = FALSE)` returns one bias per input value", {
   out <- rounding_bias(vec, digits = 1, rounding = "up", mean = FALSE)
-  expect_length(out, length(vec))
+  out |> expect_length(length(vec))
   # `x` can be reconstructed from first rounding it, then subtracting the bias:
-  expect_true(all(dplyr::near(
-    reround(vec, 1L, "up") - out,
-    vec
-  )))
+  vec |>
+    reround(1L, "up") |>
+    call_on(\(x) x - out) |>
+    dplyr::near(vec) |>
+    all() |>
+    expect_true()
 })
 
 
