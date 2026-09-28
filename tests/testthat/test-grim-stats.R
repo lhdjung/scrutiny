@@ -146,3 +146,11 @@ test_that("`grim_probability()` and `grim_total()` are `NA` where `grim()` is", 
     purrr::pluck("probability") |>
     expect_equal(c(NA, NA, 0.72))
 })
+
+
+test_that("`grim_total()` rejects a string `x` but not a missing one", {
+  "5.19"  |> grim_total(20, 2)       |> expect_error("must be one of these types")
+  "5.19"  |> grim_probability(20, 2) |> expect_error("must be one of these types")
+  NA      |> grim_probability(20, 2) |> expect_na()
+  c(NA, 5.19) |> grim_total(20, 2)   |> expect_equal(c(NA, 80))
+})

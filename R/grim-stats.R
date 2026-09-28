@@ -120,6 +120,12 @@ grim_total <- function(
   rounding = "up_or_down",
   threshold = 5
 ) {
+  # A string `x` used to be coerced here, so that `"5.19"` got a count while
+  # `grim()` rejected it. Missing values are undecidable, not mistakes:
+  if (!is.numeric(x) && !all(is.na(x))) {
+    check_type(x, c("double", "integer"))
+  }
+
   if (percent) {
     digits_x <- digits_x + 2L
   }
@@ -135,7 +141,7 @@ grim_total <- function(
   # `items` that is not a positive whole number. The `probability` column of
   # `grim_map()` used to show values such as `1.03` next to an `NA` verdict.
   decidable <- is_decidable_n_items(n, items) &
-    is.finite(as.numeric(x)) &
+    is.finite(x) &
     is.finite(n_values)
 
   # A reported value is consistent if at least one possible mean lies inside its
