@@ -79,8 +79,8 @@ check_factory_key_args_names <- function(
   key_cols_missing,
   key_cols_call_names
 ) {
-  offenders <- key_cols_missing
-  offenders <- offenders[!offenders %in% key_cols_call_names]
+  offenders <- key_cols_missing |>
+    call_on(\(x) x[!x %in% key_cols_call_names])
 
   # Error condition -- not all of the `reported` values that are not column
   # names of `data` have been supplied as values of the respective arguments:
@@ -502,8 +502,9 @@ absorb_key_args <- function(data, reported, key_cols_call = NULL) {
     ))
   }
 
-  key_cols_missing <- reported[!reported %in% colnames(data)]
-  key_cols_missing <- as.character(key_cols_missing)
+  key_cols_missing <- reported |>
+    call_on(\(x) x[!x %in% colnames(data)]) |>
+    as.character()
 
   # No need to work with key arguments here if `data` has all of the expected
   # column names:

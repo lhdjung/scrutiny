@@ -209,8 +209,9 @@ split_by_parens <- function(
   # warned appropriately:
   if (!identical(names_of_cols_with_seps, names_data)) {
     names_wrong_cols <- names_data[!names_data %in% names_of_cols_with_seps]
-    msg_reason <- message_sep_if_cols_excluded(sep)
-    msg_reason <- paste0("contain the `sep` elements, ", msg_reason)
+    msg_reason <- sep |>
+      message_sep_if_cols_excluded() |>
+      call_on(\(x) paste0("contain the `sep` elements, ", x))
     if (check_sep) {
       msg_exclusion <- paste0(c("was", "were"), " not split")
     } else {

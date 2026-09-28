@@ -13,7 +13,7 @@ manage_key_args <- function(key_args) {
     var_ge_3 <- ""
     var_ge_3_line <- ""
   } else {
-    var_ge_3 <- key_args[-(1:2)] # used to be: `key_args_bt[-(1:2)]`
+    var_ge_3 <- key_args[-(1:2)]
     var_ge_3_line <- "#'   - Accordingly for {commas_and(var_ge_3)}."
   }
 
@@ -23,6 +23,10 @@ manage_key_args <- function(key_args) {
 
 # Helper; not exported:
 manage_var_ge_3 <- function(var_ge_3, prefix, suffix, segway = "as well as") {
+  if (any(var_ge_3 == "")) {
+    return("")
+  }
+
   for (i in seq_along(prefix)) {
     if (prefix[i] != "") {
       prefix[i] <- paste0(prefix[i], "_")
@@ -35,32 +39,28 @@ manage_var_ge_3 <- function(var_ge_3, prefix, suffix, segway = "as well as") {
     }
   }
 
-  if (all(var_ge_3 != "")) {
-    if (length(var_ge_3) == 1L) {
-      var_ge_3_line <- glue::glue(
-        "`{prefix}{var_ge_3}{suffix}`" # used to have: `hits_{var_ge_3}`
-      )
-      var_ge_3_line <- commas_and(var_ge_3_line)
-      var_ge_3_line <- paste(wrap_in_backticks(var_ge_3), "and", var_ge_3_line)
-      var_ge_3_line <- paste(segway, var_ge_3_line)
-    } else {
-      var_ge_3_line <- glue::glue(
-        "`{var_ge_3}` and `{prefix}{var_ge_3}{suffix}`"
-      )
-      var_ge_3_line_without_last <- paste(
-        var_ge_3_line[1L:(length(var_ge_3_line) - 1L)],
-        collapse = "; "
-      )
-      var_ge_3_line <- glue::glue(
-        " {segway} {var_ge_3_line_without_last}; \\
-      and finally {var_ge_3_line[length(var_ge_3_line)]}"
-      )
-    }
+  if (length(var_ge_3) == 1L) {
+    var_ge_3_line <- "`{prefix}{var_ge_3}{suffix}`" |>
+      glue::glue() |>
+      commas_and() |>
+      call_on(\(x) paste(wrap_in_backticks(var_ge_3), "and", x)) |>
+      call_on(\(x) paste(segway, x))
   } else {
-    var_ge_3_line <- ""
+    var_ge_3_line <- glue::glue(
+      "`{var_ge_3}` and `{prefix}{var_ge_3}{suffix}`"
+    )
+
+    var_ge_3_line_without_last <- var_ge_3_line |>
+      utils::head(-1L) |>
+      paste(collapse = "; ")
+
+    var_ge_3_line <- glue::glue(
+      " {segway} {var_ge_3_line_without_last}; \\
+      and finally {var_ge_3_line[length(var_ge_3_line)]}"
+    )
   }
 
-  return(var_ge_3_line)
+  var_ge_3_line
 }
 
 
@@ -345,8 +345,8 @@ write_doc_audit_total_n <- function(key_args, name_test) {
 
   # Main part ---
 
-  key_args_num <- key_args[-length(key_args)]
-  key_args_num <- key_args_num |>
+  key_args_num <- key_args |>
+    utils::head(-1L) |>
     rep(each = 2) |>
     paste0(c("1", "2")) |>
     wrap_in_backticks()

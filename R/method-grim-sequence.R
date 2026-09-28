@@ -157,9 +157,9 @@ seq_test_ranking <- function(x, explain = TRUE) {
   class_is_scrutiny_map_class <-
     stringr::str_detect(class(x), "^scrutiny_") &
     stringr::str_detect(class(x), "_map$")
-  scrutiny_func_info <- class(x)[class_is_scrutiny_map_class]
-  scrutiny_func_info <- stringr::str_remove(scrutiny_func_info, "^scrutiny_")
-  scrutiny_func_info <- paste0("`", scrutiny_func_info, "()`")
+  scrutiny_func_info <- class(x)[class_is_scrutiny_map_class] |>
+    stringr::str_remove("^scrutiny_") |>
+    call_on(\(name) paste0("`", name, "()`"))
 
   if (isTRUE(scrutiny_meta(x)$seq_test)) {
     if (explain) {

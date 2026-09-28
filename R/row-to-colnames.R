@@ -76,8 +76,9 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
   correct <- vapply(
     seq_along(data),
     function(i) {
-      cells <- as.character(data[[i]][row])
-      cells <- cells[!is.na(cells)]
+      cells <- data[[i]][row] |>
+        as.character() |>
+        call_on(\(x) x[!is.na(x)])
       if (length(cells) == 0L) {
         colnames(data)[i]
       } else {

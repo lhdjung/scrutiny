@@ -1535,8 +1535,10 @@ check_new_args_without_dots <- function(data, dots, old_args, name_fn) {
     if (length(offenders1) == 1L) {
       msg_cols <- glue::glue("{offenders1}")
     } else {
-      msg_cols <- stringr::str_flatten(as.character(offenders1), ", ")
-      msg_cols <- paste0("c(", msg_cols, ")")
+      msg_cols <- offenders1 |>
+        as.character() |>
+        stringr::str_flatten(", ") |>
+        call_on(\(x) paste0("c(", x, ")"))
     }
     cli::cli_abort(
       message = c(
@@ -2135,9 +2137,10 @@ check_var_bounds <- function(var_bounds) {
 #' @noRd
 check_dispersion_linear <- function(data) {
   if (isFALSE(scrutiny_meta(data)$dispersion_linear)) {
-    name_mapper <- class(data)[grepl("_map_seq$", class(data))]
-    name_mapper <- name_mapper[name_mapper != "scrutiny_map_seq"]
-    name_mapper <- sub("scrutiny_*", "", name_mapper)
+    name_mapper <- class(data) |>
+      call_on(\(x) x[grepl("_map_seq$", x)]) |>
+      call_on(\(x) x[x != "scrutiny_map_seq"]) |>
+      sub(pattern = "scrutiny_*", replacement = "")
 
     cli::cli_abort(
       message = c(

@@ -192,11 +192,12 @@ audit_seq <- function(data) {
     )) |>
     suppressWarnings()
 
-  dc <- class(data)
-  fun_test_name <- dc[stringr::str_detect(dc, "^scrutiny_.*map$")]
-  fun_test_name <- stringr::str_remove(fun_test_name, "^scrutiny_")
-  fun_test <- find_fun_by_name(fun_test_name, env_caller)
+  fun_test_name <- data |>
+    class() |>
+    call_on(\(x) x[stringr::str_detect(x, "^scrutiny_.*map$")]) |>
+    stringr::str_remove("^scrutiny_")
 
+  fun_test <- find_fun_by_name(fun_test_name, env_caller)
   data_rev <- reverse_map_seq(data)
 
   # The `*_map_seq()` output records the arguments that reproduce the test: the

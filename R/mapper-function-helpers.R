@@ -88,8 +88,9 @@ check_consistency_not_in_colnames <- function(
     } else {
       class_basic
     }
-    fun_name_all <- stringr::str_remove(class_best, "^scrutiny_")
-    fun_name_all <- fun_name_all[!fun_name_all %in% c("map_seq", "map_total_n")]
+    fun_name_all <- class_best |>
+      stringr::str_remove("^scrutiny_") |>
+      call_on(\(x) x[!x %in% c("map_seq", "map_total_n")])
     # Guard against multiple matches, which have no single function to name:
     if (length(fun_name_all) != 1L) {
       fun_name_all <- character(0L)
