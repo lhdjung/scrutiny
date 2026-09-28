@@ -100,43 +100,6 @@ wrong_spec_string <- function(x) {
 }
 
 
-#' DEBIT helper for SD reconstruction
-#'
-#' @param formula String. For now, this has to be `"mean_n"`.
-#' @param x,n Numeric. Binary mean and sample size.
-#' @param group_0,group_1 Numeric. Number of values coded 0 and 1, respectively.
-#'
-#' @return Numeric.
-#'
-#' @noRd
-reconstruct_sd_scalar <- function(formula, x, n, group_0, group_1) {
-  if (formula == "mean_n") {
-    sd_rec <- sd_binary_mean_n(mean = x, n = n)
-  } else if (formula == "0_n") {
-    sd_rec <- sd_binary_0_n(group_0 = group_0, n = n)
-  } else if (formula == "1_n") {
-    sd_rec <- sd_binary_1_n(group_1 = group_1, n = n)
-  } else if (formula == "groups") {
-    sd_rec <- sd_binary_groups(group_0 = group_0, group_1 = group_1)
-  } else {
-    cli::cli_abort(
-      message = c(
-        "!" = "`formula` must be \"mean_n\", \"0_n\", \"1_n\", or \\
-      \"groups\".",
-        "x" = "It is {wrong_spec_string(formula)}."
-      ),
-      call = rlang::caller_env()
-    )
-  }
-
-  sd_rec
-}
-
-
-# Vectorized version of `reconstruct_sd_scalar()`:
-reconstruct_sd <- Vectorize(reconstruct_sd_scalar, USE.NAMES = FALSE)
-
-
 #' Write "an" or "a", depending on the next word
 #'
 #' @param x String. A string value that ends on a vowel letter returns `"an"`;

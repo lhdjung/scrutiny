@@ -142,7 +142,7 @@ test_that("arguments that describe the test as a whole must be length 1", {
       rounding = c("up", "down"),
       threshold = c(5, 6),
       symmetric = c(TRUE, FALSE),
-      formula = c("mean_n", "0_n")
+      formula = c("exact", "mean_n")
     )
   )
 

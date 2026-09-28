@@ -96,25 +96,18 @@ debit_scalar <- function(
   n,
   digits_x,
   digits_sd,
-  formula = "mean_n",
+  formula = "exact",
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
   show_rec = FALSE
 ) {
-  # `reconstruct_sd()` supports four formulas, but three need `group_0` or
-  # `group_1`, which DEBIT does not have -- it works from the reported mean and
-  # sample size. Reject them here, rather than let `reconstruct_sd_scalar()`
-  # fail about an argument the user never saw:
-  if (!identical(formula, "mean_n")) {
+  # A plain comparison rather than `rlang::arg_match()`, which would cost more
+  # than the rest of the input checks on every row:
+  if (!identical(formula, "exact") && !identical(formula, "mean_n")) {
     cli::cli_abort(c(
-      "`formula` must be \"mean_n\".",
-      "x" = "It is {wrong_spec_string(formula)}.",
-      "i" = "DEBIT reconstructs the SD from the reported mean and sample \\
-      size. The other formulas that `reconstruct_sd()` knows need the size \\
-      of one of the two groups, which DEBIT is not given.",
-      "i" = "The argument is kept for the case that such data become \\
-      available to the test."
+      "`formula` must be \"exact\" or \"mean_n\".",
+      "x" = "It is {wrong_spec_string(formula)}."
     ))
   }
 
@@ -196,24 +189,53 @@ debit_scalar <- function(
   sd_lower <- bounds_sd$lower / bounds_sd$denom
   sd_upper <- bounds_sd$upper / bounds_sd$denom
 
-  # The means at which the SD is reconstructed. The two bounds alone are not
-  # enough: the verdict below reasons from them to every mean in between, which
-  # needs the reconstruction to be monotonic in the mean -- and it isn't.
-  # `sd_binary_mean_n()` is `sqrt((n / (n - 1)) * mean * (1 - mean))`, a
-  # downward parabola peaking at a mean of 0.5, so an interval containing 0.5
-  # reaches SDs *above* both endpoints. At a mean of exactly 0.50 both endpoints
-  # even give the same SD, collapsing the attainable band to a point. The peak
-  # is the only interior extremum, so adding it where it falls inside the
-  # interval restores the span and makes the step below sound:
-  x_eval <- c(x_lower, x_upper)
+  if (formula == "exact") {
+    # The mean of `n` binary values is `k / n` for a whole number `k`, so only
+    # those means can stand behind the reported one. `k / n` lies within the
+    # bounds of `x` if `k * denom` lies within `n` times their numerators, which
+    # is a comparison between whole numbers. The candidates are a step wider
+    # than needed on either side, so that floating-point error in the division
+    # cannot drop one; the exact comparison then filters them:
+    k <- seq(
+      max(floor(bounds_x$lower * n / bounds_x$denom) - 1, 0),
+      min(ceiling(bounds_x$upper * n / bounds_x$denom) + 1, n)
+    )
+    num_k <- k * bounds_x$denom
+    k <- k[
+      (if (bounds_x$incl_lower) {
+        num_k >= bounds_x$lower * n
+      } else {
+        num_k > bounds_x$lower * n
+      }) &
+        (if (bounds_x$incl_upper) {
+          num_k <= bounds_x$upper * n
+        } else {
+          num_k < bounds_x$upper * n
+        })
+    ]
+    # If no binary sample of size `n` has the reported mean, `k` is empty, and
+    # the test is `FALSE` below:
+    x_eval <- k / n
+  } else {
+    # The "mean_n" test treats the mean as continuous and reconstructs the SD at
+    # the bounds of its range. The two bounds alone are not enough: the verdict
+    # below reasons from them to every mean in between, which needs the
+    # reconstruction to be monotonic in the mean -- and it isn't.
+    # `sd_binary_mean_n()` is `sqrt((n / (n - 1)) * mean * (1 - mean))`, a
+    # downward parabola peaking at a mean of 0.5, so an interval containing 0.5
+    # reaches SDs *above* both endpoints. At a mean of exactly 0.50 both
+    # endpoints even give the same SD, collapsing the attainable band to a
+    # point. The peak is the only interior extremum, so adding it where it falls
+    # inside the interval restores the span and makes the step below sound:
+    x_eval <- c(x_lower, x_upper)
 
-  if (x_lower <= 0.5 && 0.5 <= x_upper) {
-    x_eval <- c(x_eval, 0.5)
+    if (x_lower <= 0.5 && 0.5 <= x_upper) {
+      x_eval <- c(x_eval, 0.5)
+    }
   }
 
-  # Reconstruct the SD from each of those means... (`group_0` and `group_1`
-  # would have to be passed on here to support formulas other than "mean_n")
-  sd_rec <- reconstruct_sd(formula, x_eval, n)
+  # Reconstruct the SD from each of those means...
+  sd_rec <- sd_binary_mean_n(x_eval, n)
 
   # ...and round it the same way the reported SD was presumably rounded, to the
   # same number of decimal places:
@@ -244,11 +266,17 @@ debit_scalar <- function(
     num_rec < bounds_sd$upper
   }
 
-  # The two conditions need not be met by the same reconstructed value: with one
-  # below the reported SD's range and another above it, some mean in between
-  # reconstructs into it. This intermediate-value argument holds because
-  # `x_eval` spans the attainable range -- hence the peak added to it.
-  consistency <- any(above_lower) && any(below_upper)
+  # Under "exact", some attainable mean has to reconstruct into the reported
+  # SD's range by itself. Under "mean_n", the two conditions need not be met
+  # by the same reconstructed value: with one below the range and another above
+  # it, some mean in between reconstructs into it. This intermediate-value
+  # argument holds because `x_eval` spans the attainable range -- hence the peak
+  # added to it. If no mean is attainable, both tests are `FALSE`.
+  consistency <- if (formula == "exact") {
+    any(above_lower & below_upper)
+  } else {
+    any(above_lower) && any(below_upper)
+  }
 
   if (!show_rec) {
     return(consistency)
@@ -293,8 +321,13 @@ debit_scalar <- function(
 #'   trailing zeros. As with `digits_x`, there is no default, because trailing
 #'   zeros don't survive in a numeric value.
 #' @param n Integer. Total sample size.
-#' @param formula String. Formula used to compute the SD of the binary
-#'   distribution. Currently, only the default, `"mean_n"`, is supported.
+#' @param formula String. `"exact"` (the default) only considers means that `n`
+#'   binary values can have, i.e., `k / n` for a whole number `k`. `"mean_n"`
+#'   treats the mean as continuous, as in Heathers and Brown (2019), and
+#'   accepts some SDs that no binary sample of size `n` can have. For example,
+#'   `debit(0.05, 0.21, 20, 2, 2)` is `TRUE` under `"mean_n"`, but a mean of
+#'   0.05 with `n = 20` can only be one 1 in 20, whose SD rounds to 0.22. The
+#'   difference only ever turns `TRUE` into `FALSE`.
 #' @param rounding String. Rounding method or methods to be used for
 #'   reconstructing the SD values to which `sd` will be compared. Default is
 #'   `"up_or_down"` (from 5). See `vignette("rounding-options")`.
@@ -335,7 +368,7 @@ debit <- function(
   n,
   digits_x,
   digits_sd,
-  formula = "mean_n",
+  formula = "exact",
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE

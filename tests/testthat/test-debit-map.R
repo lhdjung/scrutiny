@@ -73,7 +73,7 @@ df1_expected <- tibble::tibble(
   structure(
     scrutiny = list(
       args = list(
-        formula = "mean_n",
+        formula = "exact",
         rounding = "up_or_down",
         threshold = 5,
         symmetric = FALSE,

@@ -10,7 +10,7 @@ debit(
   n,
   digits_x,
   digits_sd,
-  formula = "mean_n",
+  formula = "exact",
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE
@@ -32,8 +32,13 @@ number \code{1.4}, but only the latter has \code{digits_x = 2}.}
 trailing zeros. As with \code{digits_x}, there is no default, because trailing
 zeros don't survive in a numeric value.}
 
-\item{formula}{String. Formula used to compute the SD of the binary
-distribution. Currently, only the default, \code{"mean_n"}, is supported.}
+\item{formula}{String. \code{"exact"} (the default) only considers means that \code{n}
+binary values can have, i.e., \code{k / n} for a whole number \code{k}. \code{"mean_n"}
+treats the mean as continuous, as in Heathers and Brown (2019), and
+accepts some SDs that no binary sample of size \code{n} can have. For example,
+\code{debit(0.05, 0.21, 20, 2, 2)} is \code{TRUE} under \code{"mean_n"}, but a mean of
+0.05 with \code{n = 20} can only be one 1 in 20, whose SD rounds to 0.22. The
+difference only ever turns \code{TRUE} into \code{FALSE}.}
 
 \item{rounding}{String. Rounding method or methods to be used for
 reconstructing the SD values to which \code{sd} will be compared. Default is

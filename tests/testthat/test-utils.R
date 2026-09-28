@@ -13,22 +13,6 @@ test_that("`wrong_spec_string()` returns a string", {
 })
 
 
-sd_rec_scalar <- reconstruct_sd_scalar("mean_n", 0.3, 30, 12, 15)
-
-test_that("`reconstruct_sd_scalar()` returns correct values", {
-  sd_rec_scalar |> expect_type("double")
-  sd_rec_scalar |> expect_equal(0.4660916)
-})
-
-
-sd_rec <- reconstruct_sd("mean_n", 0.3, 30, 12, 15)
-
-test_that("`reconstruct_sd()` returns correct values", {
-  sd_rec |> expect_type("double")
-  sd_rec |> expect_equal(0.4660916)
-})
-
-
 test_that("`integer_places()` returns correct values", {
   1.2     |> integer_places() |> expect_equal(1)
   11.2    |> integer_places() |> expect_equal(2)

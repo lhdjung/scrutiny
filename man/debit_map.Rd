@@ -11,7 +11,7 @@ debit_map(
   x = NULL,
   sd = NULL,
   n = NULL,
-  formula = "mean_n",
+  formula = "exact",
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,

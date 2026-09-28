@@ -255,11 +255,43 @@ test_that("DEBIT accepts every real binary data set reported as a mean of 0.50",
   out |> all() |> expect_true()
 })
 
-test_that("`formula` other than \"mean_n\" is an error, not a missing argument", {
+# `"exact"` only considers means of the form `k / n`. The test above shows that
+# it passes every real binary sample; this one shows the converse, that it
+# passes nothing else, by listing every reportable pair of mean and SD.
+
+test_that("`formula = \"exact\"` passes exactly the real binary samples", {
+  grid <- tidyr::expand_grid(x = 0:100 / 100, sd = 0:55 / 100)
+
+  for (rounding in c("up_or_down", "up", "even", "ceiling")) {
+    for (n in c(7L, 20L)) {
+      real <- purrr::map(0:n, function(k) {
+        tidyr::expand_grid(
+          x = reround(k / n, 2, rounding),
+          sd = reround(sd_binary_mean_n(k / n, n), 2, rounding)
+        )
+      })
+      real <- purrr::list_rbind(real)
+      real <- paste(round(real$x * 100), round(real$sd * 100))
+
+      exact <- debit(grid$x, grid$sd, n, 2, 2, rounding = rounding)
+      mean_n <- debit(grid$x, grid$sd, n, 2, 2, "mean_n", rounding)
+
+      exact |>
+        expect_equal(paste(round(grid$x * 100), round(grid$sd * 100)) %in% real)
+      # The difference only ever turns `TRUE` into `FALSE`:
+      (exact & !mean_n) |> any() |> expect_false()
+    }
+  }
+})
+
+test_that("`formula = \"mean_n\"` accepts SDs no binary sample has", {
+  0.05 |> debit(0.21, 20, 2, 2)                     |> expect_false()
+  0.05 |> debit(0.21, 20, 2, 2, formula = "mean_n") |> expect_true()
+  0.05 |> debit(0.22, 20, 2, 2)                     |> expect_true()
+})
+
+test_that("`formula` other than \"exact\" or \"mean_n\" is an error", {
   0.35 |>
     debit(0.48, 100, digits_x = 2, digits_sd = 2, formula = "0_n") |>
-    expect_error("must be \"mean_n\"")
-  0.35 |>
-    debit(0.48, 100, digits_x = 2, digits_sd = 2, formula = "groups") |>
-    expect_error("must be \"mean_n\"")
+    expect_error("must be \"exact\" or \"mean_n\"")
 })
