@@ -338,6 +338,10 @@
 
 - `reround()` no longer returns a negative zero, which `sprintf("%.2f")` printed as `"-0.00"`: `reround(0, 2, "down")` is now `0`.
 
+- `duplicate_count_colpair()` now compares values as strings, as the other `duplicate_*()` functions do. It compared raw doubles, so `0.1 + 0.2` and `0.3` were duplicates in `duplicate_count()` but not here.
+
+- `restore_zeros()` now warns in its own words about values that are not numbers, naming them, instead of letting base R's "NAs introduced by coercion" through.
+
 ## Minor improvements
 
 - `reround_to_fraction(digits = "auto")` no longer errors with "non-numeric argument to mathematical function". The function validated `digits` as a integer before resolving `"auto"` into one, and `is.infinite("auto")` is `FALSE`, so the string went straight into `is_whole_number()`. `reround_to_fraction_level()` has always had the two steps in the right order.

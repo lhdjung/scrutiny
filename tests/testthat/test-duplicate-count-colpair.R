@@ -196,3 +196,8 @@ test_that("`rate_y` is the proportion of `y` values duplicated in `x`", {
   out$rate_x |> expect_equal(3 / 4)
   out$rate_y |> expect_equal(1)
 })
+
+
+test_that("values are compared as strings, as in the other `duplicate_*()` functions", {
+  tibble::tibble(a = 0.1 + 0.2, b = 0.3) |> duplicate_count_colpair() |> dplyr::pull(count) |> expect_equal(1L)
+})

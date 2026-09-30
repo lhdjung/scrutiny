@@ -129,7 +129,7 @@ test_that("scientific notation, binary noise, and non-numbers are handled", {
   c("5%", "2.25") |>
     restore_zeros() |>
     expect_equal(c(NA, "2.25")) |>
-    expect_warning("NAs introduced by coercion")
+    expect_warning("not numbers became `NA`")
   # `sep_in` is a literal string:
   c("1.5", "2.25") |> restore_zeros(sep_in = ".") |> expect_equal(c("1.50", "2.25"))
   c("1,5", "3") |> restore_zeros(width = 2, sep_in = ",") |> expect_equal(c("1,50", "3,00"))

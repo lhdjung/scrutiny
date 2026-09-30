@@ -17,7 +17,8 @@
 #' - `count`: Number of "duplicates", i.e., values in `x` that are also present
 #'   in `y`. Missing and ignored values are not counted.
 #' - `total_x`, `total_y`, `rate_x`, and `rate_y` (added by default): `total_x`
-#'   is the number of non-missing values in the column named under `x`. Also,
+#'   is the number of values in the column named under `x` that are neither
+#'   missing nor ignored. Also,
 #'   `rate_x` is the proportion of `x` values that are duplicated in `y`, i.e.,
 #'   `count / total_x`. Likewise with `total_y` and `rate_y`: the proportion of
 #'   `y` values that are duplicated in `x`. This is counted from the `y` side,
@@ -67,7 +68,9 @@ duplicate_count_colpair <- function(data, ignore = NULL, show_rates = TRUE) {
     data <- lapply(data, function(x) x[!x %in% ignore])
   }
 
-  values <- lapply(data, function(x) x[!is.na(x)])
+  # Values are compared as strings, as in the other `duplicate_*()` functions,
+  # so that `0.1 + 0.2` duplicates `0.3` here as it does there:
+  values <- lapply(data, function(x) as.character(x[!is.na(x)]))
 
   # Column-major, so each column is paired with the later ones only:
   pairs <- utils::combn(names(values), 2L)

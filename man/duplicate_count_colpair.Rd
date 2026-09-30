@@ -24,7 +24,8 @@ stored in the \code{x} and \code{y} output columns.
 \item \code{count}: Number of "duplicates", i.e., values in \code{x} that are also present
 in \code{y}. Missing and ignored values are not counted.
 \item \code{total_x}, \code{total_y}, \code{rate_x}, and \code{rate_y} (added by default): \code{total_x}
-is the number of non-missing values in the column named under \code{x}. Also,
+is the number of values in the column named under \code{x} that are neither
+missing nor ignored. Also,
 \code{rate_x} is the proportion of \code{x} values that are duplicated in \code{y}, i.e.,
 \code{count / total_x}. Likewise with \code{total_y} and \code{rate_y}: the proportion of
 \code{y} values that are duplicated in \code{x}. This is counted from the \code{y} side,

@@ -123,7 +123,14 @@ restore_zeros <- function(
   # A value that is not a number has no zeros to restore. It becomes missing,
   # like a missing value, rather than being padded into nonsense such as
   # `"5%000"` -- or, as it used to, into the string `"NA"`:
-  x_num <- as.numeric(x)
+  x_num <- suppressWarnings(as.numeric(x))
+  not_number <- is.na(x_num) & !is.na(x)
+  if (any(not_number)) {
+    cli::cli_warn(c(
+      "Values that are not numbers became `NA`.",
+      "x" = "This concerns {wrap_in_backticks(unique(x[not_number]))}."
+    ))
+  }
   x[is.na(x_num)] <- NA_character_
 
   # R writes small and large numbers in scientific notation by itself --
