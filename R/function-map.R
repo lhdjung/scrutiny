@@ -51,7 +51,8 @@
 #'   such a helper as a column of its own.
 #' @param .col_names Optionally, a string vector with the names of the columns
 #'   that the `*_scalar()` function returns when asked to show its reconstructed
-#'   values. The name of the key result column must come first. Whether the
+#'   values. The first name must be that of the key result column,
+#'   `.name_key_result`. Whether the
 #'   `*_scalar()` function returns a single value or the full list is up to the
 #'   user of the factory-made function, who controls it via an argument such as
 #'   `show_rec`; both cases are handled. If `data` has no rows, only the key
@@ -278,6 +279,16 @@ function_map <- function(
     ))
   }
 
+  if (!is.null(.col_names) && !identical(.col_names[1L], .name_key_result)) {
+    col_names_first <- .col_names[1L]
+    name_key_result <- .name_key_result
+    cli::cli_abort(c(
+      "`.col_names` must start with `.name_key_result`.",
+      "x" = "It starts with \"{col_names_first}\", but `.name_key_result` \\
+      is \"{name_key_result}\"."
+    ))
+  }
+
   if (!all(names(.cols_helper_merge) %in% .cols_helper)) {
     cli::cli_abort(c(
       "Every name of `.cols_helper_merge` must be a `.cols_helper` value.",
@@ -310,6 +321,37 @@ function_map <- function(
   # message is shown rather than a generic one. All others are passed on
   # explicitly, which is what `.args_defaults` needs -- `.fun` would otherwise
   # apply its own default where the mapper has a different one.
+  # `.args_defaults` can only change the default of an argument that the
+  # factory-made function has. Otherwise, it would add a second formal of the
+  # same name:
+  args_defaults_offenders <- setdiff(names(.args_defaults), args_promoted)
+  if (length(args_defaults_offenders) > 0L) {
+    cli::cli_abort(c(
+      "`.args_defaults` can't name key or disabled arguments.",
+      "x" = "{wrap_in_backticks(args_defaults_offenders)} \\
+      {cli::qty(length(args_defaults_offenders))}{?is a/are} key or disabled \\
+      argument{?s}."
+    ))
+  }
+
+  # The body of the factory-made function assigns these names before it reads
+  # the values of the arguments, so an argument of `.fun` by one of these names
+  # would be shadowed:
+  names_locals <- c(
+    "data", "fun", "reported", "reported_variadic", "args_by_row",
+    "args_helper", "args_const", "args_required", "col_names", "helper_merge",
+    "cols_derived_funs", "add_class", "cols_variadic", "names_variadic",
+    "quo_variadic", "index_variadic"
+  )
+  args_shadowed <- intersect(args_promoted, names_locals)
+  if (length(args_shadowed) > 0L) {
+    cli::cli_abort(c(
+      "`{fun_name}()` has arguments that `function_map()` uses internally.",
+      "x" = "Rename {wrap_in_backticks(args_shadowed)}.",
+      "i" = "Reserved: {wrap_in_backticks(names_locals)}."
+    ))
+  }
+
   formals_promoted <- formals_fun[args_promoted]
   formals_promoted[names(.args_defaults)] <- .args_defaults
   args_required <- args_promoted[
@@ -643,7 +685,8 @@ function_map <- function(
       # `.name_key_result` was specified:
       `!!!`(write_code_col_key_result(
         name_key_result = .name_key_result,
-        name_data = rlang::expr(out)
+        name_data = rlang::expr(out),
+        rename = is.null(.col_names)
       ))
     }),
     # As in `function_map_seq()` and `function_map_total_n()`: the body relies

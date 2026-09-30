@@ -70,7 +70,8 @@ such a helper as a column of its own.}
 
 \item{.col_names}{Optionally, a string vector with the names of the columns
 that the \verb{*_scalar()} function returns when asked to show its reconstructed
-values. The name of the key result column must come first. Whether the
+values. The first name must be that of the key result column,
+\code{.name_key_result}. Whether the
 \verb{*_scalar()} function returns a single value or the full list is up to the
 user of the factory-made function, who controls it via an argument such as
 \code{show_rec}; both cases are handled. If \code{data} has no rows, only the key

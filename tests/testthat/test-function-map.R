@@ -819,3 +819,39 @@ test_that("a key argument clashing with an existing column is an error", {
   d |> grim_map(digits_x = 2, x = mean) |> expect_error("already has a `x` column")
   d |> grim_map(digits_x = 2, x = x)    |> expect_equal(grim_map(d, digits_x = 2))
 })
+
+
+# `write_code_col_key_result()` renamed a `consistency` column that
+# `.col_names` had already named otherwise, so the mapper always failed.
+test_that("`.col_names` may start with a custom `.name_key_result`", {
+  fun <- function(y, n, show_rec = FALSE) if (show_rec) list(y / 3 > n, y / 3) else y / 3 > n
+  map_verdict <- function_map(.fun = fun, .reported = c("y", "n"), .name_test = "T", .name_key_result = "verdict", .col_names = c("verdict", "third"))
+  df <- tibble::tibble(y = 16:18, n = 3:5)
+  df      |> map_verdict()                |> colnames() |> expect_equal(c("y", "n", "verdict"))
+  df      |> map_verdict(show_rec = TRUE) |> colnames() |> expect_equal(c("y", "n", "verdict", "third"))
+  df[0, ] |> map_verdict(show_rec = TRUE) |> colnames() |> expect_equal(c("y", "n", "verdict"))
+  function_map(.fun = fun, .reported = c("y", "n"), .name_test = "T", .name_key_result = "verdict", .col_names = c("consistency", "third")) |>
+    expect_error("must start with `.name_key_result`")
+})
+
+
+test_that("`function_map()` rejects arguments it can't honor", {
+  fun <- function(y, n, z = 1) y > n
+  function_map(.fun = fun, .reported = c("y", "n"), .name_test = "T", .args_defaults = list(n = 2)) |>
+    expect_error("key or disabled argument")
+  fun_shadowed <- function(y, n, fun = 1) y > n
+  function_map(.fun = fun_shadowed, .reported = c("y", "n"), .name_test = "T") |>
+    expect_error("Rename `fun`")
+})
+
+
+# `check_args_disabled()` read the names off the call, which through `lapply()`
+# is `FUN(X[[i]], ...)`, so a disabled argument went through.
+test_that("disabled arguments stay disabled when the mapper is called indirectly", {
+  fun <- function(y, n, bad = 1) (y / 3) > n + bad
+  map_disabled <- function_map(.fun = fun, .reported = c("y", "n"), .name_test = "T", .args_disabled = "bad")
+  df <- tibble::tibble(y = 16:18, n = 3:5)
+  df        |> map_disabled(bad = 100)            |> expect_error("disabled")
+  list(df)  |> lapply(map_disabled, bad = 100)     |> expect_error("disabled")
+  list(df)  |> purrr::map(map_disabled, bad = 100) |> expect_error("disabled")
+})

@@ -308,6 +308,12 @@
 
 - `*_map_total_n()` functions now read an `items` column, as the other mappers do. They built their input to the basic mapper from the reported columns and `n` only, so the column was dropped and every group was tested with one item: `grim_map_total_n()` on `x1 = 4.74, x2 = 2.57, n = 50, items = 2` found the first pair of groups inconsistent, where the same call with the argument `items = 2` found it consistent.
 
+- Mappers made by `function_map()` with a custom `.name_key_result` and `.col_names` no longer fail with "Column `consistency` doesn't exist". `.col_names` must now start with `.name_key_result`, which it names the key result column after.
+
+- `function_map()` now errors if `.args_defaults` names a key or disabled argument, which made a function with a duplicated argument, or if `.fun` has an argument that the body of the manufactured function uses as a variable name, such as `fun` or `reported`, which the variable silently shadowed.
+
+- Arguments disabled via `.args_disabled` of `function_map()` or `function_map_seq()` are now rejected when the mapper is called through `lapply()` or `purrr::map()`. They used to be read off the call, which there is `FUN(X[[i]], ...)`, so they went through and were applied.
+
 ## Minor improvements
 
 - `reround_to_fraction(digits = "auto")` no longer errors with "non-numeric argument to mathematical function". The function validated `digits` as a integer before resolving `"auto"` into one, and `is.infinite("auto")` is `FALSE`, so the string went straight into `is_whole_number()`. `reround_to_fraction_level()` has always had the two steps in the right order.

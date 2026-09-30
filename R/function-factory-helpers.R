@@ -600,9 +600,15 @@ check_args_disabled <- function(args_disabled) {
   if (is.null(args_disabled)) {
     return(NULL)
   }
-  arg_names_caller_call <- rlang::frame_call(frame = parent.frame())
-  arg_names_caller_call <- names(arg_names_caller_call)
-  offenders <- args_disabled[args_disabled %in% arg_names_caller_call]
+  # Disabled arguments can only arrive through the caller's dots. Their names
+  # are read off the dots themselves, not off the call, which through
+  # `lapply()` is `FUN(X[[i]], ...)` and names nothing:
+  env_caller <- parent.frame()
+  if (!exists("...", envir = env_caller, inherits = FALSE)) {
+    return(NULL)
+  }
+  names_dots <- eval(quote(...names()), env_caller)
+  offenders <- args_disabled[args_disabled %in% names_dots]
   if (length(offenders) > 0L) {
     fun_name <- name_caller_call(n = 2L)
     fun_name_bare <- name_caller_call(wrap = FALSE)
