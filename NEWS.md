@@ -316,7 +316,7 @@
 
 - `decimal_places()`, `decimal_places_scalar()`, and `decimal_places_df()` now count the decimal places of numbers when `sep` is not `"."`. They searched the number, which R always writes with a point, for `sep`, so `decimal_places(2.25, sep = ",")` was 0. `restore_zeros_df(check_decimals = TRUE)` skipped numeric columns for the same reason.
 
-- `duplicate_count()`, `duplicate_detect()`, and `duplicate_tally()` no longer fail on input without rows or without any non-missing values, and `duplicate_detect()` and `duplicate_tally()` now accept matrices. `grim_items()` no longer fails on a missing or zero `n`.
+- `duplicate_count()`, `duplicate_detect()`, and `duplicate_tally()` no longer fail on input without rows or without any non-missing values, and `duplicate_detect()` and `duplicate_tally()` now accept matrices. `grim_items()` no longer fails with an obscure error on a missing `n`. It and `grim_granularity()` now reject a non-positive `n`, `gran`, or `items`, where they returned `Inf` or a negative count.
 
 - `seq_disperse()` and `seq_disperse_df()` now error if `from` is missing, infinite, or a string that is not a number. Such a `from` was blamed on `out_min`, failed with "missing value where TRUE/FALSE needed", or, as a string, returned 11 `NA`s.
 

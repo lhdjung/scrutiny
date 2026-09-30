@@ -57,6 +57,8 @@
 #' grim_items(n = c(10, 15, 20), gran = 0.5)
 
 grim_granularity <- function(n, items = 1) {
+  check_positive(n)
+  check_positive(items)
   1 / (n * items)
 }
 
@@ -65,10 +67,12 @@ grim_granularity <- function(n, items = 1) {
 #' @export
 
 grim_items <- function(n, gran, tolerance = .Machine$double.eps^0.5) {
+  check_positive(n)
+  check_positive(gran)
   out <- 1 / (n * gran)
   out_is_whole <- is_whole_number(out, tolerance)
 
-  # A missing or infinite count has no whole-number status to warn about:
+  # A missing count has no whole-number status to warn about:
   if (all(out_is_whole, na.rm = TRUE)) {
     return(out)
   }

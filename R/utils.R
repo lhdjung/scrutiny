@@ -1266,6 +1266,23 @@ commas_and <- function(x) {
 #' @return No return value; might throw error.
 #'
 #' @noRd
+# Like `check_non_negative()` below, but zero is an error, too. Missing values
+# pass, as `which()` drops them:
+check_positive <- function(x) {
+  offenders <- x[which(x <= 0)]
+  if (length(offenders) > 0L) {
+    name <- deparse(substitute(x))
+    cli::cli_abort(
+      message = c(
+        "!" = "`{name}` must be positive.",
+        "x" = "It contains {wrap_in_backticks(utils::head(offenders, 3L))}."
+      ),
+      call = rlang::caller_env()
+    )
+  }
+}
+
+
 check_non_negative <- function(x) {
   offenders <- x[x < 0]
 

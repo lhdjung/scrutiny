@@ -19,8 +19,16 @@ test_that("The warning is not thrown for whole item counts", {
 })
 
 
-test_that("`grim_items()` passes missing and infinite counts through", {
+test_that("`grim_items()` passes missing counts through", {
   c(NA, 20) |> grim_items(gran = 0.05) |> expect_no_warning()
   c(NA, 20) |> grim_items(gran = 0.05) |> expect_equal(c(NA, 1))
-  0         |> grim_items(gran = 0.05) |> expect_equal(Inf)
+})
+
+
+# `n = 0` used to return `Inf` without a word:
+test_that("the granularity functions reject non-positive input", {
+  0  |> grim_items(gran = 0.05)  |> expect_error("`n` must be positive")
+  20 |> grim_items(gran = -0.05) |> expect_error("`gran` must be positive")
+  0  |> grim_granularity()       |> expect_error("`n` must be positive")
+  20 |> grim_granularity(0)      |> expect_error("`items` must be positive")
 })
