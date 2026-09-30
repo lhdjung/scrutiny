@@ -304,6 +304,8 @@
 
 - `seq_disperse()`, `seq_distance()`, `seq_endpoint()`, and every `*_map_seq()` function no longer truncate the dispersed values of an integer vector or column. The sequence was coerced back to integer, so `seq_disperse(4L, by = 0.1, string_output = FALSE)` was `3 3 3 3 3 4 4 4 4 4 4`, and `grimmer_map_seq()` on an integer `sd` column re-tested SDs of 0 and 1 in place of 0.8, 0.9, 1.1, and 1.2. The output now stays integer only when that loses nothing.
 
+- `split_by_parens()` now errors when a split column would get the name of an existing column, such as `mean_sd` next to a `mean` column that is split. It used to overwrite that column, then put its original values back in place of the split part, so the SDs were lost without a word. `end1` and `end2` must now also differ.
+
 ## Minor improvements
 
 - `reround_to_fraction(digits = "auto")` no longer errors with "non-numeric argument to mathematical function". The function validated `digits` as a integer before resolving `"auto"` into one, and `is.infinite("auto")` is `FALSE`, so the string went straight into `is_whole_number()`. `reround_to_fraction_level()` has always had the two steps in the right order.

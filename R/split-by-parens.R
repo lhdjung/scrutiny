@@ -166,6 +166,25 @@ split_by_parens <- function(
   # Prepare the endings of the split column names:
   endings <- rep(c(end1, end2), times = length(cols_to_select))
 
+  # `dplyr::across()` would silently overwrite a column of the same name, so
+  # the new names must be new:
+  names_new <- paste0(rep(names(cols_to_select), each = 2L), "_", endings)
+  if (identical(end1, end2)) {
+    cli::cli_abort(c(
+      "!" = "`end1` and `end2` must be different.",
+      "x" = "Both are \"{end1}\"."
+    ))
+  }
+  names_taken <- intersect(names_new, colnames(data))
+  if (length(names_taken) > 0L) {
+    cli::cli_abort(c(
+      "!" = "Splitting would overwrite existing columns.",
+      "x" = "{.var {names_taken}} {?is/are} already in `data`.",
+      "i" = "Rename {cli::qty(names_taken)}{?it/them}, or choose other `end1` and \\
+      `end2`."
+    ))
+  }
+
   # Apply the extractor functions `before_parens()` and `inside_parens()` to all
   # selected columns from `data` (see above), going by `sep`, which is
   # `"parens"` by default and will thus look for parentheses:

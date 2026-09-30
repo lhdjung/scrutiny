@@ -128,3 +128,12 @@ test_that("the warning names the separators for every spelling of `sep`", {
   }
   data |> split_by_parens(sep = c("<", ">")) |> expect_warning('"<" and ">"')
 })
+
+
+# A split column used to overwrite an existing column of the same name, whose
+# original values then replaced the split part in the output.
+test_that("splitting never overwrites an existing column", {
+  tibble::tibble(mean = c("1.5 (0.2)", "2 (0.5)"), mean_sd = c(9, 9))            |> split_by_parens() |> expect_error("`mean_sd` is already")
+  tibble::tibble(exp = c("1.5 (0.2)", "2 (0.5)"), exp_sd = c("3 (0.1)", "4 (0.3)")) |> split_by_parens() |> expect_error("`exp_sd` is already")
+  tibble::tibble(a = "1 (2)") |> split_by_parens(end1 = "z", end2 = "z") |> expect_error("must be different")
+})
