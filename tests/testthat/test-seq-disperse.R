@@ -179,3 +179,11 @@ test_that("`seq_disperse()` checks `dispersion` and the limits", {
     expect_equal(c("5", "6", "7", "8", "9", "10"))
   4 |> seq_disperse(out_min = NA) |> expect_error("single number")
 })
+
+
+# An integer `from` was coerced back to integer after dispersion, truncating
+# every fractional step: `4L` gave `3 3 3 3 3 4 4 4 4 4 4`.
+test_that("an integer `from` keeps fractional steps", {
+  4L |> seq_disperse(by = 0.1, dispersion = 1:2, string_output = FALSE) |> expect_equal(c(3.8, 3.9, 4, 4.1, 4.2))
+  4L |> seq_disperse(dispersion = 1:2, string_output = FALSE) |> expect_identical(2:6)
+})

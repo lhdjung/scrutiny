@@ -1189,7 +1189,7 @@ manage_string_output_seq <- function(out, from, string_output, digits) {
     if (is.character(from)) {
       return(restore_zeros(out, width = digits))
     } else {
-      return(methods::as(out, typeof(from)))
+      return(coerce_like(out, from))
     }
   } else if (!is.logical(string_output)) {
     if (is.character(string_output)) {
@@ -1207,9 +1207,19 @@ manage_string_output_seq <- function(out, from, string_output, digits) {
   } else if (string_output) {
     return(restore_zeros(out, width = digits))
   } else if (typeof(from) != "character") {
-    return(methods::as(out, typeof(from)))
+    return(coerce_like(out, from))
   }
   out
+}
+
+# An integer `from` dispersed by a fractional step must not be truncated back
+# to integer, so the sequence only becomes integer if that loses nothing:
+coerce_like <- function(out, from) {
+  if (is.integer(from)) {
+    as_integer_if_lossless(out)
+  } else {
+    methods::as(out, typeof(from))
+  }
 }
 
 

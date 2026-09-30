@@ -302,6 +302,8 @@
 
 - `disperse_total()` now requires `n` to be a whole number. Anything else was split into halves of halves without a word: `disperse_total(7.5)` returned group sizes of 3.25 and 4.25. Relatedly, a missing total `n` in a `*_map_total_n()` call is now reported as a value that is not a whole number, rather than as a "decimal number".
 
+- `seq_disperse()`, `seq_distance()`, `seq_endpoint()`, and every `*_map_seq()` function no longer truncate the dispersed values of an integer vector or column. The sequence was coerced back to integer, so `seq_disperse(4L, by = 0.1, string_output = FALSE)` was `3 3 3 3 3 4 4 4 4 4 4`, and `grimmer_map_seq()` on an integer `sd` column re-tested SDs of 0 and 1 in place of 0.8, 0.9, 1.1, and 1.2. The output now stays integer only when that loses nothing.
+
 ## Minor improvements
 
 - `reround_to_fraction(digits = "auto")` no longer errors with "non-numeric argument to mathematical function". The function validated `digits` as a integer before resolving `"auto"` into one, and `is.infinite("auto")` is `FALSE`, so the string went straight into `is_whole_number()`. `reround_to_fraction_level()` has always had the two steps in the right order.

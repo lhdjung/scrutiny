@@ -1596,3 +1596,17 @@ test_that("`function_map_seq()` adds the `.name_class` class", {
   )
   pigs1 |> my_map_seq(digits_x = 2) |> expect_s3_class("my_class")
 })
+
+
+test_that("integer key columns are dispersed without truncation", {
+  df_grimmer <- tibble::tibble(x = 3.5, sd = 1L, n = 20L)
+  df_grimmer |>
+    grimmer_map_seq(digits_x = 1, digits_sd = 1, include_consistent = TRUE, var = "sd", dispersion = 1:2) |>
+    dplyr::pull(sd) |>
+    expect_equal(c(0.8, 0.9, 1.1, 1.2))
+  df_grim <- tibble::tibble(x = 5L, n = 23L)
+  df_grim |>
+    grim_map_seq(digits_x = 1, include_consistent = TRUE, var = "x", dispersion = 1:2) |>
+    dplyr::pull(x) |>
+    expect_equal(c(4.8, 4.9, 5.1, 5.2))
+})
