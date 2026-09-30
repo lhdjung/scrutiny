@@ -22,7 +22,9 @@ numeric" by the particular standards of scrutiny. This means:
 values can be coerced to non-\code{NA} numeric values, and \code{FALSE} otherwise.
 \item Factors are first coerced to string, then tested.
 \item Lists are tested like atomic vectors unless any of their elements have
-length greater 1, in which case they are always \code{FALSE}.
+length greater 1, in which case they are always \code{FALSE}. A logical element
+other than \code{NA} makes a list \code{FALSE}, like a logical vector; a factor
+element is tested as a string.
 \item If all values are non-numeric, non-logical \code{NA}, the output is also \code{NA}.
 }
 

@@ -9,7 +9,9 @@
 #'   values can be coerced to non-`NA` numeric values, and `FALSE` otherwise.
 #'   - Factors are first coerced to string, then tested.
 #'   - Lists are tested like atomic vectors unless any of their elements have
-#'   length greater 1, in which case they are always `FALSE`.
+#'   length greater 1, in which case they are always `FALSE`. A logical element
+#'   other than `NA` makes a list `FALSE`, like a logical vector; a factor
+#'   element is tested as a string.
 #'   - If all values are non-numeric, non-logical `NA`, the output is also `NA`.
 #'
 #'   See details for discussion.
@@ -89,9 +91,16 @@ is_numeric_like <- function(x) {
   ) {
     return(FALSE)
   }
-  # A list is tested like the atomic vector of its elements, where a logical
-  # element next to a string turns into the string `"TRUE"` or `"FALSE"`:
+  # A list is tested like the atomic vector of its elements -- except that
+  # `unlist()` would silently turn `TRUE` into `1` next to a number, and a
+  # factor into its codes. So a logical element is `FALSE`, as a logical vector
+  # is, and a factor is read as its label:
   if (is.list(x) && length(x) > 0L) {
+    is_logical_value <- function(e) is.logical(e) && !is.na(e)
+    if (any(vapply(x, is_logical_value, logical(1L), USE.NAMES = FALSE))) {
+      return(FALSE)
+    }
+    x <- lapply(x, function(e) if (is.factor(e)) as.character(e) else e)
     return(is_numeric_like(unlist(x, recursive = FALSE, use.names = FALSE)))
   }
   if (is.factor(x)) {

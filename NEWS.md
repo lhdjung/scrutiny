@@ -346,7 +346,7 @@
 
 - `reround_to_fraction()` and `reround_to_fraction_level()` now reject an infinite `denominator`, which returned `NaN`.
 
-- `is_numeric_like()` now tests a list like the atomic vector of its elements, as documented, so `list(TRUE, "1")` is `FALSE`.
+- `is_numeric_like()` now tests a list like the atomic vector of its elements, as documented, so `list(TRUE, "1")` is `FALSE`. A logical element other than `NA` makes any list `FALSE`, as a logical vector is, and a factor element is tested as a string: `unlist()` would silently turn `TRUE` into `1` next to a number, and a factor into its codes.
 
 - `duplicate_count()` no longer lists unused factor levels as values with a frequency of 0. `duplicate_count(iris[1:5, ])` had rows for `versicolor` and `virginica`, with no locations.
 

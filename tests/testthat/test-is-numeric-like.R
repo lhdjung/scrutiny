@@ -32,4 +32,13 @@ test_that("`is_numeric_like()` handles non-vectors correctly", {
 test_that("a list is tested like the atomic vector of its elements", {
   list(TRUE, "1") |> is_numeric_like() |> expect_false()
   list(1, "2")    |> is_numeric_like() |> expect_true()
+  list("42", NA)  |> is_numeric_like() |> expect_true()
+  list(NA, NA)    |> is_numeric_like() |> expect_false()
+})
+
+
+test_that("`unlist()` doesn't get to coerce logicals and factors in a list", {
+  list(TRUE, 1)        |> is_numeric_like() |> expect_false()
+  list(1, factor("a")) |> is_numeric_like() |> expect_false()
+  list(1, factor("2")) |> is_numeric_like() |> expect_true()
 })
