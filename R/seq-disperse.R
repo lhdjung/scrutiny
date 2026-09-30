@@ -20,8 +20,9 @@
 #' @param offset_from,.offset_from Integer. If set to a non-zero number, the
 #'   starting point will be offset by that many units on the level of the last
 #'   decimal digit. Default is `0`.
-#' @param out_min,.out_min,out_max,.out_max If specified, output will be
-#'   restricted so that it's not below `out_min` or above `out_max`. Defaults
+#' @param out_min,.out_min,out_max,.out_max If specified, the dispersed values
+#'   will be restricted so that they're not below `out_min` or above `out_max`.
+#'   `from` itself is kept if `include_reported` is `TRUE`. Defaults
 #'   are `"auto"` for `out_min`, i.e., a minimum of one decimal unit above zero;
 #'   and `NULL` for `out_max`, i.e., no maximum.
 #'
@@ -118,6 +119,15 @@ seq_disperse <- function(
   # map the function). Also, the steps away from the number can't be negative:
   check_length(from, 1L)
   check_non_negative(dispersion)
+
+  # A missing, infinite, or non-numeric `from` has no decimal level to disperse
+  # on. It used to be blamed on `out_min`, or to fail in `restore_zeros()`:
+  if (!is.finite(suppressWarnings(as.numeric(from)))) {
+    cli::cli_abort(c(
+      "`from` must be a finite number, or a string coercible to one.",
+      "x" = "It is {wrong_spec_string(from)}."
+    ))
+  }
 
   # Each value in `dispersion` is a number of steps taken both up and down from
   # `from`, so a step of 0 is `from` itself -- twice over, once in each

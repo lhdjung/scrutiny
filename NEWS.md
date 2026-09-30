@@ -318,6 +318,8 @@
 
 - `duplicate_count()`, `duplicate_detect()`, and `duplicate_tally()` no longer fail on input without rows or without any non-missing values, and `duplicate_detect()` and `duplicate_tally()` now accept matrices. `grim_items()` no longer fails on a missing or zero `n`.
 
+- `seq_disperse()` and `seq_disperse_df()` now error if `from` is missing, infinite, or a string that is not a number. Such a `from` was blamed on `out_min`, failed with "missing value where TRUE/FALSE needed", or, as a string, returned 11 `NA`s.
+
 ## Minor improvements
 
 - `reround_to_fraction(digits = "auto")` no longer errors with "non-numeric argument to mathematical function". The function validated `digits` as a integer before resolving `"auto"` into one, and `is.infinite("auto")` is `FALSE`, so the string went straight into `is_whole_number()`. `reround_to_fraction_level()` has always had the two steps in the right order.

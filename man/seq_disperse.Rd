@@ -48,8 +48,9 @@ and down.}
 starting point will be offset by that many units on the level of the last
 decimal digit. Default is \code{0}.}
 
-\item{out_min, .out_min, out_max, .out_max}{If specified, output will be
-restricted so that it's not below \code{out_min} or above \code{out_max}. Defaults
+\item{out_min, .out_min, out_max, .out_max}{If specified, the dispersed values
+will be restricted so that they're not below \code{out_min} or above \code{out_max}.
+\code{from} itself is kept if \code{include_reported} is \code{TRUE}. Defaults
 are \code{"auto"} for \code{out_min}, i.e., a minimum of one decimal unit above zero;
 and \code{NULL} for \code{out_max}, i.e., no maximum.
 

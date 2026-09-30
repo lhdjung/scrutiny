@@ -187,3 +187,11 @@ test_that("an integer `from` keeps fractional steps", {
   4L |> seq_disperse(by = 0.1, dispersion = 1:2, string_output = FALSE) |> expect_equal(c(3.8, 3.9, 4, 4.1, 4.2))
   4L |> seq_disperse(dispersion = 1:2, string_output = FALSE) |> expect_identical(2:6)
 })
+
+
+test_that("`from` must be a finite number", {
+  NA_real_ |> seq_disperse()          |> expect_error("finite number")
+  NA_real_ |> seq_disperse(by = 0.1)  |> expect_error("finite number")
+  Inf      |> seq_disperse()          |> expect_error("finite number")
+  "abc"    |> seq_disperse()          |> expect_error("finite number")
+})
