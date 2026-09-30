@@ -132,15 +132,7 @@ reround_to_fraction <- function(
   # "getting paired" for arguments that cannot be paired at all -- immediately
   # followed by an error from `reround()` saying so.
 
-  # Check whether `denominator` values are >= 1. A missing one propagates to a
-  # missing result instead of failing this `if ()`:
-  if (any(denominator < 1, na.rm = TRUE)) {
-    value_values <- dplyr::if_else(length(denominator) == 1L, "value", "values")
-    cli::cli_abort(c(
-      "!" = "`denominator` must be 1 or greater.",
-      "x" = "It has {value_values} {denominator[denominator < 1]}."
-    ))
-  }
+  check_denominator(denominator)
 
   # The compound methods used to be expanded into their two constituents here,
   # because `reround()` took a vector of procedures and paired them with `x`.
@@ -238,15 +230,7 @@ reround_to_fraction_level <- function(
   # "getting paired" for arguments that cannot be paired at all -- immediately
   # followed by an error from `reround()` saying so.
 
-  # See the comment in `reround_to_fraction()`:
-  if (any(denominator < 1, na.rm = TRUE)) {
-    value_values <- dplyr::if_else(length(denominator) == 1L, "value", "values")
-    cli::cli_abort(c(
-      "!" = "`denominator` must be 1 or greater.",
-      "x" = "It has {value_values} \\
-      {wrap_in_backticks(denominator[denominator < 1])}."
-    ))
-  }
+  check_denominator(denominator)
 
   digits <- resolve_digits_fraction(digits, denominator)
 
@@ -272,4 +256,21 @@ reround_to_fraction_level <- function(
   # Divide by the denominator, then return the result. A compound method
   # returns two values per input value, interleaved:
   out / rep(denominator, each = length(rounding_constituents(rounding)))
+}
+
+
+# `denominator` must be finite and at least 1. A missing value propagates to a
+# missing result instead:
+check_denominator <- function(denominator) {
+  wrong <- (denominator < 1 | is.infinite(denominator)) %in% TRUE
+  if (any(wrong)) {
+    cli::cli_abort(
+      c(
+        "!" = "`denominator` must be a finite number of 1 or greater.",
+        "x" = "It has {cli::qty(sum(wrong))}value{?s} \\
+        {wrap_in_backticks(denominator[wrong])}."
+      ),
+      call = rlang::caller_env()
+    )
+  }
 }

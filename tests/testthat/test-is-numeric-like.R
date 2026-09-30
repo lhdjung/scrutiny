@@ -27,3 +27,9 @@ test_that("`is_numeric_like()` handles non-vectors correctly", {
   append       |> is_numeric_like() |> expect_false()
   rlang::env() |> is_numeric_like() |> expect_false()
 })
+
+
+test_that("a list is tested like the atomic vector of its elements", {
+  list(TRUE, "1") |> is_numeric_like() |> expect_false()
+  list(1, "2")    |> is_numeric_like() |> expect_true()
+})

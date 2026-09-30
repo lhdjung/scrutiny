@@ -89,6 +89,11 @@ is_numeric_like <- function(x) {
   ) {
     return(FALSE)
   }
+  # A list is tested like the atomic vector of its elements, where a logical
+  # element next to a string turns into the string `"TRUE"` or `"FALSE"`:
+  if (is.list(x) && length(x) > 0L) {
+    return(is_numeric_like(unlist(x, recursive = FALSE, use.names = FALSE)))
+  }
   if (is.factor(x)) {
     x <- as.character(x)
   }

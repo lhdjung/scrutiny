@@ -145,3 +145,9 @@ test_that("a compound method pairs each `denominator` with its own `x`", {
     c(0.44, 0.64) |> reround_to_fraction_level(c(2, 4), 1) |> expect_equal(c(0.45, 0.45, 0.65, 0.65))
   })
 })
+
+
+test_that("`denominator` must be finite", {
+  0.3 |> reround_to_fraction(denominator = Inf)       |> expect_error("finite number")
+  0.3 |> reround_to_fraction_level(denominator = Inf) |> expect_error("finite number")
+})

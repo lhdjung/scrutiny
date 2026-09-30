@@ -342,6 +342,10 @@
 
 - `restore_zeros()` now warns in its own words about values that are not numbers, naming them, instead of letting base R's "NAs introduced by coercion" through.
 
+- `reround_to_fraction()` and `reround_to_fraction_level()` now reject an infinite `denominator`, which returned `NaN`.
+
+- `is_numeric_like()` now tests a list like the atomic vector of its elements, as documented, so `list(TRUE, "1")` is `FALSE`.
+
 ## Minor improvements
 
 - `reround_to_fraction(digits = "auto")` no longer errors with "non-numeric argument to mathematical function". The function validated `digits` as a integer before resolving `"auto"` into one, and `is.infinite("auto")` is `FALSE`, so the string went straight into `is_whole_number()`. `reround_to_fraction_level()` has always had the two steps in the right order.
