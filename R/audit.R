@@ -118,12 +118,22 @@ audit_seq <- function(data) {
     name_key_result <- "consistency"
   }
 
-  # With no inconsistent case, there is nothing to count hits in. Which
-  # variables were dispersed is unknown, so there are no per-variable columns:
+  # With no inconsistent case, there is nothing to count hits in, but the
+  # output has the columns of any other. The dispersed variables are read off
+  # the attribute, since the `var` column has no values; output that has lost
+  # the attribute gets no per-variable columns:
   if (nrow(data) == 0L) {
+    var_names <- meta$var
     out <- reverse_map_seq(data)
     out[[name_key_result]] <- logical(0L)
     out$hits_total <- integer(0L)
+    names_var_cols <- c(
+      paste0("hits_", var_names),
+      paste0("diff_", rep(var_names, each = 3L), c("", "_up", "_down"))
+    )
+    for (.name in names_var_cols) {
+      out[[.name]] <- integer(0L)
+    }
     return(add_class(out, "scrutiny_audit_seq"))
   }
 

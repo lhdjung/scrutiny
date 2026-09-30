@@ -1620,8 +1620,13 @@ test_that("output without inconsistent cases keeps its shape and class", {
   empty |> nrow()     |> expect_equal(0L)
   empty |> colnames() |> expect_equal(colnames(full))
   empty |> class()    |> expect_equal(class(full))
-  empty |> audit_seq()       |> colnames() |> expect_equal(c("x", "n", "consistency", "hits_total"))
+  empty |> audit_seq()       |> colnames() |> expect_equal(colnames(audit_seq(full)))
   empty |> reverse_map_seq() |> colnames() |> expect_equal(c("x", "n"))
+  # The dispersed variables are recorded, so the columns follow `var`:
+  full  |> scrutiny_meta() |> purrr::pluck("var") |> expect_equal(c("x", "n"))
+  empty_n <- pigs1[c(1, 1), ] |> grim_map_seq(digits_x = 2, var = "n") |> suppressWarnings()
+  empty_n |> scrutiny_meta() |> purrr::pluck("var") |> expect_equal("n")
+  empty_n |> audit_seq() |> colnames() |> expect_equal(colnames(audit_seq(grim_map_seq(pigs1, digits_x = 2, var = "n"))))
 })
 
 

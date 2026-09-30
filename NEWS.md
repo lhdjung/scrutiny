@@ -322,7 +322,7 @@
 
 - `row_to_colnames()` no longer emits tibble's deprecation warning on an unnamed matrix, which asked users to report the problem to scrutiny. It now also errors if `row` is out of range, where it silently returned no rows (`row = 0`) or did nothing. A named matrix keeps its names, which matter for a column whose header cells are all `NA`.
 
-- `*_map_seq()` functions called on data without inconsistent cases now return a tibble with no rows but all the usual columns, classes, and attributes. They returned a 0 x 0 tibble without classes, so `grim_map_seq(...) |> audit_seq()` failed on valid data. `audit_seq()` and `reverse_map_seq()` now accept such output.
+- `*_map_seq()` functions called on data without inconsistent cases now return a tibble with no rows but all the usual columns, classes, and attributes. They returned a 0 x 0 tibble without classes, so `grim_map_seq(...) |> audit_seq()` failed on valid data. `audit_seq()` and `reverse_map_seq()` now accept such output, and `audit_seq()` returns the usual columns for it. To that end, `*_map_seq()` output now records the dispersed variables as the `var` element of its `"scrutiny"` attribute.
 
 - Mappers now error if `data` has a column named like one of their result columns, such as `probability` or `reason`. That column used to be dropped from the output without a word. (A `consistency` column already was an error.)
 

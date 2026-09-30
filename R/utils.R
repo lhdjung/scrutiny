@@ -664,8 +664,8 @@ add_class <- function(x, new_class) {
 #'
 #' - `args`: the arguments that applied to a basic mapper's whole call, with
 #'   defaults resolved, such as `rounding` and `percent`.
-#' - `fun_args`, `name_key_result`, and `dispersion_linear`: set by sequence
-#'   mappers; see `function_map_seq()`.
+#' - `fun_args`, `name_key_result`, `dispersion_linear`, and `var`: set by
+#'   sequence mappers; see `function_map_seq()`.
 #' - `seq_df`: set by `seq_endpoint_df()` and `seq_distance_df()`.
 #' - `seq_test`: set by a basic mapper whose input had `seq_df`.
 #'

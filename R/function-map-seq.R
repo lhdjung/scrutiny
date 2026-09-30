@@ -473,6 +473,9 @@ function_map_seq <- function(
         ))
       }
 
+      # Recorded on the output below; `var` itself is repeated per row later:
+      .var_requested <- var
+
       # Create the lower-level testing function via an internal function
       # factory:
       map_seq_proto <- function_map_seq_proto(
@@ -605,11 +608,14 @@ function_map_seq <- function(
       # - `dispersion_linear`: `audit_seq()` and `reverse_map_seq()` only work
       #   with a linearly increasing `dispersion`. A single step is trivially
       #   linear, but `is_seq_ascending()` needs two.
+      # - `var`: the dispersed variables, which `audit_seq()` can't read off
+      #   the `var` column when there are no rows.
       attr(out, "scrutiny") <- c(
         .meta_fun,
         list(
           fun_args = .fun_args,
           name_key_result = name_key_result,
+          var = .var_requested,
           dispersion_linear = length(dispersion) < 2L ||
             is_seq_ascending(dispersion)
         )
