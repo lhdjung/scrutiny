@@ -91,7 +91,8 @@
 #'   the `digits_x` column of `data` (or, failing that, inferred from the `x`
 #'   values).
 #' @param n Integer. Maximal value on the x-axis. Default is `NULL`, in which
-#'   case `n` becomes `10 ^ digits` (e.g., `100` if `digits` is `2`).
+#'   case the axis spans the raster and the data, with breaks up to
+#'   `10 ^ digits` (e.g., `100` if `digits` is `2`).
 #' @param rounding String. Only relevant if `show_data` is set to `FALSE`. The
 #'   plot will then be constructed as it would be for data rounded in this
 #'   particular way. Default is `"up_or_down"`.
@@ -171,7 +172,10 @@ grim_plot <- function(
   if (!inherits_grim) {
     # Issue an alert if any GRIMMER inconsistencies were found in `data`:
     if (inherits_grimmer) {
-      reason <- data$reason[!is.na(data$reason)]
+      # Without `show_reason`, there is no `reason` column, and no GRIMMER
+      # inconsistencies can be told apart:
+      reason <- data[["reason"]]
+      reason <- reason[!is.na(reason)]
       n_grimmer_cases <- stringr::str_detect(reason, "GRIMMER")
       n_grimmer_cases <- length(which(n_grimmer_cases))
       if (n_grimmer_cases > 0L) {

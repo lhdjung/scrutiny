@@ -88,11 +88,11 @@ inconsistencies.}
 }
 \value{
 A function such as those below. ("Testable statistics" are variables
-that can be selected via \code{var}, and are then varied. All variables except
-for those in parentheses are selected by default.)\tabular{lll}{
+that can be selected via \code{var}, and are then varied. All of them are
+selected by default.)\tabular{lll}{
    \strong{Manufactured function} \tab \strong{Testable statistics} \tab \strong{Test vignette} \cr
-   \code{\link[=grim_map_seq]{grim_map_seq()}} \tab \code{"x"}, \code{"n"}, (\code{"items"}) \tab \code{vignette("grim")} \cr
-   \code{\link[=grimmer_map_seq]{grimmer_map_seq()}} \tab \code{"x"}, \code{"sd"}, \code{"n"}, (\code{"items"}) \tab \code{vignette("grimmer")} \cr
+   \code{\link[=grim_map_seq]{grim_map_seq()}} \tab \code{"x"}, \code{"n"} \tab \code{vignette("grim")} \cr
+   \code{\link[=grimmer_map_seq]{grimmer_map_seq()}} \tab \code{"x"}, \code{"sd"}, \code{"n"} \tab \code{vignette("grimmer")} \cr
    \code{\link[=debit_map_seq]{debit_map_seq()}} \tab \code{"x"}, \code{"sd"}, \code{"n"} \tab \code{vignette("debit")} \cr
 }
 

@@ -210,3 +210,17 @@ test_that("`audit()` on DEBIT output ignores missing values in its means", {
   out$mean_x |> is.na() |> expect_false()
   out$mean_x |> expect_equal(0.53)
 })
+
+
+test_that("`audit()` ignores a missing `n` in DEBIT's `distinct_n`", {
+  tibble::tibble(x = c(0.5, 0.5), sd = c(0.51, 0.51), n = c(20, NA)) |>
+    debit_map(digits_x = 2, digits_sd = 2) |>
+    audit() |>
+    dplyr::pull(distinct_n) |>
+    expect_equal(1L)
+})
+
+test_that("`audit()` on GRIMMER output without rows has zero counts", {
+  out <- pigs5[0, ] |> grimmer_map(digits_x = 2, digits_sd = 2) |> audit() |> expect_silent()
+  out |> dplyr::select(dplyr::starts_with("fail_")) |> unlist(use.names = FALSE) |> expect_equal(rep(0L, 5))
+})

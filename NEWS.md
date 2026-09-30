@@ -326,6 +326,12 @@
 
 - Mappers now error if `data` has a column named like one of their result columns, such as `probability` or `reason`. That column used to be dropped from the output without a word. (A `consistency` column already was an error.)
 
+- `*_map_seq()` functions now error if `var` names anything other than the reported columns. `var = "items"` was documented as possible, but dispersed `items` to values like `-3` and `0` with `NA` verdicts, or failed without an `items` column.
+
+- `audit()` on `debit_map()` output no longer counts a missing `n` as one of the `distinct_n` values. On GRIMMER output without rows, it now returns the `fail_*` columns, all zero, rather than asking for `show_reason = TRUE`.
+
+- `grim_plot()` no longer warns twice about an unknown `reason` column on `grimmer_map(show_reason = FALSE)` output.
+
 ## Minor improvements
 
 - `reround_to_fraction(digits = "auto")` no longer errors with "non-numeric argument to mathematical function". The function validated `digits` as a integer before resolving `"auto"` into one, and `is.infinite("auto")` is `FALSE`, so the string went straight into `is_whole_number()`. `reround_to_fraction_level()` has always had the two steps in the right order.

@@ -82,7 +82,9 @@
 #' 2. `all_cases`: total number of value sets.
 #' 3. `incons_rate`: proportion of GRIM-inconsistent value sets.
 #' 4. `mean_grim_prob`: average probability of GRIM inconsistency.
-#' 5. `incons_to_prob`: ratio of `incons_rate` to `mean_grim_prob`.
+#' 5. `incons_to_prob`: ratio of the proportion of GRIM-inconsistent value sets
+#' to their average probability of GRIM inconsistency, both among the value sets
+#' that could be tested (i.e., those with a non-missing `consistency`).
 #' 6. `testable_cases`: number of GRIM-testable value sets (i.e., those with a
 #' positive `probability`).
 #' 7. `testable_rate`: proportion of GRIM-testable value sets.

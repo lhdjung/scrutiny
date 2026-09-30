@@ -17,10 +17,8 @@ audit.scrutiny_debit_map <- function(data) {
   # 5. the mean `sd` value:
   mean_sd <- mean(data$sd, na.rm = TRUE)
 
-  # 6. the number of distinct `n` values:
-  distinct_n <- data$n |>
-    unique() |>
-    length()
+  # 6. the number of distinct `n` values, a missing one not being a value:
+  distinct_n <- dplyr::n_distinct(data$n, na.rm = TRUE)
 
   # Finally, collect all of these values in a resulting tibble --
   tibble::tibble(out, mean_x, mean_sd, distinct_n)

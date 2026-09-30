@@ -118,7 +118,9 @@ so you can call \code{\link[=audit]{audit()}} following \code{grim_map()} to get
 \item \code{all_cases}: total number of value sets.
 \item \code{incons_rate}: proportion of GRIM-inconsistent value sets.
 \item \code{mean_grim_prob}: average probability of GRIM inconsistency.
-\item \code{incons_to_prob}: ratio of \code{incons_rate} to \code{mean_grim_prob}.
+\item \code{incons_to_prob}: ratio of the proportion of GRIM-inconsistent value sets
+to their average probability of GRIM inconsistency, both among the value sets
+that could be tested (i.e., those with a non-missing \code{consistency}).
 \item \code{testable_cases}: number of GRIM-testable value sets (i.e., those with a
 positive \code{probability}).
 \item \code{testable_rate}: proportion of GRIM-testable value sets.

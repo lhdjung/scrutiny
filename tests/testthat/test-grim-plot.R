@@ -223,3 +223,11 @@ test_that("tiles sit at `n * items` when `items` is a column", {
   tiles <- layers[[length(layers)]]
   tiles$x |> unique() |> sort() |> expect_equal(sort(unique(out$n * out$items)))
 })
+
+
+test_that("GRIMMER output without a `reason` column plots without warnings", {
+  pigs5 |>
+    grimmer_map(digits_x = 2, digits_sd = 2, show_reason = FALSE) |>
+    grim_plot() |>
+    expect_no_warning()
+})

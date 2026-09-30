@@ -207,13 +207,13 @@ function_map_seq_proto <- function(
 #'   Wickham (2019, ch. 10-11).
 
 #' @return A function such as those below. ("Testable statistics" are variables
-#'   that can be selected via `var`, and are then varied. All variables except
-#'   for those in parentheses are selected by default.)
+#'   that can be selected via `var`, and are then varied. All of them are
+#'   selected by default.)
 #'
 #'   | \strong{Manufactured function}   | \strong{Testable statistics}         | \strong{Test vignette}
 #'   | ---                              | ---                                  | ---
-#'   | [`grim_map_seq()`]               | `"x"`, `"n"`, (`"items"`)            | `vignette("grim")`
-#'   | [`grimmer_map_seq()`]            | `"x"`, `"sd"`, `"n"`, (`"items"`)    | `vignette("grimmer")`
+#'   | [`grim_map_seq()`]               | `"x"`, `"n"`                         | `vignette("grim")`
+#'   | [`grimmer_map_seq()`]            | `"x"`, `"sd"`, `"n"`                 | `vignette("grimmer")`
 #'   | [`debit_map_seq()`]              | `"x"`, `"sd"`, `"n"`                 | `vignette("debit")`
 #'
 #'   The factory-made function will also have dots, `...`, to pass arguments
@@ -463,6 +463,16 @@ function_map_seq <- function(
       # designated `reported` variables:
       if (all(is.infinite(var))) {
         var <- reported
+      }
+
+      # Only the key columns are dispersed; `items`, for one, is not a value
+      # that was reported with rounding:
+      if (!all(var %in% reported)) {
+        cli::cli_abort(c(
+          "`var` must only name the reported columns.",
+          "x" = "It includes {wrap_in_backticks(setdiff(var, reported))}.",
+          "i" = "These are {wrap_in_backticks(reported)}."
+        ))
       }
 
       # Create the lower-level testing function via an internal function

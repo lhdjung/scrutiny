@@ -43,7 +43,8 @@ same number of decimal places. Can't be combined with \code{digits}. Default is
 \code{FALSE}.}
 
 \item{n}{Integer. Maximal value on the x-axis. Default is \code{NULL}, in which
-case \code{n} becomes \code{10 ^ digits} (e.g., \code{100} if \code{digits} is \code{2}).}
+case the axis spans the raster and the data, with breaks up to
+\code{10 ^ digits} (e.g., \code{100} if \code{digits} is \code{2}).}
 
 \item{digits}{Integer. Number of decimal places for which the background
 raster will be generated. Default is \code{NULL}, in which case it is read from

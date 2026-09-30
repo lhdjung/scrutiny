@@ -2,8 +2,11 @@
 
 audit.scrutiny_grimmer_map <- function(data) {
   out <- audit_cols_minimal(data, "GRIMMER")
-  if (any(colnames(data) == "reason")) {
-    reason <- data$reason[!is.na(data$reason)]
+  # Output with no rows has no `reason` column either way (see
+  # `write_result_cols()`), but there is nothing to count, so all counts are 0:
+  if (any(colnames(data) == "reason") || nrow(data) == 0L) {
+    reason <- data[["reason"]]
+    reason <- reason[!is.na(reason)]
     fail_grim <- length(reason[stringr::str_detect(
       reason,
       "GRIM inconsistent"
