@@ -15,7 +15,8 @@ decimal places to count.}
 
 \item{sep}{String. The literal separator between the integer part and the
 mantissa. Default is \code{"."}. (The former default, the regular expression
-\code{"\\\\."}, is still read as a decimal point.)}
+\code{"\\\\."}, is still read as a decimal point.) It only applies to strings:
+numbers are always written with a point.}
 }
 \value{
 Integer. Number of decimal places in \code{x}.

@@ -24,7 +24,8 @@ determined by \code{\link[=is_numeric_like]{is_numeric_like()}}.}
 
 \item{sep}{String. The literal separator between the integer part and the
 mantissa. Default is \code{"."}. (The former default, the regular expression
-\code{"\\\\."}, is still read as a decimal point.)}
+\code{"\\\\."}, is still read as a decimal point.) It only applies to strings:
+numbers are always written with a point.}
 }
 \value{
 Data frame. The values of the selected columns are replaced by the

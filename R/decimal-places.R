@@ -31,7 +31,8 @@
 #'   decimal places to count.
 #' @param sep String. The literal separator between the integer part and the
 #'   mantissa. Default is `"."`. (The former default, the regular expression
-#'   `"\\."`, is still read as a decimal point.)
+#'   `"\\."`, is still read as a decimal point.) It only applies to strings:
+#'   numbers are always written with a point.
 #'
 #' @return Integer. Number of decimal places in `x`.
 #'
@@ -86,6 +87,8 @@ decimal_places <- function(x, sep = ".") {
   if (is.numeric(x)) {
     non_finite <- !is.finite(x)
     x <- as.character(x)
+    # R writes a number with a point, whatever `sep` the strings use:
+    sep <- "."
   } else {
     x <- trim_space(x)
     non_finite <- is.na(x) | is_non_finite_token(x)
@@ -147,6 +150,7 @@ decimal_places_scalar <- function(x, sep = ".") {
     }
   } else if (is.finite(x)) {
     x <- as.character(x)
+    sep <- "."
   } else {
     # `is.finite()` is `FALSE` for `NA` and `NaN` as well as the infinities:
     return(NA_integer_)
@@ -198,7 +202,8 @@ decimal_places_scalar <- function(x, sep = ".") {
 #'   determined by [`is_numeric_like()`].
 #' @param sep String. The literal separator between the integer part and the
 #'   mantissa. Default is `"."`. (The former default, the regular expression
-#'   `"\\."`, is still read as a decimal point.)
+#'   `"\\."`, is still read as a decimal point.) It only applies to strings:
+#'   numbers are always written with a point.
 #'
 #' @return Data frame. The values of the selected columns are replaced by the
 #'   numbers of their decimal places.

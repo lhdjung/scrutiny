@@ -343,3 +343,13 @@ test_that("Unicode spaces around a number are trimmed", {
     vapply(decimal_places_scalar, integer(1L), USE.NAMES = FALSE) |>
     expect_equal(c(0L, 2L, 1L))
 })
+
+
+# `as.character()` writes numbers with a point, which was then searched for `sep`.
+test_that("`sep` doesn't apply to numbers", {
+  c(1.5, 2.25) |> decimal_places(sep = ",")        |> expect_equal(1:2)
+  2.25         |> decimal_places_scalar(sep = ",") |> expect_equal(2L)
+  tibble::tibble(a = c(1.5, 2.25), b = c("1,5", "2,25")) |>
+    decimal_places_df(sep = ",") |>
+    expect_equal(tibble::tibble(a = 1:2, b = 1:2))
+})
