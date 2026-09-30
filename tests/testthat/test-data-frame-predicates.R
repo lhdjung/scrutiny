@@ -1,12 +1,12 @@
 test_that("the predicates return the expected output", {
   # Example test output:
-  df1 <- grim_map(pigs1, digits_x = 2)
-  df2 <- grim_map_seq(pigs1, digits_x = 2)
-  df3 <- grim_map_total_n(tibble::tribble(
+  df1 <- pigs1 |> grim_map(digits_x = 2)
+  df2 <- pigs1 |> grim_map_seq(digits_x = 2)
+  df3 <- tibble::tribble(
     ~x1,   ~x2,   ~n,
     3.43,  5.28,   90,
     2.97,  4.42,  103
-  ), digits_x = 2)
+  ) |> grim_map_total_n(digits_x = 2)
 
   # All three tibbles are mapper output:
   df1 |> is_map_df() |> expect_true()
@@ -36,10 +36,7 @@ test_that("the predicates return the expected output", {
 # The patterns used to make the `scrutiny_` prefix optional, and the basic
 # predicate rejected any class with `_map` in the middle, such as `map_check`.
 test_that("the predicates recognize scrutiny's classes, and only those", {
-  leaflet <- structure(
-    tibble::tibble(a = 1),
-    class = c("leaflet_map", "my_map_seq", "tbl_df", "tbl", "data.frame")
-  )
+  leaflet <- tibble::tibble(a = 1) |> structure(class = c("leaflet_map", "my_map_seq", "tbl_df", "tbl", "data.frame"))
   leaflet |> is_map_df()     |> expect_false()
   leaflet |> is_map_seq_df() |> expect_false()
 

@@ -43,13 +43,14 @@ sums_round_back <- function(
   threshold,
   symmetric
 ) {
-  granules <- suppressWarnings(reround(
-    sums / n_items,
-    digits = digits,
-    rounding = rounding,
-    threshold = threshold,
-    symmetric = symmetric
-  ))
+  granules <- (sums / n_items) |>
+    reround(
+      digits = digits,
+      rounding = rounding,
+      threshold = threshold,
+      symmetric = symmetric
+    ) |>
+    suppressWarnings()
   hits <- abs(granules - x_num) < 1e-9
   hits[is.na(hits)] <- FALSE
   colSums(matrix(hits, ncol = length(sums))) > 0L
@@ -416,10 +417,10 @@ test_that("`\"even\"` is never too strict, only ever too permissive", {
 
   # Guard against a vacuous pass: the sweep has to contain reachable cases for
   # the expectation above to have meant anything.
-  expect_gt(n_reachable, 50L)
+  n_reachable |> expect_gt(50L)
 
   # And the documented over-permissiveness is real, not hypothetical. If this
   # ever drops to zero, `"even"` has become exact and the carve-out above can
   # go.
-  expect_gt(n_permissive, 0L)
+  n_permissive |> expect_gt(0L)
 })

@@ -30,7 +30,11 @@ marker_boxes <- function(p, width, height) {
   grid::grid.force()
   path <- grid::grid.grep("verdict", grep = TRUE, viewports = TRUE)
   grid::seekViewport(attr(path, "vpPath"))
-  tree_path <- utils::head(strsplit(as.character(path), "::")[[1L]], -1L)
+  tree_path <- path |>
+    as.character() |>
+    strsplit("::") |>
+    purrr::pluck(1L) |>
+    utils::head(-1L)
   tree <- grid::grid.get(grid::gPath(tree_path))
   grid::pushViewport(grid::viewport(gp = tree$gp))
   lapply(tree$children, function(g) {
@@ -101,8 +105,8 @@ test_that("`grim_plot_values()` draws one tooth per value in the unit window", {
 })
 
 test_that("the marker says and shows the verdict", {
-  incons <- marker(grim_plot_values(x = 5.19, n = 28, digits_x = 2))
-  cons <- marker(grim_plot_values(x = 5.19, n = 26, digits_x = 2))
+  incons <- 5.19 |> grim_plot_values(n = 28, digits_x = 2) |> marker()
+  cons   <- 5.19 |> grim_plot_values(n = 26, digits_x = 2) |> marker()
   incons$label  |> expect_equal("5.19\ninconsistent")
   cons$label    |> expect_equal("5.19\nconsistent")
   incons$colour |> expect_equal("#c1522e")
@@ -113,7 +117,7 @@ test_that("the marker says and shows the verdict", {
 
   # Attainable percentages at `n = 40` are 2.5 points apart, so the window
   # reaches 3 points beyond the unit on either side:
-  pct <- marker(grim_plot_values(x = 67.4, n = 40, digits_x = 1, percent = TRUE))
+  pct <- 67.4 |> grim_plot_values(n = 40, digits_x = 1, percent = TRUE) |> marker()
   pct$label     |> expect_match("^67.4%\n")
   pct$neighbors |> expect_equal(c("65.0%", "67.5%"))
 

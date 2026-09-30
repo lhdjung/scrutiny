@@ -1027,7 +1027,7 @@ test_that("`duplicate_count()` works correctly with", {
 
 test_that("the names of a named vector are its locations", {
   # All values used to be located in one column named `value`:
-  out <- duplicate_count(c(a = 1, b = 1, c = 2, a = 2))
+  out <- c(a = 1, b = 1, c = 2, a = 2) |> duplicate_count()
   out$locations   |> expect_equal(c("a, b", "a, c"))
   out$locations_n |> expect_equal(c(2L, 2L))
 })

@@ -1,17 +1,15 @@
 x <- rnorm(25000, 500, 30)
 
+# fmt: skip
 test_reround <- function(x, digits) {
   all(
-    all(dplyr::near(reround(x, digits, "up"), round_up(x, digits))),
-    all(dplyr::near(reround(x, digits, "down"), round_down(x, digits))),
-    all(dplyr::near(reround(x, digits, "even"), round(x, digits))),
-    all(dplyr::near(reround(x, digits, "ceiling"), round_ceiling(x, digits))),
-    all(dplyr::near(reround(x, digits, "floor"), round_floor(x, digits))),
-    all(dplyr::near(reround(x, digits, "trunc"), round_trunc(x, digits))),
-    all(dplyr::near(
-      reround(x, digits, "anti_trunc"),
-      round_anti_trunc(x, digits)
-    ))
+    x |> reround(digits, "up")         |> dplyr::near(round_up(x, digits)),
+    x |> reround(digits, "down")       |> dplyr::near(round_down(x, digits)),
+    x |> reround(digits, "even")       |> dplyr::near(round(x, digits)),
+    x |> reround(digits, "ceiling")    |> dplyr::near(round_ceiling(x, digits)),
+    x |> reround(digits, "floor")      |> dplyr::near(round_floor(x, digits)),
+    x |> reround(digits, "trunc")      |> dplyr::near(round_trunc(x, digits)),
+    x |> reround(digits, "anti_trunc") |> dplyr::near(round_anti_trunc(x, digits))
   )
 }
 

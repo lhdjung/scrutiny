@@ -103,8 +103,8 @@ out_debit_old1 <- df_debit1 |>
   debit_map(digits_x = 2, digits_sd = 2) |>
   dplyr::select(x, sd, n, consistency)
 
-out_grim_new1 <- grim_map_alt(df_grim1, digits_x = 2)
-out_debit_new1 <- debit_map_alt(df_debit1, digits_x = 2, digits_sd = 2)
+out_grim_new1  <- df_grim1  |> grim_map_alt(digits_x = 2) # fmt: skip
+out_debit_new1 <- df_debit1 |> debit_map_alt(digits_x = 2, digits_sd = 2) # fmt: skip
 
 out_grim_old2 <- df_grim2 |>
   grim_map(digits_x = 2) |>
@@ -113,23 +113,20 @@ out_debit_old2 <- df_debit2 |>
   debit_map(digits_x = 2, digits_sd = 2) |>
   dplyr::select(x, sd, n, consistency)
 
-out_grim_new2 <- grim_map_alt(df_grim2, digits_x = 2)
-out_debit_new2 <- debit_map_alt(df_debit2, digits_x = 2, digits_sd = 2)
+out_grim_new2  <- df_grim2  |> grim_map_alt(digits_x = 2) # fmt: skip
+out_debit_new2 <- df_debit2 |> debit_map_alt(digits_x = 2, digits_sd = 2) # fmt: skip
 
 
 out_grim_old_renamed <- out_grim_old1 |>
   dplyr::rename(success = consistency)
 
-out_grim_new_renamed <- grim_map_alt_renamed(df_grim1, digits_x = 2)
+out_grim_new_renamed <- df_grim1 |> grim_map_alt_renamed(digits_x = 2)
 
 out_debit_old_renamed <- out_debit_old1 |>
   dplyr::rename(success = consistency)
 
-out_debit_new_renamed <- debit_map_alt_renamed(
-  df_debit1,
-  digits_x = 2,
-  digits_sd = 2
-)
+out_debit_new_renamed <- df_debit1 |>
+  debit_map_alt_renamed(digits_x = 2, digits_sd = 2)
 
 
 # Testing -----------------------------------------------------------------
@@ -198,7 +195,7 @@ test_that("`.args_by_row` allows one value per row and returns a column", {
     .name_test = "GRIMMER",
     .args_by_row = c("digits_x", "digits_sd")
   )
-  out <- map_by_row(df, digits_x = c(2, 1), digits_sd = 2)
+  out <- df |> map_by_row(digits_x = c(2, 1), digits_sd = 2)
   out$digits_x |> expect_equal(c(2, 1))
   out$digits_sd |> expect_equal(c(2, 2))
   out |>
@@ -208,7 +205,7 @@ test_that("`.args_by_row` allows one value per row and returns a column", {
 
 
 test_that("`.col_names` unpacks the test function's values, keeping types", {
-  out <- debit_map(pigs3, digits_x = 2, digits_sd = 2)
+  out <- pigs3 |> debit_map(digits_x = 2, digits_sd = 2)
 
   out$rounding |> expect_type("character")
   out$consistency |> expect_type("logical")
@@ -253,8 +250,8 @@ test_that("`.args_defaults` overrides the test function's own defaults", {
 
 test_that("arguments of the test function become real arguments", {
   # Not just dots -- see below for why this matters:
-  args_grimmer_map <- names(formals(grimmer_map))
-  args_debit_map <- names(formals(debit_map))
+  args_grimmer_map <- grimmer_map |> formals() |> names()
+  args_debit_map   <- debit_map   |> formals() |> names()
 
   c("digits_x", "digits_sd", "rounding", "threshold", "symmetric") |>
     setdiff(args_grimmer_map) |>
@@ -327,13 +324,13 @@ test_that("`.reported` may name any number of key columns", {
     expect_equal(c("data", "a", "b", "c", "d", "tolerance", "..."))
 
   df <- tibble::tibble(a = 1:3, b = 4:6, c = c(5L, 7L, 9L), d = c(0L, 0L, 1L))
-  out <- quadrant_map(df)
+  out <- df |> quadrant_map()
   out |> expect_s3_class("scrutiny_quadrant_map")
   out$consistency |> expect_equal(c(TRUE, TRUE, FALSE))
   out |> colnames() |> expect_equal(c("a", "b", "c", "d", "consistency"))
 
   # Key-column renaming covers all four of them:
-  df_renamed <- dplyr::rename(df, alpha = a, delta = d)
+  df_renamed <- df |> dplyr::rename(alpha = a, delta = d)
   df_renamed |> quadrant_map(a = alpha, d = delta) |> expect_equal(out)
   df_renamed |> quadrant_map(a = alpha) |> expect_error()
 
@@ -375,7 +372,7 @@ test_that("`.reported_variadic` decides the number of key columns at call time",
     note = c("a", "b", "c")
   )
 
-  out <- sum_check_map(df, parts = c(item_1, item_2, item_3))
+  out <- df |> sum_check_map(parts = c(item_1, item_2, item_3))
   out |> expect_s3_class("scrutiny_sumcheck_map")
   out$consistency |> expect_equal(c(TRUE, TRUE, FALSE))
 
@@ -404,7 +401,7 @@ test_that("`.reported_variadic` decides the number of key columns at call time",
     expect_contains("item_3")
 
   # The fixed key column still supports renaming, and 0 rows still work:
-  df_renamed <- dplyr::rename(df, sum_col = total)
+  df_renamed <- df |> dplyr::rename(sum_col = total)
   df_renamed |> sum_check_map(parts = starts_with("item"), total = sum_col) |>
     expect_equal(out)
   df[0L, ] |> sum_check_map(parts = starts_with("item")) |>
@@ -467,7 +464,7 @@ test_that("`.reported` may be empty if `.reported_variadic` is not", {
   all_equal_map |> formals() |> names() |> expect_equal(c("data", "values", "..."))
 
   df <- tibble::tibble(a = c(1, 2), b = c(1, 3), c = c(1, 3), id = c("x", "y"))
-  out <- all_equal_map(df, values = c(a, b, c))
+  out <- df |> all_equal_map(values = c(a, b, c))
   out$consistency |> expect_equal(c(TRUE, FALSE))
   out |> colnames() |> expect_equal(c("a", "b", "c", "consistency", "id"))
 
@@ -509,7 +506,7 @@ test_that("`.reported_variadic` composes with the factory's other arguments", {
     i2 = c(2.5, 2.5),
     total = c(4.0, 5.5)
   )
-  out <- sum_check_map(df, digits_total = 1, parts = c(i1, i2))
+  out <- df |> sum_check_map(digits_total = 1, parts = c(i1, i2))
   out |>
     colnames() |>
     expect_equal(c(
@@ -582,7 +579,7 @@ test_that("wrong argument names throw an error at factory time", {
 
 test_that("`.cols_derived` computes columns the test function never returns", {
   # `probability` comes from `grim_probability()`, not from `grim_scalar()`:
-  out <- grim_map(pigs1, digits_x = 2)
+  out <- pigs1 |> grim_map(digits_x = 2)
   out$probability |> expect_equal(grim_probability(pigs1$x, pigs1$n, 2))
   # It follows the key result column, ahead of the `.col_names` columns:
   out |>
@@ -775,16 +772,16 @@ test_that("a mapper's argument errors are not wrapped in `pmap()` context", {
   # the message. This used to happen for a missing required argument but not
   # for a bad `rounding` string:
   err <- pigs1 |> grim_map(digits_x = 2, rounding = "nonsense") |> tryCatch_error()
-  expect_s3_class(err, "error")
+  err |> expect_s3_class("error")
   msg <- error_message_full(err)
-  expect_match(msg, "designated string values")
+  msg |> expect_match("designated string values")
   msg |> grepl(pattern = "In index", fixed = TRUE) |> expect_false()
 
   # Same for the missing-argument case, which is what the pre-application was
   # originally added for:
   err <- pigs1 |> grim_map() |> tryCatch_error()
   msg <- error_message_full(err)
-  expect_match(msg, "digits_x")
+  msg |> expect_match("digits_x")
   msg |> grepl(pattern = "In index", fixed = TRUE) |> expect_false()
 })
 
@@ -793,9 +790,9 @@ test_that("a mapper's argument errors are not wrapped in `pmap()` context", {
 # where `lapply()` shows `FUN(X[[i]], ...)` and a wrapper shows a variable name.
 test_that("key arguments work when the mapper is called indirectly", {
   d <- tibble::tibble(mean = c(5.19, 5.2), n = c(28, 30))
-  expected <- grim_map(d, digits_x = 2, x = mean)
-  expect_equal(lapply(list(d), grim_map, digits_x = 2, x = "mean")[[1L]], expected)
-  expect_equal(purrr::map(list(d), grim_map, digits_x = 2, x = "mean")[[1L]], expected)
+  expected <- d |> grim_map(digits_x = 2, x = mean)
+  list(d) |> lapply(grim_map, digits_x = 2, x = "mean")     |> purrr::pluck(1L) |> expect_equal(expected)
+  list(d) |> purrr::map(grim_map, digits_x = 2, x = "mean") |> purrr::pluck(1L) |> expect_equal(expected)
   wrapper <- function(data, col) grim_map(data, digits_x = 2, x = col)
   d |> wrapper("mean") |> expect_equal(expected)
   d |>
@@ -807,7 +804,7 @@ test_that("key arguments work when the mapper is called indirectly", {
 # It also ignored a key argument whenever `data` had a column of that name, and
 # tested that column instead.
 test_that("`absorb_key_args()` reads key arguments passed through dots", {
-  df <- dplyr::rename(pigs1, mean = x)
+  df <- pigs1 |> dplyr::rename(mean = x)
   my_map <- function(data, ...) absorb_key_args(data, c("x", "n"))
   df |> my_map(x = "mean") |> colnames() |> expect_equal(c("x", "n"))
   df |> my_map(x = mean)   |> colnames() |> expect_equal(c("x", "n"))
@@ -830,18 +827,19 @@ test_that("`.col_names` may start with a custom `.name_key_result`", {
   df      |> map_verdict()                |> colnames() |> expect_equal(c("y", "n", "verdict"))
   df      |> map_verdict(show_rec = TRUE) |> colnames() |> expect_equal(c("y", "n", "verdict", "third"))
   df[0, ] |> map_verdict(show_rec = TRUE) |> colnames() |> expect_equal(c("y", "n", "verdict"))
-  function_map(.fun = fun, .reported = c("y", "n"), .name_test = "T", .name_key_result = "verdict", .col_names = c("consistency", "third")) |>
+  fun |>
+    function_map(.reported = c("y", "n"), .name_test = "T", .name_key_result = "verdict", .col_names = c("consistency", "third")) |>
     expect_error("must start with `.name_key_result`")
 })
 
 
 test_that("`function_map()` rejects arguments it can't honor", {
   fun <- function(y, n, z = 1) y > n
-  function_map(.fun = fun, .reported = c("y", "n"), .name_test = "T", .args_defaults = list(n = 2)) |>
+  fun |>
+    function_map(.reported = c("y", "n"), .name_test = "T", .args_defaults = list(n = 2)) |>
     expect_error("key or disabled argument")
   fun_shadowed <- function(y, n, fun = 1) y > n
-  function_map(.fun = fun_shadowed, .reported = c("y", "n"), .name_test = "T") |>
-    expect_error("Rename `fun`")
+  fun_shadowed |> function_map(.reported = c("y", "n"), .name_test = "T") |> expect_error("Rename `fun`")
 })
 
 

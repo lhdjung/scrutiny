@@ -255,14 +255,13 @@ length(df1_mean)
 
 # Random `n` values with the same number as the mean values, truncated because
 # they can only be whole numbers:
-df1_n <- runif(length(df1_mean), 10, 150)
-df1_n <- trunc(df1_n)
+df1_n <- runif(length(df1_mean), 10, 150) |> trunc()
 
 # Create an example data frame:
 df1 <- tibble::tibble(
   n = df1_n,
   mean = as.character(df1_mean),
-  sd = as.character(round(as.numeric(mean) * (2 / 5), 2))
+  sd = (as.numeric(mean) * (2 / 5)) |> round(2) |> as.character()
 )
 
 # # The same data frame but with a different name for the `sd` column; this is
@@ -296,13 +295,13 @@ df1 <- df1 |>
 # same data but (possibly) different column names:
 
 start1 <- Sys.time()
-out1 <- purrr::pmap_lgl(df1, grimmer_scalar)
+out1 <- df1 |> purrr::pmap_lgl(grimmer_scalar)
 end1 <- Sys.time()
 diff1 <- difftime(end1, start1, units = "secs")
 # message("\nApplying `grimmer_scalar()` took:\n", round(diff1, 2), " seconds\n")
 
 start2 <- Sys.time()
-out2 <- purrr::pmap_chr(df2, aGrimmer)
+out2 <- df2 |> purrr::pmap_chr(aGrimmer)
 end2 <- Sys.time()
 diff2 <- difftime(end2, start2, units = "secs")
 # message("Applying `aGrimmer()` took:\n", round(diff2, 2), " seconds\n")
@@ -312,8 +311,8 @@ diff2 <- difftime(end2, start2, units = "secs")
 out2 <- as_logical_consistency(out2)
 
 
-df_out <- tibble::tibble(df1, out1, out2)
-df_out <- dplyr::mutate(df_out, digits_sd = decimal_places(sd))
+df_out <- tibble::tibble(df1, out1, out2) |>
+  dplyr::mutate(digits_sd = decimal_places(sd))
 
 # The problem seems to be restricted to cases where `out1` is consistent and
 # `out2` is not, and where `n` is either `40` or `80`:
@@ -551,8 +550,8 @@ test_that("GRIMMER checks SD-match and parity against the same candidate sum of 
 
   result_false <- cases |>
     purrr::pmap_lgl(function(x, sd, n) {
-    grimmer(x = x, sd = sd, n = n, digits_x = 2, digits_sd = 2, rounding = "up")
-  })
+      grimmer(x = x, sd = sd, n = n, digits_x = 2, digits_sd = 2, rounding = "up")
+    })
 
   result_false |> any() |> expect_false()
 
@@ -611,16 +610,9 @@ test_that("GRIMMER never flags an actual two-value dataset (#86)", {
       for (a in 0:n) {
         values <- c(rep(1, a), rep(0, n - a))
         sd_value <- stats::sd(values)
-        x <- reround(mean(values), digits = 2, rounding = rounding)[1L]
-        sd_rounded <- reround(sd_value, digits = 2, rounding = rounding)[1L]
-        consistent <- grimmer(
-          x = x,
-          sd = sd_rounded,
-          n = n,
-          digits_x = 2,
-          digits_sd = 2,
-          rounding = rounding
-        )
+        x          <- values   |> mean() |> reround(digits = 2, rounding = rounding) |> purrr::pluck(1L)
+        sd_rounded <- sd_value |> reround(digits = 2, rounding = rounding) |> purrr::pluck(1L)
+        consistent <- x |> grimmer(sd = sd_rounded, n = n, digits_x = 2, digits_sd = 2, rounding = rounding)
         if (!isTRUE(consistent)) {
           false_flags <- false_flags + 1L
         }
@@ -657,15 +649,8 @@ test_that("GRIMMER derives the sum-of-squares bounds exactly", {
   for (items in 2:6) {
     for (n in c(2, 3, 5, 10, 37)) {
       for (item_sum in c(23, 25, 28, 106, 400, 631, 1000, 2317)) {
-        x <- reround(item_sum / items, digits = 2)[1L]
-        consistent <- grimmer(
-          x = x,
-          sd = 0,
-          n = n,
-          items = items,
-          digits_x = 2,
-          digits_sd = 2
-        )
+        x <- (item_sum / items) |> reround(digits = 2) |> purrr::pluck(1L)
+        consistent <- x |> grimmer(sd = 0, n = n, items = items, digits_x = 2, digits_sd = 2)
         if (!isTRUE(consistent)) {
           false_flags <- false_flags + 1L
         }
@@ -684,17 +669,13 @@ test_that("GRIMMER never flags a real multi-item data set", {
   for (trial in 1:400) {
     items <- sample(2:6, 1)
     n <- sample(2:40, 1)
-    values <- sample(0:sample(c(3, 9, 60, 200), 1), n * items, replace = TRUE)
+    value_max <- sample(c(3, 9, 60, 200), 1)
+    values <- sample(0:value_max, n * items, replace = TRUE)
     scores <- colSums(matrix(values, nrow = items)) / items
     sd_value <- stats::sd(scores)
-    consistent <- grimmer(
-      x = reround(mean(scores), digits = 2)[1L],
-      sd = reround(sd_value, digits = 2)[1L],
-      n = n,
-      items = items,
-      digits_x = 2,
-      digits_sd = 2
-    )
+    x          <- scores   |> mean() |> reround(digits = 2) |> purrr::pluck(1L)
+    sd_rounded <- sd_value |> reround(digits = 2) |> purrr::pluck(1L)
+    consistent <- x |> grimmer(sd = sd_rounded, n = n, items = items, digits_x = 2, digits_sd = 2)
     if (!isTRUE(consistent)) {
       false_flags <- false_flags + 1L
     }
@@ -752,12 +733,8 @@ test_that("GRIMMER returns `NA` where GRIM itself is undecidable", {
   # (A missing `x` would be reported as `"Missing value"` by the mapper, which
   # screens for missingness ahead of the test, so the vehicle here is an `n`
   # that leaves nothing to test.)
-  out <- grimmer_map(
-    tibble::tibble(x = c(1.03, 1.03), sd = c(0.41, 0.41), n = c(0L, 40L)),
-    digits_x = 2,
-    digits_sd = 2,
-    show_reason = TRUE
-  )
+  out <- tibble::tibble(x = c(1.03, 1.03), sd = c(0.41, 0.41), n = c(0L, 40L)) |>
+    grimmer_map(digits_x = 2, digits_sd = 2, show_reason = TRUE)
   out$consistency |> expect_equal(c(NA, FALSE))
   out$reason[1L] |> expect_equal("No testable value set")
   out |> audit() |> purrr::pluck("fail_grim")    |> expect_equal(0L)
@@ -863,10 +840,9 @@ test_that("no sample within the scale is reported as inconsistent", {
   # never be ruled out -- whatever `items` is, since the bounds are per
   # response, not per scale score.
   check_all_samples <- function(n, items, min_val, max_val) {
-    grid <- expand.grid(rep(list((min_val * items):(max_val * items)), n))
+    grid <- list((min_val * items):(max_val * items)) |> rep(n) |> expand.grid()
     grid <- grid[apply(grid, 1L, function(v) !is.unsorted(v)), , drop = FALSE]
-    verdicts <- vapply(
-      seq_len(nrow(grid)),
+    verdicts <- grid |> nrow() |> seq_len() |> vapply(
       function(i) {
         scores <- as.numeric(grid[i, ]) / items
         grimmer(
@@ -896,7 +872,7 @@ test_that("`grimmer_map()` passes the scale bounds down and `audit()` counts", {
     sd = c(2.08, 1.10, 1.45),
     n = c(20L, 30L, 20L)
   )
-  out <- grimmer_map(df, digits_x = 2, digits_sd = 2, min_val = 1, max_val = 5)
+  out <- df |> grimmer_map(digits_x = 2, digits_sd = 2, min_val = 1, max_val = 5)
 
   out$consistency |> expect_equal(c(FALSE, FALSE, TRUE))
   out$reason |>
@@ -911,7 +887,7 @@ test_that("`grimmer_map()` passes the scale bounds down and `audit()` counts", {
   df |>
     grimmer_map(digits_x = 2, digits_sd = 2) |>
     audit() |>
-    _$fail_scale |>
+    purrr::pluck("fail_scale") |>
     expect_equal(0L)
 })
 
@@ -953,30 +929,23 @@ test_that("GRIMMER never rejects an enumerable sample", {
 
   for (n in 3:6) {
     for (digits in 1:2) {
-      pairs <- grimmer_reported_pairs(
-        grimmer_multisets(n, 0:5), digits, "up_or_down", items = 1
-      )
-      verdict <- mapply(
+      pairs <- n |> grimmer_multisets(0:5) |> grimmer_reported_pairs(digits, "up_or_down", items = 1)
+      verdict <- purrr::map2_lgl(
+        pairs[, 1L],
+        pairs[, 2L],
         function(x, sd) {
           grimmer(
             x = x, sd = sd, n = n,
             digits_x = digits, digits_sd = digits
           )
-        },
-        pairs[, 1L],
-        pairs[, 2L]
+        }
       )
       n_checked <- n_checked + length(verdict)
       false_negatives <- which(!verdict %in% TRUE)
-      false_negatives |> length() |> expect_equal(
-        0L,
-        info = paste0(
-          "n = ", n, ", digits = ", digits, " -- pairs: ",
-          toString(utils::head(paste0(
-            "(", pairs[false_negatives, 1L], ", ", pairs[false_negatives, 2L], ")"
-          ), 5L))
-        )
-      )
+      pairs_rejected <- paste0("(", pairs[false_negatives, 1L], ", ", pairs[false_negatives, 2L], ")")
+      pairs_rejected <- pairs_rejected |> utils::head(5L) |> toString()
+      info <- paste0("n = ", n, ", digits = ", digits, " -- pairs: ", pairs_rejected)
+      false_negatives |> length() |> expect_equal(0L, info = info)
     }
   }
 
@@ -988,18 +957,16 @@ test_that("GRIMMER never rejects an enumerable sample", {
 test_that("GRIMMER never rejects an enumerable multi-item sample", {
   # `items = 2` halves the granularity of both the mean and the SD, which is
   # where the item multiplication in the sum-of-squares stage has to keep up:
-  pairs <- grimmer_reported_pairs(
-    grimmer_multisets(4L, 0:6), digits = 2, rounding = "up_or_down", items = 2
-  )
-  verdict <- mapply(
+  pairs <- 4L |> grimmer_multisets(0:6) |> grimmer_reported_pairs(digits = 2, rounding = "up_or_down", items = 2)
+  verdict <- purrr::map2_lgl(
+    pairs[, 1L],
+    pairs[, 2L],
     function(x, sd) {
       grimmer(
         x = x, sd = sd, n = 4L, items = 2,
         digits_x = 2, digits_sd = 2
       )
-    },
-    pairs[, 1L],
-    pairs[, 2L]
+    }
   )
 
   verdict |> call_on(\(x) !x %in% TRUE) |> sum() |> expect_equal(0L)
@@ -1010,18 +977,16 @@ test_that("GRIMMER never rejects an enumerable multi-item sample", {
 test_that("GRIMMER never rejects an enumerable sample within scale bounds", {
   # Scale bounds may only ever rule cases *out*, so a sample that really lies
   # within `min_val` and `max_val` must survive them:
-  pairs <- grimmer_reported_pairs(
-    grimmer_multisets(5L, 0:5), digits = 2, rounding = "up_or_down", items = 1
-  )
-  verdict <- mapply(
+  pairs <- 5L |> grimmer_multisets(0:5) |> grimmer_reported_pairs(digits = 2, rounding = "up_or_down", items = 1)
+  verdict <- purrr::map2_lgl(
+    pairs[, 1L],
+    pairs[, 2L],
     function(x, sd) {
       grimmer(
         x = x, sd = sd, n = 5L,
         digits_x = 2, digits_sd = 2, min_val = 0, max_val = 5
       )
-    },
-    pairs[, 1L],
-    pairs[, 2L]
+    }
   )
 
   verdict |> call_on(\(x) !x %in% TRUE) |> sum() |> expect_equal(0L)

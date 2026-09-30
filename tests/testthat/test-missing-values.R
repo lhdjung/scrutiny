@@ -52,13 +52,11 @@ test_that("a missing value is `NA` under every rounding method", {
       info <- paste0("rounding = ", rounding, ", symmetric = ", symmetric)
       NA   |> grim(28, digits_x = 2, rounding = rounding, symmetric = symmetric) |> expect_na()
       5.19 |> grim(NA, digits_x = 2, rounding = rounding, symmetric = symmetric) |> expect_na()
+      verdict_first <- 5.19 |> grim(28, digits_x = 2, rounding = rounding, symmetric = symmetric)
       df_grim |>
         grim_map(digits_x = 2, rounding = rounding, symmetric = symmetric) |>
         purrr::pluck("consistency") |>
-        expect_equal(
-          c(grim(5.19, 28, digits_x = 2, rounding = rounding, symmetric = symmetric), NA, NA),
-          info = info
-        )
+        expect_equal(c(verdict_first, NA, NA), info = info)
       NA |>
         grim_values(28, digits_x = 2, rounding = rounding, symmetric = symmetric) |>
         purrr::pluck(1L) |>
@@ -113,7 +111,7 @@ test_that("the mappers return `NA` instead of aborting", {
 
 
 test_that("the `show_*` columns keep their shape and their types", {
-  out <- grim_map(df_grim, digits_x = 2, show_rec = TRUE)
+  out <- df_grim |> grim_map(digits_x = 2, show_rec = TRUE)
   out |> expect_named(c(
     "x", "n", "digits_x", "consistency", "probability", "rec_sum",
     "sum_lower", "sum_upper", "rec_x_upper", "rec_x_lower"
@@ -140,7 +138,7 @@ test_that("the `show_*` columns keep their shape and their types", {
       "Missing value"
     ))
 
-  out_debit <- debit_map(df_debit, digits_x = 2, digits_sd = 2)
+  out_debit <- df_debit |> debit_map(digits_x = 2, digits_sd = 2)
   out_debit$sd_lower[2:3] |> expect_equal(c(NA_real_, NA_real_))
   out_debit$sd_lower |> expect_type("double")
   # `rounding` is not reconstructed from the data, so it survives:
@@ -149,11 +147,11 @@ test_that("the `show_*` columns keep their shape and their types", {
 
 
 test_that("`unround()`, `grim_values()`, and `grim_closest()` propagate `NA`", {
-  bounds <- unround(c(0.53, NA), digits = 2)
+  bounds <- c(0.53, NA) |> unround(digits = 2)
   bounds$lower |> expect_equal(c(0.525, NA))
   bounds$upper |> expect_equal(c(0.535, NA))
 
-  values <- grim_values(c(5.19, NA), c(32, 32), digits_x = 2)
+  values <- c(5.19, NA) |> grim_values(c(32, 32), digits_x = 2)
   values[[1L]] |> expect_equal(5.1875)
   values[[2L]] |> expect_na()
 
@@ -166,13 +164,10 @@ test_that("`unround()`, `grim_values()`, and `grim_closest()` propagate `NA`", {
 test_that("`audit()` counts an undecidable case as neither", {
   # One `FALSE`, one `NA`, one `TRUE`. Indexing rows by `NA` used to add a
   # phantom row, so `incons_cases` was 2 out of 3 here:
-  out <- grim_map(
-    tibble::tibble(x = c(5.19, NA, 4.20), n = c(28L, 28L, 30L)),
-    digits_x = 2
-  )
+  out <- tibble::tibble(x = c(5.19, NA, 4.20), n = c(28L, 28L, 30L)) |> grim_map(digits_x = 2)
   out$consistency |> expect_equal(c(FALSE, NA, TRUE))
 
-  out_audit <- audit(out)
+  out_audit <- out |> audit()
   out_audit$incons_cases |> expect_equal(1L)
   out_audit$all_cases |> expect_equal(3L)
   out_audit$incons_rate |> expect_equal(1 / 3)
@@ -182,11 +177,7 @@ test_that("`audit()` counts an undecidable case as neither", {
 test_that("the sequence mappers drop undecidable cases", {
   # An undecidable case has no values to disperse around, so it is dropped like
   # a consistent one. Only the genuinely inconsistent 5.19 / 28 is varied:
-  out <- grim_map_seq(
-    tibble::tibble(x = c(5.19, NA, 4.20), n = c(28L, 28L, 30L)),
-    digits_x = 2,
-    dispersion = 1:2
-  )
+  out <- tibble::tibble(x = c(5.19, NA, 4.20), n = c(28L, 28L, 30L)) |> grim_map_seq(digits_x = 2, dispersion = 1:2)
   out$case |> unique() |> expect_equal(1L)
   out$x |> anyNA() |> expect_false()
   out$n |> anyNA() |> expect_false()
@@ -252,7 +243,7 @@ test_that("the three tests agree on what input is undecidable", {
 
 
 test_that("undecidable input gives `NA` in the mappers, too", {
-  out <- grim_map(tibble::tibble(x = 5.19, n = 20.5, items = 1.5), digits_x = 2)
+  out <- tibble::tibble(x = 5.19, n = 20.5, items = 1.5) |> grim_map(digits_x = 2)
   out$consistency |> expect_na()
   # `probability` used to report a number next to an `NA` verdict, which states
   # two incompatible things about one row:
@@ -260,11 +251,7 @@ test_that("undecidable input gives `NA` in the mappers, too", {
 
   # The reconstructed values of `show_rec` are `NA` throughout, rather than the
   # `NaN`s that an `n` of zero produced:
-  out_rec <- grim_map(
-    tibble::tibble(x = 5.19, n = 0L),
-    digits_x = 2,
-    show_rec = TRUE
-  )
+  out_rec <- tibble::tibble(x = 5.19, n = 0L) |> grim_map(digits_x = 2, show_rec = TRUE)
   out_rec$consistency |> expect_na()
   for (col in c(
     "rec_sum", "sum_lower", "sum_upper", "rec_x_upper", "rec_x_lower"
@@ -272,19 +259,10 @@ test_that("undecidable input gives `NA` in the mappers, too", {
     out_rec[[col]] |> expect_na()
   }
 
-  out_debit <- debit_map(
-    tibble::tibble(x = 0.5, sd = 0.5, n = 1L),
-    digits_x = 2,
-    digits_sd = 2
-  )
+  out_debit <- tibble::tibble(x = 0.5, sd = 0.5, n = 1L) |> debit_map(digits_x = 2, digits_sd = 2)
   out_debit$consistency |> expect_na()
 
-  out_grimmer <- grimmer_map(
-    tibble::tibble(x = 5, sd = 0, n = 1L),
-    digits_x = 2,
-    digits_sd = 2,
-    show_reason = TRUE
-  )
+  out_grimmer <- tibble::tibble(x = 5, sd = 0, n = 1L) |> grimmer_map(digits_x = 2, digits_sd = 2, show_reason = TRUE)
   out_grimmer$consistency |> expect_na()
   out_grimmer$reason |> expect_equal("No testable value set")
 })
@@ -334,14 +312,10 @@ test_that("the achievable means behind an infinity are `NA`", {
 
 test_that("an infinite value gives `NA` in the mappers, too", {
   # A real value set next to the infinite one still gets a real verdict:
-  out_grim <- grim_map(tibble::tibble(x = c(5.25, Inf), n = 28L), digits_x = 2)
+  out_grim <- tibble::tibble(x = c(5.25, Inf), n = 28L) |> grim_map(digits_x = 2)
   out_grim$consistency |> expect_equal(c(TRUE, NA))
 
-  out_grimmer <- grimmer_map(
-    tibble::tibble(x = c(1.03, Inf), sd = 0.41, n = 40L),
-    digits_x = 2,
-    digits_sd = 2
-  )
+  out_grimmer <- tibble::tibble(x = c(1.03, Inf), sd = 0.41, n = 40L) |> grimmer_map(digits_x = 2, digits_sd = 2)
   out_grimmer$consistency[2L] |> expect_na()
 })
 
@@ -356,7 +330,7 @@ test_that("a missing `digits_*` makes a case undecidable, like a missing value",
   5.19 |> grim_values(28, digits_x = NA) |> purrr::pluck(1L) |> expect_na()
   5.19 |> grim_closest(28, digits_x = NA)                    |> expect_na()
 
-  out <- grim_map(tibble::tibble(x = c(5.19, 5.2), n = 28L), digits_x = c(2, NA))
+  out <- tibble::tibble(x = c(5.19, 5.2), n = 28L) |> grim_map(digits_x = c(2, NA))
   out$consistency |> expect_equal(c(FALSE, NA))
   out$probability |> expect_equal(c(0.72, NA))
 

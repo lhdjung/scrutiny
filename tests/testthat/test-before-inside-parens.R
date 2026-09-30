@@ -47,8 +47,8 @@ test_that("With square brackets, the separators are removed", {
 
 test_that("With curly braces, substrings are extracted
           from the expected positions", {
-   x_braces |> before_parens(sep = "braces") |> expect_equal(before)
-   x_braces |> inside_parens(sep = "braces") |> expect_equal(inside)
+  x_braces |> before_parens(sep = "braces") |> expect_equal(before)
+  x_braces |> inside_parens(sep = "braces") |> expect_equal(inside)
 })
 
 test_that("With curly braces, the separators are removed", {
@@ -59,9 +59,9 @@ test_that("With curly braces, the separators are removed", {
 })
 
 
-x_parens_proto <- proto_split_parens(x_parens, sep = "parens")
-x_brackets_proto <- proto_split_parens(x_brackets, sep = "brackets")
-x_braces_proto <- proto_split_parens(x_braces, sep = "braces")
+x_parens_proto   <- x_parens   |> proto_split_parens(sep = "parens") # fmt: skip
+x_brackets_proto <- x_brackets |> proto_split_parens(sep = "brackets") # fmt: skip
+x_braces_proto   <- x_braces   |> proto_split_parens(sep = "braces") # fmt: skip
 
 
 test_that("The raw output has one row per string and two columns", {

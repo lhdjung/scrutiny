@@ -13,7 +13,7 @@ run_full_debit_oracle <- FALSE
 #
 # out <- purrr::pmap_lgl(list(x, sd, n), debit)
 
-out <- purrr::pmap_lgl(pigs3, debit, digits_x = 2, digits_sd = 2)
+out <- pigs3 |> purrr::pmap_lgl(debit, digits_x = 2, digits_sd = 2)
 out_expected <- c(TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE)
 
 test_that("bla", {
@@ -62,22 +62,8 @@ test_that("`threshold` only affects the `*_from` rounding methods", {
   # `debit()` reconstructs for them must not move with `threshold`. Before DEBIT
   # went through the shared bounds machinery, they did.
   for (r in c("up_or_down", "up", "down")) {
-    out_5 <- purrr::pmap_lgl(
-      pigs3,
-      debit,
-      digits_x = 2,
-      digits_sd = 2,
-      rounding = r,
-      threshold = 5
-    )
-    out_9 <- purrr::pmap_lgl(
-      pigs3,
-      debit,
-      digits_x = 2,
-      digits_sd = 2,
-      rounding = r,
-      threshold = 9
-    )
+    out_5 <- pigs3 |> purrr::pmap_lgl(debit, digits_x = 2, digits_sd = 2, rounding = r, threshold = 5)
+    out_9 <- pigs3 |> purrr::pmap_lgl(debit, digits_x = 2, digits_sd = 2, rounding = r, threshold = 9)
     out_5 |> expect_equal(out_9)
   }
 })
@@ -165,11 +151,7 @@ test_that("DEBIT still rejects impossible SDs at those means", {
 
 
 test_that("`debit_map()` reports no negative SD bound and no mean out of range", {
-  out <- debit_map(
-    tibble::tibble(x = c(0, 1), sd = c(0, 0), n = c(50L, 50L)),
-    digits_x = 2,
-    digits_sd = 2
-  )
+  out <- tibble::tibble(x = c(0, 1), sd = c(0, 0), n = c(50L, 50L)) |> debit_map(digits_x = 2, digits_sd = 2)
   out$sd_lower |> call_on(\(x) x >= 0) |> all() |> expect_true()
   out$x_lower  |> call_on(\(x) x >= 0) |> all() |> expect_true()
   out$x_upper  |> call_on(\(x) x <= 1) |> all() |> expect_true()
@@ -191,10 +173,8 @@ test_that("DEBIT never rejects a real binary sample", {
     for (digits in 2:3) {
       # `k` ones and `n - k` zeros, for every `k`:
       k <- 0:n
-      means <- reround(k / n, digits, "up_or_down")
-      sds <- reround(
-        sd_binary_0_n(group_0 = n - k, n = n), digits, "up_or_down"
-      )
+      means <- (k / n) |> reround(digits, "up_or_down")
+      sds   <- (n - k) |> sd_binary_0_n(n = n) |> reround(digits, "up_or_down")
 
       # `reround()` with a compound method returns both variants per input,
       # interleaved, and either is a way the value could have been reported:
@@ -242,24 +222,20 @@ test_that("DEBIT accepts real binary data with a mean reported as 0.50", {
 test_that("DEBIT accepts every real binary data set reported as a mean of 0.50", {
   # Enumerate the actual data sets: `k` ones out of `n`, keeping those whose
   # mean would have been reported as 0.50 at two decimal places.
-  cases <- purrr::map(10:250, function(n) {
-    k <- 0:n
-    k <- k[abs((k / n) - 0.5) <= 0.005]
-    sd_true <- sd_binary_mean_n(k / n, n)
-    tibble::tibble(
-      n = n,
-      sd_rep = c(round_up(sd_true, 3L), round_down(sd_true, 3L))
-    )
-  })
-  cases <- purrr::list_rbind(cases)
-  cases <- dplyr::distinct(cases)
+  cases <- 10:250 |>
+    purrr::map(function(n) {
+      k <- 0:n
+      k <- k[abs((k / n) - 0.5) <= 0.005]
+      sd_true <- sd_binary_mean_n(k / n, n)
+      sd_rep <- c(round_up(sd_true, 3L), round_down(sd_true, 3L))
+      tibble::tibble(n = n, sd_rep = sd_rep)
+    }) |>
+    purrr::list_rbind() |>
+    dplyr::distinct()
 
-  out <- purrr::pmap_lgl(
-    list(cases$sd_rep, cases$n),
-    function(sd_rep, n) {
-      debit(x = 0.50, sd = sd_rep, n = n, digits_x = 2, digits_sd = 3)
-    }
-  )
+  out <- list(cases$sd_rep, cases$n) |> purrr::pmap_lgl(function(sd_rep, n) {
+    debit(x = 0.50, sd = sd_rep, n = n, digits_x = 2, digits_sd = 3)
+  })
 
   out |> all() |> expect_true()
 })
@@ -273,20 +249,21 @@ test_that("`formula = \"exact\"` passes exactly the real binary samples", {
 
   for (rounding in c("up_or_down", "up", "even", "ceiling")) {
     for (n in c(7L, 20L)) {
-      real <- purrr::map(0:n, function(k) {
-        tidyr::expand_grid(
-          x = reround(k / n, 2, rounding),
-          sd = reround(sd_binary_mean_n(k / n, n), 2, rounding)
-        )
-      })
-      real <- purrr::list_rbind(real)
+      real <- 0:n |>
+        purrr::map(function(k) {
+          tidyr::expand_grid(
+            x = (k / n) |> reround(2, rounding),
+            sd = (k / n) |> sd_binary_mean_n(n) |> reround(2, rounding)
+          )
+        }) |>
+        purrr::list_rbind()
       real <- paste(round(real$x * 100), round(real$sd * 100))
+      expected <- paste(round(grid$x * 100), round(grid$sd * 100)) %in% real
 
-      exact <- debit(grid$x, grid$sd, n, 2, 2, rounding = rounding)
-      mean_n <- debit(grid$x, grid$sd, n, 2, 2, "mean_n", rounding)
+      exact  <- grid$x |> debit(grid$sd, n, 2, 2, rounding = rounding)
+      mean_n <- grid$x |> debit(grid$sd, n, 2, 2, "mean_n", rounding)
 
-      exact |>
-        expect_equal(paste(round(grid$x * 100), round(grid$sd * 100)) %in% real)
+      exact |> expect_equal(expected)
       # The difference only ever turns `TRUE` into `FALSE`:
       (exact & !mean_n) |> any() |> expect_false()
     }
@@ -354,13 +331,14 @@ if (run_full_debit_oracle) {
       for (n in c(2L, 3L, 9L, 13L, 40L, 101L, 333L)) {
         for (digits_x in 1:2) {
           for (digits_sd in 1:2) {
-            real <- purrr::map(0:n, function(k) {
-              tidyr::expand_grid(
-                x  = oracle_means(k, n, digits_x,  rounding, symmetric),
-                sd = oracle_sds(  k, n, digits_sd, rounding, symmetric)
-              )
-            })
-            real <- purrr::list_rbind(real)
+            real <- 0:n |>
+              purrr::map(function(k) {
+                tidyr::expand_grid(
+                  x  = oracle_means(k, n, digits_x,  rounding, symmetric),
+                  sd = oracle_sds(  k, n, digits_sd, rounding, symmetric)
+                )
+              }) |>
+              purrr::list_rbind()
             real <- paste(round(real$x * 10^digits_x), round(real$sd * 10^digits_sd))
 
             grid <- tidyr::expand_grid(
@@ -371,7 +349,7 @@ if (run_full_debit_oracle) {
 
             exact <- grid$x |>
               debit(grid$sd, n, digits_x, digits_sd, "exact", rounding, 4, symmetric)
-            
+
             mean_n <- grid$x |>
               debit(grid$sd, n, digits_x, digits_sd, "mean_n", rounding, 4, symmetric)
 

@@ -218,12 +218,13 @@ test_that("the two functions agree over a generated corpus", {
   exponents <- c("", "e3", "e-3", "E+05", "e-10", "e0")
   pads <- c("", " ", "  ", "\t", "\f", "\v")
 
-  values <- as.vector(outer(
-    outer(paste0(rep(signs, each = length(ints)), ints), mantissas, paste0),
-    exponents,
-    paste0
-  ))
-  values <- as.vector(outer(paste0(pads, values), pads, paste0))
+  values <- signs |>
+    rep(each = length(ints)) |>
+    paste0(ints) |>
+    outer(mantissas, paste0) |>
+    outer(exponents, paste0) |>
+    as.vector()
+  values <- pads |> paste0(values) |> outer(pads, paste0) |> as.vector()
 
   # Malformed input has to agree too, and it is where they used to differ:
   values <- c(

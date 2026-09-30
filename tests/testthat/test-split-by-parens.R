@@ -8,7 +8,7 @@ pigs <- tibble::tribble(
   "0.15 (0.35)" , "0.57 (0.16)" ,
 )
 
-pigs_tested <- split_by_parens(pigs)
+pigs_tested <- pigs |> split_by_parens()
 
 
 test_that("The output is a tibble", {
@@ -23,10 +23,10 @@ test_that("It has correct column names", {
 })
 
 
-pigs_tested_transformed <- split_by_parens(pigs, transform = TRUE)
+pigs_tested_transformed <- pigs |> split_by_parens(transform = TRUE)
 
-x_expected <- restore_zeros(c(0.09, 0.19, 0.62, 0.15, 0.19, 0.53, 0.50, 0.57))
-sd_expected <- restore_zeros(c(0.21, 0.28, 0.16, 0.35, 0.13, 0.10, 0.11, 0.16))
+x_expected  <- c(0.09, 0.19, 0.62, 0.15, 0.19, 0.53, 0.50, 0.57) |> restore_zeros() # fmt: skip
+sd_expected <- c(0.21, 0.28, 0.16, 0.35, 0.13, 0.10, 0.11, 0.16) |> restore_zeros() # fmt: skip
 
 test_that("It has correct values", {
   pigs_tested_transformed$x  |> expect_equal(x_expected)
@@ -50,8 +50,8 @@ pigs_braces <- pigs |>
     dplyr::across(everything(), function(x) stringr::str_replace(x, "\\)", "}"))
   )
 
-pigs_brackets_tested <- split_by_parens(pigs_brackets, sep = "brackets")
-pigs_braces_tested <- split_by_parens(pigs_braces, sep = "braces")
+pigs_brackets_tested <- pigs_brackets |> split_by_parens(sep = "brackets") # fmt: skip
+pigs_braces_tested   <- pigs_braces   |> split_by_parens(sep = "braces") # fmt: skip
 
 test_that("The function works with square brackets as with parentheses", {
   pigs_tested[1] |> expect_equal(pigs_brackets_tested[1])
@@ -92,13 +92,11 @@ test_that("using the dots, `...`, is an error", {
 pigs_wider <- pigs |> dplyr::mutate(letters = letters[1:4])
 
 test_that("non-`sep` columns are handled correctly with `check_sep = TRUE` (the default)", {
-  expect_warning(out <- split_by_parens(pigs_wider))
-  out |> ncol() |> expect_equal(5L)
+  pigs_wider |> split_by_parens() |> ncol() |> expect_equal(5L) |> expect_warning()
 })
 
 test_that("non-`sep` columns are handled correctly with `check_sep = FALSE", {
-  expect_warning(out <- split_by_parens(pigs_wider, check_sep = FALSE))
-  out |> ncol() |> expect_equal(6L)
+  pigs_wider |> split_by_parens(check_sep = FALSE) |> ncol() |> expect_equal(6L) |> expect_warning()
 })
 
 test_that("uneven separators, `NA`s, and column names ending on `end2` work", {
@@ -108,7 +106,7 @@ test_that("uneven separators, `NA`s, and column names ending on `end2` work", {
       a_x = c("1.2", "4.5"), a_sd = c("0.3", "0.6"),
       b_x = c("1", NA), b_sd = c("2", NA)
     ))
-  
+
   tibble::tibble(exp_sd = c("1 (2)", "3 (4)"), ctrl = c("5 (6)", "7 (8)")) |>
     split_by_parens(transform = TRUE) |>
     expect_equal(tibble::tibble(

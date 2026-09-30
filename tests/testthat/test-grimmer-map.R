@@ -114,13 +114,8 @@ test_that("`grimmer_map()` returns other columns with `show_reason = FALSE`", {
 # reach: `out_min = "auto"` stopped one decimal unit above zero.
 
 test_that("`grimmer_map_seq()` can disperse an SD down to zero, but no lower", {
-  out <- grimmer_map_seq(
-    tibble::tibble(x = 1.03, sd = 0.03, n = 40),
-    digits_x = 2,
-    digits_sd = 2,
-    var = "sd",
-    include_consistent = TRUE
-  )
+  out <- tibble::tibble(x = 1.03, sd = 0.03, n = 40) |>
+    grimmer_map_seq(digits_x = 2, digits_sd = 2, var = "sd", include_consistent = TRUE)
   out$sd |> min() |> expect_equal(0)
   out$sd |> call_on(\(x) x < 0) |> any() |> expect_false()
 })

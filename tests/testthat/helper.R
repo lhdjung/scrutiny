@@ -124,5 +124,5 @@ tryCatch_error <- function(expr) {
 #'
 #' @noRd
 error_message_full <- function(err) {
-  cli::ansi_strip(paste(conditionMessage(err), collapse = " "))
+  err |> conditionMessage() |> paste(collapse = " ") |> cli::ansi_strip()
 }

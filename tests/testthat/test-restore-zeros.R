@@ -69,13 +69,12 @@ test_that("the `check_decimals` argument works correctly", {
     dplyr::pull(1) |>
     expect_type("double")
 
-  expect_warning(
-    out <- iris |>
-      dplyr::mutate(Sepal.Length = trunc(Sepal.Length)) |>
-      restore_zeros_df(check_decimals = FALSE) |>
-      dplyr::pull(1)
-  )
-  out |> expect_type("character")
+  iris |>
+    dplyr::mutate(Sepal.Length = trunc(Sepal.Length)) |>
+    restore_zeros_df(check_decimals = FALSE) |>
+    dplyr::pull(1) |>
+    expect_type("character") |>
+    expect_warning()
 })
 
 

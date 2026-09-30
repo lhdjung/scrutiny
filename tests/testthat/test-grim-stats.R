@@ -103,9 +103,8 @@ test_that("`grim_total()` counts the cells of every GRIM raster", {
     digits <- as.integer(sub("_.*", "", key))
     rounding <- sub("^\\d+_", "", key)
     n <- seq_len(10^digits)
-    1 |>
-      grim_total(n, digits, rounding = rounding) |>
-      expect_equal(tabulate(GRIM_RASTERS[[key]]$n, nbins = length(n)))
+    expected <- GRIM_RASTERS[[key]]$n |> tabulate(nbins = length(n))
+    1 |> grim_total(n, digits, rounding = rounding) |> expect_equal(expected)
   }
 })
 
@@ -124,14 +123,10 @@ test_that("`grim_map()`'s `probability` is the share its `consistency` rules out
   )
   for (rounding in roundings) {
     for (items in c(1, 3)) {
-      out <- grim_map(
-        one_decimal, 1, items = items, rounding = rounding, threshold = 3
-      )
+      out <- one_decimal |> grim_map(digits_x = 1, items = items, rounding = rounding, threshold = 3)
       out$probability |> expect_equal(ave(!out$consistency, out$n))
     }
-    out <- grim_map(
-      percentage, 0, percent = TRUE, rounding = rounding, threshold = 3
-    )
+    out <- percentage |> grim_map(digits_x = 0, percent = TRUE, rounding = rounding, threshold = 3)
     out$probability |> expect_equal(ave(!out$consistency, out$n))
   }
 })

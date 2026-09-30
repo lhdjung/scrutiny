@@ -27,7 +27,7 @@ test_that("`grim_closest()` returns the achievable mean nearest to `x`", {
 
 
 test_that("both functions are vectorized like `grim()`", {
-  out <- grim_values(c(5.19, 5.19, 5.19), c(32, 300, 28), digits_x = 2)
+  out <- c(5.19, 5.19, 5.19) |> grim_values(c(32, 300, 28), digits_x = 2)
   out |> expect_type("list")
   out |> expect_length(3L)
   out |> lengths() |> expect_equal(c(1L, 3L, 0L))
@@ -45,9 +45,7 @@ test_that("`grim_values()` agrees with `grim()` itself", {
   for (rounding in c("up_or_down", "up", "down", "ceiling", "floor", "trunc")) {
     for (n in c(28, 32, 300)) {
       for (x in c(5.19, 4.2, 0.24)) {
-        values <- grim_values(
-          x, n, digits_x = 2, rounding = rounding
-        )[[1L]]
+        values <- x |> grim_values(n, digits_x = 2, rounding = rounding) |> purrr::pluck(1L)
         info <- paste0("x = ", x, ", n = ", n, ", rounding = ", rounding)
         consistency <- grim(x, n, digits_x = 2, rounding = rounding)
         values |> length() |> call_on(\(x) x > 0L) |> expect_equal(consistency, info = info)
@@ -65,7 +63,7 @@ test_that("`grim_values()` agrees with `grim()` itself", {
 
 
 test_that("`grim_values()` matches the `sum_*` columns of `grim_map()`", {
-  out <- grim_map(pigs1, digits_x = 2, show_rec = TRUE)
+  out <- pigs1 |> grim_map(digits_x = 2, show_rec = TRUE)
   values <- grim_values(pigs1$x, pigs1$n, digits_x = 2)
   counts <- pmax(0L, out$sum_upper - out$sum_lower + 1L)
   values |> lengths() |> expect_equal(as.integer(counts))
@@ -116,8 +114,7 @@ test_that("`rounding = \"anti_trunc\"` at a mean of zero is decidable", {
     grim_values(40, digits_x = 2, rounding = "anti_trunc") |>
     purrr::pluck(1L) |>
     expect_equal(0)
-  0 |> grim_closest(40, digits_x = 2, rounding = "anti_trunc") |>
-    expect_equal(0)
+  0 |> grim_closest(40, digits_x = 2, rounding = "anti_trunc") |> expect_equal(0)
 })
 
 

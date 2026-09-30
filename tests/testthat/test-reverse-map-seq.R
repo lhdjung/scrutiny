@@ -17,9 +17,7 @@ schlim_map <- function(data) {
   y <- data$y
   n <- data$n
   consistency <- purrr::map2_lgl(y, n, schlim_scalar)
-  out <- tibble::tibble(y, n, consistency)
-  out <- add_class(out, "scrutiny_schlim_map") # See section "S3 classes" below
-  out
+  tibble::tibble(y, n, consistency) |> add_class("scrutiny_schlim_map") # See section "S3 classes" below
 }
 
 schlim_map_seq <- function_map_seq(
@@ -64,11 +62,9 @@ test_that("a case whose dispersion was clipped to nothing stays aligned", {
   # With `out_min == out_max == 25`, case 1's `x` and case 2's `n` disperse to
   # no rows at all, so they are only on the rows of the other variable:
   df <- tibble::tibble(x = c(25.0, 24.9, 25.2), n = c(26, 25, 30))
-  out <- grim_map_seq(
-    df, digits_x = 1, out_min = 25, out_max = 25, include_consistent = TRUE
-  )
+  out <- df |> grim_map_seq(digits_x = 1, out_min = 25, out_max = 25, include_consistent = TRUE)
   out |> reverse_map_seq() |> expect_equal(df)
-  audit <- audit_seq(out)
+  audit <- out |> audit_seq()
   audit$x |> expect_equal(df$x)
   audit$n |> expect_equal(df$n)
   # With both limits at 25, the only dispersed value either variable can take is

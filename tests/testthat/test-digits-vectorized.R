@@ -21,10 +21,10 @@ df_debit <- tibble::tibble(
 test_that("basic mappers take one `digits_*` value per row", {
   # Testing each row on its own must give the same verdicts as testing them
   # together with a per-row `digits_x`:
-  per_row <- grim_map(df_grim, digits_x = c(2, 1))$consistency
+  per_row <- df_grim |> grim_map(digits_x = c(2, 1)) |> purrr::pluck("consistency")
   separate <- c(
-    grim_map(df_grim[1, ], digits_x = 2)$consistency,
-    grim_map(df_grim[2, ], digits_x = 1)$consistency
+    df_grim[1, ] |> grim_map(digits_x = 2) |> purrr::pluck("consistency"),
+    df_grim[2, ] |> grim_map(digits_x = 1) |> purrr::pluck("consistency")
   )
   per_row |> expect_equal(separate)
 
@@ -35,29 +35,32 @@ test_that("basic mappers take one `digits_*` value per row", {
     purrr::pluck("consistency") |>
     expect_equal(c(TRUE, FALSE))
 
+  separate <- c(
+    df_grimmer[1, ] |> grimmer_map(digits_x = 1, digits_sd = 2) |> purrr::pluck("consistency"),
+    df_grimmer[2, ] |> grimmer_map(digits_x = 2, digits_sd = 2) |> purrr::pluck("consistency")
+  )
   df_grimmer |>
     grimmer_map(digits_x = c(1, 2), digits_sd = 2) |>
     purrr::pluck("consistency") |>
-    expect_equal(c(
-      grimmer_map(df_grimmer[1, ], digits_x = 1, digits_sd = 2)$consistency,
-      grimmer_map(df_grimmer[2, ], digits_x = 2, digits_sd = 2)$consistency
-    ))
+    expect_equal(separate)
 
+  separate <- c(
+    df_debit[1, ] |> debit_map(digits_x = 2, digits_sd = 2) |> purrr::pluck("consistency"),
+    df_debit[2, ] |> debit_map(digits_x = 2, digits_sd = 1) |> purrr::pluck("consistency")
+  )
   df_debit |>
     debit_map(digits_x = 2, digits_sd = c(2, 1)) |>
     purrr::pluck("consistency") |>
-    expect_equal(c(
-      debit_map(df_debit[1, ], digits_x = 2, digits_sd = 2)$consistency,
-      debit_map(df_debit[2, ], digits_x = 2, digits_sd = 1)$consistency
-    ))
+    expect_equal(separate)
 })
 
 
 test_that("a single `digits_*` value still applies to the whole column", {
+  per_row <- df_grim |> grim_map(digits_x = c(2, 2)) |> purrr::pluck("consistency")
   df_grim |>
     grim_map(digits_x = 2) |>
     purrr::pluck("consistency") |>
-    expect_equal(grim_map(df_grim, digits_x = c(2, 2))$consistency)
+    expect_equal(per_row)
 })
 
 

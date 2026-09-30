@@ -165,11 +165,8 @@ test_that("arguments that describe the test as a whole must be length 1", {
 test_that("`NULL` still works where an argument takes it", {
   # GRIMMER's scale bounds are `NULL` for an unbounded scale, which is not a
   # length-1 value but is not a vectorized argument either.
-  out_null <- grimmer(
-    x = 5.23, sd = 2.55, n = 31, digits_x = 2, digits_sd = 2,
-    min_val = NULL, max_val = NULL
-  )
-  out_default <- grimmer(x = 5.23, sd = 2.55, n = 31, digits_x = 2, digits_sd = 2)
+  out_null    <- 5.23 |> grimmer(sd = 2.55, n = 31, digits_x = 2, digits_sd = 2, min_val = NULL, max_val = NULL)
+  out_default <- 5.23 |> grimmer(sd = 2.55, n = 31, digits_x = 2, digits_sd = 2)
   out_null |> expect_equal(out_default)
 })
 
@@ -203,21 +200,23 @@ test_that("the wrappers work however they are called", {
   expected <- c(FALSE, TRUE)
   x <- c(5.19, 5.18)
 
-  expect_equal(grim(x = x, n = 28, digits_x = 2), expected)
-  expect_equal(grim(x, 28, 2), expected)
-  expect_equal(x |> grim(28, digits_x = 2), expected)
-  expect_equal(do.call(grim, list(x = x, n = 28, digits_x = 2)), expected)
-  expect_equal(unlist(lapply(x, grim, n = 28, digits_x = 2)), expected)
-  expect_equal(purrr::map_lgl(x, grim, n = 28, digits_x = 2), expected)
-  expect_equal(unlist(Map(grim, x, 28, 2)), expected)
-  expect_equal((function(...) grim(...))(x, 28, 2), expected)
+  # The calls below are written out in full because their form is what is being
+  # tested, so they don't start with `x |>`:
+  grim(x = x, n = 28, digits_x = 2)                 |> expect_equal(expected)
+  grim(x, 28, 2)                                    |> expect_equal(expected)
+  x |> grim(28, digits_x = 2)                       |> expect_equal(expected)
+  do.call(grim, list(x = x, n = 28, digits_x = 2))  |> expect_equal(expected)
+  lapply(x, grim, n = 28, digits_x = 2) |> unlist() |> expect_equal(expected)
+  purrr::map_lgl(x, grim, n = 28, digits_x = 2)     |> expect_equal(expected)
+  Map(grim, x, 28, 2) |> unlist()                   |> expect_equal(expected)
+  (function(...) grim(...))(x, 28, 2)               |> expect_equal(expected)
 
   # Bound to a name of its own, and then that name bound to another test. The
   # `missing()` calls are cached per name, so the cache has to notice:
   fn <- grim
-  expect_equal(fn(x, 28, 2), expected)
+  fn(x, 28, 2) |> expect_equal(expected)
   fn <- grimmer
-  expect_equal(fn(5.23, 2.55, 31, 2, 2), TRUE)
+  fn(5.23, 2.55, 31, 2, 2) |> expect_true()
 })
 
 

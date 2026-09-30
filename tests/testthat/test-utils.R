@@ -99,11 +99,10 @@ test_that("`censor()` returns correct values", {
 })
 
 
-vec_test_2 <- 1:7
-vec_test_2 <- add_class(vec_test_2, "silly test")
+vec_test_2 <- 1:7 |> add_class("silly test")
 
-df_test_3 <- add_class(df_test, "dummy class")
-df_test_4 <- add_class(df_test, c("dummy class 1", "dummy class 2"))
+df_test_3 <- df_test |> add_class("dummy class")
+df_test_4 <- df_test |> add_class(c("dummy class 1", "dummy class 2"))
 
 test_that("`add_class()` really does add one or more classes", {
   vec_test_2 |> expect_s3_class("silly test")
@@ -210,13 +209,12 @@ test_that("`check_lengths_congruent()` accepts arguments of equal length", {
   b2 <- 3:4
   s1 <- 1
 
-  
   list(a2, b2, s1) |> check_lengths_congruent() |> suppressWarnings() |> expect_no_error()
   list(a2, s1, b2, s1, s1) |> check_lengths_congruent() |> suppressWarnings() |> expect_no_error()
-  
+
   list(a2, s1, s1) |> check_lengths_congruent() |> expect_no_condition()
   list(s1, s1, s1) |> check_lengths_congruent() |> expect_no_condition()
-  
+
   # The pairing warning still fires for the congruent case:
   list(a2, b2) |> check_lengths_congruent() |> expect_warning()
 })
@@ -292,7 +290,7 @@ test_that("`check_newly_numeric()` agrees with counting decimal places", {
   for (digits in 0:5) {
     fast <- vapply(x, passes_check_newly_numeric, logical(1L), digits = digits)
     counted <- digits >= vapply(x, decimal_places_scalar, integer(1L))
-    expect_equal(fast, counted)
+    fast |> expect_equal(counted)
   }
 })
 
@@ -312,17 +310,14 @@ test_that("`is_decidable_n_items()` agrees between its two paths", {
   for (min_n in c(1, 2)) {
     rows <- grid[grid$min_n == min_n, ]
 
-    scalar <- rows |> 
-      nrow() |> 
-      seq_len() |> 
-      vapply(
-        function(i) is_decidable_n_items(rows$n[i], rows$items[i], min_n),
-        logical(1L)
-      )
+    scalar <- rows |> nrow() |> seq_len() |> vapply(
+      function(i) is_decidable_n_items(rows$n[i], rows$items[i], min_n),
+      logical(1L)
+    )
 
     # Vectors take the other branch, whole columns at a time:
     vectorized <- is_decidable_n_items(rows$n, rows$items, min_n)
-    expect_identical(scalar, vectorized)
+    scalar |> expect_identical(vectorized)
 
     # Neither is ever `NA`, whatever went in:
     vectorized |> anyNA() |> expect_false()

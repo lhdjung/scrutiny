@@ -11,10 +11,9 @@ test_that("`grim_plot()` picks up `digits_x` from `grim_map()` output
   pigs1 |> grim_map(digits_x = 2) |> grim_plot() |> expect_s3_class("ggplot")
 })
 
-mixed_digits <- dplyr::bind_rows(
-  grim_map(pigs1, digits_x = 2),
-  grim_map(tibble::tibble(x = 4.7, n = 20), digits_x = 1)
-)
+mixed_digits <- pigs1 |>
+  grim_map(digits_x = 2) |>
+  dplyr::bind_rows(grim_map(tibble::tibble(x = 4.7, n = 20), digits_x = 1))
 
 test_that("`grim_plot()` errors by default on mixed `digits_x`", {
   mixed_digits |> grim_plot() |> expect_error()
@@ -23,7 +22,7 @@ test_that("`grim_plot()` errors by default on mixed `digits_x`", {
 test_that("`split_by_digits = TRUE` returns one plot per decimal count", {
   # `suppressMessages()` mutes the success alert that `grim_plot()` prints when
   # it made more than one plot:
-  plots <- suppressMessages(mixed_digits |> grim_plot(split_by_digits = TRUE))
+  plots <- mixed_digits |> grim_plot(split_by_digits = TRUE) |> suppressMessages()
   plots |> expect_type("list")
   plots |> names() |> expect_equal(c("digits_1", "digits_2"))
   plots[[1]] |> expect_s3_class("ggplot")
@@ -38,8 +37,8 @@ test_that("`split_by_digits = TRUE` returns one plot per decimal count", {
 # that would have said so went into a `suppressWarnings()` around the `print()`.
 
 test_that("no data is dropped from the plot", {
-  data <- grim_map(pigs1, digits_x = 2)
-  layer_data <- ggplot2::ggplot_build(grim_plot(data))$data[[2L]]
+  data <- pigs1 |> grim_map(digits_x = 2)
+  layer_data <- data |> grim_plot() |> ggplot2::ggplot_build() |> purrr::pluck("data", 2L)
   layer_data |> nrow() |> expect_equal(nrow(data))
   layer_data$ymin |> anyNA() |> expect_false()
   layer_data$ymax |> anyNA() |> expect_false()
@@ -79,11 +78,8 @@ test_that("undrawable input is an error with an explanation", {
 # value, not below the axis, where it used to be dropped without a word.
 
 test_that("negative means are plotted at the fractional part of their absolute value", {
-  data <- grim_map(
-    tibble::tibble(x = c(-7.22, -5.19, -5.00), n = c(38L, 40L, 40L)),
-    digits_x = 2
-  )
-  layer_data <- ggplot2::ggplot_build(grim_plot(data))$data[[2L]]
+  data <- tibble::tibble(x = c(-7.22, -5.19, -5.00), n = c(38L, 40L, 40L)) |> grim_map(digits_x = 2)
+  layer_data <- data |> grim_plot() |> ggplot2::ggplot_build() |> purrr::pluck("data", 2L)
   layer_data$y |> expect_equal(c(0.22, 0.19, 0))
   layer_data |> nrow() |> expect_equal(nrow(data))
   layer_data$ymin |> anyNA() |> expect_false()
@@ -91,8 +87,11 @@ test_that("negative means are plotted at the fractional part of their absolute v
 
 test_that("a mean and its negative are drawn in the same place", {
   y_of <- function(x) {
-    data <- grim_map(tibble::tibble(x = x, n = 40L), digits_x = 2)
-    ggplot2::ggplot_build(grim_plot(data))$data[[2L]]$y
+    tibble::tibble(x = x, n = 40L) |>
+      grim_map(digits_x = 2) |>
+      grim_plot() |>
+      ggplot2::ggplot_build() |>
+      purrr::pluck("data", 2L, "y")
   }
   -2.51 |> y_of() |> expect_equal(y_of(2.51))
 })
@@ -114,8 +113,8 @@ test_that("`grim_plot()` returns the plot instead of printing it", {
   # It used to end on `print()` and return invisibly, so `p <- grim_plot(g)`
   # drew a plot the caller had not asked for, and `grim_plot(g) + labs(...)`
   # drew two. `debit_plot()` has always returned its object normally.
-  data <- grim_map(pigs1, digits_x = 2)
-  expect_silent(invisible(capture.output(p <- grim_plot(data))))
+  data <- pigs1 |> grim_map(digits_x = 2)
+  p <- data |> grim_plot() |> expect_silent()
   p |> expect_s3_class("ggplot")
   # Visible, so auto-printing draws it at the console:
   data |> grim_plot() |> withVisible() |> purrr::pluck("visible") |> expect_true()
@@ -131,10 +130,7 @@ test_that("undecidable value sets are dropped out loud", {
   # A tile's color comes from `consistency`, so an `NA` verdict has no color
   # and ggplot2 dropped the row with a bare "Removed 1 row containing missing
   # values" -- which names neither the column nor the reason.
-  data <- grim_map(
-    tibble::tibble(x = c(5.19, 5.19), n = c(28L, NA_integer_)),
-    digits_x = 2
-  )
+  data <- tibble::tibble(x = c(5.19, 5.19), n = c(28L, NA_integer_)) |> grim_map(digits_x = 2)
   expect_warning(p <- grim_plot(data), "undecidable")
   layer_data <- ggplot2::ggplot_build(p)$data[[2L]]
   layer_data |> nrow() |> expect_equal(1L)
@@ -151,10 +147,7 @@ test_that("`digits_x = 0` rows are reported, not dropped in silence", {
   # A mean reported with no decimal places has a fractional portion of zero, so
   # `split_by_digits` leaves it out. It used to do so without a word, and the
   # success message counted only the plots that were made.
-  data <- grim_map(
-    tibble::tibble(x = c(5, 5.19), n = c(28L, 28L)),
-    digits_x = c(0, 2)
-  )
+  data <- tibble::tibble(x = c(5, 5.19), n = c(28L, 28L)) |> grim_map(digits_x = c(0, 2))
   expect_warning(
     plots <- grim_plot(data, split_by_digits = TRUE),
     "digits_x = 0"
@@ -164,7 +157,7 @@ test_that("`digits_x = 0` rows are reported, not dropped in silence", {
   # With nothing but zero-decimal means there is no plot to split at all, and
   # the raster lookup used to fail with R's own "object
   # 'grim_raster_0_up_or_down_n' not found":
-  zero_only <- grim_map(tibble::tibble(x = 5, n = 28L), digits_x = 0)
+  zero_only <- tibble::tibble(x = 5, n = 28L) |> grim_map(digits_x = 0)
   zero_only |> grim_plot(split_by_digits = TRUE) |> expect_error()
   zero_only |> grim_plot() |> expect_error("must be at least 1")
 })
@@ -176,10 +169,10 @@ test_that("percentages are plotted on the grid they were tested on", {
   # `67.4` was drawn at a fractional portion of `0.4` against the raster for
   # one decimal place, while the verdict coloring that tile was reached at
   # three. The y-axis label promised "% (as decimal)" the whole time.
-  data <- suppressMessages(grim_map(pigs2, digits_x = 1, percent = TRUE))
+  data <- pigs2 |> grim_map(digits_x = 1, percent = TRUE) |> suppressMessages()
   # Three effective decimal places, so this is the gradient branch, whose tile
   # layer is the last one rather than the second:
-  built <- ggplot2::ggplot_build(grim_plot(data))$data
+  built <- data |> grim_plot() |> ggplot2::ggplot_build() |> purrr::pluck("data")
   layer_data <- built[[length(built)]]
   layer_data$y |> expect_equal(pigs2$x / 100)
 
@@ -194,7 +187,7 @@ test_that("percentages are plotted on the grid they were tested on", {
 
 test_that("`n` sets the maximum of the x-axis", {
   # Only the breaks used to stop at `n`; the axis still ran to 100:
-  p <- grim_plot(grim_map(pigs1, digits_x = 2), n = 50)
+  p <- pigs1 |> grim_map(digits_x = 2) |> grim_plot(n = 50)
   x_range <- ggplot2::ggplot_build(p)$layout$panel_params[[1L]]$x.range
   x_range[2L] |> expect_equal(50, tolerance = 0.01)
 })
@@ -202,7 +195,7 @@ test_that("`n` sets the maximum of the x-axis", {
 test_that("`split_by_digits = TRUE` always returns a named list", {
   # With a single decimal count or without a raster, it used to return a plain
   # ggplot object:
-  data <- grim_map(pigs1, digits_x = 2)
+  data <- pigs1 |> grim_map(digits_x = 2)
   data |> grim_plot(split_by_digits = TRUE) |> names() |> expect_equal("digits_2")
   data |>
     grim_plot(split_by_digits = TRUE, show_raster = FALSE) |>
@@ -213,13 +206,8 @@ test_that("`split_by_digits = TRUE` always returns a named list", {
 
 
 test_that("tiles sit at `n * items` when `items` is a column", {
-  out <- grim_map_seq(
-    tibble::tibble(x = 3.43, n = 71),
-    digits_x = 2,
-    items = 2,
-    include_consistent = TRUE
-  )
-  layers <- ggplot2::ggplot_build(grim_plot(out))$data
+  out <- tibble::tibble(x = 3.43, n = 71) |> grim_map_seq(digits_x = 2, items = 2, include_consistent = TRUE)
+  layers <- out |> grim_plot() |> ggplot2::ggplot_build() |> purrr::pluck("data")
   tiles <- layers[[length(layers)]]
   tiles$x |> unique() |> sort() |> expect_equal(sort(unique(out$n * out$items)))
 })

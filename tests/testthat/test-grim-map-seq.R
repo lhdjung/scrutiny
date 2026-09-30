@@ -1448,13 +1448,13 @@ test_that("`grim_map_seq()` with include_reported=TRUE adds one row per case", {
 # decimal level via floating-point error, which then made `grim_map()` reject
 # them as having more decimal places than `digits_x` allows. See issue #83.
 test_that("`grim_map_seq()` handles large `dispersion` values", {
-  out <- grim_map_seq(pigs5, digits_x = 2, dispersion = 1:305)
+  out <- pigs5 |> grim_map_seq(digits_x = 2, dispersion = 1:305)
   out |> expect_s3_class("scrutiny_grim_map_seq")
   out$x |> decimal_places() |> max() |> expect_equal(2L)
   out$digits_x |> call_on(\(x) x == 2L) |> all() |> expect_true()
 
   # The one extra step must not change anything about the shorter sequence:
-  out_304 <- grim_map_seq(pigs5, digits_x = 2, dispersion = 1:304)
+  out_304 <- pigs5 |> grim_map_seq(digits_x = 2, dispersion = 1:304)
   out[out$diff_var %in% out_304$diff_var, ] |>
     expect_equal(out_304[out_304$diff_var %in% out$diff_var, ])
 })
@@ -1485,8 +1485,7 @@ test_that("`grim_map_seq()` applies `items` exactly once", {
 # product with `items = 1` gave wrong verdicts -- even for the reported values.
 test_that("`grimmer_map_seq()` tests `n` and `items` separately", {
   df <- tibble::tibble(x = 2.55, sd = 0.8, n = 10)
-  out <- grimmer_map_seq(
-    df,
+  out <- df |> grimmer_map_seq(
     digits_x = 2,
     digits_sd = 2,
     items = 2,
@@ -1506,7 +1505,7 @@ test_that("`grimmer_map_seq()` tests `n` and `items` separately", {
 # cases that are left after filtering, so that results can be joined back.
 test_that("`case` indexes the rows of the input", {
   d <- tibble::tibble(x = c(5.2, 5.19, 3.4, 7.15), n = c(30, 28, 20, 21))
-  out <- grim_map_seq(d, digits_x = 2, dispersion = 1)
+  out <- d |> grim_map_seq(digits_x = 2, dispersion = 1)
   out$case              |> unique() |> expect_equal(c(2L, 4L))
   out$x[out$var == "n"] |> unique() |> expect_equal(d$x[c(2L, 4L)])
 })
@@ -1516,7 +1515,7 @@ test_that("sequence mappers name the test when `data` already has results", {
   # `check_mapper_input_colnames()` passes `name_test` on to the check that
   # produces this message. Leaving it out made cli fail on the missing argument
   # instead, so the user saw "Could not evaluate cli `{}` expression".
-  data_tested <- grim_map(pigs1[1:3, ], digits_x = 2)
+  data_tested <- pigs1[1:3, ] |> grim_map(digits_x = 2)
   data_tested |> grim_map_seq(digits_x = 2) |>
     expect_error(regexp = "already includes a \"consistency\" column")
   pigs5[1:3, ] |>
@@ -1534,11 +1533,7 @@ test_that("sequence mappers name the test when `data` already has results", {
 # returned a wrong value, which `audit_seq()` re-tested into a wrong verdict.
 
 test_that("a negative mean is dispersed in both directions", {
-  out <- grim_map_seq(
-    tibble::tibble(x = -2.51, n = 40),
-    digits_x = 2,
-    var = "x"
-  )
+  out <- tibble::tibble(x = -2.51, n = 40) |> grim_map_seq(digits_x = 2, var = "x")
   out          |> nrow() |> expect_equal(10L)
   out$diff_var |> sort() |> expect_equal(c(-5:-1, 1:5))
   out$x        |> min()  |> expect_equal(-2.56)
@@ -1546,26 +1541,22 @@ test_that("a negative mean is dispersed in both directions", {
 })
 
 test_that("`reverse_map_seq()` recovers a negative reported mean", {
-  out <- grim_map_seq(tibble::tibble(x = -2.51, n = 40), digits_x = 2)
-  rev <- reverse_map_seq(out)
+  out <- tibble::tibble(x = -2.51, n = 40) |> grim_map_seq(digits_x = 2)
+  rev <- out |> reverse_map_seq()
   rev$x |> expect_equal(-2.51)
   rev$n |> expect_equal(40L)
 })
 
 test_that("`audit_seq()` reports the reported values and their own verdict", {
-  out <- grim_map_seq(tibble::tibble(x = -2.51, n = 40), digits_x = 2)
-  out_audit <- audit_seq(out)
+  out <- tibble::tibble(x = -2.51, n = 40) |> grim_map_seq(digits_x = 2)
+  out_audit <- out |> audit_seq()
   out_audit$x |> expect_equal(-2.51)
   out_audit$consistency |> expect_equal(grim(-2.51, 40, digits_x = 2))
   out_audit$consistency |> expect_false()
 })
 
 test_that("`n` keeps a floor of 1 even though the mean has none", {
-  out <- grim_map_seq(
-    tibble::tibble(x = 5.19, n = 3),
-    digits_x = 2,
-    var = "n"
-  )
+  out <- tibble::tibble(x = 5.19, n = 3) |> grim_map_seq(digits_x = 2, var = "n")
   out$n |> min() |> expect_equal(1L)
 
   # Nothing undecidable made it into the output:
@@ -1573,13 +1564,8 @@ test_that("`n` keeps a floor of 1 even though the mean has none", {
 })
 
 test_that("a zero step in `dispersion` doesn't duplicate the reported case", {
-  out <- grim_map_seq(
-    tibble::tibble(x = 5.19, n = 40),
-    digits_x = 2,
-    var = "x",
-    dispersion = c(0, 1, 2),
-    include_consistent = TRUE
-  )
+  out <- tibble::tibble(x = 5.19, n = 40) |>
+    grim_map_seq(digits_x = 2, var = "x", dispersion = c(0, 1, 2), include_consistent = TRUE)
   out$diff_var |> anyDuplicated() |> expect_equal(0L)
   out$diff_var |> sort() |> expect_equal(c(-2L, -1L, 1L, 2L))
 })
@@ -1626,7 +1612,8 @@ test_that("output without inconsistent cases keeps its shape and class", {
   full  |> scrutiny_meta() |> purrr::pluck("var") |> expect_equal(c("x", "n"))
   empty_n <- pigs1[c(1, 1), ] |> grim_map_seq(digits_x = 2, var = "n") |> suppressWarnings()
   empty_n |> scrutiny_meta() |> purrr::pluck("var") |> expect_equal("n")
-  empty_n |> audit_seq() |> colnames() |> expect_equal(colnames(audit_seq(grim_map_seq(pigs1, digits_x = 2, var = "n"))))
+  cols_audit_n <- pigs1 |> grim_map_seq(digits_x = 2, var = "n") |> audit_seq() |> colnames()
+  empty_n |> audit_seq() |> colnames() |> expect_equal(cols_audit_n)
 })
 
 

@@ -186,10 +186,11 @@ test_that("`symmetric` is honored by the consistency decision", {
   # Positive values are unaffected:
   for (rounding in c("up", "down", "up_or_down")) {
     x <- seq(0, 100) / 100
+    expected <- x |> grim(40, digits_x = 2, rounding = rounding, symmetric = FALSE) |> unname()
     x |>
       grim(40, digits_x = 2, rounding = rounding, symmetric = TRUE) |>
       unname() |>
-      expect_equal(unname(grim(x, 40, digits_x = 2, rounding = rounding, symmetric = FALSE)))
+      expect_equal(expected)
   }
 })
 
@@ -243,10 +244,11 @@ test_that("`threshold` does not affect the non-`\"*_from\"` methods", {
   }
 
   # By contrast, `"up_from"` does respond to it:
+  up_from_9 <- x |> grim(40, digits_x = 2, rounding = "up_from", threshold = 9) |> unname()
   x |>
     grim(40, digits_x = 2, rounding = "up_from", threshold = 1) |>
     unname() |>
-    identical(unname(grim(x, 40, digits_x = 2, rounding = "up_from", threshold = 9))) |>
+    identical(up_from_9) |>
     expect_false()
 })
 

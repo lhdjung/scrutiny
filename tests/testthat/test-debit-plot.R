@@ -18,7 +18,7 @@ test_that("the DEBIT lines for the smallest and largest `n` bound a band", {
   # A single line used to take the whole `n` column, recycled along the curve:
   data <- tibble::tibble(x = c(.5, .3, .6), sd = c(.71, .47, .55), n = c(2, 50, 3)) |>
     debit_map(digits_x = 2, digits_sd = 2)
-  built <- ggplot2::ggplot_build(debit_plot(data))$data
+  built <- data |> debit_plot() |> ggplot2::ggplot_build() |> purrr::pluck("data")
   at_half <- function(l, col) l[[col]][which.min(abs(l$x - 0.5))]
   expected <- sqrt(c(2, 50) / c(1, 49) * 0.25)
   c(
@@ -43,11 +43,7 @@ test_that("the DEBIT lines for the smallest and largest `n` bound a band", {
 })
 
 test_that("`debit_plot()` returns the plot instead of printing it", {
-  expect_silent(invisible(capture.output(
-  p <- pigs3 |> 
-    debit_map(digits_x = 2, digits_sd = 2) |> 
-    debit_plot()
-  )))
+  p <- pigs3 |> debit_map(digits_x = 2, digits_sd = 2) |> debit_plot() |> expect_silent()
 
   p |> expect_s3_class("ggplot")
 })
@@ -59,7 +55,7 @@ test_that("rectangles are sized per row, and `NA` rows are dropped out loud", {
     n = c(40, 40)
   ) |>
     debit_map(digits_x = c(1, 2), digits_sd = 2)
-  built <- ggplot2::ggplot_build(debit_plot(data))$data
+  built <- data |> debit_plot() |> ggplot2::ggplot_build() |> purrr::pluck("data")
   rects <- built[[length(built) - 2L]]
   (rects$xmax - rects$xmin) |> expect_equal(c(0.1, 0.01))
   # Each rectangle is drawn over a point at the reported values, so that it
@@ -83,10 +79,7 @@ test_that("rectangles are sized per row, and `NA` rows are dropped out loud", {
 
 test_that("the band between the DEBIT lines is clipped, not cut off", {
   df <- tibble::tibble(x = c(0.52, 0.31), sd = c(0.50, 0.46), n = c(5, 8))
-  p <- debit_plot(
-    debit_map(df, digits_x = 2, digits_sd = 2),
-    show_labels = FALSE
-  )
+  p <- df |> debit_map(digits_x = 2, digits_sd = 2) |> debit_plot(show_labels = FALSE)
   band <- ggplot2::ggplot_build(p)$data[[1L]]
   band$ymin |> anyNA() |> expect_false()
   band$ymax |> anyNA() |> expect_false()
@@ -147,7 +140,7 @@ test_that("thinning the marks keeps every cell of the grid that has one", {
 
   k_thin |> length() |> expect_lt(n / 20)
   k_thin |> cells() |> sort() |> expect_equal(sort(cells(k_all)))
-  thin_binary_means(10, 9, n, x_range, y_range) |> expect_length(0)
+  10 |> thin_binary_means(9, n, x_range, y_range) |> expect_length(0)
 })
 
 test_that("`debit_plot()` says when it thins the marks", {

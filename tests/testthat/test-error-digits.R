@@ -16,7 +16,10 @@ df_debit <- tibble::tibble(x = 0.35, sd = 0.18, n = 20)
 # unwinds, which is a `message` condition and would otherwise clutter test
 # output:
 msg_error <- function(expr) {
-  conditionMessage(suppressMessages(tryCatch(expr, error = function(e) e)))
+  expr |>
+    tryCatch(error = function(e) e) |>
+    suppressMessages() |>
+    conditionMessage()
 }
 
 

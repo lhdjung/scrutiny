@@ -48,8 +48,8 @@ test_that("The function throws an error if `rounding` is misspecified", {
 })
 
 
-df2 <- unround("4.50", digits = 1)
-df3 <- unround("4.50", digits = 1:5)
+df2 <- "4.50" |> unround(digits = 1)
+df3 <- "4.50" |> unround(digits = 1:5)
 
 
 test_that("", {
@@ -87,7 +87,7 @@ test_that("`unround()` bounds agree with the rounding they invert", {
     "trunc", "anti_trunc", "up_from", "down_from"
   )
   for (m in methods) {
-    bounds <- unround("0.53", rounding = m, threshold = 6)
+    bounds <- "0.53" |> unround(rounding = m, threshold = 6)
     rounds_to_x <- function(value) {
       value |>
         reround(digits = 2, rounding = m, threshold = 6) |>
@@ -156,13 +156,7 @@ test_that("`unround()` bounds agree with the rounding they invert (sweep)", {
             if (symmetric && m %in% names(TIES_METHODS)) {
               next
             }
-            bounds <- unround(
-              x_str,
-              rounding = m,
-              threshold = threshold,
-              digits = digits,
-              symmetric = symmetric
-            )
+            bounds <- x_str |> unround(rounding = m, threshold = threshold, digits = digits, symmetric = symmetric)
             rounds_to_x <- function(value) {
               value |>
                 reround(
@@ -185,10 +179,10 @@ test_that("`unround()` bounds agree with the rounding they invert (sweep)", {
             # is zero itself. There is no "just inside" to check, and both
             # bounds are the point itself:
             if (bounds$lower == bounds$upper) {
-              expect_equal(m, "anti_trunc")
-              expect_equal(x_num, 0)
+              m     |> expect_equal("anti_trunc")
+              x_num |> expect_equal(0)
               x_num |> rounds_to_x() |> expect_true(label = paste(label, "- at point"))
-              expect_true(bounds$incl_lower && bounds$incl_upper)
+              (bounds$incl_lower && bounds$incl_upper) |> expect_true()
               (x_num + eps) |>
                 rounds_to_x() |>
                 expect_false(label = paste(label, "- beyond upper"))
@@ -228,7 +222,7 @@ test_that("`unround()` bounds agree with the rounding they invert (sweep)", {
   }
 
   # Guard against the loops silently collapsing to nothing:
-  expect_gt(n_checked, 700L)
+  n_checked |> expect_gt(700L)
 })
 
 
@@ -251,12 +245,12 @@ test_that("`threshold` only affects the `*_from` rounding methods", {
   # their bounds must not depend on `threshold`. `unround()` used to widen the
   # range anyway, reconstructing a rounding that never happens.
   for (m in c("up_or_down", "up", "down")) {
-    from_5 <- unround("0.53", rounding = m, threshold = 5)
-    from_6 <- unround("0.53", rounding = m, threshold = 6)
-    expect_equal(from_5$lower, from_6$lower)
-    expect_equal(from_5$upper, from_6$upper)
-    expect_equal(from_5$lower, 0.525)
-    expect_equal(from_5$upper, 0.535)
+    from_5 <- "0.53" |> unround(rounding = m, threshold = 5)
+    from_6 <- "0.53" |> unround(rounding = m, threshold = 6)
+    from_5$lower |> expect_equal(from_6$lower)
+    from_5$upper |> expect_equal(from_6$upper)
+    from_5$lower |> expect_equal(0.525)
+    from_5$upper |> expect_equal(0.535)
   }
   # ...whereas the parameterized methods do respond to it:
   "0.53" |>
@@ -267,14 +261,14 @@ test_that("`threshold` only affects the `*_from` rounding methods", {
 
 
 test_that("`symmetric` mirrors the bounds of a negative `x`", {
-  plain <- unround("-0.53", rounding = "up", symmetric = FALSE)
-  mirrored <- unround("-0.53", rounding = "up", symmetric = TRUE)
+  plain    <- "-0.53" |> unround(rounding = "up", symmetric = FALSE)
+  mirrored <- "-0.53" |> unround(rounding = "up", symmetric = TRUE)
   # With `symmetric`, rounding a negative number mirrors its absolute value,
   # so the inclusive end swaps:
-  expect_true(plain$incl_lower)
-  expect_false(plain$incl_upper)
-  expect_false(mirrored$incl_lower)
-  expect_true(mirrored$incl_upper)
+  plain$incl_lower    |> expect_true()
+  plain$incl_upper    |> expect_false()
+  mirrored$incl_lower |> expect_false()
+  mirrored$incl_upper |> expect_true()
 })
 
 
@@ -285,9 +279,9 @@ test_that("`\"anti_trunc\"` bounds match `round_anti_trunc()`", {
   # (`x` is given with one decimal place, and re-rounded to one, so that the
   # bounds and the rounding are on the same grid. It used to be given as "0.70",
   # i.e. unrounded at two decimal places and then re-rounded at one.)
-  bounds_positive <- unround("0.7", rounding = "anti_trunc")
-  expect_false(bounds_positive$incl_lower)
-  expect_true(bounds_positive$incl_upper)
+  bounds_positive <- "0.7" |> unround(rounding = "anti_trunc")
+  bounds_positive$incl_lower |> expect_false()
+  bounds_positive$incl_upper |> expect_true()
   bounds_positive$upper |> round_anti_trunc(1) |> expect_equal(0.7)
   bounds_positive$lower |>
     round_anti_trunc(1) |>
@@ -295,9 +289,9 @@ test_that("`\"anti_trunc\"` bounds match `round_anti_trunc()`", {
     expect_false()
 
   # ...and `round_floor()` below zero, which reaches it from above:
-  bounds_negative <- unround("-0.7", rounding = "anti_trunc")
-  expect_true(bounds_negative$incl_lower)
-  expect_false(bounds_negative$incl_upper)
+  bounds_negative <- "-0.7" |> unround(rounding = "anti_trunc")
+  bounds_negative$incl_lower |> expect_true()
+  bounds_negative$incl_upper |> expect_false()
   bounds_negative$lower |> round_anti_trunc(1) |> expect_equal(-0.7)
   bounds_negative$upper |>
     round_anti_trunc(1) |>
@@ -312,11 +306,11 @@ test_that("`\"anti_trunc\"` at zero is a single point, not an undefined range", 
   # 1.0.0, `anti_trunc()` sent zero itself away from zero as well -- to `+1`
   # unit, an arbitrary sign choice -- and the bounds here were `NA` in
   # consequence.
-  bounds <- unround("0.00", rounding = "anti_trunc")
-  expect_equal(bounds$lower, 0)
-  expect_equal(bounds$upper, 0)
-  expect_true(bounds$incl_lower)
-  expect_true(bounds$incl_upper)
+  bounds <- "0.00" |> unround(rounding = "anti_trunc")
+  bounds$lower      |> expect_equal(0)
+  bounds$upper      |> expect_equal(0)
+  bounds$incl_lower |> expect_true()
+  bounds$incl_upper |> expect_true()
   0      |> round_anti_trunc(2) |> expect_equal(0)
   0.001  |> round_anti_trunc(2) |> call_on(\(x) x == 0) |> expect_false()
   -0.001 |> round_anti_trunc(2) |> call_on(\(x) x == 0) |> expect_false()
@@ -343,7 +337,7 @@ test_that("`unround()` checks the lengths of all its vectorized arguments", {
 
 
 test_that("counted decimal places are not confused by a shorter `digits`", {
-  out <- unround(c("1.0", "2.00", "3.000"))
+  out <- c("1.0", "2.00", "3.000") |> unround()
   out$upper |> expect_equal(c(1.05, 2.005, 3.0005))
 })
 
@@ -424,15 +418,8 @@ test_that("no rounding method reconstructs a range wider than one step", {
             if (symmetric && m %in% names(TIES_METHODS)) {
               next
             }
-            bounds <- unround(
-              x_str,
-              rounding = m,
-              threshold = threshold,
-              digits = digits,
-              symmetric = symmetric
-            )
-            expect_lte(
-              bounds$upper - bounds$lower,
+            bounds <- x_str |> unround(rounding = m, threshold = threshold, digits = digits, symmetric = symmetric)
+            (bounds$upper - bounds$lower) |> expect_lte(
               unit * (1 + 1e-9),
               label = paste(
                 m, "| x =", x_str, "| digits =", digits,
@@ -446,15 +433,10 @@ test_that("no rounding method reconstructs a range wider than one step", {
             two_sided <- c(two_sided, "trunc")
           }
           for (m in two_sided) {
-            wide <- unround(
-              x_str,
-              rounding = m,
-              threshold = threshold,
-              digits = digits
-            )
-            expect_equal(wide$upper - wide$lower, 2 * unit)
-            expect_false(wide$incl_lower)
-            expect_false(wide$incl_upper)
+            wide <- x_str |> unround(rounding = m, threshold = threshold, digits = digits)
+            (wide$upper - wide$lower) |> expect_equal(2 * unit)
+            wide$incl_lower |> expect_false()
+            wide$incl_upper |> expect_false()
           }
 
           # `symmetric` at zero: `2 * threshold / 10` steps, open at both ends,
@@ -463,23 +445,16 @@ test_that("no rounding method reconstructs a range wider than one step", {
           if (x_num == 0 && symmetric) {
             for (m in mirrored) {
               t_m <- if (endsWith(m, "_from")) threshold else 5
-              half <- unround(
-                x_str,
-                rounding = m,
-                threshold = threshold,
-                digits = digits,
-                symmetric = TRUE
-              )
-              expect_equal(
-                half$upper - half$lower,
+              half <- x_str |> unround(rounding = m, threshold = threshold, digits = digits, symmetric = TRUE)
+              (half$upper - half$lower) |> expect_equal(
                 2 * t_m * unit / 10,
                 label = paste(
                   m, "at zero | symmetric | threshold =", threshold,
                   "| digits =", digits
                 )
               )
-              expect_equal(half$lower, -half$upper)
-              expect_equal(half$incl_lower, half$incl_upper)
+              half$lower      |> expect_equal(-half$upper)
+              half$incl_lower |> expect_equal(half$incl_upper)
             }
           }
         }
@@ -495,21 +470,17 @@ test_that("the `*_from` methods only move a range, never widen it", {
   # constituents span the very same interval and differ only in which endpoint
   # each includes, so their union is that interval with both ends included.
   for (threshold in seq(1, 9)) {
-    up <- unround("5.00", rounding = "up_from", threshold = threshold)
-    down <- unround("5.00", rounding = "down_from", threshold = threshold)
-    both <- unround(
-      "5.00",
-      rounding = "up_from_or_down_from",
-      threshold = threshold
-    )
-    expect_equal(up$lower, 5 + (threshold - 10) / 1000)
-    expect_equal(up$upper, 5 + threshold / 1000)
-    expect_equal(c(down$lower, down$upper), c(up$lower, up$upper))
-    expect_equal(c(both$lower, both$upper), c(up$lower, up$upper))
+    up   <- "5.00" |> unround(rounding = "up_from", threshold = threshold)
+    down <- "5.00" |> unround(rounding = "down_from", threshold = threshold)
+    both <- "5.00" |> unround(rounding = "up_from_or_down_from", threshold = threshold)
+    up$lower |> expect_equal(5 + (threshold - 10) / 1000)
+    up$upper |> expect_equal(5 + threshold / 1000)
+    c(down$lower, down$upper) |> expect_equal(c(up$lower, up$upper))
+    c(both$lower, both$upper) |> expect_equal(c(up$lower, up$upper))
 
-    expect_equal(c(up$incl_lower, up$incl_upper), c(TRUE, FALSE))
-    expect_equal(c(down$incl_lower, down$incl_upper), c(FALSE, TRUE))
-    expect_equal(c(both$incl_lower, both$incl_upper), c(TRUE, TRUE))
+    c(up$incl_lower, up$incl_upper)     |> expect_equal(c(TRUE, FALSE))
+    c(down$incl_lower, down$incl_upper) |> expect_equal(c(FALSE, TRUE))
+    c(both$incl_lower, both$incl_upper) |> expect_equal(c(TRUE, TRUE))
   }
 })
 
@@ -520,9 +491,9 @@ test_that("a threshold cannot make a consistency test decide nothing", {
   # reconstructed range was wide enough to reach a possible mean whatever the
   # reported value was. Moving the tie point shifts the window without resizing
   # it, so the count of consistent means does not depend on the threshold.
-  x <- as.numeric(sprintf("%.2f", seq(0, 9.99, by = 0.01)))
+  x <- seq(0, 9.99, by = 0.01) |> sprintf(fmt = "%.2f") |> as.numeric()
   for (n in c(28, 57)) {
-    at_5 <- sum(grim(x, n, digits_x = 2, rounding = "up_or_down"))
+    at_5 <- x |> grim(n, digits_x = 2, rounding = "up_or_down") |> sum()
     for (threshold in c(1, 3, 7, 9)) {
       x |>
         grim(
@@ -558,7 +529,7 @@ test_that("`digits` is checked, and an infinite `x` has no bounds", {
   "1.25" |> unround(digits = "2") |> expect_error("whole numbers")
   
   # `Inf <= x(Inf) <= Inf` used to be the answer for a numeric infinity:
-  out <- unround(Inf, digits = 1)
+  out <- Inf |> unround(digits = 1)
   c(out$lower, out$upper) |> expect_equal(c(NA_real_, NA_real_))
   c(out$incl_lower, out$incl_upper) |> expect_equal(c(NA, NA))
 })

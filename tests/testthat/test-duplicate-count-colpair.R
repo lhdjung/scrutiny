@@ -192,7 +192,7 @@ test_that("`duplicate_count_colpair()` with `ignore` works correctly", {
 test_that("`rate_y` is the proportion of `y` values duplicated in `x`", {
   # It used to be `count / total_y`, with `count` taken from the `x` side, so
   # it could exceed 1:
-  out <- duplicate_count_colpair(tibble::tibble(x = c(1, 1, 1, 2), y = c(1, NA, NA, NA)))
+  out <- tibble::tibble(x = c(1, 1, 1, 2), y = c(1, NA, NA, NA)) |> duplicate_count_colpair()
   out$rate_x |> expect_equal(3 / 4)
   out$rate_y |> expect_equal(1)
 })

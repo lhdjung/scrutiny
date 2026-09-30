@@ -1,5 +1,5 @@
 df1 <- pigs3
-df1_tested <- debit_map(df1, digits_x = 2, digits_sd = 2)
+df1_tested <- df1 |> debit_map(digits_x = 2, digits_sd = 2)
 
 
 test_that("the output is a tibble", {
@@ -102,21 +102,15 @@ test_that("`debit_map()` has correct output", {
 # dispersion to cross it.
 
 test_that("`debit_map_seq()` doesn't disperse beyond the binary range", {
-  out_high <- debit_map_seq(
-    tibble::tibble(x = 0.98, sd = 0.14, n = 100),
-    digits_x = 2, digits_sd = 2, var = "x", include_consistent = TRUE
-  )
+  out_high <- tibble::tibble(x = 0.98, sd = 0.14, n = 100) |>
+    debit_map_seq(digits_x = 2, digits_sd = 2, var = "x", include_consistent = TRUE)
   out_high$x |> max() |> expect_equal(1)
 
-  out_low <- debit_map_seq(
-    tibble::tibble(x = 0.03, sd = 0.17, n = 100),
-    digits_x = 2, digits_sd = 2, var = "x", include_consistent = TRUE
-  )
+  out_low <- tibble::tibble(x = 0.03, sd = 0.17, n = 100) |>
+    debit_map_seq(digits_x = 2, digits_sd = 2, var = "x", include_consistent = TRUE)
   out_low$x |> min() |> expect_equal(0)
 
-  out_sd <- debit_map_seq(
-    tibble::tibble(x = 0.5, sd = 0.99, n = 100),
-    digits_x = 2, digits_sd = 2, var = "sd", include_consistent = TRUE
-  )
+  out_sd <- tibble::tibble(x = 0.5, sd = 0.99, n = 100) |>
+    debit_map_seq(digits_x = 2, digits_sd = 2, var = "sd", include_consistent = TRUE)
   out_sd$sd |> max() |> expect_equal(1)
 })

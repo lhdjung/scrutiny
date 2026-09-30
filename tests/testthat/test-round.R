@@ -16,17 +16,11 @@ x_down <- x_down[x_down != 0]
 # oracle tests further below cover that.
 
 test_that("`round_up()` works correctly", {
-  expect_equal(
-    x_up,
-    x_up |> trunc_reverse() |> round_up(2)
-  )
+  x_up |> trunc_reverse() |> round_up(2) |> expect_equal(x_up)
 })
 
 test_that("`round_down()` works correctly", {
-  expect_equal(
-    x_down,
-    x_down |> trunc_reverse() |> round_down(2)
-  )
+  x_down |> trunc_reverse() |> round_down(2) |> expect_equal(x_down)
 })
 
 
@@ -148,12 +142,12 @@ test_that("`round_down_from()` is `round_up_from()` with the tie reversed", {
   # without any rounding of its own:
   x <- seq(0, 9999) / 1000
   for (threshold in seq(1, 9)) {
-    down <- round_down_from(x, 2, threshold = threshold)
-    up <- round_up_from(x, 2, threshold = threshold)
+    down <- x |> round_down_from(2, threshold = threshold)
+    up   <- x |> round_up_from(2, threshold = threshold)
     on_tie <- round(x * 1000) %% 10 == threshold
-    expect_equal(down[!on_tie], up[!on_tie])
+    down[!on_tie] |> expect_equal(up[!on_tie])
     # On the tie itself, `"down_from"` goes down and `"up_from"` goes up:
-    expect_equal(down[on_tie] + 0.01, up[on_tie])
+    (down[on_tie] + 0.01) |> expect_equal(up[on_tie])
   }
 })
 
@@ -306,12 +300,12 @@ test_that("`\"ties_even\"` and `\"even\"` are the same rounding method", {
     x |> reround(digits, "ties_even") |> expect_equal(reround(digits = digits, x = x, rounding = "even"))
   }
   # ...including in the bounds, which is what a consistency test reads:
-  from_even <- unround("0.53", rounding = "even")
-  from_ties <- unround("0.53", rounding = "ties_even")
-  expect_equal(from_even$lower, from_ties$lower)
-  expect_equal(from_even$upper, from_ties$upper)
-  expect_equal(from_even$incl_lower, from_ties$incl_lower)
-  expect_equal(from_even$incl_upper, from_ties$incl_upper)
+  from_even <- "0.53" |> unround(rounding = "even")
+  from_ties <- "0.53" |> unround(rounding = "ties_even")
+  from_even$lower      |> expect_equal(from_ties$lower)
+  from_even$upper      |> expect_equal(from_ties$upper)
+  from_even$incl_lower |> expect_equal(from_ties$incl_lower)
+  from_even$incl_upper |> expect_equal(from_ties$incl_upper)
 })
 
 # Each `"ties_*"` string names a complete procedure, so a separate argument must

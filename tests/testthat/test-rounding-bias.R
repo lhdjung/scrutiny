@@ -5,8 +5,8 @@ test_that("`rounding_bias()` computes the mean bias by default", {
   # Rounding up from 5 on this evenly spaced vector biases upward, rounding down
   # from 5 biases downward, and the two biases mirror each other -- the vector's
   # only tie is at 0.05:
-  bias_up <- rounding_bias(vec, digits = 1)
-  bias_down <- rounding_bias(vec, digits = 1, rounding = "down")
+  bias_up   <- vec |> rounding_bias(digits = 1)
+  bias_down <- vec |> rounding_bias(digits = 1, rounding = "down")
   bias_up   |> expect_gt(0)
   bias_down |> expect_lt(0)
   bias_up |> expect_equal(-bias_down)
@@ -14,7 +14,7 @@ test_that("`rounding_bias()` computes the mean bias by default", {
 
 
 test_that("`rounding_bias(mean = FALSE)` returns one bias per input value", {
-  out <- rounding_bias(vec, digits = 1, rounding = "up", mean = FALSE)
+  out <- vec |> rounding_bias(digits = 1, rounding = "up", mean = FALSE)
   out |> expect_length(length(vec))
   # `x` can be reconstructed from first rounding it, then subtracting the bias:
   vec |>
@@ -42,13 +42,10 @@ test_that("no pairing warning for arguments that cannot be paired", {
   # and `reround()` requires each of them to have length 1. They were still
   # being length-checked against `x` here, so a vector `rounding` first drew a
   # warning about values "getting paired" and then errored for being unpairable.
-  expect_warning(
-    tryCatch(
-      rounding_bias(c(1.25, 2.35), digits = 1, rounding = c("up", "down")),
-      error = function(e) NULL
-    ),
-    regexp = NA
-  )
+  c(1.25, 2.35) |>
+    rounding_bias(digits = 1, rounding = c("up", "down")) |>
+    tryCatch(error = function(e) NULL) |>
+    expect_warning(regexp = NA)
   # The error itself is still the right one:
   c(1.25, 2.35) |>
     rounding_bias(digits = 1, rounding = c("up", "down")) |>
@@ -59,15 +56,13 @@ test_that("no pairing warning for arguments that cannot be paired", {
 
 
 test_that("`x` may be a string coercible to numeric", {
-  c("1.25", "2.35") |>
-    rounding_bias(1) |>
-    expect_equal(rounding_bias(c(1.25, 2.35), 1))
+  expected <- c(1.25, 2.35) |> rounding_bias(1)
+  c("1.25", "2.35") |> rounding_bias(1) |> expect_equal(expected)
 })
 
 
 test_that("a factor is read by its labels", {
   x <- c("1.25", "2.35")
-  factor(x) |>
-    rounding_bias(1, mean = FALSE) |>
-    expect_equal(rounding_bias(x, 1, mean = FALSE))
+  expected <- x |> rounding_bias(1, mean = FALSE)
+  x |> factor() |> rounding_bias(1, mean = FALSE) |> expect_equal(expected)
 })

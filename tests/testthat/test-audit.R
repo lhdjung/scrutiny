@@ -1,8 +1,8 @@
 # `audit()` ---------------------------------------------------------------
 
 # `audit()` for GRIM
-data_grim <- grim_map(pigs1, digits_x = 2)
-audit_grim <- audit(data_grim)
+data_grim <- pigs1 |> grim_map(digits_x = 2)
+audit_grim <- data_grim |> audit()
 
 test_that("`audit()` summarizes GRIM tests accurately", {
   audit_grim |> expect_s3_class("data.frame")
@@ -13,8 +13,8 @@ test_that("`audit()` summarizes GRIM tests accurately", {
 
 
 # `audit()` for DEBIT
-data_debit <- debit_map(pigs3, digits_x = 2, digits_sd = 2)
-audit_debit <- audit(data_debit)
+data_debit <- pigs3 |> debit_map(digits_x = 2, digits_sd = 2)
+audit_debit <- data_debit |> audit()
 
 test_that("`audit()` summarizes DEBIT tests accurately", {
   audit_debit$incons_cases |> as.numeric() |> expect_equal(1)
@@ -25,9 +25,9 @@ test_that("`audit()` summarizes DEBIT tests accurately", {
 
 # `audit_seq()` -----------------------------------------------------------
 
-data_grim_seq <- grim_map_seq(pigs1, digits_x = 2)
-data_grimmer_seq <- grimmer_map_seq(pigs5, digits_x = 2, digits_sd = 2)
-data_debit_seq <- debit_map_seq(pigs3, digits_x = 2, digits_sd = 2)
+data_grim_seq    <- pigs1 |> grim_map_seq(digits_x = 2) # fmt: skip
+data_grimmer_seq <- pigs5 |> grimmer_map_seq(digits_x = 2, digits_sd = 2) # fmt: skip
+data_debit_seq   <- pigs3 |> debit_map_seq(digits_x = 2, digits_sd = 2) # fmt: skip
 
 # The scrutiny class is removed for the GRIM tibble because the latter is tested
 # as an example for equality with tibbles that don't have that class:
@@ -195,11 +195,12 @@ test_that("`audit()` summarizes the decidable cases despite an undecidable one",
 
 test_that("undecidable cases don't dilute `incons_to_prob`", {
   df <- tibble::tibble(x = 5.19, n = c(28, 28, NA, NA))
+  expected <- df[1:2, ] |> grim_map(digits_x = 2) |> audit() |> purrr::pluck("incons_to_prob")
   df |>
     grim_map(digits_x = 2) |>
     audit() |>
     purrr::pluck("incons_to_prob") |>
-    expect_equal(audit(grim_map(df[1:2, ], digits_x = 2))$incons_to_prob)
+    expect_equal(expected)
 })
 
 test_that("`audit()` on DEBIT output ignores missing values in its means", {
