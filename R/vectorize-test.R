@@ -21,19 +21,19 @@
 #' those arguments from the exported functions; this helper is what keeps the
 #' three bodies from being three copies of the same loop.
 #'
-#' @param .fun The `*_scalar()` function to apply, e.g. `grim_scalar()`.
-#' @param .frame The calling wrapper's own `environment()`.
-#' @param .along String vector naming the arguments to vectorize over: the key
+#' @param fun The `*_scalar()` function to apply, e.g. `grim_scalar()`.
+#' @param frame The calling wrapper's own `environment()`.
+#' @param along String vector naming the arguments to vectorize over: the key
 #'   arguments, their `digits_*` arguments, and `items` where the test has it.
 #'   Every other argument is scalar. The split is the same one the mapper tier
-#'   makes: `.along` is what `function_map()` takes from `data` -- key columns,
+#'   makes: `along` is what `function_map()` takes from `data` -- key columns,
 #'   `.args_by_row`, and helper columns -- and the rest are what it passes as
 #'   constants for the whole call.
 #'
-#' @return Logical vector, as long as the recycled `.along` arguments.
+#' @return Logical vector, as long as the recycled `along` arguments.
 #'
 #' @noRd
-vectorize_test <- function(.fun, .frame, .along) {
+vectorize_test <- function(fun, frame, along) {
   index_wrapper <- sys.parent()
   fn_wrapper <- sys.function(index_wrapper)
   formals_wrapper <- formals(fn_wrapper)
@@ -45,7 +45,7 @@ vectorize_test <- function(.fun, .frame, .along) {
   call_wrapper <- sys.call(index_wrapper)
   name_wrapper <- fn_name_from_call(call_wrapper)
 
-  # Arguments the caller left out are not forwarded at all, so `.fun` applies its
+  # Arguments the caller left out are not forwarded at all, so `fun` applies its
   # own defaults -- the same ones the wrapper states -- and raises its own error
   # where it has none. That covers three cases with one rule: `digits_x` and
   # `digits_sd`, which must arrive missing so that `error_digits_missing()`
@@ -64,15 +64,15 @@ vectorize_test <- function(.fun, .frame, .along) {
     calls_missing,
     eval,
     logical(1L),
-    envir = .frame,
+    envir = frame,
     USE.NAMES = FALSE
   )
 
   args_supplied <- args_all[is_supplied]
-  vals <- mget(args_supplied, envir = .frame)
+  vals <- mget(args_supplied, envir = frame)
 
-  names_along <- .along[.along %in% args_supplied]
-  names_scalar <- args_supplied[!args_supplied %in% .along]
+  names_along <- along[along %in% args_supplied]
+  names_scalar <- args_supplied[!args_supplied %in% along]
 
   # Arguments that say *how* to test rather than *what* describe the call as a
   # whole: one call cannot use two rounding methods, and `x` is either a
@@ -83,15 +83,12 @@ vectorize_test <- function(.fun, .frame, .along) {
     # are `NULL` for an unbounded scale.
     if (!is.null(value) && length(value) != 1L) {
       name_mapper <- paste0(name_wrapper, "_map")
-      # Not `.along` directly: cli reads a `{}` expression that starts with a
-      # dot as one of its own styles.
-      names_vectorized <- .along
       cli::cli_abort(
         c(
           "{.arg {name}} must be length 1, not {length(value)}.",
           "x" = "It describes the test as a whole, so it cannot vary from \\
           one value set to the next.",
-          "i" = "Only {.arg {names_vectorized}} are vectorized.",
+          "i" = "Only {.arg {along}} are vectorized.",
           "i" = "To test value sets that differ in {.arg {name}}, call \\
           {.fun {name_mapper}} once for each of its values."
         ),
@@ -100,12 +97,12 @@ vectorize_test <- function(.fun, .frame, .along) {
     }
   }
 
-  # A required argument is missing, so hand the call to `.fun` as it stands and
+  # A required argument is missing, so hand the call to `fun` as it stands and
   # let it raise its error -- here rather than inside the loop, so that the error
   # is attributed to the wrapper and raised once.
   for (name in args_all[!args_all %in% args_supplied]) {
     if (identical(formals_wrapper[[name]], quote(expr = ))) {
-      return(do.call(.fun, vals))
+      return(do.call(fun, vals))
     }
   }
 
@@ -129,7 +126,7 @@ vectorize_test <- function(.fun, .frame, .along) {
   # `.mapply()` is `mapply()` without the argument matching and the
   # `simplify2array()` that turned a list return into a matrix. Recycling has
   # already happened above, so it has nothing to do but loop.
-  results <- .mapply(.fun, vals_along, MoreArgs = vals[names_scalar])
+  results <- .mapply(fun, vals_along, MoreArgs = vals[names_scalar])
 
   out <- unlist(results, use.names = FALSE)
 

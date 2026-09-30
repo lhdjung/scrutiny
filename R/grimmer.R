@@ -549,8 +549,8 @@ grimmer <- function(
   tolerance = .Machine$double.eps^0.5
 ) {
   vectorize_test(
-    .fun = grimmer_scalar,
-    .frame = environment(),
-    .along = c("x", "sd", "n", "digits_x", "digits_sd", "items")
+    fun = grimmer_scalar,
+    frame = environment(),
+    along = c("x", "sd", "n", "digits_x", "digits_sd", "items")
   )
 }

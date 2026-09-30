@@ -8,56 +8,40 @@
 # lightweight version of it.
 
 function_map_seq_proto <- function(
-  .fun = fun,
-  .var = var,
-  .dispersion = dispersion,
-  .out_min = out_min,
-  .out_max = out_max,
-  .include_reported = include_reported,
-  .name_key_result = "consistency",
-  .helper_merge = NULL,
-  ...
+  fun,
+  dispersion,
+  include_reported,
+  name_key_result = "consistency",
+  helper_merge = NULL
 ) {
   # --- Start of the manufactured helper (!) function ---
 
-  function(
-    data,
-    fun = .fun,
-    var = .var,
-    dispersion = .dispersion,
-    out_min = .out_min,
-    out_max = .out_max,
-    include_reported = .include_reported,
-    name_key_result = .name_key_result,
-    helper_merge = .helper_merge,
-    cases = seq_len(nrow(data)),
-    ...
-  ) {
+  function(data, .var, .out_min, .out_max, .cases = seq_len(nrow(data)), ...) {
     # The step size has to come from the caller's `digits_*` argument for the
-    # current `var`, not from the values themselves. A mean reported as 5.30 is
+    # current `.var`, not from the values themselves. A mean reported as 5.30 is
     # stored as `5.3`, so `seq_disperse()`'s default would step by 0.1 instead
     # of 0.01 -- and it would do so only for the rows that lost a trailing zero,
     # giving different step sizes within a single call. There is no `digits_n`,
     # so dispersing `n` keeps the default (whole numbers).
-    .by_var <- list(...)[[paste0("digits_", var)]]
-    if (!is.null(.by_var)) {
-      .by_var <- 1 / (10^.by_var)
+    by_var <- list(...)[[paste0("digits_", .var)]]
+    if (!is.null(by_var)) {
+      by_var <- 1 / (10^by_var)
     }
 
-    # Extract the vector from the `data` column specified as `var`, then apply
+    # Extract the vector from the `data` column specified as `.var`, then apply
     # the data-frame-level dispersion function to get a list of data frames with
-    # dispersed `var` sequences; one per inconsistent value set:
-    df_var <- data[var][[1L]] |>
+    # dispersed `.var` sequences; one per inconsistent value set:
+    df_var <- data[.var][[1L]] |>
       lapply(
         seq_disperse_df_internal,
-        .by = .by_var,
-        .dispersion = dispersion,
-        .offset_from = 0,
-        .out_min = out_min,
-        .out_max = out_max,
-        .string_output = "auto",
-        .include_reported = include_reported,
-        .track_diff_var = TRUE
+        by = by_var,
+        dispersion = dispersion,
+        offset_from = 0,
+        out_min = .out_min,
+        out_max = .out_max,
+        string_output = "auto",
+        include_reported = include_reported,
+        track_diff_var = TRUE
       )
 
     if (length(df_var) == 0L) {
@@ -76,17 +60,17 @@ function_map_seq_proto <- function(
     cols_for_testing_names <-
       colnames(data)[seq_len(match(name_key_result, colnames(data)) - 1L)]
 
-    # Isolate the columns to be tested that are not the current `var` object:
+    # Isolate the columns to be tested that are not the current `.var` object:
     cols_for_testing_names_without_var <-
-      cols_for_testing_names[cols_for_testing_names != var]
+      cols_for_testing_names[cols_for_testing_names != .var]
 
     cols_except_last <- seq_along(cols_for_testing_names_without_var)
 
-    # Repeat the non-tested key columns to the length of the dispersed `var`
+    # Repeat the non-tested key columns to the length of the dispersed `.var`
     # sequences (via list-columns, immediately unnested), insert the dispersed
-    # `var` at its original position, test the result with `fun()`, and add
+    # `.var` at its original position, test the result with `fun()`, and add
     # `diff_var` -- the distance from the reported value -- and `case`, the row
-    # number of the reported `var` value in the mapper's input.
+    # number of the reported `.var` value in the mapper's input.
     data_seq <- data[cols_for_testing_names_without_var] |>
       dplyr::mutate(dplyr::across(
         .cols = {{ cols_except_last }},
@@ -94,8 +78,8 @@ function_map_seq_proto <- function(
       )) |>
       tidyr::unnest_longer(col = everything()) |>
       dplyr::mutate(
-        {{ var }} := df_var[[1L]],
-        .before = all_of(match(var, colnames(data)))
+        {{ .var }} := df_var[[1L]],
+        .before = all_of(match(.var, colnames(data)))
       )
 
     out <- fun(data_seq, ...)
@@ -103,17 +87,17 @@ function_map_seq_proto <- function(
     # `fun()` multiplies helpers such as `items` into their key column, but the
     # output must keep them apart, as they came in: `audit_seq()` re-tests it,
     # and GRIMMER, for one, needs `n` and `items` separately.
-    for (.name in intersect(names(helper_merge), colnames(data_seq))) {
-      .target <- helper_merge[[.name]]
-      out[[.target]] <- data_seq[[.target]]
-      out[[.name]] <- data_seq[[.name]]
-      out <- dplyr::relocate(out, all_of(.name), .after = all_of(.target))
+    for (name in intersect(names(helper_merge), colnames(data_seq))) {
+      target <- helper_merge[[name]]
+      out[[target]] <- data_seq[[target]]
+      out[[name]] <- data_seq[[name]]
+      out <- dplyr::relocate(out, all_of(name), .after = all_of(target))
     }
 
     dplyr::mutate(
       out,
       diff_var = df_var$diff_var,
-      case = rep(as.integer(cases), nrow_list_var)
+      case = rep(as.integer(.cases), nrow_list_var)
     )
   }
 
@@ -374,7 +358,7 @@ function_map_seq <- function(
       # Collect explicitly supplied `digits_*` values while dropping `NULL`
       # defaults so they can be forwarded to `fun()` alongside any extra `...`
       # arguments:
-      .digits_vals <- Filter(
+      digits_vals <- Filter(
         Negate(is.null),
         mget(`!!`(digits_args_names), envir = environment())
       )
@@ -384,19 +368,19 @@ function_map_seq <- function(
       # is dispersed on, it has to survive the filtering of consistent cases,
       # and it becomes a `digits_*` output column. Rather than let a vector
       # produce a confusing error further down, reject it here.
-      for (.digits_name in names(.digits_vals)) {
-        .digits_length <- length(.digits_vals[[.digits_name]])
-        if (.digits_length > 1L || anyNA(.digits_vals[[.digits_name]])) {
-          .digits_what <- if (.digits_length > 1L) {
-            paste0("has length ", .digits_length)
+      for (digits_name in names(digits_vals)) {
+        digits_length <- length(digits_vals[[digits_name]])
+        if (digits_length > 1L || anyNA(digits_vals[[digits_name]])) {
+          digits_what <- if (digits_length > 1L) {
+            paste0("has length ", digits_length)
           } else {
             "is `NA`"
           }
           cli::cli_abort(c(
-            "`{(.digits_name)}` must be a single number here.",
-            "x" = "It {(.digits_what)}.",
+            "`{(digits_name)}` must be a single number here.",
+            "x" = "It {(digits_what)}.",
             "i" = "Sequence mappers disperse every value on the decimal level \\
-            given by `{(.digits_name)}`, so it has to be the same for the whole \\
+            given by `{(digits_name)}`, so it has to be the same for the whole \\
             column.",
             "i" = "Basic mappers such as `{name_fun}()` do accept one value \\
             per row."
@@ -413,33 +397,33 @@ function_map_seq <- function(
       # `n`. Their values are kept here, alongside the key column's, so that the
       # merge can be undone below. `fun()` returns one row per row of `data`.
       helper_merge <- `!!`(helper_merge_fun)
-      .helper_vals <- list()
-      .target_vals <- list()
-      for (.name in names(helper_merge)) {
-        .vals <- list(...)[[.name]]
-        if (is.null(.vals)) {
-          .vals <- data[[.name]]
+      helper_vals <- list()
+      target_vals <- list()
+      for (name in names(helper_merge)) {
+        vals <- list(...)[[name]]
+        if (is.null(vals)) {
+          vals <- data[[name]]
         }
-        if (!is.null(.vals)) {
-          .helper_vals[[.name]] <- rep_len(.vals, nrow(data))
-          .target_vals[[helper_merge[[.name]]]] <- data[[helper_merge[[.name]]]]
+        if (!is.null(vals)) {
+          helper_vals[[name]] <- rep_len(vals, nrow(data))
+          target_vals[[helper_merge[[name]]]] <- data[[helper_merge[[name]]]]
         }
       }
 
       # First, basic testing with the `*_map()` function. What it records about
       # the call, such as `rounding` with defaults resolved, applies to the
       # re-tests below as well, so it is passed on to the output:
-      data <- do.call(fun, c(list(data), .digits_vals, list(...)))
-      .meta_fun <- scrutiny_meta(data)
+      data <- do.call(fun, c(list(data), digits_vals, list(...)))
+      meta_fun <- scrutiny_meta(data)
 
       # Undo the merge: the dispersed values are re-tested below with each
       # helper as a column of its own, and `n` is dispersed as the sample size
       # it is, not as its product with `items`:
-      for (.name in names(.helper_vals)) {
-        .target <- helper_merge[[.name]]
-        data[[.target]] <- .target_vals[[.target]]
-        data[[.name]] <- .helper_vals[[.name]]
-        data <- dplyr::relocate(data, all_of(.name), .after = all_of(.target))
+      for (name in names(helper_vals)) {
+        target <- helper_merge[[name]]
+        data[[target]] <- target_vals[[target]]
+        data[[name]] <- helper_vals[[name]]
+        data <- dplyr::relocate(data, all_of(name), .after = all_of(target))
       }
 
       # Everything below reads the key result column off `fun()`'s output by
@@ -451,11 +435,11 @@ function_map_seq <- function(
       # `which()` is what makes it equivalent: it drops the `NA` of an
       # undecidable case, which has no values to disperse. Such a case is
       # dropped with `include_consistent`, too, where `seq_disperse()` would
-      # otherwise fail on its missing value. `.cases` are the row numbers of
+      # otherwise fail on its missing value. `cases` are the row numbers of
       # the cases in the input data:
-      .results <- data[[name_key_result]]
-      .cases <- which(if (include_consistent) !is.na(.results) else !.results)
-      data <- data[.cases, ]
+      results <- data[[name_key_result]]
+      cases <- which(if (include_consistent) !is.na(results) else !results)
+      data <- data[cases, ]
 
       # As `var` is `Inf` by default, it must be referred to the names of
       # designated `reported` variables:
@@ -474,27 +458,24 @@ function_map_seq <- function(
       }
 
       # Recorded on the output below; `var` itself is repeated per row later:
-      .var_requested <- var
+      var_requested <- var
 
       # Create the lower-level testing function via an internal function
       # factory:
       map_seq_proto <- function_map_seq_proto(
-        .fun = fun,
-        .dispersion = dispersion,
-        .out_min = out_min,
-        .out_max = out_max,
-        .include_reported = include_reported,
-        .name_key_result = name_key_result,
-        .helper_merge = helper_merge,
-        ...
+        fun = fun,
+        dispersion = dispersion,
+        include_reported = include_reported,
+        name_key_result = name_key_result,
+        helper_merge = helper_merge
       )
 
       # Forwarded to `map_seq_proto()`, and from there to `fun()`. Helper
       # arguments such as `items` are dropped: the initial `fun()` call above
       # already multiplied `items` into the `n` column that the values are
       # dispersed from, so the re-tests would apply it twice over:
-      .fun_args <- c(.digits_vals, list(...))
-      .fun_args <- .fun_args[!names(.fun_args) %in% `!!`(args_helper_fun)]
+      fun_args <- c(digits_vals, list(...))
+      fun_args <- fun_args[!names(fun_args) %in% `!!`(args_helper_fun)]
 
       # Apply the lower-level function to every `var` and every case in `data`.
       # `out_min` and `out_max` are resolved per variable, since the dispersed
@@ -504,9 +485,9 @@ function_map_seq <- function(
 
       out <- purrr::map(
         var,
-        function(.x) {
-          .limits <- resolve_var_bounds(
-            var = .x,
+        function(variable) {
+          limits <- resolve_var_bounds(
+            var = variable,
             out_min = out_min,
             out_max = out_max,
             var_bounds = var_bounds
@@ -516,12 +497,12 @@ function_map_seq <- function(
             c(
               list(
                 data = data,
-                var = .x,
-                cases = .cases,
-                out_min = .limits$out_min,
-                out_max = .limits$out_max
+                .var = variable,
+                .cases = cases,
+                .out_min = limits$out_min,
+                .out_max = limits$out_max
               ),
-              .fun_args
+              fun_args
             )
           )
         }
@@ -569,8 +550,8 @@ function_map_seq <- function(
       # Only variables `fun()` has such an argument for get a column:
       # `audit_seq()` forwards every `digits_*` column back to `fun()`, which
       # would otherwise reject its own output.
-      for (.digits_arg in names(.digits_vals)) {
-        out[[.digits_arg]] <- .digits_vals[[.digits_arg]]
+      for (digits_arg in names(digits_vals)) {
+        out[[digits_arg]] <- digits_vals[[digits_arg]]
       }
       out <- dplyr::relocate(
         out,
@@ -611,11 +592,11 @@ function_map_seq <- function(
       # - `var`: the dispersed variables, which `audit_seq()` can't read off
       #   the `var` column when there are no rows.
       attr(out, "scrutiny") <- c(
-        .meta_fun,
+        meta_fun,
         list(
-          fun_args = .fun_args,
+          fun_args = fun_args,
           name_key_result = name_key_result,
-          var = .var_requested,
+          var = var_requested,
           dispersion_linear = length(dispersion) < 2L ||
             is_seq_ascending(dispersion)
         )

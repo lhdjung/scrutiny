@@ -243,8 +243,8 @@ grim <- function(
   tolerance = lifecycle::deprecated()
 ) {
   vectorize_test(
-    .fun = grim_scalar,
-    .frame = environment(),
-    .along = c("x", "n", "digits_x", "items")
+    fun = grim_scalar,
+    frame = environment(),
+    along = c("x", "n", "digits_x", "items")
   )
 }

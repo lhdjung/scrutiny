@@ -9,11 +9,7 @@ df1 <- tibble::tibble(
 # as implemented in scrutiny, which is also true for the function names:
 schlim_scalar <- function(y, n) {
   # Note: `grim_scalar()` is not exported
-  if (y / 3 > n) {
-    return(TRUE)
-  } else {
-    return(FALSE)
-  }
+  y / 3 > n
 }
 
 # Not needed below, but included for completeness:
@@ -26,7 +22,7 @@ schlim_map <- function(data) {
     as.numeric(data$n),
     schlim_scalar
   )
-  return(dplyr::mutate(data, consistency))
+  data |> dplyr::mutate(consistency)
 }
 
 # Use the function factory:

@@ -370,28 +370,26 @@ seq_disperse_df <- function(
 #' @noRd
 
 seq_disperse_df_internal <- function(
-  .from,
-  .by = NULL,
-  .dispersion = 1:5,
-  .offset_from = 0L,
-  .out_min = "auto",
-  .out_max = NULL,
-  .string_output = TRUE,
-  .include_reported = TRUE,
-  .track_diff_var = TRUE
+  from,
+  by = NULL,
+  dispersion = 1:5,
+  offset_from = 0L,
+  out_min = "auto",
+  out_max = NULL,
+  string_output = TRUE,
+  include_reported = TRUE,
+  track_diff_var = TRUE
 ) {
-  tibble::as_tibble(
+  from |>
     seq_disperse(
-      from = .from,
-      by = .by,
-      dispersion = .dispersion,
-      offset_from = .offset_from,
-      out_min = .out_min,
-      out_max = .out_max,
-      string_output = .string_output,
-      include_reported = .include_reported,
-      track_diff_var = .track_diff_var
-    ),
-    .name_repair = function(x) c("x", "diff_var")
-  )
+      by = by,
+      dispersion = dispersion,
+      offset_from = offset_from,
+      out_min = out_min,
+      out_max = out_max,
+      string_output = string_output,
+      include_reported = include_reported,
+      track_diff_var = track_diff_var
+    ) |>
+    tibble::as_tibble(.name_repair = function(x) c("x", "diff_var"))
 }

@@ -484,8 +484,8 @@ debit <- function(
   symmetric = FALSE
 ) {
   vectorize_test(
-    .fun = debit_scalar,
-    .frame = environment(),
-    .along = c("x", "sd", "n", "digits_x", "digits_sd")
+    fun = debit_scalar,
+    frame = environment(),
+    along = c("x", "sd", "n", "digits_x", "digits_sd")
   )
 }

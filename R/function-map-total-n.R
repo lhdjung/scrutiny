@@ -12,43 +12,32 @@ mutate_both_consistent <- function(data, name_key_result = "consistency") {
 
 # Used within `function_map_total_n()`:
 function_map_total_n_proto <- function(
-  .fun,
-  .reported,
-  .reported_orig,
-  .dir,
-  .dispersion = 0:5,
-  .n_min = 1L,
-  .n_max = NULL,
-  .constant = NULL,
-  .name_key_result = "consistency",
-  .name_fun = "the mapper",
-  ...
+  fun,
+  name_key_result = "consistency",
+  name_fun = "the mapper"
 ) {
   function(
     data,
-    fun = .fun,
-    name_fun = .name_fun,
-    reported = .reported,
-    reported_orig = .reported_orig,
-    dir = .dir,
-    dispersion = .dispersion,
-    n_min = .n_min,
-    n_max = .n_max,
-    constant = .constant,
-    name_key_result = .name_key_result,
+    .reported,
+    .reported_orig,
+    .dir,
+    .dispersion,
+    .n_min,
+    .n_max,
+    .constant,
     ...
   ) {
-    reported_n_cols <- ncol(reported)
+    reported_n_cols <- ncol(.reported)
     reported_n_vars <- reported_n_cols / 2
 
     df_list <- data |>
       dplyr::select(n) |>
       purrr::pmap(
         disperse_total,
-        dispersion = dispersion,
-        n_min = n_min,
-        n_max = n_max,
-        constant = constant
+        dispersion = .dispersion,
+        n_min = .n_min,
+        n_max = .n_max,
+        constant = .constant
       )
 
     # Row numbers of `disperse()` tibbles will be used below to determine how
@@ -56,7 +45,7 @@ function_map_total_n_proto <- function(
     df_list_nrow <- vapply(df_list, nrow, integer(1L), USE.NAMES = FALSE)
     df_list_n_groups <- length(df_list_nrow)
 
-    out_df_nested <- reported |>
+    out_df_nested <- .reported |>
       split_into_rows() |>
       purrr::map(split_into_groups, group_size = 2) |>
       tibble::tibble(.name_repair = function(x) "reported") |>
@@ -71,7 +60,7 @@ function_map_total_n_proto <- function(
       ) |>
       tidyr::unnest_wider(reported) |>
       dplyr::rename_with(
-        .fn = function(x) reported_orig,
+        .fn = function(x) .reported_orig,
         .cols = 1L:dplyr::all_of(reported_n_vars)
       ) |>
       dplyr::mutate(
@@ -96,22 +85,22 @@ function_map_total_n_proto <- function(
       ) |>
       tidyr::unnest(cols = everything())
 
-    # This references the rows in the `reported` data frame to which the various
+    # This references the rows of `.reported` to which the various
     # scenarios belong. In other words, `case` is identical to the respective
-    # row number in `reported`:
+    # row number in `.reported`:
     case <- 1L:df_list_n_groups |>
       purrr::map2(df_list_nrow, rep) |>
       purrr::list_c(ptype = integer())
 
     out_df <- tidyr::unnest(out_df_nested, cols = everything())
     n_change <- out_df$n_change
-    colnames(out_df)[seq_along(reported_orig)] <- reported_orig
+    colnames(out_df)[seq_along(.reported_orig)] <- .reported_orig
 
     # With no pair of group sizes left, the reported columns unnest as logical.
-    # Give them their input types back (`reported` has `x1, x2, sd1, ...`):
+    # Give them their input types back (`.reported` has `x1, x2, sd1, ...`):
     if (nrow(out_df) == 0L) {
-      out_df[reported_orig] <- lapply(
-        reported[seq(1L, by = 2L, length.out = reported_n_vars)],
+      out_df[.reported_orig] <- lapply(
+        .reported[seq(1L, by = 2L, length.out = reported_n_vars)],
         function(col) col[0L]
       )
     }
@@ -140,7 +129,7 @@ function_map_total_n_proto <- function(
             can't have different numbers of decimal places per row."
           ))
         }
-        if (as.character(dir) == "back") {
+        if (as.character(.dir) == "back") {
           digits_i <- rev(digits_i)
         }
         dots[[i]] <- rep(digits_i, length.out = nrow(out_df))
@@ -152,8 +141,8 @@ function_map_total_n_proto <- function(
     # value per case. Otherwise, `fun()` would never see them:
     helper_merge <- attr(fun, "scrutiny_cols_helper_merge", exact = TRUE)
     names_helper_cols <- intersect(names(helper_merge), colnames(data))
-    for (.name in names_helper_cols) {
-      out_df[[.name]] <- data[[.name]][case]
+    for (name in names_helper_cols) {
+      out_df[[name]] <- data[[name]][case]
     }
 
     data_in <- out_df
@@ -163,15 +152,15 @@ function_map_total_n_proto <- function(
 
     # `fun()` multiplies helpers such as `items` into their key column. Undo
     # that, as `function_map_seq()` does, so `n` remains the group size:
-    for (.name in intersect(names(helper_merge), c(names_helper_cols, names(dots)))) {
-      .target <- helper_merge[[.name]]
-      out_df[[.target]] <- data_in[[.target]]
-      out_df[[.name]] <- if (.name %in% names_helper_cols) {
-        data_in[[.name]]
+    for (name in intersect(names(helper_merge), c(names_helper_cols, names(dots)))) {
+      target <- helper_merge[[name]]
+      out_df[[target]] <- data_in[[target]]
+      out_df[[name]] <- if (name %in% names_helper_cols) {
+        data_in[[name]]
       } else {
-        rep_len(dots[[.name]], nrow(out_df))
+        rep_len(dots[[name]], nrow(out_df))
       }
-      out_df <- dplyr::relocate(out_df, all_of(.name), .after = all_of(.target))
+      out_df <- dplyr::relocate(out_df, all_of(name), .after = all_of(target))
     }
 
     if (!any("n_change" == colnames(out_df))) {
@@ -180,10 +169,10 @@ function_map_total_n_proto <- function(
 
     out_df <- out_df |>
       mutate_both_consistent(name_key_result) |>
-      dplyr::mutate(case, dir, n = as_integer_if_lossless(n)) |>
+      dplyr::mutate(case, dir = .dir, n = as_integer_if_lossless(n)) |>
       dplyr::relocate(n_change, .after = n)
 
-    return(out_df)
+    out_df
   }
 
   # -- End of the manufactured function --
@@ -381,11 +370,11 @@ function_map_total_n <- function(
 
       # Drop the `NULL` defaults, so that `fun()` sees an omitted `digits_*` as
       # missing and throws its own bespoke error about it:
-      .digits_vals <- Filter(
+      digits_vals <- Filter(
         Negate(is.null),
         mget(`!!`(digits_args_names), envir = environment())
       )
-      .fun_args <- c(.digits_vals, list(...))
+      fun_args <- c(digits_vals, list(...))
 
       # The usual key argument check conducted by
       # `check_mapper_input_colnames()` is not applicable to `data`, so the
@@ -517,22 +506,10 @@ function_map_total_n <- function(
       # Generate the lower-level "proto" function that will apply
       # `disperse_total` and `fun` (the test-specific mapping function, such as
       # `grim_map`) to `data_forth` and `data_back`:
-      map_total_n_proto <- do.call(
-        function_map_total_n_proto,
-        c(
-          list(
-            .fun = fun,
-            .reported = cols_expected_forth,
-            .reported_orig = reported_orig,
-            .dispersion = dispersion,
-            .n_min = n_min,
-            .n_max = n_max,
-            .constant = constant,
-            .name_key_result = name_key_result,
-            .name_fun = name_fun
-          ),
-          .fun_args
-        )
+      map_total_n_proto <- function_map_total_n_proto(
+        fun = fun,
+        name_key_result = name_key_result,
+        name_fun = name_fun
       )
 
       # Now, call the manufactured function on both tibbles. First the
@@ -542,15 +519,15 @@ function_map_total_n <- function(
         c(
           list(
             data = data_forth,
-            reported = cols_expected_forth,
-            reported_orig = reported_orig,
-            dir = factor("forth", levels = "forth"),
-            dispersion = dispersion,
-            n_min = n_min,
-            n_max = n_max,
-            constant = constant
+            .reported = cols_expected_forth,
+            .reported_orig = reported_orig,
+            .dir = factor("forth", levels = "forth"),
+            .dispersion = dispersion,
+            .n_min = n_min,
+            .n_max = n_max,
+            .constant = constant
           ),
-          .fun_args
+          fun_args
         )
       )
 
@@ -560,15 +537,15 @@ function_map_total_n <- function(
         c(
           list(
             data = data_back,
-            reported = cols_expected_back,
-            reported_orig = reported_orig,
-            dir = factor("back", levels = "back"),
-            dispersion = dispersion,
-            n_min = n_min,
-            n_max = n_max,
-            constant = constant
+            .reported = cols_expected_back,
+            .reported_orig = reported_orig,
+            .dir = factor("back", levels = "back"),
+            .dispersion = dispersion,
+            .n_min = n_min,
+            .n_max = n_max,
+            .constant = constant
           ),
-          .fun_args
+          fun_args
         )
       )
 

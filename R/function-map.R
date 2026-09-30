@@ -341,7 +341,7 @@ function_map <- function(
     "data", "fun", "reported", "reported_variadic", "args_by_row",
     "args_helper", "args_const", "args_required", "col_names", "helper_merge",
     "cols_derived_funs", "add_class", "cols_variadic", "names_variadic",
-    "quo_variadic", "index_variadic"
+    "quo_variadic", "index_variadic", "args_vals", "arg"
   )
   args_shadowed <- intersect(args_promoted, names_locals)
   if (length(args_shadowed) > 0L) {
@@ -506,12 +506,12 @@ function_map <- function(
       # very same defaults, so it applies them itself -- and an argument with no
       # default at all, such as `digits_x`, must reach `fun()` as missing so
       # that the test function's own error message is shown, not a generic one:
-      .args_vals <- list()
-      for (.name in c(args_by_row, args_const)) {
-        if (.name %in% args_required && eval(call("missing", as.name(.name)))) {
+      args_vals <- list()
+      for (arg in c(args_by_row, args_const)) {
+        if (arg %in% args_required && eval(call("missing", as.name(arg)))) {
           next
         }
-        .args_vals[.name] <- list(get(.name))
+        args_vals[arg] <- list(get(arg))
       }
 
       # The columns that `fun()` is applied to, row by row: the key columns,
@@ -532,21 +532,21 @@ function_map <- function(
         )
       }
 
-      for (.name in args_helper) {
-        cols_tested[[.name]] <- data[[.name]]
+      for (arg in args_helper) {
+        cols_tested[[arg]] <- data[[arg]]
       }
 
-      for (.name in args_by_row) {
-        if (!is.null(.args_vals[[.name]])) {
-          cols_tested[[.name]] <- recycle_digits(
-            .args_vals[[.name]],
+      for (arg in args_by_row) {
+        if (!is.null(args_vals[[arg]])) {
+          cols_tested[[arg]] <- recycle_digits(
+            args_vals[[arg]],
             nrow(data),
-            .name
+            arg
           )
         }
       }
 
-      .args_const_vals <- .args_vals[intersect(args_const, names(.args_vals))]
+      args_const_vals <- args_vals[intersect(args_const, names(args_vals))]
 
       # Apply `fun()` to the first row on its own before mapping over all of
       # them. Anything wrong with the arguments themselves -- a missing
@@ -566,7 +566,7 @@ function_map <- function(
           fun,
           c(
             lapply(cols_tested, function(x) x[[1L]]),
-            .args_const_vals,
+            args_const_vals,
             list(...)
           )
         )
@@ -577,7 +577,7 @@ function_map <- function(
         purrr::pmap,
         c(
           list(cols_tested, fun),
-          .args_const_vals,
+          args_const_vals,
           list(...)
         )
       )
@@ -589,12 +589,12 @@ function_map <- function(
       # into each test varies:
       cols_key <- c(cols_variadic, as.list(data[reported]))
 
-      for (.name in args_helper) {
-        .merge_into <- helper_merge[[.name]]
-        if (is.null(.merge_into)) {
-          cols_key[[.name]] <- data[[.name]]
+      for (arg in args_helper) {
+        merge_into <- helper_merge[[arg]]
+        if (is.null(merge_into)) {
+          cols_key[[arg]] <- data[[arg]]
         } else {
-          cols_key[[.merge_into]] <- cols_key[[.merge_into]] * data[[.name]]
+          cols_key[[merge_into]] <- cols_key[[merge_into]] * data[[arg]]
         }
       }
 
@@ -605,7 +605,7 @@ function_map <- function(
       }
 
       cols_by_row <- cols_tested[args_by_row[
-        args_by_row %in% names(.args_vals)
+        args_by_row %in% names(args_vals)
       ]]
 
       # `fun()` returns a single value per row unless it was told to show its
@@ -619,25 +619,25 @@ function_map <- function(
       # to know nothing about the test around it:
       cols_derived <- list()
 
-      for (.name in names(cols_derived_funs)) {
-        .fun_derived <- cols_derived_funs[[.name]]
-        .args_names_derived <- names(formals(.fun_derived))
-        .vals_derived <- do.call(
+      for (col_name in names(cols_derived_funs)) {
+        fun_derived <- cols_derived_funs[[col_name]]
+        args_names_derived <- names(formals(fun_derived))
+        vals_derived <- do.call(
           purrr::pmap,
           c(
             list(
-              cols_tested[intersect(names(cols_tested), .args_names_derived)],
-              .fun_derived
+              cols_tested[intersect(names(cols_tested), args_names_derived)],
+              fun_derived
             ),
-            .args_const_vals[
-              intersect(names(.args_const_vals), .args_names_derived)
+            args_const_vals[
+              intersect(names(args_const_vals), args_names_derived)
             ]
           )
         )
-        cols_derived[[.name]] <- if (length(.vals_derived) == 0L) {
+        cols_derived[[col_name]] <- if (length(vals_derived) == 0L) {
           numeric(0L)
         } else {
-          unlist(.vals_derived, use.names = FALSE)
+          unlist(vals_derived, use.names = FALSE)
         }
       }
 
@@ -688,7 +688,7 @@ function_map <- function(
       # `seq_distance_df()`, on the one hand, and `seq_test_ranking()`, on the
       # other:
       attr(out, "scrutiny") <- list(
-        args = Filter(Negate(rlang::is_missing), .args_const_vals),
+        args = Filter(Negate(rlang::is_missing), args_const_vals),
         seq_test = isTRUE(scrutiny_meta(data)$seq_df)
       )
 

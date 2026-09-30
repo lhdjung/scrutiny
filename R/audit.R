@@ -131,8 +131,8 @@ audit_seq <- function(data) {
       paste0("hits_", var_names),
       paste0("diff_", rep(var_names, each = 3L), c("", "_up", "_down"))
     )
-    for (.name in names_var_cols) {
-      out[[.name]] <- integer(0L)
+    for (name in names_var_cols) {
+      out[[name]] <- integer(0L)
     }
     return(add_class(out, "scrutiny_audit_seq"))
   }
