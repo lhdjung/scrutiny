@@ -269,15 +269,6 @@ audit_total_n <- function(data) {
     ))
   }
 
-  # With no inconsistent case, there is nothing to count hits in. Which
-  # variables were dispersed is unknown, so there are no per-variable columns:
-  if (nrow(data) == 0L) {
-    out <- reverse_map_seq(data)
-    out[[name_key_result]] <- logical(0L)
-    out$hits_total <- integer(0L)
-    return(add_class(out, "scrutiny_audit_seq"))
-  }
-
   df_list <- split(data, data$case)
 
   df_list_hits <- df_list |>
