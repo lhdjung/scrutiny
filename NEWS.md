@@ -320,6 +320,8 @@
 
 - `seq_disperse()` and `seq_disperse_df()` now error if `from` is missing, infinite, or a string that is not a number. Such a `from` was blamed on `out_min`, failed with "missing value where TRUE/FALSE needed", or, as a string, returned 11 `NA`s.
 
+- `row_to_colnames()` no longer emits tibble's deprecation warning on an unnamed matrix, which asked users to report the problem to scrutiny. It now also errors if `row` is out of range, where it silently returned no rows (`row = 0`) or did nothing.
+
 ## Minor improvements
 
 - `reround_to_fraction(digits = "auto")` no longer errors with "non-numeric argument to mathematical function". The function validated `digits` as a integer before resolving `"auto"` into one, and `is.infinite("auto")` is `FALSE`, so the string went straight into `is_whole_number()`. `reround_to_fraction_level()` has always had the two steps in the right order.

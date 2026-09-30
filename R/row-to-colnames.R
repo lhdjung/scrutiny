@@ -42,7 +42,11 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
 
   if (!is.data.frame(data)) {
     if (is.matrix(data)) {
-      data <- tibble::as_tibble(data)
+      # The names are replaced below, so the placeholders need no message:
+      data <- tibble::as_tibble(
+        data,
+        .name_repair = function(x) paste0("V", seq_along(x))
+      )
     } else {
       cli::cli_abort(c(
         "!" = "`data` must be a data frame or a matrix.",
@@ -64,6 +68,14 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
     cli::cli_abort(c(
       "!" = "`row` must only have whole numbers.",
       "x" = "It includes {offenders}."
+    ))
+  }
+
+  if (any(row < 1L | row > nrow(data))) {
+    offenders <- wrap_in_backticks(row[row < 1L | row > nrow(data)])
+    cli::cli_abort(c(
+      "!" = "`row` must be between 1 and the number of rows in `data`.",
+      "x" = "It includes {offenders}, but `data` has {nrow(data)} row{?s}."
     ))
   }
 

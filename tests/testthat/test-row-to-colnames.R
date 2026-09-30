@@ -37,3 +37,12 @@ test_that("missing header cells are skipped, not garbled", {
     colnames() |>
     expect_equal(c("name first", "age", "x y"))
 })
+
+
+test_that("an unnamed matrix works quietly, and `row` must be in range", {
+  m <- matrix(c("a", "1", "2", "b", "3", "4"), nrow = 3)
+  m |> row_to_colnames() |> expect_silent()
+  m |> row_to_colnames() |> expect_equal(tibble::tibble(a = c("1", "2"), b = c("3", "4")))
+  m |> row_to_colnames(row = 0) |> expect_error("between 1 and")
+  m |> row_to_colnames(row = 4) |> expect_error("between 1 and")
+})
