@@ -527,7 +527,14 @@ function_map_seq <- function(
           "!" = "No inconsistent cases to disperse from.",
           "i" = "Try {msg_setting} to disperse from consistent cases, as well."
         ))
-        return(tibble::tibble())
+        # The output still has the columns, classes, and attribute of any other,
+        # so that functions downstream such as `audit_seq()` accept it:
+        out <- list(tibble::add_column(
+          data[0L, ],
+          diff_var = integer(0L),
+          case = integer(0L)
+        ))
+        var <- character(0L)
       }
 
       # Repeat the `var` strings so that they form a vector of the length that

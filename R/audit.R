@@ -106,7 +106,7 @@ audit_seq <- function(data) {
     ))
   }
 
-  check_dispersion_linear(data)
+  check_dispersion_linear(data, "audit_seq")
 
   # `function_map_seq()` records the name of the key result column, which is
   # `"consistency"` unless the mapper was created with a different
@@ -116,6 +116,15 @@ audit_seq <- function(data) {
   name_key_result <- meta$name_key_result
   if (is.null(name_key_result)) {
     name_key_result <- "consistency"
+  }
+
+  # With no inconsistent case, there is nothing to count hits in. Which
+  # variables were dispersed is unknown, so there are no per-variable columns:
+  if (nrow(data) == 0L) {
+    out <- reverse_map_seq(data)
+    out[[name_key_result]] <- logical(0L)
+    out$hits_total <- integer(0L)
+    return(add_class(out, "scrutiny_audit_seq"))
   }
 
   df_list <- split(data, data$case)
@@ -258,6 +267,15 @@ audit_total_n <- function(data) {
       "!" = "It must be the output of a `*_map_total_n()` function, \\
       such as `grim_map_total_n()`."
     ))
+  }
+
+  # With no inconsistent case, there is nothing to count hits in. Which
+  # variables were dispersed is unknown, so there are no per-variable columns:
+  if (nrow(data) == 0L) {
+    out <- reverse_map_seq(data)
+    out[[name_key_result]] <- logical(0L)
+    out$hits_total <- integer(0L)
+    return(add_class(out, "scrutiny_audit_seq"))
   }
 
   df_list <- split(data, data$case)

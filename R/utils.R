@@ -329,7 +329,7 @@ recycle_digits <- function(digits, n_rows, name_digits_arg) {
         "i" = "Use a single number if all values in the column were reported \\
       with the same number of decimal places."
       ),
-      call = rlang::caller_env(2)
+      call = rlang::caller_env()
     )
   }
 }
@@ -2104,11 +2104,12 @@ check_var_bounds <- function(var_bounds) {
 #'   7, 2)` are not.
 #'
 #' @param data Data frame returned by a function made by `function_map_seq()`.
+#' @param name_fun String (length 1). Name of the calling function.
 #'
 #' @return No return value; might throw an error.
 #'
 #' @noRd
-check_dispersion_linear <- function(data) {
+check_dispersion_linear <- function(data, name_fun) {
   if (isFALSE(scrutiny_meta(data)$dispersion_linear)) {
     name_mapper <- class(data) |>
       call_on(\(x) x[grepl("_map_seq$", x)]) |>
@@ -2118,7 +2119,7 @@ check_dispersion_linear <- function(data) {
     cli::cli_abort(
       message = c(
         "Invalid for data with this dispersion.",
-        "!" = "`audit_seq()` is only applicable if `dispersion` \\
+        "!" = "`{name_fun}()` is only applicable if `dispersion` \\
       in `{name_mapper}()` is a linearly increasing sequence.",
         "i" = "This limitation may be removed in a future version of scrutiny."
       ),

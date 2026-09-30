@@ -855,3 +855,10 @@ test_that("disabled arguments stay disabled when the mapper is called indirectly
   list(df)  |> lapply(map_disabled, bad = 100)     |> expect_error("disabled")
   list(df)  |> purrr::map(map_disabled, bad = 100) |> expect_error("disabled")
 })
+
+
+# Such a column was silently dropped in favor of the result column.
+test_that("a data column named like a result column is an error", {
+  pigs1 |> dplyr::mutate(probability = 1) |> grim_map(digits_x = 2)                   |> expect_error("`probability` would be overwritten")
+  pigs5 |> dplyr::mutate(reason = "a")    |> grimmer_map(digits_x = 2, digits_sd = 2) |> expect_error("`reason` would be overwritten")
+})

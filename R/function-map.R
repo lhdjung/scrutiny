@@ -645,6 +645,18 @@ function_map <- function(
       # unpacked from `col_names`:
       cols_result <- c(cols_result[1L], cols_derived, cols_result[-1L])
 
+      # A column of `data` by the name of a result column would be dropped from
+      # the output in favor of the result, so it is an error, as it is for the
+      # key result column:
+      names_taken <- intersect(names(cols_result), colnames(data))
+      if (length(names_taken) > 0L) {
+        cli::cli_abort(c(
+          "`data` has columns that the output needs for its results.",
+          "x" = "{wrap_in_backticks(names_taken)} would be overwritten.",
+          "i" = "Rename or remove {cli::qty(length(names_taken))}{?it/them}."
+        ))
+      }
+
       # Any columns of `data` that play no role in the test are returned
       # alongside the results. Columns that the output has already -- e.g., a
       # `digits_x` column in the output of a mapper that is tested again -- are

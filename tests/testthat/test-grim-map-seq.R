@@ -1610,3 +1610,16 @@ test_that("integer key columns are dispersed without truncation", {
     dplyr::pull(x) |>
     expect_equal(c(4.8, 4.9, 5.1, 5.2))
 })
+
+
+# All-consistent input used to return a classless 0 x 0 tibble.
+test_that("output without inconsistent cases keeps its shape and class", {
+  pigs1[c(1, 1), ] |> grim_map_seq(digits_x = 2) |> expect_warning("No inconsistent cases")
+  empty <- pigs1[c(1, 1), ] |> grim_map_seq(digits_x = 2) |> suppressWarnings()
+  full  <- pigs1            |> grim_map_seq(digits_x = 2)
+  empty |> nrow()     |> expect_equal(0L)
+  empty |> colnames() |> expect_equal(colnames(full))
+  empty |> class()    |> expect_equal(class(full))
+  empty |> audit_seq()       |> colnames() |> expect_equal(c("x", "n", "consistency", "hits_total"))
+  empty |> reverse_map_seq() |> colnames() |> expect_equal(c("x", "n"))
+})

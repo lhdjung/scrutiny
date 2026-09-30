@@ -322,6 +322,10 @@
 
 - `row_to_colnames()` no longer emits tibble's deprecation warning on an unnamed matrix, which asked users to report the problem to scrutiny. It now also errors if `row` is out of range, where it silently returned no rows (`row = 0`) or did nothing.
 
+- `*_map_seq()` functions called on data without inconsistent cases now return a tibble with no rows but all the usual columns, classes, and attributes. They returned a 0 x 0 tibble without classes, so `grim_map_seq(...) |> audit_seq()` failed on valid data. `audit_seq()` and `reverse_map_seq()` now accept such output.
+
+- Mappers now error if `data` has a column named like one of their result columns, such as `probability` or `reason`. That column used to be dropped from the output without a word. (A `consistency` column already was an error.)
+
 ## Minor improvements
 
 - `reround_to_fraction(digits = "auto")` no longer errors with "non-numeric argument to mathematical function". The function validated `digits` as a integer before resolving `"auto"` into one, and `is.infinite("auto")` is `FALSE`, so the string went straight into `is_whole_number()`. `reround_to_fraction_level()` has always had the two steps in the right order.

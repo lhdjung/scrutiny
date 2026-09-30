@@ -36,7 +36,7 @@ reverse_map_seq <- function(data) {
     ))
   }
 
-  check_dispersion_linear(data)
+  check_dispersion_linear(data, "reverse_map_seq")
 
   # The tested columns are those left of the key result column, which the
   # sequence mapper records by name because `.name_key_result` may have renamed
@@ -49,6 +49,11 @@ reverse_map_seq <- function(data) {
   var <- data |>
     select_tested_cols(before = name_key_result) |>
     colnames()
+
+  # With no inconsistent case, the sequence mapper returns no rows:
+  if (nrow(data) == 0L) {
+    return(tibble::new_tibble(as.list(data)[var], nrow = 0L))
+  }
 
   # The step size of each variable's dispersion. For a variable with a
   # `digits_*` column -- every variable that the mapper takes decimal places for
