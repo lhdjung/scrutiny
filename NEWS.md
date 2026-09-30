@@ -346,6 +346,8 @@
 
 - `is_numeric_like()` now tests a list like the atomic vector of its elements, as documented, so `list(TRUE, "1")` is `FALSE`.
 
+- `duplicate_count()` no longer lists unused factor levels as values with a frequency of 0. `duplicate_count(iris[1:5, ])` had rows for `versicolor` and `virginica`, with no locations.
+
 ## Minor improvements
 
 - `reround_to_fraction(digits = "auto")` no longer errors with "non-numeric argument to mathematical function". The function validated `digits` as a integer before resolving `"auto"` into one, and `is.infinite("auto")` is `FALSE`, so the string went straight into `is_whole_number()`. `reround_to_fraction_level()` has always had the two steps in the right order.

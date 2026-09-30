@@ -1037,3 +1037,11 @@ test_that("`duplicate_count()` returns 0 rows when there is nothing to count", {
   c(NA, NA)  |> duplicate_count() |> nrow() |> expect_equal(0L)
   pigs4[0, ] |> duplicate_count() |> colnames() |> expect_equal(c("value", "frequency", "locations", "locations_n"))
 })
+
+
+# `table()` counts unused factor levels, which came out with a frequency of 0.
+test_that("unused factor levels are not counted as values", {
+  c("a", "a") |> factor(levels = c("a", "b")) |> duplicate_count() |> dplyr::pull(value) |> expect_equal("a")
+  iris[1:5, ] |> duplicate_count() |> dplyr::pull(frequency) |> min() |> expect_gt(0L)
+  c(1, 1, 2) |> duplicate_count(ignore = 1) |> dplyr::pull(value) |> expect_equal("2")
+})
