@@ -92,7 +92,10 @@ grimmer_scalar <- function(
   symmetric = FALSE,
   tolerance = .Machine$double.eps^0.5
 ) {
-  check_type(items, c("double", "integer"))
+  # A plain `NA` is logical, but missing all the same:
+  if (!is.numeric(items) && !is.na(items)) {
+    check_type(items, c("double", "integer"))
+  }
   # See `grim_scalar()`:
   if (!is.numeric(n) && !is.na(n)) {
     check_type(n, c("double", "integer"))

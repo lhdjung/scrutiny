@@ -292,3 +292,9 @@ test_that("a string `n` is an error, not an unexplained `NA`", {
     expect_error("`n` must be one of these types")
   5.19 |> grim(NA, 2) |> is.na() |> expect_true()
 })
+
+
+test_that("a plain `NA` for `items` is missing, not a type error", {
+  5.19 |> grim(20, digits_x = 2, items = NA)                            |> expect_equal(NA)
+  5.19 |> grimmer(1.2, 20, digits_x = 2, digits_sd = 1, items = NA)     |> expect_equal(NA)
+})

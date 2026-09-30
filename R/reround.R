@@ -167,7 +167,9 @@ reround <- function(
 
   # Every `round_*()` function is natively vectorized, so only the dispatch is
   # scalar, and it happens once for the whole of `x`. Attributes are dropped so
-  # that the return value is a bare numeric vector whatever `x` carried:
+  # that the return value is a bare numeric vector whatever `x` carried. Adding
+  # zero turns a negative zero, as from `ceiling(-0.5)`, into zero, which
+  # `sprintf()` would otherwise print as `"-0.00"`:
   `attributes<-`(
     reconstruct_rounded_numbers_scalar(
       x,
@@ -175,7 +177,7 @@ reround <- function(
       spec$rounding,
       threshold,
       spec$symmetric
-    ),
+    ) + 0,
     NULL
   )
 }

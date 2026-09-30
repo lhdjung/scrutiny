@@ -126,6 +126,9 @@ grim_total <- function(
     check_type(x, c("double", "integer"))
   }
 
+  # As in `grim()`, which would reject a fractional `digits_x`:
+  check_digits_whole(digits_x, "digits_x")
+
   if (percent) {
     digits_x <- digits_x + 2L
   }

@@ -154,3 +154,8 @@ test_that("`grim_total()` rejects a string `x` but not a missing one", {
   NA      |> grim_probability(20, 2) |> expect_na()
   c(NA, 5.19) |> grim_total(20, 2)   |> expect_equal(c(NA, 80))
 })
+
+
+test_that("`grim_total()` rejects a fractional `digits_x`, as `grim()` does", {
+  5 |> grim_total(20, digits_x = 2.5) |> expect_error("whole numbers")
+})

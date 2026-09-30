@@ -332,6 +332,12 @@
 
 - `grim_plot()` no longer warns twice about an unknown `reason` column on `grimmer_map(show_reason = FALSE)` output.
 
+- `grim_total()` and `grim_probability()` now reject a fractional `digits_x`, as `grim()` does. `grim_total(5, 20, digits_x = 2.5)` was 296.2.
+
+- `grim()` and `grimmer()` now take a plain `NA` for `items` as a missing value, as they already did for `n`. It was a type error, since a bare `NA` is logical.
+
+- `reround()` no longer returns a negative zero, which `sprintf("%.2f")` printed as `"-0.00"`: `reround(0, 2, "down")` is now `0`.
+
 ## Minor improvements
 
 - `reround_to_fraction(digits = "auto")` no longer errors with "non-numeric argument to mathematical function". The function validated `digits` as a integer before resolving `"auto"` into one, and `is.infinite("auto")` is `FALSE`, so the string went straight into `is_whole_number()`. `reround_to_fraction_level()` has always had the two steps in the right order.

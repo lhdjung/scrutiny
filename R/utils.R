@@ -964,15 +964,16 @@ check_tibble <- function(data) {
 #'   and `10^-400` is `0`.
 #'
 #' @param digits The `digits` argument of the calling function.
+#' @param name String (length 1). Name of that argument, for errors.
 #'
 #' @return No return value; might throw an error.
 #'
 #' @noRd
-check_digits_whole <- function(digits) {
+check_digits_whole <- function(digits, name = "digits") {
   if (!is.numeric(digits) && !(is.logical(digits) && all(is.na(digits)))) {
     cli::cli_abort(
       message = c(
-        "`digits` must be whole numbers.",
+        "`{name}` must be whole numbers.",
         "x" = "It is {.obj_type_friendly {digits}}."
       ),
       call = rlang::caller_env()
@@ -1004,7 +1005,7 @@ check_digits_whole <- function(digits) {
   if (length(not_whole) > 0L) {
     cli::cli_abort(
       message = c(
-        "`digits` must be whole numbers.",
+        "`{name}` must be whole numbers.",
         "x" = "It has {length(not_whole)} value{?s} that {?is/are} not: \\
         {not_whole}.",
         "i" = "Each value is a number of decimal places, so a fractional one \\
@@ -1017,7 +1018,7 @@ check_digits_whole <- function(digits) {
 
   cli::cli_abort(
     message = c(
-      "`digits` must be between -308 and 308.",
+      "`{name}` must be between -308 and 308.",
       "x" = "It has {length(offenders)} value{?s} that {?is/are} not: \\
       {offenders}.",
       "i" = "Beyond that, `10^digits` is not a finite, non-zero number, so \\

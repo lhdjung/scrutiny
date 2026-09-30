@@ -99,3 +99,8 @@ test_that("a missing `digits` propagates, and an overflowing one is rejected", {
   # A fractional value is reported as such, and a whole one is not among them:
   1.25 |> reround(c(1.5, 400), "up") |> expect_error("not: 1.5\\.")
 })
+
+
+test_that("`reround()` never returns a negative zero", {
+  0 |> reround(2, "down") |> sprintf(fmt = "%.2f") |> expect_equal("0.00")
+})
