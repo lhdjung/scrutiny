@@ -328,6 +328,8 @@
 
 - `*_map_seq()` functions now error if `var` names anything other than the reported columns. `var = "items"` was documented as possible, but dispersed `items` to values like `-3` and `0` with `NA` verdicts, or failed without an `items` column.
 
+- `*_map_seq()` functions with `include_consistent = TRUE` now skip cases that cannot be decided, such as those with a missing `n`, as they do by default. Such a case was dispersed from its missing value, which failed inside `seq_disperse()`; before 1.0.0, it returned rows of `NA`.
+
 - `audit()` on `debit_map()` output no longer counts a missing `n` as one of the `distinct_n` values. On GRIMMER output without rows, it now returns the `fail_*` columns, all zero, rather than asking for `show_reason = TRUE`.
 
 - `grim_plot()` no longer warns twice about an unknown `reason` column on `grimmer_map(show_reason = FALSE)` output.

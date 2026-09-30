@@ -442,22 +442,20 @@ function_map_seq <- function(
         data <- dplyr::relocate(data, all_of(.name), .after = all_of(.target))
       }
 
-      # The row numbers of the cases, before any are filtered out:
-      .cases <- seq_len(nrow(data))
-
       # Everything below reads the key result column off `fun()`'s output by
       # name, so mapper and sequence mapper must have been created with the same
       # `.name_key_result`. Catch a mismatch here, not as a `NULL` further down:
       check_key_result_col(data, name_key_result, name_fun)
 
       # Equivalent to `dplyr::filter(data, !consistency)`, but much faster.
-      # `which()` is what makes it equivalent: indexing by the `NA` of an
-      # undecided case would return a row of `NA`s, with no values to disperse.
-      # It is dropped instead, not being an inconsistent case.
-      if (!include_consistent) {
-        .cases <- which(!data[[name_key_result]])
-        data <- data[.cases, ]
-      }
+      # `which()` is what makes it equivalent: it drops the `NA` of an
+      # undecidable case, which has no values to disperse. Such a case is
+      # dropped with `include_consistent`, too, where `seq_disperse()` would
+      # otherwise fail on its missing value. `.cases` are the row numbers of
+      # the cases in the input data:
+      .results <- data[[name_key_result]]
+      .cases <- which(if (include_consistent) !is.na(.results) else !.results)
+      data <- data[.cases, ]
 
       # As `var` is `Inf` by default, it must be referred to the names of
       # designated `reported` variables:

@@ -1623,3 +1623,13 @@ test_that("output without inconsistent cases keeps its shape and class", {
   empty |> audit_seq()       |> colnames() |> expect_equal(c("x", "n", "consistency", "hits_total"))
   empty |> reverse_map_seq() |> colnames() |> expect_equal(c("x", "n"))
 })
+
+
+# An undecidable case was dispersed from its missing value, which failed
+# inside `seq_disperse()`:
+test_that("undecidable cases are skipped with `include_consistent = TRUE`", {
+  out <- tibble::tibble(x = c(5.19, NA, 4.5), n = c(NA, 20, 21)) |>
+    grim_map_seq(digits_x = 2, include_consistent = TRUE)
+  out$case |> unique() |> expect_equal(3L)
+  out$n    |> anyNA()  |> expect_false()
+})
