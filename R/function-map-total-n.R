@@ -147,6 +147,15 @@ function_map_total_n_proto <- function(
       }
     }
 
+    # Helper columns such as `items` are not among the reported columns that
+    # `out_df` was built from, so they are brought along from `data` here, one
+    # value per case. Otherwise, `fun()` would never see them:
+    helper_merge <- attr(fun, "scrutiny_cols_helper_merge", exact = TRUE)
+    names_helper_cols <- intersect(names(helper_merge), colnames(data))
+    for (.name in names_helper_cols) {
+      out_df[[.name]] <- data[[.name]][case]
+    }
+
     data_in <- out_df
     out_df <- do.call(fun, c(list(out_df), dots))
 
@@ -154,11 +163,14 @@ function_map_total_n_proto <- function(
 
     # `fun()` multiplies helpers such as `items` into their key column. Undo
     # that, as `function_map_seq()` does, so `n` remains the group size:
-    helper_merge <- attr(fun, "scrutiny_cols_helper_merge", exact = TRUE)
-    for (.name in intersect(names(helper_merge), names(dots))) {
+    for (.name in intersect(names(helper_merge), c(names_helper_cols, names(dots)))) {
       .target <- helper_merge[[.name]]
       out_df[[.target]] <- data_in[[.target]]
-      out_df[[.name]] <- rep_len(dots[[.name]], nrow(out_df))
+      out_df[[.name]] <- if (.name %in% names_helper_cols) {
+        data_in[[.name]]
+      } else {
+        rep_len(dots[[.name]], nrow(out_df))
+      }
       out_df <- dplyr::relocate(out_df, all_of(.name), .after = all_of(.target))
     }
 

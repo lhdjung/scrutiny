@@ -211,3 +211,16 @@ test_that("It has correct column names", {
   df1_tested |> expect_named(colnames_exp)
   df2_tested |> expect_named(colnames_exp)
 })
+
+
+# An `items` column used to be dropped, so the groups were tested with one item.
+test_that("an `items` column works like the `items` argument", {
+  df <- tibble::tibble(x1 = 4.74, x2 = 2.57, n = 50L)
+  from_arg <- df |> grim_map_total_n(digits_x = 2, items = 2)
+  from_col <- df |> dplyr::mutate(items = 2) |> grim_map_total_n(digits_x = 2)
+  from_col |> expect_equal(from_arg)
+  df_grimmer <- tibble::tibble(x1 = 4.74, x2 = 2.57, sd1 = 1.21, sd2 = 0.98, n = 50L)
+  from_arg <- df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items = 2)
+  from_col <- df_grimmer |> dplyr::mutate(items = 2) |> grimmer_map_total_n(digits_x = 2, digits_sd = 2)
+  from_col |> expect_equal(from_arg)
+})

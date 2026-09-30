@@ -306,6 +306,8 @@
 
 - `split_by_parens()` now errors when a split column would get the name of an existing column, such as `mean_sd` next to a `mean` column that is split. It used to overwrite that column, then put its original values back in place of the split part, so the SDs were lost without a word. `end1` and `end2` must now also differ.
 
+- `*_map_total_n()` functions now read an `items` column, as the other mappers do. They built their input to the basic mapper from the reported columns and `n` only, so the column was dropped and every group was tested with one item: `grim_map_total_n()` on `x1 = 4.74, x2 = 2.57, n = 50, items = 2` found the first pair of groups inconsistent, where the same call with the argument `items = 2` found it consistent.
+
 ## Minor improvements
 
 - `reround_to_fraction(digits = "auto")` no longer errors with "non-numeric argument to mathematical function". The function validated `digits` as a integer before resolving `"auto"` into one, and `is.infinite("auto")` is `FALSE`, so the string went straight into `is_whole_number()`. `reround_to_fraction_level()` has always had the two steps in the right order.
