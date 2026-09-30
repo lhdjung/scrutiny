@@ -30,8 +30,8 @@ It renames key columns that have non-standard names, following user-supplied
 directions via the arguments automatically inserted below the function.
 }
 \examples{
-# Not really a meaningful example -- need to use
-# the function in very specific places
-data <- grim_map(pigs1, digits_x = 2)
-data <- absorb_key_args(data, c("x", "n"))
+# Within a mapper, the directions come from its key
+# arguments; here, they are given explicitly:
+df <- tibble::tibble(mean = c(5.19, 4.56), n = c(28, 30))
+absorb_key_args(df, c("x", "n"), key_cols_call = c(x = "mean"))
 }

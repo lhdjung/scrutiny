@@ -7,7 +7,7 @@
 #'   For summary statistics, call [`audit()`] on the results. Visualize results
 #'   using [`grim_plot()`], as with GRIM results.
 #'
-#' @param data Data frame with columns `x`, `sd`, `n`, and optionally `items`
+#' @param data Tibble with columns `x`, `sd`, `n`, and optionally `items`
 #'   (see documentation for `grim()`). Any other columns in `data` will be
 #'   returned alongside GRIMMER test results.
 #' @param items Integer. If there is no `items` column in `data`, this specifies
@@ -43,7 +43,7 @@
 #' - `x`, `sd`, `n`: the inputs.
 #' - `digits_x`, `digits_sd`: the number of decimal places in `x` and `sd`, as
 #'   given by `digits_x` and `digits_sd`.
-#' - `consistency`: GRIMMER consistency of `x`, `n`, and `items`. `NA` for a
+#' - `consistency`: GRIMMER consistency of `x`, `sd`, `n`, and `items`. `NA` for a
 #'   case that cannot be decided, such as one with a missing value.
 #' - `reason`: If consistent, `"Passed all"`. If inconsistent, it says which
 #'   test was failed (see below).

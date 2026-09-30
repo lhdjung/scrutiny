@@ -253,10 +253,10 @@ check_audit_special <- function(data, name_test) {
 #'   mapper's input data frame. It returns the input data frame, so reassign its
 #'   output to that variable.
 #'
-#'   All of this only works in mapper functions that were "handwritten" using
-#'   `function()`, as opposed to those produced by `function_map()`. See
-#'   `vignette("consistency-tests-in-depth")`, section *Writing mappers
-#'   manually*.
+#'   Mappers produced by `function_map()` call it for every `.cols_helper`
+#'   argument, so you only need to call it yourself in a mapper "handwritten"
+#'   using `function()`. See `vignette("consistency-tests-in-depth")`, section
+#'   *Writing mappers manually*.
 #'
 #' @param data The data frame that is the mapper function's first argument.
 #' @param var_arg The argument to the mapper function that has the same name as

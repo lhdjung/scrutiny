@@ -460,10 +460,10 @@ check_variadic_cols <- function(index, data, spoken_for, name) {
 #'   Remember reassigning the value to `data`!
 #'
 #' @examples
-#' # Not really a meaningful example -- need to use
-#' # the function in very specific places
-#' data <- grim_map(pigs1, digits_x = 2)
-#' data <- absorb_key_args(data, c("x", "n"))
+#' # Within a mapper, the directions come from its key
+#' # arguments; here, they are given explicitly:
+#' df <- tibble::tibble(mean = c(5.19, 4.56), n = c(28, 30))
+#' absorb_key_args(df, c("x", "n"), key_cols_call = c(x = "mean"))
 absorb_key_args <- function(data, reported, key_cols_call = NULL) {
   # The values of the key arguments are read in the frame of the factory-made
   # function, not off its call: the call is `FUN(X[[i]], ...)` if the function

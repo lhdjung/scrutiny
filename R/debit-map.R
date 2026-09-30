@@ -6,7 +6,8 @@
 #'
 #'   For summary statistics, call [`audit()`] on the results.
 #'
-#' @param data Data frame.
+#' @param data Tibble with columns `x`, `sd`, and `n`. Any other columns in
+#'   `data` will be returned alongside DEBIT test results.
 #' @param digits_x Integer. The number of decimal places in `x`, including
 #'   trailing zeros. There is no default because it cannot be inferred from a
 #'   numeric `x`, which has no trailing zeros: both `1.4` and `1.40` are the

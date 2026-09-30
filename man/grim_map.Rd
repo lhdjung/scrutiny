@@ -20,7 +20,7 @@ grim_map(
 )
 }
 \arguments{
-\item{data}{Data frame with columns \code{x}, \code{n}, and optionally \code{items} (see
+\item{data}{Tibble with columns \code{x}, \code{n}, and optionally \code{items} (see
 documentation for \code{\link[=grim]{grim()}}). Any other columns in \code{data} will be returned
 alongside GRIM test results.}
 

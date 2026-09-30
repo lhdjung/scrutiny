@@ -32,8 +32,8 @@ By default (\code{affix = TRUE}), the function will add the column to the
 mapper's input data frame. It returns the input data frame, so reassign its
 output to that variable.
 
-All of this only works in mapper functions that were "handwritten" using
-\verb{function()}, as opposed to those produced by \code{function_map()}. See
-\code{vignette("consistency-tests-in-depth")}, section \emph{Writing mappers
-manually}.
+Mappers produced by \code{function_map()} call it for every \code{.cols_helper}
+argument, so you only need to call it yourself in a mapper "handwritten"
+using \verb{function()}. See \code{vignette("consistency-tests-in-depth")}, section
+\emph{Writing mappers manually}.
 }

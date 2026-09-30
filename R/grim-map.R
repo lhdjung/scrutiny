@@ -12,7 +12,7 @@
 #'
 #'   For summary statistics, call [`audit()`] on the results.
 #'
-#' @param data Data frame with columns `x`, `n`, and optionally `items` (see
+#' @param data Tibble with columns `x`, `n`, and optionally `items` (see
 #'   documentation for [`grim()`]). Any other columns in `data` will be returned
 #'   alongside GRIM test results.
 #' @param items Integer. If there is no `items` column in `data`, this specifies

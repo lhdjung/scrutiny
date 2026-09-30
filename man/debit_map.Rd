@@ -20,7 +20,8 @@ debit_map(
 )
 }
 \arguments{
-\item{data}{Data frame.}
+\item{data}{Tibble with columns \code{x}, \code{sd}, and \code{n}. Any other columns in
+\code{data} will be returned alongside DEBIT test results.}
 
 \item{digits_x}{Integer. The number of decimal places in \code{x}, including
 trailing zeros. There is no default because it cannot be inferred from a
