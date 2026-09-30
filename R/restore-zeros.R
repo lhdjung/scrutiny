@@ -123,8 +123,9 @@ restore_zeros <- function(
   # A value that is not a number has no zeros to restore. It becomes missing,
   # like a missing value, rather than being padded into nonsense such as
   # `"5%000"` -- or, as it used to, into the string `"NA"`:
+  # The string `"NA"` spells out a missing value, so it is not a non-number:
   x_num <- suppressWarnings(as.numeric(x))
-  not_number <- is.na(x_num) & !is.na(x)
+  not_number <- is.na(x_num) & !(x %in% c(NA, "NA"))
   if (any(not_number)) {
     cli::cli_warn(c(
       "Values that are not numbers became `NA`.",

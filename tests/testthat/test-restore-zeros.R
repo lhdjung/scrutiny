@@ -130,6 +130,9 @@ test_that("scientific notation, binary noise, and non-numbers are handled", {
     restore_zeros() |>
     expect_equal(c(NA, "2.25")) |>
     expect_warning("not numbers became `NA`")
+  # The string `"NA"` is a missing value, not a non-number:
+  c("5.3", "NA") |> restore_zeros() |> expect_silent()
+  c("5.3", "NA") |> restore_zeros() |> expect_equal(c("5.3", NA))
   # `sep_in` is a literal string:
   c("1.5", "2.25") |> restore_zeros(sep_in = ".") |> expect_equal(c("1.50", "2.25"))
   c("1,5", "3") |> restore_zeros(width = 2, sep_in = ",") |> expect_equal(c("1,50", "3,00"))

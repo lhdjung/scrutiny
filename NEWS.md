@@ -342,7 +342,7 @@
 
 - `duplicate_count_colpair()` now compares values as strings, as the other `duplicate_*()` functions do. It compared raw doubles, so `0.1 + 0.2` and `0.3` were duplicates in `duplicate_count()` but not here.
 
-- `restore_zeros()` now warns in its own words about values that are not numbers, naming them, instead of letting base R's "NAs introduced by coercion" through.
+- `restore_zeros()` now warns in its own words about values that are not numbers, naming them, instead of letting base R's "NAs introduced by coercion" through. The string `"NA"` counts as a missing value, not as a non-number.
 
 - `reround_to_fraction()` and `reround_to_fraction_level()` now reject an infinite `denominator`, which returned `NaN`.
 
