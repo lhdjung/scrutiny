@@ -320,19 +320,19 @@ restore_zeros_df <- function(
   # `cols_to_select` above; by default, only `selection2` takes effect). The
   # `.fns` argument uses an anonymous function to pass on all the named
   # arguments to `restore_zeros()`:
-  dplyr::mutate(
-    data,
-    dplyr::across(
-      .cols = all_of(cols_to_select),
-      .fns = function(data_dummy) {
-        restore_zeros(
-          x = data_dummy,
-          width = width,
-          sep_in = sep_in,
-          sep_out = sep_out,
-          check_width = check_width
-        )
-      }
+  data |>
+    dplyr::mutate(
+      dplyr::across(
+        .cols = all_of(cols_to_select),
+        .fns = function(data_dummy) {
+          restore_zeros(
+            x = data_dummy,
+            width = width,
+            sep_in = sep_in,
+            sep_out = sep_out,
+            check_width = check_width
+          )
+        }
+      )
     )
-  )
 }

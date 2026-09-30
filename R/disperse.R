@@ -193,18 +193,18 @@ disperse <- function(
     }
 
     if (is.list(constant)) {
-      constant <- purrr::map(constant, repeat_constant, out, list_input = TRUE)
+      constant <- constant |>
+        purrr::map(repeat_constant, out, list_input = TRUE)
       constant_is_named_list <- !is.null(names(constant)) &&
         length(names(constant)) == length(constant)
       if (constant_is_named_list) {
-        constant <- tibble::as_tibble(
-          constant,
-          .name_repair = function(x) names(constant)
-        )
+        constant <- constant |>
+          tibble::as_tibble(.name_repair = function(x) names(constant))
       } else {
-        constant <- tibble::as_tibble(constant, .name_repair = function(x) {
-          paste0("constant", seq_along(constant))
-        })
+        constant <- constant |>
+          tibble::as_tibble(.name_repair = function(x) {
+            paste0("constant", seq_along(constant))
+          })
       }
     } else {
       constant <- repeat_constant(constant, out)
@@ -214,7 +214,8 @@ disperse <- function(
       constant_index <- match("n_change", colnames(out)) + 1L
     }
 
-    out <- dplyr::mutate(out, constant, .before = constant_index)
+    out <- out |>
+      dplyr::mutate(constant, .before = constant_index)
   }
 
   # A sample size is a whole number, and the mappers that these tibbles feed

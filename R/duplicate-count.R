@@ -104,9 +104,11 @@ duplicate_count <- function(
   }
 
   if (is.null(ignore)) {
-    x <- dplyr::filter(x, !is.na(.data$value))
+    x <- x |>
+      dplyr::filter(!is.na(.data$value))
   } else {
-    x <- dplyr::filter(x, !is.na(.data$value) & !.data$value %in% ignore)
+    x <- x |>
+      dplyr::filter(!is.na(.data$value) & !.data$value %in% ignore)
   }
 
   # `tibble::as_tibble()` can't convert a table with no values, so the columns
@@ -141,21 +143,18 @@ duplicate_count <- function(
     locations_n[i] <- length(locations[[i]])
   }
 
-  # The user may specify `locations_type` to remain a list:
-  if (locations_type == "list") {
-    return(dplyr::mutate(out, locations, locations_n))
-  }
-
   # By default (`locations_type == "character"`), collapse each list element --
-  # i.e., each vector of location names -- into a string:
-  dplyr::mutate(
-    out,
-    locations = vapply(
+  # i.e., each vector of location names -- into a string. The user may specify
+  # `locations_type` to remain a list:
+  if (locations_type == "character") {
+    locations <- vapply(
       locations,
       function(x) paste(x, collapse = ", "),
       character(1L),
       USE.NAMES = FALSE
-    ),
-    locations_n
-  )
+    )
+  }
+
+  out |>
+    dplyr::mutate(locations, locations_n)
 }

@@ -138,11 +138,8 @@ grim_closest_scalar <- function(
     # admissible range. The endpoints come along in case `round()` lands one
     # integer off through floating-point error in the product:
     sum_nearest <- round(x * parts$n_items / parts$scale)
-    unique(c(
-      min(max(sum_nearest, sum1), sum2),
-      sum1,
-      sum2
-    ))
+    sum_nearest <- min(max(sum_nearest, sum1), sum2)
+    unique(c(sum_nearest, sum1, sum2))
   }
 
   values <- sums_candidate * parts$scale / parts$n_items

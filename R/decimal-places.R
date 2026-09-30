@@ -105,9 +105,10 @@ decimal_places <- function(x, sep = ".") {
   pos_exponent <- regexpr("[eE][+-]?[0-9]+$", x)
   has_exponent <- pos_exponent > 0L
   exponent <- integer(length(x))
-  exponent[has_exponent] <- suppressWarnings(as.integer(
-    substring(x[has_exponent], pos_exponent[has_exponent] + 1L)
-  ))
+  exponent[has_exponent] <- x[has_exponent] |>
+    substring(pos_exponent[has_exponent] + 1L) |>
+    as.integer() |>
+    suppressWarnings()
   x[has_exponent] <- substr(
     x[has_exponent],
     1L,
@@ -121,7 +122,9 @@ decimal_places <- function(x, sep = ".") {
   pos_sep <- regexpr(sep, x, fixed = TRUE)
   mantissa <- substring(x, pos_sep + nchar(sep))
   mantissa[pos_sep < 0L] <- ""
-  out <- attr(regexpr("^[0-9]*", mantissa), "match.length")
+  out <- mantissa |>
+    regexpr(pattern = "^[0-9]*") |>
+    attr("match.length")
 
   # A positive exponent can only cancel decimal places, never create negative
   # ones:
@@ -168,7 +171,10 @@ decimal_places_scalar <- function(x, sep = ".") {
 
   exponent <- 0L
   if (pos_exponent > 0L) {
-    exponent <- suppressWarnings(as.integer(substring(x, pos_exponent + 1L)))
+    exponent <- x |>
+      substring(pos_exponent + 1L) |>
+      as.integer() |>
+      suppressWarnings()
     x <- substr(x, 1L, pos_exponent - 1L)
   }
 
@@ -181,7 +187,10 @@ decimal_places_scalar <- function(x, sep = ".") {
   out <- if (pos_sep < 0L) {
     0L
   } else {
-    attr(regexpr("^[0-9]*", substring(x, pos_sep + nchar(sep))), "match.length")
+    x |>
+      substring(pos_sep + nchar(sep)) |>
+      regexpr(pattern = "^[0-9]*") |>
+      attr("match.length")
   }
 
   max(out - exponent, 0L)
@@ -235,7 +244,10 @@ decimal_places_df <- function(
   sep = "."
 ) {
   sep_literal_value <- sep_literal(sep)
-  names_selected <- names(tidyselect::eval_select(rlang::enquo(cols), data))
+  quo_cols <- rlang::enquo(cols)
+  names_selected <- quo_cols |>
+    tidyselect::eval_select(data) |>
+    names()
 
   # Only columns that `cols` selected are worth a warning:
   is_numeric_like_selected <- vapply(
@@ -264,13 +276,11 @@ decimal_places_df <- function(
     )
   }
 
-  dplyr::mutate(
-    data,
-    dplyr::across(
+  data |>
+    dplyr::mutate(dplyr::across(
       .cols = all_of(names_selected),
       .fns = function(x) decimal_places(x = x, sep = sep)
-    )
-  )
+    ))
 }
 
 

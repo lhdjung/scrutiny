@@ -37,13 +37,16 @@
 #'
 #' @examples
 #' # Example test output:
-#' df1 <- grim_map(pigs1, digits_x = 2)
-#' df2 <- grim_map_seq(pigs1, digits_x = 2)
-#' df3 <- grim_map_total_n(digits_x = 2, tibble::tribble(
+#' df1 <- pigs1 |>
+#'   grim_map(digits_x = 2)
+#' df2 <- pigs1 |>
+#'   grim_map_seq(digits_x = 2)
+#' df3 <- tibble::tribble(
 #'   ~x1,  ~x2,  ~n,
 #'   3.43, 5.28, 90,
 #'   2.97, 4.42, 103
-#' ))
+#' ) |>
+#'   grim_map_total_n(digits_x = 2)
 #'
 #' # All three tibbles are mapper output:
 #' is_map_df(df1)

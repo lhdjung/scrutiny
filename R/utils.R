@@ -137,7 +137,8 @@ an_a_type <- function(x) {
     type <- "string"
   }
 
-  paste(an_a(typeof(x)), type)
+  article <- an_a(typeof(x))
+  paste(article, type)
 }
 
 
@@ -1438,7 +1439,10 @@ index_case_from_diff <- function(x, diff_var, by = NULL) {
   # sit on a grid of `by`, so the smallest gap between two of them is `by`
   # itself. A single-value sequence has no such gap and nothing to go on:
   if (is.null(by)) {
-    steps <- diff(sort(unique(x)))
+    steps <- x |>
+      unique() |>
+      sort() |>
+      diff()
     if (length(steps) == 0L) {
       cli::cli_abort(c(
         "Can't recover the reported value from a single dispersed value.",
@@ -1518,7 +1522,9 @@ check_new_args_without_dots <- function(data, dots, old_args, name_fn) {
     return(invisible(NULL))
   }
 
-  dots_names <- names(purrr::map(dots, rlang::as_label))
+  dots_names <- dots |>
+    purrr::map(rlang::as_label) |>
+    names()
 
   # Error 1: Column names are selected via the dots, `...`.
   offenders1 <- dots_names[dots_names %in% colnames(data)]
@@ -2008,10 +2014,10 @@ audit_summary_stats <- function(data, selection, total = FALSE) {
       dplyr::select(c(!!!selection)) |>
       tidyr::pivot_longer(dplyr::everything()) |>
       dplyr::pull("value")
-    out <- dplyr::bind_rows(
-      out,
-      c(list(term = ".total"), purrr::map(stats, function(f) f(values_all)))
-    )
+    stats_total <- stats |>
+      purrr::map(function(f) f(values_all))
+    out <- out |>
+      dplyr::bind_rows(c(list(term = ".total"), stats_total))
   }
 
   out
@@ -2196,10 +2202,8 @@ write_code_col_key_result <- function(
     NULL
   } else {
     rlang::expr({
-      `!!`(name_data) <- dplyr::rename(
-        `!!`(name_data),
-        `!!`(name_key_result) := consistency
-      )
+      `!!`(name_data) <- `!!`(name_data) |>
+        dplyr::rename(`!!`(name_key_result) := consistency)
     })
   }
 

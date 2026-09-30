@@ -53,7 +53,8 @@ duplicate_count_colpair <- function(data, ignore = NULL, show_rates = TRUE) {
   if (!is.data.frame(data)) {
     cli::cli_abort("`data` must be a data frame.")
   } else if (!tibble::is_tibble(data) || !rlang::is_named(data)) {
-    data <- tibble::as_tibble(data)
+    data <- data |>
+      tibble::as_tibble()
   }
 
   if (ncol(data) < 2L) {
@@ -65,32 +66,32 @@ duplicate_count_colpair <- function(data, ignore = NULL, show_rates = TRUE) {
   }
 
   if (!is.null(ignore)) {
-    data <- lapply(data, function(x) x[!x %in% ignore])
+    data <- data |>
+      lapply(function(x) x[!x %in% ignore])
   }
 
   # Values are compared as strings, as in the other `duplicate_*()` functions,
   # so that `0.1 + 0.2` duplicates `0.3` here as it does there:
-  values <- lapply(data, function(x) as.character(x[!is.na(x)]))
+  values <- data |>
+    lapply(function(x) as.character(x[!is.na(x)]))
 
   # Column-major, so each column is paired with the later ones only:
   pairs <- utils::combn(names(values), 2L)
 
-  out <- tibble::tibble(
-    x = pairs[1L, ],
-    y = pairs[2L, ],
-    count = pairs |>
-      ncol() |>
-      seq_len() |>
-      vapply(
-        # For each element of `x`, this function counts how many are also found in
-        # `y`. `%in%` and `==` coerce mixed types the same way, so this matches
-        # the element-wise comparison it replaced, without the quadratic scan:
-        function(i) {
-          sum(values[[pairs[1L, i]]] %in% values[[pairs[2L, i]]])
-        },
-        integer(1L)
-      )
-  ) |>
+  count_x <- pairs |>
+    ncol() |>
+    seq_len() |>
+    vapply(
+      # For each element of `x`, this function counts how many are also found in
+      # `y`. `%in%` and `==` coerce mixed types the same way, so this matches
+      # the element-wise comparison it replaced, without the quadratic scan:
+      function(i) {
+        sum(values[[pairs[1L, i]]] %in% values[[pairs[2L, i]]])
+      },
+      integer(1L)
+    )
+
+  out <- tibble::tibble(x = pairs[1L, ], y = pairs[2L, ], count = count_x) |>
     dplyr::arrange(dplyr::desc(.data$count)) |>
     add_class("scrutiny_dup_count_colpair")
 
@@ -110,11 +111,11 @@ duplicate_count_colpair <- function(data, ignore = NULL, show_rates = TRUE) {
     USE.NAMES = FALSE
   )
 
-  dplyr::mutate(
-    out,
-    total_x = unname(total_values[.data$x]),
-    total_y = unname(total_values[.data$y]),
-    rate_x = .data$count / .data$total_x,
-    rate_y = count_y / .data$total_y
-  )
+  out |>
+    dplyr::mutate(
+      total_x = unname(total_values[.data$x]),
+      total_y = unname(total_values[.data$y]),
+      rate_x = .data$count / .data$total_x,
+      rate_y = count_y / .data$total_y
+    )
 }

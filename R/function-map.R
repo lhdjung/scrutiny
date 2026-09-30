@@ -290,10 +290,12 @@ function_map <- function(
   }
 
   if (!all(names(.cols_helper_merge) %in% .cols_helper)) {
+    names_unknown <- .cols_helper_merge |>
+      names() |>
+      setdiff(.cols_helper)
     cli::cli_abort(c(
       "Every name of `.cols_helper_merge` must be a `.cols_helper` value.",
-      "x" = "{wrap_in_backticks(setdiff(names(.cols_helper_merge),
-      .cols_helper))} {?is/are} not."
+      "x" = "{wrap_in_backticks(names_unknown)} {?is/are} not."
     ))
   }
 
@@ -338,10 +340,24 @@ function_map <- function(
   # the values of the arguments, so an argument of `.fun` by one of these names
   # would be shadowed:
   names_locals <- c(
-    "data", "fun", "reported", "reported_variadic", "args_by_row",
-    "args_helper", "args_const", "args_required", "col_names", "helper_merge",
-    "cols_derived_funs", "add_class", "cols_variadic", "names_variadic",
-    "quo_variadic", "index_variadic", "args_vals", "arg"
+    "data",
+    "fun",
+    "reported",
+    "reported_variadic",
+    "args_by_row",
+    "args_helper",
+    "args_const",
+    "args_required",
+    "col_names",
+    "helper_merge",
+    "cols_derived_funs",
+    "add_class",
+    "cols_variadic",
+    "names_variadic",
+    "quo_variadic",
+    "index_variadic",
+    "args_vals",
+    "arg"
   )
   args_shadowed <- intersect(args_promoted, names_locals)
   if (length(args_shadowed) > 0L) {
@@ -523,13 +539,11 @@ function_map <- function(
       # "column" is a list with one vector per row. `fun()` has a single
       # argument for it, whatever the number of columns behind it:
       if (!is.null(reported_variadic)) {
-        cols_tested <- c(
-          rlang::set_names(
-            list(purrr::pmap(cols_variadic, function(...) c(...))),
-            reported_variadic
-          ),
-          cols_tested
-        )
+        col_variadic <- cols_variadic |>
+          purrr::pmap(function(...) c(...)) |>
+          list() |>
+          rlang::set_names(reported_variadic)
+        cols_tested <- c(col_variadic, cols_tested)
       }
 
       for (arg in args_helper) {
@@ -562,14 +576,9 @@ function_map <- function(
       # warned before the muffle discards the warning, so
       # `grim_map(tolerance = ...)` went through in complete silence.
       if (nrow(data) > 0L) {
-        do.call(
-          fun,
-          c(
-            lapply(cols_tested, function(x) x[[1L]]),
-            args_const_vals,
-            list(...)
-          )
-        )
+        row_first <- cols_tested |>
+          lapply(function(x) x[[1L]])
+        do.call(fun, c(row_first, args_const_vals, list(...)))
       }
 
       # Test for consistency:

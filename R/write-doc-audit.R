@@ -90,8 +90,13 @@ manage_var_ge_3 <- function(var_ge_3, prefix, suffix, segway = "as well as") {
 #'
 #' @examples
 #' # Start by running `audit()`:
-#' out_grim  <- audit(grim_map(pigs1, digits_x = 2))
-#' out_debit <- audit(debit_map(pigs3, digits_x = 2, digits_sd = 2))
+#' out_grim <- pigs1 |>
+#'   grim_map(digits_x = 2) |>
+#'   audit()
+#'
+#' out_debit <- pigs3 |>
+#'   debit_map(digits_x = 2, digits_sd = 2) |>
+#'   audit()
 #'
 #' out_grim
 #' out_debit
@@ -236,16 +241,10 @@ write_doc_audit_seq <- function(key_args, name_test) {
   if (all(var_ge_3 == "")) {
     var_ge_3_line_diff <- ""
   } else {
-    var_ge_3_line_diff <- purrr::map(var_ge_3, function(x) paste0("diff_", x))
-    var_ge_3_line_diff <- purrr::map(
-      var_ge_3_line_diff,
-      paste0,
-      c("", "_up", "_down")
-    )
-    var_ge_3_line_diff <- purrr::map(
-      var_ge_3_line_diff,
-      list(wrap_in_backticks, commas_and)
-    )
+    var_ge_3_line_diff <- var_ge_3 |>
+      purrr::map(function(x) paste0("diff_", x)) |>
+      purrr::map(paste0, c("", "_up", "_down")) |>
+      purrr::map(list(wrap_in_backticks, commas_and))
     if (all(length(var_ge_3) > 1L)) {
       var_ge_3_line_diff <- semicolons_as_well_as(var_ge_3_line_diff)
     }

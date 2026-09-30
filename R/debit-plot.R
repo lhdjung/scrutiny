@@ -311,12 +311,12 @@ debit_plot <- function(
       })
     } else {
       panel <- ggplot2::ggplot_build(p)$layout$panel_params[[1L]]
-      k_by_row <- purrr::pmap(
-        list(k_lower = k_lower, k_upper = k_upper, n = n),
-        thin_binary_means,
-        x_range = panel$x.range,
-        y_range = panel$y.range
-      )
+      k_by_row <- list(k_lower = k_lower, k_upper = k_upper, n = n) |>
+        purrr::pmap(
+          thin_binary_means,
+          x_range = panel$x.range,
+          y_range = panel$y.range
+        )
       n_thinned <- sum(lengths(k_by_row) < k_count)
       if (n_thinned > 0L) {
         cli::cli_inform(c(

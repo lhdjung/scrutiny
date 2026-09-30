@@ -91,7 +91,8 @@ grimmer_plot_values <- function(
   # rules out are in view. Without them, one unit around `sd`, as for a mean:
   window <- if (has_scale) {
     sd_max <- (max_val - min_val) / 2 * sqrt(n / (n - 1))
-    c(0, max(ceiling(sd_max * 1.12 * 10^digits_sd) / 10^digits_sd, sd))
+    window_upper <- ceiling(sd_max * 1.12 * 10^digits_sd) / 10^digits_sd
+    c(0, max(window_upper, sd))
   } else {
     c(max(0, floor(sd)), floor(sd) + 1)
   }

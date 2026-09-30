@@ -122,7 +122,8 @@ seq_disperse <- function(
 
   # A missing, infinite, or non-numeric `from` has no decimal level to disperse
   # on. It used to be blamed on `out_min`, or to fail in `restore_zeros()`:
-  if (!is.finite(suppressWarnings(as.numeric(from)))) {
+  from_num <- suppressWarnings(as.numeric(from))
+  if (!is.finite(from_num)) {
     cli::cli_abort(c(
       "`from` must be a finite number, or a string coercible to one.",
       "x" = "It is {wrong_spec_string(from)}."
@@ -249,13 +250,16 @@ seq_disperse <- function(
     ok
   }
 
-  is_within_range_lower <- is_within_range(round(from - disp_minus, digits_out))
-  is_within_range_upper <- is_within_range(round(from + disp_plus, digits_out))
+  seq_lower <- round(from - disp_minus, digits_out)
+  seq_upper <- round(from + disp_plus, digits_out)
+
+  is_within_range_lower <- is_within_range(seq_lower)
+  is_within_range_upper <- is_within_range(seq_upper)
 
   disp_minus_represent <- dispersion[is_within_range_lower]
-  disp_minus <- disp_minus[is_within_range_lower]
+  seq_lower <- seq_lower[is_within_range_lower]
   disp_plus_represent <- dispersion[is_within_range_upper]
-  disp_plus <- disp_plus[is_within_range_upper]
+  seq_upper <- seq_upper[is_within_range_upper]
 
   disp_zero <- if (include_reported) {
     from
@@ -265,10 +269,9 @@ seq_disperse <- function(
 
   # Create sequences that are dispersed upward and downward, starting at `from`.
   # If this very value is meant to be included, it is positioned in between:
-  out <- append(
-    rev(round(from - disp_minus, digits_out)),
-    c(disp_zero, round(from + disp_plus, digits_out))
-  )
+  out <- seq_lower |>
+    rev() |>
+    append(c(disp_zero, seq_upper))
 
   # Following user preferences, do or don't convert the output to string.
   # However, the default (`string_output == "auto"`) is to decide this by the

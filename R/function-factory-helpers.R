@@ -32,8 +32,10 @@ check_factory_key_args_values <- function(data, key_cols_call) {
   # Error condition -- one or more key arguments have been specified with values
   # that are not actually column names of `data`:
 
-  offenders_names <- glue::as_glue(names(offenders))
-  offenders_names <- wrap_in_backticks(offenders_names)
+  offenders_names <- offenders |>
+    names() |>
+    glue::as_glue() |>
+    wrap_in_backticks()
   offenders <- wrap_in_backticks(offenders)
   name_current_fn <- name_caller_call(n = 3L)
   if (length(offenders) == 1L) {
@@ -328,10 +330,10 @@ insert_key_args <- function(fun, reported, insert_after = 1L, variadic = NULL) {
 
   if (!is.null(variadic)) {
     # The empty symbol is what a formal without a default has; see `alist()`:
-    key_args <- c(
-      rlang::set_names(list(rlang::missing_arg()), variadic),
-      key_args
-    )
+    arg_variadic <- rlang::missing_arg() |>
+      list() |>
+      rlang::set_names(variadic)
+    key_args <- c(arg_variadic, key_args)
   }
 
   # Replace the arguments of `fun` by the result of the pipeline, which just
@@ -490,7 +492,9 @@ absorb_key_args <- function(data, reported, key_cols_call = NULL) {
 
   # A column by the key argument's own name would be tested instead of the one
   # the argument points to, which is not what the user asked for:
-  key_cols_clash <- names(key_cols_call)[names(key_cols_call) %in% colnames(data)]
+  key_cols_clash <- names(key_cols_call)[
+    names(key_cols_call) %in% colnames(data)
+  ]
   if (length(key_cols_clash) > 0L) {
     name_arg <- key_cols_clash[[1L]]
     name_col <- key_cols_call[[name_arg]]
@@ -525,7 +529,8 @@ absorb_key_args <- function(data, reported, key_cols_call = NULL) {
   # in, then move the renamed columns to the front, as they are key columns:
   index <- match(key_cols_call, colnames(data))
   colnames(data)[index] <- key_cols_call_names
-  dplyr::relocate(data, dplyr::all_of(unname(key_cols_missing)))
+  data |>
+    dplyr::relocate(dplyr::all_of(unname(key_cols_missing)))
 }
 
 

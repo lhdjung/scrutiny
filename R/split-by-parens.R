@@ -168,7 +168,10 @@ split_by_parens <- function(
 
   # `dplyr::across()` would silently overwrite a column of the same name, so
   # the new names must be new:
-  names_new <- paste0(rep(names(cols_to_select), each = 2L), "_", endings)
+  names_new <- cols_to_select |>
+    names() |>
+    rep(each = 2L) |>
+    paste0("_", endings)
   if (identical(end1, end2)) {
     cli::cli_abort(c(
       "!" = "`end1` and `end2` must be different.",
@@ -188,18 +191,19 @@ split_by_parens <- function(
   # Apply the extractor functions `before_parens()` and `inside_parens()` to all
   # selected columns from `data` (see above), going by `sep`, which is
   # `"parens"` by default and will thus look for parentheses:
-  out <- suppressWarnings(dplyr::mutate(
-    data,
-    dplyr::across(
-      .cols = all_of(cols_to_select),
-      .fns = list(
-        function(x) before_parens(string = x, sep = sep),
-        function(x) inside_parens(string = x, sep = sep)
+  out <- data |>
+    dplyr::mutate(
+      dplyr::across(
+        .cols = all_of(cols_to_select),
+        .fns = list(
+          function(x) before_parens(string = x, sep = sep),
+          function(x) inside_parens(string = x, sep = sep)
+        ),
+        .names = "{.col}_{endings}"
       ),
-      .names = "{.col}_{endings}"
-    ),
-    .before = 1L
-  ))
+      .before = 1L
+    ) |>
+    suppressWarnings()
 
   # The output is meant to have the same class as the input. Since `out` is not
   # a tibble, coerce it to a tibble if and only if `data` is:
@@ -211,14 +215,16 @@ split_by_parens <- function(
   # be added to `out` in the end unless it's transformed.
   names_data <- colnames(data)
   names_neutral_cols <- names_data[!names_data %in% names(cols_to_select)]
-  neutral_cols <- dplyr::select(data, all_of(names_neutral_cols))
+  neutral_cols <- data |>
+    dplyr::select(all_of(names_neutral_cols))
 
   # By default, the original columns are dropped. If the user disabled this by
   # setting `keep` to `TRUE`, `transform` can't also be `TRUE` because this
   # would likely lead to incommensurable data frame dimensions:
   if (!keep) {
     names_original <- names_data[!names_data %in% names_neutral_cols]
-    out <- dplyr::select(out, !all_of(names_original))
+    out <- out |>
+      dplyr::select(!all_of(names_original))
   }
 
   # Check if any columns from `data` don't contain the `sep` elements. If so,
@@ -242,7 +248,9 @@ split_by_parens <- function(
   # Without a special transformation, nothing is left to do except for appending
   # those columns that were never split to the output:
   if (!transform) {
-    return(dplyr::mutate(out, {{ neutral_cols }}))
+    out <- out |>
+      dplyr::mutate({{ neutral_cols }})
+    return(out)
   }
 
   # Pivot the output to a longer format beforehand using a specified internal

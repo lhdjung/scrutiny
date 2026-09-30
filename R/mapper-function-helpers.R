@@ -23,7 +23,9 @@ split_result_cols <- function(results, col_names) {
   out <- lapply(
     seq_along(col_names),
     function(i) {
-      unlist(lapply(results, function(x) x[[i]]), use.names = FALSE)
+      results |>
+        lapply(function(x) x[[i]]) |>
+        unlist(use.names = FALSE)
     }
   )
   names(out) <- col_names
@@ -300,7 +302,8 @@ manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
   } else if (affix) {
     # If a column by that name is not yet present in `data`, supply it from the
     # respective argument:
-    return(dplyr::mutate(data, {{ var_name }} := var_arg))
+    data <- data |>
+      dplyr::mutate({{ var_name }} := var_arg)
   }
 
   data
@@ -370,7 +373,8 @@ manage_key_colnames <- function(data, arg, description = NULL) {
   }
 
   # Splice `arg_name`, the target new column name, into dplyr's renaming syntax
-  dplyr::rename(data, {{ arg_name }} := all_of(arg))
+  data |>
+    dplyr::rename({{ arg_name }} := all_of(arg))
 }
 
 
@@ -419,10 +423,8 @@ unnest_consistency_cols <- function(
       purrr::map_depth(.depth = 2L, .f = `[`, 1) |>
       purrr::map(function(x) unlist(x, use.names = FALSE))
   } else {
-    consistency_list <- purrr::map(
-      results[col][[1L]],
-      function(x) unlist(x, use.names = FALSE)
-    )
+    consistency_list <- results[col][[1L]] |>
+      purrr::map(function(x) unlist(x, use.names = FALSE))
   }
 
   consistency_df <- consistency_list |>

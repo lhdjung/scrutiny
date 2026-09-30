@@ -178,11 +178,13 @@ plot_comb <- function(
       )
     })
 
+  marker_children <- do.call(
+    grid::gList,
+    c(marker_grobs, unlist(neighbor_grobs, recursive = FALSE))
+  )
+
   marker_grob <- grid::gTree(
-    children = do.call(
-      grid::gList,
-      c(marker_grobs, unlist(neighbor_grobs, recursive = FALSE))
-    ),
+    children = marker_children,
     gp = grid::gpar(
       col = color_cons,
       fontsize = fontsize,

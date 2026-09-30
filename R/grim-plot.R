@@ -176,8 +176,10 @@ grim_plot <- function(
       # inconsistencies can be told apart:
       reason <- data[["reason"]]
       reason <- reason[!is.na(reason)]
-      n_grimmer_cases <- stringr::str_detect(reason, "GRIMMER")
-      n_grimmer_cases <- length(which(n_grimmer_cases))
+      n_grimmer_cases <- reason |>
+        stringr::str_detect("GRIMMER") |>
+        which() |>
+        length()
       if (n_grimmer_cases > 0L) {
         if (n_grimmer_cases == 1L) {
           msg_case_s <- "case was"
@@ -329,7 +331,9 @@ grim_plot <- function(
     # one per distinct decimal count, even if there is only one such count or no
     # raster, so that the type of the result doesn't depend on the data:
     if (split_by_digits) {
-      unique_digits <- sort(unique(digits_x))
+      unique_digits <- digits_x |>
+        unique() |>
+        sort()
 
       # A mean with no decimal places has a fractional portion of zero, so
       # its group would be a line of tiles along the x-axis against a raster
@@ -585,6 +589,12 @@ grim_plot <- function(
       if (show_gradient) {
         gradient <-
           grDevices::colorRampPalette(c(raster_color, "white"))(10000)
+        grob_gradient <- gradient |>
+          t() |>
+          grid::rasterGrob(
+            width = grid::unit(1, "npc"),
+            height = grid::unit(1, "npc")
+          )
         p <- p +
           ggplot2::geom_tile(
             data = df_plot,
@@ -593,11 +603,7 @@ grim_plot <- function(
               y = .data$frac
             )
           ) +
-          ggplot2::annotation_custom(grid::rasterGrob(
-            t(gradient),
-            width = grid::unit(1, "npc"),
-            height = grid::unit(1, "npc")
-          ))
+          ggplot2::annotation_custom(grob_gradient)
       }
       # Keep the y-axis ranging from 0 to 1 with the gradient in place. The
       # bound itself is set on the coordinate system further down; see there.

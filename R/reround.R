@@ -170,14 +170,12 @@ reround <- function(
   # that the return value is a bare numeric vector whatever `x` carried. Adding
   # zero turns a negative zero, as from `ceiling(-0.5)`, into zero, which
   # `sprintf()` would otherwise print as `"-0.00"`:
-  `attributes<-`(
-    reconstruct_rounded_numbers_scalar(
-      x,
-      digits,
-      spec$rounding,
-      threshold,
-      spec$symmetric
-    ) + 0,
-    NULL
+  out <- reconstruct_rounded_numbers_scalar(
+    x,
+    digits,
+    spec$rounding,
+    threshold,
+    spec$symmetric
   )
+  `attributes<-`(out + 0, NULL)
 }

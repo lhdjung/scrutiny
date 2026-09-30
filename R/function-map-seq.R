@@ -52,7 +52,8 @@ function_map_seq_proto <- function(
 
     # Combine the list elements to one single data frame with `var`, `diff_var`,
     # and `case`:
-    df_var <- purrr::list_rbind(df_var)
+    df_var <- df_var |>
+      purrr::list_rbind()
 
     # Everything to the left of the key result column is input to the test; the
     # column is named `"consistency"` unless the mapper was created with a
@@ -91,14 +92,15 @@ function_map_seq_proto <- function(
       target <- helper_merge[[name]]
       out[[target]] <- data_seq[[target]]
       out[[name]] <- data_seq[[name]]
-      out <- dplyr::relocate(out, all_of(name), .after = all_of(target))
+      out <- out |>
+        dplyr::relocate(all_of(name), .after = all_of(target))
     }
 
-    dplyr::mutate(
-      out,
-      diff_var = df_var$diff_var,
-      case = rep(as.integer(.cases), nrow_list_var)
-    )
+    out |>
+      dplyr::mutate(
+        diff_var = df_var$diff_var,
+        case = rep(as.integer(.cases), nrow_list_var)
+      )
   }
 
   # --- End of the manufactured helper (!) function ---
@@ -423,7 +425,8 @@ function_map_seq <- function(
         target <- helper_merge[[name]]
         data[[target]] <- target_vals[[target]]
         data[[name]] <- helper_vals[[name]]
-        data <- dplyr::relocate(data, all_of(name), .after = all_of(target))
+        data <- data |>
+          dplyr::relocate(all_of(name), .after = all_of(target))
       }
 
       # Everything below reads the key result column off `fun()`'s output by
@@ -483,9 +486,8 @@ function_map_seq <- function(
       # same for all of them. An explicit value applies to every variable:
       var_bounds <- `!!`(.var_bounds)
 
-      out <- purrr::map(
-        var,
-        function(variable) {
+      out <- var |>
+        purrr::map(function(variable) {
           limits <- resolve_var_bounds(
             var = variable,
             out_min = out_min,
@@ -505,8 +507,7 @@ function_map_seq <- function(
               fun_args
             )
           )
-        }
-      )
+        })
 
       # Remove list-elements that are `NULL`, then check for an early return:
       out[vapply(out, is.null, logical(1L))] <- NULL
@@ -521,11 +522,9 @@ function_map_seq <- function(
         ))
         # The output still has the columns, classes, and attribute of any other,
         # so that functions downstream such as `audit_seq()` accept it:
-        out <- list(tibble::add_column(
-          data[0L, ],
-          diff_var = integer(0L),
-          case = integer(0L)
-        ))
+        out <- data[0L, ] |>
+          tibble::add_column(diff_var = integer(0L), case = integer(0L)) |>
+          list()
         var <- character(0L)
       }
 
@@ -553,26 +552,25 @@ function_map_seq <- function(
       for (digits_arg in names(digits_vals)) {
         out[[digits_arg]] <- digits_vals[[digits_arg]]
       }
-      out <- dplyr::relocate(
-        out,
-        dplyr::any_of(`!!`(digits_args_names)),
-        .before = dplyr::all_of(name_key_result)
-      )
+      out <- out |>
+        dplyr::relocate(
+          dplyr::any_of(`!!`(digits_args_names)),
+          .before = dplyr::all_of(name_key_result)
+        )
 
       # Create classes that will identify `out` as output of the specific
       # manufactured function:
-      out <- add_class(
-        out,
-        c(
+      out <- out |>
+        add_class(c(
           "scrutiny_map_seq",
           paste0("scrutiny_", tolower(name_test), "_map_seq")
-        )
-      )
+        ))
 
       # `.name_class` used to go into the dots of `function_map_seq_proto()`,
       # which ignores them, so the class was never added:
       if (!is.null(name_class)) {
-        out <- add_class(out, name_class)
+        out <- out |>
+          add_class(name_class)
       }
 
       # Settings for functions downstream: those that the initial `fun()` call

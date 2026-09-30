@@ -182,10 +182,9 @@ reround_to_fraction <- function(
     procedures <- rounding_constituents(rounding)
     n_branches <- length(procedures)
 
-    digits <- rep(
-      rep_len(digits, length(out) %/% n_branches),
-      each = n_branches
-    )
+    digits <- digits |>
+      rep_len(length(out) %/% n_branches) |>
+      rep(each = n_branches)
     branch <- rep_len(seq_len(n_branches), length(out))
 
     for (b in seq_len(n_branches)) {

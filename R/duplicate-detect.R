@@ -99,10 +99,10 @@ function_duplicate_cols <- function(code_new_cols, default_end, name_class) {
       # Each original column is followed by its test column. The flattened
       # vectors are cut by position, with a factor so that a column with no
       # rows is still a column:
-      index_col <- factor(
-        rep(seq_along(colnames_original), each = nrow_original),
-        levels = seq_along(colnames_original)
-      )
+      index_col <- colnames_original |>
+        seq_along() |>
+        rep(each = nrow_original) |>
+        factor(levels = seq_along(colnames_original))
       out <- vector("list", 2L * length(colnames_original))
       out[c(TRUE, FALSE)] <- split(x, index_col)
       out[c(FALSE, TRUE)] <- split(new_cols, index_col)
@@ -110,8 +110,9 @@ function_duplicate_cols <- function(code_new_cols, default_end, name_class) {
         colnames_original,
         paste0(colnames_original, "_", colname_end)
       ))
-      out <- tibble::new_tibble(out, nrow = nrow_original)
-      add_class(out, `!!`(name_class))
+      out |>
+        tibble::new_tibble(nrow = nrow_original) |>
+        add_class(`!!`(name_class))
     })
   )
 

@@ -84,15 +84,19 @@ reverse_map_seq <- function(data) {
 
   cols <- lapply(var, function(v) {
     by <- step_by_var(v)
-    purrr::list_c(lapply(cases, function(d) {
-      untouched <- d$var != v
-      if (any(untouched)) {
-        d[[v]][untouched][[1L]]
-      } else {
-        index_case_from_diff(x = d[[v]], diff_var = d$diff_var, by = by)
-      }
-    }))
+    cases |>
+      lapply(function(d) {
+        untouched <- d$var != v
+        if (any(untouched)) {
+          d[[v]][untouched][[1L]]
+        } else {
+          index_case_from_diff(x = d[[v]], diff_var = d$diff_var, by = by)
+        }
+      }) |>
+      purrr::list_c()
   })
 
-  tibble::as_tibble(rlang::set_names(cols, var))
+  cols |>
+    rlang::set_names(var) |>
+    tibble::as_tibble()
 }

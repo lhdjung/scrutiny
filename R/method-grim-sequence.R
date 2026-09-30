@@ -152,7 +152,8 @@ seq_test_ranking <- function(x, explain = TRUE) {
     out <- tibble::tibble(consistent, inconsistent, lead_lag)
   }
 
-  out <- add_class(out, "seq_test_ranking")
+  out <- out |>
+    add_class("seq_test_ranking")
 
   class_is_scrutiny_map_class <-
     stringr::str_detect(class(x), "^scrutiny_") &

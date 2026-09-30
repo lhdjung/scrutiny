@@ -6,7 +6,8 @@ mutate_both_consistent <- function(data, name_key_result = "consistency") {
     vapply(all, logical(1L), USE.NAMES = FALSE) |>
     rep(each = 2L)
 
-  dplyr::mutate(data, both_consistent, .after = dplyr::all_of(name_key_result))
+  data |>
+    dplyr::mutate(both_consistent, .after = dplyr::all_of(name_key_result))
 }
 
 
@@ -92,17 +93,17 @@ function_map_total_n_proto <- function(
       purrr::map2(df_list_nrow, rep) |>
       purrr::list_c(ptype = integer())
 
-    out_df <- tidyr::unnest(out_df_nested, cols = everything())
+    out_df <- out_df_nested |>
+      tidyr::unnest(cols = everything())
     n_change <- out_df$n_change
     colnames(out_df)[seq_along(.reported_orig)] <- .reported_orig
 
     # With no pair of group sizes left, the reported columns unnest as logical.
     # Give them their input types back (`.reported` has `x1, x2, sd1, ...`):
     if (nrow(out_df) == 0L) {
-      out_df[.reported_orig] <- lapply(
-        .reported[seq(1L, by = 2L, length.out = reported_n_vars)],
-        function(col) col[0L]
-      )
+      out_df[.reported_orig] <-
+        .reported[seq(1L, by = 2L, length.out = reported_n_vars)] |>
+        lapply(function(col) col[0L])
     }
 
     # A `digits_*` argument may name one value per group: `digits_x = c(2, 1)`
@@ -152,7 +153,11 @@ function_map_total_n_proto <- function(
 
     # `fun()` multiplies helpers such as `items` into their key column. Undo
     # that, as `function_map_seq()` does, so `n` remains the group size:
-    for (name in intersect(names(helper_merge), c(names_helper_cols, names(dots)))) {
+    names_merged <- intersect(
+      names(helper_merge),
+      c(names_helper_cols, names(dots))
+    )
+    for (name in names_merged) {
       target <- helper_merge[[name]]
       out_df[[target]] <- data_in[[target]]
       out_df[[name]] <- if (name %in% names_helper_cols) {
@@ -160,11 +165,13 @@ function_map_total_n_proto <- function(
       } else {
         rep_len(dots[[name]], nrow(out_df))
       }
-      out_df <- dplyr::relocate(out_df, all_of(name), .after = all_of(target))
+      out_df <- out_df |>
+        dplyr::relocate(all_of(name), .after = all_of(target))
     }
 
     if (!any("n_change" == colnames(out_df))) {
-      out_df <- dplyr::mutate(out_df, n_change)
+      out_df <- out_df |>
+        dplyr::mutate(n_change)
     }
 
     out_df <- out_df |>
@@ -576,13 +583,11 @@ function_map_total_n <- function(
       # particular mapper -- the same way `function_map_seq()` has always
       # allowed. Without it, the total-n tier was the only one of the three that
       # could not be dispatched on by test:
-      out <- add_class(
-        out,
-        c(
+      out <- out |>
+        add_class(c(
           "scrutiny_map_total_n",
           paste0("scrutiny_", tolower(name_test), "_map_total_n")
-        )
-      )
+        ))
 
       # This is a hack, but it works. Its solves the following problem:
       # `constant_index` is meant to work within the `disperse_total()` tibble,
@@ -603,17 +608,15 @@ function_map_total_n <- function(
           constant_ref <- names(constant)
         }
 
-        out <- dplyr::relocate(
-          out,
-          all_of(constant_ref),
-          .before = constant_index
-        )
+        out <- out |>
+          dplyr::relocate(all_of(constant_ref), .before = constant_index)
       }
 
       # If `.name_class` (note the dot) was specified in the course of creating
       # the manufactured function, its value will become a class of the output:
       if (!is.null(name_class)) {
-        out <- add_class(out, name_class)
+        out <- out |>
+          add_class(name_class)
       }
 
       # `rename = FALSE`: `fun()` already named the column, so only the

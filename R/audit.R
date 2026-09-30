@@ -234,31 +234,26 @@ audit_seq <- function(data) {
     # that the output itself records. Each of them is constant, so the first
     # value is sufficient; the names match the argument names of `fun_test()`:
     digits_cols <- grep("^digits_", colnames(data), value = TRUE)
-    args_replay <- lapply(
-      setNames(digits_cols, digits_cols),
-      function(col) data[[col]][[1L]]
-    )
+    args_replay <- digits_cols |>
+      setNames(digits_cols) |>
+      lapply(function(col) data[[col]][[1L]])
   }
 
   data_rev_tested <- do.call(fun_test, c(list(data_rev), args_replay))
 
   consistency <- data_rev_tested[[name_key_result]]
 
-  cols_hits <- dplyr::mutate(
-    cols_hits,
-    dplyr::across(
+  cols_hits <- cols_hits |>
+    dplyr::mutate(dplyr::across(
       .cols = where(is.character),
       .fns = as.numeric
-    )
-  )
+    ))
 
-  cols_diff <- dplyr::mutate(
-    cols_diff,
-    dplyr::across(
+  cols_diff <- cols_diff |>
+    dplyr::mutate(dplyr::across(
       .cols = where(is.character),
       .fns = as.numeric
-    )
-  )
+    ))
 
   data_rev |>
     dplyr::mutate("{name_key_result}" := consistency, hits_total) |>

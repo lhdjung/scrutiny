@@ -149,7 +149,10 @@ seq_endpoint <- function(
   # decimal level of `by`: `seq(4.6, 0.1, by = -0.1)` has `0.799999999999999`
   # in it, which `restore_zeros()` then rejected, and which compares unequal
   # to `0.8`. Rounding back to that level fixes it, as in `seq_disperse()`:
-  out <- round(suppressWarnings(seq(from = from, to = to, by = by)), digits)
+  out <- from |>
+    seq(to = to, by = by) |>
+    suppressWarnings() |>
+    round(digits)
 
   # Hackish way of conveying to `manage_string_output_seq()` whether or not
   # either of `from` and `to` was specified as a string, or else as a double:

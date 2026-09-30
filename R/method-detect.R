@@ -3,7 +3,11 @@
 
 audit.scrutiny_dup_detect <- function(data) {
   # Select the logical test columns (i.e., every second column):
-  data_dup <- data[is_even(seq_len(ncol(data)))]
+  is_test_col <- data |>
+    ncol() |>
+    seq_len() |>
+    is_even()
+  data_dup <- data[is_test_col]
 
   # Extract original term names:
   orig_names <- data |>
@@ -26,11 +30,11 @@ audit.scrutiny_dup_detect <- function(data) {
   ) |>
     dplyr::arrange(.data$term)
 
-  dplyr::add_row(
-    out,
-    term = ".total",
-    dup_count = sum(out$dup_count),
-    total_count = sum(out$total_count),
-    dup_rate = .data$dup_count / .data$total_count
-  )
+  out |>
+    dplyr::add_row(
+      term = ".total",
+      dup_count = sum(out$dup_count),
+      total_count = sum(out$total_count),
+      dup_rate = .data$dup_count / .data$total_count
+    )
 }
