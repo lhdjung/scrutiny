@@ -46,3 +46,9 @@ test_that("an unnamed matrix works quietly, and `row` must be in range", {
   m |> row_to_colnames(row = 0) |> expect_error("between 1 and")
   m |> row_to_colnames(row = 4) |> expect_error("between 1 and")
 })
+
+
+test_that("a named matrix keeps a name whose header cell is `NA`", {
+  m <- matrix(c(NA, "1", "b", "2"), nrow = 2, dimnames = list(NULL, c("keep", "q")))
+  m |> row_to_colnames() |> colnames() |> expect_equal(c("keep", "b"))
+})

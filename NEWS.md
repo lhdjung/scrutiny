@@ -320,7 +320,7 @@
 
 - `seq_disperse()` and `seq_disperse_df()` now error if `from` is missing, infinite, or a string that is not a number. Such a `from` was blamed on `out_min`, failed with "missing value where TRUE/FALSE needed", or, as a string, returned 11 `NA`s.
 
-- `row_to_colnames()` no longer emits tibble's deprecation warning on an unnamed matrix, which asked users to report the problem to scrutiny. It now also errors if `row` is out of range, where it silently returned no rows (`row = 0`) or did nothing.
+- `row_to_colnames()` no longer emits tibble's deprecation warning on an unnamed matrix, which asked users to report the problem to scrutiny. It now also errors if `row` is out of range, where it silently returned no rows (`row = 0`) or did nothing. A named matrix keeps its names, which matter for a column whose header cells are all `NA`.
 
 - `*_map_seq()` functions called on data without inconsistent cases now return a tibble with no rows but all the usual columns, classes, and attributes. They returned a 0 x 0 tibble without classes, so `grim_map_seq(...) |> audit_seq()` failed on valid data. `audit_seq()` and `reverse_map_seq()` now accept such output.
 

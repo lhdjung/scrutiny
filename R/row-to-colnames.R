@@ -42,10 +42,13 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
 
   if (!is.data.frame(data)) {
     if (is.matrix(data)) {
-      # The names are replaced below, so the placeholders need no message:
+      # Only missing names get a placeholder, quietly: a column whose header
+      # cells are all `NA` keeps its name below, so an existing one must stay.
       data <- tibble::as_tibble(
         data,
-        .name_repair = function(x) paste0("V", seq_along(x))
+        .name_repair = function(x) {
+          dplyr::if_else(x == "", paste0("V", seq_along(x)), x)
+        }
       )
     } else {
       cli::cli_abort(c(
