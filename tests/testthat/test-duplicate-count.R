@@ -1031,3 +1031,9 @@ test_that("the names of a named vector are its locations", {
   out$locations   |> expect_equal(c("a, b", "a, c"))
   out$locations_n |> expect_equal(c(2L, 2L))
 })
+
+
+test_that("`duplicate_count()` returns 0 rows when there is nothing to count", {
+  c(NA, NA)  |> duplicate_count() |> nrow() |> expect_equal(0L)
+  pigs4[0, ] |> duplicate_count() |> colnames() |> expect_equal(c("value", "frequency", "locations", "locations_n"))
+})

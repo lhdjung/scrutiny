@@ -316,6 +316,8 @@
 
 - `decimal_places()`, `decimal_places_scalar()`, and `decimal_places_df()` now count the decimal places of numbers when `sep` is not `"."`. They searched the number, which R always writes with a point, for `sep`, so `decimal_places(2.25, sep = ",")` was 0. `restore_zeros_df(check_decimals = TRUE)` skipped numeric columns for the same reason.
 
+- `duplicate_count()`, `duplicate_detect()`, and `duplicate_tally()` no longer fail on input without rows or without any non-missing values, and `duplicate_detect()` and `duplicate_tally()` now accept matrices. `grim_items()` no longer fails on a missing or zero `n`.
+
 ## Minor improvements
 
 - `reround_to_fraction(digits = "auto")` no longer errors with "non-numeric argument to mathematical function". The function validated `digits` as a integer before resolving `"auto"` into one, and `is.infinite("auto")` is `FALSE`, so the string went straight into `is_whole_number()`. `reround_to_fraction_level()` has always had the two steps in the right order.

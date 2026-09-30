@@ -17,3 +17,10 @@ test_that("The warning is not thrown for whole item counts", {
   0.5 |> grim_items(0.5) |> expect_silent()
   0.1 |> grim_items(10)  |> expect_silent()
 })
+
+
+test_that("`grim_items()` passes missing and infinite counts through", {
+  c(NA, 20) |> grim_items(gran = 0.05) |> expect_no_warning()
+  c(NA, 20) |> grim_items(gran = 0.05) |> expect_equal(c(NA, 1))
+  0         |> grim_items(gran = 0.05) |> expect_equal(Inf)
+})

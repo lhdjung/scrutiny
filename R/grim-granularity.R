@@ -68,11 +68,12 @@ grim_items <- function(n, gran, tolerance = .Machine$double.eps^0.5) {
   out <- 1 / (n * gran)
   out_is_whole <- is_whole_number(out, tolerance)
 
-  if (all(out_is_whole)) {
+  # A missing or infinite count has no whole-number status to warn about:
+  if (all(out_is_whole, na.rm = TRUE)) {
     return(out)
   }
 
-  offenders <- out[!out_is_whole]
+  offenders <- out[out_is_whole %in% FALSE]
   offenders <- round(offenders, 3L)
   offenders <- wrap_in_backticks(offenders)
   if (length(offenders) == 1L) {

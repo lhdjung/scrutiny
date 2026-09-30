@@ -52,7 +52,7 @@ function_duplicate_cols <- function(code_new_cols, default_end, name_class) {
           x,
           .name_repair = if (x_was_named) {
             function(x) x
-          } else if (is.atomic(x) || length(x) == 1L) {
+          } else if ((is.atomic(x) && is.null(dim(x))) || length(x) == 1L) {
             function(x) "value"
           } else {
             function(x) paste0("col", seq_along(x))
@@ -96,14 +96,22 @@ function_duplicate_cols <- function(code_new_cols, default_end, name_class) {
       # corresponding logical value to the right, as above. Also, add the
       # "scrutiny_dup_detect" class added, which is recognized by the `audit()`
       # generic:
-      x |>
-        tibble::tibble(new_cols) |>
-        split(ceiling(seq_along(x) / nrow_original)) |>
-        dplyr::bind_cols(.name_repair = function(x) {
-          colnames_test <- paste0(colnames_original, "_", colname_end)
-          as.vector(rbind(colnames_original, colnames_test))
-        }) |>
-        add_class(`!!`(name_class))
+      # Each original column is followed by its test column. The flattened
+      # vectors are cut by position, with a factor so that a column with no
+      # rows is still a column:
+      index_col <- factor(
+        rep(seq_along(colnames_original), each = nrow_original),
+        levels = seq_along(colnames_original)
+      )
+      out <- vector("list", 2L * length(colnames_original))
+      out[c(TRUE, FALSE)] <- split(x, index_col)
+      out[c(FALSE, TRUE)] <- split(new_cols, index_col)
+      names(out) <- as.vector(rbind(
+        colnames_original,
+        paste0(colnames_original, "_", colname_end)
+      ))
+      out <- tibble::new_tibble(out, nrow = nrow_original)
+      add_class(out, `!!`(name_class))
     })
   )
 

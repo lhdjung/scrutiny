@@ -109,9 +109,13 @@ duplicate_count <- function(
     x <- dplyr::filter(x, !is.na(.data$value) & !.data$value %in% ignore)
   }
 
-  out <- x$value |>
-    table() |>
-    tibble::as_tibble(.name_repair = function(x) c("value", "frequency")) |>
+  # `tibble::as_tibble()` can't convert a table with no values, so the columns
+  # are built by hand:
+  counts <- table(x$value)
+  out <- tibble::tibble(
+    value = as.character(names(counts)),
+    frequency = as.integer(counts)
+  ) |>
     dplyr::filter(!.data$value %in% ignore) |>
     dplyr::arrange(dplyr::desc(.data$frequency)) |>
     add_class("scrutiny_dup_count")

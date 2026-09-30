@@ -43,3 +43,13 @@ test_that("`duplicate_tally()` does not count missing values as matches", {
   out$a_n |> expect_equal(c(2L, 1L))
   out$b_n |> expect_equal(c(2L, NA))
 })
+
+
+test_that("`duplicate_detect()` and `duplicate_tally()` work without rows and on matrices", {
+  numeric(0) |> duplicate_detect() |> colnames() |> expect_equal(c("value", "value_dup"))
+  pigs4[0, ] |> duplicate_tally()  |> colnames() |> expect_equal(c("snout", "snout_n", "tail", "tail_n", "wings", "wings_n"))
+  c(1, 1, 2, 3) |>
+    matrix(nrow = 2) |>
+    duplicate_detect() |>
+    expect_equal(tibble::tibble(col1 = c("1", "1"), col1_dup = TRUE, col2 = c("2", "3"), col2_dup = FALSE), ignore_attr = "class")
+})
