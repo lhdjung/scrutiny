@@ -354,3 +354,11 @@ test_that("`sep` doesn't apply to numbers", {
     decimal_places_df(sep = ",") |>
     expect_equal(tibble::tibble(a = 1:2, b = 1:2))
 })
+
+
+# `"NA"` spells out a missing value, as `restore_zeros()` reads it, but it was
+# counted as a number with no decimal point:
+test_that("the string `\"NA\"` has `NA` decimal places", {
+  c("NA", " NA ", "1.5") |> decimal_places() |> expect_equal(c(NA, NA, 1L))
+  "NA"                   |> decimal_places_scalar() |> expect_equal(NA_integer_)
+})

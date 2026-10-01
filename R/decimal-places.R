@@ -41,7 +41,7 @@
 #'   exponent: `"5.30%"` has two decimal places, `"1e-5"` has five, and
 #'   `"1..5"` has none. The strings that [`as.numeric()`] reads as an infinity
 #'   or `NaN`, in any letter case, have `NA` decimal places, as do missing
-#'   values. The two functions always agree with each other;
+#'   values and the string `"NA"`. The two functions always agree with each other;
 #'   `decimal_places_scalar()` is the faster one, and `decimal_places()` is the
 #'   one that takes a vector.
 #'
@@ -91,7 +91,7 @@ decimal_places <- function(x, sep = ".") {
     sep <- "."
   } else {
     x <- trim_space(x)
-    non_finite <- is.na(x) | is_non_finite_token(x)
+    non_finite <- x %in% c(NA, "NA") | is_non_finite_token(x)
   }
   x[non_finite] <- ""
 
@@ -141,14 +141,14 @@ decimal_places <- function(x, sep = ".") {
 # single-case functions:
 decimal_places_scalar <- function(x, sep = ".") {
   # The three ways of having no decimal places to count -- a missing value, an
-  # infinity, and the strings that spell one. Branching on `is.character()`
+  # infinity, and the strings that spell one, `"NA"` among them. Branching on `is.character()`
   # keeps a numeric value from paying for a check only a string can fail, and
   # from being trimmed: only a string the user typed can carry whitespace.
   # `decimal_places()` must agree with this; a generated corpus in
   # test-decimal-places.R holds the two together.
   if (is.character(x)) {
     x <- trim_space(x)
-    if (is.na(x) || is_non_finite_token(x)) {
+    if (is.na(x) || x == "NA" || is_non_finite_token(x)) {
       return(NA_integer_)
     }
   } else if (is.finite(x)) {

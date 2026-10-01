@@ -44,7 +44,7 @@ first \code{sep}, after removing surrounding whitespace and applying any
 exponent: \code{"5.30\%"} has two decimal places, \code{"1e-5"} has five, and
 \code{"1..5"} has none. The strings that \code{\link[=as.numeric]{as.numeric()}} reads as an infinity
 or \code{NaN}, in any letter case, have \code{NA} decimal places, as do missing
-values. The two functions always agree with each other;
+values and the string \code{"NA"}. The two functions always agree with each other;
 \code{decimal_places_scalar()} is the faster one, and \code{decimal_places()} is the
 one that takes a vector.
 }

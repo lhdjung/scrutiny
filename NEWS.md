@@ -354,6 +354,8 @@
 
 - `*_map_seq()` functions no longer suggest `include_consistent = TRUE` when it was already set and there was still nothing to disperse from. The warning now also says how many cases could not be tested, e.g. because of a missing value.
 
+- `decimal_places()` and `decimal_places_scalar()` now return `NA` for the string `"NA"`, which `restore_zeros()` reads as a missing value, rather than `0`.
+
 ## Minor improvements
 
 - `reround_to_fraction(digits = "auto")` no longer errors with "non-numeric argument to mathematical function". The function validated `digits` as a integer before resolving `"auto"` into one, and `is.infinite("auto")` is `FALSE`, so the string went straight into `is_whole_number()`. `reround_to_fraction_level()` has always had the two steps in the right order.
