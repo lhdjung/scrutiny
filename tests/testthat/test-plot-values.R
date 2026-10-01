@@ -203,3 +203,32 @@ test_that("large `n` is not labeled in scientific notation", {
     purrr::pluck("labels", "x") |>
     expect_equal("Reported mean (n = 100000)")
 })
+
+# `plot_comb()` would fail on an `NA` from `grimmer()`, in `rep()` or `if ()`.
+# Every input that makes `grimmer()` return `NA` is rejected up front, so valid
+# input must always be drawn. A new `NA` branch in `grimmer_scalar()` without a
+# matching check in `grimmer_plot_values()` fails here:
+test_that("`grimmer_plot_values()` draws every valid input", {
+  # The edges -- an SD of zero, the smallest `n`, a mean off the scale -- with
+  # the rounding methods taking turns, since a full cross would take minutes:
+  grid <- tidyr::expand_grid(
+    x = c(0.5, 3.17),
+    sd = c(0, 1.25),
+    n = c(2, 28),
+    items = 1:2,
+    scale = c(FALSE, TRUE)
+  )
+  roundings <- c("up_or_down", "down", "even", "anti_trunc", "ties_away")
+  grid$rounding <- rep_len(roundings, nrow(grid))
+  grid |>
+    purrr::pmap(function(x, sd, n, items, scale, rounding) {
+      grimmer_plot_values(
+        x = x, sd = sd, n = n, digits_x = 2, digits_sd = 2, items = items,
+        rounding = rounding,
+        min_val = if (scale) 1, max_val = if (scale) 5
+      )
+    }) |>
+    purrr::map_lgl(ggplot2::is_ggplot) |>
+    all() |>
+    expect_true()
+})
