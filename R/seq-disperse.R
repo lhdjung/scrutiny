@@ -22,7 +22,7 @@
 #'   decimal digit. Default is `0`.
 #' @param out_min,.out_min,out_max,.out_max If specified, the dispersed values
 #'   will be restricted so that they're not below `out_min` or above `out_max`.
-#'   `from` itself is kept if `include_reported` is `TRUE`. Defaults
+#'   This includes `from` itself, even if `include_reported` is `TRUE`. Defaults
 #'   are `"auto"` for `out_min`, i.e., a minimum of one decimal unit above zero;
 #'   and `NULL` for `out_max`, i.e., no maximum.
 #'
@@ -260,6 +260,11 @@ seq_disperse <- function(
   seq_lower <- seq_lower[is_within_range_lower]
   disp_plus_represent <- dispersion[is_within_range_upper]
   seq_upper <- seq_upper[is_within_range_upper]
+
+  # The limits apply to `from` as well: a reported value outside of them is
+  # left out even if `include_reported` is `TRUE`, or the output would break
+  # the very limits it was asked to keep:
+  include_reported <- include_reported && is_within_range(from)
 
   disp_zero <- if (include_reported) {
     from

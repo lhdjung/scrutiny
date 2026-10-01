@@ -350,6 +350,8 @@
 
 - `duplicate_count()` no longer lists unused factor levels as values with a frequency of 0. `duplicate_count(iris[1:5, ])` had rows for `versicolor` and `virginica`, with no locations.
 
+- `seq_disperse()` and `seq_disperse_df()` now apply `out_min` and `out_max` to `from` itself. With `include_reported = TRUE`, the default, `seq_disperse(30, out_max = 25)` returned `"25" "30"`, breaking the limit it was given. A reported value outside of the limits is now left out, as any other value is; around `0`, the default `out_min = "auto"` therefore drops it, and `out_min = NULL` keeps it.
+
 ## Minor improvements
 
 - `reround_to_fraction(digits = "auto")` no longer errors with "non-numeric argument to mathematical function". The function validated `digits` as a integer before resolving `"auto"` into one, and `is.infinite("auto")` is `FALSE`, so the string went straight into `is_whole_number()`. `reround_to_fraction_level()` has always had the two steps in the right order.

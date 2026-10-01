@@ -166,6 +166,15 @@ test_that("both limits apply to both sides of the sequence", {
 })
 
 
+test_that("the limits apply to `from` itself", {
+  30 |> seq_disperse(out_max = 25)                    |> expect_equal("25")
+  30 |> seq_disperse(out_max = 30)                    |> expect_equal(as.character(25:30))
+  0  |> seq_disperse(dispersion = 1:2)                |> expect_equal(c("1", "2"))
+  0  |> seq_disperse(dispersion = 1:2, out_min = NULL) |> expect_equal(as.character(-2:2))
+  30 |> seq_disperse(out_max = 25, track_diff_var = TRUE) |> expect_equal(list("25", -5L))
+})
+
+
 test_that("`seq_disperse()` checks `dispersion` and the limits", {
   # A fractional step used to be taken and then padded off the decimal level:
   4 |> seq_disperse(dispersion = 1.5) |> expect_error("whole numbers")
