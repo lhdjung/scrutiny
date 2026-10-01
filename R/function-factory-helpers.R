@@ -588,9 +588,6 @@ capture_key_args <- function(data, quos) {
 #' otherwise be passed on to the function that is mapped within the factory-made
 #' function.
 #'
-#' on the use of the certain arguments of the function applied by the
-#' factory-made function.
-#'
 #' @param args_disabled String. One or more names of arguments of the function
 #'   applied within the factory-made function.
 #'
@@ -616,11 +613,6 @@ check_args_disabled <- function(args_disabled) {
   offenders <- args_disabled[args_disabled %in% names_dots]
   if (length(offenders) > 0L) {
     fun_name <- name_caller_call(n = 2L)
-    fun_name_bare <- name_caller_call(wrap = FALSE)
-    fun_name_bare <- as.character(fun_name_bare)
-    package_name <- utils::getAnywhere(fun_name_bare)$where
-    package_name <- as.character(package_name[1L])
-    package_name <- sub("package:", "", package_name)
     if (length(offenders) > 3L) {
       offenders <- offenders[1:3]
       msg_among_others <- ", among others"
@@ -638,13 +630,10 @@ check_args_disabled <- function(args_disabled) {
     cli::cli_abort(c(
       "{msg_arg_s} {offenders} {msg_is_are} \\
           disabled in {fun_name}{msg_among_others}.",
-      "i" = "This is by design. When {fun_name} was created \\
-          within {package_name} using `scrutiny::function_map()`, \\
-          this function factory's `.args_disabled` argument was \\
-          specified so as to include {offenders}.",
-      "i" = "The purpose is to prevent hidden errors that \\
-          might otherwise arise due to certain arguments not \\
-          working properly within `scrutiny::function_map()`."
+      "i" = "This is by design: the function factory that created it \\
+          was given {offenders} in its `.args_disabled` argument, \\
+          because {cli::qty(offenders)}{?it/they} would not work properly \\
+          inside of the manufactured function."
     ))
   }
 }

@@ -23,9 +23,6 @@ specified one or more arguments which the user of the function factory had
 disabled via the latter's \code{.args_disabled} argument. The arguments would
 otherwise be passed on to the function that is mapped within the factory-made
 function.
-
-on the use of the certain arguments of the function applied by the
-factory-made function.
 }
 \examples{
 check_args_disabled(c("disabled1", "disabled2"))
