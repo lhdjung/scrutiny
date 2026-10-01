@@ -135,3 +135,12 @@ test_that("splitting never overwrites an existing column", {
   tibble::tibble(exp = c("1.5 (0.2)", "2 (0.5)"), exp_sd = c("3 (0.1)", "4 (0.3)")) |> split_by_parens() |> expect_error("`exp_sd` is already")
   tibble::tibble(a = "1 (2)") |> split_by_parens(end1 = "z", end2 = "z") |> expect_error("must be different")
 })
+
+
+# On 0 rows, `check_sep = TRUE` warned and returned the input unsplit, while
+# `check_sep = FALSE` split it, and warned that it couldn't:
+test_that("0-row character columns are split either way, without a warning", {
+  empty <- tibble::tibble(a = character(0))
+  empty |> split_by_parens()                  |> colnames() |> expect_equal(c("a_x", "a_sd")) |> expect_no_warning()
+  empty |> split_by_parens(check_sep = FALSE) |> colnames() |> expect_equal(c("a_x", "a_sd")) |> expect_no_warning()
+})

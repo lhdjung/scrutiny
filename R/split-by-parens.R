@@ -133,10 +133,16 @@ split_by_parens <- function(
 
   # Determine which columns have suitable values with regards to the `sep`
   # elements and capture their names. A column qualifies if every non-missing
-  # value has an opening `sep` element followed by a closing one:
+  # value has an opening `sep` element followed by a closing one. With no rows
+  # at all, nothing speaks against splitting a character column, and splitting
+  # it gives the output the same shape as for any other data:
+  data_is_empty <- nrow(data) == 0L
   names_of_cols_with_seps <- data |>
     dplyr::select(
       function(x) {
+        if (data_is_empty) {
+          return(is.character(x))
+        }
         x <- x[!is.na(x)]
         seps <- translate_length1_sep_keywords(sep)
         after_open <- stringr::str_split_fixed(
