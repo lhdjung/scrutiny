@@ -1625,3 +1625,13 @@ test_that("undecidable cases are skipped with `include_consistent = TRUE`", {
   out$case |> unique() |> expect_equal(3L)
   out$n    |> anyNA()  |> expect_false()
 })
+
+
+# The warning suggested `include_consistent = TRUE` even when it was set, and
+# said nothing about the cases that could not be tested:
+test_that("the no-cases warning fits the call", {
+  undecidable <- tibble::tibble(x = 5.19, n = NA_integer_)
+  undecidable |> grim_map_seq(digits_x = 2, include_consistent = TRUE) |> expect_warning("No cases to disperse from")
+  undecidable |> grim_map_seq(digits_x = 2, include_consistent = TRUE) |> expect_warning("1 case could not be tested")
+  undecidable |> grim_map_seq(digits_x = 2)                            |> expect_warning("Try `include_consistent")
+})

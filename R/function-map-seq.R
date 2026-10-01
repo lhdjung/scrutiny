@@ -516,9 +516,20 @@ function_map_seq <- function(
         # an R session. An app that wants its own wording should catch the
         # condition and rephrase it:
         msg_setting <- "`include_consistent = TRUE`"
+        n_undecidable <- sum(is.na(results))
         cli::cli_warn(c(
-          "!" = "No inconsistent cases to disperse from.",
-          "i" = "Try {msg_setting} to disperse from consistent cases, as well."
+          "!" = if (include_consistent) {
+            "No cases to disperse from."
+          } else {
+            "No inconsistent cases to disperse from."
+          },
+          "x" = if (n_undecidable > 0L) {
+            "{n_undecidable} case{?s} could not be tested, e.g. for a \\
+            missing value."
+          },
+          "i" = if (!include_consistent) {
+            "Try {msg_setting} to disperse from consistent cases, as well."
+          }
         ))
         # The output still has the columns, classes, and attribute of any other,
         # so that functions downstream such as `audit_seq()` accept it:
