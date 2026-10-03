@@ -44,12 +44,12 @@ check_scale_bounds <- function(min_val, max_val) {
   if (is.null(min_val) || is.null(max_val)) {
     name_missing <- if (is.null(min_val)) "min_val" else "max_val"
     name_given <- if (is.null(min_val)) "max_val" else "min_val"
-    cli::cli_abort(c(
+    abort_in_export(
       "`min_val` and `max_val` must be specified together.",
       "x" = "`{name_given}` was specified, but `{name_missing}` was not.",
       "i" = "A single bound doesn't limit how far the values can spread out \\
       around their mean, so it says nothing about the standard deviation."
-    ))
+    )
   }
 
   check_type(min_val, c("double", "integer"))
@@ -58,19 +58,19 @@ check_scale_bounds <- function(min_val, max_val) {
   check_length(max_val, 1L)
 
   if (!is_whole_number(min_val) || !is_whole_number(max_val)) {
-    cli::cli_abort(c(
+    abort_in_export(
       "`min_val` and `max_val` must be whole numbers.",
       "x" = "They are {min_val} and {max_val}.",
       "i" = "GRIMMER assumes that the individual values are whole numbers, \\
       so the bounds of the scale they were measured on are, as well."
-    ))
+    )
   }
 
   if (min_val >= max_val) {
-    cli::cli_abort(c(
+    abort_in_export(
       "`max_val` must be greater than `min_val`.",
       "x" = "`min_val` is {min_val} and `max_val` is {max_val}."
-    ))
+    )
   }
 
   TRUE

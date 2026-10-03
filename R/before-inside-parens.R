@@ -2,10 +2,10 @@
 
 check_length_parens_sep <- function(sep) {
   if (!any(length(sep) == c(1L, 2L))) {
-    cli::cli_abort(c(
+    abort_in_export(
       "!" = "`sep` must have length 1 or 2.",
       "x" = "It has length {length(sep)}: {wrap_in_backticks(sep)}."
-    ))
+    )
   }
 }
 
@@ -40,13 +40,13 @@ translate_length1_sep_keywords <- function(sep) {
   } else if (any(sep == c("braces", "{", "\\{"))) {
     c("{", "}")
   } else {
-    cli::cli_abort(c(
+    abort_in_export(
       "!" = "`sep` must be either \"parens\", \"brackets\", or \\
         \"braces\"; or \"(\", \"[\", or \"{{\".",
       "x" = "It was given as {wrap_in_quotes_or_backticks(sep)}.",
       "i" = "Alternatively, choose two custom separators; e.g., \\
         `sep = c(\"<\", \">\")` for strings such as \"2.65 <0.27>\"."
-    ))
+    )
   }
 }
 

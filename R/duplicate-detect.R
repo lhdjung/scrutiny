@@ -39,10 +39,10 @@ function_duplicate_cols <- function(code_new_cols, default_end, name_class) {
     body = rlang::expr({
       # Type checking:
       if (!rlang::is_vector(x)) {
-        cli::cli_abort(c(
+        abort_in_export(
           "`x` must be a data frame or other type of vector.",
           "x" = paste0("It is ", an_a_type(x), ".")
-        ))
+        )
       }
 
       # Convert `x` to a data frame if needed:

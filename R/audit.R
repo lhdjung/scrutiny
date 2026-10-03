@@ -330,13 +330,13 @@ find_fun_by_name <- function(name, env) {
   }
 
   if (is.null(fun)) {
-    cli::cli_abort(c(
+    abort_in_export(
       "Can't find the function `{name}()`.",
       "x" = "`data` has the {.cls scrutiny_{name}} class, so it should have \\
       been created by `{name}()`.",
       "i" = "Make sure `{name}()` can be found from where you call \\
       `audit_seq()`."
-    ))
+    )
   }
 
   fun

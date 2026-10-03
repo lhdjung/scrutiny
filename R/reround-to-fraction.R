@@ -14,13 +14,10 @@ resolve_digits_fraction <- function(digits, denominator) {
   # as "don't round":
   digits_finite <- digits[is.finite(digits)]
   if (!all(is_whole_number(digits_finite))) {
-    cli::cli_abort(
-      c(
-        "!" = "Each `digits` value must be a whole number.",
-        "x" = "`digits` was given as \\
+    abort_in_export(
+      "!" = "Each `digits` value must be a whole number.",
+      "x" = "`digits` was given as \\
         {digits_finite[!is_whole_number(digits_finite)]}."
-      ),
-      call = rlang::caller_env()
     )
   }
 
@@ -263,13 +260,10 @@ reround_to_fraction_level <- function(
 check_denominator <- function(denominator) {
   wrong <- (denominator < 1 | is.infinite(denominator)) %in% TRUE
   if (any(wrong)) {
-    cli::cli_abort(
-      c(
-        "!" = "`denominator` must be a finite number of 1 or greater.",
-        "x" = "It has {cli::qty(sum(wrong))}value{?s} \\
+    abort_in_export(
+      "!" = "`denominator` must be a finite number of 1 or greater.",
+      "x" = "It has {cli::qty(sum(wrong))}value{?s} \\
         {wrap_in_backticks(denominator[wrong])}."
-      ),
-      call = rlang::caller_env()
     )
   }
 }

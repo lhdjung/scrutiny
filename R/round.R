@@ -266,12 +266,9 @@ round_down <- function(x, digits = 0L, symmetric = FALSE) {
 # Shared by `check_rounding_spec_singular()`, which `reround()` goes through,
 # and the exported rounding functions, which don't. Each tests `symmetric`
 # inline, since this runs once per candidate value.
-abort_symmetric_invalid <- function(symmetric, call = rlang::caller_env()) {
-  cli::cli_abort(
-    c(
-      "`symmetric` must be `TRUE` or `FALSE`.",
-      "x" = "It is {.obj_type_friendly {symmetric}}."
-    ),
-    call = call
+abort_symmetric_invalid <- function(symmetric) {
+  abort_in_export(
+    "`symmetric` must be `TRUE` or `FALSE`.",
+    "x" = "It is {.obj_type_friendly {symmetric}}."
   )
 }

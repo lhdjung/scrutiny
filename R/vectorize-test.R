@@ -39,11 +39,8 @@ vectorize_test <- function(fun, frame, along) {
   formals_wrapper <- formals(fn_wrapper)
   args_all <- names(formals_wrapper)
 
-  # The call the user typed, e.g. `grim(x = 5.19, n = 28)`. Errors below are
-  # attributed to it, not to the present helper, which the user has no way of
-  # knowing about:
-  call_wrapper <- sys.call(index_wrapper)
-  name_wrapper <- fn_name_from_call(call_wrapper)
+  # The name the wrapper was called under, e.g. `grim`
+  name_wrapper <- fn_name_from_call(sys.call(index_wrapper))
 
   # Arguments the caller left out are not forwarded at all, so `fun` applies its
   # own defaults -- the same ones the wrapper states -- and raises its own error
@@ -82,17 +79,14 @@ vectorize_test <- function(fun, frame, along) {
     # `NULL` is a value some of them take: GRIMMER's `min_val` and `max_val`
     # are `NULL` for an unbounded scale.
     if (!is.null(value) && length(value) != 1L) {
-      name_mapper <- paste0(name_wrapper, "_map")
-      cli::cli_abort(
-        c(
-          "{.arg {name}} must be length 1, not {length(value)}.",
-          "x" = "It describes the test as a whole, so it cannot vary from \\
-          one value set to the next.",
-          "i" = "Only {.arg {along}} are vectorized.",
-          "i" = "To test value sets that differ in {.arg {name}}, call \\
-          {.fun {name_mapper}} once for each of its values."
-        ),
-        call = call_wrapper
+      name_mapper <- paste0(name_last_export(), "_map")
+      abort_in_export(
+        "{.arg {name}} must be length 1, not {length(value)}.",
+        "x" = "It describes the test as a whole, so it cannot vary from \\
+        one value set to the next.",
+        "i" = "Only {.arg {along}} are vectorized.",
+        "i" = "To test value sets that differ in {.arg {name}}, call \\
+        {.fun {name_mapper}} once for each of its values."
       )
     }
   }
@@ -107,11 +101,7 @@ vectorize_test <- function(fun, frame, along) {
   }
 
   lengths_along <- lengths(vals[names_along])
-  length_out <- recycle_length_common(
-    lengths_along,
-    names_along,
-    call = call_wrapper
-  )
+  length_out <- recycle_length_common(lengths_along, names_along)
 
   if (length_out == 0L) {
     return(logical(0L))
@@ -210,12 +200,11 @@ cache_missing_arg_calls <- new.env(parent = emptyenv())
 #'
 #' @param lengths_args Integer vector of argument lengths.
 #' @param names_args String vector of the corresponding argument names.
-#' @param call The call to attribute an error to.
 #'
 #' @return Integer (length 1).
 #'
 #' @noRd
-recycle_length_common <- function(lengths_args, names_args, call = NULL) {
+recycle_length_common <- function(lengths_args, names_args) {
   lengths_free <- lengths_args[lengths_args != 1L]
 
   if (length(lengths_free) == 0L) {
@@ -228,14 +217,11 @@ recycle_length_common <- function(lengths_args, names_args, call = NULL) {
   if (any(is_offender)) {
     name_first <- names_args[lengths_args == length_out][1L]
     names_offenders <- names_args[is_offender]
-    cli::cli_abort(
-      c(
-        "Can't recycle {.arg {name_first}} (length {length_out}) to match \\
-        {.arg {names_offenders}} (length {lengths_args[is_offender]}).",
-        "i" = "Arguments that are tested for consistency with each other \\
-        must have the same length, or length 1."
-      ),
-      call = call
+    abort_in_export(
+      "Can't recycle {.arg {name_first}} (length {length_out}) to match \\
+      {.arg {names_offenders}} (length {lengths_args[is_offender]}).",
+      "i" = "Arguments that are tested for consistency with each other \\
+      must have the same length, or length 1."
     )
   }
 

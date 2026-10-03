@@ -208,12 +208,9 @@ seq_disperse <- function(
       } else {
         "It is {wrong_spec_string(limit)}."
       }
-      cli::cli_abort(
-        c(
-          "`{name}` must be a single number{msg_auto} or `NULL`.",
-          "x" = msg_is
-        ),
-        call = rlang::caller_env()
+      abort_in_export(
+        "`{name}` must be a single number{msg_auto} or `NULL`.",
+        "x" = msg_is
       )
     }
     limit_num

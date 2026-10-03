@@ -190,12 +190,12 @@ is_whole_number <- function(x, tolerance = WHOLE_NUMBER_TOLERANCE) {
 check_enumeration_size <- function(bounds, n, digits_x, limit = 1e6) {
   size <- bounds[2L] - bounds[1L] + 1
   if (isTRUE(size > limit)) {
-    cli::cli_abort(c(
+    abort_in_export(
       "`n` is too large for GRIMMER.",
       "x" = "With `n = {n}` and `digits_x = {digits_x}`, the mean admits \
       {round(size)} integer sums, and GRIMMER checks each of them.",
       "i" = "The limit is {limit}."
-    ))
+    )
   }
 }
 
@@ -321,16 +321,13 @@ recycle_digits <- function(digits, n_rows, name_digits_arg) {
   } else if (length(digits) == n_rows) {
     digits
   } else {
-    cli::cli_abort(
-      message = c(
-        "`{name_digits_arg}` must have length 1 or the number of rows \\
+    abort_in_export(
+      "`{name_digits_arg}` must have length 1 or the number of rows \\
       in `data`.",
-        "x" = "It has length {length(digits)}, but `data` has \\
+      "x" = "It has length {length(digits)}, but `data` has \\
       {n_rows} row{?s}.",
-        "i" = "Use a single number if all values in the column were reported \\
+      "i" = "Use a single number if all values in the column were reported \\
       with the same number of decimal places."
-      ),
-      call = rlang::caller_env()
     )
   }
 }
@@ -707,7 +704,7 @@ check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
       }
 
       # Throw error:
-      cli::cli_abort(msg_error, call = rlang::caller_env())
+      abort_in_export(msg_error)
     }
 
     # Warning condition, triggered if more than one element of `var_list` has
@@ -774,12 +771,9 @@ check_length <- function(x, l, allow_null = FALSE) {
       NULL
     }
 
-    cli::cli_abort(
-      message = c(
-        "!" = "`{name}` must have length {l}{null_qualifier}.",
-        "x" = "It has length {length(x)}."
-      ),
-      call = rlang::caller_env()
+    abort_in_export(
+      "!" = "`{name}` must have length {l}{null_qualifier}.",
+      "x" = "It has length {length(x)}."
     )
   }
 }
@@ -806,12 +800,9 @@ check_type <- function(x, t) {
       msg_object <- "be one of these types:"
     }
 
-    cli::cli_abort(
-      message = c(
-        "!" = "`{msg_name}` must {msg_object} {t}.",
-        "x" = "It is {an_a_type(x)}."
-      ),
-      call = rlang::caller_env()
+    abort_in_export(
+      "!" = "`{msg_name}` must {msg_object} {t}.",
+      "x" = "It is {an_a_type(x)}."
     )
   }
 }
@@ -833,12 +824,9 @@ check_class <- function(x, cl) {
   if (!inherits(x, cl)) {
     msg_name <- deparse(substitute(x))
 
-    cli::cli_abort(
-      message = c(
-        "!" = "`{msg_name}` must inherit class \"{cl}\".",
-        "x" = "It doesn't."
-      ),
-      call = rlang::caller_env()
+    abort_in_export(
+      "!" = "`{msg_name}` must inherit class \"{cl}\".",
+      "x" = "It doesn't."
     )
   }
 }
@@ -870,9 +858,9 @@ check_tibble <- function(data) {
     c("x" = "It is {.obj_type_friendly {data}}.")
   }
 
-  cli::cli_abort(
-    message = c("!" = "`data` must be a tibble.", msg_what_it_is),
-    call = rlang::caller_env()
+  abort_in_export(
+    "!" = "`data` must be a tibble.",
+    msg_what_it_is
   )
 }
 
@@ -917,12 +905,9 @@ check_tibble <- function(data) {
 #' @noRd
 check_digits_whole <- function(digits, name = "digits") {
   if (!is.numeric(digits) && !(is.logical(digits) && all(is.na(digits)))) {
-    cli::cli_abort(
-      message = c(
-        "`{name}` must be whole numbers.",
-        "x" = "It is {.obj_type_friendly {digits}}."
-      ),
-      call = rlang::caller_env()
+    abort_in_export(
+      "`{name}` must be whole numbers.",
+      "x" = "It is {.obj_type_friendly {digits}}."
     )
   }
 
@@ -949,28 +934,22 @@ check_digits_whole <- function(digits, name = "digits") {
   ]
 
   if (length(not_whole) > 0L) {
-    cli::cli_abort(
-      message = c(
-        "`{name}` must be whole numbers.",
-        "x" = "It has {length(not_whole)} value{?s} that {?is/are} not: \\
+    abort_in_export(
+      "`{name}` must be whole numbers.",
+      "x" = "It has {length(not_whole)} value{?s} that {?is/are} not: \\
         {not_whole}.",
-        "i" = "Each value is a number of decimal places, so a fractional one \\
+      "i" = "Each value is a number of decimal places, so a fractional one \\
         would scale `x` by a non-power of ten and return a number on no \\
         decimal grid."
-      ),
-      call = rlang::caller_env()
     )
   }
 
-  cli::cli_abort(
-    message = c(
-      "`{name}` must be between -308 and 308.",
-      "x" = "It has {length(offenders)} value{?s} that {?is/are} not: \\
+  abort_in_export(
+    "`{name}` must be between -308 and 308.",
+    "x" = "It has {length(offenders)} value{?s} that {?is/are} not: \\
       {offenders}.",
-      "i" = "Beyond that, `10^digits` is not a finite, non-zero number, so \\
+    "i" = "Beyond that, `10^digits` is not a finite, non-zero number, so \\
       `x` could not be scaled by it."
-    ),
-    call = rlang::caller_env()
   )
 }
 
@@ -1013,17 +992,14 @@ check_threshold_valid <- function(threshold) {
     } else {
       "It is {.obj_type_friendly {threshold}}."
     }
-    cli::cli_abort(
-      message = c(
-        "`threshold` must be a single number greater than 0 and less than 10.",
-        "x" = msg_what_it_is,
-        "i" = "It is the point within a step at which rounding switches \\
+    abort_in_export(
+      "`threshold` must be a single number greater than 0 and less than 10.",
+      "x" = msg_what_it_is,
+      "i" = "It is the point within a step at which rounding switches \\
         direction, so both directions have to remain possible.",
-        "i" = "With `rounding` set to \"up_from\", \"down_from\", or \\
+      "i" = "With `rounding` set to \"up_from\", \"down_from\", or \\
         \"up_from_or_down_from\", `x` is rounded up or down from `threshold` \\
         instead of from 5."
-      ),
-      call = rlang::caller_env()
     )
   }
 }
@@ -1048,12 +1024,9 @@ split_into_groups <- function(x, group_size) {
 
   if (remainder != 0L) {
     if (!is_whole_number(group_size)) {
-      cli::cli_abort(
-        message = c(
-          "!" = "`group_size` must be a whole number.",
-          "x" = "It is `{group_size}`."
-        ),
-        call = rlang::caller_env()
+      abort_in_export(
+        "!" = "`group_size` must be a whole number.",
+        "x" = "It is `{group_size}`."
       )
     }
     name_x <- deparse(substitute(x))
@@ -1144,12 +1117,9 @@ manage_string_output_seq <- function(out, from, string_output, digits) {
     } else {
       string_output <- paste0("`", string_output, "`")
     }
-    cli::cli_abort(
-      message = c(
-        "!" = "`string_output` must be logical or \"auto\".",
-        "x" = "It is {string_output}."
-      ),
-      call = rlang::caller_env()
+    abort_in_export(
+      "!" = "`string_output` must be logical or \"auto\".",
+      "x" = "It is {string_output}."
     )
   } else if (string_output) {
     return(restore_zeros(out, width = digits))
@@ -1218,12 +1188,9 @@ check_positive <- function(x) {
   offenders <- x[which(x <= 0)]
   if (length(offenders) > 0L) {
     name <- deparse(substitute(x))
-    cli::cli_abort(
-      message = c(
-        "!" = "`{name}` must be positive.",
-        "x" = "It contains {wrap_in_backticks(utils::head(offenders, 3L))}."
-      ),
-      call = rlang::caller_env()
+    abort_in_export(
+      "!" = "`{name}` must be positive.",
+      "x" = "It contains {wrap_in_backticks(utils::head(offenders, 3L))}."
     )
   }
 }
@@ -1243,12 +1210,9 @@ check_non_negative <- function(x) {
     offenders <- paste0("`", offenders, "`")
     name <- deparse(substitute(x))
 
-    cli::cli_abort(
-      message = c(
-        "!" = "`{name}` can't be negative.",
-        "x" = "It contains {offenders}{msg_among_others}."
-      ),
-      call = rlang::caller_env()
+    abort_in_export(
+      "!" = "`{name}` can't be negative.",
+      "x" = "It contains {offenders}{msg_among_others}."
     )
   }
 }
@@ -1295,13 +1259,10 @@ check_length_disperse_n <- function(n, msg_single) {
       )
     }
 
-    cli::cli_abort(
-      message = c(
-        "`n` has length {length(n)}.",
-        "x" = msg_single,
-        "i" = "See documentation under `?disperse`."
-      ),
-      call = rlang::caller_env()
+    abort_in_export(
+      "`n` has length {length(n)}.",
+      "x" = msg_single,
+      "i" = "See documentation under `?disperse`."
     )
   }
 }
@@ -1332,22 +1293,16 @@ check_type_numeric_like <- function(x) {
         msg_elements <- "elements"
       }
 
-      cli::cli_abort(
-        message = c(
-          "!" = "`{name}` must be numeric or coercible to numeric.",
-          "i" = "(This means that converting it to numeric \\
+      abort_in_export(
+        "!" = "`{name}` must be numeric or coercible to numeric.",
+        "i" = "(This means that converting it to numeric \\
         must return {msg_values} for its {length_non_na} \\
         non-`NA` {msg_elements}.)"
-        ),
-        call = rlang::caller_env()
       )
     } else {
-      cli::cli_abort(
-        message = c(
-          "!" = "`{name}` must be numeric or coercible to numeric.",
-          "x" = "It is {an_a_type(x)}."
-        ),
-        call = rlang::caller_env()
+      abort_in_export(
+        "!" = "`{name}` must be numeric or coercible to numeric.",
+        "x" = "It is {an_a_type(x)}."
       )
     }
   }
@@ -1389,10 +1344,10 @@ index_case_from_diff <- function(x, diff_var, by = NULL) {
       sort() |>
       diff()
     if (length(steps) == 0L) {
-      cli::cli_abort(c(
+      abort_in_export(
         "Can't recover the reported value from a single dispersed value.",
         "i" = "The step size is not deducible from one value alone."
-      ))
+      )
     }
     by <- min(steps)
   }
@@ -1408,14 +1363,14 @@ index_case_from_diff <- function(x, diff_var, by = NULL) {
   # by a linear dispersion around one value, and there is no reported value to
   # recover -- better to say so than to return one of the candidates:
   if (!all(dplyr::near(candidates, candidates[[1L]]))) {
-    cli::cli_abort(c(
+    abort_in_export(
       "Can't recover the reported value: the dispersed values disagree \\
       about it.",
       "x" = "They imply {length(unique(candidates))} different values, \\
       starting with {utils::head(unique(candidates), 3L)}.",
       "i" = "Was this data frame subset or reordered after \\
       `*_map_seq()` returned it?"
-    ))
+    )
   }
 
   methods::as(candidates[[1L]], typeof(x))
@@ -1482,14 +1437,11 @@ check_new_args_without_dots <- function(data, dots, old_args, name_fn) {
         stringr::str_flatten(", ") |>
         call_on(\(x) paste0("c(", x, ")"))
     }
-    cli::cli_abort(
-      message = c(
-        "!" = "`{name_fn}()` no longer uses the dots, `...`, \\
+    abort_in_export(
+      "!" = "`{name_fn}()` no longer uses the dots, `...`, \\
       for column selection.",
-        "i" = "Use the `cols` argument instead, like `cols = {msg_cols}`.",
-        "*" = "Apologies for the inconvenience."
-      ),
-      call = rlang::caller_env()
+      "i" = "Use the `cols` argument instead, like `cols = {msg_cols}`.",
+      "*" = "Apologies for the inconvenience."
     )
   }
 
@@ -1519,13 +1471,10 @@ check_new_args_without_dots <- function(data, dots, old_args, name_fn) {
     }
     msg_new_args <- wrap_in_backticks(msg_new_args)
     offenders2 <- wrap_in_backticks(offenders2)
-    cli::cli_abort(
-      message = c(
-        "!" = "In `{name_fn}()`, {offenders2} {msg_was_were} \\
+    abort_in_export(
+      "!" = "In `{name_fn}()`, {offenders2} {msg_was_were} \\
         renamed to {msg_new_args} (without {msg_dot_dots}).{msg_switch_end}",
-        "*" = "Apologies for the inconvenience."
-      ),
-      call = rlang::caller_env()
+      "*" = "Apologies for the inconvenience."
     )
   }
 
@@ -1545,14 +1494,11 @@ check_new_args_without_dots <- function(data, dots, old_args, name_fn) {
       msg_new_args <- stringr::str_replace(offenders3, "col", "end")
       msg_new_args <- wrap_in_backticks(msg_new_args)
       offenders3 <- wrap_in_backticks(offenders3)
-      cli::cli_abort(
-        message = c(
-          "!" = "{offenders3} {msg_no_args} of `{name_fn}()`.",
-          "i" = "You're right not to use {msg_offenders_old} anymore \\
+      abort_in_export(
+        "!" = "{offenders3} {msg_no_args} of `{name_fn}()`.",
+        "i" = "You're right not to use {msg_offenders_old} anymore \\
           ({msg_dot_dots}), but also note that it says {msg_new_args} now.",
-          "*" = "Apologies for the inconvenience."
-        ),
-        call = rlang::caller_env()
+        "*" = "Apologies for the inconvenience."
       )
     }
   }
@@ -1760,17 +1706,14 @@ check_rounding_spec_singular <- function(rounding, threshold, symmetric) {
       length(threshold) != 1L ||
       length(symmetric) != 1L
   ) {
-    cli::cli_abort(
-      c(
-        "`rounding`, `threshold`, and `symmetric` must each have length 1.",
-        "x" = "They have lengths {length(rounding)}, {length(threshold)}, \\
+    abort_in_export(
+      "`rounding`, `threshold`, and `symmetric` must each have length 1.",
+      "x" = "They have lengths {length(rounding)}, {length(threshold)}, \\
         and {length(symmetric)}.",
-        "i" = "They describe a single rounding procedure, which is then \\
+      "i" = "They describe a single rounding procedure, which is then \\
         applied to all values.",
-        "i" = "To compare procedures, test once per procedure. `unround()` \\
+      "i" = "To compare procedures, test once per procedure. `unround()` \\
         is vectorized over `rounding` if you need the bounds."
-      ),
-      call = rlang::caller_env()
     )
   }
 
@@ -1782,19 +1725,16 @@ check_rounding_spec_singular <- function(rounding, threshold, symmetric) {
   # `symmetric` that is `NA` or not logical at all, failed further down in an
   # `if ()` with base R's message and no hint of which argument was at fault.
   if (!is.character(rounding) || is.na(rounding)) {
-    cli::cli_abort(
-      c(
-        "`rounding` must be a string.",
-        "x" = "It is {.obj_type_friendly {rounding}}.",
-        "i" = "See `vignette(\"rounding-options\")` for the strings it \\
+    abort_in_export(
+      "`rounding` must be a string.",
+      "x" = "It is {.obj_type_friendly {rounding}}.",
+      "i" = "See `vignette(\"rounding-options\")` for the strings it \\
         can take."
-      ),
-      call = rlang::caller_env()
     )
   }
 
   if (!is.logical(symmetric) || is.na(symmetric)) {
-    abort_symmetric_invalid(symmetric, call = rlang::caller_env())
+    abort_symmetric_invalid(symmetric)
   }
 }
 
@@ -1832,15 +1772,12 @@ resolve_ties_rounding <- function(rounding, symmetric) {
         no tie direction left to set. Drop `symmetric`.",
       "Drop `symmetric`."
     )
-    cli::cli_abort(
-      message = c(
-        "`symmetric` must not be given with `rounding = \"{rounding}\"`.",
-        "x" = "It is {symmetric}.",
-        "i" = "A \"ties_*\" string names a complete tie-breaking procedure, \\
+    abort_in_export(
+      "`symmetric` must not be given with `rounding = \"{rounding}\"`.",
+      "x" = "It is {symmetric}.",
+      "i" = "A \"ties_*\" string names a complete tie-breaking procedure, \\
         so it already determines which way ties go for negative numbers.",
-        "i" = msg_instead
-      ),
-      call = rlang::caller_env()
+      "i" = msg_instead
     )
   }
 
@@ -1883,13 +1820,10 @@ audit_summary_stats <- function(data, selection, total = FALSE) {
   selection <- rlang::enexprs(selection)
 
   if (total && any(".total" == colnames(data))) {
-    cli::cli_abort(
-      message = c(
-        "`.total` can't be a column name.",
-        "!" = "Please rename the `.total` column, then try again.",
-        "i" = "You could use `dplyr::rename()` for this."
-      ),
-      call = rlang::caller_env()
+    abort_in_export(
+      "`.total` can't be a column name.",
+      "!" = "Please rename the `.total` column, then try again.",
+      "i" = "You could use `dplyr::rename()` for this."
     )
   }
 
@@ -2005,33 +1939,33 @@ check_var_bounds <- function(var_bounds) {
   }
 
   if (!is.list(var_bounds) || is.null(names(var_bounds))) {
-    cli::cli_abort(c(
+    abort_in_export(
       "`.var_bounds` must be a named list.",
       "x" = "It is {an_a_type(var_bounds)}.",
       "i" = "Name each element after a reported variable, e.g. \\
       `list(n = c(1, NA), sd = c(0, NA))`."
-    ))
+    )
   }
 
   for (name in names(var_bounds)) {
     bounds <- var_bounds[[name]]
     if (!is.numeric(bounds) || length(bounds) != 2L) {
-      cli::cli_abort(c(
+      abort_in_export(
         "`.var_bounds${name}` must be a numeric vector of length 2.",
         "i" = "It states the least and the greatest value that `{name}` can \\
         take, with `NA` for an unbounded side."
-      ))
+      )
     }
     if (
       !is.na(bounds[[1L]]) &&
         !is.na(bounds[[2L]]) &&
         bounds[[1L]] > bounds[[2L]]
     ) {
-      cli::cli_abort(c(
+      abort_in_export(
         "`.var_bounds${name}` has its bounds the wrong way round.",
         "x" = "The minimum, {bounds[[1L]]}, is greater than the maximum, \\
         {bounds[[2L]]}."
-      ))
+      )
     }
   }
 
@@ -2062,14 +1996,11 @@ check_dispersion_linear <- function(data, name_fun) {
       call_on(\(x) x[x != "scrutiny_map_seq"]) |>
       sub(pattern = "scrutiny_*", replacement = "")
 
-    cli::cli_abort(
-      message = c(
-        "Invalid for data with this dispersion.",
-        "!" = "`{name_fun}()` is only applicable if `dispersion` \\
+    abort_in_export(
+      "Invalid for data with this dispersion.",
+      "!" = "`{name_fun}()` is only applicable if `dispersion` \\
       in `{name_mapper}()` is a linearly increasing sequence.",
-        "i" = "This limitation may be removed in a future version of scrutiny."
-      ),
-      call = rlang::caller_env()
+      "i" = "This limitation may be removed in a future version of scrutiny."
     )
   }
 }

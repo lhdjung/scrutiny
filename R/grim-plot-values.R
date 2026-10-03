@@ -271,22 +271,14 @@ comb_values <- function(from, to, digits) {
 # reject them, and an undecidable case has nothing to draw. The length checks
 # stay in the plot functions themselves, so that the error names the function
 # the user called.
-check_decidable_n_items <- function(
-  n,
-  items,
-  min_n,
-  call = rlang::caller_env()
-) {
+check_decidable_n_items <- function(n, items, min_n) {
   if (!is_decidable_n_items(n, items, min_n = min_n)) {
-    cli::cli_abort(
-      c(
-        "`n` and `items` must be positive whole numbers, and `n` must be \\
+    abort_in_export(
+      "`n` and `items` must be positive whole numbers, and `n` must be \\
       at least {min_n}.",
-        "x" = "`n` is {n} and `items` is {items}.",
-        "i" = "The test cannot be decided otherwise, so there is nothing to \\
+      "x" = "`n` is {n} and `items` is {items}.",
+      "i" = "The test cannot be decided otherwise, so there is nothing to \\
       draw."
-      ),
-      call = call
     )
   }
 }
@@ -297,24 +289,18 @@ check_decidable_n_items <- function(
 # a single non-negative whole number, has nothing to draw -- and would fail in
 # `seq()` with an error that names neither argument. An SD can't be negative
 # either. `name` is the argument's name: `"x"` or `"sd"`.
-check_comb_value <- function(value, digits, name, call = rlang::caller_env()) {
+check_comb_value <- function(value, digits, name) {
   name_digits <- paste0("digits_", name)
   if (!is.finite(value)) {
-    cli::cli_abort(
-      c(
-        "!" = "`{name}` must be a finite number.",
-        "x" = "It is `{value}`."
-      ),
-      call = call
+    abort_in_export(
+      "!" = "`{name}` must be a finite number.",
+      "x" = "It is `{value}`."
     )
   }
   if (name == "sd" && value < 0) {
-    cli::cli_abort(
-      c(
-        "!" = "`sd` can't be negative.",
-        "x" = "It is {value}."
-      ),
-      call = call
+    abort_in_export(
+      "!" = "`sd` can't be negative.",
+      "x" = "It is {value}."
     )
   }
   if (
@@ -324,12 +310,9 @@ check_comb_value <- function(value, digits, name, call = rlang::caller_env()) {
       !is_whole_number(digits) ||
       digits < 0
   ) {
-    cli::cli_abort(
-      c(
-        "!" = "`{name_digits}` must be a single non-negative whole number.",
-        "x" = "It is `{deparse(digits)}`."
-      ),
-      call = call
+    abort_in_export(
+      "!" = "`{name_digits}` must be a single non-negative whole number.",
+      "x" = "It is `{deparse(digits)}`."
     )
   }
 }

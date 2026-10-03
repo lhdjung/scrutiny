@@ -15,11 +15,11 @@ check_debit_inputs <- function(input, type, symbol) {
     # Running inside `debit_scalar()`, this usually sees a single value, where
     # counting offenders out of a total says nothing:
     if (length(input) == 1L) {
-      cli::cli_abort(c(
+      abort_in_export(
         "!" = "DEBIT only works with binary summary data.",
         "!" = "Binary {type} (`{symbol}`) values must range from 0 to 1.",
         "x" = "`{symbol}` is {offenders}."
-      ))
+      )
     }
 
     if (length(offenders) == 1L) {
@@ -38,13 +38,13 @@ check_debit_inputs <- function(input, type, symbol) {
     }
 
     # ...and second, the actual error is thrown:
-    cli::cli_abort(c(
+    abort_in_export(
       "!" = "DEBIT only works with binary summary data.",
       "!" = "Binary {type} (`{symbol}`) values must range from 0 to 1.",
       "x" = "{length(offenders_all)} out of {length(input)} \\
       `{symbol}` values {msg_is_are} not in that \\
       range{msg_offenders} {offenders}."
-    ))
+    )
   }
 }
 
@@ -270,10 +270,10 @@ debit_scalar <- function(
   # A plain comparison rather than `rlang::arg_match()`, which would cost more
   # than the rest of the input checks on every row:
   if (!identical(formula, "exact") && !identical(formula, "mean_n")) {
-    cli::cli_abort(c(
+    abort_in_export(
       "`formula` must be \"exact\" or \"mean_n\".",
       "x" = "It is {wrong_spec_string(formula)}."
-    ))
+    )
   }
 
   # See `grim_scalar()`:

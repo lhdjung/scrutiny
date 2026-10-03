@@ -120,7 +120,7 @@ function_map_total_n_proto <- function(
       if (length(dots[[i]]) > 1L) {
         digits_i <- dots[[i]]
         if (length(digits_i) != 2L) {
-          cli::cli_abort(c(
+          abort_in_export(
             "`{names_dots[i]}` must have length 1 or 2.",
             "x" = "It has length {length(digits_i)}.",
             "i" = "There are two groups, so a length-2 vector states the \\
@@ -128,7 +128,7 @@ function_map_total_n_proto <- function(
             applies to both.",
             "i" = "The two values apply to every row of `data`; the groups \\
             can't have different numbers of decimal places per row."
-          ))
+          )
         }
         if (as.character(.dir) == "back") {
           digits_i <- rev(digits_i)
