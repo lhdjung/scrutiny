@@ -31,3 +31,4 @@ R\.Rproj$
 ^\.DS_Store$
 ^.*/\.DS_Store$
 ^\.mailmap$
+^jarl\.toml$

@@ -37,7 +37,7 @@ check_factory_key_args_values <- function(data, key_cols_call) {
     glue::as_glue() |>
     wrap_in_backticks()
   offenders <- wrap_in_backticks(offenders)
-  name_current_fn <- name_caller_call(n = 3L)
+  name_current_fn <- name_last_export_code()
   if (length(offenders) == 1L) {
     msg_is_colname <- "is not a column name"
   } else {
@@ -73,7 +73,7 @@ check_factory_key_args_values <- function(data, key_cols_call) {
   }
 
   # Throw the actual error:
-  cli::cli_abort(msg_error)
+  abort_in_export(msg_error)
 }
 
 
@@ -92,9 +92,7 @@ check_factory_key_args_names <- function(
 
   offenders <- wrap_in_backticks(offenders)
 
-  # Get the name of the current (i.e., factory-made) function using a helper
-  # from the utils.R file that wraps `rlang::caller_call()`:
-  msg_fun_name <- name_caller_call(n = 3L)
+  msg_fun_name <- name_last_export_code()
 
   # Because either one or more arguments (or column names) may be missing, the
   # wording of the error message may be either singular or plural:
@@ -116,13 +114,13 @@ check_factory_key_args_names <- function(
   }
 
   # Throw the error:
-  cli::cli_abort(c(
+  abort_in_export(
     "{msg_column_s} {offenders} {msg_is_are} \\
           missing from `data`.",
     "x" = "{msg_needs_to_be} of the input data frame.",
     "i" = "Alternatively, specify the {offenders} \\
           {msg_argument} of {msg_fun_name} as {msg_names}."
-  ))
+  )
 }
 
 
@@ -152,7 +150,7 @@ check_factory_dots <- function(fun, fun_name_scalar, ...) {
     return(NULL)
   }
 
-  fun_name_mapper <- name_caller_call(n = 2L)
+  fun_name_mapper <- name_last_export_code()
   offenders <- paste0("`", offenders, "`")
 
   if (length(offenders) == 1L) {
@@ -163,11 +161,11 @@ check_factory_dots <- function(fun, fun_name_scalar, ...) {
     msg_it_they <- "They are not"
   }
 
-  cli::cli_abort(c(
+  abort_in_export(
     "Invalid {msg_arg} {offenders}.",
     "x" = "{msg_it_they} {msg_arg} of {fun_name_mapper} \\
       or `{fun_name_scalar}()`."
-  ))
+  )
 }
 
 
@@ -205,11 +203,11 @@ check_factory_arg_names <- function(names, formals_fun, fun_name, arg_name) {
     msg_it_they <- "They were"
   }
 
-  cli::cli_abort(c(
+  abort_in_export(
     "Function `{fun_name}()` lacks {msg_arg} {offenders}.",
     "i" = "{msg_it_they} given as `{arg_name}` in the \\
     `function_map()` call, where `.fun` was specified as `{fun_name}`."
-  ))
+  )
 }
 
 
@@ -260,14 +258,14 @@ write_result_cols <- function(results, col_names) {
   offenders <- unique(lengths_results[lengths_results != length(col_names)])
 
   if (length(offenders) > 0L) {
-    cli::cli_abort(c(
+    abort_in_export(
       "The consistency test function returned {offenders[1L]} value{?s} \\
       for at least one row.",
       "x" = "It must return either a single value or one value per \\
       `.col_names` name, of which there are {length(col_names)}.",
       "i" = "`.col_names` is an argument of `function_map()`, specified \\
       when the present function was created."
-    ))
+    )
   }
 
   split_result_cols(results, col_names)
@@ -363,15 +361,15 @@ insert_key_args <- function(fun, reported, insert_after = 1L, variadic = NULL) {
 #' @noRd
 check_variadic_arg <- function(quo, name) {
   if (rlang::quo_is_missing(quo)) {
-    fun_name <- name_caller_call(n = 2L)
-    cli::cli_abort(c(
+    fun_name <- name_last_export_code()
+    abort_in_export(
       "The `{name}` argument of {fun_name} must be specified.",
       "x" = "It has no default: which columns are tested is up to the data, \\
       and testing all the remaining ones by default would quietly draw in \\
       any column that is not a key column for some other reason.",
       "i" = "Select them using tidyselect syntax, as in \\
       `{name} = c(a, b, c)` or `{name} = starts_with(\"item\")`."
-    ))
+    )
   }
 }
 
@@ -400,13 +398,13 @@ check_variadic_arg <- function(quo, name) {
 #'
 #' @noRd
 check_variadic_cols <- function(index, data, spoken_for, name) {
-  fun_name <- name_caller_call(n = 2L)
+  fun_name <- name_last_export_code()
 
   if (length(index) == 0L) {
-    cli::cli_abort(c(
+    abort_in_export(
       "The `{name}` argument of {fun_name} selected no columns.",
       "x" = "There would be no values to test."
-    ))
+    )
   }
 
   offenders <- intersect(colnames(data)[index], spoken_for)
@@ -430,13 +428,13 @@ check_variadic_cols <- function(index, data, spoken_for, name) {
     msg_one <- "some"
   }
 
-  cli::cli_abort(c(
+  abort_in_export(
     "The `{name}` argument of {fun_name} selected {offenders}.",
     "x" = "{msg_that_column} a role in the test already, so {msg_subject} \\
     cannot also be tested as {msg_one} of the `{name}` values.",
     "i" = "Exclude {msg_object} from the selection, as in \\
     `{name} = !{name_first}`."
-  ))
+  )
 }
 
 #' Absorb key arguments from the user's call
@@ -498,12 +496,12 @@ absorb_key_args <- function(data, reported, key_cols_call = NULL) {
   if (length(key_cols_clash) > 0L) {
     name_arg <- key_cols_clash[[1L]]
     name_col <- key_cols_call[[name_arg]]
-    cli::cli_abort(c(
+    abort_in_export(
       "`{name_arg}` was specified as {.val {name_col}}, but `data` \\
       already has a `{name_arg}` column.",
       "x" = "It is unclear which of the two columns should be tested.",
       "i" = "Rename or remove the `{name_arg}` column first."
-    ))
+    )
   }
 
   key_cols_missing <- reported |>
@@ -564,12 +562,12 @@ capture_key_args <- function(data, quos) {
       rlang::eval_tidy(quo)
     }
     if (!rlang::is_string(value)) {
-      cli::cli_abort(c(
+      abort_in_export(
         "The `{name}` argument must be a column name.",
         "x" = "It is {.obj_type_friendly {value}}.",
         "i" = "Specify it as a string, like `{name} = \"my_col\"`, or as a \\
         bare column name."
-      ))
+      )
     }
     out[[name]] <- value
   }
@@ -612,7 +610,7 @@ check_args_disabled <- function(args_disabled) {
   names_dots <- eval(quote(...names()), env_caller)
   offenders <- args_disabled[args_disabled %in% names_dots]
   if (length(offenders) > 0L) {
-    fun_name <- name_caller_call(n = 2L)
+    fun_name <- name_last_export_code()
     if (length(offenders) > 3L) {
       offenders <- offenders[1:3]
       msg_among_others <- ", among others"
@@ -627,14 +625,14 @@ check_args_disabled <- function(args_disabled) {
       msg_is_are <- "is"
     }
     offenders <- wrap_in_backticks(offenders)
-    cli::cli_abort(c(
+    abort_in_export(
       "{msg_arg_s} {offenders} {msg_is_are} \\
           disabled in {fun_name}{msg_among_others}.",
       "i" = "This is by design: the function factory that created it \\
           was given {offenders} in its `.args_disabled` argument, \\
           because {cli::qty(offenders)}{?it/they} would not work properly \\
           inside of the manufactured function."
-    ))
+    )
   }
 }
 
@@ -656,17 +654,17 @@ check_args_disabled_unnamed <- function(args_disabled) {
   if (!is.null(names(args_disabled))) {
     name <- deparse(substitute(args_disabled))
     name_names <- wrap_in_backticks(names(args_disabled))
-    name_fun <- name_caller_call(n = 2L)
+    name_fun <- name_last_export_code()
     if (length(name_names) == 1L) {
       msg_names <- "this name"
     } else {
       msg_names <- "these names"
     }
-    cli::cli_abort(c(
+    abort_in_export(
       "In {name_fun}, the `{name}` argument must be \\
       an unnamed string vector.",
       "x" = "It has {msg_names}: {name_names}."
-    ))
+    )
   }
 }
 

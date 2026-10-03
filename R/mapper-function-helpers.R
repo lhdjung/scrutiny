@@ -56,11 +56,11 @@ check_key_args_in_colnames <- function(data, reported) {
       non_offenders <- wrap_in_backticks(non_offenders)
     }
     offenders <- wrap_in_backticks(offenders)
-    cli::cli_abort(c(
+    abort_in_export(
       "{msg_cols} {offenders} must be in `data`.",
       "{msg_it_they} meant to be tested for consistency with \\
       {msg_each_other}{non_offenders}."
-    ))
+    )
   }
 }
 
@@ -111,13 +111,13 @@ check_consistency_not_in_colnames <- function(
     } else {
       ""
     }
-    cli::cli_abort(c(
+    abort_in_export(
       "`data` already includes a \"{names_taken[1L]}\" column.",
       "x" = "This shouldn't be the case before {name_test}-testing.",
       "i" = "Did you use the output of a consistency test \\
       {msg_special}mapper function for {name_test}{msg_fun_name} \\
       as an input here?"
-    ))
+    )
   }
 }
 
@@ -186,12 +186,12 @@ check_mapper_input_colnames <- function(
 #' @noRd
 check_key_result_col <- function(data, name_key_result, name_fun) {
   if (!any(name_key_result == colnames(data))) {
-    cli::cli_abort(c(
+    abort_in_export(
       "`{name_fun}()` did not return a \"{name_key_result}\" column.",
       "x" = "Its results columns are {wrap_in_backticks(colnames(data))}.",
       "i" = "The two functions must have been created with the same \\
       `.name_key_result` value."
-    ))
+    )
   }
 }
 
@@ -290,14 +290,14 @@ manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
       var_name_as_arg <- wrap_in_backticks(var_name)
       var_name <- wrap_in_quotes(var_name)
       var_arg <- wrap_in_quotes_or_backticks(var_arg)
-      fun_name <- name_caller_call(n = 2L)
+      fun_name <- name_last_export_code()
       default <- wrap_in_quotes_or_backticks(default)
-      cli::cli_abort(c(
+      abort_in_export(
         "Column {var_name} already in {data_name}.",
         "x" = "The {var_name_as_arg} argument in {fun_name} \\
         was specified as {var_arg} (default: {default}).",
         "x" = "This conflicts with the {var_name} column in {data_name}."
-      ))
+      )
     }
   } else if (affix) {
     # If a column by that name is not yet present in `data`, supply it from the
@@ -361,12 +361,12 @@ manage_key_colnames <- function(data, arg, description = NULL) {
       } else {
         paste("The ", description)
       }
-      cli::cli_abort(c(
+      abort_in_export(
         "Column `{arg_name}` missing.",
         "i" = "{msg_this_col} column in `data` must be named \\
       `{arg_name}`. Alternatively, specify the `{arg_name}` argument \\
       as the name of that column."
-      ))
+      )
     }
     # Otherwise, there are no columns to rename
     return(data)

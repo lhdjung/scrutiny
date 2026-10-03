@@ -336,15 +336,12 @@ recycle_digits <- function(digits, n_rows, name_digits_arg) {
 }
 
 
-error_digits_flawed <- function(digits, name_digits_arg, n) {
+error_digits_flawed <- function(digits, name_digits_arg) {
   check_length(digits, 1)
 
-  cli::cli_abort(
-    message = c(
-      "`{name_digits_arg}` must be a single, whole number.",
-      "x" = "It is actually: {digits}"
-    ),
-    call = rlang::caller_env(n)
+  abort_in_export(
+    "`{name_digits_arg}` must be a single, whole number.",
+    "x" = "It is actually: {digits}"
   )
 }
 
@@ -358,7 +355,7 @@ check_newly_numeric <- function(
   # value per row, and the call alone cost more than the whole check below it.
   if (length(digits) != 1L || !(is.numeric(digits) || is.na(digits))) {
     name <- deparse(substitute(digits))
-    error_digits_flawed(digits, name, 4)
+    error_digits_flawed(digits, name)
   }
 
   # A missing number of decimal places makes the case undecidable, like a
@@ -375,7 +372,7 @@ check_newly_numeric <- function(
       abs(digits - round(digits)) >= WHOLE_NUMBER_TOLERANCE
   ) {
     name <- deparse(substitute(digits))
-    error_digits_flawed(digits, name, 4)
+    error_digits_flawed(digits, name)
   }
 
   # Can `x` be written with `digits` decimal places? `round()` answers that some
@@ -1702,34 +1699,11 @@ about_equal <- function(x, y) {
 }
 
 
-#' Get name of function being called
-#'
-#' Returns the name of the function within which `name_caller_call()` is called
-#' (by default of `n`).
-#'
-#' @param n The number of callers to go back. See `?rlang::caller_call()`.
-#' @param wrap Logical. If `TRUE` (the default), the output is wrapped into
-#'   backticks and appended with `()`.
-#'
-#' @return String (length 1).
-#'
-#' @noRd
-name_caller_call <- function(n = 1L, wrap = TRUE) {
-  name <- fn_name_from_call(rlang::caller_call(n = n))
-
-  # The caller may have been invoked as a function object rather than by name,
-  # as when `audit_seq()` applies a factory-made function via `do.call()`. There
-  # is then no name to report, so a description stands in -- without backticks,
-  # because it is not code.
-  if (!nzchar(name)) {
-    return("the function")
-  }
-
-  if (wrap) {
-    name <- paste0("`", name, "()`")
-  }
-
-  name
+# Name of the user-called function as code, e.g., "`grim_map()`"
+name_last_export_code <- function() {
+  name <- name_last_export()
+  # A non-export invoked as a function object, e.g., by `do.call()`, has no name
+  if (is.null(name)) "the function" else paste0("`", name, "()`")
 }
 
 
