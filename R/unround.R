@@ -211,11 +211,11 @@ bound_numerators <- function(x_num, digits, rounding, threshold, symmetric) {
   offsets <- rounding_offsets(rounding, threshold, x_num, symmetric)
 
   if (is.null(offsets)) {
-    cli::cli_abort(c(
+    abort_in_export(
       "`rounding` must be one of the designated string values.",
       "x" = "It is {wrong_spec_string(rounding)}.",
       "i" = "See `vignette(\"rounding-options\")`."
-    ))
+    )
   }
 
   if (anyNA(offsets)) {
