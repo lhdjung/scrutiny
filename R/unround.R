@@ -292,7 +292,7 @@ sum_range <- function(
 # The sum of squares of the item-level values is
 #
 #   ((n - 1) * sd^2 + n * (s / (n * items))^2) * items^2 ==
-#     (n - 1) * sd^2 * items^2 + s^2 / n
+#     (n - 1) * sd^2 * items^2 + s^2 / n # nolint
 #
 # and with `sd` given as `num / denom`, both terms are exact rationals. The first
 # does not depend on the candidate sum `s`, so it is pre-computed once per SD

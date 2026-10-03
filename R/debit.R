@@ -112,7 +112,7 @@ debit_undecidable <- function(show_rec, rounding) {
 # below -- with the squared SD bounds. For a bound `num / denom`, the condition
 # `num / denom <= SD` is equivalent to this one:
 #
-#   num^2 * n * (n - 1) <= spread * denom^2
+#   num^2 * n * (n - 1) <= spread * denom^2 # nolint
 #
 # It compares whole numbers, as in `sum_range()`, and it is exact while those
 # stay below `2^53`, i.e., for `n` up to about 90,000 with an SD reported to two
