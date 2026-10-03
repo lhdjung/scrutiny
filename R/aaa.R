@@ -78,11 +78,6 @@ NON_FINITE_TOKENS <- c(outer(
 ))
 
 
-# The user-facing consistency test functions: `grim()`, `grim_map()`,
-# `grimmer_map_seq()`, `debit_map_total_n()`, and so on.
-
-PATTERN_NAME_TEST_FN <- "^(grim|grimmer|debit)"
-
 # How many integer sums of squares `grimmer_scalar()` checks at once. Bounds
 # its memory use; the test stops at the first chunk with a match.
 GRIMMER_CHUNK_SIZE <- 1e5

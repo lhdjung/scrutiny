@@ -398,16 +398,17 @@ check_newly_numeric <- function(
   # The function the user called, e.g. `grim_map()` rather than the
   # `grim_scalar()` that `purrr::pmap()` led here from. Errors are attributed to
   # its frame so that they say "Error in `grim_map()`":
-  caller <- caller_test_fn()
+  caller_name <- name_last_export()
+  caller_frame <- sys.frame(index_last_export())
 
   # Is that function a mapper, such as `grim_map()`? Mappers operate on data
   # frames, so their messages should talk about columns, not arguments.
-  caller_is_mapper <- stringr::str_detect(caller$name, "_map")
+  caller_is_mapper <- grepl("_map", caller_name)
 
   # Record the names of the key argument passed down here (likely the mean or
   # SD) and the calling function
   name_x <- deparse(substitute(x))
-  name_fn <- paste0("scrutiny::", caller$name)
+  name_fn <- paste0("scrutiny::", caller_name)
 
   if (!is.numeric(x)) {
     # If the user called a mapper function, the error message should talk about
@@ -433,7 +434,7 @@ check_newly_numeric <- function(
         "This is to ensure a correct number of decimal places.
         Apologies for the inconvenience."
       ),
-      env = caller$frame
+      env = caller_frame
     )
   }
 
@@ -450,7 +451,7 @@ check_newly_numeric <- function(
       "x" = "`{name_digits_arg}` is {digits}.",
       "x" = "`{name_x}` is {x}, so it has {digits_in_x} decimal place{?s}."
     ),
-    call = caller$frame
+    call = caller_frame
   )
 }
 
@@ -478,39 +479,6 @@ fn_name_from_call <- function(call) {
     # A function object carries no name of its own
     ""
   }
-}
-
-
-# The outermost consistency test function on the call stack: the one the user
-# actually called. Errors about missing or flawed `digits_*` arguments should
-# name it and be attributed to its call. Counting frames instead is not viable:
-# how many lie between a `*_scalar()` function and the user's call depends on
-# what sits in between, and a factory-made function invokes `fun` as an object,
-# so that frame has no name at all.
-#
-# Returns the function's `name` and `frame`. If there is no such function on the
-# stack -- which should not happen, as only the two checks below call this --
-# the frame that called `caller_test_fn()` stands in.
-caller_test_fn <- function() {
-  calls <- sys.calls()
-  names_fn <- vapply(calls, fn_name_from_call, character(1L), USE.NAMES = FALSE)
-  is_test_fn <- stringr::str_detect(names_fn, PATTERN_NAME_TEST_FN)
-
-  index <- if (any(is_test_fn)) {
-    # `sys.calls()` runs from the outermost frame inward, so the first match is
-    # the outermost one -- e.g. `grim_map_seq()` rather than the `grim_map()`
-    # that it calls internally:
-    which(is_test_fn)[1L]
-  } else {
-    # The last call is `caller_test_fn()` itself, so this is its caller:
-    length(calls) - 1L
-  }
-
-  if (index < 1L) {
-    return(list(name = "", frame = globalenv()))
-  }
-
-  list(name = names_fn[index], frame = sys.frames()[[index]])
 }
 
 
@@ -547,8 +515,7 @@ error_digits_missing <- function(x) {
 
   # The example below should show the call the user actually made, e.g.
   # `debit()` rather than the `debit_scalar()` that led here:
-  caller <- caller_test_fn()
-  name_fn <- caller$name
+  name_fn <- name_last_export()
 
   # If the error occurred in a GRIMMER or DEBIT function, include `sd` and
   # `digits_sd` arguments in the example call because they are required there.
@@ -599,7 +566,7 @@ error_digits_missing <- function(x) {
       "i" = "For more information, visit \\
       {.href [scrutiny's changelog](https://lhdjung.github.io/scrutiny/news/index.html)}."
     ),
-    call = caller$frame
+    call = sys.frame(index_last_export())
   )
 }
 

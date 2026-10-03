@@ -13,6 +13,9 @@
 
 # ## Changelog
 # 2026-10-03:
+# - Name the innermost export not called by package code, e.g., `inner()`
+#   in `outer(inner())`
+# - `name_last_export()` returns the export's own name, not, e.g., "FUN"
 # - Match the user-called function by identity, not by name
 # - Removed the `package_name` argument
 # - Replaced `caller_env_last_export()` by `sys.frame(index_last_export())`
@@ -22,7 +25,7 @@
 # 2026-04-18:
 # - Added `name_last_export()`
 
-# Throw an error that names the top-level exported, user-called function as the
+# Throw an error that names the exported function the user called as the
 # source; e.g., "Error in `exported_fn()`", not "Error in `internal_helper()`".
 abort_in_export <- function(...) {
   cli::cli_abort(
@@ -73,32 +76,49 @@ arg_match_in_export <- function(arg, values = NULL, multiple = FALSE) {
 }
 
 
-# Frame number of the outermost exported function on the call stack: the one the
-# user called. Matched by identity, so it's safe for `lapply()` and other
-# functionals. Without an export on the stack, e.g., for an S3 method, this
-# falls back to the outermost function from the package.
+# Frame number of the exported function the user called: the innermost export
+# that wasn't called by package code. Matched by identity, so it's safe for
+# `lapply()` and other functionals. This also finds `inner()` in
+# `outer(inner())`, which R evaluates lazily within `outer()`. Without such an
+# export on the stack, e.g., for an S3 method, this falls back to the outermost
+# function from the package.
 index_last_export <- function() {
   ns <- topenv(environment())
   exports <- mget(getNamespaceExports(ns), envir = ns, inherits = TRUE)
-  index_fallback <- NULL
-  for (i in seq_len(sys.nframe())) {
-    fn <- sys.function(i)
-    if (identical(ns, topenv(environment(fn)))) {
-      if (any(vapply(exports, identical, logical(1L), fn))) {
-        return(i)
-      }
-      if (is.null(index_fallback)) {
-        index_fallback <- i
-      }
+  parents <- sys.parents()
+  frames <- seq_along(parents)
+  is_export <- vapply(frames, function(i) {
+    any(vapply(exports, identical, logical(1L), sys.function(i)))
+  }, logical(1L))
+  # An export may have another environment, e.g., if made by `Vectorize()`
+  in_package <- is_export | vapply(frames, function(i) {
+    identical(ns, topenv(environment(sys.function(i))))
+  }, logical(1L))
+  for (i in rev(which(is_export))) {
+    # Follow the callers up, skipping functions from other packages
+    parent <- parents[i]
+    while (parent > 0L && !in_package[parent]) {
+      parent <- parents[parent]
+    }
+    if (parent == 0L) {
+      return(i)
     }
   }
-  index_fallback
+  which(in_package)[1L]
 }
 
 
-# Name of the user-called function; `NULL` if called via `do.call(fn, ...)`
+# Name of the user-called function, even if it was called as, e.g., `FUN()`
 name_last_export <- function() {
-  fn <- sys.call(index_last_export())[[1L]]
+  index <- index_last_export()
+  ns <- topenv(environment())
+  exports <- mget(getNamespaceExports(ns), envir = ns, inherits = TRUE)
+  is_match <- vapply(exports, identical, logical(1L), sys.function(index))
+  if (any(is_match)) {
+    return(names(exports)[is_match][1L])
+  }
+  # Fallback for a non-exported function: the name it was called by
+  fn <- sys.call(index)[[1L]]
   if (is.name(fn)) {
     as.character(fn)
   } else if (is.call(fn)) {

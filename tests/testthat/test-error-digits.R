@@ -48,6 +48,13 @@ test_that("a missing `digits_*` argument names the function that was called", {
 })
 
 
+test_that("a test function is named even if called in an argument or `lapply()`", {
+  # R evaluates `grim_map()` lazily within `grim_plot()` here (#93):
+  df_grim       |> grim_map() |> grim_plot() |> msg_error() |> expect_match("`grim_map(", fixed = TRUE)
+  list(df_grim) |> lapply(grim_map)          |> msg_error() |> expect_match("`grim_map(", fixed = TRUE)
+})
+
+
 test_that("a missing `digits_*` argument gives the intended error", {
   # Not an internal error such as "cannot coerce type 'closure'":
   for (msg in list(
