@@ -87,13 +87,25 @@ index_last_export <- function() {
   exports <- mget(getNamespaceExports(ns), envir = ns, inherits = TRUE)
   parents <- sys.parents()
   frames <- seq_along(parents)
-  is_export <- vapply(frames, function(i) {
-    any(vapply(exports, identical, logical(1L), sys.function(i)))
-  }, logical(1L))
+
+  is_export <- vapply(
+    frames,
+    function(i) {
+      any(vapply(exports, identical, logical(1L), sys.function(i)))
+    },
+    logical(1L)
+  )
+
   # An export may have another environment, e.g., if made by `Vectorize()`
-  in_package <- is_export | vapply(frames, function(i) {
-    identical(ns, topenv(environment(sys.function(i))))
-  }, logical(1L))
+  in_package <- is_export |
+    vapply(
+      frames,
+      function(i) {
+        identical(ns, topenv(environment(sys.function(i))))
+      },
+      logical(1L)
+    )
+
   for (i in rev(which(is_export))) {
     # Follow the callers up, skipping functions from other packages
     parent <- parents[i]
@@ -104,6 +116,7 @@ index_last_export <- function() {
       return(i)
     }
   }
+
   which(in_package)[1L]
 }
 
@@ -114,11 +127,14 @@ name_last_export <- function() {
   ns <- topenv(environment())
   exports <- mget(getNamespaceExports(ns), envir = ns, inherits = TRUE)
   is_match <- vapply(exports, identical, logical(1L), sys.function(index))
+
   if (any(is_match)) {
     return(names(exports)[is_match][1L])
   }
+
   # Fallback for a non-exported function: the name it was called by
   fn <- sys.call(index)[[1L]]
+
   if (is.name(fn)) {
     as.character(fn)
   } else if (is.call(fn)) {
