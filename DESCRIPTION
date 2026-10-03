@@ -26,7 +26,7 @@ LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Imports: 
-    cli,
+    cli (>= 3.0.0),
     dplyr,
     ggplot2 (>= 3.4.0),
     glue,
@@ -90,6 +90,7 @@ Collate:
     'grimmer-map-seq.R'
     'grimmer-map-total-n.R'
     'grimmer-plot-values.R'
+    'import-standalone-last-export.R'
     'method-audit-seq.R'
     'method-audit-total-n.R'
     'method-debit-map.R'
