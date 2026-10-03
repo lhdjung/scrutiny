@@ -54,12 +54,12 @@ function_map_total_n_proto <- function(
         df_list,
         times = df_list_nrow / 2,
         reported = purrr::map2(
-          reported,
+          .data$reported,
           times,
           function(x, y) purrr::map2(x, y, rep)
         )
       ) |>
-      tidyr::unnest_wider(reported) |>
+      tidyr::unnest_wider("reported") |>
       dplyr::rename_with(
         .fn = function(x) .reported_orig,
         .cols = 1L:dplyr::all_of(reported_n_vars)
