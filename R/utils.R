@@ -620,25 +620,6 @@ parcel_nth_elements <- function(x, n, from = 1L) {
 }
 
 
-#' Switch back and front columns
-#'
-#' @param data Data frame
-#'
-#' @return Data frame, like `data` but with the column order reversed.
-#'
-#' @noRd
-reverse_column_order <- function(data) {
-  if (ncol(data) == 0L) {
-    return(data)
-  }
-
-  # Don't mind sequence linting here; the early return above takes care of the
-  # empty edge case already!
-  col_numbers_reversed <- ncol(data):1L
-  data[, order(col_numbers_reversed)]
-}
-
-
 #' Conveniently add classes to an object
 #'
 #' `add_class()` is pipeable, unlike the replacement function it wraps.

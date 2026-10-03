@@ -178,7 +178,7 @@ disperse <- function(
   }
 
   out <- out |>
-    reverse_column_order() |>
+    rev() |>
     add_class("scrutiny_disperse")
 
   if (!is.null(constant)) {

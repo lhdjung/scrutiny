@@ -68,24 +68,6 @@ df_test <- tibble::tibble(
 )
 
 
-df_test_2 <- tibble::tibble(
-  a = 1,
-  b = 2,
-  c = 3
-) |>
-  reverse_column_order()
-
-df_expected_2 <- tibble::tibble(
-  c = 3,
-  b = 2,
-  a = 1
-)
-
-test_that("`reverse_column_order()` returns correct values", {
-  df_test_2 |> expect_equal(df_expected_2)
-})
-
-
 vec_test_1 <- 1:50 |>
   as.double() |>
   censor(25, 40)
