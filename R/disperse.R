@@ -113,6 +113,7 @@ disperse <- function(
   # Checks ---
 
   check_length_disperse_n(n, "It must have length 1.")
+  check_type(dispersion, c("double", "integer"))
   check_non_negative(dispersion)
 
   # `dispersion` counts whole units away from `n`, and `n` is a group size. A

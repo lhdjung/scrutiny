@@ -118,6 +118,7 @@ seq_disperse <- function(
   # Any sequence can only proceed from a single number (for multiple numbers,
   # map the function). Also, the steps away from the number can't be negative:
   check_length(from, 1L)
+  check_type(dispersion, c("double", "integer"))
   check_non_negative(dispersion)
 
   # A missing, infinite, or non-numeric `from` has no decimal level to disperse

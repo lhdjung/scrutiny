@@ -31,6 +31,8 @@ test_that("`dispersion` must consist of whole numbers", {
   # fractional step left `n` and `n_change` describing different things.
   10 |> disperse(dispersion = c(0.5, 1.5)) |> expect_error("whole numbers")
   10 |> disperse(dispersion = 1.5)         |> expect_error("whole numbers")
+  # A string used to fail in base R's `round()`:
+  10 |> disperse(dispersion = "a")         |> expect_error("must be one of these types")
 })
 
 test_that("`n` and `n_change` agree", {

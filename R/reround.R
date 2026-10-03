@@ -57,11 +57,11 @@ reconstruct_rounded_numbers_scalar <- function(
     "floor" = round_floor(x, digits),
     "trunc" = round_trunc(x, digits),
     "anti_trunc" = round_anti_trunc(x, digits),
-    cli::cli_abort(c(
+    abort_in_export(
       "`rounding` must be one of the designated string values.",
       "x" = "It was given as {wrong_spec_string(rounding)}.",
       "i" = "See `vignette(\"rounding-options\")`."
-    ))
+    )
   )
 }
 

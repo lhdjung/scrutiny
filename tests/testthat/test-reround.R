@@ -68,6 +68,13 @@ test_that("a fractional `digits` is rejected", {
 
 # Checks on the rounding procedure ------------------------------------------
 
+test_that("an invalid `rounding` string names `reround()`", {
+  # Not the internal helper that throws the error:
+  cnd <- 2.5 |> reround(0, rounding = "bogus") |> expect_error("designated string values")
+  cnd$call |> rlang::format_error_call() |> expect_equal("`reround()`")
+})
+
+
 test_that("`rounding` must be a string, and `symmetric` `TRUE` or `FALSE`", {
   # `resolve_ties_rounding()` indexes a list by `rounding`, and a list indexed
   # by a number or a `TRUE` returns an element by position: `rounding = 2` was

@@ -178,6 +178,7 @@ test_that("the limits apply to `from` itself", {
 test_that("`seq_disperse()` checks `dispersion` and the limits", {
   # A fractional step used to be taken and then padded off the decimal level:
   4 |> seq_disperse(dispersion = 1.5) |> expect_error("whole numbers")
+  4 |> seq_disperse(dispersion = "a") |> expect_error("must be one of these types")
   # `from` with more decimal places than `by` failed in `restore_zeros()`:
   0.35 |>
     seq_disperse(by = 0.1, dispersion = 1:2) |>
