@@ -75,8 +75,8 @@ all other arguments must have length 1.
 values can't all be correct as reported. It doesn't show why. The cause
 may be trivial. For example, the percentage may be based on a different
 denominator than \code{n}, such as the number of valid responses. Or the
-authors' software may have rounded in a different way; try other
-\code{rounding} methods.
+authors' software may have used an unconventional rounding method, such
+as truncation; see the \code{rounding} argument.
 
 \code{\link[=is_percentage_of_map_seq]{is_percentage_of_map_seq()}} with \code{var = "n"} shows which nearby
 denominators would make the percentage consistent.

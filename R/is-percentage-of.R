@@ -77,8 +77,8 @@ is_percentage_of_scalar <- function(
 #'   values can't all be correct as reported. It doesn't show why. The cause
 #'   may be trivial. For example, the percentage may be based on a different
 #'   denominator than `n`, such as the number of valid responses. Or the
-#'   authors' software may have rounded in a different way; try other
-#'   `rounding` methods.
+#'   authors' software may have used an unconventional rounding method, such
+#'   as truncation; see the `rounding` argument.
 #'
 #'   [`is_percentage_of_map_seq()`] with `var = "n"` shows which nearby
 #'   denominators would make the percentage consistent.
