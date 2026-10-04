@@ -45,6 +45,10 @@ to every row of a data frame with reported counts, percentages, and
 totals.
 
 For summary statistics, call \code{\link[=audit]{audit()}} on the results.
+
+Inconsistencies often have innocent explanations, such as a different
+denominator; see \emph{Inconsistent is not the same as wrong} in
+\code{\link[=is_percentage_of]{is_percentage_of()}}.
 }
 \examples{
 df <- tibble::tibble(
