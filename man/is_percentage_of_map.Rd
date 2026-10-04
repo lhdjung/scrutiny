@@ -46,9 +46,8 @@ totals.
 
 For summary statistics, call \code{\link[=audit]{audit()}} on the results.
 
-Inconsistencies often have innocent explanations, such as a different
-denominator; see \emph{Inconsistent is not the same as wrong} in
-\code{\link[=is_percentage_of]{is_percentage_of()}}.
+Inconsistencies can have trivial explanations; see the section on them
+in \code{\link[=is_percentage_of]{is_percentage_of()}}.
 }
 \examples{
 df <- tibble::tibble(

@@ -70,23 +70,15 @@ floating-point error happens to dictate.
 \code{absolute}, \code{percentage}, \code{n}, and \code{digits_percentage} are vectorized;
 all other arguments must have length 1.
 }
-\section{Inconsistent is not the same as wrong}{
- A \code{FALSE} result means that
-\code{percentage} is not what \code{absolute} out of \code{n} would be reported as. It
-does not mean that any of the three values was misreported, and innocent
-explanations are common:
-\itemize{
-\item The percentage was computed with a different denominator, such as the
-number of valid responses rather than the full sample, or a subgroup.
-\item The sample size changed between analyses, e.g., due to dropouts or
-exclusions, and a table mixes the two.
-\item The software rounded differently, e.g., by truncating. Try other
-\code{rounding} methods.
-}
+\section{Trivial explanations}{
+ A \code{FALSE} result doesn't always mean that a
+value was misreported. The percentage may be based on a different
+denominator than \code{n}, such as the number of valid responses. The sample
+size may have changed between analyses. The software may have rounded
+differently; try other \code{rounding} methods.
 
-Look for such explanations in the paper before drawing conclusions.
 \code{\link[=is_percentage_of_map_seq]{is_percentage_of_map_seq()}} with \code{var = "n"} shows which nearby
-denominators would make a percentage consistent.
+denominators would make the percentage consistent.
 }
 
 \examples{
