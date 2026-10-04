@@ -80,6 +80,15 @@ reference:
   - debit_map_total_n
   - debit_plot
   - sd_binary_0_n
+- subtitle: Percentages and sums
+  desc: Test reported percentages against their counts, and subgroup sizes against
+    their totals
+- contents:
+  - is_percentage_of
+  - is_percentage_of_map
+  - is_percentage_of_map_seq
+  - add_up_to
+  - add_up_to_map
 - title: Duplicate detection
   desc: Blunt functions to tentatively discover and count duplicate numeric values;
     interpret results with care

@@ -546,17 +546,32 @@ error_digits_missing <- function(x) {
     NULL
   }
 
+  # `is_percentage_of()` has its own key arguments and never took strings:
+  is_percentage <- name_x == "percentage"
+  args_example <- paste0("x = ", example_x[2], part_sd, ", n = 29")
+  if (is_percentage) {
+    example_x <- c("33.30", "33.3")
+    args_example <- "absolute = 40, percentage = 33.3, n = 120"
+  }
+
+  msg_history <- if (is_percentage) {
+    NULL
+  } else {
+    c(
+      "i" = "This was introduced in scrutiny 1.0.0 to ensure the number \
+      of decimal places is stated correctly.",
+      "i" = "It replaces the quotes around `{name_x}`{msg_key_arg}."
+    )
+  }
+
   cli::cli_abort(
     message = c(
       "Need to specify `{name_digits_arg}` to state the number of \
       decimal places in `{name_x}`.",
       "i" = "For example, with {example_x[1]} (two decimal places): \
-      `{name_fn}({part_tibble_open}x = {example_x[2]}{part_sd}, \
-      n = 29{part_tibble_close}, \
+      `{name_fn}({part_tibble_open}{args_example}{part_tibble_close}, \
       {name_digits_arg} = 2{part_digits_sd})`",
-      "i" = "This was introduced in scrutiny 1.0.0 to ensure the number \
-      of decimal places is stated correctly.",
-      "i" = "It replaces the quotes around `{name_x}`{msg_key_arg}.",
+      msg_history,
       "i" = "For more information, visit \\
       {.href [scrutiny's changelog](https://lhdjung.github.io/scrutiny/news/index.html)}."
     ),
