@@ -73,11 +73,12 @@ is_percentage_of_scalar <- function(
 #'   `absolute`, `percentage`, `n`, and `digits_percentage` are vectorized;
 #'   all other arguments must have length 1.
 #'
-#' @section Trivial explanations: A `FALSE` result doesn't always mean that a
-#'   value was misreported. The percentage may be based on a different
-#'   denominator than `n`, such as the number of valid responses. The sample
-#'   size may have changed between analyses. The software may have rounded
-#'   differently; try other `rounding` methods.
+#' @section Causes of inconsistencies: A `FALSE` result means that the three
+#'   values can't all be correct as reported. It doesn't show why. The cause
+#'   may be trivial. For example, the percentage may be based on a different
+#'   denominator than `n`, such as the number of valid responses. Or the
+#'   authors' software may have rounded in a different way; try other
+#'   `rounding` methods.
 #'
 #'   [`is_percentage_of_map_seq()`] with `var = "n"` shows which nearby
 #'   denominators would make the percentage consistent.

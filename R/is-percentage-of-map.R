@@ -6,8 +6,7 @@
 #'
 #'   For summary statistics, call [`audit()`] on the results.
 #'
-#'   Inconsistencies can have trivial explanations; see the section on them
-#'   in [`is_percentage_of()`].
+#'   For possible causes of inconsistencies, see [`is_percentage_of()`].
 #'
 #' @param data Tibble with columns `absolute`, `percentage`, and `n`. Any
 #'   other columns in `data` will be returned alongside the test results.

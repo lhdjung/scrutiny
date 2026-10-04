@@ -89,8 +89,9 @@ output.}
 \code{.fun} that takes all the values of one row at once, as a vector. The
 factory-made function then has an argument by that name which selects any
 number of columns using tidyselect syntax, so that how many columns are
-tested is up to the caller rather than fixed when the factory runs. It has
-no default and must be specified in every call. See \emph{Details}.}
+tested is up to the caller rather than fixed when the factory runs. That
+argument has no default, so it must be specified in every call to the
+factory-made function. See \emph{Details}.}
 
 \item{...}{These dots must be empty.}
 }

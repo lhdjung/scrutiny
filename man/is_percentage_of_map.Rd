@@ -46,8 +46,7 @@ totals.
 
 For summary statistics, call \code{\link[=audit]{audit()}} on the results.
 
-Inconsistencies can have trivial explanations; see the section on them
-in \code{\link[=is_percentage_of]{is_percentage_of()}}.
+For possible causes of inconsistencies, see \code{\link[=is_percentage_of]{is_percentage_of()}}.
 }
 \examples{
 df <- tibble::tibble(
