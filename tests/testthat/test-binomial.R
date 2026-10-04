@@ -22,3 +22,20 @@ test_that("the binomial functions reject empty input instead of crashing", {
     grim_binomial_power(0.9, k = 0) |>
     expect_error("at least one value set")
 })
+
+
+test_that("`grim_binomial()` returns the exact interval, one-sided like the test", {
+  skip_if_not_installed("poibin")
+  data <- pigs1 |> grim_map(digits_x = 2)
+  k <- sum(data$consistency)
+  n <- nrow(data)
+  for (alternative in c("greater", "less", "two.sided")) {
+    out      <- data |> grim_binomial(alternative = alternative, conf.level = 0.9)
+    expected <- k    |> stats::binom.test(n, alternative = alternative, conf.level = 0.9)
+    c(out$conf.low, out$conf.high) |> expect_equal(as.numeric(expected$conf.int))
+  }
+  data |> grim_binomial()                          |> getElement("conf.high") |> expect_equal(1)
+  data |> grim_binomial(alternative = "less")      |> getElement("conf.low")  |> expect_equal(0)
+  data |> grim_binomial(conf.level = 1)            |> expect_error("between 0 and 1")
+  data |> grim_binomial(conf.level = c(0.9, 0.95)) |> expect_error("between 0 and 1")
+})

@@ -17,14 +17,15 @@ grim_binomial(
 \item{alternative}{String (length 1). One of \code{"greater"}, \code{"less"}, and
 \code{"two.sided"}. Default is \code{"greater"}; see details.}
 
-\item{conf.level}{Numeric (length 1). Only returned as the \code{conf.level}
-column, in the style of other test tables; no confidence interval is
-computed. Default is \code{0.95}.}
+\item{conf.level}{Numeric (length 1). Confidence level of the interval
+around \code{estimate}. Default is \code{0.95}.}
 }
 \value{
 Tibble (data frame) with columns \code{estimate} (observed consistency
 rate), \code{statistic} (number of consistent cases), \code{p.value}, \code{parameter}
-(total number of cases), \code{conf.level}, \code{method}, and \code{alternative}.
+(total number of cases), \code{conf.low} and \code{conf.high} (bounds of the
+confidence interval around \code{estimate}), \code{conf.level}, \code{method}, and
+\code{alternative}.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
@@ -59,6 +60,13 @@ in this way.
 
 However, it is hard to see how \emph{fewer} value sets should be consistent than
 expected at random. This suggests a one-tailed test.
+
+The confidence interval is the exact Clopper-Pearson interval for the
+consistency rate, as in \code{\link[stats:binom.test]{stats::binom.test()}}, and is one-sided like the
+test: under \code{"greater"}, \code{conf.high} is 1. It treats the value sets as
+sharing one probability of consistency, so it is an interval for their
+average probability. Compare it to the rate expected at random, the mean of
+\code{1 - probability}.
 }
 \examples{
 pigs1 |>

@@ -16,9 +16,8 @@
 #'   [`grim_map()`] or [`grim_map_seq()`].
 #' @param alternative String (length 1). One of `"greater"`, `"less"`, and
 #'   `"two.sided"`. Default is `"greater"`; see details.
-#' @param conf.level Numeric (length 1). Only returned as the `conf.level`
-#'   column, in the style of other test tables; no confidence interval is
-#'   computed. Default is `0.95`.
+#' @param conf.level Numeric (length 1). Confidence level of the interval
+#'   around `estimate`. Default is `0.95`.
 #'
 #' @details This conducts a one-tailed test by default (`alternative =
 #'   "greater"`). The idea is to assess whether more means are GRIM-consistent
@@ -43,9 +42,18 @@
 #'   However, it is hard to see how *fewer* value sets should be consistent than
 #'   expected at random. This suggests a one-tailed test.
 #'
+#'   The confidence interval is the exact Clopper-Pearson interval for the
+#'   consistency rate, as in [`stats::binom.test()`], and is one-sided like the
+#'   test: under `"greater"`, `conf.high` is 1. It treats the value sets as
+#'   sharing one probability of consistency, so it is an interval for their
+#'   average probability. Compare it to the rate expected at random, the mean of
+#'   `1 - probability`.
+#'
 #' @returns Tibble (data frame) with columns `estimate` (observed consistency
 #'   rate), `statistic` (number of consistent cases), `p.value`, `parameter`
-#'   (total number of cases), `conf.level`, `method`, and `alternative`.
+#'   (total number of cases), `conf.low` and `conf.high` (bounds of the
+#'   confidence interval around `estimate`), `conf.level`, `method`, and
+#'   `alternative`.
 #'
 #' @export
 #'
@@ -65,6 +73,19 @@ grim_binomial <- function(
 
   if (!inherits(data, "scrutiny_grim_map")) {
     cli::cli_abort("`data` must be output of a GRIM mapper function.")
+  }
+
+  if (
+    !is.numeric(conf.level) ||
+      length(conf.level) != 1L ||
+      is.na(conf.level) ||
+      conf.level <= 0 ||
+      conf.level >= 1
+  ) {
+    abort_in_export(
+      "`conf.level` must be a single number between 0 and 1.",
+      "x" = "It is {conf.level}."
+    )
   }
 
   # A value set the test could not decide -- a missing `n`, say -- has neither a
@@ -100,11 +121,20 @@ grim_binomial <- function(
     }
   )
 
+  conf_int <- stats::binom.test(
+    n_consistent,
+    n_cases,
+    alternative = alternative,
+    conf.level = conf.level
+  )$conf.int
+
   tibble::tibble(
     estimate = n_consistent / n_cases,
     statistic = n_consistent,
     p.value = p.value,
     parameter = n_cases,
+    conf.low = conf_int[1L],
+    conf.high = conf_int[2L],
     conf.level = conf.level,
     method = "Poisson binomial test",
     alternative = alternative

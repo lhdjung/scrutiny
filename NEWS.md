@@ -362,6 +362,8 @@
 
 ## Minor improvements
 
+- `grim_binomial()` now computes a confidence interval around `estimate`, returned as the new `conf.low` and `conf.high` columns. `conf.level` used to be echoed into a column of its own without any interval behind it. The interval is the exact Clopper-Pearson one of `stats::binom.test()`, one-sided like the test.
+
 - `reround_to_fraction(digits = "auto")` no longer errors with "non-numeric argument to mathematical function". The function validated `digits` as a integer before resolving `"auto"` into one, and `is.infinite("auto")` is `FALSE`, so the string went straight into `is_whole_number()`. `reround_to_fraction_level()` has always had the two steps in the right order.
 
 - The internal `check_lengths_congruent()` helper no longer errors on arguments that are in fact the same length. It deduplicates the lengths greater than 1, so that two such arguments are not counted as two different lengths, but the index it used for that was computed over the lengths of *all* the arguments. It was therefore longer than the vector it subset and, whenever a length-1 argument sat between two longer ones, dropped nothing at all. `reround_to_fraction(c(0.4, 0.6), denominator = 2, digits = c(1, 2))` therefore failed with a message saying that `x` and `digits` must have the same length, which they already did. When the lengths really do disagree, the error now also names the pair that disagrees rather than the first two candidates. `unround()`, `rounding_bias()`, and the mappers made by `function_map()` use the same check.
