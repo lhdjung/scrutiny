@@ -29,7 +29,7 @@ This vignette shows how to save your time preparing data for error detection. It
 
 ### Motivation
 
-One particular challenge when looking for numeric irregularities using R is that numeric values don't preserve trailing zeros. A mean reported as 5.30 is stored as `5.3`, and nothing in the data says which one it was. However, trailing zeros are as important to GRIM, GRIMMER, and DEBIT as any other trailing digits would be.
+One particular challenge when looking for numeric irregularities using R is that numeric values don't preserve trailing zeros. A mean reported as 5.30 is stored as `5.3`, and the data do not show which one it was. However, trailing zeros are as important to GRIM, GRIMMER, and DEBIT as any other trailing digits would be.
 
 scrutiny's consistency tests solve this by asking you to state the number of decimal places explicitly: `grim_map()` has a `digits_x` argument, and `grimmer_map()` and `debit_map()` have `digits_x` and `digits_sd`. None of them has a default, so you can't forget. Values themselves stay numeric.
 

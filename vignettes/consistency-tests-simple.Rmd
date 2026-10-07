@@ -12,16 +12,13 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
-pkgload::load_all()
 ```
 
 ```{r setup}
 library(scrutiny)
 ```
 
-Use scrutiny to implement new consistency tests in R. Consistency tests, such as GRIM, are procedures that check whether two or more summary values can describe the same data.
-
-This vignette shows you the minimal steps required to tap into scrutiny's framework for implementing consistency tests. The key idea is to focus on the core logic of your test and let scrutiny's functions take care of iteration. For an in-depth treatment, see `vignette("consistency-tests-in-depth")`.
+Consistency tests, such as GRIM, check whether two or more summary values can describe the same data. This vignette shows the minimal steps for implementing a new one with scrutiny: write the core logic of the test, and let scrutiny's function factories take care of applying it to data frames. For details, see `vignette("consistency-tests-in-depth")`.
 
 ## 1. Single-case 
 
@@ -40,7 +37,7 @@ schlim_scalar(y = 2, n = 7)
 
 ## 2. Vectorized
 
-For completeness, although it's not very important in practice --- `Vectorize()` from base R helps you turn the single-case function into a vectorized one, so that the new function's arguments can have a length greater than 1:
+`Vectorize()` turns the single-case function into one whose arguments can have a length greater than 1:
 
 ```{r}
 schlim <- Vectorize(schlim_scalar)
@@ -48,11 +45,11 @@ schlim <- Vectorize(schlim_scalar)
 schlim(y = 10:15, n = 4)
 ```
 
-This works as long as every argument of the single-case function makes sense to loop over, and the function always returns a single value. If either is not true --- as with `grim_scalar()`, whose `show_rec` argument only `grim_map()` has any use for --- write the signature out instead. See `vignette("consistency-tests-in-depth")`, section 2.
+This works if every argument of the single-case function is a value to be tested, so that it makes sense to loop over it, and if the function always returns a single value. Otherwise, write the signature out; see `vignette("consistency-tests-in-depth")`, section 2.
 
 ## 3. Basic mapper
 
-Next, create a function that tests many values in a data frame, like `grim_map()` does. Its name should also end on `_map`. Use `function_map()` to get this function without much effort:
+Next, create a function that tests every row of a data frame, like `grim_map()`. Its name should end on `_map`. `function_map()` creates it:
 
 ```{r}
 schlim_map <- function_map(
@@ -87,7 +84,7 @@ df1 |>
 
 ## 5. Sequence mapper
 
-This kind of mapper function tests hypothetical values around the reported ones, like `grim_map_seq()` does. Create a sequence mapper by simply calling `function_map_seq()`:
+A sequence mapper tests values around the reported ones, like `grim_map_seq()`. `function_map_seq()` creates it from the basic mapper:
 
 ```{r}
 schlim_map_seq <- function_map_seq(

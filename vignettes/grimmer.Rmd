@@ -16,50 +16,31 @@ knitr::opts_chunk$set(
 # Print enough significant digits that values like `10.46` are not
 # abbreviated to `10.5` in the output tibbles:
 options(pillar.sigfig = 4)
-pkgload::load_all()
 ```
 
 ```{r setup}
 library(scrutiny)
 ```
 
-Granularity-related inconsistency of means mapped to error repeats, or GRIMMER, is a test for the mathematical consistency of reported means or proportions with the corresponding standard deviations (SDs) and sample sizes [@anaya2016b; @allard2018].
+Granularity-related inconsistency of means mapped to error repeats, or GRIMMER, tests whether a reported mean and standard deviation (SD) of integer data are possible given the reported sample size [@anaya2016b; @allard2018]. It extends GRIM [@brown_grim_2017]: the mean must pass GRIM, and the SD must be achievable by a sample of integers whose sum is one of those that GRIM allows for the mean. scrutiny implements Allard's Analytic-GRIMMER algorithm.
 
-GRIMMER builds up on GRIM [@brown_grim_2017]. Indeed, the elegant Analytic-GRIMMER algorithm [@allard2018] implemented here tests for GRIM-consistency before conducting its own unique tests.
-
-This vignette covers scrutiny's implementation of the GRIMMER test. It's an adapted version of the [GRIM vignette](https://lhdjung.github.io/scrutiny/articles/grim.html) because both the tests themselves and their implementations in scrutiny are very similar. If you are familiar with scrutiny's `grim_*()` functions, much of the present vignette will seem quite natural to you.
-
-The vignette has the following sections --- to get started, though, you only need the first one:
-
-1.  The basic `grimmer()` function and a specialized mapping function, `grimmer_map()`.
-
-2.  The `audit()` method for summarizing `grimmer_map()`'s results.
-
-3.  The visualization function `grim_plot()`, which also works for GRIMMER.
-
-4.  Testing the values around the reported ones with `grimmer_map_seq()`.
-
-5.  Handling unknown group sizes with `grimmer_map_total_n()`.
+The GRIMMER functions work like their GRIM counterparts, so this vignette follows `vignette("grim")` and is shorter where the two tests do not differ.
 
 ## Basic GRIMMER testing
 
-### Few cases: `grimmer()`
+### Single cases: `grimmer()`
 
-To test if a reported mean of 7.3 on a granular scale is GRIMMER-consistent with an SD of 2.51 and a sample size of 12, run this:
+To test whether a mean of 7.3 and an SD of 2.51 are consistent with a sample size of 12:
 
 ```{r}
 grimmer(x = 7.3, sd = 2.51, n = 12, digits_x = 1, digits_sd = 2)
 ```
 
-Note `digits_x` and `digits_sd`, the numbers of decimal places in the reported mean and SD. You always need to state them, and they need to be correct: the number of decimal places is crucial for GRIMMER-testing, but a numeric value doesn't preserve it. An SD reported as 2.10 is stored as `2.1`, so scrutiny cannot tell it apart from an SD that really was reported as 2.1. Only you can, which is why these arguments have no defaults.
-
-`grimmer()` has some further parameters, but all of them can be used from within `grimmer_map()`. The other parameters will be discussed in that context because `grimmer_map()` is often the more useful function in practice. Furthermore, although `grimmer()` is vectorized, `grimmer_map()` is safer and more convenient for testing multiple combinations of means, SDs, and sample sizes.
+`digits_x` and `digits_sd` are the numbers of decimal places in the reported mean and SD. They have no defaults because they cannot be inferred from numeric values, which lose their trailing zeros.
 
 ### Many cases: `grimmer_map()`
 
-If you want to GRIMMER-test more than a handful of cases, the recommended way is to enter them into a data frame and to run `grimmer_map()` on the data frame. Two different ways to do that are discussed in `vignette("wrangling")`, but here, I will only describe an easily accessible solution for a single table.
-
-Copy summary data from a PDF file and paste them into `tibble::tribble()`, which is available via scrutiny:
+Enter the reported values into a data frame and call `grimmer_map()` on it:
 
 ```{r}
 flying_pigs1 <- tibble::tribble(
@@ -72,31 +53,23 @@ flying_pigs1 <- tibble::tribble(
   10.4 , 2.53 , 25 ,
    7.3 , 3.14 , 25
 )
-```
 
-Use RStudio's multiple cursors to set commas at the end of all the values. See `vignette("wrangling")`, section *With copy and paste*, if you are not sure how to do that.
-
-Now, run `grimmer_map()` on that data frame. The means were reported with one decimal place and the SDs with two, so `digits_x` is 1 and `digits_sd` is 2:
-
-```{r, error=TRUE}
 grimmer_map(flying_pigs1, digits_x = 1, digits_sd = 2)
 ```
 
-The `x` and `n` columns are the same as in the input. By default, the number of `items` composing the mean is assumed to be 1. The main result, `consistency`, is the GRIMMER consistency of the former three columns.
-
-The `reason` column says why a set of values was inconsistent. To be GRIMMER-consistent, a value set needs to pass four separate tests: the three GRIMMER tests by @allard2018 and the more basic GRIM test. Here, the single inconsistent value passed GRIM as well as the first two GRIMMER tests, but failed the third one. All consistent value sets are marked as `"Passed all"` in the `"reason"` column.
-
-Here is a quick reference for the three GRIMMER tests. See @allard2018 for an explanation.
+`consistency` is the test result, and `reason` states which part of the test an inconsistent value set failed. A value set passes GRIMMER if it passes GRIM and the three tests of @allard2018:
 
 1.  The reconstructed sum of squared observations must be an integer.
 2.  The reconstructed SD must match the reported one.
-3.  The parity of the reconstructed sum of squared observations must match the parity of the reconstructed sum of integers of which the reported means are fractions; i.e., either both are even or both are odd.
+3.  The parity of the reconstructed sum of squares must match that of the reconstructed sum of the values.
+
+Consistent value sets are marked `"Passed all"`.
 
 ### Scale items
 
-If a mean is composed of multiple items, set the `items` parameter to that number. Below are hypothetical means of a three-items scale. With the single-item default, half of these are wrongly flagged as GRIM-inconsistent (true GRIMMER example below):
+If the mean and SD come from a multi-item scale, state the number of items with the `items` argument or an `items` column, as in `grim_map()`. With the default `items = 1`, half of these value sets from a three-item scale are wrongly reported as GRIM-inconsistent:
 
-```{r, error=TRUE}
+```{r}
 flying_pigs2 <- tibble::tribble(
   ~x   , ~sd  , ~n ,
   5.90 , 2.19 , 40 ,
@@ -108,53 +81,18 @@ flying_pigs2 <- tibble::tribble(
 )
 
 flying_pigs2 |>
-  grimmer_map(digits_x = 2, digits_sd = 2) # default `items` is wrong here!
-```
+  grimmer_map(digits_x = 2, digits_sd = 2)
 
-(Note that `5.90` and `3.50` are stored as `5.9` and `3.5`. Their trailing zeros are gone from the data, but `digits_x = 2` states that they were reported, so they are tested as two-decimal values all the same.)
-
-Yet, all of them are consistent if the correct number of items is stated:
-
-```{r, error=TRUE}
 flying_pigs2 |>
   grimmer_map(digits_x = 2, digits_sd = 2, items = 3)
 ```
 
-It is also possible to include an `items` column in the data frame instead. This is helpful if the rows have different numbers of items:
-
-```{r, error=TRUE}
-flying_pigs3 <- tibble::tribble(
-  ~x   , ~sd  , ~n , ~items ,
-  6.92 , 2.19 , 30 ,      1 ,
-  3.48 , 1.42 , 30 ,      1 ,
-  1.59 , 1.81 , 30 ,      2 ,
-  2.61 , 2.43 , 30 ,      2 ,
-  4.04 , 1.92 , 30 ,      3 ,
-  4.50 , 2.51 , 30 ,      3 ,
-)
-
-flying_pigs3 |>
-  grimmer_map(digits_x = 2, digits_sd = 2)
-```
-
-The `items` values are multiplied by the `n` values, and the product is shown as `n` in the output. This is only for presentation; it doesn't affect the test results.
-
-However, if we remove the `items` column, crucial information is missing. As a consequence, the last two values are wrongly flagged as inconsistent, one of them by GRIMMER:
-
-```{r}
-flying_pigs3 |>
-  dplyr::select(-items) |>
-  grimmer_map(digits_x = 2, digits_sd = 2)
-```
-
 ### Scale bounds
 
-GRIMMER assumes that the values behind a mean and an SD are integers. Often we know more than that: responses on a five-point Likert scale are integers *between 1 and 5*. State that range with `min_val` and `max_val`, and GRIMMER will also check whether values from it could have produced the reported statistics at all.
-
-A range caps how far the values can spread out around their mean --- and therefore how large the SD can be:
+GRIMMER assumes that the values behind the mean and SD are integers. If they were also confined to a range, such as a five-point Likert scale, state it with `min_val` and `max_val`. The range limits how far the values can be from their mean, and therefore how large the SD can be. A mean outside the range is inconsistent by itself:
 
 ```{r}
-flying_pigs5 <- tibble::tribble(
+flying_pigs3 <- tibble::tribble(
   ~x   , ~sd  , ~n ,
   3.00 , 1.45 , 20 ,
   3.00 , 2.08 , 20 ,
@@ -162,25 +100,15 @@ flying_pigs5 <- tibble::tribble(
   7.20 , 1.11 , 20
 )
 
-flying_pigs5 |>
+flying_pigs3 |>
   grimmer_map(digits_x = 2, digits_sd = 2, min_val = 1, max_val = 5)
 ```
 
-All four rows are GRIMMER-consistent for unbounded integers. On a scale from 1 to 5, however:
+All four rows pass GRIMMER on an unbounded scale. On a scale from 1 to 5, an SD of 2.08 is impossible with a mean of 3: even the most extreme sample, ten 1s and ten 5s, has an SD of only `r round(sd(c(rep(1, 10), rep(5, 10))), 2)`. A mean of exactly 1 requires all values to be 1, so the SD must be 0. A mean of 7.20 is not on the scale.
 
-- An SD of 2.08 is out of reach at a mean of 3. The most extreme such sample --- ten 1s and ten 5s --- has an SD of only `r round(sd(c(rep(1, 10), rep(5, 10))), 2)`.
-- A mean of exactly 1 forces every single value to be 1, so the SD has to be 0.
-- A mean of 7.20 is not on the scale in the first place.
+Both bounds refer to a single response, so they do not depend on `items`, and they must be given together. Like GRIMMER's other tests, this test is necessary but not sufficient: a value set that passes it may still be impossible. The [strait](https://github.com/ianhussey/strait) package goes much further with bounded scales, including an exact decision procedure.
 
-Both bounds refer to a single response, so they don't depend on `items`: for a five-point scale, `min_val` is 1 and `max_val` is 5 whether the mean was composed of one item or of ten. They have to be specified together, because a single bound places no limit on the SD.
-
-Scale bounds can only turn a `TRUE` verdict into `FALSE`, never the other way around. Like GRIMMER's other tests, the condition they add is necessary but not sufficient: a value set that passes it may still be impossible.
-
-This is the least of what a known scale range implies, and it is in scrutiny because it costs GRIMMER one comparison per candidate sum. The [strait](https://github.com/ianhussey/strait) package is devoted to the subject and goes much further --- bounds sharpened by attained extremes, by response granularity, or by a reported Cronbach's alpha, and an exact decision procedure that is sufficient as well as necessary.
-
-## Summarizing results with `audit()`
-
-Following up on a call to `grimmer_map()`, the generic function `audit()` summarizes GRIMMER test results:
+## Summaries with `audit()`
 
 ```{r}
 flying_pigs1 |>
@@ -188,81 +116,34 @@ flying_pigs1 |>
   audit()
 ```
 
-These columns are ---
+- `incons_cases`, `all_cases`, `incons_rate`: the number of inconsistent value sets, the total, and their ratio.
+- `fail_grim`, `fail_test1`, `fail_test2`, `fail_test3`: the number of value sets that failed GRIM or one of the three GRIMMER tests.
+- `fail_scale`: the number that failed the scale bounds; zero if none were given.
 
-1.  `incons_cases`: number of GRIMMER-inconsistent value sets.
+## Visualization with `grim_plot()`
 
-2.  `all_cases`: total number of value sets.
-
-3.  `incons_rate`: proportion of GRIMMER-inconsistent value sets.
-
-4.  `fail_grim`, `fail_test1`, `fail_test2`, `fail_test3`: number of value sets failing the GRIM test or one of the three GRIMMER tests, respectively (see Allard 2018).
-
-5.  `fail_scale`: number of value sets that are inconsistent with the scale bounds given by `min_val` and `max_val`. Zero if these were not specified.
-
-## Visualizing results with `grim_plot()`
-
-GRIMMER does not currently have a dedicated visualization function in scrutiny. However, `grim_plot()` will accept the output of `grimmer_map()` just as well as that from `grim_map()`:
+There is no GRIMMER-specific plot, but `grim_plot()` accepts `grimmer_map()` output and shows the GRIM part of the test:
 
 ```{r, fig.width=6, fig.height=5.5}
-flying_pigs4 <- tibble::tribble(
-  ~x   , ~sd  , ~n ,
-  7.19 , 1.19 , 54 ,
-  4.56 , 2.56 , 66 ,
-  0.42 , 1.29 , 59 ,
-  1.31 , 3.50 , 57 ,
-  3.48 , 3.65 , 66 ,
-  4.27 , 2.86 , 61 ,
-  6.21 , 2.15 , 62 ,
-  3.11 , 3.17 , 50 ,
-  5.39 , 2.37 , 68 ,
-  5.66 , 1.11 , 44 ,
-)
-
-
-flying_pigs4 |>
+pigs5 |>
   grimmer_map(digits_x = 2, digits_sd = 2) |>
   grim_plot()
 ```
 
-However, `grim_plot()` will fail with any object not returned by either of these two functions:
+`grimmer_plot_values()` visualizes the test for a single value set. It shows the SDs that could have been reported within a certain range and marks those that a sample with the given mean and size can actually have.
 
-```{r, error=TRUE}
-grim_plot(mtcars)
-```
+## Values around the reported ones: `grimmer_map_seq()`
 
-See the [GRIM vignette section](https://lhdjung.github.io/scrutiny/articles/grim.html#visualizing-results-with-grim_plot) on `grim_plot()` for more information.
-
-## Testing the values around the reported ones with `grimmer_map_seq()`
-
-GRIMMER analysts might be interested in a mean or percentage value's numeric neighborhood. Suppose you found multiple GRIMMER inconsistencies as in our example `pigs5` data. You might wonder whether they are due to small reporting or computing errors.
-
-Use `grimmer_map_seq()` to GRIMMER-test the values surrounding the reported means and sample sizes:
+`grimmer_map_seq()` varies `x`, `sd`, and `n` a few steps up and down from the reported values and tests each result, by default only for inconsistent value sets:
 
 ```{r}
 out_seq1 <- grimmer_map_seq(pigs5, digits_x = 2, digits_sd = 2)
 out_seq1
-```
 
-### Summaries with `audit_seq()`
-
-As this output is a little unwieldy, run `audit_seq()` on the results:
-
-```{r}
 audit_seq(out_seq1)
 ```
 
-Here is what the output columns mean:
-
--   `x` and `n` are the original inputs, reconstructed and tested for `consistency` here.
-
--   `hits` is the number of GRIMMER-consistent value combinations found within the specified `dispersion` range.
-
--   `diff_x` reports the absolute difference between `x` and the next consistent dispersed value (in dispersion steps, not the actual numeric difference). `diff_x_up` and `diff_x_down` report the difference to the next higher or lower consistent value, respectively.
-
--   `diff_n`, `diff_n_up`, and `diff_n_down` do the same for `n`.
-
-The default for `dispersion` is `1:5`, for five steps up and down. When the `dispersion` sequence gets longer, the number of hits tends to increase:
+The summary has the same structure as for GRIM, with `hits_sd` and the `diff_sd*` columns added. With more steps, more hits are typically found:
 
 ```{r}
 out_seq2 <- grimmer_map_seq(
@@ -274,55 +155,28 @@ out_seq2 <- grimmer_map_seq(
 audit_seq(out_seq2)
 ```
 
-### Visualizing the tested values
-
-It's curious what happens when we plot the output of `grimmer_map_seq()`. Like regular GRIM or GRIMMER plots, however, it does give us a sense of how many tested values are consistent:
+`grim_plot()` accepts this output as well, and `var` restricts the dispersion to one variable:
 
 ```{r, fig.width=6, fig.height=5.5}
-grim_plot(out_seq1)
+grimmer_map_seq(pigs5, digits_x = 2, digits_sd = 2, var = "n") |>
+  grim_plot()
 ```
 
-The crosses appear because `grimmer_map_seq()` creates sequences around both `x` and `n`. Restrict this process to any one of these with the `var` argument:
+## Unknown group sizes: `grimmer_map_total_n()`
 
-```{r, fig.width=6, fig.height=5.5}
-out_seq1_only_x <- grimmer_map_seq(
-  pigs5,
-  digits_x = 2,
-  digits_sd = 2,
-  var = "x"
-)
-out_seq1_only_n <- grimmer_map_seq(
-  pigs5,
-  digits_x = 2,
-  digits_sd = 2,
-  var = "n"
-)
-
-grim_plot(out_seq1_only_x)
-grim_plot(out_seq1_only_n)
-```
-
-## Handling unknown group sizes with `grimmer_map_total_n()`
-
-### Problems from underreporting
-
-Unfortunately, some studies that report group averages don't report the corresponding group sizes --- only a total sample size. This makes any direct GRIMMER-testing impossible because only `x` values are known, not `n` values. All that is feasible here in terms of GRIMMER is to take a number around half the total sample size, go up and down from it, and check which *hypothetical* group sizes are consistent with the reported group means. `grimmer_map_total_n()` semi-automates this process, motivated by a recent GRIM analysis [@bauer_expression_2021].
-
-Here is an example:
+If only the total sample size of two groups is known, `grimmer_map_total_n()` tests hypothetical splits of it, as `grim_map_total_n()` does; see `vignette("grim")` for a case study.
 
 ```{r}
-flying_pigs5 <- tibble::tribble(
+flying_pigs4 <- tibble::tribble(
   ~x1  , ~x2  , ~sd1 , ~sd2 , ~n ,
   3.43 , 5.28 , 1.09 , 2.12 , 70 ,
   2.97 , 4.42 , 0.43 , 1.65 , 65
 )
 
-out_total_n <- grimmer_map_total_n(flying_pigs5, digits_x = 2, digits_sd = 2)
+out_total_n <- grimmer_map_total_n(flying_pigs4, digits_x = 2, digits_sd = 2)
 out_total_n
 
 audit_total_n(out_total_n)
 ```
-
-See the GRIM vignette, section *Handling unknown group sizes with `grim_map_total_n()`*, for a more comprehensive case study. It uses `grim_map_total_n()`, which is the same as `grimmer_map_total_n()` but only for GRIM.
 
 # References

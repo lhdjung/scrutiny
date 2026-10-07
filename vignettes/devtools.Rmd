@@ -19,13 +19,11 @@ knitr::opts_chunk$set(
 library(scrutiny)
 ```
 
-The implementation of error detection techniques in scrutiny rests on a foundation of specialized helper functions. Some of these are exported because they might be helpful in error detection more broadly, or perhaps even in other contexts.
-
-This vignette provides an overview of scrutiny's miscellaneous infrastructure for implementing error detection techniques. For more specific articles, see `vignette("rounding-in-depth")` or `vignette("consistency-tests-simple")`.
+scrutiny exports a number of helper functions on which its error detection techniques are built, since they may be useful for implementing other techniques. This vignette gives an overview. For rounding, see `vignette("rounding-in-depth")`; for the consistency test infrastructure, see `vignette("consistency-tests-simple")`.
 
 ## Count decimal places
 
-Large parts of the package ultimately rest on either of two functions that simply count decimal places. These are digits after a number's decimal point or some other separator. Both functions also take strings.
+The sequence functions below and `restore_zeros()` are based on two functions that count decimal places, i.e., the digits after the decimal point or another separator. Both take numbers and strings.
 
 `decimal_places()` is vectorized:
 
@@ -44,7 +42,7 @@ vec1 |>
   decimal_places()
 ```
 
-Using strings (that are coercible to numeric) is recommended in an error detection context because trailing zeros can be crucial here. Numeric values drop trailing zeros, whereas strings preserve them:
+Numeric values drop trailing zeros, whereas strings preserve them. This is why the consistency tests take the number of decimal places as an argument rather than counting it:
 
 ```{r}
 decimal_places(7.200)
@@ -56,7 +54,7 @@ decimal_places("7.200")
 
 ## Restore trailing zeros
 
-When dealing with numbers that used to have trailing zeros but lost them from being registered as numeric, call `restore_zeros()` to format them correctly. This can be relevant within functions that create vectors where trailing zeros matter, such as the `seq_*()` functions presented in the next section.
+`restore_zeros()` restores trailing zeros to numbers that lost them, returning strings. The `seq_*()` functions below use it.
 
 Suppose all of the following numbers originally had one decimal place, but some no longer do:
 
@@ -93,11 +91,7 @@ vec2 |>
 
 ### Introduction
 
-`base::seq()` offers a flexible way to generate sequences, but it is not cut out for working with decimal numbers. The `by` argument only allows for manual specifications of the step size, i.e., the difference between two consecutive output values. In an error detection context, there is also the problem of trailing zeros in numeric values.
-
-Use scrutiny's `seq_*()` functions to automatically determine step size from the input numbers and, by default, to supply missing trailing zeros via `restore_zeros()`. Output will then naturally be string.
-
-Why are there multiple such functions? The first two disentangle the two different ways in which `seq()` can be used. A third function adds a way of generating sequences not directly covered by `seq()`.
+`base::seq()` needs the step size as an argument. scrutiny's `seq_*()` functions take it from the decimal places of the input, so that a sequence from `4.1` proceeds in steps of `0.1`, and they pad the output with trailing zeros via `restore_zeros()`, so it is string by default. The first two correspond to the two ways of calling `seq()`; the third has no counterpart there.
 
 -   `seq_endpoint()` takes two main arguments, `from` and `to`. It creates a sequence between the two, inferring step size from the greater number of decimal places among them. This corresponds to a `seq()` call in which `to` was specified.
 
@@ -143,7 +137,7 @@ seq_disperse(from = 4.1)
 
 ### General points
 
-Four predicate functions test whether a vector `x` represents particular kinds of sequences. These testing functions can be used as helpers, but they are also analytic tools in their own right.
+Four predicate functions test whether a vector `x` is a particular kind of sequence.
 
 `is_seq_linear()` returns `TRUE` if the difference between all neighboring values is the same:
 
@@ -194,9 +188,7 @@ is_seq_dispersed(x = x_nonlinear, from = 50, test_linear = FALSE)
 
 ### `NA` handling
 
-All the `is_seq_*()` functions take special care with missing values. If one or more elements of `x` are `NA`, this doesn't necessarily mean that it's unknown whether or not `x` might possibly represent the kind of sequence in question.
-
-In these examples, it is genuinely unclear whether `x` is linear:
+A missing value does not always make the result `NA`. In these examples, it is unclear whether `x` is linear:
 
 ```{r}
 is_seq_linear(x = c(1, 2, NA, 4))
@@ -213,7 +205,7 @@ is_seq_linear(x = c(1, 2, 3, 4, 5, 6))
 is_seq_linear(x = c(1, 2, 17, 29, 32, 6))
 ```
 
-Sometimes, however, `x` cannot possibly represent the tested kind of sequence, independently of the hypothetical numbers substituted for `NA` elements. In such cases, scrutiny's `is_seq_*()` functions will always return `FALSE`:
+If no value substituted for the `NA`s could make `x` the kind of sequence in question, the functions return `FALSE`:
 
 ```{r}
 is_seq_linear(x = c(1, 2, NA, 10))
@@ -221,9 +213,7 @@ is_seq_linear(x = c(1, 2, NA, NA, NA, 10))
 
 ```
 
-This is very much in the spirit of consistency testing. Even if certain data are unknown, it still makes sense to check whether or not *any* data could possibly fill in the gaps. The `is_seq_*()` functions effectively ask: Are the numbers left and right of the `NA`s consistent with each other, given their index positions?
-
-It is worth emphasizing that this behavior is not exotic, or specific to scrutiny. It simply asserts the fundamental ideas of `NA` propagation in R. For example, `is_seq_ascending(x = c(1, 2, NA, 1))` is `FALSE` for the same reason that `NA & FALSE` is `FALSE`: The outcome is the same for all possible values of `NA` [@wickham2019, ch. 3.2.3].
+This follows R's own rules for missing values: `is_seq_ascending(x = c(1, 2, NA, 1))` is `FALSE` for the same reason that `NA & FALSE` is `FALSE`. The result is the same for every value that the `NA` could represent [@wickham2019, ch. 3.2.3].
 
 Leading and trailing `NA`s are mostly ignored when determining whether `x` *might* be the kind of sequence in question:
 
@@ -254,9 +244,7 @@ is_seq_dispersed(x = c(NA, NA, 3:7), from = 5)
 
 ## Disperse from (around) half with `disperse_total()`
 
-Briefly, `disperse_total()` checks if an input total is even or odd, cuts it in half, and creates "dispersed" group sizes going out from there, with each pair of group sizes adding up to the input total. This works naturally with even totals. For odd totals, it starts with the two integers closest to half.
-
-The function internally calls either of `disperse()` and `disperse2()`, but I recommend simply using the higher-level `disperse_total()`. Here are two basic examples:
+`disperse_total()` splits a total sample size into pairs of hypothetical group sizes that add up to it, starting from half (or, for an odd total, from the two integers closest to half) and moving outward. It calls `disperse()` or `disperse2()` depending on parity; the two can also be called directly.
 
 ```{r}
 # With an even total...
