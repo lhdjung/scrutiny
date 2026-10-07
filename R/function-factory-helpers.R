@@ -12,7 +12,7 @@
 #'
 #' @param data Data frame passed to the factory-made function.
 #' @param key_cols_call Optionally, a named character vector that maps key
-#'   argument names to the columns of `data` they stand for, such as `c(x =
+#'   argument names to the columns of `data` that they refer to, such as `c(x =
 #'   "mean")`. By default, it is read from the key arguments of the function
 #'   that calls `absorb_key_args()`.
 #' @param key_cols_missing,key_cols_call_names String. Vectors with names of the
@@ -124,19 +124,16 @@ check_factory_key_args_names <- function(
 }
 
 
-#' Check that no dots-argument is misspelled
+#' Check that no dots argument is misspelled
 #'
-#' `check_factory_dots()` is called within each main function factory:
-#' `function_map()`, `function_map_seq()`, and `function_map_total_n()`.
+#' `check_factory_dots()` is called within the mapper functions made by
+#' [`function_map()`], [`function_map_seq()`], and [`function_map_total_n()`].
+#' It errors if an argument passed through the dots is not an argument of the
+#' function being mapped.
 #'
-#' For the `fun_name_scalar` argument, the function requires the following line
-#' in the entry area (i.e., the part of the function factory before the first
-#' version of the factory-made function is created):
-#' `fun_name <- deparse(substitute(.fun))`
-#'
-#' @param fun Function applied by the function factory.
+#' @param fun Function applied by the factory-made function.
 #' @param fun_name_scalar String (length 1). Name of `fun`.
-#' @param ... Arguments passed by the factory-made function's user to `fun`.
+#' @param ... The dots of the factory-made function.
 #'
 #' @return No return value; might throw an error.
 #'
@@ -437,31 +434,26 @@ check_variadic_cols <- function(index, data, spoken_for, name) {
   )
 }
 
-#' Absorb key arguments from the user's call
+#' Rename key columns according to the key arguments
 #'
-#' If `insert_key_args()` is called in the exit area of a function factory
-#' (i.e., after the part that produces the factory-made function),
-#' `absorb_key_args()` must be called in the main part. Unlike the former, it
-#' transforms `data`, not `fun`, and should be reassigned to `data`.
+#' `absorb_key_args()` is called within mapper functions. If the user named a
+#' key argument such as `x` after a column of `data`, it renames that column to
+#' the key argument's name, so that the rest of the mapper finds it under the
+#' expected name.
 #'
-#' It renames key columns that have non-standard names, following user-supplied
-#' directions via the arguments automatically inserted below the function.
-#'
-#' @param data User-supplied data frame.
+#' @param data Data frame passed to the mapper.
 #' @param reported String. Names of the key arguments.
 #' @param key_cols_call Optionally, a named character vector that maps key
-#'   argument names to the columns of `data` they stand for, such as `c(x =
-#'   "mean")`. By default, it is read from the key arguments of the function
-#'   that calls `absorb_key_args()`.
+#'   argument names to the columns of `data` that they refer to, such as `c(x =
+#'   "mean")`. By default, it is read from the key arguments of the calling
+#'   mapper.
 #'
 #' @export
 #'
-#' @return Data frame `data`, possibly with one or more columns renamed.
-#'   Remember reassigning the value to `data`!
+#' @return `data`, possibly with columns renamed. Reassign the result to
+#'   `data`.
 #'
 #' @examples
-#' # Within a mapper, the directions come from its key
-#' # arguments; here, they are given explicitly:
 #' df <- tibble::tibble(mean = c(5.19, 4.56), n = c(28, 30))
 #' absorb_key_args(df, c("x", "n"), key_cols_call = c(x = "mean"))
 absorb_key_args <- function(data, reported, key_cols_call = NULL) {
@@ -577,17 +569,12 @@ capture_key_args <- function(data, quos) {
 
 #' Check that disabled arguments are not specified
 #'
-#' If the user of the function factory specified its `.args_disabled` argument,
-#' `check_args_disabled()` enforces this ban.
+#' `check_args_disabled()` is called within functions made by
+#' [`function_map()`] or [`function_map_seq()`]. It errors if the user of the
+#' factory-made function specified an argument that the factory's user disabled
+#' via `.args_disabled`.
 #'
-#' More precisely, it throws an error if the user of the factory-made function
-#' specified one or more arguments which the user of the function factory had
-#' disabled via the latter's `.args_disabled` argument. The arguments would
-#' otherwise be passed on to the function that is mapped within the factory-made
-#' function.
-#'
-#' @param args_disabled String. One or more names of arguments of the function
-#'   applied within the factory-made function.
+#' @param args_disabled String. Names of the disabled arguments.
 #'
 #' @return No return value; might throw an error.
 #'
@@ -690,9 +677,9 @@ check_args_disabled_unnamed <- function(args_disabled) {
 #'   tested, etc.
 #'
 #'   All of this makes sense because scrutiny's classes differ in complexity
-#'   (e.g., `"scrutiny_grim_map_seq"` versus `"scrutiny_map_seq"`), and the purpose here
-#'   is to find the most complex class with the earliest in line of the
-#'   `contains` strings. The latter should be ordered in descending order of
+#'   (e.g., `"scrutiny_grim_map_seq"` versus `"scrutiny_map_seq"`), and the
+#'   purpose here is to find the most complex class with the earliest in line of
+#'   the `contains` strings. The latter should be ordered in descending order of
 #'   desirability, so that the most "desired" string comes first.
 #'
 #' @param data Object to be tested for classes (most likely a data frame).

@@ -21,118 +21,85 @@ grimmer(
 )
 }
 \arguments{
-\item{x}{Numeric. The reported mean value.}
+\item{x}{Numeric. The reported mean.}
 
 \item{sd}{Numeric. The reported standard deviation.}
 
 \item{n}{Integer. The reported sample size.}
 
 \item{digits_x}{Integer. The number of decimal places in \code{x}, including
-trailing zeros. There is no default because it cannot be inferred from a
-numeric \code{x}, which has no trailing zeros: both \code{1.4} and \code{1.40} are the
-number \code{1.4}, but only the latter has \code{digits_x = 2}.}
+trailing zeros. There is no default, since a numeric value does not
+keep them (\code{1.40} is \code{1.4}).}
 
 \item{digits_sd}{Integer. The number of decimal places in \code{sd}, including
-trailing zeros. As with \code{digits_x}, there is no default, because trailing
-zeros don't survive in a numeric value.}
+trailing zeros. There is no default, since a numeric value does not
+keep them (\code{1.40} is \code{1.4}).}
 
-\item{items}{Integer. The number of items composing the \code{x} and \code{sd} values.
-Default is \code{1}, the most common case.}
+\item{items}{Integer. The number of items composing \code{x} and \code{sd}. Default
+is \code{1}.}
 
-\item{min_val, max_val}{Integer. Optionally, the minimum and maximum value
-that an individual response could take, as with the endpoints of a Likert
-scale. If both are specified, GRIMMER also tests whether values within
-that range could have produced the reported \code{x} and \code{sd} in the first
-place. Both default to \code{NULL}, i.e., an unbounded scale. See \emph{Scale
-bounds} below.}
+\item{min_val, max_val}{Integer. Optionally, the smallest and largest value
+that a single response can take, such as the endpoints of a Likert scale.
+Both default to \code{NULL}, an unbounded scale. See \emph{Scale bounds}.}
 
-\item{rounding}{String. Rounding method or methods to be used for
-reconstructing the values to which \code{x} will be compared. Default is
-\code{"up_or_down"} (from 5).}
+\item{rounding}{String. The rounding method assumed to have produced \code{x}.
+Default is \code{"up_or_down"}, which accepts either direction. See
+\code{vignette("rounding-options")}.}
 
-\item{threshold}{Numeric. If \code{rounding} is set to \code{"up_from"}, \code{"down_from"},
-or \code{"up_from_or_down_from"}, set \code{threshold} to the number from which the
-reconstructed values should then be rounded up or down. Otherwise, this
-argument plays no role. Default is \code{5}.}
+\item{threshold}{Numeric. For \code{rounding = "up_from"}, \code{"down_from"}, or
+\code{"up_from_or_down_from"}, the point within a step at which rounding
+switches direction, in tenths of a step. Default is \code{5}. Ignored
+otherwise.}
 
-\item{symmetric}{Logical. Set \code{symmetric} to \code{TRUE} if the rounding of
-negative numbers with \code{"up"}, \code{"down"}, \code{"up_from"}, or \code{"down_from"}
-should mirror that of positive numbers so that their absolute values are
-always equal. Default is \code{FALSE}. It must not be given with any of the
-\code{"ties_*"} methods, which already name a complete tie-breaking procedure;
-see \code{\link[=reround]{reround()}}.}
+\item{symmetric}{Logical. If \code{TRUE}, negative numbers are rounded like
+their absolute values (\code{-2.5} like \code{2.5}) under \code{"up"}, \code{"down"}, and the
+\code{"*_from"} methods. Default is \code{FALSE}. Must not be given with a
+\code{"ties_*"} rounding method, which already fixes the direction; see
+\code{\link[=reround]{reround()}}.}
 
-\item{tolerance}{Numeric. Tolerance of the comparison between the reported
-\code{sd} and the reconstructed SDs, via \code{\link[dplyr:near]{dplyr::near()}}. Default is circa
-0.000000015 (1.490116e-08). This is documented here rather than inherited
-from \code{\link[=grim]{grim()}}, where the argument is deprecated: GRIM compares exact
-integers and has nothing for a tolerance to loosen, whereas GRIMMER
-reconstructs SDs in floating point and does.}
+\item{tolerance}{Numeric. Tolerance for comparing the reported \code{sd} to the
+reconstructed SDs, via \code{\link[dplyr:near]{dplyr::near()}}. Default is about \code{1.5e-8}.}
 }
 \value{
-Logical. \code{TRUE} if \code{x}, \code{sd}, \code{n}, and \code{items} are mutually
-consistent, \code{FALSE} if not, and \code{NA} if the case cannot be decided: if any
-of the values is missing, if the rounding bounds are undefined, if \code{items}
-is not a positive whole number, or if \code{n} is not a whole number greater
-than \code{1}. GRIMMER reconstructs a \emph{sample} SD, so it divides by \code{n - 1}.
+Logical. \code{TRUE} if \code{x}, \code{sd}, \code{n}, and \code{items} are consistent,
+\code{FALSE} if not, and \code{NA} if the case cannot be decided: if a value is
+missing or infinite, if \code{items} is not a positive whole number, or if \code{n}
+is not a whole number greater than \code{1}. GRIMMER reconstructs a sample SD
+and so divides by \code{n - 1}.
 }
 \description{
-\code{grimmer()} checks if reported mean and SD values of integer
-data are mathematically consistent with the reported sample size and the
-number of items that compose the mean value. It works much like \code{\link[=grim]{grim()}}.
+\code{grimmer()} checks whether a reported mean and standard
+deviation of integer data are consistent with the reported sample size and
+the number of items that compose them. It extends \code{\link[=grim]{grim()}}: the mean
+must pass GRIM, and the SD must then be reachable from one of the integer
+sums that GRIM admits.
 
-The function is vectorized, but it is recommended to use \code{\link[=grimmer_map]{grimmer_map()}}
-for testing multiple cases.
-
-\code{x}, \code{sd}, \code{n}, \code{digits_x}, \code{digits_sd}, and \code{items} are vectorized: they
-may have any length, and shorter ones are recycled to the length of the
-longest, as long as they have length 1. All other arguments describe the
-test as a whole and must have length 1.
+The function is vectorized, but \code{\link[=grimmer_map]{grimmer_map()}} is more convenient for
+testing many cases.
 }
 \details{
-GRIMMER was originally devised by Anaya (2016). The present
-implementation follows Allard's (2018) refined Analytic-GRIMMER algorithm.
-It uses a variant of Analytic-GRIMMER also implemented in
-\href{https://lukaswallrich.github.io/rsprite2/reference/GRIMMER_test.html}{\code{rsprite2::GRIMMER_test()}}
-that can be applied to multi-item scales and optionally takes scale ranges
-into account.
+\code{x}, \code{sd}, \code{n}, \code{digits_x}, \code{digits_sd}, and \code{items} are
+vectorized and recycled to a common length by the tidyverse rules. All
+other arguments must have length 1.
 
-The scrutiny version embeds GRIMMER in the broader system of consistency
-testing, as laid out in
-\href{https://lhdjung.github.io/scrutiny/articles/consistency-tests-in-depth.html}{\emph{Consistency
-tests in depth}}. The \code{grimmer()} function
-is a vectorized (multiple-case) version of this basic implementation. For
-more context and variable name translations, see the top of the R/grimmer.R
-source file.
+The implementation follows Allard's (2018) Analytic-GRIMMER algorithm, as
+does \code{rsprite2::GRIMMER_test()}. GRIMMER was first proposed by Anaya
+(2016).
 }
 \section{Scale bounds}{
- GRIMMER assumes that the individual values behind \code{x}
-and \code{sd} are whole numbers. If they were also confined to a fixed range --
-the endpoints of a Likert scale, say -- state that range using \code{min_val}
-and \code{max_val}. The test then knows how far the values could spread out
-around their mean at most, which rules out standard deviations that are
-possible on an unbounded scale. A reported \code{x} outside of the range is
-inconsistent by itself.
+ GRIMMER assumes that the values behind \code{x} and \code{sd}
+are whole numbers. If they were also confined to a range, state it with
+\code{min_val} and \code{max_val}. The range caps how far the values can spread
+around their mean, which rules out SDs that are possible on an unbounded
+scale, and a mean outside the range is inconsistent by itself.
 
-Both bounds refer to a single response, so they don't depend on \code{items}:
-for a five-point scale, \code{min_val} is \code{1} and \code{max_val} is \code{5} whether the
-mean was composed of one item or of ten. They must be specified together,
-because a single bound places no limit on the standard deviation.
+Both bounds refer to a single response, so they do not depend on \code{items}.
+They must be given together, since one bound alone places no limit on the
+SD. Like GRIMMER's other tests, this condition is necessary but not
+sufficient: a value set that passes it may still be impossible.
 
-Scale bounds can only turn a \code{TRUE} verdict into \code{FALSE}, never the other
-way around. Like GRIMMER's other tests, the condition they add is
-necessary but not sufficient, so a value set that passes it may still be
-impossible.
-
-This is the least of what a known scale range implies, and it is here
-because it costs GRIMMER one comparison per candidate sum. The
-\href{https://github.com/ianhussey/strait}{strait} package is devoted to
-the subject and goes much further: bounds sharpened by attained extremes,
-by response granularity, or by a reported Cronbach's alpha
-(\code{strait::sd_bounds()}), and an exact decision procedure that is
-sufficient as well as necessary (\code{strait::brimmest()}). For the
-simulation-based SPRITE technique, see
-\href{https://lukaswallrich.github.io/rsprite2/}{rsprite2}.
+The \href{https://github.com/ianhussey/strait}{strait} package goes much
+further with bounded scales, including an exact decision procedure.
 }
 
 \examples{
@@ -165,10 +132,4 @@ https://aurelienallard.netlify.app/post/anaytic-grimmer-possibility-standard-dev
 Anaya, J. (2016). The GRIMMER test: A method for testing the validity of
 reported measures of variability. \emph{PeerJ Preprints.}
 https://peerj.com/preprints/2400v1/
-
-Mestdagh, M., Pe, M., Pestman, W., Verdonck, S., Kuppens, P., &
-Tuerlinckx, F. (2018). Sidelining the mean: The relative variability index
-as a generic mean-corrected variability measure for bounded variables.
-\emph{Psychological Methods}, 23(4), 690-707.
-https://doi.org/10.1037/met0000153
 }

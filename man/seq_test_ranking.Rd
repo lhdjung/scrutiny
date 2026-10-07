@@ -7,23 +7,20 @@
 seq_test_ranking(x, explain = TRUE)
 }
 \arguments{
-\item{x}{Data frame.}
+\item{x}{Data frame returned by a mapper called on sequence output. A
+warning is issued if it is not.}
 
-\item{explain}{If \code{TRUE} (the default), results come with an explanation.}
+\item{explain}{Logical. Should the result be explained in a message?
+Default is \code{TRUE}.}
 }
 \value{
-A tibble (data frame). The function will also print an explanation of
-the results. See examples.
+A tibble.
 }
 \description{
-Run this function after generating a sequence with
-\code{seq_endpoint_df()} or \code{seq_distance_df()} and testing it with one of
-scrutiny's mapping functions, such as \code{grim_map()}. It will rank the test's
-consistent and inconsistent results by their positions in the sequence.
-}
-\details{
-The function checks the provenance of the test results and throws a
-warning if it's not correct.
+After testing a sequence from \code{\link[=seq_endpoint_df]{seq_endpoint_df()}} or
+\code{\link[=seq_distance_df]{seq_distance_df()}} with a mapper such as \code{\link[=grim_map]{grim_map()}},
+\code{seq_test_ranking()} ranks the consistent and inconsistent results by
+their position in the sequence, and explains the result in a message.
 }
 \examples{
 seq_distance_df(.from = "0.00", n = 50) |>

@@ -6,7 +6,7 @@
 \alias{is_map_basic_df}
 \alias{is_map_seq_df}
 \alias{is_map_total_n_df}
-\title{Is an object a consistency test output tibble?}
+\title{Is an object the output of a mapper function?}
 \usage{
 is_map_df(x)
 
@@ -24,36 +24,19 @@ Logical (length 1).
 }
 \description{
 \itemize{
-\item \code{is_map_df()} tests whether an object is the output of a scrutiny-style
-mapper function for consistency tests, like \code{\link[=grim_map]{grim_map()}}. These mapper
-functions also include those produced by \code{\link[=function_map]{function_map()}},
-\code{\link[=function_map_seq]{function_map_seq()}}, and \code{\link[=function_map_total_n]{function_map_total_n()}}.
-\item \code{is_map_basic_df()} is a variant of \code{is_map_df()} that tests whether an
-object is the output of a "basic" mapper function. This includes functions
-like \code{grim_map()} and those produced by \code{\link[=function_map]{function_map()}}, but not those
-produced by \code{\link[=function_map_seq]{function_map_seq()}} or \code{\link[=function_map_total_n]{function_map_total_n()}}.
-\item \code{is_map_seq_df()} tests whether an object is the output of a function that
-was produced by \code{\link[=function_map_seq]{function_map_seq()}}.
-\item \code{is_map_total_n_df()} tests whether an object is the output of a function
-that was produced by \code{\link[=function_map_total_n]{function_map_total_n()}}.
+\item \code{is_map_df()} tests whether an object was returned by a scrutiny-style
+mapper function of any tier: a basic mapper such as \code{\link[=grim_map]{grim_map()}} or one
+made by \code{\link[=function_map]{function_map()}}, or a function made by \code{\link[=function_map_seq]{function_map_seq()}} or
+\code{\link[=function_map_total_n]{function_map_total_n()}}.
+\item \code{is_map_basic_df()}, \code{is_map_seq_df()}, and \code{is_map_total_n_df()} test
+for one tier each.
 }
 }
 \details{
-Sections 3, 6, and 7 of \code{vignette("consistency-tests-in-depth")}
-discuss which function factories produce which functions, and which of
-these new, factory-made functions return which kinds of tibbles.
-
-These tibbles are what the \verb{is_map_*()} functions test for. As an example,
-\code{\link[=function_map_seq]{function_map_seq()}} produces \code{grim_map_seq()}, and this new function
-returns a tibble. \code{is_map_df()} and \code{is_map_seq_df()} return \code{TRUE} for
-this tibble, but \code{is_map_basic_df()} and \code{is_map_total_n_df()} return
-\code{FALSE}.
-
-For an overview, see the table at the end of
-\code{vignette("consistency-tests-in-depth")}.
+See \code{vignette("consistency-tests-in-depth")} for the three tiers
+and the table at its end.
 }
 \examples{
-# Example test output:
 df1 <- pigs1 |>
   grim_map(digits_x = 2)
 df2 <- pigs1 |>
@@ -65,26 +48,16 @@ df3 <- tibble::tribble(
 ) |>
   grim_map_total_n(digits_x = 2)
 
-# All three tibbles are mapper output:
+# All three are mapper output:
 is_map_df(df1)
 is_map_df(df2)
 is_map_df(df3)
 
-# However, only `df1` is the output of a
-# basic mapper...
+# Each is the output of one tier:
 is_map_basic_df(df1)
-is_map_basic_df(df2)
-is_map_basic_df(df3)
-
-# ...only `df2` is the output of a
-# sequence mapper...
-is_map_seq_df(df1)
 is_map_seq_df(df2)
-is_map_seq_df(df3)
-
-# ...and only `df3` is the output of a
-# total-n mapper:
-is_map_total_n_df(df1)
-is_map_total_n_df(df2)
 is_map_total_n_df(df3)
+
+is_map_basic_df(df2)
+is_map_seq_df(df3)
 }

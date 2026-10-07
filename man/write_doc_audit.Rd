@@ -7,45 +7,26 @@
 write_doc_audit(sample_output, name_test)
 }
 \arguments{
-\item{sample_output}{Data frame. Result of a call to \code{\link[=audit]{audit()}} on a data
-frame that resulted from a call to the mapper function for which you wrote
-the \code{\link[=audit]{audit()}} method, such as \code{audit(grim_map(pigs1))} or
-\code{audit(debit_map(pigs3))}.}
+\item{sample_output}{Data frame. The result of \code{audit()} on the mapper's
+output, such as \code{audit(grim_map(pigs1, digits_x = 2))}.}
 
-\item{name_test}{String (length 1). Name of the consistency test which the
-mapper function applies, such as \code{"GRIM"} or \code{"DEBIT"}.}
+\item{name_test}{String (length 1). Plain-text name of the test, such as
+\code{"GRIM"}.}
 }
 \value{
 A string vector formatted by \code{\link[glue:glue]{glue::glue()}}.
 }
 \description{
-\code{write_doc_audit()} creates a roxygen2 block section to be
-inserted into the documentation of a mapper function such as \code{\link[=grim_map]{grim_map()}}
-or \code{\link[=debit_map]{debit_map()}}: functions for which there are, or should be,
-\code{\link[=audit]{audit()}} methods. The section informs users about the ways in which
-\code{\link[=audit]{audit()}} summarizes the results of the respective mapper function.
-
-Copy the output from your console and paste it into the roxygen2 block of
-your \verb{*_map()} function. To preserve the numbered list structure when
-indenting roxygen2 comments with \code{Ctrl}+\code{Shift}+\code{/}, leave empty lines
-between the pasted output and the rest of the block.
+\code{write_doc_audit()} generates the roxygen2 section that
+documents an \code{\link[=audit]{audit()}} method on the page of its mapper function, as
+in \code{\link[=grim_map]{grim_map()}}. Paste the output into the mapper's roxygen2 block. To
+keep the list structure when indenting with \code{Ctrl}+\code{Shift}+\code{/}, leave
+empty lines around the pasted text.
 }
 \examples{
-# Start by running `audit()`:
 out_grim <- pigs1 |>
   grim_map(digits_x = 2) |>
   audit()
 
-out_debit <- pigs3 |>
-  debit_map(digits_x = 2, digits_sd = 2) |>
-  audit()
-
-out_grim
-out_debit
-
-# Documenting the `audit()` method for `grim_map()`:
 write_doc_audit(sample_output = out_grim, name_test = "GRIM")
-
-# Documenting the `audit()` method for `debit_map()`:
-write_doc_audit(sample_output = out_debit, name_test = "DEBIT")
 }

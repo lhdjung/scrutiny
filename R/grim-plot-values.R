@@ -320,47 +320,38 @@ check_comb_value <- function(value, digits, name) {
 
 #' Visualize the means that GRIM admits
 #'
-#' @description `grim_plot_values()` draws every mean (or percentage) that could
-#'   have been reported with a given number of decimal places within one unit
-#'   of a reported value, and marks those that a sample of the given size could
-#'   actually have produced. The reported value points at the comb from above,
-#'   so the question GRIM asks -- is there an attainable value where the report
-#'   says there is one? -- can be answered by eye. The verdict is also spelled
-#'   out next to the value, and the marker takes the color of the attainable
-#'   teeth if the value is consistent. If it is not, the nearest attainable
-#'   value on either side is labeled.
+#' @description `grim_plot_values()` draws the GRIM test for a single value set.
+#'   The plot is a comb. Each tooth is a mean (or percentage) that could have
+#'   been reported with `digits_x` decimal places, between the whole number at
+#'   or below `x` and the next one up. Teeth for means that a sample of size
+#'   `n` can have are tall. The reported value is
+#'   marked above the comb and labeled with its verdict. If it is inconsistent,
+#'   the nearest attainable values on either side are labeled.
 #'
-#'   [`grim_plot()`] shows the results of testing many value sets at once. This
-#'   function shows the test itself, for one value set, and is meant for
-#'   teaching and for explaining a single verdict. See [`grim_values()`] for the
-#'   attainable values as numbers.
+#'   [`grim_plot()`] shows many results at once; this function shows one test
+#'   in detail, for teaching or for explaining a verdict. [`grim_values()`]
+#'   returns the attainable values as numbers.
 #'
-#' @param x,n,digits_x,items,percent,rounding,threshold,symmetric As in
+#' @param x,n,digits_x,items,percent,rounding,threshold,symmetric The same as in
 #'   [`grim()`], but `x` and `n` must have length 1.
-#' @param color_cons,color_incons Strings. Colors of the teeth that stand for
-#'   attainable and unattainable values, respectively.
-#' @param color_reported String. Color of the marker for the reported value and
-#'   of the strip behind the teeth that shows the range of unrounded values it
-#'   stands for, if the value is inconsistent. A consistent value is marked in
-#'   `color_cons`.
+#' @param color_cons,color_incons Strings. Colors of the teeth for attainable
+#'   and unattainable values.
+#' @param color_reported String. Color of the marker for the reported value
+#'   and of the strip behind the teeth, if the value is inconsistent. A
+#'   consistent value is marked in `color_cons`.
 #'
-#' @details The comb runs from the whole number at or below `x` to the next
-#'   whole number up. That unit holds `10 ^ digits_x` values a report could
-#'   take, and (with `items = 1`) about `n` values a sample could produce, which
-#'   is the comparison at the heart of GRIM. With `percent = TRUE`, a unit is
-#'   one percentage point, and attainable percentages are `100 / n` points
-#'   apart, so the comb widens by that much on either side (within 0 to 100)
-#'   to keep the nearest attainable values in view. The figure is most readable with
-#'   one or two decimal places; with more, the teeth crowd together.
+#' @details The comb runs from the whole number at or below `x` to the next one
+#'   up. That unit contains `10 ^ digits_x` reportable values and, with `items =
+#'   1`, about `n` attainable ones. With `percent = TRUE`, a unit is one
+#'   percentage point, and the comb widens by `100 / n` on either side so that
+#'   the nearest attainable values remain visible. With more than two decimal
+#'   places, the teeth crowd together.
 #'
-#'   The strip behind the teeth is the range of unrounded means that would have
-#'   been reported as `x`, from [`unround()`]. GRIM asks whether any attainable
-#'   mean falls into it, so the reported value is consistent exactly if a tall
-#'   tooth stands within the strip. With some rounding methods, such as
-#'   `"trunc"` or `"ceiling"`, one edge of the strip is not part of it: a mean
-#'   right on that edge would have been rounded to a neighbor of `x`. A tall
-#'   tooth standing exactly on such an edge therefore doesn't make `x`
-#'   consistent. [`unround()`] says which edges are included.
+#'   The strip behind the teeth is the range of unrounded means that would
+#'   have been reported as `x`, from [`unround()`]. The value is consistent
+#'   exactly if a tall tooth stands within the strip. Under methods such as
+#'   `"trunc"` or `"ceiling"`, one edge of the strip is not part of it, so a
+#'   tall tooth on that edge does not count.
 #'
 #' @return A ggplot object.
 #'
@@ -370,8 +361,8 @@ check_comb_value <- function(value, digits, name) {
 #' @export
 #'
 #' @examples
-#' # A mean of 5.19 is not consistent with a sample size of 28: no tall tooth
-#' # stands where the marker points.
+#' # A mean of 5.19 is not consistent with a sample size of 28:
+#' # no tall tooth stands where the marker points.
 #' grim_plot_values(x = 5.19, n = 28, digits_x = 2)
 #'
 #' # With `n = 26`, it is:

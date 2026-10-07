@@ -25,88 +25,54 @@ resolve_digits_fraction <- function(digits, denominator) {
 }
 
 
-#' Generalized rounding to the nearest fraction of a specified denominator
+#' Rounding to the nearest fraction
 #'
-#' @description Two functions that round numbers to specific fractions, not just
-#'   to the next higher decimal level. They are inspired by
-#'   [`janitor::round_to_fraction()`] but feature all the options of
-#'   [`reround()`]:
+#' @description These functions round to the nearest fraction of a
+#'   denominator rather than to a decimal place. They follow
+#'   [`janitor::round_to_fraction()`] but take all of [`reround()`]'s options:
 #'
-#'   - `reround_to_fraction()` closely follows [`janitor::round_to_fraction()`]
-#'   by first rounding to fractions of a whole number, then optionally rounding
-#'   the result to a specific number of digits in the usual way.
-#'   - `reround_to_fraction_level()` rounds to the nearest fraction of a number
-#'   at the specific decimal level (i.e., number of digits), without subsequent
-#'   rounding. This is closer to conventional rounding functions.
-
-#' @param x Numeric. Vector of numbers to be rounded.
-#' @param denominator Numeric (>= 1) . `x` will be rounded to the nearest
+#'   - `reround_to_fraction()` rounds to fractions of a whole number, then
+#'   optionally rounds the result to `digits` decimal places.
+#'   - `reround_to_fraction_level()` rounds to the nearest fraction at the
+#'   decimal level given by `digits`, with no further rounding.
+#'
+#' @param x Numeric. Values to round.
+#' @param denominator Numeric (at least 1). `x` is rounded to the nearest
 #'   fraction of `denominator`. Default is `1`.
-#' @param digits Numeric (whole numbers).
-#'   - In `reround_to_fraction()`: If `digits` is specified, the values
-#'   resulting from fractional rounding will subsequently be rounded to that
-#'   many decimal places. If set to `"auto"`, it internally becomes
-#'   `ceiling(log10(denominator)) + 1`, as in [`janitor::round_to_fraction()`].
-#'   Default is `Inf`, in which case there is no subsequent rounding.
-#'   - In `reround_to_fraction_level()`: This function will round to a fraction
-#'   of the number at the decimal level specified by `digits`. Default is `0`.
-#' @param rounding,threshold,symmetric More arguments passed down to
-#'   [`reround()`].
-
+#' @param digits Integer. In `reround_to_fraction()`, the number of decimal
+#'   places to round the result to. `"auto"` means
+#'   `ceiling(log10(denominator)) + 1`, as in janitor, and the default `Inf`
+#'   means no further rounding. In
+#'   `reround_to_fraction_level()`, the decimal level at which to round to a
+#'   fraction; default is `0`.
+#' @param rounding,threshold,symmetric Passed on to [`reround()`].
+#'
 #' @include utils.R
 #'
-#' @return Numeric vector of the same length as `x`, except for the three
-#'   compound rounding methods `"up_or_down"`, `"up_from_or_down_from"`, and
-#'   `"ceiling_or_floor"`, which return two values per element of `x` -- the
-#'   result of each of their two constituent procedures -- so that the return
-#'   value has length `2 * length(x)`. As in [`reround()`], the two values of a
-#'   compound method stay next to each other.
-#'
-#'   (The length was previously documented as "always 2" for the compound
-#'   methods, which held only for an `x` of length 1. For a longer `x`, the two
-#'   procedures used to be *paired* with the elements of `x` instead of both
-#'   being applied to each of them, so `reround_to_fraction(c(0.4, 0.6),
-#'   denominator = 2)` returned two values, the first rounded up and the second
-#'   down. It now returns all four.)
+#' @return Numeric, as long as `x`, except for the compound rounding methods,
+#'   which return two values per element of `x` as in [`reround()`].
 #'
 #' @export
 #'
 #' @name fractional-rounding
 #'
-#' @seealso [`reround()`], which the functions wrap, and
-#'   [`janitor::round_to_fraction()`], part of which they copy.
+#' @seealso [`reround()`] and [`janitor::round_to_fraction()`].
 #'
 #' @examples
-#' #`reround_to_fraction()` rounds `0.4`
-#' # to `0` if `denominator` is `1`, which
-#' # is the usual integer rounding...
+#' # With `denominator = 1`, this is ordinary rounding...
 #' reround_to_fraction(0.4, denominator = 1, rounding = "even")
 #'
-#' # ...but if `denominator` is `2`, it rounds to the nearest
-#' # fraction of 2, which is `0.5`:
+#' # ...with `denominator = 2`, it rounds to the nearest half:
 #' reround_to_fraction(0.4, denominator = 2, rounding = "even")
-#'
-#' # Likewise with fractions of 3:
 #' reround_to_fraction(0.25, denominator = 3, rounding = "even")
 #'
-#' # The default for `rounding` is to round
-#' # both up and down, as in `reround()`:
-#' reround_to_fraction(0.4, denominator = 2)
-#'
-#' # These two rounding procedures differ
-#' # at the tie points:
+#' # The default `rounding` returns both directions, as in `reround()`:
 #' reround_to_fraction(0.25, denominator = 2)
 #'
-#' # `reround_to_fraction_level()`, in contrast,
-#' # uses `digits` to determine some decimal level,
-#' # and then rounds to the closest fraction at
-#' # that level:
+#' # `reround_to_fraction_level()` rounds to a fraction at a decimal level:
 #' reround_to_fraction_level(0.12345, denominator = 2, digits = 0)
 #' reround_to_fraction_level(0.12345, denominator = 2, digits = 1)
 #' reround_to_fraction_level(0.12345, denominator = 2, digits = 2)
-
-#' @rdname fractional-rounding
-#' @export
 
 reround_to_fraction <- function(
   x = NULL,

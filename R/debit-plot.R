@@ -1,63 +1,49 @@
 #' Visualize DEBIT results
 #'
-#' @description  Plot a distribution of binary data and their mutual DEBIT
-#'   consistency. Call this function only on a data frame that resulted from a
-#'   call to [`debit_map()`].
+#' @description `debit_plot()` plots the output of [`debit_map()`]. Each value
+#'   set is a rectangle spanning the rounding bounds of its mean and SD, in
+#'   blue if consistent and red if not, against the DEBIT line: the SD of
+#'   binary data as a function of their mean, for the given sample size.
 #'
-#'   Various parameters of the individual geoms can be controlled via arguments.
+#' @details The means that `n` binary values can have, `k / n`, are marked as
+#'   points on the line. Under `formula = "exact"`, the default of
+#'   [`debit_map()`], a value set is consistent if one of these points lies
+#'   inside its rectangle. If `n` is large, only the points that would not be
+#'   drawn over by others are drawn, with a message.
 #'
-#' @details The labels are created via [`ggrepel::geom_text_repel()`], so the
-#'   algorithm is designed to minimize overlap with the data points and other labels.
-#'   Yet, they don't take the DEBIT line into account, and their locations are
-#'   ultimately random. You might therefore have to resize the plot or run the
-#'   function a few times until the labels are localized in a satisfactory way.
+#'   If `n` varies in `data`, the lines for the smallest and largest `n` are
+#'   drawn and the band between them is shaded; it contains the lines for all
+#'   other `n`.
 #'
-#'   The DEBIT line depends on the sample size. If `n` varies in `data`, the
-#'   lines for the smallest and largest `n` are drawn, and the band between them
-#'   is shaded: it contains the lines for all the other `n` values, which would
-#'   be too close together to tell apart.
+#'   A rectangle can be too small to see, so each is drawn over a point at the
+#'   reported mean and SD. Value sets with `NA` in a column needed for drawing
+#'   are left out with a warning.
 #'
-#'   With `formula = "exact"`, the default of [`debit_map()`], a rectangle
-#'   crossing the line is not enough. A mean of `n` binary values is `k / n` for
-#'   a whole number `k`, and these means are marked as points on the line. A
-#'   value set is consistent if one of them lies inside its rectangle. With a
-#'   large `n`, these points are too dense to tell apart, so only those that
-#'   would not be drawn over by others are drawn, with a message.
+#'   The labels come from [`ggrepel::geom_text_repel()`], which places them at
+#'   random to minimize overlap. Resizing the plot or running the function
+#'   again may give better placements.
 #'
-#'   Value sets that lack a verdict or bounds (i.e., have
-#'   `NA` in any of the columns needed for drawing them) are left out with a
-#'   warning.
-#'
-#'   An alternative to the present function would be an S3 method for
-#'   [`ggplot2::autoplot()`]. However, a standalone function such as this allows
-#'   for customizing geom parameters and might perhaps provide better
-#'   accessibility overall.
-#'
-#' @param data Data frame. Result of a call to [`debit_map()`].
-#' @param show_labels Logical. Should the data points have labels (of the form
-#'   "mean; SD")? Default is `TRUE`.
-#' @param show_full_scale Logical. Should the plot be fixed to full scale,
-#'   showing the entire consistency line independently of the data? Default is
-#'   `TRUE`.
-#' @param show_theme_other Logical. Should the theme be modified in a way
-#'   fitting the plot structure? Default is `TRUE`.
-#' @param color_cons,color_incons Strings. Colors of the geoms representing
-#'   consistent and inconsistent values, respectively.
-#' @param rect_alpha Parameter of the DEBIT rectangles. (Due to the nature of
-#'   the data mapping, there can be no leeway regarding the shape or size of
-#'   this particular geom.) Each rectangle is drawn over a point at the reported
-#'   mean and SD, so that rectangles too small to see still show up.
-#' @param line_alpha,line_color,line_linetype,line_width Parameters of
-#'   the curved DEBIT line.
+#' @param data Data frame returned by [`debit_map()`] with `show_rec = TRUE`,
+#'   the default.
+#' @param show_labels Logical. Should the value sets be labeled with
+#'   "mean; SD"? Default is `TRUE`.
+#' @param show_full_scale Logical. Should the whole DEBIT line be shown,
+#'   regardless of the data? Default is `TRUE`.
+#' @param show_theme_other Logical. Should the theme be adjusted to the plot?
+#'   Default is `TRUE`.
+#' @param color_cons,color_incons Strings. Colors of consistent and
+#'   inconsistent value sets.
+#' @param rect_alpha Opacity of the rectangles. Their size and shape follow
+#'   from the data.
+#' @param line_alpha,line_color,line_linetype,line_width Parameters of the
+#'   DEBIT line.
 #' @param
-#' label_alpha,label_linetype,label_size,label_linesize,label_force,label_force_pull,label_padding
-#' Parameters of the labels showing mean and SD values. Passed on to
-#' [`ggrepel::geom_text_repel()`]; see there for more information.
-
+#'   label_alpha,label_linetype,label_size,label_linesize,label_force,label_force_pull,label_padding
+#'   Parameters of the labels, passed on to [`ggrepel::geom_text_repel()`].
+#'
 #' @include debit-map.R restore-zeros.R utils.R
 #'
-#' @return A ggplot object. It is returned, not printed, so it can be assigned
-#'   or added to without drawing a plot. At the console, auto-printing draws it.
+#' @return A ggplot object.
 #'
 #' @references Heathers, James A. J., and Brown, Nicholas J. L. 2019. DEBIT: A
 #'   Simple Consistency Test For Binary Data. https://osf.io/5vb3u/.
@@ -65,8 +51,6 @@
 #' @export
 #'
 #' @examplesIf rlang::is_installed("ggrepel")
-#' # Run `debit_plot()` on the output
-#' # of `debit_map()`:
 #' pigs3 |>
 #'   debit_map(digits_x = 2, digits_sd = 2) |>
 #'   debit_plot()

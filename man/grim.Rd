@@ -17,81 +17,66 @@ grim(
 )
 }
 \arguments{
-\item{x}{Numeric. The reported mean or percentage value.}
+\item{x}{Numeric. The reported mean or percentage.}
 
 \item{n}{Integer. The reported sample size.}
 
 \item{digits_x}{Integer. The number of decimal places in \code{x}, including
-trailing zeros. There is no default because it cannot be inferred from a
-numeric \code{x}, which has no trailing zeros: both \code{1.4} and \code{1.40} are the
-number \code{1.4}, but only the latter has \code{digits_x = 2}.}
+trailing zeros. There is no default, since a numeric value does not
+keep them (\code{1.40} is \code{1.4}).}
 
-\item{items}{Numeric. The number of items composing \code{x}. Default is 1, the
-most common case.}
+\item{items}{Numeric. The number of items composing \code{x}. Default is 1.}
 
-\item{percent}{Logical. Set \code{percent} to \code{TRUE} if \code{x} is a percentage. This
-will convert it to a decimal number and adjust the decimal count (i.e.,
-increase it by 2). Default is \code{FALSE}.}
+\item{percent}{Logical. If \code{TRUE}, \code{x} is a percentage: it is divided by
+100 and the decimal count is increased by 2. Default is \code{FALSE}.}
 
-\item{rounding}{String. Rounding method or methods to be used for
-reconstructing the values to which \code{x} will be compared. Default is
-\code{"up_or_down"} (from 5).}
+\item{rounding}{String. The rounding method assumed to have produced \code{x}.
+Default is \code{"up_or_down"}, which accepts either direction. See
+\code{vignette("rounding-options")}.}
 
-\item{threshold}{Numeric. If \code{rounding} is set to \code{"up_from"}, \code{"down_from"},
-or \code{"up_from_or_down_from"}, set \code{threshold} to the number from which the
-reconstructed values should then be rounded up or down. Otherwise, this
-argument plays no role. Default is \code{5}.}
+\item{threshold}{Numeric. For \code{rounding = "up_from"}, \code{"down_from"}, or
+\code{"up_from_or_down_from"}, the point within a step at which rounding
+switches direction, in tenths of a step. Default is \code{5}. Ignored
+otherwise.}
 
-\item{symmetric}{Logical. Set \code{symmetric} to \code{TRUE} if the rounding of
-negative numbers with \code{"up"}, \code{"down"}, \code{"up_from"}, or \code{"down_from"}
-should mirror that of positive numbers so that their absolute values are
-always equal. Default is \code{FALSE}. It must not be given with any of the
-\code{"ties_*"} methods, which already name a complete tie-breaking procedure;
-see \code{\link[=reround]{reround()}}.}
+\item{symmetric}{Logical. If \code{TRUE}, negative numbers are rounded like
+their absolute values (\code{-2.5} like \code{2.5}) under \code{"up"}, \code{"down"}, and the
+\code{"*_from"} methods. Default is \code{FALSE}. Must not be given with a
+\code{"ties_*"} rounding method, which already fixes the direction; see
+\code{\link[=reround]{reround()}}.}
 
-\item{tolerance}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} GRIM compares exact
-integers, so this never had an effect on its results. See \emph{Details}.}
+\item{tolerance}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} This argument has no
+effect; see \emph{Details}.}
 }
 \value{
-Logical. \code{TRUE} if \code{x}, \code{n}, and \code{items} are mutually consistent,
-\code{FALSE} if not, and \code{NA} if the case cannot be decided: if any of the
-values is missing, or if \code{n} or \code{items} is not a positive whole number.
-GRIM asks which integer sums of \code{n * items} integer values have a mean
-that would be reported as \code{x}, and a fractional or non-positive \code{n} or
-\code{items} describes no such data set.
+Logical. \code{TRUE} if \code{x}, \code{n}, and \code{items} are consistent, \code{FALSE} if
+not, and \code{NA} if the case cannot be decided: if a value is missing or
+infinite, or if \code{n} or \code{items} is not a positive whole number.
 }
 \description{
-\code{grim()} checks if a reported mean value of integer data is
-mathematically consistent with the reported sample size and the number of
-items that compose the mean value.
+\code{grim()} checks whether a reported mean of integer data is
+consistent with the reported sample size and the number of items that
+compose the mean. The mean of \code{n * items} integers is a whole number
+divided by \code{n * items}, so only certain values are possible; the test
+asks whether any of them would have been reported as \code{x}.
 
-Set \code{percent} to \code{TRUE} if \code{x} is a percentage. This will convert \code{x} to a
-decimal number and adjust the decimal count accordingly.
+Set \code{percent} to \code{TRUE} if \code{x} is a percentage. It is then divided by 100
+and tested with two more decimal places.
 
-The function is vectorized, but it is recommended to use \code{\link[=grim_map]{grim_map()}} for
-testing multiple cases.
+The function is vectorized, but \code{\link[=grim_map]{grim_map()}} is more convenient for
+testing many cases.
 }
 \details{
-\code{digits_x} needs to be specified because trailing zeros are as
-important for the GRIM test as any other decimal digits, and numeric values
-don't retain them: \code{1.40} is stored as the number \code{1.4}. State the number
-of decimal places that \code{x} was reported with, not the number that happen to
-survive in the numeric value.
+\code{digits_x} must be specified because a numeric value does not
+retain trailing zeros: \code{1.40} is stored as \code{1.4}. State the number of
+decimal places that \code{x} was reported with.
 
-Browse the source code in the grim.R file. \code{grim()} is a vectorized version
-of the internal \code{grim_scalar()} function found there.
+\code{x}, \code{n}, \code{digits_x}, and \code{items} are vectorized and recycled to a common
+length by the tidyverse rules: an argument has length 1 or the length of
+the longest. All other arguments must have length 1.
 
-\code{x}, \code{n}, \code{digits_x}, and \code{items} are vectorized: they may have any length,
-and shorter ones are recycled to the length of the longest, as long as they
-have length 1. All other arguments describe the test as a whole and must
-have length 1.
-
-\code{grim()} decides which reconstructed means are consistent with \code{x} using
-exact integer arithmetic, so there is no floating-point comparison for a
-\code{tolerance} to loosen. The argument is deprecated for that reason.
-\code{\link[=grimmer]{grimmer()}} does compare reconstructed SDs with \code{\link[dplyr:near]{dplyr::near()}} and
-still takes it; \code{\link[=debit]{debit()}} compares exact integers, like \code{grim()}, and
-never had it.
+The test decides in exact integer arithmetic, so \code{tolerance} has no
+effect and is deprecated. \code{\link[=grimmer]{grimmer()}} still uses it.
 }
 \examples{
 # A mean of 5.19 is not consistent with a sample size of 28:
@@ -113,5 +98,7 @@ Psychology. \emph{Social Psychological and Personality Science}, 8(4), 363–369
 https://journals.sagepub.com/doi/10.1177/1948550616673876
 }
 \seealso{
-\code{\link[=grim_map]{grim_map()}} applies \code{grim()} to any number of cases at once.
+\code{\link[=grim_map]{grim_map()}} for data frames, \code{\link[=grim_values]{grim_values()}} for the means
+that \code{n} integers can produce, and \code{\link[=grim_probability]{grim_probability()}} for how
+informative the test is in a given case.
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/is-percentage-of-map-seq.R
 \name{is_percentage_of_map_seq}
 \alias{is_percentage_of_map_seq}
-\title{Test reported percentages against their counts with dispersed inputs}
+\title{Test percentages against their counts with values around the reported ones}
 \usage{
 is_percentage_of_map_seq(
   data,
@@ -23,50 +23,43 @@ is_percentage_of_map_seq(
 \item{data}{A data frame that \code{\link[=is_percentage_of_map]{is_percentage_of_map()}} could take.}
 
 \item{digits_percentage}{Integer. The number of decimal places in
-\code{percentage}, including trailing zeros. Use a single number if the whole
-column was reported with the same number of decimal places, or one number
-per row of \code{data} if it varies.}
+\code{percentage}, including trailing zeros. There is no default, since a
+numeric value does not keep them (\code{1.40} is \code{1.4}). Either a single
+number for the whole column or one number per row of \code{data}.}
 
-\item{absolute, percentage, n}{Optionally, specify these arguments as
-column names in \code{data}.}
+\item{absolute, percentage, n}{Optionally, the names of the columns in \code{data}
+that contain these values, if they differ from the defaults.}
 
-\item{var}{String. Names of the columns that will be dispersed. Default is
+\item{var}{String. The variables to disperse. Default is
 \code{c("absolute", "percentage", "n")}.}
 
-\item{dispersion}{Numeric. Sequence with steps up and down from the \code{var}
-inputs. It will be adjusted to these values' decimal levels. For example,
-with a reported \code{8.34}, the step size is \code{0.01}. Default is \code{1:5}, for five
-steps up and down.}
+\item{dispersion}{Numeric. Steps up and down from the reported values, in
+units of the last decimal place. Default is \code{1:5}.}
 
-\item{out_min, out_max}{If specified, output will be restricted so that it's
-not below \code{out_min} or above \code{out_max}. Both default to \code{"auto"}, which
-keeps \code{absolute} and \code{percentage} at 0 or above and \code{n} at 1 or above.
-A number applies to every dispersed variable, and \code{NULL} removes the limit.}
+\item{out_min, out_max}{Limits on the dispersed values. Both default to
+\code{"auto"}, which keeps \code{absolute} and \code{percentage} at 0 or above and \code{n}
+at 1 or above. A number applies to every dispersed variable, and \code{NULL}
+removes the limit.}
 
 \item{include_reported}{Logical. Should the reported values themselves be
-included in the sequences originating from them? Default is \code{FALSE} because
-this might be redundant and bias the results.}
+part of the sequences? Default is \code{FALSE}.}
 
-\item{include_consistent}{Logical. Should the function also process
-consistent cases (from among those reported), not just inconsistent ones?
-Default is \code{FALSE} because the focus should be on clarifying
-inconsistencies.}
+\item{include_consistent}{Logical. Should consistent value sets be dispersed
+as well, not just inconsistent ones? Default is \code{FALSE}.}
 
-\item{...}{Arguments passed down to \code{\link[=is_percentage_of_map]{is_percentage_of_map()}}.}
+\item{...}{Arguments passed on to \code{\link[=is_percentage_of_map]{is_percentage_of_map()}}.}
 }
 \value{
-A tibble (data frame) with detailed test results. \code{diff_var} is the
-number of steps between the tested value and the reported one, \code{case} the
-row number of the reported value set in \code{data}, and \code{var} the dispersed
-variable.
+A tibble with the columns of \code{\link[=is_percentage_of_map]{is_percentage_of_map()}} output plus
+\code{diff_var}, \code{case}, and \code{var}, as in \code{\link[=grim_map_seq]{grim_map_seq()}}.
 }
 \description{
-\code{is_percentage_of_map_seq()} applies \code{\link[=is_percentage_of]{is_percentage_of()}} to
-values surrounding the reported ones. This shows whether a small error in
-the count, the percentage, or the sample size may be responsible for an
-inconsistency.
+\code{is_percentage_of_map_seq()} varies the reported counts,
+percentages, and totals a few steps up and down and applies
+\code{\link[=is_percentage_of]{is_percentage_of()}} to each resulting value set. This shows whether a
+small error in one of them could explain an inconsistency.
 
-Call \code{\link[=audit_seq]{audit_seq()}} on the results for summary statistics.
+Call \code{\link[=audit_seq]{audit_seq()}} on the output for summary statistics.
 }
 \examples{
 df <- tibble::tibble(

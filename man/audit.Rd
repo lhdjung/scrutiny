@@ -7,23 +7,16 @@
 audit(data)
 }
 \arguments{
-\item{data}{A data frame that inherits one of the classes named below.}
+\item{data}{A data frame returned by one of the functions below.}
 }
 \value{
-A tibble (data frame) with test summary statistics.
+A tibble with summary statistics.
 }
 \description{
-\code{audit()} summarizes the results of scrutiny functions like
-\code{\link[=grim_map]{grim_map()}} that perform tests on data frames.
-
-See below for a record of such functions. Go to the documentation of any of
-them to learn about its \code{audit()} method.
-}
-\details{
-\code{audit()} is an S3 generic. It looks up the (invisible) scrutiny
-class of a tibble returned by any function named below. You don't need to
-deal with the classes directly. Behind the scenes, they mediate between
-these functions and their associated summary statistics.
+\code{audit()} summarizes the output of scrutiny functions that test
+data frames, such as \code{\link[=grim_map]{grim_map()}}. It is an S3 generic with methods for
+the functions listed below. The columns of each summary are described in
+the documentation of the respective function.
 }
 \section{Run before \code{audit()}}{
 \tabular{ll}{
@@ -31,6 +24,8 @@ these functions and their associated summary statistics.
    \code{\link[=grim_map]{grim_map()}} \tab \code{"scrutiny_grim_map"} \cr
    \code{\link[=grimmer_map]{grimmer_map()}} \tab \code{"scrutiny_grimmer_map"} \cr
    \code{\link[=debit_map]{debit_map()}} \tab \code{"scrutiny_debit_map"} \cr
+   \code{\link[=is_percentage_of_map]{is_percentage_of_map()}} \tab \code{"scrutiny_is_percentage_of_map"} \cr
+   \code{\link[=add_up_to_map]{add_up_to_map()}} \tab \code{"scrutiny_add_up_to_map"} \cr
    \code{\link[=duplicate_count]{duplicate_count()}} \tab \code{"scrutiny_dup_count"} \cr
    \code{\link[=duplicate_count_colpair]{duplicate_count_colpair()}} \tab \code{"scrutiny_dup_count_colpair"} \cr
    \code{\link[=duplicate_tally]{duplicate_tally()}} \tab \code{"scrutiny_dup_tally"} \cr
@@ -41,12 +36,10 @@ these functions and their associated summary statistics.
 }
 
 \examples{
-# For basic GRIM-testing:
 pigs1 |>
   grim_map(digits_x = 2) |>
   audit()
 
-# For duplicate detection:
 pigs4 |>
   duplicate_count() |>
   audit()

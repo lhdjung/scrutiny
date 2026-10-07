@@ -1,55 +1,40 @@
 #' Possible GRIM inconsistencies
 #'
-#' @description These functions compute statistics related to GRIM-testing. In
-#'   general, `grim_probability()` is the most useful of them, and it is
-#'   responsible for the `probability` column in a data frame returned by
-#'   [`grim_map()`].
+#' @description These functions quantify how informative a GRIM test is for a
+#'   given sample size and number of decimal places:
 #'
-#'   - `grim_probability()` returns the probability that a reported mean or
-#'   percentage of integer data that is random except for the number of its
-#'   decimal places is inconsistent with the reported sample size. For example,
-#'   the mean 1.23 is treated like any other mean with two decimal places.
+#'   - `grim_probability()` returns the probability that a mean or percentage
+#'   with `digits_x` decimal places that is otherwise random is
+#'   GRIM-inconsistent with `n`. It is the `probability` column of
+#'   [`grim_map()`].
+#'   - `grim_total()` returns the number of such inconsistent values per unit.
 #'   - `grim_ratio()` is the raw formula `(10^digits_x - n * items) /
 #'   10^digits_x`. It equals `grim_probability()` for rounding methods that
-#'   admit exactly one step, such as `"up"`, unless `grim_ratio()` is negative,
-#'   which can occur if the sample size is very large. Strictly speaking, this
-#'   is more informative than `grim_probability()`, but it is harder to
-#'   interpret. It takes no `rounding` argument and does not check its input.
-#'   - `grim_total()` returns the absolute number of GRIM-inconsistencies that
-#'   are possible given the mean or percentage's number of decimal places and
-#'   the corresponding sample size.
+#'   admit exactly one step, such as `"up"`, except that it can be negative.
+#'   It takes no `rounding` argument and does not check its input.
 #'
-#'   For discussion, see `vignette("grim")`, section *GRIM statistics*.
-
-#' @param x Numeric. Mean or percentage value computed from data with integer
-#'   units, e.g., mean scores on a Likert scale or percentage of study
-#'   participants in some condition. Only the number of decimal places matters;
-#'   see `digits_x`. The argument exists for compatibility with [`grim()`].
+#'   See `vignette("grim")`, section *GRIM statistics*.
+#'
+#' @param x Numeric. The mean or percentage. Only its number of decimal
+#'   places matters; the argument exists for compatibility with [`grim()`].
 #' @param digits_x Integer. The number of decimal places in `x`, including
-#'   trailing zeros. There is no default because it cannot be inferred from a
-#'   numeric `x`, which has no trailing zeros: both `1.4` and `1.40` are the
-#'   number `1.4`, but only the latter has `digits_x = 2`.
-#' @param n Integer. Sample size corresponding to `x`.
-#' @param items Integer. Number of items composing the mean or percentage value
-#'   in question. Default is `1`.
-#' @param percent Logical. Set `percent` to `TRUE` if `x` is expressed as a
-#'   proportion of 100 rather than 1. The functions will then account for this
-#'   fact through increasing the decimal count by 2. Default is `FALSE`.
-#' @param rounding,threshold Rounding method and, for `"up_from"` and similar
-#'   methods, its threshold, as in [`grim()`]. Only in `grim_probability()` and
-#'   `grim_total()`. Defaults are `"up_or_down"` and `5`. The count depends on
-#'   the method: `"ceiling_or_floor"` admits a range two decimal units wide, so
-#'   it rules out fewer values; `"up_or_down"` and other methods that admit both
-#'   ends of their range count a mean that lands exactly on a tie toward both
-#'   neighbors. [`grim_map()`] passes its own `rounding` and `threshold` on.
-
-#' @seealso [`grim()`] for the GRIM test itself; as well as [`grim_map()`] for
-#'   applying it to many cases at once.
+#'   trailing zeros. There is no default, since a numeric value does not
+#'   keep them (`1.40` is `1.4`).
+#' @param n Integer. The sample size.
+#' @param items Integer. The number of items composing `x`. Default is `1`.
+#' @param percent Logical. If `TRUE`, `x` is a percentage, which adds 2 to the
+#'   decimal count. Default is `FALSE`.
+#' @param rounding,threshold Only in `grim_probability()` and `grim_total()`.
+#'   The rounding method and, for the `"*_from"` methods, its threshold, as in
+#'   [`grim()`]. Defaults are `"up_or_down"` and `5`. The count depends on the
+#'   method: `"up_or_down"` accepts a mean on a tie in both directions, and
+#'   `"ceiling_or_floor"` admits a range two steps wide. [`grim_map()`] passes
+#'   its own `rounding` and `threshold` on.
 #'
-#' @return Double. The number of possible GRIM inconsistencies, or their
-#'   probability for a random mean or percentage with a given number of decimal
-#'   places. `grim_probability()` and `grim_total()` return `NA` where [`grim()`]
-#'   does for lack of a decidable case: if `x` is missing or infinite, or if `n`
+#' @seealso [`grim()`] and [`grim_map()`].
+#'
+#' @return Double. `grim_probability()` and `grim_total()` return `NA` where
+#'   [`grim()`] cannot decide a case: if `x` is missing or infinite, or if `n`
 #'   or `items` is not a positive whole number. They are never negative.
 #'
 #' @references Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A
@@ -66,11 +51,11 @@
 #' grim_probability(x = 83.29, n = 21, digits_x = 2)
 #' grim_total(x = 83.29, n = 21, digits_x = 2)
 #'
-#' # No sets are inconsistent in this case...
+#' # None are in this case...
 #' grim_probability(x = 5.14, n = 83, digits_x = 2)
 #' grim_total(x = 5.14, n = 83, digits_x = 2)
 #'
-#' # ... but most would be if `x` was a percentage:
+#' # ...but most would be if `x` were a percentage:
 #' grim_probability(x = 5.14, n = 83, digits_x = 2, percent = TRUE)
 #' grim_total(x = 5.14, n = 83, digits_x = 2, percent = TRUE)
 

@@ -14,43 +14,38 @@ decimal_places_df(
 \arguments{
 \item{data}{Data frame.}
 
-\item{cols}{Select columns from \code{data} using
+\item{cols}{Columns to operate on, selected with
 \href{https://tidyselect.r-lib.org/reference/language.html}{tidyselect}.
-Default is \code{everything()}, but restricted by \code{check_numeric_like}.}
+Default is \code{everything()}, restricted by \code{check_numeric_like}.}
 
-\item{check_numeric_like}{Logical. If \code{TRUE} (the default), the function only
-operates on numeric columns and other columns coercible to numeric, as
-determined by \code{\link[=is_numeric_like]{is_numeric_like()}}.}
+\item{check_numeric_like}{Logical. If \code{TRUE} (the default), only columns
+that \code{\link[=is_numeric_like]{is_numeric_like()}} accepts are processed.}
 
-\item{sep}{String. The literal separator between the integer part and the
-mantissa. Default is \code{"."}. (The former default, the regular expression
-\code{"\\\\."}, is still read as a decimal point.) It only applies to strings:
-numbers are always written with a point.}
+\item{sep}{String. The separator between integer part and mantissa, matched
+literally. Default is \code{"."}.}
 }
 \value{
-Data frame. The values of the selected columns are replaced by the
-numbers of their decimal places.
+Data frame with the selected columns replaced by their counts of
+decimal places.
 }
 \description{
-For every value in a column, \code{decimal_places_df()} counts its decimal places.
-By default, it operates on all columns that are coercible to numeric.
+\code{decimal_places_df()} replaces every value in the selected columns by its
+number of decimal places. By default, it operates on all columns coercible
+to numeric.
 }
 \examples{
-# Coerce all columns to string:
 iris <- iris |>
   tibble::as_tibble() |>
   dplyr::mutate(across(everything(), as.character))
 
-# The function will operate on all
-# numeric-like columns but not on `"Species"`:
+# All numeric-like columns, but not `Species`:
 iris |>
   decimal_places_df()
 
-# Operate on some select columns only
-# (from among the numeric-like columns):
+# Selected columns only:
 iris |>
   decimal_places_df(cols = starts_with("Sepal"))
 }
 \seealso{
-Wrapped functions: \code{\link[=decimal_places]{decimal_places()}}, \code{\link[dplyr:across]{dplyr::across()}}.
+\code{\link[=decimal_places]{decimal_places()}}.
 }

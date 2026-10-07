@@ -23,115 +23,77 @@ grimmer_map(
 )
 }
 \arguments{
-\item{data}{Tibble with columns \code{x}, \code{sd}, \code{n}, and optionally \code{items}
-(see documentation for \code{grim()}). Any other columns in \code{data} will be
-returned alongside GRIMMER test results.}
+\item{data}{Tibble with columns \code{x}, \code{sd}, and \code{n}, and optionally \code{items}.
+Any other columns are returned alongside the results.}
 
-\item{digits_x}{Integer. The number of decimal places in \code{x}, including
-trailing zeros. There is no default because it cannot be inferred from a
-numeric \code{x}, which has no trailing zeros: both \code{1.4} and \code{1.40} are the
-number \code{1.4}, but only the latter has \code{digits_x = 2}. Use a single number
-if the whole column was reported with the same number of decimal places,
-or one number per row of \code{data} if it varies.}
+\item{digits_x, digits_sd}{Integer. The number of decimal places in \code{x} and
+\code{sd}, including trailing zeros. There are no defaults, since a numeric
+value does not keep them (\code{1.40} is \code{1.4}). Either a single number for the
+whole column or one number per row of \code{data}.}
 
-\item{digits_sd}{Integer. The number of decimal places in \code{sd}, including
-trailing zeros. As with \code{digits_x}, there is no default, because trailing
-zeros don't survive in a numeric value, and it may have one value per row
-of \code{data}.}
+\item{x, sd, n}{Optionally, the names of the columns in \code{data} that contain
+these values, if they differ from the defaults.}
 
-\item{x, sd, n}{Optionally, specify these arguments as column names in \code{data}.}
+\item{items}{Integer. The number of items composing \code{x} and \code{sd}, if \code{data}
+has no \code{items} column. Default is \code{1}. \code{items} is multiplied into \code{n} for
+the output.}
 
-\item{items}{Integer. If there is no \code{items} column in \code{data}, this specifies
-the number of items composing the \code{x} and \code{sd} values. Default is \code{1}, the
-most common case.}
+\item{min_val, max_val}{Integer. Optionally, the bounds of the scale; see
+the \emph{Scale bounds} section of \code{\link[=grimmer]{grimmer()}}. Both default to \code{NULL}.}
 
-\item{min_val, max_val}{Integer. Optionally, the minimum and maximum value
-that an individual response could take, as with the endpoints of a Likert
-scale. If both are specified, GRIMMER also tests whether values within that
-range could have spread out far enough to produce the reported \code{sd}, and
-whether \code{x} is on the scale at all. See the \emph{Scale bounds} section in
-\code{\link[=grimmer]{grimmer()}}. Both default to \code{NULL}, i.e., an unbounded scale.}
+\item{show_reason}{Logical. If \code{TRUE} (the default), a \code{reason} column states
+the reason for each inconsistency.}
 
-\item{show_reason}{Logical (length 1). Should there be a \code{reason} column that
-shows the reasons for inconsistencies and \code{"Passed all"} for consistent
-values? Default is \code{TRUE}. See below for reference.}
+\item{rounding, threshold, symmetric, tolerance}{Passed on to \code{\link[=grimmer]{grimmer()}}.}
 
-\item{rounding, threshold, symmetric, tolerance}{Further parameters of
-GRIMMER testing; see documentation for \code{\link[=grimmer]{grimmer()}}. Note that
-\code{tolerance} is a real argument here, unlike in \code{\link[=grim_map]{grim_map()}}, where it is
-deprecated.}
-
-\item{...}{Arguments passed down to \code{\link[=grimmer]{grimmer()}}.}
+\item{...}{Further arguments passed on to \code{\link[=grimmer]{grimmer()}}.}
 }
 \value{
-A tibble with these columns --
+A tibble with these columns:
 \itemize{
 \item \code{x}, \code{sd}, \code{n}: the inputs.
-\item \code{digits_x}, \code{digits_sd}: the number of decimal places in \code{x} and \code{sd}, as
-given by \code{digits_x} and \code{digits_sd}.
-\item \code{consistency}: GRIMMER consistency of \code{x}, \code{sd}, \code{n}, and \code{items}. \code{NA} for a
-case that cannot be decided, such as one with a missing value.
-\item \code{reason}: If consistent, \code{"Passed all"}. If inconsistent, it says which
-test was failed (see below).
-\item \verb{<extra>}: any columns from \code{data} other than \code{x}, \code{sd}, \code{n}, and \code{items}.
+\item \code{digits_x}, \code{digits_sd}: the numbers of decimal places, as given.
+\item \code{consistency}: GRIMMER consistency of \code{x}, \code{sd}, \code{n}, and \code{items}. \code{NA}
+for a case that cannot be decided, such as one with a missing value.
+\item \code{reason}: \code{"Passed all"} if consistent; otherwise the test that failed.
+\item Any other columns from \code{data}.
 }
 
-The \code{reason} columns refers to GRIM and the three GRIMMER tests (Allard
-2018). Briefly, these are:
+The \code{reason} column refers to GRIM and the three GRIMMER tests (Allard
+2018):
 \enumerate{
 \item The reconstructed sum of squared observations must be a whole number.
 \item The reconstructed SD must match the reported one.
-\item The parity of the reconstructed sum of squared observations must match the
-parity of the reconstructed sum of integers of which the reported means
-are fractions; i.e., either both are even or both are odd.
+\item The parity of the reconstructed sum of squared observations must match
+that of the reconstructed sum of the values.
 }
 
-If \code{min_val} and \code{max_val} are specified, two further reasons can appear:
-\code{"Mean out of scale range"} for an \code{x} outside of the scale, and \code{"GRIMMER inconsistent (scale range)"} for a value set whose \code{sd} no sample within the
-scale could have produced.
+With \code{min_val} and \code{max_val}, the reasons \code{"Mean out of scale range"} and
+\code{"GRIMMER inconsistent (scale range)"} can appear. A negative \code{sd} gives
+\code{"Negative SD"}.
 
-A negative \code{sd} is inconsistent with the reason \code{"Negative SD"}, since no
-sample has one.
-
-The tibble has the \code{scrutiny_grimmer_map} class, which is recognized by the
-\code{\link[=audit]{audit()}} generic. \code{\link[=grim_plot]{grim_plot()}} recognizes it as well, so GRIMMER
-results can be visualized just like GRIM results.
+The tibble has the class \code{scrutiny_grimmer_map}, which is recognized by
+\code{\link[=audit]{audit()}} and \code{\link[=grim_plot]{grim_plot()}}.
 }
 \description{
-Call \code{grimmer_map()} to GRIMMER-test any number of combinations
-of mean, standard deviation, sample size, and number of items. Mapping
-function for GRIMMER testing.
+\code{grimmer_map()} applies \code{\link[=grimmer]{grimmer()}} to every row of a data
+frame with means, standard deviations, and sample sizes.
 
-For summary statistics, call \code{\link[=audit]{audit()}} on the results. Visualize results
-using \code{\link[=grim_plot]{grim_plot()}}, as with GRIM results.
+Call \code{\link[=audit]{audit()}} on the output for summary statistics. \code{\link[=grim_plot]{grim_plot()}}
+accepts it as well.
 }
 \section{Summaries with \code{\link[=audit]{audit()}}}{
- There is an S3 method for \code{\link[=audit]{audit()}},
-so you can call \code{\link[=audit]{audit()}} following \code{grimmer_map()} to get a summary of
-\code{grimmer_map()}'s results. It is a tibble with a single row and these
-columns --
+ \code{audit()} on \code{grimmer_map()} output
+returns a tibble with one row and these columns:
 \enumerate{
 \item \code{incons_cases}: number of GRIMMER-inconsistent value sets.
 \item \code{all_cases}: total number of value sets.
 \item \code{incons_rate}: proportion of GRIMMER-inconsistent value sets.
-\item \code{fail_grim}: number of value sets that fail the GRIM test.
-\item \code{fail_test1}: number of value sets that fail the first GRIMMER test (see
-below).
-\item \code{fail_test2}: number of value sets that fail the second GRIMMER test.
-\item \code{fail_test3}: number of value sets that fail the third GRIMMER test.
-\item \code{fail_scale}: number of value sets that are inconsistent with the scale
-bounds given by \code{min_val} and \code{max_val}. Zero if these were not
-specified.
-}
-
-The \code{reason} columns refers to the three GRIMMER tests (see Allard 2018).
-These are:
-\enumerate{
-\item The reconstructed sum of squared observations must be a whole number.
-\item The reconstructed SD must match the reported one.
-\item The parity of the reconstructed sum of squared observations must match the
-parity of the reconstructed sum of integers of which the reported means
-are fractions; i.e., either both are even or both are odd.
+\item \code{fail_grim}: number of value sets that fail GRIM.
+\item \code{fail_test1}, \code{fail_test2}, \code{fail_test3}: number of value sets that fail
+each of the three GRIMMER tests.
+\item \code{fail_scale}: number of value sets inconsistent with \code{min_val} and
+\code{max_val}. Zero if these were not given.
 }
 }
 
@@ -139,9 +101,8 @@ are fractions; i.e., either both are even or both are odd.
 # Use `grimmer_map()` on data like these:
 pigs5
 
-# The `consistency` column shows whether
-# the values to its left are GRIMMER-consistent.
-# If they aren't, the `reason` column says why:
+# The `consistency` column shows whether the values to its left are
+# GRIMMER-consistent. If they aren't, the `reason` column gives the reason:
 pigs5 |>
   grimmer_map(digits_x = 2, digits_sd = 2)
 

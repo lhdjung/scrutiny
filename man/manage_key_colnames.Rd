@@ -2,39 +2,31 @@
 % Please edit documentation in R/mapper-function-helpers.R
 \name{manage_key_colnames}
 \alias{manage_key_colnames}
-\title{Enable name-independent key column identification}
+\title{Rename a key column in a handwritten mapper}
 \usage{
 manage_key_colnames(data, arg, description = NULL)
 }
 \arguments{
-\item{data}{The mapper function's input data frame.}
+\item{data}{The mapper's input data frame.}
 
-\item{arg}{Symbol. The quoted input variable, captured by \code{rlang::enexpr()}.}
+\item{arg}{Symbol. The argument, captured by \code{rlang::enexpr()}.}
 
-\item{description}{String (length 1). Short description of the column in
-question, to be inserted into an error message.}
+\item{description}{String (length 1). Short description of the column, for
+the error message.}
 }
 \value{
-The input data frame, \code{data}, possibly modified.
+\code{data}, possibly with a column renamed.
 }
 \description{
-A handwritten mapper function for consistency tests, such as
-\code{grim_map()}, may include arguments named after the key columns in its
-input data frame. When such an argument is specified by the user as a
-column name of the input data frame, it identifies a differently-named
-column as that key column.
-
-Create such functionality in three steps:
+A mapper made by \code{\link[=function_map]{function_map()}} lets the user pass the name
+of a column of \code{data} through an argument named like the key column, as in
+\code{grim_map(df, x = mean)}. \code{manage_key_colnames()} provides this for a
+handwritten mapper. Three steps:
 \enumerate{
-\item Add arguments to your mapper function named after the respective key
-columns. They should be \code{NULL} by default; e.g., \verb{x = NULL, n = NULL}.
-\item Within the mapper, capture the user input by quoting it using
-\code{rlang::enexpr()}. Reassign these values to the argument variables; e.g.,
-\code{x <- rlang::enexpr(x)} and \code{n <- rlang::enexpr(n)}.
-\item For every such argument, use \code{missing()} to check whether it was
-specified. If and only if it was, call \code{manage_key_colnames()} and reassign
-its value to the input data frame variable, adding a short description;
-like this:
+\item Add an argument per key column, with default \code{NULL}; e.g., \verb{x = NULL,   n = NULL}.
+\item Capture each with \code{rlang::enexpr()}.
+\item If it was specified, call \code{manage_key_colnames()} and reassign the
+result to \code{data}:
 }
 
 \preformatted{
@@ -45,5 +37,5 @@ like this:
 }
 }
 \seealso{
-\code{vignette("consistency-tests-in-depth")}, for context.
+\code{vignette("consistency-tests-in-depth")}.
 }

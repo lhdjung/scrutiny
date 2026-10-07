@@ -10,60 +10,30 @@ seq_length(x, value)
 seq_length(x) <- value
 }
 \arguments{
-\item{x}{Numeric or coercible to numeric. \code{x} must be linear, i.e., each
-of its elements must differ from the next by the same amount.}
+\item{x}{Numeric or coercible to numeric. Must be linear.}
 
-\item{value}{Numeric (whole number, length 1). The new length for \code{x}.}
+\item{value}{Integer (length 1). The new length.}
 }
 \value{
-A vector of the same type as \code{x}, with length \code{value}.
-\itemize{
-\item If \code{value > length(x)}, all original element of \code{x} are preserved. A number
-of new elements equal to the difference is appended at the end.
-\item If \code{value == length(x)}, nothing changes.
-\item If \code{value < length(x)}, a number of elements of \code{x} equal to the difference
-is removed from the end.
-}
+A vector of the same type as \code{x} with length \code{value}. If \code{value} is
+greater than \code{length(x)}, new elements are appended; if smaller, elements
+are removed from the end.
 }
 \description{
-\code{seq_length()} seamlessly extends or shortens a linear
-sequence using the sequence's own step size.
-
-Alternatively, you can directly set the length of a linear sequence in this
-way: \code{seq_length(x) <- value}.
+\code{seq_length()} extends or shortens a linear sequence to a given
+length, using the sequence's own step size. It can also be used as a
+replacement function: \code{seq_length(x) <- value}.
 }
 \examples{
 x <- 3:7
-
-# Increase the length of `x` from 5 to 10:
 seq_length(x, 10)
+seq_length(x, 2)
 
-# Modify `x` directly (but get
-# the same results otherwise):
+# As a replacement function:
 seq_length(x) <- 10
 x
 
-# Likewise, decrease the length:
-x <- 3:7
-seq_length(x, 2)
-
-seq_length(x) <- 2
-x
-
-# The functions are sensitive to decimal levels.
-# They also return a string vector if (and only if)
-# `x` is a string vector:
+# The step size and the type follow `x`:
 x <- seq_endpoint(from = 0, to = 0.5)
-x
-
 seq_length(x, 10)
-
-seq_length(x) <- 10
-x
-
-# Same with decreasing the length:
-seq_length(x, 2)
-
-seq_length(x) <- 2
-x
 }

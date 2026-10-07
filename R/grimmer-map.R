@@ -1,101 +1,64 @@
 #' GRIMMER-test many cases at once
 #'
-#' @description Call `grimmer_map()` to GRIMMER-test any number of combinations
-#'   of mean, standard deviation, sample size, and number of items. Mapping
-#'   function for GRIMMER testing.
+#' @description `grimmer_map()` applies [`grimmer()`] to every row of a data
+#'   frame with means, standard deviations, and sample sizes.
 #'
-#'   For summary statistics, call [`audit()`] on the results. Visualize results
-#'   using [`grim_plot()`], as with GRIM results.
+#'   Call [`audit()`] on the output for summary statistics. [`grim_plot()`]
+#'   accepts it as well.
 #'
-#' @param data Tibble with columns `x`, `sd`, `n`, and optionally `items`
-#'   (see documentation for `grim()`). Any other columns in `data` will be
-#'   returned alongside GRIMMER test results.
-#' @param items Integer. If there is no `items` column in `data`, this specifies
-#'   the number of items composing the `x` and `sd` values. Default is `1`, the
-#'   most common case.
-#' @param digits_x Integer. The number of decimal places in `x`, including
-#'   trailing zeros. There is no default because it cannot be inferred from a
-#'   numeric `x`, which has no trailing zeros: both `1.4` and `1.40` are the
-#'   number `1.4`, but only the latter has `digits_x = 2`. Use a single number
-#'   if the whole column was reported with the same number of decimal places,
-#'   or one number per row of `data` if it varies.
-#' @param digits_sd Integer. The number of decimal places in `sd`, including
-#'   trailing zeros. As with `digits_x`, there is no default, because trailing
-#'   zeros don't survive in a numeric value, and it may have one value per row
-#'   of `data`.
-#' @param min_val,max_val Integer. Optionally, the minimum and maximum value
-#'   that an individual response could take, as with the endpoints of a Likert
-#'   scale. If both are specified, GRIMMER also tests whether values within that
-#'   range could have spread out far enough to produce the reported `sd`, and
-#'   whether `x` is on the scale at all. See the *Scale bounds* section in
-#'   [`grimmer()`]. Both default to `NULL`, i.e., an unbounded scale.
-#' @param x,sd,n Optionally, specify these arguments as column names in `data`.
-#' @param show_reason Logical (length 1). Should there be a `reason` column that
-#'   shows the reasons for inconsistencies and `"Passed all"` for consistent
-#'   values? Default is `TRUE`. See below for reference.
-#' @param rounding,threshold,symmetric,tolerance Further parameters of
-#'   GRIMMER testing; see documentation for [`grimmer()`]. Note that
-#'   `tolerance` is a real argument here, unlike in [`grim_map()`], where it is
-#'   deprecated.
-#' @param ... Arguments passed down to [`grimmer()`].
-
-#' @return A tibble with these columns --
+#' @param data Tibble with columns `x`, `sd`, and `n`, and optionally `items`.
+#'   Any other columns are returned alongside the results.
+#' @param digits_x,digits_sd Integer. The number of decimal places in `x` and
+#'   `sd`, including trailing zeros. There are no defaults, since a numeric
+#'   value does not keep them (`1.40` is `1.4`). Either a single number for the
+#'   whole column or one number per row of `data`.
+#' @param x,sd,n Optionally, the names of the columns in `data` that contain
+#'   these values, if they differ from the defaults.
+#' @param items Integer. The number of items composing `x` and `sd`, if `data`
+#'   has no `items` column. Default is `1`. `items` is multiplied into `n` for
+#'   the output.
+#' @param min_val,max_val Integer. Optionally, the bounds of the scale; see
+#'   the *Scale bounds* section of [`grimmer()`]. Both default to `NULL`.
+#' @param show_reason Logical. If `TRUE` (the default), a `reason` column states
+#'   the reason for each inconsistency.
+#' @param rounding,threshold,symmetric,tolerance Passed on to [`grimmer()`].
+#' @param ... Further arguments passed on to [`grimmer()`].
+#'
+#' @return A tibble with these columns:
 #' - `x`, `sd`, `n`: the inputs.
-#' - `digits_x`, `digits_sd`: the number of decimal places in `x` and `sd`, as
-#'   given by `digits_x` and `digits_sd`.
-#' - `consistency`: GRIMMER consistency of `x`, `sd`, `n`, and `items`. `NA` for a
-#'   case that cannot be decided, such as one with a missing value.
-#' - `reason`: If consistent, `"Passed all"`. If inconsistent, it says which
-#'   test was failed (see below).
-#' - `<extra>`: any columns from `data` other than `x`, `sd`, `n`, and `items`.
+#' - `digits_x`, `digits_sd`: the numbers of decimal places, as given.
+#' - `consistency`: GRIMMER consistency of `x`, `sd`, `n`, and `items`. `NA`
+#'   for a case that cannot be decided, such as one with a missing value.
+#' - `reason`: `"Passed all"` if consistent; otherwise the test that failed.
+#' - Any other columns from `data`.
 #'
-#' The `reason` columns refers to GRIM and the three GRIMMER tests (Allard
-#' 2018). Briefly, these are:
+#' The `reason` column refers to GRIM and the three GRIMMER tests (Allard
+#' 2018):
 #'
 #' 1. The reconstructed sum of squared observations must be a whole number.
 #' 2. The reconstructed SD must match the reported one.
-#' 3. The parity of the reconstructed sum of squared observations must match the
-#'    parity of the reconstructed sum of integers of which the reported means
-#'    are fractions; i.e., either both are even or both are odd.
+#' 3. The parity of the reconstructed sum of squared observations must match
+#'    that of the reconstructed sum of the values.
 #'
-#' If `min_val` and `max_val` are specified, two further reasons can appear:
-#' `"Mean out of scale range"` for an `x` outside of the scale, and `"GRIMMER
-#' inconsistent (scale range)"` for a value set whose `sd` no sample within the
-#' scale could have produced.
+#' With `min_val` and `max_val`, the reasons `"Mean out of scale range"` and
+#' `"GRIMMER inconsistent (scale range)"` can appear. A negative `sd` gives
+#' `"Negative SD"`.
 #'
-#' A negative `sd` is inconsistent with the reason `"Negative SD"`, since no
-#' sample has one.
+#' The tibble has the class `scrutiny_grimmer_map`, which is recognized by
+#'   [`audit()`] and [`grim_plot()`].
 #'
-#' The tibble has the `scrutiny_grimmer_map` class, which is recognized by the
-#' [`audit()`] generic. [`grim_plot()`] recognizes it as well, so GRIMMER
-#' results can be visualized just like GRIM results.
-
-#' @section Summaries with [`audit()`]: There is an S3 method for [`audit()`],
-#'   so you can call [`audit()`] following `grimmer_map()` to get a summary of
-#'   `grimmer_map()`'s results. It is a tibble with a single row and these
-#'   columns --
+#' @section Summaries with [`audit()`]: `audit()` on `grimmer_map()` output
+#'   returns a tibble with one row and these columns:
 #'
 #' 1. `incons_cases`: number of GRIMMER-inconsistent value sets.
 #' 2. `all_cases`: total number of value sets.
 #' 3. `incons_rate`: proportion of GRIMMER-inconsistent value sets.
-#' 4. `fail_grim`: number of value sets that fail the GRIM test.
-#' 5. `fail_test1`: number of value sets that fail the first GRIMMER test (see
-#'     below).
-#' 6. `fail_test2`: number of value sets that fail the second GRIMMER test.
-#' 7. `fail_test3`: number of value sets that fail the third GRIMMER test.
-#' 8. `fail_scale`: number of value sets that are inconsistent with the scale
-#'     bounds given by `min_val` and `max_val`. Zero if these were not
-#'     specified.
+#' 4. `fail_grim`: number of value sets that fail GRIM.
+#' 5. `fail_test1`, `fail_test2`, `fail_test3`: number of value sets that fail
+#'    each of the three GRIMMER tests.
+#' 6. `fail_scale`: number of value sets inconsistent with `min_val` and
+#'    `max_val`. Zero if these were not given.
 #'
-#' The `reason` columns refers to the three GRIMMER tests (see Allard 2018).
-#' These are:
-#'
-#' 1. The reconstructed sum of squared observations must be a whole number.
-#' 2. The reconstructed SD must match the reported one.
-#' 3. The parity of the reconstructed sum of squared observations must match the
-#'    parity of the reconstructed sum of integers of which the reported means
-#'    are fractions; i.e., either both are even or both are odd.
-
 #' @include audit.R grimmer.R function-map.R
 #'
 #' @references Allard, A. (2018). Analytic-GRIMMER: a new way of testing the
@@ -112,9 +75,8 @@
 #' # Use `grimmer_map()` on data like these:
 #' pigs5
 #'
-#' # The `consistency` column shows whether
-#' # the values to its left are GRIMMER-consistent.
-#' # If they aren't, the `reason` column says why:
+#' # The `consistency` column shows whether the values to its left are
+#' # GRIMMER-consistent. If they aren't, the `reason` column gives the reason:
 #' pigs5 |>
 #'   grimmer_map(digits_x = 2, digits_sd = 2)
 #'

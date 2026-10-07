@@ -7,38 +7,30 @@
 unnest_consistency_cols(results, col_names, index = FALSE, col = "consistency")
 }
 \arguments{
-\item{results}{Data frame containing a list-column by the name passed to
-\code{col}.}
+\item{results}{Data frame with a list-column named \code{col}.}
 
-\item{col_names}{String vector of new names for the unnested columns. It
-should start with the same string that was given for \code{col}.}
+\item{col_names}{String. Names of the new columns. The first should be
+\code{col}.}
 
 \item{index}{Logical. Should the list-column be indexed into? Default is
 \code{FALSE}.}
 
-\item{col}{String (length 1). Name of the list-column within \code{results} to
-operate on. Default is \code{"consistency"}.}
+\item{col}{String (length 1). Name of the list-column. Default is
+\code{"consistency"}.}
 }
 \value{
-Data frame. The column names are determined by \code{col_names}.
+Data frame with the columns named in \code{col_names}.
 }
 \description{
-Within a consistency test mapper function, it may become
-necessary to unpack a column resulting from a basic \verb{*_scalar()} testing
-function. That will be the case if a \verb{show_*} argument of the mapper
-function like \code{show_rec} in \code{grim_map()} is \code{TRUE}, and the \verb{*_scalar()}
-function returns a list of values, not just a single value.
-
-At the point where such as list is stored in a data frame column (most
-likely \code{"consistency"}), call \code{unnest_consistency_cols()} to unnest the
-results into multiple columns.
+If a \verb{*_scalar()} function returns a list of values rather
+than a single one, as \code{grim_scalar()} does with \code{show_rec = TRUE}, a
+handwritten mapper ends up with a list-column. \code{unnest_consistency_cols()}
+splits it into one column per value.
 }
 \details{
-This function is a custom workaround in place of
-\code{tidyr::unnest_wider()}, mirroring some of the latter's functionality. It
-was created because \code{unnest_wider()} can be too slow for use as a helper
-function.
+This is a faster, narrower replacement for
+\code{\link[tidyr:unnest_wider]{tidyr::unnest_wider()}}.
 }
 \seealso{
-\code{vignette("consistency-tests-in-depth")}, for context.
+\code{vignette("consistency-tests-in-depth")}.
 }

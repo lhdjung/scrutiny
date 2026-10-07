@@ -22,157 +22,105 @@ grim_plot(
 )
 }
 \arguments{
-\item{data}{Data frame. Result of a call to \code{\link[=grim_map]{grim_map()}}.}
+\item{data}{Data frame returned by \code{\link[=grim_map]{grim_map()}} or \code{\link[=grimmer_map]{grimmer_map()}}.}
 
-\item{show_data}{Logical. If set to \code{FALSE}, test results from the data are
-not displayed. Choose this if you only want to show the background raster.
-You can then control plot parameters directly via the \code{n}, \code{digits}, and
-\code{rounding} arguments. Default is \code{TRUE}.}
+\item{show_data}{Logical. If \code{FALSE}, only the raster is drawn. Default is
+\code{TRUE}.}
 
-\item{show_raster}{Logical. If \code{TRUE} (the default), the plot has a
-background raster.}
+\item{show_raster}{Logical. Should the raster be drawn? Default is \code{TRUE}.}
 
-\item{show_gradient}{Logical. If the number of decimal places is 3 or
-greater, should a gradient be shown to signal the overall probability of
-GRIM inconsistency? Default is \code{TRUE}.}
+\item{show_gradient}{Logical. With three or more decimal places, should a
+gradient be drawn? Default is \code{TRUE}.}
 
-\item{split_by_digits}{Logical (length 1). Set to \code{TRUE} to create a separate
-plot for each number of decimal places, stored in a named list, instead of
-throwing an error. The result is then a list even if all values have the
-same number of decimal places. Can't be combined with \code{digits}. Default is
-\code{FALSE}.}
+\item{split_by_digits}{Logical. If \code{TRUE}, return a named list with one
+plot per number of decimal places instead of erroring when they differ.
+Cannot be combined with \code{digits}. Default is \code{FALSE}.}
 
 \item{n}{Integer. Maximal value on the x-axis. Default is \code{NULL}, in which
-case the axis spans the raster and the data, with breaks up to
-\code{10 ^ digits} (e.g., \code{100} if \code{digits} is \code{2}).}
+case the axis spans the raster and the data.}
 
-\item{digits}{Integer. Number of decimal places for which the background
-raster will be generated. Default is \code{NULL}, in which case it is read from
-the \code{digits_x} column of \code{data} (or, failing that, inferred from the \code{x}
-values).}
+\item{digits}{Integer. Number of decimal places for the raster. Default is
+\code{NULL}, in which case it is read from the \code{digits_x} column, or failing
+that, inferred from \code{x}. For percentages, give the number of decimal
+places as reported; 2 are added.}
 
-\item{rounding}{String. Only relevant if \code{show_data} is set to \code{FALSE}. The
-plot will then be constructed as it would be for data rounded in this
-particular way. Default is \code{"up_or_down"}.}
+\item{rounding}{String. Only used if \code{show_data} is \code{FALSE}. Default is
+\code{"up_or_down"}.}
 
-\item{color_cons, color_incons}{Strings. Fill colors of the consistent and
-inconsistent scatter points. Defaults are \code{"royalblue1"} (consistent) and
-\code{"red"} (inconsistent).}
+\item{color_cons, color_incons}{Strings. Fill colors of consistent and
+inconsistent value sets. Defaults are \code{"royalblue1"} and \code{"red"}.}
 
-\item{tile_alpha, tile_size}{Numeric. Further parameters of the scatter
-points: opacity and, indirectly, size. Defaults are \code{1} and \code{1.5}.}
+\item{tile_alpha, tile_size}{Numeric. Opacity and size of the tiles for value
+sets. Defaults are \code{1} and \code{1.5}.}
 
-\item{raster_alpha, raster_color}{Numeric and string, respectively. Parameters
-of the background raster: opacity and fill color. Defaults are \code{1} and
-\code{"grey75"}.}
+\item{raster_alpha, raster_color}{Numeric and string. Opacity and fill color
+of the raster. Defaults are \code{1} and \code{"grey75"}.}
 }
 \value{
-A ggplot object, returned the ordinary way: at the console,
-auto-printing draws it, and it can be added to, saved, or composed with
-other plots without a stray canvas appearing.
-
-The exception is \code{split_by_digits = TRUE}, which returns a named list of
+A ggplot object. With \code{split_by_digits = TRUE}, a named list of
 ggplot objects, one per distinct non-zero number of decimal places (e.g.,
-\code{list(digits_1 = ..., digits_2 = ...)}). A list is not something
-auto-printing can draw, so that branch prints each plot itself and returns
-the list invisibly.
+\code{list(digits_1 = ..., digits_2 = ...)}), returned invisibly after each
+plot is printed.
 }
 \description{
-\code{grim_plot()} visualizes summary data and their mutual GRIM
-consistency. Call this function only on a data frame that resulted from a
-call to \code{\link[=grim_map]{grim_map()}}.
-
-Consistent and inconsistent value pairs from the input data frame are shown
-in distinctive colors. By default, consistent value pairs are blue and
-inconsistent ones are red. These and other parameters of the underlying
-geoms can be controlled via arguments.
-
-The background raster follows the \code{rounding} argument from the \code{grim_map()}
-call (unless any of the plotted mean or proportion values has more than 2
-decimal places, in which case a gradient is shown, not a raster).
+\code{grim_plot()} plots the output of \code{\link[=grim_map]{grim_map()}} or
+\code{\link[=grimmer_map]{grimmer_map()}}. Each value set is placed by its sample size and the
+fractional part of its mean, in blue if consistent and red if not, on a
+background raster that shows which combinations are GRIM-consistent at
+all.
 }
 \section{Background raster}{
- The background raster shows the probability of
-GRIM-inconsistency for random means or proportions, from 0 (all
-inconsistent) to the greatest number on the x-axis (all consistent). If the
-number of decimal places in the inputs -- means or percentages -- is 3 or
-greater, individual points would be too small to display. In these cases,
-there will not be a raster but a gradient, showing the overall trend.
+ For one or two decimal places, the raster
+marks every combination of sample size and fractional part that is
+inconsistent with a dark tile. It depends on the number of decimal places,
+which is read from the \code{digits_x} column of \code{data}, and on the rounding
+method, which is read from the \code{grim_map()} call. Rasters are precomputed
+for every rounding method except \code{"up_from"}, \code{"down_from"}, and
+\code{"up_from_or_down_from"}; with these, \code{grim_plot()} errors unless
+\code{show_raster = FALSE}. With three or more decimal places, the tiles
+would be too small, so a gradient shows the probability of inconsistency
+instead.
 
-As any raster only makes sense with respect to one specific number of
-decimal places, the function will throw an error if these numbers differ
-among input \code{x} values (and \code{show_raster} is \code{TRUE}). You can avoid the
-error and force plotting by specifying \code{digits} as the number of decimal
-places for which the raster or gradient should be displayed.
+A raster only applies to one number of decimal places, so \code{grim_plot()}
+errors if \code{digits_x} varies across rows. Use \code{split_by_digits = TRUE} to
+get one plot per number of decimal places instead, or \code{digits} to choose
+one.
 
-For 1 or 2 decimal places, the raster will be specific to the rounding
-procedure. As the raster varies by rounding procedure, it will
-automatically correspond to the \code{rounding} argument specified in the
-preceding \code{\link[=grim_map]{grim_map()}} call. This works fast because the raster is based
-on data saved in the package itself, so these data don't need to be
-generated anew every time the function is called. Inconsistent value sets
-are marked with dark boxes. All other places in the raster denote
-consistent value sets. The raster is independent of the data -- it only
-follows the \code{rounding} specification in the \code{\link[=grim_map]{grim_map()}} call and the
-\code{digits} argument in \code{grim_plot()}.
+With \code{percent = TRUE} in the \code{grim_map()} call, percentages are plotted
+as the proportions they were tested as, with two more decimal places.
 
-With \code{percent = TRUE} in the \code{\link[=grim_map]{grim_map()}} call, percentages are plotted
-as the proportions they were tested as, which have 2 more decimal places.
-Whole-number percentages therefore get the 2-decimal raster, and those
-with 1 or more decimal places get a gradient. The 2 are also added to a
-\code{digits} value specified here.
+Set \code{show_data = FALSE} to plot the raster alone, controlled by \code{digits},
+\code{rounding}, and \code{n}.
 
-Display an "empty" plot, one without empirical test results, by setting
-\code{show_data} to \code{FALSE}. You can then control key parameters of the plot
-with \code{digits} and \code{rounding}.
-
-With \code{\link[=grim_map]{grim_map()}}'s default for \code{rounding}, \code{"up_or_down"}, strikingly
-few values are flagged as inconsistent for sample sizes 40 and 80 (or 4 and
-8). This effect disappears if \code{rounding} is set to any other value (see
-\code{vignette("rounding-options")}).
-
-The 4/8 leniency effect arises because accepting values rounded either up
-or down is more careful and conservative than any other rounding procedure.
-In any case, \code{grim_plot()} doesn't cause this effect --- it only reveals
-it.
+Under the default \code{rounding = "up_or_down"}, few values are inconsistent
+at sample sizes 40 and 80 with two decimal places (4 and 8 with one),
+because many achievable means there are ties, which the default accepts
+in both directions.
 }
 
 \section{Negative means}{
- The y-axis is the fractional portion of the
-\emph{absolute value} of \code{x}, so a mean of \code{-2.51} is drawn at \code{0.51}, in the
-same place as \code{2.51}. GRIM's granularity is symmetric around zero -- the
-achievable means of \code{n} integers are \code{k / n} for every whole number \code{k},
-whatever its sign -- so this puts each value set at its correct point on
-the granularity grid rather than off the axis.
-
-The background raster is the one place where the sign can still matter,
-and only for the one-directional rounding methods. \code{rounding = "up"}, for
-instance, breaks a tie in a negative number toward zero rather than away
-from it (unless \code{symmetric} is \code{TRUE}), so the raster drawn for \code{"up"}
-describes the mirror image of what such a value set was tested against.
-That concerns the backdrop only: every tile is colored from the
-\code{consistency} column, which \code{\link[=grim_map]{grim_map()}} computed for the value as
-reported, sign included.
+ The y-axis is the fractional part of the absolute
+value of \code{x}, so a mean of \code{-2.51} is drawn at \code{0.51}. GRIM's granularity
+is symmetric around zero, so this is the value set's place on the grid.
+For a one-directional rounding method such as \code{"up"}, the raster behind a
+negative value is the one for the mirrored method, since a tie in a
+negative number goes the other way (unless \code{symmetric = TRUE}). The tile's
+color comes from the \code{consistency} column and is unaffected.
 }
 
 \examples{
-# Call `grim_plot()` following `grim_map()`. No need to pass `digits`
-# along: `grim_map()` stores the `digits_x` it was given in a `digits_x`
-# column, and `grim_plot()` reads the decimal count from there:
+# `grim_plot()` reads the number of decimal places
+# from the `digits_x` column:
 pigs1 |>
   grim_map(digits_x = 2) |>
   grim_plot()
 
-# If you change the rounding procedure
-# in `grim_map()`, the plot will
-# follow automatically if there is
-# a difference:
+# The raster follows the rounding method of the `grim_map()` call:
 pigs1 |>
   grim_map(digits_x = 2, rounding = "ceiling") |>
   grim_plot()
 
-# For percentages, the y-axis
-# label also changes automatically:
+# Percentages are plotted as proportions:
 pigs2 |>
   grim_map(digits_x = 1, percent = TRUE) |>
   grim_plot()

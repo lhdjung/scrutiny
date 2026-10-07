@@ -406,68 +406,48 @@ debit_scalar <- function(
 
 #' The DEBIT (descriptive binary) test
 #'
-#' @description `debit()` tests summaries of binary data for consistency: If the
-#'   mean and the sample standard deviation of binary data are given, are they
-#'   consistent with the reported sample size?
+#' @description `debit()` checks whether the reported mean and sample standard
+#'   deviation of binary data are consistent with the reported sample size.
+#'   With `k` ones among `n` values, the mean is `k / n` and the SD follows
+#'   from `k` and `n`; the test asks whether any `k` produces both reported
+#'   numbers at their decimal places.
 #'
-#'   The function is vectorized, but it is recommended to use [`debit_map()`]
-#'   for testing multiple cases.
+#'   The function is vectorized, but [`debit_map()`] is more convenient for
+#'   testing many cases.
 #'
-#'   `x`, `sd`, `n`, `digits_x`, and `digits_sd` are vectorized: they may have
-#'   any length, and shorter ones are recycled to the length of the longest, as
-#'   long as they have length 1. All other arguments describe the test as a
-#'   whole and must have length 1.
+#' @details `x`, `sd`, `n`, `digits_x`, and `digits_sd` are vectorized and
+#'   recycled to a common length by the tidyverse rules. All other arguments
+#'   must have length 1.
 #'
-#' @param x Numeric. Mean of a binary distribution.
-#' @param sd Numeric. Sample standard deviation of a binary distribution.
-#' @param digits_x Integer. The number of decimal places in `x`, including
-#'   trailing zeros. There is no default because it cannot be inferred from a
-#'   numeric `x`, which has no trailing zeros: both `1.4` and `1.40` are the
-#'   number `1.4`, but only the latter has `digits_x = 2`.
-#' @param digits_sd Integer. The number of decimal places in `sd`, including
-#'   trailing zeros. As with `digits_x`, there is no default, because trailing
-#'   zeros don't survive in a numeric value.
-#' @param n Integer. Total sample size.
-#' @param formula String. `"exact"` (the default) only considers means that `n`
-#'   binary values can have, i.e., `k / n` for a whole number `k`. `"mean_n"`
-#'   treats the mean as continuous, as in Heathers and Brown (2019), and
-#'   accepts some SDs that no binary sample of size `n` can have. For example,
-#'   `debit(0.05, 0.21, 20, 2, 2)` is `TRUE` under `"mean_n"`, but a mean of
-#'   0.05 with `n = 20` can only be one 1 in 20, whose SD rounds to 0.22. The
-#'   difference only ever turns `TRUE` into `FALSE`, with one exception: under
-#'   `rounding = "even"`, an SD exactly on a tie, such as 0.25, is taken to be
-#'   reportable both ways by `"exact"`, but only the way [`round()`] goes by
-#'   `"mean_n"`.
-#' @param rounding String. Rounding method or methods to be used for
-#'   reconstructing the SD values to which `sd` will be compared. Default is
-#'   `"up_or_down"` (from 5). See `vignette("rounding-options")`.
-#' @param threshold Integer. If `rounding` is set to `"up_from"`, `"down_from"`,
-#'   or `"up_from_or_down_from"`, set `threshold` to the number from which the
-#'   reconstructed values should then be rounded up or down. Otherwise
-#'   irrelevant. Default is `5`.
-#' @param symmetric Logical. Set `symmetric` to `TRUE` if the rounding of
-#'   negative numbers with `"up"`, `"down"`, `"up_from"`, or `"down_from"`
-#'   should mirror that of positive numbers so that their absolute values are
-#'   always equal. Default is `FALSE`. It must not be given with any of the
-#'   `"ties_*"` methods, which already name a complete tie-breaking procedure;
-#'   see [`reround()`].
-
+#' @param x Numeric. The reported mean of the binary data, between 0 and 1.
+#' @param sd Numeric. The reported sample standard deviation, between 0 and 1.
+#' @param n Integer. The reported sample size.
+#' @param digits_x,digits_sd Integer. The number of decimal places in `x` and
+#'   `sd`, including trailing zeros. There are no defaults, since a numeric
+#'   value does not keep them (`1.40` is `1.4`).
+#' @param formula String. `"exact"` (the default) only considers means that
+#'   `n` binary values can have, i.e., `k / n` for a whole number `k`.
+#'   `"mean_n"` treats the mean as continuous, as in Heathers and Brown
+#'   (2019), and accepts some SDs that no binary sample of size `n` can have:
+#'   `debit(0.05, 0.21, 20, 2, 2)` is `TRUE` under `"mean_n"`, although a mean
+#'   of 0.05 with `n = 20` means one 1 in 20, whose SD rounds to 0.22.
+#' @param rounding String. The rounding method assumed to have produced `sd`.
+#'   Default is `"up_or_down"`. See `vignette("rounding-options")`.
+#' @param threshold,symmetric The same as in [`grim()`].
+#'
 #' @export
 #'
-#' @return Logical. `TRUE` if `x`, `sd`, and `n` are mutually consistent,
-#'   `FALSE` if not, and `NA` if the case cannot be decided: if any of the
-#'   values is missing, if the rounding bounds are undefined, or if `n` is not
-#'   a whole number greater than `1`. DEBIT reconstructs the *sample* SD of `n`
-#'   binary values, so it divides by `n - 1`.
+#' @return Logical. `TRUE` if `x`, `sd`, and `n` are consistent, `FALSE` if
+#'   not, and `NA` if the case cannot be decided: if a value is missing or if
+#'   `n` is not a whole number greater than `1`. DEBIT reconstructs a sample
+#'   SD and so divides by `n - 1`.
 #'
-#' @seealso [`debit_map()`] applies `debit()` to any number of cases at once.
+#' @seealso [`debit_map()`] for data frames.
 #'
 #' @references Heathers, James A. J., and Brown, Nicholas J. L. 2019. DEBIT: A
 #'   Simple Consistency Test For Binary Data. https://osf.io/5vb3u/.
 #'
 #' @examples
-#' # Check single cases of binary
-#' # summary data:
 #' debit(x = 0.36, sd = 0.11, n = 20, digits_x = 2, digits_sd = 2)
 
 # Vectorized version. The signature mirrors `debit_scalar()`'s minus `show_rec`;

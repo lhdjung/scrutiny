@@ -2,7 +2,7 @@
 % Please edit documentation in R/is-percentage-of-map.R
 \name{is_percentage_of_map}
 \alias{is_percentage_of_map}
-\title{Test many reported percentages against their counts at once}
+\title{Test many reported percentages against their counts}
 \usage{
 is_percentage_of_map(
   data,
@@ -18,35 +18,32 @@ is_percentage_of_map(
 }
 \arguments{
 \item{data}{Tibble with columns \code{absolute}, \code{percentage}, and \code{n}. Any
-other columns in \code{data} will be returned alongside the test results.}
+other columns are returned alongside the results.}
 
 \item{digits_percentage}{Integer. The number of decimal places in
-\code{percentage}, including trailing zeros. Use a single number if the whole
-column was reported with the same number of decimal places, or one number
-per row of \code{data} if it varies.}
+\code{percentage}, including trailing zeros. There is no default, since a
+numeric value does not keep them (\code{1.40} is \code{1.4}). Either a single
+number for the whole column or one number per row of \code{data}.}
 
-\item{absolute, percentage, n}{Optionally, specify these arguments as
-column names in \code{data}.}
+\item{absolute, percentage, n}{Optionally, the names of the columns in \code{data}
+that contain these values, if they differ from the defaults.}
 
-\item{rounding, threshold, symmetric}{Further parameters of the test; see
-\code{\link[=grim]{grim()}}.}
+\item{rounding, threshold, symmetric}{The same as in \code{\link[=grim]{grim()}}.}
 
-\item{...}{Arguments passed down to \code{\link[=is_percentage_of]{is_percentage_of()}}.}
+\item{...}{Further arguments passed on to \code{\link[=is_percentage_of]{is_percentage_of()}}.}
 }
 \value{
 A tibble with the columns \code{absolute}, \code{percentage}, \code{n},
 \code{digits_percentage}, \code{consistency}, and any other columns from \code{data}. It
-has the \code{scrutiny_is_percentage_of_map} class, which is recognized by the
-\code{\link[=audit]{audit()}} generic.
+has the class \code{scrutiny_is_percentage_of_map}, which is recognized by
+\code{\link[=audit]{audit()}}.
 }
 \description{
-Call \code{is_percentage_of_map()} to apply \code{\link[=is_percentage_of]{is_percentage_of()}}
-to every row of a data frame with reported counts, percentages, and
-totals.
+\code{is_percentage_of_map()} applies \code{\link[=is_percentage_of]{is_percentage_of()}} to
+every row of a data frame with counts, percentages, and totals.
 
-For summary statistics, call \code{\link[=audit]{audit()}} on the results.
-
-For possible causes of inconsistencies, see \code{\link[=is_percentage_of]{is_percentage_of()}}.
+Call \code{\link[=audit]{audit()}} on the output for summary statistics. See
+\code{\link[=is_percentage_of]{is_percentage_of()}} for causes of inconsistencies.
 }
 \examples{
 df <- tibble::tibble(

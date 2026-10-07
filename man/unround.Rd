@@ -13,82 +13,53 @@ unround(
 )
 }
 \arguments{
-\item{x}{String or numeric. Rounded number. \code{x} must be a string unless
-\code{digits} is specified (most likely by a function that uses \code{unround()} as a
-helper). A missing or infinite \code{x} has no bounds, so they are \code{NA}.}
+\item{x}{String or numeric. The rounded number. Must be a string unless
+\code{digits} is specified. A missing or infinite \code{x} has \code{NA} bounds.}
 
-\item{rounding}{String. Rounding method presumably used to create \code{x}.
-Default is \code{"up_or_down"}. For more, see section \code{Rounding}.}
+\item{rounding}{String. The rounding method assumed to have produced \code{x}.
+Default is \code{"up_or_down"}. See \emph{Rounding}.}
 
-\item{threshold}{Numeric. The point within a step at which rounding switches
-direction, in tenths of a step, for the \code{"up_from"}, \code{"down_from"}, and
-\code{"up_from_or_down_from"} methods; it must be greater than \code{0} and less than
-\code{10}. Other rounding methods are not affected. Default is \code{5}, which makes
-those three methods the same as \code{"up"}, \code{"down"}, and \code{"up_or_down"}. See
-\code{\link[=round_up_from]{round_up_from()}}, which spells out what it means in each direction.}
+\item{threshold}{Numeric. For the \code{"*_from"} methods, the point within a
+step at which rounding switches direction, in tenths of a step; greater
+than \code{0} and less than \code{10}. Default is \code{5}. See \code{\link[=round_up_from]{round_up_from()}}.}
 
-\item{digits}{Integer. This argument is meant to make \code{unround()} more
-efficient to use as a helper function so that it doesn't need to
-redundantly count decimal places. Don't specify it otherwise. Default is
-\code{NULL}, in which case decimal places really are counted internally and \code{x}
-must be a string. Otherwise, it must be whole numbers, as in \code{\link[=reround]{reround()}}.}
+\item{digits}{Integer. The number of decimal places in \code{x}. Default is
+\code{NULL}, in which case it is counted from the string \code{x}. Specify it if
+the number is already known, as a function that uses \code{unround()} as a
+helper would.}
 
-\item{symmetric}{Logical. Set \code{symmetric} to \code{TRUE} if the rounding of
-negative numbers with \code{"up"}, \code{"down"}, \code{"up_from"}, or \code{"down_from"}
-mirrored that of positive numbers, so that their absolute values were
-always equal. Default is \code{FALSE}. It only ever affects negative numbers,
-and with \code{"up"} and \code{"down"} only ties among those; \code{TRUE} is what
-reconstructs Excel, SAS, SPSS, and Matlab.
-
-It must not be given with any of the \code{"ties_*"} methods, which already
-name a complete tie-breaking procedure; see \code{\link[=reround]{reround()}}. Because
-\code{rounding} is vectorized here, a single \code{"ties_*"} element is enough to
-make a \code{symmetric} of \code{TRUE} an error for the whole call. See
-\code{vignette("rounding-options")}.}
+\item{symmetric}{Logical. If \code{TRUE}, negative numbers are assumed to have
+been rounded like their absolute values under \code{"up"}, \code{"down"}, and the
+\code{"*_from"} methods. Default is \code{FALSE}. Must not be given with a \code{"ties_*"}
+method; see \code{\link[=reround]{reround()}}.}
 }
 \value{
-A tibble with seven columns: \code{range}, \code{rounding}, \code{lower},
-\code{incl_lower}, \code{x}, \code{incl_upper}, and \code{upper}. The \code{range} column is a handy
-representation of the information stored in the columns from \code{lower} to
-\code{upper}, in the same order.
+A tibble with the columns \code{range}, \code{rounding}, \code{lower},
+\code{incl_lower}, \code{x}, \code{incl_upper}, and \code{upper}. \code{range} summarizes the
+columns from \code{lower} to \code{upper}.
 }
 \description{
-\code{unround()} takes a rounded number and returns the range of the
-original value: lower and upper bounds for the hypothetical earlier number
-that was later rounded to the input number. It also displays a range with
-inequation signs, showing whether the bounds are inclusive or not.
-
-By default, the presumed rounding method is rounding up (or down) from 5.
-See the \code{Rounding} section for other methods.
+\code{unround()} takes a rounded number and returns the range of
+values that would have been rounded to it: a lower and an upper bound,
+and whether each is inclusive. The default rounding method is
+\code{"up_or_down"}; see \emph{Rounding} for the others.
 }
 \details{
-The function is vectorized over \code{x} and \code{rounding}. This can be
-useful to unround multiple numbers at once, or to check how a single number
-is unrounded with different assumed rounding methods.
+\code{x} is a string by default so that its trailing zeros can be
+counted, since a numeric value loses them. If the number of decimal places
+is known, pass it as \code{digits}, and \code{x} may be numeric. This is how
+\code{\link[=grim]{grim()}}, \code{\link[=grimmer]{grimmer()}}, and \code{\link[=debit]{debit()}} use it: their bounds come from
+the same internal functions, with \code{digits} taken from \code{digits_x} and
+\code{digits_sd}, so the tests and \code{unround()} always agree.
 
-If both vectors have a length greater than 1, it must be the same
-length. However, this will pair numbers with rounding methods, which can be
-confusing. It is recommended that at least one of these input vectors has
-length 1.
-
-Why does \code{x} need to be a string if \code{digits} is not specified? In that
-case, \code{unround()} must count decimal places by itself. If \code{x} then was
-numeric, it wouldn't have any trailing zeros because these get dropped from
-numerics.
-
-Trailing zeros are as important for reconstructing boundary values as any
-other trailing digits would be. Strings don't drop trailing zeros, so they
-are used instead.
+\code{x} and \code{rounding} are both vectorized. If both have length greater than
+1, they must have the same length and are paired element by element.
 }
 \section{Rounding}{
- Depending on how \code{x} was rounded, the boundary values can
-be inclusive or exclusive. The \code{incl_lower} and \code{incl_upper} columns in the
-resulting tibble are \code{TRUE} in the first case and \code{FALSE} in the second.
-The \code{range} column reflects this with equation and inequation signs.
-
-However, these ranges are based on assumptions about the way \code{x} was
-rounded. Set \code{rounding} to the rounding method that hypothetically lead to
-\code{x}:\tabular{ll}{
+ Whether a bound is inclusive depends on the rounding
+method. Under \code{"up"}, a value on the lower bound rounds up to \code{x}, but a
+value on the upper bound rounds up past it. The \code{range} column shows the
+bounds with the appropriate signs:\tabular{ll}{
    \strong{Value of \code{rounding}} \tab \strong{Corresponding range} \cr
    \code{"up_or_down"} (default) \tab \verb{lower <= x <= upper} \cr
    \code{"up"}, \code{"ties_up"} \tab \verb{lower <= x < upper} \cr
@@ -113,62 +84,37 @@ rounded. Set \code{rounding} to the rounding method that hypothetically lead to
 }
 
 
-The bounds come from the same internal machinery that \code{\link[=grim]{grim()}} and
-\code{\link[=grimmer]{grimmer()}} use to derive their candidate ranges, so \code{unround()} accepts
-exactly the rounding methods those tests do, and \code{threshold} and
-\code{symmetric} mean the same thing everywhere.
+\code{threshold} only applies to the three \code{"*_from"} methods. It moves their
+range without widening it; each spans exactly one step at every
+threshold.
 
-The five \code{"ties_*"} methods each name a complete tie-breaking procedure,
-so they say by themselves what \code{rounding} and \code{symmetric} say together:
-\code{"ties_up"} is \code{"up"} with \code{symmetric = FALSE}, \code{"ties_away"} is \code{"up"}
-with \code{symmetric = TRUE}, and likewise for \code{"ties_down"} and \code{"ties_zero"}.
-\code{"ties_even"} is the odd one out: it is another name for \code{"even"}, which no
-combination of a threshold and \code{symmetric} produces, since parity is not a
-direction. \code{symmetric} is not consulted for any of them. See
-\code{\link[=round_ties_up]{round_ties_up()}}.
+The \code{"ties_*"} methods each name a complete tie-breaking procedure, so
+giving \code{symmetric} with them is an error; see \code{\link[=round_ties_up]{round_ties_up()}}.
 
-Note that \code{threshold} applies only to \code{"up_from"}, \code{"down_from"}, and
-\code{"up_from_or_down_from"}. The plain \code{"up"}, \code{"down"}, and \code{"up_or_down"}
-methods round from a fixed 5 -- see \code{\link[=round_up]{round_up()}} -- so their bounds do
-not depend on it.
-
-\code{threshold} moves a range but never widens it: the three \code{"*_from"} methods
-span exactly one step at every threshold, just as \code{"up"}, \code{"down"}, and
-\code{"up_or_down"} do at the 5 they are fixed to. Up to scrutiny 1.0.0 they did
-not, because \code{round_down_from()} switched direction at \code{10 - threshold}
-rather than at \code{threshold}; see that function's \code{threshold} parameter.
-
-Base R's own \code{round()} (R version >= 4.0.0), referenced by \code{rounding = "even"}, is reconstructed in the same way as \code{"up_or_down"}. Whether its
-boundary values are really inclusive is hard to predict: \code{round()} breaks
-midpoint ties by the parity of the preceding digit, and whether a tie occurs
-at all depends on the binary representation of the value. Both bounds are
-therefore reported as inclusive, which can only make a reconstructed range
-too wide, never too narrow. That is the safe direction for error detection.
+Under \code{"even"}, both bounds are reported as inclusive. \code{\link[base:Round]{base::round()}}
+decides a tie on the binary double, so whether a value on a bound rounds
+to \code{x} cannot be predicted from its decimal digits. Treating both bounds
+as inclusive can only widen the range, which is the safe direction for
+error detection.
 }
 
 \examples{
-# By default, the function assumes that `x`
-# was either rounded up or down:
+# By default, `x` may have been rounded up or down:
 unround(x = "2.7")
 
-# If `x` was rounded up, run this:
+# If it was rounded up, the upper bound is exclusive:
 unround(x = "2.7", rounding = "up")
 
 # Likewise with rounding down...
 unround(x = "2.7", rounding = "down")
 
-# ...and with `base::round()` which, broadly
-# speaking, rounds to the nearest even number:
+# ...and with `base::round()`:
 unround(x = "2.7", rounding = "even")
 
-# Multiple input number-strings return
-# multiple rows in the output data frame:
+# One row per input value:
 unround(x = c(3.6, "5.20", 5.174))
 }
 \seealso{
-For more about rounding \code{"up"}, \code{"down"}, or to \code{"even"}, see
-\code{\link[=round_up]{round_up()}}.
-
-For more about the less likely \code{rounding} methods, \code{"ceiling"}, \code{"floor"},
-\code{"trunc"}, and \code{"anti_trunc"}, see \code{\link[=round_ceiling]{round_ceiling()}}.
+\code{\link[=round_up]{round_up()}} for rounding up or down from 5, and
+\code{\link[=round_ceiling]{round_ceiling()}} for the one-directional methods.
 }

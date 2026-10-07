@@ -149,58 +149,43 @@ grim_closest_scalar <- function(
 
 #' Achievable means behind a reported one
 #'
-#' @description These functions reconstruct the mean or percentage values that
-#'   integer data of the reported sample size could actually have produced:
+#' @description These functions return the means (or percentages) that a sample
+#'   of `n * items` integers can have:
 #'
-#'   - `grim_values()` returns every achievable value that would have been
-#'   reported as `x` -- i.e., every value that GRIM accepts. It is empty if `x`
-#'   is GRIM-inconsistent with `n`.
-#'   - `grim_closest()` returns the single achievable value closest to `x`. For
-#'   a GRIM-consistent value set that is one of the `grim_values()`; for an
-#'   inconsistent one it is the nearest value that `x` could have been.
+#'   - `grim_values()` returns every achievable value that would be reported as
+#'   `x`. The result is empty if `x` is GRIM-inconsistent with `n`.
+#'   - `grim_closest()` returns the single achievable value closest to `x`,
+#'   whether or not `x` is consistent.
 #'
-#'   Both functions are vectorized, like [`grim()`]. Since a reported mean can
-#'   stand for any number of achievable ones, `grim_values()` returns a list
+#'   Both are vectorized like [`grim()`]. A reported mean may correspond to one
+#'   achievable mean, to several, or to none, so `grim_values()` returns a list
 #'   with one element per value set.
 #'
-#' @details A mean of integer data is a whole-number sum total divided by the
-#'   sample size (times the number of `items`). The achievable means are
-#'   therefore the whole numbers in the range that [`grim_map()`] shows as
-#'   `sum_lower` and `sum_upper` under `show_rec`, each divided by `n * items`.
+#' @details The achievable means are the whole numbers in the range that
+#'   [`grim_map()`] shows as `sum_lower` and `sum_upper` under `show_rec`, each
+#'   divided by `n * items`. Once `n * items` reaches `10^digits_x`, several of
+#'   them can be reported as the same `x`, and their number grows with
+#'   `n * items`. GRIM is then no longer informative. `grim_closest()` stays
+#'   cheap in that case; `grim_values()` does not.
 #'
-#'   There are `sum_upper - sum_lower + 1` of them, or none if `x` is
-#'   inconsistent. The count grows without bound once `n * items` reaches
-#'   `10^digits_x`, the point where GRIM stops being informative and
-#'   [`grim_probability()`] returns 0. `grim_closest()` is cheap in that
-#'   regime, `grim_values()` is not.
+#'   With `percent = TRUE`, the values are percentages, like `x`.
 #'
-#'   With `percent` set to `TRUE`, the values are returned on the scale of `x`,
-#'   as percentages rather than as decimal numbers, so that they can be read
-#'   against it directly.
-#'
-#' @param x Numeric. The reported mean or percentage value.
+#' @param x Numeric. The reported mean or percentage.
 #' @param n Integer. The reported sample size.
 #' @param digits_x Integer. The number of decimal places in `x`, including
-#'   trailing zeros. There is no default because it cannot be inferred from a
-#'   numeric `x`, which has no trailing zeros: both `1.4` and `1.40` are the
-#'   number `1.4`, but only the latter has `digits_x = 2`.
-#' @param items Numeric. The number of items composing `x`. Default is 1, the
-#'   most common case.
-#' @param percent Logical. Set `percent` to `TRUE` if `x` is a percentage. This
-#'   will convert it to a decimal number and adjust the decimal count (i.e.,
-#'   increase it by 2). Default is `FALSE`.
-#' @param rounding,threshold,symmetric Further parameters of GRIM-testing; see
-#'   documentation for [`grim()`].
+#'   trailing zeros. There is no default, since a numeric value does not
+#'   keep them (`1.40` is `1.4`).
+#' @param items Numeric. The number of items composing `x`. Default is 1.
+#' @param percent Logical. If `TRUE`, `x` is a percentage. Default is `FALSE`.
+#' @param rounding,threshold,symmetric The same as in [`grim()`].
 #'
 #' @return
 #' - For `grim_values()`, a list of numeric vectors, one per value set. A
-#'   vector is empty if the value set is GRIM-inconsistent, and `NA` if
-#'   consistency is undecidable.
+#'   vector is empty if the value set is inconsistent, and `NA` if it cannot
+#'   be decided.
 #' - For `grim_closest()`, a numeric vector as long as the inputs.
 #'
-#' @seealso [`grim()`] for the test itself, [`grim_map()`] for applying it to
-#'   many cases at once, and [`grim_probability()`] for how informative it is
-#'   in a given case.
+#' @seealso [`grim()`], [`grim_map()`], and [`grim_probability()`].
 #'
 #' @include grim.R unround.R
 #'
@@ -221,11 +206,10 @@ grim_closest_scalar <- function(
 #' # With a larger sample, several means round to 5.19:
 #' grim_values(x = 5.19, n = 300, digits_x = 2)
 #'
-#' # It is not consistent with a sample size of 28, so
-#' # there are no achievable means at all...
+#' # It is not consistent with a sample size of 28...
 #' grim_values(x = 5.19, n = 28, digits_x = 2)
 #'
-#' # ...but 5.19 is close to one that is achievable:
+#' # ...but 5.19 is close to a mean that is achievable:
 #' grim_closest(x = 5.19, n = 28, digits_x = 2)
 #'
 #' # Both functions are vectorized:

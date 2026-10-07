@@ -122,36 +122,28 @@ check_consistency_not_in_colnames <- function(
 }
 
 
-#' Check that a mapper's input has correct column names
+#' Check that a mapper's input has the right column names
 #'
-#' @description When called within a consistency test mapper function,
-#'   `check_mapper_input_colnames()` makes sure that the input data frame has
-#'   correct column names:
-
-#'  - They include all the key columns corresponding to the test applied by the
-#'  mapper.
-#'  - They don't already include the name of the results column,
-#'  `"consistency"` by default.
+#' @description `check_mapper_input_colnames()` is called within consistency
+#'   test mapper functions. It errors if `data` lacks a key column, or if it
+#'   already has a column named like the result column (`"consistency"` by
+#'   default).
 #'
-#'   If either check fails, the function throws an informative error.
-
 #' @param data Data frame. Input to the mapper function.
-#' @param reported String vector of the "key" column names that `data` must
-#'   have, such as `c("x", "n")` for `grim_map()`.
-#' @param name_test String (length 1). Short, plain-text name of the consistency
-#'   test that the mapper function applies, such as `"GRIM"`.
-#' @param name_key_result String (length 1). Name of the column that the mapper
-#'   will add for its test results, i.e., the `.name_key_result` argument of the
-#'   function factory that created it. Default is `"consistency"`.
+#' @param reported String. Names of the key columns that `data` must have,
+#'   such as `c("x", "n")` for `grim_map()`.
+#' @param name_test String (length 1). Plain-text name of the test, such as
+#'   `"GRIM"`, for the error message.
+#' @param name_key_result String (length 1). Name of the result column that
+#'   the mapper adds. Default is `"consistency"`.
 #'
 #' @include utils.R
 #'
 #' @export
 #'
-#' @return No return value. Might throw an error.
+#' @return No return value; might throw an error.
 #'
-#' @seealso `vignette("consistency-tests-in-depth")`, for context and the "key
-#'   columns" terminology.
+#' @seealso `vignette("consistency-tests-in-depth")`.
 
 check_mapper_input_colnames <- function(
   data,
@@ -196,28 +188,23 @@ check_key_result_col <- function(data, name_key_result, name_fun) {
 }
 
 
-#' Alert user if more specific `audit_*()` summaries are available
+#' Alert the user if more specific `audit_*()` summaries are available
 #'
-#' @description (Note: Ignore this function if your `audit()` method calls
-#'   `audit_cols_minimal()`.)
-#'
-#'   Call `check_audit_special()` within an `audit()` method for a consistency
-#'   test mapper function, such as `audit.scrutiny_grim_map()`. It checks if the
-#'   input data frame was the product of a function produced by
-#'   `function_map_seq()` or `function_map_total_n()`.
-#'
-#'   If so, the function issues a gentle alert to the user that points to
-#'   `audit_seq()` or `audit_total_n()`, respectively.
+#' @description Call `check_audit_special()` within an `audit()` method for a
+#'   consistency test mapper, unless the method calls [`audit_cols_minimal()`],
+#'   which does so itself. If the input was produced by a function made by
+#'   [`function_map_seq()`] or [`function_map_total_n()`], it prints a message
+#'   pointing to [`audit_seq()`] or [`audit_total_n()`].
 #'
 #' @param data The `audit()` method's input data frame.
-#' @param name_test String (length 1). Short, plain-text name of the consistency
-#'   test, such as `"GRIM"`.
+#' @param name_test String (length 1). Plain-text name of the test, such as
+#'   `"GRIM"`.
 #'
-#' @seealso `vignette("consistency-tests-in-depth")`, for context.
+#' @seealso `vignette("consistency-tests-in-depth")`.
 #'
 #' @export
 #'
-#' @return No return value. Might print an alert.
+#' @return No return value; might print a message.
 
 check_audit_special <- function(data, name_test) {
   class_name_root <- paste0("scrutiny_", tolower(name_test), "_map_")
@@ -243,32 +230,28 @@ check_audit_special <- function(data, name_test) {
 }
 
 
-#' Helper column operations
+#' Manage a helper column
 #'
-#' @description If your consistency test mapper function supports helper
-#'   columns, call `manage_helper_col()` internally; once for every such column.
-#'   It will check whether a helper column is compatible with its eponymous
-#'   argument, i.e., if the argument was not specified by the user but has its
-#'   default value.
+#' @description A helper column is a column of a mapper's input that is not
+#'   itself tested but enters the test, such as `items` in [`grim_map()`]. It
+#'   can be given either as a column of `data` or as an argument of the same
+#'   name. `manage_helper_col()` checks that the two are not both given, and
+#'   by default (`affix = TRUE`) adds the argument's value to `data` as a
+#'   column if `data` has none.
 #'
-#'   By default (`affix = TRUE`), the function will add the column to the
-#'   mapper's input data frame. It returns the input data frame, so reassign its
-#'   output to that variable.
+#'   Mappers made by [`function_map()`] call it for every `.cols_helper`
+#'   argument. Call it yourself in a handwritten mapper, once per helper
+#'   column, and reassign the result to `data`. See
+#'   `vignette("consistency-tests-in-depth")`, section *Writing mappers
+#'   manually*.
 #'
-#'   Mappers produced by `function_map()` call it for every `.cols_helper`
-#'   argument, so you only need to call it yourself in a mapper "handwritten"
-#'   using `function()`. See `vignette("consistency-tests-in-depth")`, section
-#'   *Writing mappers manually*.
+#' @param data The mapper's input data frame.
+#' @param var_arg The mapper argument named like the helper column.
+#' @param default The default of that argument.
+#' @param affix Logical. If `data` has no such column, should one be added
+#'   from `var_arg`? Default is `TRUE`.
 #'
-#' @param data The data frame that is the mapper function's first argument.
-#' @param var_arg The argument to the mapper function that has the same name as
-#'   the helper column you want to manage.
-#' @param default The default for the argument that was specified in `var_arg`.
-#' @param affix Logical (length 1). If `data` doesn't include the helper column
-#'   already, should `var_arg` be added to `data`, bearing its proper name?
-#'   Default is `TRUE`.
-#'
-#' @return `data`, possibly modified (see `affix` argument).
+#' @return `data`, possibly with the helper column added.
 #'
 #' @export
 
@@ -310,27 +293,20 @@ manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
 }
 
 
-#' Enable name-independent key column identification
+#' Rename a key column in a handwritten mapper
 #'
-#' @description A handwritten mapper function for consistency tests, such as
-#'   `grim_map()`, may include arguments named after the key columns in its
-#'   input data frame. When such an argument is specified by the user as a
-#'   column name of the input data frame, it identifies a differently-named
-#'   column as that key column.
+#' @description A mapper made by [`function_map()`] lets the user pass the name
+#'   of a column of `data` through an argument named like the key column, as in
+#'   `grim_map(df, x = mean)`. `manage_key_colnames()` provides this for a
+#'   handwritten mapper. Three steps:
 #'
-#'   Create such functionality in three steps:
+#'   1. Add an argument per key column, with default `NULL`; e.g., `x = NULL,
+#'   n = NULL`.
 #'
-#'   1. Add arguments to your mapper function named after the respective key
-#'   columns. They should be `NULL` by default; e.g., `x = NULL, n = NULL`.
+#'   2. Capture each with `rlang::enexpr()`.
 #'
-#'   2. Within the mapper, capture the user input by quoting it using
-#'   `rlang::enexpr()`. Reassign these values to the argument variables; e.g.,
-#'   `x <- rlang::enexpr(x)` and `n <- rlang::enexpr(n)`.
-#'
-#'   3. For every such argument, use `missing()` to check whether it was
-#'   specified. If and only if it was, call `manage_key_colnames()` and reassign
-#'   its value to the input data frame variable, adding a short description;
-#'   like this:
+#'   3. If it was specified, call `manage_key_colnames()` and reassign the
+#'   result to `data`:
 #'
 #' \preformatted{
 #'   if (!missing(x)) {
@@ -339,14 +315,14 @@ manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
 #'   }
 #' }
 #'
-#' @param data The mapper function's input data frame.
-#' @param arg Symbol. The quoted input variable, captured by `rlang::enexpr()`.
-#' @param description String (length 1). Short description of the column in
-#'   question, to be inserted into an error message.
+#' @param data The mapper's input data frame.
+#' @param arg Symbol. The argument, captured by `rlang::enexpr()`.
+#' @param description String (length 1). Short description of the column, for
+#'   the error message.
 #'
-#' @return The input data frame, `data`, possibly modified.
+#' @return `data`, possibly with a column renamed.
 #'
-#' @seealso `vignette("consistency-tests-in-depth")`, for context.
+#' @seealso `vignette("consistency-tests-in-depth")`.
 #'
 #' @export
 
@@ -380,33 +356,25 @@ manage_key_colnames <- function(data, arg, description = NULL) {
 
 #' Unnest a test result column
 #'
-#' @description Within a consistency test mapper function, it may become
-#'   necessary to unpack a column resulting from a basic `*_scalar()` testing
-#'   function. That will be the case if a `show_*` argument of the mapper
-#'   function like `show_rec` in `grim_map()` is `TRUE`, and the `*_scalar()`
-#'   function returns a list of values, not just a single value.
+#' @description If a `*_scalar()` function returns a list of values rather
+#'   than a single one, as `grim_scalar()` does with `show_rec = TRUE`, a
+#'   handwritten mapper ends up with a list-column. `unnest_consistency_cols()`
+#'   splits it into one column per value.
 #'
-#'   At the point where such as list is stored in a data frame column (most
-#'   likely `"consistency"`), call `unnest_consistency_cols()` to unnest the
-#'   results into multiple columns.
-#'
-#' @param results Data frame containing a list-column by the name passed to
+#' @param results Data frame with a list-column named `col`.
+#' @param col_names String. Names of the new columns. The first should be
 #'   `col`.
-#' @param col_names String vector of new names for the unnested columns. It
-#'   should start with the same string that was given for `col`.
 #' @param index Logical. Should the list-column be indexed into? Default is
 #'   `FALSE`.
-#' @param col String (length 1). Name of the list-column within `results` to
-#'   operate on. Default is `"consistency"`.
+#' @param col String (length 1). Name of the list-column. Default is
+#'   `"consistency"`.
 #'
-#' @details This function is a custom workaround in place of
-#'   `tidyr::unnest_wider()`, mirroring some of the latter's functionality. It
-#'   was created because `unnest_wider()` can be too slow for use as a helper
-#'   function.
+#' @details This is a faster, narrower replacement for
+#'   [`tidyr::unnest_wider()`].
 #'
-#' @return Data frame. The column names are determined by `col_names`.
+#' @return Data frame with the columns named in `col_names`.
 #'
-#' @seealso `vignette("consistency-tests-in-depth")`, for context.
+#' @seealso `vignette("consistency-tests-in-depth")`.
 #'
 #' @export
 

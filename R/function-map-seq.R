@@ -109,133 +109,81 @@ function_map_seq_proto <- function(
 
 #' Create new `*_map_seq()` functions
 #'
-#' @description `function_map_seq()` is the engine that powers functions such as
-#'   [`grim_map_seq()`]. It creates new, "factory-made" functions that apply
-#'   consistency tests such as GRIM or GRIMMER to sequences of specified
-#'   variables. The sequences are centered around the reported values of those
-#'   variables.
+#' @description `function_map_seq()` creates a sequence mapper from a basic
+#'   mapper such as [`grim_map()`]: a function that varies the reported values
+#'   a few steps up and down and re-tests each resulting value set, as
+#'   [`grim_map_seq()`] does. By default, only inconsistent value sets are
+#'   dispersed.
 #'
-#'   By default, only inconsistent values are dispersed from and tested. This
-#'   provides an easy and powerful way to assess whether small errors in
-#'   computing or reporting may be responsible for inconsistencies in published
-#'   statistics.
+#'   See `vignette("consistency-tests-in-depth")`, section *Sequence mapper*.
 #'
-#'   For background and more examples, see the
-#'   \href{https://lhdjung.github.io/scrutiny/articles/consistency-tests-in-depth.html#sequence-mapper}{sequence
-#'   mapper section} of *Consistency tests in depth*.
-#'
-#' @param .fun Function such as `grim_map()`, or one made by [`function_map()`]:
-#'   It will be used to test columns in a data frame for consistency. Test
-#'   results are logical and need to be contained in a column named by
-#'   `.name_key_result` -- `"consistency"` by default -- that is added to the
-#'   input data frame. This modified data frame is then returned by `.fun`.
-#' @param .var String. Variables that will be dispersed by the manufactured
-#'   function. Defaults to `.reported`.
-#' @param .reported String. All variables the manufactured function can disperse
-#'   in principle.
-#' @param .name_test String (length 1). The name of the consistency test, such
-#'   as `"GRIM"`, to be optionally shown in a message when using the
-#'   manufactured function.
-#' @param .name_key_result (Experimental) Optionally, a single string that will
-#'   be the name of the key result column in the output. Default is
-#'   `"consistency"`. It must be the same string that `.fun` was created with:
-#'   the manufactured function reads `.fun`'s results off a column of that name.
-#' @param .name_class String. If specified, the tibbles returned by the
-#'   manufactured function will inherit this string as an S3 class. Default is
-#'   `NULL`, i.e., no extra class.
-#' @param .args_disabled String. Optionally, names of the basic `*_map()`
-#'   function's arguments. These arguments will throw an error if specified when
-#'   calling the factory-made function.
-#' @param .dispersion Numeric. Sequence with steps up and down from the reported
-#'   values. It will be adjusted to these values' decimal level. For example,
-#'   with a reported `8.34`, the step size is `0.01`. Default is `1:5`, for five
-#'   steps up and down.
-#' @param .out_min,.out_max If specified when calling a factory-made function,
-#'   output will be restricted so that it's not below `.out_min` or above
-#'   `.out_max`. A number applies to every dispersed variable alike, and `NULL`
-#'   removes the limit. Both default to `"auto"`, which takes the limit from
-#'   `.var_bounds` -- a different one per variable, since the variables have
-#'   different domains.
+#' @param .fun A basic mapper function such as [`grim_map()`], typically made
+#'   by [`function_map()`]. It must return its input data frame with a logical
+#'   column named by `.name_key_result` added.
+#' @param .var String. The variables that the factory-made function disperses
+#'   by default. Defaults to `.reported`.
+#' @param .reported String. All variables the factory-made function can
+#'   disperse.
+#' @param .name_test String (length 1). Plain-text name of the test, such as
+#'   `"GRIM"`, for messages.
+#' @param .name_key_result (Experimental) String (length 1). Name of the key
+#'   result column. Default is `"consistency"`. Must be the value that `.fun`
+#'   was created with.
+#' @param .name_class String. Optionally, a class to add to the output. Default
+#'   is `NULL`.
+#' @param .args_disabled String. Optionally, names of arguments of `.fun` that
+#'   the factory-made function should reject.
+#' @param .dispersion Numeric. Steps up and down from the reported values, in
+#'   units of the last decimal place. Default is `1:5`.
+#' @param .out_min,.out_max Limits on the dispersed values. A number applies to
+#'   every dispersed variable, and `NULL` removes the limit. Both default to
+#'   `"auto"`, which takes the limit from `.var_bounds`.
 #' @param .var_bounds Named list, or `NULL` (the default). Each element is named
-#'   after a variable in `.reported` and is a numeric vector of length 2, the
-#'   least and the greatest value that the variable can take, with `NA` for an
-#'   unbounded side. `list(n = c(1, NA), sd = c(0, NA))` says that a sample size
-#'   is at least 1 and a standard deviation at least 0, and that neither has an
-#'   upper limit. A variable that is not named here is unbounded, except for `n`,
-#'   which keeps a minimum of 1 whether it is declared or not.
-#'
-#'   These bounds only limit the dispersion. They say what values the test could
-#'   *conceivably* have been given, so that it is never handed a sample size of
-#'   0 or, for DEBIT, a proportion above 1 -- not what it will find consistent.
+#'   after a variable in `.reported` and is a numeric vector of its least and
+#'   greatest possible value, with `NA` for an unbounded side, such as `list(n =
+#'   c(1, NA), sd = c(0, NA))`. A variable not named here is unbounded, except
+#'   for `n`, which always has a minimum of 1. The bounds only limit the
+#'   dispersion, so that the test never receives an impossible value such as a
+#'   sample size of 0. They have no bearing on consistency.
 #' @param .include_reported Logical. Should the reported values themselves be
-#'   included in the sequences originating from them? Default is `FALSE` because
-#'   this might be redundant and bias the results.
-#' @param .include_consistent Logical. Should the function also process
-#'   consistent cases (from among those reported), not just inconsistent ones?
-#'   Default is `FALSE` because the focus should be on clarifying
-#'   inconsistencies.
+#'   part of the sequences? Default is `FALSE`.
+#' @param .include_consistent Logical. Should consistent value sets be
+#'   dispersed as well? Default is `FALSE`.
 #' @param ... These dots must be empty.
 #'
-#' @details All arguments of `function_map_seq()` set the defaults for the
-#'   arguments in the manufactured function. They can still be specified
-#'   differently when calling the latter.
+#' @details The arguments of `function_map_seq()` set the defaults of the
+#'   corresponding arguments of the factory-made function, which can be
+#'   overridden in each call.
 #'
-#'   If functions created this way are exported from other packages, they should
-#'   be written as if they were created with
-#'   \href{https://purrr.tidyverse.org/reference/faq-adverbs-export.html}{purrr
-#'   adverbs}; see explanations there, and examples in the
-#'   \href{https://lhdjung.github.io/scrutiny/articles/consistency-tests-in-depth.html#context-and-export}{export
-#'   section} of *Consistency tests in depth*.
+#'   Each variable in `var` is dispersed around its own reported value while
+#'   the others stay as reported. This is what distinguishes sequence mappers
+#'   from the `*_map_total_n()` family, which varies a pair of group sizes
+#'   jointly.
 #'
-#'   This function is a so-called function factory: It produces other functions,
-#'   such as [`grim_map_seq()`]. More specifically, it is a function operator
-#'   because it also takes functions as inputs, such as [`grim_map()`]. See
-#'   Wickham (2019, ch. 10-11).
-
-#' @return A function such as those below. ("Testable statistics" are variables
-#'   that can be selected via `var`, and are then varied. All of them are
-#'   selected by default.)
+#'   To export a factory-made function from another package, follow the
+#'   [purrr FAQ on adverbs](https://purrr.tidyverse.org/reference/faq-adverbs-export.html);
+#'   see `vignette("consistency-tests-in-depth")`, section *Context and
+#'   export*.
 #'
-#'   | \strong{Manufactured function}   | \strong{Testable statistics}         | \strong{Test vignette}
+#' @return A function such as these:
+#'
+#'   | \strong{Manufactured function}   | \strong{Dispersed variables}         | \strong{Test vignette}
 #'   | ---                              | ---                                  | ---
 #'   | [`grim_map_seq()`]               | `"x"`, `"n"`                         | `vignette("grim")`
 #'   | [`grimmer_map_seq()`]            | `"x"`, `"sd"`, `"n"`                 | `vignette("grimmer")`
 #'   | [`debit_map_seq()`]              | `"x"`, `"sd"`, `"n"`                 | `vignette("debit")`
 #'
-#'   The factory-made function will also have dots, `...`, to pass arguments
-#'   down to `.fun`, i.e., the basic mapper function such as `grim_map()`.
-
+#'   It has `...` to pass arguments on to `.fun`.
+#'
 #' @include function-factory-helpers.R
-
+#'
 #' @export
-
-#' @section Conventions: The `seq` in `*_map_seq()` is short for the sequences
-#'   of candidate values that the manufactured function tests. It builds them
-#'   with [`seq_disperse()`]'s internal counterpart, one variable at a time:
-#'   each variable in `.var` is dispersed around its own reported value while
-#'   the others stay as reported. This is what sets these functions apart from
-#'   the `*_map_total_n()` family, which also disperses but varies a pair of
-#'   group sizes jointly under a fixed total. It is also why plotting the
-#'   output of [`grim_map_seq()`] draws a cross for each reported value set: the
-#'   arms are the sequences, and they meet where the reported values are.
 #'
-#'   The name of a function returned by
-#'   `function_map_seq()` should mechanically follow from that of
-#'   the input function. For example, [`grim_map_seq()`] derives
-#'   from [`grim_map()`]. This pattern fits best if the input function itself
-#'   is named after the test it performs on a data frame, followed by `_map`:
-#'   [`grim_map()`] applies GRIM, [`grimmer_map()`] applies GRIMMER, etc.
+#' @section Conventions: Name the factory-made function after `.fun` with
+#'   `_seq` appended, as in [`grim_map_seq()`] from [`grim_map()`]. If you add
+#'   a class via `.name_class`, name it after the function with the package
+#'   name as prefix, as in `scrutiny_grim_map_seq`.
 #'
-#'   Much the same is true for the classes of data frames returned by the
-#'   manufactured function via the `.name_class` argument of
-#'   `function_map_seq()`. It should be the function's own name preceded
-#'   by the name of the package that contains it, or by an acronym of that
-#'   package's name. Therefore, some existing classes are
-#'   `scrutiny_grim_map_seq` and `scrutiny_grimmer_map_seq`.
-
-#' @references Wickham, H. (2019). *Advanced R* (Second Edition). CRC
-#'   Press/Taylor and Francis Group. https://adv-r.hadley.nz/index.html
-
 #' @examples
 #' # Function definition of `grim_map_seq()`:
 #' grim_map_seq <- function_map_seq(

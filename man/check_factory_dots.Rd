@@ -2,27 +2,23 @@
 % Please edit documentation in R/function-factory-helpers.R
 \name{check_factory_dots}
 \alias{check_factory_dots}
-\title{Check that no dots-argument is misspelled}
+\title{Check that no dots argument is misspelled}
 \usage{
 check_factory_dots(fun, fun_name_scalar, ...)
 }
 \arguments{
-\item{fun}{Function applied by the function factory.}
+\item{fun}{Function applied by the factory-made function.}
 
 \item{fun_name_scalar}{String (length 1). Name of \code{fun}.}
 
-\item{...}{Arguments passed by the factory-made function's user to \code{fun}.}
+\item{...}{The dots of the factory-made function.}
 }
 \value{
 No return value; might throw an error.
 }
 \description{
-\code{check_factory_dots()} is called within each main function factory:
-\code{function_map()}, \code{function_map_seq()}, and \code{function_map_total_n()}.
-}
-\details{
-For the \code{fun_name_scalar} argument, the function requires the following line
-in the entry area (i.e., the part of the function factory before the first
-version of the factory-made function is created):
-\code{fun_name <- deparse(substitute(.fun))}
+\code{check_factory_dots()} is called within the mapper functions made by
+\code{\link[=function_map]{function_map()}}, \code{\link[=function_map_seq]{function_map_seq()}}, and \code{\link[=function_map_total_n]{function_map_total_n()}}.
+It errors if an argument passed through the dots is not an argument of the
+function being mapped.
 }

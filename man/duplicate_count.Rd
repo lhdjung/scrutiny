@@ -9,62 +9,57 @@ duplicate_count(x, ignore = NULL, locations_type = c("character", "list"))
 \arguments{
 \item{x}{Vector or data frame.}
 
-\item{ignore}{Optionally, a vector of values that should not be counted.}
+\item{ignore}{Optionally, a vector of values not to count.}
 
-\item{locations_type}{String. One of \code{"character"} or \code{"list"}. With
-\code{"list"}, each \code{locations} value is a vector of column names, which is
-better for further programming. By default (\code{"character"}), the column
-names are pasted into a string, which is more readable.}
+\item{locations_type}{String. \code{"character"} (the default) pastes the column
+names in \code{locations} into one string; \code{"list"} keeps them as a vector per
+value, which is better for programming.}
 }
 \value{
-If \code{x} is a data frame or another named vector, a tibble with four
-columns. If \code{x} isn't named, only the first two columns appear:
+A tibble with these columns, or only the first two if \code{x} is not
+named:
 \itemize{
-\item \code{value}: All the values from \code{x}.
-\item \code{frequency}: Absolute frequency of each value in \code{x}, in descending order.
-\item \code{locations}: Names of all columns from \code{x} in which \code{value} appears.
-\item \code{locations_n}: Number of columns named in \code{locations}.
+\item \code{value}: the distinct values of \code{x}.
+\item \code{frequency}: how often each occurs, in descending order.
+\item \code{locations}: the names of the columns of \code{x} in which \code{value} appears.
+\item \code{locations_n}: the number of such columns.
 }
 
-The tibble has the \code{scrutiny_dup_count} class, which is recognized by the
-\code{\link[=audit]{audit()}} generic.
+The tibble has the class \code{scrutiny_dup_count}, which is recognized by
+\code{\link[=audit]{audit()}}.
 }
 \description{
-\code{duplicate_count()} returns a frequency table. When searching a
-data frame, it includes values from all columns for each frequency count.
+\code{duplicate_count()} returns a frequency table of the values in
+a vector or data frame. For a data frame, it pools the values of all
+columns and records which columns each value appears in.
 
-This function is a blunt tool designed for initial data checking. It is not
-too informative if many values have few characters each.
+This is a blunt tool for initial checks. If many values have few characters
+each, duplicates occur by chance and mean little.
 
-For summary statistics, call \code{\link[=audit]{audit()}} on the results.
+Call \code{\link[=audit]{audit()}} on the output for summary statistics.
 }
 \section{Summaries with \code{\link[=audit]{audit()}}}{
- There is an S3 method for the
-\code{\link[=audit]{audit()}} generic, so you can call \code{\link[=audit]{audit()}} following
-\code{duplicate_count()}. It returns a tibble with summary statistics for the
-two numeric columns, \code{frequency} and \code{locations_n} (or, if \code{x} isn't named,
-only for \code{frequency}).
+ \code{audit()} on \code{duplicate_count()}
+output returns summary statistics for \code{frequency} and \code{locations_n} (or
+\code{frequency} alone if \code{x} is not named).
 }
 
 \examples{
-# Count duplicate values...
 iris |>
   duplicate_count()
 
-# ...and compute summaries:
 iris |>
   duplicate_count() |>
   audit()
 
-# Any values can be ignored:
+# Ignore some values:
 iris |>
   duplicate_count(ignore = c("setosa", "versicolor", "virginica"))
 }
 \seealso{
 \itemize{
-\item \code{\link[=duplicate_count_colpair]{duplicate_count_colpair()}} to check each combination of columns for
-duplicates.
-\item \code{\link[=duplicate_tally]{duplicate_tally()}} to show instances of a value next to each instance.
-\item \code{\link[janitor:get_dupes]{janitor::get_dupes()}} to search for duplicate rows.
+\item \code{\link[=duplicate_count_colpair]{duplicate_count_colpair()}} for duplicates between pairs of columns.
+\item \code{\link[=duplicate_tally]{duplicate_tally()}} for counts next to each value.
+\item \code{\link[janitor:get_dupes]{janitor::get_dupes()}} for duplicate rows.
 }
 }

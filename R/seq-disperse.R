@@ -1,104 +1,72 @@
-#' Sequence generation with dispersion at decimal level
+#' Sequences dispersed around a value
 #'
-#' @description `seq_disperse()` creates a sequence around a given number. It
-#'   goes a specified number of steps up and down from it. Step size depends on
-#'   the number's decimal places. For example, `7.93` will be surrounded by
-#'   values like `7.91`, `7.92`, and `7.94`, `7.95`, etc.
+#' @description `seq_disperse()` creates a sequence of values around `from`,
+#'   a given number of steps up and down, where a step is one unit of the last
+#'   decimal place: `7.93` is surrounded by `7.91`, `7.92`, `7.94`, `7.95`, and
+#'   so on.
 #'
-#'   `seq_disperse_df()` is a variant that creates a data frame. Further columns
-#'   can be added as in [`tibble::tibble()`]. Regular arguments are the same as
-#'   in `seq_disperse()`, but with a dot before each.
+#'   `seq_disperse_df()` returns the sequence as a data frame column, with
+#'   further columns added as in [`tibble::tibble()`]. Its arguments are those
+#'   of `seq_disperse()` with a leading dot.
 #'
-#' @param from,.from Numeric (or string coercible to numeric). Starting point of
-#'   the sequence.
-#' @param by,.by Numeric. Step size of the sequence. If not set, inferred
-#'   automatically. Default is `NULL`.
-#' @param dispersion,.dispersion Numeric. Vector that determines the steps up
-#'   and down, starting at `from` (or `.from`, respectively) and proceeding on
-#'   the level of its last decimal place. Default is `1:5`, i.e., five steps up
-#'   and down.
-#' @param offset_from,.offset_from Integer. If set to a non-zero number, the
-#'   starting point will be offset by that many units on the level of the last
-#'   decimal digit. Default is `0`.
-#' @param out_min,.out_min,out_max,.out_max If specified, the dispersed values
-#'   will be restricted so that they're not below `out_min` or above `out_max`.
-#'   This includes `from` itself, even if `include_reported` is `TRUE`. Defaults
-#'   are `"auto"` for `out_min`, i.e., a minimum of one decimal unit above zero;
-#'   and `NULL` for `out_max`, i.e., no maximum.
-#'
-#'   The `"auto"` default suits a count, which cannot go below one unit, and it
-#'   is the wrong default for anything that can reach zero or go negative. A
-#'   sequence around a negative `from` loses its whole lower half to it, and `0`
-#'   is out of reach whatever `from` is. Pass `out_min = NULL` for an unbounded
-#'   quantity such as a mean, or `out_min = 0` for one that is bounded at zero,
-#'   such as a standard deviation. The `*_map_seq()` functions choose per
-#'   variable and need none of this; see `.var_bounds` in [`function_map_seq()`].
-#' @param string_output,.string_output Logical or string. If `TRUE` (the
-#'   default), the output is a string vector. Decimal places are then padded
-#'   with zeros to match `from`'s number of decimal places. `"auto"` works like
-#'   `TRUE` if and only if `from` (`.from`) is a string.
-#' @param include_reported,.include_reported Logical. Should `from` (`.from`)
-#'   itself be part of the sequence built around it? Default is `TRUE` for the
-#'   sake of continuity, but this can be misleading if the focus is on the
-#'   dispersed values, as opposed to the input.
+#' @param from,.from Numeric, or a string coercible to numeric. The value to
+#'   disperse from.
+#' @param by,.by Numeric. Step size. Default is `NULL`, in which case it is one
+#'   unit of the last decimal place of `from`.
+#' @param dispersion,.dispersion Numeric. The steps up and down from `from`.
+#'   Default is `1:5`.
+#' @param offset_from,.offset_from Integer. Moves the starting point by that
+#'   many steps. Default is `0`.
+#' @param out_min,.out_min,out_max,.out_max Limits on the values, including
+#'   `from` itself. `out_min` defaults to `"auto"`, one step above zero, which
+#'   suits a count but not a quantity that can reach zero or be negative; use
+#'   `NULL` for an unbounded quantity such as a mean, or `0` for one bounded
+#'   at zero such as a standard deviation. `out_max` defaults to `NULL`, no
+#'   maximum. (The `*_map_seq()` functions choose limits per variable; see
+#'   `.var_bounds` in [`function_map_seq()`].)
+#' @param string_output,.string_output Logical or `"auto"`. If `TRUE` (the
+#'   default), the output is a string vector padded with trailing zeros to the
+#'   decimal places of `from`. `"auto"` means `TRUE` if `from` is a string.
+#' @param include_reported,.include_reported Logical. Should `from` itself be
+#'   part of the sequence? Default is `TRUE`.
 #' @param track_diff_var,.track_diff_var Logical. Should the number of steps
 #'   from `from` be returned as well? Default is `FALSE`. If `TRUE`,
 #'   `seq_disperse()` returns a list of the sequence and the steps, and
-#'   `seq_disperse_df()` adds them as a `diff_var` column.
+#'   `seq_disperse_df()` adds a `diff_var` column.
 #' @param track_var_change,.track_var_change `r lifecycle::badge("deprecated")`
 #'   Renamed to `track_diff_var` / `.track_diff_var`.
 #' @param ... Further columns, added as in [`tibble::tibble()`]. Only in
 #'   `seq_disperse_df()`.
 #'
-#' @details Unlike [`seq_endpoint()`] and friends, the present functions don't
-#'   necessarily return continuous or even regular sequences. The greater
-#'   flexibility is due to the `dispersion` (`.dispersion`) argument, which
-#'   takes any numeric vector. By default, however, the output sequence is
-#'   regular and continuous.
+#' @details Unlike [`seq_endpoint()`] and friends, these functions do not wrap
+#'   [`base::seq()`], and their output need not be regular: `dispersion` can
+#'   be any numeric vector.
 #'
-#'   Underlying this difference is the fact that `seq_disperse()` and
-#'   `seq_disperse_df()` do not wrap around [`base::seq()`], although they are
-#'   otherwise similar to [`seq_endpoint()`] and friends.
-
 #' @return
-#'   - `seq_disperse()` returns a string vector by default
-#'   (`string_output = TRUE`) and a numeric vector otherwise. With
-#'   `track_diff_var = TRUE`, it returns an unnamed list of that vector and an
-#'   integer vector of the steps from `from`.
-#'   - `seq_disperse_df()` returns a tibble (data frame). The sequence is stored
-#'   in the `x` column. `x` is string by default (`.string_output = TRUE`),
-#'   numeric otherwise. Other columns might have been added via the dots
-#'   (`...`).
-
+#'   - `seq_disperse()` returns a string vector by default and a numeric
+#'   vector with `string_output = FALSE`. With `track_diff_var = TRUE`, it
+#'   returns a list of that vector and an integer vector of steps.
+#'   - `seq_disperse_df()` returns a tibble with the sequence in the `x`
+#'   column, plus any columns added via the dots.
+#'
 #' @export
 #'
-#' @seealso Conceptually, `seq_disperse()` is a blend of two function families:
-#'   those around [`seq_endpoint()`] and those around [`disperse()`]. The
-#'   present functions were originally conceived for `seq_disperse_df()` to be a
-#'   helper within the [`function_map_seq()`] implementation.
+#' @seealso [`seq_endpoint()`] and [`disperse()`], which `seq_disperse()`
+#'   combines aspects of.
 #'
 #' @examples
-#' # Basic usage:
 #' seq_disperse(from = 4.02)
 #'
-#' # If trailing zeros don't matter,
-#' # the output can be numeric:
+#' # Numeric output:
 #' seq_disperse(from = 4.02, string_output = FALSE)
 #'
-#' # Control steps up and down with
-#' # `dispersion` (default is `1:5`):
+#' # More steps:
 #' seq_disperse(from = 4.02, dispersion = 1:10)
 #'
-#' # Sequences might be discontinuous...
-#' disp1 <- seq(from = 2, to = 10, by = 2)
-#' seq_disperse(from = 4.02, dispersion = disp1)
+#' # Irregular steps:
+#' seq_disperse(from = 4.02, dispersion = c(2, 3, 7))
 #'
-#' # ...or even irregular:
-#' disp2 <- c(2, 3, 7)
-#' seq_disperse(from = 4.02, dispersion = disp2)
-#'
-#' # The data fame variant supports further
-#' # columns added as in `tibble::tibble()`:
+#' # The data frame variant takes further columns:
 #' seq_disperse_df(.from = 4.02, n = 45)
 
 seq_disperse <- function(

@@ -7,22 +7,16 @@
 check_args_disabled(args_disabled)
 }
 \arguments{
-\item{args_disabled}{String. One or more names of arguments of the function
-applied within the factory-made function.}
+\item{args_disabled}{String. Names of the disabled arguments.}
 }
 \value{
 No return value; might throw an error.
 }
 \description{
-If the user of the function factory specified its \code{.args_disabled} argument,
-\code{check_args_disabled()} enforces this ban.
-}
-\details{
-More precisely, it throws an error if the user of the factory-made function
-specified one or more arguments which the user of the function factory had
-disabled via the latter's \code{.args_disabled} argument. The arguments would
-otherwise be passed on to the function that is mapped within the factory-made
-function.
+\code{check_args_disabled()} is called within functions made by
+\code{\link[=function_map]{function_map()}} or \code{\link[=function_map_seq]{function_map_seq()}}. It errors if the user of the
+factory-made function specified an argument that the factory's user disabled
+via \code{.args_disabled}.
 }
 \examples{
 check_args_disabled(c("disabled1", "disabled2"))

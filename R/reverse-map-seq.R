@@ -1,27 +1,22 @@
-#' Reverse the `*_map_seq()` process
+#' Reconstruct the input of a sequence mapper
 #'
-#' @description `reverse_map_seq()` takes the output of a function created by
-#'   [`function_map_seq()`] and reconstructs the original data frame.
+#' @description `reverse_map_seq()` takes the output of a function made by
+#'   [`function_map_seq()`] and reconstructs the data frame it was called on.
+#'   [`audit_seq()`] builds on it.
 #'
-#'   See [`audit_seq()`], which takes `reverse_map_seq()` as a basis.
-#'
-#' @param data Data frame that inherits the `"scrutiny_map_seq"` class.
+#' @param data Data frame with the `"scrutiny_map_seq"` class.
 #'
 #' @include utils.R
 #'
 #' @export
 #'
-#' @return The reconstructed tibble (data frame) which a factory-made
-#'   `*_map_seq()` function took as its `data` argument.
+#' @return The reconstructed tibble.
 #'
 #' @examples
-#' # Originally reported summary data...
 #' pigs1
 #'
-#' # ...GRIM-tested with varying inputs...
 #' out <- grim_map_seq(pigs1, digits_x = 2, include_consistent = TRUE)
 #'
-#' # ...and faithfully reconstructed:
 #' reverse_map_seq(out)
 
 reverse_map_seq <- function(data) {

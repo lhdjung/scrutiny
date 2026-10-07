@@ -1,38 +1,30 @@
 #' Visualize the standard deviations that GRIMMER admits
 #'
-#' @description `grimmer_plot_values()` draws every standard deviation that
-#'   could have been reported with a given number of decimal places within a
-#'   window, and marks those that a sample of the given size with the reported
-#'   mean could actually have produced. The reported SD points at the comb from
-#'   above, so the question GRIMMER asks -- is there an attainable SD where the
-#'   report says there is one? -- can be answered by eye. The verdict is also
-#'   spelled out next to the value, and the marker takes the color of the
-#'   attainable teeth if the value is consistent.
+#' @description `grimmer_plot_values()` draws the GRIMMER test for a single
+#'   value set, as [`grim_plot_values()`] does for GRIM. Every SD that could
+#'   have been reported with `digits_sd` decimal places within a window is a
+#'   tooth of a comb; the ones that a sample of size `n` with mean `x` could
+#'   have produced are tall. The reported SD is marked above the comb and
+#'   labeled with its verdict.
 #'
-#'   This is the GRIMMER counterpart of [`grim_plot_values()`]: one value set's
-#'   test as a picture, meant for teaching and for explaining a single verdict.
-#'   There is no GRIMMER-specific plot for many value sets at once;
-#'   [`grim_plot()`] accepts [`grimmer_map()`] output and shows the GRIM part of
-#'   the test.
+#'   There is no GRIMMER-specific plot for many value sets; [`grim_plot()`]
+#'   accepts [`grimmer_map()`] output and shows the GRIM part of the test.
 #'
 #' @param x,sd,n,digits_x,digits_sd,items,min_val,max_val,rounding,threshold,symmetric,tolerance
-#'   As in [`grimmer()`], but `x`, `sd`, and `n` must have length 1.
-#' @param color_scale String. Color of the teeth for SDs that GRIMMER admits on
-#'   an unbounded scale but that the scale bounds rule out. Only used if
-#'   `min_val` and `max_val` are specified.
+#'   The same as in [`grimmer()`], but `x`, `sd`, and `n` must have length 1.
+#' @param color_scale String. Color of the teeth for SDs that GRIMMER admits
+#'   on an unbounded scale but that `min_val` and `max_val` rule out.
 #' @inheritParams grim_plot_values
 #'
 #' @details Without scale bounds, the comb runs from the whole number at or
-#'   below `sd` to the next whole number up (but not below zero), like the comb
-#'   in [`grim_plot_values()`]. With `min_val` and `max_val`, it runs from zero
-#'   to a little past the largest SD any sample on that scale can have, so that
-#'   the values the scale rules out are in view: these are drawn at a middle
-#'   height in `color_scale`. GRIMMER knows nothing about the scale on its own,
-#'   so it goes on admitting SDs long after the scale has run out, and the two
-#'   ways an SD can be impossible stay distinct in the figure.
+#'   below `sd` to the next one up, but not below zero. With `min_val` and
+#'   `max_val`, it runs from zero to just past the largest SD that any sample on
+#'   the scale can have, and the SDs the scale rules out are drawn at a middle
+#'   height in `color_scale`, to distinguish the two reasons why an SD can be
+#'   impossible.
 #'
-#'   GRIMMER is nested on GRIM, so if `x` itself is GRIM-inconsistent with `n`,
-#'   no SD is attainable and the comb has no tall teeth at all.
+#'   If `x` is GRIM-inconsistent with `n`, no SD is attainable and the comb has
+#'   no tall teeth.
 #'
 #' @return A ggplot object.
 #'
@@ -44,8 +36,8 @@
 #' grimmer_plot_values(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2)
 #' grimmer_plot_values(x = 5.23, sd = 2.55, n = 31, digits_x = 2, digits_sd = 2)
 #'
-#' # On a scale from 1 to 5, an SD of 2.08 is out of reach for a mean of 3.00
-#' # and 20 values, even though GRIMMER admits it on an unbounded scale:
+#' # On a scale from 1 to 5, an SD of 2.08 is impossible for a mean of 3.00
+#' # and 20 values, although GRIMMER admits it on an unbounded scale:
 #' grimmer_plot_values(
 #'   x = 3.00, sd = 2.08, n = 20, digits_x = 2, digits_sd = 2,
 #'   min_val = 1, max_val = 5

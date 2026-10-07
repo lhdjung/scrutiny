@@ -1,33 +1,26 @@
-#' Count duplicate values by column
+#' Count duplicate values by column pair
 #'
-#' `duplicate_count_colpair()` takes a data frame and checks each combination of
-#' columns for duplicates. Results are presented in a tibble, ordered by the
-#' number of duplicates.
+#' `duplicate_count_colpair()` counts, for every pair of columns in a data
+#' frame, the values that occur in both. Results are ordered by that count.
 #'
-#' @param data Data frame.
-#' @param ignore Optionally, a vector of values that should not be checked for
-#'   duplicates.
-#' @param show_rates Logical. If `TRUE` (the default), adds columns `rate_x` and
-#'   `rate_y`. See value section. Set `show_rates` to `FALSE` for higher
-#'   performance.
-
-#' @return A tibble (data frame) with these columns –
-#' - `x` and `y`: Each line contains a unique combination of `data`'s columns,
-#'   stored in the `x` and `y` output columns.
-#' - `count`: Number of "duplicates", i.e., values in `x` that are also present
-#'   in `y`. Missing and ignored values are not counted.
-#' - `total_x`, `total_y`, `rate_x`, and `rate_y` (added by default): `total_x`
-#'   is the number of values in the column named under `x` that are neither
-#'   missing nor ignored. Also,
-#'   `rate_x` is the proportion of `x` values that are duplicated in `y`, i.e.,
-#'   `count / total_x`. Likewise with `total_y` and `rate_y`: the proportion of
-#'   `y` values that are duplicated in `x`. This is counted from the `y` side,
-#'   so it is not `count / total_y` if a value repeats within one of the
-#'   columns.
-
-#' @section Summaries with [`audit()`]: There is an S3 method for [`audit()`],
-#'   so you can call [`audit()`] following `duplicate_count_colpair()`. It
-#'   returns a tibble with summary statistics.
+#' @param data Data frame with at least two columns.
+#' @param ignore Optionally, a vector of values not to count.
+#' @param show_rates Logical. If `TRUE` (the default), add `rate_x` and
+#'   `rate_y`; see *Value*. `FALSE` is faster.
+#'
+#' @return A tibble with these columns:
+#' - `x`, `y`: a pair of columns of `data`, one pair per row.
+#' - `count`: the number of values of `x` that also occur in `y`. Missing and
+#'   ignored values are not counted.
+#' - `total_x`, `total_y`: the number of values in `x` and `y` that are
+#'   neither missing nor ignored.
+#' - `rate_x`: the proportion of `x` values that occur in `y`, i.e., `count /
+#'   total_x`. `rate_y`: the proportion of `y` values that occur in `x`. This
+#'   differs from `count / total_y` if a value repeats within a column.
+#'
+#' @section Summaries with [`audit()`]: `audit()` on
+#'   `duplicate_count_colpair()` output returns summary statistics for the
+#'   numeric columns.
 #'
 #' @export
 #'
@@ -35,16 +28,13 @@
 #'
 #' @seealso
 #' - [`duplicate_count()`] for a frequency table.
-#' - [`duplicate_tally()`] to show instances of a value next to each instance.
-#' - [`janitor::get_dupes()`] to search for duplicate rows.
-#' - [`corrr::colpair_map()`] for pairwise column analysis in general.
+#' - [`duplicate_tally()`] for counts next to each value.
+#' - [`janitor::get_dupes()`] for duplicate rows.
 #'
 #' @examples
-#' # Basic usage:
 #' mtcars |>
 #'   duplicate_count_colpair()
 #'
-#' # Summaries with `audit()`:
 #' mtcars |>
 #'   duplicate_count_colpair() |>
 #'   audit()

@@ -94,19 +94,17 @@ explain_seq_test_ranking <- function(x, scrutiny_func_info) {
 
 #' Rank sequence test results
 #'
-#' @description  Run this function after generating a sequence with
-#'   `seq_endpoint_df()` or `seq_distance_df()` and testing it with one of
-#'   scrutiny's mapping functions, such as `grim_map()`. It will rank the test's
-#'   consistent and inconsistent results by their positions in the sequence.
+#' @description After testing a sequence from [`seq_endpoint_df()`] or
+#'   [`seq_distance_df()`] with a mapper such as [`grim_map()`],
+#'   `seq_test_ranking()` ranks the consistent and inconsistent results by
+#'   their position in the sequence, and explains the result in a message.
 #'
-#' @details The function checks the provenance of the test results and throws a
-#'   warning if it's not correct.
+#' @param x Data frame returned by a mapper called on sequence output. A
+#'   warning is issued if it is not.
+#' @param explain Logical. Should the result be explained in a message?
+#'   Default is `TRUE`.
 #'
-#' @param x Data frame.
-#' @param explain If `TRUE` (the default), results come with an explanation.
-#'
-#' @return A tibble (data frame). The function will also print an explanation of
-#'   the results. See examples.
+#' @return A tibble.
 #'
 #' @export
 #'

@@ -28,64 +28,51 @@ grim_closest(
 )
 }
 \arguments{
-\item{x}{Numeric. The reported mean or percentage value.}
+\item{x}{Numeric. The reported mean or percentage.}
 
 \item{n}{Integer. The reported sample size.}
 
 \item{digits_x}{Integer. The number of decimal places in \code{x}, including
-trailing zeros. There is no default because it cannot be inferred from a
-numeric \code{x}, which has no trailing zeros: both \code{1.4} and \code{1.40} are the
-number \code{1.4}, but only the latter has \code{digits_x = 2}.}
+trailing zeros. There is no default, since a numeric value does not
+keep them (\code{1.40} is \code{1.4}).}
 
-\item{items}{Numeric. The number of items composing \code{x}. Default is 1, the
-most common case.}
+\item{items}{Numeric. The number of items composing \code{x}. Default is 1.}
 
-\item{percent}{Logical. Set \code{percent} to \code{TRUE} if \code{x} is a percentage. This
-will convert it to a decimal number and adjust the decimal count (i.e.,
-increase it by 2). Default is \code{FALSE}.}
+\item{percent}{Logical. If \code{TRUE}, \code{x} is a percentage. Default is \code{FALSE}.}
 
-\item{rounding, threshold, symmetric}{Further parameters of GRIM-testing; see
-documentation for \code{\link[=grim]{grim()}}.}
+\item{rounding, threshold, symmetric}{The same as in \code{\link[=grim]{grim()}}.}
 }
 \value{
 \itemize{
 \item For \code{grim_values()}, a list of numeric vectors, one per value set. A
-vector is empty if the value set is GRIM-inconsistent, and \code{NA} if
-consistency is undecidable.
+vector is empty if the value set is inconsistent, and \code{NA} if it cannot
+be decided.
 \item For \code{grim_closest()}, a numeric vector as long as the inputs.
 }
 }
 \description{
-These functions reconstruct the mean or percentage values that
-integer data of the reported sample size could actually have produced:
+These functions return the means (or percentages) that a sample
+of \code{n * items} integers can have:
 \itemize{
-\item \code{grim_values()} returns every achievable value that would have been
-reported as \code{x} -- i.e., every value that GRIM accepts. It is empty if \code{x}
-is GRIM-inconsistent with \code{n}.
-\item \code{grim_closest()} returns the single achievable value closest to \code{x}. For
-a GRIM-consistent value set that is one of the \code{grim_values()}; for an
-inconsistent one it is the nearest value that \code{x} could have been.
+\item \code{grim_values()} returns every achievable value that would be reported as
+\code{x}. The result is empty if \code{x} is GRIM-inconsistent with \code{n}.
+\item \code{grim_closest()} returns the single achievable value closest to \code{x},
+whether or not \code{x} is consistent.
 }
 
-Both functions are vectorized, like \code{\link[=grim]{grim()}}. Since a reported mean can
-stand for any number of achievable ones, \code{grim_values()} returns a list
+Both are vectorized like \code{\link[=grim]{grim()}}. A reported mean may correspond to one
+achievable mean, to several, or to none, so \code{grim_values()} returns a list
 with one element per value set.
 }
 \details{
-A mean of integer data is a whole-number sum total divided by the
-sample size (times the number of \code{items}). The achievable means are
-therefore the whole numbers in the range that \code{\link[=grim_map]{grim_map()}} shows as
-\code{sum_lower} and \code{sum_upper} under \code{show_rec}, each divided by \code{n * items}.
+The achievable means are the whole numbers in the range that
+\code{\link[=grim_map]{grim_map()}} shows as \code{sum_lower} and \code{sum_upper} under \code{show_rec}, each
+divided by \code{n * items}. Once \code{n * items} reaches \code{10^digits_x}, several of
+them can be reported as the same \code{x}, and their number grows with
+\code{n * items}. GRIM is then no longer informative. \code{grim_closest()} stays
+cheap in that case; \code{grim_values()} does not.
 
-There are \code{sum_upper - sum_lower + 1} of them, or none if \code{x} is
-inconsistent. The count grows without bound once \code{n * items} reaches
-\code{10^digits_x}, the point where GRIM stops being informative and
-\code{\link[=grim_probability]{grim_probability()}} returns 0. \code{grim_closest()} is cheap in that
-regime, \code{grim_values()} is not.
-
-With \code{percent} set to \code{TRUE}, the values are returned on the scale of \code{x},
-as percentages rather than as decimal numbers, so that they can be read
-against it directly.
+With \code{percent = TRUE}, the values are percentages, like \code{x}.
 }
 \examples{
 # A mean of 5.19 is consistent with a sample size of 32,
@@ -95,11 +82,10 @@ grim_values(x = 5.19, n = 32, digits_x = 2)
 # With a larger sample, several means round to 5.19:
 grim_values(x = 5.19, n = 300, digits_x = 2)
 
-# It is not consistent with a sample size of 28, so
-# there are no achievable means at all...
+# It is not consistent with a sample size of 28...
 grim_values(x = 5.19, n = 28, digits_x = 2)
 
-# ...but 5.19 is close to one that is achievable:
+# ...but 5.19 is close to a mean that is achievable:
 grim_closest(x = 5.19, n = 28, digits_x = 2)
 
 # Both functions are vectorized:
@@ -112,7 +98,5 @@ Psychology. \emph{Social Psychological and Personality Science}, 8(4), 363–369
 https://journals.sagepub.com/doi/10.1177/1948550616673876
 }
 \seealso{
-\code{\link[=grim]{grim()}} for the test itself, \code{\link[=grim_map]{grim_map()}} for applying it to
-many cases at once, and \code{\link[=grim_probability]{grim_probability()}} for how informative it is
-in a given case.
+\code{\link[=grim]{grim()}}, \code{\link[=grim_map]{grim_map()}}, and \code{\link[=grim_probability]{grim_probability()}}.
 }

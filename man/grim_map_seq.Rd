@@ -2,7 +2,7 @@
 % Please edit documentation in R/grim-map-seq.R
 \name{grim_map_seq}
 \alias{grim_map_seq}
-\title{GRIM-testing with dispersed inputs}
+\title{GRIM-test values around the reported ones}
 \usage{
 grim_map_seq(
   data,
@@ -19,92 +19,77 @@ grim_map_seq(
 )
 }
 \arguments{
-\item{data}{A data frame that \code{grim_map()} could take.}
+\item{data}{A data frame that \code{\link[=grim_map]{grim_map()}} could take.}
 
-\item{digits_x}{Integer. The number of decimal places in \code{x}, including
-trailing zeros. There is no default because it cannot be inferred from a
-numeric \code{x}, which has no trailing zeros: both \code{1.4} and \code{1.40} are the
-number \code{1.4}, but only the latter has \code{digits_x = 2}.}
+\item{digits_x}{Integer (length 1). The number of decimal places in \code{x},
+including trailing zeros. There is no default, since a numeric value does
+not keep them (\code{1.40} is \code{1.4}). It also sets the step size for
+dispersing \code{x}.}
 
-\item{x, n}{Optionally, specify these arguments as column names in \code{data}.}
+\item{x, n}{Optionally, the names of the columns in \code{data} that contain these
+values, if they differ from the defaults.}
 
-\item{var}{String. Names of the columns that will be dispersed. Default is
-\code{c("x", "n")}.}
+\item{var}{String. The variables to disperse. Default is \code{c("x", "n")}.}
 
-\item{dispersion}{Numeric. Sequence with steps up and down from the \code{var}
-inputs. It will be adjusted to these values' decimal levels. For example,
-with a reported \code{8.34}, the step size is \code{0.01}. Default is \code{1:5}, for five
-steps up and down.}
+\item{dispersion}{Numeric. Steps up and down from the reported values, in
+units of the last decimal place. Default is \code{1:5}.}
 
-\item{out_min, out_max}{If specified, output will be restricted so that it's
-not below \code{out_min} or above \code{out_max}. Both default to \code{"auto"}, which
-keeps \code{n} at 1 or above and leaves \code{x} unbounded. A number applies to
-every dispersed variable, and \code{NULL} removes the limit.}
+\item{out_min, out_max}{Limits on the dispersed values. Both default to
+\code{"auto"}, which keeps \code{n} at 1 or above and leaves \code{x} unbounded. A number
+applies to every dispersed variable, and \code{NULL} removes the limit.}
 
 \item{include_reported}{Logical. Should the reported values themselves be
-included in the sequences originating from them? Default is \code{FALSE} because
-this might be redundant and bias the results.}
+part of the sequences? Default is \code{FALSE}.}
 
-\item{include_consistent}{Logical. Should the function also process
-consistent cases (from among those reported), not just inconsistent ones?
-Default is \code{FALSE} because the focus should be on clarifying
-inconsistencies.}
+\item{include_consistent}{Logical. Should consistent value sets be dispersed
+as well, not just inconsistent ones? Default is \code{FALSE}.}
 
-\item{...}{Arguments passed down to \code{grim_map()}.}
+\item{...}{Arguments passed on to \code{\link[=grim_map]{grim_map()}}.}
 }
 \value{
-A tibble (data frame) with detailed test results. \code{diff_var} is the
-number of steps between the tested value and the reported one, \code{case} the
-row number of the reported value set in \code{data}, and \code{var} the dispersed
-variable. If \code{items} was specified, it is a column of its own, and \code{n} is
-the sample size before multiplying the two.
+A tibble with the columns of \code{\link[=grim_map]{grim_map()}} output plus \code{diff_var},
+the number of steps between the tested value and the reported one; \code{case},
+the row number of the reported value set in \code{data}; and \code{var}, the
+dispersed variable. If \code{items} was specified, it is returned as a separate
+column, and \code{n} is the sample size before multiplying the two.
 }
 \description{
-\code{grim_map_seq()} performs GRIM-testing with values surrounding
-the input values. This provides an easy and powerful way to assess whether
-small errors in computing or reporting may be responsible for GRIM
-inconsistencies in published statistics.
+\code{grim_map_seq()} varies the reported means and sample sizes a
+few steps up and down and GRIM-tests each resulting value set. This shows
+whether a small error in reporting or computing could explain an
+inconsistency.
 
-Call \code{\link[=audit_seq]{audit_seq()}} on the results for summary statistics.
+Call \code{\link[=audit_seq]{audit_seq()}} on the output for summary statistics.
 }
-\section{Summaries with \code{audit_seq()}}{
- You can call \code{audit_seq()} following
-\code{grim_map_seq()}. It will return a data frame with these columns:
+\section{Summaries with \code{\link[=audit_seq]{audit_seq()}}}{
+ \code{audit_seq()} on \code{grim_map_seq()}
+output returns a tibble with one row per case and these columns:
 \itemize{
-\item \code{x} and \code{n} are the original inputs,
-tested for \code{consistency} here.
-\item \code{hits_total} is the total number of GRIM-consistent value sets
-found within the specified \code{dispersion} range.
-\item \code{hits_x} is the number of GRIM-consistent value sets
-found by varying \code{x}.
-\item Accordingly with \code{n} and \code{hits_n}.
-\item (Note that any consistent reported cases will be counted by the
-\verb{hits_*} columns if both \code{include_reported} and \code{include_consistent}
-are set to \code{TRUE}.)
-\item \code{diff_x} reports the absolute difference between \code{x} and the next
-consistent dispersed value (in dispersion steps, not the actual numeric
-difference). \code{diff_x_up} and \code{diff_x_down} report the difference to the
-next higher or lower consistent value, respectively.
-\item \code{diff_n}, \code{diff_n_up}, and \code{diff_n_down} do the same for \code{n}.
+\item \code{x} and \code{n}: the reported values, with their \code{consistency}.
+\item \code{hits_total}: the number of GRIM-consistent value sets found within the
+\code{dispersion} range.
+\item \code{hits_x}, \code{hits_n}: the number found by varying \code{x} and \code{n},
+respectively. If both \code{include_reported} and \code{include_consistent} are
+\code{TRUE}, consistent reported cases are counted as well.
+\item \code{diff_x}: the distance from \code{x} to the nearest consistent dispersed
+value, in dispersion steps. \code{diff_x_up} and \code{diff_x_down} are the
+distances to the nearest consistent value above and below.
+\item \code{diff_n}, \code{diff_n_up}, \code{diff_n_down}: the same for \code{n}.
 }
 
-Call \code{audit()} following \code{audit_seq()} to summarize results even further.
-It's mostly self-explaining, but \code{na_count} and \code{na_rate} are the number
-and rate of times that a difference could not be computed because of a lack
-of corresponding hits within the \code{dispersion} range.
+Call \code{audit()} on \code{audit_seq()} output to summarize these columns further.
+\code{na_count} and \code{na_rate} there count the cases without a consistent value
+within the \code{dispersion} range.
 }
 
 \examples{
-# `grim_map_seq()` can take any input
-# that `grim_map()` can take:
+# `grim_map_seq()` takes the same input as `grim_map()`:
 pigs1
 
-# All the results:
 out <- grim_map_seq(pigs1, digits_x = 2, include_consistent = TRUE)
 out
 
-# Case-wise summaries with `audit_seq()`
-# can be more important than the raw results:
+# Case-wise summaries:
 out |>
   audit_seq()
 }

@@ -9,102 +9,75 @@ seq_df_out <- function(x, ...) {
 }
 
 
-#' Sequence generation at decimal level
+#' Sequences at the decimal level of their inputs
 #'
-#' @description Functions that provide a smooth interface to generating
-#'   sequences based on the input values' decimal depth. Each function creates a
-#'   sequence with a step size of one unit on the level of the input values'
-#'   ultimate decimal digit (e.g., `2.45`, `2.46`, `2.47`, ...):
-
-#'   - `seq_endpoint()` creates a sequence from one input value to another. For
-#'   step size, it goes by the value with more decimal places.
-#'   - `seq_distance()` only takes the starting point and, instead of the
-#'   endpoint, the desired output length. For step size, it goes by the starting
-#'   point by default.
+#' @description These functions create sequences whose step size is one unit
+#'   of the last decimal place of their inputs, such as `2.45`, `2.46`,
+#'   `2.47`:
 #'
-#' `seq_endpoint_df()` and `seq_distance_df()` are variants that create a data
-#' frame. Further columns can be added as in [`tibble::tibble()`]. Regular
-#' arguments are the same as in the respective non-`df` function, but with a dot
-#' before each.
-
-#' @details If either `from` or `to` ends on zero, be sure to enter that value
-#'   as a string! This is crucial because trailing zeros get dropped from
-#'   numeric values. A handy way to format numeric values or number-strings
-#'   correctly is [`restore_zeros()`]. The output of the present functions is
-#'   like that by default (of `string_output`).
+#'   - `seq_endpoint()` goes from `from` to `to`, with the step size taken from
+#'   the one with more decimal places.
+#'   - `seq_distance()` goes from `from` for `length_out` values, with the step
+#'   size taken from `from`.
 #'
-#'   In `seq_endpoint()` and `seq_endpoint_df()`, the step size is determined by
-#'   `from` and `to`, whichever has more decimal places. In `seq_distance()` and
-#'   `seq_distance_df()`, it's determined by the decimal places of `from`.
+#'   `seq_endpoint_df()` and `seq_distance_df()` return the sequence as a data
+#'   frame column, with further columns added as in [`tibble::tibble()`]. Their
+#'   arguments are those of the vector functions with a leading dot.
 #'
-#'   These functions are scrutiny's take on [`base::seq()`], and themselves
-#'   wrappers around it.
+#' @details If `from` or `to` ends on zero, pass it as a string, since a
+#'   numeric value loses trailing zeros. [`restore_zeros()`] formats values
+#'   this way. The output is string by default for the same reason.
 #'
-#' @param from,.from Numeric (or string coercible to numeric). Starting point of
-#'   the sequence.
-#' @param to,.to Numeric (or string coercible to numeric). Endpoint of the
-#'   sequence. Only in `seq_endpoint()` and `seq_endpoint_df()`.
-#' @param by,.by Numeric. Only in `seq_distance()` and `seq_distance_df()`. Step
-#'   size of the sequence. If not set, inferred automatically. Default is
-#'   `NULL`. If set, the output has as many decimal places as `from` or `by`,
-#'   whichever has more.
-#' @param ... Further columns, added as in [`tibble::tibble()`]. Only in
-#'   `seq_endpoint_df()` and `seq_distance_df()`.
-#' @param length_out,.length_out Integer. Length of the output vector (i.e., the
-#'   number of its values). Must be at least 1. Default is `10`. Only in `seq_distance()` and
-#'   `seq_distance_df()`.
-#' @param dir,.dir Integer. If set to `-1`, the sequence goes backward. Default
-#'   is `1`. Only in `seq_distance()` and `seq_distance_df()`.
-#' @param offset_from,.offset_from Integer. If set to a non-zero number, the
-#'   starting point will be offset by that many units on the level of the last
-#'   decimal digit. Default is `0`.
-#' @param offset_to,.offset_to Integer. If set to a non-zero number, the
-#'   endpoint will be offset by that many units on the level of the last decimal
-#'   digit. Default is `0`. Only in `seq_endpoint()` and `seq_endpoint_df()`.
-#' @param string_output,.string_output Logical or string. If `TRUE` (the
-#'   default), the output is a string vector. Decimal places are then padded
-#'   with zeros to match `from`'s (or `to`'s) number of decimal places. `"auto"`
-#'   works like `TRUE` if and only if `from` (`.from`) is a string.
+#'   These functions wrap [`base::seq()`].
+#'
+#' @param from,.from Numeric, or a string coercible to numeric. Starting point.
+#' @param to,.to Numeric, or a string coercible to numeric. Endpoint. Only in
+#'   `seq_endpoint()` and `seq_endpoint_df()`.
+#' @param by,.by Numeric. Step size. Only in `seq_distance()` and
+#'   `seq_distance_df()`. Default is `NULL`, in which case it is inferred from
+#'   `from`. If given, the output has as many decimal places as the one of
+#'   `from` and `by` with more decimal places.
+#' @param ... Further columns, added as in [`tibble::tibble()`]. Only in the
+#'   `*_df()` functions.
+#' @param length_out,.length_out Integer. Length of the sequence, at least 1.
+#'   Default is `10`. Only in `seq_distance()` and `seq_distance_df()`.
+#' @param dir,.dir Integer. `-1` for a descending sequence. Default is `1`.
+#'   Only in `seq_distance()` and `seq_distance_df()`.
+#' @param offset_from,.offset_from Integer. Moves the starting point by that
+#'   many steps. Default is `0`.
+#' @param offset_to,.offset_to Integer. Moves the endpoint by that many steps.
+#'   Default is `0`. Only in `seq_endpoint()` and `seq_endpoint_df()`.
+#' @param string_output,.string_output Logical or `"auto"`. If `TRUE` (the
+#'   default), the output is a string vector padded with trailing zeros to the
+#'   decimal places of `from` (or `to`). `"auto"` means `TRUE` if `from` is a
+#'   string.
 #'
 #' @include decimal-places.R restore-zeros.R
 #'
-#' @return String by default of `string_output`, numeric otherwise.
+#' @return String by default, numeric with `string_output = FALSE`.
 #'
 #' @name seq-decimal
 #'
-#' @seealso [`seq_disperse()`] for sequences centered around the input.
+#' @seealso [`seq_disperse()`] for sequences centered on a value.
 #'
 #' @export
 #'
 #' @examples
-#' # Sequence between two points:
 #' seq_endpoint(from = 4.7, to = 5)
 #'
-#' # Sequence of some length; default is 10:
 #' seq_distance(from = 0.93)
 #' seq_distance(from = 0.93, length_out = 5)
 #'
-#' # Both of these functions can offset the
-#' # starting point...
+#' # Offsets:
 #' seq_endpoint(from = 14.2, to = 15, offset_from = 4)
-#' seq_distance(from = 14.2, offset_from = 4)
-#'
-#' # ...but only `seq_endpoint()` can offset the
-#' # endpoint, because of its `to` argument:
 #' seq_endpoint(from = 9.5, to = 10, offset_to = 2)
 #'
-#' # In return, `seq_distance()` can reverse its direction:
+#' # Descending:
 #' seq_distance(from = 20.03, dir = -1)
 #'
-#' # Both functions have a `_df` variant that returns
-#' # a data frame. Arguments are the same but with a
-#' # dot, and further columns can be added as in
-#' # `tibble::tibble()`:
+#' # The data frame variants take further columns:
 #' seq_endpoint_df(.from = 4.7, .to = 5, n = 20)
 #' seq_distance_df(.from = 0.43, .length_out = 5, sd = 0.08)
-
-#' @rdname seq-decimal
-#' @export
 
 seq_endpoint <- function(
   from,

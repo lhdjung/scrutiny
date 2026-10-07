@@ -1,33 +1,26 @@
 #' Granularity of non-continuous scales
 #'
-#' @description `grim_granularity()` computes the minimal difference between two
-#'   means or proportions of ordinal or interval data.
+#' @description `grim_granularity()` returns the smallest difference between
+#'   two means that a scale with `items` items and `n` observations can
+#'   produce: `1 / (n * items)`.
 #'
-#'   `grim_items()` is the reverse: It converts granularity values to the number
-#'   of scale items, which might then be used for consistency testing functions
-#'   such as `grim()`.
+#'   `grim_items()` inverts it: given the granularity, it returns the number
+#'   of items.
 #'
-#' @details These two functions differ only in the names of their arguments ---
-#'   the underlying formula is the same (and it's very simple). However, for
-#'   clarity, they are presented as distinct.
+#' @details The granularity of a scale follows from its design, not from the
+#'   smallest observed difference between two values. Continuous scales have
+#'   no granularity.
 #'
-#'   The output of `grim_items()` should be whole numbers, because scale items
-#'   have a granularity of 1.
-#'
-#'   It would be wrong to determine a scale's granularity from the minimal
-#'   distance between two values in a given distribution. This would only
-#'   signify how those values actually do differ, not how they *can* differ *a
-#'   priori* based on scale design. Also, keep in mind that continuous scales
-#'   have no granularity at all.
+#'   Since the number of items is a whole number, a fractional result of
+#'   `grim_items()` points to an error upstream, and the function warns about
+#'   it.
 #'
 #' @param n Numeric. Sample size.
-#' @param items Numeric. Number of items composing the scale. Default is 1,
-#'   which will hold for most non-Likert scales.
+#' @param items Numeric. Number of items. Default is 1.
 #' @param gran Numeric. Granularity.
-#' @param tolerance Numeric. Any difference between `x` and a truncated version
-#'   of `x` less than `tolerance` (in the absolute value) will be ignored. The
-#'   default is close to `1 / (10 ^ 8)`. This avoids errors due to spurious
-#'   precision in floating-point arithmetic.
+#' @param tolerance Numeric. Differences from a whole number below `tolerance`
+#'   are ignored when checking the result of `grim_items()`. Default is about
+#'   `1.5e-8`.
 #'
 #' @include utils.R
 #'
@@ -35,25 +28,18 @@
 #'   Simple Technique Detects Numerous Anomalies in the Reporting of Results in
 #'   Psychology. *Social Psychological and Personality Science*, 8(4), 363–369.
 #'   https://journals.sagepub.com/doi/10.1177/1948550616673876
-
+#'
 #' @return Numeric. Granularity or number of items.
-
+#'
 #' @export
 #'
 #' @examples
-#' # If a non-Likert scale ranges from 0 to 3
-#' # and measures 16 cases:
-#' grim_granularity(n = 16)   # `items = 1` by default
-#'
-#' # Same but Likert scale with 2 items:
+#' grim_granularity(n = 16)
 #' grim_granularity(n = 16, items = 2)
 #'
-#' # If a scale is applied to a single case
-#' # and has a granularity of 0.5:
 #' grim_items(n = 1, gran = 0.5)
 #'
-#' # With more cases, a warning appears
-#' # because items can only be whole numbers:
+#' # A fractional result draws a warning:
 #' grim_items(n = c(10, 15, 20), gran = 0.5)
 
 grim_granularity <- function(n, items = 1) {

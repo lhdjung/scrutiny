@@ -1,22 +1,22 @@
-#' Test if many reported counts add up to their totals
+#' Test whether reported counts add up to their totals
 #'
-#' @description Call `add_up_to_map()` to apply [`add_up_to()`] to every row of
-#'   a data frame. `summands` selects the columns to add up, as many as the
-#'   data has, using tidyselect syntax.
+#' @description `add_up_to_map()` applies [`add_up_to()`] to every row of a data
+#'   frame. `summands` selects the columns to add up with tidyselect, so any
+#'   number of columns can be added up.
 #'
-#'   For summary statistics, call [`audit()`] on the results.
+#'   Call [`audit()`] on the output for summary statistics.
 #'
 #' @param data Tibble with a `total` column and the columns to add up. Any
-#'   other columns in `data` will be returned alongside the test results.
-#' @param summands Columns of `data` whose values in each row should add up to
-#'   that row's `total`, selected with tidyselect, such as `starts_with("n_")`.
-#'   There is no default.
-#' @param total Optionally, specify this argument as a column name in `data`.
+#'   other columns are returned alongside the results.
+#' @param summands Columns of `data` to add up, selected with tidyselect, such
+#'   as `starts_with("n_")`. There is no default.
+#' @param total Optionally, the name of the column in `data` that contains the
+#'   totals, if it differs from the default.
 #' @param ... These dots must be empty.
 #'
 #' @return A tibble with the `summands` columns, `total`, `consistency`, and
-#'   any other columns from `data`. It has the `scrutiny_add_up_to_map` class, which
-#'   is recognized by the [`audit()`] generic.
+#'   any other columns from `data`. It has the class `scrutiny_add_up_to_map`,
+#'   which is recognized by [`audit()`].
 #'
 #' @include add-up-to.R function-map.R
 #'

@@ -138,72 +138,59 @@ grim_scalar <- function(
 
 #' The GRIM test (granularity-related inconsistency of means)
 #'
-#' @description `grim()` checks if a reported mean value of integer data is
-#'   mathematically consistent with the reported sample size and the number of
-#'   items that compose the mean value.
+#' @description `grim()` checks whether a reported mean of integer data is
+#'   consistent with the reported sample size and the number of items that
+#'   compose the mean. The mean of `n * items` integers is a whole number
+#'   divided by `n * items`, so only certain values are possible; the test
+#'   asks whether any of them would have been reported as `x`.
 #'
-#'   Set `percent` to `TRUE` if `x` is a percentage. This will convert `x` to a
-#'   decimal number and adjust the decimal count accordingly.
+#'   Set `percent` to `TRUE` if `x` is a percentage. It is then divided by 100
+#'   and tested with two more decimal places.
 #'
-#'   The function is vectorized, but it is recommended to use [`grim_map()`] for
-#'   testing multiple cases.
+#'   The function is vectorized, but [`grim_map()`] is more convenient for
+#'   testing many cases.
 #'
-#' @details `digits_x` needs to be specified because trailing zeros are as
-#'   important for the GRIM test as any other decimal digits, and numeric values
-#'   don't retain them: `1.40` is stored as the number `1.4`. State the number
-#'   of decimal places that `x` was reported with, not the number that happen to
-#'   survive in the numeric value.
+#' @details `digits_x` must be specified because a numeric value does not
+#'   retain trailing zeros: `1.40` is stored as `1.4`. State the number of
+#'   decimal places that `x` was reported with.
 #'
-#'   Browse the source code in the grim.R file. `grim()` is a vectorized version
-#'   of the internal `grim_scalar()` function found there.
+#'   `x`, `n`, `digits_x`, and `items` are vectorized and recycled to a common
+#'   length by the tidyverse rules: an argument has length 1 or the length of
+#'   the longest. All other arguments must have length 1.
 #'
-#'   `x`, `n`, `digits_x`, and `items` are vectorized: they may have any length,
-#'   and shorter ones are recycled to the length of the longest, as long as they
-#'   have length 1. All other arguments describe the test as a whole and must
-#'   have length 1.
+#'   The test decides in exact integer arithmetic, so `tolerance` has no
+#'   effect and is deprecated. [`grimmer()`] still uses it.
 #'
-#'   `grim()` decides which reconstructed means are consistent with `x` using
-#'   exact integer arithmetic, so there is no floating-point comparison for a
-#'   `tolerance` to loosen. The argument is deprecated for that reason.
-#'   [`grimmer()`] does compare reconstructed SDs with [`dplyr::near()`] and
-#'   still takes it; [`debit()`] compares exact integers, like `grim()`, and
-#'   never had it.
-#'
-#' @param x Numeric. The reported mean or percentage value.
+#' @param x Numeric. The reported mean or percentage.
 #' @param n Integer. The reported sample size.
 #' @param digits_x Integer. The number of decimal places in `x`, including
-#'   trailing zeros. There is no default because it cannot be inferred from a
-#'   numeric `x`, which has no trailing zeros: both `1.4` and `1.40` are the
-#'   number `1.4`, but only the latter has `digits_x = 2`.
-#' @param items Numeric. The number of items composing `x`. Default is 1, the
-#'   most common case.
-#' @param percent Logical. Set `percent` to `TRUE` if `x` is a percentage. This
-#'   will convert it to a decimal number and adjust the decimal count (i.e.,
-#'   increase it by 2). Default is `FALSE`.
-#' @param rounding String. Rounding method or methods to be used for
-#'   reconstructing the values to which `x` will be compared. Default is
-#'   `"up_or_down"` (from 5).
-#' @param threshold Numeric. If `rounding` is set to `"up_from"`, `"down_from"`,
-#'   or `"up_from_or_down_from"`, set `threshold` to the number from which the
-#'   reconstructed values should then be rounded up or down. Otherwise, this
-#'   argument plays no role. Default is `5`.
-#' @param symmetric Logical. Set `symmetric` to `TRUE` if the rounding of
-#'   negative numbers with `"up"`, `"down"`, `"up_from"`, or `"down_from"`
-#'   should mirror that of positive numbers so that their absolute values are
-#'   always equal. Default is `FALSE`. It must not be given with any of the
-#'   `"ties_*"` methods, which already name a complete tie-breaking procedure;
-#'   see [`reround()`].
-#' @param tolerance `r lifecycle::badge("deprecated")` GRIM compares exact
-#'   integers, so this never had an effect on its results. See *Details*.
+#'   trailing zeros. There is no default, since a numeric value does not
+#'   keep them (`1.40` is `1.4`).
+#' @param items Numeric. The number of items composing `x`. Default is 1.
+#' @param percent Logical. If `TRUE`, `x` is a percentage: it is divided by
+#'   100 and the decimal count is increased by 2. Default is `FALSE`.
+#' @param rounding String. The rounding method assumed to have produced `x`.
+#'   Default is `"up_or_down"`, which accepts either direction. See
+#'   `vignette("rounding-options")`.
+#' @param threshold Numeric. For `rounding = "up_from"`, `"down_from"`, or
+#'   `"up_from_or_down_from"`, the point within a step at which rounding
+#'   switches direction, in tenths of a step. Default is `5`. Ignored
+#'   otherwise.
+#' @param symmetric Logical. If `TRUE`, negative numbers are rounded like
+#'   their absolute values (`-2.5` like `2.5`) under `"up"`, `"down"`, and the
+#'   `"*_from"` methods. Default is `FALSE`. Must not be given with a
+#'   `"ties_*"` rounding method, which already fixes the direction; see
+#'   [`reround()`].
+#' @param tolerance `r lifecycle::badge("deprecated")` This argument has no
+#'   effect; see *Details*.
 #'
-#' @return Logical. `TRUE` if `x`, `n`, and `items` are mutually consistent,
-#'   `FALSE` if not, and `NA` if the case cannot be decided: if any of the
-#'   values is missing, or if `n` or `items` is not a positive whole number.
-#'   GRIM asks which integer sums of `n * items` integer values have a mean
-#'   that would be reported as `x`, and a fractional or non-positive `n` or
-#'   `items` describes no such data set.
+#' @return Logical. `TRUE` if `x`, `n`, and `items` are consistent, `FALSE` if
+#'   not, and `NA` if the case cannot be decided: if a value is missing or
+#'   infinite, or if `n` or `items` is not a positive whole number.
 #'
-#' @seealso [`grim_map()`] applies `grim()` to any number of cases at once.
+#' @seealso [`grim_map()`] for data frames, [`grim_values()`] for the means
+#'   that `n` integers can produce, and [`grim_probability()`] for how
+#'   informative the test is in a given case.
 #'
 #' @include utils.R decimal-places.R reround.R
 #'

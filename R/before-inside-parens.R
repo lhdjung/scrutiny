@@ -118,25 +118,20 @@ proto_split_parens <- function(string, sep = "parens") {
 
 #' Extract substrings from before and inside parentheses
 #'
-#' @description `before_parens()` and `inside_parens()` extract substrings from
-#'   before or inside parentheses, or similar separators like brackets or curly
-#'   braces.
+#' @description `before_parens()` and `inside_parens()` extract the part of a
+#'   string before or inside parentheses, brackets, braces, or custom
+#'   separators. [`split_by_parens()`] does the same for the columns of a data
+#'   frame.
 #'
-#'   See [`split_by_parens()`] to split some or all columns in a data frame into
-#'   both parts.
-#'
-#' @param string Vector of strings with parentheses or similar.
-#' @param sep String. What to split by. Either `"parens"`, `"brackets"`,
-#'   `"braces"`, or a length-2 vector of custom separators. See examples for
-#'   [`split_by_parens()`]. Default is `"parens"`. Custom separators are
-#'   matched literally, not as regular expressions.
+#' @param string String vector.
+#' @param sep String. `"parens"` (the default), `"brackets"`, or `"braces"`,
+#'   or a length-2 vector of custom separators, matched literally.
 #'
 #' @export
 #'
-#' @return String vector of the same length as `string`. The part of `string`
-#'   before or inside the first pair of `sep` elements, respectively, with
-#'   surrounding whitespace removed. If a string has no opening `sep` element,
-#'   `before_parens()` returns all of it and `inside_parens()` returns `NA`.
+#' @return String vector as long as `string`, with surrounding whitespace
+#'   removed. If a string has no opening separator, `before_parens()` returns
+#'   all of it and `inside_parens()` returns `NA`.
 #'
 #' @name parens-extractors
 #'
@@ -148,7 +143,6 @@ proto_split_parens <- function(string, sep = "parens") {
 #' )
 #'
 #' before_parens(string = x)
-#'
 #' inside_parens(string = x)
 
 before_parens <- function(string, sep = "parens") {

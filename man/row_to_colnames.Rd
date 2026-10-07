@@ -9,40 +9,30 @@ row_to_colnames(data, row = 1L, collapse = " ", drop = TRUE)
 \arguments{
 \item{data}{Data frame or matrix.}
 
-\item{row}{Integer. Position of the rows (one or more) that jointly contain
-the correct column names. Default is \code{1}.}
+\item{row}{Integer. Position of the row or rows that contain the column
+names. Default is \code{1}.}
 
-\item{collapse}{String. If the length of \code{row} is greater than 1, each new
-column name will be that many row values pasted together. \code{collapse}, then,
-is the substring between two former row values in the final column names.
-Default is \code{" "} (a space).}
+\item{collapse}{String. Separator between the values of several rows.
+Default is \code{" "}.}
 
-\item{drop}{Logical. If \code{TRUE} (the default), the rows specified with \code{row}
-are removed.}
+\item{drop}{Logical. Should the rows be removed? Default is \code{TRUE}.}
 }
 \value{
-\code{data} with new column names: a data frame of the same class, or a
-tibble if \code{data} was a matrix.
+\code{data} with new column names, as a data frame of the same class, or
+a tibble if \code{data} was a matrix.
 }
 \description{
-Data frames sometimes have wrong column names, while the correct
-column names are stored in one or more rows in the data frame itself. To
-remedy this issue, call \code{row_to_colnames()} on the data frame: It replaces
-the column names by the values of the specified rows (by default, only the
-first one). These rows are then dropped by default.
+Tables extracted from PDF, e.g. with tabulizer, sometimes have
+their column names in the first row (or rows) and nondescript names
+above. \code{row_to_colnames()} replaces the column names by the values of
+those rows and drops the rows.
 }
 \details{
-If multiple rows are specified, the row values for each individual
-column are pasted together. Some special characters might then be missing.
-Missing values in these rows are skipped. If all of a column's values in
-these rows are missing, the column keeps its current name.
-
-This function might be useful when importing tables from PDF, e.g. with
-\href{https://cran.r-project.org/package=tabulizer}{tabulizer}. In R, these
-data frames (converted from matrices) do sometimes have the issue described
-above.
+With several rows, their values are pasted together per column.
+Missing values are skipped; if all of a column's values in these rows are
+missing, it keeps its name.
 }
 \seealso{
-\code{unheadr::mash_colnames()}, a more sophisticated solution to the
-same problem.
+\code{unheadr::mash_colnames()}, a more general solution to the same
+problem.
 }

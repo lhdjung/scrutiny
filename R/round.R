@@ -1,114 +1,61 @@
 #' Common rounding procedures
 #'
-#' @description `round_up()` rounds up from 5, `round_down()` rounds down from
-#'   5. Otherwise, both functions work like [`base::round()`].
+#' @description `round_up()` rounds ties upward, and `round_down()` rounds
+#'   them downward. Otherwise, both agree with [`base::round()`].
 #'
-#'   `round_up()` and `round_down()` are special cases of `round_up_from()` and
-#'   `round_down_from()`, which allow users to choose custom thresholds for
-#'   rounding up or down, respectively.
+#'   They are special cases of `round_up_from()` and `round_down_from()`, which
+#'   switch direction at a `threshold` other than 5.
 #'
-#' @details These functions differ from [`base::round()`] mainly insofar as the
-#'   decision about rounding 5 up or down is not based on the integer portion of
-#'   `x` (i.e., no "rounding to even"). Instead, in `round_up_from()`, that
-#'   decision is determined by the `threshold` argument for rounding up, and
-#'   likewise with `round_down_from()`. The threshold is constant at `5` for
-#'   `round_up()` and `round_down()`.
+#' @details These functions decide a tie by a fixed rule rather than by the
+#'   parity of the preceding digit, as [`base::round()`] does. They exist to
+#'   reconstruct the output of software that rounds this way; see
+#'   `vignette("rounding-options")` for which program uses which procedure.
+#'   They are not meant to replace `base::round()` in original computations.
 #'
-#'   As a result, these functions are more predictable and less prone to
-#'   floating-point number quirks than [`base::round()`]. Compare `round_down()`
-#'   and [`base::round()`] in the data frame for rounding 5 created in the
-#'   Examples section below: `round_down()` yields a continuous sequence of
-#'   final digits from 0 to 9, whereas [`base::round()`] behaves in a way that
-#'   can only be explained by floating point issues.
-#'
-#'   However, this surprising behavior on the part of [`base::round()`] is not
-#'   necessarily a flaw (see its documentation, or this vignette:
-#'   https://rpubs.com/maechler/Rounding). In the present version of R (4.0.0 or
-#'   later), [`base::round()`] works fine, and the functions presented here are
-#'   not meant to replace it. Their main purpose as helpers within scrutiny is
-#'   to reconstruct the computations of researchers who might have used
-#'   different software. See `vignette("rounding-options")`.
-#'
-#' @section Negative numbers: `symmetric` mirrors the whole rounding procedure
-#'   about zero, so a negative number is rounded like its absolute value. For
-#'   `round_up()` and `round_down()`, whose threshold is `5`, that comes to
-#'   deciding how ties in negative numbers are broken and nothing else: every
-#'   other value has a single nearest neighbor, which both functions round to.
-#'
-#'   For `round_up_from()` and `round_down_from()` with some other `threshold`,
-#'   it decides more than ties, because the value the procedure hesitates over
-#'   is no longer the midpoint: `round_up_from(-4.28, 1, threshold = 9)` is
-#'   `-4.3`, and `-4.2` with `symmetric = TRUE`.
-#'
-#'   By default (`symmetric = FALSE`), `round_up()` moves a tie to the higher
-#'   number on the number line, so `round_up(-2.5)` is `-2`, and `round_down()`
-#'   moves it to the lower one, so `round_down(-2.5)` is `-3`. This is what
-#'   Java's `Math.round()` does.
+#' @section Negative numbers: By default (`symmetric = FALSE`), `round_up()`
+#'   moves a tie to the higher number on the number line, so `round_up(-2.5)`
+#'   is `-2`, and `round_down(-2.5)` is `-3`. This is what Stata does.
 #'
 #'   With `symmetric = TRUE`, a negative number is rounded like its absolute
-#'   value, so `round_up(-2.5, symmetric = TRUE)` is `-3`. This is the setting
-#'   that reconstructs Excel, SAS, SPSS, and Matlab, all of which move a tie
-#'   away from zero, as does `janitor::round_half_up()`. In IEEE 754 terms, it
-#'   is *roundTiesToAway*.
+#'   value, so a tie moves away from zero: `round_up(-2.5, symmetric = TRUE)`
+#'   is `-3`. This is what Excel, SAS, SPSS, and Matlab do; IEEE 754 calls it
+#'   *roundTiesToAway*.
 #'
-#'   So `symmetric` matters whenever the data contain negative values, as with
-#'   difference scores, z-scores, or effect sizes. See
-#'   `vignette("rounding-options")` for which setting matches which program.
-#'   (The package-wide default, `rounding = "up_or_down"`, spans the results of
-#'   both settings, so `symmetric` cannot change a consistency verdict unless
-#'   you commit to a single direction.)
+#'   For `round_up()` and `round_down()`, `symmetric` only affects ties among
+#'   negative numbers. For `round_up_from()` and `round_down_from()` with a
+#'   `threshold` other than 5, it affects every negative number whose cut-off
+#'   part lies between `threshold` and `10 - threshold`:
+#'   `round_up_from(-4.28, 1, threshold = 9)` is `-4.3`, and `-4.2` with
+#'   `symmetric = TRUE`.
+#'
+#'   Under the package-wide default `rounding = "up_or_down"`, both results
+#'   are accepted, so `symmetric` cannot change a consistency verdict there.
 #'
 #' @section Floating-point tolerance: Shifting a number by `digits` decimal
-#'   places is not exact: `0.145 * 100` is stored as `14.499999999999998`, just
-#'   below the tie it is meant to be. Rounding that shifted value directly would
-#'   move `0.145` a whole step in the wrong direction.
+#'   places is not exact: `0.145 * 100` is stored as `14.499999999999998`,
+#'   just below the tie it is meant to be. All of these functions therefore
+#'   nudge the shifted value by about `1.5e-9` before rounding, so that
+#'   `round_up(0.145, 2)` is `0.15`, as in the software being reconstructed.
+#'   [`unround()`] reports bounds that assume the same tolerance.
 #'
-#'   All of these functions therefore nudge the shifted value by about `1.5e-9`
-#'   before rounding it, so that `round_up(0.145, 2)` is `0.15`, as it would be
-#'   in the software whose output is being reconstructed. Values within roughly
-#'   `1e-9` below a rounding boundary are thereby treated as sitting *on* it.
-#'   [`unround()`] reports bounds that assume exactly this, which is why a
-#'   number and its reconstructed range always agree.
+#'   The nudge is fixed, whereas representation error grows with `x *
+#'   10^digits`. Up to about `1e7` for that product, far beyond any reported
+#'   summary statistic, the nudge dominates. Past it, a value exactly on a
+#'   boundary may be rounded in either direction.
 #'
-#'   The nudge is a fixed amount, whereas representation error grows with the
-#'   magnitude of `x * 10^digits`. Up to about `1e7` for that product -- far
-#'   beyond any reported mean, SD, or percentage -- the nudge dominates by
-#'   orders of magnitude. Past it, a value sitting exactly on a boundary may go
-#'   either way.
-#'
-#'   This differs from `janitor::round_half_up()`, which adds its tolerance to
-#'   the value rather than to the boundary, and from [`base::round()`], which
-#'   measures which neighbor is closer instead of nudging at all.
-#'
-#' @param x Numeric. The decimal number to round.
-#' @param digits Integer. Number of digits to round `x` to. Default is `0`.
-#'   Negative values round to powers of ten: `round_up(1250, digits = -2)` is
-#'   `1300`, which reconstructs values reported as "rounded to the nearest
-#'   hundred".
+#' @param x Numeric. The number to round.
+#' @param digits Integer. Number of decimal places to round to. Default is
+#'   `0`. Negative values round to powers of ten: `round_up(1250, digits =
+#'   -2)` is `1300`.
 #' @param threshold Numeric. Only in `round_up_from()` and `round_down_from()`.
 #'   The point within a step at which rounding switches direction, in tenths of
-#'   a step, so it must be greater than `0` and less than `10`.
-#'
-#'   It means the same thing in both functions. `round_up_from()` rounds up when
-#'   the part cut off by rounding is at least `threshold` tenths of a step, and
+#'   a step; greater than `0` and less than `10`. `round_up_from()` rounds up
+#'   when the part cut off is at least `threshold` tenths of a step, and
 #'   `round_down_from()` rounds down when it is at most that many, so the two
-#'   differ only in where they send a value sitting exactly on the threshold.
-#'   `round_up()` and `round_down()` are the pair at the `threshold` of `5`.
-#'
-#'   Up to scrutiny 1.0.0, `round_down_from()` was the point reflection of
-#'   `round_up_from()` instead, switching direction at `10 - threshold`. The two
-#'   agreed at `5` and nowhere else, which made
-#'   `rounding = "up_from_or_down_from"` span up to 1.8 steps -- more than any
-#'   one rounding procedure can -- and so made consistency tests under it far
-#'   too permissive.
-#' @param symmetric Logical. Set `symmetric` to `TRUE` if the rounding of
-#'   negative numbers should mirror that of positive numbers so that their
-#'   absolute values are equal. Only affects negative numbers. For
-#'   `round_up()` and `round_down()`, whose threshold is `5`, it only affects
-#'   ties among those; for `round_up_from()` and `round_down_from()` with some
-#'   other `threshold`, it affects more: `round_up_from(-4.28, 1, threshold =
-#'   9)` is `-4.3`, and `-4.2` with `symmetric = TRUE`. Default is `FALSE`. See
-#'   the `Negative numbers` section.
+#'   only differ for a value exactly on the threshold. `round_up()` and
+#'   `round_down()` are the pair at `5`.
+#' @param symmetric Logical. If `TRUE`, negative numbers are rounded like their
+#'   absolute values. Default is `FALSE`. See *Negative numbers*.
 #'
 #' @return Numeric. `x` rounded to `digits`.
 #'
@@ -116,54 +63,36 @@
 #'
 #' @name rounding-common
 #'
-#' @seealso [`round_ties_up()`] and friends are these same four procedures
-#'   under names that say which is which, so that `symmetric` need not be --
-#'   and, with the matching `rounding` strings, must not be -- spelled out
-#'   separately.
-#'
-#'   [`round_ceiling()`] always rounds up, [`round_floor()`] always rounds down,
-#'   [`round_trunc()`] always rounds toward 0, and [`round_anti_trunc()`] always
-#'   rounds away from 0.
+#' @seealso [`round_ties_up()`] and friends are the same procedures under
+#'   names that state the tie rule, so that `symmetric` need not be given.
+#'   [`round_ceiling()`], [`round_floor()`], [`round_trunc()`], and
+#'   [`round_anti_trunc()`] always round in one direction.
 #'
 #' @examples
-#' # Both `round_up()` and `round_down()` work like
-#' # `base::round()` unless the closest digit to be
-#' # cut off by rounding is 5:
+#' # Except at a tie, all of these agree:
+#'    round_up(x = 9.273, digits = 1)
+#'  round_down(x = 9.273, digits = 1)
+#' base::round(x = 9.273, digits = 1)
 #'
-#'    round_up(x = 9.273, digits = 1)     # 7 cut off
-#'  round_down(x = 9.273, digits = 1)     # 7 cut off
-#' base::round(x = 9.273, digits = 1)     # 7 cut off
-#'
-#'    round_up(x = 7.584, digits = 2)     # 4 cut off
-#'  round_down(x = 7.584, digits = 2)     # 4 cut off
-#' base::round(x = 7.584, digits = 2)     # 4 cut off
-#'
-#'
-#' # Here is the borderline case of 5 rounded by
-#' # `round_up()`, `round_down()`, and `base::round()`:
-#'
-#' original <- c(    # Define example values
+#' # At ties, they differ:
+#' original <- c(
 #'   0.05, 0.15, 0.25, 0.35, 0.45,
 #'   0.55, 0.65, 0.75, 0.85, 0.95
 #' )
-#' tibble::tibble(   # Output table
+#' tibble::tibble(
 #'   original,
 #'   round_up = round_up(x = original, digits = 1),
 #'   round_down = round_down(x = original, digits = 1),
 #'   base_round = base::round(x = original, digits = 1)
 #' )
 #'
-#'
 #' # Ties in negative numbers go up on the number line
 #' # by default, and away from zero with `symmetric`:
-#'
-#' round_up(x = -2.5)                     # Java's `Math.round()`
+#' round_up(x = -2.5)                     # Stata
 #' round_up(x = -2.5, symmetric = TRUE)   # Excel, SAS, SPSS, Matlab
-#'
 #'
 #' # A custom threshold moves the point at which
 #' # rounding switches direction:
-#'
 #' round_up_from(x = 4.28, digits = 1, threshold = 9)   # 8 < 9, so down
 #' round_up_from(x = 4.28, digits = 1, threshold = 1)   # 8 >= 1, so up
 

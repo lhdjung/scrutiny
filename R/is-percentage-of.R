@@ -55,49 +55,41 @@ is_percentage_of_scalar <- function(
 
 #' Is a reported percentage consistent with its count?
 #'
-#' @description `is_percentage_of()` checks if `percentage` is what `absolute`
-#'   out of `n` would have been reported as, given the number of decimal
-#'   places in `percentage` and the rounding method.
+#' @description `is_percentage_of()` checks whether `percentage` is what
+#'   `absolute` out of `n` would have been reported as, given the number of
+#'   decimal places and the rounding method.
 #'
-#'   This is stricter than GRIM with `percent = TRUE`, which only asks whether
-#'   *some* count out of `n` produces `percentage`. Here, the count is
-#'   reported as well, and it must be that count.
+#'   This is stricter than [`grim()`] with `percent = TRUE`, which only asks
+#'   whether some count out of `n` produces the percentage. Here, the count is
+#'   reported too.
 #'
-#'   The function is vectorized, but it is recommended to use
-#'   [`is_percentage_of_map()`] for testing multiple cases.
+#'   The function is vectorized, but [`is_percentage_of_map()`] is more
+#'   convenient for testing many cases.
 #'
-#' @details The test runs in exact integer arithmetic, so a count right on a
-#'   rounding boundary is included or excluded as `rounding` demands, not as
-#'   floating-point error happens to dictate.
-#'
-#'   `absolute`, `percentage`, `n`, and `digits_percentage` are vectorized;
-#'   all other arguments must have length 1.
+#' @details The test runs in exact integer arithmetic. `absolute`,
+#'   `percentage`, `n`, and `digits_percentage` are vectorized; all other
+#'   arguments must have length 1.
 #'
 #' @section Causes of inconsistencies: A `FALSE` result means that the three
-#'   values can't all be correct as reported. It doesn't show why. The cause
-#'   may be trivial. For example, the percentage may be based on a different
-#'   denominator than `n`, such as the number of valid responses. Or the
-#'   authors' software may have used an unconventional rounding method, such
-#'   as truncation; see the `rounding` argument.
-#'
-#'   [`is_percentage_of_map_seq()`] with `var = "n"` shows which nearby
+#'   values cannot all be correct as reported, not why. The cause is often
+#'   trivial: the percentage may be based on another denominator than `n`,
+#'   such as the number of valid responses, or on an unconventional rounding
+#'   method. [`is_percentage_of_map_seq()`] with `var = "n"` shows which nearby
 #'   denominators would make the percentage consistent.
 #'
-#' @param absolute Integer. The reported count, e.g., the number of
-#'   participants in a subgroup.
-#' @param percentage Numeric. The reported percentage of `n` that
-#'   `absolute` is said to be, e.g., `33.3`.
-#' @param n Integer. The reported total, such as the sample size.
+#' @param absolute Integer. The reported count.
+#' @param percentage Numeric. The reported percentage of `n` that `absolute`
+#'   is said to be, e.g., `33.3`.
+#' @param n Integer. The reported total.
 #' @param digits_percentage Integer. The number of decimal places in
-#'   `percentage`, including trailing zeros. There is no default because it
-#'   cannot be inferred from a numeric `percentage`: both `33.3` and `33.30` are
-#'   the number `33.3`.
+#'   `percentage`, including trailing zeros. There is no default, since a
+#'   numeric value does not keep them (`1.40` is `1.4`).
 #' @inheritParams grim
 #'
-#' @return Logical. `TRUE` if the three values are mutually consistent,
-#'   `FALSE` if not, and `NA` if the case cannot be decided: if any value is
-#'   missing, if `absolute` is not a non-negative whole number, or if `n`
-#'   is not a positive whole number.
+#' @return Logical. `TRUE` if the three values are consistent, `FALSE` if not,
+#'   and `NA` if the case cannot be decided: if a value is missing, if
+#'   `absolute` is not a non-negative whole number, or if `n` is not a positive
+#'   whole number.
 #'
 #' @seealso [`grim()`] with `percent = TRUE`, for a percentage without a count.
 #'

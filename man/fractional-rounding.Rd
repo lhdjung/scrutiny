@@ -4,7 +4,7 @@
 \alias{fractional-rounding}
 \alias{reround_to_fraction}
 \alias{reround_to_fraction_level}
-\title{Generalized rounding to the nearest fraction of a specified denominator}
+\title{Rounding to the nearest fraction}
 \usage{
 reround_to_fraction(
   x = NULL,
@@ -25,83 +25,51 @@ reround_to_fraction_level(
 )
 }
 \arguments{
-\item{x}{Numeric. Vector of numbers to be rounded.}
+\item{x}{Numeric. Values to round.}
 
-\item{denominator}{Numeric (>= 1) . \code{x} will be rounded to the nearest
+\item{denominator}{Numeric (at least 1). \code{x} is rounded to the nearest
 fraction of \code{denominator}. Default is \code{1}.}
 
-\item{digits}{Numeric (whole numbers).
-\itemize{
-\item In \code{reround_to_fraction()}: If \code{digits} is specified, the values
-resulting from fractional rounding will subsequently be rounded to that
-many decimal places. If set to \code{"auto"}, it internally becomes
-\code{ceiling(log10(denominator)) + 1}, as in \code{\link[janitor:round_to_fraction]{janitor::round_to_fraction()}}.
-Default is \code{Inf}, in which case there is no subsequent rounding.
-\item In \code{reround_to_fraction_level()}: This function will round to a fraction
-of the number at the decimal level specified by \code{digits}. Default is \code{0}.
-}}
+\item{digits}{Integer. In \code{reround_to_fraction()}, the number of decimal
+places to round the result to. \code{"auto"} means
+\code{ceiling(log10(denominator)) + 1}, as in janitor, and the default \code{Inf}
+means no further rounding. In
+\code{reround_to_fraction_level()}, the decimal level at which to round to a
+fraction; default is \code{0}.}
 
-\item{rounding, threshold, symmetric}{More arguments passed down to
-\code{\link[=reround]{reround()}}.}
+\item{rounding, threshold, symmetric}{Passed on to \code{\link[=reround]{reround()}}.}
 }
 \value{
-Numeric vector of the same length as \code{x}, except for the three
-compound rounding methods \code{"up_or_down"}, \code{"up_from_or_down_from"}, and
-\code{"ceiling_or_floor"}, which return two values per element of \code{x} -- the
-result of each of their two constituent procedures -- so that the return
-value has length \code{2 * length(x)}. As in \code{\link[=reround]{reround()}}, the two values of a
-compound method stay next to each other.
-
-(The length was previously documented as "always 2" for the compound
-methods, which held only for an \code{x} of length 1. For a longer \code{x}, the two
-procedures used to be \emph{paired} with the elements of \code{x} instead of both
-being applied to each of them, so \code{reround_to_fraction(c(0.4, 0.6), denominator = 2)} returned two values, the first rounded up and the second
-down. It now returns all four.)
+Numeric, as long as \code{x}, except for the compound rounding methods,
+which return two values per element of \code{x} as in \code{\link[=reround]{reround()}}.
 }
 \description{
-Two functions that round numbers to specific fractions, not just
-to the next higher decimal level. They are inspired by
-\code{\link[janitor:round_to_fraction]{janitor::round_to_fraction()}} but feature all the options of
-\code{\link[=reround]{reround()}}:
+These functions round to the nearest fraction of a
+denominator rather than to a decimal place. They follow
+\code{\link[janitor:round_to_fraction]{janitor::round_to_fraction()}} but take all of \code{\link[=reround]{reround()}}'s options:
 \itemize{
-\item \code{reround_to_fraction()} closely follows \code{\link[janitor:round_to_fraction]{janitor::round_to_fraction()}}
-by first rounding to fractions of a whole number, then optionally rounding
-the result to a specific number of digits in the usual way.
-\item \code{reround_to_fraction_level()} rounds to the nearest fraction of a number
-at the specific decimal level (i.e., number of digits), without subsequent
-rounding. This is closer to conventional rounding functions.
+\item \code{reround_to_fraction()} rounds to fractions of a whole number, then
+optionally rounds the result to \code{digits} decimal places.
+\item \code{reround_to_fraction_level()} rounds to the nearest fraction at the
+decimal level given by \code{digits}, with no further rounding.
 }
 }
 \examples{
-#`reround_to_fraction()` rounds `0.4`
-# to `0` if `denominator` is `1`, which
-# is the usual integer rounding...
+# With `denominator = 1`, this is ordinary rounding...
 reround_to_fraction(0.4, denominator = 1, rounding = "even")
 
-# ...but if `denominator` is `2`, it rounds to the nearest
-# fraction of 2, which is `0.5`:
+# ...with `denominator = 2`, it rounds to the nearest half:
 reround_to_fraction(0.4, denominator = 2, rounding = "even")
-
-# Likewise with fractions of 3:
 reround_to_fraction(0.25, denominator = 3, rounding = "even")
 
-# The default for `rounding` is to round
-# both up and down, as in `reround()`:
-reround_to_fraction(0.4, denominator = 2)
-
-# These two rounding procedures differ
-# at the tie points:
+# The default `rounding` returns both directions, as in `reround()`:
 reround_to_fraction(0.25, denominator = 2)
 
-# `reround_to_fraction_level()`, in contrast,
-# uses `digits` to determine some decimal level,
-# and then rounds to the closest fraction at
-# that level:
+# `reround_to_fraction_level()` rounds to a fraction at a decimal level:
 reround_to_fraction_level(0.12345, denominator = 2, digits = 0)
 reround_to_fraction_level(0.12345, denominator = 2, digits = 1)
 reround_to_fraction_level(0.12345, denominator = 2, digits = 2)
 }
 \seealso{
-\code{\link[=reround]{reround()}}, which the functions wrap, and
-\code{\link[janitor:round_to_fraction]{janitor::round_to_fraction()}}, part of which they copy.
+\code{\link[=reround]{reround()}} and \code{\link[janitor:round_to_fraction]{janitor::round_to_fraction()}}.
 }

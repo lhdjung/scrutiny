@@ -1,31 +1,24 @@
-#' Reverse the `*_map_total_n()` process
+#' Reconstruct the input of a total-n mapper
 #'
-#' @description `reverse_map_total_n()` takes the output of a function created
-#'   by [`function_map_total_n()`] and reconstructs the original data frame.
+#' @description `reverse_map_total_n()` takes the output of a function made by
+#'   [`function_map_total_n()`] and reconstructs the data frame it was called
+#'   on. [`audit_total_n()`] builds on it.
 #'
-#'   See [`audit_total_n()`], which takes `reverse_map_total_n()` as a basis.
+#' @param data Data frame with the `"scrutiny_map_total_n"` class.
 #'
-#' @param data Data frame that inherits the `"scrutiny_map_total_n"` class.
-#'
-#' @return The reconstructed tibble (data frame) which a factory-made
-#'   `*_map_total_n()` function took as its `data` argument.
+#' @return The reconstructed tibble.
 #'
 #' @export
 #'
 #' @examples
-#' # Originally reported summary data...
 #' df <- tibble::tribble(
 #'   ~x1,  ~x2,  ~n,
 #'   3.43, 5.28, 90,
 #'   2.97, 4.42, 103
 #' )
-#' df
 #'
-#' # ...GRIM-tested with dispersed `n` values...
 #' out <- grim_map_total_n(df, digits_x = 2)
-#' out
 #'
-#' # ...and faithfully reconstructed:
 #' reverse_map_total_n(out)
 
 reverse_map_total_n <- function(data) {

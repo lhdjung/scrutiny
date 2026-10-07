@@ -1,96 +1,73 @@
 #' GRIM-test many cases at once
 #'
-#' @description Call `grim_map()` to GRIM-test any number of combinations of
-#'   mean/proportion, sample size, and number of items. Mapping function for
-#'   GRIM-testing.
+#' @description `grim_map()` applies [`grim()`] to every row of a data frame
+#'   with means (or percentages) and sample sizes.
 #'
-#'   Set `percent` to `TRUE` if the `x` values are percentages. This will
-#'   convert `x` values to decimals and adjust the decimal count accordingly.
+#'   Set `percent` to `TRUE` if `x` contains percentages, and `show_rec` to
+#'   `TRUE` to see the reconstructed values behind each verdict. Call
+#'   [`audit()`] on the output for summary statistics and [`grim_plot()`] to
+#'   visualize it.
 #'
-#'   Display intermediary numbers from GRIM-testing in columns by setting
-#'   `show_rec` to `TRUE`.
-#'
-#'   For summary statistics, call [`audit()`] on the results.
-#'
-#' @param data Tibble with columns `x`, `n`, and optionally `items` (see
-#'   documentation for [`grim()`]). Any other columns in `data` will be returned
-#'   alongside GRIM test results.
-#' @param items Integer. If there is no `items` column in `data`, this specifies
-#'   the number of items composing the `x` values. Default is 1, the most common
-#'   case. Values from an `items` column or argument are multiplied with those
-#'   in the `n` column, so there is no `items` column in the output. This is
-#'   only for presentation and does not affect test results.
-#' @param percent Logical. Set `percent` to `TRUE` if the `x` values are
-#'   percentages. This will convert them to decimal numbers for testing and
-#'   adjust the decimal count (i.e., increase it by 2). It also affects the
-#'   `probability` column. Default is `FALSE`.
+#' @param data Tibble with columns `x` and `n`, and optionally `items`. Any
+#'   other columns are returned alongside the results.
 #' @param digits_x Integer. The number of decimal places in `x`, including
-#'   trailing zeros. There is no default because it cannot be inferred from a
-#'   numeric `x`, which has no trailing zeros: both `1.4` and `1.40` are the
-#'   number `1.4`, but only the latter has `digits_x = 2`. Use a single number
-#'   if the whole column was reported with the same number of decimal places,
-#'   or one number per row of `data` if it varies.
-#' @param x,n Optionally, specify these arguments as column names in `data`.
-#' @param show_rec Logical. If set to `TRUE`, the reconstructed numbers from
-#'   GRIM-testing are shown as columns. See section *Reconstructed numbers*
-#'   below. Default is `FALSE`.
-#' @param rounding,threshold,symmetric Further parameters of GRIM-testing; see
-#'   documentation for [`grim()`].
-#' @param tolerance `r lifecycle::badge("deprecated")` GRIM compares exact
-#'   integers, so this never had an effect on its results. See [`grim()`].
-#' @param ... Arguments passed down to [`grim()`].
-
-#' @return A tibble with these columns --
+#'   trailing zeros. There is no default, since a numeric value does not keep
+#'   them (`1.40` is `1.4`). Either a single number for the whole column or
+#'   one number per row of `data`.
+#' @param x,n Optionally, the names of the columns in `data` that contain these
+#'   values, if they differ from the defaults.
+#' @param items Integer. The number of items composing `x`, if `data` has no
+#'   `items` column. Default is 1. `items` is multiplied into `n` for the
+#'   output, so there is no `items` column there.
+#' @param percent Logical. If `TRUE`, the `x` values are percentages: they are
+#'   divided by 100 and tested with two more decimal places. Default is
+#'   `FALSE`.
+#' @param show_rec Logical. If `TRUE`, the reconstructed numbers are returned
+#'   as columns; see *Reconstructed numbers*. Default is `FALSE`.
+#' @param rounding,threshold,symmetric,tolerance Passed on to [`grim()`].
+#' @param ... Further arguments passed on to [`grim()`].
+#'
+#' @return A tibble with these columns:
 #' - `x`, `n`: the inputs.
-#' - `digits_x`: the number of decimal places in `x`, as given by `digits_x`.
+#' - `digits_x`: the number of decimal places in `x`, as given.
 #' - `consistency`: GRIM consistency of `x`, `n`, and `items`. `NA` for a case
 #'   that cannot be decided, such as one with a missing value.
 #' - `probability`: the probability of GRIM inconsistency; see
-#' [`grim_probability()`].
-#' - `<extra>`: any columns from `data` other than `x`, `n`, and `items`.
+#'   [`grim_probability()`].
+#' - Any other columns from `data`.
 #'
-#'   The tibble has the `scrutiny_grim_map` class, which is recognized by the
-#'   [`audit()`] generic.
-
-#' @section Reconstructed numbers: If `show_rec` is set to `TRUE`, the output
-#'   includes the following additional columns, the same ones for every rounding
-#'   method:
+#'   The tibble has the class `scrutiny_grim_map`, which is recognized by
+#'   [`audit()`] and [`grim_plot()`].
 #'
-#' - `rec_sum`: the unrounded product of `x` and `n` (times `items`). The sum
-#'   total of integer data is a whole number, so this is generally not one.
+#' @section Reconstructed numbers: With `show_rec = TRUE`, the output has these
+#'   further columns, the same ones for every rounding method:
+#'
+#' - `rec_sum`: the product of `x` and `n` (times `items`), i.e., the sum total
+#'   implied by the reported mean. It is generally not a whole number.
 #' - `sum_lower`, `sum_upper`: the least and the greatest whole-number sum total
-#'   that would have been reported as `x`. These are the numbers that decide the
-#'   test: `x` is GRIM-consistent exactly if `sum_lower` is not greater than
-#'   `sum_upper`, i.e., if at least one whole number falls between them. If it
-#'   is inconsistent, the two are the whole numbers that straddle `rec_sum`, so
-#'   `sum_lower` is always `sum_upper + 1`: the gap does not measure how far off
-#'   the reported values are. Compare `x` to `rec_x_lower` and `rec_x_upper`
-#'   for that.
-#' - `rec_x_upper`, `rec_x_lower`: the two reconstructed `x` values ("granules")
-#'   closest to `x` -- `rec_sum` rounded up and down, divided by `n` (times
-#'   `items`).
+#'   that would have been reported as `x`. A value set is consistent exactly if
+#'   `sum_lower` is not greater than `sum_upper`. If it is inconsistent, the two
+#'   are the whole numbers on either side of `rec_sum`, so their gap is always 1
+#'   and does not measure how far off the reported values are.
+#' - `rec_x_upper`, `rec_x_lower`: the two achievable means closest to `x`,
+#'   i.e., `rec_sum` rounded up and down, divided by `n` (times `items`).
+#'   With `percent = TRUE`, these are percentages like `x`; the sum columns are
+#'   not affected.
 #'
-#'   With `percent = TRUE`, the last two are percentages, like `x` itself, so
-#'   that they can be read against it. The first three are not: a sum total of
-#'   the underlying data is what it is, whichever scale the mean is reported on.
-
-#' @section Summaries with [`audit()`]: There is an S3 method for [`audit()`],
-#'   so you can call [`audit()`] following `grim_map()` to get a summary of
-#'   `grim_map()`'s results. It is a tibble with one row and these columns --
+#' @section Summaries with [`audit()`]: `audit()` on `grim_map()` output
+#'   returns a tibble with one row and these columns:
 #'
 #' 1. `incons_cases`: number of GRIM-inconsistent value sets.
 #' 2. `all_cases`: total number of value sets.
 #' 3. `incons_rate`: proportion of GRIM-inconsistent value sets.
-#' 4. `mean_grim_prob`: average probability of GRIM inconsistency.
-#' 5. `incons_to_prob`: ratio of the proportion of GRIM-inconsistent value sets
-#' to their average probability of GRIM inconsistency, both among the value sets
-#' that could be tested (i.e., those with a non-missing `consistency`).
-#' 6. `testable_cases`: number of GRIM-testable value sets (i.e., those with a
-#' positive `probability`).
-#' 7. `testable_rate`: proportion of GRIM-testable value sets.
-
+#' 4. `mean_grim_prob`: mean probability of GRIM inconsistency.
+#' 5. `incons_to_prob`: ratio of `incons_rate` to `mean_grim_prob`, both
+#'    computed over the value sets that could be decided.
+#' 6. `testable_cases`: number of value sets with a positive `probability`.
+#' 7. `testable_rate`: proportion of such value sets.
+#'
 #' @include audit.R grim.R grim-stats.R function-map.R restore-zeros.R
-
+#'
 #' @references Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A
 #'   Simple Technique Detects Numerous Anomalies in the Reporting of Results in
 #'   Psychology. *Social Psychological and Personality Science*, 8(4), 363–369.
@@ -102,14 +79,12 @@
 #' # Use `grim_map()` on data like these:
 #' pigs1
 #'
-#' # The `consistency` column shows
-#' # whether the values to its left
-#' # are GRIM-consistent:
+#' # The `consistency` column shows whether the
+#' # values to its left are GRIM-consistent:
 #' pigs1 |>
 #'   grim_map(digits_x = 2)
 #'
-#' # Display intermediary numbers from
-#' # GRIM-testing with `show_rec = TRUE`:
+#' # Show the reconstructed numbers:
 #' pigs1 |>
 #'   grim_map(digits_x = 2, show_rec = TRUE)
 #'

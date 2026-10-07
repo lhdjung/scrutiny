@@ -1,99 +1,69 @@
 #' Vary hypothetical group sizes
 #'
-#' @description Some published studies only report a total sample size but no
-#'   group sizes. However, group sizes are crucial for consistency tests such as
-#'   GRIM. Call `disperse()` to generate possible group sizes that all add up to
-#'   the total sample size, if that total is even.
+#' @description If a study reports a total sample size but no group sizes,
+#'   these functions generate pairs of hypothetical group sizes that add up to
+#'   the total:
 #'
-#'   `disperse2()` is a variant for odd totals. It takes two consecutive numbers
-#'   and generates decreasing values from the lower as well as increasing values
-#'   from the upper. In this way, all combinations still add up to the total.
+#'   - `disperse()` takes half of an even total and goes up and down from it.
+#'   - `disperse2()` takes the two consecutive numbers around half of an odd
+#'   total, and goes down from the lower and up from the upper.
+#'   - `disperse_total()` takes the total itself and calls one of the two,
+#'   depending on whether it is even or odd.
 #'
-#'   `disperse_total()` directly takes the total sample size, checks if it's
-#'   even or odd, splits it up accordingly, and applies `disperse()` or
-#'   `disperse2()`, respectively.
+#'   They are the basis of [`grim_map_total_n()`] and the other functions made
+#'   by [`function_map_total_n()`].
 #'
-#'   These functions are primarily intended as helpers. They form the backbone
-#'   of [`grim_map_total_n()`] and all other functions created with
-#'   [`function_map_total_n()`].
-
-#' @param n Numeric:
-#' - In `disperse()`, single number from which to go up and down. This should be
-#'   half of an even total sample size.
-#' - In `disperse2()`, the two consecutive numbers closest to half of an odd
-#'   total sample size (e.g., `c(25, 26)` for a total of 51).
-#' - In `disperse_total()`, the total sample size.
-
-#' @param dispersion Numeric. Vector that determines the steps up and down from
-#'   `n` (or, in `disperse_total()`, from half `n`). Default is `0:5`.
+#' @param n Numeric. In `disperse()`, half of an even total. In `disperse2()`,
+#'   the two consecutive numbers closest to half of an odd total, such as
+#'   `c(25, 26)` for 51. In `disperse_total()`, the total itself.
+#' @param dispersion Numeric. Steps up and down from `n` (or, in
+#'   `disperse_total()`, from half of `n`). Default is `0:5`.
 #' @param n_min Numeric. Minimal group size. Default is `1L`.
-#' @param n_max Numeric. Maximal group size. Default is `NULL`, i.e., no
-#'   maximum.
-#' @param constant Optionally, add a length-2 vector or a list of length-2
-#'   vectors (such as a data frame with exactly two rows) to accompany the pairs
-#'   of dispersed values. Default is `NULL`, i.e., no constant values.
-#' @param constant_index Integer (length 1). Index of `constant` or the first
-#'   `constant` column in the output tibble. If `NULL` (the default), `constant`
-#'   will go to the right of `n_change`.
+#' @param n_max Numeric. Maximal group size. Default is `NULL`, no maximum.
+#' @param constant Optionally, a length-2 vector, or a list of such vectors
+#'   (which includes a data frame with two rows), to repeat alongside each pair
+#'   of group sizes. Default is `NULL`.
+#' @param constant_index Integer (length 1). Column position of `constant` (or
+#'   its first column) in the output. Default is `NULL`, right of `n_change`.
 #'
-#' @details If any group size is less than `n_min` or greater than `n_max`, it
-#'   is removed. The complementary size of the other group is also removed.
+#' @details A pair with a group size below `n_min` or above `n_max` is
+#'   dropped. Columns from `constant` are named after a named list's elements,
+#'   or `"constant1"`, `"constant2"`, etc. for an unnamed one; a single pair is
+#'   `"constant"`.
 #'
-#'   `constant` values are pairwise repeated. That is why `constant` must be
-#'   a length-2 atomic vector or a list of such vectors. If `constant` is a data
-#'   frame or some other named list, the resulting columns will have the same
-#'   names as the list-element names. If the list is not named, the new column
-#'   names will be `"constant1"`, `"constant2"`, etc; or just `"constant"`, for
-#'   a single pair.
-
-#' @return A tibble (data frame) with these columns:
-#' - `n` includes the dispersed `n` values. Every pair of consecutive rows has
-#'   `n` values that each add up to the total.
-#' - `n_change` records how the input `n` was transformed to the output `n`:
-#'   the integer number of steps away from it, negative for the lower `n` of
-#'   each pair.
-
+#' @return A tibble with these columns:
+#' - `n`: the group sizes. Each pair of consecutive rows adds up to the total.
+#' - `n_change`: the number of steps from the input `n`, negative for the lower
+#'   group size of each pair.
+#'
 #' @seealso [`function_map_total_n()`], [`grim_map_total_n()`], and
 #'   [`seq_distance_df()`].
 #'
 #' @include utils.R
 #'
 #' @export
-
+#'
 #' @references Bauer, P. J., & Francis, G. (2021). Expression of Concern: Is It
 #'   Light or Dark? Recalling Moral Behavior Changes Perception of Brightness.
 #'   *Psychological Science*, 32(12), 2042–2043.
 #'   https://journals.sagepub.com/doi/10.1177/09567976211058727
-
+#'
 #' @examples
-#' # For a total sample size of 40,
-#' # set `n` to `20`:
+#' # For a total of 40, `n` is 20:
 #' disperse(n = 20)
 #'
-#' # Specify `dispersion` to control
-#' # the steps up and down from `n`:
 #' disperse(n = 20, dispersion = c(3, 6, 10))
 #'
-#' # In `disperse2()`, specify `n` as two
-#' # consecutive numbers -- i.e., group sizes:
+#' # For an odd total, `disperse2()` takes two group sizes:
 #' disperse2(n = c(25, 26))
 #'
-#' # Use the total sample size directly
-#' # with `disperse_total()`. An even total
-#' # internally triggers `disperse()`...
+#' # `disperse_total()` takes the total itself:
 #' disperse_total(n = 40)
-#'
-#' # ...whereas an odd total triggers `disperse2()`:
 #' disperse_total(n = 51)
 #'
-#' # You may add values that repeat along with the
-#' # dispersed ones but remain constant themselves.
-#' # Such values can be stored in a length-2 vector
-#' # for a single column...
+#' # Values that repeat alongside the pairs:
 #' disperse_total(37, constant = c("5.24", "3.80"))
 #'
-#' # ... or a list of length-2 vectors for multiple
-#' # columns. This includes data frames with 2 rows:
 #' df_constant <- tibble::tibble(
 #'   name = c("Paul", "Mathilda"), age = 27:28,
 #'   registered = c(TRUE, FALSE)

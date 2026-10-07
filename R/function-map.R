@@ -1,170 +1,113 @@
 #' Create new `*_map()` functions
 #'
-#' @description `function_map()` creates new basic mapper functions for
-#'   consistency tests, such as [`grimmer_map()`] or [`debit_map()`].
+#' @description `function_map()` creates a basic mapper function for a
+#'   consistency test: a function that applies a single-case test such as
+#'   `grim_scalar()` to every row of a data frame, as [`grim_map()`],
+#'   [`grimmer_map()`], and [`debit_map()`] do. All three are made by it.
 #'
-#'   For context, see [*Creating basic mappers with `function_map()`*](
-#'   https://lhdjung.github.io/scrutiny/articles/consistency-tests-in-depth.html#creating-basic-mappers-with-function_map
-#'   ).
+#'   See `vignette("consistency-tests-in-depth")`, section *Creating basic
+#'   mappers with `function_map()`*.
 #'
-#' @param .fun Single-case consistency testing function that will be applied to
-#'   each row in a data frame. It must return a single logical value, i.e.,
-#'   `TRUE`, `FALSE`, or `NA` -- or, if `.col_names` is specified, a list of
-#'   values with the key result first.
-#' @param .reported String. Names of the columns to be tested. May be `NULL` if
-#'   `.reported_variadic` is specified.
+#' @param .fun Single-case function to apply to each row. It must return a
+#'   single logical value, or, if `.col_names` is specified, a list of values
+#'   with the key result first.
+#' @param .reported String. Names of the arguments of `.fun` that contain the
+#'   reported values, such as `c("x", "n")`. These become the key columns. May
+#'   be `NULL` if `.reported_variadic` is specified.
 #' @param .reported_variadic Optionally, a single string naming an argument of
-#'   `.fun` that takes all the values of one row at once, as a vector. The
-#'   factory-made function then has an argument by that name which selects any
-#'   number of columns using tidyselect syntax, so that how many columns are
-#'   tested is up to the caller rather than fixed when the factory runs. That
-#'   argument has no default, so it must be specified in every call to the
-#'   factory-made function. See *Details*.
-#' @param .name_test String (length 1). Plain-text name of the consistency test,
-#'   such as `"GRIM"`.
-#' @param .name_key_result (Experimental) Optionally, a single string that will
-#'   be the name of the key result column in the output. Default is
-#'   `"consistency"`.
-#' @param .name_class String. Optionally, one or more classes to be added to the
-#'   output data frame. Default is `NULL`, i.e., no extra class (but see
-#'   *Details*).
-#' @param .args_disabled Optionally, a string vector with names of arguments of
-#'   the `*_scalar()` function that don't work with the factory-made function.
-#'   If the user  tries to specify these arguments, an informative error will be
-#'   thrown. These arguments are not added to the factory-made function.
-#' @param .args_by_row Optionally, a string vector with names of arguments of
-#'   the `*_scalar()` function that may vary from row to row, such as
-#'   `"digits_x"`. The factory-made function then accepts either a single value
-#'   or one value per row of `data` for each of them, and returns them as
-#'   columns of the output. All other arguments apply to the whole call.
-#' @param .args_defaults Optionally, a named list with defaults for arguments
-#'   of the `*_scalar()` function that should differ from the defaults of that
-#'   function itself, such as `list(show_reason = TRUE)`.
-#' @param .cols_helper Optionally, a string vector with names of arguments of
-#'   the `*_scalar()` function that may also be given as columns of `data`, such
-#'   as `"items"`. See [`manage_helper_col()`].
-#' @param .cols_helper_merge Optionally, a named string vector that pairs
-#'   `.cols_helper` names with the names of the `.reported` columns they are
-#'   multiplied into for the output, such as `c(items = "n")`. Such a helper
-#'   column is not returned by itself. This is presentation only; it does not
-#'   affect test results. Sequence mappers made by [`function_map_seq()`] undo
-#'   the merge, since they disperse and re-test the reported values, and return
-#'   such a helper as a column of its own.
-#' @param .col_names Optionally, a string vector with the names of the columns
-#'   that the `*_scalar()` function returns when asked to show its reconstructed
-#'   values. The first name must be that of the key result column,
-#'   `.name_key_result`. Whether the
-#'   `*_scalar()` function returns a single value or the full list is up to the
-#'   user of the factory-made function, who controls it via an argument such as
-#'   `show_rec`; both cases are handled. If `data` has no rows, only the key
-#'   result column is created, because there is no result to read the shape of
-#'   the output off.
+#'   `.fun` that takes the values of one row as a vector. The factory-made
+#'   function then has an argument by that name that selects any number of
+#'   columns with tidyselect syntax, so that the caller decides how many columns
+#'   are tested. It has no default. See *Details*.
+#' @param .name_test String (length 1). Plain-text name of the test, such as
+#'   `"GRIM"`.
+#' @param .name_key_result (Experimental) String (length 1). Name of the key
+#'   result column. Default is `"consistency"`.
+#' @param .name_class String. Optionally, one or more classes to add to the
+#'   output. Default is `NULL`; see *Details* for the class that is always
+#'   added.
+#' @param .args_disabled Optionally, names of arguments of `.fun` that the
+#'   factory-made function should not have. Specifying one of them is an error.
+#' @param .args_by_row Optionally, names of arguments of `.fun` that may vary
+#'   by row, such as `"digits_x"`. The factory-made function accepts a single
+#'   value or one per row of `data` for each, and returns them as columns.
+#' @param .args_defaults Optionally, a named list of defaults for arguments of
+#'   `.fun` that the factory-made function should have other defaults for,
+#'   such as `list(show_reason = TRUE)`.
+#' @param .cols_helper Optionally, names of arguments of `.fun` that may also
+#'   be given as columns of `data`, such as `"items"`. See
+#'   [`manage_helper_col()`].
+#' @param .cols_helper_merge Optionally, a named string vector pairing
+#'   `.cols_helper` names with the `.reported` columns they are multiplied
+#'   into for the output, such as `c(items = "n")`. Such a helper column is
+#'   not returned by itself. Sequence mappers made by [`function_map_seq()`]
+#'   undo the merge, since they re-test the values.
+#' @param .col_names Optionally, the names of the columns that the values
+#'   returned by `.fun` unpack into when it returns a list, as with
+#'   `show_rec = TRUE`. The first name must be `.name_key_result`. If `data`
+#'   has no rows, only the key result column is created.
 #' @param .cols_derived Optionally, a named list of functions that compute
-#'   further columns which the `*_scalar()` function does not return, such as
-#'   `list(probability = grim_probability)`. Each of them is applied to the same
-#'   per-row input as the `*_scalar()` function, but only gets those arguments
-#'   that it has formals for. The columns follow the key result column in the
-#'   output.
+#'   further columns from the same per-row input, such as
+#'   `list(probability = grim_probability)`. Each gets only the arguments it
+#'   has formals for. The columns follow the key result column.
 #' @param ... These dots must be empty.
-
+#'
 #' @details The factory-made function has an argument for every argument of
 #'   `.fun` that is not named in `.reported`, `.reported_variadic`, or
-#'   `.args_disabled`, with the same default. Values supplied to them are passed
-#'   on to `.fun`.
+#'   `.args_disabled`, with the same default.
 #'
-#'   Nothing here assumes a particular number of key columns, but that number is
-#'   normally fixed when the factory runs: GRIM has two, GRIMMER and DEBIT have
-#'   three. `.reported_variadic` is for the other case, where the number is a
-#'   property of the caller's data -- as with a test that checks whether the
-#'   values in any number of columns add up to the value in one specific other
-#'   column. Its `.fun` takes those values as a single vector argument instead
-#'   of one argument per column, and the factory-made function selects the
-#'   columns with tidyselect:
+#'   `.reported_variadic` is for a test whose number of key columns depends on
+#'   the data, such as whether the values in any number of columns add up to
+#'   the value in one other column. `.fun` takes those values as a single
+#'   vector, and the factory-made function selects the columns with
+#'   tidyselect; see *Examples*. The selection must not be empty and must not
+#'   include a column that already has a role in the test. The selected
+#'   columns are returned as themselves. Such a mapper cannot be wrapped by
+#'   [`function_map_seq()`] or [`function_map_total_n()`], which derive their
+#'   arguments from `.reported`.
 #'
-#'   ```
-#'   sum_check_scalar <- function(parts, total, tolerance = 0) {
-#'     abs(sum(parts) - total) <= tolerance
-#'   }
+#'   The output has the class `"scrutiny_{tolower(.name_test)}_map"`, e.g.,
+#'   `"scrutiny_grim_map"`, in addition to any `.name_class`. The arguments that
+#'   applied to the whole call, such as `rounding`, are recorded in the `args`
+#'   element of the output's `"scrutiny"` attribute.
 #'
-#'   sum_check_map <- function_map(
-#'     .fun = sum_check_scalar,
-#'     .reported = "total",
-#'     .reported_variadic = "parts",
-#'     .name_test = "SUMCHECK"
-#'   )
+#' @return A function with these arguments:
+#' - `data`: a tibble with the key columns. Other columns are permitted.
+#' - One argument per `.reported` value, for passing the name of a column of
+#'   `data` that contains that value under another name.
+#' - If `.reported_variadic` was given, an argument by that name.
+#' - The arguments of `.fun`, with the same defaults; see *Details*.
+#' - `...`, passed on to `.fun`.
 #'
-#'   sum_check_map(data, parts = starts_with("item"))
-#'   ```
+#' @section Value returned by the factory-made function: A tibble with the
+#'   `.reported_variadic` columns, the `.reported` columns, the `.args_by_row`
+#'   columns, and `consistency`, a logical column that is `TRUE` if the values
+#'   to its left are consistent and `FALSE` if they are not. Any `.cols_derived`
+#'   columns, any `.col_names` columns, and the other columns of `data` follow,
+#'   in that order.
 #'
-#'   Selection helpers such as `starts_with()` are available inside that
-#'   argument whether or not tidyselect is attached. The selection must not be
-#'   empty, and it must not include a column that has a role in the test
-#'   already -- a key column or a helper column -- because such a column would
-#'   be tested twice over and returned twice.
-#'
-#'   The selected columns are returned as themselves, so the output is as
-#'   rectangular as any other mapper's. What varies is only how many columns go
-#'   into each test. Such a mapper is basic-tier only: [`function_map_seq()`]
-#'   and [`function_map_total_n()`] derive their own arguments from `.reported`,
-#'   which says nothing about the variadic columns.
-#'
-#'   The output tibble returned by the factory-made function inherits a class
-#'   named `"scrutiny_{tolower(.name_test)}_map"` independently of the
-#'   `.name_class` argument; for example, the class is `"scrutiny_grim_map"` if
-#'   `.name_test` is `"GRIM"`. The arguments that applied to the whole call,
-#'   such as `rounding`, are recorded in the `"scrutiny"` attribute of the
-#'   output, as its `args` element, so that functions downstream can read them.
-
-#' @return A factory-made function with these arguments:
-#' - `data`: Data frame with all the columns named in `.reported`. It must
-#'   have columns named after the key arguments in `.fun`. Other columns are
-#'   permitted.
-#' - Arguments named after the `.reported` values. They can be specified as the
-#'   names of `data` columns so that the function will rename that column using
-#'   the `.reported` name.
-#' - If `.reported_variadic` was specified, an argument by that name. It selects
-#'   any number of columns of `data` using tidyselect syntax, and has no
-#'   default.
-#' - Arguments named after those of `.fun`, with the same defaults; see
-#'   *Details*.
-#' - `...`: Arguments passed down to `.fun`.
-
-#' @section Value returned by the factory-made function: A tibble with any
-#'   `.reported_variadic` columns, the `.reported` columns, any `.args_by_row`
-#'   columns, and `"consistency"`: a logical column showing whether the values
-#'   to its left are mutually consistent (`TRUE`) or not (`FALSE`). Any
-#'   `.cols_derived` columns, any
-#'   columns from `.col_names`, and any other columns of `data` follow to the
-#'   right, in that order.
-
 #' @include grim.R debit.R function-factory-helpers.R
-
+#'
 #' @export
-
+#'
 #' @examples
-#' # Basic test implementation for "SCHLIM",
-#' # a mock test with no real significance:
+#' # A single-case function for SCHLIM, a mock test:
 #' schlim_scalar <- function(y, n) {
 #'   (y / 3) > n
 #' }
 #'
-#' # Let the function factory produce
-#' # a mapper function for SCHLIM:
+#' # The mapper:
 #' schlim_map <- function_map(
 #'   .fun = schlim_scalar,
 #'   .reported = c("y", "n"),
 #'   .name_test = "SCHLIM"
 #' )
 #'
-#' # Example data:
 #' df1 <- tibble::tibble(y = 16:25, n = 3:12)
-#'
-#' # Call the "factory-made" function:
 #' schlim_map(df1)
 #'
-#' # A test over any number of columns, decided by the data rather than by the
-#' # factory call: do the parts add up to the total? The `*_scalar()` function
-#' # takes the parts as one vector...
+#' # A test over any number of columns: do the parts add up to the total?
+#' # The single-case function takes the parts as one vector...
 #' sum_check_scalar <- function(parts, total, tolerance = 0) {
 #'   abs(sum(parts) - total) <= tolerance
 #' }

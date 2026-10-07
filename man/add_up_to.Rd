@@ -7,28 +7,26 @@
 add_up_to(summands, total)
 }
 \arguments{
-\item{summands}{Integer. The counts of a single case. For several cases,
-a list with one such vector per case.}
+\item{summands}{Integer. The counts of one case, or a list with one such
+vector per case.}
 
 \item{total}{Integer. The reported total, one per case.}
 }
 \value{
 Logical. \code{TRUE} if the counts add up to \code{total}, \code{FALSE} if not,
-and \code{NA} if the case cannot be decided: if any value is missing or not a
-whole number.
+and \code{NA} if a value is missing or not a whole number.
 }
 \description{
-\code{add_up_to()} checks if the reported sizes of subgroups, or any
-other counts, sum to the reported total.
+\code{add_up_to()} checks whether reported subgroup sizes, or other
+counts, sum to the reported total.
 
-The function is vectorized over cases, but it is recommended to use
-\code{\link[=add_up_to_map]{add_up_to_map()}} for testing multiple cases.
+The function is vectorized over cases, but \code{\link[=add_up_to_map]{add_up_to_map()}} is more
+convenient for testing many cases.
 }
 \examples{
-# Three subgroups of a sample of 120:
 add_up_to(c(40, 37, 43), total = 120)
 add_up_to(c(40, 37, 44), total = 120)
 
-# Several cases at once:
+# Several cases:
 add_up_to(list(c(40, 37, 43), c(10, 12)), total = c(120, 23))
 }

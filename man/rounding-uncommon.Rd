@@ -7,7 +7,7 @@
 \alias{round_trunc}
 \alias{anti_trunc}
 \alias{round_anti_trunc}
-\title{Uncommon rounding procedures}
+\title{Rounding in one direction}
 \usage{
 round_ceiling(x, digits = 0L)
 
@@ -20,80 +20,53 @@ anti_trunc(x)
 round_anti_trunc(x, digits = 0L)
 }
 \arguments{
-\item{x}{Numeric. The decimal number to round.}
+\item{x}{Numeric. The number to round.}
 
-\item{digits}{Integer. Number of digits to round \code{x} to. Default is \code{0}.
-Negative values round to powers of ten: \code{round_ceiling(1250, digits = -2)}
-is \code{1300}.}
+\item{digits}{Integer. Number of decimal places to round to. Default is
+\code{0}. Negative values round to powers of ten.}
 }
 \value{
-Numeric. \code{x} rounded to \code{digits} (except for \code{anti_trunc()}, which
-has no \code{digits} argument).
+Numeric. \code{x} rounded to \code{digits} (\code{anti_trunc()} has no \code{digits}
+argument).
 }
 \description{
-Always round up, down, toward zero, or away from it:
+These functions ignore which neighbor is nearer:
 \itemize{
 \item \code{round_ceiling()} always rounds up.
 \item \code{round_floor()} always rounds down.
 \item \code{round_trunc()} always rounds toward zero.
 \item \code{round_anti_trunc()} always rounds away from zero. A value that already
-sits on the rounding grid stays where it is, and \code{0} stays \code{0}. This is
-what Excel's and Google Sheets' \code{ROUNDUP()}, Java's \code{RoundingMode.UP}, and
-Python's \code{decimal.ROUND_UP} do.
-\item \code{anti_trunc()} does not round but otherwise works like
-\code{round_anti_trunc()}.
+sits on the rounding grid stays where it is, so \code{0} stays \code{0}. This is
+what Excel's \code{ROUNDUP()}, Java's \code{RoundingMode.UP}, and Python's
+\code{decimal.ROUND_UP} do.
+\item \code{anti_trunc()} is the counterpart of \code{\link[=trunc]{trunc()}}: it rounds a number to
+the nearest whole number away from zero. Whole numbers stay unchanged.
 }
-
-Despite not being widely used, they are featured here in case they are
-needed for reconstruction.
 }
 \details{
 \code{round_ceiling()}, \code{round_floor()}, and \code{round_trunc()} generalize
-the base R functions \code{\link[=ceiling]{ceiling()}}, \code{\link[=floor]{floor()}}, and \code{\link[=trunc]{trunc()}}, and
-include them as special cases: With the default value for \code{digits}, 0,
-these \verb{round_*} functions are equivalent to their respective base
-counterparts.
+\code{\link[=ceiling]{ceiling()}}, \code{\link[=floor]{floor()}}, and \code{\link[=trunc]{trunc()}} to any number of decimal
+places, and \code{round_anti_trunc()} generalizes \code{anti_trunc()}. With the
+default \code{digits = 0}, each equals its base counterpart.
 
-The last \verb{round_*} function, \code{round_anti_trunc()}, generalizes another
-function presented here: \code{anti_trunc()} works like \code{trunc()} except it
-moves away from 0, rather than towards it. That is, whereas \code{trunc()}
-minimizes the absolute value of \code{x} (as compared to the other rounding
-functions), \code{anti_trunc()} maximizes it. \code{anti_trunc(x)} is therefore equal
-to \code{ceiling(x)} if \code{x} is positive, and to \code{floor(x)} if \code{x} is negative.
+\code{round_trunc()} is \code{round_floor()} for positive and \code{round_ceiling()} for
+negative numbers; \code{round_anti_trunc()} is the reverse.
 
-\code{round_anti_trunc()}, then, generalizes \code{anti_trunc()} just as
-\code{round_ceiling()} generalizes \code{\link[=ceiling]{ceiling()}}, etc.
-
-Moreover, \code{round_trunc()} is equivalent to \code{round_floor()} for positive
-numbers and to \code{round_ceiling()} for negative numbers. The reverse is again
-true for \code{round_anti_trunc()}: It is equivalent to \code{round_ceiling()} for
-positive numbers and to \code{round_floor()} for negative numbers. The two of
-them partition every value between them, with \code{0} going to both.
-
-Like \code{\link[=round_up]{round_up()}} and the other functions on that page, all of these
-nudge the value by about \code{1.5e-9} before rounding it, so that
-floating-point representation error cannot move a number a whole step:
-\code{0.28 * 100} is stored as \code{28.000000000000004}, and \code{round_ceiling(0.28, 2)} is \code{0.28} rather than \code{0.29} because of the nudge. See the
-\verb{Floating-point tolerance} section of \code{\link[=round_up]{round_up()}} for the details and
-for the range of magnitudes in which it holds.
+All of these apply the floating-point tolerance described in
+\code{\link[=round_up]{round_up()}}, so that \code{round_ceiling(0.28, 2)} is \code{0.28} although
+\code{0.28 * 100} is stored as \code{28.000000000000004}.
 }
 \examples{
-# Always round up:
-round_ceiling(x = 4.52, digits = 1)        # 2 cut off
+round_ceiling(x = 4.52, digits = 1)
+round_floor(x = 4.67, digits = 1)
 
-# Always round down:
-round_floor(x = 4.67, digits = 1)          # 7 cut off
+round_trunc(8.439, digits = 2)
+round_trunc(-8.439, digits = 2)
 
-# Always round toward 0:
-round_trunc(8.439, digits = 2)             # 9 cut off
-round_trunc(-8.439, digits = 2)            # 9 cut off
-
-# Always round away from 0:
-round_anti_trunc(x = 8.421, digits = 2)    # 1 cut off
-round_anti_trunc(x = -8.421, digits = 2)   # 1 cut off
+round_anti_trunc(x = 8.421, digits = 2)
+round_anti_trunc(x = -8.421, digits = 2)
 }
 \seealso{
-\code{\link[=round_up]{round_up()}} and \code{\link[=round_down]{round_down()}} round up or down from 5,
-respectively. \code{\link[=round_up_from]{round_up_from()}} and \code{\link[=round_down_from]{round_down_from()}} allow users to
-specify custom thresholds for rounding up or down.
+\code{\link[=round_up]{round_up()}} and \code{\link[=round_down]{round_down()}} round to the nearest number
+and decide ties by a fixed direction.
 }

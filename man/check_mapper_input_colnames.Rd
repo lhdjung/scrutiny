@@ -2,7 +2,7 @@
 % Please edit documentation in R/mapper-function-helpers.R
 \name{check_mapper_input_colnames}
 \alias{check_mapper_input_colnames}
-\title{Check that a mapper's input has correct column names}
+\title{Check that a mapper's input has the right column names}
 \usage{
 check_mapper_input_colnames(
   data,
@@ -14,33 +14,24 @@ check_mapper_input_colnames(
 \arguments{
 \item{data}{Data frame. Input to the mapper function.}
 
-\item{reported}{String vector of the "key" column names that \code{data} must
-have, such as \code{c("x", "n")} for \code{grim_map()}.}
+\item{reported}{String. Names of the key columns that \code{data} must have,
+such as \code{c("x", "n")} for \code{grim_map()}.}
 
-\item{name_test}{String (length 1). Short, plain-text name of the consistency
-test that the mapper function applies, such as \code{"GRIM"}.}
+\item{name_test}{String (length 1). Plain-text name of the test, such as
+\code{"GRIM"}, for the error message.}
 
-\item{name_key_result}{String (length 1). Name of the column that the mapper
-will add for its test results, i.e., the \code{.name_key_result} argument of the
-function factory that created it. Default is \code{"consistency"}.}
+\item{name_key_result}{String (length 1). Name of the result column that
+the mapper adds. Default is \code{"consistency"}.}
 }
 \value{
-No return value. Might throw an error.
+No return value; might throw an error.
 }
 \description{
-When called within a consistency test mapper function,
-\code{check_mapper_input_colnames()} makes sure that the input data frame has
-correct column names:
-\itemize{
-\item They include all the key columns corresponding to the test applied by the
-mapper.
-\item They don't already include the name of the results column,
-\code{"consistency"} by default.
-}
-
-If either check fails, the function throws an informative error.
+\code{check_mapper_input_colnames()} is called within consistency
+test mapper functions. It errors if \code{data} lacks a key column, or if it
+already has a column named like the result column (\code{"consistency"} by
+default).
 }
 \seealso{
-\code{vignette("consistency-tests-in-depth")}, for context and the "key
-columns" terminology.
+\code{vignette("consistency-tests-in-depth")}.
 }

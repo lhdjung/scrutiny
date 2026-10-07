@@ -30,72 +30,58 @@ grim_total(
 )
 }
 \arguments{
-\item{x}{Numeric. Mean or percentage value computed from data with integer
-units, e.g., mean scores on a Likert scale or percentage of study
-participants in some condition. Only the number of decimal places matters;
-see \code{digits_x}. The argument exists for compatibility with \code{\link[=grim]{grim()}}.}
+\item{x}{Numeric. The mean or percentage. Only its number of decimal
+places matters; the argument exists for compatibility with \code{\link[=grim]{grim()}}.}
 
-\item{n}{Integer. Sample size corresponding to \code{x}.}
+\item{n}{Integer. The sample size.}
 
 \item{digits_x}{Integer. The number of decimal places in \code{x}, including
-trailing zeros. There is no default because it cannot be inferred from a
-numeric \code{x}, which has no trailing zeros: both \code{1.4} and \code{1.40} are the
-number \code{1.4}, but only the latter has \code{digits_x = 2}.}
+trailing zeros. There is no default, since a numeric value does not
+keep them (\code{1.40} is \code{1.4}).}
 
-\item{items}{Integer. Number of items composing the mean or percentage value
-in question. Default is \code{1}.}
+\item{items}{Integer. The number of items composing \code{x}. Default is \code{1}.}
 
-\item{percent}{Logical. Set \code{percent} to \code{TRUE} if \code{x} is expressed as a
-proportion of 100 rather than 1. The functions will then account for this
-fact through increasing the decimal count by 2. Default is \code{FALSE}.}
+\item{percent}{Logical. If \code{TRUE}, \code{x} is a percentage, which adds 2 to the
+decimal count. Default is \code{FALSE}.}
 
-\item{rounding, threshold}{Rounding method and, for \code{"up_from"} and similar
-methods, its threshold, as in \code{\link[=grim]{grim()}}. Only in \code{grim_probability()} and
-\code{grim_total()}. Defaults are \code{"up_or_down"} and \code{5}. The count depends on
-the method: \code{"ceiling_or_floor"} admits a range two decimal units wide, so
-it rules out fewer values; \code{"up_or_down"} and other methods that admit both
-ends of their range count a mean that lands exactly on a tie toward both
-neighbors. \code{\link[=grim_map]{grim_map()}} passes its own \code{rounding} and \code{threshold} on.}
+\item{rounding, threshold}{Only in \code{grim_probability()} and \code{grim_total()}.
+The rounding method and, for the \code{"*_from"} methods, its threshold, as in
+\code{\link[=grim]{grim()}}. Defaults are \code{"up_or_down"} and \code{5}. The count depends on the
+method: \code{"up_or_down"} accepts a mean on a tie in both directions, and
+\code{"ceiling_or_floor"} admits a range two steps wide. \code{\link[=grim_map]{grim_map()}} passes
+its own \code{rounding} and \code{threshold} on.}
 }
 \value{
-Double. The number of possible GRIM inconsistencies, or their
-probability for a random mean or percentage with a given number of decimal
-places. \code{grim_probability()} and \code{grim_total()} return \code{NA} where \code{\link[=grim]{grim()}}
-does for lack of a decidable case: if \code{x} is missing or infinite, or if \code{n}
+Double. \code{grim_probability()} and \code{grim_total()} return \code{NA} where
+\code{\link[=grim]{grim()}} cannot decide a case: if \code{x} is missing or infinite, or if \code{n}
 or \code{items} is not a positive whole number. They are never negative.
 }
 \description{
-These functions compute statistics related to GRIM-testing. In
-general, \code{grim_probability()} is the most useful of them, and it is
-responsible for the \code{probability} column in a data frame returned by
-\code{\link[=grim_map]{grim_map()}}.
+These functions quantify how informative a GRIM test is for a
+given sample size and number of decimal places:
 \itemize{
-\item \code{grim_probability()} returns the probability that a reported mean or
-percentage of integer data that is random except for the number of its
-decimal places is inconsistent with the reported sample size. For example,
-the mean 1.23 is treated like any other mean with two decimal places.
+\item \code{grim_probability()} returns the probability that a mean or percentage
+with \code{digits_x} decimal places that is otherwise random is
+GRIM-inconsistent with \code{n}. It is the \code{probability} column of
+\code{\link[=grim_map]{grim_map()}}.
+\item \code{grim_total()} returns the number of such inconsistent values per unit.
 \item \code{grim_ratio()} is the raw formula \code{(10^digits_x - n * items) /   10^digits_x}. It equals \code{grim_probability()} for rounding methods that
-admit exactly one step, such as \code{"up"}, unless \code{grim_ratio()} is negative,
-which can occur if the sample size is very large. Strictly speaking, this
-is more informative than \code{grim_probability()}, but it is harder to
-interpret. It takes no \code{rounding} argument and does not check its input.
-\item \code{grim_total()} returns the absolute number of GRIM-inconsistencies that
-are possible given the mean or percentage's number of decimal places and
-the corresponding sample size.
+admit exactly one step, such as \code{"up"}, except that it can be negative.
+It takes no \code{rounding} argument and does not check its input.
 }
 
-For discussion, see \code{vignette("grim")}, section \emph{GRIM statistics}.
+See \code{vignette("grim")}, section \emph{GRIM statistics}.
 }
 \examples{
 # Many value sets are inconsistent here:
 grim_probability(x = 83.29, n = 21, digits_x = 2)
 grim_total(x = 83.29, n = 21, digits_x = 2)
 
-# No sets are inconsistent in this case...
+# None are in this case...
 grim_probability(x = 5.14, n = 83, digits_x = 2)
 grim_total(x = 5.14, n = 83, digits_x = 2)
 
-# ... but most would be if `x` was a percentage:
+# ...but most would be if `x` were a percentage:
 grim_probability(x = 5.14, n = 83, digits_x = 2, percent = TRUE)
 grim_total(x = 5.14, n = 83, digits_x = 2, percent = TRUE)
 }
@@ -106,6 +92,5 @@ Psychology. \emph{Social Psychological and Personality Science}, 8(4), 363–369
 https://journals.sagepub.com/doi/10.1177/1948550616673876
 }
 \seealso{
-\code{\link[=grim]{grim()}} for the GRIM test itself; as well as \code{\link[=grim_map]{grim_map()}} for
-applying it to many cases at once.
+\code{\link[=grim]{grim()}} and \code{\link[=grim_map]{grim_map()}}.
 }

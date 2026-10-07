@@ -17,46 +17,36 @@ sd_binary_1_n(group_1, n)
 sd_binary_mean_n(mean, n)
 }
 \arguments{
-\item{group_0}{Integer. Cell size of the group coded as 0.}
+\item{group_0}{Integer. Count of 0s.}
 
-\item{group_1}{Integer. Cell size of the group coded as 1.}
+\item{group_1}{Integer. Count of 1s.}
 
 \item{n}{Integer. Total sample size.}
 
-\item{mean}{Numeric. Mean of the binary data.}
+\item{mean}{Numeric. Mean of the data.}
 }
 \value{
 Numeric. Sample standard deviation.
 }
 \description{
-Compute the sample SD of binary data (i.e., only 0 and 1 values)
-in either of four ways, each based on different inputs:
+Compute the sample SD of binary data (0 and 1 values) from
+different inputs:
 \itemize{
-\item \code{sd_binary_groups()} takes the cell sizes of both groups, those coded
-as 0 and those coded as 1.
-\item \code{sd_binary_0_n()} takes the cell size of the group coded as 0 and the total
-sample size.
-\item \code{sd_binary_1_n()} takes the cell size of the group coded as 1 and the total
-sample size.
-\item \code{sd_binary_mean_n()} takes the mean and the total sample size.
+\item \code{sd_binary_groups()} from the counts of 0s and 1s.
+\item \code{sd_binary_0_n()} from the count of 0s and the total.
+\item \code{sd_binary_1_n()} from the count of 1s and the total.
+\item \code{sd_binary_mean_n()} from the mean and the total.
 }
 
-These functions are used as helpers inside \code{\link[=debit]{debit()}}, and consequently
-\code{\link[=debit_map]{debit_map()}}.
+\code{\link[=debit]{debit()}} uses these internally.
 }
 \examples{
-# If 127 values are coded as 0 and 153 as 1...
+# 127 values are 0 and 153 are 1, so n = 280:
 sd_binary_groups(group_0 = 127, group_1 = 153)
-
-# ...so that n = 280:
 sd_binary_0_n(group_0 = 127, n = 280)
 sd_binary_1_n(group_1 = 153, n = 280)
 
-# If only the mean and total sample size are
-# given, or these are more convenient to use,
-# they still lead to the same result as above
-# if the mean is given with a sufficiently
-# large number of decimal places:
+# From the mean, given enough decimal places:
 sd_binary_mean_n(mean = 0.5464286, n = 280)
 }
 \references{

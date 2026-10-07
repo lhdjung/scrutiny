@@ -27,30 +27,28 @@ add_up_to_scalar <- function(summands, total) {
 
 #' Do reported counts add up to their total?
 #'
-#' @description `add_up_to()` checks if the reported sizes of subgroups, or any
-#'   other counts, sum to the reported total.
+#' @description `add_up_to()` checks whether reported subgroup sizes, or other
+#'   counts, sum to the reported total.
 #'
-#'   The function is vectorized over cases, but it is recommended to use
-#'   [`add_up_to_map()`] for testing multiple cases.
+#'   The function is vectorized over cases, but [`add_up_to_map()`] is more
+#'   convenient for testing many cases.
 #'
-#' @param summands Integer. The counts of a single case. For several cases,
-#'   a list with one such vector per case.
+#' @param summands Integer. The counts of one case, or a list with one such
+#'   vector per case.
 #' @param total Integer. The reported total, one per case.
 #'
 #' @return Logical. `TRUE` if the counts add up to `total`, `FALSE` if not,
-#'   and `NA` if the case cannot be decided: if any value is missing or not a
-#'   whole number.
+#'   and `NA` if a value is missing or not a whole number.
 #'
 #' @include utils.R
 #'
 #' @export
 #'
 #' @examples
-#' # Three subgroups of a sample of 120:
 #' add_up_to(c(40, 37, 43), total = 120)
 #' add_up_to(c(40, 37, 44), total = 120)
 #'
-#' # Several cases at once:
+#' # Several cases:
 #' add_up_to(list(c(40, 37, 43), c(10, 12)), total = c(120, 23))
 add_up_to <- function(summands, total) {
   # A plain vector is one case; `vectorize_test()` maps over list elements:

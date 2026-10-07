@@ -68,73 +68,43 @@ reconstruct_rounded_numbers_scalar <- function(
 
 #' General interface to reconstructing rounded numbers
 #'
-#' @description `reround()` takes one or more intermediate reconstructed values
-#'   and rounds them in some specific way -- namely, the way they are supposed
-#'   to have been rounded originally, in the process that generated the reported
-#'   values.
+#' @description `reround()` rounds a vector of reconstructed values the way
+#'   they are assumed to have been rounded originally. It is the common
+#'   interface to all of scrutiny's rounding functions and to
+#'   [`base::round()`], and the function that [`grimmer()`] and [`debit()`]
+#'   use to round reconstructed SDs.
 #'
-#'   This function provides an interface to all of scrutiny's rounding functions
-#'   as well as [`base::round()`]. It is used as a helper within [`grim()`],
-#'   [`grimmer()`], and [`debit()`]; and it might find use in other places for
-#'   consistency testing or reconstruction of statistical analyses.
+#' @details `reround()` calls the rounding function that `rounding` names. See
+#'   `vignette("rounding-options")` for the possible values, and [`round_up()`]
+#'   and [`round_ceiling()`] for the functions themselves.
 #'
-
-#' @details `reround()` internally calls the appropriate rounding function(s)
-#'   determined by the `rounding` argument. See `vignette("rounding-options")`
-#'   for a complete list of values that `rounding` can take.
-#'
-#'   For the specific rounding functions themselves, see documentation at
-#'   [`round_up()`], [`round_ceiling()`], and [`base::round()`].
-#'
-#' @param x Numeric. Vector of possibly original values.
-#' @param digits Integer. Number of decimal places in the reported key values
-#'   (i.e., mean or percentage within [`grim()`], or standard deviation within
-#'   [`grimmer()`]). It is the one argument that is vectorized along with `x`,
-#'   and the two are recycled to a common length by the tidyverse rules: one of
-#'   them may have length 1, and otherwise their lengths must be equal. Every
-#'   value must be a whole number: a fractional one is not a decimal level at
-#'   all, and would scale `x` by a non-power of ten. A missing value propagates
-#'   to a missing result, as it does in `x`.
-#' @param rounding String. The rounding method that is supposed to have been
-#'   used originally. See `vignette("rounding-options")`. Default is
-#'   `"up_or_down"`, which returns two values: `x` rounded up *and* down.
-#' @param threshold Numeric. If `rounding` is set to `"up_from"`, `"down_from"`,
-#'   or `"up_from_or_down_from"`, `threshold` is the point within a step at
-#'   which rounding switches direction, in tenths of a step; it must be greater
-#'   than `0` and less than `10`. Otherwise irrelevant. Default is `5`, which
-#'   makes those three methods the same as `"up"`, `"down"`, and `"up_or_down"`.
-#'   `threshold` means the same thing in both directions, so it moves a range
-#'   without widening it; see [`round_up_from()`].
-#' @param symmetric Logical. Set `symmetric` to `TRUE` if the rounding of
-#'   negative numbers with `"up_or_down"`, `"up"`, `"down"`,
-#'   `"up_from_or_down_from"`, `"up_from"`, or `"down_from"` should mirror that
-#'   of positive numbers so that their absolute values are always equal.
-#'   Otherwise irrelevant. Default is `FALSE`. It only ever affects negative
-#'   numbers, and with `"up_or_down"`, `"up"`, and `"down"` only ties among
-#'   those; `TRUE` is what reconstructs Excel, SAS, SPSS, and Matlab.
-#'
-#'   It must not be given with any of the `"ties_*"` methods. Each of those
-#'   names a complete tie-breaking procedure, so it already says which way ties
-#'   go for negative numbers, and a second argument saying otherwise is an
-#'   error rather than a silent no-op: `"ties_up"` with `symmetric = TRUE` is
-#'   `"ties_away"`, and `"ties_down"` with it is `"ties_zero"`. See
-#'   `vignette("rounding-options")`.
+#' @param x Numeric. Values to round.
+#' @param digits Integer. Number of decimal places to round to, i.e., the
+#'   number in the reported values. Length 1 or the length of `x`. Must be
+#'   whole numbers; a missing value propagates to a missing result.
+#' @param rounding String (length 1). The rounding method. Default is
+#'   `"up_or_down"`, which returns two values per element of `x`: rounded up
+#'   and rounded down.
+#' @param threshold Numeric (length 1). For `"up_from"`, `"down_from"`, and
+#'   `"up_from_or_down_from"`, the point within a step at which rounding
+#'   switches direction, in tenths of a step; greater than `0` and less than
+#'   `10`. Default is `5`, which makes these methods the same as `"up"`,
+#'   `"down"`, and `"up_or_down"`. See [`round_up_from()`].
+#' @param symmetric Logical (length 1). If `TRUE`, negative numbers are rounded
+#'   like their absolute values under `"up"`, `"down"`, `"up_or_down"`, and the
+#'   `"*_from"` methods. Default is `FALSE`. Must not be given with a `"ties_*"`
+#'   method, which already fixes the direction: `"ties_up"` with `symmetric =
+#'   TRUE` would be `"ties_away"`, so write that instead.
 #'
 #' @include utils.R round.R round-ceil-floor.R
 #'
 #' @export
 #'
-#' @return Numeric. One value per element of `x` -- except for the three
-#'   compound methods `"up_or_down"`, `"up_from_or_down_from"`, and
-#'   `"ceiling_or_floor"`, which return *two* values per element of `x`: the
-#'   result of each of their two constituent procedures.
-#'
-#'   The two values of a compound method stay next to each other, so the return
-#'   value is `c(up_1, down_1, up_2, down_2, ...)` and has length `2 *
-#'   length(x)`. Take care not to pool the pairs across elements of `x`: matches
-#'   found in different pairs did not come from the same original value. (This
-#'   was the cause of a false-pass bug in `grimmer()`; see
-#'   <https://github.com/lhdjung/scrutiny/issues/85>.)
+#' @return Numeric. One value per element of `x`, except for the compound
+#'   methods `"up_or_down"`, `"up_from_or_down_from"`, and `"ceiling_or_floor"`,
+#'   which return two: the results of their two constituent procedures, next to
+#'   each other, as `c(up_1, down_1, up_2, down_2, ...)`. Each pair belongs to
+#'   one element of `x`, so the pairs must not be pooled across elements.
 
 reround <- function(
   x,

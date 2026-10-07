@@ -9,62 +9,49 @@ duplicate_tally(x, ignore = NULL, colname_end = "n")
 \arguments{
 \item{x}{Vector or data frame.}
 
-\item{ignore}{Optionally, a vector of values that should not be checked. In
-the test result columns, they will be marked \code{NA}.}
+\item{ignore}{Optionally, a vector of values not to check. Their result is
+\code{NA}.}
 
-\item{colname_end}{String. Name ending of the integer tally columns. Default
-is \code{"n"}.}
+\item{colname_end}{String. Suffix of the tally columns. Default is \code{"n"}.}
 }
 \value{
-A tibble (data frame). It has all the columns from \code{x}, and to each
-of these columns' right, the corresponding tally column.
-
-The tibble has the \code{scrutiny_dup_tally} class, which is recognized by the
-\code{audit()} generic.
+A tibble with the columns of \code{x}, each followed by its tally column.
+It has the class \code{scrutiny_dup_tally}, which is recognized by \code{\link[=audit]{audit()}}.
 }
 \description{
 For every value in a vector or data frame, \code{duplicate_tally()}
-counts how often it appears in total. Tallies are presented next to each
-value.
+counts how often it occurs in the whole input, and reports the count next
+to the value.
 
-For summary statistics, call \code{\link[=audit]{audit()}} on the results.
+Call \code{\link[=audit]{audit()}} on the output for summary statistics.
 }
 \details{
-This function is not very informative with many input values that
-only have a few characters each. Many of them may have duplicates just by
-chance. For example, in R's built-in \code{iris} data set, 99\% of values have
-duplicates.
-
-In general, the fewer values and the more characters per value, the more
-significant the results.
+Values with few characters are often duplicated by chance: in
+\code{iris}, 99\% of values have a duplicate. Duplicates are more meaningful when
+there are fewer values and they have more characters.
 }
 \section{Summaries with \code{\link[=audit]{audit()}}}{
- There is an S3 method for the \code{\link[=audit]{audit()}}
-generic, so you can call \code{\link[=audit]{audit()}} following \code{duplicate_tally()}. It
-returns a tibble with summary statistics.
+ \code{audit()} on \code{duplicate_tally()} output
+returns summary statistics for each tally column, with a \code{.total} row
+across all of them.
 }
 
 \examples{
-# Tally duplicate values in a data frame...
 duplicate_tally(x = pigs4)
 
-# ...or in a single vector:
 duplicate_tally(x = pigs4$snout)
 
-# Summary statistics with `audit()`:
 pigs4 |>
   duplicate_tally() |>
   audit()
 
-# Any values can be ignored:
 pigs4 |>
   duplicate_tally(ignore = c(8.131, 7.574))
 }
 \seealso{
 \itemize{
 \item \code{\link[=duplicate_count]{duplicate_count()}} for a frequency table.
-\item \code{\link[=duplicate_count_colpair]{duplicate_count_colpair()}} to check each combination of columns for
-duplicates.
-\item \code{\link[janitor:get_dupes]{janitor::get_dupes()}} to search for duplicate rows.
+\item \code{\link[=duplicate_count_colpair]{duplicate_count_colpair()}} for duplicates between pairs of columns.
+\item \code{\link[janitor:get_dupes]{janitor::get_dupes()}} for duplicate rows.
 }
 }

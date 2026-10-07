@@ -1,47 +1,35 @@
 #' Compute rounding bias
 #'
-#' @description Rounding often leads to bias, such that the mean of a rounded
-#'   distribution is different from the mean of the original distribution. Call
-#'   `rounding_bias()` to compute the amount of this bias.
+#' @description Rounding changes the mean of a distribution. `rounding_bias()`
+#'   computes this bias as the mean of the rounded values minus the mean of the
+#'   original ones, or, with `mean = FALSE`, the individual differences.
 #'
-#' @details Bias is calculated by subtracting the original vector, `x`, from a
-#'   vector rounded in the specified way.
+#' @details All arguments except `mean` are passed on to [`reround()`]. Unlike
+#'   there, `rounding` defaults to `"up"` and cannot be a compound method
+#'   (`"up_or_down"`, `"up_from_or_down_from"`, `"ceiling_or_floor"`), since
+#'   those return two rounded values per input and have no single bias.
 #'
-#'   The function passes all arguments except for `mean` down to [`reround()`].
-#'   Other than there, however, `rounding` is `"up"` by default, and it can't be
-#'   set to `"up_or_down"`, `"up_from_or_down_from"`, or `"ceiling_or_floor"`:
-#'   these compound methods return two rounded values per input value, so no
-#'   single bias is defined for them.
-#'
-#' @param x Numeric or string coercible to numeric.
-#' @param digits Integer. Number of decimal digits to which `x` will be rounded.
-#' @param rounding String. Rounding procedure that will be applied to `x`. See
-#'   `vignette("rounding-options")`. Default is `"up"`.
-#' @param threshold,symmetric Further arguments passed down to [`reround()`].
-#' @param mean Logical. If `TRUE` (the default), the mean total of bias will be
-#'   returned. Set `mean` to `FALSE` to get a vector of individual biases the
-#'   length of `x`.
+#' @param x Numeric, or a string coercible to numeric.
+#' @param digits Integer. Number of decimal places to round to.
+#' @param rounding String. The rounding method. Default is `"up"`. See
+#'   `vignette("rounding-options")`.
+#' @param threshold,symmetric Passed on to [`reround()`].
+#' @param mean Logical. If `TRUE` (the default), return the mean bias;
+#'   otherwise, the individual biases.
 #'
 #' @include reround.R seq-decimal.R
 #'
-#' @return Numeric. By default of `mean`, the length is 1; otherwise, it is the
-#'   same length as `x`.
+#' @return Numeric. Length 1 by default, or the length of `x` with `mean =
+#'   FALSE`.
 #'
 #' @export
 #'
 #' @examples
-#' # Define example vector:
 #' vec <- seq_distance(0.01, string_output = FALSE)
 #' vec
 #'
-#' # The default rounds `x` up from 5:
 #' rounding_bias(x = vec, digits = 1)
-#'
-#' # Other rounding procedures are supported,
-#' # such as rounding down from 5...
 #' rounding_bias(x = vec, digits = 1, rounding = "down")
-#'
-#' # ...or rounding to even with `base::round()`:
 #' rounding_bias(x = vec, digits = 1, rounding = "even")
 
 rounding_bias <- function(

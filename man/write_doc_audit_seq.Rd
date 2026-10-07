@@ -7,36 +7,28 @@
 write_doc_audit_seq(key_args, name_test)
 }
 \arguments{
-\item{key_args}{String vector with the names of the key columns that are
-tested for consistency by the \verb{*_map_seq()} function. The values need to
-have the same order as in that function's output.}
+\item{key_args}{String. Names of the key columns, in the order of the
+function's output.}
 
-\item{name_test}{String (length 1). Name of the consistency test which the
-\verb{*_map_seq()} function applies, such as \code{"GRIM"}.}
+\item{name_test}{String (length 1). Plain-text name of the test, such as
+\code{"GRIM"}.}
 }
 \value{
 A string vector formatted by \code{\link[glue:glue]{glue::glue()}}.
 }
 \description{
-\code{write_doc_audit_seq()} creates a roxygen2 block section to be
-inserted into the documentation of functions created with
-\code{\link[=function_map_seq]{function_map_seq()}}. The section informs users about the ways in which
-\code{\link[=audit_seq]{audit_seq()}} summarizes the results of the manufactured \verb{*_map_seq()}
-function.
-
-Copy the output from your console and paste it into the roxygen2 block of
-your \verb{*_map_seq()} function. To preserve the bullet-point structure when
-indenting roxygen2 comments with \code{Ctrl}+\code{Shift}+\code{/}, leave empty lines
-between the pasted output and the rest of the block.
+\code{write_doc_audit_seq()} generates the roxygen2 section that
+documents \code{\link[=audit_seq]{audit_seq()}} on the page of a function made by
+\code{\link[=function_map_seq]{function_map_seq()}}. Paste the output into that function's roxygen2
+block. To keep the list structure when indenting with
+\code{Ctrl}+\code{Shift}+\code{/}, leave empty lines around the pasted text.
 }
 \examples{
-# For GRIM and `grim_map_seq()`:
 write_doc_audit_seq(key_args = c("x", "n"), name_test = "GRIM")
 
-# For DEBIT and `debit_map_seq()`:
 write_doc_audit_seq(key_args = c("x", "sd", "n"), name_test = "DEBIT")
 }
 \seealso{
-The sister function \code{\link[=write_doc_audit_total_n]{write_doc_audit_total_n()}} and, for context,
+\code{\link[=write_doc_audit_total_n]{write_doc_audit_total_n()}} and
 \code{vignette("consistency-tests-in-depth")}.
 }

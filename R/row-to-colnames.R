@@ -1,38 +1,28 @@
 #' Turn row values into column names
 #'
-#' @description Data frames sometimes have wrong column names, while the correct
-#'   column names are stored in one or more rows in the data frame itself. To
-#'   remedy this issue, call `row_to_colnames()` on the data frame: It replaces
-#'   the column names by the values of the specified rows (by default, only the
-#'   first one). These rows are then dropped by default.
+#' @description Tables extracted from PDF, e.g. with tabulizer, sometimes have
+#'   their column names in the first row (or rows) and nondescript names
+#'   above. `row_to_colnames()` replaces the column names by the values of
+#'   those rows and drops the rows.
 #'
-#' @details If multiple rows are specified, the row values for each individual
-#'   column are pasted together. Some special characters might then be missing.
-#'   Missing values in these rows are skipped. If all of a column's values in
-#'   these rows are missing, the column keeps its current name.
-#'
-#'   This function might be useful when importing tables from PDF, e.g. with
-#'   \href{https://cran.r-project.org/package=tabulizer}{tabulizer}. In R, these
-#'   data frames (converted from matrices) do sometimes have the issue described
-#'   above.
+#' @details With several rows, their values are pasted together per column.
+#'   Missing values are skipped; if all of a column's values in these rows are
+#'   missing, it keeps its name.
 #'
 #' @param data Data frame or matrix.
-#' @param row Integer. Position of the rows (one or more) that jointly contain
-#'   the correct column names. Default is `1`.
-#' @param collapse String. If the length of `row` is greater than 1, each new
-#'   column name will be that many row values pasted together. `collapse`, then,
-#'   is the substring between two former row values in the final column names.
-#'   Default is `" "` (a space).
-#' @param drop Logical. If `TRUE` (the default), the rows specified with `row`
-#'   are removed.
+#' @param row Integer. Position of the row or rows that contain the column
+#'   names. Default is `1`.
+#' @param collapse String. Separator between the values of several rows.
+#'   Default is `" "`.
+#' @param drop Logical. Should the rows be removed? Default is `TRUE`.
 #'
 #' @include utils.R
 #'
-#' @seealso `unheadr::mash_colnames()`, a more sophisticated solution to the
-#'   same problem.
+#' @seealso `unheadr::mash_colnames()`, a more general solution to the same
+#'   problem.
 #'
-#' @return `data` with new column names: a data frame of the same class, or a
-#'   tibble if `data` was a matrix.
+#' @return `data` with new column names, as a data frame of the same class, or
+#'   a tibble if `data` was a matrix.
 #' @export
 
 # @examples

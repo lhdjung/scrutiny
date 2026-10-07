@@ -15,70 +15,61 @@ is_percentage_of(
 )
 }
 \arguments{
-\item{absolute}{Integer. The reported count, e.g., the number of
-participants in a subgroup.}
+\item{absolute}{Integer. The reported count.}
 
-\item{percentage}{Numeric. The reported percentage of \code{n} that
-\code{absolute} is said to be, e.g., \code{33.3}.}
+\item{percentage}{Numeric. The reported percentage of \code{n} that \code{absolute}
+is said to be, e.g., \code{33.3}.}
 
-\item{n}{Integer. The reported total, such as the sample size.}
+\item{n}{Integer. The reported total.}
 
 \item{digits_percentage}{Integer. The number of decimal places in
-\code{percentage}, including trailing zeros. There is no default because it
-cannot be inferred from a numeric \code{percentage}: both \code{33.3} and \code{33.30} are
-the number \code{33.3}.}
+\code{percentage}, including trailing zeros. There is no default, since a
+numeric value does not keep them (\code{1.40} is \code{1.4}).}
 
-\item{rounding}{String. Rounding method or methods to be used for
-reconstructing the values to which \code{x} will be compared. Default is
-\code{"up_or_down"} (from 5).}
+\item{rounding}{String. The rounding method assumed to have produced \code{x}.
+Default is \code{"up_or_down"}, which accepts either direction. See
+\code{vignette("rounding-options")}.}
 
-\item{threshold}{Numeric. If \code{rounding} is set to \code{"up_from"}, \code{"down_from"},
-or \code{"up_from_or_down_from"}, set \code{threshold} to the number from which the
-reconstructed values should then be rounded up or down. Otherwise, this
-argument plays no role. Default is \code{5}.}
+\item{threshold}{Numeric. For \code{rounding = "up_from"}, \code{"down_from"}, or
+\code{"up_from_or_down_from"}, the point within a step at which rounding
+switches direction, in tenths of a step. Default is \code{5}. Ignored
+otherwise.}
 
-\item{symmetric}{Logical. Set \code{symmetric} to \code{TRUE} if the rounding of
-negative numbers with \code{"up"}, \code{"down"}, \code{"up_from"}, or \code{"down_from"}
-should mirror that of positive numbers so that their absolute values are
-always equal. Default is \code{FALSE}. It must not be given with any of the
-\code{"ties_*"} methods, which already name a complete tie-breaking procedure;
-see \code{\link[=reround]{reround()}}.}
+\item{symmetric}{Logical. If \code{TRUE}, negative numbers are rounded like
+their absolute values (\code{-2.5} like \code{2.5}) under \code{"up"}, \code{"down"}, and the
+\code{"*_from"} methods. Default is \code{FALSE}. Must not be given with a
+\code{"ties_*"} rounding method, which already fixes the direction; see
+\code{\link[=reround]{reround()}}.}
 }
 \value{
-Logical. \code{TRUE} if the three values are mutually consistent,
-\code{FALSE} if not, and \code{NA} if the case cannot be decided: if any value is
-missing, if \code{absolute} is not a non-negative whole number, or if \code{n}
-is not a positive whole number.
+Logical. \code{TRUE} if the three values are consistent, \code{FALSE} if not,
+and \code{NA} if the case cannot be decided: if a value is missing, if
+\code{absolute} is not a non-negative whole number, or if \code{n} is not a positive
+whole number.
 }
 \description{
-\code{is_percentage_of()} checks if \code{percentage} is what \code{absolute}
-out of \code{n} would have been reported as, given the number of decimal
-places in \code{percentage} and the rounding method.
+\code{is_percentage_of()} checks whether \code{percentage} is what
+\code{absolute} out of \code{n} would have been reported as, given the number of
+decimal places and the rounding method.
 
-This is stricter than GRIM with \code{percent = TRUE}, which only asks whether
-\emph{some} count out of \code{n} produces \code{percentage}. Here, the count is
-reported as well, and it must be that count.
+This is stricter than \code{\link[=grim]{grim()}} with \code{percent = TRUE}, which only asks
+whether some count out of \code{n} produces the percentage. Here, the count is
+reported too.
 
-The function is vectorized, but it is recommended to use
-\code{\link[=is_percentage_of_map]{is_percentage_of_map()}} for testing multiple cases.
+The function is vectorized, but \code{\link[=is_percentage_of_map]{is_percentage_of_map()}} is more
+convenient for testing many cases.
 }
 \details{
-The test runs in exact integer arithmetic, so a count right on a
-rounding boundary is included or excluded as \code{rounding} demands, not as
-floating-point error happens to dictate.
-
-\code{absolute}, \code{percentage}, \code{n}, and \code{digits_percentage} are vectorized;
-all other arguments must have length 1.
+The test runs in exact integer arithmetic. \code{absolute},
+\code{percentage}, \code{n}, and \code{digits_percentage} are vectorized; all other
+arguments must have length 1.
 }
 \section{Causes of inconsistencies}{
  A \code{FALSE} result means that the three
-values can't all be correct as reported. It doesn't show why. The cause
-may be trivial. For example, the percentage may be based on a different
-denominator than \code{n}, such as the number of valid responses. Or the
-authors' software may have used an unconventional rounding method, such
-as truncation; see the \code{rounding} argument.
-
-\code{\link[=is_percentage_of_map_seq]{is_percentage_of_map_seq()}} with \code{var = "n"} shows which nearby
+values cannot all be correct as reported, not why. The cause is often
+trivial: the percentage may be based on another denominator than \code{n},
+such as the number of valid responses, or on an unconventional rounding
+method. \code{\link[=is_percentage_of_map_seq]{is_percentage_of_map_seq()}} with \code{var = "n"} shows which nearby
 denominators would make the percentage consistent.
 }
 

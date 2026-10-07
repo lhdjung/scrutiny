@@ -393,40 +393,25 @@ sum_squares_scale_max <- function(s, n, val_lower, val_upper) {
 
 #' Reconstruct rounding bounds
 #'
-#' @description `unround()` takes a rounded number and returns the range of the
-#'   original value: lower and upper bounds for the hypothetical earlier number
-#'   that was later rounded to the input number. It also displays a range with
-#'   inequation signs, showing whether the bounds are inclusive or not.
+#' @description `unround()` takes a rounded number and returns the range of
+#'   values that would have been rounded to it: a lower and an upper bound,
+#'   and whether each is inclusive. The default rounding method is
+#'   `"up_or_down"`; see *Rounding* for the others.
 #'
-#'   By default, the presumed rounding method is rounding up (or down) from 5.
-#'   See the `Rounding` section for other methods.
-
-#' @details The function is vectorized over `x` and `rounding`. This can be
-#'   useful to unround multiple numbers at once, or to check how a single number
-#'   is unrounded with different assumed rounding methods.
+#' @details `x` is a string by default so that its trailing zeros can be
+#'   counted, since a numeric value loses them. If the number of decimal places
+#'   is known, pass it as `digits`, and `x` may be numeric. This is how
+#'   [`grim()`], [`grimmer()`], and [`debit()`] use it: their bounds come from
+#'   the same internal functions, with `digits` taken from `digits_x` and
+#'   `digits_sd`, so the tests and `unround()` always agree.
 #'
-#'   If both vectors have a length greater than 1, it must be the same
-#'   length. However, this will pair numbers with rounding methods, which can be
-#'   confusing. It is recommended that at least one of these input vectors has
-#'   length 1.
+#'   `x` and `rounding` are both vectorized. If both have length greater than
+#'   1, they must have the same length and are paired element by element.
 #'
-#'   Why does `x` need to be a string if `digits` is not specified? In that
-#'   case, `unround()` must count decimal places by itself. If `x` then was
-#'   numeric, it wouldn't have any trailing zeros because these get dropped from
-#'   numerics.
-#'
-#'   Trailing zeros are as important for reconstructing boundary values as any
-#'   other trailing digits would be. Strings don't drop trailing zeros, so they
-#'   are used instead.
-
-#' @section Rounding: Depending on how `x` was rounded, the boundary values can
-#'   be inclusive or exclusive. The `incl_lower` and `incl_upper` columns in the
-#'   resulting tibble are `TRUE` in the first case and `FALSE` in the second.
-#'   The `range` column reflects this with equation and inequation signs.
-#'
-#'   However, these ranges are based on assumptions about the way `x` was
-#'   rounded. Set `rounding` to the rounding method that hypothetically lead to
-#'   `x`:
+#' @section Rounding: Whether a bound is inclusive depends on the rounding
+#'   method. Under `"up"`, a value on the lower bound rounds up to `x`, but a
+#'   value on the upper bound rounds up past it. The `range` column shows the
+#'   bounds with the appropriate signs:
 #'
 #'   | \strong{Value of `rounding`}           | \strong{Corresponding range} |
 #'   | ---                                    | ---                          |
@@ -451,100 +436,60 @@ sum_squares_scale_max <- function(s, n, val_lower, val_upper) {
 #'   | `"down_from"`                          | `lower < x <= upper`         |
 #'   | `"up_from_or_down_from"`               | `lower <= x <= upper`        |
 #'
-#'   The bounds come from the same internal machinery that [`grim()`] and
-#'   [`grimmer()`] use to derive their candidate ranges, so `unround()` accepts
-#'   exactly the rounding methods those tests do, and `threshold` and
-#'   `symmetric` mean the same thing everywhere.
+#'   `threshold` only applies to the three `"*_from"` methods. It moves their
+#'   range without widening it; each spans exactly one step at every
+#'   threshold.
 #'
-#'   The five `"ties_*"` methods each name a complete tie-breaking procedure,
-#'   so they say by themselves what `rounding` and `symmetric` say together:
-#'   `"ties_up"` is `"up"` with `symmetric = FALSE`, `"ties_away"` is `"up"`
-#'   with `symmetric = TRUE`, and likewise for `"ties_down"` and `"ties_zero"`.
-#'   `"ties_even"` is the odd one out: it is another name for `"even"`, which no
-#'   combination of a threshold and `symmetric` produces, since parity is not a
-#'   direction. `symmetric` is not consulted for any of them. See
-#'   [`round_ties_up()`].
+#'   The `"ties_*"` methods each name a complete tie-breaking procedure, so
+#'   giving `symmetric` with them is an error; see [`round_ties_up()`].
 #'
-#'   Note that `threshold` applies only to `"up_from"`, `"down_from"`, and
-#'   `"up_from_or_down_from"`. The plain `"up"`, `"down"`, and `"up_or_down"`
-#'   methods round from a fixed 5 -- see [`round_up()`] -- so their bounds do
-#'   not depend on it.
+#'   Under `"even"`, both bounds are reported as inclusive. [`base::round()`]
+#'   decides a tie on the binary double, so whether a value on a bound rounds
+#'   to `x` cannot be predicted from its decimal digits. Treating both bounds
+#'   as inclusive can only widen the range, which is the safe direction for
+#'   error detection.
 #'
-#'   `threshold` moves a range but never widens it: the three `"*_from"` methods
-#'   span exactly one step at every threshold, just as `"up"`, `"down"`, and
-#'   `"up_or_down"` do at the 5 they are fixed to. Up to scrutiny 1.0.0 they did
-#'   not, because `round_down_from()` switched direction at `10 - threshold`
-#'   rather than at `threshold`; see that function's `threshold` parameter.
+#' @param x String or numeric. The rounded number. Must be a string unless
+#'   `digits` is specified. A missing or infinite `x` has `NA` bounds.
+#' @param rounding String. The rounding method assumed to have produced `x`.
+#'   Default is `"up_or_down"`. See *Rounding*.
+#' @param threshold Numeric. For the `"*_from"` methods, the point within a
+#'   step at which rounding switches direction, in tenths of a step; greater
+#'   than `0` and less than `10`. Default is `5`. See [`round_up_from()`].
+#' @param digits Integer. The number of decimal places in `x`. Default is
+#'   `NULL`, in which case it is counted from the string `x`. Specify it if
+#'   the number is already known, as a function that uses `unround()` as a
+#'   helper would.
+#' @param symmetric Logical. If `TRUE`, negative numbers are assumed to have
+#'   been rounded like their absolute values under `"up"`, `"down"`, and the
+#'   `"*_from"` methods. Default is `FALSE`. Must not be given with a `"ties_*"`
+#'   method; see [`reround()`].
 #'
-#' Base R's own `round()` (R version >= 4.0.0), referenced by `rounding =
-#' "even"`, is reconstructed in the same way as `"up_or_down"`. Whether its
-#' boundary values are really inclusive is hard to predict: `round()` breaks
-#' midpoint ties by the parity of the preceding digit, and whether a tie occurs
-#' at all depends on the binary representation of the value. Both bounds are
-#' therefore reported as inclusive, which can only make a reconstructed range
-#' too wide, never too narrow. That is the safe direction for error detection.
-
-#' @param x String or numeric. Rounded number. `x` must be a string unless
-#'   `digits` is specified (most likely by a function that uses `unround()` as a
-#'   helper). A missing or infinite `x` has no bounds, so they are `NA`.
-#' @param rounding String. Rounding method presumably used to create `x`.
-#'   Default is `"up_or_down"`. For more, see section `Rounding`.
-#' @param threshold Numeric. The point within a step at which rounding switches
-#'   direction, in tenths of a step, for the `"up_from"`, `"down_from"`, and
-#'   `"up_from_or_down_from"` methods; it must be greater than `0` and less than
-#'   `10`. Other rounding methods are not affected. Default is `5`, which makes
-#'   those three methods the same as `"up"`, `"down"`, and `"up_or_down"`. See
-#'   [`round_up_from()`], which spells out what it means in each direction.
-#' @param digits Integer. This argument is meant to make `unround()` more
-#'   efficient to use as a helper function so that it doesn't need to
-#'   redundantly count decimal places. Don't specify it otherwise. Default is
-#'   `NULL`, in which case decimal places really are counted internally and `x`
-#'   must be a string. Otherwise, it must be whole numbers, as in [`reround()`].
-#' @param symmetric Logical. Set `symmetric` to `TRUE` if the rounding of
-#'   negative numbers with `"up"`, `"down"`, `"up_from"`, or `"down_from"`
-#'   mirrored that of positive numbers, so that their absolute values were
-#'   always equal. Default is `FALSE`. It only ever affects negative numbers,
-#'   and with `"up"` and `"down"` only ties among those; `TRUE` is what
-#'   reconstructs Excel, SAS, SPSS, and Matlab.
+#' @return A tibble with the columns `range`, `rounding`, `lower`,
+#'   `incl_lower`, `x`, `incl_upper`, and `upper`. `range` summarizes the
+#'   columns from `lower` to `upper`.
 #'
-#'   It must not be given with any of the `"ties_*"` methods, which already
-#'   name a complete tie-breaking procedure; see [`reround()`]. Because
-#'   `rounding` is vectorized here, a single `"ties_*"` element is enough to
-#'   make a `symmetric` of `TRUE` an error for the whole call. See
-#'   `vignette("rounding-options")`.
-#'
-#' @return A tibble with seven columns: `range`, `rounding`, `lower`,
-#'   `incl_lower`, `x`, `incl_upper`, and `upper`. The `range` column is a handy
-#'   representation of the information stored in the columns from `lower` to
-#'   `upper`, in the same order.
-#'
-#' @seealso For more about rounding `"up"`, `"down"`, or to `"even"`, see
-#'   [`round_up()`].
-#'
-#'   For more about the less likely `rounding` methods, `"ceiling"`, `"floor"`,
-#'   `"trunc"`, and `"anti_trunc"`, see [`round_ceiling()`].
+#' @seealso [`round_up()`] for rounding up or down from 5, and
+#'   [`round_ceiling()`] for the one-directional methods.
 #'
 #' @include utils.R
 #'
 #' @export
 #'
 #' @examples
-#' # By default, the function assumes that `x`
-#' # was either rounded up or down:
+#' # By default, `x` may have been rounded up or down:
 #' unround(x = "2.7")
 #'
-#' # If `x` was rounded up, run this:
+#' # If it was rounded up, the upper bound is exclusive:
 #' unround(x = "2.7", rounding = "up")
 #'
 #' # Likewise with rounding down...
 #' unround(x = "2.7", rounding = "down")
 #'
-#' # ...and with `base::round()` which, broadly
-#' # speaking, rounds to the nearest even number:
+#' # ...and with `base::round()`:
 #' unround(x = "2.7", rounding = "even")
 #'
-#' # Multiple input number-strings return
-#' # multiple rows in the output data frame:
+#' # One row per input value:
 #' unround(x = c(3.6, "5.20", 5.174))
 
 unround <- function(

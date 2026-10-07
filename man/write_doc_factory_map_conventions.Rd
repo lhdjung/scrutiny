@@ -12,40 +12,30 @@ write_doc_factory_map_conventions(
 )
 }
 \arguments{
-\item{ending}{String (length 1). The part of your function factory's name
-after \code{function_map_}. To}
+\item{ending}{String (length 1). The part of the factory's name after
+\code{function_map_}.}
 
-\item{name_test1, name_test2}{Strings (length 1 each). Plain-text names of
-example consistency tests. Defaults are \code{"GRIM"} and \code{"GRIMMER"},
-respectively.}
+\item{name_test1, name_test2}{Strings (length 1). Plain-text names of two
+example tests. Defaults are \code{"GRIM"} and \code{"GRIMMER"}.}
 
-\item{scrutiny_prefix}{Logical (length 1). Should the scrutiny functions
-mentioned in the output have a \verb{scrutiny::} namespace specification? Set
-this to \code{TRUE} if the output will go into another package's documentation.
-Default is \code{FALSE}.}
+\item{scrutiny_prefix}{Logical (length 1). Should scrutiny functions in the
+output be prefixed with \verb{scrutiny::}? Set to \code{TRUE} for another package's
+documentation. Default is \code{FALSE}.}
 }
 \value{
 A string vector formatted by \code{\link[glue:glue]{glue::glue()}}.
 }
 \description{
-\code{write_doc_factory_map_conventions()} creates a roxygen2 block
-section to be inserted into the documentation of a function factory such as
-\code{\link[=function_map_seq]{function_map_seq()}} or \code{\link[=function_map_total_n]{function_map_total_n()}}. It lays out the
-naming guidelines that users of your function factory should follow when
-creating new manufactured functions.
-
-Copy the output from your console and paste it into the roxygen2 block of
-your function factory.
+\code{write_doc_factory_map_conventions()} generates the roxygen2
+section on naming conventions for a function factory such as
+\code{\link[=function_map_seq]{function_map_seq()}}. Paste the output into the factory's roxygen2
+block.
 }
 \examples{
-# For `function_map_seq()`:
 write_doc_factory_map_conventions(ending = "seq")
 
-# For `function_map_total_n()`:
 write_doc_factory_map_conventions(ending = "total_n")
 }
 \seealso{
-For context, see
-\href{https://lhdjung.github.io/scrutiny/articles/consistency-tests-in-depth.html}{\emph{Consistency
-tests in depth}}.
+\code{vignette("consistency-tests-in-depth")}.
 }

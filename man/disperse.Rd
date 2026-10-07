@@ -34,99 +34,69 @@ disperse_total(
 )
 }
 \arguments{
-\item{n}{Numeric:
-\itemize{
-\item In \code{disperse()}, single number from which to go up and down. This should be
-half of an even total sample size.
-\item In \code{disperse2()}, the two consecutive numbers closest to half of an odd
-total sample size (e.g., \code{c(25, 26)} for a total of 51).
-\item In \code{disperse_total()}, the total sample size.
-}}
+\item{n}{Numeric. In \code{disperse()}, half of an even total. In \code{disperse2()},
+the two consecutive numbers closest to half of an odd total, such as
+\code{c(25, 26)} for 51. In \code{disperse_total()}, the total itself.}
 
-\item{dispersion}{Numeric. Vector that determines the steps up and down from
-\code{n} (or, in \code{disperse_total()}, from half \code{n}). Default is \code{0:5}.}
+\item{dispersion}{Numeric. Steps up and down from \code{n} (or, in
+\code{disperse_total()}, from half of \code{n}). Default is \code{0:5}.}
 
 \item{n_min}{Numeric. Minimal group size. Default is \code{1L}.}
 
-\item{n_max}{Numeric. Maximal group size. Default is \code{NULL}, i.e., no
-maximum.}
+\item{n_max}{Numeric. Maximal group size. Default is \code{NULL}, no maximum.}
 
-\item{constant}{Optionally, add a length-2 vector or a list of length-2
-vectors (such as a data frame with exactly two rows) to accompany the pairs
-of dispersed values. Default is \code{NULL}, i.e., no constant values.}
+\item{constant}{Optionally, a length-2 vector, or a list of such vectors
+(which includes a data frame with two rows), to repeat alongside each pair
+of group sizes. Default is \code{NULL}.}
 
-\item{constant_index}{Integer (length 1). Index of \code{constant} or the first
-\code{constant} column in the output tibble. If \code{NULL} (the default), \code{constant}
-will go to the right of \code{n_change}.}
+\item{constant_index}{Integer (length 1). Column position of \code{constant} (or
+its first column) in the output. Default is \code{NULL}, right of \code{n_change}.}
 }
 \value{
-A tibble (data frame) with these columns:
+A tibble with these columns:
 \itemize{
-\item \code{n} includes the dispersed \code{n} values. Every pair of consecutive rows has
-\code{n} values that each add up to the total.
-\item \code{n_change} records how the input \code{n} was transformed to the output \code{n}:
-the integer number of steps away from it, negative for the lower \code{n} of
-each pair.
+\item \code{n}: the group sizes. Each pair of consecutive rows adds up to the total.
+\item \code{n_change}: the number of steps from the input \code{n}, negative for the lower
+group size of each pair.
 }
 }
 \description{
-Some published studies only report a total sample size but no
-group sizes. However, group sizes are crucial for consistency tests such as
-GRIM. Call \code{disperse()} to generate possible group sizes that all add up to
-the total sample size, if that total is even.
+If a study reports a total sample size but no group sizes,
+these functions generate pairs of hypothetical group sizes that add up to
+the total:
+\itemize{
+\item \code{disperse()} takes half of an even total and goes up and down from it.
+\item \code{disperse2()} takes the two consecutive numbers around half of an odd
+total, and goes down from the lower and up from the upper.
+\item \code{disperse_total()} takes the total itself and calls one of the two,
+depending on whether it is even or odd.
+}
 
-\code{disperse2()} is a variant for odd totals. It takes two consecutive numbers
-and generates decreasing values from the lower as well as increasing values
-from the upper. In this way, all combinations still add up to the total.
-
-\code{disperse_total()} directly takes the total sample size, checks if it's
-even or odd, splits it up accordingly, and applies \code{disperse()} or
-\code{disperse2()}, respectively.
-
-These functions are primarily intended as helpers. They form the backbone
-of \code{\link[=grim_map_total_n]{grim_map_total_n()}} and all other functions created with
-\code{\link[=function_map_total_n]{function_map_total_n()}}.
+They are the basis of \code{\link[=grim_map_total_n]{grim_map_total_n()}} and the other functions made
+by \code{\link[=function_map_total_n]{function_map_total_n()}}.
 }
 \details{
-If any group size is less than \code{n_min} or greater than \code{n_max}, it
-is removed. The complementary size of the other group is also removed.
-
-\code{constant} values are pairwise repeated. That is why \code{constant} must be
-a length-2 atomic vector or a list of such vectors. If \code{constant} is a data
-frame or some other named list, the resulting columns will have the same
-names as the list-element names. If the list is not named, the new column
-names will be \code{"constant1"}, \code{"constant2"}, etc; or just \code{"constant"}, for
-a single pair.
+A pair with a group size below \code{n_min} or above \code{n_max} is
+dropped. Columns from \code{constant} are named after a named list's elements,
+or \code{"constant1"}, \code{"constant2"}, etc. for an unnamed one; a single pair is
+\code{"constant"}.
 }
 \examples{
-# For a total sample size of 40,
-# set `n` to `20`:
+# For a total of 40, `n` is 20:
 disperse(n = 20)
 
-# Specify `dispersion` to control
-# the steps up and down from `n`:
 disperse(n = 20, dispersion = c(3, 6, 10))
 
-# In `disperse2()`, specify `n` as two
-# consecutive numbers -- i.e., group sizes:
+# For an odd total, `disperse2()` takes two group sizes:
 disperse2(n = c(25, 26))
 
-# Use the total sample size directly
-# with `disperse_total()`. An even total
-# internally triggers `disperse()`...
+# `disperse_total()` takes the total itself:
 disperse_total(n = 40)
-
-# ...whereas an odd total triggers `disperse2()`:
 disperse_total(n = 51)
 
-# You may add values that repeat along with the
-# dispersed ones but remain constant themselves.
-# Such values can be stored in a length-2 vector
-# for a single column...
+# Values that repeat alongside the pairs:
 disperse_total(37, constant = c("5.24", "3.80"))
 
-# ... or a list of length-2 vectors for multiple
-# columns. This includes data frames with 2 rows:
 df_constant <- tibble::tibble(
   name = c("Paul", "Mathilda"), age = 27:28,
   registered = c(TRUE, FALSE)

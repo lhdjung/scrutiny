@@ -12,55 +12,41 @@ grim_items(n, gran, tolerance = .Machine$double.eps^0.5)
 \arguments{
 \item{n}{Numeric. Sample size.}
 
-\item{items}{Numeric. Number of items composing the scale. Default is 1,
-which will hold for most non-Likert scales.}
+\item{items}{Numeric. Number of items. Default is 1.}
 
 \item{gran}{Numeric. Granularity.}
 
-\item{tolerance}{Numeric. Any difference between \code{x} and a truncated version
-of \code{x} less than \code{tolerance} (in the absolute value) will be ignored. The
-default is close to \code{1 / (10 ^ 8)}. This avoids errors due to spurious
-precision in floating-point arithmetic.}
+\item{tolerance}{Numeric. Differences from a whole number below \code{tolerance}
+are ignored when checking the result of \code{grim_items()}. Default is about
+\code{1.5e-8}.}
 }
 \value{
 Numeric. Granularity or number of items.
 }
 \description{
-\code{grim_granularity()} computes the minimal difference between two
-means or proportions of ordinal or interval data.
+\code{grim_granularity()} returns the smallest difference between
+two means that a scale with \code{items} items and \code{n} observations can
+produce: \code{1 / (n * items)}.
 
-\code{grim_items()} is the reverse: It converts granularity values to the number
-of scale items, which might then be used for consistency testing functions
-such as \code{grim()}.
+\code{grim_items()} inverts it: given the granularity, it returns the number
+of items.
 }
 \details{
-These two functions differ only in the names of their arguments ---
-the underlying formula is the same (and it's very simple). However, for
-clarity, they are presented as distinct.
+The granularity of a scale follows from its design, not from the
+smallest observed difference between two values. Continuous scales have
+no granularity.
 
-The output of \code{grim_items()} should be whole numbers, because scale items
-have a granularity of 1.
-
-It would be wrong to determine a scale's granularity from the minimal
-distance between two values in a given distribution. This would only
-signify how those values actually do differ, not how they \emph{can} differ \emph{a
-priori} based on scale design. Also, keep in mind that continuous scales
-have no granularity at all.
+Since the number of items is a whole number, a fractional result of
+\code{grim_items()} points to an error upstream, and the function warns about
+it.
 }
 \examples{
-# If a non-Likert scale ranges from 0 to 3
-# and measures 16 cases:
-grim_granularity(n = 16)   # `items = 1` by default
-
-# Same but Likert scale with 2 items:
+grim_granularity(n = 16)
 grim_granularity(n = 16, items = 2)
 
-# If a scale is applied to a single case
-# and has a granularity of 0.5:
 grim_items(n = 1, gran = 0.5)
 
-# With more cases, a warning appears
-# because items can only be whole numbers:
+# A fractional result draws a warning:
 grim_items(n = c(10, 15, 20), gran = 0.5)
 }
 \references{

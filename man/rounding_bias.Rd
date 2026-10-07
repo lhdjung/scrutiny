@@ -14,50 +14,37 @@ rounding_bias(
 )
 }
 \arguments{
-\item{x}{Numeric or string coercible to numeric.}
+\item{x}{Numeric, or a string coercible to numeric.}
 
-\item{digits}{Integer. Number of decimal digits to which \code{x} will be rounded.}
+\item{digits}{Integer. Number of decimal places to round to.}
 
-\item{rounding}{String. Rounding procedure that will be applied to \code{x}. See
-\code{vignette("rounding-options")}. Default is \code{"up"}.}
+\item{rounding}{String. The rounding method. Default is \code{"up"}. See
+\code{vignette("rounding-options")}.}
 
-\item{threshold, symmetric}{Further arguments passed down to \code{\link[=reround]{reround()}}.}
+\item{threshold, symmetric}{Passed on to \code{\link[=reround]{reround()}}.}
 
-\item{mean}{Logical. If \code{TRUE} (the default), the mean total of bias will be
-returned. Set \code{mean} to \code{FALSE} to get a vector of individual biases the
-length of \code{x}.}
+\item{mean}{Logical. If \code{TRUE} (the default), return the mean bias;
+otherwise, the individual biases.}
 }
 \value{
-Numeric. By default of \code{mean}, the length is 1; otherwise, it is the
-same length as \code{x}.
+Numeric. Length 1 by default, or the length of \code{x} with \code{mean = FALSE}.
 }
 \description{
-Rounding often leads to bias, such that the mean of a rounded
-distribution is different from the mean of the original distribution. Call
-\code{rounding_bias()} to compute the amount of this bias.
+Rounding changes the mean of a distribution. \code{rounding_bias()}
+computes this bias as the mean of the rounded values minus the mean of the
+original ones, or, with \code{mean = FALSE}, the individual differences.
 }
 \details{
-Bias is calculated by subtracting the original vector, \code{x}, from a
-vector rounded in the specified way.
-
-The function passes all arguments except for \code{mean} down to \code{\link[=reround]{reround()}}.
-Other than there, however, \code{rounding} is \code{"up"} by default, and it can't be
-set to \code{"up_or_down"}, \code{"up_from_or_down_from"}, or \code{"ceiling_or_floor"}:
-these compound methods return two rounded values per input value, so no
-single bias is defined for them.
+All arguments except \code{mean} are passed on to \code{\link[=reround]{reround()}}. Unlike
+there, \code{rounding} defaults to \code{"up"} and cannot be a compound method
+(\code{"up_or_down"}, \code{"up_from_or_down_from"}, \code{"ceiling_or_floor"}), since
+those return two rounded values per input and have no single bias.
 }
 \examples{
-# Define example vector:
 vec <- seq_distance(0.01, string_output = FALSE)
 vec
 
-# The default rounds `x` up from 5:
 rounding_bias(x = vec, digits = 1)
-
-# Other rounding procedures are supported,
-# such as rounding down from 5...
 rounding_bias(x = vec, digits = 1, rounding = "down")
-
-# ...or rounding to even with `base::round()`:
 rounding_bias(x = vec, digits = 1, rounding = "even")
 }

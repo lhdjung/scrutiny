@@ -1,111 +1,69 @@
 #' Visualize GRIM test results
 #'
-#' @description `grim_plot()` visualizes summary data and their mutual GRIM
-#'   consistency. Call this function only on a data frame that resulted from a
-#'   call to [`grim_map()`].
+#' @description `grim_plot()` plots the output of [`grim_map()`] or
+#'   [`grimmer_map()`]. Each value set is placed by its sample size and the
+#'   fractional part of its mean, in blue if consistent and red if not, on a
+#'   background raster that shows which combinations are GRIM-consistent at
+#'   all.
 #'
-#'   Consistent and inconsistent value pairs from the input data frame are shown
-#'   in distinctive colors. By default, consistent value pairs are blue and
-#'   inconsistent ones are red. These and other parameters of the underlying
-#'   geoms can be controlled via arguments.
+#' @section Background raster: For one or two decimal places, the raster
+#'   marks every combination of sample size and fractional part that is
+#'   inconsistent with a dark tile. It depends on the number of decimal places,
+#'   which is read from the `digits_x` column of `data`, and on the rounding
+#'   method, which is read from the `grim_map()` call. Rasters are precomputed
+#'   for every rounding method except `"up_from"`, `"down_from"`, and
+#'   `"up_from_or_down_from"`; with these, `grim_plot()` errors unless
+#'   `show_raster = FALSE`. With three or more decimal places, the tiles
+#'   would be too small, so a gradient shows the probability of inconsistency
+#'   instead.
 #'
-#'   The background raster follows the `rounding` argument from the `grim_map()`
-#'   call (unless any of the plotted mean or proportion values has more than 2
-#'   decimal places, in which case a gradient is shown, not a raster).
+#'   A raster only applies to one number of decimal places, so `grim_plot()`
+#'   errors if `digits_x` varies across rows. Use `split_by_digits = TRUE` to
+#'   get one plot per number of decimal places instead, or `digits` to choose
+#'   one.
 #'
-#' @section Background raster: The background raster shows the probability of
-#'   GRIM-inconsistency for random means or proportions, from 0 (all
-#'   inconsistent) to the greatest number on the x-axis (all consistent). If the
-#'   number of decimal places in the inputs -- means or percentages -- is 3 or
-#'   greater, individual points would be too small to display. In these cases,
-#'   there will not be a raster but a gradient, showing the overall trend.
+#'   With `percent = TRUE` in the `grim_map()` call, percentages are plotted
+#'   as the proportions they were tested as, with two more decimal places.
 #'
-#'   As any raster only makes sense with respect to one specific number of
-#'   decimal places, the function will throw an error if these numbers differ
-#'   among input `x` values (and `show_raster` is `TRUE`). You can avoid the
-#'   error and force plotting by specifying `digits` as the number of decimal
-#'   places for which the raster or gradient should be displayed.
+#'   Set `show_data = FALSE` to plot the raster alone, controlled by `digits`,
+#'   `rounding`, and `n`.
 #'
-#'   For 1 or 2 decimal places, the raster will be specific to the rounding
-#'   procedure. As the raster varies by rounding procedure, it will
-#'   automatically correspond to the `rounding` argument specified in the
-#'   preceding [`grim_map()`] call. This works fast because the raster is based
-#'   on data saved in the package itself, so these data don't need to be
-#'   generated anew every time the function is called. Inconsistent value sets
-#'   are marked with dark boxes. All other places in the raster denote
-#'   consistent value sets. The raster is independent of the data -- it only
-#'   follows the `rounding` specification in the [`grim_map()`] call and the
-#'   `digits` argument in `grim_plot()`.
+#'   Under the default `rounding = "up_or_down"`, few values are inconsistent
+#'   at sample sizes 40 and 80 with two decimal places (4 and 8 with one),
+#'   because many achievable means there are ties, which the default accepts
+#'   in both directions.
 #'
-#'   With `percent = TRUE` in the [`grim_map()`] call, percentages are plotted
-#'   as the proportions they were tested as, which have 2 more decimal places.
-#'   Whole-number percentages therefore get the 2-decimal raster, and those
-#'   with 1 or more decimal places get a gradient. The 2 are also added to a
-#'   `digits` value specified here.
+#' @section Negative means: The y-axis is the fractional part of the absolute
+#'   value of `x`, so a mean of `-2.51` is drawn at `0.51`. GRIM's granularity
+#'   is symmetric around zero, so this is the value set's place on the grid.
+#'   For a one-directional rounding method such as `"up"`, the raster behind a
+#'   negative value is the one for the mirrored method, since a tie in a
+#'   negative number goes the other way (unless `symmetric = TRUE`). The tile's
+#'   color comes from the `consistency` column and is unaffected.
 #'
-#'   Display an "empty" plot, one without empirical test results, by setting
-#'   `show_data` to `FALSE`. You can then control key parameters of the plot
-#'   with `digits` and `rounding`.
-#'
-#'   With [`grim_map()`]'s default for `rounding`, `"up_or_down"`, strikingly
-#'   few values are flagged as inconsistent for sample sizes 40 and 80 (or 4 and
-#'   8). This effect disappears if `rounding` is set to any other value (see
-#'   `vignette("rounding-options")`).
-#'
-#'   The 4/8 leniency effect arises because accepting values rounded either up
-#'   or down is more careful and conservative than any other rounding procedure.
-#'   In any case, `grim_plot()` doesn't cause this effect --- it only reveals
-#'   it.
-#'
-#' @section Negative means: The y-axis is the fractional portion of the
-#'   *absolute value* of `x`, so a mean of `-2.51` is drawn at `0.51`, in the
-#'   same place as `2.51`. GRIM's granularity is symmetric around zero -- the
-#'   achievable means of `n` integers are `k / n` for every whole number `k`,
-#'   whatever its sign -- so this puts each value set at its correct point on
-#'   the granularity grid rather than off the axis.
-#'
-#'   The background raster is the one place where the sign can still matter,
-#'   and only for the one-directional rounding methods. `rounding = "up"`, for
-#'   instance, breaks a tie in a negative number toward zero rather than away
-#'   from it (unless `symmetric` is `TRUE`), so the raster drawn for `"up"`
-#'   describes the mirror image of what such a value set was tested against.
-#'   That concerns the backdrop only: every tile is colored from the
-#'   `consistency` column, which [`grim_map()`] computed for the value as
-#'   reported, sign included.
-#'
-#' @param data Data frame. Result of a call to [`grim_map()`].
-#' @param show_data Logical. If set to `FALSE`, test results from the data are
-#'   not displayed. Choose this if you only want to show the background raster.
-#'   You can then control plot parameters directly via the `n`, `digits`, and
-#'   `rounding` arguments. Default is `TRUE`.
-#' @param show_gradient Logical. If the number of decimal places is 3 or
-#'   greater, should a gradient be shown to signal the overall probability of
-#'   GRIM inconsistency? Default is `TRUE`.
-#' @param split_by_digits Logical (length 1). Set to `TRUE` to create a separate
-#'   plot for each number of decimal places, stored in a named list, instead of
-#'   throwing an error. The result is then a list even if all values have the
-#'   same number of decimal places. Can't be combined with `digits`. Default is
-#'   `FALSE`.
-#' @param digits Integer. Number of decimal places for which the background
-#'   raster will be generated. Default is `NULL`, in which case it is read from
-#'   the `digits_x` column of `data` (or, failing that, inferred from the `x`
-#'   values).
+#' @param data Data frame returned by [`grim_map()`] or [`grimmer_map()`].
+#' @param show_data Logical. If `FALSE`, only the raster is drawn. Default is
+#'   `TRUE`.
+#' @param show_gradient Logical. With three or more decimal places, should a
+#'   gradient be drawn? Default is `TRUE`.
+#' @param split_by_digits Logical. If `TRUE`, return a named list with one
+#'   plot per number of decimal places instead of erroring when they differ.
+#'   Cannot be combined with `digits`. Default is `FALSE`.
+#' @param digits Integer. Number of decimal places for the raster. Default is
+#'   `NULL`, in which case it is read from the `digits_x` column, or failing
+#'   that, inferred from `x`. For percentages, give the number of decimal
+#'   places as reported; 2 are added.
 #' @param n Integer. Maximal value on the x-axis. Default is `NULL`, in which
-#'   case the axis spans the raster and the data, with breaks up to
-#'   `10 ^ digits` (e.g., `100` if `digits` is `2`).
-#' @param rounding String. Only relevant if `show_data` is set to `FALSE`. The
-#'   plot will then be constructed as it would be for data rounded in this
-#'   particular way. Default is `"up_or_down"`.
-#' @param show_raster Logical. If `TRUE` (the default), the plot has a
-#'   background raster.
-#' @param color_cons,color_incons Strings. Fill colors of the consistent and
-#'   inconsistent scatter points. Defaults are `"royalblue1"` (consistent) and
-#'   `"red"` (inconsistent).
-#' @param tile_alpha,tile_size Numeric. Further parameters of the scatter
-#'   points: opacity and, indirectly, size. Defaults are `1` and `1.5`.
-#' @param raster_alpha,raster_color Numeric and string, respectively. Parameters
-#'   of the background raster: opacity and fill color. Defaults are `1` and
-#'   `"grey75"`.
+#'   case the axis spans the raster and the data.
+#' @param rounding String. Only used if `show_data` is `FALSE`. Default is
+#'   `"up_or_down"`.
+#' @param show_raster Logical. Should the raster be drawn? Default is `TRUE`.
+#' @param color_cons,color_incons Strings. Fill colors of consistent and
+#'   inconsistent value sets. Defaults are `"royalblue1"` and `"red"`.
+#' @param tile_alpha,tile_size Numeric. Opacity and size of the tiles for value
+#'   sets. Defaults are `1` and `1.5`.
+#' @param raster_alpha,raster_color Numeric and string. Opacity and fill color
+#'   of the raster. Defaults are `1` and `"grey75"`.
 #'
 #' @include utils.R seq-decimal.R
 #'
@@ -113,37 +71,27 @@
 #'   Simple Technique Detects Numerous Anomalies in the Reporting of Results in
 #'   Psychology. *Social Psychological and Personality Science*, 8(4), 363–369.
 #'   https://journals.sagepub.com/doi/10.1177/1948550616673876
-
-#' @return A ggplot object, returned the ordinary way: at the console,
-#'   auto-printing draws it, and it can be added to, saved, or composed with
-#'   other plots without a stray canvas appearing.
 #'
-#'   The exception is `split_by_digits = TRUE`, which returns a named list of
+#' @return A ggplot object. With `split_by_digits = TRUE`, a named list of
 #'   ggplot objects, one per distinct non-zero number of decimal places (e.g.,
-#'   `list(digits_1 = ..., digits_2 = ...)`). A list is not something
-#'   auto-printing can draw, so that branch prints each plot itself and returns
-#'   the list invisibly.
-
+#'   `list(digits_1 = ..., digits_2 = ...)`), returned invisibly after each
+#'   plot is printed.
+#'
 #' @export
 #'
 #' @examples
-#' # Call `grim_plot()` following `grim_map()`. No need to pass `digits`
-#' # along: `grim_map()` stores the `digits_x` it was given in a `digits_x`
-#' # column, and `grim_plot()` reads the decimal count from there:
+#' # `grim_plot()` reads the number of decimal places
+#' # from the `digits_x` column:
 #' pigs1 |>
 #'   grim_map(digits_x = 2) |>
 #'   grim_plot()
 #'
-#' # If you change the rounding procedure
-#' # in `grim_map()`, the plot will
-#' # follow automatically if there is
-#' # a difference:
+#' # The raster follows the rounding method of the `grim_map()` call:
 #' pigs1 |>
 #'   grim_map(digits_x = 2, rounding = "ceiling") |>
 #'   grim_plot()
 #'
-#' # For percentages, the y-axis
-#' # label also changes automatically:
+#' # Percentages are plotted as proportions:
 #' pigs2 |>
 #'   grim_map(digits_x = 1, percent = TRUE) |>
 #'   grim_plot()

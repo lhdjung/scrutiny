@@ -161,60 +161,46 @@ is_seq_basic <- function(
 
 #' Is a vector a certain kind of sequence?
 #'
-#' @description Predicate functions that test whether `x` is a numeric vector
-#'   (or coercible to numeric) with some special properties:
-
-#'   - `is_seq_linear()` tests whether every two consecutive elements of `x`
-#'   differ by some constant amount.
-
-#'   - `is_seq_ascending()` and `is_seq_descending()` test whether the
-#'   difference between every two consecutive values is positive or negative,
-#'   respectively. `is_seq_dispersed()` tests whether `x` values are grouped
-#'   around a specific central value, `from`, with the same distance to both
-#'   sides per value pair. By default (`test_linear = TRUE`), these functions
-#'   also test for linearity, like `is_seq_linear()`.
+#' @description Predicates for numeric vectors, or vectors coercible to
+#'   numeric:
 #'
-#' `NA` elements of `x` are handled in a nuanced way. See *Value* section below
-#' and the examples in `vignette("devtools")`, section *NA handling*.
-
-#' @param x Numeric or coercible to numeric, as determined by
-#'   `is_numeric_like()`. Vector to be tested.
-#' @param from Numeric or coercible to numeric. Only in `is_seq_dispersed()`. It
-#'   will test whether `from` is at the center of `x`, and if every pair of
-#'   other values is equidistant to it.
-#' @param test_linear Logical. In functions other than `is_seq_linear()`, should
-#'   `x` also be tested for linearity? Default is `TRUE`.
-#' @param tolerance Numeric. Tolerance of comparison between numbers when
-#'   testing. Default is circa 0.000000015 (1.490116e-08), as in
-#'   `dplyr::near()`.
-
-#' @return A single logical value. If `x` contains at least one `NA` element,
-#'   the functions return either `NA` or `FALSE`:
-#'   - If all elements of `x` are `NA`, the functions return `NA`.
-#'   - If some but not all elements are `NA`, they check if `x` *might* be a
-#'   sequence of the kind in question: Is it a linear (and / or ascending, etc.)
-#'   sequence after the `NA`s were replaced by appropriate values? If so, they
-#'   return `NA`; otherwise, they return `FALSE`.
-
-#' @seealso `validate::is_linear_sequence()`, which is much like
-#'   `is_seq_linear()` but more permissive with `NA` values. It comes with some
-#'   additional features, such as support for date-times.
-
+#'   - `is_seq_linear()`: do all consecutive elements differ by the same
+#'   amount?
+#'   - `is_seq_ascending()`, `is_seq_descending()`: is every difference
+#'   positive, or negative?
+#'   - `is_seq_dispersed()`: is `x` centered on `from`, with each pair of
+#'   values equidistant from it?
+#'
+#'   By default (`test_linear = TRUE`), the last three also test for linearity.
+#'
+#' @param x Numeric, or coercible to numeric as determined by
+#'   [`is_numeric_like()`].
+#' @param from Numeric or coercible to numeric. Only in `is_seq_dispersed()`.
+#'   The value `x` should be centered on.
+#' @param test_linear Logical. Should linearity be tested as well? Default is
+#'   `TRUE`. Not in `is_seq_linear()`.
+#' @param tolerance Numeric. Tolerance for comparing values. Default is about
+#'   `1.5e-8`, as in [`dplyr::near()`].
+#'
+#' @return Logical (length 1). If `x` contains `NA`:
+#'   - `NA` if all elements are `NA`.
+#'   - Otherwise, `NA` if some values substituted for the `NA`s would make `x`
+#'   the kind of sequence in question, and `FALSE` if none would.
+#'
+#'   See `vignette("devtools")`, section *NA handling*.
+#'
+#' @seealso `validate::is_linear_sequence()`, which is more permissive with
+#'   `NA` and supports date-times.
+#'
 #' @export
 #'
 #' @name seq-predicates
-
+#'
 #' @examples
-#' # These are linear sequences...
 #' is_seq_linear(x = 3:7)
-#' is_seq_linear(x = c(3:7, 8))
-#'
-#' # ...but these aren't:
 #' is_seq_linear(x = c(3:7, 9))
-#' is_seq_linear(x = c(10, 3:7))
 #'
-#' # All other `is_seq_*()` functions
-#' # also test for linearity by default:
+#' # The other predicates test for linearity by default:
 #' is_seq_ascending(x = c(2, 7, 9))
 #' is_seq_ascending(x = c(2, 7, 9), test_linear = FALSE)
 #'
@@ -224,15 +210,10 @@ is_seq_basic <- function(
 #' is_seq_dispersed(x = c(2, 3, 5, 7, 8), from = 5)
 #' is_seq_dispersed(x = c(2, 3, 5, 7, 8), from = 5, test_linear = FALSE)
 #'
-#' # These fail their respective
-#' # individual test even
-#' # without linearity testing:
+#' # These fail their own test regardless of linearity:
 #' is_seq_ascending(x = c(1, 7, 4), test_linear = FALSE)
 #' is_seq_descending(x = c(9, 15, 3), test_linear = FALSE)
 #' is_seq_dispersed(1:10, from = 5, test_linear = FALSE)
-
-#' @rdname seq-predicates
-#' @export
 
 is_seq_linear <- function(x, tolerance = .Machine$double.eps^0.5) {
   is_seq_basic(x, tolerance, test_linear = TRUE)

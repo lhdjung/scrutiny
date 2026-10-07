@@ -1,81 +1,66 @@
-#' GRIM-testing with dispersed inputs
+#' GRIM-test values around the reported ones
 #'
-#' @description `grim_map_seq()` performs GRIM-testing with values surrounding
-#'   the input values. This provides an easy and powerful way to assess whether
-#'   small errors in computing or reporting may be responsible for GRIM
-#'   inconsistencies in published statistics.
+#' @description `grim_map_seq()` varies the reported means and sample sizes a
+#'   few steps up and down and GRIM-tests each resulting value set. This shows
+#'   whether a small error in reporting or computing could explain an
+#'   inconsistency.
 #'
-#'   Call [`audit_seq()`] on the results for summary statistics.
+#'   Call [`audit_seq()`] on the output for summary statistics.
 #'
-#' @param data A data frame that `grim_map()` could take.
-#' @param digits_x Integer. The number of decimal places in `x`, including
-#'   trailing zeros. There is no default because it cannot be inferred from a
-#'   numeric `x`, which has no trailing zeros: both `1.4` and `1.40` are the
-#'   number `1.4`, but only the latter has `digits_x = 2`.
-#' @param x,n Optionally, specify these arguments as column names in `data`.
-#' @param var String. Names of the columns that will be dispersed. Default is
-#'   `c("x", "n")`.
-#' @param dispersion Numeric. Sequence with steps up and down from the `var`
-#'   inputs. It will be adjusted to these values' decimal levels. For example,
-#'   with a reported `8.34`, the step size is `0.01`. Default is `1:5`, for five
-#'   steps up and down.
-#' @param out_min,out_max If specified, output will be restricted so that it's
-#'   not below `out_min` or above `out_max`. Both default to `"auto"`, which
-#'   keeps `n` at 1 or above and leaves `x` unbounded. A number applies to
-#'   every dispersed variable, and `NULL` removes the limit.
+#' @param data A data frame that [`grim_map()`] could take.
+#' @param digits_x Integer (length 1). The number of decimal places in `x`,
+#'   including trailing zeros. There is no default, since a numeric value does
+#'   not keep them (`1.40` is `1.4`). It also sets the step size for
+#'   dispersing `x`.
+#' @param x,n Optionally, the names of the columns in `data` that contain these
+#'   values, if they differ from the defaults.
+#' @param var String. The variables to disperse. Default is `c("x", "n")`.
+#' @param dispersion Numeric. Steps up and down from the reported values, in
+#'   units of the last decimal place. Default is `1:5`.
+#' @param out_min,out_max Limits on the dispersed values. Both default to
+#'   `"auto"`, which keeps `n` at 1 or above and leaves `x` unbounded. A number
+#'   applies to every dispersed variable, and `NULL` removes the limit.
 #' @param include_reported Logical. Should the reported values themselves be
-#'   included in the sequences originating from them? Default is `FALSE` because
-#'   this might be redundant and bias the results.
-#' @param include_consistent Logical. Should the function also process
-#'   consistent cases (from among those reported), not just inconsistent ones?
-#'   Default is `FALSE` because the focus should be on clarifying
-#'   inconsistencies.
-#' @param ... Arguments passed down to `grim_map()`.
-
-#' @section Summaries with `audit_seq()`: You can call `audit_seq()` following
-#'   `grim_map_seq()`. It will return a data frame with these columns:
-#'   - `x` and `n` are the original inputs,
-#'   tested for `consistency` here.
-#'   - `hits_total` is the total number of GRIM-consistent value sets
-#'   found within the specified `dispersion` range.
-#'   - `hits_x` is the number of GRIM-consistent value sets
-#'   found by varying `x`.
-#'   - Accordingly with `n` and `hits_n`.
-#'   - (Note that any consistent reported cases will be counted by the
-#'   `hits_*` columns if both `include_reported` and `include_consistent`
-#'   are set to `TRUE`.)
-#'   - `diff_x` reports the absolute difference between `x` and the next
-#'   consistent dispersed value (in dispersion steps, not the actual numeric
-#'   difference). `diff_x_up` and `diff_x_down` report the difference to the
-#'   next higher or lower consistent value, respectively.
-#'   - `diff_n`, `diff_n_up`, and `diff_n_down` do the same for `n`.
+#'   part of the sequences? Default is `FALSE`.
+#' @param include_consistent Logical. Should consistent value sets be dispersed
+#'   as well, not just inconsistent ones? Default is `FALSE`.
+#' @param ... Arguments passed on to [`grim_map()`].
 #'
-#'   Call `audit()` following `audit_seq()` to summarize results even further.
-#'   It's mostly self-explaining, but `na_count` and `na_rate` are the number
-#'   and rate of times that a difference could not be computed because of a lack
-#'   of corresponding hits within the `dispersion` range.
-
-#' @return A tibble (data frame) with detailed test results. `diff_var` is the
-#'   number of steps between the tested value and the reported one, `case` the
-#'   row number of the reported value set in `data`, and `var` the dispersed
-#'   variable. If `items` was specified, it is a column of its own, and `n` is
-#'   the sample size before multiplying the two.
-
+#' @return A tibble with the columns of [`grim_map()`] output plus `diff_var`,
+#'   the number of steps between the tested value and the reported one; `case`,
+#'   the row number of the reported value set in `data`; and `var`, the
+#'   dispersed variable. If `items` was specified, it is returned as a separate
+#'   column, and `n` is the sample size before multiplying the two.
+#'
+#' @section Summaries with [`audit_seq()`]: `audit_seq()` on `grim_map_seq()`
+#'   output returns a tibble with one row per case and these columns:
+#'   - `x` and `n`: the reported values, with their `consistency`.
+#'   - `hits_total`: the number of GRIM-consistent value sets found within the
+#'   `dispersion` range.
+#'   - `hits_x`, `hits_n`: the number found by varying `x` and `n`,
+#'   respectively. If both `include_reported` and `include_consistent` are
+#'   `TRUE`, consistent reported cases are counted as well.
+#'   - `diff_x`: the distance from `x` to the nearest consistent dispersed
+#'   value, in dispersion steps. `diff_x_up` and `diff_x_down` are the
+#'   distances to the nearest consistent value above and below.
+#'   - `diff_n`, `diff_n_up`, `diff_n_down`: the same for `n`.
+#'
+#'   Call `audit()` on `audit_seq()` output to summarize these columns further.
+#'   `na_count` and `na_rate` there count the cases without a consistent value
+#'   within the `dispersion` range.
+#'
 #' @include grim-map.R
-
+#'
 #' @export
 #'
 #' @examples
-#' # `grim_map_seq()` can take any input
-#' # that `grim_map()` can take:
+#' # `grim_map_seq()` takes the same input as `grim_map()`:
 #' pigs1
 #'
-#' # All the results:
 #' out <- grim_map_seq(pigs1, digits_x = 2, include_consistent = TRUE)
 #' out
 #'
-#' # Case-wise summaries with `audit_seq()`
-#' # can be more important than the raw results:
+#' # Case-wise summaries:
 #' out |>
 #'   audit_seq()
 

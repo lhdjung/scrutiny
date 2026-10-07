@@ -2,7 +2,7 @@
 % Please edit documentation in R/binomial.R
 \name{grim_binomial}
 \alias{grim_binomial}
-\title{Poisson binomial test for the probability of GRIM inconsistency}
+\title{Poisson binomial test for the rate of GRIM consistency}
 \usage{
 grim_binomial(
   data,
@@ -11,62 +11,45 @@ grim_binomial(
 )
 }
 \arguments{
-\item{data}{Data frame returned by a GRIM mapper function, such as
-\code{\link[=grim_map]{grim_map()}} or \code{\link[=grim_map_seq]{grim_map_seq()}}.}
+\item{data}{Data frame returned by \code{\link[=grim_map]{grim_map()}} or a function built on
+it, such as \code{\link[=grim_map_seq]{grim_map_seq()}}.}
 
-\item{alternative}{String (length 1). One of \code{"greater"}, \code{"less"}, and
-\code{"two.sided"}. Default is \code{"greater"}; see details.}
+\item{alternative}{String (length 1). One of \code{"greater"} (the default),
+\code{"less"}, and \code{"two.sided"}.}
 
 \item{conf.level}{Numeric (length 1). Confidence level of the interval
 around \code{estimate}. Default is \code{0.95}.}
 }
 \value{
-Tibble (data frame) with columns \code{estimate} (observed consistency
-rate), \code{statistic} (number of consistent cases), \code{p.value}, \code{parameter}
-(total number of cases), \code{conf.low} and \code{conf.high} (bounds of the
-confidence interval around \code{estimate}), \code{conf.level}, \code{method}, and
+Tibble with the columns \code{estimate} (observed consistency rate),
+\code{statistic} (number of consistent cases), \code{p.value}, \code{parameter} (number
+of cases), \code{conf.low}, \code{conf.high}, \code{conf.level}, \code{method}, and
 \code{alternative}.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
-This approach has not been extensively tested, and I am not yet confident
-in it. Use with care.
-
-Given the output of \code{\link[=grim_map]{grim_map()}} or similar, \code{grim_binomial()} tests
-whether the rate of GRIM-consistent value sets is above chance.
-
-Consistency represents "success", and the null hypothesis corresponds to
-random decimal digits for the means (or other fractions, such as
-percentages.) See details below.
+Given the output of \code{\link[=grim_map]{grim_map()}} or a function built on it,
+\code{grim_binomial()} tests whether the rate of GRIM-consistent value sets is
+above what random decimal digits would produce. This approach has not been
+tested extensively; use it with care.
 }
 \details{
-This conducts a one-tailed test by default (\code{alternative = "greater"}). The idea is to assess whether more means are GRIM-consistent
-with their sample sizes than expected given the baseline \href{https://lhdjung.github.io/scrutiny/articles/grim.html#the-probability-of-grim-inconsistency}{probability of GRIM inconsistency}
-for means with random decimal digits. The \emph{number} of decimal places is
-given (as is the sample size); only the specific digits occupying the
-decimal places are assumed to be random.
+Under the null hypothesis, the decimal digits of each mean are
+random, so its probability of consistency is \code{1 - probability} from
+\code{\link[=grim_probability]{grim_probability()}}. Since this differs between value sets, the test
+uses the Poisson binomial distribution rather than averaging the
+probabilities. Value sets without a verdict are left out.
 
-Because each value set can have a different probability of GRIM consistency
-under the null (due to varying sample sizes or decimal places), the test
-uses the Poisson binomial distribution rather than the standard binomial.
-This avoids the need to average per-row probabilities into a single value.
-
-As any correct value set is GRIM-consistent, the key question is whether a
-collection of them can be sufficiently distinguished from random. In this
-way, even if some value sets are inconsistent, there may still be a trend
-towards consistency because correct value sets would bias the distribution
-in this way.
-
-However, it is hard to see how \emph{fewer} value sets should be consistent than
-expected at random. This suggests a one-tailed test.
+Correct value sets are always consistent, so a collection of them should
+be more consistent than random digits even if some are wrong. There is no
+corresponding reason to expect fewer consistent sets than random, hence
+the one-sided default.
 
 The confidence interval is the exact Clopper-Pearson interval for the
-consistency rate, as in \code{\link[stats:binom.test]{stats::binom.test()}}, and is one-sided like the
-test: under \code{"greater"}, \code{conf.high} is 1. It treats the value sets as
-sharing one probability of consistency, so it is an interval for their
-average probability. Compare it to the rate expected at random, the mean of
-\code{1 - probability}.
+consistency rate, as in \code{\link[stats:binom.test]{stats::binom.test()}}, one-sided like the test.
+It treats the value sets as sharing one probability, so it is an interval
+for their average. Compare it to the mean of \code{1 - probability}.
 }
 \examples{
 pigs1 |>

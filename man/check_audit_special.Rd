@@ -2,31 +2,26 @@
 % Please edit documentation in R/mapper-function-helpers.R
 \name{check_audit_special}
 \alias{check_audit_special}
-\title{Alert user if more specific \verb{audit_*()} summaries are available}
+\title{Alert the user if more specific \verb{audit_*()} summaries are available}
 \usage{
 check_audit_special(data, name_test)
 }
 \arguments{
 \item{data}{The \code{audit()} method's input data frame.}
 
-\item{name_test}{String (length 1). Short, plain-text name of the consistency
-test, such as \code{"GRIM"}.}
+\item{name_test}{String (length 1). Plain-text name of the test, such as
+\code{"GRIM"}.}
 }
 \value{
-No return value. Might print an alert.
+No return value; might print a message.
 }
 \description{
-(Note: Ignore this function if your \code{audit()} method calls
-\code{audit_cols_minimal()}.)
-
-Call \code{check_audit_special()} within an \code{audit()} method for a consistency
-test mapper function, such as \code{audit.scrutiny_grim_map()}. It checks if the
-input data frame was the product of a function produced by
-\code{function_map_seq()} or \code{function_map_total_n()}.
-
-If so, the function issues a gentle alert to the user that points to
-\code{audit_seq()} or \code{audit_total_n()}, respectively.
+Call \code{check_audit_special()} within an \code{audit()} method for a
+consistency test mapper, unless the method calls \code{\link[=audit_cols_minimal]{audit_cols_minimal()}},
+which does so itself. If the input was produced by a function made by
+\code{\link[=function_map_seq]{function_map_seq()}} or \code{\link[=function_map_total_n]{function_map_total_n()}}, it prints a message
+pointing to \code{\link[=audit_seq]{audit_seq()}} or \code{\link[=audit_total_n]{audit_total_n()}}.
 }
 \seealso{
-\code{vignette("consistency-tests-in-depth")}, for context.
+\code{vignette("consistency-tests-in-depth")}.
 }

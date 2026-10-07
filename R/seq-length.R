@@ -1,58 +1,30 @@
 #' Set sequence length
 #'
-#' @description `seq_length()` seamlessly extends or shortens a linear
-#'   sequence using the sequence's own step size.
+#' @description `seq_length()` extends or shortens a linear sequence to a given
+#'   length, using the sequence's own step size. It can also be used as a
+#'   replacement function: `seq_length(x) <- value`.
 #'
-#'   Alternatively, you can directly set the length of a linear sequence in this
-#'   way: `seq_length(x) <- value`.
+#' @param x Numeric or coercible to numeric. Must be linear.
+#' @param value Integer (length 1). The new length.
 #'
-#' @param x Numeric or coercible to numeric. `x` must be linear, i.e., each
-#'   of its elements must differ from the next by the same amount.
-#' @param value Numeric (whole number, length 1). The new length for `x`.
-#'
-#' @return A vector of the same type as `x`, with length `value`.
-#' - If `value > length(x)`, all original element of `x` are preserved. A number
-#' of new elements equal to the difference is appended at the end.
-#' - If `value == length(x)`, nothing changes.
-#' - If `value < length(x)`, a number of elements of `x` equal to the difference
-#' is removed from the end.
+#' @return A vector of the same type as `x` with length `value`. If `value` is
+#'   greater than `length(x)`, new elements are appended; if smaller, elements
+#'   are removed from the end.
 #'
 #' @export
 #'
 #' @examples
 #' x <- 3:7
-#'
-#' # Increase the length of `x` from 5 to 10:
 #' seq_length(x, 10)
+#' seq_length(x, 2)
 #'
-#' # Modify `x` directly (but get
-#' # the same results otherwise):
+#' # As a replacement function:
 #' seq_length(x) <- 10
 #' x
 #'
-#' # Likewise, decrease the length:
-#' x <- 3:7
-#' seq_length(x, 2)
-#'
-#' seq_length(x) <- 2
-#' x
-#'
-#' # The functions are sensitive to decimal levels.
-#' # They also return a string vector if (and only if)
-#' # `x` is a string vector:
+#' # The step size and the type follow `x`:
 #' x <- seq_endpoint(from = 0, to = 0.5)
-#' x
-#'
 #' seq_length(x, 10)
-#'
-#' seq_length(x) <- 10
-#' x
-#'
-#' # Same with decreasing the length:
-#' seq_length(x, 2)
-#'
-#' seq_length(x) <- 2
-#' x
 
 seq_length <- function(x, value) {
   check_type_numeric_like(x)

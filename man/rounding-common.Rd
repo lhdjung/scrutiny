@@ -17,176 +17,104 @@ round_up(x, digits = 0L, symmetric = FALSE)
 round_down(x, digits = 0L, symmetric = FALSE)
 }
 \arguments{
-\item{x}{Numeric. The decimal number to round.}
+\item{x}{Numeric. The number to round.}
 
-\item{digits}{Integer. Number of digits to round \code{x} to. Default is \code{0}.
-Negative values round to powers of ten: \code{round_up(1250, digits = -2)} is
-\code{1300}, which reconstructs values reported as "rounded to the nearest
-hundred".}
+\item{digits}{Integer. Number of decimal places to round to. Default is
+\code{0}. Negative values round to powers of ten: \code{round_up(1250, digits = -2)} is \code{1300}.}
 
 \item{threshold}{Numeric. Only in \code{round_up_from()} and \code{round_down_from()}.
 The point within a step at which rounding switches direction, in tenths of
-a step, so it must be greater than \code{0} and less than \code{10}.
-
-It means the same thing in both functions. \code{round_up_from()} rounds up when
-the part cut off by rounding is at least \code{threshold} tenths of a step, and
+a step; greater than \code{0} and less than \code{10}. \code{round_up_from()} rounds up
+when the part cut off is at least \code{threshold} tenths of a step, and
 \code{round_down_from()} rounds down when it is at most that many, so the two
-differ only in where they send a value sitting exactly on the threshold.
-\code{round_up()} and \code{round_down()} are the pair at the \code{threshold} of \code{5}.
+only differ for a value exactly on the threshold. \code{round_up()} and
+\code{round_down()} are the pair at \code{5}.}
 
-Up to scrutiny 1.0.0, \code{round_down_from()} was the point reflection of
-\code{round_up_from()} instead, switching direction at \code{10 - threshold}. The two
-agreed at \code{5} and nowhere else, which made
-\code{rounding = "up_from_or_down_from"} span up to 1.8 steps -- more than any
-one rounding procedure can -- and so made consistency tests under it far
-too permissive.}
-
-\item{symmetric}{Logical. Set \code{symmetric} to \code{TRUE} if the rounding of
-negative numbers should mirror that of positive numbers so that their
-absolute values are equal. Only affects negative numbers. For
-\code{round_up()} and \code{round_down()}, whose threshold is \code{5}, it only affects
-ties among those; for \code{round_up_from()} and \code{round_down_from()} with some
-other \code{threshold}, it affects more: \code{round_up_from(-4.28, 1, threshold = 9)} is \code{-4.3}, and \code{-4.2} with \code{symmetric = TRUE}. Default is \code{FALSE}. See
-the \verb{Negative numbers} section.}
+\item{symmetric}{Logical. If \code{TRUE}, negative numbers are rounded like their
+absolute values. Default is \code{FALSE}. See \emph{Negative numbers}.}
 }
 \value{
 Numeric. \code{x} rounded to \code{digits}.
 }
 \description{
-\code{round_up()} rounds up from 5, \code{round_down()} rounds down from
-5. Otherwise, both functions work like \code{\link[base:Round]{base::round()}}.
+\code{round_up()} rounds ties upward, and \code{round_down()} rounds
+them downward. Otherwise, both agree with \code{\link[base:Round]{base::round()}}.
 
-\code{round_up()} and \code{round_down()} are special cases of \code{round_up_from()} and
-\code{round_down_from()}, which allow users to choose custom thresholds for
-rounding up or down, respectively.
+They are special cases of \code{round_up_from()} and \code{round_down_from()}, which
+switch direction at a \code{threshold} other than 5.
 }
 \details{
-These functions differ from \code{\link[base:Round]{base::round()}} mainly insofar as the
-decision about rounding 5 up or down is not based on the integer portion of
-\code{x} (i.e., no "rounding to even"). Instead, in \code{round_up_from()}, that
-decision is determined by the \code{threshold} argument for rounding up, and
-likewise with \code{round_down_from()}. The threshold is constant at \code{5} for
-\code{round_up()} and \code{round_down()}.
-
-As a result, these functions are more predictable and less prone to
-floating-point number quirks than \code{\link[base:Round]{base::round()}}. Compare \code{round_down()}
-and \code{\link[base:Round]{base::round()}} in the data frame for rounding 5 created in the
-Examples section below: \code{round_down()} yields a continuous sequence of
-final digits from 0 to 9, whereas \code{\link[base:Round]{base::round()}} behaves in a way that
-can only be explained by floating point issues.
-
-However, this surprising behavior on the part of \code{\link[base:Round]{base::round()}} is not
-necessarily a flaw (see its documentation, or this vignette:
-https://rpubs.com/maechler/Rounding). In the present version of R (4.0.0 or
-later), \code{\link[base:Round]{base::round()}} works fine, and the functions presented here are
-not meant to replace it. Their main purpose as helpers within scrutiny is
-to reconstruct the computations of researchers who might have used
-different software. See \code{vignette("rounding-options")}.
+These functions decide a tie by a fixed rule rather than by the
+parity of the preceding digit, as \code{\link[base:Round]{base::round()}} does. They exist to
+reconstruct the output of software that rounds this way; see
+\code{vignette("rounding-options")} for which program uses which procedure.
+They are not meant to replace \code{base::round()} in original computations.
 }
 \section{Negative numbers}{
- \code{symmetric} mirrors the whole rounding procedure
-about zero, so a negative number is rounded like its absolute value. For
-\code{round_up()} and \code{round_down()}, whose threshold is \code{5}, that comes to
-deciding how ties in negative numbers are broken and nothing else: every
-other value has a single nearest neighbor, which both functions round to.
-
-For \code{round_up_from()} and \code{round_down_from()} with some other \code{threshold},
-it decides more than ties, because the value the procedure hesitates over
-is no longer the midpoint: \code{round_up_from(-4.28, 1, threshold = 9)} is
-\code{-4.3}, and \code{-4.2} with \code{symmetric = TRUE}.
-
-By default (\code{symmetric = FALSE}), \code{round_up()} moves a tie to the higher
-number on the number line, so \code{round_up(-2.5)} is \code{-2}, and \code{round_down()}
-moves it to the lower one, so \code{round_down(-2.5)} is \code{-3}. This is what
-Java's \code{Math.round()} does.
+ By default (\code{symmetric = FALSE}), \code{round_up()}
+moves a tie to the higher number on the number line, so \code{round_up(-2.5)}
+is \code{-2}, and \code{round_down(-2.5)} is \code{-3}. This is what Stata does.
 
 With \code{symmetric = TRUE}, a negative number is rounded like its absolute
-value, so \code{round_up(-2.5, symmetric = TRUE)} is \code{-3}. This is the setting
-that reconstructs Excel, SAS, SPSS, and Matlab, all of which move a tie
-away from zero, as does \code{janitor::round_half_up()}. In IEEE 754 terms, it
-is \emph{roundTiesToAway}.
+value, so a tie moves away from zero: \code{round_up(-2.5, symmetric = TRUE)}
+is \code{-3}. This is what Excel, SAS, SPSS, and Matlab do; IEEE 754 calls it
+\emph{roundTiesToAway}.
 
-So \code{symmetric} matters whenever the data contain negative values, as with
-difference scores, z-scores, or effect sizes. See
-\code{vignette("rounding-options")} for which setting matches which program.
-(The package-wide default, \code{rounding = "up_or_down"}, spans the results of
-both settings, so \code{symmetric} cannot change a consistency verdict unless
-you commit to a single direction.)
+For \code{round_up()} and \code{round_down()}, \code{symmetric} only affects ties among
+negative numbers. For \code{round_up_from()} and \code{round_down_from()} with a
+\code{threshold} other than 5, it affects every negative number whose cut-off
+part lies between \code{threshold} and \code{10 - threshold}:
+\code{round_up_from(-4.28, 1, threshold = 9)} is \code{-4.3}, and \code{-4.2} with
+\code{symmetric = TRUE}.
+
+Under the package-wide default \code{rounding = "up_or_down"}, both results
+are accepted, so \code{symmetric} cannot change a consistency verdict there.
 }
 
 \section{Floating-point tolerance}{
  Shifting a number by \code{digits} decimal
-places is not exact: \code{0.145 * 100} is stored as \code{14.499999999999998}, just
-below the tie it is meant to be. Rounding that shifted value directly would
-move \code{0.145} a whole step in the wrong direction.
+places is not exact: \code{0.145 * 100} is stored as \code{14.499999999999998},
+just below the tie it is meant to be. All of these functions therefore
+nudge the shifted value by about \code{1.5e-9} before rounding, so that
+\code{round_up(0.145, 2)} is \code{0.15}, as in the software being reconstructed.
+\code{\link[=unround]{unround()}} reports bounds that assume the same tolerance.
 
-All of these functions therefore nudge the shifted value by about \code{1.5e-9}
-before rounding it, so that \code{round_up(0.145, 2)} is \code{0.15}, as it would be
-in the software whose output is being reconstructed. Values within roughly
-\code{1e-9} below a rounding boundary are thereby treated as sitting \emph{on} it.
-\code{\link[=unround]{unround()}} reports bounds that assume exactly this, which is why a
-number and its reconstructed range always agree.
-
-The nudge is a fixed amount, whereas representation error grows with the
-magnitude of \code{x * 10^digits}. Up to about \code{1e7} for that product -- far
-beyond any reported mean, SD, or percentage -- the nudge dominates by
-orders of magnitude. Past it, a value sitting exactly on a boundary may go
-either way.
-
-This differs from \code{janitor::round_half_up()}, which adds its tolerance to
-the value rather than to the boundary, and from \code{\link[base:Round]{base::round()}}, which
-measures which neighbor is closer instead of nudging at all.
+The nudge is fixed, whereas representation error grows with \code{x * 10^digits}. Up to about \code{1e7} for that product, far beyond any reported
+summary statistic, the nudge dominates. Past it, a value exactly on a
+boundary may be rounded in either direction.
 }
 
 \examples{
-# Both `round_up()` and `round_down()` work like
-# `base::round()` unless the closest digit to be
-# cut off by rounding is 5:
+# Except at a tie, all of these agree:
+   round_up(x = 9.273, digits = 1)
+ round_down(x = 9.273, digits = 1)
+base::round(x = 9.273, digits = 1)
 
-   round_up(x = 9.273, digits = 1)     # 7 cut off
- round_down(x = 9.273, digits = 1)     # 7 cut off
-base::round(x = 9.273, digits = 1)     # 7 cut off
-
-   round_up(x = 7.584, digits = 2)     # 4 cut off
- round_down(x = 7.584, digits = 2)     # 4 cut off
-base::round(x = 7.584, digits = 2)     # 4 cut off
-
-
-# Here is the borderline case of 5 rounded by
-# `round_up()`, `round_down()`, and `base::round()`:
-
-original <- c(    # Define example values
+# At ties, they differ:
+original <- c(
   0.05, 0.15, 0.25, 0.35, 0.45,
   0.55, 0.65, 0.75, 0.85, 0.95
 )
-tibble::tibble(   # Output table
+tibble::tibble(
   original,
   round_up = round_up(x = original, digits = 1),
   round_down = round_down(x = original, digits = 1),
   base_round = base::round(x = original, digits = 1)
 )
 
-
 # Ties in negative numbers go up on the number line
 # by default, and away from zero with `symmetric`:
-
-round_up(x = -2.5)                     # Java's `Math.round()`
+round_up(x = -2.5)                     # Stata
 round_up(x = -2.5, symmetric = TRUE)   # Excel, SAS, SPSS, Matlab
-
 
 # A custom threshold moves the point at which
 # rounding switches direction:
-
 round_up_from(x = 4.28, digits = 1, threshold = 9)   # 8 < 9, so down
 round_up_from(x = 4.28, digits = 1, threshold = 1)   # 8 >= 1, so up
 }
 \seealso{
-\code{\link[=round_ties_up]{round_ties_up()}} and friends are these same four procedures
-under names that say which is which, so that \code{symmetric} need not be --
-and, with the matching \code{rounding} strings, must not be -- spelled out
-separately.
-
-\code{\link[=round_ceiling]{round_ceiling()}} always rounds up, \code{\link[=round_floor]{round_floor()}} always rounds down,
-\code{\link[=round_trunc]{round_trunc()}} always rounds toward 0, and \code{\link[=round_anti_trunc]{round_anti_trunc()}} always
-rounds away from 0.
+\code{\link[=round_ties_up]{round_ties_up()}} and friends are the same procedures under
+names that state the tie rule, so that \code{symmetric} need not be given.
+\code{\link[=round_ceiling]{round_ceiling()}}, \code{\link[=round_floor]{round_floor()}}, \code{\link[=round_trunc]{round_trunc()}}, and
+\code{\link[=round_anti_trunc]{round_anti_trunc()}} always round in one direction.
 }

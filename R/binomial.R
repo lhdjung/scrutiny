@@ -1,58 +1,38 @@
-#' Poisson binomial test for the probability of GRIM inconsistency
+#' Poisson binomial test for the rate of GRIM consistency
 #'
 #' @description `r lifecycle::badge("experimental")`
 #'
-#'   This approach has not been extensively tested, and I am not yet confident
-#'   in it. Use with care.
+#'   Given the output of [`grim_map()`] or a function built on it,
+#'   `grim_binomial()` tests whether the rate of GRIM-consistent value sets is
+#'   above what random decimal digits would produce. This approach has not been
+#'   tested extensively; use it with care.
 #'
-#'   Given the output of [`grim_map()`] or similar, `grim_binomial()` tests
-#'   whether the rate of GRIM-consistent value sets is above chance.
-#'
-#'   Consistency represents "success", and the null hypothesis corresponds to
-#'   random decimal digits for the means (or other fractions, such as
-#'   percentages.) See details below.
-#'
-#' @param data Data frame returned by a GRIM mapper function, such as
-#'   [`grim_map()`] or [`grim_map_seq()`].
-#' @param alternative String (length 1). One of `"greater"`, `"less"`, and
-#'   `"two.sided"`. Default is `"greater"`; see details.
+#' @param data Data frame returned by [`grim_map()`] or a function built on
+#'   it, such as [`grim_map_seq()`].
+#' @param alternative String (length 1). One of `"greater"` (the default),
+#'   `"less"`, and `"two.sided"`.
 #' @param conf.level Numeric (length 1). Confidence level of the interval
 #'   around `estimate`. Default is `0.95`.
 #'
-#' @details This conducts a one-tailed test by default (`alternative =
-#'   "greater"`). The idea is to assess whether more means are GRIM-consistent
-#'   with their sample sizes than expected given the baseline [probability of
-#'   GRIM
-#'   inconsistency](https://lhdjung.github.io/scrutiny/articles/grim.html#the-probability-of-grim-inconsistency)
-#'   for means with random decimal digits. The *number* of decimal places is
-#'   given (as is the sample size); only the specific digits occupying the
-#'   decimal places are assumed to be random.
+#' @details Under the null hypothesis, the decimal digits of each mean are
+#'   random, so its probability of consistency is `1 - probability` from
+#'   [`grim_probability()`]. Since this differs between value sets, the test
+#'   uses the Poisson binomial distribution rather than averaging the
+#'   probabilities. Value sets without a verdict are left out.
 #'
-#'   Because each value set can have a different probability of GRIM consistency
-#'   under the null (due to varying sample sizes or decimal places), the test
-#'   uses the Poisson binomial distribution rather than the standard binomial.
-#'   This avoids the need to average per-row probabilities into a single value.
-#'
-#'   As any correct value set is GRIM-consistent, the key question is whether a
-#'   collection of them can be sufficiently distinguished from random. In this
-#'   way, even if some value sets are inconsistent, there may still be a trend
-#'   towards consistency because correct value sets would bias the distribution
-#'   in this way.
-#'
-#'   However, it is hard to see how *fewer* value sets should be consistent than
-#'   expected at random. This suggests a one-tailed test.
+#'   Correct value sets are always consistent, so a collection of them should
+#'   be more consistent than random digits even if some are wrong. There is no
+#'   corresponding reason to expect fewer consistent sets than random, hence
+#'   the one-sided default.
 #'
 #'   The confidence interval is the exact Clopper-Pearson interval for the
-#'   consistency rate, as in [`stats::binom.test()`], and is one-sided like the
-#'   test: under `"greater"`, `conf.high` is 1. It treats the value sets as
-#'   sharing one probability of consistency, so it is an interval for their
-#'   average probability. Compare it to the rate expected at random, the mean of
-#'   `1 - probability`.
+#'   consistency rate, as in [`stats::binom.test()`], one-sided like the test.
+#'   It treats the value sets as sharing one probability, so it is an interval
+#'   for their average. Compare it to the mean of `1 - probability`.
 #'
-#' @returns Tibble (data frame) with columns `estimate` (observed consistency
-#'   rate), `statistic` (number of consistent cases), `p.value`, `parameter`
-#'   (total number of cases), `conf.low` and `conf.high` (bounds of the
-#'   confidence interval around `estimate`), `conf.level`, `method`, and
+#' @returns Tibble with the columns `estimate` (observed consistency rate),
+#'   `statistic` (number of consistent cases), `p.value`, `parameter` (number
+#'   of cases), `conf.low`, `conf.high`, `conf.level`, `method`, and
 #'   `alternative`.
 #'
 #' @export
@@ -146,41 +126,35 @@ grim_binomial <- function(
 #'
 #' @description `r lifecycle::badge("experimental")`
 #'
-#'   This approach has not been extensively tested, and I am not yet confident
-#'   in it. Use with care.
+#'   `grim_binomial_power()` computes the statistical power of
+#'   [`grim_binomial()`] for given parameters, to judge whether the test is
+#'   informative for a data set before interpreting its p-value. Like the test
+#'   itself, it has not been tested extensively.
 #'
-#'   Compute the statistical power of [`grim_binomial()`] for given parameters.
-#'   Use this to judge whether the test is informative for a particular dataset
-#'   before interpreting its p-value.
-#'
-#' @param p0 Numeric. Per-row null probability of GRIM consistency, i.e., `1 -
-#'   P(GRIM inconsistency)`. Can be a vector with one value per reported mean
-#'   (matching the Poisson binomial model used by [`grim_binomial()`]), or a
-#'   single value if all rows share the same probability. If length 1, `k` must
-#'   be provided. Compute individual values via [`grim_probability()`].
-#' @param p1 Numeric (length 1). True probability of GRIM consistency under the
-#'   alternative hypothesis. Unlike the null, a single value is used for all
-#'   rows.
-#' @param k Numeric (length 1). Number of reported means. Required when `p0` is
-#'   length 1; ignored when `p0` is a vector (the length of `p0` is used
-#'   instead).
+#' @param p0 Numeric. Null probability of GRIM consistency per value set, i.e.,
+#'   `1 - grim_probability(...)`. Either one value per value set, or a single
+#'   value shared by all, in which case `k` is required.
+#' @param p1 Numeric (length 1). Probability of consistency under the
+#'   alternative, shared by all value sets.
+#' @param k Numeric (length 1). Number of value sets. Required if `p0` has
+#'   length 1; otherwise ignored in favor of `length(p0)`.
 #' @param alpha Numeric (length 1). Significance level. Default is `0.05`.
-#' @param alternative String (length 1). One of `"greater"`, `"less"`, and
-#'   `"two.sided"`. Default is `"greater"`, matching [`grim_binomial()`].
+#' @param alternative String (length 1). One of `"greater"` (the default),
+#'   `"less"`, and `"two.sided"`.
 #'
-#' @returns Numeric (length 1). The probability of rejecting the null hypothesis
-#'   when the alternative is true.
+#' @returns Numeric (length 1). The probability of rejecting the null
+#'   hypothesis when the alternative is true.
 #'
 #' @export
 #'
 #' @examples
-#' # 10 means, N ~ 50 with 2 decimal places, 90% truly consistent:
+#' # 10 means with a null probability of 0.5 each, 90% truly consistent:
 #' grim_binomial_power(p0 = 0.50, p1 = 0.9, k = 10)
 #'
-#' # Same scenario but with 30 means:
+#' # The same with 30 means:
 #' grim_binomial_power(p0 = 0.50, p1 = 0.9, k = 30)
 #'
-#' # Per-row null probabilities (Poisson binomial null):
+#' # One null probability per value set:
 #' grim_binomial_power(p0 = c(0.50, 0.70, 0.80, 0.90, 0.60), p1 = 0.9)
 
 grim_binomial_power <- function(

@@ -126,81 +126,57 @@ function_duplicate_cols <- function(code_new_cols, default_end, name_class) {
 #'
 #' @description `r lifecycle::badge('superseded')`
 #'
-#'   `duplicate_detect()` is superseded because it's less informative than
-#'   [`duplicate_tally()`] and [`duplicate_count()`]. Use these functions
-#'   instead.
+#'   `duplicate_detect()` is superseded by [`duplicate_tally()`] and
+#'   [`duplicate_count()`], which are more informative.
 #'
-#'   For every value in a vector or data frame, `duplicate_detect()` tests
-#'   whether there is at least one identical value. Test results are presented
-#'   next to every value.
+#'   For every value in a vector or data frame, it tests whether at least one
+#'   other value is identical, and reports the result next to the value.
 #'
-#'   This function is a blunt tool designed for initial data checking. Don't put
-#'   too much weight on its results.
+#'   Call [`audit()`] on the output for summary statistics.
 #'
-#'   For summary statistics, call [`audit()`] on the results.
-#'
-#' @details This function is not very informative with many input values that
-#'   only have a few characters each. Many of them may have duplicates just by
-#'   chance. For example, in R's built-in `iris` data set, 99% of values have
-#'   duplicates.
-#'
-#'   In general, the fewer values and the more characters per value, the more
-#'   significant the results.
+#' @details Values with few characters are often duplicated by chance: in
+#'   `iris`, 99% of values have a duplicate. Duplicates are more meaningful when
+#'   there are fewer values and they have more characters.
 #'
 #' @param x Vector or data frame.
-#' @param ignore Optionally, a vector of values that should not be checked. In
-#'   the test result columns, they will be marked `NA`.
-#' @param colname_end String. Name ending of the logical test result columns.
-#'   Default is `"dup"`.
-
-#' @return A tibble (data frame). It has all the columns from `x`, and to each
-#'   of these columns' right, the corresponding test result column.
+#' @param ignore Optionally, a vector of values not to check. Their result is
+#'   `NA`.
+#' @param colname_end String. Suffix of the result columns. Default is
+#'   `"dup"`.
 #'
-#'   The tibble has the `scrutiny_dup_detect` class, which is recognized by the
-#'   `audit()` generic.
-
-#' @section Summaries with [`audit()`]: There is an S3 method for the
-#'   [`audit()`] generic, so you can call [`audit()`] following
-#'   `duplicate_detect()`. It returns a tibble with these columns ---
-#'   - `term`: The original data frame's variables.
-#'   - `dup_count`: Number of "duplicated" values of that `term` variable: those
-#'   which have at least one duplicate anywhere in the data frame.
-#'   - `total_count`: Number of all values of that `term` variable that were
-#'   checked, i.e., neither `NA` nor ignored via `ignore`.
-#'   - `dup_rate`: Rate of "duplicated" values of that `term` variable, i.e.,
-#'   `dup_count / total_count`.
+#' @return A tibble with the columns of `x`, each followed by its result column.
+#'   It has the class `scrutiny_dup_detect`, which is recognized by [`audit()`].
 #'
-#'   Every variable gets a row, even if none of its values are duplicated. The
-#'   final row, `.total`, summarizes across all other rows: It adds up the
-#'   `dup_count` and `total_count` columns, and divides the first sum by the
-#'   second. Its `dup_rate` is therefore the rate across all checked values,
-#'   not the mean of the other rows' `dup_rate` values.
+#' @section Summaries with [`audit()`]: `audit()` on `duplicate_detect()`
+#'   output returns a tibble with these columns:
+#'   - `term`: the columns of `x`.
+#'   - `dup_count`: the number of values of that column with a duplicate
+#'   anywhere in `x`.
+#'   - `total_count`: the number of values checked, i.e., neither `NA` nor
+#'   ignored.
+#'   - `dup_rate`: `dup_count / total_count`.
+#'
+#'   The last row, `.total`, sums the counts across columns and divides them.
 #'
 #' @seealso
-#'  - [`duplicate_tally()`] to count instances of a value instead of just
-#'  stating whether it is duplicated.
+#'  - [`duplicate_tally()`] for counts instead of a yes/no result.
 #'  - [`duplicate_count()`] for a frequency table.
-#'  - [`duplicate_count_colpair()`] to check each combination of columns for
-#' duplicates.
-#'  - [`janitor::get_dupes()`] to search for duplicate rows.
+#'  - [`duplicate_count_colpair()`] for duplicates between pairs of columns.
+#'  - [`janitor::get_dupes()`] for duplicate rows.
 #'
 #' @include utils.R
 #'
 #' @export
 #'
 #' @examples
-#' # Find duplicate values in a data frame...
 #' duplicate_detect(x = pigs4)
 #'
-#' # ...or in a single vector:
 #' duplicate_detect(x = pigs4$snout)
 #'
-#' # Summary statistics with `audit()`:
 #' pigs4 |>
 #'   duplicate_detect() |>
 #'   audit()
 #'
-#' # Any values can be ignored:
 #' pigs4 |>
 #'   duplicate_detect(ignore = c(8.131, 7.574))
 
@@ -218,50 +194,41 @@ duplicate_detect <- function_duplicate_cols(
 #' Count duplicates at each observation
 #'
 #' @description For every value in a vector or data frame, `duplicate_tally()`
-#'   counts how often it appears in total. Tallies are presented next to each
-#'   value.
+#'   counts how often it occurs in the whole input, and reports the count next
+#'   to the value.
 #'
-#'   For summary statistics, call [`audit()`] on the results.
+#'   Call [`audit()`] on the output for summary statistics.
 #'
-#' @param colname_end String. Name ending of the integer tally columns. Default
-#'   is `"n"`.
+#' @param colname_end String. Suffix of the tally columns. Default is `"n"`.
 #'
 #' @inheritParams duplicate_detect
 #' @inherit duplicate_detect details
 #'
-#' @return A tibble (data frame). It has all the columns from `x`, and to each
-#'   of these columns' right, the corresponding tally column.
+#' @return A tibble with the columns of `x`, each followed by its tally column.
+#'   It has the class `scrutiny_dup_tally`, which is recognized by [`audit()`].
 #'
-#'   The tibble has the `scrutiny_dup_tally` class, which is recognized by the
-#'   `audit()` generic.
-#'
-#' @section Summaries with [`audit()`]: There is an S3 method for the [`audit()`]
-#'   generic, so you can call [`audit()`] following `duplicate_tally()`. It
-#'   returns a tibble with summary statistics.
+#' @section Summaries with [`audit()`]: `audit()` on `duplicate_tally()` output
+#'   returns summary statistics for each tally column, with a `.total` row
+#'   across all of them.
 #'
 #' @seealso
 #'  - [`duplicate_count()`] for a frequency table.
-#'  - [`duplicate_count_colpair()`] to check each combination of columns for
-#' duplicates.
-#'  - [`janitor::get_dupes()`] to search for duplicate rows.
+#'  - [`duplicate_count_colpair()`] for duplicates between pairs of columns.
+#'  - [`janitor::get_dupes()`] for duplicate rows.
 #'
 #' @include utils.R
-
+#'
 #' @export
 #'
 #' @examples
-#' # Tally duplicate values in a data frame...
 #' duplicate_tally(x = pigs4)
 #'
-#' # ...or in a single vector:
 #' duplicate_tally(x = pigs4$snout)
 #'
-#' # Summary statistics with `audit()`:
 #' pigs4 |>
 #'   duplicate_tally() |>
 #'   audit()
 #'
-#' # Any values can be ignored:
 #' pigs4 |>
 #'   duplicate_tally(ignore = c(8.131, 7.574))
 

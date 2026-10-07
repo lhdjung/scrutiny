@@ -2,33 +2,33 @@
 % Please edit documentation in R/add-up-to-map.R
 \name{add_up_to_map}
 \alias{add_up_to_map}
-\title{Test if many reported counts add up to their totals}
+\title{Test whether reported counts add up to their totals}
 \usage{
 add_up_to_map(data, summands, total = NULL, ...)
 }
 \arguments{
 \item{data}{Tibble with a \code{total} column and the columns to add up. Any
-other columns in \code{data} will be returned alongside the test results.}
+other columns are returned alongside the results.}
 
-\item{summands}{Columns of \code{data} whose values in each row should add up to
-that row's \code{total}, selected with tidyselect, such as \code{starts_with("n_")}.
-There is no default.}
+\item{summands}{Columns of \code{data} to add up, selected with tidyselect, such
+as \code{starts_with("n_")}. There is no default.}
 
-\item{total}{Optionally, specify this argument as a column name in \code{data}.}
+\item{total}{Optionally, the name of the column in \code{data} that contains the
+totals, if it differs from the default.}
 
 \item{...}{These dots must be empty.}
 }
 \value{
 A tibble with the \code{summands} columns, \code{total}, \code{consistency}, and
-any other columns from \code{data}. It has the \code{scrutiny_add_up_to_map} class, which
-is recognized by the \code{\link[=audit]{audit()}} generic.
+any other columns from \code{data}. It has the class \code{scrutiny_add_up_to_map},
+which is recognized by \code{\link[=audit]{audit()}}.
 }
 \description{
-Call \code{add_up_to_map()} to apply \code{\link[=add_up_to]{add_up_to()}} to every row of
-a data frame. \code{summands} selects the columns to add up, as many as the
-data has, using tidyselect syntax.
+\code{add_up_to_map()} applies \code{\link[=add_up_to]{add_up_to()}} to every row of a data
+frame. \code{summands} selects the columns to add up with tidyselect, so any
+number of columns can be added up.
 
-For summary statistics, call \code{\link[=audit]{audit()}} on the results.
+Call \code{\link[=audit]{audit()}} on the output for summary statistics.
 }
 \examples{
 df <- tibble::tibble(

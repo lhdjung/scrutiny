@@ -410,90 +410,59 @@ grimmer_scalar <- function(
 #' The GRIMMER test (granularity-related inconsistency of means mapped to error
 #' repeats)
 #'
-#' @description `grimmer()` checks if reported mean and SD values of integer
-#'   data are mathematically consistent with the reported sample size and the
-#'   number of items that compose the mean value. It works much like [`grim()`].
+#' @description `grimmer()` checks whether a reported mean and standard
+#'   deviation of integer data are consistent with the reported sample size and
+#'   the number of items that compose them. It extends [`grim()`]: the mean
+#'   must pass GRIM, and the SD must then be reachable from one of the integer
+#'   sums that GRIM admits.
 #'
-#'   The function is vectorized, but it is recommended to use [`grimmer_map()`]
-#'   for testing multiple cases.
+#'   The function is vectorized, but [`grimmer_map()`] is more convenient for
+#'   testing many cases.
 #'
-#'   `x`, `sd`, `n`, `digits_x`, `digits_sd`, and `items` are vectorized: they
-#'   may have any length, and shorter ones are recycled to the length of the
-#'   longest, as long as they have length 1. All other arguments describe the
-#'   test as a whole and must have length 1.
+#' @details `x`, `sd`, `n`, `digits_x`, `digits_sd`, and `items` are
+#'   vectorized and recycled to a common length by the tidyverse rules. All
+#'   other arguments must have length 1.
 #'
-#' @param x Numeric. The reported mean value.
+#'   The implementation follows Allard's (2018) Analytic-GRIMMER algorithm, as
+#'   does `rsprite2::GRIMMER_test()`. GRIMMER was first proposed by Anaya
+#'   (2016).
+#'
+#' @param x Numeric. The reported mean.
 #' @param sd Numeric. The reported standard deviation.
 #' @param n Integer. The reported sample size.
 #' @param digits_sd Integer. The number of decimal places in `sd`, including
-#'   trailing zeros. As with `digits_x`, there is no default, because trailing
-#'   zeros don't survive in a numeric value.
-#' @param items Integer. The number of items composing the `x` and `sd` values.
-#'   Default is `1`, the most common case.
-#' @param min_val,max_val Integer. Optionally, the minimum and maximum value
-#'   that an individual response could take, as with the endpoints of a Likert
-#'   scale. If both are specified, GRIMMER also tests whether values within
-#'   that range could have produced the reported `x` and `sd` in the first
-#'   place. Both default to `NULL`, i.e., an unbounded scale. See *Scale
-#'   bounds* below.
-#' @param tolerance Numeric. Tolerance of the comparison between the reported
-#'   `sd` and the reconstructed SDs, via [`dplyr::near()`]. Default is circa
-#'   0.000000015 (1.490116e-08). This is documented here rather than inherited
-#'   from [`grim()`], where the argument is deprecated: GRIM compares exact
-#'   integers and has nothing for a tolerance to loosen, whereas GRIMMER
-#'   reconstructs SDs in floating point and does.
+#'   trailing zeros. There is no default, since a numeric value does not
+#'   keep them (`1.40` is `1.4`).
+#' @param items Integer. The number of items composing `x` and `sd`. Default
+#'   is `1`.
+#' @param min_val,max_val Integer. Optionally, the smallest and largest value
+#'   that a single response can take, such as the endpoints of a Likert scale.
+#'   Both default to `NULL`, an unbounded scale. See *Scale bounds*.
+#' @param tolerance Numeric. Tolerance for comparing the reported `sd` to the
+#'   reconstructed SDs, via [`dplyr::near()`]. Default is about `1.5e-8`.
 #'
 #' @inheritParams grim
 #'
-#' @return Logical. `TRUE` if `x`, `sd`, `n`, and `items` are mutually
-#'   consistent, `FALSE` if not, and `NA` if the case cannot be decided: if any
-#'   of the values is missing, if the rounding bounds are undefined, if `items`
-#'   is not a positive whole number, or if `n` is not a whole number greater
-#'   than `1`. GRIMMER reconstructs a *sample* SD, so it divides by `n - 1`.
-
-#' @details GRIMMER was originally devised by Anaya (2016). The present
-#'   implementation follows Allard's (2018) refined Analytic-GRIMMER algorithm.
-#'   It uses a variant of Analytic-GRIMMER also implemented in
-#'   \href{https://lukaswallrich.github.io/rsprite2/reference/GRIMMER_test.html}{`rsprite2::GRIMMER_test()`}
-#'   that can be applied to multi-item scales and optionally takes scale ranges
-#'   into account.
+#' @return Logical. `TRUE` if `x`, `sd`, `n`, and `items` are consistent,
+#'   `FALSE` if not, and `NA` if the case cannot be decided: if a value is
+#'   missing or infinite, if `items` is not a positive whole number, or if `n`
+#'   is not a whole number greater than `1`. GRIMMER reconstructs a sample SD
+#'   and so divides by `n - 1`.
 #'
-#'   The scrutiny version embeds GRIMMER in the broader system of consistency
-#'   testing, as laid out in
-#'   \href{https://lhdjung.github.io/scrutiny/articles/consistency-tests-in-depth.html}{*Consistency
-#'   tests in depth*}. The `grimmer()` function
-#'   is a vectorized (multiple-case) version of this basic implementation. For
-#'   more context and variable name translations, see the top of the R/grimmer.R
-#'   source file.
-
-#' @section Scale bounds: GRIMMER assumes that the individual values behind `x`
-#'   and `sd` are whole numbers. If they were also confined to a fixed range --
-#'   the endpoints of a Likert scale, say -- state that range using `min_val`
-#'   and `max_val`. The test then knows how far the values could spread out
-#'   around their mean at most, which rules out standard deviations that are
-#'   possible on an unbounded scale. A reported `x` outside of the range is
-#'   inconsistent by itself.
+#' @section Scale bounds: GRIMMER assumes that the values behind `x` and `sd`
+#'   are whole numbers. If they were also confined to a range, state it with
+#'   `min_val` and `max_val`. The range caps how far the values can spread
+#'   around their mean, which rules out SDs that are possible on an unbounded
+#'   scale, and a mean outside the range is inconsistent by itself.
 #'
-#'   Both bounds refer to a single response, so they don't depend on `items`:
-#'   for a five-point scale, `min_val` is `1` and `max_val` is `5` whether the
-#'   mean was composed of one item or of ten. They must be specified together,
-#'   because a single bound places no limit on the standard deviation.
+#'   Both bounds refer to a single response, so they do not depend on `items`.
+#'   They must be given together, since one bound alone places no limit on the
+#'   SD. Like GRIMMER's other tests, this condition is necessary but not
+#'   sufficient: a value set that passes it may still be impossible.
 #'
-#'   Scale bounds can only turn a `TRUE` verdict into `FALSE`, never the other
-#'   way around. Like GRIMMER's other tests, the condition they add is
-#'   necessary but not sufficient, so a value set that passes it may still be
-#'   impossible.
+#'   The [strait](https://github.com/ianhussey/strait) package goes much
+#'   further with bounded scales, including an exact decision procedure.
 #'
-#'   This is the least of what a known scale range implies, and it is here
-#'   because it costs GRIMMER one comparison per candidate sum. The
-#'   \href{https://github.com/ianhussey/strait}{strait} package is devoted to
-#'   the subject and goes much further: bounds sharpened by attained extremes,
-#'   by response granularity, or by a reported Cronbach's alpha
-#'   (`strait::sd_bounds()`), and an exact decision procedure that is
-#'   sufficient as well as necessary (`strait::brimmest()`). For the
-#'   simulation-based SPRITE technique, see
-#'   \href{https://lukaswallrich.github.io/rsprite2/}{rsprite2}.
-
 #' @references Allard, A. (2018). Analytic-GRIMMER: a new way of testing the
 #'   possibility of standard deviations.
 #'   https://aurelienallard.netlify.app/post/anaytic-grimmer-possibility-standard-deviations/
@@ -502,12 +471,6 @@ grimmer_scalar <- function(
 #'   reported measures of variability. *PeerJ Preprints.*
 #'   https://peerj.com/preprints/2400v1/
 #'
-#'   Mestdagh, M., Pe, M., Pestman, W., Verdonck, S., Kuppens, P., &
-#'   Tuerlinckx, F. (2018). Sidelining the mean: The relative variability index
-#'   as a generic mean-corrected variability measure for bounded variables.
-#'   *Psychological Methods*, 23(4), 690-707.
-#'   https://doi.org/10.1037/met0000153
-
 #' @export
 #'
 #' @examples

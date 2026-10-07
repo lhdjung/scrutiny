@@ -1,77 +1,48 @@
 #' Count decimal places
 #'
-#' @description `decimal_places()` counts the decimal places in a numeric
-#'   vector, or in a string vector that can be coerced to numeric.
+#' @description `decimal_places()` counts the decimal places of a numeric
+#'   vector, or of a string vector coercible to numeric.
+#'   `decimal_places_scalar()` does the same for a single value and is faster,
+#'   for use within other single-case functions.
 #'
-#'   `decimal_places_scalar()` only takes a single input. It is somewhat faster
-#'   on one value, so it is useful as a helper within other single-case
-#'   functions.
-#'
-#' @section Trailing zeros: If trailing zeros matter, don't convert numeric
-#'   values to strings: In numeric values, any trailing zeros have already been
-#'   dropped, and any information about them was lost (e.g., `3.70` returns
-#'   `3.7`). Enter those values as strings instead, such as `"3.70"` instead of
-#'   `3.70`. However, you can restore lost trailing zeros with
+#' @section Trailing zeros: A numeric value has lost its trailing zeros: `3.70`
+#'   is stored as `3.7` and has one decimal place. If trailing zeros matter,
+#'   enter the values as strings, such as `"3.70"`, or restore them with
 #'   [`restore_zeros()`] if the original number of decimal places is known.
 #'
-#'   If you need to enter many such values as strings, consider using
-#'   [`tibble::tribble()`] and drawing quotation marks around all values in a
-#'   `tribble()` column at once via RStudio's multiple cursors.
-
-#' @details Decimal places in numeric values can't be counted accurately if the
-#'   number has 15 or more characters in total, including the integer part and
-#'   the decimal point. A possible solutions is to enter the number as a string
-#'   to count all digits. (Converting to string is not sufficient -- those
-#'   numbers need to be *entered* in quotes.)
+#' @details Both functions count the run of digits after the first `sep`,
+#'   after trimming whitespace and applying any exponent: `"5.30%"` has two
+#'   decimal places, `"1e-5"` has five, and `"1..5"` has none. Missing values,
+#'   the string `"NA"`, and strings that [`as.numeric()`] reads as an infinity
+#'   or `NaN` have `NA` decimal places.
 #'
-#'   The functions ignore any whitespace at the end of a string, so they won't
-#'   mistake spaces for decimal places.
-
-#' @param x Numeric (or string that can be coerced to numeric). Object with
-#'   decimal places to count.
-#' @param sep String. The literal separator between the integer part and the
-#'   mantissa. Default is `"."`. (The former default, the regular expression
-#'   `"\\."`, is still read as a decimal point.) It only applies to strings:
-#'   numbers are always written with a point.
+#'   Numeric values with 15 or more significant digits cannot be counted
+#'   accurately; enter such numbers as strings.
 #'
-#' @return Integer. Number of decimal places in `x`.
+#' @param x Numeric, or a string coercible to numeric.
+#' @param sep String. The separator between integer part and mantissa, matched
+#'   literally. Default is `"."`. Only applies to strings; numbers are always
+#'   written with a point.
 #'
-#' @details Both functions count the run of digits that immediately follows the
-#'   first `sep`, after removing surrounding whitespace and applying any
-#'   exponent: `"5.30%"` has two decimal places, `"1e-5"` has five, and
-#'   `"1..5"` has none. The strings that [`as.numeric()`] reads as an infinity
-#'   or `NaN`, in any letter case, have `NA` decimal places, as do missing
-#'   values and the string `"NA"`. The two functions always agree with each other;
-#'   `decimal_places_scalar()` is the faster one, and `decimal_places()` is the
-#'   one that takes a vector.
+#' @return Integer. The number of decimal places of each element of `x`.
 #'
 #' @include utils.R
 #'
 #' @rdname decimal_places
 #' @export
-
-#' @seealso [`decimal_places_df()`], which applies `decimal_places()` to all
-#'   numeric-like columns in a data frame.
-
+#'
+#' @seealso [`decimal_places_df()`] for data frames.
+#'
 #' @examples
-#' # `decimal_places()` works on both numeric values
-#' # and strings...
 #' decimal_places(x = 2.851)
 #' decimal_places(x = "2.851")
 #'
-#' # ... but trailing zeros are only counted within
-#' # strings:
+#' # Trailing zeros are only counted in strings:
 #' decimal_places(x = c(7.3900, "7.3900"))
 #'
-#' # This doesn't apply to non-trailing zeros; these
-#' # behave just like any other digit would:
-#' decimal_places(x = c(4.08, "4.08"))
-#'
-#' # Whitespace at the end of a string is not counted:
+#' # Whitespace at the end of a string is ignored:
 #' decimal_places(x = "6.0     ")
 #'
-#' # `decimal_places_scalar()` only works with
-#' # a single number or string:
 #' decimal_places_scalar(x = 8.13)
 #' decimal_places_scalar(x = "5.024")
 
@@ -199,41 +170,36 @@ decimal_places_scalar <- function(x, sep = ".") {
 
 #' Count decimal places in a data frame
 #'
-#' For every value in a column, `decimal_places_df()` counts its decimal places.
-#' By default, it operates on all columns that are coercible to numeric.
+#' `decimal_places_df()` replaces every value in the selected columns by its
+#' number of decimal places. By default, it operates on all columns coercible
+#' to numeric.
 #'
 #' @param data Data frame.
-#' @param cols Select columns from `data` using
+#' @param cols Columns to operate on, selected with
 #'   \href{https://tidyselect.r-lib.org/reference/language.html}{tidyselect}.
-#'   Default is `everything()`, but restricted by `check_numeric_like`.
-#' @param check_numeric_like Logical. If `TRUE` (the default), the function only
-#'   operates on numeric columns and other columns coercible to numeric, as
-#'   determined by [`is_numeric_like()`].
-#' @param sep String. The literal separator between the integer part and the
-#'   mantissa. Default is `"."`. (The former default, the regular expression
-#'   `"\\."`, is still read as a decimal point.) It only applies to strings:
-#'   numbers are always written with a point.
+#'   Default is `everything()`, restricted by `check_numeric_like`.
+#' @param check_numeric_like Logical. If `TRUE` (the default), only columns
+#'   that [`is_numeric_like()`] accepts are processed.
+#' @param sep String. The separator between integer part and mantissa, matched
+#'   literally. Default is `"."`.
 #'
-#' @return Data frame. The values of the selected columns are replaced by the
-#'   numbers of their decimal places.
+#' @return Data frame with the selected columns replaced by their counts of
+#'   decimal places.
 #'
-#' @seealso Wrapped functions: [`decimal_places()`], [`dplyr::across()`].
+#' @seealso [`decimal_places()`].
 #'
 #' @export
 #'
 #' @examples
-#' # Coerce all columns to string:
 #' iris <- iris |>
 #'   tibble::as_tibble() |>
 #'   dplyr::mutate(across(everything(), as.character))
 #'
-#' # The function will operate on all
-#' # numeric-like columns but not on `"Species"`:
+#' # All numeric-like columns, but not `Species`:
 #' iris |>
 #'   decimal_places_df()
 #'
-#' # Operate on some select columns only
-#' # (from among the numeric-like columns):
+#' # Selected columns only:
 #' iris |>
 #'   decimal_places_df(cols = starts_with("Sepal"))
 
