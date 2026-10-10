@@ -1,0 +1,108 @@
+#' Compare GRIM-inconsistency rates to random means
+#'
+#' @description `grim_plot_rates()` plots one point per study: its observed rate
+#'   of GRIM-inconsistent value sets against the rate that means with random
+#'   decimal digits would show at the same sample sizes and numbers of decimal
+#'   places. This helps spot both problematic studies and problems in GRIM
+#'   usage, see *Details*.
+#'
+#'   Correctly reported means are always consistent. Thus, any study not on the
+#'   dotted line at zero indicates some problem; either with the study itself or
+#'   with the GRIM analysis. The dashed diagonal marks studies where
+#'   GRIM-inconsistencies are as frequent as expected if the means' digits were
+#'   random.
+#'
+#' @param data Data frame returned by [`grim_map()`].
+#' @param study <[`tidy-select`][dplyr::dplyr_tidy_select]> Column of `data`
+#'   that identifies the study of each value set.
+#'
+#' @details The expected rate of a study is the mean of the `probability`
+#'   column, from [`grim_probability()`]. Value sets whose probability is zero
+#'   or missing are left out because GRIM cannot test them.
+#'
+#'   Point area is the number of GRIM-testable value sets. Color shows the
+#'   observed rate as a fraction of the expected one: 0 means no
+#'   inconsistencies, 1 as many as random means. Studies under the diagonal are
+#'   above 1, in darker colors.
+#'
+#'   No systematic factor tends to increase the GRIM inconsistency rate above
+#'   chance. Therefore, large points (= many value sets) clearly below the
+#'   diagonal are a warning sign for errors in the GRIM analysis. However,
+#'   studies with few value sets, represented by small dots, could have such
+#'   high ratios by chance.
+#'
+#' @return A ggplot object.
+#'
+#' @seealso [`grim_binomial()`] for a test of the same comparison.
+#'
+#' @export
+#'
+#' @examplesIf rlang::is_installed("ggrepel")
+#' pigs1 |>
+#'   grim_map(digits_x = 2) |>
+#'   dplyr::mutate(study = c("B", "B", "C", "C", "A", "C", "A", "D", "A", "A", "A", "A")) |>
+#'   grim_plot_rates(study)
+
+grim_plot_rates <- function(data, study) {
+  rlang::check_installed("ggrepel", "for the labels in `grim_plot_rates()`.")
+
+  if (!inherits(data, "scrutiny_grim_map")) {
+    abort_in_export("`data` must be output of `grim_map()`.")
+  }
+
+  study <- names(tidyselect::eval_select(rlang::enquo(study), data))
+
+  if (length(study) != 1L) {
+    abort_in_export(
+      "`study` must select exactly one column.",
+      "x" = "It selects {length(study)}."
+    )
+  }
+
+  rates <- data |>
+    dplyr::filter(.data$probability > 0) |>
+    dplyr::summarise(
+      observed = mean(!.data$consistency),
+      expected = mean(.data$probability),
+      value_sets = dplyr::n(),
+      fraction = .data$observed / .data$expected,
+      .by = dplyr::all_of(study)
+    )
+
+  # Red at 1 is the middle of the scale, not its end, so that fractions above it
+  # remain distinguishable:
+  upper <- max(2, rates$fraction)
+  as_percent <- function(x) paste0(100 * x, "%")
+
+  ggplot2::ggplot(
+    rates,
+    ggplot2::aes(x = .data$observed, y = .data$expected, label = .data[[study]])
+  ) +
+    ggplot2::geom_abline(linetype = "dashed", colour = "grey50") +
+    ggplot2::geom_vline(
+      xintercept = 0,
+      linetype = "dotted",
+      colour = "grey50"
+    ) +
+    ggplot2::geom_point(
+      ggplot2::aes(size = .data$value_sets, colour = .data$fraction),
+      shape = 19,
+      alpha = 0.7
+    ) +
+    ggrepel::geom_text_repel(size = 3, colour = "grey20", seed = 1) +
+    ggplot2::scale_x_continuous(labels = as_percent) +
+    ggplot2::scale_y_continuous(labels = as_percent) +
+    ggplot2::scale_size_area(name = "Testable\nvalue sets") +
+    ggplot2::scale_colour_gradientn(
+      colours = c("#2166ac", "#92c5de", "#f4a582", "#b2182b", "#40004b"),
+      values = c(0, 1 / 3, 2 / 3, 1, upper) / upper,
+      limits = c(0, upper),
+      name = "Observed /\nexpected"
+    ) +
+    ggplot2::coord_equal(xlim = c(0, 1), ylim = c(0, 1)) +
+    ggplot2::labs(
+      x = "Observed GRIM-inconsistency rate",
+      y = "Rate expected for random means"
+    ) +
+    ggplot2::theme_minimal()
+}

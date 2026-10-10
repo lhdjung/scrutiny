@@ -54,6 +54,7 @@ reference:
   - grim_map_total_n
   - grim_plot
   - grim_plot_values
+  - grim_plot_rates
   - grim_values
   - grim_ratio
   - grim_total

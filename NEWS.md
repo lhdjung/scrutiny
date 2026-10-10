@@ -58,6 +58,8 @@ This is a major release. The consistency tests now use exact integer arithmetic,
 
 - `grim_plot_values()` and `grimmer_plot_values()` visualize the test for a single value set. They show every mean (or SD) that could have been reported with the given number of decimal places within a certain range, mark those that a sample of the given size can actually have, and indicate the reported value.
 
+- `grim_plot_rates()` plots each study's rate of GRIM-inconsistent value sets against the rate that random means would show.
+
 - `round_ties_up()`, `round_ties_down()`, `round_ties_away()`, `round_ties_zero()`, and `round_ties_even()`, with matching `rounding` strings `"ties_up"` etc. Each of these names a complete tie-breaking rule: for example, `"ties_away"` is the same as `"up"` with `symmetric = TRUE`. Specifying `symmetric` together with one of these strings is an error. `round_up()`, `round_down()`, and the `"up"` and `"down"` strings continue to work as before.
 
 - `grimmer()` and `grimmer_map()` have new arguments `min_val` and `max_val`: the smallest and largest value that a single response can take, such as the endpoints of a Likert scale. If both are specified, GRIMMER additionally rejects SDs that no sample within these bounds can have, as well as means outside the bounds. `audit()` counts these in a new `fail_scale` column (#60).
