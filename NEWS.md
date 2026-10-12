@@ -1,6 +1,8 @@
 # scrutiny 1.0.0
 
-This is a major release. The consistency tests now use exact integer arithmetic, several rounding procedures were corrected, and the mapper functions are now created by `function_map()`. As a result, many test results differ from those of earlier versions.
+This is scrutiny's first major release. It brings many fixes and new features, but also many breaking changes. If you have used GRIM and GRIMMER before, you may need to adjust your syntax. You may either read on below or let error messages guide you.
+
+The consistency tests now use exact integer arithmetic, several rounding procedures were corrected, and the mapper functions are now created by `function_map()`. Under the default settings, GRIM's verdicts are unchanged and GRIMMER's differ only in rare edge cases; DEBIT is now exact by default. See "Test results" for details.
 
 ## Breaking changes
 
