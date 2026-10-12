@@ -122,7 +122,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - Errors about an invalid `rounding` or `symmetric` now name the function that the user called, and they are no longer wrapped in `purrr::pmap()`'s "In index" context. Many errors that came from base R or from internal code were replaced by messages that name the argument at fault.
 
-- `grim_map()` is now about twice as fast, and `grimmer_map()` about 70 times as fast.
+- `grim_map()` is now about 2.5 times as fast, and `grimmer_map()` about 80 times as fast.
 
 ## Lifecycle updates
 
