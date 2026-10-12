@@ -4,7 +4,7 @@
 #'   of GRIM-inconsistent value sets against the rate that means with random
 #'   decimal digits would show at the same sample sizes and numbers of decimal
 #'   places. This helps spot both problematic studies and problems in GRIM
-#'   usage, see *Details*.
+#'   usage. See *Details*.
 #'
 #'   Correctly reported means are always consistent. Thus, any study not on the
 #'   dotted line at zero indicates some problem; either with the study itself or
@@ -20,10 +20,10 @@
 #'   column, from [`grim_probability()`]. Value sets whose probability is zero
 #'   or missing are left out because GRIM cannot test them.
 #'
-#'   Point area is the number of GRIM-testable value sets. Color shows the
-#'   observed rate as a fraction of the expected one: 0 means no
-#'   inconsistencies, 1 as many as random means. Studies under the diagonal are
-#'   above 1, in darker colors.
+#'   Point area is the number of GRIM-testable value sets. Color shows the ratio
+#'   of the observed rate to the expected one: 0 means no inconsistencies, 1 as
+#'   many as random means. Studies under the diagonal are above 1, in darker
+#'   colors.
 #'
 #'   No systematic factor tends to increase the GRIM inconsistency rate above
 #'   chance. Therefore, large points (= many value sets) clearly below the
@@ -38,9 +38,15 @@
 #' @export
 #'
 #' @examplesIf rlang::is_installed("ggrepel")
+#' # Assume each unique code indicates one study
+#' codes <- c(
+#'   "B", "B", "C", "C", "A", "C",
+#'   "A", "D", "A", "A", "A", "A"
+#' )
+#'
 #' pigs1 |>
 #'   grim_map(digits_x = 2) |>
-#'   dplyr::mutate(study = c("B", "B", "C", "C", "A", "C", "A", "D", "A", "A", "A", "A")) |>
+#'   dplyr::mutate(study = codes) |>
 #'   grim_plot_rates(study)
 
 grim_plot_rates <- function(data, study) {
@@ -65,13 +71,13 @@ grim_plot_rates <- function(data, study) {
       observed = mean(!.data$consistency),
       expected = mean(.data$probability),
       value_sets = dplyr::n(),
-      fraction = .data$observed / .data$expected,
+      ratio = .data$observed / .data$expected,
       .by = dplyr::all_of(study)
     )
 
-  # Red at 1 is the middle of the scale, not its end, so that fractions above it
+  # Red at 1 is the middle of the scale, not its end, so that ratios above it
   # remain distinguishable:
-  upper <- max(2, rates$fraction)
+  upper <- max(2, rates$ratio)
   as_percent <- function(x) paste0(100 * x, "%")
 
   ggplot2::ggplot(
@@ -85,7 +91,7 @@ grim_plot_rates <- function(data, study) {
       colour = "grey50"
     ) +
     ggplot2::geom_point(
-      ggplot2::aes(size = .data$value_sets, colour = .data$fraction),
+      ggplot2::aes(size = .data$value_sets, colour = .data$ratio),
       shape = 19,
       alpha = 0.7
     ) +

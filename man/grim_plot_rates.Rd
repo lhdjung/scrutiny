@@ -20,7 +20,7 @@ A ggplot object.
 of GRIM-inconsistent value sets against the rate that means with random
 decimal digits would show at the same sample sizes and numbers of decimal
 places. This helps spot both problematic studies and problems in GRIM
-usage, see \emph{Details}.
+usage. See \emph{Details}.
 
 Correctly reported means are always consistent. Thus, any study not on the
 dotted line at zero indicates some problem; either with the study itself or
@@ -33,10 +33,10 @@ The expected rate of a study is the mean of the \code{probability}
 column, from \code{\link[=grim_probability]{grim_probability()}}. Value sets whose probability is zero
 or missing are left out because GRIM cannot test them.
 
-Point area is the number of GRIM-testable value sets. Color shows the
-observed rate as a fraction of the expected one: 0 means no
-inconsistencies, 1 as many as random means. Studies under the diagonal are
-above 1, in darker colors.
+Point area is the number of GRIM-testable value sets. Color shows the ratio
+of the observed rate to the expected one: 0 means no inconsistencies, 1 as
+many as random means. Studies under the diagonal are above 1, in darker
+colors.
 
 No systematic factor tends to increase the GRIM inconsistency rate above
 chance. Therefore, large points (= many value sets) clearly below the
@@ -46,9 +46,15 @@ high ratios by chance.
 }
 \examples{
 \dontshow{if (rlang::is_installed("ggrepel")) withAutoprint(\{ # examplesIf}
+# Assume each unique code indicates one study
+codes <- c(
+  "B", "B", "C", "C", "A", "C",
+  "A", "D", "A", "A", "A", "A"
+)
+
 pigs1 |>
   grim_map(digits_x = 2) |>
-  dplyr::mutate(study = c("B", "B", "C", "C", "A", "C", "A", "D", "A", "A", "A", "A")) |>
+  dplyr::mutate(study = codes) |>
   grim_plot_rates(study)
 \dontshow{\}) # examplesIf}
 }
