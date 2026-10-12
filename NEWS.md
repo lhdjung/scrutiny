@@ -1,6 +1,6 @@
 # scrutiny 1.0.0
 
-This is scrutiny's first major release. It brings many fixes and new features, but also many breaking changes. If you have used GRIM and GRIMMER before, you may need to adjust your syntax. You may either read on below or let error messages guide you.
+This is scrutiny's first major release. It brings many fixes and new features, but also many breaking changes. If you have used GRIM, GRIMMER, or DEBIT before, you may need to adjust your syntax. You may either read on below or let error messages guide you.
 
 The consistency tests now use exact integer arithmetic, several rounding procedures were corrected, and the mapper functions are now created by `function_map()`. Under the default settings, GRIM's verdicts are unchanged and GRIMMER's differ only in rare edge cases; DEBIT is now exact by default. See "Test results" for details.
 
@@ -28,9 +28,9 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - DEBIT is exact by default. The mean of `n` binary values is `k / n` for a whole number `k`, but DEBIT treated the mean as a continuous quantity and therefore accepted some SDs that no binary sample of size `n` can have. The new `formula` argument of `debit()` and its mappers selects either `"exact"`, the new default, or `"mean_n"`, the previous behavior. `debit_map()` has two new columns, `sum_lower` and `sum_upper`: the smallest and largest `k` whose mean would be reported as `x`.
 
-- GRIM, GRIMMER, and DEBIT now return `NA` for every case that cannot be tested, under every rounding method. Such cases are: a missing or infinite value; a missing `digits_*` argument; and an `n` or `items` value that is not a positive whole number. For GRIMMER and DEBIT, `n` must be at least 2, since they divide by `n - 1`. Previously, these cases caused an error or returned an arbitrary `TRUE` or `FALSE`. `grim_probability()` returns `NA` for the same cases.
+- GRIM, GRIMMER, and DEBIT now return `NA` for every case that cannot be tested, under every rounding method. Such cases are: a missing or infinite value, including a missing `digits_*` value; and an `n` or `items` value that is not a positive whole number. For GRIMMER and DEBIT, `n` must be at least 2, since they divide by `n - 1`. Previously, these cases caused an error or returned an arbitrary `TRUE` or `FALSE`. `grim_probability()` returns `NA` for the same cases.
 
-- `grim_probability()`, `grim_total()`, and the `probability` column of `grim_map()` now take the rounding method into account, via new `rounding` and `threshold` arguments. The formula `(10^D - N * L) / 10^D`, with `D` decimal places, sample size `N`, and `L` items, is only correct for rounding methods in which exactly one range of unrounded values, one step wide, leads to each reported value. Under the default `"up_or_down"`, a mean exactly on a tie is accepted in both directions, so the probability is lower: for `n = 40` and two decimal places, it is `0.4`, not `0.6`. `grim_binomial()` uses this column, so its p-values change accordingly.
+- `grim_probability()`, `grim_total()`, and the `probability` column of `grim_map()` now take the rounding method into account, via new `rounding` and `threshold` arguments. The formula `(10^D - N * L) / 10^D`, with `D` decimal places, sample size `N`, and `L` items, is only correct for rounding methods in which exactly one range of unrounded values, one step wide, leads to each reported value. Under the default `"up_or_down"`, a mean exactly on a tie is accepted in both directions, so the probability is lower: for `n = 40` and two decimal places, it is `0.4`, not `0.6`.
 
 ### Function interfaces
 
@@ -42,11 +42,11 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `grim_map(show_rec = TRUE)` returns the same five columns for every rounding method: `rec_sum`, `sum_lower`, `sum_upper`, `rec_x_upper`, `rec_x_lower`. The `rec_x_*_rounded*` columns are gone. `sum_lower` and `sum_upper` are the smallest and largest whole-number sum totals that would be reported as `x`, and `consistency` is `TRUE` exactly if `sum_lower <= sum_upper`. The displayed values can therefore no longer contradict the result. With `percent = TRUE`, `rec_x_upper` and `rec_x_lower` are percentages, like `x`.
 
-- The arguments of a mapper call that other functions need later, such as `rounding`, are now recorded in a single list attribute named `"scrutiny"`, not in S3 classes. Classes are now used for method dispatch only. Mapper output no longer has `"scrutiny_rounding_*"` or `"scrutiny_percent_true"` classes, sequence mapper output no longer has the `"scrutiny_map_seq_disp_nonlinear"` class or the `"scrutiny_fun_args"` attribute, and the `"scrutiny_seq_df"` and `"scrutiny_seq_test"` classes are gone.
+- The arguments of a mapper call that other functions need later, such as `rounding`, are now recorded in a single list attribute named `"scrutiny"`, not in S3 classes. Classes are now used for method dispatch only. Mapper output no longer has `"scr_rounding_*"` or `"scr_percent_true"` classes, sequence mapper output no longer has the `"scr_map_seq_disp_nonlinear"` class, and the `"scr_seq_df"` and `"scr_seq_test"` classes are gone.
 
-- In `*_map_seq()` output, `case` is now the row number of the value set in the input data. It used to count only the inconsistent rows. If `items` is specified, `n` is now the sample size and `items` a separate column, and `n` is dispersed in steps of 1. The step size for dispersing `x` and `sd` is now taken from `digits_x` and `digits_sd` rather than from the stored value, so a mean reported as 5.30 is dispersed in steps of 0.01. `*_map_total_n()` output also returns `n` and `items` separately.
+- In `*_map_seq()` output, `case` is now the row number of the value set in the input data. It used to count only the inconsistent rows. If `items` is specified, `n` is now the sample size and `items` a separate column, and `n` is dispersed in steps of 1. `*_map_total_n()` output also returns `n` and `items` separately.
 
-- `reround()` requires `rounding`, `threshold`, and `symmetric` to have length 1, requires `digits` to have length 1 or the length of `x`, and rejects a fractional `digits`. In every function, `rounding` must now be a string and `symmetric` a single `TRUE` or `FALSE`. A numeric or logical `rounding` used to be silently interpreted as a position in the list of `"ties_*"` methods.
+- `reround()` requires `rounding`, `threshold`, and `symmetric` to have length 1, requires `digits` to have length 1 or the length of `x`, and rejects a fractional `digits`. In every function, `rounding` must now be a string and `symmetric` a single `TRUE` or `FALSE`. A numeric or logical `rounding` used to be silently interpreted as a position in the list of rounding methods.
 
 - `decimal_places()`, `decimal_places_scalar()`, `decimal_places_df()`, `restore_zeros()`, and `restore_zeros_df()` match `sep` as a literal string, and the default is `"."` instead of `"\\."`.
 
@@ -68,7 +68,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `grim_values()` returns all means that a sample of `n` integers can have and that would be reported as `x`. `grim_closest()` returns the mean that such a sample can have that is closest to `x`, whether or not `x` is GRIM-consistent (#62).
 
-- `grim_binomial()` returns a Clopper-Pearson confidence interval as `conf.low` and `conf.high`.
+- `grim_binomial()` tests whether the rate of GRIM-consistent value sets is above what random decimal digits would produce, and returns a Clopper-Pearson confidence interval. `grim_binomial_power()` computes the power of this test. Both are experimental.
 
 - `function_map()` gained `.args_by_row`, `.args_defaults`, `.cols_helper`, `.cols_helper_merge`, `.cols_derived`, and a working `.col_names`. With these, `grim_map()`, `grimmer_map()`, and `debit_map()` can be created by `function_map()` without any handwritten code. The new `.reported_variadic` argument is for tests in which the number of key columns is determined by the data rather than by the test (#42). `function_map_seq()` gained `.var_bounds`, which sets separate default limits for each dispersed variable. A mean can therefore be dispersed below zero, while `n` cannot go below 1.
 
@@ -78,27 +78,27 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `debit()` no longer reports consistent binary data with a mean of exactly `0.50` as inconsistent. It also returns a result for means of exactly 0 and 1, which used to be `NA`.
 
-- `grimmer()` accepts `"ceiling_or_floor"`, `"up_from"`, `"down_from"`, and `"up_from_or_down_from"`, as `grim()` always did. If there are three or more candidate sums of squares under `rounding = "up"` or `"down"`, the SD check and the parity check are now applied to the same candidate. Previously, they could be satisfied by different candidates, so that inconsistent value sets passed (#85).
+- The GRIMMER bug that could lead to false positives in test 3 was fixed, and the warning that GRIMMER issued about it was removed (#80). If there are three or more candidate sums of squares under `rounding = "up"` or `"down"`, the SD check and the parity check are now applied to the same candidate. Previously, they could be satisfied by different candidates, so that inconsistent value sets passed (#85).
 
-- `grimmer()` reports a negative `sd` as `FALSE` with the reason `"Negative SD"`, and no longer runs indefinitely for a very large `n`. It throws an error if more than a million integer sums are compatible with the reported mean.
+- `grimmer()` gives the reason `"Negative SD"` for a negative `sd`, and no longer runs indefinitely for a very large `n`. It throws an error if more than a million integer sums are compatible with the reported mean.
 
-- `audit()` no longer counts a case without a test result as inconsistent, and its `mean_grim_prob`, `incons_to_prob`, `mean_x`, and `mean_sd` are now computed over the cases with a test result rather than being `NA` whenever a single case has none. `grim_binomial()` leaves such cases out.
+- `audit()` no longer counts a case without a test result as inconsistent, and its `mean_grim_prob`, `incons_to_prob`, `mean_x`, and `mean_sd` are now computed over the cases with a test result rather than being `NA` whenever a single case has none.
 
 ### Sequence and total-n mappers
 
 - `reverse_map_seq()` and `audit_seq()` now reconstruct the reported values from the `diff_var` column, which records the number of steps between each dispersed value and the reported one. Previously, they inferred the reported value from the position of the gap in the sequence, which failed when `out_min` or `out_max` had cut the sequence short. `audit_seq()` could then test the wrong value and report the opposite result.
 
-- `audit_seq()` re-tests reconstructed data with the same arguments as the original call, including `percent`, `threshold`, `symmetric`, and the scale bounds. It now also works with a `dispersion` of length 1, with mappers that have no `digits_*` arguments, with output that has no rows, and with cases whose dispersed sequence is empty because of `out_min` or `out_max`.
+- `audit_seq()` re-tests reconstructed data with the same arguments as the original call, including `percent`, `threshold`, `symmetric`, and the scale bounds. It now also works with a `dispersion` of length 1, with output that has no rows, and with cases whose dispersed sequence is empty because of `out_min` or `out_max`.
 
-- `*_map_seq()` functions no longer multiply `items` into `n` twice. A mean or SD used to be dispersed no lower than one decimal unit above zero; it can now reach zero, and a mean can go below it. With `include_consistent = TRUE`, the functions skip cases that have no test result. If there is nothing to disperse, they return a tibble with no rows but the usual columns.
+- In `*_map_seq()` functions, a mean or SD used to be dispersed no lower than one decimal unit above zero; it can now reach zero, and a mean can go below it. With `include_consistent = TRUE`, the functions skip cases that have no test result. If there is nothing to disperse, they return a tibble with no rows but the usual columns.
 
 - `seq_disperse()` now rounds its values to the decimal level of `by`, so that long sequences do not accumulate floating-point error (#83). It applies `out_min` and `out_max` to the whole sequence, including `from` itself, and no longer includes `from` twice when `dispersion` contains 0.
 
-- `*_map_total_n()` functions now swap the two groups correctly regardless of the column order in `data` and of the name of the statistic. Previously, the rows labeled `"back"` were a copy of the `"forth"` rows unless the columns were in the exact order `x1, x2, sd1, sd2`. These functions now also use an `items` column, and `reverse_map_total_n()` reconstructs the correct total `n` for any `dispersion`. Functions made by `function_map_total_n()` now work when created in another package (#69).
+- `*_map_total_n()` functions now use an `items` column, and `reverse_map_total_n()` reconstructs the correct total `n` for any `dispersion`. Functions made by `function_map_total_n()` now work when created in another package (#69).
 
 ### Rounding and decimal places
 
-- `decimal_places()` and `decimal_places_scalar()` now handle scientific notation, agree with each other on malformed strings, count numeric values correctly when `sep` is not `"."`, and return `NA` for `NaN`, infinite values, and the string `"NA"`. Since R writes `1 / 10^4` as `1e-04`, the sequence mappers used to produce wrong results for `digits_x = 4` and above.
+- `decimal_places()` and `decimal_places_scalar()` now handle scientific notation, agree with each other on malformed strings, count numeric values correctly when `sep` is not `"."`, and return `NA` for `NaN`, infinite values, and the string `"NA"`.
 
 - `round_ceiling()`, `round_floor()`, `round_trunc()`, and `round_anti_trunc()` apply the same floating-point tolerance as `round_up()`, so `round_ceiling(0.28, 2)` is `0.28`, not `0.29`. `round_up_from()` and `round_down_from()` now check that `threshold` is valid.
 
@@ -116,13 +116,13 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `is_seq_linear()` now returns `FALSE` for sequences such as `c(1, 2, 1)`. `seq_length()` extends a sequence by its own step size and in its own direction. The `is_seq_*()` functions now fill gaps left by `NA` values using the step size implied by the known values. They return `NA` for a vector consisting only of `NA`, whatever its type, and test strings and factors by their numeric values.
 
-- `grim_plot()` no longer drops value sets whose mean has no fractional part, such as `5.00`. It plots negative means at the fractional part of their absolute value, plots percentages with the number of decimal places they were tested with, works with `show_raster = FALSE`, and warns about any rows it leaves out instead of suppressing all warnings. `debit_plot()` now draws a separate DEBIT line for each sample size. It used to draw a single line for which the `n` column was recycled.
+- `grim_plot()` plots negative means at the fractional part of their absolute value, plots percentages with the number of decimal places they were tested with, works with `show_raster = FALSE`, and warns about any rows it leaves out instead of suppressing all warnings. `debit_plot()` now draws a separate DEBIT line for each sample size. It used to draw a single line for which the `n` column was recycled.
 
-- Mappers can now be called via `lapply()` or `purrr::map()`, and the name of a key column, such as `x = "mean"`, can be passed from a variable. They evaluate the key arguments instead of inspecting the unevaluated call. `.name_key_result` and `.args_disabled` now work in all three function factories. `is_map_df()` and the related predicates now recognize only scrutiny's own classes; they used to accept any class ending in `_map`.
+- Mappers can now be called via `lapply()` or `purrr::map()`, and the name of a key column, such as `x = "mean"`, can be passed from a variable. They evaluate the key arguments instead of inspecting the unevaluated call. `.name_key_result` now works in all three function factories, and `function_map_total_n()` has an `.args_disabled` argument, like the other two. `is_map_df()` and the related predicates now recognize only scrutiny's own classes; they used to accept any class ending in `_map`.
 
-- Errors about missing or invalid `digits_*`, `rounding`, and `symmetric` now name the function that the user called, and they are no longer wrapped in `purrr::pmap()`'s "In index" context. Many errors that came from base R or from internal code were replaced by messages that name the argument at fault.
+- Errors about an invalid `rounding` or `symmetric` now name the function that the user called, and they are no longer wrapped in `purrr::pmap()`'s "In index" context. Many errors that came from base R or from internal code were replaced by messages that name the argument at fault.
 
-- `grim_map()` is now about twice as fast and `grimmer_map()` about 2.5 times as fast. Most of the gain comes from the check that `digits_x` and `digits_sd` fit the values, which no longer counts decimal places in a string representation.
+- `grim_map()` is now about twice as fast, and `grimmer_map()` about 70 times as fast.
 
 ## Lifecycle updates
 
