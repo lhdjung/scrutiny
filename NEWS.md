@@ -16,7 +16,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 ### Test results
 
-- GRIM and GRIMMER now compute the candidate sums (and, for GRIMMER, the sums of squares) in exact integer arithmetic. Previously, candidates were compared to the rounding bounds in floating point, which gave wrong results whenever a candidate was exactly on a bound. Both false positives and false negatives occurred. For example, `grimmer(x = 0.03, sd = 0.18, n = 200)` was reported as inconsistent, although a sample of seven 1s and 193 0s has exactly these values. Thanks to Ian Hussey (#85, #86).
+- GRIM and GRIMMER now compute the candidate sums (and, for GRIMMER, the sums of squares) in exact integer arithmetic. Previously, candidates were compared to the rounding bounds in floating point, which gave wrong results whenever a candidate was exactly on a bound. Both false positives and false negatives occurred. For example, `grimmer(x = 0.03, sd = 0.18, n = 200)` was reported as inconsistent, although a sample of seven 1s and 193 0s has exactly these values. Errors of this kind also affected GRIMMER with multi-item scales. Thanks to Ian Hussey (#85, #86) and Aurélien Allard.
 
 - A rounding bound is now treated as exclusive whenever a value exactly on the bound would have been rounded away from the reported number under the given rounding method. This was already the case for `"up"` and `"down"`; it now also applies to `"ceiling"`, `"floor"`, `"trunc"`, `"anti_trunc"`, and the `"*_from"` methods. Under `"even"`, both bounds remain inclusive, because whether a tie occurs under `base::round()` depends on the binary representation of the value.
 
@@ -42,6 +42,8 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `grim_map(show_rec = TRUE)` returns the same five columns for every rounding method: `rec_sum`, `sum_lower`, `sum_upper`, `rec_x_upper`, `rec_x_lower`. The `rec_x_*_rounded*` columns are gone. `sum_lower` and `sum_upper` are the smallest and largest whole-number sum totals that would be reported as `x`, and `consistency` is `TRUE` exactly if `sum_lower <= sum_upper`. The displayed values can therefore no longer contradict the result. With `percent = TRUE`, `rec_x_upper` and `rec_x_lower` are percentages, like `x`.
 
+- scrutiny's S3 classes start with `scrutiny_` instead of `scr_`, as in `"scrutiny_grim_map"` (#39).
+
 - The arguments of a mapper call that other functions need later, such as `rounding`, are now recorded in a single list attribute named `"scrutiny"`, not in S3 classes. Classes are now used for method dispatch only. Mapper output no longer has `"scr_rounding_*"` or `"scr_percent_true"` classes, sequence mapper output no longer has the `"scr_map_seq_disp_nonlinear"` class, and the `"scr_seq_df"` and `"scr_seq_test"` classes are gone.
 
 - In `*_map_seq()` output, `case` is now the row number of the value set in the input data. It used to count only the inconsistent rows. If `items` is specified, `n` is now the sample size and `items` a separate column, and `n` is dispersed in steps of 1. `*_map_total_n()` output also returns `n` and `items` separately.
@@ -50,7 +52,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `decimal_places()`, `decimal_places_scalar()`, `decimal_places_df()`, `restore_zeros()`, and `restore_zeros_df()` match `sep` as a literal string, and the default is `"."` instead of `"\\."`.
 
-- `grim_plot()` and `debit_plot()` return their plot instead of printing it. `grim_plot()` has a new `split_by_digits` argument that returns a named list with one plot per number of decimal places. `debit_plot()` no longer has the `line_size` argument or the arguments for the outer boxes (`show_outer_boxes` and the `tile_*` arguments). Instead, each rectangle is drawn over a point at the reported mean and SD, so that value sets whose rectangle is too small to see remain visible.
+- `grim_plot()` and `debit_plot()` return their plot instead of printing it. `grim_plot()` has an aspect ratio of 1; add `ggplot2::theme(aspect.ratio = NULL)` to undo this. `grim_plot()` has a new `split_by_digits` argument that returns a named list with one plot per number of decimal places. `debit_plot()` no longer has the `line_size` argument or the arguments for the outer boxes (`show_outer_boxes` and the `tile_*` arguments). Instead, each rectangle is drawn over a point at the reported mean and SD, so that value sets whose rectangle is too small to see remain visible.
 
 - `duplicate_count_colpair()` requires at least two columns, and its `rate_y` is the proportion of `y` values that occur in `x`, as documented. `audit()` on `duplicate_detect()` output has a row for every column and counts only non-missing values.
 
@@ -126,6 +128,8 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 ## Lifecycle updates
 
+- Removed after their deprecation in scrutiny 0.5.0: the `show_prob` argument of `grim_map()`, `grim_ratio_upper()`, and the 15 functions around `is_subset_of()`.
+
 - The `tolerance` argument of `grim()` and `grim_map()` is deprecated. GRIM compares whole numbers exactly, so a tolerance has no effect. `grimmer()` keeps the argument and uses it.
 
 - `function_map()`'s `.col_control` and `.col_filler` arguments were removed. They never worked.
@@ -138,39 +142,46 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `symmetric` and the floating-point tolerance of the `round_*()` functions are documented in new sections of `?round_up`. `vignette("rounding-in-depth")` was revised, in particular its account of rounding to even.
 
+- `vignette("consistency-tests-in-depth")` was updated (#74), the GRIMMER documentation was improved (#66), and "Related software" has new entries.
+
+- The source code is formatted with [Air](https://posit-dev.github.io/air/).
+
 # scrutiny 0.6.1
+
+This is a fix for compatibility with testthat 3.3.0. Also:
 
 ## Bugfixes
 
--   Fixed a floating-point bug in the GRIMMER implementation, thanks to Aurélien Allard. It could treat some consistent value sets as inconsistent because of spurious precision in decimal numbers, at least in some edge cases with multi-item scales. This affected `grimmer()`, `grimmer_map()`, etc.
+-   Fixed a bug in `grimmer_map_total_n()`, `debit_map_total_n()`, and the underlying `function_map_total_n()` (#81). This could also have lead to incorrect results, but only in total-N mapper functions with two or more key arguments beyond `n`, so the bug never affected `grim_map_total_n()`.
 
-## Breaking changes
+-   Added a warning whenever GRIMMER runs. I recently learned about a bug that can lead to false positives in test 3 of the current GRIMMER implementation; see #80. The bug will be fixed in the next version of scrutiny (and the warning will be removed).
 
--   In `grim_plot()`, the aspect ratio was set to 1, so the plot is always square now. This is more pleasant to the eye given the background raster. To get the old behavior back, add `ggplot2::theme(aspect.ratio = NULL)` to the plot. You could also choose some ratio other than `NULL`, of course.
+## Minor changes
 
-## Minor improvements
+-   Updated the ["Related software"](https://lhdjung.github.io/scrutiny/articles/related.html) article to reflect recent additions to the forensic metascience toolkit. Now, it also attempts to roughly categorize tools by usage.
 
--   "Related software" (under "Articles" in the header) now has some new entries.
+# scrutiny 0.6.0
 
--   The development-focused article "Consistency tests in depth" was updated (#74).
+## Bugfixes
 
--   GRIMMER documentation was improved (#66).
+-   Fixed a bug in the DEBIT functions that could sometimes have resulted in `consistency` being `FALSE` when it should have been `TRUE` (thanks to \@nrposner, #75). However, this seems to be a rare issue, and DEBIT is not widely used in any case.
 
--   Source code is now formatted using [Air](https://posit-dev.github.io/air/).
+-   Fixed a bug that could theoretically lead `grim()`, `grim_map()`, `grim_map_seq()`, and `grim_map_total_n()` to throw a warning and possibly even return incorrect results (also \@nrposner, #75). However, this is even less realistic than the previous bug.
 
--   Internally, the `scr_` prefix used for S3-based operations such as method dispatch was replaced by `scrutiny_` throughout the package for greater clarity and better disambiguation (#39). This change will be invisible to any users who have not previously looked into scrutiny's S3 features.
+-   Compatibility with ggplot2 4.0.0 was ensured (@teunbrand, #78).
+
+-   `restore_zeros()` now checks `width` more strictly:
+
+    -   It no longer truncates decimal numbers if `width` is specified but some elements of `x` have more decimal places than that. For example, in earlier versions, `restore_zeros(c(0.12, 0.123, 0.1234), width = 2)` would have returned `c("0.120", "0.123", "0.123")`: it silently cut off the `4` from the last value. An error is now thrown in such cases.
+    -   Also, `width` is now checked to be either a single whole number or a vector of whole numbers with the same length as `x`.
+
+-   `restore_zeros_df()` has the same fixes as above.
+
+-   `is_seq_dispersed()` now works correctly if `NA` values are present.
 
 ## Lifecycle updates
 
-### Removed
-
-All of these had been deprecated since scrutiny 0.5.0:
-
--   The `show_prob` argument of `grim_map()` was removed.
-
--   `grim_ratio_upper()` was removed.
-
--   The 15 functions around `is_subset_of()` were removed.
+Currently none. However, the next major or minor version will introduce breaking changes, removals (as announced in scrutiny 0.5.0 below), and possibly more deprecations.
 
 # scrutiny 0.5.0
 
