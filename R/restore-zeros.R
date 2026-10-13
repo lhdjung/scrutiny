@@ -38,7 +38,6 @@
 #'   `restore_zeros_df()`.
 #' @param check_decimals Logical. If `TRUE`, columns without any decimal places
 #'   are skipped. Default is `FALSE`. Only in `restore_zeros_df()`.
-#' @param ... Only in `restore_zeros_df()`. These dots must be empty.
 #'
 #' @return
 #' - For `restore_zeros()`, a string vector.
@@ -193,26 +192,8 @@ restore_zeros_df <- function(
   width = NULL,
   sep_in = ".",
   sep_out = sep_in,
-  check_width = c("capped", "never"),
-  ...
+  check_width = c("capped", "never")
 ) {
-  # Check whether the user specified any "old" arguments: those starting on a
-  # dot. This check is now the only remaining purpose of the `...` dots because
-  # these are no longer meant to be used. Any other arguments passed through
-  # them should still lead to an error:
-  check_new_args_without_dots(
-    data,
-    dots = rlang::enquos(...),
-    old_args = c(
-      ".data",
-      ".check_decimals",
-      ".width",
-      ".sep_in",
-      ".sep_out",
-      ".sep"
-    ),
-    name_fn = "restore_zeros_df"
-  )
 
   # Check that `data` is a data frame or matrix:
   if (!is.data.frame(data)) {

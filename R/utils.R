@@ -38,7 +38,6 @@ utils::globalVariables(c(
   "sd_incl_upper",
   "x_lower",
   "x_upper",
-  "dupe_count",
   "na_count",
   "fun_name",
   # Added after rewriting the function factories using `rlang::new_function()`:
@@ -52,7 +51,6 @@ utils::globalVariables(c(
   # Added for `function_duplicate_cols()`, which uses `rlang::new_function()`:
   "colname_end",
   "ignore",
-  "numeric_only",
   # Added for `write_code_col_key_result()`:
   "!!<-"
 ))
@@ -577,22 +575,6 @@ error_digits_missing <- function(x) {
     ),
     call = sys.frame(index_last_export())
   )
-}
-
-
-#' Subset every `n`th element
-#'
-#' @param x Vector from which the `n`th element should be subsetted.
-#' @param n Numeric. Distance between two consecutive elements that will be
-#'   subsetted.
-#' @param from Numeric. Index of `x` where subsetting will start. Default is
-#'   `1L`.
-#'
-#' @return Vector containing some (or, in theory, all) elements of `x`.
-#'
-#' @noRd
-parcel_nth_elements <- function(x, n, from = 1L) {
-  x[seq(from = from, to = length(x), by = n)]
 }
 
 
@@ -1401,125 +1383,6 @@ index_case_from_diff <- function(x, diff_var, by = NULL) {
 #' @noRd
 index_central <- function(x) {
   ((length(x) - 1) / 2) + 1
-}
-
-
-#' Check for arguments with or via dots
-#'
-#' @description `check_old_args_split_by_parens()` checks a call to
-#'   `split_by_parens()` or `restore_zeros_df()` for certain kinds of errors
-#'   that used to be part of the design of these functions, but no longer are:
-#'
-#'   1. Column names are selected via the dots, `...`.
-#'   2. Argument names are prefixed with a dot, like `.transform` or
-#'   `.check_decimals`.
-#'   3. `col1` or `col2` are specified. (After losing their prefix dots, these
-#'   arguments of `split_by_parens()` were renamed to `end1` and `end2`.)
-#'
-#'   If any of these cases, a precisely informative error is thrown. There is
-#'   also a more generic error if any other argument is passed through the dots,
-#'   `...`. This used to be checked within `split_by_parens()` and
-#'   `restore_zeros_df()` themselves.
-
-#' @param data Input data frame of the main function itself.
-#' @param dots Captures in the main function with `rlang::enquos(...)`.
-#' @param old_args String vector with the old, dot-prefixed arguments.
-#' @param name_fn String. Name of the main function.
-#'
-#' @details Error 2 also points the user to the shift from `col*` to `end*` if
-#'   `.col1` or `.col2` were specified, much like error 3 does.
-#'
-#' @return No return value; might throw an error.
-#'
-#' @noRd
-check_new_args_without_dots <- function(data, dots, old_args, name_fn) {
-  if (length(dots) == 0L) {
-    return(invisible(NULL))
-  }
-
-  dots_names <- dots |>
-    purrr::map(rlang::as_label) |>
-    names()
-
-  # Error 1: Column names are selected via the dots, `...`.
-  offenders1 <- dots_names[dots_names %in% colnames(data)]
-  if (length(offenders1) > 0L) {
-    if (length(offenders1) == 1L) {
-      msg_cols <- glue::glue("{offenders1}")
-    } else {
-      msg_cols <- offenders1 |>
-        as.character() |>
-        stringr::str_flatten(", ") |>
-        call_on(\(x) paste0("c(", x, ")"))
-    }
-    abort_in_export(
-      "!" = "`{name_fn}()` no longer uses the dots, `...`, \\
-      for column selection.",
-      "i" = "Use the `cols` argument instead, like `cols = {msg_cols}`.",
-      "*" = "Apologies for the inconvenience."
-    )
-  }
-
-  arg_names <- names(rlang::caller_call())
-
-  # Error 2: Argument names are prefixed with a dot, like `.transform`.
-  offenders2 <- arg_names[arg_names %in% old_args]
-  if (length(offenders2) > 0L) {
-    if (length(offenders2) == 1L) {
-      msg_was_were <- "was"
-      msg_dot_dots <- "a dot"
-    } else {
-      msg_was_were <- "were"
-      msg_dot_dots <- "dots"
-    }
-    msg_new_args <- stringr::str_remove(offenders2, ".")
-
-    if (
-      name_fn == "split_by_parens" &&
-        any(c("col1", "col2") %in% msg_new_args)
-    ) {
-      msg_new_args[msg_new_args == "col1"] <- "end1"
-      msg_new_args[msg_new_args == "col2"] <- "end2"
-      msg_switch_end <- " Note the shift from `col*` to `end*`."
-    } else {
-      msg_switch_end <- ""
-    }
-    msg_new_args <- wrap_in_backticks(msg_new_args)
-    offenders2 <- wrap_in_backticks(offenders2)
-    abort_in_export(
-      "!" = "In `{name_fn}()`, {offenders2} {msg_was_were} \\
-        renamed to {msg_new_args} (without {msg_dot_dots}).{msg_switch_end}",
-      "*" = "Apologies for the inconvenience."
-    )
-  }
-
-  if (name_fn == "split_by_parens") {
-    # Error 3: `col1` or `col2` are specified (only in `split_by_parens()`).
-    offenders3 <- arg_names[arg_names %in% c("col1", "col2")]
-    if (length(offenders3) > 0L) {
-      if (length(offenders3) == 1L) {
-        msg_no_args <- "is not an argument"
-        msg_dot_dots <- "with a dot"
-      } else {
-        msg_no_args <- "are not arguments"
-        msg_dot_dots <- "with dots"
-      }
-      msg_offenders_old <- paste0(".", offenders3)
-      msg_offenders_old <- wrap_in_backticks(msg_offenders_old)
-      msg_new_args <- stringr::str_replace(offenders3, "col", "end")
-      msg_new_args <- wrap_in_backticks(msg_new_args)
-      offenders3 <- wrap_in_backticks(offenders3)
-      abort_in_export(
-        "!" = "{offenders3} {msg_no_args} of `{name_fn}()`.",
-        "i" = "You're right not to use {msg_offenders_old} anymore \\
-          ({msg_dot_dots}), but also note that it says {msg_new_args} now.",
-        "*" = "Apologies for the inconvenience."
-      )
-    }
-  }
-
-  # Finally, check that no other arguments are passed through the dots:
-  rlang::check_dots_empty(env = rlang::caller_env(n = 1L))
 }
 
 

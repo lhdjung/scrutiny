@@ -50,17 +50,6 @@ test_that("`is_whole_number()` returns correct values", {
   75.489 |> is_whole_number() |> expect_false()
 })
 
-# fmt: skip
-parcel_letters_expected <- c(
-  "a", "c", "e", "g", "i", "k", "m", "o",
-  "q", "s", "u", "w", "y"
-)
-
-test_that("`parcel_nth_elements()` returns correct values", {
-  letters |> parcel_nth_elements(2) |> expect_equal(parcel_letters_expected)
-  1:10    |> parcel_nth_elements(2) |> expect_equal(c(1, 3, 5, 7, 9))
-  1:10    |> parcel_nth_elements(5) |> expect_equal(c(1, 6))
-})
 
 
 df_test <- tibble::tibble(

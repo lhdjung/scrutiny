@@ -269,20 +269,6 @@ write_result_cols <- function(results, col_names) {
 }
 
 
-#' Get an `arg_list` object
-#'
-#' That is, a named list of arguments passed by the user who called the function
-#' within which `call_arg_list()` was called.
-#'
-#' @return Named list.
-#'
-#' @noRd
-call_arg_list <- function() {
-  out <- as.list(rlang::caller_call())
-  out[-(1:2)]
-}
-
-
 #' Insert key arguments into the factory-made function
 #'
 #' `insert_key_args()` extends the list of the factory-made function's

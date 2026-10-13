@@ -488,11 +488,6 @@ grim_plot <- function(
     dplyr::mutate(x = abs(x) - trunc(abs(x))) |>
     dplyr::rename(frac = x)
 
-  if (!show_data) {
-    data_emp <- data_emp |>
-      dplyr::mutate(dplyr::across(everything(), function(x) 0L))
-  }
-
   # If `percent = TRUE` in the underlying `grim_map()` call, the y-axis label is
   # automatically adjusted to reflect the fact that the fractional values are
   # percentages (converted to decimal numbers), not means:

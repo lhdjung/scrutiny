@@ -33,8 +33,6 @@
 #'   from `from` be returned as well? Default is `FALSE`. If `TRUE`,
 #'   `seq_disperse()` returns a list of the sequence and the steps, and
 #'   `seq_disperse_df()` adds a `diff_var` column.
-#' @param track_var_change,.track_var_change `r lifecycle::badge("deprecated")`
-#'   Renamed to `track_diff_var` / `.track_diff_var`.
 #' @param ... Further columns, added as in [`tibble::tibble()`]. Only in
 #'   `seq_disperse_df()`.
 #'
@@ -78,8 +76,7 @@ seq_disperse <- function(
   out_max = NULL,
   string_output = TRUE,
   include_reported = TRUE,
-  track_diff_var = FALSE,
-  track_var_change = deprecated()
+  track_diff_var = FALSE
 ) {
   # Checks ---
 
@@ -123,16 +120,6 @@ seq_disperse <- function(
     ))
   }
 
-  if (!missing(track_var_change)) {
-    lifecycle::deprecate_warn(
-      when = "0.3.1",
-      what = "seq_disperse(track_var_change)",
-      details = "It was renamed to `track_diff_var`. \\
-      If `track_var_change` is still specified, track_diff_var \\
-      takes on its value."
-    )
-    track_diff_var <- track_var_change
-  }
 
   # Main part ---
 
@@ -292,19 +279,8 @@ seq_disperse_df <- function(
   .out_max = NULL,
   .string_output = TRUE,
   .include_reported = TRUE,
-  .track_diff_var = FALSE,
-  .track_var_change = FALSE
+  .track_diff_var = FALSE
 ) {
-  if (!missing(.track_var_change)) {
-    lifecycle::deprecate_warn(
-      when = "0.3.1",
-      what = "seq_disperse_df(.track_var_change)",
-      details = "It was renamed to `.track_diff_var`. \\
-      If `.track_var_change` is still specified, .track_diff_var \\
-      takes on its value."
-    )
-    .track_diff_var <- .track_var_change
-  }
 
   out_basic_fun <- seq_disperse(
     from = .from,

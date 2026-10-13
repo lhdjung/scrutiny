@@ -1,16 +1,6 @@
 # Helpers for `function_map_seq()` as well as its assorted `reverse_*()` and
 # `summarize_*()` functions:
 
-is_seq_linear_basic <- function(x) {
-  if (length(x) < 3L) {
-    return(TRUE)
-  }
-  # Every successive pair of values must differ by the same amount, so each
-  # pairwise difference must equal the first one.
-  steps <- diff(x)
-  all(steps == steps[1L])
-}
-
 is_seq_ascending_basic <- function(x) {
   all(diff(x) > 0)
 }

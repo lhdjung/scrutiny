@@ -21,7 +21,6 @@
 #'   or a length-2 vector of custom separators, matched literally.
 #' @param end1,end2 Strings. Suffixes of the two columns that a split column
 #'   produces. Defaults are `"x"` and `"sd"`.
-#' @param ... These dots must be empty.
 #'
 #' @include utils.R before-inside-parens.R
 #'
@@ -86,19 +85,8 @@ split_by_parens <- function(
   transform = FALSE,
   sep = "parens",
   end1 = "x",
-  end2 = "sd",
-  ...
+  end2 = "sd"
 ) {
-  # Check whether the user specified any "old" arguments: those starting on a
-  # dot. This check is now the only remaining purpose of the `...` dots because
-  # these are no longer meant to be used. Any other arguments passed through
-  # them should still lead to an error:
-  check_new_args_without_dots(
-    data,
-    dots = rlang::enquos(...),
-    old_args = c(".data", ".keep", ".transform", ".sep", ".col1", ".col2"),
-    name_fn = "split_by_parens"
-  )
 
   # Since `sep` will be passed through the dots of `dplyr::across()`, which may
   # lead to issues with the timing of evaluation, its evaluation is forced here:

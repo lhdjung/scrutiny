@@ -130,6 +130,8 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - Removed after their deprecation in scrutiny 0.5.0: the `show_prob` argument of `grim_map()`, `grim_ratio_upper()`, and the 15 functions around `is_subset_of()`.
 
+- Removed after their deprecation in scrutiny 0.3.1: the `track_var_change` argument of `seq_disperse()` and `.track_var_change` of `seq_disperse_df()`. `restore_zeros_df()` and `split_by_parens()` no longer have `...`, which only existed to catch the argument names used before scrutiny 0.2.4.
+
 - The `tolerance` argument of `grim()` and `grim_map()` is deprecated. GRIM compares whole numbers exactly, so a tolerance has no effect. `grimmer()` keeps the argument and uses it.
 
 - `function_map()`'s `.col_control` and `.col_filler` arguments were removed. They never worked.

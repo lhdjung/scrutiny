@@ -12,8 +12,7 @@ split_by_parens(
   transform = FALSE,
   sep = "parens",
   end1 = "x",
-  end2 = "sd",
-  ...
+  end2 = "sd"
 )
 }
 \arguments{
@@ -38,8 +37,6 @@ or a length-2 vector of custom separators, matched literally.}
 
 \item{end1, end2}{Strings. Suffixes of the two columns that a split column
 produces. Defaults are \code{"x"} and \code{"sd"}.}
-
-\item{...}{These dots must be empty.}
 }
 \value{
 Data frame.

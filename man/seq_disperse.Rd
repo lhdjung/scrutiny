@@ -14,8 +14,7 @@ seq_disperse(
   out_max = NULL,
   string_output = TRUE,
   include_reported = TRUE,
-  track_diff_var = FALSE,
-  track_var_change = deprecated()
+  track_diff_var = FALSE
 )
 
 seq_disperse_df(
@@ -28,8 +27,7 @@ seq_disperse_df(
   .out_max = NULL,
   .string_output = TRUE,
   .include_reported = TRUE,
-  .track_diff_var = FALSE,
-  .track_var_change = FALSE
+  .track_diff_var = FALSE
 )
 }
 \arguments{
@@ -64,9 +62,6 @@ part of the sequence? Default is \code{TRUE}.}
 from \code{from} be returned as well? Default is \code{FALSE}. If \code{TRUE},
 \code{seq_disperse()} returns a list of the sequence and the steps, and
 \code{seq_disperse_df()} adds a \code{diff_var} column.}
-
-\item{track_var_change, .track_var_change}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
-Renamed to \code{track_diff_var} / \code{.track_diff_var}.}
 
 \item{...}{Further columns, added as in \code{\link[tibble:tibble]{tibble::tibble()}}. Only in
 \code{seq_disperse_df()}.}

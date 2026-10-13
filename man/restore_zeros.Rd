@@ -21,8 +21,7 @@ restore_zeros_df(
   width = NULL,
   sep_in = ".",
   sep_out = sep_in,
-  check_width = c("capped", "never"),
-  ...
+  check_width = c("capped", "never")
 )
 }
 \arguments{
@@ -55,8 +54,6 @@ that \code{\link[=is_numeric_like]{is_numeric_like()}} accepts are processed. On
 
 \item{check_decimals}{Logical. If \code{TRUE}, columns without any decimal places
 are skipped. Default is \code{FALSE}. Only in \code{restore_zeros_df()}.}
-
-\item{...}{Only in \code{restore_zeros_df()}. These dots must be empty.}
 }
 \value{
 \itemize{
