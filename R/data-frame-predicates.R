@@ -45,7 +45,7 @@
 #' is_map_seq_df(df3)
 
 is_map_df <- function(x) {
-  inherits_class_with(x, "^scrutiny_.+_map$")
+  any(grepl("^scrutiny_.+_map$", class(x)))
 }
 
 
@@ -61,7 +61,7 @@ is_map_basic_df <- function(x) {
 #' @export
 
 is_map_seq_df <- function(x) {
-  inherits_class_with(x, "^scrutiny_(.+_)?map_seq$")
+  any(grepl("^scrutiny_(.+_)?map_seq$", class(x)))
 }
 
 
@@ -69,5 +69,5 @@ is_map_seq_df <- function(x) {
 #' @export
 
 is_map_total_n_df <- function(x) {
-  inherits_class_with(x, "^scrutiny_(.+_)?map_total_n$")
+  any(grepl("^scrutiny_(.+_)?map_total_n$", class(x)))
 }
