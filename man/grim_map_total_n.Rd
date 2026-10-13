@@ -13,7 +13,6 @@ grim_map_total_n(
   n_min = 1L,
   n_max = NULL,
   constant = NULL,
-  constant_index = NULL,
   ...
 )
 }
@@ -41,9 +40,6 @@ maximum.}
 \item{constant}{Optionally, a length-2 vector, or a list of such vectors
 (which includes a data frame with two rows), to repeat alongside each pair
 of group sizes. Default is \code{NULL}.}
-
-\item{constant_index}{Integer (length 1). Column position of \code{constant} (or
-its first column) in the output. Default is \code{NULL}, right of \code{n_change}.}
 
 \item{...}{Arguments passed on to \code{\link[=grim_map]{grim_map()}}.}
 }

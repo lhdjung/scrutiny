@@ -6,32 +6,11 @@
 \alias{disperse_total}
 \title{Vary hypothetical group sizes}
 \usage{
-disperse(
-  n,
-  dispersion = 0:5,
-  n_min = 1L,
-  n_max = NULL,
-  constant = NULL,
-  constant_index = NULL
-)
+disperse(n, dispersion = 0:5, n_min = 1L, n_max = NULL, constant = NULL)
 
-disperse2(
-  n,
-  dispersion = 0:5,
-  n_min = 1L,
-  n_max = NULL,
-  constant = NULL,
-  constant_index = NULL
-)
+disperse2(n, dispersion = 0:5, n_min = 1L, n_max = NULL, constant = NULL)
 
-disperse_total(
-  n,
-  dispersion = 0:5,
-  n_min = 1L,
-  n_max = NULL,
-  constant = NULL,
-  constant_index = NULL
-)
+disperse_total(n, dispersion = 0:5, n_min = 1L, n_max = NULL, constant = NULL)
 }
 \arguments{
 \item{n}{Numeric. In \code{disperse()}, half of an even total. In \code{disperse2()},
@@ -48,9 +27,6 @@ the two consecutive numbers closest to half of an odd total, such as
 \item{constant}{Optionally, a length-2 vector, or a list of such vectors
 (which includes a data frame with two rows), to repeat alongside each pair
 of group sizes. Default is \code{NULL}.}
-
-\item{constant_index}{Integer (length 1). Column position of \code{constant} (or
-its first column) in the output. Default is \code{NULL}, right of \code{n_change}.}
 }
 \value{
 A tibble with these columns:

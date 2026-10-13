@@ -23,8 +23,6 @@
 #' @param constant Optionally, a length-2 vector, or a list of such vectors
 #'   (which includes a data frame with two rows), to repeat alongside each pair
 #'   of group sizes. Default is `NULL`.
-#' @param constant_index Integer (length 1). Column position of `constant` (or
-#'   its first column) in the output. Default is `NULL`, right of `n_change`.
 #'
 #' @details A pair with a group size below `n_min` or above `n_max` is
 #'   dropped. Columns from `constant` are named after a named list's elements,
@@ -77,8 +75,7 @@ disperse <- function(
   dispersion = 0:5,
   n_min = 1L,
   n_max = NULL,
-  constant = NULL,
-  constant_index = NULL
+  constant = NULL
 ) {
   # Checks ---
 
@@ -181,12 +178,8 @@ disperse <- function(
       constant <- repeat_constant(constant, out)
     }
 
-    if (is.null(constant_index)) {
-      constant_index <- match("n_change", colnames(out)) + 1L
-    }
-
     out <- out |>
-      dplyr::mutate(constant, .before = constant_index)
+      dplyr::mutate(constant, .after = "n_change")
   }
 
   # A sample size is a whole number, and the mappers that these tibbles feed
@@ -216,8 +209,7 @@ disperse2 <- function(
   dispersion = 0:5,
   n_min = 1L,
   n_max = NULL,
-  constant = NULL,
-  constant_index = NULL
+  constant = NULL
 ) {
   # Checks ---
 
@@ -237,7 +229,6 @@ disperse2 <- function(
   out <- disperse(
     n = mean(n),
     constant = constant,
-    constant_index = constant_index,
     dispersion = dispersion,
     n_min = n_min,
     n_max = n_max
@@ -271,8 +262,7 @@ disperse_total <- function(
   dispersion = 0:5,
   n_min = 1L,
   n_max = NULL,
-  constant = NULL,
-  constant_index = NULL
+  constant = NULL
 ) {
   # Checks ---
 
@@ -306,8 +296,7 @@ disperse_total <- function(
       dispersion = dispersion,
       n_min = n_min,
       n_max = n_max,
-      constant = constant,
-      constant_index = constant_index
+      constant = constant
     )
   } else {
     # Determine the two whole numbers closest to half of the odd `n`:
@@ -316,8 +305,7 @@ disperse_total <- function(
       dispersion = dispersion,
       n_min = n_min,
       n_max = n_max,
-      constant = constant,
-      constant_index = constant_index
+      constant = constant
     )
   }
 }

@@ -14,7 +14,6 @@ function_map_total_n(
   .n_min = 1L,
   .n_max = NULL,
   .constant = NULL,
-  .constant_index = NULL,
   ...
 )
 }
@@ -38,7 +37,7 @@ was created with.}
 \item{.name_class}{String. Optionally, a class to add to the output. Default
 is \code{NULL}.}
 
-\item{.dispersion, .n_min, .n_max, .constant, .constant_index}{Passed on to
+\item{.dispersion, .n_min, .n_max, .constant}{Passed on to
 \code{\link[=disperse_total]{disperse_total()}}, with the defaults from there.}
 
 \item{...}{These dots must be empty.}

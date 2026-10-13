@@ -136,6 +136,8 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `function_map()`'s `.col_control` and `.col_filler` arguments were removed. They never worked.
 
+- The `constant_index` argument of `disperse()`, `disperse2()`, and `disperse_total()` was removed, as was `.constant_index` of `function_map_total_n()` and the resulting `constant_index` of the `*_map_total_n()` functions. The `constant` columns always follow `n_change`; use `dplyr::relocate()` to move them.
+
 - scrutiny requires purrr >= 1.0.0 (#87) and ggplot2 >= 3.4.0. It no longer depends on corrr and suggests ggrepel instead of importing it.
 
 ## Documentation

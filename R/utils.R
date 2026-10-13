@@ -44,7 +44,6 @@ utils::globalVariables(c(
   "!!",
   "!!!",
   "constant",
-  "constant_index",
   "include_consistent",
   "n_min",
   "n_max",

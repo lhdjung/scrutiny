@@ -211,7 +211,7 @@ function_map_total_n_proto <- function(
 #'   was created with.
 #' @param .name_class String. Optionally, a class to add to the output. Default
 #'   is `NULL`.
-#' @param .dispersion,.n_min,.n_max,.constant,.constant_index Passed on to
+#' @param .dispersion,.n_min,.n_max,.constant Passed on to
 #'   [`disperse_total()`], with the defaults from there.
 #' @param ... These dots must be empty.
 #'
@@ -264,7 +264,6 @@ function_map_total_n <- function(
   .n_min = 1L,
   .n_max = NULL,
   .constant = NULL,
-  .constant_index = NULL,
   ...
 ) {
   force(.fun)
@@ -276,7 +275,6 @@ function_map_total_n <- function(
   force(.n_min)
   force(.n_max)
   force(.constant)
-  force(.constant_index)
 
   # The dots are only included to prevent a false-positive CRAN warning, so they
   # must not be used:
@@ -322,7 +320,6 @@ function_map_total_n <- function(
       n_min = .n_min,
       n_max = .n_max,
       constant = .constant,
-      constant_index = .constant_index,
       ... =
     ),
     body = rlang::expr({
@@ -556,29 +553,6 @@ function_map_total_n <- function(
           "scrutiny_map_total_n",
           paste0("scrutiny_", tolower(name_test), "_map_total_n")
         ))
-
-      # This is a hack, but it works. Its solves the following problem:
-      # `constant_index` is meant to work within the `disperse_total()` tibble,
-      # but the final output tibble, `out`, looks very different from that
-      # tibble. If `constant_index` were to operate on the dispersion tibble, as
-      # in the `disperse()` functions themselves, there would be a mismatch
-      # between the functionality of `constant_index` and the user-facing
-      # tibble. Therefore, `constant_index` must play itself out here, not
-      # within `disperse_total()`:
-      if (!is.null(constant) && !is.null(constant_index)) {
-        if (length(constant_index) != 1L) {
-          cli::cli_abort("`.constant_index` must have length 1.")
-        }
-
-        if (is.null(names(constant))) {
-          constant_ref <- "constant"
-        } else {
-          constant_ref <- names(constant)
-        }
-
-        out <- out |>
-          dplyr::relocate(all_of(constant_ref), .before = constant_index)
-      }
 
       # If `.name_class` (note the dot) was specified in the course of creating
       # the manufactured function, its value will become a class of the output:
