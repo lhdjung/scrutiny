@@ -524,6 +524,14 @@ test_that("`x` must fit into a given `digits`", {
 })
 
 
+test_that("`x` must be a string or a number", {
+  # A factor gave the bounds of its level code, `0.995 <= x(5.19) <= 1.005`:
+  factor("5.19") |> unround(digits = 2) |> expect_error("string or a number")
+  TRUE           |> unround(digits = 0) |> expect_error("string or a number")
+  NA             |> unround(digits = 2) |> purrr::pluck("lower") |> expect_equal(NA_real_)
+})
+
+
 test_that("`digits` is checked, and an infinite `x` has no bounds", {
   "1.25" |> unround(digits = 2.5) |> expect_error("whole numbers")
   "1.25" |> unround(digits = "2") |> expect_error("whole numbers")

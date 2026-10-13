@@ -104,7 +104,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `round_ceiling()`, `round_floor()`, `round_trunc()`, and `round_anti_trunc()` apply the same floating-point tolerance as `round_up()`, so `round_ceiling(0.28, 2)` is `0.28`, not `0.29`. `round_up_from()` and `round_down_from()` now check that `threshold` is valid.
 
-- `unround()` now applies `threshold` consistently, has a `symmetric` argument, reports the correct inclusive and exclusive bounds for `"anti_trunc"` with a negative `x`, checks the lengths of all its arguments against each other, and requires `x` to have no more than `digits` decimal places.
+- `unround()` now applies `threshold` consistently, has a `symmetric` argument, reports the correct inclusive and exclusive bounds for `"anti_trunc"` with a negative `x`, checks the lengths of all its arguments against each other, requires `x` to have no more than `digits` decimal places, and accepts only a string or a number as `x`.
 
 - `reround()` now selects the rounding function once per call instead of once per element, which makes it about 200 times faster for long vectors. `threshold = 5` is no longer an error for the `"*_from"` methods. `reround_to_fraction()` applies both procedures of a compound method to every element of `x`, as documented.
 

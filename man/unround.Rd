@@ -47,13 +47,14 @@ and whether each is inclusive. The default rounding method is
 \details{
 \code{x} is a string by default so that its trailing zeros can be
 counted, since a numeric value loses them. If the number of decimal places
-is known, pass it as \code{digits}, and \code{x} may be numeric. This is how
-\code{\link[=grim]{grim()}}, \code{\link[=grimmer]{grimmer()}}, and \code{\link[=debit]{debit()}} use it: their bounds come from
-the same internal functions, with \code{digits} taken from \code{digits_x} and
+is known, pass it as \code{digits}, and \code{x} may be numeric. \code{\link[=grim]{grim()}},
+\code{\link[=grimmer]{grimmer()}}, and \code{\link[=debit]{debit()}} derive their bounds from the same internal
+functions as \code{unround()}, with \code{digits} taken from \code{digits_x} and
 \code{digits_sd}, so the tests and \code{unround()} always agree.
 
-\code{x} and \code{rounding} are both vectorized. If both have length greater than
-1, they must have the same length and are paired element by element.
+All arguments are vectorized. Those of length greater than 1 must have the
+same length and are paired element by element. Pairing \code{x} with
+\code{rounding} in this way gives a warning.
 }
 \section{Rounding}{
  Whether a bound is inclusive depends on the rounding

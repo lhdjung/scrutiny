@@ -66,11 +66,11 @@ floor_frac_sum <- function(a1, b1, a2, b2) {
 
 # Integer offsets of the lower and upper rounding bounds from `x_num`, in units
 # of `1 / 10^(digits + 1)`, plus each bound's inclusivity. This is the single
-# source of truth for rounding bounds: `unround()`, `grim()`, and `grimmer()`
-# all derive their ranges from it. The offsets follow the table in the
-# `Rounding` section of `unround()`'s documentation, plus the compound methods,
-# whose bounds are the union of their constituents' (a single interval, since
-# both constituents include `x_num`).
+# source of truth for rounding bounds: `unround()`, the consistency tests, and
+# every other function that needs such bounds derive them from it. The offsets
+# follow the table in the `Rounding` section of `unround()`'s documentation,
+# plus the compound methods, whose bounds are the union of their constituents'
+# (a single interval, since both constituents include `x_num`).
 #
 # Each bound is inclusive exactly as the corresponding function in reround.R
 # behaves there -- e.g. `"up"` excludes its upper bound, where a value rounds
@@ -400,13 +400,14 @@ sum_squares_scale_max <- function(s, n, val_lower, val_upper) {
 #'
 #' @details `x` is a string by default so that its trailing zeros can be
 #'   counted, since a numeric value loses them. If the number of decimal places
-#'   is known, pass it as `digits`, and `x` may be numeric. This is how
-#'   [`grim()`], [`grimmer()`], and [`debit()`] use it: their bounds come from
-#'   the same internal functions, with `digits` taken from `digits_x` and
+#'   is known, pass it as `digits`, and `x` may be numeric. [`grim()`],
+#'   [`grimmer()`], and [`debit()`] derive their bounds from the same internal
+#'   functions as `unround()`, with `digits` taken from `digits_x` and
 #'   `digits_sd`, so the tests and `unround()` always agree.
 #'
-#'   `x` and `rounding` are both vectorized. If both have length greater than
-#'   1, they must have the same length and are paired element by element.
+#'   All arguments are vectorized. Those of length greater than 1 must have the
+#'   same length and are paired element by element. Pairing `x` with
+#'   `rounding` in this way gives a warning.
 #'
 #' @section Rounding: Whether a bound is inclusive depends on the rounding
 #'   method. Under `"up"`, a value on the lower bound rounds up to `x`, but a
@@ -512,9 +513,27 @@ unround <- function(
     warn = FALSE
   )
 
-  # Without `digits`, the decimal places are counted from `x`, which must then
-  # be a string so that trailing zeros survive:
-  if (is.null(digits)) {
+  digits_given <- !is.null(digits)
+  if (digits_given) {
+    # The same check as in `reround()`: a fractional `digits` was accepted and
+    # gave bounds on no decimal grid, and a string failed deep inside with
+    # "non-numeric argument to mathematical function".
+    check_digits_whole(digits)
+    # `as.numeric()` below takes a factor's level codes and `TRUE` for 1, which
+    # gave the bounds of those numbers next to `x`'s own spelling:
+    if (
+      !is.numeric(x) &&
+        !is.character(x) &&
+        !(is.logical(x) && all(is.na(x)))
+    ) {
+      cli::cli_abort(c(
+        "`x` must be a string or a number.",
+        "x" = "It is {.obj_type_friendly {x}}."
+      ))
+    }
+  } else {
+    # The decimal places are counted from `x`, which must then be a string so
+    # that trailing zeros survive:
     if (!is.character(x)) {
       cli::cli_abort(c(
         "`x` is {an_a_type(x)}.",
@@ -522,11 +541,6 @@ unround <- function(
       ))
     }
     digits <- decimal_places(x)
-  } else {
-    # The same check as in `reround()`: a fractional `digits` was accepted and
-    # gave bounds on no decimal grid, and a string failed deep inside with
-    # "non-numeric argument to mathematical function".
-    check_digits_whole(digits)
   }
 
   # The bound helpers operate on the numeric value of `x`:
@@ -564,23 +578,30 @@ unround <- function(
   # x(1.234) <= 1.28`, the bounds of nothing at all. Trailing zeros in a string
   # are not the problem -- `"4.50"` at one decimal place is 4.5 -- so the test
   # is the same two-step one as in `check_newly_numeric()`: `round()` decides,
-  # and the decimal count is only consulted for what it leaves open. (`round()`
-  # rejects a zero-length `digits`, hence the guard.)
-  decimals_x <- decimal_places(x_out)
-  too_many <- if (n_out == 0L) {
-    logical(0L)
-  } else {
-    !is.na(x_num) &
+  # and the decimal count is only consulted for what it leaves open. Counting is
+  # the expensive step, so it runs on those values alone. A `digits` counted
+  # from `x` itself cannot disagree with it. (`round()` rejects a zero-length
+  # `digits`, hence the guard, and most of the cost of `decimal_places()` is
+  # fixed, hence the second one.)
+  too_many <- rep(FALSE, n_out)
+  if (digits_given && n_out > 0L) {
+    unsettled <-
+      !is.na(x_num) &
       !is.na(digits) &
-      x_num != round(x_num, digits) &
-      decimals_x > digits
+      x_num != round(x_num, digits)
+    if (any(unsettled)) {
+      too_many[unsettled] <-
+        decimal_places(x_out[unsettled]) > digits[unsettled]
+    }
   }
+
   if (any(too_many)) {
+    decimals_x <- decimal_places(x_out[too_many])
     cli::cli_abort(c(
       "`x` has more decimal places than `digits` states.",
       "x" = "`digits` is {utils::head(digits[too_many], 3L)} for \\
       {utils::head(x_out[too_many], 3L)}, which {?has/have} \\
-      {utils::head(decimals_x[too_many], 3L)}.",
+      {utils::head(decimals_x, 3L)}.",
       "i" = "`digits` is meant for helper use, where the decimal count is \\
       known. Leave it `NULL` to count the decimal places from a string `x`."
     ))
