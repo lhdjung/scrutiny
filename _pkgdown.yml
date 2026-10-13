@@ -146,7 +146,6 @@ reference:
   - seq_test_ranking
   - seq_disperse
   - disperse
-  - seq_length
   - is_seq_linear
 - subtitle: Documentation templates
   desc: Return standardized building blocks for documenting specific kinds of functions

@@ -116,7 +116,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `duplicate_tally()` no longer counts missing values as matches of every other value, and its running time is now proportional to the number of values rather than to its square. `duplicate_count()` uses a named vector's names as `locations` and drops unused factor levels. `duplicate_count_colpair()` compares values as strings, like the other `duplicate_*()` functions.
 
-- `is_seq_linear()` now returns `FALSE` for sequences such as `c(1, 2, 1)`. `seq_length()` extends a sequence by its own step size and in its own direction. The `is_seq_*()` functions now fill gaps left by `NA` values using the step size implied by the known values. They return `NA` for a vector consisting only of `NA`, whatever its type, and test strings and factors by their numeric values.
+- `is_seq_linear()` now returns `FALSE` for sequences such as `c(1, 2, 1)`. The `is_seq_*()` functions now fill gaps left by `NA` values using the step size implied by the known values. They return `NA` for a vector consisting only of `NA`, whatever its type, and test strings and factors by their numeric values.
 
 - `grim_plot()` plots negative means at the fractional part of their absolute value, plots percentages with the number of decimal places they were tested with, works with `show_raster = FALSE`, and warns about any rows it leaves out instead of suppressing all warnings. `debit_plot()` now draws a separate DEBIT line for each sample size. It used to draw a single line for which the `n` column was recycled.
 
@@ -129,6 +129,8 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 ## Lifecycle updates
 
 - Removed after their deprecation in scrutiny 0.5.0: the `show_prob` argument of `grim_map()`, `grim_ratio_upper()`, and the 15 functions around `is_subset_of()`.
+
+- `seq_length()` and `seq_length<-` were removed. They did little that `seq()` does not, and their names clashed with `seq_len()`.
 
 - Removed after their deprecation in scrutiny 0.3.1: the `track_var_change` argument of `seq_disperse()` and `.track_var_change` of `seq_disperse_df()`. `restore_zeros_df()` and `split_by_parens()` no longer have `...`, which only existed to catch the argument names used before scrutiny 0.2.4.
 

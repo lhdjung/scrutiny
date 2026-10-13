@@ -116,7 +116,6 @@ Collate:
     'row-to-colnames.R'
     'scrutiny-package.R'
     'seq-disperse.R'
-    'seq-length.R'
     'split-by-parens.R'
     'utils-tidy-eval.R'
     'vectorize-test.R'
