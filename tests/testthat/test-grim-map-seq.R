@@ -1460,11 +1460,11 @@ test_that("`grim_map_seq()` handles large `dispersion` values", {
 })
 
 
-# The initial `grim_map()` call multiplies `items` into the `n` column. That
-# product used to be what the re-tests of dispersed values received: `items` was
-# either applied a second time, testing `n * items^2`, or not at all, which
-# dispersed `n * items` in steps of 1 -- values that are no multiple of `items`.
-# Now `n` is dispersed as the sample size, and `items` is kept as a column.
+# `grim_map()` used to multiply `items` into the `n` column. That product was
+# what the re-tests of dispersed values received: `items` was either applied a
+# second time, testing `n * items^2`, or not at all, which dispersed `n * items`
+# in steps of 1 -- values that are no multiple of `items`. Now `n` is dispersed
+# as the sample size, and `items` is a column.
 test_that("`grim_map_seq()` applies `items` exactly once", {
   out <- tibble::tibble(x = 2.84, n = 16) |>
     grim_map_seq(

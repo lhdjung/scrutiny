@@ -35,13 +35,9 @@
 #'   `.fun` that the factory-made function should have other defaults for,
 #'   such as `list(show_reason = TRUE)`.
 #' @param .cols_helper Optionally, names of arguments of `.fun` that may also
-#'   be given as columns of `data`, such as `"items"`. See
-#'   [`manage_helper_col()`].
-#' @param .cols_helper_merge Optionally, a named string vector pairing
-#'   `.cols_helper` names with the `.reported` columns they are multiplied
-#'   into for the output, such as `c(items = "n")`. Such a helper column is
-#'   not returned by itself. Sequence mappers made by [`function_map_seq()`]
-#'   undo the merge, since they re-test the values.
+#'   be given as columns of `data`, such as `"items"`. A helper column is
+#'   returned after the key columns if it was given, as a column or as an
+#'   argument. See [`manage_helper_col()`].
 #' @param .col_names Optionally, the names of the columns that the values
 #'   returned by `.fun` unpack into when it returns a list, as with
 #'   `show_rec = TRUE`. The first name must be `.name_key_result`. If `data`
@@ -140,7 +136,6 @@ function_map <- function(
   .args_by_row = NULL,
   .args_defaults = NULL,
   .cols_helper = NULL,
-  .cols_helper_merge = NULL,
   .col_names = NULL,
   .cols_derived = NULL,
   # Last among the named arguments, rather than next to `.reported` where it
@@ -159,7 +154,6 @@ function_map <- function(
   force(.args_by_row)
   force(.args_defaults)
   force(.cols_helper)
-  force(.cols_helper_merge)
   force(.col_names)
   force(.cols_derived)
 
@@ -233,24 +227,6 @@ function_map <- function(
     ))
   }
 
-  if (!all(names(.cols_helper_merge) %in% .cols_helper)) {
-    names_unknown <- .cols_helper_merge |>
-      names() |>
-      setdiff(.cols_helper)
-    cli::cli_abort(c(
-      "Every name of `.cols_helper_merge` must be a `.cols_helper` value.",
-      "x" = "{wrap_in_backticks(names_unknown)} {?is/are} not."
-    ))
-  }
-
-  if (!all(.cols_helper_merge %in% .reported)) {
-    cli::cli_abort(c(
-      "Every value of `.cols_helper_merge` must be a `.reported` value.",
-      "x" = "{wrap_in_backticks(setdiff(.cols_helper_merge, .reported))} \\
-      {?is/are} not."
-    ))
-  }
-
   # The arguments of `.fun` that become arguments of the factory-made function,
   # in the order in which `.fun` has them. Key columns are covered by the
   # `.reported` arguments inserted at the very end, and disabled arguments are
@@ -290,10 +266,10 @@ function_map <- function(
     "reported_variadic",
     "args_by_row",
     "args_helper",
+    "args_helper_given",
     "args_const",
     "args_required",
     "col_names",
-    "helper_merge",
     "cols_derived_funs",
     "add_class",
     "cols_variadic",
@@ -420,7 +396,6 @@ function_map <- function(
       args_const <- `!!`(args_const)
       args_required <- `!!`(args_required)
       col_names <- `!!`(.col_names)
-      helper_merge <- `!!`(.cols_helper_merge)
       cols_derived_funs <- `!!`(.cols_derived)
 
       add_class <- function(x, new_class) {
@@ -453,6 +428,15 @@ function_map <- function(
       `!!!`(code_variadic)
 
       `!!!`(code_check_lengths)
+
+      # A helper column is returned if it was given, as a column of `data` or
+      # as an argument. One that `fun()` only has a default for is not:
+      args_helper_given <- character(0L)
+      for (arg in args_helper) {
+        if (arg %in% colnames(data) || !eval(call("missing", as.name(arg)))) {
+          args_helper_given <- c(args_helper_given, arg)
+        }
+      }
 
       # Add a column for every helper argument that `data` doesn't have one for
       # already, and throw an error if `data` and the argument contradict each
@@ -535,20 +519,14 @@ function_map <- function(
         )
       )
 
-      # The key columns of the output, with any helper columns either multiplied
-      # into the key column they belong to or returned in their own right. The
-      # variadic columns are returned as themselves, so the output is as
-      # rectangular as any other mapper's -- only the number of columns that go
-      # into each test varies:
+      # The key columns of the output, followed by the helper columns that were
+      # given. The variadic columns are returned as themselves, so the output
+      # is as rectangular as any other mapper's -- only the number of columns
+      # that go into each test varies:
       cols_key <- c(cols_variadic, as.list(data[reported]))
 
-      for (arg in args_helper) {
-        merge_into <- helper_merge[[arg]]
-        if (is.null(merge_into)) {
-          cols_key[[arg]] <- data[[arg]]
-        } else {
-          cols_key[[merge_into]] <- cols_key[[merge_into]] * data[[arg]]
-        }
+      for (arg in args_helper_given) {
+        cols_key[[arg]] <- data[[arg]]
       }
 
       # `n` is a sample size, so it is always a whole number. Coercing it to
@@ -693,18 +671,11 @@ function_map <- function(
   )
 
   # Record the helper-column arguments (such as `items`) as metadata on the
-  # manufactured function. A helper argument's effect is baked into the mapper's
-  # output -- `items`, for one, is multiplied into the `n` column -- so code
-  # that re-runs the mapper on data derived from its own output must not pass
-  # such an argument a second time. `function_map_seq()` consults this attribute
-  # when it re-tests dispersed values:
+  # manufactured function. A helper argument that was given is a column of the
+  # mapper's output, so code that re-runs the mapper on data derived from that
+  # output must not pass the argument a second time. `function_map_seq()` and
+  # `function_map_total_n()` consult this attribute when they re-test:
   attr(fn_out, "scrutiny_args_helper") <- args_helper
-
-  # The key columns that helpers are multiplied into, such as `c(items = "n")`.
-  # A merged column is a product, and a test like GRIMMER needs its factors
-  # separately, so `function_map_seq()` has to undo the merge to re-test:
-  attr(fn_out, "scrutiny_cols_helper_merge") <-
-    .cols_helper_merge[names(.cols_helper_merge) %in% args_helper]
 
   fn_out
 }

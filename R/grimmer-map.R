@@ -15,8 +15,8 @@
 #' @param x,sd,n Optionally, the names of the columns in `data` that contain
 #'   these values, if they differ from the defaults.
 #' @param items Integer. The number of items composing `x` and `sd`, if `data`
-#'   has no `items` column. Default is `1`. `items` is multiplied into `n` for
-#'   the output.
+#'   has no `items` column. Default is `1`. If given, as an argument or a
+#'   column, it is returned as a column.
 #' @param min_val,max_val Integer. Optionally, the bounds of the scale; see
 #'   the *Scale bounds* section of [`grimmer()`]. Both default to `NULL`.
 #' @param show_reason Logical. If `TRUE` (the default), a `reason` column states
@@ -27,6 +27,7 @@
 #' @return A tibble with these columns:
 #' - `x`, `sd`, `n`: the inputs.
 #' - `digits_x`, `digits_sd`: the numbers of decimal places, as given.
+#' - `items`: the number of items, if given.
 #' - `consistency`: GRIMMER consistency of `x`, `sd`, `n`, and `items`. `NA`
 #'   for a case that cannot be decided, such as one with a missing value.
 #' - `reason`: `"Passed all"` if consistent; otherwise the test that failed.
@@ -94,6 +95,5 @@ grimmer_map <- function_map(
   # default -- they fit into a column, and `audit()` counts them:
   .args_defaults = list(show_reason = TRUE),
   .cols_helper = "items",
-  .cols_helper_merge = c(items = "n"),
   .col_names = c("consistency", "reason")
 )

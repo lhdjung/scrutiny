@@ -40,6 +40,8 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `grim()`, `grimmer()`, and `debit()` no longer have `show_rec` or `show_reason`. These arguments were only intended for internal use by the mappers. The three functions are now vectorized only over the tested values (`x`, `sd`, `n`, and the `digits_*` arguments) and `items`; `rounding`, `threshold`, `symmetric`, `percent`, `formula`, `min_val`, `max_val`, and `tolerance` must have length 1. Recycling follows the tidyverse rules: an argument must have length 1 or the common length. `grim(x = c(5.19, 5.18, 5.17), n = c(28, 32), digits_x = 2)` is therefore an error; it used to return three results.
 
+- `grim_map()` and `grimmer_map()` no longer multiply `items` into `n`. The `n` column is the sample size as given, and `items` is returned as a column of its own if it was given, as an argument or a column. `grim_plot()` places the tiles at `n * items`. The other mappers already kept the two apart.
+
 - `grim_map(show_rec = TRUE)` returns the same five columns for every rounding method: `rec_sum`, `sum_lower`, `sum_upper`, `rec_x_upper`, `rec_x_lower`. The `rec_x_*_rounded*` columns are gone. `sum_lower` and `sum_upper` are the smallest and largest whole-number sum totals that would be reported as `x`, and `consistency` is `TRUE` exactly if `sum_lower <= sum_upper`. The displayed values can therefore no longer contradict the result. With `percent = TRUE`, `rec_x_upper` and `rec_x_lower` are percentages, like `x`.
 
 - scrutiny's S3 classes start with `scrutiny_` instead of `scr_`, as in `"scrutiny_grim_map"` (#39).
@@ -72,7 +74,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `grim_binomial()` tests whether the rate of GRIM-consistent value sets is above what random decimal digits would produce, and returns a Clopper-Pearson confidence interval. `grim_binomial_power()` computes the power of this test. Both are experimental.
 
-- `function_map()` gained `.args_by_row`, `.args_defaults`, `.cols_helper`, `.cols_helper_merge`, `.cols_derived`, and a working `.col_names`. With these, `grim_map()`, `grimmer_map()`, and `debit_map()` can be created by `function_map()` without any handwritten code. The new `.reported_variadic` argument is for tests in which the number of key columns is determined by the data rather than by the test (#42). `function_map_seq()` gained `.var_bounds`, which sets separate default limits for each dispersed variable. A mean can therefore be dispersed below zero, while `n` cannot go below 1.
+- `function_map()` gained `.args_by_row`, `.args_defaults`, `.cols_helper`, `.cols_derived`, and a working `.col_names`. With these, `grim_map()`, `grimmer_map()`, and `debit_map()` can be created by `function_map()` without any handwritten code. The new `.reported_variadic` argument is for tests in which the number of key columns is determined by the data rather than by the test (#42). `function_map_seq()` gained `.var_bounds`, which sets separate default limits for each dispersed variable. A mean can therefore be dispersed below zero, while `n` cannot go below 1.
 
 ## Bugfixes
 

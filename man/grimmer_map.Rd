@@ -35,8 +35,8 @@ whole column or one number per row of \code{data}.}
 these values, if they differ from the defaults.}
 
 \item{items}{Integer. The number of items composing \code{x} and \code{sd}, if \code{data}
-has no \code{items} column. Default is \code{1}. \code{items} is multiplied into \code{n} for
-the output.}
+has no \code{items} column. Default is \code{1}. If given, as an argument or a
+column, it is returned as a column.}
 
 \item{min_val, max_val}{Integer. Optionally, the bounds of the scale; see
 the \emph{Scale bounds} section of \code{\link[=grimmer]{grimmer()}}. Both default to \code{NULL}.}
@@ -53,6 +53,7 @@ A tibble with these columns:
 \itemize{
 \item \code{x}, \code{sd}, \code{n}: the inputs.
 \item \code{digits_x}, \code{digits_sd}: the numbers of decimal places, as given.
+\item \code{items}: the number of items, if given.
 \item \code{consistency}: GRIMMER consistency of \code{x}, \code{sd}, \code{n}, and \code{items}. \code{NA}
 for a case that cannot be decided, such as one with a missing value.
 \item \code{reason}: \code{"Passed all"} if consistent; otherwise the test that failed.

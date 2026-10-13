@@ -221,8 +221,8 @@ grim_plot <- function(
   # Whether `x` was tested as a percentage, as recorded by `grim_map()`:
   is_percent <- isTRUE(scrutiny_meta(data)$args$percent)
 
-  # The sequence and total-n mappers keep `items` apart from `n`, but GRIM's
-  # granularity is their product:
+  # The mappers keep `items` apart from `n`, but GRIM's granularity is their
+  # product:
   if ("items" %in% colnames(data)) {
     data$n <- data$n * data$items
   }

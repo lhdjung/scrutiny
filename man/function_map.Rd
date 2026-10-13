@@ -14,7 +14,6 @@ function_map(
   .args_by_row = NULL,
   .args_defaults = NULL,
   .cols_helper = NULL,
-  .cols_helper_merge = NULL,
   .col_names = NULL,
   .cols_derived = NULL,
   .reported_variadic = NULL,
@@ -52,14 +51,9 @@ value or one per row of \code{data} for each, and returns them as columns.}
 such as \code{list(show_reason = TRUE)}.}
 
 \item{.cols_helper}{Optionally, names of arguments of \code{.fun} that may also
-be given as columns of \code{data}, such as \code{"items"}. See
-\code{\link[=manage_helper_col]{manage_helper_col()}}.}
-
-\item{.cols_helper_merge}{Optionally, a named string vector pairing
-\code{.cols_helper} names with the \code{.reported} columns they are multiplied
-into for the output, such as \code{c(items = "n")}. Such a helper column is
-not returned by itself. Sequence mappers made by \code{\link[=function_map_seq]{function_map_seq()}}
-undo the merge, since they re-test the values.}
+be given as columns of \code{data}, such as \code{"items"}. A helper column is
+returned after the key columns if it was given, as a column or as an
+argument. See \code{\link[=manage_helper_col]{manage_helper_col()}}.}
 
 \item{.col_names}{Optionally, the names of the columns that the values
 returned by \code{.fun} unpack into when it returns a list, as with

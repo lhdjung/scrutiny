@@ -223,17 +223,18 @@ test_that("`.col_names` unpacks the test function's values, keeping types", {
 test_that("`.cols_helper` supports helper columns", {
   df <- tibble::tibble(x = 4.67, sd = 0.00, n = 2L, items = 3)
 
-  # `items` may be a column of `data`...
-  df |>
-    grimmer_map(digits_x = 2, digits_sd = 2) |>
-    purrr::pluck("n") |>
-    expect_equal(6L)
+  # `items` may be a column of `data`, returned as itself right after `n`...
+  out <- df |> grimmer_map(digits_x = 2, digits_sd = 2)
+  out |> colnames() |> expect_equal(c("x", "sd", "n", "items", "digits_x", "digits_sd", "consistency", "reason"))
+  out$n     |> expect_equal(2L)
+  out$items |> expect_equal(3)
   # ...or an argument, but not both if they contradict each other:
   df |> grimmer_map(digits_x = 2, digits_sd = 2, items = 5) |> expect_error()
-  pigs5 |>
-    grimmer_map(digits_x = 2, digits_sd = 2, items = 2) |>
-    purrr::pluck("n") |>
-    expect_equal(as.integer(pigs5$n * 2))
+  out <- pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, items = 2)
+  out$n     |> expect_equal(pigs5$n)
+  out$items |> expect_equal(rep(2, nrow(pigs5)))
+  # A default is not returned:
+  pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2) |> colnames() |> expect_no_match("items")
 })
 
 

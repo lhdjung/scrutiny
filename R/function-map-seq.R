@@ -11,8 +11,7 @@ function_map_seq_proto <- function(
   fun,
   dispersion,
   include_reported,
-  name_key_result = "consistency",
-  helper_merge = NULL
+  name_key_result = "consistency"
 ) {
   # --- Start of the manufactured helper (!) function ---
 
@@ -83,20 +82,7 @@ function_map_seq_proto <- function(
         .before = all_of(match(.var, colnames(data)))
       )
 
-    out <- fun(data_seq, ...)
-
-    # `fun()` multiplies helpers such as `items` into their key column, but the
-    # output must keep them apart, as they came in: `audit_seq()` re-tests it,
-    # and GRIMMER, for one, needs `n` and `items` separately.
-    for (name in intersect(names(helper_merge), colnames(data_seq))) {
-      target <- helper_merge[[name]]
-      out[[target]] <- data_seq[[target]]
-      out[[name]] <- data_seq[[name]]
-      out <- out |>
-        dplyr::relocate(all_of(name), .after = all_of(target))
-    }
-
-    out |>
+    fun(data_seq, ...) |>
       dplyr::mutate(
         diff_var = df_var$diff_var,
         case = rep(as.integer(.cases), nrow_list_var)
@@ -233,16 +219,12 @@ function_map_seq <- function(
 
   name_fun <- deparse(substitute(.fun))
 
-  # Helper-column arguments of `.fun`, such as `items` in `grim_map()`, and the
-  # key columns that `.fun` multiplies them into. The re-tests of dispersed
-  # values below take the helpers as columns of the data they test, so they
-  # must not also get them as arguments. `function_map()` records both on the
-  # mappers it creates; a handwritten mapper has nothing to record, and the
-  # attributes are `NULL`:
+  # Helper-column arguments of `.fun`, such as `items` in `grim_map()`. The
+  # re-tests of dispersed values below take the helpers as columns of the data
+  # they test, so they must not also get them as arguments. `function_map()`
+  # records them on the mappers it creates; a handwritten mapper has nothing
+  # to record, and the attribute is `NULL`:
   args_helper_fun <- attr(.fun, "scrutiny_args_helper", exact = TRUE)
-  helper_merge_fun <- as.list(
-    attr(.fun, "scrutiny_cols_helper_merge", exact = TRUE)
-  )
 
   # An `n` key column holds whole numbers, so coerce it to integer for better
   # display. Only if there is one, though:
@@ -343,39 +325,11 @@ function_map_seq <- function(
       # message instead of reporting what is wrong.
       check_mapper_input_colnames(data, reported, name_test, name_key_result)
 
-      # Helpers that `fun()` multiplies into a key column, such as `items` into
-      # `n`. Their values are kept here, alongside the key column's, so that the
-      # merge can be undone below. `fun()` returns one row per row of `data`.
-      helper_merge <- `!!`(helper_merge_fun)
-      helper_vals <- list()
-      target_vals <- list()
-      for (name in names(helper_merge)) {
-        vals <- list(...)[[name]]
-        if (is.null(vals)) {
-          vals <- data[[name]]
-        }
-        if (!is.null(vals)) {
-          helper_vals[[name]] <- rep_len(vals, nrow(data))
-          target_vals[[helper_merge[[name]]]] <- data[[helper_merge[[name]]]]
-        }
-      }
-
       # First, basic testing with the `*_map()` function. What it records about
       # the call, such as `rounding` with defaults resolved, applies to the
       # re-tests below as well, so it is passed on to the output:
       data <- do.call(fun, c(list(data), digits_vals, list(...)))
       meta_fun <- scrutiny_meta(data)
-
-      # Undo the merge: the dispersed values are re-tested below with each
-      # helper as a column of its own, and `n` is dispersed as the sample size
-      # it is, not as its product with `items`:
-      for (name in names(helper_vals)) {
-        target <- helper_merge[[name]]
-        data[[target]] <- target_vals[[target]]
-        data[[name]] <- helper_vals[[name]]
-        data <- data |>
-          dplyr::relocate(all_of(name), .after = all_of(target))
-      }
 
       # Everything below reads the key result column off `fun()`'s output by
       # name, so mapper and sequence mapper must have been created with the same
@@ -417,14 +371,12 @@ function_map_seq <- function(
         fun = fun,
         dispersion = dispersion,
         include_reported = include_reported,
-        name_key_result = name_key_result,
-        helper_merge = helper_merge
+        name_key_result = name_key_result
       )
 
       # Forwarded to `map_seq_proto()`, and from there to `fun()`. Helper
       # arguments such as `items` are dropped: the initial `fun()` call above
-      # already multiplied `items` into the `n` column that the values are
-      # dispersed from, so the re-tests would apply it twice over:
+      # returned them as columns, which the re-tests read them from:
       fun_args <- c(digits_vals, list(...))
       fun_args <- fun_args[!names(fun_args) %in% `!!`(args_helper_fun)]
 

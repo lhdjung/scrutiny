@@ -17,8 +17,8 @@
 #' @param x,n Optionally, the names of the columns in `data` that contain these
 #'   values, if they differ from the defaults.
 #' @param items Integer. The number of items composing `x`, if `data` has no
-#'   `items` column. Default is 1. `items` is multiplied into `n` for the
-#'   output, so there is no `items` column there.
+#'   `items` column. Default is 1. If given, as an argument or a column, it is
+#'   returned as a column.
 #' @param percent Logical. If `TRUE`, the `x` values are percentages: they are
 #'   divided by 100 and tested with two more decimal places. Default is
 #'   `FALSE`.
@@ -30,6 +30,7 @@
 #' @return A tibble with these columns:
 #' - `x`, `n`: the inputs.
 #' - `digits_x`: the number of decimal places in `x`, as given.
+#' - `items`: the number of items, if given.
 #' - `consistency`: GRIM consistency of `x`, `n`, and `items`. `NA` for a case
 #'   that cannot be decided, such as one with a missing value.
 #' - `probability`: the probability of GRIM inconsistency; see
@@ -99,7 +100,6 @@ grim_map <- function_map(
   .name_test = "GRIM",
   .args_by_row = "digits_x",
   .cols_helper = "items",
-  .cols_helper_merge = c(items = "n"),
   .col_names = c(
     "consistency",
     "rec_sum",

@@ -86,7 +86,7 @@ jpap_1 |>
   grim_map(digits_x = 2, items = 3)
 ```
 
-Alternatively, `data` can have an `items` column, which allows the number to vary by row. In both cases, the output shows `n` multiplied by `items`:
+Alternatively, `data` can have an `items` column, which allows the number to vary by row. In both cases, the output has an `items` column:
 
 ```{r}
 jpap_2 <- tibble::tribble(

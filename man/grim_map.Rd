@@ -32,8 +32,8 @@ one number per row of \code{data}.}
 values, if they differ from the defaults.}
 
 \item{items}{Integer. The number of items composing \code{x}, if \code{data} has no
-\code{items} column. Default is 1. \code{items} is multiplied into \code{n} for the
-output, so there is no \code{items} column there.}
+\code{items} column. Default is 1. If given, as an argument or a column, it is
+returned as a column.}
 
 \item{percent}{Logical. If \code{TRUE}, the \code{x} values are percentages: they are
 divided by 100 and tested with two more decimal places. Default is
@@ -51,6 +51,7 @@ A tibble with these columns:
 \itemize{
 \item \code{x}, \code{n}: the inputs.
 \item \code{digits_x}: the number of decimal places in \code{x}, as given.
+\item \code{items}: the number of items, if given.
 \item \code{consistency}: GRIM consistency of \code{x}, \code{n}, and \code{items}. \code{NA} for a case
 that cannot be decided, such as one with a missing value.
 \item \code{probability}: the probability of GRIM inconsistency; see
