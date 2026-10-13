@@ -223,5 +223,5 @@ test_that("`audit()` ignores a missing `n` in DEBIT's `distinct_n`", {
 
 test_that("`audit()` on GRIMMER output without rows has zero counts", {
   out <- pigs5[0, ] |> grimmer_map(digits_x = 2, digits_sd = 2) |> audit() |> expect_silent()
-  out |> dplyr::select(dplyr::starts_with("fail_")) |> unlist(use.names = FALSE) |> expect_equal(rep(0L, 5))
+  out |> dplyr::select(dplyr::starts_with("fail_")) |> unlist(use.names = FALSE) |> expect_equal(rep(0L, 4))
 })

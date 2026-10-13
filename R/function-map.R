@@ -31,9 +31,10 @@
 #' @param .args_by_row Optionally, names of arguments of `.fun` that may vary
 #'   by row, such as `"digits_x"`. The factory-made function accepts a single
 #'   value or one per row of `data` for each, and returns them as columns.
-#' @param .args_defaults Optionally, a named list of defaults for arguments of
-#'   `.fun` that the factory-made function should have other defaults for,
-#'   such as `list(show_reason = TRUE)`.
+#' @param .args_fixed Optionally, a named list of values for arguments of
+#'   `.fun` that the factory-made function always passes on and does not have
+#'   itself, such as `list(show_reason = TRUE)`. Specifying one of them is an
+#'   error.
 #' @param .cols_helper Optionally, names of arguments of `.fun` that may also
 #'   be given as columns of `data`, such as `"items"`. A helper column is
 #'   returned after the key columns if it was given, as a column or as an
@@ -134,7 +135,7 @@ function_map <- function(
   .name_class = NULL,
   .args_disabled = NULL,
   .args_by_row = NULL,
-  .args_defaults = NULL,
+  .args_fixed = NULL,
   .cols_helper = NULL,
   .col_names = NULL,
   .cols_derived = NULL,
@@ -152,7 +153,7 @@ function_map <- function(
   force(.name_key_result)
   force(.args_disabled)
   force(.args_by_row)
-  force(.args_defaults)
+  force(.args_fixed)
   force(.cols_helper)
   force(.col_names)
   force(.cols_derived)
@@ -178,10 +179,10 @@ function_map <- function(
   check_factory_arg_names(.args_by_row, formals_fun, fun_name, ".args_by_row")
   check_factory_arg_names(.cols_helper, formals_fun, fun_name, ".cols_helper")
   check_factory_arg_names(
-    names(.args_defaults),
+    names(.args_fixed),
     formals_fun,
     fun_name,
-    ".args_defaults"
+    ".args_fixed"
   )
 
   if (!is.null(.reported_variadic)) {
@@ -227,13 +228,28 @@ function_map <- function(
     ))
   }
 
+  # A fixed argument is one the factory-made function passes on with a set
+  # value, so it can't be a key argument, which takes its values from `data`:
+  args_fixed_offenders <- intersect(
+    names(.args_fixed),
+    c(.reported, .reported_variadic)
+  )
+  if (length(args_fixed_offenders) > 0L) {
+    cli::cli_abort(c(
+      "`.args_fixed` can't name key arguments.",
+      "x" = "{wrap_in_backticks(args_fixed_offenders)} \\
+      {cli::qty(length(args_fixed_offenders))}{?is a/are} key \\
+      argument{?s}."
+    ))
+  }
+
   # The arguments of `.fun` that become arguments of the factory-made function,
   # in the order in which `.fun` has them. Key columns are covered by the
-  # `.reported` arguments inserted at the very end, and disabled arguments are
-  # meant to be unavailable:
+  # `.reported` arguments inserted at the very end, and disabled and fixed
+  # arguments are meant to be unavailable:
   args_promoted <- setdiff(
     names(formals_fun),
-    c(.reported, .reported_variadic, .args_disabled, "...")
+    c(.reported, .reported_variadic, .args_disabled, names(.args_fixed), "...")
   )
 
   # Three groups among them: arguments that may vary by row and hence ride along
@@ -241,20 +257,7 @@ function_map <- function(
   # columns of `data`; and plain arguments applying to the whole call. Those of
   # `.fun` that have no default must reach it as missing, so that its own error
   # message is shown rather than a generic one. All others are passed on
-  # explicitly, which is what `.args_defaults` needs -- `.fun` would otherwise
-  # apply its own default where the mapper has a different one.
-  # `.args_defaults` can only change the default of an argument that the
-  # factory-made function has. Otherwise, it would add a second formal of the
-  # same name:
-  args_defaults_offenders <- setdiff(names(.args_defaults), args_promoted)
-  if (length(args_defaults_offenders) > 0L) {
-    cli::cli_abort(c(
-      "`.args_defaults` can't name key or disabled arguments.",
-      "x" = "{wrap_in_backticks(args_defaults_offenders)} \\
-      {cli::qty(length(args_defaults_offenders))}{?is a/are} key or disabled \\
-      argument{?s}."
-    ))
-  }
+  # explicitly.
 
   # The body of the factory-made function assigns these names before it reads
   # the values of the arguments, so an argument of `.fun` by one of these names
@@ -268,6 +271,7 @@ function_map <- function(
     "args_helper",
     "args_helper_given",
     "args_const",
+    "args_fixed",
     "args_required",
     "col_names",
     "cols_derived_funs",
@@ -289,7 +293,6 @@ function_map <- function(
   }
 
   formals_promoted <- formals_fun[args_promoted]
-  formals_promoted[names(.args_defaults)] <- .args_defaults
   args_required <- args_promoted[
     vapply(formals_promoted, rlang::is_missing, logical(1L), USE.NAMES = FALSE)
   ]
@@ -394,6 +397,7 @@ function_map <- function(
       args_by_row <- `!!`(args_by_row)
       args_helper <- `!!`(args_helper)
       args_const <- `!!`(args_const)
+      args_fixed <- `!!`(.args_fixed)
       args_required <- `!!`(args_required)
       col_names <- `!!`(.col_names)
       cols_derived_funs <- `!!`(.cols_derived)
@@ -411,8 +415,8 @@ function_map <- function(
       # of key arguments, if necessary:
       `!!!`(code_key_arg_checks)
 
-      scrutiny::check_args_disabled(`!!`(.args_disabled))
-      scrutiny::check_factory_dots(fun, `!!`(fun_name), ...)
+      check_args_disabled(`!!`(c(.args_disabled, names(.args_fixed))))
+      check_factory_dots(fun, `!!`(fun_name), ...)
       scrutiny::check_mapper_input_colnames(
         data,
         `!!`(.reported),
@@ -506,7 +510,7 @@ function_map <- function(
       if (nrow(data) > 0L) {
         row_first <- cols_tested |>
           lapply(function(x) x[[1L]])
-        do.call(fun, c(row_first, args_const_vals, list(...)))
+        do.call(fun, c(row_first, args_const_vals, args_fixed, list(...)))
       }
 
       # Test for consistency:
@@ -515,6 +519,7 @@ function_map <- function(
         c(
           list(cols_tested, fun),
           args_const_vals,
+          args_fixed,
           list(...)
         )
       )

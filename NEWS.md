@@ -74,7 +74,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `grim_binomial()` tests whether the rate of GRIM-consistent value sets is above what random decimal digits would produce, and returns a Clopper-Pearson confidence interval. `grim_binomial_power()` computes the power of this test. Both are experimental.
 
-- `function_map()` gained `.args_by_row`, `.args_defaults`, `.cols_helper`, `.cols_derived`, and a working `.col_names`. With these, `grim_map()`, `grimmer_map()`, and `debit_map()` can be created by `function_map()` without any handwritten code. The new `.reported_variadic` argument is for tests in which the number of key columns is determined by the data rather than by the test (#42). `function_map_seq()` gained `.var_bounds`, which sets separate default limits for each dispersed variable. A mean can therefore be dispersed below zero, while `n` cannot go below 1.
+- `function_map()` gained `.args_by_row`, `.args_fixed`, `.cols_helper`, `.cols_derived`, and a working `.col_names`. With these, `grim_map()`, `grimmer_map()`, and `debit_map()` can be created by `function_map()` without any handwritten code. The new `.reported_variadic` argument is for tests in which the number of key columns is determined by the data rather than by the test (#42). `function_map_seq()` gained `.var_bounds`, which sets separate default limits for each dispersed variable. A mean can therefore be dispersed below zero, while `n` cannot go below 1.
 
 ## Bugfixes
 
@@ -131,6 +131,12 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 ## Lifecycle updates
 
 - Removed after their deprecation in scrutiny 0.5.0: the `show_prob` argument of `grim_map()`, `grim_ratio_upper()`, and the 15 functions around `is_subset_of()`.
+
+- Removed, since no package uses them and 1.0.0 is the release for breaking changes: `grim_ratio()` (`grim_probability()` is the rounding-aware version), `manage_key_colnames()` (use `absorb_key_args()`), `unnest_consistency_cols()`, `write_doc_factory_map_conventions()`, and the re-exports of rlang's `enquo()`, `enquos()`, `as_name()`, `as_label()`, `.data`, and `:=`. `check_factory_dots()`, `check_args_disabled()`, and `decimal_places_scalar()` are no longer exported.
+
+- `debit_map()` no longer has `show_rec` and `grimmer_map()` no longer has `show_reason`: the reconstructed values and the `reason` column are always returned. `debit_map()` output no longer has a `rounding` column; the rounding method is recorded in the `"scrutiny"` attribute. `function_map()`'s `.args_defaults` was replaced by `.args_fixed`, a list of values that the factory-made function always passes on without exposing the arguments. `audit()` on `grimmer_map()` output no longer has a `fail_test2` column.
+
+- `duplicate_detect()` is deprecated in favor of `duplicate_tally()`. It was superseded since scrutiny 0.3.0.
 
 - `seq_length()` and `seq_length<-` were removed. They did little that `seq()` does not, and their names clashed with `seq_len()`.
 

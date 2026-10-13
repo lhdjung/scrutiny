@@ -56,7 +56,6 @@ reference:
   - grim_plot_values
   - grim_plot_rates
   - grim_values
-  - grim_ratio
   - grim_total
   - grim_granularity
   - grim_items
@@ -112,8 +111,6 @@ reference:
   - function_map_total_n
   - reverse_map_seq
   - reverse_map_total_n
-  - check_args_disabled
-  - check_factory_dots
   - absorb_key_args
 - subtitle: Rounding
   desc: Reconstruct rounding procedures
@@ -153,15 +150,12 @@ reference:
   - write_doc_audit
   - write_doc_audit_seq
   - write_doc_audit_total_n
-  - write_doc_factory_map_conventions
 - subtitle: Consistency test helpers
   desc: Call these helpers inside of your own functions that implement consistency
     tests at various levels
 - contents:
   - check_mapper_input_colnames
   - manage_helper_col
-  - manage_key_colnames
-  - unnest_consistency_cols
   - audit_cols_minimal
   - check_audit_special
 - subtitle: Data frame predicates

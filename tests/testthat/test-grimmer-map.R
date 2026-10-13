@@ -46,7 +46,6 @@ pigs5_exp <- tibble::tibble(
       args = list(
         min_val = NULL,
         max_val = NULL,
-        show_reason = TRUE,
         rounding = "up_or_down",
         threshold = 5,
         symmetric = FALSE
@@ -99,13 +98,13 @@ test_that("`grimmer_map()` doesn't duplicate `digits_*` columns from `data`", {
     ))
 })
 
-test_that("`grimmer_map()` returns other columns with `show_reason = FALSE`", {
+test_that("`grimmer_map()` returns other columns after the results", {
   pigs5 |>
     dplyr::mutate(study = seq_len(nrow(pigs5))) |>
-    grimmer_map(digits_x = 2, digits_sd = 2, show_reason = FALSE) |>
+    grimmer_map(digits_x = 2, digits_sd = 2) |>
     colnames() |>
     expect_equal(c(
-      "x", "sd", "n", "digits_x", "digits_sd", "consistency", "study"
+      "x", "sd", "n", "digits_x", "digits_sd", "consistency", "reason", "study"
     ))
 })
 

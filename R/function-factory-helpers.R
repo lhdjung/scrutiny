@@ -137,7 +137,7 @@ check_factory_key_args_names <- function(
 #'
 #' @return No return value; might throw an error.
 #'
-#' @export
+#' @noRd
 check_factory_dots <- function(fun, fun_name_scalar, ...) {
   dots <- rlang::enexprs(...)
   dots_names <- names(dots)
@@ -558,17 +558,13 @@ capture_key_args <- function(data, quos) {
 #' `check_args_disabled()` is called within functions made by
 #' [`function_map()`] or [`function_map_seq()`]. It errors if the user of the
 #' factory-made function specified an argument that the factory's user disabled
-#' via `.args_disabled`.
+#' via `.args_disabled` or fixed via `.args_fixed`.
 #'
 #' @param args_disabled String. Names of the disabled arguments.
 #'
 #' @return No return value; might throw an error.
 #'
-#' @export
-#'
-#' @examples
-#' check_args_disabled(c("disabled1", "disabled2"))
-
+#' @noRd
 check_args_disabled <- function(args_disabled) {
   if (is.null(args_disabled)) {
     return(NULL)
@@ -602,9 +598,8 @@ check_args_disabled <- function(args_disabled) {
       "{msg_arg_s} {offenders} {msg_is_are} \\
           disabled in {fun_name}{msg_among_others}.",
       "i" = "This is by design: the function factory that created it \\
-          was given {offenders} in its `.args_disabled` argument, \\
-          because {cli::qty(offenders)}{?it/they} would not work properly \\
-          inside of the manufactured function."
+          was given {offenders} in its `.args_disabled` or `.args_fixed` \\
+          argument."
     )
   }
 }

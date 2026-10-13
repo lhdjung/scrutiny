@@ -15,7 +15,6 @@ debit_map(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  show_rec = TRUE,
   ...
 )
 }
@@ -33,9 +32,6 @@ these values, if they differ from the defaults.}
 
 \item{formula, rounding, threshold, symmetric}{Passed on to \code{\link[=debit]{debit()}}.}
 
-\item{show_rec}{Logical. If \code{TRUE} (the default), the reconstructed bounds
-are returned as columns; see \emph{Value}. \code{\link[=debit_plot]{debit_plot()}} needs them.}
-
 \item{...}{Further arguments passed on to \code{\link[=debit]{debit()}}.}
 }
 \value{
@@ -46,8 +42,8 @@ A tibble with these columns:
 \item \code{consistency}: DEBIT consistency of \code{x}, \code{sd}, and \code{n}. \code{NA} for a case
 that cannot be decided, such as one with a missing value.
 
-With \code{show_rec = TRUE}, there are further columns: \code{rounding}; the bounds
-of \code{sd} and \code{x} (\code{sd_lower}, \code{sd_upper}, \code{x_lower}, \code{x_upper}) with
+Further columns hold the reconstructed values, which \code{\link[=debit_plot]{debit_plot()}}
+needs: the bounds of \code{sd} and \code{x} (\code{sd_lower}, \code{sd_upper}, \code{x_lower}, \code{x_upper}) with
 \code{sd_incl_lower} and \code{sd_incl_upper} saying whether the SD bounds are
 inclusive; and \code{sum_lower} and \code{sum_upper}, the least and the greatest
 number of ones among \code{n} values whose mean would be reported as \code{x}. Under

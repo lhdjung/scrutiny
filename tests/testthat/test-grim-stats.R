@@ -8,7 +8,6 @@ test_that("`grim_total()` works with percentage conversion", {
 })
 
 
-exp1 <- seq(from = 0.8, to = 0.7, by = -0.01)
 exp2 <- c(
   0.1,
   0.09,
@@ -32,19 +31,9 @@ exp2 <- c(
   0,
   0
 )
-exp3 <- seq(from = 0.9955, to = 0.9945, by = -0.0001)
-
-test_that("`grim_ratio()` returns correct values", {
-  5.30 |> grim_ratio(20:30, digits_x = 2) |> expect_equal(exp1)
-})
 
 test_that("`grim_probability()` returns correct values", {
   5.30 |> grim_probability(90:110, digits_x = 2, rounding = "up") |> expect_equal(exp2)
-})
-
-
-test_that("`grim_ratio()` works with percentage conversion", {
-  87.50 |> grim_ratio(45:55, digits_x = 2, percent = TRUE) |> expect_equal(exp3)
 })
 
 
@@ -52,7 +41,6 @@ test_that("`grim_ratio()` works with percentage conversion", {
 
 test_that("all functions error if `digits_x` is missing", {
   5.30 |> grim_probability(20) |> expect_error()
-  5.30 |> grim_ratio(20)       |> expect_error()
   5.30 |> grim_total(20:30)    |> expect_error()
 })
 
@@ -88,8 +76,6 @@ test_that("`grim_probability()` is a probability", {
   # Ordinary cases are untouched, and never above 1 or below 0:
   5.19 |> grim_probability(n = 28, digits_x = 2)  |> expect_equal(0.72)
   5.19 |> grim_probability(n = 200, digits_x = 2) |> expect_equal(0)
-  # `grim_ratio()` is the unclamped one and keeps saying so:
-  5.19 |> grim_ratio(n = 200, digits_x = 2) |> expect_equal(-1)
 })
 
 

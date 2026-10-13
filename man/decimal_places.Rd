@@ -2,12 +2,9 @@
 % Please edit documentation in R/decimal-places.R
 \name{decimal_places}
 \alias{decimal_places}
-\alias{decimal_places_scalar}
 \title{Count decimal places}
 \usage{
 decimal_places(x, sep = ".")
-
-decimal_places_scalar(x, sep = ".")
 }
 \arguments{
 \item{x}{Numeric, or a string coercible to numeric.}
@@ -22,11 +19,9 @@ Integer. The number of decimal places of each element of \code{x}.
 \description{
 \code{decimal_places()} counts the decimal places of a numeric
 vector, or of a string vector coercible to numeric.
-\code{decimal_places_scalar()} does the same for a single value and is faster,
-for use within other single-case functions.
 }
 \details{
-Both functions count the run of digits after the first \code{sep},
+The function counts the run of digits after the first \code{sep},
 after trimming whitespace and applying any exponent: \code{"5.30\%"} has two
 decimal places, \code{"1e-5"} has five, and \code{"1..5"} has none. Missing values,
 the string \code{"NA"}, and strings that \code{\link[=as.numeric]{as.numeric()}} reads as an infinity
@@ -51,9 +46,6 @@ decimal_places(x = c(7.3900, "7.3900"))
 
 # Whitespace at the end of a string is ignored:
 decimal_places(x = "6.0     ")
-
-decimal_places_scalar(x = 8.13)
-decimal_places_scalar(x = "5.024")
 }
 \seealso{
 \code{\link[=decimal_places_df]{decimal_places_df()}} for data frames.

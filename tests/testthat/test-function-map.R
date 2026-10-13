@@ -207,16 +207,13 @@ test_that("`.args_by_row` allows one value per row and returns a column", {
 test_that("`.col_names` unpacks the test function's values, keeping types", {
   out <- pigs3 |> debit_map(digits_x = 2, digits_sd = 2)
 
-  out$rounding |> expect_type("character")
   out$consistency |> expect_type("logical")
   out$sd_incl_lower |> expect_type("logical")
   out$sd_lower |> expect_type("double")
 
-  # The same function returns a single value per row if it is not asked to show
-  # its reconstructed values, and the factory-made function copes with both:
+  # `show_rec` is fixed, so the mapper has no such argument:
   pigs3 |> debit_map(digits_x = 2, digits_sd = 2, show_rec = FALSE) |>
-    colnames() |>
-    expect_equal(c("x", "sd", "n", "digits_x", "digits_sd", "consistency"))
+    expect_error("disabled")
 })
 
 
@@ -238,14 +235,24 @@ test_that("`.cols_helper` supports helper columns", {
 })
 
 
-test_that("`.args_defaults` overrides the test function's own defaults", {
-  # `grimmer_scalar()` has `show_reason = FALSE`, `grimmer_map()` has `TRUE`:
+test_that("`.args_fixed` passes a value on without exposing the argument", {
+  # `grimmer_scalar()` has `show_reason = FALSE`, `grimmer_map()` fixes `TRUE`:
   grimmer_scalar |> formals() |> call_on(\(x) x$show_reason) |> expect_false()
-  grimmer_map    |> formals() |> call_on(\(x) x$show_reason) |> expect_true()
+  grimmer_map    |> formals() |> names() |> expect_no_match("show_reason")
   pigs5 |>
     grimmer_map(digits_x = 2, digits_sd = 2) |>
     purrr::pluck("reason") |>
     expect_type("character")
+  pigs5 |>
+    grimmer_map(digits_x = 2, digits_sd = 2, show_reason = FALSE) |>
+    expect_error("disabled")
+  # A fixed argument is a setting of the factory, not of the call:
+  pigs5 |>
+    grimmer_map(digits_x = 2, digits_sd = 2) |>
+    scrutiny_meta() |>
+    getElement("args") |>
+    names() |>
+    expect_no_match("show_reason")
 })
 
 
@@ -490,7 +497,7 @@ test_that("`.reported_variadic` composes with the factory's other arguments", {
     .reported_variadic = "parts",
     .name_test = "SUMCHECK",
     .args_by_row = "digits_total",
-    .args_defaults = list(show_rec = TRUE),
+    .args_fixed = list(show_rec = TRUE),
     .col_names = c("consistency", "rec_sum", "gap"),
     .cols_derived = list(n_parts = count_parts)
   )
@@ -648,9 +655,7 @@ test_that("a mapper called on a 0-row data frame returns a valid tibble", {
     out |> colnames() |> expect_contains("consistency")
     out |> ncol() |> expect_equal(length(colnames(out)))
     out$consistency |> expect_type("logical")
-    # `suppressMessages()` mutes the hint that `audit.scrutiny_grimmer_map()`
-    # prints when there is no `reason` column, as here with `show_reason` unset:
-    out |> audit() |> suppressMessages() |> nrow() |> expect_equal(1L)
+    out |> audit() |> nrow() |> expect_equal(1L)
   }
 })
 
@@ -838,8 +843,8 @@ test_that("`.col_names` may start with a custom `.name_key_result`", {
 test_that("`function_map()` rejects arguments it can't honor", {
   fun <- function(y, n, z = 1) y > n
   fun |>
-    function_map(.reported = c("y", "n"), .name_test = "T", .args_defaults = list(n = 2)) |>
-    expect_error("key or disabled argument")
+    function_map(.reported = c("y", "n"), .name_test = "T", .args_fixed = list(n = 2)) |>
+    expect_error("key argument")
   fun_shadowed <- function(y, n, fun = 1) y > n
   fun_shadowed |> function_map(.reported = c("y", "n"), .name_test = "T") |> expect_error("Rename `fun`")
 })

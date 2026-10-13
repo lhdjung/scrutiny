@@ -54,7 +54,7 @@ df2 <- df1 |>
 
 df2_grim <- df2 |> grim_map(digits_x = 2)
 
-# Comparison with what `grim_ratio()` would return -- it can be negative:
+# The raw formula `(10^digits_x - n) / 10^digits_x` can be negative:
 test_that("`probability` is zero if `ratio` would be negative", {
   df2_grim$probability |> call_on(\(x) x == 0) |> all() |> expect_true()
 })

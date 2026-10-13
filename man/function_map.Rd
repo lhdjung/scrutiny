@@ -12,7 +12,7 @@ function_map(
   .name_class = NULL,
   .args_disabled = NULL,
   .args_by_row = NULL,
-  .args_defaults = NULL,
+  .args_fixed = NULL,
   .cols_helper = NULL,
   .col_names = NULL,
   .cols_derived = NULL,
@@ -46,9 +46,10 @@ factory-made function should not have. Specifying one of them is an error.}
 by row, such as \code{"digits_x"}. The factory-made function accepts a single
 value or one per row of \code{data} for each, and returns them as columns.}
 
-\item{.args_defaults}{Optionally, a named list of defaults for arguments of
-\code{.fun} that the factory-made function should have other defaults for,
-such as \code{list(show_reason = TRUE)}.}
+\item{.args_fixed}{Optionally, a named list of values for arguments of
+\code{.fun} that the factory-made function always passes on and does not have
+itself, such as \code{list(show_reason = TRUE)}. Specifying one of them is an
+error.}
 
 \item{.cols_helper}{Optionally, names of arguments of \code{.fun} that may also
 be given as columns of \code{data}, such as \code{"items"}. A helper column is

@@ -97,18 +97,17 @@ test_that("`show_rec` returns the reconstructed values", {
   )
 
   out_rec |> expect_type("list")
-  out_rec |> expect_length(10L)
+  out_rec |> expect_length(9L)
   out_rec[[1L]] |> expect_true()
-  out_rec[[2L]] |> expect_equal("up_or_down")
   # `sd_lower`, `sd_upper`, `x_lower`, and `x_upper`:
-  out_rec[[3L]] |> expect_equal(0.495)
-  out_rec[[5L]] |> expect_equal(0.505)
-  out_rec[[7L]] |> expect_equal(0.525)
-  out_rec[[8L]] |> expect_equal(0.535)
+  out_rec[[2L]] |> expect_equal(0.495)
+  out_rec[[4L]] |> expect_equal(0.505)
+  out_rec[[6L]] |> expect_equal(0.525)
+  out_rec[[7L]] |> expect_equal(0.535)
   # `sum_lower` and `sum_upper`, the numbers of ones whose mean is reported as
   # 0.53: 884 / 1683 is 0.5252525, and 900 / 1683 is 0.5347594.
-  out_rec[[9L]] |> expect_equal(884)
-  out_rec[[10L]] |> expect_equal(900)
+  out_rec[[8L]] |> expect_equal(884)
+  out_rec[[9L]] |> expect_equal(900)
 })
 
 

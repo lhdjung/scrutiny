@@ -117,7 +117,7 @@ flying_pigs1 |>
 ```
 
 - `incons_cases`, `all_cases`, `incons_rate`: the number of inconsistent value sets, the total, and their ratio.
-- `fail_grim`, `fail_test1`, `fail_test2`, `fail_test3`: the number of value sets that failed GRIM or one of the three GRIMMER tests.
+- `fail_grim`, `fail_test1`, `fail_test3`: the number of value sets that failed GRIM or GRIMMER's first or third test.
 - `fail_scale`: the number that failed the scale bounds; zero if none were given.
 
 ## Visualization with `grim_plot()`

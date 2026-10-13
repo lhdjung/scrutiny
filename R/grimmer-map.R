@@ -19,8 +19,6 @@
 #'   column, it is returned as a column.
 #' @param min_val,max_val Integer. Optionally, the bounds of the scale; see
 #'   the *Scale bounds* section of [`grimmer()`]. Both default to `NULL`.
-#' @param show_reason Logical. If `TRUE` (the default), a `reason` column states
-#'   the reason for each inconsistency.
 #' @param rounding,threshold,symmetric,tolerance Passed on to [`grimmer()`].
 #' @param ... Further arguments passed on to [`grimmer()`].
 #'
@@ -55,8 +53,8 @@
 #' 2. `all_cases`: total number of value sets.
 #' 3. `incons_rate`: proportion of GRIMMER-inconsistent value sets.
 #' 4. `fail_grim`: number of value sets that fail GRIM.
-#' 5. `fail_test1`, `fail_test2`, `fail_test3`: number of value sets that fail
-#'    each of the three GRIMMER tests.
+#' 5. `fail_test1`, `fail_test3`: number of value sets that fail GRIMMER's
+#'    first or third test. Test 2 is implied by test 1, so it never fails.
 #' 6. `fail_scale`: number of value sets inconsistent with `min_val` and
 #'    `max_val`. Zero if these were not given.
 #'
@@ -93,7 +91,7 @@ grimmer_map <- function_map(
   .args_by_row = c("digits_x", "digits_sd"),
   # Unlike `grimmer()`, the mapper shows the reasons for inconsistencies by
   # default -- they fit into a column, and `audit()` counts them:
-  .args_defaults = list(show_reason = TRUE),
+  .args_fixed = list(show_reason = TRUE),
   .cols_helper = "items",
   .col_names = c("consistency", "reason")
 )

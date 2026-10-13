@@ -27,11 +27,17 @@ pigs4_missings_exp <- tibble::tibble(
 
 # Testing -----------------------------------------------------------------
 
+test_that("`duplicate_detect()` is deprecated", {
+  pigs4 |> duplicate_detect() |> lifecycle::expect_deprecated()
+})
+
 test_that("`duplicate_detect()` works correctly by default", {
+  rlang::local_options(lifecycle_verbosity = "quiet")
   pigs4 |> duplicate_detect() |> expect_equal(pigs4_exp)
 })
 
 test_that("`duplicate_detect()` works correctly with missings", {
+  rlang::local_options(lifecycle_verbosity = "quiet")
   pigs4_missings |> duplicate_detect() |> expect_equal(pigs4_missings_exp)
 })
 
@@ -46,6 +52,7 @@ test_that("`duplicate_tally()` does not count missing values as matches", {
 
 
 test_that("`duplicate_detect()` and `duplicate_tally()` work without rows and on matrices", {
+  rlang::local_options(lifecycle_verbosity = "quiet")
   numeric(0) |> duplicate_detect() |> colnames() |> expect_equal(c("value", "value_dup"))
   pigs4[0, ] |> duplicate_tally()  |> colnames() |> expect_equal(c("snout", "snout_n", "tail", "tail_n", "wings", "wings_n"))
   c(1, 1, 2, 3) |>

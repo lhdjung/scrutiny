@@ -50,8 +50,6 @@ decimal_places(7.200)
 decimal_places("7.200")
 ```
 
-`decimal_places_scalar()` is faster than `decimal_places()` but only takes a single number or string. This makes it suitable as a helper within other single-case functions.
-
 ## Restore trailing zeros
 
 `restore_zeros()` restores trailing zeros to numbers that lost them, returning strings. The `seq_*()` functions below use it.

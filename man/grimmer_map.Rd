@@ -14,7 +14,6 @@ grimmer_map(
   items = 1,
   min_val = NULL,
   max_val = NULL,
-  show_reason = TRUE,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
@@ -40,9 +39,6 @@ column, it is returned as a column.}
 
 \item{min_val, max_val}{Integer. Optionally, the bounds of the scale; see
 the \emph{Scale bounds} section of \code{\link[=grimmer]{grimmer()}}. Both default to \code{NULL}.}
-
-\item{show_reason}{Logical. If \code{TRUE} (the default), a \code{reason} column states
-the reason for each inconsistency.}
 
 \item{rounding, threshold, symmetric, tolerance}{Passed on to \code{\link[=grimmer]{grimmer()}}.}
 
@@ -91,8 +87,8 @@ returns a tibble with one row and these columns:
 \item \code{all_cases}: total number of value sets.
 \item \code{incons_rate}: proportion of GRIMMER-inconsistent value sets.
 \item \code{fail_grim}: number of value sets that fail GRIM.
-\item \code{fail_test1}, \code{fail_test2}, \code{fail_test3}: number of value sets that fail
-each of the three GRIMMER tests.
+\item \code{fail_test1}, \code{fail_test3}: number of value sets that fail GRIMMER's
+first or third test. Test 2 is implied by test 1, so it never fails.
 \item \code{fail_scale}: number of value sets inconsistent with \code{min_val} and
 \code{max_val}. Zero if these were not given.
 }

@@ -124,10 +124,11 @@ function_duplicate_cols <- function(code_new_cols, default_end, name_class) {
 
 #' Detect duplicate values
 #'
-#' @description `r lifecycle::badge('superseded')`
+#' @description `r lifecycle::badge('deprecated')`
 #'
-#'   `duplicate_detect()` is superseded by [`duplicate_tally()`] and
-#'   [`duplicate_count()`], which are more informative.
+#'   `duplicate_detect()` is deprecated in favor of [`duplicate_tally()`] and
+#'   [`duplicate_count()`], which are more informative. It will be removed in
+#'   a later version.
 #'
 #'   For every value in a vector or data frame, it tests whether at least one
 #'   other value is identical, and reports the result next to the value.
@@ -180,7 +181,16 @@ function_duplicate_cols <- function(code_new_cols, default_end, name_class) {
 #' pigs4 |>
 #'   duplicate_detect(ignore = c(8.131, 7.574))
 
-duplicate_detect <- function_duplicate_cols(
+duplicate_detect <- function(x, ignore = NULL, colname_end = "dup") {
+  lifecycle::deprecate_warn(
+    when = "1.0.0",
+    what = "duplicate_detect()",
+    with = "duplicate_tally()"
+  )
+  duplicate_detect_impl(x, ignore = ignore, colname_end = colname_end)
+}
+
+duplicate_detect_impl <- function_duplicate_cols(
   # Create a logical vector pointing out duplicates within the vector of all
   # input values, both from the start forward and from the end backward:
   code_new_cols = duplicated(x) | duplicated(x, fromLast = TRUE),

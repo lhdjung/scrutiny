@@ -3,7 +3,6 @@
 \name{grim-stats}
 \alias{grim-stats}
 \alias{grim_probability}
-\alias{grim_ratio}
 \alias{grim_total}
 \title{Possible GRIM inconsistencies}
 \usage{
@@ -16,8 +15,6 @@ grim_probability(
   rounding = "up_or_down",
   threshold = 5
 )
-
-grim_ratio(x, n, digits_x, items = 1, percent = FALSE)
 
 grim_total(
   x,
@@ -65,9 +62,6 @@ with \code{digits_x} decimal places that is otherwise random is
 GRIM-inconsistent with \code{n}. It is the \code{probability} column of
 \code{\link[=grim_map]{grim_map()}}.
 \item \code{grim_total()} returns the number of such inconsistent values per unit.
-\item \code{grim_ratio()} is the raw formula \code{(10^digits_x - n * items) /   10^digits_x}. It equals \code{grim_probability()} for rounding methods that
-admit exactly one step, such as \code{"up"}, except that it can be negative.
-It takes no \code{rounding} argument and does not check its input.
 }
 
 See \code{vignette("grim")}, section \emph{GRIM statistics}.

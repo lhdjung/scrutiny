@@ -6,11 +6,9 @@
 #' returns one list per row. `split_result_cols()` turns a list of such lists
 #' into a named list of columns, ready to be used as tibble columns.
 #'
-#' Unlike `unnest_consistency_cols()`, this preserves the type of every column:
-#' it collects each result across rows before unlisting, so a logical column
-#' stays logical even if the row next to it is a string. (The exported function
-#' unlists row-wise, which coerces every value in a row to the most general type
-#' among them.)
+#' It collects each result across rows before unlisting, so a logical column
+#' stays logical even if the row next to it is a string. Unlisting row-wise
+#' would coerce every value in a row to the most general type among them.
 #'
 #' @param results List of lists; one inner list per row, all of the same length
 #'   as `col_names`.
@@ -290,122 +288,4 @@ manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
   }
 
   data
-}
-
-
-#' Rename a key column in a handwritten mapper
-#'
-#' @description A mapper made by [`function_map()`] lets the user pass the name
-#'   of a column of `data` through an argument named like the key column, as in
-#'   `grim_map(df, x = mean)`. `manage_key_colnames()` provides this for a
-#'   handwritten mapper. Three steps:
-#'
-#'   1. Add an argument per key column, with default `NULL`; e.g., `x = NULL,
-#'   n = NULL`.
-#'
-#'   2. Capture each with `rlang::enexpr()`.
-#'
-#'   3. If it was specified, call `manage_key_colnames()` and reassign the
-#'   result to `data`:
-#'
-#' \preformatted{
-#'   if (!missing(x)) {
-#'     x <- rlang::enexpr(x)
-#'     data <- manage_key_colnames(data, x, "mean/proportion")
-#'   }
-#' }
-#'
-#' @param data The mapper's input data frame.
-#' @param arg Symbol. The argument, captured by `rlang::enexpr()`.
-#' @param description String (length 1). Short description of the column, for
-#'   the error message.
-#'
-#' @return `data`, possibly with a column renamed.
-#'
-#' @seealso `vignette("consistency-tests-in-depth")`.
-#'
-#' @export
-
-manage_key_colnames <- function(data, arg, description = NULL) {
-  arg_name <- deparse(substitute(arg))
-
-  if (is.null(arg)) {
-    # Throw an error if the argument name is not found among the column names
-    if (!(arg_name %in% colnames(data))) {
-      msg_this_col <- if (is.null(description)) {
-        "One"
-      } else {
-        paste("The ", description)
-      }
-      abort_in_export(
-        "Column `{arg_name}` missing.",
-        "i" = "{msg_this_col} column in `data` must be named \\
-      `{arg_name}`. Alternatively, specify the `{arg_name}` argument \\
-      as the name of that column."
-      )
-    }
-    # Otherwise, there are no columns to rename
-    return(data)
-  }
-
-  # Splice `arg_name`, the target new column name, into dplyr's renaming syntax
-  data |>
-    dplyr::rename({{ arg_name }} := all_of(arg))
-}
-
-
-#' Unnest a test result column
-#'
-#' @description If a `*_scalar()` function returns a list of values rather
-#'   than a single one, as `grim_scalar()` does with `show_rec = TRUE`, a
-#'   handwritten mapper ends up with a list-column. `unnest_consistency_cols()`
-#'   splits it into one column per value.
-#'
-#' @param results Data frame with a list-column named `col`.
-#' @param col_names String. Names of the new columns. The first should be
-#'   `col`.
-#' @param index Logical. Should the list-column be indexed into? Default is
-#'   `FALSE`.
-#' @param col String (length 1). Name of the list-column. Default is
-#'   `"consistency"`.
-#'
-#' @details This is a faster, narrower replacement for
-#'   [`tidyr::unnest_wider()`].
-#'
-#' @return Data frame with the columns named in `col_names`.
-#'
-#' @seealso `vignette("consistency-tests-in-depth")`.
-#'
-#' @export
-
-unnest_consistency_cols <- function(
-  results,
-  col_names,
-  index = FALSE,
-  col = "consistency"
-) {
-  # The difference between the two conditions lies only in the
-  # `purrr::map_depth()` call:
-  if (index) {
-    consistency_list <- results[col][[1L]] |>
-      purrr::map_depth(.depth = 2L, .f = `[`, 1) |>
-      purrr::map(function(x) unlist(x, use.names = FALSE))
-  } else {
-    consistency_list <- results[col][[1L]] |>
-      purrr::map(function(x) unlist(x, use.names = FALSE))
-  }
-
-  consistency_df <- consistency_list |>
-    tibble::as_tibble(.name_repair = "minimal") |>
-    t() |>
-    tibble::as_tibble(.name_repair = function(x) {
-      paste0("V", seq_along(col_names))
-    }) |>
-    dplyr::mutate("V1" = as.logical(.data$V1))
-
-  colnames(consistency_df) <- col_names
-
-  results |>
-    dplyr::select(-{{ col }}) |>
-    dplyr::bind_cols(consistency_df)
 }

@@ -20,10 +20,11 @@ A tibble with the columns of \code{x}, each followed by its result column.
 It has the class \code{scrutiny_dup_detect}, which is recognized by \code{\link[=audit]{audit()}}.
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#superseded}{\figure{lifecycle-superseded.svg}{options: alt='[Superseded]'}}}{\strong{[Superseded]}}
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 
-\code{duplicate_detect()} is superseded by \code{\link[=duplicate_tally]{duplicate_tally()}} and
-\code{\link[=duplicate_count]{duplicate_count()}}, which are more informative.
+\code{duplicate_detect()} is deprecated in favor of \code{\link[=duplicate_tally]{duplicate_tally()}} and
+\code{\link[=duplicate_count]{duplicate_count()}}, which are more informative. It will be removed in
+a later version.
 
 For every value in a vector or data frame, it tests whether at least one
 other value is identical, and reports the result next to the value.

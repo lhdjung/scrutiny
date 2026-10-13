@@ -130,12 +130,14 @@ mtcars_ignore_exp <- tibble::tibble(
 # Testing -----------------------------------------------------------------
 
 test_that("`audit()` for `duplicate_detect()` works correctly by default", {
+  rlang::local_options(lifecycle_verbosity = "quiet")
   pigs4  |> duplicate_detect() |> audit() |> expect_equal(pigs4_exp)
   iris   |> duplicate_detect() |> audit() |> expect_equal(iris_exp)
   mtcars |> duplicate_detect() |> audit() |> expect_equal(mtcars_exp)
 })
 
 test_that("`audit()` for `duplicate_detect()` works correctly with some values ignored", {
+  rlang::local_options(lifecycle_verbosity = "quiet")
   pigs4 |>
     duplicate_detect(ignore = c(4.221, 6.887)) |>
     audit() |>
@@ -153,6 +155,7 @@ test_that("`audit()` for `duplicate_detect()` works correctly with some values i
 })
 
 test_that("every term gets a row, and `NA`s are not counted as checked", {
+  rlang::local_options(lifecycle_verbosity = "quiet")
   # Terms without duplicates used to be dropped, so `.total` undercounted, and
   # `total_count` was the number of rows even where some values were `NA`:
   tibble::tibble(

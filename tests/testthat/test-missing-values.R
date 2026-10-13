@@ -141,8 +141,6 @@ test_that("the `show_*` columns keep their shape and their types", {
   out_debit <- df_debit |> debit_map(digits_x = 2, digits_sd = 2)
   out_debit$sd_lower[2:3] |> expect_equal(c(NA_real_, NA_real_))
   out_debit$sd_lower |> expect_type("double")
-  # `rounding` is not reconstructed from the data, so it survives:
-  out_debit$rounding |> expect_equal(rep("up_or_down", 3L))
 })
 
 
@@ -262,17 +260,9 @@ test_that("undecidable input gives `NA` in the mappers, too", {
   out_debit <- tibble::tibble(x = 0.5, sd = 0.5, n = 1L) |> debit_map(digits_x = 2, digits_sd = 2)
   out_debit$consistency |> expect_na()
 
-  out_grimmer <- tibble::tibble(x = 5, sd = 0, n = 1L) |> grimmer_map(digits_x = 2, digits_sd = 2, show_reason = TRUE)
+  out_grimmer <- tibble::tibble(x = 5, sd = 0, n = 1L) |> grimmer_map(digits_x = 2, digits_sd = 2)
   out_grimmer$consistency |> expect_na()
   out_grimmer$reason |> expect_equal("No testable value set")
-})
-
-
-test_that("`grim_ratio()` stays unclamped and unguarded", {
-  # It is documented as the raw formula, and `grim_probability()` is the one
-  # that reports an undecidable case as `NA`:
-  5.19 |> grim_ratio(n = 20.5, digits_x = 2)       |> expect_equal((100 - 20.5) / 100)
-  5.19 |> grim_probability(n = 20.5, digits_x = 2) |> expect_na()
 })
 
 
@@ -297,7 +287,7 @@ test_that("an infinite value is undecidable, not consistent", {
 
 test_that("`grimmer()` names the infinity as its reason", {
   tibble::tibble(x = Inf, sd = 0.41, n = 40L) |>
-    grimmer_map(digits_x = 2, digits_sd = 2, show_reason = TRUE) |>
+    grimmer_map(digits_x = 2, digits_sd = 2) |>
     purrr::pluck("reason") |>
     expect_equal("Infinite value")
 })

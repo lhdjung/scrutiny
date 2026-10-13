@@ -53,7 +53,7 @@ flying_pigs |>
   debit_map(digits_x = 2, digits_sd = 2)
 ```
 
-`consistency` is the test result. The remaining columns, which are shown by default, contain the reconstructed values: the rounding bounds of `sd` and `x`, and `sum_lower` and `sum_upper`, the smallest and largest numbers of ones whose mean would be reported as `x`. Set `show_rec = FALSE` to omit them.
+`consistency` is the test result. The remaining columns contain the reconstructed values: the rounding bounds of `sd` and `x`, and `sum_lower` and `sum_upper`, the smallest and largest numbers of ones whose mean would be reported as `x`.
 
 ```{r}
 pigs3 # data saved within the package

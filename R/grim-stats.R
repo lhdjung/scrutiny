@@ -8,10 +8,6 @@
 #'   GRIM-inconsistent with `n`. It is the `probability` column of
 #'   [`grim_map()`].
 #'   - `grim_total()` returns the number of such inconsistent values per unit.
-#'   - `grim_ratio()` is the raw formula `(10^digits_x - n * items) /
-#'   10^digits_x`. It equals `grim_probability()` for rounding methods that
-#'   admit exactly one step, such as `"up"`, except that it can be negative.
-#'   It takes no `rounding` argument and does not check its input.
 #'
 #'   See `vignette("grim")`, section *GRIM statistics*.
 #'
@@ -77,18 +73,6 @@ grim_probability <- function(
   }
 
   out / 10^digits_x
-}
-
-
-#' @rdname grim-stats
-#' @export
-grim_ratio <- function(x, n, digits_x, items = 1, percent = FALSE) {
-  if (percent) {
-    digits_x <- digits_x + 2L
-  }
-
-  n_values <- 10^digits_x
-  (n_values - n * items) / n_values
 }
 
 
@@ -213,8 +197,7 @@ grim_total <- function(
   #
   # If the possible means lie closer together than the rounding interval is
   # wide, every reported value is consistent. The subtraction then gives a
-  # negative number, which `pmax()` turns into 0. Unlike this function,
-  # `grim_ratio()` returns its raw formula, which can be negative.
+  # negative number, which `pmax()` turns into 0.
   n_incons <- pmax(
     n_values - div_common * n_multiples,
     0

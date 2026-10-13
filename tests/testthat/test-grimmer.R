@@ -734,7 +734,7 @@ test_that("GRIMMER returns `NA` where GRIM itself is undecidable", {
   # screens for missingness ahead of the test, so the vehicle here is an `n`
   # that leaves nothing to test.)
   out <- tibble::tibble(x = c(1.03, 1.03), sd = c(0.41, 0.41), n = c(0L, 40L)) |>
-    grimmer_map(digits_x = 2, digits_sd = 2, show_reason = TRUE)
+    grimmer_map(digits_x = 2, digits_sd = 2)
   out$consistency |> expect_equal(c(NA, FALSE))
   out$reason[1L] |> expect_equal("No testable value set")
   out |> audit() |> purrr::pluck("fail_grim")    |> expect_equal(0L)

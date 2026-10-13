@@ -2,15 +2,13 @@
 #'
 #' @description `decimal_places()` counts the decimal places of a numeric
 #'   vector, or of a string vector coercible to numeric.
-#'   `decimal_places_scalar()` does the same for a single value and is faster,
-#'   for use within other single-case functions.
 #'
 #' @section Trailing zeros: A numeric value has lost its trailing zeros: `3.70`
 #'   is stored as `3.7` and has one decimal place. If trailing zeros matter,
 #'   enter the values as strings, such as `"3.70"`, or restore them with
 #'   [`restore_zeros()`] if the original number of decimal places is known.
 #'
-#' @details Both functions count the run of digits after the first `sep`,
+#' @details The function counts the run of digits after the first `sep`,
 #'   after trimming whitespace and applying any exponent: `"5.30%"` has two
 #'   decimal places, `"1e-5"` has five, and `"1..5"` has none. Missing values,
 #'   the string `"NA"`, and strings that [`as.numeric()`] reads as an infinity
@@ -42,9 +40,6 @@
 #'
 #' # Whitespace at the end of a string is ignored:
 #' decimal_places(x = "6.0     ")
-#'
-#' decimal_places_scalar(x = 8.13)
-#' decimal_places_scalar(x = "5.024")
 
 decimal_places <- function(x, sep = ".") {
   sep <- sep_literal(sep)
@@ -105,11 +100,9 @@ decimal_places <- function(x, sep = ".") {
 }
 
 
-#' @rdname decimal_places
-#' @export
-
 # Faster, single-case (scalar) function to be used as a helper within other
-# single-case functions:
+# single-case functions. Not exported; it has to agree with `decimal_places()`,
+# which test-decimal-places.R checks:
 decimal_places_scalar <- function(x, sep = ".") {
   # The three ways of having no decimal places to count -- a missing value, an
   # infinity, and the strings that spell one, `"NA"` among them. Branching on `is.character()`
