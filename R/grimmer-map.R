@@ -32,11 +32,11 @@
 #' - `reason`: `"Passed all"` if consistent; otherwise the test that failed.
 #' - Any other columns from `data`.
 #'
-#' The `reason` column refers to GRIM and the three GRIMMER tests (Allard
-#' 2018):
+#' The `reason` column refers to GRIM and the GRIMMER tests of Allard (2018):
 #'
 #' 1. The reconstructed sum of squared observations must be a whole number.
-#' 2. The reconstructed SD must match the reported one.
+#' 2. The reconstructed SD must match the reported one. Test 1 implies this,
+#'    so it is never a reason.
 #' 3. The parity of the reconstructed sum of squared observations must match
 #'    that of the reconstructed sum of the values.
 #'

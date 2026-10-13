@@ -273,14 +273,15 @@ test_that("`grim(tolerance = )` is deprecated", {
     expect_equal(grim(x = 5.19, n = 28, digits_x = 2))
 
   # Not specifying it is silent, and `grimmer()` -- which calls `grim_scalar()`
-  # internally and does use a tolerance of its own -- must not trip it either:
+  # internally -- must not trip it either. Its own `tolerance` is deprecated
+  # the same way:
   5.19 |> grim(n = 28, digits_x = 2) |> expect_no_condition()
   5.19 |>
     grimmer(sd = 0.5, n = 28, digits_x = 2, digits_sd = 2) |>
     expect_no_condition()
   5.19 |>
     grimmer(sd = 0.5, n = 28, digits_x = 2, digits_sd = 2, tolerance = 1e-6) |>
-    expect_no_condition()
+    lifecycle::expect_deprecated()
 
   # `debit()` has no such argument at all:
   debit |> formals() |> rlang::has_name("tolerance") |> expect_false()

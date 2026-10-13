@@ -17,8 +17,7 @@ grim_scalar <- function(
   tolerance = lifecycle::deprecated()
 ) {
   # GRIM decides which sums are consistent in exact integer arithmetic, so there
-  # is no floating-point comparison for a tolerance to loosen. `grimmer()` does
-  # use it; `debit()` never had it.
+  # is no floating-point comparison for a tolerance to loosen.
   if (lifecycle::is_present(tolerance)) {
     # `user_env` is explicit because the user never calls this directly: left to
     # infer the caller, lifecycle finds a scrutiny frame and tells the user to
@@ -27,7 +26,7 @@ grim_scalar <- function(
       when = "1.0.0",
       what = "grim(tolerance)",
       details = "GRIM compares exact integers, so `tolerance` has no effect \\
-      on its results. `grimmer()` still takes it, and uses it.",
+      on its results.",
       user_env = globalenv()
     )
   }
@@ -159,7 +158,7 @@ grim_scalar <- function(
 #'   the longest. All other arguments must have length 1.
 #'
 #'   The test decides in exact integer arithmetic, so `tolerance` has no
-#'   effect and is deprecated. [`grimmer()`] still uses it.
+#'   effect and is deprecated.
 #'
 #' @param x Numeric. The reported mean or percentage.
 #' @param n Integer. The reported sample size.

@@ -17,7 +17,7 @@ grimmer(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  tolerance = .Machine$double.eps^0.5
+  tolerance = lifecycle::deprecated()
 )
 }
 \arguments{
@@ -57,8 +57,8 @@ their absolute values (\code{-2.5} like \code{2.5}) under \code{"up"}, \code{"do
 \code{"ties_*"} rounding method, which already fixes the direction; see
 \code{\link[=reround]{reround()}}.}
 
-\item{tolerance}{Numeric. Tolerance for comparing the reported \code{sd} to the
-reconstructed SDs, via \code{\link[dplyr:near]{dplyr::near()}}. Default is about \code{1.5e-8}.}
+\item{tolerance}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} This argument has no
+effect: the test decides in exact integer arithmetic.}
 }
 \value{
 Logical. \code{TRUE} if \code{x}, \code{sd}, \code{n}, and \code{items} are consistent,

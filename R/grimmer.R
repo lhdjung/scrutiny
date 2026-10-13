@@ -90,8 +90,19 @@ grimmer_scalar <- function(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  tolerance = .Machine$double.eps^0.5
+  tolerance = lifecycle::deprecated()
 ) {
+  # GRIMMER decides in exact integer arithmetic, like GRIM: see test 2 below.
+  if (lifecycle::is_present(tolerance)) {
+    lifecycle::deprecate_warn(
+      when = "1.0.0",
+      what = "grimmer(tolerance)",
+      details = "GRIMMER compares exact integers, so `tolerance` has no \\
+      effect on its results.",
+      user_env = globalenv()
+    )
+  }
+
   # A plain `NA` is logical, but missing all the same:
   if (!is.numeric(items) && !is.na(items)) {
     check_type(items, c("double", "integer"))
@@ -166,9 +177,6 @@ grimmer_scalar <- function(
   n_items <- n * items
 
   # GRIM TEST: the original `n` because `items` is passed down separately.
-  # `tolerance` is deliberately not passed on -- it is deprecated in `grim()`, so
-  # forwarding it would fire that warning for every `grimmer()` call. GRIMMER's
-  # own use of it below is unaffected.
   pass_grim <- grim_scalar(
     x = x,
     n = n,
@@ -249,10 +257,10 @@ grimmer_scalar <- function(
 
   consistent_sums <- sums_consistent[1L]:sums_consistent[2L]
 
-  # Run all three GRIMMER tests for each candidate sum, returning `TRUE` as
-  # soon as one passes all three. For `show_reason`, track the furthest test
-  # any candidate reached before failing (0 = none passed test 1, and so on):
-  furthest_test_passed <- 0L
+  # Run the GRIMMER tests for each candidate sum, returning `TRUE` as soon as
+  # one passes them all. For `show_reason`, track whether any candidate passed
+  # test 1:
+  any_passed_test1 <- FALSE
 
   # Whether the scale's bounds ruled a candidate sum out. Affects the reason
   # given, not the verdict:
@@ -305,102 +313,36 @@ grimmer_scalar <- function(
       next
     }
 
-    furthest_test_passed <- max(furthest_test_passed, 1L)
+    any_passed_test1 <- TRUE
 
-    # The range grows with `(n - 1) * items^2 * sd`, so a large SD reported with
-    # few decimals can span millions of integers even at a small `n`. Walking it
-    # in chunks keeps memory flat, and the loop stops at the first match:
-    chunk_starts <- seq(
-      sum_squares[1L],
-      sum_squares[2L],
-      by = GRIMMER_CHUNK_SIZE
-    )
+    # TEST 2 of Allard (2018) rounds each admissible sum of squares back to an
+    # SD and compares it to the reported one. Test 1 implies it: the bounds are
+    # the exact inverse of that rounding, so every integer between them passes.
+    # It used to be run anyway, with a floating-point tolerance that could only
+    # ever lose matches, so it is not run at all.
 
-    for (chunk_start in chunk_starts) {
-      integers_possible <- chunk_start:min(
-        chunk_start + GRIMMER_CHUNK_SIZE - 1,
-        sum_squares[2L]
-      )
-
-      # Subtracting `s^2 / n` from the integer sum of squares directly is much
-      # better conditioned than the equivalent
-      # `integers_possible / items^2 - n * (s / n_items)^2`, which cancels two
-      # large, nearly equal floating-point numbers:
-      var_predicted <- (integers_possible - s^2 / n) / (items^2 * (n - 1))
-
-      # The bounds above guarantee `var_predicted >= sd_lower^2 >= 0`, so
-      # anything negative here is floating-point noise from that division:
-      var_predicted <- pmax(var_predicted, 0)
-
-      sd_predicted <- sqrt(var_predicted)
-
-      sd_rec_rounded <- reround(
-        x = sd_predicted,
-        digits = digits_sd,
-        rounding = rounding,
-        threshold = threshold,
-        symmetric = symmetric
-      )
-
-      # `reround()` returns one value per element of `sd_predicted` for
-      # deterministic rounding methods, but two interleaved ones for
-      # "up_or_down" and friends: `[up(cand_1), down(cand_1), up(cand_2), ...]`.
-      # `reps` is that block size, so each candidate is checked against its own
-      # reconstructed SD(s). Pooling them let a match for one candidate combine
-      # with a parity match for another into a false pass (#85).
-      reps <- length(sd_rec_rounded) / length(integers_possible)
-
-      # Near-equality of reported and reconstructed SD, per candidate integer.
-      # `dplyr::near()` rather than `==` to absorb floating-point noise:
-      matches_sd <- vapply(
-        seq_along(integers_possible),
-        function(i) {
-          block <- ((i - 1L) * reps + 1L):(i * reps)
-          any(
-            dplyr::near(sd_rec_rounded[block], sd, tol = tolerance),
-            na.rm = TRUE
-          )
-        },
-        logical(1)
-      )
-
-      # TEST 2: If none of the reconstructed SDs matches the reported one, this
-      # chunk has no viable sum of squares.
-      if (!any(matches_sd)) {
-        next
+    # TEST 3: The sum of squares of whole numbers has the parity of their sum
+    # (`k^2` is odd exactly if `k` is). Two or more admissible integers always
+    # include one of each parity; a single one must have that of `s`:
+    if (sum_squares[2L] > sum_squares[1L] || sum_squares[1L] %% 2 == s %% 2) {
+      if (show_reason) {
+        return(list(TRUE, "Passed all"))
       }
-
-      furthest_test_passed <- max(furthest_test_passed, 2L)
-
-      # TEST 3: Does any *single* integer both match the reported SD and have
-      # the same parity (even- or oddness) as the candidate sum `s`?
-      matches_parity <- s %% 2 == integers_possible %% 2
-
-      if (any(matches_sd & matches_parity)) {
-        # All three tests passed for this candidate sum
-        if (show_reason) {
-          return(list(TRUE, "Passed all"))
-        }
-        return(TRUE)
-      }
+      return(TRUE)
     }
   }
 
-  # No candidate sum passed all three tests.
+  # No candidate sum passed test 1 and test 3.
   if (show_reason) {
     # Report the bounds only if no candidate got past test 1 without them.
     # Otherwise the tests are the more specific reason:
-    if (furthest_test_passed == 0L && blocked_by_scale) {
+    if (!any_passed_test1 && blocked_by_scale) {
       return(list(FALSE, "GRIMMER inconsistent (scale range)"))
     }
-    reason <- switch(
-      as.character(furthest_test_passed),
-      "0" = "GRIMMER inconsistent (test 1)",
-      "1" = "GRIMMER inconsistent (test 2)",
-      "2" = "GRIMMER inconsistent (test 3)",
-      cli::cli_abort("Internal error: Invalid `furthest_test_passed` value.")
-    )
-    return(list(FALSE, reason))
+    if (any_passed_test1) {
+      return(list(FALSE, "GRIMMER inconsistent (test 3)"))
+    }
+    return(list(FALSE, "GRIMMER inconsistent (test 1)"))
   }
 
   FALSE
@@ -438,8 +380,8 @@ grimmer_scalar <- function(
 #' @param min_val,max_val Integer. Optionally, the smallest and largest value
 #'   that a single response can take, such as the endpoints of a Likert scale.
 #'   Both default to `NULL`, an unbounded scale. See *Scale bounds*.
-#' @param tolerance Numeric. Tolerance for comparing the reported `sd` to the
-#'   reconstructed SDs, via [`dplyr::near()`]. Default is about `1.5e-8`.
+#' @param tolerance `r lifecycle::badge("deprecated")` This argument has no
+#'   effect: the test decides in exact integer arithmetic.
 #'
 #' @inheritParams grim
 #'
@@ -509,7 +451,7 @@ grimmer <- function(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  tolerance = .Machine$double.eps^0.5
+  tolerance = lifecycle::deprecated()
 ) {
   vectorize_test(
     fun = grimmer_scalar,

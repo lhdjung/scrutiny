@@ -78,10 +78,6 @@ NON_FINITE_TOKENS <- c(outer(
 ))
 
 
-# How many integer sums of squares `grimmer_scalar()` checks at once. Bounds
-# its memory use; the test stops at the first chunk with a match.
-GRIMMER_CHUNK_SIZE <- 1e5
-
 # Used in `grim_plot()` if `digits > 2`
 TIBBLE_FRAC_N_ZERO <- tibble::new_tibble(list(frac = 0, n = 0L), nrow = 1L)
 

@@ -76,7 +76,7 @@ length by the tidyverse rules: an argument has length 1 or the length of
 the longest. All other arguments must have length 1.
 
 The test decides in exact integer arithmetic, so \code{tolerance} has no
-effect and is deprecated. \code{\link[=grimmer]{grimmer()}} still uses it.
+effect and is deprecated.
 }
 \examples{
 # A mean of 5.19 is not consistent with a sample size of 28:

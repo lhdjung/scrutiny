@@ -49,9 +49,9 @@ pigs5_exp <- tibble::tibble(
         show_reason = TRUE,
         rounding = "up_or_down",
         threshold = 5,
-        symmetric = FALSE,
-        tolerance = .Machine$double.eps^0.5
+        symmetric = FALSE
       ),
+      name_test = "GRIMMER",
       seq_test = FALSE
     ),
     class = c(

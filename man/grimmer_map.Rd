@@ -18,7 +18,7 @@ grimmer_map(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  tolerance = .Machine$double.eps^0.5,
+  tolerance = lifecycle::deprecated(),
   ...
 )
 }
@@ -59,11 +59,11 @@ for a case that cannot be decided, such as one with a missing value.
 \item Any other columns from \code{data}.
 }
 
-The \code{reason} column refers to GRIM and the three GRIMMER tests (Allard
-2018):
+The \code{reason} column refers to GRIM and the GRIMMER tests of Allard (2018):
 \enumerate{
 \item The reconstructed sum of squared observations must be a whole number.
-\item The reconstructed SD must match the reported one.
+\item The reconstructed SD must match the reported one. Test 1 implies this,
+so it is never a reason.
 \item The parity of the reconstructed sum of squared observations must match
 that of the reconstructed sum of the values.
 }
