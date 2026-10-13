@@ -16,7 +16,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 ### Test results
 
-- GRIM and GRIMMER now compute the candidate sums (and, for GRIMMER, the sums of squares) in exact integer arithmetic. Previously, candidates were compared to the rounding bounds in floating point, which gave wrong results whenever a candidate was exactly on a bound. Both false positives and false negatives occurred. For example, `grimmer(x = 0.03, sd = 0.18, n = 200)` was reported as inconsistent, although a sample of seven 1s and 193 0s has exactly these values. Errors of this kind also affected GRIMMER with multi-item scales. Thanks to Ian Hussey (#85, #86) and Aurélien Allard.
+- GRIMMER now computes the candidate sums and sums of squares in exact integer arithmetic. Previously, it compared candidates to the rounding bounds in floating point, which could lose a candidate exactly on a bound. Some consistent value sets were therefore reported as inconsistent. For example, `grimmer(x = 0.03, sd = 0.18, n = 200)` was `FALSE`, although a sample of seven 1s and 193 0s has exactly these values. Errors of this kind also affected multi-item scales. Thanks to Ian Hussey (#86) and Aurélien Allard.
 
 - A rounding bound is now treated as exclusive whenever a value exactly on the bound would have been rounded away from the reported number under the given rounding method. This was already the case for `"up"` and `"down"`; it now also applies to `"ceiling"`, `"floor"`, `"trunc"`, `"anti_trunc"`, and the `"*_from"` methods. Under `"even"`, both bounds remain inclusive, because whether a tie occurs under `base::round()` depends on the binary representation of the value.
 
