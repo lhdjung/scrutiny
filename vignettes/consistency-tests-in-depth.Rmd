@@ -220,7 +220,7 @@ The rest of section 3 explains how to write a mapper by hand. The requirements a
 
 It's important to distinguish between *key arguments or columns* and other arguments or columns. The key arguments in a scalar or vectorized consistency-testing function are the values that are tested for consistency with each other, such as `x` and `n` in `grim()`. By extension, key columns are those that contain such values. Every key column has the same name as the respective key argument.
 
-A *helper column* is a column that is not key itself, but still factors into the consistency test. An example is the optional `items` column in `grim_map()`'s input data frame: It transforms the `n` column, which in turn affects the test outcomes. However, helper columns need not work via key columns.
+A *helper column* is a column that is not key itself, but still factors into the consistency test. An example is the optional `items` column in `grim_map()`'s input data frame.
 
 Key and helper columns are *tested* columns because they factor into the test. Any other columns are *non-tested*.
 
@@ -232,11 +232,11 @@ The functions built on a mapper rely on its output having specific properties. T
 
 2.  Its first argument, `data`, is a tibble (data frame) that contains the key columns of the respective consistency test. Other columns are permitted. The mapper's user never needs to include helper columns and can always replace them by specifying arguments by the same names as those columns. If the user specifies such an argument but the input data frame contains a column by the same name, the function throws an error. No column of the input data frame should be named `"consistency"`.
 
-3.  Its return value is a tibble (data frame) that contains all of the key input columns. The types of these columns are the same as in the input data frame, except that a whole-number `n` column may be returned as integer. They are the first (i.e., leftmost) columns in the output, even if the input isn't ordered this way. If any of these columns are modified within the mapping function, the output should include the modified columns, not the original ones. Examples can be effects of helper columns, but also the change displayed by the `"x"` column in the output of `grim_map(percent = TRUE)`. The output must test `TRUE` with `is_map_df()` and `is_map_basic_df()`, but `FALSE` with the other two `is_map_*()` functions.
+3.  Its return value is a tibble (data frame) that contains all of the key input columns. The types of these columns are the same as in the input data frame, except that a whole-number `n` column may be returned as integer. They are the first (i.e., leftmost) columns in the output, even if the input isn't ordered this way. If any of these columns are modified within the mapping function, the output should include the modified columns, not the original ones. An example is the `"x"` column in the output of `grim_map(percent = TRUE)`. The output must test `TRUE` with `is_map_df()` and `is_map_basic_df()`, but `FALSE` with the other two `is_map_*()` functions.
 
-4.  There can be no arguments named like the key arguments unless they follow the `manage_key_colnames()` system; see there.
+4.  Arguments named like the key arguments exist only to let the user name the columns that hold these values, as in `grim_map(df, x = mean)`. They default to `NULL`, and the mapper passes them to `absorb_key_args()`; see *Practical steps*.
 
-5.  Helper columns should be included in the output unless they transform one or more key columns. In this case, representing them in the output would be confusing because their effects have already played out via the transformed key column(s). An example is the optional `items` column in `grim_map()`'s input data frame, together with this function's `items` argument: the values are multiplied into `n`, and there is no `items` column in the output. In `function_map()`, declare helper columns with `.cols_helper`, and pair a helper column with the key column it is multiplied into using `.cols_helper_merge`. To work with helper columns in a handwritten mapper, call `manage_helper_col()`.
+5.  A helper column that the user gave, as a column of `data` or as an argument, is returned right after the key columns. In `function_map()`, declare helper columns with `.cols_helper`. In a handwritten mapper, call `manage_helper_col()` once per helper column, which adds the argument's value to `data` as a column if there is none.
 
 6.  The output data frame also includes a logical column named `"consistency"`. It contains the results of the consistency test, as determined by the respective `*_scalar()` function. In each row, `"consistency"` is `TRUE` if the values to its left are mutually consistent, and `FALSE` if they aren't. This column is placed immediately to the right of the group of key (and, potentially, helper) columns.
 
@@ -252,7 +252,7 @@ Anything that factors into the consistency test other than tested columns needs 
 
 The input and output data frames are tibbles. The input data frame never contains a column named `"consistency"`, but the output data frame always does.
 
-Key columns may or may not be modified by helper columns and/or by arguments. The number of key columns doesn't change between the input and output data frames.
+Key columns may be modified by arguments, such as `x` by `percent`. The number of key columns doesn't change between the input and output data frames.
 
 The output data frame may or may not contain non-tested columns from the input. It may or may not contain non-tested columns created within the mapper function itself. (This can be useful, as with `"probability"` in `grim_map()`'s output.) Any such non-tested, non-`"consistency"` columns go to the right of `"consistency"`.
 
@@ -286,13 +286,14 @@ How to actually write mapper functions? Again, I recommend `function_map()`. The
 Apply the `*_scalar()` function to the input data frame using `purrr::pmap_lgl()`:
 
 ```{r}
-schlim_map_alt1 <- function(data, ...) {
+schlim_map_alt1 <- function(data, y = NULL, n = NULL, ...) {
+  data <- scrutiny::absorb_key_args(data, c("y", "n"))
   scrutiny::check_mapper_input_colnames(data, c("y", "n"), "SCHLIM")
 
   tibble::tibble(
     y = data$y,
     n = data$n,
-    consistency = purrr::pmap_lgl(data, schlim_scalar, ...)
+    consistency = purrr::pmap_lgl(data[c("y", "n")], schlim_scalar, ...)
   ) |>
     add_class("scrutiny_schlim_map") # See section "S3 classes" below
 }
@@ -301,7 +302,8 @@ schlim_map_alt1 <- function(data, ...) {
 Alternatively, you might call `dplyr::rowwise()` and directly mutate `"consistency"`. I don't recommend this approach because `dplyr::rowwise()` is quite slow.
 
 ```{r}
-schlim_map_alt2 <- function(data, ...) {
+schlim_map_alt2 <- function(data, y = NULL, n = NULL, ...) {
+  data <- scrutiny::absorb_key_args(data, c("y", "n"))
   scrutiny::check_mapper_input_colnames(data, c("y", "n"), "SCHLIM")
 
   data |>
@@ -313,7 +315,7 @@ schlim_map_alt2 <- function(data, ...) {
 }
 ```
 
-The call to `check_mapper_input_colnames()` is not required but adds safety to your function. Also, see `manage_key_colnames()` which grants the user more flexibility in naming key columns.
+`absorb_key_args()` renames a column that the user named through a key argument, so that `schlim_map_alt1(df, y = score)` works like `grim_map(df, x = mean)`. `check_mapper_input_colnames()` is not required, but it reports a missing key column or an existing `"consistency"` column clearly. For a helper column such as `items` in `grim_map()`, add an argument by its name and call `manage_helper_col()`.
 
 Both approaches should lead to the same results:
 
@@ -321,6 +323,10 @@ Both approaches should lead to the same results:
 schlim_map_alt1(df1)
 
 schlim_map_alt2(df1)
+
+df1 |>
+  dplyr::rename(score = y) |>
+  schlim_map_alt1(y = score)
 ```
 
 ### Testing
