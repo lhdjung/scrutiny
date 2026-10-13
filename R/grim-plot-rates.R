@@ -18,7 +18,8 @@
 #'
 #' @details The expected rate of a study is the mean of the `probability`
 #'   column, from [`grim_probability()`]. Value sets whose probability is zero
-#'   or missing are left out because GRIM cannot test them.
+#'   or missing are left out because GRIM cannot test them. Value sets without
+#'   a study are left out with a warning.
 #'
 #'   Point area is the number of GRIM-testable value sets. Color shows the ratio
 #'   of the observed rate to the expected one: 0 means no inconsistencies, 1 as
@@ -56,6 +57,14 @@ grim_plot_rates <- function(data, study) {
     abort_in_export("`data` must be output of `grim_map()`.")
   }
 
+  cols_missing <- setdiff(c("consistency", "probability"), names(data))
+  if (length(cols_missing) > 0L) {
+    abort_in_export(
+      "`data` must have the columns `consistency` and `probability`.",
+      "x" = "Missing: {.code {cols_missing}}."
+    )
+  }
+
   study <- names(tidyselect::eval_select(rlang::enquo(study), data))
 
   if (length(study) != 1L) {
@@ -63,6 +72,15 @@ grim_plot_rates <- function(data, study) {
       "`study` must select exactly one column.",
       "x" = "It selects {length(study)}."
     )
+  }
+
+  study_missing <- is.na(data[[study]])
+  if (any(study_missing)) {
+    cli::cli_warn(c(
+      "!" = "Dropping {sum(study_missing)} value set{?s} without a study.",
+      "i" = "Their `{study}` is `NA`."
+    ))
+    data <- data[!study_missing, ]
   }
 
   rates <- data |>
@@ -75,8 +93,8 @@ grim_plot_rates <- function(data, study) {
       .by = dplyr::all_of(study)
     )
 
-  # Red at 1 is the middle of the scale, not its end, so that ratios above it
-  # remain distinguishable:
+  # Red marks 1, not the end of the scale, so that ratios above it remain
+  # distinguishable:
   upper <- max(2, rates$ratio)
   as_percent <- function(x) paste0(100 * x, "%")
 

@@ -31,7 +31,8 @@ random.
 \details{
 The expected rate of a study is the mean of the \code{probability}
 column, from \code{\link[=grim_probability]{grim_probability()}}. Value sets whose probability is zero
-or missing are left out because GRIM cannot test them.
+or missing are left out because GRIM cannot test them. Value sets without
+a study are left out with a warning.
 
 Point area is the number of GRIM-testable value sets. Color shows the ratio
 of the observed rate to the expected one: 0 means no inconsistencies, 1 as
