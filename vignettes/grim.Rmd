@@ -214,6 +214,22 @@ In the first plot, the light vertical lines at $n = 40$ and $n = 80$ result from
 
 `grim_plot()` needs the output of a GRIM or GRIMMER mapper, such as `grim_map()` or `grim_map_seq()`.
 
+### A single value set: `grim_plot_values()`
+
+`grim_plot_values()` draws the test for one value set, for teaching or for explaining a verdict. Each tooth of the comb is a mean that could have been reported with `digits_x` decimal places; the tall teeth are the means that a sample of size `n` can have. The reported value is marked above the comb, and the strip behind the teeth is the range of unrounded means that would have been reported as `x`. The value is consistent exactly if a tall tooth stands within the strip:
+
+```{r, fig.width=7, fig.height=3}
+grim_plot_values(x = 5.19, n = 28, digits_x = 2)
+```
+
+With `n = 26`, the same mean is consistent:
+
+```{r, fig.width=7, fig.height=3}
+grim_plot_values(x = 5.19, n = 26, digits_x = 2)
+```
+
+`grimmer_plot_values()` is the same figure over standard deviations; see `vignette("grimmer")`.
+
 ## Values around the reported ones: `grim_map_seq()`
 
 An inconsistency may come from a small error in reporting or computing. `grim_map_seq()` tests the values around the reported ones: it varies `x` and `n` a few steps up and down, one at a time, and tests each resulting value set.
@@ -309,6 +325,36 @@ grim_total(x = 1.40, n = 72, digits_x = 2)
 ```
 
 The formula is implicit in @brown_grim_2017, who note (p. 367) that with two decimal places and $N < 100$, a random mean is consistent in about $N$% of cases.
+
+### A study's rate of inconsistency
+
+Correctly reported means are always consistent, so a study's rate of inconsistent value sets should be zero. If the decimal digits of its means were random instead, that rate would be the mean of the `probability` column. `grim_binomial()` tests whether the rate of *consistent* value sets is above what random digits would produce, using the Poisson binomial distribution since the probability differs between value sets. It returns the observed consistency rate with a Clopper-Pearson confidence interval:
+
+```{r}
+pigs1 |>
+  grim_map(digits_x = 2) |>
+  grim_binomial()
+```
+
+`grim_binomial_power()` computes the power of this test for a given number of value sets and null probability, to judge whether it is informative for a data set before interpreting its p-value:
+
+```{r}
+grim_binomial_power(p0 = 0.5, p1 = 0.9, k = 10)
+```
+
+Both functions are experimental. `grim_plot_rates()` shows the same comparison for several studies at once. Each point is a study, placed at its observed rate of inconsistency against the rate that random means would show; the point area is the number of testable value sets. A study on the dotted line at zero is as expected, and one on the dashed diagonal is as inconsistent as random digits:
+
+```{r, eval = rlang::is_installed("ggrepel"), fig.width=6, fig.height=5}
+codes <- c(
+  "B", "B", "C", "C", "A", "C",
+  "A", "D", "A", "A", "A", "A"
+)
+
+pigs1 |>
+  grim_map(digits_x = 2) |>
+  dplyr::mutate(study = codes) |>
+  grim_plot_rates(study = study)
+```
 
 ### Granularity and scale items
 

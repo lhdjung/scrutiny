@@ -1,0 +1,127 @@
+---
+title: "Percentages and sums"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Percentages and sums}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, message=FALSE}
+library(scrutiny)
+```
+
+Two tests check whether reported percentages and sums can have been derived from reported counts:
+
+- `is_percentage_of()` and `is_percentage_of_map()` check whether a reported percentage is consistent with reported count and total values.
+- `add_up_to()` and `add_up_to_map()` check whether reported counts, such as group sizes, sum to a reported total.
+
+The `*_map()` functions are for data frames, enabling you to easily process many value sets at once. For summaries, run `audit()` on their results.
+
+These functions may seem trivial, and mathematically they are. What makes them useful is easy and safe application: the `*_map()` functions check any number of reported value sets at once, and `is_percentage_of()` handles rounding in exact integer arithmetic, so floating-point error cannot change a result.
+
+## Percentages
+
+### Single cases: `is_percentage_of()`
+
+40 out of 120 is 33.33...%, so it can be reported as 33 or 33.3, but not as 34:
+
+```{r}
+is_percentage_of(absolute = 40, percentage = 33, n = 120, digits_percentage = 0)
+is_percentage_of(40, 34, 120, digits_percentage = 0)
+
+is_percentage_of(
+  absolute = 40,
+  percentage = 33.3,
+  n = 120,
+  digits_percentage = 1
+)
+```
+
+`digits_percentage` is required, like `digits_x` in `grim()`, since a numeric value does not keep trailing zeros. The test runs in exact integer arithmetic, and `rounding`, `threshold`, and `symmetric` work as in `grim()`.
+
+This check is stricter than `grim()` with `percent = TRUE`, which only asks whether *some* count out of `n` could have produced the percentage. The present functions ask about a specific count, so they also require such a count to be reported.
+
+### Many cases: `is_percentage_of_map()`
+
+`is_percentage_of_map()` tests every row of a data frame with the columns `absolute`, `percentage`, and `n`:
+
+```{r}
+df <- tibble::tibble(
+  absolute = c(40, 37, 25),
+  percentage = c(33, 31, 20),
+  n = 120
+)
+
+df |>
+  is_percentage_of_map(digits_percentage = 0)
+```
+
+25 out of 120 is 20.8%, which would have been reported as 21, so the third row is inconsistent. `audit()` summarizes the results:
+
+```{r}
+df |>
+  is_percentage_of_map(digits_percentage = 0) |>
+  audit()
+```
+
+### Investigating possible causes of inconsistencies
+
+A `FALSE` result means that the three values cannot all be correct as reported. It does not say why. The cause might be trivial: the percentage may be based on a denominator other than `n`, such as the number of valid responses or the sample size before loss to follow-up.
+
+To address this, `is_percentage_of_map_seq()` varies the counts, percentages, and totals a few steps up and down and tests each resulting value set, as `grim_map_seq()` does. With `var = "n"`, it shows which nearby denominators (i.e., similar `n` values) would make the percentage consistent:
+
+```{r}
+df |>
+  is_percentage_of_map_seq(digits_percentage = 0, var = "n")
+```
+
+Some nearby totals would make the percentage consistent. The nearest is two steps away: 25 out of 122 is 20.49%, reported as 20 since the percentage has no decimal places here.
+
+Summarize by counting the "hits", i.e., scenarios where varying `n` up and down makes the values consistent. To do so, use `audit_seq()`, not the basic `audit()`:
+
+```{r}
+df |>
+  is_percentage_of_map_seq(digits_percentage = 0, var = "n") |>
+  audit_seq()
+```
+
+## Sums
+
+### Single cases: `add_up_to()`
+
+`add_up_to()` checks whether counts sum to a total:
+
+```{r}
+add_up_to(c(40, 37, 43), total = 120)
+add_up_to(c(40, 37, 44), total = 120)
+```
+
+A missing or fractional value gives `NA` because sums of fractional values are not exact.
+
+### Many cases: `add_up_to_map()`
+
+`add_up_to_map()` adds up any number of columns. You choose columns using [tidyselect syntax](https://dplyr.tidyverse.org/reference/dplyr_tidy_select.html), as in `dplyr::select()` and similar. The function then compares them to a `total` column:
+
+```{r}
+df_groups <- tibble::tribble(
+  ~n_control , ~n_treatment , ~n_waitlist , ~total ,
+          40 ,           37 ,          43 ,    120 ,
+          25 ,           26 ,          24 ,     75 ,
+          31 ,           30 ,          30 ,     90 ,
+)
+
+df_groups |>
+  add_up_to_map(summands = starts_with("n_"))
+
+df_groups |>
+  add_up_to_map(summands = starts_with("n_")) |>
+  audit()
+```
