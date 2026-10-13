@@ -30,6 +30,7 @@ grim_args_default <- list(
 meta_seq <- function(fun_args, percent = FALSE, var = c("x", "n")) {
   list(
     args = utils::modifyList(grim_args_default, list(percent = percent)),
+    name_test = "GRIM",
     seq_test = FALSE,
     fun_args = fun_args,
     name_key_result = "consistency",

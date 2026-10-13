@@ -81,6 +81,7 @@ df1_expected <- tibble::tibble(
         symmetric = FALSE,
         show_rec = TRUE
       ),
+      name_test = "DEBIT",
       seq_test = FALSE
     ),
     class = c(

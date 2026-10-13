@@ -1,7 +1,7 @@
 # Non-exported helper function that, by default, shows a message when the
 # results of the main function (at the bottom) are returned:
 
-explain_seq_test_ranking <- function(x, scrutiny_func_info) {
+explain_seq_test_ranking <- function(x, df_info) {
   if (!any(colnames(x) == "lead_lag")) {
     x$lead_lag <- NA
   }
@@ -34,8 +34,6 @@ explain_seq_test_ranking <- function(x, scrutiny_func_info) {
 
   lead <- abs(lead)
 
-  df_info <- glue::glue("the data frame created by {scrutiny_func_info}")
-
   if (l_cons == 0L) {
     cli::cli_inform(c(
       "Explanation: ",
@@ -54,8 +52,8 @@ explain_seq_test_ranking <- function(x, scrutiny_func_info) {
       )
       msg_lead <- glue::glue(
         "The consistent value set {lead_lag_info} the \\
-                             first inconsistent one by {lead} places in the \\
-                             {scrutiny_func_info} data frame. \n"
+                             first inconsistent one by {lead} places in \\
+                             {df_info}. \n"
       )
     } else if (l_cons == 2L) {
       msg_cons <- glue::glue(
@@ -65,8 +63,7 @@ explain_seq_test_ranking <- function(x, scrutiny_func_info) {
       msg_lead <- glue::glue(
         "The consistent sets {lead_lag_info} the \\
                              inconsistent ones by {lead[1L]} and {lead[2L]} \\
-                             places, respectively, in the {scrutiny_func_info} \\
-                             data frame. \n"
+                             places, respectively, in {df_info}. \n"
       )
     } else {
       msg_cons <- glue::glue(
@@ -77,8 +74,7 @@ explain_seq_test_ranking <- function(x, scrutiny_func_info) {
       msg_lead <- glue::glue(
         "The consistent sets {lead_lag_info} the \\
                              inconsistent ones by numbers of places from \\
-                             {lead[1L]} to {lead[l_lead]} in the \\
-                             {scrutiny_func_info} data frame. \n"
+                             {lead[1L]} to {lead[l_lead]} in {df_info}. \n"
       )
     }
     msg_incons <- "All other value sets are inconsistent."
@@ -153,27 +149,26 @@ seq_test_ranking <- function(x, explain = TRUE) {
   out <- out |>
     add_class("seq_test_ranking")
 
-  class_is_scrutiny_map_class <-
-    stringr::str_detect(class(x), "^scrutiny_") &
-    stringr::str_detect(class(x), "_map$")
-  scrutiny_func_info <- class(x)[class_is_scrutiny_map_class] |>
-    stringr::str_remove("^scrutiny_") |>
-    call_on(\(name) paste0("`", name, "()`"))
+  # The mapper's test name is read from the `"scrutiny"` attribute, never
+  # parsed out of a class name:
+  name_test <- scrutiny_meta(x)$name_test
+  if (is.null(name_test)) {
+    df_info <- "the tested data frame"
+    tested_with <- ""
+  } else {
+    df_info <- paste("the data frame tested with", name_test)
+    tested_with <- paste(" with", name_test)
+  }
 
   if (isTRUE(scrutiny_meta(x)$seq_test)) {
     if (explain) {
-      explain_seq_test_ranking(out, scrutiny_func_info)
+      explain_seq_test_ranking(out, df_info)
     }
     out
   } else {
-    if (any(class_is_scrutiny_map_class)) {
-      scrutiny_func_info <- paste0(" with ", scrutiny_func_info)
-    } else {
-      scrutiny_func_info <- ""
-    }
     cli::cli_warn(c(
       "Is that really a sequence test?",
-      "!" = "The data frame you tested{scrutiny_func_info} wasn't created by \\
+      "!" = "The data frame you tested{tested_with} wasn't created by \\
       `seq_endpoint_df()` or `seq_distance_df()`.",
       ">" = "Make sure you really tested a sequence. If you didn't, the \\
       results of `seq_test_ranking()` are probably not interpretable."

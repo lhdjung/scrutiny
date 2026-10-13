@@ -637,11 +637,12 @@ function_map <- function(
       # Record the settings of this call for functions downstream, such as
       # `rounding` and `percent`, which `grim_plot()` reads. Classes are left to
       # dispatch. A missing value, as with the deprecated `tolerance`, is no
-      # setting. `seq_test` mediates between `seq_endpoint_df()` or
-      # `seq_distance_df()`, on the one hand, and `seq_test_ranking()`, on the
-      # other:
+      # setting. `name_test` is for messages. `seq_test` mediates between
+      # `seq_endpoint_df()` or `seq_distance_df()`, on the one hand, and
+      # `seq_test_ranking()`, on the other:
       attr(out, "scrutiny") <- list(
         args = Filter(Negate(rlang::is_missing), args_const_vals),
+        name_test = `!!`(.name_test),
         seq_test = isTRUE(scrutiny_meta(data)$seq_df)
       )
 
