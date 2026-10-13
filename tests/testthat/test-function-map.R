@@ -680,18 +680,19 @@ test_that("`data` must be a tibble, and that is checked first of all", {
   1:10 |> grim_map(digits_x = 2) |> expect_error("integer vector")
 
   # The most confusing case is an undefined `data`, which R resolves to
-  # `utils::data()`. Nothing in this file defines a `data` object, so the calls
-  # below really do hit that function. This used to be reported as the key
+  # `utils::data()`. The calls below name that function explicitly, because a
+  # bare `data` would find any `data` object in the global environment first
+  # when the tests run interactively. This used to be reported as the key
   # columns missing from `data`, which blamed the user's data for what was
   # really the wrong object:
-  data |> grim_map(digits_x = 2) |> expect_error("must be a tibble")
-  data |> grim_map(digits_x = 2) |> expect_error("`data\\(\\)` function")
-  data |> grimmer_map(digits_x = 2, digits_sd = 2) |>
+  utils::data |> grim_map(digits_x = 2) |> expect_error("must be a tibble")
+  utils::data |> grim_map(digits_x = 2) |> expect_error("`data\\(\\)` function")
+  utils::data |> grimmer_map(digits_x = 2, digits_sd = 2) |>
     expect_error("`data\\(\\)` function")
-  data |> debit_map(digits_x = 2, digits_sd = 2) |>
+  utils::data |> debit_map(digits_x = 2, digits_sd = 2) |>
     expect_error("`data\\(\\)` function")
-  data |> grim_map_seq(digits_x = 2) |> expect_error("`data\\(\\)` function")
-  data |> grim_map_total_n(digits_x = 2) |> expect_error("`data\\(\\)` function")
+  utils::data |> grim_map_seq(digits_x = 2) |> expect_error("`data\\(\\)` function")
+  utils::data |> grim_map_total_n(digits_x = 2) |> expect_error("`data\\(\\)` function")
 
   # A tibble that really is missing the key columns still gets the column
   # error, not the type error:
