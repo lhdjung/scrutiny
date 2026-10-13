@@ -14,25 +14,10 @@
 
 if (length(commandArgs(TRUE)) == 0) {
   # Parent: install 0.6.1, run both children, compare.
+  source("special-scripts/install-0-6-1.R")
   old_lib <- tempfile("scrutiny_0.6.1_")
   dir.create(old_lib)
-  on.exit(unlink(old_lib, recursive = TRUE))
-  install.packages(
-    "https://cran.r-project.org/src/contrib/Archive/scrutiny/scrutiny_0.6.1.tar.gz",
-    lib = old_lib,
-    repos = NULL,
-    type = "source",
-    quiet = TRUE
-  )
-  if (!dir.exists(file.path(old_lib, "scrutiny"))) {
-    install.packages(
-      "https://cran.r-project.org/src/contrib/scrutiny_0.6.1.tar.gz",
-      lib = old_lib,
-      repos = NULL,
-      type = "source",
-      quiet = TRUE
-    )
-  }
+  install_scrutiny_0_6_1(old_lib)
   script <- "special-scripts/benchmark-vs-0-6-1.R"
   rscript <- file.path(R.home("bin"), "Rscript")
   old_file <- tempfile(fileext = ".rds")
