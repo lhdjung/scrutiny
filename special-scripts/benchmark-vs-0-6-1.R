@@ -26,13 +26,13 @@ if (length(commandArgs(TRUE)) == 0) {
   system2(rscript, c(script, "new", new_file))
   old <- readRDS(old_file)
   new <- readRDS(new_file)
-  out <- data.frame(
+  out <- tibble::tibble(
     expression = old$expression,
     old_0_6_1 = signif(old$median, 3),
     new_1_0_0 = signif(new$median, 3),
     speedup = round(old$median / new$median, 1)
   )
-  print(out, row.names = FALSE)
+  print(out)
 } else {
   # Child: time one version.
   args <- commandArgs(TRUE)
