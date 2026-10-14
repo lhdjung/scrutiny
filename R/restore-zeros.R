@@ -194,7 +194,6 @@ restore_zeros_df <- function(
   sep_out = sep_in,
   check_width = c("capped", "never")
 ) {
-
   # Check that `data` is a data frame or matrix:
   if (!is.data.frame(data)) {
     if (is.matrix(data)) {

@@ -120,8 +120,8 @@ grim_plot <- function(
   if (!inherits_grim) {
     # Issue an alert if any GRIMMER inconsistencies were found in `data`:
     if (inherits_grimmer) {
-      # Without `show_reason`, there is no `reason` column, and no GRIMMER
-      # inconsistencies can be told apart:
+      # If the `reason` column was dropped, no GRIMMER inconsistencies can be
+      # told apart:
       reason <- data[["reason"]]
       reason <- reason[!is.na(reason)]
       n_grimmer_cases <- reason |>

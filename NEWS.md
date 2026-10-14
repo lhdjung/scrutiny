@@ -2,7 +2,7 @@
 
 This is scrutiny's first major release. It brings many fixes and new features, but also many breaking changes. If you have used GRIM, GRIMMER, or DEBIT before, you may need to adjust your syntax. You may either read on below or let error messages guide you.
 
-The consistency tests now use exact integer arithmetic, several rounding procedures were corrected, and the mapper functions are now created by `function_map()`. Under the default settings, GRIM's verdicts are unchanged and GRIMMER's differ only in rare edge cases; DEBIT is now exact by default. See "Test results" for details.
+The consistency tests now use exact integer arithmetic, several rounding procedures were corrected, and the mapper functions are now created by `function_map()`. Under the default settings, GRIM's verdicts on testable value sets are unchanged and GRIMMER's differ only in rare edge cases; DEBIT is now exact by default. See "Test results" for details.
 
 ## Breaking changes
 
@@ -40,7 +40,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `grim()`, `grimmer()`, and `debit()` no longer have `show_rec` or `show_reason`. These arguments were only intended for internal use by the mappers. The three functions are now vectorized only over the tested values (`x`, `sd`, `n`, and the `digits_*` arguments) and `items`; `rounding`, `threshold`, `symmetric`, `percent`, `formula`, `min_val`, `max_val`, and `tolerance` must have length 1. Recycling follows the tidyverse rules: an argument must have length 1 or the common length. `grim(x = c(5.19, 5.18, 5.17), n = c(28, 32), digits_x = 2)` is therefore an error; it used to return three results.
 
-- `grim_map()` and `grimmer_map()` no longer multiply `items` into `n`. The `n` column is the sample size as given, and `items` is returned as a column of its own if it was given, as an argument or a column. `grim_plot()` places the tiles at `n * items`. The other mappers already kept the two apart.
+- `grim_map()` and `grimmer_map()` no longer multiply `items` into `n`. The `n` column is the sample size as given, and `items` is returned as a column of its own if it was given, as an argument or a column. `grim_plot()` places the tiles at `n * items`.
 
 - `grim_map(show_rec = TRUE)` returns the same five columns for every rounding method: `rec_sum`, `sum_lower`, `sum_upper`, `rec_x_upper`, `rec_x_lower`. The `rec_x_*_rounded*` columns are gone. `sum_lower` and `sum_upper` are the smallest and largest whole-number sum totals that would be reported as `x`, and `consistency` is `TRUE` exactly if `sum_lower <= sum_upper`. The displayed values can therefore no longer contradict the result. With `percent = TRUE`, `rec_x_upper` and `rec_x_lower` are percentages, like `x`.
 
@@ -134,7 +134,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - Removed, since no package uses them and 1.0.0 is the release for breaking changes: `grim_ratio()` (`grim_probability()` is the rounding-aware version), `manage_key_colnames()` (use `absorb_key_args()`), `unnest_consistency_cols()`, `write_doc_factory_map_conventions()`, and the re-exports of rlang's `enquo()`, `enquos()`, `as_name()`, `as_label()`, `.data`, and `:=`. `check_factory_dots()`, `check_args_disabled()`, and `decimal_places_scalar()` are no longer exported.
 
-- `debit_map()` no longer has `show_rec` and `grimmer_map()` no longer has `show_reason`: the reconstructed values and the `reason` column are always returned. `debit_map()` output no longer has a `rounding` column; the rounding method is recorded in the `"scrutiny"` attribute. `function_map()`'s `.args_defaults` was replaced by `.args_fixed`, a list of values that the factory-made function always passes on without exposing the arguments. `audit()` on `grimmer_map()` output no longer has a `fail_test2` column.
+- `debit_map()` no longer has `show_rec` and `grimmer_map()` no longer has `show_reason`: the reconstructed values and the `reason` column are always returned. `debit_map()` output no longer has a `rounding` column; the rounding method is recorded in the `"scrutiny"` attribute. `audit()` on `grimmer_map()` output no longer has a `fail_test2` column.
 
 - `duplicate_detect()` is deprecated in favor of `duplicate_tally()`. It was superseded since scrutiny 0.3.0.
 
