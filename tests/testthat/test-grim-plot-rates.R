@@ -18,6 +18,7 @@ test_that("`grim_plot_rates()` selects `study` with tidyselect", {
   by_string <- data |> grim_plot_rates("study")
   by_string$data |> expect_equal(by_name$data)
   data |> grim_plot_rates(c(x, n)) |> expect_error("exactly one column")
+  data |> dplyr::rename(ratio = study) |> grim_plot_rates(ratio) |> expect_error("can't be named `ratio`")
 })
 
 

@@ -74,6 +74,14 @@ grim_plot_rates <- function(data, study) {
     )
   }
 
+  # These are the names of the summary columns, which would overwrite `study`:
+  if (study %in% c("observed", "expected", "value_sets", "ratio")) {
+    abort_in_export(
+      "`study` can't be named `{study}`.",
+      "i" = "Rename the column first, e.g. with `dplyr::rename()`."
+    )
+  }
+
   study_missing <- is.na(data[[study]])
   if (any(study_missing)) {
     cli::cli_warn(c(
