@@ -16,7 +16,6 @@ grimmer_plot_values(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  tolerance = .Machine$double.eps^0.5,
   color_cons = "#2f7d74",
   color_incons = "#d9d4ca",
   color_scale = "#868b93",
@@ -24,7 +23,7 @@ grimmer_plot_values(
 )
 }
 \arguments{
-\item{x, sd, n, digits_x, digits_sd, items, min_val, max_val, rounding, threshold, symmetric, tolerance}{The same as in \code{\link[=grimmer]{grimmer()}}, but \code{x}, \code{sd}, and \code{n} must have length 1.}
+\item{x, sd, n, digits_x, digits_sd, items, min_val, max_val, rounding, threshold, symmetric}{The same as in \code{\link[=grimmer]{grimmer()}}, but \code{x}, \code{sd}, and \code{n} must have length 1.}
 
 \item{color_cons, color_incons}{Strings. Colors of the teeth for attainable
 and unattainable values.}

@@ -10,7 +10,7 @@
 #'   There is no GRIMMER-specific plot for many value sets; [`grim_plot()`]
 #'   accepts [`grimmer_map()`] output and shows the GRIM part of the test.
 #'
-#' @param x,sd,n,digits_x,digits_sd,items,min_val,max_val,rounding,threshold,symmetric,tolerance
+#' @param x,sd,n,digits_x,digits_sd,items,min_val,max_val,rounding,threshold,symmetric
 #'   The same as in [`grimmer()`], but `x`, `sd`, and `n` must have length 1.
 #' @param color_scale String. Color of the teeth for SDs that GRIMMER admits
 #'   on an unbounded scale but that `min_val` and `max_val` rule out.
@@ -55,7 +55,6 @@ grimmer_plot_values <- function(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  tolerance = .Machine$double.eps^0.5,
   color_cons = "#2f7d74",
   color_incons = "#d9d4ca",
   color_scale = "#868b93",
@@ -102,8 +101,7 @@ grimmer_plot_values <- function(
       max_val = max_val,
       rounding = rounding,
       threshold = threshold,
-      symmetric = symmetric,
-      tolerance = tolerance
+      symmetric = symmetric
     )
   }
 

@@ -176,6 +176,8 @@ test_that("`grimmer_plot_values()` checks its own arguments", {
 })
 
 test_that("the comb plots raise no warnings", {
+  # A deprecation warns once per session, so earlier tests could hide one:
+  rlang::local_options(lifecycle_verbosity = "warning")
   67.4 |> grim_plot_values(n = 40, digits_x = 1, percent = TRUE) |> expect_no_warning()
   -2.51 |> grim_plot_values(n = 20, digits_x = 2) |> expect_no_warning()
   2.74 |>
