@@ -14,3 +14,19 @@
     margin-left: 0;
   }
 }
+
+// Make the page header contain the right-floated logo, so that the logo doesn't
+// hang into the first code chunk and its copy button.
+.page-header {
+  display: flow-root;
+}
+
+// Show copy buttons without hover, but faintly.
+.btn-copy-ex {
+  visibility: visible;
+  opacity: 0.4;
+}
+
+.hasCopyButton:hover button.btn-copy-ex {
+  opacity: 1;
+}
