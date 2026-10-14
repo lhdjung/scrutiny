@@ -138,7 +138,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `duplicate_detect()` is deprecated in favor of `duplicate_tally()`. It was superseded since scrutiny 0.3.0.
 
-- `debit_plot()` maps `consistency` to one scale for `colour` and `fill`, so that adding a `ggplot2::scale_colour_manual()` with `aesthetics = c("colour", "fill")` restyles it. The arguments that set fixed styles were removed: `color_cons`, `color_incons`, `rect_alpha`, and the `line_*` and `label_*` arguments.
+- `debit_plot()` maps `consistency` to one scale for `colour` and `fill`, so that adding a `ggplot2::scale_colour_manual()` with `aesthetics = c("colour", "fill")` restyles it. The arguments that set fixed styles were removed: `color_cons`, `color_incons`, `rect_alpha`, and the `line_*` and `label_*` arguments. `grim_plot()` does the same for its value sets and loses `color_cons`, `color_incons`, `tile_alpha`, and `raster_alpha`; `tile_size` and `raster_color` remain, since no scale reaches them.
 
 - `seq_length()` and `seq_length<-` were removed. They did little that `seq()` does not, and their names clashed with `seq_len()`.
 

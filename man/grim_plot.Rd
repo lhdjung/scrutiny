@@ -13,11 +13,7 @@ grim_plot(
   n = NULL,
   digits = NULL,
   rounding = "up_or_down",
-  color_cons = "royalblue1",
-  color_incons = "red",
-  tile_alpha = 1,
   tile_size = 1.5,
-  raster_alpha = 1,
   raster_color = "grey75"
 )
 }
@@ -47,14 +43,11 @@ places as reported; 2 are added.}
 \item{rounding}{String. Only used if \code{show_data} is \code{FALSE}. Default is
 \code{"up_or_down"}.}
 
-\item{color_cons, color_incons}{Strings. Fill colors of consistent and
-inconsistent value sets. Defaults are \code{"royalblue1"} and \code{"red"}.}
+\item{tile_size}{Numeric. Size of the tiles for value sets. Default is
+\code{1.5}.}
 
-\item{tile_alpha, tile_size}{Numeric. Opacity and size of the tiles for value
-sets. Defaults are \code{1} and \code{1.5}.}
-
-\item{raster_alpha, raster_color}{Numeric and string. Opacity and fill color
-of the raster. Defaults are \code{1} and \code{"grey75"}.}
+\item{raster_color}{String. Color of the raster, and of the gradient that
+replaces it with three or more decimal places. Default is \code{"grey75"}.}
 }
 \value{
 A ggplot object. With \code{split_by_digits = TRUE}, a named list of
@@ -124,6 +117,16 @@ pigs1 |>
 pigs2 |>
   grim_map(digits_x = 1, percent = TRUE) |>
   grim_plot()
+
+# Other colors for the value sets:
+pigs1 |>
+  grim_map(digits_x = 2) |>
+  grim_plot() +
+  ggplot2::scale_colour_manual(
+    values = c("TRUE" = "darkgreen", "FALSE" = "orange"),
+    aesthetics = c("colour", "fill"),
+    guide = "none"
+  )
 }
 \references{
 Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A

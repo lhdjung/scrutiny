@@ -58,12 +58,10 @@
 #' @param rounding String. Only used if `show_data` is `FALSE`. Default is
 #'   `"up_or_down"`.
 #' @param show_raster Logical. Should the raster be drawn? Default is `TRUE`.
-#' @param color_cons,color_incons Strings. Fill colors of consistent and
-#'   inconsistent value sets. Defaults are `"royalblue1"` and `"red"`.
-#' @param tile_alpha,tile_size Numeric. Opacity and size of the tiles for value
-#'   sets. Defaults are `1` and `1.5`.
-#' @param raster_alpha,raster_color Numeric and string. Opacity and fill color
-#'   of the raster. Defaults are `1` and `"grey75"`.
+#' @param tile_size Numeric. Size of the tiles for value sets. Default is
+#'   `1.5`.
+#' @param raster_color String. Color of the raster, and of the gradient that
+#'   replaces it with three or more decimal places. Default is `"grey75"`.
 #'
 #' @include utils.R
 #'
@@ -95,6 +93,16 @@
 #' pigs2 |>
 #'   grim_map(digits_x = 1, percent = TRUE) |>
 #'   grim_plot()
+#'
+#' # Other colors for the value sets:
+#' pigs1 |>
+#'   grim_map(digits_x = 2) |>
+#'   grim_plot() +
+#'   ggplot2::scale_colour_manual(
+#'     values = c("TRUE" = "darkgreen", "FALSE" = "orange"),
+#'     aesthetics = c("colour", "fill"),
+#'     guide = "none"
+#'   )
 
 grim_plot <- function(
   data = NULL,
@@ -105,11 +113,7 @@ grim_plot <- function(
   n = NULL,
   digits = NULL,
   rounding = "up_or_down",
-  color_cons = "royalblue1",
-  color_incons = "red",
-  tile_alpha = 1,
   tile_size = 1.5,
-  raster_alpha = 1,
   raster_color = "grey75"
 ) {
   # Checks ----
@@ -323,11 +327,7 @@ grim_plot <- function(
           n = n,
           digits = d,
           rounding = rounding,
-          color_cons = color_cons,
-          color_incons = color_incons,
-          tile_alpha = tile_alpha,
           tile_size = tile_size,
-          raster_alpha = raster_alpha,
           raster_color = raster_color
         )
       })
@@ -497,14 +497,6 @@ grim_plot <- function(
     "mean"
   }
 
-  # Automatically color the boxes of value pairs by whether they are
-  # GRIM-consistent or not:
-  color_by_consistency <- dplyr::if_else(
-    data$consistency,
-    color_cons,
-    color_incons
-  )
-
   # The plot itself ----
 
   # Background raster / gradient:
@@ -516,7 +508,6 @@ grim_plot <- function(
           x = .data$n,
           y = .data$frac
         ),
-        alpha = raster_alpha,
         fill = raster_color
       ) +
       ggplot2::theme(
@@ -527,7 +518,7 @@ grim_plot <- function(
     # ... but with more decimal places, individual boxes would be too small to
     # display, so we need a gradient instead to simply show the overall trend.
     # Boxes are still added pro forma; the call to `geom_tile()` is the same as
-    # above (except for the `alpha` and `fill` specifications):
+    # above (except for the `fill` specification):
     if (digits > 2L) {
       if (show_gradient) {
         gradient <-
@@ -564,20 +555,26 @@ grim_plot <- function(
         panel.grid = ggplot2::element_blank()
       )
   }
+  # The value sets' colors are mapped rather than set, so that adding a scale
+  # changes them. The raster's fill is set, so the scale doesn't reach it:
   if (show_data) {
     p <- p +
       ggplot2::geom_tile(
         data = data_emp,
         mapping = ggplot2::aes(
           x = .data$n,
-          y = .data$frac
+          y = .data$frac,
+          colour = .data$consistency,
+          fill = .data$consistency
         ),
-        alpha = tile_alpha,
         linewidth = 1,
-        color = color_by_consistency,
-        fill = color_by_consistency,
         width = tile_size / 2,
         height = (frac_unit * tile_size) / 2
+      ) +
+      ggplot2::scale_colour_manual(
+        values = c("TRUE" = "royalblue1", "FALSE" = "red"),
+        aesthetics = c("colour", "fill"),
+        guide = "none"
       )
   }
 

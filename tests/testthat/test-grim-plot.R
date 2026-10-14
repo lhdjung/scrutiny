@@ -220,3 +220,26 @@ test_that("GRIMMER output without a `reason` column plots without warnings", {
     grim_plot() |>
     expect_no_warning()
 })
+
+test_that("the value sets' colors come from a scale that another one replaces", {
+  data <- tibble::tibble(x = c(5.19, 5.18), n = c(28L, 28L)) |> grim_map(digits_x = 2)
+  p <- data |> grim_plot()
+  tiles <- function(p) {
+    built <- ggplot2::ggplot_build(p)$data
+    built[[length(built)]]
+  }
+
+  p |> tiles() |> call_on(\(t) t$fill) |> expect_equal(c("red", "royalblue1"))
+  data$consistency |> expect_equal(c(FALSE, TRUE))
+
+  scale_new <- ggplot2::scale_colour_manual(
+    values = c("TRUE" = "darkgreen", "FALSE" = "orange"),
+    aesthetics = c("colour", "fill")
+  )
+  p_new <- suppressMessages(p + scale_new)
+  p_new |> tiles() |> call_on(\(t) t$fill)   |> expect_equal(c("orange", "darkgreen"))
+  p_new |> tiles() |> call_on(\(t) t$colour) |> expect_equal(c("orange", "darkgreen"))
+
+  # The raster's fill is set, not mapped, so the scale leaves it alone:
+  p_new |> ggplot2::ggplot_build() |> purrr::pluck("data", 1L, "fill") |> unique() |> expect_equal("grey75")
+})
