@@ -54,6 +54,8 @@ A tibble with the columns of \code{\link[=is_percentage_of_map]{is_percentage_of
 \code{diff_var}, \code{case}, and \code{var}, as in \code{\link[=grim_map_seq]{grim_map_seq()}}.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 \code{is_percentage_of_map_seq()} varies the reported counts,
 percentages, and totals a few steps up and down and applies
 \code{\link[=is_percentage_of]{is_percentage_of()}} to each resulting value set. This shows whether a

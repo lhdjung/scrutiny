@@ -17,6 +17,8 @@ Logical. \code{TRUE} if the counts add up to \code{total}, \code{FALSE} if not,
 and \code{NA} if a value is missing or not a whole number.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 \code{add_up_to()} checks whether reported subgroup sizes, or other
 counts, sum to the reported total.
 

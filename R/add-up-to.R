@@ -27,7 +27,9 @@ add_up_to_scalar <- function(summands, total) {
 
 #' Do reported counts add up to their total?
 #'
-#' @description `add_up_to()` checks whether reported subgroup sizes, or other
+#' @description `r lifecycle::badge("experimental")`
+#'
+#'   `add_up_to()` checks whether reported subgroup sizes, or other
 #'   counts, sum to the reported total.
 #'
 #'   The function is vectorized over cases, but [`add_up_to_map()`] is more

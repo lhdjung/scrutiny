@@ -1,6 +1,8 @@
 #' Test many reported percentages against their counts
 #'
-#' @description `is_percentage_of_map()` applies [`is_percentage_of()`] to
+#' @description `r lifecycle::badge("experimental")`
+#'
+#'   `is_percentage_of_map()` applies [`is_percentage_of()`] to
 #'   every row of a data frame with counts, percentages, and totals.
 #'
 #'   Call [`audit()`] on the output for summary statistics. See

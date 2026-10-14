@@ -60,7 +60,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 ## New features
 
-- `is_percentage_of()`, `is_percentage_of_map()`, and `is_percentage_of_map_seq()` check whether a reported percentage matches a reported count out of a reported total. `add_up_to()` and `add_up_to_map()` check whether subgroup sizes sum to a reported total; `add_up_to_map()` selects any number of columns with tidyselect. Both have `audit()` methods.
+- `is_percentage_of()`, `is_percentage_of_map()`, and `is_percentage_of_map_seq()` check whether a reported percentage matches a reported count out of a reported total. `add_up_to()` and `add_up_to_map()` check whether subgroup sizes sum to a reported total; `add_up_to_map()` selects any number of columns with tidyselect. Both have `audit()` methods. All five functions are experimental.
 
 - `grim_plot_values()` and `grimmer_plot_values()` visualize the test for a single value set. They show every mean (or SD) that could have been reported with the given number of decimal places within a certain range, mark those that a sample of the given size can actually have, and indicate the reported value.
 

@@ -39,6 +39,8 @@ has the class \code{scrutiny_is_percentage_of_map}, which is recognized by
 \code{\link[=audit]{audit()}}.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 \code{is_percentage_of_map()} applies \code{\link[=is_percentage_of]{is_percentage_of()}} to
 every row of a data frame with counts, percentages, and totals.
 

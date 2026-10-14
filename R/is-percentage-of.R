@@ -55,7 +55,9 @@ is_percentage_of_scalar <- function(
 
 #' Is a reported percentage consistent with its count?
 #'
-#' @description `is_percentage_of()` checks whether `percentage` is what
+#' @description `r lifecycle::badge("experimental")`
+#'
+#'   `is_percentage_of()` checks whether `percentage` is what
 #'   `absolute` out of `n` would have been reported as, given the number of
 #'   decimal places and the rounding method.
 #'

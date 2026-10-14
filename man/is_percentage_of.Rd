@@ -48,6 +48,8 @@ and \code{NA} if the case cannot be decided: if a value is missing, if
 whole number.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 \code{is_percentage_of()} checks whether \code{percentage} is what
 \code{absolute} out of \code{n} would have been reported as, given the number of
 decimal places and the rounding method.

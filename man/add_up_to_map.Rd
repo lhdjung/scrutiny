@@ -24,6 +24,8 @@ any other columns from \code{data}. It has the class \code{scrutiny_add_up_to_ma
 which is recognized by \code{\link[=audit]{audit()}}.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 \code{add_up_to_map()} applies \code{\link[=add_up_to]{add_up_to()}} to every row of a data
 frame. \code{summands} selects the columns to add up with tidyselect, so any
 number of columns can be added up.

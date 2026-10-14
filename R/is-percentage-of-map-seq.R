@@ -1,6 +1,8 @@
 #' Test percentages against their counts with values around the reported ones
 #'
-#' @description `is_percentage_of_map_seq()` varies the reported counts,
+#' @description `r lifecycle::badge("experimental")`
+#'
+#'   `is_percentage_of_map_seq()` varies the reported counts,
 #'   percentages, and totals a few steps up and down and applies
 #'   [`is_percentage_of()`] to each resulting value set. This shows whether a
 #'   small error in one of them could explain an inconsistency.

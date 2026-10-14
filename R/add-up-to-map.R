@@ -1,6 +1,8 @@
 #' Test whether reported counts add up to their totals
 #'
-#' @description `add_up_to_map()` applies [`add_up_to()`] to every row of a data
+#' @description `r lifecycle::badge("experimental")`
+#'
+#'   `add_up_to_map()` applies [`add_up_to()`] to every row of a data
 #'   frame. `summands` selects the columns to add up with tidyselect, so any
 #'   number of columns can be added up.
 #'
