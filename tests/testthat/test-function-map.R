@@ -844,7 +844,13 @@ test_that("`function_map()` rejects arguments it can't honor", {
   fun <- function(y, n, z = 1) y > n
   fun |>
     function_map(.reported = c("y", "n"), .name_test = "T", .args_fixed = list(n = 2)) |>
-    expect_error("key argument")
+    expect_error("key, by-row")
+  fun |>
+    function_map(.reported = c("y", "n"), .name_test = "T", .cols_helper = "z", .args_fixed = list(z = 2)) |>
+    expect_error("`z` is already one")
+  fun |>
+    function_map(.reported = c("y", "n"), .name_test = "T", .args_fixed = list(2)) |>
+    expect_error("must be a named list")
   fun_shadowed <- function(y, n, fun = 1) y > n
   fun_shadowed |> function_map(.reported = c("y", "n"), .name_test = "T") |> expect_error("Rename `fun`")
 })

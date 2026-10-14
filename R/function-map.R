@@ -228,18 +228,25 @@ function_map <- function(
     ))
   }
 
+  # Fixed values are passed to `.fun` by name, so each needs one:
+  if (!is.null(.args_fixed) &&
+    !(is.list(.args_fixed) && rlang::is_named2(.args_fixed))) {
+    cli::cli_abort("`.args_fixed` must be a named list.")
+  }
+
   # A fixed argument is one the factory-made function passes on with a set
-  # value, so it can't be a key argument, which takes its values from `data`:
+  # value, so it can't be any argument whose value comes from `data` or from
+  # the caller:
   args_fixed_offenders <- intersect(
     names(.args_fixed),
-    c(.reported, .reported_variadic)
+    c(.reported, .reported_variadic, .args_by_row, .cols_helper, .args_disabled)
   )
   if (length(args_fixed_offenders) > 0L) {
     cli::cli_abort(c(
-      "`.args_fixed` can't name key arguments.",
+      "`.args_fixed` can't name arguments that are key, by-row, helper, or \\
+      disabled arguments.",
       "x" = "{wrap_in_backticks(args_fixed_offenders)} \\
-      {cli::qty(length(args_fixed_offenders))}{?is a/are} key \\
-      argument{?s}."
+      {cli::qty(length(args_fixed_offenders))}{?is/are} already one of these."
     ))
   }
 
