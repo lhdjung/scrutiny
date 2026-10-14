@@ -596,10 +596,7 @@ check_args_disabled <- function(args_disabled) {
     offenders <- wrap_in_backticks(offenders)
     abort_in_export(
       "{msg_arg_s} {offenders} {msg_is_are} \\
-          disabled in {fun_name}{msg_among_others}.",
-      "i" = "This is by design: the function factory that created it \\
-          was given {offenders} in its `.args_disabled` or `.args_fixed` \\
-          argument."
+          disabled in {fun_name}{msg_among_others}."
     )
   }
 }
