@@ -50,8 +50,7 @@ as well, not just inconsistent ones? Default is \code{FALSE}.}
 A tibble with the columns of \code{\link[=grim_map]{grim_map()}} output plus \code{diff_var},
 the number of steps between the tested value and the reported one; \code{case},
 the row number of the reported value set in \code{data}; and \code{var}, the
-dispersed variable. If \code{items} was specified, it is returned as a separate
-column, and \code{n} is the sample size before multiplying the two.
+dispersed variable.
 }
 \description{
 \code{grim_map_seq()} varies the reported means and sample sizes a

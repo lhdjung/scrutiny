@@ -180,7 +180,7 @@ reference:
   - pigs3
   - pigs4
   - pigs5
-- title: Superseded
+- title: Deprecated
 - contents:
   - duplicate_detect
 
