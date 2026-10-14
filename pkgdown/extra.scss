@@ -21,6 +21,11 @@
   display: flow-root;
 }
 
+// No rule between an article's title and its text.
+.template-article .page-header {
+  border-bottom: none;
+}
+
 // Show copy buttons without hover, but faintly.
 .btn-copy-ex {
   visibility: visible;
