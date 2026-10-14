@@ -12,7 +12,7 @@ test_that("Return values are Boolean", {
 })
 
 
-vec1 <- as.numeric(seq_endpoint(5.19, 5.3))
+vec1 <- 5.19 |> seq(5.3, by = 0.01) |> round(2)
 
 vec1_tested <- vec1 |>
   grim(28, digits_x = 2) |>
@@ -29,7 +29,7 @@ test_that("Correct values are returned (basic)", {
 })
 
 
-vec2 <- as.numeric(seq_endpoint(0.150, 0.159))
+vec2 <- 0.150 |> seq(0.159, by = 0.001) |> round(3)
 
 vec2_tested <- vec2 |>
   grim(120, digits_x = 3, items = 3) |>
@@ -38,7 +38,7 @@ vec2_tested <- vec2 |>
 vec2_expected <- c(t, f, f, t, f, f, t, f, t, f)
 
 
-vec3 <- as.numeric(seq_endpoint(0.80, 0.89))
+vec3 <- 0.80 |> seq(0.89, by = 0.01) |> round(2)
 
 vec3_tested <- vec3 |>
   grim(28, digits_x = 2, items = 2) |>
@@ -53,7 +53,7 @@ test_that("Correct values are returned (`items` argument)", {
 })
 
 
-vec4 <- as.numeric(seq_endpoint(519, 530))
+vec4 <- 519:530
 
 vec4_tested <- vec4 |>
   grim(28, digits_x = 0, percent = TRUE) |>
@@ -61,7 +61,7 @@ vec4_tested <- vec4 |>
 
 vec4_expected <- c(f, f, t, f, f, f, t, f, f, f, t, f)
 
-vec5 <- as.numeric(seq_endpoint(6, 16))
+vec5 <- 6:16
 
 vec5_tested <- vec5 |>
   grim(50, digits_x = 0, percent = TRUE) |>
@@ -76,7 +76,7 @@ test_that("Correct values are returned (`percent` argument)", {
 })
 
 
-vec <- as.numeric(seq_endpoint(5, 5.99))
+vec <- 5 |> seq(5.99, by = 0.01) |> round(2)
 
 
 test_that("The number of outputs matches the number of inputs", {

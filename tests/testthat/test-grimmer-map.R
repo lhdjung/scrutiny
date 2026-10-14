@@ -49,9 +49,7 @@ pigs5_exp <- tibble::tibble(
         rounding = "up_or_down",
         threshold = 5,
         symmetric = FALSE
-      ),
-      name_test = "GRIMMER",
-      seq_test = FALSE
+      )
     ),
     class = c(
       "scrutiny_grimmer_map",

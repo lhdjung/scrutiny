@@ -1,4 +1,4 @@
-vec <- seq_distance(0.01, string_output = FALSE)
+vec <- 0.01 |> seq(0.1, by = 0.01) |> round(2)
 
 
 test_that("`rounding_bias()` computes the mean bias by default", {

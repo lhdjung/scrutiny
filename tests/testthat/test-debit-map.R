@@ -78,9 +78,7 @@ df1_expected <- tibble::tibble(
         rounding = "up_or_down",
         threshold = 5,
         symmetric = FALSE
-      ),
-      name_test = "DEBIT",
-      seq_test = FALSE
+      )
     ),
     class = c(
       "scrutiny_debit_map",

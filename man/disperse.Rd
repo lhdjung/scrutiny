@@ -86,6 +86,5 @@ Light or Dark? Recalling Moral Behavior Changes Perception of Brightness.
 https://journals.sagepub.com/doi/10.1177/09567976211058727
 }
 \seealso{
-\code{\link[=function_map_total_n]{function_map_total_n()}}, \code{\link[=grim_map_total_n]{grim_map_total_n()}}, and
-\code{\link[=seq_distance_df]{seq_distance_df()}}.
+\code{\link[=function_map_total_n]{function_map_total_n()}} and \code{\link[=grim_map_total_n]{grim_map_total_n()}}.
 }

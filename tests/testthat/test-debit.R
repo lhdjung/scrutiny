@@ -8,7 +8,7 @@ run_full_debit_oracle <- FALSE
 # n <- rnorm(1000, 1000, 200) |> censor(100, 1900)
 #
 #
-# x <- seq_endpoint("0.01", 1) |> rep(10)
+# x <- 0.01 |> seq(1, by = 0.01) |> round(2) |> rep(10)
 # sd <- rnorm(100, 0.15, 0.05) |> round(2) |> restore_zeros(width = 2)
 #
 # out <- purrr::pmap_lgl(list(x, sd, n), debit)

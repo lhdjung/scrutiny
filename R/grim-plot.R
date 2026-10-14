@@ -65,7 +65,7 @@
 #' @param raster_alpha,raster_color Numeric and string. Opacity and fill color
 #'   of the raster. Defaults are `1` and `"grey75"`.
 #'
-#' @include utils.R seq-decimal.R
+#' @include utils.R
 #'
 #' @references Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A
 #'   Simple Technique Detects Numerous Anomalies in the Reporting of Results in

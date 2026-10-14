@@ -34,8 +34,7 @@
 #' - `n_change`: the number of steps from the input `n`, negative for the lower
 #'   group size of each pair.
 #'
-#' @seealso [`function_map_total_n()`], [`grim_map_total_n()`], and
-#'   [`seq_distance_df()`].
+#' @seealso [`function_map_total_n()`] and [`grim_map_total_n()`].
 #'
 #' @include utils.R
 #'

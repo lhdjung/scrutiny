@@ -86,9 +86,8 @@ further columns added as in \code{\link[tibble:tibble]{tibble::tibble()}}. Its a
 of \code{seq_disperse()} with a leading dot.
 }
 \details{
-Unlike \code{\link[=seq_endpoint]{seq_endpoint()}} and friends, these functions do not wrap
-\code{\link[base:seq]{base::seq()}}, and their output need not be regular: \code{dispersion} can
-be any numeric vector.
+Unlike \code{\link[base:seq]{base::seq()}}, these functions need not return a regular
+sequence: \code{dispersion} can be any numeric vector.
 }
 \examples{
 seq_disperse(from = 4.02)
@@ -106,6 +105,6 @@ seq_disperse(from = 4.02, dispersion = c(2, 3, 7))
 seq_disperse_df(.from = 4.02, n = 45)
 }
 \seealso{
-\code{\link[=seq_endpoint]{seq_endpoint()}} and \code{\link[=disperse]{disperse()}}, which \code{seq_disperse()}
-combines aspects of.
+\code{\link[=disperse]{disperse()}}, which \code{seq_disperse()} combines aspects of with
+\code{\link[base:seq]{base::seq()}}.
 }

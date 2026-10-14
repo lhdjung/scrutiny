@@ -265,18 +265,12 @@ test_that("both functions trim whitespace before reading the exponent", {
 })
 
 
-test_that("sequence functions step on the right decimal level below 0.001", {
-  # `decimal_places_scalar()` sets the step size in all of these. When it read
-  # `1e-04` as having no decimal places, they stepped by whole numbers instead.
-  0.0001 |>
-    seq_endpoint(to = 0.0005) |>
-    expect_equal(c("0.0001", "0.0002", "0.0003", "0.0004", "0.0005"))
+test_that("`seq_disperse()` steps on the right decimal level below 0.001", {
+  # `decimal_places_scalar()` sets the step size. When it read `1e-04` as having
+  # no decimal places, `seq_disperse()` stepped by whole numbers instead.
   7.22 |>
     seq_disperse(by = 1e-4, dispersion = 1:2) |>
     expect_equal(c("7.2198", "7.2199", "7.2200", "7.2201", "7.2202"))
-  0.0001 |>
-    seq_distance(length_out = 3L) |>
-    expect_equal(c("0.0001", "0.0002", "0.0003"))
 })
 
 

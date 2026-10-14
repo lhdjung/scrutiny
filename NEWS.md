@@ -140,6 +140,8 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `seq_length()` and `seq_length<-` were removed. They did little that `seq()` does not, and their names clashed with `seq_len()`.
 
+- `seq_endpoint()`, `seq_distance()`, `seq_endpoint_df()`, `seq_distance_df()`, and `seq_test_ranking()` were removed. They produced sequences of decimal strings for testing with the mappers, which no longer accept strings. Their essence can be reduced to `seq(from, to, by = 10^-digits)`.
+
 - Removed after their deprecation in scrutiny 0.3.1: the `track_var_change` argument of `seq_disperse()` and `.track_var_change` of `seq_disperse_df()`. `restore_zeros_df()` and `split_by_parens()` no longer have `...`, which only existed to catch the argument names used before scrutiny 0.2.4.
 
 - The `tolerance` argument of `grim()`, `grim_map()`, `grimmer()`, and `grimmer_map()` is deprecated. Both tests compare whole numbers exactly, so a tolerance has no effect. GRIMMER no longer rounds reconstructed SDs for its test 2: the bounds of test 1 are the exact inverse of that rounding, so every sum of squares that passes test 1 passes test 2, and `"GRIMMER inconsistent (test 2)"` is no longer a possible `reason`.

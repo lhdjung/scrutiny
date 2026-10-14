@@ -605,10 +605,6 @@ add_class <- function(x, new_class) {
 #'   defaults resolved, such as `rounding` and `percent`.
 #' - `fun_args`, `name_key_result`, `dispersion_linear`, and `var`: set by
 #'   sequence mappers; see `function_map_seq()`.
-#' - `name_test`: the basic mapper's `.name_test`, such as `"GRIM"`, for
-#'   messages.
-#' - `seq_df`: set by `seq_endpoint_df()` and `seq_distance_df()`.
-#' - `seq_test`: set by a basic mapper whose input had `seq_df`.
 #'
 #' @param x Some object. In scrutiny, always a tibble.
 #'
@@ -1078,8 +1074,7 @@ step_size <- function(x) {
 
 #' Sequence typing helper
 #'
-#' This helper is called within the sequence-generating functions
-#' `seq_distance()`, `seq_endpoint()`, and `seq_disperse()`. It processes their
+#' This helper is called within `seq_disperse()`. It processes its
 #' `string_output` argument and coerces the preliminary return sequence, `out`,
 #' to the desired type. Depending on how `string_output` was specified by the
 #' user, this type might be the type of the argument that was the original

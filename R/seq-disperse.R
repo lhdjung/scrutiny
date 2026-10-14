@@ -36,9 +36,8 @@
 #' @param ... Further columns, added as in [`tibble::tibble()`]. Only in
 #'   `seq_disperse_df()`.
 #'
-#' @details Unlike [`seq_endpoint()`] and friends, these functions do not wrap
-#'   [`base::seq()`], and their output need not be regular: `dispersion` can
-#'   be any numeric vector.
+#' @details Unlike [`base::seq()`], these functions need not return a regular
+#'   sequence: `dispersion` can be any numeric vector.
 #'
 #' @return
 #'   - `seq_disperse()` returns a string vector by default and a numeric
@@ -49,8 +48,8 @@
 #'
 #' @export
 #'
-#' @seealso [`seq_endpoint()`] and [`disperse()`], which `seq_disperse()`
-#'   combines aspects of.
+#' @seealso [`disperse()`], which `seq_disperse()` combines aspects of with
+#'   [`base::seq()`].
 #'
 #' @examples
 #' seq_disperse(from = 4.02)

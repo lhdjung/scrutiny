@@ -17,7 +17,7 @@
 #' @param mean Logical. If `TRUE` (the default), return the mean bias;
 #'   otherwise, the individual biases.
 #'
-#' @include reround.R seq-decimal.R
+#' @include reround.R
 #'
 #' @return Numeric. Length 1 by default, or the length of `x` with `mean =
 #'   FALSE`.
@@ -25,7 +25,7 @@
 #' @export
 #'
 #' @examples
-#' vec <- seq_distance(0.01, string_output = FALSE)
+#' vec <- 0.01 |> seq(0.1, by = 0.01) |> round(2)
 #' vec
 #'
 #' rounding_bias(x = vec, digits = 1)

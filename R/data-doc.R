@@ -6,7 +6,7 @@
 #' used to demonstrate the functionality of [`grim_map()`] and functions
 #' building up on it.
 
-#' @include utils.R grim-map.R seq-decimal.R
+#' @include utils.R grim-map.R
 #'
 #' @format A tibble (data frame) with 12 rows and 2 columns. The columns are:
 #' \describe{
@@ -29,7 +29,7 @@
 #' be used to demonstrate the functionality of `grim_map()`, particularly its
 #' `percent` argument, and functions building up on it.
 
-#' @include utils.R grim.R seq-decimal.R
+#' @include utils.R grim.R
 #'
 #' @format A tibble (data frame) with 6 rows and 2 columns. The columns are:
 #' \describe{
@@ -52,7 +52,7 @@
 #' distribution related to flying pigs. It can be used to demonstrate the
 #' functionality of `debit_map()` and functions building up on it.
 
-#' @include utils.R debit-map.R seq-decimal.R
+#' @include utils.R debit-map.R
 #'
 #' @format A tibble (data frame) with 7 rows and 3 columns. The columns are:
 #' \describe{
@@ -100,7 +100,7 @@
 #' of flying pigs. It can be used to demonstrate the functionality of
 #' `grimmer_map()` and functions building up on it.
 
-#' @include utils.R grimmer-map.R seq-decimal.R
+#' @include utils.R grimmer-map.R
 #'
 #' @format A tibble (data frame) with 12 rows and 3 columns. The columns are:
 #' \describe{

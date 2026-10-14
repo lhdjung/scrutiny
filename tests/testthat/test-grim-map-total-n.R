@@ -160,7 +160,7 @@ df2_rows_1_3_expected <- tibble::tibble(
   ),
 ) |>
   structure(
-    scrutiny = list(args = grim_args_default, name_test = "GRIM", seq_test = FALSE),
+    scrutiny = list(args = grim_args_default),
     class = c(
       "scrutiny_map_total_n",
       "scrutiny_grim_map_total_n",

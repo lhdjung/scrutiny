@@ -1,9 +1,8 @@
 #' @include function-factory-helpers.R seq-predicates.R
 
 # Unlike `function_map_total_n()`, this factory is based on neither `disperse()`
-# -- which is pair-based and builds no linear sequence -- nor `seq_endpoint()`
-# and friends, which have no dispersion and would have been cumbersome with
-# `.include_reported`. It needs both at once, which is what `seq_disperse_df()`
+# -- which is pair-based and builds no linear sequence -- nor `base::seq()`,
+# which has no dispersion. It needs both at once, which is what `seq_disperse_df()`
 # does. `function_map_seq_proto()` below uses `seq_disperse_df_internal()`, a
 # lightweight version of it.
 

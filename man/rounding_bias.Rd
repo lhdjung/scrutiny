@@ -41,7 +41,7 @@ there, \code{rounding} defaults to \code{"up"} and cannot be a compound method
 those return two rounded values per input and have no single bias.
 }
 \examples{
-vec <- seq_distance(0.01, string_output = FALSE)
+vec <- 0.01 |> seq(0.1, by = 0.01) |> round(2)
 vec
 
 rounding_bias(x = vec, digits = 1)

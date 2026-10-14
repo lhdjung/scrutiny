@@ -371,7 +371,7 @@ test_that("`\"even\"` is never too strict, only ever too permissive", {
   for (digits_x in 1:2) {
     unit <- 10^-digits_x
     grid <- tidyr::expand_grid(
-      x = round(seq(-30, 30) * unit, digits_x),
+      x = (-30:30 * unit) |> round(digits_x),
       n = c(4L, 8L, 20L, 40L)
     )
     verdict <- grim(grid$x, grid$n, digits_x = digits_x, rounding = "even")

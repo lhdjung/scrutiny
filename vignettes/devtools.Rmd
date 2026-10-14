@@ -87,49 +87,16 @@ vec2 |>
 
 ## Sequence generation
 
-### Introduction
-
-`base::seq()` needs the step size as an argument. scrutiny's `seq_*()` functions take it from the decimal places of the input, so that a sequence from `4.1` proceeds in steps of `0.1`, and they pad the output with trailing zeros via `restore_zeros()`, so it is string by default. The first two correspond to the two ways of calling `seq()`; the third has no counterpart there.
-
--   `seq_endpoint()` takes two main arguments, `from` and `to`. It creates a sequence between the two, inferring step size from the greater number of decimal places among them. This corresponds to a `seq()` call in which `to` was specified.
-
--   `seq_distance()` takes a `from` argument, uses it to infer the step size, and creates a sequence of a length specified by the `length_out` argument (default is `10`). This corresponds to a `seq()` call in which `length.out` was specified.
-
--   Finally, `seq_disperse()` creates a sequence centered around `from`.
-
-Each of these functions has a `*_df()` variant that embeds the sequence as a tibble column.
-
-### Examples
-
-The `seq_*()` functions have some more features, such as offsets and direction reversal, but I'll focus on the basics here.
-
-Call `seq_endpoint()` to bridge two numbers at the correct decimal level:
-
-```{r}
-seq_endpoint(from = 4.1, to = 6)
-
-seq_endpoint(from = 4.1, to = 4.15)
-```
-
-Call `seq_distance()` to get a sequence of desired length:
-
-```{r}
-seq_distance(from = 4.1, length_out = 3)
-
-# Default for `length_out` is `10`:
-seq_distance(from = 4.1)
-```
-
-Finally, call `seq_disperse()` to construct a sequence around `from`:
+`seq_disperse()` creates a sequence centered around `from`. It takes the step size from the decimal places of `from`, so that a sequence around `4.1` proceeds in steps of `0.1`, and it pads the output with trailing zeros via `restore_zeros()`, so it is string by default:
 
 ```{r}
 seq_disperse(from = 4.1, dispersion = 1:3)
 
-# Default for `dispersion` if `1:5`:
+# Default for `dispersion` is `1:5`:
 seq_disperse(from = 4.1)
 ```
 
-`seq_disperse()` is a hybrid between the two `seq()` wrappers explained above and the `disperse*()` functions introduced next.
+`seq_disperse_df()` embeds the sequence as a tibble column. `seq_disperse()` is a hybrid between `base::seq()` and the `disperse*()` functions introduced below.
 
 ## Sequence testing
 
