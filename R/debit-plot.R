@@ -23,6 +23,9 @@
 #'   random to minimize overlap. Resizing the plot or running the function
 #'   again may give better placements.
 #'
+#'   Colors come from one scale for `colour` and `fill`, mapped to
+#'   `consistency`. Add another to change them, as in the examples.
+#'
 #' @param data Data frame returned by [`debit_map()`] with `show_rec = TRUE`,
 #'   the default.
 #' @param show_labels Logical. Should the value sets be labeled with
@@ -31,15 +34,6 @@
 #'   regardless of the data? Default is `TRUE`.
 #' @param show_theme_other Logical. Should the theme be adjusted to the plot?
 #'   Default is `TRUE`.
-#' @param color_cons,color_incons Strings. Colors of consistent and
-#'   inconsistent value sets.
-#' @param rect_alpha Opacity of the rectangles. Their size and shape follow
-#'   from the data.
-#' @param line_alpha,line_color,line_linetype,line_width Parameters of the
-#'   DEBIT line.
-#' @param
-#'   label_alpha,label_linetype,label_size,label_linesize,label_force,label_force_pull,label_padding
-#'   Parameters of the labels, passed on to [`ggrepel::geom_text_repel()`].
 #'
 #' @include debit-map.R restore-zeros.R utils.R
 #'
@@ -54,26 +48,22 @@
 #' pigs3 |>
 #'   debit_map(digits_x = 2, digits_sd = 2) |>
 #'   debit_plot()
+#'
+#' # Other colors:
+#' pigs3 |>
+#'   debit_map(digits_x = 2, digits_sd = 2) |>
+#'   debit_plot() +
+#'   ggplot2::scale_colour_manual(
+#'     values = c("TRUE" = "darkgreen", "FALSE" = "orange"),
+#'     aesthetics = c("colour", "fill"),
+#'     guide = "none"
+#'   )
 
 debit_plot <- function(
   data,
   show_labels = TRUE,
   show_full_scale = TRUE,
-  show_theme_other = TRUE,
-  color_cons = "royalblue1",
-  color_incons = "red",
-  line_alpha = 1,
-  line_color = "black",
-  line_linetype = 1,
-  line_width = 0.5,
-  rect_alpha = 1,
-  label_alpha = 0.5,
-  label_linetype = 3,
-  label_size = 3.5,
-  label_linesize = 0.75,
-  label_force = 175,
-  label_force_pull = 0.75,
-  label_padding = 0.5
+  show_theme_other = TRUE
 ) {
   # Checks ---
 
@@ -165,22 +155,23 @@ debit_plot <- function(
   }
   value_labels <- paste0(x, "; ", sd)
 
-  color_by_consistency <- dplyr::if_else(
-    consistency,
-    color_cons,
-    color_incons
-  )
-
   # The plot itself ---
 
+  # Colors are mapped rather than set, so that adding a scale changes them:
   p <- ggplot2::ggplot(
     data = data,
     ggplot2::aes(
       x = {{ x_num }},
       y = {{ sd_num }},
-      label = {{ value_labels }}
+      label = {{ value_labels }},
+      colour = {{ consistency }}
     )
-  )
+  ) +
+    ggplot2::scale_colour_manual(
+      values = c("TRUE" = "royalblue1", "FALSE" = "red"),
+      aesthetics = c("colour", "fill"),
+      guide = "none"
+    )
 
   # DEBIT line: the SD of binary data as a function of their mean. It depends on
   # `n`, and it falls as `n` rises, so the lines for all the distinct `n` values
@@ -210,8 +201,8 @@ debit_plot <- function(
           ymin = .data$ymin,
           ymax = .data$ymax
         ),
-        fill = line_color,
-        alpha = line_alpha * 0.25,
+        fill = "black",
+        alpha = 0.25,
         na.rm = TRUE,
         inherit.aes = FALSE
       )
@@ -222,10 +213,7 @@ debit_plot <- function(
     lapply(function(n_line) {
       ggplot2::geom_function(
         fun = debit_line(n_line),
-        alpha = line_alpha,
-        color = line_color,
-        linetype = line_linetype,
-        linewidth = line_width,
+        linewidth = 0.5,
         na.rm = TRUE,
         inherit.aes = FALSE
       )
@@ -237,18 +225,20 @@ debit_plot <- function(
   # has a fixed size, so that a value set whose rectangle is too small to see --
   # as with three or more decimal places -- still shows up:
   p <- p +
-    ggplot2::geom_point(color = color_by_consistency, size = 1.5)
+    ggplot2::geom_point(size = 1.5)
 
   # Rectangles that should cross the consistency line:
   p <- p +
     ggplot2::geom_rect(
-      xmin = x_lower,
-      xmax = x_upper,
-      ymin = sd_lower,
-      ymax = sd_upper,
-      color = color_by_consistency,
-      fill = color_by_consistency,
-      alpha = rect_alpha
+      ggplot2::aes(
+        xmin = {{ x_lower }},
+        xmax = {{ x_upper }},
+        ymin = {{ sd_lower }},
+        ymax = {{ sd_upper }},
+        colour = {{ consistency }},
+        fill = {{ consistency }}
+      ),
+      inherit.aes = FALSE
     )
 
   # Scale specifications (optional, default is `TRUE`): The y-axis has some room
@@ -320,7 +310,6 @@ debit_plot <- function(
         ggplot2::geom_point(
           data = tibble::tibble(x = k / n_by_k, y = sd_binary_1_n(k, n_by_k)),
           ggplot2::aes(x = .data$x, y = .data$y),
-          color = line_color,
           size = 1,
           inherit.aes = FALSE
         )
@@ -332,15 +321,13 @@ debit_plot <- function(
     rlang::check_installed("ggrepel", "for the labels in `debit_plot()`.")
     p <- p +
       ggrepel::geom_text_repel(
-        force = label_force,
-        force_pull = label_force_pull,
-        box.padding = label_padding,
-        segment.alpha = label_alpha,
-        color = color_by_consistency,
-        segment.color = color_by_consistency,
-        segment.linetype = label_linetype,
-        segment.size = label_linesize,
-        size = label_size
+        force = 175,
+        force_pull = 0.75,
+        box.padding = 0.5,
+        segment.alpha = 0.5,
+        segment.linetype = 3,
+        segment.size = 0.75,
+        size = 3.5
       )
   }
 
@@ -351,7 +338,6 @@ debit_plot <- function(
   # Other theme specifications (optional, default is `TRUE`):
   if (show_theme_other) {
     p <- p +
-      ggplot2::theme_update() +
       ggplot2::theme(
         panel.grid.minor = ggplot2::element_blank(),
         axis.ticks.y = ggplot2::element_line()

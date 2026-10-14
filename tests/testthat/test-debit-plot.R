@@ -155,3 +155,29 @@ test_that("`debit_plot()` says when it thins the marks", {
     debit_plot(show_labels = FALSE) |>
     expect_no_message()
 })
+
+test_that("colors come from a scale that another one replaces", {
+  data <- tibble::tibble(
+    x = c(.35, .05),
+    sd = c(.48, .21),
+    n = c(40, 20)
+  ) |>
+    debit_map(digits_x = 2, digits_sd = 2)
+
+  p <- data |> debit_plot(show_labels = FALSE)
+
+  rects <- function(p) {
+    is_rect <- p$layers |> vapply(\(l) inherits(l$geom, "GeomRect"), TRUE)
+    ggplot2::ggplot_build(p)$data[[which(is_rect)]]
+  }
+
+  p |> rects() |> call_on(\(r) r$fill) |> expect_equal(c("royalblue1", "red"))
+
+  scale_new <- ggplot2::scale_colour_manual(
+    values = c("TRUE" = "darkgreen", "FALSE" = "orange"),
+    aesthetics = c("colour", "fill")
+  )
+  p_new <- suppressMessages(p + scale_new)
+  p_new |> rects() |> call_on(\(r) r$fill)   |> expect_equal(c("darkgreen", "orange"))
+  p_new |> rects() |> call_on(\(r) r$colour) |> expect_equal(c("darkgreen", "orange"))
+})

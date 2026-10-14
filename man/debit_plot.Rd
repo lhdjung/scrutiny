@@ -8,21 +8,7 @@ debit_plot(
   data,
   show_labels = TRUE,
   show_full_scale = TRUE,
-  show_theme_other = TRUE,
-  color_cons = "royalblue1",
-  color_incons = "red",
-  line_alpha = 1,
-  line_color = "black",
-  line_linetype = 1,
-  line_width = 0.5,
-  rect_alpha = 1,
-  label_alpha = 0.5,
-  label_linetype = 3,
-  label_size = 3.5,
-  label_linesize = 0.75,
-  label_force = 175,
-  label_force_pull = 0.75,
-  label_padding = 0.5
+  show_theme_other = TRUE
 )
 }
 \arguments{
@@ -37,17 +23,6 @@ regardless of the data? Default is \code{TRUE}.}
 
 \item{show_theme_other}{Logical. Should the theme be adjusted to the plot?
 Default is \code{TRUE}.}
-
-\item{color_cons, color_incons}{Strings. Colors of consistent and
-inconsistent value sets.}
-
-\item{line_alpha, line_color, line_linetype, line_width}{Parameters of the
-DEBIT line.}
-
-\item{rect_alpha}{Opacity of the rectangles. Their size and shape follow
-from the data.}
-
-\item{label_alpha, label_linetype, label_size, label_linesize, label_force, label_force_pull, label_padding}{Parameters of the labels, passed on to \code{\link[ggrepel:geom_text_repel]{ggrepel::geom_text_repel()}}.}
 }
 \value{
 A ggplot object.
@@ -76,12 +51,25 @@ are left out with a warning.
 The labels come from \code{\link[ggrepel:geom_text_repel]{ggrepel::geom_text_repel()}}, which places them at
 random to minimize overlap. Resizing the plot or running the function
 again may give better placements.
+
+Colors come from one scale for \code{colour} and \code{fill}, mapped to
+\code{consistency}. Add another to change them, as in the examples.
 }
 \examples{
 \dontshow{if (rlang::is_installed("ggrepel")) withAutoprint(\{ # examplesIf}
 pigs3 |>
   debit_map(digits_x = 2, digits_sd = 2) |>
   debit_plot()
+
+# Other colors:
+pigs3 |>
+  debit_map(digits_x = 2, digits_sd = 2) |>
+  debit_plot() +
+  ggplot2::scale_colour_manual(
+    values = c("TRUE" = "darkgreen", "FALSE" = "orange"),
+    aesthetics = c("colour", "fill"),
+    guide = "none"
+  )
 \dontshow{\}) # examplesIf}
 }
 \references{

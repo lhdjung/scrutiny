@@ -97,7 +97,7 @@ pigs3 |>
   debit_plot()
 ```
 
-The arc is the DEBIT line: the SD of binary data as a function of their mean, for the given sample size. The points on it are the means that `n` binary values can have. Each value set is a rectangle spanning the rounding bounds of its mean and SD; under `formula = "exact"`, it is consistent if one of the points lies inside it. Consistent sets are blue, inconsistent ones red. Since a rectangle can be too small to see, each one is drawn over a point at the reported mean and SD. If `n` varies, the lines for the smallest and largest `n` are drawn and the band between them is shaded.
+The arc is the DEBIT line: the SD of binary data as a function of their mean, for the given sample size. The points on it are the means that `n` binary values can have. Each value set is a rectangle spanning the rounding bounds of its mean and SD; under `formula = "exact"`, it is consistent if one of the points lies inside it. Consistent sets are blue, inconsistent ones red; see the examples in `?debit_plot` for other colors. Since a rectangle can be too small to see, each one is drawn over a point at the reported mean and SD. If `n` varies, the lines for the smallest and largest `n` are drawn and the band between them is shaded.
 
 ## Values around the reported ones: `debit_map_seq()`
 
