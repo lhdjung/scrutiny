@@ -186,6 +186,21 @@ check_key_result_col <- function(data, name_key_result, name_fun) {
 }
 
 
+# A mapper's output keeps its class when columns are dropped, so functions
+# that read its columns check for them rather than trusting the class.
+check_cols_needed <- function(data, cols, ...) {
+  cols_missing <- setdiff(cols, colnames(data))
+  if (length(cols_missing) > 0L) {
+    name_fun <- name_last_export()
+    abort_in_export(
+      "`data` lacks columns that `{name_fun}()` needs.",
+      "x" = "Missing: {.code {cols_missing}}.",
+      ...
+    )
+  }
+}
+
+
 #' Alert the user if more specific `audit_*()` summaries are available
 #'
 #' @description Call `check_audit_special()` within an `audit()` method for a

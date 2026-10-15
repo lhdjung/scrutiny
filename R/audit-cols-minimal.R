@@ -38,6 +38,7 @@ audit_cols_minimal <- function(data, name_test) {
     cli::cli_abort(c("!" = "`data` must be a data frame."))
   }
 
+  check_cols_needed(data, "consistency")
   check_audit_special(data, name_test)
 
   # Compute the summary values of interest ---

@@ -7,6 +7,7 @@ audit.scrutiny_grim_map <- function(data) {
   # 1. the number of GRIM-inconsistent cases;
   # 2. the total number of cases;
   # 3. the proportion of GRIM-inconsistent cases:
+  check_cols_needed(data, c("consistency", "probability"))
   out <- audit_cols_minimal(data, "GRIM")
 
   # 4. the average of GRIM probabilities. `na.rm` for the same reason that

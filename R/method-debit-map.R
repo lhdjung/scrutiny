@@ -7,6 +7,7 @@ audit.scrutiny_debit_map <- function(data) {
   # 1. the number of DEBIT-inconsistent cases;
   # 2. the total number of cases;
   # 3. the proportion of DEBIT-inconsistent cases:
+  check_cols_needed(data, c("consistency", "x", "sd", "n"))
   out <- audit_cols_minimal(data, "DEBIT")
 
   # 4. the mean `x` value. `na.rm` as in `audit_cols_minimal()`: a missing value

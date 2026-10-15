@@ -243,3 +243,14 @@ test_that("the value sets' colors come from a scale that another one replaces", 
   # The raster's fill is set, not mapped, so the scale leaves it alone:
   p_new |> ggplot2::ggplot_build() |> purrr::pluck("data", 1L, "fill") |> unique() |> expect_equal("grey75")
 })
+
+test_that("`grim_plot()` names the columns it lacks", {
+  pigs1 |> grim_map(digits_x = 2) |> dplyr::select(x) |> grim_plot() |> expect_error("Missing: `n` and `consistency`")
+})
+
+test_that("`grim_plot()` falls back to `rounding` if `data` has none recorded", {
+  data <- tibble::tibble(x = 5.19, n = 28, digits_x = 2, consistency = TRUE)
+  class(data) <- c("scrutiny_grim_map", class(data))
+  data |> grim_plot() |> expect_s3_class("ggplot")
+  data |> grim_plot(rounding = "up_from", show_raster = TRUE) |> expect_error("No background raster")
+})

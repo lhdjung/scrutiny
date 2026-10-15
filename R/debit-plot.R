@@ -107,14 +107,7 @@ debit_plot <- function(
 
   # The bounds are missing from `debit_map()` output without rows, or if they
   # were dropped. Subsetting used to fail with a vctrs error:
-  cols_missing <- setdiff(cols_needed, colnames(data))
-  if (length(cols_missing) > 0L) {
-    cli::cli_abort(c(
-      "!" = "`data` lacks columns that `debit_plot()` needs.",
-      "x" = "Missing: {.code {cols_missing}}.",
-      "i" = "`debit_map()` output has them."
-    ))
-  }
+  check_cols_needed(data, cols_needed, "i" = "`debit_map()` output has them.")
 
   is_complete <- stats::complete.cases(data[cols_needed])
 

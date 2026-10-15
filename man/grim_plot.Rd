@@ -40,8 +40,9 @@ case the axis spans the raster and the data.}
 that, inferred from \code{x}. For percentages, give the number of decimal
 places as reported; 2 are added.}
 
-\item{rounding}{String. Only used if \code{show_data} is \code{FALSE}. Default is
-\code{"up_or_down"}.}
+\item{rounding}{String. Only used if \code{show_data} is \code{FALSE} or if \code{data}
+has no rounding method recorded by a mapper, as when built by hand.
+Default is \code{"up_or_down"}.}
 
 \item{tile_size}{Numeric. Size of the tiles for value sets. Default is
 \code{1.5}.}

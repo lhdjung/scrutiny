@@ -57,13 +57,7 @@ grim_plot_rates <- function(data, study) {
     abort_in_export("`data` must be output of `grim_map()`.")
   }
 
-  cols_missing <- setdiff(c("consistency", "probability"), names(data))
-  if (length(cols_missing) > 0L) {
-    abort_in_export(
-      "`data` must have the columns `consistency` and `probability`.",
-      "x" = "Missing: {.code {cols_missing}}."
-    )
-  }
+  check_cols_needed(data, c("consistency", "probability"))
 
   study <- names(tidyselect::eval_select(rlang::enquo(study), data))
 

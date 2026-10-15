@@ -55,8 +55,9 @@
 #'   places as reported; 2 are added.
 #' @param n Integer. Maximal value on the x-axis. Default is `NULL`, in which
 #'   case the axis spans the raster and the data.
-#' @param rounding String. Only used if `show_data` is `FALSE`. Default is
-#'   `"up_or_down"`.
+#' @param rounding String. Only used if `show_data` is `FALSE` or if `data`
+#'   has no rounding method recorded by a mapper, as when built by hand.
+#'   Default is `"up_or_down"`.
 #' @param show_raster Logical. Should the raster be drawn? Default is `TRUE`.
 #' @param tile_size Numeric. Size of the tiles for value sets. Default is
 #'   `1.5`.
@@ -157,6 +158,10 @@ grim_plot <- function(
         with `show_data = FALSE`."
       ))
     }
+  }
+
+  if (show_data) {
+    check_cols_needed(data, c("x", "n", "consistency"))
   }
 
   # Warn the user who passed suitable data to `grim_plot()` but also set
@@ -442,8 +447,12 @@ grim_plot <- function(
     # from among those saved within the package itself:
     if (digits <= 2L) {
       # Check the way `x` values were rounded in the preceding `grim_map()` call
-      # to prepare selecting the plot background raster:
+      # to prepare selecting the plot background raster. Data built by hand has
+      # no record, so fall back to `rounding`:
       rounding_id <- scrutiny_meta(data)$args$rounding
+      if (is.null(rounding_id)) {
+        rounding_id <- rounding
+      }
 
       # The rasters are precomputed under the older `rounding` names, so resolve
       # the `"ties_*"` methods back to those. `symmetric = FALSE` because the
