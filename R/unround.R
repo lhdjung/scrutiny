@@ -4,8 +4,9 @@
 # would have been rounded to the reported mean. Deriving it from floating-point
 # products such as `floor(upper * n_items)` is unsafe: where such a product is
 # mathematically an exact integer, its `double` can fall on either side of it,
-# dropping a legitimate sum or admitting a phantom one, and the verdict flips
-# (#86).
+# dropping a legitimate sum or admitting a phantom one, and the verdict flips.
+# GRIMMER derived its sums this way until 1.0.0 (#86). GRIM did not: it rounded
+# the two nearest granules forward and compared them to `x` with a tolerance.
 #
 # The functions below therefore work in integer arithmetic. Every bound that
 # `unround()` can return is `x` plus a whole number of units of
