@@ -175,6 +175,12 @@ test_that("`explain_map()` and `explain_print()` only take mapper output", {
   pigs1                                       |> explain_print() |> expect_error("must be the output")
   pigs1 |> structure(class = c("scrutiny_add_up_to_map", class(pigs1))) |> explain_print() |> expect_error("must be the output")
   pigs1 |> grim_map(digits_x = 2) |> dplyr::summarise(m = mean(x)) |> explain_print() |> expect_error("must be the output")
+  1:3                                         |> explain_print() |> expect_error("must be a tibble")
+})
+
+test_that("`explain_map()` can be extended to other classes", {
+  explain_map.my_map <- function(data) "my method"
+  pigs1 |> structure(class = c("my_map", class(pigs1))) |> explain_map() |> expect_identical("my method")
 })
 
 test_that("`explain_print()` prints as expected", {

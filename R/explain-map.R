@@ -28,8 +28,19 @@
 #'   dplyr::filter(!consistency) |>
 #'   explain_map()
 explain_map <- function(data) {
-  check_explainable(data)
   UseMethod("explain_map")
+}
+
+
+#' @export
+explain_map.default <- function(data) {
+  abort_in_export(
+    "`data` must be the output of `grim_map()`, `grimmer_map()`, or \\
+    `debit_map()`.",
+    "x" = "It has class {.cls {class(data)}}.",
+    "i" = "Their sequence and total-n mappers, such as `grim_map_seq()`, \\
+    work as well."
+  )
 }
 
 
@@ -58,22 +69,6 @@ explain_map.scrutiny_debit_map <- function(data) {
     )
   }
   add_explanation_col(data, debit_explain, c("x", "sd", "n", "digits_x", "digits_sd"))
-}
-
-
-# `explain_map()` and `explain_print()` only take output of these mappers, which
-# includes their sequence and total-n tiers:
-check_explainable <- function(data) {
-  classes <- c("scrutiny_grim_map", "scrutiny_grimmer_map", "scrutiny_debit_map")
-  if (!inherits(data, classes)) {
-    abort_in_export(
-      "`data` must be the output of `grim_map()`, `grimmer_map()`, or \\
-      `debit_map()`.",
-      "x" = "It has class {.cls {class(data)}}.",
-      "i" = "Their sequence and total-n mappers, such as `grim_map_seq()`, \\
-      work as well."
-    )
-  }
 }
 
 
