@@ -15,7 +15,7 @@
       in this range. The nearest ones are 145 and 146. They give 145 / 28 = 5.1786
       and 146 / 28 = 5.2143, which round to 5.18 and 5.21, not to 5.19.
       
-      => Inconsistent
+      ==> Inconsistent
     Code
       grim_explain(x = 5.19, n = 32, digits_x = 2)
     Output
@@ -30,7 +30,7 @@
       A sum of whole numbers is itself a whole number, and 166 is in this range:
       166 / 32 = 5.1875, which rounds to 5.19.
       
-      => Consistent
+      ==> Consistent
     Code
       grim_explain(x = 71, n = 43, digits_x = 0, percent = TRUE)
     Output
@@ -46,7 +46,7 @@
       nearest ones are 30 and 31. They give 30 / 43 * 100 = 69.7674 and
       31 / 43 * 100 = 72.093, which round to 70 and 72, not to 71.
       
-      => Inconsistent
+      ==> Inconsistent
     Code
       grim_explain(x = 2.84, n = 16, digits_x = 2, items = 2, rounding = "up")
     Output
@@ -62,7 +62,7 @@
       A sum of whole numbers is itself a whole number, and 91 is in this range:
       91 / 32 = 2.8438, which rounds to 2.84.
       
-      => Consistent
+      ==> Consistent
     Code
       grim_explain(x = 5.2, n = 20.5, digits_x = 1)
     Output
@@ -70,7 +70,7 @@
       
       The test needs n to be a positive whole number, but it is 20.5.
       
-      => Undecidable
+      ==> Undecidable
     Code
       grimmer_explain(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2)
     Output
@@ -99,7 +99,7 @@
       34 * 2.545^2 + 183^2 / 35 = 1177.0474 to 34 * 2.555^2 + 183^2 / 35 = 1178.7814.
       The only whole number in this range is 1178, which is even, but 183 is odd.
       
-      => Inconsistent
+      ==> Inconsistent
     Code
       grimmer_explain(x = 5.19, sd = 2.55, n = 28, digits_x = 2, digits_sd = 2)
     Output
@@ -116,7 +116,7 @@
       and 146 / 28 = 5.2143, which round to 5.18 and 5.21, not to 5.19. Since the
       mean alone is impossible, the SD doesn't need to be checked.
       
-      => Inconsistent
+      ==> Inconsistent
     Code
       grimmer_explain(x = 3.1, sd = 1.3, n = 200, digits_x = 1, digits_sd = 1)
     Output
@@ -146,7 +146,7 @@
       199 * 1.35^2 + 610^2 / 200 = 2223.1775. The whole numbers from 2172 to 2223 are
       in this range, so one of them is even, like 610.
       
-      => Consistent
+      ==> Consistent
     Code
       grimmer_explain(x = 3, sd = 2.1, n = 20, digits_x = 1, digits_sd = 1, min_val = 1,
         max_val = 5)
@@ -185,7 +185,7 @@
       and 10 values of 1. Then it is 260, narrowing the range. The only whole number
       in this range is 260, which is even, like 60.
       
-      => Consistent
+      ==> Consistent
     Code
       debit_explain(x = 0.36, sd = 0.11, n = 20, digits_x = 2, digits_sd = 2)
     Output
@@ -202,7 +202,7 @@
       number, and there is none in this range. So no number of ones fits the mean,
       whatever the SD is.
       
-      => Inconsistent
+      ==> Inconsistent
     Code
       debit_explain(x = 0.35, sd = 0.49, n = 20, digits_x = 2, digits_sd = 2)
     Output
@@ -224,7 +224,7 @@
       With k ones among 20 values, the SD is sqrt(k * (20 - k) / (20 * 19)). For
       k = 7, that is sqrt(7 * 13 / 380) = 0.4894, which is in that range.
       
-      => Consistent
+      ==> Consistent
     Code
       debit_explain(x = 0.36, sd = 0.49, n = 1000, digits_x = 2, digits_sd = 2)
     Output
@@ -247,12 +247,12 @@
       Even the largest of these SDs, for k = 365, is only
       sqrt(365 * 635 / 999000) = 0.4817, which is below that range.
       
-      => Inconsistent
+      ==> Inconsistent
 
-# `explain()` prints as expected
+# `explain_map()` prints as expected
 
     Code
-      explain(dplyr::slice(grim_map(pigs1, digits_x = 2), 1:2))
+      explain_map(dplyr::slice(grim_map(pigs1, digits_x = 2), 1:2))
     Output
       GRIM test: x = 7.22, n = 32
       
@@ -265,7 +265,7 @@
       A sum of whole numbers is itself a whole number, and 231 is in this range:
       231 / 32 = 7.2188, which rounds to 7.22.
       
-      => Consistent
+      ==> Consistent
       
       
       GRIM test: x = 4.74, n = 25
@@ -280,9 +280,9 @@
       in this range. The nearest ones are 118 and 119. They give 118 / 25 = 4.72 and
       119 / 25 = 4.76, which round to 4.72 and 4.76, not to 4.74.
       
-      => Inconsistent
+      ==> Inconsistent
     Code
-      explain(dplyr::filter(grim_map(pigs1, digits_x = 2), n > 1000))
+      explain_map(dplyr::filter(grim_map(pigs1, digits_x = 2), n > 1000))
     Output
       No rows to explain.
 

@@ -75,41 +75,41 @@ test_that("only a single case is explained", {
 
 # Mappers -----------------------------------------------------------------
 
-# `explain()` re-tests each row and aborts if the verdict differs from the row's
-# `consistency` value, so explaining whole mapper outputs checks them all.
+# `explain_map()` re-tests each row and aborts if the verdict differs from the
+# row's `consistency` value, so explaining whole mapper outputs checks them all.
 
-test_that("`explain()` agrees with every mapper tier", {
-  pigs1 |> grim_map(digits_x = 2)                   |> explain() |> expect_length(12L)
-  pigs1 |> grim_map(digits_x = 2, items = 2)        |> explain() |> expect_length(12L)
-  pigs2 |> grim_map(digits_x = 1, percent = TRUE)   |> explain() |> expect_length(6L)
-  pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2) |> explain() |> expect_length(12L)
-  pigs3 |> debit_map(digits_x = 2, digits_sd = 2)   |> explain() |> expect_length(7L)
-  pigs1 |> grim_map_seq(digits_x = 2)               |> explain() |> expect_length(160L)
-  pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, min_val = 1, max_val = 7, rounding = "up") |> explain() |> expect_length(12L)
+test_that("`explain_map()` agrees with every mapper tier", {
+  pigs1 |> grim_map(digits_x = 2)                   |> explain_map() |> expect_length(12L)
+  pigs1 |> grim_map(digits_x = 2, items = 2)        |> explain_map() |> expect_length(12L)
+  pigs2 |> grim_map(digits_x = 1, percent = TRUE)   |> explain_map() |> expect_length(6L)
+  pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2) |> explain_map() |> expect_length(12L)
+  pigs3 |> debit_map(digits_x = 2, digits_sd = 2)   |> explain_map() |> expect_length(7L)
+  pigs1 |> grim_map_seq(digits_x = 2)               |> explain_map() |> expect_length(160L)
+  pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, min_val = 1, max_val = 7, rounding = "up") |> explain_map() |> expect_length(12L)
 })
 
-test_that("`explain()` uses the settings of the mapper call", {
-  explanation <- tibble::tibble(x = 71, n = 43) |> grim_map(digits_x = 0, percent = TRUE) |> explain()
+test_that("`explain_map()` uses the settings of the mapper call", {
+  explanation <- tibble::tibble(x = 71, n = 43) |> grim_map(digits_x = 0, percent = TRUE) |> explain_map()
   explanation[[1]]$inputs |> expect_identical("x = 71, n = 43, percent = TRUE")
 })
 
-test_that("`explain()` catches rows changed after testing", {
+test_that("`explain_map()` catches rows changed after testing", {
   data <- pigs1 |> grim_map(digits_x = 2)
   data$n[1] <- 28
-  data |> explain() |> expect_error("Row 1 doesn't match")
+  data |> explain_map() |> expect_error("Row 1 doesn't match")
 })
 
-test_that("`explain()` needs columns and settings", {
-  pigs1 |> grim_map(digits_x = 2) |> dplyr::select(-digits_x)            |> explain() |> expect_error("Missing: `digits_x`")
-  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, formula = "mean_n")    |> explain() |> expect_error("only covers")
+test_that("`explain_map()` needs columns and settings", {
+  pigs1 |> grim_map(digits_x = 2) |> dplyr::select(-digits_x)            |> explain_map() |> expect_error("Missing: `digits_x`")
+  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, formula = "mean_n")    |> explain_map() |> expect_error("only covers")
   data <- pigs1 |> grim_map(digits_x = 2)
   attr(data, "scrutiny") <- NULL
-  data |> explain() |> expect_error("lost the settings")
+  data |> explain_map() |> expect_error("lost the settings")
 })
 
-test_that("`explain()` prints as expected", {
+test_that("`explain_map()` prints as expected", {
   expect_snapshot({
-    pigs1 |> grim_map(digits_x = 2) |> dplyr::slice(1:2) |> explain()
-    pigs1 |> grim_map(digits_x = 2) |> dplyr::filter(n > 1000) |> explain()
+    pigs1 |> grim_map(digits_x = 2) |> dplyr::slice(1:2) |> explain_map()
+    pigs1 |> grim_map(digits_x = 2) |> dplyr::filter(n > 1000) |> explain_map()
   })
 })

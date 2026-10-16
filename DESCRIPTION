@@ -85,7 +85,7 @@ Collate:
     'duplicate-count-colpair.R'
     'duplicate-count.R'
     'grimmer-explain.R'
-    'explain.R'
+    'explain-map.R'
     'grim-granularity.R'
     'grim-map-seq.R'
     'grim-map-total-n.R'

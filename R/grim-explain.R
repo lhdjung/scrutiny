@@ -330,7 +330,7 @@ print.scrutiny_explain <- function(x, ...) {
     paste0(x$test, " test: ", x$inputs),
     "",
     unlist(paragraphs),
-    paste("=>", verdict),
+    paste("==>", verdict),
     sep = "\n"
   )
   invisible(x)

@@ -1,6 +1,6 @@
 #' Explain mapper results row by row
 #'
-#' @description `explain()` takes the output of [`grim_map()`],
+#' @description `explain_map()` takes the output of [`grim_map()`],
 #'   [`grimmer_map()`], or [`debit_map()`] and lays out the calculation behind
 #'   each row's verdict in plain words, as [`grim_explain()`],
 #'   [`grimmer_explain()`], and [`debit_explain()`] do for a single case. This
@@ -13,42 +13,36 @@
 #' @details Each row is tested again from its own values and the settings of
 #'   the mapper call, such as `rounding` and `percent`. If the verdict differs
 #'   from the row's `consistency` value, the row must have been changed after
-#'   testing, and `explain()` throws an error.
+#'   testing, and `explain_map()` throws an error.
 #'
-#'   The generic is [`dplyr::explain()`], so loading both packages masks
-#'   nothing.
-#'
-#' @param x Data frame returned by one of the mappers named above.
-#' @param ... Not used.
+#' @param data Data frame returned by one of the mappers named above.
 #'
 #' @return A list of `scrutiny_explain` objects, one per row, that prints as
 #'   the explanations. See [`grim_explain()`] for the elements.
 #'
-#' @name explain
-#' @aliases explain.scrutiny_grim_map explain.scrutiny_grimmer_map
-#'   explain.scrutiny_debit_map
+#' @include grim-explain.R grimmer-explain.R debit-explain.R
 #'
-#' @importFrom dplyr explain
-#' @export explain
+#' @export
 #'
 #' @examples
 #' pigs1 |>
 #'   grim_map(digits_x = 2) |>
 #'   dplyr::filter(!consistency) |>
-#'   explain()
-NULL
+#'   explain_map()
+explain_map <- function(data) {
+  UseMethod("explain_map")
+}
 
 
-#' @include grim-explain.R grimmer-explain.R debit-explain.R
 #' @export
-explain.scrutiny_grim_map <- function(x, ...) {
-  explain_rows(x, grim_explain, c("x", "n", "digits_x"), "items")
+explain_map.scrutiny_grim_map <- function(data) {
+  explain_rows(data, grim_explain, c("x", "n", "digits_x"), "items")
 }
 
 #' @export
-explain.scrutiny_grimmer_map <- function(x, ...) {
+explain_map.scrutiny_grimmer_map <- function(data) {
   explain_rows(
-    x,
+    data,
     grimmer_explain,
     c("x", "sd", "n", "digits_x", "digits_sd"),
     "items"
@@ -56,15 +50,15 @@ explain.scrutiny_grimmer_map <- function(x, ...) {
 }
 
 #' @export
-explain.scrutiny_debit_map <- function(x, ...) {
-  formula <- scrutiny_meta(x)$args$formula
+explain_map.scrutiny_debit_map <- function(data) {
+  formula <- scrutiny_meta(data)$args$formula
   if (identical(formula, "mean_n")) {
     abort_in_export(
-      "`explain()` only covers DEBIT's default `formula = \"exact\"`.",
-      "x" = "`x` was tested with `formula = \"mean_n\"`."
+      "`explain_map()` only covers DEBIT's default `formula = \"exact\"`.",
+      "x" = "`data` was tested with `formula = \"mean_n\"`."
     )
   }
-  explain_rows(x, debit_explain, c("x", "sd", "n", "digits_x", "digits_sd"))
+  explain_rows(data, debit_explain, c("x", "sd", "n", "digits_x", "digits_sd"))
 }
 
 
@@ -72,14 +66,14 @@ explain.scrutiny_debit_map <- function(x, ...) {
 # columns as values, plus the settings recorded by the mapper. A helper column
 # like `items` is used if `data` has it.
 explain_rows <- function(data, fun, cols_key, cols_helper = character()) {
-  check_cols_needed(data, c(cols_key, "consistency"), name_data = "x")
+  check_cols_needed(data, c(cols_key, "consistency"))
 
   args <- scrutiny_meta(data)$args
   if (is.null(args)) {
     abort_in_export(
-      "`x` has lost the settings of the test that produced it.",
+      "`data` has lost the settings of the test that produced it.",
       "x" = "Some dplyr verbs, such as `summarise()`, drop them.",
-      "i" = "Call `explain()` on the mapper's output directly, or after \\
+      "i" = "Call `explain_map()` on the mapper's output directly, or after \\
       verbs like `filter()`, `slice()`, and `arrange()`."
     )
   }
@@ -88,21 +82,30 @@ explain_rows <- function(data, fun, cols_key, cols_helper = character()) {
 
   cols <- c(cols_key, intersect(cols_helper, colnames(data)))
 
-  out <- lapply(seq_len(nrow(data)), function(i) {
-    values <- lapply(data[cols], function(col) col[[i]])
-    explanation <- do.call(fun, c(values, args))
-    if (!identical(explanation$consistency, data$consistency[[i]])) {
-      abort_in_export(
-        "Row {i} doesn't match its own `consistency` value.",
-        "x" = "It says {data$consistency[[i]]}, but testing the row's values \\
-        again gives {explanation$consistency}.",
-        "i" = "Were the values changed after testing? If so, test again."
-      )
-    }
-    explanation
-  })
+  data |>
+    nrow() |>
+    seq_len() |>
+    lapply(explain_row, data = data, fun = fun, cols = cols, args = args) |>
+    structure(class = "scrutiny_explain_list")
+}
 
-  structure(out, class = "scrutiny_explain_list")
+
+explain_row <- function(i, data, fun, cols, args) {
+  explanation <- data[i, cols] |>
+    as.list() |>
+    c(args) |>
+    do.call(what = fun)
+
+  if (!identical(explanation$consistency, data$consistency[[i]])) {
+    abort_in_export(
+      "Row {i} doesn't match its own `consistency` value.",
+      "x" = "It says {data$consistency[[i]]}, but testing the row's values \\
+      again gives {explanation$consistency}.",
+      "i" = "Were the values changed after testing? If so, test again."
+    )
+  }
+
+  explanation
 }
 
 

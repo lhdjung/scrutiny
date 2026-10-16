@@ -136,7 +136,15 @@ grimmer_sd_bounds <- function(
 # each test. `grimmer_explain()` reports these very values, so it cannot
 # contradict the verdict.
 
-grimmer_candidate <- function(s, n, items, sd_bounds, has_scale, min_val, max_val) {
+grimmer_candidate <- function(
+  s,
+  n,
+  items,
+  sd_bounds,
+  has_scale,
+  min_val,
+  max_val
+) {
   # TEST 1: Is there at least one integer between the bounds of the
   # reconstructed sum of squares? Derived in exact integer arithmetic, like the
   # candidate sums: a floating-point tolerance cannot repair a bound once the
@@ -201,7 +209,8 @@ grimmer_candidate <- function(s, n, items, sd_bounds, has_scale, min_val, max_va
   # TEST 3: The sum of squares of whole numbers has the parity of their sum
   # (`k^2` is odd exactly if `k` is). Two or more admissible integers always
   # include one of each parity; a single one must have that of `s`:
-  out$pass_test3 <- sum_squares[2L] > sum_squares[1L] ||
+  out$pass_test3 <-
+    sum_squares[2L] > sum_squares[1L] ||
     sum_squares[1L] %% 2 == s %% 2
 
   out
