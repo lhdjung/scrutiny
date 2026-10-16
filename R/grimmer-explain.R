@@ -241,8 +241,11 @@ grimmer_explain <- function(
 
   sums <- sum_range(x, n * items, digits_x, rounding, threshold, symmetric)
 
+  # Candidates are tested in turn until one passes. Showing every failure could
+  # take pages, so after the first three, the rest are only counted.
   text_candidates <- character()
-  passed <- logical()
+  n_failed <- 0L
+  passed <- FALSE
 
   for (s in sums[1L]:sums[2L]) {
     candidate <- grimmer_candidate(
@@ -254,47 +257,46 @@ grimmer_explain <- function(
       min_val = min_val,
       max_val = max_val
     )
+    passed <- candidate$pass_test3
 
-    text_candidates <- c(
-      text_candidates,
-      grimmer_explain_candidate(
-        s = s,
-        n = n,
-        candidate = candidate,
-        sd_bounds = sd_bounds,
-        sum_squares_lower = sum_squares_at(s, sd_bounds$lower, sd_lower),
-        sum_squares_upper = sum_squares_at(s, sd_bounds$upper, sd_upper),
-        min_total = min_val * items,
-        max_total = max_val * items
+    if (passed || n_failed < 3L) {
+      text_candidates <- c(
+        text_candidates,
+        grimmer_explain_candidate(
+          s = s,
+          n = n,
+          candidate = candidate,
+          sd_bounds = sd_bounds,
+          sum_squares_lower = sum_squares_at(s, sd_bounds$lower, sd_lower),
+          sum_squares_upper = sum_squares_at(s, sd_bounds$upper, sd_upper),
+          min_total = min_val * items,
+          max_total = max_val * items
+        )
       )
-    )
+    }
 
-    passed <- c(passed, candidate$pass_test3)
-    if (candidate$pass_test3) {
+    if (passed) {
       break
     }
+    n_failed <- n_failed + 1L
   }
 
-  if (any(passed) != consistency) {
+  if (passed != consistency) {
     cli::cli_abort(
       "Internal error: `grimmer_explain()` disagrees with `grimmer()`."
     )
   }
 
-  # Candidates are tested in turn until one passes. Showing every failure could
-  # take pages, so after the first three, the rest are only counted.
-  failed <- which(!passed)
-
-  if (length(failed) > 3L) {
-    text_candidates <- c(
-      text_candidates[failed[1:3]],
+  if (n_failed > 3L) {
+    text_candidates <- append(
+      text_candidates,
       paste(
         "The",
-        if (any(passed)) "next" else "remaining",
-        length(failed) - 3L,
+        if (passed) "next" else "remaining",
+        n_failed - 3L,
         "sums fail as well."
       ),
-      text_candidates[passed]
+      after = 3L
     )
   }
 
