@@ -71,7 +71,7 @@ grimmer_explain <- function(
       x = format_reported(x, digits_x),
       sd = format_reported(sd, digits_sd),
       n = n,
-      items = if (items != 1) items,
+      items = if (is.na(items) || items != 1) items,
       min_val = min_val,
       max_val = max_val
     )

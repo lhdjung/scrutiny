@@ -68,6 +68,11 @@ test_that("a missing `digits_x` gets the usual error", {
   5.19 |> grim_explain(n = 28) |> expect_error("digits_x")
 })
 
+test_that("missing `items` is undecidable, not an error", {
+  5.19 |> grim_explain(n = 28, digits_x = 2, items = NA)                            |> getElement("consistency") |> expect_identical(NA)
+  5.19 |> grimmer_explain(sd = 1.2, n = 28, digits_x = 2, digits_sd = 2, items = NA) |> getElement("consistency") |> expect_identical(NA)
+})
+
 test_that("only a single case is explained", {
   c(5.19, 5.2) |> grim_explain(n = 28, digits_x = 2) |> expect_error("length 1")
 })

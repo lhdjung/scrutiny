@@ -66,7 +66,7 @@ grim_explain <- function(
     inputs <- list(
       x = format_reported(x, digits_x),
       n = n,
-      items = if (items != 1) items,
+      items = if (is.na(items) || items != 1) items,
       percent = if (percent) TRUE
     )
     new_explanation(
