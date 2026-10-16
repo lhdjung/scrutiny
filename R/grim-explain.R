@@ -41,6 +41,9 @@ grim_explain <- function(
   check_length(n, 1L)
   check_length(items, 1L)
 
+  # `paste()` would write a number like 100000 as 1e+05:
+  rlang::local_options(scipen = 100L)
+
   # A missing `digits_x` reaches `grim_scalar()`, which says how to fix it:
   if (!missing(digits_x)) {
     check_length(digits_x, 1L)

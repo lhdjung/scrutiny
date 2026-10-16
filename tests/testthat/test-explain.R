@@ -73,6 +73,11 @@ test_that("missing `items` is undecidable, not an error", {
   5.19 |> grimmer_explain(sd = 1.2, n = 28, digits_x = 2, digits_sd = 2, items = NA) |> getElement("consistency") |> expect_identical(NA)
 })
 
+test_that("large numbers are written out in full", {
+  5.19 |> grim_explain(n = 1e5, digits_x = 2)                         |> format() |> expect_match("100000 whole numbers", fixed = TRUE)
+  0.5  |> debit_explain(sd = 0.5, n = 2e5, digits_x = 1, digits_sd = 1) |> format() |> expect_no_match("e+0", fixed = TRUE)
+})
+
 test_that("only a single case is explained", {
   c(5.19, 5.2) |> grim_explain(n = 28, digits_x = 2) |> expect_error("length 1")
 })
