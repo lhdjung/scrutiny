@@ -97,32 +97,35 @@ add_explanation_col <- function(data, fun, cols_key, cols_helper = character()) 
 
   cols <- c(cols_key, intersect(cols_helper, colnames(data)))
 
+  # Plain vectors rather than the tibble, whose `[` is slow to call per row:
+  columns <- as.list(data[cols])
+
   data$explanation <- data |>
     nrow() |>
     seq_len() |>
     vapply(
       explain_row,
       character(1L),
-      data = data,
+      columns = columns,
+      consistency = data$consistency,
       fun = fun,
-      cols = cols,
       args = args
     )
   data
 }
 
 
-explain_row <- function(i, data, fun, cols, args) {
-  explanation <- data[i, cols] |>
-    as.list() |>
+explain_row <- function(i, columns, consistency, fun, args) {
+  explanation <- columns |>
+    lapply(`[[`, i) |>
     c(args) |>
     do.call(what = fun)
 
-  if (!identical(explanation$consistency, data$consistency[[i]])) {
+  if (!identical(explanation$consistency, consistency[[i]])) {
     abort_in_export(
       "The row with {explanation$inputs} doesn't match its own \\
       `consistency` value.",
-      "x" = "It says {data$consistency[[i]]}, but testing the row's values \\
+      "x" = "It says {consistency[[i]]}, but testing the row's values \\
       again gives {explanation$consistency}.",
       "i" = "Were the values changed after testing? If so, test again."
     )
