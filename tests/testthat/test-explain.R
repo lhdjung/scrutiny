@@ -44,6 +44,35 @@ test_that("GRIMMER with scale bounds agrees with the test (sweep)", {
   }
 })
 
+test_that("`binary_ones_shown()` finds what listing every `k` would", {
+  pick <- function(ones, n, range) {
+    spread <- ones * (n - ones)
+    passed <- spread >= range[1L] & spread <= range[2L]
+    below <- spread < range[1L]
+    list(
+      any(passed),
+      ones[passed][which.min(abs(spread[passed] - mean(range)))],
+      ones[which.max(spread)],
+      ones[which.min(spread)],
+      ones[below][which.max(spread[below])],
+      ones[!below][which.min(spread[!below])]
+    )
+  }
+
+  set.seed(1)
+  for (i in 1:2000) {
+    n <- sample(c(2:60, 1000), 1L)
+    ones <- sort(sample(0:n, 2L))
+    range <- sample(0:(n^2 / 4 + 3), 2L)
+    all <- as.numeric(ones[1L]:ones[2L])
+    as.numeric(ones[1L]) |> binary_ones_shown(ones[2L], n, range) |> pick(n, range) |> expect_identical(pick(all, n, range))
+  }
+})
+
+test_that("DEBIT's example SD is not shown as a bound", {
+  0.5 |> debit_explain(sd = 0.5, n = 2e5, digits_x = 1, digits_sd = 3, rounding = "down") |> format() |> expect_no_match("= 0.4995, which is in", fixed = TRUE)
+})
+
 test_that("explanations print as expected", {
   expect_snapshot({
     grim_explain(x = 5.19, n = 28, digits_x = 2)

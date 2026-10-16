@@ -264,6 +264,51 @@ binary_sd_attainable_mean_n <- function(
 }
 
 
+# The rounding bounds of the reported mean and SD, confined to what binary data
+# can have. Clamping only ever narrows a range, and a bound moved this way is
+# attainable, hence inclusive. Shared with `debit_explain()`, so that its text
+# shows the bounds that decided the test.
+debit_bounds <- function(
+  x,
+  sd,
+  digits_x,
+  digits_sd,
+  rounding,
+  threshold,
+  symmetric
+) {
+  bounds_x <- bound_numerators(x, digits_x, rounding, threshold, symmetric)
+  bounds_sd <- bound_numerators(sd, digits_sd, rounding, threshold, symmetric)
+
+  if (is.null(bounds_x) || is.null(bounds_sd)) {
+    return(NULL)
+  }
+
+  # A mean of binary data cannot lie outside 0 and 1, so neither can the
+  # original value behind a reported one, however the rounding bounds fall.
+  # Without this, a mean reported as 0.00 had a bound just outside,
+  # `sd_binary_mean_n()` gave `NaN`, and `debit(x = 0, sd = 0, n = 50)` came out
+  # `NA` -- though every value is 0.
+  if (bounds_x$lower < 0) {
+    bounds_x$lower <- 0
+    bounds_x$incl_lower <- TRUE
+  }
+  if (bounds_x$upper > bounds_x$denom) {
+    bounds_x$upper <- bounds_x$denom
+    bounds_x$incl_upper <- TRUE
+  }
+
+  # An SD cannot be negative, so a negative lower bound is really a bound of
+  # zero. Same as in `grimmer_scalar()`:
+  if (bounds_sd$lower < 0) {
+    bounds_sd$lower <- 0
+    bounds_sd$incl_lower <- TRUE
+  }
+
+  list(x = bounds_x, sd = bounds_sd)
+}
+
+
 debit_scalar <- function(
   x,
   sd,
@@ -322,43 +367,28 @@ debit_scalar <- function(
     return(debit_undecidable(show_rec))
   }
 
-  bounds_x <- bound_numerators(
-    x_num = x,
-    digits = digits_x,
-    rounding = rounding,
-    threshold = threshold,
-    symmetric = symmetric
-  )
-
-  bounds_sd <- bound_numerators(
-    x_num = sd,
-    digits = digits_sd,
-    rounding = rounding,
-    threshold = threshold,
-    symmetric = symmetric
+  bounds <- debit_bounds(
+    x,
+    sd,
+    digits_x,
+    digits_sd,
+    rounding,
+    threshold,
+    symmetric
   )
 
   # The bounds are undefined for a missing value, and consistency is then
   # undecidable, just as it is for `grim_scalar()` and `grimmer_scalar()` in the
   # same situation:
-  if (is.null(bounds_x) || is.null(bounds_sd)) {
+  if (is.null(bounds)) {
     return(debit_undecidable(show_rec))
   }
 
-  # A mean of binary data cannot lie outside 0 and 1, so neither can the
-  # original value behind a reported one, however the rounding bounds fall.
-  # Clamping only ever narrows the range. Without it, a mean reported as 0.00
-  # had a bound just outside, `sd_binary_mean_n()` gave `NaN`, and
-  # `debit(x = 0, sd = 0, n = 50)` came out `NA` -- though every value is 0.
-  x_lower <- max(bounds_x$lower / bounds_x$denom, 0)
-  x_upper <- min(bounds_x$upper / bounds_x$denom, 1)
+  bounds_x <- bounds$x
+  bounds_sd <- bounds$sd
 
-  # An SD cannot be negative, so a negative lower bound is really a bound of
-  # zero -- attainable, hence inclusive. Same as in `grimmer_scalar()`:
-  if (bounds_sd$lower < 0) {
-    bounds_sd$lower <- 0
-    bounds_sd$incl_lower <- TRUE
-  }
+  x_lower <- bounds_x$lower / bounds_x$denom
+  x_upper <- bounds_x$upper / bounds_x$denom
 
   sd_lower <- bounds_sd$lower / bounds_sd$denom
   sd_upper <- bounds_sd$upper / bounds_sd$denom

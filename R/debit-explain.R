@@ -97,16 +97,15 @@ debit_explain <- function(
   sum_lower <- rec[[8L]]
   sum_upper <- rec[[9L]]
 
-  # The mean's bounds as `debit_scalar()` has them, i.e. confined to the 0 to 1
-  # that a mean of binary data can take. A bound moved there is attainable,
-  # hence inclusive:
-  bounds_x <- bound_numerators(x, digits_x, rounding, threshold, symmetric)
+  # The bounds that decided the test, as `debit_scalar()` has them:
+  bounds <- debit_bounds(x, sd, digits_x, digits_sd, rounding, threshold, symmetric)
+  bounds_x <- bounds$x
 
-  x_incl_lower <- bounds_x$incl_lower || bounds_x$lower < 0
-  x_incl_upper <- bounds_x$incl_upper || bounds_x$upper > bounds_x$denom
+  x_incl_lower <- bounds_x$incl_lower
+  x_incl_upper <- bounds_x$incl_upper
 
-  x_num_lower <- max(bounds_x$lower, 0)
-  x_num_upper <- min(bounds_x$upper, bounds_x$denom)
+  x_num_lower <- bounds_x$lower
+  x_num_upper <- bounds_x$upper
 
   x_lower <- format_number(x_num_lower / bounds_x$denom)
   x_upper <- format_number(x_num_upper / bounds_x$denom)
@@ -199,17 +198,10 @@ debit_explain <- function(
 
   # Whether each number of ones `k` has an SD in range is decided by the whole
   # number `k * (n - k)`, as in `binary_sd_attainable()`, not by the rounded
-  # SD shown. The bounds are those of `debit_scalar()`, an SD's lower bound
-  # moved up to zero included:
-  bounds_sd <- bound_numerators(sd, digits_sd, rounding, threshold, symmetric)
-  if (bounds_sd$lower < 0) {
-    bounds_sd$lower <- 0
-    bounds_sd$incl_lower <- TRUE
-  }
+  # SD shown.
+  spread_range <- binary_spread_range(n, bounds$sd)
 
-  spread_range <- binary_spread_range(n, bounds_sd)
-
-  ones <- sum_lower:sum_upper
+  ones <- binary_ones_shown(sum_lower, sum_upper, n, spread_range)
   spread <- ones * (n - ones)
   passed <- spread >= spread_range[1L] & spread <= spread_range[2L]
 
@@ -227,10 +219,12 @@ debit_explain <- function(
     )
   }
 
-  several <- length(ones) > 1L
+  several <- sum_upper > sum_lower
 
   text_ones_sd <- if (any(passed)) {
-    k <- ones[passed][1L]
+    # The `k` whose SD is closest to the middle of the range, so that it doesn't
+    # look like a bound once rounded for display:
+    k <- ones[passed][which.min(abs(spread[passed] - mean(spread_range)))]
 
     paste0(
       if (several) "For example, for k = " else "For k = ",
@@ -278,4 +272,22 @@ debit_explain <- function(
     text_bounds_sd,
     paste(text_formula, text_ones_sd)
   ))
+}
+
+
+# The numbers of ones from `sum_lower` to `sum_upper` that the text may need to
+# show, i.e., the ones with the least or greatest spread `k * (n - k)` on either
+# side of the range or in it, and the one closest to its middle. All of them are
+# next to a bound of `k` or a root of `k * (n - k) = spread`, so they can be
+# found without listing every `k`, which may be millions. The neighbors of each
+# root make up for floating-point error in it.
+binary_ones_shown <- function(sum_lower, sum_upper, n, spread_range) {
+  roots <- c(spread_range, mean(spread_range)) |>
+    vapply(\(spread) (n - sqrt(max(n^2 - 4 * spread, 0))) / 2, numeric(1L)) |>
+    c(n / 2) |>
+    floor()
+
+  ones <- outer(roots, -1:2, `+`)
+  ones <- c(sum_lower, sum_upper, ones, n - ones)
+  sort(unique(pmin(pmax(ones, sum_lower), sum_upper)))
 }
