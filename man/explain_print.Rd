@@ -4,14 +4,16 @@
 \alias{explain_print}
 \title{Print the explanations of mapper results}
 \usage{
-explain_print(data, n = NULL)
+explain_print(data, ...)
 }
 \arguments{
-\item{data}{Data frame returned by a mapper, with or without an
-\code{explanation} column.}
+\item{data}{Data frame returned by \code{\link[=grim_map]{grim_map()}}, \code{\link[=grimmer_map]{grimmer_map()}}, or
+\code{\link[=debit_map]{debit_map()}}, or by their sequence and total-n mappers, with or without
+an \code{explanation} column.}
 
-\item{n}{Integer. If given, only the first \code{n} rows are printed. Default is
-\code{NULL}, which prints all rows.}
+\item{...}{Optionally, the rows to print, as in \code{\link[dplyr:slice]{dplyr::slice()}}: positive
+integers to keep rows, negative ones to drop them. Default is to print all
+rows.}
 }
 \value{
 \code{data}, invisibly.
@@ -26,7 +28,7 @@ explained.
 \examples{
 pigs1 |>
   grim_map(digits_x = 2) |>
-  explain_print(n = 2)
+  explain_print(1:2)
 
 # Inconsistent rows only:
 pigs1 |>

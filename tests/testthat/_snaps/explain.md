@@ -252,7 +252,7 @@
 # `explain_print()` prints as expected
 
     Code
-      explain_print(explain_map(grim_map(pigs1, digits_x = 2)), n = 2)
+      explain_print(explain_map(grim_map(pigs1, digits_x = 2)), 1:2)
     Output
       GRIM test: x = 7.22, n = 32
       

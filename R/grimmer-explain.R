@@ -363,7 +363,6 @@ grimmer_explain_candidate <- function(
     if (is.na(candidate$ceiling)) "There is no whole number in this range."
   } else if (lower == upper) {
     parity_lower <- if (lower %% 2 == 0) "even" else "odd"
-
     paste0(
       "The only whole number in this range is ",
       lower,

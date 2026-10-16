@@ -104,7 +104,7 @@ test_that("`explain_map()` uses the settings of the mapper call", {
 test_that("`explain_map()` catches rows changed after testing", {
   data <- pigs1 |> grim_map(digits_x = 2)
   data$n[1] <- 28
-  data |> explain_map() |> expect_error("Row 1 doesn't match")
+  data |> explain_map() |> expect_error("row with x = 7.22, n = 28 doesn't match")
 })
 
 test_that("`explain_map()` needs columns and settings", {
@@ -117,24 +117,30 @@ test_that("`explain_map()` needs columns and settings", {
 
 test_that("`explain_print()` explains only the rows it prints", {
   data <- pigs1 |> grim_map(digits_x = 2)
-  data |> explain_print(n = 2)                |> expect_output("x = 4.74")
-  data |> explain_print(n = 1)                |> expect_output("^GRIM test: x = 7.22, n = 32\n")
-  data |> dplyr::slice(2) |> explain_print()  |> expect_output("x = 4.74")
-  data |> explain_print(n = 0)                |> expect_error("at least 1")
-  data |> explain_print(n = 1.5)              |> expect_error("at least 1")
+  data |> explain_print(2)                    |> expect_output("^GRIM test: x = 4.74, n = 25\n")
+  data |> explain_print(1:2)                  |> expect_output("x = 4.74")
+  data |> explain_print(-1)                   |> expect_output("x = 4.74")
+  data |> dplyr::filter(!consistency) |> explain_print() |> expect_output("x = 4.74")
 
   # Row 2 would fail the re-test, but it is not printed:
   data$n[2] <- 50
-  data |> explain_print(n = 1)                |> expect_output("x = 7.22")
-  data |> explain_print(n = 2)                |> expect_error("Row 2 doesn't match")
+  data |> explain_print(1)                    |> expect_output("x = 7.22")
+  data |> explain_print(2)                    |> expect_error("row with x = 4.74, n = 50 doesn't match")
 
-  capture.output(returned <- data |> explain_print(n = 1))
+  capture.output(returned <- data |> explain_print(1))
   returned |> expect_identical(data)
+})
+
+test_that("`explain_map()` and `explain_print()` only take mapper output", {
+  pigs1                                       |> explain_map()   |> expect_error("must be the output")
+  pigs1                                       |> explain_print() |> expect_error("must be the output")
+  pigs1 |> structure(class = c("scrutiny_add_up_to_map", class(pigs1))) |> explain_print() |> expect_error("must be the output")
+  pigs1 |> grim_map(digits_x = 2) |> dplyr::summarise(m = mean(x)) |> explain_print() |> expect_error("must be the output")
 })
 
 test_that("`explain_print()` prints as expected", {
   expect_snapshot({
-    pigs1 |> grim_map(digits_x = 2) |> explain_map() |> explain_print(n = 2)
+    pigs1 |> grim_map(digits_x = 2) |> explain_map() |> explain_print(1:2)
     pigs1 |> grim_map(digits_x = 2) |> dplyr::filter(n > 1000) |> explain_print()
   })
 })
