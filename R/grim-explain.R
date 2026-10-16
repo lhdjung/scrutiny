@@ -11,9 +11,8 @@
 #' @inheritParams grim
 #'
 #' @return An object of class `scrutiny_explain`: a list with the verdict as
-#'   `consistency` (`TRUE`, `FALSE`, or `NA`), the paragraphs of the
-#'   explanation as `text`, and the `test` and its `inputs`. It prints as the
-#'   explanation.
+#'   `consistency` (`TRUE`, `FALSE`, or `NA`), the explanation's `paragraphs`,
+#'   and the `test` and its `inputs`. It prints as the explanation.
 #'
 #' @seealso [`grimmer_explain()`] and [`debit_explain()`] for the other tests,
 #'   and [`explain_map()`] for mapper output.
@@ -179,9 +178,13 @@ grim_explain <- function(
       format_number(sum * scale_x / n_items)
     )
   }
+
   rounds_to <- function(value) {
-    rounded <- reround(value, digits_x, rounding, threshold, symmetric)
-    paste(unique(format_reported(rounded, digits_x)), collapse = " or ")
+    value |>
+      reround(digits_x, rounding, threshold, symmetric) |>
+      format_reported(digits_x) |>
+      unique() |>
+      paste(collapse = " or ")
   }
 
   whole_intro <- if (percent) {
@@ -190,7 +193,7 @@ grim_explain <- function(
     "A sum of whole numbers is itself a whole number"
   }
 
-  text_whole <- if (consistency) {
+  if (consistency) {
     # The sum closest to the reported value is the one shown, which keeps it
     # away from a bound where only some rounding procedures would round it to
     # `x`:
@@ -206,7 +209,7 @@ grim_explain <- function(
         " are in this range. For example, "
       )
     }
-    paste0(
+    text_whole <- paste0(
       whole_intro,
       in_range,
       divide(sum_shown),
@@ -218,7 +221,7 @@ grim_explain <- function(
     # The range holds no whole number, so `sum_upper` is the nearest one below
     # it and `sum_lower` the nearest one above, and the granules are their
     # means:
-    paste0(
+    text_whole <- paste0(
       whole_intro,
       ", but there is no whole number in this range. The ",
       "nearest ones are ",
@@ -270,7 +273,7 @@ new_explanation <- function(
       test = test,
       inputs = paste(names(inputs), "=", inputs, collapse = ", "),
       consistency = consistency,
-      text = text
+      paragraphs = text
     ),
     class = "scrutiny_explain"
   )
@@ -286,19 +289,22 @@ format.scrutiny_explain <- function(x, ...) {
   } else {
     "Inconsistent"
   }
+
   width <- min(getOption("width"), 80L)
+
   # Keep calculations like `166 / 32 = 5.1875` on one line: the spaces around
   # their operators are swapped for a `~`, which the text never contains, while
   # wrapping.
-  paragraphs <- x$text |>
+  wrapped <- x$paragraphs |>
     gsub(pattern = " ([-+*/=]) ", replacement = "~\\1~") |>
     lapply(strwrap, width = width) |>
     lapply(paste, collapse = "\n") |>
     gsub(pattern = "~", replacement = " ", fixed = TRUE)
-  paste(
-    c(paste0(x$test, " test: ", x$inputs), paragraphs, paste("==>", verdict)),
-    collapse = "\n\n"
-  )
+
+  x$test |>
+    paste0(" test: ", x$inputs) |>
+    c(wrapped, paste("==>", verdict)) |>
+    paste(collapse = "\n\n")
 }
 
 
@@ -317,6 +323,7 @@ explain_undecidable <- function(values, n, items = 1, min_n = 1) {
       return(paste0(name, " is missing, so there is nothing to test."))
     }
   }
+
   for (name in intersect(names(values), c("x", "sd"))) {
     if (is.infinite(values[[name]])) {
       return(paste0(
@@ -326,36 +333,38 @@ explain_undecidable <- function(values, n, items = 1, min_n = 1) {
       ))
     }
   }
-  if (!is_decidable_n_items(n, min_n = min_n)) {
-    if (min_n == 2) {
-      return(paste0(
-        "The test needs n to be a whole number of at least 2, because the ",
-        "SD of a sample divides by n - 1. But n is ",
-        n,
-        "."
-      ))
-    }
-    return(paste0(
+
+  if (is_decidable_n_items(n, min_n = min_n)) {
+    paste0(
+      "The test needs the number of items to be a positive whole number, but ",
+      "it is ",
+      items,
+      "."
+    )
+  } else if (min_n == 2) {
+    paste0(
+      "The test needs n to be a whole number of at least 2, because the ",
+      "SD of a sample divides by n - 1. But n is ",
+      n,
+      "."
+    )
+  } else {
+    paste0(
       "The test needs n to be a positive whole number, but it is ",
       n,
       "."
-    ))
+    )
   }
-  paste0(
-    "The test needs the number of items to be a positive whole number, but ",
-    "it is ",
-    items,
-    "."
-  )
 }
 
 
 # A reported value with all of its decimal places, trailing zeros included:
 format_reported <- function(x, digits) {
   if (anyNA(x) || is.na(digits)) {
-    return(as.character(x))
+    as.character(x)
+  } else {
+    formatC(x, format = "f", digits = digits)
   }
-  formatC(x, format = "f", digits = digits)
 }
 
 
@@ -395,6 +404,7 @@ describe_reported <- function(
   } else {
     paste(digits, "decimal places")
   }
+
   paste0(
     "The ",
     name,

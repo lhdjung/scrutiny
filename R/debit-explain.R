@@ -97,10 +97,13 @@ debit_explain <- function(
   # that a mean of binary data can take. A bound moved there is attainable,
   # hence inclusive:
   bounds_x <- bound_numerators(x, digits_x, rounding, threshold, symmetric)
+
   x_incl_lower <- bounds_x$incl_lower || bounds_x$lower < 0
   x_incl_upper <- bounds_x$incl_upper || bounds_x$upper > bounds_x$denom
+
   x_num_lower <- max(bounds_x$lower, 0)
   x_num_upper <- min(bounds_x$upper, bounds_x$denom)
+
   x_lower <- format_number(x_num_lower / bounds_x$denom)
   x_upper <- format_number(x_num_upper / bounds_x$denom)
 
@@ -199,6 +202,7 @@ debit_explain <- function(
     bounds_sd$lower <- 0
     bounds_sd$incl_lower <- TRUE
   }
+
   spread_range <- binary_spread_range(n, bounds_sd)
 
   ones <- sum_lower:sum_upper
@@ -223,6 +227,7 @@ debit_explain <- function(
 
   text_ones_sd <- if (any(passed)) {
     k <- ones[passed][1L]
+
     paste0(
       if (several) "For example, for k = " else "For k = ",
       k, ", that is ", sd_of(k), ", which is in that range."
@@ -236,12 +241,14 @@ debit_explain <- function(
     # The spread, and with it the SD, is greatest for the `k` closest to half
     # of `n`, so that one stands for all:
     k <- ones[which.max(spread)]
+
     paste0(
       "Even the largest of these SDs, for k = ", k, ", is only ", sd_of(k),
       ", which is below that range."
     )
   } else if (all(spread > spread_range[2L])) {
     k <- ones[which.min(spread)]
+
     paste0(
       "Even the smallest of these SDs, for k = ", k, ", is ", sd_of(k),
       ", which is above that range."
@@ -252,6 +259,7 @@ debit_explain <- function(
     below <- spread < spread_range[1L]
     k_below <- ones[below][which.max(spread[below])]
     k_above <- ones[!below][which.min(spread[!below])]
+
     paste0(
       "These SDs skip over that range. For k = ", k_below, ", the SD is ",
       sd_of(k_below), ", which is below it, and for k = ", k_above, ", it is ",

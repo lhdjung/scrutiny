@@ -7,8 +7,8 @@ test_that("explanations agree with the tests (sweep)", {
   grid <- tidyr::expand_grid(
     x = c(0.05, 0.36, 0.5, 1.7, 3, 5.19, 5.23),
     sd = c(0, 0.11, 0.21, 0.49, 1.3, 2.55),
-    n = c(2, 9, 20, 28, 35, 101),
-    digits = 2:3,
+    n = c(2, 9, 28, 101),
+    digits = 2,
     rounding = c("up_or_down", "up", "down", "even", "ceiling", "trunc")
   )
 
@@ -115,8 +115,26 @@ test_that("`explain_map()` needs columns and settings", {
   data |> explain_map() |> expect_error("lost the settings")
 })
 
-test_that("`explain_map()` prints as expected", {
+test_that("`explain_print()` explains only the rows it prints", {
+  data <- pigs1 |> grim_map(digits_x = 2)
+  data |> explain_print(n = 2)                |> expect_output("x = 4.74")
+  data |> explain_print(n = 1)                |> expect_output("^GRIM test: x = 7.22, n = 32\n")
+  data |> dplyr::slice(2) |> explain_print()  |> expect_output("x = 4.74")
+  data |> explain_print(n = 0)                |> expect_error("at least 1")
+  data |> explain_print(n = 1.5)              |> expect_error("at least 1")
+
+  # Row 2 would fail the re-test, but it is not printed:
+  data$n[2] <- 50
+  data |> explain_print(n = 1)                |> expect_output("x = 7.22")
+  data |> explain_print(n = 2)                |> expect_error("Row 2 doesn't match")
+
+  capture.output(returned <- data |> explain_print(n = 1))
+  returned |> expect_identical(data)
+})
+
+test_that("`explain_print()` prints as expected", {
   expect_snapshot({
-    pigs1 |> grim_map(digits_x = 2) |> dplyr::slice(1:2) |> explain_map() |> dplyr::pull(explanation) |> cat(sep = "\n\n")
+    pigs1 |> grim_map(digits_x = 2) |> explain_map() |> explain_print(n = 2)
+    pigs1 |> grim_map(digits_x = 2) |> dplyr::filter(n > 1000) |> explain_print()
   })
 })

@@ -7,7 +7,7 @@
 #'   single case. This includes the output of the sequence and total-n mappers
 #'   built on them, such as [`grim_map_seq()`].
 #'
-#'   To read the explanations, `cat()` the column (see examples).
+#'   To read the explanations, use [`explain_print()`].
 #'
 #' @details Each row is tested again from its own values and the settings of
 #'   the mapper call, such as `rounding` and `percent`. If the verdict differs
@@ -26,9 +26,7 @@
 #' pigs1 |>
 #'   grim_map(digits_x = 2) |>
 #'   dplyr::filter(!consistency) |>
-#'   explain_map() |>
-#'   dplyr::pull(explanation) |>
-#'   cat(sep = "\n\n")
+#'   explain_map()
 explain_map <- function(data) {
   UseMethod("explain_map")
 }

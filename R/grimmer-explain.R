@@ -136,7 +136,7 @@ grimmer_explain <- function(
     threshold = threshold,
     symmetric = symmetric
   )
-  text_grim <- grim$text
+  text_grim <- grim$paragraphs
   if (isFALSE(grim$consistency)) {
     text_grim[length(text_grim)] <- paste(
       text_grim[length(text_grim)],
@@ -250,6 +250,7 @@ grimmer_explain <- function(
       min_val = min_val,
       max_val = max_val
     )
+
     text_candidates <- c(
       text_candidates,
       grimmer_explain_candidate(
@@ -263,6 +264,7 @@ grimmer_explain <- function(
         max_total = max_val * items
       )
     )
+
     passed <- c(passed, candidate$pass_test3)
     if (candidate$pass_test3) {
       break
@@ -278,6 +280,7 @@ grimmer_explain <- function(
   # Candidates are tested in turn until one passes. Showing every failure could
   # take pages, so after the first three, the rest are only counted.
   failed <- which(!passed)
+
   if (length(failed) > 3L) {
     text_candidates <- c(
       text_candidates[failed[1:3]],
@@ -342,6 +345,7 @@ grimmer_explain_candidate <- function(
 
   if (!is.na(candidate$ceiling)) {
     upper <- candidate$ceiling
+
     text <- paste0(
       text,
       " But within the scale, the sum of squares is greatest when the values ",
@@ -359,6 +363,7 @@ grimmer_explain_candidate <- function(
     if (is.na(candidate$ceiling)) "There is no whole number in this range."
   } else if (lower == upper) {
     parity_lower <- if (lower %% 2 == 0) "even" else "odd"
+
     paste0(
       "The only whole number in this range is ",
       lower,
@@ -393,14 +398,17 @@ describe_spread_out <- function(s, n, val_lower, val_upper) {
   if (span == 0) {
     return(paste(n, "values of", val_lower))
   }
+
   k <- floor_div(s - n * val_lower, span)
   rest <- (s - n * val_lower) - k * span
   middle <- if (rest > 0) 1 else 0
+
   parts <- c(
     if (k > 0) paste(k, "values of", val_upper),
     if (middle > 0) paste("one of", val_lower + rest),
     if (n - k - middle > 0) paste(n - k - middle, "values of", val_lower)
   )
+
   if (length(parts) == 3L) {
     paste0(parts[1L], ", ", parts[2L], ", and ", parts[3L])
   } else {

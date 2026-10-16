@@ -20,7 +20,7 @@ calculation behind each row's verdict in plain words, as printed by
 single case. This includes the output of the sequence and total-n mappers
 built on them, such as \code{\link[=grim_map_seq]{grim_map_seq()}}.
 
-To read the explanations, \code{cat()} the column (see examples).
+To read the explanations, use \code{\link[=explain_print]{explain_print()}}.
 }
 \details{
 Each row is tested again from its own values and the settings of
@@ -32,7 +32,5 @@ testing, and \code{explain_map()} throws an error.
 pigs1 |>
   grim_map(digits_x = 2) |>
   dplyr::filter(!consistency) |>
-  explain_map() |>
-  dplyr::pull(explanation) |>
-  cat(sep = "\n\n")
+  explain_map()
 }

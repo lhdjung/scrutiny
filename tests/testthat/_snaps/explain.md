@@ -249,11 +249,10 @@
       
       ==> Inconsistent
 
-# `explain_map()` prints as expected
+# `explain_print()` prints as expected
 
     Code
-      cat(dplyr::pull(explain_map(dplyr::slice(grim_map(pigs1, digits_x = 2), 1:2)),
-      explanation), sep = "\n\n")
+      explain_print(explain_map(grim_map(pigs1, digits_x = 2)), n = 2)
     Output
       GRIM test: x = 7.22, n = 32
       
@@ -281,4 +280,9 @@
       119 / 25 = 4.76, which round to 4.72 and 4.76, not to 4.74.
       
       ==> Inconsistent
+      
+    Code
+      explain_print(dplyr::filter(grim_map(pigs1, digits_x = 2), n > 1000))
+    Output
+      No rows to explain.
 

@@ -33,9 +33,8 @@ Default is \code{"up_or_down"}. See \code{vignette("rounding-options")}.}
 }
 \value{
 An object of class \code{scrutiny_explain}: a list with the verdict as
-\code{consistency} (\code{TRUE}, \code{FALSE}, or \code{NA}), the paragraphs of the
-explanation as \code{text}, and the \code{test} and its \code{inputs}. It prints as the
-explanation.
+\code{consistency} (\code{TRUE}, \code{FALSE}, or \code{NA}), the explanation's \code{paragraphs},
+and the \code{test} and its \code{inputs}. It prints as the explanation.
 }
 \description{
 \code{debit_explain()} tests a single mean and SD of binary data
