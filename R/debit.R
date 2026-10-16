@@ -126,23 +126,9 @@ binary_sd_attainable <- function(sum_lower, sum_upper, n, bounds_sd) {
     return(FALSE)
   }
 
-  # The least and the greatest spread that the reported SD admits:
-  factor_sd <- n * (n - 1)
-  denom_squared <- bounds_sd$denom^2
-  lower_scaled <- bounds_sd$lower^2 * factor_sd
-  upper_scaled <- bounds_sd$upper^2 * factor_sd
-
-  spread_min <- ceiling_div(lower_scaled, denom_squared)
-  lower_bound_hit <- spread_min * denom_squared == lower_scaled
-  if (!bounds_sd$incl_lower && lower_bound_hit) {
-    spread_min <- spread_min + 1
-  }
-
-  spread_max <- floor_div(upper_scaled, denom_squared)
-  upper_bound_hit <- spread_max * denom_squared == upper_scaled
-  if (!bounds_sd$incl_upper && upper_bound_hit) {
-    spread_max <- spread_max - 1
-  }
+  spread <- binary_spread_range(n, bounds_sd)
+  spread_min <- spread[1L]
+  spread_max <- spread[2L]
 
   # Fold the range of `k` onto the lower half, `j = min(k, n - k)`, where the
   # spread rises with `j`. Folding a range that straddles the middle gives a
@@ -183,6 +169,30 @@ binary_sd_attainable <- function(sum_lower, sum_upper, n, bounds_sd) {
   # Every greater `j` has a greater spread, so if this one is too large, all of
   # them are:
   j <= j_upper && j * (n - j) <= spread_max
+}
+
+
+# The least and the greatest spread `k * (n - k)` that the reported SD admits,
+# as whole numbers; see `binary_sd_attainable()`. Shared with `debit_explain()`.
+binary_spread_range <- function(n, bounds_sd) {
+  factor_sd <- n * (n - 1)
+  denom_squared <- bounds_sd$denom^2
+  lower_scaled <- bounds_sd$lower^2 * factor_sd
+  upper_scaled <- bounds_sd$upper^2 * factor_sd
+
+  spread_min <- ceiling_div(lower_scaled, denom_squared)
+  lower_bound_hit <- spread_min * denom_squared == lower_scaled
+  if (!bounds_sd$incl_lower && lower_bound_hit) {
+    spread_min <- spread_min + 1
+  }
+
+  spread_max <- floor_div(upper_scaled, denom_squared)
+  upper_bound_hit <- spread_max * denom_squared == upper_scaled
+  if (!bounds_sd$incl_upper && upper_bound_hit) {
+    spread_max <- spread_max - 1
+  }
+
+  c(spread_min, spread_max)
 }
 
 

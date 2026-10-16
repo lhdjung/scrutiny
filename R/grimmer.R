@@ -77,6 +77,137 @@ check_scale_bounds <- function(min_val, max_val) {
 }
 
 
+# The SD's rounding bounds as exact integer numerators over a common
+# denominator, the same way `sum_range()` derives the mean's bounds, plus the
+# `(n - 1) * sd^2 * items^2` part of the sum of squares at each bound. That part
+# does not depend on the candidate sum, so it is computed once, here. `NULL` if
+# the bounds are undefined, i.e. for a missing SD. Shared with
+# `grimmer_explain()`.
+
+grimmer_sd_bounds <- function(
+  sd,
+  n,
+  items,
+  digits_sd,
+  rounding,
+  threshold,
+  symmetric
+) {
+  sd_bounds <- bound_numerators(
+    x_num = sd,
+    digits = digits_sd,
+    rounding = rounding,
+    threshold = threshold,
+    symmetric = symmetric
+  )
+
+  if (is.null(sd_bounds)) {
+    return(NULL)
+  }
+
+  # An SD cannot be negative, so a negative lower bound is really a bound of
+  # zero -- and that one is attainable, hence inclusive:
+  if (sd_bounds$lower < 0) {
+    sd_bounds$lower <- 0
+    sd_bounds$incl_lower <- TRUE
+  }
+
+  sd_bounds$term_lower <- sd_square_term(
+    sd_bounds$lower,
+    n,
+    items,
+    sd_bounds$denom
+  )
+  sd_bounds$term_upper <- sd_square_term(
+    sd_bounds$upper,
+    n,
+    items,
+    sd_bounds$denom
+  )
+
+  sd_bounds
+}
+
+
+# GRIMMER's tests for a single candidate sum `s`. Returns the range of whole
+# sums of squares that the SD admits, `ceiling`, the greatest sum of squares
+# within the scale (`NA` if the scale does not lower the range, or if there is
+# no scale), whether the scale puts `s` in reach at all, and whether `s` passes
+# each test. `grimmer_explain()` reports these very values, so it cannot
+# contradict the verdict.
+
+grimmer_candidate <- function(s, n, items, sd_bounds, has_scale, min_val, max_val) {
+  # TEST 1: Is there at least one integer between the bounds of the
+  # reconstructed sum of squares? Derived in exact integer arithmetic, like the
+  # candidate sums: a floating-point tolerance cannot repair a bound once the
+  # sum of squares exceeds about 1000 (#86).
+  sum_squares <- sum_squares_range(
+    s = s,
+    n = n,
+    term_lower = sd_bounds$term_lower,
+    term_upper = sd_bounds$term_upper,
+    incl_lower = sd_bounds$incl_lower,
+    incl_upper = sd_bounds$incl_upper
+  )
+
+  out <- list(
+    sum_squares = sum_squares,
+    ceiling = NA_real_,
+    in_reach = TRUE,
+    blocked_by_scale = FALSE,
+    pass_test1 = FALSE,
+    pass_test3 = FALSE
+  )
+
+  # Known bounds cap how far the values can spread out, hence how large the sum
+  # of squares can get. Lowering the ceiling is all that is needed here: every
+  # test below operates on that range. The values summed are the `n`
+  # respondents' totals across all items, so the bounds apply multiplied by
+  # `items`.
+  if (has_scale) {
+    ceiling <- sum_squares_scale_max(
+      s = s,
+      n = n,
+      val_lower = min_val * items,
+      val_upper = max_val * items
+    )
+    if (is.null(ceiling)) {
+      # No set of values within the scale's range adds up to this candidate
+      # sum, so it is out of reach whatever the SD is:
+      out$in_reach <- FALSE
+      out$blocked_by_scale <- TRUE
+      return(out)
+    }
+    if (ceiling < sum_squares[2L]) {
+      # Only a ceiling that actually bites can be the reason for a failure:
+      out$ceiling <- ceiling
+      out$blocked_by_scale <- sum_squares[1L] > ceiling
+      sum_squares[2L] <- ceiling
+    }
+  }
+
+  if (sum_squares[1L] > sum_squares[2L]) {
+    return(out)
+  }
+
+  out$pass_test1 <- TRUE
+
+  # TEST 2 of Allard (2018) rounds each admissible sum of squares back to an SD
+  # and compares it to the reported one. Test 1 implies it: the bounds are the
+  # exact inverse of that rounding, so every integer between them passes. It
+  # used to be run anyway, with a floating-point tolerance that could only ever
+  # lose matches, so it is not run at all.
+
+  # TEST 3: The sum of squares of whole numbers has the parity of their sum
+  # (`k^2` is odd exactly if `k` is). Two or more admissible integers always
+  # include one of each parity; a single one must have that of `s`:
+  out$pass_test3 <- sum_squares[2L] > sum_squares[1L] ||
+    sum_squares[1L] %% 2 == s %% 2
+
+  out
+}
+
+
 grimmer_scalar <- function(
   x,
   sd,
@@ -204,12 +335,11 @@ grimmer_scalar <- function(
     return(FALSE)
   }
 
-  # SD bounds as exact integer numerators over a common denominator, the same
-  # way `sum_range()` derives the mean's bounds. Exact for every rounding
-  # method and its boundary inclusion.
-  sd_bounds <- bound_numerators(
-    x_num = sd,
-    digits = digits_sd,
+  sd_bounds <- grimmer_sd_bounds(
+    sd = sd,
+    n = n,
+    items = items,
+    digits_sd = digits_sd,
     rounding = rounding,
     threshold = threshold,
     symmetric = symmetric
@@ -223,21 +353,6 @@ grimmer_scalar <- function(
     }
     return(NA)
   }
-
-  sd_num_lower <- sd_bounds$lower
-  sd_incl_lower <- sd_bounds$incl_lower
-
-  # An SD cannot be negative, so a negative lower bound is really a bound of
-  # zero -- and that one is attainable, hence inclusive:
-  if (sd_num_lower < 0) {
-    sd_num_lower <- 0
-    sd_incl_lower <- TRUE
-  }
-
-  # The `(n - 1) * sd^2 * items^2` part of the sum of squares does not depend on
-  # the candidate sum, so both bounds of it are computed once, here:
-  term_lower <- sd_square_term(sd_num_lower, n, items, sd_bounds$denom)
-  term_upper <- sd_square_term(sd_bounds$upper, n, items, sd_bounds$denom)
 
   # All integer sums consistent with the reported mean. `sum_range()` is the
   # same helper `grim_scalar()` uses, so the two always agree on which sums are
@@ -266,65 +381,26 @@ grimmer_scalar <- function(
   # given, not the verdict:
   blocked_by_scale <- FALSE
 
-  # The values summed below are the `n` respondents' totals across all items,
-  # so the bounds apply multiplied by `items`:
-  totals_lower <- min_val * items
-  totals_upper <- max_val * items
-
   for (s in consistent_sums) {
-    # TEST 1: Is there at least one integer between the bounds of the
-    # reconstructed sum of squares? Derived in exact integer arithmetic, like
-    # the candidate sums above: a floating-point tolerance cannot repair a bound
-    # once the sum of squares exceeds about 1000 (#86).
-    sum_squares <- sum_squares_range(
+    candidate <- grimmer_candidate(
       s = s,
       n = n,
-      term_lower = term_lower,
-      term_upper = term_upper,
-      incl_lower = sd_incl_lower,
-      incl_upper = sd_bounds$incl_upper
+      items = items,
+      sd_bounds = sd_bounds,
+      has_scale = has_scale,
+      min_val = min_val,
+      max_val = max_val
     )
 
-    # Known bounds cap how far the values can spread out, hence how large the
-    # sum of squares can get. Lowering the ceiling is all that is needed here:
-    # every test below operates on that range.
-    if (has_scale) {
-      sum_squares_ceiling <- sum_squares_scale_max(
-        s = s,
-        n = n,
-        val_lower = totals_lower,
-        val_upper = totals_upper
-      )
-      if (is.null(sum_squares_ceiling)) {
-        # No set of values within the scale's range adds up to this candidate
-        # sum, so it is out of reach whatever the SD is:
-        blocked_by_scale <- TRUE
-        next
-      }
-      if (sum_squares_ceiling < sum_squares[2L]) {
-        # Only a ceiling that actually bites can be the reason for a failure:
-        sum_squares[2L] <- sum_squares_ceiling
-        blocked_by_scale <- blocked_by_scale ||
-          sum_squares[1L] > sum_squares[2L]
-      }
-    }
+    blocked_by_scale <- blocked_by_scale || candidate$blocked_by_scale
 
-    if (sum_squares[1L] > sum_squares[2L]) {
+    if (!candidate$pass_test1) {
       next
     }
 
     any_passed_test1 <- TRUE
 
-    # TEST 2 of Allard (2018) rounds each admissible sum of squares back to an
-    # SD and compares it to the reported one. Test 1 implies it: the bounds are
-    # the exact inverse of that rounding, so every integer between them passes.
-    # It used to be run anyway, with a floating-point tolerance that could only
-    # ever lose matches, so it is not run at all.
-
-    # TEST 3: The sum of squares of whole numbers has the parity of their sum
-    # (`k^2` is odd exactly if `k` is). Two or more admissible integers always
-    # include one of each parity; a single one must have that of `s`:
-    if (sum_squares[2L] > sum_squares[1L] || sum_squares[1L] %% 2 == s %% 2) {
+    if (candidate$pass_test3) {
       if (show_reason) {
         return(list(TRUE, "Passed all"))
       }
