@@ -62,7 +62,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 ## New features
 
-- `grim_explain()`, `grimmer_explain()`, and `debit_explain()` test a single case and lay out the calculation in plain words, from the reported values to the verdict. The text is built from the same numbers that decide the test, so it always agrees with `grim()`, `grimmer()`, and `debit()`.
+- `grim_explain()`, `grimmer_explain()`, and `debit_explain()` test a single case and lay out the calculation in plain words, from the reported values to the verdict. The text is built from the same numbers that decide the test, so it always agrees with `grim()`, `grimmer()`, and `debit()`. `explain()` does the same for every row of a mapper's output, using the settings of the mapper call.
 
 - `is_percentage_of()`, `is_percentage_of_map()`, and `is_percentage_of_map_seq()` check whether a reported percentage matches a reported count out of a reported total. `add_up_to()` and `add_up_to_map()` check whether subgroup sizes sum to a reported total; `add_up_to_map()` selects any number of columns with tidyselect. Both have `audit()` methods. All five functions are experimental.
 
