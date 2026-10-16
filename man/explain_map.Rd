@@ -10,19 +10,17 @@ explain_map(data)
 \item{data}{Data frame returned by one of the mappers named above.}
 }
 \value{
-A list of \code{scrutiny_explain} objects, one per row, that prints as
-the explanations. See \code{\link[=grim_explain]{grim_explain()}} for the elements.
+\code{data} with an \code{explanation} column, a string per row.
 }
 \description{
 \code{explain_map()} takes the output of \code{\link[=grim_map]{grim_map()}},
-\code{\link[=grimmer_map]{grimmer_map()}}, or \code{\link[=debit_map]{debit_map()}} and lays out the calculation behind
-each row's verdict in plain words, as \code{\link[=grim_explain]{grim_explain()}},
-\code{\link[=grimmer_explain]{grimmer_explain()}}, and \code{\link[=debit_explain]{debit_explain()}} do for a single case. This
-includes the output of the sequence and total-n mappers built on them,
-such as \code{\link[=grim_map_seq]{grim_map_seq()}}.
+\code{\link[=grimmer_map]{grimmer_map()}}, or \code{\link[=debit_map]{debit_map()}} and adds an \code{explanation} column: the
+calculation behind each row's verdict in plain words, as printed by
+\code{\link[=grim_explain]{grim_explain()}}, \code{\link[=grimmer_explain]{grimmer_explain()}}, and \code{\link[=debit_explain]{debit_explain()}} for a
+single case. This includes the output of the sequence and total-n mappers
+built on them, such as \code{\link[=grim_map_seq]{grim_map_seq()}}.
 
-Every row is explained, so narrow down the data first, e.g. with
-\code{dplyr::filter(!consistency)} or \code{dplyr::slice()}.
+To read the explanations, \code{cat()} the column (see examples).
 }
 \details{
 Each row is tested again from its own values and the settings of
@@ -34,5 +32,7 @@ testing, and \code{explain_map()} throws an error.
 pigs1 |>
   grim_map(digits_x = 2) |>
   dplyr::filter(!consistency) |>
-  explain_map()
+  explain_map() |>
+  dplyr::pull(explanation) |>
+  cat(sep = "\n\n")
 }

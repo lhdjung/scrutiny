@@ -54,8 +54,25 @@ debit_explain <- function(
   )
   consistency <- rec[[1L]]
 
-  text <- if (is.na(consistency)) {
-    explain_undecidable(
+  explain <- function(text) {
+    inputs <- list(
+      x = format_reported(x, digits_x),
+      sd = format_reported(sd, digits_sd),
+      n = n
+    )
+    new_explanation(
+      "DEBIT",
+      inputs,
+      rounding,
+      threshold,
+      symmetric,
+      consistency,
+      text
+    )
+  }
+
+  if (is.na(consistency)) {
+    text <- explain_undecidable(
       values = list(
         x = x,
         sd = sd,
@@ -66,48 +83,9 @@ debit_explain <- function(
       n = n,
       min_n = 2
     )
-  } else {
-    debit_explain_text(
-      x = x,
-      sd = sd,
-      n = n,
-      digits_x = digits_x,
-      digits_sd = digits_sd,
-      rec = rec,
-      rounding = rounding,
-      threshold = threshold,
-      symmetric = symmetric
-    )
+    return(explain(text))
   }
 
-  new_explanation(
-    test = "DEBIT",
-    inputs = list(
-      x = format_reported(x, digits_x),
-      sd = format_reported(sd, digits_sd),
-      n = n
-    ),
-    rounding = rounding,
-    threshold = threshold,
-    symmetric = symmetric,
-    consistency = consistency,
-    text = text
-  )
-}
-
-
-debit_explain_text <- function(
-  x,
-  sd,
-  n,
-  digits_x,
-  digits_sd,
-  rec,
-  rounding,
-  threshold,
-  symmetric
-) {
-  consistency <- rec[[1L]]
   sd_lower <- format_number(rec[[2L]])
   sd_incl_lower <- rec[[3L]]
   sd_upper <- format_number(rec[[4L]])
@@ -132,15 +110,14 @@ debit_explain_text <- function(
     "the sample size."
   )
 
-  text_bounds_x <- paste0(
-    "The mean was reported as ",
-    format_reported(x, digits_x),
-    ", with ",
-    describe_digits(digits_x),
-    ". Before rounding, it could have been ",
-    "anything ",
-    describe_range(x_lower, x_upper, x_incl_lower, x_incl_upper),
-    "."
+  text_bounds_x <- describe_reported(
+    "mean",
+    x,
+    digits_x,
+    x_lower,
+    x_upper,
+    x_incl_lower,
+    x_incl_upper
   )
 
   ones_range <- describe_range(
@@ -177,7 +154,7 @@ debit_explain_text <- function(
       "But it has to be a whole number, and there is none in this ",
       "range. So no number of ones fits the mean, whatever the SD is."
     )
-    return(c(text_intro, text_bounds_x, text_ones))
+    return(explain(c(text_intro, text_bounds_x, text_ones)))
   }
 
   text_ones <- paste0(
@@ -190,15 +167,14 @@ debit_explain_text <- function(
     }
   )
 
-  text_bounds_sd <- paste0(
-    "The SD was reported as ",
-    format_reported(sd, digits_sd),
-    ", with ",
-    describe_digits(digits_sd),
-    ". Before rounding, it could have been ",
-    "anything ",
-    describe_range(sd_lower, sd_upper, sd_incl_lower, sd_incl_upper),
-    "."
+  text_bounds_sd <- describe_reported(
+    "SD",
+    sd,
+    digits_sd,
+    sd_lower,
+    sd_upper,
+    sd_incl_lower,
+    sd_incl_upper
   )
 
   text_formula <- paste0(
@@ -283,11 +259,11 @@ debit_explain_text <- function(
     )
   }
 
-  c(
+  explain(c(
     text_intro,
     text_bounds_x,
     text_ones,
     text_bounds_sd,
     paste(text_formula, text_ones_sd)
-  )
+  ))
 }

@@ -67,5 +67,6 @@ grim_explain(x = 5.19, n = 32, digits_x = 2)
 grim_explain(x = 71, n = 43, digits_x = 0, percent = TRUE)
 }
 \seealso{
-\code{\link[=grimmer_explain]{grimmer_explain()}} and \code{\link[=debit_explain]{debit_explain()}} for the other tests.
+\code{\link[=grimmer_explain]{grimmer_explain()}} and \code{\link[=debit_explain]{debit_explain()}} for the other tests,
+and \code{\link[=explain_map]{explain_map()}} for mapper output.
 }

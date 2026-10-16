@@ -15,7 +15,8 @@
 #'   explanation as `text`, and the `test` and its `inputs`. It prints as the
 #'   explanation.
 #'
-#' @seealso [`grimmer_explain()`] and [`debit_explain()`] for the other tests.
+#' @seealso [`grimmer_explain()`] and [`debit_explain()`] for the other tests,
+#'   and [`explain_map()`] for mapper output.
 #'
 #' @include grim.R
 #'
@@ -40,54 +41,15 @@ grim_explain <- function(
   check_length(x, 1L)
   check_length(n, 1L)
   check_length(items, 1L)
+
   # A missing `digits_x` reaches `grim_scalar()`, which says how to fix it:
   if (!missing(digits_x)) {
     check_length(digits_x, 1L)
   }
 
-  # `grim_scalar()` checks the arguments, so it goes first:
-  explanation <- grim_explain_text(
-    x = x,
-    n = n,
-    digits_x = digits_x,
-    items = items,
-    percent = percent,
-    rounding = rounding,
-    threshold = threshold,
-    symmetric = symmetric
-  )
-
-  new_explanation(
-    test = "GRIM",
-    inputs = list(
-      x = format_reported(x, digits_x),
-      n = n,
-      items = if (items != 1) items,
-      percent = if (percent) TRUE
-    ),
-    rounding = rounding,
-    threshold = threshold,
-    symmetric = symmetric,
-    consistency = explanation$consistency,
-    text = explanation$text
-  )
-}
-
-
-# The GRIM paragraphs, which `grimmer_explain()` also starts with. Every number
-# in them comes from `grim_scalar()` itself or from `bound_numerators()`, the
-# helper `sum_range()` derives the sums from, so the text cannot contradict the
-# verdict.
-grim_explain_text <- function(
-  x,
-  n,
-  digits_x,
-  items,
-  percent,
-  rounding,
-  threshold,
-  symmetric
-) {
+  # Every number in the text comes from `grim_scalar()` itself or from
+  # `bound_numerators()`, the helper `sum_range()` derives the sums from, so the
+  # text cannot contradict the verdict.
   rec <- grim_scalar(
     x = x,
     n = n,
@@ -99,16 +61,33 @@ grim_explain_text <- function(
     threshold = threshold,
     symmetric = symmetric
   )
-
   consistency <- rec[[1L]]
 
+  explain <- function(text) {
+    inputs <- list(
+      x = format_reported(x, digits_x),
+      n = n,
+      items = if (items != 1) items,
+      percent = if (percent) TRUE
+    )
+    new_explanation(
+      "GRIM",
+      inputs,
+      rounding,
+      threshold,
+      symmetric,
+      consistency,
+      text
+    )
+  }
+
   if (is.na(consistency)) {
-    reason <- explain_undecidable(
+    text <- explain_undecidable(
       values = list(x = x, n = n, digits_x = digits_x, items = items),
       n = n,
       items = items
     )
-    return(list(consistency = NA, text = reason))
+    return(explain(text))
   }
 
   sum_lower <- rec[[3L]]
@@ -130,26 +109,20 @@ grim_explain_text <- function(
   sum_lower_exact <- format_number(n_items * bounds$lower / bounds$denom)
   sum_upper_exact <- format_number(n_items * bounds$upper / bounds$denom)
 
-  x_name <- if (percent) "percentage" else "mean"
-
-  text_bounds <- paste0(
-    "The ",
-    x_name,
-    " was reported as ",
-    format_reported(x, digits_x),
-    ", ",
-    "with ",
-    describe_digits(digits_x),
-    ". Before rounding, it could have ",
-    "been anything ",
-    describe_range(x_lower, x_upper, bounds$incl_lower, bounds$incl_upper),
-    "."
+  text_bounds <- describe_reported(
+    if (percent) "percentage" else "mean",
+    x,
+    digits_x,
+    x_lower,
+    x_upper,
+    bounds$incl_lower,
+    bounds$incl_upper
   )
 
   # How the mean or percentage comes from a sum, and which sums it allows:
   if (percent) {
     n_shown <- if (items == 1) n else paste(n, "*", items, "=", n_items)
-    times <- function(value) paste0(value, " / 100 * ", n_items)
+    times <- paste0(" / 100 * ", n_items, " = ")
     text_sums <- paste0(
       "A percentage out of ",
       n_shown,
@@ -157,9 +130,8 @@ grim_explain_text <- function(
       n_items,
       ", times 100. So the count must be "
     )
-    sum_name <- "count"
   } else if (items == 1) {
-    times <- function(value) paste0(value, " * ", n)
+    times <- paste0(" * ", n, " = ")
     text_sums <- paste0(
       "The mean of ",
       n,
@@ -168,9 +140,8 @@ grim_explain_text <- function(
       ". ",
       "So the sum must be "
     )
-    sum_name <- "sum"
   } else {
-    times <- function(value) paste0(value, " * ", n_items)
+    times <- paste0(" * ", n_items, " = ")
     text_sums <- paste0(
       "Each of the ",
       n,
@@ -184,14 +155,13 @@ grim_explain_text <- function(
       n_items,
       ", so this sum must be "
     )
-    sum_name <- "sum"
   }
 
   text_sums <- paste0(
     text_sums,
     describe_range(
-      paste(times(x_lower), "=", sum_lower_exact),
-      paste(times(x_upper), "=", sum_upper_exact),
+      paste0(x_lower, times, sum_lower_exact),
+      paste0(x_upper, times, sum_upper_exact),
       bounds$incl_lower,
       bounds$incl_upper
     ),
@@ -200,12 +170,14 @@ grim_explain_text <- function(
 
   # A sum and the mean or percentage it gives, as a calculation:
   divide <- function(sum) {
-    value <- sum * scale_x / n_items
-    if (percent) {
-      paste0(sum, " / ", n_items, " * 100 = ", format_number(value))
-    } else {
-      paste0(sum, " / ", n_items, " = ", format_number(value))
-    }
+    paste0(
+      sum,
+      " / ",
+      n_items,
+      if (percent) " * 100",
+      " = ",
+      format_number(sum * scale_x / n_items)
+    )
   }
   rounds_to <- function(value) {
     rounded <- reround(value, digits_x, rounding, threshold, symmetric)
@@ -218,12 +190,11 @@ grim_explain_text <- function(
     "A sum of whole numbers is itself a whole number"
   }
 
-  if (consistency) {
+  text_whole <- if (consistency) {
     # The sum closest to the reported value is the one shown, which keeps it
     # away from a bound where only some rounding procedures would round it to
     # `x`:
     sum_shown <- min(max(round(x_num * n_items), sum_lower), sum_upper)
-    value_shown <- sum_shown * scale_x / n_items
     in_range <- if (sum_lower == sum_upper) {
       paste0(", and ", sum_lower, " is in this range: ")
     } else {
@@ -235,19 +206,19 @@ grim_explain_text <- function(
         " are in this range. For example, "
       )
     }
-    text_whole <- paste0(
+    paste0(
       whole_intro,
       in_range,
       divide(sum_shown),
       ", which rounds to ",
-      rounds_to(value_shown),
+      rounds_to(sum_shown * scale_x / n_items),
       "."
     )
   } else {
     # The range holds no whole number, so `sum_upper` is the nearest one below
     # it and `sum_lower` the nearest one above, and the granules are their
     # means:
-    text_whole <- paste0(
+    paste0(
       whole_intro,
       ", but there is no whole number in this range. The ",
       "nearest ones are ",
@@ -268,10 +239,7 @@ grim_explain_text <- function(
     )
   }
 
-  list(
-    consistency = consistency,
-    text = c(text_bounds, text_sums, text_whole)
-  )
+  explain(c(text_bounds, text_sums, text_whole))
 }
 
 
@@ -310,7 +278,7 @@ new_explanation <- function(
 
 
 #' @export
-print.scrutiny_explain <- function(x, ...) {
+format.scrutiny_explain <- function(x, ...) {
   verdict <- if (is.na(x$consistency)) {
     "Undecidable"
   } else if (x$consistency) {
@@ -322,17 +290,21 @@ print.scrutiny_explain <- function(x, ...) {
   # Keep calculations like `166 / 32 = 5.1875` on one line: the spaces around
   # their operators are swapped for a `~`, which the text never contains, while
   # wrapping.
-  paragraphs <- lapply(x$text, function(p) {
-    p <- gsub(" ([-+*/=]) ", "~\\1~", p)
-    c(gsub("~", " ", strwrap(p, width), fixed = TRUE), "")
-  })
-  cat(
-    paste0(x$test, " test: ", x$inputs),
-    "",
-    unlist(paragraphs),
-    paste("==>", verdict),
-    sep = "\n"
+  paragraphs <- x$text |>
+    gsub(pattern = " ([-+*/=]) ", replacement = "~\\1~") |>
+    lapply(strwrap, width = width) |>
+    lapply(paste, collapse = "\n") |>
+    gsub(pattern = "~", replacement = " ", fixed = TRUE)
+  paste(
+    c(paste0(x$test, " test: ", x$inputs), paragraphs, paste("==>", verdict)),
+    collapse = "\n\n"
   )
+}
+
+
+#' @export
+print.scrutiny_explain <- function(x, ...) {
+  cat(format(x), "\n", sep = "")
   invisible(x)
 }
 
@@ -405,14 +377,35 @@ format_number <- function(x) {
 }
 
 
-describe_digits <- function(digits) {
-  if (digits == 0) {
+# The sentence on a reported value and the range it could have been rounded
+# from:
+describe_reported <- function(
+  name,
+  x,
+  digits,
+  lower,
+  upper,
+  incl_lower,
+  incl_upper
+) {
+  places <- if (digits == 0) {
     "no decimal places"
   } else if (digits == 1) {
     "1 decimal place"
   } else {
     paste(digits, "decimal places")
   }
+  paste0(
+    "The ",
+    name,
+    " was reported as ",
+    format_reported(x, digits),
+    ", with ",
+    places,
+    ". Before rounding, it could have been anything ",
+    describe_range(lower, upper, incl_lower, incl_upper),
+    "."
+  )
 }
 
 
@@ -430,26 +423,4 @@ describe_range <- function(lower, upper, incl_lower, incl_upper) {
   } else {
     paste("above", lower, "and below", upper)
   }
-}
-
-
-describe_parity <- function(x) {
-  if (x %% 2 == 0) "even" else "odd"
-}
-
-
-# Candidates are tested in turn until one passes. Showing every failure could
-# take pages, so after the first three, the rest are only counted.
-summarize_candidates <- function(text, passed, noun) {
-  failed <- which(!passed)
-  if (length(failed) <= 3L) {
-    return(text)
-  }
-  hidden <- length(failed) - 3L
-  rest <- if (any(passed)) "next" else "remaining"
-  c(
-    text[failed[1:3]],
-    paste("The", rest, hidden, noun, "fail as well."),
-    text[passed]
-  )
 }

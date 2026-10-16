@@ -252,7 +252,8 @@
 # `explain_map()` prints as expected
 
     Code
-      explain_map(dplyr::slice(grim_map(pigs1, digits_x = 2), 1:2))
+      cat(dplyr::pull(explain_map(dplyr::slice(grim_map(pigs1, digits_x = 2), 1:2)),
+      explanation), sep = "\n\n")
     Output
       GRIM test: x = 7.22, n = 32
       
@@ -267,7 +268,6 @@
       
       ==> Consistent
       
-      
       GRIM test: x = 4.74, n = 25
       
       The mean was reported as 4.74, with 2 decimal places. Before rounding, it could
@@ -281,8 +281,4 @@
       119 / 25 = 4.76, which round to 4.72 and 4.76, not to 4.74.
       
       ==> Inconsistent
-    Code
-      explain_map(dplyr::filter(grim_map(pigs1, digits_x = 2), n > 1000))
-    Output
-      No rows to explain.
 

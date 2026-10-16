@@ -65,13 +65,32 @@ grimmer_explain <- function(
     symmetric = symmetric
   )
   consistency <- result[[1L]]
-  reason <- result[[2L]]
+
+  explain <- function(text) {
+    inputs <- list(
+      x = format_reported(x, digits_x),
+      sd = format_reported(sd, digits_sd),
+      n = n,
+      items = if (items != 1) items,
+      min_val = min_val,
+      max_val = max_val
+    )
+    new_explanation(
+      "GRIMMER",
+      inputs,
+      rounding,
+      threshold,
+      symmetric,
+      consistency,
+      text
+    )
+  }
 
   has_scale <- !is.null(min_val)
   scale <- if (has_scale) paste("from", min_val, "to", max_val)
 
   text <- switch(
-    reason,
+    result[[2L]],
     "Missing value" = ,
     "Infinite value" = ,
     "No testable value set" = explain_undecidable(
@@ -104,83 +123,30 @@ grimmer_explain <- function(
     ),
     NULL
   )
-
-  if (is.null(text)) {
-    grim <- grim_explain_text(
-      x = x,
-      n = n,
-      digits_x = digits_x,
-      items = items,
-      percent = FALSE,
-      rounding = rounding,
-      threshold = threshold,
-      symmetric = symmetric
-    )
-    text <- grim$text
-    if (isFALSE(grim$consistency)) {
-      text[length(text)] <- paste(
-        text[length(text)],
-        "Since the mean alone is impossible, the SD doesn't need to be checked."
-      )
-    } else {
-      text <- c(
-        text,
-        grimmer_explain_text(
-          x = x,
-          sd = sd,
-          n = n,
-          digits_x = digits_x,
-          digits_sd = digits_sd,
-          items = items,
-          scale = scale,
-          min_val = min_val,
-          max_val = max_val,
-          rounding = rounding,
-          threshold = threshold,
-          symmetric = symmetric,
-          consistency = consistency
-        )
-      )
-    }
+  if (!is.null(text)) {
+    return(explain(text))
   }
 
-  new_explanation(
-    test = "GRIMMER",
-    inputs = list(
-      x = format_reported(x, digits_x),
-      sd = format_reported(sd, digits_sd),
-      n = n,
-      items = if (items != 1) items,
-      min_val = min_val,
-      max_val = max_val
-    ),
+  grim <- grim_explain(
+    x = x,
+    n = n,
+    digits_x = digits_x,
+    items = items,
     rounding = rounding,
     threshold = threshold,
-    symmetric = symmetric,
-    consistency = consistency,
-    text = text
+    symmetric = symmetric
   )
-}
+  text_grim <- grim$text
+  if (isFALSE(grim$consistency)) {
+    text_grim[length(text_grim)] <- paste(
+      text_grim[length(text_grim)],
+      "Since the mean alone is impossible, the SD doesn't need to be checked."
+    )
+    return(explain(text_grim))
+  }
 
-
-# The paragraphs after the GRIM part, for a mean that passed it. The candidates
-# go through `grimmer_candidate()`, the very function that decides them in
-# `grimmer_scalar()`.
-grimmer_explain_text <- function(
-  x,
-  sd,
-  n,
-  digits_x,
-  digits_sd,
-  items,
-  scale,
-  min_val,
-  max_val,
-  rounding,
-  threshold,
-  symmetric,
-  consistency
-) {
+  # The candidates go through `grimmer_candidate()`, the very function that
+  # decides them in `grimmer_scalar()`.
   sd_bounds <- grimmer_sd_bounds(
     sd = sd,
     n = n,
@@ -193,67 +159,46 @@ grimmer_explain_text <- function(
   sd_lower <- format_number(sd_bounds$lower / sd_bounds$denom)
   sd_upper <- format_number(sd_bounds$upper / sd_bounds$denom)
 
-  text_bounds <- paste0(
-    "The SD was reported as ",
-    format_reported(sd, digits_sd),
-    ", with ",
-    describe_digits(digits_sd),
-    ". Before rounding, it could have been ",
-    "anything ",
-    describe_range(
-      sd_lower,
-      sd_upper,
-      sd_bounds$incl_lower,
-      sd_bounds$incl_upper
-    ),
-    "."
+  text_bounds <- describe_reported(
+    "SD",
+    sd,
+    digits_sd,
+    sd_lower,
+    sd_upper,
+    sd_bounds$incl_lower,
+    sd_bounds$incl_upper
   )
-
-  # The sum of squares as a calculation, at one bound of the SD:
-  sum_squares_at <- function(s, sd_num, sd_shown) {
-    sd_term <- if (items == 1) {
-      paste0(sd_shown, "^2")
-    } else {
-      paste0("(", items, " * ", sd_shown, ")^2")
-    }
-    value <- (n - 1) * items^2 * sd_num^2 / sd_bounds$denom^2 + s^2 / n
-    paste0(
-      n - 1,
-      " * ",
-      sd_term,
-      " + ",
-      s,
-      "^2 / ",
-      n,
-      " = ",
-      format_number(value)
-    )
-  }
 
   values <- if (items == 1) {
     paste0("the ", n, " values")
   } else {
     paste0("the ", n, " respondents' totals across the ", items, " items")
   }
-  formula <- if (items == 1) {
-    paste0("(", n, " - 1) * SD^2 + sum^2 / ", n)
-  } else {
-    paste0("(", n, " - 1) * (", items, " * SD)^2 + sum^2 / ", n)
+  sd_term <- function(sd_shown) {
+    if (items == 1) {
+      paste0(sd_shown, "^2")
+    } else {
+      paste0("(", items, " * ", sd_shown, ")^2")
+    }
   }
 
   text_formula <- paste0(
     "Together, the sum and the SD determine the sum of squares, which is ",
     "what you get by squaring each of ",
     values,
-    " and adding them up. It is ",
-    formula,
+    " and adding them up. It is (",
+    n,
+    " - 1) * ",
+    sd_term("SD"),
+    " + sum^2 / ",
+    n,
     ". The values are whole numbers, so their squares are whole ",
     "numbers, too, and so is the sum of squares. What's more, a whole number ",
     "and its square are either both odd or both even. So the sum of squares ",
     "must be odd if the sum is odd, and even if the sum is even."
   )
 
-  if (!is.null(scale)) {
+  if (has_scale) {
     totals <- if (items == 1) {
       ""
     } else {
@@ -274,6 +219,22 @@ grimmer_explain_text <- function(
     )
   }
 
+  # The sum of squares as a calculation, at one bound of the SD:
+  sum_squares_at <- function(s, sd_num, sd_shown) {
+    value <- (n - 1) * items^2 * sd_num^2 / sd_bounds$denom^2 + s^2 / n
+    paste0(
+      n - 1,
+      " * ",
+      sd_term(sd_shown),
+      " + ",
+      s,
+      "^2 / ",
+      n,
+      " = ",
+      format_number(value)
+    )
+  }
+
   sums <- sum_range(x, n * items, digits_x, rounding, threshold, symmetric)
 
   text_candidates <- character()
@@ -285,7 +246,7 @@ grimmer_explain_text <- function(
       n = n,
       items = items,
       sd_bounds = sd_bounds,
-      has_scale = !is.null(scale),
+      has_scale = has_scale,
       min_val = min_val,
       max_val = max_val
     )
@@ -314,11 +275,23 @@ grimmer_explain_text <- function(
     )
   }
 
-  c(
-    text_bounds,
-    text_formula,
-    summarize_candidates(text_candidates, passed, "sums")
-  )
+  # Candidates are tested in turn until one passes. Showing every failure could
+  # take pages, so after the first three, the rest are only counted.
+  failed <- which(!passed)
+  if (length(failed) > 3L) {
+    text_candidates <- c(
+      text_candidates[failed[1:3]],
+      paste(
+        "The",
+        if (any(passed)) "next" else "remaining",
+        length(failed) - 3L,
+        "sums fail as well."
+      ),
+      text_candidates[passed]
+    )
+  }
+
+  explain(c(text_grim, text_bounds, text_formula, text_candidates))
 }
 
 
@@ -380,12 +353,12 @@ grimmer_explain_candidate <- function(
     )
   }
 
-  parity_s <- describe_parity(s)
+  parity_s <- if (s %% 2 == 0) "even" else "odd"
 
   whole <- if (lower > upper) {
     if (is.na(candidate$ceiling)) "There is no whole number in this range."
   } else if (lower == upper) {
-    parity_lower <- describe_parity(lower)
+    parity_lower <- if (lower %% 2 == 0) "even" else "odd"
     paste0(
       "The only whole number in this range is ",
       lower,

@@ -79,18 +79,26 @@ test_that("only a single case is explained", {
 # row's `consistency` value, so explaining whole mapper outputs checks them all.
 
 test_that("`explain_map()` agrees with every mapper tier", {
-  pigs1 |> grim_map(digits_x = 2)                   |> explain_map() |> expect_length(12L)
-  pigs1 |> grim_map(digits_x = 2, items = 2)        |> explain_map() |> expect_length(12L)
-  pigs2 |> grim_map(digits_x = 1, percent = TRUE)   |> explain_map() |> expect_length(6L)
-  pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2) |> explain_map() |> expect_length(12L)
-  pigs3 |> debit_map(digits_x = 2, digits_sd = 2)   |> explain_map() |> expect_length(7L)
-  pigs1 |> grim_map_seq(digits_x = 2)               |> explain_map() |> expect_length(160L)
-  pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, min_val = 1, max_val = 7, rounding = "up") |> explain_map() |> expect_length(12L)
+  pigs1 |> grim_map(digits_x = 2)                   |> explain_map() |> getElement("explanation") |> expect_length(12L)
+  pigs1 |> grim_map(digits_x = 2, items = 2)        |> explain_map() |> getElement("explanation") |> expect_length(12L)
+  pigs2 |> grim_map(digits_x = 1, percent = TRUE)   |> explain_map() |> getElement("explanation") |> expect_length(6L)
+  pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2) |> explain_map() |> getElement("explanation") |> expect_length(12L)
+  pigs3 |> debit_map(digits_x = 2, digits_sd = 2)   |> explain_map() |> getElement("explanation") |> expect_length(7L)
+  pigs1 |> grim_map_seq(digits_x = 2)               |> explain_map() |> getElement("explanation") |> expect_length(160L)
+  pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, min_val = 1, max_val = 7, rounding = "up") |> explain_map() |> getElement("explanation") |> expect_length(12L)
+})
+
+test_that("`explain_map()` keeps the data as it is", {
+  data <- pigs1 |> grim_map(digits_x = 2)
+  explained <- data |> explain_map()
+  explained |> class()            |> expect_identical(class(data))
+  explained |> scrutiny_meta()    |> expect_identical(scrutiny_meta(data))
+  explained |> dplyr::select(-explanation) |> expect_identical(data)
+  data |> dplyr::filter(n > 1000) |> explain_map() |> getElement("explanation") |> expect_identical(character())
 })
 
 test_that("`explain_map()` uses the settings of the mapper call", {
-  explanation <- tibble::tibble(x = 71, n = 43) |> grim_map(digits_x = 0, percent = TRUE) |> explain_map()
-  explanation[[1]]$inputs |> expect_identical("x = 71, n = 43, percent = TRUE")
+  tibble::tibble(x = 71, n = 43) |> grim_map(digits_x = 0, percent = TRUE) |> explain_map() |> getElement("explanation") |> expect_match("x = 71, n = 43, percent = TRUE", fixed = TRUE)
 })
 
 test_that("`explain_map()` catches rows changed after testing", {
@@ -109,7 +117,6 @@ test_that("`explain_map()` needs columns and settings", {
 
 test_that("`explain_map()` prints as expected", {
   expect_snapshot({
-    pigs1 |> grim_map(digits_x = 2) |> dplyr::slice(1:2) |> explain_map()
-    pigs1 |> grim_map(digits_x = 2) |> dplyr::filter(n > 1000) |> explain_map()
+    pigs1 |> grim_map(digits_x = 2) |> dplyr::slice(1:2) |> explain_map() |> dplyr::pull(explanation) |> cat(sep = "\n\n")
   })
 })
