@@ -97,9 +97,7 @@ grimmer_explain <- function(
     result[[2L]],
     "Missing value" = ,
     "Infinite value" = ,
-    "No testable value set" = ,
-    "GRIM undecidable" = ,
-    "SD rounding bounds undefined" = explain_undecidable(
+    "No testable value set" = explain_undecidable(
       values = list(
         x = x,
         sd = sd,
@@ -111,6 +109,13 @@ grimmer_explain <- function(
       n = n,
       items = items,
       min_n = 2
+    ),
+    # `grimmer_scalar()` rules these out before they happen, and
+    # `explain_undecidable()` has no words for them:
+    "GRIM undecidable" = ,
+    "SD rounding bounds undefined" = cli::cli_abort(
+      "Internal error: `grimmer_explain()` can't explain the reason \\
+      {.val {result[[2L]]}}."
     ),
     "Negative SD" = paste0(
       "The SD was reported as ",
