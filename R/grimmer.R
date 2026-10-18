@@ -186,8 +186,9 @@ grimmer_candidate <- function(
       out$blocked_by_scale <- TRUE
       return(out)
     }
-    if (ceiling < sum_squares[2L]) {
-      # Only a ceiling that actually bites can be the reason for a failure:
+    if (sum_squares[1L] <= sum_squares[2L] && ceiling < sum_squares[2L]) {
+      # Only a ceiling that actually bites can be the reason for a failure, and
+      # it can't be if the range was empty without it:
       out$ceiling <- ceiling
       out$blocked_by_scale <- sum_squares[1L] > ceiling
       sum_squares[2L] <- ceiling

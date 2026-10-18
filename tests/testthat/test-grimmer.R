@@ -797,6 +797,11 @@ test_that("scale bounds rule out SDs that an unbounded scale allows", {
 })
 
 
+test_that("scale bounds aren't blamed for a range that was empty without them", {
+  1 |> grimmer_scalar(sd = 1.01, n = 2, digits_x = 1, digits_sd = 2, min_val = 1, max_val = 7, show_reason = TRUE) |> purrr::pluck(2L) |> expect_equal("GRIMMER inconsistent (test 1)")
+})
+
+
 test_that("scale bounds change nothing that doesn't depend on the scale", {
   # There is a second bound on the sum of squares: the least one that `n` whole
   # numbers adding up to a given sum can have, i.e. the values as equal as
