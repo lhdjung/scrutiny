@@ -187,13 +187,13 @@ binary_spread_range <- function(n, bounds_sd) {
   lower_scaled <- bounds_sd$lower^2 * factor_sd
   upper_scaled <- bounds_sd$upper^2 * factor_sd
 
-  spread_min <- ceiling_div(lower_scaled, denom_squared)
+  spread_min <- ceiling(lower_scaled / denom_squared)
   lower_bound_hit <- spread_min * denom_squared == lower_scaled
   if (!bounds_sd$incl_lower && lower_bound_hit) {
     spread_min <- spread_min + 1
   }
 
-  spread_max <- floor_div(upper_scaled, denom_squared)
+  spread_max <- floor(upper_scaled / denom_squared)
   upper_bound_hit <- spread_max * denom_squared == upper_scaled
   if (!bounds_sd$incl_upper && upper_bound_hit) {
     spread_max <- spread_max - 1

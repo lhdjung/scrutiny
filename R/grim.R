@@ -115,8 +115,8 @@ grim_scalar <- function(
   # integer sum rather than the quotient, keeping the granule the result of a
   # single division; converting afterwards would round twice.
   scale_x <- if (percent) 100 else 1
-  rec_x_upper <- ceiling_div(rec_sum_num, denom) * scale_x / n_items
-  rec_x_lower <- floor_div(rec_sum_num, denom) * scale_x / n_items
+  rec_x_upper <- ceiling(rec_sum_num / denom) * scale_x / n_items
+  rec_x_lower <- floor(rec_sum_num / denom) * scale_x / n_items
 
   # The same six values for every rounding method. `sum_lower` and `sum_upper`
   # are the numbers that decided `consistency` above, so the display cannot

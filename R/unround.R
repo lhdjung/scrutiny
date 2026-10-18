@@ -18,49 +18,30 @@
 # This is exact while every integer involved stays below `2^53`. The products
 # are on the order of `n * 10^(2 * digits)`, far below it for any realistic
 # input; beyond it the arithmetic degrades to plain floating point.
+#
+# Dividing two such integers is exact as well, so `floor(a / b)` and
+# `ceiling(a / b)` need no correction. IEEE 754 division returns the double
+# nearest the true quotient, and a quotient that is not an integer lies at least
+# `1 / b` from every integer -- more than half the spacing of doubles there, as
+# long as `|a| < 2^53`. A helper that multiplied the result back out to check it
+# never corrected anything below that limit, and above it, where the product
+# rounds, it turned correct results into wrong ones more often than the reverse.
 
-# `floor_div()` and `ceiling_div()` divide `a` by `b` (with `b > 0`), rounding
-# towards `-Inf` and `+Inf`. Unlike `floor(a / b)`, they are exact for
-# integer-valued `a` and `b`: the candidate result is multiplied back out, which
-# is exact in double precision. The error in `a / b` is far below 1, so one
-# correction step suffices.
-
-floor_div <- function(a, b) {
-  q <- floor(a / b)
-  # The comparisons below would fail on a missing value rather than pass it on.
-  # Every caller propagates the `NA` up to the verdict:
-  if (is.na(q)) {
-    return(q)
-  }
-  if (q * b > a) {
-    q - 1
-  } else if ((q + 1) * b <= a) {
-    q + 1
-  } else {
-    q
-  }
-}
-
-ceiling_div <- function(a, b) {
-  -floor_div(-a, b)
-}
-
-
-# Same idea for a sum of two fractions, `a1 / b1 + a2 / b2` (`b1`, `b2` positive
-# integers): the floor of the sum, plus a flag for whether the sum is an integer,
-# which callers need to honor an exclusive bound. Splitting each fraction into
-# integer part and remainder first keeps every product below `2 * b1 * b2`;
-# putting both over `b1 * b2` directly would leave the exact range far sooner.
+# The floor of a sum of two fractions, `a1 / b1 + a2 / b2` (`b1`, `b2` positive
+# integers), plus a flag for whether the sum is an integer, which callers need
+# to honor an exclusive bound. Splitting each fraction into integer part and
+# remainder first keeps every product below `2 * b1 * b2`; putting both over
+# `b1 * b2` directly would leave the exact range far sooner.
 
 floor_frac_sum <- function(a1, b1, a2, b2) {
-  q1 <- floor_div(a1, b1)
-  q2 <- floor_div(a2, b2)
+  q1 <- floor(a1 / b1)
+  q2 <- floor(a2 / b2)
   # Both remainders are non-negative and smaller than their own denominator, so
   # the combined numerator below stays under `2 * b1 * b2`:
   num <- (a1 - q1 * b1) * b2 + (a2 - q2 * b2) * b1
   den <- b1 * b2
   # The fractional parts sum to less than 2, so this carry is 0 or 1:
-  carry <- floor_div(num, den)
+  carry <- floor(num / den)
   list(floor = q1 + q2 + carry, exact = num == carry * den)
 }
 
@@ -275,13 +256,13 @@ sum_range <- function(
   denom <- bounds$denom
 
   # `s / n_items >= lower / denom`  <==>  `s * denom >= n_items * lower`
-  lower <- ceiling_div(n_items * bounds$lower, denom)
+  lower <- ceiling(n_items * bounds$lower / denom)
   if (!bounds$incl_lower && lower * denom == n_items * bounds$lower) {
     lower <- lower + 1
   }
 
   # `s / n_items <= upper / denom`  <==>  `s * denom <= n_items * upper`
-  upper <- floor_div(n_items * bounds$upper, denom)
+  upper <- floor(n_items * bounds$upper / denom)
   if (!bounds$incl_upper && upper * denom == n_items * bounds$upper) {
     upper <- upper - 1
   }
@@ -305,7 +286,7 @@ sd_square_term <- function(num, n, items, denom) {
   # `sd^2 * items^2` as a fraction over `denom^2`:
   numerator <- num^2 * items^2
   denom_sq <- denom^2
-  whole <- floor_div(numerator, denom_sq)
+  whole <- floor(numerator / denom_sq)
   list(
     int = (n - 1) * whole,
     num = (n - 1) * (numerator - whole * denom_sq),
@@ -394,7 +375,7 @@ spread_out_most <- function(s, n, val_lower, val_upper) {
     return(list(k = 0, rest = 0))
   }
 
-  k <- floor_div(s - n * val_lower, span)
+  k <- floor((s - n * val_lower) / span)
   list(k = k, rest = (s - n * val_lower) - k * span)
 }
 
