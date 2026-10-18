@@ -10,6 +10,7 @@ debit_explain(
   n,
   digits_x,
   digits_sd,
+  formula = "exact",
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE
@@ -25,6 +26,8 @@ debit_explain(
 \item{digits_x, digits_sd}{Integer. The number of decimal places in \code{x} and
 \code{sd}, including trailing zeros. There are no defaults, since a numeric
 value does not keep them (\code{1.40} is \code{1.4}).}
+
+\item{formula}{String. Only \code{"exact"}, the default, can be explained.}
 
 \item{rounding}{String. The rounding method assumed to have produced \code{sd}.
 Default is \code{"up_or_down"}. See \code{vignette("rounding-options")}.}

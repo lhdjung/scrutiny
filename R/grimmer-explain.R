@@ -398,16 +398,11 @@ grimmer_explain_candidate <- function(
 }
 
 
-# The values behind `sum_squares_scale_max()`: as many at the maximum as the sum
-# allows, the rest at the minimum, and at most one in between.
+# The values behind `sum_squares_scale_max()`, in words:
 describe_spread_out <- function(s, n, val_lower, val_upper) {
-  span <- val_upper - val_lower
-  if (span == 0) {
-    return(paste(n, "values of", val_lower))
-  }
-
-  k <- floor_div(s - n * val_lower, span)
-  rest <- (s - n * val_lower) - k * span
+  spread <- spread_out_most(s, n, val_lower, val_upper)
+  k <- spread$k
+  rest <- spread$rest
   middle <- if (rest > 0) 1 else 0
 
   parts <- c(

@@ -9,6 +9,7 @@
 #'   always agrees with [`debit()`] under its default `formula = "exact"`.
 #'
 #' @inheritParams debit
+#' @param formula String. Only `"exact"`, the default, can be explained.
 #'
 #' @inherit grim_explain return
 #'
@@ -26,10 +27,18 @@ debit_explain <- function(
   n,
   digits_x,
   digits_sd,
+  formula = "exact",
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE
 ) {
+  if (!identical(formula, "exact")) {
+    abort_in_export(
+      "Explanations only cover DEBIT's default `formula = \"exact\"`.",
+      "x" = "`formula` is {.val {formula}}."
+    )
+  }
+
   check_length(x, 1L)
   check_length(sd, 1L)
   check_length(n, 1L)
@@ -283,7 +292,7 @@ debit_explain <- function(
 # root make up for floating-point error in it.
 binary_ones_shown <- function(sum_lower, sum_upper, n, spread_range) {
   roots <- c(spread_range, mean(spread_range)) |>
-    vapply(\(spread) (n - sqrt(max(n^2 - 4 * spread, 0))) / 2, numeric(1L)) |>
+    vapply(binary_spread_root, numeric(1L), n = n) |>
     c(n / 2) |>
     floor()
 

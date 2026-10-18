@@ -150,7 +150,7 @@ binary_sd_attainable <- function(sum_lower, sum_upper, n, bounds_sd) {
   # smaller root of the quadratic `j * (n - j) = spread_min`, rounded up. If no
   # spread is large enough, the root is half of `n`, and `j` ends up above
   # `j_upper`.
-  root <- (n - sqrt(max(n^2 - 4 * spread_min, 0))) / 2
+  root <- binary_spread_root(n, spread_min)
   j <- max(ceiling(root), j_lower)
 
   # The loops below only correct floating-point error in `root`, and where the
@@ -169,6 +169,13 @@ binary_sd_attainable <- function(sum_lower, sum_upper, n, bounds_sd) {
   # Every greater `j` has a greater spread, so if this one is too large, all of
   # them are:
   j <= j_upper && j * (n - j) <= spread_max
+}
+
+
+# The smaller root of `k * (n - k) = spread`, or half of `n` if no `k` has a
+# spread this large. Shared with `debit_explain()`.
+binary_spread_root <- function(n, spread) {
+  (n - sqrt(max(n^2 - 4 * spread, 0))) / 2
 }
 
 

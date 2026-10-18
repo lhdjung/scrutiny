@@ -69,6 +69,10 @@ test_that("`binary_ones_shown()` finds what listing every `k` would", {
   }
 })
 
+test_that("only DEBIT's exact formula is explained", {
+  0.5 |> debit_explain(sd = 0.5, n = 20, digits_x = 1, digits_sd = 1, formula = "mean_n") |> expect_error("only cover")
+})
+
 test_that("DEBIT's example SD is not shown as a bound", {
   0.5 |> debit_explain(sd = 0.5, n = 2e5, digits_x = 1, digits_sd = 3, rounding = "down") |> format() |> expect_no_match("= 0.4995, which is in", fixed = TRUE)
 })
@@ -125,12 +129,12 @@ test_that("only a single case is explained", {
 # row's `consistency` value, so explaining whole mapper outputs checks them all.
 
 test_that("`explain_map()` agrees with every mapper tier", {
-  pigs1 |> grim_map(digits_x = 2)                   |> explain_map() |> getElement("explanation") |> expect_length(12L)
-  pigs1 |> grim_map(digits_x = 2, items = 2)        |> explain_map() |> getElement("explanation") |> expect_length(12L)
-  pigs2 |> grim_map(digits_x = 1, percent = TRUE)   |> explain_map() |> getElement("explanation") |> expect_length(6L)
-  pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2) |> explain_map() |> getElement("explanation") |> expect_length(12L)
-  pigs3 |> debit_map(digits_x = 2, digits_sd = 2)   |> explain_map() |> getElement("explanation") |> expect_length(7L)
-  pigs1 |> grim_map_seq(digits_x = 2)               |> explain_map() |> getElement("explanation") |> expect_length(160L)
+  pigs1 |> grim_map(digits_x = 2)                                                              |> explain_map() |> getElement("explanation") |> expect_length(12L)
+  pigs1 |> grim_map(digits_x = 2, items = 2)                                                   |> explain_map() |> getElement("explanation") |> expect_length(12L)
+  pigs2 |> grim_map(digits_x = 1, percent = TRUE)                                              |> explain_map() |> getElement("explanation") |> expect_length(6L)
+  pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2)                                            |> explain_map() |> getElement("explanation") |> expect_length(12L)
+  pigs3 |> debit_map(digits_x = 2, digits_sd = 2)                                              |> explain_map() |> getElement("explanation") |> expect_length(7L)
+  pigs1 |> grim_map_seq(digits_x = 2)                                                          |> explain_map() |> getElement("explanation") |> expect_length(160L)
   pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, min_val = 1, max_val = 7, rounding = "up") |> explain_map() |> getElement("explanation") |> expect_length(12L)
 })
 
@@ -155,7 +159,7 @@ test_that("`explain_map()` catches rows changed after testing", {
 
 test_that("`explain_map()` needs columns and settings", {
   pigs1 |> grim_map(digits_x = 2) |> dplyr::select(-digits_x)            |> explain_map() |> expect_error("Missing: `digits_x`")
-  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, formula = "mean_n")    |> explain_map() |> expect_error("only covers")
+  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, formula = "mean_n")    |> explain_map() |> expect_error("only cover")
   data <- pigs1 |> grim_map(digits_x = 2)
   attr(data, "scrutiny") <- NULL
   data |> explain_map() |> expect_error("lost the settings")

@@ -374,21 +374,28 @@ sum_squares_scale_max <- function(s, n, val_lower, val_upper) {
     return(NULL)
   }
 
+  spread <- spread_out_most(s, n, val_lower, val_upper)
+  middle <- if (spread$rest > 0) 1 else 0
+
+  spread$k * val_upper^2 +
+    middle * (val_lower + spread$rest)^2 +
+    (n - spread$k - middle) * val_lower^2
+}
+
+
+# The values behind `sum_squares_scale_max()`: `k` at `val_upper`, one at
+# `val_lower + rest` if `rest > 0`, and the others at `val_lower`. Shared with
+# `grimmer_explain()`.
+spread_out_most <- function(s, n, val_lower, val_upper) {
   span <- val_upper - val_lower
 
   # A scale with a single possible value leaves nothing to spread out:
   if (span == 0) {
-    return(n * val_lower^2)
+    return(list(k = 0, rest = 0))
   }
 
   k <- floor_div(s - n * val_lower, span)
-  rest <- (s - n * val_lower) - k * span
-
-  if (rest == 0) {
-    k * val_upper^2 + (n - k) * val_lower^2
-  } else {
-    k * val_upper^2 + (val_lower + rest)^2 + (n - k - 1) * val_lower^2
-  }
+  list(k = k, rest = (s - n * val_lower) - k * span)
 }
 
 
