@@ -97,7 +97,9 @@ grimmer_explain <- function(
     result[[2L]],
     "Missing value" = ,
     "Infinite value" = ,
-    "No testable value set" = explain_undecidable(
+    "No testable value set" = ,
+    "GRIM undecidable" = ,
+    "SD rounding bounds undefined" = explain_undecidable(
       values = list(
         x = x,
         sd = sd,
@@ -160,8 +162,8 @@ grimmer_explain <- function(
     threshold = threshold,
     symmetric = symmetric
   )
-  sd_lower <- format_number(sd_bounds$lower / sd_bounds$denom)
-  sd_upper <- format_number(sd_bounds$upper / sd_bounds$denom)
+  sd_lower <- format_number(sd_bounds$lower / sd_bounds$denom, digits_sd)
+  sd_upper <- format_number(sd_bounds$upper / sd_bounds$denom, digits_sd)
 
   text_bounds <- describe_reported(
     "SD",

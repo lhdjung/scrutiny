@@ -90,9 +90,9 @@ debit_explain <- function(
     return(explain(text))
   }
 
-  sd_lower <- format_number(rec[[2L]])
+  sd_lower <- format_number(rec[[2L]], digits_sd)
   sd_incl_lower <- rec[[3L]]
-  sd_upper <- format_number(rec[[4L]])
+  sd_upper <- format_number(rec[[4L]], digits_sd)
   sd_incl_upper <- rec[[5L]]
   sum_lower <- rec[[8L]]
   sum_upper <- rec[[9L]]
@@ -107,8 +107,8 @@ debit_explain <- function(
   x_num_lower <- bounds_x$lower
   x_num_upper <- bounds_x$upper
 
-  x_lower <- format_number(x_num_lower / bounds_x$denom)
-  x_upper <- format_number(x_num_upper / bounds_x$denom)
+  x_lower <- format_number(x_num_lower / bounds_x$denom, digits_x)
+  x_upper <- format_number(x_num_upper / bounds_x$denom, digits_x)
 
   text_intro <- paste0(
     "DEBIT is about binary data, where every value is 0 or 1. The mean is ",
@@ -132,14 +132,14 @@ debit_explain <- function(
       "*",
       n,
       "=",
-      format_number(n * x_num_lower / bounds_x$denom)
+      format_number(n * x_num_lower / bounds_x$denom, digits_x)
     ),
     paste(
       x_upper,
       "*",
       n,
       "=",
-      format_number(n * x_num_upper / bounds_x$denom)
+      format_number(n * x_num_upper / bounds_x$denom, digits_x)
     ),
     x_incl_lower,
     x_incl_upper
@@ -215,7 +215,7 @@ debit_explain <- function(
   sd_of <- function(k) {
     paste0(
       "sqrt(", k, " * ", n - k, " / ", n * (n - 1), ") = ",
-      format_number(sqrt(k * (n - k) / (n * (n - 1))))
+      format_number(sqrt(k * (n - k) / (n * (n - 1))), digits_sd)
     )
   }
 

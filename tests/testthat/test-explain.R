@@ -107,6 +107,13 @@ test_that("large numbers are written out in full", {
   0.5  |> debit_explain(sd = 0.5, n = 2e5, digits_x = 1, digits_sd = 1) |> format() |> expect_no_match("e+0", fixed = TRUE)
 })
 
+test_that("bounds of values with many decimal places are shown in full", {
+  5.1234 |> grim_explain(n = 28, digits_x = 4)                                         |> format() |> expect_match("from 5.12335 to 5.12345", fixed = TRUE)
+  5.2345 |> grimmer_explain(sd = 1.2345, n = 30, digits_x = 4, digits_sd = 4)          |> format() |> expect_match("from 5.23445 to 5.23455", fixed = TRUE)
+  0.3621 |> debit_explain(sd = 0.4811, n = 500, digits_x = 4, digits_sd = 4)           |> format() |> expect_match("from 0.36205 to 0.36215", fixed = TRUE)
+})
+
+
 test_that("only a single case is explained", {
   c(5.19, 5.2) |> grim_explain(n = 28, digits_x = 2) |> expect_error("length 1")
 })

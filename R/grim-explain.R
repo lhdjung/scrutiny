@@ -104,12 +104,18 @@ grim_explain <- function(
   x_num <- if (percent) x / 100 else x
   scale_x <- if (percent) 100 else 1
   bounds <- bound_numerators(x_num, digits_num, rounding, threshold, symmetric)
-  x_lower <- format_number(bounds$lower * scale_x / bounds$denom)
-  x_upper <- format_number(bounds$upper * scale_x / bounds$denom)
+  x_lower <- format_number(bounds$lower * scale_x / bounds$denom, digits_num)
+  x_upper <- format_number(bounds$upper * scale_x / bounds$denom, digits_num)
 
   n_items <- n * items
-  sum_lower_exact <- format_number(n_items * bounds$lower / bounds$denom)
-  sum_upper_exact <- format_number(n_items * bounds$upper / bounds$denom)
+  sum_lower_exact <- format_number(
+    n_items * bounds$lower / bounds$denom,
+    digits_num
+  )
+  sum_upper_exact <- format_number(
+    n_items * bounds$upper / bounds$denom,
+    digits_num
+  )
 
   text_bounds <- describe_reported(
     if (percent) "percentage" else "mean",
@@ -178,7 +184,7 @@ grim_explain <- function(
       n_items,
       if (percent) " * 100",
       " = ",
-      format_number(sum * scale_x / n_items)
+      format_number(sum * scale_x / n_items, digits_num)
     )
   }
 
@@ -371,11 +377,12 @@ format_reported <- function(x, digits) {
 }
 
 
-# A computed value, with up to four decimal places. A fraction must not look
-# whole, though, or the text would contradict itself next to a whole number
-# that is said to be outside of it:
-format_number <- function(x) {
-  shown <- round(x, 4L)
+# A computed value, with up to `digits + 2` decimal places (at least four), so
+# that the bounds of a value reported with `digits` come out in full. A
+# fraction must not look whole, though, or the text would contradict itself
+# next to a whole number that is said to be outside of it:
+format_number <- function(x, digits = 0L) {
+  shown <- round(x, max(4L, digits + 2L))
   looks_whole <- shown == round(x) & x != round(x)
   shown[looks_whole] <- signif(x[looks_whole], 12L)
   vapply(
