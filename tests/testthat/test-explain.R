@@ -160,7 +160,7 @@ test_that("`explain_map()` catches rows changed after testing", {
 
 test_that("`explain_map()` needs columns and settings", {
   pigs1 |> grim_map(digits_x = 2) |> dplyr::select(-digits_x)            |> explain_map() |> expect_error("Missing: `digits_x`")
-  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, formula = "mean_n")    |> explain_map() |> expect_error("only cover")
+  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, formula = "mean_n")    |> explain_map() |> expect_error("was tested with")
   data <- pigs1 |> grim_map(digits_x = 2)
   attr(data, "scrutiny") <- NULL
   data |> explain_map() |> expect_error("lost the settings")
