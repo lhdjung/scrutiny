@@ -75,7 +75,13 @@ test_that("only DEBIT's exact formula is explained", {
 
 test_that("DEBIT's example SD is not shown as a bound", {
   0.5 |> debit_explain(sd = 0.5,   n = 2e5, digits_x = 1, digits_sd = 3, rounding = "down") |> format() |> expect_no_match("= 0.4995, which is in", fixed = TRUE)
-  0   |> debit_explain(sd = 0.147, n = 320, digits_x = 1, digits_sd = 3, rounding = "down") |> format() |> expect_no_match("= 0.1465, which is in", fixed = TRUE)
+  0   |> debit_explain(sd = 0.147, n = 320, digits_x = 1, digits_sd = 3, rounding = "down") |> format() |> expect_match("= 0.146504, which is in", fixed = TRUE)
+})
+
+test_that("a value that would look like a whole number or a bound gets just enough places", {
+  6.99999999  |> format_number()                            |> expect_identical("6.99999999")
+  0.146504464 |> format_number(digits = 3, bounds = 0.1465) |> expect_identical("0.146504")
+  0.1465      |> format_number(digits = 3, bounds = 0.1465) |> expect_identical("0.1465")
 })
 
 test_that("explanations print as expected", {

@@ -381,21 +381,26 @@ format_reported <- function(x, digits) {
 # that the bounds of a value reported with `digits` come out in full. A
 # fraction must not look whole, though, nor like one of the `bounds` it is
 # compared to, or the text would contradict itself next to a number that is
-# said to be outside of it:
+# said to be outside of it. Such a value gets the fewest more places that set it
+# apart:
 format_number <- function(x, digits = 0L, bounds = numeric()) {
-  places <- max(4L, digits + 2L)
+  x |>
+    vapply(round_apart, numeric(1L), max(4L, digits + 2L), bounds) |>
+    vapply(format, character(1L), scientific = FALSE, digits = 15L, trim = TRUE)
+}
+
+
+round_apart <- function(x, places, bounds) {
+  # A value that really is whole or at a bound may look like it:
+  avoid <- c(round(x), bounds)
+  avoid <- avoid[avoid != x]
+
   shown <- round(x, places)
-  looks_whole <- shown == round(x) & x != round(x)
-  looks_bound <- shown %in% round(bounds, places) & !x %in% bounds
-  shown[looks_whole | looks_bound] <- signif(x[looks_whole | looks_bound], 12L)
-  vapply(
-    shown,
-    format,
-    character(1L),
-    scientific = FALSE,
-    digits = 15L,
-    trim = TRUE
-  )
+  while (places < 15L && shown %in% round(avoid, places)) {
+    places <- places + 1L
+    shown <- round(x, places)
+  }
+  shown
 }
 
 
