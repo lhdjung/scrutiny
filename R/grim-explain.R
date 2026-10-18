@@ -379,12 +379,15 @@ format_reported <- function(x, digits) {
 
 # A computed value, with up to `digits + 2` decimal places (at least four), so
 # that the bounds of a value reported with `digits` come out in full. A
-# fraction must not look whole, though, or the text would contradict itself
-# next to a whole number that is said to be outside of it:
-format_number <- function(x, digits = 0L) {
-  shown <- round(x, max(4L, digits + 2L))
+# fraction must not look whole, though, nor like one of the `bounds` it is
+# compared to, or the text would contradict itself next to a number that is
+# said to be outside of it:
+format_number <- function(x, digits = 0L, bounds = numeric()) {
+  places <- max(4L, digits + 2L)
+  shown <- round(x, places)
   looks_whole <- shown == round(x) & x != round(x)
-  shown[looks_whole] <- signif(x[looks_whole], 12L)
+  looks_bound <- shown %in% round(bounds, places) & !x %in% bounds
+  shown[looks_whole | looks_bound] <- signif(x[looks_whole | looks_bound], 12L)
   vapply(
     shown,
     format,

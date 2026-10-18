@@ -107,7 +107,15 @@ debit_explain <- function(
   sum_upper <- rec[[9L]]
 
   # The bounds that decided the test, as `debit_scalar()` has them:
-  bounds <- debit_bounds(x, sd, digits_x, digits_sd, rounding, threshold, symmetric)
+  bounds <- debit_bounds(
+    x,
+    sd,
+    digits_x,
+    digits_sd,
+    rounding,
+    threshold,
+    symmetric
+  )
   bounds_x <- bounds$x
 
   x_incl_lower <- bounds_x$incl_lower
@@ -223,8 +231,18 @@ debit_explain <- function(
   # The SD of `k` ones as a calculation:
   sd_of <- function(k) {
     paste0(
-      "sqrt(", k, " * ", n - k, " / ", n * (n - 1), ") = ",
-      format_number(sqrt(k * (n - k) / (n * (n - 1))), digits_sd)
+      "sqrt(",
+      k,
+      " * ",
+      n - k,
+      " / ",
+      n * (n - 1),
+      ") = ",
+      format_number(
+        sqrt(k * (n - k) / (n * (n - 1))),
+        digits_sd,
+        c(rec[[2L]], rec[[4L]])
+      )
     )
   }
 
@@ -237,12 +255,20 @@ debit_explain <- function(
 
     paste0(
       if (several) "For example, for k = " else "For k = ",
-      k, ", that is ", sd_of(k), ", which is in that range."
+      k,
+      ", that is ",
+      sd_of(k),
+      ", which is in that range."
     )
   } else if (!several) {
     paste0(
-      "For k = ", ones, ", that is ", sd_of(ones), ", which is ",
-      if (spread < spread_range[1L]) "below" else "above", " that range."
+      "For k = ",
+      ones,
+      ", that is ",
+      sd_of(ones),
+      ", which is ",
+      if (spread < spread_range[1L]) "below" else "above",
+      " that range."
     )
   } else if (all(spread < spread_range[1L])) {
     # The spread, and with it the SD, is greatest for the `k` closest to half
@@ -250,14 +276,20 @@ debit_explain <- function(
     k <- ones[which.max(spread)]
 
     paste0(
-      "Even the largest of these SDs, for k = ", k, ", is only ", sd_of(k),
+      "Even the largest of these SDs, for k = ",
+      k,
+      ", is only ",
+      sd_of(k),
       ", which is below that range."
     )
   } else if (all(spread > spread_range[2L])) {
     k <- ones[which.min(spread)]
 
     paste0(
-      "Even the smallest of these SDs, for k = ", k, ", is ", sd_of(k),
+      "Even the smallest of these SDs, for k = ",
+      k,
+      ", is ",
+      sd_of(k),
       ", which is above that range."
     )
   } else {
@@ -268,9 +300,15 @@ debit_explain <- function(
     k_above <- ones[!below][which.min(spread[!below])]
 
     paste0(
-      "These SDs skip over that range. For k = ", k_below, ", the SD is ",
-      sd_of(k_below), ", which is below it, and for k = ", k_above, ", it is ",
-      sd_of(k_above), ", which is above it."
+      "These SDs skip over that range. For k = ",
+      k_below,
+      ", the SD is ",
+      sd_of(k_below),
+      ", which is below it, and for k = ",
+      k_above,
+      ", it is ",
+      sd_of(k_above),
+      ", which is above it."
     )
   }
 
