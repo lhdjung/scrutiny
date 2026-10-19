@@ -20,8 +20,10 @@
 #'   `"auto"`, which keeps `n` at 1 or above and `sd` at 0 or above, and
 #'   leaves `x` unbounded. A number applies to every dispersed variable, and
 #'   `NULL` removes the limit.
-#' @param ... Arguments passed on to [`grimmer_map()`]. These must include
-#'   `items_averaged` unless `data` has a column by that name.
+#' @param items_averaged Integer. As in [`grimmer_map()`]: the number of items
+#'   averaged into each score, given as an argument or as a column of `data`.
+#'   There is no default.
+#' @param ... Arguments passed on to [`grimmer_map()`].
 #' @inheritParams grim_map_seq
 #'
 #' @return A tibble with the columns of [`grimmer_map()`] output plus

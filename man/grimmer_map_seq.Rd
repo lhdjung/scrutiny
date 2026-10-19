@@ -11,6 +11,7 @@ grimmer_map_seq(
   x = NULL,
   sd = NULL,
   n = NULL,
+  items_averaged,
   var = Inf,
   dispersion = 1:5,
   out_min = "auto",
@@ -31,6 +32,10 @@ sizes for dispersing \code{x} and \code{sd}.}
 \item{x, sd, n}{Optionally, the names of the columns in \code{data} that contain
 these values, if they differ from the defaults.}
 
+\item{items_averaged}{Integer. As in \code{\link[=grimmer_map]{grimmer_map()}}: the number of items
+averaged into each score, given as an argument or as a column of \code{data}.
+There is no default.}
+
 \item{var}{String. The variables to disperse. Default is
 \code{c("x", "sd", "n")}.}
 
@@ -48,8 +53,7 @@ part of the sequences? Default is \code{FALSE}.}
 \item{include_consistent}{Logical. Should consistent value sets be dispersed
 as well, not just inconsistent ones? Default is \code{FALSE}.}
 
-\item{...}{Arguments passed on to \code{\link[=grimmer_map]{grimmer_map()}}. These must include
-\code{items_averaged} unless \code{data} has a column by that name.}
+\item{...}{Arguments passed on to \code{\link[=grimmer_map]{grimmer_map()}}.}
 }
 \value{
 A tibble with the columns of \code{\link[=grimmer_map]{grimmer_map()}} output plus

@@ -24,8 +24,10 @@
 #'   part of the sequences? Default is `FALSE`.
 #' @param include_consistent Logical. Should consistent value sets be dispersed
 #'   as well, not just inconsistent ones? Default is `FALSE`.
-#' @param ... Arguments passed on to [`grim_map()`]. These must include
-#'   `items_averaged` unless `data` has a column by that name.
+#' @param items_averaged Integer. As in [`grim_map()`]: the number of items
+#'   averaged into each score, given as an argument or as a column of `data`.
+#'   There is no default.
+#' @param ... Arguments passed on to [`grim_map()`].
 #'
 #' @return A tibble with the columns of [`grim_map()`] output plus `diff_var`,
 #'   the number of steps between the tested value and the reported one; `case`,

@@ -12,6 +12,7 @@ grimmer_map_total_n(
   x2 = NULL,
   sd1 = NULL,
   sd2 = NULL,
+  items_averaged,
   dispersion = 0:5,
   n_min = 1L,
   n_max = NULL,
@@ -33,6 +34,10 @@ groups, or two numbers, one per group.}
 \item{x1, x2, sd1, sd2}{Optionally, the names of the columns in \code{data} that
 contain these values, if they differ from the defaults.}
 
+\item{items_averaged}{Integer. As in \code{\link[=grimmer_map]{grimmer_map()}}: the number of items
+averaged into each score, given as an argument or as a column of \code{data}.
+There is no default.}
+
 \item{dispersion}{Numeric. Steps up and down from half the total \code{n}.
 Default is \code{0:5}, i.e., the even split and five steps away from it.}
 
@@ -45,8 +50,7 @@ maximum.}
 (which includes a data frame with two rows), to repeat alongside each pair
 of group sizes. Default is \code{NULL}.}
 
-\item{...}{Arguments passed on to \code{\link[=grimmer_map]{grimmer_map()}}. These must include
-\code{items_averaged} unless \code{data} has a column by that name.}
+\item{...}{Arguments passed on to \code{\link[=grimmer_map]{grimmer_map()}}.}
 }
 \value{
 A tibble like that of \code{\link[=grim_map_total_n]{grim_map_total_n()}}, with \code{x} and \code{sd}

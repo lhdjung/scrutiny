@@ -290,12 +290,18 @@ function_map_total_n <- function(
     digits_args_names
   )
 
+  # The same goes for helper arguments such as `items_averaged`, which keep the
+  # defaults they have in `.fun` -- none, in that case:
+  args_helper_fun <- attr(.fun, "scrutiny_args_helper", exact = TRUE)
+  helper_formals <- formals(.fun)[args_helper_fun]
+
   # --- Start of the manufactured function, `fn_out()` ---
 
   fn_out <- rlang::new_function(
     args = rlang::pairlist2(
       data = ,
       !!!digits_pairlist_entries,
+      !!!helper_formals,
       dispersion = .dispersion,
       n_min = .n_min,
       n_max = .n_max,
@@ -303,6 +309,16 @@ function_map_total_n <- function(
       ... =
     ),
     body = rlang::expr({
+      # Collect the helper arguments that were given, first thing, before any
+      # local variable could shadow one. A missing one is left out, so that it
+      # reaches `fun()` as missing, which then says how to supply it:
+      helper_vals <- list()
+      for (arg_helper in `!!`(args_helper_fun)) {
+        if (!eval(call("missing", as.name(arg_helper)))) {
+          helper_vals[arg_helper] <- list(get(arg_helper))
+        }
+      }
+
       name_test <- `!!`(.name_test)
       name_fun <- `!!`(name_fun)
       name_class <- `!!`(.name_class)
@@ -326,7 +342,7 @@ function_map_total_n <- function(
         Negate(is.null),
         mget(`!!`(digits_args_names), envir = environment())
       )
-      fun_args <- c(digits_vals, list(...))
+      fun_args <- c(digits_vals, helper_vals, list(...))
 
       # The usual key argument check conducted by
       # `check_mapper_input_colnames()` is not applicable to `data`, so the

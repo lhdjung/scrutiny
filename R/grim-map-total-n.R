@@ -23,8 +23,10 @@
 #' @param n_max Numeric. Maximal group size. Default is `NULL`, i.e., no
 #'   maximum.
 #' @inheritParams disperse_total
-#' @param ... Arguments passed on to [`grim_map()`]. These must include
-#'   `items_averaged` unless `data` has a column by that name.
+#' @param items_averaged Integer. As in [`grim_map()`]: the number of items
+#'   averaged into each score, given as an argument or as a column of `data`.
+#'   There is no default.
+#' @param ... Arguments passed on to [`grim_map()`].
 #'
 #' @include function-map-total-n.R
 #'

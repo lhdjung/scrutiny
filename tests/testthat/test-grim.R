@@ -316,15 +316,22 @@ test_that("a missing `items_averaged` is a bespoke error everywhere", {
   5.19 |> grim_plot_values(28, 2)             |> expect_error("Need to specify `items_averaged`")
   df   |> grim_map(digits_x = 2)              |> expect_error("an `items_averaged` column")
   df   |> grim_map_seq(digits_x = 2)          |> expect_error("an `items_averaged` column")
-
-  # The sequence and total-n mappers take it through the dots, where the old
-  # name is no partial match, so they say it was renamed:
-  df                                          |> grim_map_seq(digits_x = 2, items = 2)     |> expect_error("renamed to `items_averaged`")
-  tibble::tibble(x1 = 5.2, x2 = 5.4, n = 40L) |> grim_map_total_n(digits_x = 1, items = 2) |> expect_error("renamed to `items_averaged`")
+  tibble::tibble(x1 = 5.2, x2 = 5.4, n = 40L) |> grim_map_total_n(digits_x = 1) |> expect_error("an `items_averaged` column")
 
   # An old `items` column is no substitute, and the message says why:
   df |> dplyr::mutate(items = 2) |> grim_map(digits_x = 2) |> expect_error("replaces `items`")
 
   # The new column satisfies it as well as the argument:
   df |> dplyr::mutate(items_averaged = 1) |> grim_map(digits_x = 2) |> expect_equal(grim_map(df, digits_x = 2, items_averaged = 1))
+})
+
+
+# It used to reach these through the dots, invisible to `formals()`, to
+# tab-completion, and to the help page:
+test_that("every GRIM and GRIMMER mapper has `items_averaged` right after the key arguments", {
+  grim_map            |> formals() |> names() |> head(5L) |> expect_equal(c("data", "digits_x", "x", "n", "items_averaged"))
+  grim_map_seq        |> formals() |> names() |> head(5L) |> expect_equal(c("data", "digits_x", "x", "n", "items_averaged"))
+  grim_map_total_n    |> formals() |> names() |> head(5L) |> expect_equal(c("data", "digits_x", "x1", "x2", "items_averaged"))
+  grimmer_map_seq     |> formals() |> names() |> head(7L) |> expect_equal(c("data", "digits_x", "digits_sd", "x", "sd", "n", "items_averaged"))
+  grimmer_map_total_n |> formals() |> names() |> head(8L) |> expect_equal(c("data", "digits_x", "digits_sd", "x1", "x2", "sd1", "sd2", "items_averaged"))
 })

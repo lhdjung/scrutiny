@@ -225,6 +225,11 @@ function_map_seq <- function(
   # mapper has nothing to record, and the attribute is `NULL`:
   args_helper_fun <- attr(.fun, "scrutiny_args_helper", exact = TRUE)
 
+  # They are arguments of the sequence mapper as well, with the defaults they
+  # have in `.fun` -- that is, none for `items_averaged`, which must be given in
+  # every call, as an argument or as a column of `data`:
+  helper_formals <- formals(.fun)[args_helper_fun]
+
   # An `n` key column holds whole numbers, so coerce it to integer for better
   # display. Only if there is one, though:
   code_bind_cols <- if (any(.reported == "n")) {
@@ -259,6 +264,7 @@ function_map_seq <- function(
     args = rlang::pairlist2(
       data = ,
       !!!digits_pairlist_entries,
+      !!!helper_formals,
       var = .var,
       dispersion = .dispersion,
       out_min = .out_min,
@@ -268,6 +274,16 @@ function_map_seq <- function(
       ... =
     ),
     body = rlang::expr({
+      # Collect the helper arguments that were given, first thing, before any
+      # local variable could shadow one. A missing one is left out, so that it
+      # reaches `fun()` as missing, which then says how to supply it:
+      helper_vals <- list()
+      for (arg_helper in `!!`(args_helper_fun)) {
+        if (!eval(call("missing", as.name(arg_helper)))) {
+          helper_vals[arg_helper] <- list(get(arg_helper))
+        }
+      }
+
       name_test <- `!!`(.name_test)
       name_fun <- `!!`(name_fun)
       reported <- `!!`(.reported)
@@ -327,7 +343,7 @@ function_map_seq <- function(
       # First, basic testing with the `*_map()` function. What it records about
       # the call, such as `rounding` with defaults resolved, applies to the
       # re-tests below as well, so it is passed on to the output:
-      data <- do.call(fun, c(list(data), digits_vals, list(...)))
+      data <- do.call(fun, c(list(data), digits_vals, helper_vals, list(...)))
       meta_fun <- scrutiny_meta(data)
 
       # Everything below reads the key result column off `fun()`'s output by
@@ -374,10 +390,10 @@ function_map_seq <- function(
       )
 
       # Forwarded to `map_seq_proto()`, and from there to `fun()`. Helper
-      # arguments such as `items_averaged` are dropped: the initial `fun()` call
-      # above returned them as columns, which the re-tests read them from:
+      # arguments such as `items_averaged` are not among them: the initial
+      # `fun()` call above returned them as columns, which the re-tests read
+      # them from:
       fun_args <- c(digits_vals, list(...))
-      fun_args <- fun_args[!names(fun_args) %in% `!!`(args_helper_fun)]
 
       # Apply the lower-level function to every `var` and every case in `data`.
       # `out_min` and `out_max` are resolved per variable, since the dispersed
@@ -524,8 +540,9 @@ function_map_seq <- function(
 
   # Parameters named after the key columns, defaulting to `NULL`, so that users
   # whose columns are not named as `.reported` says can point them at the right
-  # ones. They go after the `digits_*` arguments, so that the sequence mapper's
-  # signature starts the same way as the basic mapper's:
+  # ones. They go after the `digits_*` arguments and before the helper
+  # arguments, so that the sequence mapper's signature starts the same way as
+  # the basic mapper's:
   insert_key_args(
     fn_out,
     .reported,

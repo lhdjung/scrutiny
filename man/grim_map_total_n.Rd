@@ -9,6 +9,7 @@ grim_map_total_n(
   digits_x = NULL,
   x1 = NULL,
   x2 = NULL,
+  items_averaged,
   dispersion = 0:5,
   n_min = 1L,
   n_max = NULL,
@@ -29,6 +30,10 @@ or two numbers, one for \code{x1} and one for \code{x2}.}
 \item{x1, x2}{Optionally, the names of the columns in \code{data} that contain
 these values, if they differ from the defaults.}
 
+\item{items_averaged}{Integer. As in \code{\link[=grim_map]{grim_map()}}: the number of items
+averaged into each score, given as an argument or as a column of \code{data}.
+There is no default.}
+
 \item{dispersion}{Numeric. Steps up and down from half the total \code{n}.
 Default is \code{0:5}, i.e., the even split and five steps away from it.}
 
@@ -41,8 +46,7 @@ maximum.}
 (which includes a data frame with two rows), to repeat alongside each pair
 of group sizes. Default is \code{NULL}.}
 
-\item{...}{Arguments passed on to \code{\link[=grim_map]{grim_map()}}. These must include
-\code{items_averaged} unless \code{data} has a column by that name.}
+\item{...}{Arguments passed on to \code{\link[=grim_map]{grim_map()}}.}
 }
 \value{
 A tibble with these columns:
