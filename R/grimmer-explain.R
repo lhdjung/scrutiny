@@ -17,16 +17,30 @@
 #' @export
 #'
 #' @examples
-#' grimmer_explain(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2)
+#' grimmer_explain(
+#'   x = 5.23,
+#'   sd = 2.55,
+#'   n = 35,
+#'   digits_x = 2,
+#'   digits_sd = 2,
+#'   items_averaged = 1
+#' )
 #'
-#' grimmer_explain(x = 5.23, sd = 2.55, n = 31, digits_x = 2, digits_sd = 2)
+#' grimmer_explain(
+#'   x = 5.23,
+#'   sd = 2.55,
+#'   n = 31,
+#'   digits_x = 2,
+#'   digits_sd = 2,
+#'   items_averaged = 1
+#' )
 grimmer_explain <- function(
   x,
   sd,
   n,
   digits_x,
   digits_sd,
-  items = 1,
+  items_averaged,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE
@@ -34,7 +48,10 @@ grimmer_explain <- function(
   check_length(x, 1L)
   check_length(sd, 1L)
   check_length(n, 1L)
-  check_length(items, 1L)
+  if (missing(items_averaged)) {
+    error_items_missing()
+  }
+  check_length(items_averaged, 1L)
 
   # `paste()` would write a number like 100000 as 1e+05:
   rlang::local_options(scipen = 100L)
@@ -53,7 +70,7 @@ grimmer_explain <- function(
     n = n,
     digits_x = digits_x,
     digits_sd = digits_sd,
-    items = items,
+    items_averaged = items_averaged,
     show_reason = TRUE,
     rounding = rounding,
     threshold = threshold,
@@ -66,7 +83,9 @@ grimmer_explain <- function(
       x = format_reported(x, digits_x),
       sd = format_reported(sd, digits_sd),
       n = n,
-      items = if (is.na(items) || items != 1) items
+      items_averaged = if (is.na(items_averaged) || items_averaged != 1) {
+        items_averaged
+      }
     )
     new_explanation(
       "GRIMMER",
@@ -90,10 +109,10 @@ grimmer_explain <- function(
         n = n,
         digits_x = digits_x,
         digits_sd = digits_sd,
-        items = items
+        items_averaged = items_averaged
       ),
       n = n,
-      items = items,
+      items_averaged = items_averaged,
       min_n = 2
     ),
     # `grimmer_scalar()` rules these out before they happen, and
@@ -119,7 +138,7 @@ grimmer_explain <- function(
     x = x,
     n = n,
     digits_x = digits_x,
-    items = items,
+    items_averaged = items_averaged,
     rounding = rounding,
     threshold = threshold,
     symmetric = symmetric
@@ -138,7 +157,7 @@ grimmer_explain <- function(
   sd_bounds <- grimmer_sd_bounds(
     sd = sd,
     n = n,
-    items = items,
+    items_averaged = items_averaged,
     digits_sd = digits_sd,
     rounding = rounding,
     threshold = threshold,
@@ -157,16 +176,22 @@ grimmer_explain <- function(
     sd_bounds$incl_upper
   )
 
-  values <- if (items == 1) {
+  values <- if (items_averaged == 1) {
     paste0("the ", n, " values")
   } else {
-    paste0("the ", n, " respondents' totals across the ", items, " items")
+    paste0(
+      "the ",
+      n,
+      " respondents' totals across the ",
+      items_averaged,
+      " items"
+    )
   }
   sd_term <- function(sd_shown) {
-    if (items == 1) {
+    if (items_averaged == 1) {
       paste0(sd_shown, "^2")
     } else {
-      paste0("(", items, " * ", sd_shown, ")^2")
+      paste0("(", items_averaged, " * ", sd_shown, ")^2")
     }
   }
 
@@ -188,7 +213,7 @@ grimmer_explain <- function(
 
   # The sum of squares as a calculation, at one bound of the SD:
   sum_squares_at <- function(s, sd_num, sd_shown) {
-    value <- (n - 1) * items^2 * sd_num^2 / sd_bounds$denom^2 + s^2 / n
+    value <- (n - 1) * items_averaged^2 * sd_num^2 / sd_bounds$denom^2 + s^2 / n
     paste0(
       n - 1,
       " * ",
@@ -202,7 +227,14 @@ grimmer_explain <- function(
     )
   }
 
-  sums <- sum_range(x, n * items, digits_x, rounding, threshold, symmetric)
+  sums <- sum_range(
+    x,
+    n * items_averaged,
+    digits_x,
+    rounding,
+    threshold,
+    symmetric
+  )
 
   # Candidates are tested in turn until one passes. Showing every failure could
   # take pages, so after the first three, the rest are only counted.
@@ -214,7 +246,7 @@ grimmer_explain <- function(
     candidate <- grimmer_candidate(
       s = s,
       n = n,
-      items = items,
+      items_averaged = items_averaged,
       sd_bounds = sd_bounds
     )
     passed <- candidate$pass_test3

@@ -9,7 +9,7 @@ grim_values(
   x,
   n,
   digits_x,
-  items = 1,
+  items_averaged,
   percent = FALSE,
   rounding = "up_or_down",
   threshold = 5,
@@ -20,7 +20,7 @@ grim_closest(
   x,
   n,
   digits_x,
-  items = 1,
+  items_averaged,
   percent = FALSE,
   rounding = "up_or_down",
   threshold = 5,
@@ -36,7 +36,7 @@ grim_closest(
 trailing zeros. There is no default, since a numeric value does not
 keep them (\code{1.40} is \code{1.4}).}
 
-\item{items}{Numeric. The number of items composing \code{x}. Default is 1.}
+\item{items_averaged}{Integer. As in \code{\link[=grim]{grim()}}.}
 
 \item{percent}{Logical. If \code{TRUE}, \code{x} is a percentage. Default is \code{FALSE}.}
 
@@ -52,7 +52,7 @@ be decided.
 }
 \description{
 These functions return the means (or percentages) that a sample
-of \code{n * items} integers can have:
+of \code{n * items_averaged} integers can have:
 \itemize{
 \item \code{grim_values()} returns every achievable value that would be reported as
 \code{x}. The result is empty if \code{x} is GRIM-inconsistent with \code{n}.
@@ -67,29 +67,34 @@ with one element per value set.
 \details{
 The achievable means are the whole numbers in the range that
 \code{\link[=grim_map]{grim_map()}} shows as \code{sum_lower} and \code{sum_upper} under \code{show_rec}, each
-divided by \code{n * items}. Once \code{n * items} reaches \code{10^digits_x}, several of
-them can be reported as the same \code{x}, and their number grows with
-\code{n * items}. GRIM is then no longer informative. \code{grim_closest()} stays
-cheap in that case; \code{grim_values()} does not.
+divided by \code{n * items_averaged}. Once \code{n * items_averaged} reaches
+\code{10^digits_x}, several of them can be reported as the same \code{x}, and their
+number grows with \code{n * items_averaged}. GRIM is then no longer informative.
+\code{grim_closest()} stays cheap in that case; \code{grim_values()} does not.
 
 With \code{percent = TRUE}, the values are percentages, like \code{x}.
 }
 \examples{
 # A mean of 5.19 is consistent with a sample size of 32,
 # and there is exactly one way to get there:
-grim_values(x = 5.19, n = 32, digits_x = 2)
+grim_values(x = 5.19, n = 32, digits_x = 2, items_averaged = 1)
 
 # With a larger sample, several means round to 5.19:
-grim_values(x = 5.19, n = 300, digits_x = 2)
+grim_values(x = 5.19, n = 300, digits_x = 2, items_averaged = 1)
 
 # It is not consistent with a sample size of 28...
-grim_values(x = 5.19, n = 28, digits_x = 2)
+grim_values(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
 
 # ...but 5.19 is close to a mean that is achievable:
-grim_closest(x = 5.19, n = 28, digits_x = 2)
+grim_closest(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
 
 # Both functions are vectorized:
-grim_closest(x = c(5.19, 4.2), n = c(28, 30), digits_x = 2)
+grim_closest(
+  x = c(5.19, 4.2),
+  n = c(28, 30),
+  digits_x = 2,
+  items_averaged = 1
+)
 }
 \references{
 Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A

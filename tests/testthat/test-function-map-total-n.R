@@ -131,17 +131,17 @@ test_that("the output carries a test-specific class", {
   # generic `"scrutiny_map_total_n"`, so it was the one tier whose output could
   # not be dispatched on by test:
   tibble::tibble(x1 = 4.52, x2 = 5.23, n = 40L) |>
-    grim_map_total_n(digits_x = 2) |>
+    grim_map_total_n(digits_x = 2, items_averaged = 1) |>
     expect_s3_class("scrutiny_grim_map_total_n")
   tibble::tibble(x1 = 4.52, x2 = 5.23, sd1 = 1.36, sd2 = 1.19, n = 40L) |>
-    grimmer_map_total_n(digits_x = 2, digits_sd = 2) |>
+    grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
     expect_s3_class("scrutiny_grimmer_map_total_n")
   tibble::tibble(x1 = 0.30, x2 = 0.28, sd1 = 0.17, sd2 = 0.10, n = 70L) |>
     debit_map_total_n(digits_x = 2, digits_sd = 2) |>
     expect_s3_class("scrutiny_debit_map_total_n")
   # The generic class that `audit_total_n()` dispatches on is still there:
   tibble::tibble(x1 = 4.52, x2 = 5.23, n = 40L) |>
-    grim_map_total_n(digits_x = 2) |>
+    grim_map_total_n(digits_x = 2, items_averaged = 1) |>
     expect_s3_class("scrutiny_map_total_n")
 })
 
@@ -207,8 +207,8 @@ test_that("`digits_*` is a real formal of the total-n mappers", {
   # Passing it positionally now works, as it does for the other two tiers:
   df <- tibble::tibble(x1 = 4.52, x2 = 5.23, n = 40L)
   df |>
-    grim_map_total_n(2, dispersion = 0:1) |>
-    expect_identical(grim_map_total_n(df, digits_x = 2, dispersion = 0:1))
+    grim_map_total_n(2, dispersion = 0:1, items_averaged = 1) |>
+    expect_identical(grim_map_total_n(df, digits_x = 2, items_averaged = 1, dispersion = 0:1))
 
   # ...and omitting it still gives the bespoke message, not a generic one:
   df |> grim_map_total_n() |> expect_error("Need to specify `digits_x`")
@@ -221,16 +221,16 @@ test_that("`digits_*` is a real formal of the total-n mappers", {
 test_that("a missing total `n` is reported as such, not as a decimal number", {
   list(x1 = 4.52, x2 = 5.23, n = NA) |> 
     tibble::new_tibble(nrow = 1L) |> 
-    grim_map_total_n(digits_x = 2) |>
+    grim_map_total_n(digits_x = 2, items_averaged = 1) |>
     expect_error("values that are not")
 })
 
 
 test_that("A total below 2 and 0-row `data` get their own errors", {
   tibble::tibble(x1 = 3.43, x2 = 3.51, n = 1) |>
-    grim_map_total_n(digits_x = 2) |>
+    grim_map_total_n(digits_x = 2, items_averaged = 1) |>
     expect_error("at least 2")
   tibble::tibble(x1 = numeric(), x2 = numeric(), n = numeric()) |>
-    grim_map_total_n(digits_x = 2) |>
+    grim_map_total_n(digits_x = 2, items_averaged = 1) |>
     expect_error("at least one row")
 })

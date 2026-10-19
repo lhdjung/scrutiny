@@ -8,7 +8,7 @@ grim_plot_values(
   x,
   n,
   digits_x,
-  items = 1,
+  items_averaged,
   percent = FALSE,
   rounding = "up_or_down",
   threshold = 5,
@@ -19,8 +19,8 @@ grim_plot_values(
 )
 }
 \arguments{
-\item{x, n, digits_x, items, percent, rounding, threshold, symmetric}{The same as in
-\code{\link[=grim]{grim()}}, but \code{x} and \code{n} must have length 1.}
+\item{x, n, digits_x, items_averaged, percent, rounding, threshold, symmetric}{The
+same as in \code{\link[=grim]{grim()}}, but \code{x} and \code{n} must have length 1.}
 
 \item{color_cons, color_incons}{Strings. Colors of the teeth for attainable
 and unattainable values.}
@@ -47,10 +47,11 @@ returns the attainable values as numbers.
 }
 \details{
 The comb runs from the whole number at or below \code{x} to the next one
-up. That unit contains \code{10 ^ digits_x} reportable values and, with \code{items = 1}, about \code{n} attainable ones. With \code{percent = TRUE}, a unit is one
-percentage point, and the comb widens by \code{100 / n} on either side so that
-the nearest attainable values remain visible. With more than two decimal
-places, the teeth crowd together.
+up. That unit contains \code{10 ^ digits_x} reportable values and, with
+\code{items_averaged = 1}, about \code{n} attainable ones. With \code{percent = TRUE}, a
+unit is one percentage point, and the comb widens by \code{100 / n} on either
+side so that the nearest attainable values remain visible. With more than
+two decimal places, the teeth crowd together.
 
 The strip behind the teeth is the range of unrounded means that would
 have been reported as \code{x}, from \code{\link[=unround]{unround()}}. The value is consistent
@@ -61,13 +62,19 @@ tall tooth on that edge does not count.
 \examples{
 # A mean of 5.19 is not consistent with a sample size of 28:
 # no tall tooth stands where the marker points.
-grim_plot_values(x = 5.19, n = 28, digits_x = 2)
+grim_plot_values(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
 
 # With `n = 26`, it is:
-grim_plot_values(x = 5.19, n = 26, digits_x = 2)
+grim_plot_values(x = 5.19, n = 26, digits_x = 2, items_averaged = 1)
 
 # The same for a percentage:
-grim_plot_values(x = 67.4, n = 40, digits_x = 1, percent = TRUE)
+grim_plot_values(
+  x = 67.4,
+  n = 40,
+  digits_x = 1,
+  items_averaged = 1,
+  percent = TRUE
+)
 }
 \seealso{
 \code{\link[=grimmer_plot_values]{grimmer_plot_values()}} for the same figure over standard

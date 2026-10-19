@@ -51,8 +51,8 @@ value or one per row of \code{data} for each, and returns them as columns.}
 itself, such as \code{list(show_reason = TRUE)}. Specifying one of them is an
 error.}
 
-\item{.cols_helper}{Optionally, names of arguments of \code{.fun} that may also
-be given as columns of \code{data}, such as \code{"items"}. A helper column is
+\item{.cols_helper}{Optionally, names of arguments of \code{.fun} that may also be
+given as columns of \code{data}, such as \code{"items_averaged"}. A helper column is
 returned after the key columns if it was given, as a column or as an
 argument. See \code{\link[=manage_helper_col]{manage_helper_col()}}.}
 

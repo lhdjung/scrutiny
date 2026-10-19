@@ -21,26 +21,26 @@ df_debit <- tibble::tibble(
 test_that("basic mappers take one `digits_*` value per row", {
   # Testing each row on its own must give the same verdicts as testing them
   # together with a per-row `digits_x`:
-  per_row <- df_grim |> grim_map(digits_x = c(2, 1)) |> purrr::pluck("consistency")
+  per_row <- df_grim |> grim_map(digits_x = c(2, 1), items_averaged = 1) |> purrr::pluck("consistency")
   separate <- c(
-    df_grim[1, ] |> grim_map(digits_x = 2) |> purrr::pluck("consistency"),
-    df_grim[2, ] |> grim_map(digits_x = 1) |> purrr::pluck("consistency")
+    df_grim[1, ] |> grim_map(digits_x = 2, items_averaged = 1) |> purrr::pluck("consistency"),
+    df_grim[2, ] |> grim_map(digits_x = 1, items_averaged = 1) |> purrr::pluck("consistency")
   )
   per_row |> expect_equal(separate)
 
   # `0.1` at one decimal place is not the same test as `0.10` at two:
   per_row |> expect_equal(c(TRUE, TRUE))
   df_grim |>
-    grim_map(digits_x = 2) |>
+    grim_map(digits_x = 2, items_averaged = 1) |>
     purrr::pluck("consistency") |>
     expect_equal(c(TRUE, FALSE))
 
   separate <- c(
-    df_grimmer[1, ] |> grimmer_map(digits_x = 1, digits_sd = 2) |> purrr::pluck("consistency"),
-    df_grimmer[2, ] |> grimmer_map(digits_x = 2, digits_sd = 2) |> purrr::pluck("consistency")
+    df_grimmer[1, ] |> grimmer_map(digits_x = 1, digits_sd = 2, items_averaged = 1) |> purrr::pluck("consistency"),
+    df_grimmer[2, ] |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |> purrr::pluck("consistency")
   )
   df_grimmer |>
-    grimmer_map(digits_x = c(1, 2), digits_sd = 2) |>
+    grimmer_map(digits_x = c(1, 2), digits_sd = 2, items_averaged = 1) |>
     purrr::pluck("consistency") |>
     expect_equal(separate)
 
@@ -56,9 +56,9 @@ test_that("basic mappers take one `digits_*` value per row", {
 
 
 test_that("a single `digits_*` value still applies to the whole column", {
-  per_row <- df_grim |> grim_map(digits_x = c(2, 2)) |> purrr::pluck("consistency")
+  per_row <- df_grim |> grim_map(digits_x = c(2, 2), items_averaged = 1) |> purrr::pluck("consistency")
   df_grim |>
-    grim_map(digits_x = 2) |>
+    grim_map(digits_x = 2, items_averaged = 1) |>
     purrr::pluck("consistency") |>
     expect_equal(per_row)
 })
@@ -66,10 +66,10 @@ test_that("a single `digits_*` value still applies to the whole column", {
 
 test_that("a `digits_*` vector of the wrong length is an error", {
   df_grim |>
-    grim_map(digits_x = c(2, 1, 2)) |>
+    grim_map(digits_x = c(2, 1, 2), items_averaged = 1) |>
     expect_error("length 1 or the number of rows")
   df_grimmer |>
-    grimmer_map(digits_x = c(1, 2, 1), digits_sd = 2) |>
+    grimmer_map(digits_x = c(1, 2, 1), digits_sd = 2, items_averaged = 1) |>
     expect_error("length 1 or the number of rows")
 })
 
@@ -80,7 +80,7 @@ test_that("a `digits_*` vector of the wrong length is an error", {
 # different numbers of decimal places.
 test_that("total-n mappers take one `digits_*` value per group", {
   df <- tibble::tibble(x1 = 4.71, x2 = 5.3, n = 40)
-  out <- df |> grim_map_total_n(digits_x = c(2, 1)) |> audit_total_n()
+  out <- df |> grim_map_total_n(digits_x = c(2, 1), items_averaged = 1) |> audit_total_n()
 
   # 17/23 with the original pairing, plus 19/21 and 16/24 with it reversed:
   out$hits_forth |> expect_equal(1L)
@@ -88,7 +88,7 @@ test_that("total-n mappers take one `digits_*` value per group", {
   out$hits_total |> expect_equal(3L)
 
   # Testing 5.3 as "5.30" is stricter and finds only what Bauer and Francis did:
-  out_strict <- df |> grim_map_total_n(digits_x = 2) |> audit_total_n()
+  out_strict <- df |> grim_map_total_n(digits_x = 2, items_averaged = 1) |> audit_total_n()
   out_strict$hits_total |> expect_equal(1L)
 })
 
@@ -96,14 +96,14 @@ test_that("total-n mappers take one `digits_*` value per group", {
 test_that("total-n mappers reject a `digits_*` vector that isn't length 2", {
   df <- tibble::tibble(x1 = 4.71, x2 = 5.3, n = 40)
   df |>
-    grim_map_total_n(digits_x = c(2, 1, 2)) |>
+    grim_map_total_n(digits_x = c(2, 1, 2), items_averaged = 1) |>
     expect_error("must have length 1 or 2")
 })
 
 
 test_that("sequence mappers reject a `digits_*` vector", {
   df_grim |>
-    grim_map_seq(digits_x = c(2, 1), dispersion = 1:2) |>
+    grim_map_seq(digits_x = c(2, 1), items_averaged = 1, dispersion = 1:2) |>
     expect_error("must be a single number here")
 })
 
@@ -114,7 +114,7 @@ test_that("sequence mappers reject a `digits_*` vector", {
 # call, with the same `digits_x`.
 test_that("`*_map_seq()` steps on the decimal level given by `digits_*`", {
   out <- tibble::tibble(x = c(5.3, 4.71), n = c(40, 40)) |>
-    grim_map_seq(digits_x = 2, dispersion = 1:3, include_consistent = TRUE)
+    grim_map_seq(digits_x = 2, items_averaged = 1, dispersion = 1:3, include_consistent = TRUE)
   out_x <- out[out$var == "x", ]
 
   # Every dispersed value is one hundredth away from its neighbour:

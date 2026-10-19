@@ -1,21 +1,21 @@
 test_that("`digits_x` missing leads to failure", {
   # `suppressMessages()` mutes the changelog hint that `error_digits_missing()`
   # prints via `on.exit()` as it unwinds:
-  2.65 |> grim(30) |> suppressMessages() |> expect_error()
-  924  |> grim(0)  |> suppressMessages() |> expect_error()
+  2.65 |> grim(30, items_averaged = 1) |> suppressMessages() |> expect_error()
+  924  |> grim(0, items_averaged = 1)  |> suppressMessages() |> expect_error()
 })
 
 
 test_that("Return values are Boolean", {
-  5.19 |> grim(28, digits_x = 2)  |> expect_type("logical")
-  0.00 |> grim(100, digits_x = 2) |> expect_type("logical")
+  5.19 |> grim(28, digits_x = 2, items_averaged = 1)  |> expect_type("logical")
+  0.00 |> grim(100, digits_x = 2, items_averaged = 1) |> expect_type("logical")
 })
 
 
 vec1 <- 5.19 |> seq(5.3, by = 0.01) |> round(2)
 
 vec1_tested <- vec1 |>
-  grim(28, digits_x = 2) |>
+  grim(28, digits_x = 2, items_averaged = 1) |>
   unname()
 
 t <- TRUE
@@ -32,7 +32,7 @@ test_that("Correct values are returned (basic)", {
 vec2 <- 0.150 |> seq(0.159, by = 0.001) |> round(3)
 
 vec2_tested <- vec2 |>
-  grim(120, digits_x = 3, items = 3) |>
+  grim(120, digits_x = 3, items_averaged = 3) |>
   unname()
 
 vec2_expected <- c(t, f, f, t, f, f, t, f, t, f)
@@ -41,7 +41,7 @@ vec2_expected <- c(t, f, f, t, f, f, t, f, t, f)
 vec3 <- 0.80 |> seq(0.89, by = 0.01) |> round(2)
 
 vec3_tested <- vec3 |>
-  grim(28, digits_x = 2, items = 2) |>
+  grim(28, digits_x = 2, items_averaged = 2) |>
   unname()
 
 vec3_expected <- c(t, f, t, f, t, f, t, t, t, t)
@@ -56,7 +56,7 @@ test_that("Correct values are returned (`items` argument)", {
 vec4 <- 519:530
 
 vec4_tested <- vec4 |>
-  grim(28, digits_x = 0, percent = TRUE) |>
+  grim(28, digits_x = 0, items_averaged = 1, percent = TRUE) |>
   unname()
 
 vec4_expected <- c(f, f, t, f, f, f, t, f, f, f, t, f)
@@ -64,7 +64,7 @@ vec4_expected <- c(f, f, t, f, f, f, t, f, f, f, t, f)
 vec5 <- 6:16
 
 vec5_tested <- vec5 |>
-  grim(50, digits_x = 0, percent = TRUE) |>
+  grim(50, digits_x = 0, items_averaged = 1, percent = TRUE) |>
   unname()
 
 vec5_expected <- c(t, f, t, f, t, f, t, f, t, f, t)
@@ -80,7 +80,7 @@ vec <- 5 |> seq(5.99, by = 0.01) |> round(2)
 
 
 test_that("The number of outputs matches the number of inputs", {
-  vec |> grim(28, digits_x = 2) |> expect_length(length(vec))
+  vec |> grim(28, digits_x = 2, items_averaged = 1) |> expect_length(length(vec))
 })
 
 
@@ -95,7 +95,7 @@ x <- rnorm(x_length, 50, 20) |>
 
 
 test_that("There are as many outputs as inputs", {
-  x |> grim(50, digits_x = 2) |> expect_length(x_length)
+  x |> grim(50, digits_x = 2, items_averaged = 1) |> expect_length(x_length)
 })
 
 
@@ -109,27 +109,27 @@ test_that("There are as many outputs as inputs", {
 
 test_that("granules exactly on the exclusive `\"up\"` bound are rejected", {
   # 3 / 40 is 0.075, which rounds up to 0.08, not to 0.07:
-  0.07 |> grim(n = 40, digits_x = 2, rounding = "up") |> expect_false()
-  0.17 |> grim(n = 40, digits_x = 2, rounding = "up") |> expect_false()
-  0.07 |> grim(n = 80, digits_x = 2, rounding = "up") |> expect_false()
+  0.07 |> grim(n = 40, digits_x = 2, items_averaged = 1, rounding = "up") |> expect_false()
+  0.17 |> grim(n = 40, digits_x = 2, items_averaged = 1, rounding = "up") |> expect_false()
+  0.07 |> grim(n = 80, digits_x = 2, items_averaged = 1, rounding = "up") |> expect_false()
   # Mirrored case with a negative mean:
-  -0.03 |> grim(n = 40, digits_x = 2, rounding = "up") |> expect_false()
-  -0.03 |> grim(n = 80, digits_x = 2, rounding = "up") |> expect_false()
+  -0.03 |> grim(n = 40, digits_x = 2, items_averaged = 1, rounding = "up") |> expect_false()
+  -0.03 |> grim(n = 80, digits_x = 2, items_averaged = 1, rounding = "up") |> expect_false()
   # Three-decimal variant: 47 / 400 is 0.1175, which rounds up to 0.118:
-  0.117 |> grim(n = 400, digits_x = 3, rounding = "up") |> expect_false()
-  0.117 |> grim(n = 800, digits_x = 3, rounding = "up") |> expect_false()
+  0.117 |> grim(n = 400, digits_x = 3, items_averaged = 1, rounding = "up") |> expect_false()
+  0.117 |> grim(n = 800, digits_x = 3, items_averaged = 1, rounding = "up") |> expect_false()
 })
 
 
 test_that("granules exactly on an inclusive bound are accepted", {
   # The same granules as above, but now with rounding methods for which the
   # bound they sit on is inclusive:
-  0.07 |> grim(n = 40, digits_x = 2, rounding = "up_or_down") |> expect_true()
+  0.07 |> grim(n = 40, digits_x = 2, items_averaged = 1, rounding = "up_or_down") |> expect_true()
   # Under `"down"` it is the *lower* bound that is exclusive, so the granule
   # 3 / 40 = 0.075 now sits on the inclusive upper bound of 0.07:
-  0.07 |> grim(n = 40, digits_x = 2, rounding = "down") |> expect_true()
-  -0.03 |> grim(n = 40, digits_x = 2, rounding = "up_or_down") |> expect_true()
-  0.117 |> grim(n = 400, digits_x = 3, rounding = "up_or_down") |> expect_true()
+  0.07 |> grim(n = 40, digits_x = 2, items_averaged = 1, rounding = "down") |> expect_true()
+  -0.03 |> grim(n = 40, digits_x = 2, items_averaged = 1, rounding = "up_or_down") |> expect_true()
+  0.117 |> grim(n = 400, digits_x = 3, items_averaged = 1, rounding = "up_or_down") |> expect_true()
 })
 
 
@@ -158,7 +158,7 @@ test_that("GRIM agrees with the rounding functions themselves", {
     rounding <- cases$rounding[i]
     x <- seq(0, 10^digits) / 10^digits
     x |>
-      grim(n, digits_x = digits, rounding = rounding) |>
+      grim(n, digits_x = digits, items_averaged = 1, rounding = rounding) |>
       unname() |>
       expect_equal(vapply(x, oracle, logical(1), n, digits, rounding))
   }
@@ -175,20 +175,20 @@ test_that("`symmetric` is honored by the consistency decision", {
   -0.075 |> round_up(2, symmetric = FALSE) |> expect_equal(-0.07)
   -0.075 |> round_up(2, symmetric = TRUE)  |> expect_equal(-0.08)
 
-  -0.07 |> grim(n = 40, digits_x = 2, rounding = "up", symmetric = FALSE) |> expect_true()
-  -0.07 |> grim(n = 40, digits_x = 2, rounding = "up", symmetric = TRUE)  |> expect_false()
+  -0.07 |> grim(n = 40, digits_x = 2, items_averaged = 1, rounding = "up", symmetric = FALSE) |> expect_true()
+  -0.07 |> grim(n = 40, digits_x = 2, items_averaged = 1, rounding = "up", symmetric = TRUE)  |> expect_false()
 
   # Mirrored the other way around: with `symmetric`, `"down"` is what keeps
   # -0.075 at -0.07.
-  -0.07 |> grim(n = 40, digits_x = 2, rounding = "down", symmetric = FALSE) |> expect_false()
-  -0.07 |> grim(n = 40, digits_x = 2, rounding = "down", symmetric = TRUE)  |> expect_true()
+  -0.07 |> grim(n = 40, digits_x = 2, items_averaged = 1, rounding = "down", symmetric = FALSE) |> expect_false()
+  -0.07 |> grim(n = 40, digits_x = 2, items_averaged = 1, rounding = "down", symmetric = TRUE)  |> expect_true()
 
   # Positive values are unaffected:
   for (rounding in c("up", "down", "up_or_down")) {
     x <- seq(0, 100) / 100
-    expected <- x |> grim(40, digits_x = 2, rounding = rounding, symmetric = FALSE) |> unname()
+    expected <- x |> grim(40, digits_x = 2, items_averaged = 1, rounding = rounding, symmetric = FALSE) |> unname()
     x |>
-      grim(40, digits_x = 2, rounding = rounding, symmetric = TRUE) |>
+      grim(40, digits_x = 2, items_averaged = 1, rounding = rounding, symmetric = TRUE) |>
       unname() |>
       expect_equal(expected)
   }
@@ -211,7 +211,7 @@ test_that("`symmetric` GRIM agrees with the rounding functions themselves", {
     for (n in c(4, 20, 40, 80, 160)) {
       x <- c(seq(-50, 50) / 100)
       x |>
-        grim(n, digits_x = 2, rounding = rounding, symmetric = TRUE) |>
+        grim(n, digits_x = 2, items_averaged = 1, rounding = rounding, symmetric = TRUE) |>
         unname() |>
         expect_equal(
           vapply(x, oracle_symmetric, logical(1), n, 2, rounding),
@@ -231,10 +231,10 @@ test_that("`threshold` does not affect the non-`\"*_from\"` methods", {
   x <- seq(0, 100) / 100
 
   for (rounding in c("up_or_down", "up", "down")) {
-    baseline <- grim(x, 40, digits_x = 2, rounding = rounding)
+    baseline <- grim(x, 40, digits_x = 2, items_averaged = 1, rounding = rounding)
     for (threshold in c(1, 3, 7, 9)) {
       x |>
-        grim(40, digits_x = 2, rounding = rounding, threshold = threshold) |>
+        grim(40, digits_x = 2, items_averaged = 1, rounding = rounding, threshold = threshold) |>
         unname() |>
         expect_equal(
           unname(baseline),
@@ -244,9 +244,9 @@ test_that("`threshold` does not affect the non-`\"*_from\"` methods", {
   }
 
   # By contrast, `"up_from"` does respond to it:
-  up_from_9 <- x |> grim(40, digits_x = 2, rounding = "up_from", threshold = 9) |> unname()
+  up_from_9 <- x |> grim(40, digits_x = 2, items_averaged = 1, rounding = "up_from", threshold = 9) |> unname()
   x |>
-    grim(40, digits_x = 2, rounding = "up_from", threshold = 1) |>
+    grim(40, digits_x = 2, items_averaged = 1, rounding = "up_from", threshold = 1) |>
     unname() |>
     identical(up_from_9) |>
     expect_false()
@@ -257,30 +257,30 @@ test_that("`grim(tolerance = )` is deprecated", {
   # GRIM compares exact integers, so the argument never had an effect on its
   # results. It was kept "because `grimmer()` and `debit()` inherit it and do
   # use it" -- but `debit()` never had it.
-  5.19 |> grim(n = 28, digits_x = 2, tolerance = 1e-6) |> lifecycle::expect_deprecated()
+  5.19 |> grim(n = 28, digits_x = 2, items_averaged = 1, tolerance = 1e-6) |> lifecycle::expect_deprecated()
   # The mapper reaches `grim_scalar()` once per row, and testthat sets
   # lifecycle's verbosity so that every one of those warns rather than only the
   # first; the outer `suppressWarnings()` mops up the repeats:
   pigs1 |>
-    grim_map(digits_x = 2, tolerance = 1e-6) |>
+    grim_map(digits_x = 2, items_averaged = 1, tolerance = 1e-6) |>
     expect_warning("deprecated") |>
     suppressWarnings()
 
   # The verdict is the same either way:
   5.19 |>
-    grim(n = 28, digits_x = 2, tolerance = 1e-6) |>
+    grim(n = 28, digits_x = 2, items_averaged = 1, tolerance = 1e-6) |>
     suppressWarnings() |>
-    expect_equal(grim(x = 5.19, n = 28, digits_x = 2))
+    expect_equal(grim(x = 5.19, n = 28, digits_x = 2, items_averaged = 1))
 
   # Not specifying it is silent, and `grimmer()` -- which calls `grim_scalar()`
   # internally -- must not trip it either. Its own `tolerance` is deprecated
   # the same way:
-  5.19 |> grim(n = 28, digits_x = 2) |> expect_no_condition()
+  5.19 |> grim(n = 28, digits_x = 2, items_averaged = 1) |> expect_no_condition()
   5.19 |>
-    grimmer(sd = 0.5, n = 28, digits_x = 2, digits_sd = 2) |>
+    grimmer(sd = 0.5, n = 28, digits_x = 2, digits_sd = 2, items_averaged = 1) |>
     expect_no_condition()
   5.19 |>
-    grimmer(sd = 0.5, n = 28, digits_x = 2, digits_sd = 2, tolerance = 1e-6) |>
+    grimmer(sd = 0.5, n = 28, digits_x = 2, digits_sd = 2, items_averaged = 1, tolerance = 1e-6) |>
     lifecycle::expect_deprecated()
 
   # `debit()` has no such argument at all:
@@ -289,15 +289,37 @@ test_that("`grim(tolerance = )` is deprecated", {
 
 
 test_that("a string `n` is an error, not an unexplained `NA`", {
-  5.19 |> grim("28", 2) |> expect_error("`n` must be one of these types")
+  5.19 |> grim("28", 2, items_averaged = 1) |> expect_error("`n` must be one of these types")
   tibble::tibble(x = 5.19, n = "28") |>
-    grim_map(digits_x = 2) |>
+    grim_map(digits_x = 2, items_averaged = 1) |>
     expect_error("`n` must be one of these types")
-  5.19 |> grim(NA, 2) |> is.na() |> expect_true()
+  5.19 |> grim(NA, 2, items_averaged = 1) |> is.na() |> expect_true()
 })
 
 
 test_that("a plain `NA` for `items` is missing, not a type error", {
-  5.19 |> grim(20, digits_x = 2, items = NA)                            |> expect_equal(NA)
-  5.19 |> grimmer(1.2, 20, digits_x = 2, digits_sd = 1, items = NA)     |> expect_equal(NA)
+  5.19 |> grim(20, digits_x = 2, items_averaged = NA)                        |> expect_equal(NA)
+  5.19 |> grimmer(1.2, 20, digits_x = 2, digits_sd = 1, items_averaged = NA) |> expect_equal(NA)
+})
+
+
+# `items` defaulted to 1, which let multi-item scales be tested as single items.
+test_that("a missing `items_averaged` is a bespoke error everywhere", {
+  df <- tibble::tibble(x = 5.19, n = 28)
+
+  5.19 |> grim(28, 2)                         |> expect_error("Need to specify `items_averaged`")
+  5.19 |> grimmer(1.2, 28, 2, 1)              |> expect_error("Need to specify `items_averaged`")
+  5.19 |> grim_values(28, 2)                  |> expect_error("Need to specify `items_averaged`")
+  5.19 |> grim_closest(28, 2)                 |> expect_error("Need to specify `items_averaged`")
+  5.19 |> grim_probability(28, 2)             |> expect_error("Need to specify `items_averaged`")
+  5.19 |> grim_explain(28, 2)                 |> expect_error("Need to specify `items_averaged`")
+  5.19 |> grim_plot_values(28, 2)             |> expect_error("Need to specify `items_averaged`")
+  df   |> grim_map(digits_x = 2)              |> expect_error("an `items_averaged` column")
+  df   |> grim_map_seq(digits_x = 2)          |> expect_error("an `items_averaged` column")
+
+  # An old `items` column is no substitute, and the message says why:
+  df |> dplyr::mutate(items = 2) |> grim_map(digits_x = 2) |> expect_error("replaces `items`")
+
+  # The new column satisfies it as well as the argument:
+  df |> dplyr::mutate(items_averaged = 1) |> grim_map(digits_x = 2) |> expect_equal(grim_map(df, digits_x = 2, items_averaged = 1))
 })

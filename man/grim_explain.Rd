@@ -8,7 +8,7 @@ grim_explain(
   x,
   n,
   digits_x,
-  items = 1,
+  items_averaged,
   percent = FALSE,
   rounding = "up_or_down",
   threshold = 5,
@@ -24,7 +24,9 @@ grim_explain(
 trailing zeros. There is no default, since a numeric value does not
 keep them (\code{1.40} is \code{1.4}).}
 
-\item{items}{Numeric. The number of items composing \code{x}. Default is 1.}
+\item{items_averaged}{Integer. The number of items averaged into each
+respondent's score: 1 for a single item or a percentage, 4 for the mean of
+a four-item scale. Not the number of scale points. There is no default.}
 
 \item{percent}{Logical. If \code{TRUE}, \code{x} is a percentage: it is divided by
 100 and the decimal count is increased by 2. Default is \code{FALSE}.}
@@ -59,11 +61,17 @@ The text is built from the numbers that decide the test itself, so it
 always agrees with \code{\link[=grim]{grim()}}.
 }
 \examples{
-grim_explain(x = 5.19, n = 28, digits_x = 2)
+grim_explain(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
 
-grim_explain(x = 5.19, n = 32, digits_x = 2)
+grim_explain(x = 5.19, n = 32, digits_x = 2, items_averaged = 1)
 
-grim_explain(x = 71, n = 43, digits_x = 0, percent = TRUE)
+grim_explain(
+  x = 71,
+  n = 43,
+  digits_x = 0,
+  items_averaged = 1,
+  percent = TRUE
+)
 }
 \seealso{
 \code{\link[=grimmer_explain]{grimmer_explain()}} and \code{\link[=debit_explain]{debit_explain()}} for the other tests,

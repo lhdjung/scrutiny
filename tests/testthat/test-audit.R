@@ -1,7 +1,7 @@
 # `audit()` ---------------------------------------------------------------
 
 # `audit()` for GRIM
-data_grim <- pigs1 |> grim_map(digits_x = 2)
+data_grim <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1)
 audit_grim <- data_grim |> audit()
 
 test_that("`audit()` summarizes GRIM tests accurately", {
@@ -25,8 +25,8 @@ test_that("`audit()` summarizes DEBIT tests accurately", {
 
 # `audit_seq()` -----------------------------------------------------------
 
-data_grim_seq    <- pigs1 |> grim_map_seq(digits_x = 2) # fmt: skip
-data_grimmer_seq <- pigs5 |> grimmer_map_seq(digits_x = 2, digits_sd = 2) # fmt: skip
+data_grim_seq    <- pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1) # fmt: skip
+data_grimmer_seq <- pigs5 |> grimmer_map_seq(digits_x = 2, digits_sd = 2, items_averaged = 1) # fmt: skip
 data_debit_seq   <- pigs3 |> debit_map_seq(digits_x = 2, digits_sd = 2) # fmt: skip
 
 # The scrutiny class is removed for the GRIM tibble because the latter is tested
@@ -38,6 +38,7 @@ audit_seq_debit <- data_debit_seq |> audit_seq()
 data_seq_grim_different_dispersion1 <- tibble::tibble(
   x = 4.74,
   n = 25L,
+  items_averaged = 1,
   consistency = FALSE,
   hits_total = 1L,
   hits_x = 0L,
@@ -54,6 +55,7 @@ data_seq_grim_different_dispersion1 <- tibble::tibble(
 data_seq_grim_different_dispersion2 <- tibble::tibble(
   x = 5.23,
   n = 29L,
+  items_averaged = 1,
   consistency = FALSE,
   hits_total = 3L,
   hits_x = 1L,
@@ -68,19 +70,19 @@ data_seq_grim_different_dispersion2 <- tibble::tibble(
   structure(class = c("scrutiny_audit_seq", "tbl_df", "tbl", "data.frame"))
 
 data_incons <- pigs1 |>
-  grim_map(digits_x = 2) |>
+  grim_map(digits_x = 2, items_averaged = 1) |>
   dplyr::filter(!consistency) |>
-  dplyr::select(x, n, consistency) |>
+  dplyr::select(x, n, items_averaged, consistency) |>
   unclass_scr()
 
 
 test_that("`audit_seq()` has correct output", {
-  audit_seq_grim |> dim() |> expect_equal(c(8, 12))
-  audit_seq_grim[1:3] |> expect_equal(data_incons)
-  audit_seq_grim[[4]] |> expect_equal(c(4, 6, 6, 7, 3, 6, 8, 6))
-  audit_seq_grim[[5]] |> expect_equal(c(2, 3, 3, 3, 3, 3, 4, 3))
-  audit_seq_grim[[6]] |> expect_equal(c(2, 3, 3, 4, 0, 3, 4, 3))
-  audit_seq_grim[[7]] |> expect_equal(c(2, 1, 1, 1, 1, 1, 1, 1))
+  audit_seq_grim |> dim() |> expect_equal(c(8, 13))
+  audit_seq_grim[1:4] |> expect_equal(data_incons)
+  audit_seq_grim[[5]] |> expect_equal(c(4, 6, 6, 7, 3, 6, 8, 6))
+  audit_seq_grim[[6]] |> expect_equal(c(2, 3, 3, 3, 3, 3, 4, 3))
+  audit_seq_grim[[7]] |> expect_equal(c(2, 3, 3, 4, 0, 3, 4, 3))
+  audit_seq_grim[[8]] |> expect_equal(c(2, 1, 1, 1, 1, 1, 1, 1))
 })
 
 
@@ -108,7 +110,7 @@ test_that("`audit_seq()` replays the original call's test arguments
   # but leaves no trace in the output columns, so it used to be dropped by
   # `audit_seq()`, whose `consistency` column then wrongly said `TRUE`:
   tibble::tibble(x = 71, n = 43) |>
-    grim_map_seq(digits_x = 0, percent = TRUE, include_consistent = TRUE) |>
+    grim_map_seq(digits_x = 0, items_averaged = 1, percent = TRUE, include_consistent = TRUE) |>
     audit_seq() |>
     dplyr::pull(consistency) |>
     expect_false()
@@ -118,6 +120,7 @@ test_that("`audit_seq()` replays the original call's test arguments
   tibble::tibble(x = 0.24, n = 21) |>
     grim_map_seq(
       digits_x = 2,
+      items_averaged = 1,
       rounding = "up_from",
       threshold = 9,
       include_consistent = TRUE
@@ -131,12 +134,12 @@ test_that("`audit_seq()` replays the original call's test arguments
 test_that("changing `dispersion` in the sequence mapper is
           correctly captured by `audit_seq()`", {
   pigs1[1:2, ] |>
-    grim_map_seq(digits_x = 2, dispersion = c(7, 8, 9)) |>
+    grim_map_seq(digits_x = 2, items_averaged = 1, dispersion = c(7, 8, 9)) |>
     audit_seq() |>
     expect_equal(data_seq_grim_different_dispersion1)
 
   tibble::tibble(x = 5.23, n = 29) |>
-    grim_map_seq(digits_x = 2, dispersion = c(3, 5, 7)) |>
+    grim_map_seq(digits_x = 2, items_averaged = 1, dispersion = c(3, 5, 7)) |>
     audit_seq() |>
     expect_equal(data_seq_grim_different_dispersion2)
 })
@@ -144,7 +147,7 @@ test_that("changing `dispersion` in the sequence mapper is
 
 test_that("`audit_seq()` rejects a `dispersion` that is not linear", {
   seq_nonlinear <- pigs1[1:2, ] |>
-    grim_map_seq(digits_x = 2, dispersion = c(3, 1, 2))
+    grim_map_seq(digits_x = 2, items_averaged = 1, dispersion = c(3, 1, 2))
   seq_nonlinear |> audit_seq() |> expect_error("linearly increasing")
   seq_nonlinear |> reverse_map_seq() |> expect_error("linearly increasing")
 })
@@ -155,7 +158,7 @@ test_that("`audit_seq()` orders its columns by `var`", {
   # `rank()`, not `order()`. The two are inverses of each other and agree only
   # up to three variables that don't form a cycle.
   out <- pigs5[1:3, ] |>
-    grimmer_map_seq(digits_x = 2, digits_sd = 2, var = c("sd", "x", "n")) |>
+    grimmer_map_seq(digits_x = 2, digits_sd = 2, items_averaged = 1, var = c("sd", "x", "n")) |>
     audit_seq()
   out |>
     colnames() |>
@@ -166,10 +169,10 @@ test_that("`audit_seq()` orders its columns by `var`", {
 
 test_that("`audit_seq()` results don't depend on the order of `var`", {
   a <- pigs5[1:3, ] |>
-    grimmer_map_seq(digits_x = 2, digits_sd = 2) |>
+    grimmer_map_seq(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
     audit_seq()
   b <- pigs5[1:3, ] |>
-    grimmer_map_seq(digits_x = 2, digits_sd = 2, var = c("n", "x", "sd")) |>
+    grimmer_map_seq(digits_x = 2, digits_sd = 2, items_averaged = 1, var = c("n", "x", "sd")) |>
     audit_seq()
   a[, sort(colnames(a))] |> expect_equal(b[, sort(colnames(b))])
 })
@@ -183,7 +186,7 @@ test_that("`audit_seq()` results don't depend on the order of `var`", {
 
 test_that("`audit()` summarizes the decidable cases despite an undecidable one", {
   out <- tibble::tibble(x = c(7.22, 5.19), n = c(38, NA)) |>
-    grim_map(digits_x = 2) |>
+    grim_map(digits_x = 2, items_averaged = 1) |>
     audit()
 
   out$mean_grim_prob |> is.na() |> expect_false()
@@ -195,9 +198,9 @@ test_that("`audit()` summarizes the decidable cases despite an undecidable one",
 
 test_that("undecidable cases don't dilute `incons_to_prob`", {
   df <- tibble::tibble(x = 5.19, n = c(28, 28, NA, NA))
-  expected <- df[1:2, ] |> grim_map(digits_x = 2) |> audit() |> purrr::pluck("incons_to_prob")
+  expected <- df[1:2, ] |> grim_map(digits_x = 2, items_averaged = 1) |> audit() |> purrr::pluck("incons_to_prob")
   df |>
-    grim_map(digits_x = 2) |>
+    grim_map(digits_x = 2, items_averaged = 1) |>
     audit() |>
     purrr::pluck("incons_to_prob") |>
     expect_equal(expected)
@@ -222,12 +225,12 @@ test_that("`audit()` ignores a missing `n` in DEBIT's `distinct_n`", {
 })
 
 test_that("`audit()` on GRIMMER output without rows has zero counts", {
-  out <- pigs5[0, ] |> grimmer_map(digits_x = 2, digits_sd = 2) |> audit() |> expect_silent()
+  out <- pigs5[0, ] |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |> audit() |> expect_silent()
   out |> dplyr::select(dplyr::starts_with("fail_")) |> unlist(use.names = FALSE) |> expect_equal(rep(0L, 3))
 })
 
 test_that("`audit()` names the columns it lacks", {
-  pigs1 |> grim_map(digits_x = 2)                       |> dplyr::select(x)    |> audit() |> expect_error("Missing: `consistency` and `probability`")
-  pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2)     |> dplyr::select(x)    |> audit() |> expect_error("Missing: `consistency`")
-  pigs3 |> debit_map(digits_x = 2, digits_sd = 2)       |> dplyr::select(-sd)  |> audit() |> expect_error("Missing: `sd`")
+  pigs1 |> grim_map(digits_x = 2, items_averaged = 1)                   |> dplyr::select(x)   |> audit() |> expect_error("Missing: `consistency` and `probability`")
+  pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |> dplyr::select(x)   |> audit() |> expect_error("Missing: `consistency`")
+  pigs3 |> debit_map(digits_x = 2, digits_sd = 2)                       |> dplyr::select(-sd) |> audit() |> expect_error("Missing: `sd`")
 })

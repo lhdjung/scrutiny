@@ -5,14 +5,15 @@
 \alias{grim_items}
 \title{Granularity of non-continuous scales}
 \usage{
-grim_granularity(n, items = 1)
+grim_granularity(n, items_averaged = 1)
 
 grim_items(n, gran, tolerance = .Machine$double.eps^0.5)
 }
 \arguments{
 \item{n}{Numeric. Sample size.}
 
-\item{items}{Numeric. Number of items. Default is 1.}
+\item{items_averaged}{Numeric. Number of items averaged into each score.
+Default is 1.}
 
 \item{gran}{Numeric. Granularity.}
 
@@ -25,8 +26,8 @@ Numeric. Granularity or number of items.
 }
 \description{
 \code{grim_granularity()} returns the smallest difference between
-two means that a scale with \code{items} items and \code{n} observations can
-produce: \code{1 / (n * items)}.
+two means that a scale with \code{items_averaged} items and \code{n} observations can
+produce: \code{1 / (n * items_averaged)}.
 
 \code{grim_items()} inverts it: given the granularity, it returns the number
 of items.
@@ -42,7 +43,7 @@ it.
 }
 \examples{
 grim_granularity(n = 16)
-grim_granularity(n = 16, items = 2)
+grim_granularity(n = 16, items_averaged = 2)
 
 grim_items(n = 1, gran = 0.5)
 

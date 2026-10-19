@@ -27,7 +27,7 @@
 #'
 #' @examples
 #' pigs1 |>
-#'   grim_map(digits_x = 2) |>
+#'   grim_map(digits_x = 2, items_averaged = 1) |>
 #'   audit()
 #'
 #' pigs4 |>
@@ -74,7 +74,7 @@ audit <- function(data) {
 #'
 #' @examples
 #' out <- pigs1 |>
-#'   grim_map_seq(digits_x = 2) |>
+#'   grim_map_seq(digits_x = 2, items_averaged = 1) |>
 #'   audit_seq()
 #' out
 #'
@@ -209,11 +209,12 @@ audit_seq <- function(data) {
 
   # The `*_map_seq()` output records the arguments that reproduce the test: the
   # `digits_*` values and everything the user passed through the dots, minus
-  # helper arguments such as `items`, which are columns of the output, and so of
-  # the reconstructed data. Replaying them keeps the re-test below faithful to the original
-  # call. Arguments like `percent`, `threshold`, `symmetric`, or GRIMMER's scale
-  # bounds change verdicts but leave no trace in the output columns, so they
-  # used to be silently dropped here, which could flip `consistency`:
+  # helper arguments such as `items_averaged`, which are columns of the output,
+  # and so of the reconstructed data. Replaying them keeps the re-test below
+  # faithful to the original call. Arguments like `percent`, `threshold`,
+  # `symmetric`, or GRIMMER's scale bounds change verdicts but leave no trace in
+  # the output columns, so they used to be silently dropped here, which could
+  # flip `consistency`:
   args_replay <- meta$fun_args
 
   if (is.null(args_replay)) {

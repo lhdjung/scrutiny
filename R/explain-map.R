@@ -24,7 +24,7 @@
 #'
 #' @examples
 #' pigs1 |>
-#'   grim_map(digits_x = 2) |>
+#'   grim_map(digits_x = 2, items_averaged = 1) |>
 #'   dplyr::filter(!consistency) |>
 #'   explain_map()
 explain_map <- function(data) {
@@ -46,7 +46,12 @@ explain_map.default <- function(data) {
 
 #' @export
 explain_map.scrutiny_grim_map <- function(data) {
-  add_explanation_col(data, grim_explain, c("x", "n", "digits_x"), "items")
+  add_explanation_col(
+    data,
+    grim_explain,
+    c("x", "n", "digits_x"),
+    "items_averaged"
+  )
 }
 
 #' @export
@@ -55,7 +60,7 @@ explain_map.scrutiny_grimmer_map <- function(data) {
     data,
     grimmer_explain,
     c("x", "sd", "n", "digits_x", "digits_sd"),
-    "items"
+    "items_averaged"
   )
 }
 
@@ -76,7 +81,7 @@ explain_map.scrutiny_debit_map <- function(data) {
 
 # Calls `fun`, an `*_explain()` function, on each row of `data`: the key columns
 # as values, plus the settings recorded by the mapper. A helper column like
-# `items` is used if `data` has it.
+# `items_averaged` is used if `data` has it.
 add_explanation_col <- function(data, fun, cols_key, cols_helper = character()) {
   check_cols_needed(data, c(cols_key, "consistency"))
 

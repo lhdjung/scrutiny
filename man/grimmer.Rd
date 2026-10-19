@@ -11,7 +11,7 @@ grimmer(
   n,
   digits_x,
   digits_sd,
-  items = 1,
+  items_averaged,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
@@ -33,8 +33,7 @@ keep them (\code{1.40} is \code{1.4}).}
 trailing zeros. There is no default, since a numeric value does not
 keep them (\code{1.40} is \code{1.4}).}
 
-\item{items}{Integer. The number of items composing \code{x} and \code{sd}. Default
-is \code{1}.}
+\item{items_averaged}{Integer. As in \code{\link[=grim]{grim()}}, for \code{x} and \code{sd}.}
 
 \item{rounding}{String. The rounding method assumed to have produced \code{x}.
 Default is \code{"up_or_down"}, which accepts either direction. See
@@ -55,11 +54,11 @@ their absolute values (\code{-2.5} like \code{2.5}) under \code{"up"}, \code{"do
 effect: the test decides in exact integer arithmetic.}
 }
 \value{
-Logical. \code{TRUE} if \code{x}, \code{sd}, \code{n}, and \code{items} are consistent,
-\code{FALSE} if not, and \code{NA} if the case cannot be decided: if a value is
-missing or infinite, if \code{items} is not a positive whole number, or if \code{n}
-is not a whole number greater than \code{1}. GRIMMER reconstructs a sample SD
-and so divides by \code{n - 1}.
+Logical. \code{TRUE} if \code{x}, \code{sd}, \code{n}, and \code{items_averaged} are
+consistent, \code{FALSE} if not, and \code{NA} if the case cannot be decided: if a
+value is missing or infinite, if \code{items_averaged} is not a positive whole
+number, or if \code{n} is not a whole number greater than \code{1}. GRIMMER
+reconstructs a sample SD and so divides by \code{n - 1}.
 }
 \description{
 \code{grimmer()} checks whether a reported mean and standard
@@ -72,7 +71,7 @@ The function is vectorized, but \code{\link[=grimmer_map]{grimmer_map()}} is mor
 testing many cases.
 }
 \details{
-\code{x}, \code{sd}, \code{n}, \code{digits_x}, \code{digits_sd}, and \code{items} are
+\code{x}, \code{sd}, \code{n}, \code{digits_x}, \code{digits_sd}, and \code{items_averaged} are
 vectorized and recycled to a common length by the tidyverse rules. All
 other arguments must have length 1.
 
@@ -87,14 +86,35 @@ decides exactly whether a mean and SD are possible within the bounds.
 \examples{
 # A mean of 5.23 is not consistent with an SD of 2.55
 # and a sample size of 35:
-grimmer(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2)
+grimmer(
+  x = 5.23,
+  sd = 2.55,
+  n = 35,
+  digits_x = 2,
+  digits_sd = 2,
+  items_averaged = 1
+)
 
 # However, mean and SD are consistent with a
 # sample size of 31:
-grimmer(x = 5.23, sd = 2.55, n = 31, digits_x = 2, digits_sd = 2)
+grimmer(
+  x = 5.23,
+  sd = 2.55,
+  n = 31,
+  digits_x = 2,
+  digits_sd = 2,
+  items_averaged = 1
+)
 
 # For a scale composed of two items:
-grimmer(x = 2.74, sd = 0.96, n = 63, digits_x = 2, digits_sd = 2, items = 2)
+grimmer(
+  x = 2.74,
+  sd = 0.96,
+  n = 63,
+  digits_x = 2,
+  digits_sd = 2,
+  items_averaged = 2
+)
 }
 \references{
 Allard, A. (2018). Analytic-GRIMMER: a new way of testing the

@@ -208,7 +208,7 @@ A few things to know about this mode:
 
 ### Drawbacks
 
-The only reason to write a mapper by hand is a check, message, or transformation that is specific to one test and that `function_map()` does not provide. All three of scrutiny's own basic mappers are made by `function_map()`, including the `reason` and `show_rec` columns, the `items` helper column, and GRIM's `probability` column, which comes from `.cols_derived` rather than from `grim_scalar()`. If you use `function_map()`, skip to section 4.
+The only reason to write a mapper by hand is a check, message, or transformation that is specific to one test and that `function_map()` does not provide. All three of scrutiny's own basic mappers are made by `function_map()`, including the `reason` and `show_rec` columns, the `items_averaged` helper column, and GRIM's `probability` column, which comes from `.cols_derived` rather than from `grim_scalar()`. If you use `function_map()`, skip to section 4.
 
 ## Writing mappers manually
 
@@ -220,7 +220,7 @@ The rest of section 3 explains how to write a mapper by hand. The requirements a
 
 It's important to distinguish between *key arguments or columns* and other arguments or columns. The key arguments in a scalar or vectorized consistency-testing function are the values that are tested for consistency with each other, such as `x` and `n` in `grim()`. By extension, key columns are those that contain such values. Every key column has the same name as the respective key argument.
 
-A *helper column* is a column that is not key itself, but still factors into the consistency test. An example is the optional `items` column in `grim_map()`'s input data frame.
+A *helper column* is a column that is not key itself, but still factors into the consistency test. An example is the `items_averaged` column in `grim_map()`'s input data frame, which may also be given as an argument.
 
 Key and helper columns are *tested* columns because they factor into the test. Any other columns are *non-tested*.
 
@@ -315,7 +315,7 @@ schlim_map_alt2 <- function(data, y = NULL, n = NULL, ...) {
 }
 ```
 
-`absorb_key_args()` renames a column that the user named through a key argument, so that `schlim_map_alt1(df, y = score)` works like `grim_map(df, x = mean)`. `check_mapper_input_colnames()` is not required, but it reports a missing key column or an existing `"consistency"` column clearly. For a helper column such as `items` in `grim_map()`, add an argument by its name and call `manage_helper_col()`.
+`absorb_key_args()` renames a column that the user named through a key argument, so that `schlim_map_alt1(df, y = score)` works like `grim_map(df, x = mean)`. `check_mapper_input_colnames()` is not required, but it reports a missing key column or an existing `"consistency"` column clearly. For a helper column such as `items_averaged` in `grim_map()`, add an argument by its name and call `manage_helper_col()`.
 
 Both approaches should lead to the same results:
 
@@ -418,11 +418,11 @@ Each `audit()` method should be documented on the same page as its respective ma
 
 ```{r}
 audit_grim <- pigs1 |>
-  grim_map(digits_x = 2) |>
+  grim_map(digits_x = 2, items_averaged = 1) |>
   audit()
 
 audit_grimmer <- pigs5 |>
-  grimmer_map(digits_x = 2, digits_sd = 2) |>
+  grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
   audit()
 
 write_doc_audit(sample_output = audit_grim, name_test = "GRIM")

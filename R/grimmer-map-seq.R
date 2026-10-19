@@ -54,6 +54,7 @@
 #'   pigs5,
 #'   digits_x = 2,
 #'   digits_sd = 2,
+#'   items_averaged = 1,
 #'   include_consistent = TRUE
 #' )
 #' out

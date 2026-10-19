@@ -82,22 +82,22 @@
 #' # `grim_plot()` reads the number of decimal places
 #' # from the `digits_x` column:
 #' pigs1 |>
-#'   grim_map(digits_x = 2) |>
+#'   grim_map(digits_x = 2, items_averaged = 1) |>
 #'   grim_plot()
 #'
 #' # The raster follows the rounding method of the `grim_map()` call:
 #' pigs1 |>
-#'   grim_map(digits_x = 2, rounding = "ceiling") |>
+#'   grim_map(digits_x = 2, items_averaged = 1, rounding = "ceiling") |>
 #'   grim_plot()
 #'
 #' # Percentages are plotted as proportions:
 #' pigs2 |>
-#'   grim_map(digits_x = 1, percent = TRUE) |>
+#'   grim_map(digits_x = 1, items_averaged = 1, percent = TRUE) |>
 #'   grim_plot()
 #'
 #' # Other colors for the value sets:
 #' pigs1 |>
-#'   grim_map(digits_x = 2) |>
+#'   grim_map(digits_x = 2, items_averaged = 1) |>
 #'   grim_plot() +
 #'   ggplot2::scale_colour_manual(
 #'     values = c("TRUE" = "darkgreen", "FALSE" = "orange"),
@@ -218,7 +218,7 @@ grim_plot <- function(
       x = list(
         x = 0,
         n = 1,
-        items = 1,
+        items_averaged = 1,
         digits_x = 2L,
         consistency = TRUE
       ),
@@ -230,10 +230,10 @@ grim_plot <- function(
   # Whether `x` was tested as a percentage, as recorded by `grim_map()`:
   is_percent <- isTRUE(scrutiny_meta(data)$args$percent)
 
-  # The mappers keep `items` apart from `n`, but GRIM's granularity is their
-  # product:
-  if ("items" %in% colnames(data)) {
-    data$n <- data$n * data$items
+  # The mappers keep `items_averaged` apart from `n`, but GRIM's granularity is
+  # their product:
+  if ("items_averaged" %in% colnames(data)) {
+    data$n <- data$n * data$items_averaged
   }
 
   # Nothing to read a decimal count off, no raster to choose, no data to draw.

@@ -137,9 +137,9 @@ function_map_total_n_proto <- function(
       }
     }
 
-    # Helper columns such as `items` are not among the reported columns that
-    # `out_df` was built from, so they are brought along from `data` here, one
-    # value per case. Otherwise, `fun()` would never see them:
+    # Helper columns such as `items_averaged` are not among the reported columns
+    # that `out_df` was built from, so they are brought along from `data` here,
+    # one value per case. Otherwise, `fun()` would never see them:
     args_helper <- attr(fun, "scrutiny_args_helper", exact = TRUE)
     for (name in intersect(args_helper, colnames(data))) {
       out_df[[name]] <- data[[name]][case]

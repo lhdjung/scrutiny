@@ -33,7 +33,7 @@ The GRIMMER functions work like their GRIM counterparts, so this vignette follow
 To test whether a mean of 7.3 and an SD of 2.51 are consistent with a sample size of 12:
 
 ```{r}
-grimmer(x = 7.3, sd = 2.51, n = 12, digits_x = 1, digits_sd = 2)
+grimmer(x = 7.3, sd = 2.51, n = 12, digits_x = 1, digits_sd = 2, items_averaged = 1)
 ```
 
 `digits_x` and `digits_sd` are the numbers of decimal places in the reported mean and SD. They have no defaults because they cannot be inferred from numeric values, which lose their trailing zeros.
@@ -54,7 +54,7 @@ flying_pigs1 <- tibble::tribble(
    7.3 , 3.14 , 25
 )
 
-grimmer_map(flying_pigs1, digits_x = 1, digits_sd = 2)
+grimmer_map(flying_pigs1, digits_x = 1, digits_sd = 2, items_averaged = 1)
 ```
 
 `consistency` is the test result, and `reason` states which part of the test an inconsistent value set failed. A value set passes GRIMMER if it passes GRIM and the three tests of @allard2018:
@@ -67,7 +67,7 @@ Consistent value sets are marked `"Passed all"`.
 
 ### Scale items
 
-If the mean and SD come from a multi-item scale, state the number of items with the `items` argument or an `items` column, as in `grim_map()`. With the default `items = 1`, half of these value sets from a three-item scale are wrongly reported as GRIM-inconsistent:
+If the mean and SD come from a multi-item scale, state the number of items with the `items_averaged` argument or column, as in `grim_map()`. Taken as single items, half of these value sets from a three-item scale are wrongly reported as GRIM-inconsistent:
 
 ```{r}
 flying_pigs2 <- tibble::tribble(
@@ -81,10 +81,10 @@ flying_pigs2 <- tibble::tribble(
 )
 
 flying_pigs2 |>
-  grimmer_map(digits_x = 2, digits_sd = 2)
+  grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1)
 
 flying_pigs2 |>
-  grimmer_map(digits_x = 2, digits_sd = 2, items = 3)
+  grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 3)
 ```
 
 ### Bounded scales
@@ -95,7 +95,7 @@ For data on a bounded scale, such as a five-point Likert scale, see the [strait]
 
 ```{r}
 flying_pigs1 |>
-  grimmer_map(digits_x = 1, digits_sd = 2) |>
+  grimmer_map(digits_x = 1, digits_sd = 2, items_averaged = 1) |>
   audit()
 ```
 
@@ -108,7 +108,7 @@ There is no GRIMMER-specific plot, but `grim_plot()` accepts `grimmer_map()` out
 
 ```{r, fig.width=6, fig.height=5.5}
 pigs5 |>
-  grimmer_map(digits_x = 2, digits_sd = 2) |>
+  grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
   grim_plot()
 ```
 
@@ -119,7 +119,7 @@ pigs5 |>
 `grimmer_map_seq()` varies `x`, `sd`, and `n` a few steps up and down from the reported values and tests each result, by default only for inconsistent value sets:
 
 ```{r}
-out_seq1 <- grimmer_map_seq(pigs5, digits_x = 2, digits_sd = 2)
+out_seq1 <- grimmer_map_seq(pigs5, digits_x = 2, digits_sd = 2, items_averaged = 1)
 out_seq1
 
 audit_seq(out_seq1)
@@ -132,6 +132,7 @@ out_seq2 <- grimmer_map_seq(
   pigs5,
   digits_x = 2,
   digits_sd = 2,
+  items_averaged = 1,
   dispersion = 1:10
 )
 audit_seq(out_seq2)
@@ -140,7 +141,7 @@ audit_seq(out_seq2)
 `grim_plot()` accepts this output as well, and `var` restricts the dispersion to one variable:
 
 ```{r, fig.width=6, fig.height=5.5}
-grimmer_map_seq(pigs5, digits_x = 2, digits_sd = 2, var = "n") |>
+grimmer_map_seq(pigs5, digits_x = 2, digits_sd = 2, items_averaged = 1, var = "n") |>
   grim_plot()
 ```
 
@@ -155,7 +156,7 @@ flying_pigs4 <- tibble::tribble(
   2.97 , 4.42 , 0.43 , 1.65 , 65
 )
 
-out_total_n <- grimmer_map_total_n(flying_pigs4, digits_x = 2, digits_sd = 2)
+out_total_n <- grimmer_map_total_n(flying_pigs4, digits_x = 2, digits_sd = 2, items_averaged = 1)
 out_total_n
 
 audit_total_n(out_total_n)

@@ -75,16 +75,16 @@
 #'   2.97, 4.42, 103
 #' )
 #'
-#' grim_map_total_n(df, digits_x = 2)
+#' grim_map_total_n(df, digits_x = 2, items_averaged = 1)
 #'
 #' # `hits_total` counts the splits in which both means are consistent:
 #' df |>
-#'   grim_map_total_n(digits_x = 2) |>
+#'   grim_map_total_n(digits_x = 2, items_averaged = 1) |>
 #'   audit_total_n()
 #'
 #' # More steps away from the even split tend to find more hits:
 #' df |>
-#'   grim_map_total_n(digits_x = 2, dispersion = 0:10) |>
+#'   grim_map_total_n(digits_x = 2, items_averaged = 1, dispersion = 0:10) |>
 #'   audit_total_n()
 
 grim_map_total_n <- function_map_total_n(

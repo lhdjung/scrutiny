@@ -17,7 +17,7 @@
 #'   2.97, 4.42, 103
 #' )
 #'
-#' out <- grim_map_total_n(df, digits_x = 2)
+#' out <- grim_map_total_n(df, digits_x = 2, items_averaged = 1)
 #'
 #' reverse_map_total_n(out)
 

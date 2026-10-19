@@ -9,7 +9,7 @@ grim_map(
   digits_x,
   x = NULL,
   n = NULL,
-  items = 1,
+  items_averaged,
   percent = FALSE,
   show_rec = FALSE,
   rounding = "up_or_down",
@@ -20,8 +20,8 @@ grim_map(
 )
 }
 \arguments{
-\item{data}{Tibble with columns \code{x} and \code{n}, and optionally \code{items}. Any
-other columns are returned alongside the results.}
+\item{data}{Tibble with columns \code{x} and \code{n}, and optionally
+\code{items_averaged}. Any other columns are returned alongside the results.}
 
 \item{digits_x}{Integer. The number of decimal places in \code{x}, including
 trailing zeros. There is no default, since a numeric value does not keep
@@ -31,9 +31,10 @@ one number per row of \code{data}.}
 \item{x, n}{Optionally, the names of the columns in \code{data} that contain these
 values, if they differ from the defaults.}
 
-\item{items}{Integer. The number of items composing \code{x}, if \code{data} has no
-\code{items} column. Default is 1. If given, as an argument or a column, it is
-returned as a column.}
+\item{items_averaged}{Integer. As in \code{\link[=grim]{grim()}}: the number of items
+averaged into each score, not the number of scale points. Give it as an
+argument or as a column of \code{data}; there is no default. It is returned as
+a column.}
 
 \item{percent}{Logical. If \code{TRUE}, the \code{x} values are percentages: they are
 divided by 100 and tested with two more decimal places. Default is
@@ -51,9 +52,9 @@ A tibble with these columns:
 \itemize{
 \item \code{x}, \code{n}: the inputs.
 \item \code{digits_x}: the number of decimal places in \code{x}, as given.
-\item \code{items}: the number of items, if given.
-\item \code{consistency}: GRIM consistency of \code{x}, \code{n}, and \code{items}. \code{NA} for a case
-that cannot be decided, such as one with a missing value.
+\item \code{items_averaged}: the number of items averaged into each score.
+\item \code{consistency}: GRIM consistency of \code{x}, \code{n}, and \code{items_averaged}. \code{NA} for
+a case that cannot be decided, such as one with a missing value.
 \item \code{probability}: the probability of GRIM inconsistency; see
 \code{\link[=grim_probability]{grim_probability()}}.
 \item Any other columns from \code{data}.
@@ -75,17 +76,17 @@ visualize it.
  With \code{show_rec = TRUE}, the output has these
 further columns, the same ones for every rounding method:
 \itemize{
-\item \code{rec_sum}: the product of \code{x} and \code{n} (times \code{items}), i.e., the sum total
-implied by the reported mean. It is generally not a whole number.
+\item \code{rec_sum}: the product of \code{x} and \code{n} (times \code{items_averaged}), i.e., the
+sum total implied by the reported mean. It is generally not a whole number.
 \item \code{sum_lower}, \code{sum_upper}: the least and the greatest whole-number sum total
 that would have been reported as \code{x}. A value set is consistent exactly if
 \code{sum_lower} is not greater than \code{sum_upper}. If it is inconsistent, the two
 are the whole numbers on either side of \code{rec_sum}, so their gap is always 1
 and does not measure how far off the reported values are.
 \item \code{rec_x_upper}, \code{rec_x_lower}: the two achievable means closest to \code{x},
-i.e., \code{rec_sum} rounded up and down, divided by \code{n} (times \code{items}).
-With \code{percent = TRUE}, these are percentages like \code{x}; the sum columns are
-not affected.
+i.e., \code{rec_sum} rounded up and down, divided by \code{n} (times
+\code{items_averaged}). With \code{percent = TRUE}, these are percentages like \code{x};
+the sum columns are not affected.
 }
 }
 
@@ -111,15 +112,15 @@ pigs1
 # The `consistency` column shows whether the
 # values to its left are GRIM-consistent:
 pigs1 |>
-  grim_map(digits_x = 2)
+  grim_map(digits_x = 2, items_averaged = 1)
 
 # Show the reconstructed numbers:
 pigs1 |>
-  grim_map(digits_x = 2, show_rec = TRUE)
+  grim_map(digits_x = 2, items_averaged = 1, show_rec = TRUE)
 
 # Get summaries with `audit()`:
 pigs1 |>
-  grim_map(digits_x = 2) |>
+  grim_map(digits_x = 2, items_averaged = 1) |>
   audit()
 }
 \references{

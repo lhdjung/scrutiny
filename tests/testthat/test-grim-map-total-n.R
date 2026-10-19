@@ -95,6 +95,7 @@ df2_rows_1_3_expected <- tibble::tibble(
     2
   ),
   n_change = rep(c(0L, 0L, -1L, 1L, -2L, 2L, -3L, 3L, -4L, 4L, -5L, 5L), 4),
+  items_averaged = rep(1, 48L),
   digits_x = rep(2, 48L),
   consistency = rep(
     c(
@@ -152,7 +153,7 @@ df2_rows_1_3_expected <- tibble::tibble(
     c(FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE),
     c(2L, 2L, 6L, 2L, 16L, 2L, 18L)
   ),
-  probability = grim_probability(x, n, 2),
+  probability = grim_probability(x, n, 2, items_averaged = 1),
   case = rep(rep(1:2, 2), each = 12L),
   dir = factor(
     rep(c("forth", "back"), each = 24L),
@@ -174,8 +175,10 @@ df2_rows_1_3_expected <- tibble::tibble(
 
 # The function itself -----------------------------------------------------
 
-df1_tested <- df1 |> grim_map_total_n(digits_x = 2, dispersion = 0:5)
-df2_tested <- df2 |> grim_map_total_n(digits_x = 2, dispersion = 0:5)
+df1_tested <- df1 |>
+  grim_map_total_n(digits_x = 2, items_averaged = 1, dispersion = 0:5)
+df2_tested <- df2 |>
+  grim_map_total_n(digits_x = 2, items_averaged = 1, dispersion = 0:5)
 
 
 test_that("The output is a tibble", {
@@ -184,13 +187,13 @@ test_that("The output is a tibble", {
 })
 
 test_that("It has correct dimensions", {
-  df1_tested |> dim() |> expect_equal(c(1200, 9))
-  df2_tested |> dim() |> expect_equal(c(  48, 9))
+  df1_tested |> dim() |> expect_equal(c(1200, 10))
+  df2_tested |> dim() |> expect_equal(c(  48, 10))
 })
 
 test_that("It has correct values", {
   # This doesn't work with `df1`; its values are randomly generated!
-  df2 |> grim_map_total_n(digits_x = 2) |> expect_equal(df2_rows_1_3_expected)
+  df2 |> grim_map_total_n(digits_x = 2, items_averaged = 1) |> expect_equal(df2_rows_1_3_expected)
 })
 
 
@@ -198,6 +201,7 @@ colnames_exp <- c(
   "x",
   "n",
   "n_change",
+  "items_averaged",
   "digits_x",
   "consistency",
   "both_consistent",
@@ -214,13 +218,13 @@ test_that("It has correct column names", {
 
 
 # An `items` column used to be dropped, so the groups were tested with one item.
-test_that("an `items` column works like the `items` argument", {
+test_that("an `items_averaged` column works like the argument", {
   df <- tibble::tibble(x1 = 4.74, x2 = 2.57, n = 50L)
-  from_arg <- df |> grim_map_total_n(digits_x = 2, items = 2)
-  from_col <- df |> dplyr::mutate(items = 2) |> grim_map_total_n(digits_x = 2)
+  from_arg <- df |> grim_map_total_n(digits_x = 2, items_averaged = 2)
+  from_col <- df |> dplyr::mutate(items_averaged = 2) |> grim_map_total_n(digits_x = 2)
   from_col |> expect_equal(from_arg)
   df_grimmer <- tibble::tibble(x1 = 4.74, x2 = 2.57, sd1 = 1.21, sd2 = 0.98, n = 50L)
-  from_arg <- df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items = 2)
-  from_col <- df_grimmer |> dplyr::mutate(items = 2) |> grimmer_map_total_n(digits_x = 2, digits_sd = 2)
+  from_arg <- df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 2)
+  from_col <- df_grimmer |> dplyr::mutate(items_averaged = 2) |> grimmer_map_total_n(digits_x = 2, digits_sd = 2)
   from_col |> expect_equal(from_arg)
 })

@@ -10,7 +10,7 @@ grimmer_plot_values(
   n,
   digits_x,
   digits_sd,
-  items = 1,
+  items_averaged,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
@@ -20,8 +20,8 @@ grimmer_plot_values(
 )
 }
 \arguments{
-\item{x, sd, n, digits_x, digits_sd, items, rounding, threshold, symmetric}{The same
-as in \code{\link[=grimmer]{grimmer()}}, but \code{x}, \code{sd}, and \code{n} must have length 1.}
+\item{x, sd, n, digits_x, digits_sd, items_averaged, rounding, threshold, symmetric}{The
+same as in \code{\link[=grimmer]{grimmer()}}, but \code{x}, \code{sd}, and \code{n} must have length 1.}
 
 \item{color_cons, color_incons}{Strings. Colors of the teeth for attainable
 and unattainable values.}
@@ -54,6 +54,20 @@ no tall teeth.
 \examples{
 # A mean of 5.23 with an SD of 2.55 is not consistent with a sample size of
 # 35, but it is with 31:
-grimmer_plot_values(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2)
-grimmer_plot_values(x = 5.23, sd = 2.55, n = 31, digits_x = 2, digits_sd = 2)
+grimmer_plot_values(
+  x = 5.23,
+  sd = 2.55,
+  n = 35,
+  digits_x = 2,
+  digits_sd = 2,
+  items_averaged = 1
+)
+grimmer_plot_values(
+  x = 5.23,
+  sd = 2.55,
+  n = 31,
+  digits_x = 2,
+  digits_sd = 2,
+  items_averaged = 1
+)
 }

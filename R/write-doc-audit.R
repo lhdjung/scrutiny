@@ -7,7 +7,7 @@
 #'   empty lines around the pasted text.
 #'
 #' @param sample_output Data frame. The result of `audit()` on the mapper's
-#'   output, such as `audit(grim_map(pigs1, digits_x = 2))`.
+#'   output, such as `audit(grim_map(pigs1, digits_x = 2, items_averaged = 1))`.
 #' @param name_test String (length 1). Plain-text name of the test, such as
 #'   `"GRIM"`.
 #'
@@ -17,7 +17,7 @@
 #'
 #' @examples
 #' out_grim <- pigs1 |>
-#'   grim_map(digits_x = 2) |>
+#'   grim_map(digits_x = 2, items_averaged = 1) |>
 #'   audit()
 #'
 #' write_doc_audit(sample_output = out_grim, name_test = "GRIM")

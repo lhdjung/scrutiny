@@ -328,6 +328,7 @@ pigs1_exp <- tibble::tibble(
     32L,
     33L
   ),
+  items_averaged = rep(1, 160L),
   digits_x = rep(2L, 160L),
   consistency = c(
     FALSE,
@@ -491,7 +492,7 @@ pigs1_exp <- tibble::tibble(
     FALSE,
     TRUE
   ),
-  probability = grim_probability(x, n, 2),
+  probability = grim_probability(x, n, 2, items_averaged = 1),
   diff_var = rep(c(-5L, -4L, -3L, -2L, -1L, 1L, 2L, 3L, 4L, 5L), 16),
   case = rep(rep(c(2L, 3L, 4L, 5L, 7L, 9L, 10L, 12L), 2), each = 10L),
   var = rep(c("x", "n"), each = 80L),
@@ -717,6 +718,7 @@ pigs2_exp <- tibble::tibble(
     154L,
     155L
   ),
+  items_averaged = rep(1, 100L),
   digits_x = rep(1L, 100L),
   consistency = c(
     FALSE,
@@ -820,7 +822,7 @@ pigs2_exp <- tibble::tibble(
     FALSE,
     FALSE
   ),
-  probability = grim_probability(x, n, 1, percent = TRUE),
+  probability = grim_probability(x, n, 1, percent = TRUE, items_averaged = 1),
   diff_var = rep(c(-5L, -4L, -3L, -2L, -1L, 1L, 2L, 3L, 4L, 5L), 10),
   case = rep(rep(c(1L, 2L, 4L, 5L, 6L), 2), each = 10L),
   var = rep(c("x", "n"), each = 50L),
@@ -1198,6 +1200,7 @@ pigs1_include_reported_exp <- tibble::tibble(
     32L,
     33L
   ),
+  items_averaged = rep(1, 176L),
   digits_x = rep(2L, 176L),
   consistency = c(
     FALSE,
@@ -1377,7 +1380,7 @@ pigs1_include_reported_exp <- tibble::tibble(
     FALSE,
     TRUE
   ),
-  probability = grim_probability(x, n, 2),
+  probability = grim_probability(x, n, 2, items_averaged = 1),
   diff_var = rep(-5:5, 16),
   case = rep(rep(c(2L, 3L, 4L, 5L, 7L, 9L, 10L, 12L), 2), each = 11L),
   var = rep(c("x", "n"), each = 88L),
@@ -1398,10 +1401,10 @@ pigs1_include_reported_exp <- tibble::tibble(
 # Testing -----------------------------------------------------------------
 
 test_that("`grim_map_seq()` works correctly", {
-  pigs1 |> grim_map_seq(digits_x = 2) |> expect_equal(pigs1_exp)
-  pigs2 |> grim_map_seq(digits_x = 1, percent = TRUE) |>
+  pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1) |> expect_equal(pigs1_exp)
+  pigs2 |> grim_map_seq(digits_x = 1, items_averaged = 1, percent = TRUE) |>
     suppressMessages() |> expect_equal(pigs2_exp)
-  pigs1 |> grim_map_seq(digits_x = 2, include_reported = TRUE) |>
+  pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, include_reported = TRUE) |>
     expect_equal(pigs1_include_reported_exp)
 })
 
@@ -1410,7 +1413,7 @@ test_that("`grim_map_seq()` output has correct structure", {
   pigs1_exp |> expect_s3_class("scrutiny_grim_map_seq")
   pigs1_exp |> expect_s3_class("scrutiny_grim_map")
   pigs1_exp |>
-    expect_named(c("x", "n", "digits_x", "consistency", "probability", "diff_var", "case", "var"))
+    expect_named(c("x", "n", "items_averaged", "digits_x", "consistency", "probability", "diff_var", "case", "var"))
 
   # 8 inconsistent cases in pigs1, 10 dispersions each for x and n = 160 rows
   pigs1_exp |> nrow() |> expect_equal(160L)
@@ -1426,7 +1429,7 @@ test_that("`grim_map_seq()` output has correct structure", {
 test_that("`grim_map_seq()` with percent=TRUE has correct structure", {
   pigs2_exp |> expect_s3_class("scrutiny_grim_map_seq")
   pigs2_exp |>
-    expect_named(c("x", "n", "digits_x", "consistency", "probability", "diff_var", "case", "var"))
+    expect_named(c("x", "n", "items_averaged", "digits_x", "consistency", "probability", "diff_var", "case", "var"))
 
   # 5 inconsistent cases in pigs2, 10 dispersions each for x and n = 100 rows
   pigs2_exp |> nrow() |> expect_equal(100L)
@@ -1448,13 +1451,13 @@ test_that("`grim_map_seq()` with include_reported=TRUE adds one row per case", {
 # decimal level via floating-point error, which then made `grim_map()` reject
 # them as having more decimal places than `digits_x` allows. See issue #83.
 test_that("`grim_map_seq()` handles large `dispersion` values", {
-  out <- pigs5 |> grim_map_seq(digits_x = 2, dispersion = 1:305)
+  out <- pigs5 |> grim_map_seq(digits_x = 2, items_averaged = 1, dispersion = 1:305)
   out |> expect_s3_class("scrutiny_grim_map_seq")
   out$x |> decimal_places() |> max() |> expect_equal(2L)
   out$digits_x |> call_on(\(x) x == 2L) |> all() |> expect_true()
 
   # The one extra step must not change anything about the shorter sequence:
-  out_304 <- pigs5 |> grim_map_seq(digits_x = 2, dispersion = 1:304)
+  out_304 <- pigs5 |> grim_map_seq(digits_x = 2, items_averaged = 1, dispersion = 1:304)
   out[out$diff_var %in% out_304$diff_var, ] |>
     expect_equal(out_304[out_304$diff_var %in% out$diff_var, ])
 })
@@ -1465,19 +1468,19 @@ test_that("`grim_map_seq()` handles large `dispersion` values", {
 # second time, testing `n * items^2`, or not at all, which dispersed `n * items`
 # in steps of 1 -- values that are no multiple of `items`. Now `n` is dispersed
 # as the sample size, and `items` is a column.
-test_that("`grim_map_seq()` applies `items` exactly once", {
+test_that("`grim_map_seq()` applies `items_averaged` exactly once", {
   out <- tibble::tibble(x = 2.84, n = 16) |>
     grim_map_seq(
       digits_x = 2,
-      items = 2,
+      items_averaged = 2,
       include_consistent = TRUE,
       dispersion = 1:2
     )
 
-  out$n     |> expect_equal(c(16L, 16L, 16L, 16L, 14L, 15L, 17L, 18L))
-  out$items |> expect_equal(rep(2, 8))
+  out$n              |> expect_equal(c(16L, 16L, 16L, 16L, 14L, 15L, 17L, 18L))
+  out$items_averaged |> expect_equal(rep(2, 8))
   out$consistency |>
-    expect_equal(grim(out$x, out$n, digits_x = 2, items = 2))
+    expect_equal(grim(out$x, out$n, digits_x = 2, items_averaged = 2))
 })
 
 
@@ -1488,7 +1491,7 @@ test_that("`grimmer_map_seq()` tests `n` and `items` separately", {
   out <- df |> grimmer_map_seq(
     digits_x = 2,
     digits_sd = 2,
-    items = 2,
+    items_averaged = 2,
     var = "sd",
     dispersion = 1,
     include_consistent = TRUE,
@@ -1496,7 +1499,7 @@ test_that("`grimmer_map_seq()` tests `n` and `items` separately", {
   )
   out$consistency |> expect_equal(c(FALSE, TRUE, FALSE))
   out$consistency |>
-    expect_equal(grimmer(out$x, out$sd, out$n, digits_x = 2, digits_sd = 2, items = 2))
+    expect_equal(grimmer(out$x, out$sd, out$n, digits_x = 2, digits_sd = 2, items_averaged = 2))
   out |> audit_seq() |> purrr::pluck("consistency") |> expect_true()
 })
 
@@ -1505,7 +1508,7 @@ test_that("`grimmer_map_seq()` tests `n` and `items` separately", {
 # cases that are left after filtering, so that results can be joined back.
 test_that("`case` indexes the rows of the input", {
   d <- tibble::tibble(x = c(5.2, 5.19, 3.4, 7.15), n = c(30, 28, 20, 21))
-  out <- d |> grim_map_seq(digits_x = 2, dispersion = 1)
+  out <- d |> grim_map_seq(digits_x = 2, items_averaged = 1, dispersion = 1)
   out$case              |> unique() |> expect_equal(c(2L, 4L))
   out$x[out$var == "n"] |> unique() |> expect_equal(d$x[c(2L, 4L)])
 })
@@ -1515,12 +1518,12 @@ test_that("sequence mappers name the test when `data` already has results", {
   # `check_mapper_input_colnames()` passes `name_test` on to the check that
   # produces this message. Leaving it out made cli fail on the missing argument
   # instead, so the user saw "Could not evaluate cli `{}` expression".
-  data_tested <- pigs1[1:3, ] |> grim_map(digits_x = 2)
-  data_tested |> grim_map_seq(digits_x = 2) |>
+  data_tested <- pigs1[1:3, ] |> grim_map(digits_x = 2, items_averaged = 1)
+  data_tested |> grim_map_seq(digits_x = 2, items_averaged = 1) |>
     expect_error(regexp = "already includes a \"consistency\" column")
   pigs5[1:3, ] |>
-    grimmer_map(digits_x = 2, digits_sd = 2) |>
-    grimmer_map_seq(digits_x = 2, digits_sd = 2) |>
+    grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
+    grimmer_map_seq(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
     expect_error(regexp = "already includes a \"consistency\" column")
 })
 
@@ -1533,7 +1536,7 @@ test_that("sequence mappers name the test when `data` already has results", {
 # returned a wrong value, which `audit_seq()` re-tested into a wrong verdict.
 
 test_that("a negative mean is dispersed in both directions", {
-  out <- tibble::tibble(x = -2.51, n = 40) |> grim_map_seq(digits_x = 2, var = "x")
+  out <- tibble::tibble(x = -2.51, n = 40) |> grim_map_seq(digits_x = 2, items_averaged = 1, var = "x")
   out          |> nrow() |> expect_equal(10L)
   out$diff_var |> sort() |> expect_equal(c(-5:-1, 1:5))
   out$x        |> min()  |> expect_equal(-2.56)
@@ -1541,22 +1544,22 @@ test_that("a negative mean is dispersed in both directions", {
 })
 
 test_that("`reverse_map_seq()` recovers a negative reported mean", {
-  out <- tibble::tibble(x = -2.51, n = 40) |> grim_map_seq(digits_x = 2)
+  out <- tibble::tibble(x = -2.51, n = 40) |> grim_map_seq(digits_x = 2, items_averaged = 1)
   rev <- out |> reverse_map_seq()
   rev$x |> expect_equal(-2.51)
   rev$n |> expect_equal(40L)
 })
 
 test_that("`audit_seq()` reports the reported values and their own verdict", {
-  out <- tibble::tibble(x = -2.51, n = 40) |> grim_map_seq(digits_x = 2)
+  out <- tibble::tibble(x = -2.51, n = 40) |> grim_map_seq(digits_x = 2, items_averaged = 1)
   out_audit <- out |> audit_seq()
   out_audit$x |> expect_equal(-2.51)
-  out_audit$consistency |> expect_equal(grim(-2.51, 40, digits_x = 2))
+  out_audit$consistency |> expect_equal(grim(-2.51, 40, digits_x = 2, items_averaged = 1))
   out_audit$consistency |> expect_false()
 })
 
 test_that("`n` keeps a floor of 1 even though the mean has none", {
-  out <- tibble::tibble(x = 5.19, n = 3) |> grim_map_seq(digits_x = 2, var = "n")
+  out <- tibble::tibble(x = 5.19, n = 3) |> grim_map_seq(digits_x = 2, items_averaged = 1, var = "n")
   out$n |> min() |> expect_equal(1L)
 
   # Nothing undecidable made it into the output:
@@ -1565,7 +1568,7 @@ test_that("`n` keeps a floor of 1 even though the mean has none", {
 
 test_that("a zero step in `dispersion` doesn't duplicate the reported case", {
   out <- tibble::tibble(x = 5.19, n = 40) |>
-    grim_map_seq(digits_x = 2, var = "x", dispersion = c(0, 1, 2), include_consistent = TRUE)
+    grim_map_seq(digits_x = 2, items_averaged = 1, var = "x", dispersion = c(0, 1, 2), include_consistent = TRUE)
   out$diff_var |> anyDuplicated() |> expect_equal(0L)
   out$diff_var |> sort() |> expect_equal(c(-2L, -1L, 1L, 2L))
 })
@@ -1580,19 +1583,19 @@ test_that("`function_map_seq()` adds the `.name_class` class", {
     .name_test = "GRIM",
     .name_class = "my_class"
   )
-  pigs1 |> my_map_seq(digits_x = 2) |> expect_s3_class("my_class")
+  pigs1 |> my_map_seq(digits_x = 2, items_averaged = 1) |> expect_s3_class("my_class")
 })
 
 
 test_that("integer key columns are dispersed without truncation", {
   df_grimmer <- tibble::tibble(x = 3.5, sd = 1L, n = 20L)
   df_grimmer |>
-    grimmer_map_seq(digits_x = 1, digits_sd = 1, include_consistent = TRUE, var = "sd", dispersion = 1:2) |>
+    grimmer_map_seq(digits_x = 1, digits_sd = 1, items_averaged = 1, include_consistent = TRUE, var = "sd", dispersion = 1:2) |>
     dplyr::pull(sd) |>
     expect_equal(c(0.8, 0.9, 1.1, 1.2))
   df_grim <- tibble::tibble(x = 5L, n = 23L)
   df_grim |>
-    grim_map_seq(digits_x = 1, include_consistent = TRUE, var = "x", dispersion = 1:2) |>
+    grim_map_seq(digits_x = 1, items_averaged = 1, include_consistent = TRUE, var = "x", dispersion = 1:2) |>
     dplyr::pull(x) |>
     expect_equal(c(4.8, 4.9, 5.1, 5.2))
 })
@@ -1600,19 +1603,19 @@ test_that("integer key columns are dispersed without truncation", {
 
 # All-consistent input used to return a classless 0 x 0 tibble.
 test_that("output without inconsistent cases keeps its shape and class", {
-  pigs1[c(1, 1), ] |> grim_map_seq(digits_x = 2) |> expect_warning("No inconsistent cases")
-  empty <- pigs1[c(1, 1), ] |> grim_map_seq(digits_x = 2) |> suppressWarnings()
-  full  <- pigs1            |> grim_map_seq(digits_x = 2)
+  pigs1[c(1, 1), ] |> grim_map_seq(digits_x = 2, items_averaged = 1) |> expect_warning("No inconsistent cases")
+  empty <- pigs1[c(1, 1), ] |> grim_map_seq(digits_x = 2, items_averaged = 1) |> suppressWarnings()
+  full  <- pigs1            |> grim_map_seq(digits_x = 2, items_averaged = 1)
   empty |> nrow()     |> expect_equal(0L)
   empty |> colnames() |> expect_equal(colnames(full))
   empty |> class()    |> expect_equal(class(full))
   empty |> audit_seq()       |> colnames() |> expect_equal(colnames(audit_seq(full)))
-  empty |> reverse_map_seq() |> colnames() |> expect_equal(c("x", "n"))
+  empty |> reverse_map_seq() |> colnames() |> expect_equal(c("x", "n", "items_averaged"))
   # The dispersed variables are recorded, so the columns follow `var`:
   full  |> scrutiny_meta() |> purrr::pluck("var") |> expect_equal(c("x", "n"))
-  empty_n <- pigs1[c(1, 1), ] |> grim_map_seq(digits_x = 2, var = "n") |> suppressWarnings()
+  empty_n <- pigs1[c(1, 1), ] |> grim_map_seq(digits_x = 2, items_averaged = 1, var = "n") |> suppressWarnings()
   empty_n |> scrutiny_meta() |> purrr::pluck("var") |> expect_equal("n")
-  cols_audit_n <- pigs1 |> grim_map_seq(digits_x = 2, var = "n") |> audit_seq() |> colnames()
+  cols_audit_n <- pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, var = "n") |> audit_seq() |> colnames()
   empty_n |> audit_seq() |> colnames() |> expect_equal(cols_audit_n)
 })
 
@@ -1621,7 +1624,7 @@ test_that("output without inconsistent cases keeps its shape and class", {
 # inside `seq_disperse()`:
 test_that("undecidable cases are skipped with `include_consistent = TRUE`", {
   out <- tibble::tibble(x = c(5.19, NA, 4.5), n = c(NA, 20, 21)) |>
-    grim_map_seq(digits_x = 2, include_consistent = TRUE)
+    grim_map_seq(digits_x = 2, items_averaged = 1, include_consistent = TRUE)
   out$case |> unique() |> expect_equal(3L)
   out$n    |> anyNA()  |> expect_false()
 })
@@ -1631,7 +1634,7 @@ test_that("undecidable cases are skipped with `include_consistent = TRUE`", {
 # said nothing about the cases that could not be tested:
 test_that("the no-cases warning fits the call", {
   undecidable <- tibble::tibble(x = 5.19, n = NA_integer_)
-  undecidable |> grim_map_seq(digits_x = 2, include_consistent = TRUE) |> expect_warning("No cases to disperse from")
-  undecidable |> grim_map_seq(digits_x = 2, include_consistent = TRUE) |> expect_warning("1 case could not be tested")
-  undecidable |> grim_map_seq(digits_x = 2)                            |> expect_warning("Try `include_consistent")
+  undecidable |> grim_map_seq(digits_x = 2, items_averaged = 1, include_consistent = TRUE) |> expect_warning("No cases to disperse from")
+  undecidable |> grim_map_seq(digits_x = 2, items_averaged = 1, include_consistent = TRUE) |> expect_warning("1 case could not be tested")
+  undecidable |> grim_map_seq(digits_x = 2, items_averaged = 1)                            |> expect_warning("Try `include_consistent")
 })

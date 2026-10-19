@@ -10,7 +10,7 @@ grim_probability(
   x,
   n,
   digits_x,
-  items = 1,
+  items_averaged,
   percent = FALSE,
   rounding = "up_or_down",
   threshold = 5
@@ -20,7 +20,7 @@ grim_total(
   x,
   n,
   digits_x,
-  items = 1,
+  items_averaged,
   percent = FALSE,
   rounding = "up_or_down",
   threshold = 5
@@ -36,7 +36,7 @@ places matters; the argument exists for compatibility with \code{\link[=grim]{gr
 trailing zeros. There is no default, since a numeric value does not
 keep them (\code{1.40} is \code{1.4}).}
 
-\item{items}{Integer. The number of items composing \code{x}. Default is \code{1}.}
+\item{items_averaged}{Integer. As in \code{\link[=grim]{grim()}}.}
 
 \item{percent}{Logical. If \code{TRUE}, \code{x} is a percentage, which adds 2 to the
 decimal count. Default is \code{FALSE}.}
@@ -51,7 +51,8 @@ its own \code{rounding} and \code{threshold} on.}
 \value{
 Double. \code{grim_probability()} and \code{grim_total()} return \code{NA} where
 \code{\link[=grim]{grim()}} cannot decide a case: if \code{x} is missing or infinite, or if \code{n}
-or \code{items} is not a positive whole number. They are never negative.
+or \code{items_averaged} is not a positive whole number. They are never
+negative.
 }
 \description{
 These functions quantify how informative a GRIM test is for a
@@ -68,16 +69,28 @@ See \code{vignette("grim")}, section \emph{GRIM statistics}.
 }
 \examples{
 # Many value sets are inconsistent here:
-grim_probability(x = 83.29, n = 21, digits_x = 2)
-grim_total(x = 83.29, n = 21, digits_x = 2)
+grim_probability(x = 83.29, n = 21, digits_x = 2, items_averaged = 1)
+grim_total(x = 83.29, n = 21, digits_x = 2, items_averaged = 1)
 
 # None are in this case...
-grim_probability(x = 5.14, n = 83, digits_x = 2)
-grim_total(x = 5.14, n = 83, digits_x = 2)
+grim_probability(x = 5.14, n = 83, digits_x = 2, items_averaged = 1)
+grim_total(x = 5.14, n = 83, digits_x = 2, items_averaged = 1)
 
 # ...but most would be if `x` were a percentage:
-grim_probability(x = 5.14, n = 83, digits_x = 2, percent = TRUE)
-grim_total(x = 5.14, n = 83, digits_x = 2, percent = TRUE)
+grim_probability(
+  x = 5.14,
+  n = 83,
+  digits_x = 2,
+  items_averaged = 1,
+  percent = TRUE
+)
+grim_total(
+  x = 5.14,
+  n = 83,
+  digits_x = 2,
+  items_averaged = 1,
+  percent = TRUE
+)
 }
 \references{
 Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A

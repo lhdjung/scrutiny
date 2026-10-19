@@ -34,10 +34,12 @@ This vignette covers scrutiny's implementation: `grim()` and `grim_map()` for th
 To test whether a mean of 5.27 is consistent with a sample size of 43:
 
 ```{r}
-grim(x = 5.27, n = 43, digits_x = 2)
+grim(x = 5.27, n = 43, digits_x = 2, items_averaged = 1)
 ```
 
 `digits_x` is the number of decimal places that the mean was reported with. There is no default because the number cannot be inferred from the value: a mean reported as 5.30 is stored as `5.3`, and the trailing zero is lost. The test result depends on the number of decimal places, so it must be specified.
+
+`items_averaged` is the number of items averaged into each respondent's score. It has no default either: GRIM's verdict depends on it, so every call states it. Use 1 for a single item or a percentage; see *Scale items* below.
 
 `grim()` is vectorized, but for more than a few cases, `grim_map()` is more convenient. The remaining arguments are discussed in that context.
 
@@ -58,14 +60,14 @@ flying_pigs1 <- tibble::tribble(
 ) |>
   dplyr::mutate(n = 28)
 
-grim_map(flying_pigs1, digits_x = 2)
+grim_map(flying_pigs1, digits_x = 2, items_averaged = 1)
 ```
 
 `x` and `n` are the inputs, `digits_x` is the stated number of decimal places, and `consistency` is the test result. `probability` is the probability that a random mean with that many decimal places would be inconsistent with `n`; see *GRIM statistics* below.
 
 ### Scale items
 
-If a mean is the average of several items, each response is still a whole number, but the mean is a multiple of $1 / (n \cdot \text{items})$ rather than of $1 / n$. State the number of items with the `items` argument. With the default of 1, half of these means from a three-item scale are wrongly flagged:
+If a mean is the average of several items, each response is still a whole number, but the mean is a multiple of $1 / (n \cdot \text{items})$ rather than of $1 / n$. State the number of items with the `items_averaged` argument. This is the number of items, not the number of scale points: a mean over three 7-point items has `items_averaged = 3`. Taken as single items, half of these means from a three-item scale are wrongly flagged:
 
 ```{r}
 jpap_1 <- tibble::tribble(
@@ -80,23 +82,23 @@ jpap_1 <- tibble::tribble(
   dplyr::mutate(n = 40)
 
 jpap_1 |>
-  grim_map(digits_x = 2)
+  grim_map(digits_x = 2, items_averaged = 1)
 
 jpap_1 |>
-  grim_map(digits_x = 2, items = 3)
+  grim_map(digits_x = 2, items_averaged = 3)
 ```
 
-Alternatively, `data` can have an `items` column, which allows the number to vary by row. In both cases, the output has an `items` column:
+Alternatively, `data` can have an `items_averaged` column, which allows the number to vary by row. In both cases, the output has an `items_averaged` column:
 
 ```{r}
 jpap_2 <- tibble::tribble(
-  ~x   , ~items ,
-  6.92 ,      1 ,
-  3.48 ,      1 ,
-  1.59 ,      2 ,
-  2.61 ,      2 ,
-  4.04 ,      3 ,
-  4.50 ,      3 ,
+  ~x   , ~items_averaged ,
+  6.92 ,              1 ,
+  3.48 ,              1 ,
+  1.59 ,              2 ,
+  2.61 ,              2 ,
+  4.04 ,              3 ,
+  4.50 ,              3 ,
 ) |>
   dplyr::mutate(n = 30)
 
@@ -118,7 +120,7 @@ jpap_3 <- tibble::tribble(
 )
 
 jpap_3 |>
-  grim_map(digits_x = 1, percent = TRUE)
+  grim_map(digits_x = 1, items_averaged = 1, percent = TRUE)
 ```
 
 This makes GRIM considerably more powerful for percentages than for means with the same number of decimal places.
@@ -129,38 +131,38 @@ With `show_rec = TRUE`, the output includes the numbers on which the test result
 
 ```{r}
 pigs1 |>
-  grim_map(digits_x = 2, show_rec = TRUE) |>
+  grim_map(digits_x = 2, items_averaged = 1, show_rec = TRUE) |>
   dplyr::select(4:10) # output cut down for printing
 ```
 
-- `rec_sum` is `x * n * items`, the sum total implied by the reported mean. The actual sum of integer data is a whole number, which `rec_sum` generally is not.
+- `rec_sum` is `x * n * items_averaged`, the sum total implied by the reported mean. The actual sum of integer data is a whole number, which `rec_sum` generally is not.
 - `sum_lower` and `sum_upper` are the least and the greatest whole-number sum total that would have been reported as `x`. A value set is consistent if and only if `sum_lower` is less than or equal to `sum_upper`. For an inconsistent value set, `sum_lower` is the whole number just above `rec_sum` and `sum_upper` the one just below it, so `sum_lower - sum_upper` is always 1. This difference does not measure how far the reported values are from consistent ones.
-- `rec_x_upper` and `rec_x_lower` are the two achievable means closest to `x`: `rec_sum` rounded up and down, divided by `n * items`. Comparing them to `x` shows how far the reported mean is from an achievable one. With `percent = TRUE`, they are percentages like `x`.
+- `rec_x_upper` and `rec_x_lower` are the two achievable means closest to `x`: `rec_sum` rounded up and down, divided by `n * items_averaged`. Comparing them to `x` shows how far the reported mean is from an achievable one. With `percent = TRUE`, they are percentages like `x`.
 
 ### Achievable means
 
 `grim_values()` returns all means that a sample of `n` integers can have and that would be reported as `x`:
 
 ```{r}
-grim_values(x = 5.19, n = 32, digits_x = 2)
-grim_values(x = 5.19, n = 300, digits_x = 2)
-grim_values(x = 5.19, n = 28, digits_x = 2) # inconsistent: none
+grim_values(x = 5.19, n = 32, digits_x = 2, items_averaged = 1)
+grim_values(x = 5.19, n = 300, digits_x = 2, items_averaged = 1)
+grim_values(x = 5.19, n = 28, digits_x = 2, items_averaged = 1) # inconsistent: none
 ```
 
 `grim_closest()` returns the achievable mean nearest to `x`, whether or not `x` is consistent:
 
 ```{r}
-grim_closest(x = 5.19, n = 28, digits_x = 2)
+grim_closest(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
 ```
 
 Both functions are vectorized. A reported mean may correspond to one achievable mean, to several, or to none, so `grim_values()` returns a list with one element per value set. Such a list can be stored as a list-column:
 
 ```{r}
 pigs1 |>
-  dplyr::mutate(values = grim_values(x, n, digits_x = 2))
+  dplyr::mutate(values = grim_values(x, n, digits_x = 2, items_averaged = 1))
 ```
 
-Once `n * items` is at least `10^digits_x`, every mean is achievable and GRIM can no longer detect inconsistencies. The number of achievable means per value set can then become very large, which is why they are not part of `grim_map()`'s output.
+Once `n * items_averaged` is at least `10^digits_x`, every mean is achievable and GRIM can no longer detect inconsistencies. The number of achievable means per value set can then become very large, which is why they are not part of `grim_map()`'s output.
 
 ## Summaries with `audit()`
 
@@ -168,7 +170,7 @@ Once `n * items` is at least `10^digits_x`, every mean is achievable and GRIM ca
 
 ```{r}
 flying_pigs1 |>
-  grim_map(digits_x = 2) |>
+  grim_map(digits_x = 2, items_averaged = 1) |>
   audit() |>
   dplyr::select(1:5) # output cut down for printing
 ```
@@ -198,7 +200,7 @@ jpap_5 <- tibble::tribble(
 )
 
 jpap_5 |>
-  grim_map(digits_x = 2) |>
+  grim_map(digits_x = 2, items_averaged = 1) |>
   grim_plot()
 ```
 
@@ -206,7 +208,7 @@ Each value set is plotted at its sample size on the x-axis and the fractional pa
 
 ```{r, fig.width=6, fig.height=5.5}
 jpap_5 |>
-  grim_map(digits_x = 2, rounding = "ceiling") |>
+  grim_map(digits_x = 2, items_averaged = 1, rounding = "ceiling") |>
   grim_plot()
 ```
 
@@ -219,13 +221,13 @@ In the first plot, the light vertical lines at $n = 40$ and $n = 80$ result from
 `grim_plot_values()` draws the test for one value set, for teaching or for explaining a verdict. Each tooth of the comb is a mean that could have been reported with `digits_x` decimal places; the tall teeth are the means that a sample of size `n` can have. The reported value is marked above the comb, and the strip behind the teeth is the range of unrounded means that would have been reported as `x`. The value is consistent exactly if a tall tooth stands within the strip:
 
 ```{r, fig.width=7, fig.height=3}
-grim_plot_values(x = 5.19, n = 28, digits_x = 2)
+grim_plot_values(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
 ```
 
 With `n = 26`, the same mean is consistent:
 
 ```{r, fig.width=7, fig.height=3}
-grim_plot_values(x = 5.19, n = 26, digits_x = 2)
+grim_plot_values(x = 5.19, n = 26, digits_x = 2, items_averaged = 1)
 ```
 
 `grimmer_plot_values()` is the same figure over standard deviations; see `vignette("grimmer")`.
@@ -235,7 +237,7 @@ grim_plot_values(x = 5.19, n = 26, digits_x = 2)
 An inconsistency may come from a small error in reporting or computing. `grim_map_seq()` tests the values around the reported ones: it varies `x` and `n` a few steps up and down, one at a time, and tests each resulting value set.
 
 ```{r}
-out_seq1 <- grim_map_seq(pigs1, digits_x = 2)
+out_seq1 <- grim_map_seq(pigs1, digits_x = 2, items_averaged = 1)
 out_seq1
 ```
 
@@ -256,7 +258,7 @@ audit_seq(out_seq1)
 The default `dispersion` is `1:5`, for five steps up and down. With more steps, more hits are typically found:
 
 ```{r}
-out_seq2 <- grim_map_seq(pigs1, digits_x = 2, dispersion = 1:10)
+out_seq2 <- grim_map_seq(pigs1, digits_x = 2, items_averaged = 1, dispersion = 1:10)
 audit_seq(out_seq2)
 ```
 
@@ -271,7 +273,7 @@ grim_plot(out_seq1)
 Restrict the dispersion to one variable with `var`:
 
 ```{r, fig.width=6, fig.height=5.5}
-out_seq1_only_n <- grim_map_seq(pigs1, digits_x = 2, var = "n")
+out_seq1_only_n <- grim_map_seq(pigs1, digits_x = 2, items_averaged = 1, var = "n")
 grim_plot(out_seq1_only_n)
 ```
 
@@ -284,7 +286,7 @@ The study they examined reported means of 4.71 and 5.3 for a total of 40 partici
 ```{r}
 df <- tibble::tibble(x1 = 4.71, x2 = 5.3, n = 40)
 
-df_tested <- grim_map_total_n(df, digits_x = c(2, 1))
+df_tested <- grim_map_total_n(df, digits_x = c(2, 1), items_averaged = 1)
 df_tested
 
 audit_total_n(df_tested)
@@ -313,15 +315,15 @@ If a study has many inconsistent value sets with high probabilities of inconsist
 The formula is exact for rounding procedures in which exactly one range of unrounded values, one rounding step wide, is rounded to each reported value, such as `"up"`. The default, `"up_or_down"`, accepts a mean exactly halfway between two reportable values in both directions, so the formula overstates the probability whenever $NL / \gcd(NL, 10^D)$ is even: at $N = 40$ with two decimal places, the probability is $0.4$, not $0.6$. Under `"ceiling_or_floor"`, the range is two steps wide. `grim_probability()` and `grim_total()` therefore take `rounding` and `threshold` arguments and count exactly the values that `grim()` would reject. `grim_map()` passes its own `rounding` on.
 
 ```{r}
-grim_probability(x = 1.40, n = 72, digits_x = 2)
-grim_probability(x = 5.93, n = 80, digits_x = 2, items = 3)
-grim_probability(x = 84.27, n = 40, digits_x = 2, percent = TRUE)
+grim_probability(x = 1.40, n = 72, digits_x = 2, items_averaged = 1)
+grim_probability(x = 5.93, n = 80, digits_x = 2, items_averaged = 3)
+grim_probability(x = 84.27, n = 40, digits_x = 2, items_averaged = 1, percent = TRUE)
 ```
 
 `grim_total()` returns a count instead of a proportion: the number of the $10^D$ possible fractional parts that are inconsistent:
 
 ```{r}
-grim_total(x = 1.40, n = 72, digits_x = 2)
+grim_total(x = 1.40, n = 72, digits_x = 2, items_averaged = 1)
 ```
 
 The formula is implicit in @brown_grim_2017, who note (p. 367) that with two decimal places and $N < 100$, a random mean is consistent in about $N$% of cases.
@@ -332,7 +334,7 @@ Correctly reported means are always consistent, so a study's rate of inconsisten
 
 ```{r}
 pigs1 |>
-  grim_map(digits_x = 2) |>
+  grim_map(digits_x = 2, items_averaged = 1) |>
   grim_binomial()
 ```
 
@@ -351,7 +353,7 @@ codes <- c(
 )
 
 pigs1 |>
-  grim_map(digits_x = 2) |>
+  grim_map(digits_x = 2, items_averaged = 1) |>
   dplyr::mutate(study = codes) |>
   grim_plot_rates(study = study)
 ```
@@ -361,7 +363,7 @@ pigs1 |>
 The granularity of a scale is the smallest difference between two means it can produce, $G = 1 / (NL)$. `grim_granularity()` computes it, and `grim_items()` inverts it to the number of items, $L = 1 / (NG)$:
 
 ```{r}
-grim_granularity(n = 80, items = 5)
+grim_granularity(n = 80, items_averaged = 5)
 grim_items(n = 50, gran = 0.01)
 ```
 

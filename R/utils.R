@@ -8,7 +8,7 @@ utils::globalVariables(c(
   "contains",
   "everything",
   "x",
-  "items",
+  "items_averaged",
   "frac",
   "distance",
   "both_consistent",
@@ -173,9 +173,9 @@ is_whole_number <- function(x, tolerance = WHOLE_NUMBER_TOLERANCE) {
 #' Refuse too many candidate sums for GRIMMER
 #'
 #' @description `grimmer_scalar()` loops over every integer sum the reported
-#'   mean admits. There are about `n * items / 10^digits_x` of them, so a huge
-#'   `n` (e.g., a typo) would keep the loop running for a very long time. The
-#'   limit is far above any published summary statistic.
+#'   mean admits. There are about `n * items_averaged / 10^digits_x` of them, so
+#'   a huge `n` (e.g., a typo) would keep the loop running for a very long time.
+#'   The limit is far above any published summary statistic.
 #'
 #' @param bounds Numeric (length 2). The `c(lower, upper)` of the sums.
 #' @param n,digits_x Numeric (length 1). For the message.
@@ -197,7 +197,7 @@ check_enumeration_size <- function(bounds, n, digits_x, limit = 1e6) {
 }
 
 
-#' Can a value set be decided at all, going by `n` and `items`?
+#' Can a value set be decided at all, going by `n` and `items_averaged`?
 #'
 #' @description All three consistency tests reason about integer data: GRIM
 #'   about the integer sum behind a reported mean, GRIMMER about that sum and
@@ -213,8 +213,8 @@ check_enumeration_size <- function(bounds, n, digits_x, limit = 1e6) {
 #'   cannot decide.
 #'
 #' @param n Numeric (length 1). The reported sample size.
-#' @param items Numeric (length 1). The number of items composing `x`. DEBIT
-#'   has no such argument and leaves it at the default.
+#' @param items_averaged Numeric (length 1). The number of items composing `x`.
+#'   DEBIT has no such argument and leaves it at the default.
 #' @param min_n Numeric (length 1). The smallest `n` the test can work with.
 #'   `1` for GRIM: the mean of a single value is that value. `2` for GRIMMER
 #'   and DEBIT, which reconstruct a *sample* SD and so divide by `n - 1`. At `n
@@ -223,13 +223,14 @@ check_enumeration_size <- function(bounds, n, digits_x, limit = 1e6) {
 #'   `Inf` that compared as "above the upper bound".
 #'
 #' @return Logical vector, recycled to the length of the longer of `n` and
-#'   `items`: `TRUE` where the test can decide the case, `FALSE` where it
-#'   cannot. Never `NA` -- a missing `n` or `items` is itself undecidable,
-#'   which is what every test already reports for it. The `*_scalar()`
-#'   functions call this on single values; `grim_probability()` on columns.
+#'   `items_averaged`: `TRUE` where the test can decide the case, `FALSE` where
+#'   it cannot. Never `NA` -- a missing `n` or `items_averaged` is itself
+#'   undecidable, which is what every test already reports for it. The
+#'   `*_scalar()` functions call this on single values; `grim_probability()` on
+#'   columns.
 #'
 #' @noRd
-is_decidable_n_items <- function(n, items = 1, min_n = 1) {
+is_decidable_n_items <- function(n, items_averaged = 1, min_n = 1) {
   # `is.finite()` is `FALSE` for `NA`, `NaN`, and the infinities, and `FALSE &
   # NA` is `FALSE`, so the result is never missing however the comparisons
   # further right turn out -- the guards absorb the missing values rather than
@@ -247,23 +248,23 @@ is_decidable_n_items <- function(n, items = 1, min_n = 1) {
   # one the `*_scalar()` functions reach once per row. `grim_probability()`
   # needs the column version. A test in test-utils.R runs both over the same
   # grid and requires them to agree.
-  if (length(n) == 1L && length(items) == 1L && length(min_n) == 1L) {
+  if (length(n) == 1L && length(items_averaged) == 1L && length(min_n) == 1L) {
     return(
       is.finite(n) &&
-        is.finite(items) &&
+        is.finite(items_averaged) &&
         n >= min_n &&
-        items > 0 &&
+        items_averaged > 0 &&
         abs(n - round(n)) < WHOLE_NUMBER_TOLERANCE &&
-        abs(items - round(items)) < WHOLE_NUMBER_TOLERANCE
+        abs(items_averaged - round(items_averaged)) < WHOLE_NUMBER_TOLERANCE
     )
   }
 
   is.finite(n) &
-    is.finite(items) &
+    is.finite(items_averaged) &
     n >= min_n &
-    items > 0 &
+    items_averaged > 0 &
     abs(n - round(n)) < WHOLE_NUMBER_TOLERANCE &
-    abs(items - round(items)) < WHOLE_NUMBER_TOLERANCE
+    abs(items_averaged - round(items_averaged)) < WHOLE_NUMBER_TOLERANCE
 }
 
 
@@ -536,6 +537,9 @@ error_digits_missing <- function(x) {
     part_tibble_close <- NULL
   }
 
+  # GRIM and GRIMMER functions need `items_averaged` as well:
+  part_items <- if (grepl("grim", name_fn)) ", items_averaged = 1"
+
   # In case the key argument is still a string, tell the user this changed
   msg_key_arg <- if (is.character(x)) {
     paste0(", so please specify `", name_x, "` as a number, not a string")
@@ -567,12 +571,47 @@ error_digits_missing <- function(x) {
       decimal places in `{name_x}`.",
       "i" = "For example, with {example_x[1]} (two decimal places): \
       `{name_fn}({part_tibble_open}{args_example}{part_tibble_close}, \
-      {name_digits_arg} = 2{part_digits_sd})`",
+      {name_digits_arg} = 2{part_digits_sd}{part_items})`",
       msg_history,
       "i" = "For more information, visit \\
       {.href [scrutiny's changelog](https://lhdjung.github.io/scrutiny/news/index.html)}."
     ),
     call = sys.frame(index_last_export())
+  )
+}
+
+
+#' Error if `items_averaged` is missing
+#'
+#' `items_averaged` replaced `items` in scrutiny 1.0.0, which defaulted to 1.
+#' That default let multi-item scales go untested as single items, and the name
+#' was mistaken for the number of scale points. Like `digits_x`, the argument
+#' has no default, so every call states the assumption. Usage pattern:
+#'
+#' ```
+#' if (missing(items_averaged)) {
+#'   error_items_missing()
+#' }
+#' ```
+#'
+#' @returns No return value; will throw an error.
+#'
+#' @noRd
+error_items_missing <- function() {
+  name_fn <- name_last_export()
+  msg_column <- if (grepl("_map", name_fn)) {
+    ", or give `data` an `items_averaged` column"
+  }
+
+  abort_in_export(
+    "Need to specify `items_averaged`{msg_column}.",
+    "i" = "It is the number of items averaged into each respondent's score, \\
+    such as 4 for a mean over four questions. It is not the number of scale \\
+    points.",
+    "i" = "For a single item, or a percentage of one yes/no question: \\
+    `items_averaged = 1`.",
+    "i" = "This argument replaces `items` as of scrutiny 1.0.0, which \\
+    defaulted to 1."
   )
 }
 

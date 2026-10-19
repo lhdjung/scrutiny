@@ -37,7 +37,7 @@ the documentation of the respective function.
 
 \examples{
 pigs1 |>
-  grim_map(digits_x = 2) |>
+  grim_map(digits_x = 2, items_averaged = 1) |>
   audit()
 
 pigs4 |>

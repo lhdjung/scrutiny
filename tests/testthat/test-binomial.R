@@ -3,8 +3,8 @@ test_that("`grim_binomial()` leaves undecidable cases out", {
   # A row with an `NA` verdict has an `NA` probability, and one such row used
   # to make the p-value `NA` for the whole table:
   df <- tibble::tibble(x = c(5.19, 5.19, 5.20), n = c(28L, NA, 30L))
-  out_all       <- df        |> grim_map(digits_x = 2) |> grim_binomial()
-  out_decidable <- df[-2L, ] |> grim_map(digits_x = 2) |> grim_binomial()
+  out_all       <- df        |> grim_map(digits_x = 2, items_averaged = 1) |> grim_binomial()
+  out_decidable <- df[-2L, ] |> grim_map(digits_x = 2, items_averaged = 1) |> grim_binomial()
   out_all |> expect_equal(out_decidable)
   out_all$parameter |> expect_equal(2L)
 })
@@ -15,7 +15,7 @@ test_that("`grim_binomial()` leaves undecidable cases out", {
 test_that("the binomial functions reject empty input instead of crashing", {
   skip_if_not_installed("poibin")
   tibble::tibble(x = c(1.23, 1.24), n = c(NA, NA)) |>
-    grim_map(digits_x = 2) |>
+    grim_map(digits_x = 2, items_averaged = 1) |>
     grim_binomial() |>
     expect_error("No value sets to test")
   0.5 |>
@@ -26,7 +26,7 @@ test_that("the binomial functions reject empty input instead of crashing", {
 
 test_that("`grim_binomial()` returns the exact interval, one-sided like the test", {
   skip_if_not_installed("poibin")
-  data <- pigs1 |> grim_map(digits_x = 2)
+  data <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1)
   k <- sum(data$consistency)
   n <- nrow(data)
   for (alternative in c("greater", "less", "two.sided")) {

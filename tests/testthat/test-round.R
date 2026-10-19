@@ -329,7 +329,7 @@ test_that("`symmetric` is rejected for the `\"ties_*\"` strings", {
       unround(rounding = rounding, digits = 1, symmetric = TRUE) |>
       expect_error("must not be given")
     tibble::tibble(x = -5.19, n = 28) |>
-      grim_map(digits_x = 2, rounding = rounding, symmetric = TRUE) |>
+      grim_map(digits_x = 2, items_averaged = 1, rounding = rounding, symmetric = TRUE) |>
       expect_error("must not be given")
   }
 })

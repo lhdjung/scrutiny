@@ -21,11 +21,13 @@ test_that("explanations agree with the tests (sweep)", {
       rounding = row$rounding
     )
     args_sd <- c(args, list(sd = row$sd, digits_sd = row$digits))
+    args_grim <- c(args, list(items_averaged = 1))
+    args_grimmer <- c(args_sd, list(items_averaged = 1))
 
-    args |> do.call(what = grim_explain)          |> getElement("consistency") |> expect_identical(do.call(grim, args))
-    args_sd |> do.call(what = grimmer_explain)    |> getElement("consistency") |> expect_identical(do.call(grimmer, args_sd))
+    args_grim    |> do.call(what = grim_explain)    |> getElement("consistency") |> expect_identical(do.call(grim, args_grim))
+    args_grimmer |> do.call(what = grimmer_explain) |> getElement("consistency") |> expect_identical(do.call(grimmer, args_grimmer))
     if (row$x <= 1 && row$sd <= 1) {
-      args_sd |> do.call(what = debit_explain)    |> getElement("consistency") |> expect_identical(do.call(debit, args_sd))
+      args_sd    |> do.call(what = debit_explain)   |> getElement("consistency") |> expect_identical(do.call(debit, args_sd))
     }
   }
 })
@@ -72,14 +74,14 @@ test_that("a value that would look like a whole number or a bound gets just enou
 
 test_that("explanations print as expected", {
   expect_snapshot({
-    grim_explain(x = 5.19, n = 28, digits_x = 2)
-    grim_explain(x = 5.19, n = 32, digits_x = 2)
-    grim_explain(x = 71, n = 43, digits_x = 0, percent = TRUE)
-    grim_explain(x = 2.84, n = 16, digits_x = 2, items = 2, rounding = "up")
-    grim_explain(x = 5.2, n = 20.5, digits_x = 1)
-    grimmer_explain(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2)
-    grimmer_explain(x = 5.19, sd = 2.55, n = 28, digits_x = 2, digits_sd = 2)
-    grimmer_explain(x = 3.1, sd = 1.3, n = 200, digits_x = 1, digits_sd = 1)
+    grim_explain(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
+    grim_explain(x = 5.19, n = 32, digits_x = 2, items_averaged = 1)
+    grim_explain(x = 71, n = 43, digits_x = 0, items_averaged = 1, percent = TRUE)
+    grim_explain(x = 2.84, n = 16, digits_x = 2, items_averaged = 2, rounding = "up")
+    grim_explain(x = 5.2, n = 20.5, digits_x = 1, items_averaged = 1)
+    grimmer_explain(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2, items_averaged = 1)
+    grimmer_explain(x = 5.19, sd = 2.55, n = 28, digits_x = 2, digits_sd = 2, items_averaged = 1)
+    grimmer_explain(x = 3.1, sd = 1.3, n = 200, digits_x = 1, digits_sd = 1, items_averaged = 1)
     debit_explain(x = 0.36, sd = 0.11, n = 20, digits_x = 2, digits_sd = 2)
     debit_explain(x = 0.35, sd = 0.49, n = 20, digits_x = 2, digits_sd = 2)
     debit_explain(x = 0.36, sd = 0.49, n = 1000, digits_x = 2, digits_sd = 2)
@@ -87,28 +89,28 @@ test_that("explanations print as expected", {
 })
 
 test_that("a missing `digits_x` gets the usual error", {
-  5.19 |> grim_explain(n = 28) |> expect_error("digits_x")
+  5.19 |> grim_explain(n = 28, items_averaged = 1) |> expect_error("digits_x")
 })
 
 test_that("missing `items` is undecidable, not an error", {
-  5.19 |> grim_explain(n = 28, digits_x = 2, items = NA)                            |> getElement("consistency") |> expect_identical(NA)
-  5.19 |> grimmer_explain(sd = 1.2, n = 28, digits_x = 2, digits_sd = 2, items = NA) |> getElement("consistency") |> expect_identical(NA)
+  5.19 |> grim_explain(n = 28, digits_x = 2, items_averaged = NA)                             |> getElement("consistency") |> expect_identical(NA)
+  5.19 |> grimmer_explain(sd = 1.2, n = 28, digits_x = 2, digits_sd = 2, items_averaged = NA) |> getElement("consistency") |> expect_identical(NA)
 })
 
 test_that("large numbers are written out in full", {
-  5.19 |> grim_explain(n = 1e5, digits_x = 2)                         |> format() |> expect_match("100000 whole numbers", fixed = TRUE)
+  5.19 |> grim_explain(n = 1e5, digits_x = 2, items_averaged = 1)       |> format() |> expect_match("100000 whole numbers", fixed = TRUE)
   0.5  |> debit_explain(sd = 0.5, n = 2e5, digits_x = 1, digits_sd = 1) |> format() |> expect_no_match("e+0", fixed = TRUE)
 })
 
 test_that("bounds of values with many decimal places are shown in full", {
-  5.1234 |> grim_explain(n = 28, digits_x = 4)                                         |> format() |> expect_match("from 5.12335 to 5.12345", fixed = TRUE)
-  5.2345 |> grimmer_explain(sd = 1.2345, n = 30, digits_x = 4, digits_sd = 4)          |> format() |> expect_match("from 5.23445 to 5.23455", fixed = TRUE)
-  0.3621 |> debit_explain(sd = 0.4811, n = 500, digits_x = 4, digits_sd = 4)           |> format() |> expect_match("from 0.36205 to 0.36215", fixed = TRUE)
+  5.1234 |> grim_explain(n = 28, digits_x = 4, items_averaged = 1)                                |> format() |> expect_match("from 5.12335 to 5.12345", fixed = TRUE)
+  5.2345 |> grimmer_explain(sd = 1.2345, n = 30, digits_x = 4, digits_sd = 4, items_averaged = 1) |> format() |> expect_match("from 5.23445 to 5.23455", fixed = TRUE)
+  0.3621 |> debit_explain(sd = 0.4811, n = 500, digits_x = 4, digits_sd = 4)                      |> format() |> expect_match("from 0.36205 to 0.36215", fixed = TRUE)
 })
 
 
 test_that("only a single case is explained", {
-  c(5.19, 5.2) |> grim_explain(n = 28, digits_x = 2) |> expect_error("length 1")
+  c(5.19, 5.2) |> grim_explain(n = 28, digits_x = 2, items_averaged = 1) |> expect_error("length 1")
 })
 
 
@@ -118,17 +120,17 @@ test_that("only a single case is explained", {
 # row's `consistency` value, so explaining whole mapper outputs checks them all.
 
 test_that("`explain_map()` agrees with every mapper tier", {
-  pigs1 |> grim_map(digits_x = 2)                                    |> explain_map() |> getElement("explanation") |> expect_length(12L)
-  pigs1 |> grim_map(digits_x = 2, items = 2)                         |> explain_map() |> getElement("explanation") |> expect_length(12L)
-  pigs2 |> grim_map(digits_x = 1, percent = TRUE)                    |> explain_map() |> getElement("explanation") |> expect_length(6L)
-  pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2)                  |> explain_map() |> getElement("explanation") |> expect_length(12L)
-  pigs3 |> debit_map(digits_x = 2, digits_sd = 2)                    |> explain_map() |> getElement("explanation") |> expect_length(7L)
-  pigs1 |> grim_map_seq(digits_x = 2)                                |> explain_map() |> getElement("explanation") |> expect_length(160L)
-  pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, rounding = "up") |> explain_map() |> getElement("explanation") |> expect_length(12L)
+  pigs1 |> grim_map(digits_x = 2, items_averaged = 1)                                    |> explain_map() |> getElement("explanation") |> expect_length(12L)
+  pigs1 |> grim_map(digits_x = 2, items_averaged = 2)                                    |> explain_map() |> getElement("explanation") |> expect_length(12L)
+  pigs2 |> grim_map(digits_x = 1, items_averaged = 1, percent = TRUE)                    |> explain_map() |> getElement("explanation") |> expect_length(6L)
+  pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1)                  |> explain_map() |> getElement("explanation") |> expect_length(12L)
+  pigs3 |> debit_map(digits_x = 2, digits_sd = 2)                                        |> explain_map() |> getElement("explanation") |> expect_length(7L)
+  pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1)                                |> explain_map() |> getElement("explanation") |> expect_length(160L)
+  pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, rounding = "up") |> explain_map() |> getElement("explanation") |> expect_length(12L)
 })
 
 test_that("`explain_map()` keeps the data as it is", {
-  data <- pigs1 |> grim_map(digits_x = 2)
+  data <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1)
   explained <- data |> explain_map()
   explained |> class()            |> expect_identical(class(data))
   explained |> scrutiny_meta()    |> expect_identical(scrutiny_meta(data))
@@ -137,25 +139,25 @@ test_that("`explain_map()` keeps the data as it is", {
 })
 
 test_that("`explain_map()` uses the settings of the mapper call", {
-  tibble::tibble(x = 71, n = 43) |> grim_map(digits_x = 0, percent = TRUE) |> explain_map() |> getElement("explanation") |> expect_match("x = 71, n = 43, percent = TRUE", fixed = TRUE)
+  tibble::tibble(x = 71, n = 43) |> grim_map(digits_x = 0, items_averaged = 1, percent = TRUE) |> explain_map() |> getElement("explanation") |> expect_match("x = 71, n = 43, percent = TRUE", fixed = TRUE)
 })
 
 test_that("`explain_map()` catches rows changed after testing", {
-  data <- pigs1 |> grim_map(digits_x = 2)
+  data <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1)
   data$n[1] <- 28
   data |> explain_map() |> expect_error("row with x = 7.22, n = 28 doesn't match")
 })
 
 test_that("`explain_map()` needs columns and settings", {
-  pigs1 |> grim_map(digits_x = 2) |> dplyr::select(-digits_x)            |> explain_map() |> expect_error("Missing: `digits_x`")
-  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, formula = "mean_n")    |> explain_map() |> expect_error("was tested with")
-  data <- pigs1 |> grim_map(digits_x = 2)
+  pigs1 |> grim_map(digits_x = 2, items_averaged = 1) |> dplyr::select(-digits_x) |> explain_map() |> expect_error("Missing: `digits_x`")
+  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, formula = "mean_n")             |> explain_map() |> expect_error("was tested with")
+  data <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1)
   attr(data, "scrutiny") <- NULL
   data |> explain_map() |> expect_error("lost the settings")
 })
 
 test_that("`explain_print()` explains only the rows it prints", {
-  data <- pigs1 |> grim_map(digits_x = 2)
+  data <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1)
   data |> explain_print(2)                    |> expect_output("^GRIM test: x = 4.74, n = 25\n")
   data |> explain_print(1:2)                  |> expect_output("x = 4.74")
   data |> explain_print(-1)                   |> expect_output("x = 4.74")
@@ -174,7 +176,7 @@ test_that("`explain_map()` and `explain_print()` only take mapper output", {
   pigs1                                       |> explain_map()   |> expect_error("must be the output")
   pigs1                                       |> explain_print() |> expect_error("must be the output")
   pigs1 |> structure(class = c("scrutiny_add_up_to_map", class(pigs1))) |> explain_print() |> expect_error("must be the output")
-  pigs1 |> grim_map(digits_x = 2) |> dplyr::summarise(m = mean(x)) |> explain_print() |> expect_error("must be the output")
+  pigs1 |> grim_map(digits_x = 2, items_averaged = 1) |> dplyr::summarise(m = mean(x)) |> explain_print() |> expect_error("must be the output")
   1:3                                         |> explain_print() |> expect_error("must be a tibble")
 })
 
@@ -185,7 +187,7 @@ test_that("`explain_map()` can be extended to other classes", {
 
 test_that("`explain_print()` prints as expected", {
   expect_snapshot({
-    pigs1 |> grim_map(digits_x = 2) |> explain_map() |> explain_print(1:2)
-    pigs1 |> grim_map(digits_x = 2) |> dplyr::filter(n > 1000) |> explain_print()
+    pigs1 |> grim_map(digits_x = 2, items_averaged = 1) |> explain_map() |> explain_print(1:2)
+    pigs1 |> grim_map(digits_x = 2, items_averaged = 1) |> dplyr::filter(n > 1000) |> explain_print()
   })
 })

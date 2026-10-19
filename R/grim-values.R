@@ -7,7 +7,7 @@ grim_sums_scalar <- function(
   x,
   n,
   digits_x,
-  items,
+  items_averaged,
   percent,
   rounding,
   threshold,
@@ -15,6 +15,9 @@ grim_sums_scalar <- function(
 ) {
   if (missing(digits_x)) {
     error_digits_missing(x)
+  }
+  if (missing(items_averaged)) {
+    error_items_missing()
   }
 
   check_newly_numeric(x, digits_x)
@@ -26,7 +29,7 @@ grim_sums_scalar <- function(
     digits_x <- digits_x + 2L
   }
 
-  n_items <- n * items
+  n_items <- n * items_averaged
 
   # An infinite `x` is undecidable, exactly as in `grim_scalar()`: no data set
   # has an infinite mean, and `sum_range()` would answer with an infinitely wide
@@ -35,7 +38,9 @@ grim_sums_scalar <- function(
   # So is a sample size or item count that is no positive whole number, as in
   # every other test (see `is_decidable_n_items()`):
   sums <- if (
-    is.infinite(x_num) || is.na(digits_x) || !is_decidable_n_items(n, items)
+    is.infinite(x_num) ||
+      is.na(digits_x) ||
+      !is_decidable_n_items(n, items_averaged)
   ) {
     c(NA_real_, NA_real_)
   } else {
@@ -63,7 +68,7 @@ grim_values_scalar <- function(
   x,
   n,
   digits_x,
-  items = 1,
+  items_averaged,
   percent = FALSE,
   rounding = "up_or_down",
   threshold = 5,
@@ -73,7 +78,7 @@ grim_values_scalar <- function(
     x,
     n,
     digits_x,
-    items,
+    items_averaged,
     percent,
     rounding,
     threshold,
@@ -104,7 +109,7 @@ grim_closest_scalar <- function(
   x,
   n,
   digits_x,
-  items = 1,
+  items_averaged,
   percent = FALSE,
   rounding = "up_or_down",
   threshold = 5,
@@ -114,7 +119,7 @@ grim_closest_scalar <- function(
     x,
     n,
     digits_x,
-    items,
+    items_averaged,
     percent,
     rounding,
     threshold,
@@ -150,7 +155,7 @@ grim_closest_scalar <- function(
 #' Achievable means behind a reported one
 #'
 #' @description These functions return the means (or percentages) that a sample
-#'   of `n * items` integers can have:
+#'   of `n * items_averaged` integers can have:
 #'
 #'   - `grim_values()` returns every achievable value that would be reported as
 #'   `x`. The result is empty if `x` is GRIM-inconsistent with `n`.
@@ -163,10 +168,10 @@ grim_closest_scalar <- function(
 #'
 #' @details The achievable means are the whole numbers in the range that
 #'   [`grim_map()`] shows as `sum_lower` and `sum_upper` under `show_rec`, each
-#'   divided by `n * items`. Once `n * items` reaches `10^digits_x`, several of
-#'   them can be reported as the same `x`, and their number grows with
-#'   `n * items`. GRIM is then no longer informative. `grim_closest()` stays
-#'   cheap in that case; `grim_values()` does not.
+#'   divided by `n * items_averaged`. Once `n * items_averaged` reaches
+#'   `10^digits_x`, several of them can be reported as the same `x`, and their
+#'   number grows with `n * items_averaged`. GRIM is then no longer informative.
+#'   `grim_closest()` stays cheap in that case; `grim_values()` does not.
 #'
 #'   With `percent = TRUE`, the values are percentages, like `x`.
 #'
@@ -175,7 +180,7 @@ grim_closest_scalar <- function(
 #' @param digits_x Integer. The number of decimal places in `x`, including
 #'   trailing zeros. There is no default, since a numeric value does not
 #'   keep them (`1.40` is `1.4`).
-#' @param items Numeric. The number of items composing `x`. Default is 1.
+#' @param items_averaged Integer. As in [`grim()`].
 #' @param percent Logical. If `TRUE`, `x` is a percentage. Default is `FALSE`.
 #' @param rounding,threshold,symmetric The same as in [`grim()`].
 #'
@@ -201,19 +206,24 @@ grim_closest_scalar <- function(
 #' @examples
 #' # A mean of 5.19 is consistent with a sample size of 32,
 #' # and there is exactly one way to get there:
-#' grim_values(x = 5.19, n = 32, digits_x = 2)
+#' grim_values(x = 5.19, n = 32, digits_x = 2, items_averaged = 1)
 #'
 #' # With a larger sample, several means round to 5.19:
-#' grim_values(x = 5.19, n = 300, digits_x = 2)
+#' grim_values(x = 5.19, n = 300, digits_x = 2, items_averaged = 1)
 #'
 #' # It is not consistent with a sample size of 28...
-#' grim_values(x = 5.19, n = 28, digits_x = 2)
+#' grim_values(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
 #'
 #' # ...but 5.19 is close to a mean that is achievable:
-#' grim_closest(x = 5.19, n = 28, digits_x = 2)
+#' grim_closest(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
 #'
 #' # Both functions are vectorized:
-#' grim_closest(x = c(5.19, 4.2), n = c(28, 30), digits_x = 2)
+#' grim_closest(
+#'   x = c(5.19, 4.2),
+#'   n = c(28, 30),
+#'   digits_x = 2,
+#'   items_averaged = 1
+#' )
 
 grim_values <- Vectorize(grim_values_scalar, SIMPLIFY = FALSE)
 

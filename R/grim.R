@@ -4,7 +4,7 @@ grim_scalar <- function(
   x,
   n,
   digits_x,
-  items = 1,
+  items_averaged,
   percent = FALSE,
   show_rec = FALSE,
   rounding = "up_or_down",
@@ -31,10 +31,6 @@ grim_scalar <- function(
     )
   }
 
-  # A plain `NA` is logical, but missing all the same:
-  if (!is.numeric(items) && !is.na(items)) {
-    check_type(items, c("double", "integer"))
-  }
   check_type(percent, "logical")
   # A missing `n` is undecidable, but a string is a mistake: comparing it with
   # numbers used to make the verdict an unexplained `NA`.
@@ -44,6 +40,14 @@ grim_scalar <- function(
 
   if (missing(digits_x)) {
     error_digits_missing(x)
+  }
+
+  if (missing(items_averaged)) {
+    error_items_missing()
+  }
+  # A plain `NA` is logical, but missing all the same:
+  if (!is.numeric(items_averaged) && !is.na(items_averaged)) {
+    check_type(items_averaged, c("double", "integer"))
   }
 
   check_newly_numeric(x, digits_x)
@@ -56,16 +60,18 @@ grim_scalar <- function(
     digits_x <- digits_x + 2L
   }
 
-  # GRIM asks which integer sums of `n * items` integer values have a mean that
-  # would be reported as `x`. A fractional or non-positive `n` or `items`
-  # describes no such data set, so the case is undecidable rather than
-  # inconsistent. So is an infinite `x`: no data set has an infinite mean, and
-  # it has no decimal places to be reported with -- left to `sum_range()` it
-  # would make the range infinitely wide, i.e. consistent with everything. And
-  # so is a missing `digits_x`: without the decimal count there are no rounding
-  # bounds to derive.
+  # GRIM asks which integer sums of `n * items_averaged` integer values have a
+  # mean that would be reported as `x`. A fractional or non-positive `n` or
+  # `items_averaged` describes no such data set, so the case is undecidable
+  # rather than inconsistent. So is an infinite `x`: no data set has an infinite
+  # mean, and it has no decimal places to be reported with -- left to
+  # `sum_range()` it would make the range infinitely wide, i.e. consistent with
+  # everything. And so is a missing `digits_x`: without the decimal count there
+  # are no rounding bounds to derive.
   if (
-    !is_decidable_n_items(n, items) || is.infinite(x_num) || is.na(digits_x)
+    !is_decidable_n_items(n, items_averaged) ||
+      is.infinite(x_num) ||
+      is.na(digits_x)
   ) {
     if (!show_rec) {
       return(NA)
@@ -74,7 +80,7 @@ grim_scalar <- function(
   }
 
   # Prepare further objects for reconstructing the original values:
-  n_items <- n * items
+  n_items <- n * items_averaged
   rec_sum <- x_num * n_items
 
   # The integer sums whose mean would have been reported as `x_num` at
@@ -139,9 +145,10 @@ grim_scalar <- function(
 #'
 #' @description `grim()` checks whether a reported mean of integer data is
 #'   consistent with the reported sample size and the number of items that
-#'   compose the mean. The mean of `n * items` integers is a whole number
-#'   divided by `n * items`, so only certain values are possible; the test
-#'   asks whether any of them would have been reported as `x`.
+#'   compose the mean. The mean of `n * items_averaged` integers is a whole
+#'   number divided by `n * items_averaged`, so only certain values are
+#'   possible; the test asks whether any of them would have been reported as
+#'   `x`.
 #'
 #'   Set `percent` to `TRUE` if `x` is a percentage. It is then divided by 100
 #'   and tested with two more decimal places.
@@ -153,9 +160,13 @@ grim_scalar <- function(
 #'   retain trailing zeros: `1.40` is stored as `1.4`. State the number of
 #'   decimal places that `x` was reported with.
 #'
-#'   `x`, `n`, `digits_x`, and `items` are vectorized and recycled to a common
-#'   length by the tidyverse rules: an argument has length 1 or the length of
-#'   the longest. All other arguments must have length 1.
+#'   `items_averaged` must be specified because a mean over several items is a
+#'   mean of more values, which changes the test. It replaces `items`, whose
+#'   default of 1 let multi-item scales pass unnoticed.
+#'
+#'   `x`, `n`, `digits_x`, and `items_averaged` are vectorized and recycled to a
+#'   common length by the tidyverse rules: an argument has length 1 or the
+#'   length of the longest. All other arguments must have length 1.
 #'
 #'   The test decides in exact integer arithmetic, so `tolerance` has no
 #'   effect and is deprecated.
@@ -165,7 +176,9 @@ grim_scalar <- function(
 #' @param digits_x Integer. The number of decimal places in `x`, including
 #'   trailing zeros. There is no default, since a numeric value does not
 #'   keep them (`1.40` is `1.4`).
-#' @param items Numeric. The number of items composing `x`. Default is 1.
+#' @param items_averaged Integer. The number of items averaged into each
+#'   respondent's score: 1 for a single item or a percentage, 4 for the mean of
+#'   a four-item scale. Not the number of scale points. There is no default.
 #' @param percent Logical. If `TRUE`, `x` is a percentage: it is divided by
 #'   100 and the decimal count is increased by 2. Default is `FALSE`.
 #' @param rounding String. The rounding method assumed to have produced `x`.
@@ -183,9 +196,10 @@ grim_scalar <- function(
 #' @param tolerance `r lifecycle::badge("deprecated")` This argument has no
 #'   effect; see *Details*.
 #'
-#' @return Logical. `TRUE` if `x`, `n`, and `items` are consistent, `FALSE` if
-#'   not, and `NA` if the case cannot be decided: if a value is missing or
-#'   infinite, or if `n` or `items` is not a positive whole number.
+#' @return Logical. `TRUE` if `x`, `n`, and `items_averaged` are consistent,
+#'   `FALSE` if not, and `NA` if the case cannot be decided: if a value is
+#'   missing or infinite, or if `n` or `items_averaged` is not a positive whole
+#'   number.
 #'
 #' @seealso [`grim_map()`] for data frames, [`grim_values()`] for the means
 #'   that `n` integers can produce, and [`grim_probability()`] for how
@@ -204,16 +218,16 @@ grim_scalar <- function(
 #'
 #' @examples
 #' # A mean of 5.19 is not consistent with a sample size of 28:
-#' grim(x = 5.19, n = 28, digits_x = 2)
+#' grim(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
 #'
 #' # However, it is consistent with a sample size of 32:
-#' grim(x = 5.19, n = 32, digits_x = 2)
+#' grim(x = 5.19, n = 32, digits_x = 2, items_averaged = 1)
 #'
 #' # For a scale composed of two items:
-#' grim(x = 2.84, n = 16, digits_x = 2, items = 2)
+#' grim(x = 2.84, n = 16, digits_x = 2, items_averaged = 2)
 #'
 #' # With percentages instead of means -- here, 71%:
-#' grim(x = 71, n = 43, digits_x = 0, percent = TRUE)
+#' grim(x = 71, n = 43, digits_x = 0, items_averaged = 1, percent = TRUE)
 
 # Vectorized version. The signature mirrors `grim_scalar()`'s minus `show_rec`;
 # see `vectorize_test()`:
@@ -221,7 +235,7 @@ grim <- function(
   x,
   n,
   digits_x,
-  items = 1,
+  items_averaged,
   percent = FALSE,
   rounding = "up_or_down",
   threshold = 5,
@@ -231,6 +245,6 @@ grim <- function(
   vectorize_test(
     fun = grim_scalar,
     frame = environment(),
-    along = c("x", "n", "digits_x", "items")
+    along = c("x", "n", "digits_x", "items_averaged")
   )
 }

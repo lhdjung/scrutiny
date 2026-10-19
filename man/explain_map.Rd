@@ -30,7 +30,7 @@ testing, and \code{explain_map()} throws an error.
 }
 \examples{
 pigs1 |>
-  grim_map(digits_x = 2) |>
+  grim_map(digits_x = 2, items_averaged = 1) |>
   dplyr::filter(!consistency) |>
   explain_map()
 }

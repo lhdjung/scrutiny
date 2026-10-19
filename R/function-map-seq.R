@@ -218,11 +218,11 @@ function_map_seq <- function(
 
   name_fun <- deparse(substitute(.fun))
 
-  # Helper-column arguments of `.fun`, such as `items` in `grim_map()`. The
-  # re-tests of dispersed values below take the helpers as columns of the data
-  # they test, so they must not also get them as arguments. `function_map()`
-  # records them on the mappers it creates; a handwritten mapper has nothing
-  # to record, and the attribute is `NULL`:
+  # Helper-column arguments of `.fun`, such as `items_averaged` in `grim_map()`.
+  # The re-tests of dispersed values below take the helpers as columns of the
+  # data they test, so they must not also get them as arguments.
+  # `function_map()` records them on the mappers it creates; a handwritten
+  # mapper has nothing to record, and the attribute is `NULL`:
   args_helper_fun <- attr(.fun, "scrutiny_args_helper", exact = TRUE)
 
   # An `n` key column holds whole numbers, so coerce it to integer for better
@@ -351,8 +351,8 @@ function_map_seq <- function(
         var <- reported
       }
 
-      # Only the key columns are dispersed; `items`, for one, is not a value
-      # that was reported with rounding:
+      # Only the key columns are dispersed; `items_averaged`, for one, is not a
+      # value that was reported with rounding:
       if (!all(var %in% reported)) {
         cli::cli_abort(c(
           "`var` must only name the reported columns.",
@@ -374,8 +374,8 @@ function_map_seq <- function(
       )
 
       # Forwarded to `map_seq_proto()`, and from there to `fun()`. Helper
-      # arguments such as `items` are dropped: the initial `fun()` call above
-      # returned them as columns, which the re-tests read them from:
+      # arguments such as `items_averaged` are dropped: the initial `fun()` call
+      # above returned them as columns, which the re-tests read them from:
       fun_args <- c(digits_vals, list(...))
       fun_args <- fun_args[!names(fun_args) %in% `!!`(args_helper_fun)]
 

@@ -53,6 +53,6 @@ for their average. Compare it to the mean of \code{1 - probability}.
 }
 \examples{
 pigs1 |>
-  grim_map(digits_x = 2) |>
+  grim_map(digits_x = 2, items_averaged = 1) |>
   grim_binomial()
 }

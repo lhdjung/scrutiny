@@ -30,7 +30,7 @@ test_that("a percentage is GRIM-consistent iff some count produces it", {
   n <- 37
   percentage <- seq(0, 100, by = 0.1)
   some_count <- percentage |> vapply(\(p) any(is_percentage_of(0:n, p, n, 1)), logical(1L))
-  percentage |> grim(n, digits_x = 1, percent = TRUE) |> expect_equal(some_count)
+  percentage |> grim(n, digits_x = 1, items_averaged = 1, percent = TRUE) |> expect_equal(some_count)
 })
 
 test_that("`is_percentage_of()` is `NA` for undecidable cases", {

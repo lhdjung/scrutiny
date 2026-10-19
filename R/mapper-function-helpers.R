@@ -246,11 +246,11 @@ check_audit_special <- function(data, name_test) {
 #' Manage a helper column
 #'
 #' @description A helper column is a column of a mapper's input that is not
-#'   itself tested but enters the test, such as `items` in [`grim_map()`]. It
-#'   can be given either as a column of `data` or as an argument of the same
-#'   name. `manage_helper_col()` checks that the two are not both given, and
-#'   by default (`affix = TRUE`) adds the argument's value to `data` as a
-#'   column if `data` has none.
+#'   itself tested but enters the test, such as `items_averaged` in
+#'   [`grim_map()`]. It can be given either as a column of `data` or as an
+#'   argument of the same name. `manage_helper_col()` checks that the two are
+#'   not both given, and by default (`affix = TRUE`) adds the argument's value
+#'   to `data` as a column if `data` has none.
 #'
 #'   Mappers made by [`function_map()`] call it for every `.cols_helper`
 #'   argument. Call it yourself in a handwritten mapper, once per helper
@@ -260,7 +260,9 @@ check_audit_special <- function(data, name_test) {
 #'
 #' @param data The mapper's input data frame.
 #' @param var_arg The mapper argument named like the helper column.
-#' @param default The default of that argument.
+#' @param default The default of that argument. Leave it out if the argument
+#'   has none, like `items_averaged`: `data` is then returned unchanged if the
+#'   argument is missing, and the test function reports that.
 #' @param affix Logical. If `data` has no such column, should one be added
 #'   from `var_arg`? Default is `TRUE`.
 #'
@@ -274,24 +276,32 @@ manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
 
   # Throw error if the argument in question was specified in a way that
   # contradicts `data`:
+  has_default <- !missing(default)
+  if (!has_default && missing(var_arg)) {
+    return(data)
+  }
+
   if (any(var_name == colnames(data))) {
     # Determine whether or not the argument in question was specified by the
     # user; i.e., whether it's different from the default. For numeric values,
     # strict equality as tested by `identical()` would be asking too much, so
     # `all(dplyr::near())` is used instead. This works via a helper from
-    # utils.R, which is also the source of all the other helpers here:
-    if (!about_equal(var_arg, default)) {
+    # utils.R, which is also the source of all the other helpers here. With no
+    # default, the argument was given, as checked above:
+    if (!has_default || !about_equal(var_arg, default)) {
       data_name <- deparse(substitute(data))
       data_name <- wrap_in_backticks(data_name)
       var_name_as_arg <- wrap_in_backticks(var_name)
       var_name <- wrap_in_quotes(var_name)
       var_arg <- wrap_in_quotes_or_backticks(var_arg)
       fun_name <- name_last_export_code()
-      default <- wrap_in_quotes_or_backticks(default)
+      msg_default <- if (has_default) {
+        paste0(" (default: ", wrap_in_quotes_or_backticks(default), ")")
+      }
       abort_in_export(
         "Column {var_name} already in {data_name}.",
         "x" = "The {var_name_as_arg} argument in {fun_name} \\
-        was specified as {var_arg} (default: {default}).",
+        was specified as {var_arg}{msg_default}.",
         "x" = "This conflicts with the {var_name} column in {data_name}."
       )
     }

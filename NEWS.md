@@ -28,11 +28,13 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - DEBIT is exact by default. The mean of `n` binary values is `k / n` for a whole number `k`, but DEBIT treated the mean as a continuous quantity and therefore accepted some SDs that no binary sample of size `n` can have. The new `formula` argument of `debit()` and its mappers selects either `"exact"`, the new default, or `"mean_n"`, the previous behavior. `debit_map()` has two new columns, `sum_lower` and `sum_upper`: the smallest and largest `k` whose mean would be reported as `x`.
 
-- GRIM, GRIMMER, and DEBIT now return `NA` for every case that cannot be tested, under every rounding method. Such cases are: a missing or infinite value, including a missing `digits_*` value; and an `n` or `items` value that is not a positive whole number. For GRIMMER and DEBIT, `n` must be at least 2, since they divide by `n - 1`. Previously, these cases caused an error or returned an arbitrary `TRUE` or `FALSE`. `grim_probability()` returns `NA` for the same cases.
+- GRIM, GRIMMER, and DEBIT now return `NA` for every case that cannot be tested, under every rounding method. Such cases are: a missing or infinite value, including a missing `digits_*` value; and an `n` or `items_averaged` value that is not a positive whole number. For GRIMMER and DEBIT, `n` must be at least 2, since they divide by `n - 1`. Previously, these cases caused an error or returned an arbitrary `TRUE` or `FALSE`. `grim_probability()` returns `NA` for the same cases.
 
 - `grim_probability()`, `grim_total()`, and the `probability` column of `grim_map()` now take the rounding method into account, via new `rounding` and `threshold` arguments. The formula `(10^D - N * L) / 10^D`, with `D` decimal places, sample size `N`, and `L` items, is only correct for rounding methods in which exactly one range of unrounded values, one step wide, leads to each reported value. Under the default `"up_or_down"`, a mean exactly on a tie is accepted in both directions, so the probability is lower: for `n = 40` and two decimal places, it is `0.4`, not `0.6`.
 
 ### Function interfaces
+
+- `items` is now `items_averaged` and no longer has a default (#94). It is the number of items averaged into each respondent's score, and its old name was mistaken for the number of scale points. With the default of 1, a mean of a multi-item scale was silently tested as a single item. Like `digits_x`, the argument must now be given in every call to `grim()`, `grimmer()`, their mappers, `grim_values()`, `grim_closest()`, `grim_probability()`, `grim_total()`, `grim_explain()`, `grimmer_explain()`, `grim_plot_values()`, and `grimmer_plot_values()`: use `items_averaged = 1` for a single item or a percentage. In the mappers, an `items_averaged` column of `data` works as well. `grim_granularity()` keeps its default of 1.
 
 - scrutiny uses the base pipe `|>` and no longer exports `%>%`. It requires R >= 4.1.0.
 
@@ -40,9 +42,9 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `debit_map()` no longer has `show_rec` and `grimmer_map()` no longer has `show_reason`: the reconstructed values and the `reason` column are always returned. `debit_map()` output no longer has a `rounding` column; the rounding method is recorded in the `"scrutiny"` attribute. `audit()` on `grimmer_map()` output no longer has a `fail_test2` column.
 
-- `grim()`, `grimmer()`, and `debit()` no longer have `show_rec` or `show_reason`. These arguments were only intended for internal use by the mappers. The three functions are now vectorized only over the tested values (`x`, `sd`, `n`, and the `digits_*` arguments) and `items`; `rounding`, `threshold`, `symmetric`, `percent`, `formula`, and `tolerance` must have length 1. Recycling follows the tidyverse rules: an argument must have length 1 or the common length. `grim(x = c(5.19, 5.18, 5.17), n = c(28, 32), digits_x = 2)` is therefore an error; it used to return three results.
+- `grim()`, `grimmer()`, and `debit()` no longer have `show_rec` or `show_reason`. These arguments were only intended for internal use by the mappers. The three functions are now vectorized only over the tested values (`x`, `sd`, `n`, and the `digits_*` arguments) and `items_averaged`; `rounding`, `threshold`, `symmetric`, `percent`, `formula`, and `tolerance` must have length 1. Recycling follows the tidyverse rules: an argument must have length 1 or the common length. `grim(x = c(5.19, 5.18, 5.17), n = c(28, 32), digits_x = 2)` is therefore an error; it used to return three results.
 
-- `grim_map()` and `grimmer_map()` no longer multiply `items` into `n`. The `n` column is the sample size as given, and `items` is returned as a column of its own if it was given, as an argument or a column. `grim_plot()` places the tiles at `n * items`.
+- `grim_map()` and `grimmer_map()` no longer multiply `items` into `n`. The `n` column is the sample size as given, and `items_averaged` is returned as a column of its own. `grim_plot()` places the tiles at `n * items_averaged`.
 
 - `grim_map(show_rec = TRUE)` returns the same five columns for every rounding method: `rec_sum`, `sum_lower`, `sum_upper`, `rec_x_upper`, `rec_x_lower`. The `rec_x_*_rounded*` columns are gone. `sum_lower` and `sum_upper` are the smallest and largest whole-number sum totals that would be reported as `x`, and `consistency` is `TRUE` exactly if `sum_lower <= sum_upper`. The displayed values can therefore no longer contradict the result. With `percent = TRUE`, `rec_x_upper` and `rec_x_lower` are percentages, like `x`.
 
@@ -50,7 +52,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - The arguments of a mapper call that other functions need later, such as `rounding`, are now recorded in a single list attribute named `"scrutiny"`, not in S3 classes. Classes are now used for method dispatch only. Mapper output no longer has `"scr_rounding_*"` or `"scr_percent_true"` classes, sequence mapper output no longer has the `"scr_map_seq_disp_nonlinear"` class, and the `"scr_seq_df"` and `"scr_seq_test"` classes are gone.
 
-- In `*_map_seq()` output, `case` is now the row number of the value set in the input data. It used to count only the inconsistent rows. If `items` is specified, `n` is now the sample size and `items` a separate column, and `n` is dispersed in steps of 1. `*_map_total_n()` output also returns `n` and `items` separately.
+- In `*_map_seq()` output, `case` is now the row number of the value set in the input data. It used to count only the inconsistent rows. `n` is now the sample size and `items_averaged` a separate column, and `n` is dispersed in steps of 1. `*_map_total_n()` output also returns `n` and `items_averaged` separately.
 
 - `reround()` requires `rounding`, `threshold`, and `symmetric` to have length 1, requires `digits` to have length 1 or the length of `x`, and rejects a fractional `digits`. In every function, `rounding` must now be a string and `symmetric` a single `TRUE` or `FALSE`. A numeric or logical `rounding` used to be silently interpreted as a position in the list of rounding methods.
 
@@ -100,7 +102,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `seq_disperse()` now rounds its values to the decimal level of `by`, so that long sequences do not accumulate floating-point error (#83). It applies `out_min` and `out_max` to the whole sequence, including `from` itself, and no longer includes `from` twice when `dispersion` contains 0.
 
-- `*_map_total_n()` functions now use an `items` column, and `reverse_map_total_n()` reconstructs the correct total `n` for any `dispersion`. Functions made by `function_map_total_n()` now work when created in another package (#69).
+- `*_map_total_n()` functions now use an `items_averaged` column, and `reverse_map_total_n()` reconstructs the correct total `n` for any `dispersion`. Functions made by `function_map_total_n()` now work when created in another package (#69).
 
 ### Rounding and decimal places
 

@@ -7,8 +7,10 @@
 #' frame to `vectorize_test()`:
 #'
 #' ```
-#' grim <- function(x, n, digits_x, items = 1, percent = FALSE, ...) {
-#'   vectorize_test(grim_scalar, environment(), c("x", "n", "digits_x", "items"))
+#' grim <- function(x, n, digits_x, items_averaged, percent = FALSE, ...) {
+#'   vectorize_test(
+#'     grim_scalar, environment(), c("x", "n", "digits_x", "items_averaged")
+#'   )
 #' }
 #' ```
 #'
@@ -24,11 +26,11 @@
 #' @param fun The `*_scalar()` function to apply, e.g. `grim_scalar()`.
 #' @param frame The calling wrapper's own `environment()`.
 #' @param along String vector naming the arguments to vectorize over: the key
-#'   arguments, their `digits_*` arguments, and `items` where the test has it.
-#'   Every other argument is scalar. The split is the same one the mapper tier
-#'   makes: `along` is what `function_map()` takes from `data` -- key columns,
-#'   `.args_by_row`, and helper columns -- and the rest are what it passes as
-#'   constants for the whole call.
+#'   arguments, their `digits_*` arguments, and `items_averaged` where the test
+#'   has it. Every other argument is scalar. The split is the same one the
+#'   mapper tier makes: `along` is what `function_map()` takes from `data` --
+#'   key columns, `.args_by_row`, and helper columns -- and the rest are what it
+#'   passes as constants for the whole call.
 #'
 #' @return Logical vector, as long as the recycled `along` arguments.
 #'

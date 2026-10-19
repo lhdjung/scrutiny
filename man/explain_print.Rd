@@ -27,12 +27,12 @@ explained.
 }
 \examples{
 pigs1 |>
-  grim_map(digits_x = 2) |>
+  grim_map(digits_x = 2, items_averaged = 1) |>
   explain_print(1:2)
 
 # Inconsistent rows only:
 pigs1 |>
-  grim_map(digits_x = 2) |>
+  grim_map(digits_x = 2, items_averaged = 1) |>
   dplyr::filter(!consistency) |>
   explain_print()
 }

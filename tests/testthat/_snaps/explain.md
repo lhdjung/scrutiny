@@ -1,7 +1,7 @@
 # explanations print as expected
 
     Code
-      grim_explain(x = 5.19, n = 28, digits_x = 2)
+      grim_explain(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
     Output
       GRIM test: x = 5.19, n = 28
       
@@ -17,7 +17,7 @@
       
       ==> Inconsistent
     Code
-      grim_explain(x = 5.19, n = 32, digits_x = 2)
+      grim_explain(x = 5.19, n = 32, digits_x = 2, items_averaged = 1)
     Output
       GRIM test: x = 5.19, n = 32
       
@@ -32,7 +32,7 @@
       
       ==> Consistent
     Code
-      grim_explain(x = 71, n = 43, digits_x = 0, percent = TRUE)
+      grim_explain(x = 71, n = 43, digits_x = 0, items_averaged = 1, percent = TRUE)
     Output
       GRIM test: x = 71, n = 43, percent = TRUE
       
@@ -48,9 +48,9 @@
       
       ==> Inconsistent
     Code
-      grim_explain(x = 2.84, n = 16, digits_x = 2, items = 2, rounding = "up")
+      grim_explain(x = 2.84, n = 16, digits_x = 2, items_averaged = 2, rounding = "up")
     Output
-      GRIM test: x = 2.84, n = 16, items = 2, rounding = "up"
+      GRIM test: x = 2.84, n = 16, items_averaged = 2, rounding = "up"
       
       The mean was reported as 2.84, with 2 decimal places. Before rounding, it could
       have been anything from 2.835 up to, but not including, 2.845.
@@ -64,7 +64,7 @@
       
       ==> Consistent
     Code
-      grim_explain(x = 5.2, n = 20.5, digits_x = 1)
+      grim_explain(x = 5.2, n = 20.5, digits_x = 1, items_averaged = 1)
     Output
       GRIM test: x = 5.2, n = 20.5
       
@@ -72,7 +72,8 @@
       
       ==> Undecidable
     Code
-      grimmer_explain(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2)
+      grimmer_explain(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2,
+        items_averaged = 1)
     Output
       GRIMMER test: x = 5.23, sd = 2.55, n = 35
       
@@ -101,7 +102,8 @@
       
       ==> Inconsistent
     Code
-      grimmer_explain(x = 5.19, sd = 2.55, n = 28, digits_x = 2, digits_sd = 2)
+      grimmer_explain(x = 5.19, sd = 2.55, n = 28, digits_x = 2, digits_sd = 2,
+        items_averaged = 1)
     Output
       GRIMMER test: x = 5.19, sd = 2.55, n = 28
       
@@ -118,7 +120,8 @@
       
       ==> Inconsistent
     Code
-      grimmer_explain(x = 3.1, sd = 1.3, n = 200, digits_x = 1, digits_sd = 1)
+      grimmer_explain(x = 3.1, sd = 1.3, n = 200, digits_x = 1, digits_sd = 1,
+        items_averaged = 1)
     Output
       GRIMMER test: x = 3.1, sd = 1.3, n = 200
       
@@ -213,7 +216,8 @@
 # `explain_print()` prints as expected
 
     Code
-      explain_print(explain_map(grim_map(pigs1, digits_x = 2)), 1:2)
+      explain_print(explain_map(grim_map(pigs1, digits_x = 2, items_averaged = 1)), 1:
+        2)
     Output
       GRIM test: x = 7.22, n = 32
       
@@ -243,7 +247,8 @@
       ==> Inconsistent
       
     Code
-      explain_print(dplyr::filter(grim_map(pigs1, digits_x = 2), n > 1000))
+      explain_print(dplyr::filter(grim_map(pigs1, digits_x = 2, items_averaged = 1),
+      n > 1000))
     Output
       No rows to explain.
 

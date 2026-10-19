@@ -38,15 +38,15 @@ and the table at its end.
 }
 \examples{
 df1 <- pigs1 |>
-  grim_map(digits_x = 2)
+  grim_map(digits_x = 2, items_averaged = 1)
 df2 <- pigs1 |>
-  grim_map_seq(digits_x = 2)
+  grim_map_seq(digits_x = 2, items_averaged = 1)
 df3 <- tibble::tribble(
   ~x1,  ~x2,  ~n,
   3.43, 5.28, 90,
   2.97, 4.42, 103
 ) |>
-  grim_map_total_n(digits_x = 2)
+  grim_map_total_n(digits_x = 2, items_averaged = 1)
 
 # All three are mapper output:
 is_map_df(df1)

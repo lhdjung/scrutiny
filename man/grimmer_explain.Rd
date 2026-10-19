@@ -10,7 +10,7 @@ grimmer_explain(
   n,
   digits_x,
   digits_sd,
-  items = 1,
+  items_averaged,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE
@@ -31,8 +31,7 @@ keep them (\code{1.40} is \code{1.4}).}
 trailing zeros. There is no default, since a numeric value does not
 keep them (\code{1.40} is \code{1.4}).}
 
-\item{items}{Integer. The number of items composing \code{x} and \code{sd}. Default
-is \code{1}.}
+\item{items_averaged}{Integer. As in \code{\link[=grim]{grim()}}, for \code{x} and \code{sd}.}
 
 \item{rounding}{String. The rounding method assumed to have produced \code{x}.
 Default is \code{"up_or_down"}, which accepts either direction. See
@@ -64,7 +63,21 @@ The text is built from the numbers that decide the test itself, so it
 always agrees with \code{\link[=grimmer]{grimmer()}}.
 }
 \examples{
-grimmer_explain(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2)
+grimmer_explain(
+  x = 5.23,
+  sd = 2.55,
+  n = 35,
+  digits_x = 2,
+  digits_sd = 2,
+  items_averaged = 1
+)
 
-grimmer_explain(x = 5.23, sd = 2.55, n = 31, digits_x = 2, digits_sd = 2)
+grimmer_explain(
+  x = 5.23,
+  sd = 2.55,
+  n = 31,
+  digits_x = 2,
+  digits_sd = 2,
+  items_averaged = 1
+)
 }

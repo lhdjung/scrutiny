@@ -34,15 +34,15 @@
 
 # The SD's rounding bounds as exact integer numerators over a common
 # denominator, the same way `sum_range()` derives the mean's bounds, plus the
-# `(n - 1) * sd^2 * items^2` part of the sum of squares at each bound. That part
-# does not depend on the candidate sum, so it is computed once, here. `NULL` if
-# the bounds are undefined, i.e. for a missing SD. Shared with
+# `(n - 1) * sd^2 * items_averaged^2` part of the sum of squares at each bound.
+# That part does not depend on the candidate sum, so it is computed once, here.
+# `NULL` if the bounds are undefined, i.e. for a missing SD. Shared with
 # `grimmer_explain()`.
 
 grimmer_sd_bounds <- function(
   sd,
   n,
-  items,
+  items_averaged,
   digits_sd,
   rounding,
   threshold,
@@ -70,13 +70,13 @@ grimmer_sd_bounds <- function(
   sd_bounds$term_lower <- sd_square_term(
     sd_bounds$lower,
     n,
-    items,
+    items_averaged,
     sd_bounds$denom
   )
   sd_bounds$term_upper <- sd_square_term(
     sd_bounds$upper,
     n,
-    items,
+    items_averaged,
     sd_bounds$denom
   )
 
@@ -91,7 +91,7 @@ grimmer_sd_bounds <- function(
 grimmer_candidate <- function(
   s,
   n,
-  items,
+  items_averaged,
   sd_bounds
 ) {
   # TEST 1: Is there at least one integer between the bounds of the
@@ -142,7 +142,7 @@ grimmer_scalar <- function(
   n,
   digits_x,
   digits_sd,
-  items = 1,
+  items_averaged,
   show_reason = FALSE,
   rounding = "up_or_down",
   threshold = 5,
@@ -160,10 +160,6 @@ grimmer_scalar <- function(
     )
   }
 
-  # A plain `NA` is logical, but missing all the same:
-  if (!is.numeric(items) && !is.na(items)) {
-    check_type(items, c("double", "integer"))
-  }
   # See `grim_scalar()`:
   if (!is.numeric(n) && !is.na(n)) {
     check_type(n, c("double", "integer"))
@@ -175,6 +171,14 @@ grimmer_scalar <- function(
 
   if (missing(digits_sd)) {
     error_digits_missing(sd)
+  }
+
+  if (missing(items_averaged)) {
+    error_items_missing()
+  }
+  # A plain `NA` is logical, but missing all the same:
+  if (!is.numeric(items_averaged) && !is.na(items_averaged)) {
+    check_type(items_averaged, c("double", "integer"))
   }
 
   check_newly_numeric(x, digits_x)
@@ -201,10 +205,10 @@ grimmer_scalar <- function(
     return(NA)
   }
 
-  # GRIMMER inherits GRIM's requirement that `n` and `items` be positive whole
-  # numbers, and adds `min_n = 2`: it reconstructs a *sample* SD, so it divides
-  # by `n - 1`.
-  if (!is_decidable_n_items(n, items, min_n = 2)) {
+  # GRIMMER inherits GRIM's requirement that `n` and `items_averaged` be
+  # positive whole numbers, and adds `min_n = 2`: it reconstructs a *sample* SD,
+  # so it divides by `n - 1`.
+  if (!is_decidable_n_items(n, items_averaged, min_n = 2)) {
     if (show_reason) {
       return(list(NA, "No testable value set"))
     }
@@ -220,14 +224,15 @@ grimmer_scalar <- function(
     return(FALSE)
   }
 
-  n_items <- n * items
+  n_items <- n * items_averaged
 
-  # GRIM TEST: the original `n` because `items` is passed down separately.
+  # GRIM TEST: the original `n` because `items_averaged` is passed down
+  # separately.
   pass_grim <- grim_scalar(
     x = x,
     n = n,
     digits_x = digits_x,
-    items = items,
+    items_averaged = items_averaged,
     rounding = rounding,
     threshold = threshold,
     symmetric = symmetric
@@ -253,7 +258,7 @@ grimmer_scalar <- function(
   sd_bounds <- grimmer_sd_bounds(
     sd = sd,
     n = n,
-    items = items,
+    items_averaged = items_averaged,
     digits_sd = digits_sd,
     rounding = rounding,
     threshold = threshold,
@@ -296,7 +301,7 @@ grimmer_scalar <- function(
     candidate <- grimmer_candidate(
       s = s,
       n = n,
-      items = items,
+      items_averaged = items_averaged,
       sd_bounds = sd_bounds
     )
 
@@ -338,7 +343,7 @@ grimmer_scalar <- function(
 #'   The function is vectorized, but [`grimmer_map()`] is more convenient for
 #'   testing many cases.
 #'
-#' @details `x`, `sd`, `n`, `digits_x`, `digits_sd`, and `items` are
+#' @details `x`, `sd`, `n`, `digits_x`, `digits_sd`, and `items_averaged` are
 #'   vectorized and recycled to a common length by the tidyverse rules. All
 #'   other arguments must have length 1.
 #'
@@ -356,18 +361,17 @@ grimmer_scalar <- function(
 #' @param digits_sd Integer. The number of decimal places in `sd`, including
 #'   trailing zeros. There is no default, since a numeric value does not
 #'   keep them (`1.40` is `1.4`).
-#' @param items Integer. The number of items composing `x` and `sd`. Default
-#'   is `1`.
+#' @param items_averaged Integer. As in [`grim()`], for `x` and `sd`.
 #' @param tolerance `r lifecycle::badge("deprecated")` This argument has no
 #'   effect: the test decides in exact integer arithmetic.
 #'
 #' @inheritParams grim
 #'
-#' @return Logical. `TRUE` if `x`, `sd`, `n`, and `items` are consistent,
-#'   `FALSE` if not, and `NA` if the case cannot be decided: if a value is
-#'   missing or infinite, if `items` is not a positive whole number, or if `n`
-#'   is not a whole number greater than `1`. GRIMMER reconstructs a sample SD
-#'   and so divides by `n - 1`.
+#' @return Logical. `TRUE` if `x`, `sd`, `n`, and `items_averaged` are
+#'   consistent, `FALSE` if not, and `NA` if the case cannot be decided: if a
+#'   value is missing or infinite, if `items_averaged` is not a positive whole
+#'   number, or if `n` is not a whole number greater than `1`. GRIMMER
+#'   reconstructs a sample SD and so divides by `n - 1`.
 #'
 #' @references Allard, A. (2018). Analytic-GRIMMER: a new way of testing the
 #'   possibility of standard deviations.
@@ -382,14 +386,35 @@ grimmer_scalar <- function(
 #' @examples
 #' # A mean of 5.23 is not consistent with an SD of 2.55
 #' # and a sample size of 35:
-#' grimmer(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2)
+#' grimmer(
+#'   x = 5.23,
+#'   sd = 2.55,
+#'   n = 35,
+#'   digits_x = 2,
+#'   digits_sd = 2,
+#'   items_averaged = 1
+#' )
 #'
 #' # However, mean and SD are consistent with a
 #' # sample size of 31:
-#' grimmer(x = 5.23, sd = 2.55, n = 31, digits_x = 2, digits_sd = 2)
+#' grimmer(
+#'   x = 5.23,
+#'   sd = 2.55,
+#'   n = 31,
+#'   digits_x = 2,
+#'   digits_sd = 2,
+#'   items_averaged = 1
+#' )
 #'
 #' # For a scale composed of two items:
-#' grimmer(x = 2.74, sd = 0.96, n = 63, digits_x = 2, digits_sd = 2, items = 2)
+#' grimmer(
+#'   x = 2.74,
+#'   sd = 0.96,
+#'   n = 63,
+#'   digits_x = 2,
+#'   digits_sd = 2,
+#'   items_averaged = 2
+#' )
 
 
 # Vectorized version. The signature mirrors `grimmer_scalar()`'s minus
@@ -400,7 +425,7 @@ grimmer <- function(
   n,
   digits_x,
   digits_sd,
-  items = 1,
+  items_averaged,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
@@ -409,6 +434,6 @@ grimmer <- function(
   vectorize_test(
     fun = grimmer_scalar,
     frame = environment(),
-    along = c("x", "sd", "n", "digits_x", "digits_sd", "items")
+    along = c("x", "sd", "n", "digits_x", "digits_sd", "items_averaged")
   )
 }

@@ -11,7 +11,7 @@ grimmer_map(
   x = NULL,
   sd = NULL,
   n = NULL,
-  items = 1,
+  items_averaged,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
@@ -20,8 +20,8 @@ grimmer_map(
 )
 }
 \arguments{
-\item{data}{Tibble with columns \code{x}, \code{sd}, and \code{n}, and optionally \code{items}.
-Any other columns are returned alongside the results.}
+\item{data}{Tibble with columns \code{x}, \code{sd}, and \code{n}, and optionally
+\code{items_averaged}. Any other columns are returned alongside the results.}
 
 \item{digits_x, digits_sd}{Integer. The number of decimal places in \code{x} and
 \code{sd}, including trailing zeros. There are no defaults, since a numeric
@@ -31,9 +31,7 @@ whole column or one number per row of \code{data}.}
 \item{x, sd, n}{Optionally, the names of the columns in \code{data} that contain
 these values, if they differ from the defaults.}
 
-\item{items}{Integer. The number of items composing \code{x} and \code{sd}, if \code{data}
-has no \code{items} column. Default is \code{1}. If given, as an argument or a
-column, it is returned as a column.}
+\item{items_averaged}{Integer. As in \code{\link[=grim_map]{grim_map()}}, for \code{x} and \code{sd}.}
 
 \item{rounding, threshold, symmetric, tolerance}{Passed on to \code{\link[=grimmer]{grimmer()}}.}
 
@@ -44,9 +42,9 @@ A tibble with these columns:
 \itemize{
 \item \code{x}, \code{sd}, \code{n}: the inputs.
 \item \code{digits_x}, \code{digits_sd}: the numbers of decimal places, as given.
-\item \code{items}: the number of items, if given.
-\item \code{consistency}: GRIMMER consistency of \code{x}, \code{sd}, \code{n}, and \code{items}. \code{NA}
-for a case that cannot be decided, such as one with a missing value.
+\item \code{items_averaged}: the number of items averaged into each score.
+\item \code{consistency}: GRIMMER consistency of \code{x}, \code{sd}, \code{n}, and \code{items_averaged}.
+\code{NA} for a case that cannot be decided, such as one with a missing value.
 \item \code{reason}: \code{"Passed all"} if consistent; otherwise the test that failed.
 \item Any other columns from \code{data}.
 }
@@ -92,11 +90,11 @@ pigs5
 # The `consistency` column shows whether the values to its left are
 # GRIMMER-consistent. If they aren't, the `reason` column gives the reason:
 pigs5 |>
-  grimmer_map(digits_x = 2, digits_sd = 2)
+  grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1)
 
 # Get summaries with `audit()`:
 pigs5 |>
-  grimmer_map(digits_x = 2, digits_sd = 2) |>
+  grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
   audit()
 }
 \references{

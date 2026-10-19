@@ -252,16 +252,16 @@ comb_values <- function(from, to, digits) {
 }
 
 
-# `n` and `items` are needed for the window before the test itself gets to
-# reject them, and an undecidable case has nothing to draw. The length checks
+# `n` and `items_averaged` are needed for the window before the test itself gets
+# to reject them, and an undecidable case has nothing to draw. The length checks
 # stay in the plot functions themselves, so that the error names the function
 # the user called.
-check_decidable_n_items <- function(n, items, min_n) {
-  if (!is_decidable_n_items(n, items, min_n = min_n)) {
+check_decidable_n_items <- function(n, items_averaged, min_n) {
+  if (!is_decidable_n_items(n, items_averaged, min_n = min_n)) {
     abort_in_export(
-      "`n` and `items` must be positive whole numbers, and `n` must be \\
-      at least {min_n}.",
-      "x" = "`n` is {n} and `items` is {items}.",
+      "`n` and `items_averaged` must be positive whole numbers, and `n` \\
+      must be at least {min_n}.",
+      "x" = "`n` is {n} and `items_averaged` is {items_averaged}.",
       "i" = "The test cannot be decided otherwise, so there is nothing to \\
       draw."
     )
@@ -317,8 +317,8 @@ check_comb_value <- function(value, digits, name) {
 #'   in detail, for teaching or for explaining a verdict. [`grim_values()`]
 #'   returns the attainable values as numbers.
 #'
-#' @param x,n,digits_x,items,percent,rounding,threshold,symmetric The same as in
-#'   [`grim()`], but `x` and `n` must have length 1.
+#' @param x,n,digits_x,items_averaged,percent,rounding,threshold,symmetric The
+#'   same as in [`grim()`], but `x` and `n` must have length 1.
 #' @param color_cons,color_incons Strings. Colors of the teeth for attainable
 #'   and unattainable values.
 #' @param color_reported String. Color of the marker for the reported value
@@ -326,11 +326,11 @@ check_comb_value <- function(value, digits, name) {
 #'   consistent value is marked in `color_cons`.
 #'
 #' @details The comb runs from the whole number at or below `x` to the next one
-#'   up. That unit contains `10 ^ digits_x` reportable values and, with `items =
-#'   1`, about `n` attainable ones. With `percent = TRUE`, a unit is one
-#'   percentage point, and the comb widens by `100 / n` on either side so that
-#'   the nearest attainable values remain visible. With more than two decimal
-#'   places, the teeth crowd together.
+#'   up. That unit contains `10 ^ digits_x` reportable values and, with
+#'   `items_averaged = 1`, about `n` attainable ones. With `percent = TRUE`, a
+#'   unit is one percentage point, and the comb widens by `100 / n` on either
+#'   side so that the nearest attainable values remain visible. With more than
+#'   two decimal places, the teeth crowd together.
 #'
 #'   The strip behind the teeth is the range of unrounded means that would
 #'   have been reported as `x`, from [`unround()`]. The value is consistent
@@ -348,19 +348,25 @@ check_comb_value <- function(value, digits, name) {
 #' @examples
 #' # A mean of 5.19 is not consistent with a sample size of 28:
 #' # no tall tooth stands where the marker points.
-#' grim_plot_values(x = 5.19, n = 28, digits_x = 2)
+#' grim_plot_values(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
 #'
 #' # With `n = 26`, it is:
-#' grim_plot_values(x = 5.19, n = 26, digits_x = 2)
+#' grim_plot_values(x = 5.19, n = 26, digits_x = 2, items_averaged = 1)
 #'
 #' # The same for a percentage:
-#' grim_plot_values(x = 67.4, n = 40, digits_x = 1, percent = TRUE)
+#' grim_plot_values(
+#'   x = 67.4,
+#'   n = 40,
+#'   digits_x = 1,
+#'   items_averaged = 1,
+#'   percent = TRUE
+#' )
 
 grim_plot_values <- function(
   x,
   n,
   digits_x,
-  items = 1,
+  items_averaged,
   percent = FALSE,
   rounding = "up_or_down",
   threshold = 5,
@@ -374,15 +380,18 @@ grim_plot_values <- function(
   }
   check_length(x, 1L)
   check_length(n, 1L)
-  check_length(items, 1L)
+  if (missing(items_averaged)) {
+    error_items_missing()
+  }
+  check_length(items_averaged, 1L)
   check_newly_numeric(x, digits_x)
   check_comb_value(x, digits_x, "x")
-  check_decidable_n_items(n, items, min_n = 1)
+  check_decidable_n_items(n, items_averaged, min_n = 1)
 
   # One unit around `x`, which holds about `n` attainable means. Attainable
   # percentages are `100 / n` points apart, so the window widens by that much
   # on either side (within 0 to 100), to keep the nearest ones in view:
-  reach <- if (percent) ceiling(100 / (n * items)) else 0
+  reach <- if (percent) ceiling(100 / (n * items_averaged)) else 0
   lower <- floor(x) - reach
   upper <- floor(x) + 1 + reach
   if (percent) {
@@ -396,7 +405,7 @@ grim_plot_values <- function(
       x = x,
       n = n,
       digits_x = digits_x,
-      items = items,
+      items_averaged = items_averaged,
       percent = percent,
       rounding = rounding,
       threshold = threshold,
@@ -430,7 +439,9 @@ grim_plot_values <- function(
     x_label = paste0(
       if (percent) "Reported percentage" else "Reported mean",
       " (n = ", format(n, scientific = FALSE),
-      if (items != 1) paste0(", items = ", format(items, scientific = FALSE)),
+      if (items_averaged != 1) {
+        paste(", items_averaged =", format(items_averaged, scientific = FALSE))
+      },
       ")"
     ),
     color_cons = color_cons,

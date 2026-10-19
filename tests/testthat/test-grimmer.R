@@ -285,7 +285,8 @@ df1 <- df1 |>
     x = as.numeric(restore_zeros(x, width = 2)),
     sd = as.numeric(restore_zeros(sd, width = 2)),
     digits_x = 2L,
-    digits_sd = 2L
+    digits_sd = 2L,
+    items_averaged = 1
   )
 
 
@@ -486,39 +487,39 @@ df_disagree_all |>
 # New implementation from rsprite2 ----------------------------------------
 
 test_that("GRIMMER works correctly by default", {
-  5.21 |> grimmer_scalar(1.6, 28, digits_x = 2, digits_sd = 1)  |> expect_true()
-  3.44 |> grimmer_scalar(2.47, 18, digits_x = 2, digits_sd = 2) |> expect_false()
+  5.21 |> grimmer_scalar(1.6, 28, digits_x = 2, digits_sd = 1, items_averaged = 1)  |> expect_true()
+  3.44 |> grimmer_scalar(2.47, 18, digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_false()
 })
 
 test_that("GRIMMER works correctly when compared to the rsprite2 implementation", {
-  1.2 |> grimmer_scalar(0.3,  57, digits_x = 1, digits_sd = 1) |> expect_equal(GRIMMER_test(1.2, 0.3,  57))
-  8.3 |> grimmer_scalar(7.5, 103, digits_x = 1, digits_sd = 1) |> expect_equal(GRIMMER_test(8.3, 7.5, 103))
+  1.2 |> grimmer_scalar(0.3,  57, digits_x = 1, digits_sd = 1, items_averaged = 1) |> expect_equal(GRIMMER_test(1.2, 0.3,  57))
+  8.3 |> grimmer_scalar(7.5, 103, digits_x = 1, digits_sd = 1, items_averaged = 1) |> expect_equal(GRIMMER_test(8.3, 7.5, 103))
 
   # Dealing with test-3 inconsistencies:
-  5.23 |> grimmer_scalar(2.55, 35, digits_x = 2, digits_sd = 2)  |> expect_equal(GRIMMER_test(5.23, 2.55, 35))
-  5.23 |> grimmer_scalar(2.55, 127, digits_x = 2, digits_sd = 2) |> expect_equal(GRIMMER_test(5.23, 2.55, 127))
-  5.2  |> grimmer_scalar(2.5 , 35, digits_x = 1, digits_sd = 1)  |> expect_equal(GRIMMER_test(5.2 , 2.5 , 35))
+  5.23 |> grimmer_scalar(2.55, 35, digits_x = 2, digits_sd = 2, items_averaged = 1)  |> expect_equal(GRIMMER_test(5.23, 2.55, 35))
+  5.23 |> grimmer_scalar(2.55, 127, digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_equal(GRIMMER_test(5.23, 2.55, 127))
+  5.2  |> grimmer_scalar(2.5 , 35, digits_x = 1, digits_sd = 1, items_averaged = 1)  |> expect_equal(GRIMMER_test(5.2 , 2.5 , 35))
 
   # This value set is from `pigs5`. It used to be flagged as a test-3
   # inconsistency by `grimmer_scalar()`, but it is consistent according to both
   # the new version and rsprite2:
-  2.57 |> grimmer_scalar(2.57, 30, digits_x = 2, digits_sd = 2) |> expect_equal(GRIMMER_test(2.57, 2.57, 30))
+  2.57 |> grimmer_scalar(2.57, 30, digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_equal(GRIMMER_test(2.57, 2.57, 30))
 
   # Some finer variations:
-  3.756 |> grimmer_scalar(4.485, 89, digits_x = 3, digits_sd = 3) |> expect_equal(GRIMMER_test(3.756, 4.485, 89))
-  3.756 |> grimmer_scalar(4.485, 12, digits_x = 3, digits_sd = 3) |> expect_equal(GRIMMER_test(3.756, 4.485, 12))
-  3.75  |> grimmer_scalar(4.48,  12, digits_x = 2, digits_sd = 2) |> expect_equal(GRIMMER_test(3.75, 4.48, 12))
-  3.75  |> grimmer_scalar(4.48,  89, digits_x = 2, digits_sd = 2) |> expect_equal(GRIMMER_test(3.75, 4.48, 89))
+  3.756 |> grimmer_scalar(4.485, 89, digits_x = 3, digits_sd = 3, items_averaged = 1) |> expect_equal(GRIMMER_test(3.756, 4.485, 89))
+  3.756 |> grimmer_scalar(4.485, 12, digits_x = 3, digits_sd = 3, items_averaged = 1) |> expect_equal(GRIMMER_test(3.756, 4.485, 12))
+  3.75  |> grimmer_scalar(4.48,  12, digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_equal(GRIMMER_test(3.75, 4.48, 12))
+  3.75  |> grimmer_scalar(4.48,  89, digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_equal(GRIMMER_test(3.75, 4.48, 89))
 })
 
 test_that("GRIMMER works correctly with `items = 2`", {
-  5.21 |> grimmer_scalar(1.60, 28, digits_x = 2, digits_sd = 2, items = 2) |> expect_equal(GRIMMER_test(5.21, 1.6 , 28, n_items = 2))
-  3.44 |> grimmer_scalar(2.47, 18, digits_x = 2, digits_sd = 2, items = 2) |> expect_equal(GRIMMER_test(3.44, 2.47, 18, n_items = 2))
+  5.21 |> grimmer_scalar(1.60, 28, digits_x = 2, digits_sd = 2, items_averaged = 2) |> expect_equal(GRIMMER_test(5.21, 1.6 , 28, n_items = 2))
+  3.44 |> grimmer_scalar(2.47, 18, digits_x = 2, digits_sd = 2, items_averaged = 2) |> expect_equal(GRIMMER_test(3.44, 2.47, 18, n_items = 2))
 })
 
 test_that("GRIMMER works correctly with `items = 3`", {
-  5.21 |> grimmer_scalar(1.60, 28, digits_x = 2, digits_sd = 2, items = 3) |> expect_equal(GRIMMER_test(5.21, 1.6 , 28, n_items = 3))
-  3.44 |> grimmer_scalar(2.47, 18, digits_x = 2, digits_sd = 2, items = 3) |> expect_equal(GRIMMER_test(3.44, 2.47, 18, n_items = 3))
+  5.21 |> grimmer_scalar(1.60, 28, digits_x = 2, digits_sd = 2, items_averaged = 3) |> expect_equal(GRIMMER_test(5.21, 1.6 , 28, n_items = 3))
+  3.44 |> grimmer_scalar(2.47, 18, digits_x = 2, digits_sd = 2, items_averaged = 3) |> expect_equal(GRIMMER_test(3.44, 2.47, 18, n_items = 3))
 })
 
 
@@ -531,7 +532,7 @@ test_that("GRIMMER checks SD-match and parity against the same candidate sum of 
   # both. This only affects `rounding = "up"`/`"down"`; see
   # https://github.com/lhdjung/scrutiny/issues/85.
   0.11 |>
-    grimmer(sd = 0.87, n = 64, digits_x = 2, digits_sd = 2, rounding = "up") |>
+    grimmer(sd = 0.87, n = 64, digits_x = 2, digits_sd = 2, items_averaged = 1, rounding = "up") |>
     expect_false()
 
   cases <- tibble::tribble(
@@ -550,7 +551,7 @@ test_that("GRIMMER checks SD-match and parity against the same candidate sum of 
 
   result_false <- cases |>
     purrr::pmap_lgl(function(x, sd, n) {
-      grimmer(x = x, sd = sd, n = n, digits_x = 2, digits_sd = 2, rounding = "up")
+      grimmer(x = x, sd = sd, n = n, digits_x = 2, digits_sd = 2, items_averaged = 1, rounding = "up")
     })
 
   result_false |> any() |> expect_false()
@@ -558,7 +559,7 @@ test_that("GRIMMER checks SD-match and parity against the same candidate sum of 
   # The same value is genuinely GRIMMER-consistent under "up_or_down", where a
   # third candidate integer for the sum of squares is not at stake:
   0.11 |>
-    grimmer(sd = 0.87, n = 64, digits_x = 2, digits_sd = 2, rounding = "up_or_down") |>
+    grimmer(sd = 0.87, n = 64, digits_x = 2, digits_sd = 2, items_averaged = 1, rounding = "up_or_down") |>
     expect_true()
 })
 
@@ -580,9 +581,9 @@ test_that("GRIMMER does not flag values that real datasets produce (#86)", {
   witness |> mean()                |> expect_equal(0.035)
   witness |> stats::sd() |> round(2) |> expect_equal(0.18)
 
-  0.03 |> grimmer(sd = 0.18, n = 200, digits_x = 2, digits_sd = 2)                  |> expect_true()
-  0.04 |> grimmer(sd = 0.18, n = 200, digits_x = 2, digits_sd = 2)                  |> expect_true()
-  0.04 |> grimmer(sd = 0.18, n = 200, digits_x = 2, digits_sd = 2, rounding = "up") |> expect_true()
+  0.03 |> grimmer(sd = 0.18, n = 200, digits_x = 2, digits_sd = 2, items_averaged = 1)                  |> expect_true()
+  0.04 |> grimmer(sd = 0.18, n = 200, digits_x = 2, digits_sd = 2, items_averaged = 1)                  |> expect_true()
+  0.04 |> grimmer(sd = 0.18, n = 200, digits_x = 2, digits_sd = 2, items_averaged = 1, rounding = "up") |> expect_true()
 })
 
 
@@ -592,9 +593,9 @@ test_that("GRIMMER admits no phantom candidate sums (#86)", {
   # "up")$upper * 160` is 12.000000000000002, so 12 used to slip past the
   # exclusive upper bound and supply a parity-matching sum of squares. Note that
   # `grim()` itself passes here, so the GRIM gate cannot catch this.
-  0.07 |> grim(n = 160, digits_x = 2, rounding = "up") |> expect_true()
+  0.07 |> grim(n = 160, digits_x = 2, items_averaged = 1, rounding = "up") |> expect_true()
   0.07 |>
-    grimmer(sd = 0.08, n = 160, digits_x = 2, digits_sd = 2, rounding = "up") |>
+    grimmer(sd = 0.08, n = 160, digits_x = 2, digits_sd = 2, items_averaged = 1, rounding = "up") |>
     expect_false()
 })
 
@@ -612,7 +613,7 @@ test_that("GRIMMER never flags an actual two-value dataset (#86)", {
         sd_value <- stats::sd(values)
         x          <- values   |> mean() |> reround(digits = 2, rounding = rounding) |> purrr::pluck(1L)
         sd_rounded <- sd_value |> reround(digits = 2, rounding = rounding) |> purrr::pluck(1L)
-        consistent <- x |> grimmer(sd = sd_rounded, n = n, digits_x = 2, digits_sd = 2, rounding = rounding)
+        consistent <- x |> grimmer(sd = sd_rounded, n = n, digits_x = 2, digits_sd = 2, items_averaged = 1, rounding = rounding)
         if (!isTRUE(consistent)) {
           false_flags <- false_flags + 1L
         }
@@ -638,7 +639,7 @@ test_that("GRIMMER derives the sum-of-squares bounds exactly", {
   (witness / 3) |> stats::sd()             |> expect_equal(0)
 
   7.67 |>
-    grimmer(sd = 0, n = 2, items = 3, digits_x = 2, digits_sd = 2) |>
+    grimmer(sd = 0, n = 2, items_averaged = 3, digits_x = 2, digits_sd = 2) |>
     expect_true()
 
   # Same mechanism at a range of magnitudes, all of them real data sets with
@@ -650,7 +651,7 @@ test_that("GRIMMER derives the sum-of-squares bounds exactly", {
     for (n in c(2, 3, 5, 10, 37)) {
       for (item_sum in c(23, 25, 28, 106, 400, 631, 1000, 2317)) {
         x <- (item_sum / items) |> reround(digits = 2) |> purrr::pluck(1L)
-        consistent <- x |> grimmer(sd = 0, n = n, items = items, digits_x = 2, digits_sd = 2)
+        consistent <- x |> grimmer(sd = 0, n = n, items_averaged = items, digits_x = 2, digits_sd = 2)
         if (!isTRUE(consistent)) {
           false_flags <- false_flags + 1L
         }
@@ -675,7 +676,7 @@ test_that("GRIMMER never flags a real multi-item data set", {
     sd_value <- stats::sd(scores)
     x          <- scores   |> mean() |> reround(digits = 2) |> purrr::pluck(1L)
     sd_rounded <- sd_value |> reround(digits = 2) |> purrr::pluck(1L)
-    consistent <- x |> grimmer(sd = sd_rounded, n = n, items = items, digits_x = 2, digits_sd = 2)
+    consistent <- x |> grimmer(sd = sd_rounded, n = n, items_averaged = items, digits_x = 2, digits_sd = 2)
     if (!isTRUE(consistent)) {
       false_flags <- false_flags + 1L
     }
@@ -693,7 +694,7 @@ test_that("GRIMMER supports the compound rounding methods", {
   for (rounding in c("ceiling_or_floor", "up_from_or_down_from")) {
     5.23 |>
       grimmer(
-        sd = 2.55, n = 31, digits_x = 2, digits_sd = 2,
+        sd = 2.55, n = 31, digits_x = 2, digits_sd = 2, items_averaged = 1,
         rounding = rounding, threshold = 3
       ) |>
       expect_type("logical")
@@ -705,11 +706,11 @@ test_that("`symmetric` is passed on to the GRIM stage", {
   # `grimmer()` runs `grim()` first, so a mean that `symmetric` rules out must
   # make GRIMMER inconsistent as well:
   -0.07 |>
-    grim(n = 40, digits_x = 2, rounding = "up", symmetric = TRUE) |>
+    grim(n = 40, digits_x = 2, items_averaged = 1, rounding = "up", symmetric = TRUE) |>
     expect_false()
   -0.07 |>
     grimmer(
-      sd = 0.1, n = 40, digits_x = 2, digits_sd = 1,
+      sd = 0.1, n = 40, digits_x = 2, digits_sd = 1, items_averaged = 1,
       rounding = "up", symmetric = TRUE
     ) |>
     expect_false()
@@ -723,9 +724,9 @@ test_that("GRIMMER returns `NA` where GRIM itself is undecidable", {
   # "missing value where TRUE/FALSE needed" instead of passing it on. `debit()`
   # has the same test. (Until `anti_trunc()` stopped sending zero away from
   # zero, `rounding = "anti_trunc"` at a mean of zero was a second such case.)
-  NA |> grim(n = 40, digits_x = 2) |> expect_na()
-  NA   |> grimmer(sd = 0.41, n = 40, digits_x = 2, digits_sd = 2) |> expect_na()
-  1.03 |> grimmer(sd = 0.41, n = 0, digits_x = 2, digits_sd = 2)  |> expect_na()
+  NA   |> grim(n = 40, digits_x = 2, items_averaged = 1)                              |> expect_na()
+  NA   |> grimmer(sd = 0.41, n = 40, digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_na()
+  1.03 |> grimmer(sd = 0.41, n = 0, digits_x = 2, digits_sd = 2, items_averaged = 1)  |> expect_na()
 
   # The reason names the stage the case got stuck at, the way the reason for an
   # undecidable SD does. It must not read as a GRIM *inconsistency*, which
@@ -734,7 +735,7 @@ test_that("GRIMMER returns `NA` where GRIM itself is undecidable", {
   # screens for missingness ahead of the test, so the vehicle here is an `n`
   # that leaves nothing to test.)
   out <- tibble::tibble(x = c(1.03, 1.03), sd = c(0.41, 0.41), n = c(0L, 40L)) |>
-    grimmer_map(digits_x = 2, digits_sd = 2)
+    grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1)
   out$consistency |> expect_equal(c(NA, FALSE))
   out$reason[1L] |> expect_equal("No testable value set")
   out |> audit() |> purrr::pluck("fail_grim")    |> expect_equal(0L)
@@ -785,7 +786,7 @@ test_that("GRIMMER never rejects an enumerable sample", {
         function(x, sd) {
           grimmer(
             x = x, sd = sd, n = n,
-            digits_x = digits, digits_sd = digits
+            digits_x = digits, digits_sd = digits, items_averaged = 1
           )
         }
       )
@@ -812,7 +813,7 @@ test_that("GRIMMER never rejects an enumerable multi-item sample", {
     pairs[, 2L],
     function(x, sd) {
       grimmer(
-        x = x, sd = sd, n = 4L, items = 2,
+        x = x, sd = sd, n = 4L, items_averaged = 2,
         digits_x = 2, digits_sd = 2
       )
     }
@@ -824,27 +825,27 @@ test_that("GRIMMER never rejects an enumerable multi-item sample", {
 
 
 test_that("an `n` too large to enumerate is an error, not a hang", {
-  5.19 |> grimmer(sd = 2.5, n = 3e9, digits_x = 2, digits_sd = 2) |> expect_error("too large for GRIMMER")
-  5.19 |> grimmer(sd = 2.5, n = 1e8, digits_x = 2, digits_sd = 2) |> expect_error("too large for GRIMMER")
+  5.19 |> grimmer(sd = 2.5, n = 3e9, digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_error("too large for GRIMMER")
+  5.19 |> grimmer(sd = 2.5, n = 1e8, digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_error("too large for GRIMMER")
 
   # The limit is far above anything a published summary statistic looks like,
   # so a large but plausible `n` still goes through:
-  5.19 |> grimmer(sd = 2.5, n = 1e6, digits_x = 2, digits_sd = 2) |> expect_type("logical")
+  5.19 |> grimmer(sd = 2.5, n = 1e6, digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_type("logical")
 })
 
 
 test_that("a wide range of sums of squares is no error at a small `n`", {
   # A large SD reported with few decimals spans millions of sums of squares.
   # These used to trip the limit meant for a huge `n`:
-  35000.5 |> grimmer(sd = 50000, n = 20, digits_x = 1, digits_sd = 0)  |> expect_true()
-  512.3   |> grimmer(sd = 260, n = 2500, digits_x = 1, digits_sd = 0)   |> expect_true()
-  45000.5 |> grimmer(sd = 12000, n = 100, digits_x = 1, digits_sd = 0) |> expect_true()
+  35000.5 |> grimmer(sd = 50000, n = 20, digits_x = 1, digits_sd = 0, items_averaged = 1)  |> expect_true()
+  512.3   |> grimmer(sd = 260, n = 2500, digits_x = 1, digits_sd = 0, items_averaged = 1)  |> expect_true()
+  45000.5 |> grimmer(sd = 12000, n = 100, digits_x = 1, digits_sd = 0, items_averaged = 1) |> expect_true()
 })
 
 
 test_that("a negative SD is inconsistent, and says why", {
-  5 |> grimmer(-0.5, 10, 2, 2) |> expect_false()
+  5 |> grimmer(-0.5, 10, 2, 2, items_averaged = 1) |> expect_false()
   5 |>
-    grimmer_scalar(-0.5, 10, 2, 2, show_reason = TRUE) |>
+    grimmer_scalar(-0.5, 10, 2, 2, show_reason = TRUE, items_averaged = 1) |>
     expect_equal(list(FALSE, "Negative SD"))
 })

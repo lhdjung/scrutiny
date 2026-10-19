@@ -71,22 +71,22 @@ pigs1
 #> 12  0.24    28
 
 # GRIM-testing for data frames:
-grim_map(pigs1, digits_x = 2)
-#> # A tibble: 12 × 5
-#>        x     n digits_x consistency probability
-#>    <dbl> <int>    <dbl> <lgl>             <dbl>
-#>  1  7.22    32        2 TRUE               0.68
-#>  2  4.74    25        2 FALSE              0.75
-#>  3  5.23    29        2 FALSE              0.71
-#>  4  2.57    24        2 FALSE              0.76
-#>  5  6.77    27        2 FALSE              0.73
-#>  6  2.68    28        2 TRUE               0.72
-#>  7  7.01    29        2 FALSE              0.71
-#>  8  7.38    26        2 TRUE               0.74
-#>  9  3.14    27        2 FALSE              0.73
-#> 10  6.89    31        2 FALSE              0.69
-#> 11  5       25        2 TRUE               0.75
-#> 12  0.24    28        2 FALSE              0.72
+grim_map(pigs1, digits_x = 2, items_averaged = 1)
+#> # A tibble: 12 × 6
+#>        x     n items_averaged digits_x consistency probability
+#>    <dbl> <int>          <dbl>    <dbl> <lgl>             <dbl>
+#>  1  7.22    32              1        2 TRUE               0.64
+#>  2  4.74    25              1        2 FALSE              0.75
+#>  3  5.23    29              1        2 FALSE              0.71
+#>  4  2.57    24              1        2 FALSE              0.72
+#>  5  6.77    27              1        2 FALSE              0.73
+#>  6  2.68    28              1        2 TRUE               0.72
+#>  7  7.01    29              1        2 FALSE              0.71
+#>  8  7.38    26              1        2 TRUE               0.74
+#>  9  3.14    27              1        2 FALSE              0.73
+#> 10  6.89    31              1        2 FALSE              0.69
+#> 11  5       25              1        2 TRUE               0.75
+#> 12  0.24    28              1        2 FALSE              0.72
 ```
 
 Test percentages instead of means:
@@ -103,16 +103,16 @@ pigs2
 #> 5  68.1   150
 #> 6  55.4   150
 
-grim_map(pigs2, digits_x = 2, percent = TRUE)
-#> # A tibble: 6 × 5
-#>       x     n digits_x consistency probability
-#>   <dbl> <int>    <dbl> <lgl>             <dbl>
-#> 1  67.4   150        2 FALSE             0.985
-#> 2  54.2   150        2 FALSE             0.985
-#> 3  54     150        2 TRUE              0.985
-#> 4  69.8   150        2 FALSE             0.985
-#> 5  68.1   150        2 FALSE             0.985
-#> 6  55.4   150        2 FALSE             0.985
+grim_map(pigs2, digits_x = 2, items_averaged = 1, percent = TRUE)
+#> # A tibble: 6 × 6
+#>       x     n items_averaged digits_x consistency probability
+#>   <dbl> <int>          <dbl>    <dbl> <lgl>             <dbl>
+#> 1  67.4   150              1        2 FALSE             0.985
+#> 2  54.2   150              1        2 FALSE             0.985
+#> 3  54     150              1        2 TRUE              0.985
+#> 4  69.8   150              1        2 FALSE             0.985
+#> 5  68.1   150              1        2 FALSE             0.985
+#> 6  55.4   150              1        2 FALSE             0.985
 ```
 
 You can choose how the means are reconstructed for testing — below,
@@ -122,7 +122,7 @@ inconsistent ones:
 
 ``` r
 pigs1 |>
-  grim_map(rounding = "up", digits_x = 2) |>
+  grim_map(rounding = "up", digits_x = 2, items_averaged = 1) |>
   grim_plot()
 ```
 
@@ -146,18 +146,18 @@ pigs3
 
 pigs3 |>
   debit_map(digits_x = 2, digits_sd = 2)
-#> # A tibble: 7 × 13
-#>       x    sd     n digits_x digits_sd consistency rounding   sd_lower
-#>   <dbl> <dbl> <int>    <dbl>     <dbl> <lgl>       <chr>         <dbl>
-#> 1  0.53  0.5   1683        2         2 TRUE        up_or_down    0.495
-#> 2  0.44  0.5   1683        2         2 TRUE        up_or_down    0.495
-#> 3  0.77  0.42  1683        2         2 TRUE        up_or_down    0.415
-#> 4  0.19  0.35  1683        2         2 FALSE       up_or_down    0.345
-#> 5  0.34  0.47  1683        2         2 TRUE        up_or_down    0.465
-#> 6  0.93  0.25  1683        2         2 TRUE        up_or_down    0.245
-#> 7  0.12  0.33  1683        2         2 TRUE        up_or_down    0.325
-#> # ℹ 5 more variables: sd_incl_lower <lgl>, sd_upper <dbl>, sd_incl_upper <lgl>,
-#> #   x_lower <dbl>, x_upper <dbl>
+#> # A tibble: 7 × 14
+#>       x    sd     n digits_x digits_sd consistency sd_lower sd_incl_lower
+#>   <dbl> <dbl> <int>    <dbl>     <dbl> <lgl>          <dbl> <lgl>        
+#> 1  0.53  0.5   1683        2         2 TRUE           0.495 TRUE         
+#> 2  0.44  0.5   1683        2         2 TRUE           0.495 TRUE         
+#> 3  0.77  0.42  1683        2         2 TRUE           0.415 TRUE         
+#> 4  0.19  0.35  1683        2         2 FALSE          0.345 TRUE         
+#> 5  0.34  0.47  1683        2         2 TRUE           0.465 TRUE         
+#> 6  0.93  0.25  1683        2         2 TRUE           0.245 TRUE         
+#> 7  0.12  0.33  1683        2         2 TRUE           0.325 TRUE         
+#> # ℹ 6 more variables: sd_upper <dbl>, sd_incl_upper <lgl>, x_lower <dbl>,
+#> #   x_upper <dbl>, sum_lower <dbl>, sum_upper <dbl>
 
 pigs3 |>
   debit_map(digits_x = 2, digits_sd = 2) |>

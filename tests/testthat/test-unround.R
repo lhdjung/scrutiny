@@ -317,8 +317,8 @@ test_that("`\"anti_trunc\"` at zero is a single point, not an undefined range", 
 
   # It follows that a mean of zero pins the sum to exactly zero, so GRIM is
   # decidable there rather than `NA`, and consistent only for all-zero data:
-  0    |> grim(n = 40, digits_x = 2, rounding = "anti_trunc") |> expect_true()
-  0.01 |> grim(n = 40, digits_x = 2, rounding = "anti_trunc") |> expect_false()
+  0    |> grim(n = 40, digits_x = 2, items_averaged = 1, rounding = "anti_trunc") |> expect_true()
+  0.01 |> grim(n = 40, digits_x = 2, items_averaged = 1, rounding = "anti_trunc") |> expect_false()
 })
 
 
@@ -493,12 +493,13 @@ test_that("a threshold cannot make a consistency test decide nothing", {
   # it, so the count of consistent means does not depend on the threshold.
   x <- seq(0, 9.99, by = 0.01) |> sprintf(fmt = "%.2f") |> as.numeric()
   for (n in c(28, 57)) {
-    at_5 <- x |> grim(n, digits_x = 2, rounding = "up_or_down") |> sum()
+    at_5 <- x |> grim(n, digits_x = 2, items_averaged = 1, rounding = "up_or_down") |> sum()
     for (threshold in c(1, 3, 7, 9)) {
       x |>
         grim(
           n,
           digits_x = 2,
+          items_averaged = 1,
           rounding = "up_from_or_down_from",
           threshold = threshold
         ) |>

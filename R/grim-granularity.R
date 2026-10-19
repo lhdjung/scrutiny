@@ -1,8 +1,8 @@
 #' Granularity of non-continuous scales
 #'
 #' @description `grim_granularity()` returns the smallest difference between
-#'   two means that a scale with `items` items and `n` observations can
-#'   produce: `1 / (n * items)`.
+#'   two means that a scale with `items_averaged` items and `n` observations can
+#'   produce: `1 / (n * items_averaged)`.
 #'
 #'   `grim_items()` inverts it: given the granularity, it returns the number
 #'   of items.
@@ -16,7 +16,8 @@
 #'   it.
 #'
 #' @param n Numeric. Sample size.
-#' @param items Numeric. Number of items. Default is 1.
+#' @param items_averaged Numeric. Number of items averaged into each score.
+#'   Default is 1.
 #' @param gran Numeric. Granularity.
 #' @param tolerance Numeric. Differences from a whole number below `tolerance`
 #'   are ignored when checking the result of `grim_items()`. Default is about
@@ -35,17 +36,17 @@
 #'
 #' @examples
 #' grim_granularity(n = 16)
-#' grim_granularity(n = 16, items = 2)
+#' grim_granularity(n = 16, items_averaged = 2)
 #'
 #' grim_items(n = 1, gran = 0.5)
 #'
 #' # A fractional result draws a warning:
 #' grim_items(n = c(10, 15, 20), gran = 0.5)
 
-grim_granularity <- function(n, items = 1) {
+grim_granularity <- function(n, items_averaged = 1) {
   check_positive(n)
-  check_positive(items)
-  1 / (n * items)
+  check_positive(items_averaged)
+  1 / (n * items_averaged)
 }
 
 

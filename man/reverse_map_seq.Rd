@@ -20,7 +20,12 @@ The reconstructed tibble.
 \examples{
 pigs1
 
-out <- grim_map_seq(pigs1, digits_x = 2, include_consistent = TRUE)
+out <- grim_map_seq(
+  pigs1,
+  digits_x = 2,
+  items_averaged = 1,
+  include_consistent = TRUE
+)
 
 reverse_map_seq(out)
 }

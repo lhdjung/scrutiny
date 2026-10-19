@@ -3,19 +3,21 @@
 # shared behavior, on all three where it can differ between them.
 
 # The arguments each of them vectorizes over: the key arguments, their
-# `digits_*` arguments, and `items` where the test has it. This is the same
+# `digits_*` arguments, and `items_averaged` where the test has it. This is the same
 # split the mapper tier makes between what it takes from `data` and what it
 # passes as a constant for the whole call.
 args_along <- list(
-  grim = c("x", "n", "digits_x", "items"),
-  grimmer = c("x", "sd", "n", "digits_x", "digits_sd", "items"),
+  grim = c("x", "n", "digits_x", "items_averaged"),
+  grimmer = c("x", "sd", "n", "digits_x", "digits_sd", "items_averaged"),
   debit = c("x", "sd", "n", "digits_x", "digits_sd")
 )
 
 # One call per test that is consistent, in a form the loops below can vary:
 args_valid <- list(
-  grim = list(x = 5.19, n = 32, digits_x = 2),
-  grimmer = list(x = 5.23, sd = 2.55, n = 31, digits_x = 2, digits_sd = 2),
+  grim = list(x = 5.19, n = 32, digits_x = 2, items_averaged = 1),
+  grimmer = list(
+    x = 5.23, sd = 2.55, n = 31, digits_x = 2, digits_sd = 2, items_averaged = 1
+  ),
   debit = list(x = 0.36, sd = 0.11, n = 20, digits_x = 2, digits_sd = 2)
 )
 
@@ -33,12 +35,12 @@ test_that("the internal-only arguments are gone from the exported functions", {
   grimmer |> formals() |> rlang::has_name("show_reason") |> expect_false()
   debit   |> formals() |> rlang::has_name("show_rec")    |> expect_false()
 
-  5.19 |> grim(n = 28, digits_x = 2, show_rec = TRUE) |> expect_error()
+  5.19 |> grim(n = 28, digits_x = 2, items_averaged = 1, show_rec = TRUE) |> expect_error()
   0.36 |>
     debit(sd = 0.11, n = 20, digits_x = 2, digits_sd = 2, show_rec = TRUE) |>
     expect_error()
   5.23 |>
-    grimmer(sd = 2.55, n = 31, digits_x = 2, digits_sd = 2, show_reason = TRUE) |>
+    grimmer(sd = 2.55, n = 31, digits_x = 2, digits_sd = 2, items_averaged = 1, show_reason = TRUE) |>
     expect_error()
 
   # `grim_map()` still has `show_rec`; the other two mappers fix theirs:
@@ -88,9 +90,7 @@ test_that("the key arguments are recycled against each other", {
     # three times; the others are still length 1 and are recycled to match:
     for (name_arg in names_along) {
       args_rep <- args
-      # `items` is not in `args_valid`, so it comes from the default:
-      value <- if (is.null(args_rep[[name_arg]])) 1 else args_rep[[name_arg]]
-      args_rep[[name_arg]] <- rep(value, 3L)
+      args_rep[[name_arg]] <- rep(args_rep[[name_arg]], 3L)
       do.call(fn, args_rep) |> expect_equal(rep(out_1, 3L))
     }
   }
@@ -103,10 +103,10 @@ test_that("a length that cannot be recycled is an error", {
   # `x` with the first `n` and reported a verdict for a value set that the
   # caller never wrote down:
   c(5.19, 5.18, 5.17) |>
-    grim(n = c(28, 32), digits_x = 2) |>
+    grim(n = c(28, 32), digits_x = 2, items_averaged = 1) |>
     expect_error("recycle")
   c(5.23, 5.23, 5.23) |>
-    grimmer(sd = c(2.55, 2.55), n = 31, digits_x = 2, digits_sd = 2) |>
+    grimmer(sd = c(2.55, 2.55), n = 31, digits_x = 2, digits_sd = 2, items_averaged = 1) |>
     expect_error("recycle")
   c(0.36, 0.36, 0.36) |>
     debit(sd = c(0.11, 0.11), n = 20, digits_x = 2, digits_sd = 2) |>
@@ -114,7 +114,7 @@ test_that("a length that cannot be recycled is an error", {
 
   # A multiple is no better than any other mismatch:
   c(5.19, 5.18, 5.17, 5.16) |>
-    grim(n = c(28, 32), digits_x = 2) |>
+    grim(n = c(28, 32), digits_x = 2, items_averaged = 1) |>
     expect_error("recycle")
 })
 
@@ -155,7 +155,7 @@ test_that("arguments that describe the test as a whole must be length 1", {
 
   # The error says which arguments *are* vectorized, and points at the mapper:
   5.19 |>
-    grim(n = 28, digits_x = 2, rounding = c("up", "down")) |>
+    grim(n = 28, digits_x = 2, items_averaged = 1, rounding = c("up", "down")) |>
     expect_error("grim_map")
 })
 
@@ -165,16 +165,16 @@ test_that("a missing `digits_*` argument still gets the bespoke error", {
   # `digits_*` argument reaches the `*_scalar()` function as missing and
   # `error_digits_missing()` fires. Passing along a value that R invented would
   # produce a verdict for decimal places nobody stated.
-  5.19 |> grim(n = 28) |> suppressMessages() |> expect_error("digits_x")
+  5.19 |> grim(n = 28, items_averaged = 1) |> suppressMessages() |> expect_error("digits_x")
   5.23 |>
-    grimmer(sd = 2.55, n = 31, digits_x = 2) |>
+    grimmer(sd = 2.55, n = 31, digits_x = 2, items_averaged = 1) |>
     suppressMessages() |>
     expect_error("digits_sd")
   0.36 |> debit(sd = 0.11, n = 20) |> suppressMessages() |> expect_error("digits_x")
 
   # ...and it is raised once, not once per value set:
   c(5.19, 5.18, 5.17) |>
-    grim(n = 28) |>
+    grim(n = 28, items_averaged = 1) |>
     suppressMessages() |>
     expect_error("digits_x")
 })
@@ -191,31 +191,31 @@ test_that("the wrappers work however they are called", {
 
   # The calls below are written out in full because their form is what is being
   # tested, so they don't start with `x |>`:
-  grim(x = x, n = 28, digits_x = 2)                 |> expect_equal(expected)
-  grim(x, 28, 2)                                    |> expect_equal(expected)
-  x |> grim(28, digits_x = 2)                       |> expect_equal(expected)
-  do.call(grim, list(x = x, n = 28, digits_x = 2))  |> expect_equal(expected)
-  lapply(x, grim, n = 28, digits_x = 2) |> unlist() |> expect_equal(expected)
-  purrr::map_lgl(x, grim, n = 28, digits_x = 2)     |> expect_equal(expected)
-  Map(grim, x, 28, 2) |> unlist()                   |> expect_equal(expected)
-  (function(...) grim(...))(x, 28, 2)               |> expect_equal(expected)
+  grim(x = x, n = 28, digits_x = 2, items_averaged = 1)                     |> expect_equal(expected)
+  grim(x, 28, 2, 1)                                                         |> expect_equal(expected)
+  x |> grim(28, digits_x = 2, items_averaged = 1)                           |> expect_equal(expected)
+  do.call(grim, list(x = x, n = 28, digits_x = 2, items_averaged = 1))      |> expect_equal(expected)
+  lapply(x, grim, n = 28, digits_x = 2, items_averaged = 1) |> unlist()     |> expect_equal(expected)
+  purrr::map_lgl(x, grim, n = 28, digits_x = 2, items_averaged = 1)         |> expect_equal(expected)
+  Map(grim, x, 28, 2, 1) |> unlist()                                        |> expect_equal(expected)
+  (function(...) grim(...))(x, 28, 2, 1)                                    |> expect_equal(expected)
 
   # Bound to a name of its own, and then that name bound to another test. The
   # `missing()` calls are cached per name, so the cache has to notice:
   fn <- grim
-  fn(x, 28, 2) |> expect_equal(expected)
+  fn(x, 28, 2, 1) |> expect_equal(expected)
   fn <- grimmer
-  fn(5.23, 2.55, 31, 2, 2) |> expect_true()
+  fn(5.23, 2.55, 31, 2, 2, 1) |> expect_true()
 })
 
 
-test_that("`grim()` and `grimmer()` still take `items`", {
-  # `items` is vectorized because the mapper tier lets it be a column of `data`.
-  2.84 |> grim(n = 16, digits_x = 2, items = 2) |> expect_true()
+test_that("`grim()` and `grimmer()` take `items_averaged`", {
+  # `items_averaged` is vectorized because the mapper tier lets it be a column of `data`.
+  2.84 |> grim(n = 16, digits_x = 2, items_averaged = 2) |> expect_true()
   c(2.84, 2.84) |>
-    grim(n = 16, digits_x = 2, items = c(1, 2)) |>
+    grim(n = 16, digits_x = 2, items_averaged = c(1, 2)) |>
     expect_equal(c(
-      grim(x = 2.84, n = 16, digits_x = 2, items = 1),
-      grim(x = 2.84, n = 16, digits_x = 2, items = 2)
+      grim(x = 2.84, n = 16, digits_x = 2, items_averaged = 1),
+      grim(x = 2.84, n = 16, digits_x = 2, items_averaged = 2)
     ))
 })

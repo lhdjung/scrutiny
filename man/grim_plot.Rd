@@ -106,22 +106,22 @@ color comes from the \code{consistency} column and is unaffected.
 # `grim_plot()` reads the number of decimal places
 # from the `digits_x` column:
 pigs1 |>
-  grim_map(digits_x = 2) |>
+  grim_map(digits_x = 2, items_averaged = 1) |>
   grim_plot()
 
 # The raster follows the rounding method of the `grim_map()` call:
 pigs1 |>
-  grim_map(digits_x = 2, rounding = "ceiling") |>
+  grim_map(digits_x = 2, items_averaged = 1, rounding = "ceiling") |>
   grim_plot()
 
 # Percentages are plotted as proportions:
 pigs2 |>
-  grim_map(digits_x = 1, percent = TRUE) |>
+  grim_map(digits_x = 1, items_averaged = 1, percent = TRUE) |>
   grim_plot()
 
 # Other colors for the value sets:
 pigs1 |>
-  grim_map(digits_x = 2) |>
+  grim_map(digits_x = 2, items_averaged = 1) |>
   grim_plot() +
   ggplot2::scale_colour_manual(
     values = c("TRUE" = "darkgreen", "FALSE" = "orange"),

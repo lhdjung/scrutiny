@@ -1,7 +1,7 @@
 # Define example data -----------------------------------------------------
 
 df_schlim <- tibble::tibble(y = 16:100, n = 3:87)
-df_grim <- pigs1
+df_grim <- pigs1 |> dplyr::mutate(items_averaged = 1)
 df_debit <- pigs3
 
 
@@ -61,7 +61,7 @@ test_that("It works with DEBIT", {
 test_that("a case whose dispersion was clipped to nothing stays aligned", {
   # With `out_min == out_max == 25`, case 1's `x` and case 2's `n` disperse to
   # no rows at all, so they are only on the rows of the other variable:
-  df <- tibble::tibble(x = c(25.0, 24.9, 25.2), n = c(26, 25, 30))
+  df <- tibble::tibble(x = c(25.0, 24.9, 25.2), n = c(26, 25, 30), items_averaged = 1)
   out <- df |> grim_map_seq(digits_x = 1, out_min = 25, out_max = 25, include_consistent = TRUE)
   out |> reverse_map_seq() |> expect_equal(df)
   audit <- out |> audit_seq()

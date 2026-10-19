@@ -59,7 +59,7 @@ library(scrutiny)
 pigs1
 
 # GRIM-testing for data frames:
-grim_map(pigs1, digits_x = 2)
+grim_map(pigs1, digits_x = 2, items_averaged = 1)
 ```
 
 Test percentages instead of means:
@@ -67,14 +67,14 @@ Test percentages instead of means:
 ```{r}
 pigs2
 
-grim_map(pigs2, digits_x = 2, percent = TRUE)
+grim_map(pigs2, digits_x = 2, items_averaged = 1, percent = TRUE)
 ```
 
 You can choose how the means are reconstructed for testing --- below, rounded up from 5. When visualizing results, the plot will adjust automatically. Blue dots are consistent values, red dots are inconsistent ones:
 
 ```{r}
 pigs1 |>
-  grim_map(rounding = "up", digits_x = 2) |>
+  grim_map(rounding = "up", digits_x = 2, items_averaged = 1) |>
   grim_plot()
 ```
 

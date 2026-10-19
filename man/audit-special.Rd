@@ -44,7 +44,7 @@ documentation of the respective function.
 
 \examples{
 out <- pigs1 |>
-  grim_map_seq(digits_x = 2) |>
+  grim_map_seq(digits_x = 2, items_averaged = 1) |>
   audit_seq()
 out
 

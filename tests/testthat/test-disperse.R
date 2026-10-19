@@ -53,7 +53,7 @@ test_that("`n` is integer, as it is in the mappers", {
   20        |> disperse()       |> purrr::pluck("n_change") |> expect_type("integer")
 
   tibble::tibble(x1 = 4.52, x2 = 5.23, n = 40L) |>
-    grim_map_total_n(digits_x = 2) |>
+    grim_map_total_n(digits_x = 2, items_averaged = 1) |>
     reverse_map_total_n() |>
     purrr::pluck("n") |>
     expect_type("integer")

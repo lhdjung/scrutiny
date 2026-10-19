@@ -10,8 +10,8 @@
 #'   There is no GRIMMER-specific plot for many value sets; [`grim_plot()`]
 #'   accepts [`grimmer_map()`] output and shows the GRIM part of the test.
 #'
-#' @param x,sd,n,digits_x,digits_sd,items,rounding,threshold,symmetric The same
-#'   as in [`grimmer()`], but `x`, `sd`, and `n` must have length 1.
+#' @param x,sd,n,digits_x,digits_sd,items_averaged,rounding,threshold,symmetric The
+#'   same as in [`grimmer()`], but `x`, `sd`, and `n` must have length 1.
 #' @inheritParams grim_plot_values
 #'
 #' @details The comb runs from the whole number at or below `sd` to the next
@@ -27,8 +27,22 @@
 #' @examples
 #' # A mean of 5.23 with an SD of 2.55 is not consistent with a sample size of
 #' # 35, but it is with 31:
-#' grimmer_plot_values(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2)
-#' grimmer_plot_values(x = 5.23, sd = 2.55, n = 31, digits_x = 2, digits_sd = 2)
+#' grimmer_plot_values(
+#'   x = 5.23,
+#'   sd = 2.55,
+#'   n = 35,
+#'   digits_x = 2,
+#'   digits_sd = 2,
+#'   items_averaged = 1
+#' )
+#' grimmer_plot_values(
+#'   x = 5.23,
+#'   sd = 2.55,
+#'   n = 31,
+#'   digits_x = 2,
+#'   digits_sd = 2,
+#'   items_averaged = 1
+#' )
 
 grimmer_plot_values <- function(
   x,
@@ -36,7 +50,7 @@ grimmer_plot_values <- function(
   n,
   digits_x,
   digits_sd,
-  items = 1,
+  items_averaged,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
@@ -53,12 +67,15 @@ grimmer_plot_values <- function(
   check_length(x, 1L)
   check_length(sd, 1L)
   check_length(n, 1L)
-  check_length(items, 1L)
+  if (missing(items_averaged)) {
+    error_items_missing()
+  }
+  check_length(items_averaged, 1L)
   check_newly_numeric(x, digits_x)
   check_newly_numeric(sd, digits_sd)
   check_comb_value(x, digits_x, "x")
   check_comb_value(sd, digits_sd, "sd")
-  check_decidable_n_items(n, items, min_n = 2)
+  check_decidable_n_items(n, items_averaged, min_n = 2)
 
   # One unit around `sd`, as for a mean:
   values <- comb_values(max(0, floor(sd)), floor(sd) + 1, digits_sd)
@@ -70,7 +87,7 @@ grimmer_plot_values <- function(
       n = n,
       digits_x = digits_x,
       digits_sd = digits_sd,
-      items = items,
+      items_averaged = items_averaged,
       rounding = rounding,
       threshold = threshold,
       symmetric = symmetric
@@ -100,7 +117,12 @@ grimmer_plot_values <- function(
       formatC(x, format = "f", digits = digits_x),
       ", n = ",
       format(n, scientific = FALSE),
-      if (items != 1) paste0(", items = ", format(items, scientific = FALSE)),
+      if (items_averaged != 1) {
+        paste0(
+          ", items_averaged = ",
+          format(items_averaged, scientific = FALSE)
+        )
+      },
       ")"
     ),
     color_cons = color_cons,

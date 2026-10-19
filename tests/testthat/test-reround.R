@@ -80,17 +80,17 @@ test_that("`rounding` must be a string, and `symmetric` `TRUE` or `FALSE`", {
   # by a number or a `TRUE` returns an element by position: `rounding = 2` was
   # silently `"ties_down"`, and `rounding = TRUE` was `"ties_up"`, in every
   # function that takes the argument.
-  2.5   |> reround(0, rounding = 2)             |> expect_error("must be a string")
-  2.5   |> reround(0, rounding = TRUE)          |> expect_error("must be a string")
-  2.5   |> reround(0, rounding = NA_character_) |> expect_error("must be a string")
-  "2.5" |> unround(rounding = 2)                |> expect_error("must be a string")
-  5.19  |> grim(28, digits_x = 2, rounding = 2) |> expect_error("must be a string")
+  2.5   |> reround(0, rounding = 2)                                 |> expect_error("must be a string")
+  2.5   |> reround(0, rounding = TRUE)                              |> expect_error("must be a string")
+  2.5   |> reround(0, rounding = NA_character_)                     |> expect_error("must be a string")
+  "2.5" |> unround(rounding = 2)                                    |> expect_error("must be a string")
+  5.19  |> grim(28, digits_x = 2, items_averaged = 1, rounding = 2) |> expect_error("must be a string")
 
   # A `symmetric` of `NA` failed in an `if ()` with base R's message:
   -2.5 |> reround(0, "up", symmetric = NA)    |> expect_error("`TRUE` or `FALSE`")
   -2.5 |> reround(0, "up", symmetric = "yes") |> expect_error("`TRUE` or `FALSE`")
   -5.19 |>
-    grim(28, digits_x = 2, rounding = "up", symmetric = NA) |>
+    grim(28, digits_x = 2, items_averaged = 1, rounding = "up", symmetric = NA) |>
     expect_error("`TRUE` or `FALSE`")
 })
 

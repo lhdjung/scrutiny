@@ -17,7 +17,7 @@
 #'   trailing zeros. There is no default, since a numeric value does not
 #'   keep them (`1.40` is `1.4`).
 #' @param n Integer. The sample size.
-#' @param items Integer. The number of items composing `x`. Default is `1`.
+#' @param items_averaged Integer. As in [`grim()`].
 #' @param percent Logical. If `TRUE`, `x` is a percentage, which adds 2 to the
 #'   decimal count. Default is `FALSE`.
 #' @param rounding,threshold Only in `grim_probability()` and `grim_total()`.
@@ -31,7 +31,8 @@
 #'
 #' @return Double. `grim_probability()` and `grim_total()` return `NA` where
 #'   [`grim()`] cannot decide a case: if `x` is missing or infinite, or if `n`
-#'   or `items` is not a positive whole number. They are never negative.
+#'   or `items_averaged` is not a positive whole number. They are never
+#'   negative.
 #'
 #' @references Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A
 #'   Simple Technique Detects Numerous Anomalies in the Reporting of Results in
@@ -44,16 +45,28 @@
 #'
 #' @examples
 #' # Many value sets are inconsistent here:
-#' grim_probability(x = 83.29, n = 21, digits_x = 2)
-#' grim_total(x = 83.29, n = 21, digits_x = 2)
+#' grim_probability(x = 83.29, n = 21, digits_x = 2, items_averaged = 1)
+#' grim_total(x = 83.29, n = 21, digits_x = 2, items_averaged = 1)
 #'
 #' # None are in this case...
-#' grim_probability(x = 5.14, n = 83, digits_x = 2)
-#' grim_total(x = 5.14, n = 83, digits_x = 2)
+#' grim_probability(x = 5.14, n = 83, digits_x = 2, items_averaged = 1)
+#' grim_total(x = 5.14, n = 83, digits_x = 2, items_averaged = 1)
 #'
 #' # ...but most would be if `x` were a percentage:
-#' grim_probability(x = 5.14, n = 83, digits_x = 2, percent = TRUE)
-#' grim_total(x = 5.14, n = 83, digits_x = 2, percent = TRUE)
+#' grim_probability(
+#'   x = 5.14,
+#'   n = 83,
+#'   digits_x = 2,
+#'   items_averaged = 1,
+#'   percent = TRUE
+#' )
+#' grim_total(
+#'   x = 5.14,
+#'   n = 83,
+#'   digits_x = 2,
+#'   items_averaged = 1,
+#'   percent = TRUE
+#' )
 
 # Relative ----------------------------------------------------------------
 
@@ -61,12 +74,20 @@ grim_probability <- function(
   x,
   n,
   digits_x,
-  items = 1,
+  items_averaged,
   percent = FALSE,
   rounding = "up_or_down",
   threshold = 5
 ) {
-  out <- grim_total(x, n, digits_x, items, percent, rounding, threshold)
+  out <- grim_total(
+    x,
+    n,
+    digits_x,
+    items_averaged,
+    percent,
+    rounding,
+    threshold
+  )
 
   if (percent) {
     digits_x <- digits_x + 2L
@@ -84,11 +105,15 @@ grim_total <- function(
   x,
   n,
   digits_x,
-  items = 1,
+  items_averaged,
   percent = FALSE,
   rounding = "up_or_down",
   threshold = 5
 ) {
+  if (missing(items_averaged)) {
+    error_items_missing()
+  }
+
   # A string `x` used to be coerced here, so that `"5.19"` got a count while
   # `grim()` rejected it. Missing values are undecidable, not mistakes:
   if (!is.numeric(x) && !all(is.na(x))) {
@@ -104,15 +129,17 @@ grim_total <- function(
 
   # Between two whole numbers, there are `10^digits_x` values that could be
   # reported, such as 0.00, 0.01, ..., 0.99 with two decimal places. The means
-  # that the data can actually have are the multiples of `1 / (n * items)`.
+  # that the data can actually have are the multiples of
+  # `1 / (n * items_averaged)`.
   n_values <- 10^digits_x
-  n_means <- n * items
+  n_means <- n * items_averaged
 
   # Where `grim()` has nothing to test, it returns `NA`, and so does this
   # function. That is the case for a missing or infinite `x`, and for an `n` or
-  # `items` that is not a positive whole number. The `probability` column of
-  # `grim_map()` used to show values such as `1.03` next to an `NA` verdict.
-  decidable <- is_decidable_n_items(n, items) &
+  # `items_averaged` that is not a positive whole number. The `probability`
+  # column of `grim_map()` used to show values such as `1.03` next to an `NA`
+  # verdict.
+  decidable <- is_decidable_n_items(n, items_averaged) &
     is.finite(x) &
     is.finite(n_values)
 

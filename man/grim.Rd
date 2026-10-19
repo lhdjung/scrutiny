@@ -8,7 +8,7 @@ grim(
   x,
   n,
   digits_x,
-  items = 1,
+  items_averaged,
   percent = FALSE,
   rounding = "up_or_down",
   threshold = 5,
@@ -25,7 +25,9 @@ grim(
 trailing zeros. There is no default, since a numeric value does not
 keep them (\code{1.40} is \code{1.4}).}
 
-\item{items}{Numeric. The number of items composing \code{x}. Default is 1.}
+\item{items_averaged}{Integer. The number of items averaged into each
+respondent's score: 1 for a single item or a percentage, 4 for the mean of
+a four-item scale. Not the number of scale points. There is no default.}
 
 \item{percent}{Logical. If \code{TRUE}, \code{x} is a percentage: it is divided by
 100 and the decimal count is increased by 2. Default is \code{FALSE}.}
@@ -49,16 +51,18 @@ their absolute values (\code{-2.5} like \code{2.5}) under \code{"up"}, \code{"do
 effect; see \emph{Details}.}
 }
 \value{
-Logical. \code{TRUE} if \code{x}, \code{n}, and \code{items} are consistent, \code{FALSE} if
-not, and \code{NA} if the case cannot be decided: if a value is missing or
-infinite, or if \code{n} or \code{items} is not a positive whole number.
+Logical. \code{TRUE} if \code{x}, \code{n}, and \code{items_averaged} are consistent,
+\code{FALSE} if not, and \code{NA} if the case cannot be decided: if a value is
+missing or infinite, or if \code{n} or \code{items_averaged} is not a positive whole
+number.
 }
 \description{
 \code{grim()} checks whether a reported mean of integer data is
 consistent with the reported sample size and the number of items that
-compose the mean. The mean of \code{n * items} integers is a whole number
-divided by \code{n * items}, so only certain values are possible; the test
-asks whether any of them would have been reported as \code{x}.
+compose the mean. The mean of \code{n * items_averaged} integers is a whole
+number divided by \code{n * items_averaged}, so only certain values are
+possible; the test asks whether any of them would have been reported as
+\code{x}.
 
 Set \code{percent} to \code{TRUE} if \code{x} is a percentage. It is then divided by 100
 and tested with two more decimal places.
@@ -71,25 +75,29 @@ testing many cases.
 retain trailing zeros: \code{1.40} is stored as \code{1.4}. State the number of
 decimal places that \code{x} was reported with.
 
-\code{x}, \code{n}, \code{digits_x}, and \code{items} are vectorized and recycled to a common
-length by the tidyverse rules: an argument has length 1 or the length of
-the longest. All other arguments must have length 1.
+\code{items_averaged} must be specified because a mean over several items is a
+mean of more values, which changes the test. It replaces \code{items}, whose
+default of 1 let multi-item scales pass unnoticed.
+
+\code{x}, \code{n}, \code{digits_x}, and \code{items_averaged} are vectorized and recycled to a
+common length by the tidyverse rules: an argument has length 1 or the
+length of the longest. All other arguments must have length 1.
 
 The test decides in exact integer arithmetic, so \code{tolerance} has no
 effect and is deprecated.
 }
 \examples{
 # A mean of 5.19 is not consistent with a sample size of 28:
-grim(x = 5.19, n = 28, digits_x = 2)
+grim(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
 
 # However, it is consistent with a sample size of 32:
-grim(x = 5.19, n = 32, digits_x = 2)
+grim(x = 5.19, n = 32, digits_x = 2, items_averaged = 1)
 
 # For a scale composed of two items:
-grim(x = 2.84, n = 16, digits_x = 2, items = 2)
+grim(x = 2.84, n = 16, digits_x = 2, items_averaged = 2)
 
 # With percentages instead of means -- here, 71\%:
-grim(x = 71, n = 43, digits_x = 0, percent = TRUE)
+grim(x = 71, n = 43, digits_x = 0, items_averaged = 1, percent = TRUE)
 }
 \references{
 Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A

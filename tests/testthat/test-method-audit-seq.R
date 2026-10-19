@@ -3,6 +3,7 @@
 grim_exp <- tibble::tibble(
   x = c(4.74, 5.23),
   n = c(25, 29),
+  items_averaged = c(1, 1),
   consistency = c(FALSE, FALSE),
   hits_total = c(4L, 6L),
   hits_x = 2:3,
@@ -20,6 +21,7 @@ grimmer_exp <- tibble::tibble(
   x = c(7.22, 5.23),
   sd = c(5.30, 2.55),
   n = c(38L, 35L),
+  items_averaged = c(1, 1),
   consistency = c(FALSE, FALSE),
   hits_total = c(8L, 15L),
   hits_x = c(4L, 2L),
@@ -62,7 +64,7 @@ debit_exp <- tibble::tibble(
 # Testing -----------------------------------------------------------------
 
 test_that("`audit()` for `audit_seq()` works correctly", {
-  pigs1[1:3, ] |> grim_map_seq(digits_x = 2)                    |> audit_seq() |> expect_equal(grim_exp)
-  pigs5[1:3, ] |> grimmer_map_seq(digits_x = 2, digits_sd = 2)  |> audit_seq() |> expect_equal(grimmer_exp)
-  pigs3[4, ]   |> debit_map_seq(digits_x = 2, digits_sd = 2)    |> audit_seq() |> expect_equal(debit_exp)
+  pigs1[1:3, ] |> grim_map_seq(digits_x = 2, items_averaged = 1)                   |> audit_seq() |> expect_equal(grim_exp)
+  pigs5[1:3, ] |> grimmer_map_seq(digits_x = 2, digits_sd = 2, items_averaged = 1) |> audit_seq() |> expect_equal(grimmer_exp)
+  pigs3[4, ]   |> debit_map_seq(digits_x = 2, digits_sd = 2)                       |> audit_seq() |> expect_equal(debit_exp)
 })

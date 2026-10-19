@@ -11,7 +11,9 @@ manage_helper_col(data, var_arg, default, affix = TRUE)
 
 \item{var_arg}{The mapper argument named like the helper column.}
 
-\item{default}{The default of that argument.}
+\item{default}{The default of that argument. Leave it out if the argument
+has none, like \code{items_averaged}: \code{data} is then returned unchanged if the
+argument is missing, and the test function reports that.}
 
 \item{affix}{Logical. If \code{data} has no such column, should one be added
 from \code{var_arg}? Default is \code{TRUE}.}
@@ -21,11 +23,11 @@ from \code{var_arg}? Default is \code{TRUE}.}
 }
 \description{
 A helper column is a column of a mapper's input that is not
-itself tested but enters the test, such as \code{items} in \code{\link[=grim_map]{grim_map()}}. It
-can be given either as a column of \code{data} or as an argument of the same
-name. \code{manage_helper_col()} checks that the two are not both given, and
-by default (\code{affix = TRUE}) adds the argument's value to \code{data} as a
-column if \code{data} has none.
+itself tested but enters the test, such as \code{items_averaged} in
+\code{\link[=grim_map]{grim_map()}}. It can be given either as a column of \code{data} or as an
+argument of the same name. \code{manage_helper_col()} checks that the two are
+not both given, and by default (\code{affix = TRUE}) adds the argument's value
+to \code{data} as a column if \code{data} has none.
 
 Mappers made by \code{\link[=function_map]{function_map()}} call it for every \code{.cols_helper}
 argument. Call it yourself in a handwritten mapper, once per helper

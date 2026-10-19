@@ -6,26 +6,24 @@
 #'   Call [`audit()`] on the output for summary statistics. [`grim_plot()`]
 #'   accepts it as well.
 #'
-#' @param data Tibble with columns `x`, `sd`, and `n`, and optionally `items`.
-#'   Any other columns are returned alongside the results.
+#' @param data Tibble with columns `x`, `sd`, and `n`, and optionally
+#'   `items_averaged`. Any other columns are returned alongside the results.
 #' @param digits_x,digits_sd Integer. The number of decimal places in `x` and
 #'   `sd`, including trailing zeros. There are no defaults, since a numeric
 #'   value does not keep them (`1.40` is `1.4`). Either a single number for the
 #'   whole column or one number per row of `data`.
 #' @param x,sd,n Optionally, the names of the columns in `data` that contain
 #'   these values, if they differ from the defaults.
-#' @param items Integer. The number of items composing `x` and `sd`, if `data`
-#'   has no `items` column. Default is `1`. If given, as an argument or a
-#'   column, it is returned as a column.
+#' @param items_averaged Integer. As in [`grim_map()`], for `x` and `sd`.
 #' @param rounding,threshold,symmetric,tolerance Passed on to [`grimmer()`].
 #' @param ... Further arguments passed on to [`grimmer()`].
 #'
 #' @return A tibble with these columns:
 #' - `x`, `sd`, `n`: the inputs.
 #' - `digits_x`, `digits_sd`: the numbers of decimal places, as given.
-#' - `items`: the number of items, if given.
-#' - `consistency`: GRIMMER consistency of `x`, `sd`, `n`, and `items`. `NA`
-#'   for a case that cannot be decided, such as one with a missing value.
+#' - `items_averaged`: the number of items averaged into each score.
+#' - `consistency`: GRIMMER consistency of `x`, `sd`, `n`, and `items_averaged`.
+#'   `NA` for a case that cannot be decided, such as one with a missing value.
 #' - `reason`: `"Passed all"` if consistent; otherwise the test that failed.
 #' - Any other columns from `data`.
 #'
@@ -71,11 +69,11 @@
 #' # The `consistency` column shows whether the values to its left are
 #' # GRIMMER-consistent. If they aren't, the `reason` column gives the reason:
 #' pigs5 |>
-#'   grimmer_map(digits_x = 2, digits_sd = 2)
+#'   grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1)
 #'
 #' # Get summaries with `audit()`:
 #' pigs5 |>
-#'   grimmer_map(digits_x = 2, digits_sd = 2) |>
+#'   grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
 #'   audit()
 
 grimmer_map <- function_map(
@@ -86,6 +84,6 @@ grimmer_map <- function_map(
   # Unlike `grimmer()`, the mapper shows the reasons for inconsistencies by
   # default -- they fit into a column, and `audit()` counts them:
   .args_fixed = list(show_reason = TRUE),
-  .cols_helper = "items",
+  .cols_helper = "items_averaged",
   .col_names = c("consistency", "reason")
 )

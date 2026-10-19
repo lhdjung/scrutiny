@@ -22,16 +22,22 @@
 #' @export
 #'
 #' @examples
-#' grim_explain(x = 5.19, n = 28, digits_x = 2)
+#' grim_explain(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
 #'
-#' grim_explain(x = 5.19, n = 32, digits_x = 2)
+#' grim_explain(x = 5.19, n = 32, digits_x = 2, items_averaged = 1)
 #'
-#' grim_explain(x = 71, n = 43, digits_x = 0, percent = TRUE)
+#' grim_explain(
+#'   x = 71,
+#'   n = 43,
+#'   digits_x = 0,
+#'   items_averaged = 1,
+#'   percent = TRUE
+#' )
 grim_explain <- function(
   x,
   n,
   digits_x,
-  items = 1,
+  items_averaged,
   percent = FALSE,
   rounding = "up_or_down",
   threshold = 5,
@@ -39,7 +45,10 @@ grim_explain <- function(
 ) {
   check_length(x, 1L)
   check_length(n, 1L)
-  check_length(items, 1L)
+  if (missing(items_averaged)) {
+    error_items_missing()
+  }
+  check_length(items_averaged, 1L)
 
   # `paste()` would write a number like 100000 as 1e+05:
   rlang::local_options(scipen = 100L)
@@ -56,7 +65,7 @@ grim_explain <- function(
     x = x,
     n = n,
     digits_x = digits_x,
-    items = items,
+    items_averaged = items_averaged,
     percent = percent,
     show_rec = TRUE,
     rounding = rounding,
@@ -69,7 +78,9 @@ grim_explain <- function(
     inputs <- list(
       x = format_reported(x, digits_x),
       n = n,
-      items = if (is.na(items) || items != 1) items,
+      items_averaged = if (is.na(items_averaged) || items_averaged != 1) {
+        items_averaged
+      },
       percent = if (percent) TRUE
     )
     new_explanation(
@@ -85,9 +96,14 @@ grim_explain <- function(
 
   if (is.na(consistency)) {
     text <- explain_undecidable(
-      values = list(x = x, n = n, digits_x = digits_x, items = items),
+      values = list(
+        x = x,
+        n = n,
+        digits_x = digits_x,
+        items_averaged = items_averaged
+      ),
       n = n,
-      items = items
+      items_averaged = items_averaged
     )
     return(explain(text))
   }
@@ -107,7 +123,7 @@ grim_explain <- function(
   x_lower <- format_number(bounds$lower * scale_x / bounds$denom, digits_num)
   x_upper <- format_number(bounds$upper * scale_x / bounds$denom, digits_num)
 
-  n_items <- n * items
+  n_items <- n * items_averaged
   sum_lower_exact <- format_number(
     n_items * bounds$lower / bounds$denom,
     digits_num
@@ -129,7 +145,11 @@ grim_explain <- function(
 
   # How the mean or percentage comes from a sum, and which sums it allows:
   if (percent) {
-    n_shown <- if (items == 1) n else paste(n, "*", items, "=", n_items)
+    n_shown <- if (items_averaged == 1) {
+      n
+    } else {
+      paste(n, "*", items_averaged, "=", n_items)
+    }
     times <- paste0(" / 100 * ", n_items, " = ")
     text_sums <- paste0(
       "A percentage out of ",
@@ -138,7 +158,7 @@ grim_explain <- function(
       n_items,
       ", times 100. So the count must be "
     )
-  } else if (items == 1) {
+  } else if (items_averaged == 1) {
     times <- paste0(" * ", n, " = ")
     text_sums <- paste0(
       "The mean of ",
@@ -154,7 +174,7 @@ grim_explain <- function(
       "Each of the ",
       n,
       " scores is the average of ",
-      items,
+      items_averaged,
       " whole-number ",
       "items. Their mean is therefore the sum of all ",
       n_items,
@@ -326,7 +346,7 @@ print.scrutiny_explain <- function(x, ...) {
 
 # Why a case is undecidable, in the order in which the tests check it. `values`
 # is a named list of the values that must not be missing.
-explain_undecidable <- function(values, n, items = 1, min_n = 1) {
+explain_undecidable <- function(values, n, items_averaged = 1, min_n = 1) {
   for (name in names(values)) {
     if (is.na(values[[name]])) {
       return(paste0(name, " is missing, so there is nothing to test."))
@@ -347,7 +367,7 @@ explain_undecidable <- function(values, n, items = 1, min_n = 1) {
     paste0(
       "The test needs the number of items to be a positive whole number, but ",
       "it is ",
-      items,
+      items_averaged,
       "."
     )
   } else if (min_n == 2) {

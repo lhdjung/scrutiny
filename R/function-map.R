@@ -35,8 +35,8 @@
 #'   `.fun` that the factory-made function always passes on and does not have
 #'   itself, such as `list(show_reason = TRUE)`. Specifying one of them is an
 #'   error.
-#' @param .cols_helper Optionally, names of arguments of `.fun` that may also
-#'   be given as columns of `data`, such as `"items"`. A helper column is
+#' @param .cols_helper Optionally, names of arguments of `.fun` that may also be
+#'   given as columns of `data`, such as `"items_averaged"`. A helper column is
 #'   returned after the key columns if it was given, as a column or as an
 #'   argument. See [`manage_helper_col()`].
 #' @param .col_names Optionally, the names of the columns that the values
@@ -360,9 +360,19 @@ function_map <- function(
 
   # `manage_helper_col()` takes the name of the helper column from the
   # expression it was given, so the argument has to be spliced in as a symbol:
+  # A helper argument without a default, like `items_averaged`, is passed on
+  # without one, so that a missing argument reaches `fun()` as missing:
   code_cols_helper <- lapply(
     args_helper,
     function(name) {
+      if (name %in% args_required) {
+        return(rlang::expr(
+          data <- scrutiny::manage_helper_col(
+            data = data,
+            var_arg = `!!`(as.name(name))
+          )
+        ))
+      }
       rlang::expr(
         data <- scrutiny::manage_helper_col(
           data = data,
@@ -375,10 +385,13 @@ function_map <- function(
 
   # Same for `check_lengths_congruent()`, which names the offending arguments in
   # its message by deparsing the call it was given. Arguments that may vary by
-  # row are exempt -- it is their point to have one value per row:
-  code_check_lengths <- if (length(args_const) > 1L) {
+  # row are exempt -- it is their point to have one value per row -- and so are
+  # those without a default, which may be missing here and must reach `fun()`
+  # as such:
+  args_check_lengths <- setdiff(args_const, args_required)
+  code_check_lengths <- if (length(args_check_lengths) > 1L) {
     list(rlang::expr(
-      check_lengths_congruent(list(`!!!`(lapply(args_const, as.name))))
+      check_lengths_congruent(list(`!!!`(lapply(args_check_lengths, as.name))))
     ))
   } else {
     NULL
@@ -660,6 +673,7 @@ function_map <- function(
     code_variadic,
     code_cols_helper,
     code_check_lengths,
+    args_check_lengths,
     all_classes
   )
 
@@ -678,11 +692,11 @@ function_map <- function(
     variadic = .reported_variadic
   )
 
-  # Record the helper-column arguments (such as `items`) as metadata on the
-  # manufactured function. A helper argument that was given is a column of the
-  # mapper's output, so code that re-runs the mapper on data derived from that
-  # output must not pass the argument a second time. `function_map_seq()` and
-  # `function_map_total_n()` consult this attribute when they re-test:
+  # Record the helper-column arguments (such as `items_averaged`) as metadata on
+  # the manufactured function. A helper argument that was given is a column of
+  # the mapper's output, so code that re-runs the mapper on data derived from
+  # that output must not pass the argument a second time. `function_map_seq()`
+  # and `function_map_total_n()` consult this attribute when they re-test:
   attr(fn_out, "scrutiny_args_helper") <- args_helper
 
   fn_out
