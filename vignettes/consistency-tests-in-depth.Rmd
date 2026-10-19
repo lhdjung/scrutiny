@@ -238,7 +238,7 @@ The functions built on a mapper rely on its output having specific properties. T
 
 5.  A helper column that the user gave, as a column of `data` or as an argument, is returned right after the key columns. In `function_map()`, declare helper columns with `.cols_helper`. In a handwritten mapper, call `manage_helper_col()` once per helper column, which adds the argument's value to `data` as a column if there is none.
 
-6.  The output data frame also includes a logical column named `"consistency"`. It contains the results of the consistency test, as determined by the respective `*_scalar()` function. In each row, `"consistency"` is `TRUE` if the values to its left are mutually consistent, and `FALSE` if they aren't. This column is placed immediately to the right of the group of key (and, potentially, helper) columns.
+6.  The output data frame also includes a logical column named `"consistency"`. It contains the results of the consistency test, as determined by the respective `*_scalar()` function. In each row, `"consistency"` is `TRUE` if the values to its left are mutually consistent, and `FALSE` if they aren't. This column is placed immediately to the right of the key columns, any helper columns, and any columns of per-row arguments such as `digits_x`.
 
 7.  If the underlying single-case function performs rounding or unrounding, it should internally call `reround()` and/or `unround()`, respectively. The default rounding and unrounding specification should be `"up_or_down"`. This specification can be supplied by the user via an argument called `rounding`, which is then passed down to the single-case function. If `reround()` is called within the mapper, all of its arguments need to be passed down from the mapper, which itself has all of the same arguments, with the same defaults. The same applies to `unround()`.
 
@@ -256,7 +256,7 @@ Key columns may be modified by arguments, such as `x` by `percent`. The number o
 
 The output data frame may or may not contain non-tested columns from the input. It may or may not contain non-tested columns created within the mapper function itself. (This can be useful, as with `"probability"` in `grim_map()`'s output.) Any such non-tested, non-`"consistency"` columns go to the right of `"consistency"`.
 
-If the number of key columns plus the number of helper columns in the output is $k$, the index of `"consistency"` is $k+1$.
+So the columns to the left of `"consistency"` are exactly the key columns, any helper columns, and any columns of per-row arguments such as `digits_x`. Functions built on the mapper, such as `function_map_seq()` and `reverse_map_seq()`, read them as the input to the test.
 
 Besides the `"scrutiny_*_map"` class, the output data frame may inherit any number of other classes added within the mapper, so long as they start on `"scrutiny_"` but don't end on `"_map"`. It can't inherit the `"grouped_df"` or `"rowwise_df"` classes added by `dplyr::group_by()` and `dplyr::rowwise()`, respectively. If either of these functions is called within the mapper, it needs to be followed by `dplyr::ungroup()` at some point.
 
