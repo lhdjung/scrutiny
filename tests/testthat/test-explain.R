@@ -92,7 +92,7 @@ test_that("a missing `digits_x` gets the usual error", {
   5.19 |> grim_explain(n = 28, items_averaged = 1) |> expect_error("digits_x")
 })
 
-test_that("missing `items` is undecidable, not an error", {
+test_that("missing `items_averaged` is undecidable, not an error", {
   5.19 |> grim_explain(n = 28, digits_x = 2, items_averaged = NA)                             |> getElement("consistency") |> expect_identical(NA)
   5.19 |> grimmer_explain(sd = 1.2, n = 28, digits_x = 2, digits_sd = 2, items_averaged = NA) |> getElement("consistency") |> expect_identical(NA)
 })

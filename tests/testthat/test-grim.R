@@ -47,7 +47,7 @@ vec3_tested <- vec3 |>
 vec3_expected <- c(t, f, t, f, t, f, t, t, t, t)
 
 
-test_that("Correct values are returned (`items` argument)", {
+test_that("Correct values are returned (`items_averaged` argument)", {
   vec2_tested |> expect_equal(vec2_expected)
   vec3_tested |> expect_equal(vec3_expected)
 })
@@ -297,7 +297,7 @@ test_that("a string `n` is an error, not an unexplained `NA`", {
 })
 
 
-test_that("a plain `NA` for `items` is missing, not a type error", {
+test_that("a plain `NA` for `items_averaged` is missing, not a type error", {
   5.19 |> grim(20, digits_x = 2, items_averaged = NA)                        |> expect_equal(NA)
   5.19 |> grimmer(1.2, 20, digits_x = 2, digits_sd = 1, items_averaged = NA) |> expect_equal(NA)
 })
@@ -316,6 +316,11 @@ test_that("a missing `items_averaged` is a bespoke error everywhere", {
   5.19 |> grim_plot_values(28, 2)             |> expect_error("Need to specify `items_averaged`")
   df   |> grim_map(digits_x = 2)              |> expect_error("an `items_averaged` column")
   df   |> grim_map_seq(digits_x = 2)          |> expect_error("an `items_averaged` column")
+
+  # The sequence and total-n mappers take it through the dots, where the old
+  # name is no partial match, so they say it was renamed:
+  df                                          |> grim_map_seq(digits_x = 2, items = 2)     |> expect_error("renamed to `items_averaged`")
+  tibble::tibble(x1 = 5.2, x2 = 5.4, n = 40L) |> grim_map_total_n(digits_x = 1, items = 2) |> expect_error("renamed to `items_averaged`")
 
   # An old `items` column is no substitute, and the message says why:
   df |> dplyr::mutate(items = 2) |> grim_map(digits_x = 2) |> expect_error("replaces `items`")

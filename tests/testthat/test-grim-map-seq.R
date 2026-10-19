@@ -1486,7 +1486,7 @@ test_that("`grim_map_seq()` applies `items_averaged` exactly once", {
 
 # GRIMMER, unlike GRIM, depends on `n` and `items` separately, so testing their
 # product with `items = 1` gave wrong verdicts -- even for the reported values.
-test_that("`grimmer_map_seq()` tests `n` and `items` separately", {
+test_that("`grimmer_map_seq()` tests `n` and `items_averaged` separately", {
   df <- tibble::tibble(x = 2.55, sd = 0.8, n = 10)
   out <- df |> grimmer_map_seq(
     digits_x = 2,

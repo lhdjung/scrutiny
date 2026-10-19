@@ -45,7 +45,8 @@ maximum.}
 (which includes a data frame with two rows), to repeat alongside each pair
 of group sizes. Default is \code{NULL}.}
 
-\item{...}{Arguments passed on to \code{\link[=grimmer_map]{grimmer_map()}}.}
+\item{...}{Arguments passed on to \code{\link[=grimmer_map]{grimmer_map()}}. These must include
+\code{items_averaged} unless \code{data} has a column by that name.}
 }
 \value{
 A tibble like that of \code{\link[=grim_map_total_n]{grim_map_total_n()}}, with \code{x} and \code{sd}

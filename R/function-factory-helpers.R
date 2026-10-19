@@ -158,10 +158,19 @@ check_factory_dots <- function(fun, fun_name_scalar, ...) {
     msg_it_they <- "They are not"
   }
 
+  # Unlike the basic mappers, which match `items` to `items_averaged` by
+  # partial matching, these dots see the old name as it was written:
+  msg_renamed <- if (
+    "items" %in% dots_names && "items_averaged" %in% names(formals(fun))
+  ) {
+    c("i" = "`items` was renamed to `items_averaged` in scrutiny 1.0.0.")
+  }
+
   abort_in_export(
     "Invalid {msg_arg} {offenders}.",
     "x" = "{msg_it_they} {msg_arg} of {fun_name_mapper} \\
-      or `{fun_name_scalar}()`."
+      or `{fun_name_scalar}()`.",
+    msg_renamed
   )
 }
 

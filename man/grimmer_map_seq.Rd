@@ -48,7 +48,8 @@ part of the sequences? Default is \code{FALSE}.}
 \item{include_consistent}{Logical. Should consistent value sets be dispersed
 as well, not just inconsistent ones? Default is \code{FALSE}.}
 
-\item{...}{Arguments passed on to \code{\link[=grimmer_map]{grimmer_map()}}.}
+\item{...}{Arguments passed on to \code{\link[=grimmer_map]{grimmer_map()}}. These must include
+\code{items_averaged} unless \code{data} has a column by that name.}
 }
 \value{
 A tibble with the columns of \code{\link[=grimmer_map]{grimmer_map()}} output plus

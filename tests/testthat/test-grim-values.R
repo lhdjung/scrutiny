@@ -89,7 +89,7 @@ test_that("`percent` returns values on the scale of `x`", {
 })
 
 
-test_that("`items` multiplies into the sample size", {
+test_that("`items_averaged` multiplies into the sample size", {
   2.84 |>
     grim_values(16, digits_x = 2, items_averaged = 2) |>
     purrr::pluck(1L) |>

@@ -41,7 +41,8 @@ maximum.}
 (which includes a data frame with two rows), to repeat alongside each pair
 of group sizes. Default is \code{NULL}.}
 
-\item{...}{Arguments passed on to \code{\link[=grim_map]{grim_map()}}.}
+\item{...}{Arguments passed on to \code{\link[=grim_map]{grim_map()}}. These must include
+\code{items_averaged} unless \code{data} has a column by that name.}
 }
 \value{
 A tibble with these columns:

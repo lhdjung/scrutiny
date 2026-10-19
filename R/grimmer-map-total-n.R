@@ -17,7 +17,8 @@
 #'   groups, or two numbers, one per group.
 #' @param x1,x2,sd1,sd2 Optionally, the names of the columns in `data` that
 #'   contain these values, if they differ from the defaults.
-#' @param ... Arguments passed on to [`grimmer_map()`].
+#' @param ... Arguments passed on to [`grimmer_map()`]. These must include
+#'   `items_averaged` unless `data` has a column by that name.
 #' @inheritParams grim_map_total_n
 #'
 #' @include function-map-total-n.R

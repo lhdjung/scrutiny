@@ -512,12 +512,12 @@ test_that("GRIMMER works correctly when compared to the rsprite2 implementation"
   3.75  |> grimmer_scalar(4.48,  89, digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_equal(GRIMMER_test(3.75, 4.48, 89))
 })
 
-test_that("GRIMMER works correctly with `items = 2`", {
+test_that("GRIMMER works correctly with `items_averaged = 2`", {
   5.21 |> grimmer_scalar(1.60, 28, digits_x = 2, digits_sd = 2, items_averaged = 2) |> expect_equal(GRIMMER_test(5.21, 1.6 , 28, n_items = 2))
   3.44 |> grimmer_scalar(2.47, 18, digits_x = 2, digits_sd = 2, items_averaged = 2) |> expect_equal(GRIMMER_test(3.44, 2.47, 18, n_items = 2))
 })
 
-test_that("GRIMMER works correctly with `items = 3`", {
+test_that("GRIMMER works correctly with `items_averaged = 3`", {
   5.21 |> grimmer_scalar(1.60, 28, digits_x = 2, digits_sd = 2, items_averaged = 3) |> expect_equal(GRIMMER_test(5.21, 1.6 , 28, n_items = 3))
   3.44 |> grimmer_scalar(2.47, 18, digits_x = 2, digits_sd = 2, items_averaged = 3) |> expect_equal(GRIMMER_test(3.44, 2.47, 18, n_items = 3))
 })
