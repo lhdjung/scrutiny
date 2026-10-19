@@ -20,11 +20,6 @@
 #' grimmer_explain(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2)
 #'
 #' grimmer_explain(x = 5.23, sd = 2.55, n = 31, digits_x = 2, digits_sd = 2)
-#'
-#' grimmer_explain(
-#'   x = 3.00, sd = 2.08, n = 20, digits_x = 2, digits_sd = 2,
-#'   min_val = 1, max_val = 5
-#' )
 grimmer_explain <- function(
   x,
   sd,
@@ -32,8 +27,6 @@ grimmer_explain <- function(
   digits_x,
   digits_sd,
   items = 1,
-  min_val = NULL,
-  max_val = NULL,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE
@@ -61,8 +54,6 @@ grimmer_explain <- function(
     digits_x = digits_x,
     digits_sd = digits_sd,
     items = items,
-    min_val = min_val,
-    max_val = max_val,
     show_reason = TRUE,
     rounding = rounding,
     threshold = threshold,
@@ -75,9 +66,7 @@ grimmer_explain <- function(
       x = format_reported(x, digits_x),
       sd = format_reported(sd, digits_sd),
       n = n,
-      items = if (is.na(items) || items != 1) items,
-      min_val = min_val,
-      max_val = max_val
+      items = if (is.na(items) || items != 1) items
     )
     new_explanation(
       "GRIMMER",
@@ -89,9 +78,6 @@ grimmer_explain <- function(
       text
     )
   }
-
-  has_scale <- !is.null(min_val)
-  scale <- if (has_scale) paste("from", min_val, "to", max_val)
 
   text <- switch(
     result[[2L]],
@@ -122,15 +108,6 @@ grimmer_explain <- function(
       format_reported(sd, digits_sd),
       ", but no ",
       "data set has a negative SD."
-    ),
-    "Mean out of scale range" = paste0(
-      "The mean was reported as ",
-      format_reported(x, digits_x),
-      ", but the ",
-      "values are on a scale ",
-      scale,
-      ", and no set of such values has a ",
-      "mean outside of it."
     ),
     NULL
   )
@@ -209,27 +186,6 @@ grimmer_explain <- function(
     "must be odd if the sum is odd, and even if the sum is even."
   )
 
-  if (has_scale) {
-    totals <- if (items == 1) {
-      ""
-    } else {
-      paste0(
-        ", so each total is between ",
-        min_val * items,
-        " and ",
-        max_val * items
-      )
-    }
-    text_formula <- paste0(
-      text_formula,
-      " Finally, the values are on a scale ",
-      scale,
-      totals,
-      ". This limits how far they can spread out, so for any given sum, the ",
-      "sum of squares can't exceed a certain maximum."
-    )
-  }
-
   # The sum of squares as a calculation, at one bound of the SD:
   sum_squares_at <- function(s, sd_num, sd_shown) {
     value <- (n - 1) * items^2 * sd_num^2 / sd_bounds$denom^2 + s^2 / n
@@ -259,10 +215,7 @@ grimmer_explain <- function(
       s = s,
       n = n,
       items = items,
-      sd_bounds = sd_bounds,
-      has_scale = has_scale,
-      min_val = min_val,
-      max_val = max_val
+      sd_bounds = sd_bounds
     )
     passed <- candidate$pass_test3
 
@@ -275,9 +228,7 @@ grimmer_explain <- function(
           candidate = candidate,
           sd_bounds = sd_bounds,
           sum_squares_lower = sum_squares_at(s, sd_bounds$lower, sd_lower),
-          sum_squares_upper = sum_squares_at(s, sd_bounds$upper, sd_upper),
-          min_total = min_val * items,
-          max_total = max_val * items
+          sum_squares_upper = sum_squares_at(s, sd_bounds$upper, sd_upper)
         )
       )
     }
@@ -318,28 +269,8 @@ grimmer_explain_candidate <- function(
   candidate,
   sd_bounds,
   sum_squares_lower,
-  sum_squares_upper,
-  min_total,
-  max_total
+  sum_squares_upper
 ) {
-  if (!candidate$in_reach) {
-    return(paste0(
-      "A sum of ",
-      s,
-      " is out of reach: ",
-      n,
-      " values from ",
-      min_total,
-      " to ",
-      max_total,
-      " add up to at least ",
-      n * min_total,
-      " and at most ",
-      n * max_total,
-      "."
-    ))
-  }
-
   text <- paste0(
     "With a sum of ",
     s,
@@ -356,24 +287,10 @@ grimmer_explain_candidate <- function(
   lower <- candidate$sum_squares[1L]
   upper <- candidate$sum_squares[2L]
 
-  if (!is.na(candidate$ceiling)) {
-    upper <- candidate$ceiling
-
-    text <- paste0(
-      text,
-      " But within the scale, the sum of squares is greatest when the values ",
-      "are as far apart as possible, i.e., ",
-      describe_spread_out(s, n, min_total, max_total),
-      ". Then it is ",
-      candidate$ceiling,
-      if (lower > upper) ", which is too small." else ", narrowing the range."
-    )
-  }
-
   parity_s <- if (s %% 2 == 0) "even" else "odd"
 
   whole <- if (lower > upper) {
-    if (is.na(candidate$ceiling)) "There is no whole number in this range."
+    "There is no whole number in this range."
   } else if (lower == upper) {
     parity_lower <- if (lower %% 2 == 0) "even" else "odd"
     paste0(
@@ -400,25 +317,4 @@ grimmer_explain_candidate <- function(
   }
 
   paste(c(text, whole), collapse = " ")
-}
-
-
-# The values behind `sum_squares_scale_max()`, in words:
-describe_spread_out <- function(s, n, val_lower, val_upper) {
-  spread <- spread_out_most(s, n, val_lower, val_upper)
-  k <- spread$k
-  rest <- spread$rest
-  middle <- if (rest > 0) 1 else 0
-
-  parts <- c(
-    if (k > 0) paste(k, "values of", val_upper),
-    if (middle > 0) paste("one of", val_lower + rest),
-    if (n - k - middle > 0) paste(n - k - middle, "values of", val_lower)
-  )
-
-  if (length(parts) == 3L) {
-    paste0(parts[1L], ", ", parts[2L], ", and ", parts[3L])
-  } else {
-    paste(parts, collapse = " and ")
-  }
 }

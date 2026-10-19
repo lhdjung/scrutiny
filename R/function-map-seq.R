@@ -490,8 +490,7 @@ function_map_seq <- function(
       # - `fun_args`: the arguments that reproduce the test, so that
       #   `audit_seq()` can re-run `fun()` on reconstructed data with the very
       #   same settings -- including those that leave no trace in the output
-      #   columns, such as `percent`, `threshold`, `symmetric`, or GRIMMER's
-      #   scale bounds.
+      #   columns, such as `percent`, `threshold`, or `symmetric`.
       # - `name_key_result`: `audit_seq()` reads the test results off a column
       #   of `out` and has no other way to learn its name.
       # - `dispersion_linear`: `audit_seq()` and `reverse_map_seq()` only work

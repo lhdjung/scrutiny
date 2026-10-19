@@ -76,9 +76,7 @@ vectorize_test <- function(fun, frame, along) {
   # percentage or it isn't. `reround()` has treated them as scalar throughout.
   for (name in names_scalar) {
     value <- vals[[name]]
-    # `NULL` is a value some of them take: GRIMMER's `min_val` and `max_val`
-    # are `NULL` for an unbounded scale.
-    if (!is.null(value) && length(value) != 1L) {
+    if (length(value) != 1L) {
       name_mapper <- paste0(name_last_export(), "_map")
       abort_in_export(
         "{.arg {name}} must be length 1, not {length(value)}.",

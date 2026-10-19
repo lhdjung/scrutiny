@@ -14,14 +14,11 @@ audit.scrutiny_grimmer_map <- function(data) {
     )])
     fail_test1 <- length(reason[stringr::str_detect(reason, "test 1")])
     fail_test3 <- length(reason[stringr::str_detect(reason, "test 3")])
-    # Zero unless `min_val` and `max_val` were specified:
-    fail_scale <- length(reason[stringr::str_detect(reason, "scale range")])
     out <- out |>
       dplyr::mutate(
         fail_grim,
         fail_test1,
-        fail_test3,
-        fail_scale
+        fail_test3
       )
   }
   out

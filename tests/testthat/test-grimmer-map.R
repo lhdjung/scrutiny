@@ -44,8 +44,6 @@ pigs5_exp <- tibble::tibble(
   structure(
     scrutiny = list(
       args = list(
-        min_val = NULL,
-        max_val = NULL,
         rounding = "up_or_down",
         threshold = 5,
         symmetric = FALSE

@@ -5,11 +5,6 @@
 # too; a figure showing only the attainable values would look like an ordinary,
 # unremarkable scale.
 #
-# `stopped_short` marks a third state, used by GRIMMER with scale bounds: values
-# that granularity alone admits but the scale rules out. They are drawn at a
-# middle height in a neutral color, so that the two ways an SD can be impossible
-# stay visibly distinct.
-#
 # The marker for the reported value -- arrow, label, and the strip behind the
 # teeth -- takes `color_reported`, and the label says the verdict outright. The
 # callers pass the marker's color already resolved by the verdict: a consistent
@@ -22,7 +17,6 @@
 plot_comb <- function(
   values,
   possible,
-  stopped_short,
   reported,
   consistent,
   label_value,
@@ -30,7 +24,6 @@ plot_comb <- function(
   x_label,
   color_cons,
   color_incons,
-  color_scale,
   color_reported
 ) {
   bare_tooth <- function(keep, height) {
@@ -214,15 +207,7 @@ plot_comb <- function(
       colour = "grey60",
       linewidth = 0.5
     ) +
-    geom_teeth(
-      bare_tooth(!possible & !stopped_short, 0.3),
-      colour = color_incons
-    ) +
-    geom_teeth(
-      bare_tooth(stopped_short, 0.62),
-      colour = color_scale,
-      linewidth = 0.9
-    ) +
+    geom_teeth(bare_tooth(!possible, 0.3), colour = color_incons) +
     geom_teeth(bare_tooth(possible, 1), colour = color_cons, linewidth = 0.9) +
     # The reported value points down at the comb from above rather than being
     # drawn across it. A full-height marker would stand exactly where the tooth
@@ -433,7 +418,6 @@ grim_plot_values <- function(
   plot_comb(
     values = values,
     possible = possible,
-    stopped_short = rep(FALSE, length(values)),
     reported = x,
     consistent = consistent,
     label_value = function(value) {
@@ -451,7 +435,6 @@ grim_plot_values <- function(
     ),
     color_cons = color_cons,
     color_incons = color_incons,
-    color_scale = color_incons,
     color_reported = if (consistent) color_cons else color_reported
   )
 }

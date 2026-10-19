@@ -1,9 +1,9 @@
-# The teeth are three `geom_segment()` layers after the two `annotate()` calls
-# that draw the strip and the baseline: unattainable, ruled out by the scale,
-# attainable. Their row counts are the verdicts the comb draws.
+# The teeth are two `geom_segment()` layers after the two `annotate()` calls
+# that draw the strip and the baseline: unattainable, then attainable. Their row
+# counts are the verdicts the comb draws.
 teeth_counts <- function(p) {
   built <- ggplot2::ggplot_build(p)$data
-  vapply(built[3:5], nrow, integer(1L))
+  vapply(built[3:4], nrow, integer(1L))
 }
 
 # The marker is one grob in the last layer: the verdict label, whose color is
@@ -59,11 +59,7 @@ test_that("the marker's labels keep clear of each other at any size", {
     grim = grim_plot_values(x = 5.19, n = 28, digits_x = 2),
     # Wider labels, and a neighbor right next to the reported value:
     percent = grim_plot_values(x = 67.4, n = 40, digits_x = 1, percent = TRUE),
-    # A single neighbor, with the marker near the right end of the window:
-    grimmer = grimmer_plot_values(
-      x = 3.00, sd = 2.08, n = 20, digits_x = 2, digits_sd = 2,
-      min_val = 1, max_val = 5
-    )
+    grimmer = grimmer_plot_values(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2)
   )
   sizes <- list(c(8, 3.5), c(4.5, 3.5), c(8, 2), c(3, 3))
 
@@ -100,8 +96,7 @@ test_that("`grim_plot_values()` draws one tooth per value in the unit window", {
   counts |> sum() |> expect_equal(101L)
   # 28 attainable means per unit at `n = 28`, plus the whole number at the
   # far end of the window:
-  counts[[3L]] |> expect_equal(29L)
-  counts[[2L]] |> expect_equal(0L)
+  counts[[2L]] |> expect_equal(29L)
 })
 
 test_that("the marker says and shows the verdict", {
@@ -121,15 +116,8 @@ test_that("the marker says and shows the verdict", {
   pct$label     |> expect_match("^67.4%\n")
   pct$neighbors |> expect_equal(c("65.0%", "67.5%"))
 
-  # The scale bounds rule the SD out, so the verdict is an inconsistency
-  # although GRIMMER alone would admit it:
-  p <- grimmer_plot_values(
-    x = 3.00, sd = 2.08, n = 20, digits_x = 2, digits_sd = 2,
-    min_val = 1, max_val = 5
-  )
-  p |> marker() |> purrr::pluck("label") |> expect_equal("2.08\ninconsistent")
-  # Nothing attainable lies above it on the scale, so only one neighbor:
-  p |> marker() |> purrr::pluck("neighbors") |> expect_equal("2.05")
+  p <- grimmer_plot_values(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2)
+  p |> marker() |> purrr::pluck("label") |> expect_equal("2.55\ninconsistent")
   p <- grimmer_plot_values(x = 5.23, sd = 2.55, n = 31, digits_x = 2, digits_sd = 2)
   p |> marker() |> purrr::pluck("label") |> expect_equal("2.55\nconsistent")
 })
@@ -145,24 +133,11 @@ test_that("`grim_plot_values()` needs `digits_x` and a decidable `n`", {
   err$call[[1L]] |> expect_equal(quote(grim_plot_values))
 })
 
-test_that("`grimmer_plot_values()` marks what the scale bounds rule out", {
-  p <- grimmer_plot_values(
-    x = 3.00, sd = 2.08, n = 20, digits_x = 2, digits_sd = 2,
-    min_val = 1, max_val = 5
-  )
+test_that("`grimmer_plot_values()` draws one tooth per value in the unit window", {
+  p <- grimmer_plot_values(x = 5.23, sd = 2.55, n = 31, digits_x = 2, digits_sd = 2)
   p |> expect_s3_class("ggplot")
-  counts <- teeth_counts(p)
-  # The SD of ten 1s and ten 5s is about 2.05; everything GRIMMER admits above
-  # that is out of reach on the scale:
-  counts[[2L]] |> expect_gt(0L)
-  counts[[3L]] |> expect_gt(0L)
-
-  # Without the bounds there is no third state:
-  p <- grimmer_plot_values(
-    x = 5.23, sd = 2.55, n = 31, digits_x = 2, digits_sd = 2
-  )
-  p |> teeth_counts() |> purrr::pluck(2L) |> expect_equal(0L)
   p |> teeth_counts() |> sum() |> expect_equal(101L)
+  p |> teeth_counts() |> purrr::pluck(2L) |> expect_gt(0L)
 })
 
 test_that("`grimmer_plot_values()` checks its own arguments", {
@@ -170,9 +145,6 @@ test_that("`grimmer_plot_values()` checks its own arguments", {
   5.23 |>
     grimmer_plot_values(sd = 2.55, n = 1, digits_x = 2, digits_sd = 2) |>
     expect_error("at least 2")
-  5.23 |>
-    grimmer_plot_values(sd = 2.55, n = 31, digits_x = 2, digits_sd = 2, min_val = 1) |>
-    expect_error("max_val")
 })
 
 test_that("the comb plots raise no warnings", {
@@ -211,23 +183,21 @@ test_that("large `n` is not labeled in scientific notation", {
 # input must always be drawn. A new `NA` branch in `grimmer_scalar()` without a
 # matching check in `grimmer_plot_values()` fails here:
 test_that("`grimmer_plot_values()` draws every valid input", {
-  # The edges -- an SD of zero, the smallest `n`, a mean off the scale -- with
+  # The edges -- an SD of zero, the smallest `n` -- with
   # the rounding methods taking turns, since a full cross would take minutes:
   grid <- tidyr::expand_grid(
     x = c(0.5, 3.17),
     sd = c(0, 1.25),
     n = c(2, 28),
-    items = 1:2,
-    scale = c(FALSE, TRUE)
+    items = 1:2
   )
   roundings <- c("up_or_down", "down", "even", "anti_trunc", "ties_away")
   grid$rounding <- rep_len(roundings, nrow(grid))
   grid |>
-    purrr::pmap(function(x, sd, n, items, scale, rounding) {
+    purrr::pmap(function(x, sd, n, items, rounding) {
       grimmer_plot_values(
         x = x, sd = sd, n = n, digits_x = 2, digits_sd = 2, items = items,
-        rounding = rounding,
-        min_val = if (scale) 1, max_val = if (scale) 5
+        rounding = rounding
       )
     }) |>
     purrr::map_lgl(ggplot2::is_ggplot) |>

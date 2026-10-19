@@ -741,162 +741,6 @@ test_that("GRIMMER returns `NA` where GRIM itself is undecidable", {
   out |> audit() |> purrr::pluck("incons_cases") |> expect_equal(1L)
 })
 
-# Scale bounds ------------------------------------------------------------
-
-test_that("`min_val` and `max_val` must be specified together and be valid", {
-  args <- list(x = 3, sd = 1, n = 20, digits_x = 2, digits_sd = 2)
-  do.call(grimmer, c(args, list(min_val = 1))) |>
-    expect_error("specified together")
-  do.call(grimmer, c(args, list(max_val = 5))) |>
-    expect_error("specified together")
-  do.call(grimmer, c(args, list(min_val = 1.5, max_val = 5))) |>
-    expect_error("whole numbers")
-  do.call(grimmer, c(args, list(min_val = 5, max_val = 1))) |>
-    expect_error("greater than")
-  do.call(grimmer, c(args, list(min_val = 1, max_val = 5))) |>
-    expect_type("logical")
-})
-
-
-test_that("a mean outside the scale is inconsistent by itself", {
-  7.22 |>
-    grimmer(sd = 1.10, n = 30, digits_x = 2, digits_sd = 2, min_val = 1, max_val = 5) |>
-    expect_false()
-  7.22 |>
-    grimmer_scalar(
-      sd = 1.10, n = 30, digits_x = 2, digits_sd = 2,
-      min_val = 1, max_val = 5, show_reason = TRUE
-    ) |>
-    purrr::pluck(2L) |>
-    expect_equal("Mean out of scale range")
-})
-
-
-test_that("scale bounds rule out SDs that an unbounded scale allows", {
-  # Ten 1s and ten 5s are as spread out as a five-point scale gets at a mean of
-  # 3, and even they only have an SD of 2.05:
-  3.00 |> grimmer(sd = 2.08, n = 20, digits_x = 2, digits_sd = 2) |> expect_true()
-  3.00 |>
-    grimmer(sd = 2.08, n = 20, digits_x = 2, digits_sd = 2, min_val = 1, max_val = 5) |>
-    expect_false()
-  3.00 |>
-    grimmer_scalar(
-      sd = 2.08, n = 20, digits_x = 2, digits_sd = 2,
-      min_val = 1, max_val = 5, show_reason = TRUE
-    ) |>
-    purrr::pluck(2L) |>
-    expect_equal("GRIMMER inconsistent (scale range)")
-
-  # A mean at the very bottom of the scale forces every value to be there, too:
-  1.00 |>
-    grimmer(sd = 0.32, n = 20, digits_x = 2, digits_sd = 2, min_val = 1, max_val = 5) |>
-    expect_false()
-  1.00 |>
-    grimmer(sd = 0.00, n = 20, digits_x = 2, digits_sd = 2, min_val = 1, max_val = 5) |>
-    expect_true()
-})
-
-
-test_that("scale bounds aren't blamed for a range that was empty without them", {
-  1 |> grimmer_scalar(sd = 1.01, n = 2, digits_x = 1, digits_sd = 2, min_val = 1, max_val = 7, show_reason = TRUE) |> purrr::pluck(2L) |> expect_equal("GRIMMER inconsistent (test 1)")
-})
-
-
-test_that("scale bounds change nothing that doesn't depend on the scale", {
-  # There is a second bound on the sum of squares: the least one that `n` whole
-  # numbers adding up to a given sum can have, i.e. the values as equal as
-  # possible. GRIMMER does not apply it, and it is deliberately not applied here
-  # either, because it does not depend on the scale at all -- the near-equal
-  # values always lie inside the range, since their mean does. Applying it under
-  # `min_val`/`max_val` would make verdicts turn on an argument that has no
-  # bearing on them.
-  #
-  # Ten whole numbers adding up to 13 have an SD of at least 0.48, so an SD of
-  # 0.11 is impossible. GRIMMER passes it anyway, and passes it just the same
-  # when told about a scale that is equally irrelevant to it:
-  1.30 |> grimmer(sd = 0.11, n = 10, digits_x = 2, digits_sd = 2) |> expect_true()
-  1.30 |>
-    grimmer(sd = 0.11, n = 10, digits_x = 2, digits_sd = 2, min_val = 1, max_val = 5) |>
-    expect_true()
-})
-
-
-test_that("scale bounds never make GRIMMER more permissive", {
-  violations <- 0L
-  for (n in c(15, 25, 40)) {
-    for (x in seq(1, 5, by = 0.1)) {
-      for (sd in seq(0.05, 2.5, by = 0.05)) {
-        args <- list(x = x, sd = sd, n = n, digits_x = 2, digits_sd = 2)
-        bounded <- do.call(grimmer, c(args, list(min_val = 1, max_val = 5)))
-        if (isTRUE(bounded) && !isTRUE(do.call(grimmer, args))) {
-          violations <- violations + 1L
-        }
-      }
-    }
-  }
-
-  violations |> expect_equal(0L)
-})
-
-
-test_that("no sample within the scale is reported as inconsistent", {
-  # Exhaustive over every multiset of `n` responses that the scale allows. The
-  # bounds are a necessary condition, so a value set that really occurs must
-  # never be ruled out -- whatever `items` is, since the bounds are per
-  # response, not per scale score.
-  check_all_samples <- function(n, items, min_val, max_val) {
-    grid <- list((min_val * items):(max_val * items)) |> rep(n) |> expand.grid()
-    grid <- grid[apply(grid, 1L, function(v) !is.unsorted(v)), , drop = FALSE]
-    verdicts <- grid |> nrow() |> seq_len() |> vapply(
-      function(i) {
-        scores <- as.numeric(grid[i, ]) / items
-        grimmer(
-          x = round(mean(scores), 2L),
-          sd = round(stats::sd(scores), 2L),
-          n = n,
-          digits_x = 2, digits_sd = 2, items = items,
-          min_val = min_val, max_val = max_val
-        )
-      },
-      logical(1L)
-    )
-    verdicts |> all() |> expect_true()
-  }
-
-  check_all_samples(n = 5L, items = 1, min_val = 1, max_val = 5)
-  check_all_samples(n = 6L, items = 1, min_val = 1, max_val = 4)
-  check_all_samples(n = 4L, items = 2, min_val = 1, max_val = 5)
-  check_all_samples(n = 5L, items = 3, min_val = 1, max_val = 3)
-  check_all_samples(n = 4L, items = 1, min_val = 0, max_val = 6)
-})
-
-
-test_that("`grimmer_map()` passes the scale bounds down and `audit()` counts", {
-  df <- tibble::tibble(
-    x = c(3.00, 7.22, 3.00),
-    sd = c(2.08, 1.10, 1.45),
-    n = c(20L, 30L, 20L)
-  )
-  out <- df |> grimmer_map(digits_x = 2, digits_sd = 2, min_val = 1, max_val = 5)
-
-  out$consistency |> expect_equal(c(FALSE, FALSE, TRUE))
-  out$reason |>
-    expect_equal(c(
-      "GRIMMER inconsistent (scale range)",
-      "Mean out of scale range",
-      "Passed all"
-    ))
-  out |> audit() |> purrr::pluck("fail_scale") |> expect_equal(2L)
-
-  # Zero for a call that says nothing about the scale:
-  df |>
-    grimmer_map(digits_x = 2, digits_sd = 2) |>
-    audit() |>
-    purrr::pluck("fail_scale") |>
-    expect_equal(0L)
-})
-
-
 # A brute-force oracle, complementing the random trials above. Those sample 400
 # data sets at larger `n`; this one enumerates *every* multiset of `n` whole
 # numbers for small `n`, so nothing in that space can hide. GRIMMER's conditions
@@ -979,26 +823,6 @@ test_that("GRIMMER never rejects an enumerable multi-item sample", {
 })
 
 
-test_that("GRIMMER never rejects an enumerable sample within scale bounds", {
-  # Scale bounds may only ever rule cases *out*, so a sample that really lies
-  # within `min_val` and `max_val` must survive them:
-  pairs <- 5L |> grimmer_multisets(0:5) |> grimmer_reported_pairs(digits = 2, rounding = "up_or_down", items = 1)
-  verdict <- purrr::map2_lgl(
-    pairs[, 1L],
-    pairs[, 2L],
-    function(x, sd) {
-      grimmer(
-        x = x, sd = sd, n = 5L,
-        digits_x = 2, digits_sd = 2, min_val = 0, max_val = 5
-      )
-    }
-  )
-
-  verdict |> call_on(\(x) !x %in% TRUE) |> sum() |> expect_equal(0L)
-  verdict |> length()     |> expect_gt(100L)
-})
-
-
 test_that("an `n` too large to enumerate is an error, not a hang", {
   5.19 |> grimmer(sd = 2.5, n = 3e9, digits_x = 2, digits_sd = 2) |> expect_error("too large for GRIMMER")
   5.19 |> grimmer(sd = 2.5, n = 1e8, digits_x = 2, digits_sd = 2) |> expect_error("too large for GRIMMER")
@@ -1017,13 +841,6 @@ test_that("a wide range of sums of squares is no error at a small `n`", {
   45000.5 |> grimmer(sd = 12000, n = 100, digits_x = 1, digits_sd = 0) |> expect_true()
 })
 
-
-# The scale bounds used to be checked before `n`, so they turned an undecidable
-# case into an inconsistent one.
-test_that("scale bounds don't decide a case with an untestable `n`", {
-  6 |> grimmer(0, 1, 0, 0, min_val = 1, max_val = 5)    |> is.na() |> expect_true()
-  6 |> grimmer(0, 20.5, 0, 0, min_val = 1, max_val = 5) |> is.na() |> expect_true()
-})
 
 test_that("a negative SD is inconsistent, and says why", {
   5 |> grimmer(-0.5, 10, 2, 2) |> expect_false()

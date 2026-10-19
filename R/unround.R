@@ -328,58 +328,6 @@ sum_squares_range <- function(
 }
 
 
-# What known scale bounds add to GRIMMER, where `sum_squares_range()` gives what
-# the reported SD admits: the greatest sum of squares that `n` whole-number
-# respondent totals between `val_lower` and `val_upper` adding up to `s` can
-# have. They are as far apart as the scale allows, so `k` sit at the maximum and
-# the rest at the minimum, with at most one in between to absorb the remainder.
-# In SD space this is the mean-conditional ceiling that Mestdagh et al. (2018)
-# call "Structure S" (`strait::sd_bounds()`); here it stays in sum-of-squares
-# space, where GRIMMER already works and the arithmetic is exact.
-#
-# Returns `NULL` if no set of `n` values within the range adds up to `s`, in
-# which case the candidate sum is out of reach whatever the SD is.
-#
-# The bound is exact, but necessary rather than sufficient: not every sum of
-# squares below it is attainable (with `n = 3` values from 0 to 10 adding up to
-# 10, the ceiling is 100, yet 40 is out of reach). So it can only move a verdict
-# from `TRUE` to `FALSE`. For a sufficient decision procedure, see
-# `strait::brimmest()`.
-#
-# The matching floor is deliberately not applied: it does not depend on the
-# scale at all, so it would tighten GRIMMER for every caller, including those
-# who say nothing about a scale. That is a separate decision.
-
-sum_squares_scale_max <- function(s, n, val_lower, val_upper) {
-  if (s < n * val_lower || s > n * val_upper) {
-    return(NULL)
-  }
-
-  spread <- spread_out_most(s, n, val_lower, val_upper)
-  middle <- if (spread$rest > 0) 1 else 0
-
-  spread$k * val_upper^2 +
-    middle * (val_lower + spread$rest)^2 +
-    (n - spread$k - middle) * val_lower^2
-}
-
-
-# The values behind `sum_squares_scale_max()`: `k` at `val_upper`, one at
-# `val_lower + rest` if `rest > 0`, and the others at `val_lower`. Shared with
-# `grimmer_explain()`.
-spread_out_most <- function(s, n, val_lower, val_upper) {
-  span <- val_upper - val_lower
-
-  # A scale with a single possible value leaves nothing to spread out:
-  if (span == 0) {
-    return(list(k = 0, rest = 0))
-  }
-
-  k <- floor((s - n * val_lower) / span)
-  list(k = k, rest = (s - n * val_lower) - k * span)
-}
-
-
 #' Reconstruct rounding bounds
 #'
 #' @description `unround()` takes a rounded number and returns the range of

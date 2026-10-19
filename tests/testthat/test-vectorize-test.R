@@ -134,9 +134,7 @@ test_that("arguments that describe the test as a whole must be length 1", {
     grimmer = list(
       rounding = c("up", "down"),
       threshold = c(5, 6),
-      symmetric = c(TRUE, FALSE),
-      min_val = c(1, 2),
-      max_val = c(5, 6)
+      symmetric = c(TRUE, FALSE)
     ),
     debit = list(
       rounding = c("up", "down"),
@@ -159,15 +157,6 @@ test_that("arguments that describe the test as a whole must be length 1", {
   5.19 |>
     grim(n = 28, digits_x = 2, rounding = c("up", "down")) |>
     expect_error("grim_map")
-})
-
-
-test_that("`NULL` still works where an argument takes it", {
-  # GRIMMER's scale bounds are `NULL` for an unbounded scale, which is not a
-  # length-1 value but is not a vectorized argument either.
-  out_null    <- 5.23 |> grimmer(sd = 2.55, n = 31, digits_x = 2, digits_sd = 2, min_val = NULL, max_val = NULL)
-  out_default <- 5.23 |> grimmer(sd = 2.55, n = 31, digits_x = 2, digits_sd = 2)
-  out_null |> expect_equal(out_default)
 })
 
 

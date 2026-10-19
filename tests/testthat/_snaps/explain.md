@@ -148,45 +148,6 @@
       
       ==> Consistent
     Code
-      grimmer_explain(x = 3, sd = 2.1, n = 20, digits_x = 1, digits_sd = 1, min_val = 1,
-        max_val = 5)
-    Output
-      GRIMMER test: x = 3.0, sd = 2.1, n = 20, min_val = 1, max_val = 5
-      
-      The mean was reported as 3.0, with 1 decimal place. Before rounding, it could
-      have been anything from 2.95 to 3.05.
-      
-      The mean of 20 whole numbers is their sum divided by 20. So the sum must be
-      from 2.95 * 20 = 59 to 3.05 * 20 = 61.
-      
-      A sum of whole numbers is itself a whole number, and the whole numbers from 59
-      to 61 are in this range. For example, 60 / 20 = 3, which rounds to 3.0.
-      
-      The SD was reported as 2.1, with 1 decimal place. Before rounding, it could
-      have been anything from 2.05 to 2.15.
-      
-      Together, the sum and the SD determine the sum of squares, which is what you
-      get by squaring each of the 20 values and adding them up. It is
-      (20 - 1) * SD^2 + sum^2 / 20. The values are whole numbers, so their squares
-      are whole numbers, too, and so is the sum of squares. What's more, a whole
-      number and its square are either both odd or both even. So the sum of squares
-      must be odd if the sum is odd, and even if the sum is even. Finally, the values
-      are on a scale from 1 to 5. This limits how far they can spread out, so for any
-      given sum, the sum of squares can't exceed a certain maximum.
-      
-      With a sum of 59, the sum of squares is from 19 * 2.05^2 + 59^2 / 20 = 253.8975
-      to 19 * 2.15^2 + 59^2 / 20 = 261.8775. But within the scale, the sum of squares
-      is greatest when the values are as far apart as possible, i.e., 9 values of 5,
-      one of 4, and 10 values of 1. Then it is 251, which is too small.
-      
-      With a sum of 60, the sum of squares is from 19 * 2.05^2 + 60^2 / 20 = 259.8475
-      to 19 * 2.15^2 + 60^2 / 20 = 267.8275. But within the scale, the sum of squares
-      is greatest when the values are as far apart as possible, i.e., 10 values of 5
-      and 10 values of 1. Then it is 260, narrowing the range. The only whole number
-      in this range is 260, which is even, like 60.
-      
-      ==> Consistent
-    Code
       debit_explain(x = 0.36, sd = 0.11, n = 20, digits_x = 2, digits_sd = 2)
     Output
       DEBIT test: x = 0.36, sd = 0.11, n = 20

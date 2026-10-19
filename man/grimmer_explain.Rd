@@ -11,8 +11,6 @@ grimmer_explain(
   digits_x,
   digits_sd,
   items = 1,
-  min_val = NULL,
-  max_val = NULL,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE
@@ -35,10 +33,6 @@ keep them (\code{1.40} is \code{1.4}).}
 
 \item{items}{Integer. The number of items composing \code{x} and \code{sd}. Default
 is \code{1}.}
-
-\item{min_val, max_val}{Integer. Optionally, the smallest and largest value
-that a single response can take, such as the endpoints of a Likert scale.
-Both default to \code{NULL}, an unbounded scale. See \emph{Scale bounds}.}
 
 \item{rounding}{String. The rounding method assumed to have produced \code{x}.
 Default is \code{"up_or_down"}, which accepts either direction. See
@@ -73,9 +67,4 @@ always agrees with \code{\link[=grimmer]{grimmer()}}.
 grimmer_explain(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2)
 
 grimmer_explain(x = 5.23, sd = 2.55, n = 31, digits_x = 2, digits_sd = 2)
-
-grimmer_explain(
-  x = 3.00, sd = 2.08, n = 20, digits_x = 2, digits_sd = 2,
-  min_val = 1, max_val = 5
-)
 }

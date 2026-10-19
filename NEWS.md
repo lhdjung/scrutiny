@@ -40,7 +40,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `debit_map()` no longer has `show_rec` and `grimmer_map()` no longer has `show_reason`: the reconstructed values and the `reason` column are always returned. `debit_map()` output no longer has a `rounding` column; the rounding method is recorded in the `"scrutiny"` attribute. `audit()` on `grimmer_map()` output no longer has a `fail_test2` column.
 
-- `grim()`, `grimmer()`, and `debit()` no longer have `show_rec` or `show_reason`. These arguments were only intended for internal use by the mappers. The three functions are now vectorized only over the tested values (`x`, `sd`, `n`, and the `digits_*` arguments) and `items`; `rounding`, `threshold`, `symmetric`, `percent`, `formula`, `min_val`, `max_val`, and `tolerance` must have length 1. Recycling follows the tidyverse rules: an argument must have length 1 or the common length. `grim(x = c(5.19, 5.18, 5.17), n = c(28, 32), digits_x = 2)` is therefore an error; it used to return three results.
+- `grim()`, `grimmer()`, and `debit()` no longer have `show_rec` or `show_reason`. These arguments were only intended for internal use by the mappers. The three functions are now vectorized only over the tested values (`x`, `sd`, `n`, and the `digits_*` arguments) and `items`; `rounding`, `threshold`, `symmetric`, `percent`, `formula`, and `tolerance` must have length 1. Recycling follows the tidyverse rules: an argument must have length 1 or the common length. `grim(x = c(5.19, 5.18, 5.17), n = c(28, 32), digits_x = 2)` is therefore an error; it used to return three results.
 
 - `grim_map()` and `grimmer_map()` no longer multiply `items` into `n`. The `n` column is the sample size as given, and `items` is returned as a column of its own if it was given, as an argument or a column. `grim_plot()` places the tiles at `n * items`.
 
@@ -72,8 +72,6 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `round_ties_up()`, `round_ties_down()`, `round_ties_away()`, `round_ties_zero()`, and `round_ties_even()`, with matching `rounding` strings `"ties_up"` etc. Each of these names a complete tie-breaking rule: for example, `"ties_away"` is the same as `"up"` with `symmetric = TRUE`. Specifying `symmetric` together with one of these strings is an error. `round_up()`, `round_down()`, and the `"up"` and `"down"` strings continue to work as before.
 
-- `grimmer()` and `grimmer_map()` have new arguments `min_val` and `max_val`: the smallest and largest value that a single response can take, such as the endpoints of a Likert scale. If both are specified, GRIMMER additionally rejects SDs that no sample within these bounds can have, as well as means outside the bounds. `audit()` counts these in a new `fail_scale` column (#60).
-
 - `grim_values()` returns all means that a sample of `n` integers can have and that would be reported as `x`. `grim_closest()` returns the mean that such a sample can have that is closest to `x`, whether or not `x` is GRIM-consistent (#62).
 
 - `grim_binomial()` tests whether the rate of GRIM-consistent value sets is above what random decimal digits would produce, and returns a Clopper-Pearson confidence interval. `grim_binomial_power()` computes the power of this test. Both are experimental.
@@ -96,7 +94,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `reverse_map_seq()` and `audit_seq()` now reconstruct the reported values from the `diff_var` column, which records the number of steps between each dispersed value and the reported one. Previously, they inferred the reported value from the position of the gap in the sequence, which failed when `out_min` or `out_max` had cut the sequence short. `audit_seq()` could then test the wrong value and report the opposite result.
 
-- `audit_seq()` re-tests reconstructed data with the same arguments as the original call, including `percent`, `threshold`, `symmetric`, and the scale bounds. It now also works with a `dispersion` of length 1, with output that has no rows, and with cases whose dispersed sequence is empty because of `out_min` or `out_max`.
+- `audit_seq()` re-tests reconstructed data with the same arguments as the original call, including `percent`, `threshold`, and `symmetric`. It now also works with a `dispersion` of length 1, with output that has no rows, and with cases whose dispersed sequence is empty because of `out_min` or `out_max`.
 
 - In `*_map_seq()` functions, a mean or SD used to be dispersed no lower than one decimal unit above zero; it can now reach zero, and a mean can go below it. With `include_consistent = TRUE`, the functions skip cases that have no test result. If there is nothing to disperse, they return a tibble with no rows but the usual columns.
 

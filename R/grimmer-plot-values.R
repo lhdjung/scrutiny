@@ -10,18 +10,12 @@
 #'   There is no GRIMMER-specific plot for many value sets; [`grim_plot()`]
 #'   accepts [`grimmer_map()`] output and shows the GRIM part of the test.
 #'
-#' @param x,sd,n,digits_x,digits_sd,items,min_val,max_val,rounding,threshold,symmetric
-#'   The same as in [`grimmer()`], but `x`, `sd`, and `n` must have length 1.
-#' @param color_scale String. Color of the teeth for SDs that GRIMMER admits
-#'   on an unbounded scale but that `min_val` and `max_val` rule out.
+#' @param x,sd,n,digits_x,digits_sd,items,rounding,threshold,symmetric The same
+#'   as in [`grimmer()`], but `x`, `sd`, and `n` must have length 1.
 #' @inheritParams grim_plot_values
 #'
-#' @details Without scale bounds, the comb runs from the whole number at or
-#'   below `sd` to the next one up, but not below zero. With `min_val` and
-#'   `max_val`, it runs from zero to just past the largest SD that any sample on
-#'   the scale can have, and the SDs the scale rules out are drawn at a middle
-#'   height in `color_scale`, to distinguish the two reasons why an SD can be
-#'   impossible.
+#' @details The comb runs from the whole number at or below `sd` to the next
+#'   one up, but not below zero.
 #'
 #'   If `x` is GRIM-inconsistent with `n`, no SD is attainable and the comb has
 #'   no tall teeth.
@@ -35,13 +29,6 @@
 #' # 35, but it is with 31:
 #' grimmer_plot_values(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2)
 #' grimmer_plot_values(x = 5.23, sd = 2.55, n = 31, digits_x = 2, digits_sd = 2)
-#'
-#' # On a scale from 1 to 5, an SD of 2.08 is impossible for a mean of 3.00
-#' # and 20 values, although GRIMMER admits it on an unbounded scale:
-#' grimmer_plot_values(
-#'   x = 3.00, sd = 2.08, n = 20, digits_x = 2, digits_sd = 2,
-#'   min_val = 1, max_val = 5
-#' )
 
 grimmer_plot_values <- function(
   x,
@@ -50,14 +37,11 @@ grimmer_plot_values <- function(
   digits_x,
   digits_sd,
   items = 1,
-  min_val = NULL,
-  max_val = NULL,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
   color_cons = "#2f7d74",
   color_incons = "#d9d4ca",
-  color_scale = "#868b93",
   color_reported = "#c1522e"
 ) {
   if (missing(digits_x)) {
@@ -75,21 +59,11 @@ grimmer_plot_values <- function(
   check_comb_value(x, digits_x, "x")
   check_comb_value(sd, digits_sd, "sd")
   check_decidable_n_items(n, items, min_n = 2)
-  has_scale <- check_scale_bounds(min_val, max_val)
 
-  # With known bounds, the comb reaches a little past the largest SD any sample
-  # on the scale can have (half of it at each end), so that the teeth the scale
-  # rules out are in view. Without them, one unit around `sd`, as for a mean:
-  window <- if (has_scale) {
-    sd_max <- (max_val - min_val) / 2 * sqrt(n / (n - 1))
-    window_upper <- ceiling(sd_max * 1.12 * 10^digits_sd) / 10^digits_sd
-    c(0, max(window_upper, sd))
-  } else {
-    c(max(0, floor(sd)), floor(sd) + 1)
-  }
-  values <- comb_values(window[1L], window[2L], digits_sd)
+  # One unit around `sd`, as for a mean:
+  values <- comb_values(max(0, floor(sd)), floor(sd) + 1, digits_sd)
 
-  test <- function(sd, min_val, max_val) {
+  test <- function(sd) {
     grimmer(
       x = x,
       sd = sd,
@@ -97,24 +71,14 @@ grimmer_plot_values <- function(
       digits_x = digits_x,
       digits_sd = digits_sd,
       items = items,
-      min_val = min_val,
-      max_val = max_val,
       rounding = rounding,
       threshold = threshold,
       symmetric = symmetric
     )
   }
 
-  possible <- test(values, min_val, max_val)
-  consistent <- test(sd, min_val, max_val)
-
-  # The bounds can only turn `TRUE` into `FALSE`, so the values they ruled out
-  # are those that pass without them and fail with them:
-  stopped_short <- if (has_scale) {
-    test(values, NULL, NULL) & !possible
-  } else {
-    rep(FALSE, length(values))
-  }
+  possible <- test(values)
+  consistent <- test(sd)
 
   claim <- unround(
     x = sd,
@@ -127,7 +91,6 @@ grimmer_plot_values <- function(
   plot_comb(
     values = values,
     possible = possible,
-    stopped_short = stopped_short,
     reported = sd,
     consistent = consistent,
     label_value = function(v) formatC(v, format = "f", digits = digits_sd),
@@ -138,12 +101,10 @@ grimmer_plot_values <- function(
       ", n = ",
       format(n, scientific = FALSE),
       if (items != 1) paste0(", items = ", format(items, scientific = FALSE)),
-      if (has_scale) paste0(", scale ", min_val, "-", max_val),
       ")"
     ),
     color_cons = color_cons,
     color_incons = color_incons,
-    color_scale = color_scale,
     color_reported = if (consistent) color_cons else color_reported
   )
 }

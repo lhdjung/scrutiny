@@ -11,25 +11,20 @@ grimmer_plot_values(
   digits_x,
   digits_sd,
   items = 1,
-  min_val = NULL,
-  max_val = NULL,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
   color_cons = "#2f7d74",
   color_incons = "#d9d4ca",
-  color_scale = "#868b93",
   color_reported = "#c1522e"
 )
 }
 \arguments{
-\item{x, sd, n, digits_x, digits_sd, items, min_val, max_val, rounding, threshold, symmetric}{The same as in \code{\link[=grimmer]{grimmer()}}, but \code{x}, \code{sd}, and \code{n} must have length 1.}
+\item{x, sd, n, digits_x, digits_sd, items, rounding, threshold, symmetric}{The same
+as in \code{\link[=grimmer]{grimmer()}}, but \code{x}, \code{sd}, and \code{n} must have length 1.}
 
 \item{color_cons, color_incons}{Strings. Colors of the teeth for attainable
 and unattainable values.}
-
-\item{color_scale}{String. Color of the teeth for SDs that GRIMMER admits
-on an unbounded scale but that \code{min_val} and \code{max_val} rule out.}
 
 \item{color_reported}{String. Color of the marker for the reported value
 and of the strip behind the teeth, if the value is inconsistent. A
@@ -50,12 +45,8 @@ There is no GRIMMER-specific plot for many value sets; \code{\link[=grim_plot]{g
 accepts \code{\link[=grimmer_map]{grimmer_map()}} output and shows the GRIM part of the test.
 }
 \details{
-Without scale bounds, the comb runs from the whole number at or
-below \code{sd} to the next one up, but not below zero. With \code{min_val} and
-\code{max_val}, it runs from zero to just past the largest SD that any sample on
-the scale can have, and the SDs the scale rules out are drawn at a middle
-height in \code{color_scale}, to distinguish the two reasons why an SD can be
-impossible.
+The comb runs from the whole number at or below \code{sd} to the next
+one up, but not below zero.
 
 If \code{x} is GRIM-inconsistent with \code{n}, no SD is attainable and the comb has
 no tall teeth.
@@ -65,11 +56,4 @@ no tall teeth.
 # 35, but it is with 31:
 grimmer_plot_values(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2)
 grimmer_plot_values(x = 5.23, sd = 2.55, n = 31, digits_x = 2, digits_sd = 2)
-
-# On a scale from 1 to 5, an SD of 2.08 is impossible for a mean of 3.00
-# and 20 values, although GRIMMER admits it on an unbounded scale:
-grimmer_plot_values(
-  x = 3.00, sd = 2.08, n = 20, digits_x = 2, digits_sd = 2,
-  min_val = 1, max_val = 5
-)
 }

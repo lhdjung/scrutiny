@@ -12,8 +12,6 @@ grimmer(
   digits_x,
   digits_sd,
   items = 1,
-  min_val = NULL,
-  max_val = NULL,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
@@ -37,10 +35,6 @@ keep them (\code{1.40} is \code{1.4}).}
 
 \item{items}{Integer. The number of items composing \code{x} and \code{sd}. Default
 is \code{1}.}
-
-\item{min_val, max_val}{Integer. Optionally, the smallest and largest value
-that a single response can take, such as the endpoints of a Likert scale.
-Both default to \code{NULL}, an unbounded scale. See \emph{Scale bounds}.}
 
 \item{rounding}{String. The rounding method assumed to have produced \code{x}.
 Default is \code{"up_or_down"}, which accepts either direction. See
@@ -85,23 +79,11 @@ other arguments must have length 1.
 The implementation follows Allard's (2018) Analytic-GRIMMER algorithm, as
 does \code{rsprite2::GRIMMER_test()}. GRIMMER was first proposed by Anaya
 (2016).
+
+For data on a bounded scale, such as a Likert scale, see the
+\href{https://github.com/ianhussey/strait}{strait} package. Its \code{brimmest()}
+decides exactly whether a mean and SD are possible within the bounds.
 }
-\section{Scale bounds}{
- GRIMMER assumes that the values behind \code{x} and \code{sd}
-are whole numbers. If they were also confined to a range, state it with
-\code{min_val} and \code{max_val}. The range caps how far the values can spread
-around their mean, which rules out SDs that are possible on an unbounded
-scale, and a mean outside the range is inconsistent by itself.
-
-Both bounds refer to a single response, so they do not depend on \code{items}.
-They must be given together, since one bound alone places no limit on the
-SD. Like GRIMMER's other tests, this condition is necessary but not
-sufficient: a value set that passes it may still be impossible.
-
-The \href{https://github.com/ianhussey/strait}{strait} package goes much
-further with bounded scales, including an exact decision procedure.
-}
-
 \examples{
 # A mean of 5.23 is not consistent with an SD of 2.55
 # and a sample size of 35:
@@ -113,16 +95,6 @@ grimmer(x = 5.23, sd = 2.55, n = 31, digits_x = 2, digits_sd = 2)
 
 # For a scale composed of two items:
 grimmer(x = 2.74, sd = 0.96, n = 63, digits_x = 2, digits_sd = 2, items = 2)
-
-# A mean of 3.00 with an SD of 2.08 is possible for 20 whole numbers...
-grimmer(x = 3.00, sd = 2.08, n = 20, digits_x = 2, digits_sd = 2)
-
-# ...but not if they were responses on a scale from 1 to 5. Even the most
-# extreme such sample, ten 1s and ten 5s, has an SD of only 2.05:
-grimmer(
-  x = 3.00, sd = 2.08, n = 20, digits_x = 2, digits_sd = 2,
-  min_val = 1, max_val = 5
-)
 }
 \references{
 Allard, A. (2018). Analytic-GRIMMER: a new way of testing the

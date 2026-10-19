@@ -17,8 +17,6 @@
 #' @param items Integer. The number of items composing `x` and `sd`, if `data`
 #'   has no `items` column. Default is `1`. If given, as an argument or a
 #'   column, it is returned as a column.
-#' @param min_val,max_val Integer. Optionally, the bounds of the scale; see
-#'   the *Scale bounds* section of [`grimmer()`]. Both default to `NULL`.
 #' @param rounding,threshold,symmetric,tolerance Passed on to [`grimmer()`].
 #' @param ... Further arguments passed on to [`grimmer()`].
 #'
@@ -39,9 +37,7 @@
 #' 3. The parity of the reconstructed sum of squared observations must match
 #'    that of the reconstructed sum of the values.
 #'
-#' With `min_val` and `max_val`, the reasons `"Mean out of scale range"` and
-#' `"GRIMMER inconsistent (scale range)"` can appear. A negative `sd` gives
-#' `"Negative SD"`.
+#' A negative `sd` gives `"Negative SD"`.
 #'
 #' The tibble has the class `scrutiny_grimmer_map`, which is recognized by
 #'   [`audit()`] and [`grim_plot()`].
@@ -55,8 +51,6 @@
 #' 4. `fail_grim`: number of value sets that fail GRIM.
 #' 5. `fail_test1`, `fail_test3`: number of value sets that fail GRIMMER's
 #'    first or third test. Test 2 is implied by test 1, so it never fails.
-#' 6. `fail_scale`: number of value sets inconsistent with `min_val` and
-#'    `max_val`. Zero if these were not given.
 #'
 #' @include audit.R grimmer.R function-map.R
 #'

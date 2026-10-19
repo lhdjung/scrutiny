@@ -30,20 +30,6 @@ test_that("explanations agree with the tests (sweep)", {
   }
 })
 
-test_that("GRIMMER with scale bounds agrees with the test (sweep)", {
-  grid <- tidyr::expand_grid(
-    x = c(1.5, 2.95, 3, 3.1, 4.5),
-    sd = c(0.5, 1.2, 2.04, 2.08, 2.1),
-    n = c(5, 20, 31),
-    items = 1:2
-  )
-
-  for (i in seq_len(nrow(grid))) {
-    args <- c(as.list(grid[i, ]), list(digits_x = 2, digits_sd = 2, min_val = 1, max_val = 5))
-    args |> do.call(what = grimmer_explain) |> getElement("consistency") |> expect_identical(do.call(grimmer, args))
-  }
-})
-
 test_that("`binary_ones_shown()` finds what listing every `k` would", {
   pick <- function(ones, n, range) {
     spread <- ones * (n - ones)
@@ -94,10 +80,6 @@ test_that("explanations print as expected", {
     grimmer_explain(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2)
     grimmer_explain(x = 5.19, sd = 2.55, n = 28, digits_x = 2, digits_sd = 2)
     grimmer_explain(x = 3.1, sd = 1.3, n = 200, digits_x = 1, digits_sd = 1)
-    grimmer_explain(
-      x = 3.0, sd = 2.1, n = 20, digits_x = 1, digits_sd = 1,
-      min_val = 1, max_val = 5
-    )
     debit_explain(x = 0.36, sd = 0.11, n = 20, digits_x = 2, digits_sd = 2)
     debit_explain(x = 0.35, sd = 0.49, n = 20, digits_x = 2, digits_sd = 2)
     debit_explain(x = 0.36, sd = 0.49, n = 1000, digits_x = 2, digits_sd = 2)
@@ -136,13 +118,13 @@ test_that("only a single case is explained", {
 # row's `consistency` value, so explaining whole mapper outputs checks them all.
 
 test_that("`explain_map()` agrees with every mapper tier", {
-  pigs1 |> grim_map(digits_x = 2)                                                              |> explain_map() |> getElement("explanation") |> expect_length(12L)
-  pigs1 |> grim_map(digits_x = 2, items = 2)                                                   |> explain_map() |> getElement("explanation") |> expect_length(12L)
-  pigs2 |> grim_map(digits_x = 1, percent = TRUE)                                              |> explain_map() |> getElement("explanation") |> expect_length(6L)
-  pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2)                                            |> explain_map() |> getElement("explanation") |> expect_length(12L)
-  pigs3 |> debit_map(digits_x = 2, digits_sd = 2)                                              |> explain_map() |> getElement("explanation") |> expect_length(7L)
-  pigs1 |> grim_map_seq(digits_x = 2)                                                          |> explain_map() |> getElement("explanation") |> expect_length(160L)
-  pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, min_val = 1, max_val = 7, rounding = "up") |> explain_map() |> getElement("explanation") |> expect_length(12L)
+  pigs1 |> grim_map(digits_x = 2)                                    |> explain_map() |> getElement("explanation") |> expect_length(12L)
+  pigs1 |> grim_map(digits_x = 2, items = 2)                         |> explain_map() |> getElement("explanation") |> expect_length(12L)
+  pigs2 |> grim_map(digits_x = 1, percent = TRUE)                    |> explain_map() |> getElement("explanation") |> expect_length(6L)
+  pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2)                  |> explain_map() |> getElement("explanation") |> expect_length(12L)
+  pigs3 |> debit_map(digits_x = 2, digits_sd = 2)                    |> explain_map() |> getElement("explanation") |> expect_length(7L)
+  pigs1 |> grim_map_seq(digits_x = 2)                                |> explain_map() |> getElement("explanation") |> expect_length(160L)
+  pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, rounding = "up") |> explain_map() |> getElement("explanation") |> expect_length(12L)
 })
 
 test_that("`explain_map()` keeps the data as it is", {

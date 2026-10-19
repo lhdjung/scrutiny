@@ -12,8 +12,6 @@ grimmer_map(
   sd = NULL,
   n = NULL,
   items = 1,
-  min_val = NULL,
-  max_val = NULL,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
@@ -36,9 +34,6 @@ these values, if they differ from the defaults.}
 \item{items}{Integer. The number of items composing \code{x} and \code{sd}, if \code{data}
 has no \code{items} column. Default is \code{1}. If given, as an argument or a
 column, it is returned as a column.}
-
-\item{min_val, max_val}{Integer. Optionally, the bounds of the scale; see
-the \emph{Scale bounds} section of \code{\link[=grimmer]{grimmer()}}. Both default to \code{NULL}.}
 
 \item{rounding, threshold, symmetric, tolerance}{Passed on to \code{\link[=grimmer]{grimmer()}}.}
 
@@ -65,9 +60,7 @@ so it is never a reason.
 that of the reconstructed sum of the values.
 }
 
-With \code{min_val} and \code{max_val}, the reasons \code{"Mean out of scale range"} and
-\code{"GRIMMER inconsistent (scale range)"} can appear. A negative \code{sd} gives
-\code{"Negative SD"}.
+A negative \code{sd} gives \code{"Negative SD"}.
 
 The tibble has the class \code{scrutiny_grimmer_map}, which is recognized by
 \code{\link[=audit]{audit()}} and \code{\link[=grim_plot]{grim_plot()}}.
@@ -89,8 +82,6 @@ returns a tibble with one row and these columns:
 \item \code{fail_grim}: number of value sets that fail GRIM.
 \item \code{fail_test1}, \code{fail_test3}: number of value sets that fail GRIMMER's
 first or third test. Test 2 is implied by test 1, so it never fails.
-\item \code{fail_scale}: number of value sets inconsistent with \code{min_val} and
-\code{max_val}. Zero if these were not given.
 }
 }
 
