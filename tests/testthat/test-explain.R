@@ -191,3 +191,9 @@ test_that("`explain_print()` prints as expected", {
     pigs1 |> grim_map(digits_x = 2, items_averaged = 1) |> dplyr::filter(n > 1000) |> explain_print()
   })
 })
+
+
+test_that("GRIMMER explains a sum of squares below what whole numbers can reach", {
+  3.6 |> grimmer_explain(0.2, 11, digits_x = 1, digits_sd = 1, items_averaged = 1) |> format() |> paste(collapse = " ") |> expect_match("can have is 148, with 7 of them 4 and 4 of them 3. So none of", fixed = TRUE)
+  1.9 |> grimmer_explain(0.3, 25, digits_x = 1, digits_sd = 1, items_averaged = 1) |> format() |> paste(collapse = " ") |> expect_match("can have is 91, with 22 of them 2 and 3 of them 1. It is in this range", fixed = TRUE)
+})

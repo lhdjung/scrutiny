@@ -76,8 +76,9 @@ vectorized and recycled to a common length by the tidyverse rules. All
 other arguments must have length 1.
 
 The implementation follows Allard's (2018) Analytic-GRIMMER algorithm, as
-does \code{rsprite2::GRIMMER_test()}. GRIMMER was first proposed by Anaya
-(2016).
+does \code{rsprite2::GRIMMER_test()}, with a stricter first test: the sum of
+squares must be at least the smallest one that whole numbers with the
+reconstructed sum can have. GRIMMER was first proposed by Anaya (2016).
 
 For data on a bounded scale, such as a Likert scale, see the
 \href{https://github.com/ianhussey/strait}{strait} package. Its \code{brimmest()}

@@ -492,7 +492,10 @@ test_that("GRIMMER works correctly by default", {
 })
 
 test_that("GRIMMER works correctly when compared to the rsprite2 implementation", {
-  1.2 |> grimmer_scalar(0.3,  57, digits_x = 1, digits_sd = 1, items_averaged = 1) |> expect_equal(GRIMMER_test(1.2, 0.3,  57))
+  # rsprite2 accepts this, but whole numbers with a mean of 1.2 at `n = 57` have
+  # an SD of at least 0.368, as nine 2s and 48 1s. This is the minimum sum of
+  # squares that `sum_squares_min()` adds to test 1:
+  1.2 |> grimmer_scalar(0.3,  57, digits_x = 1, digits_sd = 1, items_averaged = 1) |> expect_false()
   8.3 |> grimmer_scalar(7.5, 103, digits_x = 1, digits_sd = 1, items_averaged = 1) |> expect_equal(GRIMMER_test(8.3, 7.5, 103))
 
   # Dealing with test-3 inconsistencies:
@@ -848,4 +851,35 @@ test_that("a negative SD is inconsistent, and says why", {
   5 |>
     grimmer_scalar(-0.5, 10, 2, 2, show_reason = TRUE, items_averaged = 1) |>
     expect_equal(list(FALSE, "Negative SD"))
+})
+
+
+test_that("`sum_squares_min()` is the smallest sum of squares of whole numbers", {
+  for (n in 2:4) {
+    m <- n |> grimmer_multisets(-3:6)
+    sums <- colSums(m)
+    squares <- colSums(m^2)
+    # Sums whose closest whole numbers, `q` and `q + 1`, are within `-3:6`:
+    for (s in (-3L * n):(5L * n)) {
+      info <- paste0("n = ", n, ", s = ", s)
+      s |> sum_squares_min(n) |> expect_equal(min(squares[sums == s]), info = info)
+    }
+  }
+})
+
+
+test_that("GRIMMER rejects a sum of squares below what whole numbers can reach", {
+  # The SD admits only 146, but 11 whole numbers summing to 40 reach 148 at
+  # least: seven 4s and four 3s.
+  3.6 |> grimmer(0.2, 11, digits_x = 1, digits_sd = 1, items_averaged = 1) |> expect_false()
+  3.6 |> grimmer(0.5, 11, digits_x = 1, digits_sd = 1, items_averaged = 1) |> expect_true()
+  # Here, the minimum of 91 is part of the range from 90 to 91:
+  1.9 |> grimmer(0.3, 25, digits_x = 1, digits_sd = 1, items_averaged = 1) |> expect_true()
+  # With two items, the whole numbers are the respondents' totals. The SD admits
+  # only 109, but 10 totals summing to 33 reach 111 at least:
+  1.65 |> grimmer(0.05, 10, digits_x = 2, digits_sd = 2, items_averaged = 2) |> expect_false()
+
+  3.6 |>
+    grimmer_scalar(0.2, 11, 1, 1, show_reason = TRUE, items_averaged = 1) |>
+    expect_equal(list(FALSE, "GRIMMER inconsistent (test 1)"))
 })

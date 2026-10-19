@@ -318,8 +318,21 @@ grimmer_explain_candidate <- function(
 
   lower <- candidate$sum_squares[1L]
   upper <- candidate$sum_squares[2L]
+  minimum <- candidate$sum_squares_min
 
   parity_s <- if (s %% 2 == 0) "even" else "odd"
+
+  if (lower <= upper && minimum > lower) {
+    return(grimmer_explain_minimum(
+      text = text,
+      s = s,
+      n = n,
+      lower = lower,
+      upper = upper,
+      minimum = minimum,
+      parity_s = parity_s
+    ))
+  }
 
   whole <- if (lower > upper) {
     "There is no whole number in this range."
@@ -349,4 +362,57 @@ grimmer_explain_candidate <- function(
   }
 
   paste(c(text, whole), collapse = " ")
+}
+
+
+# The paragraph on a candidate sum whose range of sums of squares starts below
+# the smallest one whole numbers with this sum can have:
+grimmer_explain_minimum <- function(
+  text,
+  s,
+  n,
+  lower,
+  upper,
+  minimum,
+  parity_s
+) {
+  q <- s %/% n
+  r <- s - n * q
+  closest <- if (r == 0) {
+    paste0("all ", n, " equal to ", q)
+  } else {
+    paste0(r, " of them ", q + 1, " and ", n - r, " of them ", q)
+  }
+
+  in_range <- if (lower == upper) {
+    paste0("The only whole number in this range is ", lower, ".")
+  } else {
+    paste0("The whole numbers from ", lower, " to ", upper, " are in this range.")
+  }
+
+  smallest <- paste0(
+    "However, the smallest sum of squares that ",
+    n,
+    " whole numbers with a sum of ",
+    s,
+    " can have is ",
+    minimum,
+    ", with ",
+    closest,
+    "."
+  )
+
+  verdict <- if (minimum > upper) {
+    "So none of the sums of squares in this range is possible."
+  } else {
+    paste0(
+      "It is in this range, and it is ",
+      parity_s,
+      ", like ",
+      s,
+      ", being a sum of squares of whole numbers."
+    )
+  }
+
+  paste(c(text, in_range, smallest, verdict), collapse = " ")
 }

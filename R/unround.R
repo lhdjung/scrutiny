@@ -295,6 +295,19 @@ sd_square_term <- function(num, n, items, denom) {
 }
 
 
+# The smallest sum of squares that `n` whole numbers with the sum `s` can have.
+# With `s == n * q + r`, these are the numbers closest to each other: `r` of
+# them are `q + 1` and the others are `q`. Any other numbers with the same sum
+# are more spread out, so the sum of their squares is greater. Unlike `s^2 / n`,
+# this bound is reached by whole numbers.
+
+sum_squares_min <- function(s, n) {
+  q <- s %/% n
+  r <- s - n * q
+  n * q^2 + r * (2 * q + 1)
+}
+
+
 # Range of integer sums of squares consistent with candidate sum `s`, given the
 # pre-computed SD terms from `sd_square_term()`. Returns a length-2 numeric
 # vector; if the first element is greater than the second, no sum of squares

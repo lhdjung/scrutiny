@@ -107,13 +107,21 @@ grimmer_candidate <- function(
     incl_upper = sd_bounds$incl_upper
   )
 
+  # Test 1 goes beyond Allard (2018) in also requiring a sum of squares that
+  # whole numbers with the sum `s` can reach. Otherwise, it would accept value
+  # sets like `x = 3.6`, `sd = 0.2`, `n = 11`: the sum must be 40, the SD admits
+  # a sum of squares of 146, but no 11 whole numbers summing to 40 go below 148.
+  minimum <- sum_squares_min(s, n)
+  lower <- max(sum_squares[1L], minimum)
+
   out <- list(
     sum_squares = sum_squares,
+    sum_squares_min = minimum,
     pass_test1 = FALSE,
     pass_test3 = FALSE
   )
 
-  if (sum_squares[1L] > sum_squares[2L]) {
+  if (lower > sum_squares[2L]) {
     return(out)
   }
 
@@ -127,10 +135,11 @@ grimmer_candidate <- function(
 
   # TEST 3: The sum of squares of whole numbers has the parity of their sum
   # (`k^2` is odd exactly if `k` is). Two or more admissible integers always
-  # include one of each parity; a single one must have that of `s`:
+  # include one of each parity; a single one must have that of `s`. If that is
+  # the minimum, it does, being the sum of squares of whole numbers:
   out$pass_test3 <-
-    sum_squares[2L] > sum_squares[1L] ||
-    sum_squares[1L] %% 2 == s %% 2
+    sum_squares[2L] > lower ||
+    lower %% 2 == s %% 2
 
   out
 }
@@ -348,8 +357,9 @@ grimmer_scalar <- function(
 #'   other arguments must have length 1.
 #'
 #'   The implementation follows Allard's (2018) Analytic-GRIMMER algorithm, as
-#'   does `rsprite2::GRIMMER_test()`. GRIMMER was first proposed by Anaya
-#'   (2016).
+#'   does `rsprite2::GRIMMER_test()`, with a stricter first test: the sum of
+#'   squares must be at least the smallest one that whole numbers with the
+#'   reconstructed sum can have. GRIMMER was first proposed by Anaya (2016).
 #'
 #'   For data on a bounded scale, such as a Likert scale, see the
 #'   [strait](https://github.com/ianhussey/strait) package. Its `brimmest()`
@@ -415,7 +425,6 @@ grimmer_scalar <- function(
 #'   digits_sd = 2,
 #'   items_averaged = 2
 #' )
-
 
 # Vectorized version. The signature mirrors `grimmer_scalar()`'s minus
 # `show_reason`; see `vectorize_test()`:
