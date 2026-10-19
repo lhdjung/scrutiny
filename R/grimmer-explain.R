@@ -361,7 +361,39 @@ grimmer_explain_candidate <- function(
     )
   }
 
-  paste(c(text, whole), collapse = " ")
+  # Fewer than five numbers cannot have every sum of squares that passes the
+  # minimum and the parity, so say which one they can have, if any:
+  first <- lower + (lower - s) %% 2
+  attained <- if (n < 5 && lower <= upper && first <= upper) {
+    candidate$attained
+  }
+  attainable <- if (is.null(attained) || identical(attained, first)) {
+    NULL
+  } else if (is.na(attained)) {
+    paste0(
+      "But fewer than five whole numbers cannot have every such sum of ",
+      "squares, and ",
+      n,
+      " whole numbers with a sum of ",
+      s,
+      " cannot have ",
+      if (lower == upper) lower else "any of those in this range",
+      "."
+    )
+  } else {
+    paste0(
+      "Fewer than five whole numbers cannot have every such sum of squares, ",
+      "and the smallest in this range that ",
+      n,
+      " whole numbers with a sum of ",
+      s,
+      " can have is ",
+      attained,
+      "."
+    )
+  }
+
+  paste(c(text, whole, attainable), collapse = " ")
 }
 
 
@@ -387,7 +419,13 @@ grimmer_explain_minimum <- function(
   in_range <- if (lower == upper) {
     paste0("The only whole number in this range is ", lower, ".")
   } else {
-    paste0("The whole numbers from ", lower, " to ", upper, " are in this range.")
+    paste0(
+      "The whole numbers from ",
+      lower,
+      " to ",
+      upper,
+      " are in this range."
+    )
   }
 
   smallest <- paste0(

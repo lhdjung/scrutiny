@@ -52,8 +52,9 @@ A tibble with these columns:
 The \code{reason} column refers to GRIM and the GRIMMER tests of Allard (2018):
 \enumerate{
 \item The reconstructed sum of squared observations must be a whole number,
-and one that whole numbers with the reconstructed sum can reach: at
+and one that \code{n} whole numbers with the reconstructed sum can reach: at
 least the sum of squares of these numbers as close together as possible.
+For \code{n < 5}, some larger sums of squares are impossible, too.
 \item The reconstructed SD must match the reported one. Test 1 implies this,
 so it is never a reason.
 \item The parity of the reconstructed sum of squared observations must match

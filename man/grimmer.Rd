@@ -77,8 +77,11 @@ other arguments must have length 1.
 
 The implementation follows Allard's (2018) Analytic-GRIMMER algorithm, as
 does \code{rsprite2::GRIMMER_test()}, with a stricter first test: the sum of
-squares must be at least the smallest one that whole numbers with the
-reconstructed sum can have. GRIMMER was first proposed by Anaya (2016).
+squares must be one that \code{n} whole numbers with the reconstructed sum can
+have. For \code{n >= 5}, this means at least the smallest such sum of squares;
+for smaller \code{n}, some larger ones are impossible, too. With this test,
+\code{grimmer()} is \code{TRUE} if and only if a sample of whole numbers has the
+reported mean and SD. GRIMMER was first proposed by Anaya (2016).
 
 For data on a bounded scale, such as a Likert scale, see the
 \href{https://github.com/ianhussey/strait}{strait} package. Its \code{brimmest()}

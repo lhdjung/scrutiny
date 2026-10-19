@@ -141,6 +141,18 @@ grimmer_candidate <- function(
     sum_squares[2L] > lower ||
     lower %% 2 == s %% 2
 
+  # For five or more numbers, the minimum and the parity suffice: they can have
+  # every sum of squares that passes both. For fewer, some of these are still
+  # impossible. A range with none that is possible fails test 1 after all, like
+  # one that ends below the minimum:
+  if (n < 5 && out$pass_test3) {
+    out$attained <- sum_squares_attainable(s, n, lower, sum_squares[2L])
+    if (is.na(out$attained)) {
+      out$pass_test1 <- FALSE
+      out$pass_test3 <- FALSE
+    }
+  }
+
   out
 }
 
@@ -358,8 +370,11 @@ grimmer_scalar <- function(
 #'
 #'   The implementation follows Allard's (2018) Analytic-GRIMMER algorithm, as
 #'   does `rsprite2::GRIMMER_test()`, with a stricter first test: the sum of
-#'   squares must be at least the smallest one that whole numbers with the
-#'   reconstructed sum can have. GRIMMER was first proposed by Anaya (2016).
+#'   squares must be one that `n` whole numbers with the reconstructed sum can
+#'   have. For `n >= 5`, this means at least the smallest such sum of squares;
+#'   for smaller `n`, some larger ones are impossible, too. With this test,
+#'   `grimmer()` is `TRUE` if and only if a sample of whole numbers has the
+#'   reported mean and SD. GRIMMER was first proposed by Anaya (2016).
 #'
 #'   For data on a bounded scale, such as a Likert scale, see the
 #'   [strait](https://github.com/ianhussey/strait) package. Its `brimmest()`

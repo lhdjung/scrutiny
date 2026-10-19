@@ -30,8 +30,9 @@
 #' The `reason` column refers to GRIM and the GRIMMER tests of Allard (2018):
 #'
 #' 1. The reconstructed sum of squared observations must be a whole number,
-#'    and one that whole numbers with the reconstructed sum can reach: at
+#'    and one that `n` whole numbers with the reconstructed sum can reach: at
 #'    least the sum of squares of these numbers as close together as possible.
+#'    For `n < 5`, some larger sums of squares are impossible, too.
 #' 2. The reconstructed SD must match the reported one. Test 1 implies this,
 #'    so it is never a reason.
 #' 3. The parity of the reconstructed sum of squared observations must match

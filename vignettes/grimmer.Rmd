@@ -59,7 +59,7 @@ grimmer_map(flying_pigs1, digits_x = 1, digits_sd = 2, items_averaged = 1)
 
 `consistency` is the test result, and `reason` states which part of the test an inconsistent value set failed. A value set passes GRIMMER if it passes GRIM and the three tests of @allard2018:
 
-1.  The reconstructed sum of squared observations must be an integer, and one that integers with the reconstructed sum can reach. scrutiny adds this second part to Allard's test: for example, no 11 integers with a sum of 40 have a sum of squares below 148, which is that of seven 4s and four 3s.
+1.  The reconstructed sum of squared observations must be an integer, and one that integers with the reconstructed sum can reach. scrutiny adds this second part to Allard's test: for example, no 11 integers with a sum of 40 have a sum of squares below 148, which is that of seven 4s and four 3s. For fewer than five values, some larger sums of squares are impossible, too.
 2.  The reconstructed SD must match the reported one. Test 1 implies this, so it never appears as a reason.
 3.  The parity of the reconstructed sum of squares must match that of the reconstructed sum of the values.
 

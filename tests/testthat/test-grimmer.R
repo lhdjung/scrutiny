@@ -883,3 +883,37 @@ test_that("GRIMMER rejects a sum of squares below what whole numbers can reach",
     grimmer_scalar(0.2, 11, 1, 1, show_reason = TRUE, items_averaged = 1) |>
     expect_equal(list(FALSE, "GRIMMER inconsistent (test 1)"))
 })
+
+
+test_that("`sum_squares_attainable()` agrees with every sample of fewer than five", {
+  for (n in 2:4) {
+    m <- n |> grimmer_multisets(-6:6)
+    sums <- colSums(m)
+    squares <- colSums(m^2)
+    # A sum of squares of at most 36 keeps every number within `-6:6`:
+    for (s in (-2L * n):(2L * n)) {
+      attained <- unique(squares[sums == s & squares <= 36])
+      first <- sum_squares_min(s, n)
+      for (q in first:36) {
+        info <- paste0("n = ", n, ", s = ", s, ", q = ", q)
+        found <- s |> sum_squares_attainable(n, q, q)
+        found |> is.na() |> expect_equal(!q %in% attained, info = info)
+      }
+    }
+  }
+})
+
+
+test_that("GRIMMER rejects sums of squares that fewer than five numbers cannot have", {
+  # Two whole numbers with a sum of 2 and a sum of squares of 6 would be
+  # `1 +/- sqrt(2)`:
+  1   |> grimmer(2,   2, digits_x = 1, digits_sd = 1, items_averaged = 1) |> expect_false()
+  1   |> grimmer(1.4, 3, digits_x = 1, digits_sd = 1, items_averaged = 1) |> expect_false()
+  1.5 |> grimmer(1.5, 4, digits_x = 1, digits_sd = 1, items_averaged = 1) |> expect_false()
+  # Four numbers with a sum of 4 cannot have 96, but 98, as -7, 2, 3, 6:
+  1   |> grimmer(6,   4, digits_x = 1, digits_sd = 0, items_averaged = 1) |> expect_true()
+
+  1 |>
+    grimmer_scalar(2, 2, 1, 1, show_reason = TRUE, items_averaged = 1) |>
+    expect_equal(list(FALSE, "GRIMMER inconsistent (test 1)"))
+})

@@ -308,6 +308,72 @@ sum_squares_min <- function(s, n) {
 }
 
 
+# The smallest sum of squares from `lower` to `upper` that `n < 5` whole numbers
+# with the sum `s` can have, or `NA` if there is none; `lower` must be at least
+# `sum_squares_min(s, n)`. For `n >= 5`, every sum of squares from there on with
+# the parity of `s` is possible, but for fewer numbers, some are not. Which ones
+# depends on `r`, the remainder of `s` divided by `n`, and on the excess over
+# the minimum.
+
+sum_squares_attainable <- function(s, n, lower, upper) {
+  minimum <- sum_squares_min(s, n)
+
+  # Replacing each number `k` by `1 - k` turns `r` into `n - r` and keeps the
+  # excess, so `r` and `n - r` share a rule:
+  r <- s %% n
+  if (r > 0) {
+    r <- min(r, n - r)
+  }
+
+  # Start at the parity of `s`, the only one possible:
+  first <- lower + (lower - s) %% 2
+  if (first > upper) {
+    return(NA_real_)
+  }
+
+  for (q in seq(first, upper, by = 2)) {
+    excess <- q - minimum
+    half <- excess / 2
+    attainable <- switch(
+      n,
+      excess == 0,
+      if (r == 0) is_square(half) else is_square(2 * excess + 1),
+      if (r == 0) is_loeschian(half) else is_loeschian(3 * half + 1),
+      if (r == 0) is_sum_three_squares(excess) else r == 1 || excess %% 8 != 6
+    )
+    if (attainable) {
+      return(q)
+    }
+  }
+
+  NA_real_
+}
+
+
+is_square <- function(m) {
+  m >= 0 && round(sqrt(m))^2 == m
+}
+
+# Is `m == x^2 + x * y + y^2` for some whole `x` and `y`? Equivalently, is
+# `4 * m - 3 * y^2` a square (that of `2 * x + y`) for some `y`?
+is_loeschian <- function(m) {
+  if (m < 0) {
+    return(FALSE)
+  }
+  y <- 0:floor(sqrt(4 * m / 3))
+  any(round(sqrt(4 * m - 3 * y^2))^2 == 4 * m - 3 * y^2)
+}
+
+# Legendre's three-square theorem: `m >= 0` is a sum of three squares unless it
+# is `4^a * (8 * b + 7)`.
+is_sum_three_squares <- function(m) {
+  while (m > 0 && m %% 4 == 0) {
+    m <- m / 4
+  }
+  m %% 8 != 7
+}
+
+
 # Range of integer sums of squares consistent with candidate sum `s`, given the
 # pre-computed SD terms from `sd_square_term()`. Returns a length-2 numeric
 # vector; if the first element is greater than the second, no sum of squares
