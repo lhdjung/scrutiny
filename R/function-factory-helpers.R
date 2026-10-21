@@ -501,6 +501,16 @@ absorb_key_args <- function(data, reported, key_cols_call = NULL) {
   check_factory_key_args_values(data, key_cols_call)
   check_factory_key_args_names(key_cols_missing, key_cols_call_names)
 
+  # One column cannot stand in for two key columns:
+  if (anyDuplicated(key_cols_call) > 0L) {
+    name_col <- key_cols_call[duplicated(key_cols_call)][1L]
+    names_args <- key_cols_call_names[key_cols_call == name_col]
+    abort_in_export(
+      "{wrap_in_backticks(names_args)} must name different columns.",
+      "x" = "They all name `{name_col}`."
+    )
+  }
+
   # Replace the actual column names by the missing names for which they stand
   # in, then move the renamed columns to the front, as they are key columns:
   index <- match(key_cols_call, colnames(data))

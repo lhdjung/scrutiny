@@ -509,6 +509,20 @@ function_map <- function(
             nrow(data),
             arg
           )
+          # A column of `data` by the same name is returned as the argument's
+          # values (see `other_cols` below), which is only right if the two
+          # agree. They do when a mapper's output is tested again; a user
+          # column that contradicts the argument would be silently replaced:
+          if (
+            arg %in% colnames(data) &&
+              !identical(as.numeric(data[[arg]]), as.numeric(cols_tested[[arg]]))
+          ) {
+            cli::cli_abort(c(
+              "`{arg}` is both an argument and a column of `data`, and the \
+              two disagree.",
+              "i" = "Drop one of them, or make them agree."
+            ))
+          }
         }
       }
 

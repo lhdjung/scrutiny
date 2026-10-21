@@ -42,7 +42,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - scrutiny uses the base pipe `|>` and no longer exports `%>%`. It requires R >= 4.1.0.
 
-- `grim_map()`, `grimmer_map()`, and `debit_map()` are made by `function_map()`. They now have an explicit argument for every argument of `grim()`, `grimmer()`, and `debit()`; for example, `debit_map()` now has `formula`. The arguments `merge_items`, `extra`, and `testables_only` were removed. Use `dplyr::select()` instead of `extra` and `dplyr::filter(probability > 0)` instead of `testables_only`. `grim_map(percent = TRUE)` no longer prints a message about the conversion.
+- `grim_map()`, `grimmer_map()`, and `debit_map()` are made by `function_map()`. They now have an explicit argument for every argument of `grim()`, `grimmer()`, and `debit()`; for example, `debit_map()` now has `formula`. A `digits_x` or `digits_sd` column of `data` that disagrees with the argument is an error, and so are two key arguments that name the same column. The arguments `merge_items`, `extra`, and `testables_only` were removed. Use `dplyr::select()` instead of `extra` and `dplyr::filter(probability > 0)` instead of `testables_only`. `grim_map(percent = TRUE)` no longer prints a message about the conversion.
 
 - `debit_map()` no longer has `show_rec` and `grimmer_map()` no longer has `show_reason`: the reconstructed values and the `reason` column are always returned. `debit_map()` output no longer has a `rounding` column; the rounding method is recorded in the `"scrutiny"` attribute. `audit()` on `grimmer_map()` output no longer has a `fail_test2` column.
 
@@ -102,7 +102,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `audit_seq()` re-tests reconstructed data with the same arguments as the original call, including `percent`, `threshold`, and `symmetric`. It now also works with a `dispersion` of length 1, with output that has no rows, and with cases whose dispersed sequence is empty because of `out_min` or `out_max`. A consistent reported value set, included under `include_reported = TRUE`, now counts once in `hits_total` rather than once per dispersed variable, and the output has the same columns whether or not a variable's dispersion was clipped away entirely.
 
-- In `*_map_seq()` functions, a mean or SD used to be dispersed no lower than one decimal unit above zero; it can now reach zero, and a mean can go below it. With `include_consistent = TRUE`, the functions skip cases that have no test result. If there is nothing to disperse, they return a tibble with no rows but the usual columns.
+- In `*_map_seq()` functions, a mean or SD used to be dispersed no lower than one decimal unit above zero; it can now reach zero, and a mean can go below it. With `include_consistent = TRUE`, the functions skip cases that have no test result. If there is nothing to disperse, they return a tibble with no rows but the usual columns, with a warning. `diff_var` is an integer column. The sequence and total-n mappers give the same error as the basic mappers for a missing `digits_*` argument, also when it is passed along by a wrapper function.
 
 - `seq_disperse()` now rounds its values to the decimal level of `by`, so that long sequences do not accumulate floating-point error (#83). It applies `out_min` and `out_max` to the whole sequence, including `from` itself, and no longer includes `from` twice when `dispersion` contains 0.
 

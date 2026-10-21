@@ -345,12 +345,15 @@ function_map_total_n <- function(
 
       check_factory_dots(fun, name_fun, ...)
 
-      # Drop the `NULL` defaults, so that `fun()` sees an omitted `digits_*` as
-      # missing and throws its own bespoke error about it:
-      digits_vals <- Filter(
-        Negate(is.null),
-        mget(`!!`(digits_args_names), envir = environment())
-      )
+      # Leave out the `digits_*` values that were not given, so that `fun()`
+      # sees them as missing and throws its own bespoke error about them. See
+      # `function_map_seq()` for why this is not `mget()`:
+      digits_vals <- list()
+      for (arg_digits in `!!`(digits_args_names)) {
+        if (!eval(call("missing", as.name(arg_digits)))) {
+          digits_vals[arg_digits] <- list(get(arg_digits))
+        }
+      }
       fun_args <- c(digits_vals, helper_vals, list(...))
 
       # The usual key argument check conducted by

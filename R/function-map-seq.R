@@ -83,7 +83,7 @@ function_map_seq_proto <- function(
 
     fun(data_seq, ...) |>
       dplyr::mutate(
-        diff_var = df_var$diff_var,
+        diff_var = as_integer_if_lossless(df_var$diff_var),
         case = rep(as.integer(.cases), nrow_list_var)
       )
   }
@@ -302,13 +302,17 @@ function_map_seq <- function(
 
       check_factory_dots(fun, name_fun, ...)
 
-      # Collect explicitly supplied `digits_*` values while dropping `NULL`
-      # defaults so they can be forwarded to `fun()` alongside any extra `...`
-      # arguments:
-      digits_vals <- Filter(
-        Negate(is.null),
-        mget(`!!`(digits_args_names), envir = environment())
-      )
+      # Collect the `digits_*` values that were given, to be forwarded to
+      # `fun()` alongside any extra `...` arguments. A missing one is left out,
+      # as with the helper arguments above, so that `fun()` sees it as missing
+      # and raises its own error about it; `mget()` would force the promise and
+      # fail with R's generic message when a wrapper passes it along:
+      digits_vals <- list()
+      for (arg_digits in `!!`(digits_args_names)) {
+        if (!eval(call("missing", as.name(arg_digits)))) {
+          digits_vals[arg_digits] <- list(get(arg_digits))
+        }
+      }
 
       # Unlike the basic and total-n mappers, sequence mappers need a single
       # `digits_*` value per column: it sets the decimal level that each value
@@ -426,6 +430,20 @@ function_map_seq <- function(
 
       # Remove list-elements that are `NULL`, then check for an early return:
       out[vapply(out, is.null, logical(1L))] <- NULL
+
+      # Cases to disperse from, but no values to disperse to, e.g. with
+      # `dispersion = 0` and `include_reported = FALSE`:
+      if (
+        length(out) > 0L &&
+          all(vapply(out, nrow, integer(1L), USE.NAMES = FALSE) == 0L)
+      ) {
+        cli::cli_warn(c(
+          "!" = "No values to disperse to.",
+          "i" = "`dispersion`, `out_min`, and `out_max` leave no value \
+          around the reported ones."
+        ))
+      }
+
       if (length(out) == 0L) {
         # The message names the R argument, because this warning is issued to
         # an R session. An app that wants its own wording should catch the
