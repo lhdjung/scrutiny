@@ -130,12 +130,23 @@ audit_seq <- function(data) {
   df_list_hits <- df_list |>
     purrr::map(function(x) x[which(x[[name_key_result]]), ])
 
+  # The reported value set itself, included under `include_reported = TRUE`, is
+  # one value set, however many variables it is listed under:
   hits_total <- df_list_hits |>
-    vapply(nrow, integer(1L), USE.NAMES = FALSE) |>
+    vapply(
+      function(x) sum(x$diff_var != 0L) + any(x$diff_var == 0L),
+      integer(1L),
+      USE.NAMES = FALSE
+    ) |>
     unname()
 
-  # The output is ordered by `var`, so this is the order of the `var` argument:
-  var_names <- unique(data$var)
+  # The dispersed variables, in the order of the `var` argument. The attribute
+  # records them all, even one whose dispersion `out_min` or `out_max` clipped
+  # away in every case; the `var` column only has those with rows:
+  var_names <- meta$var
+  if (is.null(var_names)) {
+    var_names <- unique(data$var)
+  }
 
   # Define some helper functions to be mapped below:
   index_hit_distance <- function(df, var_order = var_names) {

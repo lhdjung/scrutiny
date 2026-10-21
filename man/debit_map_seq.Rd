@@ -71,7 +71,8 @@ output returns a tibble with one row per case and these columns:
 \code{dispersion} range.
 \item \code{hits_x}, \code{hits_sd}, \code{hits_n}: the number found by varying each
 variable. If both \code{include_reported} and \code{include_consistent} are \code{TRUE},
-consistent reported cases are counted as well.
+a consistent reported value set is counted as well: once per variable
+here, and once in \code{hits_total}.
 \item \code{diff_x}: the distance from \code{x} to the nearest consistent dispersed
 value, in dispersion steps. \code{diff_x_up} and \code{diff_x_down} are the
 distances to the nearest consistent value above and below.

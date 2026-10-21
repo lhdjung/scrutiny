@@ -41,7 +41,8 @@
 #'   `dispersion` range.
 #'   - `hits_x`, `hits_n`: the number found by varying `x` and `n`,
 #'   respectively. If both `include_reported` and `include_consistent` are
-#'   `TRUE`, consistent reported cases are counted as well.
+#'   `TRUE`, a consistent reported value set is counted as well: once per
+#'   variable here, and once in `hits_total`.
 #'   - `diff_x`: the distance from `x` to the nearest consistent dispersed
 #'   value, in dispersion steps. `diff_x_up` and `diff_x_down` are the
 #'   distances to the nearest consistent value above and below.
