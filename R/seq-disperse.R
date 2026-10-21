@@ -26,7 +26,8 @@
 #'   `.var_bounds` in [`function_map_seq()`].)
 #' @param string_output,.string_output Logical or `"auto"`. If `TRUE` (the
 #'   default), the output is a string vector padded with trailing zeros to the
-#'   decimal places of `from`. `"auto"` means `TRUE` if `from` is a string.
+#'   decimal places of `from` or `by`, whichever has more. `"auto"` means
+#'   `TRUE` if `from` is a string.
 #' @param include_reported,.include_reported Logical. Should `from` itself be
 #'   part of the sequence? Default is `TRUE`.
 #' @param track_diff_var,.track_diff_var Logical. Should the number of steps

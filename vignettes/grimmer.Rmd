@@ -104,7 +104,7 @@ flying_pigs1 |>
 
 ## Visualization with `grim_plot()`
 
-There is no GRIMMER-specific plot, but `grim_plot()` accepts `grimmer_map()` output and shows the GRIM part of the test:
+There is no GRIMMER-specific plot, but `grim_plot()` accepts `grimmer_map()` output. The raster shows the GRIM part of the test, and each value set is colored by its GRIMMER verdict:
 
 ```{r, fig.width=6, fig.height=5.5}
 pigs5 |>

@@ -23,7 +23,7 @@ Consistency tests reconstruct the unrounded numbers behind a reported statistic.
 
 ## Overview
 
-Base R's `round()` rounds to even, and it decides which candidate is closer based on the binary representation of the number. This is appropriate for original computations, but the numbers in published papers were produced by several different rounding procedures, of which this is only one. scrutiny's `round_*()` functions implement the others. `reround()` is the common interface to all of them, and it is what `grim()`, `grimmer()`, and `debit()` call internally. `unround()` does the reverse: it takes a rounded number and returns the range of values that would have been rounded to it.
+Base R's `round()` rounds to even, and it decides which candidate is closer based on the binary representation of the number. This is appropriate for original computations, but the numbers in published papers were produced by several different rounding procedures, of which this is only one. scrutiny's `round_*()` functions implement the others. `reround()` is the common interface to all of them. `unround()` does the reverse: it takes a rounded number and returns the range of values that would have been rounded to it, which is what `grim()`, `grimmer()`, and `debit()` build on.
 
 ## `reround()`
 

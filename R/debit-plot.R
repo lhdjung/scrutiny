@@ -26,8 +26,7 @@
 #'   Colors come from one scale for `colour` and `fill`, mapped to
 #'   `consistency`. Add another to change them, as in the examples.
 #'
-#' @param data Data frame returned by [`debit_map()`] with `show_rec = TRUE`,
-#'   the default.
+#' @param data Data frame returned by [`debit_map()`].
 #' @param show_labels Logical. Should the value sets be labeled with
 #'   "mean; SD"? Default is `TRUE`.
 #' @param show_full_scale Logical. Should the whole DEBIT line be shown,

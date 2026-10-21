@@ -45,8 +45,8 @@ one element of \code{x}, so the pairs must not be pooled across elements.
 \code{reround()} rounds a vector of reconstructed values the way
 they are assumed to have been rounded originally. It is the common
 interface to all of scrutiny's rounding functions and to
-\code{\link[base:Round]{base::round()}}, and the function that \code{\link[=grimmer]{grimmer()}} and \code{\link[=debit]{debit()}}
-use to round reconstructed SDs.
+\code{\link[base:Round]{base::round()}}, and the function that \code{\link[=debit]{debit()}} uses to round
+reconstructed SDs under \code{formula = "mean_n"}.
 }
 \details{
 \code{reround()} calls the rounding function that \code{rounding} names. See

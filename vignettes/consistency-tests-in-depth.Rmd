@@ -602,7 +602,7 @@ These functions exist so that the documentation of every sequence and total-n ma
 
 # Wrap-up
 
-This vignette generated five functions from a single-case test, four of them with function factories. The diagram below shows how they derive from each other. Fields with bold margins are function factories; an arrow passing through one means that a new function is generated from an earlier one.
+This vignette generated five functions from a single-case test, three of them with scrutiny's function factories. The diagram below shows how they derive from each other. Fields with bold margins are function factories; an arrow passing through one means that a new function is generated from an earlier one.
 
 ```{r include=FALSE, eval=FALSE}
 # Note: The diagram was made on diagrams.net. The bold margins were created as follows: (1) selecting the respective field, (2) clicking on the `View` symbol at the upper left, (3) selecting `Format Panel`, and (4) setting the line thickness from 1 to 3 pt.

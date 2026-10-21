@@ -33,6 +33,7 @@ generate_grim_raster <- function(digits, rounding) {
     x = grid$frac,
     n = grid$n,
     digits_x = digits,
+    items_averaged = 1,
     rounding = rounding
   )
 

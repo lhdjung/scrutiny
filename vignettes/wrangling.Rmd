@@ -38,7 +38,7 @@ You may still want the trailing zeros back in the values --- for display, for ex
 ### Enter numbers as strings
 
 
-Perhaps not all R users know that RStudio features an option for multiple cursors. These are especially useful in conjunction with `tibble::tribble()`, which is available via scrutiny. Here's how to use multiple cursors in the present context:
+Perhaps not all R users know that RStudio features an option for multiple cursors. These are especially useful in conjunction with `tibble::tribble()`. Here's how to use multiple cursors in the present context:
 
 1.  Copy a column of numbers from PDF, pressing and holding `Alt` on Windows or `option` on Mac. (This works at least in Adobe Acrobat.)
 2.  Paste it into a `tribble()` call as below.
@@ -62,7 +62,7 @@ flights1 <- tibble::tribble(
 
 Take note of how many decimal places the numbers had in the PDF --- here, two. You will need that number for `digits_x` when you call `grim_map()`, and the data itself can no longer tell you.
 
-All that's missing is the sample size. Add it either via another `tribble()` column as above or via `dplyr::mutate()`, which also comes with scrutiny:
+All that's missing is the sample size. Add it either via another `tribble()` column as above or via `dplyr::mutate()`:
 
 ```{r}
 flights1 <- flights1 |>
@@ -164,7 +164,7 @@ If your strings look like `"2.65 [0.27]"`, specify the `sep` argument as `"brack
 
 ### Column name suffixes
 
-The defaults for column name suffixes are (1) `"x"` for the part before the parentheses and (2) `"sd"` for the part inside of them. However, this won't fit for all data presented like `5.22 (0.73)`. Override the defaults by specifying `col1` and/or `col2`:
+The defaults for column name suffixes are (1) `"x"` for the part before the parentheses and (2) `"sd"` for the part inside of them. However, this won't fit for all data presented like `5.22 (0.73)`. Override the defaults by specifying `end1` and/or `end2`:
 
 ```{r}
 flights2 |>

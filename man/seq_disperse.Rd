@@ -53,7 +53,8 @@ maximum. (The \verb{*_map_seq()} functions choose limits per variable; see
 
 \item{string_output, .string_output}{Logical or \code{"auto"}. If \code{TRUE} (the
 default), the output is a string vector padded with trailing zeros to the
-decimal places of \code{from}. \code{"auto"} means \code{TRUE} if \code{from} is a string.}
+decimal places of \code{from} or \code{by}, whichever has more. \code{"auto"} means
+\code{TRUE} if \code{from} is a string.}
 
 \item{include_reported, .include_reported}{Logical. Should \code{from} itself be
 part of the sequence? Default is \code{TRUE}.}

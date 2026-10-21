@@ -168,7 +168,7 @@ grim_closest_scalar <- function(
 #'
 #' @details The achievable means are the whole numbers in the range that
 #'   [`grim_map()`] shows as `sum_lower` and `sum_upper` under `show_rec`, each
-#'   divided by `n * items_averaged`. Once `n * items_averaged` reaches
+#'   divided by `n * items_averaged`. Once `n * items_averaged` exceeds
 #'   `10^digits_x`, several of them can be reported as the same `x`, and their
 #'   number grows with `n * items_averaged`. GRIM is then no longer informative.
 #'   `grim_closest()` stays cheap in that case; `grim_values()` does not.

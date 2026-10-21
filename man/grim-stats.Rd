@@ -73,20 +73,20 @@ grim_probability(x = 83.29, n = 21, digits_x = 2, items_averaged = 1)
 grim_total(x = 83.29, n = 21, digits_x = 2, items_averaged = 1)
 
 # None are in this case...
-grim_probability(x = 5.14, n = 83, digits_x = 2, items_averaged = 1)
-grim_total(x = 5.14, n = 83, digits_x = 2, items_averaged = 1)
+grim_probability(x = 5.14, n = 120, digits_x = 2, items_averaged = 1)
+grim_total(x = 5.14, n = 120, digits_x = 2, items_averaged = 1)
 
 # ...but most would be if `x` were a percentage:
 grim_probability(
   x = 5.14,
-  n = 83,
+  n = 120,
   digits_x = 2,
   items_averaged = 1,
   percent = TRUE
 )
 grim_total(
   x = 5.14,
-  n = 83,
+  n = 120,
   digits_x = 2,
   items_averaged = 1,
   percent = TRUE

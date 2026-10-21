@@ -71,8 +71,8 @@ reconstruct_rounded_numbers_scalar <- function(
 #' @description `reround()` rounds a vector of reconstructed values the way
 #'   they are assumed to have been rounded originally. It is the common
 #'   interface to all of scrutiny's rounding functions and to
-#'   [`base::round()`], and the function that [`grimmer()`] and [`debit()`]
-#'   use to round reconstructed SDs.
+#'   [`base::round()`], and the function that [`debit()`] uses to round
+#'   reconstructed SDs under `formula = "mean_n"`.
 #'
 #' @details `reround()` calls the rounding function that `rounding` names. See
 #'   `vignette("rounding-options")` for the possible values, and [`round_up()`]

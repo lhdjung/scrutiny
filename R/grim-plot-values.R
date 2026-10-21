@@ -318,7 +318,8 @@ check_comb_value <- function(value, digits, name) {
 #'   returns the attainable values as numbers.
 #'
 #' @param x,n,digits_x,items_averaged,percent,rounding,threshold,symmetric The
-#'   same as in [`grim()`], but `x` and `n` must have length 1.
+#'   same as in [`grim()`], but `x`, `n`, and `items_averaged` must have
+#'   length 1.
 #' @param color_cons,color_incons Strings. Colors of the teeth for attainable
 #'   and unattainable values.
 #' @param color_reported String. Color of the marker for the reported value
@@ -328,8 +329,9 @@ check_comb_value <- function(value, digits, name) {
 #' @details The comb runs from the whole number at or below `x` to the next one
 #'   up. That unit contains `10 ^ digits_x` reportable values and, with
 #'   `items_averaged = 1`, about `n` attainable ones. With `percent = TRUE`, a
-#'   unit is one percentage point, and the comb widens by `100 / n` on either
-#'   side so that the nearest attainable values remain visible. With more than
+#'   unit is one percentage point, and the comb widens by
+#'   `100 / (n * items_averaged)` on either side so that the nearest
+#'   attainable values remain visible. With more than
 #'   two decimal places, the teeth crowd together.
 #'
 #'   The strip behind the teeth is the range of unrounded means that would

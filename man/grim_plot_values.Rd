@@ -20,7 +20,8 @@ grim_plot_values(
 }
 \arguments{
 \item{x, n, digits_x, items_averaged, percent, rounding, threshold, symmetric}{The
-same as in \code{\link[=grim]{grim()}}, but \code{x} and \code{n} must have length 1.}
+same as in \code{\link[=grim]{grim()}}, but \code{x}, \code{n}, and \code{items_averaged} must have
+length 1.}
 
 \item{color_cons, color_incons}{Strings. Colors of the teeth for attainable
 and unattainable values.}
@@ -49,8 +50,9 @@ returns the attainable values as numbers.
 The comb runs from the whole number at or below \code{x} to the next one
 up. That unit contains \code{10 ^ digits_x} reportable values and, with
 \code{items_averaged = 1}, about \code{n} attainable ones. With \code{percent = TRUE}, a
-unit is one percentage point, and the comb widens by \code{100 / n} on either
-side so that the nearest attainable values remain visible. With more than
+unit is one percentage point, and the comb widens by
+\code{100 / (n * items_averaged)} on either side so that the nearest
+attainable values remain visible. With more than
 two decimal places, the teeth crowd together.
 
 The strip behind the teeth is the range of unrounded means that would

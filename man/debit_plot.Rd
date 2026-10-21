@@ -12,8 +12,7 @@ debit_plot(
 )
 }
 \arguments{
-\item{data}{Data frame returned by \code{\link[=debit_map]{debit_map()}} with \code{show_rec = TRUE},
-the default.}
+\item{data}{Data frame returned by \code{\link[=debit_map]{debit_map()}}.}
 
 \item{show_labels}{Logical. Should the value sets be labeled with
 "mean; SD"? Default is \code{TRUE}.}
