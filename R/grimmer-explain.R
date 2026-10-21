@@ -283,8 +283,11 @@ grimmer_explain <- function(
       paste(
         "The",
         if (passed) "next" else "remaining",
-        n_failed - 3L,
-        "sums fail as well."
+        if (n_failed - 3L == 1L) {
+          "sum fails as well."
+        } else {
+          paste(n_failed - 3L, "sums fail as well.")
+        }
       ),
       after = 3L
     )

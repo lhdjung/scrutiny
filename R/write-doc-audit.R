@@ -136,7 +136,7 @@ write_doc_audit_seq <- function(key_args, name_test) {
     "#'   - `diff_{arg1}`: the distance from `{arg1}` to the nearest consistent dispersed\n",
     "#'   value, in dispersion steps. `diff_{arg1}_up` and `diff_{arg1}_down` are the\n",
     "#'   distances to the nearest consistent value above and below.\n",
-    "#'   - {diff_others}: the same for {others}.\n",
+    if (length(key_args) > 1L) "#'   - {diff_others}: the same for {others}.\n" else "",
     "#'\n",
     "#'   Call `audit()` on `audit_seq()` output to summarize these columns further.\n",
     "#'   `na_count` and `na_rate` there count the cases without a consistent value\n",

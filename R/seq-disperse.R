@@ -83,6 +83,9 @@ seq_disperse <- function(
   # map the function). Also, the steps away from the number can't be negative:
   check_length(from, 1L)
   check_type(dispersion, c("double", "integer"))
+  if (anyNA(dispersion)) {
+    abort_in_export("`dispersion` must not contain missing values.")
+  }
   check_non_negative(dispersion)
 
   # A missing, infinite, or non-numeric `from` has no decimal level to disperse

@@ -255,6 +255,7 @@ is_seq_dispersed <- function(
   test_linear = TRUE,
   tolerance = .Machine$double.eps^0.5
 ) {
+  check_length(from, 1L)
   is_seq_basic(
     x,
     tolerance,

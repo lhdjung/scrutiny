@@ -138,23 +138,28 @@ restore_zeros <- function(
     # This is an error if `width` is not a single integer-ish number or a vector
     # of such numbers with the same length as `x`...
   } else if (
-    !any(c(1L, length(x)) == length(width)) || !all(is_whole_number(width))
+    !any(c(1L, length(x)) == length(width)) ||
+      !all(is_whole_number(width)) ||
+      any(width < 0)
   ) {
     cli::cli_abort(c(
-      "`width` must be a single, whole number \
-      (or a vector of whole numbers with the same length as `x`).",
+      "`width` must be a single, non-negative whole number \
+      (or a vector of such numbers with the same length as `x`).",
       "x" = "It is {width}."
     ))
     # ... or if any `x` elements have more decimal places than `width` allows:
   } else if (
     check_width == "capped" && any(width_mantissa > width, na.rm = TRUE)
   ) {
-    offenders <- x[which(width_mantissa > width)]
+    # `width` may be one value per `x`, so the offenders are reported with
+    # their own widths:
+    which_wrong <- which(width_mantissa > width)
+    offenders <- x[which_wrong]
+    width_wrong <- rep_len(width, length(x))[which_wrong]
     cli::cli_abort(c(
       "Some values have more decimal places than `width` foresees.",
-      "x" = "`width` was set to {width}.",
-      "i" = "Values with more than {width} decimal place{?s}:",
-      "i" = "{offenders}",
+      "x" = "`width` was set to {unique(width_wrong)}.",
+      "i" = "Values with more decimal places than that: {offenders}",
       ">" = "Avoid this error with `check_width = \"never\"`."
     ))
   } else {

@@ -122,6 +122,8 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 ### Other
 
+- `split_by_parens()` only warns about unsplit columns among those that `cols` selected. `row_to_colnames()` keeps a one-column `data.frame` a data frame. `restore_zeros()` rejects a negative `width` and reports values that exceed a per-value `width`. `grim_probability()` and `grim_total()` give the same error as `grim()` for a missing or negative `digits_x`. `grim_binomial()` names the columns it needs if any were dropped. `seq_disperse()` and `disperse()` reject a missing value in `dispersion` as such, not as negative.
+
 - `split_by_parens()`, `before_parens()`, and `inside_parens()` now split each string separately. Previously, a string with an unusual number of separators shifted the values of all subsequent rows. Custom separators are matched literally. `split_by_parens()` errors instead of overwriting an existing column, and handles `NA` and 0-row input.
 
 - `duplicate_tally()` no longer counts missing values as matches of every other value, and its running time is now proportional to the number of values rather than to its square. `duplicate_count()` uses a named vector's names as `locations` and drops unused factor levels. `duplicate_count_colpair()` compares values as strings, like the other `duplicate_*()` functions.

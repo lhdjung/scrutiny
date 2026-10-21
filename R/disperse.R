@@ -80,6 +80,9 @@ disperse <- function(
 
   check_length_disperse_n(n, "It must have length 1.")
   check_type(dispersion, c("double", "integer"))
+  if (anyNA(dispersion)) {
+    abort_in_export("`dispersion` must not contain missing values.")
+  }
   check_non_negative(dispersion)
 
   # `dispersion` counts whole units away from `n`, and `n` is a group size. A

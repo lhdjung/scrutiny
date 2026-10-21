@@ -336,7 +336,7 @@ error_digits_flawed <- function(digits, name_digits_arg) {
 
   abort_in_export(
     "`{name_digits_arg}` must be a single, whole number.",
-    "x" = "It is actually: {digits}"
+    "x" = "It is {wrap_in_quotes_or_backticks(digits)}."
   )
 }
 
@@ -513,9 +513,22 @@ error_digits_missing <- function(x) {
   # `digits_sd` arguments in the example call because they are required there.
   # DEBIT's mean and SD must lie between 0 and 1:
   is_debit <- grepl("debit", name_fn)
+  is_total_n <- grepl("_total_n", name_fn)
   example_x <- if (is_debit) c("0.35", "0.35") else c("1.40", "1.4")
+  # A total-n mapper takes the statistics of two groups:
+  part_x <- if (is_total_n) {
+    if (is_debit) "x1 = 0.35, x2 = 0.41" else "x1 = 1.4, x2 = 2.3"
+  } else {
+    paste0("x = ", example_x[2])
+  }
   if (grepl("(grimmer|debit)", name_fn)) {
-    part_sd <- if (is_debit) ", sd = 0.48" else ", sd = 0.62"
+    part_sd <- if (is_total_n) {
+      if (is_debit) ", sd1 = 0.48, sd2 = 0.49" else ", sd1 = 0.62, sd2 = 0.71"
+    } else if (is_debit) {
+      ", sd = 0.48"
+    } else {
+      ", sd = 0.62"
+    }
     # ...but not twice if `digits_sd` is the argument that is missing:
     part_digits_sd <- if (name_digits_arg == "digits_sd") {
       ", digits_x = 2"
@@ -549,7 +562,7 @@ error_digits_missing <- function(x) {
 
   # `is_percentage_of()` has its own key arguments and never took strings:
   is_percentage <- name_x == "percentage"
-  args_example <- paste0("x = ", example_x[2], part_sd, ", n = 29")
+  args_example <- paste0(part_x, part_sd, ", n = 29")
   if (is_percentage) {
     example_x <- c("33.30", "33.3")
     args_example <- "absolute = 40, percentage = 33.3, n = 120"
@@ -1229,7 +1242,8 @@ check_positive <- function(x) {
 
 
 check_non_negative <- function(x) {
-  offenders <- x[x < 0]
+  # `which()` drops `NA`, which is not negative; `check_positive()` does the same:
+  offenders <- x[which(x < 0)]
 
   if (length(offenders) > 0L) {
     if (length(offenders) > 3L) {

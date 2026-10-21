@@ -79,6 +79,10 @@ grim_probability <- function(
   rounding = "up_or_down",
   threshold = 5
 ) {
+  if (missing(digits_x)) {
+    error_digits_missing(x)
+  }
+
   out <- grim_total(
     x,
     n,
@@ -110,6 +114,10 @@ grim_total <- function(
   rounding = "up_or_down",
   threshold = 5
 ) {
+  if (missing(digits_x)) {
+    error_digits_missing(x)
+  }
+
   if (missing(items_averaged)) {
     error_items_missing()
   }
@@ -120,8 +128,14 @@ grim_total <- function(
     check_type(x, c("double", "integer"))
   }
 
-  # As in `grim()`, which would reject a fractional `digits_x`:
+  # As in `grim()`, which would reject a fractional or negative `digits_x`:
   check_digits_whole(digits_x, "digits_x")
+  if (any(digits_x < 0, na.rm = TRUE)) {
+    abort_in_export(
+      "`digits_x` must not be negative.",
+      "x" = "It is {digits_x}."
+    )
+  }
 
   if (percent) {
     digits_x <- digits_x + 2L

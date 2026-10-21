@@ -224,6 +224,10 @@ reround_to_fraction_level <- function(
 # `denominator` must be finite and at least 1. A missing value propagates to a
 # missing result instead:
 check_denominator <- function(denominator) {
+  # A plain `NA` is logical, but missing all the same:
+  if (!is.numeric(denominator) && !all(is.na(denominator))) {
+    check_type(denominator, c("double", "integer"))
+  }
   wrong <- (denominator < 1 | is.infinite(denominator)) %in% TRUE
   if (any(wrong)) {
     abort_in_export(

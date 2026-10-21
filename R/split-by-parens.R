@@ -199,8 +199,11 @@ split_by_parens <- function(
   # excluded from splitting (`TRUE`, the default) or they were included and
   # split in a way that was likely not intended. In both cases, the user is
   # warned appropriately:
-  if (!identical(names_of_cols_with_seps, names_data)) {
-    names_wrong_cols <- names_data[!names_data %in% names_of_cols_with_seps]
+  # Only the columns that `cols` selected are worth a warning, as in
+  # `decimal_places_df()`:
+  names_selected <- names(tidyselect::eval_select(rlang::expr({{ cols }}), data))
+  names_wrong_cols <- names_selected[!names_selected %in% names_of_cols_with_seps]
+  if (length(names_wrong_cols) > 0L) {
     msg_reason <- sep |>
       message_sep_if_cols_excluded() |>
       call_on(\(x) paste0("contain the `sep` elements, ", x))

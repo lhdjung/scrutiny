@@ -55,6 +55,12 @@ grim_binomial <- function(
     cli::cli_abort("`data` must be output of a GRIM mapper function.")
   }
 
+  check_cols_needed(
+    data,
+    c("consistency", "probability"),
+    "i" = "`grim_map()` output has them."
+  )
+
   if (
     !is.numeric(conf.level) ||
       length(conf.level) != 1L ||
@@ -168,13 +174,10 @@ grim_binomial_power <- function(
 
   alternative <- rlang::arg_match(alternative)
 
-  if (length(p0) == 1L) {
-    if (is.null(k)) {
-      cli::cli_abort("`k` is required when `p0` is length 1.")
-    }
-    p0 <- rep(p0, k)
-  } else {
+  if (length(p0) != 1L) {
     k <- length(p0)
+  } else if (is.null(k)) {
+    cli::cli_abort("`k` is required when `p0` is length 1.")
   }
 
   # `poibin::ppoibin()` crashes the R session when given no probabilities:
@@ -183,6 +186,10 @@ grim_binomial_power <- function(
       "There must be at least one value set.",
       "x" = "`k` is {k}, and `p0` has length {length(p0)}."
     ))
+  }
+
+  if (length(p0) == 1L) {
+    p0 <- rep(p0, k)
   }
 
   # All possible numbers of consistent cases, from 0 to `k`

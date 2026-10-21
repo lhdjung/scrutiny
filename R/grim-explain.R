@@ -158,6 +158,9 @@ grim_explain <- function(
       n_items,
       ", times 100. So the count must be "
     )
+  } else if (n == 1 && items_averaged == 1) {
+    times <- paste0(" * ", n, " = ")
+    text_sums <- "The mean of a single whole number is that number. So it must be "
   } else if (items_averaged == 1) {
     times <- paste0(" * ", n, " = ")
     text_sums <- paste0(
@@ -450,7 +453,12 @@ describe_reported <- function(
     format_reported(x, digits),
     ", with ",
     places,
-    ". Before rounding, it could have been anything ",
+    # A single-point range, as under `"anti_trunc"` at zero, is no "anything":
+    if (incl_lower && incl_upper && lower == upper) {
+      ". Before rounding, it can only have been "
+    } else {
+      ". Before rounding, it could have been anything "
+    },
     describe_range(lower, upper, incl_lower, incl_upper),
     "."
   )

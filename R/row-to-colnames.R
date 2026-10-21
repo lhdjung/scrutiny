@@ -55,6 +55,10 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
     ))
   }
 
+  if (!is.numeric(row)) {
+    check_type(row, c("double", "integer"))
+  }
+
   if (!all(is_whole_number(row))) {
     offenders <- row[!is_whole_number(row)]
     offenders <- wrap_in_backticks(offenders)
@@ -118,7 +122,7 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
   # Return the data frame. By default (`drop = TRUE`), remove the specified row
   # or rows beforehand:
   if (drop) {
-    data[-row, ]
+    data[-row, , drop = FALSE]
   } else {
     data
   }
