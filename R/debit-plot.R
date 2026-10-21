@@ -111,10 +111,10 @@ debit_plot <- function(
   # A zero-row mapper output keeps its columns, so it passes the check above,
   # and the axis ranges below cannot be derived from no values:
   if (nrow(data) == 0L) {
-    cli::cli_abort(c(
+    abort_in_export(
       "`data` has no rows, so there is nothing to plot.",
       "i" = "A DEBIT plot needs at least one value set."
-    ))
+    )
   }
 
   is_complete <- stats::complete.cases(data[cols_needed])

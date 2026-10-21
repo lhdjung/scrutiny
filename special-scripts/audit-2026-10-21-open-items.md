@@ -72,8 +72,3 @@ tidyselect's "Column `sum` doesn't exist" rather than the dedicated "has a
 role already" error, because the key renaming runs before the variadic
 selection. The order is a documented choice in `function_map()`; only the
 message is off.
-
-## 7. Stray file
-
-`tests/testthat/testthat-problems.rds` is an untracked leftover of a failed
-test run on 2026-10-20. The suite passes; delete the file.

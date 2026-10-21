@@ -54,7 +54,9 @@ of group sizes. Default is \code{NULL}.}
 }
 \value{
 A tibble like that of \code{\link[=grim_map_total_n]{grim_map_total_n()}}, with \code{x} and \code{sd}
-columns for the reported values and the other columns of
+columns for the reported values, \code{dir} recording which group is paired
+with the larger group size (the equal split of an even total appears under
+\code{"forth"} only), and the other columns of
 \code{\link[=grimmer_map]{grimmer_map()}} output.
 }
 \description{

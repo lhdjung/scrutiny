@@ -747,9 +747,9 @@ test_that("GRIMMER returns `NA` where GRIM itself is undecidable", {
 
 # A brute-force oracle, complementing the random trials above. Those sample 400
 # data sets at larger `n`; this one enumerates *every* multiset of `n` whole
-# numbers for small `n`, so nothing in that space can hide. GRIMMER's conditions
-# are necessary but not sufficient, so only this direction can be checked: every
-# (mean, SD) pair that a real sample produces must pass.
+# numbers for small `n`, so nothing in that space can hide. It checks one
+# direction: every (mean, SD) pair that a real sample produces must pass. The
+# brute force further below checks both.
 
 grimmer_multisets <- function(n, vals) {
   # Every multiset of size `n` from `vals`, as columns:

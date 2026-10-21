@@ -159,7 +159,8 @@ grim_explain <- function(
       ", times 100. So the count must be "
     )
   } else if (n == 1 && items_averaged == 1) {
-    times <- paste0(" * ", n, " = ")
+    # No sum to calculate, so the bounds are shown as they are:
+    times <- NULL
     text_sums <- "The mean of a single whole number is that number. So it must be "
   } else if (items_averaged == 1) {
     times <- paste0(" * ", n, " = ")
@@ -191,8 +192,8 @@ grim_explain <- function(
   text_sums <- paste0(
     text_sums,
     describe_range(
-      paste0(x_lower, times, sum_lower_exact),
-      paste0(x_upper, times, sum_upper_exact),
+      paste0(x_lower, times, if (!is.null(times)) sum_lower_exact),
+      paste0(x_upper, times, if (!is.null(times)) sum_upper_exact),
       bounds$incl_lower,
       bounds$incl_upper
     ),

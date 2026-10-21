@@ -34,7 +34,9 @@
 #'   [`debit_map()`].
 #'
 #' @return A tibble like that of [`grim_map_total_n()`], with `x` and `sd`
-#'   columns for the reported values and the other columns of [`debit_map()`]
+#'   columns for the reported values, `dir` recording which group is paired
+#'   with the larger group size (the equal split of an even total appears under
+#'   `"forth"` only), and the other columns of [`debit_map()`]
 #'   output.
 #'
 #' @section Summaries with [`audit_total_n()`]: `audit_total_n()` on

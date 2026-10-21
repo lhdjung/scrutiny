@@ -517,11 +517,11 @@ function_map <- function(
             arg %in% colnames(data) &&
               !identical(as.numeric(data[[arg]]), as.numeric(cols_tested[[arg]]))
           ) {
-            cli::cli_abort(c(
+            abort_in_export(
               "`{arg}` is both an argument and a column of `data`, and the \
               two disagree.",
               "i" = "Drop one of them, or make them agree."
-            ))
+            )
           }
         }
       }
