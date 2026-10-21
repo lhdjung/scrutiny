@@ -25,16 +25,17 @@ df1_grim_exp <- tibble::tibble(
     "scenarios_total",
     "hit_rate"
   ),
-  mean = c(2, 1.5, 0.5, 12, 0.1666666666666666574148),
+  # The even total of 70 has 11 distinct splits, the odd one of 65 has 12:
+  mean = c(2, 1.5, 0.5, 11.5, (1 / 11 + 3 / 12) / 2),
   sd = c(
     1.414213562373095145475,
     0.7071067811865475727373,
     0.7071067811865475727373,
-    0,
-    0.1178511301977579195377
+    0.7071067811865475727373,
+    (3 / 12 - 1 / 11) / sqrt(2)
   ),
-  median = c(2, 1.5, 0.5, 12, 0.1666666666666666574148),
-  min = c(1, 1, 0, 12, 0.0833333333333333287074),
+  median = c(2, 1.5, 0.5, 11.5, (1 / 11 + 3 / 12) / 2),
+  min = c(1, 1, 0, 11, 1 / 11),
   max = c(3, 2, 1, 12, 0.25),
   na_count = numeric(5),
   na_rate = numeric(5),
@@ -48,10 +49,10 @@ df1_grimmer_exp <- tibble::tibble(
     "scenarios_total",
     "hit_rate"
   ),
-  mean = c(0, 0, 0, 12, 0),
-  sd = numeric(5),
-  median = c(0, 0, 0, 12, 0),
-  min = c(0, 0, 0, 12, 0),
+  mean = c(0, 0, 0, 11.5, 0),
+  sd = c(0, 0, 0, 0.7071067811865475727373, 0),
+  median = c(0, 0, 0, 11.5, 0),
+  min = c(0, 0, 0, 11, 0),
   max = c(0, 0, 0, 12, 0),
   na_count = numeric(5),
   na_rate = numeric(5),
@@ -65,10 +66,10 @@ df2_debit_exp <- tibble::tibble(
     "scenarios_total",
     "hit_rate"
   ),
-  mean = c(0, 0, 0, 12, 0),
-  sd = numeric(5),
-  median = c(0, 0, 0, 12, 0),
-  min = c(0, 0, 0, 12, 0),
+  mean = c(0, 0, 0, 11.5, 0),
+  sd = c(0, 0, 0, 0.7071067811865475727373, 0),
+  median = c(0, 0, 0, 11.5, 0),
+  min = c(0, 0, 0, 11, 0),
   max = c(0, 0, 0, 12, 0),
   na_count = numeric(5),
   na_rate = numeric(5),

@@ -172,6 +172,10 @@ df2_rows_1_3_expected <- tibble::tibble(
     )
   )
 
+# The 45/45 split of the even total 90 is tested in the "forth" direction only,
+# so the "back" direction starts at the next step:
+df2_rows_1_3_expected <- df2_rows_1_3_expected[-(25:26), ]
+
 
 # The function itself -----------------------------------------------------
 
@@ -187,8 +191,10 @@ test_that("The output is a tibble", {
 })
 
 test_that("It has correct dimensions", {
-  df1_tested |> dim() |> expect_equal(c(1200, 10))
-  df2_tested |> dim() |> expect_equal(c(  48, 10))
+  # The 50/50 split of an even total is tested in one direction only, so each
+  # even total has two rows fewer:
+  df1_tested |> dim() |> expect_equal(c(1200 - 2 * sum(df1$n %% 2 == 0), 10))
+  df2_tested |> dim() |> expect_equal(c(  46, 10))
 })
 
 test_that("It has correct values", {

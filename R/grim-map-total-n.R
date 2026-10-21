@@ -51,7 +51,8 @@
 #'   hypothetical group sizes.
 #' - `case`: the row number in `data`.
 #' - `dir`: `"forth"` where `x2` is paired with the larger group size, `"back"`
-#'   where `x1` is.
+#'   where `x1` is. The split of an even total into two equal groups is the
+#'   same scenario either way, so it appears under `"forth"` only.
 #' - The other columns of [`grim_map()`] output.
 #'
 #' @section Summaries with [`audit_total_n()`]: `audit_total_n()` on

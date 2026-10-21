@@ -106,7 +106,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `seq_disperse()` now rounds its values to the decimal level of `by`, so that long sequences do not accumulate floating-point error (#83). It applies `out_min` and `out_max` to the whole sequence, including `from` itself, and no longer includes `from` twice when `dispersion` contains 0.
 
-- `*_map_total_n()` functions now use an `items_averaged` column, and `reverse_map_total_n()` reconstructs the correct total `n` for any `dispersion`. Functions made by `function_map_total_n()` now work when created in another package (#69).
+- `*_map_total_n()` functions now use an `items_averaged` column, and `reverse_map_total_n()` reconstructs the correct total `n` for any `dispersion`. Functions made by `function_map_total_n()` now work when created in another package (#69). An even total's split into two equal groups is now tested once, in the `"forth"` direction; it used to be tested again in the `"back"` direction, which is the same scenario, so that `audit_total_n()` counted one split too many.
 
 ### Rounding and decimal places
 

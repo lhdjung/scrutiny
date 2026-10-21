@@ -58,7 +58,8 @@ from half the total.
 hypothetical group sizes.
 \item \code{case}: the row number in \code{data}.
 \item \code{dir}: \code{"forth"} where \code{x2} is paired with the larger group size, \code{"back"}
-where \code{x1} is.
+where \code{x1} is. The split of an even total into two equal groups is the
+same scenario either way, so it appears under \code{"forth"} only.
 \item The other columns of \code{\link[=grim_map]{grim_map()}} output.
 }
 }

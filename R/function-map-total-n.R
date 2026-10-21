@@ -159,6 +159,15 @@ function_map_total_n_proto <- function(
       dplyr::mutate(case, dir = .dir, n = as_integer_if_lossless(n)) |>
       dplyr::relocate(n_change, .after = n)
 
+    # An even total splits into two equal groups at a `dispersion` step of 0,
+    # where pairing the groups the other way round gives the same scenario. It
+    # is tested in the `"forth"` direction, so it is dropped here rather than
+    # tested and counted twice:
+    if (as.character(.dir) == "back") {
+      repeated <- out_df$n_change == 0L & 2L * out_df$n == data$n[out_df$case]
+      out_df <- out_df[!repeated, ]
+    }
+
     out_df
   }
 

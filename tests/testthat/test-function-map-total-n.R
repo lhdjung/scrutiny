@@ -41,7 +41,9 @@ df1_tested <- schlim_map_total_n(df1)
 # Conduct tests:
 test_that("The manufactured function's output
           has the correct dimensions", {
-  df1_tested |> dim() |> expect_equal(c(240, 7))
+  # Five of the ten totals are even, and the 50/50 split of an even total is
+  # tested in one direction only:
+  df1_tested |> dim() |> expect_equal(c(230, 7))
 })
 
 
@@ -55,13 +57,13 @@ df1_tested_case3 <- df1_tested |> dplyr::filter(case == 3)
 
 test_that("It has the correct dimensions when split by `dir`", {
   df1_tested_forth |> dim() |> expect_equal(c(120, 7))
-  df1_tested_back  |> dim() |> expect_equal(c(120, 7))
+  df1_tested_back  |> dim() |> expect_equal(c(110, 7))
 })
 
 test_that("It has the correct dimensions when split by `case`", {
-  df1_tested_case1 |> dim() |> expect_equal(c(24, 7))
+  df1_tested_case1 |> dim() |> expect_equal(c(22, 7))
   df1_tested_case2 |> dim() |> expect_equal(c(24, 7))
-  df1_tested_case3 |> dim() |> expect_equal(c(24, 7))
+  df1_tested_case3 |> dim() |> expect_equal(c(22, 7))
 })
 
 
