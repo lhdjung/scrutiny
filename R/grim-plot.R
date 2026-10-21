@@ -134,14 +134,14 @@ grim_plot <- function(
         which() |>
         length()
       if (n_grimmer_cases > 0L) {
-        if (n_grimmer_cases == 1L) {
-          msg_case_s <- "case was"
-          msg_incons <- "inconsistency"
+        msg_incons <- if (n_grimmer_cases == 1L) {
+          "inconsistency"
         } else {
-          msg_case_s <- "cases were"
-          msg_incons <- "inconsistencies"
+          "inconsistencies"
         }
-        if (n_grimmer_cases < length(reason)) {
+        # "Also" if there are GRIM inconsistencies as well, which the plot is
+        # about; consistent value sets are no inconsistencies of either kind:
+        if (any(stringr::str_detect(reason, "^GRIM inconsistent"))) {
           msg_viz <- "Also visualizing"
         } else {
           msg_viz <- "Visualizing"
@@ -433,10 +433,11 @@ grim_plot <- function(
 
   p10 <- 10^digits
 
-  # Only a user-supplied `n` bounds the x-axis with a raster; see below.
+  # Only a user-supplied `n` bounds the x-axis with a raster; see below. By
+  # default, the axis spans the raster and the data, whichever reaches further:
   n_given <- !is.null(n)
   if (!n_given) {
-    n <- p10
+    n <- max(p10, if (show_data) data$n, na.rm = TRUE)
   }
 
   frac_unit <- 1 / p10

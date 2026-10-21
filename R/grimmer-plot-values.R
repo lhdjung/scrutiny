@@ -105,6 +105,10 @@ grimmer_plot_values <- function(
     symmetric = symmetric
   )
 
+  # An SD cannot be negative, so the test's bounds start at zero; the strip
+  # shows the same range:
+  claim$lower <- max(claim$lower, 0)
+
   plot_comb(
     values = values,
     possible = possible,

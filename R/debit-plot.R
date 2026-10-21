@@ -109,6 +109,15 @@ debit_plot <- function(
   # were dropped. Subsetting used to fail with a vctrs error:
   check_cols_needed(data, cols_needed, "i" = "`debit_map()` output has them.")
 
+  # A zero-row mapper output keeps its columns, so it passes the check above,
+  # and the axis ranges below cannot be derived from no values:
+  if (nrow(data) == 0L) {
+    cli::cli_abort(c(
+      "`data` has no rows, so there is nothing to plot.",
+      "i" = "A DEBIT plot needs at least one value set."
+    ))
+  }
+
   is_complete <- stats::complete.cases(data[cols_needed])
 
   if (!all(is_complete)) {
@@ -326,7 +335,7 @@ debit_plot <- function(
 
   # Axis labels:
   p <- p +
-    ggplot2::labs(x = "Ratio of n1/n2", y = "Standard deviation")
+    ggplot2::labs(x = "Mean", y = "Standard deviation")
 
   # Other theme specifications (optional, default is `TRUE`):
   if (show_theme_other) {
