@@ -917,3 +917,63 @@ test_that("GRIMMER rejects sums of squares that fewer than five numbers cannot h
     grimmer_scalar(2, 2, 1, 1, show_reason = TRUE, items_averaged = 1) |>
     expect_equal(list(FALSE, "GRIMMER inconsistent (test 1)"))
 })
+
+
+test_that("GRIMMER agrees with a brute force on random value sets", {
+  # The truth is whether any sample of `n` whole numbers has a mean and an SD
+  # that round to the reported ones, with both bounds inclusive as under
+  # `"up_or_down"`. It shares nothing with `grimmer()`: no rounding bounds, no
+  # candidate sums, only integer arithmetic. Means from 1 to 5 and SDs up to
+  # 2.5 keep every value of up to 8 numbers within `-6:12`, so the pairs of
+  # sums and sums of squares below are complete.
+  vals <- -6:12
+  n_max <- 8L
+  s_min <- min(vals) * n_max
+  rows <- max(vals) * n_max - s_min + 1L
+  cols <- max(vals^2) * n_max + 1L
+
+  # Every pair that `k` numbers from `vals` can have, built up one number at a
+  # time from the empty sample, with sums in rows and sums of squares in columns:
+  reach <- matrix(FALSE, rows, cols)
+  reach[1L - s_min, 1L] <- TRUE
+  pairs <- vector("list", n_max)
+  for (k in seq_len(n_max)) {
+    reach_next <- matrix(FALSE, rows, cols)
+    for (v in vals) {
+      from_row <- max(1L, 1L - v):min(rows, rows - v)
+      from_col <- seq_len(cols - v^2)
+      to_row <- from_row + v
+      to_col <- from_col + v^2
+      reach_next[to_row, to_col] <- reach_next[to_row, to_col] | reach[from_row, from_col]
+    }
+    reach <- reach_next
+    found <- which(reach, arr.ind = TRUE)
+    pairs[[k]] <- list(s = found[, 1L] + s_min - 1L, q = found[, 2L] - 1L)
+  }
+
+  # `|s / n - x| <= 0.05` and `(sd - 0.05)^2 <= var <= (sd + 0.05)^2`, with
+  # `var = (n * q - s^2) / (n * (n - 1))`, both cleared of fractions:
+  any_sample <- function(x, sd, n) {
+    s <- pairs[[n]]$s
+    q <- pairs[[n]]$q
+    x10 <- round(10 * x)
+    sd10 <- round(10 * sd)
+    mean_ok <- 2 * abs(10 * s - x10 * n) <= n
+    var400 <- 400 * (n * q - s^2)
+    var_min <- if (sd10 == 0) 0 else (2 * sd10 - 1)^2 * n * (n - 1)
+    var_max <- (2 * sd10 + 1)^2 * n * (n - 1)
+    any(mean_ok & var400 >= var_min & var400 <= var_max)
+  }
+
+  set.seed(42)
+  n <- rep(2:8, each = 1500L)
+  x <- round(runif(length(n), 1, 5), 1)
+  sd <- round(runif(length(n), 0, 2.5), 1)
+
+  truth <- mapply(any_sample, x, sd, n)
+  verdict <- grimmer(x, sd, n, digits_x = 1, digits_sd = 1, items_averaged = 1)
+  verdict |> expect_equal(truth)
+  # Both regimes are well represented: the exceptions at `n < 5` and the exact
+  # verdicts from the minimum and the parity at `n >= 5`:
+  truth |> sum() |> expect_equal(3125L)
+})
