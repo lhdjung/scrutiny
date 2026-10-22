@@ -335,7 +335,7 @@ error_digits_flawed <- function(digits, name_digits_arg) {
   check_length(digits, 1)
 
   abort_in_export(
-    "`{name_digits_arg}` must be a single whole number from 0 to 308.",
+    "`{name_digits_arg}` must be a single whole number from 0 to 15.",
     "x" = "It is {wrap_in_quotes_or_backticks(digits)}."
   )
 }
@@ -361,12 +361,14 @@ check_newly_numeric <- function(
     return(invisible(NULL))
   }
 
-  # 308 is the greatest power of ten a double can hold; `reround()` rejects
-  # anything beyond it, and the tests used to return `NA` instead:
+  # A double holds 15 significant decimal digits. Beyond that, the tests stop
+  # being exact: `grim(5.25, 4, digits_x = 20, items_averaged = 1)` was `FALSE`,
+  # and a GRIMMER-consistent SD failed at 16. Up to 308, the greatest power of
+  # ten a double can hold, the tests used to return such verdicts:
   if (
     !is.finite(digits) ||
       digits < 0 ||
-      digits > 308 ||
+      digits > 15 ||
       abs(digits - round(digits)) >= WHOLE_NUMBER_TOLERANCE
   ) {
     name <- deparse(substitute(digits))

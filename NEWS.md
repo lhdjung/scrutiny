@@ -8,7 +8,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 ### Numeric inputs
 
-- `x` and `sd` are now numeric in `grim()`, `grimmer()`, `debit()`, and all their mappers. Strings are no longer accepted. A numeric value does not preserve trailing zeros, so the number of decimal places must be given explicitly: `digits_x` (and `digits_sd` for GRIMMER and DEBIT) are required arguments in every one of these functions. Both accept one value per row in the basic mappers and one value per group in the total-n mappers, as in `grim_map_total_n(df, digits_x = c(2, 1))`.
+- `x` and `sd` are now numeric in `grim()`, `grimmer()`, `debit()`, and all their mappers. Strings are no longer accepted. A numeric value does not preserve trailing zeros, so the number of decimal places must be given explicitly: `digits_x` (and `digits_sd` for GRIMMER and DEBIT) are required arguments in every one of these functions. Both accept one value per row in the basic mappers and one value per group in the total-n mappers, as in `grim_map_total_n(df, digits_x = c(2, 1))`. They must be whole numbers from 0 to 15, since a double holds no more significant digits.
 
 - The mappers return `digits_x` and `digits_sd` as output columns. `grim_plot()` reads the number of decimal places from these columns instead of inferring it from `x`.
 

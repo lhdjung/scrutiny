@@ -345,7 +345,7 @@ test_that("`percent` must be a single `TRUE` or `FALSE`", {
 
 test_that("a `NULL` key argument and an out-of-range `digits_x` are errors", {
   1.4 |> grim(20, digits_x = NULL, items_averaged = 1) |> expect_error("must not be `NULL`")
-  1.4 |> grim(20, digits_x = 309, items_averaged = 1)  |> expect_error("0 to 308")
+  1.4 |> grim(20, digits_x = 16, items_averaged = 1)   |> expect_error("0 to 15")
 })
 
 
