@@ -23,9 +23,7 @@ scrutiny exports a number of helper functions on which its error detection techn
 
 ## Count decimal places
 
-The sequence functions below and `restore_zeros()` are based on two functions that count decimal places, i.e., the digits after the decimal point or another separator. Both take numbers and strings.
-
-`decimal_places()` is vectorized:
+The sequence functions below and `restore_zeros()` are based on `decimal_places()`, which counts decimal places, i.e., the digits after the decimal point or another separator. It takes numbers and strings, and it is vectorized:
 
 ```{r}
 decimal_places("2.80")
