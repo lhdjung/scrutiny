@@ -148,11 +148,11 @@ test_that("`split_by_parens()` works on grouped tibbles", {
   grouped <- tibble::tibble(a = c("1 (2.5)", "3 (4)"), b = 1:2) |> dplyr::group_by(b)
   out <- grouped |> split_by_parens() |> suppressWarnings()
   out$a_x |> expect_equal(c("1", "3"))
-  out |> dplyr::group_vars() |> expect_equal("b")
-  # As with `dplyr::across()`, grouping columns are left alone:
+  out |> dplyr::is_grouped_df() |> expect_false()
+  # Grouping plays no role, so a grouping column is split like any other:
   by_a <- grouped |> dplyr::group_by(a) |> split_by_parens() |> suppressWarnings()
-  by_a |> dplyr::group_vars() |> expect_equal("a")
-  by_a$a |> expect_equal(grouped$a)
+  by_a$a_x |> expect_equal(c("1", "3"))
+  by_a |> dplyr::is_grouped_df() |> expect_false()
 })
 
 

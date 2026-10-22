@@ -361,18 +361,17 @@ test_that("the string `\"NA\"` has `NA` decimal places", {
 test_that("`decimal_places_df()` works on grouped tibbles", {
   out <- tibble::tibble(a = c(1.5, 2), b = c(1.25, 3)) |> dplyr::group_by(b) |> decimal_places_df()
   out$a |> expect_equal(c(1L, 0L))
-  out$b |> expect_equal(c(1.25, 3))
-  out |> dplyr::group_vars() |> expect_equal("b")
+  out$b |> expect_equal(c(2L, 0L))
+  out |> dplyr::is_grouped_df() |> expect_false()
 })
 
 
-test_that("the `*_df()` functions keep the grouping as it is", {
-  # Grouping columns used to be transformed and regrouped by the new values,
-  # which merged groups, and row-wise grouping and `.drop` were lost:
-  df <- tibble::tibble(g = c("a", "a", "b"), y = c(1.5, 2, 3), f = factor(g, levels = c("a", "b", "c")))
-  df |> dplyr::group_by(y)              |> decimal_places_df(cols = y) |> dplyr::n_groups() |> expect_equal(3L)
-  df |> dplyr::rowwise(g)               |> decimal_places_df(cols = y) |> expect_s3_class("rowwise_df")
-  df |> dplyr::group_by(f, .drop = FALSE) |> restore_zeros_df(cols = y) |> dplyr::n_groups() |> expect_equal(3L)
+test_that("the `*_df()` functions ignore grouping and return ungrouped data", {
+  # Regrouping by transformed grouping columns used to merge groups:
+  df <- tibble::tibble(g = c("a", "a", "b"), y = c(1.5, 2, 3))
+  df |> dplyr::group_by(y) |> decimal_places_df() |> dplyr::is_grouped_df() |> expect_false()
+  df |> dplyr::rowwise(g)  |> decimal_places_df() |> inherits("rowwise_df") |> expect_false()
+  df |> dplyr::rowwise(g)  |> restore_zeros_df()  |> inherits("rowwise_df") |> expect_false()
 })
 
 

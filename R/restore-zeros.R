@@ -214,7 +214,9 @@ restore_zeros_df <- function(
     }
   }
 
-  data_grouped <- data
+  # Grouping plays no role here: the function works on whole columns, which
+  # grouping only gets in the way of (`dplyr::select()` re-adds the grouping
+  # columns, and `across()` runs per group). The output is ungrouped:
   data <- dplyr::ungroup(data)
 
   # Names of selection-suitable columns. A column with comma decimals is only
@@ -250,9 +252,6 @@ restore_zeros_df <- function(
   # check below:
   cols_to_select <- rlang::expr({{ cols }} & !!selection2 & !!selection3)
   cols_to_select <- tidyselect::eval_select(cols_to_select, data)
-  cols_to_select <- cols_to_select[
-    !names(cols_to_select) %in% dplyr::group_vars(data_grouped)
-  ]
 
   # Check whether any selected columns are not numeric-like, which is only
   # possible with `check_numeric_like = FALSE`. `restore_zeros()` replaces their
@@ -292,6 +291,5 @@ restore_zeros_df <- function(
           )
         }
       )
-    ) |>
-    regroup(data_grouped)
+    )
 }

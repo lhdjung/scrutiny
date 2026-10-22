@@ -1496,27 +1496,6 @@ class_name_test <- function(name_test, suffix) {
 }
 
 
-# The `*_df()` functions work on whole columns, which grouping only gets in the
-# way of: `dplyr::select()` re-adds the grouping columns, and `across()` runs per
-# group with those columns out of reach. They ungroup `data` first, leave the
-# grouping columns alone as `across()` does, and this gives the output the
-# grouping of `data` back, `.drop` and row-wise grouping included:
-regroup <- function(out, data) {
-  vars <- dplyr::group_vars(data)
-  if (inherits(data, "rowwise_df")) {
-    dplyr::rowwise(out, dplyr::all_of(vars))
-  } else if (dplyr::is_grouped_df(data)) {
-    dplyr::group_by(
-      out,
-      dplyr::across(dplyr::all_of(vars)),
-      .drop = dplyr::group_by_drop_default(data)
-    )
-  } else {
-    out
-  }
-}
-
-
 #' Select columns before `"consistency"`
 #'
 #' Useful helper for selecting all "tested" columns in the sense of

@@ -203,13 +203,14 @@ decimal_places_df <- function(
   sep = "."
 ) {
   sep_literal_value <- sep_literal(sep)
-  data_grouped <- data
+  # Grouping plays no role here: the function works on whole columns, which
+  # grouping only gets in the way of (`dplyr::select()` re-adds the grouping
+  # columns, and `across()` runs per group). The output is ungrouped:
   data <- dplyr::ungroup(data)
   quo_cols <- rlang::enquo(cols)
   names_selected <- quo_cols |>
     tidyselect::eval_select(data) |>
-    names() |>
-    setdiff(dplyr::group_vars(data_grouped))
+    names()
 
   # Only columns that `cols` selected are worth a warning:
   is_numeric_like_selected <- vapply(
@@ -242,8 +243,7 @@ decimal_places_df <- function(
     dplyr::mutate(dplyr::across(
       .cols = all_of(names_selected),
       .fns = function(x) decimal_places(x = x, sep = sep)
-    )) |>
-    regroup(data_grouped)
+    ))
 }
 
 
