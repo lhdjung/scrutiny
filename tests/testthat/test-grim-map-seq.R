@@ -1652,6 +1652,11 @@ test_that("GRIMMER and DEBIT sequence mappers never disperse `n` below 2", {
 })
 
 
-test_that("sequence mappers reject input columns named like their result columns", {
-  tibble::tibble(x = 5.19, n = 28, case = "A") |> grim_map_seq(digits_x = 2, items_averaged = 1) |> expect_error("would be overwritten")
+test_that("sequence mappers accept input columns named like their result columns", {
+  df <- tibble::tibble(x = c(5.19, 5.18), n = 28, case = "A", var = "B")
+  out_full <- df[1, ] |> grim_map_seq(digits_x = 2, items_averaged = 1)
+  out_none <- df[2, ] |> grim_map_seq(digits_x = 2, items_averaged = 1) |> suppressWarnings()
+  out_full$case |> expect_type("integer")
+  out_none$case |> expect_type("integer")
+  out_full$var  |> unique() |> expect_equal(c("x", "n"))
 })

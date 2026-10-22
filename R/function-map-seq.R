@@ -339,17 +339,6 @@ function_map_seq <- function(
       # message instead of reporting what is wrong.
       check_mapper_input_colnames(data, reported, name_test, name_key_result)
 
-      # The other columns of `data` are returned as they are, so one named like
-      # a result column would be overwritten:
-      names_taken <- intersect(c("diff_var", "case", "var"), colnames(data))
-      if (length(names_taken) > 0L) {
-        abort_in_export(
-          "`data` has columns that the output needs for its results.",
-          "x" = "{wrap_in_backticks(names_taken)} would be overwritten.",
-          "i" = "Rename or remove {cli::qty(length(names_taken))}{?it/them}."
-        )
-      }
-
       # First, basic testing with the `*_map()` function. What it records about
       # the call, such as `rounding` with defaults resolved, applies to the
       # re-tests below as well, so it is passed on to the output:
@@ -474,8 +463,10 @@ function_map_seq <- function(
           }
         ))
         # The output still has the columns, classes, and attribute of any other,
-        # so that functions downstream such as `audit_seq()` accept it:
-        out <- data[0L, ] |>
+        # so that functions downstream such as `audit_seq()` accept it. Columns
+        # of `data` named like the result columns are dropped, as the re-tests
+        # drop all columns that play no role in the test:
+        out <- data[0L, !colnames(data) %in% c("diff_var", "case", "var")] |>
           tibble::add_column(diff_var = integer(0L), case = integer(0L)) |>
           list()
         var <- character(0L)
