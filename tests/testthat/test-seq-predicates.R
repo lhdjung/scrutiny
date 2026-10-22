@@ -216,4 +216,23 @@ test_that("edge cases don't fail in `if ()`", {
   character(0)   |> is_seq_linear()    |> expect_true()
   c(1, Inf, Inf) |> is_seq_linear()    |> expect_false()
   c(1, 2, Inf)   |> is_seq_ascending() |> expect_false()
+  c(Inf, Inf)    |> is_seq_ascending(test_linear = FALSE) |> expect_false()
+  c(-Inf, 0, Inf) |> is_seq_dispersed(from = 0) |> expect_false()
+})
+
+
+test_that("an infinity only rules out what it has to", {
+  c(1, 2, Inf) |> is_seq_ascending(test_linear = FALSE)  |> expect_true()
+  c(Inf, 2, 1) |> is_seq_descending(test_linear = FALSE) |> expect_true()
+  Inf          |> is_seq_linear()                        |> expect_true()
+})
+
+
+test_that("a missing `from` is `NA` only if some center is possible", {
+  1:4          |> is_seq_dispersed(from = NA) |> expect_false()
+  c(1, 5, 2)   |> is_seq_dispersed(from = NA) |> expect_false()
+  c(1, 5, 2)   |> is_seq_dispersed(from = NA, test_linear = FALSE) |> expect_false()
+  c(1, 3, 5)   |> is_seq_dispersed(from = NA) |> expect_na()
+  c(NA, 3, NA) |> is_seq_dispersed(from = NA) |> expect_na()
+  c(1, NA, 6)  |> is_seq_dispersed(from = NA) |> expect_na()
 })

@@ -60,13 +60,6 @@ is_seq_basic <- function(
     x <- as.numeric(x)
   }
 
-  # An infinity is at no fixed distance from anything, so no sequence of
-  # interest has one. It used to fail in `if ()` with "missing value where
-  # TRUE/FALSE needed", through the `NaN` that `Inf - Inf` is:
-  if (any(is.infinite(x))) {
-    return(FALSE)
-  }
-
   if (!is.null(min_length) && length(x) < min_length) {
     return(FALSE)
   }
@@ -98,7 +91,7 @@ is_seq_basic <- function(
 
     if (test_linear) {
       steps <- diff(x[known]) / diff(known)
-      if (!all(dplyr::near(steps, steps[1L], tol = tolerance))) {
+      if (!isTRUE(all(dplyr::near(steps, steps[1L], tol = tolerance)))) {
         return(FALSE)
       }
     }
@@ -121,7 +114,7 @@ is_seq_basic <- function(
           all(dplyr::near(centers[!is.na(centers)], from, tol = tolerance))
         }
       )
-      if (!pass_test_special) {
+      if (!isTRUE(pass_test_special)) {
         return(FALSE)
       }
     }
@@ -133,8 +126,11 @@ is_seq_basic <- function(
   # so a zigzag like `c(1, 2, 1)` is not linear; their absolute values used to
   # be compared, which made it so:
   if (test_linear) {
+    # An infinity makes a step `Inf - Inf`, which is `NaN`; that used to fail
+    # in `if ()` with "missing value where TRUE/FALSE needed". No such step is
+    # equal to any other, hence `isTRUE()`, here and in the other tests:
     steps <- diff(x)
-    if (!all(dplyr::near(steps, steps[1L], tol = tolerance))) {
+    if (!isTRUE(all(dplyr::near(steps, steps[1L], tol = tolerance)))) {
       return(FALSE)
     }
   }
@@ -147,7 +143,7 @@ is_seq_basic <- function(
       "descending" = is_seq_descending_basic(x),
       "dispersed" = is_seq_dispersed_basic(x, from, tolerance)
     )
-    if (!pass_test_special) {
+    if (!isTRUE(pass_test_special)) {
       return(FALSE)
     }
   }
@@ -263,9 +259,22 @@ is_seq_dispersed <- function(
   tolerance = .Machine$double.eps^0.5
 ) {
   check_length(from, 1L)
-  # A missing center leaves the question open, like a missing value in `x`:
+  # A missing center leaves the question open, like a missing value in `x`,
+  # unless `x` rules out every center. A dispersed sequence is centered on each
+  # mirrored pair of its values, so the first known such center is the only
+  # candidate:
   if (is.na(from)) {
-    return(NA)
+    x_num <- if (is.factor(x)) as.character(x) else x
+    x_num <- suppressWarnings(as.numeric(x_num))
+    centers <- (x_num + rev(x_num)) / 2
+    candidate <- centers[!is.na(centers)][1L]
+    out <- if (is.na(candidate)) {
+      !is_even(length(x)) &&
+        !isFALSE(is_seq_basic(x, tolerance, test_linear, min_length = 3L))
+    } else {
+      is_seq_dispersed(x, candidate, test_linear, tolerance)
+    }
+    return(if (isFALSE(out)) FALSE else NA)
   }
   is_seq_basic(
     x,
