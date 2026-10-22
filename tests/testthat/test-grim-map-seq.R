@@ -1650,3 +1650,8 @@ test_that("GRIMMER and DEBIT sequence mappers never disperse `n` below 2", {
   out_grimmer$consistency |> anyNA() |> expect_false()
   out_debit$consistency   |> anyNA() |> expect_false()
 })
+
+
+test_that("sequence mappers reject input columns named like their result columns", {
+  tibble::tibble(x = 5.19, n = 28, case = "A") |> grim_map_seq(digits_x = 2, items_averaged = 1) |> expect_error("would be overwritten")
+})
