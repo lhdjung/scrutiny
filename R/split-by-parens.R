@@ -92,7 +92,7 @@ split_by_parens <- function(
   # lead to issues with the timing of evaluation, its evaluation is forced here:
   force(sep)
 
-  groups <- dplyr::groups(data)
+  data_grouped <- data
   data <- dplyr::ungroup(data)
 
   # Determine which columns have suitable values with regards to the `sep`
@@ -132,6 +132,9 @@ split_by_parens <- function(
   # columns that will be split:
   cols_to_select <- rlang::expr({{ cols }} & !!selection2)
   cols_to_select <- tidyselect::eval_select(cols_to_select, data)
+  cols_to_select <- cols_to_select[
+    !names(cols_to_select) %in% dplyr::group_vars(data_grouped)
+  ]
 
   # Prepare the endings of the split column names:
   endings <- rep(c(end1, end2), times = length(cols_to_select))
@@ -205,6 +208,7 @@ split_by_parens <- function(
   # Only the columns that `cols` selected are worth a warning, as in
   # `decimal_places_df()`:
   names_selected <- names(tidyselect::eval_select(rlang::expr({{ cols }}), data))
+  names_selected <- setdiff(names_selected, dplyr::group_vars(data_grouped))
   names_wrong_cols <- names_selected[!names_selected %in% names_of_cols_with_seps]
   if (length(names_wrong_cols) > 0L) {
     msg_reason <- sep |>
@@ -223,7 +227,7 @@ split_by_parens <- function(
   if (!transform) {
     out <- out |>
       dplyr::mutate({{ neutral_cols }}) |>
-      regroup(groups)
+      regroup(data_grouped)
     return(out)
   }
 

@@ -214,7 +214,7 @@ restore_zeros_df <- function(
     }
   }
 
-  groups <- dplyr::groups(data)
+  data_grouped <- data
   data <- dplyr::ungroup(data)
 
   # Names of selection-suitable columns. A column with comma decimals is only
@@ -250,6 +250,9 @@ restore_zeros_df <- function(
   # check below:
   cols_to_select <- rlang::expr({{ cols }} & !!selection2 & !!selection3)
   cols_to_select <- tidyselect::eval_select(cols_to_select, data)
+  cols_to_select <- cols_to_select[
+    !names(cols_to_select) %in% dplyr::group_vars(data_grouped)
+  ]
 
   # Check whether any selected columns are not numeric-like, which is only
   # possible with `check_numeric_like = FALSE`. `restore_zeros()` replaces their
@@ -290,5 +293,5 @@ restore_zeros_df <- function(
         }
       )
     ) |>
-    regroup(groups)
+    regroup(data_grouped)
 }

@@ -203,12 +203,13 @@ decimal_places_df <- function(
   sep = "."
 ) {
   sep_literal_value <- sep_literal(sep)
-  groups <- dplyr::groups(data)
+  data_grouped <- data
   data <- dplyr::ungroup(data)
   quo_cols <- rlang::enquo(cols)
   names_selected <- quo_cols |>
     tidyselect::eval_select(data) |>
-    names()
+    names() |>
+    setdiff(dplyr::group_vars(data_grouped))
 
   # Only columns that `cols` selected are worth a warning:
   is_numeric_like_selected <- vapply(
@@ -242,7 +243,7 @@ decimal_places_df <- function(
       .cols = all_of(names_selected),
       .fns = function(x) decimal_places(x = x, sep = sep)
     )) |>
-    regroup(groups)
+    regroup(data_grouped)
 }
 
 
