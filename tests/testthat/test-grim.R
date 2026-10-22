@@ -328,12 +328,21 @@ test_that("a missing `items_averaged` is a bespoke error everywhere", {
 
 # It used to reach these through the dots, invisible to `formals()`, to
 # tab-completion, and to the help page:
-test_that("every GRIM and GRIMMER mapper has `items_averaged` right after the key arguments", {
-  grim_map            |> formals() |> names() |> head(5L) |> expect_equal(c("data", "digits_x", "x", "n", "items_averaged"))
-  grim_map_seq        |> formals() |> names() |> head(5L) |> expect_equal(c("data", "digits_x", "x", "n", "items_averaged"))
-  grim_map_total_n    |> formals() |> names() |> head(5L) |> expect_equal(c("data", "digits_x", "x1", "x2", "items_averaged"))
-  grimmer_map_seq     |> formals() |> names() |> head(7L) |> expect_equal(c("data", "digits_x", "digits_sd", "x", "sd", "n", "items_averaged"))
-  grimmer_map_total_n |> formals() |> names() |> head(8L) |> expect_equal(c("data", "digits_x", "digits_sd", "x1", "x2", "sd1", "sd2", "items_averaged"))
+test_that("every GRIM and GRIMMER mapper has `items_averaged` right after the key arguments and the dots", {
+  grim_map            |> formals() |> names() |> head(6L) |> expect_equal(c("data", "digits_x", "x", "n", "...", "items_averaged"))
+  grim_map_seq        |> formals() |> names() |> head(6L) |> expect_equal(c("data", "digits_x", "x", "n", "...", "items_averaged"))
+  grim_map_total_n    |> formals() |> names() |> head(7L) |> expect_equal(c("data", "digits_x", "x1", "x2", "n", "...", "items_averaged"))
+  grimmer_map_seq     |> formals() |> names() |> head(8L) |> expect_equal(c("data", "digits_x", "digits_sd", "x", "sd", "n", "...", "items_averaged"))
+  grimmer_map_total_n |> formals() |> names() |> head(10L) |> expect_equal(c("data", "digits_x", "digits_sd", "x1", "x2", "sd1", "sd2", "n", "...", "items_averaged"))
+})
+
+
+test_that("arguments after the dots can't be abbreviated", {
+  # `items` used to partially match `items_averaged`, and `n` in a total-n
+  # mapper both `n_min` and `n_max`:
+  pigs1 |> grim_map(digits_x = 2, items = 2)     |> expect_error("Did you mean `items_averaged`")
+  pigs1 |> grim_map_seq(digits_x = 2, items = 1) |> expect_error("Did you mean `items_averaged`")
+  tibble::tibble(x1 = 5.19, x2 = 4.1, total = 40) |> grim_map_total_n(digits_x = 2, items_averaged = 1, n = "total", dispersion = 0) |> nrow() |> expect_equal(2L)
 })
 
 

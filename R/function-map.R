@@ -406,11 +406,16 @@ function_map <- function(
 
   # --- Start of the factory-made function, `fn_out()` ---
 
+  # The dots come right after the key arguments, which `insert_key_args()` puts
+  # in front of them below. Every argument after the dots must be named in
+  # full, so that `items = 2` can't partially match `items_averaged`, the
+  # argument that was renamed from `items` because the old name was misread:
   fn_out <- rlang::new_function(
     args = rlang::pairlist2(
       data = ,
-      !!!formals_promoted,
-      ... =
+      !!!formals_promoted[args_by_row],
+      ... = ,
+      !!!formals_promoted[setdiff(names(formals_promoted), args_by_row)]
     ),
     body = rlang::expr({
       fun <- `!!`(.fun)

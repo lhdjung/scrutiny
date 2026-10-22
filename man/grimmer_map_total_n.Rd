@@ -12,12 +12,13 @@ grimmer_map_total_n(
   x2 = NULL,
   sd1 = NULL,
   sd2 = NULL,
+  n = NULL,
+  ...,
   items_averaged,
   dispersion = 0:5,
   n_min = 2L,
   n_max = NULL,
-  constant = NULL,
-  ...
+  constant = NULL
 )
 }
 \arguments{
@@ -31,8 +32,10 @@ and SDs, including trailing zeros. There are no defaults, since a numeric
 value does not keep them (\code{1.40} is \code{1.4}). Either a single number for both
 groups, or two numbers, one per group.}
 
-\item{x1, x2, sd1, sd2}{Optionally, the names of the columns in \code{data} that
+\item{x1, x2, sd1, sd2, n}{Optionally, the names of the columns in \code{data} that
 contain these values, if they differ from the defaults.}
+
+\item{...}{Arguments passed on to \code{\link[=grimmer_map]{grimmer_map()}}.}
 
 \item{items_averaged}{Integer. As in \code{\link[=grimmer_map]{grimmer_map()}}: the number of items
 averaged into each score, given as an argument or as a column of \code{data}.
@@ -51,8 +54,6 @@ maximum.}
 their labels: a length-2 vector for the groups of \code{x1} and \code{x2}, or a list
 of such vectors. Each becomes a column, as in \code{\link[=disperse_total]{disperse_total()}}, and its
 values stay with their groups in both directions. Default is \code{NULL}.}
-
-\item{...}{Arguments passed on to \code{\link[=grimmer_map]{grimmer_map()}}.}
 }
 \value{
 A tibble like that of \code{\link[=grim_map_total_n]{grim_map_total_n()}}, with \code{x} and \code{sd}

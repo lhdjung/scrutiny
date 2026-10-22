@@ -15,7 +15,7 @@
 #'   including trailing zeros. There is no default, since a numeric value does
 #'   not keep them (`1.40` is `1.4`). Either a single number for both groups,
 #'   or two numbers, one for `x1` and one for `x2`.
-#' @param x1,x2 Optionally, the names of the columns in `data` that contain
+#' @param x1,x2,n Optionally, the names of the columns in `data` that contain
 #'   these values, if they differ from the defaults.
 #' @param dispersion Numeric. Steps up and down from half the total `n`.
 #'   Default is `0:5`, i.e., the even split and five steps away from it.

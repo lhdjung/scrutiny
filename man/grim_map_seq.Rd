@@ -9,14 +9,14 @@ grim_map_seq(
   digits_x = NULL,
   x = NULL,
   n = NULL,
+  ...,
   items_averaged,
   var = c("x", "n"),
   dispersion = 1:5,
   out_min = "auto",
   out_max = "auto",
   include_reported = FALSE,
-  include_consistent = FALSE,
-  ...
+  include_consistent = FALSE
 )
 }
 \arguments{
@@ -29,6 +29,8 @@ dispersing \code{x}.}
 
 \item{x, n}{Optionally, the names of the columns in \code{data} that contain these
 values, if they differ from the defaults.}
+
+\item{...}{Arguments passed on to \code{\link[=grim_map]{grim_map()}}.}
 
 \item{items_averaged}{Integer. As in \code{\link[=grim_map]{grim_map()}}: the number of items
 averaged into each score, given as an argument or as a column of \code{data}.
@@ -48,8 +50,6 @@ part of the sequences? Default is \code{FALSE}.}
 
 \item{include_consistent}{Logical. Should consistent value sets be dispersed
 as well, not just inconsistent ones? Default is \code{FALSE}.}
-
-\item{...}{Arguments passed on to \code{\link[=grim_map]{grim_map()}}.}
 }
 \value{
 A tibble with the columns of \code{\link[=grim_map]{grim_map()}} output plus \code{diff_var},

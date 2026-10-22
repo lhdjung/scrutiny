@@ -259,14 +259,15 @@ function_map_seq <- function(
     args = rlang::pairlist2(
       data = ,
       !!!digits_pairlist_entries,
+      # After the key arguments, as in `function_map()`:
+      ... = ,
       !!!helper_formals,
       var = .var,
       dispersion = .dispersion,
       out_min = .out_min,
       out_max = .out_max,
       include_reported = .include_reported,
-      include_consistent = .include_consistent,
-      ... =
+      include_consistent = .include_consistent
     ),
     body = rlang::expr({
       # Collect the helper arguments that were given, first thing, before any

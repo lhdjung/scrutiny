@@ -331,7 +331,7 @@ test_that("`.reported` may name any number of key columns", {
   )
 
   quadrant_map |> formals() |> names() |>
-    expect_equal(c("data", "a", "b", "c", "d", "tolerance", "..."))
+    expect_equal(c("data", "a", "b", "c", "d", "...", "tolerance"))
 
   df <- tibble::tibble(a = 1:3, b = 4:6, c = c(5L, 7L, 9L), d = c(0L, 0L, 1L))
   out <- df |> quadrant_map()
@@ -367,7 +367,7 @@ test_that("`.reported_variadic` decides the number of key columns at call time",
   # The variadic argument comes ahead of the fixed key arguments, and it has no
   # default, unlike them:
   sum_check_map |> formals() |> names() |>
-    expect_equal(c("data", "parts", "total", "tolerance", "..."))
+    expect_equal(c("data", "parts", "total", "...", "tolerance"))
   sum_check_map |>
     formals() |>
     call_on(\(x) x$parts) |>

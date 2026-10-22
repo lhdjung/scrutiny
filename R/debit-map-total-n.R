@@ -15,7 +15,7 @@
 #'   and SDs, including trailing zeros. There are no defaults, since a numeric
 #'   value does not keep them (`1.40` is `1.4`). Either a single number for both
 #'   groups, or two numbers, one per group.
-#' @param x1,x2,sd1,sd2 Optionally, the names of the columns in `data` that
+#' @param x1,x2,sd1,sd2,n Optionally, the names of the columns in `data` that
 #'   contain these values, if they differ from the defaults.
 #' @param n_min Numeric. Minimal group size. Default is 2: DEBIT divides by
 #'   `n - 1`, so a group of 1 has no test result.

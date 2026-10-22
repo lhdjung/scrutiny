@@ -11,13 +11,13 @@ debit_map_seq(
   x = NULL,
   sd = NULL,
   n = NULL,
+  ...,
   var = c("x", "sd", "n"),
   dispersion = 1:5,
   out_min = "auto",
   out_max = "auto",
   include_reported = FALSE,
-  include_consistent = FALSE,
-  ...
+  include_consistent = FALSE
 )
 }
 \arguments{
@@ -30,6 +30,8 @@ sizes for dispersing \code{x} and \code{sd}.}
 
 \item{x, sd, n}{Optionally, the names of the columns in \code{data} that contain
 these values, if they differ from the defaults.}
+
+\item{...}{Arguments passed on to \code{\link[=debit_map]{debit_map()}}.}
 
 \item{var}{String. The variables to disperse. Default is
 \code{c("x", "sd", "n")}.}
@@ -47,8 +49,6 @@ part of the sequences? Default is \code{FALSE}.}
 
 \item{include_consistent}{Logical. Should consistent value sets be dispersed
 as well, not just inconsistent ones? Default is \code{FALSE}.}
-
-\item{...}{Arguments passed on to \code{\link[=debit_map]{debit_map()}}.}
 }
 \value{
 A tibble with the columns of \code{\link[=debit_map]{debit_map()}} output plus

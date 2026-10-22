@@ -11,12 +11,12 @@ grimmer_map(
   x = NULL,
   sd = NULL,
   n = NULL,
+  ...,
   items_averaged,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  tolerance = lifecycle::deprecated(),
-  ...
+  tolerance = lifecycle::deprecated()
 )
 }
 \arguments{
@@ -31,11 +31,11 @@ whole column or one number per row of \code{data}.}
 \item{x, sd, n}{Optionally, the names of the columns in \code{data} that contain
 these values, if they differ from the defaults.}
 
+\item{...}{Further arguments passed on to \code{\link[=grimmer]{grimmer()}}.}
+
 \item{items_averaged}{Integer. As in \code{\link[=grim_map]{grim_map()}}, for \code{x} and \code{sd}.}
 
 \item{rounding, threshold, symmetric, tolerance}{Passed on to \code{\link[=grimmer]{grimmer()}}.}
-
-\item{...}{Further arguments passed on to \code{\link[=grimmer]{grimmer()}}.}
 }
 \value{
 A tibble with these columns:

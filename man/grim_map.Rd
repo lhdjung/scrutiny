@@ -9,14 +9,14 @@ grim_map(
   digits_x,
   x = NULL,
   n = NULL,
+  ...,
   items_averaged,
   percent = FALSE,
   show_rec = FALSE,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  tolerance = lifecycle::deprecated(),
-  ...
+  tolerance = lifecycle::deprecated()
 )
 }
 \arguments{
@@ -31,6 +31,8 @@ one number per row of \code{data}.}
 \item{x, n}{Optionally, the names of the columns in \code{data} that contain these
 values, if they differ from the defaults.}
 
+\item{...}{Further arguments passed on to \code{\link[=grim]{grim()}}.}
+
 \item{items_averaged}{Integer. As in \code{\link[=grim]{grim()}}: the number of items
 averaged into each score, not the number of scale points. Give it as an
 argument or as a column of \code{data}; there is no default. It is returned as
@@ -44,8 +46,6 @@ divided by 100 and tested with two more decimal places. Default is
 as columns; see \emph{Reconstructed numbers}. Default is \code{FALSE}.}
 
 \item{rounding, threshold, symmetric, tolerance}{Passed on to \code{\link[=grim]{grim()}}.}
-
-\item{...}{Further arguments passed on to \code{\link[=grim]{grim()}}.}
 }
 \value{
 A tibble with these columns:

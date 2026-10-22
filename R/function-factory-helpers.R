@@ -148,6 +148,14 @@ check_factory_dots <- function(fun, fun_name_scalar, ...) {
   }
 
   fun_name_mapper <- name_last_export_code()
+
+  # Arguments after the dots must be named in full, so an abbreviation such as
+  # `items` for `items_averaged` lands here:
+  names_full <- names(formals(rlang::caller_fn()))
+  names_meant <- unique(unlist(lapply(offenders, function(offender) {
+    names_full[startsWith(names_full, offender)]
+  })))
+
   offenders <- paste0("`", offenders, "`")
 
   if (length(offenders) == 1L) {
@@ -161,7 +169,11 @@ check_factory_dots <- function(fun, fun_name_scalar, ...) {
   abort_in_export(
     "Invalid {msg_arg} {offenders}.",
     "x" = "{msg_it_they} {msg_arg} of {fun_name_mapper} \\
-      or `{fun_name_scalar}()`."
+      or `{fun_name_scalar}()`.",
+    "i" = if (length(names_meant) > 0L) {
+      "Did you mean {wrap_in_backticks(names_meant)}? Arguments after \\
+      `...` must be named in full."
+    }
   )
 }
 

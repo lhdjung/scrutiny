@@ -11,11 +11,11 @@ debit_map(
   x = NULL,
   sd = NULL,
   n = NULL,
+  ...,
   formula = "exact",
   rounding = "up_or_down",
   threshold = 5,
-  symmetric = FALSE,
-  ...
+  symmetric = FALSE
 )
 }
 \arguments{
@@ -30,9 +30,9 @@ whole column or one number per row of \code{data}.}
 \item{x, sd, n}{Optionally, the names of the columns in \code{data} that contain
 these values, if they differ from the defaults.}
 
-\item{formula, rounding, threshold, symmetric}{Passed on to \code{\link[=debit]{debit()}}.}
-
 \item{...}{Further arguments passed on to \code{\link[=debit]{debit()}}.}
+
+\item{formula, rounding, threshold, symmetric}{Passed on to \code{\link[=debit]{debit()}}.}
 }
 \value{
 A tibble with these columns:

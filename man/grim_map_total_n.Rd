@@ -9,12 +9,13 @@ grim_map_total_n(
   digits_x = NULL,
   x1 = NULL,
   x2 = NULL,
+  n = NULL,
+  ...,
   items_averaged,
   dispersion = 0:5,
   n_min = 1L,
   n_max = NULL,
-  constant = NULL,
-  ...
+  constant = NULL
 )
 }
 \arguments{
@@ -27,8 +28,10 @@ including trailing zeros. There is no default, since a numeric value does
 not keep them (\code{1.40} is \code{1.4}). Either a single number for both groups,
 or two numbers, one for \code{x1} and one for \code{x2}.}
 
-\item{x1, x2}{Optionally, the names of the columns in \code{data} that contain
+\item{x1, x2, n}{Optionally, the names of the columns in \code{data} that contain
 these values, if they differ from the defaults.}
+
+\item{...}{Arguments passed on to \code{\link[=grim_map]{grim_map()}}.}
 
 \item{items_averaged}{Integer. As in \code{\link[=grim_map]{grim_map()}}: the number of items
 averaged into each score, given as an argument or as a column of \code{data}.
@@ -46,8 +49,6 @@ maximum.}
 their labels: a length-2 vector for the groups of \code{x1} and \code{x2}, or a list
 of such vectors. Each becomes a column, as in \code{\link[=disperse_total]{disperse_total()}}, and its
 values stay with their groups in both directions. Default is \code{NULL}.}
-
-\item{...}{Arguments passed on to \code{\link[=grim_map]{grim_map()}}.}
 }
 \value{
 A tibble with these columns:

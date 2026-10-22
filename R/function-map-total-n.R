@@ -309,12 +309,13 @@ function_map_total_n <- function(
     args = rlang::pairlist2(
       data = ,
       !!!digits_pairlist_entries,
+      # After the key arguments, as in `function_map()`:
+      ... = ,
       !!!helper_formals,
       dispersion = .dispersion,
       n_min = .n_min,
       n_max = .n_max,
-      constant = .constant,
-      ... =
+      constant = .constant
     ),
     body = rlang::expr({
       # Collect the helper arguments that were given, first thing, before any
@@ -353,7 +354,7 @@ function_map_total_n <- function(
       # What `data` is comes first, before anything reads columns off it:
       check_tibble(data)
 
-      data <- absorb_key_args(data, reported_reduplicated)
+      data <- absorb_key_args(data, c(reported_reduplicated, "n"))
 
       # Checks ---
 
@@ -641,9 +642,11 @@ function_map_total_n <- function(
   # the list of arguments of the manufactured function:
   # They go after the `digits_*` arguments, which are spliced in right after
   # `data`, so that all three mapper tiers start their signature the same way.
+  # `n` is the column of totals. As a key argument, `n = "total"` matches it
+  # exactly instead of partially matching both `n_min` and `n_max`:
   insert_key_args(
     fn_out,
-    reported_reduplicated,
+    c(reported_reduplicated, "n"),
     insert_after = 1L + length(digits_args_names)
   )
 }
