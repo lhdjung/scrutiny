@@ -122,7 +122,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `reround()` now selects the rounding function once per call instead of once per element, which makes it about 200 times faster for long vectors. `threshold = 5` is no longer an error for the `"*_from"` methods. `reround_to_fraction()` applies both procedures of a compound method to every element of `x`, as documented.
 
-- `restore_zeros()` now handles scientific notation, pads with zeros instead of using `sprintf()`, which could introduce floating-point noise at high widths, and returns `NA` rather than the string `"NA"` for missing values. `restore_zeros_df()` and `decimal_places_df()` no longer fail on columns that contain only `NA`, and they now recognize columns whose decimal separator is the one given as `sep_in` or `sep`.
+- `restore_zeros()` now handles scientific notation, reads a number as `decimal_places()` does (so `1e-300` has 300 decimal places, not 315), pads with zeros instead of using `sprintf()`, which could introduce floating-point noise at high widths, and returns `NA` rather than the string `"NA"` for missing values. `restore_zeros_df()` and `decimal_places_df()` no longer fail on columns that contain only `NA`, and they now recognize columns whose decimal separator is the one given as `sep_in` or `sep`.
 
 ### Other
 
@@ -130,7 +130,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `split_by_parens()`, `before_parens()`, and `inside_parens()` now split each string separately. Previously, a string with an unusual number of separators shifted the values of all subsequent rows. Custom separators are matched literally. `split_by_parens()` errors instead of overwriting an existing column, and handles `NA` and 0-row input.
 
-- `duplicate_tally()` no longer counts missing values as matches of every other value, and its running time is now proportional to the number of values rather than to its square. `duplicate_count()` uses a named vector's names as `locations` and drops unused factor levels. `duplicate_count_colpair()` compares values as strings, like the other `duplicate_*()` functions.
+- `duplicate_tally()` no longer counts missing values as matches of every other value, and its running time is now proportional to the number of values rather than to its square. `duplicate_count()` uses a named vector's names as `locations` and drops unused factor levels. `duplicate_count_colpair()` compares values as strings, like the other `duplicate_*()` functions. All of them write numbers out in full, so `100000` is the same value as `100000L` and `"100000"`, not `"1e+05"`.
 
 - `is_seq_linear()` now returns `FALSE` for sequences such as `c(1, 2, 1)`. The `is_seq_*()` functions now fill gaps left by `NA` values using the step size implied by the known values. They return `NA` for a vector consisting only of `NA`, whatever its type, and test strings and factors by their numeric values.
 

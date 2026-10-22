@@ -1051,3 +1051,15 @@ test_that("`duplicate_count()` ignores groups", {
   df <- tibble::tibble(a = c(1, 2, 2), b = c(2, 3, 3))
   df |> dplyr::group_by(a) |> duplicate_count() |> expect_equal(duplicate_count(df))
 })
+
+
+# `as.character(100000)` is `"1e+05"`, so an integer column and a double column
+# with the same values had no duplicates:
+test_that("numbers are compared as written out in full, not in scientific notation", {
+  out <- tibble::tibble(a = 100000L, b = 100000, c = "100000") |> duplicate_count()
+  out$value     |> expect_equal("100000")
+  out$frequency |> expect_equal(3L)
+  tibble::tibble(a = 0.0001, b = "0.0001") |> duplicate_count()                 |> nrow() |> expect_equal(1L)
+  tibble::tibble(a = 100000L, b = 100000) |> duplicate_count(ignore = 100000)   |> nrow() |> expect_equal(0L)
+  tibble::tibble(a = 100000L, b = 100000) |> duplicate_count(ignore = "100000") |> nrow() |> expect_equal(0L)
+})

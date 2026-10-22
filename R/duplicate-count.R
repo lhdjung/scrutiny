@@ -70,7 +70,7 @@ duplicate_count <- function(
     names_orig <- unique(names(x))
     x <- tibble::tibble(
       name = as.factor(names(x)),
-      value = as.factor(unname(x))
+      value = value_to_factor(unname(x))
     )
   } else {
     if (!x_was_named || !is.data.frame(x)) {
@@ -92,7 +92,7 @@ duplicate_count <- function(
     # skip a grouping column, which then could not be pivoted with the factors:
     x <- x |>
       dplyr::ungroup() |>
-      dplyr::mutate(dplyr::across(everything(), as.factor)) |>
+      dplyr::mutate(dplyr::across(everything(), value_to_factor)) |>
       tidyr::pivot_longer(
         cols = everything(),
         names_to = "name",
@@ -106,13 +106,14 @@ duplicate_count <- function(
       dplyr::filter(!is.na(.data$value))
   } else {
     x <- x |>
-      dplyr::filter(!is.na(.data$value) & !.data$value %in% ignore)
+      dplyr::filter(
+        !is.na(.data$value) & !.data$value %in% value_to_string(ignore)
+      )
   }
 
   # `tibble::as_tibble()` can't convert a table with no values, so the columns
   # are built by hand. `table()` counts every level of a factor, including
-  # unused ones and those of the values filtered out above, so only values that
-  # occur are kept:
+  # those of the values filtered out above, so only values that occur are kept:
   counts <- table(x$value)
   out <- tibble::tibble(
     value = as.character(names(counts)),
@@ -155,4 +156,13 @@ duplicate_count <- function(
 
   out |>
     dplyr::mutate(locations, locations_n)
+}
+
+
+# Like `as.factor()`, with the levels in the same order -- numbers by size, so
+# that values with the same frequency keep their order -- but labeled by
+# `value_to_string()`, so that `100000` is `"100000"` rather than `"1e+05"`:
+value_to_factor <- function(x) {
+  levels <- x |> unique() |> sort() |> value_to_string() |> unique()
+  factor(value_to_string(x), levels = levels)
 }

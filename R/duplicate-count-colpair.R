@@ -55,15 +55,16 @@ duplicate_count_colpair <- function(data, ignore = NULL, show_rates = TRUE) {
     ))
   }
 
-  if (!is.null(ignore)) {
-    data <- data |>
-      lapply(function(x) x[!x %in% ignore])
-  }
-
   # Values are compared as strings, as in the other `duplicate_*()` functions,
   # so that `0.1 + 0.2` duplicates `0.3` here as it does there:
   values <- data |>
-    lapply(function(x) as.character(x[!is.na(x)]))
+    lapply(function(x) value_to_string(x[!is.na(x)]))
+
+  if (!is.null(ignore)) {
+    ignore <- value_to_string(ignore)
+    values <- values |>
+      lapply(function(x) x[!x %in% ignore])
+  }
 
   # Column-major, so each column is paired with the later ones only:
   pairs <- utils::combn(names(values), 2L)

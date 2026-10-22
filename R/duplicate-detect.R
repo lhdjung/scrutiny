@@ -68,11 +68,11 @@ function_duplicate_cols <- function(code_new_cols, default_end, name_class) {
 
       # Create a reference vector with all values from `x` so that they can be
       # tested against. To make all values fit together, they are coerced to
-      # character strings:
+      # character strings, with numbers written out in full:
       x <- x |>
         tidyr::pivot_longer(
           cols = everything(),
-          values_transform = as.character,
+          values_transform = value_to_string,
           cols_vary = "slowest"
         ) |>
         dplyr::pull(.data$value)
@@ -85,7 +85,7 @@ function_duplicate_cols <- function(code_new_cols, default_end, name_class) {
       if (is.null(ignore)) {
         new_cols[is.na(x)] <- NA
       } else {
-        new_cols[is.na(x) | x %in% ignore] <- NA
+        new_cols[is.na(x) | x %in% value_to_string(ignore)] <- NA
       }
 
       # Gather both vectors in a tibble, so that each test value is joined by a

@@ -60,3 +60,13 @@ test_that("`duplicate_detect()` and `duplicate_tally()` work without rows and on
     duplicate_detect() |>
     expect_equal(tibble::tibble(col1 = c("1", "1"), col1_dup = TRUE, col2 = c("2", "3"), col2_dup = FALSE), ignore_attr = "class")
 })
+
+
+# `as.character(100000)` is `"1e+05"`, so an integer and a double `100000` were
+# no duplicates:
+test_that("`duplicate_tally()` compares numbers as written out in full", {
+  out <- tibble::tibble(a = c(100000L, 2L), b = c(100000, 0.0001)) |> duplicate_tally()
+  out$a_n |> expect_equal(c(2L, 1L))
+  out$b_n |> expect_equal(c(2L, 1L))
+  tibble::tibble(a = 100000L, b = 100000) |> duplicate_tally(ignore = 1e5) |> dplyr::pull(a_n) |> expect_na()
+})

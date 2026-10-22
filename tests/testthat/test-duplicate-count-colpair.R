@@ -201,3 +201,10 @@ test_that("`rate_y` is the proportion of `y` values duplicated in `x`", {
 test_that("values are compared as strings, as in the other `duplicate_*()` functions", {
   tibble::tibble(a = 0.1 + 0.2, b = 0.3) |> duplicate_count_colpair() |> dplyr::pull(count) |> expect_equal(1L)
 })
+
+
+# `as.character(100000)` is `"1e+05"`, so only the second value was a duplicate:
+test_that("numbers are compared as written out in full, not in scientific notation", {
+  tibble::tibble(n_int = c(100000L, 250000L), n_dbl = c(100000, 250000)) |> duplicate_count_colpair()                   |> dplyr::pull(count) |> expect_equal(2L)
+  tibble::tibble(n_int = c(100000L, 250000L), n_dbl = c(100000, 250000)) |> duplicate_count_colpair(ignore = "100000") |> dplyr::pull(count) |> expect_equal(1L)
+})
