@@ -33,6 +33,15 @@ test_that("`split_by_digits = TRUE` returns one plot per decimal count", {
   plots[[2]] |> expect_s3_class("ggplot")
 })
 
+test_that("`split_by_digits = TRUE` multiplies `items_averaged` into `n` once", {
+  data <- tibble::tibble(x = c(5.19, 5.2), n = c(14, 14)) |>
+    grim_map(digits_x = c(2, 1), items_averaged = 2)
+  tile_n <- function(p) p$layers[[2]]$data$n
+  plots <- data |> grim_plot(split_by_digits = TRUE) |> suppressMessages()
+  plots |> purrr::map(tile_n) |> unlist() |> unique() |> expect_equal(28)
+  data[1, ] |> grim_plot() |> tile_n() |> expect_equal(28)
+})
+
 
 # The y-axis is the fractional portion of a mean, bounded at 0 and 1. Those
 # bounds used to be scale limits, which discard a tile as soon as one of its

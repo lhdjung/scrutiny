@@ -230,12 +230,6 @@ grim_plot <- function(
   # Whether `x` was tested as a percentage, as recorded by `grim_map()`:
   is_percent <- isTRUE(scrutiny_meta(data)$args$percent)
 
-  # The mappers keep `items_averaged` apart from `n`, but GRIM's granularity is
-  # their product:
-  if ("items_averaged" %in% colnames(data)) {
-    data$n <- data$n * data$items_averaged
-  }
-
   # Nothing to read a decimal count off, no raster to choose, no data to draw.
   # A zero-row mapper output is an ordinary result of `dplyr::filter()`, so say
   # so plainly rather than let `digits` come out `NA` and fail further down:
@@ -401,6 +395,13 @@ grim_plot <- function(
     # number of decimal places. Therefore, `digits` can now be determined simply
     # by taking the first element; or indeed any other element there might be:
     digits <- digits_x[1L]
+  }
+
+  # The mappers keep `items_averaged` apart from `n`, but GRIM's granularity is
+  # their product. This comes after the `split_by_digits` branch, whose
+  # recursive calls fold it in themselves:
+  if ("items_averaged" %in% colnames(data)) {
+    data$n <- data$n * data$items_averaged
   }
 
   # `percent = TRUE` in the `grim_map()` call means `x` is a proportion of 100,
