@@ -6,7 +6,7 @@
 \usage{
 function_map_seq(
   .fun,
-  .var = Inf,
+  .var = .reported,
   .reported,
   .name_test,
   .name_key_result = "consistency",

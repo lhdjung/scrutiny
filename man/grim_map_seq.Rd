@@ -10,7 +10,7 @@ grim_map_seq(
   x = NULL,
   n = NULL,
   items_averaged,
-  var = Inf,
+  var = c("x", "n"),
   dispersion = 1:5,
   out_min = "auto",
   out_max = "auto",

@@ -11,7 +11,7 @@ debit_map_seq(
   x = NULL,
   sd = NULL,
   n = NULL,
-  var = Inf,
+  var = c("x", "sd", "n"),
   dispersion = 1:5,
   out_min = "auto",
   out_max = "auto",

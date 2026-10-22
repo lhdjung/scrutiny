@@ -176,7 +176,7 @@ function_map_seq_proto <- function(
 
 function_map_seq <- function(
   .fun,
-  .var = Inf,
+  .var = .reported,
   .reported,
   .name_test,
   .name_key_result = "consistency",
@@ -359,12 +359,6 @@ function_map_seq <- function(
       results <- data[[name_key_result]]
       cases <- which(if (include_consistent) !is.na(results) else !results)
       data <- data[cases, ]
-
-      # As `var` is `Inf` by default, it must be referred to the names of
-      # designated `reported` variables:
-      if (all(is.infinite(var))) {
-        var <- reported
-      }
 
       # Only the key columns are dispersed; `items_averaged`, for one, is not a
       # value that was reported with rounding:

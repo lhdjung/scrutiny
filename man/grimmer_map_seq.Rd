@@ -12,7 +12,7 @@ grimmer_map_seq(
   sd = NULL,
   n = NULL,
   items_averaged,
-  var = Inf,
+  var = c("x", "sd", "n"),
   dispersion = 1:5,
   out_min = "auto",
   out_max = "auto",

@@ -10,7 +10,7 @@ is_percentage_of_map_seq(
   absolute = NULL,
   percentage = NULL,
   n = NULL,
-  var = Inf,
+  var = c("absolute", "percentage", "n"),
   dispersion = 1:5,
   out_min = "auto",
   out_max = "auto",
