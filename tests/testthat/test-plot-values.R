@@ -204,3 +204,10 @@ test_that("`grimmer_plot_values()` draws every valid input", {
     all() |>
     expect_true()
 })
+
+
+test_that("the percentage comb stays within 0 and 100", {
+  teeth <- function(p) p$layers[[2]]$data[[1]]
+  grim_plot_values(100, 3, 0, 1, percent = TRUE) |> teeth() |> max() |> expect_lte(100)
+  grim_plot_values(0, 3, 0, 1, percent = TRUE)   |> teeth() |> min() |> expect_gte(0)
+})

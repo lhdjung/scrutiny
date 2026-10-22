@@ -48,12 +48,12 @@ returns the attainable values as numbers.
 }
 \details{
 The comb runs from the whole number at or below \code{x} to the next one
-up. That unit contains \code{10 ^ digits_x} reportable values and, with
-\code{items_averaged = 1}, about \code{n} attainable ones. With \code{percent = TRUE}, a
-unit is one percentage point, and the comb widens by
-\code{100 / (n * items_averaged)} on either side so that the nearest
-attainable values remain visible. With more than
-two decimal places, the teeth crowd together.
+up. That unit contains \code{10 ^ digits_x + 1} reportable values, both ends
+included, and, with \code{items_averaged = 1}, about \code{n} attainable ones. With
+\code{percent = TRUE}, a unit is one percentage point, and the comb widens by
+\code{100 / (n * items_averaged)} points, rounded up, on either side so that
+the nearest attainable values remain visible, but not beyond 0 or 100.
+With more than two decimal places, the teeth crowd together.
 
 The strip behind the teeth is the range of unrounded means that would
 have been reported as \code{x}, from \code{\link[=unround]{unround()}}. The value is consistent

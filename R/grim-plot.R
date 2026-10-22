@@ -437,6 +437,12 @@ grim_plot <- function(
   # Only a user-supplied `n` bounds the x-axis with a raster; see below. By
   # default, the axis spans the raster and the data, whichever reaches further:
   n_given <- !is.null(n)
+  if (n_given && (length(n) != 1L || !is.numeric(n) || is.na(n) || n < 1)) {
+    abort_in_export(
+      "`n` must be a single positive number or `NULL`.",
+      "x" = "It is {wrong_spec_string(n)}."
+    )
+  }
   if (!n_given) {
     n <- max(p10, if (show_data) data$n, na.rm = TRUE)
   }

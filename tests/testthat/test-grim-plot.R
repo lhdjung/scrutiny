@@ -267,3 +267,10 @@ test_that("`grim_plot()` falls back to `rounding` if `data` has none recorded", 
   data |> grim_plot() |> expect_s3_class("ggplot")
   data |> grim_plot(rounding = "up_from", show_raster = TRUE) |> expect_error("No background raster")
 })
+
+
+test_that("`n` must be a single positive number", {
+  data <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1)
+  data |> grim_plot(n = -5)        |> expect_error("single positive number")
+  data |> grim_plot(n = c(10, 20)) |> expect_error("single positive number")
+})

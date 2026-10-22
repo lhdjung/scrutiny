@@ -181,3 +181,14 @@ test_that("colors come from a scale that another one replaces", {
   p_new |> rects() |> call_on(\(r) r$fill)   |> expect_equal(c("darkgreen", "orange"))
   p_new |> rects() |> call_on(\(r) r$colour) |> expect_equal(c("darkgreen", "orange"))
 })
+
+
+test_that("`debit_plot()` says that there are no rows to plot", {
+  # The bound columns are also missing from 0-row output, and that used to be
+  # what the message blamed:
+  pigs3 |>
+    debit_map(digits_x = 2, digits_sd = 2) |>
+    dplyr::slice(0) |>
+    debit_plot() |>
+    expect_error("no rows")
+})

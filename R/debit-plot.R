@@ -104,18 +104,19 @@ debit_plot <- function(
     "sum_upper"
   )
 
-  # The bounds are missing from `debit_map()` output without rows, or if they
-  # were dropped. Subsetting used to fail with a vctrs error:
-  check_cols_needed(data, cols_needed, "i" = "`debit_map()` output has them.")
-
-  # A zero-row mapper output keeps its columns, so it passes the check above,
-  # and the axis ranges below cannot be derived from no values:
+  # A zero-row mapper output has no bound columns (nothing to read their
+  # shape off), and the axis ranges below cannot be derived from no values. It
+  # comes first so that the message blames the rows, not the columns:
   if (nrow(data) == 0L) {
     abort_in_export(
       "`data` has no rows, so there is nothing to plot.",
       "i" = "A DEBIT plot needs at least one value set."
     )
   }
+
+  # The bounds are missing if they were dropped. Subsetting used to fail with
+  # a vctrs error:
+  check_cols_needed(data, cols_needed, "i" = "`debit_map()` output has them.")
 
   is_complete <- stats::complete.cases(data[cols_needed])
 
