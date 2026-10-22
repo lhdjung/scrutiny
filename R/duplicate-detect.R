@@ -139,6 +139,10 @@ function_duplicate_cols <- function(code_new_cols, default_end, name_class) {
 #'   `iris`, 99% of values have a duplicate. Duplicates are more meaningful when
 #'   there are fewer values and they have more characters.
 #'
+#'   All values are compared as strings, and the output returns them as such.
+#'   So `1` and `"1"` are duplicates, but `2` and `"2.0"` are not. Numbers
+#'   lose trailing zeros when converted: `2.0` becomes `"2"`.
+#'
 #' @param x Vector or data frame.
 #' @param ignore Optionally, a vector of values not to check. Their result is
 #'   `NA`.
