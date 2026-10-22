@@ -36,6 +36,10 @@ is_seq_basic <- function(
     if (!is_numeric_like(from)) {
       return(FALSE)
     }
+    # A factor by its label, not its level code, as `x` below:
+    if (is.factor(from)) {
+      from <- as.character(from)
+    }
     from <- as.numeric(from)
   }
 

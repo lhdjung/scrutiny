@@ -128,13 +128,15 @@ an_a <- function(x) {
 an_a_type <- function(x) {
   type <- typeof(x)
 
-  if (type == "double") {
+  if (is.factor(x)) {
+    type <- "factor"
+  } else if (type == "double") {
     type <- "double (numeric value)"
   } else if (type == "character") {
     type <- "string"
   }
 
-  article <- an_a(typeof(x))
+  article <- an_a(type)
   paste(article, type)
 }
 
@@ -843,7 +845,9 @@ check_length <- function(x, l, allow_null = FALSE) {
 #'
 #' @noRd
 check_type <- function(x, t) {
-  if (!any(typeof(x) == t)) {
+  # A factor's type is `"integer"`, but its values are level codes, not the
+  # numbers it shows. `n = factor(28)` used to pass and fail in base R:
+  if (is.factor(x) || !any(typeof(x) == t)) {
     msg_name <- deparse(substitute(x))
     if (length(t) == 1L) {
       msg_object <- "be of type"

@@ -236,3 +236,8 @@ test_that("a missing `from` is `NA` only if some center is possible", {
   c(NA, 3, NA) |> is_seq_dispersed(from = NA) |> expect_na()
   c(1, NA, 6)  |> is_seq_dispersed(from = NA) |> expect_na()
 })
+
+
+test_that("a factor `from` counts by its label", {
+  c(9, 10, 11) |> is_seq_dispersed(from = factor(10)) |> expect_true()
+})

@@ -353,3 +353,9 @@ test_that("integer `n` and `items_averaged` don't overflow their product", {
   1.5 |> grim(50000L, digits_x = 1, items_averaged = 50000L) |> expect_true()
   tibble::tibble(x = 1.5, n = 50000L, items_averaged = 50000L) |> grim_map(digits_x = 1) |> dplyr::pull(consistency) |> expect_true()
 })
+
+
+test_that("a factor `n` is rejected rather than tested by its level codes", {
+  5.19 |> grim(factor(28), digits_x = 2, items_averaged = 1) |> expect_error("It is a factor")
+  tibble::tibble(x = 5.19, n = factor(28)) |> grim_map(digits_x = 2, items_averaged = 1) |> expect_error("It is a factor")
+})
