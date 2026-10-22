@@ -226,9 +226,9 @@ test_that("`.cols_helper` supports helper columns", {
   out |> colnames() |> expect_equal(c("x", "sd", "n", "items_averaged", "digits_x", "digits_sd", "consistency", "reason"))
   out$n              |> expect_equal(2L)
   out$items_averaged |> expect_equal(3)
-  # ...or an argument, but not both:
+  # ...or an argument, which must agree with the column if both are given:
   df |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 5) |> expect_error("already in")
-  df |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 3) |> expect_error("already in")
+  df |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 3) |> expect_equal(out)
   out <- pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 2)
   out$n              |> expect_equal(pigs5$n)
   out$items_averaged |> expect_equal(rep(2, nrow(pigs5)))

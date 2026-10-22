@@ -248,9 +248,9 @@ check_audit_special <- function(data, name_test) {
 #' @description A helper column is a column of a mapper's input that is not
 #'   itself tested but enters the test, such as `items_averaged` in
 #'   [`grim_map()`]. It can be given either as a column of `data` or as an
-#'   argument of the same name. `manage_helper_col()` checks that the two are
-#'   not both given, and by default (`affix = TRUE`) adds the argument's value
-#'   to `data` as a column if `data` has none.
+#'   argument of the same name. `manage_helper_col()` checks that the two
+#'   don't disagree if both are given, and by default (`affix = TRUE`) adds
+#'   the argument's value to `data` as a column if `data` has none.
 #'
 #'   Mappers made by [`function_map()`] call it for every `.cols_helper`
 #'   argument. Call it yourself in a handwritten mapper, once per helper
@@ -287,8 +287,15 @@ manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
     # strict equality as tested by `identical()` would be asking too much, so
     # `all(dplyr::near())` is used instead. This works via a helper from
     # utils.R, which is also the source of all the other helpers here. With no
-    # default, the argument was given, as checked above:
-    if (!has_default || !about_equal(var_arg, default)) {
+    # default, the argument was given, as checked above. An argument that
+    # agrees with the column is no contradiction -- a mapper's output is tested
+    # again with the same arguments, say -- so the column is simply kept:
+    arg_given <- !has_default || !about_equal(var_arg, default)
+    col_agrees <- isTRUE(about_equal(
+      data[[var_name]],
+      rep_len(var_arg, nrow(data))
+    ))
+    if (arg_given && !col_agrees) {
       data_name <- deparse(substitute(data))
       data_name <- wrap_in_backticks(data_name)
       var_name_as_arg <- wrap_in_backticks(var_name)

@@ -23,6 +23,7 @@ test_that("`manage_helper_col()` without a default leaves a missing helper missi
   tibble::tibble(x = 5.19)            |> mapper()          |> expect_equal(tibble::tibble(x = 5.19))
   tibble::tibble(x = 5.19)            |> mapper(items = 2) |> expect_equal(tibble::tibble(x = 5.19, items = 2))
   tibble::tibble(x = 5.19, items = 3) |> mapper()          |> expect_equal(tibble::tibble(x = 5.19, items = 3))
-  # With no default to compare against, any value is a contradiction:
-  tibble::tibble(x = 5.19, items = 3) |> mapper(items = 3) |> expect_error("already in")
+  # An argument that agrees with the column is no contradiction:
+  tibble::tibble(x = 5.19, items = 3) |> mapper(items = 3) |> expect_equal(tibble::tibble(x = 5.19, items = 3))
+  tibble::tibble(x = 5.19, items = 3) |> mapper(items = 4) |> expect_error("already in")
 })

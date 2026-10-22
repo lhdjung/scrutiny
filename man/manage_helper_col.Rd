@@ -25,9 +25,9 @@ from \code{var_arg}? Default is \code{TRUE}.}
 A helper column is a column of a mapper's input that is not
 itself tested but enters the test, such as \code{items_averaged} in
 \code{\link[=grim_map]{grim_map()}}. It can be given either as a column of \code{data} or as an
-argument of the same name. \code{manage_helper_col()} checks that the two are
-not both given, and by default (\code{affix = TRUE}) adds the argument's value
-to \code{data} as a column if \code{data} has none.
+argument of the same name. \code{manage_helper_col()} checks that the two
+don't disagree if both are given, and by default (\code{affix = TRUE}) adds
+the argument's value to \code{data} as a column if \code{data} has none.
 
 Mappers made by \code{\link[=function_map]{function_map()}} call it for every \code{.cols_helper}
 argument. Call it yourself in a handwritten mapper, once per helper
