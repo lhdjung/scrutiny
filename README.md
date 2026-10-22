@@ -103,16 +103,16 @@ pigs2
 #> 5  68.1   150
 #> 6  55.4   150
 
-grim_map(pigs2, digits_x = 2, items_averaged = 1, percent = TRUE)
+grim_map(pigs2, digits_x = 1, items_averaged = 1, percent = TRUE)
 #> # A tibble: 6 × 6
 #>       x     n items_averaged digits_x consistency probability
 #>   <dbl> <int>          <dbl>    <dbl> <lgl>             <dbl>
-#> 1  67.4   150              1        2 FALSE             0.985
-#> 2  54.2   150              1        2 FALSE             0.985
-#> 3  54     150              1        2 TRUE              0.985
-#> 4  69.8   150              1        2 FALSE             0.985
-#> 5  68.1   150              1        2 FALSE             0.985
-#> 6  55.4   150              1        2 FALSE             0.985
+#> 1  67.4   150              1        1 FALSE              0.85
+#> 2  54.2   150              1        1 FALSE              0.85
+#> 3  54     150              1        1 TRUE               0.85
+#> 4  69.8   150              1        1 FALSE              0.85
+#> 5  68.1   150              1        1 FALSE              0.85
+#> 6  55.4   150              1        1 FALSE              0.85
 ```
 
 You can choose how the means are reconstructed for testing — below,
