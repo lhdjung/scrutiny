@@ -108,9 +108,9 @@ test_that("uneven separators, `NA`s, and column names ending on `end2` work", {
   tibble::tibble(exp_sd = c("1 (2)", "3 (4)"), ctrl = c("5 (6)", "7 (8)")) |>
     split_by_parens(transform = TRUE) |>
     expect_equal(tibble::tibble(
-      .origin = c("ctrl", "ctrl", "exp_sd", "exp_sd"),
-      x = c("5", "7", "1", "3"),
-      sd = c("6", "8", "2", "4")
+      .origin = c("exp_sd", "exp_sd", "ctrl", "ctrl"),
+      x = c("1", "3", "5", "7"),
+      sd = c("2", "4", "6", "8")
     ))
 })
 

@@ -207,7 +207,8 @@ test_that("`grimmer_plot_values()` draws every valid input", {
 
 
 test_that("the percentage comb stays within 0 and 100", {
-  teeth <- function(p) p$layers[[2]]$data[[1]]
+  # Layers 3 and 4 are the teeth for unattainable and attainable values:
+  teeth <- function(p) c(p$layers[[3]]$data$x, p$layers[[4]]$data$x)
   grim_plot_values(100, 3, 0, 1, percent = TRUE) |> teeth() |> max() |> expect_lte(100)
   grim_plot_values(0, 3, 0, 1, percent = TRUE)   |> teeth() |> min() |> expect_gte(0)
 })
