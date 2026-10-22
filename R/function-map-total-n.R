@@ -137,11 +137,10 @@ function_map_total_n_proto <- function(
       }
     }
 
-    # Helper columns such as `items_averaged` are not among the reported columns
-    # that `out_df` was built from, so they are brought along from `data` here,
-    # one value per case. Otherwise, `fun()` would never see them:
-    args_helper <- attr(fun, "scrutiny_args_helper", exact = TRUE)
-    for (name in intersect(args_helper, colnames(data))) {
+    # Columns of `data` other than the reported ones and `n` -- helper columns
+    # such as `items_averaged`, which `fun()` needs, and any others, which it
+    # returns as they are -- are brought along here, one value per case:
+    for (name in setdiff(colnames(data), c(colnames(.reported), "n"))) {
       out_df[[name]] <- data[[name]][case]
     }
 
@@ -328,6 +327,21 @@ function_map_total_n <- function(
         }
       }
 
+      # One value applies to both groups and every row. A vector used to be
+      # recycled across the alternating group rows, which paired the values
+      # with the wrong groups in the `"back"` direction:
+      for (arg_helper in names(helper_vals)) {
+        if (length(helper_vals[[arg_helper]]) != 1L) {
+          abort_in_export(
+            "`{arg_helper}` must be a single value here.",
+            "x" = "It has length {length(helper_vals[[arg_helper]])}.",
+            "i" = "Total-n mappers test hypothetical group sizes, so one \\
+            value applies to both groups. For values that differ by row, \\
+            give `data` an `{arg_helper}` column."
+          )
+        }
+      }
+
       name_test <- `!!`(.name_test)
       name_fun <- `!!`(name_fun)
       name_class <- `!!`(.name_class)
@@ -344,6 +358,20 @@ function_map_total_n <- function(
       # Checks ---
 
       check_factory_dots(fun, name_fun, ...)
+
+      # The other columns of `data` are returned as they are, so one named like
+      # a result column would be overwritten:
+      names_taken <- intersect(
+        c("n_change", "both_consistent", "case", "dir"),
+        colnames(data)
+      )
+      if (length(names_taken) > 0L) {
+        abort_in_export(
+          "`data` has columns that the output needs for its results.",
+          "x" = "{wrap_in_backticks(names_taken)} would be overwritten.",
+          "i" = "Rename or remove {cli::qty(length(names_taken))}{?it/them}."
+        )
+      }
 
       # Leave out the `digits_*` values that were not given, so that `fun()`
       # sees them as missing and throws its own bespoke error about them. See
@@ -550,6 +578,19 @@ function_map_total_n <- function(
 
       # Combine the two sets of results into one final tibble:
       out <- dplyr::bind_rows(out_forth, out_back)
+
+      # A case whose total leaves no pair of group sizes within the limits has
+      # no rows. It used to vanish without a word:
+      cases_dropped <- setdiff(seq_len(nrow(data)), out$case)
+      if (length(cases_dropped) > 0L) {
+        cli::cli_warn(c(
+          "!" = "{length(cases_dropped)} case{?s} of `data` {?has/have} no \\
+          pair of group sizes to test.",
+          "i" = "{cli::qty(length(cases_dropped))}`dispersion`, `n_min`, \\
+          and `n_max` leave none for {?it/them}, so {?it is/they are} not \\
+          in the output: row{?s} {cases_dropped}."
+        ))
+      }
 
       # `audit_total_n()` dispatches on the generic class, but the test-specific
       # one is what lets users write their own S3 methods for the output of one

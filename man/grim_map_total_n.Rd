@@ -60,7 +60,8 @@ hypothetical group sizes.
 \item \code{dir}: \code{"forth"} where \code{x2} is paired with the larger group size, \code{"back"}
 where \code{x1} is. The split of an even total into two equal groups is the
 same scenario either way, so it appears under \code{"forth"} only.
-\item The other columns of \code{\link[=grim_map]{grim_map()}} output.
+\item The other columns of \code{\link[=grim_map]{grim_map()}} output, and the other columns of
+\code{data}.
 }
 }
 \description{

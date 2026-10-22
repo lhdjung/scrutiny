@@ -236,3 +236,12 @@ test_that("A total below 2 and 0-row `data` get their own errors", {
     grim_map_total_n(digits_x = 2, items_averaged = 1) |>
     expect_error("at least one row")
 })
+
+
+test_that("total-n mappers take a single helper value, carry other columns, and report dropped cases", {
+  df <- tibble::tibble(x1 = c(5.19, 3.2), x2 = c(4.1, 2.2), n = c(40, 100), id = c("a", "b"))
+  df |> grim_map_total_n(digits_x = 2, items_averaged = c(1, 2)) |> expect_error("single value")
+  df |> grim_map_total_n(digits_x = 2, items_averaged = 1, dispersion = 0) |> dplyr::pull(id) |> expect_equal(c("a", "a", "b", "b"))
+  df |> dplyr::mutate(dir = 1) |> grim_map_total_n(digits_x = 2, items_averaged = 1) |> expect_error("would be overwritten")
+  df |> grim_map_total_n(digits_x = 2, items_averaged = 1, n_max = 30) |> expect_warning("no pair of group sizes")
+})

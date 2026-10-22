@@ -40,8 +40,8 @@
 #' @return A tibble like that of [`grim_map_total_n()`], with `x` and `sd`
 #'   columns for the reported values, `dir` recording which group is paired
 #'   with the larger group size (the equal split of an even total appears under
-#'   `"forth"` only), and the other columns of
-#'   [`grimmer_map()`] output.
+#'   `"forth"` only), the other columns of [`grimmer_map()`] output, and the
+#'   other columns of `data`.
 #'
 #' @section Summaries with [`audit_total_n()`]: `audit_total_n()` on
 #'   `grimmer_map_total_n()` output returns a tibble with one row per case and

@@ -53,7 +53,8 @@
 #' - `dir`: `"forth"` where `x2` is paired with the larger group size, `"back"`
 #'   where `x1` is. The split of an even total into two equal groups is the
 #'   same scenario either way, so it appears under `"forth"` only.
-#' - The other columns of [`grim_map()`] output.
+#' - The other columns of [`grim_map()`] output, and the other columns of
+#'   `data`.
 #'
 #' @section Summaries with [`audit_total_n()`]: `audit_total_n()` on
 #'   `grim_map_total_n()` output returns a tibble with one row per case and

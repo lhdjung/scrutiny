@@ -50,7 +50,8 @@ test_that("0-row output is reconstructed as 0 rows, keeping column types", {
     digits_x = 1,
     items_averaged = 1,
     n_min = 2
-  )
+  ) |>
+    suppressWarnings()
   out$x |> expect_type("double")
   rec <- reverse_map_total_n(out)
   rec |> nrow() |> expect_equal(0L)
