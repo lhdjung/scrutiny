@@ -149,9 +149,21 @@ check_factory_dots <- function(fun, fun_name_scalar, ...) {
 
   fun_name_mapper <- name_last_export_code()
 
+  # The dots come right after the key arguments, so an unnamed argument
+  # after them lands here, with an empty name:
+  n_unnamed <- sum(offenders == "")
+  if (n_unnamed > 0L) {
+    abort_in_export(
+      "{n_unnamed} unnamed argument{?s} after the key arguments.",
+      "x" = "Every argument after `...` must be named in full.",
+      "i" = "The key arguments are the columns to test, such as `x` and `n`."
+    )
+  }
+
   # Arguments after the dots must be named in full, so an abbreviation such as
-  # `items` for `items_averaged` lands here:
-  names_full <- names(formals(rlang::caller_fn()))
+  # `items` for `items_averaged` lands here. `fun` has the arguments a sequence
+  # or total-n mapper passes on, such as `rounding`:
+  names_full <- union(names(formals(rlang::caller_fn())), names(formals(fun)))
   names_meant <- unique(unlist(lapply(offenders, function(offender) {
     names_full[startsWith(names_full, offender)]
   })))

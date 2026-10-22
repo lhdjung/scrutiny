@@ -342,6 +342,11 @@ test_that("arguments after the dots can't be abbreviated", {
   # mapper both `n_min` and `n_max`:
   pigs1 |> grim_map(digits_x = 2, items = 2)     |> expect_error("Did you mean `items_averaged`")
   pigs1 |> grim_map_seq(digits_x = 2, items = 1) |> expect_error("Did you mean `items_averaged`")
+  # An argument of the basic mapper, which a sequence or total-n mapper only
+  # passes on, is suggested as well:
+  pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, round = "up") |> expect_error("Did you mean `rounding`")
+  # An unnamed argument after the key arguments goes into the dots:
+  pigs1 |> grim_map(2, "x", "n", 1) |> expect_error("1 unnamed argument after the key arguments")
   tibble::tibble(x1 = 5.19, x2 = 4.1, total = 40) |> grim_map_total_n(digits_x = 2, items_averaged = 1, n = "total", dispersion = 0) |> nrow() |> expect_equal(2L)
 })
 
