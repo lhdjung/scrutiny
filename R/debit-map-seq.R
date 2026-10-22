@@ -67,5 +67,5 @@ debit_map_seq <- function_map_seq(
   # bounded by it, so both live in `[0, 1]`. `debit()` rejects anything outside
   # that range, which used to make `debit_map_seq()` fail outright whenever a
   # reported value sat close enough to a bound for the dispersion to cross it:
-  .var_bounds = list(n = c(1, NA), x = c(0, 1), sd = c(0, 1))
+  .var_bounds = list(n = c(2, NA), x = c(0, 1), sd = c(0, 1))
 )

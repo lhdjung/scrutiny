@@ -1638,3 +1638,15 @@ test_that("the no-cases warning fits the call", {
   undecidable |> grim_map_seq(digits_x = 2, items_averaged = 1, include_consistent = TRUE) |> expect_warning("1 case could not be tested")
   undecidable |> grim_map_seq(digits_x = 2, items_averaged = 1)                            |> expect_warning("Try `include_consistent")
 })
+
+
+test_that("GRIMMER and DEBIT sequence mappers never disperse `n` below 2", {
+  df_grimmer <- tibble::tibble(x = 5.21, sd = 1.21, n = 3)
+  df_debit   <- tibble::tibble(x = 0.5, sd = 0.49, n = 3)
+  out_grimmer <- grimmer_map_seq(df_grimmer, 2, 2, items_averaged = 1, var = "n")
+  out_debit   <- debit_map_seq(df_debit, 2, 2, var = "n")
+  out_grimmer$n |> min() |> expect_equal(2L)
+  out_debit$n   |> min() |> expect_equal(2L)
+  out_grimmer$consistency |> anyNA() |> expect_false()
+  out_debit$consistency   |> anyNA() |> expect_false()
+})
