@@ -42,3 +42,10 @@ test_that("`unlist()` doesn't get to coerce logicals and factors in a list", {
   list(1, factor("a")) |> is_numeric_like() |> expect_false()
   list(1, factor("2")) |> is_numeric_like() |> expect_true()
 })
+
+
+test_that("dates and times are tested as the strings they print as", {
+  as.Date("2026-10-22")       |> is_numeric_like() |> expect_false()
+  as.POSIXct("2026-10-22")    |> is_numeric_like() |> expect_false()
+  list(as.Date("2026-10-22")) |> is_numeric_like() |> expect_false()
+})

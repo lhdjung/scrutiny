@@ -7,7 +7,7 @@
 #'   - Logical vectors and non-vectors are `FALSE`.
 #'   - Other vectors, such as strings, are `TRUE` if every non-`NA` value can
 #'   be coerced to a non-`NA` number.
-#'   - Factors are tested as strings.
+#'   - Factors, dates, and times are tested as the strings they print as.
 #'   - Lists are tested like atomic vectors if every element has length 1, and
 #'   are `FALSE` otherwise. A logical element other than `NA` makes a list
 #'   `FALSE`.
@@ -60,18 +60,22 @@ is_numeric_like <- function(x) {
     return(FALSE)
   }
   # A list is tested like the atomic vector of its elements -- except that
-  # `unlist()` would silently turn `TRUE` into `1` next to a number, and a
-  # factor into its codes. So a logical element is `FALSE`, as a logical vector
-  # is, and a factor is read as its label:
+  # `unlist()` would silently turn `TRUE` into `1` next to a number, a factor
+  # into its codes, and a date into a count of days. So a logical element is
+  # `FALSE`, as a logical vector is, and anything else is read as it prints:
   if (is.list(x) && length(x) > 0L) {
     is_logical_value <- function(e) is.logical(e) && !is.na(e)
     if (any(vapply(x, is_logical_value, logical(1L), USE.NAMES = FALSE))) {
       return(FALSE)
     }
-    x <- lapply(x, function(e) if (is.factor(e)) as.character(e) else e)
+    x <- lapply(x, function(e) {
+      if (is.numeric(e) || is.logical(e)) e else as.character(e)
+    })
     return(is_numeric_like(unlist(x, recursive = FALSE, use.names = FALSE)))
   }
-  if (is.factor(x)) {
+  # A factor is read as its labels, and a date or time as the string it prints
+  # as, not as the number of days or seconds it is stored as:
+  if (!is.character(x)) {
     x <- as.character(x)
   }
   x <- x[!is.na(x)]
