@@ -108,6 +108,8 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `*_map_total_n()` functions now use an `items_averaged` column, and `reverse_map_total_n()` reconstructs the correct total `n` for any `dispersion`. Functions made by `function_map_total_n()` now work when created in another package (#69). An even total's split into two equal groups is now tested once, in the `"forth"` direction; it used to be tested again in the `"back"` direction, which is the same scenario, so that `audit_total_n()` counted one split too many.
 
+- `*_map_total_n()` functions return the other columns of `data`, as the basic and sequence mappers do, and warn about a case whose total leaves no pair of group sizes within `n_min` and `n_max` instead of dropping it silently. A helper argument such as `items_averaged` must be a single value there; a vector used to be paired with the wrong groups in the `"back"` direction. `grimmer_map_seq()` and `debit_map_seq()` no longer disperse `n` below 2, which only produced rows without a test result. The sequence and total-n mappers reject input columns named like their result columns (`diff_var`, `case`, `var`, `n_change`, `both_consistent`, `dir`) instead of overwriting them.
+
 ### Rounding and decimal places
 
 - `decimal_places()` and `decimal_places_scalar()` now handle scientific notation, agree with each other on malformed strings, count numeric values correctly when `sep` is not `"."`, and return `NA` for `NaN`, infinite values, and the string `"NA"`.
@@ -139,6 +141,8 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 - `restore_zeros_df()`, `decimal_places_df()`, and `split_by_parens()` work on grouped tibbles and keep the groups. `is_numeric_like()` is `FALSE` for dates and times, which `restore_zeros_df()` used to turn into `NA`. `split_by_parens(transform = TRUE)` keeps the columns in their order instead of sorting them alphabetically.
 
 - `grim_plot(split_by_digits = TRUE)` placed tiles at `n * items_averaged^2`. `function_map_seq()` works for a mapper with a single reported variable. `grim_explain()` no longer says that a sum on a bound "rounds to" the neighboring value under `rounding = "even"` and then calls the set consistent. `reverse_map_total_n()` rejects mapper output with rows removed. `disperse()` rejects a missing `n_max`, and `disperse2()` applies `n_min` and `n_max` to the group sizes rather than to their midpoint. `seq_disperse()` disperses a factor by its label. The `sd_binary_*()` functions return `NA` for `n` below 2.
+
+- A helper argument that agrees with the column of the same name, as when a mapper's output is tested again with the same arguments, is no longer an error. `duplicate_count()` works on grouped tibbles. `grim()` and `grim_map()` no longer fail when integer `n` and `items_averaged` values multiply to more than the integer range.
 
 - `grim_map()` is now about 2.5 times as fast, and `grimmer_map()` about 80 times as fast.
 
