@@ -37,3 +37,4 @@ R\.Rproj$
 ^\.mailmap$
 ^jarl\.toml$
 ^tests/testthat/_problems$
+^tests/testthat/testthat-problems\.rds$
