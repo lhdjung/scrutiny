@@ -17,6 +17,8 @@
 #'   groups, or two numbers, one per group.
 #' @param x1,x2,sd1,sd2 Optionally, the names of the columns in `data` that
 #'   contain these values, if they differ from the defaults.
+#' @param n_min Numeric. Minimal group size. Default is 2: DEBIT divides by
+#'   `n - 1`, so a group of 1 has no test result.
 #' @param ... Arguments passed on to [`debit_map()`].
 #' @inheritParams grim_map_total_n
 #'
@@ -69,5 +71,6 @@
 debit_map_total_n <- function_map_total_n(
   .fun = debit_map,
   .reported = c("x", "sd"),
-  .name_test = "DEBIT"
+  .name_test = "DEBIT",
+  .n_min = 2L
 )

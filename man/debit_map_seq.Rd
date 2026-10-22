@@ -38,7 +38,7 @@ these values, if they differ from the defaults.}
 units of the last decimal place. Default is \code{1:5}.}
 
 \item{out_min, out_max}{Limits on the dispersed values. Both default to
-\code{"auto"}, which keeps \code{n} at 1 or above and \code{x} and \code{sd} between 0 and 1.
+\code{"auto"}, which keeps \code{n} at 2 or above and \code{x} and \code{sd} between 0 and 1.
 A number applies to every dispersed variable, and \code{NULL} removes the
 limit.}
 

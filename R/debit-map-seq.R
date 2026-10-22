@@ -17,7 +17,7 @@
 #' @param var String. The variables to disperse. Default is
 #'   `c("x", "sd", "n")`.
 #' @param out_min,out_max Limits on the dispersed values. Both default to
-#'   `"auto"`, which keeps `n` at 1 or above and `x` and `sd` between 0 and 1.
+#'   `"auto"`, which keeps `n` at 2 or above and `x` and `sd` between 0 and 1.
 #'   A number applies to every dispersed variable, and `NULL` removes the
 #'   limit.
 #' @param ... Arguments passed on to [`debit_map()`].

@@ -14,7 +14,7 @@ grimmer_map_total_n(
   sd2 = NULL,
   items_averaged,
   dispersion = 0:5,
-  n_min = 1L,
+  n_min = 2L,
   n_max = NULL,
   constant = NULL,
   ...
@@ -41,7 +41,8 @@ There is no default.}
 \item{dispersion}{Numeric. Steps up and down from half the total \code{n}.
 Default is \code{0:5}, i.e., the even split and five steps away from it.}
 
-\item{n_min}{Numeric. Minimal group size. Default is 1.}
+\item{n_min}{Numeric. Minimal group size. Default is 2: GRIMMER divides by
+\code{n - 1}, so a group of 1 has no test result.}
 
 \item{n_max}{Numeric. Maximal group size. Default is \code{NULL}, i.e., no
 maximum.}

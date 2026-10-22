@@ -247,3 +247,12 @@ test_that("total-n mappers take a single helper value, carry other columns, and 
   df |> dplyr::mutate(sd1 = 1, sd2 = 1, sd = 9) |> grimmer_map_total_n(digits_x = 2, digits_sd = 0, items_averaged = 1) |> expect_error("`sd` would be overwritten")
   df |> grim_map_total_n(digits_x = 2, items_averaged = 1, n_max = 30) |> expect_warning("no pair of group sizes")
 })
+
+
+test_that("GRIMMER and DEBIT total-n mappers never test a group of 1", {
+  # Such rows had no test result, and `audit_total_n()` counted them:
+  out_grimmer <- tibble::tibble(x1 = 5.2, x2 = 4.25, sd1 = 1.3, sd2 = 1.4, n = 8) |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1)
+  out_debit   <- tibble::tibble(x1 = 0.5, x2 = 0.25, sd1 = 0.58, sd2 = 0.5, n = 8) |> debit_map_total_n(digits_x = 2, digits_sd = 2)
+  out_grimmer$n |> min() |> expect_equal(2L)
+  out_debit$n   |> min() |> expect_equal(2L)
+})

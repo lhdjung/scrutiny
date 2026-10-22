@@ -20,6 +20,8 @@
 #' @param items_averaged Integer. As in [`grimmer_map()`]: the number of items
 #'   averaged into each score, given as an argument or as a column of `data`.
 #'   There is no default.
+#' @param n_min Numeric. Minimal group size. Default is 2: GRIMMER divides by
+#'   `n - 1`, so a group of 1 has no test result.
 #' @param ... Arguments passed on to [`grimmer_map()`].
 #' @inheritParams grim_map_total_n
 #'
@@ -84,5 +86,6 @@
 grimmer_map_total_n <- function_map_total_n(
   .fun = grimmer_map,
   .reported = c("x", "sd"),
-  .name_test = "GRIMMER"
+  .name_test = "GRIMMER",
+  .n_min = 2L
 )

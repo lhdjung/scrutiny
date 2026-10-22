@@ -13,7 +13,7 @@ debit_map_total_n(
   sd1 = NULL,
   sd2 = NULL,
   dispersion = 0:5,
-  n_min = 1L,
+  n_min = 2L,
   n_max = NULL,
   constant = NULL,
   ...
@@ -36,7 +36,8 @@ contain these values, if they differ from the defaults.}
 \item{dispersion}{Numeric. Steps up and down from half the total \code{n}.
 Default is \code{0:5}, i.e., the even split and five steps away from it.}
 
-\item{n_min}{Numeric. Minimal group size. Default is 1.}
+\item{n_min}{Numeric. Minimal group size. Default is 2: DEBIT divides by
+\code{n - 1}, so a group of 1 has no test result.}
 
 \item{n_max}{Numeric. Maximal group size. Default is \code{NULL}, i.e., no
 maximum.}
