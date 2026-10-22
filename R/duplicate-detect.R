@@ -179,7 +179,7 @@ function_duplicate_cols <- function(code_new_cols, default_end, name_class) {
 #'   audit()
 #'
 #' pigs4 |>
-#'   duplicate_detect(ignore = c(8.131, 7.574))
+#'   duplicate_detect(ignore = c(8.13, 7.57))
 
 duplicate_detect <- function(x, ignore = NULL, colname_end = "dup") {
   lifecycle::deprecate_warn(
@@ -240,7 +240,7 @@ duplicate_detect_impl <- function_duplicate_cols(
 #'   audit()
 #'
 #' pigs4 |>
-#'   duplicate_tally(ignore = c(8.131, 7.574))
+#'   duplicate_tally(ignore = c(8.13, 7.57))
 
 duplicate_tally <- function_duplicate_cols(
   # For each input value, count how many instances of that value exist. The

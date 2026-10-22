@@ -61,7 +61,7 @@ pigs4 |>
   audit()
 
 pigs4 |>
-  duplicate_detect(ignore = c(8.131, 7.574))
+  duplicate_detect(ignore = c(8.13, 7.57))
 }
 \seealso{
 \itemize{

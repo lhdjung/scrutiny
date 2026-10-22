@@ -34,7 +34,7 @@ write_doc_audit <- function(sample_output, name_test) {
       "i" = "(These outputs always have at least three columns.)",
       "i" = "Create it like this:",
       "pigs1 |>
-           grim_map() |>
+           grim_map(digits_x = 2, items_averaged = 1) |>
            audit() |>
            write_doc_audit(name_test = \"GRIM\")"
     ))

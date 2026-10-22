@@ -136,6 +136,10 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - Errors about an invalid `rounding` or `symmetric` now name the function that the user called, and they are no longer wrapped in `purrr::pmap()`'s "In index" context. Many errors that came from base R or from internal code were replaced by messages that name the argument at fault.
 
+- `restore_zeros_df()`, `decimal_places_df()`, and `split_by_parens()` work on grouped tibbles and keep the groups. `is_numeric_like()` is `FALSE` for dates and times, which `restore_zeros_df()` used to turn into `NA`. `split_by_parens(transform = TRUE)` keeps the columns in their order instead of sorting them alphabetically.
+
+- `grim_plot(split_by_digits = TRUE)` placed tiles at `n * items_averaged^2`. `function_map_seq()` works for a mapper with a single reported variable. `grim_explain()` no longer says that a sum on a bound "rounds to" the neighboring value under `rounding = "even"` and then calls the set consistent. `reverse_map_total_n()` rejects mapper output with rows removed. `disperse()` rejects a missing `n_max`, and `disperse2()` applies `n_min` and `n_max` to the group sizes rather than to their midpoint. `seq_disperse()` disperses a factor by its label. The `sd_binary_*()` functions return `NA` for `n` below 2.
+
 - `grim_map()` is now about 2.5 times as fast, and `grimmer_map()` about 80 times as fast.
 
 ## Lifecycle updates

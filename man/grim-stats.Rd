@@ -45,8 +45,10 @@ decimal count. Default is \code{FALSE}.}
 The rounding method and, for the \code{"*_from"} methods, its threshold, as in
 \code{\link[=grim]{grim()}}. Defaults are \code{"up_or_down"} and \code{5}. The count depends on the
 method: \code{"up_or_down"} accepts a mean on a tie in both directions, and
-\code{"ceiling_or_floor"} admits a range two steps wide. \code{\link[=grim_map]{grim_map()}} passes
-its own \code{rounding} and \code{threshold} on.}
+\code{"ceiling_or_floor"} admits a range two steps wide. \code{"even"} counts a tie
+on either bound as consistent, like \code{"up_or_down"}, although
+\code{\link[base:Round]{base::round()}} may round it the other way; see \code{\link[=unround]{unround()}}.
+\code{\link[=grim_map]{grim_map()}} passes its own \code{rounding} and \code{threshold} on.}
 }
 \value{
 Double. \code{grim_probability()} and \code{grim_total()} return \code{NA} where

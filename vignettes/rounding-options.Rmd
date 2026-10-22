@@ -26,7 +26,7 @@ For consistency testing, the default is almost always the right choice, and ther
 
 `rounding = "up_or_down"` counts a value set as consistent if the reported number matches either of the two rounded results. This covers every way of breaking a tie at 5: up, down, to even, away from zero, and toward zero. A value set is therefore never rejected because the wrong tie-breaking rule was assumed. `rounding = "ceiling_or_floor"` is even more permissive and covers every rounding procedure, including truncation and custom thresholds.
 
-Specifying a single procedure (`"up"`, `"down"`, `"trunc"`, etc.) can only make a test stricter. The exception is `"even"`, which leads to the same results as the default; see the note on rounding to even below. A single procedure is appropriate if there is positive evidence about how the numbers were produced. Without such evidence, it may lead to false positives, so in case of doubt, keep the default.
+Specifying a single procedure narrows the range of values the test accepts, but does not simply make it stricter. `"up"` and `"down"` each admit one half of the default's ties, so they can only reject what the default accepts. `"even"` leads to the same results as the default; see the note on rounding to even below. `"trunc"`, `"ceiling"`, `"floor"`, `"anti_trunc"`, and the `"*_from"` methods with a `threshold` other than 5 shift the range instead, so they may accept value sets that the default rejects, and vice versa. A single procedure is appropriate if there is positive evidence about how the numbers were produced. Without such evidence, it may lead to false positives or negatives, so in case of doubt, keep the default.
 
 ## In scrutiny
 

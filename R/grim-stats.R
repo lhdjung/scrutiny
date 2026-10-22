@@ -24,8 +24,10 @@
 #'   The rounding method and, for the `"*_from"` methods, its threshold, as in
 #'   [`grim()`]. Defaults are `"up_or_down"` and `5`. The count depends on the
 #'   method: `"up_or_down"` accepts a mean on a tie in both directions, and
-#'   `"ceiling_or_floor"` admits a range two steps wide. [`grim_map()`] passes
-#'   its own `rounding` and `threshold` on.
+#'   `"ceiling_or_floor"` admits a range two steps wide. `"even"` counts a tie
+#'   on either bound as consistent, like `"up_or_down"`, although
+#'   [`base::round()`] may round it the other way; see [`unround()`].
+#'   [`grim_map()`] passes its own `rounding` and `threshold` on.
 #'
 #' @seealso [`grim()`] and [`grim_map()`].
 #'

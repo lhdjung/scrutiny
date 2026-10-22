@@ -175,6 +175,11 @@ grim_closest_scalar <- function(
 #'
 #'   With `percent = TRUE`, the values are percentages, like `x`.
 #'
+#'   Under `rounding = "even"`, both bounds of that range are inclusive (see
+#'   [`unround()`]), so the values include ties that [`base::round()`] may
+#'   round away from `x`: `grim_values(1.3, 20, 1, 1, rounding = "even")`
+#'   returns 1.25 and 1.35 along with 1.3.
+#'
 #' @param x Numeric. The reported mean or percentage.
 #' @param n Integer. The reported sample size.
 #' @param digits_x Integer. The number of decimal places in `x`, including
