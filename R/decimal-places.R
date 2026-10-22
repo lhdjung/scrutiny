@@ -52,7 +52,7 @@ decimal_places <- function(x, sep = ".") {
   # below has to deal with a missing value:
   if (is.numeric(x)) {
     non_finite <- !is.finite(x)
-    x <- as.character(x)
+    x <- number_to_string(x)
     # R writes a number with a point, whatever `sep` the strings use:
     sep <- "."
   } else {
@@ -100,6 +100,32 @@ decimal_places <- function(x, sep = ".") {
 }
 
 
+# `as.character()` writes a number with up to 15 significant digits. Near the
+# ends of the double range, it can use all of them where far fewer stand for the
+# same number: `1e-300` became `"9.99999999999999e-301"`, with 315 decimal
+# places, and `2.5e-310` had 312. Such a string is replaced by the shortest one
+# that converts back to the same number. Only scientific notation is searched,
+# so that the common case costs one fixed-string match:
+number_to_string <- function(x) {
+  out <- as.character(x)
+  has_exponent <- grepl("e", out, fixed = TRUE)
+  if (!any(has_exponent)) {
+    return(out)
+  }
+  n_digits <- nchar(gsub("[^0-9]", "", sub("e.*$", "", out[has_exponent])))
+  for (i in which(has_exponent)[n_digits >= 15L]) {
+    for (digits in 1:14) {
+      shorter <- format(x[i], digits = digits)
+      if (as.numeric(shorter) == x[i]) {
+        out[i] <- shorter
+        break
+      }
+    }
+  }
+  out
+}
+
+
 # Faster, single-case (scalar) function to be used as a helper within other
 # single-case functions. Not exported; it has to agree with `decimal_places()`,
 # which test-decimal-places.R checks:
@@ -116,7 +142,7 @@ decimal_places_scalar <- function(x, sep = ".") {
       return(NA_integer_)
     }
   } else if (is.finite(x)) {
-    x <- as.character(x)
+    x <- number_to_string(x)
     sep <- "."
   } else {
     # `is.finite()` is `FALSE` for `NA` and `NaN` as well as the infinities:

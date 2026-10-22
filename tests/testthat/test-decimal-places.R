@@ -380,3 +380,10 @@ test_that("the decimal separator must be a single string", {
   "1.5" |> decimal_places(sep = c(".", ",")) |> expect_error("single string")
   tibble::tibble(a = 1.5) |> restore_zeros_df(sep_in = NA) |> expect_error("single string")
 })
+
+
+test_that("numbers near the ends of the double range count as written", {
+  # `as.character(1e-300)` is "9.99999999999999e-301", which gave 315:
+  c(1e-300, 2.5e-310)       |> decimal_places()                          |> expect_equal(c(300L, 311L))
+  list(1e-300, 2.5e-310)    |> vapply(decimal_places_scalar, integer(1)) |> expect_equal(c(300L, 311L))
+})
