@@ -278,6 +278,11 @@ test_that("`n` must be a single positive number", {
 
 test_that("the gradient ends at `10^digits` and the axis breaks are round", {
   p <- tibble::tibble(x = c(5.193, 4.271), n = c(3000L, 400L)) |> grim_map(digits_x = 3, items_averaged = 1) |> grim_plot()
-  p$layers |> purrr::map("geom_params") |> purrr::map("xmax") |> purrr::compact() |> expect_equal(list(1000))
+  p$layers |> purrr::map("geom_params") |> purrr::map("xmax") |> unlist(use.names = FALSE) |> expect_equal(1000)
   p |> ggplot2::ggplot_build() |> purrr::pluck("layout", "panel_params", 1L, "x", "breaks") |> expect_equal(seq(0, 3000, 500))
+})
+
+
+test_that("`grim_plot()` doesn't overflow the integer range", {
+  tibble::tibble(x = c(1.53, 1.2), n = c(50000L, 20L), items_averaged = c(50000L, 1L)) |> grim_map(digits_x = 2) |> grim_plot() |> expect_no_warning()
 })

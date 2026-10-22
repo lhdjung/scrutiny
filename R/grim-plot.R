@@ -399,9 +399,10 @@ grim_plot <- function(
 
   # The mappers keep `items_averaged` apart from `n`, but GRIM's granularity is
   # their product. This comes after the `split_by_digits` branch, whose
-  # recursive calls fold it in themselves:
+  # recursive calls fold it in themselves. As a double, since two integers can
+  # multiply to more than the integer range:
   if ("items_averaged" %in% colnames(data)) {
-    data$n <- data$n * data$items_averaged
+    data$n <- as.double(data$n) * data$items_averaged
   }
 
   # `percent = TRUE` in the `grim_map()` call means `x` is a proportion of 100,
