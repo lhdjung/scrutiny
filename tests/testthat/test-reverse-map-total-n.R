@@ -64,5 +64,8 @@ test_that("incomplete mapper output is rejected", {
   # The first two rows of each case used to be paired up whatever they were:
   out <- tibble::tibble(x1 = 4.52, x2 = 5.23, n = 40) |>
     grim_map_total_n(digits_x = 2, items_averaged = 1)
-  out[-1, ] |> reverse_map_total_n() |> expect_error("in full")
+  out[-1, ]                           |> reverse_map_total_n() |> expect_error("in full")
+  out[-c(2, 3), ]                     |> reverse_map_total_n() |> expect_error("in full")
+  out |> dplyr::filter(consistency)   |> reverse_map_total_n() |> expect_error("in full")
+  out |> dplyr::arrange(n)            |> reverse_map_total_n() |> expect_error("in order")
 })

@@ -31,15 +31,26 @@ reverse_map_total_n <- function(data) {
     ))
   }
 
-  # The group sizes come in pairs, so a case with an odd number of rows has
-  # lost some. Taking the first two rows of it used to pair up group sizes from
-  # different steps without a word:
-  rows_per_case <- table(data$case)
-  if (any(rows_per_case %% 2L != 0L)) {
+  # The group sizes come in pairs: consecutive rows of the same case and
+  # direction, one step from the halves of the total each way, so with the same
+  # absolute `n_change`. All pairs of a case add up to the same total. Rows that
+  # were removed or reordered break this, and taking the first two rows of a
+  # case used to pair up group sizes from different steps without a word:
+  first <- seq(1L, by = 2L, length.out = nrow(data) %/% 2L)
+  second <- first + 1L
+  sums <- data$n[first] + data$n[second]
+  pairs_broken <-
+    nrow(data) %% 2L != 0L ||
+    any(
+      data$case[first] != data$case[second] |
+        data$dir[first] != data$dir[second] |
+        abs(data$n_change[first]) != abs(data$n_change[second]) |
+        sums != stats::ave(sums, data$case[first], FUN = function(x) x[1L])
+    )
+  if (pairs_broken) {
     abort_in_export(
-      "`data` must hold the mapper's output in full.",
-      "x" = "Some cases have an odd number of rows, so rows have been \\
-      removed.",
+      "`data` must hold the mapper's output in full and in order.",
+      "x" = "Some rows have been removed or reordered.",
       "i" = "Each pair of consecutive rows is one split of the total."
     )
   }
