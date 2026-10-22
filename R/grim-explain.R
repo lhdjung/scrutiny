@@ -231,6 +231,29 @@ grim_explain <- function(
     # away from a bound where only some rounding procedures would round it to
     # `x`:
     sum_shown <- min(max(round(x_num * n_items), sum_lower), sum_upper)
+
+    # Under `"even"`, a sum on a bound is a tie that `base::round()` may break
+    # either way, which is why both bounds are inclusive (see `?unround`). Show
+    # another sum from the range if there is one, and otherwise say so rather
+    # than claim a rounding that cannot be predicted:
+    is_tie <- function(sum) {
+      rounding %in% c("even", "ties_even") &
+        (dplyr::near(sum * bounds$denom, n_items * bounds$lower) |
+          dplyr::near(sum * bounds$denom, n_items * bounds$upper))
+    }
+    if (is_tie(sum_shown)) {
+      sums_other <- c(sum_shown + 1, sum_shown - 1)
+      sums_other <- sums_other[
+        sums_other >= sum_lower & sums_other <= sum_upper & !is_tie(sums_other)
+      ]
+      sum_shown <- c(sums_other, sum_shown)[1L]
+    }
+    text_rounds <- if (is_tie(sum_shown)) {
+      ", a tie that rounding to even may break either way"
+    } else {
+      paste0(", which rounds to ", rounds_to(sum_shown * scale_x / n_items))
+    }
+
     in_range <- if (sum_lower == sum_upper) {
       paste0(", and ", sum_lower, " is in this range: ")
     } else {
@@ -246,8 +269,7 @@ grim_explain <- function(
       whole_intro,
       in_range,
       divide(sum_shown),
-      ", which rounds to ",
-      rounds_to(sum_shown * scale_x / n_items),
+      text_rounds,
       "."
     )
   } else {

@@ -211,7 +211,8 @@ grimmer_explain <- function(
     "must be odd if the sum is odd, and even if the sum is even."
   )
 
-  # The sum of squares as a calculation, at one bound of the SD:
+  # The sum of squares as a calculation, at one bound of the SD. A negative sum
+  # is squared as a whole, so it is shown in parentheses:
   sum_squares_at <- function(s, sd_num, sd_shown) {
     value <- (n - 1) * items_averaged^2 * sd_num^2 / sd_bounds$denom^2 + s^2 / n
     paste0(
@@ -219,7 +220,7 @@ grimmer_explain <- function(
       " * ",
       sd_term(sd_shown),
       " + ",
-      s,
+      if (s < 0) paste0("(", s, ")") else s,
       "^2 / ",
       n,
       " = ",

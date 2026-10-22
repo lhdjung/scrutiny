@@ -203,3 +203,21 @@ test_that("GRIMMER explains a sum of squares that fewer than five numbers cannot
   1 |> grimmer_explain(2, 2, digits_x = 1, digits_sd = 1, items_averaged = 1) |> format() |> paste(collapse = " ") |> expect_match("and 2 whole numbers with a sum of 2 cannot have 6.", fixed = TRUE)
   1 |> grimmer_explain(6, 4, digits_x = 1, digits_sd = 0, items_averaged = 1) |> format() |> paste(collapse = " ") |> expect_match("numbers with a sum of 4 can have is 98.", fixed = TRUE)
 })
+
+
+# Under `"even"`, a sum on a bound is a tie that `base::round()` may break
+# either way, so the text used to say "1 / 4 = 0.25, which rounds to 0.2" and
+# then "Consistent":
+test_that("`grim_explain()` does not claim a rounding for a tie under `\"even\"`", {
+  tie_only <- grim_explain(0.2, 4, digits_x = 1, items_averaged = 1, rounding = "even")
+  tie_only$paragraphs[[3]] |> expect_match("a tie that rounding to even may break either way")
+  # With another sum in the range, that one is shown instead:
+  tie_and_more <- grim_explain(0.3, 20, digits_x = 1, items_averaged = 1, rounding = "even")
+  tie_and_more$paragraphs[[3]] |> expect_match("6 / 20 = 0.3, which rounds to 0.3")
+  grim_explain(0.2, 4, digits_x = 1, items_averaged = 1)$paragraphs[[3]] |> expect_match("which rounds to 0.3 or 0.2")
+})
+
+test_that("`grimmer_explain()` squares a negative sum as a whole", {
+  out <- grimmer_explain(-3.15, 1.15, 20, digits_x = 2, digits_sd = 2, items_averaged = 1)
+  out$paragraphs[[6]] |> expect_match("(-63)^2", fixed = TRUE)
+})
