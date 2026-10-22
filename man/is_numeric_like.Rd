@@ -19,7 +19,7 @@ scrutiny's standards:
 \item Integer and double vectors are \code{TRUE}.
 \item Logical vectors and non-vectors are \code{FALSE}.
 \item Other vectors, such as strings, are \code{TRUE} if every non-\code{NA} value can
-be coerced to a non-\code{NA} number.
+be coerced to a non-\code{NA} number. The string \code{"NA"} counts as \code{NA}.
 \item Factors, dates, and times are tested as the strings they print as.
 \item Lists are tested like atomic vectors if every element has length 1, and
 are \code{FALSE} otherwise. A logical element other than \code{NA} makes a list

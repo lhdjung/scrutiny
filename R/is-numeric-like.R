@@ -6,7 +6,7 @@
 #'   - Integer and double vectors are `TRUE`.
 #'   - Logical vectors and non-vectors are `FALSE`.
 #'   - Other vectors, such as strings, are `TRUE` if every non-`NA` value can
-#'   be coerced to a non-`NA` number.
+#'   be coerced to a non-`NA` number. The string `"NA"` counts as `NA`.
 #'   - Factors, dates, and times are tested as the strings they print as.
 #'   - Lists are tested like atomic vectors if every element has length 1, and
 #'   are `FALSE` otherwise. A logical element other than `NA` makes a list
@@ -78,7 +78,10 @@ is_numeric_like <- function(x) {
   if (!is.character(x)) {
     x <- as.character(x)
   }
-  x <- x[!is.na(x)]
+  # The string `"NA"` is missing, too, as `decimal_places()` and
+  # `restore_zeros()` read it. A column with it used to be skipped by the
+  # `*_df()` functions, which select numeric-like columns:
+  x <- x[!is.na(x) & x != "NA"]
   if (length(x) == 0L) {
     return(NA)
   }

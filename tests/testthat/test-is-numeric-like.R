@@ -49,3 +49,10 @@ test_that("dates and times are tested as the strings they print as", {
   as.POSIXct("2026-10-22")    |> is_numeric_like() |> expect_false()
   list(as.Date("2026-10-22")) |> is_numeric_like() |> expect_false()
 })
+
+
+test_that("the string \"NA\" is missing, as in `decimal_places()`", {
+  c("1.5", "NA") |> is_numeric_like() |> expect_true()
+  "NA"           |> is_numeric_like() |> expect_na()
+  tibble::tibble(a = c("1.5", "NA")) |> decimal_places_df() |> dplyr::pull(a) |> expect_equal(c(1L, NA))
+})
