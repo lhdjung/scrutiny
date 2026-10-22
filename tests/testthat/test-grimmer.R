@@ -898,6 +898,11 @@ test_that("`sum_squares_attainable()` agrees with every sample of fewer than fiv
         info <- paste0("n = ", n, ", s = ", s, ", q = ", q)
         found <- s |> sum_squares_attainable(n, q, q)
         found |> is.na() |> expect_equal(!q %in% attained, info = info)
+        # Over a range, it finds the smallest attainable one from `q` on:
+        upper <- min(q + 7, 36)
+        expected <- attained[attained >= q & attained <= upper]
+        expected <- if (length(expected) == 0L) NA_real_ else min(expected)
+        s |> sum_squares_attainable(n, q, upper) |> expect_equal(expected, info = info)
       }
     }
   }
