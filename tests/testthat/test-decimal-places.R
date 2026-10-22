@@ -369,9 +369,9 @@ test_that("`decimal_places_df()` works on grouped tibbles", {
 test_that("the `*_df()` functions ignore grouping and return ungrouped data", {
   # Regrouping by transformed grouping columns used to merge groups:
   df <- tibble::tibble(g = c("a", "a", "b"), y = c(1.5, 2, 3))
-  df |> dplyr::group_by(y) |> decimal_places_df() |> dplyr::is_grouped_df() |> expect_false()
-  df |> dplyr::rowwise(g)  |> decimal_places_df() |> inherits("rowwise_df") |> expect_false()
-  df |> dplyr::rowwise(g)  |> restore_zeros_df()  |> inherits("rowwise_df") |> expect_false()
+  df |> dplyr::group_by(y) |> decimal_places_df(cols = y) |> dplyr::is_grouped_df() |> expect_false()
+  df |> dplyr::rowwise(g)  |> decimal_places_df(cols = y) |> inherits("rowwise_df") |> expect_false()
+  df |> dplyr::rowwise(g)  |> restore_zeros_df(cols = y)  |> inherits("rowwise_df") |> expect_false()
 })
 
 
