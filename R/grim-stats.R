@@ -130,12 +130,13 @@ grim_total <- function(
     check_type(x, c("double", "integer"))
   }
 
-  # As in `grim()`, which would reject a fractional or negative `digits_x`:
+  # As in `grim()`, which would reject a fractional `digits_x` or one outside
+  # of 0 to 15:
   check_digits_whole(digits_x, "digits_x")
-  if (any(digits_x < 0, na.rm = TRUE)) {
+  if (any(digits_x < 0 | digits_x > 15, na.rm = TRUE)) {
     abort_in_export(
-      "`digits_x` must not be negative.",
-      "x" = "It is {digits_x}."
+      "`digits_x` must be whole numbers from 0 to 15.",
+      "x" = "It is {wrap_in_quotes_or_backticks(digits_x)}."
     )
   }
 

@@ -177,32 +177,35 @@ grim_binomial_power <- function(
   if (length(p0) != 1L) {
     k <- length(p0)
   } else if (is.null(k)) {
-    cli::cli_abort("`k` is required when `p0` is length 1.")
+    abort_in_export("`k` is required when `p0` is length 1.")
   }
 
   # `poibin::ppoibin()` crashes the R session when given no probabilities:
-  if (length(p0) == 0L || !is.numeric(k) || is.na(k) || k < 1) {
-    cli::cli_abort(c(
+  if (length(p0) == 0L) {
+    abort_in_export(
       "There must be at least one value set.",
-      "x" = "`k` is {k}, and `p0` has length {length(p0)}."
-    ))
+      "x" = "`p0` has length 0."
+    )
   }
-  if (!is_whole_number(k)) {
-    cli::cli_abort(c(
-      "`k` must be a whole number.",
-      "x" = "It is {k}.",
+  if (
+    length(k) != 1L || !is.numeric(k) || !is.finite(k) || k < 1 ||
+      !is_whole_number(k)
+  ) {
+    abort_in_export(
+      "`k` must be a single whole number of at least 1.",
+      "x" = "It is {wrap_in_quotes_or_backticks(k)}.",
       "i" = "It is the number of value sets."
-    ))
+    )
   }
 
   # A probability outside of 0 and 1 used to give `NaN`, an error from poibin,
   # or a power of 1:
   check_probability <- function(p, name) {
     if (!is.numeric(p) || anyNA(p) || any(p < 0 | p > 1)) {
-      cli::cli_abort(c(
+      abort_in_export(
         "`{name}` must be between 0 and 1.",
-        "x" = "It is {wrong_spec_string(p)}."
-      ))
+        "x" = "It is {wrap_in_quotes_or_backticks(p)}."
+      )
     }
   }
   check_probability(p0, "p0")

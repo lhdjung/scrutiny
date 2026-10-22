@@ -13,7 +13,7 @@ resolve_digits_fraction <- function(digits, denominator) {
   if (!is.numeric(digits) && !(is.logical(digits) && all(is.na(digits)))) {
     abort_in_export(
       "!" = "`digits` must be whole numbers or \"auto\".",
-      "x" = "It is {wrong_spec_string(digits)}."
+      "x" = "It is {wrap_in_quotes_or_backticks(digits)}."
     )
   }
 

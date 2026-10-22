@@ -111,17 +111,6 @@ disperse <- function(
   # (Note: The checks below count towards to the main part because they may lead
   # to input transformations.)
 
-  # A missing limit used to pass the length check and turn every pair into
-  # `NA`:
-  check_limit_n <- function(limit, name) {
-    if (length(limit) != 1L || !is.numeric(limit) || is.na(limit)) {
-      abort_in_export(
-        "`{name}` must be a single number or `NULL`.",
-        "x" = "It is {wrong_spec_string(limit)}."
-      )
-    }
-  }
-
   if (!is.null(n_min)) {
     check_limit_n(n_min, "n_min")
     dispersion <- dispersion[(n - dispersion) >= n_min]
@@ -235,6 +224,8 @@ disperse2 <- function(
   # apply to the group sizes, which are half a unit further out than the
   # values dispersed from the midpoint; a fractional `n_min` used to let a pair
   # through that broke it:
+  check_limit_n(n_min, "n_min")
+  check_limit_n(n_max, "n_max")
   out <- disperse(
     n = mean(n),
     constant = constant,
@@ -315,6 +306,19 @@ disperse_total <- function(
       n_min = n_min,
       n_max = n_max,
       constant = constant
+    )
+  }
+}
+
+
+# A missing limit used to pass the length check and turn every pair into `NA`.
+# `disperse2()` checks the limits before shifting them, so that the message
+# shows what the user gave:
+check_limit_n <- function(limit, name) {
+  if (!is.null(limit) && (length(limit) != 1L || !is.numeric(limit) || is.na(limit))) {
+    abort_in_export(
+      "`{name}` must be a single number or `NULL`.",
+      "x" = "It is {wrap_in_quotes_or_backticks(limit)}."
     )
   }
 }

@@ -36,7 +36,7 @@ grim_scalar <- function(
   if (!isTRUE(percent) && !isFALSE(percent)) {
     abort_in_export(
       "`percent` must be `TRUE` or `FALSE`.",
-      "x" = "It is {wrong_spec_string(percent)}."
+      "x" = "It is {wrap_in_quotes_or_backticks(percent)}."
     )
   }
   # A missing `n` is undecidable, but a string is a mistake: comparing it with

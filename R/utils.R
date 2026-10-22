@@ -90,7 +90,7 @@ call_on <- function(x, f) {
 #' @noRd
 wrong_spec_string <- function(x) {
   if (is.character(x)) {
-    paste0("\"", x, "\"")
+    wrap_in_quotes_or_backticks(x)
   } else {
     paste0("`", x, "` (not a string)")
   }
@@ -1158,7 +1158,7 @@ manage_string_output_seq <- function(out, from, string_output, digits) {
   if (length(string_output) != 1L || is.na(string_output)) {
     abort_in_export(
       "!" = "`string_output` must be `TRUE`, `FALSE`, or \"auto\".",
-      "x" = "It is {wrong_spec_string(string_output)}."
+      "x" = "It is {wrap_in_quotes_or_backticks(string_output)}."
     )
   }
   if (string_output == "auto") {
@@ -1584,7 +1584,8 @@ wrap_in_quotes_or_backticks <- function(x) {
   if (is.null(x)) {
     "`NULL`"
   } else if (is.character(x)) {
-    paste0("\"", x, "\"")
+    # A missing string is no string:
+    ifelse(is.na(x), "`NA`", paste0("\"", x, "\""))
   } else {
     paste0("`", x, "`")
   }

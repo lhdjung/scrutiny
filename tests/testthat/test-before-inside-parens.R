@@ -92,3 +92,8 @@ test_that("`sep` must not be missing", {
   "1 (2)" |> before_parens(sep = NA) |> expect_error("keyword or two strings")
   "1 (2)" |> inside_parens(sep = 1)  |> expect_error("keyword or two strings")
 })
+
+
+test_that("a missing `sep` element is shown as `NA`, not as a string", {
+  "1 (2)" |> before_parens(sep = c("(", NA)) |> expect_error("`NA`")
+})

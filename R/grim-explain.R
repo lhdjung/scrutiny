@@ -175,12 +175,12 @@ grim_explain <- function(
   } else {
     times <- paste0(" * ", n_items, " = ")
     text_sums <- paste0(
-      "Each of the ",
-      n,
-      " scores is the average of ",
+      if (n == 1) "The single score" else paste("Each of the", n, "scores"),
+      " is the average of ",
       items_averaged,
-      " whole-number ",
-      "items. Their mean is therefore the sum of all ",
+      " whole-number items. ",
+      if (n == 1) "It" else "Their mean",
+      " is therefore the sum of all ",
       n_items,
       " item ",
       "values divided by ",

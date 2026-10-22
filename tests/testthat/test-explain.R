@@ -221,3 +221,8 @@ test_that("`grimmer_explain()` squares a negative sum as a whole", {
   out <- grimmer_explain(-3.15, 1.15, 20, digits_x = 2, digits_sd = 2, items_averaged = 1)
   out$paragraphs[[6]] |> expect_match("(-63)^2", fixed = TRUE)
 })
+
+
+test_that("a single score averaged from items is not \"each of the 1 scores\"", {
+  5.5 |> grim_explain(1, digits_x = 1, items_averaged = 2) |> format() |> paste(collapse = " ") |> expect_match("The single score")
+})

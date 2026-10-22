@@ -99,7 +99,7 @@ seq_disperse <- function(
   if (!is.finite(from_num)) {
     cli::cli_abort(c(
       "`from` must be a finite number, or a string coercible to one.",
-      "x" = "It is {wrong_spec_string(from)}."
+      "x" = "It is {wrap_in_quotes_or_backticks(from)}."
     ))
   }
 
@@ -160,7 +160,7 @@ seq_disperse <- function(
   if (!isTRUE(include_reported) && !isFALSE(include_reported)) {
     abort_in_export(
       "`include_reported` must be `TRUE` or `FALSE`.",
-      "x" = "It is {wrong_spec_string(include_reported)}."
+      "x" = "It is {wrap_in_quotes_or_backticks(include_reported)}."
     )
   }
 
@@ -190,7 +190,7 @@ seq_disperse <- function(
       msg_is <- if (length(limit) != 1L) {
         "It has length {length(limit)}."
       } else {
-        "It is {wrong_spec_string(limit)}."
+        "It is {wrap_in_quotes_or_backticks(limit)}."
       }
       abort_in_export(
         "`{name}` must be a single number{msg_auto} or `NULL`.",

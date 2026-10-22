@@ -104,3 +104,10 @@ test_that("a partly named `constant` list gets default names for the rest", {
   out <- disperse(20, dispersion = 0:1, constant = list(a = 1:2, 3:4))
   out |> colnames() |> expect_equal(c("n", "n_change", "a", "constant2"))
 })
+
+
+test_that("an odd total's limits are checked as given", {
+  # The message showed `n_min + 0.5`, and a string failed in base R arithmetic:
+  51 |> disperse_total(n_min = c(1, 2)) |> expect_error("It is `1` and `2`")
+  51 |> disperse_total(n_min = "2")     |> expect_error("single number")
+})

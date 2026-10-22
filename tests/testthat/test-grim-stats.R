@@ -140,3 +140,9 @@ test_that("`grim_total()` rejects a string `x` but not a missing one", {
 test_that("`grim_total()` rejects a fractional `digits_x`, as `grim()` does", {
   5 |> grim_total(20, digits_x = 2.5, items_averaged = 1) |> expect_error("whole numbers")
 })
+
+
+test_that("`digits_x` must be from 0 to 15, as in `grim()`", {
+  5.19 |> grim_probability(28, digits_x = -1, items_averaged = 1) |> expect_error("0 to 15")
+  5.19 |> grim_total(28, digits_x = 16, items_averaged = 1)       |> expect_error("0 to 15")
+})

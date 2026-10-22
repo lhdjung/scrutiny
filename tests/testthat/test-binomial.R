@@ -20,6 +20,9 @@ test_that("the binomial functions reject empty input instead of crashing", {
     expect_error("No value sets to test")
   0.5 |>
     grim_binomial_power(0.9, k = 0) |>
+    expect_error("at least 1")
+  numeric(0) |>
+    grim_binomial_power(0.9) |>
     expect_error("at least one value set")
 })
 
@@ -48,4 +51,9 @@ test_that("`grim_binomial_power()` checks its probabilities and `k`", {
   1.5 |> grim_binomial_power(0.9, k = 3)            |> expect_error("`p0` must be between 0 and 1")
   0.5 |> grim_binomial_power(0.9, k = 3, alpha = 5) |> expect_error("`alpha` must be between 0 and 1")
   0.5 |> grim_binomial_power(0.9, k = 2.5)          |> expect_error("whole number")
+  0.5 |> grim_binomial_power(0.9, k = "10")         |> expect_error("whole number")
+  0.5 |> grim_binomial_power(0.9, k = Inf)          |> expect_error("whole number")
+  0.5 |> grim_binomial_power(0.9, k = c(3, 4))      |> expect_error("single whole number")
+  # The error names the function that was called, not an internal helper:
+  1.5 |> grim_binomial_power(0.9, k = 3)            |> expect_error(class = "rlang_error") |> conditionCall() |> deparse() |> expect_match("^grim_binomial_power")
 })

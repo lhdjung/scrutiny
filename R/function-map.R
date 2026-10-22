@@ -530,7 +530,7 @@ function_map <- function(
             abort_in_export(
               "`{arg}` is both an argument and a column of `data`, and the \
               two disagree.",
-              "i" = "Drop one of them, or make them agree."
+              "i" = "Drop or rename the column, or make the two agree."
             )
           }
         }

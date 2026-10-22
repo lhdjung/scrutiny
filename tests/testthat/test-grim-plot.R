@@ -269,10 +269,11 @@ test_that("`grim_plot()` falls back to `rounding` if `data` has none recorded", 
 })
 
 
-test_that("`n` must be a single positive number", {
+test_that("`n` must be a single finite number of at least 1", {
   data <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1)
-  data |> grim_plot(n = -5)        |> expect_error("single positive number")
-  data |> grim_plot(n = c(10, 20)) |> expect_error("single positive number")
+  data |> grim_plot(n = -5)        |> expect_error("at least 1")
+  data |> grim_plot(n = c(10, 20)) |> expect_error("at least 1")
+  data |> grim_plot(n = Inf)       |> expect_error("at least 1")
 })
 
 
