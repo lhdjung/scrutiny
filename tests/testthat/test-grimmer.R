@@ -1051,3 +1051,47 @@ test_that("GRIMMER agrees with a brute force under every rounding method and wit
   # Consistent cases are well represented:
   n_checked |> expect_gt(1000L)
 })
+
+
+test_that("GRIMMER agrees with an exact oracle at two decimal places for `n` up to 12", {
+  # The sums and sums of squares that `n` whole numbers from `values` can have,
+  # found by adding one number at a time: cheap where enumerating the samples
+  # themselves is not. With two decimal places, the reported pairs are far
+  # sparser than above, so this is a sharper check of the exact verdict for
+  # `n >= 5`, from the minimum and the parity of the sum of squares alone.
+  reachable_sums <- function(n, values = -8:12) {
+    s_max <- n * max(abs(values))
+    q_max <- n * max(values^2)
+    reach <- matrix(FALSE, 2 * s_max + 1, q_max + 1)
+    reach[s_max + 1, 1] <- TRUE
+    for (i in seq_len(n)) {
+      cells <- which(reach, arr.ind = TRUE)
+      reach[] <- FALSE
+      for (v in values) {
+        reach[cbind(cells[, 1] + v, cells[, 2] + v^2)] <- TRUE
+      }
+    }
+    cells <- which(reach, arr.ind = TRUE)
+    list(s = cells[, 1] - s_max - 1, q = cells[, 2] - 1)
+  }
+
+  # As in the test above, but with the forward rounding exact: a mean or SD on
+  # a tie is reported either way under `"up_or_down"`.
+  reachable <- function(n) {
+    s <- reachable_sums(n)$s
+    q <- reachable_sums(n)$q
+    means <- reround(s / n, 2, "up_or_down")
+    sds <- reround(sqrt((n * q - s^2) / (n * (n - 1))), 2, "up_or_down")
+    means <- matrix(round(100 * means), ncol = length(s))
+    sds <- matrix(round(100 * sds), ncol = length(s))
+    unique(c(paste(means[1, ], sds[1, ]), paste(means[1, ], sds[2, ]), paste(means[2, ], sds[1, ]), paste(means[2, ], sds[2, ])))
+  }
+
+  grid <- expand.grid(x = seq(0.5, 2.5, by = 0.01), sd = seq(0, 1.5, by = 0.01))
+  for (n in c(9L, 12L)) {
+    truth <- paste(round(100 * grid$x), round(100 * grid$sd)) %in% reachable(n)
+    verdict <- grimmer(round(grid$x, 2), round(grid$sd, 2), n, digits_x = 2, digits_sd = 2, items_averaged = 1)
+    verdict |> expect_equal(truth, info = paste("n =", n))
+    truth |> sum() |> expect_gt(100L)
+  }
+})
