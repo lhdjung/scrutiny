@@ -651,11 +651,12 @@ function_map <- function(
       # Any columns of `data` that play no role in the test are returned
       # alongside the results. Columns that the output has already -- e.g., a
       # `digits_x` column in the output of a mapper that is tested again -- are
-      # skipped rather than duplicated:
+      # skipped rather than duplicated. These are named as in `data`: skipping
+      # the new name of a renamed variadic column would drop a column of `data`
+      # that has that name, rather than catching the clash below:
       other_cols <- data[
         !colnames(data) %in%
           c(
-            names(cols_key),
             names(cols_by_row),
             names(cols_result),
             reported,
@@ -667,7 +668,8 @@ function_map <- function(
       cols_out <- c(cols_key, cols_by_row, cols_result, as.list(other_cols))
 
       # A variadic column renamed to a name the output uses, as in
-      # `summands = c(total = a, b)`, would appear twice:
+      # `summands = c(total = a, b)` or to the name of another column of
+      # `data`, would appear twice:
       names_dup <- unique(names(cols_out)[duplicated(names(cols_out))])
       if (length(names_dup) > 0L) {
         abort_in_export(

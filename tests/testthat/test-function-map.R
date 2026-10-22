@@ -897,6 +897,10 @@ test_that("a variadic column can't be renamed to a name the output uses", {
   tibble::tibble(a = 1:2, b = 3:4, total = 4:5) |>
     add_up_to_map(summands = c(total = a, b)) |>
     expect_error("`total` twice")
+  # Another column of `data` used to be dropped in favor of the renamed one:
+  tibble::tibble(a = 1:2, b = 3:4, total = 4:5, id = c("p", "q")) |>
+    add_up_to_map(summands = c(id = a, b)) |>
+    expect_error("`id` twice")
 })
 
 test_that("`.args_disabled` covers formals of the sequence mapper", {
