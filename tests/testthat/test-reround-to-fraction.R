@@ -152,4 +152,7 @@ test_that("`x` and `digits` must be numeric", {
   "0.4" |> reround_to_fraction()                 |> expect_error("double and integer")
   0.4   |> reround_to_fraction(digits = "AUTO")  |> expect_error("whole numbers or \"auto\"")
   "0.4" |> reround_to_fraction_level()           |> expect_error("double and integer")
+  # A logical `NA`, as in an all-missing column, is still missing:
+  NA    |> reround_to_fraction(2)                |> expect_equal(c(NA_real_, NA_real_))
+  NA    |> reround_to_fraction_level(2)          |> expect_equal(c(NA_real_, NA_real_))
 })

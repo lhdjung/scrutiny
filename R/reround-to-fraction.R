@@ -95,8 +95,9 @@ reround_to_fraction <- function(
   # If any two arguments called right below are length > 1, they need to have
   # the same length. Otherwise, the call will fail. But even so, there will be a
   # warning that values will get paired:
-  # A string used to fail in base R arithmetic:
-  if (!is.null(x)) {
+  # A string used to fail in base R arithmetic. A logical `NA`, as in a column
+  # with no values, is missing all the same:
+  if (!is.null(x) && !(is.logical(x) && all(is.na(x)))) {
     check_type(x, c("double", "integer"))
   }
   check_lengths_congruent(list(x, denominator, digits))
@@ -196,8 +197,9 @@ reround_to_fraction_level <- function(
   # If any two arguments called right below are length > 1, they need to have
   # the same length. Otherwise, the call will fail. But even so, there will be a
   # warning that values will get paired:
-  # A string used to fail in base R arithmetic:
-  if (!is.null(x)) {
+  # A string used to fail in base R arithmetic. A logical `NA`, as in a column
+  # with no values, is missing all the same:
+  if (!is.null(x) && !(is.logical(x) && all(is.na(x)))) {
     check_type(x, c("double", "integer"))
   }
   check_lengths_congruent(list(x, denominator, digits))
