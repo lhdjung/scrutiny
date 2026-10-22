@@ -376,6 +376,16 @@ function_map_seq <- function(
         ))
       }
 
+      # A variable named twice would be dispersed twice, and every hit counted
+      # twice by `audit_seq()`:
+      if (anyDuplicated(var) > 0L) {
+        abort_in_export(
+          "`var` must not name a column more than once.",
+          "x" = "It names {wrap_in_backticks(unique(var[duplicated(var)]))} \
+          more than once."
+        )
+      }
+
       # Recorded on the output below; `var` itself is repeated per row later:
       var_requested <- var
 

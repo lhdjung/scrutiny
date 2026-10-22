@@ -1660,3 +1660,8 @@ test_that("sequence mappers accept input columns named like their result columns
   out_none$case |> expect_type("integer")
   out_full$var  |> unique() |> expect_equal(c("x", "n"))
 })
+
+
+test_that("`var` must name each column once", {
+  pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, var = c("x", "x")) |> expect_error("more than once")
+})
