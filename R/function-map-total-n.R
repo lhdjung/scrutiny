@@ -360,9 +360,10 @@ function_map_total_n <- function(
       check_factory_dots(fun, name_fun, ...)
 
       # The other columns of `data` are returned as they are, so one named like
-      # a result column would be overwritten:
+      # a result column, or like a group's reported values, would be
+      # overwritten -- or would overwrite them:
       names_taken <- intersect(
-        c("n_change", "both_consistent", "case", "dir"),
+        c(reported, "n_change", "both_consistent", "case", "dir"),
         colnames(data)
       )
       if (length(names_taken) > 0L) {

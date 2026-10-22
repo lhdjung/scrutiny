@@ -243,5 +243,7 @@ test_that("total-n mappers take a single helper value, carry other columns, and 
   df |> grim_map_total_n(digits_x = 2, items_averaged = c(1, 2)) |> expect_error("single value")
   df |> grim_map_total_n(digits_x = 2, items_averaged = 1, dispersion = 0) |> dplyr::pull(id) |> expect_equal(c("a", "a", "b", "b"))
   df |> dplyr::mutate(dir = 1) |> grim_map_total_n(digits_x = 2, items_averaged = 1) |> expect_error("would be overwritten")
+  df |> dplyr::mutate(x = 5.21) |> grim_map_total_n(digits_x = 2, items_averaged = 1) |> expect_error("`x` would be overwritten")
+  df |> dplyr::mutate(sd1 = 1, sd2 = 1, sd = 9) |> grimmer_map_total_n(digits_x = 2, digits_sd = 0, items_averaged = 1) |> expect_error("`sd` would be overwritten")
   df |> grim_map_total_n(digits_x = 2, items_averaged = 1, n_max = 30) |> expect_warning("no pair of group sizes")
 })
