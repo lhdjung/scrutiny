@@ -118,6 +118,27 @@ test_that("`*_map_seq()` only adds `digits_*` columns its mapper accepts", {
 })
 
 
+# The proto function used to repeat the other key columns through list-columns
+# and `tidyr::unnest_longer()`, which left a 0-column `data_seq` with the wrong
+# number of rows when there were no other key columns.
+test_that("`function_map_seq()` works for a mapper with one reported variable", {
+  even_map <- function_map(
+    .fun = function(x) x %% 2 == 0,
+    .reported = "x",
+    .name_test = "EVEN"
+  )
+  even_map_seq <- function_map_seq(
+    .fun = even_map,
+    .reported = "x",
+    .name_test = "EVEN"
+  )
+  out <- tibble::tibble(x = c(3, 8)) |> even_map_seq(dispersion = 1:2)
+  out$x |> expect_equal(c(1, 2, 4, 5))
+  out$consistency |> expect_equal(c(FALSE, TRUE, TRUE, FALSE))
+  out$case |> expect_equal(rep(1L, 4))
+})
+
+
 # `audit_seq()` recovers the mapper that produced its input by the name implied
 # by a class such as `"scrutiny_schlim_map"`. It used to evaluate that name from
 # inside itself, so the lookup ran through scrutiny's namespace, and a user's

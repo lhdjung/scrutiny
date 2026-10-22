@@ -63,19 +63,14 @@ function_map_seq_proto <- function(
     cols_for_testing_names_without_var <-
       cols_for_testing_names[cols_for_testing_names != .var]
 
-    cols_except_last <- seq_along(cols_for_testing_names_without_var)
-
     # Repeat the non-tested key columns to the length of the dispersed `.var`
-    # sequences (via list-columns, immediately unnested), insert the dispersed
-    # `.var` at its original position, test the result with `fun()`, and add
-    # `diff_var` -- the distance from the reported value -- and `case`, the row
-    # number of the reported `.var` value in the mapper's input.
-    data_seq <- data[cols_for_testing_names_without_var] |>
-      dplyr::mutate(dplyr::across(
-        .cols = {{ cols_except_last }},
-        .fns = function(x) purrr::map2(x, nrow_list_var, rep)
-      )) |>
-      tidyr::unnest_longer(col = everything()) |>
+    # sequences, insert the dispersed `.var` at its original position, test the
+    # result with `fun()`, and add `diff_var` -- the distance from the reported
+    # value -- and `case`, the row number of the reported `.var` value in the
+    # mapper's input. Row indexing also works when `.var` is the only key
+    # column, where there is nothing to repeat but the row count.
+    data_seq <- data[cols_for_testing_names_without_var]
+    data_seq <- data_seq[rep(seq_len(nrow(data_seq)), nrow_list_var), ] |>
       dplyr::mutate(
         {{ .var }} := df_var[[1L]],
         .before = all_of(match(.var, colnames(data)))
