@@ -554,7 +554,9 @@ grim_plot <- function(
               y = .data$frac
             )
           ) +
-          ggplot2::annotation_custom(grob_gradient)
+          # The gradient runs from 0 to `p10`, where the probability of a GRIM
+          # inconsistency reaches 0, whatever the extent of the x-axis:
+          ggplot2::annotation_custom(grob_gradient, xmin = 0, xmax = p10)
       }
       # Keep the y-axis ranging from 0 to 1 with the gradient in place. The
       # bound itself is set on the coordinate system further down; see there.
@@ -614,7 +616,7 @@ grim_plot <- function(
       # raster and the y-axis. The upper bound is set only if the user chose
       # `n`; otherwise, the raster's and the data's extent is kept as it is.
       ggplot2::scale_x_continuous(
-        breaks = seq(from = 0, to = n, by = (n / 5)),
+        breaks = pretty(c(0, n)),
         expand = ggplot2::expansion(mult = c(0, 0.01))
       ) +
       ggplot2::coord_cartesian(
@@ -626,7 +628,7 @@ grim_plot <- function(
     # that it runs the full width of the gradient:
     p <- p +
       ggplot2::scale_x_continuous(
-        breaks = seq(from = 0, to = n, by = (n / 5)),
+        breaks = pretty(c(0, n)),
         expand = ggplot2::expansion(mult = c(0, 0.01))
       ) +
       ggplot2::coord_cartesian(xlim = c(0, n), ylim = c(0, 1))
