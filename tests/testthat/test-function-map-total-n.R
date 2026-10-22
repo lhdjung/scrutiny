@@ -256,3 +256,13 @@ test_that("GRIMMER and DEBIT total-n mappers never test a group of 1", {
   out_grimmer$n |> min() |> expect_equal(2L)
   out_debit$n   |> min() |> expect_equal(2L)
 })
+
+
+test_that("`constant` values stay with their groups in both directions", {
+  # In the "back" direction, they used to stay with the group positions:
+  out <- tibble::tibble(x1 = 3.43, x2 = 5.28, n = 90) |> grim_map_total_n(digits_x = 2, items_averaged = 1, dispersion = 0:1, constant = c("ctrl", "treat"))
+  out$constant[out$x == 3.43] |> unique() |> expect_equal("ctrl")
+  out$constant[out$x == 5.28] |> unique() |> expect_equal("treat")
+  out_list <- tibble::tibble(x1 = 3.43, x2 = 5.28, n = 90) |> grim_map_total_n(digits_x = 2, items_averaged = 1, dispersion = 0:1, constant = list(group = c("ctrl", "treat")))
+  out_list$group[out_list$x == 5.28] |> unique() |> expect_equal("treat")
+})

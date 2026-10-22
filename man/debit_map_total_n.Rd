@@ -42,9 +42,10 @@ Default is \code{0:5}, i.e., the even split and five steps away from it.}
 \item{n_max}{Numeric. Maximal group size. Default is \code{NULL}, i.e., no
 maximum.}
 
-\item{constant}{Optionally, a length-2 vector, or a list of such vectors
-(which includes a data frame with two rows), to repeat alongside each pair
-of group sizes. Default is \code{NULL}.}
+\item{constant}{Optionally, values that belong to the two groups, such as
+their labels: a length-2 vector for the groups of \code{x1} and \code{x2}, or a list
+of such vectors. Each becomes a column, as in \code{\link[=disperse_total]{disperse_total()}}, and its
+values stay with their groups in both directions. Default is \code{NULL}.}
 
 \item{...}{Arguments passed on to \code{\link[=debit_map]{debit_map()}}.}
 }

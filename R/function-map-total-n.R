@@ -540,7 +540,14 @@ function_map_total_n <- function(
         )
       )
 
-      # ...and second, the one with reversed index name portions:
+      # ...and second, the one with reversed index name portions. The
+      # `constant` values belong to the groups, so they are swapped with them,
+      # as the `digits_*` values are in `map_total_n_proto()`:
+      constant_back <- if (is.list(constant)) {
+        lapply(constant, rev)
+      } else {
+        rev(constant)
+      }
       out_back <- do.call(
         map_total_n_proto,
         c(
@@ -552,7 +559,7 @@ function_map_total_n <- function(
             .dispersion = dispersion,
             .n_min = n_min,
             .n_max = n_max,
-            .constant = constant
+            .constant = constant_back
           ),
           fun_args
         )

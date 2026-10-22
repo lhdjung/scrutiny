@@ -22,6 +22,10 @@
 #' @param n_min Numeric. Minimal group size. Default is 1.
 #' @param n_max Numeric. Maximal group size. Default is `NULL`, i.e., no
 #'   maximum.
+#' @param constant Optionally, values that belong to the two groups, such as
+#'   their labels: a length-2 vector for the groups of `x1` and `x2`, or a list
+#'   of such vectors. Each becomes a column, as in [`disperse_total()`], and its
+#'   values stay with their groups in both directions. Default is `NULL`.
 #' @inheritParams disperse_total
 #' @param items_averaged Integer. As in [`grim_map()`]: the number of items
 #'   averaged into each score, given as an argument or as a column of `data`.
