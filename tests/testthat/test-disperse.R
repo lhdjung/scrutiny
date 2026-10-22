@@ -81,3 +81,26 @@ test_that("`disperse_total()` returns no rows if the limits leave no pairs", {
   out_odd |> nrow() |> expect_equal(0L)
   1 |> disperse_total() |> nrow() |> expect_equal(0L)
 })
+
+
+test_that("`n`, `n_min`, and `n_max` must be numbers", {
+  # A missing limit used to turn every pair into `NA`:
+  20       |> disperse(n_max = NA)  |> expect_error("single number")
+  20       |> disperse(n_min = 1:2) |> expect_error("single number")
+  "20"     |> disperse()            |> expect_error("must be one of these types")
+  NA_real_ |> disperse()            |> expect_error("not be missing")
+  -4       |> disperse_total(n_min = NULL) |> expect_error("non-negative")
+})
+
+test_that("`disperse2()` applies the limits to the group sizes themselves", {
+  # The limits used to be compared to the midpoint, so a fractional `n_min`
+  # let a pair through that broke it:
+  c(25, 26) |> disperse2(n_min = 24.5) |> purrr::pluck("n") |> expect_equal(c(25L, 26L))
+  c(25, 26) |> disperse2(n_min = 24, dispersion = 0:2) |> purrr::pluck("n") |> expect_equal(c(25L, 26L, 24L, 27L))
+  c(25, 26) |> disperse2(n_max = 26.5, dispersion = 0:2) |> purrr::pluck("n") |> expect_equal(c(25L, 26L))
+})
+
+test_that("a partly named `constant` list gets default names for the rest", {
+  out <- disperse(20, dispersion = 0:1, constant = list(a = 1:2, 3:4))
+  out |> colnames() |> expect_equal(c("n", "n_change", "a", "constant2"))
+})

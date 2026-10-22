@@ -1150,6 +1150,12 @@ step_size <- function(x) {
 #'
 #' @noRd
 manage_string_output_seq <- function(out, from, string_output, digits) {
+  if (length(string_output) != 1L || is.na(string_output)) {
+    abort_in_export(
+      "!" = "`string_output` must be `TRUE`, `FALSE`, or \"auto\".",
+      "x" = "It is {wrong_spec_string(string_output)}."
+    )
+  }
   if (string_output == "auto") {
     if (is.character(from)) {
       return(restore_zeros(out, width = digits))

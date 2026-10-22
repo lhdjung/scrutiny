@@ -205,3 +205,21 @@ test_that("`from` must be a finite number", {
   Inf      |> seq_disperse()          |> expect_error("finite number")
   "abc"    |> seq_disperse()          |> expect_error("finite number")
 })
+
+
+test_that("a factor `from` is dispersed as its label, not its code", {
+  factor("4.02") |> seq_disperse(dispersion = 1) |> expect_equal(c("4.01", "4.02", "4.03"))
+})
+
+test_that("`by`, `offset_from`, and the flags are checked", {
+  4.02 |> seq_disperse(by = 0)                |> expect_error("positive number")
+  4.02 |> seq_disperse(by = -0.01)            |> expect_error("positive number")
+  4.02 |> seq_disperse(offset_from = 1.5)     |> expect_error("whole number")
+  4.02 |> seq_disperse(offset_from = NA_real_) |> expect_error("whole number")
+  4.02 |> seq_disperse(string_output = NA)    |> expect_error("string_output")
+  4.02 |> seq_disperse(include_reported = NA) |> expect_error("include_reported")
+})
+
+test_that("the steps are integers even if `dispersion` is double", {
+  4.02 |> seq_disperse(dispersion = c(1, 2), track_diff_var = TRUE) |> purrr::pluck(2) |> expect_identical(c(-2L, -1L, 0L, 1L, 2L))
+})

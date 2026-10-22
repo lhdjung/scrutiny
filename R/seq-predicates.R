@@ -46,7 +46,7 @@ is_seq_basic <- function(
     return(NA)
   }
 
-  if (!is_numeric_like(x)) {
+  if (isFALSE(is_numeric_like(x))) {
     return(FALSE)
   }
 
@@ -58,6 +58,13 @@ is_seq_basic <- function(
       x <- as.character(x)
     }
     x <- as.numeric(x)
+  }
+
+  # An infinity is at no fixed distance from anything, so no sequence of
+  # interest has one. It used to fail in `if ()` with "missing value where
+  # TRUE/FALSE needed", through the `NaN` that `Inf - Inf` is:
+  if (any(is.infinite(x))) {
+    return(FALSE)
   }
 
   if (!is.null(min_length) && length(x) < min_length) {
@@ -256,6 +263,10 @@ is_seq_dispersed <- function(
   tolerance = .Machine$double.eps^0.5
 ) {
   check_length(from, 1L)
+  # A missing center leaves the question open, like a missing value in `x`:
+  if (is.na(from)) {
+    return(NA)
+  }
   is_seq_basic(
     x,
     tolerance,

@@ -208,3 +208,12 @@ test_that("the signs of the steps count, and known values can disprove", {
   c(1, NA, 2) |> is_seq_ascending(test_linear = FALSE) |> expect_na()
   c(1, 2, NA, 4, 5) |> is_seq_dispersed(from = 3) |> expect_na()
 })
+
+
+test_that("edge cases don't fail in `if ()`", {
+  # Each of these used to be "missing value where TRUE/FALSE needed":
+  1:3            |> is_seq_dispersed(from = NA_real_) |> expect_na()
+  character(0)   |> is_seq_linear()    |> expect_true()
+  c(1, Inf, Inf) |> is_seq_linear()    |> expect_false()
+  c(1, 2, Inf)   |> is_seq_ascending() |> expect_false()
+})

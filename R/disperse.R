@@ -79,6 +79,10 @@ disperse <- function(
   # Checks ---
 
   check_length_disperse_n(n, "It must have length 1.")
+  check_type(n, c("double", "integer"))
+  if (is.na(n)) {
+    abort_in_export("`n` must not be missing.")
+  }
   check_type(dispersion, c("double", "integer"))
   if (anyNA(dispersion)) {
     abort_in_export("`dispersion` must not contain missing values.")
@@ -107,23 +111,24 @@ disperse <- function(
   # (Note: The checks below count towards to the main part because they may lead
   # to input transformations.)
 
-  if (!is.null(n_min)) {
-    if (length(n_min) > 1L) {
-      cli::cli_abort(c(
-        "!" = "`n_min` must have length 1 or to be `NULL`.",
-        "x" = "It has length {length(n_min)}."
-      ))
+  # A missing limit used to pass the length check and turn every pair into
+  # `NA`:
+  check_limit_n <- function(limit, name) {
+    if (length(limit) != 1L || !is.numeric(limit) || is.na(limit)) {
+      abort_in_export(
+        "`{name}` must be a single number or `NULL`.",
+        "x" = "It is {wrong_spec_string(limit)}."
+      )
     }
+  }
+
+  if (!is.null(n_min)) {
+    check_limit_n(n_min, "n_min")
     dispersion <- dispersion[(n - dispersion) >= n_min]
   }
 
   if (!is.null(n_max)) {
-    if (length(n_max) > 1L) {
-      cli::cli_abort(c(
-        "!" = "`n_max` must have length 1 or to be `NULL`.",
-        "x" = "It has length {length(n_max)}."
-      ))
-    }
+    check_limit_n(n_max, "n_max")
     dispersion <- dispersion[(n + dispersion) <= n_max]
   }
 
@@ -163,19 +168,18 @@ disperse <- function(
     }
 
     if (is.list(constant)) {
-      constant <- constant |>
-        purrr::map(repeat_constant, out, list_input = TRUE)
-      constant_is_named_list <- !is.null(names(constant)) &&
-        length(names(constant)) == length(constant)
-      if (constant_is_named_list) {
-        constant <- constant |>
-          tibble::as_tibble(.name_repair = function(x) names(constant))
-      } else {
-        constant <- constant |>
-          tibble::as_tibble(.name_repair = function(x) {
-            paste0("constant", seq_along(constant))
-          })
+      # Elements without a name, which may be all of them, are named
+      # `constant1`, `constant2`, etc. A partly named list used to fail with
+      # "attempt to use zero-length variable name":
+      names_constant <- names(constant)
+      if (is.null(names_constant)) {
+        names_constant <- rep("", length(constant))
       }
+      unnamed <- is.na(names_constant) | names_constant == ""
+      names_constant[unnamed] <- paste0("constant", seq_along(constant))[unnamed]
+      constant <- constant |>
+        purrr::map(repeat_constant, out, list_input = TRUE) |>
+        tibble::as_tibble(.name_repair = function(x) names_constant)
     } else {
       constant <- repeat_constant(constant, out)
     }
@@ -227,13 +231,16 @@ disperse2 <- function(
 
   # Main part ---
 
-  # Take the mean of the two `n` values and disperse from there:
+  # Take the mean of the two `n` values and disperse from there. The limits
+  # apply to the group sizes, which are half a unit further out than the
+  # values dispersed from the midpoint; a fractional `n_min` used to let a pair
+  # through that broke it:
   out <- disperse(
     n = mean(n),
     constant = constant,
     dispersion = dispersion,
-    n_min = n_min,
-    n_max = n_max
+    n_min = if (!is.null(n_min)) n_min + 0.5,
+    n_max = if (!is.null(n_max)) n_max - 0.5
   )
 
   # Increase or decrease the dispersed values so that the lower values (odd
@@ -278,9 +285,9 @@ disperse_total <- function(
   # halves of halves without a word -- `disperse_total(7.5)` returned group
   # sizes of 3.25 and 4.25 -- because the even-or-odd branch below is only
   # exhaustive for whole numbers:
-  if (is.na(n) || !is_whole_number(n)) {
+  if (is.na(n) || !is_whole_number(n) || n < 0) {
     cli::cli_abort(c(
-      "`n` must be a whole number.",
+      "`n` must be a non-negative whole number.",
       "x" = "It is {n}.",
       "i" = "It is a total sample size, to be split into two group sizes."
     ))

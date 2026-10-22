@@ -83,6 +83,10 @@ seq_disperse <- function(
   # Any sequence can only proceed from a single number (for multiple numbers,
   # map the function). Also, the steps away from the number can't be negative:
   check_length(from, 1L)
+  # A factor is its label, not its code:
+  if (is.factor(from)) {
+    from <- as.character(from)
+  }
   check_type(dispersion, c("double", "integer"))
   if (anyNA(dispersion)) {
     abort_in_export("`dispersion` must not contain missing values.")
@@ -135,7 +139,29 @@ seq_disperse <- function(
   } else {
     check_length(by, 1L)
     check_type(by, c("integer", "double"))
+    if (is.na(by) || by <= 0) {
+      abort_in_export(
+        "`by` must be a positive number.",
+        "x" = "It is {by}."
+      )
+    }
     digits <- decimal_places_scalar(by)
+  }
+
+  check_length(offset_from, 1L)
+  check_type(offset_from, c("integer", "double"))
+  if (is.na(offset_from) || !is_whole_number(offset_from)) {
+    abort_in_export(
+      "`offset_from` must be a whole number.",
+      "x" = "It is {offset_from}.",
+      "i" = "It is a number of steps of `by`."
+    )
+  }
+  if (!isTRUE(include_reported) && !isFALSE(include_reported)) {
+    abort_in_export(
+      "`include_reported` must be `TRUE` or `FALSE`.",
+      "x" = "It is {wrong_spec_string(include_reported)}."
+    )
   }
 
   disp_minus <- dispersion * by
@@ -261,10 +287,12 @@ seq_disperse <- function(
   }
 
   # Collect the sequence dispersed around `from` and the sequence of dispersion
-  # steps in a list:
+  # steps in a list. The steps are whole numbers, so they are integers, as
+  # documented, even if `dispersion` was given as doubles:
   list(
     out,
-    c(-rev(disp_minus_represent), disp_zero_represent, disp_plus_represent)
+    c(-rev(disp_minus_represent), disp_zero_represent, disp_plus_represent) |>
+      as_integer_if_lossless()
   )
 }
 
