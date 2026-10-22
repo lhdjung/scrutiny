@@ -347,3 +347,9 @@ test_that("a `NULL` key argument and an out-of-range `digits_x` are errors", {
   1.4 |> grim(20, digits_x = NULL, items_averaged = 1) |> expect_error("must not be `NULL`")
   1.4 |> grim(20, digits_x = 309, items_averaged = 1)  |> expect_error("0 to 308")
 })
+
+
+test_that("integer `n` and `items_averaged` don't overflow their product", {
+  1.5 |> grim(50000L, digits_x = 1, items_averaged = 50000L) |> expect_true()
+  tibble::tibble(x = 1.5, n = 50000L, items_averaged = 50000L) |> grim_map(digits_x = 1) |> dplyr::pull(consistency) |> expect_true()
+})

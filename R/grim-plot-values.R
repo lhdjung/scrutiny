@@ -393,7 +393,7 @@ grim_plot_values <- function(
   # One unit around `x`, which holds about `n` attainable means. Attainable
   # percentages are `100 / n` points apart, so the window widens by that much
   # on either side (within 0 to 100), to keep the nearest ones in view:
-  reach <- if (percent) ceiling(100 / (n * items_averaged)) else 0
+  reach <- if (percent) ceiling(100 / (as.numeric(n) * items_averaged)) else 0
   lower <- floor(x) - reach
   upper <- floor(x) + 1 + reach
   if (percent) {

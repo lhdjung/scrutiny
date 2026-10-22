@@ -46,7 +46,7 @@
 grim_granularity <- function(n, items_averaged = 1) {
   check_positive(n)
   check_positive(items_averaged)
-  1 / (n * items_averaged)
+  1 / (as.numeric(n) * items_averaged)
 }
 
 

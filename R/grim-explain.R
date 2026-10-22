@@ -123,7 +123,7 @@ grim_explain <- function(
   x_lower <- format_number(bounds$lower * scale_x / bounds$denom, digits_num)
   x_upper <- format_number(bounds$upper * scale_x / bounds$denom, digits_num)
 
-  n_items <- n * items_averaged
+  n_items <- as.numeric(n) * items_averaged
   sum_lower_exact <- format_number(
     n_items * bounds$lower / bounds$denom,
     digits_num

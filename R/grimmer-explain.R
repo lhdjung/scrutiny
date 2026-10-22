@@ -230,7 +230,7 @@ grimmer_explain <- function(
 
   sums <- sum_range(
     x,
-    n * items_averaged,
+    as.numeric(n) * items_averaged,
     digits_x,
     rounding,
     threshold,

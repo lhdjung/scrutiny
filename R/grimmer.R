@@ -245,7 +245,7 @@ grimmer_scalar <- function(
     return(FALSE)
   }
 
-  n_items <- n * items_averaged
+  n_items <- as.numeric(n) * items_averaged
 
   # GRIM TEST: the original `n` because `items_averaged` is passed down
   # separately.

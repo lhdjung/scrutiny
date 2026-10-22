@@ -148,7 +148,7 @@ grim_total <- function(
   # that the data can actually have are the multiples of
   # `1 / (n * items_averaged)`.
   n_values <- 10^digits_x
-  n_means <- n * items_averaged
+  n_means <- as.numeric(n) * items_averaged
 
   # Where `grim()` has nothing to test, it returns `NA`, and so does this
   # function. That is the case for a missing or infinite `x`, and for an `n` or

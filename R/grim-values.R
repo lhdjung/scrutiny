@@ -29,7 +29,7 @@ grim_sums_scalar <- function(
     digits_x <- digits_x + 2L
   }
 
-  n_items <- n * items_averaged
+  n_items <- as.numeric(n) * items_averaged
 
   # An infinite `x` is undecidable, exactly as in `grim_scalar()`: no data set
   # has an infinite mean, and `sum_range()` would answer with an infinitely wide

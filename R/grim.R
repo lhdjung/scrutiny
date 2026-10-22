@@ -87,7 +87,7 @@ grim_scalar <- function(
   }
 
   # Prepare further objects for reconstructing the original values:
-  n_items <- n * items_averaged
+  n_items <- as.numeric(n) * items_averaged
   rec_sum <- x_num * n_items
 
   # The integer sums whose mean would have been reported as `x_num` at
