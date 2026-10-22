@@ -26,4 +26,8 @@ test_that("`manage_helper_col()` without a default leaves a missing helper missi
   # An argument that agrees with the column is no contradiction:
   tibble::tibble(x = 5.19, items = 3) |> mapper(items = 3) |> expect_equal(tibble::tibble(x = 5.19, items = 3))
   tibble::tibble(x = 5.19, items = 3) |> mapper(items = 4) |> expect_error("already in")
+  # Only a single value or one per row can agree; others used to be cut or
+  # recycled into agreement:
+  tibble::tibble(x = 1:2, items = 1:2)    |> mapper(items = 1:3) |> expect_error("already in")
+  tibble::tibble(x = 1:4, items = c(1:2, 1:2)) |> mapper(items = 1:2) |> expect_error("already in")
 })

@@ -291,10 +291,10 @@ manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
     # agrees with the column is no contradiction -- a mapper's output is tested
     # again with the same arguments, say -- so the column is simply kept:
     arg_given <- !has_default || !about_equal(var_arg, default)
-    col_agrees <- isTRUE(about_equal(
-      data[[var_name]],
-      rep_len(var_arg, nrow(data))
-    ))
+    # Only a single value or one per row can agree; `rep_len()` would cut
+    # off or recycle any other length into agreement:
+    col_agrees <- length(var_arg) %in% c(1L, nrow(data)) &&
+      isTRUE(about_equal(data[[var_name]], rep_len(var_arg, nrow(data))))
     if (arg_given && !col_agrees) {
       data_name <- deparse(substitute(data))
       data_name <- wrap_in_backticks(data_name)
