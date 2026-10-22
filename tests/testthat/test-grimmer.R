@@ -909,6 +909,22 @@ test_that("`sum_squares_attainable()` agrees with every sample of fewer than fiv
 })
 
 
+test_that("`sum_squares_attainable()` finds the next square for two numbers without a scan", {
+  # The excess of two numbers is `2 * e^2` for an even sum, so the next one
+  # above `1e9` is `2 * 22361^2`; a scan used to allocate the whole range:
+  minimum <- sum_squares_min(1e6, 2)
+  1e6 |> sum_squares_attainable(2, minimum + 1e9, minimum + 2e9) |> expect_equal(minimum + 2 * 22361^2)
+  1e6 |> sum_squares_attainable(2, minimum + 1e9, minimum + 1e9) |> expect_na()
+  # For an odd sum, `2 * excess + 1` is an odd square: `44723^2` is the next
+  # above `2e9 + 1`:
+  minimum <- sum_squares_min(1e6 + 1, 2)
+  (1e6 + 1) |> sum_squares_attainable(2, minimum + 1e9, minimum + 2e9) |> expect_equal(minimum + (44723^2 - 1) / 2)
+  # Many items averaged make the range of sums of squares that wide:
+  2.5 |> grimmer(1.2, 2, digits_x = 2, digits_sd = 2, items_averaged = 50000) |> expect_true()
+  2.5 |> grimmer(1.2, 3, digits_x = 2, digits_sd = 2, items_averaged = 50000) |> expect_true()
+})
+
+
 test_that("GRIMMER rejects sums of squares that fewer than five numbers cannot have", {
   # Two whole numbers with a sum of 2 and a sum of squares of 6 would be
   # `1 +/- sqrt(2)`:

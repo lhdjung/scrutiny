@@ -331,22 +331,61 @@ sum_squares_attainable <- function(s, n, lower, upper) {
     return(NA_real_)
   }
 
-  for (q in seq(first, upper, by = 2)) {
+  # One number has only the minimum. Two numbers, `q + e` and `q - e` (or
+  # `q + 1 + e` and `q - e`), have the excess `2 * e^2` (or `2 * e * (e + 1)`,
+  # so that `2 * excess + 1` is an odd square). These are too sparse to scan
+  # for: with many items averaged, the range can run into the hundreds of
+  # millions, and the next square is computed instead.
+  if (n == 1) {
+    return(if (first == minimum) minimum else NA_real_)
+  }
+  if (n == 2) {
+    excess_min <- first - minimum
+    q <- if (r == 0) {
+      minimum + 2 * next_square_root(excess_min / 2)^2
+    } else {
+      k <- next_square_root(2 * excess_min + 1)
+      if (k %% 2 == 0) {
+        k <- k + 1
+      }
+      minimum + (k^2 - 1) / 2
+    }
+    return(if (q <= upper) q else NA_real_)
+  }
+
+  # Three or four numbers can have most sums of squares, so a scan from `first`
+  # ends soon. It runs step by step: `seq(first, upper, by = 2)` allocated the
+  # whole range, which made GRIMMER slow for these `n` with many items averaged.
+  q <- first
+  while (q <= upper) {
     excess <- q - minimum
     half <- excess / 2
-    attainable <- switch(
-      n,
-      excess == 0,
-      if (r == 0) is_square(half) else is_square(2 * excess + 1),
-      if (r == 0) is_loeschian(half) else is_loeschian(3 * half + 1),
+    attainable <- if (n == 3) {
+      if (r == 0) is_loeschian(half) else is_loeschian(3 * half + 1)
+    } else {
       if (r == 0) is_sum_three_squares(excess) else r == 1 || excess %% 8 != 6
-    )
+    }
     if (attainable) {
       return(q)
     }
+    q <- q + 2
   }
 
   NA_real_
+}
+
+
+# The smallest whole `k` with `k^2 >= m`, for `m >= 0`, corrected for
+# floating-point error in `sqrt()`:
+next_square_root <- function(m) {
+  k <- ceiling(sqrt(m))
+  if (k > 0 && (k - 1)^2 >= m) {
+    k - 1
+  } else if (k^2 < m) {
+    k + 1
+  } else {
+    k
+  }
 }
 
 
