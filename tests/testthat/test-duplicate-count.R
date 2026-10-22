@@ -1045,3 +1045,9 @@ test_that("unused factor levels are not counted as values", {
   iris[1:5, ] |> duplicate_count() |> dplyr::pull(frequency) |> min() |> expect_gt(0L)
   c(1, 1, 2) |> duplicate_count(ignore = 1) |> dplyr::pull(value) |> expect_equal("2")
 })
+
+
+test_that("`duplicate_count()` ignores groups", {
+  df <- tibble::tibble(a = c(1, 2, 2), b = c(2, 3, 3))
+  df |> dplyr::group_by(a) |> duplicate_count() |> expect_equal(duplicate_count(df))
+})

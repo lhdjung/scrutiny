@@ -88,7 +88,10 @@ duplicate_count <- function(
 
     names_orig <- colnames(x)
 
+    # Groups are meaningless for a pooled frequency table, and `across()` would
+    # skip a grouping column, which then could not be pivoted with the factors:
     x <- x |>
+      dplyr::ungroup() |>
       dplyr::mutate(dplyr::across(everything(), as.factor)) |>
       tidyr::pivot_longer(
         cols = everything(),
