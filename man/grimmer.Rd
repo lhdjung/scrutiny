@@ -81,7 +81,10 @@ squares must be one that \code{n} whole numbers with the reconstructed sum can
 have. For \code{n >= 5}, this means at least the smallest such sum of squares;
 for smaller \code{n}, some larger ones are impossible, too. With this test,
 \code{grimmer()} is \code{TRUE} if and only if a sample of whole numbers has the
-reported mean and SD. GRIMMER was first proposed by Anaya (2016).
+reported mean and SD. The one exception is \code{rounding = "even"}, which
+takes a value on a rounding bound to round either way, as in \code{\link[=unround]{unround()}},
+so it may also accept a value set that a sample only rounds to if ties are
+broken the other way. GRIMMER was first proposed by Anaya (2016).
 
 For data on a bounded scale, such as a Likert scale, see the
 \href{https://github.com/ianhussey/strait}{strait} package. Its \code{brimmest()}
