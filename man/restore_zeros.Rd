@@ -79,6 +79,9 @@ functions put the trailing zeros back.
 Displayed numbers are often rounded, so a value may have more decimal
 places than it shows. \code{x |> decimal_places() |> max()} gives the actual
 maximum.
+
+As in \code{\link[=decimal_places]{decimal_places()}}, numeric values with more than 15 significant
+digits cannot be padded accurately; enter such numbers as strings.
 }
 \examples{
 vec <- c(212, 75.38, 4.9625)

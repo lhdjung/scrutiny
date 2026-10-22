@@ -169,3 +169,12 @@ test_that("`NaN` is a missing value, and `width` must be a number", {
   1.5 |> restore_zeros(width = Inf) |> expect_error("whole number")
   1.5 |> restore_zeros(width = "2") |> expect_error("whole number")
 })
+
+
+test_that("a number is read as `decimal_places()` reads it", {
+  # `as.character(1e-300)` is "9.99999999999999e-301", which counted as 315
+  # decimal places, so the documented default `width` was an error:
+  1e-300       |> restore_zeros(width = 300) |> decimal_places() |> expect_equal(300L)
+  c(1e-300, 1) |> restore_zeros()            |> decimal_places() |> expect_equal(c(300L, 300L))
+  c(1e-300, 1) |> restore_zeros()            |> as.numeric()     |> expect_equal(c(1e-300, 1))
+})

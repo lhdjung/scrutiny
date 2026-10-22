@@ -14,7 +14,7 @@
 #'   the string `"NA"`, and strings that [`as.numeric()`] reads as an infinity
 #'   or `NaN` have `NA` decimal places.
 #'
-#'   Numeric values with 15 or more significant digits cannot be counted
+#'   Numeric values with more than 15 significant digits cannot be counted
 #'   accurately; enter such numbers as strings.
 #'
 #' @param x Numeric, or a string coercible to numeric.
@@ -63,11 +63,10 @@ decimal_places <- function(x, sep = ".") {
 
   # Scientific notation moves the decimal point, so the digits after `sep` are
   # not the decimal places of the number: `1e-05` has five of them and none
-  # after a point, `1.5e3` has none and one after the point. R writes numerics
-  # that way by itself -- `as.character(0.0001)` is `"1e-04"` -- so this is not
-  # only about strings the user typed. The exponent is split off here and
-  # applied to the count below. One beyond the integer range is `NA`, and so is
-  # the count:
+  # after a point, `1.5e3` has none and one after the point. (A number is
+  # written out in full by `number_to_string()`, so this is about strings.)
+  # The exponent is split off here and applied to the count below. One beyond
+  # the integer range is `NA`, and so is the count:
   pos_exponent <- regexpr("[eE][+-]?[0-9]+$", x)
   has_exponent <- pos_exponent > 0L
   exponent <- integer(length(x))
@@ -100,29 +99,42 @@ decimal_places <- function(x, sep = ".") {
 }
 
 
-# `as.character()` writes a number with up to 15 significant digits. Near the
-# ends of the double range, it can use all of them where far fewer stand for the
-# same number: `1e-300` became `"9.99999999999999e-301"`, with 315 decimal
-# places, and `2.5e-310` had 312. Such a string is replaced by the shortest one
-# that converts back to the same number. Only scientific notation is searched,
-# so that the common case costs one fixed-string match:
+# `as.character()` writes a number with up to 15 significant digits, and in
+# scientific notation when that is shorter: `100000` becomes `"1e+05"`, and
+# `0.0001` becomes `"1e-04"`. Such a number is written out in full here, so that
+# its digits can be counted and compared to other spellings of the number. Near
+# the ends of the double range, `as.character()` can also use all 15 digits
+# where far fewer stand for the same number -- `1e-300` became
+# `"9.99999999999999e-301"`, with 315 decimal places -- so the fewest digits
+# that convert back to the same number are searched for. Only scientific
+# notation is affected, so the common case costs one fixed-string match:
 number_to_string <- function(x) {
   out <- as.character(x)
-  has_exponent <- grepl("e", out, fixed = TRUE)
-  if (!any(has_exponent)) {
-    return(out)
-  }
-  n_digits <- nchar(gsub("[^0-9]", "", sub("e.*$", "", out[has_exponent])))
-  for (i in which(has_exponent)[n_digits >= 15L]) {
-    for (digits in 1:14) {
-      shorter <- format(x[i], digits = digits)
-      if (as.numeric(shorter) == x[i]) {
-        out[i] <- shorter
-        break
+  for (i in which(grepl("e", out, fixed = TRUE))) {
+    digits <- nchar(gsub("[^0-9]", "", sub("e.*$", "", out[i])))
+    if (digits >= 15L) {
+      for (digits in 1:15) {
+        if (as.numeric(format(x[i], digits = digits)) == x[i]) {
+          break
+        }
       }
     }
+    out[i] <- format(
+      x[i],
+      digits = digits,
+      scientific = FALSE,
+      decimal.mark = "."
+    )
   }
   out
+}
+
+
+# Strings for comparing values of any type, as the `duplicate_*()` functions
+# do: a number is written out in full, so that `100000L`, `100000`, and
+# `"100000"` are one value, as are `0.0001` and `"0.0001"`.
+value_to_string <- function(x) {
+  if (is.numeric(x)) number_to_string(x) else as.character(x)
 }
 
 

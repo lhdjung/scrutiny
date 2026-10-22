@@ -387,3 +387,10 @@ test_that("numbers near the ends of the double range count as written", {
   c(1e-300, 2.5e-310)       |> decimal_places()                          |> expect_equal(c(300L, 311L))
   list(1e-300, 2.5e-310)    |> vapply(decimal_places_scalar, integer(1)) |> expect_equal(c(300L, 311L))
 })
+
+
+test_that("`number_to_string()` writes numbers out in full", {
+  c(1e5, 1e-4, -1.5e-5, 0.1 + 0.2, 1e15) |> number_to_string() |> expect_equal(c("100000", "0.0001", "-0.000015", "0.3", "1000000000000000"))
+  c(1e-300, 2.5e-310)                     |> number_to_string() |> grepl(pattern = "e", fixed = TRUE) |> any() |> expect_false()
+  c(1e-300, NA, Inf, 1 / 3)               |> number_to_string() |> as.numeric() |> expect_equal(c(1e-300, NA, Inf, 0.333333333333333))
+})

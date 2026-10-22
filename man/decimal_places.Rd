@@ -27,7 +27,7 @@ decimal places, \code{"1e-5"} has five, and \code{"1..5"} has none. Missing valu
 the string \code{"NA"}, and strings that \code{\link[=as.numeric]{as.numeric()}} reads as an infinity
 or \code{NaN} have \code{NA} decimal places.
 
-Numeric values with 15 or more significant digits cannot be counted
+Numeric values with more than 15 significant digits cannot be counted
 accurately; enter such numbers as strings.
 }
 \section{Trailing zeros}{

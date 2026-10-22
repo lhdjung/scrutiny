@@ -17,6 +17,9 @@
 #'   places than it shows. `x |> decimal_places() |> max()` gives the actual
 #'   maximum.
 #'
+#'   As in [`decimal_places()`], numeric values with more than 15 significant
+#'   digits cannot be padded accurately; enter such numbers as strings.
+#'
 #' @param x Numeric, or a string coercible to numeric. A value that is not
 #'   coercible, such as `"5%"`, becomes `NA`.
 #' @param width Integer. Number of decimal places the output should have.
@@ -74,9 +77,9 @@ restore_zeros <- function(
   check_width <- rlang::arg_match(check_width)
   sep_in <- sep_literal(sep_in)
 
-  # Make sure no whitespace (from values that already were strings) is factored
-  # into the count:
-  x <- stringr::str_trim(x)
+  # A number is written out in full, as `decimal_places()` reads it. A string
+  # is trimmed, so that no whitespace is factored into the count:
+  x <- if (is.numeric(x)) number_to_string(x) else stringr::str_trim(x)
 
   # From here on, the separator is a decimal point, so that `as.numeric()` can
   # read `x`. It is put back in at the end:
@@ -98,12 +101,12 @@ restore_zeros <- function(
   }
   x[is.na(x_num)] <- NA_character_
 
-  # R writes small and large numbers in scientific notation by itself --
-  # `as.character(0.0001)` is `"1e-04"` -- and zeros appended to that would
-  # multiply the value instead of padding it. Such values are written out in
-  # full, to the decimal places that `decimal_places()` reads off the exponent.
-  # Other unusual spellings that `as.numeric()` accepts, such as `".5"`,
-  # `"+1.5"`, or `"0x1A"`, are written out plainly the same way:
+  # A string may be in scientific notation, such as `"1e-04"`, and zeros
+  # appended to that would multiply the value instead of padding it. Such
+  # values are written out in full, to the decimal places that
+  # `decimal_places()` reads off the exponent. Other unusual spellings that
+  # `as.numeric()` accepts, such as `".5"`, `"+1.5"`, or `"0x1A"`, are written
+  # out plainly the same way:
   rewrite <- is.finite(x_num) & !grepl("^-?[0-9]+(\\.[0-9]*)?$", x)
   x[rewrite] <- sprintf("%.*f", decimal_places(x[rewrite]), x_num[rewrite])
 
