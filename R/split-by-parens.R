@@ -92,6 +92,9 @@ split_by_parens <- function(
   # lead to issues with the timing of evaluation, its evaluation is forced here:
   force(sep)
 
+  groups <- dplyr::groups(data)
+  data <- dplyr::ungroup(data)
+
   # Determine which columns have suitable values with regards to the `sep`
   # elements and capture their names. A column qualifies if every non-missing
   # value has an opening `sep` element followed by a closing one. With no rows
@@ -219,7 +222,8 @@ split_by_parens <- function(
   # those columns that were never split to the output:
   if (!transform) {
     out <- out |>
-      dplyr::mutate({{ neutral_cols }})
+      dplyr::mutate({{ neutral_cols }}) |>
+      regroup(groups)
     return(out)
   }
 

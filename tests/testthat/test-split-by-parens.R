@@ -142,3 +142,12 @@ test_that("0-row character columns are split either way, without a warning", {
   empty |> split_by_parens()                  |> colnames() |> expect_equal(c("a_x", "a_sd")) |> expect_no_warning()
   empty |> split_by_parens(check_sep = FALSE) |> colnames() |> expect_equal(c("a_x", "a_sd")) |> expect_no_warning()
 })
+
+
+test_that("`split_by_parens()` works on grouped tibbles", {
+  grouped <- tibble::tibble(a = c("1 (2.5)", "3 (4)"), b = 1:2) |> dplyr::group_by(b)
+  out <- grouped |> split_by_parens() |> suppressWarnings()
+  out$a_x |> expect_equal(c("1", "3"))
+  out |> dplyr::group_vars() |> expect_equal("b")
+  grouped |> dplyr::group_by(a) |> split_by_parens() |> suppressWarnings() |> dplyr::group_vars() |> expect_equal(character(0))
+})

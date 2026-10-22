@@ -144,3 +144,18 @@ test_that("unusual spellings of numbers are written out plainly", {
     expect_equal(c("0.50", "1.50", "-0.25"))
   "0x1A" |> restore_zeros(width = 3) |> expect_equal("26.000")
 })
+
+
+# `dplyr::select()` re-adds the grouping columns and `across()` runs per group,
+# so a grouped tibble used to fail with "Can't select columns past the end" or
+# to pad nothing at all:
+test_that("`restore_zeros_df()` works on grouped tibbles and skips dates", {
+  grouped <- tibble::tibble(a = c(1.5, 2), b = c(1.25, 3)) |> dplyr::group_by(b)
+  out <- grouped |> restore_zeros_df()
+  out$a |> expect_equal(c("1.5", "2.0"))
+  out$b |> expect_equal(c("1.25", "3.00"))
+  out |> dplyr::group_vars() |> expect_equal("b")
+  grouped |> restore_zeros_df(cols = a) |> dplyr::pull(a) |> expect_equal(c("1.5", "2.0"))
+  dates <- tibble::tibble(d = as.Date("2026-10-22") + 0:1, x = c(1.5, 2))
+  dates |> restore_zeros_df() |> dplyr::pull(d) |> expect_equal(dates$d)
+})

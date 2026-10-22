@@ -1476,6 +1476,21 @@ transform_split_parens <- function(data, origins, end1, end2) {
 }
 
 
+# The `*_df()` functions work on whole columns, which grouping only gets in the
+# way of: `dplyr::select()` re-adds the grouping columns, and `across()` runs per
+# group with those columns out of reach. They ungroup `data` first, and this
+# puts the groups back onto the output -- those that are still columns, since
+# `split_by_parens()` drops the columns it splits:
+regroup <- function(out, groups) {
+  groups <- groups[as.character(groups) %in% colnames(out)]
+  if (length(groups) == 0L) {
+    out
+  } else {
+    dplyr::group_by(out, !!!groups)
+  }
+}
+
+
 #' Select columns before `"consistency"`
 #'
 #' Useful helper for selecting all "tested" columns in the sense of

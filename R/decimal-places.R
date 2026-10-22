@@ -203,6 +203,8 @@ decimal_places_df <- function(
   sep = "."
 ) {
   sep_literal_value <- sep_literal(sep)
+  groups <- dplyr::groups(data)
+  data <- dplyr::ungroup(data)
   quo_cols <- rlang::enquo(cols)
   names_selected <- quo_cols |>
     tidyselect::eval_select(data) |>
@@ -239,7 +241,8 @@ decimal_places_df <- function(
     dplyr::mutate(dplyr::across(
       .cols = all_of(names_selected),
       .fns = function(x) decimal_places(x = x, sep = sep)
-    ))
+    )) |>
+    regroup(groups)
 }
 
 

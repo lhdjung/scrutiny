@@ -356,3 +356,10 @@ test_that("the string `\"NA\"` has `NA` decimal places", {
   c("NA", " NA ", "1.5") |> decimal_places() |> expect_equal(c(NA, NA, 1L))
   "NA"                   |> decimal_places_scalar() |> expect_equal(NA_integer_)
 })
+
+
+test_that("`decimal_places_df()` works on grouped tibbles", {
+  out <- tibble::tibble(a = c(1.5, 2), b = c(1.25, 3)) |> dplyr::group_by(b) |> decimal_places_df()
+  out$b |> expect_equal(c(2L, 0L))
+  out |> dplyr::group_vars() |> expect_equal("b")
+})

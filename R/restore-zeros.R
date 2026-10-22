@@ -212,6 +212,9 @@ restore_zeros_df <- function(
     }
   }
 
+  groups <- dplyr::groups(data)
+  data <- dplyr::ungroup(data)
+
   # Names of selection-suitable columns. A column with comma decimals is only
   # numeric-like when read with `sep_in`:
   sep_in_literal <- sep_literal(sep_in)
@@ -284,5 +287,6 @@ restore_zeros_df <- function(
           )
         }
       )
-    )
+    ) |>
+    regroup(groups)
 }
