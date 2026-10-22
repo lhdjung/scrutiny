@@ -15,7 +15,7 @@ R\.Rproj$
 ^codecov\.yml$
 ^cran-comments\.md$
 ^CRAN-SUBMISSION$
-^\.lintr$
+^\.lintr\.R$
 .Rprofile$
 .Rprofile\.R$
 ^special-scripts$
@@ -23,6 +23,9 @@ R\.Rproj$
 ^\.vscode$
 ^\.positai$
 ^\.claude$
+^AGENTS\.md$
+^CLAUDE\.md$
+^\.agents$
 ^Rplots\.pdf$
 ^cache$
 ^vignettes/.*\.tex$
@@ -30,5 +33,7 @@ R\.Rproj$
 ^vignettes/.*\.pdf$
 ^\.DS_Store$
 ^.*/\.DS_Store$
+^TODO\.md$
 ^\.mailmap$
 ^jarl\.toml$
+^tests/testthat/_problems$
