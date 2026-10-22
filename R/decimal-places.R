@@ -251,6 +251,14 @@ decimal_places_df <- function(
 # character. An escaped character from those days, such as the former default
 # `"\\."` or `"\\,"`, is still read as that character.
 sep_literal <- function(sep) {
+  # A missing value or a non-string used to fail in `regexpr()`:
+  if (!is.character(sep) || length(sep) != 1L || is.na(sep)) {
+    name <- deparse(substitute(sep))
+    abort_in_export(
+      "`{name}` must be a single string.",
+      "x" = "It is {wrong_spec_string(sep)}."
+    )
+  }
   sub("^\\\\(.)$", "\\1", sep)
 }
 

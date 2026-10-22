@@ -159,3 +159,13 @@ test_that("`restore_zeros_df()` works on grouped tibbles and skips dates", {
   dates <- tibble::tibble(d = as.Date("2026-10-22") + 0:1, x = c(1.5, 2))
   dates |> restore_zeros_df() |> dplyr::pull(d) |> expect_equal(dates$d)
 })
+
+
+test_that("`NaN` is a missing value, and `width` must be a number", {
+  c(1.5, NaN, 2) |> restore_zeros() |> expect_silent()
+  c(1.5, NaN, 2) |> restore_zeros() |> expect_equal(c("1.5", NA, "2.0"))
+  # These used to fail in `if ()`:
+  1.5 |> restore_zeros(width = NA)  |> expect_error("whole number")
+  1.5 |> restore_zeros(width = Inf) |> expect_error("whole number")
+  1.5 |> restore_zeros(width = "2") |> expect_error("whole number")
+})

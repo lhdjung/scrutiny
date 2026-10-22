@@ -363,3 +363,10 @@ test_that("`decimal_places_df()` works on grouped tibbles", {
   out$b |> expect_equal(c(2L, 0L))
   out |> dplyr::group_vars() |> expect_equal("b")
 })
+
+
+test_that("the decimal separator must be a single string", {
+  "1.5" |> decimal_places(sep = NA)          |> expect_error("single string")
+  "1.5" |> decimal_places(sep = c(".", ",")) |> expect_error("single string")
+  tibble::tibble(a = 1.5) |> restore_zeros_df(sep_in = NA) |> expect_error("single string")
+})

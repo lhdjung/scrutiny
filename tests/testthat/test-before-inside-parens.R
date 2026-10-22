@@ -86,3 +86,9 @@ test_that("each string is split on its own, and `sep` is matched literally", {
   "2.1 |0.3|" |> inside_parens(sep = c("|", "|")) |> expect_equal("0.3")
   "2.1 (0.3)" |> before_parens(sep = c("(", ")")) |> expect_equal("2.1")
 })
+
+
+test_that("`sep` must not be missing", {
+  "1 (2)" |> before_parens(sep = NA) |> expect_error("keyword or two strings")
+  "1 (2)" |> inside_parens(sep = 1)  |> expect_error("keyword or two strings")
+})

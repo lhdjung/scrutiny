@@ -9,6 +9,14 @@ resolve_digits_fraction <- function(digits, denominator) {
     digits <- ceiling(log10(denominator)) + 1L
   }
 
+  # A string other than `"auto"` used to fail in `is.finite()`:
+  if (!is.numeric(digits) && !(is.logical(digits) && all(is.na(digits)))) {
+    abort_in_export(
+      "!" = "`digits` must be whole numbers or \"auto\".",
+      "x" = "It is {wrong_spec_string(digits)}."
+    )
+  }
+
   # A missing `digits` passes, and propagates to a missing result, as it does in
   # `reround()`. So does an infinite one, which `reround_to_fraction()` treats
   # as "don't round":
@@ -87,6 +95,10 @@ reround_to_fraction <- function(
   # If any two arguments called right below are length > 1, they need to have
   # the same length. Otherwise, the call will fail. But even so, there will be a
   # warning that values will get paired:
+  # A string used to fail in base R arithmetic:
+  if (!is.null(x)) {
+    check_type(x, c("double", "integer"))
+  }
   check_lengths_congruent(list(x, denominator, digits))
 
   # `rounding`, `threshold`, and `symmetric` are deliberately left out. They
@@ -184,6 +196,10 @@ reround_to_fraction_level <- function(
   # If any two arguments called right below are length > 1, they need to have
   # the same length. Otherwise, the call will fail. But even so, there will be a
   # warning that values will get paired:
+  # A string used to fail in base R arithmetic:
+  if (!is.null(x)) {
+    check_type(x, c("double", "integer"))
+  }
   check_lengths_congruent(list(x, denominator, digits))
 
   # `rounding`, `threshold`, and `symmetric` are deliberately left out. They

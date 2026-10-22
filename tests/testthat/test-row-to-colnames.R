@@ -52,3 +52,11 @@ test_that("a named matrix keeps a name whose header cell is `NA`", {
   m <- matrix(c(NA, "1", "b", "2"), nrow = 2, dimnames = list(NULL, c("keep", "q")))
   m |> row_to_colnames() |> colnames() |> expect_equal(c("keep", "b"))
 })
+
+
+test_that("`row` and `collapse` are checked", {
+  df <- tibble::tibble(a = "x", b = "y")
+  df |> row_to_colnames(row = Inf)      |> expect_error("whole numbers")
+  df |> row_to_colnames(row = NA_real_) |> expect_error("whole numbers")
+  df |> row_to_colnames(collapse = NULL) |> expect_error("character")
+})

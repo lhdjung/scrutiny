@@ -145,3 +145,11 @@ test_that("`denominator` must be finite", {
   0.3 |> reround_to_fraction(denominator = Inf)       |> expect_error("finite number")
   0.3 |> reround_to_fraction_level(denominator = Inf) |> expect_error("finite number")
 })
+
+
+test_that("`x` and `digits` must be numeric", {
+  # These used to fail in base R arithmetic:
+  "0.4" |> reround_to_fraction()                 |> expect_error("double and integer")
+  0.4   |> reround_to_fraction(digits = "AUTO")  |> expect_error("whole numbers or \"auto\"")
+  "0.4" |> reround_to_fraction_level()           |> expect_error("double and integer")
+})

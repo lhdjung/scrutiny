@@ -15,7 +15,8 @@
 #' @param n Integer. Total sample size.
 #' @param mean Numeric. Mean of the data.
 #'
-#' @return Numeric. Sample standard deviation.
+#' @return Numeric. Sample standard deviation; `NA` where `n` is below 2,
+#'   since the sample SD divides by `n - 1`.
 #'
 #' @export
 #'
@@ -39,7 +40,7 @@
 
 sd_binary_groups <- function(group_0, group_1) {
   n <- group_0 + group_1
-  suppressWarnings(sqrt((n / (n - 1)) * ((group_0 * group_1) / (n^2))))
+  sd_binary_sample(n, group_0 * group_1 / n^2)
 }
 
 
@@ -50,7 +51,7 @@ sd_binary_groups <- function(group_0, group_1) {
 
 sd_binary_0_n <- function(group_0, n) {
   group_1 <- n - group_0
-  suppressWarnings(sqrt((n / (n - 1)) * ((group_0 * group_1) / (n^2))))
+  sd_binary_sample(n, group_0 * group_1 / n^2)
 }
 
 
@@ -61,7 +62,7 @@ sd_binary_0_n <- function(group_0, n) {
 
 sd_binary_1_n <- function(group_1, n) {
   group_0 <- n - group_1
-  suppressWarnings(sqrt((n / (n - 1)) * ((group_0 * group_1) / (n^2))))
+  sd_binary_sample(n, group_0 * group_1 / n^2)
 }
 
 
@@ -71,5 +72,14 @@ sd_binary_1_n <- function(group_1, n) {
 #' @export
 
 sd_binary_mean_n <- function(mean, n) {
-  suppressWarnings(sqrt((n / (n - 1)) * (mean * (1 - mean))))
+  sd_binary_sample(n, mean * (1 - mean))
+}
+
+
+# The sample SD from the population variance. With `n` below 2 there is no
+# sample SD, and the formula used to return `Inf` or `NaN` with the warning
+# suppressed:
+sd_binary_sample <- function(n, variance) {
+  # Multiplying recycles `n` along `variance`, as the formula does:
+  suppressWarnings(sqrt((n / (n - 1)) * variance)) * ifelse(n < 2, NA_real_, 1)
 }

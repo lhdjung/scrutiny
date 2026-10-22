@@ -39,3 +39,13 @@ test_that("`grim_binomial()` returns the exact interval, one-sided like the test
   data |> grim_binomial(conf.level = 1)            |> expect_error("between 0 and 1")
   data |> grim_binomial(conf.level = c(0.9, 0.95)) |> expect_error("between 0 and 1")
 })
+
+
+test_that("`grim_binomial_power()` checks its probabilities and `k`", {
+  skip_if_not_installed("poibin")
+  # These used to give `NaN`, an error from poibin, or a power of 1:
+  0.5 |> grim_binomial_power(1.5, k = 3)            |> expect_error("`p1` must be between 0 and 1")
+  1.5 |> grim_binomial_power(0.9, k = 3)            |> expect_error("`p0` must be between 0 and 1")
+  0.5 |> grim_binomial_power(0.9, k = 3, alpha = 5) |> expect_error("`alpha` must be between 0 and 1")
+  0.5 |> grim_binomial_power(0.9, k = 2.5)          |> expect_error("whole number")
+})

@@ -1476,12 +1476,13 @@ transform_split_parens <- function(data, origins, end1, end2) {
   stack_cols <- function(end) {
     unlist(data[paste0(origins, "_", end)], use.names = FALSE)
   }
+  # The columns are stacked in their order in `data`, which used to be
+  # rearranged alphabetically:
   tibble::tibble(
     .origin = rep(origins, each = nrow(data)),
     !!end1 := stack_cols(end1),
     !!end2 := stack_cols(end2)
-  ) |>
-    dplyr::arrange(.data$.origin)
+  )
 }
 
 

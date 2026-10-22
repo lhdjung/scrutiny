@@ -57,3 +57,11 @@ test_that("0-row output is reconstructed as 0 rows, keeping column types", {
   rec$x1 |> expect_type("double")
   out |> audit_total_n() |> nrow() |> expect_equal(0L)
 })
+
+
+test_that("incomplete mapper output is rejected", {
+  # The first two rows of each case used to be paired up whatever they were:
+  out <- tibble::tibble(x1 = 4.52, x2 = 5.23, n = 40) |>
+    grim_map_total_n(digits_x = 2, items_averaged = 1)
+  out[-1, ] |> reverse_map_total_n() |> expect_error("in full")
+})

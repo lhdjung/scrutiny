@@ -151,3 +151,12 @@ test_that("`split_by_parens()` works on grouped tibbles", {
   out |> dplyr::group_vars() |> expect_equal("b")
   grouped |> dplyr::group_by(a) |> split_by_parens() |> suppressWarnings() |> dplyr::group_vars() |> expect_equal(character(0))
 })
+
+
+test_that("`transform = TRUE` keeps the columns in their order", {
+  # The output used to be sorted alphabetically by `.origin`:
+  tibble::tibble(z = "1 (2)", a = "3 (4)") |>
+    split_by_parens(transform = TRUE) |>
+    dplyr::pull(.origin) |>
+    expect_equal(c("z", "a"))
+})

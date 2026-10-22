@@ -181,12 +181,35 @@ grim_binomial_power <- function(
   }
 
   # `poibin::ppoibin()` crashes the R session when given no probabilities:
-  if (length(p0) == 0L || !is_whole_number(k) || k < 1) {
+  if (length(p0) == 0L || !is.numeric(k) || is.na(k) || k < 1) {
     cli::cli_abort(c(
       "There must be at least one value set.",
       "x" = "`k` is {k}, and `p0` has length {length(p0)}."
     ))
   }
+  if (!is_whole_number(k)) {
+    cli::cli_abort(c(
+      "`k` must be a whole number.",
+      "x" = "It is {k}.",
+      "i" = "It is the number of value sets."
+    ))
+  }
+
+  # A probability outside of 0 and 1 used to give `NaN`, an error from poibin,
+  # or a power of 1:
+  check_probability <- function(p, name) {
+    if (!is.numeric(p) || anyNA(p) || any(p < 0 | p > 1)) {
+      cli::cli_abort(c(
+        "`{name}` must be between 0 and 1.",
+        "x" = "It is {wrong_spec_string(p)}."
+      ))
+    }
+  }
+  check_probability(p0, "p0")
+  check_probability(p1, "p1")
+  check_probability(alpha, "alpha")
+  check_length(p1, 1L)
+  check_length(alpha, 1L)
 
   if (length(p0) == 1L) {
     p0 <- rep(p0, k)

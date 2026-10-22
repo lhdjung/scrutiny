@@ -89,7 +89,7 @@ restore_zeros <- function(
   # `"5%000"` -- or, as it used to, into the string `"NA"`:
   # The string `"NA"` spells out a missing value, so it is not a non-number:
   x_num <- suppressWarnings(as.numeric(x))
-  not_number <- is.na(x_num) & !(x %in% c(NA, "NA"))
+  not_number <- is.na(x_num) & !(x %in% c(NA, "NA", "NaN"))
   if (any(not_number)) {
     cli::cli_warn(c(
       "Values that are not numbers became `NA`.",
@@ -138,7 +138,9 @@ restore_zeros <- function(
     # This is an error if `width` is not a single integer-ish number or a vector
     # of such numbers with the same length as `x`...
   } else if (
-    !any(c(1L, length(x)) == length(width)) ||
+    !is.numeric(width) ||
+      !any(c(1L, length(x)) == length(width)) ||
+      !all(is.finite(width)) ||
       !all(is_whole_number(width)) ||
       any(width < 0)
   ) {

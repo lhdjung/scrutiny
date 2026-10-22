@@ -31,6 +31,19 @@ reverse_map_total_n <- function(data) {
     ))
   }
 
+  # The group sizes come in pairs, so a case with an odd number of rows has
+  # lost some. Taking the first two rows of it used to pair up group sizes from
+  # different steps without a word:
+  rows_per_case <- table(data$case)
+  if (any(rows_per_case %% 2L != 0L)) {
+    abort_in_export(
+      "`data` must hold the mapper's output in full.",
+      "x" = "Some cases have an odd number of rows, so rows have been \\
+      removed.",
+      "i" = "Each pair of consecutive rows is one split of the total."
+    )
+  }
+
   # Take the first pair of rows of each original-`n` block. The two group sizes
   # in any such pair add up to the reported total, whatever the dispersion step
   # that led to them; the total used to be rebuilt as twice the second group

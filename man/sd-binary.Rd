@@ -26,7 +26,8 @@ sd_binary_mean_n(mean, n)
 \item{mean}{Numeric. Mean of the data.}
 }
 \value{
-Numeric. Sample standard deviation.
+Numeric. Sample standard deviation; \code{NA} where \code{n} is below 2,
+since the sample SD divides by \code{n - 1}.
 }
 \description{
 Compute the sample SD of binary data (0 and 1 values) from

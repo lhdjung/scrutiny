@@ -59,14 +59,18 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
     check_type(row, c("double", "integer"))
   }
 
-  if (!all(is_whole_number(row))) {
-    offenders <- row[!is_whole_number(row)]
+  # A missing or infinite `row` used to fail in `if ()`:
+  if (!all(is.finite(row)) || !all(is_whole_number(row))) {
+    offenders <- row[!is.finite(row) | !is_whole_number(row)]
     offenders <- wrap_in_backticks(offenders)
     cli::cli_abort(c(
       "!" = "`row` must only have whole numbers.",
       "x" = "It includes {offenders}."
     ))
   }
+
+  check_type(collapse, "character")
+  check_length(collapse, 1L)
 
   if (any(row < 1L | row > nrow(data))) {
     offenders <- wrap_in_backticks(row[row < 1L | row > nrow(data)])
