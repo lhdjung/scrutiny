@@ -940,21 +940,17 @@ test_that("GRIMMER rejects sums of squares that fewer than five numbers cannot h
 })
 
 
-test_that("GRIMMER agrees with a brute force on random value sets", {
-  # The truth is whether any sample of `n` whole numbers has a mean and an SD
-  # that round to the reported ones, with both bounds inclusive as under
-  # `"up_or_down"`. It shares nothing with `grimmer()`: no rounding bounds, no
-  # candidate sums, only integer arithmetic. Means from 1 to 5 and SDs up to
-  # 2.5 keep every value of up to 8 numbers within `-6:12`, so the pairs of
-  # sums and sums of squares below are complete.
-  vals <- -6:12
-  n_max <- 8L
+# Every pair of a sum and a sum of squares that `k` numbers from `vals` can
+# have, for `k` up to `n_max`, built up one number at a time from the empty
+# sample, with sums in rows and sums of squares in columns. It shares nothing
+# with `grimmer()`: no rounding bounds, no candidate sums, only integer
+# arithmetic. Means from 1 to 5 and SDs up to 2.5 keep every value of up to 8
+# numbers within `-6:12`, so the pairs are complete there.
+grimmer_reachable_pairs <- function(vals = -6:12, n_max = 8L) {
   s_min <- min(vals) * n_max
   rows <- max(vals) * n_max - s_min + 1L
   cols <- max(vals^2) * n_max + 1L
 
-  # Every pair that `k` numbers from `vals` can have, built up one number at a
-  # time from the empty sample, with sums in rows and sums of squares in columns:
   reach <- matrix(FALSE, rows, cols)
   reach[1L - s_min, 1L] <- TRUE
   pairs <- vector("list", n_max)
@@ -971,6 +967,15 @@ test_that("GRIMMER agrees with a brute force on random value sets", {
     found <- which(reach, arr.ind = TRUE)
     pairs[[k]] <- list(s = found[, 1L] + s_min - 1L, q = found[, 2L] - 1L)
   }
+  pairs
+}
+
+
+test_that("GRIMMER agrees with a brute force on random value sets", {
+  # The truth is whether any sample of `n` whole numbers has a mean and an SD
+  # that round to the reported ones, with both bounds inclusive as under
+  # `"up_or_down"`:
+  pairs <- grimmer_reachable_pairs()
 
   # `|s / n - x| <= 0.05` and `(sd - 0.05)^2 <= var <= (sd + 0.05)^2`, with
   # `var = (n * q - s^2) / (n * (n - 1))`, both cleared of fractions:
@@ -997,4 +1002,52 @@ test_that("GRIMMER agrees with a brute force on random value sets", {
   # Both regimes are well represented: the exceptions at `n < 5` and the exact
   # verdicts from the minimum and the parity at `n >= 5`:
   truth |> sum() |> expect_equal(3125L)
+})
+
+
+test_that("GRIMMER agrees with a brute force under every rounding method and with two items", {
+  # The same samples, rounded forward with `reround()`, which `grimmer()` does
+  # not use: it inverts the rounding with `unround()`, whose bounds
+  # test-unround.R checks against `reround()`. A reported pair is reachable if
+  # some sample rounds to it. Under `"even"`, a tie counts either way, as under
+  # `"up_or_down"` (see `?grimmer`). With two items, the whole numbers are the
+  # respondents' totals, so the means and SDs are theirs divided by 2; the
+  # smaller ranges of `x` and `sd` keep every total within `-6:12`.
+  pairs <- grimmer_reachable_pairs()
+  reachable <- function(n, items, rounding) {
+    s <- pairs[[n]]$s
+    q <- pairs[[n]]$q
+    rounding_forward <- if (rounding == "even") "up_or_down" else rounding
+    means <- reround(s / (n * items), 1, rounding_forward)
+    sds <- reround(sqrt((n * q - s^2) / (n * (n - 1))) / items, 1, rounding_forward)
+    # A compound `rounding` returns both variants per sample, interleaved:
+    means <- matrix(round(10 * means), ncol = length(s))
+    sds <- matrix(round(10 * sds), ncol = length(s))
+    keys <- character(0L)
+    for (i in seq_len(nrow(means))) {
+      for (j in seq_len(nrow(sds))) {
+        keys <- c(keys, paste(means[i, ], sds[j, ]))
+      }
+    }
+    unique(keys)
+  }
+
+  roundings <- c("up_or_down", "up", "down", "even", "ceiling", "floor", "trunc", "anti_trunc")
+  set.seed(42)
+  n_checked <- 0L
+  for (items in 1:2) {
+    for (rounding in roundings) {
+      for (n in 2:8) {
+        x <- round(runif(60L, 1, if (items == 1L) 5 else 3), 1)
+        sd <- round(runif(60L, 0, if (items == 1L) 2.5 else 1), 1)
+        truth <- paste(round(10 * x), round(10 * sd)) %in% reachable(n, items, rounding)
+        verdict <- grimmer(x, sd, n, digits_x = 1, digits_sd = 1, items_averaged = items, rounding = rounding)
+        info <- paste0("items = ", items, ", rounding = ", rounding, ", n = ", n)
+        verdict |> expect_equal(truth, info = info)
+        n_checked <- n_checked + sum(truth)
+      }
+    }
+  }
+  # Consistent cases are well represented:
+  n_checked |> expect_gt(1000L)
 })
