@@ -579,15 +579,26 @@ check_args_disabled <- function(args_disabled) {
   if (is.null(args_disabled)) {
     return(NULL)
   }
-  # Disabled arguments can only arrive through the caller's dots. Their names
-  # are read off the dots themselves, not off the call, which through
-  # `lapply()` is `FUN(X[[i]], ...)` and names nothing:
+  # Disabled arguments arrive through the caller's dots, or they are formals
+  # of the caller, as `dispersion` is in a sequence mapper. The names of the
+  # dots are read off the dots themselves, not off the call, which through
+  # `lapply()` is `FUN(X[[i]], ...)` and names nothing; a formal is given if
+  # `missing()` says so in the caller's frame:
   env_caller <- parent.frame()
-  if (!exists("...", envir = env_caller, inherits = FALSE)) {
-    return(NULL)
+  names_dots <- if (exists("...", envir = env_caller, inherits = FALSE)) {
+    eval(quote(...names()), env_caller)
   }
-  names_dots <- eval(quote(...names()), env_caller)
-  offenders <- args_disabled[args_disabled %in% names_dots]
+  names_formals <- names(formals(sys.function(sys.parent())))
+  is_given <- vapply(
+    args_disabled,
+    function(arg) {
+      arg %in% names_dots ||
+        (arg %in% names_formals && !eval(call("missing", as.name(arg)), env_caller))
+    },
+    logical(1L),
+    USE.NAMES = FALSE
+  )
+  offenders <- args_disabled[is_given]
   if (length(offenders) > 0L) {
     fun_name <- name_last_export_code()
     if (length(offenders) > 3L) {
@@ -641,4 +652,30 @@ check_args_disabled_unnamed <- function(args_disabled) {
       "x" = "It has {msg_names}: {name_names}."
     )
   }
+}
+
+
+#' Check what a test function returned
+#'
+#' `check_fun_result()` is called on the result of applying `.fun` to the
+#' first row. The key result column is logical, so `.fun` must return a single
+#' logical value, or a list that starts with one if it shows its
+#' reconstructed values.
+#'
+#' @param result What `.fun` returned.
+#' @param fun_name String. Name of `.fun`, for the message.
+#'
+#' @return `result`, invisibly; might throw an error.
+#'
+#' @noRd
+check_fun_result <- function(result, fun_name) {
+  key <- if (is.list(result) && length(result) > 0L) result[[1L]] else result
+  if (!is.logical(key) || length(key) != 1L) {
+    cli::cli_abort(c(
+      "`{fun_name}()` must return a single logical value, or a list \\
+      starting with one.",
+      "x" = "It returned {.obj_type_friendly {result}}."
+    ))
+  }
+  invisible(result)
 }

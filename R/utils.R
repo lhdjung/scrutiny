@@ -335,7 +335,7 @@ error_digits_flawed <- function(digits, name_digits_arg) {
   check_length(digits, 1)
 
   abort_in_export(
-    "`{name_digits_arg}` must be a single, whole number.",
+    "`{name_digits_arg}` must be a single whole number from 0 to 308.",
     "x" = "It is {wrap_in_quotes_or_backticks(digits)}."
   )
 }
@@ -361,9 +361,12 @@ check_newly_numeric <- function(
     return(invisible(NULL))
   }
 
+  # 308 is the greatest power of ten a double can hold; `reround()` rejects
+  # anything beyond it, and the tests used to return `NA` instead:
   if (
     !is.finite(digits) ||
       digits < 0 ||
+      digits > 308 ||
       abs(digits - round(digits)) >= WHOLE_NUMBER_TOLERANCE
   ) {
     name <- deparse(substitute(digits))
@@ -1482,6 +1485,14 @@ transform_split_parens <- function(data, origins, end1, end2) {
 }
 
 
+# The class that identifies a mapper's output by its test, such as
+# `"scrutiny_grim_map"`. A space in `.name_test` becomes an underscore, so
+# that the class is a plain name:
+class_name_test <- function(name_test, suffix) {
+  paste0("scrutiny_", gsub("\\s+", "_", tolower(name_test)), suffix)
+}
+
+
 # The `*_df()` functions work on whole columns, which grouping only gets in the
 # way of: `dplyr::select()` re-adds the grouping columns, and `across()` runs per
 # group with those columns out of reach. They ungroup `data` first, and this
@@ -1561,7 +1572,9 @@ wrap_in_quotes <- function(x) {
 #'
 #' @noRd
 wrap_in_quotes_or_backticks <- function(x) {
-  if (is.character(x)) {
+  if (is.null(x)) {
+    "`NULL`"
+  } else if (is.character(x)) {
     paste0("\"", x, "\"")
   } else {
     paste0("`", x, "`")

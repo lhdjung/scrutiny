@@ -164,6 +164,8 @@ function_map <- function(
   # must not be used:
   rlang::check_dots_empty()
 
+  check_args_disabled_unnamed(.args_disabled)
+
   fun_name <- deparse(substitute(.fun))
   formals_fun <- formals(.fun)
 
@@ -398,7 +400,7 @@ function_map <- function(
   }
 
   all_classes <- c(
-    paste0("scrutiny_", tolower(.name_test), "_map"),
+    class_name_test(.name_test, "_map"),
     .name_class
   )
 
@@ -503,6 +505,14 @@ function_map <- function(
       }
 
       for (arg in args_by_row) {
+        # An argument with a default that was not given, while `data` has a
+        # column by its name, takes its values from the column. The default
+        # used to be compared to the column, and to fail as disagreeing with
+        # it:
+        arg_given <- !eval(call("missing", as.name(arg)))
+        if (!arg_given && !arg %in% args_required && arg %in% colnames(data)) {
+          args_vals[[arg]] <- data[[arg]]
+        }
         if (!is.null(args_vals[[arg]])) {
           cols_tested[[arg]] <- recycle_digits(
             args_vals[[arg]],
@@ -544,7 +554,8 @@ function_map <- function(
       if (nrow(data) > 0L) {
         row_first <- cols_tested |>
           lapply(function(x) x[[1L]])
-        do.call(fun, c(row_first, args_const_vals, args_fixed, list(...)))
+        do.call(fun, c(row_first, args_const_vals, args_fixed, list(...))) |>
+          check_fun_result(`!!`(fun_name))
       }
 
       # Test for consistency:
@@ -604,10 +615,20 @@ function_map <- function(
             ]
           )
         )
-        cols_derived[[col_name]] <- if (length(vals_derived) == 0L) {
+        vals_derived <- unlist(vals_derived, use.names = FALSE)
+        # A wrong length used to make a tibble that only failed when printed:
+        if (length(vals_derived) != nrow(data)) {
+          abort_in_export(
+            "The `.cols_derived` function for `{col_name}` must return one \\
+            value per row.",
+            "x" = "It returned {length(vals_derived)} value{?s} for \\
+            {nrow(data)} row{?s}."
+          )
+        }
+        cols_derived[[col_name]] <- if (is.null(vals_derived)) {
           numeric(0L)
         } else {
-          unlist(vals_derived, use.names = FALSE)
+          vals_derived
         }
       }
 
@@ -643,11 +664,19 @@ function_map <- function(
           )
       ]
 
-      out <- tibble::new_tibble(
-        c(cols_key, cols_by_row, cols_result, as.list(other_cols)),
-        nrow = nrow(data),
-        class = NULL
-      )
+      cols_out <- c(cols_key, cols_by_row, cols_result, as.list(other_cols))
+
+      # A variadic column renamed to a name the output uses, as in
+      # `summands = c(total = a, b)`, would appear twice:
+      names_dup <- unique(names(cols_out)[duplicated(names(cols_out))])
+      if (length(names_dup) > 0L) {
+        abort_in_export(
+          "The output would have {wrap_in_backticks(names_dup)} twice.",
+          "i" = "A selected column can't be renamed to a name the output uses."
+        )
+      }
+
+      out <- tibble::new_tibble(cols_out, nrow = nrow(data), class = NULL)
 
       out <- add_class(out, `!!`(all_classes))
 

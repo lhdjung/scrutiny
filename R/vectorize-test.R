@@ -100,6 +100,14 @@ vectorize_test <- function(fun, frame, along) {
     }
   }
 
+  # A `NULL` is no value set, so `digits_x = NULL` used to return `logical(0)`
+  # without a word:
+  for (name in names_along) {
+    if (is.null(vals[[name]])) {
+      abort_in_export("{.arg {name}} must not be `NULL`.")
+    }
+  }
+
   lengths_along <- lengths(vals[names_along])
   length_out <- recycle_length_common(lengths_along, names_along)
 

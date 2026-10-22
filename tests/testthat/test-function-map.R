@@ -875,3 +875,55 @@ test_that("a data column named like a result column is an error", {
   pigs1 |> dplyr::mutate(probability = 1) |> grim_map(digits_x = 2, items_averaged = 1)                   |> expect_error("`probability` would be overwritten")
   pigs5 |> dplyr::mutate(reason = "a")    |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_error("`reason` would be overwritten")
 })
+
+
+test_that("a `.cols_derived` function must return one value per row", {
+  # A wrong length used to make a tibble that only failed when printed:
+  bad <- function_map(
+    .fun = function(x, n) x > n,
+    .reported = c("x", "n"),
+    .name_test = "T",
+    .cols_derived = list(twice = function(x) c(x, x))
+  )
+  tibble::tibble(x = 1:2, n = 0:1) |> bad() |> expect_error("one value per row")
+})
+
+test_that("`.fun` must return a single logical value", {
+  nul <- function_map(.fun = function(x, n) NULL, .reported = c("x", "n"), .name_test = "T")
+  tibble::tibble(x = 1:2, n = 0:1) |> nul() |> expect_error("single logical value")
+})
+
+test_that("a variadic column can't be renamed to a name the output uses", {
+  tibble::tibble(a = 1:2, b = 3:4, total = 4:5) |>
+    add_up_to_map(summands = c(total = a, b)) |>
+    expect_error("`total` twice")
+})
+
+test_that("`.args_disabled` covers formals of the sequence mapper", {
+  seq_disabled <- function_map_seq(
+    .fun = grim_map,
+    .reported = c("x", "n"),
+    .name_test = "GRIM",
+    .args_disabled = "dispersion"
+  )
+  pigs1 |> seq_disabled(digits_x = 2, items_averaged = 1, dispersion = 1:2) |> expect_error("disabled")
+  pigs1 |> seq_disabled(digits_x = 2, items_averaged = 1) |> expect_no_error()
+})
+
+test_that("a by-row argument with a default takes its values from a column", {
+  # The default used to be compared to the column and to fail as disagreeing:
+  dflt <- function_map(
+    .fun = function(x, n, digits_y = 2) x > n + digits_y,
+    .reported = c("x", "n"),
+    .name_test = "T",
+    .args_by_row = "digits_y"
+  )
+  out <- tibble::tibble(x = c(5, 5), n = c(1, 1), digits_y = c(1, 5)) |> dflt()
+  out$consistency |> expect_equal(c(TRUE, FALSE))
+  out$digits_y |> expect_equal(c(1, 5))
+})
+
+test_that("a space in `.name_test` becomes an underscore in the class", {
+  spaced <- function_map(.fun = function(x, n) x > n, .reported = c("x", "n"), .name_test = "My Test")
+  tibble::tibble(x = 1, n = 0) |> spaced() |> class() |> purrr::pluck(1) |> expect_equal("scrutiny_my_test_map")
+})

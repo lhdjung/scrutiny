@@ -400,8 +400,11 @@ function_map_seq <- function(
       # same for all of them. An explicit value applies to every variable:
       var_bounds <- `!!`(.var_bounds)
 
+      # `lapply()` rather than `purrr::map()`, which wraps any error from
+      # below in an indexed-error context ("In index: 1.") that means nothing
+      # to the user:
       out <- var |>
-        purrr::map(function(variable) {
+        lapply(function(variable) {
           limits <- resolve_var_bounds(
             var = variable,
             out_min = out_min,
@@ -502,7 +505,7 @@ function_map_seq <- function(
       out <- out |>
         add_class(c(
           "scrutiny_map_seq",
-          paste0("scrutiny_", tolower(name_test), "_map_seq")
+          class_name_test(name_test, "_map_seq")
         ))
 
       # `.name_class` used to go into the dots of `function_map_seq_proto()`,

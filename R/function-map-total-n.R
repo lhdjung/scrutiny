@@ -559,7 +559,7 @@ function_map_total_n <- function(
       out <- out |>
         add_class(c(
           "scrutiny_map_total_n",
-          paste0("scrutiny_", tolower(name_test), "_map_total_n")
+          class_name_test(name_test, "_map_total_n")
         ))
 
       # If `.name_class` (note the dot) was specified in the course of creating

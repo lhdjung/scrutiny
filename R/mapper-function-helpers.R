@@ -220,7 +220,7 @@ check_cols_needed <- function(data, cols, ...) {
 #' @return No return value; might print a message.
 
 check_audit_special <- function(data, name_test) {
-  class_name_root <- paste0("scrutiny_", tolower(name_test), "_map_")
+  class_name_root <- class_name_test(name_test, "_map_")
 
   class_seq <- paste0(class_name_root, "seq")
   class_total_n <- paste0(class_name_root, "total_n")

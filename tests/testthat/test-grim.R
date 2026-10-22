@@ -335,3 +335,15 @@ test_that("every GRIM and GRIMMER mapper has `items_averaged` right after the ke
   grimmer_map_seq     |> formals() |> names() |> head(7L) |> expect_equal(c("data", "digits_x", "digits_sd", "x", "sd", "n", "items_averaged"))
   grimmer_map_total_n |> formals() |> names() |> head(8L) |> expect_equal(c("data", "digits_x", "digits_sd", "x1", "x2", "sd1", "sd2", "items_averaged"))
 })
+
+
+test_that("`percent` must be a single `TRUE` or `FALSE`", {
+  # These used to fail in `if ()` with base R's message:
+  1.4 |> grim(20, digits_x = 1, items_averaged = 1, percent = NA)             |> expect_error("`TRUE` or `FALSE`")
+  pigs1 |> grim_map(digits_x = 2, items_averaged = 1, percent = c(TRUE, FALSE)) |> expect_error("`TRUE` or `FALSE`")
+})
+
+test_that("a `NULL` key argument and an out-of-range `digits_x` are errors", {
+  1.4 |> grim(20, digits_x = NULL, items_averaged = 1) |> expect_error("must not be `NULL`")
+  1.4 |> grim(20, digits_x = 309, items_averaged = 1)  |> expect_error("0 to 308")
+})

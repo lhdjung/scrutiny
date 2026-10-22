@@ -117,8 +117,8 @@ test_that("`digits_*` below the decimal places of `x` is an error", {
 
 
 test_that("an infinite `digits_*` value is rejected clearly", {
-  5.19 |> grim(28, Inf, items_averaged = 1)            |> expect_error("must be a single, whole number")
-  5.19 |> grimmer(1.2, 28, 2, Inf, items_averaged = 1) |> expect_error("must be a single, whole number")
+  5.19 |> grim(28, Inf, items_averaged = 1)            |> expect_error("must be a single whole number")
+  5.19 |> grimmer(1.2, 28, 2, Inf, items_averaged = 1) |> expect_error("must be a single whole number")
 })
 
 test_that("the missing-`digits_sd` example is a working call", {

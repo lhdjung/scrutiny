@@ -24,14 +24,21 @@ grim_scalar <- function(
     # report an issue about their own argument.
     lifecycle::deprecate_warn(
       when = "1.0.0",
-      what = "grim(tolerance)",
+      what = paste0(name_last_export(), "(tolerance)"),
       details = "GRIM compares exact integers, so `tolerance` has no effect \\
       on its results.",
       user_env = globalenv()
     )
   }
 
-  check_type(percent, "logical")
+  # `percent` describes the call as a whole. A missing value or a vector used
+  # to fail in `if ()` with base R's message:
+  if (!isTRUE(percent) && !isFALSE(percent)) {
+    abort_in_export(
+      "`percent` must be `TRUE` or `FALSE`.",
+      "x" = "It is {wrong_spec_string(percent)}."
+    )
+  }
   # A missing `n` is undecidable, but a string is a mistake: comparing it with
   # numbers used to make the verdict an unexplained `NA`.
   if (!is.numeric(n) && !is.na(n)) {
