@@ -34,7 +34,7 @@ The descriptive binary test, or DEBIT, checks whether the reported mean, sample 
 debit(x = 0.35, sd = 0.18, n = 20, digits_x = 2, digits_sd = 2)
 ```
 
-As in `grim()`, the numbers of decimal places in the mean and SD must be stated, because numeric values lose their trailing zeros. The SD is taken to be the sample SD, not the population SD.
+As in `grim()`, the numbers of decimal places in the mean and SD must be stated, because numeric values lose their trailing zeros. The SD is taken to be the sample SD. For a population SD, which divides by $n$ rather than $n - 1$, set `sd_type = "population"`; `sd_type = "either"` accepts both.
 
 By default (`formula = "exact"`), DEBIT only considers means that `n` binary values can have, that is, `k / n` for a whole number `k`. The original formulation of DEBIT treats the mean as a continuous quantity, so it accepts some SDs that no binary sample of size `n` can have. `formula = "mean_n"` reproduces this behavior.
 

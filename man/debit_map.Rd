@@ -15,7 +15,8 @@ debit_map(
   formula = "exact",
   rounding = "up_or_down",
   threshold = 5,
-  symmetric = FALSE
+  symmetric = FALSE,
+  sd_type = "sample"
 )
 }
 \arguments{
@@ -32,7 +33,8 @@ these values, if they differ from the defaults.}
 
 \item{...}{Further arguments passed on to \code{\link[=debit]{debit()}}.}
 
-\item{formula, rounding, threshold, symmetric}{Passed on to \code{\link[=debit]{debit()}}.}
+\item{formula, rounding, threshold, symmetric, sd_type}{Passed on to
+\code{\link[=debit]{debit()}}.}
 }
 \value{
 A tibble with these columns:

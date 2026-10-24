@@ -191,3 +191,16 @@ test_that("`debit_plot()` says that there are no rows to plot", {
     debit_plot() |>
     expect_error("no rows")
 })
+
+test_that("`debit_plot()` draws the line of the SD type that was tested", {
+  data <- tibble::tibble(x = c(.3, 1), sd = c(.46, 0), n = c(10, 1))
+  at_half <- function(l) l$y[which.min(abs(l$x - 0.5))]
+  lines_at_half <- function(plot) {
+    is_line <- plot$layers |> vapply(function(l) inherits(l$geom, "GeomFunction"), TRUE)
+    plot |> ggplot2::ggplot_build() |> _$data[is_line] |> vapply(at_half, 1)
+  }
+
+  # A group of 1 has no sample SD, so it has no sample line:
+  data |> debit_map(digits_x = 2, digits_sd = 2, sd_type = "population") |> debit_plot() |> lines_at_half() |> expect_equal(c(0.5, 0.5))
+  data |> debit_map(digits_x = 2, digits_sd = 2, sd_type = "either")     |> debit_plot() |> lines_at_half() |> expect_equal(c(sqrt(10 / 9 * 0.25), 0.5, 0.5))
+})

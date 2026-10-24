@@ -8,7 +8,8 @@
 #' - `sd_binary_1_n()` from the count of 1s and the total.
 #' - `sd_binary_mean_n()` from the mean and the total.
 #'
-#' [`debit()`] uses these internally.
+#' These are the SDs that [`debit()`] tests under its default
+#' `sd_type = "sample"`.
 #'
 #' @param group_0 Integer. Count of 0s.
 #' @param group_1 Integer. Count of 1s.

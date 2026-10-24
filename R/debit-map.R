@@ -14,7 +14,8 @@
 #'   whole column or one number per row of `data`.
 #' @param x,sd,n Optionally, the names of the columns in `data` that contain
 #'   these values, if they differ from the defaults.
-#' @param formula,rounding,threshold,symmetric Passed on to [`debit()`].
+#' @param formula,rounding,threshold,symmetric,sd_type Passed on to
+#'   [`debit()`].
 #' @param ... Further arguments passed on to [`debit()`].
 #'
 #' @importFrom rlang .data

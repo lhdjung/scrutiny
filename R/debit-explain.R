@@ -30,7 +30,8 @@ debit_explain <- function(
   formula = "exact",
   rounding = "up_or_down",
   threshold = 5,
-  symmetric = FALSE
+  symmetric = FALSE,
+  sd_type = "sample"
 ) {
   if (!identical(formula, "exact")) {
     abort_in_export(
@@ -63,9 +64,29 @@ debit_explain <- function(
     rounding = rounding,
     threshold = threshold,
     symmetric = symmetric,
+    sd_type = sd_type,
     show_rec = TRUE
   )
   consistency <- rec[[1L]]
+
+  # `debit_scalar()` has checked `sd_type`, and the arguments are known not to
+  # be missing:
+  if (sd_type == "either") {
+    explain_type <- function(sd_type) {
+      debit_explain(
+        x = x,
+        sd = sd,
+        n = n,
+        digits_x = digits_x,
+        digits_sd = digits_sd,
+        rounding = rounding,
+        threshold = threshold,
+        symmetric = symmetric,
+        sd_type = sd_type
+      )
+    }
+    return(explain_either(explain_type, consistency))
+  }
 
   explain <- function(text) {
     inputs <- list(
@@ -80,7 +101,8 @@ debit_explain <- function(
       threshold,
       symmetric,
       consistency,
-      text
+      text,
+      sd_type
     )
   }
 
@@ -94,7 +116,7 @@ debit_explain <- function(
         digits_sd = digits_sd
       ),
       n = n,
-      min_n = 2
+      min_n = sd_min_n(sd_type)
     )
     return(explain(text))
   }
@@ -200,23 +222,27 @@ debit_explain <- function(
     sd_incl_upper
   )
 
+  n_dev <- sd_denominator(n, sd_type)
+
   text_formula <- paste0(
     "With k ones among ",
     n,
-    " values, the SD is ",
+    " values, the ",
+    if (sd_type == "population") "population ",
+    "SD is ",
     "sqrt(k * (",
     n,
     " - k) / (",
     n,
     " * ",
-    n - 1,
+    n_dev,
     "))."
   )
 
   # Whether each number of ones `k` has an SD in range is decided by the whole
   # number `k * (n - k)`, as in `binary_sd_attainable()`, not by the rounded
   # SD shown.
-  spread_range <- binary_spread_range(n, bounds$sd)
+  spread_range <- binary_spread_range(n, bounds$sd, sd_type)
 
   ones <- binary_ones_shown(sum_lower, sum_upper, n, spread_range)
   spread <- ones * (n - ones)
@@ -236,10 +262,10 @@ debit_explain <- function(
       " * ",
       n - k,
       " / ",
-      n * (n - 1),
+      n * n_dev,
       ") = ",
       format_number(
-        sqrt(k * (n - k) / (n * (n - 1))),
+        sqrt(k * (n - k) / (n * n_dev)),
         digits_sd,
         c(rec[[2L]], rec[[4L]])
       )

@@ -5,7 +5,11 @@
 #'   blue if consistent and red if not, against the DEBIT line: the SD of
 #'   binary data as a function of their mean, for the given sample size.
 #'
-#' @details The means that `n` binary values can have, `k / n`, are marked as
+#' @details The line is that of the sample SD unless [`debit_map()`] was called
+#'   with `sd_type = "population"`, which shows the population SD. Under
+#'   `sd_type = "either"`, the lines for both are drawn.
+#'
+#'   The means that `n` binary values can have, `k / n`, are marked as
 #'   points on the line. Under `formula = "exact"`, the default of
 #'   [`debit_map()`], a value set is consistent if one of these points lies
 #'   inside its rectangle. If `n` is large, only the points that would not be
@@ -85,6 +89,10 @@ debit_plot <- function(
       "i" = "Plot the output of `debit_map()` itself."
     ))
   }
+
+  # Recorded along with `formula`. Under `"either"`, both lines are drawn:
+  sd_type <- scrutiny_meta(data)$args$sd_type
+  sd_types <- if (sd_type == "either") c("sample", "population") else sd_type
 
   # Preparations ---
 
@@ -184,44 +192,57 @@ debit_plot <- function(
   # the same, so the band is not needed. The lines don't inherit the `label`
   # aesthetic, which they have no use for.
 
-  debit_line <- function(n_line) {
-    function(x) sqrt((n_line / (n_line - 1)) * (x * (1 - x)))
-  }
-  n_range <- range(n)
-
-  if (n_range[1] != n_range[2]) {
-    x_grid <- seq(0, 1, length.out = 201)
-    p <- p +
-      ggplot2::geom_ribbon(
-        data = tibble::tibble(
-          x = x_grid,
-          ymin = debit_line(n_range[2])(x_grid),
-          ymax = debit_line(n_range[1])(x_grid)
-        ),
-        ggplot2::aes(
-          x = .data$x,
-          ymin = .data$ymin,
-          ymax = .data$ymax
-        ),
-        fill = "black",
-        alpha = 0.25,
-        na.rm = TRUE,
-        inherit.aes = FALSE
-      )
+  # The line is drawn when the plot is, after the loop below has moved on, so
+  # its `n` and `sd_type` are forced now:
+  debit_line <- function(n_line, type) {
+    force(n_line)
+    force(type)
+    function(x) sqrt(n_line / sd_denominator(n_line, type) * x * (1 - x))
   }
 
-  debit_lines <- n_range |>
-    unique() |>
-    lapply(function(n_line) {
-      ggplot2::geom_function(
-        fun = debit_line(n_line),
-        linewidth = 0.5,
-        na.rm = TRUE,
-        inherit.aes = FALSE
-      )
-    })
+  # A sample SD needs `n >= 2`, so a value set with `n = 1`, which only
+  # `sd_type = "either"` can test, has no sample line.
+  for (type in sd_types) {
+    n_type <- n[n >= sd_min_n(type)]
+    if (length(n_type) == 0L) {
+      next
+    }
+    n_range <- range(n_type)
 
-  p <- p + debit_lines
+    if (n_range[1] != n_range[2]) {
+      x_grid <- seq(0, 1, length.out = 201)
+      p <- p +
+        ggplot2::geom_ribbon(
+          data = tibble::tibble(
+            x = x_grid,
+            ymin = debit_line(n_range[2], type)(x_grid),
+            ymax = debit_line(n_range[1], type)(x_grid)
+          ),
+          ggplot2::aes(
+            x = .data$x,
+            ymin = .data$ymin,
+            ymax = .data$ymax
+          ),
+          fill = "black",
+          alpha = 0.25,
+          na.rm = TRUE,
+          inherit.aes = FALSE
+        )
+    }
+
+    debit_lines <- n_range |>
+      unique() |>
+      lapply(function(n_line) {
+        ggplot2::geom_function(
+          fun = debit_line(n_line, type),
+          linewidth = 0.5,
+          na.rm = TRUE,
+          inherit.aes = FALSE
+        )
+      })
+
+    p <- p + debit_lines
+  }
 
   # A point at the reported mean and SD. Unlike the rectangle drawn over it, it
   # has a fixed size, so that a value set whose rectangle is too small to see --
@@ -276,45 +297,64 @@ debit_plot <- function(
     k_lower <- data$sum_lower
     k_upper <- data$sum_upper
     k_count <- pmax(k_upper - k_lower + 1, 0)
+    is_thinned <- rep(FALSE, length(k_count))
 
-    if (sum(k_count) <= 10000) {
-      k_by_row <- purrr::map2(k_lower, k_upper, function(k_lower, k_upper) {
-        if (k_lower > k_upper) {
-          numeric(0)
-        } else {
-          k_lower:k_upper
-        }
-      })
-    } else {
+    is_thinning <- sum(k_count) > 10000
+    if (is_thinning) {
       panel <- ggplot2::ggplot_build(p)$layout$panel_params[[1L]]
-      k_by_row <- list(k_lower = k_lower, k_upper = k_upper, n = n) |>
-        purrr::pmap(
-          thin_binary_means,
-          x_range = panel$x.range,
-          y_range = panel$y.range
-        )
-      n_thinned <- sum(lengths(k_by_row) < k_count)
-      if (n_thinned > 0L) {
-        cli::cli_inform(c(
-          "i" = "Marking only some of the attainable means of \\
-          {n_thinned} value set{?s}.",
-          " " = "The others would be drawn over them at this plot's \\
-          resolution, so the plot looks the same."
-        ))
+    }
+
+    # Each line has its own marks, at the same means but different SDs:
+    for (type in sd_types) {
+      if (is_thinning) {
+        k_by_row <- list(k_lower = k_lower, k_upper = k_upper, n = n) |>
+          purrr::pmap(
+            thin_binary_means,
+            x_range = panel$x.range,
+            y_range = panel$y.range,
+            sd_type = type
+          )
+        is_thinned <- is_thinned | lengths(k_by_row) < k_count
+      } else {
+        k_by_row <- purrr::map2(k_lower, k_upper, function(k_lower, k_upper) {
+          if (k_lower > k_upper) {
+            numeric(0)
+          } else {
+            k_lower:k_upper
+          }
+        })
+      }
+
+      # As for the lines above:
+      k_by_row[n < sd_min_n(type)] <- list(numeric(0))
+
+      k <- unlist(k_by_row)
+      n_by_k <- rep(n, lengths(k_by_row))
+
+      if (length(k) > 0L) {
+        p <- p +
+          ggplot2::geom_point(
+            data = tibble::tibble(
+              x = k / n_by_k,
+              y = sqrt(
+                k * (n_by_k - k) / (n_by_k * sd_denominator(n_by_k, type))
+              )
+            ),
+            ggplot2::aes(x = .data$x, y = .data$y),
+            size = 1,
+            inherit.aes = FALSE
+          )
       }
     }
 
-    k <- unlist(k_by_row)
-    n_by_k <- rep(n, lengths(k_by_row))
-
-    if (length(k) > 0L) {
-      p <- p +
-        ggplot2::geom_point(
-          data = tibble::tibble(x = k / n_by_k, y = sd_binary_1_n(k, n_by_k)),
-          ggplot2::aes(x = .data$x, y = .data$y),
-          size = 1,
-          inherit.aes = FALSE
-        )
+    n_thinned <- sum(is_thinned)
+    if (n_thinned > 0L) {
+      cli::cli_inform(c(
+        "i" = "Marking only some of the attainable means of \\
+        {n_thinned} value set{?s}.",
+        " " = "The others would be drawn over them at this plot's \\
+        resolution, so the plot looks the same."
+      ))
     }
   }
 
@@ -368,15 +408,16 @@ thin_binary_means <- function(
   n,
   x_range,
   y_range,
+  sd_type = "sample",
   resolution = 2000
 ) {
   x_lines <- seq(x_range[1L], x_range[2L], length.out = resolution + 1)
   y_lines <- seq(y_range[1L], y_range[2L], length.out = resolution + 1)
 
   # The mean `k / n` crosses a vertical line once. The SD, the square root of `k
-  # * (n - k) / (n * (n - 1))`, crosses a horizontal one twice, on its way up
-  # and on its way down:
-  discriminant <- n^2 / 4 - y_lines^2 * n * (n - 1)
+  # * (n - k) / (n * (n - 1))` with `n` in place of `n - 1` for a population SD,
+  # crosses a horizontal one twice, on its way up and on its way down:
+  discriminant <- n^2 / 4 - y_lines^2 * n * sd_denominator(n, sd_type)
   root <- sqrt(discriminant[discriminant >= 0])
   crossings <- c(x_lines * n, n / 2 - root, n / 2 + root)
 

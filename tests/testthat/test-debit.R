@@ -394,3 +394,96 @@ test_that("`formula` other than \"exact\" or \"mean_n\" is an error", {
     debit(0.48, 100, digits_x = 2, digits_sd = 2, formula = "0_n") |>
     expect_error("must be \"exact\" or \"mean_n\"")
 })
+
+
+# SD type (#95) -----------------------------------------------------------
+
+# 3 ones among 10 values have a mean of 0.30, a sample SD of 0.483, and a
+# population SD of 0.458.
+
+test_that("`sd_type` decides which SD a value set is consistent with", {
+  0.30 |> debit(0.46, 10, 2, 2)                         |> expect_false()
+  0.30 |> debit(0.46, 10, 2, 2, sd_type = "population") |> expect_true()
+  0.30 |> debit(0.46, 10, 2, 2, sd_type = "either")     |> expect_true()
+  0.30 |> debit(0.48, 10, 2, 2, sd_type = "population") |> expect_false()
+  0.30 |> debit(0.48, 10, 2, 2, sd_type = "either")     |> expect_true()
+})
+
+test_that("`sd_type` is checked with `rlang::arg_match()`", {
+  0.30 |> debit(0.46, 10, 2, 2, sd_type = "pop") |> expect_error("must be one of")
+  error <- tibble::tibble(x = 0.30, sd = 0.46, n = 10) |>
+    debit_map(digits_x = 2, digits_sd = 2, sd_type = "Sample") |>
+    expect_error("must be one of")
+  error$call[[1L]] |> expect_equal(quote(debit_map))
+})
+
+test_that("`formula = \"exact\"` passes exactly the real binary samples under every SD type", {
+  grid <- tidyr::expand_grid(x = 0:100 / 100, sd = 0:75 / 100)
+  key <- paste(round(grid$x * 100), round(grid$sd * 100))
+
+  real <- function(n, rounding, sd_type) {
+    k <- 0:n
+    n_dev <- if (sd_type == "population") n else n - 1
+    pairs <- k |>
+      purrr::map(function(k) {
+        tidyr::expand_grid(
+          x = (k / n) |> reround(2, rounding),
+          sd = sqrt(k * (n - k) / (n * n_dev)) |> reround(2, rounding)
+        )
+      }) |>
+      purrr::list_rbind()
+    key %in% paste(round(pairs$x * 100), round(pairs$sd * 100))
+  }
+
+  for (rounding in c("up_or_down", "up", "even", "ceiling")) {
+    for (n in c(1L, 2L, 7L, 20L)) {
+      info <- paste0("rounding = ", rounding, ", n = ", n)
+      is_population <- real(n, rounding, "population")
+      is_sample <- if (n == 1L) NA else real(n, rounding, "sample")
+
+      exact  <- grid$x |> debit(grid$sd, n, 2, 2, rounding = rounding, sd_type = "population")
+      mean_n <- grid$x |> debit(grid$sd, n, 2, 2, "mean_n", rounding, sd_type = "population")
+      either <- grid$x |> debit(grid$sd, n, 2, 2, rounding = rounding, sd_type = "either")
+
+      exact  |> expect_equal(is_population, info = info)
+      either |> expect_equal(is_sample | is_population, info = info)
+      (exact & !mean_n) |> any() |> expect_false()
+    }
+  }
+})
+
+test_that("`sd_type` reaches the sequence and total-n mappers", {
+  df <- tibble::tibble(x = 0.30, sd = 0.46, n = 10)
+  df |> debit_map_seq(digits_x = 2, digits_sd = 2)                         |> nrow() |> expect_gt(0L)
+  df |> debit_map_seq(digits_x = 2, digits_sd = 2, sd_type = "population") |> expect_warning("No inconsistent cases")
+  df |> debit_map_seq(digits_x = 2, digits_sd = 2, sd_type = "population") |> suppressWarnings() |> nrow() |> expect_equal(0L)
+
+  seq_either <- df |> debit_map_seq(digits_x = 2, digits_sd = 2, sd_type = "either", include_consistent = TRUE)
+  seq_either |> scrutiny_meta() |> _$fun_args$sd_type |> expect_equal("either")
+  seq_either |> audit_seq() |> nrow() |> expect_equal(1L)
+
+  # Groups of 10 and 10 fit only as population SDs:
+  total <- tibble::tibble(x1 = 0.30, x2 = 0.30, sd1 = 0.46, sd2 = 0.46, n = 20)
+  total |> debit_map_total_n(digits_x = 2, digits_sd = 2)                         |> _$both_consistent |> any() |> expect_false()
+  total |> debit_map_total_n(digits_x = 2, digits_sd = 2, sd_type = "population") |> _$both_consistent |> any() |> expect_true()
+})
+
+test_that("explanations agree with the test under every SD type", {
+  grid <- tidyr::expand_grid(x = c(0, 0.3, 0.5, 1), sd = c(0, 0.46, 0.48, 0.5), n = c(1, 2, 10))
+  for (sd_type in c("sample", "population", "either")) {
+    verdict <- grid$x |> debit(grid$sd, grid$n, 2, 2, sd_type = sd_type)
+    explained <- grid |>
+      purrr::pmap_lgl(function(x, sd, n) {
+        explanation <- x |> debit_explain(sd, n, 2, 2, sd_type = sd_type)
+        explanation$consistency
+      })
+    explained |> expect_equal(verdict, info = sd_type)
+  }
+
+  out <- tibble::tibble(x = 0.30, sd = 0.46, n = 10) |>
+    debit_map(digits_x = 2, digits_sd = 2, sd_type = "either") |>
+    explain_map()
+  out$explanation |> expect_match("sd_type = \"either\"", fixed = TRUE)
+  out$explanation |> expect_match("the population SD is", fixed = TRUE)
+  out$explanation |> expect_match("==> Consistent", fixed = TRUE)
+})

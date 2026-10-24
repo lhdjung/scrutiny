@@ -13,13 +13,14 @@ debit_explain(
   formula = "exact",
   rounding = "up_or_down",
   threshold = 5,
-  symmetric = FALSE
+  symmetric = FALSE,
+  sd_type = "sample"
 )
 }
 \arguments{
 \item{x}{Numeric. The reported mean of the binary data, between 0 and 1.}
 
-\item{sd}{Numeric. The reported sample standard deviation, between 0 and 1.}
+\item{sd}{Numeric. The reported standard deviation, between 0 and 1.}
 
 \item{n}{Integer. The reported sample size.}
 
@@ -33,6 +34,10 @@ value does not keep them (\code{1.40} is \code{1.4}).}
 Default is \code{"up_or_down"}. See \code{vignette("rounding-options")}.}
 
 \item{threshold, symmetric}{The same as in \code{\link[=grim]{grim()}}.}
+
+\item{sd_type}{String. Which SD was reported: \code{"sample"} (the default),
+\code{"population"}, or \code{"either"}. As in \code{\link[=grimmer]{grimmer()}}, where the section \emph{SD
+type} has details.}
 }
 \value{
 An object of class \code{scrutiny_explain}: a list with the verdict as

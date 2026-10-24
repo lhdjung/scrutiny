@@ -77,7 +77,8 @@ df1_expected <- tibble::tibble(
         formula = "exact",
         rounding = "up_or_down",
         threshold = 5,
-        symmetric = FALSE
+        symmetric = FALSE,
+        sd_type = "sample"
       )
     ),
     class = c(

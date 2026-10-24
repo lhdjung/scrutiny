@@ -113,6 +113,8 @@ debit_undecidable <- function(show_rec) {
 #
 #   num^2 * n * (n - 1) <= spread * denom^2 # nolint
 #
+# The population SD has `n * n` in place of `n * (n - 1)`.
+#
 # It compares whole numbers, as in `sum_range()`, and it is exact while those
 # stay below `2^53`, i.e., for `n` up to about 90,000 with an SD reported to two
 # decimal places, or 9,000 with three. Beyond that, it degrades to plain
@@ -121,12 +123,12 @@ debit_undecidable <- function(show_rec) {
 # The spread is the same for `k` and `n - k`, and it rises with `k` up to half
 # of `n`, so the test needs no loop over `k`, and its cost does not grow with
 # `n`.
-binary_sd_attainable <- function(sum_lower, sum_upper, n, bounds_sd) {
+binary_sd_attainable <- function(sum_lower, sum_upper, n, bounds_sd, sd_type) {
   if (sum_lower > sum_upper) {
     return(FALSE)
   }
 
-  spread <- binary_spread_range(n, bounds_sd)
+  spread <- binary_spread_range(n, bounds_sd, sd_type)
   spread_min <- spread[1L]
   spread_max <- spread[2L]
 
@@ -181,8 +183,8 @@ binary_spread_root <- function(n, spread) {
 
 # The least and the greatest spread `k * (n - k)` that the reported SD admits,
 # as whole numbers; see `binary_sd_attainable()`. Shared with `debit_explain()`.
-binary_spread_range <- function(n, bounds_sd) {
-  factor_sd <- n * (n - 1)
+binary_spread_range <- function(n, bounds_sd, sd_type) {
+  factor_sd <- n * sd_denominator(n, sd_type)
   denom_squared <- bounds_sd$denom^2
   lower_scaled <- bounds_sd$lower^2 * factor_sd
   upper_scaled <- bounds_sd$upper^2 * factor_sd
@@ -214,13 +216,15 @@ binary_sd_attainable_mean_n <- function(
   digits_sd,
   rounding,
   threshold,
-  symmetric
+  symmetric,
+  sd_type
 ) {
   # The SD is reconstructed at the bounds of the mean's range. The two bounds
   # alone are not enough: the verdict below reasons from them to every mean in
   # between, which needs the reconstruction to be monotonic in the mean -- and
-  # it isn't. `sd_binary_mean_n()` is `sqrt((n / (n - 1)) * mean * (1 - mean))`,
-  # a downward parabola peaking at a mean of 0.5, so an interval containing 0.5
+  # it isn't. The sample SD is `sqrt((n / (n - 1)) * mean * (1 - mean))`, and
+  # the population SD the same without `n / (n - 1)`: either is the root of a
+  # downward parabola peaking at a mean of 0.5, so an interval containing 0.5
   # reaches SDs *above* both endpoints. At a mean of exactly 0.50 both endpoints
   # even give the same SD, collapsing the attainable band to a point. The peak
   # is the only interior extremum, so adding it where it falls inside the
@@ -232,7 +236,7 @@ binary_sd_attainable_mean_n <- function(
   }
 
   # Reconstruct the SD from each of those means...
-  sd_rec <- sd_binary_mean_n(x_eval, n)
+  sd_rec <- sqrt(n / sd_denominator(n, sd_type) * x_eval * (1 - x_eval))
 
   # ...and round it the same way the reported SD was presumably rounded, to the
   # same number of decimal places:
@@ -326,6 +330,7 @@ debit_scalar <- function(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
+  sd_type = "sample",
   show_rec = FALSE
 ) {
   # A plain comparison rather than `rlang::arg_match()`, which would cost more
@@ -359,6 +364,39 @@ debit_scalar <- function(
   # Check whether `x` and `sd` range from 0 to 1:
   check_debit_inputs_all(x, sd)
 
+  # `arg_match_in_export()` returns at once for a valid string, which matters
+  # here: this runs once per row.
+  sd_type <- arg_match_in_export(sd_type, SD_TYPES)
+
+  # The bounds and sums of `show_rec` don't depend on `sd_type`, so either
+  # result can supply them -- except that the sample SD leaves them `NA` at `n =
+  # 1`, where the population SD is decidable. The verdict is that of `|`, as in
+  # `grimmer_either()`:
+  if (sd_type == "either") {
+    test_type <- function(sd_type) {
+      debit_scalar(
+        x = x,
+        sd = sd,
+        n = n,
+        digits_x = digits_x,
+        digits_sd = digits_sd,
+        formula = formula,
+        rounding = rounding,
+        threshold = threshold,
+        symmetric = symmetric,
+        sd_type = sd_type,
+        show_rec = show_rec
+      )
+    }
+    sample <- test_type("sample")
+    if (isTRUE(sample[[1L]])) {
+      return(sample)
+    }
+    population <- test_type("population")
+    population[[1L]] <- sample[[1L]] | population[[1L]]
+    return(population)
+  }
+
   # A missing value makes the test undecidable, and it is returned in the same
   # shape as the undefined-bounds case below. A missing decimal count counts: no
   # rounding bounds follow from it.
@@ -366,11 +404,11 @@ debit_scalar <- function(
     return(debit_undecidable(show_rec))
   }
 
-  # DEBIT reconstructs the *sample* SD of `n` binary values, so it divides by
-  # `n - 1`, and `n` has to be a whole number greater than 1 for that to
-  # describe anything. Anything else is undecidable, as in `grim_scalar()` and
-  # `grimmer_scalar()` -- not a `FALSE` reached through an `Inf` or a zero:
-  if (!is_decidable_n_items(n, min_n = 2)) {
+  # A sample SD of `n` binary values divides by `n - 1`, so `n` has to be a
+  # whole number greater than 1 for it to describe anything; a population SD
+  # needs a positive one. Anything else is undecidable, as in `grim_scalar()`
+  # and `grimmer_scalar()` -- not a `FALSE` reached through an `Inf` or a zero:
+  if (!is_decidable_n_items(n, min_n = sd_min_n(sd_type))) {
     return(debit_undecidable(show_rec))
   }
 
@@ -414,7 +452,8 @@ debit_scalar <- function(
       sum_lower = sum_lower,
       sum_upper = sum_upper,
       n = n,
-      bounds_sd = bounds_sd
+      bounds_sd = bounds_sd,
+      sd_type = sd_type
     ),
     "mean_n" = binary_sd_attainable_mean_n(
       x_lower = x_lower,
@@ -424,7 +463,8 @@ debit_scalar <- function(
       digits_sd = digits_sd,
       rounding = rounding,
       threshold = threshold,
-      symmetric = symmetric
+      symmetric = symmetric,
+      sd_type = sd_type
     ),
     cli::cli_abort("Internal error: incorrect `formula` value \"{formula}\".")
   )
@@ -451,7 +491,7 @@ debit_scalar <- function(
 
 #' The DEBIT (descriptive binary) test
 #'
-#' @description `debit()` checks whether the reported mean and sample standard
+#' @description `debit()` checks whether the reported mean and standard
 #'   deviation of binary data are consistent with the reported sample size.
 #'   With `k` ones among `n` values, the mean is `k / n` and the SD follows
 #'   from `k` and `n`; the test asks whether any `k` produces both reported
@@ -465,7 +505,7 @@ debit_scalar <- function(
 #'   must have length 1.
 #'
 #' @param x Numeric. The reported mean of the binary data, between 0 and 1.
-#' @param sd Numeric. The reported sample standard deviation, between 0 and 1.
+#' @param sd Numeric. The reported standard deviation, between 0 and 1.
 #' @param n Integer. The reported sample size.
 #' @param digits_x,digits_sd Integer. The number of decimal places in `x` and
 #'   `sd`, including trailing zeros. There are no defaults, since a numeric
@@ -479,13 +519,17 @@ debit_scalar <- function(
 #' @param rounding String. The rounding method assumed to have produced `sd`.
 #'   Default is `"up_or_down"`. See `vignette("rounding-options")`.
 #' @param threshold,symmetric The same as in [`grim()`].
+#' @param sd_type String. Which SD was reported: `"sample"` (the default),
+#'   `"population"`, or `"either"`. As in [`grimmer()`], where the section *SD
+#'   type* has details.
 #'
 #' @export
 #'
 #' @return Logical. `TRUE` if `x`, `sd`, and `n` are consistent, `FALSE` if
 #'   not, and `NA` if the case cannot be decided: if a value is missing or if
-#'   `n` is not a whole number greater than `1`. DEBIT reconstructs a sample
-#'   SD and so divides by `n - 1`.
+#'   `n` is not a positive whole number. A sample SD divides by `n - 1`, so
+#'   under the default `sd_type = "sample"`, `n` must also be greater than
+#'   `1`.
 #'
 #' @seealso [`debit_map()`] for data frames.
 #'
@@ -506,7 +550,8 @@ debit <- function(
   formula = "exact",
   rounding = "up_or_down",
   threshold = 5,
-  symmetric = FALSE
+  symmetric = FALSE,
+  sd_type = "sample"
 ) {
   vectorize_test(
     fun = debit_scalar,

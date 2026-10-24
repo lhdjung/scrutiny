@@ -17,8 +17,9 @@
 #'   groups, or two numbers, one per group.
 #' @param x1,x2,sd1,sd2,n Optionally, the names of the columns in `data` that
 #'   contain these values, if they differ from the defaults.
-#' @param n_min Numeric. Minimal group size. Default is 2: DEBIT divides by
-#'   `n - 1`, so a group of 1 has no test result.
+#' @param n_min Numeric. Minimal group size. Default is 2: a sample SD divides by
+#'   `n - 1`, so a group of 1 has no test result. A population SD has one, so
+#'   `n_min = 1` is useful with `sd_type = "population"` or `"either"`.
 #' @param ... Arguments passed on to [`debit_map()`].
 #' @inheritParams grim_map_total_n
 #'
