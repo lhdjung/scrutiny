@@ -276,20 +276,21 @@ sum_range <- function(
 #   ((n - 1) * sd^2 + n * (s / (n * items))^2) * items^2 ==
 #     (n - 1) * sd^2 * items^2 + s^2 / n # nolint
 #
-# and with `sd` given as `num / denom`, both terms are exact rationals. The first
-# does not depend on the candidate sum `s`, so it is pre-computed once per SD
-# bound, outside GRIMMER's loop, split into an integer part and a proper
-# fraction to keep the products small. Returns that integer part plus the
-# numerator and denominator of the fraction.
+# for a sample SD, and the same with `n` in place of `n - 1` for a population
+# SD; `n_dev` is that denominator. With `sd` given as `num / denom`, both terms
+# are exact rationals. The first does not depend on the candidate sum `s`, so it
+# is pre-computed once per SD bound, outside GRIMMER's loop, split into an
+# integer part and a proper fraction to keep the products small. Returns that
+# integer part plus the numerator and denominator of the fraction.
 
-sd_square_term <- function(num, n, items, denom) {
+sd_square_term <- function(num, n_dev, items, denom) {
   # `sd^2 * items^2` as a fraction over `denom^2`:
   numerator <- num^2 * items^2
   denom_sq <- denom^2
   whole <- floor(numerator / denom_sq)
   list(
-    int = (n - 1) * whole,
-    num = (n - 1) * (numerator - whole * denom_sq),
+    int = n_dev * whole,
+    num = n_dev * (numerator - whole * denom_sq),
     den = denom_sq
   )
 }

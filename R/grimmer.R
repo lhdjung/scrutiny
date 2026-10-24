@@ -34,10 +34,10 @@
 
 # The SD's rounding bounds as exact integer numerators over a common
 # denominator, the same way `sum_range()` derives the mean's bounds, plus the
-# `(n - 1) * sd^2 * items_averaged^2` part of the sum of squares at each bound.
-# That part does not depend on the candidate sum, so it is computed once, here.
-# `NULL` if the bounds are undefined, i.e. for a missing SD. Shared with
-# `grimmer_explain()`.
+# `(n - 1) * sd^2 * items_averaged^2` part of the sum of squares at each bound,
+# with `n` in place of `n - 1` for a population SD. That part does not depend on
+# the candidate sum, so it is computed once, here. `NULL` if the bounds are
+# undefined, i.e. for a missing SD. Shared with `grimmer_explain()`.
 
 grimmer_sd_bounds <- function(
   sd,
@@ -46,7 +46,8 @@ grimmer_sd_bounds <- function(
   digits_sd,
   rounding,
   threshold,
-  symmetric
+  symmetric,
+  sd_type
 ) {
   sd_bounds <- bound_numerators(
     x_num = sd,
@@ -67,15 +68,17 @@ grimmer_sd_bounds <- function(
     sd_bounds$incl_lower <- TRUE
   }
 
+  n_dev <- sd_denominator(n, sd_type)
+
   sd_bounds$term_lower <- sd_square_term(
     sd_bounds$lower,
-    n,
+    n_dev,
     items_averaged,
     sd_bounds$denom
   )
   sd_bounds$term_upper <- sd_square_term(
     sd_bounds$upper,
-    n,
+    n_dev,
     items_averaged,
     sd_bounds$denom
   )
@@ -168,6 +171,7 @@ grimmer_scalar <- function(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
+  sd_type = "sample",
   tolerance = lifecycle::deprecated()
 ) {
   # GRIMMER decides in exact integer arithmetic, like GRIM: see test 2 below.
@@ -205,6 +209,36 @@ grimmer_scalar <- function(
   check_newly_numeric(x, digits_x)
   check_newly_numeric(sd, digits_sd)
 
+  # `arg_match_in_export()` returns at once for a valid string, which matters
+  # here: this runs once per row.
+  sd_type <- arg_match_in_export(sd_type, SD_TYPES)
+
+  if (sd_type == "either") {
+    test_type <- function(sd_type) {
+      grimmer_scalar(
+        x = x,
+        sd = sd,
+        n = n,
+        digits_x = digits_x,
+        digits_sd = digits_sd,
+        items_averaged = items_averaged,
+        show_reason = show_reason,
+        rounding = rounding,
+        threshold = threshold,
+        symmetric = symmetric,
+        sd_type = sd_type
+      )
+    }
+    sample <- test_type("sample")
+    if (isTRUE(sample[[1L]])) {
+      if (show_reason) {
+        sample[[2L]] <- "Passed all (sample SD)"
+      }
+      return(sample)
+    }
+    return(grimmer_either(sample, test_type("population"), show_reason))
+  }
+
   # Undecidable. Caught before the GRIM test below, whose `NA` result the branch
   # on `pass_grim` could not handle. A missing decimal count is a missing value
   # like any other: no rounding bounds follow from it.
@@ -227,9 +261,9 @@ grimmer_scalar <- function(
   }
 
   # GRIMMER inherits GRIM's requirement that `n` and `items_averaged` be
-  # positive whole numbers, and adds `min_n = 2`: it reconstructs a *sample* SD,
-  # so it divides by `n - 1`.
-  if (!is_decidable_n_items(n, items_averaged, min_n = 2)) {
+  # positive whole numbers. A sample SD divides by `n - 1`, so it adds `min_n =
+  # 2`; a population SD of a single value is zero, so it does not.
+  if (!is_decidable_n_items(n, items_averaged, min_n = sd_min_n(sd_type))) {
     if (show_reason) {
       return(list(NA, "No testable value set"))
     }
@@ -283,7 +317,8 @@ grimmer_scalar <- function(
     digits_sd = digits_sd,
     rounding = rounding,
     threshold = threshold,
-    symmetric = symmetric
+    symmetric = symmetric,
+    sd_type = sd_type
   )
 
   # Undefined only for a missing SD, already caught above. No bounds, no
@@ -352,6 +387,34 @@ grimmer_scalar <- function(
 }
 
 
+# Combines the results of `grimmer_scalar()` under `sd_type = "sample"`, which
+# failed, and `"population"`. The verdict is that of `|`, so `NA` for a sample
+# SD, as at `n = 1`, and `FALSE` for a population SD make `NA`. A reason that
+# differs between the two names both.
+grimmer_either <- function(sample, population, show_reason) {
+  if (!show_reason) {
+    return(sample | population)
+  }
+
+  consistency <- sample[[1L]] | population[[1L]]
+
+  reason <- if (isTRUE(population[[1L]])) {
+    "Passed all (population SD)"
+  } else if (identical(sample[[2L]], population[[2L]])) {
+    sample[[2L]]
+  } else {
+    paste0(
+      "Sample SD: ",
+      sample[[2L]],
+      "; population SD: ",
+      population[[2L]]
+    )
+  }
+
+  list(consistency, reason)
+}
+
+
 #' The GRIMMER test (granularity-related inconsistency of means mapped to error
 #' repeats)
 #'
@@ -390,16 +453,40 @@ grimmer_scalar <- function(
 #'   trailing zeros. There is no default, since a numeric value does not
 #'   keep them (`1.40` is `1.4`).
 #' @param items_averaged Integer. As in [`grim()`], for `x` and `sd`.
+#' @param sd_type String. Which SD was reported: `"sample"` (the default),
+#'   which divides by `n - 1`, as in R, SPSS, Stata, or Excel's `STDEV.S`;
+#'   `"population"`, which divides by `n`, as in NumPy's `np.std()` or Excel's
+#'   `STDEV.P`; or `"either"`, which accepts a value set that is consistent
+#'   under one or the other. See *SD type*.
 #' @param tolerance `r lifecycle::badge("deprecated")` This argument has no
 #'   effect: the test decides in exact integer arithmetic.
 #'
 #' @inheritParams grim
 #'
+#' @section SD type: The two SDs differ by a factor of `sqrt(n / (n - 1))`,
+#'   which matters most at small `n`, where GRIMMER is most powerful. A
+#'   population SD tested as a sample SD will often seem inconsistent, so
+#'   `sd_type` lets you check whether a value set is consistent only under the
+#'   other convention.
+#'
+#'   `"either"` is `TRUE` if the value set is consistent as a sample SD or as a
+#'   population SD, `FALSE` if it is neither, and `NA` otherwise: a nonzero SD
+#'   with `n = 1` is not a population SD, and there is no sample SD of a single
+#'   value to compare it with. The `reason` column of [`grimmer_map()`] names
+#'   the convention a value set passed under, trying the sample SD first.
+#'
+#'   `"either"` accepts far more SDs than either convention alone, so it is
+#'   not the default. It also judges each value set on its own, although a
+#'   single study usually computed all its SDs the same way. To tell which
+#'   convention fits a set of values, test them under `"sample"` and
+#'   `"population"` separately.
+#'
 #' @return Logical. `TRUE` if `x`, `sd`, `n`, and `items_averaged` are
 #'   consistent, `FALSE` if not, and `NA` if the case cannot be decided: if a
 #'   value is missing or infinite, if `items_averaged` is not a positive whole
-#'   number, or if `n` is not a whole number greater than `1`. GRIMMER
-#'   reconstructs a sample SD and so divides by `n - 1`.
+#'   number, or if `n` is not a positive whole number. A sample SD divides by
+#'   `n - 1`, so under the default `sd_type = "sample"`, `n` must also be
+#'   greater than `1`.
 #'
 #' @references Allard, A. (2018). Analytic-GRIMMER: a new way of testing the
 #'   possibility of standard deviations.
@@ -456,6 +543,7 @@ grimmer <- function(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
+  sd_type = "sample",
   tolerance = lifecycle::deprecated()
 ) {
   vectorize_test(

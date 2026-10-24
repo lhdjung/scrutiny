@@ -13,7 +13,8 @@ grimmer_explain(
   items_averaged,
   rounding = "up_or_down",
   threshold = 5,
-  symmetric = FALSE
+  symmetric = FALSE,
+  sd_type = "sample"
 )
 }
 \arguments{
@@ -47,6 +48,12 @@ their absolute values (\code{-2.5} like \code{2.5}) under \code{"up"}, \code{"do
 \code{"*_from"} methods. Default is \code{FALSE}. Must not be given with a
 \code{"ties_*"} rounding method, which already fixes the direction; see
 \code{\link[=reround]{reround()}}.}
+
+\item{sd_type}{String. Which SD was reported: \code{"sample"} (the default),
+which divides by \code{n - 1}, as in R, SPSS, Stata, or Excel's \code{STDEV.S};
+\code{"population"}, which divides by \code{n}, as in NumPy's \code{np.std()} or Excel's
+\code{STDEV.P}; or \code{"either"}, which accepts a value set that is consistent
+under one or the other. See \emph{SD type}.}
 }
 \value{
 An object of class \code{scrutiny_explain}: a list with the verdict as

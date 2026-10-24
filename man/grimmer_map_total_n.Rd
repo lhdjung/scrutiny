@@ -44,8 +44,9 @@ There is no default.}
 \item{dispersion}{Numeric. Steps up and down from half the total \code{n}.
 Default is \code{0:5}, i.e., the even split and five steps away from it.}
 
-\item{n_min}{Numeric. Minimal group size. Default is 2: GRIMMER divides by
-\code{n - 1}, so a group of 1 has no test result.}
+\item{n_min}{Numeric. Minimal group size. Default is 2: a sample SD divides by
+\code{n - 1}, so a group of 1 has no test result. A population SD has one, so
+\code{n_min = 1} is useful with \code{sd_type = "population"} or \code{"either"}.}
 
 \item{n_max}{Numeric. Maximal group size. Default is \code{NULL}, i.e., no
 maximum.}

@@ -68,6 +68,12 @@ TIES_METHODS <- list(
 )
 
 
+# The values of `sd_type` in GRIMMER and DEBIT: which SD was reported, the
+# sample SD that divides by `n - 1` or the population SD that divides by `n`
+# (#95). `"either"` accepts a value set that passes under one or the other.
+SD_TYPES <- c("sample", "population", "either")
+
+
 # The strings that `as.numeric()` reads as an infinity or `NaN`, once their
 # letters are lowercased. `decimal_places()` and `decimal_places_scalar()` give
 # them `NA` decimal places, via `is_non_finite_token()`.

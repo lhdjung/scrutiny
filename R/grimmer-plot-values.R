@@ -10,8 +10,8 @@
 #'   There is no GRIMMER-specific plot for many value sets; [`grim_plot()`]
 #'   accepts [`grimmer_map()`] output and shows the GRIM part of the test.
 #'
-#' @param x,sd,n,digits_x,digits_sd,items_averaged,rounding,threshold,symmetric The
-#'   same as in [`grimmer()`], but `x`, `sd`, and `n` must have length 1.
+#' @param x,sd,n,digits_x,digits_sd,items_averaged,rounding,threshold,symmetric,sd_type
+#'   The same as in [`grimmer()`], but `x`, `sd`, and `n` must have length 1.
 #' @inheritParams grim_plot_values
 #'
 #' @details The comb runs from the whole number at or below `sd` to the next
@@ -54,6 +54,7 @@ grimmer_plot_values <- function(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
+  sd_type = "sample",
   color_cons = "#2f7d74",
   color_incons = "#d9d4ca",
   color_reported = "#c1522e"
@@ -75,7 +76,15 @@ grimmer_plot_values <- function(
   check_newly_numeric(sd, digits_sd)
   check_comb_value(x, digits_x, "x")
   check_comb_value(sd, digits_sd, "sd")
-  check_decidable_n_items(n, items_averaged, min_n = 2)
+  sd_type <- arg_match_in_export(sd_type, SD_TYPES)
+  check_decidable_n_items(n, items_averaged, min_n = sd_min_n(sd_type))
+
+  # A single value has no sample SD, so `"either"` leaves every SD that is not
+  # a population SD at `NA`, which the comb has no tooth for. Only a population
+  # SD can be attained, so that is what is drawn:
+  if (sd_type == "either" && n == 1) {
+    sd_type <- "population"
+  }
 
   # One unit around `sd`, as for a mean:
   values <- comb_values(max(0, floor(sd)), floor(sd) + 1, digits_sd)
@@ -90,7 +99,8 @@ grimmer_plot_values <- function(
       items_averaged = items_averaged,
       rounding = rounding,
       threshold = threshold,
-      symmetric = symmetric
+      symmetric = symmetric,
+      sd_type = sd_type
     )
   }
 
@@ -127,6 +137,7 @@ grimmer_plot_values <- function(
           format(items_averaged, scientific = FALSE)
         )
       },
+      if (sd_type != "sample") paste0(", sd_type = \"", sd_type, "\""),
       ")"
     ),
     color_cons = color_cons,

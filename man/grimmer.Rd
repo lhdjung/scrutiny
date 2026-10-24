@@ -15,6 +15,7 @@ grimmer(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
+  sd_type = "sample",
   tolerance = lifecycle::deprecated()
 )
 }
@@ -50,6 +51,12 @@ their absolute values (\code{-2.5} like \code{2.5}) under \code{"up"}, \code{"do
 \code{"ties_*"} rounding method, which already fixes the direction; see
 \code{\link[=reround]{reround()}}.}
 
+\item{sd_type}{String. Which SD was reported: \code{"sample"} (the default),
+which divides by \code{n - 1}, as in R, SPSS, Stata, or Excel's \code{STDEV.S};
+\code{"population"}, which divides by \code{n}, as in NumPy's \code{np.std()} or Excel's
+\code{STDEV.P}; or \code{"either"}, which accepts a value set that is consistent
+under one or the other. See \emph{SD type}.}
+
 \item{tolerance}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} This argument has no
 effect: the test decides in exact integer arithmetic.}
 }
@@ -57,8 +64,9 @@ effect: the test decides in exact integer arithmetic.}
 Logical. \code{TRUE} if \code{x}, \code{sd}, \code{n}, and \code{items_averaged} are
 consistent, \code{FALSE} if not, and \code{NA} if the case cannot be decided: if a
 value is missing or infinite, if \code{items_averaged} is not a positive whole
-number, or if \code{n} is not a whole number greater than \code{1}. GRIMMER
-reconstructs a sample SD and so divides by \code{n - 1}.
+number, or if \code{n} is not a positive whole number. A sample SD divides by
+\code{n - 1}, so under the default \code{sd_type = "sample"}, \code{n} must also be
+greater than \code{1}.
 }
 \description{
 \code{grimmer()} checks whether a reported mean and standard
@@ -90,6 +98,26 @@ For data on a bounded scale, such as a Likert scale, see the
 \href{https://github.com/ianhussey/strait}{strait} package. Its \code{brimmest()}
 decides exactly whether a mean and SD are possible within the bounds.
 }
+\section{SD type}{
+ The two SDs differ by a factor of \code{sqrt(n / (n - 1))},
+which matters most at small \code{n}, where GRIMMER is most powerful. A
+population SD tested as a sample SD will often seem inconsistent, so
+\code{sd_type} lets you check whether a value set is consistent only under the
+other convention.
+
+\code{"either"} is \code{TRUE} if the value set is consistent as a sample SD or as a
+population SD, \code{FALSE} if it is neither, and \code{NA} otherwise: a nonzero SD
+with \code{n = 1} is not a population SD, and there is no sample SD of a single
+value to compare it with. The \code{reason} column of \code{\link[=grimmer_map]{grimmer_map()}} names
+the convention a value set passed under, trying the sample SD first.
+
+\code{"either"} accepts far more SDs than either convention alone, so it is
+not the default. It also judges each value set on its own, although a
+single study usually computed all its SDs the same way. To tell which
+convention fits a set of values, test them under \code{"sample"} and
+\code{"population"} separately.
+}
+
 \examples{
 # A mean of 5.23 is not consistent with an SD of 2.55
 # and a sample size of 35:

@@ -270,6 +270,18 @@ is_decidable_n_items <- function(n, items_averaged = 1, min_n = 1) {
 }
 
 
+# The denominator of the variance under one `sd_type`, `"sample"` or
+# `"population"`, and the smallest `n` that an `sd_type` can work with: a sample
+# SD divides by `n - 1`, so it needs two values, a population SD only one.
+sd_denominator <- function(n, sd_type) {
+  if (sd_type == "population") n else n - 1
+}
+
+sd_min_n <- function(sd_type) {
+  if (sd_type == "sample") 2 else 1
+}
+
+
 #' Coerce a sample-size column to integer, but only if that is lossless
 #'
 #' @description A sample size is always a whole number, so mappers store the `n`

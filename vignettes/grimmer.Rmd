@@ -87,6 +87,17 @@ flying_pigs2 |>
   grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 3)
 ```
 
+### Sample or population SD
+
+GRIMMER takes the SD to be a sample SD, which divides by $n - 1$, as in R, SPSS, and Stata. Some software reports the population SD, which divides by $n$, such as NumPy's `np.std()` or Excel's `STDEV.P`. At small $n$, such an SD often fails the test as a sample SD. The values 2, 4, 4, 5, and 7 have a mean of 4.4 and a population SD of 1.62:
+
+```{r}
+grimmer(x = 4.4, sd = 1.62, n = 5, digits_x = 1, digits_sd = 2, items_averaged = 1)
+grimmer(x = 4.4, sd = 1.62, n = 5, digits_x = 1, digits_sd = 2, items_averaged = 1, sd_type = "population")
+```
+
+`sd_type = "either"` accepts a value set that is consistent under one convention or the other, and the `reason` column of `grimmer_map()` says which. It accepts many more SDs than either convention alone, so testing under `"sample"` and `"population"` separately tells you more about a study, which has most likely computed all its SDs the same way.
+
 ### Bounded scales
 
 For data on a bounded scale, such as a five-point Likert scale, see the [strait](https://github.com/ianhussey/strait) package. Its `brimmest()` decides exactly whether a mean and SD are possible within the bounds.

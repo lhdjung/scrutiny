@@ -20,8 +20,9 @@
 #' @param items_averaged Integer. As in [`grimmer_map()`]: the number of items
 #'   averaged into each score, given as an argument or as a column of `data`.
 #'   There is no default.
-#' @param n_min Numeric. Minimal group size. Default is 2: GRIMMER divides by
-#'   `n - 1`, so a group of 1 has no test result.
+#' @param n_min Numeric. Minimal group size. Default is 2: a sample SD divides by
+#'   `n - 1`, so a group of 1 has no test result. A population SD has one, so
+#'   `n_min = 1` is useful with `sd_type = "population"` or `"either"`.
 #' @param ... Arguments passed on to [`grimmer_map()`].
 #' @inheritParams grim_map_total_n
 #'

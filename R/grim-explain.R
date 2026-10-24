@@ -310,7 +310,8 @@ new_explanation <- function(
   threshold,
   symmetric,
   consistency,
-  text
+  text,
+  sd_type = "sample"
 ) {
   # Only the settings that differ from the defaults are worth a mention:
   inputs <- c(
@@ -318,7 +319,8 @@ new_explanation <- function(
     list(
       rounding = if (rounding != "up_or_down") paste0("\"", rounding, "\""),
       threshold = if (threshold != 5) threshold,
-      symmetric = if (symmetric) TRUE
+      symmetric = if (symmetric) TRUE,
+      sd_type = if (sd_type != "sample") paste0("\"", sd_type, "\"")
     )
   )
   inputs <- Filter(Negate(is.null), inputs)
@@ -332,6 +334,41 @@ new_explanation <- function(
     ),
     class = "scrutiny_explain"
   )
+}
+
+
+# The explanation under `sd_type = "either"`: that of the sample SD, and if it
+# doesn't pass, that of the population SD as well, minus the paragraphs the two
+# share, such as the GRIM test. `explain_type()` explains the test under one
+# `sd_type`, and `consistency` is the verdict under `"either"`.
+explain_either <- function(explain_type, consistency) {
+  out <- explain_type("sample")
+  verdict <- out$consistency
+
+  if (!isTRUE(verdict)) {
+    population <- explain_type("population")
+    verdict <- verdict | population$consistency
+    is_new <- !population$paragraphs %in% out$paragraphs
+    if (any(is_new)) {
+      out$paragraphs <- c(
+        out$paragraphs,
+        "The SD may also be a population SD, which divides by n rather than n - 1.",
+        population$paragraphs[is_new]
+      )
+    }
+  }
+
+  if (!identical(verdict, consistency)) {
+    cli::cli_abort(
+      "Internal error: the explanations under `sd_type = \"either\"` \
+      disagree with the test."
+    )
+  }
+
+  # `sd_type` is the last setting that `new_explanation()` lists:
+  out$inputs <- paste0(out$inputs, ", sd_type = \"either\"")
+  out$consistency <- consistency
+  out
 }
 
 

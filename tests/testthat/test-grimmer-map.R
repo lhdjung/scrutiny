@@ -47,7 +47,8 @@ pigs5_exp <- tibble::tibble(
       args = list(
         rounding = "up_or_down",
         threshold = 5,
-        symmetric = FALSE
+        symmetric = FALSE,
+        sd_type = "sample"
       )
     ),
     class = c(

@@ -43,7 +43,8 @@ grimmer_explain <- function(
   items_averaged,
   rounding = "up_or_down",
   threshold = 5,
-  symmetric = FALSE
+  symmetric = FALSE,
+  sd_type = "sample"
 ) {
   check_length(x, 1L)
   check_length(sd, 1L)
@@ -74,9 +75,30 @@ grimmer_explain <- function(
     show_reason = TRUE,
     rounding = rounding,
     threshold = threshold,
-    symmetric = symmetric
+    symmetric = symmetric,
+    sd_type = sd_type
   )
   consistency <- result[[1L]]
+
+  # `grimmer_scalar()` has checked `sd_type`, and the arguments are known not
+  # to be missing:
+  if (sd_type == "either") {
+    explain_type <- function(sd_type) {
+      grimmer_explain(
+        x = x,
+        sd = sd,
+        n = n,
+        digits_x = digits_x,
+        digits_sd = digits_sd,
+        items_averaged = items_averaged,
+        rounding = rounding,
+        threshold = threshold,
+        symmetric = symmetric,
+        sd_type = sd_type
+      )
+    }
+    return(explain_either(explain_type, consistency))
+  }
 
   explain <- function(text) {
     inputs <- list(
@@ -94,7 +116,8 @@ grimmer_explain <- function(
       threshold,
       symmetric,
       consistency,
-      text
+      text,
+      sd_type
     )
   }
 
@@ -113,7 +136,7 @@ grimmer_explain <- function(
       ),
       n = n,
       items_averaged = items_averaged,
-      min_n = 2
+      min_n = sd_min_n(sd_type)
     ),
     # `grimmer_scalar()` rules these out before they happen, and
     # `explain_undecidable()` has no words for them:
@@ -161,7 +184,8 @@ grimmer_explain <- function(
     digits_sd = digits_sd,
     rounding = rounding,
     threshold = threshold,
-    symmetric = symmetric
+    symmetric = symmetric,
+    sd_type = sd_type
   )
   sd_lower <- format_number(sd_bounds$lower / sd_bounds$denom, digits_sd)
   sd_upper <- format_number(sd_bounds$upper / sd_bounds$denom, digits_sd)
@@ -176,15 +200,20 @@ grimmer_explain <- function(
     sd_bounds$incl_upper
   )
 
-  values <- if (items_averaged == 1) {
-    paste0("the ", n, " values")
+  # A population SD can be tested with a single value:
+  values <- if (n == 1 && items_averaged == 1) {
+    "the one value"
+  } else if (n == 1) {
+    paste0("the one respondent's total across the ", items_averaged, " items")
+  } else if (items_averaged == 1) {
+    paste0("each of the ", n, " values and adding them up")
   } else {
     paste0(
-      "the ",
+      "each of the ",
       n,
       " respondents' totals across the ",
       items_averaged,
-      " items"
+      " items and adding them up"
     )
   }
   sd_term <- function(sd_shown) {
@@ -195,13 +224,18 @@ grimmer_explain <- function(
     }
   }
 
+  n_dev <- sd_denominator(n, sd_type)
+
   text_formula <- paste0(
     "Together, the sum and the SD determine the sum of squares, which is ",
-    "what you get by squaring each of ",
+    "what you get by squaring ",
     values,
-    " and adding them up. It is (",
-    n,
-    " - 1) * ",
+    ". ",
+    if (sd_type == "sample") {
+      paste0("It is (", n, " - 1) * ")
+    } else {
+      paste0("For a population SD, it is ", n, " * ")
+    },
     sd_term("SD"),
     " + sum^2 / ",
     n,
@@ -214,9 +248,9 @@ grimmer_explain <- function(
   # The sum of squares as a calculation, at one bound of the SD. A negative sum
   # is squared as a whole, so it is shown in parentheses:
   sum_squares_at <- function(s, sd_num, sd_shown) {
-    value <- (n - 1) * items_averaged^2 * sd_num^2 / sd_bounds$denom^2 + s^2 / n
+    value <- n_dev * items_averaged^2 * sd_num^2 / sd_bounds$denom^2 + s^2 / n
     paste0(
-      n - 1,
+      n_dev,
       " * ",
       sd_term(sd_shown),
       " + ",

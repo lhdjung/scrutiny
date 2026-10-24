@@ -16,6 +16,7 @@ grimmer_map(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
+  sd_type = "sample",
   tolerance = lifecycle::deprecated()
 )
 }
@@ -35,7 +36,8 @@ these values, if they differ from the defaults.}
 
 \item{items_averaged}{Integer. As in \code{\link[=grim_map]{grim_map()}}, for \code{x} and \code{sd}.}
 
-\item{rounding, threshold, symmetric, tolerance}{Passed on to \code{\link[=grimmer]{grimmer()}}.}
+\item{rounding, threshold, symmetric, sd_type, tolerance}{Passed on to
+\code{\link[=grimmer]{grimmer()}}.}
 }
 \value{
 A tibble with these columns:
@@ -62,6 +64,11 @@ that of the reconstructed sum of the values.
 }
 
 A negative \code{sd} gives \code{"Negative SD"}.
+
+Under \code{sd_type = "either"}, a consistent value set gives
+\code{"Passed all (sample SD)"} or, if it passes as a population SD only,
+\code{"Passed all (population SD)"}. If the two conventions fail for different
+reasons, the \code{reason} names both, and \code{\link[=audit]{audit()}} counts both.
 
 The tibble has the class \code{scrutiny_grimmer_map}, which is recognized by
 \code{\link[=audit]{audit()}} and \code{\link[=grim_plot]{grim_plot()}}.
