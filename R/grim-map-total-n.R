@@ -71,8 +71,10 @@
 #'  - `hits_forth`: the number of such splits with `x2` paired with the larger
 #'  group.
 #'  - `hits_back`: the same with `x1` paired with the larger group.
-#'  - `scenarios_total`: the number of splits tested.
-#'  - `hit_rate`: `hits_total / scenarios_total`.
+#'  - `scenarios_total`: the number of splits tested, leaving out those that
+#'  could not be decided.
+#'  - `hit_rate`: `hits_total / scenarios_total`, or `NA` if no split could
+#'  be decided.
 #'
 #'  Call [`audit()`] on `audit_total_n()` output to summarize these columns
 #'  further.

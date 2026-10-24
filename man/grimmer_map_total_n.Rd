@@ -91,8 +91,10 @@ GRIMMER-consistent, summing \code{hits_forth} and \code{hits_back}.
 \item \code{hits_forth}: the number of such splits with \code{x2} and \code{sd2} paired with
 the larger group.
 \item \code{hits_back}: the same with \code{x1} and \code{sd1} paired with the larger group.
-\item \code{scenarios_total}: the number of splits tested.
-\item \code{hit_rate}: \code{hits_total / scenarios_total}.
+\item \code{scenarios_total}: the number of splits tested, leaving out those that
+could not be decided.
+\item \code{hit_rate}: \code{hits_total / scenarios_total}, or \code{NA} if no split could
+be decided.
 }
 }
 

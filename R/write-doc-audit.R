@@ -212,8 +212,10 @@ write_doc_audit_total_n <- function(key_args, name_test) {
     "#'  - `hits_forth`: the number of such splits with {key_args_num2} paired with\n",
     "#'  the larger group.\n",
     "#'  - `hits_back`: the same with {key_args_num1} paired with the larger group.\n",
-    "#'  - `scenarios_total`: the number of splits tested.\n",
-    "#'  - `hit_rate`: `hits_total / scenarios_total`.\n",
+    "#'  - `scenarios_total`: the number of splits tested, leaving out those that\n",
+    "#'  could not be decided.\n",
+    "#'  - `hit_rate`: `hits_total / scenarios_total`, or `NA` if no split could\n",
+    "#'  be decided.\n",
     "#'\n",
     "#'  Call `audit()` on `audit_total_n()` output to summarize these columns\n",
     "#'  further.\n"

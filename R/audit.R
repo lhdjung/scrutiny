@@ -292,8 +292,15 @@ audit_total_n <- function(data) {
     map_nrow_half()
 
   hits_total <- hits_forth + hits_back
-  scenarios_total <- map_nrow_half(df_list)
+
+  # An undecidable split, with `both_consistent` missing, is neither a hit nor
+  # a miss, so it is left out of the total, as `audit_seq()` leaves out
+  # undecidable cases. A case with no decidable split has no hit rate:
+  scenarios_total <- df_list |>
+    purrr::map(dplyr::filter, !is.na(both_consistent)) |>
+    map_nrow_half()
   hit_rate <- hits_total / scenarios_total
+  hit_rate[scenarios_total == 0] <- NA
 
   data |>
     reverse_map_total_n() |>
