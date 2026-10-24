@@ -72,3 +72,11 @@ test_that("a case whose dispersion was clipped to nothing stays aligned", {
   audit$hits_x |> expect_equal(c(0L, 1L, 1L))
   audit$hits_n |> expect_equal(c(1L, 0L, 1L))
 })
+
+test_that("a variable without a `digits_*` column is recovered when its dispersion skips steps", {
+  df <- tibble::tibble(absolute = 40, percentage = 35, n = 120)
+  for (dispersion in list(1, c(2, 4, 6))) {
+    df |> is_percentage_of_map_seq(digits_percentage = 0, var = "absolute", dispersion = dispersion) |> reverse_map_seq() |> _$absolute |> expect_equal(40)
+    df |> is_percentage_of_map_seq(digits_percentage = 0, var = "absolute", dispersion = dispersion) |> audit_seq()       |> nrow()     |> expect_equal(1L)
+  }
+})

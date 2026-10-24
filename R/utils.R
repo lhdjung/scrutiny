@@ -1401,28 +1401,31 @@ check_type_numeric_like <- function(x) {
 #' @param x Numeric. The dispersed values of one `(case, var)` group.
 #' @param diff_var Numeric. The `diff_var` column of the same group, in steps.
 #' @param by Numeric (length 1) or `NULL`. The step size. If `NULL`, it is
-#'   inferred as the smallest distance between two neighboring values, which is
-#'   correct for any linear dispersion but needs at least two distinct values.
+#'   inferred as the distance between two values divided by the number of steps
+#'   between them, which is correct for any linear dispersion but needs at
+#'   least two distinct values.
 #'
 #' @return Length 1, of the same type as `x`.
 #'
 #' @noRd
 index_case_from_diff <- function(x, diff_var, by = NULL) {
   # Without a step size from the caller, the sequence supplies it: the values
-  # sit on a grid of `by`, so the smallest gap between two of them is `by`
-  # itself. A single-value sequence has no such gap and nothing to go on:
+  # are `diff_var` steps of `by` away from the reported one, so two of them are
+  # as many steps apart as their `diff_var` values. Not the smallest gap
+  # between two values, which is several steps wide if the dispersion skips
+  # some, as `dispersion = c(2, 4, 6)` or the reported value itself do. A
+  # single-value sequence has nothing to go on:
   if (is.null(by)) {
-    steps <- x |>
-      unique() |>
-      sort() |>
-      diff()
-    if (length(steps) == 0L) {
+    if (length(unique(diff_var)) < 2L) {
       abort_in_export(
         "Can't recover the reported value from a single dispersed value.",
         "i" = "The step size is not deducible from one value alone."
       )
     }
-    by <- min(steps)
+    index_min <- which.min(diff_var)
+    index_max <- which.max(diff_var)
+    by <- (x[[index_max]] - x[[index_min]]) /
+      (diff_var[[index_max]] - diff_var[[index_min]])
   }
 
   # Rounding to the decimal level of the step undoes the representation error
