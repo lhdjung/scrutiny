@@ -1,5 +1,4 @@
 test_that("`grim_binomial()` leaves undecidable cases out", {
-  skip_if_not_installed("poibin")
   # A row with an `NA` verdict has an `NA` probability, and one such row used
   # to make the p-value `NA` for the whole table:
   df <- tibble::tibble(x = c(5.19, 5.19, 5.20), n = c(28L, NA, 30L))
@@ -10,10 +9,8 @@ test_that("`grim_binomial()` leaves undecidable cases out", {
 })
 
 
-# `poibin::ppoibin()` crashes the whole R session when given no probabilities,
-# which is what is left once every row is undecidable.
+# No probabilities are left once every row is undecidable.
 test_that("the binomial functions reject empty input instead of crashing", {
-  skip_if_not_installed("poibin")
   tibble::tibble(x = c(1.23, 1.24), n = c(NA, NA)) |>
     grim_map(digits_x = 2, items_averaged = 1) |>
     grim_binomial() |>
@@ -28,7 +25,6 @@ test_that("the binomial functions reject empty input instead of crashing", {
 
 
 test_that("`grim_binomial()` returns the exact interval, one-sided like the test", {
-  skip_if_not_installed("poibin")
   data <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1)
   k <- sum(data$consistency)
   n <- nrow(data)
@@ -45,8 +41,7 @@ test_that("`grim_binomial()` returns the exact interval, one-sided like the test
 
 
 test_that("`grim_binomial_power()` checks its probabilities and `k`", {
-  skip_if_not_installed("poibin")
-  # These used to give `NaN`, an error from poibin, or a power of 1:
+  # These used to give `NaN`, an error, or a power of 1:
   0.5 |> grim_binomial_power(1.5, k = 3)            |> expect_error("`p1` must be between 0 and 1")
   1.5 |> grim_binomial_power(0.9, k = 3)            |> expect_error("`p0` must be between 0 and 1")
   0.5 |> grim_binomial_power(0.9, k = 3, alpha = 5) |> expect_error("`alpha` must be between 0 and 1")
@@ -56,4 +51,28 @@ test_that("`grim_binomial_power()` checks its probabilities and `k`", {
   0.5 |> grim_binomial_power(0.9, k = c(3, 4))      |> expect_error("single whole number")
   # The error names the function that was called, not an internal helper:
   1.5 |> grim_binomial_power(0.9, k = 3)            |> expect_error(class = "rlang_error") |> conditionCall() |> deparse() |> expect_match("^grim_binomial_power")
+})
+
+
+test_that("p-values agree with the exact binomial and keep their precision", {
+  # Every row consistent with a null probability of 0.5, so `P(X >= k) = 0.5^k`:
+  for (k in c(10L, 60L, 100L)) {
+    tibble::tibble(x = rep(5.18, k), n = 50) |> grim_map(digits_x = 2, items_averaged = 1) |> grim_binomial() |> _$p.value |> expect_equal(0.5^k)
+  }
+  # Unequal probabilities, against every one of the 2^10 outcomes:
+  set.seed(42)
+  p <- runif(10L, 0.1, 0.9)
+  outcomes <- rep(list(0:1), 10L) |> expand.grid() |> as.matrix()
+  prob_outcome <- outcomes |> apply(1L, function(o) prod(ifelse(o == 1L, p, 1 - p)))
+  pmf_brute <- outcomes |> rowSums() |> factor(levels = 0:10) |> split(x = prob_outcome) |> vapply(sum, numeric(1L))
+  p |> poibin_p_values("less")    |> expect_equal(unname(cumsum(pmf_brute)))
+  p |> poibin_p_values("greater") |> expect_equal(unname(rev(cumsum(rev(pmf_brute)))))
+  rep(0.3, 20L) |> poibin_p_values("less")    |> expect_equal(pbinom(0:20, 20, 0.3))
+  rep(0.3, 20L) |> poibin_p_values("greater") |> expect_equal(pbinom(-1:19, 20, 0.3, lower.tail = FALSE))
+})
+
+test_that("a p-value equal to `alpha` rejects in `grim_binomial_power()`", {
+  for (k in c(2L, 5L, 6L, 8L, 9L)) {
+    0.5 |> grim_binomial_power(1, k = k, alpha = 0.5^k) |> expect_equal(1)
+  }
 })

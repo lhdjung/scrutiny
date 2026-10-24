@@ -47,8 +47,6 @@ grim_binomial <- function(
   alternative = c("greater", "less", "two.sided"),
   conf.level = 0.95
 ) {
-  rlang::check_installed("poibin", "for the Poisson binomial test.")
-
   alternative <- rlang::arg_match(alternative)
 
   if (!inherits(data, "scrutiny_grim_map")) {
@@ -83,7 +81,6 @@ grim_binomial <- function(
   n_consistent <- sum(data$consistency)
   n_cases <- nrow(data)
 
-  # `poibin::ppoibin()` crashes the R session when given no probabilities:
   if (n_cases == 0L) {
     cli::cli_abort(c(
       "No value sets to test.",
@@ -96,16 +93,7 @@ grim_binomial <- function(
   pp <- 1 - data$probability
 
   # Poisson binomial p-value using per-row null probabilities
-  p.value <- switch(
-    alternative,
-    greater = 1 - poibin::ppoibin(n_consistent - 1L, pp),
-    less = poibin::ppoibin(n_consistent, pp),
-    two.sided = {
-      p_upper <- 1 - poibin::ppoibin(n_consistent - 1L, pp)
-      p_lower <- poibin::ppoibin(n_consistent, pp)
-      min(1, 2 * min(p_upper, p_lower))
-    }
-  )
+  p.value <- poibin_p_values(pp, alternative)[[n_consistent + 1L]]
 
   conf_int <- stats::binom.test(
     n_consistent,
@@ -170,8 +158,6 @@ grim_binomial_power <- function(
   alpha = 0.05,
   alternative = c("greater", "less", "two.sided")
 ) {
-  rlang::check_installed("poibin", "for Poisson binomial power analysis.")
-
   alternative <- rlang::arg_match(alternative)
 
   if (length(p0) != 1L) {
@@ -180,7 +166,6 @@ grim_binomial_power <- function(
     abort_in_export("`k` is required when `p0` is length 1.")
   }
 
-  # `poibin::ppoibin()` crashes the R session when given no probabilities:
   if (length(p0) == 0L) {
     abort_in_export(
       "There must be at least one value set.",
@@ -198,8 +183,8 @@ grim_binomial_power <- function(
     )
   }
 
-  # A probability outside of 0 and 1 used to give `NaN`, an error from poibin,
-  # or a power of 1:
+  # A probability outside of 0 and 1 used to give `NaN`, an error, or a power
+  # of 1:
   check_probability <- function(p, name) {
     if (!is.numeric(p) || anyNA(p) || any(p < 0 | p > 1)) {
       abort_in_export(
@@ -226,28 +211,39 @@ grim_binomial_power <- function(
   pmf_alt <- stats::dbinom(x, size = k, prob = p1)
 
   # For each outcome `x`, compute the null p-value using the Poisson binomial
-  # CDF (which accounts for per-row heterogeneity in `p0`)
-  p_values_all <- switch(
-    alternative,
+  # distribution (which accounts for per-row heterogeneity in `p0`)
+  p_values_all <- poibin_p_values(p0, alternative)
 
-    # P(X >= x | H0) for each possible `x`
-    greater = 1 - poibin::ppoibin(x - 1, p0),
-
-    # P(X <= x | H0) for each possible `x`
-    less = poibin::ppoibin(x, p0),
-
-    two.sided = {
-      p_upper <- 1 - poibin::ppoibin(x - 1, p0)
-      p_lower <- poibin::ppoibin(x, p0)
-      pmin(1, 2 * pmin(p_upper, p_lower))
-    },
-
-    cli::cli_abort("Internal error: invalid `alternative` value.")
-  )
-
-  # Does this outcome fall into the rejection region?
-  is_in_rejection <- p_values_all <= alpha
+  # Does this outcome fall into the rejection region? A p-value that equals
+  # `alpha` exactly may come out a hair above it, so the comparison allows for
+  # that, with the tolerance of `stats::binom.test()`:
+  is_in_rejection <- p_values_all <= alpha * (1 + 1e-7)
 
   # Power = total probability (under H1) of outcomes that reject H0
   sum(pmf_alt[is_in_rejection])
+}
+
+
+# The p-values of every possible number of successes, from 0 to `length(p)`,
+# among independent trials with success probabilities `p`: the Poisson binomial
+# distribution. Its probabilities are built by adding one trial at a time, and
+# each tail is summed from its far end. Both tails therefore keep their
+# precision far below `1e-16`, where `1 - poibin::ppoibin()` was 0, and a
+# stronger result can't get a larger p-value.
+poibin_p_values <- function(p, alternative) {
+  pmf <- 1
+  for (p_trial in p) {
+    pmf <- c(pmf * (1 - p_trial), 0) + c(0, pmf * p_trial)
+  }
+
+  # `P(X <= x)` and `P(X >= x)` for each `x`:
+  p_lower <- pmin(cumsum(pmf), 1)
+  p_upper <- pmin(rev(cumsum(rev(pmf))), 1)
+
+  switch(
+    alternative,
+    greater = p_upper,
+    less = p_lower,
+    two.sided = pmin(1, 2 * pmin(p_upper, p_lower))
+  )
 }

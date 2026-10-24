@@ -126,7 +126,6 @@ Suggests:
     ggrepel,
     knitr,
     pkgload,
-    poibin,
     rmarkdown,
     testthat (>= 3.3.0)
 Config/testthat/edition: 3
