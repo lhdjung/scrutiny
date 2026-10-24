@@ -66,6 +66,18 @@ function_duplicate_cols <- function(code_new_cols, default_end, name_class) {
       colnames_original <- names(x)
       nrow_original <- nrow(x)
 
+      # Each column is followed by one named after it, so a column that already
+      # has such a name would appear twice:
+      colnames_new <- paste0(colnames_original, "_", colname_end)
+      names_taken <- intersect(colnames_new, colnames_original)
+      if (length(names_taken) > 0L) {
+        abort_in_export(
+          "The output would have {wrap_in_backticks(names_taken)} twice.",
+          "i" = "Rename {cli::qty(length(names_taken))}{?that column/those \\
+          columns}, or choose another `colname_end`."
+        )
+      }
+
       # Create a reference vector with all values from `x` so that they can be
       # tested against. To make all values fit together, they are coerced to
       # character strings, with numbers written out in full:
@@ -106,10 +118,7 @@ function_duplicate_cols <- function(code_new_cols, default_end, name_class) {
       out <- vector("list", 2L * length(colnames_original))
       out[c(TRUE, FALSE)] <- split(x, index_col)
       out[c(FALSE, TRUE)] <- split(new_cols, index_col)
-      names(out) <- as.vector(rbind(
-        colnames_original,
-        paste0(colnames_original, "_", colname_end)
-      ))
+      names(out) <- as.vector(rbind(colnames_original, colnames_new))
       out |>
         tibble::new_tibble(nrow = nrow_original) |>
         add_class(`!!`(name_class))

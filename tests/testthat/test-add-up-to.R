@@ -25,3 +25,9 @@ test_that("`add_up_to_map()` adds up the selected columns", {
   df |> add_up_to_map(summands = c(n_control, n_treatment)) |> getElement("consistency") |> expect_equal(c(FALSE, FALSE, FALSE))
   df |> add_up_to_map() |> expect_error("summands")
 })
+
+test_that("counts too large to add up exactly are undecidable", {
+  c(1e20, 1) |> add_up_to(1e20)       |> expect_na()
+  c(2^53, 1) |> add_up_to(2^53 + 1)   |> expect_na()
+  c(2^52, 1) |> add_up_to(2^52 + 1)   |> expect_true()
+})

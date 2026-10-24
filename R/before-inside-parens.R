@@ -7,8 +7,9 @@ check_length_parens_sep <- function(sep) {
       "x" = "It has length {length(sep)}: {wrap_in_backticks(sep)}."
     )
   }
-  # A missing value used to fail in `stringr`:
-  if (!is.character(sep) || anyNA(sep)) {
+  # A missing value used to fail in `stringr`, and an empty string matches
+  # nothing:
+  if (!is.character(sep) || anyNA(sep) || any(!nzchar(sep))) {
     abort_in_export(
       "!" = "`sep` must be a keyword or two strings.",
       "x" = "It is {wrong_spec_string(sep)}."

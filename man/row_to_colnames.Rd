@@ -30,7 +30,9 @@ those rows and drops the rows.
 \details{
 With several rows, their values are pasted together per column.
 Missing values are skipped; if all of a column's values in these rows are
-missing, it keeps its name.
+missing, it keeps its name. The new names must be unique: a header that
+repeats, as in "M, SD, M, SD", is an error unless a second row tells the
+columns apart.
 }
 \seealso{
 \code{unheadr::mash_colnames()}, a more general solution to the same

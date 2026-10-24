@@ -7,7 +7,9 @@
 #'
 #' @details With several rows, their values are pasted together per column.
 #'   Missing values are skipped; if all of a column's values in these rows are
-#'   missing, it keeps its name.
+#'   missing, it keeps its name. The new names must be unique: a header that
+#'   repeats, as in "M, SD, M, SD", is an error unless a second row tells the
+#'   columns apart.
 #'
 #' @param data Data frame or matrix.
 #' @param row Integer. Position of the row or rows that contain the column
@@ -116,6 +118,20 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
       "x" = "{n_empty} empty column {name_names}.",
       "i" = "Make sure to specify `row` in `row_to_colnames()` accordingly."
     ))
+  }
+
+  # A tibble's column names must be unique, but a table often repeats its
+  # headers, as in "M, SD, M, SD" for two groups. Names that are taken twice
+  # used to make an invalid tibble that only failed further down:
+  names_dup <- unique(correct[duplicated(correct)])
+  if (length(names_dup) > 0L) {
+    abort_in_export(
+      "Each column name must be unique.",
+      "x" = "{wrap_in_backticks(names_dup)} {cli::qty(length(names_dup))}\\
+      {?is/are} taken more than once.",
+      "i" = "Specify several rows in `row` to tell the columns apart, or \\
+      rename them afterwards with `colnames<-`."
+    )
   }
 
   # Final correction and return ---

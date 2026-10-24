@@ -13,12 +13,14 @@ add_up_to_scalar <- function(summands, total) {
   values <- c(summands, total)
 
   # Counts are whole numbers, and a sum of whole numbers is exact, so `==` needs
-  # no tolerance. A sum of decimals is not exact (`0.1 + 0.2 != 0.3`), and a
-  # fractional count describes no group, so such a case is undecidable rather
-  # than given a verdict that floating-point error could decide:
+  # no tolerance -- up to `2^53`, beyond which a double skips whole numbers. A
+  # sum of decimals is not exact (`0.1 + 0.2 != 0.3`), and a fractional count
+  # describes no group, so such a case is undecidable rather than given a
+  # verdict that floating-point error could decide:
   if (
     !all(is.finite(values)) ||
-      any(abs(values - round(values)) >= WHOLE_NUMBER_TOLERANCE)
+      any(abs(values - round(values)) >= WHOLE_NUMBER_TOLERANCE) ||
+      max(sum(abs(summands)), abs(total)) >= 2^53
   ) {
     return(NA)
   }
@@ -42,7 +44,8 @@ add_up_to_scalar <- function(summands, total) {
 #' @param total Integer. The reported total, one per case.
 #'
 #' @return Logical. `TRUE` if the counts add up to `total`, `FALSE` if not,
-#'   and `NA` if a value is missing or not a whole number.
+#'   and `NA` if a value is missing or not a whole number, or if the counts or
+#'   the total reach `2^53`, beyond which a sum is no longer exact.
 #'
 #' @include utils.R
 #'

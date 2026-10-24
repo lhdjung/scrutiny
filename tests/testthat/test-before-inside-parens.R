@@ -97,3 +97,7 @@ test_that("`sep` must not be missing", {
 test_that("a missing `sep` element is shown as `NA`, not as a string", {
   "1 (2)" |> before_parens(sep = c("(", NA)) |> expect_error("`NA`")
 })
+
+test_that("an empty separator is an error", {
+  "5 (1)" |> inside_parens(sep = c("", ")")) |> expect_error("keyword or two strings")
+})

@@ -60,3 +60,9 @@ test_that("`row` and `collapse` are checked", {
   df |> row_to_colnames(row = NA_real_) |> expect_error("whole numbers")
   df |> row_to_colnames(collapse = NULL) |> expect_error("character")
 })
+
+test_that("repeated header cells are an error, not duplicate names", {
+  df <- tibble::tibble(V1 = c("Group", "A"), V2 = c("M", "5.3"), V3 = c("SD", "1.2"), V4 = c("M", "4.1"), V5 = c("SD", "0.9"))
+  df |> row_to_colnames() |> expect_error("must be unique")
+  df |> rbind(c(NA, "pre", "pre", "post", "post"), x = _) |> row_to_colnames(row = 1:2) |> colnames() |> expect_equal(c("Group", "pre M", "pre SD", "post M", "post SD"))
+})

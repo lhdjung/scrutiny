@@ -1063,3 +1063,17 @@ test_that("numbers are compared as written out in full, not in scientific notati
   tibble::tibble(a = 100000L, b = 100000) |> duplicate_count(ignore = 100000)   |> nrow() |> expect_equal(0L)
   tibble::tibble(a = 100000L, b = 100000) |> duplicate_count(ignore = "100000") |> nrow() |> expect_equal(0L)
 })
+
+test_that("`NaN` is a missing value in all of the duplicate functions", {
+  c(1, NaN, NaN) |> duplicate_tally() |> _$value_n |> expect_equal(c(1L, NA, NA))
+  c(1, NaN, NaN, 1) |> duplicate_count() |> _$value |> expect_equal("1")
+})
+
+test_that("`duplicate_tally()` rejects a column named like an output column", {
+  tibble::tibble(x = 1:2, x_n = 2:3) |> duplicate_tally()                      |> expect_error("`x_n` twice")
+  tibble::tibble(x = 1:2, x_n = 2:3) |> duplicate_tally(colname_end = "count") |> ncol() |> expect_equal(4L)
+})
+
+test_that("an empty input has an `NA` rate of missing values", {
+  tibble::tibble(a = numeric(0)) |> duplicate_count() |> audit() |> _$na_rate |> expect_equal(c(NA_real_, NA_real_))
+})

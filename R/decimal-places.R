@@ -132,9 +132,15 @@ number_to_string <- function(x) {
 
 # Strings for comparing values of any type, as the `duplicate_*()` functions
 # do: a number is written out in full, so that `100000L`, `100000`, and
-# `"100000"` are one value, as are `0.0001` and `"0.0001"`.
+# `"100000"` are one value, as are `0.0001` and `"0.0001"`. `NaN` is a missing
+# value, as everywhere in the package, not the string `"NaN"`:
 value_to_string <- function(x) {
-  if (is.numeric(x)) number_to_string(x) else as.character(x)
+  if (!is.numeric(x)) {
+    return(as.character(x))
+  }
+  out <- number_to_string(x)
+  out[is.nan(x)] <- NA_character_
+  out
 }
 
 
@@ -313,7 +319,9 @@ trim_space <- function(x) {
 
 # The strings `as.numeric()` reads as an infinity or `NaN`, in any letter case.
 # `chartr()` folds the ASCII letters of these tokens and nothing else, so unlike
-# `tolower()` it does not depend on the locale:
+# `tolower()` it does not depend on the locale. A number too large for a double,
+# such as `"1e400"`, is read as an infinity as well:
 is_non_finite_token <- function(x) {
-  chartr("AFINTY", "afinty", x) %in% NON_FINITE_TOKENS
+  chartr("AFINTY", "afinty", x) %in% NON_FINITE_TOKENS |
+    is.infinite(suppressWarnings(as.numeric(x)))
 }

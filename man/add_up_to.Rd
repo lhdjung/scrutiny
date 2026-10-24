@@ -14,7 +14,8 @@ vector per case.}
 }
 \value{
 Logical. \code{TRUE} if the counts add up to \code{total}, \code{FALSE} if not,
-and \code{NA} if a value is missing or not a whole number.
+and \code{NA} if a value is missing or not a whole number, or if the counts or
+the total reach \code{2^53}, beyond which a sum is no longer exact.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}

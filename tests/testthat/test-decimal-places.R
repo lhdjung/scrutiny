@@ -394,3 +394,9 @@ test_that("`number_to_string()` writes numbers out in full", {
   c(1e-300, 2.5e-310)                     |> number_to_string() |> grepl(pattern = "e", fixed = TRUE) |> any() |> expect_false()
   c(1e-300, NA, Inf, 1 / 3)               |> number_to_string() |> as.numeric() |> expect_equal(c(1e-300, NA, Inf, 0.333333333333333))
 })
+
+test_that("a string too large for a double is an infinity", {
+  c("1e400", "-1e400") |> decimal_places() |> expect_equal(c(NA_integer_, NA_integer_))
+  "1e400" |> decimal_places_scalar() |> expect_na()
+  c("1e400", "2") |> restore_zeros(width = 2) |> expect_equal(c("1e400", "2.00"))
+})

@@ -1813,7 +1813,7 @@ audit_summary_stats <- function(data, selection, total = FALSE) {
     min = on_non_na(min),
     max = on_non_na(max),
     na_count = function(x) sum(is.na(x)),
-    na_rate = function(x) mean(is.na(x))
+    na_rate = function(x) if (length(x) == 0L) NA_real_ else mean(is.na(x))
   )
 
   # Summarize every selected column by every function in `stats`, then pivot the
