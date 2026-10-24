@@ -97,7 +97,7 @@ grimmer_explain <- function(
         sd_type = sd_type
       )
     }
-    return(explain_either(explain_type, consistency))
+    return(explain_sd_either(explain_type, consistency))
   }
 
   explain <- function(text) {

@@ -1151,7 +1151,8 @@ test_that("GRIMMER agrees with a brute force on population SDs", {
         sd <- round(runif(60L, 0, if (items == 1L) 2.5 else 1), 1)
         key <- paste(round(10 * x), round(10 * sd))
         is_population <- key %in% reachable(n, items, rounding, "population")
-        is_sample <- if (n == 1L) NA else key %in% reachable(n, items, rounding, "sample")
+        # A single value has no sample SD:
+        is_sample <- if (n == 1L) FALSE else key %in% reachable(n, items, rounding, "sample")
         info <- paste0("items = ", items, ", rounding = ", rounding, ", n = ", n)
 
         x |>
@@ -1171,9 +1172,9 @@ test_that("`grimmer_map()` names the SD type that a value set passed under", {
   out <- tibble::tibble(x = c(4.4, 4.4, 3.6, 4), sd = c(1.82, 1.62, 0.2, 0.5), n = c(5, 5, 11, 1)) |>
     grimmer_map(digits_x = 1, digits_sd = 2, items_averaged = 1, sd_type = "either")
 
-  out$consistency |> expect_equal(c(TRUE, TRUE, FALSE, NA))
-  out$reason[1:3] |> expect_equal(c("Passed all (sample SD)", "Passed all (population SD)", "GRIMMER inconsistent (test 1)"))
-  out$reason[4] |> expect_equal("Sample SD: No testable value set; population SD: GRIMMER inconsistent (test 1)")
+  # A single value has no sample SD, so the population SD decides:
+  out$consistency |> expect_equal(c(TRUE, TRUE, FALSE, FALSE))
+  out$reason |> expect_equal(c("Passed all (sample SD)", "Passed all (population SD)", "GRIMMER inconsistent (test 1)", "GRIMMER inconsistent (test 1)"))
   out |> scrutiny_meta() |> _$args$sd_type |> expect_equal("either")
 })
 
@@ -1209,6 +1210,11 @@ test_that("explanations agree with the test under every SD type", {
   explanation |> expect_match("sd_type = \"either\"", fixed = TRUE)
   explanation |> expect_match("population SD, which divides by n rather than n - 1", fixed = TRUE)
   explanation |> expect_match("==> Consistent", fixed = TRUE)
+
+  # At `n = 1`, only the sample SD is undecidable; at `n = 1.5`, both are, and
+  # the population SD's requirement is the one stated:
+  4 |> grimmer_explain(0.5, 1,   1, 1, 1, sd_type = "either") |> format() |> expect_match("A single value has no sample SD", fixed = TRUE)
+  4 |> grimmer_explain(0.5, 1.5, 1, 1, 1, sd_type = "either") |> format() |> expect_no_match("sample", fixed = TRUE)
 
   out <- tibble::tibble(x = c(4.4, 4.4), sd = c(1.62, 1.82), n = 5) |>
     grimmer_map(digits_x = 1, digits_sd = 2, items_averaged = 1, sd_type = "population") |>

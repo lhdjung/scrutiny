@@ -236,7 +236,7 @@ grimmer_scalar <- function(
       }
       return(sample)
     }
-    return(grimmer_either(sample, test_type("population"), show_reason))
+    return(grimmer_sd_either(sample, test_type("population"), show_reason))
   }
 
   # Undecidable. Caught before the GRIM test below, whose `NA` result the branch
@@ -388,20 +388,19 @@ grimmer_scalar <- function(
 
 
 # Combines the results of `grimmer_scalar()` under `sd_type = "sample"`, which
-# failed, and `"population"`. The verdict is that of `|`, so `NA` for a sample
-# SD, as at `n = 1`, and `FALSE` for a population SD make `NA`. A reason that
-# differs between the two names both.
-grimmer_either <- function(sample, population, show_reason) {
+# did not pass, and `"population"`. The verdict is the population SD's: it is
+# decidable wherever the sample SD is, and at `n = 1`, where a sample SD does
+# not exist, it is the only SD there is. A reason that differs between the two
+# names both, unless the sample SD was undecidable.
+grimmer_sd_either <- function(sample, population, show_reason) {
   if (!show_reason) {
-    return(sample | population)
+    return(population)
   }
-
-  consistency <- sample[[1L]] | population[[1L]]
 
   reason <- if (isTRUE(population[[1L]])) {
     "Passed all (population SD)"
-  } else if (identical(sample[[2L]], population[[2L]])) {
-    sample[[2L]]
+  } else if (is.na(sample[[1L]]) || identical(sample[[2L]], population[[2L]])) {
+    population[[2L]]
   } else {
     paste0(
       "Sample SD: ",
@@ -411,7 +410,7 @@ grimmer_either <- function(sample, population, show_reason) {
     )
   }
 
-  list(consistency, reason)
+  list(population[[1L]], reason)
 }
 
 
@@ -470,10 +469,10 @@ grimmer_either <- function(sample, population, show_reason) {
 #'   other convention.
 #'
 #'   `"either"` is `TRUE` if the value set is consistent as a sample SD or as a
-#'   population SD, `FALSE` if it is neither, and `NA` otherwise: a nonzero SD
-#'   with `n = 1` is not a population SD, and there is no sample SD of a single
-#'   value to compare it with. The `reason` column of [`grimmer_map()`] names
-#'   the convention a value set passed under, trying the sample SD first.
+#'   population SD, and `FALSE` if it is neither. A single value has no sample
+#'   SD, so at `n = 1`, `"either"` is the same as `"population"`. The `reason`
+#'   column of [`grimmer_map()`] names the convention a value set passed under,
+#'   trying the sample SD first.
 #'
 #'   `"either"` accepts far more SDs than either convention alone, so it is
 #'   not the default. It also judges each value set on its own, although a

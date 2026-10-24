@@ -79,13 +79,6 @@ grimmer_plot_values <- function(
   sd_type <- arg_match_in_export(sd_type, SD_TYPES)
   check_decidable_n_items(n, items_averaged, min_n = sd_min_n(sd_type))
 
-  # A single value has no sample SD, so `"either"` leaves every SD that is not
-  # a population SD at `NA`, which the comb has no tooth for. Only a population
-  # SD can be attained, so that is what is drawn:
-  if (sd_type == "either" && n == 1) {
-    sd_type <- "population"
-  }
-
   # One unit around `sd`, as for a mean:
   values <- comb_values(max(0, floor(sd)), floor(sd) + 1, digits_sd)
 

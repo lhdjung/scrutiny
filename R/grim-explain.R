@@ -339,23 +339,39 @@ new_explanation <- function(
 
 # The explanation under `sd_type = "either"`: that of the sample SD, and if it
 # doesn't pass, that of the population SD as well, minus the paragraphs the two
-# share, such as the GRIM test. `explain_type()` explains the test under one
+# share, such as the GRIM test. The verdict is then the population SD's, as in
+# `grimmer_sd_either()`. `explain_type()` explains the test under one
 # `sd_type`, and `consistency` is the verdict under `"either"`.
-explain_either <- function(explain_type, consistency) {
+explain_sd_either <- function(explain_type, consistency) {
   out <- explain_type("sample")
   verdict <- out$consistency
 
   if (!isTRUE(verdict)) {
     population <- explain_type("population")
-    verdict <- verdict | population$consistency
     is_new <- !population$paragraphs %in% out$paragraphs
-    if (any(is_new)) {
-      out$paragraphs <- c(
+
+    out$paragraphs <- if (is.na(population$consistency)) {
+      # Undecidable either way, and the population SD's requirements are the
+      # ones that apply:
+      population$paragraphs
+    } else if (is.na(verdict)) {
+      # The sample SD is undecidable where the population SD is not only at
+      # `n = 1`:
+      c(
+        out$paragraphs,
+        "A single value has no sample SD, but it has a population SD, which divides by n rather than n - 1.",
+        population$paragraphs[is_new]
+      )
+    } else if (any(is_new)) {
+      c(
         out$paragraphs,
         "The SD may also be a population SD, which divides by n rather than n - 1.",
         population$paragraphs[is_new]
       )
+    } else {
+      out$paragraphs
     }
+    verdict <- population$consistency
   }
 
   if (!identical(verdict, consistency)) {

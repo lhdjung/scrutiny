@@ -85,7 +85,7 @@ debit_explain <- function(
         sd_type = sd_type
       )
     }
-    return(explain_either(explain_type, consistency))
+    return(explain_sd_either(explain_type, consistency))
   }
 
   explain <- function(text) {
@@ -183,10 +183,13 @@ debit_explain <- function(
     x_incl_lower,
     x_incl_upper
   )
+  # A population SD can be tested with a single value:
+  values <- if (n == 1) "1 value" else paste(n, "values")
+
   text_ones <- paste0(
     "With ",
-    n,
-    " values, the mean is the number of ones divided by ",
+    values,
+    ", the mean is the number of ones divided by ",
     n,
     ", so that number must be ",
     ones_range,
@@ -226,8 +229,8 @@ debit_explain <- function(
 
   text_formula <- paste0(
     "With k ones among ",
-    n,
-    " values, the ",
+    values,
+    ", the ",
     if (sd_type == "population") "population ",
     "SD is ",
     "sqrt(k * (",

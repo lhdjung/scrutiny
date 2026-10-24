@@ -106,10 +106,10 @@ population SD tested as a sample SD will often seem inconsistent, so
 other convention.
 
 \code{"either"} is \code{TRUE} if the value set is consistent as a sample SD or as a
-population SD, \code{FALSE} if it is neither, and \code{NA} otherwise: a nonzero SD
-with \code{n = 1} is not a population SD, and there is no sample SD of a single
-value to compare it with. The \code{reason} column of \code{\link[=grimmer_map]{grimmer_map()}} names
-the convention a value set passed under, trying the sample SD first.
+population SD, and \code{FALSE} if it is neither. A single value has no sample
+SD, so at \code{n = 1}, \code{"either"} is the same as \code{"population"}. The \code{reason}
+column of \code{\link[=grimmer_map]{grimmer_map()}} names the convention a value set passed under,
+trying the sample SD first.
 
 \code{"either"} accepts far more SDs than either convention alone, so it is
 not the default. It also judges each value set on its own, although a

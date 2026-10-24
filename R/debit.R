@@ -368,10 +368,9 @@ debit_scalar <- function(
   # here: this runs once per row.
   sd_type <- arg_match_in_export(sd_type, SD_TYPES)
 
-  # The bounds and sums of `show_rec` don't depend on `sd_type`, so either
-  # result can supply them -- except that the sample SD leaves them `NA` at `n =
-  # 1`, where the population SD is decidable. The verdict is that of `|`, as in
-  # `grimmer_either()`:
+  # As in `grimmer_sd_either()`, the verdict is the population SD's unless the
+  # sample SD passes. The bounds and sums of `show_rec` don't depend on
+  # `sd_type`, except that the sample SD leaves them `NA` at `n = 1`:
   if (sd_type == "either") {
     test_type <- function(sd_type) {
       debit_scalar(
@@ -392,9 +391,7 @@ debit_scalar <- function(
     if (isTRUE(sample[[1L]])) {
       return(sample)
     }
-    population <- test_type("population")
-    population[[1L]] <- sample[[1L]] | population[[1L]]
-    return(population)
+    return(test_type("population"))
   }
 
   # A missing value makes the test undecidable, and it is returned in the same

@@ -439,7 +439,8 @@ test_that("`formula = \"exact\"` passes exactly the real binary samples under ev
     for (n in c(1L, 2L, 7L, 20L)) {
       info <- paste0("rounding = ", rounding, ", n = ", n)
       is_population <- real(n, rounding, "population")
-      is_sample <- if (n == 1L) NA else real(n, rounding, "sample")
+      # A single value has no sample SD:
+      is_sample <- if (n == 1L) FALSE else real(n, rounding, "sample")
 
       exact  <- grid$x |> debit(grid$sd, n, 2, 2, rounding = rounding, sd_type = "population")
       mean_n <- grid$x |> debit(grid$sd, n, 2, 2, "mean_n", rounding, sd_type = "population")
