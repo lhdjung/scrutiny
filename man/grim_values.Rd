@@ -56,8 +56,9 @@ of \code{n * items_averaged} integers can have:
 \itemize{
 \item \code{grim_values()} returns every achievable value that would be reported as
 \code{x}. The result is empty if \code{x} is GRIM-inconsistent with \code{n}.
-\item \code{grim_closest()} returns the single achievable value closest to \code{x},
-whether or not \code{x} is consistent.
+\item \code{grim_closest()} returns the single achievable value closest to \code{x}
+among those that would be reported as \code{x}, or, if there are none, the
+closest one overall.
 }
 
 Both are vectorized like \code{\link[=grim]{grim()}}. A reported mean may correspond to one

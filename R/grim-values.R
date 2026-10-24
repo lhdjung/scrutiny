@@ -140,8 +140,10 @@ grim_closest_scalar <- function(
     c(sum2, sum1)
   } else {
     # The whole number closest to the unrounded sum total, pulled into the
-    # admissible range. The endpoints come along in case `round()` lands one
-    # integer off through floating-point error in the product:
+    # admissible range: a consistent `x` stands for a mean that rounds to it,
+    # even where a closer one rounds to something else, as under `"floor"`.
+    # The endpoints come along in case `round()` lands one integer off through
+    # floating-point error in the product:
     sum_nearest <- round(x * parts$n_items / parts$scale)
     sum_nearest <- min(max(sum_nearest, sum1), sum2)
     unique(c(sum_nearest, sum1, sum2))
@@ -159,8 +161,9 @@ grim_closest_scalar <- function(
 #'
 #'   - `grim_values()` returns every achievable value that would be reported as
 #'   `x`. The result is empty if `x` is GRIM-inconsistent with `n`.
-#'   - `grim_closest()` returns the single achievable value closest to `x`,
-#'   whether or not `x` is consistent.
+#'   - `grim_closest()` returns the single achievable value closest to `x`
+#'   among those that would be reported as `x`, or, if there are none, the
+#'   closest one overall.
 #'
 #'   Both are vectorized like [`grim()`]. A reported mean may correspond to one
 #'   achievable mean, to several, or to none, so `grim_values()` returns a list
@@ -230,9 +233,43 @@ grim_closest_scalar <- function(
 #'   items_averaged = 1
 #' )
 
-grim_values <- Vectorize(grim_values_scalar, SIMPLIFY = FALSE)
+# The signatures mirror those of the `*_scalar()` functions; see
+# `vectorize_test()`:
+grim_values <- function(
+  x,
+  n,
+  digits_x,
+  items_averaged,
+  percent = FALSE,
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE
+) {
+  vectorize_test(
+    fun = grim_values_scalar,
+    frame = environment(),
+    along = c("x", "n", "digits_x", "items_averaged"),
+    type = "list"
+  )
+}
 
 
 #' @rdname grim_values
 #' @export
-grim_closest <- Vectorize(grim_closest_scalar)
+grim_closest <- function(
+  x,
+  n,
+  digits_x,
+  items_averaged,
+  percent = FALSE,
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE
+) {
+  vectorize_test(
+    fun = grim_closest_scalar,
+    frame = environment(),
+    along = c("x", "n", "digits_x", "items_averaged"),
+    type = "double"
+  )
+}

@@ -36,6 +36,18 @@ test_that("both functions are vectorized like `grim()`", {
     grim_closest(c(32, 28), digits_x = 2, items_averaged = 1) |>
     expect_equal(c(5.1875, 145 / 28))
   5.19 |> grim_closest(25:30, digits_x = 2, items_averaged = 1) |> expect_length(6L)
+
+  numeric(0) |> grim_values(numeric(0), digits_x = 2, items_averaged = 1)  |> expect_identical(list())
+  numeric(0) |> grim_closest(numeric(0), digits_x = 2, items_averaged = 1) |> expect_identical(numeric(0))
+  5.19 |> grim_closest(28, digits_x = 2, items_averaged = 1, rounding = c("up", "floor")) |> expect_error("must be length 1")
+  5.19 |> grim_values(28, digits_x = 2, items_averaged = 1, percent = c(TRUE, FALSE))     |> expect_error("must be length 1")
+  c(1.1, 1.2, 1.3) |> grim_closest(c(10, 20), digits_x = 1, items_averaged = 1) |> expect_error()
+  5.19 |> grim_closest(28, items_averaged = 1) |> expect_error("digits_x")
+})
+
+test_that("`grim_closest()` keeps a consistent `x` to the means reported as `x`", {
+  # 56 / 11 is closer to 5.1 than 57 / 11, but it is floored to 5.0:
+  5.1 |> grim_closest(11, digits_x = 1, items_averaged = 1, rounding = "floor") |> expect_equal(57 / 11)
 })
 
 

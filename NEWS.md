@@ -86,7 +86,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `round_ties_up()`, `round_ties_down()`, `round_ties_away()`, `round_ties_zero()`, and `round_ties_even()`, with matching `rounding` strings `"ties_up"` etc. Each of these names a complete tie-breaking rule: for example, `"ties_away"` is the same as `"up"` with `symmetric = TRUE`. Specifying `symmetric` together with one of these strings is an error. `round_up()`, `round_down()`, and the `"up"` and `"down"` strings continue to work as before.
 
-- `grim_values()` returns all means that a sample of `n` integers can have and that would be reported as `x`. `grim_closest()` returns the mean that such a sample can have that is closest to `x`, whether or not `x` is GRIM-consistent (#62).
+- `grim_values()` returns all means that a sample of `n` integers can have and that would be reported as `x`. `grim_closest()` returns the mean that such a sample can have that is closest to `x`, among those that would be reported as `x` if there are any (#62). Both are vectorized like `grim()`.
 
 - `grim_binomial()` tests whether the rate of GRIM-consistent value sets is above what random decimal digits would produce, and returns a Clopper-Pearson confidence interval. `grim_binomial_power()` computes the power of this test. Both are experimental.
 

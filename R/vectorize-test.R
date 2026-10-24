@@ -1,7 +1,8 @@
 #' Vectorize a single-case consistency test
 #'
 #' `vectorize_test()` is the shared body of the vectorized consistency test
-#' functions -- `grim()`, `grimmer()`, and `debit()`. Each of them writes out
+#' functions -- `grim()`, `grimmer()`, and `debit()` -- and of `grim_values()`
+#' and `grim_closest()`. Each of them writes out
 #' its own signature, mirroring that of the `*_scalar()` function it wraps
 #' minus the internal-only `show_rec` / `show_reason` argument, and hands its
 #' frame to `vectorize_test()`:
@@ -31,11 +32,14 @@
 #'   mapper tier makes: `along` is what `function_map()` takes from `data` --
 #'   key columns, `.args_by_row`, and helper columns -- and the rest are what it
 #'   passes as constants for the whole call.
+#' @param type String. The type of the return value: `"logical"` for the
+#'   tests, `"double"` for `grim_closest()`, `"list"` for `grim_values()`,
+#'   whose `fun` returns a vector of any length per value set.
 #'
-#' @return Logical vector, as long as the recycled `along` arguments.
+#' @return Vector of `type`, as long as the recycled `along` arguments.
 #'
 #' @noRd
-vectorize_test <- function(fun, frame, along) {
+vectorize_test <- function(fun, frame, along, type = "logical") {
   index_wrapper <- sys.parent()
   fn_wrapper <- sys.function(index_wrapper)
   formals_wrapper <- formals(fn_wrapper)
@@ -85,8 +89,10 @@ vectorize_test <- function(fun, frame, along) {
         "x" = "It describes the test as a whole, so it cannot vary from \\
         one value set to the next.",
         "i" = "Only {.arg {along}} are vectorized.",
-        "i" = "To test value sets that differ in {.arg {name}}, call \\
-        {.fun {name_mapper}} once for each of its values."
+        "i" = if (exists(name_mapper, mode = "function")) {
+          "To test value sets that differ in {.arg {name}}, call \\
+          {.fun {name_mapper}} once for each of its values."
+        }
       )
     }
   }
@@ -112,7 +118,7 @@ vectorize_test <- function(fun, frame, along) {
   length_out <- recycle_length_common(lengths_along, names_along)
 
   if (length_out == 0L) {
-    return(logical(0L))
+    return(vector(type, 0L))
   }
 
   vals_along <- vals[names_along]
@@ -126,18 +132,18 @@ vectorize_test <- function(fun, frame, along) {
   # already happened above, so it has nothing to do but loop.
   results <- .mapply(fun, vals_along, MoreArgs = vals[names_scalar])
 
-  out <- unlist(results, use.names = FALSE)
+  out <- if (type == "list") results else unlist(results, use.names = FALSE)
 
-  # The whole point of the wrappers is that they return a logical vector, one
+  # The whole point of the wrappers is that they return a vector of `type`, one
   # value per value set, whatever the arguments. If a `*_scalar()` function
   # ever returned something else, that would be a bug in scrutiny rather than
   # in the call, so this reports it as one:
-  if (!is.logical(out) || length(out) != length_out) {
+  if (typeof(out) != type || length(out) != length_out) {
     cli::cli_abort(
       c(
         "Internal error: the consistency test returned {length(out)} \\
       {.cls {typeof(out)}} value{?s} for {length_out} value set{?s}.",
-        "i" = "It must return one logical value per value set."
+        "i" = "It must return one {type} value per value set."
       ),
       .internal = TRUE
     )

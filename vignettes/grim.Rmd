@@ -149,7 +149,7 @@ grim_values(x = 5.19, n = 300, digits_x = 2, items_averaged = 1)
 grim_values(x = 5.19, n = 28, digits_x = 2, items_averaged = 1) # inconsistent: none
 ```
 
-`grim_closest()` returns the achievable mean nearest to `x`, whether or not `x` is consistent:
+`grim_closest()` returns the achievable mean nearest to `x`. If `x` is consistent, that is the nearest one that would be reported as `x`:
 
 ```{r}
 grim_closest(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
