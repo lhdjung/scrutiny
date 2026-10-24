@@ -49,9 +49,8 @@ named in full.}
 units of the last decimal place. Default is \code{1:5}.}
 
 \item{out_min, out_max}{Limits on the dispersed values. Both default to
-\code{"auto"}, which keeps \code{n} at 2 or above and \code{x} and \code{sd} between 0 and 1.
-A number applies to every dispersed variable, and \code{NULL} removes the
-limit.}
+\code{"auto"}, which keeps \code{n} at 2 or above (1 under \code{sd_type = "population"} or \code{"either"}) and \code{x} and \code{sd} between 0 and 1. A number
+applies to every dispersed variable, and \code{NULL} removes the limit.}
 
 \item{include_reported}{Logical. Should the reported values themselves be
 part of the sequences? Default is \code{FALSE}.}

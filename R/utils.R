@@ -1867,13 +1867,26 @@ audit_summary_stats <- function(data, selection, total = FALSE) {
 #' @param out_min,out_max The mapper's arguments. Anything other than the string
 #'   `"auto"` is the caller's explicit choice and is returned unchanged.
 #' @param var_bounds Named list of length-2 numeric vectors, `c(min, max)`, with
-#'   `NA` for an unbounded side. May be `NULL`.
+#'   `NA` for an unbounded side, or of functions that return one from `args`.
+#'   May be `NULL`.
+#' @param args The `args` of the initial `fun()` call's "scrutiny" attribute.
 #'
 #' @return List of two elements, `out_min` and `out_max`.
 #'
 #' @noRd
-resolve_var_bounds <- function(var, out_min, out_max, var_bounds = NULL) {
+resolve_var_bounds <- function(
+  var,
+  out_min,
+  out_max,
+  var_bounds = NULL,
+  args = NULL
+) {
   bounds <- var_bounds[[var]]
+
+  # A bound that depends on a setting, such as the least `n` for an `sd_type`:
+  if (is.function(bounds)) {
+    bounds <- bounds(args)
+  }
 
   # The one bound that holds for every consistency test, so it applies even to a
   # mapper that declares none of its own:
@@ -1915,6 +1928,10 @@ check_var_bounds <- function(var_bounds) {
 
   for (name in names(var_bounds)) {
     bounds <- var_bounds[[name]]
+    # Its value depends on the call, so it can't be checked yet:
+    if (is.function(bounds)) {
+      next
+    }
     if (!is.numeric(bounds) || length(bounds) != 2L) {
       abort_in_export(
         "`.var_bounds${name}` must be a numeric vector of length 2.",

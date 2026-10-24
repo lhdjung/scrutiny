@@ -469,6 +469,15 @@ test_that("`sd_type` reaches the sequence and total-n mappers", {
   total |> debit_map_total_n(digits_x = 2, digits_sd = 2, sd_type = "population") |> _$both_consistent |> any() |> expect_true()
 })
 
+test_that("the sequence mapper disperses `n` down to 1 only for a population SD", {
+  df <- tibble::tibble(x = 0.5, sd = 0.5, n = 3)
+  seq_n <- function(sd_type) {
+    df |> debit_map_seq(digits_x = 1, digits_sd = 1, sd_type = sd_type, var = "n", include_consistent = TRUE) |> _$n |> min()
+  }
+  "sample"     |> seq_n() |> expect_equal(2L)
+  "population" |> seq_n() |> expect_equal(1L)
+})
+
 test_that("explanations agree with the test under every SD type", {
   grid <- tidyr::expand_grid(x = c(0, 0.3, 0.5, 1), sd = c(0, 0.46, 0.48, 0.5), n = c(1, 2, 10))
   for (sd_type in c("sample", "population", "either")) {

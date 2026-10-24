@@ -17,9 +17,10 @@
 #' @param var String. The variables to disperse. Default is
 #'   `c("x", "sd", "n")`.
 #' @param out_min,out_max Limits on the dispersed values. Both default to
-#'   `"auto"`, which keeps `n` at 2 or above and `sd` at 0 or above, and
-#'   leaves `x` unbounded. A number applies to every dispersed variable, and
-#'   `NULL` removes the limit.
+#'   `"auto"`, which keeps `n` at 2 or above (1 under `sd_type =
+#'   "population"` or `"either"`) and `sd` at 0 or above, and leaves `x`
+#'   unbounded. A number applies to every dispersed variable, and `NULL`
+#'   removes the limit.
 #' @param items_averaged Integer. As in [`grimmer_map()`]: the number of items
 #'   averaged into each score, given as an argument or as a column of `data`.
 #'   There is no default.
@@ -74,6 +75,10 @@ grimmer_map_seq <- function_map_seq(
   .reported = c("x", "sd", "n"),
   .name_test = "GRIMMER",
   # A standard deviation cannot be negative, but it can be `0`. The mean is
-  # unbounded, as it is for GRIM:
-  .var_bounds = list(n = c(2, NA), sd = c(0, NA))
+  # unbounded, as it is for GRIM. A sample SD needs two values, a population SD
+  # only one:
+  .var_bounds = list(
+    n = function(args) c(sd_min_n(args$sd_type), NA),
+    sd = c(0, NA)
+  )
 )

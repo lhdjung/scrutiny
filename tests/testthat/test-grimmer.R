@@ -1194,6 +1194,16 @@ test_that("`sd_type` reaches the sequence and total-n mappers", {
   total |> grimmer_map_total_n(digits_x = 1, digits_sd = 2, items_averaged = 1, sd_type = "population") |> _$both_consistent |> which() |> expect_equal(1:2)
 })
 
+test_that("the sequence mapper disperses `n` down to 1 only for a population SD", {
+  df <- tibble::tibble(x = 2.5, sd = 0.9, n = 3)
+  seq_n <- function(sd_type) {
+    df |> grimmer_map_seq(digits_x = 1, digits_sd = 1, items_averaged = 1, sd_type = sd_type, var = "n", include_consistent = TRUE) |> _$n |> min()
+  }
+  "sample"     |> seq_n() |> expect_equal(2L)
+  "population" |> seq_n() |> expect_equal(1L)
+  "either"     |> seq_n() |> expect_equal(1L)
+})
+
 test_that("explanations agree with the test under every SD type", {
   grid <- tidyr::expand_grid(x = c(3.6, 4.4, 5.2), sd = c(0, 0.5, 1.62, 1.82), n = c(1, 2, 5, 11))
   for (sd_type in c("sample", "population", "either")) {
