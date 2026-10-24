@@ -45,8 +45,8 @@
 #' Under `sd_type = "either"`, a consistent value set gives
 #' `"Passed all (sample SD)"` or, if it passes as a population SD only,
 #' `"Passed all (population SD)"`. If the two conventions fail for different
-#' reasons, the `reason` names both, and [`audit()`] counts the population
-#' SD's, which decides the verdict.
+#' reasons, the `reason` names both, and [`audit()`] counts the sample SD's,
+#' as under the default `sd_type`.
 #'
 #' The tibble has the class `scrutiny_grimmer_map`, which is recognized by
 #'   [`audit()`] and [`grim_plot()`].
