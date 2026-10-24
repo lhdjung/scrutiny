@@ -69,7 +69,8 @@ A negative \code{sd} gives \code{"Negative SD"}.
 Under \code{sd_type = "either"}, a consistent value set gives
 \code{"Passed all (sample SD)"} or, if it passes as a population SD only,
 \code{"Passed all (population SD)"}. If the two conventions fail for different
-reasons, the \code{reason} names both, and \code{\link[=audit]{audit()}} counts both.
+reasons, the \code{reason} names both, and \code{\link[=audit]{audit()}} counts the population
+SD's, which decides the verdict.
 
 The tibble has the class \code{scrutiny_grimmer_map}, which is recognized by
 \code{\link[=audit]{audit()}} and \code{\link[=grim_plot]{grim_plot()}}.

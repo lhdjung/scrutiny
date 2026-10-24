@@ -8,6 +8,10 @@ audit.scrutiny_grimmer_map <- function(data) {
   if (any(colnames(data) == "reason") || nrow(data) == 0L) {
     reason <- data[["reason"]]
     reason <- reason[!is.na(reason)]
+    # Under `sd_type = "either"`, a reason may name the sample SD's failure and
+    # the population SD's. The population SD's decides the verdict (see
+    # `grimmer_sd_either()`), so it is the one that counts:
+    reason <- sub("^Sample SD: .*; population SD: ", "", reason)
     fail_grim <- length(reason[stringr::str_detect(
       reason,
       "GRIM inconsistent"

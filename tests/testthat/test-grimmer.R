@@ -1194,6 +1194,14 @@ test_that("`sd_type` reaches the sequence and total-n mappers", {
   total |> grimmer_map_total_n(digits_x = 1, digits_sd = 2, items_averaged = 1, sd_type = "population") |> _$both_consistent |> which() |> expect_equal(1:2)
 })
 
+test_that("`audit()` counts each \"either\" case once, by the population SD's reason", {
+  out <- tibble::tibble(x = 4.59, sd = 1.96, n = 17) |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, sd_type = "either")
+  out$reason |> expect_equal("Sample SD: GRIMMER inconsistent (test 1); population SD: GRIMMER inconsistent (test 3)")
+  audit <- out |> audit()
+  audit$fail_test1 |> expect_equal(0L)
+  audit$fail_test3 |> expect_equal(1L)
+})
+
 test_that("the sequence mapper disperses `n` down to 1 only for a population SD", {
   df <- tibble::tibble(x = 2.5, sd = 0.9, n = 3)
   seq_n <- function(sd_type) {
