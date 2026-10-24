@@ -153,7 +153,10 @@ function_map_seq_proto <- function(
 #'   | [`grimmer_map_seq()`]            | `"x"`, `"sd"`, `"n"`                 | `vignette("grimmer")`
 #'   | [`debit_map_seq()`]              | `"x"`, `"sd"`, `"n"`                 | `vignette("debit")`
 #'
-#'   It has `...` to pass arguments on to `.fun`.
+#'   The settings of `.fun`, i.e., its arguments after `...`, such as
+#'   `rounding`, are arguments of this function as well, with the same
+#'   defaults. Its `...` pass any other arguments on to `.fun`, which is
+#'   only of use for a `.fun` without `...` of its own.
 #'
 #' @include function-factory-helpers.R
 #'
@@ -225,6 +228,24 @@ function_map_seq <- function(
   # every call, as an argument or as a column of `data`:
   helper_formals <- formals(.fun)[args_helper_fun]
 
+  # The settings of `.fun`, such as `rounding`, are arguments of the sequence
+  # mapper as well, again with `.fun`'s defaults. A disabled one stays in the
+  # dots, where `check_args_disabled()` catches it:
+  setting_formals <- formals_settings(
+    .fun,
+    exclude = c(
+      args_helper_fun,
+      .args_disabled,
+      "var",
+      "dispersion",
+      "out_min",
+      "out_max",
+      "include_reported",
+      "include_consistent"
+    )
+  )
+  args_setting_fun <- names(setting_formals)
+
   # An `n` key column holds whole numbers, so coerce it to integer for better
   # display. Only if there is one, though:
   code_bind_cols <- if (any(.reported == "n")) {
@@ -262,6 +283,7 @@ function_map_seq <- function(
       # After the key arguments, as in `function_map()`:
       ... = ,
       !!!helper_formals,
+      !!!setting_formals,
       var = .var,
       dispersion = .dispersion,
       out_min = .out_min,
@@ -277,6 +299,15 @@ function_map_seq <- function(
       for (arg_helper in `!!`(args_helper_fun)) {
         if (!eval(call("missing", as.name(arg_helper)))) {
           helper_vals[arg_helper] <- list(get(arg_helper))
+        }
+      }
+
+      # The same for the settings. One that was not given is left out, so that
+      # `fun()` applies its own default, which is the same:
+      setting_vals <- list()
+      for (arg_setting in `!!`(args_setting_fun)) {
+        if (!eval(call("missing", as.name(arg_setting)))) {
+          setting_vals[arg_setting] <- list(get(arg_setting))
         }
       }
 
@@ -343,7 +374,10 @@ function_map_seq <- function(
       # First, basic testing with the `*_map()` function. What it records about
       # the call, such as `rounding` with defaults resolved, applies to the
       # re-tests below as well, so it is passed on to the output:
-      data <- do.call(fun, c(list(data), digits_vals, helper_vals, list(...)))
+      data <- do.call(
+        fun,
+        c(list(data), digits_vals, helper_vals, setting_vals, list(...))
+      )
       meta_fun <- scrutiny_meta(data)
 
       # Everything below reads the key result column off `fun()`'s output by
@@ -397,7 +431,7 @@ function_map_seq <- function(
       # arguments such as `items_averaged` are not among them: the initial
       # `fun()` call above returned them as columns, which the re-tests read
       # them from:
-      fun_args <- c(digits_vals, list(...))
+      fun_args <- c(digits_vals, setting_vals, list(...))
 
       # Apply the lower-level function to every `var` and every case in `data`.
       # `out_min` and `out_max` are resolved per variable, since the dispersed

@@ -392,7 +392,7 @@ test_that("`formula = \"mean_n\"` accepts SDs no binary sample has", {
 test_that("`formula` other than \"exact\" or \"mean_n\" is an error", {
   0.35 |>
     debit(0.48, 100, digits_x = 2, digits_sd = 2, formula = "0_n") |>
-    expect_error("must be \"exact\" or \"mean_n\"")
+    expect_error("must be one of")
 })
 
 

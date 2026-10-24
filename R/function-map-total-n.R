@@ -221,7 +221,10 @@ function_map_total_n_proto <- function(
 #'   | [`grimmer_map_total_n()`]        | `"x"`, `"sd"`                 | `vignette("grimmer")`
 #'   | [`debit_map_total_n()`]          | `"x"`, `"sd"`                 | `vignette("debit")`
 #'
-#'   It has `...` to pass arguments on to `.fun`.
+#'   The settings of `.fun`, i.e., its arguments after `...`, such as
+#'   `rounding`, are arguments of this function as well, with the same
+#'   defaults. Its `...` pass any other arguments on to `.fun`, which is
+#'   only of use for a `.fun` without `...` of its own.
 #'
 #' @section Conventions: Name the factory-made function after `.fun` with
 #'   `_total_n` appended, as in [`grim_map_total_n()`] from [`grim_map()`]. If
@@ -303,6 +306,20 @@ function_map_total_n <- function(
   args_helper_fun <- attr(.fun, "scrutiny_args_helper", exact = TRUE)
   helper_formals <- formals(.fun)[args_helper_fun]
 
+  # And for the settings of `.fun`, such as `rounding`, as in
+  # `function_map_seq()`:
+  setting_formals <- formals_settings(
+    .fun,
+    exclude = c(
+      args_helper_fun,
+      "dispersion",
+      "n_min",
+      "n_max",
+      "constant"
+    )
+  )
+  args_setting_fun <- names(setting_formals)
+
   # --- Start of the manufactured function, `fn_out()` ---
 
   fn_out <- rlang::new_function(
@@ -312,6 +329,7 @@ function_map_total_n <- function(
       # After the key arguments, as in `function_map()`:
       ... = ,
       !!!helper_formals,
+      !!!setting_formals,
       dispersion = .dispersion,
       n_min = .n_min,
       n_max = .n_max,
@@ -325,6 +343,15 @@ function_map_total_n <- function(
       for (arg_helper in `!!`(args_helper_fun)) {
         if (!eval(call("missing", as.name(arg_helper)))) {
           helper_vals[arg_helper] <- list(get(arg_helper))
+        }
+      }
+
+      # The same for the settings. One that was not given is left out, so that
+      # `fun()` applies its own default, which is the same:
+      setting_vals <- list()
+      for (arg_setting in `!!`(args_setting_fun)) {
+        if (!eval(call("missing", as.name(arg_setting)))) {
+          setting_vals[arg_setting] <- list(get(arg_setting))
         }
       }
 
@@ -384,7 +411,7 @@ function_map_total_n <- function(
           digits_vals[arg_digits] <- list(get(arg_digits))
         }
       }
-      fun_args <- c(digits_vals, helper_vals, list(...))
+      fun_args <- c(digits_vals, helper_vals, setting_vals, list(...))
 
       # The usual key argument check conducted by
       # `check_mapper_input_colnames()` is not applicable to `data`, so the

@@ -124,6 +124,34 @@ check_factory_key_args_names <- function(
 }
 
 
+# The settings of a mapper `fun`, such as `rounding`: its formals after the
+# dots, minus those named in `exclude`. `function_map_seq()` and
+# `function_map_total_n()` copy them, with `fun`'s defaults, so that they are
+# arguments of the mappers they create, as in `function_map()`. Through the
+# dots, they were invisible to `formals()`, tab completion, and the help page.
+# A `fun` without dots has no settings to copy, and keeps getting them through
+# the dots.
+formals_settings <- function(fun, exclude) {
+  formals_fun <- formals(fun)
+  index_dots <- match("...", names(formals_fun))
+  if (is.na(index_dots)) {
+    return(list())
+  }
+  formals_after <- formals_fun[-seq_len(index_dots)]
+  formals_after[setdiff(names(formals_after), exclude)]
+}
+
+
+# Is a formal's default a set of strings, as in `sd_type = c("sample",
+# "population", "either")`? See `function_map()`.
+is_enum_default <- function(default) {
+  is.call(default) &&
+    identical(default[[1L]], as.name("c")) &&
+    length(default) > 2L &&
+    all(vapply(as.list(default)[-1L], is.character, logical(1L)))
+}
+
+
 #' Check that no dots argument is misspelled
 #'
 #' `check_factory_dots()` is called within the mapper functions made by
@@ -616,8 +644,11 @@ check_args_disabled <- function(args_disabled) {
   is_given <- vapply(
     args_disabled,
     function(arg) {
-      arg %in% names_dots ||
-        (arg %in% names_formals && !eval(call("missing", as.name(arg)), env_caller))
+      arg %in%
+        names_dots ||
+        (arg %in%
+          names_formals &&
+          !eval(call("missing", as.name(arg)), env_caller))
     },
     logical(1L),
     USE.NAMES = FALSE

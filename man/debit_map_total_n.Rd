@@ -14,6 +14,11 @@ debit_map_total_n(
   sd2 = NULL,
   n = NULL,
   ...,
+  formula = c("exact", "mean_n"),
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE,
+  sd_type = c("sample", "population", "either"),
   dispersion = 0:5,
   n_min = 2L,
   n_max = NULL,
@@ -34,7 +39,11 @@ groups, or two numbers, one per group.}
 \item{x1, x2, sd1, sd2, n}{Optionally, the names of the columns in \code{data} that
 contain these values, if they differ from the defaults.}
 
-\item{...}{Arguments passed on to \code{\link[=debit_map]{debit_map()}}.}
+\item{...}{These dots must be empty. Every argument after them must be
+named in full.}
+
+\item{formula, rounding, threshold, symmetric, sd_type}{Passed on to
+\code{\link[=debit]{debit()}}.}
 
 \item{dispersion}{Numeric. Steps up and down from half the total \code{n}.
 Default is \code{0:5}, i.e., the even split and five steps away from it.}

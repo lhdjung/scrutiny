@@ -51,7 +51,10 @@ A function such as these:\tabular{lll}{
 }
 
 
-It has \code{...} to pass arguments on to \code{.fun}.
+The settings of \code{.fun}, i.e., its arguments after \code{...}, such as
+\code{rounding}, are arguments of this function as well, with the same
+defaults. Its \code{...} pass any other arguments on to \code{.fun}, which is
+only of use for a \code{.fun} without \code{...} of its own.
 }
 \description{
 \code{function_map_total_n()} creates a total-n mapper from a basic

@@ -301,3 +301,37 @@ test_that("`is_decidable_n_items()` recycles like the vector path", {
   28          |> is_decidable_n_items(c(1, 1.5)) |> expect_identical(c(TRUE, FALSE))
   numeric(0)  |> is_decidable_n_items(1)         |> expect_identical(logical(0))
 })
+
+
+test_that("every `sd_type` and `formula` default spells out its constant", {
+  # The scalar functions check against `SD_TYPES` and `DEBIT_FORMULAS`, so a
+  # default that lists other values would offer choices that fail:
+  constants <- list(sd_type = SD_TYPES, formula = DEBIT_FORMULAS)
+  ns <- asNamespace("scrutiny")
+  n_checked <- 0L
+  for (name in ls(ns)) {
+    fun <- get(name, envir = ns)
+    if (!is.function(fun)) {
+      next
+    }
+    defaults <- formals(fun)
+    for (arg in intersect(names(defaults), names(constants))) {
+      # Internal helpers take a single, resolved value, or one with no default:
+      if (identical(defaults[[arg]], quote(expr = )) || is.character(defaults[[arg]])) {
+        next
+      }
+      defaults[[arg]] |> eval() |> expect_equal(constants[[arg]], info = paste0(name, "(", arg, ")"))
+      n_checked <- n_checked + 1L
+    }
+  }
+  # `sd_type` in the scalar, vectorized, and explain functions of GRIMMER and
+  # DEBIT, `grimmer_plot_values()`, and all six mappers; `formula` in DEBIT's
+  # three functions and three mappers:
+  n_checked |> expect_equal(19L)
+})
+
+test_that("a mapper records an enum setting it was not given as its first value", {
+  out <- tibble::tibble(x = 0.30, sd = 0.46, n = 10) |> debit_map(digits_x = 2, digits_sd = 2)
+  out |> scrutiny_meta() |> _$args$sd_type |> expect_equal("sample")
+  out |> scrutiny_meta() |> _$args$formula |> expect_equal("exact")
+})

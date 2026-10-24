@@ -26,7 +26,8 @@
 #' @param show_rec Logical. If `TRUE`, the reconstructed numbers are returned
 #'   as columns; see *Reconstructed numbers*. Default is `FALSE`.
 #' @param rounding,threshold,symmetric,tolerance Passed on to [`grim()`].
-#' @param ... Further arguments passed on to [`grim()`].
+#' @param ... These dots must be empty. Every argument after them must be
+#'   named in full.
 #'
 #' @return A tibble with these columns:
 #' - `x`, `n`: the inputs.

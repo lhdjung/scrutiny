@@ -17,7 +17,8 @@
 #' @param absolute,percentage,n Optionally, the names of the columns in `data`
 #'   that contain these values, if they differ from the defaults.
 #' @param rounding,threshold,symmetric The same as in [`grim()`].
-#' @param ... Further arguments passed on to [`is_percentage_of()`].
+#' @param ... These dots must be empty. Every argument after them must be
+#'   named in full.
 #'
 #' @return A tibble with the columns `absolute`, `percentage`, `n`,
 #'   `digits_percentage`, `consistency`, and any other columns from `data`. It

@@ -16,7 +16,8 @@ as \code{starts_with("n_")}. There is no default.}
 \item{total}{Optionally, the name of the column in \code{data} that contains the
 totals, if it differs from the default.}
 
-\item{...}{These dots must be empty.}
+\item{...}{These dots must be empty. Every argument after them must be
+named in full.}
 }
 \value{
 A tibble with the \code{summands} columns, \code{total}, \code{consistency}, and

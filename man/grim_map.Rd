@@ -31,7 +31,8 @@ one number per row of \code{data}.}
 \item{x, n}{Optionally, the names of the columns in \code{data} that contain these
 values, if they differ from the defaults.}
 
-\item{...}{Further arguments passed on to \code{\link[=grim]{grim()}}.}
+\item{...}{These dots must be empty. Every argument after them must be
+named in full.}
 
 \item{items_averaged}{Integer. As in \code{\link[=grim]{grim()}}: the number of items
 averaged into each score, not the number of scale points. Give it as an

@@ -16,7 +16,7 @@ grimmer_map(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  sd_type = "sample",
+  sd_type = c("sample", "population", "either"),
   tolerance = lifecycle::deprecated()
 )
 }
@@ -32,7 +32,8 @@ whole column or one number per row of \code{data}.}
 \item{x, sd, n}{Optionally, the names of the columns in \code{data} that contain
 these values, if they differ from the defaults.}
 
-\item{...}{Further arguments passed on to \code{\link[=grimmer]{grimmer()}}.}
+\item{...}{These dots must be empty. Every argument after them must be
+named in full.}
 
 \item{items_averaged}{Integer. As in \code{\link[=grim_map]{grim_map()}}, for \code{x} and \code{sd}.}
 

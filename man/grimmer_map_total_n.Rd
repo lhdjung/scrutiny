@@ -15,6 +15,11 @@ grimmer_map_total_n(
   n = NULL,
   ...,
   items_averaged,
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE,
+  sd_type = c("sample", "population", "either"),
+  tolerance = lifecycle::deprecated(),
   dispersion = 0:5,
   n_min = 2L,
   n_max = NULL,
@@ -35,11 +40,15 @@ groups, or two numbers, one per group.}
 \item{x1, x2, sd1, sd2, n}{Optionally, the names of the columns in \code{data} that
 contain these values, if they differ from the defaults.}
 
-\item{...}{Arguments passed on to \code{\link[=grimmer_map]{grimmer_map()}}.}
+\item{...}{These dots must be empty. Every argument after them must be
+named in full.}
 
 \item{items_averaged}{Integer. As in \code{\link[=grimmer_map]{grimmer_map()}}: the number of items
 averaged into each score, given as an argument or as a column of \code{data}.
 There is no default.}
+
+\item{rounding, threshold, symmetric, sd_type, tolerance}{Passed on to
+\code{\link[=grimmer]{grimmer()}}.}
 
 \item{dispersion}{Numeric. Steps up and down from half the total \code{n}.
 Default is \code{0:5}, i.e., the even split and five steps away from it.}

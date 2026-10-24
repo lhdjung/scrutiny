@@ -28,7 +28,8 @@ number for the whole column or one number per row of \code{data}.}
 \item{absolute, percentage, n}{Optionally, the names of the columns in \code{data}
 that contain these values, if they differ from the defaults.}
 
-\item{...}{Further arguments passed on to \code{\link[=is_percentage_of]{is_percentage_of()}}.}
+\item{...}{These dots must be empty. Every argument after them must be
+named in full.}
 
 \item{rounding, threshold, symmetric}{The same as in \code{\link[=grim]{grim()}}.}
 }

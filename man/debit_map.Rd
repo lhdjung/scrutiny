@@ -12,11 +12,11 @@ debit_map(
   sd = NULL,
   n = NULL,
   ...,
-  formula = "exact",
+  formula = c("exact", "mean_n"),
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  sd_type = "sample"
+  sd_type = c("sample", "population", "either")
 )
 }
 \arguments{
@@ -31,7 +31,8 @@ whole column or one number per row of \code{data}.}
 \item{x, sd, n}{Optionally, the names of the columns in \code{data} that contain
 these values, if they differ from the defaults.}
 
-\item{...}{Further arguments passed on to \code{\link[=debit]{debit()}}.}
+\item{...}{These dots must be empty. Every argument after them must be
+named in full.}
 
 \item{formula, rounding, threshold, symmetric, sd_type}{Passed on to
 \code{\link[=debit]{debit()}}.}

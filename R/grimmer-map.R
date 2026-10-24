@@ -17,7 +17,8 @@
 #' @param items_averaged Integer. As in [`grim_map()`], for `x` and `sd`.
 #' @param rounding,threshold,symmetric,sd_type,tolerance Passed on to
 #'   [`grimmer()`].
-#' @param ... Further arguments passed on to [`grimmer()`].
+#' @param ... These dots must be empty. Every argument after them must be
+#'   named in full.
 #'
 #' @return A tibble with these columns:
 #' - `x`, `sd`, `n`: the inputs.

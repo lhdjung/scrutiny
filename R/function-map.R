@@ -282,6 +282,7 @@ function_map <- function(
     "args_const",
     "args_fixed",
     "args_required",
+    "args_enum",
     "col_names",
     "cols_derived_funs",
     "add_class",
@@ -309,6 +310,17 @@ function_map <- function(
   args_by_row <- intersect(args_promoted, .args_by_row)
   args_helper <- intersect(args_promoted, .cols_helper)
   args_const <- setdiff(args_promoted, c(args_by_row, args_helper))
+
+  # Settings whose default is a set of strings, such as `sd_type`. A call that
+  # leaves one out gets the first of them, as `rlang::arg_match()` in the test
+  # function would resolve it anyway. Resolving it here is what records the
+  # value itself, not the whole set, in the "scrutiny" attribute:
+  args_enum <- args_const[vapply(
+    formals_promoted[args_const],
+    is_enum_default,
+    logical(1L),
+    USE.NAMES = FALSE
+  )]
 
   # The by-row arguments -- in practice the `digits_*` ones -- come first, right
   # after `data`: they have no defaults, so they belong next to the other
@@ -426,6 +438,7 @@ function_map <- function(
       args_const <- `!!`(args_const)
       args_fixed <- `!!`(.args_fixed)
       args_required <- `!!`(args_required)
+      args_enum <- `!!`(args_enum)
       col_names <- `!!`(.col_names)
       cols_derived_funs <- `!!`(.cols_derived)
 
@@ -457,6 +470,14 @@ function_map <- function(
       cols_variadic <- list()
       names_variadic <- character(0L)
       `!!!`(code_variadic)
+
+      # A set of strings left at its default is the first of them; see
+      # `args_enum` above. Before the length check, which would see the set:
+      for (arg in args_enum) {
+        if (eval(call("missing", as.name(arg)))) {
+          assign(arg, get(arg)[[1L]])
+        }
+      }
 
       `!!!`(code_check_lengths)
 

@@ -12,6 +12,11 @@ debit_map_seq(
   sd = NULL,
   n = NULL,
   ...,
+  formula = c("exact", "mean_n"),
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE,
+  sd_type = c("sample", "population", "either"),
   var = c("x", "sd", "n"),
   dispersion = 1:5,
   out_min = "auto",
@@ -31,7 +36,11 @@ sizes for dispersing \code{x} and \code{sd}.}
 \item{x, sd, n}{Optionally, the names of the columns in \code{data} that contain
 these values, if they differ from the defaults.}
 
-\item{...}{Arguments passed on to \code{\link[=debit_map]{debit_map()}}.}
+\item{...}{These dots must be empty. Every argument after them must be
+named in full.}
+
+\item{formula, rounding, threshold, symmetric, sd_type}{Passed on to
+\code{\link[=debit]{debit()}}.}
 
 \item{var}{String. The variables to disperse. Default is
 \code{c("x", "sd", "n")}.}

@@ -326,21 +326,17 @@ debit_scalar <- function(
   n,
   digits_x,
   digits_sd,
-  formula = "exact",
+  formula = c("exact", "mean_n"),
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  sd_type = "sample",
+  sd_type = c("sample", "population", "either"),
   show_rec = FALSE
 ) {
-  # A plain comparison rather than `rlang::arg_match()`, which would cost more
-  # than the rest of the input checks on every row:
-  if (!identical(formula, "exact") && !identical(formula, "mean_n")) {
-    abort_in_export(
-      "`formula` must be \"exact\" or \"mean_n\".",
-      "x" = "It is {wrong_spec_string(formula)}."
-    )
-  }
+  # `arg_match_in_export()` returns at once for a valid string or the default,
+  # which matters here: this runs once per row. The constants are the defaults:
+  formula <- arg_match_in_export(formula, DEBIT_FORMULAS)
+  sd_type <- arg_match_in_export(sd_type, SD_TYPES)
 
   # See `grim_scalar()`:
   if (!is.numeric(n) && !is.na(n)) {
@@ -363,10 +359,6 @@ debit_scalar <- function(
 
   # Check whether `x` and `sd` range from 0 to 1:
   check_debit_inputs_all(x, sd)
-
-  # `arg_match_in_export()` returns at once for a valid string, which matters
-  # here: this runs once per row.
-  sd_type <- arg_match_in_export(sd_type, SD_TYPES)
 
   # As in `grimmer_sd_either()`, the verdict is the population SD's unless the
   # sample SD passes. The bounds and sums of `show_rec` don't depend on
@@ -544,11 +536,11 @@ debit <- function(
   n,
   digits_x,
   digits_sd,
-  formula = "exact",
+  formula = c("exact", "mean_n"),
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  sd_type = "sample"
+  sd_type = c("sample", "population", "either")
 ) {
   vectorize_test(
     fun = debit_scalar,

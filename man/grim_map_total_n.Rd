@@ -12,6 +12,12 @@ grim_map_total_n(
   n = NULL,
   ...,
   items_averaged,
+  percent = FALSE,
+  show_rec = FALSE,
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE,
+  tolerance = lifecycle::deprecated(),
   dispersion = 0:5,
   n_min = 1L,
   n_max = NULL,
@@ -31,11 +37,21 @@ or two numbers, one for \code{x1} and one for \code{x2}.}
 \item{x1, x2, n}{Optionally, the names of the columns in \code{data} that contain
 these values, if they differ from the defaults.}
 
-\item{...}{Arguments passed on to \code{\link[=grim_map]{grim_map()}}.}
+\item{...}{These dots must be empty. Every argument after them must be
+named in full.}
 
 \item{items_averaged}{Integer. As in \code{\link[=grim_map]{grim_map()}}: the number of items
 averaged into each score, given as an argument or as a column of \code{data}.
 There is no default.}
+
+\item{percent}{Logical. If \code{TRUE}, the \code{x} values are percentages: they are
+divided by 100 and tested with two more decimal places. Default is
+\code{FALSE}.}
+
+\item{show_rec}{Logical. If \code{TRUE}, the reconstructed numbers are returned
+as columns; see \emph{Reconstructed numbers}. Default is \code{FALSE}.}
+
+\item{rounding, threshold, symmetric, tolerance}{Passed on to \code{\link[=grim]{grim()}}.}
 
 \item{dispersion}{Numeric. Steps up and down from half the total \code{n}.
 Default is \code{0:5}, i.e., the even split and five steps away from it.}

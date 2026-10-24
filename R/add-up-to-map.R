@@ -14,7 +14,8 @@
 #'   as `starts_with("n_")`. There is no default.
 #' @param total Optionally, the name of the column in `data` that contains the
 #'   totals, if it differs from the default.
-#' @param ... These dots must be empty.
+#' @param ... These dots must be empty. Every argument after them must be
+#'   named in full.
 #'
 #' @return A tibble with the `summands` columns, `total`, `consistency`, and
 #'   any other columns from `data`. It has the class `scrutiny_add_up_to_map`,

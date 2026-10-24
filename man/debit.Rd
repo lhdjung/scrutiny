@@ -10,11 +10,11 @@ debit(
   n,
   digits_x,
   digits_sd,
-  formula = "exact",
+  formula = c("exact", "mean_n"),
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  sd_type = "sample"
+  sd_type = c("sample", "population", "either")
 )
 }
 \arguments{

@@ -44,11 +44,12 @@ grimmer_explain <- function(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  sd_type = "sample"
+  sd_type = c("sample", "population", "either")
 ) {
   check_length(x, 1L)
   check_length(sd, 1L)
   check_length(n, 1L)
+  sd_type <- arg_match_in_export(sd_type, SD_TYPES)
   if (missing(items_averaged)) {
     error_items_missing()
   }

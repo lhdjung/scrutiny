@@ -27,13 +27,16 @@ debit_explain <- function(
   n,
   digits_x,
   digits_sd,
-  formula = "exact",
+  formula = c("exact", "mean_n"),
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  sd_type = "sample"
+  sd_type = c("sample", "population", "either")
 ) {
-  if (!identical(formula, "exact")) {
+  formula <- arg_match_in_export(formula, DEBIT_FORMULAS)
+  sd_type <- arg_match_in_export(sd_type, SD_TYPES)
+
+  if (formula != "exact") {
     abort_in_export(
       "Explanations only cover DEBIT's default `formula = \"exact\"`.",
       "x" = "`formula` is {.val {formula}}."

@@ -266,3 +266,37 @@ test_that("`constant` values stay with their groups in both directions", {
   out_list <- tibble::tibble(x1 = 3.43, x2 = 5.28, n = 90) |> grim_map_total_n(digits_x = 2, items_averaged = 1, dispersion = 0:1, constant = list(group = c("ctrl", "treat")))
   out_list$group[out_list$x == 5.28] |> unique() |> expect_equal("treat")
 })
+
+
+test_that("sequence and total-n mappers take the settings of their basic mapper as arguments", {
+  # They used to go through the dots, invisible to `formals()` and the help
+  # page. Only `items_averaged`, a helper, is not a setting:
+  pairs <- list(
+    list(grim_map,             grim_map_seq),
+    list(grimmer_map,          grimmer_map_seq),
+    list(debit_map,            debit_map_seq),
+    list(is_percentage_of_map, is_percentage_of_map_seq),
+    list(grim_map,             grim_map_total_n),
+    list(grimmer_map,          grimmer_map_total_n),
+    list(debit_map,            debit_map_total_n)
+  )
+  for (pair in pairs) {
+    settings <- pair[[1L]] |> formals_settings(exclude = "items_averaged")
+    settings |> length() |> expect_gt(2L)
+    formals(pair[[2L]])[names(settings)] |> expect_equal(settings)
+  }
+})
+
+test_that("a promoted setting reaches the test only if it was given", {
+  out <- pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, rounding = "up")
+  out |> scrutiny_meta() |> _$fun_args |> expect_equal(list(digits_x = 2, rounding = "up"))
+  out |> scrutiny_meta() |> _$args$rounding |> expect_equal("up")
+
+  total <- tibble::tibble(x1 = 0.30, x2 = 0.30, sd1 = 0.46, sd2 = 0.46, n = 20)
+  total |> debit_map_total_n(digits_x = 2, digits_sd = 2, formula = "mean_n") |> scrutiny_meta() |> _$args$formula |> expect_equal("mean_n")
+  total |> debit_map_total_n(digits_x = 2, digits_sd = 2)                     |> scrutiny_meta() |> _$args$formula |> expect_equal("exact")
+
+  # A deprecated setting still warns, naming the sequence mapper. Under
+  # testthat, it warns for every re-test, too:
+  pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, tolerance = 0.1) |> expect_warning("`grim_map_seq()` is deprecated", fixed = TRUE) |> suppressWarnings()
+})

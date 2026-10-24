@@ -11,6 +11,9 @@ is_percentage_of_map_seq(
   percentage = NULL,
   n = NULL,
   ...,
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE,
   var = c("absolute", "percentage", "n"),
   dispersion = 1:5,
   out_min = "auto",
@@ -30,7 +33,10 @@ number for the whole column or one number per row of \code{data}.}
 \item{absolute, percentage, n}{Optionally, the names of the columns in \code{data}
 that contain these values, if they differ from the defaults.}
 
-\item{...}{Arguments passed on to \code{\link[=is_percentage_of_map]{is_percentage_of_map()}}.}
+\item{...}{These dots must be empty. Every argument after them must be
+named in full.}
+
+\item{rounding, threshold, symmetric}{The same as in \code{\link[=grim]{grim()}}.}
 
 \item{var}{String. The variables to disperse. Default is
 \code{c("absolute", "percentage", "n")}.}

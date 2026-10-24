@@ -70,8 +70,15 @@ TIES_METHODS <- list(
 
 # The values of `sd_type` in GRIMMER and DEBIT: which SD was reported, the
 # sample SD that divides by `n - 1` or the population SD that divides by `n`
-# (#95). `"either"` accepts a value set that passes under one or the other.
+# (#95). `"either"` accepts a value set that passes under one or the other. And
+# the values of DEBIT's `formula`.
+#
+# Every function with one of these arguments spells the values out as its
+# default, so that they show in its usage. The `*_scalar()` functions check
+# against the constants, which is cheaper than reading their own formals once
+# per row. A test in test-utils.R requires every default to equal its constant.
 SD_TYPES <- c("sample", "population", "either")
+DEBIT_FORMULAS <- c("exact", "mean_n")
 
 
 # The strings that `as.numeric()` reads as an infinity or `NaN`, once their

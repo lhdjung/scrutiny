@@ -20,7 +20,9 @@
 #'   `"auto"`, which keeps `n` at 2 or above and `x` and `sd` between 0 and 1.
 #'   A number applies to every dispersed variable, and `NULL` removes the
 #'   limit.
-#' @param ... Arguments passed on to [`debit_map()`].
+#' @param ... These dots must be empty. Every argument after them must be
+#'   named in full.
+#' @inheritParams debit_map
 #' @inheritParams grim_map_seq
 #'
 #' @return A tibble with the columns of [`debit_map()`] output plus

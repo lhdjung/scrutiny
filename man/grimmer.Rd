@@ -15,7 +15,7 @@ grimmer(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  sd_type = "sample",
+  sd_type = c("sample", "population", "either"),
   tolerance = lifecycle::deprecated()
 )
 }

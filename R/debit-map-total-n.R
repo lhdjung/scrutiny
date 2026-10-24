@@ -20,7 +20,9 @@
 #' @param n_min Numeric. Minimal group size. Default is 2: a sample SD divides by
 #'   `n - 1`, so a group of 1 has no test result. A population SD has one, so
 #'   `n_min = 1` is useful with `sd_type = "population"` or `"either"`.
-#' @param ... Arguments passed on to [`debit_map()`].
+#' @param ... These dots must be empty. Every argument after them must be
+#'   named in full.
+#' @inheritParams debit_map
 #' @inheritParams grim_map_total_n
 #'
 #' @include debit-map.R function-map-total-n.R

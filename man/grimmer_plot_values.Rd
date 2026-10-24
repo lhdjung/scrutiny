@@ -14,7 +14,7 @@ grimmer_plot_values(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  sd_type = "sample",
+  sd_type = c("sample", "population", "either"),
   color_cons = "#2f7d74",
   color_incons = "#d9d4ca",
   color_reported = "#c1522e"

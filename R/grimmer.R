@@ -171,7 +171,7 @@ grimmer_scalar <- function(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  sd_type = "sample",
+  sd_type = c("sample", "population", "either"),
   tolerance = lifecycle::deprecated()
 ) {
   # GRIMMER decides in exact integer arithmetic, like GRIM: see test 2 below.
@@ -209,8 +209,8 @@ grimmer_scalar <- function(
   check_newly_numeric(x, digits_x)
   check_newly_numeric(sd, digits_sd)
 
-  # `arg_match_in_export()` returns at once for a valid string, which matters
-  # here: this runs once per row.
+  # `arg_match_in_export()` returns at once for a valid string or the default,
+  # which matters here: this runs once per row. `SD_TYPES` is the default:
   sd_type <- arg_match_in_export(sd_type, SD_TYPES)
 
   if (sd_type == "either") {
@@ -542,7 +542,7 @@ grimmer <- function(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  sd_type = "sample",
+  sd_type = c("sample", "population", "either"),
   tolerance = lifecycle::deprecated()
 ) {
   vectorize_test(

@@ -27,7 +27,9 @@
 #' @param items_averaged Integer. As in [`grim_map()`]: the number of items
 #'   averaged into each score, given as an argument or as a column of `data`.
 #'   There is no default.
-#' @param ... Arguments passed on to [`grim_map()`].
+#' @param ... These dots must be empty. Every argument after them must be
+#'   named in full.
+#' @inheritParams grim_map
 #'
 #' @return A tibble with the columns of [`grim_map()`] output plus `diff_var`,
 #'   the number of steps between the tested value and the reported one; `case`,

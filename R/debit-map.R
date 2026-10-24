@@ -16,7 +16,8 @@
 #'   these values, if they differ from the defaults.
 #' @param formula,rounding,threshold,symmetric,sd_type Passed on to
 #'   [`debit()`].
-#' @param ... Further arguments passed on to [`debit()`].
+#' @param ... These dots must be empty. Every argument after them must be
+#'   named in full.
 #'
 #' @importFrom rlang .data
 #'

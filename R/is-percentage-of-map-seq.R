@@ -16,7 +16,8 @@
 #'   `"auto"`, which keeps `absolute` and `percentage` at 0 or above and `n`
 #'   at 1 or above. A number applies to every dispersed variable, and `NULL`
 #'   removes the limit.
-#' @param ... Arguments passed on to [`is_percentage_of_map()`].
+#' @param ... These dots must be empty. Every argument after them must be
+#'   named in full.
 #' @inheritParams is_percentage_of_map
 #' @inheritParams grim_map_seq
 #'
