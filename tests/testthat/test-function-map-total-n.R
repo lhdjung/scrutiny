@@ -301,4 +301,8 @@ test_that("an error names the row of `data`, not of the scenarios", {
   tibble::tibble(x1 = c(3.8, 4.5, 3.1), x2 = c(3.7, 4.56, 2.1), n = c(30, 40, 20)) |>
     grim_map_total_n(digits_x = 1, items_averaged = 1) |>
     expect_error("In row 2 of `data`", fixed = TRUE)
+  # The first scenario is tested on its own, before all others:
+  tibble::tibble(x1 = c(4.5, 3.8), x2 = c(4.56, 3.7), n = c(40, 30)) |>
+    grim_map_total_n(digits_x = 1, items_averaged = 1) |>
+    expect_error("In row 1 of `data`", fixed = TRUE)
 })

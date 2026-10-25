@@ -308,11 +308,26 @@ check_grim_map_basic <- function(data) {
 # that a total-n mapper can name the row of its own `data` instead. An error
 # not made by rlang has no body to add to, so it propagates as it is:
 rethrow_row_error <- function(cnd) {
-  error <- cnd$parent
+  signal_in_row(cnd$parent, cnd$location)
+}
+
+signal_in_row <- function(error, row) {
   if (!inherits(error, "rlang_error")) {
     return()
   }
-  error$scrutiny_row <- cnd$location
-  error$body <- c(error$body, "i" = paste0("In row ", cnd$location, " of `data`."))
+  error$scrutiny_row <- row
+  error$body <- c(error$body, "i" = paste0("In row ", row, " of `data`."))
   rlang::cnd_signal(error)
+}
+
+# Does `test_row(row)` run without an error? Its warnings are not muffled, for
+# the reason given in `function_map()`:
+passes_row <- function(test_row, row) {
+  tryCatch(
+    {
+      test_row(row)
+      TRUE
+    },
+    error = function(cnd) FALSE
+  )
 }

@@ -583,10 +583,22 @@ function_map <- function(
       # then lost for good: `lifecycle::deprecate_warn()` records that it has
       # warned before the muffle discards the warning, so a deprecated argument
       # went through in complete silence.
+      #
+      # An error here names row 1 only if row 2 passes, since an error about
+      # the arguments fails on every row and is not about row 1:
       if (nrow(data) > 0L) {
-        row_first <- cols_tested |>
-          lapply(function(x) x[[1L]])
-        do.call(fun, c(row_first, args_const_vals, args_fixed, list(...))) |>
+        test_row <- function(row) {
+          row_values <- lapply(cols_tested, function(x) x[[row]])
+          do.call(fun, c(row_values, args_const_vals, args_fixed, list(...)))
+        }
+        withCallingHandlers(
+          test_row(1L),
+          error = function(cnd) {
+            if (nrow(data) > 1L && passes_row(test_row, 2L)) {
+              signal_in_row(cnd, 1L)
+            }
+          }
+        ) |>
           check_fun_result(`!!`(fun_name))
       }
 

@@ -959,3 +959,12 @@ test_that("an error in a later row names that row, not purrr's index", {
   tibble::tibble(x = c(5.19, 5.123), n = c(28, 30)) |> grim_map(digits_x = 2, items_averaged = 1) |> expect_error("In row 2 of `data`", fixed = TRUE)
   tibble::tibble(x = c(5.19, 5.123), n = c(28, 30)) |> grim_map(digits_x = 2, items_averaged = 1) |> expect_error(class = "rlang_error") |> class() |> expect_no_match("purrr_error_indexed")
 })
+
+test_that("an error in row 1 names it only if it is about that row", {
+  # Row 2 passes, so the error is about row 1:
+  tibble::tibble(x = c(5.123, 5.19), n = c(30, 28)) |> grim_map(digits_x = 2, items_averaged = 1) |> expect_error("In row 1 of `data`", fixed = TRUE)
+  # An error about the arguments fails on every row:
+  df <- tibble::tibble(x = c(5.19, 5.18), n = 28)
+  df |> grim_map(items_averaged = 1)                                    |> expect_error(class = "rlang_error") |> conditionMessage() |> expect_no_match("In row", fixed = TRUE)
+  df |> grim_map(digits_x = 2, items_averaged = 1, rounding = "nope")   |> expect_error(class = "rlang_error") |> conditionMessage() |> expect_no_match("In row", fixed = TRUE)
+})
