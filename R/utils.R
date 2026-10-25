@@ -47,9 +47,6 @@ utils::globalVariables(c(
   "include_consistent",
   "n_min",
   "n_max",
-  # Added for `function_duplicate_cols()`, which uses `rlang::new_function()`:
-  "colname_end",
-  "ignore",
   # Added for `write_code_col_key_result()`:
   "!!<-"
 ))
