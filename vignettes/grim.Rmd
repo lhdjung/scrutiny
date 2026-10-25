@@ -39,7 +39,7 @@ grim(x = 5.27, n = 43, digits_x = 2, items_averaged = 1)
 
 `digits_x` is the number of decimal places that the mean was reported with. There is no default because the number cannot be inferred from the value: a mean reported as 5.30 is stored as `5.3`, and the trailing zero is lost. The test result depends on the number of decimal places, so it must be specified.
 
-`items_averaged` is the number of items averaged into each respondent's score. It has no default either: GRIM's verdict depends on it, so every call states it. Use 1 for a single item or a percentage; see *Scale items* below.
+`items_averaged` is the number of items averaged into each respondent's score. It has no default either: GRIM's verdict depends on it, so every call states it. Use 1 for a single item or the percentage of participants with some answer; see *Scale items* and *Percentages* below.
 
 `grim()` is vectorized, but for more than a few cases, `grim_map()` is more convenient. The remaining arguments are discussed in that context.
 
@@ -124,6 +124,8 @@ jpap_3 |>
 ```
 
 This makes GRIM considerably more powerful for percentages than for means with the same number of decimal places.
+
+A percentage can average several items, too. The average percent correct on a test of `k` questions is a multiple of $1 / (n \cdot k)$, as is a pooled proportion of successes over `k` trials per participant. Set `items_averaged = k` in such cases.
 
 ### Reconstructed values
 

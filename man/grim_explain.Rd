@@ -25,8 +25,10 @@ trailing zeros. There is no default, since a numeric value does not
 keep them (\code{1.40} is \code{1.4}).}
 
 \item{items_averaged}{Integer. The number of items averaged into each
-respondent's score: 1 for a single item or a percentage, 4 for the mean of
-a four-item scale. Not the number of scale points. There is no default.}
+respondent's score: 1 for a single item or the percentage of participants
+with some answer, 4 for the mean of a four-item scale, 10 for the average
+percent correct on a ten-question test. Not the number of scale points.
+There is no default.}
 
 \item{percent}{Logical. If \code{TRUE}, \code{x} is a percentage: it is divided by
 100 and the decimal count is increased by 2. Default is \code{FALSE}.}

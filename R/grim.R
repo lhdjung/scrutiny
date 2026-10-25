@@ -161,8 +161,10 @@ grim_scalar <- function(
 #'   trailing zeros. There is no default, since a numeric value does not
 #'   keep them (`1.40` is `1.4`).
 #' @param items_averaged Integer. The number of items averaged into each
-#'   respondent's score: 1 for a single item or a percentage, 4 for the mean of
-#'   a four-item scale. Not the number of scale points. There is no default.
+#'   respondent's score: 1 for a single item or the percentage of participants
+#'   with some answer, 4 for the mean of a four-item scale, 10 for the average
+#'   percent correct on a ten-question test. Not the number of scale points.
+#'   There is no default.
 #' @param percent Logical. If `TRUE`, `x` is a percentage: it is divided by
 #'   100 and the decimal count is increased by 2. Default is `FALSE`.
 #' @param rounding String. The rounding method assumed to have produced `x`.
