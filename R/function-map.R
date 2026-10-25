@@ -297,13 +297,10 @@ function_map <- function(
   )
   args_shadowed <- intersect(args_promoted, names_locals)
   if (length(args_shadowed) > 0L) {
-    cli::cli_abort(
-      c(
-        "`{fun_name}()` has arguments that `function_map()` uses internally.",
-        "x" = "Rename {wrap_in_backticks(args_shadowed)}.",
-        "i" = "Reserved: {wrap_in_backticks(names_locals)}."
-      ),
-      .internal = TRUE
+    abort_in_export(
+      "`{fun_name}()` has arguments that `function_map()` uses internally.",
+      "x" = "Rename {wrap_in_backticks(args_shadowed)}.",
+      "i" = "Reserved: {wrap_in_backticks(names_locals)}."
     )
   }
 

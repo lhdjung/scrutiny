@@ -30,6 +30,11 @@ map_value_sets <- function(fun, along, type = "logical") {
   formals_wrapper <- formals(sys.function(sys.parent()))
   args_all <- names(formals_wrapper)
 
+  # A wrapper with no formals has no value sets to map over:
+  if (length(args_all) == 0L) {
+    return(vector(type, 0L))
+  }
+
   # Arguments the caller left out are not forwarded at all, so `fun` applies its
   # own defaults -- the same ones the wrapper states -- and raises its own error
   # where it has none. That covers three cases with one rule: `digits_x` and

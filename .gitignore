@@ -15,9 +15,6 @@ grimmer-bug*
 grimmer-proof*
 grimmer-terminating-decimals*
 special-scripts/
-special-scripts/dormant/
-special-scripts/function-map-unification.md
-special-scripts/issues-42-60-scale-bounds-and-variadic-keys.md
 code-review.md
 /.quarto/
 **/*.quarto_ipynb
