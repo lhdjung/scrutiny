@@ -30,11 +30,11 @@ ggplot2::theme_set(ggplot2::theme_minimal())
 
 # <a href="https://lhdjung.github.io/scrutiny/"><img src="man/figures/logo.png" align="left" height="150" alt="scrutiny website" /></a> scrutiny
 
-The goal of scrutiny is to test published summary statistics for consistency using techniques like GRIM and to check their plausibility. The package makes these methods easy to use in a tidyverse-friendly way. It hopes to help the new field of error detection go mainstream.
+The goal of scrutiny is to test published summary statistics for consistency using techniques like GRIM. The package makes these methods easy to use in a tidyverse-friendly way. It hopes to help the new field of forensic meta-science go mainstream.
 
 You can use the most important parts in the [Error detection](https://errors.shinyapps.io/scrutiny) Shiny app instead.
 
-Besides ready-made tests, scrutiny features a complete system for implementing new consistency tests. It also has duplication analysis, more general infrastructure for implementing error detection techniques, as well as specialized data wrangling functions. See the *Articles* tab for vignettes.
+Besides ready-made tests, scrutiny features a complete system for implementing new consistency tests. It also has duplication analysis, more general infrastructure for implementing forensic meta-science techniques, as well as specialized data wrangling functions. See the *Articles* tab for vignettes.
 
 Install the package from CRAN:
 
@@ -101,7 +101,15 @@ pigs3 |>
 
 --- Eric A. Stewart (six retractions; quoted in Pickett 2020, p. 178)
 
-# References
+## AI usage since 1.0.0
+
+Almost all scrutiny code before version 1.0.0 was written by me. No version before 0.6.0 contained any appreciable amount of AI-generated code. The first CRAN version, 0.2.2, was released even before ChatGPT was.
+
+However, version 1.0.0 brought vast improvements largely because I used LLMs (mostly Claude) to write most of the new code. Not only did this fix many bugs, iron out API quirks, enable new features, and improve performance, but it also made testing in scrutiny much more thorough. Unit tests are now dramatically more comprehensive than they used to be, with grid sweeps that test key functions over entire ranges of systematically constructed inputs. This has increased my confidence that the code is correct.
+
+I loved maintaining scrutiny as a hand-crafted passion project, but LLMs now write code well enough that refusing to use them would have been a huge missed opportunity. Even the Linux kernel [allows for AI usage](https://docs.kernel.org/process/coding-assistants.html) now, so I am in good company.
+
+## References
 
 Pickett, J. T. (2020). The Stewart Retractions: A Quantitative and Qualitative Analysis. *Econ Journal Watch*, *17*(1), 152--190. <https://econjwatch.org/articles/the-stewart-retractions-a-quantitative-and-qualitative-analysis>.
 

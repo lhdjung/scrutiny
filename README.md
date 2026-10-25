@@ -18,18 +18,18 @@ coverage](https://codecov.io/gh/lhdjung/scrutiny/branch/main/graph/badge.svg)](h
 # <a href="https://lhdjung.github.io/scrutiny/"><img src="man/figures/logo.png" align="left" height="150" alt="scrutiny website" /></a> scrutiny
 
 The goal of scrutiny is to test published summary statistics for
-consistency using techniques like GRIM and to check their plausibility.
-The package makes these methods easy to use in a tidyverse-friendly way.
-It hopes to help the new field of error detection go mainstream.
+consistency using techniques like GRIM. The package makes these methods
+easy to use in a tidyverse-friendly way. It hopes to help the new field
+of forensic meta-science go mainstream.
 
 You can use the most important parts in the [Error
 detection](https://errors.shinyapps.io/scrutiny) Shiny app instead.
 
 Besides ready-made tests, scrutiny features a complete system for
 implementing new consistency tests. It also has duplication analysis,
-more general infrastructure for implementing error detection techniques,
-as well as specialized data wrangling functions. See the *Articles* tab
-for vignettes.
+more general infrastructure for implementing forensic meta-science
+techniques, as well as specialized data wrangling functions. See the
+*Articles* tab for vignettes.
 
 Install the package from CRAN:
 
@@ -73,6 +73,7 @@ pigs1
 # GRIM-testing for data frames:
 grim_map(pigs1, digits_x = 2, items_averaged = 1)
 #> # A tibble: 12 × 6
+#> # GRIM: default settings
 #>        x     n items_averaged digits_x consistency probability
 #>    <dbl> <int>          <dbl>    <dbl> <lgl>             <dbl>
 #>  1  7.22    32              1        2 TRUE               0.64
@@ -105,6 +106,7 @@ pigs2
 
 grim_map(pigs2, digits_x = 1, items_averaged = 1, percent = TRUE)
 #> # A tibble: 6 × 6
+#> # GRIM: percent = TRUE
 #>       x     n items_averaged digits_x consistency probability
 #>   <dbl> <int>          <dbl>    <dbl> <lgl>             <dbl>
 #> 1  67.4   150              1        1 FALSE              0.85
@@ -146,18 +148,17 @@ pigs3
 
 pigs3 |>
   debit_map(digits_x = 2, digits_sd = 2)
-#> # A tibble: 7 × 14
-#>       x    sd     n digits_x digits_sd consistency sd_lower sd_incl_lower
-#>   <dbl> <dbl> <int>    <dbl>     <dbl> <lgl>          <dbl> <lgl>        
-#> 1  0.53  0.5   1683        2         2 TRUE           0.495 TRUE         
-#> 2  0.44  0.5   1683        2         2 TRUE           0.495 TRUE         
-#> 3  0.77  0.42  1683        2         2 TRUE           0.415 TRUE         
-#> 4  0.19  0.35  1683        2         2 FALSE          0.345 TRUE         
-#> 5  0.34  0.47  1683        2         2 TRUE           0.465 TRUE         
-#> 6  0.93  0.25  1683        2         2 TRUE           0.245 TRUE         
-#> 7  0.12  0.33  1683        2         2 TRUE           0.325 TRUE         
-#> # ℹ 6 more variables: sd_upper <dbl>, sd_incl_upper <lgl>, x_lower <dbl>,
-#> #   x_upper <dbl>, sum_lower <dbl>, sum_upper <dbl>
+#> # A tibble: 7 × 6
+#> # DEBIT: default settings
+#>       x    sd     n digits_x digits_sd consistency
+#>   <dbl> <dbl> <int>    <dbl>     <dbl> <lgl>      
+#> 1  0.53  0.5   1683        2         2 TRUE       
+#> 2  0.44  0.5   1683        2         2 TRUE       
+#> 3  0.77  0.42  1683        2         2 TRUE       
+#> 4  0.19  0.35  1683        2         2 FALSE      
+#> 5  0.34  0.47  1683        2         2 TRUE       
+#> 6  0.93  0.25  1683        2         2 TRUE       
+#> 7  0.12  0.33  1683        2         2 TRUE
 
 pigs3 |>
   debit_map(digits_x = 2, digits_sd = 2) |>
@@ -186,7 +187,29 @@ pigs3 |>
 
 — Eric A. Stewart (six retractions; quoted in Pickett 2020, p. 178)
 
-# References
+## AI usage since 1.0.0
+
+Almost all scrutiny code before version 1.0.0 was written by me. No
+version before 0.6.0 contained any appreciable amount of AI-generated
+code. The first CRAN version, 0.2.2, was released even before ChatGPT
+was.
+
+However, version 1.0.0 brought vast improvements largely because I used
+LLMs (mostly Claude) to write most of the new code. Not only did this
+fix many bugs, iron out API quirks, enable new features, and improve
+performance, but it also made testing in scrutiny much more thorough.
+Unit tests are now dramatically more comprehensive than they used to be,
+with grid sweeps that test key functions over entire ranges of
+systematically constructed inputs. This has increased my confidence that
+the code is correct.
+
+I loved maintaining scrutiny as a hand-crafted passion project, but LLMs
+now write code well enough that refusing to use them would have been a
+huge missed opportunity. Even the Linux kernel [allows for AI
+usage](https://docs.kernel.org/process/coding-assistants.html) now, so I
+am in good company.
+
+## References
 
 Pickett, J. T. (2020). The Stewart Retractions: A Quantitative and
 Qualitative Analysis. *Econ Journal Watch*, *17*(1), 152–190.
