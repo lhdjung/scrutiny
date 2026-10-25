@@ -731,8 +731,8 @@ function_map <- function(
 
       # Record the settings of this call for functions downstream, such as
       # `rounding` and `percent`, which `grim_plot()` reads. Classes are left to
-      # dispatch. A missing value, as from a `lifecycle::deprecated()` default,
-      # is no setting:
+      # dispatch. A missing value, as from a `lifecycle::deprecated()` default
+      # of a `.fun` written elsewhere, is no setting:
       attr(out, "scrutiny") <- list(
         settings = new_settings(
           Filter(Negate(rlang::is_missing), args_const_vals),

@@ -48,3 +48,12 @@ test_that("the print header names the settings that differ from the defaults", {
   # The first line is unchanged, but unnamed, so that pillar adds no padding:
   pigs1 |> grim_map(digits_x = 2, items_averaged = 1) |> pillar::tbl_sum() |> _[[1L]] |> expect_match("^A tibble: 12 . 6$")
 })
+
+
+test_that("`scrutiny_args()` returns no tier settings if the basic mapper recorded none", {
+  # Only the sequence mapper's rows, as from a basic mapper without settings:
+  out <- tibble::tibble(x = 1)
+  attr(out, "scrutiny") <- list(settings = new_settings(list(dispersion = 1:5), list(), "my_test_map_seq"))
+  out |> scrutiny_args() |> expect_length(0L)
+  pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1) |> scrutiny_args() |> rlang::has_name("dispersion") |> expect_false()
+})

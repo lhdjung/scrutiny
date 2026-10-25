@@ -75,15 +75,16 @@ single_quotes <- function(code) {
 
 
 # The settings of the basic mapper, as a named list of their values, or `NULL`
-# if `x` has no record. Its rows come first, so they are those added by the
-# same mapper as the first row. This is what the package itself reads: the
-# plots, `explain_map()`, and the sequence mapper's re-tests.
+# if `x` has no record. The sequence and total-n mappers name their rows by the
+# suffixes of `name_mapper()`; a basic mapper may have recorded no rows at all.
+# This is what the package itself reads: the plots, `explain_map()`, and the
+# sequence mapper's re-tests.
 scrutiny_args <- function(x) {
   settings <- attr(x, "scrutiny", exact = TRUE)$settings
   if (is.null(settings)) {
     return(NULL)
   }
-  is_basic <- settings$added_by %in% settings$added_by[1L]
+  is_basic <- !grepl("_map_(seq|total_n)$", settings$added_by)
   rlang::set_names(settings$value[is_basic], settings$setting[is_basic])
 }
 
