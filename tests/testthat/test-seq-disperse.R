@@ -1,58 +1,14 @@
-basic1_exp <- c(
-  "20",
-  "21",
-  "22",
-  "23",
-  "24",
-  "25",
-  "26",
-  "27",
-  "28",
-  "29",
-  "30"
-)
+basic1_exp <- 20:30 + 0
 
-basic1_df_exp <- tibble::tibble(
-  x = c("20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30")
-)
-
-basic2_exp <- c(
-  "4.51",
-  "4.52",
-  "4.53",
-  "4.54",
-  "4.55",
-  "4.56",
-  "4.57",
-  "4.58",
-  "4.59",
-  "4.60",
-  "4.61"
-)
-
-basic2_df_exp <- tibble::tibble(
-  x = c(
-    "4.51",
-    "4.52",
-    "4.53",
-    "4.54",
-    "4.55",
-    "4.56",
-    "4.57",
-    "4.58",
-    "4.59",
-    "4.60",
-    "4.61"
-  ),
-)
+basic2_exp <- seq(4.51, 4.61, by = 0.01) |> round(2)
 
 with_out_max_exp <- list(
-  c("70", "71", "72", "73", "74", "76", "77"),
+  c(70, 71, 72, 73, 74, 76, 77),
   c(-5L, -4L, -3L, -2L, -1L, 1L, 2L)
 )
 
 with_out_max_df_exp <- tibble::tibble(
-  x = c("70", "71", "72", "73", "74", "76", "77"),
+  x = c(70, 71, 72, 73, 74, 76, 77),
   diff_var = c(-5L, -4L, -3L, -2L, -1L, 1L, 2L),
 )
 
@@ -61,7 +17,7 @@ with_out_max_df_exp <- tibble::tibble(
 # used to be dropped because `0.6 - 5 * 0.1` is `0.09999999999999998` in
 # floating-point arithmetic, hence seemingly below `out_min`.
 with_track_diff_var <- list(
-  c("0.1", "0.3", "0.9", "1.1", "1.2"),
+  c(0.1, 0.3, 0.9, 1.1, 1.2),
   c(-5, -3, 3, 5, 6)
 )
 
@@ -70,9 +26,9 @@ with_track_diff_var <- list(
 
 test_that("it works with the defaults", {
   25     |> seq_disperse()    |> expect_equal(basic1_exp)
-  25     |> seq_disperse_df() |> expect_equal(basic1_df_exp)
-  "4.56" |> seq_disperse()    |> expect_equal(basic2_exp)
-  "4.56" |> seq_disperse_df() |> expect_equal(basic2_df_exp)
+  25     |> seq_disperse_df() |> expect_equal(tibble::tibble(x = basic1_exp))
+  4.56   |> seq_disperse()    |> expect_equal(basic2_exp)
+  "4.56" |> seq_disperse_df() |> expect_equal(tibble::tibble(x = basic2_exp))
 })
 
 test_that("it works when overriding some of the defaults", {
@@ -114,7 +70,7 @@ test_that("long dispersion sequences stay on their decimal level", {
   3.14 |>
     seq_disperse(
       dispersion = 1:305,
-      string_output = FALSE, include_reported = FALSE
+      include_reported = FALSE
     ) |>
     decimal_places() |>
     max() |>
@@ -123,7 +79,7 @@ test_that("long dispersion sequences stay on their decimal level", {
   3.14 |>
     seq_disperse(
       dispersion = 305,
-      string_output = FALSE, include_reported = FALSE
+      include_reported = FALSE
     ) |>
     expect_equal(c(0.09, 6.19))
 
@@ -131,7 +87,7 @@ test_that("long dispersion sequences stay on their decimal level", {
   3.14 |>
     seq_disperse(
       by = 0.1, dispersion = 31, out_min = NULL,
-      string_output = FALSE, include_reported = FALSE
+      include_reported = FALSE
     ) |>
     expect_equal(c(0.04, 6.24))
 })
@@ -140,13 +96,13 @@ test_that("long dispersion sequences stay on their decimal level", {
 test_that("a zero step doesn't repeat the value it disperses from", {
   # Each value in `dispersion` is a number of steps taken both up and down, so a
   # step of 0 used to add `from` twice on top of `include_reported`.
-  4.02 |> seq_disperse(dispersion = 0) |> expect_equal("4.02")
+  4.02 |> seq_disperse(dispersion = 0) |> expect_equal(4.02)
   4.02 |>
     seq_disperse(dispersion = 0, include_reported = FALSE) |>
-    expect_equal(character(0))
+    expect_equal(numeric(0))
   4.02 |>
     seq_disperse(dispersion = c(0, 1)) |>
-    expect_equal(c("4.01", "4.02", "4.03"))
+    expect_equal(c(4.01, 4.02, 4.03))
 })
 
 
@@ -155,23 +111,23 @@ test_that("a zero step doesn't repeat the value it disperses from", {
 # and `out_max = 25`, the steps down landed on `29`, `28`, ..., all above the
 # maximum, and all kept.
 test_that("both limits apply to both sides of the sequence", {
-  30 |> seq_disperse(out_max = 25, include_reported = FALSE) |> expect_equal("25")
-  30 |> seq_disperse(out_max = 24, include_reported = FALSE) |> expect_equal(character(0))
-  30 |> seq_disperse(out_max = 27, include_reported = FALSE) |> expect_equal(c("25", "26", "27"))
-  30 |> seq_disperse(out_min = 33, include_reported = FALSE) |> expect_equal(c("33", "34", "35"))
+  30 |> seq_disperse(out_max = 25, include_reported = FALSE) |> expect_equal(25)
+  30 |> seq_disperse(out_max = 24, include_reported = FALSE) |> expect_equal(numeric(0))
+  30 |> seq_disperse(out_max = 27, include_reported = FALSE) |> expect_equal(c(25, 26, 27))
+  30 |> seq_disperse(out_min = 33, include_reported = FALSE) |> expect_equal(c(33, 34, 35))
   # The limits apply after the offset, since that is what moves the values:
   30 |>
     seq_disperse(offset_from = 10, out_max = 42, include_reported = FALSE) |>
-    expect_equal(c("35", "36", "37", "38", "39", "41", "42"))
+    expect_equal(c(35, 36, 37, 38, 39, 41, 42))
 })
 
 
 test_that("the limits apply to `from` itself", {
-  30 |> seq_disperse(out_max = 25)                    |> expect_equal("25")
-  30 |> seq_disperse(out_max = 30)                    |> expect_equal(as.character(25:30))
-  0  |> seq_disperse(dispersion = 1:2)                |> expect_equal(c("1", "2"))
-  0  |> seq_disperse(dispersion = 1:2, out_min = NULL) |> expect_equal(as.character(-2:2))
-  30 |> seq_disperse(out_max = 25, track_diff_var = TRUE) |> expect_equal(list("25", -5L))
+  30 |> seq_disperse(out_max = 25)                    |> expect_equal(25)
+  30 |> seq_disperse(out_max = 30)                    |> expect_equal(25:30 + 0)
+  0  |> seq_disperse(dispersion = 1:2)                |> expect_equal(c(1, 2))
+  0  |> seq_disperse(dispersion = 1:2, out_min = NULL) |> expect_equal(-2:2 + 0)
+  30 |> seq_disperse(out_max = 25, track_diff_var = TRUE) |> expect_equal(list(25, -5L))
 })
 
 
@@ -182,11 +138,11 @@ test_that("`seq_disperse()` checks `dispersion` and the limits", {
   # `from` with more decimal places than `by` failed in `restore_zeros()`:
   0.35 |>
     seq_disperse(by = 0.1, dispersion = 1:2) |>
-    expect_equal(c("0.15", "0.25", "0.35", "0.45", "0.55"))
+    expect_equal(c(0.15, 0.25, 0.35, 0.45, 0.55))
   # A string limit was compared as a string, so `"9" > "10"`:
   8 |>
     seq_disperse(dispersion = 1:3, out_max = "10") |>
-    expect_equal(c("5", "6", "7", "8", "9", "10"))
+    expect_equal(5:10 + 0)
   4 |> seq_disperse(out_min = NA) |> expect_error("single number")
 })
 
@@ -194,8 +150,8 @@ test_that("`seq_disperse()` checks `dispersion` and the limits", {
 # An integer `from` was coerced back to integer after dispersion, truncating
 # every fractional step: `4L` gave `3 3 3 3 3 4 4 4 4 4 4`.
 test_that("an integer `from` keeps fractional steps", {
-  4L |> seq_disperse(by = 0.1, dispersion = 1:2, string_output = FALSE) |> expect_equal(c(3.8, 3.9, 4, 4.1, 4.2))
-  4L |> seq_disperse(dispersion = 1:2, string_output = FALSE) |> expect_identical(2:6)
+  4L |> seq_disperse(by = 0.1, dispersion = 1:2) |> expect_equal(c(3.8, 3.9, 4, 4.1, 4.2))
+  4L |> seq_disperse(dispersion = 1:2)           |> expect_identical(2:6)
 })
 
 
@@ -208,7 +164,12 @@ test_that("`from` must be a finite number", {
 
 
 test_that("a factor `from` is dispersed as its label, not its code", {
-  factor("4.02") |> seq_disperse(dispersion = 1) |> expect_equal(c("4.01", "4.02", "4.03"))
+  factor("4.02") |> seq_disperse(dispersion = 1) |> expect_equal(c(4.01, 4.02, 4.03))
+})
+
+test_that("a string `from` keeps its trailing zeros as the step size", {
+  "5.30" |> seq_disperse(dispersion = 1) |> expect_equal(c(5.29, 5.30, 5.31))
+  5.30   |> seq_disperse(dispersion = 1) |> expect_equal(c(5.2, 5.3, 5.4))
 })
 
 test_that("`by`, `offset_from`, and the flags are checked", {
@@ -216,7 +177,6 @@ test_that("`by`, `offset_from`, and the flags are checked", {
   4.02 |> seq_disperse(by = -0.01)            |> expect_error("positive number")
   4.02 |> seq_disperse(offset_from = 1.5)     |> expect_error("whole number")
   4.02 |> seq_disperse(offset_from = NA_real_) |> expect_error("whole number")
-  4.02 |> seq_disperse(string_output = NA)    |> expect_error("string_output")
   4.02 |> seq_disperse(include_reported = NA) |> expect_error("include_reported")
 })
 

@@ -170,6 +170,8 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `debit_plot()` maps `consistency` to one scale for `colour` and `fill`, so that adding a `ggplot2::scale_colour_manual()` with `aesthetics = c("colour", "fill")` restyles it. The arguments that set fixed styles were removed: `color_cons`, `color_incons`, `rect_alpha`, and the `line_*` and `label_*` arguments. `grim_plot()` does the same for its value sets and loses `color_cons`, `color_incons`, `tile_alpha`, and `raster_alpha`; `tile_size` and `raster_color` remain, since no scale reaches them.
 
+- `seq_disperse()` and `seq_disperse_df()` return numbers, not strings, and lost their `string_output` argument. A numeric value has no trailing zeros to pad, so the strings were a holdover from the time when the mappers took `x` as a string. A string `from` still sets the step size by its decimal places, trailing zeros included.
+
 - `seq_length()` and `seq_length<-` were removed. They did little that `seq()` does not, and their names clashed with `seq_len()`.
 
 - `seq_endpoint()`, `seq_distance()`, `seq_endpoint_df()`, `seq_distance_df()`, and `seq_test_ranking()` were removed. They produced sequences of decimal strings for testing with the mappers, which no longer accept strings. Their essence can be reduced to `seq(from, to, by = 10^-digits)`.

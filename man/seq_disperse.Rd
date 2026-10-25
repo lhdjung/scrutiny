@@ -12,7 +12,6 @@ seq_disperse(
   offset_from = 0L,
   out_min = "auto",
   out_max = NULL,
-  string_output = TRUE,
   include_reported = TRUE,
   track_diff_var = FALSE
 )
@@ -25,7 +24,6 @@ seq_disperse_df(
   .offset_from = 0L,
   .out_min = "auto",
   .out_max = NULL,
-  .string_output = TRUE,
   .include_reported = TRUE,
   .track_diff_var = FALSE
 )
@@ -35,7 +33,9 @@ seq_disperse_df(
 disperse from.}
 
 \item{by, .by}{Numeric. Step size. Default is \code{NULL}, in which case it is one
-unit of the last decimal place of \code{from}.}
+unit of the last decimal place of \code{from}. A number does not keep trailing
+zeros, so \code{5.30} steps by \code{0.1}: give \code{by = 0.01}, or \code{from} as the string
+\code{"5.30"}.}
 
 \item{dispersion, .dispersion}{Numeric. The steps up and down from \code{from}.
 Default is \code{1:5}.}
@@ -51,11 +51,6 @@ at zero such as a standard deviation. \code{out_max} defaults to \code{NULL}, no
 maximum. (The \verb{*_map_seq()} functions choose limits per variable; see
 \code{.var_bounds} in \code{\link[=function_map_seq]{function_map_seq()}}.)}
 
-\item{string_output, .string_output}{Logical or \code{"auto"}. If \code{TRUE} (the
-default), the output is a string vector padded with trailing zeros to the
-decimal places of \code{from} or \code{by}, whichever has more. \code{"auto"} means
-\code{TRUE} if \code{from} is a string.}
-
 \item{include_reported, .include_reported}{Logical. Should \code{from} itself be
 part of the sequence? Default is \code{TRUE}.}
 
@@ -69,9 +64,8 @@ from \code{from} be returned as well? Default is \code{FALSE}. If \code{TRUE},
 }
 \value{
 \itemize{
-\item \code{seq_disperse()} returns a string vector by default and a numeric
-vector with \code{string_output = FALSE}. With \code{track_diff_var = TRUE}, it
-returns a list of that vector and an integer vector of steps.
+\item \code{seq_disperse()} returns a numeric vector, which is integer if \code{from}
+is an integer and the steps are whole numbers. With \code{track_diff_var =   TRUE}, it returns a list of that vector and an integer vector of steps.
 \item \code{seq_disperse_df()} returns a tibble with the sequence in the \code{x}
 column, plus any columns added via the dots.
 }
@@ -93,8 +87,8 @@ sequence: \code{dispersion} can be any numeric vector.
 \examples{
 seq_disperse(from = 4.02)
 
-# Numeric output:
-seq_disperse(from = 4.02, string_output = FALSE)
+# A number loses trailing zeros, so state the step size:
+seq_disperse(from = 5.30, by = 0.01)
 
 # More steps:
 seq_disperse(from = 4.02, dispersion = 1:10)

@@ -37,7 +37,6 @@ function_map_seq_proto <- function(
         offset_from = 0,
         out_min = .out_min,
         out_max = .out_max,
-        string_output = "auto",
         include_reported = include_reported,
         track_diff_var = TRUE
       )

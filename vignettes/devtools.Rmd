@@ -85,13 +85,15 @@ vec2 |>
 
 ## Sequence generation
 
-`seq_disperse()` creates a sequence centered around `from`. It takes the step size from the decimal places of `from`, so that a sequence around `4.1` proceeds in steps of `0.1`, and it pads the output with trailing zeros via `restore_zeros()`, so it is string by default:
+`seq_disperse()` creates a sequence centered around `from`. It takes the step size from the decimal places of `from`, so that a sequence around `4.1` proceeds in steps of `0.1`. A number loses trailing zeros, so state the step size with `by` for a value like `5.30`:
 
 ```{r}
 seq_disperse(from = 4.1, dispersion = 1:3)
 
 # Default for `dispersion` is `1:5`:
 seq_disperse(from = 4.1)
+
+seq_disperse(from = 5.30, by = 0.01, dispersion = 1:3)
 ```
 
 `seq_disperse_df()` embeds the sequence as a tibble column. `seq_disperse()` is a hybrid between `base::seq()` and the `disperse*()` functions introduced below.

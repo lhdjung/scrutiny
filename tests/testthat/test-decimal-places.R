@@ -270,7 +270,7 @@ test_that("`seq_disperse()` steps on the right decimal level below 0.001", {
   # no decimal places, `seq_disperse()` stepped by whole numbers instead.
   7.22 |>
     seq_disperse(by = 1e-4, dispersion = 1:2) |>
-    expect_equal(c("7.2198", "7.2199", "7.2200", "7.2201", "7.2202"))
+    expect_equal(c(7.2198, 7.2199, 7.22, 7.2201, 7.2202))
 })
 
 

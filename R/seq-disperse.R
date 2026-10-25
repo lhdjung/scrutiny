@@ -12,7 +12,9 @@
 #' @param from,.from Numeric, or a string coercible to numeric. The value to
 #'   disperse from.
 #' @param by,.by Numeric. Step size. Default is `NULL`, in which case it is one
-#'   unit of the last decimal place of `from`.
+#'   unit of the last decimal place of `from`. A number does not keep trailing
+#'   zeros, so `5.30` steps by `0.1`: give `by = 0.01`, or `from` as the string
+#'   `"5.30"`.
 #' @param dispersion,.dispersion Numeric. The steps up and down from `from`.
 #'   Default is `1:5`.
 #' @param offset_from,.offset_from Integer. Moves the starting point by that
@@ -24,10 +26,6 @@
 #'   at zero such as a standard deviation. `out_max` defaults to `NULL`, no
 #'   maximum. (The `*_map_seq()` functions choose limits per variable; see
 #'   `.var_bounds` in [`function_map_seq()`].)
-#' @param string_output,.string_output Logical or `"auto"`. If `TRUE` (the
-#'   default), the output is a string vector padded with trailing zeros to the
-#'   decimal places of `from` or `by`, whichever has more. `"auto"` means
-#'   `TRUE` if `from` is a string.
 #' @param include_reported,.include_reported Logical. Should `from` itself be
 #'   part of the sequence? Default is `TRUE`.
 #' @param track_diff_var,.track_diff_var Logical. Should the number of steps
@@ -41,9 +39,9 @@
 #'   sequence: `dispersion` can be any numeric vector.
 #'
 #' @return
-#'   - `seq_disperse()` returns a string vector by default and a numeric
-#'   vector with `string_output = FALSE`. With `track_diff_var = TRUE`, it
-#'   returns a list of that vector and an integer vector of steps.
+#'   - `seq_disperse()` returns a numeric vector, which is integer if `from`
+#'   is an integer and the steps are whole numbers. With `track_diff_var =
+#'   TRUE`, it returns a list of that vector and an integer vector of steps.
 #'   - `seq_disperse_df()` returns a tibble with the sequence in the `x`
 #'   column, plus any columns added via the dots.
 #'
@@ -55,8 +53,8 @@
 #' @examples
 #' seq_disperse(from = 4.02)
 #'
-#' # Numeric output:
-#' seq_disperse(from = 4.02, string_output = FALSE)
+#' # A number loses trailing zeros, so state the step size:
+#' seq_disperse(from = 5.30, by = 0.01)
 #'
 #' # More steps:
 #' seq_disperse(from = 4.02, dispersion = 1:10)
@@ -74,7 +72,6 @@ seq_disperse <- function(
   offset_from = 0L,
   out_min = "auto",
   out_max = NULL,
-  string_output = TRUE,
   include_reported = TRUE,
   track_diff_var = FALSE
 ) {
@@ -113,7 +110,7 @@ seq_disperse <- function(
   dispersion <- dispersion[dispersion != 0]
 
   # Each value is a number of steps, so a fractional one lands off the decimal
-  # level that the output is padded to: `dispersion = 1.5` around `4` returned
+  # level of `from`: `dispersion = 1.5` around `4` returned
   # `"2"`, `"4"`, and `"6"`, next to steps of `-1.5` and `1.5`. `disperse()`
   # rejects it for the same reason:
   if (!all(is_whole_number(dispersion))) {
@@ -177,7 +174,7 @@ seq_disperse <- function(
   # of a string like `"1.50"`:
   digits_out <- max(digits, decimal_places_scalar(from))
 
-  from_orig_type <- typeof(from)
+  from_is_integer <- is.integer(from)
   from <- as.numeric(from)
 
   # The limits are compared to numbers, so they have to be numbers themselves. A
@@ -260,17 +257,11 @@ seq_disperse <- function(
     rev() |>
     append(c(disp_zero, seq_upper))
 
-  # Following user preferences, do or don't convert the output to string.
-  # However, the default (`string_output == "auto"`) is to decide this by the
-  # original type of `from`. Also, restore trailing zeros to the same number of
-  # decimal places that also determined the unit of increments at the start of
-  # the function:
-  out <- manage_string_output_seq(
-    out = out,
-    from = methods::as(from, from_orig_type),
-    string_output = string_output,
-    digits = digits_out
-  )
+  # An integer `from` dispersed by a fractional step must not be truncated back
+  # to integer, so the sequence only becomes integer if that loses nothing:
+  if (from_is_integer) {
+    out <- as_integer_if_lossless(out)
+  }
 
   # All the rest is only for creating and appending a sequence of dispersion
   # steps, so if this is not desired, the `out` vector is returned right now:
@@ -308,7 +299,6 @@ seq_disperse_df <- function(
   .offset_from = 0L,
   .out_min = "auto",
   .out_max = NULL,
-  .string_output = TRUE,
   .include_reported = TRUE,
   .track_diff_var = FALSE
 ) {
@@ -320,7 +310,6 @@ seq_disperse_df <- function(
     offset_from = .offset_from,
     out_min = .out_min,
     out_max = .out_max,
-    string_output = .string_output,
     include_reported = .include_reported,
     track_diff_var = .track_diff_var
   )
@@ -357,7 +346,6 @@ seq_disperse_df_internal <- function(
   offset_from = 0L,
   out_min = "auto",
   out_max = NULL,
-  string_output = TRUE,
   include_reported = TRUE,
   track_diff_var = TRUE
 ) {
@@ -368,7 +356,6 @@ seq_disperse_df_internal <- function(
       offset_from = offset_from,
       out_min = out_min,
       out_max = out_max,
-      string_output = string_output,
       include_reported = include_reported,
       track_diff_var = track_diff_var
     ) |>
