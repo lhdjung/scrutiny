@@ -71,7 +71,7 @@ Use scrutiny's `audit()` generic to get summary statistics. Write a new function
 Within the function body, call `audit_cols_minimal()`. This enables you to use `audit()` following the mapper function:
 
 ```{r}
-audit.scrutiny_schlim_map <- function(data) {
+audit.scrutiny_schlim_map <- function(data, ...) {
   audit_cols_minimal(data)
 }
 

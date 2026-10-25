@@ -24,7 +24,7 @@
 #' @examples
 #' # For a mapper `schlim_map()` that applies a test called SCHLIM and
 #' # returns a data frame with the class `"scrutiny_schlim_map"`:
-#' audit.scrutiny_schlim_map <- function(data) {
+#' audit.scrutiny_schlim_map <- function(data, ...) {
 #'   audit_cols_minimal(data)
 #' }
 

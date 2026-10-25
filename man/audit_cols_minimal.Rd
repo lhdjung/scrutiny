@@ -28,7 +28,7 @@ Add further columns as needed. See \emph{Examples} for how to name the method.
 \examples{
 # For a mapper `schlim_map()` that applies a test called SCHLIM and
 # returns a data frame with the class `"scrutiny_schlim_map"`:
-audit.scrutiny_schlim_map <- function(data) {
+audit.scrutiny_schlim_map <- function(data, ...) {
   audit_cols_minimal(data)
 }
 }
