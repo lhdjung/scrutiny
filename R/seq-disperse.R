@@ -124,7 +124,6 @@ seq_disperse <- function(
     )
   }
 
-
   # Main part ---
 
   # If the step size by which the sequence progresses (`by`) was not manually
@@ -302,7 +301,6 @@ seq_disperse_df <- function(
   .include_reported = TRUE,
   .track_diff_var = FALSE
 ) {
-
   out_basic_fun <- seq_disperse(
     from = .from,
     by = .by,

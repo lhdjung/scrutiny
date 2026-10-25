@@ -153,7 +153,9 @@ function_map_total_n_proto <- function(
           return()
         }
         cnd$body[length(cnd$body)] <- paste0(
-          "In row ", case[cnd$scrutiny_row], " of `data`."
+          "In row ",
+          case[cnd$scrutiny_row],
+          " of `data`."
         )
         cnd$scrutiny_row <- NULL
         rlang::cnd_signal(cnd)

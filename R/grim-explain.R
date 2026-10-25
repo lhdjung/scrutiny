@@ -239,7 +239,7 @@ grim_explain <- function(
     # another sum from the range if there is one, and otherwise say so rather
     # than claim a rounding that cannot be predicted:
     is_tie <- function(sum) {
-      rounding %in% c("even", "ties_even") &
+      (rounding %in% c("even", "ties_even")) &
         (dplyr::near(sum * bounds$denom, n_items * bounds$lower) |
           dplyr::near(sum * bounds$denom, n_items * bounds$upper))
     }

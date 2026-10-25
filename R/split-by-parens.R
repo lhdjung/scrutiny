@@ -87,7 +87,6 @@ split_by_parens <- function(
   end1 = "x",
   end2 = "sd"
 ) {
-
   # Since `sep` will be passed through the dots of `dplyr::across()`, which may
   # lead to issues with the timing of evaluation, its evaluation is forced here:
   force(sep)
@@ -206,8 +205,14 @@ split_by_parens <- function(
   # warned appropriately:
   # Only the columns that `cols` selected are worth a warning, as in
   # `decimal_places_df()`:
-  names_selected <- names(tidyselect::eval_select(rlang::expr({{ cols }}), data))
-  names_wrong_cols <- names_selected[!names_selected %in% names_of_cols_with_seps]
+  names_selected <- names(tidyselect::eval_select(
+    rlang::expr({{ cols }}),
+    data
+  ))
+
+  names_wrong_cols <-
+    names_selected[!names_selected %in% names_of_cols_with_seps]
+
   if (length(names_wrong_cols) > 0L) {
     msg_reason <- sep |>
       message_sep_if_cols_excluded() |>

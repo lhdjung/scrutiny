@@ -81,14 +81,23 @@ explain_map.scrutiny_debit_map <- function(data) {
       "x" = "`data` was tested with `formula = \"mean_n\"`."
     )
   }
-  add_explanation_col(data, debit_explain, c("x", "sd", "n", "digits_x", "digits_sd"))
+  add_explanation_col(
+    data,
+    debit_explain,
+    c("x", "sd", "n", "digits_x", "digits_sd")
+  )
 }
 
 
 # Calls `fun`, an `*_explain()` function, on each row of `data`: the key columns
 # as values, plus the settings recorded by the mapper. A helper column like
 # `items_averaged` is used if `data` has it.
-add_explanation_col <- function(data, fun, cols_key, cols_helper = character()) {
+add_explanation_col <- function(
+  data,
+  fun,
+  cols_key,
+  cols_helper = character()
+) {
   check_cols_needed(data, c(cols_key, "consistency"))
 
   args <- scrutiny_args(data)

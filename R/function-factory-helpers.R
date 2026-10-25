@@ -182,7 +182,9 @@ eval_defaults <- function(formals, env) {
   out <- list()
   for (name in names(formals)) {
     ok <- TRUE
-    value <- tryCatch(eval(formals[[name]], env), error = function(e) ok <<- FALSE)
+    value <- tryCatch(eval(formals[[name]], env), error = function(e) {
+      ok <<- FALSE
+    })
     if (!ok) {
       next
     }

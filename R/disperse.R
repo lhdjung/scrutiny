@@ -165,7 +165,8 @@ disperse <- function(
         names_constant <- rep("", length(constant))
       }
       unnamed <- is.na(names_constant) | names_constant == ""
-      names_constant[unnamed] <- paste0("constant", seq_along(constant))[unnamed]
+      names_constant[unnamed] <-
+        paste0("constant", seq_along(constant))[unnamed]
       constant <- constant |>
         purrr::map(repeat_constant, out, list_input = TRUE) |>
         tibble::as_tibble(.name_repair = function(x) names_constant)
@@ -315,7 +316,10 @@ disperse_total <- function(
 # `disperse2()` checks the limits before shifting them, so that the message
 # shows what the user gave:
 check_limit_n <- function(limit, name) {
-  if (!is.null(limit) && (length(limit) != 1L || !is.numeric(limit) || is.na(limit))) {
+  if (
+    !is.null(limit) &&
+      (length(limit) != 1L || !is.numeric(limit) || is.na(limit))
+  ) {
     abort_in_export(
       "`{name}` must be a single number or `NULL`.",
       "x" = "It is {wrap_in_quotes_or_backticks(limit)}."

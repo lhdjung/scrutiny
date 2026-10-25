@@ -322,6 +322,7 @@ trim_space <- function(x) {
 # `tolower()` it does not depend on the locale. A number too large for a double,
 # such as `"1e400"`, is read as an infinity as well:
 is_non_finite_token <- function(x) {
-  chartr("AFINTY", "afinty", x) %in% NON_FINITE_TOKENS |
+  chartr("AFINTY", "afinty", x) %in%
+    NON_FINITE_TOKENS |
     is.infinite(suppressWarnings(as.numeric(x)))
 }

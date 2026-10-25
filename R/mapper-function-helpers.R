@@ -201,7 +201,6 @@ check_cols_needed <- function(data, cols, ...) {
 }
 
 
-
 #' Manage a helper column
 #'
 #' @description A helper column is a column of a mapper's input that is not
@@ -252,7 +251,8 @@ manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
     arg_given <- !has_default || !about_equal(var_arg, default)
     # Only a single value or one per row can agree; `rep_len()` would cut
     # off or recycle any other length into agreement:
-    col_agrees <- length(var_arg) %in% c(1L, nrow(data)) &&
+    col_agrees <- length(var_arg) %in%
+      c(1L, nrow(data)) &&
       isTRUE(about_equal(data[[var_name]], rep_len(var_arg, nrow(data))))
     if (arg_given && !col_agrees) {
       data_name <- deparse(substitute(data))

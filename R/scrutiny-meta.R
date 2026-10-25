@@ -68,7 +68,8 @@ deparse_value <- function(value) {
 # print as they are and still make R code. Code that has a single quote or an
 # escaped double quote in it keeps its double quotes:
 single_quotes <- function(code) {
-  is_plain <- !grepl("'", code, fixed = TRUE) & !grepl('\\"', code, fixed = TRUE)
+  is_plain <- !grepl("'", code, fixed = TRUE) &
+    !grepl('\\"', code, fixed = TRUE)
   code[is_plain] <- gsub('"', "'", code[is_plain], fixed = TRUE)
   code
 }

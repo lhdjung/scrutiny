@@ -137,7 +137,11 @@ debit_plot <- function(
     rec <- do.call(
       debit_map,
       c(
-        list(data[c("x", "sd", "n")], digits_x = data$digits_x, digits_sd = data$digits_sd),
+        list(
+          data[c("x", "sd", "n")],
+          digits_x = data$digits_x,
+          digits_sd = data$digits_sd
+        ),
         args
       )
     )

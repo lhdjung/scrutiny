@@ -121,7 +121,11 @@ write_doc_audit_seq <- function(key_args, name_test) {
   key_args_bt <- wrap_in_backticks(key_args)
   arg1 <- key_args[1L]
   hits <- paste(wrap_in_backticks(paste0("hits_", key_args)), collapse = ", ")
-  diff_others <- commas_and(wrap_in_backticks(paste0("diff_", key_args[-1L], "*")))
+  diff_others <- commas_and(wrap_in_backticks(paste0(
+    "diff_",
+    key_args[-1L],
+    "*"
+  )))
   vars <- commas_and(key_args_bt)
   others <- commas_and(key_args_bt[-1L])
 
@@ -139,7 +143,11 @@ write_doc_audit_seq <- function(key_args, name_test) {
     "#'   - `diff_{arg1}`: the distance from `{arg1}` to the nearest consistent dispersed\n",
     "#'   value, in dispersion steps. `diff_{arg1}_up` and `diff_{arg1}_down` are the\n",
     "#'   distances to the nearest consistent value above and below.\n",
-    if (length(key_args) > 1L) "#'   - {diff_others}: the same for {others}.\n" else "",
+    if (length(key_args) > 1L) {
+      "#'   - {diff_others}: the same for {others}.\n"
+    } else {
+      ""
+    },
     "#'\n",
     "#'   Call `audit()` on `audit_seq()` output to summarize these columns further.\n",
     "#'   `na_count` and `na_rate` there count the cases without a consistent value\n",

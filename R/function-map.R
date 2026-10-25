@@ -326,7 +326,10 @@ function_map <- function(
 
   # What the settings of a call are compared to, to fill the `default` column
   # of the "scrutiny" attribute:
-  defaults_const <- eval_defaults(formals_promoted[args_const], environment(.fun))
+  defaults_const <- eval_defaults(
+    formals_promoted[args_const],
+    environment(.fun)
+  )
 
   # The by-row arguments -- in practice the `digits_*` ones -- come first, right
   # after `data`: they have no defaults, so they belong next to the other
@@ -556,8 +559,12 @@ function_map <- function(
           # agree. They do when a mapper's output is tested again; a user
           # column that contradicts the argument would be silently replaced:
           if (
-            arg %in% colnames(data) &&
-              !identical(as.numeric(data[[arg]]), as.numeric(cols_tested[[arg]]))
+            arg %in%
+              colnames(data) &&
+              !identical(
+                as.numeric(data[[arg]]),
+                as.numeric(cols_tested[[arg]])
+              )
           ) {
             abort_in_export(
               "`{arg}` is both an argument and a column of `data`, and the \

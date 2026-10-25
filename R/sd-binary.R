@@ -106,7 +106,11 @@ check_binary_count <- function(group, n = NULL) {
   wrong <- group < 0 | (if (!is.null(n)) group > n else FALSE)
   if (any(wrong, na.rm = TRUE)) {
     abort_in_export(
-      if (is.null(n)) "`{name}` must not be negative." else "`{name}` must be from 0 to `n`.",
+      if (is.null(n)) {
+        "`{name}` must not be negative."
+      } else {
+        "`{name}` must be from 0 to `n`."
+      },
       "x" = "It includes {wrap_in_quotes_or_backticks(group[which(wrong)])}."
     )
   }
