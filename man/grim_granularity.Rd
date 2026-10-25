@@ -2,53 +2,32 @@
 % Please edit documentation in R/grim-granularity.R
 \name{grim_granularity}
 \alias{grim_granularity}
-\alias{grim_items}
 \title{Granularity of non-continuous scales}
 \usage{
 grim_granularity(n, items_averaged = 1)
-
-grim_items(n, gran, tolerance = .Machine$double.eps^0.5)
 }
 \arguments{
 \item{n}{Numeric. Sample size.}
 
 \item{items_averaged}{Numeric. Number of items averaged into each score.
 Default is 1.}
-
-\item{gran}{Numeric. Granularity.}
-
-\item{tolerance}{Numeric. Differences from a whole number below \code{tolerance}
-are ignored when checking the result of \code{grim_items()}. Default is about
-\code{1.5e-8}.}
 }
 \value{
-Numeric. Granularity or number of items.
+Numeric. Granularity.
 }
 \description{
 \code{grim_granularity()} returns the smallest difference between
 two means that a scale with \code{items_averaged} items and \code{n} observations can
 produce: \code{1 / (n * items_averaged)}.
-
-\code{grim_items()} inverts it: given the granularity, it returns the number
-of items.
 }
 \details{
 The granularity of a scale follows from its design, not from the
 smallest observed difference between two values. Continuous scales have
 no granularity.
-
-Since the number of items is a whole number, a fractional result of
-\code{grim_items()} points to an error upstream, and the function warns about
-it.
 }
 \examples{
 grim_granularity(n = 16)
 grim_granularity(n = 16, items_averaged = 2)
-
-grim_items(n = 1, gran = 0.5)
-
-# A fractional result draws a warning:
-grim_items(n = c(10, 15, 20), gran = 0.5)
 }
 \references{
 Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A

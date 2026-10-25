@@ -170,6 +170,8 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `grim_plot()` was renamed to `grim_plot_grid()`, which tells it apart from `grim_plot_values()` and `grim_plot_rates()`. The old name still works but is deprecated.
 
+- `grim_items()` is deprecated and will be removed in a future version. It only computed `1 / (n * gran)`.
+
 - Removed after their deprecation in scrutiny 0.5.0: the `show_prob` argument of `grim_map()`, `grim_ratio_upper()`, and the 15 functions around `is_subset_of()`.
 
 - Removed, since no package uses them and 1.0.0 is the release for breaking changes: `grim_ratio()` (`grim_probability()` is the rounding-aware version), `manage_key_colnames()` (use `absorb_key_args()`), `unnest_consistency_cols()`, `write_doc_factory_map_conventions()`, and the re-exports of rlang's `enquo()`, `enquos()`, `as_name()`, `as_label()`, `.data`, and `:=`. `check_factory_dots()`, `check_args_disabled()`, `decimal_places_scalar()`, and the documentation templates `write_doc_audit()`, `write_doc_audit_seq()`, and `write_doc_audit_total_n()` are no longer exported. `check_audit_special()` was removed: `audit()` now reaches `audit_seq()` and `audit_total_n()` itself.

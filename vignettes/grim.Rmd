@@ -360,19 +360,12 @@ pigs1 |>
   grim_plot_rates(study = study)
 ```
 
-### Granularity and scale items
+### Granularity
 
-The granularity of a scale is the smallest difference between two means it can produce, $G = 1 / (NL)$. `grim_granularity()` computes it, and `grim_items()` inverts it to the number of items, $L = 1 / (NG)$:
+The granularity of a scale is the smallest difference between two means it can produce, $G = 1 / (NL)$. `grim_granularity()` computes it:
 
 ```{r}
 grim_granularity(n = 80, items_averaged = 5)
-grim_items(n = 50, gran = 0.01)
-```
-
-Since the number of items is a whole number, a fractional result from `grim_items()` indicates an error in the inputs, and the function warns about it:
-
-```{r}
-grim_items(n = c(50, 65, 93), gran = 0.02)
 ```
 
 # References

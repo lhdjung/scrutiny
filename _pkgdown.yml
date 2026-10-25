@@ -61,7 +61,6 @@ reference:
   - grim_values
   - grim_total
   - grim_granularity
-  - grim_items
   - grim_binomial
   - grim_binomial_power
 - subtitle: GRIMMER
