@@ -37,11 +37,9 @@ map_value_sets <- function(fun, along, type = "logical") {
 
   # Arguments the caller left out are not forwarded at all, so `fun` applies its
   # own defaults -- the same ones the wrapper states -- and raises its own error
-  # where it has none. That covers three cases with one rule: `digits_x` and
+  # where it has none. That covers two cases with one rule: `digits_x` and
   # `digits_sd`, which must arrive missing so that `error_digits_missing()`
-  # fires; the ordinary defaults; and `tolerance`, whose
-  # `lifecycle::deprecated()` default is itself a sentinel that must not be
-  # forced.
+  # fires, and the ordinary defaults.
   #
   # `missing()` per formal, evaluated in the wrapper's frame. `match.call()`
   # would answer in one step but cannot be trusted here: a wrapper reached

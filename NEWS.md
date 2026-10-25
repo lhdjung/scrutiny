@@ -56,7 +56,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - The mappers accept any data frame, not only tibbles, and return a tibble. Row names other than the automatic ones are kept as a `rowname` column, since a tibble has none.
 
-- `grim()`, `grimmer()`, and `debit()` no longer have `show_rec` or `show_reason`. These arguments were only intended for internal use by the mappers. The three functions are now vectorized only over the tested values (`x`, `sd`, `n`, and the `digits_*` arguments) and `items_averaged`; `rounding`, `threshold`, `symmetric`, `percent`, `formula`, and `tolerance` must have length 1. Recycling follows the tidyverse rules: an argument must have length 1 or the common length. `grim(x = c(5.19, 5.18, 5.17), n = c(28, 32), digits_x = 2)` is therefore an error; it used to return three results.
+- `grim()`, `grimmer()`, and `debit()` no longer have `show_rec` or `show_reason`. These arguments were only intended for internal use by the mappers. The three functions are now vectorized only over the tested values (`x`, `sd`, `n`, and the `digits_*` arguments) and `items_averaged`; `rounding`, `threshold`, `symmetric`, `percent`, `formula`, and `sd_type` must have length 1. Recycling follows the tidyverse rules: an argument must have length 1 or the common length. `grim(x = c(5.19, 5.18, 5.17), n = c(28, 32), digits_x = 2)` is therefore an error; it used to return three results.
 
 - `grim_map()` and `grimmer_map()` no longer multiply `items` into `n`. The `n` column is the sample size as given, and `items_averaged` is returned as a column of its own. `grim_plot()` places the tiles at `n * items_averaged`.
 
@@ -176,7 +176,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - Removed after their deprecation in scrutiny 0.3.1: the `track_var_change` argument of `seq_disperse()` and `.track_var_change` of `seq_disperse_df()`. `restore_zeros_df()` and `split_by_parens()` no longer have `...`, which only existed to catch the argument names used before scrutiny 0.2.4.
 
-- The `tolerance` argument of `grim()`, `grim_map()`, `grimmer()`, and `grimmer_map()` is deprecated. Both tests compare whole numbers exactly, so a tolerance has no effect. GRIMMER no longer rounds reconstructed SDs for its test 2: the bounds of test 1 are the exact inverse of that rounding, so every sum of squares that passes test 1 passes test 2, and `"GRIMMER inconsistent (test 2)"` is no longer a possible `reason`.
+- The `tolerance` argument of `grim()`, `grim_map()`, `grimmer()`, and `grimmer_map()` was removed. Both tests compare whole numbers exactly, so a tolerance had no effect. GRIMMER no longer rounds reconstructed SDs for its test 2: the bounds of test 1 are the exact inverse of that rounding, so every sum of squares that passes test 1 passes test 2, and `"GRIMMER inconsistent (test 2)"` is no longer a possible `reason`.
 
 - `function_map()`'s `.col_control` and `.col_filler` arguments were removed. They never worked.
 

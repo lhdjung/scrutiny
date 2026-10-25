@@ -19,7 +19,6 @@ grimmer_map_total_n(
   threshold = 5,
   symmetric = FALSE,
   sd_type = c("sample", "population", "either"),
-  tolerance = lifecycle::deprecated(),
   dispersion = 0:5,
   n_min = 2L,
   n_max = NULL,
@@ -47,7 +46,7 @@ named in full.}
 averaged into each score, given as an argument or as a column of \code{data}.
 There is no default.}
 
-\item{rounding, threshold, symmetric, sd_type, tolerance}{Passed on to
+\item{rounding, threshold, symmetric, sd_type}{Passed on to
 \code{\link[=grimmer]{grimmer()}}.}
 
 \item{dispersion}{Numeric. Steps up and down from half the total \code{n}.

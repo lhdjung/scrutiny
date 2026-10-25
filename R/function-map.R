@@ -577,8 +577,8 @@ function_map <- function(
       # Do *not* muffle conditions other than errors here. It looks right, since
       # the row is about to be tested again, but a once-per-session warning is
       # then lost for good: `lifecycle::deprecate_warn()` records that it has
-      # warned before the muffle discards the warning, so
-      # `grim_map(tolerance = ...)` went through in complete silence.
+      # warned before the muffle discards the warning, so a deprecated argument
+      # went through in complete silence.
       if (nrow(data) > 0L) {
         row_first <- cols_tested |>
           lapply(function(x) x[[1L]])
@@ -712,8 +712,8 @@ function_map <- function(
 
       # Record the settings of this call for functions downstream, such as
       # `rounding` and `percent`, which `grim_plot()` reads. Classes are left to
-      # dispatch. A missing value, as with the deprecated `tolerance`, is no
-      # setting:
+      # dispatch. A missing value, as from a `lifecycle::deprecated()` default,
+      # is no setting:
       attr(out, "scrutiny") <- list(
         args = Filter(Negate(rlang::is_missing), args_const_vals)
       )

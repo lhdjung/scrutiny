@@ -171,20 +171,8 @@ grimmer_scalar <- function(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  sd_type = c("sample", "population", "either"),
-  tolerance = lifecycle::deprecated()
+  sd_type = c("sample", "population", "either")
 ) {
-  # GRIMMER decides in exact integer arithmetic, like GRIM: see test 2 below.
-  if (lifecycle::is_present(tolerance)) {
-    lifecycle::deprecate_warn(
-      when = "1.0.0",
-      what = "grimmer(tolerance)",
-      details = "GRIMMER compares exact integers, so `tolerance` has no \\
-      effect on its results.",
-      user_env = globalenv()
-    )
-  }
-
   # See `grim_scalar()`:
   if (!is.numeric(n) && !is.na(n)) {
     check_type(n, c("double", "integer"))
@@ -457,8 +445,6 @@ grimmer_sd_either <- function(sample, population, show_reason) {
 #'   `"population"`, which divides by `n`, as in NumPy's `np.std()` or Excel's
 #'   `STDEV.P`; or `"either"`, which accepts a value set that is consistent
 #'   under one or the other. See *SD type*.
-#' @param tolerance `r lifecycle::badge("deprecated")` This argument has no
-#'   effect: the test decides in exact integer arithmetic.
 #'
 #' @inheritParams grim
 #'
@@ -542,8 +528,7 @@ grimmer <- function(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  sd_type = c("sample", "population", "either"),
-  tolerance = lifecycle::deprecated()
+  sd_type = c("sample", "population", "either")
 ) {
   map_value_sets(
     fun = grimmer_scalar,

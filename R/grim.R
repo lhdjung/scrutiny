@@ -9,28 +9,8 @@ grim_scalar <- function(
   show_rec = FALSE,
   rounding = "up_or_down",
   threshold = 5,
-  symmetric = FALSE,
-  # `lifecycle::deprecated()`, not the bare `deprecated()` that the import
-  # provides: this default is copied into every mapper's formals by
-  # `function_map()`, and R CMD check reads it there, outside the namespace that
-  # resolves the bare name. `grim()` states it in its own signature.
-  tolerance = lifecycle::deprecated()
+  symmetric = FALSE
 ) {
-  # GRIM decides which sums are consistent in exact integer arithmetic, so there
-  # is no floating-point comparison for a tolerance to loosen.
-  if (lifecycle::is_present(tolerance)) {
-    # `user_env` is explicit because the user never calls this directly: left to
-    # infer the caller, lifecycle finds a scrutiny frame and tells the user to
-    # report an issue about their own argument.
-    lifecycle::deprecate_warn(
-      when = "1.0.0",
-      what = paste0(name_last_export(), "(tolerance)"),
-      details = "GRIM compares exact integers, so `tolerance` has no effect \\
-      on its results.",
-      user_env = globalenv()
-    )
-  }
-
   # `percent` describes the call as a whole. A missing value or a vector used
   # to fail in `if ()` with base R's message:
   if (!isTRUE(percent) && !isFALSE(percent)) {
@@ -175,9 +155,6 @@ grim_scalar <- function(
 #'   common length by the tidyverse rules: an argument has length 1 or the
 #'   length of the longest. All other arguments must have length 1.
 #'
-#'   The test decides in exact integer arithmetic, so `tolerance` has no
-#'   effect and is deprecated.
-#'
 #' @param x Numeric. The reported mean or percentage.
 #' @param n Integer. The reported sample size.
 #' @param digits_x Integer. The number of decimal places in `x`, including
@@ -200,8 +177,6 @@ grim_scalar <- function(
 #'   `"*_from"` methods. Default is `FALSE`. Must not be given with a
 #'   `"ties_*"` rounding method, which already fixes the direction; see
 #'   [`reround()`].
-#' @param tolerance `r lifecycle::badge("deprecated")` This argument has no
-#'   effect; see *Details*.
 #'
 #' @return Logical. `TRUE` if `x`, `n`, and `items_averaged` are consistent,
 #'   `FALSE` if not, and `NA` if the case cannot be decided: if a value is
@@ -246,8 +221,7 @@ grim <- function(
   percent = FALSE,
   rounding = "up_or_down",
   threshold = 5,
-  symmetric = FALSE,
-  tolerance = lifecycle::deprecated()
+  symmetric = FALSE
 ) {
   map_value_sets(
     fun = grim_scalar,

@@ -15,8 +15,7 @@ grimmer(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  sd_type = c("sample", "population", "either"),
-  tolerance = lifecycle::deprecated()
+  sd_type = c("sample", "population", "either")
 )
 }
 \arguments{
@@ -56,9 +55,6 @@ which divides by \code{n - 1}, as in R, SPSS, Stata, or Excel's \code{STDEV.S};
 \code{"population"}, which divides by \code{n}, as in NumPy's \code{np.std()} or Excel's
 \code{STDEV.P}; or \code{"either"}, which accepts a value set that is consistent
 under one or the other. See \emph{SD type}.}
-
-\item{tolerance}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} This argument has no
-effect: the test decides in exact integer arithmetic.}
 }
 \value{
 Logical. \code{TRUE} if \code{x}, \code{sd}, \code{n}, and \code{items_averaged} are

@@ -294,8 +294,4 @@ test_that("a promoted setting reaches the test only if it was given", {
   total <- tibble::tibble(x1 = 0.30, x2 = 0.30, sd1 = 0.46, sd2 = 0.46, n = 20)
   total |> debit_map_total_n(digits_x = 2, digits_sd = 2, formula = "mean_n") |> scrutiny_meta() |> _$args$formula |> expect_equal("mean_n")
   total |> debit_map_total_n(digits_x = 2, digits_sd = 2)                     |> scrutiny_meta() |> _$args$formula |> expect_equal("exact")
-
-  # A deprecated setting still warns, naming the sequence mapper. Under
-  # testthat, it warns for every re-test, too:
-  pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, tolerance = 0.1) |> expect_warning("`grim_map_seq()` is deprecated", fixed = TRUE) |> suppressWarnings()
 })

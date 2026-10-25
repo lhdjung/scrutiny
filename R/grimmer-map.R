@@ -15,7 +15,7 @@
 #' @param x,sd,n Optionally, the names of the columns in `data` that contain
 #'   these values, if they differ from the defaults.
 #' @param items_averaged Integer. As in [`grim_map()`], for `x` and `sd`.
-#' @param rounding,threshold,symmetric,sd_type,tolerance Passed on to
+#' @param rounding,threshold,symmetric,sd_type Passed on to
 #'   [`grimmer()`].
 #' @param ... These dots must be empty. Every argument after them must be
 #'   named in full.

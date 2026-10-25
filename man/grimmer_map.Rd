@@ -16,8 +16,7 @@ grimmer_map(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  sd_type = c("sample", "population", "either"),
-  tolerance = lifecycle::deprecated()
+  sd_type = c("sample", "population", "either")
 )
 }
 \arguments{
@@ -37,7 +36,7 @@ named in full.}
 
 \item{items_averaged}{Integer. As in \code{\link[=grim_map]{grim_map()}}, for \code{x} and \code{sd}.}
 
-\item{rounding, threshold, symmetric, sd_type, tolerance}{Passed on to
+\item{rounding, threshold, symmetric, sd_type}{Passed on to
 \code{\link[=grimmer]{grimmer()}}.}
 }
 \value{

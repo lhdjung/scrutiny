@@ -16,7 +16,6 @@ grim_map_seq(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  tolerance = lifecycle::deprecated(),
   var = c("x", "n"),
   dispersion = 1:5,
   out_min = "auto",
@@ -50,7 +49,7 @@ divided by 100 and tested with two more decimal places. Default is
 \item{show_rec}{Logical. If \code{TRUE}, the reconstructed numbers are returned
 as columns; see \emph{Reconstructed numbers}. Default is \code{FALSE}.}
 
-\item{rounding, threshold, symmetric, tolerance}{Passed on to \code{\link[=grim]{grim()}}.}
+\item{rounding, threshold, symmetric}{Passed on to \code{\link[=grim]{grim()}}.}
 
 \item{var}{String. The variables to disperse. Default is \code{c("x", "n")}.}
 

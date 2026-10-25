@@ -17,7 +17,6 @@ grim_map_total_n(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  tolerance = lifecycle::deprecated(),
   dispersion = 0:5,
   n_min = 1L,
   n_max = NULL,
@@ -51,7 +50,7 @@ divided by 100 and tested with two more decimal places. Default is
 \item{show_rec}{Logical. If \code{TRUE}, the reconstructed numbers are returned
 as columns; see \emph{Reconstructed numbers}. Default is \code{FALSE}.}
 
-\item{rounding, threshold, symmetric, tolerance}{Passed on to \code{\link[=grim]{grim()}}.}
+\item{rounding, threshold, symmetric}{Passed on to \code{\link[=grim]{grim()}}.}
 
 \item{dispersion}{Numeric. Steps up and down from half the total \code{n}.
 Default is \code{0:5}, i.e., the even split and five steps away from it.}

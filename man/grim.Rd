@@ -12,8 +12,7 @@ grim(
   percent = FALSE,
   rounding = "up_or_down",
   threshold = 5,
-  symmetric = FALSE,
-  tolerance = lifecycle::deprecated()
+  symmetric = FALSE
 )
 }
 \arguments{
@@ -46,9 +45,6 @@ their absolute values (\code{-2.5} like \code{2.5}) under \code{"up"}, \code{"do
 \code{"*_from"} methods. Default is \code{FALSE}. Must not be given with a
 \code{"ties_*"} rounding method, which already fixes the direction; see
 \code{\link[=reround]{reround()}}.}
-
-\item{tolerance}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} This argument has no
-effect; see \emph{Details}.}
 }
 \value{
 Logical. \code{TRUE} if \code{x}, \code{n}, and \code{items_averaged} are consistent,
@@ -82,9 +78,6 @@ default of 1 let multi-item scales pass unnoticed.
 \code{x}, \code{n}, \code{digits_x}, and \code{items_averaged} are vectorized and recycled to a
 common length by the tidyverse rules: an argument has length 1 or the
 length of the longest. All other arguments must have length 1.
-
-The test decides in exact integer arithmetic, so \code{tolerance} has no
-effect and is deprecated.
 }
 \examples{
 # A mean of 5.19 is not consistent with a sample size of 28:

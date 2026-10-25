@@ -628,11 +628,10 @@ test_that("the arguments of the whole call are recorded, with defaults", {
   args$percent |> expect_true()
   args$rounding |> expect_equal("ceiling")
   args$threshold |> expect_equal(5)
-  # Per-row and helper arguments are columns, not settings of the call, and a
-  # missing value such as the deprecated `tolerance` is no setting at all:
+  # Per-row and helper arguments are columns, not settings of the call:
   args |>
     names() |>
-    intersect(c("digits_x", "items_averaged", "tolerance")) |>
+    intersect(c("digits_x", "items_averaged")) |>
     expect_length(0L)
   # Settings survive verbs that keep the class:
   pigs2 |>

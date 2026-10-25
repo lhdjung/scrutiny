@@ -17,7 +17,6 @@ grimmer_map_seq(
   threshold = 5,
   symmetric = FALSE,
   sd_type = c("sample", "population", "either"),
-  tolerance = lifecycle::deprecated(),
   var = c("x", "sd", "n"),
   dispersion = 1:5,
   out_min = "auto",
@@ -44,7 +43,7 @@ named in full.}
 averaged into each score, given as an argument or as a column of \code{data}.
 There is no default.}
 
-\item{rounding, threshold, symmetric, sd_type, tolerance}{Passed on to
+\item{rounding, threshold, symmetric, sd_type}{Passed on to
 \code{\link[=grimmer]{grimmer()}}.}
 
 \item{var}{String. The variables to disperse. Default is

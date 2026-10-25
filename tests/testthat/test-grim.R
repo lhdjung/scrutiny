@@ -253,41 +253,6 @@ test_that("`threshold` does not affect the non-`\"*_from\"` methods", {
 })
 
 
-test_that("`grim(tolerance = )` is deprecated", {
-  # GRIM compares exact integers, so the argument never had an effect on its
-  # results. It was kept "because `grimmer()` and `debit()` inherit it and do
-  # use it" -- but `debit()` never had it.
-  5.19 |> grim(n = 28, digits_x = 2, items_averaged = 1, tolerance = 1e-6) |> lifecycle::expect_deprecated()
-  # The mapper reaches `grim_scalar()` once per row, and testthat sets
-  # lifecycle's verbosity so that every one of those warns rather than only the
-  # first; the outer `suppressWarnings()` mops up the repeats:
-  pigs1 |>
-    grim_map(digits_x = 2, items_averaged = 1, tolerance = 1e-6) |>
-    expect_warning("deprecated") |>
-    suppressWarnings()
-
-  # The verdict is the same either way:
-  5.19 |>
-    grim(n = 28, digits_x = 2, items_averaged = 1, tolerance = 1e-6) |>
-    suppressWarnings() |>
-    expect_equal(grim(x = 5.19, n = 28, digits_x = 2, items_averaged = 1))
-
-  # Not specifying it is silent, and `grimmer()` -- which calls `grim_scalar()`
-  # internally -- must not trip it either. Its own `tolerance` is deprecated
-  # the same way:
-  5.19 |> grim(n = 28, digits_x = 2, items_averaged = 1) |> expect_no_condition()
-  5.19 |>
-    grimmer(sd = 0.5, n = 28, digits_x = 2, digits_sd = 2, items_averaged = 1) |>
-    expect_no_condition()
-  5.19 |>
-    grimmer(sd = 0.5, n = 28, digits_x = 2, digits_sd = 2, items_averaged = 1, tolerance = 1e-6) |>
-    lifecycle::expect_deprecated()
-
-  # `debit()` has no such argument at all:
-  debit |> formals() |> rlang::has_name("tolerance") |> expect_false()
-})
-
-
 test_that("a string `n` is an error, not an unexplained `NA`", {
   5.19 |> grim("28", 2, items_averaged = 1) |> expect_error("`n` must be one of these types")
   tibble::tibble(x = 5.19, n = "28") |>
