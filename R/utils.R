@@ -1886,9 +1886,11 @@ resolve_var_bounds <- function(
 ) {
   bounds <- var_bounds[[var]]
 
-  # A bound that depends on a setting, such as the least `n` for an `sd_type`:
+  # A bound that depends on a setting, such as the least `n` for an `sd_type`.
+  # `check_var_bounds()` skipped it at creation, so it is checked now:
   if (is.function(bounds)) {
     bounds <- bounds(args)
+    check_var_bounds(rlang::set_names(list(bounds), var))
   }
 
   # The one bound that holds for every consistency test, so it applies even to a

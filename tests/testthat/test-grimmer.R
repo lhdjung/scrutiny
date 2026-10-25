@@ -961,7 +961,8 @@ grimmer_reachable_pairs <- function(vals = -6:12, n_max = 8L) {
       from_col <- seq_len(cols - v^2)
       to_row <- from_row + v
       to_col <- from_col + v^2
-      reach_next[to_row, to_col] <- reach_next[to_row, to_col] | reach[from_row, from_col]
+      reach_next[to_row, to_col] <-
+        reach_next[to_row, to_col] | reach[from_row, from_col]
     }
     reach <- reach_next
     found <- which(reach, arr.ind = TRUE)
@@ -1233,6 +1234,10 @@ test_that("explanations agree with the test under every SD type", {
   # the population SD's requirement is the one stated:
   4 |> grimmer_explain(0.5, 1,   1, 1, 1, sd_type = "either") |> format() |> expect_match("A single value has no sample SD", fixed = TRUE)
   4 |> grimmer_explain(0.5, 1.5, 1, 1, 1, sd_type = "either") |> format() |> expect_no_match("sample", fixed = TRUE)
+
+  # A single value's only sum of squares is its square, in the singular:
+  explanation <- 3 |> grimmer_explain(1, 1, 0, 0, 1, sd_type = "population") |> format()
+  explanation |> expect_match("its sum of squares can only be 9", fixed = TRUE)
 
   out <- tibble::tibble(x = c(4.4, 4.4), sd = c(1.62, 1.82), n = 5) |>
     grimmer_map(digits_x = 1, digits_sd = 2, items_averaged = 1, sd_type = "population") |>

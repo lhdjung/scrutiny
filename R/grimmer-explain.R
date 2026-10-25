@@ -408,6 +408,18 @@ grimmer_explain_candidate <- function(
   }
   attainable <- if (is.null(attained) || identical(attained, first)) {
     NULL
+  } else if (n == 1) {
+    # A population SD can be tested with a single value, whose only sum of
+    # squares is its square:
+    paste0(
+      "But a single number with a sum of ",
+      s,
+      " equals ",
+      s,
+      ", so its sum of squares can only be ",
+      s^2,
+      "."
+    )
   } else if (is.na(attained)) {
     paste0(
       "But fewer than five whole numbers cannot have every such sum of ",

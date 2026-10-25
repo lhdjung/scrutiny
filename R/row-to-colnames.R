@@ -130,7 +130,7 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
       "x" = "{wrap_in_backticks(names_dup)} {cli::qty(length(names_dup))}\\
       {?is/are} taken more than once.",
       "i" = "Specify several rows in `row` to tell the columns apart, or \\
-      rename them afterwards with `colnames<-`."
+      change the repeated cells in `data` first."
     )
   }
 

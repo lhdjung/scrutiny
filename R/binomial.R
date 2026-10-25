@@ -173,7 +173,10 @@ grim_binomial_power <- function(
     )
   }
   if (
-    length(k) != 1L || !is.numeric(k) || !is.finite(k) || k < 1 ||
+    length(k) != 1L ||
+      !is.numeric(k) ||
+      !is.finite(k) ||
+      k < 1 ||
       !is_whole_number(k)
   ) {
     abort_in_export(
@@ -216,7 +219,8 @@ grim_binomial_power <- function(
 
   # Does this outcome fall into the rejection region? A p-value that equals
   # `alpha` exactly may come out a hair above it, so the comparison allows for
-  # that, with the tolerance of `stats::binom.test()`:
+  # that, with the relative tolerance that `stats::binom.test()` allows when it
+  # compares probabilities:
   is_in_rejection <- p_values_all <= alpha * (1 + 1e-7)
 
   # Power = total probability (under H1) of outcomes that reject H0

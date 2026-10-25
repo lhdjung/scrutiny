@@ -644,10 +644,8 @@ check_args_disabled <- function(args_disabled) {
   is_given <- vapply(
     args_disabled,
     function(arg) {
-      arg %in%
-        names_dots ||
-        (arg %in%
-          names_formals &&
+      (arg %in% names_dots) ||
+        ((arg %in% names_formals) &&
           !eval(call("missing", as.name(arg)), env_caller))
     },
     logical(1L),

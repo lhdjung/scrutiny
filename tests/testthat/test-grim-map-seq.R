@@ -1665,3 +1665,13 @@ test_that("sequence mappers accept input columns named like their result columns
 test_that("`var` must name each column once", {
   pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, var = c("x", "x")) |> expect_error("more than once")
 })
+
+test_that("a `.var_bounds` function is checked once it is called", {
+  my_map_seq <- function_map_seq(
+    .fun = grim_map,
+    .reported = c("x", "n"),
+    .name_test = "GRIM",
+    .var_bounds = list(n = function(args) 2)
+  )
+  pigs1 |> my_map_seq(digits_x = 2, items_averaged = 1) |> expect_error("`.var_bounds$n` must be a numeric vector of length 2", fixed = TRUE)
+})
