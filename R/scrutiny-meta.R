@@ -65,10 +65,15 @@ scrutiny_meta <- function(x) {
 # needs no record of them. Sequence and total-n output carries the basic
 # class, so it gets the same line. Mappers made by `function_map()` in other
 # packages get no header unless they add a method like these.
-header_settings <- function(x, name_test, mapper) {
+#
+# pillar pads every name in the header to the widest one, "A tibble", so the
+# line would read `# GRIM:     rounding = "up"`. Only an unnamed header is
+# printed as it is, so the names are written into the lines here:
+header_settings <- function(header, x, name_test, mapper) {
+  header <- paste0(names(header), ": ", header)
   args <- scrutiny_meta(x)$args
   if (length(args) == 0L) {
-    return(character())
+    return(header)
   }
 
   defaults <- formals(mapper)[names(args)]
@@ -91,25 +96,25 @@ header_settings <- function(x, name_test, mapper) {
     paste(names(args), "=", vapply(args, deparse, character(1L)), collapse = ", ")
   }
 
-  rlang::set_names(settings, name_test)
+  c(header, paste0(name_test, ": ", settings))
 }
 
 #' @exportS3Method pillar::tbl_sum
 tbl_sum.scrutiny_grim_map <- function(x, ...) {
-  c(NextMethod(), header_settings(x, "GRIM", grim_map))
+  header_settings(NextMethod(), x, "GRIM", grim_map)
 }
 
 #' @exportS3Method pillar::tbl_sum
 tbl_sum.scrutiny_grimmer_map <- function(x, ...) {
-  c(NextMethod(), header_settings(x, "GRIMMER", grimmer_map))
+  header_settings(NextMethod(), x, "GRIMMER", grimmer_map)
 }
 
 #' @exportS3Method pillar::tbl_sum
 tbl_sum.scrutiny_debit_map <- function(x, ...) {
-  c(NextMethod(), header_settings(x, "DEBIT", debit_map))
+  header_settings(NextMethod(), x, "DEBIT", debit_map)
 }
 
 #' @exportS3Method pillar::tbl_sum
 tbl_sum.scrutiny_is_percentage_of_map <- function(x, ...) {
-  c(NextMethod(), header_settings(x, "Percentage", is_percentage_of_map))
+  header_settings(NextMethod(), x, "Percentage", is_percentage_of_map)
 }
