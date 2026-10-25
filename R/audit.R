@@ -114,10 +114,15 @@ audit.default <- function(data, ...) {
 # `dplyr::ungroup()` drops the attribute as well, so only grouped output can be
 # recognized:
 hint_grouped <- function(data, alternative) {
-  if (inherits(data, "grouped_df") && !is.null(attr(data, "scrutiny", exact = TRUE))) {
+  if (
+    inherits(data, "grouped_df") &&
+      !is.null(attr(data, "scrutiny", exact = TRUE))
+  ) {
     paste0(
       "`dplyr::group_by()` removed the class of the mapper output. ",
-      "Use the output from before grouping, as in `", alternative, "`."
+      "Use the output from before grouping, as in `",
+      alternative,
+      "`."
     )
   }
 }
@@ -187,12 +192,14 @@ audit_seq <- function(data) {
     name_key_result <- "consistency"
   }
 
+  # The dispersed variables, as recorded in the settings:
+  var_names <- meta$settings$value[[match("var", meta$settings$setting)]]
+
   # With no inconsistent case, there is nothing to count hits in, but the
   # output has the columns of any other. The dispersed variables are read off
   # the attribute, since the `var` column has no values; output that has lost
   # the attribute gets no per-variable columns:
   if (nrow(data) == 0L) {
-    var_names <- meta$settings$value[[match("var", meta$settings$setting)]]
     out <- reverse_map_seq(data)
     out[[name_key_result]] <- logical(0L)
     out$hits_total <- integer(0L)
@@ -221,10 +228,9 @@ audit_seq <- function(data) {
     ) |>
     unname()
 
-  # The dispersed variables, in the order of the `var` argument. The attribute
-  # records them all, even one whose dispersion `out_min` or `out_max` clipped
+  # The dispersed variables, in the order of the `var` argument. The settings
+  # record them all, even one whose dispersion `out_min` or `out_max` clipped
   # away in every case; the `var` column only has those with rows:
-  var_names <- meta$var
   if (is.null(var_names)) {
     var_names <- unique(data$var)
   }

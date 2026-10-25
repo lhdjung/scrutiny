@@ -73,6 +73,15 @@ test_that("a case whose dispersion was clipped to nothing stays aligned", {
   audit$hits_n |> expect_equal(c(1L, 0L, 1L))
 })
 
+test_that("a variable clipped to nothing in every case keeps its `audit_seq()` columns", {
+  # `out_max = 15` is below every dispersed `n` of `pigs1`, so `n` has no rows:
+  out <- pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, var = c("n", "x"), out_max = 15)
+  out$var |> unique() |> expect_equal("x")
+  audit <- out |> audit_seq()
+  audit |> colnames() |> expect_contains(c("hits_n", "hits_x", "diff_n", "diff_n_up", "diff_n_down"))
+  audit$hits_n |> expect_equal(rep(0L, nrow(audit)))
+})
+
 test_that("a variable without a `digits_*` column is recovered when its dispersion skips steps", {
   df <- tibble::tibble(absolute = 40, percentage = 35, n = 120)
   for (dispersion in list(1, c(2, 4, 6))) {
