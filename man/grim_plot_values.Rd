@@ -34,6 +34,8 @@ consistent value is marked in \code{color_cons}.}
 A ggplot object.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 \code{grim_plot_values()} draws the GRIM test for a single value set.
 The plot is a comb. Each tooth is a mean (or percentage) that could have
 been reported with \code{digits_x} decimal places, between the whole number at

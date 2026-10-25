@@ -109,7 +109,8 @@ reference:
   - explain_print
   - scrutiny_meta
 - title: Developer tools
-  desc: Helpers for implementing error detection techniques
+  desc: Helpers for implementing error detection techniques. Unlike the functions
+    above, these may change in minor releases, with a NEWS entry.
 - subtitle: Function factories
   desc: Easily create new mapper functions for consistency tests
 - contents:
@@ -146,12 +147,6 @@ reference:
   - seq_disperse
   - disperse
   - is_seq_linear
-- subtitle: Documentation templates
-  desc: Return standardized building blocks for documenting specific kinds of functions
-- contents:
-  - write_doc_audit
-  - write_doc_audit_seq
-  - write_doc_audit_total_n
 - subtitle: Consistency test helpers
   desc: Call these helpers inside of your own functions that implement consistency
     tests at various levels
@@ -180,6 +175,3 @@ reference:
   - pigs3
   - pigs4
   - pigs5
-- title: Deprecated
-- contents:
-

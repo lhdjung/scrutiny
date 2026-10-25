@@ -410,27 +410,9 @@ audit(iris)
 
 You can still add other summary columns to the tibble returned by `audit_cols_minimal()`. Use `dplyr::mutate()` or similar.
 
-## Documentation template
+## Documentation
 
-Each `audit()` method should be documented on the same page as its respective mapper function. It should have its own section called *Summaries with `audit()`*. Create it with `write_doc_audit()`:
-
-```{r}
-audit_grim <- pigs1 |>
-  grim_map(digits_x = 2, items_averaged = 1) |>
-  audit()
-
-audit_grimmer <- pigs5 |>
-  grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
-  audit()
-
-write_doc_audit(sample_output = audit_grim, name_test = "GRIM")
-
-write_doc_audit(sample_output = audit_grimmer, name_test = "GRIMMER")
-```
-
-This function prepares a roxygen2 block section. It fills the three standard columns out for you, and it leaves space to describe any other columns there might be. Also, the internal checks of `write_doc_audit()` make sure that you programmed a correct `audit()` method, as represented by the value of the `sample_output` argument.
-
-Copy the output from the console and paste it into the roxygen2 block of your `*_map()` function. To preserve the numbered list structure when indenting roxygen2 comments with `Ctrl`+`Shift`+`/`, leave empty lines between the pasted output and the rest of the block.
+Each `audit()` method should be documented on the same page as its respective mapper function, in a section called *Summaries with `audit()`* that lists the columns of its output. See `?grim_map` for an example.
 
 # 5. Visualization function
 
@@ -574,29 +556,9 @@ The `n` column is dispersed from half the total with `disperse_total()`. To expo
 
 `audit_seq()` and `audit_total_n()` summarize the output of sequence and total-n mappers, and `audit()` calls them on such output. They are not generic: they work on the output of any function made by `function_map_seq()` or `function_map_total_n()`, so there is nothing to implement. What remains is to document their behavior for your test.
 
-## Documentation templates
+## Documentation
 
-The summaries differ between tests only in the names and number of the key columns. Document them on the pages of your `*_map_seq()` and `*_map_total_n()` functions, using `write_doc_audit_seq()` and `write_doc_audit_total_n()`, which work like `write_doc_audit()`. Output omitted here:
-
-```{r, eval=FALSE}
-write_doc_audit_seq(key_args = c("x", "n"), name_test = "GRIM")
-write_doc_audit_seq(key_args = c("x", "sd", "n"), name_test = "GRIMMER")
-write_doc_audit_seq(key_args = c("x", "sd", "n"), name_test = "DEBIT")
-```
-
-`key_args` names the test's key arguments, and `name_test` is the test's plain-text name.
-
-Copy the output from the console and paste it into the roxygen2 block of your `_map_seq` function. To preserve the bullet-point structure when indenting roxygen2 comments with `Ctrl`+`Shift`+`/`, leave empty lines between the pasted output and the rest of the block.
-
-Likewise, documenting `audit_total_n()` for `grim_map_total_n()`, `grimmer_map_total_n()`, and `debit_map_total_n()`:
-
-```{r, eval=FALSE}
-write_doc_audit_total_n(key_args = c("x", "n"), name_test = "GRIM")
-write_doc_audit_total_n(key_args = c("x", "sd", "n"), name_test = "GRIMMER")
-write_doc_audit_total_n(key_args = c("x", "sd", "n"), name_test = "DEBIT")
-```
-
-These functions exist so that the documentation of every sequence and total-n mapper follows the same conventions with little effort.
+The summaries differ between tests only in the names and number of the key columns. Document them on the pages of your `*_map_seq()` and `*_map_total_n()` functions as `?grim_map_seq` and `?grim_map_total_n` do, in a section called *Summaries with `audit_seq()`* or *Summaries with `audit_total_n()`*.
 
 # Wrap-up
 

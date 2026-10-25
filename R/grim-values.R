@@ -156,7 +156,9 @@ grim_closest_scalar <- function(
 
 #' Achievable means behind a reported one
 #'
-#' @description These functions return the means (or percentages) that a sample
+#' @description `r lifecycle::badge("experimental")`
+#'
+#'   These functions return the means (or percentages) that a sample
 #'   of `n * items_averaged` integers can have:
 #'
 #'   - `grim_values()` returns every achievable value that would be reported as

@@ -1,6 +1,8 @@
 #' Compare GRIM-inconsistency rates to random means
 #'
-#' @description `grim_plot_rates()` plots one point per study: its observed rate
+#' @description `r lifecycle::badge("experimental")`
+#'
+#'   `grim_plot_rates()` plots one point per study: its observed rate
 #'   of GRIM-inconsistent value sets against the rate that means with random
 #'   decimal digits would show at the same sample sizes and numbers of decimal
 #'   places. This helps spot both problematic studies and problems in GRIM

@@ -78,6 +78,8 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 ## New features
 
+- All functions new in 1.0.0 are experimental: their interfaces may still change based on feedback. The developer tools, such as `function_map()` and the rounding helpers, may change in minor releases, as the reference index now states.
+
 - `grim_explain()`, `grimmer_explain()`, and `debit_explain()` test a single case and lay out the calculation in plain words, from the reported values to the verdict. The text is built from the same numbers that decide the test, so it always agrees with `grim()`, `grimmer()`, and `debit()`. `explain_map()` adds these explanations to a mapper's output as an `explanation` column, using the settings of the mapper call, and `explain_print()` prints them.
 
 - `is_percentage_of()`, `is_percentage_of_map()`, and `is_percentage_of_map_seq()` check whether a reported percentage matches a reported count out of a reported total. `add_up_to()` and `add_up_to_map()` check whether subgroup sizes sum to a reported total; `add_up_to_map()` selects any number of columns with tidyselect. Both have `audit()` methods. All five functions are experimental.
@@ -166,7 +168,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - Removed after their deprecation in scrutiny 0.5.0: the `show_prob` argument of `grim_map()`, `grim_ratio_upper()`, and the 15 functions around `is_subset_of()`.
 
-- Removed, since no package uses them and 1.0.0 is the release for breaking changes: `grim_ratio()` (`grim_probability()` is the rounding-aware version), `manage_key_colnames()` (use `absorb_key_args()`), `unnest_consistency_cols()`, `write_doc_factory_map_conventions()`, and the re-exports of rlang's `enquo()`, `enquos()`, `as_name()`, `as_label()`, `.data`, and `:=`. `check_factory_dots()`, `check_args_disabled()`, and `decimal_places_scalar()` are no longer exported. `check_audit_special()` was removed: `audit()` now reaches `audit_seq()` and `audit_total_n()` itself.
+- Removed, since no package uses them and 1.0.0 is the release for breaking changes: `grim_ratio()` (`grim_probability()` is the rounding-aware version), `manage_key_colnames()` (use `absorb_key_args()`), `unnest_consistency_cols()`, `write_doc_factory_map_conventions()`, and the re-exports of rlang's `enquo()`, `enquos()`, `as_name()`, `as_label()`, `.data`, and `:=`. `check_factory_dots()`, `check_args_disabled()`, `decimal_places_scalar()`, and the documentation templates `write_doc_audit()`, `write_doc_audit_seq()`, and `write_doc_audit_total_n()` are no longer exported. `check_audit_special()` was removed: `audit()` now reaches `audit_seq()` and `audit_total_n()` itself.
 
 - `duplicate_detect()` was removed in favor of `duplicate_tally()`, which counts duplicates instead of only flagging them. It was superseded since scrutiny 0.3.0.
 

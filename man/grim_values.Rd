@@ -51,6 +51,8 @@ be decided.
 }
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 These functions return the means (or percentages) that a sample
 of \code{n * items_averaged} integers can have:
 \itemize{

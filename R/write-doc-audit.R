@@ -1,3 +1,6 @@
+# Development tools: run with `devtools::load_all()` and paste the output into
+# a mapper's roxygen2 block. Not exported, since they serve no analysis.
+
 #' Documentation template for [`audit()`]
 #'
 #' @description `write_doc_audit()` generates the roxygen2 section that
@@ -11,7 +14,7 @@
 #' @param name_test String (length 1). Plain-text name of the test, such as
 #'   `"GRIM"`.
 #'
-#' @export
+#' @noRd
 #'
 #' @return A string vector formatted by [`glue::glue()`].
 #'
@@ -100,7 +103,7 @@ write_doc_audit <- function(sample_output, name_test) {
 #'
 #' @include utils.R
 #'
-#' @export
+#' @noRd
 #'
 #' @return A string vector formatted by [`glue::glue()`].
 #'
@@ -158,7 +161,7 @@ write_doc_audit_seq <- function(key_args, name_test) {
 #' @param name_test String (length 1). Plain-text name of the test, such as
 #'   `"GRIM"`.
 #'
-#' @export
+#' @noRd
 #'
 #' @return A string vector formatted by [`glue::glue()`].
 #'

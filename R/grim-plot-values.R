@@ -305,7 +305,9 @@ check_comb_value <- function(value, digits, name) {
 
 #' Visualize the means that GRIM admits
 #'
-#' @description `grim_plot_values()` draws the GRIM test for a single value set.
+#' @description `r lifecycle::badge("experimental")`
+#'
+#'   `grim_plot_values()` draws the GRIM test for a single value set.
 #'   The plot is a comb. Each tooth is a mean (or percentage) that could have
 #'   been reported with `digits_x` decimal places, between the whole number at
 #'   or below `x` and the next one up. Teeth for means that a sample of size

@@ -1,6 +1,8 @@
 #' Visualize the standard deviations that GRIMMER admits
 #'
-#' @description `grimmer_plot_values()` draws the GRIMMER test for a single
+#' @description `r lifecycle::badge("experimental")`
+#'
+#'   `grimmer_plot_values()` draws the GRIMMER test for a single
 #'   value set, as [`grim_plot_values()`] does for GRIM. Every SD that could
 #'   have been reported with `digits_sd` decimal places within a window is a
 #'   tooth of a comb; the ones that a sample of size `n` with mean `x` could

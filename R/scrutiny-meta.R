@@ -1,6 +1,8 @@
 #' Read the settings a mapper recorded on its output
 #'
-#' @description Every mapper, such as [`grim_map()`], records the settings of
+#' @description `r lifecycle::badge("experimental")`
+#'
+#'   Every mapper, such as [`grim_map()`], records the settings of
 #'   the call that produced its output in a list attribute named `"scrutiny"`.
 #'   `scrutiny_meta()` returns that list, so that a report can state under
 #'   which rounding method or SD convention a verdict was reached. Classes are

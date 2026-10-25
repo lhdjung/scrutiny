@@ -16,6 +16,8 @@ that identifies the study of each value set.}
 A ggplot object.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 \code{grim_plot_rates()} plots one point per study: its observed rate
 of GRIM-inconsistent value sets against the rate that means with random
 decimal digits would show at the same sample sizes and numbers of decimal

@@ -1,6 +1,8 @@
 #' Explain a GRIM test step by step
 #'
-#' @description `grim_explain()` tests a single mean like [`grim()`] does, but
+#' @description `r lifecycle::badge("experimental")`
+#'
+#'   `grim_explain()` tests a single mean like [`grim()`] does, but
 #'   also lays out the calculation in plain words: which true means the
 #'   reported one could stand for, which sums of the underlying whole numbers
 #'   follow from them, and whether any of these sums is possible.

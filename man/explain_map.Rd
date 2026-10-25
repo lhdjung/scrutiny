@@ -13,6 +13,8 @@ explain_map(data)
 \code{data} with an \code{explanation} column, a string per row.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 \code{explain_map()} takes the output of \code{\link[=grim_map]{grim_map()}},
 \code{\link[=grimmer_map]{grimmer_map()}}, or \code{\link[=debit_map]{debit_map()}} and adds an \code{explanation} column: the
 calculation behind each row's verdict in plain words, as printed by

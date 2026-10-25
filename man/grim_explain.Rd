@@ -52,6 +52,8 @@ An object of class \code{scrutiny_explain}: a list with the verdict as
 and the \code{test} and its \code{inputs}. It prints as the explanation.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 \code{grim_explain()} tests a single mean like \code{\link[=grim]{grim()}} does, but
 also lays out the calculation in plain words: which true means the
 reported one could stand for, which sums of the underlying whole numbers

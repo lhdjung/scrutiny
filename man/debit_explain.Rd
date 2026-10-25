@@ -45,6 +45,8 @@ An object of class \code{scrutiny_explain}: a list with the verdict as
 and the \code{test} and its \code{inputs}. It prints as the explanation.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 \code{debit_explain()} tests a single mean and SD of binary data
 like \code{\link[=debit]{debit()}} does, but also lays out the calculation in plain words:
 which numbers of ones the mean allows, and whether the SD of any of them

@@ -1,6 +1,8 @@
 #' Explain a DEBIT test step by step
 #'
-#' @description `debit_explain()` tests a single mean and SD of binary data
+#' @description `r lifecycle::badge("experimental")`
+#'
+#'   `debit_explain()` tests a single mean and SD of binary data
 #'   like [`debit()`] does, but also lays out the calculation in plain words:
 #'   which numbers of ones the mean allows, and whether the SD of any of them
 #'   would be reported as the given one.

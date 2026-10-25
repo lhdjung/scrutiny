@@ -1,6 +1,8 @@
 #' Explain mapper results row by row
 #'
-#' @description `explain_map()` takes the output of [`grim_map()`],
+#' @description `r lifecycle::badge("experimental")`
+#'
+#'   `explain_map()` takes the output of [`grim_map()`],
 #'   [`grimmer_map()`], or [`debit_map()`] and adds an `explanation` column: the
 #'   calculation behind each row's verdict in plain words, as printed by
 #'   [`grim_explain()`], [`grimmer_explain()`], and [`debit_explain()`] for a

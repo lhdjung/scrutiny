@@ -13,6 +13,8 @@ scrutiny_meta(x)
 A named list, or \code{NULL} if \code{x} has no \code{"scrutiny"} attribute.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 Every mapper, such as \code{\link[=grim_map]{grim_map()}}, records the settings of
 the call that produced its output in a list attribute named \code{"scrutiny"}.
 \code{scrutiny_meta()} returns that list, so that a report can state under

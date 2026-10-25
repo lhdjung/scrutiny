@@ -29,6 +29,8 @@ round_ties_even(x, digits = 0L)
 Numeric. \code{x} rounded to \code{digits}.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 Each of these functions rounds to the nearest number with
 \code{digits} decimal places. They differ only at a tie, a value exactly
 halfway between two such numbers:

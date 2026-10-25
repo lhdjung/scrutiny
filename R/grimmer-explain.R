@@ -1,6 +1,8 @@
 #' Explain a GRIMMER test step by step
 #'
-#' @description `grimmer_explain()` tests a single mean and SD like
+#' @description `r lifecycle::badge("experimental")`
+#'
+#'   `grimmer_explain()` tests a single mean and SD like
 #'   [`grimmer()`] does, but also lays out the calculation in plain words. It
 #'   starts with the GRIM test of the mean, as in [`grim_explain()`], and goes
 #'   on to the sum of squares that each possible sum implies with the SD.

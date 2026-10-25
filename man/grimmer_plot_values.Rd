@@ -34,6 +34,8 @@ consistent value is marked in \code{color_cons}.}
 A ggplot object.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 \code{grimmer_plot_values()} draws the GRIMMER test for a single
 value set, as \code{\link[=grim_plot_values]{grim_plot_values()}} does for GRIM. Every SD that could
 have been reported with \code{digits_sd} decimal places within a window is a

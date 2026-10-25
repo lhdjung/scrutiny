@@ -1,6 +1,8 @@
 #' Rounding procedures named by their tie-breaking rule
 #'
-#' @description Each of these functions rounds to the nearest number with
+#' @description `r lifecycle::badge("experimental")`
+#'
+#'   Each of these functions rounds to the nearest number with
 #'   `digits` decimal places. They differ only at a tie, a value exactly
 #'   halfway between two such numbers:
 #'   - `round_ties_up()` sends a tie to the higher number.
