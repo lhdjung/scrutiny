@@ -20,7 +20,7 @@ aGrimmer <- function(n, mean, SD, decimals_mean = 2, decimals_SD = 2) {
       floor(number * 10^decimals) / 10^decimals,
       round(number, digits = decimals)
     )
-    return(number_rounded)
+    number_rounded
   }
 
   round_up <- function(number, decimals = 2) {
@@ -30,7 +30,7 @@ aGrimmer <- function(n, mean, SD, decimals_mean = 2, decimals_SD = 2) {
       ceiling(number * 10^decimals) / 10^decimals,
       round(number, digits = decimals)
     )
-    return(number_rounded)
+    number_rounded
   }
 
   # Applies the GRIM test, to see whether the reconstituted mean is the same as the reported mean (with both down and up rounding)
@@ -87,11 +87,11 @@ aGrimmer <- function(n, mean, SD, decimals_mean = 2, decimals_SD = 2) {
   oddness <- realsum %% 2
   Matches_Oddness <- Possible_Integers %% 2 == oddness
   Third_Test <- Matches_SD & Matches_Oddness
-  return(ifelse(
+  ifelse(
     sum(Third_Test) == 0,
     "GRIMMER inconsistent (test 3)",
     "The mean and SD are consistent."
-  ))
+  )
 }
 
 
@@ -155,7 +155,7 @@ GRIMMER_test <- function(
       floor(number * 10^decimals) / 10^decimals,
       round(number, digits = decimals)
     )
-    return(number_rounded)
+    number_rounded
   }
 
   round_up <- function(number, decimals = 2) {
@@ -165,7 +165,7 @@ GRIMMER_test <- function(
       ceiling(number * 10^decimals) / 10^decimals,
       round(number, digits = decimals)
     )
-    return(number_rounded)
+    number_rounded
   }
 
   # Applies the GRIM test, to see whether the reconstituted mean is the same as the reported mean (with both down and up rounding)
@@ -235,7 +235,7 @@ GRIMMER_test <- function(
     return(FALSE)
   }
 
-  return(TRUE)
+  TRUE
 }
 
 
@@ -997,7 +997,7 @@ test_that("GRIMMER agrees with a brute force on random value sets", {
   x <- round(runif(length(n), 1, 5), 1)
   sd <- round(runif(length(n), 0, 2.5), 1)
 
-  truth <- mapply(any_sample, x, sd, n)
+  truth <- list(x, sd, n) |> purrr::pmap_lgl(any_sample)
   verdict <- grimmer(x, sd, n, digits_x = 1, digits_sd = 1, items_averaged = 1)
   verdict |> expect_equal(truth)
   # Both regimes are well represented: the exceptions at `n < 5` and the exact
