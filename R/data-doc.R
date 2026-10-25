@@ -76,7 +76,7 @@
 #' duplicates. The dataset can be used to demonstrate the functionality of
 #' `duplicate_*()` functions such as `duplicate_count()`.
 
-#' @include utils.R duplicate-detect.R
+#' @include utils.R duplicate-tally.R
 #'
 #' @format A tibble (data frame) with 5 rows and 3 columns, describing various
 #'   body measures of the fictional pigs. The columns are:

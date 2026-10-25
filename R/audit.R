@@ -23,7 +23,6 @@
 #'   | [`duplicate_count()`]          | `"scrutiny_dup_count"`              |
 #'   | [`duplicate_count_colpair()`]  | `"scrutiny_dup_count_colpair"`      |
 #'   | [`duplicate_tally()`]          | `"scrutiny_dup_tally"`              |
-#'   | [`duplicate_detect()`]         | `"scrutiny_dup_detect"`             |
 #'   | [`audit_seq()`]                | `"scrutiny_audit_seq"`              |
 #'   | [`audit_total_n()`]            | `"scrutiny_audit_total_n"`          |
 #'

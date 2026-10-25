@@ -34,7 +34,6 @@ it calls \code{\link[=audit_seq]{audit_seq()}} or \code{\link[=audit_total_n]{au
    \code{\link[=duplicate_count]{duplicate_count()}} \tab \code{"scrutiny_dup_count"} \cr
    \code{\link[=duplicate_count_colpair]{duplicate_count_colpair()}} \tab \code{"scrutiny_dup_count_colpair"} \cr
    \code{\link[=duplicate_tally]{duplicate_tally()}} \tab \code{"scrutiny_dup_tally"} \cr
-   \code{\link[=duplicate_detect]{duplicate_detect()}} \tab \code{"scrutiny_dup_detect"} \cr
    \code{\link[=audit_seq]{audit_seq()}} \tab \code{"scrutiny_audit_seq"} \cr
    \code{\link[=audit_total_n]{audit_total_n()}} \tab \code{"scrutiny_audit_total_n"} \cr
 }

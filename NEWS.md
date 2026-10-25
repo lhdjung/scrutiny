@@ -74,7 +74,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `grim_plot()` and `debit_plot()` return their plot instead of printing it. `grim_plot()` has an aspect ratio of 1; add `ggplot2::theme(aspect.ratio = NULL)` to undo this. `grim_plot()` has a new `split_by_digits` argument that returns a named list with one plot per number of decimal places. `debit_plot()` no longer has the `line_size` argument or the arguments for the outer boxes (`show_outer_boxes` and the `tile_*` arguments). Instead, each rectangle is drawn over a point at the reported mean and SD, so that value sets whose rectangle is too small to see remain visible.
 
-- `duplicate_count_colpair()` requires at least two columns, and its `rate_y` is the proportion of `y` values that occur in `x`, as documented. `audit()` on `duplicate_detect()` output has a row for every column and counts only non-missing values.
+- `duplicate_count_colpair()` requires at least two columns, and its `rate_y` is the proportion of `y` values that occur in `x`, as documented.
 
 ## New features
 
@@ -142,7 +142,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `split_by_parens()`, `before_parens()`, and `inside_parens()` now split each string separately. Previously, a string with an unusual number of separators shifted the values of all subsequent rows. Custom separators are matched literally. `split_by_parens()` errors instead of overwriting an existing column, and handles `NA` and 0-row input.
 
-- `duplicate_tally()` no longer counts missing values as matches of every other value, and its running time is now proportional to the number of values rather than to its square. It and `duplicate_detect()` treat `NaN` as missing, as `duplicate_count()` does. `duplicate_count()` uses a named vector's names as `locations` and drops unused factor levels. `duplicate_count_colpair()` compares values as strings, like the other `duplicate_*()` functions. All of them write numbers out in full, so `100000` is the same value as `100000L` and `"100000"`, not `"1e+05"`.
+- `duplicate_tally()` no longer counts missing values as matches of every other value, and its running time is now proportional to the number of values rather than to its square. It treats `NaN` as missing, as `duplicate_count()` does. `duplicate_count()` uses a named vector's names as `locations` and drops unused factor levels. `duplicate_count_colpair()` compares values as strings, like the other `duplicate_*()` functions. All of them write numbers out in full, so `100000` is the same value as `100000L` and `"100000"`, not `"1e+05"`.
 
 - `is_seq_linear()` now returns `FALSE` for sequences such as `c(1, 2, 1)`. The `is_seq_*()` functions now fill gaps left by `NA` values using the step size implied by the known values. They return `NA` for a vector consisting only of `NA`, whatever its type, and test strings and factors by their numeric values.
 
@@ -166,7 +166,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - Removed, since no package uses them and 1.0.0 is the release for breaking changes: `grim_ratio()` (`grim_probability()` is the rounding-aware version), `manage_key_colnames()` (use `absorb_key_args()`), `unnest_consistency_cols()`, `write_doc_factory_map_conventions()`, and the re-exports of rlang's `enquo()`, `enquos()`, `as_name()`, `as_label()`, `.data`, and `:=`. `check_factory_dots()`, `check_args_disabled()`, and `decimal_places_scalar()` are no longer exported. `check_audit_special()` was removed: `audit()` now reaches `audit_seq()` and `audit_total_n()` itself.
 
-- `duplicate_detect()` is deprecated in favor of `duplicate_tally()`. It was superseded since scrutiny 0.3.0.
+- `duplicate_detect()` was removed in favor of `duplicate_tally()`, which counts duplicates instead of only flagging them. It was superseded since scrutiny 0.3.0.
 
 - `debit_plot()` maps `consistency` to one scale for `colour` and `fill`, so that adding a `ggplot2::scale_colour_manual()` with `aesthetics = c("colour", "fill")` restyles it. The arguments that set fixed styles were removed: `color_cons`, `color_incons`, `rect_alpha`, and the `line_*` and `label_*` arguments. `grim_plot()` does the same for its value sets and loses `color_cons`, `color_incons`, `tile_alpha`, and `raster_alpha`; `tile_size` and `raster_color` remain, since no scale reaches them.
 
