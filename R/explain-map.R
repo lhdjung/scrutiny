@@ -36,12 +36,16 @@ explain_map <- function(data) {
 
 #' @export
 explain_map.default <- function(data) {
+  hint <- hint_grouped(data, "explain_map(data)")
+  if (is.null(hint)) {
+    hint <- "Their sequence and total-n mappers, such as `grim_map_seq()`, \\
+    work as well."
+  }
   abort_in_export(
     "`data` must be the output of `grim_map()`, `grimmer_map()`, or \\
     `debit_map()`.",
     "x" = "It has class {.cls {class(data)}}.",
-    "i" = "Their sequence and total-n mappers, such as `grim_map_seq()`, \\
-    work as well."
+    "i" = hint
   )
 }
 

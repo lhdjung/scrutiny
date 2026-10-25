@@ -1,6 +1,6 @@
 #' @export
 
-audit.scrutiny_grimmer_map <- function(data) {
+audit.scrutiny_grimmer_map <- function(data, ...) {
   out <- data |>
     audit_cols_minimal()
   # Output with no rows has no `reason` column either way (see

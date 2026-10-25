@@ -249,3 +249,25 @@ test_that("`audit()` calls `audit_seq()` and `audit_total_n()` on their tiers", 
     grim_map_total_n(digits_x = c(2, 1), items_averaged = 1)
   data_total_n |> audit() |> expect_equal(audit_total_n(data_total_n))
 })
+
+
+test_that("`.by` summarizes each group on its own, in order of appearance", {
+  out <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1) |> dplyr::mutate(study = rep(c("B", "A", "C"), each = 4))
+  by_study <- out |> audit(.by = study)
+  by_study$study |> expect_equal(c("B", "A", "C"))
+  by_study[-1L] |> expect_equal(dplyr::bind_rows(audit(out[1:4, ]), audit(out[5:8, ]), audit(out[9:12, ])))
+  out |> audit(.by = NULL) |> expect_equal(audit(out))
+  out[0L, ] |> audit(.by = study) |> colnames() |> expect_equal(c("study", colnames(audit(out))))
+  # A name that the summary uses as well, an unknown column, and dots:
+  pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1) |> audit(.by = x) |> expect_error("would appear twice")
+  out |> audit(.by = nope) |> expect_error("doesn't exist")
+  out |> audit(1) |> expect_error("must be empty")
+})
+
+
+test_that("`audit()` says when `group_by()` removed the class", {
+  out <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1)
+  out |> dplyr::group_by(n) |> audit()       |> expect_error("before grouping")
+  out |> dplyr::group_by(n) |> explain_map() |> expect_error("before grouping")
+  iris |> audit() |> expect_error("no method")
+})

@@ -41,6 +41,7 @@ Imports:
     tibble,
     tidyr,
     tidyselect,
+    vctrs,
     utils
 Collate: 
     'aaa.R'

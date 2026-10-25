@@ -390,14 +390,14 @@ Every `audit()` method for consistency test results should be the same insofar a
 
 Apart from these, see for yourself which descriptive statistics your `audit()` method should compute. Means of variables in the `*_map()` function's output and their ratios to each other might be sensible choices.
 
-All existing `audit()` methods for consistency tests return tibbles with a single row only. This makes sense because there is no obvious grouping variable for the input data frame, which would lead to multiple rows in `audit()`'s output. However, there might be good reasons for multiple rows when summarizing the results of other tests, so this is not a requirement.
+All existing `audit()` methods for consistency tests return tibbles with a single row only. Summaries by group come from `audit()`'s `.by` argument, which applies your method to each group, so the method itself needs no grouping. However, there might be good reasons for multiple rows when summarizing the results of other tests, so this is not a requirement.
 
 ### Practical steps
 
-Your `audit()` method is simply a function named `audit` plus a dot and your specific class. Call `audit_cols_minimal()` within the method to create a tibble with the three required columns.
+Your `audit()` method is simply a function named `audit` plus a dot and your specific class. Like the generic, it takes `data` and the dots. Call `audit_cols_minimal()` within the method to create a tibble with the three required columns.
 
 ```{r, error=TRUE}
-audit.scrutiny_schlim_map <- function(data) {
+audit.scrutiny_schlim_map <- function(data, ...) {
   audit_cols_minimal(data)
 }
 

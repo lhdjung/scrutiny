@@ -90,6 +90,8 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `grim_plot_rates()` plots each study's rate of GRIM-inconsistent value sets against the rate that random means would show.
 
+- `audit()` has a `.by` argument for summaries by group, as in `audit(out, .by = study)`, which summarizes each group on its own. `dplyr::group_by()` removes the class that `audit()` dispatches on, so grouped output now gets an error that says so, instead of R's "no applicable method". The generic is now `audit(data, ..., .by = NULL)`: methods in other packages need the dots, as in `audit.my_class <- function(data, ...)`.
+
 - `scrutiny_meta()` returns the settings that a mapper recorded on its output, such as `rounding` and `sd_type`, so that a report can state the conditions under which a verdict was reached. It is a tibble with one row per setting: its value as R code, whether that is the default, and which mapper it belongs to, since a sequence or total-n mapper adds its own settings, such as `dispersion`, to those of the basic mapper. Printed mapper output names the settings that differ from the defaults in its header, as in `# GRIM: rounding = "up"`.
 
 - `round_ties_up()`, `round_ties_down()`, `round_ties_away()`, `round_ties_zero()`, and `round_ties_even()`, with matching `rounding` strings `"ties_up"` etc. Each of these names a complete tie-breaking rule: for example, `"ties_away"` is the same as `"up"` with `symmetric = TRUE`. Specifying `symmetric` together with one of these strings is an error. `round_up()`, `round_down()`, and the `"up"` and `"down"` strings continue to work as before.

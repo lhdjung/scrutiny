@@ -9,6 +9,13 @@
 #'   it calls [`audit_seq()`] or [`audit_total_n()`].
 #'
 #' @param data A data frame returned by one of the functions below.
+#' @param ... These dots must be empty.
+#' @param .by Optionally, columns of `data` to summarize by, selected as in
+#'   [`dplyr::select()`], such as `.by = study`. Each group is summarized on
+#'   its own, and the output has a row for each, starting with the grouping
+#'   columns. Groups appear in the order of their first row. Use this rather
+#'   than [`dplyr::group_by()`], which removes the class that `audit()`
+#'   dispatches on.
 #'
 #' @section Run before `audit()`:
 #'   | \strong{Function}              | \strong{Class}                      |
@@ -37,9 +44,82 @@
 #' pigs4 |>
 #'   duplicate_count() |>
 #'   audit()
+#'
+#' # Summaries by group:
+#' pigs1 |>
+#'   grim_map(digits_x = 2, items_averaged = 1) |>
+#'   dplyr::mutate(study = rep(c("A", "B", "C"), each = 4)) |>
+#'   audit(.by = study)
 
-audit <- function(data) {
+audit <- function(data, ..., .by = NULL) {
+  rlang::check_dots_empty()
+  if (!missing(.by)) {
+    return(audit_by(data, rlang::enquo(.by)))
+  }
   UseMethod("audit")
+}
+
+
+# `audit()` on each group of rows on its own. `[` keeps the class and the
+# "scrutiny" attribute that `audit()` and its methods need, which
+# `dplyr::group_by()` would not:
+audit_by <- function(data, by) {
+  cols <- tidyselect::eval_select(by, data, error_call = rlang::caller_env())
+  if (length(cols) == 0L) {
+    return(audit(data))
+  }
+
+  # Plain columns, so that the "scrutiny" attribute doesn't reach the summary:
+  keys <- tibble::new_tibble(unclass(data)[cols], nrow = nrow(data))
+  groups <- vctrs::vec_group_loc(keys)
+  results <- if (nrow(groups) == 0L) {
+    list(audit(data)[0L, ])
+  } else {
+    lapply(groups$loc, function(rows) audit(data[rows, ]))
+  }
+
+  names_taken <- intersect(names(cols), colnames(results[[1L]]))
+  if (length(names_taken) > 0L) {
+    abort_in_export(
+      "`.by` selects {cli::qty(length(names_taken))}{?a column/columns} that \\
+      the summary has as well.",
+      "x" = "{wrap_in_backticks(names_taken)} would appear twice.",
+      "i" = "Rename {cli::qty(length(names_taken))}{?it/them} in `data` first."
+    )
+  }
+
+  nrow_results <- vapply(results, nrow, integer(1L), USE.NAMES = FALSE)
+  keys <- groups$key[rep(seq_len(nrow(groups)), nrow_results), ]
+  tibble::as_tibble(dplyr::bind_cols(keys, dplyr::bind_rows(results)))
+}
+
+
+# Without it, the generic would fail with R's bare "no applicable method":
+#' @export
+audit.default <- function(data, ...) {
+  hint <- hint_grouped(data, "audit(data, .by = study)")
+  if (is.null(hint)) {
+    hint <- "See `?audit` for the functions whose output it summarizes."
+  }
+  abort_in_export(
+    "`audit()` has no method for `data`.",
+    "x" = "It has class {.cls {class(data)}}.",
+    "i" = hint
+  )
+}
+
+
+# A mapper's output that `dplyr::group_by()` went through still has the
+# "scrutiny" attribute, but not the class, which no method can dispatch on.
+# `dplyr::ungroup()` drops the attribute as well, so only grouped output can be
+# recognized:
+hint_grouped <- function(data, alternative) {
+  if (inherits(data, "grouped_df") && !is.null(attr(data, "scrutiny", exact = TRUE))) {
+    paste0(
+      "`dplyr::group_by()` removed the class of the mapper output. ",
+      "Use the output from before grouping, as in `", alternative, "`."
+    )
+  }
 }
 
 
@@ -312,11 +392,11 @@ audit_total_n <- function(data) {
 # rather than counting the dispersed rows as reported cases:
 
 #' @export
-audit.scrutiny_map_seq <- function(data) {
+audit.scrutiny_map_seq <- function(data, ...) {
   audit_seq(data)
 }
 
 #' @export
-audit.scrutiny_map_total_n <- function(data) {
+audit.scrutiny_map_total_n <- function(data, ...) {
   audit_total_n(data)
 }
