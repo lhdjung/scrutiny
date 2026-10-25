@@ -118,6 +118,7 @@ Collate:
     'round-ties.R'
     'rounding-bias.R'
     'row-to-colnames.R'
+    'scrutiny-meta.R'
     'scrutiny-package.R'
     'seq-disperse.R'
     'split-by-parens.R'

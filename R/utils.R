@@ -634,27 +634,6 @@ add_class <- function(x, new_class) {
 }
 
 
-#' Read the settings a scrutiny function recorded on its output
-#'
-#' @description Classes are for dispatch only. Settings of the call that
-#'   produced a tibble, and that functions downstream need to know about, live
-#'   in a single list attribute named `"scrutiny"` instead:
-#'
-#' - `args`: the arguments that applied to a basic mapper's whole call, with
-#'   defaults resolved, such as `rounding` and `percent`.
-#' - `results_reported`, `name_key_result`, `dispersion_linear`, and `var`:
-#'   set by sequence mappers; see `function_map_seq()`.
-#'
-#' @param x Some object. In scrutiny, always a tibble.
-#'
-#' @return The list, or `NULL` if `x` has no such attribute.
-#'
-#' @noRd
-scrutiny_meta <- function(x) {
-  attr(x, "scrutiny", exact = TRUE)
-}
-
-
 #' Check whether lengths are congruent
 #'
 #' `check_lengths_congruent()` is called within a function `f()` and takes a

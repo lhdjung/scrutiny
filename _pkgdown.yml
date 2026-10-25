@@ -107,6 +107,7 @@ reference:
   - audit-special
   - explain_map
   - explain_print
+  - scrutiny_meta
 - title: Developer tools
   desc: Helpers for implementing error detection techniques
 - subtitle: Function factories
