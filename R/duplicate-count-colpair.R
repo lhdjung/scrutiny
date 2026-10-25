@@ -95,11 +95,10 @@ duplicate_count_colpair <- function(data, ignore = NULL, show_rates = TRUE) {
   # `count` is counted from the `x` side, so the `y` side needs its own count:
   # with `x = c(1, 1, 1)` and `y = 1`, three `x` values are duplicated in `y`,
   # but only one `y` value is duplicated in `x`.
-  count_y <- mapply(
-    function(x, y) sum(values[[y]] %in% values[[x]]),
+  count_y <- purrr::map2_int(
     out$x,
     out$y,
-    USE.NAMES = FALSE
+    function(x, y) sum(values[[y]] %in% values[[x]])
   )
 
   out |>
