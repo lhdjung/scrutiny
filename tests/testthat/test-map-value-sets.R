@@ -1,5 +1,5 @@
 # The three vectorized consistency test functions -- `grim()`, `grimmer()`, and
-# `debit()` -- share one body, `vectorize_test()`. What is tested here is that
+# `debit()` -- share one body, `map_value_sets()`. What is tested here is that
 # shared behavior, on all three where it can differ between them.
 
 # The arguments each of them vectorizes over: the key arguments, their

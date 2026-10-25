@@ -1,31 +1,17 @@
-#' Vectorize a single-case consistency test
+#' Map a single-case function over its caller's arguments
 #'
-#' `vectorize_test()` is the shared body of the vectorized consistency test
-#' functions -- `grim()`, `grimmer()`, and `debit()` -- and of `grim_values()`
-#' and `grim_closest()`. Each of them writes out
-#' its own signature, mirroring that of the `*_scalar()` function it wraps
-#' minus the internal-only `show_rec` / `show_reason` argument, and hands its
-#' frame to `vectorize_test()`:
+#' `map_value_sets()` applies `fun` once per value set, taking the arguments
+#' of the function that calls it, such as `grim()`, which writes out its own
+#' signature mirroring that of the `*_scalar()` function it wraps -- minus the
+#' internal-only `show_rec` / `show_reason` (see gotcha 20 in AGENTS.md):
 #'
 #' ```
 #' grim <- function(x, n, digits_x, items_averaged, percent = FALSE, ...) {
-#'   vectorize_test(
-#'     grim_scalar, environment(), c("x", "n", "digits_x", "items_averaged")
-#'   )
+#'   map_value_sets(grim_scalar, c("x", "n", "digits_x", "items_averaged"))
 #' }
 #' ```
 #'
-#' Up to scrutiny 1.0.0 the wrappers were `Vectorize(grim_scalar)` and the
-#' like. That copied *all* of the scalar function's formals, including
-#' `show_rec` and `show_reason`, which are internal to the mapper tier and were
-#' documented as such -- and, because `mapply()` simplifies a list return, a
-#' user who set one got an unnamed matrix of lists rather than the logical
-#' vector the function promises. Writing the signatures out is what removes
-#' those arguments from the exported functions; this helper is what keeps the
-#' three bodies from being three copies of the same loop.
-#'
 #' @param fun The `*_scalar()` function to apply, e.g. `grim_scalar()`.
-#' @param frame The calling wrapper's own `environment()`.
 #' @param along String vector naming the arguments to vectorize over: the key
 #'   arguments, their `digits_*` arguments, and `items_averaged` where the test
 #'   has it. Every other argument is scalar. The split is the same one the
@@ -39,14 +25,10 @@
 #' @return Vector of `type`, as long as the recycled `along` arguments.
 #'
 #' @noRd
-vectorize_test <- function(fun, frame, along, type = "logical") {
-  index_wrapper <- sys.parent()
-  fn_wrapper <- sys.function(index_wrapper)
-  formals_wrapper <- formals(fn_wrapper)
+map_value_sets <- function(fun, along, type = "logical") {
+  frame <- parent.frame()
+  formals_wrapper <- formals(sys.function(sys.parent()))
   args_all <- names(formals_wrapper)
-
-  # The name the wrapper was called under, e.g. `grim`
-  name_wrapper <- fn_name_from_call(sys.call(index_wrapper))
 
   # Arguments the caller left out are not forwarded at all, so `fun` applies its
   # own defaults -- the same ones the wrapper states -- and raises its own error
@@ -60,8 +42,8 @@ vectorize_test <- function(fun, frame, along, type = "logical") {
   # would answer in one step but cannot be trusted here: a wrapper reached
   # through `lapply()` is called as `FUN(X[[i]], ...)`, and matching that fails
   # with "... used in a situation where it does not exist". The calls are built
-  # once per wrapper; see `missing_arg_calls()`.
-  calls_missing <- missing_arg_calls(name_wrapper, args_all)
+  # once per signature; see `missing_arg_calls()`.
+  calls_missing <- missing_arg_calls(args_all)
 
   is_supplied <- !vapply(
     calls_missing,
@@ -141,7 +123,7 @@ vectorize_test <- function(fun, frame, along, type = "logical") {
   if (typeof(out) != type || length(out) != length_out) {
     cli::cli_abort(
       c(
-        "Internal error: the consistency test returned {length(out)} \\
+        "Internal error: `fun` returned {length(out)} \\
       {.cls {typeof(out)}} value{?s} for {length_out} value set{?s}.",
         "i" = "It must return one {type} value per value set."
       ),
@@ -155,46 +137,23 @@ vectorize_test <- function(fun, frame, along, type = "logical") {
 
 #' `missing()` calls for a wrapper's formals
 #'
-#' Returns `list(quote(missing(x)), quote(missing(n)), ...)` for the formals of
-#' the vectorized test function named `name_wrapper`, to be evaluated in that
-#' function's frame.
+#' Returns `list(quote(missing(x)), quote(missing(n)), ...)`, to be evaluated
+#' in the wrapper's frame. The list depends only on the formals' names, so it
+#' is cached by them. Building it per call costs about as much as evaluating
+#' it, and a `grim()` called one value set at a time pays that on every call.
 #'
-#' The list depends only on the wrapper's signature, which is fixed at build
-#' time, so it is built once per wrapper and cached. Building it per call costs
-#' about as much as evaluating it, and a `grim()` called one value set at a
-#' time pays that on every call.
-#'
-#' The cache is keyed by the name the call was made under, which is not by
-#' itself proof of anything: a user can bind `grim` and then `grimmer` to the
-#' same name. The formals are therefore stored alongside the calls and compared
-#' before a hit is accepted.
-#'
-#' @param name_wrapper String (length 1). Name the wrapper was called under.
-#' @param args_all String vector. Names of its formals.
+#' @param args_all String vector. Names of the wrapper's formals.
 #'
 #' @return List of calls.
 #'
 #' @noRd
-missing_arg_calls <- function(name_wrapper, args_all) {
-  # `fn_name_from_call()` returns the empty string for a caller that has no
-  # name of its own, as when `do.call()` is given the function object. That is
-  # no key at all, and an environment cannot even be subset by it:
-  has_key <- nzchar(name_wrapper)
+missing_arg_calls <- function(args_all) {
+  key <- paste(args_all, collapse = ",")
+  calls <- cache_missing_arg_calls[[key]]
 
-  if (has_key) {
-    entry <- cache_missing_arg_calls[[name_wrapper]]
-    if (!is.null(entry) && identical(entry$args, args_all)) {
-      return(entry$calls)
-    }
-  }
-
-  calls <- lapply(args_all, function(name) call("missing", as.name(name)))
-
-  if (has_key) {
-    cache_missing_arg_calls[[name_wrapper]] <- list(
-      args = args_all,
-      calls = calls
-    )
+  if (is.null(calls)) {
+    calls <- lapply(args_all, function(name) call("missing", as.name(name)))
+    cache_missing_arg_calls[[key]] <- calls
   }
 
   calls

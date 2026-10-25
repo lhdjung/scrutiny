@@ -237,7 +237,7 @@ grim_scalar <- function(
 #' grim(x = 71, n = 43, digits_x = 0, items_averaged = 1, percent = TRUE)
 
 # Vectorized version. The signature mirrors `grim_scalar()`'s minus `show_rec`;
-# see `vectorize_test()`:
+# see `map_value_sets()`:
 grim <- function(
   x,
   n,
@@ -249,9 +249,8 @@ grim <- function(
   symmetric = FALSE,
   tolerance = lifecycle::deprecated()
 ) {
-  vectorize_test(
+  map_value_sets(
     fun = grim_scalar,
-    frame = environment(),
     along = c("x", "n", "digits_x", "items_averaged")
   )
 }

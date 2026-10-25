@@ -101,6 +101,7 @@ Collate:
     'is-percentage-of.R'
     'is-percentage-of-map.R'
     'is-percentage-of-map-seq.R'
+    'map-value-sets.R'
     'method-audit-seq.R'
     'method-audit-total-n.R'
     'method-baseline-map.R'
@@ -120,7 +121,6 @@ Collate:
     'scrutiny-package.R'
     'seq-disperse.R'
     'split-by-parens.R'
-    'vectorize-test.R'
     'write-doc-audit.R'
 Suggests:
     ggrepel,

@@ -234,7 +234,7 @@ grim_closest_scalar <- function(
 #' )
 
 # The signatures mirror those of the `*_scalar()` functions; see
-# `vectorize_test()`:
+# `map_value_sets()`:
 grim_values <- function(
   x,
   n,
@@ -245,9 +245,8 @@ grim_values <- function(
   threshold = 5,
   symmetric = FALSE
 ) {
-  vectorize_test(
+  map_value_sets(
     fun = grim_values_scalar,
-    frame = environment(),
     along = c("x", "n", "digits_x", "items_averaged"),
     type = "list"
   )
@@ -266,9 +265,8 @@ grim_closest <- function(
   threshold = 5,
   symmetric = FALSE
 ) {
-  vectorize_test(
+  map_value_sets(
     fun = grim_closest_scalar,
-    frame = environment(),
     along = c("x", "n", "digits_x", "items_averaged"),
     type = "double"
   )

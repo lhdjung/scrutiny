@@ -532,7 +532,7 @@ debit_scalar <- function(
 #' debit(x = 0.36, sd = 0.11, n = 20, digits_x = 2, digits_sd = 2)
 
 # Vectorized version. The signature mirrors `debit_scalar()`'s minus `show_rec`;
-# see `vectorize_test()`:
+# see `map_value_sets()`:
 debit <- function(
   x,
   sd,
@@ -545,9 +545,8 @@ debit <- function(
   symmetric = FALSE,
   sd_type = c("sample", "population", "either")
 ) {
-  vectorize_test(
+  map_value_sets(
     fun = debit_scalar,
-    frame = environment(),
     along = c("x", "sd", "n", "digits_x", "digits_sd")
   )
 }

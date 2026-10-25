@@ -464,32 +464,6 @@ check_newly_numeric <- function(
 }
 
 
-# Name of the function that a call invokes, as a single string; `""` if it can't
-# be determined. The head of a call is not always a symbol -- it can be
-# `scrutiny::grim_map`, or the function object itself, which is how
-# factory-made functions invoke `fun` via `do.call()`. `as.character()` on
-# either returns the wrong length or throws, hence the separate branches.
-fn_name_from_call <- function(call) {
-  if (!is.call(call)) {
-    return("")
-  }
-  fn <- call[[1L]]
-  if (is.name(fn)) {
-    as.character(fn)
-  } else if (rlang::is_call(fn, c("::", ":::"))) {
-    # Just the name, not `pkg::name`: callers add the namespace where they want
-    # it, and the bare name is what the checks below match against.
-    as.character(fn[[3L]])
-  } else if (is.call(fn)) {
-    # Something else with a callable head, e.g. `obj$method`
-    deparse(fn)[1L]
-  } else {
-    # A function object carries no name of its own
-    ""
-  }
-}
-
-
 #' Error if a `digits_*` argument is missing
 #'
 #' Since scrutiny 1.0.0, key arguments of functions related to consistency tests

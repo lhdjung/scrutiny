@@ -114,9 +114,8 @@ is_percentage_of <- function(
   threshold = 5,
   symmetric = FALSE
 ) {
-  vectorize_test(
+  map_value_sets(
     fun = is_percentage_of_scalar,
-    frame = environment(),
     along = c("absolute", "percentage", "n", "digits_percentage")
   )
 }

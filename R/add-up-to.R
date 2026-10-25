@@ -58,13 +58,12 @@ add_up_to_scalar <- function(summands, total) {
 #' # Several cases:
 #' add_up_to(list(c(40, 37, 43), c(10, 12)), total = c(120, 23))
 add_up_to <- function(summands, total) {
-  # A plain vector is one case; `vectorize_test()` maps over list elements:
+  # A plain vector is one case; `map_value_sets()` maps over list elements:
   if (!is.list(summands)) {
     summands <- list(summands)
   }
-  vectorize_test(
+  map_value_sets(
     fun = add_up_to_scalar,
-    frame = environment(),
     along = c("summands", "total")
   )
 }

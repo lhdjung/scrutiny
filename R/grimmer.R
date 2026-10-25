@@ -531,7 +531,7 @@ grimmer_sd_either <- function(sample, population, show_reason) {
 #' )
 
 # Vectorized version. The signature mirrors `grimmer_scalar()`'s minus
-# `show_reason`; see `vectorize_test()`:
+# `show_reason`; see `map_value_sets()`:
 grimmer <- function(
   x,
   sd,
@@ -545,9 +545,8 @@ grimmer <- function(
   sd_type = c("sample", "population", "either"),
   tolerance = lifecycle::deprecated()
 ) {
-  vectorize_test(
+  map_value_sets(
     fun = grimmer_scalar,
-    frame = environment(),
     along = c("x", "sd", "n", "digits_x", "digits_sd", "items_averaged")
   )
 }
