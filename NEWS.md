@@ -10,7 +10,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `x` and `sd` are now numeric in `grim()`, `grimmer()`, `debit()`, and all their mappers. Strings are no longer accepted. A numeric value does not preserve trailing zeros, so the number of decimal places must be given explicitly: `digits_x` (and `digits_sd` for GRIMMER and DEBIT) are required arguments in every one of these functions. Both accept one value per row in the basic mappers and one value per group in the total-n mappers, as in `grim_map_total_n(df, digits_x = c(2, 1))`. They must be whole numbers from 0 to 15, since a double holds no more significant digits.
 
-- The mappers return `digits_x` and `digits_sd` as output columns. `grim_plot()` reads the number of decimal places from these columns instead of inferring it from `x`.
+- The mappers return `digits_x` and `digits_sd` as output columns. `grim_plot_grid()` reads the number of decimal places from these columns instead of inferring it from `x`.
 
 - The `n` column returned by the mappers is now an integer column if all its values are whole numbers within the integer range.
 
@@ -58,7 +58,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `grim()`, `grimmer()`, and `debit()` no longer have `show_rec` or `show_reason`. These arguments were only intended for internal use by the mappers. The three functions are now vectorized only over the tested values (`x`, `sd`, `n`, and the `digits_*` arguments) and `items_averaged`; `rounding`, `threshold`, `symmetric`, `percent`, `formula`, and `sd_meaning` must have length 1. Recycling follows the tidyverse rules: an argument must have length 1 or the common length. `grim(x = c(5.19, 5.18, 5.17), n = c(28, 32), digits_x = 2)` is therefore an error; it used to return three results.
 
-- `grim_map()` and `grimmer_map()` no longer multiply `items` into `n`. The `n` column is the sample size as given, and `items_averaged` is returned as a column of its own. `grim_plot()` places the tiles at `n * items_averaged`.
+- `grim_map()` and `grimmer_map()` no longer multiply `items` into `n`. The `n` column is the sample size as given, and `items_averaged` is returned as a column of its own. `grim_plot_grid()` places the tiles at `n * items_averaged`.
 
 - `grim_map(show_rec = TRUE)` returns the same five columns for every rounding method: `rec_sum`, `sum_lower`, `sum_upper`, `rec_x_upper`, `rec_x_lower`. The `rec_x_*_rounded*` columns are gone. `sum_lower` and `sum_upper` are the smallest and largest whole-number sum totals that would be reported as `x`, and `consistency` is `TRUE` exactly if `sum_lower <= sum_upper`. The displayed values can therefore no longer contradict the result. With `percent = TRUE`, `rec_x_upper` and `rec_x_lower` are percentages, like `x`.
 
@@ -72,7 +72,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `decimal_places()`, `decimal_places_scalar()`, `decimal_places_df()`, `restore_zeros()`, and `restore_zeros_df()` match `sep` as a literal string, and the default is `"."` instead of `"\\."`.
 
-- `grim_plot()` and `debit_plot()` return their plot instead of printing it. `grim_plot()` has an aspect ratio of 1; add `ggplot2::theme(aspect.ratio = NULL)` to undo this. `grim_plot()` has a new `split_by_digits` argument that returns a named list with one plot per number of decimal places. `debit_plot()` no longer has the `line_size` argument or the arguments for the outer boxes (`show_outer_boxes` and the `tile_*` arguments). Instead, each rectangle is drawn over a point at the reported mean and SD, so that value sets whose rectangle is too small to see remain visible.
+- `grim_plot_grid()` and `debit_plot()` return their plot instead of printing it. `grim_plot_grid()` has an aspect ratio of 1; add `ggplot2::theme(aspect.ratio = NULL)` to undo this. `grim_plot_grid()` has a new `split_by_digits` argument that returns a named list with one plot per number of decimal places. `debit_plot()` no longer has the `line_size` argument or the arguments for the outer boxes (`show_outer_boxes` and the `tile_*` arguments). Instead, each rectangle is drawn over a point at the reported mean and SD, so that value sets whose rectangle is too small to see remain visible.
 
 - `duplicate_count_colpair()` requires at least two columns, and its `rate_y` is the proportion of `y` values that occur in `x`, as documented.
 
@@ -152,7 +152,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `is_seq_linear()` now returns `FALSE` for sequences such as `c(1, 2, 1)`. The `is_seq_*()` functions now fill gaps left by `NA` values using the step size implied by the known values. They return `NA` for a vector consisting only of `NA`, whatever its type, and test strings and factors by their numeric values.
 
-- `grim_plot()` plots negative means at the fractional part of their absolute value, plots percentages with the number of decimal places they were tested with, works with `show_raster = FALSE`, and warns about any rows it leaves out instead of suppressing all warnings. `debit_plot()` now draws the DEBIT lines for the smallest and the largest sample size and shades the band between them. It used to draw a single line for which the `n` column was recycled. Its x-axis is labeled as the mean, not as a ratio of group sizes, and it reports `data` without rows as an error. `grim_plot()` extends its x-axis to the data when `n` is not given, also with three or more decimal places, and only says "Also visualizing" GRIMMER inconsistencies if there are GRIM inconsistencies as well. `grim_plot()` uses its `rounding` argument for data without a recorded rounding method, and `audit()` and `grim_plot()` name the columns they need if any were dropped.
+- `grim_plot_grid()` plots negative means at the fractional part of their absolute value, plots percentages with the number of decimal places they were tested with, works with `show_raster = FALSE`, and warns about any rows it leaves out instead of suppressing all warnings. `debit_plot()` now draws the DEBIT lines for the smallest and the largest sample size and shades the band between them. It used to draw a single line for which the `n` column was recycled. Its x-axis is labeled as the mean, not as a ratio of group sizes, and it reports `data` without rows as an error. `grim_plot_grid()` extends its x-axis to the data when `n` is not given, also with three or more decimal places, and only says "Also visualizing" GRIMMER inconsistencies if there are GRIM inconsistencies as well. `grim_plot_grid()` uses its `rounding` argument for data without a recorded rounding method, and `audit()` and `grim_plot_grid()` name the columns they need if any were dropped.
 
 - Mappers can now be called via `lapply()` or `purrr::map()`, and the name of a key column, such as `x = "mean"`, can be passed from a variable. They evaluate the key arguments instead of inspecting the unevaluated call. `.name_key_result` now works in all three function factories. `is_map_df()` and the related predicates now recognize only scrutiny's own classes; they used to accept any class ending in `_map`.
 
@@ -160,7 +160,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `restore_zeros_df()`, `decimal_places_df()`, and `split_by_parens()` ignore grouping: they treat every column alike and return ungrouped data. Grouped input used to fail or leave columns unchanged. `is_numeric_like()` is `FALSE` for dates and times, which `restore_zeros_df()` used to turn into `NA`. `split_by_parens(transform = TRUE)` keeps the columns in their order instead of sorting them alphabetically.
 
-- `grim_plot(split_by_digits = TRUE)` placed tiles at `n * items_averaged^2`. `function_map_seq()` works for a mapper with a single reported variable. `grim_explain()` no longer says that a sum on a bound "rounds to" the neighboring value under `rounding = "even"` and then calls the set consistent. `reverse_map_total_n()` rejects mapper output with rows removed or reordered. `disperse()` rejects a missing `n_max`, and `disperse2()` applies `n_min` and `n_max` to the group sizes rather than to their midpoint. `seq_disperse()` disperses a factor by its label. The `sd_binary_*()` functions return `NA` for `n` below 2.
+- `grim_plot_grid(split_by_digits = TRUE)` placed tiles at `n * items_averaged^2`. `function_map_seq()` works for a mapper with a single reported variable. `grim_explain()` no longer says that a sum on a bound "rounds to" the neighboring value under `rounding = "even"` and then calls the set consistent. `reverse_map_total_n()` rejects mapper output with rows removed or reordered. `disperse()` rejects a missing `n_max`, and `disperse2()` applies `n_min` and `n_max` to the group sizes rather than to their midpoint. `seq_disperse()` disperses a factor by its label. The `sd_binary_*()` functions return `NA` for `n` below 2.
 
 - A helper argument that agrees with the column of the same name, as when a mapper's output is tested again with the same arguments, is no longer an error. `duplicate_count()` works on grouped tibbles. `grim()` and `grim_map()` no longer fail when integer `n` and `items_averaged` values multiply to more than the integer range.
 
@@ -168,13 +168,15 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 ## Lifecycle updates
 
+- `grim_plot()` was renamed to `grim_plot_grid()`, which tells it apart from `grim_plot_values()` and `grim_plot_rates()`. The old name still works but is deprecated.
+
 - Removed after their deprecation in scrutiny 0.5.0: the `show_prob` argument of `grim_map()`, `grim_ratio_upper()`, and the 15 functions around `is_subset_of()`.
 
 - Removed, since no package uses them and 1.0.0 is the release for breaking changes: `grim_ratio()` (`grim_probability()` is the rounding-aware version), `manage_key_colnames()` (use `absorb_key_args()`), `unnest_consistency_cols()`, `write_doc_factory_map_conventions()`, and the re-exports of rlang's `enquo()`, `enquos()`, `as_name()`, `as_label()`, `.data`, and `:=`. `check_factory_dots()`, `check_args_disabled()`, `decimal_places_scalar()`, and the documentation templates `write_doc_audit()`, `write_doc_audit_seq()`, and `write_doc_audit_total_n()` are no longer exported. `check_audit_special()` was removed: `audit()` now reaches `audit_seq()` and `audit_total_n()` itself.
 
 - `duplicate_detect()` was removed in favor of `duplicate_tally()`, which counts duplicates instead of only flagging them. It was superseded since scrutiny 0.3.0.
 
-- `debit_plot()` maps `consistency` to one scale for `colour` and `fill`, so that adding a `ggplot2::scale_colour_manual()` with `aesthetics = c("colour", "fill")` restyles it. The arguments that set fixed styles were removed: `color_cons`, `color_incons`, `rect_alpha`, and the `line_*` and `label_*` arguments. `grim_plot()` does the same for its value sets and loses `color_cons`, `color_incons`, `tile_alpha`, and `raster_alpha`; `tile_size` and `raster_color` remain, since no scale reaches them.
+- `debit_plot()` maps `consistency` to one scale for `colour` and `fill`, so that adding a `ggplot2::scale_colour_manual()` with `aesthetics = c("colour", "fill")` restyles it. The arguments that set fixed styles were removed: `color_cons`, `color_incons`, `rect_alpha`, and the `line_*` and `label_*` arguments. `grim_plot_grid()` does the same for its value sets and loses `color_cons`, `color_incons`, `tile_alpha`, and `raster_alpha`; `tile_size` and `raster_color` remain, since no scale reaches them.
 
 - `seq_disperse()` and `seq_disperse_df()` return numbers, not strings, and lost their `string_output` argument. A numeric value has no trailing zeros to pad, so the strings were a holdover from the time when the mappers took `x` as a string. A string `from` still sets the step size by its decimal places, trailing zeros included.
 

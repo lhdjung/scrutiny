@@ -94,7 +94,7 @@ NON_FINITE_TOKENS <- c(outer(
 ))
 
 
-# Used in `grim_plot()` if `digits > 2`
+# Used in `grim_plot_grid()` if `digits > 2`
 TIBBLE_FRAC_N_ZERO <- tibble::new_tibble(list(frac = 0, n = 0L), nrow = 1L)
 
 

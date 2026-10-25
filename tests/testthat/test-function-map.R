@@ -302,7 +302,7 @@ test_that("the sequence mappers still find their `digits_*` arguments", {
   # `function_map_seq()` and `function_map_total_n()` derive these from the
   # basic mapper's formals. If a `digits_*` argument were only in the mapper's
   # dots, the sequence mapper would silently lose both the argument and the
-  # `digits_*` output column that `grim_plot()` reads:
+  # `digits_*` output column that `grim_plot_grid()` reads:
   grimmer_map_seq |> formals() |> names() |> expect_contains("digits_x")
   grimmer_map_seq |> formals() |> names() |> expect_contains("digits_sd")
   debit_map_seq   |> formals() |> names() |> expect_contains("digits_x")

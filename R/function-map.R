@@ -730,7 +730,7 @@ function_map <- function(
       out <- add_class(out, `!!`(all_classes))
 
       # Record the settings of this call for functions downstream, such as
-      # `rounding` and `percent`, which `grim_plot()` reads. Classes are left to
+      # `rounding` and `percent`, which `grim_plot_grid()` reads. Classes are left to
       # dispatch. A missing value, as from a `lifecycle::deprecated()` default
       # of a `.fun` written elsewhere, is no setting:
       attr(out, "scrutiny") <- list(

@@ -43,7 +43,7 @@ tooth of a comb; the ones that a sample of size \code{n} with mean \code{x} coul
 have produced are tall. The reported SD is marked above the comb and
 labeled with its verdict.
 
-There is no GRIMMER-specific plot for many value sets; \code{\link[=grim_plot]{grim_plot()}}
+There is no GRIMMER-specific plot for many value sets; \code{\link[=grim_plot_grid]{grim_plot_grid()}}
 accepts \code{\link[=grimmer_map]{grimmer_map()}} output and shows the GRIM part of the test.
 }
 \details{

@@ -5,7 +5,7 @@
 #'
 #'   Set `percent` to `TRUE` if `x` contains percentages, and `show_rec` to
 #'   `TRUE` to see the reconstructed values behind each verdict. Call
-#'   [`audit()`] on the output for summary statistics and [`grim_plot()`] to
+#'   [`audit()`] on the output for summary statistics and [`grim_plot_grid()`] to
 #'   visualize it.
 #'
 #' @param data Data frame with columns `x` and `n`, and optionally
@@ -25,7 +25,7 @@
 #'   `FALSE`. It applies to the whole call, so test a table that mixes means
 #'   and percentages part by part, as in the examples. The parts can be
 #'   combined with [`dplyr::bind_rows()`], but plot each one on its own:
-#'   [`grim_plot()`] reads `percent` from the call.
+#'   [`grim_plot_grid()`] reads `percent` from the call.
 #' @param show_rec Logical. If `TRUE`, the reconstructed numbers are returned
 #'   as columns; see *Reconstructed numbers*. Default is `FALSE`.
 #' @param rounding,threshold,symmetric Passed on to [`grim()`].
@@ -43,7 +43,7 @@
 #' - Any other columns from `data`.
 #'
 #'   The tibble has the class `scrutiny_grim_map`, which is recognized by
-#'   [`audit()`] and [`grim_plot()`].
+#'   [`audit()`] and [`grim_plot_grid()`].
 #'
 #' @section Reconstructed numbers: With `show_rec = TRUE`, the output has these
 #'   further columns, the same ones for every rounding method:

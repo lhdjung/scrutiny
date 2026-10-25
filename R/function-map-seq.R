@@ -538,7 +538,7 @@ function_map_seq <- function(
       `!!!`(code_bind_cols)
 
       # A `digits_*` column per reported variable that `fun()` has a `digits_*`
-      # argument for, so that `grim_plot()` and friends can split on
+      # argument for, so that `grim_plot_grid()` and friends can split on
       # decimal-place groups. It takes the argument's value. A `fun()` whose
       # `digits_*` argument has a default may not be given one; its own output
       # then decides whether there is such a column. Guessing the count from
@@ -572,7 +572,7 @@ function_map_seq <- function(
       }
 
       # Settings for functions downstream: those that the initial `fun()` call
-      # recorded, such as the `rounding` that `grim_plot()` reads -- set here
+      # recorded, such as the `rounding` that `grim_plot_grid()` reads -- set here
       # rather than left to survive the binding of `fun()`'s outputs above --
       # followed by those of this call, such as `var`, which `audit_seq()`
       # reads when there are no rows to read it off. Then these:

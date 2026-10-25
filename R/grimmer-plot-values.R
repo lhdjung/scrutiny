@@ -9,7 +9,7 @@
 #'   have produced are tall. The reported SD is marked above the comb and
 #'   labeled with its verdict.
 #'
-#'   There is no GRIMMER-specific plot for many value sets; [`grim_plot()`]
+#'   There is no GRIMMER-specific plot for many value sets; [`grim_plot_grid()`]
 #'   accepts [`grimmer_map()`] output and shows the GRIM part of the test.
 #'
 #' @param x,sd,n,digits_x,digits_sd,items_averaged,rounding,threshold,symmetric,sd_meaning

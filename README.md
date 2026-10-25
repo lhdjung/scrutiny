@@ -125,7 +125,7 @@ inconsistent ones:
 ``` r
 pigs1 |>
   grim_map(rounding = "up", digits_x = 2, items_averaged = 1) |>
-  grim_plot()
+  grim_plot_grid()
 ```
 
 <img src="man/figures/README-unnamed-chunk-5-1.png" alt="" width="75%" />

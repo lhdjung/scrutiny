@@ -25,7 +25,7 @@ library(scrutiny)
 
 Granularity-related inconsistency of means, or GRIM, tests whether a reported mean or percentage of integer data is possible given the reported sample size [@brown_grim_2017]. The mean of $n$ integers is a whole number divided by $n$, so only certain values can occur. If none of these values would have been reported as the reported mean, given its number of decimal places, the mean and the sample size are GRIM-inconsistent.
 
-This vignette covers scrutiny's implementation: `grim()` and `grim_map()` for the test itself, `audit()` for summaries, `grim_plot()` for visualization, `grim_map_seq()` and `grim_map_total_n()` for testing values around the reported ones, and the GRIM statistics behind the `probability` column.
+This vignette covers scrutiny's implementation: `grim()` and `grim_map()` for the test itself, `audit()` for summaries, `grim_plot_grid()` for visualization, `grim_map_seq()` and `grim_map_total_n()` for testing values around the reported ones, and the GRIM statistics behind the `probability` column.
 
 ## Basic GRIM testing
 
@@ -182,9 +182,9 @@ flying_pigs1 |>
 - `incons_to_prob`: the ratio of `incons_rate` to `mean_grim_prob`, computed over the cases with a test result.
 - `testable_cases`, `testable_rate`: the number and proportion of value sets with a positive `probability`.
 
-## Visualization with `grim_plot()`
+## Visualization with `grim_plot_grid()`
 
-`grim_plot()` takes the output of `grim_map()`:
+`grim_plot_grid()` takes the output of `grim_map()`:
 
 ```{r, fig.width=6, fig.height=5.5}
 jpap_5 <- tibble::tribble(
@@ -203,20 +203,20 @@ jpap_5 <- tibble::tribble(
 
 jpap_5 |>
   grim_map(digits_x = 2, items_averaged = 1) |>
-  grim_plot()
+  grim_plot_grid()
 ```
 
-Each value set is plotted at its sample size on the x-axis and the fractional part of its mean on the y-axis. Consistent value sets are blue, inconsistent ones red. The background raster shows, for every combination of sample size and fractional part, whether it is GRIM-consistent (light) or not (dark). The raster depends on the number of decimal places, which `grim_plot()` reads from the `digits_x` column, and on the rounding procedure, which it reads from the attributes of the `grim_map()` output:
+Each value set is plotted at its sample size on the x-axis and the fractional part of its mean on the y-axis. Consistent value sets are blue, inconsistent ones red. The background raster shows, for every combination of sample size and fractional part, whether it is GRIM-consistent (light) or not (dark). The raster depends on the number of decimal places, which `grim_plot_grid()` reads from the `digits_x` column, and on the rounding procedure, which it reads from the attributes of the `grim_map()` output:
 
 ```{r, fig.width=6, fig.height=5.5}
 jpap_5 |>
   grim_map(digits_x = 2, items_averaged = 1, rounding = "ceiling") |>
-  grim_plot()
+  grim_plot_grid()
 ```
 
 In the first plot, the light vertical lines at $n = 40$ and $n = 80$ result from the default `rounding = "up_or_down"`. Many achievable means at these sample sizes lie exactly halfway between two reportable values, and the default accepts both ways of rounding them. The rasters are precomputed and stored in the package, so plotting is fast. They exist for one and two decimal places and for every rounding procedure except `"up_from"`, `"down_from"`, and `"up_from_or_down_from"`; with three or more decimal places, a gradient is shown instead.
 
-`grim_plot()` needs the output of a GRIM or GRIMMER mapper, such as `grim_map()` or `grim_map_seq()`.
+`grim_plot_grid()` needs the output of a GRIM or GRIMMER mapper, such as `grim_map()` or `grim_map_seq()`.
 
 ### A single value set: `grim_plot_values()`
 
@@ -266,17 +266,17 @@ audit_seq(out_seq2)
 
 ### Plotting dispersed values
 
-`grim_plot()` accepts this output. Each reported value set appears as a cross: the horizontal arm consists of the dispersed `n` values, the vertical arm of the dispersed `x` values:
+`grim_plot_grid()` accepts this output. Each reported value set appears as a cross: the horizontal arm consists of the dispersed `n` values, the vertical arm of the dispersed `x` values:
 
 ```{r, fig.width=6, fig.height=5.5}
-grim_plot(out_seq1)
+grim_plot_grid(out_seq1)
 ```
 
 Restrict the dispersion to one variable with `var`:
 
 ```{r, fig.width=6, fig.height=5.5}
 out_seq1_only_n <- grim_map_seq(pigs1, digits_x = 2, items_averaged = 1, var = "n")
-grim_plot(out_seq1_only_n)
+grim_plot_grid(out_seq1_only_n)
 ```
 
 ## Unknown group sizes: `grim_map_total_n()`

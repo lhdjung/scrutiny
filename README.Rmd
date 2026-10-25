@@ -75,7 +75,7 @@ You can choose how the means are reconstructed for testing --- below, rounded up
 ```{r}
 pigs1 |>
   grim_map(rounding = "up", digits_x = 2, items_averaged = 1) |>
-  grim_plot()
+  grim_plot_grid()
 ```
 
 Similarly, use DEBIT to test means and standard deviations of binary data:

@@ -47,7 +47,7 @@ divided by 100 and tested with two more decimal places. Default is
 \code{FALSE}. It applies to the whole call, so test a table that mixes means
 and percentages part by part, as in the examples. The parts can be
 combined with \code{\link[dplyr:bind_rows]{dplyr::bind_rows()}}, but plot each one on its own:
-\code{\link[=grim_plot]{grim_plot()}} reads \code{percent} from the call.}
+\code{\link[=grim_plot_grid]{grim_plot_grid()}} reads \code{percent} from the call.}
 
 \item{show_rec}{Logical. If \code{TRUE}, the reconstructed numbers are returned
 as columns; see \emph{Reconstructed numbers}. Default is \code{FALSE}.}

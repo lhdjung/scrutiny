@@ -1,6 +1,6 @@
 #' Visualize GRIM test results
 #'
-#' @description `grim_plot()` plots the output of [`grim_map()`] or
+#' @description `grim_plot_grid()` plots the output of [`grim_map()`] or
 #'   [`grimmer_map()`]. Each value set is placed by its sample size and the
 #'   fractional part of its mean, in blue if consistent and red if not, on a
 #'   background raster that shows which combinations are GRIM-consistent at
@@ -12,12 +12,12 @@
 #'   which is read from the `digits_x` column of `data`, and on the rounding
 #'   method, which is read from the `grim_map()` call. Rasters are precomputed
 #'   for every rounding method except `"up_from"`, `"down_from"`, and
-#'   `"up_from_or_down_from"`; with these, `grim_plot()` errors unless
+#'   `"up_from_or_down_from"`; with these, `grim_plot_grid()` errors unless
 #'   `show_raster = FALSE`. With three or more decimal places, the tiles
 #'   would be too small, so a gradient shows the probability of inconsistency
 #'   instead.
 #'
-#'   A raster only applies to one number of decimal places, so `grim_plot()`
+#'   A raster only applies to one number of decimal places, so `grim_plot_grid()`
 #'   errors if `digits_x` varies across rows. Use `split_by_digits = TRUE` to
 #'   get one plot per number of decimal places instead, or `digits` to choose
 #'   one.
@@ -79,33 +79,33 @@
 #' @export
 #'
 #' @examples
-#' # `grim_plot()` reads the number of decimal places
+#' # `grim_plot_grid()` reads the number of decimal places
 #' # from the `digits_x` column:
 #' pigs1 |>
 #'   grim_map(digits_x = 2, items_averaged = 1) |>
-#'   grim_plot()
+#'   grim_plot_grid()
 #'
 #' # The raster follows the rounding method of the `grim_map()` call:
 #' pigs1 |>
 #'   grim_map(digits_x = 2, items_averaged = 1, rounding = "ceiling") |>
-#'   grim_plot()
+#'   grim_plot_grid()
 #'
 #' # Percentages are plotted as proportions:
 #' pigs2 |>
 #'   grim_map(digits_x = 1, items_averaged = 1, percent = TRUE) |>
-#'   grim_plot()
+#'   grim_plot_grid()
 #'
 #' # Other colors for the value sets:
 #' pigs1 |>
 #'   grim_map(digits_x = 2, items_averaged = 1) |>
-#'   grim_plot() +
+#'   grim_plot_grid() +
 #'   ggplot2::scale_colour_manual(
 #'     values = c("TRUE" = "darkgreen", "FALSE" = "orange"),
 #'     aesthetics = c("colour", "fill"),
 #'     guide = "none"
 #'   )
 
-grim_plot <- function(
+grim_plot_grid <- function(
   data = NULL,
   show_data = TRUE,
   show_raster = TRUE,
@@ -150,7 +150,7 @@ grim_plot <- function(
       }
     } else if (show_data) {
       abort_in_export(
-        "!" = "`grim_plot()` needs GRIM or GRIMMER test results.",
+        "!" = "`grim_plot_grid()` needs GRIM or GRIMMER test results.",
         "x" = "`data` is not the output of `grim_map()`, `grim_map_seq()`, \\
         or `grim_map_total_n()`; or of the respective `grimmer_*()` functions.",
         "i" = "The only exception is an \"empty\" plot that shows the \\
@@ -164,7 +164,7 @@ grim_plot <- function(
     check_cols_needed(data, c("x", "n", "consistency"))
   }
 
-  # Warn the user who passed suitable data to `grim_plot()` but also set
+  # Warn the user who passed suitable data to `grim_plot_grid()` but also set
   # `show_data` to `FALSE`, thereby defeating the data's purpose here:
   if (!show_data && any(inherits_grim, inherits_grimmer)) {
     msg_grimmer <- if (inherits_grimmer) {
@@ -175,7 +175,7 @@ grim_plot <- function(
     cli::cli_warn(c(
       "Test results are not visualized.",
       "!" = "You set `show_data` to `FALSE`, but still passed \\
-      GRIM{msg_grimmer} test results to `grim_plot()`.",
+      GRIM{msg_grimmer} test results to `grim_plot_grid()`.",
       "!" = "Only the background raster or gradient will be shown, not the \\
       tested data."
     ))
@@ -320,7 +320,7 @@ grim_plot <- function(
       }
 
       plots <- lapply(unique_digits, function(d) {
-        grim_plot(
+        grim_plot_grid(
           data[digits_x == d, ],
           show_data = show_data,
           show_raster = show_raster,
@@ -350,7 +350,7 @@ grim_plot <- function(
 
     if (show_raster) {
       if (!all(digits_x[1L] == digits_x)) {
-        # A single call to `grim_plot()` always returns one plot, so a genuine
+        # A single call to `grim_plot_grid()` always returns one plot, so a genuine
         # mix of decimal places is an error by default. Users can opt into one
         # plot per distinct decimal count via `split_by_digits` (see above).
         means_percentages <- dplyr::if_else(
@@ -440,7 +440,9 @@ grim_plot <- function(
   # Only a user-supplied `n` bounds the x-axis with a raster; see below. By
   # default, the axis spans the raster and the data, whichever reaches further:
   n_given <- !is.null(n)
-  if (n_given && (length(n) != 1L || !is.numeric(n) || !is.finite(n) || n < 1)) {
+  if (
+    n_given && (length(n) != 1L || !is.numeric(n) || !is.finite(n) || n < 1)
+  ) {
     abort_in_export(
       "`n` must be a single finite number of at least 1, or `NULL`.",
       "x" = "It is {wrap_in_quotes_or_backticks(n)}."
@@ -486,7 +488,7 @@ grim_plot <- function(
           "No background raster available for `rounding = {rounding_id}`",
           "i" = "Use a different `rounding` specification within the \\
           `grim_map()` call or set `show_raster` to `FALSE` within the \\
-          `grim_plot()` call."
+          `grim_plot_grid()` call."
         )
       }
     } else {
@@ -649,4 +651,21 @@ grim_plot <- function(
       y = paste("Fractional portion of", mean_percent_label)
     ) +
     ggplot2::theme(aspect.ratio = 1)
+}
+
+
+#' Deprecated name of `grim_plot_grid()`
+#'
+#' @description `r lifecycle::badge("deprecated")`
+#'
+#'   `grim_plot()` was renamed to [`grim_plot_grid()`] in scrutiny 1.0.0.
+#'
+#' @param ... Passed on to [`grim_plot_grid()`].
+#'
+#' @keywords internal
+#' @export
+
+grim_plot <- function(...) {
+  lifecycle::deprecate_soft("1.0.0", "grim_plot()", "grim_plot_grid()")
+  grim_plot_grid(...)
 }

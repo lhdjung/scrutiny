@@ -72,13 +72,13 @@ reasons, the \code{reason} names both, and \code{\link[=audit]{audit()}} counts 
 as under the default \code{sd_meaning}.
 
 The tibble has the class \code{scrutiny_grimmer_map}, which is recognized by
-\code{\link[=audit]{audit()}} and \code{\link[=grim_plot]{grim_plot()}}.
+\code{\link[=audit]{audit()}} and \code{\link[=grim_plot_grid]{grim_plot_grid()}}.
 }
 \description{
 \code{grimmer_map()} applies \code{\link[=grimmer]{grimmer()}} to every row of a data
 frame with means, standard deviations, and sample sizes.
 
-Call \code{\link[=audit]{audit()}} on the output for summary statistics. \code{\link[=grim_plot]{grim_plot()}}
+Call \code{\link[=audit]{audit()}} on the output for summary statistics. \code{\link[=grim_plot_grid]{grim_plot_grid()}}
 accepts it as well.
 }
 \section{Summaries with \code{\link[=audit]{audit()}}}{

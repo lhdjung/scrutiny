@@ -3,7 +3,7 @@
 #' @description `grimmer_map()` applies [`grimmer()`] to every row of a data
 #'   frame with means, standard deviations, and sample sizes.
 #'
-#'   Call [`audit()`] on the output for summary statistics. [`grim_plot()`]
+#'   Call [`audit()`] on the output for summary statistics. [`grim_plot_grid()`]
 #'   accepts it as well.
 #'
 #' @param data Data frame with columns `x`, `sd`, and `n`, and optionally
@@ -49,7 +49,7 @@
 #' as under the default `sd_meaning`.
 #'
 #' The tibble has the class `scrutiny_grimmer_map`, which is recognized by
-#'   [`audit()`] and [`grim_plot()`].
+#'   [`audit()`] and [`grim_plot_grid()`].
 #'
 #' @section Summaries with [`audit()`]: `audit()` on `grimmer_map()` output
 #'   returns a tibble with one row and these columns:

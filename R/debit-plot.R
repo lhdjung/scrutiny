@@ -410,7 +410,7 @@ debit_plot <- function(
       )
   }
 
-  # Return the plot -- returned, not printed, like `grim_plot()`'s.
+  # Return the plot -- returned, not printed, like `grim_plot_grid()`'s.
   # Auto-printing draws it at the console anyway, whereas an explicit `print()`
   # here drew a canvas whenever the result was assigned or added to. Nor are
   # warnings suppressed: rows that can't be drawn are reported above.

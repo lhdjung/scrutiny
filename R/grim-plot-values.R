@@ -315,7 +315,7 @@ check_comb_value <- function(value, digits, name) {
 #'   marked above the comb and labeled with its verdict. If it is inconsistent,
 #'   the nearest attainable values on either side are labeled.
 #'
-#'   [`grim_plot()`] shows many results at once; this function shows one test
+#'   [`grim_plot_grid()`] shows many results at once; this function shows one test
 #'   in detail, for teaching or for explaining a verdict. [`grim_values()`]
 #'   returns the attainable values as numbers.
 #'

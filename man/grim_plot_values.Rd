@@ -44,7 +44,7 @@ or below \code{x} and the next one up. Teeth for means that a sample of size
 marked above the comb and labeled with its verdict. If it is inconsistent,
 the nearest attainable values on either side are labeled.
 
-\code{\link[=grim_plot]{grim_plot()}} shows many results at once; this function shows one test
+\code{\link[=grim_plot_grid]{grim_plot_grid()}} shows many results at once; this function shows one test
 in detail, for teaching or for explaining a verdict. \code{\link[=grim_values]{grim_values()}}
 returns the attainable values as numbers.
 }

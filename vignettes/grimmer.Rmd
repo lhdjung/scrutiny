@@ -113,14 +113,14 @@ flying_pigs1 |>
 - `incons_cases`, `all_cases`, `incons_rate`: the number of inconsistent value sets, the total, and their ratio.
 - `fail_grim`, `fail_test1`, `fail_test3`: the number of value sets that failed GRIM or GRIMMER's first or third test.
 
-## Visualization with `grim_plot()`
+## Visualization with `grim_plot_grid()`
 
-There is no GRIMMER-specific plot, but `grim_plot()` accepts `grimmer_map()` output. The raster shows the GRIM part of the test, and each value set is colored by its GRIMMER verdict:
+There is no GRIMMER-specific plot, but `grim_plot_grid()` accepts `grimmer_map()` output. The raster shows the GRIM part of the test, and each value set is colored by its GRIMMER verdict:
 
 ```{r, fig.width=6, fig.height=5.5}
 pigs5 |>
   grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
-  grim_plot()
+  grim_plot_grid()
 ```
 
 `grimmer_plot_values()` visualizes the test for a single value set. It shows the SDs that could have been reported within a certain range and marks those that a sample with the given mean and size can actually have.
@@ -149,11 +149,11 @@ out_seq2 <- grimmer_map_seq(
 audit_seq(out_seq2)
 ```
 
-`grim_plot()` accepts this output as well, and `var` restricts the dispersion to one variable:
+`grim_plot_grid()` accepts this output as well, and `var` restricts the dispersion to one variable:
 
 ```{r, fig.width=6, fig.height=5.5}
 grimmer_map_seq(pigs5, digits_x = 2, digits_sd = 2, items_averaged = 1, var = "n") |>
-  grim_plot()
+  grim_plot_grid()
 ```
 
 ## Unknown group sizes: `grimmer_map_total_n()`
