@@ -73,13 +73,17 @@ df1_expected <- tibble::tibble(
 ) |>
   structure(
     scrutiny = list(
-      args = list(
-        formula = "exact",
-        rounding = "up_or_down",
-        threshold = 5,
-        symmetric = FALSE,
-        sd_type = "sample",
-        show_rec = TRUE
+      settings = settings_tbl(
+        list(
+          formula = "exact",
+          rounding = "up_or_down",
+          threshold = 5,
+          symmetric = FALSE,
+          sd_type = "sample",
+          show_rec = TRUE
+        ),
+        c(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE),
+        "debit_map"
       )
     ),
     class = c(

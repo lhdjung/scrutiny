@@ -10,51 +10,49 @@ scrutiny_meta(x)
 \item{x}{Output of a mapper function.}
 }
 \value{
-A named list, or \code{NULL} if \code{x} has no \code{"scrutiny"} attribute.
+A tibble with one row per setting and these columns, or \code{NULL} if
+\code{x} has no record of its settings:
+\itemize{
+\item \code{setting}: the name of the argument.
+\item \code{value}: its value, written as R code, such as \code{'up'} or \code{1:5}.
+\item \code{default}: \code{TRUE} if the value is the mapper's default, \code{FALSE} if not.
+\item \code{added_by}: the mapper whose argument it is, such as \code{"grim_map"} or
+\code{"grim_map_seq"}.
+}
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
-Every mapper, such as \code{\link[=grim_map]{grim_map()}}, records the settings of
-the call that produced its output in a list attribute named \code{"scrutiny"}.
-\code{scrutiny_meta()} returns that list, so that a report can state under
-which rounding method or SD convention a verdict was reached. Classes are
-for method dispatch only and carry no settings.
+Every mapper, such as \code{\link[=grim_map]{grim_map()}}, records the settings of the call
+that produced its output. \code{scrutiny_meta()} returns them as a tibble, so
+that a report can state under which rounding method or SD convention a
+verdict was reached.
 
-Every mapper's list has one element:
-\itemize{
-\item \code{args}: the arguments that applied to the whole call, with defaults
+Settings are the arguments that apply to the whole call, with defaults
 resolved, such as \code{rounding}, \code{percent}, or \code{sd_type}. Arguments that may
 vary by row are columns of the output instead: \code{digits_x}, \code{digits_sd},
 and helper arguments such as \code{items_averaged}, even if given as a single
 value.
 
-The output of sequence mappers, such as \code{\link[=grim_map_seq]{grim_map_seq()}}, has four more:
-\item \code{results_reported}: the verdict of every row of the input data, which
-\code{\link[=audit_seq]{audit_seq()}} reports.
-\item \code{name_key_result}: the name of the column with the verdicts, usually
-\code{"consistency"}.
-\item \code{var}: the dispersed variables.
-\item \code{dispersion_linear}: whether the dispersion was linear, which
-\code{\link[=audit_seq]{audit_seq()}} requires.
-
-The settings of the sequence or total-n call itself, such as \code{dispersion},
-are not recorded.
+Sequence and total-n mappers, such as \code{\link[=grim_map_seq]{grim_map_seq()}}, add their own
+settings, such as \code{dispersion}, to those of the basic mapper they call.
 
 When the output of \code{\link[=grim_map]{grim_map()}}, \code{\link[=grimmer_map]{grimmer_map()}}, \code{\link[=debit_map]{debit_map()}}, or
 \code{\link[=is_percentage_of_map]{is_percentage_of_map()}} is printed, a line in the header names the
-settings that differ from the mapper's defaults, as in \verb{# GRIM: rounding = "up"}. This includes sequence and total-n output.
+settings that are not at their defaults, as in \verb{# GRIM: rounding = "up"}.
+This includes sequence and total-n output.
 
-Some dplyr verbs, such as \code{summarise()}, drop the attribute, and with it
-the header line; \code{filter()}, \code{arrange()}, and \code{mutate()} keep it.
-}
+Some dplyr verbs, such as \code{summarise()}, drop the record, and with it the
+header line; \code{filter()}, \code{arrange()}, and \code{mutate()} keep it.
 }
 \examples{
 pigs1 |>
   grim_map(digits_x = 2, items_averaged = 1, rounding = "up") |>
   scrutiny_meta()
 
-# Just the rounding method:
-out <- grim_map(pigs1, digits_x = 2, items_averaged = 1)
-scrutiny_meta(out)$args$rounding
+# Only the settings that are not at their defaults:
+pigs1 |>
+  grim_map_seq(digits_x = 2, items_averaged = 1, dispersion = 1:10) |>
+  scrutiny_meta() |>
+  dplyr::filter(!default)
 }

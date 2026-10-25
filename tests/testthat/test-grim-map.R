@@ -24,7 +24,7 @@ test_that("It has the correct function-general class", {
 })
 
 test_that("It records the rounding", {
-  rounding_of <- function(x) scrutiny_meta(x)$args$rounding
+  rounding_of <- function(x) scrutiny_args(x)$rounding
   df1_grim_up_or_down       |> rounding_of() |> expect_equal("up_or_down")
   df1_grim_up               |> rounding_of() |> expect_equal("up")
   df1_grim_down             |> rounding_of() |> expect_equal("down")

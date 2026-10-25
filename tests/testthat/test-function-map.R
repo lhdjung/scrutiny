@@ -248,8 +248,7 @@ test_that("`.args_fixed` passes a value on without exposing the argument", {
   # A fixed argument is a setting of the factory, not of the call:
   pigs5 |>
     grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
-    scrutiny_meta() |>
-    getElement("args") |>
+    scrutiny_args() |>
     names() |>
     expect_no_match("show_reason")
 })
@@ -619,8 +618,7 @@ test_that("`.cols_derived` computes columns the test function never returns", {
 test_that("the arguments of the whole call are recorded, with defaults", {
   args <- pigs2 |>
     grim_map(digits_x = 1, items_averaged = 1, percent = TRUE, rounding = "ceiling") |>
-    scrutiny_meta() |>
-    getElement("args")
+    scrutiny_args()
   args$percent |> expect_true()
   args$rounding |> expect_equal("ceiling")
   args$threshold |> expect_equal(5)
@@ -633,8 +631,7 @@ test_that("the arguments of the whole call are recorded, with defaults", {
   pigs2 |>
     grim_map(digits_x = 1, items_averaged = 1, percent = TRUE) |>
     dplyr::filter(consistency) |>
-    scrutiny_meta() |>
-    getElement("args") |>
+    scrutiny_args() |>
     getElement("percent") |>
     expect_true()
 })

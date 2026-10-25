@@ -15,8 +15,18 @@ unclass_scr <- function(x) {
 }
 
 
-# The `args` element of the `"scrutiny"` attribute of `grim_map()` output under
-# the defaults:
+# The settings that the `"scrutiny"` attribute records, written out by hand
+# rather than with `new_settings()`:
+settings_tbl <- function(values, default, added_by) {
+  tibble::tibble(
+    setting = names(values),
+    value = unname(values),
+    default = default,
+    added_by = added_by
+  )
+}
+
+# The settings of `grim_map()` under the defaults:
 grim_args_default <- list(
   percent = FALSE,
   show_rec = FALSE,
@@ -24,15 +34,39 @@ grim_args_default <- list(
   threshold = 5,
   symmetric = FALSE
 )
+grim_settings_default <- settings_tbl(grim_args_default, TRUE, "grim_map")
 
 
 # The whole `"scrutiny"` attribute of `grim_map_seq()` output:
-meta_seq <- function(results_reported, percent = FALSE, var = c("x", "n")) {
+meta_seq <- function(
+  results_reported,
+  percent = FALSE,
+  var = c("x", "n"),
+  include_reported = FALSE
+) {
+  settings_seq <- list(
+    var = var,
+    dispersion = 1:5,
+    out_min = "auto",
+    out_max = "auto",
+    include_reported = include_reported,
+    include_consistent = FALSE
+  )
   list(
-    args = utils::modifyList(grim_args_default, list(percent = percent)),
+    settings = dplyr::bind_rows(
+      settings_tbl(
+        utils::modifyList(grim_args_default, list(percent = percent)),
+        c(!percent, TRUE, TRUE, TRUE, TRUE),
+        "grim_map"
+      ),
+      settings_tbl(
+        settings_seq,
+        c(identical(var, c("x", "n")), TRUE, TRUE, TRUE, !include_reported, TRUE),
+        "grim_map_seq"
+      )
+    ),
     results_reported = results_reported,
     name_key_result = "consistency",
-    var = var,
     dispersion_linear = TRUE
   )
 }

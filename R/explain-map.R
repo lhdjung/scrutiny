@@ -70,7 +70,7 @@ explain_map.scrutiny_grimmer_map <- function(data) {
 explain_map.scrutiny_debit_map <- function(data) {
   # `debit_explain()` checks this too, but would blame a `formula` that the
   # user never passed here:
-  formula <- scrutiny_meta(data)$args$formula
+  formula <- scrutiny_args(data)$formula
   if (identical(formula, "mean_n")) {
     abort_in_export(
       "Explanations only cover DEBIT's default `formula = \"exact\"`.",
@@ -87,7 +87,7 @@ explain_map.scrutiny_debit_map <- function(data) {
 add_explanation_col <- function(data, fun, cols_key, cols_helper = character()) {
   check_cols_needed(data, c(cols_key, "consistency"))
 
-  args <- scrutiny_meta(data)$args
+  args <- scrutiny_args(data)
   if (is.null(args)) {
     abort_in_export(
       "`data` has lost the settings of the test that produced it.",

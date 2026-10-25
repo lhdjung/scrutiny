@@ -224,11 +224,13 @@ grim_plot <- function(
       ),
       nrow = 1L
     )
-    attr(data, "scrutiny") <- list(args = list(rounding = rounding))
+    attr(data, "scrutiny") <- list(
+      settings = new_settings(list(rounding = rounding), list(), "grim_map")
+    )
   }
 
   # Whether `x` was tested as a percentage, as recorded by `grim_map()`:
-  is_percent <- isTRUE(scrutiny_meta(data)$args$percent)
+  is_percent <- isTRUE(scrutiny_args(data)$percent)
 
   # Nothing to read a decimal count off, no raster to choose, no data to draw.
   # A zero-row mapper output is an ordinary result of `dplyr::filter()`, so say
@@ -458,7 +460,7 @@ grim_plot <- function(
       # Check the way `x` values were rounded in the preceding `grim_map()` call
       # to prepare selecting the plot background raster. Data built by hand has
       # no record, so fall back to `rounding`:
-      rounding_id <- scrutiny_meta(data)$args$rounding
+      rounding_id <- scrutiny_args(data)$rounding
       if (is.null(rounding_id)) {
         rounding_id <- rounding
       }

@@ -2,44 +2,37 @@
 #'
 #' @description `r lifecycle::badge("experimental")`
 #'
-#'   Every mapper, such as [`grim_map()`], records the settings of
-#'   the call that produced its output in a list attribute named `"scrutiny"`.
-#'   `scrutiny_meta()` returns that list, so that a report can state under
-#'   which rounding method or SD convention a verdict was reached. Classes are
-#'   for method dispatch only and carry no settings.
+#'   Every mapper, such as [`grim_map()`], records the settings of the call
+#'   that produced its output. `scrutiny_meta()` returns them as a tibble, so
+#'   that a report can state under which rounding method or SD convention a
+#'   verdict was reached.
 #'
-#'   Every mapper's list has one element:
-#'
-#' - `args`: the arguments that applied to the whole call, with defaults
+#'   Settings are the arguments that apply to the whole call, with defaults
 #'   resolved, such as `rounding`, `percent`, or `sd_type`. Arguments that may
 #'   vary by row are columns of the output instead: `digits_x`, `digits_sd`,
 #'   and helper arguments such as `items_averaged`, even if given as a single
 #'   value.
 #'
-#'   The output of sequence mappers, such as [`grim_map_seq()`], has four more:
-#'
-#' - `results_reported`: the verdict of every row of the input data, which
-#'   [`audit_seq()`] reports.
-#' - `name_key_result`: the name of the column with the verdicts, usually
-#'   `"consistency"`.
-#' - `var`: the dispersed variables.
-#' - `dispersion_linear`: whether the dispersion was linear, which
-#'   [`audit_seq()`] requires.
-#'
-#'   The settings of the sequence or total-n call itself, such as `dispersion`,
-#'   are not recorded.
+#'   Sequence and total-n mappers, such as [`grim_map_seq()`], add their own
+#'   settings, such as `dispersion`, to those of the basic mapper they call.
 #'
 #'   When the output of [`grim_map()`], [`grimmer_map()`], [`debit_map()`], or
 #'   [`is_percentage_of_map()`] is printed, a line in the header names the
-#'   settings that differ from the mapper's defaults, as in `# GRIM: rounding =
-#'   "up"`. This includes sequence and total-n output.
+#'   settings that are not at their defaults, as in `# GRIM: rounding = "up"`.
+#'   This includes sequence and total-n output.
 #'
-#'   Some dplyr verbs, such as `summarise()`, drop the attribute, and with it
-#'   the header line; `filter()`, `arrange()`, and `mutate()` keep it.
+#'   Some dplyr verbs, such as `summarise()`, drop the record, and with it the
+#'   header line; `filter()`, `arrange()`, and `mutate()` keep it.
 #'
 #' @param x Output of a mapper function.
 #'
-#' @return A named list, or `NULL` if `x` has no `"scrutiny"` attribute.
+#' @return A tibble with one row per setting and these columns, or `NULL` if
+#'   `x` has no record of its settings:
+#'   - `setting`: the name of the argument.
+#'   - `value`: its value, written as R code, such as `'up'` or `1:5`.
+#'   - `default`: `TRUE` if the value is the mapper's default, `FALSE` if not.
+#'   - `added_by`: the mapper whose argument it is, such as `"grim_map"` or
+#'   `"grim_map_seq"`.
 #'
 #' @export
 #'
@@ -48,73 +41,98 @@
 #'   grim_map(digits_x = 2, items_averaged = 1, rounding = "up") |>
 #'   scrutiny_meta()
 #'
-#' # Just the rounding method:
-#' out <- grim_map(pigs1, digits_x = 2, items_averaged = 1)
-#' scrutiny_meta(out)$args$rounding
+#' # Only the settings that are not at their defaults:
+#' pigs1 |>
+#'   grim_map_seq(digits_x = 2, items_averaged = 1, dispersion = 1:10) |>
+#'   scrutiny_meta() |>
+#'   dplyr::filter(!default)
 scrutiny_meta <- function(x) {
-  attr(x, "scrutiny", exact = TRUE)
+  settings <- attr(x, "scrutiny", exact = TRUE)$settings
+  if (is.null(settings)) {
+    return(NULL)
+  }
+  settings$value <- settings$value |>
+    vapply(deparse_value, character(1L)) |>
+    single_quotes()
+  settings
+}
+
+
+# A value as the code that creates it, on one line:
+deparse_value <- function(value) {
+  paste(deparse(value, width.cutoff = 500L), collapse = " ")
+}
+
+# pillar quotes and escapes a whole character column if one of its values has
+# a double quote in it, so `"up"` would print as `"\"up\""`. Single quotes
+# print as they are and still make R code. Code that has a single quote or an
+# escaped double quote in it keeps its double quotes:
+single_quotes <- function(code) {
+  is_plain <- !grepl("'", code, fixed = TRUE) & !grepl('\\"', code, fixed = TRUE)
+  code[is_plain] <- gsub('"', "'", code[is_plain], fixed = TRUE)
+  code
+}
+
+
+# The settings of the basic mapper, as a named list of their values, or `NULL`
+# if `x` has no record. Its rows come first, so they are those added by the
+# same mapper as the first row. This is what the package itself reads: the
+# plots, `explain_map()`, and the sequence mapper's re-tests.
+scrutiny_args <- function(x) {
+  settings <- attr(x, "scrutiny", exact = TRUE)$settings
+  if (is.null(settings)) {
+    return(NULL)
+  }
+  is_basic <- settings$added_by %in% settings$added_by[1L]
+  rlang::set_names(settings$value[is_basic], settings$setting[is_basic])
 }
 
 
 # Print header ------------------------------------------------------------
 
-# A header line under "# A tibble: ..." that names the settings in which the
-# call departed from the mapper's defaults, as recorded in the "scrutiny"
-# attribute. `pillar::tbl_sum()` is the documented hook for such lines. Each
-# method states its mapper, whose formals hold the defaults, so the attribute
-# needs no record of them. Sequence and total-n output carries the basic
-# class, so it gets the same line. Mappers made by `function_map()` in other
-# packages get no header unless they add a method like these.
+# A header line under "# A tibble: ..." that names the settings that are not at
+# their defaults. `pillar::tbl_sum()` is the documented hook for such lines.
+# Sequence and total-n output carries the basic class, so it gets the same
+# line. Mappers made by `function_map()` in other packages get no header unless
+# they add a method like these.
 #
 # pillar pads every name in the header to the widest one, "A tibble", so the
 # line would read `# GRIM:     rounding = "up"`. Only an unnamed header is
 # printed as it is, so the names are written into the lines here:
-header_settings <- function(header, x, name_test, mapper) {
+header_settings <- function(header, x, name_test) {
   header <- paste0(names(header), ": ", header)
-  args <- scrutiny_meta(x)$args
-  if (length(args) == 0L) {
+  settings <- attr(x, "scrutiny", exact = TRUE)$settings
+  if (is.null(settings) || nrow(settings) == 0L) {
     return(header)
   }
 
-  defaults <- formals(mapper)[names(args)]
-  is_default <- vapply(
-    names(args),
-    function(name) {
-      default <- eval(defaults[[name]], environment(mapper))
-      if (is.character(default)) {
-        default <- default[[1L]]
-      }
-      isTRUE(all.equal(args[[name]], default))
-    },
-    logical(1L)
-  )
-
-  settings <- if (all(is_default)) {
+  changed <- settings[!settings$default, ]
+  line <- if (nrow(changed) == 0L) {
     "default settings"
   } else {
-    args <- args[!is_default]
-    paste(names(args), "=", vapply(args, deparse, character(1L)), collapse = ", ")
+    values <- vapply(changed$value, deparse_value, character(1L))
+    paste(changed$setting, "=", values, collapse = ", ")
   }
 
-  c(header, paste0(name_test, ": ", settings))
+  c(header, paste0(name_test, ": ", line))
 }
 
 #' @exportS3Method pillar::tbl_sum
 tbl_sum.scrutiny_grim_map <- function(x, ...) {
-  header_settings(NextMethod(), x, "GRIM", grim_map)
+  header_settings(NextMethod(), x, "GRIM")
 }
 
 #' @exportS3Method pillar::tbl_sum
 tbl_sum.scrutiny_grimmer_map <- function(x, ...) {
-  header_settings(NextMethod(), x, "GRIMMER", grimmer_map)
+  header_settings(NextMethod(), x, "GRIMMER")
 }
 
 #' @exportS3Method pillar::tbl_sum
 tbl_sum.scrutiny_debit_map <- function(x, ...) {
-  header_settings(NextMethod(), x, "DEBIT", debit_map)
+  header_settings(NextMethod(), x, "DEBIT")
 }
 
 #' @exportS3Method pillar::tbl_sum
 tbl_sum.scrutiny_is_percentage_of_map <- function(x, ...) {
-  header_settings(NextMethod(), x, "Percentage", is_percentage_of_map)
+  header_settings(NextMethod(), x, "Percentage")
 }

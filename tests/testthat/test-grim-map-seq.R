@@ -1386,7 +1386,7 @@ pigs1_include_reported_exp <- tibble::tibble(
   var = rep(c("x", "n"), each = 88L),
 ) |>
   structure(
-    scrutiny = meta_seq(grim_map(pigs1, digits_x = 2, items_averaged = 1)$consistency),
+    scrutiny = meta_seq(grim_map(pigs1, digits_x = 2, items_averaged = 1)$consistency, include_reported = TRUE),
     class = c(
       "scrutiny_map_seq",
       "scrutiny_grim_map_seq",
@@ -1456,10 +1456,11 @@ test_that("`grim_map_seq()` handles large `dispersion` values", {
   out$x |> decimal_places() |> max() |> expect_equal(2L)
   out$digits_x |> call_on(\(x) x == 2L) |> all() |> expect_true()
 
-  # The one extra step must not change anything about the shorter sequence:
+  # The one extra step must not change anything about the shorter sequence,
+  # except for the recorded `dispersion`:
   out_304 <- pigs5 |> grim_map_seq(digits_x = 2, items_averaged = 1, dispersion = 1:304)
   out[out$diff_var %in% out_304$diff_var, ] |>
-    expect_equal(out_304[out_304$diff_var %in% out$diff_var, ])
+    expect_equal(out_304[out_304$diff_var %in% out$diff_var, ], ignore_attr = "scrutiny")
 })
 
 
@@ -1612,9 +1613,9 @@ test_that("output without inconsistent cases keeps its shape and class", {
   empty |> audit_seq()       |> colnames() |> expect_equal(colnames(audit_seq(full)))
   empty |> reverse_map_seq() |> colnames() |> expect_equal(c("x", "n", "items_averaged"))
   # The dispersed variables are recorded, so the columns follow `var`:
-  full  |> scrutiny_meta() |> purrr::pluck("var") |> expect_equal(c("x", "n"))
+  full  |> scrutiny_meta() |> dplyr::filter(setting == "var") |> _$value |> expect_equal("c('x', 'n')")
   empty_n <- pigs1[c(1, 1), ] |> grim_map_seq(digits_x = 2, items_averaged = 1, var = "n") |> suppressWarnings()
-  empty_n |> scrutiny_meta() |> purrr::pluck("var") |> expect_equal("n")
+  empty_n |> scrutiny_meta() |> dplyr::filter(setting == "var") |> _$value |> expect_equal("'n'")
   cols_audit_n <- pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, var = "n") |> audit_seq() |> colnames()
   empty_n |> audit_seq() |> colnames() |> expect_equal(cols_audit_n)
 })

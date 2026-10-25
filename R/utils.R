@@ -1737,7 +1737,7 @@ audit_summary_stats <- function(data, selection, total = FALSE) {
 #' @param var_bounds Named list of length-2 numeric vectors, `c(min, max)`, with
 #'   `NA` for an unbounded side, or of functions that return one from `args`.
 #'   May be `NULL`.
-#' @param args The `args` of the initial `fun()` call's "scrutiny" attribute.
+#' @param args The settings of the initial `fun()` call, from `scrutiny_args()`.
 #'
 #' @return List of two elements, `out_min` and `out_max`.
 #'
@@ -1843,7 +1843,7 @@ check_var_bounds <- function(var_bounds) {
 #'
 #' @noRd
 check_dispersion_linear <- function(data, name_fun) {
-  if (isFALSE(scrutiny_meta(data)$dispersion_linear)) {
+  if (isFALSE(attr(data, "scrutiny", exact = TRUE)$dispersion_linear)) {
     name_mapper <- class(data) |>
       call_on(\(x) x[grepl("_map_seq$", x)]) |>
       call_on(\(x) x[x != "scrutiny_map_seq"]) |>

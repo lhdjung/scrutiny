@@ -289,11 +289,11 @@ test_that("sequence and total-n mappers take the settings of their basic mapper 
 
 test_that("a promoted setting reaches the test only if it was given", {
   out <- pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, rounding = "up")
-  out |> scrutiny_meta() |> _$args$rounding |> expect_equal("up")
+  out |> scrutiny_args() |> _$rounding |> expect_equal("up")
 
   total <- tibble::tibble(x1 = 0.30, x2 = 0.30, sd1 = 0.46, sd2 = 0.46, n = 20)
-  total |> debit_map_total_n(digits_x = 2, digits_sd = 2, formula = "mean_n") |> scrutiny_meta() |> _$args$formula |> expect_equal("mean_n")
-  total |> debit_map_total_n(digits_x = 2, digits_sd = 2)                     |> scrutiny_meta() |> _$args$formula |> expect_equal("exact")
+  total |> debit_map_total_n(digits_x = 2, digits_sd = 2, formula = "mean_n") |> scrutiny_args() |> _$formula |> expect_equal("mean_n")
+  total |> debit_map_total_n(digits_x = 2, digits_sd = 2)                     |> scrutiny_args() |> _$formula |> expect_equal("exact")
 })
 
 

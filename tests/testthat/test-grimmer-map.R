@@ -44,11 +44,15 @@ pigs5_exp <- tibble::tibble(
 ) |>
   structure(
     scrutiny = list(
-      args = list(
-        rounding = "up_or_down",
-        threshold = 5,
-        symmetric = FALSE,
-        sd_type = "sample"
+      settings = settings_tbl(
+        list(
+          rounding = "up_or_down",
+          threshold = 5,
+          symmetric = FALSE,
+          sd_type = "sample"
+        ),
+        TRUE,
+        "grimmer_map"
       )
     ),
     class = c(

@@ -111,8 +111,8 @@ arguments from \code{.reported}.
 
 The output has the class \code{"scrutiny_{tolower(.name_test)}_map"}, e.g.,
 \code{"scrutiny_grim_map"}, in addition to any \code{.name_class}. The arguments that
-applied to the whole call, such as \code{rounding}, are recorded in the \code{args}
-element of the output's \code{"scrutiny"} attribute.
+applied to the whole call, such as \code{rounding}, are recorded on the output;
+see \code{\link[=scrutiny_meta]{scrutiny_meta()}}.
 }
 \section{Value returned by the factory-made function}{
  A tibble with the

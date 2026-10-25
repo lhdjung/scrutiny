@@ -101,7 +101,7 @@ audit_seq <- function(data) {
   # `"consistency"` unless the mapper was created with a different
   # `.name_key_result`. Output that has lost the attribute falls back to that,
   # and every mapper that keeps the default name is unaffected:
-  meta <- scrutiny_meta(data)
+  meta <- attr(data, "scrutiny", exact = TRUE)
   name_key_result <- meta$name_key_result
   if (is.null(name_key_result)) {
     name_key_result <- "consistency"
@@ -112,7 +112,7 @@ audit_seq <- function(data) {
   # the attribute, since the `var` column has no values; output that has lost
   # the attribute gets no per-variable columns:
   if (nrow(data) == 0L) {
-    var_names <- meta$var
+    var_names <- meta$settings$value[[match("var", meta$settings$setting)]]
     out <- reverse_map_seq(data)
     out[[name_key_result]] <- logical(0L)
     out$hits_total <- integer(0L)

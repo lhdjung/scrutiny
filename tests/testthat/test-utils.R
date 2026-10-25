@@ -332,6 +332,6 @@ test_that("every `sd_type` and `formula` default spells out its constant", {
 
 test_that("a mapper records an enum setting it was not given as its first value", {
   out <- tibble::tibble(x = 0.30, sd = 0.46, n = 10) |> debit_map(digits_x = 2, digits_sd = 2)
-  out |> scrutiny_meta() |> _$args$sd_type |> expect_equal("sample")
-  out |> scrutiny_meta() |> _$args$formula |> expect_equal("exact")
+  out |> scrutiny_args() |> _$sd_type |> expect_equal("sample")
+  out |> scrutiny_args() |> _$formula |> expect_equal("exact")
 })

@@ -142,6 +142,66 @@ formals_settings <- function(fun, exclude) {
 }
 
 
+# The settings of a call, recorded in the "scrutiny" attribute as a tibble:
+# `setting`, `value` (a list), `default`, and `added_by`, the mapper whose
+# setting it is. A sequence or total-n mapper adds its own rows to those of the
+# basic mapper. `default` compares each value to `defaults`, from
+# `eval_defaults()`; a setting missing from them never counts as a default.
+# `scrutiny_meta()` shows the values as code, and `scrutiny_args()` reads them.
+new_settings <- function(values, defaults, added_by) {
+  names_values <- names(values)
+  if (is.null(names_values)) {
+    names_values <- character()
+  }
+  is_default <- vapply(
+    names_values,
+    function(name) {
+      rlang::has_name(defaults, name) &&
+        isTRUE(all.equal(values[[name]], defaults[[name]]))
+    },
+    logical(1L),
+    USE.NAMES = FALSE
+  )
+  tibble::new_tibble(
+    list(
+      setting = names_values,
+      value = unname(values),
+      default = is_default,
+      added_by = rep(added_by, length(values))
+    ),
+    nrow = length(values)
+  )
+}
+
+# The defaults of `formals`, evaluated once, when a factory creates a mapper.
+# A set of strings resolves to its first, as a call does. An argument without
+# a default, or with one that can't be evaluated outside of a call, is left
+# out:
+eval_defaults <- function(formals, env) {
+  formals <- formals[!vapply(formals, rlang::is_missing, logical(1L))]
+  out <- list()
+  for (name in names(formals)) {
+    ok <- TRUE
+    value <- tryCatch(eval(formals[[name]], env), error = function(e) ok <<- FALSE)
+    if (!ok) {
+      next
+    }
+    if (is_enum_default(formals[[name]])) {
+      value <- value[[1L]]
+    }
+    out[name] <- list(value)
+  }
+  out
+}
+
+# The name of a mapper, by the convention behind its class: "grim_map" for a
+# `.name_test` of "GRIM". `added_by` uses it, since a manufactured function
+# does not know the name it was assigned to:
+name_mapper <- function(name_test, suffix) {
+  sub("^scrutiny_", "", class_name_test(name_test, suffix))
+}
+
+
 # Is a formal's default a set of strings, as in `sd_type = c("sample",
 # "population", "either")`? See `function_map()`.
 is_enum_default <- function(default) {

@@ -65,8 +65,8 @@
 #'
 #'   The output has the class `"scrutiny_{tolower(.name_test)}_map"`, e.g.,
 #'   `"scrutiny_grim_map"`, in addition to any `.name_class`. The arguments that
-#'   applied to the whole call, such as `rounding`, are recorded in the `args`
-#'   element of the output's `"scrutiny"` attribute.
+#'   applied to the whole call, such as `rounding`, are recorded on the output;
+#'   see [`scrutiny_meta()`].
 #'
 #' @return A function with these arguments:
 #' - `data`: a data frame with the key columns. Other columns are permitted.
@@ -323,6 +323,10 @@ function_map <- function(
     logical(1L),
     USE.NAMES = FALSE
   )]
+
+  # What the settings of a call are compared to, to fill the `default` column
+  # of the "scrutiny" attribute:
+  defaults_const <- eval_defaults(formals_promoted[args_const], environment(.fun))
 
   # The by-row arguments -- in practice the `digits_*` ones -- come first, right
   # after `data`: they have no defaults, so they belong next to the other
@@ -718,7 +722,11 @@ function_map <- function(
       # dispatch. A missing value, as from a `lifecycle::deprecated()` default,
       # is no setting:
       attr(out, "scrutiny") <- list(
-        args = Filter(Negate(rlang::is_missing), args_const_vals)
+        settings = new_settings(
+          Filter(Negate(rlang::is_missing), args_const_vals),
+          `!!`(defaults_const),
+          `!!`(name_mapper(.name_test, "_map"))
+        )
       )
 
       # Unquote-splice the code that finalizes `out`. This includes unnesting if

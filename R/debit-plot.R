@@ -80,7 +80,7 @@ debit_plot <- function(
   # The formula decides what the plot shows. `debit_map()` and the mappers built
   # on it always record it, and the record survives the same dplyr verbs as the
   # class, so data with the class but no formula were given the class by hand:
-  formula <- scrutiny_meta(data)$args$formula
+  formula <- scrutiny_args(data)$formula
   if (!is.character(formula) || !formula %in% c("exact", "mean_n")) {
     abort_in_export(
       "!" = "`data` doesn't record the DEBIT `formula` it was tested with.",
@@ -91,7 +91,7 @@ debit_plot <- function(
   }
 
   # Recorded along with `formula`. Under `"either"`, both lines are drawn:
-  sd_type <- scrutiny_meta(data)$args$sd_type
+  sd_type <- scrutiny_args(data)$sd_type
   sd_types <- if (sd_type == "either") c("sample", "population") else sd_type
 
   # Preparations ---
@@ -127,7 +127,7 @@ debit_plot <- function(
   cols_rec <- setdiff(cols_needed, c("x", "sd", "n", "consistency"))
   if (!all(cols_rec %in% colnames(data))) {
     check_cols_needed(data, c("x", "sd", "n", "digits_x", "digits_sd"))
-    args <- scrutiny_meta(data)$args
+    args <- scrutiny_args(data)
     args$show_rec <- TRUE
     rec <- do.call(
       debit_map,

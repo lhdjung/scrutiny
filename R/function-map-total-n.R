@@ -334,6 +334,15 @@ function_map_total_n <- function(
   )
   args_setting_fun <- names(setting_formals)
 
+  # The total-n mapper's own settings are recorded next to those of `.fun`, and
+  # compared to these defaults:
+  defaults_total_n <- list(
+    dispersion = .dispersion,
+    n_min = .n_min,
+    n_max = .n_max,
+    constant = .constant
+  )
+
   # --- Start of the manufactured function, `fn_out()` ---
 
   fn_out <- rlang::new_function(
@@ -631,6 +640,24 @@ function_map_total_n <- function(
 
       # Combine the two sets of results into one final tibble:
       out <- dplyr::bind_rows(out_forth, out_back)
+
+      # The settings that `fun()` recorded, such as `rounding`, followed by
+      # those of this call:
+      meta <- attr(out_forth, "scrutiny", exact = TRUE)
+      meta$settings <- dplyr::bind_rows(
+        meta$settings,
+        new_settings(
+          list(
+            dispersion = dispersion,
+            n_min = n_min,
+            n_max = n_max,
+            constant = constant
+          ),
+          `!!`(defaults_total_n),
+          `!!`(name_mapper(.name_test, "_map_total_n"))
+        )
+      )
+      attr(out, "scrutiny") <- meta
 
       # A case whose total leaves no pair of group sizes within the limits has
       # no rows. It used to vanish without a word:

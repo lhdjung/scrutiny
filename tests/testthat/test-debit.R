@@ -461,7 +461,7 @@ test_that("`sd_type` reaches the sequence and total-n mappers", {
   df |> debit_map_seq(digits_x = 2, digits_sd = 2, sd_type = "population") |> suppressWarnings() |> nrow() |> expect_equal(0L)
 
   seq_either <- df |> debit_map_seq(digits_x = 2, digits_sd = 2, sd_type = "either", include_consistent = TRUE)
-  seq_either |> scrutiny_meta() |> _$args$sd_type |> expect_equal("either")
+  seq_either |> scrutiny_args() |> _$sd_type |> expect_equal("either")
   seq_either |> audit_seq() |> nrow() |> expect_equal(1L)
 
   # Groups of 10 and 10 fit only as population SDs:

@@ -161,7 +161,16 @@ df2_rows_1_3_expected <- tibble::tibble(
   ),
 ) |>
   structure(
-    scrutiny = list(args = grim_args_default),
+    scrutiny = list(
+      settings = dplyr::bind_rows(
+        grim_settings_default,
+        settings_tbl(
+          list(dispersion = 0:5, n_min = 1L, n_max = NULL, constant = NULL),
+          TRUE,
+          "grim_map_total_n"
+        )
+      )
+    ),
     class = c(
       "scrutiny_map_total_n",
       "scrutiny_grim_map_total_n",

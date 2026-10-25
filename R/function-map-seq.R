@@ -122,8 +122,9 @@ function_map_seq_proto <- function(
 #'   greatest possible value, with `NA` for an unbounded side, such as `list(n =
 #'   c(1, NA), sd = c(0, NA))`. A variable not named here is unbounded, except
 #'   for `n`, which always has a minimum of 1. An element may also be a
-#'   function that returns such a vector from the `args` that `.fun` recorded
-#'   for its call, for a bound that depends on a setting. The bounds only limit
+#'   function that returns such a vector from the settings that `.fun`
+#'   recorded for its call, as a named list such as `list(sd_type = "sample")`,
+#'   for a bound that depends on a setting. The bounds only limit
 #'   the dispersion, so that the test never receives an impossible value such
 #'   as a sample size of 0. They have no bearing on consistency.
 #' @param .include_reported Logical. Should the reported values themselves be
@@ -275,6 +276,17 @@ function_map_seq <- function(
     digits_args_names
   )
 
+  # The sequence mapper's own settings are recorded next to those of `.fun`,
+  # and compared to these defaults:
+  defaults_seq <- list(
+    var = .var,
+    dispersion = .dispersion,
+    out_min = .out_min,
+    out_max = .out_max,
+    include_reported = .include_reported,
+    include_consistent = .include_consistent
+  )
+
   # --- Start of the manufactured function, `fn_out()` ---
 
   fn_out <- rlang::new_function(
@@ -379,7 +391,8 @@ function_map_seq <- function(
         fun,
         c(list(data), digits_vals, helper_vals, setting_vals, list(...))
       )
-      meta_fun <- scrutiny_meta(data)
+      meta_fun <- attr(data, "scrutiny", exact = TRUE)
+      args_fun <- scrutiny_args(data)
 
       # Everything below reads the key result column off `fun()`'s output by
       # name, so mapper and sequence mapper must have been created with the same
@@ -450,7 +463,7 @@ function_map_seq <- function(
             out_min = out_min,
             out_max = out_max,
             var_bounds = var_bounds,
-            args = meta_fun$args
+            args = args_fun
           )
           do.call(
             map_seq_proto,
@@ -561,7 +574,8 @@ function_map_seq <- function(
       # Settings for functions downstream: those that the initial `fun()` call
       # recorded, such as the `rounding` that `grim_plot()` reads -- set here
       # rather than left to survive the binding of `fun()`'s outputs above --
-      # and these:
+      # followed by those of this call, such as `var`, which `audit_seq()`
+      # reads when there are no rows to read it off. Then these:
       # - `results_reported`: the verdict of every row of the input data, from
       #   the initial `fun()` call. `audit_seq()` reports it for each case
       #   instead of re-testing reconstructed data, which required finding
@@ -571,14 +585,26 @@ function_map_seq <- function(
       # - `dispersion_linear`: `audit_seq()` and `reverse_map_seq()` only work
       #   with a linearly increasing `dispersion`. A single step is trivially
       #   linear, but `is_seq_ascending()` needs two.
-      # - `var`: the dispersed variables, which `audit_seq()` can't read off
-      #   the `var` column when there are no rows.
+      meta_fun$settings <- dplyr::bind_rows(
+        meta_fun$settings,
+        new_settings(
+          list(
+            var = var_requested,
+            dispersion = dispersion,
+            out_min = out_min,
+            out_max = out_max,
+            include_reported = include_reported,
+            include_consistent = include_consistent
+          ),
+          `!!`(defaults_seq),
+          `!!`(name_mapper(.name_test, "_map_seq"))
+        )
+      )
       attr(out, "scrutiny") <- c(
         meta_fun,
         list(
           results_reported = results,
           name_key_result = name_key_result,
-          var = var_requested,
           dispersion_linear = length(dispersion) < 2L ||
             is_seq_ascending(dispersion)
         )
