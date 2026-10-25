@@ -87,11 +87,11 @@ audit_seq <- function(data) {
   env_caller <- rlang::caller_env()
 
   if (!inherits(data, "scrutiny_map_seq")) {
-    cli::cli_abort(c(
+    abort_in_export(
       "Invalid `data` argument.",
       "!" = "It must be the output of a `*_map_seq()` function, \\
       such as `grim_map_seq()`."
-    ))
+    )
   }
 
   check_dispersion_linear(data, "audit_seq")
@@ -267,11 +267,11 @@ audit_seq <- function(data) {
 
 audit_total_n <- function(data) {
   if (!inherits(data, "scrutiny_map_total_n")) {
-    cli::cli_abort(c(
+    abort_in_export(
       "Invalid `data` argument.",
       "!" = "It must be the output of a `*_map_total_n()` function, \\
       such as `grim_map_total_n()`."
-    ))
+    )
   }
 
   df_list <- split(data, data$case)

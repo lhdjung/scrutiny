@@ -144,7 +144,8 @@ grimmer_explain <- function(
     "GRIM undecidable" = ,
     "SD rounding bounds undefined" = cli::cli_abort(
       "Internal error: `grimmer_explain()` can't explain the reason \\
-      {.val {result[[2L]]}}."
+      {.val {result[[2L]]}}.",
+      .internal = TRUE
     ),
     "Negative SD" = paste0(
       "The SD was reported as ",
@@ -309,7 +310,8 @@ grimmer_explain <- function(
 
   if (passed != consistency) {
     cli::cli_abort(
-      "Internal error: `grimmer_explain()` disagrees with `grimmer()`."
+      "Internal error: `grimmer_explain()` disagrees with `grimmer()`.",
+      .internal = TRUE
     )
   }
 

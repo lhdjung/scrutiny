@@ -724,11 +724,11 @@ check_args_disabled_unnamed <- function(args_disabled) {
 check_fun_result <- function(result, fun_name) {
   key <- if (is.list(result) && length(result) > 0L) result[[1L]] else result
   if (!is.logical(key) || length(key) != 1L) {
-    cli::cli_abort(c(
+    abort_in_export(
       "`{fun_name}()` must return a single logical value, or a list \\
       starting with one.",
       "x" = "It returned {.obj_type_friendly {result}}."
-    ))
+    )
   }
   invisible(result)
 }

@@ -190,50 +190,52 @@ function_map <- function(
   if (!is.null(.reported_variadic)) {
     check_length(.reported_variadic, 1L)
     if (any(.reported_variadic == .reported)) {
-      cli::cli_abort(c(
+      abort_in_export(
         "`.reported_variadic` must not also be a `.reported` value.",
         "x" = "{wrap_in_backticks(.reported_variadic)} is both.",
         "i" = "A key argument of `{fun_name}()` either takes the values of \\
         one column or the values of any number of them, not both."
-      ))
+      )
     }
   } else if (length(.reported) == 0L) {
-    cli::cli_abort(c(
+    abort_in_export(
       "`.reported` must name at least one column.",
       "i" = "Unless `.reported_variadic` is specified, in which case the \\
       columns it selects are the only key columns."
-    ))
+    )
   }
 
   if (length(.cols_derived) > 0L && !rlang::is_named(.cols_derived)) {
-    cli::cli_abort(
+    abort_in_export(
       "`.cols_derived` must be a named list: each name becomes a column name."
     )
   }
 
   if (!all(vapply(.cols_derived, is.function, logical(1L)))) {
-    cli::cli_abort(c(
+    abort_in_export(
       "Every element of `.cols_derived` must be a function.",
       "x" = "{wrap_in_backticks(names(.cols_derived)[
       !vapply(.cols_derived, is.function, logical(1L))
       ])} {?is/are} not."
-    ))
+    )
   }
 
   if (!is.null(.col_names) && !identical(.col_names[1L], .name_key_result)) {
     col_names_first <- .col_names[1L]
     name_key_result <- .name_key_result
-    cli::cli_abort(c(
+    abort_in_export(
       "`.col_names` must start with `.name_key_result`.",
       "x" = "It starts with \"{col_names_first}\", but `.name_key_result` \\
       is \"{name_key_result}\"."
-    ))
+    )
   }
 
   # Fixed values are passed to `.fun` by name, so each needs one:
-  if (!is.null(.args_fixed) &&
-    !(is.list(.args_fixed) && rlang::is_named2(.args_fixed))) {
-    cli::cli_abort("`.args_fixed` must be a named list.")
+  if (
+    !is.null(.args_fixed) &&
+      !(is.list(.args_fixed) && rlang::is_named2(.args_fixed))
+  ) {
+    abort_in_export("`.args_fixed` must be a named list.")
   }
 
   # A fixed argument is one the factory-made function passes on with a set
@@ -244,12 +246,12 @@ function_map <- function(
     c(.reported, .reported_variadic, .args_by_row, .cols_helper, .args_disabled)
   )
   if (length(args_fixed_offenders) > 0L) {
-    cli::cli_abort(c(
+    abort_in_export(
       "`.args_fixed` can't name arguments that are key, by-row, helper, or \\
       disabled arguments.",
       "x" = "{wrap_in_backticks(args_fixed_offenders)} \\
       {cli::qty(length(args_fixed_offenders))}{?is/are} already one of these."
-    ))
+    )
   }
 
   # The arguments of `.fun` that become arguments of the factory-made function,
@@ -295,11 +297,14 @@ function_map <- function(
   )
   args_shadowed <- intersect(args_promoted, names_locals)
   if (length(args_shadowed) > 0L) {
-    cli::cli_abort(c(
-      "`{fun_name}()` has arguments that `function_map()` uses internally.",
-      "x" = "Rename {wrap_in_backticks(args_shadowed)}.",
-      "i" = "Reserved: {wrap_in_backticks(names_locals)}."
-    ))
+    cli::cli_abort(
+      c(
+        "`{fun_name}()` has arguments that `function_map()` uses internally.",
+        "x" = "Rename {wrap_in_backticks(args_shadowed)}.",
+        "i" = "Reserved: {wrap_in_backticks(names_locals)}."
+      ),
+      .internal = TRUE
+    )
   }
 
   formals_promoted <- formals_fun[args_promoted]
@@ -667,11 +672,11 @@ function_map <- function(
       # key result column:
       names_taken <- intersect(names(cols_result), colnames(data))
       if (length(names_taken) > 0L) {
-        cli::cli_abort(c(
+        abort_in_export(
           "`data` has columns that the output needs for its results.",
           "x" = "{wrap_in_backticks(names_taken)} would be overwritten.",
           "i" = "Rename or remove {cli::qty(length(names_taken))}{?it/them}."
-        ))
+        )
       }
 
       # Any columns of `data` that play no role in the test are returned

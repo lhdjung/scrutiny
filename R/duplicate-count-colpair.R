@@ -41,18 +41,18 @@
 
 duplicate_count_colpair <- function(data, ignore = NULL, show_rates = TRUE) {
   if (!is.data.frame(data)) {
-    cli::cli_abort("`data` must be a data frame.")
+    abort_in_export("`data` must be a data frame.")
   } else if (!tibble::is_tibble(data) || !rlang::is_named(data)) {
     data <- data |>
       tibble::as_tibble()
   }
 
   if (ncol(data) < 2L) {
-    cli::cli_abort(c(
+    abort_in_export(
       "`data` must have at least two columns.",
       "x" = "It has {ncol(data)}.",
       "i" = "`duplicate_count_colpair()` compares columns to each other."
-    ))
+    )
   }
 
   # Values are compared as strings, as in the other `duplicate_*()` functions,

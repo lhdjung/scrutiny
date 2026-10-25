@@ -582,19 +582,19 @@ unround <- function(
         !is.character(x) &&
         !(is.logical(x) && all(is.na(x)))
     ) {
-      cli::cli_abort(c(
+      abort_in_export(
         "`x` must be a string or a number.",
         "x" = "It is {.obj_type_friendly {x}}."
-      ))
+      )
     }
   } else {
     # The decimal places are counted from `x`, which must then be a string so
     # that trailing zeros survive:
     if (!is.character(x)) {
-      cli::cli_abort(c(
+      abort_in_export(
         "`x` is {an_a_type(x)}.",
         "x" = "If `digits` is not specified, `x` must be a string."
-      ))
+      )
     }
     digits <- decimal_places(x)
   }
@@ -653,14 +653,14 @@ unround <- function(
 
   if (any(too_many)) {
     decimals_x <- decimal_places(x_out[too_many])
-    cli::cli_abort(c(
+    abort_in_export(
       "`x` has more decimal places than `digits` states.",
       "x" = "`digits` is {utils::head(digits[too_many], 3L)} for \\
       {utils::head(x_out[too_many], 3L)}, which {?has/have} \\
       {utils::head(decimals_x, 3L)}.",
       "i" = "`digits` is meant for helper use, where the decimal count is \\
       known. Leave it `NULL` to count the decimal places from a string `x`."
-    ))
+    )
   }
 
   # The same helper GRIM and GRIMMER derive their candidate ranges from, so all

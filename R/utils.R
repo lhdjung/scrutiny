@@ -76,7 +76,7 @@ call_on <- function(x, f) {
   if (is.function(f)) {
     f(x)
   } else {
-    cli::cli_abort("Can only call functions.")
+    abort_in_export("Can only call functions.")
   }
 }
 
@@ -454,15 +454,12 @@ check_newly_numeric <- function(
   name_digits_arg <- paste0("digits_", name_x)
   digits_in_x <- decimal_places_scalar(x)
 
-  cli::cli_abort(
-    message = c(
-      "More decimal places than specified digits.",
-      "!" = "Number of digits specified via `{name_digits_arg}` \
+  abort_in_export(
+    "More decimal places than specified digits.",
+    "!" = "Number of digits specified via `{name_digits_arg}` \
       must not be less than the number of decimal places in `{name_x}`.",
-      "x" = "`{name_digits_arg}` is {digits}.",
-      "x" = "`{name_x}` is {x}, so it has {digits_in_x} decimal place{?s}."
-    ),
-    call = caller_frame
+    "x" = "`{name_digits_arg}` is {digits}.",
+    "x" = "`{name_x}` is {x}, so it has {digits_in_x} decimal place{?s}."
   )
 }
 
@@ -597,18 +594,15 @@ error_digits_missing <- function(x) {
     )
   }
 
-  cli::cli_abort(
-    message = c(
-      "Need to specify `{name_digits_arg}` to state the number of \
+  abort_in_export(
+    "Need to specify `{name_digits_arg}` to state the number of \
       decimal places in `{name_x}`.",
-      "i" = "For example, with {example_x[1]} (two decimal places): \
+    "i" = "For example, with {example_x[1]} (two decimal places): \
       `{name_fn}({part_tibble_open}{args_example}{part_tibble_close}, \
       {name_digits_arg} = 2{part_digits_sd}{part_items})`",
-      msg_history,
-      "i" = "For more information, visit \\
+    msg_history,
+    "i" = "For more information, visit \\
       {.href [scrutiny's changelog](https://lhdjung.github.io/scrutiny/news/index.html)}."
-    ),
-    call = sys.frame(index_last_export())
   )
 }
 

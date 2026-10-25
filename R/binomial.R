@@ -50,7 +50,7 @@ grim_binomial <- function(
   alternative <- rlang::arg_match(alternative)
 
   if (!inherits(data, "scrutiny_grim_map")) {
-    cli::cli_abort("`data` must be output of a GRIM mapper function.")
+    abort_in_export("`data` must be output of a GRIM mapper function.")
   }
 
   check_cols_needed(
@@ -82,11 +82,11 @@ grim_binomial <- function(
   n_cases <- nrow(data)
 
   if (n_cases == 0L) {
-    cli::cli_abort(c(
+    abort_in_export(
       "No value sets to test.",
       "x" = "`data` has no rows with a GRIM verdict and a probability.",
       "i" = "Rows whose consistency or probability is `NA` are left out."
-    ))
+    )
   }
 
   # Per-row probability of consistency under the null (random decimal digits)

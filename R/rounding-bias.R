@@ -71,13 +71,13 @@ rounding_bias <- function(
       rounding %in% c("up_or_down", "up_from_or_down_from", "ceiling_or_floor")
     )
   ) {
-    cli::cli_abort(c(
+    abort_in_export(
       "`rounding` must be a single rounding procedure.",
       "x" = "It is {wrong_spec_string(rounding)}.",
       "i" = "The compound methods \"up_or_down\", \"up_from_or_down_from\", \\
       and \"ceiling_or_floor\" each return two rounded values per input \\
       value, so no single bias is defined for them."
-    ))
+    )
   }
 
   # Main part ---

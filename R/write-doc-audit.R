@@ -28,7 +28,7 @@ write_doc_audit <- function(sample_output, name_test) {
   check_length(name_test, 1L)
 
   if (length(sample_output) < 3L) {
-    cli::cli_abort(c(
+    abort_in_export(
       "!" = "`sample_output` must be the output of `audit()` applied \\
       to a scrutiny-style mapper function, such as `grim_map()`.",
       "i" = "(These outputs always have at least three columns.)",
@@ -37,7 +37,7 @@ write_doc_audit <- function(sample_output, name_test) {
            grim_map(digits_x = 2, items_averaged = 1) |>
            audit() |>
            write_doc_audit(name_test = \"GRIM\")"
-    ))
+    )
   }
 
   output_name <- colnames(sample_output)
@@ -55,11 +55,11 @@ write_doc_audit <- function(sample_output, name_test) {
 
   if (any(output_name[1:3] != output_name_expected)) {
     offenders <- wrap_in_backticks(output_name[1:3])
-    cli::cli_abort(c(
+    abort_in_export(
       "!" = "The first three columns in the output must be named \\
       \"incons_cases\", \"all_cases\", and \"incons_rate\".",
       "x" = "They are {offenders}."
-    ))
+    )
   }
 
   name_test_lower <- tolower(name_test)
@@ -176,18 +176,18 @@ write_doc_audit_total_n <- function(key_args, name_test) {
   check_length(name_test, 1L)
 
   if (!length(key_args) > 1L) {
-    cli::cli_abort(c(
+    abort_in_export(
       "`key_args` must have length > 1.",
       "x" = "It has length {length(key_args)}.",
       "i" = "Consistency testing requires at least two values."
-    ))
+    )
   }
 
   if (key_args[length(key_args)] != "n") {
-    cli::cli_abort(c(
+    abort_in_export(
       "!" = "`\"n\"` must be the last value in `key_args`.",
       "x" = "It is missing from `key_args`."
-    ))
+    )
   }
 
   # Main part ---

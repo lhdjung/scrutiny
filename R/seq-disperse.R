@@ -97,10 +97,10 @@ seq_disperse <- function(
   # on. It used to be blamed on `out_min`, or to fail in `restore_zeros()`:
   from_num <- suppressWarnings(as.numeric(from))
   if (!is.finite(from_num)) {
-    cli::cli_abort(c(
+    abort_in_export(
       "`from` must be a finite number, or a string coercible to one.",
       "x" = "It is {wrap_in_quotes_or_backticks(from)}."
-    ))
+    )
   }
 
   # Each value in `dispersion` is a number of steps taken both up and down from
@@ -118,13 +118,13 @@ seq_disperse <- function(
   # rejects it for the same reason:
   if (!all(is_whole_number(dispersion))) {
     offenders <- dispersion[!is_whole_number(dispersion)]
-    cli::cli_abort(c(
+    abort_in_export(
       "`dispersion` must be whole numbers.",
       "x" = "It has {length(offenders)} value{?s} that {?is/are} not: \\
       {offenders}.",
       "i" = "Each value is a number of steps up and down from `from`, on \\
       the level of its last decimal place."
-    ))
+    )
   }
 
 

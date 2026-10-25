@@ -356,7 +356,7 @@ function_map_seq <- function(
           } else {
             "is `NA`"
           }
-          cli::cli_abort(c(
+          abort_in_export(
             "`{(digits_name)}` must be a single number here.",
             "x" = "It {(digits_what)}.",
             "i" = "Sequence mappers disperse every value on the decimal level \\
@@ -364,7 +364,7 @@ function_map_seq <- function(
             column.",
             "i" = "Basic mappers such as `{name_fun}()` do accept one value \\
             per row."
-          ))
+          )
         }
       }
 
@@ -400,11 +400,11 @@ function_map_seq <- function(
       # Only the key columns are dispersed; `items_averaged`, for one, is not a
       # value that was reported with rounding:
       if (!all(var %in% reported)) {
-        cli::cli_abort(c(
+        abort_in_export(
           "`var` must only name the reported columns.",
           "x" = "It includes {wrap_in_backticks(setdiff(var, reported))}.",
           "i" = "These are {wrap_in_backticks(reported)}."
-        ))
+        )
       }
 
       # A variable named twice would be dispersed twice, and every hit counted

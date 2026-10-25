@@ -273,13 +273,13 @@ function_map_total_n <- function(
 
   # Throw error if `n` itself was named as a reported statistic:
   if (any("n" == .reported)) {
-    cli::cli_abort(c(
+    abort_in_export(
       "Can't take \"n\" as a reported statistic.",
       "i" = "Functions produced by `function_map_total_n()` \\
       assume that group-wise `n` values were not reported, \\
       and deal with them in hypothetical terms.",
       "i" = "Therefore, \"n\" can't be a `.reported` value."
-    ))
+    )
   }
 
   name_fun <- deparse(substitute(.fun))
@@ -420,14 +420,14 @@ function_map_total_n <- function(
 
       # Make sure that the `n` column is present...
       if (!any(colnames(data) == "n")) {
-        cli::cli_abort(c(
+        abort_in_export(
           "Column `n` missing.",
           "i" = "`n` should contain the reported total sample sizes \\
           (one per row).",
           "i" = "The function will use `disperse_total()` to go up \\
           and down from the integer at half an even `n`, or the \\
           two integers just around half an odd `n`."
-        ))
+        )
       }
 
       # ...and that all of its values are whole numbers of at least 2, the
@@ -447,23 +447,23 @@ function_map_total_n <- function(
           msg_starting_with <- ":"
         }
         msg_offenders <- wrap_in_backticks(offenders)
-        cli::cli_abort(c(
+        abort_in_export(
           "`n` values must be whole numbers of at least 2.",
           "x" = "The `n` column includes values that are \\
           not{msg_starting_with} {msg_offenders}.",
           "i" = "They are supposed to be (total) sample sizes, each split \\
           into two groups of at least one member."
-        ))
+        )
       }
 
       # The dispersion machinery below builds its output from the rows of
       # `data`, and it has no way of doing that from none: a 0-row `data` used
       # to fail with "Can't recycle `tidyr::unnest(...)` (size 0) to size 1".
       if (nrow(data) == 0L) {
-        cli::cli_abort(c(
+        abort_in_export(
           "`data` must have at least one row.",
           "x" = "It has none."
-        ))
+        )
       }
 
       # Main part ---
@@ -496,14 +496,14 @@ function_map_total_n <- function(
           msg_this_these <- "These columns"
         }
         msg_cols_missing <- wrap_in_backticks(cols_missing)
-        cli::cli_abort(c(
+        abort_in_export(
           "{msg_cols} {msg_cols_missing} {msg_is_are} missing from `data`.",
           "i" = "{msg_it_they} expected because of the `.reported` \\
           specification in the call to `function_map_total_n()` that \\
           created the present function.",
           "i" = "{msg_this_these} should contain reported group statistics. \\
           {msg_it_they} presumably essential to {name_test}."
-        ))
+        )
       }
 
       # Switch `"1"` and `"2"` in the relevant column names of `data`. The
@@ -599,17 +599,20 @@ function_map_total_n <- function(
       if (!all(colnames(out_forth) == colnames(out_back))) {
         names_out_forth <- wrap_in_backticks(colnames(out_forth))
         names_out_back <- wrap_in_backticks(colnames(out_back))
-        cli::cli_abort(c(
-          "Column names returned by calls to the helper function \\
+        cli::cli_abort(
+          c(
+            "Column names returned by calls to the helper function \\
           `scrutiny:::function_map_total_n_proto()` are not identical.",
-          "i" = "Column names in question --",
-          "*" = "`colnames(out_forth)`: {names_out_forth}",
-          "*" = "`colnames(out_back)`: {names_out_back}",
-          "x" = "This is a deep error within at least one of the \\
+            "i" = "Column names in question --",
+            "*" = "`colnames(out_forth)`: {names_out_forth}",
+            "*" = "`colnames(out_back)`: {names_out_back}",
+            "x" = "This is a deep error within at least one of the \\
           function operators `scrutiny::function_map_total_n()` \\
           and `scrutiny:::function_map_total_n_proto()`.",
-          "i" = "Please check the source code for these."
-        ))
+            "i" = "Please check the source code for these."
+          ),
+          .internal = TRUE
+        )
       }
 
       # Combine the two sets of results into one final tibble:

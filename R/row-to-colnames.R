@@ -43,18 +43,18 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
         }
       )
     } else {
-      cli::cli_abort(c(
+      abort_in_export(
         "!" = "`data` must be a data frame or a matrix.",
         "x" = "It is {an_a_type(data)}."
-      ))
+      )
     }
   }
 
   if (length(row) < 1L) {
-    cli::cli_abort(c(
+    abort_in_export(
       "!" = "`row` must have length 1 or greater.",
       "x" = "It has length {length(row)}."
-    ))
+    )
   }
 
   if (!is.numeric(row)) {
@@ -65,10 +65,10 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
   if (!all(is.finite(row)) || !all(is_whole_number(row))) {
     offenders <- row[!is.finite(row) | !is_whole_number(row)]
     offenders <- wrap_in_backticks(offenders)
-    cli::cli_abort(c(
+    abort_in_export(
       "!" = "`row` must only have whole numbers.",
       "x" = "It includes {offenders}."
-    ))
+    )
   }
 
   check_type(collapse, "character")
@@ -76,10 +76,10 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
 
   if (any(row < 1L | row > nrow(data))) {
     offenders <- wrap_in_backticks(row[row < 1L | row > nrow(data)])
-    cli::cli_abort(c(
+    abort_in_export(
       "!" = "`row` must be between 1 and the number of rows in `data`.",
       "x" = "It includes {offenders}, but `data` has {nrow(data)} row{?s}."
-    ))
+    )
   }
 
   # Get correct column names ---
@@ -113,11 +113,11 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
   if (any(correct_is_empty)) {
     n_empty <- length(correct_is_empty[correct_is_empty])
     name_names <- dplyr::if_else(n_empty == 1L, "name", "names")
-    cli::cli_abort(c(
+    abort_in_export(
       "!" = "Each column name must have at least one character.",
       "x" = "{n_empty} empty column {name_names}.",
       "i" = "Make sure to specify `row` in `row_to_colnames()` accordingly."
-    ))
+    )
   }
 
   # A tibble's column names must be unique, but a table often repeats its

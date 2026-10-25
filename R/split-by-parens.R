@@ -145,19 +145,19 @@ split_by_parens <- function(
     rep(each = 2L) |>
     paste0("_", endings)
   if (identical(end1, end2)) {
-    cli::cli_abort(c(
+    abort_in_export(
       "!" = "`end1` and `end2` must be different.",
       "x" = "Both are \"{end1}\"."
-    ))
+    )
   }
   names_taken <- intersect(names_new, colnames(data))
   if (length(names_taken) > 0L) {
-    cli::cli_abort(c(
+    abort_in_export(
       "!" = "Splitting would overwrite existing columns.",
       "x" = "{.var {names_taken}} {?is/are} already in `data`.",
       "i" = "Rename {cli::qty(names_taken)}{?it/them}, or choose other `end1` and \\
       `end2`."
-    ))
+    )
   }
 
   # Apply the extractor functions `before_parens()` and `inside_parens()` to all
@@ -233,13 +233,13 @@ split_by_parens <- function(
   # only works if no columns were left unsplit. If there are any, an error is
   # thrown:
   if (keep) {
-    cli::cli_abort(c("!" = "`keep` and `transform` can't both be `TRUE`."))
+    abort_in_export("!" = "`keep` and `transform` can't both be `TRUE`.")
   } else if (length(names_neutral_cols) > 0L) {
     names_neutral_cols <- wrap_in_backticks(names_neutral_cols)
-    cli::cli_abort(c(
+    abort_in_export(
       "!" = "`transform` can't be `TRUE` if some columns are left unsplit.",
       "i" = "This concerns {names_neutral_cols}."
-    ))
+    )
   }
 
   transform_split_parens(out, names(cols_to_select), end1, end2)

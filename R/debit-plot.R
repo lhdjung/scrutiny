@@ -71,10 +71,10 @@ debit_plot <- function(
   # Checks ---
 
   if (!inherits(data, "scrutiny_debit_map")) {
-    cli::cli_abort(c(
+    abort_in_export(
       "!" = "`debit_plot()` only works with DEBIT results.",
       "x" = "`data` is not `debit_map()` output."
-    ))
+    )
   }
 
   # The formula decides what the plot shows. `debit_map()` and the mappers built
@@ -82,12 +82,12 @@ debit_plot <- function(
   # class, so data with the class but no formula were given the class by hand:
   formula <- scrutiny_meta(data)$args$formula
   if (!is.character(formula) || !formula %in% c("exact", "mean_n")) {
-    cli::cli_abort(c(
+    abort_in_export(
       "!" = "`data` doesn't record the DEBIT `formula` it was tested with.",
       "x" = "It has the class of `debit_map()` output, but not the \\
       \"scrutiny\" attribute that `debit_map()` gives its output.",
       "i" = "Plot the output of `debit_map()` itself."
-    ))
+    )
   }
 
   # Recorded along with `formula`. Under `"either"`, both lines are drawn:
@@ -130,11 +130,11 @@ debit_plot <- function(
 
   if (!all(is_complete)) {
     if (!any(is_complete)) {
-      cli::cli_abort(c(
+      abort_in_export(
         "!" = "No value set in `data` can be drawn.",
         "x" = "Each of the {nrow(data)} row{?s} has a missing value in at \
       least one of these columns: {.code {cols_needed}}."
-      ))
+      )
     }
 
     n_dropped <- sum(!is_complete)

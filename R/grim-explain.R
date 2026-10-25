@@ -377,7 +377,8 @@ explain_sd_either <- function(explain_type, consistency) {
   if (!identical(verdict, consistency)) {
     cli::cli_abort(
       "Internal error: the explanations under `sd_type = \"either\"` \
-      disagree with the test."
+      disagree with the test.",
+      .internal = TRUE
     )
   }
 

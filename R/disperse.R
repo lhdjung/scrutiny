@@ -97,13 +97,13 @@ disperse <- function(
   # values of 9.5 and 8.5.
   if (!all(is_whole_number(dispersion))) {
     offenders <- dispersion[!is_whole_number(dispersion)]
-    cli::cli_abort(c(
+    abort_in_export(
       "`dispersion` must be whole numbers.",
       "x" = "It has {length(offenders)} value{?s} that {?is/are} not: \\
       {offenders}.",
       "i" = "Each value is a number of units by which the group sizes are \\
       moved apart, and a group has a whole number of members."
-    ))
+    )
   }
 
   # Main part ---
@@ -277,11 +277,11 @@ disperse_total <- function(
   # sizes of 3.25 and 4.25 -- because the even-or-odd branch below is only
   # exhaustive for whole numbers:
   if (is.na(n) || !is_whole_number(n) || n < 0) {
-    cli::cli_abort(c(
+    abort_in_export(
       "`n` must be a non-negative whole number.",
       "x" = "It is {n}.",
       "i" = "It is a total sample size, to be split into two group sizes."
-    ))
+    )
   }
 
   # Main part ---

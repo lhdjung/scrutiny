@@ -147,11 +147,11 @@ restore_zeros <- function(
       !all(is_whole_number(width)) ||
       any(width < 0)
   ) {
-    cli::cli_abort(c(
+    abort_in_export(
       "`width` must be a single, non-negative whole number \
       (or a vector of such numbers with the same length as `x`).",
       "x" = "It is {width}."
-    ))
+    )
     # ... or if any `x` elements have more decimal places than `width` allows:
   } else if (
     check_width == "capped" && any(width_mantissa > width, na.rm = TRUE)
@@ -161,12 +161,12 @@ restore_zeros <- function(
     which_wrong <- which(width_mantissa > width)
     offenders <- x[which_wrong]
     width_wrong <- rep_len(width, length(x))[which_wrong]
-    cli::cli_abort(c(
+    abort_in_export(
       "Some values have more decimal places than `width` foresees.",
       "x" = "`width` was set to {unique(width_wrong)}.",
       "i" = "Values with more decimal places than that: {offenders}",
       ">" = "Avoid this error with `check_width = \"never\"`."
-    ))
+    )
   } else {
     width_target <- width
   }
@@ -209,11 +209,11 @@ restore_zeros_df <- function(
     if (is.matrix(data)) {
       data <- tibble::as_tibble(data, .name_repair = "unique")
     } else {
-      cli::cli_abort(c(
+      abort_in_export(
         "!" = "`data` must be a data frame (or a matrix).",
         "x" = "It is {an_a_type(data)}.",
         ">" = "Did you mean `restore_zeros()`, without `_df`?"
-      ))
+      )
     }
   }
 

@@ -256,7 +256,8 @@ debit_explain <- function(
 
   if (any(passed) != consistency) {
     cli::cli_abort(
-      "Internal error: `debit_explain()` disagrees with `debit()`."
+      "Internal error: `debit_explain()` disagrees with `debit()`.",
+      .internal = TRUE
     )
   }
 

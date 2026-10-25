@@ -35,7 +35,7 @@ audit_cols_minimal <- function(data, name_test) {
   # Checks ---
 
   if (!is.data.frame(data)) {
-    cli::cli_abort(c("!" = "`data` must be a data frame."))
+    abort_in_export("!" = "`data` must be a data frame.")
   }
 
   check_cols_needed(data, "consistency")

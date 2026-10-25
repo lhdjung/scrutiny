@@ -149,14 +149,14 @@ grim_plot <- function(
         cli::cli_alert("{msg_viz} {n_grimmer_cases} GRIMMER {msg_incons}.")
       }
     } else if (show_data) {
-      cli::cli_abort(c(
+      abort_in_export(
         "!" = "`grim_plot()` needs GRIM or GRIMMER test results.",
         "x" = "`data` is not the output of `grim_map()`, `grim_map_seq()`, \\
         or `grim_map_total_n()`; or of the respective `grimmer_*()` functions.",
         "i" = "The only exception is an \"empty\" plot that shows the \\
         background raster but no empirical test results. Create such a plot \\
         with `show_data = FALSE`."
-      ))
+      )
     }
   }
 
@@ -188,22 +188,22 @@ grim_plot <- function(
     # A list of plots split by decimal count, with the decimal count fixed for
     # all of them, would be a contradiction:
     if (split_by_digits) {
-      cli::cli_abort(c(
+      abort_in_export(
         "!" = "`digits` and `split_by_digits = TRUE` can't be combined.",
         "i" = "`split_by_digits` takes the decimal counts from the data, \
         whereas `digits` sets one for the whole plot."
-      ))
+      )
     }
     if (length(digits) != 1L) {
-      cli::cli_abort(c(
+      abort_in_export(
         "!" = "`digits` must have length 1 (i.e., be a single number).",
         "x" = "It has length {length(digits)}."
-      ))
+      )
     } else if (!is_whole_number(digits)) {
-      cli::cli_abort(c(
+      abort_in_export(
         "!" = "`digits` must be a whole number.",
         "x" = "It is {digits}."
-      ))
+      )
     }
   }
 
@@ -234,10 +234,10 @@ grim_plot <- function(
   # A zero-row mapper output is an ordinary result of `dplyr::filter()`, so say
   # so plainly rather than let `digits` come out `NA` and fail further down:
   if (nrow(data) == 0L) {
-    cli::cli_abort(c(
+    abort_in_export(
       "`data` has no rows, so there is nothing to plot.",
       "i" = "A GRIM plot needs at least one value set."
-    ))
+    )
   }
 
   # A tile's color comes from the `consistency` column, so an undecided case has
@@ -246,12 +246,12 @@ grim_plot <- function(
   if (show_data && anyNA(data$consistency)) {
     n_undecided <- sum(is.na(data$consistency))
     if (n_undecided == nrow(data)) {
-      cli::cli_abort(c(
+      abort_in_export(
         "No value set in `data` could be decided.",
         "x" = "All {nrow(data)} `consistency` value{?s} {?is/are} `NA`.",
         "i" = "A tile is colored by its verdict, so there is nothing to draw.",
         "i" = "Set `show_data = FALSE` for the background raster on its own."
-      ))
+      )
     }
     cli::cli_warn(c(
       "!" = "Dropping {n_undecided} undecidable value set{?s} \\
@@ -298,14 +298,14 @@ grim_plot <- function(
       }
 
       if (length(unique_digits) == 0L) {
-        cli::cli_abort(c(
+        abort_in_export(
           "Every value set in `data` has `digits_x = 0`.",
           "i" = "A mean reported with no decimal places has a fractional \\
           portion of zero, so there is no GRIM plot to split by decimal \\
           places.",
           "i" = "Set `digits` explicitly (and `split_by_digits = FALSE`) if \
           you want a plot anyway."
-        ))
+        )
       }
 
       if (n_dropped > 0L) {
@@ -366,16 +366,16 @@ grim_plot <- function(
         }
 
         if (has_digits_x_col) {
-          cli::cli_abort(c(
+          abort_in_export(
             "{means_percentages} have {length(dp_unique)} different \\
             numbers of decimal places{msg_starting_with} \\
             {dp_unique_presented}.",
             "i" = "Set `split_by_digits = TRUE` to get one plot per \\
             distinct number of decimal places instead of an error."
-          ))
+          )
         }
 
-        cli::cli_abort(c(
+        abort_in_export(
           "{means_percentages} must have the same number of decimal places.",
           "x" = "There are {length(dp_unique)} unique numbers of decimal \\
           places in `x`{msg_starting_with} {dp_unique_presented}.",
@@ -387,7 +387,7 @@ grim_plot <- function(
           can specify `digits` as the number of decimal places for which \\
           the plot should be shown. Be aware that this will not be sensible \\
           with regard to all {tolower(means_percentages)}.)"
-        ))
+        )
       }
     }
 
@@ -422,13 +422,13 @@ grim_plot <- function(
   # precomputed raster either. The `split_by_digits` branch above leaves such
   # rows out for the same reason.
   if (digits < 1L) {
-    cli::cli_abort(c(
+    abort_in_export(
       "`digits` must be at least 1, but it is {digits}.",
       "i" = "The y-axis is the fractional portion of the mean, which is zero \\
       for a mean reported with no decimal places.",
       "i" = "With `percent = TRUE` in the `grim_map()` call, a whole-number \\
       percentage does have a fractional portion as a decimal number."
-    ))
+    )
   }
 
   # Preparations ----
@@ -480,12 +480,12 @@ grim_plot <- function(
       df_plot <- GRIM_RASTERS[[paste(digits, rounding_id, sep = "_")]]
 
       if (is.null(df_plot)) {
-        cli::cli_abort(c(
+        abort_in_export(
           "No background raster available for `rounding = {rounding_id}`",
           "i" = "Use a different `rounding` specification within the \\
           `grim_map()` call or set `show_raster` to `FALSE` within the \\
           `grim_plot()` call."
-        ))
+        )
       }
     } else {
       # Above 2 decimal places there is no raster -- the tiles would be too

@@ -455,7 +455,10 @@ debit_scalar <- function(
       symmetric = symmetric,
       sd_type = sd_type
     ),
-    cli::cli_abort("Internal error: incorrect `formula` value \"{formula}\".")
+    cli::cli_abort(
+      "Internal error: incorrect `formula` value \"{formula}\".",
+      .internal = TRUE
+    )
   )
 
   if (!show_rec) {

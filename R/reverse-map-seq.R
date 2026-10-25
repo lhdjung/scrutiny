@@ -28,12 +28,12 @@ reverse_map_seq <- function(data) {
   # Check that `data` is a tibble returned by a function that had been
   # manufactured using `function_map_seq()`:
   if (!inherits(data, "scrutiny_map_seq")) {
-    cli::cli_abort(c(
+    abort_in_export(
       "!" = "`data` must be the output of \\
       a function like `grim_map_seq()`.",
       "x" = "It isn't.",
       "i" = "Such functions were created by `function_map_seq()`."
-    ))
+    )
   }
 
   check_dispersion_linear(data, "reverse_map_seq")

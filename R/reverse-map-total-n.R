@@ -23,12 +23,12 @@
 
 reverse_map_total_n <- function(data) {
   if (!inherits(data, "scrutiny_map_total_n")) {
-    cli::cli_abort(c(
+    abort_in_export(
       "!" = "`data` must be the output of \\
       a function like `grim_map_total_n()`.",
       "x" = "It isn't.",
       "i" = "Such functions were created by `function_map_total_n()`."
-    ))
+    )
   }
 
   # The group sizes come in pairs: consecutive rows of the same case and
