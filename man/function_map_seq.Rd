@@ -57,10 +57,9 @@ after a variable in \code{.reported} and is a numeric vector of its least and
 greatest possible value, with \code{NA} for an unbounded side, such as \code{list(n = c(1, NA), sd = c(0, NA))}. A variable not named here is unbounded, except
 for \code{n}, which always has a minimum of 1. An element may also be a
 function that returns such a vector from the settings that \code{.fun}
-recorded for its call, as a named list such as \code{list(sd_type = "sample")},
-for a bound that depends on a setting. The bounds only limit
-the dispersion, so that the test never receives an impossible value such
-as a sample size of 0. They have no bearing on consistency.}
+recorded for its call, as a named list such as \code{list(sd_meaning = "sd_sample")}, for a bound that depends on a setting. The bounds only limit
+the dispersion, so that the test never receives an impossible value such as
+a sample size of 0. They have no bearing on consistency.}
 
 \item{.include_reported}{Logical. Should the reported values themselves be
 part of the sequences? Default is \code{FALSE}.}

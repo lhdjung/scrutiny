@@ -40,7 +40,7 @@ different inputs:
 }
 
 These are the SDs that \code{\link[=debit]{debit()}} tests under its default
-\code{sd_type = "sample"}.
+\code{sd_meaning = "sd_sample"}.
 }
 \examples{
 # 127 values are 0 and 153 are 1, so n = 280:

@@ -201,6 +201,8 @@ test_that("`debit_plot()` draws the line of the SD type that was tested", {
   }
 
   # A group of 1 has no sample SD, so it has no sample line:
-  data |> debit_map(digits_x = 2, digits_sd = 2, sd_type = "population") |> debit_plot() |> lines_at_half() |> expect_equal(c(0.5, 0.5))
-  data |> debit_map(digits_x = 2, digits_sd = 2, sd_type = "either")     |> debit_plot() |> lines_at_half() |> expect_equal(c(sqrt(10 / 9 * 0.25), 0.5, 0.5))
+  data |> debit_map(digits_x = 2, digits_sd = 2, sd_meaning = "sd_pop") |> debit_plot() |> lines_at_half() |> expect_equal(c(0.5, 0.5))
+  data |> debit_map(digits_x = 2, digits_sd = 2, sd_meaning = "sd_sample_or_pop")     |> debit_plot() |> lines_at_half() |> expect_equal(c(sqrt(10 / 9 * 0.25), 0.5, 0.5))
+  # An SE is the sample SD divided by `sqrt(n)`:
+  data[1L, ] |> debit_map(digits_x = 2, digits_sd = 2, sd_meaning = "se")     |> debit_plot() |> lines_at_half() |> expect_equal(sqrt(10 / 9 * 0.25 / 10))
 })

@@ -6,8 +6,9 @@
 #'   binary data as a function of their mean, for the given sample size.
 #'
 #' @details The line is that of the sample SD unless [`debit_map()`] was called
-#'   with `sd_type = "population"`, which shows the population SD. Under
-#'   `sd_type = "either"`, the lines for both are drawn.
+#'   with `sd_meaning = "sd_pop"`, which shows the population SD. Under
+#'   `sd_meaning = "sd_sample_or_pop"`, the lines for both are drawn. Under
+#'   `"se"`, the line is that of the SE.
 #'
 #'   The means that `n` binary values can have, `k / n`, are marked as
 #'   points on the line. Under `formula = "exact"`, the default of
@@ -90,9 +91,13 @@ debit_plot <- function(
     )
   }
 
-  # Recorded along with `formula`. Under `"either"`, both lines are drawn:
-  sd_type <- scrutiny_args(data)$sd_type
-  sd_types <- if (sd_type == "either") c("sample", "population") else sd_type
+  # Recorded with `formula`. Both lines are drawn under `"sd_sample_or_pop"`:
+  sd_meaning <- scrutiny_args(data)$sd_meaning
+  sd_meanings <- if (sd_meaning == "sd_sample_or_pop") {
+    c("sd_sample", "sd_pop")
+  } else {
+    sd_meaning
+  }
 
   # Preparations ---
 
@@ -209,7 +214,7 @@ debit_plot <- function(
   # aesthetic, which they have no use for.
 
   # The line is drawn when the plot is, after the loop below has moved on, so
-  # its `n` and `sd_type` are forced now:
+  # its `n` and `sd_meaning` are forced now:
   debit_line <- function(n_line, type) {
     force(n_line)
     force(type)
@@ -217,8 +222,8 @@ debit_plot <- function(
   }
 
   # A sample SD needs `n >= 2`, so a value set with `n = 1`, which only
-  # `sd_type = "either"` can test, has no sample line.
-  for (type in sd_types) {
+  # `sd_meaning = "sd_sample_or_pop"` can test, has no sample line.
+  for (type in sd_meanings) {
     n_type <- n[n >= sd_min_n(type)]
     if (length(n_type) == 0L) {
       next
@@ -321,14 +326,14 @@ debit_plot <- function(
     }
 
     # Each line has its own marks, at the same means but different SDs:
-    for (type in sd_types) {
+    for (type in sd_meanings) {
       if (is_thinning) {
         k_by_row <- list(k_lower = k_lower, k_upper = k_upper, n = n) |>
           purrr::pmap(
             thin_binary_means,
             x_range = panel$x.range,
             y_range = panel$y.range,
-            sd_type = type
+            sd_meaning = type
           )
         is_thinned <- is_thinned | lengths(k_by_row) < k_count
       } else {
@@ -391,7 +396,10 @@ debit_plot <- function(
 
   # Axis labels:
   p <- p +
-    ggplot2::labs(x = "Mean", y = "Standard deviation")
+    ggplot2::labs(
+      x = "Mean",
+      y = if (sd_meaning == "se") "Standard error" else "Standard deviation"
+    )
 
   # Other theme specifications (optional, default is `TRUE`):
   if (show_theme_other) {
@@ -424,7 +432,7 @@ thin_binary_means <- function(
   n,
   x_range,
   y_range,
-  sd_type = "sample",
+  sd_meaning = "sd_sample",
   resolution = 2000
 ) {
   x_lines <- seq(x_range[1L], x_range[2L], length.out = resolution + 1)
@@ -433,7 +441,7 @@ thin_binary_means <- function(
   # The mean `k / n` crosses a vertical line once. The SD, the square root of `k
   # * (n - k) / (n * (n - 1))` with `n` in place of `n - 1` for a population SD,
   # crosses a horizontal one twice, on its way up and on its way down:
-  discriminant <- n^2 / 4 - y_lines^2 * n * sd_denominator(n, sd_type)
+  discriminant <- n^2 / 4 - y_lines^2 * n * sd_denominator(n, sd_meaning)
   root <- sqrt(discriminant[discriminant >= 0])
   crossings <- c(x_lines * n, n / 2 - root, n / 2 + root)
 

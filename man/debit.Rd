@@ -14,7 +14,7 @@ debit(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  sd_type = c("sample", "population", "either")
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")
 )
 }
 \arguments{
@@ -40,15 +40,16 @@ Default is \code{"up_or_down"}. See \code{vignette("rounding-options")}.}
 
 \item{threshold, symmetric}{The same as in \code{\link[=grim]{grim()}}.}
 
-\item{sd_type}{String. Which SD was reported: \code{"sample"} (the default),
-\code{"population"}, or \code{"either"}. As in \code{\link[=grimmer]{grimmer()}}, where the section \emph{SD
-type} has details.}
+\item{sd_meaning}{String. What \code{sd} really is: the sample SD,
+\code{"sd_sample"} (the default); the population SD, \code{"sd_pop"}; either one,
+\code{"sd_sample_or_pop"}; or the standard error of the mean, \code{"se"}. As in
+\code{\link[=grimmer]{grimmer()}}, where the section \emph{SD meaning} has details.}
 }
 \value{
 Logical. \code{TRUE} if \code{x}, \code{sd}, and \code{n} are consistent, \code{FALSE} if
 not, and \code{NA} if the case cannot be decided: if a value is missing or if
 \code{n} is not a positive whole number. A sample SD divides by \code{n - 1}, so
-under the default \code{sd_type = "sample"}, \code{n} must also be greater than
+under the default \code{sd_meaning = "sd_sample"}, \code{n} must also be greater than
 \code{1}.
 }
 \description{

@@ -8,8 +8,8 @@
 #'   verdict was reached.
 #'
 #'   Settings are the arguments that apply to the whole call, with defaults
-#'   resolved, such as `rounding`, `percent`, or `sd_type`. Arguments that may
-#'   vary by row are columns of the output instead: `digits_x`, `digits_sd`,
+#'   resolved, such as `rounding`, `percent`, or `sd_meaning`. Arguments that
+#'   may vary by row are columns of the output instead: `digits_x`, `digits_sd`,
 #'   and helper arguments such as `items_averaged`, even if given as a single
 #'   value.
 #'

@@ -16,7 +16,7 @@ debit_map_seq(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  sd_type = c("sample", "population", "either"),
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
   show_rec = FALSE,
   var = c("x", "sd", "n"),
   dispersion = 1:5,
@@ -40,7 +40,7 @@ these values, if they differ from the defaults.}
 \item{...}{These dots must be empty. Every argument after them must be
 named in full.}
 
-\item{formula, rounding, threshold, symmetric, sd_type}{Passed on to
+\item{formula, rounding, threshold, symmetric, sd_meaning}{Passed on to
 \code{\link[=debit]{debit()}}.}
 
 \item{show_rec}{Logical. If \code{TRUE}, the reconstructed values are returned
@@ -53,8 +53,8 @@ as further columns; see \emph{Value}. Default is \code{FALSE}.}
 units of the last decimal place. Default is \code{1:5}.}
 
 \item{out_min, out_max}{Limits on the dispersed values. Both default to
-\code{"auto"}, which keeps \code{n} at 2 or above (1 under \code{sd_type = "population"} or \code{"either"}) and \code{x} and \code{sd} between 0 and 1. A number
-applies to every dispersed variable, and \code{NULL} removes the limit.}
+\code{"auto"}, which keeps \code{n} at 2 or above (1 under \code{sd_meaning = "sd_pop"} or \code{"sd_sample_or_pop"}) and \code{x} and \code{sd} between 0 and 1. A
+number applies to every dispersed variable, and \code{NULL} removes the limit.}
 
 \item{include_reported}{Logical. Should the reported values themselves be
 part of the sequences? Default is \code{FALSE}.}

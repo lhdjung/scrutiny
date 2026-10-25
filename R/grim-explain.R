@@ -313,7 +313,7 @@ new_explanation <- function(
   symmetric,
   consistency,
   text,
-  sd_type = "sample"
+  sd_meaning = "sd_sample"
 ) {
   # Only the settings that differ from the defaults are worth a mention:
   inputs <- c(
@@ -322,7 +322,7 @@ new_explanation <- function(
       rounding = if (rounding != "up_or_down") paste0("\"", rounding, "\""),
       threshold = if (threshold != 5) threshold,
       symmetric = if (symmetric) TRUE,
-      sd_type = if (sd_type != "sample") paste0("\"", sd_type, "\"")
+      sd_meaning = if (sd_meaning != "sd_sample") paste0("\"", sd_meaning, "\"")
     )
   )
   inputs <- Filter(Negate(is.null), inputs)
@@ -339,17 +339,18 @@ new_explanation <- function(
 }
 
 
-# The explanation under `sd_type = "either"`: that of the sample SD, and if it
-# doesn't pass, that of the population SD as well, minus the paragraphs the two
-# share, such as the GRIM test. The verdict is then the population SD's, as in
-# `grimmer_sd_either()`. `explain_type()` explains the test under one
-# `sd_type`, and `consistency` is the verdict under `"either"`.
-explain_sd_either <- function(explain_type, consistency) {
-  out <- explain_type("sample")
+# The explanation under `sd_meaning = "sd_sample_or_pop"`: that of the sample
+# SD, and if it doesn't pass, that of the population SD as well, minus the
+# paragraphs the two share, such as the GRIM test. The verdict is then the
+# population SD's, as in `grimmer_sd_sample_or_pop()`. `explain_type()` explains
+# the test under one `sd_meaning`, and `consistency` is the verdict under
+# `"sd_sample_or_pop"`.
+explain_sd_sample_or_pop <- function(explain_type, consistency) {
+  out <- explain_type("sd_sample")
   verdict <- out$consistency
 
   if (!isTRUE(verdict)) {
-    population <- explain_type("population")
+    population <- explain_type("sd_pop")
     is_new <- !population$paragraphs %in% out$paragraphs
 
     out$paragraphs <- if (is.na(population$consistency)) {
@@ -378,14 +379,14 @@ explain_sd_either <- function(explain_type, consistency) {
 
   if (!identical(verdict, consistency)) {
     cli::cli_abort(
-      "Internal error: the explanations under `sd_type = \"either\"` \
-      disagree with the test.",
+      "Internal error: the explanations under \
+      `sd_meaning = \"sd_sample_or_pop\"` disagree with the test.",
       .internal = TRUE
     )
   }
 
-  # `sd_type` is the last setting that `new_explanation()` lists:
-  out$inputs <- paste0(out$inputs, ", sd_type = \"either\"")
+  # `sd_meaning` is the last setting that `new_explanation()` lists:
+  out$inputs <- paste0(out$inputs, ", sd_meaning = \"sd_sample_or_pop\"")
   out$consistency <- consistency
   out
 }

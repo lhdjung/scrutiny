@@ -123,10 +123,10 @@ function_map_seq_proto <- function(
 #'   c(1, NA), sd = c(0, NA))`. A variable not named here is unbounded, except
 #'   for `n`, which always has a minimum of 1. An element may also be a
 #'   function that returns such a vector from the settings that `.fun`
-#'   recorded for its call, as a named list such as `list(sd_type = "sample")`,
-#'   for a bound that depends on a setting. The bounds only limit
-#'   the dispersion, so that the test never receives an impossible value such
-#'   as a sample size of 0. They have no bearing on consistency.
+#'   recorded for its call, as a named list such as `list(sd_meaning =
+#'   "sd_sample")`, for a bound that depends on a setting. The bounds only limit
+#'   the dispersion, so that the test never receives an impossible value such as
+#'   a sample size of 0. They have no bearing on consistency.
 #' @param .include_reported Logical. Should the reported values themselves be
 #'   part of the sequences? Default is `FALSE`.
 #' @param .include_consistent Logical. Should consistent value sets be

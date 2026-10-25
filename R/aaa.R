@@ -68,16 +68,19 @@ TIES_METHODS <- list(
 )
 
 
-# The values of `sd_type` in GRIMMER and DEBIT: which SD was reported, the
-# sample SD that divides by `n - 1` or the population SD that divides by `n`
-# (#95). `"either"` accepts a value set that passes under one or the other. And
-# the values of DEBIT's `formula`.
+# The values of `sd_meaning` in GRIMMER and DEBIT: what a value reported as an
+# SD really is. The sample SD divides by `n - 1`, the population SD by `n`
+# (#95), and `"sd_sample_or_pop"` accepts a value set that passes under one or
+# the other. `"se"` is the standard error of the mean, the sample SD divided by
+# `sqrt(n)`, for an SE reported as if it were an SD. Each value is one premise,
+# so a new one takes a row in `sd_denominator()`. And the values of DEBIT's
+# `formula`.
 #
 # Every function with one of these arguments spells the values out as its
 # default, so that they show in its usage. The `*_scalar()` functions check
 # against the constants, which is cheaper than reading their own formals once
 # per row. A test in test-utils.R requires every default to equal its constant.
-SD_TYPES <- c("sample", "population", "either")
+SD_MEANINGS <- c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")
 DEBIT_FORMULAS <- c("exact", "mean_n")
 
 

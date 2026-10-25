@@ -113,22 +113,30 @@ debit_undecidable <- function(show_rec) {
 #
 #   num^2 * n * (n - 1) <= spread * denom^2 # nolint
 #
-# The population SD has `n * n` in place of `n * (n - 1)`.
+# The population SD has `n * n` in place of `n * (n - 1)`, and an SE has
+# `n * n * (n - 1)`; see `sd_denominator()`.
 #
 # It compares whole numbers, as in `sum_range()`, and it is exact while those
 # stay below `2^53`, i.e., for `n` up to about 90,000 with an SD reported to two
-# decimal places, or 9,000 with three. Beyond that, it degrades to plain
-# floating point.
+# decimal places, or 9,000 with three. The products for an SE are those for the
+# SD it implies, so the same holds for SEs that binary data can have. Beyond
+# that, it degrades to plain floating point.
 #
 # The spread is the same for `k` and `n - k`, and it rises with `k` up to half
 # of `n`, so the test needs no loop over `k`, and its cost does not grow with
 # `n`.
-binary_sd_attainable <- function(sum_lower, sum_upper, n, bounds_sd, sd_type) {
+binary_sd_attainable <- function(
+  sum_lower,
+  sum_upper,
+  n,
+  bounds_sd,
+  sd_meaning
+) {
   if (sum_lower > sum_upper) {
     return(FALSE)
   }
 
-  spread <- binary_spread_range(n, bounds_sd, sd_type)
+  spread <- binary_spread_range(n, bounds_sd, sd_meaning)
   spread_min <- spread[1L]
   spread_max <- spread[2L]
 
@@ -183,8 +191,8 @@ binary_spread_root <- function(n, spread) {
 
 # The least and the greatest spread `k * (n - k)` that the reported SD admits,
 # as whole numbers; see `binary_sd_attainable()`. Shared with `debit_explain()`.
-binary_spread_range <- function(n, bounds_sd, sd_type) {
-  factor_sd <- n * sd_denominator(n, sd_type)
+binary_spread_range <- function(n, bounds_sd, sd_meaning) {
+  factor_sd <- n * sd_denominator(n, sd_meaning)
   denom_squared <- bounds_sd$denom^2
   lower_scaled <- bounds_sd$lower^2 * factor_sd
   upper_scaled <- bounds_sd$upper^2 * factor_sd
@@ -217,7 +225,7 @@ binary_sd_attainable_mean_n <- function(
   rounding,
   threshold,
   symmetric,
-  sd_type
+  sd_meaning
 ) {
   # The SD is reconstructed at the bounds of the mean's range. The two bounds
   # alone are not enough: the verdict below reasons from them to every mean in
@@ -235,8 +243,8 @@ binary_sd_attainable_mean_n <- function(
     x_eval <- c(x_eval, 0.5)
   }
 
-  # Reconstruct the SD from each of those means...
-  sd_rec <- sqrt(n / sd_denominator(n, sd_type) * x_eval * (1 - x_eval))
+  # Reconstruct the SD, or the SE, from each of those means...
+  sd_rec <- sqrt(n / sd_denominator(n, sd_meaning) * x_eval * (1 - x_eval))
 
   # ...and round it the same way the reported SD was presumably rounded, to the
   # same number of decimal places:
@@ -330,13 +338,13 @@ debit_scalar <- function(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  sd_type = c("sample", "population", "either"),
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
   show_rec = FALSE
 ) {
   # `arg_match_in_export()` returns at once for a valid string or the default,
   # which matters here: this runs once per row. The constants are the defaults:
   formula <- arg_match_in_export(formula, DEBIT_FORMULAS)
-  sd_type <- arg_match_in_export(sd_type, SD_TYPES)
+  sd_meaning <- arg_match_in_export(sd_meaning, SD_MEANINGS)
 
   # See `grim_scalar()`:
   if (!is.numeric(n) && !is.na(n)) {
@@ -360,11 +368,11 @@ debit_scalar <- function(
   # Check whether `x` and `sd` range from 0 to 1:
   check_debit_inputs_all(x, sd)
 
-  # As in `grimmer_sd_either()`, the verdict is the population SD's unless the
-  # sample SD passes. The bounds and sums of `show_rec` don't depend on
-  # `sd_type`, except that the sample SD leaves them `NA` at `n = 1`:
-  if (sd_type == "either") {
-    test_type <- function(sd_type) {
+  # As in `grimmer_sd_sample_or_pop()`, the verdict is the population SD's
+  # unless the sample SD passes. The bounds and sums of `show_rec` don't depend
+  # on `sd_meaning`, except that the sample SD leaves them `NA` at `n = 1`:
+  if (sd_meaning == "sd_sample_or_pop") {
+    test_type <- function(sd_meaning) {
       debit_scalar(
         x = x,
         sd = sd,
@@ -375,15 +383,15 @@ debit_scalar <- function(
         rounding = rounding,
         threshold = threshold,
         symmetric = symmetric,
-        sd_type = sd_type,
+        sd_meaning = sd_meaning,
         show_rec = show_rec
       )
     }
-    sample <- test_type("sample")
+    sample <- test_type("sd_sample")
     if (isTRUE(sample[[1L]])) {
       return(sample)
     }
-    return(test_type("population"))
+    return(test_type("sd_pop"))
   }
 
   # A missing value makes the test undecidable, and it is returned in the same
@@ -397,7 +405,7 @@ debit_scalar <- function(
   # whole number greater than 1 for it to describe anything; a population SD
   # needs a positive one. Anything else is undecidable, as in `grim_scalar()`
   # and `grimmer_scalar()` -- not a `FALSE` reached through an `Inf` or a zero:
-  if (!is_decidable_n_items(n, min_n = sd_min_n(sd_type))) {
+  if (!is_decidable_n_items(n, min_n = sd_min_n(sd_meaning))) {
     return(debit_undecidable(show_rec))
   }
 
@@ -442,7 +450,7 @@ debit_scalar <- function(
       sum_upper = sum_upper,
       n = n,
       bounds_sd = bounds_sd,
-      sd_type = sd_type
+      sd_meaning = sd_meaning
     ),
     "mean_n" = binary_sd_attainable_mean_n(
       x_lower = x_lower,
@@ -453,7 +461,7 @@ debit_scalar <- function(
       rounding = rounding,
       threshold = threshold,
       symmetric = symmetric,
-      sd_type = sd_type
+      sd_meaning = sd_meaning
     ),
     cli::cli_abort(
       "Internal error: incorrect `formula` value \"{formula}\".",
@@ -511,16 +519,17 @@ debit_scalar <- function(
 #' @param rounding String. The rounding method assumed to have produced `sd`.
 #'   Default is `"up_or_down"`. See `vignette("rounding-options")`.
 #' @param threshold,symmetric The same as in [`grim()`].
-#' @param sd_type String. Which SD was reported: `"sample"` (the default),
-#'   `"population"`, or `"either"`. As in [`grimmer()`], where the section *SD
-#'   type* has details.
+#' @param sd_meaning String. What `sd` really is: the sample SD,
+#'   `"sd_sample"` (the default); the population SD, `"sd_pop"`; either one,
+#'   `"sd_sample_or_pop"`; or the standard error of the mean, `"se"`. As in
+#'   [`grimmer()`], where the section *SD meaning* has details.
 #'
 #' @export
 #'
 #' @return Logical. `TRUE` if `x`, `sd`, and `n` are consistent, `FALSE` if
 #'   not, and `NA` if the case cannot be decided: if a value is missing or if
 #'   `n` is not a positive whole number. A sample SD divides by `n - 1`, so
-#'   under the default `sd_type = "sample"`, `n` must also be greater than
+#'   under the default `sd_meaning = "sd_sample"`, `n` must also be greater than
 #'   `1`.
 #'
 #' @seealso [`debit_map()`] for data frames.
@@ -543,7 +552,7 @@ debit <- function(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  sd_type = c("sample", "population", "either")
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")
 ) {
   map_value_sets(
     fun = debit_scalar,

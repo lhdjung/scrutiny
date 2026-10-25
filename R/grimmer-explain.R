@@ -46,12 +46,12 @@ grimmer_explain <- function(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  sd_type = c("sample", "population", "either")
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")
 ) {
   check_length(x, 1L)
   check_length(sd, 1L)
   check_length(n, 1L)
-  sd_type <- arg_match_in_export(sd_type, SD_TYPES)
+  sd_meaning <- arg_match_in_export(sd_meaning, SD_MEANINGS)
   if (missing(items_averaged)) {
     error_items_missing()
   }
@@ -79,14 +79,14 @@ grimmer_explain <- function(
     rounding = rounding,
     threshold = threshold,
     symmetric = symmetric,
-    sd_type = sd_type
+    sd_meaning = sd_meaning
   )
   consistency <- result[[1L]]
 
-  # `grimmer_scalar()` has checked `sd_type`, and the arguments are known not
+  # `grimmer_scalar()` has checked `sd_meaning`, and the arguments are known not
   # to be missing:
-  if (sd_type == "either") {
-    explain_type <- function(sd_type) {
+  if (sd_meaning == "sd_sample_or_pop") {
+    explain_type <- function(sd_meaning) {
       grimmer_explain(
         x = x,
         sd = sd,
@@ -97,10 +97,10 @@ grimmer_explain <- function(
         rounding = rounding,
         threshold = threshold,
         symmetric = symmetric,
-        sd_type = sd_type
+        sd_meaning = sd_meaning
       )
     }
-    return(explain_sd_either(explain_type, consistency))
+    return(explain_sd_sample_or_pop(explain_type, consistency))
   }
 
   explain <- function(text) {
@@ -120,7 +120,7 @@ grimmer_explain <- function(
       symmetric,
       consistency,
       text,
-      sd_type
+      sd_meaning
     )
   }
 
@@ -139,7 +139,7 @@ grimmer_explain <- function(
       ),
       n = n,
       items_averaged = items_averaged,
-      min_n = sd_min_n(sd_type)
+      min_n = sd_min_n(sd_meaning)
     ),
     # `grimmer_scalar()` rules these out before they happen, and
     # `explain_undecidable()` has no words for them:
@@ -189,13 +189,13 @@ grimmer_explain <- function(
     rounding = rounding,
     threshold = threshold,
     symmetric = symmetric,
-    sd_type = sd_type
+    sd_meaning = sd_meaning
   )
   sd_lower <- format_number(sd_bounds$lower / sd_bounds$denom, digits_sd)
   sd_upper <- format_number(sd_bounds$upper / sd_bounds$denom, digits_sd)
 
   text_bounds <- describe_reported(
-    "SD",
+    if (sd_meaning == "se") "SD, taken to be an SE," else "SD",
     sd,
     digits_sd,
     sd_lower,
@@ -228,19 +228,30 @@ grimmer_explain <- function(
     }
   }
 
-  n_dev <- sd_denominator(n, sd_type)
+  n_dev <- sd_denominator(n, sd_meaning)
 
   text_formula <- paste0(
-    "Together, the sum and the SD determine the sum of squares, which is ",
+    "Together, the sum and the ",
+    if (sd_meaning == "se") "SE" else "SD",
+    " determine the sum of squares, which is ",
     "what you get by squaring ",
     values,
     ". ",
-    if (sd_type == "sample") {
-      paste0("It is (", n, " - 1) * ")
-    } else {
-      paste0("For a population SD, it is ", n, " * ")
-    },
-    sd_term("SD"),
+    switch(
+      sd_meaning,
+      sd_sample = paste0("It is (", n, " - 1) * "),
+      sd_pop = paste0("For a population SD, it is ", n, " * "),
+      se = paste0(
+        "The SD is the SE times sqrt(",
+        n,
+        "), so the sum of squares is ",
+        n,
+        " * (",
+        n,
+        " - 1) * "
+      )
+    ),
+    sd_term(if (sd_meaning == "se") "SE" else "SD"),
     " + sum^2 / ",
     n,
     ". The values are whole numbers, so their squares are whole ",

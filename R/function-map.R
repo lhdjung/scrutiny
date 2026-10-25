@@ -313,9 +313,9 @@ function_map <- function(
   args_helper <- intersect(args_promoted, .cols_helper)
   args_const <- setdiff(args_promoted, c(args_by_row, args_helper))
 
-  # Settings whose default is a set of strings, such as `sd_type`. A call that
-  # leaves one out gets the first of them, as `rlang::arg_match()` in the test
-  # function would resolve it anyway. Resolving it here is what records the
+  # Settings whose default is a set of strings, such as `sd_meaning`. A call
+  # that leaves one out gets the first of them, as `rlang::arg_match()` in the
+  # test function would resolve it anyway. Resolving it here is what records the
   # value itself, not the whole set, in the "scrutiny" attribute:
   args_enum <- args_const[vapply(
     formals_promoted[args_const],

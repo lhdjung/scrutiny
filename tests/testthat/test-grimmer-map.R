@@ -49,7 +49,7 @@ pigs5_exp <- tibble::tibble(
           rounding = "up_or_down",
           threshold = 5,
           symmetric = FALSE,
-          sd_type = "sample"
+          sd_meaning = "sd_sample"
         ),
         TRUE,
         "grimmer_map"

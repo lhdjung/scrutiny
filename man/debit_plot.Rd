@@ -34,8 +34,9 @@ binary data as a function of their mean, for the given sample size.
 }
 \details{
 The line is that of the sample SD unless \code{\link[=debit_map]{debit_map()}} was called
-with \code{sd_type = "population"}, which shows the population SD. Under
-\code{sd_type = "either"}, the lines for both are drawn.
+with \code{sd_meaning = "sd_pop"}, which shows the population SD. Under
+\code{sd_meaning = "sd_sample_or_pop"}, the lines for both are drawn. Under
+\code{"se"}, the line is that of the SE.
 
 The means that \code{n} binary values can have, \code{k / n}, are marked as
 points on the line. Under \code{formula = "exact"}, the default of

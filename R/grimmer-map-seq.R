@@ -17,8 +17,8 @@
 #' @param var String. The variables to disperse. Default is
 #'   `c("x", "sd", "n")`.
 #' @param out_min,out_max Limits on the dispersed values. Both default to
-#'   `"auto"`, which keeps `n` at 2 or above (1 under `sd_type =
-#'   "population"` or `"either"`) and `sd` at 0 or above, and leaves `x`
+#'   `"auto"`, which keeps `n` at 2 or above (1 under `sd_meaning =
+#'   "sd_pop"` or `"sd_sample_or_pop"`) and `sd` at 0 or above, and leaves `x`
 #'   unbounded. A number applies to every dispersed variable, and `NULL`
 #'   removes the limit.
 #' @param items_averaged Integer. As in [`grimmer_map()`]: the number of items
@@ -78,7 +78,7 @@ grimmer_map_seq <- function_map_seq(
   # unbounded, as it is for GRIM. A sample SD needs two values, a population SD
   # only one:
   .var_bounds = list(
-    n = function(args) c(sd_min_n(args$sd_type), NA),
+    n = function(args) c(sd_min_n(args$sd_meaning), NA),
     sd = c(0, NA)
   )
 )

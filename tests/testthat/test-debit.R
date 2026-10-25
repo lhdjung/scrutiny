@@ -401,18 +401,18 @@ test_that("`formula` other than \"exact\" or \"mean_n\" is an error", {
 # 3 ones among 10 values have a mean of 0.30, a sample SD of 0.483, and a
 # population SD of 0.458.
 
-test_that("`sd_type` decides which SD a value set is consistent with", {
+test_that("`sd_meaning` decides which SD a value set is consistent with", {
   0.30 |> debit(0.46, 10, 2, 2)                         |> expect_false()
-  0.30 |> debit(0.46, 10, 2, 2, sd_type = "population") |> expect_true()
-  0.30 |> debit(0.46, 10, 2, 2, sd_type = "either")     |> expect_true()
-  0.30 |> debit(0.48, 10, 2, 2, sd_type = "population") |> expect_false()
-  0.30 |> debit(0.48, 10, 2, 2, sd_type = "either")     |> expect_true()
+  0.30 |> debit(0.46, 10, 2, 2, sd_meaning = "sd_pop") |> expect_true()
+  0.30 |> debit(0.46, 10, 2, 2, sd_meaning = "sd_sample_or_pop")     |> expect_true()
+  0.30 |> debit(0.48, 10, 2, 2, sd_meaning = "sd_pop") |> expect_false()
+  0.30 |> debit(0.48, 10, 2, 2, sd_meaning = "sd_sample_or_pop")     |> expect_true()
 })
 
-test_that("`sd_type` is checked with `rlang::arg_match()`", {
-  0.30 |> debit(0.46, 10, 2, 2, sd_type = "pop") |> expect_error("must be one of")
+test_that("`sd_meaning` is checked with `rlang::arg_match()`", {
+  0.30 |> debit(0.46, 10, 2, 2, sd_meaning = "pop") |> expect_error("must be one of")
   error <- tibble::tibble(x = 0.30, sd = 0.46, n = 10) |>
-    debit_map(digits_x = 2, digits_sd = 2, sd_type = "Sample") |>
+    debit_map(digits_x = 2, digits_sd = 2, sd_meaning = "Sample") |>
     expect_error("must be one of")
   error$call[[1L]] |> expect_equal(quote(debit_map))
 })
@@ -421,80 +421,127 @@ test_that("`formula = \"exact\"` passes exactly the real binary samples under ev
   grid <- tidyr::expand_grid(x = 0:100 / 100, sd = 0:75 / 100)
   key <- paste(round(grid$x * 100), round(grid$sd * 100))
 
-  real <- function(n, rounding, sd_type) {
+  real <- function(n, rounding, sd_meaning) {
     k <- 0:n
-    n_dev <- if (sd_type == "population") n else n - 1
+    n_dev <- if (sd_meaning == "sd_pop") n else n - 1
+    # An SE is the sample SD divided by `sqrt(n)`:
+    divisor <- if (sd_meaning == "se") sqrt(n) else 1
     pairs <- k |>
       purrr::map(function(k) {
         tidyr::expand_grid(
           x = (k / n) |> reround(2, rounding),
-          sd = sqrt(k * (n - k) / (n * n_dev)) |> reround(2, rounding)
+          sd = (sqrt(k * (n - k) / (n * n_dev)) / divisor) |> reround(2, rounding)
         )
       }) |>
       purrr::list_rbind()
     key %in% paste(round(pairs$x * 100), round(pairs$sd * 100))
   }
 
-  # `sd_type` only changes the SD's denominator, not the rounding, so two
+  # `sd_meaning` only changes the SD's denominator, not the rounding, so two
   # methods suffice: the default and `"even"`, which takes ties both ways. The
   # test above covers the others, and how `"mean_n"` relates to `"exact"`.
   for (rounding in c("up_or_down", "even")) {
     for (n in c(1L, 2L, 7L, 20L)) {
       info <- paste0("rounding = ", rounding, ", n = ", n)
-      is_population <- real(n, rounding, "population")
+      is_population <- real(n, rounding, "sd_pop")
       # A single value has no sample SD:
-      is_sample <- if (n == 1L) FALSE else real(n, rounding, "sample")
+      is_sample <- if (n == 1L) FALSE else real(n, rounding, "sd_sample")
 
-      exact  <- grid$x |> debit(grid$sd, n, 2, 2, rounding = rounding, sd_type = "population")
-      either <- grid$x |> debit(grid$sd, n, 2, 2, rounding = rounding, sd_type = "either")
+      exact  <- grid$x |> debit(grid$sd, n, 2, 2, rounding = rounding, sd_meaning = "sd_pop")
+      either <- grid$x |> debit(grid$sd, n, 2, 2, rounding = rounding, sd_meaning = "sd_sample_or_pop")
 
       exact  |> expect_equal(is_population, info = info)
       either |> expect_equal(is_sample | is_population, info = info)
+
+      if (n > 1L) {
+        grid$x |> debit(grid$sd, n, 2, 2, rounding = rounding, sd_meaning = "se") |> expect_equal(real(n, rounding, "se"), info = paste(info, "(SE)"))
+      }
     }
   }
 })
 
-test_that("`sd_type` reaches the sequence and total-n mappers", {
+test_that("`sd_meaning` reaches the sequence and total-n mappers", {
   df <- tibble::tibble(x = 0.30, sd = 0.46, n = 10)
   df |> debit_map_seq(digits_x = 2, digits_sd = 2)                         |> nrow() |> expect_gt(0L)
-  df |> debit_map_seq(digits_x = 2, digits_sd = 2, sd_type = "population") |> expect_warning("No inconsistent cases")
-  df |> debit_map_seq(digits_x = 2, digits_sd = 2, sd_type = "population") |> suppressWarnings() |> nrow() |> expect_equal(0L)
+  df |> debit_map_seq(digits_x = 2, digits_sd = 2, sd_meaning = "sd_pop") |> expect_warning("No inconsistent cases")
+  df |> debit_map_seq(digits_x = 2, digits_sd = 2, sd_meaning = "sd_pop") |> suppressWarnings() |> nrow() |> expect_equal(0L)
 
-  seq_either <- df |> debit_map_seq(digits_x = 2, digits_sd = 2, sd_type = "either", include_consistent = TRUE)
-  seq_either |> scrutiny_args() |> _$sd_type |> expect_equal("either")
+  seq_either <- df |> debit_map_seq(digits_x = 2, digits_sd = 2, sd_meaning = "sd_sample_or_pop", include_consistent = TRUE)
+  seq_either |> scrutiny_args() |> _$sd_meaning |> expect_equal("sd_sample_or_pop")
   seq_either |> audit_seq() |> nrow() |> expect_equal(1L)
 
   # Groups of 10 and 10 fit only as population SDs:
   total <- tibble::tibble(x1 = 0.30, x2 = 0.30, sd1 = 0.46, sd2 = 0.46, n = 20)
   total |> debit_map_total_n(digits_x = 2, digits_sd = 2)                         |> _$both_consistent |> any() |> expect_false()
-  total |> debit_map_total_n(digits_x = 2, digits_sd = 2, sd_type = "population") |> _$both_consistent |> any() |> expect_true()
+  total |> debit_map_total_n(digits_x = 2, digits_sd = 2, sd_meaning = "sd_pop") |> _$both_consistent |> any() |> expect_true()
 })
 
 test_that("the sequence mapper disperses `n` down to 1 only for a population SD", {
   df <- tibble::tibble(x = 0.5, sd = 0.5, n = 3)
-  seq_n <- function(sd_type) {
-    df |> debit_map_seq(digits_x = 1, digits_sd = 1, sd_type = sd_type, var = "n", include_consistent = TRUE) |> _$n |> min()
+  seq_n <- function(sd_meaning) {
+    df |> debit_map_seq(digits_x = 1, digits_sd = 1, sd_meaning = sd_meaning, var = "n", include_consistent = TRUE) |> _$n |> min()
   }
-  "sample"     |> seq_n() |> expect_equal(2L)
-  "population" |> seq_n() |> expect_equal(1L)
+  "sd_sample"     |> seq_n() |> expect_equal(2L)
+  "sd_pop" |> seq_n() |> expect_equal(1L)
 })
 
 test_that("explanations agree with the test under every SD type", {
   grid <- tidyr::expand_grid(x = c(0, 0.3, 0.5, 1), sd = c(0, 0.46, 0.48, 0.5), n = c(1, 2, 10))
-  for (sd_type in c("sample", "population", "either")) {
-    verdict <- grid$x |> debit(grid$sd, grid$n, 2, 2, sd_type = sd_type)
+  for (sd_meaning in c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")) {
+    verdict <- grid$x |> debit(grid$sd, grid$n, 2, 2, sd_meaning = sd_meaning)
     explained <- grid |>
       purrr::pmap_lgl(function(x, sd, n) {
-        explanation <- x |> debit_explain(sd, n, 2, 2, sd_type = sd_type)
+        explanation <- x |> debit_explain(sd, n, 2, 2, sd_meaning = sd_meaning)
         explanation$consistency
       })
-    explained |> expect_equal(verdict, info = sd_type)
+    explained |> expect_equal(verdict, info = sd_meaning)
   }
 
   out <- tibble::tibble(x = 0.30, sd = 0.46, n = 10) |>
-    debit_map(digits_x = 2, digits_sd = 2, sd_type = "either") |>
+    debit_map(digits_x = 2, digits_sd = 2, sd_meaning = "sd_sample_or_pop") |>
     explain_map()
-  out$explanation |> expect_match("sd_type = \"either\"", fixed = TRUE)
+  out$explanation |> expect_match("sd_meaning = \"sd_sample_or_pop\"", fixed = TRUE)
   out$explanation |> expect_match("the population SD is", fixed = TRUE)
   out$explanation |> expect_match("==> Consistent", fixed = TRUE)
+})
+
+
+# SE (#95) ----------------------------------------------------------------
+
+# 3 ones among 10 values have a sample SD of 0.483, whose SE is 0.153.
+
+test_that("`sd_meaning = \"se\"` tests `sd` as an SE", {
+  0.30 |> debit(0.15, 10, 2, 2)                                        |> expect_false()
+  0.30 |> debit(0.15, 10, 2, 2, sd_meaning = "se")                     |> expect_true()
+  0.30 |> debit(0.15, 10, 2, 2, formula = "mean_n", sd_meaning = "se") |> expect_true()
+  0.30 |> debit(0.48, 10, 2, 2, sd_meaning = "se")                     |> expect_false()
+  # An SE needs a sample SD:
+  1    |> debit(0, 1, 2, 2, sd_meaning = "se")                         |> expect_na()
+})
+
+test_that("`sd_meaning = \"se\"` reaches every mapper and the explanations", {
+  df <- tibble::tibble(x = 0.30, sd = 0.15, n = 10)
+  out <- df |> debit_map(digits_x = 2, digits_sd = 2, sd_meaning = "se")
+  out$consistency |> expect_true()
+  out |> scrutiny_args() |> _$sd_meaning |> expect_equal("se")
+
+  df |> debit_map_seq(digits_x = 2, digits_sd = 2)                    |> nrow() |> expect_gt(0L)
+  df |> debit_map_seq(digits_x = 2, digits_sd = 2, sd_meaning = "se") |> expect_warning("No inconsistent cases")
+
+  total <- tibble::tibble(x1 = 0.30, x2 = 0.30, sd1 = 0.15, sd2 = 0.15, n = 20)
+  total |> debit_map_total_n(digits_x = 2, digits_sd = 2)                    |> _$both_consistent |> any() |> expect_false()
+  total |> debit_map_total_n(digits_x = 2, digits_sd = 2, sd_meaning = "se") |> _$both_consistent |> any() |> expect_true()
+
+  grid <- tidyr::expand_grid(x = c(0, 0.3, 0.5), sd = c(0, 0.14, 0.15, 0.5), n = c(1, 2, 10))
+  verdict <- grid$x |> debit(grid$sd, grid$n, 2, 2, sd_meaning = "se")
+  explained <- grid |>
+    purrr::pmap_lgl(function(x, sd, n) {
+      explanation <- x |> debit_explain(sd, n, 2, 2, sd_meaning = "se")
+      explanation$consistency
+    })
+  explained |> expect_equal(verdict)
+
+  explanation <- out |> explain_map() |> _$explanation
+  explanation |> expect_match("the SE, the SD divided by sqrt(10), is", fixed = TRUE)
+  explanation |> expect_match("==> Consistent", fixed = TRUE)
 })

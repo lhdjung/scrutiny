@@ -24,7 +24,7 @@
 #'   There is no default.
 #' @param n_min Numeric. Minimal group size. Default is 2: a sample SD divides by
 #'   `n - 1`, so a group of 1 has no test result. A population SD has one, so
-#'   `n_min = 1` is useful with `sd_type = "population"` or `"either"`.
+#'   `n_min = 1` is useful with `sd_meaning = "sd_pop"` or `"sd_sample_or_pop"`.
 #' @param ... These dots must be empty. Every argument after them must be
 #'   named in full.
 #' @inheritParams grimmer_map

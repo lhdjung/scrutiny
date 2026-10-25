@@ -79,7 +79,7 @@ df1_expected <- tibble::tibble(
           rounding = "up_or_down",
           threshold = 5,
           symmetric = FALSE,
-          sd_type = "sample",
+          sd_meaning = "sd_sample",
           show_rec = TRUE
         ),
         c(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE),

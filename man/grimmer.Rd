@@ -15,7 +15,7 @@ grimmer(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  sd_type = c("sample", "population", "either")
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")
 )
 }
 \arguments{
@@ -50,19 +50,21 @@ their absolute values (\code{-2.5} like \code{2.5}) under \code{"up"}, \code{"do
 \code{"ties_*"} rounding method, which already fixes the direction; see
 \code{\link[=reround]{reround()}}.}
 
-\item{sd_type}{String. Which SD was reported: \code{"sample"} (the default),
-which divides by \code{n - 1}, as in R, SPSS, Stata, or Excel's \code{STDEV.S};
-\code{"population"}, which divides by \code{n}, as in NumPy's \code{np.std()} or Excel's
-\code{STDEV.P}; or \code{"either"}, which accepts a value set that is consistent
-under one or the other. See \emph{SD type}.}
+\item{sd_meaning}{String. What \code{sd} really is. \code{"sd_sample"} (the
+default) is the sample SD, which divides by \code{n - 1}, as in R, SPSS, Stata,
+or Excel's \code{STDEV.S}. \code{"sd_pop"} is the population SD, which divides by
+\code{n}, as in NumPy's \code{np.std()} or Excel's \code{STDEV.P}. \code{"sd_sample_or_pop"}
+accepts a value set that is consistent as one or the other. \code{"se"} is the
+standard error of the mean, the sample SD divided by \code{sqrt(n)}, reported as
+if it were an SD. See \emph{SD meaning}.}
 }
 \value{
 Logical. \code{TRUE} if \code{x}, \code{sd}, \code{n}, and \code{items_averaged} are
 consistent, \code{FALSE} if not, and \code{NA} if the case cannot be decided: if a
 value is missing or infinite, if \code{items_averaged} is not a positive whole
 number, or if \code{n} is not a positive whole number. A sample SD divides by
-\code{n - 1}, so under the default \code{sd_type = "sample"}, \code{n} must also be
-greater than \code{1}.
+\code{n - 1}, so under the default \code{sd_meaning = "sd_sample"}, and under
+\code{"se"}, \code{n} must also be greater than \code{1}.
 }
 \description{
 \code{grimmer()} checks whether a reported mean and standard
@@ -94,24 +96,36 @@ For data on a bounded scale, such as a Likert scale, see the
 \href{https://github.com/ianhussey/strait}{strait} package. Its \code{brimmest()}
 decides exactly whether a mean and SD are possible within the bounds.
 }
-\section{SD type}{
- The two SDs differ by a factor of \code{sqrt(n / (n - 1))},
-which matters most at small \code{n}, where GRIMMER is most powerful. A
-population SD tested as a sample SD will often seem inconsistent, so
-\code{sd_type} lets you check whether a value set is consistent only under the
-other convention.
+\section{SD meaning}{
+ The sample and population SDs differ by a factor of
+\code{sqrt(n / (n - 1))}, which matters most at small \code{n}, where GRIMMER is
+most powerful. A population SD tested as a sample SD will often seem
+inconsistent, so \code{sd_meaning} lets you check whether a value set is
+consistent only under the other convention.
 
-\code{"either"} is \code{TRUE} if the value set is consistent as a sample SD or as a
-population SD, and \code{FALSE} if it is neither. A single value has no sample
-SD, so at \code{n = 1}, \code{"either"} is the same as \code{"population"}. The \code{reason}
-column of \code{\link[=grimmer_map]{grimmer_map()}} names the convention a value set passed under,
-trying the sample SD first.
+\code{"sd_sample_or_pop"} is \code{TRUE} if the value set is consistent as a sample
+SD or as a population SD, and \code{FALSE} if it is neither. A single value has
+no sample SD, so at \code{n = 1}, \code{"sd_sample_or_pop"} is the same as
+\code{"sd_pop"}. The \code{reason} column of \code{\link[=grimmer_map]{grimmer_map()}} names the convention a
+value set passed under, trying the sample SD first.
 
-\code{"either"} accepts far more SDs than either convention alone, so it is
-not the default. It also judges each value set on its own, although a
+\code{"sd_sample_or_pop"} accepts far more SDs than either convention alone, so
+it is not the default. It also judges each value set on its own, although a
 single study usually computed all its SDs the same way. To tell which
-convention fits a set of values, test them under \code{"sample"} and
-\code{"population"} separately.
+convention fits a set of values, test them under \code{"sd_sample"} and
+\code{"sd_pop"} separately.
+
+Some papers report a standard error as if it were an SD. \code{"se"} tests
+whether a value set is consistent under that premise. The SE was rounded,
+not the SD, so the SD may lie anywhere in the SE's rounding range times
+\code{sqrt(n)}. This range is wide: from about \code{n = 20} on, nearly every value
+set whose mean passes GRIM is consistent under \code{"se"}. Such a result says
+little, and it is no evidence that an SE was reported.
+
+\code{"se"} is the SE of this group's mean, computed from its own sample SD and
+\code{n}. Model-based SEs, such as those of estimated marginal means, or SEs
+based on a pooled variance, are not. A value set that is inconsistent
+under \code{"se"} may still have been reported with one of them.
 }
 
 \examples{

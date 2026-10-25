@@ -202,8 +202,8 @@ name_mapper <- function(name_test, suffix) {
 }
 
 
-# Is a formal's default a set of strings, as in `sd_type = c("sample",
-# "population", "either")`? See `function_map()`.
+# Is a formal's default a set of strings, as in `formula = c("exact",
+# "mean_n")`? See `function_map()`.
 is_enum_default <- function(default) {
   is.call(default) &&
     identical(default[[1L]], as.name("c")) &&

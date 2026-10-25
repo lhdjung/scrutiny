@@ -16,7 +16,7 @@ debit_map(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  sd_type = c("sample", "population", "either"),
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
   show_rec = FALSE
 )
 }
@@ -35,7 +35,7 @@ these values, if they differ from the defaults.}
 \item{...}{These dots must be empty. Every argument after them must be
 named in full.}
 
-\item{formula, rounding, threshold, symmetric, sd_type}{Passed on to
+\item{formula, rounding, threshold, symmetric, sd_meaning}{Passed on to
 \code{\link[=debit]{debit()}}.}
 
 \item{show_rec}{Logical. If \code{TRUE}, the reconstructed values are returned

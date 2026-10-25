@@ -303,10 +303,10 @@ test_that("`is_decidable_n_items()` recycles like the vector path", {
 })
 
 
-test_that("every `sd_type` and `formula` default spells out its constant", {
-  # The scalar functions check against `SD_TYPES` and `DEBIT_FORMULAS`, so a
+test_that("every `sd_meaning` and `formula` default spells out its constant", {
+  # The scalar functions check against `SD_MEANINGS` and `DEBIT_FORMULAS`, so a
   # default that lists other values would offer choices that fail:
-  constants <- list(sd_type = SD_TYPES, formula = DEBIT_FORMULAS)
+  constants <- list(sd_meaning = SD_MEANINGS, formula = DEBIT_FORMULAS)
   ns <- asNamespace("scrutiny")
   n_checked <- 0L
   for (name in ls(ns)) {
@@ -324,7 +324,7 @@ test_that("every `sd_type` and `formula` default spells out its constant", {
       n_checked <- n_checked + 1L
     }
   }
-  # `sd_type` in the scalar, vectorized, and explain functions of GRIMMER and
+  # `sd_meaning` in the scalar, vectorized, and explain functions of GRIMMER and
   # DEBIT, `grimmer_plot_values()`, and all six mappers; `formula` in DEBIT's
   # three functions and three mappers:
   n_checked |> expect_equal(19L)
@@ -332,6 +332,6 @@ test_that("every `sd_type` and `formula` default spells out its constant", {
 
 test_that("a mapper records an enum setting it was not given as its first value", {
   out <- tibble::tibble(x = 0.30, sd = 0.46, n = 10) |> debit_map(digits_x = 2, digits_sd = 2)
-  out |> scrutiny_args() |> _$sd_type |> expect_equal("sample")
+  out |> scrutiny_args() |> _$sd_meaning |> expect_equal("sd_sample")
   out |> scrutiny_args() |> _$formula |> expect_equal("exact")
 })

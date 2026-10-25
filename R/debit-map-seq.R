@@ -17,9 +17,9 @@
 #' @param var String. The variables to disperse. Default is
 #'   `c("x", "sd", "n")`.
 #' @param out_min,out_max Limits on the dispersed values. Both default to
-#'   `"auto"`, which keeps `n` at 2 or above (1 under `sd_type =
-#'   "population"` or `"either"`) and `x` and `sd` between 0 and 1. A number
-#'   applies to every dispersed variable, and `NULL` removes the limit.
+#'   `"auto"`, which keeps `n` at 2 or above (1 under `sd_meaning =
+#'   "sd_pop"` or `"sd_sample_or_pop"`) and `x` and `sd` between 0 and 1. A
+#'   number applies to every dispersed variable, and `NULL` removes the limit.
 #' @param ... These dots must be empty. Every argument after them must be
 #'   named in full.
 #' @inheritParams debit_map
@@ -70,7 +70,7 @@ debit_map_seq <- function_map_seq(
   # that range, which used to make `debit_map_seq()` fail outright whenever a
   # reported value sat close enough to a bound for the dispersion to cross it:
   .var_bounds = list(
-    n = function(args) c(sd_min_n(args$sd_type), NA),
+    n = function(args) c(sd_min_n(args$sd_meaning), NA),
     x = c(0, 1),
     sd = c(0, 1)
   )

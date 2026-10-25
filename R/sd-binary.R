@@ -9,7 +9,7 @@
 #' - `sd_binary_mean_n()` from the mean and the total.
 #'
 #' These are the SDs that [`debit()`] tests under its default
-#' `sd_type = "sample"`.
+#' `sd_meaning = "sd_sample"`.
 #'
 #' @param group_0 Integer. Count of 0s.
 #' @param group_1 Integer. Count of 1s.

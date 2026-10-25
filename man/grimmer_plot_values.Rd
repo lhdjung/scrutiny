@@ -14,14 +14,14 @@ grimmer_plot_values(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  sd_type = c("sample", "population", "either"),
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
   color_cons = "#2f7d74",
   color_incons = "#d9d4ca",
   color_reported = "#c1522e"
 )
 }
 \arguments{
-\item{x, sd, n, digits_x, digits_sd, items_averaged, rounding, threshold, symmetric, sd_type}{The same as in \code{\link[=grimmer]{grimmer()}}, but \code{x}, \code{sd}, and \code{n} must have length 1.}
+\item{x, sd, n, digits_x, digits_sd, items_averaged, rounding, threshold, symmetric, sd_meaning}{The same as in \code{\link[=grimmer]{grimmer()}}, but \code{x}, \code{sd}, and \code{n} must have length 1.}
 
 \item{color_cons, color_incons}{Strings. Colors of the teeth for attainable
 and unattainable values.}

@@ -14,7 +14,7 @@ debit_explain(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  sd_type = c("sample", "population", "either")
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")
 )
 }
 \arguments{
@@ -35,9 +35,10 @@ Default is \code{"up_or_down"}. See \code{vignette("rounding-options")}.}
 
 \item{threshold, symmetric}{The same as in \code{\link[=grim]{grim()}}.}
 
-\item{sd_type}{String. Which SD was reported: \code{"sample"} (the default),
-\code{"population"}, or \code{"either"}. As in \code{\link[=grimmer]{grimmer()}}, where the section \emph{SD
-type} has details.}
+\item{sd_meaning}{String. What \code{sd} really is: the sample SD,
+\code{"sd_sample"} (the default); the population SD, \code{"sd_pop"}; either one,
+\code{"sd_sample_or_pop"}; or the standard error of the mean, \code{"se"}. As in
+\code{\link[=grimmer]{grimmer()}}, where the section \emph{SD meaning} has details.}
 }
 \value{
 An object of class \code{scrutiny_explain}: a list with the verdict as

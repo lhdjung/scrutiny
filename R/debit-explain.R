@@ -33,10 +33,10 @@ debit_explain <- function(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  sd_type = c("sample", "population", "either")
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")
 ) {
   formula <- arg_match_in_export(formula, DEBIT_FORMULAS)
-  sd_type <- arg_match_in_export(sd_type, SD_TYPES)
+  sd_meaning <- arg_match_in_export(sd_meaning, SD_MEANINGS)
 
   if (formula != "exact") {
     abort_in_export(
@@ -69,15 +69,15 @@ debit_explain <- function(
     rounding = rounding,
     threshold = threshold,
     symmetric = symmetric,
-    sd_type = sd_type,
+    sd_meaning = sd_meaning,
     show_rec = TRUE
   )
   consistency <- rec[[1L]]
 
-  # `debit_scalar()` has checked `sd_type`, and the arguments are known not to
-  # be missing:
-  if (sd_type == "either") {
-    explain_type <- function(sd_type) {
+  # `debit_scalar()` has checked `sd_meaning`, and the arguments are known not
+  # to be missing:
+  if (sd_meaning == "sd_sample_or_pop") {
+    explain_type <- function(sd_meaning) {
       debit_explain(
         x = x,
         sd = sd,
@@ -87,10 +87,10 @@ debit_explain <- function(
         rounding = rounding,
         threshold = threshold,
         symmetric = symmetric,
-        sd_type = sd_type
+        sd_meaning = sd_meaning
       )
     }
-    return(explain_sd_either(explain_type, consistency))
+    return(explain_sd_sample_or_pop(explain_type, consistency))
   }
 
   explain <- function(text) {
@@ -107,7 +107,7 @@ debit_explain <- function(
       symmetric,
       consistency,
       text,
-      sd_type
+      sd_meaning
     )
   }
 
@@ -121,7 +121,7 @@ debit_explain <- function(
         digits_sd = digits_sd
       ),
       n = n,
-      min_n = sd_min_n(sd_type)
+      min_n = sd_min_n(sd_meaning)
     )
     return(explain(text))
   }
@@ -220,8 +220,11 @@ debit_explain <- function(
     }
   )
 
+  # The statistic that the bounds and the calculations below are about:
+  stat <- if (sd_meaning == "se") "SE" else "SD"
+
   text_bounds_sd <- describe_reported(
-    "SD",
+    if (sd_meaning == "se") "SD, taken to be an SE," else "SD",
     sd,
     digits_sd,
     sd_lower,
@@ -230,14 +233,18 @@ debit_explain <- function(
     sd_incl_upper
   )
 
-  n_dev <- sd_denominator(n, sd_type)
+  n_dev <- sd_denominator(n, sd_meaning)
 
   text_formula <- paste0(
     "With k ones among ",
     values,
     ", the ",
-    if (sd_type == "population") "population ",
-    "SD is ",
+    switch(
+      sd_meaning,
+      sd_pop = "population SD is ",
+      se = paste0("SE, the SD divided by sqrt(", n, "), is "),
+      "SD is "
+    ),
     "sqrt(k * (",
     n,
     " - k) / (",
@@ -250,7 +257,7 @@ debit_explain <- function(
   # Whether each number of ones `k` has an SD in range is decided by the whole
   # number `k * (n - k)`, as in `binary_sd_attainable()`, not by the rounded
   # SD shown.
-  spread_range <- binary_spread_range(n, bounds$sd, sd_type)
+  spread_range <- binary_spread_range(n, bounds$sd, sd_meaning)
 
   ones <- binary_ones_shown(sum_lower, sum_upper, n, spread_range)
   spread <- ones * (n - ones)
@@ -311,7 +318,9 @@ debit_explain <- function(
     k <- ones[which.max(spread)]
 
     paste0(
-      "Even the largest of these SDs, for k = ",
+      "Even the largest of these ",
+      stat,
+      "s, for k = ",
       k,
       ", is only ",
       sd_of(k),
@@ -321,7 +330,9 @@ debit_explain <- function(
     k <- ones[which.min(spread)]
 
     paste0(
-      "Even the smallest of these SDs, for k = ",
+      "Even the smallest of these ",
+      stat,
+      "s, for k = ",
       k,
       ", is ",
       sd_of(k),
@@ -335,9 +346,13 @@ debit_explain <- function(
     k_above <- ones[!below][which.min(spread[!below])]
 
     paste0(
-      "These SDs skip over that range. For k = ",
+      "These ",
+      stat,
+      "s skip over that range. For k = ",
       k_below,
-      ", the SD is ",
+      ", the ",
+      stat,
+      " is ",
       sd_of(k_below),
       ", which is below it, and for k = ",
       k_above,

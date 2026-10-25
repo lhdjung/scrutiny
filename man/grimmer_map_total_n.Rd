@@ -18,7 +18,7 @@ grimmer_map_total_n(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  sd_type = c("sample", "population", "either"),
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
   dispersion = 0:5,
   n_min = 2L,
   n_max = NULL,
@@ -48,7 +48,7 @@ named in full.}
 averaged into each score, given as an argument or as a column of \code{data}.
 There is no default.}
 
-\item{rounding, threshold, symmetric, sd_type}{Passed on to
+\item{rounding, threshold, symmetric, sd_meaning}{Passed on to
 \code{\link[=grimmer]{grimmer()}}.}
 
 \item{dispersion}{Numeric. Steps up and down from half the total \code{n}.
@@ -56,7 +56,7 @@ Default is \code{0:5}, i.e., the even split and five steps away from it.}
 
 \item{n_min}{Numeric. Minimal group size. Default is 2: a sample SD divides by
 \code{n - 1}, so a group of 1 has no test result. A population SD has one, so
-\code{n_min = 1} is useful with \code{sd_type = "population"} or \code{"either"}.}
+\code{n_min = 1} is useful with \code{sd_meaning = "sd_pop"} or \code{"sd_sample_or_pop"}.}
 
 \item{n_max}{Numeric. Maximal group size. Default is \code{NULL}, i.e., no
 maximum.}

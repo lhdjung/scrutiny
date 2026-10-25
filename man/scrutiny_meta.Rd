@@ -29,8 +29,8 @@ that a report can state under which rounding method or SD convention a
 verdict was reached.
 
 Settings are the arguments that apply to the whole call, with defaults
-resolved, such as \code{rounding}, \code{percent}, or \code{sd_type}. Arguments that may
-vary by row are columns of the output instead: \code{digits_x}, \code{digits_sd},
+resolved, such as \code{rounding}, \code{percent}, or \code{sd_meaning}. Arguments that
+may vary by row are columns of the output instead: \code{digits_x}, \code{digits_sd},
 and helper arguments such as \code{items_averaged}, even if given as a single
 value.
 

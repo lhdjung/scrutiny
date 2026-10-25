@@ -16,7 +16,7 @@ grimmer_map(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  sd_type = c("sample", "population", "either")
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")
 )
 }
 \arguments{
@@ -36,7 +36,7 @@ named in full.}
 
 \item{items_averaged}{Integer. As in \code{\link[=grim_map]{grim_map()}}, for \code{x} and \code{sd}.}
 
-\item{rounding, threshold, symmetric, sd_type}{Passed on to
+\item{rounding, threshold, symmetric, sd_meaning}{Passed on to
 \code{\link[=grimmer]{grimmer()}}.}
 }
 \value{
@@ -65,11 +65,11 @@ that of the reconstructed sum of the values.
 
 A negative \code{sd} gives \code{"Negative SD"}.
 
-Under \code{sd_type = "either"}, a consistent value set gives
+Under \code{sd_meaning = "sd_sample_or_pop"}, a consistent value set gives
 \code{"Passed all (sample SD)"} or, if it passes as a population SD only,
 \code{"Passed all (population SD)"}. If the two conventions fail for different
 reasons, the \code{reason} names both, and \code{\link[=audit]{audit()}} counts the sample SD's,
-as under the default \code{sd_type}.
+as under the default \code{sd_meaning}.
 
 The tibble has the class \code{scrutiny_grimmer_map}, which is recognized by
 \code{\link[=audit]{audit()}} and \code{\link[=grim_plot]{grim_plot()}}.

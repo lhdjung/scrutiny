@@ -44,12 +44,14 @@ pigs1 |>
 
 **Scale items.** A mean of several items has more possible values than a mean of one. Set `items_averaged` to the number of items averaged into each score, not the number of scale points. A percentage can be multi-item, too, such as percent correct on a test of several questions.
 
-**The SD convention.** GRIMMER and DEBIT assume a sample SD by default. Some software reports the population SD, which divides by `n` instead of `n - 1`. `sd_type = "either"` accepts a value set that is consistent under one of them:
+**The SD convention.** GRIMMER and DEBIT assume a sample SD by default. Some software reports the population SD, which divides by `n` instead of `n - 1`. `sd_meaning = "sd_sample_or_pop"` accepts a value set that is consistent under one of them:
 
 ```{r}
 pigs5 |>
-  grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, sd_type = "either")
+  grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, sd_meaning = "sd_sample_or_pop")
 ```
+
+**SD or SE.** Some papers report a standard error as if it were an SD. `sd_meaning = "se"` tests that premise, but weakly: the SE was rounded, so the SD may lie in a range `sqrt(n)` times as wide. Beyond very small samples, nearly every value set passes, so a consistent result under `"se"` is no evidence that an SE was reported.
 
 **A percentage of another total.** A percentage may refer to the valid answers rather than to all participants. `is_percentage_of()` tests a percentage against a count and its total.
 

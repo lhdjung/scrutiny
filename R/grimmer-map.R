@@ -15,7 +15,7 @@
 #' @param x,sd,n Optionally, the names of the columns in `data` that contain
 #'   these values, if they differ from the defaults.
 #' @param items_averaged Integer. As in [`grim_map()`], for `x` and `sd`.
-#' @param rounding,threshold,symmetric,sd_type Passed on to
+#' @param rounding,threshold,symmetric,sd_meaning Passed on to
 #'   [`grimmer()`].
 #' @param ... These dots must be empty. Every argument after them must be
 #'   named in full.
@@ -42,11 +42,11 @@
 #'
 #' A negative `sd` gives `"Negative SD"`.
 #'
-#' Under `sd_type = "either"`, a consistent value set gives
+#' Under `sd_meaning = "sd_sample_or_pop"`, a consistent value set gives
 #' `"Passed all (sample SD)"` or, if it passes as a population SD only,
 #' `"Passed all (population SD)"`. If the two conventions fail for different
 #' reasons, the `reason` names both, and [`audit()`] counts the sample SD's,
-#' as under the default `sd_type`.
+#' as under the default `sd_meaning`.
 #'
 #' The tibble has the class `scrutiny_grimmer_map`, which is recognized by
 #'   [`audit()`] and [`grim_plot()`].

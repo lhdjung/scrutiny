@@ -12,7 +12,7 @@
 #'   There is no GRIMMER-specific plot for many value sets; [`grim_plot()`]
 #'   accepts [`grimmer_map()`] output and shows the GRIM part of the test.
 #'
-#' @param x,sd,n,digits_x,digits_sd,items_averaged,rounding,threshold,symmetric,sd_type
+#' @param x,sd,n,digits_x,digits_sd,items_averaged,rounding,threshold,symmetric,sd_meaning
 #'   The same as in [`grimmer()`], but `x`, `sd`, and `n` must have length 1.
 #' @inheritParams grim_plot_values
 #'
@@ -56,7 +56,7 @@ grimmer_plot_values <- function(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  sd_type = c("sample", "population", "either"),
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
   color_cons = "#2f7d74",
   color_incons = "#d9d4ca",
   color_reported = "#c1522e"
@@ -78,8 +78,8 @@ grimmer_plot_values <- function(
   check_newly_numeric(sd, digits_sd)
   check_comb_value(x, digits_x, "x")
   check_comb_value(sd, digits_sd, "sd")
-  sd_type <- arg_match_in_export(sd_type, SD_TYPES)
-  check_decidable_n_items(n, items_averaged, min_n = sd_min_n(sd_type))
+  sd_meaning <- arg_match_in_export(sd_meaning, SD_MEANINGS)
+  check_decidable_n_items(n, items_averaged, min_n = sd_min_n(sd_meaning))
 
   # One unit around `sd`, as for a mean:
   values <- comb_values(max(0, floor(sd)), floor(sd) + 1, digits_sd)
@@ -95,7 +95,7 @@ grimmer_plot_values <- function(
       rounding = rounding,
       threshold = threshold,
       symmetric = symmetric,
-      sd_type = sd_type
+      sd_meaning = sd_meaning
     )
   }
 
@@ -132,7 +132,9 @@ grimmer_plot_values <- function(
           format(items_averaged, scientific = FALSE)
         )
       },
-      if (sd_type != "sample") paste0(", sd_type = \"", sd_type, "\""),
+      if (sd_meaning != "sd_sample") {
+        paste0(", sd_meaning = \"", sd_meaning, "\"")
+      },
       ")"
     ),
     color_cons = color_cons,

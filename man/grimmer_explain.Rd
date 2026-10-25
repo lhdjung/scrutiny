@@ -14,7 +14,7 @@ grimmer_explain(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  sd_type = c("sample", "population", "either")
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")
 )
 }
 \arguments{
@@ -49,11 +49,13 @@ their absolute values (\code{-2.5} like \code{2.5}) under \code{"up"}, \code{"do
 \code{"ties_*"} rounding method, which already fixes the direction; see
 \code{\link[=reround]{reround()}}.}
 
-\item{sd_type}{String. Which SD was reported: \code{"sample"} (the default),
-which divides by \code{n - 1}, as in R, SPSS, Stata, or Excel's \code{STDEV.S};
-\code{"population"}, which divides by \code{n}, as in NumPy's \code{np.std()} or Excel's
-\code{STDEV.P}; or \code{"either"}, which accepts a value set that is consistent
-under one or the other. See \emph{SD type}.}
+\item{sd_meaning}{String. What \code{sd} really is. \code{"sd_sample"} (the
+default) is the sample SD, which divides by \code{n - 1}, as in R, SPSS, Stata,
+or Excel's \code{STDEV.S}. \code{"sd_pop"} is the population SD, which divides by
+\code{n}, as in NumPy's \code{np.std()} or Excel's \code{STDEV.P}. \code{"sd_sample_or_pop"}
+accepts a value set that is consistent as one or the other. \code{"se"} is the
+standard error of the mean, the sample SD divided by \code{sqrt(n)}, reported as
+if it were an SD. See \emph{SD meaning}.}
 }
 \value{
 An object of class \code{scrutiny_explain}: a list with the verdict as

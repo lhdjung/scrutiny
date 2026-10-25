@@ -16,7 +16,7 @@ grimmer_map_seq(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  sd_type = c("sample", "population", "either"),
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
   var = c("x", "sd", "n"),
   dispersion = 1:5,
   out_min = "auto",
@@ -43,7 +43,7 @@ named in full.}
 averaged into each score, given as an argument or as a column of \code{data}.
 There is no default.}
 
-\item{rounding, threshold, symmetric, sd_type}{Passed on to
+\item{rounding, threshold, symmetric, sd_meaning}{Passed on to
 \code{\link[=grimmer]{grimmer()}}.}
 
 \item{var}{String. The variables to disperse. Default is
@@ -53,7 +53,7 @@ There is no default.}
 units of the last decimal place. Default is \code{1:5}.}
 
 \item{out_min, out_max}{Limits on the dispersed values. Both default to
-\code{"auto"}, which keeps \code{n} at 2 or above (1 under \code{sd_type = "population"} or \code{"either"}) and \code{sd} at 0 or above, and leaves \code{x}
+\code{"auto"}, which keeps \code{n} at 2 or above (1 under \code{sd_meaning = "sd_pop"} or \code{"sd_sample_or_pop"}) and \code{sd} at 0 or above, and leaves \code{x}
 unbounded. A number applies to every dispersed variable, and \code{NULL}
 removes the limit.}
 

@@ -1103,35 +1103,40 @@ test_that("GRIMMER agrees with an exact oracle at two decimal places for `n` up 
 # 2, 4, 4, 5, 7 have a mean of 4.4, a sample SD of 1.82, and a population SD of
 # 1.62.
 
-test_that("`sd_type` decides which SD a value set is consistent with", {
+test_that("`sd_meaning` decides which SD a value set is consistent with", {
   4.4 |> grimmer(1.62, 5, 1, 2, 1)                         |> expect_false()
-  4.4 |> grimmer(1.62, 5, 1, 2, 1, sd_type = "population") |> expect_true()
-  4.4 |> grimmer(1.62, 5, 1, 2, 1, sd_type = "either")     |> expect_true()
-  4.4 |> grimmer(1.82, 5, 1, 2, 1, sd_type = "population") |> expect_false()
-  4.4 |> grimmer(1.82, 5, 1, 2, 1, sd_type = "either")     |> expect_true()
+  4.4 |> grimmer(1.62, 5, 1, 2, 1, sd_meaning = "sd_pop") |> expect_true()
+  4.4 |> grimmer(1.62, 5, 1, 2, 1, sd_meaning = "sd_sample_or_pop")     |> expect_true()
+  4.4 |> grimmer(1.82, 5, 1, 2, 1, sd_meaning = "sd_pop") |> expect_false()
+  4.4 |> grimmer(1.82, 5, 1, 2, 1, sd_meaning = "sd_sample_or_pop")     |> expect_true()
 })
 
-test_that("`sd_type` is checked with `rlang::arg_match()`", {
-  4.4 |> grimmer(1.62, 5, 1, 2, 1, sd_type = "pop") |> expect_error("must be one of")
-  4.4 |> grimmer(1.62, 5, 1, 2, 1, sd_type = NA)    |> expect_error("must be a")
+test_that("`sd_meaning` is checked with `rlang::arg_match()`", {
+  4.4 |> grimmer(1.62, 5, 1, 2, 1, sd_meaning = "pop") |> expect_error("must be one of")
+  4.4 |> grimmer(1.62, 5, 1, 2, 1, sd_meaning = NA)    |> expect_error("must be a")
   # The error names the function the user called:
   error <- tibble::tibble(x = 4.4, sd = 1.62, n = 5) |>
-    grimmer_map(digits_x = 1, digits_sd = 2, items_averaged = 1, sd_type = "Sample") |>
+    grimmer_map(digits_x = 1, digits_sd = 2, items_averaged = 1, sd_meaning = "Sample") |>
     expect_error("must be one of")
   error$call[[1L]] |> expect_equal(quote(grimmer_map))
 })
 
-test_that("GRIMMER agrees with a brute force on population SDs", {
+test_that("GRIMMER agrees with a brute force on population SDs and SEs", {
   # As in the test with every rounding method above, but with the population
-  # SD, which divides by `n` rather than `n - 1`, so `n = 1` is testable too:
+  # SD, which divides by `n` rather than `n - 1`, so `n = 1` is testable too,
+  # and with the SE, the sample SD divided by `sqrt(n)`:
   pairs <- grimmer_reachable_pairs()
-  reachable <- function(n, items, rounding, sd_type) {
+  reachable <- function(n, items, rounding, sd_meaning) {
     s <- pairs[[n]]$s
     q <- pairs[[n]]$q
-    n_dev <- if (sd_type == "population") n else n - 1
+    n_dev <- if (sd_meaning == "sd_pop") n else n - 1
     rounding_forward <- if (rounding == "even") "up_or_down" else rounding
     means <- reround(s / (n * items), 1, rounding_forward)
-    sds <- reround(sqrt((n * q - s^2) / (n * n_dev)) / items, 1, rounding_forward)
+    sds <- sqrt((n * q - s^2) / (n * n_dev)) / items
+    if (sd_meaning == "se") {
+      sds <- sds / sqrt(n)
+    }
+    sds <- reround(sds, 1, rounding_forward)
     means <- matrix(round(10 * means), ncol = length(s))
     sds <- matrix(round(10 * sds), ncol = length(s))
     keys <- character(0L)
@@ -1145,58 +1150,71 @@ test_that("GRIMMER agrees with a brute force on population SDs", {
 
   set.seed(95)
   n_checked <- 0L
+  n_checked_se <- 0L
   for (items in 1:2) {
     for (rounding in c("up_or_down", "up", "even", "floor")) {
       for (n in 1:8) {
         x <- round(runif(60L, 1, if (items == 1L) 5 else 3), 1)
         sd <- round(runif(60L, 0, if (items == 1L) 2.5 else 1), 1)
         key <- paste(round(10 * x), round(10 * sd))
-        is_population <- key %in% reachable(n, items, rounding, "population")
+        is_population <- key %in% reachable(n, items, rounding, "sd_pop")
         # A single value has no sample SD:
-        is_sample <- if (n == 1L) FALSE else key %in% reachable(n, items, rounding, "sample")
+        is_sample <- if (n == 1L) FALSE else key %in% reachable(n, items, rounding, "sd_sample")
         info <- paste0("items = ", items, ", rounding = ", rounding, ", n = ", n)
 
         x |>
-          grimmer(sd, n, 1, 1, items, rounding = rounding, sd_type = "population") |>
+          grimmer(sd, n, 1, 1, items, rounding = rounding, sd_meaning = "sd_pop") |>
           expect_equal(is_population, info = info)
         x |>
-          grimmer(sd, n, 1, 1, items, rounding = rounding, sd_type = "either") |>
+          grimmer(sd, n, 1, 1, items, rounding = rounding, sd_meaning = "sd_sample_or_pop") |>
           expect_equal(is_sample | is_population, info = info)
         n_checked <- n_checked + sum(is_population)
+
+        # SEs are smaller than SDs:
+        if (n > 1L) {
+          se <- round(runif(60L, 0, if (items == 1L) 1.2 else 0.5), 1)
+          key <- paste(round(10 * x), round(10 * se))
+          is_se <- key %in% reachable(n, items, rounding, "se")
+          x |>
+            grimmer(se, n, 1, 1, items, rounding = rounding, sd_meaning = "se") |>
+            expect_equal(is_se, info = paste(info, "(SE)"))
+          n_checked_se <- n_checked_se + sum(is_se)
+        }
       }
     }
   }
   n_checked |> expect_gt(500L)
+  n_checked_se |> expect_gt(300L)
 })
 
 test_that("`grimmer_map()` names the SD type that a value set passed under", {
   out <- tibble::tibble(x = c(4.4, 4.4, 3.6, 4), sd = c(1.82, 1.62, 0.2, 0.5), n = c(5, 5, 11, 1)) |>
-    grimmer_map(digits_x = 1, digits_sd = 2, items_averaged = 1, sd_type = "either")
+    grimmer_map(digits_x = 1, digits_sd = 2, items_averaged = 1, sd_meaning = "sd_sample_or_pop")
 
   # A single value has no sample SD, so the population SD decides:
   out$consistency |> expect_equal(c(TRUE, TRUE, FALSE, FALSE))
   out$reason |> expect_equal(c("Passed all (sample SD)", "Passed all (population SD)", "GRIMMER inconsistent (test 1)", "GRIMMER inconsistent (test 1)"))
-  out |> scrutiny_args() |> _$sd_type |> expect_equal("either")
+  out |> scrutiny_args() |> _$sd_meaning |> expect_equal("sd_sample_or_pop")
 })
 
-test_that("`sd_type` reaches the sequence and total-n mappers", {
+test_that("`sd_meaning` reaches the sequence and total-n mappers", {
   df <- tibble::tibble(x = 4.4, sd = 1.62, n = 5)
   df |> grimmer_map_seq(digits_x = 1, digits_sd = 2, items_averaged = 1)                         |> nrow() |> expect_gt(0L)
-  df |> grimmer_map_seq(digits_x = 1, digits_sd = 2, items_averaged = 1, sd_type = "population") |> expect_warning("No inconsistent cases")
-  df |> grimmer_map_seq(digits_x = 1, digits_sd = 2, items_averaged = 1, sd_type = "population") |> suppressWarnings() |> nrow() |> expect_equal(0L)
+  df |> grimmer_map_seq(digits_x = 1, digits_sd = 2, items_averaged = 1, sd_meaning = "sd_pop") |> expect_warning("No inconsistent cases")
+  df |> grimmer_map_seq(digits_x = 1, digits_sd = 2, items_averaged = 1, sd_meaning = "sd_pop") |> suppressWarnings() |> nrow() |> expect_equal(0L)
 
-  seq_either <- df |> grimmer_map_seq(digits_x = 1, digits_sd = 2, items_averaged = 1, sd_type = "either", include_consistent = TRUE)
-  seq_either |> scrutiny_args() |> _$sd_type |> expect_equal("either")
+  seq_either <- df |> grimmer_map_seq(digits_x = 1, digits_sd = 2, items_averaged = 1, sd_meaning = "sd_sample_or_pop", include_consistent = TRUE)
+  seq_either |> scrutiny_args() |> _$sd_meaning |> expect_equal("sd_sample_or_pop")
   seq_either |> audit_seq() |> nrow() |> expect_equal(1L)
 
   # Only groups of 5 and 5 fit, and only as population SDs:
   total <- tibble::tibble(x1 = 4.4, x2 = 4.4, sd1 = 1.62, sd2 = 1.62, n = 10)
   total |> grimmer_map_total_n(digits_x = 1, digits_sd = 2, items_averaged = 1)                         |> _$both_consistent |> any() |> expect_false()
-  total |> grimmer_map_total_n(digits_x = 1, digits_sd = 2, items_averaged = 1, sd_type = "population") |> _$both_consistent |> which() |> expect_equal(1:2)
+  total |> grimmer_map_total_n(digits_x = 1, digits_sd = 2, items_averaged = 1, sd_meaning = "sd_pop") |> _$both_consistent |> which() |> expect_equal(1:2)
 })
 
-test_that("`audit()` counts each \"either\" case once, by the sample SD's reason", {
-  out <- tibble::tibble(x = 4.59, sd = 1.96, n = 17) |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, sd_type = "either")
+test_that("`audit()` counts each \"sd_sample_or_pop\" case once, by the sample SD's reason", {
+  out <- tibble::tibble(x = 4.59, sd = 1.96, n = 17) |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, sd_meaning = "sd_sample_or_pop")
   out$reason |> expect_equal("Sample SD: GRIMMER inconsistent (test 1); population SD: GRIMMER inconsistent (test 3)")
   audit <- out |> audit()
   audit$fail_test1 |> expect_equal(1L)
@@ -1205,49 +1223,94 @@ test_that("`audit()` counts each \"either\" case once, by the sample SD's reason
 
 test_that("the sequence mapper disperses `n` down to 1 only for a population SD", {
   df <- tibble::tibble(x = 2.5, sd = 0.9, n = 3)
-  seq_n <- function(sd_type) {
-    df |> grimmer_map_seq(digits_x = 1, digits_sd = 1, items_averaged = 1, sd_type = sd_type, var = "n", include_consistent = TRUE) |> _$n |> min()
+  seq_n <- function(sd_meaning) {
+    df |> grimmer_map_seq(digits_x = 1, digits_sd = 1, items_averaged = 1, sd_meaning = sd_meaning, var = "n", include_consistent = TRUE) |> _$n |> min()
   }
-  "sample"     |> seq_n() |> expect_equal(2L)
-  "population" |> seq_n() |> expect_equal(1L)
-  "either"     |> seq_n() |> expect_equal(1L)
+  "sd_sample"     |> seq_n() |> expect_equal(2L)
+  "sd_pop" |> seq_n() |> expect_equal(1L)
+  "sd_sample_or_pop"     |> seq_n() |> expect_equal(1L)
 })
 
 test_that("explanations agree with the test under every SD type", {
   grid <- tidyr::expand_grid(x = c(3.6, 4.4, 5.2), sd = c(0, 0.5, 1.62, 1.82), n = c(1, 2, 5, 11))
-  for (sd_type in c("sample", "population", "either")) {
-    verdict <- grid$x |> grimmer(grid$sd, grid$n, 1, 2, 1, sd_type = sd_type)
+  for (sd_meaning in c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")) {
+    verdict <- grid$x |> grimmer(grid$sd, grid$n, 1, 2, 1, sd_meaning = sd_meaning)
     explained <- grid |>
       purrr::pmap_lgl(function(x, sd, n) {
-        explanation <- x |> grimmer_explain(sd, n, 1, 2, 1, sd_type = sd_type)
+        explanation <- x |> grimmer_explain(sd, n, 1, 2, 1, sd_meaning = sd_meaning)
         explanation$consistency
       })
-    explained |> expect_equal(verdict, info = sd_type)
+    explained |> expect_equal(verdict, info = sd_meaning)
   }
 
-  explanation <- 4.4 |> grimmer_explain(1.62, 5, 1, 2, 1, sd_type = "either") |> format()
-  explanation |> expect_match("sd_type = \"either\"", fixed = TRUE)
+  explanation <- 4.4 |> grimmer_explain(1.62, 5, 1, 2, 1, sd_meaning = "sd_sample_or_pop") |> format()
+  explanation |> expect_match("sd_meaning = \"sd_sample_or_pop\"", fixed = TRUE)
   explanation |> expect_match("population SD, which divides by n rather than n - 1", fixed = TRUE)
   explanation |> expect_match("==> Consistent", fixed = TRUE)
 
   # At `n = 1`, only the sample SD is undecidable; at `n = 1.5`, both are, and
   # the population SD's requirement is the one stated:
-  4 |> grimmer_explain(0.5, 1,   1, 1, 1, sd_type = "either") |> format() |> expect_match("A single value has no sample SD", fixed = TRUE)
-  4 |> grimmer_explain(0.5, 1.5, 1, 1, 1, sd_type = "either") |> format() |> expect_no_match("sample", fixed = TRUE)
+  4 |> grimmer_explain(0.5, 1,   1, 1, 1, sd_meaning = "sd_sample_or_pop") |> format() |> expect_match("A single value has no sample SD", fixed = TRUE)
+  4 |> grimmer_explain(0.5, 1.5, 1, 1, 1, sd_meaning = "sd_sample_or_pop") |> _$paragraphs |> expect_no_match("sample", fixed = TRUE)
 
   # A single value's only sum of squares is its square, in the singular:
-  explanation <- 3 |> grimmer_explain(1, 1, 0, 0, 1, sd_type = "population") |> format()
+  explanation <- 3 |> grimmer_explain(1, 1, 0, 0, 1, sd_meaning = "sd_pop") |> format()
   explanation |> expect_match("its sum of squares can only be 9", fixed = TRUE)
 
   out <- tibble::tibble(x = c(4.4, 4.4), sd = c(1.62, 1.82), n = 5) |>
-    grimmer_map(digits_x = 1, digits_sd = 2, items_averaged = 1, sd_type = "population") |>
+    grimmer_map(digits_x = 1, digits_sd = 2, items_averaged = 1, sd_meaning = "sd_pop") |>
     explain_map()
   out$explanation |> expect_match("For a population SD,\\s+it is 5 \\* SD\\^2")
 })
 
-test_that("`grimmer_plot_values()` takes `sd_type`", {
-  4.4 |> grimmer_plot_values(1.62, 5, 1, 2, 1, sd_type = "population") |> expect_s3_class("ggplot")
-  4   |> grimmer_plot_values(0, 1, 1, 2, 1, sd_type = "either")        |> expect_s3_class("ggplot")
-  4   |> grimmer_plot_values(0.5, 1, 1, 2, 1, sd_type = "either")      |> expect_s3_class("ggplot")
+test_that("`grimmer_plot_values()` takes `sd_meaning`", {
+  4.4 |> grimmer_plot_values(1.62, 5, 1, 2, 1, sd_meaning = "sd_pop") |> expect_s3_class("ggplot")
+  4   |> grimmer_plot_values(0, 1, 1, 2, 1, sd_meaning = "sd_sample_or_pop")        |> expect_s3_class("ggplot")
+  4   |> grimmer_plot_values(0.5, 1, 1, 2, 1, sd_meaning = "sd_sample_or_pop")      |> expect_s3_class("ggplot")
   4   |> grimmer_plot_values(0, 1, 1, 2, 1)                            |> expect_error("at least 2")
+})
+
+
+# SE (#95) ----------------------------------------------------------------
+
+# The sample SD of 2, 4, 4, 5, 7, 1.82, has an SE of 0.81.
+
+test_that("`sd_meaning = \"se\"` tests `sd` as an SE", {
+  4.4 |> grimmer(0.81, 5, 1, 2, 1)                    |> expect_false()
+  4.4 |> grimmer(0.81, 5, 1, 2, 1, sd_meaning = "se") |> expect_true()
+  4.4 |> grimmer(1.82, 5, 1, 2, 1, sd_meaning = "se") |> expect_false()
+  # An SE needs a sample SD:
+  4   |> grimmer(0.5, 1, 1, 1, 1, sd_meaning = "se")  |> expect_na()
+})
+
+test_that("`sd_meaning = \"se\"` reaches every mapper, which records it", {
+  df <- tibble::tibble(x = 4.4, sd = 0.81, n = 5)
+  out <- df |> grimmer_map(digits_x = 1, digits_sd = 2, items_averaged = 1, sd_meaning = "se")
+  out$consistency |> expect_true()
+  out |> scrutiny_args() |> _$sd_meaning |> expect_equal("se")
+
+  df |> grimmer_map_seq(digits_x = 1, digits_sd = 2, items_averaged = 1)                    |> nrow() |> expect_gt(0L)
+  df |> grimmer_map_seq(digits_x = 1, digits_sd = 2, items_averaged = 1, sd_meaning = "se") |> expect_warning("No inconsistent cases")
+
+  total <- tibble::tibble(x1 = 4.4, x2 = 4.4, sd1 = 0.81, sd2 = 0.81, n = 10)
+  total |> grimmer_map_total_n(digits_x = 1, digits_sd = 2, items_averaged = 1)                    |> _$both_consistent |> any() |> expect_false()
+  total |> grimmer_map_total_n(digits_x = 1, digits_sd = 2, items_averaged = 1, sd_meaning = "se") |> _$both_consistent |> any() |> expect_true()
+})
+
+test_that("explanations and the comb plot agree with the test under an SE", {
+  grid <- tidyr::expand_grid(x = c(4.4, 4.6), sd = c(0.73, 0.81, 1.82), n = c(1, 5, 12))
+  verdict <- grid$x |> grimmer(grid$sd, grid$n, 1, 2, 1, sd_meaning = "se")
+  explained <- grid |>
+    purrr::pmap_lgl(function(x, sd, n) {
+      explanation <- x |> grimmer_explain(sd, n, 1, 2, 1, sd_meaning = "se")
+      explanation$consistency
+    })
+  explained |> expect_equal(verdict)
+
+  explanation <- 4.4 |> grimmer_explain(0.81, 5, 1, 2, 1, sd_meaning = "se") |> format()
+  explanation |> expect_match("sd_meaning = \"se\"", fixed = TRUE)
+  explanation |> expect_match("5 * (5 - 1) * SE^2", fixed = TRUE)
+  explanation |> expect_match("==> Consistent", fixed = TRUE)
+
+  4.4 |> grimmer_plot_values(0.81, 5, 1, 2, 1, sd_meaning = "se") |> expect_s3_class("ggplot")
 })
