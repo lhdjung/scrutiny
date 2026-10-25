@@ -234,3 +234,18 @@ test_that("`audit()` names the columns it lacks", {
   pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |> dplyr::select(x)   |> audit() |> expect_error("Missing: `consistency`")
   pigs3 |> debit_map(digits_x = 2, digits_sd = 2)                       |> dplyr::select(-sd) |> audit() |> expect_error("Missing: `sd`")
 })
+
+
+# `audit()` on the other tiers -------------------------------------------
+
+test_that("`audit()` calls `audit_seq()` and `audit_total_n()` on their tiers", {
+  # The basic mapper's method used to be reached instead, which counted the
+  # dispersed rows as reported cases:
+  data_grim_seq    |> audit() |> expect_equal(audit_seq(data_grim_seq))
+  data_grimmer_seq |> audit() |> expect_equal(audit_seq(data_grimmer_seq))
+  data_debit_seq   |> audit() |> expect_equal(audit_seq(data_debit_seq))
+
+  data_total_n <- tibble::tibble(x1 = 4.71, x2 = 5.3, n = 40) |>
+    grim_map_total_n(digits_x = c(2, 1), items_averaged = 1)
+  data_total_n |> audit() |> expect_equal(audit_total_n(data_total_n))
+})

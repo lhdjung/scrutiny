@@ -17,6 +17,9 @@ A tibble with summary statistics.
 data frames, such as \code{\link[=grim_map]{grim_map()}}. It is an S3 generic with methods for
 the functions listed below. The columns of each summary are described in
 the documentation of the respective function.
+
+On the output of a sequence or total-n mapper, such as \code{\link[=grim_map_seq]{grim_map_seq()}},
+it calls \code{\link[=audit_seq]{audit_seq()}} or \code{\link[=audit_total_n]{audit_total_n()}}.
 }
 \section{Run before \code{audit()}}{
 \tabular{ll}{
@@ -26,6 +29,8 @@ the documentation of the respective function.
    \code{\link[=debit_map]{debit_map()}} \tab \code{"scrutiny_debit_map"} \cr
    \code{\link[=is_percentage_of_map]{is_percentage_of_map()}} \tab \code{"scrutiny_is_percentage_of_map"} \cr
    \code{\link[=add_up_to_map]{add_up_to_map()}} \tab \code{"scrutiny_add_up_to_map"} \cr
+   \verb{*_map_seq()} functions \tab \code{"scrutiny_map_seq"} \cr
+   \verb{*_map_total_n()} functions \tab \code{"scrutiny_map_total_n"} \cr
    \code{\link[=duplicate_count]{duplicate_count()}} \tab \code{"scrutiny_dup_count"} \cr
    \code{\link[=duplicate_count_colpair]{duplicate_count_colpair()}} \tab \code{"scrutiny_dup_count_colpair"} \cr
    \code{\link[=duplicate_tally]{duplicate_tally()}} \tab \code{"scrutiny_dup_tally"} \cr

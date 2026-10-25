@@ -5,6 +5,9 @@
 #'   the functions listed below. The columns of each summary are described in
 #'   the documentation of the respective function.
 #'
+#'   On the output of a sequence or total-n mapper, such as [`grim_map_seq()`],
+#'   it calls [`audit_seq()`] or [`audit_total_n()`].
+#'
 #' @param data A data frame returned by one of the functions below.
 #'
 #' @section Run before `audit()`:
@@ -15,6 +18,8 @@
 #'   | [`debit_map()`]                | `"scrutiny_debit_map"`              |
 #'   | [`is_percentage_of_map()`]     | `"scrutiny_is_percentage_of_map"`   |
 #'   | [`add_up_to_map()`]            | `"scrutiny_add_up_to_map"`          |
+#'   | `*_map_seq()` functions        | `"scrutiny_map_seq"`                |
+#'   | `*_map_total_n()` functions    | `"scrutiny_map_total_n"`            |
 #'   | [`duplicate_count()`]          | `"scrutiny_dup_count"`              |
 #'   | [`duplicate_count_colpair()`]  | `"scrutiny_dup_count_colpair"`      |
 #'   | [`duplicate_tally()`]          | `"scrutiny_dup_tally"`              |
@@ -45,7 +50,8 @@ audit <- function(data) {
 #'   [`function_map_seq()`], such as [`grim_map_seq()`], and `audit_total_n()`
 #'   that of functions made by [`function_map_total_n()`], such as
 #'   [`grim_map_total_n()`]. The columns of each summary are described in the
-#'   documentation of the respective function.
+#'   documentation of the respective function. [`audit()`] calls them on such
+#'   output, so it can be used instead.
 #'
 #' @param data A data frame returned by one of the functions below.
 #'
@@ -316,6 +322,21 @@ audit_total_n <- function(data) {
       )
     ) |>
     add_class("scrutiny_audit_total_n")
+}
+
+
+# The tier classes come first in the class vector of sequence and total-n
+# output, ahead of the basic mapper's class, so `audit()` reaches these methods
+# rather than counting the dispersed rows as reported cases:
+
+#' @export
+audit.scrutiny_map_seq <- function(data) {
+  audit_seq(data)
+}
+
+#' @export
+audit.scrutiny_map_total_n <- function(data) {
+  audit_total_n(data)
 }
 
 

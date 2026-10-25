@@ -21,7 +21,8 @@ A tibble with summary statistics.
 \code{\link[=function_map_seq]{function_map_seq()}}, such as \code{\link[=grim_map_seq]{grim_map_seq()}}, and \code{audit_total_n()}
 that of functions made by \code{\link[=function_map_total_n]{function_map_total_n()}}, such as
 \code{\link[=grim_map_total_n]{grim_map_total_n()}}. The columns of each summary are described in the
-documentation of the respective function.
+documentation of the respective function. \code{\link[=audit]{audit()}} calls them on such
+output, so it can be used instead.
 }
 \section{Before \code{audit_seq()}}{
 \tabular{ll}{

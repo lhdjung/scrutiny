@@ -2,13 +2,14 @@
 #'
 #' @description `r lifecycle::badge("experimental")`
 #'
-#'   Given the output of [`grim_map()`] or a function built on it,
-#'   `grim_binomial()` tests whether the rate of GRIM-consistent value sets is
-#'   above what random decimal digits would produce. This approach has not been
-#'   tested extensively; use it with care.
+#'   Given the output of [`grim_map()`], `grim_binomial()` tests whether the
+#'   rate of GRIM-consistent value sets is above what random decimal digits
+#'   would produce. This approach has not been tested extensively; use it with
+#'   care.
 #'
-#' @param data Data frame returned by [`grim_map()`] or a function built on
-#'   it, such as [`grim_map_seq()`].
+#' @param data Data frame returned by [`grim_map()`]. The output of
+#'   [`grim_map_seq()`] or [`grim_map_total_n()`] is rejected: its rows are
+#'   hypothetical value sets, not reported ones.
 #' @param alternative String (length 1). One of `"greater"` (the default),
 #'   `"less"`, and `"two.sided"`.
 #' @param conf.level Numeric (length 1). Confidence level of the interval
@@ -49,9 +50,7 @@ grim_binomial <- function(
 ) {
   alternative <- rlang::arg_match(alternative)
 
-  if (!inherits(data, "scrutiny_grim_map")) {
-    abort_in_export("`data` must be output of a GRIM mapper function.")
-  }
+  check_grim_map_basic(data)
 
   check_cols_needed(
     data,

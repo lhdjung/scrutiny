@@ -72,7 +72,7 @@ Within the function body, call `audit_cols_minimal()`. This enables you to use `
 
 ```{r}
 audit.scrutiny_schlim_map <- function(data) {
-  audit_cols_minimal(data, name_test = "SCHLIM")
+  audit_cols_minimal(data)
 }
 
 df1 |>

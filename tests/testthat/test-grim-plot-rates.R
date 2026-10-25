@@ -38,3 +38,9 @@ test_that("`grim_plot_rates()` drops value sets without a study", {
   plot <- data |> grim_plot_rates(study) |> suppressWarnings()
   plot$data$study |> expect_equal(c("A", "B"))
 })
+
+
+test_that("`grim_plot_rates()` rejects sequence and total-n output", {
+  skip_if_not_installed("ggrepel")
+  pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1) |> grim_plot_rates(case) |> expect_error("hypothetical")
+})

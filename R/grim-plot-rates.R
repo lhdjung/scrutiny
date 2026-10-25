@@ -53,9 +53,7 @@
 grim_plot_rates <- function(data, study) {
   rlang::check_installed("ggrepel", "for the labels in `grim_plot_rates()`.")
 
-  if (!inherits(data, "scrutiny_grim_map")) {
-    abort_in_export("`data` must be output of `grim_map()`.")
-  }
+  check_grim_map_basic(data)
 
   check_cols_needed(data, c("consistency", "probability"))
 

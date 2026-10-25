@@ -4,13 +4,10 @@
 \alias{audit_cols_minimal}
 \title{Compute minimal \code{audit()} summaries}
 \usage{
-audit_cols_minimal(data, name_test)
+audit_cols_minimal(data)
 }
 \arguments{
 \item{data}{Data frame returned by a mapper function.}
-
-\item{name_test}{String (length 1). Plain-text name of the test, such as
-\code{"GRIM"}, for a possible message.}
 }
 \value{
 A tibble with the three columns above.
@@ -32,10 +29,9 @@ Add further columns as needed. See \emph{Examples} for how to name the method.
 # For a mapper `schlim_map()` that applies a test called SCHLIM and
 # returns a data frame with the class `"scrutiny_schlim_map"`:
 audit.scrutiny_schlim_map <- function(data) {
-  audit_cols_minimal(data, name_test = "SCHLIM")
+  audit_cols_minimal(data)
 }
 }
 \seealso{
-\code{vignette("consistency-tests-in-depth")}. A method that does not
-call \code{audit_cols_minimal()} should call \code{\link[=check_audit_special]{check_audit_special()}}.
+\code{vignette("consistency-tests-in-depth")}.
 }

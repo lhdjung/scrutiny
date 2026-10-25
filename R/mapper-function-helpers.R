@@ -201,47 +201,6 @@ check_cols_needed <- function(data, cols, ...) {
 }
 
 
-#' Alert the user if more specific `audit_*()` summaries are available
-#'
-#' @description Call `check_audit_special()` within an `audit()` method for a
-#'   consistency test mapper, unless the method calls [`audit_cols_minimal()`],
-#'   which does so itself. If the input was produced by a function made by
-#'   [`function_map_seq()`] or [`function_map_total_n()`], it prints a message
-#'   pointing to [`audit_seq()`] or [`audit_total_n()`].
-#'
-#' @param data The `audit()` method's input data frame.
-#' @param name_test String (length 1). Plain-text name of the test, such as
-#'   `"GRIM"`.
-#'
-#' @seealso `vignette("consistency-tests-in-depth")`.
-#'
-#' @export
-#'
-#' @return No return value; might print a message.
-
-check_audit_special <- function(data, name_test) {
-  class_name_root <- class_name_test(name_test, "_map_")
-
-  class_seq <- paste0(class_name_root, "seq")
-  class_total_n <- paste0(class_name_root, "total_n")
-
-  # If `data` is the output of a function like `grim_map_seq()`, point the user
-  # to the dedicated summary function for such output, `audit_seq()`:
-  if (inherits(data, class_seq)) {
-    cli::cli_alert_info(
-      "More specialized {name_test} summaries available with `audit_seq()`."
-    )
-  }
-
-  # Likewise, if `data` is the output of a function like `grim_map_total_n()`,
-  # point the user to `audit_total_n()`:
-  if (inherits(data, class_total_n)) {
-    cli::cli_alert_info(
-      "More specialized {name_test} summaries available with `audit_total_n()`."
-    )
-  }
-}
-
 
 #' Manage a helper column
 #'
@@ -320,4 +279,24 @@ manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
   }
 
   data
+}
+
+
+# Study-level GRIM statistics, such as `grim_binomial()` and
+# `grim_plot_rates()`, count reported value sets. Sequence and total-n output
+# inherits the basic mapper's class, too, but its rows are hypothetical value
+# sets, most of them inconsistent by construction, so it is rejected here.
+check_grim_map_basic <- function(data) {
+  if (inherits(data, "scrutiny_grim_map") && is_map_basic_df(data)) {
+    return(invisible(NULL))
+  }
+  msg_what_it_is <- if (is_map_df(data)) {
+    c(
+      "x" = "It is the output of a sequence or total-n mapper, whose rows \\
+      are hypothetical value sets, not reported ones."
+    )
+  } else {
+    c("x" = "It has class {.cls {class(data)}}.")
+  }
+  abort_in_export("`data` must be the output of `grim_map()`.", msg_what_it_is)
 }

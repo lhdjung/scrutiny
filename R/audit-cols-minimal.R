@@ -12,8 +12,6 @@
 #'   Add further columns as needed. See *Examples* for how to name the method.
 #'
 #' @param data Data frame returned by a mapper function.
-#' @param name_test String (length 1). Plain-text name of the test, such as
-#'   `"GRIM"`, for a possible message.
 #'
 #' @export
 #'
@@ -21,17 +19,16 @@
 #'
 #' @include mapper-function-helpers.R
 #'
-#' @seealso `vignette("consistency-tests-in-depth")`. A method that does not
-#'   call `audit_cols_minimal()` should call [`check_audit_special()`].
+#' @seealso `vignette("consistency-tests-in-depth")`.
 #'
 #' @examples
 #' # For a mapper `schlim_map()` that applies a test called SCHLIM and
 #' # returns a data frame with the class `"scrutiny_schlim_map"`:
 #' audit.scrutiny_schlim_map <- function(data) {
-#'   audit_cols_minimal(data, name_test = "SCHLIM")
+#'   audit_cols_minimal(data)
 #' }
 
-audit_cols_minimal <- function(data, name_test) {
+audit_cols_minimal <- function(data) {
   # Checks ---
 
   if (!is.data.frame(data)) {
@@ -39,7 +36,6 @@ audit_cols_minimal <- function(data, name_test) {
   }
 
   check_cols_needed(data, "consistency")
-  check_audit_special(data, name_test)
 
   # Compute the summary values of interest ---
 

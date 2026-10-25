@@ -245,7 +245,7 @@ By default, only inconsistent value sets are dispersed. `case` is the row in the
 
 ### Summaries with `audit_seq()`
 
-`audit_seq()` summarizes this output per case:
+`audit_seq()` summarizes this output per case. `audit()` calls it on such output, so either works:
 
 ```{r}
 audit_seq(out_seq1)

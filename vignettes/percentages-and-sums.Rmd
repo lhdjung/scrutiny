@@ -85,7 +85,7 @@ df |>
 
 Some nearby totals would make the percentage consistent. The nearest is two steps away: 25 out of 122 is 20.49%, reported as 20 since the percentage has no decimal places here.
 
-Summarize by counting the "hits", i.e., scenarios where varying `n` up and down makes the values consistent. To do so, use `audit_seq()`, not the basic `audit()`:
+Summarize by counting the "hits", i.e., scenarios where varying `n` up and down makes the values consistent. To do so, call `audit_seq()`, or `audit()`, which calls it on this output:
 
 ```{r}
 df |>

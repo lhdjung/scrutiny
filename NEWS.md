@@ -52,6 +52,8 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `debit_map()` no longer has `show_rec` and `grimmer_map()` no longer has `show_reason`: the reconstructed values and the `reason` column are always returned. `debit_map()` output no longer has a `rounding` column; the rounding method is recorded in the `"scrutiny"` attribute. `audit()` on `grimmer_map()` output no longer has a `fail_test2` column.
 
+- `audit()` on the output of a sequence or total-n mapper, such as `grim_map_seq()`, now calls `audit_seq()` or `audit_total_n()`. It used to apply the basic mapper's summary, which counted the dispersed rows as reported cases and only printed a hint. `grim_binomial()` and `grim_plot_rates()` reject such output for the same reason: its rows are hypothetical value sets, most of them inconsistent by construction, so a p-value or rate over them said nothing about the study. `audit_cols_minimal()` lost its `name_test` argument, which only served that hint.
+
 - `grim()`, `grimmer()`, and `debit()` no longer have `show_rec` or `show_reason`. These arguments were only intended for internal use by the mappers. The three functions are now vectorized only over the tested values (`x`, `sd`, `n`, and the `digits_*` arguments) and `items_averaged`; `rounding`, `threshold`, `symmetric`, `percent`, `formula`, and `tolerance` must have length 1. Recycling follows the tidyverse rules: an argument must have length 1 or the common length. `grim(x = c(5.19, 5.18, 5.17), n = c(28, 32), digits_x = 2)` is therefore an error; it used to return three results.
 
 - `grim_map()` and `grimmer_map()` no longer multiply `items` into `n`. The `n` column is the sample size as given, and `items_averaged` is returned as a column of its own. `grim_plot()` places the tiles at `n * items_averaged`.
@@ -158,7 +160,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - Removed after their deprecation in scrutiny 0.5.0: the `show_prob` argument of `grim_map()`, `grim_ratio_upper()`, and the 15 functions around `is_subset_of()`.
 
-- Removed, since no package uses them and 1.0.0 is the release for breaking changes: `grim_ratio()` (`grim_probability()` is the rounding-aware version), `manage_key_colnames()` (use `absorb_key_args()`), `unnest_consistency_cols()`, `write_doc_factory_map_conventions()`, and the re-exports of rlang's `enquo()`, `enquos()`, `as_name()`, `as_label()`, `.data`, and `:=`. `check_factory_dots()`, `check_args_disabled()`, and `decimal_places_scalar()` are no longer exported.
+- Removed, since no package uses them and 1.0.0 is the release for breaking changes: `grim_ratio()` (`grim_probability()` is the rounding-aware version), `manage_key_colnames()` (use `absorb_key_args()`), `unnest_consistency_cols()`, `write_doc_factory_map_conventions()`, and the re-exports of rlang's `enquo()`, `enquos()`, `as_name()`, `as_label()`, `.data`, and `:=`. `check_factory_dots()`, `check_args_disabled()`, and `decimal_places_scalar()` are no longer exported. `check_audit_special()` was removed: `audit()` now reaches `audit_seq()` and `audit_total_n()` itself.
 
 - `duplicate_detect()` is deprecated in favor of `duplicate_tally()`. It was superseded since scrutiny 0.3.0.
 

@@ -44,7 +44,7 @@ Below is an outline of these levels, and of the vignette, with GRIM as the examp
 
 7.  A mapping function to be used if only the total sample size was reported (in a study with two groups), not the individual group sizes, such as `grim_map_total_n()`.
 
-8.  `audit_seq()` and `audit_total_n()` already work with the output of numbers 6 and 7, respectively. They still have to be specifically documented.
+8.  `audit()` already works with the output of numbers 6 and 7, via `audit_seq()` and `audit_total_n()`. They still have to be specifically documented.
 
 The examples use a mock test called SCHLIM, which has no meaning in itself and only stands in for a real test. A real implementation will usually be more complex than the snippets below.
 
@@ -394,13 +394,11 @@ All existing `audit()` methods for consistency tests return tibbles with a singl
 
 ### Practical steps
 
-Your `audit()` method is simply a function named `audit` plus a dot and your specific class. Call `audit_cols_minimal()` within the method to create a tibble with the three required columns. If you don't use `audit_cols_minimal()`, call `check_audit_special()` in your method.
+Your `audit()` method is simply a function named `audit` plus a dot and your specific class. Call `audit_cols_minimal()` within the method to create a tibble with the three required columns.
 
 ```{r, error=TRUE}
-# The `name_test` argument is only for the alert
-# that might be issued by `check_audit_special()`:
 audit.scrutiny_schlim_map <- function(data) {
-  audit_cols_minimal(data, name_test = "SCHLIM")
+  audit_cols_minimal(data)
 }
 
 # This calls our new method:
@@ -574,7 +572,7 @@ The `n` column is dispersed from half the total with `disperse_total()`. To expo
 
 ## Introduction
 
-`audit_seq()` and `audit_total_n()` summarize the output of sequence and total-n mappers. Unlike `audit()`, they are not generic: they work on the output of any function made by `function_map_seq()` or `function_map_total_n()`, so there is nothing to implement. What remains is to document their behavior for your test.
+`audit_seq()` and `audit_total_n()` summarize the output of sequence and total-n mappers, and `audit()` calls them on such output. They are not generic: they work on the output of any function made by `function_map_seq()` or `function_map_total_n()`, so there is nothing to implement. What remains is to document their behavior for your test.
 
 ## Documentation templates
 

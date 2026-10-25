@@ -11,8 +11,9 @@ grim_binomial(
 )
 }
 \arguments{
-\item{data}{Data frame returned by \code{\link[=grim_map]{grim_map()}} or a function built on
-it, such as \code{\link[=grim_map_seq]{grim_map_seq()}}.}
+\item{data}{Data frame returned by \code{\link[=grim_map]{grim_map()}}. The output of
+\code{\link[=grim_map_seq]{grim_map_seq()}} or \code{\link[=grim_map_total_n]{grim_map_total_n()}} is rejected: its rows are
+hypothetical value sets, not reported ones.}
 
 \item{alternative}{String (length 1). One of \code{"greater"} (the default),
 \code{"less"}, and \code{"two.sided"}.}
@@ -29,10 +30,10 @@ of cases), \code{conf.low}, \code{conf.high}, \code{conf.level}, \code{method}, 
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
-Given the output of \code{\link[=grim_map]{grim_map()}} or a function built on it,
-\code{grim_binomial()} tests whether the rate of GRIM-consistent value sets is
-above what random decimal digits would produce. This approach has not been
-tested extensively; use it with care.
+Given the output of \code{\link[=grim_map]{grim_map()}}, \code{grim_binomial()} tests whether the
+rate of GRIM-consistent value sets is above what random decimal digits
+would produce. This approach has not been tested extensively; use it with
+care.
 }
 \details{
 Under the null hypothesis, the decimal digits of each mean are

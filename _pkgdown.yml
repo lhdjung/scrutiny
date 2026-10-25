@@ -158,7 +158,6 @@ reference:
   - check_mapper_input_colnames
   - manage_helper_col
   - audit_cols_minimal
-  - check_audit_special
 - subtitle: Data frame predicates
   desc: Test for mapper function output
 - contents: is_map_df

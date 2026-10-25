@@ -76,3 +76,15 @@ test_that("a p-value equal to `alpha` rejects in `grim_binomial_power()`", {
     0.5 |> grim_binomial_power(1, k = k, alpha = 0.5^k) |> expect_equal(1)
   }
 })
+
+
+test_that("`grim_binomial()` rejects sequence and total-n output", {
+  # Their rows are hypothetical value sets, inconsistent by construction, so a
+  # p-value over them used to be returned without a word:
+  pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1) |> grim_binomial() |> expect_error("hypothetical")
+  tibble::tibble(x1 = 4.71, x2 = 5.3, n = 40) |>
+    grim_map_total_n(digits_x = c(2, 1), items_averaged = 1) |>
+    grim_binomial() |>
+    expect_error("hypothetical")
+  pigs1 |> grim_binomial() |> expect_error("output of `grim_map()`", fixed = TRUE)
+})
