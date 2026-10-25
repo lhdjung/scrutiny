@@ -129,6 +129,7 @@ Suggests:
     rmarkdown,
     testthat (>= 3.3.0)
 Config/testthat/edition: 3
+Config/testthat/parallel: true
 Depends: 
     R (>= 4.1.0)
 VignetteBuilder: knitr
