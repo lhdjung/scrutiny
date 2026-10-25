@@ -289,7 +289,6 @@ test_that("sequence and total-n mappers take the settings of their basic mapper 
 
 test_that("a promoted setting reaches the test only if it was given", {
   out <- pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, rounding = "up")
-  out |> scrutiny_meta() |> _$fun_args |> expect_equal(list(digits_x = 2, rounding = "up"))
   out |> scrutiny_meta() |> _$args$rounding |> expect_equal("up")
 
   total <- tibble::tibble(x1 = 0.30, x2 = 0.30, sd1 = 0.46, sd2 = 0.46, n = 20)

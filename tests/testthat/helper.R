@@ -27,10 +27,10 @@ grim_args_default <- list(
 
 
 # The whole `"scrutiny"` attribute of `grim_map_seq()` output:
-meta_seq <- function(fun_args, percent = FALSE, var = c("x", "n")) {
+meta_seq <- function(results_reported, percent = FALSE, var = c("x", "n")) {
   list(
     args = utils::modifyList(grim_args_default, list(percent = percent)),
-    fun_args = fun_args,
+    results_reported = results_reported,
     name_key_result = "consistency",
     var = var,
     dispersion_linear = TRUE

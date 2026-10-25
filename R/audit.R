@@ -88,10 +88,6 @@ audit <- function(data) {
 #' audit(out)
 
 audit_seq <- function(data) {
-  # Functions recovered by name from `data`'s classes are looked up here, in the
-  # environment from which `audit_seq()` was called. See `find_fun_by_name()`.
-  env_caller <- rlang::caller_env()
-
   if (!inherits(data, "scrutiny_map_seq")) {
     abort_in_export(
       "Invalid `data` argument.",
@@ -216,38 +212,25 @@ audit_seq <- function(data) {
     )) |>
     suppressWarnings()
 
-  fun_test_name <- data |>
-    class() |>
-    call_on(\(x) x[stringr::str_detect(x, "^scrutiny_.*map$")]) |>
-    stringr::str_remove("^scrutiny_")
-
-  fun_test <- find_fun_by_name(fun_test_name, env_caller)
   data_rev <- reverse_map_seq(data)
 
-  # The `*_map_seq()` output records the arguments that reproduce the test: the
-  # `digits_*` values and everything the user passed through the dots, minus
-  # helper arguments such as `items_averaged`, which are columns of the output,
-  # and so of the reconstructed data. Replaying them keeps the re-test below
-  # faithful to the original call. Arguments like `percent`, `threshold`,
-  # `symmetric`, or GRIMMER's scale bounds change verdicts but leave no trace in
-  # the output columns, so they used to be silently dropped here, which could
-  # flip `consistency`:
-  args_replay <- meta$fun_args
-
-  if (is.null(args_replay)) {
-    # Fallback for output that has lost the attribute, or that was created by
-    # an earlier scrutiny version: the `digits_*` columns are the settings
-    # that the output itself records. Each of them is constant, so the first
-    # value is sufficient; the names match the argument names of `fun_test()`:
-    digits_cols <- grep("^digits_", colnames(data), value = TRUE)
-    args_replay <- digits_cols |>
-      setNames(digits_cols) |>
-      lapply(function(col) data[[col]][[1L]])
+  # The verdicts of the reported value sets come from the sequence mapper's
+  # initial test, recorded on its output for every row of the input data; `case`
+  # is the row number. Reconstructed data used to be tested again here, which
+  # meant finding the mapper by the name in a class string and replaying the
+  # call's arguments, and a dropped argument could flip `consistency`:
+  results_reported <- meta$results_reported
+  if (is.null(results_reported)) {
+    abort_in_export(
+      "`data` has lost the settings of the test that produced it.",
+      "x" = "Some dplyr verbs, such as `summarise()`, drop them.",
+      "i" = "Call `audit_seq()` on the mapper's output directly, or after \\
+      verbs like `filter()`, `slice()`, and `arrange()`."
+    )
   }
 
-  data_rev_tested <- do.call(fun_test, c(list(data_rev), args_replay))
-
-  consistency <- data_rev_tested[[name_key_result]]
+  # `df_list` and `data_rev` are both split by `case`, so they are in this order:
+  consistency <- results_reported[sort(unique(data$case))]
 
   cols_hits <- cols_hits |>
     dplyr::mutate(dplyr::across(
@@ -337,35 +320,4 @@ audit.scrutiny_map_seq <- function(data) {
 #' @export
 audit.scrutiny_map_total_n <- function(data) {
   audit_total_n(data)
-}
-
-
-# `audit_seq()` needs to call the mapper that produced its input, but all it has
-# to go by is the mapper's name, recovered from a class such as
-# `"scrutiny_grim_map"`. Evaluating that name from inside `audit_seq()` would
-# search scrutiny's namespace, so a user's own mapper was only ever found if it
-# happened to live in the global environment. Searching `env` -- the environment
-# from which `audit_seq()` was called -- finds mappers wherever they are
-# defined: in another package's namespace, in a local scope, or in a test block.
-# scrutiny's own namespace is the fallback for callers that can't see scrutiny,
-# as when `audit_seq()` is called via `scrutiny::`.
-
-find_fun_by_name <- function(name, env) {
-  fun <- get0(name, envir = env, mode = "function")
-
-  if (is.null(fun)) {
-    fun <- get0(name, envir = asNamespace("scrutiny"), mode = "function")
-  }
-
-  if (is.null(fun)) {
-    abort_in_export(
-      "Can't find the function `{name}()`.",
-      "x" = "`data` has the {.cls scrutiny_{name}} class, so it should have \\
-      been created by `{name}()`.",
-      "i" = "Make sure `{name}()` can be found from where you call \\
-      `audit_seq()`."
-    )
-  }
-
-  fun
 }

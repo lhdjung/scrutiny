@@ -642,8 +642,8 @@ add_class <- function(x, new_class) {
 #'
 #' - `args`: the arguments that applied to a basic mapper's whole call, with
 #'   defaults resolved, such as `rounding` and `percent`.
-#' - `fun_args`, `name_key_result`, `dispersion_linear`, and `var`: set by
-#'   sequence mappers; see `function_map_seq()`.
+#' - `results_reported`, `name_key_result`, `dispersion_linear`, and `var`:
+#'   set by sequence mappers; see `function_map_seq()`.
 #'
 #' @param x Some object. In scrutiny, always a tibble.
 #'

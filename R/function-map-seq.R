@@ -563,10 +563,10 @@ function_map_seq <- function(
       # recorded, such as the `rounding` that `grim_plot()` reads -- set here
       # rather than left to survive the binding of `fun()`'s outputs above --
       # and these:
-      # - `fun_args`: the arguments that reproduce the test, so that
-      #   `audit_seq()` can re-run `fun()` on reconstructed data with the very
-      #   same settings -- including those that leave no trace in the output
-      #   columns, such as `percent`, `threshold`, or `symmetric`.
+      # - `results_reported`: the verdict of every row of the input data, from
+      #   the initial `fun()` call. `audit_seq()` reports it for each case
+      #   instead of re-testing reconstructed data, which required finding
+      #   `fun()` by name and replaying the call's arguments.
       # - `name_key_result`: `audit_seq()` reads the test results off a column
       #   of `out` and has no other way to learn its name.
       # - `dispersion_linear`: `audit_seq()` and `reverse_map_seq()` only work
@@ -577,7 +577,7 @@ function_map_seq <- function(
       attr(out, "scrutiny") <- c(
         meta_fun,
         list(
-          fun_args = fun_args,
+          results_reported = results,
           name_key_result = name_key_result,
           var = var_requested,
           dispersion_linear = length(dispersion) < 2L ||

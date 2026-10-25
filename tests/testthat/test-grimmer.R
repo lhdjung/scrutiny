@@ -1186,7 +1186,7 @@ test_that("`sd_type` reaches the sequence and total-n mappers", {
   df |> grimmer_map_seq(digits_x = 1, digits_sd = 2, items_averaged = 1, sd_type = "population") |> suppressWarnings() |> nrow() |> expect_equal(0L)
 
   seq_either <- df |> grimmer_map_seq(digits_x = 1, digits_sd = 2, items_averaged = 1, sd_type = "either", include_consistent = TRUE)
-  seq_either |> scrutiny_meta() |> _$fun_args$sd_type |> expect_equal("either")
+  seq_either |> scrutiny_meta() |> _$args$sd_type |> expect_equal("either")
   seq_either |> audit_seq() |> nrow() |> expect_equal(1L)
 
   # Only groups of 5 and 5 fit, and only as population SDs:
