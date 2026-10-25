@@ -847,8 +847,9 @@ check_class <- function(x, cl) {
 #'
 #' Any data frame is admitted, as from `read.csv()` or a PDF table extractor,
 #' and returned as a tibble; anything else is an error. A tibble has no row
-#' names, so row names other than the automatic ones would be dropped in
-#' silence -- study labels, say. They are kept as a `rowname` column instead.
+#' names, so character row names would be dropped in silence -- study labels,
+#' say. They are kept as a `rowname` column instead. Integer row names, as left
+#' by `data[rows, ]`, are row numbers, not labels, and are dropped.
 #'
 #' Note: This assumes the name of the argument in the user-called function is
 #' `data`.
@@ -864,8 +865,18 @@ as_tibble_input <- function(data) {
   }
 
   if (is.data.frame(data)) {
-    rownames <- if (.row_names_info(data) > 0L) "rowname" else NULL
-    return(tibble::as_tibble(data, rownames = rownames))
+    if (!is.character(attr(data, "row.names"))) {
+      return(tibble::as_tibble(data))
+    }
+    if (rlang::has_name(data, "rowname")) {
+      abort_in_export(
+        "!" = "`data` has row names and a `rowname` column.",
+        "x" = "The row names would be returned as a `rowname` column, too.",
+        "i" = "Rename the column, or drop the row names with \\
+        `rownames(data) <- NULL`."
+      )
+    }
+    return(tibble::as_tibble(data, rownames = "rowname"))
   }
 
   msg_what_it_is <- if (is.function(data)) {

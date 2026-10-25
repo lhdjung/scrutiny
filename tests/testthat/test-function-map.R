@@ -932,12 +932,20 @@ test_that("a `data.frame` is coerced to a tibble, keeping its row names", {
   df |> grim_map_seq(digits_x = 2, items_averaged = 1) |>
     expect_equal(grim_map_seq(pigs1, digits_x = 2, items_averaged = 1))
 
-  # A tibble has no row names, so non-automatic ones would be lost in silence.
+  # A tibble has no row names, so character ones would be lost in silence.
   # They are returned as a column instead, like any other column of `data`:
   rownames(df) <- paste0("study_", seq_len(nrow(df)))
   out <- df |> grim_map(digits_x = 2, items_averaged = 1)
   out$rowname |> expect_equal(rownames(df))
   out |> dplyr::select(-rowname) |> expect_equal(from_tibble)
+
+  # Integer row names, as left by `df[rows, ]`, are row numbers, not labels:
+  df <- as.data.frame(pigs1)
+  df[df$n > 25, ] |> grim_map(digits_x = 2, items_averaged = 1) |> rlang::has_name("rowname") |> expect_false()
+
+  # A `rowname` column next to row names would appear twice:
+  df_labeled <- data.frame(x = 5.19, n = 28, rowname = "a", row.names = "study_1")
+  df_labeled |> grim_map(digits_x = 2, items_averaged = 1) |> expect_error("has row names and a `rowname` column")
 
   # A data frame with duplicate column names, as from `read.csv()` with
   # `check.names = FALSE`, is rejected by tibble with its own message:

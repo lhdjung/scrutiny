@@ -54,7 +54,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `audit()` on the output of a sequence or total-n mapper, such as `grim_map_seq()`, now calls `audit_seq()` or `audit_total_n()`. It used to apply the basic mapper's summary, which counted the dispersed rows as reported cases and only printed a hint. `grim_binomial()` and `grim_plot_rates()` reject such output for the same reason: its rows are hypothetical value sets, most of them inconsistent by construction, so a p-value or rate over them said nothing about the study. `audit_cols_minimal()` lost its `name_test` argument, which only served that hint.
 
-- The mappers accept any data frame, not only tibbles, and return a tibble. Row names other than the automatic ones are kept as a `rowname` column, since a tibble has none.
+- The mappers accept any data frame, not only tibbles, and return a tibble. Character row names, such as study labels, are kept as a `rowname` column, since a tibble has none.
 
 - `grim()`, `grimmer()`, and `debit()` no longer have `show_rec` or `show_reason`. These arguments were only intended for internal use by the mappers. The three functions are now vectorized only over the tested values (`x`, `sd`, `n`, and the `digits_*` arguments) and `items_averaged`; `rounding`, `threshold`, `symmetric`, `percent`, `formula`, and `sd_type` must have length 1. Recycling follows the tidyverse rules: an argument must have length 1 or the common length. `grim(x = c(5.19, 5.18, 5.17), n = c(28, 32), digits_x = 2)` is therefore an error; it used to return three results.
 
