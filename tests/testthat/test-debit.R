@@ -435,7 +435,10 @@ test_that("`formula = \"exact\"` passes exactly the real binary samples under ev
     key %in% paste(round(pairs$x * 100), round(pairs$sd * 100))
   }
 
-  for (rounding in c("up_or_down", "up", "even", "ceiling")) {
+  # `sd_type` only changes the SD's denominator, not the rounding, so two
+  # methods suffice: the default and `"even"`, which takes ties both ways. The
+  # test above covers the others, and how `"mean_n"` relates to `"exact"`.
+  for (rounding in c("up_or_down", "even")) {
     for (n in c(1L, 2L, 7L, 20L)) {
       info <- paste0("rounding = ", rounding, ", n = ", n)
       is_population <- real(n, rounding, "population")
@@ -443,12 +446,10 @@ test_that("`formula = \"exact\"` passes exactly the real binary samples under ev
       is_sample <- if (n == 1L) FALSE else real(n, rounding, "sample")
 
       exact  <- grid$x |> debit(grid$sd, n, 2, 2, rounding = rounding, sd_type = "population")
-      mean_n <- grid$x |> debit(grid$sd, n, 2, 2, "mean_n", rounding, sd_type = "population")
       either <- grid$x |> debit(grid$sd, n, 2, 2, rounding = rounding, sd_type = "either")
 
       exact  |> expect_equal(is_population, info = info)
       either |> expect_equal(is_sample | is_population, info = info)
-      (exact & !mean_n) |> any() |> expect_false()
     }
   }
 })
