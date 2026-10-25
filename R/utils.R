@@ -867,23 +867,32 @@ check_class <- function(x, cl) {
 }
 
 
-#' Check whether an object is a tibble
+#' Coerce a user-supplied data frame to a tibble
 #'
-#' Note: This assumes the name of `x` within the user-calles function is `data`.
+#' Any data frame is admitted, as from `read.csv()` or a PDF table extractor,
+#' and returned as a tibble; anything else is an error. A tibble has no row
+#' names, so row names other than the automatic ones would be dropped in
+#' silence -- study labels, say. They are kept as a `rowname` column instead.
 #'
-#' @param x A user-supplied data frame.
+#' Note: This assumes the name of the argument in the user-called function is
+#' `data`.
 #'
-#' @return Logical (length 1).
+#' @param data A user-supplied data frame.
+#'
+#' @return A tibble.
 #'
 #' @noRd
-check_tibble <- function(data) {
+as_tibble_input <- function(data) {
   if (tibble::is_tibble(data)) {
-    return(invisible(NULL))
+    return(data)
   }
 
-  msg_what_it_is <- if (is.data.frame(data)) {
-    c("i" = "Convert it with `tibble::as_tibble()`.")
-  } else if (is.function(data)) {
+  if (is.data.frame(data)) {
+    rownames <- if (.row_names_info(data) > 0L) "rowname" else NULL
+    return(tibble::as_tibble(data, rownames = rownames))
+  }
+
+  msg_what_it_is <- if (is.function(data)) {
     c(
       "x" = "It is {.obj_type_friendly {data}}.",
       "i" = "Is there a variable called `data`? If not, R falls back to the \\
@@ -894,7 +903,7 @@ check_tibble <- function(data) {
   }
 
   abort_in_export(
-    "!" = "`data` must be a tibble.",
+    "!" = "`data` must be a data frame.",
     msg_what_it_is
   )
 }

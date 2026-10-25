@@ -69,7 +69,7 @@
 #'   element of the output's `"scrutiny"` attribute.
 #'
 #' @return A function with these arguments:
-#' - `data`: a tibble with the key columns. Other columns are permitted.
+#' - `data`: a data frame with the key columns. Other columns are permitted.
 #' - One argument per `.reported` value, for passing the name of a column of
 #'   `data` that contains that value under another name.
 #' - If `.reported_variadic` was given, an argument by that name.
@@ -451,7 +451,7 @@ function_map <- function(
       # Checks ---
 
       # What `data` is comes first, before anything reads columns off it:
-      check_tibble(data)
+      data <- as_tibble_input(data)
 
       # Manage key columns in `data`, renaming missing columns using the values
       # of key arguments, if necessary:

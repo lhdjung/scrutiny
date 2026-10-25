@@ -77,7 +77,7 @@ are tested. It has no default. See \emph{Details}.}
 \value{
 A function with these arguments:
 \itemize{
-\item \code{data}: a tibble with the key columns. Other columns are permitted.
+\item \code{data}: a data frame with the key columns. Other columns are permitted.
 \item One argument per \code{.reported} value, for passing the name of a column of
 \code{data} that contains that value under another name.
 \item If \code{.reported_variadic} was given, an argument by that name.

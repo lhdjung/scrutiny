@@ -120,7 +120,8 @@ out_debit_new2 <- df_debit2 |> debit_map_alt(digits_x = 2, digits_sd = 2) # fmt:
 out_grim_old_renamed <- out_grim_old1 |>
   dplyr::rename(success = consistency)
 
-out_grim_new_renamed <- df_grim1 |> grim_map_alt_renamed(digits_x = 2, items_averaged = 1)
+out_grim_new_renamed <- df_grim1 |>
+  grim_map_alt_renamed(digits_x = 2, items_averaged = 1)
 
 out_debit_old_renamed <- out_debit_old1 |>
   dplyr::rename(success = consistency)
@@ -662,11 +663,10 @@ test_that("a mapper called on a 0-row data frame returns a valid tibble", {
 })
 
 
-test_that("`data` must be a tibble, and that is checked first of all", {
-  # Anything other than a tibble is rejected before the mapper reads a single
-  # column name -- including a `data.frame`, which is never admitted even for
-  # the length of one more check. Only the wording of the error depends on what
-  # the object turned out to be.
+test_that("`data` must be a data frame, and that is checked first of all", {
+  # Anything other than a data frame is rejected before the mapper reads a
+  # single column name. Only the wording of the error depends on what the
+  # object turned out to be.
   for (mapper in list(
     function(d) grim_map(d, digits_x = 2, items_averaged = 1),
     function(d) grimmer_map(d, digits_x = 2, digits_sd = 2, items_averaged = 1),
@@ -675,16 +675,12 @@ test_that("`data` must be a tibble, and that is checked first of all", {
     function(d) grim_map_total_n(d, digits_x = 2, items_averaged = 1)
   )) {
     # Not aligning pipes here because the lengths are too different
-    pigs1 |> as.data.frame() |> mapper() |> expect_error("must be a tibble")
-    pigs1 |> as.matrix() |> mapper() |> expect_error("must be a tibble")
-    1:10 |> mapper() |> expect_error("must be a tibble")
-    NULL |> mapper() |> expect_error("must be a tibble")
+    pigs1 |> as.matrix() |> mapper() |> expect_error("must be a data frame")
+    1:10 |> mapper() |> expect_error("must be a data frame")
+    NULL |> mapper() |> expect_error("must be a data frame")
   }
 
-  # A `data.frame` gets the conversion hint...
-  pigs1 |> as.data.frame() |> grim_map(digits_x = 2, items_averaged = 1) |>
-    expect_error("as_tibble")
-  # ...and everything else is named for what it is:
+  # Everything else is named for what it is:
   1:10 |> grim_map(digits_x = 2, items_averaged = 1) |> expect_error("integer vector")
 
   # The most confusing case is an undefined `data`, which R resolves to
@@ -693,7 +689,7 @@ test_that("`data` must be a tibble, and that is checked first of all", {
   # when the tests run interactively. This used to be reported as the key
   # columns missing from `data`, which blamed the user's data for what was
   # really the wrong object:
-  utils::data |> grim_map(digits_x = 2, items_averaged = 1) |> expect_error("must be a tibble")
+  utils::data |> grim_map(digits_x = 2, items_averaged = 1) |> expect_error("must be a data frame")
   utils::data |> grim_map(digits_x = 2, items_averaged = 1) |> expect_error("`data\\(\\)` function")
   utils::data |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
     expect_error("`data\\(\\)` function")
@@ -930,4 +926,30 @@ test_that("a by-row argument with a default takes its values from a column", {
 test_that("a space in `.name_test` becomes an underscore in the class", {
   spaced <- function_map(.fun = function(x, n) x > n, .reported = c("x", "n"), .name_test = "My Test")
   tibble::tibble(x = 1, n = 0) |> spaced() |> class() |> purrr::pluck(1) |> expect_equal("scrutiny_my_test_map")
+})
+
+
+test_that("a `data.frame` is coerced to a tibble, keeping its row names", {
+  # Tables from `read.csv()` or a PDF extractor are data frames, so rejecting
+  # them hit the main workflow on the first call. The result is the same as
+  # for the tibble, and the output is a tibble:
+  df <- as.data.frame(pigs1)
+  from_tibble <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1)
+  from_df     <- df    |> grim_map(digits_x = 2, items_averaged = 1)
+  from_df |> expect_equal(from_tibble)
+  df |> grim_map_seq(digits_x = 2, items_averaged = 1) |>
+    expect_equal(grim_map_seq(pigs1, digits_x = 2, items_averaged = 1))
+
+  # A tibble has no row names, so non-automatic ones would be lost in silence.
+  # They are returned as a column instead, like any other column of `data`:
+  rownames(df) <- paste0("study_", seq_len(nrow(df)))
+  out <- df |> grim_map(digits_x = 2, items_averaged = 1)
+  out$rowname |> expect_equal(rownames(df))
+  out |> dplyr::select(-rowname) |> expect_equal(from_tibble)
+
+  # A data frame with duplicate column names, as from `read.csv()` with
+  # `check.names = FALSE`, is rejected by tibble with its own message:
+  df_dup <- data.frame(x = 1, n = 2, check.names = FALSE)
+  names(df_dup) <- c("x", "x")
+  df_dup |> grim_map(digits_x = 2, items_averaged = 1) |> expect_error("must not be duplicated")
 })

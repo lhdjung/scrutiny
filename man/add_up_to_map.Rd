@@ -7,7 +7,7 @@
 add_up_to_map(data, summands, total = NULL, ...)
 }
 \arguments{
-\item{data}{Tibble with a \code{total} column and the columns to add up. Any
+\item{data}{Data frame with a \code{total} column and the columns to add up. Any
 other columns are returned alongside the results.}
 
 \item{summands}{Columns of \code{data} to add up, selected with tidyselect, such

@@ -8,7 +8,7 @@
 #'
 #'   Call [`audit()`] on the output for summary statistics.
 #'
-#' @param data Tibble with a `total` column and the columns to add up. Any
+#' @param data Data frame with a `total` column and the columns to add up. Any
 #'   other columns are returned alongside the results.
 #' @param summands Columns of `data` to add up, selected with tidyselect, such
 #'   as `starts_with("n_")`. There is no default.

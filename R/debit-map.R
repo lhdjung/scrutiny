@@ -6,7 +6,7 @@
 #'   Call [`audit()`] on the output for summary statistics and
 #'   [`debit_plot()`] to visualize it.
 #'
-#' @param data Tibble with columns `x`, `sd`, and `n`. Any other columns are
+#' @param data Data frame with columns `x`, `sd`, and `n`. Any other columns are
 #'   returned alongside the results.
 #' @param digits_x,digits_sd Integer. The number of decimal places in `x` and
 #'   `sd`, including trailing zeros. There are no defaults, since a numeric

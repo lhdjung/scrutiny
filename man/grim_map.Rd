@@ -20,7 +20,7 @@ grim_map(
 )
 }
 \arguments{
-\item{data}{Tibble with columns \code{x} and \code{n}, and optionally
+\item{data}{Data frame with columns \code{x} and \code{n}, and optionally
 \code{items_averaged}. Any other columns are returned alongside the results.}
 
 \item{digits_x}{Integer. The number of decimal places in \code{x}, including

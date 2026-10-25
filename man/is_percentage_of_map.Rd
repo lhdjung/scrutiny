@@ -17,7 +17,7 @@ is_percentage_of_map(
 )
 }
 \arguments{
-\item{data}{Tibble with columns \code{absolute}, \code{percentage}, and \code{n}. Any
+\item{data}{Data frame with columns \code{absolute}, \code{percentage}, and \code{n}. Any
 other columns are returned alongside the results.}
 
 \item{digits_percentage}{Integer. The number of decimal places in

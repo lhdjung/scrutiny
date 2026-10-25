@@ -91,7 +91,7 @@ The vectorized function is not used in the rest of the vignette, which builds on
 
 The most important practical use of a consistency test within scrutiny is to apply it to entire data frames at once, as `grim_map()` does. That's also the starting point for every other function below.
 
-The mapper functions require [tibbles](https://r4ds.had.co.nz/tibbles.html) and reject other data frames.
+The mapper functions accept any data frame and return a [tibble](https://r4ds.had.co.nz/tibbles.html).
 
 ## Creating basic mappers with `function_map()`
 

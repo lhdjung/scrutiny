@@ -379,7 +379,7 @@ function_map_total_n <- function(
       fun <- `!!`(.fun)
 
       # What `data` is comes first, before anything reads columns off it:
-      check_tibble(data)
+      data <- as_tibble_input(data)
 
       data <- absorb_key_args(data, c(reported_reduplicated, "n"))
 

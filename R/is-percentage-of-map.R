@@ -8,7 +8,7 @@
 #'   Call [`audit()`] on the output for summary statistics. See
 #'   [`is_percentage_of()`] for causes of inconsistencies.
 #'
-#' @param data Tibble with columns `absolute`, `percentage`, and `n`. Any
+#' @param data Data frame with columns `absolute`, `percentage`, and `n`. Any
 #'   other columns are returned alongside the results.
 #' @param digits_percentage Integer. The number of decimal places in
 #'   `percentage`, including trailing zeros. There is no default, since a

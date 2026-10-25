@@ -8,7 +8,7 @@
 #'   [`audit()`] on the output for summary statistics and [`grim_plot()`] to
 #'   visualize it.
 #'
-#' @param data Tibble with columns `x` and `n`, and optionally
+#' @param data Data frame with columns `x` and `n`, and optionally
 #'   `items_averaged`. Any other columns are returned alongside the results.
 #' @param digits_x Integer. The number of decimal places in `x`, including
 #'   trailing zeros. There is no default, since a numeric value does not keep

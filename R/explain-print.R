@@ -30,7 +30,7 @@
 #'   dplyr::filter(!consistency) |>
 #'   explain_print()
 explain_print <- function(data, ...) {
-  check_tibble(data)
+  data <- as_tibble_input(data)
 
   # `dplyr::slice()` without any rows given returns none, not all:
   rows <- if (...length() == 0L) data else dplyr::slice(data, ...)

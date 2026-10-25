@@ -21,7 +21,7 @@ grimmer_map(
 )
 }
 \arguments{
-\item{data}{Tibble with columns \code{x}, \code{sd}, and \code{n}, and optionally
+\item{data}{Data frame with columns \code{x}, \code{sd}, and \code{n}, and optionally
 \code{items_averaged}. Any other columns are returned alongside the results.}
 
 \item{digits_x, digits_sd}{Integer. The number of decimal places in \code{x} and
