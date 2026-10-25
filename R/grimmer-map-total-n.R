@@ -14,7 +14,9 @@
 #' @param digits_x,digits_sd Integer. The number of decimal places in the means
 #'   and SDs, including trailing zeros. There are no defaults, since a numeric
 #'   value does not keep them (`1.40` is `1.4`). Either a single number for both
-#'   groups, or two numbers, one per group.
+#'   groups, or two numbers, one per group. They apply to every row of `data`;
+#'   if the decimal places of a group differ by row, call the function on each
+#'   set of rows separately.
 #' @param x1,x2,sd1,sd2,n Optionally, the names of the columns in `data` that
 #'   contain these values, if they differ from the defaults.
 #' @param items_averaged Integer. As in [`grimmer_map()`]: the number of items

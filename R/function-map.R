@@ -587,14 +587,17 @@ function_map <- function(
       }
 
       # Test for consistency:
-      results <- do.call(
-        purrr::pmap,
-        c(
-          list(cols_tested, fun),
-          args_const_vals,
-          args_fixed,
-          list(...)
-        )
+      results <- withCallingHandlers(
+        do.call(
+          purrr::pmap,
+          c(
+            list(cols_tested, fun),
+            args_const_vals,
+            args_fixed,
+            list(...)
+          )
+        ),
+        purrr_error_indexed = rethrow_row_error
       )
 
       # The key columns of the output, followed by the helper columns that were

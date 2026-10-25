@@ -295,3 +295,10 @@ test_that("a promoted setting reaches the test only if it was given", {
   total |> debit_map_total_n(digits_x = 2, digits_sd = 2, formula = "mean_n") |> scrutiny_meta() |> _$args$formula |> expect_equal("mean_n")
   total |> debit_map_total_n(digits_x = 2, digits_sd = 2)                     |> scrutiny_meta() |> _$args$formula |> expect_equal("exact")
 })
+
+
+test_that("an error names the row of `data`, not of the scenarios", {
+  tibble::tibble(x1 = c(3.8, 4.5, 3.1), x2 = c(3.7, 4.56, 2.1), n = c(30, 40, 20)) |>
+    grim_map_total_n(digits_x = 1, items_averaged = 1) |>
+    expect_error("In row 2 of `data`", fixed = TRUE)
+})

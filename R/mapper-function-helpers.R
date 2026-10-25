@@ -300,3 +300,19 @@ check_grim_map_basic <- function(data) {
   }
   abort_in_export("`data` must be the output of `grim_map()`.", msg_what_it_is)
 }
+
+
+# `purrr::pmap()` wraps an error in an indexed-error context that names purrr's
+# own anonymous function as the call ("In index: 14."). Re-signal the test's
+# error itself, naming the row of `data`. The row is also kept as a field, so
+# that a total-n mapper can name the row of its own `data` instead. An error
+# not made by rlang has no body to add to, so it propagates as it is:
+rethrow_row_error <- function(cnd) {
+  error <- cnd$parent
+  if (!inherits(error, "rlang_error")) {
+    return()
+  }
+  error$scrutiny_row <- cnd$location
+  error$body <- c(error$body, "i" = paste0("In row ", cnd$location, " of `data`."))
+  rlang::cnd_signal(error)
+}

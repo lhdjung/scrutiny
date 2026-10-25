@@ -112,6 +112,8 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 ### Sequence and total-n mappers
 
+- An error in a row of `data` other than the first is no longer wrapped in purrr's "In index" context, which named an internal function as its source. The mappers give the test's own error and name the row of `data`; in the total-n mappers, that is the row of the reported values, not of a hypothetical scenario.
+
 - `reverse_map_seq()` and `audit_seq()` now reconstruct the reported values from the `diff_var` column, which records the number of steps between each dispersed value and the reported one. Previously, they inferred the reported value from the position of the gap in the sequence, which failed when `out_min` or `out_max` had cut the sequence short. `audit_seq()` could then test the wrong value and report the opposite result.
 
 - `audit_seq()` reports the verdicts of the reported value sets as the sequence mapper recorded them, instead of re-testing reconstructed data, which could silently drop `percent`, `threshold`, or `symmetric` and flip the verdict. The mapper no longer has to be findable from where `audit_seq()` is called. It also works with a `dispersion` of length 1, with output that has no rows, and with cases whose dispersed sequence is empty because of `out_min` or `out_max`. A consistent reported value set, included under `include_reported = TRUE`, now counts once in `hits_total` rather than once per dispersed variable, and the output has the same columns whether or not a variable's dispersion was clipped away entirely.

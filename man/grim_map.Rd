@@ -40,7 +40,10 @@ a column.}
 
 \item{percent}{Logical. If \code{TRUE}, the \code{x} values are percentages: they are
 divided by 100 and tested with two more decimal places. Default is
-\code{FALSE}.}
+\code{FALSE}. It applies to the whole call, so test a table that mixes means
+and percentages part by part, as in the examples. The parts can be
+combined with \code{\link[dplyr:bind_rows]{dplyr::bind_rows()}}, but plot each one on its own:
+\code{\link[=grim_plot]{grim_plot()}} reads \code{percent} from the call.}
 
 \item{show_rec}{Logical. If \code{TRUE}, the reconstructed numbers are returned
 as columns; see \emph{Reconstructed numbers}. Default is \code{FALSE}.}
@@ -122,6 +125,21 @@ pigs1 |>
 pigs1 |>
   grim_map(digits_x = 2, items_averaged = 1) |>
   audit()
+
+# A table of means and percentages, tested part by part:
+df <- tibble::tibble(
+  x = c(5.19, 71),
+  n = c(32, 43),
+  is_percent = c(FALSE, TRUE)
+)
+dplyr::bind_rows(
+  df |>
+    dplyr::filter(!is_percent) |>
+    grim_map(digits_x = 2, items_averaged = 1),
+  df |>
+    dplyr::filter(is_percent) |>
+    grim_map(digits_x = 0, items_averaged = 1, percent = TRUE)
+)
 }
 \references{
 Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A

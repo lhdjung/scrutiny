@@ -31,7 +31,9 @@ does not matter, since both pairings with the group sizes are tested.}
 \item{digits_x}{Integer. The number of decimal places in \code{x1} and \code{x2},
 including trailing zeros. There is no default, since a numeric value does
 not keep them (\code{1.40} is \code{1.4}). Either a single number for both groups,
-or two numbers, one for \code{x1} and one for \code{x2}.}
+or two numbers, one for \code{x1} and one for \code{x2}. They apply to every row of
+\code{data}; if the decimal places of a group differ by row, call the function
+on each set of rows separately.}
 
 \item{x1, x2, n}{Optionally, the names of the columns in \code{data} that contain
 these values, if they differ from the defaults.}
@@ -45,7 +47,10 @@ There is no default.}
 
 \item{percent}{Logical. If \code{TRUE}, the \code{x} values are percentages: they are
 divided by 100 and tested with two more decimal places. Default is
-\code{FALSE}.}
+\code{FALSE}. It applies to the whole call, so test a table that mixes means
+and percentages part by part, as in the examples. The parts can be
+combined with \code{\link[dplyr:bind_rows]{dplyr::bind_rows()}}, but plot each one on its own:
+\code{\link[=grim_plot]{grim_plot()}} reads \code{percent} from the call.}
 
 \item{show_rec}{Logical. If \code{TRUE}, the reconstructed numbers are returned
 as columns; see \emph{Reconstructed numbers}. Default is \code{FALSE}.}

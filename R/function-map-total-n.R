@@ -144,7 +144,21 @@ function_map_total_n_proto <- function(
       out_df[[name]] <- data[[name]][case]
     }
 
-    out_df <- do.call(fun, c(list(out_df), dots))
+    # A row of `out_df` is a scenario, not a row of the user's `data`, so an
+    # error names the case it belongs to (see `rethrow_row_error()`):
+    out_df <- withCallingHandlers(
+      do.call(fun, c(list(out_df), dots)),
+      error = function(cnd) {
+        if (is.null(cnd$scrutiny_row)) {
+          return()
+        }
+        cnd$body[length(cnd$body)] <- paste0(
+          "In row ", case[cnd$scrutiny_row], " of `data`."
+        )
+        cnd$scrutiny_row <- NULL
+        rlang::cnd_signal(cnd)
+      }
+    )
 
     check_key_result_col(out_df, name_key_result, name_fun)
 

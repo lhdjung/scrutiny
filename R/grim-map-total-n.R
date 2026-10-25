@@ -14,7 +14,9 @@
 #' @param digits_x Integer. The number of decimal places in `x1` and `x2`,
 #'   including trailing zeros. There is no default, since a numeric value does
 #'   not keep them (`1.40` is `1.4`). Either a single number for both groups,
-#'   or two numbers, one for `x1` and one for `x2`.
+#'   or two numbers, one for `x1` and one for `x2`. They apply to every row of
+#'   `data`; if the decimal places of a group differ by row, call the function
+#'   on each set of rows separately.
 #' @param x1,x2,n Optionally, the names of the columns in `data` that contain
 #'   these values, if they differ from the defaults.
 #' @param dispersion Numeric. Steps up and down from half the total `n`.

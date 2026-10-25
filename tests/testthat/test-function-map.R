@@ -948,3 +948,9 @@ test_that("a `data.frame` is coerced to a tibble, keeping its row names", {
   names(df_dup) <- c("x", "x")
   df_dup |> grim_map(digits_x = 2, items_averaged = 1) |> expect_error("must not be duplicated")
 })
+
+
+test_that("an error in a later row names that row, not purrr's index", {
+  tibble::tibble(x = c(5.19, 5.123), n = c(28, 30)) |> grim_map(digits_x = 2, items_averaged = 1) |> expect_error("In row 2 of `data`", fixed = TRUE)
+  tibble::tibble(x = c(5.19, 5.123), n = c(28, 30)) |> grim_map(digits_x = 2, items_averaged = 1) |> expect_error(class = "rlang_error") |> class() |> expect_no_match("purrr_error_indexed")
+})

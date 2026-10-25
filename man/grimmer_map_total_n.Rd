@@ -34,7 +34,9 @@ are tested, but \code{x1} must belong with \code{sd1} and \code{x2} with \code{s
 \item{digits_x, digits_sd}{Integer. The number of decimal places in the means
 and SDs, including trailing zeros. There are no defaults, since a numeric
 value does not keep them (\code{1.40} is \code{1.4}). Either a single number for both
-groups, or two numbers, one per group.}
+groups, or two numbers, one per group. They apply to every row of \code{data};
+if the decimal places of a group differ by row, call the function on each
+set of rows separately.}
 
 \item{x1, x2, sd1, sd2, n}{Optionally, the names of the columns in \code{data} that
 contain these values, if they differ from the defaults.}
