@@ -139,7 +139,7 @@ test_that("the `show_*` columns keep their shape and their types", {
       "Missing value"
     ))
 
-  out_debit <- df_debit |> debit_map(digits_x = 2, digits_sd = 2)
+  out_debit <- df_debit |> debit_map(digits_x = 2, digits_sd = 2, show_rec = TRUE)
   out_debit$sd_lower[2:3] |> expect_equal(c(NA_real_, NA_real_))
   out_debit$sd_lower |> expect_type("double")
 })

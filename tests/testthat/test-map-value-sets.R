@@ -43,10 +43,11 @@ test_that("the internal-only arguments are gone from the exported functions", {
     grimmer(sd = 2.55, n = 31, digits_x = 2, digits_sd = 2, items_averaged = 1, show_reason = TRUE) |>
     expect_error()
 
-  # `grim_map()` still has `show_rec`; the other two mappers fix theirs:
+  # `grim_map()` and `debit_map()` still have `show_rec`; `grimmer_map()` fixes
+  # its `show_reason`:
   grim_map    |> formals() |> rlang::has_name("show_rec")    |> expect_true()
   grimmer_map |> formals() |> rlang::has_name("show_reason") |> expect_false()
-  debit_map   |> formals() |> rlang::has_name("show_rec")    |> expect_false()
+  debit_map   |> formals() |> rlang::has_name("show_rec")    |> expect_true()
 })
 
 
