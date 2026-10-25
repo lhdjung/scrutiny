@@ -390,10 +390,6 @@ next_square_root <- function(m) {
 }
 
 
-is_square <- function(m) {
-  m >= 0 && round(sqrt(m))^2 == m
-}
-
 # Is `m == x^2 + x * y + y^2` for some whole `x` and `y`? Equivalently, is
 # `4 * m - 3 * y^2` a square (that of `2 * x + y`) for some `y`?
 is_loeschian <- function(m) {

@@ -110,7 +110,7 @@ decimal_places <- function(x, sep = ".") {
 # notation is affected, so the common case costs one fixed-string match:
 number_to_string <- function(x) {
   out <- as.character(x)
-  for (i in which(grepl("e", out, fixed = TRUE))) {
+  for (i in grep("e", out, fixed = TRUE)) {
     digits <- nchar(gsub("[^0-9]", "", sub("e.*$", "", out[i])))
     if (digits >= 15L) {
       for (digits in 1:15) {

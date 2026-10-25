@@ -1118,27 +1118,6 @@ split_into_rows <- function(data) {
 }
 
 
-#' Lowest step size (stride) of decimal numbers
-#'
-#' Computes the smallest possible difference between two numbers on the lowest
-#' decimal level of `x`. This goes by the one element of `x` with the most
-#' decimal numbers.
-#'
-#' For example, if `x` is `c(7, 3.5, 8.27)`, the greatest number of decimal
-#' places is 2, and the smallest possible difference on the level of two decimal
-#' places is `0.01`, so this value is returned.
-#'
-#' @param x Numeric (or string coercible to numeric).
-#'
-#' @return Numeric.
-#'
-#' @noRd
-step_size <- function(x) {
-  digits <- max(decimal_places(x))
-  1 / (10^digits)
-}
-
-
 #' Sequence typing helper
 #'
 #' This helper is called within `seq_disperse()`. It processes its

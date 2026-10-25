@@ -16,7 +16,7 @@ test_that("The S3 inheritance check works correctly", {
 
 test_that("the DEBIT lines for the smallest and largest `n` bound a band", {
   # A single line used to take the whole `n` column, recycled along the curve:
-  data <- tibble::tibble(x = c(.5, .3, .6), sd = c(.71, .47, .55), n = c(2, 50, 3)) |>
+  data <- tibble::tibble(x = c(0.5, 0.3, 0.6), sd = c(0.71, 0.47, 0.55), n = c(2, 50, 3)) |>
     debit_map(digits_x = 2, digits_sd = 2)
   built <- data |> debit_plot() |> ggplot2::ggplot_build() |> purrr::pluck("data")
   at_half <- function(l, col) l[[col]][which.min(abs(l$x - 0.5))]
@@ -50,8 +50,8 @@ test_that("`debit_plot()` returns the plot instead of printing it", {
 
 test_that("rectangles are sized per row, and `NA` rows are dropped out loud", {
   data <- tibble::tibble(
-    x = c(.5, .35),
-    sd = c(.5, .48),
+    x = c(0.5, 0.35),
+    sd = c(0.5, 0.48),
     n = c(40, 40)
   ) |>
     debit_map(digits_x = c(1, 2), digits_sd = 2)
@@ -61,13 +61,13 @@ test_that("rectangles are sized per row, and `NA` rows are dropped out loud", {
   # Each rectangle is drawn over a point at the reported values, so that it
   # shows up even if it is too small to see:
   points <- built[[length(built) - 3L]]
-  points[c("x", "y")] |> expect_equal(data.frame(x = c(.5, .35), y = c(.5, .48)))
+  points[c("x", "y")] |> expect_equal(data.frame(x = c(0.5, 0.35), y = c(0.5, 0.48)))
   # Trailing zeros are restored in the labels:
   built[[length(built)]]$label |> expect_equal(c("0.5; 0.50", "0.35; 0.48"))
 
   data_na <- tibble::tibble(
-    x = c(.5, NA),
-    sd = c(.5, .48),
+    x = c(0.5, NA),
+    sd = c(0.5, 0.48),
     n = c(40, 40)
   ) |>
     debit_map(digits_x = 2, digits_sd = 2)
@@ -158,8 +158,8 @@ test_that("`debit_plot()` says when it thins the marks", {
 
 test_that("colors come from a scale that another one replaces", {
   data <- tibble::tibble(
-    x = c(.35, .05),
-    sd = c(.48, .21),
+    x = c(0.35, 0.05),
+    sd = c(0.48, 0.21),
     n = c(40, 20)
   ) |>
     debit_map(digits_x = 2, digits_sd = 2)
@@ -193,7 +193,7 @@ test_that("`debit_plot()` says that there are no rows to plot", {
 })
 
 test_that("`debit_plot()` draws the line of the SD type that was tested", {
-  data <- tibble::tibble(x = c(.3, 1), sd = c(.46, 0), n = c(10, 1))
+  data <- tibble::tibble(x = c(0.3, 1), sd = c(0.46, 0), n = c(10, 1))
   at_half <- function(l) l$y[which.min(abs(l$x - 0.5))]
   lines_at_half <- function(plot) {
     is_line <- plot$layers |> vapply(function(l) inherits(l$geom, "GeomFunction"), TRUE)
