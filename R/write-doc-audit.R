@@ -107,7 +107,7 @@ write_doc_audit <- function(sample_output, name_test) {
 #'
 #' @return A string vector formatted by [`glue::glue()`].
 #'
-#' @seealso [`write_doc_audit_total_n()`] and
+#' @seealso `write_doc_audit_total_n()` and
 #'   `vignette("consistency-tests-in-depth")`.
 #'
 #' @examples
@@ -165,7 +165,7 @@ write_doc_audit_seq <- function(key_args, name_test) {
 #'
 #' @return A string vector formatted by [`glue::glue()`].
 #'
-#' @seealso [`write_doc_audit_seq()`] and
+#' @seealso `write_doc_audit_seq()` and
 #'   `vignette("consistency-tests-in-depth")`.
 #'
 #' @examples

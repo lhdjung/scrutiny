@@ -125,6 +125,7 @@ Collate:
 Suggests:
     ggrepel,
     knitr,
+    pillar,
     pkgload,
     rmarkdown,
     testthat (>= 3.3.0)

@@ -21,18 +21,32 @@ the call that produced its output in a list attribute named \code{"scrutiny"}.
 which rounding method or SD convention a verdict was reached. Classes are
 for method dispatch only and carry no settings.
 
-The list has these elements:
+Every mapper's list has one element:
 \itemize{
 \item \code{args}: the arguments that applied to the whole call, with defaults
-resolved, such as \code{rounding}, \code{percent}, or \code{sd_type}. Arguments that vary
-by row, such as \code{digits_x}, are columns of the output instead.
-\item \code{results_reported}, \code{name_key_result}, \code{var}, and \code{dispersion_linear}:
-added by sequence mappers, such as \code{\link[=grim_map_seq]{grim_map_seq()}}. \code{results_reported}
-is the verdict of every row of the input data, which \code{\link[=audit_seq]{audit_seq()}}
-reports; \code{var} names the dispersed variables.
+resolved, such as \code{rounding}, \code{percent}, or \code{sd_type}. Arguments that may
+vary by row are columns of the output instead: \code{digits_x}, \code{digits_sd},
+and helper arguments such as \code{items_averaged}, even if given as a single
+value.
 
-Some dplyr verbs, such as \code{summarise()}, drop the attribute; \code{filter()},
-\code{arrange()}, and \code{mutate()} keep it.
+The output of sequence mappers, such as \code{\link[=grim_map_seq]{grim_map_seq()}}, has four more:
+\item \code{results_reported}: the verdict of every row of the input data, which
+\code{\link[=audit_seq]{audit_seq()}} reports.
+\item \code{name_key_result}: the name of the column with the verdicts, usually
+\code{"consistency"}.
+\item \code{var}: the dispersed variables.
+\item \code{dispersion_linear}: whether the dispersion was linear, which
+\code{\link[=audit_seq]{audit_seq()}} requires.
+
+The settings of the sequence or total-n call itself, such as \code{dispersion},
+are not recorded.
+
+When the output of \code{\link[=grim_map]{grim_map()}}, \code{\link[=grimmer_map]{grimmer_map()}}, \code{\link[=debit_map]{debit_map()}}, or
+\code{\link[=is_percentage_of_map]{is_percentage_of_map()}} is printed, a line in the header names the
+settings that differ from the mapper's defaults, as in \verb{# GRIM: rounding = "up"}. This includes sequence and total-n output.
+
+Some dplyr verbs, such as \code{summarise()}, drop the attribute, and with it
+the header line; \code{filter()}, \code{arrange()}, and \code{mutate()} keep it.
 }
 }
 \examples{
