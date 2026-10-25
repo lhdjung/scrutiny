@@ -17,6 +17,7 @@ debit_map_seq(
   threshold = 5,
   symmetric = FALSE,
   sd_type = c("sample", "population", "either"),
+  show_rec = FALSE,
   var = c("x", "sd", "n"),
   dispersion = 1:5,
   out_min = "auto",
@@ -41,6 +42,9 @@ named in full.}
 
 \item{formula, rounding, threshold, symmetric, sd_type}{Passed on to
 \code{\link[=debit]{debit()}}.}
+
+\item{show_rec}{Logical. If \code{TRUE}, the reconstructed values are returned
+as further columns; see \emph{Value}. Default is \code{FALSE}.}
 
 \item{var}{String. The variables to disperse. Default is
 \code{c("x", "sd", "n")}.}

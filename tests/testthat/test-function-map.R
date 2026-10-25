@@ -206,15 +206,11 @@ test_that("`.args_by_row` allows one value per row and returns a column", {
 
 
 test_that("`.col_names` unpacks the test function's values, keeping types", {
-  out <- pigs3 |> debit_map(digits_x = 2, digits_sd = 2)
+  out <- pigs3 |> debit_map(digits_x = 2, digits_sd = 2, show_rec = TRUE)
 
   out$consistency |> expect_type("logical")
   out$sd_incl_lower |> expect_type("logical")
   out$sd_lower |> expect_type("double")
-
-  # `show_rec` is fixed, so the mapper has no such argument:
-  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, show_rec = FALSE) |>
-    expect_error("disabled")
 })
 
 

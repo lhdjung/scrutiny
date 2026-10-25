@@ -122,8 +122,24 @@ debit_plot <- function(
     )
   }
 
-  # The bounds are missing if they were dropped. Subsetting used to fail with
-  # a vctrs error:
+  # `debit_map()` returns the bounds only under `show_rec = TRUE`, so they are
+  # reconstructed here under the settings it recorded:
+  cols_rec <- setdiff(cols_needed, c("x", "sd", "n", "consistency"))
+  if (!all(cols_rec %in% colnames(data))) {
+    check_cols_needed(data, c("x", "sd", "n", "digits_x", "digits_sd"))
+    args <- scrutiny_meta(data)$args
+    args$show_rec <- TRUE
+    rec <- do.call(
+      debit_map,
+      c(
+        list(data[c("x", "sd", "n")], digits_x = data$digits_x, digits_sd = data$digits_sd),
+        args
+      )
+    )
+    data[cols_rec] <- rec[cols_rec]
+  }
+
+  # Subsetting used to fail with a vctrs error if a column was missing:
   check_cols_needed(data, cols_needed, "i" = "`debit_map()` output has them.")
 
   is_complete <- stats::complete.cases(data[cols_needed])

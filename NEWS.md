@@ -50,7 +50,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - DEBIT's `formula` lists its values in the signature, `formula = c("exact", "mean_n")`, as does the new `sd_type`. The first value is the default, and an invalid one gives the error of `rlang::arg_match()`.
 
-- `debit_map()` no longer has `show_rec` and `grimmer_map()` no longer has `show_reason`: the reconstructed values and the `reason` column are always returned. `debit_map()` output no longer has a `rounding` column; the rounding method is recorded in the `"scrutiny"` attribute. `audit()` on `grimmer_map()` output no longer has a `fail_test2` column.
+- `debit_map()`'s `show_rec` now defaults to `FALSE`, as `grim_map()`'s does, so the eight reconstruction columns are only returned on request. `debit_plot()` reconstructs the values itself. `grimmer_map()` no longer has `show_reason`: the `reason` column is always returned. `debit_map()` output no longer has a `rounding` column; the rounding method is recorded in the `"scrutiny"` attribute. `audit()` on `grimmer_map()` output no longer has a `fail_test2` column.
 
 - `audit()` on the output of a sequence or total-n mapper, such as `grim_map_seq()`, now calls `audit_seq()` or `audit_total_n()`. It used to apply the basic mapper's summary, which counted the dispersed rows as reported cases and only printed a hint. `grim_binomial()` and `grim_plot_rates()` reject such output for the same reason: its rows are hypothetical value sets, most of them inconsistent by construction, so a p-value or rate over them said nothing about the study. `audit_cols_minimal()` lost its `name_test` argument, which only served that hint.
 

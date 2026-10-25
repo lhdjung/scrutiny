@@ -150,7 +150,7 @@ test_that("DEBIT still rejects impossible SDs at those means", {
 
 
 test_that("`debit_map()` reports no negative SD bound and no mean out of range", {
-  out <- tibble::tibble(x = c(0, 1), sd = c(0, 0), n = c(50L, 50L)) |> debit_map(digits_x = 2, digits_sd = 2)
+  out <- tibble::tibble(x = c(0, 1), sd = c(0, 0), n = c(50L, 50L)) |> debit_map(digits_x = 2, digits_sd = 2, show_rec = TRUE)
   out$sd_lower |> call_on(\(x) x >= 0) |> all() |> expect_true()
   out$x_lower  |> call_on(\(x) x >= 0) |> all() |> expect_true()
   out$x_upper  |> call_on(\(x) x <= 1) |> all() |> expect_true()

@@ -19,6 +19,7 @@ debit_map_total_n(
   threshold = 5,
   symmetric = FALSE,
   sd_type = c("sample", "population", "either"),
+  show_rec = FALSE,
   dispersion = 0:5,
   n_min = 2L,
   n_max = NULL,
@@ -44,6 +45,9 @@ named in full.}
 
 \item{formula, rounding, threshold, symmetric, sd_type}{Passed on to
 \code{\link[=debit]{debit()}}.}
+
+\item{show_rec}{Logical. If \code{TRUE}, the reconstructed values are returned
+as further columns; see \emph{Value}. Default is \code{FALSE}.}
 
 \item{dispersion}{Numeric. Steps up and down from half the total \code{n}.
 Default is \code{0:5}, i.e., the even split and five steps away from it.}

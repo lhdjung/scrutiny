@@ -14,6 +14,8 @@
 #'   whole column or one number per row of `data`.
 #' @param x,sd,n Optionally, the names of the columns in `data` that contain
 #'   these values, if they differ from the defaults.
+#' @param show_rec Logical. If `TRUE`, the reconstructed values are returned
+#'   as further columns; see *Value*. Default is `FALSE`.
 #' @param formula,rounding,threshold,symmetric,sd_type Passed on to
 #'   [`debit()`].
 #' @param ... These dots must be empty. Every argument after them must be
@@ -29,8 +31,8 @@
 #' - `consistency`: DEBIT consistency of `x`, `sd`, and `n`. `NA` for a case
 #'   that cannot be decided, such as one with a missing value.
 #'
-#'   Further columns hold the reconstructed values, which [`debit_plot()`]
-#'   needs: the bounds of `sd` and `x` (`sd_lower`, `sd_upper`, `x_lower`, `x_upper`) with
+#'   If `show_rec` is `TRUE`, further columns hold the reconstructed values:
+#'   the bounds of `sd` and `x` (`sd_lower`, `sd_upper`, `x_lower`, `x_upper`) with
 #'   `sd_incl_lower` and `sd_incl_upper` saying whether the SD bounds are
 #'   inclusive; and `sum_lower` and `sum_upper`, the least and the greatest
 #'   number of ones among `n` values whose mean would be reported as `x`. Under
@@ -74,8 +76,6 @@ debit_map <- function_map(
   .reported = c("x", "sd", "n"),
   .name_test = "DEBIT",
   .args_by_row = c("digits_x", "digits_sd"),
-  # Unlike `debit()`, the mapper shows the reconstructed values by default:
-  .args_fixed = list(show_rec = TRUE),
   .col_names = c(
     "consistency",
     "sd_lower",

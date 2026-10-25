@@ -1,5 +1,5 @@
 df1 <- pigs3
-df1_tested <- df1 |> debit_map(digits_x = 2, digits_sd = 2)
+df1_tested <- df1 |> debit_map(digits_x = 2, digits_sd = 2, show_rec = TRUE)
 
 
 test_that("the output is a tibble", {
@@ -10,9 +10,9 @@ test_that("values are correctly tested for DEBIT-consistency", {
   df1_tested$consistency[df1_tested$consistency] |> expect_length(6L)
 })
 
-test_that("the reconstructed values are always returned", {
-  pigs3 |> debit_map(digits_x = 2, digits_sd = 2) |> ncol() |> expect_equal(14)
-  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, show_rec = FALSE) |> expect_error("disabled")
+test_that("the reconstructed values are returned under `show_rec` only", {
+  pigs3 |> debit_map(digits_x = 2, digits_sd = 2)                  |> ncol() |> expect_equal(6)
+  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, show_rec = TRUE) |> ncol() |> expect_equal(14)
 })
 
 
@@ -20,7 +20,7 @@ test_that("key columns can be identified by other names", {
   df1_renamed <- df1 |>
     dplyr::rename(mean_col = x, sd_col = sd, n_col = n)
   df1_renamed |>
-    debit_map(digits_x = 2, digits_sd = 2, x = mean_col, sd = sd_col, n = n_col) |>
+    debit_map(digits_x = 2, digits_sd = 2, x = mean_col, sd = sd_col, n = n_col, show_rec = TRUE) |>
     expect_equal(df1_tested)
 })
 
@@ -78,7 +78,8 @@ df1_expected <- tibble::tibble(
         rounding = "up_or_down",
         threshold = 5,
         symmetric = FALSE,
-        sd_type = "sample"
+        sd_type = "sample",
+        show_rec = TRUE
       )
     ),
     class = c(
