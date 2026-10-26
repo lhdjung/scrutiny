@@ -18,8 +18,8 @@
 #' @param study <[`tidy-select`][dplyr::dplyr_tidy_select]> Column of `data`
 #'   that identifies the study of each value set.
 #'
-#' @details The expected rate of a study is the mean of the `probability`
-#'   column, from [`grim_probability()`]. Value sets whose probability is zero
+#' @details The expected rate of a study is the mean of the `exp_incon`
+#'   column, from [`grim_exp_incon()`]. Value sets whose probability is zero
 #'   or missing are left out because GRIM cannot test them. Value sets without
 #'   a study are left out with a warning.
 #'
@@ -57,7 +57,7 @@ grim_plot_rates <- function(data, study) {
 
   check_grim_map_basic(data)
 
-  check_cols_needed(data, c("consistency", "probability"))
+  check_cols_needed(data, c("consistency", "exp_incon"))
 
   study <- names(tidyselect::eval_select(rlang::enquo(study), data))
 
@@ -86,10 +86,10 @@ grim_plot_rates <- function(data, study) {
   }
 
   rates <- data |>
-    dplyr::filter(.data$probability > 0) |>
+    dplyr::filter(.data$exp_incon > 0) |>
     dplyr::summarise(
       observed = mean(!.data$consistency),
-      expected = mean(.data$probability),
+      expected = mean(.data$exp_incon),
       value_sets = dplyr::n(),
       ratio = .data$observed / .data$expected,
       .by = dplyr::all_of(study)

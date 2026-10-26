@@ -84,9 +84,9 @@ pigs1 |>
 
 ## How strong is the evidence?
 
-The `probability` column of `grim_map()` is the share of means with that many decimal places that would be inconsistent with `n` if their decimal digits were random. At 0, GRIM cannot detect anything; near 1, a random mean would almost always fail. An inconsistency is more telling when this value is high.
+The `exp_incon` column of `grim_map()` is the share of means with that many decimal places that would be inconsistent with `n` if their decimal digits were random. At 0, GRIM cannot detect anything; near 1, a random mean would almost always fail. An inconsistency is more telling when this value is high.
 
-One inconsistency in a paper is common and calls for a question, not a conclusion. Many inconsistencies with a high `probability` that survive the checks above are a stronger signal. `grim_binomial()` tests whether a study's rate of consistent value sets is above what random digits would produce; see `vignette("grim")`.
+One inconsistency in a paper is common and calls for a question, not a conclusion. Many inconsistencies with a high `exp_incon` that survive the checks above are a stronger signal. `grim_binomial()` tests whether a study's rate of consistent value sets is above what random digits would produce; see `vignette("grim")`.
 
 ## Reporting
 

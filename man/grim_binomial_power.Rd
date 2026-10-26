@@ -14,7 +14,7 @@ grim_binomial_power(
 }
 \arguments{
 \item{p0}{Numeric. Null probability of GRIM consistency per value set, i.e.,
-\code{1 - grim_probability(...)}. Either one value per value set, or a single
+\code{1 - grim_exp_incon(...)}. Either one value per value set, or a single
 value shared by all, in which case \code{k} is required.}
 
 \item{p1}{Numeric (length 1). Probability of consistency under the

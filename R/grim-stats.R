@@ -3,9 +3,9 @@
 #' @description These functions quantify how informative a GRIM test is for a
 #'   given sample size and number of decimal places:
 #'
-#'   - `grim_probability()` returns the probability that a mean or percentage
+#'   - `grim_exp_incon()` returns the probability that a mean or percentage
 #'   with `digits_x` decimal places that is otherwise random is
-#'   GRIM-inconsistent with `n`. It is the `probability` column of
+#'   GRIM-inconsistent with `n`. It is the `exp_incon` column of
 #'   [`grim_map()`].
 #'   - `grim_total()` returns the number of such inconsistent values between
 #'   two whole numbers, out of `10^digits_x` (`10^(digits_x + 2)` with
@@ -34,7 +34,7 @@
 #'
 #' @seealso [`grim()`] and [`grim_map()`].
 #'
-#' @return Double. `grim_probability()` and `grim_total()` return `NA` where
+#' @return Double. `grim_exp_incon()` and `grim_total()` return `NA` where
 #'   [`grim()`] cannot decide a case: if `x` is missing or infinite, or if `n`
 #'   or `items_averaged` is not a positive whole number. They are never
 #'   negative.
@@ -50,15 +50,15 @@
 #'
 #' @examples
 #' # Many value sets are inconsistent here:
-#' grim_probability(x = 83.29, n = 21, digits_x = 2, items_averaged = 1)
+#' grim_exp_incon(x = 83.29, n = 21, digits_x = 2, items_averaged = 1)
 #' grim_total(x = 83.29, n = 21, digits_x = 2, items_averaged = 1)
 #'
 #' # None are in this case...
-#' grim_probability(x = 5.14, n = 120, digits_x = 2, items_averaged = 1)
+#' grim_exp_incon(x = 5.14, n = 120, digits_x = 2, items_averaged = 1)
 #' grim_total(x = 5.14, n = 120, digits_x = 2, items_averaged = 1)
 #'
 #' # ...but most would be if `x` were a percentage:
-#' grim_probability(
+#' grim_exp_incon(
 #'   x = 5.14,
 #'   n = 120,
 #'   digits_x = 2,
@@ -75,7 +75,7 @@
 
 # Relative ----------------------------------------------------------------
 
-grim_probability <- function(
+grim_exp_incon <- function(
   x,
   n,
   digits_x,
@@ -153,7 +153,7 @@ grim_total <- function(
   n_values <- 10^digits_x
   n_means <- as.numeric(n) * items_averaged
 
-  # `NA` exactly where `grim()` returns `NA`, so that the `probability` column
+  # `NA` exactly where `grim()` returns `NA`, so that the `exp_incon` column
   # of `grim_map()` never shows a number next to an `NA` verdict.
   decidable <- is_decidable_n_items(n, items_averaged) &
     is.finite(x) &

@@ -72,20 +72,20 @@ pigs1
 grim_map(pigs1, digits_x = 2, items_averaged = 1)
 #> # A tibble: 12 × 6
 #> # GRIM: default settings
-#>        x     n items_averaged digits_x consistency probability
-#>    <dbl> <int>          <dbl>    <dbl> <lgl>             <dbl>
-#>  1  7.22    32              1        2 TRUE               0.64
-#>  2  4.74    25              1        2 FALSE              0.75
-#>  3  5.23    29              1        2 FALSE              0.71
-#>  4  2.57    24              1        2 FALSE              0.72
-#>  5  6.77    27              1        2 FALSE              0.73
-#>  6  2.68    28              1        2 TRUE               0.72
-#>  7  7.01    29              1        2 FALSE              0.71
-#>  8  7.38    26              1        2 TRUE               0.74
-#>  9  3.14    27              1        2 FALSE              0.73
-#> 10  6.89    31              1        2 FALSE              0.69
-#> 11  5       25              1        2 TRUE               0.75
-#> 12  0.24    28              1        2 FALSE              0.72
+#>        x     n items_averaged digits_x consistency exp_incon
+#>    <dbl> <int>          <dbl>    <dbl> <lgl>           <dbl>
+#>  1  7.22    32              1        2 TRUE             0.64
+#>  2  4.74    25              1        2 FALSE            0.75
+#>  3  5.23    29              1        2 FALSE            0.71
+#>  4  2.57    24              1        2 FALSE            0.72
+#>  5  6.77    27              1        2 FALSE            0.73
+#>  6  2.68    28              1        2 TRUE             0.72
+#>  7  7.01    29              1        2 FALSE            0.71
+#>  8  7.38    26              1        2 TRUE             0.74
+#>  9  3.14    27              1        2 FALSE            0.73
+#> 10  6.89    31              1        2 FALSE            0.69
+#> 11  5       25              1        2 TRUE             0.75
+#> 12  0.24    28              1        2 FALSE            0.72
 ```
 
 Test percentages instead of means:
@@ -105,14 +105,14 @@ pigs2
 grim_map(pigs2, digits_x = 1, items_averaged = 1, percent = TRUE)
 #> # A tibble: 6 × 6
 #> # GRIM: percent = TRUE
-#>       x     n items_averaged digits_x consistency probability
-#>   <dbl> <int>          <dbl>    <dbl> <lgl>             <dbl>
-#> 1  67.4   150              1        1 FALSE              0.85
-#> 2  54.2   150              1        1 FALSE              0.85
-#> 3  54     150              1        1 TRUE               0.85
-#> 4  69.8   150              1        1 FALSE              0.85
-#> 5  68.1   150              1        1 FALSE              0.85
-#> 6  55.4   150              1        1 FALSE              0.85
+#>       x     n items_averaged digits_x consistency exp_incon
+#>   <dbl> <int>          <dbl>    <dbl> <lgl>           <dbl>
+#> 1  67.4   150              1        1 FALSE            0.85
+#> 2  54.2   150              1        1 FALSE            0.85
+#> 3  54     150              1        1 TRUE             0.85
+#> 4  69.8   150              1        1 FALSE            0.85
+#> 5  68.1   150              1        1 FALSE            0.85
+#> 6  55.4   150              1        1 FALSE            0.85
 ```
 
 Choose how the means were rounded — below, up from 5. The plot adjusts

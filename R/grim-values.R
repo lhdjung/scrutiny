@@ -196,7 +196,7 @@ grim_closest_scalar <- function(
 #' - For `grim_closest()`, a numeric vector as long as the inputs, with `NA`
 #'   where a value set cannot be decided.
 #'
-#' @seealso [`grim()`], [`grim_map()`], and [`grim_probability()`].
+#' @seealso [`grim()`], [`grim_map()`], and [`grim_exp_incon()`].
 #'
 #' @include grim.R
 #'

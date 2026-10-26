@@ -38,8 +38,8 @@
 #' - `digits_x`: the number of decimal places in `x`, as given.
 #' - `consistency`: GRIM consistency of `x`, `n`, and `items_averaged`. `NA` for
 #'   a case that cannot be decided, such as one with a missing value.
-#' - `probability`: the probability of GRIM inconsistency; see
-#'   [`grim_probability()`].
+#' - `exp_incon`: the probability of GRIM inconsistency; see
+#'   [`grim_exp_incon()`].
 #' - Any other columns from `data`.
 #'
 #'   The tibble has the class `scrutiny_grim_map`, which is recognized by
@@ -63,14 +63,13 @@
 #' @section Summaries with [`audit()`]: `audit()` on `grim_map()` output
 #'   returns a tibble with one row and these columns:
 #'
-#' 1. `incons_cases`: number of GRIM-inconsistent value sets.
-#' 2. `all_cases`: total number of value sets.
-#' 3. `incons_rate`: proportion of GRIM-inconsistent value sets.
-#' 4. `mean_grim_prob`: mean probability of GRIM inconsistency.
-#' 5. `incons_to_prob`: ratio of `incons_rate` to `mean_grim_prob`, both
-#'    computed over the value sets that could be decided.
-#' 6. `testable_cases`: number of value sets with a positive `probability`.
-#' 7. `testable_rate`: proportion of such value sets.
+#' 1. `all_cases`: total number of value sets.
+#' 2. `testable_cases`: number of value sets with a positive `exp_incon`.
+#' 3. `incon_cases`: number of GRIM-inconsistent value sets.
+#' 4. `emp_incon`: proportion of GRIM-inconsistent value sets.
+#' 5. `exp_incon`: mean probability of GRIM inconsistency.
+#' 6. `ratio`: ratio of `emp_incon` to `exp_incon`, both computed over the
+#'    value sets that could be decided.
 #'
 #' @include audit.R grim.R grim-stats.R function-map.R restore-zeros.R
 #'
@@ -129,5 +128,5 @@ grim_map <- function_map(
     "rec_x_lower"
   ),
   # Not returned by `grim_scalar()`, which would change what `grim()` returns:
-  .cols_derived = list(probability = grim_probability)
+  .cols_derived = list(exp_incon = grim_exp_incon)
 )

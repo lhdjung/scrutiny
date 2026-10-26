@@ -31,8 +31,8 @@ GRIM-inconsistencies are as frequent as expected if the means' digits were
 random.
 }
 \details{
-The expected rate of a study is the mean of the \code{probability}
-column, from \code{\link[=grim_probability]{grim_probability()}}. Value sets whose probability is zero
+The expected rate of a study is the mean of the \code{exp_incon}
+column, from \code{\link[=grim_exp_incon]{grim_exp_incon()}}. Value sets whose probability is zero
 or missing are left out because GRIM cannot test them. Value sets without
 a study are left out with a warning.
 

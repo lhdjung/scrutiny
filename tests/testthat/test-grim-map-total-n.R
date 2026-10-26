@@ -153,7 +153,7 @@ df2_rows_1_3_expected <- tibble::tibble(
     c(FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE),
     c(2L, 2L, 6L, 2L, 16L, 2L, 18L)
   ),
-  probability = grim_probability(x, n, 2, items_averaged = 1),
+  exp_incon = grim_exp_incon(x, n, 2, items_averaged = 1),
   case = rep(rep(1:2, 2), each = 12L),
   dir = factor(
     rep(c("forth", "back"), each = 24L),
@@ -220,7 +220,7 @@ colnames_exp <- c(
   "digits_x",
   "consistency",
   "both_consistent",
-  "probability",
+  "exp_incon",
   "case",
   "dir"
 )

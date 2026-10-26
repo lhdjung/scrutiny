@@ -113,7 +113,7 @@ test_that("the mappers return `NA` instead of aborting", {
 test_that("the `show_*` columns keep their shape and their types", {
   out <- df_grim |> grim_map(digits_x = 2, items_averaged = 1, show_rec = TRUE)
   out |> expect_named(c(
-    "x", "n", "items_averaged", "digits_x", "consistency", "probability",
+    "x", "n", "items_averaged", "digits_x", "consistency", "exp_incon",
     "rec_sum",
     "sum_lower", "sum_upper", "rec_x_upper", "rec_x_lower"
   ))
@@ -162,14 +162,14 @@ test_that("`roundwork::unround()`, `grim_values()`, and `grim_closest()` propaga
 
 test_that("`audit()` counts an undecidable case as neither", {
   # One `FALSE`, one `NA`, one `TRUE`. Indexing rows by `NA` used to add a
-  # phantom row, so `incons_cases` was 2 out of 3 here:
+  # phantom row, so `incon_cases` was 2 out of 3 here:
   out <- tibble::tibble(x = c(5.19, NA, 4.20), n = c(28L, 28L, 30L)) |> grim_map(digits_x = 2, items_averaged = 1)
   out$consistency |> expect_equal(c(FALSE, NA, TRUE))
 
   out_audit <- out |> audit()
-  out_audit$incons_cases |> expect_equal(1L)
+  out_audit$incon_cases |> expect_equal(1L)
   out_audit$all_cases |> expect_equal(3L)
-  out_audit$incons_rate |> expect_equal(1 / 3)
+  out_audit$emp_incon |> expect_equal(1 / 3)
 })
 
 
@@ -244,9 +244,9 @@ test_that("the three tests agree on what input is undecidable", {
 test_that("undecidable input gives `NA` in the mappers, too", {
   out <- tibble::tibble(x = 5.19, n = 20.5, items_averaged = 1.5) |> grim_map(digits_x = 2)
   out$consistency |> expect_na()
-  # `probability` used to report a number next to an `NA` verdict, which states
+  # `exp_incon` used to report a number next to an `NA` verdict, which states
   # two incompatible things about one row:
-  out$probability |> expect_na()
+  out$exp_incon |> expect_na()
 
   # The reconstructed values of `show_rec` are `NA` throughout, rather than the
   # `NaN`s that an `n` of zero produced:
@@ -323,7 +323,7 @@ test_that("a missing `digits_*` makes a case undecidable, like a missing value",
 
   out <- tibble::tibble(x = c(5.19, 5.2), n = 28L) |> grim_map(digits_x = c(2, NA), items_averaged = 1)
   out$consistency |> expect_equal(c(FALSE, NA))
-  out$probability |> expect_equal(c(0.72, NA))
+  out$exp_incon |> expect_equal(c(0.72, NA))
 
   # A sequence mapper disperses every value on one decimal level, so it needs a
   # number there:

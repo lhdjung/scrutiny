@@ -62,7 +62,7 @@ created.}
 
 \item{.cols_derived}{Optionally, a named list of functions that compute
 further columns from the same per-row input, such as
-\code{list(probability = grim_probability)}. Each gets only the arguments it
+\code{list(exp_incon = grim_exp_incon)}. Each gets only the arguments it
 has formals for. The columns follow the key result column.}
 
 \item{.reported_variadic}{Optionally, a single string naming an argument of

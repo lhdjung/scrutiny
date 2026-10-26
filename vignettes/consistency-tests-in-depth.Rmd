@@ -121,7 +121,7 @@ Every other argument of `.fun` becomes an argument of the mapper, with the same 
 | `.args_fixed` | Values always passed to `.fun`; the mapper has no argument for them | `list(show_reason = TRUE)` in `grimmer_map()` |
 | `.args_disabled` | Arguments of `.fun` that the mapper should not have | |
 | `.col_names` | Names of the columns that a list returned by `.fun` unpacks into; the first is the key result | `show_rec = TRUE` columns |
-| `.cols_derived` | Functions that compute further columns from the same row | `list(probability = grim_probability)` |
+| `.cols_derived` | Functions that compute further columns from the same row | `list(exp_incon = grim_exp_incon)` |
 | `.name_class` | Extra classes for the output | |
 | `.name_key_result` | Name of the result column, `"consistency"` by default | |
 
@@ -143,7 +143,7 @@ grim_map <- function_map(
     "rec_x_lower"
   ),
   # Not returned by `grim_scalar()`, which would change what `grim()` returns:
-  .cols_derived = list(probability = grim_probability)
+  .cols_derived = list(exp_incon = grim_exp_incon)
 )
 ```
 

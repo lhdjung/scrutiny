@@ -551,7 +551,7 @@ test_that("wrong argument names throw an error at factory time", {
     function_map(
       .reported = c("x", "n"),
       .name_test = "GRIM",
-      .cols_derived = list(probability = "grim_probability")
+      .cols_derived = list(exp_incon = "grim_exp_incon")
     ) |>
     expect_error()
 
@@ -559,7 +559,7 @@ test_that("wrong argument names throw an error at factory time", {
     function_map(
       .reported = c("x", "n"),
       .name_test = "GRIM",
-      .cols_derived = list(grim_probability)
+      .cols_derived = list(grim_exp_incon)
     ) |>
     expect_error()
 
@@ -584,17 +584,17 @@ test_that("wrong argument names throw an error at factory time", {
 
 
 test_that("`.cols_derived` computes columns the test function never returns", {
-  # `probability` comes from `grim_probability()`, not from `grim_scalar()`:
+  # `exp_incon` comes from `grim_exp_incon()`, not from `grim_scalar()`:
   out <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1)
-  out$probability |> expect_equal(grim_probability(pigs1$x, pigs1$n, 2, items_averaged = 1))
+  out$exp_incon |> expect_equal(grim_exp_incon(pigs1$x, pigs1$n, 2, items_averaged = 1))
   # It follows the key result column, ahead of the `.col_names` columns:
   out |>
     colnames() |>
-    expect_equal(c("x", "n", "items_averaged", "digits_x", "consistency", "probability"))
+    expect_equal(c("x", "n", "items_averaged", "digits_x", "consistency", "exp_incon"))
   pigs1 |> grim_map(digits_x = 2, items_averaged = 1, show_rec = TRUE) |>
     colnames() |>
     expect_equal(c(
-      "x", "n", "items_averaged", "digits_x", "consistency", "probability",
+      "x", "n", "items_averaged", "digits_x", "consistency", "exp_incon",
       "rec_sum", "sum_lower", "sum_upper", "rec_x_upper", "rec_x_lower"
     ))
 
@@ -602,16 +602,16 @@ test_that("`.cols_derived` computes columns the test function never returns", {
   # `rounding`, `items_averaged`, and `percent` must reach it:
   pigs1 |>
     grim_map(digits_x = 2, items_averaged = 1, rounding = "ceiling") |>
-    purrr::pluck("probability") |>
-    expect_equal(grim_probability(pigs1$x, pigs1$n, 2, rounding = "ceiling", items_averaged = 1))
+    purrr::pluck("exp_incon") |>
+    expect_equal(grim_exp_incon(pigs1$x, pigs1$n, 2, rounding = "ceiling", items_averaged = 1))
   pigs1 |>
     grim_map(digits_x = 2, items_averaged = 2) |>
-    purrr::pluck("probability") |>
-    expect_equal(grim_probability(pigs1$x, pigs1$n, 2, items_averaged = 2))
+    purrr::pluck("exp_incon") |>
+    expect_equal(grim_exp_incon(pigs1$x, pigs1$n, 2, items_averaged = 2))
   pigs2 |>
     grim_map(digits_x = 1, items_averaged = 1, percent = TRUE) |>
-    purrr::pluck("probability") |>
-    expect_equal(grim_probability(pigs2$x, pigs2$n, 1, percent = TRUE, items_averaged = 1))
+    purrr::pluck("exp_incon") |>
+    expect_equal(grim_exp_incon(pigs2$x, pigs2$n, 1, percent = TRUE, items_averaged = 1))
 })
 
 
@@ -860,7 +860,7 @@ test_that("disabled arguments stay disabled when the mapper is called indirectly
 
 # Such a column was silently dropped in favor of the result column.
 test_that("a data column named like a result column is an error", {
-  pigs1 |> dplyr::mutate(probability = 1) |> grim_map(digits_x = 2, items_averaged = 1)                   |> expect_error("`probability` would be overwritten")
+  pigs1 |> dplyr::mutate(exp_incon = 1) |> grim_map(digits_x = 2, items_averaged = 1)                   |> expect_error("`exp_incon` would be overwritten")
   pigs5 |> dplyr::mutate(reason = "a")    |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_error("`reason` would be overwritten")
 })
 

@@ -32,13 +32,15 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - DEBIT is exact by default. The mean of `n` binary values is `k / n` for a whole number `k`, but DEBIT treated it as continuous and accepted some SDs that no binary sample of size `n` can have. The new `formula` argument selects `"exact"`, the default, or `"mean_n"`, the old behavior. With `show_rec = TRUE`, `debit_map()` also returns `sum_lower` and `sum_upper`, the smallest and largest `k` whose mean would be reported as `x`.
 
-- GRIM, GRIMMER, and DEBIT return `NA` for every case that cannot be tested: a missing or infinite value, including a missing `digits_*` value, or an `n` or `items_averaged` that is not a positive whole number. GRIMMER and DEBIT also need `n >= 2`, since a sample SD divides by `n - 1`, unless `sd_meaning = "sd_pop"`. Such cases used to cause an error or return an arbitrary `TRUE` or `FALSE`. `grim_probability()` returns `NA` for them too.
+- GRIM, GRIMMER, and DEBIT return `NA` for every case that cannot be tested: a missing or infinite value, including a missing `digits_*` value, or an `n` or `items_averaged` that is not a positive whole number. GRIMMER and DEBIT also need `n >= 2`, since a sample SD divides by `n - 1`, unless `sd_meaning = "sd_pop"`. Such cases used to cause an error or return an arbitrary `TRUE` or `FALSE`. The renamed version of `grim_probability()`, `grim_exp_incon()` returns `NA` for them too.
 
-- `grim_probability()`, `grim_total()`, and the `probability` column of `grim_map()` take the rounding method into account via new `rounding` and `threshold` arguments. The old formula, `(10^D - N * L) / 10^D`, assumes that each reported value comes from a single range of unrounded values, one step wide. Under the default `"up_or_down"`, a tie is accepted both ways, so the probability is lower: `0.4` instead of `0.6` for `n = 40` and two decimal places.
+- `grim_exp_incon()`, `grim_total()`, and the `exp_incon` column of `grim_map()` take the rounding method into account via new `rounding` and `threshold` arguments. The old formula, `(10^D - N * L) / 10^D`, assumes that each reported value comes from a single range of unrounded values, one step wide. Under the default `"up_or_down"`, a tie is accepted both ways, so the probability is lower: `0.4` instead of `0.6` for `n = 40` and two decimal places.
 
 ### Function interfaces
 
-- `items` is now `items_averaged` and has no default (#94). It is the number of items averaged into each score; the old name was mistaken for the number of scale points, and the old default of 1 silently tested means of multi-item scales as single items. Give it wherever it applies, as in `grim()`, `grimmer()`, their mappers, `grim_values()`, and `grim_probability()`; use `items_averaged = 1` for single items and percentages. Mappers also accept an `items_averaged` column. `grim_granularity()` keeps its default of 1.
+- `grim_probability()` is now `grim_exp_incon()`, and the `probability` column of `grim_map()` is now `exp_incon`, the expected rate of inconsistency. In `audit()` on `grim_map()` output, the columns are now `all_cases`, `testable_cases`, `incon_cases`, `emp_incon` (formerly `incons_rate`), `exp_incon` (formerly `mean_grim_prob`), and `ratio` (formerly `incons_to_prob`). `testable_rate` was removed: it is `testable_cases / all_cases`.
+
+- `items` is now `items_averaged` and has no default (#94). It is the number of items averaged into each score; the old name was mistaken for the number of scale points, and the old default of 1 silently tested means of multi-item scales as single items. Give it wherever it applies, as in `grim()`, `grimmer()`, their mappers, `grim_values()`, and `grim_exp_incon()`; use `items_averaged = 1` for single items and percentages. Mappers also accept an `items_averaged` column. `grim_granularity()` keeps its default of 1.
 
 - In every mapper, the dots come right after the key arguments, so the arguments after them must be named in full: `items = 2` is now an error rather than a partial match. The total-n mappers gain an `n` argument for the column of totals, as in `grim_map_total_n(df, n = "total")`.
 
@@ -110,7 +112,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `grimmer()` gives the reason `"Negative SD"` for a negative `sd`. Instead of running indefinitely for a very large `n`, it throws an error if more than a million integer sums are compatible with the reported mean.
 
-- `audit()` no longer counts a case without a test result as inconsistent, and computes `mean_grim_prob`, `incons_to_prob`, `mean_x`, and `mean_sd` over the cases with a result instead of returning `NA` if one has none.
+- `audit()` no longer counts a case without a test result as inconsistent, and computes `exp_incon`, `ratio`, `mean_x`, and `mean_sd` over the cases with a result instead of returning `NA` if one has none.
 
 ### Sequence and total-n mappers
 
@@ -172,7 +174,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - Removed after their deprecation in 0.5.0: `grim_map()`'s `show_prob`, `grim_ratio_upper()`, and the 15 functions around `is_subset_of()`.
 
-- Removed: `grim_ratio()` (use `grim_probability()`, which takes the rounding method into account), `manage_key_colnames()` (use `absorb_key_args()`), `unnest_consistency_cols()`, `write_doc_factory_map_conventions()`, and the re-exports of rlang's `enquo()`, `enquos()`, `as_name()`, `as_label()`, `.data`, and `:=`. `check_audit_special()` was removed, since `audit()` now reaches `audit_seq()` and `audit_total_n()` itself. `check_factory_dots()`, `check_args_disabled()`, `decimal_places_scalar()`, `write_doc_audit()`, `write_doc_audit_seq()`, and `write_doc_audit_total_n()` are no longer exported.
+- Removed: `grim_ratio()` (use `grim_exp_incon()`, which takes the rounding method into account), `manage_key_colnames()` (use `absorb_key_args()`), `unnest_consistency_cols()`, `write_doc_factory_map_conventions()`, and the re-exports of rlang's `enquo()`, `enquos()`, `as_name()`, `as_label()`, `.data`, and `:=`. `check_audit_special()` was removed, since `audit()` now reaches `audit_seq()` and `audit_total_n()` itself. `check_factory_dots()`, `check_args_disabled()`, `decimal_places_scalar()`, `write_doc_audit()`, `write_doc_audit_seq()`, and `write_doc_audit_total_n()` are no longer exported.
 
 - `duplicate_detect()`, superseded since 0.3.0, was removed in favor of `duplicate_tally()`.
 

@@ -38,7 +38,7 @@ care.
 \details{
 Under the null hypothesis, the decimal digits of each mean are
 random, so its probability of consistency is \code{1 - probability} from
-\code{\link[=grim_probability]{grim_probability()}}. Since this differs between value sets, the test
+\code{\link[=grim_exp_incon]{grim_exp_incon()}}. Since this differs between value sets, the test
 uses the Poisson binomial distribution rather than averaging the
 probabilities. Value sets without a verdict are left out.
 

@@ -6,7 +6,7 @@ audit_grim <- data_grim |> audit()
 
 test_that("`audit()` summarizes GRIM tests accurately", {
   audit_grim |> expect_s3_class("data.frame")
-  (audit_grim$all_cases - audit_grim$incons_cases) |>
+  (audit_grim$all_cases - audit_grim$incon_cases) |>
     as.numeric() |>
     expect_equal(length(data_grim$consistency[data_grim$consistency]))
 })
@@ -181,7 +181,7 @@ test_that("`audit_seq()` results don't depend on the order of `var`", {
 # `audit_cols_minimal()` has always counted inconsistencies with `na.rm`,
 # because a case the test could not decide is not an inconsistent one. The
 # summaries built on top of it did not, so a single missing `n` turned
-# `mean_grim_prob` -- and `incons_to_prob`, derived from it -- into `NA` for
+# `exp_incon` -- and `ratio`, derived from it -- into `NA` for
 # the whole table.
 
 test_that("`audit()` summarizes the decidable cases despite an undecidable one", {
@@ -189,20 +189,20 @@ test_that("`audit()` summarizes the decidable cases despite an undecidable one",
     grim_map(digits_x = 2, items_averaged = 1) |>
     audit()
 
-  out$mean_grim_prob |> is.na() |> expect_false()
-  out$incons_to_prob |> is.na() |> expect_false()
+  out$exp_incon |> is.na() |> expect_false()
+  out$ratio |> is.na() |> expect_false()
   out$all_cases |> expect_equal(2L)
-  out$incons_cases |> expect_equal(1L)
+  out$incon_cases |> expect_equal(1L)
 })
 
 
-test_that("undecidable cases don't dilute `incons_to_prob`", {
+test_that("undecidable cases don't dilute `ratio`", {
   df <- tibble::tibble(x = 5.19, n = c(28, 28, NA, NA))
-  expected <- df[1:2, ] |> grim_map(digits_x = 2, items_averaged = 1) |> audit() |> purrr::pluck("incons_to_prob")
+  expected <- df[1:2, ] |> grim_map(digits_x = 2, items_averaged = 1) |> audit() |> purrr::pluck("ratio")
   df |>
     grim_map(digits_x = 2, items_averaged = 1) |>
     audit() |>
-    purrr::pluck("incons_to_prob") |>
+    purrr::pluck("ratio") |>
     expect_equal(expected)
 })
 
@@ -230,7 +230,7 @@ test_that("`audit()` on GRIMMER output without rows has zero counts", {
 })
 
 test_that("`audit()` names the columns it lacks", {
-  pigs1 |> grim_map(digits_x = 2, items_averaged = 1)                   |> dplyr::select(x)   |> audit() |> expect_error("Missing: `consistency` and `probability`")
+  pigs1 |> grim_map(digits_x = 2, items_averaged = 1)                   |> dplyr::select(x)   |> audit() |> expect_error("Missing: `consistency` and `exp_incon`")
   pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |> dplyr::select(x)   |> audit() |> expect_error("Missing: `consistency`")
   pigs3 |> debit_map(digits_x = 2, digits_sd = 2)                       |> dplyr::select(-sd) |> audit() |> expect_error("Missing: `sd`")
 })

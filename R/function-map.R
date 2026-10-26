@@ -43,7 +43,7 @@
 #'   created.
 #' @param .cols_derived Optionally, a named list of functions that compute
 #'   further columns from the same per-row input, such as
-#'   `list(probability = grim_probability)`. Each gets only the arguments it
+#'   `list(exp_incon = grim_exp_incon)`. Each gets only the arguments it
 #'   has formals for. The columns follow the key result column.
 #' @param ... These dots must be empty.
 #'
@@ -610,7 +610,7 @@ function_map <- function(
 
       cols_result <- write_result_cols(results, col_names)
 
-      # Derived columns, such as `probability` in `grim_map()`. Each function only gets the
+      # Derived columns, such as `exp_incon` in `grim_map()`. Each function only gets the
       # arguments it has formals for, so it needs to know nothing about the
       # test around it:
       cols_derived <- list()

@@ -25,7 +25,7 @@ library(scrutiny)
 
 Granularity-related inconsistency of means, or GRIM, tests whether a reported mean or percentage of integer data is possible given the reported sample size [@brown_grim_2017]. The mean of $n$ integers is a whole number divided by $n$, so only certain values can occur. If none of these values would have been reported as the reported mean, given its number of decimal places, the mean and the sample size are GRIM-inconsistent.
 
-This vignette covers scrutiny's implementation: `grim()` and `grim_map()` for the test itself, `audit()` for summaries, `grim_plot_grid()` for visualization, `grim_map_seq()` and `grim_map_total_n()` for testing values around the reported ones, and the GRIM statistics behind the `probability` column.
+This vignette covers scrutiny's implementation: `grim()` and `grim_map()` for the test itself, `audit()` for summaries, `grim_plot_grid()` for visualization, `grim_map_seq()` and `grim_map_total_n()` for testing values around the reported ones, and the GRIM statistics behind the `exp_incon` column.
 
 ## Basic GRIM testing
 
@@ -63,7 +63,7 @@ flying_pigs1 <- tibble::tribble(
 grim_map(flying_pigs1, digits_x = 2, items_averaged = 1)
 ```
 
-`x` and `n` are the inputs, `digits_x` is the stated number of decimal places, and `consistency` is the test result. `probability` is the probability that a random mean with that many decimal places would be inconsistent with `n`; see *GRIM statistics* below.
+`x` and `n` are the inputs, `digits_x` is the stated number of decimal places, and `consistency` is the test result. `exp_incon` is the probability that a random mean with that many decimal places would be inconsistent with `n`; see *GRIM statistics* below.
 
 ### Scale items
 
@@ -173,14 +173,13 @@ Once `n * items_averaged` is at least `10^digits_x`, every mean is achievable an
 ```{r}
 flying_pigs1 |>
   grim_map(digits_x = 2, items_averaged = 1) |>
-  audit() |>
-  dplyr::select(1:5) # output cut down for printing
+  audit()
 ```
 
-- `incons_cases`, `all_cases`, `incons_rate`: the number of inconsistent value sets, the total, and their ratio.
-- `mean_grim_prob`: the mean probability of GRIM inconsistency.
-- `incons_to_prob`: the ratio of `incons_rate` to `mean_grim_prob`, computed over the cases with a test result.
-- `testable_cases`, `testable_rate`: the number and proportion of value sets with a positive `probability`.
+- `all_cases`, `testable_cases`: the number of value sets, and of those with a positive `exp_incon`.
+- `incon_cases`, `emp_incon`: the number and proportion of inconsistent value sets.
+- `exp_incon`: the mean probability of GRIM inconsistency.
+- `ratio`: the ratio of `emp_incon` to `exp_incon`, computed over the cases with a test result.
 
 ## Visualization with `grim_plot_grid()`
 
@@ -304,7 +303,7 @@ The two means were reported with different numbers of decimal places, so `digits
 
 ### The probability of GRIM inconsistency
 
-The `probability` column of `grim_map()` is, for the simplest rounding methods,
+The `exp_incon` column of `grim_map()` is, for the simplest rounding methods,
 
 $$
 P = \max\left(0, \frac{10^D - NL}{10^D}\right)
@@ -312,12 +311,12 @@ $$
 
 where $D$ is the number of decimal places, $N$ the sample size, and $L$ the number of items. This is the probability that a mean with $D$ decimal places but random decimal digits is GRIM-inconsistent with $N$ and $L$. If it is 0, GRIM cannot detect any inconsistency.
 
-The formula is exact for rounding methods in which exactly one range of unrounded values, one rounding step wide, is rounded to each reported value, such as `"up"`. The default, `"up_or_down"`, accepts a mean exactly halfway between two reportable values in both directions, so the formula overstates the probability whenever $NL / \gcd(NL, 10^D)$ is even: at $N = 40$ with two decimal places, the probability is $0.4$, not $0.6$. Under `"ceiling_or_floor"`, the range is two steps wide. `grim_probability()` and `grim_total()` therefore take `rounding` and `threshold` arguments and count exactly the values that `grim()` would reject. `grim_map()` passes its own `rounding` on.
+The formula is exact for rounding methods in which exactly one range of unrounded values, one rounding step wide, is rounded to each reported value, such as `"up"`. The default, `"up_or_down"`, accepts a mean exactly halfway between two reportable values in both directions, so the formula overstates the probability whenever $NL / \gcd(NL, 10^D)$ is even: at $N = 40$ with two decimal places, the probability is $0.4$, not $0.6$. Under `"ceiling_or_floor"`, the range is two steps wide. `grim_exp_incon()` and `grim_total()` therefore take `rounding` and `threshold` arguments and count exactly the values that `grim()` would reject. `grim_map()` passes its own `rounding` on.
 
 ```{r}
-grim_probability(x = 1.40, n = 72, digits_x = 2, items_averaged = 1)
-grim_probability(x = 5.93, n = 80, digits_x = 2, items_averaged = 3)
-grim_probability(x = 84.27, n = 40, digits_x = 2, items_averaged = 1, percent = TRUE)
+grim_exp_incon(x = 1.40, n = 72, digits_x = 2, items_averaged = 1)
+grim_exp_incon(x = 5.93, n = 80, digits_x = 2, items_averaged = 3)
+grim_exp_incon(x = 84.27, n = 40, digits_x = 2, items_averaged = 1, percent = TRUE)
 ```
 
 `grim_total()` returns a count instead of a proportion: the number of the $10^D$ possible fractional parts that are inconsistent:
@@ -330,7 +329,7 @@ The formula is implicit in @brown_grim_2017, who note (p. 367) that with two dec
 
 ### A study's rate of inconsistency
 
-Correctly reported means are always consistent, so a study's rate of inconsistent value sets should be zero. If the decimal digits of its means were random, that rate would be expected to be the mean of the `probability` column. `grim_binomial()` tests whether the rate of *consistent* value sets is above what random digits would produce. It uses the Poisson binomial distribution, since the probability differs between value sets, and returns the observed consistency rate with a Clopper-Pearson confidence interval:
+Correctly reported means are always consistent, so a study's rate of inconsistent value sets should be zero. If the decimal digits of its means were random, that rate would be expected to be the mean of the `exp_incon` column. `grim_binomial()` tests whether the rate of *consistent* value sets is above what random digits would produce. It uses the Poisson binomial distribution, since the probability differs between value sets, and returns the observed consistency rate with a Clopper-Pearson confidence interval:
 
 ```{r}
 pigs1 |>

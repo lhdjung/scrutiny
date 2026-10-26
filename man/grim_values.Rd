@@ -113,5 +113,5 @@ Psychology. \emph{Social Psychological and Personality Science}, 8(4), 363–369
 https://journals.sagepub.com/doi/10.1177/1948550616673876
 }
 \seealso{
-\code{\link[=grim]{grim()}}, \code{\link[=grim_map]{grim_map()}}, and \code{\link[=grim_probability]{grim_probability()}}.
+\code{\link[=grim]{grim()}}, \code{\link[=grim_map]{grim_map()}}, and \code{\link[=grim_exp_incon]{grim_exp_incon()}}.
 }

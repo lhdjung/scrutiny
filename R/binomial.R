@@ -17,7 +17,7 @@
 #'
 #' @details Under the null hypothesis, the decimal digits of each mean are
 #'   random, so its probability of consistency is `1 - probability` from
-#'   [`grim_probability()`]. Since this differs between value sets, the test
+#'   [`grim_exp_incon()`]. Since this differs between value sets, the test
 #'   uses the Poisson binomial distribution rather than averaging the
 #'   probabilities. Value sets without a verdict are left out.
 #'
@@ -54,7 +54,7 @@ grim_binomial <- function(
 
   check_cols_needed(
     data,
-    c("consistency", "probability"),
+    c("consistency", "exp_incon"),
     "i" = "`grim_map()` output has them."
   )
 
@@ -73,7 +73,7 @@ grim_binomial <- function(
 
   # An undecidable value set has neither a verdict nor a probability, so it is
   # left out on both sides; an `NA` probability would make the p-value `NA`:
-  data <- data[!is.na(data$consistency) & !is.na(data$probability), ]
+  data <- data[!is.na(data$consistency) & !is.na(data$exp_incon), ]
 
   n_consistent <- sum(data$consistency)
   n_cases <- nrow(data)
@@ -87,7 +87,7 @@ grim_binomial <- function(
   }
 
   # Per-row probability of consistency under the null (random decimal digits)
-  pp <- 1 - data$probability
+  pp <- 1 - data$exp_incon
 
   p.value <- poibin_p_values(pp, alternative)[[n_consistent + 1L]]
 
@@ -122,7 +122,7 @@ grim_binomial <- function(
 #'   itself, it has not been tested extensively.
 #'
 #' @param p0 Numeric. Null probability of GRIM consistency per value set, i.e.,
-#'   `1 - grim_probability(...)`. Either one value per value set, or a single
+#'   `1 - grim_exp_incon(...)`. Either one value per value set, or a single
 #'   value shared by all, in which case `k` is required.
 #' @param p1 Numeric (length 1). Probability of consistency under the
 #'   alternative, shared by all value sets.

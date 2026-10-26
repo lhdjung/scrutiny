@@ -174,7 +174,7 @@ grim_scalar <- function(
 #'   number.
 #'
 #' @seealso [`grim_map()`] for data frames, [`grim_values()`] for the means
-#'   that `n` integers can produce, and [`grim_probability()`] for how
+#'   that `n` integers can produce, and [`grim_exp_incon()`] for how
 #'   informative the test is in a given case.
 #'
 #' @include utils.R decimal-places.R

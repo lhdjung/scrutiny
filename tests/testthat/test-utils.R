@@ -269,7 +269,7 @@ test_that("`check_newly_numeric()` agrees with counting decimal places", {
 # `is_decidable_n_items()` states the one condition under which a value set can
 # be decided at all, and it states it twice: with `&&` for the single values the
 # `*_scalar()` functions pass it once per row, and with `&` for the columns
-# `grim_probability()` passes it once per call. The two must not drift apart.
+# `grim_exp_incon()` passes it once per call. The two must not drift apart.
 
 test_that("`is_decidable_n_items()` agrees between its two paths", {
   grid <- expand.grid(

@@ -2,11 +2,11 @@
 % Please edit documentation in R/grim-stats.R
 \name{grim-stats}
 \alias{grim-stats}
-\alias{grim_probability}
+\alias{grim_exp_incon}
 \alias{grim_total}
 \title{Possible GRIM inconsistencies}
 \usage{
-grim_probability(
+grim_exp_incon(
   x,
   n,
   digits_x,
@@ -52,7 +52,7 @@ see \code{\link[roundwork:unround]{roundwork::unround()}}.
 \code{\link[=grim_map]{grim_map()}} passes its own \code{rounding} and \code{threshold} on.}
 }
 \value{
-Double. \code{grim_probability()} and \code{grim_total()} return \code{NA} where
+Double. \code{grim_exp_incon()} and \code{grim_total()} return \code{NA} where
 \code{\link[=grim]{grim()}} cannot decide a case: if \code{x} is missing or infinite, or if \code{n}
 or \code{items_averaged} is not a positive whole number. They are never
 negative.
@@ -61,9 +61,9 @@ negative.
 These functions quantify how informative a GRIM test is for a
 given sample size and number of decimal places:
 \itemize{
-\item \code{grim_probability()} returns the probability that a mean or percentage
+\item \code{grim_exp_incon()} returns the probability that a mean or percentage
 with \code{digits_x} decimal places that is otherwise random is
-GRIM-inconsistent with \code{n}. It is the \code{probability} column of
+GRIM-inconsistent with \code{n}. It is the \code{exp_incon} column of
 \code{\link[=grim_map]{grim_map()}}.
 \item \code{grim_total()} returns the number of such inconsistent values between
 two whole numbers, out of \code{10^digits_x} (\code{10^(digits_x + 2)} with
@@ -74,15 +74,15 @@ See \code{vignette("grim")}, section \emph{GRIM statistics}.
 }
 \examples{
 # Many value sets are inconsistent here:
-grim_probability(x = 83.29, n = 21, digits_x = 2, items_averaged = 1)
+grim_exp_incon(x = 83.29, n = 21, digits_x = 2, items_averaged = 1)
 grim_total(x = 83.29, n = 21, digits_x = 2, items_averaged = 1)
 
 # None are in this case...
-grim_probability(x = 5.14, n = 120, digits_x = 2, items_averaged = 1)
+grim_exp_incon(x = 5.14, n = 120, digits_x = 2, items_averaged = 1)
 grim_total(x = 5.14, n = 120, digits_x = 2, items_averaged = 1)
 
 # ...but most would be if `x` were a percentage:
-grim_probability(
+grim_exp_incon(
   x = 5.14,
   n = 120,
   digits_x = 2,

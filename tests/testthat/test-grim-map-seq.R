@@ -492,7 +492,7 @@ pigs1_exp <- tibble::tibble(
     FALSE,
     TRUE
   ),
-  probability = grim_probability(x, n, 2, items_averaged = 1),
+  exp_incon = grim_exp_incon(x, n, 2, items_averaged = 1),
   diff_var = rep(c(-5L, -4L, -3L, -2L, -1L, 1L, 2L, 3L, 4L, 5L), 16),
   case = rep(rep(c(2L, 3L, 4L, 5L, 7L, 9L, 10L, 12L), 2), each = 10L),
   var = rep(c("x", "n"), each = 80L),
@@ -822,7 +822,7 @@ pigs2_exp <- tibble::tibble(
     FALSE,
     FALSE
   ),
-  probability = grim_probability(x, n, 1, percent = TRUE, items_averaged = 1),
+  exp_incon = grim_exp_incon(x, n, 1, percent = TRUE, items_averaged = 1),
   diff_var = rep(c(-5L, -4L, -3L, -2L, -1L, 1L, 2L, 3L, 4L, 5L), 10),
   case = rep(rep(c(1L, 2L, 4L, 5L, 6L), 2), each = 10L),
   var = rep(c("x", "n"), each = 50L),
@@ -1380,7 +1380,7 @@ pigs1_include_reported_exp <- tibble::tibble(
     FALSE,
     TRUE
   ),
-  probability = grim_probability(x, n, 2, items_averaged = 1),
+  exp_incon = grim_exp_incon(x, n, 2, items_averaged = 1),
   diff_var = rep(-5:5, 16),
   case = rep(rep(c(2L, 3L, 4L, 5L, 7L, 9L, 10L, 12L), 2), each = 11L),
   var = rep(c("x", "n"), each = 88L),
@@ -1413,7 +1413,7 @@ test_that("`grim_map_seq()` output has correct structure", {
   pigs1_exp |> expect_s3_class("scrutiny_grim_map_seq")
   pigs1_exp |> expect_s3_class("scrutiny_grim_map")
   pigs1_exp |>
-    expect_named(c("x", "n", "items_averaged", "digits_x", "consistency", "probability", "diff_var", "case", "var"))
+    expect_named(c("x", "n", "items_averaged", "digits_x", "consistency", "exp_incon", "diff_var", "case", "var"))
 
   # 8 inconsistent cases in pigs1, 10 dispersions each for x and n = 160 rows
   pigs1_exp |> nrow() |> expect_equal(160L)
@@ -1429,7 +1429,7 @@ test_that("`grim_map_seq()` output has correct structure", {
 test_that("`grim_map_seq()` with percent=TRUE has correct structure", {
   pigs2_exp |> expect_s3_class("scrutiny_grim_map_seq")
   pigs2_exp |>
-    expect_named(c("x", "n", "items_averaged", "digits_x", "consistency", "probability", "diff_var", "case", "var"))
+    expect_named(c("x", "n", "items_averaged", "digits_x", "consistency", "exp_incon", "diff_var", "case", "var"))
 
   # 5 inconsistent cases in pigs2, 10 dispersions each for x and n = 100 rows
   pigs2_exp |> nrow() |> expect_equal(100L)

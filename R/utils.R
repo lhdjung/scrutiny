@@ -203,7 +203,7 @@ check_enumeration_size <- function(bounds, n, digits_x, limit = 1e6) {
 #'   `items_averaged`: `TRUE` where the test can decide the case, `FALSE` where
 #'   it cannot. Never `NA`: a missing `n` or `items_averaged` is undecidable.
 #'   The `*_scalar()` functions call this on single values,
-#'   `grim_probability()` on columns.
+#'   `grim_exp_incon()` on columns.
 #'
 #' @noRd
 is_decidable_n_items <- function(n, items_averaged = 1, min_n = 1) {
@@ -218,7 +218,7 @@ is_decidable_n_items <- function(n, items_averaged = 1, min_n = 1) {
   # The condition appears twice, with `&&` and with `&`, and the two must stay
   # identical. `&&` neither allocates nor evaluates what it does not need, so
   # the scalar version, which the `*_scalar()` functions reach once per row, is
-  # some 1.8 times faster. `grim_probability()` needs the column version. A
+  # some 1.8 times faster. `grim_exp_incon()` needs the column version. A
   # test in test-utils.R requires both to agree over a grid.
   if (length(n) == 1L && length(items_averaged) == 1L && length(min_n) == 1L) {
     return(

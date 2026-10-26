@@ -5,7 +5,7 @@ test_that("`grim_plot_rates()` summarises one point per study", {
   rates <- data |> grim_plot_rates(study) |> _$data
   rates$observed   |> expect_equal(c(0, 1, 1))
   rates$value_sets |> expect_equal(c(4L, 4L, 4L))
-  rates$expected[1L] |> expect_equal(mean(data$probability[data$study == "A"]))
+  rates$expected[1L] |> expect_equal(mean(data$exp_incon[data$study == "A"]))
   pigs1 |> grim_plot_rates(study) |> expect_error("output of `grim_map()`", fixed = TRUE)
 })
 
@@ -22,11 +22,11 @@ test_that("`grim_plot_rates()` selects `study` with tidyselect", {
 })
 
 
-test_that("`grim_plot_rates()` requires `consistency` and `probability`", {
+test_that("`grim_plot_rates()` requires `consistency` and `exp_incon`", {
   skip_if_not_installed("ggrepel")
   data <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1)
   data$study <- rep(c("A", "B"), 6)
-  data |> dplyr::select(-probability) |> grim_plot_rates(study) |> expect_error("Missing: `probability`")
+  data |> dplyr::select(-exp_incon) |> grim_plot_rates(study) |> expect_error("Missing: `exp_incon`")
 })
 
 

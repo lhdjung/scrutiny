@@ -55,8 +55,8 @@ df2 <- df1 |>
 df2_grim <- df2 |> grim_map(digits_x = 2, items_averaged = 1)
 
 # The raw formula `(10^digits_x - n) / 10^digits_x` can be negative:
-test_that("`probability` is zero if `ratio` would be negative", {
-  df2_grim$probability |> call_on(\(x) x == 0) |> all() |> expect_true()
+test_that("`exp_incon` is zero if `ratio` would be negative", {
+  df2_grim$exp_incon |> call_on(\(x) x == 0) |> all() |> expect_true()
 })
 
 
@@ -79,7 +79,7 @@ df3_percent_false <- df3 |> grim_map(digits_x = 0, items_averaged = 1, show_rec 
 test_that(
   "The probability of GRIM inconsistency is never smaller
   with `percent = TRUE` than without it", {
-    (df3_percent_true$probability >= df3_percent_false$probability) |>
+    (df3_percent_true$exp_incon >= df3_percent_false$exp_incon) |>
       all() |>
       expect_true()
 })
@@ -227,8 +227,8 @@ test_that("`x` and `n` make the specified columns take on these roles", {
 
 # `df7` was omitted
 
-test_that("a `probability` column is naturally present", {
-  df1_grim |> colnames() |> expect_contains("probability")
+test_that("a `exp_incon` column is naturally present", {
+  df1_grim |> colnames() |> expect_contains("exp_incon")
 })
 
 
@@ -465,7 +465,7 @@ df13 <- df1 |>
 test_that("other columns of `data` come along, to the right of the results", {
   out <- df13 |> grim_map(digits_x = 2, items_averaged = 1)
   out |> colnames() |> expect_equal(c(
-    "x", "n", "items_averaged", "digits_x", "consistency", "probability",
+    "x", "n", "items_averaged", "digits_x", "consistency", "exp_incon",
     "girth", "mirth", "birth"
   ))
   out$girth |> expect_equal(df13$girth)

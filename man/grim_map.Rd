@@ -58,8 +58,8 @@ A tibble with these columns:
 \item \code{digits_x}: the number of decimal places in \code{x}, as given.
 \item \code{consistency}: GRIM consistency of \code{x}, \code{n}, and \code{items_averaged}. \code{NA} for
 a case that cannot be decided, such as one with a missing value.
-\item \code{probability}: the probability of GRIM inconsistency; see
-\code{\link[=grim_probability]{grim_probability()}}.
+\item \code{exp_incon}: the probability of GRIM inconsistency; see
+\code{\link[=grim_exp_incon]{grim_exp_incon()}}.
 \item Any other columns from \code{data}.
 
 The tibble has the class \code{scrutiny_grim_map}, which is recognized by
@@ -97,14 +97,13 @@ the sum columns are not affected.
  \code{audit()} on \code{grim_map()} output
 returns a tibble with one row and these columns:
 \enumerate{
-\item \code{incons_cases}: number of GRIM-inconsistent value sets.
 \item \code{all_cases}: total number of value sets.
-\item \code{incons_rate}: proportion of GRIM-inconsistent value sets.
-\item \code{mean_grim_prob}: mean probability of GRIM inconsistency.
-\item \code{incons_to_prob}: ratio of \code{incons_rate} to \code{mean_grim_prob}, both
-computed over the value sets that could be decided.
-\item \code{testable_cases}: number of value sets with a positive \code{probability}.
-\item \code{testable_rate}: proportion of such value sets.
+\item \code{testable_cases}: number of value sets with a positive \code{exp_incon}.
+\item \code{incon_cases}: number of GRIM-inconsistent value sets.
+\item \code{emp_incon}: proportion of GRIM-inconsistent value sets.
+\item \code{exp_incon}: mean probability of GRIM inconsistency.
+\item \code{ratio}: ratio of \code{emp_incon} to \code{exp_incon}, both computed over the
+value sets that could be decided.
 }
 }
 
