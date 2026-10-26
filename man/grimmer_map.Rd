@@ -86,9 +86,9 @@ accepts it as well.
  \code{audit()} on \code{grimmer_map()} output
 returns a tibble with one row and these columns:
 \enumerate{
-\item \code{incons_cases}: number of GRIMMER-inconsistent value sets.
 \item \code{all_cases}: total number of value sets.
-\item \code{incons_rate}: proportion of GRIMMER-inconsistent value sets.
+\item \code{incon_cases}: number of GRIMMER-inconsistent value sets.
+\item \code{emp_incon}: proportion of GRIMMER-inconsistent value sets.
 \item \code{fail_grim}: number of value sets that fail GRIM.
 \item \code{fail_test1}, \code{fail_test3}: number of value sets that fail GRIMMER's
 first or third test. Test 2 is implied by test 1, so it never fails.

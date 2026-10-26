@@ -21,7 +21,7 @@ test_that("`add_up_to_map()` adds up the selected columns", {
   out <- df |> add_up_to_map(summands = starts_with("n_"))
   out$consistency |> expect_equal(c(TRUE, TRUE, FALSE))
   out |> colnames() |> expect_equal(c(colnames(df), "consistency"))
-  out |> audit() |> getElement("incons_cases") |> expect_equal(1L)
+  out |> audit() |> getElement("incon_cases") |> expect_equal(1L)
   df |> add_up_to_map(summands = c(n_control, n_treatment)) |> getElement("consistency") |> expect_equal(c(FALSE, FALSE, FALSE))
   df |> add_up_to_map() |> expect_error("summands")
 })

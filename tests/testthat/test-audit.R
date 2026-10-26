@@ -17,9 +17,9 @@ data_debit <- pigs3 |> debit_map(digits_x = 2, digits_sd = 2)
 audit_debit <- data_debit |> audit()
 
 test_that("`audit()` summarizes DEBIT tests accurately", {
-  audit_debit$incons_cases |> as.numeric() |> expect_equal(1)
+  audit_debit$incon_cases |> as.numeric() |> expect_equal(1)
   audit_debit$all_cases    |> as.numeric() |> dplyr::near(7) |> expect_true()
-  audit_debit$incons_rate |> round(3) |> dplyr::near(0.143) |> expect_true()
+  audit_debit$emp_incon |> round(3) |> dplyr::near(0.143) |> expect_true()
 })
 
 

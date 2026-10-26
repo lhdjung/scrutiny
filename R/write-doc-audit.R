@@ -46,21 +46,21 @@ write_doc_audit <- function(sample_output, name_test) {
   output_name <- colnames(sample_output)
   output_number <- seq_along(output_name)
   output_text <- c(
-    glue::glue("number of {name_test}-inconsistent value sets."),
     "total number of value sets.",
+    glue::glue("number of {name_test}-inconsistent value sets."),
     glue::glue("proportion of {name_test}-inconsistent value sets.")
   )
 
   length_other_cols <- length(sample_output) - 3L
   output_text <- append(output_text, rep("", length_other_cols))
 
-  output_name_expected <- c("incons_cases", "all_cases", "incons_rate")
+  output_name_expected <- c("all_cases", "incon_cases", "emp_incon")
 
   if (any(output_name[1:3] != output_name_expected)) {
     offenders <- wrap_in_backticks(output_name[1:3])
     abort_in_export(
       "!" = "The first three columns in the output must be named \\
-      \"incons_cases\", \"all_cases\", and \"incons_rate\".",
+      \"all_cases\", \"incon_cases\", and \"emp_incon\".",
       "x" = "They are {offenders}."
     )
   }

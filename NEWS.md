@@ -38,7 +38,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 ### Function interfaces
 
-- `grim_probability()` is now `grim_exp_incon()`, and the `probability` column of `grim_map()` is now `exp_incon`, the expected rate of inconsistency. In `audit()` on `grim_map()` output, the columns are now `all_cases`, `testable_cases`, `incon_cases`, `emp_incon` (formerly `incons_rate`), `exp_incon` (formerly `mean_grim_prob`), and `ratio` (formerly `incons_to_prob`). `testable_rate` was removed: it is `testable_cases / all_cases`.
+- `grim_probability()` is now `grim_exp_incon()`, and the `probability` column of `grim_map()` is now `exp_incon`, the expected rate of inconsistency. In every `audit()` method for mapper output, including `audit_cols_minimal()`, the first columns are now `all_cases`, `incon_cases` (formerly `incons_cases`), and `emp_incon` (formerly `incons_rate`), in this order. For `grim_map()` output, `testable_cases` follows `all_cases`, and `exp_incon` (formerly `mean_grim_prob`) and `ratio` (formerly `incons_to_prob`) come last. `testable_rate` was removed: it is `testable_cases / all_cases`.
 
 - `items` is now `items_averaged` and has no default (#94). It is the number of items averaged into each score; the old name was mistaken for the number of scale points, and the old default of 1 silently tested means of multi-item scales as single items. Give it wherever it applies, as in `grim()`, `grimmer()`, their mappers, `grim_values()`, and `grim_exp_incon()`; use `items_averaged = 1` for single items and percentages. Mappers also accept an `items_averaged` column. `grim_granularity()` keeps its default of 1.
 
@@ -46,7 +46,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - scrutiny uses the base pipe `|>`, no longer exports `%>%`, and requires R >= 4.1.0.
 
-- `grim_map()`, `grimmer_map()`, and `debit_map()` are made by `function_map()` and have an explicit argument for every argument of `grim()`, `grimmer()`, and `debit()`, such as `debit_map(formula)`. A `digits_*` column of `data` that disagrees with the argument is an error, as are two key arguments that name the same column. `merge_items`, `extra`, and `testables_only` were removed: use `dplyr::select()` instead of `extra` and `dplyr::filter(probability > 0)` instead of `testables_only`. `grim_map(percent = TRUE)` no longer prints a message.
+- `grim_map()`, `grimmer_map()`, and `debit_map()` are made by `function_map()` and have an explicit argument for every argument of `grim()`, `grimmer()`, and `debit()`, such as `debit_map(formula)`. A `digits_*` column of `data` that disagrees with the argument is an error, as are two key arguments that name the same column. `merge_items`, `extra`, and `testables_only` were removed: use `dplyr::select()` instead of `extra` and `dplyr::filter(exp_incon > 0)` instead of `testables_only`. `grim_map(percent = TRUE)` no longer prints a message.
 
 - The sequence and total-n mappers, such as `grim_map_seq()`, have an explicit argument for every setting of their basic mapper, such as `rounding` or `sd_meaning`, with the same default. These used to be passed through the dots, which must now be empty. Existing calls are unaffected.
 

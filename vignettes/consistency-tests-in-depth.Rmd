@@ -304,11 +304,11 @@ class(df1_tested)
 
 Like the generic, the method takes `data` and `...`. It returns a tibble with at least these columns:
 
-1.  `incons_cases`, the number of rows in which `consistency` is `FALSE`.
+1.  `all_cases`, the total number of rows.
 
-2.  `all_cases`, the total number of rows.
+2.  `incon_cases`, the number of rows in which `consistency` is `FALSE`.
 
-3.  `incons_rate`, the ratio of `incons_cases` to `all_cases`.
+3.  `emp_incon`, the ratio of `incon_cases` to `all_cases`.
 
 Add any other descriptive statistics that suit the test, such as means of output columns. All existing methods return a single row. Summaries by group come from `audit()`'s `.by` argument, which applies the method to each group, so the method itself needs no grouping.
 

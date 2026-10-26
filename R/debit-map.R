@@ -45,9 +45,9 @@
 #' @section Summaries with [`audit()`]: `audit()` on `debit_map()` output
 #'   returns a tibble with one row and these columns:
 #'
-#' 1. `incons_cases`: number of DEBIT-inconsistent value sets.
-#' 2. `all_cases`: total number of value sets.
-#' 3. `incons_rate`: proportion of DEBIT-inconsistent value sets.
+#' 1. `all_cases`: total number of value sets.
+#' 2. `incon_cases`: number of DEBIT-inconsistent value sets.
+#' 3. `emp_incon`: proportion of DEBIT-inconsistent value sets.
 #' 4. `mean_x`: mean of the `x` values.
 #' 5. `mean_sd`: mean of the `sd` values.
 #' 6. `distinct_n`: number of distinct `n` values.

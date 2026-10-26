@@ -2,9 +2,9 @@
 
 0 errors | 0 warnings | 1 note
 
-* The NOTE lists four URLs that answer automated requests with 403 Forbidden
-  (Medium, PeerJ, and MathWorks block non-browser clients). All of them open in
-  a browser and are kept as sources.
+* The NOTE lists three URLs that answer automated requests with 403 Forbidden
+  (Medium and PeerJ block non-browser clients). All of them open in a browser
+  and are kept as sources.
 
 ## Reverse dependencies
 

@@ -79,7 +79,7 @@ pigs3 |>
   audit()
 ```
 
-- `incons_cases`, `all_cases`, `incons_rate`: the number of inconsistent value sets, the total, and their ratio.
+- `all_cases`, `incon_cases`, `emp_incon`: the total number of value sets, the number of inconsistent ones, and their ratio.
 - `mean_x`, `mean_sd`: the means of the reported means and SDs.
 - `distinct_n`: the number of distinct sample sizes.
 

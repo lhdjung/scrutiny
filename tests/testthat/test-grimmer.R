@@ -743,7 +743,7 @@ test_that("GRIMMER returns `NA` where GRIM itself is undecidable", {
   out$consistency |> expect_equal(c(NA, FALSE))
   out$reason[1L] |> expect_equal("No testable value set")
   out |> audit() |> purrr::pluck("fail_grim")    |> expect_equal(0L)
-  out |> audit() |> purrr::pluck("incons_cases") |> expect_equal(1L)
+  out |> audit() |> purrr::pluck("incon_cases") |> expect_equal(1L)
 })
 
 # A brute-force oracle, complementing the random trials above. Those sample 400

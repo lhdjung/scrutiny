@@ -72,9 +72,9 @@ Call \code{\link[=audit]{audit()}} on the output for summary statistics and
  \code{audit()} on \code{debit_map()} output
 returns a tibble with one row and these columns:
 \enumerate{
-\item \code{incons_cases}: number of DEBIT-inconsistent value sets.
 \item \code{all_cases}: total number of value sets.
-\item \code{incons_rate}: proportion of DEBIT-inconsistent value sets.
+\item \code{incon_cases}: number of DEBIT-inconsistent value sets.
+\item \code{emp_incon}: proportion of DEBIT-inconsistent value sets.
 \item \code{mean_x}: mean of the \code{x} values.
 \item \code{mean_sd}: mean of the \code{sd} values.
 \item \code{distinct_n}: number of distinct \code{n} values.

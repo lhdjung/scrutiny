@@ -55,9 +55,9 @@
 #' @section Summaries with [`audit()`]: `audit()` on `grimmer_map()` output
 #'   returns a tibble with one row and these columns:
 #'
-#' 1. `incons_cases`: number of GRIMMER-inconsistent value sets.
-#' 2. `all_cases`: total number of value sets.
-#' 3. `incons_rate`: proportion of GRIMMER-inconsistent value sets.
+#' 1. `all_cases`: total number of value sets.
+#' 2. `incon_cases`: number of GRIMMER-inconsistent value sets.
+#' 3. `emp_incon`: proportion of GRIMMER-inconsistent value sets.
 #' 4. `fail_grim`: number of value sets that fail GRIM.
 #' 5. `fail_test1`, `fail_test3`: number of value sets that fail GRIMMER's
 #'    first or third test. Test 2 is implied by test 1, so it never fails.

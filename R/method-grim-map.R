@@ -21,8 +21,8 @@ audit.scrutiny_grim_map <- function(data, ...) {
     x = list(
       all_cases = out$all_cases,
       testable_cases = testable_cases,
-      incon_cases = out$incons_cases,
-      emp_incon = out$incons_rate,
+      incon_cases = out$incon_cases,
+      emp_incon = out$emp_incon,
       exp_incon = exp_incon,
       ratio = ratio
     ),

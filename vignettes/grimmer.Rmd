@@ -112,7 +112,7 @@ flying_pigs1 |>
   audit()
 ```
 
-- `incons_cases`, `all_cases`, `incons_rate`: the number of inconsistent value sets, the total, and their ratio.
+- `all_cases`, `incon_cases`, `emp_incon`: the total number of value sets, the number of inconsistent ones, and their ratio.
 - `fail_grim`, `fail_test1`, `fail_test3`: the number of value sets that failed GRIM or GRIMMER's first or third test.
 
 ## Visualization with `grim_plot_grid()`

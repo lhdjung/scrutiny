@@ -49,7 +49,7 @@ test_that("`is_percentage_of_map()` tests each row", {
   out <- df |> is_percentage_of_map(digits_percentage = 0)
   out$consistency |> expect_equal(c(TRUE, TRUE, FALSE))
   out |> expect_s3_class("scrutiny_is_percentage_of_map")
-  out |> audit() |> getElement("incons_cases") |> expect_equal(1L)
+  out |> audit() |> getElement("incon_cases") |> expect_equal(1L)
   df |> is_percentage_of_map() |> expect_error("digits_percentage")
 })
 
