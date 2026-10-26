@@ -77,6 +77,9 @@ expect_tiers_agree <- function(
   picked_twice <- picked[reported] |> dplyr::rename_with(\(x) paste0(x, 1L))
   picked_twice[paste0(reported, 2L)] <- picked[reported]
   picked_twice$n <- 2L * picked$n
+  # Helper columns such as `items_averaged`:
+  others <- setdiff(names(picked), c(reported, "n"))
+  picked_twice[others] <- picked[others]
   out <- do.call(mapper_total_n, c(list(picked_twice), args, settings))
   out |> expect_rows_agree(fun, settings, "total-n")
 }
@@ -86,6 +89,12 @@ test_that("every GRIM mapper tier agrees with `grim()` row by row", {
   grid <- tidyr::expand_grid(x = round(seq(-3, 3, by = 0.1), 1), n = c(2:30, 40L, 50L, 100L))
   settings <- list(rounding = "up_from", threshold = 3, symmetric = TRUE)
   grid |> expect_tiers_agree(grim_map, grim_map_seq, grim_map_total_n, grim, list(digits_x = 1, items_averaged = 2), settings)
+})
+
+test_that("every GRIM mapper tier agrees with `grim()` on percentages and an `items_averaged` column", {
+  grid <- tidyr::expand_grid(x = seq(0, 100, by = 2.5), n = c(3:20, 40L, 50L), items_averaged = 1:3)
+  settings <- list(percent = TRUE, rounding = "up_from", threshold = 3)
+  grid |> expect_tiers_agree(grim_map, grim_map_seq, grim_map_total_n, grim, list(digits_x = 1), settings)
 })
 
 test_that("every GRIMMER mapper tier agrees with `grimmer()` row by row", {
