@@ -19,11 +19,11 @@ knitr::opts_chunk$set(
 library(scrutiny)
 ```
 
-scrutiny exports a number of helper functions on which its error detection techniques are built, since they may be useful for implementing other techniques. This vignette gives an overview. For rounding, see `vignette("rounding-in-depth")`; for the consistency test infrastructure, see `vignette("consistency-tests-simple")`.
+scrutiny exports the helper functions on which its error detection techniques are built, since they may be useful for implementing other techniques. This vignette gives an overview. For rounding, see `vignette("rounding-in-depth")`; for the consistency test infrastructure, see `vignette("consistency-tests-in-depth")`.
 
 ## Count decimal places
 
-The sequence functions below and `restore_zeros()` are based on `decimal_places()`, which counts decimal places, i.e., the digits after the decimal point or another separator. It takes numbers and strings, and it is vectorized:
+`seq_disperse()` and `restore_zeros()` are based on `decimal_places()`, which counts decimal places, i.e., the digits after the decimal point or another separator. It takes numbers and strings, and it is vectorized:
 
 ```{r}
 decimal_places("2.80")
@@ -48,44 +48,11 @@ decimal_places(7.200)
 decimal_places("7.200")
 ```
 
-## Restore trailing zeros
-
-`restore_zeros()` restores trailing zeros to numbers that lost them, returning strings. The `seq_*()` functions below use it.
-
-Suppose all of the following numbers originally had one decimal place, but some no longer do:
-
-```{r}
-vec2 <- c(4, 6.9, 5, 4.2, 4.8, 7, 4)
-
-vec2 |>
-  decimal_places()
-```
-
-Now, get them back with `restore_zeros()`:
-
-```{r}
-vec2 |>
-  restore_zeros()
-
-vec2 |>
-  restore_zeros() |>
-  decimal_places()
-```
-
-This uses the default of going by the longest mantissa and padding the other strings with decimal zeros until they have that many decimal places. However, this is just a heuristic: The longest mantissa might itself have lost decimal places. Specify the `width` argument to explicitly state the desired mantissa length:
-
-```{r}
-vec2 |>
-  restore_zeros(width = 2)
-
-vec2 |>
-  restore_zeros(width = 2) |>
-  decimal_places()
-```
+`restore_zeros()` pads numbers with trailing zeros, returning strings; see `vignette("wrangling")`.
 
 ## Sequence generation
 
-`seq_disperse()` creates a sequence centered around `from`. It takes the step size from the decimal places of `from`, so that a sequence around `4.1` proceeds in steps of `0.1`. A number loses trailing zeros, so state the step size with `by` for a value like `5.30`:
+`seq_disperse()` creates a numeric sequence centered around `from`. It takes the step size from the decimal places of `from`, so that a sequence around `4.1` proceeds in steps of `0.1`. A number loses trailing zeros, so for a value like `5.30`, state the step size with `by` or give `from` as a string:
 
 ```{r}
 seq_disperse(from = 4.1, dispersion = 1:3)
@@ -94,6 +61,7 @@ seq_disperse(from = 4.1, dispersion = 1:3)
 seq_disperse(from = 4.1)
 
 seq_disperse(from = 5.30, by = 0.01, dispersion = 1:3)
+seq_disperse(from = "5.30", dispersion = 1:3)
 ```
 
 `seq_disperse_df()` embeds the sequence as a tibble column. `seq_disperse()` is a hybrid between `base::seq()` and the `disperse*()` functions introduced below.
@@ -175,7 +143,6 @@ If no value substituted for the `NA`s could make `x` the kind of sequence in que
 ```{r}
 is_seq_linear(x = c(1, 2, NA, 10))
 is_seq_linear(x = c(1, 2, NA, NA, NA, 10))
-
 ```
 
 This follows R's own rules for missing values: `is_seq_ascending(x = c(1, 2, NA, 1))` is `FALSE` for the same reason that `NA & FALSE` is `FALSE`. The result is the same for every value that the `NA` could represent [@wickham2019, ch. 3.2.3].

@@ -13,6 +13,8 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+# Show bounds like `3.495` in full rather than as `3.50`:
+options(pillar.sigfig = 4)
 ```
 
 ```{r setup, include = FALSE}
@@ -33,7 +35,7 @@ Base R's `round()` rounds to even, and it decides which candidate is closer base
 reround(x = c(5.812, 7.249), digits = 2, rounding = "up")
 ```
 
-Its remaining arguments are `threshold`, which only matters for the `"*_from"` procedures, and `symmetric`, which decides how negative numbers are rounded. With `symmetric = TRUE`, a negative number is rounded like its absolute value, which is what Excel, SPSS, SAS, and Matlab do. With the default, `FALSE`, "up" and "down" refer to the number line, so that a negative tie rounded up moves toward zero. Stata rounds this way.
+Its remaining arguments are `threshold`, which only matters for the `"*_from"` procedures, and `symmetric`, which decides how negative numbers are rounded; see *Negative numbers* below.
 
 The compound procedures `"up_or_down"`, `"up_from_or_down_from"`, and `"ceiling_or_floor"` return two values per input value, one for each of the two procedures. `"up_or_down"` is the default throughout the package. A consistency test then accepts a value set if either rounding direction would have produced the reported number. This is appropriate when the actual procedure is unknown.
 
@@ -88,7 +90,7 @@ round_up(-2.5)
 round_up(-2.5, symmetric = TRUE)
 ```
 
-Most statistical software rounds the second way. This only matters for data with negative values, such as difference scores or effect sizes, and only if a single rounding direction is assumed: under `"up_or_down"`, both results are accepted anyway.
+Excel, SPSS, SAS, and Matlab round the second way, Stata the first. This only matters for data with negative values, such as difference scores or effect sizes, and only if a single rounding direction is assumed: under `"up_or_down"`, both results are accepted anyway.
 
 ### Named by their tie rule
 

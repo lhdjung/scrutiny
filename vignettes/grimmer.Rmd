@@ -36,7 +36,7 @@ To test whether a mean of 7.3 and an SD of 2.51 are consistent with a sample siz
 grimmer(x = 7.3, sd = 2.51, n = 12, digits_x = 1, digits_sd = 2, items_averaged = 1)
 ```
 
-`digits_x` and `digits_sd` are the numbers of decimal places in the reported mean and SD. They have no defaults because they cannot be inferred from numeric values, which lose their trailing zeros.
+`digits_x` and `digits_sd` are the numbers of decimal places of the reported mean and SD. As in `grim()`, they must be given because numeric values lose trailing zeros.
 
 ### Many cases: `grimmer_map()`
 
@@ -61,13 +61,13 @@ grimmer_map(flying_pigs1, digits_x = 1, digits_sd = 2, items_averaged = 1)
 
 1.  The reconstructed sum of squared observations must be an integer, and one that integers with the reconstructed sum can reach. scrutiny adds this second part to Allard's test: for example, no 11 integers with a sum of 40 have a sum of squares below 148, which is that of seven 4s and four 3s. For fewer than five values, some larger sums of squares are impossible, too.
 2.  The reconstructed SD must match the reported one. Test 1 implies this, so it never appears as a reason.
-3.  The parity of the reconstructed sum of squares must match that of the reconstructed sum of the values.
+3.  The sum of squares must have the same parity (odd or even) as the sum.
 
 Consistent value sets are marked `"Passed all"`.
 
 ### Scale items
 
-If the mean and SD come from a multi-item scale, state the number of items with the `items_averaged` argument or column, as in `grim_map()`. Taken as single items, half of these value sets from a three-item scale are wrongly reported as GRIM-inconsistent:
+For a multi-item scale, give the number of items as an `items_averaged` argument or column, as in `grim_map()`. Taken as single items, half of these value sets from a three-item scale are wrongly flagged:
 
 ```{r}
 flying_pigs2 <- tibble::tribble(
@@ -89,18 +89,20 @@ flying_pigs2 |>
 
 ### Sample or population SD
 
-GRIMMER takes the SD to be a sample SD, which divides by $n - 1$, as in R, SPSS, and Stata. Some software reports the population SD, which divides by $n$, such as NumPy's `np.std()` or Excel's `STDEV.P`. At small $n$, such an SD often fails the test as a sample SD. The values 2, 4, 4, 5, and 7 have a mean of 4.4 and a population SD of 1.62:
+GRIMMER takes the SD to be a sample SD, which divides by $n - 1$, as in R, SPSS, and Stata. Some software, such as NumPy's `np.std()` or Excel's `STDEV.P`, reports the population SD, which divides by $n$. At small $n$, such an SD often fails the test as a sample SD. The values 2, 4, 4, 5, and 7 have a mean of 4.4 and a population SD of 1.62:
 
 ```{r}
 grimmer(x = 4.4, sd = 1.62, n = 5, digits_x = 1, digits_sd = 2, items_averaged = 1)
 grimmer(x = 4.4, sd = 1.62, n = 5, digits_x = 1, digits_sd = 2, items_averaged = 1, sd_meaning = "sd_pop")
 ```
 
-`sd_meaning = "sd_sample_or_pop"` accepts a value set that is consistent under one convention or the other, and the `reason` column of `grimmer_map()` says which. It accepts many more SDs than either convention alone, so testing under `"sd_sample"` and `"sd_pop"` separately tells you more about a study, which has most likely computed all its SDs the same way.
+`sd_meaning = "sd_sample_or_pop"` accepts a value set that is consistent under either convention, and the `reason` column of `grimmer_map()` says which one. It accepts more SDs than either convention alone, and a study has most likely computed all its SDs the same way, so testing under `"sd_sample"` and `"sd_pop"` separately tells you more.
+
+`sd_meaning = "se"` tests whether a standard error was reported as an SD. This test is weak; see `vignette("interpreting-results")`.
 
 ### Bounded scales
 
-For data on a bounded scale, such as a five-point Likert scale, see the [strait](https://github.com/ianhussey/strait) package. Its `brimmest()` decides exactly whether a mean and SD are possible within the bounds.
+GRIMMER does not use the bounds of a scale. For data on a bounded scale, such as a five-point Likert scale, see the [strait](https://github.com/ianhussey/strait) package, whose `brimmest()` decides exactly whether a mean and SD are possible within the bounds.
 
 ## Summaries with `audit()`
 
@@ -123,11 +125,15 @@ pigs5 |>
   grim_plot_grid()
 ```
 
-`grimmer_plot_values()` visualizes the test for a single value set. It shows the SDs that could have been reported within a certain range and marks those that a sample with the given mean and size can actually have.
+`grimmer_plot_values()` draws the test for a single value set, like `grim_plot_values()` does for means. It shows the SDs that could have been reported around the reported one and marks those that a sample with the given mean and size can have:
+
+```{r, fig.width=7, fig.height=3}
+grimmer_plot_values(x = 7.3, sd = 2.51, n = 12, digits_x = 1, digits_sd = 2, items_averaged = 1)
+```
 
 ## Values around the reported ones: `grimmer_map_seq()`
 
-`grimmer_map_seq()` varies `x`, `sd`, and `n` a few steps up and down from the reported values and tests each result, by default only for inconsistent value sets:
+`grimmer_map_seq()` varies `x`, `sd`, and `n` around the reported values, by default only for inconsistent value sets:
 
 ```{r}
 out_seq1 <- grimmer_map_seq(pigs5, digits_x = 2, digits_sd = 2, items_averaged = 1)
@@ -136,7 +142,7 @@ out_seq1
 audit_seq(out_seq1)
 ```
 
-The summary has the same structure as for GRIM, with `hits_sd` and the `diff_sd*` columns added. With more steps, more hits are typically found:
+The summary is the same as for GRIM, with `hits_sd` and the `diff_sd*` columns added. More steps typically find more hits:
 
 ```{r}
 out_seq2 <- grimmer_map_seq(

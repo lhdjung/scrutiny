@@ -34,13 +34,13 @@ The descriptive binary test, or DEBIT, checks whether the reported mean, sample 
 debit(x = 0.35, sd = 0.18, n = 20, digits_x = 2, digits_sd = 2)
 ```
 
-As in `grim()`, the numbers of decimal places in the mean and SD must be stated, because numeric values lose their trailing zeros. The SD is taken to be the sample SD. For a population SD, which divides by $n$ rather than $n - 1$, set `sd_meaning = "sd_pop"`; `sd_meaning = "sd_sample_or_pop"` accepts both.
+As in `grim()`, the numbers of decimal places must be given, because numeric values lose trailing zeros. The SD is taken to be a sample SD; for a population SD, which divides by $n$ rather than $n - 1$, set `sd_meaning = "sd_pop"`, as in `vignette("grimmer")`.
 
-By default (`formula = "exact"`), DEBIT only considers means that `n` binary values can have, that is, `k / n` for a whole number `k`. The original formulation of DEBIT treats the mean as a continuous quantity, so it accepts some SDs that no binary sample of size `n` can have. `formula = "mean_n"` reproduces this behavior.
+By default (`formula = "exact"`), DEBIT only considers means that `n` binary values can have, that is, `k / n` for a whole number `k`. The original formulation treats the mean as continuous, so it accepts some SDs that no binary sample of size `n` can have. `formula = "mean_n"` reproduces it.
 
 ## Many cases: `debit_map()`
 
-Enter the values into a data frame and call `debit_map()`. These are the example data from Table 1 of @heathers_debit_2019:
+`debit_map()` tests every row of a data frame. These are the example data from Table 1 of @heathers_debit_2019:
 
 ```{r}
 flying_pigs <- tibble::tibble(
@@ -53,10 +53,10 @@ flying_pigs |>
   debit_map(digits_x = 2, digits_sd = 2)
 ```
 
-`consistency` is the test result. With `show_rec = TRUE`, further columns contain the reconstructed values: the rounding bounds of `sd` and `x`, and `sum_lower` and `sum_upper`, the smallest and largest numbers of ones whose mean would be reported as `x`.
+With `show_rec = TRUE`, the output also has the reconstructed values: the rounding bounds of `sd` and `x`, and `sum_lower` and `sum_upper`, the smallest and largest numbers of ones whose mean would be reported as `x`. `pigs3` is an example dataset that comes with scrutiny:
 
 ```{r}
-pigs3 # data saved within the package
+pigs3
 
 pigs3 |>
   debit_map(digits_x = 2, digits_sd = 2, show_rec = TRUE)
@@ -69,7 +69,7 @@ pigs5 |>
   debit_map(digits_x = 2, digits_sd = 2)
 ```
 
-Compared to `grim_map()`, `debit_map()` has no percentage conversion and no `items_averaged` argument, since neither applies to binary data. It takes the same `rounding` arguments; see `vignette("rounding-options")`.
+Unlike `grim_map()`, `debit_map()` has no `percent` or `items_averaged` argument, since neither applies to binary data. It takes the same rounding arguments; see `vignette("rounding-options")`.
 
 ## Summaries with `audit()`
 
@@ -88,7 +88,7 @@ pigs3 |>
 `debit_plot()` takes the output of `debit_map()`. It needs the ggrepel package for its labels.
 
 ```{r, eval = rlang::is_installed("ggrepel")}
-# Determine plot theme for the remaining session:
+# `theme_set()` applies to all later plots in the session:
 ggplot2::theme_minimal(base_size = 12) |>
   ggplot2::theme_set()
 
@@ -97,7 +97,7 @@ pigs3 |>
   debit_plot()
 ```
 
-The arc is the DEBIT line: the SD of binary data as a function of their mean, for the given sample size. The points on it are the means that `n` binary values can have. Each value set is a rectangle spanning the rounding bounds of its mean and SD; under `formula = "exact"`, it is consistent if one of the points lies inside it. Consistent sets are blue, inconsistent ones red; see the examples in `?debit_plot` for other colors. Since a rectangle can be too small to see, each one is drawn over a point at the reported mean and SD. If `n` varies, the lines for the smallest and largest `n` are drawn and the band between them is shaded.
+The arc is the DEBIT line: the SD of binary data as a function of their mean, for the given sample size. The points on it are the means that `n` binary values can have. Each value set is a rectangle spanning the rounding bounds of its mean and SD, drawn over a point at the reported values in case the rectangle is too small to see. Under `formula = "exact"`, a value set is consistent if one of the points lies inside its rectangle. Consistent sets are blue, inconsistent ones red; see `?debit_plot` for other colors. If `n` varies, the lines for the smallest and largest `n` are drawn and the band between them is shaded.
 
 ## Values around the reported ones: `debit_map_seq()`
 
@@ -110,7 +110,7 @@ out_seq1
 audit_seq(out_seq1)
 ```
 
-The summary has the same structure as for GRIM and GRIMMER: `hits_*` columns count the consistent value sets found, and `diff_*` columns give the distance to the nearest one, in dispersion steps. `include_consistent = TRUE` disperses the consistent value sets as well:
+As for GRIM and GRIMMER, the `hits_*` columns count the consistent value sets found, and the `diff_*` columns give the distance to the nearest one in dispersion steps. `include_consistent = TRUE` disperses the consistent value sets as well:
 
 ```{r}
 out_seq2 <- debit_map_seq(

@@ -21,24 +21,21 @@ options(pillar.sigfig = 4)
 library(scrutiny)
 ```
 
-In general, scrutiny's techniques for error detection are designed for a focus on the essential points, cutting out time-consuming repetition. There are some bottlenecks, however, such as entering decimal numbers as strings, or splitting strings that look like `"7.64 (1.5)"`.
-
-This vignette shows how to save your time preparing data for error detection. It gives some general tips for these tasks, and then presents scrutiny's own specialized wrangling functions.
+Preparing data for error detection can take longer than the tests themselves: copying numbers from PDF, restoring trailing zeros, or splitting strings that look like `"7.64 (1.5)"`. This vignette gives some tips for these tasks and presents scrutiny's wrangling functions.
 
 ## Trailing zeros
 
 ### Motivation
 
-One particular challenge when looking for numeric irregularities using R is that numeric values don't preserve trailing zeros. A mean reported as 5.30 is stored as `5.3`, and the data do not show which one it was. However, trailing zeros are as important to GRIM, GRIMMER, and DEBIT as any other trailing digits would be.
+Numeric values in R don't preserve trailing zeros. A mean reported as 5.30 is stored as `5.3`, and the data do not show which one it was. However, trailing zeros are as important to GRIM, GRIMMER, and DEBIT as any other trailing digits would be.
 
 scrutiny's consistency tests solve this by asking you to state the number of decimal places explicitly: `grim_map()` has a `digits_x` argument, and `grimmer_map()` and `debit_map()` have `digits_x` and `digits_sd`. None of them has a default, so you can't forget. Values themselves stay numeric.
 
-You may still want the trailing zeros back in the values --- for display, for export, or for a function outside of scrutiny that expects strings. That is what `restore_zeros()` is for, and it is covered below.
+To get the trailing zeros back in the values, for display, export, or a function that expects strings, use `restore_zeros()`; see below.
 
-### Enter numbers as strings
+### Enter numbers from PDF
 
-
-Perhaps not all R users know that RStudio features an option for multiple cursors. These are especially useful in conjunction with `tibble::tribble()`. Here's how to use multiple cursors in the present context:
+RStudio's multiple cursors are useful together with `tibble::tribble()`:
 
 1.  Copy a column of numbers from PDF, pressing and holding `Alt` on Windows or `option` on Mac. (This works at least in Adobe Acrobat.)
 2.  Paste it into a `tribble()` call as below.
@@ -73,7 +70,7 @@ flights1
 
 ### Restore trailing zeros
 
-When you need the trailing zeros back in the values themselves --- not just stated via `digits_x` --- call `restore_zeros()`. It returns strings. Suppose all of the following numbers originally had one decimal place, but some no longer do:
+To restore trailing zeros in the values themselves, call `restore_zeros()`. It returns strings. Suppose all of the following numbers originally had one decimal place, but some no longer do:
 
 ```{r}
 vec <- c(4, 6.9, 5, 4.2, 4.8, 7, 4)
@@ -197,9 +194,9 @@ flights3 |>
 
 ## Replace column names by row values
 
-When extracting tables from PDF with tabulizer, you might get data frames (converted from matrices) that have wrong, nondescript column names, while the correct column names are stored in one or more rows within the data frame itself.
+Tables extracted from PDF, as with the tabulapdf package, may come with nondescript column names, while the correct names are stored in one or more rows of the data frame itself.
 
-I will first simulate the problem. `x` and `n` should be column names, but instead they are values in the first row:
+To simulate the problem: `x` and `n` should be column names, but instead they are values in the first row:
 
 ```{r}
 flights1_with_issues <- flights1 |>
@@ -211,13 +208,11 @@ colnames(flights1_with_issues) <- c("Var1", "Var2")
 flights1_with_issues
 ```
 
-To remedy the issue, call `row_to_colnames()` on the data frame. It will replace the column names by the values of one or more rows. The latter are specified by their position numbers as in `dplyr::slice()`. For these numbers, the default is `1` because the column names will often be stored in the first row, if at all. The specified row or rows are then dropped because they shouldn't have been rows in the first place.
-
-With the above example:
+`row_to_colnames()` replaces the column names by the values of one or more rows, specified by position as in `dplyr::slice()`, and drops these rows. The default is the first row:
 
 ```{r}
 flights1_with_issues |>
   row_to_colnames()
 ```
 
-Note that `n` is still a string vector, but this is true for all columns in tables extracted with tabulizer.
+All columns are still strings, as in any table extracted from PDF, so convert them with `as.numeric()` before testing.

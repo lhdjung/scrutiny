@@ -18,17 +18,15 @@ knitr::opts_chunk$set(
 library(scrutiny)
 ```
 
-Consistency tests, such as GRIM, check whether two or more summary values can describe the same data. This vignette shows the minimal steps for implementing a new one with scrutiny: write the core logic of the test, and let scrutiny's function factories take care of applying it to data frames. For details, see `vignette("consistency-tests-in-depth")`.
+Consistency tests, such as GRIM, check whether two or more summary values can describe the same data. To implement a new one with scrutiny, write the core logic of the test and let scrutiny's function factories apply it to data frames. This vignette shows the minimal steps; for details, see `vignette("consistency-tests-in-depth")`.
 
-## 1. Single-case 
+## 1. Single-case
 
-Encode the logic of your test in a simple function that takes single values. It should return `TRUE` if they are consistent and `FALSE` if they are not. Its name should end on `_scalar`, which refers to its single-case nature. Here, I use a mock test without real meaning, called SCHLIM:
+Write the test as a function that takes single values and returns `TRUE` if they are consistent, `FALSE` if they are not, and `NA` if the case can't be decided. End its name in `_scalar`. Here, the test is a mock one without real meaning, called SCHLIM:
 
 ```{r}
 schlim_scalar <- function(y, n) {
-  y <- as.numeric(y)
-  n <- as.numeric(n)
-  all(y / 3 > n)
+  (y / 3) > n
 }
 
 schlim_scalar(y = 30, n = 4)
@@ -45,11 +43,11 @@ schlim <- Vectorize(schlim_scalar)
 schlim(y = 10:15, n = 4)
 ```
 
-This works if every argument of the single-case function is a value to be tested, so that it makes sense to loop over it, and if the function always returns a single value. Otherwise, write the signature out; see `vignette("consistency-tests-in-depth")`, section 2.
+This works if every argument of the single-case function is a value to be tested and the function always returns a single value. Otherwise, write the signature out; see `vignette("consistency-tests-in-depth")`.
 
 ## 3. Basic mapper
 
-Next, create a function that tests every row of a data frame, like `grim_map()`. Its name should end on `_map`. `function_map()` creates it:
+`function_map()` creates a function that tests every row of a data frame, like `grim_map()`. End its name in `_map`:
 
 ```{r}
 schlim_map <- function_map(
@@ -66,9 +64,7 @@ schlim_map(df1)
 
 ## 4. `audit()` method
 
-Use scrutiny's `audit()` generic to get summary statistics. Write a new function named `audit.scrutiny_name_map()`, where `name` is the name of your test in lower-case --- here, `schlim`.
-
-Within the function body, call `audit_cols_minimal()`. This enables you to use `audit()` following the mapper function:
+For summaries with `audit()`, write a method named `audit.scrutiny_<name>_map()`, where `<name>` is the test's `.name_test` in lowercase, here `schlim`. Call `audit_cols_minimal()` in its body:
 
 ```{r}
 audit.scrutiny_schlim_map <- function(data, ...) {
@@ -80,7 +76,7 @@ df1 |>
   audit()
 ```
 
-`audit_cols_minimal()` only provides the most basic summaries. If you like, you can still add summary statistics that are more specific to your test. See, e.g., the *Summaries with `audit()`* section in `grim_map()`'s documentation.
+`audit_cols_minimal()` only provides the most basic summaries. You can add statistics specific to your test; for an example, see the *Summaries with `audit()`* section of `?grim_map`.
 
 ## 5. Sequence mapper
 
@@ -107,7 +103,7 @@ df1 |>
 
 ## 6. Total-n mapper
 
-Suppose you have grouped data but no group sizes are known, only a total sample size:
+Suppose two groups are reported with their values but only a total sample size:
 
 ```{r}
 df2 <- tibble::tribble(
@@ -117,7 +113,7 @@ df2 <- tibble::tribble(
 )
 ```
 
-To tackle this, create a total-n mapper that varies hypothetical group sizes:
+A total-n mapper tests hypothetical group sizes, like `grim_map_total_n()`:
 
 ```{r}
 schlim_map_total_n <- function_map_total_n(

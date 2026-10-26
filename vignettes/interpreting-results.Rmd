@@ -20,19 +20,19 @@ options(pillar.sigfig = 4)
 library(scrutiny)
 ```
 
-A consistency test says whether reported numbers can be true together. It does not say why they are not. This article lists the benign causes of an inconsistency, shows how to check each one, and suggests a workflow from the first test to a report.
+A consistency test says whether reported numbers can be true together, not why they are not. This article lists benign causes of an inconsistency, how to check each one, and a workflow from the first test to a report.
 
 ## What an inconsistency means
 
 GRIM, GRIMMER, and DEBIT each assume that the data are whole numbers, such as Likert responses or counts, and that the summary statistics were computed from all of them and then rounded. Under these assumptions, an inconsistent value set is impossible: no sample of `n` whole numbers has a mean (or SD) that rounds to the reported one.
 
-So an inconsistency means that at least one assumption is false, or at least one number was reported incorrectly. Most of the time, the explanation is mundane.
+So an inconsistency means that an assumption is false or a number was reported incorrectly. Most of the time, the explanation is mundane.
 
 ## Benign causes, and how to check them
 
 **Rounding.** Software and authors round in different ways. The default, `rounding = "up_or_down"`, accepts either direction at a tie, but a mean that was truncated may only be consistent under `rounding = "trunc"`. See `vignette("rounding-options")` for the methods and how to choose one.
 
-**The sample size.** The `n` that a mean was computed from may differ from the reported `n`: participants were excluded, some did not answer an item, or the table reports the `n` at baseline. `grim_map_seq()` varies `n` and shows how far it has to move:
+**The sample size.** The `n` behind a mean may differ from the reported `n`: participants were excluded, some did not answer an item, or the table reports the `n` at baseline. `grim_map_seq()` varies `n` and shows how far it has to move:
 
 ```{r}
 pigs1 |>
@@ -40,11 +40,11 @@ pigs1 |>
   audit_seq()
 ```
 
-`diff_n` is the number of steps to the nearest `n` with a consistent mean. A case with a hit one or two steps away might be explained by one or two missing answers. If group sizes are unknown and only the total is reported, see `grim_map_total_n()`.
+`diff_n` is the number of steps to the nearest `n` with a consistent mean. A hit one or two steps away might be explained by one or two missing answers. If only the total of several groups is reported, see `grim_map_total_n()`.
 
 **Scale items.** A mean of several items has more possible values than a mean of one. Set `items_averaged` to the number of items averaged into each score, not the number of scale points. A percentage can be multi-item, too, such as percent correct on a test of several questions.
 
-**The SD convention.** GRIMMER and DEBIT assume a sample SD by default. Some software reports the population SD, which divides by `n` instead of `n - 1`. `sd_meaning = "sd_sample_or_pop"` accepts a value set that is consistent under one of them:
+**The SD convention.** GRIMMER and DEBIT assume a sample SD by default. Some software reports the population SD, which divides by `n` instead of `n - 1`. `sd_meaning = "sd_sample_or_pop"` accepts a value set that is consistent under either, and `reason` says which:
 
 ```{r}
 pigs5 |>
@@ -57,7 +57,7 @@ pigs5 |>
 
 **Data that are not whole numbers.** The tests do not apply to continuous measures such as reaction times, nor to means that were weighted, imputed, or estimated by a model, such as estimated marginal means. Check the methods section before testing.
 
-**Typos.** A swapped or mistyped digit makes a mean inconsistent. `grim_map_seq()` with `var = "x"` finds nearby consistent values, but at large `n`, a nearby hit is likely by chance alone and says little.
+**Typos.** A swapped or mistyped digit can make a mean inconsistent. `grim_map_seq()` with `var = "x"` finds nearby consistent values, but at large `n`, a nearby hit is likely by chance alone and says little.
 
 ## A workflow
 
@@ -84,9 +84,9 @@ pigs1 |>
 
 ## How strong is the evidence?
 
-The `probability` column of `grim_map()` is the share of means with that many decimal places that would be inconsistent with `n` if their decimal digits were random. At a value of 0, GRIM cannot detect anything; near 1, a random mean would almost always fail. An inconsistency is more telling when this value is high.
+The `probability` column of `grim_map()` is the share of means with that many decimal places that would be inconsistent with `n` if their decimal digits were random. At 0, GRIM cannot detect anything; near 1, a random mean would almost always fail. An inconsistency is more telling when this value is high.
 
-One inconsistency in a paper is common and calls for a question, not a conclusion. Many inconsistencies, each with a high `probability`, that survive the checks above are a stronger signal. `grim_binomial()` tests whether a study's rate of consistent value sets is above what random digits would produce; see `vignette("grim")`.
+One inconsistency in a paper is common and calls for a question, not a conclusion. Many inconsistencies with a high `probability` that survive the checks above are a stronger signal. `grim_binomial()` tests whether a study's rate of consistent value sets is above what random digits would produce; see `vignette("grim")`.
 
 ## Reporting
 

@@ -26,54 +26,52 @@ library(scrutiny)
 
 This vignette describes scrutiny's infrastructure for implementing new consistency tests. For a short version, see `vignette("consistency-tests-simple")`.
 
-In scrutiny, a consistency test is implemented at several levels, each of which is created from the previous one by a function factory. Since the factories work the same way for every test, all test functions share one interface: anyone who knows the `grim_*()` functions can use the `grimmer_*()` functions as well.
+A consistency test is implemented at several levels, most of them created from the previous one by a function factory. Since the factories work the same way for every test, all test functions share one interface: anyone who knows the `grim_*()` functions can use the `grimmer_*()` functions as well.
 
-Below is an outline of these levels, and of the vignette, with GRIM as the example. If you implement a valid consistency test at least at the first level, I'll be happy to accept a pull request to scrutiny.
+These are the levels, with GRIM as the example. If you implement a valid consistency test at least at the first level, I'll be happy to accept a pull request to scrutiny.
 
-1.  A bare-bones, non-exported (!) function for testing a single set of cases, such as `grim_scalar()`.
+1.  A non-exported function that tests a single case, such as `grim_scalar()`.
 
-2.  A vectorized version of the single-case function, such as `grim()`.
+2.  A vectorized version of it, such as `grim()`.
 
-3.  A specialized mapping function that applies the single-case function to a data frame, such as `grim_map()`.
+3.  A mapper that applies the single-case function to each row of a data frame, such as `grim_map()`.
 
-4.  A method for the `audit()` generic that summarizes the results of number 3.
+4.  An `audit()` method that summarizes the output of number 3.
 
-5.  A visualization function that plots the results of number 3, such as `grim_plot_grid()`.
+5.  A function that plots the output of number 3, such as `grim_plot_grid()`.
 
-6.  A mapping function that checks if slightly varied input values are consistent with the respective other reported values, such as `grim_map_seq()`.
+6.  A sequence mapper that tests slightly varied input values, such as `grim_map_seq()`.
 
-7.  A mapping function to be used if only the total sample size was reported (in a study with two groups), not the individual group sizes, such as `grim_map_total_n()`.
+7.  A total-n mapper for studies with two groups that only report the total sample size, such as `grim_map_total_n()`.
 
-8.  `audit()` already works with the output of numbers 6 and 7, via `audit_seq()` and `audit_total_n()`. They still have to be specifically documented.
+8.  Documentation of `audit_seq()` and `audit_total_n()`, which already work with the output of numbers 6 and 7.
 
-The examples use a mock test called SCHLIM, which has no meaning in itself and only stands in for a real test. A real implementation will usually be more complex than the snippets below.
+The examples use a mock test called SCHLIM, which has no meaning in itself. A real implementation will usually be more complex than the snippets below.
 
-Please make sure to follow the [tidyverse style guide](https://style.tidyverse.org/) as well as the scrutiny-specific conventions laid out below, wherever applicable. If you'd like to write a new package, work with the free online book [*R Packages*](https://r-pkgs.org/) [@wickham2023].
+Please follow the [tidyverse style guide](https://style.tidyverse.org/) and the conventions below. To write a new package, see [*R Packages*](https://r-pkgs.org/) [@wickham2023].
 
 # 1. Single-case
 
 This function contains the test itself. It is not exported, but every other level builds on it.
 
-This function takes two or more arguments of length 1 that are meant to be tested for consistency with each other. Typically, they will be coercible to numeric. This means they either are numeric themselves or they are strings that can be converted to numbers (see `is_numeric_like()`). The function returns a logical value of length 1: It's `TRUE` if the inputs are mutually consistent, and `FALSE` if they aren't.
+It takes one value for each statistic that is tested for consistency with the others. It returns `TRUE` if they are consistent, `FALSE` if they aren't, and `NA` if the case can't be decided, as with a missing value.
 
 ```{r}
 schlim_scalar <- function(y, n) {
-  y <- as.numeric(y)
-  n <- as.numeric(n)
-  all(y / 3 > n)
+  (y / 3) > n
 }
 
 schlim_scalar(y = 30, n = 4)
 schlim_scalar(y = 2, n = 7)
 ```
 
-Other arguments might still be necessary, especially if your function reconstructs rounded numbers. An argument that determines how the function will round numbers should be called `rounding`. The function should then internally call `reround()`. The same goes for "unrounding" (i.e., reconstructing rounding bounds) and `unround()`. See also `vignette("rounding-in-depth")`. Such a function should take the number of decimal places as an argument, like `digits_x` in `grim()`, rather than count them: a numeric value has lost any trailing zeros.
+If the test reconstructs rounded numbers, give the function a `rounding` argument with the default `"up_or_down"`, and pass it on to `reround()` or `unround()`; see `vignette("rounding-in-depth")`. Take the number of decimal places as an argument without a default, like `digits_x` in `grim()`, rather than counting them: a numeric value has lost any trailing zeros.
 
-The function's name is that of the test in lowercase, followed by `_scalar` which refers to the one-case limit. If your function happens to be applicable to multiple value sets already due to R's natural vectorization, leave out `_scalar` and skip the next section. If you're building a package, export the function. (This will rarely be the case because every single argument needs to be vectorized.)
+Name the function after the test in lowercase, followed by `_scalar`. If R's own vectorization already makes it work on vectors in every argument, leave out `_scalar`, export it, and skip section 2.
 
 # 2. Vectorized
 
-The simplest way to vectorize the single-case function is `Vectorize()`. The resulting function is named after the test, that is, like the single-case function without `_scalar`:
+The simplest way to vectorize the single-case function is `Vectorize()`. The result is named after the test:
 
 ```{r}
 schlim <- Vectorize(schlim_scalar)
@@ -81,21 +79,17 @@ schlim <- Vectorize(schlim_scalar)
 schlim(y = 10:15, n = 4)
 ```
 
-`Vectorize()` copies all arguments of the single-case function and loops over all of them. This is wrong for two kinds of arguments: those that only the mapper should set, such as `show_rec` in `grim_scalar()`, which makes the function return a list instead of a logical value; and those that describe the test as a whole rather than a value to be tested, such as `rounding`. For this reason, scrutiny's own `grim()`, `grimmer()`, and `debit()` are not created by `Vectorize()` but have explicitly written signatures. If your single-case function has such arguments, do the same.
+`Vectorize()` loops over every argument. This is wrong for two kinds of arguments: those that only the mapper should set, such as `show_rec` in `grim_scalar()`, which makes the function return a list; and those that describe the test as a whole, such as `rounding`. This is why `grim()`, `grimmer()`, and `debit()` have handwritten signatures instead. If your single-case function has such arguments, do the same.
 
-The vectorized function is not used in the rest of the vignette, which builds on the mapper instead.
+The rest of the vignette builds on the mapper, not on the vectorized function.
 
 # 3. Basic mapper
 
-## Introduction
-
-The most important practical use of a consistency test within scrutiny is to apply it to entire data frames at once, as `grim_map()` does. That's also the starting point for every other function below.
-
-The mapper functions accept any data frame and return a [tibble](https://r4ds.had.co.nz/tibbles.html).
-
 ## Creating basic mappers with `function_map()`
 
-The recommended way to create a basic mapper is `function_map()`. A function created this way meets all requirements listed below, on which every function in the rest of the vignette depends.
+A mapper applies the test to every row of a data frame, as `grim_map()` does. Every function in the rest of the vignette builds on it. It accepts any data frame and returns a [tibble](https://tibble.tidyverse.org/).
+
+Create mappers with `function_map()`:
 
 ```{r}
 schlim_map <- function_map(
@@ -110,15 +104,50 @@ df1 <- tibble::tibble(y = 16:25, n = 3:12)
 schlim_map(df1)
 ```
 
-These are the most important arguments:
+These arguments are required:
 
 -   `.fun` is the single-case function from section 1.
 
--   `.reported` is a string vector naming the reported statistics that `.fun` tests for consistency with each other. These need to be arguments of `.fun`, but `.fun` may have other arguments, as well.
+-   `.reported` names the arguments of `.fun` that take the reported statistics. These become the key columns. `function_map()` does not assume any particular number of them: GRIM has two, GRIMMER and DEBIT have three.
 
--   `.name_test` simply names the consistency test.
+-   `.name_test` is the name of the test, used in messages and in the class of the output.
 
-`function_map()` does not assume a particular number of key columns. GRIM has two, GRIMMER and DEBIT have three, and a test with five would work the same way. Normally that number is fixed when the factory runs; see *A variable number of key columns* below for the other case.
+Every other argument of `.fun` becomes an argument of the mapper, with the same default. Optional arguments of `function_map()` control how some of them are treated:
+
+| Argument | Purpose | Example in scrutiny |
+|:---|:---|:---|
+| `.args_by_row` | Arguments that take one value per row, returned as columns | `digits_x` |
+| `.cols_helper` | Arguments that may also be columns of `data`, returned after the key columns if given | `items_averaged` |
+| `.args_fixed` | Values always passed to `.fun`; the mapper has no argument for them | `list(show_reason = TRUE)` in `grimmer_map()` |
+| `.args_disabled` | Arguments of `.fun` that the mapper should not have | |
+| `.col_names` | Names of the columns that a list returned by `.fun` unpacks into; the first is the key result | `show_rec = TRUE` columns |
+| `.cols_derived` | Functions that compute further columns from the same row | `list(probability = grim_probability)` |
+| `.name_class` | Extra classes for the output | |
+| `.name_key_result` | Name of the result column, `"consistency"` by default | |
+
+`grim_map()` itself is made this way:
+
+```{r, eval=FALSE}
+grim_map <- function_map(
+  .fun = grim_scalar,
+  .reported = c("x", "n"),
+  .name_test = "GRIM",
+  .args_by_row = "digits_x",
+  .cols_helper = "items_averaged",
+  .col_names = c(
+    "consistency",
+    "rec_sum",
+    "sum_lower",
+    "sum_upper",
+    "rec_x_upper",
+    "rec_x_lower"
+  ),
+  # Not returned by `grim_scalar()`, which would change what `grim()` returns:
+  .cols_derived = list(probability = grim_probability)
+)
+```
+
+The arguments of a call that apply to all rows, such as `rounding`, are recorded on the output; see `scrutiny_meta()`.
 
 ### Context and export
 
@@ -146,12 +175,10 @@ Factory-made functions have one argument for each `.reported` value. If the colu
 df2 <- df1
 names(df2) <- c("foo", "bar")
 
-df2
-
 schlim_map(df2, y = foo, n = bar)
 ```
 
-If any columns are neither present in the data frame nor identified via arguments, there will be a precise error:
+A key column that is neither present in `data` nor identified via an argument is an error:
 
 ```{r, error=TRUE}
 schlim_map(df2, y = foo)
@@ -162,7 +189,7 @@ schlim_map(df2, n = mike)
 
 ### A variable number of key columns
 
-Some tests don't have a fixed set of key columns at all. Think of a test that checks whether the values in any number of columns add up to the value in one specific other column: how many columns go into each check is a property of the data being checked, not of the test.
+Some tests don't have a fixed set of key columns. Think of a test that checks whether the values in any number of columns add up to the value in another column: how many columns go into each check depends on the data, not on the test.
 
 Write the `*_scalar()` function so that it takes those values as a single vector argument, and name that argument in `.reported_variadic`:
 
@@ -179,7 +206,7 @@ sum_check_map <- function_map(
 )
 ```
 
-The manufactured function then has a `parts` argument that selects columns using [tidyselect](https://tidyselect.r-lib.org/) syntax, alongside the ordinary `total` key argument:
+The mapper then has a `parts` argument that selects columns using [tidyselect](https://tidyselect.r-lib.org/) syntax, alongside the ordinary `total` key argument:
 
 ```{r}
 df3 <- tibble::tibble(
@@ -194,207 +221,100 @@ sum_check_map(df3, parts = c(item_1, item_2, item_3))
 sum_check_map(df3, parts = starts_with("item"), tolerance = 3)
 ```
 
-A few things to know about this mode:
+Some points about this mode:
 
--   The selected columns are returned as themselves, so the output is as rectangular as any other mapper's. Only the number of columns that go into each single test varies.
+-   The selected columns are returned as themselves, so the output is as rectangular as any other mapper's.
 
--   The variadic argument has no default and must be specified in every call. Testing all the remaining columns by default would quietly draw in any column that happens to be there for some other reason, such as an identifier.
+-   The variadic argument has no default. Selecting all remaining columns by default would quietly draw in columns such as identifiers.
 
--   The selection must not be empty, and it must not include a column that has a role in the test already --- a key column or a helper column. So `parts = everything()` is an error; write `parts = !total` instead.
+-   The selection must not be empty or include a key or helper column. So `parts = everything()` is an error; write `parts = !total` instead.
 
 -   `.reported` may be `NULL` if every key column is variadic.
 
--   Such a mapper is basic-tier only. `function_map_seq()` and `function_map_total_n()` derive their own arguments from `.reported`, which does not include the variadic columns.
-
-### Drawbacks
-
-The only reason to write a mapper by hand is a check, message, or transformation that is specific to one test and that `function_map()` does not provide. All three of scrutiny's own basic mappers are made by `function_map()`, including the `reason` and `show_rec` columns, the `items_averaged` helper column, and GRIM's `probability` column, which comes from `.cols_derived` rather than from `grim_scalar()`. If you use `function_map()`, skip to section 4.
+-   Such a mapper cannot be wrapped by `function_map_seq()` or `function_map_total_n()`, which derive their arguments from `.reported`.
 
 ## Writing mappers manually
 
-### Introduction
-
-The rest of section 3 explains how to write a mapper by hand. The requirements are detailed because every function in the rest of the vignette depends on them.
+All of scrutiny's mappers are made by `function_map()`, and there is rarely a reason to write one by hand. If you need a check or transformation that `function_map()` doesn't provide, the requirements below are what the rest of the infrastructure relies on. If not, skip to section 4.
 
 ### Terminology
 
-It's important to distinguish between *key arguments or columns* and other arguments or columns. The key arguments in a scalar or vectorized consistency-testing function are the values that are tested for consistency with each other, such as `x` and `n` in `grim()`. By extension, key columns are those that contain such values. Every key column has the same name as the respective key argument.
+*Key columns* hold the values that are tested for consistency with each other, such as `x` and `n` in `grim_map()`. Each has the same name as the corresponding argument of the `*_scalar()` function.
 
-A *helper column* is a column that is not key itself, but still factors into the consistency test. An example is the `items_averaged` column in `grim_map()`'s input data frame, which may also be given as an argument.
-
-Key and helper columns are *tested* columns because they factor into the test. Any other columns are *non-tested*.
+A *helper column* is not a key column, but still factors into the test, such as `items_averaged` in `grim_map()`. It may also be given as an argument.
 
 ### Requirements
 
-The functions built on a mapper rely on its output having specific properties. The requirements for a basic mapper are:
+1.  The mapper's name is that of the `*_scalar()` function with `_map` instead of `_scalar`.
 
-1.  Its name ends on `_map` instead of `_scalar` but is otherwise the same as the name of the respective `_scalar` function.
+2.  Its first argument, `data`, is a data frame with the key columns. Other columns are permitted, but not one named `consistency`. A helper column can always be replaced by an argument of the same name; giving both with different values is an error.
 
-2.  Its first argument, `data`, is a tibble (data frame) that contains the key columns of the respective consistency test. Other columns are permitted. The mapper's user never needs to include helper columns and can always replace them by specifying arguments by the same names as those columns. If the user specifies such an argument but the input data frame contains a column by the same name, the function throws an error. No column of the input data frame should be named `"consistency"`.
+3.  Arguments named like the key columns only let the user name the columns that hold these values, as in `grim_map(df, x = mean)`. They default to `NULL` and are handled by `absorb_key_args()`.
 
-3.  Its return value is a tibble (data frame) that contains all of the key input columns. The types of these columns are the same as in the input data frame, except that a whole-number `n` column may be returned as integer. They are the first (i.e., leftmost) columns in the output, even if the input isn't ordered this way. If any of these columns are modified within the mapping function, the output should include the modified columns, not the original ones. (None of scrutiny's mappers do this: `grim_map(percent = TRUE)` returns `x` as the percentage it was given.) The output must test `TRUE` with `is_map_df()` and `is_map_basic_df()`, but `FALSE` with the other two `is_map_*()` functions.
+4.  It returns a tibble whose columns are, from the left: the key columns, with the same types as in the input (a whole-number `n` may become integer); any helper columns that were given; any columns of per-row arguments, such as `digits_x`; and a logical `consistency` column with the test results. Any other columns go to the right of `consistency`. Functions built on the mapper, such as `function_map_seq()` and `reverse_map_seq()`, read the columns left of `consistency` as the input to the test.
 
-4.  Arguments named like the key arguments exist only to let the user name the columns that hold these values, as in `grim_map(df, x = mean)`. They default to `NULL`, and the mapper passes them to `absorb_key_args()`; see *Practical steps*.
+5.  Arguments that apply to all rows, such as `rounding`, are arguments of the mapper with the same defaults as in the `*_scalar()` function, and are passed down to it.
 
-5.  A helper column that the user gave, as a column of `data` or as an argument, is returned right after the key columns. In `function_map()`, declare helper columns with `.cols_helper`. In a handwritten mapper, call `manage_helper_col()` once per helper column, which adds the argument's value to `data` as a column if there is none.
-
-6.  The output data frame also includes a logical column named `"consistency"`. It contains the results of the consistency test, as determined by the respective `*_scalar()` function. In each row, `"consistency"` is `TRUE` if the values to its left are mutually consistent, and `FALSE` if they aren't. This column is placed immediately to the right of the key columns, any helper columns, and any columns of per-row arguments such as `digits_x`.
-
-7.  If the underlying single-case function performs rounding or unrounding, it should internally call `reround()` and/or `unround()`, respectively. The default rounding and unrounding specification should be `"up_or_down"`. This specification can be supplied by the user via an argument called `rounding`, which is then passed down to the single-case function. If `reround()` is called within the mapper, all of its arguments need to be passed down from the mapper, which itself has all of the same arguments, with the same defaults. The same applies to `unround()`.
-
-8.  The output data frame inherits an S3 class that starts on `"scrutiny_"`, followed by the name of the mapper function. For example, the output of `grim_map()` inherits the `"scrutiny_grim_map"` class. The `"scrutiny_"` prefix is necessary for some follow-up computations introduced below, so it should be used even within functions that are not part of scrutiny. Any other classes added to the output data frame should also start on `"scrutiny_"`. None of them should end on `"_map"`.
-
-### Implications
-
-Some implications of these requirements, and of the fact that the design space for mapper functions is not restricted in any other ways:
-
-Anything that factors into the consistency test other than tested columns needs to be conveyed to the mapper function via arguments. An example is the `rounding` argument in `grim_map()`. Mapper functions don't need to allow for helper columns.
-
-The input and output data frames are tibbles. The input data frame never contains a column named `"consistency"`, but the output data frame always does.
-
-Key columns may be modified by arguments, such as `x` by `percent`. The number of key columns doesn't change between the input and output data frames.
-
-The output data frame may or may not contain non-tested columns from the input. It may or may not contain non-tested columns created within the mapper function itself. (This can be useful, as with `"probability"` in `grim_map()`'s output.) Any such non-tested, non-`"consistency"` columns go to the right of `"consistency"`.
-
-So the columns to the left of `"consistency"` are exactly the key columns, any helper columns, and any columns of per-row arguments such as `digits_x`. Functions built on the mapper, such as `function_map_seq()` and `reverse_map_seq()`, read them as the input to the test.
-
-Besides the `"scrutiny_*_map"` class, the output data frame may inherit any number of other classes added within the mapper, so long as they start on `"scrutiny_"` but don't end on `"_map"`. It can't inherit the `"grouped_df"` or `"rowwise_df"` classes added by `dplyr::group_by()` and `dplyr::rowwise()`, respectively. If either of these functions is called within the mapper, it needs to be followed by `dplyr::ungroup()` at some point.
-
-```{r eval=FALSE, include=FALSE}
-# NOTE: The two diagrams below should have width 585 and a locked aspect ratio.
-```
-
-The columns of the input data frame are organized like this:
-
-![](images/consistency_test_columns_input-01.png){width="585"}
-
-By contrast, the columns of the output data frame are organized like this:
-
-![](images/consistency_test_columns_output-01.png){width="585"}
+6.  The output has a class named `"scrutiny_"` plus the mapper's name, such as `"scrutiny_grim_map"`, so that `is_map_df()` and `is_map_basic_df()` return `TRUE`. Any other classes start with `"scrutiny_"` but don't end on `"_map"`. Classes are for method dispatch only, not for recording settings. The output is not grouped or rowwise.
 
 ### Practical steps
-
-```{r include=FALSE}
-# Just internally, so that the function source code below works:
-add_class <- function(x, new_class) {
-  `class<-`(x, value = c(new_class, class(x)))
-}
-```
-
-How to actually write mapper functions? Again, I recommend `function_map()`. The two functions created below are very similar but don't have as many options. Of course, you can manually add code for any options you like so long as the requirements above are still met.
 
 Apply the `*_scalar()` function to the input data frame using `purrr::pmap_lgl()`:
 
 ```{r}
-schlim_map_alt1 <- function(data, y = NULL, n = NULL, ...) {
+schlim_map_alt <- function(data, y = NULL, n = NULL, ...) {
   data <- scrutiny::absorb_key_args(data, c("y", "n"))
   scrutiny::check_mapper_input_colnames(data, c("y", "n"), "SCHLIM")
 
-  tibble::tibble(
+  out <- tibble::tibble(
     y = data$y,
     n = data$n,
     consistency = purrr::pmap_lgl(data[c("y", "n")], schlim_scalar, ...)
-  ) |>
-    add_class("scrutiny_schlim_map") # See section "S3 classes" below
+  )
+
+  class(out) <- c("scrutiny_schlim_map", class(out))
+  out
 }
-```
-
-Alternatively, you might call `dplyr::rowwise()` and directly mutate `"consistency"`. I don't recommend this approach because `dplyr::rowwise()` is quite slow.
-
-```{r}
-schlim_map_alt2 <- function(data, y = NULL, n = NULL, ...) {
-  data <- scrutiny::absorb_key_args(data, c("y", "n"))
-  scrutiny::check_mapper_input_colnames(data, c("y", "n"), "SCHLIM")
-
-  data |>
-    dplyr::rowwise() |>
-    dplyr::mutate(consistency = schlim_scalar(y, n, ...)) |>
-    dplyr::ungroup() |>
-    dplyr::relocate(y, n, consistency) |>
-    add_class("scrutiny_schlim_map") # See section "S3 classes" below
-}
-```
-
-`absorb_key_args()` renames a column that the user named through a key argument, so that `schlim_map_alt1(df, y = score)` works like `grim_map(df, x = mean)`. `check_mapper_input_colnames()` is not required, but it reports a missing key column or an existing `"consistency"` column clearly. For a helper column such as `items_averaged` in `grim_map()`, add an argument by its name and call `manage_helper_col()`.
-
-Both approaches should lead to the same results:
-
-```{r}
-schlim_map_alt1(df1)
-
-schlim_map_alt2(df1)
 
 df1 |>
   dplyr::rename(score = y) |>
-  schlim_map_alt1(y = score)
+  schlim_map_alt(y = score)
 ```
+
+`absorb_key_args()` renames a column that the user named through a key argument. `check_mapper_input_colnames()` is optional, but reports a missing key column or an existing `consistency` column clearly. For a helper column, add an argument by its name and call `manage_helper_col()`. `dplyr::rowwise()` would work instead of `purrr::pmap_lgl()`, but is much slower.
 
 ### Testing
 
-You should let `function_map()` produce an equivalent function to make sure that it returns the same output as your handwritten one. To compare the two output data frames, don't just eyeball them. Use `waldo::compare()` or, if you already run tests with testthat, `expect_equal()`.
-
-If your handwritten mapper creates new columns beyond `"consistency"` without deriving them from the `*_scalar()` function, you'll have to remove them from the output first.
-
-### S3 classes
-
-If you don't know what S3 classes are, don't worry. Just copy and paste the function below, and call it at the end of your mapper function. `x` is the output data frame, and `new_class` is a string vector. `new_class` consists of one or more "classes" that will be added to the existing classes of `x`.
-
-```{r, eval=FALSE}
-add_class <- function(x, new_class) {
-  class(x) <- c(new_class, class(x))
-  x
-}
-```
-
-You can access the classes that an object carries --- or "inherits" --- by calling `class()`:
-
-```{r}
-some_object <- tibble::tibble(x = 5)
-some_object <- add_class(some_object, "dummy class")
-
-class(some_object)
-```
-
-If you have an eye on performance, consider building a data frame using `tibble::new_tibble()` with the `class` argument instead of `add_class()`. However, this requires you to write code that determines the number of rows in advance, so make sure you really know what you are doing.
+Check that your mapper returns the same output as an equivalent one made by `function_map()`, using `waldo::compare()` or `testthat::expect_equal()` with `ignore_attr = "scrutiny"`: `function_map()` records the settings of each call in that attribute. Remove any columns that your mapper creates without deriving them from the `*_scalar()` function.
 
 ### Internal helpers
 
-Within scrutiny, many functions that are exported for users internally call helper functions that are not, such as `add_class()`. You might be writing your own function following the design of an exported scrutiny function, but suddenly you can't access an unknown function that you seem to need!
-
-If you'd like to employ such an internal helper for yourself, specify its namespace with three colons, like `scrutiny:::add_class`. However, you should only use this trick to copy and paste the helper's source code into your own source code. (That's why I left out the parentheses --- return the function itself.) Never rely on calling a function with `:::`, because these internals are not actually meant for users. They can easily shift and vanish without notice. See [this blogpost](https://tidyverse.org/blog/2022/09/playing-on-the-same-team-as-your-dependecy/) by Thomas Lin Pedersen for more information on using internal code from other packages.
-
-When directly looking for internal helpers in scrutiny's source code, start at the [utils.R](https://github.com/lhdjung/scrutiny/blob/main/R/utils.R) file. Most helpers can be found there, and every helper in utils.R is documented.
+Exported scrutiny functions often call internal helpers, most of which are documented in [utils.R](https://github.com/lhdjung/scrutiny/blob/main/R/utils.R). To reuse one, copy its source code, which `scrutiny:::helper_name` (without parentheses) prints. Don't call it with `:::` in your code: internals can change or vanish without notice. See [this blogpost](https://tidyverse.org/blog/2022/09/playing-on-the-same-team-as-your-dependecy/) by Thomas Lin Pedersen.
 
 # 4. `audit()` method
 
-## Introduction
+## Basics
 
-`audit()` is an S3 generic for summarizing scrutiny's test result data frames, especially those of mapper functions such as `grim_map()`. It should always return descriptive statistics but nothing else. Every mapper function should have its corresponding `audit()` method.
-
-This is an aspect of object-oriented programming (OOP), but scrutiny's use of OOP is simple even by the low standards of R. Your mapper function's output already inherits a specific class, such as `"scrutiny_grim_map"`, `"scrutiny_grimmer_map"`, or `"scrutiny_debit_map"`. In `schlim_map()`, we added the `"scrutiny_schlim_map"` class in addition to existing classes:
+`audit()` is an S3 generic that summarizes the output of scrutiny's mappers. Every mapper should have an `audit()` method, which returns descriptive statistics and nothing else. It dispatches on the class of the mapper's output:
 
 ```{r}
 df1_tested <- schlim_map(df1)
 class(df1_tested)
 ```
 
-### Basics
+Like the generic, the method takes `data` and `...`. It returns a tibble with at least these columns:
 
-Every `audit()` method for consistency test results should be the same insofar as all consistency tests are the same. It should have a single argument named `data`. Its return value should be a tibble with at least these columns:
+1.  `incons_cases`, the number of rows in which `consistency` is `FALSE`.
 
-1.  `incons_cases` counts the inconsistent cases, i.e., the number of rows in the mapper's output where `"consistency"` is `FALSE`.
+2.  `all_cases`, the total number of rows.
 
-2.  `all_cases` is the total number of rows in the mapper's output.
+3.  `incons_rate`, the ratio of `incons_cases` to `all_cases`.
 
-3.  `incons_rate` is the ratio of `incons_cases` to `all_cases`.
+Add any other descriptive statistics that suit the test, such as means of output columns. All existing methods return a single row. Summaries by group come from `audit()`'s `.by` argument, which applies the method to each group, so the method itself needs no grouping.
 
-Apart from these, see for yourself which descriptive statistics your `audit()` method should compute. Means of variables in the `*_map()` function's output and their ratios to each other might be sensible choices.
+## Practical steps
 
-All existing `audit()` methods for consistency tests return tibbles with a single row only. Summaries by group come from `audit()`'s `.by` argument, which applies your method to each group, so the method itself needs no grouping. However, there might be good reasons for multiple rows when summarizing the results of other tests, so this is not a requirement.
-
-### Practical steps
-
-Your `audit()` method is simply a function named `audit` plus a dot and your specific class. Like the generic, it takes `data` and the dots. Call `audit_cols_minimal()` within the method to create a tibble with the three required columns.
+The method is a function named `audit` plus a dot and your class. Call `audit_cols_minimal()` to create a tibble with the three required columns, and add further columns with `dplyr::mutate()` or similar:
 
 ```{r, error=TRUE}
 audit.scrutiny_schlim_map <- function(data, ...) {
@@ -408,29 +328,19 @@ audit(df1_tested)
 audit(iris)
 ```
 
-You can still add other summary columns to the tibble returned by `audit_cols_minimal()`. Use `dplyr::mutate()` or similar.
-
 ## Documentation
 
-Each `audit()` method should be documented on the same page as its respective mapper function, in a section called *Summaries with `audit()`* that lists the columns of its output. See `?grim_map` for an example.
+Document each `audit()` method on the page of its mapper, in a section called *Summaries with `audit()`* that lists the columns of its output. See `?grim_map` for an example.
 
 # 5. Visualization function
 
-## Introduction
+How best to plot test results depends on the test: compare `grim_plot_grid()` and `debit_plot()`. (Granularity is crucial for GRIM but not for DEBIT.) Still, some conventions apply:
 
-It is hard to give general advice on how to implement visualization functions for the results of consistency tests. As with the `*_scalar()` function, the best way to plot such results greatly depends on the idiosyncratic nature of the consistency test itself. When comparing the looks of `grim_plot_grid()` and `debit_plot()`, it becomes clear that two very different things are going on. (This is mainly because granularity is crucial for GRIM but not for DEBIT.)
-
-## Requirements
-
-Nevertheless, some general requirements do apply to scrutiny-style visualization functions. They are much more like arbitrary conventions than the requirements for mapper functions, which often meet very precise technical needs. Visualization functions, however, are not the basis for any other computations apart from modifications by additional ggplot2 layers.
-
-As a result, the rules below are admittedly somewhat less important. If you violate them, nobody but me will be sad about it.
-
-1.  All visualization functions should be based on ggplot2. They should follow its developers' general advice on [using ggplot2 in packages](https://ggplot2.tidyverse.org/articles/ggplot2-in-packages.html). Visualization functions don't need to implement any newly created layers, such as geoms or themes. Indeed, neither of the two existing visualization functions relies on any new layers.
-2.  The visualization function's name should be that of the test itself (in lowercase), followed by `_plot`. Naturally, this doesn't apply to methods for generic functions like `plot()` or `ggplot2::autoplot()`.
-3.  Its first argument, `data`, is a data frame that is the result of a call to the respective mapper function, such as `grim_map()` or `debit_map()`. The visualization function makes sure this is true by checking that `data` inherits the special class added within the mapper, such as `"scrutiny_grim_map"` or `"scrutiny_debit_map"`. If `data` fails this check, the function throws an error.
-4.  The function should display consistent and inconsistent value sets. Map the key result column, such as `consistency`, to `colour` and `fill`, and add one `ggplot2::scale_colour_manual()` for both with `aesthetics = c("colour", "fill")`. Its defaults should be `"royalblue1"` for consistent value sets and `"red"` for inconsistent ones. The user then changes the colors by adding a scale of their own, rather than through arguments.
-5.  If certain layers are optional rather than essential to the plot, their display can be controlled via logical arguments that start on `show_`. Examples are `show_data` in `grim_plot_grid()` or `show_labels` in `debit_plot()`. Only arguments of this kind should start on `show_`. They should have defaults (which will usually be `TRUE`, but this is not a requirement).
+1.  Plots are based on ggplot2, following its advice on [using ggplot2 in packages](https://ggplot2.tidyverse.org/articles/ggplot2-in-packages.html).
+2.  The name is that of the test in lowercase, followed by `_plot`, and optionally a description, as in `grim_plot_grid()`. This doesn't apply to methods for generics like `ggplot2::autoplot()`.
+3.  A function that plots mapper output takes it as its first argument, `data`, and checks that `data` has the mapper's class, such as `"scrutiny_debit_map"`.
+4.  Map the key result column, such as `consistency`, to `colour` and `fill`, and add one `ggplot2::scale_colour_manual()` for both with `aesthetics = c("colour", "fill")`. Its values are `"royalblue1"` for consistent value sets and `"red"` for inconsistent ones. Users change the colors by adding a scale of their own, not through arguments.
+5.  Optional layers are controlled by logical arguments that start on `show_`, such as `show_data` in `grim_plot_grid()` or `show_labels` in `debit_plot()`. Only arguments of this kind start on `show_`, and they have defaults.
 
 # 6. Sequence mapper
 
@@ -442,27 +352,24 @@ Sequence mappers test for such errors. `grim_map_seq()`, `grimmer_map_seq()`, an
 
 ## Practical steps
 
-The three are one-liners calling `function_map_seq()`:
+Create sequence mappers from basic mappers with `function_map_seq()`. This is `grimmer_map_seq()`:
 
 ```{r, eval=FALSE}
-grim_map_seq <- function_map_seq(
-  .fun = grim_map,
-  .reported = c("x", "n"),
-  .name_test = "GRIM",
-)
-
 grimmer_map_seq <- function_map_seq(
   .fun = grimmer_map,
   .reported = c("x", "sd", "n"),
-  .name_test = "GRIMMER"
-)
-
-debit_map_seq <- function_map_seq(
-  .fun = debit_map,
-  .reported = c("x", "sd", "n"),
-  .name_test = "DEBIT",
+  .name_test = "GRIMMER",
+  # A standard deviation cannot be negative, but it can be `0`. The mean is
+  # unbounded, as it is for GRIM. A sample SD needs two values, a population SD
+  # only one:
+  .var_bounds = list(
+    n = function(args) c(sd_min_n(args$sd_meaning), NA),
+    sd = c(0, NA)
+  )
 )
 ```
+
+`.var_bounds` sets the least and greatest values to which each variable may be dispersed, with `NA` for an unbounded side. `n` always has a minimum of 1. A bound may also be a function of the mapper's arguments, as with `n` here. `.dispersion`, `.out_min`, `.out_max`, `.include_reported`, and `.include_consistent` set the defaults of the corresponding arguments of the new function; see `?function_map_seq`.
 
 A sequence mapper can be created in the same way from any basic mapper that meets the requirements of section 3. For SCHLIM:
 
@@ -481,18 +388,15 @@ out_seq
 audit_seq(out_seq)
 ```
 
-By default, a `*_map_seq()` function only creates sequences around inconsistent input values. That's because its primary purpose is to shed light on inconsistencies in reported statistics. Override the default with `include_consistent = TRUE`:
+By default, a `*_map_seq()` function only creates sequences around inconsistent value sets, since its purpose is to shed light on inconsistencies. Override this with `include_consistent = TRUE`:
 
 ```{r}
 df1 |>
   schlim_map_seq(include_consistent = TRUE) |>
   audit_seq()
-
-# Compare with the original values:
-df1
 ```
 
-As with `function_map()`, if you want to export a function produced by `function_map_seq()`, follow [this purrr FAQ](https://purrr.tidyverse.org/reference/faq-adverbs-export.html).
+To export a function made by `function_map_seq()`, see section 3.
 
 # 7. Total-n mapper
 
@@ -502,27 +406,18 @@ Group means and standard deviations are not always reported with their group siz
 
 ## Practical steps
 
-`function_map_total_n()` creates functions that do this. `grim_map_total_n()`, `grimmer_map_total_n()`, and `debit_map_total_n()` are made by it; see `vignette("grim")`, section *Unknown group sizes*, for a case study.
+`function_map_total_n()` creates functions that do this. See `vignette("grim")`, section *Unknown group sizes*, for a case study. This is `grimmer_map_total_n()`:
 
 ```{r, eval=FALSE}
-grim_map_total_n <- function_map_total_n(
-  .fun = grim_map,
-  .reported = "x", # don't include `n` here
-  .name_test = "GRIM"
-)
-
 grimmer_map_total_n <- function_map_total_n(
   .fun = grimmer_map,
-  .reported = c("x", "sd"), # don't include `n` here
-  .name_test = "GRIMMER"
-)
-
-debit_map_total_n <- function_map_total_n(
-  .fun = debit_map,
-  .reported = c("x", "sd"), # don't include `n` here
-  .name_test = "DEBIT"
+  .reported = c("x", "sd"), # not `n`
+  .name_test = "GRIMMER",
+  .n_min = 2L
 )
 ```
+
+`.reported` names the group statistics, each of which appears as two columns in the input, such as `x1` and `x2`. `.dispersion`, `.n_min`, `.n_max`, and `.constant` are passed on to `disperse_total()`, which disperses the group sizes from half the total.
 
 For SCHLIM:
 
@@ -548,17 +443,13 @@ out_total_n
 audit_total_n(out_total_n)
 ```
 
-The `n` column is dispersed from half the total with `disperse_total()`. To export such a function from a package, see section 3.
+To export such a function from a package, see section 3.
 
 # 8. Documenting `audit_seq()` and `audit_total_n()`
 
-## Introduction
+`audit_seq()` and `audit_total_n()` summarize the output of sequence and total-n mappers, and `audit()` calls them on such output. They work on the output of any function made by `function_map_seq()` or `function_map_total_n()`, so there is nothing to implement.
 
-`audit_seq()` and `audit_total_n()` summarize the output of sequence and total-n mappers, and `audit()` calls them on such output. They are not generic: they work on the output of any function made by `function_map_seq()` or `function_map_total_n()`, so there is nothing to implement. What remains is to document their behavior for your test.
-
-## Documentation
-
-The summaries differ between tests only in the names and number of the key columns. Document them on the pages of your `*_map_seq()` and `*_map_total_n()` functions as `?grim_map_seq` and `?grim_map_total_n` do, in a section called *Summaries with `audit_seq()`* or *Summaries with `audit_total_n()`*.
+What remains is to document them for your test. The summaries differ between tests only in the names and number of the key columns. Document them on the pages of your `*_map_seq()` and `*_map_total_n()` functions as `?grim_map_seq` and `?grim_map_total_n` do, in a section called *Summaries with `audit_seq()`* or *Summaries with `audit_total_n()`*.
 
 # Wrap-up
 
@@ -578,7 +469,6 @@ Here is an overview of scrutiny's function factories:
 | Sequence mapper | 6 | `function_map_seq()` | `grim_map_seq()` | `is_map_seq_df()` |
 | Total-n mapper | 7 | `function_map_total_n()` | `grim_map_total_n()` | `is_map_total_n_df()` |
 
-Predicate functions are those that return `TRUE` for the data frames returned by the factory-made functions. The more general `is_map_df()` returns `TRUE` for all those data frames.
+The predicate functions return `TRUE` for the output of the respective factory-made functions. `is_map_df()` returns `TRUE` for all of them.
 
 # References
-
