@@ -69,7 +69,7 @@ pigs5 |>
   debit_map(digits_x = 2, digits_sd = 2)
 ```
 
-Unlike `grim_map()`, `debit_map()` has no `percent` or `items_averaged` argument, since neither applies to binary data. It takes the same rounding arguments; see `vignette("rounding-options")`.
+Unlike `grim_map()`, `debit_map()` has no `percent` or `items_averaged` argument, since neither applies to binary data. It takes the same rounding arguments; see `vignette("rounding-options", package = "roundwork")`.
 
 ## Summaries with `audit()`
 

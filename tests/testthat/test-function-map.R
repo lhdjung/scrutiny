@@ -754,9 +754,9 @@ test_that("vector-valued `rounding` and `symmetric` are rejected clearly", {
 
   # `reround()` and `unround()` are unaffected: the first has always had the
   # check, and the second is documented as vectorized over `rounding`.
-  1.234 |> reround(2, rounding = c("up", "down")) |>
+  1.234 |> roundwork::reround(2, rounding = c("up", "down")) |>
     expect_error("must each have length")
-  "1.2" |> unround(rounding = c("up", "down")) |>
+  "1.2" |> roundwork::unround(rounding = c("up", "down")) |>
     nrow() |>
     expect_equal(2L)
 })

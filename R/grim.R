@@ -69,7 +69,7 @@ grim_scalar <- function(
   # `digits_x` decimal places, in exact integer arithmetic: a sum sitting right
   # on a rounding boundary is included or excluded as the rounding method
   # demands, not as representation error happens to dictate.
-  sums_consistent <- sum_range(
+  sums_consistent <- roundwork::sum_range(
     x_num = x_num,
     n_items = n_items,
     digits = digits_x,
@@ -157,7 +157,7 @@ grim_scalar <- function(
 #'   100 and the decimal count is increased by 2. Default is `FALSE`.
 #' @param rounding String. The rounding method assumed to have produced `x`.
 #'   Default is `"up_or_down"`, which accepts either direction. See
-#'   `vignette("rounding-options")`.
+#'   `vignette("rounding-options", package = "roundwork")`.
 #' @param threshold Numeric. For `rounding = "up_from"`, `"down_from"`, or
 #'   `"up_from_or_down_from"`, the point within a step at which rounding
 #'   switches direction, in tenths of a step. Default is `5`. Ignored
@@ -166,7 +166,7 @@ grim_scalar <- function(
 #'   their absolute values (`-2.5` like `2.5`) under `"up"`, `"down"`, and the
 #'   `"*_from"` methods. Default is `FALSE`. Must not be given with a
 #'   `"ties_*"` rounding method, which already fixes the direction; see
-#'   [`reround()`].
+#'   [`roundwork::reround()`].
 #'
 #' @return Logical. `TRUE` if `x`, `n`, and `items_averaged` are consistent,
 #'   `FALSE` if not, and `NA` if the case cannot be decided: if a value is
@@ -177,7 +177,7 @@ grim_scalar <- function(
 #'   that `n` integers can produce, and [`grim_probability()`] for how
 #'   informative the test is in a given case.
 #'
-#' @include utils.R decimal-places.R reround.R
+#' @include utils.R decimal-places.R
 #'
 #' @rdname grim
 #'

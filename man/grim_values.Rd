@@ -79,9 +79,10 @@ number grows with \code{n * items_averaged}. GRIM is then no longer informative.
 With \code{percent = TRUE}, the values are percentages, like \code{x}.
 
 Under \code{rounding = "even"}, both bounds of that range are inclusive (see
-\code{\link[=unround]{unround()}}), so the values include ties that \code{\link[base:Round]{base::round()}} may
-round away from \code{x}: \code{grim_values(1.3, 20, 1, 1, rounding = "even")}
-returns 1.25 and 1.35 along with 1.3.
+\code{\link[roundwork:unround]{roundwork::unround()}}), so the values include ties that
+\code{\link[base:Round]{base::round()}} may round away from \code{x}:
+\code{grim_values(1.3, 20, 1, 1, rounding = "even")} returns 1.25 and 1.35
+along with 1.3.
 }
 \examples{
 # A mean of 5.19 is consistent with a sample size of 32,

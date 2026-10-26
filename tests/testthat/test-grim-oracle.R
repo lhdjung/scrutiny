@@ -44,7 +44,7 @@ sums_round_back <- function(
   symmetric
 ) {
   granules <- (sums / n_items) |>
-    reround(
+    roundwork::reround(
       digits = digits,
       rounding = rounding,
       threshold = threshold,
@@ -137,7 +137,7 @@ test_grim_oracle <- function(x, n, digits_x, items, percent, symmetric) {
     # `symmetric` alongside one is an error rather than a no-op. The `symmetric
     # = FALSE` pass covers those methods in full -- the name is all that decides
     # them -- so skipping here loses no coverage:
-    if (symmetric && rounding %in% names(TIES_METHODS)) {
+    if (symmetric && startsWith(rounding, "ties_")) {
       next
     }
 

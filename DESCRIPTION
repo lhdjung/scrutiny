@@ -36,6 +36,7 @@ Imports:
     methods,
     purrr (>= 1.0.0),
     rlang (>= 1.1.0),
+    roundwork (>= 0.1.0),
     stats,
     stringr,
     tibble,
@@ -46,14 +47,10 @@ Imports:
 Collate: 
     'aaa.R'
     'function-factory-helpers.R'
-    'round-ceil-floor.R'
-    'round.R'
+    'sd-binary.R'
     'is-numeric-like.R'
     'import-reexport.R'
     'utils.R'
-    'reround.R'
-    'unround.R'
-    'sd-binary.R'
     'debit.R'
     'decimal-places.R'
     'grim.R'
@@ -98,6 +95,7 @@ Collate:
     'grimmer-map-seq.R'
     'grimmer-map-total-n.R'
     'grimmer-plot-values.R'
+    'grimmer-sum-squares.R'
     'import-standalone-last-export.R'
     'is-percentage-of.R'
     'is-percentage-of-map.R'
@@ -112,11 +110,8 @@ Collate:
     'method-grim-map.R'
     'method-grimmer-map.R'
     'method-tally.R'
-    'reround-to-fraction.R'
     'reverse-map-seq.R'
     'reverse-map-total-n.R'
-    'round-ties.R'
-    'rounding-bias.R'
     'row-to-colnames.R'
     'scrutiny-meta.R'
     'scrutiny-package.R'

@@ -70,7 +70,7 @@ check_debit_inputs_all <- function(x, sd) {
 # number. Each bound is an exact integer numerator over a common denominator,
 # which makes the comparisons exact rather than tolerance-based.
 
-#' @include utils.R sd-binary.R round.R unround.R reround.R
+#' @include utils.R sd-binary.R
 
 # Every undecidable DEBIT case returns in the same shape: a bare `NA`, or --
 # under `show_rec` -- a full row with `NA` in every reconstructed slot. The
@@ -240,7 +240,7 @@ binary_sd_attainable_mean_n <- function(
 
   # ...and round it the same way the reported SD was presumably rounded, to the
   # same number of decimal places:
-  sd_rec <- reround(
+  sd_rec <- roundwork::reround(
     x = sd_rec,
     digits = digits_sd,
     rounding = rounding,
@@ -288,8 +288,20 @@ debit_bounds <- function(
   threshold,
   symmetric
 ) {
-  bounds_x <- bound_numerators(x, digits_x, rounding, threshold, symmetric)
-  bounds_sd <- bound_numerators(sd, digits_sd, rounding, threshold, symmetric)
+  bounds_x <- roundwork::bound_numerators(
+    x,
+    digits_x,
+    rounding,
+    threshold,
+    symmetric
+  )
+  bounds_sd <- roundwork::bound_numerators(
+    sd,
+    digits_sd,
+    rounding,
+    threshold,
+    symmetric
+  )
 
   if (is.null(bounds_x) || is.null(bounds_sd)) {
     return(NULL)
@@ -424,7 +436,7 @@ debit_scalar <- function(
   # reported as `x`: GRIM's range of sums, confined to the 0 to `n` ones that `n`
   # binary values can have. If there is no such number, `sum_lower` is greater
   # than `sum_upper`.
-  sums <- sum_range(x, n, digits_x, rounding, threshold, symmetric)
+  sums <- roundwork::sum_range(x, n, digits_x, rounding, threshold, symmetric)
   sum_lower <- max(sums[1L], 0)
   sum_upper <- min(sums[2L], n)
 
@@ -502,7 +514,8 @@ debit_scalar <- function(
 #'   `debit(0.05, 0.21, 20, 2, 2)` is `TRUE` under `"mean_n"`, although a mean
 #'   of 0.05 with `n = 20` means one 1 in 20, whose SD rounds to 0.22.
 #' @param rounding String. The rounding method assumed to have produced `x`
-#'   and `sd`. Default is `"up_or_down"`. See `vignette("rounding-options")`.
+#'   and `sd`. Default is `"up_or_down"`. See
+#'   `vignette("rounding-options", package = "roundwork")`.
 #' @param threshold,symmetric The same as in [`grim()`].
 #' @param sd_meaning String. What `sd` really is: the sample SD,
 #'   `"sd_sample"` (the default); the population SD, `"sd_pop"`; either one,

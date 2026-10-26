@@ -36,7 +36,8 @@ value does not keep them (\code{1.40} is \code{1.4}).}
 of 0.05 with \code{n = 20} means one 1 in 20, whose SD rounds to 0.22.}
 
 \item{rounding}{String. The rounding method assumed to have produced \code{x}
-and \code{sd}. Default is \code{"up_or_down"}. See \code{vignette("rounding-options")}.}
+and \code{sd}. Default is \code{"up_or_down"}. See
+\code{vignette("rounding-options", package = "roundwork")}.}
 
 \item{threshold, symmetric}{The same as in \code{\link[=grim]{grim()}}.}
 

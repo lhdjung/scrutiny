@@ -58,6 +58,7 @@ debit_explain <- function(
   if (!missing(digits_sd)) {
     check_length(digits_sd, 1L)
   }
+  check_rounding_args(rounding, threshold, symmetric)
 
   # Checks the arguments, and returns the bounds that decided the test:
   rec <- debit_scalar(

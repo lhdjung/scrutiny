@@ -614,8 +614,8 @@ test_that("GRIMMER never flags an actual two-value dataset (#86)", {
       for (a in 0:n) {
         values <- c(rep(1, a), rep(0, n - a))
         sd_value <- stats::sd(values)
-        x          <- values   |> mean() |> reround(digits = 2, rounding = rounding) |> purrr::pluck(1L)
-        sd_rounded <- sd_value |> reround(digits = 2, rounding = rounding) |> purrr::pluck(1L)
+        x          <- values   |> mean() |> roundwork::reround(digits = 2, rounding = rounding) |> purrr::pluck(1L)
+        sd_rounded <- sd_value |> roundwork::reround(digits = 2, rounding = rounding) |> purrr::pluck(1L)
         consistent <- x |> grimmer(sd = sd_rounded, n = n, digits_x = 2, digits_sd = 2, items_averaged = 1, rounding = rounding)
         if (!isTRUE(consistent)) {
           false_flags <- false_flags + 1L
@@ -653,7 +653,7 @@ test_that("GRIMMER derives the sum-of-squares bounds exactly", {
   for (items in 2:6) {
     for (n in c(2, 3, 5, 10, 37)) {
       for (item_sum in c(23, 25, 28, 106, 400, 631, 1000, 2317)) {
-        x <- (item_sum / items) |> reround(digits = 2) |> purrr::pluck(1L)
+        x <- (item_sum / items) |> roundwork::reround(digits = 2) |> purrr::pluck(1L)
         consistent <- x |> grimmer(sd = 0, n = n, items_averaged = items, digits_x = 2, digits_sd = 2)
         if (!isTRUE(consistent)) {
           false_flags <- false_flags + 1L
@@ -678,8 +678,8 @@ test_that("GRIMMER never flags a real multi-item data set", {
     values <- sample(0:value_max, n * items, replace = TRUE)
     scores <- colSums(matrix(values, nrow = items)) / items
     sd_value <- stats::sd(scores)
-    x          <- scores   |> mean() |> reround(digits = 2) |> purrr::pluck(1L)
-    sd_rounded <- sd_value |> reround(digits = 2) |> purrr::pluck(1L)
+    x          <- scores   |> mean() |> roundwork::reround(digits = 2) |> purrr::pluck(1L)
+    sd_rounded <- sd_value |> roundwork::reround(digits = 2) |> purrr::pluck(1L)
     consistent <- x |> grimmer(sd = sd_rounded, n = n, items_averaged = items, digits_x = 2, digits_sd = 2)
     if (!isTRUE(consistent)) {
       false_flags <- false_flags + 1L
@@ -760,8 +760,8 @@ grimmer_multisets <- function(n, vals) {
 
 
 grimmer_reported_pairs <- function(m, digits, rounding, items) {
-  xs <- reround(colMeans(m) / items, digits, rounding)
-  ss <- reround(apply(m, 2L, stats::sd) / items, digits, rounding)
+  xs <- roundwork::reround(colMeans(m) / items, digits, rounding)
+  ss <- roundwork::reround(apply(m, 2L, stats::sd) / items, digits, rounding)
   # A compound `rounding` returns both variants per sample, interleaved, and
   # either is a way the value could have been reported:
   reps <- length(xs) / ncol(m)
@@ -1023,8 +1023,8 @@ test_that("GRIMMER agrees with a brute force under every rounding method and wit
     s <- pairs[[n]]$s
     q <- pairs[[n]]$q
     rounding_forward <- if (rounding %in% c("even", "ties_even")) "up_or_down" else rounding
-    means <- reround(s / (n * items), 1, rounding_forward, threshold)
-    sds <- reround(sqrt((n * q - s^2) / (n * (n - 1))) / items, 1, rounding_forward, threshold)
+    means <- roundwork::reround(s / (n * items), 1, rounding_forward, threshold)
+    sds <- roundwork::reround(sqrt((n * q - s^2) / (n * (n - 1))) / items, 1, rounding_forward, threshold)
     # A compound `rounding` returns both variants per sample, interleaved:
     means <- matrix(round(10 * means), ncol = length(s))
     sds <- matrix(round(10 * sds), ncol = length(s))
@@ -1091,8 +1091,8 @@ test_that("GRIMMER agrees with an exact oracle at two decimal places for `n` up 
   reachable <- function(n) {
     s <- reachable_sums(n)$s
     q <- reachable_sums(n)$q
-    means <- reround(s / n, 2, "up_or_down")
-    sds <- reround(sqrt((n * q - s^2) / (n * (n - 1))), 2, "up_or_down")
+    means <- roundwork::reround(s / n, 2, "up_or_down")
+    sds <- roundwork::reround(sqrt((n * q - s^2) / (n * (n - 1))), 2, "up_or_down")
     means <- matrix(round(100 * means), ncol = length(s))
     sds <- matrix(round(100 * sds), ncol = length(s))
     unique(c(paste(means[1, ], sds[1, ]), paste(means[1, ], sds[2, ]), paste(means[2, ], sds[1, ]), paste(means[2, ], sds[2, ])))
@@ -1141,12 +1141,12 @@ test_that("GRIMMER agrees with a brute force on population SDs and SEs", {
     q <- pairs[[n]]$q
     n_dev <- if (sd_meaning == "sd_pop") n else n - 1
     rounding_forward <- if (rounding == "even") "up_or_down" else rounding
-    means <- reround(s / (n * items), 1, rounding_forward)
+    means <- roundwork::reround(s / (n * items), 1, rounding_forward)
     sds <- sqrt((n * q - s^2) / (n * n_dev)) / items
     if (sd_meaning == "se") {
       sds <- sds / sqrt(n)
     }
-    sds <- reround(sds, 1, rounding_forward)
+    sds <- roundwork::reround(sds, 1, rounding_forward)
     means <- matrix(round(10 * means), ncol = length(s))
     sds <- matrix(round(10 * sds), ncol = length(s))
     keys <- character(0L)

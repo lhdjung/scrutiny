@@ -65,7 +65,7 @@ test_that("a missing value is `NA` under every rounding method", {
         grim_closest(28, digits_x = 2, items_averaged = 1, rounding = rounding, symmetric = symmetric) |>
         expect_na()
       NA_real_ |>
-        unround(digits = 2, rounding = rounding, symmetric = symmetric) |>
+        roundwork::unround(digits = 2, rounding = rounding, symmetric = symmetric) |>
         purrr::pluck("lower") |>
         expect_na()
     }
@@ -77,7 +77,7 @@ test_that("a missing value does not excuse an unknown `rounding`", {
   # An undecidable case is still no reason to accept a rounding method that does
   # not exist -- that is an input error whatever `x` is:
   NA |> grim(28, digits_x = 2, items_averaged = 1, rounding = "nonsense") |> expect_error()
-  NA_real_ |> unround(digits = 2, rounding = "nonsense") |> expect_error()
+  NA_real_ |> roundwork::unround(digits = 2, rounding = "nonsense") |> expect_error()
 })
 
 
@@ -145,8 +145,8 @@ test_that("the `show_*` columns keep their shape and their types", {
 })
 
 
-test_that("`unround()`, `grim_values()`, and `grim_closest()` propagate `NA`", {
-  bounds <- c(0.53, NA) |> unround(digits = 2)
+test_that("`roundwork::unround()`, `grim_values()`, and `grim_closest()` propagate `NA`", {
+  bounds <- c(0.53, NA) |> roundwork::unround(digits = 2)
   bounds$lower |> expect_equal(c(0.525, NA))
   bounds$upper |> expect_equal(c(0.535, NA))
 

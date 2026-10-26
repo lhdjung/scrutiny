@@ -173,8 +173,8 @@ test_that("DEBIT never rejects a real binary sample", {
     for (digits in 2:3) {
       # `k` ones and `n - k` zeros, for every `k`:
       k <- 0:n
-      means <- (k / n) |> reround(digits, "up_or_down")
-      sds   <- (n - k) |> sd_binary_0_n(n = n) |> reround(digits, "up_or_down")
+      means <- (k / n) |> roundwork::reround(digits, "up_or_down")
+      sds   <- (n - k) |> sd_binary_0_n(n = n) |> roundwork::reround(digits, "up_or_down")
 
       # `reround()` with a compound method returns both variants per input,
       # interleaved, and either is a way the value could have been reported:
@@ -227,7 +227,7 @@ test_that("DEBIT accepts every real binary data set reported as a mean of 0.50",
       k <- 0:n
       k <- k[abs((k / n) - 0.5) <= 0.005]
       sd_true <- sd_binary_mean_n(k / n, n)
-      sd_rep <- c(round_up(sd_true, 3L), round_down(sd_true, 3L))
+      sd_rep <- c(roundwork::round_up(sd_true, 3L), roundwork::round_down(sd_true, 3L))
       tibble::tibble(n = n, sd_rep = sd_rep)
     }) |>
     purrr::list_rbind() |>
@@ -252,8 +252,8 @@ test_that("`formula = \"exact\"` passes exactly the real binary samples", {
       real <- 0:n |>
         purrr::map(function(k) {
           tidyr::expand_grid(
-            x = (k / n) |> reround(2, rounding),
-            sd = (k / n) |> sd_binary_mean_n(n) |> reround(2, rounding)
+            x = (k / n) |> roundwork::reround(2, rounding),
+            sd = (k / n) |> sd_binary_mean_n(n) |> roundwork::reround(2, rounding)
           )
         }) |>
         purrr::list_rbind()
@@ -284,7 +284,7 @@ oracle_round <- function(value, twice, is_tie, digits, rounding, symmetric) {
   if (is_tie && rounding == "even") {
     c(twice - 1, twice + 1) / 2 / 10^digits
   } else {
-    reround(value, digits, rounding, threshold = 4, symmetric = symmetric)
+    roundwork::reround(value, digits, rounding, threshold = 4, symmetric = symmetric)
   }
 }
 
@@ -429,8 +429,8 @@ test_that("`formula = \"exact\"` passes exactly the real binary samples under ev
     pairs <- k |>
       purrr::map(function(k) {
         tidyr::expand_grid(
-          x = (k / n) |> reround(2, rounding),
-          sd = (sqrt(k * (n - k) / (n * n_dev)) / divisor) |> reround(2, rounding)
+          x = (k / n) |> roundwork::reround(2, rounding),
+          sd = (sqrt(k * (n - k) / (n * n_dev)) / divisor) |> roundwork::reround(2, rounding)
         )
       }) |>
       purrr::list_rbind()

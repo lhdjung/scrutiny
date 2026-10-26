@@ -30,7 +30,7 @@ So an inconsistency means that an assumption is false or a number was reported i
 
 ## Benign causes, and how to check them
 
-**Rounding.** Software and authors round in different ways. The default, `rounding = "up_or_down"`, accepts either direction at a tie, but a mean that was truncated may only be consistent under `rounding = "trunc"`. See `vignette("rounding-options")` for the methods and how to choose one.
+**Rounding.** Software and authors round in different ways. The default, `rounding = "up_or_down"`, accepts either direction at a tie, but a mean that was truncated may only be consistent under `rounding = "trunc"`. See `vignette("rounding-options", package = "roundwork")` for the methods and how to choose one.
 
 **The sample size.** The `n` behind a mean may differ from the reported `n`: participants were excluded, some did not answer an item, or the table reports the `n` at baseline. `grim_map_seq()` varies `n` and shows how far it has to move:
 

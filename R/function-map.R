@@ -543,6 +543,16 @@ function_map <- function(
 
       args_const_vals <- args_vals[intersect(args_const, names(args_vals))]
 
+      # roundwork checks the rounding arguments once per row, but its errors
+      # would name the roundwork function instead of the mapper:
+      if ("rounding" %in% names(args_const_vals)) {
+        check_rounding_args(
+          args_const_vals$rounding,
+          args_const_vals$threshold,
+          args_const_vals$symmetric
+        )
+      }
+
       # Test the first row on its own, so that an error about the arguments,
       # such as a missing `digits_x`, is the test function's own, not wrapped
       # in `purrr::pmap()`'s indexed-error context. The result is discarded.

@@ -431,12 +431,18 @@ grim_plot_grid <- function(
         rounding_id <- rounding
       }
 
+      # `resolve_ties_rounding()` does not check its input:
+      check_rounding_args(rounding_id)
+
       # The rasters are keyed by the basic `rounding` names, so resolve the
       # `"ties_*"` methods to those. `symmetric = FALSE` because the axis is
       # non-negative: `"ties_away"` and `"ties_up"` share the `"up"` raster,
       # `"ties_zero"` and `"ties_down"` the `"down"` one. See the "Negative
       # means" section of the docs.
-      rounding_id <- resolve_ties_rounding(rounding_id, FALSE)$rounding
+      rounding_id <- roundwork::resolve_ties_rounding(
+        rounding_id,
+        FALSE
+      )$rounding
 
       # Precomputed in data-raw/data-gen.R, stored in R/sysdata.rda. The
       # `"up_from"` family has none: with a `threshold`, there is no single

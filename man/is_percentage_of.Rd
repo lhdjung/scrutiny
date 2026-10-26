@@ -28,7 +28,7 @@ numeric value does not keep them (\code{1.40} is \code{1.4}).}
 
 \item{rounding}{String. The rounding method assumed to have produced \code{x}.
 Default is \code{"up_or_down"}, which accepts either direction. See
-\code{vignette("rounding-options")}.}
+\code{vignette("rounding-options", package = "roundwork")}.}
 
 \item{threshold}{Numeric. For \code{rounding = "up_from"}, \code{"down_from"}, or
 \code{"up_from_or_down_from"}, the point within a step at which rounding
@@ -39,7 +39,7 @@ otherwise.}
 their absolute values (\code{-2.5} like \code{2.5}) under \code{"up"}, \code{"down"}, and the
 \code{"*_from"} methods. Default is \code{FALSE}. Must not be given with a
 \code{"ties_*"} rounding method, which already fixes the direction; see
-\code{\link[=reround]{reround()}}.}
+\code{\link[roundwork:reround]{roundwork::reround()}}.}
 }
 \value{
 Logical. \code{TRUE} if the three values are consistent, \code{FALSE} if not,

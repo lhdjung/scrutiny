@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 library(scrutiny)
 ```
 
-scrutiny exports the helper functions on which its error detection techniques are built, since they may be useful for implementing other techniques. This vignette gives an overview. For rounding, see `vignette("rounding-in-depth")`; for the consistency test infrastructure, see `vignette("consistency-tests-in-depth")`.
+scrutiny exports the helper functions on which its error detection techniques are built, since they may be useful for implementing other techniques. This vignette gives an overview. For rounding, see the [roundwork](https://lhdjung.github.io/roundwork/) package, which scrutiny builds on; for the consistency test infrastructure, see `vignette("consistency-tests-in-depth")`.
 
 ## Count decimal places
 

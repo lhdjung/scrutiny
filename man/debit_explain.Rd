@@ -31,7 +31,8 @@ value does not keep them (\code{1.40} is \code{1.4}).}
 \item{formula}{String. Only \code{"exact"}, the default, can be explained.}
 
 \item{rounding}{String. The rounding method assumed to have produced \code{x}
-and \code{sd}. Default is \code{"up_or_down"}. See \code{vignette("rounding-options")}.}
+and \code{sd}. Default is \code{"up_or_down"}. See
+\code{vignette("rounding-options", package = "roundwork")}.}
 
 \item{threshold, symmetric}{The same as in \code{\link[=grim]{grim()}}.}
 

@@ -48,7 +48,7 @@ methods, its threshold, as in \code{\link[=grim]{grim()}}. Defaults are \code{"u
 tie in both directions, and \code{"ceiling_or_floor"} admits a range two steps
 wide. \code{"even"} counts a tie on either bound as consistent, like
 \code{"up_or_down"}, although \code{\link[base:Round]{base::round()}} may round it the other way;
-see \code{\link[=unround]{unround()}}.
+see \code{\link[roundwork:unround]{roundwork::unround()}}.
 \code{\link[=grim_map]{grim_map()}} passes its own \code{rounding} and \code{threshold} on.}
 }
 \value{

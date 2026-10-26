@@ -39,7 +39,7 @@ is_percentage_of_scalar <- function(
   # The counts out of `n` whose share would be reported as `percentage`, in
   # exact integer arithmetic -- the same range that GRIM, with `percent = TRUE`,
   # checks for containing any count at all. Here, it must contain `absolute`:
-  counts <- sum_range(
+  counts <- roundwork::sum_range(
     x_num = percentage / 100,
     n_items = n,
     digits = digits_percentage + 2L,
@@ -94,7 +94,7 @@ is_percentage_of_scalar <- function(
 #'
 #' @seealso [`grim()`] with `percent = TRUE`, for a percentage without a count.
 #'
-#' @include utils.R unround.R
+#' @include utils.R
 #'
 #' @export
 #'

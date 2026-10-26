@@ -57,10 +57,10 @@ the nearest attainable values remain visible, but not beyond 0 or 100.
 With more than two decimal places, the teeth crowd together.
 
 The strip behind the teeth is the range of unrounded means that would
-have been reported as \code{x}, from \code{\link[=unround]{unround()}}. The value is consistent
-exactly if a tall tooth stands within the strip. Under methods such as
-\code{"trunc"} or \code{"ceiling"}, one edge of the strip is not part of it, so a
-tall tooth on that edge does not count.
+have been reported as \code{x}, from \code{\link[roundwork:unround]{roundwork::unround()}}. The value is
+consistent exactly if a tall tooth stands within the strip. Under methods
+such as \code{"trunc"} or \code{"ceiling"}, one edge of the strip is not part of it,
+so a tall tooth on that edge does not count.
 }
 \examples{
 # A mean of 5.19 is not consistent with a sample size of 28:

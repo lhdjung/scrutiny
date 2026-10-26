@@ -63,7 +63,7 @@ test_that("`grim_values()` agrees with `grim()` itself", {
         values |> length() |> call_on(\(x) x > 0L) |> expect_equal(consistency, info = info)
         for (value in values) {
           value |>
-            reround(digits = 2, rounding = rounding) |>
+            roundwork::reround(digits = 2, rounding = rounding) |>
             purrr::pluck(1L) |>
             round(10L) |>
             expect_equal(x, info = info)

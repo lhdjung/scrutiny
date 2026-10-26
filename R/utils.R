@@ -883,48 +883,6 @@ check_digits_whole <- function(digits, name = "digits") {
 }
 
 
-#' Check that a rounding threshold is usable
-#'
-#' @description Called by `round_up_from()`, `round_down_from()`, and, for the
-#'   `"*_from"` methods, by `reround()` and `rounding_offsets()`.
-#'
-#'   A threshold is the point within a step at which rounding switches
-#'   direction, so it has to lie strictly inside the step: at `0` or `10`, one
-#'   direction can never be taken, which silently turns the method into
-#'   `"ceiling"` or `"floor"`. A threshold of `5` is valid: `"up_from"` is then
-#'   `"up"`.
-#'
-#' @param threshold The `threshold` argument of the calling function.
-#'
-#' @return No return value; might throw an error.
-#'
-#' @noRd
-check_threshold_valid <- function(threshold) {
-  if (
-    length(threshold) != 1L ||
-      !is.numeric(threshold) ||
-      !is.finite(threshold) ||
-      threshold <= 0 ||
-      threshold >= 10
-  ) {
-    msg_what_it_is <- if (is.numeric(threshold) && length(threshold) == 1L) {
-      "It is {threshold}."
-    } else {
-      "It is {.obj_type_friendly {threshold}}."
-    }
-    abort_in_export(
-      "`threshold` must be a single number greater than 0 and less than 10.",
-      "x" = msg_what_it_is,
-      "i" = "It is the point within a step at which rounding switches \\
-        direction, so both directions have to remain possible.",
-      "i" = "With `rounding` set to \"up_from\", \"down_from\", or \\
-        \"up_from_or_down_from\", `x` is rounded up or down from `threshold` \\
-        instead of from 5."
-    )
-  }
-}
-
-
 #' Split into groups
 #'
 #' Split a vector `x` into groups of `group_size` elements. If there is a
@@ -1351,139 +1309,33 @@ name_last_export_code <- function() {
 }
 
 
-# `round_up_from()` and `round_down_from()` shift the scaled value so that
-# `floor()` or `ceiling()` cuts it at `threshold` rather than at 5, nudged by
-# `ROUNDING_TOLERANCE`. These are the amounts they add and subtract.
-#
-# The two are mirror images about the step, not about zero: each offset is the
-# distance from the far end of the step to the threshold, measured from the end
-# that the function's own primitive cuts at. They differ only in where a value
-# sitting exactly on the threshold goes. One shared offset would make
-# `round_down_from()` the point reflection of `round_up_from()`, switching
-# direction at `10 - threshold`; see `round_up_from()`'s `threshold` parameter.
-#
-# The `/ 10` is what makes the nudge exactly `ROUNDING_TOLERANCE`, which
-# `unround()`'s bounds assume.
-
-tie_offset_up <- function(threshold) {
-  1 - (threshold / 10) + ROUNDING_TOLERANCE
-}
-
-tie_offset_down <- function(threshold) {
-  (threshold / 10) + ROUNDING_TOLERANCE
+# Evaluate `expr`, and if it fails, raise its error as one from the exported
+# function the user called. roundwork checks the rounding arguments itself, but
+# its errors name the roundwork function that scrutiny called, such as
+# `sum_range()`, which the user never did.
+rethrow_in_export <- function(expr) {
+  tryCatch(expr, error = function(cnd) {
+    cnd$call <- sys.call(index_last_export())
+    stop(cnd)
+  })
 }
 
 
-# The two procedures a compound rounding method is made of, or the method itself
-# otherwise. `reround()` returns one value per input for a single procedure and
-# two interleaved ones for a compound one, so a caller working on the branches
-# separately needs to know which procedure produced which.
-
-rounding_constituents <- function(rounding) {
-  # fmt: skip
-  switch(
-    rounding,
-    "up_or_down"           = c("up", "down"),
-    "up_from_or_down_from" = c("up_from", "down_from"),
-    "ceiling_or_floor"     = c("ceiling", "floor"),
-    rounding
+# Check `rounding`, `threshold`, and `symmetric` once per call, ahead of the
+# per-row roundwork calls, by asking roundwork for the bounds of a stand-in
+# value. A test with no `threshold` or `symmetric` passes `NULL` for them, and
+# the defaults stand in.
+check_rounding_args <- function(rounding, threshold = 5, symmetric = FALSE) {
+  if (is.null(threshold)) {
+    threshold <- 5
+  }
+  if (is.null(symmetric)) {
+    symmetric <- FALSE
+  }
+  rethrow_in_export(
+    roundwork::bound_numerators(1, 0L, rounding, threshold, symmetric)
   )
-}
-
-
-# `rounding`, `threshold`, and `symmetric` describe one rounding procedure, so
-# each must be a single value. `reround()` and `rounding_offsets()` call this,
-# which covers every path a consistency test can take. `unround()`, vectorized
-# over `rounding`, calls `rounding_offsets()` once per element.
-
-check_rounding_spec_singular <- function(rounding, threshold, symmetric) {
-  if (
-    length(rounding) != 1L ||
-      length(threshold) != 1L ||
-      length(symmetric) != 1L
-  ) {
-    abort_in_export(
-      "`rounding`, `threshold`, and `symmetric` must each have length 1.",
-      "x" = "They have lengths {length(rounding)}, {length(threshold)}, \\
-        and {length(symmetric)}.",
-      "i" = "They describe a single rounding procedure, which is then \\
-        applied to all values.",
-      "i" = "To compare procedures, test once per procedure. `unround()` \\
-        is vectorized over `rounding` if you need the bounds."
-    )
-  }
-
-  # `resolve_ties_rounding()` indexes `TIES_METHODS` by `rounding`, and a number
-  # or `TRUE` would pick an element by position, i.e., a method the caller
-  # never named:
-  if (!is.character(rounding) || is.na(rounding)) {
-    abort_in_export(
-      "`rounding` must be a string.",
-      "x" = "It is {.obj_type_friendly {rounding}}.",
-      "i" = "See `vignette(\"rounding-options\")` for the strings it \\
-        can take."
-    )
-  }
-
-  if (!is.logical(symmetric) || is.na(symmetric)) {
-    abort_symmetric_invalid(symmetric)
-  }
-}
-
-
-resolve_ties_rounding <- function(rounding, symmetric) {
-  # `[[` on a list matches exactly, so a `rounding` of "up" is not caught by
-  # "ties_up" here:
-  spec <- TIES_METHODS[[rounding]]
-
-  if (is.null(spec)) {
-    return(list(rounding = rounding, symmetric = symmetric))
-  }
-
-  # A `"ties_*"` string already fixes the tie direction in both signs. Ignoring
-  # `symmetric` would silently drop half of the request:
-  # `reround(-2.5, 0, "ties_up", symmetric = TRUE)` would be `-2`, but `-3`
-  # when spelled `rounding = "up"`. So it is an error naming the string the
-  # caller meant.
-  #
-  # The test is on the value, not on `missing()`: every mapper passes
-  # `symmetric` down explicitly, so its default is the only thing that can mean
-  # "not given".
-  if (!isFALSE(symmetric)) {
-    # fmt: skip
-    msg_instead <- switch(
-      rounding,
-      "ties_up"   = "For ties away from zero, set `rounding` to \"ties_away\".",
-      "ties_down" = "For ties toward zero, set `rounding` to \"ties_zero\".",
-      "ties_away" = "\"ties_away\" is already what `symmetric = TRUE` makes \\
-        \"up\" do, so drop `symmetric`.",
-      "ties_zero" = "\"ties_zero\" is already what `symmetric = TRUE` makes \\
-        \"down\" do, so drop `symmetric`.",
-      "ties_even" = "Rounding to even is its own mirror image, so there is \\
-        no tie direction left to set. Drop `symmetric`.",
-      "Drop `symmetric`."
-    )
-    abort_in_export(
-      "`symmetric` must not be given with `rounding = \"{rounding}\"`.",
-      "x" = "It is {symmetric}.",
-      "i" = "A \"ties_*\" string names a complete tie-breaking procedure, \\
-        so it already determines which way ties go for negative numbers.",
-      "i" = msg_instead
-    )
-  }
-
-  spec
-}
-
-
-# Give `value` -- typically derived from `abs(x)` -- the sign of `x`, so that
-# rounding a negative number mirrors the rounding of its absolute value. Zero
-# and positive values keep `value`; `NA` and `NaN` pass through. Arithmetic
-# rather than `dplyr::if_else()` because the callers are the package's
-# innermost rounding primitives.
-
-restore_sign <- function(value, x) {
-  value * (1 - 2 * (x < 0))
+  invisible(NULL)
 }
 
 

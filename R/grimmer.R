@@ -43,7 +43,7 @@ grimmer_sd_bounds <- function(
   symmetric,
   sd_meaning
 ) {
-  sd_bounds <- bound_numerators(
+  sd_bounds <- roundwork::bound_numerators(
     x_num = sd,
     digits = digits_sd,
     rounding = rounding,
@@ -314,7 +314,7 @@ grimmer_scalar <- function(
   # admissible, and it works in exact integer arithmetic -- floating-point
   # products like `floor(x_bounds$upper * n_items)` could drop a legitimate sum
   # or admit a phantom one (#86).
-  sums_consistent <- sum_range(
+  sums_consistent <- roundwork::sum_range(
     x_num = x,
     n_items = n_items,
     digits = digits_x,
@@ -416,9 +416,10 @@ grimmer_sd_sample_or_pop <- function(sample, population, show_reason) {
 #'   for smaller `n`, some larger ones are impossible, too. With this test,
 #'   `grimmer()` is `TRUE` if and only if a sample of whole numbers has the
 #'   reported mean and SD. The one exception is `rounding = "even"`, which
-#'   takes a value on a rounding bound to round either way, as in [`unround()`],
-#'   so it may also accept a value set that a sample only rounds to if ties are
-#'   broken the other way. GRIMMER was first proposed by Anaya (2016).
+#'   takes a value on a rounding bound to round either way, as in
+#'   [`roundwork::unround()`], so it may also accept a value set that a sample
+#'   only rounds to if ties are broken the other way. GRIMMER was first
+#'   proposed by Anaya (2016).
 #'
 #'   For data on a bounded scale, such as a Likert scale, see the
 #'   [strait](https://github.com/ianhussey/strait) package. Its `brimmest()`

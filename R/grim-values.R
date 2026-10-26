@@ -40,7 +40,7 @@ grim_sums_scalar <- function(
   ) {
     c(NA_real_, NA_real_)
   } else {
-    sum_range(
+    roundwork::sum_range(
       x_num = x_num,
       n_items = n_items,
       digits = digits_x,
@@ -175,9 +175,10 @@ grim_closest_scalar <- function(
 #'   With `percent = TRUE`, the values are percentages, like `x`.
 #'
 #'   Under `rounding = "even"`, both bounds of that range are inclusive (see
-#'   [`unround()`]), so the values include ties that [`base::round()`] may
-#'   round away from `x`: `grim_values(1.3, 20, 1, 1, rounding = "even")`
-#'   returns 1.25 and 1.35 along with 1.3.
+#'   [`roundwork::unround()`]), so the values include ties that
+#'   [`base::round()`] may round away from `x`:
+#'   `grim_values(1.3, 20, 1, 1, rounding = "even")` returns 1.25 and 1.35
+#'   along with 1.3.
 #'
 #' @param x Numeric. The reported mean or percentage.
 #' @param n Integer. The reported sample size.
@@ -197,7 +198,7 @@ grim_closest_scalar <- function(
 #'
 #' @seealso [`grim()`], [`grim_map()`], and [`grim_probability()`].
 #'
-#' @include grim.R unround.R
+#' @include grim.R
 #'
 #' @rdname grim_values
 #'

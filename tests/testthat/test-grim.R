@@ -139,7 +139,7 @@ test_that("GRIM agrees with the rounding functions themselves", {
   # back to `x`. GRIM must agree on every case.
   oracle <- function(x, n, digits, rounding) {
     sums <- seq(floor(x * n) - 2, ceiling(x * n) + 2)
-    rounded <- reround(sums / n, digits = digits, rounding = rounding)
+    rounded <- roundwork::reround(sums / n, digits = digits, rounding = rounding)
     any(abs(rounded - x) < 1e-9)
   }
 
@@ -172,8 +172,8 @@ test_that("`symmetric` is honored by the consistency decision", {
   # exactly on a rounding bound. Without `symmetric`, `round_up()` shifts it
   # towards `+Inf` and it becomes -0.07; with `symmetric`, it mirrors the
   # rounding of 0.075 and becomes -0.08 instead.
-  -0.075 |> round_up(2, symmetric = FALSE) |> expect_equal(-0.07)
-  -0.075 |> round_up(2, symmetric = TRUE)  |> expect_equal(-0.08)
+  -0.075 |> roundwork::round_up(2, symmetric = FALSE) |> expect_equal(-0.07)
+  -0.075 |> roundwork::round_up(2, symmetric = TRUE)  |> expect_equal(-0.08)
 
   -0.07 |> grim(n = 40, digits_x = 2, items_averaged = 1, rounding = "up", symmetric = FALSE) |> expect_true()
   -0.07 |> grim(n = 40, digits_x = 2, items_averaged = 1, rounding = "up", symmetric = TRUE)  |> expect_false()
@@ -198,7 +198,7 @@ test_that("`symmetric` is honored by the consistency decision", {
 test_that("`symmetric` GRIM agrees with the rounding functions themselves", {
   oracle_symmetric <- function(x, n, digits, rounding) {
     sums <- seq(floor(x * n) - 3, ceiling(x * n) + 3)
-    rounded <- reround(
+    rounded <- roundwork::reround(
       sums / n,
       digits = digits,
       rounding = rounding,
@@ -337,4 +337,67 @@ test_that("integer `n` and `items_averaged` don't overflow their product", {
 test_that("a factor `n` is rejected rather than tested by its level codes", {
   5.19 |> grim(factor(28), digits_x = 2, items_averaged = 1) |> expect_error("It is a factor")
   tibble::tibble(x = 5.19, n = factor(28)) |> grim_map(digits_x = 2, items_averaged = 1) |> expect_error("It is a factor")
+})
+
+
+test_that("a threshold cannot make a consistency test decide nothing", {
+  # The practical consequence of the width invariant. With the old bounds,
+  # `grim()` under `threshold = 9` passed *every* mean at `n = 57`, because the
+  # reconstructed range was wide enough to reach a possible mean whatever the
+  # reported value was. Moving the tie point shifts the window without resizing
+  # it, so the count of consistent means does not depend on the threshold.
+  x <- seq(0, 9.99, by = 0.01) |> sprintf(fmt = "%.2f") |> as.numeric()
+  for (n in c(28, 57)) {
+    at_5 <- x |> grim(n, digits_x = 2, items_averaged = 1, rounding = "up_or_down") |> sum()
+    for (threshold in c(1, 3, 7, 9)) {
+      x |>
+        grim(
+          n,
+          digits_x = 2,
+          items_averaged = 1,
+          rounding = "up_from_or_down_from",
+          threshold = threshold
+        ) |>
+        sum() |>
+        expect_equal(
+          at_5,
+          label = paste("`grim()` at n =", n, "| threshold =", threshold)
+        )
+    }
+  }
+})
+
+
+test_that("a mean of zero is decidable under `\"anti_trunc\"`", {
+  # `anti_trunc()` leaves zero alone, so a mean of zero pins the sum to zero:
+  0    |> grim(n = 40, digits_x = 2, items_averaged = 1, rounding = "anti_trunc") |> expect_true()
+  0.01 |> grim(n = 40, digits_x = 2, items_averaged = 1, rounding = "anti_trunc") |> expect_false()
+})
+
+
+test_that("invalid rounding arguments are errors from the function called", {
+  # roundwork checks these arguments itself, but its errors would name the
+  # roundwork function that scrutiny called, such as `sum_range()`:
+  caller_of <- function(expr) {
+    tryCatch(expr, error = function(cnd) as.character(cnd$call[[1L]]))
+  }
+
+  5.19 |> grim(28, digits_x = 2, items_averaged = 1, rounding = 2)                       |> expect_error("must be a string")
+  5.19 |> grim(28, digits_x = 2, items_averaged = 1, rounding = "up", symmetric = NA)    |> expect_error("`TRUE` or `FALSE`")
+  5.19 |> grim(28, digits_x = 2, items_averaged = 1, rounding = "nope")                  |> expect_error("designated string values")
+  5.19 |> grim(28, digits_x = 2, items_averaged = 1, rounding = "up_from", threshold = 0) |> expect_error("greater than 0")
+
+  tibble::tibble(x = -5.19, n = 28) |>
+    grim_map(digits_x = 2, items_averaged = 1, rounding = "ties_up", symmetric = TRUE) |>
+    expect_error("must not be given")
+
+  5.19 |> grim(28, digits_x = 2, items_averaged = 1, rounding = 2)                 |> caller_of() |> expect_equal("grim")
+  5.19 |> grim_values(28, digits_x = 2, items_averaged = 1, rounding = 2)          |> caller_of() |> expect_equal("grim_values")
+  5.19 |> grim_explain(28, digits_x = 2, items_averaged = 1, rounding = 2)         |> caller_of() |> expect_equal("grim_explain")
+  5.19 |> grim_probability(28, digits_x = 2, items_averaged = 1, rounding = 2)     |> caller_of() |> expect_equal("grim_probability")
+  5.19 |> grim_plot_values(28, digits_x = 2, items_averaged = 1, rounding = 2)     |> caller_of() |> expect_equal("grim_plot_values")
+  tibble::tibble(x = 5.19, n = 28) |> grim_map(digits_x = 2, items_averaged = 1, rounding = 2) |> caller_of() |> expect_equal("grim_map")
+  tibble::tibble(x = 5.19, n = 28) |> grim_map_seq(digits_x = 2, items_averaged = 1, rounding = 2) |> caller_of() |> expect_equal("grim_map_seq")
+  # With no rows, there is no first row to fail on:
+  tibble::tibble(x = numeric(), n = numeric()) |> grim_map(digits_x = 2, items_averaged = 1, rounding = 2) |> expect_error("must be a string")
 })

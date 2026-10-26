@@ -101,7 +101,7 @@ grimmer_plot_values <- function(
   possible <- test(values)
   consistent <- test(sd)
 
-  claim <- unround(
+  claim <- roundwork::unround(
     x = sd,
     rounding = rounding,
     threshold = threshold,

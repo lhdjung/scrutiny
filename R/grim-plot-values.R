@@ -323,10 +323,10 @@ check_comb_value <- function(value, digits, name) {
 #'   With more than two decimal places, the teeth crowd together.
 #'
 #'   The strip behind the teeth is the range of unrounded means that would
-#'   have been reported as `x`, from [`unround()`]. The value is consistent
-#'   exactly if a tall tooth stands within the strip. Under methods such as
-#'   `"trunc"` or `"ceiling"`, one edge of the strip is not part of it, so a
-#'   tall tooth on that edge does not count.
+#'   have been reported as `x`, from [`roundwork::unround()`]. The value is
+#'   consistent exactly if a tall tooth stands within the strip. Under methods
+#'   such as `"trunc"` or `"ceiling"`, one edge of the strip is not part of it,
+#'   so a tall tooth on that edge does not count.
 #'
 #' @return A ggplot object.
 #'
@@ -406,7 +406,7 @@ grim_plot_values <- function(
   possible <- test(values)
   consistent <- test(x)
 
-  claim <- unround(
+  claim <- roundwork::unround(
     x = x,
     rounding = rounding,
     threshold = threshold,

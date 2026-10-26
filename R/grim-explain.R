@@ -59,6 +59,7 @@ grim_explain <- function(
   if (!missing(digits_x)) {
     check_length(digits_x, 1L)
   }
+  check_rounding_args(rounding, threshold, symmetric)
 
   # Every number in the text comes from `grim_scalar()` itself or from
   # `bound_numerators()`, the helper `sum_range()` derives the sums from, so the
@@ -121,7 +122,13 @@ grim_explain <- function(
   digits_num <- if (percent) digits_x + 2L else digits_x
   x_num <- if (percent) x / 100 else x
   scale_x <- if (percent) 100 else 1
-  bounds <- bound_numerators(x_num, digits_num, rounding, threshold, symmetric)
+  bounds <- roundwork::bound_numerators(
+    x_num,
+    digits_num,
+    rounding,
+    threshold,
+    symmetric
+  )
   x_lower <- format_number(bounds$lower * scale_x / bounds$denom, digits_num)
   x_upper <- format_number(bounds$upper * scale_x / bounds$denom, digits_num)
 
@@ -216,7 +223,7 @@ grim_explain <- function(
 
   rounds_to <- function(value) {
     value |>
-      reround(digits_x, rounding, threshold, symmetric) |>
+      roundwork::reround(digits_x, rounding, threshold, symmetric) |>
       format_reported(digits_x) |>
       unique() |>
       paste(collapse = " or ")

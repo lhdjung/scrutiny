@@ -2,7 +2,7 @@
 
 scrutiny 1.0.0 is a major release with many breaking changes. If you have used GRIM, GRIMMER, or DEBIT before, expect to adjust your code; the error messages say how.
 
-The consistency tests now use exact integer arithmetic, several rounding procedures were corrected, and all mappers are made by `function_map()`. Under the default settings, GRIM's verdicts on testable value sets are unchanged, GRIMMER's differ only in rare edge cases, and DEBIT is now exact. See "Test results" for details.
+The consistency tests now use exact integer arithmetic, several rounding procedures were corrected, and all mappers are made by `function_map()`. The rounding functions moved to the [roundwork](https://lhdjung.github.io/roundwork/) package. Under the default settings, GRIM's verdicts on testable value sets are unchanged, GRIMMER's differ only in rare edge cases, and DEBIT is now exact. See "Test results" for details.
 
 ## Breaking changes
 
@@ -26,9 +26,9 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `symmetric` now affects the results of `grim()` and `grimmer()`, not only the `show_rec` values. `threshold` no longer affects `"up"`, `"down"`, and `"up_or_down"`, which always round from 5.
 
-- `round_down_from()` interprets `threshold` like `round_up_from()`: it rounds down if the part cut off is at most `threshold` tenths of a rounding step. It used to switch at `10 - threshold`, so `"up_from_or_down_from"` could span up to 1.8 steps, and GRIM with `threshold = 9` accepted every mean at `n = 57`. Results at the default `threshold = 5` are unchanged.
+- `"down_from"` and `"up_from_or_down_from"` read `threshold` as `"up_from"` does: rounding goes down if the part cut off is at most `threshold` tenths of a rounding step. It used to switch at `10 - threshold`, so `"up_from_or_down_from"` could span up to 1.8 steps, and GRIM with `threshold = 9` accepted every mean at `n = 57`. Results at the default `threshold = 5` are unchanged.
 
-- `round_anti_trunc()` and `anti_trunc()` no longer change a value that already has the required number of decimal places: `round_anti_trunc(8.42, digits = 2)` is `8.42`, not `8.43`, as with Excel's `ROUNDUP()`. A mean of `0.00` can therefore be tested under `"anti_trunc"`; the result used to be `NA`.
+- `"anti_trunc"` no longer moves a value that already has the required number of decimal places: 8.42 rounded to two decimal places is 8.42, not 8.43, as with Excel's `ROUNDUP()`. A mean of `0.00` can therefore be tested under `"anti_trunc"`; the result used to be `NA`.
 
 - DEBIT is exact by default. The mean of `n` binary values is `k / n` for a whole number `k`, but DEBIT treated it as continuous and accepted some SDs that no binary sample of size `n` can have. The new `formula` argument selects `"exact"`, the default, or `"mean_n"`, the old behavior. With `show_rec = TRUE`, `debit_map()` also returns `sum_lower` and `sum_upper`, the smallest and largest `k` whose mean would be reported as `x`.
 
@@ -66,7 +66,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - In `*_map_seq()` output, `case` is the row number of the value set in the input data; it used to count only the inconsistent rows. `n` and `items_averaged` are separate columns, also in `*_map_total_n()` output, and `n` is dispersed in steps of 1.
 
-- `reround()` requires `rounding`, `threshold`, and `symmetric` to have length 1 and `digits` to have length 1 or the length of `x`, and rejects a fractional `digits`. In every function, `rounding` must be a string and `symmetric` a single `TRUE` or `FALSE`; a numeric or logical `rounding` was silently read as a position in the list of rounding methods.
+- In every function, `rounding` must be a string and `symmetric` a single `TRUE` or `FALSE`; a numeric or logical `rounding` was silently read as a position in the list of rounding methods.
 
 - `decimal_places()`, `decimal_places_df()`, `restore_zeros()`, and `restore_zeros_df()` match `sep` literally, and the default is `"."` instead of `"\\."`.
 
@@ -94,11 +94,11 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `scrutiny_meta()` returns the settings that a mapper recorded on its output, such as `rounding` and `sd_meaning`, so that a report can state the conditions of a verdict. Printed mapper output names the settings that differ from the defaults in its header, as in `# GRIM: rounding = "up"`.
 
-- New `round_ties_up()`, `round_ties_down()`, `round_ties_away()`, `round_ties_zero()`, and `round_ties_even()`, with matching `rounding` strings such as `"ties_away"`. Each names a complete tie-breaking rule (`"ties_away"` is `"up"` with `symmetric = TRUE`), so combining one of these strings with `symmetric` is an error.
+- New `rounding` strings `"ties_up"`, `"ties_down"`, `"ties_away"`, `"ties_zero"`, and `"ties_even"`. Each names a complete tie-breaking rule (`"ties_away"` is `"up"` with `symmetric = TRUE`), so combining one of these strings with `symmetric` is an error.
 
 - `function_map()` gains `.args_by_row`, `.args_fixed`, `.cols_helper`, `.cols_derived`, a working `.col_names`, and `.reported_variadic` for tests in which the data determine the number of key columns (#42). `function_map_seq()` gains `.var_bounds`, which sets the dispersion limits per variable, so that a mean can go below zero while `n` stays at least 1.
 
-- All functions new in 1.0.0 are experimental. The developer tools, such as `function_map()` and the rounding helpers, may change in minor releases.
+- All functions new in 1.0.0 are experimental. The developer tools, such as `function_map()`, may change in minor releases.
 
 ## Bug fixes
 
@@ -130,15 +130,9 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `grimmer_map_seq()` and `debit_map_seq()` no longer disperse `n` below 2, and `grimmer_map_total_n()` and `debit_map_total_n()` default to `n_min = 2`, since a group of 1 has no sample SD.
 
-### Rounding and decimal places
+### Decimal places
 
 - `decimal_places()` handles scientific notation, counts numeric values correctly when `sep` is not `"."`, and returns `NA` for `NaN`, infinite values, and the string `"NA"`.
-
-- `round_ceiling()`, `round_floor()`, `round_trunc()`, and `round_anti_trunc()` apply the same floating-point tolerance as `round_up()`, so `round_ceiling(0.28, 2)` is `0.28`, not `0.29`. `round_up_from()` and `round_down_from()` check that `threshold` is valid.
-
-- `unround()` applies `threshold` consistently, has a `symmetric` argument, reports the correct bounds for `"anti_trunc"` with a negative `x`, checks the lengths of its arguments against each other, requires `x` to have no more than `digits` decimal places, and accepts only a string or a number as `x`.
-
-- `reround()` is about 200 times faster for long vectors, and `threshold = 5` is no longer an error for the `"*_from"` methods. `reround_to_fraction()` applies both procedures of a compound method to every element of `x`.
 
 - `restore_zeros()` handles scientific notation, reads a number as `decimal_places()` does (so `1e-300` has 300 decimal places, not 315), no longer introduces floating-point noise at high widths, and returns `NA` instead of `"NA"`. It rejects a negative `width` and reports values that exceed a per-value `width`. `restore_zeros_df()` and `decimal_places_df()` handle columns that contain only `NA`, and recognize columns whose decimal separator is `sep_in` or `sep`.
 
@@ -170,6 +164,8 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 ## Lifecycle changes
 
+- The rounding functions moved to the roundwork package, which scrutiny now imports: `reround()`, `unround()`, `reround_to_fraction()`, `reround_to_fraction_level()`, `rounding_bias()`, `anti_trunc()`, and the `round_*()` functions. Call them from roundwork, as in `roundwork::round_up()`; see roundwork's NEWS for their changes. `vignette("rounding-options", package = "roundwork")` and `vignette("rounding-in-depth", package = "roundwork")` moved with them. Errors about `rounding`, `threshold`, and `symmetric` still name the scrutiny function that was called, and are now raised even if `data` has no rows.
+
 - `grim_plot()` is deprecated in favor of `grim_plot_grid()`, which tells it apart from `grim_plot_values()` and `grim_plot_rates()`.
 
 - `grim_items()` is deprecated. It only computed `1 / (n * gran)`.
@@ -197,10 +193,6 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 - scrutiny requires purrr >= 1.0.0 (#87) and ggplot2 >= 3.4.0, no longer depends on corrr, and suggests ggrepel instead of importing it.
 
 ## Documentation
-
-- `vignette("rounding-options")` states the `rounding` and `symmetric` settings that reproduce each program's rounding. It corrects two claims: Stata rounds ties up on the number line, and SPSS Statistics rounds ties away from zero. Excel's `ROUNDUP()` is `"anti_trunc"`, not `"ceiling"`.
-
-- `?round_up` documents `symmetric` and the floating-point tolerance of the `round_*()` functions. `vignette("rounding-in-depth")` was revised, in particular on rounding to even.
 
 - `vignette("consistency-tests-in-depth")` was updated (#74), the GRIMMER documentation was improved (#66), and "Related software" has new entries.
 

@@ -29,7 +29,7 @@
 #'   tie in both directions, and `"ceiling_or_floor"` admits a range two steps
 #'   wide. `"even"` counts a tie on either bound as consistent, like
 #'   `"up_or_down"`, although [`base::round()`] may round it the other way;
-#'   see [`unround()`].
+#'   see [`roundwork::unround()`].
 #'   [`grim_map()`] passes its own `rounding` and `threshold` on.
 #'
 #' @seealso [`grim()`] and [`grim_map()`].
@@ -204,7 +204,9 @@ grim_total <- function(
   # numerators over `bounds$denom`. Subtracting `bounds$denom` leaves the
   # offsets. Multiplying them by `n_means` turns them into steps, and dividing
   # by `div_common` counts them in multiples of the divisor.
-  bounds <- bound_numerators(1, 0L, rounding, threshold, symmetric = FALSE)
+  bounds <- rethrow_in_export(
+    roundwork::bound_numerators(1, 0L, rounding, threshold, symmetric = FALSE)
+  )
 
   interval_lower <-
     (bounds$lower - bounds$denom) * n_means / (bounds$denom * div_common)

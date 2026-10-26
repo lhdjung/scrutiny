@@ -66,6 +66,7 @@ grimmer_explain <- function(
   if (!missing(digits_sd)) {
     check_length(digits_sd, 1L)
   }
+  check_rounding_args(rounding, threshold, symmetric)
 
   # Checks the arguments, and its reason says how far the test got:
   result <- grimmer_scalar(
@@ -277,7 +278,7 @@ grimmer_explain <- function(
     )
   }
 
-  sums <- sum_range(
+  sums <- roundwork::sum_range(
     x,
     as.numeric(n) * items_averaged,
     digits_x,

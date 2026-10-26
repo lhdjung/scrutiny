@@ -154,7 +154,7 @@ test_that("`consistency` accords with the displayed sum range, row by row", {
 # `x`, hence `any()`:
 sum_rounds_back <- function(sum_total, x, n, digits, rounding) {
   granules <- (sum_total / n) |>
-    reround(digits = digits, rounding = rounding) |>
+    roundwork::reround(digits = digits, rounding = rounding) |>
     suppressWarnings()
   any(abs(granules - x) < 1e-11, na.rm = TRUE)
 }
@@ -337,7 +337,7 @@ grim_rounds_back <- function(x, n, digits, rounding, threshold = 5) {
   width <- ceiling(n * 10^-digits) + 3
   sums <- seq(floor(x * n) - width, ceiling(x * n) + width)
   granules_rounded <- (sums / n) |>
-    reround(digits = digits, rounding = rounding, threshold = threshold) |>
+    roundwork::reround(digits = digits, rounding = rounding, threshold = threshold) |>
     suppressWarnings()
   any(abs(granules_rounded - x) < 1e-11, na.rm = TRUE)
 }

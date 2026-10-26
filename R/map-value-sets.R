@@ -76,6 +76,26 @@ map_value_sets <- function(fun, along, type = "logical") {
     }
   }
 
+  # roundwork checks the rounding arguments once per value set, but its errors
+  # would name the roundwork function instead of the wrapper:
+  if ("rounding" %in% args_all) {
+    spec <- lapply(
+      c(
+        rounding = "rounding",
+        threshold = "threshold",
+        symmetric = "symmetric"
+      ),
+      function(name) {
+        if (name %in% args_supplied) {
+          vals[[name]]
+        } else {
+          eval(formals_wrapper[[name]])
+        }
+      }
+    )
+    check_rounding_args(spec$rounding, spec$threshold, spec$symmetric)
+  }
+
   # If a required argument is missing, let `fun` raise its error here rather
   # than inside the loop, so that it is raised once:
   for (name in args_all[!args_all %in% args_supplied]) {

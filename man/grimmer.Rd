@@ -37,7 +37,7 @@ keep them (\code{1.40} is \code{1.4}).}
 
 \item{rounding}{String. The rounding method assumed to have produced \code{x}.
 Default is \code{"up_or_down"}, which accepts either direction. See
-\code{vignette("rounding-options")}.}
+\code{vignette("rounding-options", package = "roundwork")}.}
 
 \item{threshold}{Numeric. For \code{rounding = "up_from"}, \code{"down_from"}, or
 \code{"up_from_or_down_from"}, the point within a step at which rounding
@@ -48,7 +48,7 @@ otherwise.}
 their absolute values (\code{-2.5} like \code{2.5}) under \code{"up"}, \code{"down"}, and the
 \code{"*_from"} methods. Default is \code{FALSE}. Must not be given with a
 \code{"ties_*"} rounding method, which already fixes the direction; see
-\code{\link[=reround]{reround()}}.}
+\code{\link[roundwork:reround]{roundwork::reround()}}.}
 
 \item{sd_meaning}{String. What \code{sd} really is. \code{"sd_sample"} (the
 default) is the sample SD, which divides by \code{n - 1}, as in R, SPSS, Stata,
@@ -88,9 +88,10 @@ have. For \code{n >= 5}, this means at least the smallest such sum of squares;
 for smaller \code{n}, some larger ones are impossible, too. With this test,
 \code{grimmer()} is \code{TRUE} if and only if a sample of whole numbers has the
 reported mean and SD. The one exception is \code{rounding = "even"}, which
-takes a value on a rounding bound to round either way, as in \code{\link[=unround]{unround()}},
-so it may also accept a value set that a sample only rounds to if ties are
-broken the other way. GRIMMER was first proposed by Anaya (2016).
+takes a value on a rounding bound to round either way, as in
+\code{\link[roundwork:unround]{roundwork::unround()}}, so it may also accept a value set that a sample
+only rounds to if ties are broken the other way. GRIMMER was first
+proposed by Anaya (2016).
 
 For data on a bounded scale, such as a Likert scale, see the
 \href{https://github.com/ianhussey/strait}{strait} package. Its \code{brimmest()}
