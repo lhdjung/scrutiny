@@ -44,8 +44,7 @@ articles:
   contents: related
 reference:
 - title: Consistency tests
-  desc: Check the numerical consistency of summary statistics; three tests currently
-    implemented ---
+  desc: Check the numerical consistency of summary statistics
 - subtitle: GRIM
   desc: Test reported means or percentages for numerical consistency with reported
     sample sizes
@@ -100,8 +99,8 @@ reference:
   - duplicate_count
   - duplicate_count_colpair
   - duplicate_tally
-- title: Summarize scrutiny tests
-  desc: Follow up on scrutiny's testing functions by computing specific summary statistics
+- title: Summarize and explain results
+  desc: Summarize, explain, and document the output of scrutiny's tests
 - contents:
   - audit
   - audit-special

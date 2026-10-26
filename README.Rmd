@@ -30,11 +30,11 @@ ggplot2::theme_set(ggplot2::theme_minimal())
 
 # <a href="https://lhdjung.github.io/scrutiny/"><img src="man/figures/logo.png" align="left" height="150" alt="scrutiny website" /></a> scrutiny
 
-The goal of scrutiny is to test published summary statistics for consistency using techniques like GRIM. The package makes these methods easy to use in a tidyverse-friendly way. It hopes to help the new field of forensic meta-science go mainstream.
+scrutiny tests published summary statistics for consistency using techniques like GRIM, GRIMMER, and DEBIT. It makes these methods easy to use in a tidyverse-friendly way, hoping to help forensic meta-science go mainstream.
 
 You can use the most important parts in the [Error detection](https://errors.shinyapps.io/scrutiny) Shiny app instead.
 
-Besides ready-made tests, scrutiny features a complete system for implementing new consistency tests. It also has duplication analysis, more general infrastructure for implementing forensic meta-science techniques, as well as specialized data wrangling functions. See the *Articles* tab for vignettes.
+Besides ready-made tests, scrutiny has a system for implementing new consistency tests, duplicate analysis, and data wrangling helpers. See the *Articles* tab for vignettes.
 
 Install the package from CRAN:
 
@@ -50,7 +50,7 @@ remotes::install_github("lhdjung/scrutiny")
 
 ## Get started
 
-Here is how to GRIM-test all values in a data frame. When using `grim_map()`, the `consistency` column tells you if the means (`x`) and sample sizes (`n`) are mutually consistent.
+GRIM-test all values in a data frame with `grim_map()`. The `consistency` column says whether each mean (`x`) is consistent with its sample size (`n`).
 
 ```{r example}
 library(scrutiny)
@@ -70,7 +70,7 @@ pigs2
 grim_map(pigs2, digits_x = 1, items_averaged = 1, percent = TRUE)
 ```
 
-You can choose how the means are reconstructed for testing --- below, rounded up from 5. When visualizing results, the plot will adjust automatically. Blue dots are consistent values, red dots are inconsistent ones:
+Choose how the means were rounded --- below, up from 5. The plot adjusts to the rounding method. Blue dots are consistent, red dots inconsistent:
 
 ```{r}
 pigs1 |>
@@ -78,7 +78,7 @@ pigs1 |>
   grim_plot_grid()
 ```
 
-Similarly, use DEBIT to test means and standard deviations of binary data:
+Use DEBIT to test means and standard deviations of binary data:
 
 ```{r}
 pigs3
